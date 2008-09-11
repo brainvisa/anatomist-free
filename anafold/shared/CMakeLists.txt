@@ -1,0 +1,2 @@
+
+SHFJ_COPY_CURRENT_DIRECTORY(share/anafold-${BrainVISA_VERSION})

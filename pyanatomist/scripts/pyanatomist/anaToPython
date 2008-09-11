@@ -1,0 +1,89 @@
+#! /bin/env python
+
+import sys
+from optparse import OptionParser
+
+
+def stringToNumber( s ):
+  try:
+    return int( s )
+  except ValueError:
+    try:
+      return long( s )
+    except ValueError:
+      try:
+        return float( s )
+      except ValueError:
+        pass
+  return None
+
+def convertArguments( command, arguments ):
+  result = []
+  for name, value in arguments:
+    l = value.split()
+    if len( l ) == 1:
+      n = stringToNumber( value )
+      if n is not None:
+        result.append( ( name, n ) )
+      else:
+        result.append( ( name, value ) )
+    else:
+      ln = [stringToNumber(i) for i in l]
+      if None in ln:
+        result.append( ( name, value ) )
+      else:
+        result.append( ( name, ln ) )
+  return result
+
+
+def iterateAna( inputStream, lineNumber = 0 ):
+  inTree = False
+  inCommand = False
+  command = None
+  arguments = []
+  for line in inputStream:
+    lineNumber += 1
+    if line[ 0 ] == '#': continue
+    line = line.strip()
+    if not line: continue
+    if line == '*BEGIN TREE EXECUTE':
+      inTree = True
+      continue
+    if inTree and line.startswith( '*BEGIN TREE' ):
+      inCommand = True
+      command = line.split()[ 2 ]
+      continue
+    if line == '*END':
+      if inCommand:
+        inCommand = False
+        continue
+      elif inTree:
+        inTree = False
+        yield ( command, convertArguments( command, arguments ) )
+        arguments = []
+        continue
+    if inCommand:
+      arguments.append( line.split( None, 1 ) )
+      continue
+    raise SyntaxError( 'Invalid Anatomist history syntax in line ' + str( lineNumber ) + ': ' + repr( line ) )
+
+
+
+parser = OptionParser( usage='%prog [options] name',
+  version='%prog 0.1',
+  description = 'This command is experimental.\n'
+                'Read an Anatomist history file (*.ana) and write it with Python syntax.' )
+parser.add_option( '-c', '--commandPrefix',
+                   action='store', type='string', dest='commandPrefix', default='',
+                   help = "Prepend a string before each command name (e.g. 'anatomist.'). "
+                          "Default value is an empty string." )
+options, args = parser.parse_args()
+if len( args ) != 1:
+  parser.error( 'Invalid arguments. Try "' + sys.argv[ 0 ] + ' --help" to get some help.' )
+
+for command, arguments in iterateAna( open( args[0] ) ):
+  sys.stdout.write( options.commandPrefix + command + '(' )
+  if arguments:
+    sys.stdout.write( '\n  ' + ',\n  '.join( [name + ' = ' + repr(value) for name, value in arguments] ) + '\n)\n' )
+  else:
+    sys.stdout.write( ')\n' )

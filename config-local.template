@@ -1,0 +1,42 @@
+#
+#  Copyright (C) 2000-2004 CEA
+#
+#  This software and supporting documentation were developed by
+#  	CEA/DSV/SHFJ
+#  	4 place du General Leclerc
+#  	91401 Orsay cedex
+#  	France
+#
+#  Library configuration.
+#
+#
+
+DEFINES = @defines@
+VERSION = @version@
+CONFIG  = thread
+
+# bug in Apple gcc-3.1 optimizer
+release-darwin:CXXFLAGS = -O
+
+INCLUDEPATH = @includeBuild@
+
+LIBS = @libDepsLine@
+
+BUILDMODEEXT = @buildModeExtension@
+
+defmodule(anaalgo)	= @anaalgo:enabled@
+defmodule(anaqwt)	= @anaqwt:enabled@
+defmodule(anavtk)       = @anavtk:enabled@
+
+module(anaalgo):INCLUDEPATH	+= @aimsalgo:includeBuild@
+module(anaqwt) :INCLUDEPATH	+= @qwt:includes@
+module(anavtk) :INCLUDEPATH     += @vtk:includes@
+
+LIBS_FULL	 = @libLine@
+LIBS_WITH_ALGO	 = @anaalgo:libDepsLine@
+LIBS_WITH_QWT	 = @anaqwt:libDepsLine@
+LIBS_PROFILE	 = @anaalgo:libDepsLine@ @qwt:libLine@
+LIBS_PERFUSION	 = @anaprofile:libLine@ @aimsalgo:libLine@
+LIBS_ROIBASE	 = @anaroibase:libLine@
+LIBS_ROIALGO	 = @anaroibase:libLine@ @aimsalgo:libLine@
+LIBS_ANAVTK      = @anavtk:libDepsLine@

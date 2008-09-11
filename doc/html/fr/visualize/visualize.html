@@ -1,0 +1,138 @@
+<!doctype public "-//w3c//dtd html 4.01 transitional//en" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Visualiser un volume (Anatomist)</title>
+  <style type="text/css">
+    BODY {
+	  text-align: justify;
+	  margin: 0.5cm;
+	}
+  </style>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<center><table COLS=3 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><img SRC="../../images/visualize.png" NOSAVE height=96 width=183></td>
+
+<td>
+<center>
+<h1>Visualiser un volume</h1></center>
+</td>
+
+<td>
+<div align=right><a href="../index.html">
+<img SRC="../../images/anaLogo.png" ALT="" NOSAVE BORDER=0 height=96 width=96 
+align=RIGHT></a>
+</div>
+</td>
+</tr>
+</table></center>
+
+<hr>
+
+<h2>Vous êtes parvenu à lire un volume qui apparait dans la liste
+d'objets de la fenêtre de contrôle.<br>
+<br>
+<i>NB: les formats d'image actuellement support&eacute;s sont les suivants:</i></h2>
+
+<ul>
+<li><i>VIDA [S16] (extension .vimg),</i></li>
+
+<li><i>SPM/Analyse [U8,S16,FLOAT] (extension .img)</i></li>
+
+<li><i>Tivoli/GIS [U8,S16,FLOAT] (extension .ima)</i></li>
+<br><i>Le header du format GIS est dot&eacute; de l'extension .dim,</i>
+<br><i>il est en ASCII et peut donc &ecirc;tre cr&eacute;&eacute; simplement
+avec un &eacute;diteur, il a le format suivant:</i>
+<br><i>64 64 28</i>
+<br><i>-type S16</i>
+<br><i>-dx 3.750000 -dy 3.750000 -dz 4.000000</i>
+<br><i>Ces trois lignes correspondent aux dimensions de l'image, au type
+des donn&eacute;es (U8/S16/FLOAT ou d'autres pour la librairie Vip), et
+aux dimensions des voxels.</i>
+<li>
+<i>DICOM</i> (en lecture seulement)</li>
+<li><i>CAPP/ECAT</i></li>
+<li><i>Genesis (GE)</i> (en lecture seulement)</li>
+<li><i>JPEG</i></li>
+</ul>
+Vous avez maintenant acc&egrave;s &agrave; quelques outils de visualisation
+classiques:
+<br>
+<hr>Cr&eacute;ez des fen&ecirc;tres axiales, coronales ou sagittales en
+cliquant sur les boutons ad&eacute;quats:
+<center>
+<p><img SRC="../../images/visualize/xaxial.jpg" ALT="" NOSAVE BORDER=0></center>
+
+<p>Vous pouvez mettre le volume dans une fen&ecirc;tre ou un groupe de
+fen&ecirc;tres de votre choix en utilisant le bouton "Add" qui agit sur
+le volume et les fen&ecirc;tres s&eacute;lectionn&eacute;s (Control-clic
+permet de s&eacute;lectionner plusieurs fen&ecirc;tres, Shift-clic une
+suite de fen&ecirc;tres...). Vous pouvez également utiliser le "drag & drop" pour "prendre" des objets et les "poser" sur une fenêtre, ou sur une liste de fenêtres sélectionnées dans la fenêtre de contrôle:
+<center>
+<p><img SRC="../../images/visualize/xadd.jpg" ALT="" NOSAVE BORDER=0></center>
+
+<p>NB: La seule convention actuellement utilis&eacute;e dans anatomist
+est la convention radiologique (la gauche est &agrave; droite et vice-versa).
+Des versions ult&eacute;rieures devraient permettre d'autres points de
+vue...
+<br>
+<hr>Des zooms peuvent être effectués à volonté (Shift + bouton du milieu), ou des déplacements de l'image (Ctrl + bouton du milieu) :
+<center>
+<p><img SRC="../../images/visualize/zoom.jpg" ALT="" NOSAVE BORDER=0></center>
+
+<hr>Le clic (bouton gauche) de la souris permet (entre autre) d'acc&eacute;der au niveau de
+gris sous-jacent dans la fen&ecirc;tre de commande d'o&ugrave; a &eacute;t&eacute;
+lanc&eacute; <i>Anatomist</i>:
+<p><i>Affichage:</i> <tt>dionysos2.ima : (126 ,121 ,52) -> ( 60 )</tt>
+<p>NB: cette fonctionalit&eacute; est bien &eacute;videmment transitoire
+et ne pr&eacute;sage en rien des moyens futurs d'acc&eacute;der &agrave;
+ce type d'information (volumes d'int&eacute;r&ecirc;ts, histogrammes...)
+<br>
+<hr>Chaque volume dispose de sa propre table de couleurs. Il est possible
+d'acc&eacute;der &agrave; la table de couleurs du volume s&eacute;lectionn&eacute;
+(en gris&eacute; dans la fen&ecirc;tre de controle) &agrave; travers le
+menu <tt>"Objet spécifique / couleur / palette"</tt>:
+<center>
+<p><img SRC="../../images/visualize/lut.jpg" ALT="" NOSAVE BORDER=0></center>
+
+<p>
+<hr><a NAME="lie"></a>Un curseur li&eacute; permet de se d&eacute;placer
+simultan&eacute;ment dans plusieurs fen&ecirc;tres
+<br>(cliquer dans une fen&ecirc;tre qui est en mode curseur li&eacute; met à jour les autres fen&ecirc;tres):
+<center>
+<p><img SRC="../../images/visualize/curseur.jpg" ALT="" NOSAVE BORDER=0></center>
+
+<p>Il est possible de constituer plusieurs groupes de fen&ecirc;tres dot&eacute;s
+chacun d'un curseur li&eacute; ind&eacute;pendant. On cr&eacute;e un nouveau
+groupe de fen&ecirc;tres en utilisant le menu <tt>"Fenêtre / lier les fenêtres"</tt> qui agit sur les fen&ecirc;tres s&eacute;lectionn&eacute;es (gris&eacute;es).
+Les fen&ecirc;tres qui n'appartiennent &agrave; aucun groupe explicite
+sont li&eacute;es entre elles
+<br>(elles appartiennent implicitement au groupe par d&eacute;faut):
+<center>
+<p><img SRC="../../images/visualize/group.jpg" ALT="" NOSAVE BORDER=0></center>
+
+<p>On <i>pouvait</i> modifier l'apparence du curseur li&eacute; ou le faire disparaitre gr&acirc;ce au menu <tt>"Réglages / Préférences"</tt>, mais, <i>hem...</i>, cette fonctionnalité a disparu et n'a jamais été reprogrammée... mais elle reviendra un jour.
+<center>
+<p><img SRC="../../images/visualize/settings_curs.jpg" ALT="" NOSAVE BORDER=0>
+<p><img SRC="../../images/visualize/lie1.gif" ALT="" NOSAVE border="0">
+<br><img SRC="../../images/visualize/lie2.gif" ALT="" NOSAVE border="0">
+<br><img SRC="../../images/visualize/lie3.gif" ALT="" NOSAVE border="0">
+
+<p>
+<hr>
+<table COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><img SRC="../../images/visualize.png" ALT="" NOSAVE height=96 width=183 align=LEFT></td>
+
+<td>
+<div align=right><a href="../index.html"><img SRC="../../images/anaLogo.png" ALT="" NOSAVE BORDER=0 height=96 width=96 align=RIGHT></a></div>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

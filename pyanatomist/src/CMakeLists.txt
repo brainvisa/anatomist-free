@@ -1,0 +1,6 @@
+ADD_SUBDIRECTORY(libpyanatomist)
+ADD_SUBDIRECTORY(sip)
+
+IF(APPLE)
+  ADD_SUBDIRECTORY(pyanatomistmodule)
+ENDIF(APPLE)

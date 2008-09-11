@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------
+class AnafoldComponent( GenericMakerComponent ):
+  _name = 'anafold'
+
+  def dependencies( self ):
+    deps = [ 'anatomist', 'sigraph' ]
+    if systemname != 'windows':
+      deps.append( PThreadComponent )
+    return deps
+
+  def shareDir( self ):
+    return getInstance( AnatomistComponent ).shareDir()
+

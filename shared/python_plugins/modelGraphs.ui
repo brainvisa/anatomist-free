@@ -1,0 +1,251 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>Form</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Form</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>288</width>
+            <height>210</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="caption">
+        <string>Configuration</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox</cstring>
+            </property>
+            <property name="title">
+                <string>Affichage</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout9</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout7</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel1</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Données :</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Type :</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout8</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>raw</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>mean</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>bad</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>good</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>dataComboBox</cstring>
+                                    </property>
+                                </widget>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>sillons seulements</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>sillons + relations</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>typeComboBox</cstring>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout5</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>absRadioButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Différences absolues</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer3</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>91</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>16</height>
+                        </size>
+                    </property>
+                </spacer>
+            </vbox>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout14</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>pixmapLabel2</cstring>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap>image0</pixmap>
+                    </property>
+                    <property name="scaledContents">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>202</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>closeButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Fermer</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>applyButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Appliquer</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="3982">89504e470d0a1a0a0000000d49484452000000300000003008060000005702f98700000f55494441546881ad5a6b6c5d5576fed6dae7dc7b7d1fcec38e93d8890371c189439e765e2433430901d2d408e8c00c555b50a61a95aa2aa512a38efa505f13a99a6a7e14a14a8c5424100a1d02621a26a5810e0a890319023189c9c3790ce471ed38c9f5e3beef3967adfeb8e7dc5cdbd74ea0b3a4adb37cbccfda6bedfdadb5d7dafb126a502814b23b3b3bbf7fdf7df73d6e8cc12bafbcf2a373e7cebd074026f65dbf7efd371e7ef8e157e3f1f8c28b172f7eb467cf9e9d274f9edc534bee445a1943e27767e2bb8f36613bea13739440e33a2801a58273e44ae9e4ebd7f1eaff8ee22000adee624d14dad6d6366ffbf6ed3fdfba75ebbab6b636b8ae0b225ab673e7ceedc562f1e389466cd9b2e5f9071f7c7061434303464747372c59b2e4ad5dbb76fdfbbbefbefb4300e9a994fffd3958fdc325915d4d0f3dd11effc63698c40c10117c050343541c8fda2f9dfde6d6d77ffabd37f71f7bf96fbec07345452a9063aa85363434cc7efae9a70f3cf2c8232bdbdbdb25128968241241a150881e3e7c38393232f2098062d0bfb5b575417777f75faf58b12264599646a3515dbc7831cd9b376fddd8d8d882b367cfbe0ba03451f9ae381aff6d4dfcc3857ffffca2c4ddbf2d562c021326659b946d22ffa96c1399b051abb149ebbff13b7c879d5f1339fd79cbfe342a72b95af0534f3df55f5bb76e6d6f696911cbb2d8b22c66666d6868406363633b8099d5fd4564eeecd9b3e3cc0c630c5b96c5c618ddb061039e7cf2c93fdcb061c3df01a89b68c00f9af1e3a63ffecba6484b335832cc94574281fd369ea70233f2cc9ad586479fc453df6aff83df0ae32100a171063cf0c0037f71f7dd776f6a6e6e063383888225856ddb60e61880e8045d42c6988a0c2202338399d1d5d585c71e7becd94422f1cdea956eb49058d15a7f7f6cf96a9064409a874a1ee4959b7a3578f51b15507fcffdd8360b8f0198536d4062d3a64d7fb56ad52a656661660220aa2a2242be6266e28ac1c7aa884055455585ca24914844bababaac7befbdf7390073830f54511f6e5ddcac6e56c9cb09bc9c909b23717322ee34bc97233819a95b749b2e0ce17600f32a066cddba75c79a356be65a9645cccc005455d96f81d7730d03a0aa41abf4272226226e6d6dd57beeb9e75bb1586c13aa0206d961c0c912dc2c939b6575b3ca6e96791a1e6e56c9cd32b19245080188f7f4f41003c0b265cbbed3dcdcac0164aa9482aa8288608cb181f1614e559999a165aaf40fe004406fbffd766be9d2a5db50ed3f52029c34e0646ebdb919a893813ad9400a0320abbfbfdfbcf6da6b8be2f138e08748550d20e4eb4230c6184c8e5a464400807c0805b00a422d353636a2a1a16131802600d700403d175acc0858a00a1040e27f3325af447054502c8c9b442b1c0eb7cc9a35abde1f9cfda754f3f1789c56af5e7dc7fefdfbc739f18a152b7eafb1b1113ecc6a7e1b0e87a9b5b5b579dc0a780ee0641896000aa842d887a7c0e70910903081911b84ba4581cc602d85ab558005201e8944421321504db1580c6bd7ae6d5ebf7efd93870f1f3e0e20bd60c182751b376efc93b973e782882adf8908ca6e5486a26559a8abab8b02482080a078d0520630def86dab42fe8b917e20f53950b80af5002f6b50188c8cf3444b55d987006ac14055899965f5ead5f4cc33cf7cffc081031b8bc5e2d8dab56bd76ed8b0c1b22c4b88681c8444447c79a481a394e336051042292b6a098800a26ad8108938822b8741e92f488805e50921a8889672e321042093cfe74b9ee7599ee7054e29f0ed646601c0e170185d5d5de8ececbccb57448d31648c2100e2791e178b45944a25f13c8f5dd7452e97932b57ae70369b2da22a87d15c0a72f514a3210e440c946d61f5185e1192bf229cfe92a11e844337a045101862b000706e1890cbe50686878733aeeb4645042252d9c00218f886045009165d99994404d96c16c562b102416686e77928954ac86432482693d70014000808d07c0672f504d4035067014465fbd4f77d6303648f47954780519071c719c01d1d1dc5542a3594c964e0baae789e27fed28bdf088010911091303331b3101165b359191919917c3e1fc0a60227cff3c4711c2a168b48a552c300462aa31a06d951819d105875425684c4d489d831213b46624745aca8901525b1ca3cac08c1aa1398f0e46cf4c489133f1b1c1c5c5e5f5f4fc6181091f8be01df17ca202caf8c388ec3d96c56448483773ecee1efdeecba2e8ac5a28e8c8c485f5fdf31e04606496c017694c9b6003b8842ec472199cc1320ac42b630d906c0f08d15008003070ebcdcdfdf9f1e1e1e86e338f03c0fb5c8f33c643219a4d369789e370e6ad5e4ba2ef2f93c868787d1dbdb7b3e9d4e9f0470152823056c40a118108a03763d60278070acdc6af1a118c88e03760c648fcf0d2d0028140a170e1d3af4d2ecd9b3fffc8e3beec09c39731089442ae15044e03b68254cd60ab7aa0a7fe6914ea7914aa568dfbe7dbf04d007a0b28582adb272b60dd8041003813cdf1dc6f154c63f420e10d671254d253fd9bb77ef0f3a3a3ab6d7d5d52df63c8fe2f1b884c361c00f8b413f22a220c30bde57e11ea55289d2e9b40c0e0ef25b6fbdd5934aa57a009c4275214416281c1784c240c89465de6c27f684107284423a6ed92b5b8288145f7ae9a53fba70e1c2d8d8d8184aa512bbaecb411c0f28f8bbfa3dfce4cf755dcee5723a3434c43d3d3de70e1c38b017c04100a3d583926501e1382354cf08d5b35a09e5d00ce6d08c29f87a46a85e299460b2a3b50d0080ab57af1e7ae38d379e4b269394cfe7e1ba6e4da8d422cff3502c16313c3c4c478f1e1ddabd7bf7cf00bc07e08b499dc900561c082580d00c2034d3e713b5797bc60d5fa9e503d5d4dbdbfb1f7d7d7ddf9e3f7ffefdd1685442a15075620766265595e0e93b328988140a054a269378f9e597df741c671f80a3987c10a0e23aaa260a9884c20e8188491402ae0121818014703d523b27ea32b90a0fbe274ccaef01781f7ffcf11b994c062252c9ef0322229df06400ea791e170a05eaededfd329d4e1f01d08bea1d27d01e18cb5db97e491d26a530c3c458edb87238c16c2758ed84b25dc58712cc569c95a3aa12e6fcc0353a5bc0355fb6d63200aeeb0e7b9e87c07783f272ba1644a0d1d1d13480f39880fb80521e323d83de9e74df29b825868805a20894eba0260a3251a8dfc844a15c074118e21ab85917a3bd9febcfafe328806b9b366daa6d00809caf7ca544ac6a34e129f0eb01d775d575dd22803c80299de76f2fe01f7ebdefe0e5ec893370d38eba798fbc12c42b42bc1293576229ff4de41555dc9c2ba55486aebefd8efee4d3b10fafb8f804c065a0860f4c20f695ac3634d899ab7768f161162482ee7442af3918da71cc7bfc5f0aafbfb47ac3893b139d5d6acd6c601803900ac00c285455a958e2c217e730f0418ffbe267c3475e1cc29b000e01c84c6b4070c2500d915be9876966be9a4e15f0e1b78f6bf70317fa7674eeedbb77f59d0b3a663634c4c2a1100804c775914ea7bd33fd672e9cc9e0cadbc3e8fda2885f01e801f06520e766065492b7ea7fa13cfb936a069a2ab7a84dea28fadf1ec13fbd3d829ffee9238fbeba79f3e675f3e6cd236696919151fae49323c59defed7cc52b150f00b80820097fe6a7352028e4fdd3859b42c83734c8e7be2a65019cab0bd96316810c5418ca16290c942cc2150f383c51f180a61cb1fa906aba890da073b37e37233f5c57c69c206fd2a172405342c817724b10829f22f907625f8baa94a760dc5bc9026ee603ec2b362d8454558c315f17421532c68099831c0bb722ef3702a1a0cfffd700cbb2608c813106b66ddffc03fc86a21080af1385268d170e8761db36119184422162661591697134e594313382e3f5aa3c88892838fbac4eb303fe96703b913a3a3aee4d24124be3f1386cdb56dbb6b9aeae8e66cd9a15eeececec32c6c4a7faf6a62be0cfaaa82afc538ba0c827638cf851888c315fcb8977ecd8f193aeaeae67dbdbdb35168b896ddb95955db56a9589c562dfdbb46953e70b2fbcf050a150b884091be5cd7c80995901b0ebba9ccfe7796868088383839ccd66e1380eab6a6555beaa01dddddddfedeaea7a76e5ca95dad4d4449148842dcb52cbb2381c0ef3cc993375c9922558b366cdaaeeeeee17e1df0954d3b42b10405a4490cbe5d0d3d3e3ecdfbfff6cb158ccad5bb7ae7dcb962df18686065896f5b5f681f6f6f687e7cf9f8f6834aa9148840239c08dcd5444d0d2d282b6b6b6f5a150a8b3542afd0faaf6855bca853ccfc3f1e3c765d7ae5d3d070f1e7c0340df850b1756d5d5d5fdf3b66ddb6296658d33f85629994c5e32c6201c0ec3b22c58d678758808b66dc3b66d0c0f0f174ba5d24c948f280b419fa92054f28f56047ecd7efefcf9fcc18307f701f805800f8e1e3dfafcf9f3e73f28168b801f915cd755c7714a9866e7aca68b172f9ecae7f3a032fea43aea55f385424153a9540ae5c3b17145524d035475209fcf03e5745a8d319448244c535393036000802c5fbe3c3477eedc46dbb611f8402693a1ebd7af5f47d54de6745428148e0d0e0e96509ea54ac557cd03e0a1a1211a1818b88c7291346e726a1ad0dfdfff792e9783eb96d37a630c56ad5a157efcf1c79fbaf3ce3b576edebcb971fbf6ed3f5eba746967341aad6035954ae9d0d0d0154c733f5c4d7d7d7d27d3e974b2542adfc41251054a812f789e879191113d77eedc69940fc7a6bfe80600c771f4c48913ffbd6cd9b26dd168948c31d2d6d686279e78a2a3b3b3f323d775b170e1422c59b24499595cd7a5d1d1513d75ead47032993c8d29cac98994cfe7d3172f5efc30954add367bf6ec4a4846d506592a95f4f2e5cb99818181d300ae4f9431a513bffffefbffdad1d1715f6363a3c5cc6c5916162d5a84d6d6d671b990ebba542814f4b3cf3ea3bd7bf71e44f910ab66ea5b8b92c9e4fb4343434fdc76db6deca70f951b1e1191542ac567ce9cb98c1ab50030e1ceab9aae5dbbf6eb542a65cd9933e79e59b366557293f2215cf9e2c2711c4aa7d33872e408eddebdfbd38f3efae84d00bf043076ab0618633277dd75d79fb5b4b4903106aaaa9ee791e33828140a7af6ec59dabb77efaf92c9e41e948b9a71346d4d7cf8f0e11f0d0f0f27bbbbbbff71f9f2e54d0b162c40341a2522d242a1400303033876ec58fa9d77de39d4dbdbbb07c03e0083b7aa3c009c3c79b27f7474f4e2e9d3a75be3f13882acd6f33c140a05be74e9927bfefcf97e5feea43ce5560277d81873d7c2850bb72d5ab4e8eee6e6e66666e6c1c1c1743299bc7ce6cc99e3aeeb1e07f031fc08f5550c00808d1b377e87881e1591849f67b1887844a4a552a9f0e9a79ffe4255ff13352074ab3b0fa1fc338339001a7cde43b91cbc8af2f5e9a41f757c05b201b4e0c64f1918e5d90e667c04e5c999b402ff072b0d44fd586a0c7c0000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>closeButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Form</receiver>
+        <slot>close()</slot>
+    </connection>
+</connections>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

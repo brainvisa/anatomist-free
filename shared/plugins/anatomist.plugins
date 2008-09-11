@@ -1,0 +1,14 @@
+attributes = {
+  'release_plugins' : [
+    'libanafold.so',
+    'libanahistogram.so',
+    'libanaprofile.so',
+    'libanaperfusion.so',
+    'libanasurfmatch.so',
+    'libanaroibase.so',
+    'libanaroialgo.so', 
+    'libpyanatomistmodule.so',
+    'libanavolrender.so',
+    'libanavtk.so',
+  ],
+}

@@ -1,0 +1,132 @@
+12/12/02, Denis
+
+* surfaces temporelles  texturées:  quand on affiche   la même surface
+  dans 2    fenêtres  avec des temps  différents, ça    fait n'importe
+  quoi. Normal: il n'y a qu'une liste OpenGL  par objet et dans ce cas
+  il en faudrait plusieurs (-> ça peut se  corriger avec des compteurs
+  de référence)
+
+* je crois même que quand  2 surfaces temporelles texturées sont  dans
+  la  même fenêtre, une  des 2 textures fait  n'importe  quoi aussi. A
+  vérifier.
+
+28/11/02, Denis (bug report de Mélanie)
+
+* Les  volumes  affichés   avec  interpolation  n'affichent  pas  leur
+  dernière coupe (ou leur dernière valeur près du bord)
+  ==== corrigé 28/11/02 ====
+
+01/10/02, Denis
+
+* Quand on joue avec   les transformations manuelles, les  Fusion3D ne
+  sont pas remises à jour (alors que les Fusion2D le font bien)
+
+19/12/01 Vincent
+
+  Dans une fenetre axiale la  valeur rendue lorsque l'on clique  n'est
+  pas toujours correcte.  Il semble que  cela dépende du zoom appliqué
+  à l'image.  Les problemes  (qui ressemblent alors à un pb d'arrondi)
+  apparaissent plutôt lorque la   fenêtre fait apparaître   des bandes
+  blanches de part et d'autre.
+  ===== corrigé 16/01/02 =====
+
+18/10/01, Yann
+
+o Quand je  demande à Anatomist, via   BrainVISA, de sauver  un graphe
+(région dessinée)   pour la  seconde fois, il   ne  sauvegarde pas  le
+nouveau dessin (même s'il est très joli). Le  problème disparait si je
+détruis les fichiers et  répertoires du graphe avant chaque sauvegarde
+(je garde les   mêmes noms  de  fichiers pour  toutes  les sauvegardes
+successives).
+===== corrigé 24/10/01 =====
+
+* Erreur de mise à jour des fusions mesh  + tex. Je charge deux objets
+m.mesh et t.tex que  je fusionne en un  objet f.fusion que je met dans
+une fenêtre 3D, jusqu'ici  tout va bien.  Mais si je modifie m.mesh et
+t.tex et que je  veux les mettres à jour alors ça  bug très vite et ça
+se termine par   des trucs du genre  'Bad  GL list'. Pour  ce faire je
+supprime f.fusion de  la   fenêtre, je détruis f.fusion,   je  détruis
+m.mesh et t.tex, je charge deux  nouveaux objets m2.mesh et t2.tex que
+je fusionne dans un  nouveau f2.fusion et que je  met dans la fenêtre.
+Alors   là c'est la   cata.  Soit il me  vire   les couleurs, soit  il
+n'affiche rien mais il ne fait  rien qu'à m'embêter. La seule solution
+pour l'instant est de détruire la fenêtre 3D  et d'en ouvrir une autre
+pour y mettre f2.fusion, mais je  perd le positionnement de la fenêtre
+originale ainsi  que son point  de vue  et   ses paramètres 3D  (faces
+cachées, etc.).
+
+09/10/01, Yann & Denis
+
+* Drag & drop sur les listviews: ne marche que qd on est en haut de la liste 
+  (non-scrollee)
+  ===== corrigé 10/10/01 =====
+
+* Changements de reperes & volumes: des fois c'est faux, en coronal au moins, 
+  il n'affiche l'anatomie que sur la moitie de l'image, bizarre...
+  ===== corrigé 10/10/01 =====
+
+
+07/06/01
+
+* Curseur lie :  En mode curseur lie,   lorsqu'on clique de  multiples
+  fois    sur    une   coupe,   la      coupe   selectionne    descend
+  lentement. Lorsqu'on  clique  sur un autre   objet que la coupe  (un
+  bucket par  exemple),  le curseur  lie se  positionne sur cet  objet
+  (bucket) et non sur la coupe.
+
+
+
+26/04/01
+
+o Manipulation de régions d'intérêt: quand on crée une région vide, il faut la 
+  sélectionner dans le graphe depuis un browser (puisqu'elle n'est pas visible 
+  sur les fenêtres 2D/3D), or on ne voit pas les buckets dans les browsers de 
+  graphes...\
+  ===== maintenant on les voit dans les browsers 19/06/01 =====
+
+o Lecture SPM avec des NaN... ça fait planter anatomist...
+  ===== corrigé dans anatomist, mais on devrait peut-être le faire dans 
+        aims 26/04/01 =====
+
+* Multi-objets et browsers: quand on met pqr ex. une surface texturée dans une 
+  fenêtre 3D et la surface dont elle est issue dans un browser, qu'on clique 
+  sur cette surface dans le browser, elle se sélectionne mais s'affiche aussi 
+  en plus dans la fenêtre 3D (-> truc moche). C'est pcq la sélection a été 
+  faite pour les graphes au départ, et quand on sélectionne un sous-objet, il 
+  s'ajoute dans les fenêtres qui contiennent son parent.
+  Je n'ai pas de solution sous la main qui reste générique et qui concilie les 
+  deux comportements.
+
+12/04/01
+
+* Scripts: quand un script déclenche un dialogue interactif (ex: choix du type 
+  de fusion quand il n'est pas précisé dans le script), Anatomist se plante
+  -> interaction entre la lecture des scripts (passe par la boucle 
+  d'événements) et les dialogues modaux: boucle d'événements locale, qui 
+  reçoit alors les événements de la lecture.
+  Pour réparer, on ne lit les scripts que si QApplication::loopLevel() <= 1, 
+  mais alors l'événement est redéclenché en continu -> ça marche mais ça 
+  prend tout le CPU tant qu'on est dans la boucle locale...
+
+10/04/01
+
+* Bucket: le plan est faux qd il y a une transformation et qu'on est
+  en coupe oblique
+
+* Window3D: le resize est moche, et en plus faux qd les toolbars / menus 
+  prennent plusieurs lignes (petites images), et quand l'affichage est lent, 
+  ça se resize à taille 0
+
+o Window3D: dérive des coupes quand on clique plusieurs fois sur la même coupe:
+  il faudrait une sorte de "snap" qui le force à afficher les coupes à des 
+  positions entières
+  ===== réglé (?) 10/04/01, le curseur essaie de se positionner sur une coupe 
+  	entière =====
+
+*  [Fabrice] Quand on a un bucket ou une triangulation (tri ou mesh),
+   et qu'on s'amuse a changer ses parametres de couleur
+   avant de l'afficher, ca a pour consequence de ne jamais
+   reussir a les visualiser (on ne les voit pas); alors
+   que si on commence par mettre l'objet dans la fenetre
+   et qu'on change sa couleur ensuite, ca fonctionne!
+   [Denis] Je ne vois pas ça quand je fais des essais avec des .mesh.....

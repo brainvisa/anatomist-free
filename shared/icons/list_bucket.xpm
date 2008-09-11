@@ -1,0 +1,33 @@
+/* XPM */
+static char * list_bucket_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 11 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconGray2	m white	c #bdbdbdbdbdbd",
+"X	s iconGray4	m white	c #949494949494",
+"o	s iconGray1	m white	c #dededededede",
+"O	s iconGray5	m black	c #737373737373",
+"+	s iconGray6	m black	c #636363636363",
+"@	s iconGray7	m black	c #424242424242",
+"#	s iconColor2	m white	c white",
+"$	s iconGray8	m black	c #212121212121",
+"%	s iconGray3	m white	c #adadadadadad",
+"&	s iconColor1	m black	c black",
+/* pixels */
+"                    ",
+"                    ",
+"       .XX..oo      ",
+"     .O+++++++Oo    ",
+"    OO@@@@@@@@+O#   ",
+"    OXX$$$$$$$oo#   ",
+"    OXX.o#.%X.oo#   ",
+"     OX.o#.%++o#    ",
+"     OX.o#.%+$o#+   ",
+"     OXX.#.%.o+# +  ",
+"      OX.#.%.o#+++  ",
+"    &&OX.#.%.o#     ",
+" &&&&&OX.#.%.o#     ",
+"  &&&&&OX#.%o#      ",
+"    &&&&&&&&&&      ",
+"                    "};

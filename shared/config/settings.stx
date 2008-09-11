@@ -1,0 +1,54 @@
+*BEGIN SYNTAX anatomist_settings
+
+# version
+anatomist_version		string
+
+# preferred directories (Unix-like, ie /home/appli:/usr/local:/home/dudule)
+path_list			string
+
+# application-wide settings
+html_browser			string
+language			string
+enableUnstable                  int
+# userLevel                       string
+userLevel                       int
+
+# selection
+selectionColorInverse		int
+selectionColor			int_vector
+
+# preferences window choices
+linkedCursor			int
+cursorShape			string
+cursorSize			int
+cursorColorAuto			int
+cursorColor			int_vector
+axialConvention			string
+leftRightDisplayed		int
+spmFlip				int
+windowSizeFactor                float
+
+# control window look
+controlWindowLogo		int
+# filename for background pixmap
+listview_background		string
+
+# graphs
+graphDisplayMode		string
+graphUseHierarchy		int
+graphHierarchyAttribute		string
+graphUseToolTips		int
+
+# fascicle graphs
+fascicleDisplayMode2D		string
+fascicleDisplayMode3D		string
+fascicleSelectionMode		string
+fascicleMaxTrackingAngle	float
+fascicleZoom			float
+fascicleThickness		float
+
+# volumes
+volumeInterpolation		int
+useSpmOrigin			int
+
+*END

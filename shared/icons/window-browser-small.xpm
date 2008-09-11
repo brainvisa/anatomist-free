@@ -1,0 +1,35 @@
+/* XPM */
+static char * list_winBrowser_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"22 19 10 1 0 0",
+/* colors */
+" 	s iconGray1	m white	c #dededededede",
+".	c #B0B0B0B0C2C2",
+"X	s iconGray3	m white	c #adadadadadad",
+"o	s iconGray4	m white	c #949494949494",
+"O	s iconColor2	m white	c white",
+"+	s iconGray6	m black	c #636363636363",
+"@	s iconColor1	m black	c black",
+"#	s iconGray7	m black	c #424242424242",
+"$	s iconGray5	m black	c #737373737373",
+"%	s iconGray8	m black	c #212121212121",
+/* pixels */
+"                     .",
+" XXXo XXXXXXXXXXXXXXXo",
+" X Xo XXXXXXXXXXXXXXXo",
+" XXXo XXXXXXXXXXXXXXXo",
+" ooooooooooooooooooooo",
+" OOOO+X  +OOOOOOOOOOOo",
+" OOO+o+++ XOOOOOOOOOOo",
+" OO+o+OOO+ +OOOOOOOOOo",
+" OO+XOO@OO+oOOOOOOOOOo",
+" OO+XOOO@O+XOOOOOOOOOo",
+" OO+XOOOOO+@OOOOOOOOOo",
+" OO#ooOOO+@$@@OOOOOOOo",
+" OOO#oooo@@%$$@@OOOOOo",
+" OOOO#++@OO@%#$ @OOOOo",
+" OOOOOOOOOOO@@%$@OOOOo",
+" OOOOOOOOOOOOO@@OOOOOo",
+" OOOOOOOOOOOOOOOOOOOOo",
+" OOOOOOOOOOOOOOOOOOOOo",
+".ooooooooooooooooooooo"};

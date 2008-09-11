@@ -1,0 +1,97 @@
+#!/usr/local/bin/perl
+
+$home = $ENV{ "HOME" };
+my $mimetypes = $home."/.mime.types";
+my $mailcap = $home."/.mailcap";
+my $found_scr = 0;
+my $found_obj = 0;
+
+if( !open( f, "+< ".$mimetypes ) )
+  {
+    open( f, "> ".$mimetypes ) or die "ouverture de ".$mimetypes." ratée\n";
+    print $mimetypes, " crée\n";
+  }
+
+while( <f> )
+  {
+    if( /type.*anatomist-scr.*/ )
+      {
+	$found_scr = 1;
+      }
+    else
+      {
+        if( /type.*anatomist-obj/ )
+          {
+	    $found_obj = 1;
+          }
+      }
+  }
+
+if( !$found_scr )
+  {
+    print f "#mime types added by Anatomist setup script\n";
+    print f "type=application/anatomist-scr  \\\n";
+    print f "desc=\"anatomist script\"  \\\n";
+    print f "exts=\"ana\"\n";
+  }
+  
+if( !$found_obj )
+  {
+    print f "#mime types added by Anatomist setup script\n";
+    print f "type=application/anatomist-obj  \\\n";
+    print f "desc=\"anatomist object\"  \\\n";
+    print f "exts=\"tri,vimg,ima,img,mesh,hie,val,bck,erp,arg\"\n";
+  }
+  
+close( f );
+
+if( !$found_scr && !$found_obj )
+  {
+    print $mimetypes, " modifié\n";
+  }
+else
+  {
+    print $mimetypes, " inchangé\n";
+  }
+
+if( !open( f, "+< ".$mailcap ) )
+  {
+    open( f, "> ".$mailcap ) or die "ouverture de ".$mailcap." ratée\n";
+    print $mailcap, " crée\n";
+  }
+
+$found_scr = 0;
+$found_obj = 0;
+
+while( <f> )
+  {
+    if( /.*anatomist-obj.*/ )
+      {
+        $found_obj = 1;
+      }
+    if( /.*anatomist-scr.*/ )
+      {
+        $found_scr = 1;
+      }
+  }
+
+if( !$found_scr )
+  {
+    print f "#mailcap entry added by Anatomist setup script\n";
+    print f "application/anatomist-obj;anatomist %s 1> /dev/null 2> /dev/null\n";
+  }
+if( !$found_obj )
+  {
+    print f "#mailcap entry added by Anatomist setup script\n";
+    print f "application/anatomist-scr;anatomist -f %s 1> /dev/null 2> /dev/null\n";
+  }
+
+close( f );
+if( !$found_obj && !$found_scr )
+  {
+    print $mailcap, " modifié\n";
+  }
+else
+  {
+    print $mailcap, " inchangé\n";
+  }

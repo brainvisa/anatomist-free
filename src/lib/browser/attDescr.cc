@@ -1,0 +1,587 @@
+/* Copyright (c) 1995-2005 CEA
+ *
+ *  This software and supporting documentation were developed by
+ *      CEA/DSV/SHFJ
+ *      4 place du General Leclerc
+ *      91401 Orsay cedex
+ *      France
+ *
+ * This software is governed by the CeCILL license version 2 under 
+ * French law and abiding by the rules of distribution of free software.
+ * You can  use, modify and/or redistribute the software under the 
+ * terms of the CeCILL license version 2 as circulated by CEA, CNRS
+ * and INRIA at the following URL "http://www.cecill.info". 
+ * 
+ * As a counterpart to the access to the source code and  rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty  and the software's author,  the holder of the
+ * economic rights,  and the successive licensors  have only  limited
+ * liability. 
+ * 
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading,  using,  modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean  that it is complicated to manipulate,  and  that  also
+ * therefore means  that it is reserved for developers  and  experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or 
+ * data to be ensured and,  more generally, to use and operate it in the 
+ * same conditions as regards security. 
+ * 
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL license version 2 and that you accept its terms.
+ */
+
+#include <anatomist/browser/attDescr.h>
+#include <anatomist/browser/qObjBrowserWid.h>
+#include <anatomist/control/coloredpixmap.h>
+#include <anatomist/application/Anatomist.h>
+#include <cartobase/object/attributed.h>
+#include <cartobase/object/pythonwriter.h>
+#include <graph/tree/tree.h>
+#include <aims/qtcompat/qlistview.h>
+#include <stdio.h>
+#include <vector>
+#include <iostream>
+
+using namespace anatomist;
+using namespace carto;
+using namespace std;
+
+
+AttDescr* AttDescr::_theAttDescr = 0;
+
+
+AttDescr::AttDescr()
+{
+  delete _theAttDescr;
+  _theAttDescr = 0;
+  initHelpers();
+  _theAttDescr = this;
+
+  // base syntax
+  Syntax	& s = syntax[ "__default__" ];
+  s[ "aims_objects_table"         ] = Semantic( "internal_type", false, true );
+  s[ "aims_reader_loaded_objects" ] = Semantic( "internal_type", false, true );
+  s[ "object_attributes_colors"   ] = Semantic( "internal_type", false, true );
+  s[ "ana_object"                 ] = Semantic( "internal_type", false, true );
+  s[ "objects_map"                ] = Semantic( "internal_type", false, true );
+  s[ "aims_ss"                    ] = Semantic( "internal_type", false, true );
+  s[ "aims_ss_ana"                ] = Semantic( "internal_type", false, true );
+  s[ "aims_bottom"                ] = Semantic( "internal_type", false, true );
+  s[ "aims_bottom_ana"            ] = Semantic( "internal_type", false, true );
+  s[ "aims_other"                 ] = Semantic( "internal_type", false, true );
+  s[ "aims_other_ana"             ] = Semantic( "internal_type", false, true );
+  s[ "aims_Tmtktri"               ] = Semantic( "internal_type", false, true );
+  s[ "aims_Tmtktri_ana"           ] = Semantic( "internal_type", false, true );
+  s[ "aims_junction"              ] = Semantic( "internal_type", false, true );
+  s[ "aims_junction_ana"          ] = Semantic( "internal_type", false, true );
+  s[ "aims_cortical"              ] = Semantic( "internal_type", false, true );
+  s[ "aims_cortical_ana"          ] = Semantic( "internal_type", false, true );
+  s[ "aims_plidepassage"          ] = Semantic( "internal_type", false, true );
+  s[ "aims_plidepassage_ana"      ] = Semantic( "internal_type", false, true );
+  s[ "aims_roi"                   ] = Semantic( "internal_type", false, true );
+  s[ "aims_roi_ana"               ] = Semantic( "internal_type", false, true );
+  s[ "aims_cluster"               ] = Semantic( "internal_type", false, true );
+  s[ "aims_cluster_ana"           ] = Semantic( "internal_type", false, true );
+  s[ "cliques"                    ] = Semantic( "internal_type", false, true );
+  s[ "possible_labels"            ] = Semantic( "internal_type", false, true );
+}
+
+
+AttDescr::~AttDescr()
+{
+  _theAttDescr = 0;
+}
+
+
+void AttDescr::setSyntax( const SyntaxSet & s )
+{
+  syntax = s;
+}
+
+
+void AttDescr::addSyntax( const SyntaxSet & s )
+{
+  //cout << "addSyntax : " << syntax.size() << endl;
+  SyntaxSet::const_iterator	is, es = s.end();
+  for( is=s.begin(); is!=es; ++is )
+    syntax.insert( *is );
+  //cout << "apr� ajout : " << syntax.size() << endl;
+}
+
+
+QPixmap AttDescr::rgbPixmap( const QColor & rgb )
+{
+  return ColoredPixmapCache::coloredPixmap( rgb, 16, "ball.png",
+                                            "ball_refl.png" );
+}
+
+
+void AttDescr::setHelpers( const HelperSet & help )
+{
+  initHelpers();
+  HelperSet::const_iterator	ih, eh = help.end();
+  for( ih=help.begin(); ih!=eh; ++ih )
+    helpers.insert( *ih );
+}
+
+
+void AttDescr::addHelpers( const HelperSet & help )
+{
+  HelperSet::const_iterator	ih, eh = help.end();
+  for( ih=help.begin(); ih!=eh; ++ih )
+    helpers.insert( *ih );
+}
+
+
+void AttDescr::setListHelpers( const ListHelperSet & help )
+{
+  listHelpers = help;
+
+  if( listHelpers.find( "tree" ) == listHelpers.end() )
+    listHelpers[ "tree" ] = &treeListHelper;
+  if( listHelpers.find( "list" ) == listHelpers.end() )
+    listHelpers[ "list" ] = &treeListHelper;
+}
+
+
+void AttDescr::addListHelpers( const ListHelperSet & help )
+{
+  ListHelperSet::const_iterator	ih, eh = help.end();
+  for( ih=help.begin(); ih!=eh; ++ih )
+    listHelpers.insert( *ih );
+}
+
+
+void AttDescr::describeAttributes( QObjectBrowserWidget* br, 
+				   Q3ListViewItem* parent, 
+				   const GenericObject *ao, 
+				   bool regist, bool checkexisting ) const
+{
+  Syntax			s;
+  Syntax::const_iterator	is, eds;
+  string			sem, type, value;
+  Object			ia;
+  SyntaxSet::const_iterator	iss;
+  //Q3ListViewItem			*item;
+
+  const SyntaxedInterface	*si = ao->getInterface<SyntaxedInterface>();
+  if( si && si->hasSyntax() )
+    {
+      iss = syntax.find( si->getSyntax() );
+      if( iss != syntax.end() )
+        s = (*iss).second;
+    }
+  Syntax	ds;
+  bool		hidden;
+  iss = syntax.find( "__default__" );
+  if( iss != syntax.end() )
+    ds = iss->second;
+  eds = ds.end();
+
+  if( parent->childCount() == 0 )
+    checkexisting = false;
+
+  int ul = theAnatomist->userLevel();
+
+  for( ia=ao->objectIterator(); ia->isValid(); ia->next() )
+    {
+      sem = ia->key();
+      is = s.find( sem );
+      hidden = false;
+      if( is != s.end() )
+        //	{
+        {
+          type = is->second.type;
+          hidden = is->second.internal;
+        }
+      else
+        {
+          is = ds.find( sem );
+          if( is != eds )
+            {
+              type = is->second.type;
+              hidden = is->second.internal;
+            }
+          else
+            type = ia->currentValue()->type();
+        }
+      if( !hidden || ul >= 3 )
+        printAttribute( br, ao, sem, type, parent, regist, checkexisting );
+    }
+}
+
+
+void AttDescr::treeListHelper( QObjectBrowserWidget* br, 
+			       const GenericObject & ao, 
+			       const string & semantic, 
+			       Q3ListViewItem* parent, const AttDescr* gvw, 
+			       bool regist )
+{
+  Tree	*val;
+
+  if( !ao.getProperty( semantic, val ) )
+    printError( parent, semantic.c_str() );
+  else
+    {
+      Q3ListViewItem	*item;
+
+      item = br->itemFor( parent, &ao, regist );
+      if( !item )
+	{
+	  item = new Q3ListViewItem( parent, semantic.c_str(), "tree" );
+	  if( regist )
+	    br->registerGObject( item, (GenericObject *) &ao );
+	  gvw->describeTree( br, val, item, regist );
+	}
+      else
+	{
+	  item->setText( 0, semantic.c_str() );
+	  item->setText( 1, "tree" );
+	}
+    }
+}
+
+
+void AttDescr::printAttribute( QObjectBrowserWidget* br, 
+			       const GenericObject* ao, 
+			       const string & semantic, 
+			       const string & type, 
+			       Q3ListViewItem* parent, bool regist, 
+                               bool checkexisting ) const
+{
+  ListHelperSet::const_iterator	ilh;
+
+  if( (ilh = listHelpers.find( type )) != listHelpers.end() )
+    ((*ilh).second)( br, *ao, semantic, parent, this, regist );
+  else
+    {
+      string value = printAttribute( br, ao, semantic, type );
+      Q3ListViewItem	*item;
+
+      if( checkexisting )
+        if( regist )
+          item = br->itemFor( parent, br->ATTRIBUTE, semantic );
+        else
+          item = br->itemFor( parent, semantic );
+      else
+        item = 0;
+      if( !item )
+	{
+	  item = new Q3ListViewItem( parent, semantic.c_str(), type.c_str(), 
+				    value.c_str() );
+	  if( regist )
+	    br->registerAttribute( item );
+	}
+      else
+	{
+	  item->setText( 1, type.c_str() );
+	  item->setText( 2, value.c_str() );
+	}
+    }
+}
+
+
+namespace
+{
+
+  void printGeneric( QObjectBrowserWidget*, 
+                    const GenericObject & ao, 
+                    const string & semantic, string & output )
+  {
+    PythonWriter	pw;
+    ostringstream	oss;
+    pw.attach( oss );
+    pw.setSingleLineMode( true );
+    try
+      {
+        pw.write( ao.getProperty( semantic ), false, false );
+        output = oss.str();
+        if( !output.empty() && output[ output.length() - 1 ] == '\n' )
+          output.erase( output.length() - 1, 1 );
+      }
+    catch( ... )
+      {
+        output = "** unsupported / internal type **";
+      }
+  }
+
+}
+
+
+string AttDescr::printAttribute( QObjectBrowserWidget* br, 
+				 const GenericObject* ao, 
+				 const string & semantic, 
+				 const string & type ) const
+{
+  HelperSet::const_iterator	ih;
+  string	ostr;
+
+  if( (ih = helpers.find( type )) != helpers.end() )
+    {
+      ((*ih).second)( br, *ao, semantic, ostr );
+
+      return ostr;
+    }
+  else
+    {
+      printGeneric( br, *ao, semantic, ostr );
+      return ostr;
+    }
+    // return( "** unsupported type **" );
+}
+
+
+void AttDescr::printError( Q3ListViewItem* parent, 
+			   const string & semantic )
+{
+  new Q3ListViewItem( parent, semantic.c_str(), "tree", "** error **" );
+}
+
+
+void AttDescr::describeTree( QObjectBrowserWidget* br, const Tree* tr, 
+			     Q3ListViewItem* parent, bool regist ) const
+{
+  Q3ListViewItem	*item;
+  string	name;
+
+  item = br->itemFor( parent, tr, regist );
+  if( !item )
+    {
+      item = new Q3ListViewItem( parent, tr->getSyntax().c_str(), "Tree" );
+      if( regist )
+	br->registerGObject( item, (Tree *) tr );
+    }
+  else
+    {
+      item->setText( 0, tr->getSyntax().c_str() );
+      item->setText( 1, "Tree" );
+    }
+  if( tr->getProperty( "name", name ) )
+    item->setText( 2, name.c_str() );
+  if( tr->getProperty( "label", name ) )
+    item->setText( 3, name.c_str() );
+  vector<int> col;
+  if( tr->getProperty( "color", col ) && col.size() >= 3 )
+  {
+    QColor rgb( col[0], col[1], col[2] );
+    QPixmap cpix = rgbPixmap( rgb );
+    item->setPixmap( 0, cpix );
+  }
+  else if( parent->parent() )
+  {
+    // propagate parent pixmap (color) except for the
+    // top-level (AObject level) TODO: use a better test than top-level
+    const QPixmap *cpix = parent->pixmap( 0 );
+    if( cpix )
+      item->setPixmap( 0, *cpix );
+  }
+  describeTreeInside( br, tr, item, regist );
+}
+
+
+void AttDescr::describeTreeInside( QObjectBrowserWidget* br, const Tree* tr, 
+				   Q3ListViewItem* item, bool regist ) const
+{
+  describeAttributes( br, item, tr, regist );
+
+  Tree::const_iterator	it, ft=tr->end();
+  for( it=tr->begin(); it!=ft; ++it )
+    describeTree( br, (Tree*) (*it), item, regist );
+}
+
+
+string AttDescr::objectName( const GenericObject* ao ) const
+{
+  string	name, n2;
+
+  //if( !ao->getProperty( "label", name ) && !ao->getProperty( "name", name ) )
+  if( !ao->getProperty( "name", name ) )
+    {
+      if( ao->getProperty( "label1", name ) 
+	  && ao->getProperty( "label2", n2 ) )
+	{
+	  name += " - ";
+	  name += n2;
+	}
+      else
+	name = "Unnamed";
+    }
+
+  return( name );
+}
+
+
+void AttDescr::initHelpers()
+{
+  helpers.erase( helpers.begin(), helpers.end() );
+  helpers[ "string"          ] = &printString;
+  helpers[ "int"             ] = &printInt;
+  helpers[ "float"           ] = &printFloat;
+  helpers[ "double"          ] = &printDouble;
+  //helpers[ "float_vector"    ] = &printFloatVector;
+  //helpers[ "double_vector"   ] = &printDoubleVector;
+  //helpers[ "int_vector"      ] = &printIntVector;
+  //helpers[ "string_vector"   ] = &printStringVector;
+  //helpers[ "string_vector_p" ] = &printStringVectorPtr;
+}
+
+
+void AttDescr::printInt( QObjectBrowserWidget*, 
+			 const GenericObject & ao, 
+			 const string & semantic, string & output )
+{
+  char	value[20];
+  int	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      sprintf( value, "%d", val );
+      output = string( value );
+    }
+}
+
+
+void AttDescr::printFloat( QObjectBrowserWidget*, 
+			   const GenericObject & ao, 
+			   const string & semantic, string & output )
+{
+  char	value[20];
+  float	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      sprintf( value, "%g", val );
+      output = string( value );
+    }
+}
+
+
+void AttDescr::printDouble( QObjectBrowserWidget*, 
+			    const GenericObject & ao, 
+			    const string & semantic, string & output )
+{
+  char		value[20];
+  double	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      sprintf( value, "%g", val );
+      output = string( value );
+    }
+}
+
+
+void AttDescr::printString( QObjectBrowserWidget*, 
+			    const GenericObject & ao, 
+			    const string & semantic, string & output )
+{
+  string	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    output = val;
+}
+
+
+void AttDescr::printFloatVector( QObjectBrowserWidget*, 
+				 const GenericObject & ao, 
+				 const string & semantic, string & output )
+{
+  char	value[20];
+  vector<float>	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      output = "";
+      unsigned	i;
+      for( i=0; i<val.size(); ++i )
+	{
+	  sprintf( value, "%g", val[i] );
+	  output += string( value ) + " ";
+	}
+    }
+}
+
+
+void AttDescr::printDoubleVector( QObjectBrowserWidget*, 
+				  const GenericObject & ao, 
+				  const string & semantic, string & output )
+{
+  char	value[20];
+  vector<double>	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      output = "";
+      unsigned	i;
+      for( i=0; i<val.size(); ++i )
+	{
+	  sprintf( value, "%g", val[i] );
+	  output += string( value ) + " ";
+	}
+    }
+}
+
+
+void AttDescr::printIntVector( QObjectBrowserWidget*, 
+			       const GenericObject & ao, 
+			       const string & semantic, string & output )
+{
+  char	value[20];
+  vector<int>	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      output = "";
+      unsigned	i;
+      for( i=0; i<val.size(); ++i )
+	{
+	  sprintf( value, "%d", val[i] );
+	  output += string( value ) + " ";
+	}
+    }
+}
+
+
+void AttDescr::printStringVector( QObjectBrowserWidget*, 
+				  const GenericObject & ao, 
+				  const string & semantic, string & output )
+{
+  vector<string>	val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      output = "";
+      unsigned	i;
+      for( i=0; i<val.size(); ++i )
+	output += val[i] + "   ";
+    }
+}
+
+
+void AttDescr::printStringVectorPtr( QObjectBrowserWidget*, 
+				     const GenericObject & ao, 
+				     const string & semantic, 
+				     string & output )
+{
+  vector<string>	*val;
+  if( !ao.getProperty( semantic, val ) )
+    output = "** error **";
+  else
+    {
+      output = "";
+      unsigned	i;
+      for( i=0; i<val->size(); ++i )
+	output += (*val)[i] + "   ";
+    }
+}

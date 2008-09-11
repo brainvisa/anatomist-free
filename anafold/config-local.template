@@ -1,0 +1,13 @@
+
+VERSION	= @version@
+DEFINES	= @defines@
+CONFIG  = thread
+
+# bug in Apple gcc-3.1 optimizer
+release-darwin:CXXFLAGS = -O
+
+INCLUDEPATH	= @includeBuild@
+
+BUILDMODEEXT	= @buildModeExtension@
+
+LIBS		= @libDepsLine@

@@ -1,0 +1,61 @@
+<!doctype public "-//w3c//dtd html 4.01 transitional//en" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Programmation Anatomist: ajouter des propriétés aux objet</title>
+  <style type="text/css">
+    BODY {
+	  text-align: justify;
+	  margin: 0.5cm;
+	}
+  </style>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center><table WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=RIGHT VALIGN=CENTER NOSAVE><img SRC="../../images/anaLogo.png" NOSAVE align=CENTER></td>
+
+<td ALIGN=CENTER VALIGN=CENTER WIDTH="100%" NOSAVE>
+<h1>
+Programmation dans Anatomist: Ajouter une nouvelle propri&eacute;t&eacute;
+sp&eacute;cifique &agrave; un objet</h1>
+</td>
+
+<td><a href=""http://www-dsv.cea.fr/content/cea/d_dep/d_drm/d_shfj/d_unaf/>
+<img SRC="../../images/logo_shfj_t.png" NOSAVE BORDER=0 align=CENTER></a>
+<a href="mailto:&#109;&#97;&#110;&#103;&#105;&#110;&#64;&#115;&#104;&#102;&#106;&#46;&#99;&#101;&#97;&#46;&#102;&#114;">
+<img SRC="../../images/feather.png" NOSAVE BORDER=0 align=CENTER></a></td>
+</tr>
+</table></center>
+
+<hr WIDTH="100%">
+<p>C'est pour ajouter une entr&eacute;e sur le menu "Objet-sp&eacute;cifique/..."
+pour certains types d'objets, depuis un module.
+<br>Bon, pour l'instant c'est encore un petit peu foireux...
+<br>C'est en fait pour modifier l'arbre des capacit&eacute;s de l'objet,
+fonction AObject::optionTree()
+<p>Il faut commencer par instancier un objet du bon type (c'est &ccedil;a
+qui est foireux), lui demander ses capacit&eacute;s, et y ajouter les nouvelles
+choses.
+<p>ex:&nbsp;objet <tt>AToto</tt>
+<br>&nbsp;
+<blockquote>
+<pre>AToto toto;
+Tree&nbsp; *tr = toto.optionTree();
+Tree&nbsp; *t2, *t3;
+
+t2 = new Tree( true, "OptionGroup" );
+tr->insert( t2 );
+t3 = new Tree( true, "New option" );
+t3->setAttribute( "callback", &amp;AToto::handleOption );
+t2->insert( t3 );
+tr->insert();</pre>
+</blockquote>
+
+<p><br>Et c'est g&eacute;n&eacute;ralement &agrave; faire quelquepart dans
+une fonction d'initialisation du module.
+<br>&nbsp;
+</body>
+</html>

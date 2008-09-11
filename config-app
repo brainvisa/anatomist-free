@@ -1,0 +1,38 @@
+TEMPLATE	= app
+#CONFIG		= qt
+
+#!include config
+
+irix:LIBS = \
+	-L../../lib -lanatomist \
+	-L/data/sendai/sendai1/temp/mangin/perforce/graph-irix/lib -lgraph \
+	-L$(QTDIR)/lib -lqt \
+	-lpthread
+
+solaris:LIBS	= \
+	-L../../lib -lanatomist
+
+release-solaris:LIBS	= \
+	-L../../lib/solaris -lanatomist
+
+debug-solaris:LIBS	= \
+	-L../../lib/solaris -lanatomist-debug
+
+solaris:LIBS	+= \
+	-ldl \
+	-lpthread
+ 
+release-linux:LIBS	= \
+	-L../../lib/linux -lanatomist 
+
+debug-linux:LIBS	= \
+	-L../../lib/linux -lanatomist-debug 
+
+linux:LIBS	+= \
+	-ldl 
+
+darwin:LIBS	+=	\
+    -L../../lib -lanatomist	\
+    -L/sw/lib -ldl
+
+#!include config-app-local

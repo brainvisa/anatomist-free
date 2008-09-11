@@ -1,0 +1,43 @@
+*BEGIN TREE EXECUTE
+*BEGIN TREE LoadObject
+res_pointer 1
+filename /home/appli/shared-main/nomenclature/hierarchy/sulcal_root_colors.hie
+*END
+*END
+*BEGIN TREE EXECUTE
+*BEGIN TREE LoadObject
+res_pointer 2
+filename /home/Panabase/data/diffusion/chaos/graphe/RchaosBase.arg
+*END
+*END
+*BEGIN TREE EXECUTE
+*BEGIN TREE CreateWindow
+res_pointer 10
+type 3D
+*END
+*END
+*BEGIN TREE EXECUTE
+*BEGIN TREE CreateWindow
+res_pointer 11
+type Browser
+*END
+*END
+*BEGIN TREE EXECUTE
+*BEGIN TREE AddObject
+objects 2
+windows 10
+*END
+*END
+*BEGIN TREE EXECUTE
+*BEGIN TREE AddObject
+objects 1
+windows 11
+*END
+*END
+*BEGIN TREE EXECUTE
+*BEGIN TREE GraphDisplayProperties
+objects 2
+display_mode PropertyMap
+display_property maxdepth
+*END
+*END

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if test $# = 0 ; then
+    echo usage: $0 anatomist-base-dir
+    exit 1
+fi
+
+for i in *; do
+    if [ -d $i ]; then
+	cp -f $i/*.qm $1/shared/po/$i
+    fi
+done

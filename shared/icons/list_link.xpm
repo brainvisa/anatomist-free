@@ -1,0 +1,30 @@
+/* XPM */
+static char * list_link_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 8 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconColor1	m black	c black",
+"X	s iconGray2	m white	c #bdbdbdbdbdbd",
+"o	s iconGray1	m white	c #dededededede",
+"O	s iconGray5	m black	c #737373737373",
+"+	s iconColor2	m white	c white",
+"@	s iconGray4	m white	c #949494949494",
+"#	s iconGray6	m black	c #636363636363",
+/* pixels */
+"                    ",
+"         ...        ",
+"        .Xoo.       ",
+"       .X...o.      ",
+"       .X. .X.      ",
+"       .O. .O.      ",
+"     ...........    ",
+"     .Xooooooo+.    ",
+"     .@XXXOXXXo.    ",
+"     .@XXo.OXXo.    ",
+"     .@XXo.OXXo.    ",
+"     .@XXXoXXXo.    ",
+"     .#@@@@@@@X.    ",
+"     ...........    ",
+"                    ",
+"                    "};

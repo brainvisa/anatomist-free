@@ -1,0 +1,25 @@
+/* XPM */
+static char * list_surface_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 3 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconGray1	m white	c #dededededede",
+"X	s iconGray8	m black	c #212121212121",
+/* pixels */
+"                    ",
+"                    ",
+"          .         ",
+"         ..X        ",
+"        ...X        ",
+"       ....XX       ",
+"      ....XXXX      ",
+"     .....XXXX      ",
+"    ......XXXXX     ",
+"    .....XXXXXXX    ",
+"     ....XXXXXX     ",
+"      ...XXXX       ",
+"       ..XX         ",
+"                    ",
+"                    ",
+"                    "};

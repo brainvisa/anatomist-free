@@ -1,0 +1,40 @@
+#!/bin/sh
+
+VERSION=main
+BASE=/home/appli/anatomist
+
+SYSTEM=`uname -s`
+case $SYSTEM in
+SunOS)
+    OS=solaris
+    ;;
+Linux)
+    OS=linux
+    ;;
+IRIX64)
+    OS=irix
+    ;;
+*)
+    echo "platform \"$SYSTEM\" not supported" >&2
+    exit 1
+    ;;
+esac
+
+# was needed for Mandrake + Qt
+if [ $SESSION_MANAGER ] ; then
+  unset SESSION_MANAGER
+fi
+
+ANATOMIST_PATH=${BASE}-${VERSION}
+export ANATOMIST_PATH
+
+VER=`cat ${ANATOMIST_PATH}/VERSION`
+if [ -d ${BASE}-${VER}-${OS}-release/bin ]; then
+  exec ${BASE}-$VER-$OS-release/bin/anatomist.bin "$@"
+else
+  exec ${ANATOMIST_PATH}-$OS-release/bin/anatomist.bin "$@"
+fi
+exit 1
+
+
+
