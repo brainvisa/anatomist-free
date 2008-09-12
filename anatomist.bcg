@@ -19,6 +19,27 @@ class AnatomistComponent( GenericMakerComponent ):
     self.setDefaultOption( 'anaqwt', 1 )
     self.setDefaultOption( 'anavtk', 1 )
 
+  def postInit( self ):
+    if not self._initialized:
+      GenericMakerComponent.postInit( self )
+      global componentsToBuild
+      try:
+        pa = getInstance( 'pyanatomist' )
+        if pa:
+          pa.postInit()
+          if weakDependency( 'pyanatomist' ):
+            componentsToBuild.append( 'pyanatomist' )
+      except Exception, e:
+        print e
+      try:
+        af = getInstance( 'anafold' )
+        if af:
+          af.postInit()
+          if weakDependency( 'anafold' ):
+            componentsToBuild.append( 'anafold' )
+      except Exception, e:
+        print e
+
   def weakDependencies( self ):
     res = []
     algo = 0
@@ -38,13 +59,12 @@ class AnatomistComponent( GenericMakerComponent ):
 
   def dependencies( self ):
     if systemname != 'darwin' or x11:
-      return [ 'aimsgui(aimsdata)', LibZComponent, GLUComponent ]
+      return [ 'aimsgui(aims)', LibZComponent, GLUComponent ]
     else:
-      return [ 'aimsgui(aimsdata)', LibZComponent, OpenGLComponent ]
+      return [ 'aimsgui(aims)', LibZComponent, OpenGLComponent ]
 
   def _libraries( self ):
-    return [ self._name ]
-
+      return [ 'anatomist' ]
 
   def beforeVersionChange( self, newver, perforce ):
     # change script shared/scripts/anatomist
@@ -120,6 +140,7 @@ class AnatomistComponent( GenericMakerComponent ):
         if os.path.isdir( os.path.join( doc, d ) ):
           copyDirectory( os.path.join( doc, d ), os.path.join( dstdoc, d ),
                          symlinks=symlinks )
+
 
 #-----------------------------------------------------------------------------
 class VtkComponent( SystemComponent ):
@@ -219,3 +240,13 @@ class AnatomistVtkComponent( GenericMakerModuleComponent ):
   def dependencies( self ):
     return [ AnatomistComponent, VtkComponent ]
 
+#-----------------------------------------------------------------------------
+
+modules = [ 'pyanatomist', 'anafold' ]
+
+currentComponentDirectory = os.path.dirname( currentComponentFile )
+for component in modules:
+    c = options.setdefault( component, {} )
+    c[ 'source' ] = os.path.join( currentComponentDirectory, component )
+    c[ 'version' ] = '4.0'
+#  print c
