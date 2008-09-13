@@ -243,6 +243,50 @@ void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex )
 }
 
 
+namespace anatomist
+{
+
+template <>
+void ATexture::setTexture( rc_ptr<TimeTexture<short> > tex )
+{
+  // convert to texture<float>
+  rc_ptr<Texture1d>	ftex( new Texture1d );
+
+  Converter<TimeTexture<short>, Texture1d>	c;
+  c.convert( *tex, *ftex );
+
+  setTexture( ftex );
+}
+
+
+template <>
+void ATexture::setTexture( rc_ptr<TimeTexture<int> > tex )
+{
+  // convert to texture<float>
+  rc_ptr<Texture1d>	ftex( new Texture1d );
+
+  Converter<TimeTexture<int>, Texture1d>	c;
+  c.convert( *tex, *ftex );
+
+  setTexture( ftex );
+}
+
+
+template <>
+void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
+{
+  // convert to texture<float>
+  rc_ptr<Texture1d>	ftex( new Texture1d );
+
+  Converter<TimeTexture<unsigned>, Texture1d>	c;
+  c.convert( *tex, *ftex );
+
+  setTexture( ftex );
+}
+
+}
+
+
 template <typename T>
 rc_ptr<TimeTexture<T> > ATexture::texture()
 {

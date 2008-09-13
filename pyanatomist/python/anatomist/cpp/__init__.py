@@ -168,6 +168,15 @@ def aimsFromAnatomist( ao ):
     aim = AObjectConverter.aimsTexture_POINT2DF( ao )
     if aim:
       return aim
+    aim = AObjectConverter.aimsTexture_S16( ao )
+    if aim:
+      return aim
+    aim = AObjectConverter.aimsTexture_S32( ao )
+    if aim:
+      return aim
+    aim = AObjectConverter.aimsTexture_U32( ao )
+    if aim:
+      return aim
   return None
 
 AObjectConverter.aims = staticmethod( aimsFromAnatomist )

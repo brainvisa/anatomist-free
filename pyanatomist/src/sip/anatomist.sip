@@ -126,6 +126,10 @@ public:
   static AimsTimeSurface_4 *aimsSurface4( anatomist::AObject* );
   static BucketMap_VOID *aimsBucketMap_VOID( anatomist::AObject* );
   static TimeTexture_FLOAT *aimsTexture_FLOAT( anatomist::AObject* );
+/*  static TimeTexture_S16 *aimsTexture_S16( anatomist::AObject* );
+  static TimeTexture_S32 *aimsTexture_S32( anatomist::AObject* );
+  static TimeTexture_U32 *aimsTexture_U32( anatomist::AObject* );
+*/
   static TimeTexture_POINT2DF *aimsTexture_POINT2DF( anatomist::AObject* );
   static Graph *aimsGraph( anatomist::AObject* );
 
@@ -144,6 +148,9 @@ public:
   static anatomist::AObject* anatomist( BucketMap_VOID * );
   static anatomist::AObject* anatomist( Graph * /Transfer/ );
   static anatomist::AObject* anatomist( TimeTexture_FLOAT * );
+  static anatomist::AObject* anatomist( TimeTexture_S16 * );
+  static anatomist::AObject* anatomist( TimeTexture_S32 * );
+  static anatomist::AObject* anatomist( TimeTexture_U32 * );
   static anatomist::AObject* anatomist( TimeTexture_POINT2DF * );
 };
 

@@ -477,9 +477,77 @@ ObjectConverter<TimeTexture<float> >::ana2aims( AObject *x )
 }
 
 
+/*
+template<> TimeTexture<short>*
+ObjectConverter<TimeTexture<short> >::ana2aims( AObject *x )
+{
+  ATexture     *y = dynamic_cast<ATexture *>( x );
+  if( !y || y->dimTexture() != 1 )
+    return 0;
+  return( y->texture<short>().get() ); // TODO: return the rc_ptr
+}
+
+
+template<> TimeTexture<int>*
+ObjectConverter<TimeTexture<int> >::ana2aims( AObject *x )
+{
+  ATexture     *y = dynamic_cast<ATexture *>( x );
+  if( !y || y->dimTexture() != 1 )
+    return 0;
+  return( y->texture<int>().get() ); // TODO: return the rc_ptr
+}
+
+
+template<> TimeTexture<unsigned>*
+ObjectConverter<TimeTexture<unsigned> >::ana2aims( AObject *x )
+{
+  ATexture     *y = dynamic_cast<ATexture *>( x );
+  if( !y || y->dimTexture() != 1 )
+    return 0;
+  return( y->texture<unsigned>().get() ); // TODO: return the rc_ptr
+}
+*/
+
+
 template<> bool
 ObjectConverter<TimeTexture<float> >::setAims
 ( AObject* x, rc_ptr<TimeTexture<float> > y )
+{
+  ATexture *ana = dynamic_cast<ATexture *>( x );
+  if( !ana )
+    return false;
+  ana->setTexture( y );
+  return true;
+}
+
+
+template<> bool
+ObjectConverter<TimeTexture<short> >::setAims
+( AObject* x, rc_ptr<TimeTexture<short> > y )
+{
+  ATexture *ana = dynamic_cast<ATexture *>( x );
+  if( !ana )
+    return false;
+  ana->setTexture( y );
+  return true;
+}
+
+
+template<> bool
+ObjectConverter<TimeTexture<int> >::setAims
+( AObject* x, rc_ptr<TimeTexture<int> > y )
+{
+  ATexture *ana = dynamic_cast<ATexture *>( x );
+  if( !ana )
+    return false;
+  ana->setTexture( y );
+  return true;
+}
+
+
+template<> bool
+ObjectConverter<TimeTexture<unsigned> >::setAims
+( AObject* x, rc_ptr<TimeTexture<unsigned> > y )
 {
   ATexture *ana = dynamic_cast<ATexture *>( x );
   if( !ana )
@@ -499,6 +567,18 @@ ObjectConverter<TimeTexture<Point2df> >::ana2aims( AObject *x )
 }
 
 
+/*
+template<> TimeTexture<Point2d>*
+ObjectConverter<TimeTexture<Point2d> >::ana2aims( AObject *x )
+{
+  ATexture     *y = dynamic_cast<ATexture *>( x );
+  if( !y || y->dimTexture() != 2 )
+    return 0;
+  return( y->texture<Point2d>().get() ); // TODO: return the rc_ptr
+}
+*/
+
+
 template<> bool
 ObjectConverter<TimeTexture<Point2df> >::setAims
 ( AObject* x, rc_ptr<TimeTexture<Point2df> > y )
@@ -509,6 +589,20 @@ ObjectConverter<TimeTexture<Point2df> >::setAims
   ana->setTexture( y );
   return true;
 }
+
+
+/*
+template<> bool
+ObjectConverter<TimeTexture<Point2d> >::setAims
+( AObject* x, rc_ptr<TimeTexture<Point2d> > y )
+{
+  ATexture *ana = dynamic_cast<ATexture *>( x );
+  if( !ana )
+    return false;
+  ana->setTexture( y );
+  return true;
+}
+*/
 
 
 template<> Graph*

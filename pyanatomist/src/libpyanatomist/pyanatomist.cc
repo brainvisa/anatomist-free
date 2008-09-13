@@ -319,6 +319,38 @@ AObjectConverter::aimsTexture_FLOAT( anatomist::AObject * obj )
 }
 
 
+/*
+TimeTexture<short> *
+AObjectConverter::aimsTexture_S16( anatomist::AObject * obj )
+{
+  return ObjectConverter<TimeTexture<short> >::ana2aims( obj );
+}
+
+
+TimeTexture<int> *
+AObjectConverter::aimsTexture_S32( anatomist::AObject * obj )
+{
+  return ObjectConverter<TimeTexture<int> >::ana2aims( obj );
+}
+
+
+TimeTexture<unsigned> *
+AObjectConverter::aimsTexture_U32( anatomist::AObject * obj )
+{
+  return ObjectConverter<TimeTexture<unsigned> >::ana2aims( obj );
+}
+*/
+
+
+/*
+TimeTexture<Point2d> *
+AObjectConverter::aimsTexture_POINT2D( anatomist::AObject * obj )
+{
+  return ObjectConverter<TimeTexture<Point2d> >::ana2aims( obj );
+}
+*/
+
+
 TimeTexture<Point2df> *
 AObjectConverter::aimsTexture_POINT2DF( anatomist::AObject * obj )
 {
@@ -502,6 +534,52 @@ AObject* AObjectConverter::anatomist( TimeTexture<float> *aims )
   ao->SetExtrema();
   return ao;
 }
+
+
+AObject* AObjectConverter::anatomist( TimeTexture<short> *aims )
+{
+  ATexture        *ao = new ATexture;
+  ao->setName( theAnatomist->makeObjectName( "Texture_S16" ) );
+  ao->setTexture( rc_ptr<TimeTexture<short> >( aims ) );
+  theAnatomist->registerObject( ao );
+  ao->SetExtrema();
+  return ao;
+}
+
+
+AObject* AObjectConverter::anatomist( TimeTexture<int> *aims )
+{
+  ATexture        *ao = new ATexture;
+  ao->setName( theAnatomist->makeObjectName( "Texture_S32" ) );
+  ao->setTexture( rc_ptr<TimeTexture<int> >( aims ) );
+  theAnatomist->registerObject( ao );
+  ao->SetExtrema();
+  return ao;
+}
+
+
+AObject* AObjectConverter::anatomist( TimeTexture<unsigned> *aims )
+{
+  ATexture        *ao = new ATexture;
+  ao->setName( theAnatomist->makeObjectName( "Texture_U32" ) );
+  ao->setTexture( rc_ptr<TimeTexture<unsigned> >( aims ) );
+  theAnatomist->registerObject( ao );
+  ao->SetExtrema();
+  return ao;
+}
+
+
+/*
+AObject* AObjectConverter::anatomist( TimeTexture<Point2d> *aims )
+{
+  ATexture        *ao = new ATexture;
+  ao->setName( theAnatomist->makeObjectName( "Texture_POINT2D" ) );
+  ao->setTexture( rc_ptr<TimeTexture<Point2d> >( aims ) );
+  theAnatomist->registerObject( ao );
+  ao->SetExtrema();
+  return ao;
+}
+*/
 
 
 AObject* AObjectConverter::anatomist( TimeTexture<Point2df> *aims )
