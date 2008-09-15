@@ -75,24 +75,24 @@ public:
 
     anatomist::AIterator * __iter__() /AutoGen, TransferBack/;
 %MethodCode
-    	sipRes = new anatomist::AIterator(sipCpp->begin());
+    sipRes = new anatomist::AIterator(sipCpp->begin());
 %End
 
-	anatomist::AObject * __getitem__(int) /AutoGen/;
+    anatomist::AObject * __getitem__(int) /AutoGen/;
 %MethodCode
-		if (a0 < sipCpp->size())
-		{
-			anatomist::AIterator current = sipCpp->begin();
-			
-			for(int index=0; (index < a0); index++)
-				current++;
-			
-			sipRes = *current;
-		}
-		else
-		{
-			sipRes = 0;
-		}
+    if ( (int) a0 < sipCpp->size())
+    {
+      anatomist::AIterator current = sipCpp->begin();
+
+      for(int index=0; (index < a0); index++)
+        current++;
+
+      sipRes = *current;
+    }
+    else
+    {
+      sipRes = 0;
+    }
 %End
 };
 

@@ -6,6 +6,12 @@
 %#else%
 %Import qt/qtmod.sip
 %Import qtgl/qtglmod.sip
+
+%#if defined( __APPLE__ ) || defined( __LP64__ )%
+typedef long GLint;
+%#else%
+typedef int GLint;
+%#endif%
 %#endif%
 
 %Module anatomist.cpp.anatomistsip
