@@ -1,5 +1,5 @@
 
-class ObjectParamSelect : QFrame
+class ObjectParamSelect : QWidget
 {
 %TypeHeaderCode
 #include <anatomist/object/objectparamselect.h>

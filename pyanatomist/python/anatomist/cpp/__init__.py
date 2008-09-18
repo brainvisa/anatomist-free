@@ -117,7 +117,33 @@ global _anatomist_modsloaded
 _anatomist_modsloaded = 0
 
 # update AObjectConverter class to be more flexible
-def aimsFromAnatomist( ao ):
+def aimsFromAnatomist( ao, options={} ):
+  def scaleTexture( tex, ao, options ):
+    try:
+      if int( options.get( 'scale', 1 ) ):
+        print 'scale texture'
+        txex = ao.glAPI().glTexExtrema(0)
+        tmin = txex.minquant[0]
+        scl = ( txex.maxquant[0] - tmin ) * ( txex.max[0] - txex.min[0] )
+        tmin -= txex.min[0] * scl
+        print scl, tmin
+        print tex.__class__
+        ntex = tex.__class__( tex )
+        print ntex
+        for t in xrange( ntex.size() ):
+          try:
+            ar = ntex[t].arraydata()
+            print 'ar OK for time', t
+            ar *= scl
+            ar += tmin
+          except:
+            pass
+        return ntex
+      else:
+        if int( options.get( 'always_copy', 0 ) ):
+          return tex.__class__( tex.get().__class__( tex.get() ) )
+    except:
+      return tex
   tn = ao.objectTypeName( ao.type() )
   if tn == 'VOLUME':
     aim = AObjectConverter.aimsData_U8( ao )
@@ -164,7 +190,7 @@ def aimsFromAnatomist( ao ):
   elif tn == 'TEXTURE':
     aim = AObjectConverter.aimsTexture_FLOAT( ao )
     if aim:
-      return aim
+      return scaleTexture( aim, ao, options )
     aim = AObjectConverter.aimsTexture_POINT2DF( ao )
     if aim:
       return aim
@@ -175,6 +201,10 @@ def aimsFromAnatomist( ao ):
     if aim:
       return aim
     aim = AObjectConverter.aimsTexture_U32( ao )
+    if aim:
+      return aim
+  elif tn == 'GRAPH':
+    aim = AObjectConverter.aimsGraph( ao )
     if aim:
       return aim
   return None

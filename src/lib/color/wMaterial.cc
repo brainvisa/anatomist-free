@@ -140,7 +140,7 @@ MaterialWindow::~MaterialWindow()
 }
 
 
-void MaterialWindow::update( const Observable* obs, void* arg )
+void MaterialWindow::update( const Observable*, void* arg )
 {
   if( arg != this && !_privdata->operating )
     updateInterface();

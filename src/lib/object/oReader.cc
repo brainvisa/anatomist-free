@@ -424,8 +424,6 @@ namespace
               else if( (*tex)[i]->type() == DataTypeCode<Texture2d>::name() )
                 at->setTexture( rc_ptr<Texture2d>( new Texture2d
                     ( (*tex)[i]->GenericObject::value<Texture2d>() ) ) );
-              // else... ?
-              at->normalize();
               // at->setFileName( "texture" );
               at->setHeaderOptions();
               at->setName( theAnatomist->makeObjectName( tname ) );
@@ -526,7 +524,6 @@ namespace
       return false;
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
-    ao->normalize();
     ap.object = ao;
     return( true );
   }
@@ -548,7 +545,6 @@ namespace
 
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
-    ao->normalize();
     ap.object = ao;
     return( true );
   }
@@ -563,7 +559,6 @@ namespace
       return false;
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
-    ao->normalize();
     ap.object = ao;
     return( true );
   }
@@ -596,7 +591,6 @@ namespace
 
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
-    ao->normalize();
     ap.object = ao;
     return( true );
   }

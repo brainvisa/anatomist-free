@@ -240,6 +240,7 @@ void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex )
   freeTexture();
   delete d;
   d = new Private_<T>( tex );
+  normalize();
 }
 
 
