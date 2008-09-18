@@ -37,9 +37,9 @@
 #ifndef ANA_OBJECT_OBJECTPARAMSELECT_H
 #define ANA_OBJECT_OBJECTPARAMSELECT_H
 
-#include <aims/qtcompat/qhbox.h>
 #include <aims/qtcompat/qlistbox.h>
 #include <qdialog.h>
+#include <qwidget.h>
 #include <set>
 
 namespace anatomist
@@ -48,7 +48,7 @@ namespace anatomist
 }
 
 
-class ObjectParamSelect : public QHBox
+class ObjectParamSelect : public QWidget
 {
   Q_OBJECT
 

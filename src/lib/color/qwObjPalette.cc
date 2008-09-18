@@ -50,6 +50,7 @@
 #include <aims/qtcompat/qhgroupbox.h>
 #include <aims/qtcompat/qvgroupbox.h>
 #include <aims/qtcompat/qhbuttongroup.h>
+#include <aims/qtcompat/qhbox.h>
 #include <qslider.h>
 #include <qlayout.h>
 #include <aims/qtcompat/qlistbox.h>

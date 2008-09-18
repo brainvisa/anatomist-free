@@ -31,6 +31,7 @@ void vtkAReader::deleteVTKAObjects()
 bool vtkAReader::registerLoader()
 {
   ObjectReader::registerLoader( "vtk", readVTK );
+  ObjectReader::registerLoader( "fib", readVTK );
   return true;
 }
 

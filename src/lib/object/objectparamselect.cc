@@ -92,9 +92,9 @@ namespace
 
 ObjectParamSelect::ObjectParamSelect( const set<AObject *> & o, 
                                       QWidget* parent )
-  : QHBox( parent ), d( new Private( o ) )
+  : QWidget( parent ), d( new Private( o ) )
 {
-  drawContents();
+	drawContents();
 }
 
 
@@ -112,8 +112,10 @@ void ObjectParamSelect::updateLabel( const set<AObject *> & obj )
 
 void ObjectParamSelect::drawContents()
 {
-  setSpacing( 5 );
-  setMargin( 5 );
+  QHBoxLayout *layout = new QHBoxLayout( this );
+  layout->setSpacing( 5 );
+  
+  //setMargin( 5 );
   QLineEdit	*l = new QLineEdit( labelname( d->objects ), this );
   d->label = l;
   l->setReadOnly( true );
@@ -279,9 +281,10 @@ ObjectChooseDialog::ObjectChooseDialog( const set<AObject *> & obj,
   l->addWidget( all );
   d->viewbox = all;
 
-  QHBox		*hb = new QHBox( this );
+  QWidget *hb = new QWidget( this );
+  QHBoxLayout *hbLayout = new QHBoxLayout( hb );
   l->addWidget( hb );
-  hb->setSpacing( 5 );
+  hbLayout->setSpacing( 5 );
   QPushButton	*pb = new QPushButton( ObjectParamSelect::tr( "OK" ), hb );
   pb->setDefault( true );
   connect( pb, SIGNAL( clicked() ), this, SLOT( accept() ) );

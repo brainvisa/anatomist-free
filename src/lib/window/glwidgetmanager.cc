@@ -56,6 +56,11 @@ namespace Qt
 {
 }
 using namespace Qt;
+#else
+namespace
+{
+  const QWidget::FocusPolicy StrongFocus=QWidget::StrongFocus;
+}
 #endif
 using namespace anatomist;
 using namespace aims;
@@ -207,7 +212,7 @@ GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QGLWidget * glw )
   : View( win ), _pd( new Private )
 {
   _pd->glwidget = glw;
-  glw->setFocusPolicy( QWidget::StrongFocus );
+  glw->setFocusPolicy( StrongFocus );
   glw->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
                       QSizePolicy::Preferred ) );
 }

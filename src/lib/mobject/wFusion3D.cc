@@ -38,6 +38,7 @@
 
 #include <qlayout.h>
 #include <aims/qtcompat/qvbox.h>
+#include <aims/qtcompat/qhbox.h>
 #include <qpushbutton.h>
 #include <aims/qtcompat/qvbuttongroup.h>
 #include <aims/qtcompat/qvgroupbox.h>
