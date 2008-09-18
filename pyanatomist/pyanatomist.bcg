@@ -14,7 +14,7 @@ class PyAnatomist( GenericMakerComponent ):
       self._data[ 'sipinclude' ] = SipComponent.sipinclude( self )
 
   def dependencies( self ):
-    return [ 'anatomist', PyQtComponent, 'pyaims(aims)', 'soma' ]
+    return [ 'anatomist', PyQtComponent, 'pyaims(aims)', 'soma-base' ]
 
   def build( self, instances ):
     if not self._found or self._data[ 'enabled' ] == '0':
