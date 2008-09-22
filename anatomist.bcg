@@ -31,14 +31,6 @@ class AnatomistComponent( GenericMakerComponent ):
             componentsToBuild.append( 'pyanatomist' )
       except Exception, e:
         print e
-      try:
-        af = getInstance( 'anafold' )
-        if af:
-          af.postInit()
-          if weakDependency( 'anafold' ):
-            componentsToBuild.append( 'anafold' )
-      except Exception, e:
-        print e
 
   def weakDependencies( self ):
     res = []
@@ -242,10 +234,10 @@ class AnatomistVtkComponent( GenericMakerModuleComponent ):
 
 #-----------------------------------------------------------------------------
 
-modules = [ 'pyanatomist', 'anafold' ]
+anatomist_modules = [ 'pyanatomist' ]
 
 currentComponentDirectory = os.path.dirname( currentComponentFile )
-for component in modules:
+for component in anatomist_modules:
     c = options.setdefault( component, {} )
     c[ 'source' ] = os.path.join( currentComponentDirectory, component )
     c[ 'version' ] = '4.0'
