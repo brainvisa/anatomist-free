@@ -193,7 +193,35 @@ GenericObject* Hierarchy::attributed()
 
 bool Hierarchy::save( const string & filename )
 {
-  SyntaxSet	ss;
+  if( !_syntax )
+    {
+      //cout << "init Hierarchy syntax\n";
+      _syntax = new SyntaxSet;
+      string sname = Path::singleton().syntax() + "/hierarchy.stx";
+      try
+	{
+	  SyntaxReader	sr( sname );
+	  sr.read( *_syntax );
+	}
+      catch( exception & e )
+	{
+	  cerr << e.what() << endl;
+	  sname = Settings::globalPath() + "/syntax/hierarchy.stx";
+
+	  try
+	    {
+	      SyntaxReader	sr( sname );
+	      sr.read( *_syntax );
+              if( carto::verbose > 0 )
+	        cout << "Loaded syntax " << sname << ", OK" << endl;
+	    }
+	  catch( exception & e )
+	    {
+	      cerr << "Cannot read syntax for Hierarchy objects :\n";
+	      cerr << e.what() << endl;
+	    }
+	}
+    }
 
   try
     {

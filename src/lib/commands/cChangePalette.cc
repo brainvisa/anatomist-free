@@ -112,7 +112,7 @@ Command* ChangePaletteCommand::read( const Tree & com, CommandContext* )
       colors.push_back( AimsRGBA( cols[j], cols[j+1], cols[j+2], cols[j+3] ) );
   else
     for( i=0, n=cols.size()/3, j=0; i<n; ++i, j+=3 )
-      colors.push_back( AimsRGBA( cols[j], cols[j+1], cols[j+2] ) );
+      colors.push_back( AimsRGBA( cols[j], cols[j+1], cols[j+2], 255 ) );
 
   return( new ChangePaletteCommand( name, colors ) );
 }

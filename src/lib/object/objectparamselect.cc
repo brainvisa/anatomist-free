@@ -124,6 +124,8 @@ void ObjectParamSelect::drawContents()
                                        QSizePolicy::Fixed ) );
   setSizePolicy( QSizePolicy( QSizePolicy::Preferred, 
                               QSizePolicy::Fixed ) );
+  layout->addWidget( l );
+  layout->addWidget( chseobj );
   connect( chseobj, SIGNAL( clicked() ), this, SIGNAL( selectionStarts() ) );
 }
 
