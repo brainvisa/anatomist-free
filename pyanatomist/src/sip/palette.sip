@@ -56,7 +56,7 @@ public:
   virtual void save( const std::string &dirname, bool bin=false ) const;
   virtual void clear();
   virtual void erase( rc_ptr_APalette pal );
-  virtual void push_back( rc_ptr_APalette pal /Transfer/ );
+  virtual void push_back( rc_ptr_APalette pal );
   rc_ptr_APalette find( const std::string & );
   const list_rc_ptr_APalette & palettes() const;
 

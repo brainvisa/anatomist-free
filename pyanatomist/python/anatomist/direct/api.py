@@ -467,7 +467,11 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     @return: the named palette
     """
     pal=self.palettes().find(name)
-    return self.APalette(name, self, pal)
+    if pal.isNull():
+      pal=None
+    else:
+      pal = self.APalette(name, self, pal)
+    return pal
   
   # informations that can be obtained with GetInfo command
   def getObjects(self):

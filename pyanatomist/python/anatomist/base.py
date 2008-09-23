@@ -1369,7 +1369,7 @@ class Anatomist(ObservableSingleton, object):
       @type colors_mode: string
       @param colors_mode: RGB or RGBA
       """
-      self.anatomistinstance.execute("ChangePalette", name=self, colors=colors, color_mode=color_mode)
+      self.anatomistinstance.execute("ChangePalette", name=self.name, colors=colors, color_mode=color_mode)
   
   ###############################################################################
   class Transformation(AItem):

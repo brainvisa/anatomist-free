@@ -439,10 +439,16 @@ class Anatomist(base.Anatomist):
   def getPalette(self, name):
     """
     Returns a new APalette with name attribute = name.
+    Returns None if the palette doesn't exist in Anatomist.
     @rtype: APalette
     @return: the named palette
     """
-    return self.APalette(name, self, name)
+    result=self.executeAndWaitAnswer("GetInfo", palettes = 1)
+    names=result.get("palettes")
+    palette=None
+    if name in names:
+      palette=self.APalette(name, self, name)
+    return palette
   
   # informations that can be obtained with GetInfo command
   def getObjects(self):
