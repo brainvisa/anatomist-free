@@ -288,9 +288,11 @@ ObjectChooseDialog::ObjectChooseDialog( const set<AObject *> & obj,
   l->addWidget( hb );
   hbLayout->setSpacing( 5 );
   QPushButton	*pb = new QPushButton( ObjectParamSelect::tr( "OK" ), hb );
+  hbLayout->addWidget( pb );
   pb->setDefault( true );
   connect( pb, SIGNAL( clicked() ), this, SLOT( accept() ) );
   pb = new QPushButton( ObjectParamSelect::tr( "Cancel" ), hb );
+  hbLayout->addWidget( pb );
   connect( pb, SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( all, SIGNAL( activated( int ) ), this, 
            SLOT( setObjectsViewMode( int ) ) );

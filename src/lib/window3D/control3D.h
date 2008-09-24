@@ -67,7 +67,7 @@ namespace anatomist
   {
   public:
     static Control * creator( ) ;
-    Select3DControl();
+    Select3DControl( const std::string & name = "Selection 3D" );
     Select3DControl( const Select3DControl & c );
     virtual ~Select3DControl();
 

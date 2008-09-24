@@ -291,8 +291,8 @@ Select3DControl::creator( )
   return new Select3DControl ;
 }
 
-Select3DControl::Select3DControl() 
-  : Control( 2, QT_TRANSLATE_NOOP( "ControlledWindow", "Selection 3D" ) )
+Select3DControl::Select3DControl( const string & name ) 
+  : Control( 2, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
 }
 

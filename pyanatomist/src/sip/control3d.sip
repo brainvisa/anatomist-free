@@ -210,5 +210,23 @@ class DragObjectAction : anatomist::Action
     void dragSelected( int x, int y, int globalX, int globalY );
 };
 
+
+class Select3DControl : anatomist::Control
+{
+%TypeHeaderCode
+#include <anatomist/window3D/control3D.h>
+%End
+
+  public:
+    Select3DControl( const std::string & name = "Selection 3D" );
+    Select3DControl( const anatomist::Select3DControl & c );
+    virtual ~Select3DControl();
+
+    virtual void eventAutoSubscription( anatomist::ActionPool * actionPool );
+    virtual void doAlsoOnSelect( anatomist::ActionPool * actionPool );
+    virtual void doAlsoOnDeselect( anatomist::ActionPool * actionPool );
+};
+
+
 };
 
