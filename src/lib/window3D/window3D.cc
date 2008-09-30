@@ -650,6 +650,23 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
       d->sagittalbt->setToggleButton( true );
       d->obliquebt->setToggleButton( true );
       d->threedbt->setToggleButton( true );
+
+      d->mute->addSeparator();
+      p = icons->getIconInstance( "RoiControl" );
+      Q34ToolButton *roibt;
+      if( p )
+        roibt = new Q34ToolButton( *p, tr( "ROI toolbox" ),
+                                   tr( "Open the ROI toolbox" ),
+                                   this, SLOT( switchToolbox() ),
+                                   d->mute );
+      else
+        {
+          roibt = new Q34ToolButton( d->mute );
+          roibt->setTextLabel( tr( "3D" ) );
+          connect( roibt, SIGNAL( clicked() ), this,
+                   SLOT( switchToolbox() ) );
+        }
+
     }
 
   //	Signals & slots

@@ -511,25 +511,27 @@ ControlSwitch::setAvailableControls( const list<string>& objects )
 
 void
 ControlSwitch::setActivableControls( bool initialization )
-{  
+{
   // cout << "ControlSwitch::setActivableControls" << endl ;
   if ( !initialization )
     getSelectedObjectNames() ;
   myActivableControls.clear() ;
   set<string> activableControls ( ControlManager::instance()->
-    activableControlList( myViewType, mySelectedObjects ) ) ;
+    activableControlList( myViewType, mySelectedObjects ) );
   set<string>::iterator iter( activableControls.begin() ),
     last( activableControls.end() ) ;
   ControlDictionary *cd = ControlDictionary::instance();
 
   map<string, ControlPtr>::iterator foundControl ;
   set<string>::iterator foundGroup ;
-  while( iter != last ){
+  while( iter != last )
+  {
     foundControl = myControls.find( *iter ) ;
-    if( foundControl == myControls.end() ){
+    if( foundControl == myControls.end() )
+    {
       foundGroup = myAvailableControlGroups.find( *iter ) ;
       if( foundGroup != myAvailableControlGroups.end() )
-	myActivableControlGroups.insert( *iter ) ;
+        myActivableControlGroups.insert( *iter ) ;
     }
     else
       myActivableControls[ cd->controlPriority( *iter ) ]
@@ -581,8 +583,7 @@ ControlSwitch::printControls()
   while( iter2 != last2 ){
     iter = myControls.find( iter2->second ) ; 
     cout << "Name : " << iter->second->name() << endl 
-	 << "Priority : " << cd->controlPriority( iter->first ) << endl/*
-							       << "Button enabled ? " << ( iter->second->button()->isEnabled() ? "Yes" : "No" ) << endl*/ ;
+	 << "Priority : " << cd->controlPriority( iter->first ) << endl;
     ++iter2 ;
   }
 }
@@ -899,39 +900,68 @@ void
 ControlSwitch::getSelectedObjectNames()
 {
   mySelectedObjects.clear() ;
-  const map<unsigned, set<AObject *> >& so = SelectFactory::factory()->selected() ;
-  
-  list<ControlSwitchObserver *>::iterator iter( myObservers.begin() ), last( myObservers.end() ) ;
-  
+  const map<unsigned, set<AObject *> >&
+    so = SelectFactory::factory()->selected() ;
+
+  list<ControlSwitchObserver *>::iterator
+    iter( myObservers.begin() ), last( myObservers.end() ) ;
+
   // cerr << "Observers size " << myObservers.size() << endl ;
-  
+
   ControlledWindow * win = 0 ;
-  while( iter != last ){
+  while( iter != last )
+  {
     win = dynamic_cast<ControlledWindow *>( *iter ) ;
     if( win != 0 )
       break ;
-    
+
     ++iter ;
   }
-  
-  if( iter == last )
-    {
-      cerr << "Fatal Error : Control switch is associated with no window ! " 
-	   << "win = "<< win << endl ;
-      ASSERT(0) ;
-    }
 
-  map<unsigned, set<AObject *> >::const_iterator found( so.find( win->Group() ) ) ;
+  if( iter == last )
+  {
+    cerr << "Fatal Error : Control switch is associated with no window ! "
+          << "win = "<< win << endl ;
+    ASSERT(0) ;
+  }
+
+  map<unsigned, set<AObject *> >::const_iterator
+    found( so.find( win->Group() ) ) ;
   if( found == so.end() )
     return;
-  set<AObject *>::const_iterator soIter( found->second.begin() ), soLast( found->second.end() ) ;
-  
-  while( soIter != soLast ) {
-    mySelectedObjects.push_back( AObject::objectTypeName( (*soIter)->type() ) ) ;
-    
+  set<AObject *>::const_iterator
+    soIter( found->second.begin() ), soLast( found->second.end() ) ;
+
+  set<string> otypes;
+  string otype;
+  size_t n = 0;
+  while( soIter != soLast )
+  {
+    otype = AObject::objectTypeName( (*soIter)->type() );
+    n = otypes.size();
+    otypes.insert( otype );
+    if( otypes.size() != n ) // avoid inserting several times the same type
+      mySelectedObjects.push_back( otype );
+
     ++soIter ;
   }
+
+  // if no selection: insert all objects types that are present in a window
+  if( otypes.empty() )
+  {
+    set<AObject *> wobj = win->Objects();
+    set<AObject *>::const_iterator io, eo = wobj.end();
+    for( io=wobj.begin(); io!=eo; ++io )
+    {
+      otype = AObject::objectTypeName( (*io)->type() );
+      n = otypes.size();
+      otypes.insert( otype );
+      if( otypes.size() != n ) // avoid inserting several times the same type
+        mySelectedObjects.push_back( otype );
+    }
+  }
 }
+
 
 bool
 ControlSwitch::isToolBoxVisible() const

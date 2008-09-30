@@ -120,7 +120,7 @@ void ControlledWindow::updateControls()
   for( io=_objects.begin(); io!=eo; ++io )
     obj.push_back( AObject::objectTypeName( (*io)->type() ) );
   view()->controlSwitch()->setAvailableControls( obj );
-  view()->controlSwitch()->setActivableControls( true );
+  view()->controlSwitch()->setActivableControls();
   view()->controlSwitch()->notifyActionChange();
   // view()->controlSwitch()->selectionChangedEvent();
 }

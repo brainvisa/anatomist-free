@@ -232,7 +232,10 @@ def loadpython():
   print 'load python file'
   file = QFileDialog.getOpenFileName( None, '*.py' )
   if file is not None:
-    execfile( file.latin1() )
+    if qt4:
+      execfile( file.toLocal8Bit().data() )
+    else:
+      execfile( file.latin1() )
 
 cw = a.getControlWindow()
 if cw is not None:

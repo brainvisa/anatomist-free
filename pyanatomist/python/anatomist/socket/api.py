@@ -957,8 +957,7 @@ class Anatomist(base.Anatomist):
         return self.objectType
       elif name == "children":
         infos=self.getInfos(name_children=1)
-        self.setChildren(infos)
-        return self.children
+        return self.getChildren(infos)
       elif name == "filename":
         infos=self.getInfos()
         self.setAttributes(infos)
@@ -1009,15 +1008,14 @@ class Anatomist(base.Anatomist):
         if infos.get('copy') == 1:
           self.copy=True
     
-    def setChildren(self, infos):
-      self.children=None
+    def getChildren(self, infos):
+      objects=[]
       if infos is not None:
         ids=infos.get('children')
-        objects=[]
         if ids is not None:
           for i in ids:
             objects.append(self.anatomistinstance.AObject(self.anatomistinstance, i))
-        self.children=objects
+      return objects
     
     def extractTexture(self, time=None):
       """

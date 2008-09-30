@@ -39,7 +39,10 @@ The function C{getThreadSafeClass} enables to create a thread safe class based o
 """
 
 import sys, new, types
-from soma.qt3gui.api import QtThreadCall
+if sys.modules.has_key( 'PyQt4' ):
+  from soma.qt4gui.api import QtThreadCall
+else:
+  from soma.qt3gui.api import QtThreadCall
 from soma.singleton import Singleton
 
 def threadedModule(anatomistModule, mainThread=None): 

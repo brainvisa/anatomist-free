@@ -113,3 +113,6 @@ def setDefaultImplementation( impl=DIRECT ):
   global _implementation
   _implementation = impl
 
+def getDefaultImplementationModuleName():
+  global _implementation
+  return 'anatomist.' + _implementation + '.api'

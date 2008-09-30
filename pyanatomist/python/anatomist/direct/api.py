@@ -61,10 +61,6 @@ from anatomist import base
 import operator
 from soma import aims
 import os, sys
-if sys.modules.has_key( 'PyQt4' ):
-  from PyQt4.QtGui import QWidget
-else:
-  from qt import QWidget
 
 class Anatomist(base.Anatomist, cpp.Anatomist):
   """
@@ -858,11 +854,10 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         return self.objectType
       elif name == "children":
         objects=[]
-        if issubclass(type(self.getInternalRep()), cpp.MObject): # if internalRep is a multi object, it is iterable and can have children
-          for c in self.internalRep:
+        if issubclass(type(self.internalRep.get()), cpp.MObject): # if internalRep is a multi object, it is iterable and can have children
+          for c in self.internalRep.get():
             objects.append(self.anatomistinstance.AObject(self.anatomistinstance, c))
-        self.children=objects
-        return self.children
+        return objects
       elif name == "filename":
         self.filename=self.internalRep.fileName()
         return self.filename

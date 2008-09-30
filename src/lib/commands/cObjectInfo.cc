@@ -504,74 +504,57 @@ ObjectInfoCommand::doit()
     if( !_objfilenames.empty() )
     {
       // cout << "filenames: " << _objfilenames.size() << endl;
-      set<string>::const_iterator ifo, efo = _objfilenames.end();
-      map<string, AObject *>  objbyname;
+      set<string>::const_iterator efo = _objfilenames.end();
+      list<AObject *> selobj;
       set<AObject *> objs = theAnatomist->getObjects();
-      set<AObject *>::const_iterator  io = objs.begin(), eo = objs.end();
-      map<string, AObject *>::iterator  imo, emo = objbyname.end();
+      set<AObject *>::const_iterator  io, eo = objs.end();
       string  fname;
       AObject *ao;
       int     id;
       bool    found;
       map<Object, Object>::const_iterator imoo, emoo = exm.end();
+      list<AObject *>::const_iterator ilo, elo;
 
-      for( ifo=_objfilenames.begin(); ifo!=efo; ++ifo )
+      for( io=objs.begin(); io!=eo; ++io )
       {
-        // cout << "filename: " << *ifo << endl;
-        ao = 0;
-        imo = objbyname.find( *ifo );
-        if( imo == emo )
+        fname = (*io)->fileName();
+        if( !fname.empty() && _objfilenames.find( fname ) != efo )
+          selobj.push_back( *io );
+      }
+
+      for( ilo=selobj.begin(), elo=selobj.end(); ilo!=elo; ++ilo )
+      {
+        ao = *ilo;
+
+        try
         {
-          while( io != eo )
-          {
-            fname = (*io)->fileName();
-            if( !fname.empty() )
-            {
-              objbyname[ fname ] = *io;
-              if( fname == *ifo )
-              {
-                ao = *io;
-                ++io;
-                break;
-              }
-            }
-            ++io;
-          }
+          id = context()->unserial->id( ao );
         }
-        else
-          ao = imo->second;
-        if( ao )
+        catch( exception & )
         {
+          id = context()->unserial->makeID( ao, "AObject" );
+        }
+        found = false;
+        for( imoo=exm.begin(); imoo!=emoo; ++imoo )
           try
           {
-            id = context()->unserial->id( ao );
-          }
-          catch( exception & )
-          {
-            id = context()->unserial->makeID( ao, "AObject" );
-          }
-          found = false;
-          for( imoo=exm.begin(); imoo!=emoo; ++imoo )
-            try
+            if( imoo->first->value<int>() == id )
             {
-              if( imoo->first->value<int>() == id )
-              {
-                found = true;
-                break;
-              }
+              found = true;
+              break;
             }
-            catch( ... )
-            {
-            }
-          if( !found )
-          {
-            Object ex2( (GenericObject *)
-                new ValueObject<Dictionary> );
-            exm[ Object::value( id ) ] = ex2;
-            ex2->setProperty( "type", string( "AObject" ) );
-            printObject( ao, ex2, ptrs, *context()->unserial, _nameChildren,
-                        _nameref );
           }
+          catch( ... )
+          {
+          }
+        if( !found )
+        {
+          Object ex2( (GenericObject *)
+              new ValueObject<Dictionary> );
+          exm[ Object::value( id ) ] = ex2;
+          ex2->setProperty( "type", string( "AObject" ) );
+          printObject( ao, ex2, ptrs, *context()->unserial, _nameChildren,
+                      _nameref );
         }
       }
     }

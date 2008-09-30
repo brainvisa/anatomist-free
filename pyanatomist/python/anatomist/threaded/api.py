@@ -55,7 +55,11 @@ Note that this thread-safe implementation is not actually multi-threaded: all ca
 
 import anatomist.threadedimpl
 import anatomist.direct.api
-from soma.qt3gui.qt3thread import QtThreadCall
+import sys
+if sys.modules.has_key( 'PyQt4' ):
+  from soma.qt4gui.api import QtThreadCall
+else:
+  from soma.qt3gui.api import QtThreadCall
 
 mainThread=QtThreadCall()
 Anatomist=anatomist.threadedimpl.getThreadSafeClass(\

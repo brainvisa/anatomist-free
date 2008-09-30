@@ -146,13 +146,17 @@ void TrackCutAction::moveTrackball( int x, int y, int, int )
   SelectFactory	*sf = SelectFactory::factory();
 
   for( io=obj.begin(); io!=eo; ++io )
+  {
+    sl = dynamic_cast<SelfSliceable *>( *io );
+    if( sl && sf->isSelected( w->Group(), *io ) )
+      sls[ sl ] = *io;
+  }
+  if( sls.empty() )
+    for( io=obj.begin(); io!=eo; ++io )
     {
       sl = dynamic_cast<SelfSliceable *>( *io );
       if( sl )
-        {
-          if( sf->isSelected( w->Group(), *io ) )
-            sls[ sl ] = *io;
-        }
+        sls[ sl ] = *io;
     }
 
   for( isls=sls.begin(); isls!=esls; ++isls )
@@ -223,31 +227,47 @@ void TrackCutAction::setSlice( const Quaternion & q )
   SelfSliceable			*sl;
   QAGLWidget			*glw = dynamic_cast<QAGLWidget *>( view() );
   Point3df			n, center, bmin, bmax;
+  map<SelfSliceable *, AObject *>               sls;
+  map<SelfSliceable *, AObject *>::iterator     isls, esls = sls.end();
+  SelectFactory *sf = SelectFactory::factory();
 
   if( glw )
     center = glw->rotationCenter();
 
   for( io=obj.begin(); io!=eo; ++io )
-    if( (sl = dynamic_cast<SelfSliceable *>( *io ) ) )
-      {
-        sl->setQuaternion( q );
-        (*io)->notifyObservers( this );
+  {
+    sl = dynamic_cast<SelfSliceable *>( *io );
+    if( sl && sf->isSelected( w->Group(), *io ) )
+      sls[ sl ] = *io;
+  }
+  if( sls.empty() )
+    for( io=obj.begin(); io!=eo; ++io )
+    {
+      sl = dynamic_cast<SelfSliceable *>( *io );
+      if( sl )
+        sls[ sl ] = *io;
+    }
+  for( isls=sls.begin(); isls!=esls; ++isls )
+  {
+    sl = isls->first;
+    sl->setQuaternion( q );
+    (*io)->notifyObservers( this );
 
-        // send event
-        Object	ex = Object::value( Dictionary() );
-        set<AObject *>	nobj;
-        nobj.insert( *io );
-        ex->setProperty( "_objects", Object::value( nobj ) );
-        vector<float>	vf(4);
-        Point4df	qv = q.vector();
-        vf[0] = qv[0];
-        vf[1] = qv[1];
-        vf[2] = qv[2];
-        vf[3] = qv[3];
-        ex->setProperty( "slice_quaternion", Object::value( vf ) );
-        OutputEvent	ev( "ObjectSlice", ex );
-        ev.send();
-      }
+    // send event
+    Object	ex = Object::value( Dictionary() );
+    set<AObject *>	nobj;
+    nobj.insert( *io );
+    ex->setProperty( "_objects", Object::value( nobj ) );
+    vector<float>	vf(4);
+    Point4df	qv = q.vector();
+    vf[0] = qv[0];
+    vf[1] = qv[1];
+    vf[2] = qv[2];
+    vf[3] = qv[3];
+    ex->setProperty( "slice_quaternion", Object::value( vf ) );
+    OutputEvent	ev( "ObjectSlice", ex );
+    ev.send();
+  }
 }
 
 

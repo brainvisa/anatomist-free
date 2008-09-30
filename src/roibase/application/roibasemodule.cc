@@ -38,7 +38,6 @@
 #include <anatomist/action/paintaction.h>
 #include <anatomist/action/blobsegmentation.h>
 #include <anatomist/control/paintcontrol.h>
-#include <anatomist/control/roicontrol.h>
 #include <anatomist/action/roimanagementaction.h>
 #include <anatomist/control/roimanagementcontrol.h>
 #include <anatomist/action/levelsetaction.h>
@@ -147,19 +146,14 @@ void RoiBaseModule::actionsDeclaration()
 
 void RoiBaseModule::controlsDeclaration()
 {
-  ControlDictionary::instance()->addControl("RoiControl", 
-					    RoiControl::creator, 100 ) ;
-  ControlDictionary::instance()->addControl("PaintControl", 
+  ControlDictionary::instance()->addControl("PaintControl",
 					    PaintControl::creator, 102 ) ;
   ControlDictionary::instance()->addControl("ConnectivityThresholdControl",
 					    RoiLevelSetControl::creator, 103 ) ;
   ControlDictionary::instance()->addControl("LabelNamingControl",
 					    RoiLabelNamingControl::creator, 110 ) ;
 
-  ControlManager::instance()->addControl( "QAGLWidget3D", "", 
-					  "RoiControl" ) ;
-
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::GRAPHOBJECT ), 
+  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::GRAPHOBJECT ),
 					  "PaintControl" ) ;
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::BUCKET ), 
 					  "PaintControl" ) ;
@@ -183,8 +177,6 @@ void RoiBaseModule::controlsDeclaration()
 					  "LabelNamingControl" ) ;
   
   QPixmap	p;
-  if( p.load( ( Settings::globalPath() + "/icons/roi.xpm" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "RoiControl", p );
   if( p.load( ( Settings::globalPath() + "/icons/draw.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "PaintControl", p );
   if( p.load( ( Settings::globalPath() + "/icons/level.xpm" ).c_str() ) )
@@ -591,8 +583,7 @@ AGraph* RoiBaseModule::newGraph( AObject* o, const string & roiName,
     }
 
   cout << "newGraph: roiName: " << roiName << endl;
-  gr->setProperty( "filename_base", 
-                    FileUtil::basename( roiName ) + string( ".data" ) );
+  gr->setProperty( "filename_base", string( "*" ) );
   agr->setGeomExtrema();
 
 

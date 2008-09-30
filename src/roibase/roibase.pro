@@ -15,7 +15,6 @@ HEADERS = \
 	control/paintcontrol.h \
         control/levelsetcontrol.h \
 	control/labelnamingcontrol.h \
-	control/roicontrol.h \
 	action/roimanagementaction.h \
 	control/roimanagementcontrol.h \
 	application/roibasemodule.h \
@@ -34,7 +33,6 @@ SOURCES = \
 	control/paintcontrol.cc \
         control/levelsetcontrol.cc \
 	control/labelnamingcontrol.cc \
-	control/roicontrol.cc \
 	action/roimanagementaction.cc \
 	control/roimanagementcontrol.cc \
 	application/roibasemodule.cc \

@@ -341,4 +341,6 @@ void StdModule::controlsDeclaration()
   if( p.load( ( Settings::globalPath()
       + "/icons/direct_ref_mark.png" ).c_str() ) )
     IconDictionary::instance()->addIcon( "direct_ref_mark", p );
+  if( p.load( ( Settings::globalPath() + "/icons/roi.xpm" ).c_str() ) )
+    IconDictionary::instance()->addIcon( "RoiControl", p );
 }
