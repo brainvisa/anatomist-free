@@ -796,7 +796,7 @@ void QObjectBrowser::updateRightPanelNow()
     }
   }
 
-  if( ( ngosel == 1 && cur == d->lastselectednode1 )
+  if( ( ngosel == 1 && cur == d->lastselectednode1 && ! d->lastselectednode2 )
         || ( ngosel == 2
         && ( ( cur == d->lastselectednode1 && other == d->lastselectednode2 )
         || ( cur == d->lastselectednode2 && other == d->lastselectednode1 ) ) )
@@ -804,6 +804,10 @@ void QObjectBrowser::updateRightPanelNow()
   {
     // in this case, don't update right panel because it shouldn't change
     d->rviewrefresh = false;
+    /* cout << "don't refresh right panel\n";
+    cout << ngosel << ", " << cur << ", " << d->lastselectednode1 << ", "
+        << d->lastselectednode2 << endl;
+    */
     return;
   }
 

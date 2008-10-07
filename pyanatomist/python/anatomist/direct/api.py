@@ -854,8 +854,8 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         return self.objectType
       elif name == "children":
         objects=[]
-        if issubclass(type(self.internalRep.get()), cpp.MObject): # if internalRep is a multi object, it is iterable and can have children
-          for c in self.internalRep.get():
+        if issubclass(type(self.getInternalRep()), cpp.MObject): # if internalRep is a multi object, it is iterable and can have children
+          for c in self.getInternalRep():
             objects.append(self.anatomistinstance.AObject(self.anatomistinstance, c))
         return objects
       elif name == "filename":
@@ -1098,3 +1098,22 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         return self.refUuid
       else: # must raise AttributeError if it is not an existing attribute. else, error can occur on printing the object
         raise AttributeError
+  
+  ###############################################################################
+  class APalette(AItem, base.Anatomist.APalette):
+    """
+    @type name: string
+    @ivar name: palette's name. Must be unique, it is the palette identifier.
+    """
+    def __init__(self, name, anatomistinstance, internalRep=None, *args, **kwargs):
+      super(Anatomist.APalette, self).__init__(name, anatomistinstance, internalRep, *args, **kwargs)
+  
+  ###############################################################################
+  class Transformation(AItem, base.Anatomist.Transformation):
+    """
+    This objects contains informations to convert coordinates from one referential to another. 
+    rotation_matrix
+    translation
+    """
+    def __init__(self, anatomistinstance, internalRep=None, *args, **kwargs):
+      super(Anatomist.Transformation, self).__init__(anatomistinstance, internalRep, *args, **kwargs)

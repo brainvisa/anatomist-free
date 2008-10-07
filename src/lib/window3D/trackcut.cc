@@ -251,7 +251,7 @@ void TrackCutAction::setSlice( const Quaternion & q )
   {
     sl = isls->first;
     sl->setQuaternion( q );
-    (*io)->notifyObservers( this );
+    isls->second->notifyObservers( this );
 
     // send event
     Object	ex = Object::value( Dictionary() );

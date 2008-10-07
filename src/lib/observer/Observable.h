@@ -62,7 +62,8 @@ namespace anatomist
    *	notifyObservers method causes all of its observers to be notified of
    *	the change by a call to their update method. \\
    *	This implementation of an observable is a mere copy of the Java
-   *	\URL[Observable]{http://java.sun.com/products/jdk/1.2/docs/api/java.util.Observable.html}.
+   *	Observable:
+   *    http://java.sun.com/javase/6/docs/api/java/util/Observable.html
    */
 
   class Observable : public carto::SharedObject

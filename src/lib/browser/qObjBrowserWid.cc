@@ -88,12 +88,29 @@ void QObjectBrowserWidget::registerObject( AObject* object,
   map<Q3ListViewItem *, AObject *>::const_iterator	ia, fa=_aobjects.end();
   unsigned const	regColumn = 5;
 
+  AObject::ParentList parents = object->parents();
+  AObject::ParentList::iterator ip, ip2, ep = parents.end();
+  for( ip=parents.begin(); ip!=ep; )
+  {
+    if( (*ip)->type() == AObject::GRAPH )
+      ++ip;
+    else
+    {
+      ip2 = ip;
+      ++ip;
+      parents.erase( ip2 );
+    }
+  }
+
   for( ia=_aobjects.begin(); ia!=fa; ++ia )
     if( (*ia).second == object )
-      {
-	(*ia).first->setText( regColumn, "*" );
-	return;		// already listed
-      }
+    {
+      (*ia).first->setText( regColumn, "*" );
+      return;		// already listed
+    }
+    else if( ia->second->type() == AObject::GRAPH
+             && parents.find( static_cast<MObject *>( ia->second ) ) != ep )
+      return; // already a parent graph displayed here
 
   //	mettre un truc plus rapide...
   map<Q3ListViewItem *, GenericObject *>::const_iterator 
@@ -159,11 +176,11 @@ void QObjectBrowserWidget::updateObject( GenericObject* )
 void QObjectBrowserWidget::registerObject( GenericObject* object )
 {
   shared_ptr<AObject> ao;
-  if( object->getProperty( "ana_object", ao ) )
+  /* if( object->getProperty( "ana_object", ao ) )
   {
     registerObject( ao.get() );
     return;
-  }
+  } */
 
   map<Q3ListViewItem *, GenericObject *>::const_iterator 
     ig, fg=_gobjects.end();
