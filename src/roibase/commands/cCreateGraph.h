@@ -49,7 +49,8 @@ namespace anatomist
   public:
     CreateGraphCommand( AObject* model, const std::string & name = "", 
 			const std::string & syntax = "", int rid = -1, 
-			CommandContext* context = 0 );
+			CommandContext* context = 0,
+                        const std::string & filename = "" );
     virtual ~CreateGraphCommand();
 
     virtual std::string name() const { return( "CreateGraph" ); }
@@ -62,6 +63,7 @@ namespace anatomist
     static bool		_helper;
     AObject		*_model;
     std::string		_name;
+    std::string         _filename;
     std::string		_syntax;
     int			_rid;
     AObject		*_newobj;

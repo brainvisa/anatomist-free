@@ -60,6 +60,7 @@ public:
   {
     return carto::GLWidget::width();
   }
+  void setBackgroundAlpha( float a );
 
   int height()
   {

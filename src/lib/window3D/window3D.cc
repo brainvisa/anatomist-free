@@ -1255,7 +1255,7 @@ void AWindow3D::refreshNow()
 	    //glLineWidth( 2 );
 	    //glShadeModel( GL_FLAT );
 	    glDisable( GL_LIGHTING );
-	    glColor3f( 0, 0, 0 );
+	    // glColor3f( 0, 0, 0 );
 	    glEndList();
 
 	    renderoffpr->insertList( hwfGLL );
@@ -1282,7 +1282,12 @@ void AWindow3D::refreshNow()
   d->primitives.clear();	// delete local references
 
   if( d->light )
+  {
     d->draw->setLightGLList( d->light->GetGLList() );
+    d->draw->setBackgroundAlpha( d->light->Background(3) );
+  }
+  else
+    d->draw->setBackgroundAlpha( 1. );
 
   ResetRefreshFlag();
 

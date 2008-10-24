@@ -217,16 +217,18 @@ class Anatomist(ObservableSingleton, object):
     """
     pass
   
-  def createGraph(self, object, name=None, syntax=None):
+  def createGraph(self, object, name=None, syntax=None, filename=None):
     """
     Creates a graph associated to a object (volume for example). This object initializes graph's dimensions (voxel size, extrema).
     
     @type object: AObject
     @param object: the new graph is based on this object
     @type name: string
-    @param name: graph's name. default is RoiArg.
+    @param name: graph name. default is RoiArg.
     @type syntax: string
-    @param syntax: graph's syntax attribute. default is RoiArg.
+    @param syntax: graph syntax attribute. default is RoiArg.
+    @type filename: string
+    @param filename: filename used for saving. Default is None.
 
     @rtype: AGraph
     @return: the new graph object
@@ -629,7 +631,7 @@ class Anatomist(ObservableSingleton, object):
     """
     self.execute("SetMaterial", objects=objects, ambient=material.ambient, diffuse=material.diffuse, emission=material.emission, specular=material.specular, shininess=material.shininess, refresh=refresh, lighting=material.lighting, smooth_shading=material.smooth_shading, polygon_filtering=material.polygon_filtering, depth_buffer=material.depth_buffer, face_culling=material.face_culling, polygon_mode=material.polygon_mode)
   
-  def setObjectPalette(self, objects, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None):
+  def setObjectPalette(self, objects, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None, absoluteMode=False):
     """
     Assign a palette to objects
     @type objects: list of AObject
@@ -652,8 +654,9 @@ class Anatomist(ObservableSingleton, object):
     @param linMixFactor: mix factor for the linear method
     @type palette1Dmapping: string
     @param palette1Dmapping: way of using 2D palette for 1D texture : FirstLine or Diagonal
+    @param absoluteMode: if True, min/max values are supposed to be absolute values (in regard to objects texture) rather than proportions
     """
-    self.execute('SetObjectPalette', objects = objects, palette = palette, palette2 = palette2, min=minVal, max=maxVal, min2=minVal2, max2=maxVal2, mixMethod=mixMethod, linMixFactor=linMixFactor, palette1Dmapping=palette1Dmapping)
+    self.execute('SetObjectPalette', objects = objects, palette = palette, palette2 = palette2, min=minVal, max=maxVal, min2=minVal2, max2=maxVal2, mixMethod=mixMethod, linMixFactor=linMixFactor, palette1Dmapping=palette1Dmapping, absoluteMode=int(absoluteMode))
   
   ###############################################################################
   # application control
@@ -1005,7 +1008,7 @@ class Anatomist(ObservableSingleton, object):
       """
       self.anatomistinstance.setMaterial([self], material, refresh)
       
-    def setPalette(self, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None):
+    def setPalette(self, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None, absoluteMode=False):
       """
       Assign a palette to object
       
@@ -1028,7 +1031,8 @@ class Anatomist(ObservableSingleton, object):
       @type palette1Dmapping: string
       @param palette1Dmapping: way of using 2D palette for 1D texture : FirstLine or Diagonal
       """
-      self.anatomistinstance.setObjectPalette([self], palette, minVal, maxVal, palette2,  minVal2, maxVal2, mixMethod, linMixFactor, palette1Dmapping)
+      self.anatomistinstance.setObjectPalette([self], palette, minVal, maxVal, palette2,  minVal2, maxVal2, mixMethod, linMixFactor, palette1Dmapping,
+      absoluteMode=absoluteMode)
     
     def extractTexture(self, time=None):
       """

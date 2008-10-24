@@ -37,10 +37,11 @@
 #include <anatomist/browser/qObjBrowserWid.h>
 #include <anatomist/control/coloredpixmap.h>
 #include <anatomist/application/Anatomist.h>
+#include <aims/listview/editablelistviewitem.h>
+#include <aims/qtcompat/qlistview.h>
 #include <cartobase/object/attributed.h>
 #include <cartobase/object/pythonwriter.h>
 #include <graph/tree/tree.h>
-#include <aims/qtcompat/qlistview.h>
 #include <stdio.h>
 #include <vector>
 #include <iostream>
@@ -49,6 +50,9 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
+// define this to enabl editable listview items.
+// change it also in qwObjectBrowser.cc
+// #define ANA_USE_EDITABLE_LISTVIEWITEMS
 
 AttDescr* AttDescr::_theAttDescr = 0;
 
@@ -269,17 +273,23 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
       else
         item = 0;
       if( !item )
-	{
-	  item = new Q3ListViewItem( parent, semantic.c_str(), type.c_str(), 
-				    value.c_str() );
-	  if( regist )
-	    br->registerAttribute( item );
-	}
+      {
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+        item = new aims::gui::QEditableListViewItem( parent,
+            semantic.c_str(), type.c_str(), value.c_str() );
+#else
+        item = new Q3ListViewItem( parent, semantic.c_str(), type.c_str(),
+                                   value.c_str() );
+#endif
+        item->setRenameEnabled( 2, true );
+        if( regist )
+          br->registerAttribute( item );
+      }
       else
-	{
-	  item->setText( 1, type.c_str() );
-	  item->setText( 2, value.c_str() );
-	}
+      {
+        item->setText( 1, type.c_str() );
+        item->setText( 2, value.c_str() );
+      }
     }
 }
 

@@ -54,9 +54,11 @@ bool CreateGraphCommand::_helper( initSyntax() );
 
 CreateGraphCommand::CreateGraphCommand( AObject* model, const string & name, 
 					const string & syntax, int rid, 
-					CommandContext* context )
+					CommandContext* context,
+                                        const string & filename )
   : RegularCommand(), SerializingCommand( context ), _model( model ), 
-    _name( name ), _syntax( syntax ), _rid( rid ), _newobj( 0 )
+    _name( name ), _filename( filename ), _syntax( syntax ), _rid( rid ),
+    _newobj( 0 )
 {
 }
 
@@ -79,6 +81,7 @@ bool CreateGraphCommand::initSyntax()
   s[ "name"        ].needed = false;
   s[ "syntax"      ].type = "string";
   s[ "syntax"      ].needed = false;
+  s[ "filename"    ] = Semantic( "string", false );
   Registry::instance()->add( "CreateGraph", &read, ss );
   return( true );
 }
@@ -95,6 +98,8 @@ CreateGraphCommand::doit()
     syntax = "RoiArg";
 
   AGraph	*ag = RoiBaseModule::newGraph( _model, name, syntax );
+  if( !_filename.empty() )
+    ag->setFileName( _filename );
 
   _newobj = ag;
   if( !context() )
@@ -109,7 +114,7 @@ Command* CreateGraphCommand::read( const Tree & com, CommandContext* context )
   int		iobj, rid;
   AObject	*obj;
   void		*ptr;
-  string	name, syntax;
+  string	name, syntax, filename;
 
   if( !com.getProperty( "object", iobj ) 
       || !com.getProperty( "res_pointer", rid ) )
@@ -124,9 +129,10 @@ Command* CreateGraphCommand::read( const Tree & com, CommandContext* context )
       return( 0 );
     }
   com.getProperty( "name", name );
+  com.getProperty( "filename", filename );
   com.getProperty( "syntax", syntax );
 
-  return( new CreateGraphCommand( obj, name, syntax, rid, context ) );
+  return( new CreateGraphCommand( obj, name, syntax, rid, context, filename ) );
 }
 
 
@@ -138,8 +144,12 @@ void CreateGraphCommand::write( Tree & com, Serializer* ser ) const
   obj = ser->serialize( _model );
 
   t->setProperty( "object", obj );
-  t->setProperty( "name", _name );
-  t->setProperty( "syntax", _syntax );
+  if( !_name.empty() )
+    t->setProperty( "name", _name );
+  if( !_syntax.empty() )
+    t->setProperty( "syntax", _syntax );
   t->setProperty( "res_pointer", ser->serialize( _newobj ) );
+  if( !_filename.empty() )
+    t->setProperty( "filename", _filename );
   com.insert( t );
 }

@@ -173,6 +173,7 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
     cm->setSurface( new AimsSurfaceTriangle );
     insert( cm );
     cm->setReferentialInheritance( s );
+    cm->SetMaterial( s->GetMaterial() );
   }
   d->planarcutindex = d->inplanarmeshindex + d->cutmeshindex;
 

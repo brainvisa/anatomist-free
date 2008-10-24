@@ -88,7 +88,7 @@ namespace anatomist
     template <typename T> void setTexture( carto::rc_ptr<TimeTexture<T> >
         tex );
     template <typename T>
-    carto::rc_ptr<TimeTexture<T> > texture();
+    carto::rc_ptr<TimeTexture<T> > texture( bool rescaled = false );
     virtual void createDefaultPalette( const std::string & name = "" );
     virtual void update( const Observable* observable, void* arg );
     virtual void notifyObservers( void * = 0 );

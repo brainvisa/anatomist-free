@@ -44,6 +44,7 @@
 #include <aims/io/finder.h>
 #include <aims/io/reader.h>
 #include <aims/io/writer.h>
+#include <aims/io/process.h>
 #include <aims/utility/converter_texture.h>
 #include <float.h>
 
@@ -255,6 +256,8 @@ void ATexture::setTexture( rc_ptr<TimeTexture<short> > tex )
 
   Converter<TimeTexture<short>, Texture1d>	c;
   c.convert( *tex, *ftex );
+  // keep track of original data type
+  tex->header().setProperty( "data_type", DataTypeCode<short>::name() );
 
   setTexture( ftex );
 }
@@ -268,6 +271,8 @@ void ATexture::setTexture( rc_ptr<TimeTexture<int> > tex )
 
   Converter<TimeTexture<int>, Texture1d>	c;
   c.convert( *tex, *ftex );
+  // keep track of original data type
+  tex->header().setProperty( "data_type", DataTypeCode<int>::name() );
 
   setTexture( ftex );
 }
@@ -281,6 +286,8 @@ void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
 
   Converter<TimeTexture<unsigned>, Texture1d>	c;
   c.convert( *tex, *ftex );
+  // keep track of original data type
+  tex->header().setProperty( "data_type", DataTypeCode<unsigned>::name() );
 
   setTexture( ftex );
 }
@@ -289,13 +296,107 @@ void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
 
 
 template <typename T>
-rc_ptr<TimeTexture<T> > ATexture::texture()
+rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled )
 {
   if( texdim<T>() != d->dim )
     return rc_ptr<TimeTexture<T> >( 0 );
+
+  switch( d->dim )
+  {
+  case 1:
+    {
+      rc_ptr<TimeTexture<T> > ftex( new TimeTexture<T> );
+      rc_ptr<TimeTexture<float> > tex
+          = static_cast<Private_<float> *>( d )->texture;
+      if( rescaled )
+      {
+        TexExtrema	& te = glTexExtrema();
+        typename TimeTexture<float>::iterator i, e = tex->end();
+        typename vector<float>::iterator it, et;
+        float m = te.min[0];
+        float scl = (te.maxquant[0] - te.minquant[0])
+          / (te.max[0] - m);
+        float off = te.minquant[0] - m * scl;
+        for( i=tex->begin(); i!=e; ++i )
+        {
+          Texture<float> & ti = i->second;
+          Texture<T> & to = (*ftex)[i->first];
+          to.reserve( ti.nItem() );
+
+          for( it=i->second.data().begin(), et=i->second.data().end();
+               it!=et;
+               ++it )
+          {
+            to.push_back( *it * scl + off );
+          }
+        }
+      }
+      else
+      {
+        Converter<Texture1d, TimeTexture<T> > c;
+        c.convert( *tex, *ftex );
+      }
+      return ftex;
+    }
+    default:
+    break;
+  }
   return static_cast<Private_<T> *>( d )->texture;
 }
 
+namespace anatomist
+{
+
+template <>
+rc_ptr<Texture2d> ATexture::texture( bool rescaled )
+{
+  if( 2 != d->dim )
+    return rc_ptr<Texture2d>( 0 );
+
+  switch( d->dim )
+  {
+    case 2:
+    {
+      rc_ptr<TimeTexture<Point2df> > tex
+          = static_cast<Private_<Point2df> *>( d )->texture;
+      rc_ptr<TimeTexture<Point2df> > ftex = tex;
+      if( rescaled )
+      {
+        ftex.reset( new TimeTexture<Point2df> );
+        TexExtrema	& te = glTexExtrema();
+        TimeTexture<Point2df>::iterator i, e = ftex->end();
+        vector<Point2df>::iterator it, et;
+        float m0 = te.min[0];
+        float scl0 = (te.maxquant[0] - te.minquant[0])
+          / (te.max[0] - m0);
+        float off0 = te.minquant[0] - m0 * scl0;
+        float m1 = te.min[1];
+        float scl1 = (te.maxquant[1] - te.minquant[1])
+          / (te.max[1] - m1);
+        float off1 = te.minquant[1] - m1 * scl1;
+        for( i=ftex->begin(); i!=e; ++i )
+        {
+          Texture<Point2df> & ti = i->second;
+          Texture<Point2df> & to = (*ftex)[i->first];
+          to.reserve( ti.nItem() );
+
+          for( it=i->second.data().begin(), et=i->second.data().end();
+               it!=et; ++it )
+          {
+            to.push_back( Point2df( ( (*it)[0] - m0 ) * scl0 + off0,
+                          ( (*it)[1] - m1 ) * scl1 + off1 ) );
+          }
+        }
+      }
+      return ftex;
+    }
+    default:
+      break;
+  }
+  return static_cast<Private_<Point2df> *>( d )->texture;
+}
+
+}
 
 unsigned ATexture::size( float time ) const
 {
@@ -761,6 +862,8 @@ namespace
     Converter<TimeTexture<T>, TimeTexture<U> >	c;
     c.convert( tx, *tex );
     cout << "Read texture " << tex->size() << "x" << tex->nItem() << "x1\n";
+    // keep track of original data type
+    tex->header().setProperty( "data_type", DataTypeCode<T>::name() );
     return tex;
   }
 }
@@ -790,8 +893,6 @@ bool ATexture::reload( const string & filename )
   else
     return false;
 
-  normalize();
-
   return true;
 }
 
@@ -820,6 +921,42 @@ const float* ATexture::textureCoords() const
 }
 
 
+namespace
+{
+
+  class TexSaver : public Process
+  {
+  public:
+    TexSaver( const string & fname, ATexture* tex );
+    template <typename T> static bool save( Process &, const std::string &,
+                                            Finder & );
+
+    string filename;
+    ATexture* texture;
+  };
+
+  TexSaver::TexSaver( const string & fname, ATexture* tex )
+    : filename( fname ), texture( tex )
+  {
+    registerProcessType( "Texture", "FLOAT", &save<float> );
+    registerProcessType( "Texture", "S16", &save<short> );
+    registerProcessType( "Texture", "S32", &save<int> );
+  }
+
+
+  template <typename T> bool
+  TexSaver::save( Process & p, const std::string &, Finder & )
+  {
+    TexSaver & ts = static_cast<TexSaver &>( p );
+    rc_ptr<TimeTexture<T> > tex = ts.texture->texture<T>( true );
+    Writer<TimeTexture<T> >	w( ts.filename );
+    w.write( *tex );
+    return true;
+  }
+
+}
+
+
 bool ATexture::save( const string & filename )
 {
   storeHeaderOptions();
@@ -831,8 +968,20 @@ bool ATexture::save( const string & filename )
         Texture1d	*tex = (Texture1d *) d->data;
         try
           {
-            Writer<Texture1d>	w( filename );
-            w.write( *tex );
+            string dt;
+            if( tex->header().getProperty( "data_type", dt ) )
+            {
+              TexSaver ts( filename, this );
+              Finder f;
+              f.setObjectType( "Texture" );
+              f.setDataType( dt );
+              ts.execute( f, filename );
+            }
+            else
+            {
+              Writer<Texture1d>	w( filename );
+              w.write( *tex );
+            }
           }
         catch( exception & e )
           {
@@ -873,8 +1022,8 @@ void ATexture::setInternalsChanged()
 }
 
 
-template rc_ptr<TimeTexture<float> > ATexture::texture<float>();
-template rc_ptr<TimeTexture<Point2df> > ATexture::texture<Point2df>();
+template rc_ptr<TimeTexture<float> > ATexture::texture<float>( bool );
+template rc_ptr<TimeTexture<Point2df> > ATexture::texture<Point2df>( bool );
 template void ATexture::setTexture<float>( rc_ptr<TimeTexture<float> > );
 template void ATexture::setTexture<Point2df>( rc_ptr<TimeTexture<Point2df> > );
 

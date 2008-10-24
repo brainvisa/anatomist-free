@@ -20,7 +20,7 @@ module(anaalgo)-module(anaqwt):PSUBDIRS	+= \
 		roialgo \
                 histogram
 
-# module(anavtk):PSUBDIRS += anavtk
+module(anavtk):PSUBDIRS += anavtk
 
 darwin-module(anaqwt):PSUBDIRS	+= \
 		bundle_profile \

@@ -160,6 +160,8 @@ struct GLWidgetManager::Private
   GLWidgetManager       *righteye;
   GLWidgetManager       *lefteye;
   GLWidgetManager_Private_QObject *qobject;
+  bool                  transparentBackground;
+  unsigned char         backgroundAlpha;
 };
 
 
@@ -176,7 +178,8 @@ GLWidgetManager::Private::Private()
     depthpasses( 2 ), texunits( 1 ), zbufready( false ), zbuftimer( 0 ), 
     rgbbufready( false ), 
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
-    qobject( 0 )
+    qobject( 0 ),
+    transparentBackground( true ), backgroundAlpha( 128 )
 {
   buildRotationMatrix();
 }
@@ -388,14 +391,14 @@ void GLWidgetManager::updateZBuffer()
 
 void GLWidgetManager::paintGL( DrawMode m )
 {
-  // Clear the viewport
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
   project();
 
-  // Lighting is described in the viewport coordinate system      
+  // Lighting is described in the viewport coordinate system
   if( glIsList( _pd->light ) )
     glCallList( _pd->light );
+
+  // Clear the viewport
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // Modelview matrix: we only apply rotation for now!
   //glTranslatef( _pd->campos[0], _pd->campos[1], _pd->campos[2] );
@@ -742,21 +745,39 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       int n = _pd->glwidget->width()*_pd->glwidget->height();
       unsigned char *buf = pix.bits(), c;
       for( i=0; i<n; ++i )
-        {
-	  c = *buf;
-	  *buf = *(buf+3);
-          ++buf;
-	  *(buf+2) = c;
-	  //*buf++ = c;
-	  c = *buf;
-	  *buf = *(buf+1);
-          ++buf;
-	  *buf = c;
-	  ++buf;
-          ++buf;
-	}
-      //pix = pix.convertBitOrder( QImage::BigEndian );
+      {
+        c = *buf;
+        *buf = *(buf+3);
+        ++buf;
+        *(buf+2) = c;
+        c = *buf;
+        *buf = *(buf+1);
+        ++buf;
+        *buf = c;
+        ++buf;
+        ++buf;
+      }
     }
+  if( alpha && _pd->transparentBackground && bufmode == 4
+      && _pd->backgroundAlpha != 255 && depth == 32 )
+  {
+    glReadBuffer( GL_FRONT );
+    int n = width()*height(), y, w = width();
+    vector<GLfloat> buffer( n, 2. );
+    // read Z buffer
+    glReadPixels( 0, 0, (GLint) width(), (GLint) height(),
+                  GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
+    unsigned char *buf = pix.bits();
+    // TODO: WHY THIS y-inversion ???
+    for( y=height()-1; y>=0; --y )
+      for( i=0; i<w; ++i )
+      {
+        buf += 3;
+        if( buffer[i+y*w] >= 1. )
+          *buf = _pd->backgroundAlpha;
+        ++buf;
+      }
+  }
   QString	alphaname = filename;
   int pos = alphaname.findRev( '.' );
   if( pos == -1 )
@@ -764,6 +785,12 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   alphaname = alphaname.insert( pos, ext );
   cout << "saving " << alphaname.utf8().data() << endl;
   pix.save( alphaname, format, 100 );
+}
+
+
+void GLWidgetManager::setBackgroundAlpha( float a )
+{
+  _pd->backgroundAlpha = a * 255.9;
 }
 
 
@@ -783,6 +810,32 @@ void GLWidgetManager::updateGL()
 namespace
 {
 
+  QString formatFromName( const QString & name )
+  {
+    int x = name.findRev( '.' );
+    if( x < 0 )
+      return QString();
+    QString suf = name.right( name.length() - x );
+    if( suf == ".jpg" || suf == ".JPG" )
+      return "JPEG";
+    else if( suf == ".png" || suf == ".png" )
+      return "PNG";
+    else if( suf == ".bmp" || suf == ".BMP" )
+      return "BMP";
+    else if( suf == ".pbm" || suf == ".PBM" )
+      return "PBM";
+    else if( suf == ".ppm" || suf == ".PPM" )
+      return "PPM";
+    else if( suf == ".pgm" || suf == ".PGM" )
+      return "PGM";
+    else if( suf == ".xpm" || suf == ".XPM" )
+      return "XPM";
+    else
+      return "PNG";
+    return QString();
+  }
+
+
 QStringList fileAndFormat( const QString & caption )
 {
   QStringList	res;
@@ -798,80 +851,90 @@ QStringList fileAndFormat( const QString & caption )
   bool		def = false;
   unsigned	i = 0;
   list<unsigned>	flist;
+  QString genformat = "All image formats (";
 
 #if QT_VERSION >= 0x040000
   for( fi=formats.begin(); fi!=fe; ++fi, ++i )
-    {
-      c = fi->data();
+  {
+    c = fi->data();
 #else
   for( c=formats.first(); c; c=formats.next(), ++i )
-    {
+  {
 #endif
-      if( !strcmp( c, "JPEG" ) )
-	{
-	  filter.prepend( "JPEG (*.jpg)" );
-	  flist.push_front( i );
-	  def = true;
-	}
-      else if( !strcmp( c, "PNG" ) )
-	{
-	  if( !def )
-	    {
-	      filter.prepend( "PNG (*.png)" );
-	      def = true;
-	      flist.push_front( i );
-	    }
-	  else
-	    {
-	      filter.append( "PNG (*.png)" );
-	      flist.push_back( i );
-	    }
-	}
-      else if( !strcmp( c, "BMP" ) )
-	{
-	  if( !def )
-	    {
-	      filter.prepend( "BMP (*.bmp)" );
-	      def = true;
-	      flist.push_front( i );
-	    }
-	  else
-	    {
-	      filter.append( "BMP (*.bmp)" );
-	      flist.push_back( i );
-	    }
-	}
-      else if( !strcmp( c, "PBM" ) )
-	{
-	  filter.append( "PBM (*.pbm)" );
-	  flist.push_back( i );
-	}
-      else if( !strcmp( c, "PPM" ) )
-	{
-	  filter.append( "PPM (*.ppm)" );
-	  flist.push_back( i );
-	}
-      else if( !strcmp( c, "PGM" ) )
-	{
-	  filter.append( "PGM (*.pgm)" );
-	  flist.push_back( i );
-	}
-      else if( !strcmp( c, "XPM" ) )
-	{
-	  filter.append( "XPM (*.xpm)" );
-	  flist.push_back( i );
-	}
-      else if( !strcmp( c, "XBM" ) )
-	{
-	  filter.append( "XBM (*.xbm)" );
-	  flist.push_back( i );
-	}
-      else
-	{
-	  filter.append( c );
-	  flist.push_back( i );
-	}
+    if( !strcmp( c, "JPEG" ) )
+    {
+      filter.prepend( "JPEG (*.jpg)" );
+      flist.push_front( i );
+      def = true;
+      genformat += " *.jpg";
     }
+    else if( !strcmp( c, "PNG" ) )
+    {
+      if( !def )
+      {
+        filter.prepend( "PNG (*.png)" );
+        def = true;
+        flist.push_front( i );
+      }
+      else
+      {
+        filter.append( "PNG (*.png)" );
+        flist.push_back( i );
+      }
+      genformat += " *.png";
+    }
+    else if( !strcmp( c, "BMP" ) )
+    {
+      if( !def )
+      {
+        filter.prepend( "BMP (*.bmp)" );
+        def = true;
+        flist.push_front( i );
+      }
+      else
+      {
+        filter.append( "BMP (*.bmp)" );
+        flist.push_back( i );
+      }
+      genformat += " *.bmp";
+    }
+    else if( !strcmp( c, "PBM" ) )
+    {
+      filter.append( "PBM (*.pbm)" );
+      flist.push_back( i );
+      genformat += " *.pbm";
+    }
+    else if( !strcmp( c, "PPM" ) )
+    {
+      filter.append( "PPM (*.ppm)" );
+      flist.push_back( i );
+      genformat += " *.ppm";
+    }
+    else if( !strcmp( c, "PGM" ) )
+    {
+      filter.append( "PGM (*.pgm)" );
+      flist.push_back( i );
+      genformat += " *.pgm";
+    }
+    else if( !strcmp( c, "XPM" ) )
+    {
+      filter.append( "XPM (*.xpm)" );
+      flist.push_back( i );
+      genformat += " *.xpm";
+    }
+    else if( !strcmp( c, "XBM" ) )
+    {
+      filter.append( "XBM (*.xbm)" );
+      flist.push_back( i );
+      genformat += " *.xbm";
+    }
+    else
+    {
+      filter.append( c );
+      flist.push_back( i );
+    }
+  }
+  filter.prepend( genformat + " )" );
 
   QFileDialog	& fdiag = fileDialog();
   //fdiag.setFilters( QStringList::fromStrList( filter ).join( ";;" ) );
@@ -879,31 +942,38 @@ QStringList fileAndFormat( const QString & caption )
   fdiag.setCaption( caption );
   fdiag.setMode( QFileDialog::AnyFile );
   if( fdiag.exec() )
+  {
+    QString	filename = fdiag.selectedFile();
+    QString	format = fdiag.selectedFilter();
+
+    if ( filename != QString::null )
     {
-      QString	filename = fdiag.selectedFile();
-      QString	format = fdiag.selectedFilter();
-
-      if ( filename != QString::null )
-	{
+      QString format2 = formatFromName( filename );
+      if( format2.isEmpty() )
+      {
 #if QT_VERSION >= 0x040000
-	  int				nf = filter.indexOf( format );
+        int				nf = filter.indexOf( format );
 #else
-	  int				nf = filter.findIndex( format );
+        int				nf = filter.findIndex( format );
 #endif
-	  list<unsigned>::iterator	il;
+        list<unsigned>::iterator	il;
 
-	  if( nf >= 0 && nf < (int) formats.count() )
-	    {
-	      for( i=0, il=flist.begin(); i<(unsigned)nf; ++i, ++il ) {}
-	      format = formats.at( *il );
-	    }
-	  else
-	    format = "JPEG";
-	  res.append( filename );
-	  res.append( format );
-	  //cout << "format : " << format << endl;
-	}
+        if( nf > 0 && nf <= (int) formats.count() )
+          {
+            --nf; // skip the generic one
+            for( i=0, il=flist.begin(); i<(unsigned)nf; ++i, ++il ) {}
+            format = formats.at( *il );
+          }
+        else
+          format = "JPEG";
+      }
+      else
+        format = format2;
+      res.append( filename );
+      res.append( format );
+      //cout << "format : " << format << endl;
     }
+  }
 
   return( res );
 }
@@ -931,31 +1001,13 @@ void GLWidgetManager::recordStart( const QString & basename,
   _pd->recordFormat = format;
   int	p = _pd->recordBaseName.findRev( '.' );
   if( p >= 0 )
-    {
-      _pd->recordSuffix
-	= _pd->recordBaseName.right( _pd->recordBaseName.length() - p );
-      _pd->recordBaseName = _pd->recordBaseName.left( p );
-      if( format.isEmpty() )
-	{
-	  QString	suf = _pd->recordSuffix;
-	  if( suf == ".jpg" || suf == ".JPG" )
-	    _pd->recordFormat = "JPEG";
-	  else if( suf == ".png" || suf == ".png" )
-	    _pd->recordFormat = "PNG";
-	  else if( suf == ".bmp" || suf == ".BMP" )
-	    _pd->recordFormat = "BMP";
-	  else if( suf == ".pbm" || suf == ".PBM" )
-	    _pd->recordFormat = "PBM";
-	  else if( suf == ".ppm" || suf == ".PPM" )
-	    _pd->recordFormat = "PPM";
-	  else if( suf == ".pgm" || suf == ".PGM" )
-	    _pd->recordFormat = "PGM";
-	  else if( suf == ".xpm" || suf == ".XPM" )
-	    _pd->recordFormat = "XPM";
-	  else
-	    _pd->recordFormat = "PNG";
-	}
-    }
+  {
+    _pd->recordSuffix
+	    = _pd->recordBaseName.right( _pd->recordBaseName.length() - p );
+    _pd->recordBaseName = _pd->recordBaseName.left( p );
+    if( format.isEmpty() )
+      _pd->recordFormat = formatFromName( _pd->recordBaseName );
+  }
   else
     _pd->recordSuffix = "";
   _pd->record = true;

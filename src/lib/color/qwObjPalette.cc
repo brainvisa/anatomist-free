@@ -481,7 +481,7 @@ void QAPaletteWin::updateInterface()
   d->dimBgp->setButton( d->dim - 1 );
   int i, n = d->palettes->count();
   QString	name = d->objpal->refPalette()->name().c_str();
-  QListBoxItem *item = d->palettes->findItem( name );
+  QListBoxItem *item = d->palettes->findItem( name, Qt::CaseSensitive );
   if( item )
     d->palettes->setCurrentItem( item );
   else
@@ -573,7 +573,7 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
             d->palette1dMappingBox->setCurrentItem( 0 ) ;
 
           QListBoxItem *palitem = d->palettes->findItem
-              ( d->objpal->refPalette()->name().c_str() );
+              ( d->objpal->refPalette()->name().c_str(), Qt::CaseSensitive );
           if( !palitem )
             fillPalette1();
 
@@ -1398,24 +1398,30 @@ void QAPaletteWin::runCommand()
   if( d->objpal && d->modified && !_parents.empty() )
     {
       SetObjectPaletteCommand	*com;
+      // convert to absolute values
+      AObjectPalette *pal = objPalette();
+      float omi = pal->min1() * ( d->objMax - d->objMin ) + d->objMin;
+      float oma = pal->max1() * ( d->objMax - d->objMin ) + d->objMin;
+      float omi2 = pal->min2() * ( d->objMax2 - d->objMin2 ) + d->objMin2;
+      float oma2 = pal->max2() * ( d->objMax2 - d->objMin2 ) + d->objMin2;
 
       if( d->objpal->refPalette2() )
-	com = new SetObjectPaletteCommand( _parents, 
+      {
+        com = new SetObjectPaletteCommand( _parents,
 					   d->objpal->refPalette()->name(), 
-					   true, d->objpal->min1(), 
-					   true, d->objpal->max1(), 
+					   true, omi, true, oma,
 					   d->objpal->refPalette2()->name(), 
-					   true, d->objpal->min2(), 
-					   true, d->objpal->max2(), 
+					   true, omi2, true, oma2,
 					   d->objpal->mixMethodName(), true, 
-					   d->objpal->linearMixFactor() );
+                                           d->objpal->linearMixFactor(), "",
+                                           true );
+      }
       else
 	com = new SetObjectPaletteCommand( _parents, 
 					   d->objpal->refPalette()->name(), 
-					   true, d->objpal->min1(), 
-					   true, d->objpal->max1(), 
-					   "", true, d->objpal->min2(), 
-					   true, d->objpal->max2() );
+					   true, omi, true, oma,
+					   "", true, omi2,  true, oma2, "",
+                                           false, 0.5, "", true );
 
       // pb: unnecessary command execution: should be only writen, not executed
       // because it has already been done before.

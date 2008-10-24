@@ -256,14 +256,23 @@ void AGraphObject::SetMaterialOrDefault( const AGraph* agr,
 	      ic = cols->find( gec.global_index_attribute );
 	      if( ic == ec )
 		ic = cols->find( gec.local_file_attribute );
-	      if( ic != ec )
+/*              if( ic == ec
+                  && gec.global_index_attribute.substr( 0, 5 ) == "aims_" )
+                ic = cols->find( gec.global_index_attribute.substr( 5,
+                                 gec.global_index_attribute.length() - 5 ) );
+              if( ic == ec
+                  && gec.local_file_attribute.substr( 0, 5 ) == "aims_" )
+                ic = cols->find( gec.local_file_attribute.substr( 5,
+                                 gec.local_file_attribute.length() - 5 ) );
+              */
+              if( ic != ec )
 		{
 		  hascol = true;
 		  const vector<int>	& col = (*ic).second;
                   float	da = mat.Diffuse( 3 );
                   if( col.size() >= 4 )
                     da = ((float) col[3]) / 255;
-		  mat2.SetDiffuse( ((float) col[0]) / 255, 
+		  mat2.SetDiffuse( ((float) col[0]) / 255,
 				   ((float) col[1]) / 255, 
 				   ((float) col[2]) / 255, da );
 		  o->SetMaterial( mat2 );

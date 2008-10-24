@@ -49,7 +49,10 @@ class GradientPaletteWidget( qtgui.QWidget ):
       self._gradpal._objects.append( anatomist.weak_ptr_AObject(obs) )
 
     def unregisterObservable( self, obs ):
-      self._gradpal._objects.remove( obs )
+      try:
+        self._gradpal._objects.remove( obs )
+      except:
+        pass
       anatomist.Observer.unregisterObservable( self, obs )
 
     def update( self, observable, args ):

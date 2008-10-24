@@ -1659,6 +1659,12 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
 				    &Trackball::endTrackball ), true );
 
+  // zoom
+
+  wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
+                       ( actionPool->action( "Zoom3DAction" ), 
+                         &Zoom3DAction::zoomWheel ) );
+
   // oblique trackball
 
   mouseLongEventSubscribe

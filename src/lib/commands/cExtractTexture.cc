@@ -136,7 +136,6 @@ ExtractTextureCommand::doit()
 
       ATexture	*ao = new ATexture;
       ao->setTexture( tx );
-      ao->normalize();
       ao->setHeaderOptions();
       ao->setName( theAnatomist->makeObjectName( "extracted_1D_texture" ) );
       ao->setPalette( *_object->getOrCreatePalette() );

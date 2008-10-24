@@ -223,6 +223,18 @@ class AnatomistRoiBaseComponent( GenericMakerModuleComponent ):
     return [ AnatomistQwtComponent ]
 
 #-----------------------------------------------------------------------------
+class VtkInria3DComponent( SystemComponent ):
+  _name = 'vtkinria3d'
+  _includeFile = 'vtkINRIA3DConfigure.h'
+  _libFile = 'libvtkDataManagement'
+
+  def dependencies( self ):
+    return [ VtkComponent ]
+
+  def _libraries( self ):
+    return [ 'vtkDataManagement' ]
+
+#-----------------------------------------------------------------------------
 class AnatomistVtkComponent( GenericMakerModuleComponent ):
   _name = 'anavtk'
 
@@ -230,7 +242,7 @@ class AnatomistVtkComponent( GenericMakerModuleComponent ):
     return 'anatomist'
 
   def dependencies( self ):
-    return [ AnatomistComponent, VtkComponent ]
+    return [ AnatomistComponent, VtkInria3DComponent ]
 
 #-----------------------------------------------------------------------------
 

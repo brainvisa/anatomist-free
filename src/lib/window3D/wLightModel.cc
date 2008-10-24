@@ -150,8 +150,9 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   c = l->Background();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
 		(int) ( c[2] * 255.9 ) );
-  _pdat->modelBackground = new QAColorWidget( col, vg, 
-					      "lgtmodel_model_backg" );
+  _pdat->modelBackground
+    = new QAColorWidget( col, vg, "lgtmodel_model_backg", 0, true, false,
+                         c[3] * 255.9 );
   vg = new QVGroupBox( tr( "Parameters :" ), model );
   QCheckBox	*lv = new QCheckBox( tr( "Local viewer" ), vg );
   lv->setChecked( l->ModelLocalViewer() );
@@ -348,9 +349,9 @@ void LightModelWindow::enableTab( int tabid )
 void LightModelWindow::sourceAmbientChanged()
 {
   QColor	col = _pdat->sourceAmbient->color();
-  _window->light()->SetAmbient( ( (float) col.red() ) / 256, 
-				   ( (float) col.green() ) / 256, 
-				   ( (float) col.blue() ) / 256, 1 );
+  _window->light()->SetAmbient( ( (float) col.red() ) / 255, 
+				   ( (float) col.green() ) / 255, 
+				   ( (float) col.blue() ) / 255, 1 );
   updateLights();
 }
 
@@ -358,9 +359,9 @@ void LightModelWindow::sourceAmbientChanged()
 void LightModelWindow::sourceDiffuseChanged()
 {
   QColor	col = _pdat->sourceDiffuse->color();
-  _window->light()->SetDiffuse( ( (float) col.red() ) / 256, 
-				   ( (float) col.green() ) / 256, 
-				   ( (float) col.blue() ) / 256, 1 );
+  _window->light()->SetDiffuse( ( (float) col.red() ) / 255, 
+				   ( (float) col.green() ) / 255, 
+				   ( (float) col.blue() ) / 255, 1 );
   updateLights();
 }
 
@@ -368,9 +369,9 @@ void LightModelWindow::sourceDiffuseChanged()
 void LightModelWindow::sourceSpecularChanged()
 {
   QColor	col = _pdat->sourceSpecular->color();
-  _window->light()->SetSpecular( ( (float) col.red() ) / 256, 
-				    ( (float) col.green() ) / 256, 
-				    ( (float) col.blue() ) / 256, 1 );
+  _window->light()->SetSpecular( ( (float) col.red() ) / 255, 
+				    ( (float) col.green() ) / 255, 
+				    ( (float) col.blue() ) / 255, 1 );
   updateLights();
 }
 
@@ -378,9 +379,9 @@ void LightModelWindow::sourceSpecularChanged()
 void LightModelWindow::modelAmbientChanged()
 {
   QColor	col = _pdat->modelAmbient->color();
-  _window->light()->SetModelAmbient( ( (float) col.red() ) / 256, 
-					( (float) col.green() ) / 256, 
-					( (float) col.blue() ) / 256, 1 );
+  _window->light()->SetModelAmbient( ( (float) col.red() ) / 255, 
+					( (float) col.green() ) / 255, 
+					( (float) col.blue() ) / 255, 1 );
   updateLights();
 }
 
@@ -388,9 +389,11 @@ void LightModelWindow::modelAmbientChanged()
 void LightModelWindow::modelBackgroundChanged()
 {
   QColor	col = _pdat->modelBackground->color();
-  _window->light()->SetBackground( ( (float) col.red() ) / 256, 
-				      ( (float) col.green() ) / 256, 
-				      ( (float) col.blue() ) / 256, 1 );
+  _window->light()->SetBackground( ( (float) col.red() ) / 255,
+                                   ( (float) col.green() ) / 255,
+                                   ( (float) col.blue() ) / 255,
+                                   ( (float) _pdat->modelBackground->alpha() )
+                                   / 255 );
   updateLights();
 }
 

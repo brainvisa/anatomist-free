@@ -159,6 +159,7 @@ namespace anatomist
     bool recording() const;
 
     static QGLWidget* sharedWidget();
+  void setBackgroundAlpha( float a );
 
     GLWidgetManager* rightEye();
     GLWidgetManager* leftEye();

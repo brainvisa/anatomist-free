@@ -234,6 +234,15 @@ void QObjectBrowserWidget::registerObject( GenericObject* object )
 
   _itemTypes[ item ] = GOBJECT;
   _gobjects[ item ] = object;
+
+  if( object->getProperty( "ana_object", ao ) && ao->isMultiObject() )
+  {
+    MObject *mo = (MObject *) ao.get();
+    MObject::iterator io, fo = mo->end();
+
+    for( io=mo->begin(); io!=fo; ++io )
+      insertObject( item, *io );
+  }
 }
 
 
@@ -289,7 +298,7 @@ Q3ListViewItem* QObjectBrowserWidget::insertObject( Q3ListViewItem* parent,
 
 void QObjectBrowserWidget::decorateItem( Q3ListViewItem* item, AObject* obj )
 {
-  enum { nameCol, typeCol, ValueCol };
+  enum { nameCol, typeCol, valueCol, labelCol };
   map<int, QPixmap>::const_iterator	ip, fp=QObjectTree::TypeIcons.end();
   map<int, string>::const_iterator	it, ft=QObjectTree::TypeNames.end();
 
@@ -299,13 +308,14 @@ void QObjectBrowserWidget::decorateItem( Q3ListViewItem* item, AObject* obj )
   if( ip != fp )
     item->setPixmap( nameCol, (*ip).second );
   it = QObjectTree::TypeNames.find( obj->type() );
+  string t;
   if( it != ft )
-    item->setText( typeCol, (*it).second.c_str() );
+    t = it->second;
   else
     {
-      char	str[20];
-      sprintf( str, "? (%d)", obj->type() );
-      item->setText( typeCol, str );
+      ostringstream str;
+      str << "? (" << obj->type() << ")";
+      t = str.str();
     }
 
   AttributedAObject	*aao = dynamic_cast<AttributedAObject *>( obj );
@@ -314,8 +324,34 @@ void QObjectBrowserWidget::decorateItem( Q3ListViewItem* item, AObject* obj )
       SyntaxedInterface	*si = aao->attributed()
         ->getInterface<SyntaxedInterface>();
       if( si && si->hasSyntax() )
-        item->setText( ValueCol, si->getSyntax().c_str() );
+      {
+        t += " : ";
+        t += si->getSyntax();
+      }
+
+      Edge *ed = dynamic_cast<Edge *>( aao->attributed() );
+      string name;
+
+      if( ed )
+      {
+        Edge::const_iterator      iv = ed->begin();
+        string                    str, lab1, lab2;
+
+        (*iv)->getProperty( "label", lab1 );
+        if( (*iv)->getProperty( "name", str ) )
+        name = str + " - ";
+        ++iv;
+        if( (*iv)->getProperty( "name", str ) )
+        name += str;
+        (*iv)->getProperty( "label", lab2 );
+        item->setText( labelCol, lab1.c_str() );
+        item->setText( labelCol + 1, lab2.c_str() );
+        item->setText( valueCol, name.c_str() );
+      }
+      else if( aao->attributed()->getProperty( "name", name ) )
+        item->setText( valueCol, name.c_str() );
     }
+  item->setText( typeCol, t.c_str() );
 }
 
 
@@ -400,41 +436,37 @@ void QObjectBrowserWidget::describeAObject( AObject* obj,
     (*ih).second( this, obj, parent );
   else
     {
-#if 1
       AttributedAObject	*aao = dynamic_cast<AttributedAObject *>( obj );
       if( aao )
-	{
-	  AttDescr		*attd = AttDescr::descr();
-	  attd->describeAttributes( this, parent, aao->attributed() );
-	}
+      {
+        AttDescr		*attd = AttDescr::descr();
+        attd->describeAttributes( this, parent, aao->attributed() );
+      }
       else
-	{
-          //#endif
-	  const PythonAObject 
-	    *da = dynamic_cast<const PythonAObject *>( obj );
-	  if( da )
-	    {
-              const GenericObject	*go = da->attributed();
-              if( go )
-                {
-                  QPythonPrinter pp( parent, AttDescr::descr()->syntaxSet() );
-                  pp.write( *go, true );
-                }
-	    }
-          //#if 0
-	}
-#endif
+      {
+        const PythonAObject
+          *da = dynamic_cast<const PythonAObject *>( obj );
+        if( da )
+        {
+          const GenericObject	*go = da->attributed();
+          if( go )
+          {
+            QPythonPrinter pp( parent, AttDescr::descr()->syntaxSet() );
+            pp.write( *go, true );
+          }
+        }
+      }
 
       if( obj->isMultiObject() )
-	{
-	  MObject		*mo = (MObject *) obj;
-	  MObject::iterator	io, fo = mo->end();
+      {
+        MObject		*mo = (MObject *) obj;
+        MObject::iterator	io, fo = mo->end();
 
-	  for( io=mo->begin(); io!=fo; ++io )
-	    {
-	      insertObject( parent, *io );
-	    }
-	}
+        for( io=mo->begin(); io!=fo; ++io )
+        {
+          insertObject( parent, *io );
+        }
+      }
     }
 }
 

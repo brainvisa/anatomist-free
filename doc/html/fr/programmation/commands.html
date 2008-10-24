@@ -1568,8 +1568,22 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécif
       "<tt>default</tt>" (utiliser le réglage global de la vue)
     </td>
   </tr>
+  <tr>
+    <td valign="top"><tt>unlit_color</tt></td>
+    <td valign="top"><tt>float_vector</tt> (optionnel)</td>
+    <td id="txt"><b>Nouveau dans Anatomist 3.1.4</b><br>
+      couleur utilisée pour les lignes en l'absence d'éclairage. A présent cela concerne seulement la couleur des contours des polygônes en mode  de rendu "<tt>outline</tt>".
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><tt>line_width</tt></td>
+    <td valign="top"><tt>float</tt> (optionnel)</td>
+    <td id="txt"><b>Nouveau dans Anatomist 3.1.4</b><br>
+      Épaisseur des lignes (maillages de segments, modes de rendu filaires). Une valeur nulle ou négative revient au défaut (1 en principe).
+    </td>
+  </tr>
 
-</tbody>                                                         
+</tbody>
 </table>
 
 
@@ -1639,6 +1653,13 @@ de la  palette    par les objets.
     <td><tt>string</tt> (optionnel)</td>
     <td>Mode de parcours d'une palette 2D (image) pour une texture 1D: 
       <tt>FirstLine</tt> (1ère ligne de l'image) ou <tt>Diagonal</tt>
+    </td>
+  </tr>
+  <tr>
+    <td><tt>absoluteMode</tt></td>
+    <td><tt>int</tt> (optionnel)</td>
+    <td><b>Nouveau dans Anatomist 3.1.4</b><br>
+      Si ce flag est non-nul, les valeurs <tt>min</tt>, <tt>max</tt>, <tt>min2</tt> et <tt>max2</tt> sont des valeurs absolues dans la texture des objets concernés. Sinon (par défaut) on est en mode proportionnel.
     </td>
   </tr>
 
@@ -2021,38 +2042,44 @@ Règlage des paramètres d'une fusion 3D<br>
 <br>
                                                          
 <h3>CreateGraph</h3>
-Cr&eacute;e un graphe associ&eacute; &agrave; un objet 2D  (par
-ex.   un  volume).  L'objet de d&eacute;part donne ses dimensions (taille
-de voxel,   extrema)  au nouveau graphe<br>
+Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ donne ses dimensions (taille de voxel, extrêma) au nouveau graphe.<br>
 
 <table border="1" width="100%" nosave="">
 <tbody>
-                        <tr>
-               <td><tt>object</tt></td>
-                <td><tt>int</tt></td>
-                <td>objet 2D servant de "mod&egrave;le" au graphe</td>
-               </tr>
-                <tr>
-               <td><tt>res_pointer</tt></td>
-                <td><tt>int</tt></td>
-                <td>ID du nouveau graphe cr&eacute;&eacute;</td>
-               </tr>
-                <tr>
-               <td><tt>name</tt></td>
-                <td><tt>string</tt> (optionnel)</td>
-                <td>nom de l'objet graphe&nbsp; <br>
-              d&eacute;faut: <tt>RoiArg</tt></td>
-               </tr>
-                <tr>
-               <td><tt>syntax</tt></td>
-                <td><tt>string</tt> (optionnel)</td>
-                <td>attribut syntaxique du graphe&nbsp; <br>
-              d&eacute;faut: <tt>RoiArg</tt></td>
-               </tr>
+  <tr>
+    <td><tt>object</tt></td>
+    <td><tt>int</tt></td>
+    <td>objet 2D servant de "modèle" au graphe</td>
+  </tr>
+  <tr>
+    <td><tt>res_pointer</tt></td>
+    <td><tt>int</tt></td>
+    <td>ID du nouveau graphe créé</td>
+  </tr>
+  <tr>
+    <td><tt>name</tt></td>
+    <td><tt>string</tt> (optionnel)</td>
+    <td>nom de l'objet graphe. Défaut: <tt>RoiArg</tt>.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>filename</tt></td>
+    <td><tt>string</tt> (optionnel)</td>
+    <td><b>Nouveau dans Anatomist 3.1.4</b><br>
+      nom de fichier associé au graphe. Défaut: aucun.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>syntax</tt></td>
+    <td><tt>string</tt> (optionnel)</td>
+    <td>attribut syntaxique du graphe. Défaut: <tt>RoiArg</tt>.
+    </td>
+  </tr>
 
-</tbody>                                                         
+</tbody>
 </table>
-               
+
+
 <h3>AddNode</h3>
 Ajoute un noeud dans un graphe, avec &eacute;ventuellement  un 
 bucket    vide  &agrave; l'int&eacute;rieur<br>

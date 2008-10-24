@@ -51,13 +51,19 @@ struct Material::Private
   Private( const Private & );
   Private & operator = ( const Private & );
   int	renderProps[ NrenderProps ];
+  GLfloat unlitColor[4];
+  float lineWidth;
 };
 
 
-Material::Private::Private()
+Material::Private::Private(): lineWidth( 0. )
 {
   for( unsigned i = 0; i<NrenderProps; ++i )
     renderProps[ i ] = -1;
+  unlitColor[0] = 0.;
+  unlitColor[1] = 0.;
+  unlitColor[2] = 0.;
+  unlitColor[3] = 1.;
 }
 
 
@@ -249,6 +255,40 @@ void Material::SetEmissionA(float val)
   //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, _emission);
 }
 
+
+GLfloat *Material::unlitColor() const
+{
+  return d->unlitColor;
+}
+
+
+GLfloat Material::unlitColor( int i ) const
+{
+  return d->unlitColor[i];
+}
+
+
+void Material::setUnlitColor( float r, float g, float b, float a )
+{
+  d->unlitColor[0] = r;
+  d->unlitColor[1] = g;
+  d->unlitColor[2] = b;
+  d->unlitColor[3] = a;
+}
+
+
+float Material::lineWidth() const
+{
+  return d->lineWidth;
+}
+
+
+void Material::setLineWidth( float w )
+{
+  d->lineWidth = w;
+}
+
+
 bool Material::IsBlended() const
 {
   if ((_ambient[3]*_diffuse[3]*_specular[3]*_emission[3]) != 1.0) return(true);
@@ -274,8 +314,14 @@ void Material::setGLMaterial() const
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, _specular);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &_shininess);
   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, _emission);
-  if( d->renderProps[ RenderLighting ] == 0 )
-    glColor4f( _diffuse[0], _diffuse[1], _diffuse[2], _diffuse[3] );
+  // if( d->renderProps[ RenderLighting ] == 0 )
+  glColor4f( _diffuse[0], _diffuse[1], _diffuse[2], _diffuse[3] );
+  /* glColor4f( d->unlitColor[0], d->unlitColor[1], d->unlitColor[2],
+             d->unlitColor[3] ); */
+  if( d->lineWidth > 0 )
+    glLineWidth( d->lineWidth );
+  else
+    glLineWidth( 1. );
 
   // always use blending: here we don't know if a texture will be mixed to 
   // the material
@@ -455,6 +501,11 @@ bool Material::operator != ( const Material & mat ) const
           || d->renderProps[ RenderMode ] 
           != mat.d->renderProps[ RenderMode ]
           || d->renderProps[ Ghost ] != mat.d->renderProps[ Ghost ]
+          || d->unlitColor[0] != mat.d->unlitColor[0]
+          || d->unlitColor[1] != mat.d->unlitColor[1]
+          || d->unlitColor[2] != mat.d->unlitColor[2]
+          || d->unlitColor[3] != mat.d->unlitColor[3]
+          || d->lineWidth != mat.d->lineWidth
           );
 }
 
@@ -558,6 +609,28 @@ void Material::set( const GenericObject & obj )
   catch( ... )
     {
     }
+  try
+  {
+    vec = obj.getProperty( "unlit_color" );
+    try
+    {
+      n = vec->size();
+      if( n >= 1 )
+        d->unlitColor[0] = vec->getArrayItem(0)->getScalar();
+      if( n >= 2 )
+        d->unlitColor[1] = vec->getArrayItem(1)->getScalar();
+      if( n >= 3 )
+        d->unlitColor[2] = vec->getArrayItem(2)->getScalar();
+      if( n >= 4 )
+        d->unlitColor[3] = vec->getArrayItem(3)->getScalar();
+    }
+    catch( ... )
+    {
+    }
+  }
+  catch( ... )
+  {
+  }
   try
     {
       vec = obj.getProperty( "shininess" );
@@ -674,6 +747,18 @@ void Material::set( const GenericObject & obj )
   catch( ... )
   {
   }
+  try
+  {
+    vec = obj.getProperty( "line_width" );
+    float w = vec->getScalar();
+    if( w > 0 )
+      d->lineWidth = w;
+    else
+      d->lineWidth = 0;
+  }
+  catch( ... )
+  {
+  }
 }
 
 
@@ -709,6 +794,13 @@ Object Material::genericDescription() const
   spe->insertArrayItem( -1, Object::value( _specular[3] ) );
   o->setProperty( "specular", spe );
 
+  Object        unlit = Object::value( vector<Object>() );
+  unlit->insertArrayItem( -1, Object::value( d->unlitColor[0] ) );
+  unlit->insertArrayItem( -1, Object::value( d->unlitColor[1] ) );
+  unlit->insertArrayItem( -1, Object::value( d->unlitColor[2] ) );
+  unlit->insertArrayItem( -1, Object::value( d->unlitColor[3] ) );
+  o->setProperty( "unlit_color", unlit );
+
   o->setProperty( "shininess", _shininess );
   if( d->renderProps[ RenderLighting ] >= 0 )
     o->setProperty( "lighting", d->renderProps[ RenderLighting ] );
@@ -728,6 +820,8 @@ Object Material::genericDescription() const
     }
   if( d->renderProps[ Ghost ] >= 0 )
     o->setProperty( "ghost", d->renderProps[ Ghost ] );
+  if( d->lineWidth > 0 )
+    o->setProperty( "line_width", d->lineWidth );
 
   return o;
 }

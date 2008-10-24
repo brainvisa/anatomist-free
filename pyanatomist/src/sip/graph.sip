@@ -70,6 +70,7 @@ public:
   void updateColors();
   void loadSubObjects( int mask );
   void updateAfterAimsChange();
+  void setLabelsVolumeDimension( const Point3d & vd );
 };
 
 };

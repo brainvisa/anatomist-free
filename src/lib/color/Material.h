@@ -115,6 +115,13 @@ namespace anatomist
     void SetEmissionG(float val);
     void SetEmissionB(float val);
     void SetEmissionA(float val);
+    /// color used without lighting (filar meshes, wireframe)
+    GLfloat *unlitColor() const;
+    GLfloat unlitColor( int i ) const;
+    void setUnlitColor( float, float, float, float );
+    float lineWidth() const;
+    void setLineWidth( float w );
+
     /** setup OpenGL properties.
         This is an almost private function that should only be called by 
         GLComponent internals. It implies a glPushAttrib() so popGLState() 

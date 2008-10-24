@@ -11,6 +11,8 @@ HEADERS = \
         module/vtkAnatomistRenderer.h \
         module/vtkQtRenderWindow2.h \
         module/vtkQtRenderWindowInteractor2.h \
+        vtkobject/vtkaobject.h \
+        vtkobject/vtkreader.h \
         window/vtkglcontext.h \
         window/vtkglwidget.h \
         window3D/vtkglwidget3D.h
@@ -21,6 +23,8 @@ SOURCES = \
         module/vtkAnatomistRenderer.cc \
         module/vtkQtRenderWindow2.cxx \
         module/vtkQtRenderWindowInteractor2.cc \
+        vtkobject/vtkaobject.cc \
+        vtkobject/vtkreader.cc \
         window/vtkglcontext.cc \
         window/vtkglwidget.cc \
         window3D/vtkglwidget3D.cc

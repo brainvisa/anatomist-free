@@ -43,6 +43,7 @@
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/Serializer.h>
 #include <anatomist/processor/context.h>
+#include <anatomist/surface/glcomponent.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 
@@ -63,13 +64,14 @@ SetObjectPaletteCommand::SetObjectPaletteCommand( const set<AObject *> & obj,
 						  const string & mixMethod, 
 						  bool mixFacFlg, 
 						  float linMixFactor, 
-						  const string & pal1Dmapping )
+						  const string & pal1Dmapping,
+                                                  bool absmode )
   : RegularCommand(), _objL( obj ), _pal1( palname1 ), _pal2( palname2 ),
     _pal1Dmapping(pal1Dmapping),
     _min1( min1 ), _max1( max1 ), _min2( min2 ), _max2( max2 ), 
     _mixMethod( mixMethod ), _linMixFactor( linMixFactor ), 
     _min1flg( min1flg ), _max1flg( max1flg ), _min2flg( min2flg ), 
-    _max2flg( max2flg ), _mixFacFlg( mixFacFlg )
+    _max2flg( max2flg ), _mixFacFlg( mixFacFlg ), _absmode( absmode )
 {
 }
 
@@ -106,6 +108,7 @@ bool SetObjectPaletteCommand::initSyntax()
   s[ "mixMethod"      ].needed = false;
   s[ "linMixFactor"      ].type = "float";
   s[ "linMixFactor"      ].needed = false;
+  s[ "absoluteMode" ] = Semantic( "int", false );
   Registry::instance()->add( "SetObjectPalette", &read, ss );
   return( true );
 }
@@ -123,7 +126,8 @@ void SetObjectPaletteCommand::doit()
       p1 = pall.find( _pal1 );
       if( !p1 )
       {
-	cerr << "SetObjectPaletteCommand : warning: palette not found\n";
+        cerr << "SetObjectPaletteCommand : warning: palette \"" << _pal1
+          << "\" not found\n";
         return;
       }
     }
@@ -152,22 +156,61 @@ void SetObjectPaletteCommand::doit()
 	  pal.setPalette1DMappingName( o->palette()->palette1DMappingName() ) ;
 	if( _pal1Dmapping == "Diagonal" )
 	  pal.set2dMode( true ) ;
-	if( _min1flg )
-	  pal.setMin1( _min1 );
-	else
-	  pal.setMin1( o->palette()->min1() );
-	if( _max1flg )
-	  pal.setMax1( _max1 );
-	else
-	  pal.setMax1( o->palette()->max1() );
-	if( _min2flg )
-	  pal.setMin2( _min2 );
-	else
-	  pal.setMin2( o->palette()->min2() );
-	if( _max2flg )
-	  pal.setMax2( _max2 );
-	else
-	  pal.setMax2( o->palette()->max2() );
+        bool absmode = false;
+        if( _absmode )
+        {
+          GLComponent *glc = o->glAPI();
+          if( glc )
+          {
+            GLComponent::TexExtrema	& te = glc->glTexExtrema();
+            absmode = true;
+            float m0 = te.minquant[0];
+            float scl0 = 1. / (te.maxquant[0] - m0);
+            if( _min1flg )
+              pal.setMin1( ( _min1 - m0 ) * scl0 );
+            else
+              pal.setMin1( o->palette()->min1() );
+            if( _max1flg )
+            {
+              pal.setMax1( ( _max1 - m0 ) * scl0 );
+            }
+            else
+              pal.setMax1( o->palette()->max1() );
+            float m1 = 0, scl1 = 1;
+            if( te.minquant.size() >= 2 )
+            {
+              m1 = te.minquant[1];
+              scl1 = 1. / (te.maxquant[1] - m1);
+              if( _min2flg )
+                pal.setMin2( ( _min2 - m1 ) * scl1 );
+              else
+                pal.setMin2( o->palette()->min2() );
+              if( _max2flg )
+                pal.setMax2( ( _max2 - m1 ) * scl1 );
+              else
+                pal.setMax2( o->palette()->max2() );
+            }
+          }
+        }
+        if( !absmode )
+        {
+          if( _min1flg )
+            pal.setMin1( _min1 );
+          else
+            pal.setMin1( o->palette()->min1() );
+          if( _max1flg )
+            pal.setMax1( _max1 );
+          else
+            pal.setMax1( o->palette()->max1() );
+          if( _min2flg )
+            pal.setMin2( _min2 );
+          else
+            pal.setMin2( o->palette()->min2() );
+          if( _max2flg )
+            pal.setMax2( _max2 );
+          else
+            pal.setMax2( o->palette()->max2() );
+        }
 	if( !_mixMethod.empty() )
 	  pal.setMixMethod( _mixMethod );
 	else
@@ -196,6 +239,7 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   bool			min1f = false, max1f = false, min2f = false, 
     max2f = false, mixf = false;
   float			linmix = -1;
+  int                   absmode = 0;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -223,13 +267,15 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   if( com.getProperty( "max2", max2 ) )
     max2f = true;
   com.getProperty( "mixMethod", mix );
-  com.getProperty( "palette1Dmapping", pal1Dmapping ) ;
+  com.getProperty( "palette1Dmapping", pal1Dmapping );
   if( com.getProperty( "linMixFactor", linmix ) )
     mixf = true;
+  com.getProperty( "absoluteMode", absmode );
 
   return( new SetObjectPaletteCommand( objL, pal1, min1f, min1, max1f, max1, 
 				       pal2, min2f, min2, max2f, max2, mix, 
-				       mixf, linmix, pal1Dmapping ) );
+				       mixf, linmix, pal1Dmapping,
+                                       absmode != 0 ) );
 }
 
 
@@ -264,5 +310,7 @@ void SetObjectPaletteCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "mixMethod", _mixMethod );
   if( _mixFacFlg )
     t->setProperty( "linMixFactor", _linMixFactor );
+  if( _absmode )
+    t->setProperty( "absoluteMode", 1 );
   com.insert( t );
 }

@@ -65,6 +65,7 @@ public:
   virtual bool viewableAction() const;
   virtual bool isSingleton();
   anatomist::View * view();
+  virtual QWidget* actionView(QWidget *);
 };
 
 

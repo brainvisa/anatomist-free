@@ -418,7 +418,8 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
       noexec->items.insert( noexec->items.end(), tp.begin(), tp.end() );
     }
 
-  GLPrimitives	mp = glMaterialGLL( state );
+  GLPrimitives	mp;
+  mp = glMaterialGLL( state );
   noexec->items.insert( noexec->items.end(), mp.begin(), mp.end() );
 
   GLPrimitives	tp;
@@ -492,7 +493,10 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
             case Material::Outlined:
               glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
               glDisable( GL_LIGHTING );
-              glColor3f( 0, 0, 0 );
+              {
+                GLfloat *unlit = mat->unlitColor();
+                glColor4f( unlit[0], unlit[1], unlit[2], unlit[3] );
+              }
               rendertwice = true;
               break;
             default:
@@ -677,11 +681,12 @@ GLPrimitives GLComponent::glMaterialGLL( const ViewState & state ) const
   GLList	*l( new GLList );
   l->generate();
   glNewList( l->item(), GL_COMPILE );
-  if( glNormalArray( state ) != 0 || glVertexArray( state ) == 0 )
-    mat->setGLMaterial();
-  else
+  mat->setGLMaterial();
+  /*
+  if( !glNormalArray( state ) )
     glColor4f( mat->Diffuse(0), mat->Diffuse(1), mat->Diffuse(2), 
                mat->Diffuse(3) );
+  */
   glEndList();
 
   RefGLItem	rl( l );

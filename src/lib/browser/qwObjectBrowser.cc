@@ -56,11 +56,12 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/selection/qSelMenu.h>
 #include <aims/def/path.h>
+#include <aims/graph/graphmanip.h>
+#include <aims/listview/editablelistviewitem.h>
+#include <aims/qtcompat/qvaluelist.h>
 #include <graph/graph/graph.h>
 #include <graph/tree/tree.h>
 #include <cartobase/object/sreader.h>
-#include <aims/qtcompat/qlistview.h>
-#include <aims/qtcompat/qvaluelist.h>
 #include <qlayout.h>
 #include <qsplitter.h>
 #include <qpixmap.h>
@@ -85,10 +86,15 @@ using namespace anatomist;
 using namespace aims;
 using namespace carto;
 using namespace std;
+using aims::gui::QEditableListViewItem;
 
 // private class and def
 
 #define Event_BrowserUpdate	( QEvent::User + 1 )
+
+// define this to enabl editable listview items.
+// change it also in qwObjectBrowser.cc
+// #define ANA_USE_EDITABLE_LISTVIEWITEMS
 
 namespace
 {
@@ -138,6 +144,13 @@ struct QObjectBrowser::Private
   Q3ListViewItem        *lastselectednode1;
   Q3ListViewItem        *lastselectednode2;
 
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+  // edition mode variables
+  string                editedAttribute;
+  set<Q3ListViewItem *> editedItems;
+  Q3ListViewItem *      editedMainItem;
+#endif
+
   // temporary elements for "add attribute" option
   set<Q3ListViewItem *> tempAddedItems;
   bool                  tempAddedNewSyntax;
@@ -174,6 +187,9 @@ QObjectBrowser::Private::Private( QObjectBrowser* br )
     rviewrefreshtimer( 0 ), rviewrefresh( false ),
     view( new BrowserView( br ) ),
     lastselectednode1( 0 ), lastselectednode2( 0 )
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+    , editedMainItem( 0 )
+#endif
 {
 }
 
@@ -291,7 +307,12 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
 					      const QPoint &, int ) ) );
   connect( d->rview, SIGNAL( doubleClicked( Q3ListViewItem * ) ), this,
            SLOT( rightPanelDoubleClicked( Q3ListViewItem * ) ) );
-#else
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+  connect( d->lview, SIGNAL( itemRenamed( Q3ListViewItem *, int,
+           const QString & ) ), this, SLOT( leftItemRenamed( Q3ListViewItem *,
+                                           int, const QString & ) ) );
+#endif
+#else // QT_VERSION
   connect( d->lview, 
 	   SIGNAL( rightButtonPressed( QListViewItem *, 
 				       const QPoint &, int ) ), this, 
@@ -305,13 +326,24 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
 					      const QPoint &, int ) ) );
   connect( d->rview, SIGNAL( doubleClicked( QListViewItem * ) ), this,
            SLOT( rightPanelDoubleClicked( QListViewItem * ) ) );
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+  connect( d->lview, SIGNAL( itemRenamed( QListViewItem *, int,
+           const QString & ) ), this, SLOT( leftItemRenamed( QListViewItem *,
+                                           int, const QString & ) ) );
 #endif
+#endif // QT_VERSION
   connect( d->rview, SIGNAL( selectionChanged() ), 
 	   this, SLOT( rightSelectionChangedSlot() ) );
   connect( d->lview, SIGNAL( dragStart( Q3ListViewItem *, Qt::ButtonState ) ), 
            this, SLOT( startDrag( Q3ListViewItem *, Qt::ButtonState ) ) );
   connect( d->rview, SIGNAL( dragStart( Q3ListViewItem *, Qt::ButtonState ) ), 
            this, SLOT( startDrag( Q3ListViewItem *, Qt::ButtonState ) ) );
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+  connect( d->lview, SIGNAL( itemStartsRename( Q3ListViewItem *, int ) ), this,
+           SLOT( leftItemStartsRename( Q3ListViewItem *, int ) ) );
+  connect( d->lview, SIGNAL( itemCancelsRename( Q3ListViewItem *, int ) ),
+           this, SLOT( leftItemCancelsRename( Q3ListViewItem *, int ) ) );
+#endif
 
   //	Attribute editors
   if( sstate.typeEditors.size() == 0 )
@@ -340,6 +372,11 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
       sstate.attEditors[ "RoiArg" ][ "bucket_filename" ] = colorEditor;
       sstate.attEditors[ "RoiArg" ][ "Tmtktri_label" ] = colorEditor;
       sstate.attEditors[ "RoiArg" ][ "Tmtktri_filename" ] = colorEditor;
+      sstate.attEditors[ "RoiArg" ][ "roi_mesh_label" ] = colorEditor;
+      sstate.attEditors[ "RoiArg" ][ "roi_mesh_filename" ] = colorEditor;
+      sstate.attEditors[ "RoiArg" ][ "roi_mesh_junction_label" ] = colorEditor;
+      sstate.attEditors[ "RoiArg" ][ "roi_mesh_juntion_filename" ]
+        = colorEditor;
     }
 }
 
@@ -417,10 +454,12 @@ void QObjectBrowser::update( const anatomist::Observable* observable,
 {
   const AObject	*obj = dynamic_cast<const AObject *>( observable );
   if( obj )
+  {
     if( arg == 0 )
       unregisterObject( (AObject *) obj );
     else
       updateObject( (AObject * ) obj );
+  }
 
   AWindow::update( observable, arg );
 }
@@ -1044,7 +1083,7 @@ void QObjectBrowser::modifyAttribute()
 {
   QString		msg = tr( "Modify attribute " );
 
-  if( staticState().receivingBrowser )
+  if( d->editMode & EDIT || d->editor || staticState().receivingBrowser )
     {
       QMessageBox::warning( this, msg, 
 			    tr( "An editor is already open. close it first." 
@@ -1600,10 +1639,24 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
   if( w < 30 )
     w = 30;
 
-  QStringEdit	ed( attval, xy.x() + dx, xy.y(), w, 
-		    pos.height(), 0, att.c_str(), 
-                    Qt::WStyle_StaysOnTop /* |WStyle_Customize |
-                        WStyle_NoBorder | WStyle_Tool*/ );
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+  QObjectBrowser	*tbr;
+  QWidget		*pw = br->parentWidget();
+
+  for( tbr=dynamic_cast<QObjectBrowser *>( pw ); pw && !tbr;
+       pw=pw->parentWidget(), tbr=dynamic_cast<QObjectBrowser *>( pw ) ) {}
+
+  tbr->d->editedAttribute = att;
+  tbr->d->editedMainItem = item;
+  tbr->d->editedItems = items;
+  item->setRenameEnabled( 2, true );
+  if( !tbr->d->editedMainItem )
+    item->startRename( 2 );
+  //tbr->setMode( EDIT );
+  return false;
+#else
+  QStringEdit	ed( attval, xy.x() + dx, xy.y(), w, pos.height(), 0,
+                    att.c_str(), Qt::WStyle_StaysOnTop );
   if( ed.exec() )
   {
     set<GenericObject *>::const_iterator  io, eo = objs.end();
@@ -1616,6 +1669,7 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
   }
   else
     return false;
+#endif
 }
 
 
@@ -1904,7 +1958,7 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
   QObjectBrowser	*tbr;
 
   for( tbr=dynamic_cast<QObjectBrowser *>( pw ); pw && !tbr; 
-       pw=pw->parentWidget(), tbr=dynamic_cast<QObjectBrowser *>( pw ) );
+       pw=pw->parentWidget(), tbr=dynamic_cast<QObjectBrowser *>( pw ) ) {}
   assert( tbr );
 
   if( staticState().receivingBrowser )	// special editor already in use
@@ -2085,6 +2139,21 @@ void QObjectBrowser::editCancel()
     d->tempAddedNewSyntax = false;
   }
 
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+  if( d->editedMainItem )
+  {
+    QEditableListViewItem *ei
+        = dynamic_cast<QEditableListViewItem *>( d->editedMainItem );
+    if( ei )
+    {
+      Q3ListView  *lv = d->editedMainItem->listView();
+      lv->blockSignals( true );
+      ei->cancelRename( 2 );
+      lv->blockSignals( false );
+    }
+  }
+  d->editedMainItem = 0;
+#endif
   d->editor = 0;
 
   set<AWindow *>			win = theAnatomist->getWindows();
@@ -2098,6 +2167,110 @@ void QObjectBrowser::editCancel()
 	br->setMode( NORMAL );
     }
 }
+
+
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+void QObjectBrowser::leftItemStartsRename( Q3ListViewItem* item, int )
+{
+  cout << "item starts rename: " << item << endl;
+  d->editedMainItem = item;
+  modifyAttribute();
+}
+#else
+void QObjectBrowser::leftItemStartsRename( Q3ListViewItem*, int )
+{
+}
+#endif
+
+
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+void QObjectBrowser::leftItemCancelsRename( Q3ListViewItem* item, int )
+{
+  cout << "item cancels rename: " << item << endl;
+  if( !d->editor )
+    editCancel();
+  else
+  {
+    cout << "editor still open\n";
+    item->startRename( 2 );
+  }
+}
+#else
+void QObjectBrowser::leftItemCancelsRename( Q3ListViewItem*, int )
+{
+}
+#endif
+
+
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+void QObjectBrowser::leftItemRenamed( Q3ListViewItem * item, int,
+                                      const QString & text )
+{
+  cout << "leftItemRenamed\n";
+  string attval = text.utf8().data();
+  QObjectBrowserWidget	*lview = d->lview;
+  QObjectBrowserWidget::ItemDescr	descr;
+
+  lview->whatIs( item, descr );
+  GenericObject         *ao = descr.pao;
+  if( !ao )
+  {
+    QString		msg = tr( "Modify attribute " ) + descr.att.c_str();
+    QMessageBox::warning( this, msg,
+                          tr( "Cannot determine attribute characteristics"
+                            ) );
+    return;
+  }
+
+  /* item = lview->itemFor( item, QObjectBrowserWidget::ATTRIBUTE, att );
+  if( !item )
+  {
+    QMessageBox::warning( this, msg,
+                          tr( "Can't find attribute in tree.\nTry using "
+                              "\"add attribute (?)\"" ) );
+    return;
+  } */
+
+  if( descr.type == QObjectBrowserWidget::ATTRIBUTE )
+  {
+    cout << descr.att << " = " << attval << endl;
+    ao->setProperty( descr.att, attval );
+    AObject		*paro = aObject( lview, item );
+    if( paro != descr.pobj )
+      cout << "paro: " << paro << " != obj: " << descr.pobj << endl
+          << paro->name() << " / " << descr.obj->name() << endl;
+    set<AObject *>              aobj;
+
+    if( paro )
+    {
+      aobj.insert( paro );
+      paro->setChanged();
+    }
+    else
+      cerr << "can't find parent AObject for attribute (BUG !)\n";
+
+    set<AObject *>::iterator ia, ea = aobj.end();
+    for( ia=aobj.begin(); ia!=ea; ++ia )
+      (*ia)->internalUpdate();
+    // use a different loop because now the graph changed flags will be reset
+    // only once
+    for( ia=aobj.begin(); ia!=ea; ++ia )
+      (*ia)->notifyObservers( this );
+  }
+
+
+/*  set<GenericObject *>::const_iterator  io, eo = objs.end();
+  for( io=objs.begin(); io!=eo; ++io )
+    (*io)->setProperty( att, ed.text() );
+  set<Q3ListViewItem *>::const_iterator il, el = items.end();
+  for( il=items.begin(); il!=el; ++il )
+    (*il)->setText( 2, ed.text().c_str() );*/
+}
+#else
+void QObjectBrowser::leftItemRenamed( Q3ListViewItem *, int, const QString & )
+{
+}
+#endif
 
 
 void QObjectBrowser::editValidate()
@@ -2257,7 +2430,7 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
 
 bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
                                   const string & att,
-				  QObjectBrowserWidget*, 
+				  QObjectBrowserWidget* bw, 
 				  const set<Q3ListViewItem*> & )
 {
   if( objs.empty() )
@@ -2295,9 +2468,9 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
     alpha = attval[3];
     neutralpha = false;
   }
-  QColor	col = QAColorDialog::getColor( QColor( attval[0], attval[1], 
-						       attval[2] ), 
-					       0, name, &alpha, &neutralpha );
+  QColor	col = QAColorDialog::getColor( QColor( attval[0], attval[1],
+                                                       attval[2] ),
+                                               0, name, &alpha, &neutralpha );
   if( col.isValid() )
   {
     attval[0] = col.red();
@@ -2317,10 +2490,25 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
     }
     set<GenericObject *>::const_iterator  io, eo = objs.end();
     for( io=objs.begin(); io!=eo; ++io )
+    {
       (*io)->setProperty( att, attval );
-    /* set<Q3ListViewItem *>::const_iterator il, el = items.end();
-    for( il=items.begin(); il!=el; ++il )
-      (*il)->setText( 2, ed.text().c_str() ); */
+      Graph * graph = dynamic_cast<Graph *>( *io );
+      if( graph )
+      {
+        GraphManip::setAttributeColor( *graph, att, attval );
+        shared_ptr<AObject> ao;
+        AGraph *ag;
+        if( graph->getProperty( "ana_object", ao ) )
+        {
+          ag = dynamic_cast<AGraph *>( ao.get() );
+          if( ag )
+          {
+            ag->SetMaterial( ag->GetMaterial() );
+            ag->notifyObservers( bw );
+          }
+        }
+      }
+    }
     return true;
   }
   else
@@ -2357,9 +2545,12 @@ void QObjectBrowser::updateRightSelectionChange( int modifier )
   // cout << "QObjectBrowser::updateRightSelectionChange()\n";
   Q3ListViewItem	*item, *cur = 0;
   unsigned              nsel = 0;
-  set<AObject *>        so;
+  set<AObject *>        so, unsel;
   QObjectBrowserWidget::ItemDescr       descr;
   Q3ListViewItemIterator ilv( d->rview );
+  Edge  *edg = 0;
+
+  SelectFactory *fac = SelectFactory::factory();
 
   for( ; ilv.current(); ++ilv )
   {
@@ -2369,23 +2560,33 @@ void QObjectBrowser::updateRightSelectionChange( int modifier )
       ++nsel;
       cur = item;
       d->rview->whatIs( cur, descr );
-      if( descr.type == QObjectBrowserWidget::AOBJECT )
+      if( descr.obj )
         so.insert( descr.obj );
+    }
+    else
+    {
+      d->rview->whatIs( item, descr );
+      if( descr.obj )
+      {
+        if( fac->isSelected( Group(), descr.obj ) )
+          unsel.insert( descr.obj );
+      }
     }
     nsel += countSelected( item, cur );
   }
 
+  fac->unselect( Group(), unsel );
+
   if( nsel == 0 )
   {
+    fac->refresh();
     return;
   }
-
-  SelectFactory *fac = SelectFactory::factory();
 
   if( nsel == 1 )
   {
     d->rview->whatIs( cur, descr );
-    Edge  *edg = 0;
+    edg = 0;
     if( descr.type == QObjectBrowserWidget::GOBJECT )
       edg = dynamic_cast<Edge *>( descr.ao );
     else if( descr.type == QObjectBrowserWidget::AOBJECT )
@@ -2395,10 +2596,16 @@ void QObjectBrowser::updateRightSelectionChange( int modifier )
         edg = dynamic_cast<Edge *>( aao->attributed() );
     }
     else
+    {
+      fac->refresh();
       return;
+    }
 
     if( !edg )
+    {
+      fac->refresh();
       return;
+    }
 
     Edge::const_iterator	iv;
     Vertex		*v1, *v2;
@@ -2412,21 +2619,25 @@ void QObjectBrowser::updateRightSelectionChange( int modifier )
     if( descr.obj )
       so.insert( descr.obj );
 
-    if( v1->getProperty( "ana_object", o1 )
-        && v2->getProperty( "ana_object", o2 ) )
+    if( v1->getProperty( "ana_object", o1 ) )
     {
       if( modifier == 0 )
       {
         if( fac->isSelected( Group(), o1.get() ) )
           so.insert( o1.get() );
+      }
+      else
+        so.insert( o1.get() );
+    }
+    if(v2->getProperty( "ana_object", o2 ) )
+    {
+      if( modifier == 0 )
+      {
         if( fac->isSelected( Group(), o2.get() ) )
           so.insert( o2.get() );
       }
       else
-      {
-        so.insert( o1.get() );
         so.insert( o2.get() );
-      }
     }
 
     if( edg->getProperty( "ana_object", obj ) )

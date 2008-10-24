@@ -228,7 +228,8 @@ void SetMaterialCommand::doit()
             else if( _polygonmode ==  "wireframe" )
               mat.setRenderProperty( Material::RenderMode, 
                                      Material::Wireframe );
-            else if( _polygonmode ==  "outlined" )
+            else if( _polygonmode ==  "outline"
+                     || _polygonmode ==  "outlined" )
               mat.setRenderProperty( Material::RenderMode, 
                                      Material::Outlined );
             else if( _polygonmode ==  "hiddenface_wireframe" )

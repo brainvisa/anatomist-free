@@ -267,22 +267,25 @@ class Anatomist(base.Anatomist):
       return newObject
     return source
 
-  def createGraph(self, object, name=None, syntax=None):
+  def createGraph(self, object, name=None, syntax=None, filename=None):
     """
     Creates a graph associated to a object (volume for example). This object initializes graph's dimensions (voxel size, extrema).
     
     @type object: AObject
     @param object: the new graph is based on this object
     @type name: string
-    @param name: graph's name. default is RoiArg.
+    @param name: graph name. default is RoiArg.
     @type syntax: string
-    @param syntax: graph's syntax attribute. default is RoiArg.
-    
+    @param syntax: graph syntax attribute. default is RoiArg.
+    @type filename: string
+    @param filename: filename used for saving. Default is None.
+
     @rtype: AGraph
     @return: the new graph object
     """
     newGraph=self.AGraph(self)
-    self.execute("CreateGraph", object=object, res_pointer=newGraph, name=name, syntax=syntax)
+    self.execute("CreateGraph", object=object, res_pointer=newGraph, name=name,
+      syntax=syntax, filename=filename)
     newGraph.takeRef()
     newGraph.releaseAppRef()
     return newGraph

@@ -1745,7 +1745,7 @@ RoiManagementAction::getImageNames()
   
   while (iter != last)
     {
-      if( (*iter)->type() == AObject::VOLUME )
+      if( (*iter)->Is2DObject() )
         {
           _sharedData->myImageNames.insert( (*iter)->name() ) ;
           (*iter)->addObserver( _sharedData );
@@ -2352,15 +2352,10 @@ void
 RoiManagementAction::newGraph( const string& /* name */ )
 {
   //cout << "newGraph( " << name << " )" << endl ;
-  
-//   if( name == ""){
-//      AWarning("Please specify a name !") ;
-//      return ;
-//   }
-  
-  AObject * obj = _sharedData->getObjectByName(AObject::VOLUME, 
-                                               _sharedData->myCurrentImage ) ;
-  
+
+  AObject * obj = _sharedData->getObjectByName( -1, 
+                                                _sharedData->myCurrentImage );
+
   if(! obj )
     {
       AWarning("An Image must be selected, or selected image no more existing") ;
@@ -2448,7 +2443,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
   
   objs = view()->window()->Objects() ;
   iter = objs.begin(), last = objs.end() ;
-  set<AObject*>::iterator foundGraph = last, foundVolume = last ;
+  set<AObject*>::iterator foundGraph = last, foundVolume = last, obj2d = last;
 
   while( iter != last ) {
     if( (*iter)->type() == AObject::GRAPH ){
@@ -2457,8 +2452,13 @@ RoiManagementAction::newGraph( const string& /* name */ )
     if( (*iter)->type() == AObject::VOLUME ){
       foundVolume = iter ;
     }
+    else if( (*iter)->Is2DObject() )
+      obj2d = iter;
     ++iter ;
   }
+
+  if( foundVolume == last && obj2d != last )
+    foundVolume = obj2d;
 
   if ( foundGraph == last && foundVolume != last){
     if( (*foundVolume)->VoxelSize()[0] - graph->VoxelSize()[0] > .000001 ||
@@ -2707,7 +2707,7 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 
   objs = view()->window()->Objects() ;
   iter = objs.begin(), last = objs.end() ;
-  set<AObject*>::iterator foundGraph = last, foundVolume = last ;
+  set<AObject*>::iterator foundGraph = last, foundVolume = last, obj2d = last ;
 
   while( iter != last ) {
     if( (*iter)->type() == AObject::GRAPH ){
@@ -2716,8 +2716,12 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
     if( (*iter)->type() == AObject::VOLUME ){
       foundVolume = iter ;
     }
+    else if( (*iter)->Is2DObject() )
+      obj2d = iter;
     ++iter ;
   }
+  if( foundVolume == last && obj2d != last )
+    foundVolume = obj2d;
 
   if ( foundGraph == last && foundVolume != last){
     if( (*foundVolume)->VoxelSize()[0] - loadedObj->VoxelSize()[0] > .000001 ||
@@ -3278,8 +3282,11 @@ RoiManagementAction::regionsFusion( const set<string>& regions,
 void 
 RoiManagementAction::createWindow( const string& type )
 {
-  AObject * image = _sharedData->getObjectByName(AObject::VOLUME, _sharedData->myCurrentImage ) ;
-  AObject * graph = _sharedData->getObjectByName(AObject::GRAPH, _sharedData->myCurrentGraph ) ;
+  AObject * image
+    = _sharedData->getObjectByName( -1, _sharedData->myCurrentImage );
+  AObject * graph
+    = _sharedData->getObjectByName( AObject::GRAPH,
+                                    _sharedData->myCurrentGraph );
 
   if( !image ){
     AWarning("You must select an image first !") ;
@@ -3379,8 +3386,7 @@ RoiManagementActionSharedData::getObjectByName( int objType, const string& name 
   int objCount = 0 ;
   while ( iter != last )
     {
-      if( objType != AObject::OTHER )
-        if( (*iter)->type() == objType )
+      if( objType < 0 || (*iter)->type() == objType )
         {
           if ( name  != "" )
           {
