@@ -47,163 +47,151 @@ using namespace std;
 
 static ObjectMenu* defaultOptionMenu()
 {
-	static ObjectMenu	*om = NULL;
+  ObjectMenu	*om = NULL;
 
-	if( !om )
-	{
-		om = new ObjectMenu();
-		vector<string>  vs;
-		vs.reserve( 1 );
-		vs.push_back(QT_TRANSLATE_NOOP("QSelectMenu", "Default Menu"));
-		om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "default"));
-		vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "File");
-		om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Reload"),
-				&ObjectActions::fileReload );
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
-				&ObjectActions::saveStatic );
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
-				"Rename object"), &ObjectActions::renameObject);
-	}
-	return om;
+  om = new ObjectMenu();
+  vector<string>  vs;
+  vs.reserve( 1 );
+  vs.push_back(QT_TRANSLATE_NOOP("QSelectMenu", "Default Menu"));
+  om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "default"));
+  vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "File");
+  om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Reload"),
+                  &ObjectActions::fileReload );
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
+                  &ObjectActions::saveStatic );
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                  "Rename object"), &ObjectActions::renameObject);
+  return om;
 }
 
 static ObjectMenu* volumeScalarTraitsOptionMenu()
 {
-	static ObjectMenu	*om = NULL;
+  ObjectMenu	*om = NULL;
 
-	if( !om )
-	{
-		om = new ObjectMenu();
-		vector<string>  vs;
-		vs.reserve(1);
-		vs.push_back(QT_TRANSLATE_NOOP( "QSelectMenu", "File"));
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Reload"),
-				&ObjectActions::fileReload);
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save"),
-				&ObjectActions::saveStatic);
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
-							"Rename object"),
-				&ObjectActions::renameObject);
-		vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Color");
-		om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Palette"),
-				&ObjectActions::colorPalette);
-		om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Material"),
-				&ObjectActions::colorMaterial);
-		om->insertItem(vs,QT_TRANSLATE_NOOP("QSelectMenu", "Texturing"),
-				&ObjectActions::textureControl);
-		vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Referential");
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Load"),
-				&ObjectActions::referentialLoad );
-		om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
-				"Apply builtin referential (SPM/NIFTI)"),
-				&ObjectActions::setAutomaticReferential);
-	}
-	return om;
+  om = new ObjectMenu();
+  vector<string>  vs;
+  vs.reserve(1);
+  vs.push_back(QT_TRANSLATE_NOOP( "QSelectMenu", "File"));
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Reload"),
+                  &ObjectActions::fileReload);
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save"),
+                  &ObjectActions::saveStatic);
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                                          "Rename object"),
+                  &ObjectActions::renameObject);
+  vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Color");
+  om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Palette"),
+                  &ObjectActions::colorPalette);
+  om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Material"),
+                  &ObjectActions::colorMaterial);
+  om->insertItem(vs,QT_TRANSLATE_NOOP("QSelectMenu", "Texturing"),
+                  &ObjectActions::textureControl);
+  vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Referential");
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Load"),
+                  &ObjectActions::referentialLoad );
+  om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                  "Apply builtin referential (SPM/NIFTI)"),
+                  &ObjectActions::setAutomaticReferential);
+  return om;
 }
 
 static ObjectMenu* volumeVectorTraitsOptionMenu()
 {
-	static ObjectMenu	*om = NULL;
+  ObjectMenu	*om = NULL;
 
-	if( !om )
-	{
-		om = new ObjectMenu();
-		vector<string>  vs;
-		vs.reserve( 1 );
-		vs.push_back( QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Reload" ),
-				&ObjectActions::fileReload );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
-				&ObjectActions::saveStatic );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Rename object" ),
-				&ObjectActions::renameObject );
-		vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Color" );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Palette" ),
-				&ObjectActions::colorPalette );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ),
-				&ObjectActions::colorMaterial );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Texturing" ),
-				&ObjectActions::textureControl );
-		vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Referential" );
-		om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Load" ),
-				&ObjectActions::referentialLoad );
-	}
-	return om;
+  om = new ObjectMenu();
+  vector<string>  vs;
+  vs.reserve( 1 );
+  vs.push_back( QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Reload" ),
+                  &ObjectActions::fileReload );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
+                  &ObjectActions::saveStatic );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Rename object" ),
+                  &ObjectActions::renameObject );
+  vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Color" );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Palette" ),
+                  &ObjectActions::colorPalette );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ),
+                  &ObjectActions::colorMaterial );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Texturing" ),
+                  &ObjectActions::textureControl );
+  vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Referential" );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Load" ),
+                  &ObjectActions::referentialLoad );
+  return om;
 }
 
 
 static ObjectMenu* agraphOptionMenu()
 {
-  static ObjectMenu	*om = NULL;
+  ObjectMenu	*om = NULL;
 
-  if (!om)
-  {
-    Tree	*optionTree, *t, *t2;
-    optionTree = new Tree(true, "option tree");
+  Tree	*optionTree, *t, *t2;
+  optionTree = new Tree(true, "option tree");
 
-    t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display"));
-    optionTree->insert(t);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display nodes"));
-    t2->setProperty("callback", &ObjectActions::displayGraphChildren);
-    t->insert(t2);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display relations"));
-    t2->setProperty("callback", &ObjectActions::displayGraphRelations);
-    t->insert(t2);
+  t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display"));
+  optionTree->insert(t);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display nodes"));
+  t2->setProperty("callback", &ObjectActions::displayGraphChildren);
+  t->insert(t2);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display relations"));
+  t2->setProperty("callback", &ObjectActions::displayGraphRelations);
+  t->insert(t2);
 
-    t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "File"));
-    optionTree->insert(t);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                  "Load all sub-objects"));
-    t2->setProperty("callback", &ObjectActions::loadGraphSubObjects);
-    t->insert(t2);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Save"));
-    t2->setProperty("callback", &ObjectActions::saveStatic);
-    t->insert(t2);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                            "Rename object"));
-    t2->setProperty("callback", &ObjectActions::renameObject);
-    t->insert(t2);
+  t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "File"));
+  optionTree->insert(t);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                "Load all sub-objects"));
+  t2->setProperty("callback", &ObjectActions::loadGraphSubObjects);
+  t->insert(t2);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Save"));
+  t2->setProperty("callback", &ObjectActions::saveStatic);
+  t->insert(t2);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                          "Rename object"));
+  t2->setProperty("callback", &ObjectActions::renameObject);
+  t->insert(t2);
 
-    t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Color"));
-    optionTree->insert(t);
-    t2 = new Tree(true,QT_TRANSLATE_NOOP("QSelectMenu", "Palette"));
-    t2->setProperty("callback", &ObjectActions::colorPalette);
-    t->insert(t2);
-    t2 = new Tree(true, "Material");
-    t2->setProperty("callback", &ObjectActions::colorMaterial);
-    t->insert(t2);
-    t2 = new Tree(true, "Graph display properties");
-    t2->setProperty("callback", &QGraphProperties::openProperties);
-    t->insert(t2);
+  t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Color"));
+  optionTree->insert(t);
+  t2 = new Tree(true,QT_TRANSLATE_NOOP("QSelectMenu", "Palette"));
+  t2->setProperty("callback", &ObjectActions::colorPalette);
+  t->insert(t2);
+  t2 = new Tree(true, "Material");
+  t2->setProperty("callback", &ObjectActions::colorMaterial);
+  t->insert(t2);
+  t2 = new Tree(true, "Graph display properties");
+  t2->setProperty("callback", &QGraphProperties::openProperties);
+  t->insert(t2);
 
-    t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                                    "Referential"));
-    optionTree->insert(t);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Load"));
-    t2->setProperty("callback", &ObjectActions::referentialLoad);
-    t->insert(t2);
+  t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                                  "Referential"));
+  optionTree->insert(t);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Load"));
+  t2->setProperty("callback", &ObjectActions::referentialLoad);
+  t->insert(t2);
 
-    t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Labeling"));
-    optionTree->insert(t);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                  "Move automatic labeling ('label') to manual ('name')") );
-    t2->setProperty("callback", &ObjectActions::graphLabelToName);
-    t->insert(t2);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                  "Use automatic labeling ('label')") );
-    t2->setProperty("callback", &ObjectActions::graphUseLabel);
-    t->insert(t2);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                  "Use manual labeling ('name')") );
-    t2->setProperty("callback", &ObjectActions::graphUseName);
-    t->insert(t2);
-    t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                  "Use default labeling property") );
-    t2->setProperty("callback", &ObjectActions::graphUseDefaultLabelProperty);
-    t->insert(t2);
+  t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Labeling"));
+  optionTree->insert(t);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                "Move automatic labeling ('label') to manual ('name')") );
+  t2->setProperty("callback", &ObjectActions::graphLabelToName);
+  t->insert(t2);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                "Use automatic labeling ('label')") );
+  t2->setProperty("callback", &ObjectActions::graphUseLabel);
+  t->insert(t2);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                "Use manual labeling ('name')") );
+  t2->setProperty("callback", &ObjectActions::graphUseName);
+  t->insert(t2);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                "Use default labeling property") );
+  t2->setProperty("callback", &ObjectActions::graphUseDefaultLabelProperty);
+  t->insert(t2);
 
-    om = new ObjectMenu(*optionTree);
-  }
+  om = new ObjectMenu(*optionTree);
   return om;
 }
 
@@ -211,23 +199,20 @@ static ObjectMenu* agraphOptionMenu()
 
 static ObjectMenu* agraphObjectOptionMenu()
 {
-	static ObjectMenu	*om = NULL;
+  ObjectMenu	*om;
 
-	if (!om)
-	{
-		Tree	*optionTree, *t, *t2;
-		optionTree = new Tree( true, "option tree" );
-		t = new Tree( true, "Color" );
-		optionTree->insert( t );
-		t2 = new Tree( true, "Palette" );
-		t2->setProperty( "callback", &ObjectActions::colorPalette );
-		t->insert( t2 );
-		t2 = new Tree( true, "Material" );
-		t2->setProperty( "callback", &ObjectActions::colorMaterial );
-		t->insert( t2 );
-		om = new ObjectMenu(*optionTree);
-	}
-	return om;
+  Tree	*optionTree, *t, *t2;
+  optionTree = new Tree( true, "option tree" );
+  t = new Tree( true, "Color" );
+  optionTree->insert( t );
+  t2 = new Tree( true, "Palette" );
+  t2->setProperty( "callback", &ObjectActions::colorPalette );
+  t->insert( t2 );
+  t2 = new Tree( true, "Material" );
+  t2->setProperty( "callback", &ObjectActions::colorMaterial );
+  t->insert( t2 );
+  om = new ObjectMenu(*optionTree);
+  return om;
 }
 
 
@@ -235,33 +220,41 @@ static ObjectMenu* agraphObjectOptionMenu()
 
 namespace anatomist
 {
-	void	initMenuObjects(void)
-	{
-		ObjectMenu	*om = NULL;
+  void	initMenuObjects(void)
+  {
+    rc_ptr<ObjectMenu>	om;
 
-		//Default menu
-		om = defaultOptionMenu();
-		AObject::setObjectMenu("__default__", om);
+    //Default menu
+    om.reset( defaultOptionMenu() );
+    AObject::setObjectMenu("__default__", om);
 
-		//Volume
-		om = volumeScalarTraitsOptionMenu();
-		AObject::setObjectMenu("VOLUME<int8_t>", om);
-		AObject::setObjectMenu("VOLUME<uint8_t>", om);
-		AObject::setObjectMenu("VOLUME<int16_t>", om);
-		AObject::setObjectMenu("VOLUME<uint16_t>", om);
-		AObject::setObjectMenu("VOLUME<int32_t>", om);
-		AObject::setObjectMenu("VOLUME<uint32_t>", om);
-		AObject::setObjectMenu("VOLUME<float>", om);
-		AObject::setObjectMenu("VOLUME<double>", om);
+    //Volume
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<int8_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<uint8_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<int16_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<uint16_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<int32_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<uint32_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<float>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<double>", om);
 
-		om = volumeVectorTraitsOptionMenu();
-		AObject::setObjectMenu("VOLUME<AimsRGB>", om);
-		AObject::setObjectMenu("VOLUME<AimsRGBA>", om);
+    om.reset( volumeVectorTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<AimsRGB>", om);
+    om.reset( volumeVectorTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<AimsRGBA>", om);
 
-		//Graph
-		om = agraphOptionMenu();
-		AObject::setObjectMenu("GRAPH", om);
-		om = agraphObjectOptionMenu();
-		AObject::setObjectMenu("GRAPHOBJECT", om);
-	}
+    //Graph
+    om.reset( agraphOptionMenu() );
+    AObject::setObjectMenu("GRAPH", om);
+    om.reset( agraphObjectOptionMenu() );
+    AObject::setObjectMenu("GRAPHOBJECT", om);
+  }
 }

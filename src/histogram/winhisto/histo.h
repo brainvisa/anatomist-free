@@ -60,7 +60,7 @@ public:
   float pmin;
   float pmax;
   int64_t pdim;
-  std::map< anatomist::AObject*, AimsData< float >* > crv;
+  std::map< anatomist::AObject*, carto::rc_ptr<AimsData< float > > > crv;
 };
 
 #endif

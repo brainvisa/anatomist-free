@@ -63,6 +63,8 @@ namespace anatomist
 
   struct ErpWraper_data
   {
+    ErpWraper_data() : deleting( false ) {}
+
     map<unsigned, map<unsigned, string> >	cells;
     QLineEdit				*celledit;
     QLineEdit				*obsedit;
@@ -70,6 +72,7 @@ namespace anatomist
     QSlider				*obssl;
     unsigned				cell;
     unsigned				obs;
+    bool                                deleting;
   };
 
 
@@ -126,48 +129,32 @@ ErpWraper::ErpWraper( ATexture* obj, const string & dirname, QWidget* parent )
 
 ErpWraper::~ErpWraper()
 {
+  _data->deleting = true;
   _texture->deleteObserver( this );
   delete _data;
 }
 
 
+ObjectMenu* ErpWraper::textureMenus( const AObject* objtype, ObjectMenu* menu )
+{
+  if( menu && objtype->type() == AObject::TEXTURE )
+  {
+    vector<string> vs;
+    vs.reserve(1);
+    vs.push_back( QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
+    menu->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "ERP loader" ),
+                      &openWraper );
+
+  }
+  return menu;
+}
+
+
 bool ErpWraper::initTexOptions()
 {
-  ATexture	*tex = new ATexture;
-  Tree		*op = tex->optionTree();
+  AObject::addObjectMenuRegistration( textureMenus );
 
-  delete tex;
-
-  if( !op )
-    {
-      ATexture::_optionTree = new Tree( true, "option tree" );
-      op = ATexture::_optionTree;
-    }
-
-  Tree::const_iterator	it, ft=op->end();
-  Tree			*file;
-
-  for( it=op->begin(); it!=ft && ((Tree *) *it)->getSyntax()!="File"; ++it ) {}
-  if( it == ft )
-    {
-      file = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
-      op->insert( file );
-    }
-  else
-    file = (Tree *) *it;
-
-  for( it=file->begin(), ft=file->end(); 
-       it!=ft && ((Tree *) *it)->getSyntax()!="ERP loader"; ++it ) {}
-  if( it == ft )
-    {
-      Tree	*erpl = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
-							   "ERP loader" ) );
-
-      erpl->setProperty( "callback", &openWraper );
-      file->insert( erpl );
-    }
-
-  return( true );
+  return true;
 }
 
 
@@ -203,7 +190,8 @@ void ErpWraper::update( const Observable*, void* arg )
 void ErpWraper::unregisterObservable( Observable* o )
 {
   Observer::unregisterObservable( o );
-  delete this;
+  if( !_data->deleting )
+    delete this;
 }
 
 

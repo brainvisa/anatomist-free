@@ -129,11 +129,27 @@ bool Slice::render( PrimList & prim, const ViewState & state )
   AObject	*obj = volume();
   aims::Quaternion    q = quaternion();
   Geometry	geom = AWindow3D::setupWindowGeometry( _data, q );
+  PrimList::iterator ip = prim.end();
+  --ip;
   SliceViewState  svs( state.time, true, offset(), &q,
                        obj->getReferential(), &geom,
                        state.sliceVS() ? state.sliceVS()->vieworientation : 0,
                        state.window );
-  return volume()->render( prim, svs );
+  if( volume()->render( prim, svs ) )
+  {
+    const Referential *ref = getReferential();
+    GLPrimitives p2 = GLComponent::glHandleTransformation( state, ref );
+    bool hastr = !p2.empty();
+    if( hastr )
+    {
+      ++ip;
+      prim.insert( ip, p2.begin(), p2.end() );
+      p2 = GLComponent::glPopTransformation( state, ref );
+      prim.insert( prim.end(), p2.begin(), p2.end() );
+    }
+    return true;
+  }
+  return false;
 }
 
 

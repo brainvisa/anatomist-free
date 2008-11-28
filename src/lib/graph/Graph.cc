@@ -425,8 +425,8 @@ namespace
       else
       {
         // check if aims object has changed
-        T* aims = ObjectConverter<T>::ana2aims( obj );
-        if( aims != raims.get() )
+        rc_ptr<T> aims = ObjectConverter<T>::ana2aims( obj );
+        if( aims != raims )
         {
           ObjectConverter<T>::setAims( obj, raims );
         }
@@ -967,7 +967,7 @@ template<class T> static bool extractElem( Process & p, const string &,
   // and Aims object in AObject
 
   AObject			*obj;
-  T	*aimso;
+  rc_ptr<T>	aimso;
   if( info.element->getProperty( info.attribute + "_ana", obj ) )
     aimso = ObjectConverter<T>::ana2aims( obj );
   else
@@ -975,13 +975,13 @@ template<class T> static bool extractElem( Process & p, const string &,
     rc_ptr<T> raimso;
     if( !info.element->getProperty( info.attribute, raimso ) )
       return false;
-    aimso = raimso.get();
+    aimso = raimso;
   }
 
   if( !aimso )
     return( false );
 
-  info.object = new AimsGraphWriter::ObjectWrapper<T>( aimso );
+  info.object = new AimsGraphWriter::ObjectWrapper<T>( aimso.get() );
 
   return( true );
 }

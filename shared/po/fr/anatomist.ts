@@ -160,6 +160,14 @@
         <source>cursor position: </source>
         <translation>position du curseur: </translation>
     </message>
+    <message>
+        <source>ROI toolbox</source>
+        <translation>Boîte à outils ROI</translation>
+    </message>
+    <message>
+        <source>Open the ROI toolbox</source>
+        <translation>Ouvrir la boîte à outils de ROI</translation>
+    </message>
 </context>
 <context>
     <name>AttributedChooser</name>
@@ -701,7 +709,7 @@ PINCEAU
     </message>
     <message>
         <source>Selection 3D</source>
-        <translation>Sélection
+        <translation type="obsolete">Sélection
 Bt gauche: sélection
            &lt;shift&gt;: sélection additive
            &lt;ctrl&gt; : modif. sélection
@@ -864,7 +872,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>RoiControl</source>
-        <translation>Ouvre la boite à outil de ROI</translation>
+        <translation type="obsolete">Ouvre la boite à outil de ROI</translation>
     </message>
     <message>
         <source>Browser Selection</source>
@@ -2865,6 +2873,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Referential</source>
         <translation>Référentiel</translation>
+    </message>
+    <message>
+        <source>Clear unused referentials</source>
+        <translation>Effacer les référentiels inutilisés</translation>
     </message>
 </context>
 <context>

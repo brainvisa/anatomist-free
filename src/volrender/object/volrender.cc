@@ -63,10 +63,10 @@ namespace
   int registerClass()
   {
     int	type = AObject::registerObjectType( "VolumeRendering" );
-    ObjectMenu  *om = AObject::getObjectMenu( "VolumeRendering" );
+    rc_ptr<ObjectMenu>  om = AObject::getObjectMenu( "VolumeRendering" );
     if( !om )
     {
-      om = new ObjectMenu;
+      om.reset( new ObjectMenu );
       AObject::setObjectMenu( "VolumeRendering", om );
     }
     vector<string>  vl;
@@ -110,6 +110,7 @@ struct VolRender::Private
   int slabSize;
   unsigned maxslices;
   bool sign;
+  bool ownextrema;
 };
 
 
@@ -253,6 +254,7 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_UNSIGNED_SHORT;
     p.sign = true;
+    p.ownextrema = true;
   }
 
 
@@ -261,6 +263,7 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_BYTE;
     p.sign = true;
+    p.ownextrema = true;
   }
 
 
@@ -269,6 +272,7 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_UNSIGNED_BYTE;
     p.sign = false;
+    p.ownextrema = true;
   }
 
 
@@ -277,6 +281,7 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_SHORT;
     p.sign = true;
+    p.ownextrema = true;
   }
 
 
@@ -285,6 +290,7 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_UNSIGNED_SHORT;
     p.sign = false;
+    p.ownextrema = true;
   }
 
 
@@ -293,6 +299,7 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_INT;
     p.sign = true;
+    p.ownextrema = true;
   }
 
 
@@ -301,14 +308,25 @@ namespace
     p.pixformat = GL_COLOR_INDEX;
     p.pixtype = GL_UNSIGNED_INT;
     p.sign = false;
+    p.ownextrema = true;
   }
 
 
   template <> inline void glpixtype<float>( VolRender::Private & p )
   {
     p.pixformat = GL_COLOR_INDEX;
-    p.pixtype = GL_FLOAT;
-    p.sign = true;
+    p.pixtype = GL_UNSIGNED_SHORT;
+    p.sign = false;
+    p.ownextrema = false;
+  }
+
+
+  template <> inline void glpixtype<double>( VolRender::Private & p )
+  {
+    p.pixformat = GL_COLOR_INDEX;
+    p.pixtype = GL_UNSIGNED_SHORT;
+    p.sign = false;
+    p.ownextrema = false;
   }
 
 
@@ -317,6 +335,7 @@ namespace
     p.pixformat = GL_RGBA;
     p.pixtype = GL_UNSIGNED_BYTE;
     p.sign = false;
+    p.ownextrema = false;
   }
 
 
@@ -325,6 +344,7 @@ namespace
     p.pixformat = GL_RGBA;
     p.pixtype = GL_UNSIGNED_BYTE;
     p.sign = false;
+    p.ownextrema = false;
   }
 
 
@@ -404,6 +424,55 @@ namespace
     GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, d->texdimx, d->texdimy,
                           d->texdimz, 0, d->pixformat, d->pixtype, data );
   }
+
+
+  // special case of FLOAT and DOUBLE: resample as int (short)
+  template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
+      VolRender::Private * d, int t )
+  {
+    rc_ptr<Volume<T> > v0 = avol->volume()->volume();
+    VolumeRef<U>  vol;
+    const GLComponent::TexExtrema  & te = avol->glTexExtrema( 0 );
+    double scl = 65535.99 / ( te.max[0] - te.min[0] );
+    double offset = - te.min[0];
+    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t ) );
+    if( d->ownextrema || d->dimx != d->texdimx || d->dimy != d->texdimy
+        || d->dimz != d->texdimz || d->xscalefac != 1 || d->yscalefac != 1
+        || d->zscalefac != 1 )
+    {
+      vol = VolumeRef<U>( d->texdimx, d->texdimy, d->texdimz );
+      unsigned x, y, z;
+      /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
+      << d->dimy << "/" << d->texdimy << ", "
+      << d->dimz << "/" << d->texdimz << endl; */
+      U zero = (U) ( offset * scl );
+      if( offset < 0 )
+        zero = (U) 0;
+      for( z=0; z<d->dimz; ++z )
+      {
+        for( y=0; y<d->dimy; ++y )
+        {
+          for( x=0; x<d->dimx; ++x )
+            vol->at( x, y, z ) = (U) ( ( v0->at( x * d->xscalefac,
+                     y * d->yscalefac, z * d->zscalefac, t ) + offset )
+                         * scl );
+          for( ; x<d->texdimx; ++x )
+            vol->at( x, y, z ) = zero;
+        }
+        for( ; y<d->texdimy; ++y )
+          for( x=0; x<d->texdimx; ++x )
+            vol->at( x, y, z ) = zero;
+      }
+      for( ; z<d->texdimz; ++z )
+        for( y=0; y<d->texdimy; ++y )
+          for( x=0; x<d->texdimx; ++x )
+            vol->at( x, y, z ) = zero;
+      data = reinterpret_cast<const char *>( &vol->at( 0, 0, 0 ) );
+    }
+    GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, d->texdimx, d->texdimy,
+                          d->texdimz, 0, d->pixformat, d->pixtype, data );
+  }
+
 
   // special case for RGB: add a A component
   template <> void resamplevol( AVolume<AimsRGB> * avol,
@@ -494,6 +563,11 @@ bool VolRender::checkObject() const
     AVolume<float>  *avol = static_cast<AVolume<float> *>( d->object );
     setupVolumeParams( avol, *d );
   }
+  else if( dynamic_cast<AVolume<double> *>( d->object ) )
+  {
+    AVolume<double>  *avol = static_cast<AVolume<double> *>( d->object );
+    setupVolumeParams( avol, *d );
+  }
   else if( dynamic_cast<AVolume<AimsRGB> *>( d->object ) )
   {
     AVolume<AimsRGB>  *avol = static_cast<AVolume<AimsRGB> *>( d->object );
@@ -548,6 +622,8 @@ bool VolRender::glMakeTexImage( const ViewState &state,
       || d->pixtype == GL_UNSIGNED_BYTE )
     dimx = 256;
 
+  // cout << "dim palette: " << dimx << endl;
+
   for( x=0, utmp=1; x<16 && utmp<dimx; ++x )
     utmp = utmp << 1;
   dimx = utmp;
@@ -560,15 +636,25 @@ bool VolRender::glMakeTexImage( const ViewState &state,
     max = 1;
   }
   float denom = ( te.maxquant[0] - te.minquant[0] ) * ( max - min );
-  if( d->pixformat != GL_COLOR_INDEX )
-    denom = 255. * ( max - min );
+  if( d->pixformat != GL_COLOR_INDEX || !d->ownextrema )
+  {
+    if( d->pixtype == GL_UNSIGNED_BYTE )
+      denom = 255.99 * ( max - min );
+    else
+      denom = 65535.99 * ( max - min );
+  }
   if( denom == 0 )
     denom = 1.;
   float facx = float( dimpx ) / denom;
   float dx = ( min * te.maxquant[0] + ( 1. - min ) * ( te.minquant[0] ) )
       * facx;
-  if( d->pixformat != GL_COLOR_INDEX )
-    dx = min * 255.;
+  if( d->pixformat != GL_COLOR_INDEX || !d->ownextrema )
+  {
+    if( d->pixtype == GL_UNSIGNED_BYTE )
+      dx = min * 255.99 * facx;
+    else
+      dx = min * 65535.99 * facx;
+  }
 
   // allocate colormap
   GLfloat	*palR = new GLfloat[ dimx ];
@@ -584,6 +670,9 @@ bool VolRender::glMakeTexImage( const ViewState &state,
     hmax = int(dimx)/2;
   }
 
+  /* cout << "hmin: " << hmin << ", hmax: " << hmax << ", denom: " << denom
+      << ", facx: " << facx << ", dx: " << dx << endl; */
+
   for( h=hmin; h<hmax; ++h )
   {
     xs = (int) ( facx * h - dx );
@@ -597,7 +686,9 @@ bool VolRender::glMakeTexImage( const ViewState &state,
     palG[h % dimx] = (GLfloat) rgb.green() / 255;
     palB[h % dimx] = (GLfloat) rgb.blue()  / 255;
     palA[h % dimx] = (GLfloat) rgb.alpha() / 255;
+    // if( ( h & 0xff ) == 0 ) cout << xs << ": " << rgb << "; ";
   }
+  // cout << endl;
 
   int t = int( rint( state.time ) );
 
@@ -708,7 +799,11 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   else if( dynamic_cast<AVolume<uint32_t> *>( d->object ) )
     resamplevol( static_cast<AVolume<uint32_t> *>(  d->object ), d, t );
   else if( dynamic_cast<AVolume<float> *>( d->object ) )
-    resamplevol( static_cast<AVolume<float> *>(  d->object ), d, t );
+    resamplevolFloat<float, uint16_t>( static_cast<AVolume<float> *>(
+                                      d->object ), d, t );
+  else if( dynamic_cast<AVolume<double> *>( d->object ) )
+    resamplevolFloat<double, uint16_t>( static_cast<AVolume<double> *>(
+                                       d->object ), d, t );
   else if( dynamic_cast<AVolume<AimsRGB> *>( d->object ) )
     resamplevol( static_cast<AVolume<AimsRGB> *>(  d->object ), d, t );
   else if( dynamic_cast<AVolume<AimsRGBA> *>( d->object ) )

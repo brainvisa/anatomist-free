@@ -1259,11 +1259,11 @@ void VolumeScalarTraits<T>::setExtrema()
   else
     te.max[0] = maxi;
   if( te.minquant.empty() )
-    te.min.push_back( mini );
+    te.minquant.push_back( mini );
   else
     te.minquant[0] = mini;
   if( te.maxquant.empty() )
-    te.min.push_back( maxi );
+    te.minquant.push_back( maxi );
   else
     te.maxquant[0] = maxi;
 }

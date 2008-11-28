@@ -230,116 +230,123 @@ void AnatomistSip::setUserLevel( int x )
 
 // ------------------------
 
-AimsData_U8* AObjectConverter::aimsData_U8( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_U8>
+AObjectConverter::aimsData_U8( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_U8>::ana2aims( obj );
+  return ObjectConverter<AimsData_U8>::ana2aims( obj, options );
 }
 
 
-AimsData_S16* AObjectConverter::aimsData_S16( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_S16>
+AObjectConverter::aimsData_S16( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_S16>::ana2aims( obj );
+  return ObjectConverter<AimsData_S16>::ana2aims( obj, options );
 }
 
 
-AimsData_U16* AObjectConverter::aimsData_U16( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_U16>
+AObjectConverter::aimsData_U16( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_U16>::ana2aims( obj );
+  return ObjectConverter<AimsData_U16>::ana2aims( obj, options );
 }
 
 
-AimsData_S32* AObjectConverter::aimsData_S32( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_S32>
+AObjectConverter::aimsData_S32( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_S32>::ana2aims( obj );
+  return ObjectConverter<AimsData_S32>::ana2aims( obj, options );
 }
 
 
-AimsData_U32* AObjectConverter::aimsData_U32( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_U32>
+AObjectConverter::aimsData_U32( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_U32>::ana2aims( obj );
+  return ObjectConverter<AimsData_U32>::ana2aims( obj, options );
 }
 
 
-AimsData_FLOAT* AObjectConverter::aimsData_FLOAT( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_FLOAT>
+AObjectConverter::aimsData_FLOAT( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_FLOAT>::ana2aims( obj );
+  return ObjectConverter<AimsData_FLOAT>::ana2aims( obj, options );
 }
 
 
-AimsData_DOUBLE* AObjectConverter::aimsData_DOUBLE( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_DOUBLE>
+AObjectConverter::aimsData_DOUBLE( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_DOUBLE>::ana2aims( obj );
+  return ObjectConverter<AimsData_DOUBLE>::ana2aims( obj, options );
 }
 
 
-AimsData_RGB* AObjectConverter::aimsData_RGB( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_RGB>
+AObjectConverter::aimsData_RGB( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_RGB>::ana2aims( obj );
+  return ObjectConverter<AimsData_RGB>::ana2aims( obj, options );
 }
 
 
-AimsData_RGBA* AObjectConverter::aimsData_RGBA( anatomist::AObject* obj )
+carto::rc_ptr<AimsData_RGBA>
+AObjectConverter::aimsData_RGBA( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsData_RGBA>::ana2aims( obj );
+  return ObjectConverter<AimsData_RGBA>::ana2aims( obj, options );
 }
 
 
-AimsTimeSurface<2,Void>* 
-AObjectConverter::aimsSurface2( anatomist::AObject* obj )
+carto::rc_ptr<AimsTimeSurface<2,Void> >
+AObjectConverter::aimsSurface2( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsTimeSurface<2,Void> >::ana2aims( obj );
+  return ObjectConverter<AimsTimeSurface<2,Void> >::ana2aims( obj, options );
 }
 
 
-AimsTimeSurface<3,Void>* 
-AObjectConverter::aimsSurface3( anatomist::AObject* obj )
+carto::rc_ptr<AimsTimeSurface<3,Void> >
+AObjectConverter::aimsSurface3( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsTimeSurface<3,Void> >::ana2aims( obj );
+  return ObjectConverter<AimsTimeSurface<3,Void> >::ana2aims( obj, options );
 }
 
 
-AimsTimeSurface<4,Void>* 
-AObjectConverter::aimsSurface4( anatomist::AObject* obj )
+carto::rc_ptr<AimsTimeSurface<4,Void> >
+AObjectConverter::aimsSurface4( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<AimsTimeSurface<4,Void> >::ana2aims( obj );
+  return ObjectConverter<AimsTimeSurface<4,Void> >::ana2aims( obj, options );
 }
 
 
-BucketMap<Void> *
-AObjectConverter::aimsBucketMap_VOID( anatomist::AObject* obj )
+carto::rc_ptr<BucketMap<Void> >
+AObjectConverter::aimsBucketMap_VOID( anatomist::AObject* obj, Object options )
 {
-  return ObjectConverter<BucketMap<Void> >::ana2aims( obj );
+  return ObjectConverter<BucketMap<Void> >::ana2aims( obj, options );
 }
 
 
-TimeTexture<float> *
-AObjectConverter::aimsTexture_FLOAT( anatomist::AObject * obj )
+carto::rc_ptr<TimeTexture<float> >
+AObjectConverter::aimsTexture_FLOAT( anatomist::AObject * obj, Object options )
 {
-  return ObjectConverter<TimeTexture<float> >::ana2aims( obj );
+  return ObjectConverter<TimeTexture<float> >::ana2aims( obj, options );
 }
 
 
-/*
-TimeTexture<short> *
-AObjectConverter::aimsTexture_S16( anatomist::AObject * obj )
+carto::rc_ptr<TimeTexture<short> >
+AObjectConverter::aimsTexture_S16( anatomist::AObject * obj, Object options )
 {
-  return ObjectConverter<TimeTexture<short> >::ana2aims( obj );
+  return ObjectConverter<TimeTexture<short> >::ana2aims( obj, options );
 }
 
 
-TimeTexture<int> *
-AObjectConverter::aimsTexture_S32( anatomist::AObject * obj )
+rc_ptr<TimeTexture<int> >
+AObjectConverter::aimsTexture_S32( anatomist::AObject * obj, Object options )
 {
-  return ObjectConverter<TimeTexture<int> >::ana2aims( obj );
+  return ObjectConverter<TimeTexture<int> >::ana2aims( obj, options );
 }
 
 
-TimeTexture<unsigned> *
-AObjectConverter::aimsTexture_U32( anatomist::AObject * obj )
+rc_ptr<TimeTexture<unsigned> >
+AObjectConverter::aimsTexture_U32( anatomist::AObject * obj, Object options )
 {
-  return ObjectConverter<TimeTexture<unsigned> >::ana2aims( obj );
+  return ObjectConverter<TimeTexture<unsigned> >::ana2aims( obj, options );
 }
-*/
 
 
 /*
@@ -351,16 +358,18 @@ AObjectConverter::aimsTexture_POINT2D( anatomist::AObject * obj )
 */
 
 
-TimeTexture<Point2df> *
-AObjectConverter::aimsTexture_POINT2DF( anatomist::AObject * obj )
+carto::rc_ptr<TimeTexture<Point2df> >
+AObjectConverter::aimsTexture_POINT2DF( anatomist::AObject * obj,
+                                        Object options )
 {
-  return ObjectConverter<TimeTexture<Point2df> >::ana2aims( obj );
+  return ObjectConverter<TimeTexture<Point2df> >::ana2aims( obj, options );
 }
 
 
-Graph * AObjectConverter::aimsGraph( anatomist::AObject * obj )
+carto::rc_ptr<Graph> AObjectConverter::aimsGraph( anatomist::AObject * obj,
+    Object options )
 {
-  return ObjectConverter<Graph>::ana2aims( obj );
+  return ObjectConverter<Graph>::ana2aims( obj, options );
 }
 
 

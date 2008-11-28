@@ -76,6 +76,8 @@ protected slots:
   void absmaxSubMethod();
   void depthChanged( int value );
   void stepChanged( int value );
+  void depthLineChanged();
+  void stepLineChanged();
   void updateObjects();
   void chooseObject();
   void objectsChosen( const std::set<anatomist::AObject *> & );

@@ -295,14 +295,30 @@ typessub.update( { 'anatomist::EventHandler' : \
                'PyType' : '',
                'sipClass' : '',
                'typeinclude' : '#include <anatomist/window/Window.h>', 
-               'sipinclude' : '#if SIP_VERSION < 0x040700\n'
-                 '#include "sipanatomistsipanatomistAWindow.h"\n' 
-                 '#include "sipanatomistsipstdset.h"\n' 
-                 '#endif\n'
-               '#include <pyanatomist/setawindow.h>', 
+               'sipinclude' : '#include <pyanatomist/setawindow.h>',
                'module' : 'anatomist', 
                'testPyType' : 'pyanatomistset_AWindowP_Check', 
                },
+
+             'anatomist::ObjectMenu' : \
+             { 'typecode' : 'ObjectMenu',
+               'pyFromC' : 'pyanatomistConvertFrom_anatomist_ObjectMenu',
+               'CFromPy' : 'pyanatomistConvertTo_anatomist_ObjectMenu',
+               'castFromSip' : '(anatomist::ObjectMenu)',
+               'deref' : '*',
+               'pyderef' : '*',
+               'address' : '&', 
+               'pyaddress' : '&', 
+               'defScalar' : '',
+               'new' : 'new anatomist::ObjectMenu',
+               'NumType' : 'PyArray_OBJECT', 
+               'PyType' : 'anatomist::ObjectMenu',
+               'sipClass' : 'anatomist_ObjectMenu',
+               'typeinclude' : '#include <anatomist/object/objectmenu.h>', 
+               'sipinclude' : '#include <pyanatomist/objectmenu.h>',
+               'module' : 'anatomist', 
+               'testPyType' : 'pyanatomistObjectMenu_Check',
+              },
 
              'anatomist::ObjectMenu *' : \
              { 'typecode' : 'ObjectMenuPtr',
@@ -326,6 +342,26 @@ typessub.update( { 'anatomist::EventHandler' : \
                'module' : 'anatomist', 
                'testPyType' : 'pyanatomistObjectMenuP_Check', 
                },
+
+             'carto::rc_ptr<anatomist::ObjectMenu>' : \
+             { 'typecode' : 'rc_ptr_ObjectMenu',
+               'pyFromC' : 'pyanatomistConvertFrom_anatomist_ObjectMenuR',
+               'CFromPy' : 'pyanatomistConvertTo_anatomist_ObjectMenuR',
+               'castFromSip' : '(carto::rc_ptr<anatomist::ObjectMenu> *)',
+               'deref' : '*',
+               'pyderef' : '*',
+               'address' : '&',
+               'pyaddress' : '&',
+               'defScalar' : '',
+               'new' : 'new carto::rc_ptr<anatomist::ObjectMenu>',
+               'NumType' : 'PyArray_OBJECT',
+               'PyType' : 'rc_ptr_ObjectMenu',
+               'sipClass' : 'rc_ptr_ObjectMenu',
+               'typeinclude' : '#include <anatomist/object/objectmenu.h>',
+               'sipinclude' : '#include <pyanatomist/objectmenu.h>',
+               'module' : 'anatomist',
+               'testPyType' : 'pyanatomistObjectMenuR_Check',
+              },
 
              'QPixmap' : \
              { 'typecode' : 'QPixmap',

@@ -37,7 +37,7 @@
 #ifndef ANA_OBJECT_OBJECTCONVERTER_H
 #define ANA_OBJECT_OBJECTCONVERTER_H
 
-#include <cartobase/smart/rcptr.h>
+#include <cartobase/object/object.h>
 
 namespace anatomist
 {
@@ -60,7 +60,8 @@ namespace anatomist
     /// this variant shares the converted object using ref-counting
     static AObject* aims2ana( carto::rc_ptr<T> x );
     /// extracts Aims object from an AObject (if any)
-    static T* ana2aims( AObject* x );
+    static carto::rc_ptr<T> ana2aims( AObject* x, carto::Object options
+        = carto::Object() );
     /// set Aims contents in an existing AObject
     static bool setAims( AObject* x, carto::rc_ptr<T> y );
   };

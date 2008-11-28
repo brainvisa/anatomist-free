@@ -46,6 +46,7 @@
 #include <aims/io/writer.h>
 #include <aims/io/process.h>
 #include <aims/utility/converter_texture.h>
+#include <qtranslator.h>
 #include <float.h>
 
 using namespace anatomist;
@@ -73,9 +74,6 @@ template <typename T> struct ATexture::Private_ : public ATexture::Private
   ~Private_();
   rc_ptr<TimeTexture<T> > texture;
 };
-
-
-Tree*	ATexture::_optionTree = 0;
 
 
 ATexture::Private::Private()
@@ -185,35 +183,30 @@ void ATexture::freeTexture()
   glSetChanged( glBODY );
 }
 
-
-Tree* ATexture::optionTree() const
+ObjectMenu* ATexture::optionMenu() const
 {
-  if( !_optionTree )
-    {
-      Tree	*t, *t2;
-      _optionTree = new Tree( true, "option tree" );
-      t = new Tree( true, "File" );
-      _optionTree->insert( t );
-      t2 = new Tree( true, "Reload" );
-      t2->setProperty( "callback", &ObjectActions::fileReload );
-      t->insert( t2 );
-      t2 = new Tree( true, "Save" );
-      t2->setProperty( "callback", &ObjectActions::saveStatic );
-      t->insert( t2 );
-      t2 = new Tree( true, "Rename object" );
-      t2->setProperty( "callback", &ObjectActions::renameObject );
-      t->insert( t2 );
-
-      t = new Tree( true, "Color" );
-      _optionTree->insert( t );
-      t2 = new Tree( true, "Palette" );
-      t2->setProperty( "callback", &ObjectActions::colorPalette );
-      t->insert( t2 );
-      t2 = new Tree( true, "Texturing" );
-      t2->setProperty( "callback", &ObjectActions::textureControl );
-      t->insert( t2 );
-    }
-  return( _optionTree );
+  rc_ptr<ObjectMenu> om = getObjectMenu( objectFullTypeName() );
+  if( !om )
+  {
+    om.reset( new ObjectMenu );
+    vector<string>  vs;
+    vs.reserve(1);
+    vs.push_back(QT_TRANSLATE_NOOP( "QSelectMenu", "File"));
+    om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Reload"),
+                   &ObjectActions::fileReload);
+    om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save"),
+                   &ObjectActions::saveStatic);
+    om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                   "Rename object"),
+                   &ObjectActions::renameObject);
+    vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Color");
+    om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Palette"),
+                   &ObjectActions::colorPalette);
+    om->insertItem(vs,QT_TRANSLATE_NOOP("QSelectMenu", "Texturing"),
+                   &ObjectActions::textureControl);
+    setObjectMenu( objectFullTypeName(), om );
+  }
+  return AObject::optionMenu();
 }
 
 
@@ -295,8 +288,54 @@ void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
 }
 
 
+namespace
+{
+
+  template <typename T> inline T _convvalue( float x )
+  {
+    return (T) x;
+  }
+
+  template <> inline int8_t _convvalue<int8_t>( float x )
+  {
+    return (int8_t) rint( x );
+  }
+
+
+  template <> inline uint8_t _convvalue<uint8_t>( float x )
+  {
+    return (uint8_t) rint( x );
+  }
+
+
+  template <> inline int16_t _convvalue<int16_t>( float x )
+  {
+    return (int16_t) rint( x );
+  }
+
+
+  template <> inline uint16_t _convvalue<uint16_t>( float x )
+  {
+    return (uint16_t) rint( x );
+  }
+
+
+  template <> inline int32_t _convvalue<int32_t>( float x )
+  {
+    return (int32_t) rint( x );
+  }
+
+
+  template <> inline uint32_t _convvalue<uint32_t>( float x )
+  {
+    return (uint32_t) rint( x );
+  }
+
+}
+
+
 template <typename T>
-rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled )
+rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool )
 {
   if( texdim<T>() != d->dim )
     return rc_ptr<TimeTexture<T> >( 0 );
@@ -327,7 +366,7 @@ rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled )
                it!=et;
                ++it )
           {
-            to.push_back( *it * scl + off );
+            to.push_back( _convvalue<T>( *it * scl + off ) );
           }
         }
       }
@@ -348,7 +387,7 @@ namespace anatomist
 {
 
 template <>
-rc_ptr<Texture2d> ATexture::texture( bool rescaled )
+rc_ptr<Texture2d> ATexture::texture( bool rescaled, bool alwayscopy )
 {
   if( 2 != d->dim )
     return rc_ptr<Texture2d>( 0 );
@@ -388,6 +427,8 @@ rc_ptr<Texture2d> ATexture::texture( bool rescaled )
           }
         }
       }
+      else if( alwayscopy )
+        ftex.reset( new TimeTexture<Point2df>( *tex ) );
       return ftex;
     }
     default:
@@ -948,7 +989,7 @@ namespace
   TexSaver::save( Process & p, const std::string &, Finder & )
   {
     TexSaver & ts = static_cast<TexSaver &>( p );
-    rc_ptr<TimeTexture<T> > tex = ts.texture->texture<T>( true );
+    rc_ptr<TimeTexture<T> > tex = ts.texture->ATexture::texture<T>( true );
     Writer<TimeTexture<T> >	w( ts.filename );
     w.write( *tex );
     return true;
@@ -1022,8 +1063,16 @@ void ATexture::setInternalsChanged()
 }
 
 
-template rc_ptr<TimeTexture<float> > ATexture::texture<float>( bool );
-template rc_ptr<TimeTexture<Point2df> > ATexture::texture<Point2df>( bool );
+template rc_ptr<TimeTexture<float> > ATexture::texture<float>( bool, bool );
+template rc_ptr<TimeTexture<short> > ATexture::texture<short>( bool, bool );
+template rc_ptr<TimeTexture<int> > ATexture::texture<int>( bool, bool );
+template rc_ptr<TimeTexture<unsigned> >
+ATexture::texture<unsigned>( bool, bool );
+template rc_ptr<TimeTexture<Point2df> >
+ATexture::texture<Point2df>( bool, bool );
 template void ATexture::setTexture<float>( rc_ptr<TimeTexture<float> > );
+template void ATexture::setTexture<short>( rc_ptr<TimeTexture<short> > );
+template void ATexture::setTexture<int>( rc_ptr<TimeTexture<int> > );
+template void ATexture::setTexture<unsigned>( rc_ptr<TimeTexture<unsigned> > );
 template void ATexture::setTexture<Point2df>( rc_ptr<TimeTexture<Point2df> > );
 

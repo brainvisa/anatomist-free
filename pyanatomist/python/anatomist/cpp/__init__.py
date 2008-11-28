@@ -117,96 +117,95 @@ global _anatomist_modsloaded
 _anatomist_modsloaded = 0
 
 # update AObjectConverter class to be more flexible
-def aimsFromAnatomist( ao, options={} ):
-  def scaleTexture( tex, ao, options ):
-    try:
-      if int( options.get( 'scale', 1 ) ):
-        print 'scale texture'
-        txex = ao.glAPI().glTexExtrema(0)
-        tmin = txex.minquant[0]
-        scl = ( txex.maxquant[0] - tmin ) * ( txex.max[0] - txex.min[0] )
-        tmin -= txex.min[0] * scl
-        print scl, tmin
-        print tex.__class__
-        ntex = tex.__class__( tex )
-        print ntex
-        for t in xrange( ntex.size() ):
-          try:
-            ar = ntex[t].arraydata()
-            print 'ar OK for time', t
-            ar *= scl
-            ar += tmin
-          except:
-            pass
-        return ntex
-      else:
-        if int( options.get( 'always_copy', 0 ) ):
-          return tex.__class__( tex.get().__class__( tex.get() ) )
-    except:
-      return tex
+def aimsFromAnatomist( ao, options={ 'scale' : 1 } ):
   tn = ao.objectTypeName( ao.type() )
   if tn == 'VOLUME':
-    aim = AObjectConverter.aimsData_U8( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_S16( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_U16( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_S32( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_U32( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_FLOAT( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_DOUBLE( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_RGB( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsData_RGBA( ao )
-    if aim:
-      return aim
+    try:
+      hdr = ao.attributed()
+      if hdr:
+        dt = hdr[ 'data_type' ]
+        oc = getattr( AObjectConverter, 'aimsData_' + dt )
+        print 'oc:', oc
+        aim = oc( ao, options )
+        if not aim.isNull():
+          return aim.get()
+    except:
+      pass
+    # all this just in case data_type is not set in header
+    aim = AObjectConverter.aimsData_U8( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_S16( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_U16( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_S32( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_U32( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_FLOAT( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_DOUBLE( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_RGB( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsData_RGBA( ao, options )
+    if not aim.isNull():
+      return aim.get()
   elif tn == 'SURFACE':
-    aim = AObjectConverter.aimsSurface3( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsSurface4( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsSurface2( ao )
-    if aim:
-      return aim
+    aim = AObjectConverter.aimsSurface3( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsSurface4( ao, options )
+    if not aim.isNull():
+      return aim.get()
+    aim = AObjectConverter.aimsSurface2( ao, options )
+    if not aim.isNull():
+      return aim.get()
   elif tn == 'BUCKET':
-    aim = AObjectConverter.aimsBucketMap_VOID( ao )
-    if aim:
-      return aim
+    aim = AObjectConverter.aimsBucketMap_VOID( ao, options )
+    if not aim.isNull():
+      return aim.get()
   elif tn == 'TEXTURE':
-    aim = AObjectConverter.aimsTexture_FLOAT( ao )
-    if aim:
-      return scaleTexture( aim, ao, options )
-    aim = AObjectConverter.aimsTexture_POINT2DF( ao )
-    if aim:
+    at = ao.attributed()
+    if not at:
+      return None
+    try:
+      dt = at[ 'data_type' ]
+    except:
+      dt = 'FLOAT'
+    try:
+      conv = getattr( AObjectConverter, 'aimsTexture_' + dt )
+      aim = conv( ao, options ).get()
       return aim
-    aim = AObjectConverter.aimsTexture_S16( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsTexture_S32( ao )
-    if aim:
-      return aim
-    aim = AObjectConverter.aimsTexture_U32( ao )
-    if aim:
-      return aim
+    except:
+      aim = AObjectConverter.aimsTexture_FLOAT( ao, options )
+      if not aim.isNull():
+        return aim.get()
+      aim = AObjectConverter.aimsTexture_POINT2DF( ao, options )
+      if not aim.isNull():
+        return aim.get()
+      aim = AObjectConverter.aimsTexture_S16( ao, options )
+      if not aim.isNull():
+        return aim.get()
+      aim = AObjectConverter.aimsTexture_S32( ao, options )
+      if not aim.isNull():
+        return aim.get()
+      aim = AObjectConverter.aimsTexture_U32( ao, options )
+    if aim and not aim.isNull():
+      return aim.get()
+    return None
   elif tn == 'GRAPH':
-    aim = AObjectConverter.aimsGraph( ao )
-    if aim:
-      return aim
+    aim = AObjectConverter.aimsGraph( ao, options )
+    if not aim.isNull():
+      return aim.get()
   return None
 
 AObjectConverter.aims = staticmethod( aimsFromAnatomist )

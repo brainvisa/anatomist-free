@@ -5,31 +5,63 @@
 
 #include <anatomist/object/Object.h>
 
+inline PyObject* pyanatomistConvertFrom_anatomist_ObjectMenu( void * a )
+{
+  return sipConvertFromInstance( a, sipClass_anatomist_ObjectMenu, 0 );
+}
+
+
 inline PyObject* pyanatomistConvertFrom_anatomist_ObjectMenuP( void * a )
 {
-#if SIP_VERSION >= 0x040400
   return sipConvertFromInstance( a, sipClass_anatomist_ObjectMenu, 0 );
-#else
-  return sipMapCppToSelfSubClass( a, sipClass_anatomist_ObjectMenu ); 
-#endif
+}
+
+
+inline PyObject* pyanatomistConvertFrom_anatomist_ObjectMenuR( void * a )
+{
+  return sipConvertFromInstance( a, sipClass_rc_ptr_ObjectMenu, 0 );
+}
+
+
+inline void* pyanatomistConvertTo_anatomist_ObjectMenu( PyObject * o )
+{
+  int isErr = 0;
+  return sipConvertToInstance( o, sipClass_anatomist_ObjectMenu, 0, 0, 0,
+                               &isErr );
 }
 
 
 inline void* pyanatomistConvertTo_anatomist_ObjectMenuP( PyObject * o )
 {
   int isErr = 0;
-#if SIP_VERSION >= 0x040400
-  return sipConvertToInstance( o, sipClass_anatomist_ObjectMenu, 0, 0, 0, 
+  return sipConvertToInstance( o, sipClass_anatomist_ObjectMenu, 0, 0, 0,
                                &isErr );
-#else
-  return sipForceConvertTo_anatomist_ObjectMenu( o, &isErr );
-#endif
+}
+
+
+inline void* pyanatomistConvertTo_anatomist_ObjectMenuR( PyObject * o )
+{
+  int isErr = 0;
+  return sipConvertToInstance( o, sipClass_rc_ptr_ObjectMenu, 0, 0,
+                               0, &isErr );
+}
+
+
+inline int pyanatomistObjectMenu_Check( PyObject* o )
+{
+  return sipIsSubClassInstance( o, sipClass_anatomist_ObjectMenu );
 }
 
 
 inline int pyanatomistObjectMenuP_Check( PyObject* o )
 {
   return sipIsSubClassInstance( o, sipClass_anatomist_ObjectMenu );
+}
+
+
+inline int pyanatomistObjectMenuR_Check( PyObject* o )
+{
+  return sipIsSubClassInstance( o, sipClass_rc_ptr_ObjectMenu );
 }
 
 #endif

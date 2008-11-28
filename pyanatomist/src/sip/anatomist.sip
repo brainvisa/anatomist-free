@@ -3,7 +3,7 @@
 %Include glComponent.sip
 %Include referential.sip
 %Include palette.sip
-%Include map_STRING_ObjectMenuPtr.sip
+%Include map_STRING_rc_ptr_ObjectMenu.sip
 %Include object.sip
 %Include slice.sip
 %Include objectmenu.sip
@@ -18,6 +18,7 @@
 %Include qobjecttree.sip
 %Include unserializer.sip
 %Include rcptr_Unserializer.sip
+%Include rcptr_ObjectMenu.sip
 %Include command.sip
 %Include event.sip
 %Include rcptr_EventHandler.sip
@@ -112,26 +113,44 @@ class AObjectConverter
 %End
 
 public:
-  static AimsData_U8 *aimsData_U8( anatomist::AObject* );
-  static AimsData_S16 *aimsData_S16( anatomist::AObject* );
-  static AimsData_U16 *aimsData_U16( anatomist::AObject* );
-  static AimsData_S32 *aimsData_S32( anatomist::AObject* );
-  static AimsData_U32 *aimsData_U32( anatomist::AObject* );
-  static AimsData_FLOAT *aimsData_FLOAT( anatomist::AObject* );
-  static AimsData_DOUBLE *aimsData_DOUBLE( anatomist::AObject* );
-  static AimsData_RGB *aimsData_RGB( anatomist::AObject* );
-  static AimsData_RGBA *aimsData_RGBA( anatomist::AObject* );
-  static AimsTimeSurface_2 *aimsSurface2( anatomist::AObject* );
-  static AimsTimeSurface_3 *aimsSurface3( anatomist::AObject* );
-  static AimsTimeSurface_4 *aimsSurface4( anatomist::AObject* );
-  static BucketMap_VOID *aimsBucketMap_VOID( anatomist::AObject* );
-  static TimeTexture_FLOAT *aimsTexture_FLOAT( anatomist::AObject* );
-/*  static TimeTexture_S16 *aimsTexture_S16( anatomist::AObject* );
-  static TimeTexture_S32 *aimsTexture_S32( anatomist::AObject* );
-  static TimeTexture_U32 *aimsTexture_U32( anatomist::AObject* );
-*/
-  static TimeTexture_POINT2DF *aimsTexture_POINT2DF( anatomist::AObject* );
-  static Graph *aimsGraph( anatomist::AObject* );
+  static rc_ptr_AimsData_U8 aimsData_U8( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_S16 aimsData_S16( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_U16 aimsData_U16( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_S32 aimsData_S32( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_U32 aimsData_U32( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_FLOAT aimsData_FLOAT( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_DOUBLE aimsData_DOUBLE( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_RGB aimsData_RGB( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsData_RGBA aimsData_RGBA( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsTimeSurface_2 aimsSurface2( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsTimeSurface_3 aimsSurface3( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_AimsTimeSurface_4 aimsSurface4( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_BucketMap_VOID aimsBucketMap_VOID( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_TimeTexture_FLOAT aimsTexture_FLOAT( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_TimeTexture_S16 aimsTexture_S16( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_TimeTexture_S32 aimsTexture_S32( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_TimeTexture_U32 aimsTexture_U32( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_TimeTexture_POINT2DF aimsTexture_POINT2DF( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static rc_ptr_Graph aimsGraph( anatomist::AObject*,
+      carto::Object options = carto::Object() );
 
   static anatomist::AObject* anatomist( AimsData_U8* );
   static anatomist::AObject* anatomist( AimsData_S16* );

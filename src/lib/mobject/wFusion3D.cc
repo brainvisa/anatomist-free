@@ -46,6 +46,8 @@
 #include <qlabel.h>
 #include <qslider.h>
 #include <qpixmap.h>
+#include <qlineedit.h>
+#include <qvalidator.h>
 
 #include <anatomist/mobject/Fusion3D.h>
 #include <anatomist/application/Anatomist.h>
@@ -67,9 +69,9 @@ struct Fusion3DWindow::Private
   QSlider			*linratesl;
   QLabel			*linratelab;
   QSlider			*depthsl;
-  QLabel			*depthlab;
+  QLineEdit			*depthlab;
   QSlider			*stepsl;
-  QLabel			*steplab;
+  QLineEdit			*steplab;
   set<Fusion3D *>		parents;
   set<AObject *>		initial;
   Fusion3D::glTextureMode	mode;
@@ -213,13 +215,19 @@ void Fusion3DWindow::drawContents()
   QRadioButton  *absmaxbtn = new QRadioButton( tr( "Abs. Max" ), submbox );
 
   QVGroupBox	*parambox = new QVGroupBox( tr( "Parameters :" ), hbox );
-  d->depthlab = new QLabel( "5", parambox );
-  d->depthsl = new QSlider( 0, 600, 1, 50, Qt::Horizontal, 
+  d->depthlab = new QLineEdit( "5", parambox );
+  QDoubleValidator *dv = new QDoubleValidator( d->depthlab );
+  dv->setBottom( 0 );
+  d->depthlab->setValidator( dv );
+  d->depthsl = new QSlider( 0, 600, 1, 50, Qt::Horizontal,
 				    parambox );
   d->depthsl->setLineStep( 1 );
   new QLabel( tr( "Depth (mm)" ), parambox );
-  d->steplab = new QLabel( "2.5", parambox );
-  d->stepsl = new QSlider( 0, 200, 1, 25, Qt::Horizontal, 
+  d->steplab = new QLineEdit( "2.5", parambox );
+  dv = new QDoubleValidator( d->steplab );
+  dv->setBottom( 0 );
+  d->steplab->setValidator( dv );
+  d->stepsl = new QSlider( 0, 200, 1, 25, Qt::Horizontal,
 				   parambox );
   d->stepsl->setLineStep( 1 );
   new QLabel( tr( "Step (mm)" ), parambox );
@@ -251,6 +259,10 @@ void Fusion3DWindow::drawContents()
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
            this, 
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
+  connect( d->depthlab, SIGNAL( returnPressed() ), this,
+           SLOT( depthLineChanged() ) );
+  connect( d->steplab, SIGNAL( returnPressed() ), this,
+           SLOT( stepLineChanged() ) );
 }
 
 
@@ -492,6 +504,40 @@ void Fusion3DWindow::stepChanged( int value )
       d->stepHasChanged = true;
       d->steplab->setText( QString::number( d->step ) );
     }
+}
+
+
+void Fusion3DWindow::depthLineChanged()
+{
+  bool ok = true;
+  float value = d->depthlab->text().toFloat( &ok );
+  if( ok && value > 0 && d->depth != value )
+  {
+    d->depth = value;
+    d->depthHasChanged = true;
+    d->depthsl->blockSignals( true );
+    d->depthsl->setValue( d->depth * 10 );
+    d->depthsl->blockSignals( false );
+  }
+  else
+    d->depthlab->setText( QString::number( d->depth ) );
+}
+
+
+void Fusion3DWindow::stepLineChanged()
+{
+  bool ok = true;
+  float value = d->steplab->text().toFloat( &ok );
+  if( ok && value > 0 && d->step != value )
+  {
+    d->step = value;
+    d->stepHasChanged = true;
+    d->stepsl->blockSignals( true );
+    d->stepsl->setValue( d->step * 10 );
+    d->stepsl->blockSignals( false );
+  }
+  else
+    d->steplab->setText( QString::number( d->step ) );
 }
 
 

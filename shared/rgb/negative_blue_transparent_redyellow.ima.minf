@@ -1,0 +1,26 @@
+attributes = {
+    'boundingbox_max' : [ 512, 1, 1, 1 ],
+    'boundingbox_min' : [ 0, 0, 0, 0 ],
+    'data_type' : 'RGBA',
+    'file_type' : 'GIS',
+    'material' : {
+        'ambient' : [ 0.1, 0.1, 0.1, 1 ],
+        'diffuse' : [ 0.8, 0.8, 0.8, 1 ],
+        'emission' : [ 0, 0, 0, 1 ],
+        'shininess' : 20,
+        'specular' : [ 0.2, 0.2, 0.2, 1 ],
+        'unlit_color' : [ 0, 0, 0, 1 ]
+      },
+    'object_type' : 'Volume',
+    'palette_gradients' : '0;0;0.507692;0;1;1#0;0;0.758974;0;1;1#0;1;0.392308;0;1;0#0.310256;0;0.682051;0;1;1',
+    'palette_gradients_mode' : 'RGB',
+    'texture_properties' : [ {
+            'filtering' : 'nearest',
+            'generation' : 'none',
+            'interpolation' : 'palette',
+            'mode' : 'decal',
+            'rate' : 1
+          } ],
+    'volume_dimension' : [ 512, 1, 1, 1 ],
+    'voxel_size' : [ 1, 1, 1, 1 ]
+  }

@@ -105,21 +105,12 @@ struct AObject::Private
   // bool                  cycling;
 };
 
-std::map<std::string, ObjectMenu *>	AObject::_objectmenu_map;
+std::map<std::string, rc_ptr<ObjectMenu> >	AObject::_objectmenu_map;
 
 // -----
 
 void AObject::cleanStatic()
 {
-  map<string, ObjectMenu *>::iterator i, e = _objectmenu_map.end();
-  set<ObjectMenu *> om;
-  set<ObjectMenu *>::iterator is, es = om.end();
-  // build a list of unique ObjectMenu elements
-  for( i=_objectmenu_map.begin(); i!=e; ++i )
-    om.insert( i->second );
-  // destroy them only once each
-  for( is=om.begin(); is!=es; ++is )
-    delete i->second;
   _objectmenu_map.clear();
   _objectTypes.clear();
   _objectTypeNames.clear();
@@ -1060,10 +1051,10 @@ Tree* AObject::optionTree() const
 ObjectMenu* AObject::optionMenu() const
 {
   std::string   id = objectFullTypeName();
-  std::map<std::string, ObjectMenu *>::const_iterator
+  std::map<std::string, rc_ptr<ObjectMenu> >::const_iterator
   i = _objectmenu_map.find(id);
 
-  ObjectMenu* om = 0;
+  rc_ptr<ObjectMenu> om( 0 );
   if( i != _objectmenu_map.end() )
     om = i->second;
 
@@ -1076,13 +1067,13 @@ ObjectMenu* AObject::optionMenu() const
     if( !done )
     {
       ir->second.insert( id );
-      om = ir->first->doit( this, om );
+      om.reset( ir->first->doit( this, om.get() ) );
       if( om && i == _objectmenu_map.end() )
         _objectmenu_map[ id ] = om;
     }
   }
 
-  return om;
+  return om.get();
 }
 
 

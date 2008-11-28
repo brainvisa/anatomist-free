@@ -124,20 +124,20 @@ ObjectMenu::Private::operator = ( const ObjectMenu::Private & x )
 // -----------------------------------------
 
 ObjectMenu::ObjectMenu()
-  : d( new Private )
+  : RCObject(), d( new Private )
 {
 }
 
 
 ObjectMenu::ObjectMenu( const ObjectMenu & x )
-  : d( new Private )
+  : RCObject(), d( new Private )
 {
   *this = x;
 }
 
 
 ObjectMenu::ObjectMenu( Tree & t )
-  : d( new Private )
+  : RCObject(), d( new Private )
 {
 	d->menu = &t;
 }

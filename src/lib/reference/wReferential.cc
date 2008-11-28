@@ -741,11 +741,13 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
     pdat->bgmenu = pop;
 
     pop->insertItem( tr( "New referential" ), this,
-                          SLOT( newReferential() ) );
+                     SLOT( newReferential() ) );
     pop->insertItem( tr( "Load referential" ), this,
-                          SLOT( loadReferential() ) );
+                     SLOT( loadReferential() ) );
     pop->insertItem( tr( "Load transformation" ), this,
-                          SLOT( loadNewTransformation() ) );
+                     SLOT( loadNewTransformation() ) );
+    pop->insertItem( tr( "Clear unused referentials" ), this,
+                     SLOT( clearUnusedReferentials() ) );
   }
 
   pop->popup( mapToGlobal( pos ) );
@@ -770,6 +772,22 @@ void ReferentialWindow::deleteTransformation( Transformation* trans )
   for( iw=win.begin(); iw!=fw; ++iw )
     (*iw)->SetRefreshFlag();
   theAnatomist->Refresh();
+}
+
+
+void ReferentialWindow::clearUnusedReferentials()
+{
+  set<Referential *> refs = theAnatomist->getReferentials();
+  set<Referential *>::iterator i, e = refs.end();
+  Referential *ref;
+  for( i=refs.begin(); i!=e; ++i )
+  {
+    ref = *i;
+    if( ref != Referential::acPcReferential()
+        && ref != Referential::mniTemplateReferential()
+        && ref->AnaWin().empty() && ref->AnaObj().empty() )
+      delete ref;
+  }
 }
 
 

@@ -468,6 +468,7 @@ AGraphObject* RoiBaseModule::newRegion( AGraph* gra, const string & regionName,
       bck->setVoxelSize( gra->VoxelSize() ) ;
       bck->setName( theAnatomist->makeObjectName( regionName ).c_str() );
       bck->setVoxelSize( gra->VoxelSize() ) ;
+      bck->setReferentialInheritance( ago );
 
       // Temporaire
       bck->setGeomExtrema() ;
@@ -476,9 +477,9 @@ AGraphObject* RoiBaseModule::newRegion( AGraph* gra, const string & regionName,
       theAnatomist->registerObject( bck, false );
       theAnatomist->registerSubObject( ago, bck );
 
-      BucketMap<Void> *b = ObjectConverter<BucketMap<Void> >::ana2aims( bck );
-      GraphManip::storeAims( *gr, v, "aims_roi", 
-                             rc_ptr<BucketMap<Void> >( b ) );
+      rc_ptr<BucketMap<Void> > b
+          = ObjectConverter<BucketMap<Void> >::ana2aims( bck );
+      GraphManip::storeAims( *gr, v, "aims_roi", b );
 
       //gra->setGeomExtrema();
       //gra->clearLabelsVolume();

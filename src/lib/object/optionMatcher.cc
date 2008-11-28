@@ -51,7 +51,7 @@ void OptionMatcher::commonOptions( const set<AObject *> & obj, Tree & tr )
   if( obj.size() == 0 )
     return;
   const Tree				*ot = NULL;
-  const ObjectMenu			*om = NULL;
+  rc_ptr<ObjectMenu>                    om( 0 );
   set<AObject *>::const_iterator	io = obj.begin(), fo = obj.end();
 
   /* For a while optionTree will remain. These few lines switch between the
@@ -60,7 +60,7 @@ void OptionMatcher::commonOptions( const set<AObject *> & obj, Tree & tr )
   ot = (*io)->optionTree();
   if (!ot)
   {
-	  om = (*io)->optionMenu();
+	  om.reset( (*io)->optionMenu() );
 	  if (!om) om = AObject::getObjectMenu("__default__");
           ot = om->tree();
   }

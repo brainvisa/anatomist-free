@@ -41,6 +41,7 @@
 
 
 using namespace anatomist;
+using namespace carto;
 
 
 QAHistogram::QAHistogram()
@@ -52,89 +53,88 @@ QAHistogram::QAHistogram()
 
 QAHistogram::~QAHistogram()
 {
-  std::map< AObject*, AimsData< float >* >::iterator it, ie = crv.end();
-
-  for ( it = crv.begin(); it != ie; ++it )
-    {
-      delete it->second;
-    }
 }
 
 
 bool QAHistogram::add( AObject* d )
 {
-  AimsData< float >* adata = ObjectConverter< AimsData< float > >::ana2aims( d );
+  rc_ptr<AimsData< float > > adata
+      = ObjectConverter< AimsData< float > >::ana2aims( d );
 
   if ( !adata )
     {
-      AimsData< int8_t >* a8 = ObjectConverter< AimsData< int8_t > >::ana2aims( d );
+      rc_ptr<AimsData< int8_t > > a8
+          = ObjectConverter< AimsData< int8_t > >::ana2aims( d );
 
       if ( a8 )
 	{
-	  adata = new AimsData< float >( a8->dimX(), a8->dimY(),
-					 a8->dimZ(), a8->dimT() );
+	  adata.reset( new AimsData< float >( a8->dimX(), a8->dimY(),
+                       a8->dimZ(), a8->dimT() ) );
 	  carto::RawConverter< AimsData< int8_t >, AimsData< float > > conv;
 	  conv.convert( *a8, *adata );
 	}
       else
 	{
-	  AimsData< uint8_t >* au8;
+	  rc_ptr<AimsData< uint8_t > > au8;
 	  au8 = ObjectConverter< AimsData< uint8_t > >::ana2aims( d );
 
 	  if ( au8 )
 	    {
-	      adata = new AimsData< float >( au8->dimX(), au8->dimY(),
-					     au8->dimZ(), au8->dimT() );
+	      adata.reset( new AimsData< float >( au8->dimX(), au8->dimY(),
+                           au8->dimZ(), au8->dimT() ) );
 	      carto::RawConverter< AimsData< uint8_t >, AimsData< float > > conv;
 	      conv.convert( *au8, *adata );
 	    }
 	  else
 	    {
-	      AimsData< int16_t >* a16;
+	      rc_ptr<AimsData< int16_t > > a16;
 	      a16 = ObjectConverter< AimsData< int16_t > >::ana2aims( d );
 
 	      if ( a16 )
 		{
-		  adata = new AimsData< float >( a16->dimX(), a16->dimY(),
-						 a16->dimZ(), a16->dimT() );
+		  adata.reset( new AimsData< float >( a16->dimX(), a16->dimY(),
+                               a16->dimZ(), a16->dimT() ) );
 		  carto::RawConverter< AimsData< int16_t >, AimsData< float > > conv;
 		  conv.convert( *a16, *adata );
 		}
 	      else
 		{
-		  AimsData< uint16_t >* au16;
+		  rc_ptr<AimsData< uint16_t > > au16;
 		  au16 = ObjectConverter< AimsData< uint16_t > >::ana2aims( d );
 
 		  if ( au16 )
 		    {
-		      adata = new AimsData< float >( au16->dimX(), au16->dimY(),
-						     au16->dimZ(), au16->dimT() );
+		      adata.reset( new AimsData< float >( au16->dimX(),
+                                   au16->dimY(), au16->dimZ(),
+                                              au16->dimT() ) );
 		      carto::RawConverter< AimsData< uint16_t >, AimsData< float > > conv;
 		      conv.convert( *au16, *adata );
 		    }
 		  else
 		    {
-		      AimsData< int32_t >* a32;
+		      rc_ptr<AimsData< int32_t > > a32;
 		      a32 = 
 			ObjectConverter< AimsData< int32_t > >::ana2aims( d );
 
 		      if ( a32 )
 			{
-			  adata = new AimsData< float >( a32->dimX(), a32->dimY(),
-							 a32->dimZ(), a32->dimT() );
+			  adata.reset( new AimsData< float >( a32->dimX(),
+                                       a32->dimY(), a32->dimZ(),
+                                           a32->dimT() ) );
 			  carto::RawConverter< AimsData< int32_t >, AimsData< float > > conv;
 			  conv.convert( *a32, *adata );
 			}
 		      else
 			{
-			  AimsData< uint32_t >* au32;
+			  rc_ptr<AimsData< uint32_t > > au32;
 			  au32 = 
 			    ObjectConverter< AimsData< uint32_t > >::ana2aims( d );
 
 			  if ( au32 )
 			    {
-			      adata = new AimsData< float >( au32->dimX(), au32->dimY(),
-							     au32->dimZ(), au32->dimT() );
+			      adata.reset( new AimsData< float >(
+                                           au32->dimX(), au32->dimY(),
+                                  au32->dimZ(), au32->dimT() ) );
 			      carto::RawConverter< AimsData< uint32_t >, AimsData< float > > conv;
 			      conv.convert( *au32, *adata );
 			    }
@@ -168,7 +168,6 @@ bool QAHistogram::add( AObject* d )
 
 void QAHistogram::remove( AObject* obj )
 {
-  delete crv[ obj ];
   crv.erase( obj );
 }
 
@@ -187,7 +186,7 @@ double *QAHistogram::abscisse()
 double *QAHistogram::doit( AObject *d )
 {
   SimpleHistogram< float > h;
-  AimsData< float >* adata = crv.find( d )->second;
+  rc_ptr<AimsData< float > > adata = crv.find( d )->second;
 
   if ( adata )
     {

@@ -377,6 +377,8 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
       sstate.attEditors[ "RoiArg" ][ "roi_mesh_junction_label" ] = colorEditor;
       sstate.attEditors[ "RoiArg" ][ "roi_mesh_juntion_filename" ]
         = colorEditor;
+      sstate.attEditors[ "roi" ][ "label" ] = labelEditor;
+      sstate.attEditors[ "roi" ][ "name" ] = labelEditor;
     }
 }
 
@@ -1957,7 +1959,7 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
   QWidget		*pw = br->parentWidget();
   QObjectBrowser	*tbr;
 
-  for( tbr=dynamic_cast<QObjectBrowser *>( pw ); pw && !tbr; 
+  for( tbr=dynamic_cast<QObjectBrowser *>( pw ); pw && !tbr;
        pw=pw->parentWidget(), tbr=dynamic_cast<QObjectBrowser *>( pw ) ) {}
   assert( tbr );
 

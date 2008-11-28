@@ -1244,7 +1244,7 @@ class ASocket(Socket):
         """
         Dynamic object to store the result of the sended command
         """
-        pass 
+        pass
       lock = _MyLock()
       if not self.usethread :
         # here socket reading ocurs in the current (main) thread: don't block
@@ -1432,4 +1432,15 @@ class ASocket(Socket):
             del self.eventCallbacks[ eventName ]
       finally:
         self.lock.release()
-    
+
+    def close( self ):
+      # flush callbacks and send them all an exception before closing
+      excep = RuntimeError( 'Connection closed' )
+      callbacks = self.eventCallbacks.items()
+      for x,y in callbacks:
+        if type( x ) is types.TupleType:
+          for function in y:
+            function( None, excep )
+            self.delCallbacks(x)
+      # now the regular close
+      super( ASocket, self ).close()

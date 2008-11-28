@@ -79,7 +79,7 @@ namespace anatomist
   };
 
 
-  class ObjectMenu
+  class ObjectMenu : public carto::RCObject
   {
   public:
     ObjectMenu();

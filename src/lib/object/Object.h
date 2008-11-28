@@ -361,27 +361,16 @@ namespace anatomist
     /// Creates a new object type number and returns it
     static int registerObjectType( const std::string & id );
     static std::string objectTypeName( int type );
-    static void setObjectMenu(std::string type, ObjectMenu *om)
+    static void setObjectMenu(std::string type, carto::rc_ptr<ObjectMenu> om)
     {
-      /* at the moment, ObjectMenu don't belong to the static list:
-         they always leak.
-      std::map<std::string, ObjectMenu *>::iterator
-          i = _objectmenu_map.find( type );
-      if( i != _objectmenu_map.end() )
-      {
-        if( i->second == om )
-          return; // nothing changes
-        delete i->second;
-        _objectmenu_map.erase( i );
-      }
-      */
       _objectmenu_map[type] = om;
     }
-    static ObjectMenu *getObjectMenu(std::string type)
+    static carto::rc_ptr<ObjectMenu> getObjectMenu(std::string type)
     {
       return _objectmenu_map[type];
     }
-    static std::map<std::string, ObjectMenu *>  &getObjectMenuMap()
+    static std::map<std::string, carto::rc_ptr<ObjectMenu> >
+        &getObjectMenuMap()
     {
       return _objectmenu_map;
     }
@@ -432,7 +421,8 @@ namespace anatomist
     static std::map<int,std::string>	_objectTypeNames;
 
     /// Object Menu Map
-    static std::map<std::string, ObjectMenu *>	_objectmenu_map;
+    static std::map<std::string, carto::rc_ptr<ObjectMenu> >
+        _objectmenu_map;
 
   private:
     struct Private;

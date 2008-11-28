@@ -277,11 +277,11 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
         item = new aims::gui::QEditableListViewItem( parent,
             semantic.c_str(), type.c_str(), value.c_str() );
+        item->setRenameEnabled( 2, true );
 #else
         item = new Q3ListViewItem( parent, semantic.c_str(), type.c_str(),
                                    value.c_str() );
 #endif
-        item->setRenameEnabled( 2, true );
         if( regist )
           br->registerAttribute( item );
       }

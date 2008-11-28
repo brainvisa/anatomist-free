@@ -99,10 +99,20 @@ namespace anatomist
     virtual anatomist::Material & GetMaterial() /AutoGen/;
     long loadDate() const;
     bool isCopy() const;
+    carto::GenericObject* attributed();
+%MethodCode
+    anatomist::AttributedAObject* ao
+      = dynamic_cast<anatomist::AttributedAObject *>( sipCpp );
+    if( ao )
+      sipRes = ao->attributed();
+    else
+      sipRes = 0;
+%End
 
-    static std::map<std::string, anatomist::ObjectMenu *>  &getObjectMenuMap();
-    static anatomist::ObjectMenu* getObjectMenu(std::string);
-    static void setObjectMenu(std::string, anatomist::ObjectMenu *);
+    static std::map<std::string, carto::rc_ptr<anatomist::ObjectMenu> >
+      &getObjectMenuMap();
+    static rc_ptr_ObjectMenu getObjectMenu(std::string);
+    static void setObjectMenu(std::string, rc_ptr_ObjectMenu );
     static std::string objectTypeName( int );
     static int 	registerObjectType (const std::string &);
     static void addObjectMenuRegistration

@@ -323,7 +323,9 @@ namespace anatomist
                                           "Invert polygon orientation" ) );
         t2->setProperty( "callback", &invertPolygonsStatic );
         t->insert( t2 );
-        setObjectMenu( objectFullTypeName(), new ObjectMenu( *_optionTree ) );
+        setObjectMenu( objectFullTypeName(),
+                       carto::rc_ptr<ObjectMenu>
+                           ( new ObjectMenu( *_optionTree )  ));
       }
     return AObject::optionTree();
   }

@@ -56,8 +56,7 @@ namespace anatomist
     ATexture();
     virtual ~ATexture();
 
-    virtual Tree* optionTree() const;
-    static Tree*	_optionTree;
+    virtual ObjectMenu* optionMenu() const;
 
     virtual unsigned size( float time = 0 ) const;
     virtual const float* textureCoords() const;
@@ -88,7 +87,8 @@ namespace anatomist
     template <typename T> void setTexture( carto::rc_ptr<TimeTexture<T> >
         tex );
     template <typename T>
-    carto::rc_ptr<TimeTexture<T> > texture( bool rescaled = false );
+    carto::rc_ptr<TimeTexture<T> > texture( bool rescaled = false,
+                                            bool always_copy = false );
     virtual void createDefaultPalette( const std::string & name = "" );
     virtual void update( const Observable* observable, void* arg );
     virtual void notifyObservers( void * = 0 );

@@ -89,27 +89,55 @@ public:
 class AObjectConverter
 {
 public:
-  static AimsData_U8* aimsData_U8( anatomist::AObject* );
-  static AimsData_S16* aimsData_S16( anatomist::AObject* );
-  static AimsData_U16* aimsData_U16( anatomist::AObject* );
-  static AimsData_S32* aimsData_S32( anatomist::AObject* );
-  static AimsData_U32* aimsData_U32( anatomist::AObject* );
-  static AimsData_FLOAT* aimsData_FLOAT( anatomist::AObject* );
-  static AimsData_DOUBLE* aimsData_DOUBLE( anatomist::AObject* );
-  static AimsData_RGB* aimsData_RGB( anatomist::AObject* );
-  static AimsData_RGBA* aimsData_RGBA( anatomist::AObject* );
-  static AimsSurfaceTriangle* aimsSurface3( anatomist::AObject* );
-  static AimsTimeSurface<2,Void>* aimsSurface2( anatomist::AObject* );
-  static AimsTimeSurface<4,Void>* aimsSurface4( anatomist::AObject* );
-  static aims::BucketMap<Void>* aimsBucketMap_VOID( anatomist::AObject* obj );
-  static TimeTexture<float>* aimsTexture_FLOAT( anatomist::AObject* obj );
-  /* static TimeTexture<short>* aimsTexture_S16( anatomist::AObject* obj );
-  static TimeTexture<int>* aimsTexture_S32( anatomist::AObject* obj );
-  static TimeTexture<unsigned>* aimsTexture_U32( anatomist::AObject* obj ); */
+  static carto::rc_ptr<AimsData_U8> aimsData_U8( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_S16> aimsData_S16( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_U16> aimsData_U16( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_S32> aimsData_S32( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_U32> aimsData_U32( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_FLOAT> aimsData_FLOAT( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_DOUBLE> aimsData_DOUBLE( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_RGB> aimsData_RGB( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsData_RGBA> aimsData_RGBA( anatomist::AObject*,
+      carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsSurfaceTriangle>
+      aimsSurface3( anatomist::AObject*,
+                    carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsTimeSurface<2,Void> >
+      aimsSurface2( anatomist::AObject*,
+                    carto::Object options = carto::Object() );
+  static carto::rc_ptr<AimsTimeSurface<4,Void> >
+      aimsSurface4( anatomist::AObject*,
+                    carto::Object options = carto::Object() );
+  static carto::rc_ptr<aims::BucketMap<Void> >
+      aimsBucketMap_VOID( anatomist::AObject* obj,
+                          carto::Object options = carto::Object() );
+  static carto::rc_ptr<TimeTexture<float> >
+      aimsTexture_FLOAT( anatomist::AObject* obj,
+                         carto::Object options = carto::Object() );
+  static carto::rc_ptr<TimeTexture<short> >
+      aimsTexture_S16( anatomist::AObject* obj,
+                       carto::Object options = carto::Object() );
+  static carto::rc_ptr<TimeTexture<int> >
+      aimsTexture_S32( anatomist::AObject* obj,
+                       carto::Object options = carto::Object() );
+  static carto::rc_ptr<TimeTexture<unsigned> >
+      aimsTexture_U32( anatomist::AObject* obj,
+                       carto::Object options = carto::Object() );
   // static TimeTexture<Point2d>* aimsTexture_POINT2D( anatomist::AObject* obj );
-  static TimeTexture<Point2df>* aimsTexture_POINT2DF( anatomist::AObject*
-      obj );
-  static Graph* aimsGraph( anatomist::AObject* obj );
+  static carto::rc_ptr<TimeTexture<Point2df> >
+      aimsTexture_POINT2DF( anatomist::AObject* obj,
+                            carto::Object options = carto::Object() );
+  static carto::rc_ptr<Graph>
+      aimsGraph( anatomist::AObject* obj,
+                 carto::Object options = carto::Object() );
 
   static anatomist::AObject* anatomist( AimsData_U8* );
   static anatomist::AObject* anatomist( AimsData_S16* );

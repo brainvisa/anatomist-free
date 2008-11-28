@@ -229,10 +229,11 @@ void TrackCutAction::setSlice( const Quaternion & q )
   Point3df			n, center, bmin, bmax;
   map<SelfSliceable *, AObject *>               sls;
   map<SelfSliceable *, AObject *>::iterator     isls, esls = sls.end();
-  SelectFactory *sf = SelectFactory::factory();
 
   if( glw )
     center = glw->rotationCenter();
+
+  SelectFactory	*sf = SelectFactory::factory();
 
   for( io=obj.begin(); io!=eo; ++io )
   {
@@ -242,11 +243,12 @@ void TrackCutAction::setSlice( const Quaternion & q )
   }
   if( sls.empty() )
     for( io=obj.begin(); io!=eo; ++io )
-    {
-      sl = dynamic_cast<SelfSliceable *>( *io );
-      if( sl )
-        sls[ sl ] = *io;
-    }
+  {
+    sl = dynamic_cast<SelfSliceable *>( *io );
+    if( sl )
+      sls[ sl ] = *io;
+  }
+
   for( isls=sls.begin(); isls!=esls; ++isls )
   {
     sl = isls->first;
@@ -328,28 +330,46 @@ void CutSliceAction::moveTrack( int, int y, int, int )
   SelfSliceable				*sl;
   Quaternion				q;
   Point3df				p;
+  map<SelfSliceable *, AObject *>		sls;
+  map<SelfSliceable *, AObject *>::iterator	isls, esls = sls.end();
+
+  SelectFactory	*sf = SelectFactory::factory();
 
   for( io=obj.begin(); io!=eo; ++io )
-    if( ( sl = dynamic_cast<SelfSliceable *>( *io ) ) )
-      {
-        q = sl->quaternion();
-        p = q.apply( Point3df( 0, 0, scl * ( y - _y ) ) );
-        sl->setOffset( sl->offset() + p );
-        (*io)->notifyObservers( this );
+  {
+    sl = dynamic_cast<SelfSliceable *>( *io );
+    if( sl && sf->isSelected( w->Group(), *io ) )
+      sls[ sl ] = *io;
+  }
+  if( sls.empty() )
+    for( io=obj.begin(); io!=eo; ++io )
+  {
+    sl = dynamic_cast<SelfSliceable *>( *io );
+    if( sl )
+      sls[ sl ] = *io;
+  }
 
-        // send event
-        Object	ex = Object::value( Dictionary() );
-        set<AObject *>	nobj;
-        nobj.insert( *io );
-        ex->setProperty( "_objects", Object::value( nobj ) );
-        vector<float>	vf(3);
-        vf[0] = p[0];
-        vf[1] = p[1];
-        vf[2] = p[2];
-        ex->setProperty( "slice_offset", Object::value( vf ) );
-        OutputEvent	ev( "ObjectSlice", ex );
-        ev.send();
-      }
+  for( isls=sls.begin(); isls!=esls; ++isls )
+  {
+    sl = isls->first;
+    q = sl->quaternion();
+    p = q.apply( Point3df( 0, 0, scl * ( y - _y ) ) );
+    sl->setOffset( sl->offset() + p );
+    isls->second->notifyObservers( this );
+
+    // send event
+    Object	ex = Object::value( Dictionary() );
+    set<AObject *>	nobj;
+    nobj.insert( isls->second );
+    ex->setProperty( "_objects", Object::value( nobj ) );
+    vector<float>	vf(3);
+    vf[0] = p[0];
+    vf[1] = p[1];
+    vf[2] = p[2];
+    ex->setProperty( "slice_offset", Object::value( vf ) );
+    OutputEvent	ev( "ObjectSlice", ex );
+    ev.send();
+  }
   _y = y;
 }
 

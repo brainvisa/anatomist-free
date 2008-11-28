@@ -73,13 +73,13 @@ ObjectConverter<BucketMap<Void> >::aims2ana( rc_ptr<BucketMap<Void> > x )
 }
 
 
-template<> BucketMap<Void>* 
-ObjectConverter<BucketMap<Void> >::ana2aims( AObject *x )
+template<> rc_ptr<BucketMap<Void> >
+ObjectConverter<BucketMap<Void> >::ana2aims( AObject *x, Object )
 {
   Bucket	*y = dynamic_cast<Bucket *>( x );
   if( !y )
-    return( 0 );
-  return( &y->bucket() );
+    return rc_ptr<BucketMap<Void> >( 0 );
+  return y->rcBucket();
 }
 
 
@@ -217,43 +217,43 @@ ObjectConverter<AimsSurfaceFacet>::setAims
 }
 
 
-template<> AimsSurfaceTriangle* // rc_ptr<AimsSurfaceTriangle> 
-ObjectConverter<AimsSurfaceTriangle>::ana2aims( AObject *x )
+template<> rc_ptr<AimsSurfaceTriangle>
+ObjectConverter<AimsSurfaceTriangle>::ana2aims( AObject *x, Object )
 {
   ATriangulated	*y = dynamic_cast<ATriangulated *>( x );
   if( !y )
-    return( 0 );
-  return( y->surface().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsSurfaceTriangle>( 0 );
+  return y->surface();
 }
 
 
-template<> AimsTimeSurface<2, Void> * 
-ObjectConverter<AimsTimeSurface<2, Void> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsTimeSurface<2, Void> >
+ObjectConverter<AimsTimeSurface<2, Void> >::ana2aims( AObject *x, Object )
 {
   ASurface<2>	*y = dynamic_cast<ASurface<2> *>( x );
   if( !y )
-    return( 0 );
-  return( y->surface().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsTimeSurface<2, Void> >( 0 );
+  return y->surface();
 }
 
 
-template<> AimsSurfaceFacet* 
-ObjectConverter<AimsSurfaceFacet>::ana2aims( AObject *x )
+template<> rc_ptr<AimsSurfaceFacet>
+ObjectConverter<AimsSurfaceFacet>::ana2aims( AObject *x, Object )
 {
   ASurface<4>	*y = dynamic_cast<ASurface<4> *>( x );
   if( !y )
-    return( 0 );
-  return( y->surface().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsSurfaceFacet>( 0 );
+  return y->surface();
 }
 
 
-template<> AimsData<int8_t>*
-ObjectConverter<AimsData<int8_t> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<int8_t> >
+ObjectConverter<AimsData<int8_t> >::ana2aims( AObject *x, Object )
 {
   AVolume<int8_t>	*y = dynamic_cast<AVolume<int8_t> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<int8_t> >( 0 );
+  return( y->volume() );
 }
 
 
@@ -269,13 +269,13 @@ ObjectConverter<AimsData<int8_t> >::setAims
 }
 
 
-template<> AimsData<uint8_t>*
-ObjectConverter<AimsData<uint8_t> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<uint8_t> >
+ObjectConverter<AimsData<uint8_t> >::ana2aims( AObject *x, Object )
 {
   AVolume<uint8_t>	*y = dynamic_cast<AVolume<uint8_t> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<uint8_t> >( 0 );
+  return y->volume();
 }
 
 
@@ -291,13 +291,13 @@ ObjectConverter<AimsData<uint8_t> >::setAims
 }
 
 
-template<> AimsData<int16_t>*
-ObjectConverter<AimsData<int16_t> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<int16_t> >
+ObjectConverter<AimsData<int16_t> >::ana2aims( AObject *x, Object )
 {
   AVolume<int16_t>	*y = dynamic_cast<AVolume<int16_t> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<int16_t> >( 0 );
+  return y->volume();
 }
 
 
@@ -313,13 +313,13 @@ ObjectConverter<AimsData<int16_t> >::setAims
 }
 
 
-template<> AimsData<uint16_t>*
-ObjectConverter<AimsData<uint16_t> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<uint16_t> >
+ObjectConverter<AimsData<uint16_t> >::ana2aims( AObject *x, Object )
 {
   AVolume<uint16_t>	*y = dynamic_cast<AVolume<uint16_t> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<uint16_t> >( 0 );
+  return y->volume();
 }
 
 
@@ -335,13 +335,13 @@ ObjectConverter<AimsData<uint16_t> >::setAims
 }
 
 
-template<> AimsData<int32_t>*
-ObjectConverter<AimsData<int32_t> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<int32_t> >
+ObjectConverter<AimsData<int32_t> >::ana2aims( AObject *x, Object )
 {
   AVolume<int32_t>	*y = dynamic_cast<AVolume<int32_t> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<int32_t> >( 0 );
+  return y->volume();
 }
 
 
@@ -357,13 +357,13 @@ ObjectConverter<AimsData<int32_t> >::setAims
 }
 
 
-template<> AimsData<uint32_t>*
-ObjectConverter<AimsData<uint32_t> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<uint32_t> >
+ObjectConverter<AimsData<uint32_t> >::ana2aims( AObject *x, Object )
 {
   AVolume<uint32_t>	*y = dynamic_cast<AVolume<uint32_t> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<uint32_t> >( 0 );
+  return y->volume();
 }
 
 
@@ -379,13 +379,13 @@ ObjectConverter<AimsData<uint32_t> >::setAims
 }
 
 
-template<> AimsData<float>*
-ObjectConverter<AimsData<float> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<float> >
+ObjectConverter<AimsData<float> >::ana2aims( AObject *x, Object )
 {
   AVolume<float>	*y = dynamic_cast<AVolume<float> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<float> >( 0 );
+  return y->volume();
 }
 
 
@@ -401,13 +401,13 @@ ObjectConverter<AimsData<float> >::setAims
 }
 
 
-template<> AimsData<double>*
-ObjectConverter<AimsData<double> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<double> >
+ObjectConverter<AimsData<double> >::ana2aims( AObject *x, Object )
 {
   AVolume<double>	*y = dynamic_cast<AVolume<double> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<double> >( 0 );
+  return y->volume();
 }
 
 
@@ -423,13 +423,13 @@ ObjectConverter<AimsData<double> >::setAims
 }
 
 
-template<> AimsData<AimsRGB>*
-ObjectConverter<AimsData<AimsRGB> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<AimsRGB> >
+ObjectConverter<AimsData<AimsRGB> >::ana2aims( AObject *x, Object )
 {
   AVolume<AimsRGB>	*y = dynamic_cast<AVolume<AimsRGB> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<AimsRGB> >( 0 );
+  return y->volume();
 }
 
 
@@ -445,13 +445,13 @@ ObjectConverter<AimsData<AimsRGB> >::setAims
 }
 
 
-template<> AimsData<AimsRGBA>*
-ObjectConverter<AimsData<AimsRGBA> >::ana2aims( AObject *x )
+template<> rc_ptr<AimsData<AimsRGBA> >
+ObjectConverter<AimsData<AimsRGBA> >::ana2aims( AObject *x, Object )
 {
   AVolume<AimsRGBA>	*y = dynamic_cast<AVolume<AimsRGBA> *>( x );
   if( !y )
-    return( 0 );
-  return( y->volume().get() ); // TODO: return the rc_ptr
+    return rc_ptr<AimsData<AimsRGBA> >( 0 );
+  return y->volume();
 }
 
 
@@ -467,46 +467,88 @@ ObjectConverter<AimsData<AimsRGBA> >::setAims
 }
 
 
-template<> TimeTexture<float>*
-ObjectConverter<TimeTexture<float> >::ana2aims( AObject *x )
+template<> rc_ptr<TimeTexture<float> >
+ObjectConverter<TimeTexture<float> >::ana2aims( AObject *x, Object options )
 {
+  Object scl;
+  bool rescale = false;
+  if( options )
+    try
+    {
+      scl = options->getProperty( "scale" );
+      rescale = (bool) scl->getScalar();
+    }
+    catch( ... )
+    {
+    }
   ATexture     *y = dynamic_cast<ATexture *>( x );
   if( !y || y->dimTexture() != 1 )
-    return 0;
-  return( y->texture<float>().get() ); // TODO: return the rc_ptr
+    return rc_ptr<TimeTexture<float> >( 0 );
+  return y->texture<float>( rescale );
 }
 
 
-/*
-template<> TimeTexture<short>*
-ObjectConverter<TimeTexture<short> >::ana2aims( AObject *x )
+template<> rc_ptr<TimeTexture<short> >
+ObjectConverter<TimeTexture<short> >::ana2aims( AObject *x, Object options )
 {
+  Object scl;
+  bool rescale = false;
+  if( options )
+    try
+    {
+      scl = options->getProperty( "scale" );
+      rescale = (bool) scl->getScalar();
+    }
+    catch( ... )
+    {
+    }
   ATexture     *y = dynamic_cast<ATexture *>( x );
   if( !y || y->dimTexture() != 1 )
-    return 0;
-  return( y->texture<short>().get() ); // TODO: return the rc_ptr
+    return rc_ptr<TimeTexture<short> >( 0 );
+  return y->texture<short>( rescale );
 }
 
 
-template<> TimeTexture<int>*
-ObjectConverter<TimeTexture<int> >::ana2aims( AObject *x )
+template<> rc_ptr<TimeTexture<int> >
+ObjectConverter<TimeTexture<int> >::ana2aims( AObject *x, Object options )
 {
+  Object scl;
+  bool rescale = false;
+  if( options )
+    try
+    {
+      scl = options->getProperty( "scale" );
+      rescale = (bool) scl->getScalar();
+    }
+    catch( ... )
+    {
+    }
   ATexture     *y = dynamic_cast<ATexture *>( x );
   if( !y || y->dimTexture() != 1 )
-    return 0;
-  return( y->texture<int>().get() ); // TODO: return the rc_ptr
+    return rc_ptr<TimeTexture<int> >( 0 );
+  return y->texture<int>( rescale );
 }
 
 
-template<> TimeTexture<unsigned>*
-ObjectConverter<TimeTexture<unsigned> >::ana2aims( AObject *x )
+template<> rc_ptr<TimeTexture<unsigned> >
+ObjectConverter<TimeTexture<unsigned> >::ana2aims( AObject *x, Object options )
 {
+  Object scl;
+  bool rescale = false, always_copy = false;
+  if( options )
+    try
+    {
+      scl = options->getProperty( "scale" );
+      rescale = (bool) scl->getScalar();
+    }
+    catch( ... )
+    {
+    }
   ATexture     *y = dynamic_cast<ATexture *>( x );
   if( !y || y->dimTexture() != 1 )
-    return 0;
-  return( y->texture<unsigned>().get() ); // TODO: return the rc_ptr
+    return rc_ptr<TimeTexture<unsigned> >( 0 );
+  return y->texture<unsigned>( rescale );
 }
-*/
 
 
 template<> bool
@@ -557,13 +599,13 @@ ObjectConverter<TimeTexture<unsigned> >::setAims
 }
 
 
-template<> TimeTexture<Point2df>*
-ObjectConverter<TimeTexture<Point2df> >::ana2aims( AObject *x )
+template<> rc_ptr<TimeTexture<Point2df> >
+ObjectConverter<TimeTexture<Point2df> >::ana2aims( AObject *x, Object )
 {
   ATexture     *y = dynamic_cast<ATexture *>( x );
   if( !y || y->dimTexture() != 2 )
-    return 0;
-  return( y->texture<Point2df>().get() ); // TODO: return the rc_ptr
+    return rc_ptr<TimeTexture<Point2df> >( 0 );
+  return y->texture<Point2df>();
 }
 
 
@@ -605,13 +647,13 @@ ObjectConverter<TimeTexture<Point2d> >::setAims
 */
 
 
-template<> Graph*
-ObjectConverter<Graph>::ana2aims( AObject *x )
+template<> rc_ptr<Graph>
+ObjectConverter<Graph>::ana2aims( AObject *x, Object )
 {
   AGraph     *y = dynamic_cast<AGraph *>( x );
   if( !y )
-    return 0;
-  return( y->graph() ); // TODO: return the rc_ptr
+    return rc_ptr<Graph>( 0 );
+  return( rc_ptr<Graph>( y->graph() ) );
 }
 
 
@@ -646,6 +688,9 @@ template class ObjectConverter<AimsData<double> >;
 template class ObjectConverter<AimsData<AimsRGB> >;
 template class ObjectConverter<AimsData<AimsRGBA> >;
 template class ObjectConverter<TimeTexture<float> >;
+template class ObjectConverter<TimeTexture<short> >;
+template class ObjectConverter<TimeTexture<int> >;
+template class ObjectConverter<TimeTexture<unsigned> >;
 template class ObjectConverter<TimeTexture<Point2df> >;
 
 

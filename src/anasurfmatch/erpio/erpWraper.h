@@ -50,6 +50,7 @@ namespace anatomist
   class AObject;
   /// private data structure
   struct ErpWraper_data;
+  class ObjectMenu;
 }
 
 
@@ -65,6 +66,8 @@ public:
   virtual ~ErpWraper();
 
   static bool initTexOptions();
+  static anatomist::ObjectMenu* textureMenus
+      ( const anatomist::AObject* objtype, anatomist::ObjectMenu* menu );
   static void openWraper( const std::set<anatomist::AObject *> & obj );
 
   virtual void update( const anatomist::Observable*, void* arg );
