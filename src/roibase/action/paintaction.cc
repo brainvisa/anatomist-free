@@ -157,7 +157,7 @@ PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
   
   _private->myBrushSizeBox = new QHGroupBox( tr("Brush Size"), 
 						_private->myBrushParameters ) ;
-  _private->myBrushSize = new QSlider( 10, 500, 10, int(rint(_private->myPaintAction->brushSize()*10.)),
+  _private->myBrushSize = new QSlider( 1, 500, 10, int(rint(_private->myPaintAction->brushSize()*10.)),
 		     Qt::Horizontal, _private->myBrushSizeBox ) ;
   _private->myBrushSize->setMinimumSize( 50, 
 					 _private->myBrushSize->sizeHint().height() );
@@ -331,9 +331,9 @@ PaintActionView::brushSizeChange( int size )
   if( myUpdatingFlag)
     return ;
   
-  _private->myPaintAction->setSize( (  _private->myPaintAction->mmMode() ? size / 10. : rint(size / 10.) ) ) ;
+  _private->myPaintAction->setSize( (  _private->myPaintAction->mmMode() ? size / 10. : std::max( int(rint(size / 10.)), int(1)) ) ) ;
 
-  _private->myBrushSizeLabel->setText( QString::number( ( _private->myPaintAction->mmMode() ? size / 10. : rint(size / 10.) ) ) ) ;
+  _private->myBrushSizeLabel->setText( QString::number( ( _private->myPaintAction->mmMode() ? size / 10. :  std::max( int( rint(size / 10.) ), int(1) ) ) ) ) ;
 }
 
 void 

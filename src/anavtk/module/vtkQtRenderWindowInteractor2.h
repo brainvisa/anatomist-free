@@ -69,6 +69,7 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
   void SetRenderWindow (vtkRenderWindow*);
   
   // timer methods
+  virtual void SetTimerDuration (unsigned long);
   virtual int CreateTimer(int timertype);
   virtual int DestroyTimer(void);
 

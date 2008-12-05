@@ -39,7 +39,6 @@
 #include <aims/histogram/simpleHisto.h>
 #include <aims/utility/converter_volume.h>
 
-
 using namespace anatomist;
 using namespace carto;
 
@@ -190,15 +189,22 @@ double *QAHistogram::doit( AObject *d )
 
   if ( adata )
     {
+
       h.doit( *adata );
       float bmin = (float)h.minValid();
-      float bmax = (float)h.maxValid();
-      int64_t dX = (int64_t)( bmax - bmin + 1.0f );
+      // float bmax = (float)h.maxValid();
+      int64_t dX = pdim; // (int64_t)( bmax - bmin + 1.0f );
+      if( dX > h.data().dimX() )
+        dX = h.data().dimX(); // should rather rescale instead...
+      // why this conversion/copy from SimpleHistogram to this ??
       double *y = new double[ pdim ];
       double *yptr = y + (int64_t)bmin - (int64_t)pmin;
+      int64_t i;
 
-      for ( int64_t i = 0; i < dX; i++ )
-	*yptr++ = h.data()( i );
+      for( i = 0; i < dX; i++ )
+        *yptr++ = h.data()( i );
+      for( ; i < pdim; ++i )
+        *yptr++ = 0;
 
       return y;
     }

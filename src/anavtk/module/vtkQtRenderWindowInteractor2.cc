@@ -335,6 +335,12 @@ void vtkQtRenderWindowInteractor2::timer()
 }
 
 
+void vtkQtRenderWindowInteractor2::SetTimerDuration (unsigned long duration)
+{
+  vtkRenderWindowInteractor::SetTimerDuration (duration);
+  qTimer.changeInterval (duration);
+}
+
 int vtkQtRenderWindowInteractor2::CreateTimer(int timertype)
 {
   if (timertype == VTKI_TIMER_FIRST)

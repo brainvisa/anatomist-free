@@ -438,7 +438,7 @@ namespace
     const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t ) );
     if( d->ownextrema || d->dimx != d->texdimx || d->dimy != d->texdimy
         || d->dimz != d->texdimz || d->xscalefac != 1 || d->yscalefac != 1
-        || d->zscalefac != 1 )
+        || d->zscalefac != 1 || scl != 1. || offset != 0. )
     {
       vol = VolumeRef<U>( d->texdimx, d->texdimy, d->texdimz );
       unsigned x, y, z;

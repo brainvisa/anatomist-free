@@ -16,7 +16,8 @@ namespace anatomist
 
   int                                  vtkMetaDataSetAObject::CurrentIndex = 0;
   std::vector<vtkMetaDataSetSequence*> vtkMetaDataSetAObject::MetaDataSetSequenceList;
-  vtkCallbackCommand*                  vtkMetaDataSetAObject::CallbackCommand = 0;
+  vtkCallbackCommand*                  vtkMetaDataSetAObject::TimerCallbackCommand = 0;
+  vtkCallbackCommand*                  vtkMetaDataSetAObject::KeyboardCallbackCommand = 0;
 
   
   vtkMetaDataSetAObject::vtkMetaDataSetAObject()
@@ -116,11 +117,17 @@ namespace anatomist
     */
 
     //widget->AddObserver(vtkCommand::TimerEvent, callback, 0.0);
-    if( !widget->HasObserver (vtkCommand::TimerEvent, vtkMetaDataSetAObject::GetCallbackCommand()) )
+    if( !widget->HasObserver (vtkCommand::TimerEvent, vtkMetaDataSetAObject::GetTimerCallbackCommand()) )
     {
-      widget->AddObserver(vtkCommand::TimerEvent, vtkMetaDataSetAObject::GetCallbackCommand(), 0.0);
+      widget->AddObserver(vtkCommand::TimerEvent, vtkMetaDataSetAObject::GetTimerCallbackCommand(), 0.0);
       widget->SetTimerDuration (200);
       this->TimerID = widget->CreateTimer ( 0 );
+    }
+
+
+    if( !widget->HasObserver (vtkCommand::CharEvent, vtkMetaDataSetAObject::GetKeyboardCallbackCommand()) )
+    {
+      widget->AddObserver(vtkCommand::CharEvent, vtkMetaDataSetAObject::GetKeyboardCallbackCommand(), 0.0);
     }
     
     geometryextractor->Delete();
@@ -164,6 +171,38 @@ namespace anatomist
 	vtkMetaDataSetAObject::SetCurrentIndex ( currentIndex+1 );
       }
     }
+    iren->Render(); 
+  }
+
+
+  void vtkMetaDataSetAObject::HandleKeyboard (vtkObject* caller, unsigned long id, void* clientdata, void* calldata)
+  {
+    vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::SafeDownCast( caller );
+    
+    if( !iren )
+    {
+      std::cerr << "Error while casting" << std::endl;
+      return;
+    }
+
+    int duration = iren->GetTimerDuration();
+    switch( iren->GetKeyCode() )
+    {
+	case '-':
+	  iren->SetTimerDuration ( duration + 10 );
+	  break;
+
+
+	case '+':
+	  if( duration-10>0 )
+	    iren->SetTimerDuration ( duration - 10 );
+	  break;
+
+	  
+	default:
+	  break;
+    }
+
     iren->Render(); 
   }
   

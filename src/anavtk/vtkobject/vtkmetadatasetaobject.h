@@ -27,6 +27,8 @@ namespace anatomist
 
 
     static void HandleTimer (vtkObject*, unsigned long, void*, void*);
+
+    static void HandleKeyboard (vtkObject*, unsigned long, void*, void*);
     
 
     static void SetCurrentIndex (int index)
@@ -48,14 +50,24 @@ namespace anatomist
     static void RemoveMetaDataSetSequence (vtkMetaDataSetSequence*);
     
     
-    static vtkCallbackCommand* GetCallbackCommand (void)
+    static vtkCallbackCommand* GetTimerCallbackCommand (void)
     {
-      if( !CallbackCommand )
+      if( !TimerCallbackCommand )
       {
-	CallbackCommand = vtkCallbackCommand::New();
-	CallbackCommand->SetCallback( vtkMetaDataSetAObject::HandleTimer );
+	TimerCallbackCommand = vtkCallbackCommand::New();
+	TimerCallbackCommand->SetCallback( vtkMetaDataSetAObject::HandleTimer );
       }
-      return CallbackCommand;
+      return TimerCallbackCommand;
+    }
+
+    static vtkCallbackCommand* GetKeyboardCallbackCommand (void)
+    {
+      if( !KeyboardCallbackCommand )
+      {
+	KeyboardCallbackCommand = vtkCallbackCommand::New();
+	KeyboardCallbackCommand->SetCallback( vtkMetaDataSetAObject::HandleKeyboard );
+      }
+      return KeyboardCallbackCommand;
     }
 
     
@@ -80,7 +92,8 @@ namespace anatomist
     
     static std::vector<vtkMetaDataSetSequence*> MetaDataSetSequenceList;
 
-    static vtkCallbackCommand* CallbackCommand;
+    static vtkCallbackCommand* TimerCallbackCommand;
+    static vtkCallbackCommand* KeyboardCallbackCommand;
     
   };
   
