@@ -46,7 +46,6 @@
 
 
 #include "vtkRenderWindow.h"
-#include "vtkXOpenGLRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkPropCollection.h"
@@ -94,6 +93,7 @@ vtkQAGLWidget::vtkQAGLWidget( AWindow* win, QWidget* parent, const char* name,
     anatomist::Light* light = papa->light();
     light->SetPosition(0.0, 0.0, 10.0, 0.0);
     light->SetSpotDirection (0.0, 0.0, 1.0);
+	light->SetModelTwoSide( 1.0 );
   }
   else
   {
@@ -101,7 +101,7 @@ vtkQAGLWidget::vtkQAGLWidget( AWindow* win, QWidget* parent, const char* name,
   }
 
   
-  vtkAnatomistRenderer* ren = vtkAnatomistRenderer::New();
+  vtkRenderer* ren = vtkRenderer::New();
   ren->SetBackground (1.0, 1.0, 1.0);    
   this->RenderWindow->AddRenderer(ren);
   
@@ -125,10 +125,12 @@ vtkQAGLWidget::vtkQAGLWidget( AWindow* win, QWidget* parent, const char* name,
 
 vtkQAGLWidget::~vtkQAGLWidget()
 {
-  for( unsigned int i=0; i<_vtkObjects.size(); i++)
+  /* Remove any actors of remaining vtkAObjects, in case it was not done already. */
+  for( unsigned int i=0; i<_vtkAObjects.size(); i++)
   {
-    _vtkObjects[i]->Delete();
+    _vtkAObjects[i]->removeActors( this );
   }
+  _vtkAObjects.clear();
   
   //vtkAReader::deleteVTKAObjects();
 }
@@ -229,7 +231,6 @@ void vtkQAGLWidget::vtkUpdateCamera()
  */
 void vtkQAGLWidget::vtkRender()
 {
-  
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
   if ( ! this->GetInitialized() )
@@ -244,33 +245,13 @@ void vtkQAGLWidget::vtkRender()
     return;
   }
 
-  /*
-  collec->Render();
+
+  //collec->Render();
   
-  return;
-  */
-
-
-  std::set<anatomist::AObject*> objects = _parent->Objects();
-  std::set<anatomist::AObject*>::const_iterator i, e = objects.end();
-  for( i=objects.begin(); i!=e; ++i)
-  {
-    const anatomist::AObject* obj = *i;
-    //std::cout << AObject::objectTypeName (obj->type()) << std::endl;
-
-    if( AObject::objectTypeName (obj->type())=="VTK" )
-    {
-      addVTKObject ( (vtkAObject*)obj );
-    }
-  }
-
-
-  collec->Render();
-  
-  return;
+  //return;
 
   
-  
+    
   vtkCollectionSimpleIterator rsit;
   collec->InitTraversal(rsit);
   vtkRenderer* firstRen = collec->GetNextRenderer(rsit);
@@ -301,8 +282,9 @@ void vtkQAGLWidget::vtkRender()
     }
   }
   
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
+  //this->InvokeEvent(vtkCommand::EndEvent,NULL);
+  
+  
 }
 
 
@@ -391,7 +373,6 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   
   if( glIsList( lightGLList() ) )
     glCallList( lightGLList() );
-
   
   
   rotate();
@@ -732,55 +713,6 @@ QSize vtkQAGLWidget::minimumSizeHint() const
 }
 
 
-void vtkQAGLWidget::addVTKObject( vtkAObject* obj )
-{
-
-  if( !obj )
-  {
-    return;
-  }
-
-  for( unsigned int i=0; i<_vtkAObjects.size(); i++)
-  {
-    if( obj==_vtkAObjects[i] )
-    {
-      return;
-    }
-  }
-
-  _vtkAObjects.push_back (obj);
-
-  vtkPolyData* data = vtkPolyData::SafeDownCast ( obj->GetDataSet() );
-  if( data )
-    {
-      if( data->GetNumberOfLines()>0 )
-	{
-	  vtkFibersManager* manager = vtkFibersManager::New();
-	  manager->SetRenderWindowInteractor ( this );
-	  manager->SetInput (data);  
-	  manager->BoxWidgetOn();
-	  
-	  _vtkObjects.push_back( manager );
-	}
-      else
-	{
-	  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-	  mapper->SetInput( data );
-	  vtkActor* actor = vtkActor::New();
-	  actor->SetMapper( mapper );
-	  
-	  this->AddActor( actor );
-	  
-	  actor->Delete();
-	  mapper->Delete(); 
-	}
-    }
-  else
-    {
-      std::cout << "Sorry, cannot render vtk object of type " << obj->GetDataSet()->GetClassName() << " (yet)." << std::endl;
-    }
-}
-
 
 void vtkQAGLWidget::AddActor(vtkProp* actor)
 {
@@ -822,3 +754,26 @@ void vtkQAGLWidget::RemoveActor(vtkProp* actor)
   firstRen->RemoveActor( actor );
 }
 
+
+void vtkQAGLWidget::registerVtkAObject (anatomist::vtkAObject* object)
+{
+  if( object )
+    _vtkAObjects.push_back (object);
+}
+
+
+
+void vtkQAGLWidget::unregisterVtkAObject (anatomist::vtkAObject* object)
+{
+  std::vector <anatomist::vtkAObject*>::iterator it = _vtkAObjects.begin();
+  while( it != _vtkAObjects.end() )
+  {
+    if( (*it) == object )
+    {
+      _vtkAObjects.erase ( it );
+      break;
+    }
+    ++it;
+  }
+  
+}

@@ -328,8 +328,9 @@ void vtkQtRenderWindowInteractor2::mouseReleaseEvent(QMouseEvent *me) {
 
 void vtkQtRenderWindowInteractor2::timer()
 {
-  if (!Enabled)
+  if (!Enabled){
     return;
+  }
   InvokeEvent(vtkCommand::TimerEvent,NULL);
 }
 
@@ -339,7 +340,7 @@ int vtkQtRenderWindowInteractor2::CreateTimer(int timertype)
   if (timertype == VTKI_TIMER_FIRST)
   {
     QObject::connect(&qTimer, SIGNAL(timeout()), SLOT(timer()));
-    qTimer.start(10);
+    qTimer.start( this->GetTimerDuration() );
   }
   return 1;
 }

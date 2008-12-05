@@ -19,6 +19,8 @@ namespace anatomist
     ~vtkAReader();
 
     static AObject* readVTK (const std::string & filename, carto::Object options);
+    static AObject* readVTKSequence (const std::string & filename, carto::Object options);
+    
     static void deleteVTKAObjects();
 
   private:

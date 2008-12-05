@@ -1,22 +1,31 @@
+#include <qslider.h>
+
+#include "anatomist/window3D/window3D.h"
 
 #include "anatomist/vtkobject/vtkaobject.h"
-
 #include <vtkObjectFactory.h>
+
 
 using namespace anatomist;
 using namespace carto;
 using namespace std;
 
 vtkCxxRevisionMacro(vtkAObject, "$Revision: 1.0 $");
-vtkStandardNewMacro(vtkAObject);
 
 
 int vtkAObject::_classType = vtkAObject::registerClass();
 
 
+vtkAObject::vtkAObject()
+{
+  _type = _classType;
+  this->DataSet = 0;
+  this->setReferential( theAnatomist->centralReferential() );
+}
+
 vtkAObject::~vtkAObject()
 {
-  if (this->DataSet )
+  if ( this->DataSet )
   {
     this->DataSet->Delete();
   }
@@ -53,3 +62,63 @@ bool vtkAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
   return true;
   
 }
+
+
+
+void vtkAObject::registerWindow(AWindow* window)
+{
+  AObject::registerWindow ( window );
+
+  AWindow3D*    win3D = dynamic_cast<AWindow3D*>( window );
+
+  if( !win3D )
+  {
+    return;
+  }
+
+  connect( win3D->getSliceSlider(), SIGNAL( valueChanged( int ) ), this, 
+	   SLOT( changeSlice( int ) ) );
+  
+  vtkQAGLWidget* vtkw = dynamic_cast<vtkQAGLWidget*>( win3D->view() );
+  if( !vtkw )
+  {
+    return;
+  }
+
+  vtkw->registerVtkAObject ( this );
+  this->addActors( vtkw );
+}
+
+
+
+void vtkAObject::unregisterWindow(AWindow* window)
+{
+  AObject::unregisterWindow ( window );
+
+  AWindow3D*    win3D = dynamic_cast<AWindow3D*>( window );
+
+  if( !win3D )
+  {
+    return;
+  }
+  
+  vtkQAGLWidget* vtkw = dynamic_cast<vtkQAGLWidget*>( win3D->view() );
+
+  if( !vtkw )
+  {
+    return;
+  }
+
+  vtkw->unregisterVtkAObject ( this );
+  this->removeActors (vtkw);
+}
+
+
+void vtkAObject::changeSlice (int slice)
+{
+  this->setSlice (slice);
+}
+
+
+void vtkAObject::setSlice (int)
+{}

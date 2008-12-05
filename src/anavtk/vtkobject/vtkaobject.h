@@ -1,8 +1,11 @@
 #ifndef _vtk_aobject_h_
 #define _vtk_aobject_h_
 
+#include <qobject.h>
+
 #include <anatomist/object/Object.h>
 #include <cartobase/object/object.h>
+#include "anatomist/window/vtkglwidget.h"
 
 #include <vtkObject.h>
 #include <vtkDataSet.h>
@@ -10,38 +13,41 @@
 namespace anatomist
 {
   
-  class vtkAObject : public AObject, public vtkObject
+  class vtkAObject : public QObject, public AObject, public vtkObject
   {
-    
+
+    Q_OBJECT
+      
   public :
-    static vtkAObject *New();
     vtkTypeRevisionMacro(vtkAObject, vtkObject);
     
     vtkSetObjectMacro(DataSet, vtkDataSet);
     vtkGetObjectMacro(DataSet, vtkDataSet);
-/*
-    void SetDataSet (vtkDataSet* data)
-    { _vtkDataSet = data; }
 
-    vtkDataSet* GetDataSet (void) const
-    { return _vtkDataSet; }
-*/
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
 
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+
+    virtual void registerWindow  (AWindow* window);    
+    virtual void unregisterWindow(AWindow* window);
+
+    virtual void setSlice (int);
+
+    virtual void addActors (vtkQAGLWidget*) = 0;
+    virtual void removeActors (vtkQAGLWidget*) = 0;
+    
+    
+  public slots:
+    void changeSlice (int);
+
     
   protected:
-    vtkAObject()
-    {
-      _type = _classType;
-      this->DataSet = 0;
-    }
+    vtkAObject();
     ~vtkAObject();
     
-    
     vtkDataSet* DataSet;
-    
+
   private:    
     
     static int registerClass();    

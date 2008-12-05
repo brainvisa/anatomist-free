@@ -85,27 +85,20 @@ namespace anatomist
     virtual float glTexRate( unsigned tex = 0 ) const;
     virtual glTextureFiltering glTexFiltering( unsigned tex = 0 ) const;
     virtual void glSetTexFiltering( glTextureFiltering x, unsigned tex = 0 );
-    virtual void glSetTexImageChanged( bool x = true, unsigned tex = 0 ) const;
-    virtual bool glTexImageChanged( unsigned tex = 0 ) const;
-    virtual void glSetTexEnvChanged( bool x = true, unsigned tex = 0 ) const;
-    virtual bool glTexEnvChanged( unsigned tex = 0 ) const;
     virtual void glSetTexRGBInterpolation( bool x, unsigned tex = 0 );
     virtual bool glTexRGBInterpolation( unsigned tex = 0 ) const;
 
     virtual GLPrimitives glTexNameGLL( const ViewState &, 
                                        unsigned tex = 0 ) const;
-    virtual GLPrimitives glTexEnvGLL( const ViewState &, 
-       unsigned tex = 0 ) const;
-    virtual bool glMakeTexEnvGLL( const ViewState & state, 
-                                  const GLList & gllist, unsigned tex ) const;
     virtual void glGarbageCollector( int nkept = -1 );
 
     virtual bool Is2DObject() { return false; }
     virtual bool Is3DObject() { return false; }
     virtual bool CanRemove( AObject* obj );
-    virtual void notifyObservers( void * = 0 );
     virtual void update( const Observable*, void* );
     virtual Tree* optionTree() const;
+    virtual GLComponent* glTexture( unsigned n = 0 );
+    virtual const GLComponent* glTexture( unsigned n = 0 ) const;
 
   private:
     static int registerClass();

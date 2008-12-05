@@ -51,6 +51,7 @@ class vtkQAGLWidget : public carto::vtkGLWidget, public anatomist::GLWidgetManag
 {
   Q_OBJECT
 
+  
 public:
   vtkQAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
 	      const char* name = 0, 
@@ -70,11 +71,14 @@ public:
     return carto::vtkGLWidget::height();
   }
 
-  void addVTKObject (anatomist::vtkAObject*);
+  //void addVTKObject (anatomist::vtkAObject*);
   
   void AddActor(vtkProp*);
   void RemoveActor(vtkProp*);
 
+  void registerVtkAObject (anatomist::vtkAObject*);
+  void unregisterVtkAObject (anatomist::vtkAObject*);
+  
 public slots:
   virtual void updateGL();
 
@@ -102,13 +106,10 @@ protected:
   virtual void wheelEvent( QWheelEvent * );
 
   void drawObjects( DrawMode m = Normal );
-
+  
  private:
-  anatomist::AWindow* _parent;
-  //protected slots:
-  //void updateZBuffer();
+  anatomist::AWindow*                  _parent;
   std::vector <anatomist::vtkAObject*> _vtkAObjects;
-  std::vector <vtkObject*>             _vtkObjects;
 };
 
 

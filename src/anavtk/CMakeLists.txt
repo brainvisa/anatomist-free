@@ -44,11 +44,16 @@ SET(ANAVTK_SRCS
 module/vtkmodule.cc
 module/vtkAnatomistCamera.cc
 module/vtkAnatomistRenderer.cc
+module/vtkAnatomistRendererFactory.cc
 window/vtkglcontext.cc
 window/vtkglwidget.cc
 window3D/vtkglwidget3D.cc
 vtkobject/vtkreader.cc
 vtkobject/vtkaobject.cc
+vtkobject/vtkfiberaobject.cc
+vtkobject/vtktensoraobject.cc
+vtkobject/vtkvectoraobject.cc
+vtkobject/vtkmetadatasetaobject.cc
 )
 
 
@@ -56,11 +61,16 @@ SET(ANAVTK_HDRS
 module/vtkmodule.h
 module/vtkAnatomistCamera.h
 module/vtkAnatomistRenderer.h
+module/vtkAnatomistRendererFactory.h
 window/vtkglcontext.h
 window/vtkglwidget.h
 window3D/vtkglwidget3D.h
 vtkobject/vtkreader.h
 vtkobject/vtkaobject.h
+vtkobject/vtkfiberaobject.h
+vtkobject/vtktensoraobject.h
+vtkobject/vtkvectoraobject.h
+vtkobject/vtkmetadatasetaobject.h
 )
 
 
@@ -79,6 +89,10 @@ TARGET_LINK_LIBRARIES(anavtk
 anatomist
 qtvtk2
 vtkVisuManagement
+vtkDataManagement
+vtkHWShading
+vtkRenderingAddOn
+vtkWidgets
 vtkRendering
 vtkGraphics
 vtkIO

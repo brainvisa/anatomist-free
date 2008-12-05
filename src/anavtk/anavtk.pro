@@ -15,7 +15,11 @@ HEADERS = \
         vtkobject/vtkreader.h \
         window/vtkglcontext.h \
         window/vtkglwidget.h \
-        window3D/vtkglwidget3D.h
+        window3D/vtkglwidget3D.h \
+        vtkobject/vtkfiberaobject.h \
+        vtkobject/vtktensoraobject.h \
+        vtkobject/vtkvectoraobject.h \
+        vtkobject/vtkmetadatasetaobject.h
 
 SOURCES = \
         module/vtkmodule.cc \
@@ -27,4 +31,8 @@ SOURCES = \
         vtkobject/vtkreader.cc \
         window/vtkglcontext.cc \
         window/vtkglwidget.cc \
-        window3D/vtkglwidget3D.cc
+        window3D/vtkglwidget3D.cc \
+        vtkobject/vtkfiberaobject.cc \
+        vtkobject/vtktensoraobject.cc \
+        vtkobject/vtkvectoraobject.cc \
+        vtkobject/vtkmetadatasetaobject.cc

@@ -3063,3 +3063,7 @@ void AWindow3D::showStatusBar( int x )
 }
 
 
+QSlider* AWindow3D::getSliceSlider() const
+{
+  return d->slids;
+}

@@ -40,6 +40,7 @@
 
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window3D/vtkglwidget3D.h>
+#include <anatomist/module/vtkAnatomistRendererFactory.h>
 
 using namespace anatomist;
 using namespace std;
@@ -49,6 +50,11 @@ static bool initVtkModule()
 {
   VtkModule	*a = new VtkModule;
   a->init();
+  
+  vtkAnatomistRendererFactory* af = vtkAnatomistRendererFactory::New();
+  vtkObjectFactory::RegisterFactory(af);
+  af->Delete();
+  
   return( true );
 }
 

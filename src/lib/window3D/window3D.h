@@ -56,6 +56,7 @@ namespace anatomist
 }
 
 class QGLWidget;
+class QSlider;
 
 
 /** 3D window, OpenGL rendering
@@ -195,6 +196,8 @@ public:
         const QGLWidget * shareWidget, Qt::WFlags f );
   /// hook to create inherited QAGLWidgets (Vtk-enabled for instance)
   static void setGLWidgetCreator( GLWidgetCreator );
+
+  QSlider* getSliceSlider (void) const;
 
 public slots:
   virtual void polish();

@@ -163,42 +163,7 @@ const float* AMTexture::glTexCoordArray( const ViewState & s,
 }
 
 
-bool AMTexture::glTexImageChanged( unsigned tex ) const
-{
-  //cout << "AMTexture::glTexImageChanged ?\n";
-  const_iterator	i, e = end();
-  unsigned		n = 0;
-
-  for( i=begin(); i!=e && n < tex; ++i, ++n ) {}
-  if( i != e )
-    return (*i)->glAPI()->glTexImageChanged();
-  return false;
-}
-
-
-bool AMTexture::glTexEnvChanged( unsigned tex ) const
-{
-  /* cout << "AMTexture::glTexEnvChanged( " << tex 
-     << " )" << endl; */
-  /*const_iterator	i, e = end();
-  unsigned		n = 0;
-
-  for( i=begin(); i!=e && n < tex; ++i, ++n );
-  if( i != e )
-    return (*i)->glAPI()->glTexEnvChanged();*/
-  return GLComponent::glTexEnvChanged( tex );
-}
-
-
-void AMTexture::glSetTexEnvChanged( bool x, unsigned tex ) const
-{
-  GLComponent::glSetTexEnvChanged( x, tex );
-  if( x )
-    MObject::setChanged();
-}
-
-
-GLPrimitives AMTexture::glTexNameGLL( const ViewState & state, 
+GLPrimitives AMTexture::glTexNameGLL( const ViewState & state,
                                       unsigned tex ) const
 {
   /* cout << "AMTexture::glTexNameGLL for tex " << tex << ", this: "
@@ -218,26 +183,6 @@ GLPrimitives AMTexture::glTexNameGLL( const ViewState & state,
     }
   return GLPrimitives();
 }
-
-
-GLPrimitives AMTexture::glTexEnvGLL( const ViewState & state, 
-                                     unsigned tex ) const
-{
-  /* cout << "AMTexture::glTexEnvGLL for tex " << tex << ", this: " << this
-     << ", envchanged: " << glTexEnvChanged( tex ) << endl; */
-
-  return GLComponent::glTexEnvGLL( state, tex );
-}
-
-
-bool AMTexture::glMakeTexEnvGLL( const ViewState & state, 
-                                 const GLList & gllist, unsigned tex ) const
-{
-  // cout << "AMTexture::glMakeTexEnvGLL for tex " << tex << endl;
-
-  return GLComponent::glMakeTexEnvGLL( state, gllist, tex );
-}
-
 
 void AMTexture::glGarbageCollector( int nkept )
 {
@@ -304,18 +249,10 @@ bool AMTexture::CanRemove( AObject* )
 }
 
 
-void AMTexture::notifyObservers( void* arg )
-{
-  GLObjectVector::notifyObservers( arg );
-
-  glClearHasChangedFlags();
-}
-
-
 void AMTexture::update( const Observable* obs, void* arg )
 {
-  cout << "AMTexture::update: " << this << ", obs: " << obs << ", " << arg
-     << endl;
+  /* cout << "AMTexture::update: " << this << ", obs: " << obs << ", " << arg
+     << endl; */
   const AObject	*o = dynamic_cast<const AObject*>( obs );
   if( o )
     {
@@ -329,7 +266,7 @@ void AMTexture::update( const Observable* obs, void* arg )
           for( i=begin(); i!=e && *i != o; ++i, ++n ) {}
           if( i != e )
             {
-              cout << "MTexture: texture changed: " << n << endl;
+              // cout << "MTexture: texture changed: " << n << endl;
               if( o->obsHasChanged( glTEXIMAGE ) )
               {
                 glSetTexImageChanged( true, n );
@@ -367,21 +304,6 @@ Tree* AMTexture::optionTree() const
       t->insert( t2 );
     }
   return( _optionTree );
-}
-
-
-void AMTexture::glSetTexImageChanged( bool x, unsigned tex ) const
-{
-  /*  const_iterator	i, e = end();
-  unsigned		n = 0;
-
-  for( i=begin(); i!=e && n < tex; ++i, ++n );
-  if( i != e )
-    (*i)->glAPI()->glSetTexImageChanged( 0 );
-  */
-  GLComponent::glSetTexImageChanged( x );
-  if( x )
-    MObject::obsSetChanged( glTEXIMAGE_NUM + 2 * tex );
 }
 
 
@@ -480,6 +402,18 @@ void AMTexture::glSetAutoTexParams( const float* params, unsigned coord,
   if( i != e )
     (*i)->glAPI()->glSetAutoTexParams( params, coord );
   GLComponent::glSetAutoTexParams( params, coord, tex );
+}
+
+
+GLComponent* AMTexture::glTexture( unsigned n )
+{
+  return this;
+}
+
+
+const GLComponent* AMTexture::glTexture( unsigned n ) const
+{
+  return this;
 }
 
 

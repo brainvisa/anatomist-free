@@ -102,7 +102,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-// #define ANA_DEBUG
+//#define ANA_DEBUG
 #ifdef ANA_DEBUG
 #include <typeinfo>
 #include <cartobase/smart/rcptrtrick.h>
@@ -320,11 +320,13 @@ Anatomist::~Anatomist()
   cout << "Exiting Anatomist --- Goodbye.\n";
   AObject	*obj;
 
+
   while( !_privData->anaWin.empty() )
     delete _privData->anaWin.begin()->second.get();
 
+  
   anatomist::Cursor::cleanStatic();
-
+  
   while( !_privData->anaObj.empty() )
   {
     obj = _privData->anaObj.begin()->second.get();
@@ -356,7 +358,7 @@ Anatomist::~Anatomist()
     cout << "~Anatomist: object " << obj << " destroyed" << endl;
 #endif
     }
-
+   
   // cleanup some global variables
   delete getControlWindow();
   delete FusionFactory::factory();
@@ -743,7 +745,7 @@ void Anatomist::unregisterObject( AObject* obj )
 #ifdef ANA_DEBUG
   else
     cerr << "  - nothing to unregister" << endl;
-#endif
+#endif 
 }
 
 
@@ -862,7 +864,12 @@ int Anatomist::destroyObject( AObject *obj )
       OutputEvent	ev( "DeleteObject", ex, false, disc );
       ev.send();
 
-      assert( obj->tryDelete() );
+      //assert( obj->tryDelete() );
+      if ( !obj->tryDelete() )
+      {
+	return 0;
+      }
+      
 #ifdef ANA_DEBUG
       cout << "done destroyObject: " << obj << endl;
 #endif
