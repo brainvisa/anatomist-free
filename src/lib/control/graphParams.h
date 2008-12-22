@@ -69,6 +69,8 @@ namespace anatomist
     static Tree* findTreeWith( const Tree* tr, const std::string & attribute, 
                                const std::string & value, 
                                std::vector<Tree *> & parents );
+    /// @returns -1 if the mode is unknown
+    int selectRenderModeFromString( const std::string & );
 
     bool	colorsActive;
     std::string	attribute;

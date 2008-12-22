@@ -63,7 +63,7 @@ html_browser        konqueror %1 &
 
 <p>Python format is more flexible than the older "tree" format because it allows unknown
 tags. This is important because it keeps compatibility with older anatomist versions: at 
-the moment, new options saved in thge settings file will prevent older anatomist versions
+the moment, new options saved in the settings file will prevent older anatomist versions
 to read the whole file. Inversely, the python format is only supported (and readable) 
 since Anatomist 1.29.</p>
 <p>Options value can take simple types: string, int, float, vector of int...</p>
@@ -271,7 +271,17 @@ since Anatomist 1.29.</p>
 	into account</td>
 	<td>all</td>
   </tr>
-  
+
+  <tr>
+    <td><tt>selectionRenderingMode</tt></td>
+    <td><tt>string</tt></td>
+    <td><tt>ColoredSelection</tt></td>
+    <td><tt>ColoredSelection</tt>, <tt>OutlinedSelection</tt></td>
+    <td>Sets the way selected objects visually appear in 3D renderings. The default, <tt>ColoredSelection</tt> draws them in a different color (see <tt>selectionColor</tt> and <tt>selectionColorInverse</tt>). In <tt>OutlinedSelection</tt> mode, selected objects don't change color but have a thick outline with the selection color.
+    </td>
+    <td>3.1.5</td>
+  </tr>
+
   <tr>
     <td><tt>useSpmOrigin</tt></td>
 	<td><tt>int</tt></td>

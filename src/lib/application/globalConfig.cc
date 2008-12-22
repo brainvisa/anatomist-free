@@ -37,6 +37,7 @@
 #include <anatomist/application/localConfig.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/control/graphParams.h>
 #include <aims/def/path.h>
 #include <graph/tree/treader.h>
 #include <graph/tree/twriter.h>
@@ -200,6 +201,13 @@ void GlobalConfiguration::apply()
     if( ul )
       theAnatomist->setUserLevel( 3 );
   }
+  string rm;
+  if( getProperty( "selectionRenderingMode", rm ) )
+  {
+    int rmi = GraphParams::graphParams()->selectRenderModeFromString( rm );
+    if( rmi >= 0 )
+      GraphParams::graphParams()->selectRenderMode = rmi;
+  }
 
   for( ic=_configs.begin(); ic!=fc; ++ic )
     (*ic)->apply( this );
@@ -246,6 +254,13 @@ void GlobalConfiguration::update()
     else if( hasProperty( "enableUnstable" ) )
       removeProperty( "enableUnstable" );
   }
+  if( GraphParams::graphParams()->selectRenderMode > 0 )
+    setProperty( "selectionRenderingMode",
+                 GraphParams::graphParams()->selectRenderModes
+                 [ GraphParams::graphParams()->selectRenderMode ] );
+  else if( hasProperty( "selectionRenderingMode" ) )
+    removeProperty( "selectionRenderingMode" );
+
   // remove obsolete flags
   /* let it live for one more version for compatibility
   if( hasProperty( "useSpmOrigin" ) )

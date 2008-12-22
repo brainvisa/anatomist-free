@@ -34,6 +34,7 @@
 </center>
 <hr width="100%">
 <p>
+<b><a href="#version-3.1.5">Version 3.1.5</a></b><br>
 <b><a href="#version-3.1.4">Version 3.1.4</a></b><br>
 <b><a href="#version-3.1.3">Version 3.1.3</a></b><br>
 <b><a href="#version-3.1.2">Version 3.1.2</a></b><br>
@@ -62,7 +63,37 @@
 
 <!-- -->
 
-<h4> <a name="version-3.1.4"></a>2008/10/24 - Version 3.1.4</h4>
+<h4> <a name="version-3.1.5"></a>2008/12/22 - Version 3.1.5</h4>
+
+<h5>Bug fixes:</h5>
+
+<li>Fixes in volume rendering: allow to correctly use it on volumes of float and double values.
+</li>
+<li>Fixed a texture values rounding problem.</li>
+<li>Fixed crashes in histogram window.</li>
+<li>Fixed an update problem in multi-textures.</li>
+
+<h5>Minor improvements:</h5>
+
+<li>New semi-transparent palette for positive/negative activation maps suitable for volume rendering, with gradient information.
+</li>
+<li>In palette window, new mode to keep value 0 in the center of the colormap (useful for signed values activation maps).
+</li>
+<li>In 3D fusion parameters window, users can now type values for depth and step, with the required precision.</li>
+<li>ROI module: filter objects that can be used to draw ROIs on: remove graph elements to keep a small and readable list
+</li>
+<li>ROI drawing: The 3D brush shape is now displayed in real-time and follows the mouse, so that the user sees which voxels will actually be drawn.
+</li>
+<li>ROI drawing: Better feedback when drawinf and erasing: the current pencil strike is correctly displayed over multiple regions (in replace mode), including when erasing (a white transparent region is displayed and shows voxels which will be suppressed). Erase mode is much faster when erasing large regions, because the region itself does not need to updated in real-time any longer.
+</li>
+<li>New parameter value in SetMaterial command: <tt>polygon_mode = ext_outlined</tt>.
+</li>
+<li>New selection visualization mode: it is possible to see selected objects with a colored thick outlined border rather than displayed with a different color. This option can be changed in the graph parameters window, and saved in the settings in the 'selectionRenderingMode' property.
+</li>
+
+<!-- -->
+
+<h4> <a name="version-3.1.4"></a>2008/11/14 - Version 3.1.4</h4>
 
 <h5>Bug fixes:</h5>
 
@@ -76,11 +107,13 @@
 <li>Fixes in graph recolor and color edition functions.</li>
 <li>Fixes in Material (color) application on segments meshes.</li>
 <li>Fixed texture reload bug.</li>
+<li>Fixed texture values scaling bugs.</li>
 <li>Keep track of initial data type of textures (internally converted to float), use it when saving a texture back to disk.
 </li>
 <li>Fixed palette values error when closing the palette window when several objects are selected.
 </li>
 <li>Fixed visually selected palette in palettes edition window</li>
+<li>Fixed referentials problems in the ROI toolbox</li>
 
 <h5>Minor improvements:</h5>
 
@@ -104,6 +137,7 @@ No GUI allows to set them by now, but the SetMaterial command can.
 (in addition to 'outlined' as in the code...)
 </li>
 <li>CutControl: allow zoom with the mouse wheel.</li>
+<li>New option in rerefentials window menu: clear unused referentials.</li>
 
 <!-- -->
 

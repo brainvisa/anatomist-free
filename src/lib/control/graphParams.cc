@@ -215,6 +215,16 @@ bool GraphParams::recolorLabelledGraph( AGraph*ag, AGraphObject* go,
 }
 
 
+int GraphParams::selectRenderModeFromString( const string & mode )
+{
+  unsigned i, n = selectRenderModes.size();
+  for( i=0; i<n; ++i )
+    if( selectRenderModes[i] == mode )
+      return i;
+  return -1;
+}
+
+
 namespace
 {
   QPushButton	*_selcol = 0;
