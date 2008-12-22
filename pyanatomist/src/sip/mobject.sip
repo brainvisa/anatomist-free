@@ -80,7 +80,7 @@ public:
 
     anatomist::AObject * __getitem__(int) /AutoGen/;
 %MethodCode
-    if ( (int) a0 < sipCpp->size())
+    if ( a0 < (int) sipCpp->size())
     {
       anatomist::AIterator current = sipCpp->begin();
 

@@ -320,6 +320,15 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextTime ) );
 
+  // paint cursor action
+  mouseMoveEventSubscribe
+    ( Qt::NoButton, Qt::NoButton,
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::moveCursor ) );
+  focusOutEventSubscribe(
+    FocusActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                    &PaintAction::hideCursor ) );
+
   // Renaud : Pas top, mais en attendant mieux...
   myPaintAction = dynamic_cast<PaintAction*>( actionPool->action( "PaintAction" ) ) ;
 }
@@ -371,6 +380,7 @@ PaintControl::doAlsoOnDeselect ( ActionPool * /*pool*/ )
   if(myPaintAction)
     {
       myPaintAction->changeCursor( false ) ;
+      myPaintAction->hideCursor();
       //cout << "Cursor : Arrow" <<endl ;
       AWindow3D	*w3 
         = dynamic_cast<AWindow3D *>( myPaintAction->view()->window() );

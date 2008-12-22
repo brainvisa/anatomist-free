@@ -145,7 +145,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*>& volumeOfLabels, 
+			AimsData<AObject*> *volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -159,8 +159,8 @@ namespace anatomist {
     static std::list< Point3d > drawFastLine( const Point3d& from, 
                                               const Point3d& dep ) ;
     void reset() ;
-    bool in( const AimsData<AObject*>& o, Point3df p, 
-		    const Point3df & offset ) ;
+    bool in( const AimsData<AObject*> *o, Point3df p,
+             const Point3df & offset ) ;
     
   private:
     
@@ -172,15 +172,17 @@ namespace anatomist {
   } ;
 
   inline bool 
-  PaintStrategy::in( const AimsData<AObject*>& o, Point3df p, 
-		     const Point3df & offset )
+  PaintStrategy::in( const AimsData<AObject*> *o, Point3df p,
+                     const Point3df & offset )
   {
+    if( !o )
+      return true;
     p -= offset;
-    if ( p[0] < 0 || p[0] > o.dimX() - 1 ||  
-	 p[1] < 0 || p[1] > o.dimY() - 1 ||
-	 p[2] < 0 || p[2] > o.dimZ() - 1 )
+    if ( p[0] < 0 || p[0] > o->dimX() - 1 ||
+         p[1] < 0 || p[1] > o->dimY() - 1 ||
+         p[2] < 0 || p[2] > o->dimZ() - 1 )
       return false ;
-    
+
     return true ;
   }
 
@@ -196,7 +198,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*>& volumeOfLabels,
+			AimsData<AObject*> *volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -219,7 +221,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*>& volumeOfLabels,
+			AimsData<AObject*> *volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -260,7 +262,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*>& volumeOfLabels,
+			AimsData<AObject*> *volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -274,7 +276,7 @@ namespace anatomist {
 			       const AObject * originalLabel, 
 			       AObject * finalLabel,
 			       float brushSize, 
-			       AimsData<AObject*>& volumeOfLabels,
+			       AimsData<AObject*> *volumeOfLabels,
 			       const Point3df & voxelSize, 
 			       const Point3df & vlOffset, 
 			       aims::BucketMap<Void>::Bucket & deltaModifications,
@@ -295,7 +297,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*>& volumeOfLabels,
+			AimsData<AObject*> *volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -308,7 +310,7 @@ namespace anatomist {
 			       const AObject * originalLabel, 
 			       AObject * finalLabel,
 			       float brushSize, 
-			       AimsData<AObject*>& volumeOfLabels,
+			       AimsData<AObject*> *volumeOfLabels,
 			       const Point3df & voxelSize, 
 			       const Point3df & vlOffset, 
 			       aims::BucketMap<Void>::Bucket  & deltaModifications,
@@ -353,10 +355,13 @@ namespace anatomist {
     
     anatomist::Bucket * myDeltaModifications ;
     anatomist::Bucket * myCurrentModifiedRegion ;
+    anatomist::Bucket * myCursor;
+    Point3df myCursorPos;
   };
-  
+
+
   class PaintAction : public anatomist::Action
-  {  
+  {
   public:
     PaintAction() ;
     virtual ~PaintAction() ;
@@ -404,13 +409,17 @@ namespace anatomist {
     void fillRegion2D( const Point3d& seed, Point3d neighbour[],
 		       AimsData<AObject*>& volumeOfLabels, AObject * final,
 		       std::list< std::pair< Point3d, ChangesItem> > & changes ) ;
-    void validateChange( int x = 0, int y = 0, int globalX = 0, 
-			 int globalY = 0 ) ;
+    void validateChange( int x = 0, int y = 0, int globalX = 0,
+                         int globalY = 0 ) ;
     void undo( ) ;
     bool undoable() { return RoiChangeProcessor::instance()->undoable() ; }
     void redo( ) ;
     bool redoable() {return RoiChangeProcessor::instance()->redoable() ; }
-    
+
+    void moveCursor( int x, int y, int globalX, int globalY );
+    void updateCursor();
+    void hideCursor();
+
     static Action * creator() ;
     
     void change( bool forward ) ;

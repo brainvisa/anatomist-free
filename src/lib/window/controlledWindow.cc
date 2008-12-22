@@ -92,23 +92,24 @@ ControlledWindow::~ControlledWindow()
 }
 
 
-void ControlledWindow::registerObject( AObject* o, bool temporaryObject )
+void ControlledWindow::registerObject( AObject* o, bool temporaryObject,
+                                       int pos )
 {
-  QAWindow::registerObject( o, temporaryObject );
-  
+  QAWindow::registerObject( o, temporaryObject, pos );
+
   if(!temporaryObject )
+  {
+    SelectFactory *sf = SelectFactory::factory();
+    if( sf->isSelected( Group(), o ) )
+      view()->controlSwitch()->selectionChangedEvent();
+    if( !d->trigger )
     {
-      SelectFactory *sf = SelectFactory::factory();
-      if( sf->isSelected( Group(), o ) )
-        view()->controlSwitch()->selectionChangedEvent();
-      if( !d->trigger )
-	{
-	  d->trigger = new QTimer( this, "ControlledWindow_timer" );
-	  connect( d->trigger, SIGNAL( timeout() ), this, 
-		   SLOT( updateControls() ) );
-	}
-      d->trigger->start( 10, true );
+      d->trigger = new QTimer( this, "ControlledWindow_timer" );
+      connect( d->trigger, SIGNAL( timeout() ), this,
+                SLOT( updateControls() ) );
     }
+    d->trigger->start( 10, true );
+  }
 }
 
 
@@ -126,9 +127,10 @@ void ControlledWindow::updateControls()
 }
 
 
-void ControlledWindow::unregisterObject( AObject* o, bool temporaryObject )
+void ControlledWindow::unregisterObject( AObject* o )
 {
-  QAWindow::unregisterObject( o, temporaryObject );
+  bool temporaryObject = isTemporary( o );
+  QAWindow::unregisterObject( o );
 
   if(!temporaryObject )
     {

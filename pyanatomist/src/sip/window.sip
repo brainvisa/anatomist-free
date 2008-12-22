@@ -36,8 +36,9 @@ namespace anatomist
 
     virtual Type type() const = 0;
     virtual SubType subtype() const /AutoGen/;
-    virtual void registerObject( anatomist::AObject *, bool = false );
-    virtual void unregisterObject( anatomist::AObject *, bool = false );
+    virtual void registerObject( anatomist::AObject *, bool = false,
+      int=-1 ) /AutoGen/;
+    virtual void unregisterObject( anatomist::AObject * ) /AutoGen/;
     virtual void Refresh();
     int Group() const;
     bool hasObject(anatomist::AObject *) const;
@@ -248,6 +249,7 @@ public:
   virtual ~AWindow3D();
 
   void focusView();
+  void refreshTemp();
 };
 
 class FixedPointOfViewWindow : QWidget, anatomist::Observer

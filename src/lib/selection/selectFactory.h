@@ -121,6 +121,9 @@ namespace anatomist
 				    const HColor* col = 0 ) const;
     ///	Redraws objects in involved windows
     virtual void refresh() const;
+    /** Redraws all windows containing selected objects (called after
+        selection rendering mode has changed) */
+    virtual void refreshSelectionRendering() const;
     /**	draws / handles the selection menu (right click)
 	@param	specific	if given, describes the menu tree for 
 	window-specific actions. The callbacks must 

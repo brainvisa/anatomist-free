@@ -103,11 +103,11 @@ public:
 
   virtual void clear();
   /// Add an AObject to the objects
-  virtual void registerObject( anatomist::AObject* object, 
-			       bool temporaryObject = false );
+  virtual void registerObject( anatomist::AObject* object,
+                               bool temporaryObject = false,
+                               int position = -1 );
   /// Remove an AObject from the objects
-  virtual void unregisterObject( anatomist::AObject* object, 
-				 bool temporaryObject = false );
+  virtual void unregisterObject( anatomist::AObject* object );
   /// Updates an object contents (after a change)
   virtual void updateObject( anatomist::AObject* obj );
   /// Add an GenericObject to the objects

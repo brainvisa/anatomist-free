@@ -71,6 +71,7 @@ namespace anatomist
       {
         gc->glSetChanged( anatomist::GLComponent::glBODY, true );
         gc->glSetChanged( anatomist::GLComponent::glGEOMETRY, true );
+        gc->glSetChanged( anatomist::GLComponent::glMATERIAL, true );
         int i, nt = gc->glNumTextures();
         for( i=0; i<nt; ++i )
           {

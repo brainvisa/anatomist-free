@@ -119,6 +119,9 @@ _anatomist_modsloaded = 0
 # update AObjectConverter class to be more flexible
 def aimsFromAnatomist( ao, options={ 'scale' : 1 } ):
   tn = ao.objectTypeName( ao.type() )
+  # take into account wrapping case
+  if hasattr( ao, 'internalRep' ):
+    ao = ao.internalRep
   if tn == 'VOLUME':
     try:
       hdr = ao.attributed()
@@ -204,6 +207,10 @@ def aimsFromAnatomist( ao, options={ 'scale' : 1 } ):
     return None
   elif tn == 'GRAPH':
     aim = AObjectConverter.aimsGraph( ao, options )
+    if not aim.isNull():
+      return aim.get()
+  elif tn == 'NOMENCLATURE':
+    aim = AObjectConverter.aimsTree( ao, options )
     if not aim.isNull():
       return aim.get()
   return None

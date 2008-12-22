@@ -73,7 +73,31 @@ int Hierarchy::registerClass()
 }
 
 
-Hierarchy::Hierarchy( Tree* tr ) : AObject(), AttributedAObject(), _tree( tr )
+Hierarchy::Hierarchy( Tree* tr )
+  : AObject(), AttributedAObject(), _tree( rc_ptr<Tree>( tr ) )
+{
+  _type = _classType;
+  //_objMenu    = new ObjectMenu( "Nomenclature", 1 );
+  //_optionMenu = new list<OptionMenu>;
+
+  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  {
+    char str[200];
+    sprintf( str, ( Settings::globalPath()
+        + "/icons/list_hierarchy.xpm" ).c_str() );
+    if( !QObjectTree::TypeIcons[ _type ].load( str ) )
+    {
+      QObjectTree::TypeIcons.erase( _type );
+      cerr << "Icon " << str << " not found\n";
+    }
+
+    QObjectTree::TypeNames[ _type ] = "Nomenclature";
+  }
+}
+
+
+Hierarchy::Hierarchy( rc_ptr<Tree> tr )
+  : AObject(), AttributedAObject(), _tree( tr )
 {
   _type = _classType;
   //_objMenu    = new ObjectMenu( "Nomenclature", 1 );
@@ -98,7 +122,6 @@ Hierarchy::Hierarchy( Tree* tr ) : AObject(), AttributedAObject(), _tree( tr )
 Hierarchy::~Hierarchy()
 {
   cleanup();
-  delete _tree;
 }
 
 
@@ -187,7 +210,7 @@ Tree* Hierarchy::optionTree() const
 
 GenericObject* Hierarchy::attributed()
 {
-  return( _tree );
+  return( _tree.get() );
 }
 
 

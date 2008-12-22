@@ -121,7 +121,7 @@ void QAGLWidget::keyReleaseEvent( QKeyEvent* ev )
 }
 
 
-void QAGLWidget::focusInEvent( QFocusEvent * ev  )
+void QAGLWidget::focusInEvent( QFocusEvent * ev )
 {
   GLWidgetManager::focusInEvent( ev );
 }

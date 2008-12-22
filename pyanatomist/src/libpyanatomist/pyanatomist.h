@@ -138,6 +138,9 @@ public:
   static carto::rc_ptr<Graph>
       aimsGraph( anatomist::AObject* obj,
                  carto::Object options = carto::Object() );
+  static carto::rc_ptr<Tree>
+      aimsTree( anatomist::AObject* obj,
+                carto::Object options = carto::Object() );
 
   static anatomist::AObject* anatomist( AimsData_U8* );
   static anatomist::AObject* anatomist( AimsData_S16* );
@@ -159,6 +162,7 @@ public:
   static anatomist::AObject* anatomist( TimeTexture<unsigned> * );
   // static anatomist::AObject* anatomist( TimeTexture<Point2d> * );
   static anatomist::AObject* anatomist( TimeTexture<Point2df> * );
+  static anatomist::AObject* anatomist( Tree * );
 };
 
 #endif

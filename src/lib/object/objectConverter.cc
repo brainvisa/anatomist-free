@@ -42,6 +42,7 @@
 #include <aims/mesh/texture.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/graph/Graph.h>
+#include <anatomist/hierarchy/hierarchy.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -666,6 +667,25 @@ ObjectConverter<Graph>::setAims
     return false;
   ana->setGraph( y );
   return true;
+}
+
+
+template<> rc_ptr<Tree>
+ObjectConverter<Tree>::ana2aims( AObject *x, Object )
+{
+  Hierarchy     *y = dynamic_cast<Hierarchy *>( x );
+  if( !y )
+    return rc_ptr<Tree>( 0 );
+  return( y->tree() );
+}
+
+
+template<> AObject* 
+ObjectConverter<Tree>::aims2ana( Tree *x )
+{
+  Hierarchy	*y = new Hierarchy( x );
+
+  return y;
 }
 
 }

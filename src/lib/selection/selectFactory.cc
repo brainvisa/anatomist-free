@@ -870,3 +870,18 @@ void SelectFactory::removeFromThisWindow( AWindow* win )
 }
 
 
+void SelectFactory::refreshSelectionRendering() const
+{
+  std::map<unsigned, std::set<AObject *> >::const_iterator
+    is, es = _selected().end();
+  set<AWindow *>::const_iterator iw, ew;
+
+  for( is=_selected().begin(); is!=es; ++is )
+  {
+    set<AWindow *> gw = theAnatomist->getWindowsInGroup( is->first );
+    for( iw=gw.begin(), ew=gw.end(); iw!=ew; ++iw )
+      (*iw)->Refresh();
+  }
+  _winToRefresh().clear();
+}
+

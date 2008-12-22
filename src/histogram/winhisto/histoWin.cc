@@ -185,7 +185,7 @@ void QAHistogramWindow::Draw( bool )
 }
 
 
-void QAHistogramWindow::registerObject( AObject *object, bool temp )
+void QAHistogramWindow::registerObject( AObject *object, bool temp, int pos )
 {
   if ( object->type() == AObject::VOLUME )
     {
@@ -193,7 +193,7 @@ void QAHistogramWindow::registerObject( AObject *object, bool temp )
 	{
 	  if ( object->hasTexture() )
 	    {
-	      QAWindow::registerObject( object, temp );
+	      QAWindow::registerObject( object, temp, pos );
 #if QWT_VERSION >= 0x050000
 	      QwtPlotCurve	*crv = new QwtPlotCurve( "" );
 	      crv->attach( graphic );
@@ -216,7 +216,7 @@ void QAHistogramWindow::registerObject( AObject *object, bool temp )
     }
 }
 
-void QAHistogramWindow::unregisterObject( AObject *object, bool temporaryObject )
+void QAHistogramWindow::unregisterObject( AObject *object )
 {
   if( _sobjects.find( object ) == _sobjects.end() )
     return;
@@ -234,7 +234,7 @@ void QAHistogramWindow::unregisterObject( AObject *object, bool temporaryObject 
   delete[] phisto[ object ];
   phisto.erase( object );
 
-  QAWindow::unregisterObject( object, temporaryObject );
+  QAWindow::unregisterObject( object );
   initX();
 }
 

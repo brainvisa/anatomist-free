@@ -129,9 +129,9 @@ namespace anatomist
     virtual std::string Title() const;
     //virtual const char* Title_c() const;
     virtual void registerObject( AObject* object, 
-				 bool temporaryObject = false );
-    virtual void unregisterObject( AObject* object, 
-				   bool temporaryObject = false);
+                                 bool temporaryObject = false,
+                                 int position = -1 );
+    virtual void unregisterObject( AObject* object );
 
     /// Set the window identifier
     void setId(int id);

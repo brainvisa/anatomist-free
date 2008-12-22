@@ -423,30 +423,29 @@ void QObjectBrowser::Draw( bool )
 }
 
 
-void QObjectBrowser::registerObject( AObject* object, 
-				     bool temporaryObject )
+void QObjectBrowser::registerObject( AObject* object, bool temporaryObject,
+                                     int pos )
 {
   if( _sobjects.find( object ) == _sobjects.end() )
-    {
-      QAWindow::registerObject( object, temporaryObject );
-      d->lview->registerObject( object, temporaryObject );
-    }
+  {
+    QAWindow::registerObject( object, temporaryObject, pos );
+    d->lview->registerObject( object, temporaryObject, pos );
+  }
 }
 
 
-void QObjectBrowser::unregisterObject( AObject* object, 
-				     bool temporaryObject )
+void QObjectBrowser::unregisterObject( AObject* object )
 {
-  d->lview->unregisterObject( object, temporaryObject );
+  d->lview->unregisterObject( object );
 
-  AWindow::unregisterObject( object, temporaryObject );
+  AWindow::unregisterObject( object );
 
   //	re-insert sub-objects which could still be in window
 
   set<AObject *>::const_iterator	io, fo=_sobjects.end();
 
   for( io=_sobjects.begin(); io!=fo; ++io )
-    d->lview->registerObject( *io, temporaryObject );
+    d->lview->registerObject( *io );
   updateRightPanel();
 }
 

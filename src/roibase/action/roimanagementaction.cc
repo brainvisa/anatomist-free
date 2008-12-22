@@ -63,6 +63,7 @@
 #include <anatomist/volume/Volume.h>
 #include <anatomist/controler/view.h>
 #include <anatomist/controler/icondictionary.h>
+#include <anatomist/commands/cLinkWindows.h>
 #include <cartobase/object/attributed.h>
 #include <cartobase/type/string_conversion.h>
 #include <graph/tree/tree.h>
@@ -1745,11 +1746,24 @@ RoiManagementAction::getImageNames()
   
   while (iter != last)
     {
-      if( (*iter)->Is2DObject() )
-        {
-          _sharedData->myImageNames.insert( (*iter)->name() ) ;
-          (*iter)->addObserver( _sharedData );
-        }
+      if( (*iter)->Is2DObject() && (*iter)->type() != AObject::GRAPHOBJECT )
+      {
+        const AObject::ParentList & parents = (*iter)->parents();
+        AObject::ParentList::const_iterator ip, ep = parents.end();
+        bool hidden = false;
+        for( ip=parents.begin(); ip!=ep; ++ip )
+          if( (*ip)->type() == AObject::GRAPH
+            || (*ip)->type() == AObject::GRAPHOBJECT )
+          {
+            hidden = true;
+            break;
+          }
+          if( !hidden )
+          {
+            _sharedData->myImageNames.insert( (*iter)->name() ) ;
+            (*iter)->addObserver( _sharedData );
+          }
+      }
 
       ++iter ;
     }
@@ -1888,7 +1902,7 @@ RoiManagementAction::getCurrentHierarchyRoiNames( )
   
   _sharedData->myCurrentHierarchyRoiNames.clear() ;
 
-  recursiveHierarchyNameExtraction( hierarchy->tree(), 
+  recursiveHierarchyNameExtraction( hierarchy->tree().get(), 
 				    _sharedData->myCurrentHierarchyRoiNames ) ;
   
   _sharedData->myCurrentHierarchyRoiNamesChanged = false ;
@@ -2364,18 +2378,13 @@ RoiManagementAction::newGraph( const string& /* name */ )
   string graphName 
     = theAnatomist->makeObjectName( FileUtil::removeExtension(obj->name()) 
                                     + "_ROI.arg" );
-  
-//   if ( name == "" ) 
-//     graphName = theAnatomist->makeObjectName( "" ) ;
-//   else
-//     graphName = theAnatomist->makeObjectName( name ) ;
-  
+
   Command	*cmd = new CreateGraphCommand( obj, graphName, "RoiArg" ) ;
   theProcessor->execute( cmd ) ;
-  
+
   obj = _sharedData->getObjectByName( AObject::GRAPH, graphName ) ;
   AGraph * graph = dynamic_cast<AGraph*>( obj ) ;
-  
+
   if ( !graph) {
     AWarning("Major bug : graph has not been created !") ;
     return ;
@@ -2393,12 +2402,12 @@ RoiManagementAction::newGraph( const string& /* name */ )
 				   static_cast<int>( graph->MaxZ2D() 
 						     - graph->MinZ2D() ) + 1 ) ;
   graph->volumeOfLabels(0) ;
-  
+
   theAnatomist->NotifyObjectChange( graph ) ;
-  
+
   _sharedData->myGraphNamesChanged = true ;
   getGraphNames() ;
-  
+
   set<string>::const_iterator iterName( _sharedData->myGraphNames.begin() ), 
     lastName( _sharedData->myGraphNames.end() ) ;
   int id = 0 ;
@@ -2409,7 +2418,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
       ++id ;
       ++iterName ;
     }
-  
+
   if ( iterName != lastName ){
     _sharedData->myGraphName = graphName ;
     selectGraph( _sharedData->myGraphName, id ) ;
@@ -2418,7 +2427,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
   // If no hierarchy is loaded, load neuronames.hie
   set<AObject *> objs = theAnatomist->getObjects() ;
   set<AObject *>::iterator iter( objs.begin() ), last( objs.end() ), found ;
-  
+
   int objCount = 0 ;
   while ( iter != last )
     {
@@ -2440,7 +2449,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
 
   setChanged() ;
   notifyObservers() ;
-  
+
   objs = view()->window()->Objects() ;
   iter = objs.begin(), last = objs.end() ;
   set<AObject*>::iterator foundGraph = last, foundVolume = last, obj2d = last;
@@ -2461,36 +2470,40 @@ RoiManagementAction::newGraph( const string& /* name */ )
     foundVolume = obj2d;
 
   if ( foundGraph == last && foundVolume != last){
-    if( (*foundVolume)->VoxelSize()[0] - graph->VoxelSize()[0] > .000001 ||
-	(*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] > .000001 ||
-	(*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] > .000001 ){
+    if( fabs( (*foundVolume)->VoxelSize()[0] - graph->VoxelSize()[0] )
+        > .000001 ||
+        fabs( (*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] )
+        > .000001 ||
+        fabs( (*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] )
+        > .000001 )
+    {
       AWarning("Incompatible voxel size !") ;
       cout << "Image Voxel Size - Graph Voxel Size = " 
-	   << (*foundVolume)->VoxelSize() - graph->VoxelSize() << endl ;
+           << (*foundVolume)->VoxelSize() - graph->VoxelSize() << endl ;
       return ;
     }
-    
-    if( (*foundVolume)->MinX2D() != graph->MinX2D() || 
-	(*foundVolume)->MinY2D() != graph->MinY2D() || 
-	(*foundVolume)->MinZ2D() != graph->MinZ2D() ||
-	(*foundVolume)->MaxX2D() != graph->MaxX2D() || 
-	(*foundVolume)->MaxY2D() != graph->MaxY2D() || 
-	(*foundVolume)->MaxZ2D() != graph->MaxZ2D() ){
+
+    if( (*foundVolume)->MinX2D() != graph->MinX2D() ||
+        (*foundVolume)->MinY2D() != graph->MinY2D() ||
+        (*foundVolume)->MinZ2D() != graph->MinZ2D() ||
+        (*foundVolume)->MaxX2D() != graph->MaxX2D() ||
+        (*foundVolume)->MaxY2D() != graph->MaxY2D() ||
+        (*foundVolume)->MaxZ2D() != graph->MaxZ2D() )
+    {
       AWarning("Incompatible bounding box !") ;
       return ;
     }
-    
-    
+
     // There's no roi graph in this RoiManagementAction associated window. Include one.
     objs.clear() ;
     objs.insert( graph ) ;
-    
+
     set<AWindow*> wins ;
     wins.insert( view()->window() ) ;
-    
+
     Command	*cmd2 = new AddObjectCommand( objs, wins ) ;
     theProcessor->execute( cmd2 ) ;
-    
+
     Command	*cmd3 = new SetControlCommand( wins, "PaintControl" ) ;
     theProcessor->execute( cmd3 ) ;
   }
@@ -3282,98 +3295,37 @@ RoiManagementAction::regionsFusion( const set<string>& regions,
 void 
 RoiManagementAction::createWindow( const string& type )
 {
-  AObject * image
-    = _sharedData->getObjectByName( -1, _sharedData->myCurrentImage );
   AObject * graph
     = _sharedData->getObjectByName( AObject::GRAPH,
                                     _sharedData->myCurrentGraph );
 
-  if( !image ){
-    AWarning("You must select an image first !") ;
-    return ;
-  }
-
-  if( !graph ){
-    AWarning("You must select a graph first !") ;
-    return ;
-  }
-
-  bool incompatible = false ;
-
-  if( image->VoxelSize()[0] - graph->VoxelSize()[0] > .000001 ||
-      image->VoxelSize()[1] - graph->VoxelSize()[1] > .000001 ||
-      image->VoxelSize()[1] - graph->VoxelSize()[1] > .000001 ){
-    incompatible = true ;
-//     AWarning("Incompatible voxel size !") ;
-//     cout << "image->VoxelSize() - graph->VoxelSize() = " 
-// 	 << image->VoxelSize() - graph->VoxelSize() << endl ;
-//     return ;
-  }
-
-  if( image->MinX2D() != graph->MinX2D() || 
-      image->MinY2D() != graph->MinY2D() || 
-      image->MinZ2D() != graph->MinZ2D() ||
-      image->MaxX2D() != graph->MaxX2D() || 
-      image->MaxY2D() != graph->MaxY2D() || 
-      image->MaxZ2D() != graph->MaxZ2D() ){
-    incompatible = true ;
-//     AWarning("Incompatible bounding box !") ;
-//     return ;
-  }
-  
-  if( incompatible ){
-    QDialog * warning = new QDialog( 0, "", true, Qt::WStyle_Title ) ;
-    warning->setFixedSize( 400, 60 ) ;
-    
-    QVBoxLayout * l = new QVBoxLayout( warning ) ;
-    QVBox * frame = new QVBox( warning ) ;
-    frame->setMargin( 5 );
-    frame->setSpacing( 5 );
-    l->addWidget(frame) ;
-    
-    new QLabel( "Image and session sizes are incompatible.\nPlease proceed only for visualization purposes.\nDon not draw in such a window !!!", frame ) ;
-    QHBox * buttons = new QHBox( warning ) ;
-    l->addWidget(buttons) ;
-    QPushButton * okButton = new QPushButton( "Ok", buttons ) ;
-    okButton->setMaximumWidth(100) ;
-    okButton->setDefault( true );
-    QPushButton * cancelButton = new QPushButton( "Cancel", buttons ) ;
-    cancelButton->setMaximumWidth(100) ;
-    
-    QObject::connect( okButton , SIGNAL( clicked() ), warning, SLOT( accept () ) ) ;
-    QObject::connect( cancelButton , SIGNAL( clicked( ) ), warning, SLOT( reject () ) ) ;
-    
-    string result ;
-    if( !warning->exec() )
-      {
-	delete warning ;
-	return ;
-      }
-    delete warning ;
-  }
-
   CreateWindowCommand	*cmd = new CreateWindowCommand( type ) ;
   theProcessor->execute( cmd ) ;
   AWindow * win = cmd->createdWindow() ;
-  
+
   set<AWindow*> wins ;
   wins.insert( win ) ;
-  
+
+  if( view()->window()->Group() != 0 )
+  {
+    Command *cmd1 = new LinkWindowsCommand( wins, view()->window()->Group() );
+    theProcessor->execute( cmd1 );
+  }
+
   set<AObject*> objs ;
-  objs.insert(image) ;
-  objs.insert(graph) ;
-  
-  Command	*cmd2 = new AddObjectCommand( objs, wins ) ;
+  Command *cmd2;
+  if( graph )
+  {
+    objs.insert(graph) ;
+
+    cmd2 = new AddObjectCommand( objs, wins ) ;
+    theProcessor->execute( cmd2 ) ;
+  }
+  cmd2 = new AddObjectCommand( view()->window()->Objects(), wins ) ;
   theProcessor->execute( cmd2 ) ;
-  
+
   Command	*cmd3 = new SetControlCommand( wins, "PaintControl" ) ;
   theProcessor->execute( cmd3 ) ;
-  
-  _sharedData->completeSelection( dynamic_cast<AGraph*>( graph ) ) ;
-  
-  objs = SelectFactory::factory()->selected().find( win->Group() )->second ;
-  Command 	*cmd4 = new SelectCommand( objs ) ;
-  theProcessor->execute( cmd4 ) ;
 }
 
 

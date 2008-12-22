@@ -41,8 +41,7 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/graph/attribAObject.h>
 #include <cartobase/object/syntax.h>
-
-class Tree;
+#include <graph/tree/tree.h>
 
 
 namespace anatomist
@@ -55,9 +54,10 @@ namespace anatomist
   {
   public:
     Hierarchy( Tree* tr );
+    Hierarchy( carto::rc_ptr<Tree> tr );
     virtual ~Hierarchy();
 
-    Tree* tree() { return( _tree ); };
+    carto::rc_ptr<Tree> tree() { return( _tree ); };
 
     static AObject* loadHierarchy( const std::string & filename, 
                                    carto::Object options );
@@ -81,7 +81,7 @@ namespace anatomist
         const AGraph **ag = 0 );
 
   protected:
-    Tree	*_tree;
+    carto::rc_ptr<Tree>	_tree;
     static Tree	*_optionTree;
 
   private:

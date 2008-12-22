@@ -73,6 +73,7 @@ namespace anatomist
     mutable bool		empty;
     mutable bool		bckchanged;
     mutable map<string, AimsSurface<4,Void> >	slices;
+    bool allow2DRendering;
   };
 }
 
@@ -81,7 +82,7 @@ Tree* Bucket::_optionTree = 0;
 
 
 Bucket::Private::Private()
-  : surface( 0 ), empty( true ), bckchanged( true )
+  : surface( 0 ), empty( true ), bckchanged( true ), allow2DRendering( true )
 {
 }
 
@@ -1588,6 +1589,28 @@ void Bucket::setInternalsChanged()
 {
   setBucketChanged();
   setGeomExtrema();
+}
+
+
+bool Bucket::Is2DObject()
+{
+  return d->allow2DRendering;
+}
+
+
+bool Bucket::allow2DRendering() const
+{
+  return d->allow2DRendering;
+}
+
+
+void Bucket::setAllow2DRendering( bool x )
+{
+  if( x != d->allow2DRendering )
+  {
+    d->allow2DRendering = x;
+    setBucketChanged();
+  }
 }
 
 

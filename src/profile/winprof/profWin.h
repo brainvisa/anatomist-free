@@ -79,10 +79,10 @@ public:
 
   virtual void refreshNow();
 
-  virtual void registerObject( anatomist::AObject* object, 
-			       bool temporaryObject = false );
-  virtual void unregisterObject( anatomist::AObject* object, 
-                                 bool temporaryObject = false );
+  virtual void registerObject( anatomist::AObject* object,
+                               bool temporaryObject = false,
+                               int position = -1 );
+  virtual void unregisterObject( anatomist::AObject* object );
 
   void setDirection( Direction );
 

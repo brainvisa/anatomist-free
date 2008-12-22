@@ -71,14 +71,24 @@ Material::Private::Private( const Private & p )
 {
   for( unsigned i = 0; i<NrenderProps; ++i )
     renderProps[ i ] = p.renderProps[ i ];
+  unlitColor[0] = p.unlitColor[0];
+  unlitColor[1] = p.unlitColor[1];
+  unlitColor[2] = p.unlitColor[2];
+  unlitColor[3] = p.unlitColor[3];
 }
 
 
 Material::Private & Material::Private::operator = ( const Private & p )
 {
   if( this != & p )
+  {
     for( unsigned i = 0; i<NrenderProps; ++i )
       renderProps[ i ] = p.renderProps[ i ];
+    unlitColor[0] = p.unlitColor[0];
+    unlitColor[1] = p.unlitColor[1];
+    unlitColor[2] = p.unlitColor[2];
+    unlitColor[3] = p.unlitColor[3];
+  }
   return *this;
 }
 
@@ -310,14 +320,11 @@ void Material::setGLMaterial() const
 
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, _ambient);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, _diffuse);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, _specular);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &_shininess);
   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, _emission);
-  // if( d->renderProps[ RenderLighting ] == 0 )
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, _diffuse);
   glColor4f( _diffuse[0], _diffuse[1], _diffuse[2], _diffuse[3] );
-  /* glColor4f( d->unlitColor[0], d->unlitColor[1], d->unlitColor[2],
-             d->unlitColor[3] ); */
   if( d->lineWidth > 0 )
     glLineWidth( d->lineWidth );
   else
@@ -410,6 +417,15 @@ void Material::setGLMaterial() const
       glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
       glPolygonOffset( 1.05, 1 );
       glEnable( GL_POLYGON_OFFSET_FILL );
+      break;
+    case ExtOutlined:
+      glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+      glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+      glEnable( GL_LIGHTING );
+      glDisable( GL_POLYGON_OFFSET_LINE );
+      glDisable( GL_POLYGON_OFFSET_FILL );
+      glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, _diffuse );
+      break;
     default:
       break;
     }
@@ -715,6 +731,8 @@ void Material::set( const GenericObject & obj )
             d->renderProps[ RenderMode ] = Outlined;
           else if( m ==  "hiddenface_wireframe" )
             d->renderProps[ RenderMode ] = HiddenWireframe;
+          else if( m ==  "ext_outlined" )
+            d->renderProps[ RenderMode ] = ExtOutlined;
           else // default
             d->renderProps[ RenderMode ] = -1;
         }
@@ -815,7 +833,8 @@ Object Material::genericDescription() const
   if( d->renderProps[ RenderMode ] >= 0 )
     {
       static string mode[] = { "normal", "wireframe", "outlined", 
-                                "hiddenface_wireframe", "fast" };
+                                "hiddenface_wireframe", "fast", "ext_outlined"
+      };
       o->setProperty( "polygon_mode", mode[ d->renderProps[ RenderMode ] ] );
     }
   if( d->renderProps[ Ghost ] >= 0 )

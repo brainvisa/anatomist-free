@@ -62,13 +62,17 @@ using namespace anatomist;
 using namespace std;
 
 GraphParams::GraphParams()
-  : colorsActive( true ), attribute( "name" ), toolTips( true ), 
+  : colorsActive( true ), attribute( "name" ), toolTips( true ),
     saveMode( 1 ), saveOnlyModified( true ), autoSaveDir( true ),
-    loadRelations( false ),
+    loadRelations( false ), selectRenderMode( 0 ),
     rescanhierarchies( true )
 {
   delete _graphParams();
   _graphParams() = this;
+  selectRenderModes.push_back( QT_TRANSLATE_NOOP( QGraphParam,
+                                                  "ColoredSelection"  ) );
+  selectRenderModes.push_back( QT_TRANSLATE_NOOP( QGraphParam,
+                                                  "OutlinedSelection" ) );
 }
 
 
@@ -184,7 +188,7 @@ bool GraphParams::recolorLabelledGraph( AGraph*ag, AGraphObject* go,
         pos = attval.size();
       name = attval.substr( 0, pos );
       attval.erase( 0, pos+1 );
-      t = findTreeWith( hie->tree(), "name", name, parents );
+      t = findTreeWith( hie->tree().get(), "name", name, parents );
     }
   if( !t )
     return false;
@@ -228,6 +232,7 @@ struct QGraphParam::Private
   QCheckBox	*invcol;
   QVButtonGroup	*iobox;
   QCheckBox     *loadrelations;
+  QComboBox     *selectmode;
 };
 
 
@@ -295,8 +300,18 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   d->ttips = tip;
   tip->setChecked( gp->toolTips );
 
-  QVGroupBox	*sel = new QVGroupBox( tr( "Selection color" ), this, 
-				       "selgroup" );
+  QVGroupBox	*sel = new QVGroupBox( tr( "Selection color" ), this,
+                                       "selgroup" );
+  QHBox *selhbox = new QHBox( sel );
+  lab1 = new QLabel( tr( "Selection highlight type :" ), selhbox );
+  lab1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+  QComboBox *seltype = new QComboBox( selhbox );
+  int i, n = GraphParams::graphParams()->selectRenderModes.size();
+  for( i=0; i<n; ++i )
+    seltype->insertItem(
+      tr( GraphParams::graphParams()->selectRenderModes[i].c_str() ) );
+  d->selectmode = seltype;
+  d->selectmode->setCurrentItem( GraphParams::graphParams()->selectRenderMode );
   QCheckBox	*inv = new QCheckBox( tr( "Use inverse color" ), 
 				      sel, "inverse" );
   d->invcol = inv;
@@ -358,6 +373,8 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
 	   SLOT( autoDirChanged( bool ) ) );
   connect( iobox, SIGNAL( clicked( int ) ), this, 
 	   SLOT( saveModeSelected( int ) ) );
+  connect( seltype, SIGNAL( activated(int) ), this,
+           SLOT( setSelectionRenderingMode( int ) ) );
 }
 
 
@@ -544,6 +561,8 @@ void QGraphParam::update()
 		    (int) ( SelectFactory::selectColor().b * 255 ) ) );
   _selcol->setPixmap( pix );
 
+  d->selectmode->setCurrentItem( GraphParams::graphParams()->selectRenderMode );
+
   d->iobox->setButton( gp->saveMode );
   d->savemodif->setChecked( gp->saveOnlyModified );
   d->autodir->setChecked( gp->autoSaveDir );
@@ -551,4 +570,11 @@ void QGraphParam::update()
   blockSignals( false );
 }
 
+
+void QGraphParam::setSelectionRenderingMode( int i )
+{
+  cout << "setSelectionRenderingMode " << i << endl;
+  GraphParams::graphParams()->selectRenderMode = i;
+  SelectFactory::factory()->refreshSelectionRendering();
+}
 

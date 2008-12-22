@@ -80,8 +80,9 @@ QObjectBrowserWidget::~QObjectBrowserWidget()
 }
 
 
-void QObjectBrowserWidget::registerObject( AObject* object, 
-					   bool /*temporaryObject*/ )
+void QObjectBrowserWidget::registerObject( AObject* object,
+                                           bool /*temporaryObject*/,
+                                           int /*pos*/ )
 {
   /* cout << "QObjectBrowserWidget::registerObject( AObject* object, bool ) "
   << object->name() << endl; */
@@ -129,8 +130,7 @@ void QObjectBrowserWidget::registerObject( AObject* object,
 }
 
 
-void QObjectBrowserWidget::unregisterObject( AObject* object, 
-					     bool /*temporaryObject*/ )
+void QObjectBrowserWidget::unregisterObject( AObject* object )
 {
   map<Q3ListViewItem *, AObject *>::iterator	ia, fa = _aobjects.end();
   const unsigned	regColumn = 5;
@@ -569,8 +569,8 @@ void QObjectBrowserWidget::describeHierarchy( QObjectBrowserWidget* br,
 					      AObject* obj, 
 					      Q3ListViewItem* parent )
 {
-  AttDescr::descr()->describeTreeInside( br, ((Hierarchy *)obj)->tree(), 
-					 parent, true );
+  AttDescr::descr()->describeTreeInside( br, ((Hierarchy *)obj)->tree().get(),
+                                         parent, true );
 }
 
 

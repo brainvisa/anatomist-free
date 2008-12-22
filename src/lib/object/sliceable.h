@@ -98,8 +98,6 @@ namespace anatomist
     virtual Point4df glMax2D() const = 0;
     virtual bool glAllowedTexRGBInterpolation( unsigned tex = 0 ) const;
     virtual const Referential *getReferential() const = 0;
-
-  protected:
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
 
   private:

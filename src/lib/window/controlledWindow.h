@@ -59,8 +59,10 @@ public:
                     Qt::WFlags f = Qt::WType_TopLevel );
   virtual ~ControlledWindow();
 
-  virtual void registerObject( anatomist::AObject* object, bool temporaryObject = false );
-  virtual void unregisterObject( anatomist::AObject* object, bool temporaryObject = false );
+  virtual void registerObject( anatomist::AObject* object,
+                               bool temporaryObject = false,
+                               int position = -1 );
+  virtual void unregisterObject( anatomist::AObject* object );
 
   virtual void updateAvailableControls();
   virtual void updateActivableControls();

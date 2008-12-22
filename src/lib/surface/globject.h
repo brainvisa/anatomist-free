@@ -56,8 +56,6 @@ namespace anatomist
     virtual void glSetTexEnvChanged( bool = true, unsigned tex = 0 ) const;
     virtual const Material *glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
-
-  protected:
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
 
   private:

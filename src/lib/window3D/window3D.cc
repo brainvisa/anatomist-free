@@ -66,6 +66,7 @@
 #include <anatomist/commands/cAddObject.h>
 #include <anatomist/commands/cWindowConfig.h>
 #include <anatomist/processor/Processor.h>
+#include <anatomist/control/graphParams.h>
 #include <qslider.h>
 #include <qgl.h>
 #include <aims/resampling/quaternion.h>
@@ -163,7 +164,6 @@ struct AWindow3D::Private
   bool				smooth;
   bool				fog;
   map<AObject*, pair<unsigned,unsigned> > tmpprims;
-  unsigned			endobj;
   RefreshType			refreshneeded;
   list<ObjectModifier *>	objmodifiers;
   bool				linkonslider;
@@ -294,7 +294,7 @@ AWindow3D::Private::Private()
     poview( 0 ), lightview( 0 ), light( new Light ), slicequat( 0, 0, 0, 1 ), 
     askedsize( 0, 0 ), clipmode( AWindow3D::NoClip ), clipdist( 1 ), 
     transpz( true ), culling( true ), flatshading( false ), smooth( false ), 
-    fog( false ), endobj( 0 ), refreshneeded( FullRefresh ),
+    fog( false ), refreshneeded( FullRefresh ),
     linkonslider( false ), lefteye( 0 ), righteye( 0 ), objvallabel( 0 ),
     statusbarvisible( false ),
     // needsboundingbox( false ),
@@ -861,16 +861,12 @@ void AWindow3D::updateObject3D( AObject* obj, PrimList* pl )
 
 void AWindow3D::updateObject( AObject* obj, PrimList* pl )
 {
-  bool			tmp = isTemporary( obj );
   unsigned		l1 = 0, l2;
 
-  if( tmp )
-  {
-    if( pl )
-      l1 = pl->size();
-    else
-      l1 = d->primitives.size();
-  }
+  if( pl )
+    l1 = pl->size();
+  else
+    l1 = d->primitives.size();
 
   GLPrimitives	gp;
   if( !obj->Is2DObject() || ( d->viewtype == ThreeD && obj->Is3DObject() ) )
@@ -888,16 +884,11 @@ void AWindow3D::updateObject( AObject* obj, PrimList* pl )
   else
     d->primitives.insert( d->primitives.end(), gp.begin(), gp.end() );
 
-  if( tmp )
-    {
-      if( pl )
-        l2 = pl->size();
-      else
-        l2 = d->primitives.size();
-      d->tmpprims[ obj ] = pair<unsigned, unsigned>( l1, l2 );
-    }
+  if( pl )
+    l2 = pl->size();
   else
-    d->endobj = d->primitives.size(); // keep index of end of non-temp lists
+    l2 = d->primitives.size();
+  d->tmpprims[ obj ] = pair<unsigned, unsigned>( l1, l2 );
 }
 
 
@@ -928,7 +919,6 @@ void AWindow3D::refreshNow()
 
   //	delete tmp objects primitives
   d->tmpprims.clear();
-  d->endobj = 0;
   updateWindowGeometry(); // do this only in special cases ?
 
   list<shared_ptr<AObject> >::iterator	i;
@@ -975,8 +965,16 @@ void AWindow3D::refreshNow()
   d->deleteLists();
 
   // Denis: selection
-  SelectFactory::HColor	*tmpcol = new SelectFactory::HColor[ _objects.size() ];
-  unsigned		u = 0;
+  struct TmpCol
+  {
+    SelectFactory::HColor diffuse;
+    SelectFactory::HColor unlit;
+    int mode;
+  };
+
+  TmpCol *tmpcol = new TmpCol[ _objects.size() ];
+  unsigned u = 0;
+
   // fin
 
   for( i=_objects.begin(); i!=_objects.end(); ++i )
@@ -986,23 +984,43 @@ void AWindow3D::refreshNow()
       // Denis: selection
 
       if( SelectFactory::factory()->isSelected( Group(), i->get() ) )
-	{
-	  SelectFactory::HColor	col 
-	    = SelectFactory::factory()->highlightColor( i->get() );
-	  GLfloat	*dif = mat.Diffuse();
+      {
+        SelectFactory::HColor	col
+          = SelectFactory::factory()->highlightColor( i->get() );
+        GLfloat	*dif = mat.Diffuse();
+        GLfloat       *unl = mat.unlitColor();
 
-	  tmpcol[u].r = dif[0];	// sauver les vraies couleurs
-	  dif[0] = col.r;
-	  tmpcol[u].g = dif[1];
-	  dif[1] = col.g;
-	  tmpcol[u].b = dif[2];
-	  dif[2] = col.b;
-	  tmpcol[u].a = dif[3];
-	  if( !col.na )
-	    dif[3] = col.a;
-	  (*i)->SetMaterial( mat );
-	  ++u;
-	}
+        TmpCol & tcol = tmpcol[u];
+        tcol.diffuse.r = dif[0];	// sauver les vraies couleurs
+        tcol.diffuse.g = dif[1];
+        tcol.diffuse.b = dif[2];
+        tcol.diffuse.a = dif[3];
+        tcol.unlit.r = unl[0];
+        tcol.unlit.g = unl[1];
+        tcol.unlit.b = unl[2];
+        tcol.unlit.a = unl[3];
+        tcol.mode = mat.renderProperty( Material::RenderMode );
+        switch( GraphParams::graphParams()->selectRenderMode )
+        {
+          case 0:
+            dif[0] = col.r;
+            dif[1] = col.g;
+            dif[2] = col.b;
+            if( !col.na )
+              dif[3] = col.a;
+            break;
+          case 1:
+            unl[0] = col.r;
+            unl[1] = col.g;
+            unl[2] = col.b;
+            if( !col.na )
+              unl[3] = col.a;
+            mat.setRenderProperty( Material::RenderMode,
+                                   Material::ExtOutlined );
+        }
+        (*i)->SetMaterial( mat );
+        ++u;
+      }
       // fin de modif
 
       if( (*i)->isTransparent() )
@@ -1064,7 +1082,7 @@ void AWindow3D::refreshNow()
       glPolygonOffset( 1.05, 1 );
       glEnable( GL_POLYGON_OFFSET_FILL );
       break;
-    case Outlined:
+    case Material::Outlined:
       glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
       glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
       glPolygonOffset( 1.05, 1 );
@@ -1135,8 +1153,8 @@ void AWindow3D::refreshNow()
 
   Primitive	*pr2 = 0;
 
-  if( !blended.empty() )
-    {
+  /*if( !blended.empty() )
+    {*/
       d->draw->setTransparentObjects( true );
       //if( !pr2 )
       pr2 = new Primitive;
@@ -1144,14 +1162,14 @@ void AWindow3D::refreshNow()
       glNewList( localGLL+1, GL_COMPILE );
       glEnable( GL_BLEND );
       if( !transparentZEnabled() )
-	glDepthMask( GL_FALSE );	// don't write in z-buffer
+        glDepthMask( GL_FALSE );	// don't write in z-buffer
       glEndList();
-    }
+    /*}
   else
     {
       glDeleteLists( localGLL+1, 1 );
       d->draw->setTransparentObjects( false );
-    }
+    }*/
 
   if( pr2 )
     d->primitives.push_back( RefGLItem( pr2 ) );
@@ -1238,7 +1256,7 @@ void AWindow3D::refreshNow()
 	rendertwice = true;
       }
       break;
-    case Outlined:
+    case Material::Outlined:
       {
 	renderoffpr = new Primitive;
 	GLuint hwfGLL = glGenLists( 1 );
@@ -1298,17 +1316,25 @@ void AWindow3D::refreshNow()
   u = 0;
   for (i=_objects.begin(); i!=_objects.end(); ++i)
     if( SelectFactory::factory()->isSelected( Group(), i->get() ) )
-      {
-	Material & mat = (*i)->GetMaterial();
-	GLfloat	*dif = mat.Diffuse();
+    {
+      Material & mat = (*i)->GetMaterial();
+      TmpCol & tcol = tmpcol[u];
+      GLfloat	*dif = mat.Diffuse();
+      GLfloat *unl = mat.unlitColor();
 
-	dif[0] = tmpcol[u].r;	// remettre les vraies couleurs
-	dif[1] = tmpcol[u].g;
-	dif[2] = tmpcol[u].b;
-	dif[3] = tmpcol[u].a;
-	(*i)->SetMaterial( mat );
-	++u;
-      }
+      dif[0] = tcol.diffuse.r;	// remettre les vraies couleurs
+      dif[1] = tcol.diffuse.g;
+      dif[2] = tcol.diffuse.b;
+      dif[3] = tcol.diffuse.a;
+      unl[0] = tcol.unlit.r;
+      unl[1] = tcol.unlit.g;
+      unl[2] = tcol.unlit.b;
+      unl[3] = tcol.unlit.a;
+
+      mat.setRenderProperty( Material::RenderMode, tcol.mode );
+      (*i)->SetMaterial( mat );
+      ++u;
+    }
   delete[] tmpcol;
   // fin de modif
 
@@ -1676,7 +1702,7 @@ void AWindow3D::changeReferential()
 }
 
 
-void AWindow3D::unregisterObject( AObject* o, bool temporaryObject )
+void AWindow3D::unregisterObject( AObject* o )
 {
   d->tmpprims.erase( o );
 
@@ -1688,11 +1714,11 @@ void AWindow3D::unregisterObject( AObject* o, bool temporaryObject )
         ATransformSet::instance()->unregisterObserver( r1, r2, this );
     }
 
-  ControlledWindow::unregisterObject( o, temporaryObject );
+  ControlledWindow::unregisterObject( o );
 }
 
 
-void AWindow3D::registerObject( AObject* o, bool temporaryObject )
+void AWindow3D::registerObject( AObject* o, bool temporaryObject, int pos )
 {
   Point3df	bmin, bmax;
   float	tmin, tmax;
@@ -1701,7 +1727,7 @@ void AWindow3D::registerObject( AObject* o, bool temporaryObject )
   // cout << "bmin = " <<  bmin << "bmax = "  << endl ; 
 
   bool fst = _objects.empty();
-  ControlledWindow::registerObject( o, temporaryObject  );
+  ControlledWindow::registerObject( o, temporaryObject, pos );
   Referential	*r1 = getReferential();
   if( r1 )
     {
@@ -1737,41 +1763,41 @@ void AWindow3D::registerObject( AObject* o, bool temporaryObject )
 
       // resize window if in 2D mode
       if( o->Is2DObject() )
-	{
-          float	wf = 1;
-          theAnatomist->config()->getProperty( "windowSizeFactor", wf );
+      {
+        float	wf = 1;
+        theAnatomist->config()->getProperty( "windowSizeFactor", wf );
 
-	  Point3df	vs = o->VoxelSize();
-	  switch( viewType() )
-	    {
-	    case Axial:
-	      d->askedsize 
-		= QSize( (int) ( vs[0] * wf 
-				 * ( o->MaxX2D() - o->MinX2D() + 1 ) ), 
-			 (int) ( vs[1] * wf 
-				 * ( o->MaxY2D() - o->MinY2D() + 1 ) ) );
-	      break;
-	    case Coronal:
-	      d->askedsize 
-		= QSize( (int) ( vs[0] * wf 
-				 * ( o->MaxX2D() - o->MinX2D() + 1 ) ), 
-			 (int) ( vs[2] * wf 
-				 * ( o->MaxZ2D() - o->MinZ2D() + 1 ) ) );
-	      break;
-	    case Sagittal:
-	      d->askedsize 
-		= QSize( (int) ( vs[1] * wf 
-				 * ( o->MaxY2D() - o->MinY2D() + 1 ) ), 
-			 (int) ( vs[2] * wf 
-				 * ( o->MaxZ2D() - o->MinZ2D() + 1 ) ) );
-	      break;
-	    default:
-	      break;
-	    }
-	}
+        Point3df	vs = o->VoxelSize();
+        switch( viewType() )
+        {
+        case Axial:
+          d->askedsize
+            = QSize( (int) ( vs[0] * wf
+                              * ( o->MaxX2D() - o->MinX2D() + 1 ) ),
+                      (int) ( vs[1] * wf
+                              * ( o->MaxY2D() - o->MinY2D() + 1 ) ) );
+          break;
+        case Coronal:
+          d->askedsize
+            = QSize( (int) ( vs[0] * wf
+                              * ( o->MaxX2D() - o->MinX2D() + 1 ) ),
+                      (int) ( vs[2] * wf
+                              * ( o->MaxZ2D() - o->MinZ2D() + 1 ) ) );
+          break;
+        case Sagittal:
+          d->askedsize
+            = QSize( (int) ( vs[1] * wf
+                              * ( o->MaxY2D() - o->MinY2D() + 1 ) ),
+                      (int) ( vs[2] * wf
+                              * ( o->MaxZ2D() - o->MinZ2D() + 1 ) ) );
+          break;
+        default:
+          break;
+        }
+      }
     }
 
-    if( temporaryObject )
+  if( temporaryObject )
     refreshTemp();
   else
     Refresh();
@@ -2679,7 +2705,7 @@ void AWindow3D::refreshTempNow()
 
   d->refreshneeded = Private::FullRefresh;
 
-  const set<AObject *>	& tempobj = temporaryObjects();
+  // const set<AObject *>	& tempobj = temporaryObjects();
 
   PrimList				pl = d->draw->primitives();
   PrimList::iterator			ip, ip2, iendobj;
@@ -2702,87 +2728,156 @@ void AWindow3D::refreshTempNow()
   map<AObject *, pair<PrimList::iterator, PrimList::iterator> >	pli;
 
   // index of end-of-objects as iterator
-  // d->endobj points to end of non-temporary objects (before temp ones)
   ip = pl.begin();
-  for( i=0; i<d->endobj; ++i, ++ip ) {}
-  iendobj = ip;
+  i = 0;
 
   //cout << "convert unsigned to iterators...\n";
+  list<AObject *> objs;
   for( io2=to2.begin(), eo2=to2.end(); io2!=eo2; ++io2 )
-    {
-      j = io2->first;
-      while( i < j )
-	{
-	  ++ip;
-	  ++i;
-	}
-      ip2 = ip;
-      j = io2->second.second;
-      while( i < j )
-	{
-	  ++ip;
-	  ++i;
-	}
-      pli[ io2->second.first ] 
-	= pair<PrimList::iterator, PrimList::iterator>( ip2, ip );
-    }
+  {
+    j = io2->first;
+    while( i < j )
+      {
+        ++ip;
+        ++i;
+      }
+    ip2 = ip;
+    j = io2->second.second;
+    while( i < j )
+      {
+        ++ip;
+        ++i;
+      }
+    pli[ io2->second.first ]
+      = pair<PrimList::iterator, PrimList::iterator>( ip2, ip );
+    // build ordered list
+    objs.push_back( io2->second.first );
+  }
   //cout << "done\n";
+
+  // insert new objects in ordered list
+  list<shared_ptr<AObject> >::const_iterator ilo, elo = _objects.end();
+  list<AObject *>::iterator ioo = objs.begin(), eoo = objs.end(), nexto;
+  AObject *ao;
+  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator
+  ipl, epl = pli.end();
+  i = 0;
+  j = 0;
+
+  for( ilo=_objects.begin(); ilo!=elo; ++ilo, ++i )
+  {
+    ao = ilo->get();
+    if( pli.find( ao ) == epl )
+    {
+      for( ; j<i && ioo!=eoo; ++j, ++ioo ) {}
+      objs.insert( ioo, ao );
+    }
+  }
 
   //	rebuild lists
   //cout << "rebuild lists...\n";
 
-  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator 
-    ipl, epl = pli.end();
-  set<AObject *>::const_iterator	iso, eso = tempobj.end();
-
-  for( ipl=pli.begin(); ipl!=epl; ++ipl )
-    {
-      iendobj = ipl->second.second;	// seek end of temp objects
-
-      if( tempobj.find( ipl->first ) != eso )
-	{
-	  //cout << "refresh tmp object " << ipl->first->name() << endl;
-	  PrimList	plt;
-
-	  updateObject( ipl->first, &plt );
-
-	  ip = ipl->second.first;
-	  if( ip == pl.begin() )
-	    {	// erase / insert at beginning
-	      pl.erase( ip, ipl->second.second );
-	      pl.insert( pl.begin(), plt.begin(), plt.end() );
-	    }
-	  else
-	    {
-	      --ip;
-	      pl.erase( ipl->second.first, ipl->second.second );
-	      ++ip;
-	      pl.insert( ip, plt.begin(), plt.end() );
-	    }
-	}
-      else	// object has been removed: just forget its lists
-	pl.erase( ipl->second.first, ipl->second.second );
-    }
-  //cout << "done\n";
-
-  // draw new objects
   bool	newobj = false;
-  for( iso=tempobj.begin(); iso!=eso; ++iso )
-    if( pli.find( *iso ) == epl )	// new object (not in pli list)
+  i = 0;
+  int iadded = 0;
+  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator
+    nextipl = pli.begin();
+  for( ioo=objs.begin(); ioo!=eoo; ++ioo )
+  {
+    ao = *ioo;
+    if( isTemporary( ao ) )
+    {
+      ipl = pli.find( ao );
+      if( ipl != epl ) // already drawn
       {
-	PrimList	plt;
-	newobj = true;
-	//cout << "new obj: " << (*iso)->name() << endl;
-	updateObject( *iso, &plt );
-	pl.insert( iendobj, plt.begin(), plt.end() );
+        // cout << "refresh tmp object " << ao->name() << endl;
+        PrimList        plt;
+
+        pair<unsigned, unsigned> & tp = d->tmpprims[ ao ];
+        i = tp.first;
+        updateObject( ipl->first, &plt );
+        tp.first = i + iadded;
+        tp.second = i + plt.size() + iadded;
+
+        ip = ipl->second.first;
+        if( ip == pl.begin() )
+        {       // erase / insert at beginning
+          pl.erase( ip, ipl->second.second );
+          pl.insert( pl.begin(), plt.begin(), plt.end() );
+        }
+        else
+        {
+          --ip;
+          pl.erase( ipl->second.first, ipl->second.second );
+          ++ip;
+          pl.insert( ip, plt.begin(), plt.end() );
+        }
+
+        nexto = ioo;
+        do
+        {
+          ++nexto;
+          if( nexto == eoo )
+          {
+            nextipl = epl;
+            break;
+          }
+          else
+            nextipl = pli.find( *nexto );
+        } while( nextipl == epl );
       }
+      else // draw new object
+      {
+        PrimList        plt;
+        newobj = true;
+        updateObject( ao, &plt );
+        if( nextipl == pli.end() )
+        {
+          iendobj = pl.end();
+          i = pl.size();
+        }
+        else
+        {
+          iendobj = nextipl->second.first; // insert before nextipl
+          i = d->tmpprims[ nextipl->first ].first + iadded;
+        }
+        pl.insert( iendobj, plt.begin(), plt.end() );
+        iadded += plt.size();
+        pair<unsigned, unsigned> & tp = d->tmpprims[ ao ];
+        tp.first = i;
+        tp.second = i + plt.size();
+      }
+    }
+    else
+    {
+      ipl = pli.find( ao );
+      if( ipl != epl ) // already drawn
+      {
+        pair<unsigned, unsigned> & tp = d->tmpprims[ ao ];
+        tp.first += iadded;
+        tp.second += iadded;
+        nexto = ioo;
+        do
+        {
+          ++nexto;
+          if( nexto == eoo )
+          {
+            nextipl = epl;
+            break;
+          }
+          else
+            nextipl = pli.find( *nexto );
+        } while( nextipl == epl );
+      }
+    }
+  }
 
   if( newobj || !to2.empty() )
-    {
-      //cout << "refresh widget\n";
-      d->draw->setPrimitives( pl );
-      d->draw->updateGL();
-    }
+  {
+    //cout << "refresh widget\n";
+    d->draw->setPrimitives( pl );
+    d->draw->updateGL();
+  }
   //cout << "refreshTempNow finished\n";
 }
 
@@ -3062,6 +3157,23 @@ void AWindow3D::showStatusBar( int x )
   }
 }
 
+
+list<AObject *> AWindow3D::objectsRenderingOrder() const
+{
+  list<AObject *> objs;
+
+  map<AObject *, pair<unsigned, unsigned> >::const_iterator
+    io, eo = d->tmpprims.end();
+  map<unsigned, AObject *> sorted;
+  map<unsigned, AObject *>::iterator iso, eso = sorted.end();
+
+  for( io=d->tmpprims.begin(); io!=eo; ++io )
+    sorted[ io->second.first ] = io->first;
+  for( iso=sorted.begin(); iso!=eso; ++iso )
+    objs.push_back( iso->second );
+
+  return objs;
+}
 
 QSlider* AWindow3D::getSliceSlider() const
 {

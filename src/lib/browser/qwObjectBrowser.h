@@ -85,11 +85,11 @@ public:
   void Draw( bool flush = true );
   virtual void update( const anatomist::Observable* observable, void* arg );
   /// Add an object to the objects
-  virtual void registerObject( anatomist::AObject* object, 
-			       bool temporaryObject = false );
+  virtual void registerObject( anatomist::AObject* object,
+                               bool temporaryObject = false,
+                               int position = -1 );
   /// Remove an object from the objects
-  virtual void unregisterObject( anatomist::AObject* object, 
-				 bool temporaryObject = false );
+  virtual void unregisterObject( anatomist::AObject* object );
   /// Updates an object contents
   virtual void updateObject( anatomist::AObject* obj );
 

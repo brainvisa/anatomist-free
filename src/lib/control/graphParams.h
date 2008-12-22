@@ -77,6 +77,8 @@ namespace anatomist
     bool	saveOnlyModified;
     bool	autoSaveDir;
     bool        loadRelations;
+    int         selectRenderMode;
+    std::vector<std::string> selectRenderModes;
 
   private:
     friend class AGraph;
@@ -128,6 +130,7 @@ protected slots:
   void saveModifChanged( bool );
   void autoDirChanged( bool );
   void saveModeSelected( int );
+  void setSelectionRenderingMode( int );
 
 private:
   static QGraphParam* & _qGraphParam();

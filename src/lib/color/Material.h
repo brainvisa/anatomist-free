@@ -74,7 +74,8 @@ namespace anatomist
       Wireframe, 
       Outlined, 
       HiddenWireframe, 
-      Fast
+      Fast,
+      ExtOutlined,
     };
 
     Material();

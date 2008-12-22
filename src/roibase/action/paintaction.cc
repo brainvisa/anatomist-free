@@ -500,7 +500,8 @@ PaintActionView::update( const Observable *, void * )
 
 PaintActionSharedData* PaintActionSharedData::_instance = 0 ;
 
-PaintActionSharedData* PaintActionSharedData::instance(){
+PaintActionSharedData* PaintActionSharedData::instance()
+{
   if( _instance == 0 )
     _instance = new PaintActionSharedData ;
   return _instance ;
@@ -548,9 +549,9 @@ PaintAction::increaseBrushSize( )
     return ;
   _sharedData->myBrushSize += 1. ;
   
-  
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 void 
@@ -561,9 +562,9 @@ PaintAction::decreaseBrushSize( )
     return ;
   _sharedData->myBrushSize -= 1. ;
 
-
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 void 
@@ -579,6 +580,7 @@ PaintAction::setSize( float size)
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 float
@@ -593,9 +595,26 @@ PaintAction::paintType()
   return _sharedData->myPainter->paintType() ;
 }
 
+namespace
+{
+
+  int indexInWindow( const AWindow3D * win )
+  {
+    list<AObject *> objs = win->objectsRenderingOrder();
+    list<AObject *>::iterator io, eo = objs.end();
+    int i = 0;
+    for( io=objs.begin(); io!=eo; ++io, ++i )
+      if( (*io)->type() == AObject::GRAPHOBJECT )
+        return i;
+    return -1;
+  }
+
+}
+
 void 
 PaintAction::paintStart( int x, int y, int globalX, int globalY )
 {
+  hideCursor();
   // We've first to get the selected bucket.
   if ( ! ( _sharedData->myCurrentModifiedRegion = 
 	   RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) )
@@ -611,7 +630,9 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
     ->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() );
   _sharedData->myDeltaModifications
     ->setReferential( _sharedData->myCurrentModifiedRegion->getReferential() );
-  _sharedData->myDeltaModifications->GetMaterial().SetDiffuse(0.0, 0.8, 0.2, 0.5)  ;
+  _sharedData->myDeltaModifications->GetMaterial().SetDiffuse
+    ( 0.0, 0.8, 0.2,
+      _sharedData->myCurrentModifiedRegion->GetMaterial().Diffuse(3) );
 
   _sharedData->myPainting = true ;
   
@@ -645,12 +666,15 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
   set<AWindow*>::iterator gend = group.end();
   for( set<AWindow*>::iterator i = gbegin; i != gend; ++i ){
     AWindow3D * win3d = dynamic_cast<AWindow3D*>(*i) ;
-    if ( win3d ){
+    if ( win3d )
+    {
       myLinkedWindows.push_back( win3d ) ;
-      win3d->registerObject( _sharedData->myDeltaModifications, true ) ;
+      // _sharedData->myDeltaModifications->setName( "tmp modifications" );
+      win3d->registerObject( _sharedData->myDeltaModifications, true,
+                             indexInWindow( win3d ) );
     }
   }
-    
+
   paint( x, y, globalX, globalY ) ;
 //   notifyObservers() ;
 }
@@ -676,6 +700,7 @@ PaintAction::paint( int x, int y, int, int )
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
     {
+      _sharedData->myCursorPos = pos;
       AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
 
       _sharedData->myPainter->paint( win,
@@ -684,7 +709,7 @@ PaintAction::paint( int x, int y, int, int )
 			(AGraphObject *)0, RoiChangeProcessor::instance()->getGraphObject( view()->window() ), 
 			_sharedData->myBrushSize, _sharedData->myLineMode,
 			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			g->volumeOfLabels( 0 ),
+			&g->volumeOfLabels( 0 ),
 			Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ), 
 			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
 			(_sharedData->myDeltaModifications->bucket())[0],
@@ -731,7 +756,7 @@ PaintAction::paint( int x, int y, int, int )
 void 
 PaintAction::eraseStart( int x, int y, int globalX, int globalY )
 {
-  
+  hideCursor();
   //cerr << "PaintAction::eraseStart : entering" << endl ;
 
   // We got first to get the selected bucket.
@@ -749,12 +774,14 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
   _sharedData->myDeltaModifications->bucket().clear() ;
   _sharedData->myDeltaModifications
     ->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() );
+  _sharedData->myDeltaModifications->GetMaterial().SetDiffuse
+    ( 1., 1., 1., 0.3 );
 
   _sharedData->myPainting = false ;
   RoiChangeProcessor::instance()->setRedoable( false ) ;
 
   setChanged() ;
-  
+
   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
   if( !g ) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
@@ -777,7 +804,11 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
   for( set<AWindow*>::iterator i = gbegin; i != gend; ++i ){
     AWindow3D * win3d = dynamic_cast<AWindow3D*>(*i) ;
     if (win3d)
+    {
       myLinkedWindows.push_back( win3d ) ;
+      win3d->registerObject( _sharedData->myDeltaModifications, true,
+                             indexInWindow( win3d ) );
+    }
   }
 
   erase( x, y, globalX, globalY ) ;
@@ -806,14 +837,15 @@ PaintAction::erase( int x, int y, int, int )
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
     {
+      _sharedData->myCursorPos = pos;
       Point3df normalVector( win->sliceQuaternion().
 			     apply(Point3df(0., 0., 1.) ) ) ;
 
       normalVector *= normalVector.dot( pos - win->GetPosition() ) ;
       pos = pos - normalVector ;
 
-      Bucket * temp = new Bucket() ;
-      temp->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() ) ;
+      //Bucket * temp = new Bucket() ;
+      //temp->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() ) ;
       AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
       _sharedData->myPainter-> paint( win,
 			 theAnatomist->getTransformation(winRef, buckRef), pos,
@@ -821,41 +853,42 @@ PaintAction::erase( int x, int y, int, int )
 			 0, _sharedData->myBrushSize, 
 			 _sharedData->myLineMode,
 			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			 g->volumeOfLabels( 0 ),
+			 &g->volumeOfLabels( 0 ),
 			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
 			 Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ), 
-			 (temp->bucket())[0],
+			 //(temp->bucket())[0],
+                         (_sharedData->myDeltaModifications->bucket())[0],
 			 (*_sharedData->myCurrentChanges),
 			 _sharedData->myCurrentModifiedRegion->VoxelSize(),
 			 _sharedData->myLineMode,
 			 _sharedData->myReplaceMode, _sharedData->myMmMode) ;
       _sharedData->myIsChangeValidated = false ;
-      _sharedData->myCurrentModifiedRegion->erase( temp->bucket() ) ;
-      _sharedData->myCurrentModifiedRegion->setBucketChanged() ;
+      // _sharedData->myCurrentModifiedRegion->erase( temp->bucket() ) ;
+      //_sharedData->myCurrentModifiedRegion->setBucketChanged() ;
+      _sharedData->myDeltaModifications->setBucketChanged() ;
+      _sharedData->myDeltaModifications->setGeomExtrema();      // not optimal
 
       if( _sharedData->myFollowingLinkedCursor )
       {
-	  vector<float>	vp;
-	  vp.push_back( pos[0] );
-	  vp.push_back( pos[1] );
-	  vp.push_back( pos[2] );
-	  LinkedCursorCommand	*c 
-	    = new LinkedCursorCommand( win, vp );
-	  theProcessor->execute( c );    
+        vector<float>	vp;
+        vp.push_back( pos[0] );
+        vp.push_back( pos[1] );
+        vp.push_back( pos[2] );
+        LinkedCursorCommand	*c
+          = new LinkedCursorCommand( win, vp );
+        theProcessor->execute( c );
       }
 
       list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ),
-	last( myLinkedWindows.end() ) ;
+        last( myLinkedWindows.end() ) ;
 
-      while ( iter != last ){
-	(*iter)->Refresh() ;
-	++iter ;
+      while ( iter != last )
+      {
+        (*iter)->refreshTemp();
+        ++iter ;
       }
-
-      if( temp )
-	delete temp ;
     }
-  //cerr << "PaintAction::erase : exiting" << endl ;
+  // cerr << "PaintAction::erase : exiting" << endl ;
 }
 
 
@@ -1029,6 +1062,7 @@ PaintAction::brushToSquare( )
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 
@@ -1044,6 +1078,7 @@ PaintAction::brushToDisk( )
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 void 
@@ -1057,6 +1092,7 @@ PaintAction::brushToBall()
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 
@@ -1072,6 +1108,7 @@ PaintAction::brushToPoint( )
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 
@@ -1082,6 +1119,7 @@ PaintAction::brushToMm( )
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 void 
@@ -1091,6 +1129,7 @@ PaintAction::brushToVoxel( )
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
 }
 
 void 
@@ -1115,7 +1154,7 @@ PaintAction::validateChange( int, int, int, int )
 
   while ( iter != last ){
     if( mustBeUnregistered )
-      (*iter)->unregisterObject( _sharedData->myDeltaModifications, true ) ;
+      (*iter)->unregisterObject( _sharedData->myDeltaModifications ) ;
     ++iter ;
   }
 
@@ -1123,6 +1162,7 @@ PaintAction::validateChange( int, int, int, int )
 
   setChanged() ;
   notifyObservers() ;
+  updateCursor();
   //cerr << "PaintAction::validateChange : exiting" << endl ;
 }
 
@@ -1267,7 +1307,7 @@ PaintAction::fillRegion2D( const Point3d& seed, Point3d neighbourhood[],
 			   AimsData<AObject*>& volumeOfLabels, AObject * final,
 			   list< pair< Point3d, ChangesItem> > & changes )
 {
-  if( _sharedData->myPainter->in( volumeOfLabels, 
+  if( _sharedData->myPainter->in( &volumeOfLabels, 
 				  Point3df( (float)seed[0], (float)seed[1], (float)seed[2]),
 				  Point3df(0., 0., 0.) ) ){
     AObject *& value = volumeOfLabels(seed[0], seed[1], seed[2]) ;
@@ -1292,7 +1332,7 @@ PaintAction::fillRegion2D( const Point3d& seed, Point3d neighbourhood[],
     
     for(int i = 0 ; i < 4 ; ++i ){
       Point3d neighbour = p + neighbourhood[i] ;
-      if( _sharedData->myPainter->in( volumeOfLabels,
+      if( _sharedData->myPainter->in( &volumeOfLabels,
 				      Point3df( (float)neighbour[0], 
 						(float)neighbour[1], (float)neighbour[2]),
 				      Point3df(0., 0., 0.) ) ){
@@ -1454,7 +1494,7 @@ PointPaintStrategy::paint( AWindow3D * /*win*/,
 			   Transformation * transf, const Point3df& point,
 			   const AObject * originalLabel, AObject * finalLabel,
 			   float /*brushSize*/, bool /*lineMode*/,
-			   AimsData<AObject*>& volumeOfLabels,
+			   AimsData<AObject*> *volumeOfLabels,
 			   const Point3df & vlOffset, 
 			   BucketMap<Void>::Bucket & deltaModifications,
 			   list< pair< Point3d, ChangesItem> > & changes,
@@ -1487,64 +1527,68 @@ PointPaintStrategy::paint( AWindow3D * /*win*/,
       list< Point3df > line = drawLine( myPreviousPoint, 
 					p - myPreviousPoint ) ;
       list< Point3df >::iterator iter( line.begin() ), last( line.end() ) ;
-      int i = 0 ;
       while( iter != last )
-	{
-	  if ( in( volumeOfLabels, *iter, vlOffset ) )
-	    {
-	      AObject *& value 
-		= volumeOfLabels( (unsigned) rint( (*iter)[0] - vlOffset[0] ), 
-				  (unsigned) rint( (*iter)[1] - vlOffset[1] ), 
-				  (unsigned) rint( (*iter)[2] - vlOffset[2] ) ) ;
-	      if( ( value != originalLabel && !replace ) || 
-		  value == finalLabel )
-		{
-		  ++iter ;
-		  continue ;
-		}
-	    
-	      Point3d pt( (short) rint( (*iter)[0] ), 
-			  (short) rint( (*iter)[1] ), 
-			  (short) rint( (*iter)[2] ) ) ;
-	      deltaModifications[pt] ;
+        {
+          if ( in( volumeOfLabels, *iter, vlOffset ) )
+            {
+              Point3d pt( (short) rint( (*iter)[0] ),
+                          (short) rint( (*iter)[1] ),
+                          (short) rint( (*iter)[2] ) ) ;
+              if( volumeOfLabels )
+              {
+                AObject *& value
+                  = (*volumeOfLabels)
+                  ( (unsigned) rint( (*iter)[0] - vlOffset[0] ),
+                    (unsigned) rint( (*iter)[1] - vlOffset[1] ),
+                    (unsigned) rint( (*iter)[2] - vlOffset[2] ) );
+                if( ( value != originalLabel && !replace ) ||
+                    value == finalLabel )
+                {
+                  ++iter ;
+                  continue ;
+                }
 
-	      ChangesItem item ;
-	      item.before = value ;
-	      item.after = finalLabel ;
-	      changes.push_back( pair<Point3d, ChangesItem>(pt, item) ) ;
-	  
-	      value = finalLabel ;
-	    }
-	  
-	  ++iter ;
-	}
-      
+                ChangesItem item ;
+                item.before = value ;
+                item.after = finalLabel ;
+                changes.push_back( pair<Point3d, ChangesItem>(pt, item) ) ;
+
+                value = finalLabel ;
+              }
+
+              deltaModifications[pt] ;
+            }
+
+          ++iter ;
+        }
+
     }
   else if ( in( volumeOfLabels, Point3df((float)pToInt[0], (float)pToInt[1], 
 					 (float)pToInt[2] ), vlOffset ) )
     {
-      AObject *& value = volumeOfLabels( pVL );
+      if( volumeOfLabels )
+      {
+        AObject *& value = (*volumeOfLabels)( pVL );
 
-      if( ( value != originalLabel &&  !replace ) 
-	  || value == finalLabel )
-	return ;
+        if( ( value != originalLabel &&  !replace )
+            || value == finalLabel )
+          return ;
 
-      
-      ChangesItem item ;
-      item.before = value ;
-      item.after = finalLabel ;
-      changes.push_back( pair<Point3d, ChangesItem>(pToInt, item) ) ;
-      
+        ChangesItem item ;
+        item.before = value ;
+        item.after = finalLabel ;
+        changes.push_back( pair<Point3d, ChangesItem>(pToInt, item) ) ;
+        value = finalLabel ;
+      }
+
       deltaModifications[ pToInt ] ;
-
-      value = finalLabel ;
     }
   else
     cerr << "point " << pToInt << " not in vol of labels\n";
-  
+
   myPreviousPointExists = true ;
   myPreviousPoint = p ;
-  
+
   //cerr << "PointPaintStrategy::Paint : exiting" << endl ;
 }
 
@@ -1565,7 +1609,7 @@ SquarePaintStrategy::paint( AWindow3D */* win*/,
 			    const AObject * /*originalLabel*/, 
 			    AObject * /*finalLabel*/, 
 			    float /*brushSize*/, bool /*lineMode*/,
-			    AimsData<AObject*>& /*volumeOfLabels*/,
+			    AimsData<AObject*>* /*volumeOfLabels*/,
 			    const Point3df & /*vlOffset*/, 
 			    BucketMap<Void>::Bucket & /*deltaModifications*/,
 			    list< pair< Point3d, ChangesItem> > & /*changes*/,
@@ -1600,7 +1644,7 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
 				 const AObject * originalLabel, 
 				 AObject * finalLabel,
 				 float brushSize, 
-				 AimsData<AObject*>& volumeOfLabels,
+				 AimsData<AObject*> *volumeOfLabels,
 				 const Point3df & voxelSize, 
 				 const Point3df & vlOffset, 
 				 BucketMap<Void>::Bucket & deltaModifications,
@@ -1648,46 +1692,50 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
   for ( point[i] = minOnI ; point[i] <= maxOnI ; point[i] += 1. )
     for ( point[j] = minOnJ ; point[j] <= maxOnJ ; point[j] += 1. )
       {
-	point[k] =  ( diskCenter.dot(n) - n[i] * point[i] - n[j] * point[j] ) 
-	  * invnk ;
-	
-	distanceToCenter = point - diskCenter ;
-	
-	
-	
-	if( mm ){
-	  distanceToCenter[0] *= voxelSize[0] ;
-	  distanceToCenter[1] *= voxelSize[1] ;
-	  distanceToCenter[2] *= voxelSize[2] ;
-	}
-	  
-	if ( /*distanceToCenter.dot(distanceToCenter)*/ distanceToCenter[0]*distanceToCenter[0]
-	     + distanceToCenter[1]*distanceToCenter[1] + distanceToCenter[2]*distanceToCenter[2] < brush2 && 
-	     in( volumeOfLabels, point, vlOffset ) )
-	  {	    
-	    realPoint[0] = (int) ( point[0] + 0.5 ) ;
-	    realPoint[1] = (int) ( point[1] + 0.5 ) ;
-	    realPoint[2] = (int) ( point[2] + 0.5 ) ;
-	    Point3d	VL( (int) rint( vlOffset[0] ), 
-			    (int) rint( vlOffset[1] ), 
-			    (int) rint( vlOffset[2] ));
-	
-	    AObject *& value = volumeOfLabels( realPoint - VL ) ;
-	
-	    if( ( value != originalLabel && !replace ) || 
-		value == finalLabel )
-	      continue ;
-	    
+        point[k] =  ( diskCenter.dot(n) - n[i] * point[i] - n[j] * point[j] )
+          * invnk ;
 
-	    ChangesItem item ;
-	    item.before = value ;
-	    item.after = finalLabel ;
-	    changes.push_back( pair<Point3d, ChangesItem>(realPoint, item) ) ;
-      
-	    deltaModifications[ realPoint ] ;
-	
-	    value = finalLabel ;
-	  }
+        distanceToCenter = point - diskCenter ;
+
+
+
+        if( mm ){
+          distanceToCenter[0] *= voxelSize[0] ;
+          distanceToCenter[1] *= voxelSize[1] ;
+          distanceToCenter[2] *= voxelSize[2] ;
+        }
+
+        if ( /*distanceToCenter.dot(distanceToCenter)*/
+              distanceToCenter[0]*distanceToCenter[0]
+              + distanceToCenter[1]*distanceToCenter[1]
+              + distanceToCenter[2]*distanceToCenter[2] < brush2 &&
+              in( volumeOfLabels, point, vlOffset ) )
+          {
+            realPoint[0] = (int) ( point[0] + 0.5 ) ;
+            realPoint[1] = (int) ( point[1] + 0.5 ) ;
+            realPoint[2] = (int) ( point[2] + 0.5 ) ;
+            Point3d	VL( (int) rint( vlOffset[0] ),
+                            (int) rint( vlOffset[1] ),
+                            (int) rint( vlOffset[2] ));
+
+            if( volumeOfLabels )
+            {
+              AObject *& value = (*volumeOfLabels)( realPoint - VL ) ;
+
+              if( ( value != originalLabel && !replace ) ||
+                  value == finalLabel )
+                continue ;
+
+              ChangesItem item ;
+              item.before = value ;
+              item.after = finalLabel ;
+              changes.push_back( pair<Point3d, ChangesItem>(realPoint, item) ) ;
+              value = finalLabel ;
+            }
+
+            deltaModifications[ realPoint ] ;
+
+          }
       }
 }
 
@@ -1697,7 +1745,7 @@ DiskPaintStrategy::paint( AWindow3D * win,
 			  Transformation * transf, const Point3df& point,
 			  const AObject * originalLabel, AObject * finalLabel,
 			  float brushSize, bool /*lineMode*/,
-			  AimsData<AObject*>& volumeOfLabels,
+			  AimsData<AObject*> *volumeOfLabels,
 			  const Point3df & vlOffset, 
 			  BucketMap<Void>::Bucket & deltaModifications,
 			  list< pair< Point3d, ChangesItem> > & changes,
@@ -1822,7 +1870,7 @@ BallPaintStrategy::brushPainter( const Point3d& pToInt,
 				 const AObject * originalLabel, 
 				 AObject * finalLabel,
 				 float brushSize, 
-				 AimsData<AObject*>& volumeOfLabels,
+				 AimsData<AObject*> *volumeOfLabels,
 				 const Point3df & voxelSize, 
 				 const Point3df & vlOffset, 
 				 BucketMap<Void>::Bucket & deltaModifications,
@@ -1831,73 +1879,82 @@ BallPaintStrategy::brushPainter( const Point3d& pToInt,
 {
 
   if( mm ){
-    for( int i = -int(brushSize/voxelSize[0]+1) ; i <= int(brushSize/voxelSize[0]+1) ; ++i )
-      for( int j = -int(brushSize/voxelSize[1]+1) ; j <= int(brushSize/voxelSize[1]+1) ; ++j )
-	for( int k = -int(brushSize/voxelSize[2]+1) ; k <= int(brushSize/voxelSize[2]+1) ; ++k )
-	  if( i*i*voxelSize[0]*voxelSize[0] + j*j*voxelSize[1]*voxelSize[1] 
-	      + k*k*voxelSize[2]*voxelSize[2] < brushSize * brushSize ){
-	    Point3d realPosition ( pToInt + Point3d(i, j, k) ) ;
-	    if( in( volumeOfLabels, Point3df(realPosition[0], 
-					     realPosition[1], 
-					     realPosition[2] ), vlOffset ) )
-	      {
-		Point3d	VL( (int) rint( vlOffset[0] ), 
-			    (int) rint( vlOffset[1] ), 
-			    (int) rint( vlOffset[2] ) );
-		AObject *& value = volumeOfLabels( realPosition - VL ) ;
-		
-		if( ( value != originalLabel  && !replace ) || 
-		    value == finalLabel )
-		  continue ;
-	       		
-		ChangesItem item ;
-		item.before = value ;
-		item.after = finalLabel ;
-		changes.push_back( pair<Point3d, ChangesItem>(realPosition, item) ) ;
-		
-		deltaModifications[ realPosition ] ;
-		
-		value = finalLabel ;
-	      }
-	  }
-  }else{
-    
+    for( int i = -int(brushSize/voxelSize[0]+1) ;
+         i <= int(brushSize/voxelSize[0]+1) ; ++i )
+      for( int j = -int(brushSize/voxelSize[1]+1) ;
+           j <= int(brushSize/voxelSize[1]+1) ; ++j )
+        for( int k = -int(brushSize/voxelSize[2]+1) ;
+             k <= int(brushSize/voxelSize[2]+1) ; ++k )
+          if( i*i*voxelSize[0]*voxelSize[0] + j*j*voxelSize[1]*voxelSize[1]
+              + k*k*voxelSize[2]*voxelSize[2] < brushSize * brushSize ){
+            Point3d realPosition ( pToInt + Point3d(i, j, k) ) ;
+            if( in( volumeOfLabels, Point3df(realPosition[0],
+                                              realPosition[1],
+                                              realPosition[2] ), vlOffset ) )
+              {
+                Point3d	VL( (int) rint( vlOffset[0] ),
+                            (int) rint( vlOffset[1] ),
+                            (int) rint( vlOffset[2] ) );
+                if( volumeOfLabels )
+                {
+                  AObject *& value = (*volumeOfLabels)( realPosition - VL ) ;
+
+                  if( ( value != originalLabel  && !replace ) ||
+                      value == finalLabel )
+                    continue ;
+
+                  ChangesItem item ;
+                  item.before = value ;
+                  item.after = finalLabel ;
+                  changes.push_back( pair<Point3d, ChangesItem>( realPosition,
+                                                                  item) ) ;
+                  value = finalLabel ;
+                }
+
+                deltaModifications[ realPosition ] ;
+
+              }
+          }
+  }
+  else
+  {
     vector<Point3d>::const_iterator 
       iter( brush(int(rint(brushSize))).begin() ), 
       last( brush(int(rint(brushSize))).end() ) ;
-    
+
     while( iter != last )
+    {
+      Point3d realPosition ( pToInt + *iter ) ;
+
+      if( in( volumeOfLabels, Point3df(realPosition[0],
+                                        realPosition[1],
+                                        realPosition[2] ), vlOffset ) )
       {
-	Point3d realPosition ( pToInt + *iter ) ;
-	
-	if( in( volumeOfLabels, Point3df(realPosition[0], 
-					 realPosition[1], 
-					 realPosition[2] ), vlOffset ) )
-	  {
-	    Point3d	VL( (int) rint( vlOffset[0] ), 
-			    (int) rint( vlOffset[1] ), 
-			    (int) rint( vlOffset[2] ) );
-	    AObject *& value = volumeOfLabels( realPosition - VL ) ;
-	    
-	    if( ( value != originalLabel  && !replace ) || 
-		value == finalLabel )
-	      {
-		++iter ;
-		continue ;
-	      }
-	    
-	    
-	    ChangesItem item ;
-	    item.before = value ;
-	    item.after = finalLabel ;
-	    changes.push_back( pair<Point3d, ChangesItem>(realPosition, item) ) ;
-		
-	    deltaModifications[ realPosition ] ;
-	    
-	    value = finalLabel ;
-	  }
-	++iter ;
+        Point3d	VL( (int) rint( vlOffset[0] ),
+                        (int) rint( vlOffset[1] ),
+                        (int) rint( vlOffset[2] ) );
+        if( volumeOfLabels )
+        {
+          AObject *& value = (*volumeOfLabels)( realPosition - VL ) ;
+
+          if( ( value != originalLabel  && !replace ) ||
+              value == finalLabel )
+          {
+            ++iter ;
+            continue ;
+          }
+
+          ChangesItem item ;
+          item.before = value ;
+          item.after = finalLabel ;
+          changes.push_back( pair<Point3d, ChangesItem>(realPosition, item) ) ;
+          value = finalLabel ;
+        }
+
+        deltaModifications[ realPosition ] ;
       }
+      ++iter ;
+    }
   }
 }
 
@@ -1907,7 +1964,7 @@ BallPaintStrategy::paint( AWindow3D * /*win*/,
 			  Transformation * transf, const Point3df& point,
 			  const AObject * originalLabel, AObject * finalLabel,
 			  float brushSize, bool /*lineMode*/,
-			  AimsData<AObject*>& volumeOfLabels,
+			  AimsData<AObject*> *volumeOfLabels,
 			  const Point3df & vlOffset, 
 			  BucketMap<Void>::Bucket & deltaModifications,
 			  list< pair< Point3d, ChangesItem> > & changes,
@@ -1976,7 +2033,8 @@ PaintAction::viewableAction( ) const
 PaintActionSharedData::PaintActionSharedData() : Observable(),
   myBrushSize(1.), myLineMode(true), myReplaceMode(false),
   myFollowingLinkedCursor(false), myMmMode(false), myIsChangeValidated(true), 
-  myPainting(true), myCurrentModifiedRegion(0)
+  myPainting(true), myCurrentModifiedRegion(0), myCursor(0),
+  myCursorPos( 0, 0, 0 )
 {
   myPainter = new PointPaintStrategy() ;
   myDeltaModifications = new Bucket() ;
@@ -1989,7 +2047,8 @@ PaintActionSharedData::~PaintActionSharedData()
     delete myPainter ;
   if( myDeltaModifications ) 
     delete myDeltaModifications ;
-  
+  delete myCursor;
+
   notifyUnregisterObservers() ;
 }
 
@@ -2131,7 +2190,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
       for( p[redirect[0]] = 0 ; p[redirect[0]] < dims[redirect[0]] ; ++p[redirect[0]] )
 	for( p[redirect[1]] = 0 ; p[redirect[1]] < dims[redirect[1]] ; ++p[redirect[1]] ){
 	  neighbor = p + (sliceIncrement > 0 ? normal : -normal)  ;
-	  // Si les conditions sont respectées, ajouter ce voxel dans le bucket courant.
+	  // Si les conditions sont respectï¿½es, ajouter ce voxel dans le bucket courant.
 	  if( (wholeSession && _sharedData->myReplaceMode ) || 
 	      (wholeSession && !(_sharedData->myReplaceMode) && (volumeOfLabels(p)==0) ) ||
 	      ((!wholeSession) && _sharedData->myReplaceMode && (volumeOfLabels(neighbor)==grao) ) || 
@@ -2148,7 +2207,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 	      _sharedData->myCurrentChanges->push_back( pair<Point3d, ChangesItem>( p, 
 										    item ) ) ;
 	      
-	      //Mise à jour du volume de labels
+	      //Mise a jour du volume de labels
 	      volumeOfLabels(p) = volumeOfLabels(neighbor) ;
 	    }
 	} 
@@ -2176,3 +2235,76 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
   notifyObservers() ;
   
 }
+
+
+void PaintAction::updateCursor()
+{
+  AWindow3D *win = dynamic_cast<AWindow3D *>( view()->window() );
+  if( !win )
+    return;
+  AObject *region = RoiChangeProcessor::instance()->getCurrentRegion(
+  view()->window() );
+  if( !region )
+    return;
+
+  if( !_sharedData->myCursor )
+  {
+    _sharedData->myCursor = new Bucket;
+    Material & mat = _sharedData->myCursor->GetMaterial();
+    // mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
+    mat.setRenderProperty( Material::Ghost, 1 );
+    // mat.setLineWidth( 2. );
+    mat.SetDiffuse( 1., 0.5, 0.2, 0.5 );
+    _sharedData->myCursor->SetMaterial( mat );
+    _sharedData->myCursor->setAllow2DRendering( false );
+  }
+
+  _sharedData->myCursor->setVoxelSize( region->VoxelSize() );
+  _sharedData->myCursor->setReferential( region->getReferential() );
+  _sharedData->myCursor->bucket().clear();
+
+  Referential* winRef = win->getReferential() ;
+  Referential* buckRef = _sharedData->myCursor->getReferential() ;
+  AGraph    *g = RoiChangeProcessor::instance()->getGraph( win );
+  list< pair< Point3d, ChangesItem> > changes;
+
+  _sharedData->myPainter->paint
+    ( win, theAnatomist->getTransformation(winRef, buckRef),
+      _sharedData->myCursorPos,
+      0, 0, _sharedData->myBrushSize, false, 0,
+      Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ),
+      (_sharedData->myCursor->bucket())[0],
+      changes, region->VoxelSize(),
+      false, true, _sharedData->myMmMode );
+    _sharedData->myCursor->setBucketChanged();
+    _sharedData->myCursor->setGeomExtrema();
+
+  // win->registerObject( _sharedData->myCursor );
+  win->registerObject( _sharedData->myCursor, true, indexInWindow( win ) );
+  win->refreshTemp();
+}
+
+
+void PaintAction::moveCursor( int x, int y, int, int )
+{
+  AWindow3D *win = dynamic_cast<AWindow3D *>( view()->window() );
+  if( !win )
+    return;
+  Point3df pos;
+  if( !win || !win->positionFromCursor( x, y, pos ) )
+    return;
+  _sharedData->myCursorPos = pos;
+
+  updateCursor();
+}
+
+
+void PaintAction::hideCursor()
+{
+  if( _sharedData->myCursor )
+  {
+    view()->window()->unregisterObject( _sharedData->myCursor );
+    ((AWindow3D *) view()->window())->refreshTemp();
+  }
+}
+

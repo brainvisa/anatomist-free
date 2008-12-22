@@ -199,6 +199,32 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   set<AObject *>	shown, hidden;
   d->window->findObjectsAt( pos3[0], pos3[1], pos3[2], d->window->GetTime(), 
                             shown, hidden );
+  set<AObject *>::iterator      io = shown.begin(), jo, eo = shown.end();
+  // filter out temporary objects
+  while( io != eo )
+  {
+    if( d->window->isTemporary( *io ) )
+    {
+      jo = io;
+      ++io;
+      shown.erase( jo );
+    }
+    else
+      ++io;
+  }
+  io = hidden.begin();
+  eo = hidden.end();
+  while( io != eo )
+  {
+    if( d->window->isTemporary( *io ) )
+    {
+      jo = io;
+      ++io;
+      hidden.erase( jo );
+    }
+    else
+      ++io;
+  }
 
   if( shown.empty() && hidden.empty() )
     return;

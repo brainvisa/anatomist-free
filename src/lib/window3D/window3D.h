@@ -113,10 +113,10 @@ public:
   /// Get the window type (2D, 3D or control)
   virtual Type type() const;
   virtual SubType subtype() const;
-  virtual void registerObject( anatomist::AObject* obj, 
-			       bool temporaryObject = false );
-  virtual void unregisterObject( anatomist::AObject* obj, 
-				 bool temporaryObject = false );
+  virtual void registerObject( anatomist::AObject* obj,
+                               bool temporaryObject = false,
+                               int position = -1 );
+  virtual void unregisterObject( anatomist::AObject* obj );
   virtual bool positionFromCursor( int x, int y, Point3df & pos );
   void printPositionAndValue();
   virtual void displayClickPoint();
@@ -198,6 +198,8 @@ public:
   static void setGLWidgetCreator( GLWidgetCreator );
 
   QSlider* getSliceSlider (void) const;
+
+  std::list<anatomist::AObject *> objectsRenderingOrder() const;
 
 public slots:
   virtual void polish();

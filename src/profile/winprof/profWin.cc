@@ -206,14 +206,15 @@ void QAProfileWindow::Draw( bool )
 }
 
 
-void QAProfileWindow::registerObject( AObject *object, bool )
+void QAProfileWindow::registerObject( AObject *object, bool temporaryObject,
+                                      int pos )
 {
   //cout << "QAProfileWindow::registerObject - " << object->name() << endl;
   if ( _sobjects.find( object ) == _sobjects.end() )
     {
       if ( object->hasTexture() )
 	{
-	  QAWindow::registerObject( object );
+	  QAWindow::registerObject( object, temporaryObject, pos );
 #if QWT_VERSION >= 0x050000
           QwtPlotCurve	*crv = new QwtPlotCurve( "" );
           crv->attach( graphic );
@@ -235,7 +236,7 @@ void QAProfileWindow::registerObject( AObject *object, bool )
     }
 }
 
-void QAProfileWindow::unregisterObject( AObject *object, bool temporaryObject )
+void QAProfileWindow::unregisterObject( AObject *object )
 {
   if( _sobjects.find( object ) == _sobjects.end() )
     return;
@@ -253,7 +254,7 @@ void QAProfileWindow::unregisterObject( AObject *object, bool temporaryObject )
   delete[] pprof[ object ];
   pprof.erase( object );
 
-  QAWindow::unregisterObject( object, temporaryObject );
+  QAWindow::unregisterObject( object );
   initX();
 }
 

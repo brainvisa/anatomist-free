@@ -124,9 +124,9 @@ namespace anatomist
     virtual GLComponent* glTexture( unsigned n = 0 );
     virtual const GLComponent* glGeometry() const;
     virtual const GLComponent* glTexture( unsigned n = 0 ) const;
+    virtual std::string viewStateID( glPart part, const ViewState & ) const;
 
   protected:
-    virtual std::string viewStateID( glPart part, const ViewState & ) const;
     /** get to geometry object referential before drawing.
 	This is an internal function not intended to be used by end users */
     virtual bool glToRef( const Referential* objref, GLPrimitives & pl ) const;

@@ -85,7 +85,7 @@ namespace anatomist
     carto::rc_ptr<aims::BucketMap<Void> > rcBucket() { return _bucket; }
 
     size_t createFacet( size_t t = 0 ) const;
-    virtual bool Is2DObject() { return true; }
+    virtual bool Is2DObject();
     virtual bool Is3DObject() { return true; }
     const AimsSurface<4, Void>* surface( const ViewState & ) const;
     void setSurface( AimsSurfaceFacet* surf );
@@ -96,6 +96,9 @@ namespace anatomist
     virtual unsigned glNumPolygon( const ViewState & ) const;
     virtual const GLuint* glPolygonArray( const ViewState & ) const;
     virtual unsigned glPolygonSize( const ViewState & ) const { return 4; }
+    bool allow2DRendering() const;
+    /// when false, a bucket will always appear 3D
+    void setAllow2DRendering( bool x );
 
     virtual bool empty() const;
     void insert( const aims::BucketMap<Void> & region );

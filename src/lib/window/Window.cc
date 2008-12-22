@@ -195,32 +195,41 @@ void AWindow::Refresh()
     }
 }
 
-void AWindow::registerObject( AObject* object, bool temporaryObject )
+void AWindow::registerObject( AObject* object, bool temporaryObject, int pos )
 {
   if( _sobjects.find( object ) == _sobjects.end() )  
-    {
+  {
+    if( pos < 0 || (unsigned) pos >= _sobjects.size() )
       _objects.push_back( shared_ptr<AObject>(
                           shared_ptr<AObject>::Weak, object ) );
-      _sobjects.insert( object );
-      object->registerWindow( this );
-      object->addObserver((Observer*)this);
-      setLookupChanged( true );
-      if( !temporaryObject )
-	{
-	  // send event
-	  Object	ex( (GenericObject *) 
-			    new ValueObject<Dictionary> );
-	  ex->setProperty( "_window", this );
-	  ex->setProperty( "_object", object );
-	  OutputEvent	ev( "AddObject", ex );
-	  ev.send();
-	}
+    else
+    {
+      list<carto::shared_ptr<AObject> >::iterator io;
+      int i = 0;
+      for( io=_objects.begin(); i<pos; ++io, ++i ) {}
+      _objects.insert( io, shared_ptr<AObject>(
+                       shared_ptr<AObject>::Weak, object ) );
     }
+    _sobjects.insert( object );
+    object->registerWindow( this );
+    object->addObserver((Observer*)this);
+    setLookupChanged( true );
+    if( !temporaryObject )
+      {
+        // send event
+        Object	ex( (GenericObject *)
+                          new ValueObject<Dictionary> );
+        ex->setProperty( "_window", this );
+        ex->setProperty( "_object", object );
+        OutputEvent	ev( "AddObject", ex );
+        ev.send();
+      }
+  }
   if( temporaryObject )
     _tempObjects.insert( object );
 }
 
-void AWindow::unregisterObject( AObject* object, bool /*temporaryObject*/ )
+void AWindow::unregisterObject( AObject* object )
 {
   set<AObject *>::iterator is = _sobjects.find( object );
   if( is == _sobjects.end() )
@@ -314,7 +323,7 @@ void AWindow::selectObject( float x, float y, float z, float t, int modifier )
 
 void AWindow::button3clicked( int x, int y )
 {
-  //	passe le bébé à une implémentation externe (Qt ?)
+  //	passe le bï¿½bï¿½ ï¿½ une implï¿½mentation externe (Qt ?)
   SelectFactory::factory()->handleSelectionMenu( this, x, y );
 }
 

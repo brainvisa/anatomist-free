@@ -41,15 +41,18 @@ class ObjectFollowerCube( anatomist.ASurface_2 ):
     anatomist.ASurface_2.__init__( self )
     self.GetMaterial().set( { 'ghost': 1 } )
     self._objects = []
+    print 'ObjectFollowerCube.__init__, objects:', len( obj )
+    self.setSurface( aims.AimsTimeSurface_2() )
     self.setObserved( obj )
 
   def observed( self ):
     return self._objects
 
   def setObserved( self, obj ):
+    print 'setObserved', len(obj)
     oldobj = [ i for i in self._objects ]
     for i in oldobj:
-      self.unregisterObservable( i )
+      self.unregisterObservable( i.get() )
     del oldobj
     self._objects = [ anatomist.weak_ptr_AObject( i ) for i in obj ]
     ref = None
@@ -57,19 +60,23 @@ class ObjectFollowerCube( anatomist.ASurface_2 ):
       self.registerObservable( i )
       if ref is None:
         self.setReferentialInheritance( i )
+    print 'setObserved:', len( self._objects )
     self.redraw()
 
   def update( self, obs, param ):
+    print 'ObjectFollowerCube.update'
     if obs in self._objects:
       self.redraw()
       self.notifyObservers( obs )
 
-  def unregisterObserver( self, obs ):
+  def unregisterObservable( self, obs ):
+    print 'ObjectFollowerCube.unregisterObservable', obs
     if obs in self._objects:
       self._objects = [ i for i in self._objects if i != obs ]
       self.redraw()
 
   def boundingbox( self ):
+    print 'ObjectFollowerCube.boundingbox'
     bbox = []
     for obj in self._objects:
       bbox2 = obj.boundingbox()
@@ -89,15 +96,25 @@ class ObjectFollowerCube( anatomist.ASurface_2 ):
     return ( bbox[0], bbox[1] )
 
   def redraw( self ):
+    if hasattr( self, '_redrawing' ):
+      return
+    self._redrawing = True
+    print 'ObjectFollowerCube.redraw'
     mesh = self.surface()
+    print 'x1'
     if mesh.isNull():
+      print 'x2'
       self.setSurface( aims.AimsTimeSurface_2() )
+      print 'setSurface done'
       mesh = self.surface()
-    if not self._objects:
-      mesh.vertex().clear()
-      mesh.normal().clear()
-      mesh.polygon().clear()
+      print 'mesh:', mesh
+    if len( self._objects ) == 0:
+      print 'no objects'
+      mesh.vertex().assign( [] )
+      mesh.normal().assign( [] )
+      mesh.polygon().assign( [] )
     else:
+      print 'x3'
       bbox = self.boundingbox()
       vert = [ aims.Point3df( bbox[0] ),
         aims.Point3df( bbox[1][0], bbox[0][1], bbox[0][2] ),
@@ -108,8 +125,10 @@ class ObjectFollowerCube( anatomist.ASurface_2 ):
         aims.Point3df( bbox[0][0], bbox[1][1], bbox[1][2] ),
         aims.Point3df( bbox[1] )
       ]
+      print 'boundingbox:', bbox
       pol = [ [0,1], [0,2], [1,4], [2,4], [0,3], [1,5], [2,6], [4,7], [3,5],
         [3,6], [5,7], [6,7] ]
       mesh.vertex().assign( vert )
       mesh.polygon().assign( [ aims.AimsVector_U32_2(i) for i in pol ] )
     self.setChanged()
+    del self._redrawing

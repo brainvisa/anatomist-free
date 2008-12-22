@@ -70,10 +70,10 @@ public:
 
   virtual void refreshNow();
 
-  virtual void registerObject( anatomist::AObject* object, 
-			       bool temporaryObject = false );
-  virtual void unregisterObject( anatomist::AObject* object, 
-                                 bool temporaryObject = false );
+  virtual void registerObject( anatomist::AObject* object,
+                               bool temporaryObject = false,
+                               int position = -1 );
+  virtual void unregisterObject( anatomist::AObject* object );
 
   virtual const std::set<unsigned> & typeCount() const;
   virtual std::set<unsigned> & typeCount();

@@ -60,6 +60,7 @@ class ASphere( anatomist.cpp.ASurface_3 ):
 if __name__ == '__main__':
   a = anatomist.Anatomist()
   s = ASphere()
+  s.setName( 'sphere' )
   a.registerObject( s )
 
   #import qt

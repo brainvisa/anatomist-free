@@ -499,6 +499,22 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
               }
               rendertwice = true;
               break;
+            case Material::ExtOutlined:
+              glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+              glDisable( GL_LIGHTING );
+              glPolygonOffset( 15, 15 );
+              if( mat->lineWidth() > 0 )
+                glLineWidth( mat->lineWidth() + 5 );
+              else
+                glLineWidth( 5. );
+              glEnable( GL_POLYGON_OFFSET_LINE );
+              {
+                const GLfloat * c = mat->unlitColor();
+                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, c );
+                glColor4f( c[0], c[1], c[2], c[3] );
+              }
+
+              rendertwice = true;
             default:
               break;
             }

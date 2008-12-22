@@ -48,6 +48,7 @@
 #include <anatomist/object/objectConverter.h>
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/surface/texture.h>
+#include <anatomist/hierarchy/hierarchy.h>
 #include <aims/def/path.h>
 #include <cartobase/smart/rcptrtrick.h>
 #include <qapplication.h>
@@ -373,6 +374,13 @@ carto::rc_ptr<Graph> AObjectConverter::aimsGraph( anatomist::AObject * obj,
 }
 
 
+carto::rc_ptr<Tree> AObjectConverter::aimsTree( anatomist::AObject * obj,
+    Object options )
+{
+  return ObjectConverter<Tree>::ana2aims( obj, options );
+}
+
+
 AObject* AObjectConverter::anatomist( AimsData_U8* aims )
 {
   AObject	*ao = new AVolume<uint8_t>( *aims );
@@ -598,6 +606,15 @@ AObject* AObjectConverter::anatomist( TimeTexture<Point2df> *aims )
   ao->setTexture( rc_ptr<TimeTexture<Point2df> >( aims ) );
   theAnatomist->registerObject( ao );
   ao->SetExtrema();
+  return ao;
+}
+
+
+AObject* AObjectConverter::anatomist( Tree *aims )
+{
+  anatomist::Hierarchy        *ao = new anatomist::Hierarchy( aims );
+  ao->setName( theAnatomist->makeObjectName( "Nomenclature" ) );
+  theAnatomist->registerObject( ao );
   return ao;
 }
 

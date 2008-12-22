@@ -83,54 +83,56 @@ typedef std::vector<float> vector_FLOAT;
 
   virtual anatomist::GLComponent *glAPI() = 0;
   virtual const anatomist::GLComponent::TexExtrema &
-    glTexExtrema(unsigned = 0) const;
+    glTexExtrema(unsigned = 0) const /AutoGen/;
 
-  virtual anatomist::GLPrimitives glMainGLL( const anatomist::ViewState & );
+  virtual anatomist::GLPrimitives glMainGLL( const anatomist::ViewState & )
+    /AutoGen/;
 
   virtual bool glMakeBodyGLL( const anatomist::ViewState & state,
-                              const anatomist::GLList & gllist ) const;
+                              const anatomist::GLList & gllist ) const /AutoGen/;
   virtual void glBeforeBodyGLL( const anatomist::ViewState & state,
-                                anatomist::GLPrimitives & pl ) const;
+                                anatomist::GLPrimitives & pl ) const /AutoGen/;
   virtual void glAfterBodyGLL( const anatomist::ViewState & state,
-                               anatomist::GLPrimitives & pl ) const;
+                               anatomist::GLPrimitives & pl ) const /AutoGen/;
   virtual bool glMakeTexImage( const anatomist::ViewState & state,
                               const anatomist::GLTexture & gltex,
-                              unsigned tex ) const;
+                               unsigned tex ) const /AutoGen/;
   virtual bool glMakeTexEnvGLL( const anatomist::ViewState & state,
                                 const anatomist::GLList & gllist,
-                                unsigned tex ) const;
+                                unsigned tex ) const /AutoGen/;
 
-  virtual unsigned glNumVertex( const anatomist::ViewState & ) const;
-  virtual unsigned glNumPolygon( const anatomist::ViewState & ) const;
-  virtual unsigned glNumTextures() const;
-  virtual unsigned glNumTextures( const anatomist::ViewState & ) const;
+  virtual unsigned glNumVertex( const anatomist::ViewState & ) const /AutoGen/;
+  virtual unsigned glNumPolygon( const anatomist::ViewState & ) const /AutoGen/;
+  virtual unsigned glNumTextures() const /AutoGen/;
+  virtual unsigned glNumTextures( const anatomist::ViewState & ) const /AutoGen/;
   virtual anatomist::GLComponent::glTextureMode glTexMode
-    ( unsigned tex = 0 ) const;
+    ( unsigned tex = 0 ) const /AutoGen/;
   virtual void glSetTexMode( anatomist::GLComponent::glTextureMode mode,
-    unsigned tex = 0 );
-  virtual float glTexRate( unsigned tex = 0 ) const;
-  virtual void glSetTexRate( float rate, unsigned tex = 0 );
+                             unsigned tex = 0 ) /AutoGen/;
+  virtual float glTexRate( unsigned tex = 0 ) const /AutoGen/;
+  virtual void glSetTexRate( float rate, unsigned tex = 0 ) /AutoGen/;
   virtual anatomist::GLComponent::glTextureFiltering glTexFiltering
-    ( unsigned tex = 0 ) const;
+    ( unsigned tex = 0 ) const /AutoGen/;
   virtual void glSetTexFiltering( anatomist::GLComponent::glTextureFiltering x,
-    unsigned tex = 0 );
+                                  unsigned tex = 0 ) /AutoGen/;
   virtual anatomist::GLComponent::glAutoTexturingMode glAutoTexMode
-    ( unsigned tex = 0 ) const;
+    ( unsigned tex = 0 ) const /AutoGen/;
   virtual void glSetAutoTexMode
-    ( anatomist::GLComponent::glAutoTexturingMode mode, unsigned tex = 0 );
-  virtual GLint glGLTexMode( unsigned tex = 0) const;
-  virtual GLint glGLTexFiltering( unsigned tex = 0 ) const;
-  virtual void glSetTexRGBInterpolation( bool x, unsigned tex = 0 );
-  virtual bool glTexRGBInterpolation( unsigned tex = 0 ) const;
+    ( anatomist::GLComponent::glAutoTexturingMode mode, unsigned tex = 0 )
+    /AutoGen/;
+  virtual GLint glGLTexMode( unsigned tex = 0) const /AutoGen/;
+  virtual GLint glGLTexFiltering( unsigned tex = 0 ) const /AutoGen/;
+  virtual void glSetTexRGBInterpolation( bool x, unsigned tex = 0 ) /AutoGen/;
+  virtual bool glTexRGBInterpolation( unsigned tex = 0 ) const /AutoGen/;
   virtual unsigned glDimTex( const anatomist::ViewState &,
-    unsigned tex = 0 ) const;
+                             unsigned tex = 0 ) const /AutoGen/;
   virtual unsigned glTexCoordSize( const anatomist::ViewState &,
-                                   unsigned tex = 0 ) const;
+                                   unsigned tex = 0 ) const /AutoGen/;
   virtual bool glAllowedTexRGBInterpolation( unsigned tex = 0 ) const;
-  virtual bool glAllowedTexRate( unsigned tex = 0 ) const;
+  virtual bool glAllowedTexRate( unsigned tex = 0 ) const /AutoGen/;
   virtual std::string viewStateID( anatomist::GLComponent::glPart part,
-    const anatomist::ViewState & ) const;
-  virtual carto::Object debugInfo() const;
+    const anatomist::ViewState & ) const /AutoGen/;
+  virtual carto::Object debugInfo() const /AutoGen/;
 };
 
 };
