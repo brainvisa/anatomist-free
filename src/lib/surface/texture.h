@@ -98,7 +98,7 @@ namespace anatomist
     virtual bool savable() const { return true; }
     virtual bool reload( const std::string & filename );
     bool save( const std::string & filename );
-
+    virtual AObject* clone( bool shallow = true );
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;
 

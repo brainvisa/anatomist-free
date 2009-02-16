@@ -1063,6 +1063,36 @@ void ATexture::setInternalsChanged()
 }
 
 
+AObject* ATexture::clone( bool shallow )
+{
+  ATexture *at = new ATexture;
+  switch( d->dim )
+  {
+  case 1:
+    if( shallow )
+      at->setTexture( texture<float>() );
+    else
+      at->setTexture( rc_ptr<TimeTexture<float> >
+          ( new TimeTexture<float>( *texture<float>() ) ) );
+    break;
+  case 2:
+    if( shallow )
+      at->setTexture( texture<Point2df>() );
+    else
+      at->setTexture( rc_ptr<TimeTexture<float> >
+          ( new TimeTexture<float>( *texture<float>() ) ) );
+    break;
+  default:
+    break;
+  }
+  at->setFileName( fileName() );
+  // copy header
+  *at->attributed() = *attributed();
+  return at;
+}
+
+
+
 template rc_ptr<TimeTexture<float> > ATexture::texture<float>( bool, bool );
 template rc_ptr<TimeTexture<short> > ATexture::texture<short>( bool, bool );
 template rc_ptr<TimeTexture<int> > ATexture::texture<int>( bool, bool );

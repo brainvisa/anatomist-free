@@ -550,7 +550,8 @@ PaintAction::increaseBrushSize( )
   _sharedData->myBrushSize += 1. ;
   
   setChanged() ;
-  notifyObservers() ;
+  notifyObservers();
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -564,6 +565,7 @@ PaintAction::decreaseBrushSize( )
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -580,6 +582,7 @@ PaintAction::setSize( float size)
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -1062,6 +1065,7 @@ PaintAction::brushToSquare( )
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -1078,6 +1082,7 @@ PaintAction::brushToDisk( )
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -1092,6 +1097,7 @@ PaintAction::brushToBall()
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -1108,6 +1114,7 @@ PaintAction::brushToPoint( )
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -1119,6 +1126,7 @@ PaintAction::brushToMm( )
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -1129,6 +1137,7 @@ PaintAction::brushToVoxel( )
 
   setChanged() ;
   notifyObservers() ;
+  _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
@@ -2034,12 +2043,12 @@ PaintActionSharedData::PaintActionSharedData() : Observable(),
   myBrushSize(1.), myLineMode(true), myReplaceMode(false),
   myFollowingLinkedCursor(false), myMmMode(false), myIsChangeValidated(true), 
   myPainting(true), myCurrentModifiedRegion(0), myCursor(0),
-  myCursorPos( 0, 0, 0 )
+  myCursorPos( 0, 0, 0 ), myCursorShapeChanged( true ), myCursorRef( 0 )
 {
   myPainter = new PointPaintStrategy() ;
   myDeltaModifications = new Bucket() ;
   myCurrentChanges = new list< pair< Point3d, ChangesItem> >() ;
-} 
+}
 
 PaintActionSharedData::~PaintActionSharedData()
 {
@@ -2047,7 +2056,11 @@ PaintActionSharedData::~PaintActionSharedData()
     delete myPainter ;
   if( myDeltaModifications ) 
     delete myDeltaModifications ;
-  delete myCursor;
+  if( myCursor )
+  {
+    delete myCursorRef;
+    delete myCursor;
+  }
 
   notifyUnregisterObservers() ;
 }
@@ -2055,7 +2068,7 @@ PaintActionSharedData::~PaintActionSharedData()
 
 
 void 
-PaintAction::changeCursor( bool cross)
+PaintAction::changeCursor( bool cross )
 {
   AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
   if (win)
@@ -2247,6 +2260,13 @@ void PaintAction::updateCursor()
   if( !region )
     return;
 
+  if( _sharedData->myCursor && _sharedData->myCursorShapeChanged )
+  {
+    delete _sharedData->myCursorRef;
+    delete _sharedData->myCursor;
+    _sharedData->myCursor = 0;
+  }
+
   if( !_sharedData->myCursor )
   {
     _sharedData->myCursor = new Bucket;
@@ -2257,29 +2277,62 @@ void PaintAction::updateCursor()
     mat.SetDiffuse( 1., 0.5, 0.2, 0.5 );
     _sharedData->myCursor->SetMaterial( mat );
     _sharedData->myCursor->setAllow2DRendering( false );
+    _sharedData->myCursorRef = new Referential;
+    _sharedData->myCursorRef->header().setProperty( "hidden", true );
+    _sharedData->myCursor->setReferential( _sharedData->myCursorRef );
+    _sharedData->myCursorShapeChanged = true;
   }
 
-  _sharedData->myCursor->setVoxelSize( region->VoxelSize() );
-  _sharedData->myCursor->setReferential( region->getReferential() );
-  _sharedData->myCursor->bucket().clear();
+  Referential* buckRef = region->getReferential();
+  Referential* ref = _sharedData->myCursorRef;
+  if( !ref || !theAnatomist->hasReferential( ref ) )
+  {
+    ref = new Referential;
+    ref->header().setProperty( "hidden", true );
+    _sharedData->myCursorRef = ref;
+  }
+  if( ref != _sharedData->myCursor->getReferential() )
+    _sharedData->myCursor->setReferential( ref );
+  if( _sharedData->myCursorShapeChanged )
+  {
+    _sharedData->myCursorShapeChanged = false;
+    _sharedData->myCursor->setVoxelSize( region->VoxelSize() );
+    _sharedData->myCursor->bucket().clear();
 
-  Referential* winRef = win->getReferential() ;
-  Referential* buckRef = _sharedData->myCursor->getReferential() ;
-  AGraph    *g = RoiChangeProcessor::instance()->getGraph( win );
-  list< pair< Point3d, ChangesItem> > changes;
+    Referential* winRef = win->getReferential() ;
+    AGraph    *g = RoiChangeProcessor::instance()->getGraph( win );
+    list< pair< Point3d, ChangesItem> > changes;
 
-  _sharedData->myPainter->paint
-    ( win, theAnatomist->getTransformation(winRef, buckRef),
-      _sharedData->myCursorPos,
-      0, 0, _sharedData->myBrushSize, false, 0,
-      Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ),
-      (_sharedData->myCursor->bucket())[0],
-      changes, region->VoxelSize(),
-      false, true, _sharedData->myMmMode );
+    _sharedData->myPainter->reset();
+    _sharedData->myPainter->paint
+      ( win, theAnatomist->getTransformation(winRef, buckRef),
+        Point3df( 0, 0, 0 ), //_sharedData->myCursorPos,
+        0, 0, _sharedData->myBrushSize, false, 0,
+        Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ),
+        (_sharedData->myCursor->bucket())[0],
+        changes, region->VoxelSize(),
+        false, true, _sharedData->myMmMode );
     _sharedData->myCursor->setBucketChanged();
     _sharedData->myCursor->setGeomExtrema();
+    _sharedData->myPainter->reset();
+  }
 
-  // win->registerObject( _sharedData->myCursor );
+  Transformation *tr = theAnatomist->getTransformation( buckRef, ref );
+  if( !tr )
+  {
+    tr = new Transformation( buckRef, ref /*, true ? */ );
+  }
+  Point3df vs = region->VoxelSize();
+  Point3df pos( _sharedData->myCursorPos );
+  pos[0] = round( pos[0] / vs[0] ) * vs[0];
+  pos[1] = round( pos[1] / vs[1] ) * vs[1];
+  pos[2] = round( pos[2] / vs[2] ) * vs[2];
+  pos *= -1;
+  tr->setTranslation( &pos[0] );
+  tr->unregisterTrans();
+  tr->registerTrans();
+
+  win->unregisterObject( _sharedData->myCursor );
   win->registerObject( _sharedData->myCursor, true, indexInWindow( win ) );
   win->refreshTemp();
 }

@@ -42,7 +42,7 @@
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/Serializer.h>
 #include <anatomist/processor/context.h>
-#include <anatomist/mobject/MObject.h>
+#include <anatomist/graph/Graph.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <vector>
@@ -55,8 +55,11 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 AddObjectCommand::AddObjectCommand( const set<AObject *> & objL, 
-				    const set<AWindow*> & winL ) 
-  : RegularCommand(), _objL( objL ), _winL( winL )
+                                    const set<AWindow*> & winL,
+                                    bool addchildren, bool addnodes,
+                                    bool addrels ) 
+  : RegularCommand(), _objL( objL ), _winL( winL ),
+    _addchildren( addchildren ),_addnodes( addnodes ), _addrels( addrels )
 {
 }
 
@@ -75,6 +78,9 @@ bool AddObjectCommand::initSyntax()
   s[ "objects" ].needed = true;
   s[ "windows" ].type = "int_vector";
   s[ "windows" ].needed = true;
+  s[ "add_graph_nodes" ] = Semantic( "int", false );
+  s[ "add_graph_relations" ] = Semantic( "int", false );
+  s[ "add_children" ] = Semantic( "int", false );
   Registry::instance()->add( "AddObject", &read, ss );
   return( true );
 }
@@ -84,21 +90,62 @@ namespace
 {
 
   void addobject( AObject* o, const set<AObject *> & obj, 
-                  const set<AWindow *> & win )
+                  const set<AWindow *> & win, bool addchildren, bool addnodes,
+                  bool addrels )
   {
     if( theAnatomist->hasObject( o ) )
-      {
-        AObject::ParentList::iterator	ip, ep;
-        set<AObject *>::const_iterator	eo = obj.end();
-        AObject::ParentList		& parents = o->Parents();
-        for( ip=parents.begin(), ep=parents.end(); ip!=ep; ++ip )
-          if( obj.find( *ip ) != eo )
-            addobject( *ip, obj, win );
+    {
+      AObject::ParentList::iterator	ip, ep;
+      set<AObject *>::const_iterator	eo = obj.end();
+      AObject::ParentList		& parents = o->Parents();
+      for( ip=parents.begin(), ep=parents.end(); ip!=ep; ++ip )
+        if( obj.find( *ip ) != eo )
+          addobject( *ip, obj, win, false, false, false );
 
-        set<AWindow*>::const_iterator w, ew = win.end();
-        for( w=win.begin(); w!=ew; ++w )
-          (*w)->registerObject( o );
+      set<AWindow*>::const_iterator w, ew = win.end();
+      for( w=win.begin(); w!=ew; ++w )
+        (*w)->registerObject( o );
+
+      if( addchildren )
+      {
+        MObject *mo = dynamic_cast<MObject *>( o );
+        if( mo )
+        {
+          MObject::iterator i, e = mo->end();
+          set<AWindow*>::const_iterator w, ew = win.end();
+          for( i=mo->begin(); i!=e; ++i )
+            for( w=win.begin(); w!=ew; ++w )
+              (*w)->registerObject( *i );
+        }
       }
+      else
+      {
+        AGraph *ag = dynamic_cast<AGraph *>( o );
+        if( ag )
+        {
+          Graph *g = ag->graph();
+          shared_ptr<AObject> ao;
+          if( addnodes )
+          {
+            cout << "addnodes\n";
+            Graph::const_iterator iv, ev = g->end();
+            for( iv=g->begin(); iv!=ev; ++iv )
+              if( (*iv)->getProperty( "ana_object", ao ) )
+                for( w=win.begin(); w!=ew; ++w )
+                  (*w)->registerObject( ao.get() );
+          }
+          if( addrels )
+          {
+            const set<Edge *> & edg = g->edges();
+            set<Edge *>::const_iterator ie, ee = edg.end();
+            for( ie=edg.begin(); ie!=ee; ++ie )
+              if( (*ie)->getProperty( "ana_object", ao ) )
+                for( w=win.begin(); w!=ew; ++w )
+                  (*w)->registerObject( ao.get() );
+          }
+        }
+      }
+    }
   }
 
 }
@@ -113,18 +160,18 @@ AddObjectCommand::doit()
   w=_winL.begin();
   while( w != fw )
     if( !theAnatomist->hasWindow( *w ) )
-      {
-	w2 = w;
-	++w;
-	_winL.erase( w2 );
-      }
+    {
+      w2 = w;
+      ++w;
+      _winL.erase( w2 );
+    }
     else
       ++w;
 
   set<MObject *>::const_iterator	ip, ep;
   for( o=_objL.begin(); o!=fo; ++o )
     if( theAnatomist->hasObject( *o ) )
-      addobject( *o, _objL, _winL );
+      addobject( *o, _objL, _winL, _addchildren, _addnodes, _addrels );
 
   theAnatomist->Refresh();
 }
@@ -143,11 +190,15 @@ Command* AddObjectCommand::read( const Tree & com, CommandContext* context )
   set<AWindow *>	winL;
   unsigned		i, n;
   void			*ptr;
+  int                   addch = 0, addnodes = 0, addrels = 0;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
   if( !com.getProperty( "windows", win ) )
     return( 0 );
+  com.getProperty( "add_children", addch );
+  com.getProperty( "add_graph_nodes", addnodes );
+  com.getProperty( "add_graph_relations", addrels );
 
   for( i=0, n=obj.size(); i<n; ++i )
     {
@@ -167,7 +218,7 @@ Command* AddObjectCommand::read( const Tree & com, CommandContext* context )
     }
 
   if( !objL.empty() && !winL.empty() )
-    return( new AddObjectCommand( objL, winL ) );
+    return( new AddObjectCommand( objL, winL, addch, addnodes, addrels ) );
   else
     return( 0 );
 }
@@ -189,5 +240,14 @@ void AddObjectCommand::write( Tree & com, Serializer* ser ) const
 
   t->setProperty( "objects", obj );
   t->setProperty( "windows", win );
+  if( _addchildren )
+    t->setProperty( "add_children", 1 );
+  else
+  {
+    if( _addnodes )
+      t->setProperty( "add_graph_nodes", 1 );
+    if( _addrels )
+      t->setProperty( "add_graph_relations", 1 );
+  }
   com.insert( t );
 }

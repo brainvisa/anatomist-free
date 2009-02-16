@@ -357,6 +357,8 @@ namespace anatomist {
     anatomist::Bucket * myCurrentModifiedRegion ;
     anatomist::Bucket * myCursor;
     Point3df myCursorPos;
+    bool myCursorShapeChanged;
+    Referential *myCursorRef;
   };
 
 

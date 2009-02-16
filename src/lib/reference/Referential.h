@@ -88,6 +88,9 @@ namespace anatomist
     bool load( const std::string & filename );
     std::string filename() const;
     bool isDirect() const;
+    /** a hidden referential does not appear in the GUI. This function is
+    merely a shortcut to the header property "hidden". */
+    bool hidden() const;
 
     static Referential* referentialOfUUID( const carto::UUID & uuid );
     static Referential* referentialOfUUID( const std::string & uuid );

@@ -57,7 +57,9 @@ namespace anatomist
   class AddObjectCommand : public RegularCommand
   {
   public:
-    AddObjectCommand( const std::set<AObject*> &, const std::set<AWindow*> & );
+    AddObjectCommand( const std::set<AObject*> &, const std::set<AWindow*> &,
+                      bool addchildren = false, bool addgraphnodes = false,
+                      bool addgraphrels = false );
     virtual ~AddObjectCommand();
 
     virtual std::string name() const { return( "AddObject" ); }
@@ -70,6 +72,9 @@ namespace anatomist
   private:
     std::set<AObject *>	_objL;
     std::set<AWindow *>	_winL;
+    bool _addchildren;
+    bool _addnodes;
+    bool _addrels;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

@@ -117,6 +117,9 @@ Referential::Referential( const Referential& ref )
   : _indCol( 0 ), _destroying( false ), _header( new PythonHeader )
 {
   *this = ref;
+  _indCol = 0;
+  _color = NewColor();
+  genuuid( *_header );
   theAnatomist->registerReferential(this);
 }
 
@@ -148,7 +151,7 @@ Referential & Referential::operator = ( const Referential & r )
     {
       _anaObj = r._anaObj;
       _anaWin = r._anaWin;
-      _color = r._color;
+      // _color = r._color;
       // _indCol = r._indCol; // should not be copied ?
       string	uuid;
       _header->getProperty( "uuid", uuid );
@@ -186,7 +189,8 @@ AimsRGB Referential::NewColor()
       set<int>::iterator	ii, ei = indices.end();
 
       for( ref=lisref.begin(); ref!=lisref.end(); ++ref )
-        indices.insert( (*ref)->index() );
+        if( *ref != this )
+          indices.insert( (*ref)->index() );
       for( ii=indices.begin(), _indCol=0; ii!=ei && _indCol==*ii; 
            ++ii, ++_indCol ) {}
     }
@@ -457,6 +461,23 @@ Referential* Referential::referentialOfName( const string & refname )
           && name == refname )
       return *i;
   return 0;
+}
+
+
+bool Referential::hidden() const
+{
+  try
+  {
+    Object h = _header->getProperty( "hidden" );
+    if( h )
+    {
+      return (bool) h->getScalar();
+    }
+  }
+  catch( ... )
+  {
+  }
+  return false;
 }
 
 

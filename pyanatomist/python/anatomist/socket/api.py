@@ -226,7 +226,7 @@ class Anatomist(base.Anatomist):
     option_types=None
     option_hidden=None
     if restrict_object_types is not None:
-      option_types="{'__syntax__' : 'dictionary', 'restrict_object_types' : {'__syntax__' : 'dictionary'"
+      option_types="'restrict_object_types' : {'__syntax__' : 'dictionary'"
       for k, v in restrict_object_types.items():
         option_types+=","+repr(k)+" : "+repr(v)
       option_types+="}"
@@ -239,6 +239,7 @@ class Anatomist(base.Anatomist):
       if option_hidden:
         options+=", "+option_hidden
       options+="}"
+    #print 'options:', options
     self.execute("LoadObject", filename = filename, name=objectName, res_pointer = newObject, options = options)
     newObject.takeRef()
     newObject.releaseAppRef()
@@ -325,7 +326,7 @@ class Anatomist(base.Anatomist):
     if ask_order:
       ask_order=1
     else: ask_order=0
-    self.execute("FusionObjects", objects = objects, res_pointer = newObject, method = method, ask_order = ask_order)
+    self.execute("FusionObjects", objects = self.makeList(objects), res_pointer = newObject, method = method, ask_order = ask_order)
     newObject.takeRef()
     newObject.releaseAppRef()
     return newObject
@@ -409,7 +410,7 @@ class Anatomist(base.Anatomist):
     @return: the newly created multi object
     """
     newObject=self.AObject(self)
-    self.execute("GroupObjects", objects = objects, res_pointer = newObject)
+    self.execute("GroupObjects", objects = self.makeList(objects), res_pointer = newObject)
     return newObject
     
   ###############################################################################

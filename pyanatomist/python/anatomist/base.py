@@ -43,6 +43,7 @@ import operator
 import string
 import threading
 
+
 class Anatomist(ObservableSingleton, object):
   """
   Interface to communicate with an Anatomist Application. This class is virtual, some methods are not implemented. It is the base class of Anatomist classes in each implementation.
@@ -131,7 +132,7 @@ class Anatomist(ObservableSingleton, object):
     self.onExitNotifier=ObservableNotifier()
     self.onExitNotifier.onAddFirstListener.add( partial( self.enableListening, "Exit", self.onExitNotifier ) )
     self.onExitNotifier.onRemoveLastListener.add( partial( self.disableListening,"Exit" ) ) 
-  
+
   def enableListening(self, event, notifier):
     """
     Set listening of this event on. So when the event occurs, the notifier's notify method is called.
@@ -346,6 +347,7 @@ class Anatomist(ObservableSingleton, object):
     @return: windows's group
     """
     if windows != []:
+      windows = self.makeList( windows )
       self.execute("LinkWindows", windows = windows, group = group)
       if group is None:
         group=windows[0].group
@@ -506,7 +508,8 @@ class Anatomist(ObservableSingleton, object):
   def showObject(self, object):
     self.execute("ShowObject", object=object)
   
-  def addObjects(self, objects, windows):
+  def addObjects(self, objects, windows, add_children=False,
+    add_graph_nodes=False, add_graph_relations=False):
     """
     Adds objects in windows.
     The objects and windows must already exist.
@@ -516,7 +519,10 @@ class Anatomist(ObservableSingleton, object):
     @type windows : list of AWindow
     @param windows : list of windows in which the objects must be added
     """
-    self.execute("AddObject", objects=objects, windows=windows)
+    self.execute("AddObject", objects=self.makeList(objects),
+      windows=self.makeList(windows), add_children=int(add_children),
+      add_graph_nodes=int(add_graph_nodes),
+      add_graph_relations=int(add_graph_relations))
   
   def removeObjects(self, objects, windows):
     """
@@ -527,7 +533,8 @@ class Anatomist(ObservableSingleton, object):
     @type windows : list of AWindow
     @param windows : list of windows from which the objects must be removed
     """
-    self.execute("RemoveObject", objects=objects, windows=windows)
+    self.execute("RemoveObject", objects=self.makeList(objects),
+      windows=self.makeList(windows))
     
   def deleteObjects(self, objects):
     """
@@ -535,7 +542,10 @@ class Anatomist(ObservableSingleton, object):
     @type objects: list of AObject
     @param objects: objects to delete
     """
-    self.execute("DeleteObject", objects=objects)
+    objects=self.makeList(objects)
+    for o in objects:
+      o.releaseRef()
+    #self.execute("DeleteObject", objects=objects)
 
   def deleteElements(self, elements):
     """
@@ -543,13 +553,13 @@ class Anatomist(ObservableSingleton, object):
     @type elements: list of AItem
     @param elements: elements to delete
     """
-    self.execute("DeleteElement", elements=elements)
+    self.execute("DeleteElement", elements=self.makeList(elements))
 
   def reloadObjects(self, objects):
    """
    Reload objects already in memory reading their files.
    """
-   self.execute("ReloadObject", objects=objects)
+   self.execute("ReloadObject", objects=self.makeList(objects))
     
   def assignReferential(self, referential, elements):
     """
@@ -568,12 +578,13 @@ class Anatomist(ObservableSingleton, object):
     objects=[]
     windows=[]
     # in anatomist command, objects and windows must be passed in two lists
-    for e in elements:
+    for e in self.makeList(elements):
       if issubclass(e.__class__, Anatomist.AObject):
         objects.append(e)
       elif issubclass(e.__class__, Anatomist.AWindow):
         windows.append(e)
-    self.execute("AssignReferential", ref_id = referential, objects=objects, windows=windows, central_ref=referential.centralRef)
+    self.execute("AssignReferential", ref_id = referential, objects=objects,
+      windows=windows, central_ref=referential.centralRef)
     
   def camera(self, windows, zoom=None, observer_position=None, view_quaternion=None, slice_quaternion=None, force_redraw=False, cursor_position=None, boundingbox_min=None, boundingbox_max=None):
     """
@@ -601,14 +612,14 @@ class Anatomist(ObservableSingleton, object):
     if force_redraw:
       force_redraw = 1
     else: force_redraw = 0
-    self.execute("Camera", windows=windows, zoom = zoom, observer_position = observer_position, view_quaternion = view_quaternion, slice_quaternion = slice_quaternion, force_redraw = force_redraw, cursor_position = cursor_position, boundingbox_min = boundingbox_min, boundingbox_max = boundingbox_max)
+    self.execute("Camera", windows=self.makeList(windows), zoom = zoom, observer_position = observer_position, view_quaternion = view_quaternion, slice_quaternion = slice_quaternion, force_redraw = force_redraw, cursor_position = cursor_position, boundingbox_min = boundingbox_min, boundingbox_max = boundingbox_max)
  
   def setWindowsControl(self, windows, control):
     """
     Changes the selected button in windows menu. 
     Examples of controls : 'PaintControl', 'NodeSelectionControl', 'Default 3D Control', 'Selection 3D', 'Flight Control', 'ObliqueControl', 'TransformationControl', 'CutControl', 'Browser Selection', 'RoiControl'...
     """
-    self.execute("SetControl", windows=windows, control=control)
+    self.execute("SetControl", windows=self.makeList(windows), control=control)
  
   def closeWindows(self, windows):
     """
@@ -616,7 +627,10 @@ class Anatomist(ObservableSingleton, object):
     @type windows: list of AWindow
     @param windows: windows to be closed
     """
-    self.execute("CloseWindow", windows=windows)
+    windows=self.makeList(windows)
+    for w in windows:
+      w.releaseRef()
+    #self.execute("CloseWindow", windows=windows)
   
   def setMaterial(self, objects, material, refresh=None):
     """
@@ -629,7 +643,7 @@ class Anatomist(ObservableSingleton, object):
     @type refresh: bool
     @param refresh: if true, force windows refreshing
     """
-    self.execute("SetMaterial", objects=objects, ambient=material.ambient, diffuse=material.diffuse, emission=material.emission, specular=material.specular, shininess=material.shininess, refresh=refresh, lighting=material.lighting, smooth_shading=material.smooth_shading, polygon_filtering=material.polygon_filtering, depth_buffer=material.depth_buffer, face_culling=material.face_culling, polygon_mode=material.polygon_mode)
+    self.execute("SetMaterial", objects=self.makeList(objects), ambient=material.ambient, diffuse=material.diffuse, emission=material.emission, specular=material.specular, shininess=material.shininess, refresh=refresh, lighting=material.lighting, smooth_shading=material.smooth_shading, polygon_filtering=material.polygon_filtering, depth_buffer=material.depth_buffer, face_culling=material.face_culling, polygon_mode=material.polygon_mode, unlit_color=material.unlit_color, line_width=material.line_width, ghost=material.ghost)
   
   def setObjectPalette(self, objects, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None, absoluteMode=False):
     """
@@ -656,7 +670,7 @@ class Anatomist(ObservableSingleton, object):
     @param palette1Dmapping: way of using 2D palette for 1D texture : FirstLine or Diagonal
     @param absoluteMode: if True, min/max values are supposed to be absolute values (in regard to objects texture) rather than proportions
     """
-    self.execute('SetObjectPalette', objects = objects, palette = palette, palette2 = palette2, min=minVal, max=maxVal, min2=minVal2, max2=maxVal2, mixMethod=mixMethod, linMixFactor=linMixFactor, palette1Dmapping=palette1Dmapping, absoluteMode=int(absoluteMode))
+    self.execute('SetObjectPalette', objects = self.makeList(objects), palette = palette, palette2 = palette2, min=minVal, max=maxVal, min2=minVal2, max2=maxVal2, mixMethod=mixMethod, linMixFactor=linMixFactor, palette1Dmapping=palette1Dmapping, absoluteMode=int(absoluteMode))
   
   ###############################################################################
   # application control
@@ -725,52 +739,71 @@ class Anatomist(ObservableSingleton, object):
   
   def logEvent(self, event, params):
     pass
-    
 
-  def convertParams(self, params):
-      """
-      Converts current api objects to corresponding anatomist object representation. 
-      This method must be called before sending a command to anatomist application on command parameters. 
-      
-      @type params: dictionary or list
-      @param params: elements to convert
-      
-      @rtype: dictionary or list
-      @return: converted elements
-      """
-      def replace_dict(dic ):
-        res={}
-        for k,v in dic.items():
-          if isinstance( v, Anatomist.AItem ):
-            res[k] = v.getInternalRep()
-          elif not isinstance( v, basestring ) \
-            and operator.isSequenceType( v ):
-            res[k]=replace_list( v )
-          elif operator.isMappingType( v ):
-            res[k]=replace_dict( v )
-          else: res[k]=v
-        return res
-            
-      def replace_list(l ):
-        res=[]
-        for v in l:
-          if isinstance( v,  Anatomist.AItem ) :
-            res.append(v.getInternalRep())
-          elif not isinstance( v, basestring ) \
-            and operator.isSequenceType( v ):
-            res.append(replace_list( v ))
-          elif operator.isMappingType( v ):
-            res.append(replace_dict( v ))
-          else: res.append(v)
-        return res
 
-      if not isinstance( params, basestring ) \
-        and operator.isSequenceType( params ):
-        return replace_list( params )
-      elif operator.isMappingType( params ):
-        return replace_dict( params )
-      else: return params
-    
+  def makeList( thing ):
+    """
+    Transforms the argument into a list: a list with one element if it is
+    not a sequence, or return the input sequence if it is already one
+    """
+    if operator.isSequenceType( thing ):
+      try:
+        if thing.__module__.startswith( 'anatomist.' ):
+          return [ thing ]
+      except:
+        pass
+      return thing
+    return [ thing ]
+  makeList = staticmethod( makeList )
+
+  def convertParams(params):
+    """
+    Converts current api objects to corresponding anatomist object representation.
+    This method must be called before sending a command to anatomist application on command parameters.
+
+    @type params: dictionary or list
+    @param params: elements to convert
+
+    @rtype: dictionary or list
+    @return: converted elements
+    """
+    def replace_dict(dic ):
+      res={}
+      for k,v in dic.items():
+        if isinstance( v, Anatomist.AItem ):
+          res[k] = v.getInternalRep()
+        elif not isinstance( v, basestring ) \
+          and operator.isSequenceType( v ):
+          res[k]=replace_list( v )
+        elif operator.isMappingType( v ):
+          res[k]=replace_dict( v )
+        else: res[k]=v
+      return res
+
+    def replace_list(l ):
+      res=[]
+      for v in l:
+        if isinstance( v, Anatomist.AItem ) :
+          res.append(v.getInternalRep())
+        elif not isinstance( v, basestring ) \
+          and operator.isSequenceType( v ):
+          res.append(replace_list( v ))
+        elif operator.isMappingType( v ):
+          res.append(replace_dict( v ))
+        else: res.append(v)
+      return res
+
+    if isinstance( params, Anatomist.AItem ) :
+      return params.getInternalRep()
+    elif not isinstance( params, basestring ) \
+      and operator.isSequenceType( params ):
+      return replace_list( params )
+    elif operator.isMappingType( params ):
+      return replace_dict( params )
+    else: return params
+
+  convertParams = staticmethod( convertParams )
+
   def send( self, command, **kwargs ):
       """
       Sends a command to anatomist application. Call this method if there's no answer to get.
@@ -819,7 +852,7 @@ class Anatomist(ObservableSingleton, object):
     @type ref: bool
     @ivar ref: indicates if a reference has been taken on the corresponding anatomist object. If True, the reference is released on deleting this item.
     @type refType: string
-    @ivar refType: type of reference taken on the object : Weak (reference counter not incremented), WeakShared (reference counter incrementerd but the object can be deleted even if it remains references) or Strong (reference counter is incremented, the object cannot be deleted since there is references on it)
+    @ivar refType: type of reference taken on the object : Weak (reference counter not incremented), WeakShared (reference counter incremented but the object can be deleted even if it remains references) or Strong (reference counter is incremented, the object cannot be deleted since there is references on it)
     """
     def __init__( self, anatomistinstance, internalRep=None, refType=None, *args, **kwargs ):
       """
@@ -915,6 +948,9 @@ class Anatomist(ObservableSingleton, object):
       Returns internal representation of the object (implementation dependant).
       """
       return self.internalRep
+
+    def makeList( self, objects ):
+      return self.anatomistinstance.makeList( objects )
     
   ###############################################################################
   class AObject(AItem):
@@ -1131,14 +1167,16 @@ class Anatomist(ObservableSingleton, object):
       if internalRep is not None:
         self.takeRef()
     
-    def addObjects(self, objects):
+    def addObjects(self, objects, add_children=False, add_graph_nodes=False,
+      add_graph_relations=False):
       """
       Adds objects in window. 
       
       @type objects : list of AObject
       @param objects : list of objects to add
       """
-      self.anatomistinstance.addObjects(objects, [self])
+      self.anatomistinstance.addObjects(objects, [self], add_children,
+        add_graph_nodes, add_graph_relations)
       
     def removeObjects(self, objects):
       """
@@ -1259,7 +1297,7 @@ class Anatomist(ObservableSingleton, object):
       @type objects: list of AObject
       @param objects: objects to select      
       """
-      self.anatomistinstance.execute("Select", objects=objects, group=self, modifiers="set")
+      self.anatomistinstance.execute("Select", objects=self.makeList(objects), group=self, modifiers="set")
     
     def addToSelection(self, objects):
       """
@@ -1268,7 +1306,7 @@ class Anatomist(ObservableSingleton, object):
       @type objects: list of AObject
       @param objects: objects to add to selection
       """
-      self.anatomistinstance.execute("Select", objects=objects, group=self, modifiers="add")
+      self.anatomistinstance.execute("Select", objects=self.makeList(objects), group=self, modifiers="add")
     
     def unSelect(self, objects):
       """
@@ -1277,13 +1315,13 @@ class Anatomist(ObservableSingleton, object):
       @type objects: list of AObject
       @param objects: objects to unselect
       """
-      self.anatomistinstance.execute("Select", unselect_objects=objects, group=self, modifiers="add")
+      self.anatomistinstance.execute("Select", unselect_objects=self.makeList(objects), group=self, modifiers="add")
       
     def toggleSelection(self):
       """
       Inverses selection in this windows group. Selected objects becomes unselected, unselected objects become selected.
       """
-      self.anatomistinstance.execute("Select", objects=objects, group=self, modifiers="toggle")
+      self.anatomistinstance.execute("Select", objects=self.makeList(objects), group=self, modifiers="toggle")
     
     def setSelectionByNomenclature(self, nomenclature, names):
       """
@@ -1427,10 +1465,17 @@ class Anatomist(ObservableSingleton, object):
       - wireframe
       - outline (normal + wireframe)
       - hiddenface_wireframe (wireframe only for hidden faces)
+      - ext_outlined (normal + extenal outline)
       - default (default view parameter)
+    @type unlit_color: float vector (0-1), size 4
+    @ivar unlit_color: color of mesh when lighting is disabled
+    @type line_width: float
+    @ivar line_width: line width for segments mesh
+    @type ghost: int
+    @ivar ghost: in ghost mode, objects are not drawn in the depth buffer
     """
    
-    def __init__(self, ambient=None, diffuse=None, emission=None, shininess=None, specular=None, lighting=None, smooth_shading=None, polygon_filtering=None, depth_buffer=None, face_culling=None, polygon_mode=None):
+    def __init__(self, ambient=None, diffuse=None, emission=None, shininess=None, specular=None, lighting=None, smooth_shading=None, polygon_filtering=None, depth_buffer=None, face_culling=None, polygon_mode=None, unlit_color=None, line_width=None, ghost=None):
       self.ambient=ambient
       self.diffuse=diffuse
       self.emission=emission
@@ -1443,7 +1488,10 @@ class Anatomist(ObservableSingleton, object):
       self.depth_buffer=depth_buffer
       self.face_culling=face_culling
       self.polygon_mode=polygon_mode
+      self.unlit_color=unlit_color
+      self.line_width=line_width
+      self.ghost=ghost
 
     def __repr__(self):
-      return "{ambient :"+ str(self.ambient)+ ", diffuse :"+ str(self.diffuse)+ ", emission :"+ str(self.emission)+ ", shininess :"+ str(self.shininess)+ ", specular :"+ str(self.specular)+ ", lighting :"+str(self.lighting)+", smooth_shading:"+str(self.smooth_shading)+", polygon_filtering :"+str(self.polygon_filtering)+", depth_buffer :"+str(self.depth_buffer)+", face_culling :"+str(self.face_culling)+", polygon_mode :"+str(self.polygon_mode)+"}"
+      return "{ambient :"+ str(self.ambient)+ ", diffuse :"+ str(self.diffuse)+ ", emission :"+ str(self.emission)+ ", shininess :"+ str(self.shininess)+ ", specular :"+ str(self.specular)+ ", lighting :"+str(self.lighting)+", smooth_shading:"+str(self.smooth_shading)+", polygon_filtering :"+str(self.polygon_filtering)+", depth_buffer :"+str(self.depth_buffer)+", face_culling :"+str(self.face_culling)+", polygon_mode :"+str(self.polygon_mode)+", unlit_color :"+str(self.unlit_color)+", line_width :"+str(self.line_width)+", ghost :"+str(self.ghost)+"}"
       

@@ -356,7 +356,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     if method is None:
       method=""
     bObjects=self.convertParams(objects)
-    c=cpp.FusionObjectsCommand(bObjects, method, -1, ask_order)
+    c=cpp.FusionObjectsCommand(self.makeList(bObjects), method, -1, ask_order)
     self.execute(c)
     o=self.AObject(self, c.createdObject())
     o.releaseAppRef()
@@ -440,7 +440,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     @return: the newly created multi object
     """
     bObjects=self.convertParams(objects)
-    c=cpp.GroupObjectsCommand(bObjects)
+    c=cpp.GroupObjectsCommand(self.makeList(bObjects))
     self.execute(c)
     return self.AObject(self, c.groupObject())
   
@@ -632,7 +632,8 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
   
   ###############################################################################
   # objects manipulation
-  def addObjects(self, objects, windows):
+  def addObjects(self, objects, windows, add_children=False,
+    add_graph_nodes=False, add_graph_relations=False):
     """
     Adds objects in windows.
     The objects and windows must already exist.
@@ -644,9 +645,10 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     """
     bObjects=self.convertParams(objects)
     bWindows=self.convertParams(windows)
-    c=cpp.AddObjectCommand(bObjects, bWindows)
+    c=cpp.AddObjectCommand(self.makeList(bObjects), self.makeList(bWindows),
+      add_children, add_graph_nodes, add_graph_relations)
     self.execute(c)
-  
+
   def removeObjects(self, objects, windows):
     """
     Removes objects from windows. 
@@ -658,7 +660,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     """
     bObjects=self.convertParams(objects)
     bWindows=self.convertParams(windows)
-    c=cpp.RemoveObjectCommand(bObjects, bWindows)
+    c=cpp.RemoveObjectCommand(self.makeList(bObjects), self.makeList(bWindows))
     self.execute(c)
       
   def assignReferential(self, referential, elements):
@@ -675,7 +677,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     objects=[]
     windows=[]
     # in anatomist command, objects and windows must be passed in two lists
-    for e in elements:
+    for e in self.makeList(elements):
       if issubclass(e.__class__, self.AObject):
         objects.append(e.getInternalRep())
       elif issubclass(e.__class__, self.AWindow):

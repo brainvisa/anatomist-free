@@ -5,16 +5,10 @@ try:
     chooseMatplotlibBackend()
   except:
     pass
-  # bidouille to avoid loading neurospy.ndview with qt4
-  import soma
-  sys.path.insert( 0, os.path.join( os.path.dirname( soma.__file__ ), '..',
-    'neurospy', 'ndview', 'gui' ) )
-  import gradwidget
-  del sys.path[0]
-  #from neurospy.ndview.gui import gradwidget
+  from soma.qtgui import gradwidget
   ok = True
 except:
-  print 'gradient widget plugin disabled because neurospy.ndview.gui ' \
+  print 'gradient widget plugin disabled because soma.qtgui.gradwidget ' \
   'cannot be imported.'
   ok = False
 

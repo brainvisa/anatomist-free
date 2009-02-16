@@ -452,7 +452,9 @@ typedef std::set<anatomist::AWindow * > set_AWindowPtr;
  */
 
 	AddObjectCommand( const set_AObjectPtr &,
-        const set_AWindowPtr);
+        const set_AWindowPtr,
+        bool addchildren = false, bool addgraphnodes = false,
+        bool addgraphrels = false);
 /*
     AddObjectCommand( SIP_PYLIST, SIP_PYLIST ) 
       [(const set_AObjectPtr &,
@@ -594,7 +596,7 @@ typedef std::set<anatomist::AWindow * > set_AWindowPtr;
             Py_BEGIN_ALLOW_THREADS
               std::cout << "FusionObjects: " << so.size() << ", " << *a1 << std::endl;
               sipCpp = new sipanatomist_FusionObjectsCommand( so, *a1, a2, 
-                                                              false, a4 );
+                                                              a3, a4 );
             Py_END_ALLOW_THREADS
           }
       }

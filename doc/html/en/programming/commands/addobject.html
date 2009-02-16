@@ -17,7 +17,7 @@
 </head>
 <body>
 
-<center>            
+<center>
 <table id="title">
 <tbody>
   <tr nosave="">
@@ -33,11 +33,11 @@
 	  <img src="../../../images/feather.png" nosave="" border="0" align="middle"></a>
 	</td>
   </tr>
-</tbody>              
+</tbody>
 </table>
 </center>
 
-<hr width="100%">               
+<hr width="100%">
 
 <a name="AddObject"></a>
 <h3>AddObject</h3>
@@ -60,7 +60,31 @@ Adds objects in windows
     <td><tt>int_vector</tt></td>
     <td id="txt">IDs of windows</td>
   </tr>
-</tbody>                                                         
+  <tr>
+    <td><tt>add_children</tt></td>
+    <td><tt>int</tt> (optional)</td>
+    <td>
+      <b>New in Anatomist 3.1.5</b><br>
+      Also add the given objects children (useful for graphs for instance)
+    </td>
+  </tr>
+  <tr>
+    <td><tt>add_graph_nodes</tt></td>
+    <td><tt>int</tt> (optional)</td>
+    <td>
+      <b>New in Anatomist 3.1.5</b><br>
+      Also add the given objects children nodes if they are graphs. This is a bit more specific than the <tt>add_children</tt> option which adds all children.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>add_graph_relations</tt></td>
+    <td><tt>int</tt> (optional)</td>
+    <td>
+      <b>New in Anatomist 3.1.5</b><br>
+      Also add the given objects children relations if they are graphs. This is a bit more specific than the <tt>add_children</tt> option which adds all children.
+    </td>
+  </tr>
+</tbody>
 </table>
 
 

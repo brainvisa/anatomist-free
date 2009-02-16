@@ -1350,3 +1350,9 @@ set<Referential*> Anatomist::getReferentials() const
 }
 
 
+bool Anatomist::hasReferential( const Referential * ref )
+{
+  return _privData->anaRef.find( const_cast<Referential *>( ref ) )
+      != _privData->anaRef.end();
+}
+

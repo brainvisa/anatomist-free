@@ -348,7 +348,7 @@ void ReferentialWindow::refresh()
   set<Transformation *>	trans 
     = ATransformSet::instance()->allTransformations();
   unsigned		n = refs.size(), i;
-  set<Referential *>::const_iterator	ir, fr=refs.end();
+  set<Referential *>::const_iterator	ir, fr=refs.end(), jr;
   set<Transformation *>::const_iterator	it, ft=trans.end();
   AimsRGB		col;
   Referential		*ref;
@@ -369,12 +369,23 @@ void ReferentialWindow::refresh()
   if( R < 20 )
     R = 20;
 
-  for( ir=refs.begin(), i = 0; ir!=fr; ++ir )
+  for( ir=refs.begin(), i = 0; ir!=fr; )
+  {
     if( (*ir)->index() == 0 )
-      {
-	--n;
-	break;
-      }
+    {
+      --n;
+      ++ir;
+    }
+    else if( (*ir)->hidden() )
+    {
+      jr = ir;
+      ++ir;
+      refs.erase( jr );
+      --n;
+    }
+    else
+      ++ir;
+  }
 
   for( ir=refs.begin(), i = 0; ir!=fr; ++ir )
     {
@@ -405,8 +416,12 @@ void ReferentialWindow::refresh()
 	{
 	  if( pdat->refpos.find( tr->source() ) == pdat->refpos.end() 
 	      || pdat->refpos.find( tr->destination() ) == pdat->refpos.end() )
+          {
+            /*
 	    cerr << "Transformation from " << tr->source() << " to " 
-		 << tr->destination() << " : ref not registered !\n";
+                 << tr->destination() << " : ref not registered !\n";
+            */
+          }
 	  else
           {
             QPoint p1 = pdat->refpos[ tr->source() ],
