@@ -23,7 +23,7 @@ include( CPack )
 
 SOMA_CREATE_MAIN_COMPONENTS()
 
-find_package( aims-gpl REQUIRED )
+SOMA_FIND_PACKAGE( aims-gpl REQUIRED )
 
 find_package( Qt3 REQUIRED )
 find_package( OpenGL REQUIRED )
