@@ -1,11 +1,8 @@
 cmake_minimum_required( VERSION 2.6 )
 
-set( SOMA_BUILD_ALL_FROM_SOURCES true )
-
 find_package( soma-infra REQUIRED )
 
 project( anatomist )
-
 
 set( CPACK_PACKAGE_NAME "anatomist" )
 set( CPACK_PACKAGE_VENDOR "CEA - NeuroSpin" )
@@ -22,6 +19,8 @@ set( ${PROJECT_NAME}_VERSION ${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_
 include( CPack )
 
 SOMA_CREATE_MAIN_COMPONENTS()
+
+set( ${PROJECT_NAME}_IS_COMPILED ON PARENT_SCOPE )
 
 SOMA_FIND_PACKAGE( aims-gpl REQUIRED )
 
