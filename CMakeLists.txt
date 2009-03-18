@@ -71,7 +71,7 @@ add_subdirectory( src )
 add_subdirectory( doc )
 SOMA_COPY_DIRECTORY( ${CMAKE_CURRENT_SOURCE_DIR}/shared 
                       share/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}
-                      ${PROJECT_NAME}-share ${PROJECT_NAME}-share )
+                      ${PROJECT_NAME}-share )
 if( PYTHONLIBS_FOUND AND SIP_FOUND AND NUMPY_FOUND AND PYQT_FOUND )
   set( ANATOMIST_RELATIVE_SIP_DIRECTORY
        "share/sip/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}" )
