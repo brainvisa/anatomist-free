@@ -47,6 +47,7 @@
 #include <qapplication.h>
 #include <aims/qtcompat/qwidgetlist.h>
 #include <qwidget.h>
+#include <anatomist/window3D/window3D.h>
 
 using namespace anatomist;
 using namespace carto;
@@ -146,6 +147,10 @@ void CreateWindowCommand::doit()
       if( _geom.size() == 4 )
 	_win->setGeometry( _geom[0], _geom[1], _geom[2], _geom[3] );
       // send event
+      if (_block){
+        ((QAWindowBlock*)_block)->addWindowToBlock((AWindow3D *)_win);
+      
+      }
       Object	ex( (GenericObject *) 
 		    new ValueObject<Dictionary> );
       ex->setProperty( "_window", Object::value( _win ) );

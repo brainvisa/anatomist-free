@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <cartobase/stream/fileutil.h>
 #include <anatomist/action/roimanagementaction.h>
 #include <anatomist/action/paintaction.h>

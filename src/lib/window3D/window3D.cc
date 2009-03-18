@@ -33,6 +33,7 @@
  * knowledge of the CeCILL license version 2 and that you accept its terms.
  */
 
+#include <cstdlib>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window3D/glwidget3D.h>
@@ -516,12 +517,12 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
 
       QPopupMenu	*win = new QPopupMenu( this );
       menuBar()->insertItem( tr( "Window" ), win );
-      cout << "before connect\n";
-      cout << d->draw->qobject() << endl;
-      cout << d->draw->qobject()->name() << endl;
+      //cout << "before connect\n";
+      //cout << d->draw->qobject() << endl;
+      //cout << d->draw->qobject()->name() << endl;
       win->insertItem( tr( "Save..." ), d->draw->qobject(),
                        SLOT( saveContents() ) );
-      cout << "after connect\n";
+      //cout << "after connect\n";
       win->insertItem( tr( "Start recording..." ), d->draw->qobject(), 
                        SLOT( recordStart() ) );
       win->insertItem( tr( "Stop recording" ), d->draw->qobject(), 

@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/bucket/Bucket.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/reference/Geometry.h>

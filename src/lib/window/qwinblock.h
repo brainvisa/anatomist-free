@@ -38,6 +38,7 @@
 
 #include <qwidget.h>
 
+
 class QAWindowBlock : public QWidget
 {
 public:
@@ -45,6 +46,7 @@ public:
                  Qt::WFlags f = Qt::WType_TopLevel | Qt::WDestructiveClose,
 		 int cols = 2);
   virtual ~QAWindowBlock();
+  void addWindowToBlock(QWidget* item);
 
 protected:
   virtual void dragEnterEvent( QDragEnterEvent* event );

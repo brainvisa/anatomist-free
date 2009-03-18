@@ -35,6 +35,7 @@
 
 
 
+#include <cstdlib>
 #include <anatomist/perfusion/perfProcQtDeco.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cLinkedCursor.h>

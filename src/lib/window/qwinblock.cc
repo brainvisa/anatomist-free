@@ -46,6 +46,12 @@ using namespace std;
 struct QAWindowBlock::Private
 {
   QGridLayout	*layout;
+  #if QT_VERSION >= 0x040000
+  int indexC;
+  int indexR;
+  int cols;
+  #endif
+
 };
 
 
@@ -62,9 +68,21 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
     }
 
   setAcceptDrops(TRUE);
+  
+  
 
+#if QT_VERSION >= 0x040000
+  d->layout = new QGridLayout;
+  d->layout->setSpacing(0); 
+  d->layout->setMargin(5);
+  setLayout(d->layout);
+  d->indexC=0;
+  d->indexR=0;
+  d->cols =cols;
+#else
   d->layout = new QGridLayout( this, 1, cols, 0, 5 );
   d->layout->setAutoAdd( true );
+#endif
 }
 
 
@@ -73,6 +91,19 @@ QAWindowBlock::~QAWindowBlock()
   delete d;
 }
 
+void QAWindowBlock::addWindowToBlock(QWidget *item)
+{
+#if QT_VERSION >= 0x040000
+  // if we don't remove the item's parent, the window will not be in the block but next to it.
+  item->setParent(0);
+  if (d->indexC >= d->cols){ // next row
+    d->indexC =0;
+    d->indexR++;
+  }
+  d->layout->addWidget(item, d->indexR, d->indexC);
+  d->indexC++;
+#endif
+}
 
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
 {

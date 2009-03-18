@@ -33,6 +33,7 @@
  * knowledge of the CeCILL license version 2 and that you accept its terms.
  */
 
+#include <cstdlib>
 #include <math.h>
 #include <anatomist/window/glwidget.h>
 #include <cartobase/config/cartobase_config.h>

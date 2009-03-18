@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/mobject/Fusion3D.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/object/sliceable.h>

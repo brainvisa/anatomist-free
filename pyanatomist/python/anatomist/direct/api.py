@@ -355,7 +355,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     """
     if method is None:
       method=""
-    bObjects=self.convertParams(objects)
+    bObjects=self.convertParamsToObjects(objects)
     c=cpp.FusionObjectsCommand(self.makeList(bObjects), method, -1, ask_order)
     self.execute(c)
     o=self.AObject(self, c.createdObject())
@@ -439,7 +439,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     @rtype: AObject
     @return: the newly created multi object
     """
-    bObjects=self.convertParams(objects)
+    bObjects=self.convertParamsToObjects(objects)
     c=cpp.GroupObjectsCommand(self.makeList(bObjects))
     self.execute(c)
     return self.AObject(self, c.groupObject())
@@ -643,8 +643,8 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     @type windows : list of AWindow
     @param windows : list of windows in which the objects must be added
     """
-    bObjects=self.convertParams(objects)
-    bWindows=self.convertParams(windows)
+    bObjects=self.convertParamsToObjects(objects)
+    bWindows=self.convertParamsToObjects(windows)
     c=cpp.AddObjectCommand(self.makeList(bObjects), self.makeList(bWindows),
       add_children, add_graph_nodes, add_graph_relations)
     self.execute(c)
@@ -658,8 +658,8 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     @type windows : list of AWindow
     @param windows : list of windows from which the objects must be removed
     """
-    bObjects=self.convertParams(objects)
-    bWindows=self.convertParams(windows)
+    bObjects=self.convertParamsToObjects(objects)
+    bWindows=self.convertParamsToObjects(windows)
     c=cpp.RemoveObjectCommand(self.makeList(bObjects), self.makeList(bWindows))
     self.execute(c)
       
@@ -697,69 +697,66 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     @param kwargs: parameters for the command
     """
 
-    args=self.convertToIds(kwargs)
-    #print "execute binding ", command, args
-    self.logCommand(command, **args)
-    return self.theProcessor().execute(command, **args) 
+    params=dict( (k,self.convertParamsToIDs(v)) for k, v in kwargs.iteritems() if v is not None )
+    self.logCommand(command, **params )
+    return self.theProcessor().execute(command, **params) 
     
-  def convertToIds(self, params):
+  def convertSingleObjectParamsToIDs( self, v ):
     """
-    Converts current api objects to corresponding anatomist object representation. 
-    This method must be called before sending a command to anatomist application on command parameters. 
-    
-    @type params: dictionary or list
-    @param params: elements to convert
-    
+    Converts current api object to corresponding anatomist object representation.
+
+    @type params: Anatomist.AItem instance
+    @param params: element to convert
+
     @rtype: dictionary or list
     @return: converted elements
     """
-    def replace_dict( dic, cc ):
-      res={}
-      for k,v in dic.items():
-        #print "... ", k, v, v.__class__
-        if isinstance( v, base.Anatomist.AItem ):
-          v=v.getInternalRep()
-        if isinstance(v, cpp.APalette):
-          res[k]=v.name()
-        elif isinstance(v, cpp.AObject) or isinstance(v, cpp.AWindow) or isinstance(v, cpp.Transformation) or isinstance(v, cpp.Referential):
-          try:
-            i = cc.id( v )
-          except:
-            i = cc.makeID( v )
-          res[k] = i
-        elif operator.isMappingType( v ):
-          res[k]=replace_dict( v, cc )
-        elif not type(v) is str and operator.isSequenceType( v ):
-          res[k]=replace_list( v, cc )
-        elif v is not None: res[k]=v
-      return res
-          
-    def replace_list( l, cc ):
-      res=[]
-      for v in l:
-        #print "... ", v, v.__class__, isinstance(v, base.Anatomist.AItem), base.Anatomist.AItem
-        if isinstance( v,  base.Anatomist.AItem ) :
-          v=v.getInternalRep()
-        if isinstance(v, cpp.APalette):
-          res.append(v.name())
-        if isinstance(v, cpp.AObject) or isinstance(v, cpp.AWindow) or isinstance(v, cpp.Transformation) or isinstance(v, cpp.Referential):
-          try:
-            i = cc.id( v )
-          except:
-            i = cc.makeID( v )
-          res.append(i)
-        elif operator.isMappingType( v ):
-          res.append(replace_dict( v, cc ))
-        elif not type(v) is str and operator.isSequenceType( v ):
-          res.append(replace_list( v, cc ))
-        elif v is not None: res.append(v)
-      return res
-    
-    cc = self.context
-    if operator.isMappingType( params ):
-      return replace_dict( params, cc )
-    elif not type(params) is str and operator.isSequenceType( params ):
-      return replace_list( params, cc )
+    if isinstance( v,  base.Anatomist.AItem ) :
+      v=v.getInternalRep()
+    if isinstance(v, cpp.APalette):
+      return v.name()
+    if isinstance(v, cpp.AObject) or isinstance(v, cpp.AWindow) or isinstance(v, cpp.Transformation) or isinstance(v, cpp.Referential):
+      try:
+        i = self.context.id( v )
+      except:
+        i = self.context.makeID( v )
+      return i
+    elif isinstance( v, ( basestring, int, float, dict ) ):
+      return v
+    raise TypeError( 'Expecting an Anatomist object but got one of type %s' % repr( type( v ) )  )
+
+
+  def convertSingleObjectParamsToObjects( self, v ):
+    """
+    Converts current api object to corresponding anatomist C++ object representation.
+
+    @type params: Anatomist.AItem instance
+    @param params: element to convert
+
+    @rtype: dictionary or list
+    @return: converted elements
+    """
+    if isinstance( v,  base.Anatomist.AItem ) :
+      return v.getInternalRep()
+    return v
+
+
+  def convertParamsToObjects( self, params ):
+    """
+    Converts current api objects to corresponding anatomist C++ object representation.
+    This method must be called before instantiating a C++ command.
+
+    @type params: dictionary or list
+    @param params: elements to convert
+
+    @rtype: dictionary or list
+    @return: converted elements
+    """
+    if not isinstance( params, basestring ) \
+      and operator.isSequenceType( params ):
+      return [self.convertSingleObjectParamsToObjects(i) for i in params]
+    else:
+      return self.convertSingleObjectParamsToObjects( params )
 
   def newItemRep(self):
     """

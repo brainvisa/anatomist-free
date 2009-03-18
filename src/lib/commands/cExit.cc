@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/commands/cExit.h>
 #include <anatomist/processor/Registry.h>
 #include <cartobase/object/syntax.h>

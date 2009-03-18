@@ -632,19 +632,56 @@ class Anatomist(ObservableSingleton, object):
       w.releaseRef()
     #self.execute("CloseWindow", windows=windows)
   
-  def setMaterial(self, objects, material, refresh=None):
+  def setMaterial(self, objects, material=None, refresh=None, ambient=None,
+    diffuse=None, emission=None, specular=None, shininess=None, lighting=None,
+    smooth_shading=None, polygon_filtering=None, depth_buffer=None,
+    face_culling=None, polygon_mode=None, unlit_color=None, line_width=None,
+    ghost=None ):
     """
     Changes objects material properties. 
     
     @type objects: list of AObject
     @param objects: objects whose material must be changed
     @type material: Material
-    @param material: material characteristics, including render properties
+    @param material: material characteristics, including render properties.
+    The material may be specified as a Material object, or as its various
+    properties (ambient, diffuse, etc.). If both a material parameter and
+    other properties are specified, the material is used as a base, and
+    properties are used to modify it
     @type refresh: bool
     @param refresh: if true, force windows refreshing
     """
-    self.execute("SetMaterial", objects=self.makeList(objects), ambient=material.ambient, diffuse=material.diffuse, emission=material.emission, specular=material.specular, shininess=material.shininess, refresh=refresh, lighting=material.lighting, smooth_shading=material.smooth_shading, polygon_filtering=material.polygon_filtering, depth_buffer=material.depth_buffer, face_culling=material.face_culling, polygon_mode=material.polygon_mode, unlit_color=material.unlit_color, line_width=material.line_width, ghost=material.ghost)
-  
+    if material is not None:
+      if ambient is None:
+        ambient = material.ambient
+      if diffuse is None:
+        diffuse = material.diffuse
+      if emission is None:
+        emission = material.emission
+      if specular is None:
+        specular = material.specular
+      if shininess is None:
+        shininess = material.shininess
+      if lighting is None:
+        lighting = material.lighting
+      if smooth_shading is None:
+        smooth_shading = material.smooth_shading
+      if polygon_filtering is None:
+        polygon_filtering = material.polygon_filtering
+      if depth_buffer is None:
+        depth_buffer = material.depth_buffer
+      if face_culling is None:
+        face_culling = material.face_culling
+      if polygon_mode is None:
+        polygon_mode = material.polygon_mode
+      if unlit_color is None:
+        unlit_color = material.unlit_color
+      if line_width is None:
+        line_width = material.line_width
+      if ghost is None:
+        ghost = material.ghost
+    self.execute("SetMaterial", objects=self.makeList(objects), ambient=ambient, diffuse=diffuse, emission=emission, specular=specular, shininess=shininess, refresh=refresh, lighting=lighting, smooth_shading=smooth_shading, polygon_filtering=polygon_filtering, depth_buffer=depth_buffer, face_culling=face_culling, polygon_mode=polygon_mode, unlit_color=unlit_color, line_width=line_width, ghost=ghost)
+
   def setObjectPalette(self, objects, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None, absoluteMode=False):
     """
     Assign a palette to objects
@@ -730,8 +767,8 @@ class Anatomist(ObservableSingleton, object):
     @type kwargs: dictionary
     @param kwargs: parameters for the command
     """
-    params=self.convertParams(kwargs)
-    self.logCommand(command, **params)
+    params=dict( (k,self.convertParamsToIDs(v)) for k, v in kwargs.iteritems() if v is not None )
+    self.logCommand(command, **params )
     self.send(command, **params)
   
   def logCommand(self, command, **kwargs):
@@ -756,7 +793,24 @@ class Anatomist(ObservableSingleton, object):
     return [ thing ]
   makeList = staticmethod( makeList )
 
-  def convertParams(params):
+  def convertSingleObjectParamsToIDs( self, item ):
+    """
+    Converts current api object to corresponding anatomist object representation.
+
+    @type params: Anatomist.AItem instance
+    @param params: element to convert
+
+    @rtype: dictionary or list
+    @return: converted elements
+    """
+    if isinstance( item, Anatomist.AItem ) :
+      return item.getInternalRep()
+    elif isinstance( item, ( basestring, int, float, dict ) ):
+      return item
+    raise TypeError( 'Expecting an Anatomist object but got one of type %s' % repr( type( item ) )  )
+
+
+  def convertParamsToIDs( self, params ):
     """
     Converts current api objects to corresponding anatomist object representation.
     This method must be called before sending a command to anatomist application on command parameters.
@@ -767,42 +821,11 @@ class Anatomist(ObservableSingleton, object):
     @rtype: dictionary or list
     @return: converted elements
     """
-    def replace_dict(dic ):
-      res={}
-      for k,v in dic.items():
-        if isinstance( v, Anatomist.AItem ):
-          res[k] = v.getInternalRep()
-        elif not isinstance( v, basestring ) \
-          and operator.isSequenceType( v ):
-          res[k]=replace_list( v )
-        elif operator.isMappingType( v ):
-          res[k]=replace_dict( v )
-        else: res[k]=v
-      return res
-
-    def replace_list(l ):
-      res=[]
-      for v in l:
-        if isinstance( v, Anatomist.AItem ) :
-          res.append(v.getInternalRep())
-        elif not isinstance( v, basestring ) \
-          and operator.isSequenceType( v ):
-          res.append(replace_list( v ))
-        elif operator.isMappingType( v ):
-          res.append(replace_dict( v ))
-        else: res.append(v)
-      return res
-
-    if isinstance( params, Anatomist.AItem ) :
-      return params.getInternalRep()
-    elif not isinstance( params, basestring ) \
+    if not isinstance( params, basestring ) \
       and operator.isSequenceType( params ):
-      return replace_list( params )
-    elif operator.isMappingType( params ):
-      return replace_dict( params )
-    else: return params
-
-  convertParams = staticmethod( convertParams )
+      return [self.convertSingleObjectParamsToIDs(i) for i in params]
+    else:
+      return self.convertSingleObjectParamsToIDs( params )
 
   def send( self, command, **kwargs ):
       """
@@ -1033,7 +1056,11 @@ class Anatomist(ObservableSingleton, object):
       """
       self.anatomistinstance.assignReferential(referential, [self])
   
-    def setMaterial(self, material, refresh=None):
+    def setMaterial(self, material=None, refresh=None, ambient=None,
+      diffuse=None, emission=None, specular=None, shininess=None,
+      lighting=None, smooth_shading=None, polygon_filtering=None,
+      depth_buffer=None, face_culling=None, polygon_mode=None,
+      unlit_color=None, line_width=None, ghost=None ):
       """
       Changes object material properties. 
       
@@ -1042,7 +1069,10 @@ class Anatomist(ObservableSingleton, object):
       @type refresh: bool
       @param refresh: if true, force windows refreshing
       """
-      self.anatomistinstance.setMaterial([self], material, refresh)
+      self.anatomistinstance.setMaterial([self], material, refresh,
+      ambient, diffuse, emission, specular, shininess, lighting,
+      smooth_shading, polygon_filtering, depth_buffer, face_culling,
+      polygon_mode, unlit_color, line_width, ghost)
       
     def setPalette(self, palette, minVal=None, maxVal=None, palette2=None,  minVal2=None, maxVal2=None, mixMethod=None, linMixFactor=None, palette1Dmapping=None, absoluteMode=False):
       """

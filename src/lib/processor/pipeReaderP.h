@@ -68,4 +68,21 @@ private:
   anatomist::APipeReader	*preader;
 };
 
+#ifdef ANA_THREADED_PIPEREADER
+
+namespace anatomist{
+namespace internal{
+class CommandReader_Bridge : public QObject
+{
+public:
+  CommandReader_Bridge() : QObject() {}
+  virtual ~CommandReader_Bridge();
+
+  virtual bool event( QEvent* e );
+  static CommandReader_Bridge* _executor();
+};
+
+}}
+#endif
+
 #endif

@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/surface/curve.h>
 #include <aims/curve/bundles.h>
 

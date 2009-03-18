@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/action/paintaction.h>
 #include <anatomist/application/roibasemodule.h>
 #include <anatomist/object/Object.h>

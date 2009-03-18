@@ -33,6 +33,7 @@
  * knowledge of the CeCILL license version 2 and that you accept its terms.
  */
 
+#include <cstdlib>
 #include <anatomist/surface/planarfusion3d.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/object/sliceable.h>

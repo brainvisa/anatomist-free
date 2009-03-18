@@ -33,6 +33,7 @@
  * knowledge of the CeCILL license version 2 and that you accept its terms.
  */
 
+#include <cstdlib>
 #include <anatomist/selection/qSelectFactory.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/processor/Processor.h>

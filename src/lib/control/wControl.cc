@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/application/fileDialog.h>
 #include <anatomist/color/wMaterial.h>
 #include <anatomist/selection/qSelectFactory.h>

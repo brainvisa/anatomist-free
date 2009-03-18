@@ -70,27 +70,21 @@ namespace
     MutexRcPtr<CommandContext> context;
   };
 
-  class CommandReader_Bridge : public QObject
-  {
-  public:
-    CommandReader_Bridge() : QObject() {}
-    virtual ~CommandReader_Bridge();
 
-    virtual bool event( QEvent* e );
-  };
+}
+  
+  
+anatomist::internal::CommandReader_Bridge::~CommandReader_Bridge()
+{
+}
 
-  CommandReader_Bridge* _executor()
-  {
-    static CommandReader_Bridge	*crb = new CommandReader_Bridge;
-    return crb;
-  }
+anatomist::internal::CommandReader_Bridge* anatomist::internal::CommandReader_Bridge::_executor()
+{
+  static anatomist::internal::CommandReader_Bridge	*crb = new anatomist::internal::CommandReader_Bridge;
+  return crb;
+}
 
-  CommandReader_Bridge::~CommandReader_Bridge()
-  {
-  }
-
-
-  bool CommandReader_Bridge::event( QEvent* e )
+  bool anatomist::internal::CommandReader_Bridge::event( QEvent* e )
   {
     // cout << "CommandReader_Bridge::event\n" << flush;
     if( e->type() !=  QEvent::User + 1111 )
@@ -128,8 +122,6 @@ namespace
     delete ctype;
     return true;
   }
-
-}
 
 #endif
 
@@ -215,7 +207,7 @@ void CommandReader::readOne()
         }
       // cout << "post event\n" << flush;
       if( !_askedToClose )
-        qApp->postEvent( _executor(), 
+        qApp->postEvent( anatomist::internal::CommandReader_Bridge::_executor(), 
                          new CommandExecutorEvent( ctype, _context ) );
       // _context.unlock();
     }

@@ -40,6 +40,7 @@
 */
 
 
+#include <cstdlib>
 #include <graph/tree/tree.h>
 #include <graph/tree/twriter.h>
 #include <iostream>

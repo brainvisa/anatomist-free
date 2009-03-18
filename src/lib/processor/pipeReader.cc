@@ -138,6 +138,8 @@ namespace
   APipeReaderThread::APipeReaderThread( APipeReader* pr )
     : Thread(), pread( pr )
   {
+    // initialize CommandReader_Bridge in the main thread
+    anatomist::internal::CommandReader_Bridge::_executor();
     setSuicideSafe( true );
   }
 

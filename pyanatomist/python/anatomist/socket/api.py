@@ -53,9 +53,8 @@ To do this, use the constructor with forceNewInstance parameter :
   >>> a=anatomist.Anatomist(forceNewInstance=True)
   
 """
+  
 from anatomist import base
-from soma.wip.io import Socket
-from soma.qt3gui.qt3thread import QtThreadCall
 from soma.html import htmlEscape
 
 import threading, thread
@@ -64,9 +63,20 @@ import string
 import time
 import sys, os
 import distutils.spawn
-import copy
 
-from qt import QProcess, SIGNAL, qApp
+USE_QT4=False
+if sys.modules.has_key( 'PyQt4' ):
+  USE_QT4=True
+  
+if USE_QT4:
+  from soma.qt4gui.io import Socket
+  from soma.qt4gui.api import QtThreadCall
+  from PyQt4.QtCore import QProcess, SIGNAL
+  from PyQt4.QtGui import qApp
+else:
+  from soma.qt3gui.io import Socket
+  from soma.qt3gui.qt3thread import QtThreadCall
+  from qt import QProcess, SIGNAL, qApp  
 
 class Anatomist(base.Anatomist):
   """
@@ -707,28 +717,44 @@ class Anatomist(base.Anatomist):
       if Anatomist.anatomistExecutable is not None:
         port = self.comm.findFreePort()
         self.anaServerProcess = QProcess()
-        command = [ Anatomist.anatomistExecutable, '-s', str( port ) ]
-        command += args
-        for a in command:
-          self.anaServerProcess.addArgument( a )
-        self.anaServerProcess.connect( self.anaServerProcess, SIGNAL( 'processExited()' ), self.anaServerProcessExited )
-        if not self.anaServerProcess.launch( '' ):
-          raise RuntimeError(  'Anatomist could not run'  )
-        self.log( "<H1>Anatomist launched</H1>")
-        self.log("Command : " +htmlEscape( string.join( command ) ) )
+        
+        if USE_QT4:
+          arguments = [ '-s', str( port ) ]
+          arguments += args
+          self.anaServerProcess.connect( self.anaServerProcess, SIGNAL( 'finished( int, QProcess::ExitStatus )' ), self.anaServerProcessExited )
+          self.anaServerProcess.start( Anatomist.anatomistExecutable, arguments )
+          self.log( "<H1>Anatomist launched</H1>")
+          self.log("Command : " +htmlEscape( Anatomist.anatomistExecutable+string.join( arguments ) ) )
+        else:
+          command = [ Anatomist.anatomistExecutable, '-s', str( port ) ]
+          command += args
+          for a in command:
+            self.anaServerProcess.addArgument( a )
+          self.anaServerProcess.connect( self.anaServerProcess, SIGNAL( 'processExited()' ), self.anaServerProcessExited )
+          if not self.anaServerProcess.launch( '' ):
+            raise RuntimeError(  'Anatomist could not run'  )
+          self.log( "<H1>Anatomist launched</H1>")
+          self.log("Command : " +htmlEscape( string.join( command ) ) )
+
         self.comm.initialize( )#port = port)
         self.log( "Successfull connection to Anatomist on PORT: " +str( port ) )
         self.launched = 1
     
-  def anaServerProcessExited( self ):
+  def anaServerProcessExited( self, exitCode=0, exitStatus=0 ):
       """
       This method is called when anatomist process exited.
       """
       logtxt = '<b>Anatomist process exited: '
-      if self.anaServerProcess.normalExit():
-        logtxt += '(normal exit)'
+      if USE_QT4:
+        if exitStatus == QProcess.NormalExit:
+          logtxt += '(normal exit)'
+        else:
+          logtxt += 'abnormal exit, code:'+ str( exitCode )
       else:
-        logtxt += 'abnormal exit, code:'+ str( self.anaServerProcess.exitStatus() )
+        if self.anaServerProcess.normalExit():
+          logtxt += '(normal exit)'
+        else:
+          logtxt += 'abnormal exit, code:'+ str( self.anaServerProcess.exitStatus() )
       logtxt += '</b>'
       self.log( logtxt )
       self.comm.close()
@@ -746,7 +772,11 @@ class Anatomist(base.Anatomist):
       if not self.launched:
           return
       super(Anatomist, self).close()
-      if self.anaServerProcess.isRunning( ):
+      if USE_QT4:
+        isRunning=(self.anaServerProcess.state() == QProcess.Running)
+      else:
+        isRunning=self.anaServerProcess.isRunning( )
+      if isRunning:
         self.log( 'Killing Anatomist' )
         self.anaServerProcess.kill( )
       sys.stdout.flush()
@@ -808,7 +838,7 @@ class Anatomist(base.Anatomist):
     '''
     if not self.launched:
       raise RuntimeError(  'Anatomist is not running.'  )
-    args=self.convertParams(kwargs)
+    args=dict( (k,self.convertParams(v)) for k,v in kwargs.iteritems() if v is not None )
     requestID = self.newRequestID()
     # an id is added to the request in order to retrieve the corresponding answer among messages read on the socket
     args['request_id']=requestID
@@ -1301,6 +1331,7 @@ class ASocket(Socket):
       So, Anatomist can send various messages at anytime and this
       method knows what to do with thoses messages.
       """
+      #print "process message "
       if msg is not None:
         header, data = msg
         if excep is not None:
@@ -1369,6 +1400,7 @@ class ASocket(Socket):
       @type requestID: int
       @param requestID: an id associated to the event to recognize a specific command
       """
+      #print "add event handler ", eventName, handlerFunction
       if eventName == 'Close': eventName = ''
       elif eventName: eventName =  "'" + eventName +"'"
       if requestID is not None:
