@@ -1,5 +1,5 @@
 SOMA_COPY_PYTHON_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/python"
-                            pyanatomist-python anatomsit )
+                            ${PROJECT_NAME} )
 SOMA_COPY_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/bin"
                       bin
                       ${PROJECT_NAME} )
