@@ -2,7 +2,7 @@ SOMA_GET_FILE_LIST_FROM_PRO( project.pro "HEADERS" _headers "SOURCES" _sources )
 SOMA_COPY_AND_INSTALL_HEADERS( _headers anatomist )
 SOMA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anatomist SHARED ${_sources} )
-set_property( TARGET anatomist PROPERTY VERSION ${anatomist_VERSION} )
+set_property( TARGET anatomist PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 set( _libraries ${OPENGL_LIBRARIES} ${AIMS-GPL_LIBRARIES} )
 if( APPLE )
   set( _libraries ${_libraries} z )
@@ -11,4 +11,4 @@ target_link_libraries( anatomist ${_libraries} )
 
 SOMA_INSTALL( TARGETS anatomist
               DESTINATION lib
-              COMPONENT anatomist )
+              COMPONENT ${PROJECT_NAME} )

@@ -1,3 +1,4 @@
+# This is an obsolete file it have to be rewritten
 
 getFromPro(anavtk.pro HDRS SRCS)
 
