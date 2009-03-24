@@ -285,6 +285,16 @@ bool MObject::render( PrimList & prim, const ViewState & state )
 }
 
 
+bool MObject::renderingIsObserverDependent() const
+{
+  const_iterator i, e = end();
+  for( i=begin(); i!=e; ++i )
+    if( (*i)->renderingIsObserverDependent() )
+      return true;
+  return false;
+}
+
+
 void MObject::setPalette( const AObjectPalette & pal )
 {
   AObject::setPalette( pal );

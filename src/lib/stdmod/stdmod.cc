@@ -292,6 +292,8 @@ void StdModule::controlsDeclaration()
 					  cc.name() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "Slice", 
 					  cc.name() );
+  ControlManager::instance()->addControl( "QAGLWidget3D", "ClippedObject",
+                                          cc.name() );
 
   SelectBrowserControl	sbc;
   ControlDictionary::instance()->addControl( sbc.name(), 

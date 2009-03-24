@@ -294,6 +294,7 @@ namespace anatomist
     /**@name	Graphics rendering inherited functions */
     //@{
     virtual bool render( PrimList &, const ViewState & );
+    virtual bool renderingIsObserverDependent() const;
     /// Can be display in 2D windows.
     virtual bool Is2DObject();
     /// Can be display in 3D windows.

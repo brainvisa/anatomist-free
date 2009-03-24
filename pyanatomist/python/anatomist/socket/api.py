@@ -838,7 +838,7 @@ class Anatomist(base.Anatomist):
     '''
     if not self.launched:
       raise RuntimeError(  'Anatomist is not running.'  )
-    args=dict( (k,self.convertParams(v)) for k,v in kwargs.iteritems() if v is not None )
+    args=dict( (k,self.convertParamsToIDs(v)) for k,v in kwargs.iteritems() if v is not None )
     requestID = self.newRequestID()
     # an id is added to the request in order to retrieve the corresponding answer among messages read on the socket
     args['request_id']=requestID

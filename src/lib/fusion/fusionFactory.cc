@@ -80,6 +80,7 @@ FusionFactory::FusionFactory()
       registerMethod( new FusionCutMeshMethod );
       registerMethod( new FusionSliceMethod );
       registerMethod( new FusionRGBAVolumeMethod );
+      registerMethod( new FusionClipMethod );
     }
 }
 

@@ -82,18 +82,22 @@ Slice::Slice( const vector<AObject *> & obj )
 
   for( io=obj.begin(); io!=fo; ++io )
     if( ( c = (*io)->glAPI() ) && c->sliceableAPI() )
-      {
-        o = *io;
-        insert( o );
-        break;
-      }
+    {
+      o = *io;
+      insert( o );
+      break;
+    }
 
-  setReferential( (*begin())->getReferential() );
+  if( size() > 0 )
+  {
+    o = *begin();
+    setReferential( o->getReferential() );
 
-  Point3df	vs = o->VoxelSize();
-  _offset = Point3df( ( o->MinX2D() + o->MaxX2D() ) * vs[0] / 2, 
-                      ( o->MinY2D() + o->MaxY2D() ) * vs[1] / 2, 
-                      ( o->MinZ2D() + o->MaxZ2D() ) * vs[2] / 2 );
+    Point3df	vs = o->VoxelSize();
+    _offset = Point3df( ( o->MinX2D() + o->MaxX2D() ) * vs[0] / 2, 
+                        ( o->MinY2D() + o->MaxY2D() ) * vs[1] / 2, 
+                        ( o->MinZ2D() + o->MaxZ2D() ) * vs[2] / 2 );
+  }
 }
 
 
@@ -129,8 +133,12 @@ bool Slice::render( PrimList & prim, const ViewState & state )
   AObject	*obj = volume();
   aims::Quaternion    q = quaternion();
   Geometry	geom = AWindow3D::setupWindowGeometry( _data, q );
+  bool firstlist = false;
   PrimList::iterator ip = prim.end();
-  --ip;
+  if( ip == prim.begin() )
+    firstlist = true;
+  else
+    --ip;
   SliceViewState  svs( state.time, true, offset(), &q,
                        obj->getReferential(), &geom,
                        state.sliceVS() ? state.sliceVS()->vieworientation : 0,
@@ -142,7 +150,10 @@ bool Slice::render( PrimList & prim, const ViewState & state )
     bool hastr = !p2.empty();
     if( hastr )
     {
-      ++ip;
+      if( !firstlist )
+        ++ip;
+      else
+        ip = prim.begin();
       prim.insert( ip, p2.begin(), p2.end() );
       p2 = GLComponent::glPopTransformation( state, ref );
       prim.insert( prim.end(), p2.begin(), p2.end() );

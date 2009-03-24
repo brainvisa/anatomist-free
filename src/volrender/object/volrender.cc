@@ -39,6 +39,8 @@
 #include <anatomist/qtvr3/shaderFactory.h>
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/window3D/window3D.h>
+#include <anatomist/window/glwidget.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/reference/Transformation.h>
@@ -846,12 +848,14 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
 
   //float m[16];
   Motion  mot;
+  bool hasorient = false;
+  Quaternion q;
   if( svs )
   {
-    Quaternion q;
     Point4df  qo;
     if( svs->vieworientation )
     {
+      hasorient = true;
       Quaternion q1 = svs->vieworientation->inverse();
       qo = q1.vector();
       qo[0] *= -1;
@@ -864,18 +868,55 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
       q *= q2;
     }
     else
-      q = *svs->orientation;
-    mot = q;
-    // apply object -> window transformation if one exists
-    const Referential *oref = d->object->getReferential();
-    if( oref && svs->winref )
     {
-      const Transformation  *t
-        = ATransformSet::instance()->transformation( oref, svs->winref );
-      if( t )
-        mot *= t->motion();
+      if( svs->orientation )
+      {
+        hasorient = true;
+        q = *svs->orientation;
+      }
     }
   }
+  if( !hasorient && state.window )
+  {
+    const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( state.window );
+    if( w3 )
+    {
+      const QAGLWidget *glv = dynamic_cast<const QAGLWidget *>( w3->view() );
+      if( glv )
+      {
+        hasorient = true;
+        Point4df  qo;
+        Quaternion q1 = glv->quaternion().inverse();
+        qo = q1.vector();
+        qo[0] *= -1;
+        qo[1] *= -1;
+        q = Quaternion( qo );
+        Quaternion q2;
+        q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
+        q *= q2;
+        q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+        q *= q2;
+      }
+    }
+  }
+  if( hasorient )
+    mot = q;
+
+  // apply object -> window transformation if one exists
+  const Referential *oref = d->object->getReferential();
+  const Referential *wref = 0;
+  if( svs && svs->winref )
+    wref = svs->winref;
+  else if( state.window )
+    wref = state.window->getReferential();
+  if( oref && wref )
+  {
+    const Transformation  *t
+        = ATransformSet::instance()->transformation( oref, wref );
+    if( t )
+      mot *= t->motion();
+  }
+
   // apply cube -> object size scaling
 
   int nb_slices = (int)( 2.0f * sqrt( tx * tx + ty * ty +
@@ -968,8 +1009,9 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
 
 string VolRender::viewStateID( glPart part, const ViewState & state ) const
 {
+  // cout << "VolRender::viewStateID, svs: " << state.sliceVS() << endl;
   const SliceViewState	*st = state.sliceVS();
-  if( !st || !st->wantslice )
+  if( !st )
     return GLComponent::viewStateID( part, state );
 
   float		t = state.time;
@@ -987,20 +1029,28 @@ string VolRender::viewStateID( glPart part, const ViewState & state ) const
     case glMATERIAL:
       return s;
     case glGENERAL:
-    {
-      s.resize( 5*nf );
-      (float &) s[0] = t;
-      Point4df	o = st->vieworientation->vector();
-      memcpy( &s[4], &o[0], 4*nf );
-    }
+      if( st->vieworientation )
+      {
+        s.resize( 5*nf );
+        (float &) s[0] = t;
+        Point4df	o = st->vieworientation->vector();
+        memcpy( &s[4], &o[0], 4*nf );
+      }
+      else
+      {
+        s.resize( nf );
+        (float &) s[0] = t;
+      }
     break;
     case glGEOMETRY:
     case glBODY:
-    {
-      s.resize( 4*nf );
-      Point4df	o = st->vieworientation->vector();
-      memcpy( &s[0], &o[0], 4*nf );
-    }
+      if( st->vieworientation )
+      {
+        s.resize( 4*nf );
+        Point4df	o = st->vieworientation->vector();
+        memcpy( &s[0], &o[0], 4*nf );
+      }
+      // else s stays empty
     break;
     case glTEXIMAGE:
     case glTEXENV:

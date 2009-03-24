@@ -103,7 +103,25 @@ void FusionObjectsCommand::doit()
 	{
 	  if( _newobj->name().empty() )
 	    {
-	      string name = AObject::objectTypeName( _newobj->type() );
+	      string name = AObject::objectTypeName( _newobj->type() ) + ": ";
+              vector<AObject *>::const_iterator i, e = _obj.end();
+              bool first = true, trunc = false;
+              string::size_type maxlen = 30;
+              for( i=_obj.begin(); i!=e; ++i )
+              {
+                if( first )
+                  first = false;
+                else
+                  name += ", ";
+                name += (*i)->name();
+                if( name.length() > maxlen )
+                {
+                  trunc = true;
+                  break;
+                }
+              }
+              if( trunc )
+                name = name.substr( 0, maxlen ) + "...";
 	      _newobj->setName( theAnatomist->makeObjectName( name ) );
 	    }
 	  theAnatomist->registerObject( _newobj );

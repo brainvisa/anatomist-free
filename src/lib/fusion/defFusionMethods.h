@@ -159,6 +159,17 @@ namespace anatomist
     virtual std::string ID() const;
   };
 
+
+  class FusionClipMethod : public FusionMethod
+  {
+    public:
+      FusionClipMethod() {}
+      virtual ~FusionClipMethod() {}
+      virtual bool canFusion( const std::set<AObject *> & );
+      virtual AObject* fusion( const std::vector<AObject *> & );
+      virtual std::string ID() const;
+  };
+
 }
 
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 1995-2005 CEA
+/* Copyright (c) 1995-2009 CEA
  *
  *  This software and supporting documentation were developed by
  *      CEA/DSV/SHFJ
@@ -44,6 +44,7 @@
 #include <anatomist/surface/mtexture.h>
 #include <anatomist/volume/slice.h>
 #include <anatomist/volume/Volume.h>
+#include <anatomist/object/clippedobject.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/mesh/texture.h>
@@ -310,7 +311,8 @@ bool FusionSliceMethod::canFusion( const set<AObject *> & obj )
   if( obj.size() != 1 )
     return false;
 
-  if( (*obj.begin())->Is2DObject() )
+  GLComponent *glc = (*obj.begin())->glAPI();
+  if( glc && glc->sliceableAPI() )
     return true;
   return false;
 }
@@ -324,16 +326,22 @@ AObject* FusionSliceMethod::fusion( const vector<AObject *> & obj )
 
 bool FusionRGBAVolumeMethod::canFusion( const std::set<AObject *> & obj )
 {
-  return obj.size() == 1 && dynamic_cast<Sliceable *>( *obj.begin() );
+  if( obj.size() != 1 )
+    return false;
+
+  GLComponent *glc = (*obj.begin())->glAPI();
+  if( glc && glc->sliceableAPI() )
+    return true;
+  return false;
 }
 
 
 AObject* FusionRGBAVolumeMethod::fusion( const std::vector<AObject *> & obj )
 {
   AObject *o = *obj.begin();
+  GLComponent *glc = o->glAPI();
   AVolume<AimsRGBA> *vol
-      = new AVolume<AimsRGBA>( dynamic_cast<Sliceable *>(o)->
-      rgbaVolume() );
+      = new AVolume<AimsRGBA>( glc->sliceableAPI()->rgbaVolume() );
   vol->setReferential( o->getReferential() );
   return vol;
 }
@@ -342,6 +350,26 @@ AObject* FusionRGBAVolumeMethod::fusion( const std::vector<AObject *> & obj )
 string FusionRGBAVolumeMethod::ID() const
 {
   return QT_TRANSLATE_NOOP( "FusionChooser", "FusionRGBAVolumeMethod" );
+}
+
+
+// ---------------
+
+string FusionClipMethod::ID() const
+{
+  return( QT_TRANSLATE_NOOP( "FusionChooser", "FusionClipMethod" ) );
+}
+
+
+bool FusionClipMethod::canFusion( const set<AObject *> & )
+{
+  return true;
+}
+
+
+AObject* FusionClipMethod::fusion( const vector<AObject *> & obj )
+{
+  return new ClippedObject( obj );
 }
 
 
