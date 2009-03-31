@@ -9,6 +9,10 @@ namespace anatomist
 #include <anatomist/graph/GraphObject.h>
 %End
 
+%TypeCode
+#include <anatomist/application/Anatomist.h>
+%End
+
   public:
     enum ObjectType
     {
