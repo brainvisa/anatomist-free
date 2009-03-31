@@ -120,7 +120,7 @@ class View
     sipRes = dynamic_cast<QAGLWidget *>( sipCpp );
 %End
 
-  // ControlSwitch * controlSwitch();
+  ControlSwitch * controlSwitch();
   virtual std::string name() const =0;
   anatomist::AWindow * window();
   // const anatomist::AWindow * window() const;
@@ -142,6 +142,7 @@ public:
   QAWindow( QWidget * /TransferThis/ = 0, const char *=0,
     carto::Object =carto::none(), Qt::WFlags=Qt::WType_TopLevel );
   virtual ~QAWindow();
+  virtual void refreshNow() /AutoGen/;
   static QAWindow* fromObject( carto::GenericObject );
 %MethodCode
   try
@@ -234,7 +235,7 @@ class QAGLWidget : QGLWidget, anatomist::View
     virtual void saveContents();
     virtual void recordStart();
     virtual void recordStop();
-    
+
   private :
     QAGLWidget( const QAGLWidget& );
 };
@@ -250,7 +251,11 @@ public:
 
   void focusView();
   void refreshTemp();
+  void refreshTempNow();
+  void refreshLightView();
+  void refreshLightViewNow();
 };
+
 
 class FixedPointOfViewWindow : QWidget, anatomist::Observer
 {

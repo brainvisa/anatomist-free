@@ -38,6 +38,27 @@ class ContinuousTrackball : QObject, anatomist::Trackball
 };
 
 
+class TrackOblique : anatomist::Trackball
+{
+%TypeHeaderCode
+#include <anatomist/window3D/trackOblique.h>
+%End
+
+public:
+  TrackOblique();
+  TrackOblique( const anatomist::TrackOblique & a );
+  virtual ~TrackOblique();
+
+  virtual std::string name() const;
+
+  virtual void beginTrackball( int x, int y, int globalX, int globalY );
+  virtual void moveTrackball( int x, int y, int globalX, int globalY );
+  aims::Quaternion rotation( int x, int y );
+
+  aims::Quaternion	beginQuaternion() const;
+};
+
+
 class WindowActions : anatomist::Action
 {
 %TypeHeaderCode

@@ -73,6 +73,12 @@ string TrackOblique::name() const
 }
 
 
+Quaternion TrackOblique::beginQuaternion() const
+{
+  return _beginslice;
+}
+
+
 void TrackOblique::beginTrackball( int x, int y, int globalX, int globalY )
 {
   AWindow3D	* w = dynamic_cast<AWindow3D *>( view()->window() );

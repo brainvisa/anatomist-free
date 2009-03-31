@@ -811,7 +811,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       infosObj=command.result()
       infos=eval(str(infosObj)) # aims.Object -> python dictionary
       if infos is not None:
-        infos=infos.get(self.anatomistinstance.context.id(self.internalRep))
+        infos=infos.get(self.anatomistinstance.context.id(self.internalRep()))
       return infos
 
     def getInternalRep(self):

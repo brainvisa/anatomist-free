@@ -246,14 +246,18 @@ namespace
           quat *= q;
         }
       }
+      if( ref->isDirect() )
+      {
+        // remove the bottom-up inversion
+        Quaternion  q( 1, 0, 0, 0 );
+        quat *= q;
+      }
     }
     return quat;
   }
 
   Quaternion sagittalQuaternion( Referential* ref )
   {
-    string ax;
-    theAnatomist->config()->getProperty( "axialConvention", ax );
     Quaternion  quat( 0.5, 0.5, 0.5, 0.5 );
     if( ref && ref != Referential::acPcReferential() )
     {
@@ -277,6 +281,12 @@ namespace
           q.fromAxis( Point3df( 0, 1, 0 ), M_PI );
           quat *= q;
         }
+      }
+      if( ref->isDirect() )
+      {
+        // remove the bottom-up inversion
+        Quaternion  q( 0, 1, 0, 0 );
+        quat *= q;
       }
     }
     return quat;

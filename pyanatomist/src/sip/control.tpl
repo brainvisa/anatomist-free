@@ -170,6 +170,19 @@ public:
   void setPriority( int );
   virtual void doAlsoOnSelect( anatomist::ActionPool * );
   virtual void doAlsoOnDeselect( anatomist::ActionPool * );
+  SIP_PYOBJECT actions();
+%MethodCode
+  std::map<std::string, anatomist::Action *> ac = sipCpp->actions();
+  sipRes = PyDict_New();
+  std::map<std::string, anatomist::Action *>::const_iterator i, e = ac.end();
+  PyObject* action;
+  for( i=ac.begin(); i!=e; ++i )
+  {
+    action = sipConvertFromInstance( i->second, sipClass_anatomist_Action, 0 );
+    PyDict_SetItemString( sipRes, i->first.c_str(), action );
+    Py_DecRef( action );
+  }
+%End
 
   virtual void eventAutoSubscription( anatomist::ActionPool * );
 
@@ -221,8 +234,7 @@ public:
     ( Qt::MouseButton, Qt::KeyboardModifiers,
       const anatomist::Control::MouseActionLink & )
     /PyName=_mouseMoveEventUnsubscribe/;
-  bool mouseLongEventUnsubscribe( Qt::MouseButton, Qt::KeyboardModifiers )
-    /PyName=_mouseLongEventUnsubscribe/;
+  bool mouseLongEventUnsubscribe( Qt::MouseButton, Qt::KeyboardModifiers );
 
 %#else%
 
@@ -272,8 +284,7 @@ public:
     ( Qt::ButtonState, Qt::ButtonState, 
       const anatomist::Control::MouseActionLink & )
     /PyName=_mouseMoveEventUnsubscribe/;
-  bool mouseLongEventUnsubscribe( Qt::ButtonState, Qt::ButtonState )
-    /PyName=_mouseLongEventUnsubscribe/;
+  bool mouseLongEventUnsubscribe( Qt::ButtonState, Qt::ButtonState );
 %#endif%
 
   bool wheelEventSubscribe( const WheelActionLink& )
@@ -374,5 +385,20 @@ private:
   IconDictionary( const anatomist::IconDictionary & );
 };
 
+}; // namespace anatomist
+
+
+class ControlSwitch : QObject
+{
+%TypeHeaderCode
+#include <anatomist/controler/controlswitch.h>
+%End
+
+public:
+  virtual ~ControlSwitch();
+  anatomist::Action* getAction( const std::string& actionName );
+
+protected:
+  ControlSwitch( anatomist::View * view ) ;
 };
 

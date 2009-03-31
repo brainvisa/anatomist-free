@@ -519,10 +519,6 @@ Control.mouseReleaseButtonEventUnsubscribe = lambda self, but, state, func: \
 Control.mouseMoveEventUnsubscribe = lambda self, but, state, func: \
                                   self._mouseMoveEventUnsubscribe( \
   but, state, PyMouseActionLink( func ) )
-Control.mouseLongEventUnsubscribe = lambda self, but, state, startfunc, \
-                                  longfunc, endfunc, exclusive: \
-                                  self._mouseLongEventUnsubscribe( \
-  but, state )
 Control.wheelEventUnsubscribe = lambda self, func: \
                                   self._wheelEventUnsubscribe(
                                   PyWheelActionLink( func ) )
