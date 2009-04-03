@@ -96,6 +96,7 @@ void AssignReferentialCommand::doit()
   PythonHeader  ph;
   bool          minfok = false;
   string        uuid;
+
   if( !_filename.empty() )
   {
     minfok = ph.readMinf( _filename );
@@ -107,7 +108,8 @@ void AssignReferentialCommand::doit()
     if( ref )
     {
       if( uuid != _uuid )
-        cerr << "warning: both UUID and filename specified - conflicting UUID\n";
+        cerr << "warning: both UUID and filename specified - "
+            "conflicting UUID\n";
     }
     else
       ref = Referential::referentialOfUUID( _uuid );
@@ -127,7 +129,6 @@ void AssignReferentialCommand::doit()
   {
     if( !ref )
       ref = new Referential;
-    _ref = ref;
   }
   else
     return;
@@ -138,8 +139,8 @@ void AssignReferentialCommand::doit()
   if( minfok )
   {
     _ref->header() = ph;
-    if( !uuid.empty() )
-      _ref->header().setProperty( "uuid", uuid );
+    if( _uuid.empty() )
+      _uuid = uuid;
   }
   if( !_uuid.empty() )
     _ref->header().setProperty( "uuid", _uuid );
@@ -155,29 +156,46 @@ void AssignReferentialCommand::doit()
   if( ref && uuid.empty() )
     uuid = ref->uuid().toString();
 
-  ObjectActions::setAutomaticReferential( _obj );
+  if( !_obj.empty() )
+  {
+    // keep state of existing referentials
+    set<Referential *> usedrefs = theAnatomist->getReferentials();
+    if( ref )
+      usedrefs.insert( ref );
+    ObjectActions::setAutomaticReferential( _obj );
 
-  for( io=_obj.begin(); io!=fo; ++io )
-    if( theAnatomist->hasObject( *io ) )
-    {
-      if( ref )
+    for( io=_obj.begin(); io!=fo; ++io )
+      if( theAnatomist->hasObject( *io ) )
       {
-        /* determine whether we handle directly the internal AIMS referential,
-           or one of the destination referentials of the "referentials"
-           property of the object */
-        bool dstref = false;
-        if( Referential::referentialOfNameOrUUID( *io, uuid ) )
-          dstref = true;
-        // in any other case, set the ref as the default AIMS ref of the object
-        if( !dstref )
-          (*io)->setReferential( ref );
+        if( ref )
+        {
+          /* determine whether we handle directly the internal AIMS
+            referential, or one of the destination referentials of the
+            "referentials" property of the object */
+          bool dstref = false;
+          if( Referential::referentialOfNameOrUUID( *io, uuid ) )
+            dstref = true;
+          /* in any other case, set the ref as the default AIMS ref of the
+            object */
+          if( !dstref )
+            (*io)->setReferential( ref );
+        }
+        else
+          (*io)->setReferentialInheritance
+            ( (*io)->fallbackReferentialInheritance() );
+        // cout << "AssignReferentialCommand notify\n";
+        (*io)->notifyObservers( this );
       }
-      else
-        (*io)->setReferentialInheritance
-          ( (*io)->fallbackReferentialInheritance() );
-      // cout << "AssignReferentialCommand notify\n";
-      (*io)->notifyObservers( this );
-    }
+    // clean referentials created by setAutomaticReferential() but not needed
+    set<Referential *> currentrefs = theAnatomist->getReferentials();
+    set<Referential *>::iterator
+        iref, eref = currentrefs.end(), unused = usedrefs.end();
+    for( iref=currentrefs.begin(); iref!=eref; ++iref )
+      if( usedrefs.find( *iref ) == unused )
+        delete *iref;
+  }
+
+  // now set the ref on windows
   for( iw=_win.begin(); iw!=fw; ++iw )
     if( theAnatomist->hasWindow( *iw ) )
     {

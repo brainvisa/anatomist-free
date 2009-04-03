@@ -522,10 +522,18 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           else
           {
             // cout << "unspecified ref\n";
-            ref = Referential::referentialOfUUID( sref );
+            UUID uid( sref );
+            if( uid.toString() != sref )
+            {
+                // sref doesn't correspond to an UUID, so it is not unique
+              sref = sref + " for " + (*io)->name();
+              ref = 0;
+              uid = UUID();
+            }
+            else
+              ref = Referential::referentialOfUUID( sref );
             if( !ref )
             {
-              sref = sref + " for " + (*io)->name();
               ref = Referential::referentialOfName( sref );
             }
             if( !ref )
@@ -533,6 +541,8 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               ref = new Referential;
               ref->header().setProperty( "name", sref );
               refcreated = true;
+              if( !uid.isNull() )
+                ref->header().setProperty( "uuid", uid.toString() );
             }
           }
           if( ref )

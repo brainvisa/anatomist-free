@@ -59,18 +59,29 @@ namespace anatomist
   public:
     typedef AObject* (*LoadFunction)( const std::string & filename, 
                                       carto::Object options );
+    class LoadFunctionClass
+    {
+    public:
+      virtual ~LoadFunctionClass();
+      virtual AObject* load( const std::string & filename,
+                             carto::Object options ) = 0;
+    };
 
     ObjectReader();
     virtual ~ObjectReader();
 
-    static ObjectReader* reader() { return( _theReader ); }
+    /// singleton access
+    static ObjectReader* reader();
 
-    /**	Register a new extension and a loader function or replaces the old one.
-	@return	0 if the extentsion was not registered, or the former loader 
-	function pointer if there was already one
+    /**	Register a new extension and a loader function
     */
-    static LoadFunction registerLoader( const std::string & extension, 
-					LoadFunction newFunc );
+    static void registerLoader( const std::string & extension,
+                                LoadFunction newFunc );
+    /** same as the above function but takes a class loader instead.
+        \param newFunc will be owned by ObjectReader
+    */
+    static void registerLoader( const std::string & extension,
+                                LoadFunctionClass *newFunc );
 
     virtual AObject* load( const std::string & filename, 
 			   bool notifyFail = true, 
@@ -87,10 +98,10 @@ namespace anatomist
                             carto::Object options ) const;
 
   private:
-    ///	Pointer to a unique instance
-    static ObjectReader			*_theReader;
     ///	extention -> reader function map
-    static std::map<std::string, LoadFunction>	_loaders;
+    typedef std::multimap<std::string, carto::rc_ptr<LoadFunctionClass> >
+        _storagetype;
+    static _storagetype & _loaders();
   };
 
 }

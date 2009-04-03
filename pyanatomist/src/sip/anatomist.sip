@@ -48,6 +48,7 @@
 %Include rcptr_APalette.sip
 %Include list_rc_ptr_APalette.sip
 %Include objectparamselect.sip
+%Include objectreader.sip
 
 
 class AnatomistSip

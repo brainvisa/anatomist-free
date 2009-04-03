@@ -74,19 +74,22 @@ using namespace std;
 
 //	default reader
 
+ObjectReader * ObjectReader::reader()
+{
+  static ObjectReader *_theReader = 0;
+  if( _theReader == 0 )
+    _theReader = new ObjectReader;
+  return _theReader;
+}
+
 
 ObjectReader::ObjectReader()
 {
-  delete _theReader;
-  _theReader = this;
-
-  //registerLoader( "arg", readGraph );
 }
 
 
 ObjectReader::~ObjectReader()
 {
-  _theReader = 0;
 }
 
 
@@ -941,10 +944,15 @@ AObject* ObjectReader::load_internal( const string & filename,
   string extension = FileUtil::extension( filename );
   if( !extension.empty() )
   {
-    map<string, LoadFunction>::const_iterator
-        im = _loaders.find( extension );
-    if( im != _loaders.end() )
-      object = (*im).second( filename, options );
+    pair<_storagetype::const_iterator, _storagetype::const_iterator>
+        il = _loaders().equal_range( extension );
+    _storagetype::const_iterator im, em = il.second;
+    for( im = il.first; im!=em; ++im )
+    {
+      object = im->second->load( filename, options );
+      if( object )
+        return object;
+    }
   }
 
   if( !object )
@@ -1099,21 +1107,62 @@ AObject* ObjectReader::readGraph( const string & filename, Object /*options*/ )
 }
 
 
-ObjectReader::LoadFunction 
+namespace
+{
+
+  class ObjectReader_LoadFunctionPtrClass
+  : public ObjectReader::LoadFunctionClass
+  {
+  public:
+    ObjectReader_LoadFunctionPtrClass( ObjectReader::LoadFunction x )
+      : ObjectReader::LoadFunctionClass(), func( x )
+    {
+    }
+
+    virtual
+    ~ObjectReader_LoadFunctionPtrClass()
+    {
+    }
+
+    virtual AObject * load( const string & filename, Object options )
+    {
+      return func( filename, options );
+    }
+
+    private:
+      ObjectReader::LoadFunction func;
+  };
+
+}
+
+
+void
 ObjectReader::registerLoader( const string & extension, LoadFunction newFunc )
 {
-  map<string, LoadFunction>::iterator	im = _loaders.find( extension );
+  registerLoader( extension,
+                  new ObjectReader_LoadFunctionPtrClass( newFunc ) );
+}
 
-  if( im != _loaders.end() )
-    {
-      LoadFunction	oldfunc = (*im).second;
-      (*im).second = newFunc;
-      return( oldfunc );
-    }
-  else
-    {
-      _loaders[ extension ] = newFunc;
-      return( 0 );
-    }
+
+void
+ObjectReader::registerLoader( const string & extension,
+                              LoadFunctionClass *newFunc )
+{
+  _loaders().insert( std::make_pair( extension,
+           rc_ptr<LoadFunctionClass>( newFunc ) ) );
+}
+
+
+ObjectReader::_storagetype & ObjectReader::_loaders()
+{
+  static _storagetype loaders;
+  return loaders;
+}
+
+// -------
+
+
+ObjectReader::LoadFunctionClass::~LoadFunctionClass()
+{
 }
 

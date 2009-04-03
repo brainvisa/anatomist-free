@@ -81,6 +81,7 @@ namespace anatomist
                                       void* arg = 0, bool setchanged = false );
 
     static ATransformSet* instance();
+    std::set<Referential *> connectedComponent( Referential* r ) const;
 
   private:
     struct Private;
@@ -89,7 +90,6 @@ namespace anatomist
     void propagate( Referential* ref, Referential* r2, 
 		    const std::set<Referential *> & others );
     void deleteGeneratedConnections( Referential* r1, Referential* r2 );
-    std::set<Referential *> connectedComponent( Referential* r ) const;
 
     Private	*d;
   };

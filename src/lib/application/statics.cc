@@ -82,14 +82,6 @@ map<string, int>	AObject::_objectTypes;
 map<int,string> 	AObject::_objectTypeNames;
 #endif
 
-//	ObjectReader
-
-#include <anatomist/object/oReader.h>
-
-map<string, ObjectReader::LoadFunction>	ObjectReader::_loaders;
-static ObjectReader	*_theOReader = new ObjectReader;
-ObjectReader		*ObjectReader::_theReader = 0;
-
 
 // second part of the MinGW assembler bug workaround, see earlier
 #ifdef _WIN32
