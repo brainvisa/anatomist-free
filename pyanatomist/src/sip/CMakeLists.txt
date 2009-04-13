@@ -1,8 +1,8 @@
-SOMA_GET_FILE_LIST_FROM_PRO( "${CMAKE_CURRENT_SOURCE_DIR}/sip.pro" "HEADERS" _headers "SOURCES" _sources )
-SOMA_COPY_AND_INSTALL_HEADERS( _headers pyanatomist )
+BRAINVISA_GET_FILE_LIST_FROM_PRO( "${CMAKE_CURRENT_SOURCE_DIR}/sip.pro" "HEADERS" _headers "SOURCES" _sources )
+BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers pyanatomist )
 
 file( GLOB _sipTemplates RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.tpl" )
-SOMA_COPY_FILES( ${PROJECT_NAME}-devel
+BRAINVISA_COPY_FILES( ${PROJECT_NAME}-devel
                  anatypessub.py ${_sipTemplates}
                  SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                  DESTINATION "${ANATOMIST_RELATIVE_SIP_DIRECTORY}" )
@@ -26,7 +26,7 @@ if( NOT _returnValue EQUAL 0 )
   message( FATAL_ERROR "The sip generation from ${PROJECT_NAME} templates returned an error:\n  ${_generatedSipFileList}\n========================")
 endif( NOT _returnValue EQUAL 0 )
 
-SOMA_ADD_SIP_PYTHON_MODULE( anatomistsip
+BRAINVISA_ADD_SIP_PYTHON_MODULE( anatomistsip
   anatomist 
   "${CMAKE_BINARY_DIR}/${ANATOMIST_RELATIVE_SIP_DIRECTORY}/anatomist_VOID.sip"
   SIP_SOURCES ${_generatedSipFileList} ${_sipSources}
@@ -36,6 +36,6 @@ target_link_libraries( anatomistsip
   ${PYTHON_LIBRARY}
   pyanatomistexports
   ${AIMS_SIP_LIBRARIES} )
-SOMA_INSTALL( TARGETS anatomistsip 
+BRAINVISA_INSTALL( TARGETS anatomistsip 
               DESTINATION python/anatomist
               COMPONENT ${PROJECT_NAME} )
