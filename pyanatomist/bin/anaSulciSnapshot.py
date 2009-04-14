@@ -3,7 +3,6 @@
 from soma import aims
 import anatomist, sigraph
 import os, sys, qt, sip, numpy, time
-import brainvisa.quaternion as quaternion
 
 context = anatomist.CommandContext.defaultContext()
 a = anatomist.Anatomist()
@@ -35,8 +34,8 @@ def addObjectsToWins(ags, wins):
 	p.execute(cmd2)
 
 def setCamera(win, orientation):
-	q = quaternion.Quaternion()
-	q2 = quaternion.Quaternion()
+	q = aims.Quaternion()
+	q2 = aims.Quaternion()
 	if orientation == 'top' :
 		q.fromAxis([0, 1, 0], 0)
 	elif orientation == 'try1' :

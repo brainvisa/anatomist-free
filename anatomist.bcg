@@ -143,14 +143,14 @@ class VtkComponent( SystemComponent ):
   def findInclude( self ):
     search = []
     for x in self.searchPath():
-      g = glob.glob( os.path.join( x, 'include', 'vtk' ) )
+      g = glob.glob( os.path.join( x, 'include', 'vtk-*' ) )
       if g:
         search += g
     inc = findInPath( None, self._includeFile, None, search )
     if not inc:
       search = []
       for x in self.searchPath():
-        g = glob.glob( os.path.join( x, 'include', 'vtk*' ) )
+        g = glob.glob( os.path.join( x, 'include', 'vtk' ) )
         if g:
           search += g
       inc = findInPath( None, self._includeFile, None, search )

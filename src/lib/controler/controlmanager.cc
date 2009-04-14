@@ -348,18 +348,18 @@ bool
 ControlManager::removeControl( const string& view, const string& object, const string& control )
 {
   ControlMapEntry entry( view, object ) ;
-  
+
   iterator controlTableIter = myControlTable.find( entry ) ;
   if ( controlTableIter == myControlTable.end() )
     return false ;
-  
-  set< string >::iterator iter( controlTableIter->second.begin() ), 
+
+  set< string >::iterator iter( controlTableIter->second.find( control ) ),
     last( controlTableIter->second.end( ) ) ;
-  while( iter != last )
-    if( *iter == control ){
-      controlTableIter->second.erase( iter ) ;
-      return true ;
-    }
+  if( iter != last )
+  {
+    controlTableIter->second.erase( iter ) ;
+    return true ;
+  }
   return false ;
 }
 
