@@ -7,6 +7,16 @@ class Referential
 #include <anatomist/reference/Referential.h>
 %End
 
+%TypeCode
+#include <pyanatomist/sipconverthelpers.h>
+%End
+
+%ConvertToTypeCode
+  return anatomist::sipConvertToTypeCodeFromInternalRep( sipPy,
+    sipClass_anatomist_Referential, sipTransferObj, sipIsErr, sipCppPtr );
+%End
+
+
 public:
   Referential();
   virtual ~Referential();
@@ -28,6 +38,15 @@ class Transformation
 {
 %TypeHeaderCode
 #include <anatomist/reference/Transformation.h>
+%End
+
+%TypeCode
+#include <pyanatomist/sipconverthelpers.h>
+%End
+
+%ConvertToTypeCode
+  return anatomist::sipConvertToTypeCodeFromInternalRep( sipPy,
+    sipClass_anatomist_Transformation, sipTransferObj, sipIsErr, sipCppPtr );
 %End
 
 public:

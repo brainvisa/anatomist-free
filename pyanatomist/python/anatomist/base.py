@@ -1246,7 +1246,15 @@ class Anatomist(ObservableSingleton, object):
       @param referential: The referential to assign to objects and/or windows
       """
       self.anatomistinstance.assignReferential(referential, [self])
-      
+
+    def getReferential( self ):
+      """
+      Get the referential attached to the window (the coordinates system used
+      for 3D positions in this window)
+      """
+      pass
+
+
     def moveLinkedCursor(self, position):
       """
       Changes cursor position in this window and all linked windows (same group).

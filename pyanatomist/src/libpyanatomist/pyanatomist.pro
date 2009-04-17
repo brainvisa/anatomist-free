@@ -8,7 +8,8 @@ LIBS = ${ANATOMIST_LIBS}
 HEADERS = \
         event.h \
         pyanatomist.h \
-        serializingcontext.h
+        serializingcontext.h \
+        sipconverthelpers.h
 
 SOURCES = \
         pyanatomist.cc \

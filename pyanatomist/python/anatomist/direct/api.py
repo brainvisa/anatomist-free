@@ -60,7 +60,7 @@ from anatomist import cpp
 from anatomist import base
 import operator
 from soma import aims
-import os, sys
+import os, sys, types
 
 class Anatomist(base.Anatomist, cpp.Anatomist):
   """
@@ -758,6 +758,81 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     else:
       return self.convertSingleObjectParamsToObjects( params )
 
+
+  def getAItem( self, idorcpp, convertIDs=True, allowother=True ):
+    """
+    Converts a C++ API objects or context IDs to a generic API object.
+
+    @param idorcpp: ID or C++ instance to be converted. If idorcpp is already
+    an AItem, it is returned as is
+
+    @param convertIDs: if True, int numbers are treated as item IDs and
+    converted accordingly when possible.
+    @type convertIDs: boolean
+
+    @param allowother: if True, idorcpp is returned unchanged if not recognized
+    @type allowother: boolean
+
+    @rtype: AItem instance, or None (or the unchanged input if allowother is
+    True)
+    @return: converted element
+    """
+    if isinstance( idorcpp, base.Anatomist.AItem ):
+      return idorcpp
+    if convertIDs and type( idorcpp ) is types.IntType:
+      try:
+        o = self.context.object( idorcpp )
+      except:
+        o = None
+      if o is None:
+        if allowother:
+          return idorcpp
+        else:
+          return None
+      else:
+        idorcpp = o
+    if isinstance( idorcpp, cpp.AObject ):
+      return Anatomist.AObject( self, idorcpp )
+    if isinstance( idorcpp, cpp.AWindow ):
+      return Anatomist.AWindow( self, idorcpp )
+    if isinstance( idorcpp, cpp.Referential ):
+      return Anatomist.Referential( self, idorcpp )
+    if isinstance( idorcpp, cpp.Transformation ):
+      return Anatomist.Transformation( self, idorcpp )
+    if allowother:
+      return idorcpp
+    else:
+      return None
+
+
+  def convertParamsToAItems( self, params, convertIDs=True ):
+    """
+    Recursively converts C++ API objects or context IDs to generic API objects.
+
+    @param params: dictionary or list or anything else
+
+    @param convertIDs: if True, int numbers are treated as item IDs and
+    converted accordingly when possible.
+    @type convertIDs: boolean
+
+    @return: converted elements
+    """
+    if isinstance( params, basestring ):
+      return params
+    elif operator.isSequenceType( params ):
+      return [self.convertParamsToAItems(i) for i in params]
+    elif operator.isMappingType( params ):
+      r = {}
+      for k, v in params.iteritems():
+        r[k] = self.convertParamsToAItems( v )
+      return r
+    else:
+      try:
+        return [self.convertParamsToAItems(i) for i in params]
+      except:
+        return self.getAItem( params )
+
+
   def newItemRep(self):
     """
     Creates a new item representation. 
@@ -811,7 +886,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       infosObj=command.result()
       infos=eval(str(infosObj)) # aims.Object -> python dictionary
       if infos is not None:
-        infos=infos.get(self.anatomistinstance.context.id(self.internalRep()))
+        infos=infos.get(self.anatomistinstance.context.id(self.internalRep))
       return infos
 
     def getInternalRep(self):
@@ -1046,19 +1121,26 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       elif self.refType == "WeakShared":
         self.internalRep=cpp.weak_shared_ptr_AWindow(self.internalRep)
       #print "take ref ", self.refType, self, self.internalRep, self.internalRep.__class__
-      
+
     def releaseRef(self):
       #print "release ref ", self
       super(Anatomist.AWindow, self).releaseRef()
       del self.internalRep
-        
+
     def releaseAppRef(self):
       #print "release app ref ", self
       self.anatomistinstance.releaseWindow(self.getInternalRep())
-        
+
     #def __del__(self):
       #print "del AWindow ", self
       #super(Anatomist.AWindow, self).__del__()
+
+    def getReferential( self ):
+      ref = self.internalRep.getReferential()
+      if ref is not None:
+        return self.anatomistinstance.Referential( self.anatomistinstance,
+          ref )
+      return ref
 
   ###############################################################################
   class AWindowsBlock(AItem, base.Anatomist.AWindowsBlock):

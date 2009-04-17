@@ -831,7 +831,7 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
   cout << "dims vol : " << vol.dimX() << " X " << vol.dimY() << " X " 
        << vol.dimZ() << " X " << vol.dimT() << "; bord : " 
        << vol.borderWidth() << endl;
-  cout << "volume vidé. " << flush; */
+  cout << "volume vidï¿½. " << flush; */
 
   Point3d	l;
 
@@ -917,6 +917,9 @@ bool AGraph::save( const string & filename )
 
   bool	filechanged = fileName() != filename;
   setFileName( filename );
+
+  if( filechanged )
+    g.setProperty( "filename_base", string( "*" ) );
 
   // using the generic Writer does not allow to save only changed objects
   // but allows to save model graphs, and use the correct syntax check set

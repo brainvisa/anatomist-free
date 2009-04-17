@@ -143,48 +143,51 @@ namespace anatomist
     SIP_PYOBJECT object( int ) const;
 %MethodCode
     if( !sipCpp->unserial.get() )
+    {
+      sipIsErr = 1;
+      PyErr_SetString( PyExc_RuntimeError, "no ID map" );
+    }
+    else
+    {
+      void	*ptr = sipCpp->unserial->pointer( a0 );
+      if( !ptr )
       {
         sipIsErr = 1;
-        PyErr_SetString( PyExc_RuntimeError, "no ID map" );
+        PyErr_SetString( PyExc_RuntimeError, "ID not found" );
       }
-    else
+      else
       {
-        void	*ptr = sipCpp->unserial->pointer( a0 );
-        if( !ptr )
-          {
-            sipIsErr = 1;
-            PyErr_SetString( PyExc_RuntimeError, "ID not found" );
-          }
+        std::string t = sipCpp->unserial->type( ptr );
+        if( t == "AObject" )
+        {
+          sipRes =
+            sipConvertFromInstance( ptr, sipClass_anatomist_AObject, 0 );
+        }
+        else if( t == "AWindow" )
+        {
+          sipRes =
+            sipConvertFromInstance( ptr, sipClass_anatomist_AWindow, 0 );
+        }
+        else if( t == "Referential" )
+        {
+          sipRes =
+            sipConvertFromInstance( ptr, sipClass_anatomist_Referential, 0 );
+        }
+        else if( t == "Transformation" )
+        {
+          sipRes =
+            sipConvertFromInstance( ptr, sipClass_anatomist_Transformation,
+                                    0 );
+        }
         else
-          {
-            std::string t = sipCpp->unserial->type( ptr );
-            if( t == "AObject" )
-              {
-#if SIP_VERSION >= 0x040400
-                sipRes = 
-                  sipConvertFromInstance( ptr, sipClass_anatomist_AObject, 0 );
-#else
-                sipRes = sipMapCppToSelfSubClass( ptr, sipClass_anatomist_AObject );
-#endif
-              }
-            else if( t == "AWindow" )
-              {
-#if SIP_VERSION >= 0x040400
-                sipRes = 
-                  sipConvertFromInstance( ptr, sipClass_anatomist_AWindow, 0 );
-#else
-                sipRes = sipMapCppToSelfSubClass( ptr, sipClass_anatomist_AWindow );
-#endif
-              }
-            else
-              {
-                sipIsErr = 1;
-                PyErr_SetString( PyExc_TypeError, 
-                                 ( std::string( "type " ) + t 
-                                   + " unknown or not handled" ).c_str() );
-              }
-          }
+        {
+          sipIsErr = 1;
+          PyErr_SetString( PyExc_TypeError,
+                            ( std::string( "type " ) + t
+                              + " unknown or not handled" ).c_str() );
+        }
       }
+    }
 %End
 
     int id( anatomist::AObject* ) const;
@@ -240,6 +243,61 @@ namespace anatomist
           PyErr_SetString( PyExc_RuntimeError, e.what() );
         }
 %End
+
+    int id( anatomist::Referential* ) const;
+%MethodCode
+    if( !sipCpp->unserial.get() )
+    {
+      sipIsErr = 1;
+      PyErr_SetString( PyExc_RuntimeError, "no ID map" );
+    }
+    else if( sipCpp->unserial->type( a0 ) != "Referential" )
+    {
+      sipIsErr = 1;
+      PyErr_SetString( PyExc_TypeError,
+                        ( std::string( "Pointer for Referential has been "
+                                      "registered as a different type: " )
+                          + sipCpp->unserial->type( a0 ) ).c_str() );
+    }
+    else
+      try
+      {
+        sipRes = sipCpp->unserial->id( a0, "Referential" );
+      }
+      catch( std::exception & e )
+      {
+        sipIsErr = 1;
+        PyErr_SetString( PyExc_RuntimeError, e.what() );
+      }
+%End
+
+    int id( anatomist::Transformation* ) const;
+%MethodCode
+    if( !sipCpp->unserial.get() )
+    {
+      sipIsErr = 1;
+      PyErr_SetString( PyExc_RuntimeError, "no ID map" );
+    }
+    else if( sipCpp->unserial->type( a0 ) != "Transformation" )
+    {
+      sipIsErr = 1;
+      PyErr_SetString( PyExc_TypeError,
+                        ( std::string( "Pointer for Transformation has been "
+                                      "registered as a different type: " )
+                          + sipCpp->unserial->type( a0 ) ).c_str() );
+    }
+    else
+      try
+      {
+        sipRes = sipCpp->unserial->id( a0, "Transformation" );
+      }
+      catch( std::exception & e )
+      {
+        sipIsErr = 1;
+        PyErr_SetString( PyExc_RuntimeError, e.what() );
+      }
+%End
+
 
     int makeID( anatomist::AObject* );
 %MethodCode

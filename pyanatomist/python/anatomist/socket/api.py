@@ -1169,7 +1169,16 @@ class Anatomist(base.Anatomist):
         return objects
       else: # must raise AttributeError if it is not an existing attribute. else, error can occur on printing the object
         raise AttributeError
-    
+
+    def getReferential( self ):
+      info = self.getInfos()
+      if info is None:
+        return None
+      ref = info.get( 'referential', None )
+      if ref is None:
+        return None
+      return self.anatomistinstance.Referential( self.anatomistinstance, ref )
+
   ###############################################################################
   class Referential(AItem, base.Anatomist.Referential):
     """

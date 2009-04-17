@@ -1747,7 +1747,7 @@ RoiManagementAction::getImageNames()
   
   while (iter != last)
     {
-      if( (*iter)->Is2DObject() && (*iter)->type() != AObject::GRAPHOBJECT )
+      if( (*iter)->Is2DObject() && ( (*iter)->type() == AObject::VOLUME || (*iter)->type() == AObject::FUSION2D ) )
       {
         const AObject::ParentList & parents = (*iter)->parents();
         AObject::ParentList::const_iterator ip, ep = parents.end();

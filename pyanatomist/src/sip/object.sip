@@ -11,6 +11,12 @@ namespace anatomist
 
 %TypeCode
 #include <anatomist/application/Anatomist.h>
+#include <pyanatomist/sipconverthelpers.h>
+%End
+
+%ConvertToTypeCode
+  return anatomist::sipConvertToTypeCodeFromInternalRep( sipPy,
+    sipClass_anatomist_AObject, sipTransferObj, sipIsErr, sipCppPtr );
 %End
 
   public:

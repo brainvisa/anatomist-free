@@ -7,6 +7,15 @@ namespace anatomist
 #include <anatomist/window/Window.h>
 %End
 
+%TypeCode
+#include <pyanatomist/sipconverthelpers.h>
+%End
+
+%ConvertToTypeCode
+  return anatomist::sipConvertToTypeCodeFromInternalRep( sipPy,
+    sipClass_anatomist_AWindow, sipTransferObj, sipIsErr, sipCppPtr );
+%End
+
 %ConvertToSubClassCode
   sipClass = 0;
   if( dynamic_cast<QAWindow *>(sipCpp) )
@@ -49,6 +58,8 @@ namespace anatomist
     set_AObjectPtr Objects() const;
     virtual anatomist::AObject *objectAt( float x, float y, float z, float t );
     bool isTemporary( anatomist::AObject* o ) const;
+    anatomist::Referential *getReferential() const;
+    virtual void setReferential( anatomist::Referential *ref );
 
 static anatomist::AWindow* fromObject( carto::GenericObject );
 %MethodCode
