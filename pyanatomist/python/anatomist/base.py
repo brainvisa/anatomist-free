@@ -891,7 +891,11 @@ class Anatomist(ObservableSingleton, object):
       self.refType=refType
       if internalRep is None:
         internalRep=anatomistinstance.newItemRep()
-      self.internalRep = internalRep
+      if isinstance( internalRep, Anatomist.AItem ):
+        # avoid recursion
+        self.internalRep = internalRep.internalRep
+      else:
+        self.internalRep = internalRep
       self.ref=False
           
     def __repr__(self):

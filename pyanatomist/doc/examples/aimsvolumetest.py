@@ -14,7 +14,7 @@ avol = a.toAObject( vol )
 win=a.createWindow('Axial')
 
 # put volume in window
-a.addObjects([ avol ], [ win ] )
+win.addObjects( avol )
 
 ##  volume change and update test
 
@@ -37,12 +37,12 @@ avol.notifyObservers()
 avol2 = a.toAObject( vol )
 
 # set a different palette on the second object so we can see something
-a.setObjectPalette([ avol2 ], 'Blue-Red-fusion')
+a.setObjectPalette( avol2, 'Blue-Red-fusion')
 
 # another view
 win2=a.createWindow( 'Axial' )
 
-a.addObjects([ avol2 ], [ win2 ])
+a.addObjects( avol2, win2 )
 
 # create the fusion object
 fus=a.fusionObjects([ avol, avol2 ], 'Fusion2DMethod')
@@ -50,5 +50,5 @@ fus=a.fusionObjects([ avol, avol2 ], 'Fusion2DMethod')
 # show it
 win3=a.createWindow('Sagittal' )
 
-a.addObjects([ fus ], [ win3 ] )
+a.addObjects( fus, win3 )
 

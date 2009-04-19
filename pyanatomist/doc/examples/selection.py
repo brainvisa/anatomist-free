@@ -12,13 +12,13 @@ mesh = a.toAObject( m )
 aw = a.createWindow( '3D' )
 
 # Put the mesh in the created window
-a.addObjects([ mesh ], [ aw ])
+a.addObjects( mesh, aw )
 
 g=a.getDefaultWindowsGroup()
 #sel = anatomist.SelectFactory.factory()
 print 'mesh isSelected:', g.isSelected( mesh )
 print 'selecting it'
-g.setSelection( [ mesh ] )
+g.setSelection( mesh )
 print "selection in default group", a.getSelection()
 print "selection de", g, g.getSelection()
 sel=g.getSelection()

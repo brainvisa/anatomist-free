@@ -61,6 +61,10 @@ from anatomist import base
 import operator
 from soma import aims
 import os, sys, types
+if sys.modules.has_key( 'PyQt4' ):
+  from PyQt4.QtCore import QString
+else:
+  from qt import QString
 
 class Anatomist(base.Anatomist, cpp.Anatomist):
   """
@@ -432,10 +436,10 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
   def groupObjects(self, objects):
     """
     Creates a multi object containing objects in parameters.
-    
+
     @type objects: list of AObject
     @param objects: object to put in a group
-    
+
     @rtype: AObject
     @return: the newly created multi object
     """
@@ -443,8 +447,8 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     c=cpp.GroupObjectsCommand(self.makeList(bObjects))
     self.execute(c)
     return self.AObject(self, c.groupObject())
-  
-  ###############################################################################
+
+  #############################################################################
   # objects access
   def __getattr__(self, name):
     """
@@ -455,10 +459,48 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       self.centralRef=self.Referential(self, self.centralReferential())
       return self.centralRef
     elif name == "mniTemplateRef":
-      self.mniTemplateRef=self.Referential(self, cpp.Referential.mniTemplateReferential())
+      self.mniTemplateRef=self.Referential(self,
+        cpp.Referential.mniTemplateReferential())
       return self.mniTemplateRef
     else:
       raise AttributeError
+
+  def __getattribute__( self, name ):
+    '''
+    __getattribute__ is overloaded in Anatomist.direct.api:
+    the aim is to intercept calls to the C++ API and convert return
+    values which contain C++ instances to their corresponding wrapper in
+    the Anatomist.direct implementation: AObject, AWindow, Referential,
+    Transformation instances are converted.
+    Drawback: all return values which are lists or dictionaries are copied.
+    '''
+    att = super( type(self), self ).__getattribute__( name )
+    if callable( att ):
+      if type( att ).__name__ == 'builtin_function_or_method':
+        conv = super( type(self), self ).__getattribute__( \
+          'convertParamsToAItems' )
+        return lambda *args, **kwargs: conv( att( *args, **kwargs ) )
+    return att
+
+  def _getAttributeNames( self ):
+    '''IPython completion feature...'''
+    m = [ 'centralRef', 'mniTemplateRef' ]
+    l = [ self ]
+    done = set()
+    while l:
+      c = l.pop()
+      done.add( c )
+      m += filter( lambda x: not x.startswith( '_' ) and x not in m,
+        c.__dict__.keys() )
+      cl = getattr( c, '__bases__', None )
+      if not cl:
+        cl = getattr( c, '__class__', None )
+        if cl is None:
+          continue
+        else:
+          cl = [ cl ]
+      l += filter( lambda x: x not in done, cl )
+    return m
 
   def getPalette(self, name):
     """
@@ -805,7 +847,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       return None
 
 
-  def convertParamsToAItems( self, params, convertIDs=True ):
+  def convertParamsToAItems( self, params, convertIDs=False, changed=[] ):
     """
     Recursively converts C++ API objects or context IDs to generic API objects.
 
@@ -815,22 +857,56 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     converted accordingly when possible.
     @type convertIDs: boolean
 
+    @param changed: if anything has been changed from the input params, then
+    changed will be added a True value. It's actually an output parameter
+    @type changed: list
+
     @return: converted elements
     """
-    if isinstance( params, basestring ):
+    if isinstance( params, basestring ) or isinstance( params, QString ):
       return params
     elif operator.isSequenceType( params ):
-      return [self.convertParamsToAItems(i) for i in params]
+      conv = super( type(self), self ).__getattribute__( \
+        'convertParamsToAItems' )
+      changed2 = []
+      l = [ conv(i, convertIDs=convertIDs, changed=changed2) for i in params ]
+      if not changed2:
+        return params
+      else:
+        if not changed:
+          changed.append( True )
+        return l
     elif operator.isMappingType( params ):
       r = {}
+      conv = super( type(self), self ).__getattribute__( \
+        'convertParamsToAItems' )
+      changed2 = []
       for k, v in params.iteritems():
-        r[k] = self.convertParamsToAItems( v )
-      return r
+        r[k] = conv( v, convertIDs=convertIDs, changed=changed2 )
+      if changed2:
+        if not changed:
+          changed.append( True )
+        return r
+      else:
+        return params
     else:
       try:
-        return [self.convertParamsToAItems(i) for i in params]
+        conv = super( type(self), self ).__getattribute__( \
+          'convertParamsToAItems' )
+        changed2 = []
+        l = [conv(i, convertIDs=convertIDs, changed=changed2) for i in params ]
+        if changed2:
+          if not changed:
+            changed.append( True )
+          return l
+        else:
+          return params
       except:
-        return self.getAItem( params )
+        obj = super( type(self), self ).__getattribute__( 'getAItem' )( \
+          params, convertIDs=convertIDs )
+        if obj is not params and not changed:
+          changed.append( True )
+        return obj
 
 
   def newItemRep(self):
@@ -894,7 +970,53 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       if (getattr(self.internalRep, "get", None)):
         return self.internalRep.get()
       return self.internalRep
-    
+
+    def __getattr__( self, name ):
+      '''
+      __getattribute__ is overloaded in Anatomist.direct.api:
+      the aim is to intercept calls to the C++ API and convert return
+      values which contain C++ instances to their corresponding wrapper in
+      the Anatomist.direct implementation: AObject, AWindow, Referential,
+      Transformation instances are converted.
+      Drawback: all return values which are lists or dictionaries are copied.
+      '''
+      try:
+        return super( base.Anatomist.AItem, self ).__getattr__( name )
+      except:
+        # delegate to internalRep
+        gattr = super( base.Anatomist.AItem, self ).__getattribute__
+        att = getattr( gattr( 'internalRep' ), name, None )
+        if att is None:
+          raise AttributeError( "'" + type(self).__name__ + \
+            '\' object has no attribute \'' + name + "'" )
+        conv = super( type(gattr( 'anatomistinstance' ) ),
+          gattr( 'anatomistinstance' ) ).__getattribute__( \
+            'convertParamsToAItems' )
+        if callable( att ):
+          return lambda *args, **kwargs: conv( att( *args, **kwargs ) )
+        return conv( att )
+
+    def _getAttributeNames( self ):
+      '''IPython completion feature...'''
+      m = []
+      l = [ self.internalRep, self ]
+      done = set()
+      while l:
+        c = l.pop()
+        done.add( c )
+        m += filter( lambda x: not x.startswith( '_' ) and x not in m,
+          c.__dict__.keys() )
+        cl = getattr( c, '__bases__', None )
+        if not cl:
+          cl = getattr( c, '__class__', None )
+          if cl is None:
+            continue
+          else:
+            cl = [ cl ]
+        l += filter( lambda x: x not in done, cl )
+      return m
+
+
   ###############################################################################
   class AObject(AItem, base.Anatomist.AObject):
     """
@@ -959,7 +1081,13 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
           ref=self.anatomistinstance.Referential(self.anatomistinstance, iref)
         return ref
       else: # must raise AttributeError if it is not an existing attribute. else, error can occur on printing the object
-        return getattr(self.internalRep, name)
+        #return getattr(self.internalRep, name)
+        return Anatomist.AItem.__getattr__( self, name )
+
+    def _getAttributeNames( self ):
+      return [ 'objectType', 'children', 'filename', 'name', 'copy',
+        'loadDate', 'material', 'referential' ] \
+        + Anatomist.AItem._getAttributeNames( self )
 
     def __eq__( self, other ):
       return self.getInternalRep() == other.getInternalRep()
@@ -1110,8 +1238,12 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
           aobjs.append(self.anatomistinstance.AObject(self.anatomistinstance, obj))
         return aobjs
       else: # must raise AttributeError if it is not an existing attribute. else, error can occur on printing the object
-        return getattr(self.internalRep, name)
-    
+        return Anatomist.AItem.__getattr__( self, name )
+
+    def _getAttributeNames( self ):
+      return [ 'windowType', 'group', 'objects' ] + \
+        Anatomist.AItem._getAttributeNames( self )
+
     def takeRef(self):
       if self.refType is None:
         self.refType=self.anatomistinstance.defaultRefType
@@ -1181,8 +1313,11 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         self.refUuid=self.internalRep.uuid()
         return self.refUuid
       else: # must raise AttributeError if it is not an existing attribute. else, error can occur on printing the object
-        raise AttributeError
-  
+        return Anatomist.AItem.__getattr__( self, name )
+
+    def _getAttributeNames( self ):
+      return [ 'refUuid' ] + Anatomist.AItem._getAttributeNames( self )
+
   ###############################################################################
   class APalette(AItem, base.Anatomist.APalette):
     """

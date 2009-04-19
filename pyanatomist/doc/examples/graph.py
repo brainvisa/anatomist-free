@@ -16,8 +16,11 @@ ag.setColorMode( ag.PropertyMap )
 ag.setColorProperty( 'toto' )
 ag.notifyObservers()
 
+w = a.createWindow( '3D' )
+w.addObjects( ag, add_graph_nodes=True )
+
 def main():
-	import qt
-	qt.qApp.exec_loop()
+  import qt
+  qt.qApp.exec_loop()
 
 if __name__ == '__main__' : main()

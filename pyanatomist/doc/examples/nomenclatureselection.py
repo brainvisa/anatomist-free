@@ -8,7 +8,7 @@ nom = a.loadObject( os.path.join( sh, 'nomenclature', 'hierarchy',
     'sulcal_root_colors.hie' ) )
 graph = a.loadObject( 'Rbase.arg' )
 w = a.createWindow( '3D' )
-w.addObjects( [ graph ] + graph.children )
+w.addObjects( graph, add_graph_nodes=True )
 
 a.execute( 'SelectByNomenclature', names='PREFRONTAL_right', nomenclature=nom )
 

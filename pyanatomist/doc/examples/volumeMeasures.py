@@ -6,7 +6,7 @@ import anatomist.direct.api as anatomist
 from soma import aims
 
 import matplotlib, numpy
-matplotlib.use('Agg')
+matplotlib.use('QtAgg')
 import pylab
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas

@@ -3299,7 +3299,16 @@ RoiManagementAction::createWindow( const string& type )
   AObject * graph
     = _sharedData->getObjectByName( AObject::GRAPH,
                                     _sharedData->myCurrentGraph );
-
+  
+  AObject * volume
+    = _sharedData->getObjectByName( AObject::VOLUME,
+                                    _sharedData->myCurrentImage );
+  
+  AObject * fusion2D
+    = _sharedData->getObjectByName( AObject::FUSION2D,
+                                    _sharedData->myCurrentImage );
+  
+  
   CreateWindowCommand	*cmd = new CreateWindowCommand( type ) ;
   theProcessor->execute( cmd ) ;
   AWindow * win = cmd->createdWindow() ;
@@ -3316,13 +3325,25 @@ RoiManagementAction::createWindow( const string& type )
   set<AObject*> objs ;
   Command *cmd2;
   if( graph )
-  {
     objs.insert(graph) ;
-
-    cmd2 = new AddObjectCommand( objs, wins ) ;
-    theProcessor->execute( cmd2 ) ;
+  else {
+    set<AObject*> winObj = view()->window()->Objects() ;
+    for( set<AObject*>::iterator it = winObj.begin() ; it != winObj.end() ; ++it )
+      if( (*it)->type() == AObject::GRAPH )
+	objs.insert( *it ) ;
   }
-  cmd2 = new AddObjectCommand( view()->window()->Objects(), wins ) ;
+  if( volume || fusion2D ){
+    if( volume )
+      objs.insert(volume) ;
+    if( fusion2D )
+      objs.insert( fusion2D ) ;
+  } else {
+    set<AObject*> winObj = view()->window()->Objects() ;
+    for( set<AObject*>::iterator it = winObj.begin() ; it != winObj.end() ; ++it )
+      if( (*it)->type() == AObject::VOLUME  || (*it)->type() == AObject::FUSION2D )
+	objs.insert( *it ) ;
+  }
+  cmd2 = new AddObjectCommand( objs, wins ) ;
   theProcessor->execute( cmd2 ) ;
 
   Command	*cmd3 = new SetControlCommand( wins, "PaintControl" ) ;
