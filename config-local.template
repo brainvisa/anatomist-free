@@ -19,6 +19,7 @@ CONFIG  = thread
 release-darwin:CXXFLAGS = -O
 
 INCLUDEPATH = @includeBuild@
+INCBDIR = anatomist
 
 LIBS = @libDepsLine@
 
@@ -30,7 +31,7 @@ defmodule(anavtk)       = @anavtk:enabled@
 
 module(anaalgo):INCLUDEPATH	+= @aimsalgo:includeBuild@
 module(anaqwt) :INCLUDEPATH	+= @qwt:includes@
-module(anavtk) :INCLUDEPATH     += @vtkinria3d:includes@
+module(anavtk) :INCLUDEPATH     += @vtk:includes@
 
 LIBS_FULL	 = @libLine@
 LIBS_WITH_ALGO	 = @anaalgo:libDepsLine@
