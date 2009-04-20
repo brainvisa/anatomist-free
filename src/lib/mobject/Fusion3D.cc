@@ -98,7 +98,7 @@ Fusion3D::Fusion3D( const vector<AObject *> & obj )
   _depth = 5.0;
   _step = 2.5;
   d->refreshVTexture = true;
-  setReferential( (*begin())->getReferential() );
+  setReferentialInheritance( *begin() );
   unsigned	ntex = vol.size();
   glAddTextures( ntex );
   TexExtrema  & te = GLComponent::glTexExtrema( 0 );
@@ -106,6 +106,7 @@ Fusion3D::Fusion3D( const vector<AObject *> & obj )
   te.max.push_back( 0 );
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 0 );
+  setReferentialInheritance( *begin() );
 }
 
 
