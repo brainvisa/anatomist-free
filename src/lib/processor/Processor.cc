@@ -60,7 +60,7 @@ Processor* anatomist::theProcessor = 0;
 
 //--- methods -----------------------------------------------------------------
 
-Processor::Processor() : _idle(true)
+Processor::Processor() : _idle(true), _allowExecWhileIdle( false )
 {
 	assert(theProcessor == 0);
 	theProcessor = this;
@@ -88,33 +88,32 @@ Processor::~Processor()
 void
 Processor::execute(Command* c)
 {
-	_todo.push(c);
-	if (_idle)
-	{
-		while (!_todo.empty())
-		{
-			_idle = false;
-			Command* q = _todo.front();
-			_todo.pop();
-                        try
-                          {
-                            q->execute();
-                          }
-                        catch( exception & e )
-                          {
-                            ErrorMessage::message
-                              ( string( qApp->translate
-                                        ( "ErrorMessage", 
-                                          e.what() ).utf8().data() ), 
-                                ErrorMessage::Error );
-                          }
-			this->setChanged();
-			Memo memo(Memo::EXECUTE, q);
-			this->notifyObservers(&memo);
-			_done.push(q);
-			_idle = true;
-		}
-	}
+  _todo.push(c);
+  if (_idle || _allowExecWhileIdle )
+  {
+    while (!_todo.empty())
+    {
+      _idle = false;
+      Command* q = _todo.front();
+      _todo.pop();
+      try
+      {
+        q->execute();
+      }
+      catch( exception & e )
+      {
+        ErrorMessage::message
+          ( string( qApp->translate
+                    ( "ErrorMessage", e.what() ).utf8().data() ),
+            ErrorMessage::Error );
+      }
+      this->setChanged();
+      Memo memo(Memo::EXECUTE, q);
+      this->notifyObservers(&memo);
+      _done.push(q);
+      _idle = true;
+    }
+  }
 }
 
 
@@ -210,3 +209,17 @@ Processor::redo()
 	this->notifyObservers(&memo);
 	return true;
 }
+
+
+bool
+Processor::execWhileIdle() const
+{
+  return _allowExecWhileIdle;
+}
+
+
+void Processor::allowExecWhileIdle( bool x )
+{
+  _allowExecWhileIdle = x;
+}
+

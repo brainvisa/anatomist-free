@@ -119,6 +119,8 @@ namespace anatomist
     anatomist::Command* 
     execute( const std::string &, const std::string & ="", 
              anatomist::CommandContext* = 0 ) /PyName=_execute/;
+    bool execWhileIdle() const;
+    void allowExecWhileIdle( bool );
 
   private:
     Processor( const anatomist::Processor & );

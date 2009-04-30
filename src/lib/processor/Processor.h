@@ -88,6 +88,8 @@ namespace anatomist
     bool undo();
     ///	Redo last undone command
     bool redo();
+    void allowExecWhileIdle( bool );
+    bool execWhileIdle() const;
 
     /**@name	Helper structures*/
     //@{
@@ -133,6 +135,7 @@ namespace anatomist
 
     /// Is the processor idle or is it already executing?
     bool _idle;
+    bool _allowExecWhileIdle;
 
     //@}
   };

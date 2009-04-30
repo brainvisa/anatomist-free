@@ -55,6 +55,7 @@ import anatomist.cpp as anatomist
 
 consoleShellRunning = False
 
+
 class PyAnatomistModule( anatomist.Module ):
   def name( self ):
     return 'Python menu'
@@ -237,6 +238,56 @@ def loadpython():
     else:
       execfile( file.latin1() )
 
+
+class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
+  def run( filename, options ):
+    print 'run:', filename, 'with options:', options
+    try:
+      a.theProcessor().allowExecWhileIdle( True )
+      execfile( filename )
+      return list(a.getObjects())[0]
+    except Exception, e:
+      import traceback, sys
+      sys.stdout.flush()
+      sys.stderr.flush()
+      print >> sys.stderr, e
+      traceback.print_stack()
+      sys.stderr.flush()
+    a.theProcessor().allowExecWhileIdle( False )
+  run = staticmethod( run )
+  def load( self, filename, options ):
+    if not qt4:
+      from soma.qt3gui import qt3thread
+      res = qt3thread.QtThreadCall().push( PythonScriptRun.run, filename,
+        options )
+    else:
+      print 'warning, running python script in an arbitrary thread'
+      res = self.run( filename, options )
+    return res
+
+
+#class ExecutePythonCommand( anatomist.WaitCommand ):
+  #def __init__( self, filename ):
+    #self._filename = filename
+  #def name( self ):
+    #return 'ExecutePython'
+  #def write( self, context ):
+    #from soma import aims
+    #obj = aims.Object( { '__syntax__' : 'ExecutePythonCommand' } )
+    #obj[ 'filename' ] = self._filename
+    #return obj
+  #def doit( self ):
+    #try:
+      #execfile( self._filename )
+    #except Exception, e:
+      #import traceback, sys
+      #sys.stdout.flush()
+      #sys.stderr.flush()
+      #print >> sys.stderr, e
+      #traceback.print_stack()
+      #sys.stderr.flush()
+
+
 cw = a.getControlWindow()
 if cw is not None:
   menu = cw.menuBar()
@@ -306,4 +357,10 @@ if cw is not None:
       pop.setItemEnabled( 1003, False )
 
 pm = PyAnatomistModule()
+if not qt4:
+  from soma.qt3gui import qt3thread
+  tc = qt3thread.QtThreadCall()
+  del tc
+pythonscriptloader = PythonScriptRun()
+anatomist.ObjectReader.registerLoader( 'py', pythonscriptloader )
 

@@ -1053,30 +1053,35 @@ bool ObjectReader::reload( AObject* object, bool notifyFail,
     }
   }
 
-  object->setLoadDate( time( 0 ) );
-
   if( status )
+  {
+    object->setLoadDate( time( 0 ) );
+
+    GLComponent	*c = object->glAPI();
+    if( c )
     {
-      GLComponent	*c = object->glAPI();
-      if( c )
-        {
-          c->glSetChanged( GLComponent::glGEOMETRY );
-          c->glSetChanged( GLComponent::glTEXIMAGE );
-          c->glSetChanged( GLComponent::glTEXENV );
-        }
-      else
-        object->setChanged();
-      object->setHeaderOptions();
-      object->notifyObservers( object );
+      c->glSetChanged( GLComponent::glGEOMETRY );
+      c->glSetChanged( GLComponent::glTEXIMAGE );
+      c->glSetChanged( GLComponent::glTEXENV );
     }
+    else
+      object->setChanged();
+    Referential *oldref = 0;
+    if( !object->referentialInheritance() )
+      oldref = object->getReferential();
+    object->setHeaderOptions();
+    if( object->getReferential() == theAnatomist->centralReferential() )
+      object->setReferential( oldref );
+    object->notifyObservers( object );
+  }
   else
+  {
+    cout << "Reload failed !\n";
+    if( notifyFail )
     {
-      cout << "Reload failed !\n";
-      if( notifyFail )
-	{
-	  //  message box etc.
-	}
+      //  message box etc.
     }
+  }
 
   return( status );
 }
