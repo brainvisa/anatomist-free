@@ -388,7 +388,10 @@ void QAWindow::dragEnterEvent( QDragEnterEvent* event )
 
 void QAWindow::dropEvent( QDropEvent* event )
 {
-  //cout << "QAWindow::dropEvent\n";
+  // cout << "QAWindow::dropEvent\n";
+  if( event->source() == this )
+    return;
+
   set<AObject *>	o;
   list<QString> objects;
   list<QString> scenars;
@@ -432,34 +435,51 @@ void QAWindow::detach()
 
 void QAWindow::mouseMoveEvent( QMouseEvent * ev )
 {
-  set<AObject *>	so = Objects();
-  if( ev->state() == Qt::RightButton )
-    //      || ( e->button() == 0 && d->button == Qt::RightButton ) )
-    {
-      // filter selected objects
-      SelectFactory	*sf = SelectFactory::factory();
-      set<AObject *>::iterator	i = so.begin(), e = so.end(), j;
-      while( i != e )
-        if( !sf->isSelected( Group(), *i ) )
-          {
-            j = i;
-            ++i;
-            so.erase( j );
-          }
-        else
-          ++i;
-    }
-  if( !so.empty() )
-    {
-      QDragObject *d = new QAObjectDrag( so, this, "dragObject" );
+  if( !(ev->state() & Qt::LeftButton) )
+  {
+    ev->ignore();
+    return;
+  }
 
-      map<int, QPixmap>::const_iterator	ip
-        = QObjectTree::TypeIcons.find( (*so.begin())->type() );
-      if( ip != QObjectTree::TypeIcons.end() )
-        d->setPixmap( (*ip).second );
-      d->dragCopy();
-      ev->accept();
+  set<AObject *>	so = Objects();
+  set<AObject *>::iterator	i = so.begin(), e = so.end(), j;
+  // filter out temporary objects
+  while( i != e )
+    if( isTemporary( *i ) )
+    {
+      j = i;
+      ++i;
+      so.erase( j );
     }
+    else
+      ++i;
+
+  if( ev->state() & Qt::ControlButton )
+  {
+    // filter selected objects
+    SelectFactory	*sf = SelectFactory::factory();
+    i = so.begin();
+    while( i != e )
+      if( !sf->isSelected( Group(), *i ) )
+        {
+          j = i;
+          ++i;
+          so.erase( j );
+        }
+      else
+        ++i;
+  }
+  if( !so.empty() )
+  {
+    QDragObject *d = new QAObjectDrag( so, this, "dragObject" );
+
+    map<int, QPixmap>::const_iterator	ip
+      = QObjectTree::TypeIcons.find( (*so.begin())->type() );
+    if( ip != QObjectTree::TypeIcons.end() )
+      d->setPixmap( (*ip).second );
+    d->dragCopy();
+    ev->accept();
+  }
   else
     ev->ignore();
 }

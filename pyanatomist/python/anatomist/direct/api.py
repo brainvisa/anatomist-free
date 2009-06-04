@@ -474,10 +474,10 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     Transformation instances are converted.
     Drawback: all return values which are lists or dictionaries are copied.
     '''
-    att = super( type(self), self ).__getattribute__( name )
+    att = super( Anatomist, self ).__getattribute__( name )
     if callable( att ):
       if type( att ).__name__ == 'builtin_function_or_method':
-        conv = super( type(self), self ).__getattribute__( \
+        conv = super( Anatomist, self ).__getattribute__( \
           'convertParamsToAItems' )
         return lambda *args, **kwargs: conv( att( *args, **kwargs ) )
     return att
@@ -654,23 +654,43 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
       return self.lastPosition(ref.internalRep)
     else: return self.lastPosition()
   
-  def getWindowTypes(self):
+  def getAimsInfo(self):
     """
-    Gets all existing window types.
-    @rtype: list of string
-    @return: list of existing window types. For example : axial, sagittal, 3D...
+    @rtype: string
+    @return: information about AIMS library.
     """
-    # ###? manque la methode correspondante en c++
-    pass
+    command=self.execute("GetInfo", aims_info = 1)
+    result=command.result()
+    return result['aims_info']
   
-  def getFusionMethods(self):
+  def getCommandsList(self):
     """
-    Gets all existing fusion methods.
-    @rtype: list of string
-    @return: list of existing fusion methods. For example: Fusion2DMethod...
+    @rtype: dict
+    @return: list of commands available in Anatomist with their parameters. 
+    dict command name -> dict parameter name -> dict attribute -> value (needed, type)
     """
-    # ###? manque la methode correspondante en c++
-    pass
+    command=self.execute("GetInfo", list_commands = 1)
+    result=command.result()
+    return result['commands']
+
+  
+  def getModulesInfo(self):
+    """
+    @rtype: dict
+    @return: list of modules and their description. dict module name -> dict attribute -> value (description)
+    """
+    command=self.execute("GetInfo", modules_info = 1)
+    result=command.result()
+    return result['modules']
+  
+  def getVersion(self):
+    """
+    @rtype: string
+    @return: Anatomist version
+    """
+    command=self.execute("GetInfo", version = 1)
+    result=command.result()
+    return result['anatomist_version']
   
   ###############################################################################
   # objects manipulation
@@ -866,7 +886,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
     if isinstance( params, basestring ) or isinstance( params, QString ):
       return params
     elif operator.isSequenceType( params ):
-      conv = super( type(self), self ).__getattribute__( \
+      conv = super( Anatomist, self ).__getattribute__( \
         'convertParamsToAItems' )
       changed2 = []
       l = [ conv(i, convertIDs=convertIDs, changed=changed2) for i in params ]
@@ -878,7 +898,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         return l
     elif operator.isMappingType( params ):
       r = {}
-      conv = super( type(self), self ).__getattribute__( \
+      conv = super( Anatomist, self ).__getattribute__( \
         'convertParamsToAItems' )
       changed2 = []
       for k, v in params.iteritems():
@@ -891,7 +911,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         return params
     else:
       try:
-        conv = super( type(self), self ).__getattribute__( \
+        conv = super( Anatomist, self ).__getattribute__( \
           'convertParamsToAItems' )
         changed2 = []
         l = [conv(i, convertIDs=convertIDs, changed=changed2) for i in params ]
@@ -902,7 +922,7 @@ class Anatomist(base.Anatomist, cpp.Anatomist):
         else:
           return params
       except:
-        obj = super( type(self), self ).__getattribute__( 'getAItem' )( \
+        obj = super( Anatomist, self ).__getattribute__( 'getAItem' )( \
           params, convertIDs=convertIDs )
         if obj is not params and not changed:
           changed.append( True )

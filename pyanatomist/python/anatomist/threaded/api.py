@@ -65,5 +65,5 @@ mainThread=QtThreadCall()
 Anatomist=anatomist.threadedimpl.getThreadSafeClass(\
   classObj=anatomist.direct.api.Anatomist, mainThread=mainThread)
 
-del anatomist.threadedimpl, anatomist.direct.api, mainThread, QtThreadCall
+del anatomist, mainThread, QtThreadCall
 

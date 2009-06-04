@@ -33,6 +33,7 @@ HEADERS = \
 	commands/cCloseWindow.h \
 	commands/cCreateControlWindow.h \
 	commands/cCreateWindow.h \
+        commands/cDeleteAll.h \
 	commands/cDeleteElement.h \
 	commands/cDeleteObject.h \
 	commands/cDuplicateObject.h \
@@ -258,6 +259,7 @@ SOURCES = \
 	commands/cCloseWindow.cc \
 	commands/cCreateControlWindow.cc \
 	commands/cCreateWindow.cc \
+        commands/cDeleteAll.cc \
 	commands/cDeleteElement.cc \
 	commands/cDeleteObject.cc \
 	commands/cDuplicateObject.cc \

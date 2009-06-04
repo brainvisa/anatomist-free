@@ -89,9 +89,11 @@ public:
   void resetActions( ) ;
   void updateActiveControl( const std::string& activeControlDescription ) ;
 
-  void addTab( QWidget * child, const QString & label ) ;
+  void addTab( QWidget * child, const QString & label,
+               const std::string & actionid = "" );
   void showPage ( QWidget * w ) ;
   void showPage( const std::string & label );
+  const std::set<std::string> & actions() const;
 
 private slots :
   void switchControlDescriptionActivation() ;

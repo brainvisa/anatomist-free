@@ -66,6 +66,7 @@ namespace anatomist
     bool involves( const Transformation* t ) const;
     void addObserver( Observer *observer );
     void deleteObserver( Observer *observer );
+    const std::set<const Referential *> & referentials() const;
 
   private:
     struct Private;

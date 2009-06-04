@@ -69,12 +69,32 @@
 <h5>Bug fixes:</h5>
 
 <li>Fixed coronal and sagittal views orientation in direct referentials</li>
+<li>Fixes in some objects update functions (when depending on other objects changes)
+</li>
+<li>reimplemented the "clear unused referentials" feature in a way that does what it should, this time.
+</li>
+<li>When saving a graph, correctly set its .data filename</li>
+<li>Fixed default referential on Fusion3D objects</li>
+<li>when reloading an object, keep its former referential if the reloaded object has the default one
+</li>
+<li>fixed crash when changing the fusion object in Fusion2D parameters window
+</li>
 
 
 <h5>Minor improvements:</h5>
 
 <li>New ClippedObject, allowing to cut any object by a clipping plane with its own orientation
 </li>
+<li>avoid creating spurious unneeded referentials in AssignReferential</li>
+<li>anatomist python plugin: allow to load a .py script via the
+open button or LoadObject command (this is a security problem, of course, and should be disabled in some cases, but it's convenient)
+</li>
+
+
+<h5>Internals:</h5>
+
+<li>Fixes for the Qt4 variant</li>
+<li>little fixes and additions to python bindings</li>
 
 
 <!-- -->

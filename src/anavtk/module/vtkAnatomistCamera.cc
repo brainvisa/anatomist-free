@@ -19,6 +19,13 @@ vtkStandardNewMacro(vtkAnatomistCamera);
 #endif
 
 
+#if VTK_MAJOR_VERSION>5 || (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION >=4)
+#define THE_MATRIX ProjectionTransform
+#else
+#define THE_MATRIX PerspectiveTransform
+#endif
+
+
 // This function was coped from vtkgluPickMatrix, itself
 // copied from Mesa and sets up the pick matrix
 inline void vtkgluAnatomistPickMatrix( GLdouble x, GLdouble y,
@@ -305,21 +312,21 @@ void vtkAnatomistCamera::Render(vtkRenderer *ren)
 
 
 
-vtkMatrix4x4 *vtkAnatomistCamera::GetPerspectiveTransformMatrix(double aspect,
+vtkMatrix4x4 *vtkAnatomistCamera::GetProjectionTransformMatrix(double aspect,
 								double nearz,
 								double farz)
 {
 
-  this->PerspectiveTransform->Identity();
+  this->THE_MATRIX->Identity();
 
   // apply user defined transform last if there is one
   if (this->UserTransform)
     {
-      this->PerspectiveTransform->Concatenate(this->UserTransform->GetMatrix());
+      this->THE_MATRIX->Concatenate(this->UserTransform->GetMatrix());
     }
 
   // adjust Z-buffer range
-  this->PerspectiveTransform->AdjustZBuffer(-1, +1, nearz, farz);
+  this->THE_MATRIX->AdjustZBuffer(-1, +1, nearz, farz);
 
   
   if (this->ParallelProjection)
@@ -334,11 +341,11 @@ vtkMatrix4x4 *vtkAnatomistCamera::GetPerspectiveTransformMatrix(double aspect,
 	double ymin = (this->WindowCenter[1]-1.0)*height;
 	double ymax = (this->WindowCenter[1]+1.0)*height;
       */
-    this->PerspectiveTransform->Ortho(this->PerspectiveBounds[0], this->PerspectiveBounds[1],
-				      this->PerspectiveBounds[2], this->PerspectiveBounds[3],
-				      this->PerspectiveBounds[4], this->PerspectiveBounds[5]);
-				      //this->ClippingRange[0],
-				      //this->ClippingRange[1]);
+    this->THE_MATRIX->Ortho(this->PerspectiveBounds[0], this->PerspectiveBounds[1],
+				     this->PerspectiveBounds[2], this->PerspectiveBounds[3],
+				     this->PerspectiveBounds[4], this->PerspectiveBounds[5]);
+				     //this->ClippingRange[0],
+				     //this->ClippingRange[1]);
 
     }
   
@@ -365,9 +372,9 @@ vtkMatrix4x4 *vtkAnatomistCamera::GetPerspectiveTransformMatrix(double aspect,
     double ymin = (this->WindowCenter[1]-1.0)*height;
     double ymax = (this->WindowCenter[1]+1.0)*height;
 
-    this->PerspectiveTransform->Frustum(xmin, xmax, ymin, ymax,
-                                        this->ClippingRange[0],
-                                        this->ClippingRange[1]);
+    this->THE_MATRIX->Frustum(xmin, xmax, ymin, ymax,
+                                       this->ClippingRange[0],
+                                       this->ClippingRange[1]);
     }
 
   if (this->Stereo)
@@ -375,24 +382,24 @@ vtkMatrix4x4 *vtkAnatomistCamera::GetPerspectiveTransformMatrix(double aspect,
     // set up a shear for stereo views
     if (this->LeftEye)
       {
-      this->PerspectiveTransform->Stereo(-this->EyeAngle/2,
+      this->THE_MATRIX->Stereo(-this->EyeAngle/2,
                                          this->Distance);
       }
     else
       {
-      this->PerspectiveTransform->Stereo(+this->EyeAngle/2,
+      this->THE_MATRIX->Stereo(+this->EyeAngle/2,
                                          this->Distance);
       }
     }
 
   if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0)
     {
-    this->PerspectiveTransform->Shear(this->ViewShear[0],
+    this->THE_MATRIX->Shear(this->ViewShear[0],
                                       this->ViewShear[1],
                                       this->ViewShear[2]*this->Distance);
     }
 
-  return this->PerspectiveTransform->GetMatrix();
+  return this->THE_MATRIX->GetMatrix();
   
 }
 

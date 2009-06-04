@@ -599,29 +599,36 @@ PaintAction::paintType()
   return _sharedData->myPainter->paintType() ;
 }
 
+
 namespace
 {
 
-  int indexInWindow( const AWindow3D * win )
+  AObject* renderBeforeObject( const AWindow3D* win, AGraph* gr )
   {
-    list<AObject *> objs = win->objectsRenderingOrder();
-    list<AObject *>::iterator io, eo = objs.end();
-    int i = 0;
-    for( io=objs.begin(); io!=eo; ++io, ++i )
-      if( (*io)->type() == AObject::GRAPHOBJECT )
-        return i;
-    return -1;
+    list<AObject *> objs;
+    list<AObject *>::iterator i, e = objs.end();
+    win->processRenderingOrder( objs );
+    for( i=objs.begin(); i!=e; ++i )
+    {
+      const AObject::ParentList & pl = (*i)->parents();
+      if( pl.find( gr ) != pl.end() )
+        return *i;
+    }
+    if( objs.empty() )
+      return 0;
+    return objs.front();
   }
 
 }
+
 
 void 
 PaintAction::paintStart( int x, int y, int globalX, int globalY )
 {
   hideCursor();
   // We've first to get the selected bucket.
-  if ( ! ( _sharedData->myCurrentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) )
+  if( !( _sharedData->myCurrentModifiedRegion =
+        RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) )
     {
       _sharedData->myValidRegion = false ;
       return ;
@@ -674,8 +681,9 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
     {
       myLinkedWindows.push_back( win3d ) ;
       // _sharedData->myDeltaModifications->setName( "tmp modifications" );
-      win3d->registerObject( _sharedData->myDeltaModifications, true,
-                             indexInWindow( win3d ) );
+      win3d->registerObject( _sharedData->myDeltaModifications, true );
+      win3d->renderBefore( _sharedData->myDeltaModifications,
+        renderBeforeObject( win3d, g ) );
     }
   }
 
@@ -810,8 +818,9 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
     if (win3d)
     {
       myLinkedWindows.push_back( win3d ) ;
-      win3d->registerObject( _sharedData->myDeltaModifications, true,
-                             indexInWindow( win3d ) );
+      win3d->registerObject( _sharedData->myDeltaModifications, true );
+      win3d->renderBefore( _sharedData->myDeltaModifications,
+        renderBeforeObject( win3d, g ) );
     }
   }
 
@@ -2253,6 +2262,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 
 void PaintAction::updateCursor()
 {
+  // cout << "PaintAction::updateCursor\n" << flush;
   AWindow3D *win = dynamic_cast<AWindow3D *>( view()->window() );
   if( !win )
     return;
@@ -2294,14 +2304,14 @@ void PaintAction::updateCursor()
   }
   if( ref != _sharedData->myCursor->getReferential() )
     _sharedData->myCursor->setReferential( ref );
+  Referential* winRef = win->getReferential() ;
+  AGraph    *g = RoiChangeProcessor::instance()->getGraph( win );
   if( _sharedData->myCursorShapeChanged )
   {
     _sharedData->myCursorShapeChanged = false;
     _sharedData->myCursor->setVoxelSize( region->VoxelSize() );
     _sharedData->myCursor->bucket().clear();
 
-    Referential* winRef = win->getReferential() ;
-    AGraph    *g = RoiChangeProcessor::instance()->getGraph( win );
     list< pair< Point3d, ChangesItem> > changes;
 
     _sharedData->myPainter->reset();
@@ -2325,6 +2335,9 @@ void PaintAction::updateCursor()
   }
   Point3df vs = region->VoxelSize();
   Point3df pos( _sharedData->myCursorPos );
+  Transformation *tr2 = theAnatomist->getTransformation( winRef, buckRef );
+  if( tr2 )
+    pos = tr2->transform( pos );
   pos[0] = round( pos[0] / vs[0] ) * vs[0];
   pos[1] = round( pos[1] / vs[1] ) * vs[1];
   pos[2] = round( pos[2] / vs[2] ) * vs[2];
@@ -2333,8 +2346,12 @@ void PaintAction::updateCursor()
   tr->unregisterTrans();
   tr->registerTrans();
 
-  win->unregisterObject( _sharedData->myCursor );
-  win->registerObject( _sharedData->myCursor, true, indexInWindow( win ) );
+  //win->unregisterObject( _sharedData->myCursor );
+  if( !win->hasObject( _sharedData->myCursor ) )
+  {
+    win->registerObject( _sharedData->myCursor, true );
+    win->renderBefore( _sharedData->myCursor, renderBeforeObject( win, g ) );
+  }
   win->refreshTemp();
 }
 
@@ -2359,6 +2376,7 @@ void PaintAction::hideCursor()
   {
     view()->window()->unregisterObject( _sharedData->myCursor );
     ((AWindow3D *) view()->window())->refreshTemp();
+    _sharedData->myCursorShapeChanged = true;
   }
 }
 

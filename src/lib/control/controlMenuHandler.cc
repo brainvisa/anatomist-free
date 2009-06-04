@@ -111,7 +111,10 @@ void AControlMenuHandler::create()
   file->insertItem( ControlWindow::tr( "Replay scenario" ), _receiver, 
 		    SLOT( replayScenario() ), 0, 3 );
   file->insertSeparator();
-  file->insertItem( ControlWindow::tr( "Quit" ), _receiver, SLOT( quit() ), 
+  file->insertItem( ControlWindow::tr( "Clear everything" ), _receiver,
+                    SLOT( clearAll() ), 0, 6 );
+  file->insertSeparator();
+  file->insertItem( ControlWindow::tr( "Quit" ), _receiver, SLOT( close() ), 
 		    Qt::CTRL+Qt::Key_Q, 4 );
 
   //	Objects

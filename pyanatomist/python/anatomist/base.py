@@ -487,22 +487,35 @@ class Anatomist(ObservableSingleton, object):
     """
     pass
   
-  def getWindowTypes(self):
+  def getAimsInfo(self):
     """
-    Gets all existing window types.
-    @rtype: list of string
-    @return: list of existing window types. For example : axial, sagittal, 3D...
-    """
-    pass
-  
-  def getFusionMethods(self):
-    """
-    Gets all existing fusion methods.
-    @rtype: list of string
-    @return: list of existing fusion methods. For example: Fusion2DMethod...
+    @rtype: string
+    @return: information about AIMS library.
     """
     pass
   
+  def getCommandsList(self):
+    """
+    @rtype: dict
+    @return: list of commands available in Anatomist with their parameters. 
+    dict command name -> dict parameter name -> dict attribute -> value (needed, type)
+    """
+    pass
+  
+  def getModulesInfo(self):
+    """
+    @rtype: dict
+    @return: list of modules and their description. dict module name -> dict attribute -> value (description)
+    """
+    pass
+  
+  def getVersion(self):
+    """
+    @rtype: string
+    @return: Anatomist version
+    """
+    pass
+    
   ###############################################################################
   # objects manipulation
   def showObject(self, object):
@@ -847,11 +860,18 @@ class Anatomist(ObservableSingleton, object):
       """
       pass
 
-  def waitEndProcessing(self):
+  def sync(self):
     """
     Wait for anatomist finishing current processing.
     """
     pass
+ 
+  def waitEndProcessing(self):
+    """
+    Deprecated. Use method sync instead.
+    """
+    self.sync()
+
   ############################################################################### 
   # logs
 

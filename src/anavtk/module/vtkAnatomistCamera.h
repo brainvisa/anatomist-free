@@ -27,10 +27,16 @@ public:
   void SetAnaViewTransform (vtkMatrix4x4*);
   vtkGetObjectMacro (AnaViewTransform, vtkMatrix4x4);
 
-  
+
+#if VTK_MAJOR_VERSION>5 || (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION >=4)
+  virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double,
+                                                      double,
+                                                      double);
+#else
   virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double,
                                                       double,
                                                       double);
+#endif
   
   void SetPerspectiveBounds (const double&, const double&, const double&, const double&, const double&, const double&);
   

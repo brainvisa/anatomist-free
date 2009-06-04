@@ -161,7 +161,10 @@ class VtkComponent( SystemComponent ):
       SystemComponent.findInclude( self )
 
   def _libraries( self ):
-    return [ 'QVTK', 'vtkHybrid' ]
+    return [ 'QVTK', 'vtkWidgets', 'vtkHybrid', 'vtkRendering', 'vtkGraphics', 'vtkImaging', 'vtkIO', 'vtkFiltering', 'vtkCommon' ]
+
+  def dependencies( self ):
+    return [ 'qt', 'opengl' ]
 
 #-----------------------------------------------------------------------------
 class AnatomistAlgoComponent( GenericMakerModuleComponent ):
@@ -232,7 +235,7 @@ class VtkInria3DComponent( SystemComponent ):
     return [ VtkComponent ]
 
   def _libraries( self ):
-    return [ 'vtkDataManagement' ]
+    return [ 'vtkVisuManagement', 'vtkRenderingAddOn', 'vtkDataManagement' ]
 
 #-----------------------------------------------------------------------------
 class AnatomistVtkComponent( GenericMakerModuleComponent ):

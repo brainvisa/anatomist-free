@@ -113,8 +113,12 @@ void ChooseReferentialWindow::drawContents( const char *name )
   set<Referential *>::const_iterator	ir, fr=refs.end();
   string                                refname;
   QString                               qrefname;
+  bool hidden;
 
   for( ir=refs.begin(); ir!=fr; ++ir )
+  {
+    if( !(*ir)->header().getProperty( "hidden", hidden )
+        || !hidden )
     {
       if( (*ir)->header().getProperty( "name", refname ) )
         qrefname = refname.c_str();
@@ -125,10 +129,11 @@ void ChooseReferentialWindow::drawContents( const char *name )
       bg->addButton( but, id++ );
 #endif
       setQtColorStyle( but );
-      but->setPalette( QPalette( QColor( (*ir)->Color().red(), 
-					 (*ir)->Color().green(),
-					 (*ir)->Color().blue() ) ) );
+      but->setPalette( QPalette( QColor( (*ir)->Color().red(),
+                                        (*ir)->Color().green(),
+                                        (*ir)->Color().blue() ) ) );
     }
+  }
 
 #if QT_VERSION >= 0x040000
     connect( bg, SIGNAL( buttonClicked( int ) ), this,
@@ -158,7 +163,6 @@ void ChooseReferentialWindow::unregisterObservable( Observable* o )
 
 void ChooseReferentialWindow::chooseRef( int num )
 {
-  cout << "chooseRef\n";
   Referential	*ref = 0;
   int		id = 0;
 
@@ -169,10 +173,20 @@ void ChooseReferentialWindow::chooseRef( int num )
   else if( num > 1 )	// old
     {
       set<Referential *>		refs = theAnatomist->getReferentials();
-      set<Referential *>::const_iterator	ir;
+      set<Referential *>::const_iterator	ir, er = refs.end();
       int				i;
+      bool hidden;
 
-      for( i=2, ir=refs.begin(); i<num; ++i, ++ir ) {}
+      for( i=1, ir=refs.begin(); ir!=er; ++ir )
+      {
+        if( !(*ir)->header().getProperty( "hidden", hidden )
+            || !hidden )
+        {
+          ++i;
+          if( i == num )
+            break;
+        }
+      }
       ref = *ir;
     }	// else: none
 

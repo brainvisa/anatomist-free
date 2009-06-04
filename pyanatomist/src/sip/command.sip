@@ -11,6 +11,7 @@
 #include <anatomist/commands/cNewPalette.h>
 #include <anatomist/commands/cGroupObjects.h>
 #include <anatomist/commands/cObjectInfo.h>
+#include <anatomist/commands/cGetInfo.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/commands/cGenerateTexture.h>
 #include <anatomist/commands/cExtractTexture.h>
@@ -45,6 +46,8 @@ namespace anatomist
       sipClass = sipClass_anatomist_GroupObjectsCommand;
     else if( dynamic_cast<anatomist::ObjectInfoCommand *>( sipCpp ) )
       sipClass = sipClass_anatomist_ObjectInfoCommand;
+    else if( dynamic_cast<anatomist::GetInfoCommand *>( sipCpp ) )
+      sipClass = sipClass_anatomist_GetInfoCommand;
     else
       sipClass = sipClass_anatomist_RegularCommand;
   else if( dynamic_cast<anatomist::WaitCommand *>( sipCpp ) )
@@ -913,5 +916,30 @@ typedef std::set<std::string> set_STRING;
     carto::Object result();
   };
 
-};
 
+  class GetInfoCommand : anatomist::RegularCommand
+  {
+%TypeHeaderCode
+#include <anatomist/commands/cGetInfo.h>
+%End
+
+  public:
+
+    GetInfoCommand( const std::string & filename, anatomist::CommandContext* context, 
+		    bool objects = false, bool windows = false, 
+		    bool refs = false, bool trans = false, 
+		    bool palettes = false, const std::string & nameobj = "", 
+		    bool namewin = false, bool selects = false, 
+		    bool link = false, anatomist::Referential* linkref = 0, 
+                    bool nameref = false, bool nametrans = false,
+                    const std::string & requestid = "", bool version = false,
+                    bool listcommands = false, bool aimsinfo = false,
+                    bool modinfo = false
+                  );
+    virtual ~GetInfoCommand();
+
+    virtual std::string name() const;
+    carto::Object result();
+  };
+
+};

@@ -392,8 +392,8 @@ void Fusion2DWindow::objectsChosen( const set<AObject *> & o )
   // cout << "objects chosen: " << o.size() << endl;
 
   set<AObject *>::const_iterator	i, e = _obj.end();
-  for( i=_obj.begin(); i!=e; ++i )
-    (*i)->deleteObserver( this );
+  while( !_obj.empty() )
+    (*_obj.begin())->deleteObserver( this );
   _obj = o;
   for( i=_obj.begin(); i!=e; ++i )
     (*i)->addObserver( this );

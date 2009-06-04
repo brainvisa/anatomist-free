@@ -61,6 +61,7 @@
 #include <anatomist/commands/cGroupObjects.h>
 #include <anatomist/commands/cFusionObjects.h>
 #include <anatomist/commands/cAssignReferential.h>
+#include <anatomist/commands/cDeleteAll.h>
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/control/winconfigio.h>
 #include <anatomist/misc/error.h>
@@ -1630,5 +1631,20 @@ bool ControlWindow::close( bool alsoDelete )
                         tr( "Anatomist is controlled by another application "
                           "which does not allow closing the main window" ) );
   return false;
+}
+
+
+void ControlWindow::clearAll()
+{
+  /// warn / confirm
+  int x = QMessageBox::critical( this, tr( "Delete all objects / windows "
+    "/referentials ?" ), tr( "All objects, windows, referentials and "
+    "transformations will be deleted" ), QMessageBox::Ok,
+    QMessageBox::Cancel );
+  if( x != QMessageBox::Ok )
+    return;
+
+  DeleteAllCommand *dc = new DeleteAllCommand;
+  theProcessor->execute( dc );
 }
 

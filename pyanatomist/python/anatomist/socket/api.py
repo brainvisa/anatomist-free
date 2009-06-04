@@ -665,21 +665,39 @@ class Anatomist(base.Anatomist):
     result=self.executeAndWaitAnswer("GetInfo", linkcursor_lastpos = 1, linkcursor_referential = ref)
     return result.get('linkcursor_position')
   
-  def getWindowTypes(self):
+  def getAimsInfo(self):
     """
-    Gets all existing window types.
-    @rtype: list of string
-    @return: list of existing window types. For example : axial, sagittal, 3D...
+    @rtype: string
+    @return: information about AIMS library.
     """
-    pass
+    result=self.executeAndWaitAnswer("GetInfo", aims_info = 1)
+    return result.get('aims_info')
   
-  def getFusionMethods(self):
+  def getCommandsList(self):
     """
-    Gets all existing fusion methods.
-    @rtype: list of string
-    @return: list of existing fusion methods. For example: Fusion2DMethod...
+    @rtype: dict
+    @return: list of commands available in Anatomist with their parameters. 
+    dict command name -> dict parameter name -> dict attribute -> value (needed, type)
     """
-    pass
+    result=self.executeAndWaitAnswer("GetInfo", list_commands = 1)
+    return result.get('commands')
+
+  
+  def getModulesInfo(self):
+    """
+    @rtype: dict
+    @return: list of modules and their description. dict module name -> dict attribute -> value (description)
+    """
+    result=self.executeAndWaitAnswer("GetInfo", modules_info = 1)
+    return result.get('modules')
+  
+  def getVersion(self):
+    """
+    @rtype: string
+    @return: Anatomist version
+    """
+    result=self.executeAndWaitAnswer("GetInfo", version = 1)
+    return result.get('anatomist_version')
   
   ###############################################################################
   #implementation dependant methods
@@ -862,7 +880,7 @@ class Anatomist(base.Anatomist):
     self.lock.release()
     return str( self._requestID )
    
-  def waitEndProcessing(self):
+  def sync(self):
     """
     Wait for anatomist finishing current processing.
     Some commands gives no  answer so we don't know when anatomist has finished to process them. Use this method to make sure anatomist has finished all current processing. 

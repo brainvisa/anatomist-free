@@ -554,7 +554,7 @@ void Anatomist::initialize()
   _privData->allObjectsFilter 
     = string( ControlWindow::tr( "All Anatomist objects" ).utf8().data() ) 
     + " (*.vimg *.vimg.Z *.vimg.gz *.img *.img.Z *.img.gz *.ima *.ima.Z" 
-    + " *.ima.gz *.v *.i *.p *.jpg *.tif *.png *.bmp *.gif *.mng *.pbm *.pgm " 
+    + " *.ima.gz *.v *.i *.p *.fdf *.jpg *.tif *.png *.bmp *.gif *.mng *.pbm *.pgm "
     "*.ppm *.xbm *.xpm *.mnc *.mnc.Z *.mnc.gz *.nii *.nii.gz"
     " *.tri *.tri.Z *.tri.gz *.mesh *.mesh.Z *.mesh.gz"
     " *.arg *.bundles"
@@ -565,7 +565,7 @@ void Anatomist::initialize()
   _privData->specificFilters 
     = string( ControlWindow::tr( "Volumes" ).utf8().data() ) 
     + " (*.vimg *.vimg.Z *.vimg.gz *.img *.img.Z *.img.gz *.ima *.ima.Z "
-    + "*.ima.gz *.v *.i *.p *.jpg *.png *.bmp *.gif *.mng *.pbm *.pgm " 
+    + "*.ima.gz *.v *.i *.p *.fdf *.jpg *.png *.bmp *.gif *.mng *.pbm *.pgm " 
     "*.ppm *.xbm *.xpm *.mnc *.mnc.Z *.mnc.gz *.nii *.nii.gz);;"
     + ControlWindow::tr( "DICOM" ).utf8().data() 
     + " (*);;"

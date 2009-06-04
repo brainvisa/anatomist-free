@@ -59,6 +59,7 @@
 #include <anatomist/commands/cControlsParams.h>
 #include <anatomist/commands/cCreateControlWindow.h>
 #include <anatomist/commands/cCreateWindow.h>
+#include <anatomist/commands/cDeleteAll.h>
 #include <anatomist/commands/cDeleteElement.h>
 #include <anatomist/commands/cDeleteObject.h>
 #include <anatomist/commands/cDuplicateObject.h>
@@ -212,6 +213,7 @@ void StdModule::actionsDeclaration()
   ChangePaletteCommand::initSyntax();
   CreateControlWindowCommand::initSyntax();
   CreateWindowCommand::initSyntax();
+  DeleteAllCommand::initSyntax();
   DeleteElementCommand::initSyntax();
   DeleteObjectCommand::initSyntax();
   DuplicateObjectCommand::initSyntax();

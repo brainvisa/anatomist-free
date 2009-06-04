@@ -199,7 +199,22 @@ public:
 
   QSlider* getSliceSlider (void) const;
 
-  std::list<anatomist::AObject *> objectsRenderingOrder() const;
+  /** adds a rendering order constraint: obj will be rendered immediately
+      after afterthis. If afterthis is null, then constraints for obj are
+      cleared.
+  */
+  void renderAfter( anatomist::AObject* obj, anatomist::AObject* afterthis );
+  /** adds a rendering order constraint: obj will be rendered immediately
+      before beforethis. If beforethis is null, then constraints for obj are
+      cleared.
+  */
+  void renderBefore( anatomist::AObject* obj, anatomist::AObject* beforethis );
+  /** calculates the objects rendering order, according to various constraints
+      (opaque/transparent, order at register time, before/after constraints).
+      \return the iterator on the first transparent object (or end if none is)
+  */
+  std::list<anatomist::AObject *>::iterator processRenderingOrder(
+    std::list<anatomist::AObject *> & opaque ) const;
 
 public slots:
   virtual void polish();

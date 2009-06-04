@@ -126,3 +126,8 @@ void TransformationObserver::deleteObserver( Observer *observer )
 }
 
 
+const set<const Referential *> & TransformationObserver::referentials() const
+{
+  return d->refs;
+}
+

@@ -61,6 +61,7 @@ struct ToolBox::Private
 
   QVBox	*tab;
   QVBox	*controldata;
+  set<string> actions;
 };
 
 
@@ -99,6 +100,7 @@ ToolBox::resetActions()
     delete myActionTab ;
     myActionTab = 0 ;
   }
+  d->actions.clear();
   myActionTab = new QTabWidget( d->tab, "ActionTab") ;
   myActionTab->show() ;
   setCaption( tr("Tool Box") ) ;
@@ -132,7 +134,8 @@ ToolBox::updateActiveControl( const string& activeControlDescription )
 }
 
 void 
-ToolBox::addTab( QWidget * child, const QString & label )
+ToolBox::addTab( QWidget * child, const QString & label,
+                 const string & actionid )
 {
   QString lab(label) ;
   int index  = lab.find("Action", 0) ;
@@ -144,7 +147,18 @@ ToolBox::addTab( QWidget * child, const QString & label )
   if( index != -1 )
     lab.remove( index, 6 ) ;
   myActionTab->addTab( child, lab ) ;
+  if( actionid.empty() )
+    d->actions.insert( (const char *) label.utf8() );
+  else
+    d->actions.insert( actionid );
 }
+
+
+const set<string> & ToolBox::actions() const
+{
+  return d->actions;
+}
+
 
 void 
 ToolBox::showPage ( QWidget * w )
@@ -994,22 +1008,32 @@ ControlSwitch::updateToolBox()
   if( !myToolBox )
     return;
 
+  const std::set<std::string>& actions = myActionPool->actionSet() ;
+  set<std::string>::const_iterator
+      iter, last( actions.end() ), notfound( myToolBox->actions().end() );
+  bool redo = false;
+
+  for( iter=actions.begin(); iter != last; ++iter )
+    if( myToolBox->actions().find( *iter ) == notfound )
+    {
+      redo = true;
+      break;
+    }
+  if( !redo && actions.size() == myToolBox->actions().size() )
+    return; // identical actions: don't do it again
+
+  // here actions have changed
   myToolBox->resetActions() ;
   myToolBox->updateActiveControl(myActiveControl) ;
 
-  const std::set<std::string>& actions = myActionPool->actionSet() ;
-  set<std::string>::const_iterator
-      iter( actions.begin() ), last( actions.end() ) ;
-
-  while ( iter != last )
+  for( iter=actions.begin(); iter != last; ++iter )
   {
     QWidget * view = myActionPool->action( *iter )->actionView(myToolBox) ;
     if( view != 0 ){
       const string& label = myActionPool->action( *iter )->name() ;
-      myToolBox->addTab( view, tr(label.c_str()) ) ;
+      myToolBox->addTab( view, tr(label.c_str()), label ) ;
       myToolBox->showPage(view) ;
     }
-    ++iter ;
   }
 }
 

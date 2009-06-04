@@ -230,7 +230,7 @@ namespace anatomist
     virtual std::set<unsigned> & typeCount() = 0;
     virtual const std::string & baseTitle() const = 0;
     /** returns true if a refresh has been triggered and not performed yet
-	(in subclasses: AWindow always returns true) */
+	(in subclasses: AWindow always returns false) */
     virtual bool needsRedraw() const { return( false ); }
     bool isTemporary( AObject* o ) const;
     const std::set<AObject *> & temporaryObjects() const

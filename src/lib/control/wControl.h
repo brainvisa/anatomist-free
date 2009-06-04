@@ -160,6 +160,8 @@ public slots:
   void aimsInfo();
   void openThreeViews();
   void openBlockView();
+  /// clears all objects / windows / refs / transfos to reset the application
+  void clearAll();
 
 protected:
   virtual void createMenu();
