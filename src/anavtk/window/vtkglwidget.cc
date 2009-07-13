@@ -76,24 +76,19 @@ vtkQAGLWidget::vtkQAGLWidget( AWindow* win, QWidget* parent, const char* name,
   : vtkGLWidget( parent, name, shareWidget, f ), GLWidgetManager( win, this )
 {
 
-  /*
-    Force the frame to be direct for VTK cameras.
-   */
-  setZDirection (false);
-
-  /*
-    Ugly, but hey, no other choice: need to change orientation of the light to
-    reflect the change of frame.
-  */
+  vtkObject::SetGlobalWarningDisplay (0); // due to legacy warnings, standard output is polluted.
+  
   AWindow3D* papa = dynamic_cast<AWindow3D*>(win);
   if( papa )
   {
-    _parent = papa;
+    _parent = papa;    
     // change the light direction
-    anatomist::Light* light = papa->light();
-    light->SetPosition(0.0, 0.0, 10.0, 0.0);
-    light->SetSpotDirection (0.0, 0.0, 1.0);
-	light->SetModelTwoSide( 1.0 );
+    /*
+      anatomist::Light* light = papa->light();
+      light->SetPosition(0.0, 0.0, 10.0, 0.0);
+      light->SetSpotDirection (0.0, 0.0, 1.0);
+      light->SetModelTwoSide( 1.0 );
+    */
   }
   else
   {
@@ -162,10 +157,10 @@ void vtkQAGLWidget::initializeGL()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glEnable(GL_DEPTH_TEST);
-  glFrontFace( GL_CCW ); // might be due to SetZDirection(false)
+  //glFrontFace( GL_CCW ); // might be due to SetZDirection(false)
+  glFrontFace( GL_CW );
   
   glCullFace( GL_BACK );
-  
   glEnable( GL_CULL_FACE );
   glEnable( GL_NORMALIZE );
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
@@ -515,11 +510,20 @@ void vtkQAGLWidget::project()
 
 	    /*
 	      Find out the best clipping range.
-	     */
+	    */
 	    near = near<cam->GetClippingRange()[0]?near:cam->GetClippingRange()[0];
 	    far  = far>cam->GetClippingRange()[1]?far:cam->GetClippingRange()[1];
 	    
 	    cam->SetPerspectiveBounds ( (double)-sizex, (double)sizex, (double)-sizey, (double)sizey, near, far);
+
+	    /*
+	      Every time the camera is accessed, it recomputes its ViewTransform internally.
+	      But as we have to -1 the first row, we have to do it again.
+	    */	    
+	    vtkMatrix4x4* matrix = cam->GetViewTransformMatrix();
+	    for( int i=0; i<4; i++)
+	      matrix->SetElement (0, i, -1.0 * matrix->GetElement (0, i) );
+	    cam->GetViewTransformObject()->Update();
 	    
 	  }
 	}
@@ -571,13 +575,51 @@ void vtkQAGLWidget::project()
        if( cam)
        {
 	 Point3df center = rotationCenter();
-	 cam->SetFocalPoint (center[0], center[1], center[2]);
+	 /*
+	 double focal[3]={center[0], center[1], center[2]};
+	 double position[3]={center[0]+cam->GetDistance()*mat->GetElement(0,2),
+			     center[1]+cam->GetDistance()*mat->GetElement(1,2),
+			     center[2]+cam->GetDistance()*mat->GetElement(2,2)};
+	 double viewup[3]={mat->GetElement(0,1), mat->GetElement(1,1), mat->GetElement(2,1)};
 
+	 cam->SetFocalPoint (0, 0, -1);
+	 cam->SetPosition (0,0,0);
+	 cam->SetViewUp (0,1,0);
+
+	 vtkPerspectiveTransform* pTransform = vtkPerspectiveTransform::New();
+	 pTransform->SetupCamera (position, focal, viewup );
+	 vtkMatrix4x4* matrix = pTransform->GetMatrix();
+	 for( int i=0; i<4; i++)
+	   matrix->SetElement (0, i, -1.0 * matrix->GetElement (0, i) );
+
+	 vtkTransform* transform = vtkTransform::New();
+	 transform->SetMatrix ( matrix );
 	 
+	 cam->GetViewTransformObject()->SetInput ( transform );
+
+	 pTransform->Delete();
+	 transform->Delete();
+	 
+	 */
+	 	
+	 cam->SetFocalPoint (center[0], center[1], center[2]);
 	 cam->SetPosition (center[0]+cam->GetDistance()*mat->GetElement(0,2),
 			   center[1]+cam->GetDistance()*mat->GetElement(1,2),
 			   center[2]+cam->GetDistance()*mat->GetElement(2,2));
 	 cam->SetViewUp (mat->GetElement(0,1), mat->GetElement(1,1), mat->GetElement(2,1));
+	 
+	 vtkMatrix4x4* matrix = cam->GetViewTransformMatrix();
+	 //std::cout << *matrix << std::endl;
+	 for( int i=0; i<4; i++)
+	   matrix->SetElement (0, i, -1.0 * matrix->GetElement (0, i) );
+	 cam->GetViewTransformObject()->Update();
+
+	 /*
+	 vtkTransform* transform = vtkTransform::New();
+	 transform->SetMatrix ( mat );
+	 cam->GetViewTransformObject()->SetInput ( transform );
+	 transform->Delete();
+	 */
 	 
 	 //ren->ResetCameraClippingRange(); // new clipping range for vtk
        }

@@ -43,7 +43,6 @@
 #include <string>
 #include <set>
 
-
 class QPixmap;
 
 namespace anatomist
@@ -103,11 +102,11 @@ signals:
 
 public slots:
   virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
-#if QT_VERSION >= 0x040000
+  //#if QT_VERSION >= 0x040000
   void rightButtonPressed( Q3ListViewItem*, const QPoint &, int );
-#else
-  void rightButtonPressed( QListViewItem*, const QPoint &, int );
-#endif
+  //#else
+  //  void rightButtonPressed( QListViewItem*, const QPoint &, int );
+  //#endif
 
 protected slots:
   void unselectInvisibleItems();

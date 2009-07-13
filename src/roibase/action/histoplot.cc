@@ -33,6 +33,7 @@
  * knowledge of the CeCILL license version 2 and that you accept its terms.
  */
 
+#include <cstdlib>
 #include <anatomist/control/wControl.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/action/histoplot.h>

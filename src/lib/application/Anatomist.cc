@@ -39,6 +39,7 @@
    they are undefined and gl.h makes lots of errors, unless qgl.h is 
    included first (qgl seems to correctly define these macros)
 */
+#include <cstdlib>
 #include <qgl.h>
 #endif
 
@@ -358,7 +359,7 @@ Anatomist::~Anatomist()
     cout << "~Anatomist: object " << obj << " destroyed" << endl;
 #endif
     }
-   
+
   // cleanup some global variables
   delete getControlWindow();
   delete FusionFactory::factory();

@@ -1,8 +1,8 @@
 #include <qapplication.h>
 #include <qcursor.h>
+#include "qevent.h"
 
 #include "anatomist/module/vtkQtRenderWindowInteractor2.h"
-//#include "anatomist/module/vtkQtRenderWindow2.h"
 
 #include <vtkCommand.h>
 #include <vtkRenderWindow.h>
@@ -11,8 +11,6 @@
 #ifdef Q_WS_MAC
 #include <vtkCarbonRenderWindow.h>
 #endif
-
-
 
 
 vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2() :
@@ -24,7 +22,7 @@ vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2() :
 vtkQtRenderWindowInteractor2 * vtkQtRenderWindowInteractor2::New()
 {
   // we don't make use of the objectfactory, because we're not registered
-  return new vtkQtRenderWindowInteractor2 (NULL, 0, 0, 0, 0);
+  return new vtkQtRenderWindowInteractor2((QWidget*)NULL, 0, 0, 0);
 }
 
 
@@ -58,7 +56,11 @@ void vtkQtRenderWindowInteractor2::InitRenderWindowInteractor()
   this->Handle = 0;
   this->UpdateRenderWindow = 1;
 
+#if QT_VERSION < 0x040000
   setFocusPolicy(QWidget::WheelFocus);
+#else
+  setFocusPolicy(Qt::WheelFocus);
+#endif
 
   vtkInteractorStyleSwitch* tb = vtkInteractorStyleSwitch::New();
   tb->SetCurrentStyleToTrackballCamera ();
@@ -280,13 +282,13 @@ void vtkQtRenderWindowInteractor2::mousePressEvent(QMouseEvent *me) {
   SetEventInformationFlipY(xp, yp, ctrl, shift);
   
   switch (me->button()) {
-      case QEvent::LeftButton:
+      case Qt::LeftButton:
         InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
         break;
-      case QEvent::MidButton:
+      case Qt::MidButton:
         InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
         break;
-      case QEvent::RightButton:
+      case Qt::RightButton:
         InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
         break;
       default:
@@ -310,13 +312,13 @@ void vtkQtRenderWindowInteractor2::mouseReleaseEvent(QMouseEvent *me) {
     SetEventInformationFlipY(xp, yp, ctrl, shift);
 
     switch (me->button()) {
-    case QEvent::LeftButton:
+    case Qt::LeftButton:
         InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
         break;
-    case QEvent::MidButton:
+    case Qt::MidButton:
         InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
         break;
-    case QEvent::RightButton:
+    case Qt::RightButton:
         InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
         break;
     default:

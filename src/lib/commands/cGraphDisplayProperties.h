@@ -51,7 +51,9 @@ namespace anatomist
   public:
     GraphDisplayPropertiesCommand
     ( const std::set<AObject *> & graphs, const std::string & dispmode, 
-      const std::string & property );
+      const std::string & property,
+      const std::string & nomenclatureproperty = "", bool setpropmask = false,
+      int propmask = 0 );
     virtual ~GraphDisplayPropertiesCommand();
 
     virtual std::string name() const { return( "GraphDisplayProperties" ); }
@@ -64,6 +66,9 @@ namespace anatomist
     std::set<AObject *>	_graphs;
     std::string		_displaymode;
     std::string		_property;
+    std::string         _nomenclatureproperty;
+    bool                _haspropertymask;
+    int                 _propertymask;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

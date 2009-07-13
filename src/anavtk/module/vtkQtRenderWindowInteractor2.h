@@ -1,7 +1,12 @@
 #ifndef _vtkQtRenderWindowInteractor2_h
 #define _vtkQtRenderWindowInteractor2_h
 
+#include <qglobal.h>
+#if QT_VERSION>0x040000
+#include <QtOpenGL/QGLWidget>
+#else
 #include <qgl.h>
+#endif
 #include <qpaintdevice.h>
 #include <qtimer.h>
 
@@ -37,7 +42,6 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
 			       const QGLWidget* shareWidget = 0, Qt::WFlags f=0 );
   vtkQtRenderWindowInteractor2(const QGLFormat& format, QWidget* parent=0, const char* name=0,
 			       const QGLWidget* shareWidget = 0, Qt::WFlags f=0 );
-  
   
   static int IsTypeOf(const char *type)
   {

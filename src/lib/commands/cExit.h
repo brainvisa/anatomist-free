@@ -38,6 +38,7 @@
 #define ANATOMIST_COMMANDS_CEXIT_H
 
 
+#include <cstdlib>
 #include <anatomist/processor/Command.h>
 
 

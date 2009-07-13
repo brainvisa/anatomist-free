@@ -184,14 +184,14 @@ extr&ecirc;mes  de la texture de l'objet<br>
 
 
 <h3>AssignReferential</h3>
-Attribue (et crée au besoin) un référential à des objets et des fenêtres.
+Attribue (et crï¿½e au besoin) un rï¿½fï¿½rential ï¿½ des objets et des fenï¿½tres.
 
 <table border="1" width="100%" nosave="">
 <tbody>
   <tr>
     <td><tt>ref_id</tt></td>
     <td><tt>int</tt></td>
-    <td id="txt">ID du référentiel (s'il n'existe pas, un nouveau référentiel est créé)
+    <td id="txt">ID du rï¿½fï¿½rentiel (s'il n'existe pas, un nouveau rï¿½fï¿½rentiel est crï¿½ï¿½)
     </td>
   </tr>
   <tr>
@@ -208,7 +208,7 @@ Attribue (et crée au besoin) un référential à des objets et des fenêtres.
     <td><tt>central_ref</tt></td>
     <td><tt>int</tt></td>
     <td id="txt">
-    non nul si on désigne le référentiel central (indestructible) d'Anatomist
+    non nul si on dï¿½signe le rï¿½fï¿½rentiel central (indestructible) d'Anatomist
     </td>
   </tr>
   <tr>
@@ -216,15 +216,15 @@ Attribue (et crée au besoin) un référential à des objets et des fenêtres.
     <td><tt>string</tt> (optionnel)</td>
     <td id="txt">
       <b>Nouveau dans Anatomist 3.1</b><br>
-      fichier contenant des information supplémentaires sur le référentiel: en particulier un nom et un UUID (identifiant unique). Si l'UUID lu depuis ce fichier existe déjà  dans anatomist, le référentiel n'est pas recréé (sinon l'identifiant ne serait plus unique).<br>
-      On peut donc utiliser la commande <tt>AssignReferential</tt> juste pour charger des informations complémentaires sur un repère existant. Ce fichier est au format de type <tt>.minf</tt> (bien que l'extension soit généralement <tt>.referential</tt>).
+      fichier contenant des information supplï¿½mentaires sur le rï¿½fï¿½rentiel: en particulier un nom et un UUID (identifiant unique). Si l'UUID lu depuis ce fichier existe dï¿½jï¿½  dans anatomist, le rï¿½fï¿½rentiel n'est pas recrï¿½ï¿½ (sinon l'identifiant ne serait plus unique).<br>
+      On peut donc utiliser la commande <tt>AssignReferential</tt> juste pour charger des informations complï¿½mentaires sur un repï¿½re existant. Ce fichier est au format de type <tt>.minf</tt> (bien que l'extension soit gï¿½nï¿½ralement <tt>.referential</tt>).
     </td>
   <tr>
     <td><tt>ref_uuid</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td id="txt">
       <b>Nouveau dans Anatomist 3.1</b><br>
-      Précise optionnellement qu'on veut utiliser un référentiel précis, d'identifiant unique (et persistant) connu, et déjà présent dans Anatomist. Ce paramètre est généralement incompatible avec le paramètre <tt>filename</tt> parce que l'UUID trouvé dans le fichier est potentiellement différent de celui précisé ici.
+      Prï¿½cise optionnellement qu'on veut utiliser un rï¿½fï¿½rentiel prï¿½cis, d'identifiant unique (et persistant) connu, et dï¿½jï¿½ prï¿½sent dans Anatomist. Ce paramï¿½tre est gï¿½nï¿½ralement incompatible avec le paramï¿½tre <tt>filename</tt> parce que l'UUID trouvï¿½ dans le fichier est potentiellement diffï¿½rent de celui prï¿½cisï¿½ ici.
     </td>
   </tr>
   </tr>
@@ -292,7 +292,7 @@ Fixe le point de vue, le zoom etc de fen&ecirc;tres 3D
     </td>
     <td id="txt">
       <b>Nouveau dans Anatomist 3.1</b><br>
-      fixe la boîte englobante du champ de vue (partie min) dans le système de coordonnées de la fenêtre
+      fixe la boï¿½te englobante du champ de vue (partie min) dans le systï¿½me de coordonnï¿½es de la fenï¿½tre
     </td>
   </tr>
   <tr>
@@ -302,7 +302,7 @@ Fixe le point de vue, le zoom etc de fen&ecirc;tres 3D
     </td>
     <td id="txt">
       <b>Nouveau dans Anatomist 3.1</b><br>
-      fixe la boîte englobante du champ de vue (partie max) dans le système de coordonnées de la fenêtre
+      fixe la boï¿½te englobante du champ de vue (partie max) dans le systï¿½me de coordonnï¿½es de la fenï¿½tre
     </td>
   </tr>
 
@@ -371,15 +371,15 @@ Ferme des fen&ecirc;tres
 
 
 <h3>ControlsParams</h3>
-Ouvre ou ferme la fenête de paramètres ds contrôles
+Ouvre ou ferme la fenï¿½te de paramï¿½tres ds contrï¿½les
 
 <table border="1" nosave="" width="100%">
 <tbody>
   <tr>
     <td><tt>window</tt></td>
     <td><tt>int</tt></td>
-    <td>Fenêtre depuis laquelle les paramètres des contrôles doivent
-      être ouverts</td>
+    <td>Fenï¿½tre depuis laquelle les paramï¿½tres des contrï¿½les doivent
+      ï¿½tre ouverts</td>
   </tr>
   <tr>
     <td><tt>show</tt></td>
@@ -420,14 +420,14 @@ Ouvre une nouvelle fen&ecirc;tre
   <tr>
     <td><tt>block</tt></td>
     <td><tt>int</tt> (optionnel)</td>
-    <td><b>Nouveau dans Anatomist 3.0</b>. Permet d'insérer la nouvelle 
-      fenêtre dans un "bloc" qui en contient éventuellement plusieurs. 
-      Par défaut (<tt>bloc=0</tt>) la fenêtre n'est pas dans un bloc. Si 
-      <tt>bloc</tt> n'existe pas encore, un nouveau bloc est créé, sinon 
-      la fenêtre est ajoutée à un bloc existant.<br>
-      <b>Note:</b> Le numéro de bloc est un identifiant comme ceux des 
-      objets, fenêtres etc: il ne faut donc pas réutiliser un numéro 
-      déjà pris.
+    <td><b>Nouveau dans Anatomist 3.0</b>. Permet d'insï¿½rer la nouvelle 
+      fenï¿½tre dans un "bloc" qui en contient ï¿½ventuellement plusieurs. 
+      Par dï¿½faut (<tt>bloc=0</tt>) la fenï¿½tre n'est pas dans un bloc. Si 
+      <tt>bloc</tt> n'existe pas encore, un nouveau bloc est crï¿½ï¿½, sinon 
+      la fenï¿½tre est ajoutï¿½e ï¿½ un bloc existant.<br>
+      <b>Note:</b> Le numï¿½ro de bloc est un identifiant comme ceux des 
+      objets, fenï¿½tres etc: il ne faut donc pas rï¿½utiliser un numï¿½ro 
+      dï¿½jï¿½ pris.
     </td>
   </tr>
   <tr>
@@ -435,15 +435,15 @@ Ouvre une nouvelle fen&ecirc;tre
     <td><tt>int</tt> (optionnel)</td>
     <td>
       <b>Nouveau dans Anatomist 3.1</b>.
-      Si <tt>block</tt> spécifie un nouveau bloc à créer, il aura ce nombre de colonnes. Défaut: 2.
+      Si <tt>block</tt> spï¿½cifie un nouveau bloc ï¿½ crï¿½er, il aura ce nombre de colonnes. Dï¿½faut: 2.
     </td>
   </tr>
   <tr>
     <td><tt>options</tt></td>
     <td><tt><a href="../../en/programming/dicttype.html">dictionary</a></tt> (optionnel)</td>
-    <td><b>Nouveau dans Anatomist 3.0</b>. Options supplémentaires passées à la 
-      fenêtre au moment de la créer. Certains types de fenêtres peuvent interpréter 
-      des options spécifiques.<br>
+    <td><b>Nouveau dans Anatomist 3.0</b>. Options supplï¿½mentaires passï¿½es ï¿½ la 
+      fenï¿½tre au moment de la crï¿½er. Certains types de fenï¿½tres peuvent interprï¿½ter 
+      des options spï¿½cifiques.<br>
       Par ex.:<br>
       <code>options { '__syntax__' : 'tree', 'no_decoration': 1 }</code><br>
       Pour le moment, les options reconnues sont:
@@ -451,10 +451,10 @@ Ouvre une nouvelle fen&ecirc;tre
         <tr>
 	  <td><tt>no_decoration</tt></td>
 	  <td><tt>bool</tt></td>
-	  <td>Ne dessine pas de "décorations" autour de la zone utile de la 
-	    vue: pas de menus, pas de boutons. De cette manière la vue 
-	    pourra être incrustée dans une application spécialisée et entièrement 
-	    contrôlée par cette application.
+	  <td>Ne dessine pas de "dï¿½corations" autour de la zone utile de la 
+	    vue: pas de menus, pas de boutons. De cette maniï¿½re la vue 
+	    pourra ï¿½tre incrustï¿½e dans une application spï¿½cialisï¿½e et entiï¿½rement 
+	    contrï¿½lï¿½e par cette application.
 	  </td>
         </tr>
       </table>
@@ -608,7 +608,7 @@ sous forme de texture
 <a name="ExtractTexture"></a>
 <h3><a href="../../en/programming/commands/extracttexture.html">ExtractTexture</a></h3>
 <b>Nouveau dans Anatomist 3.0</b><br>
-Extrait la texture d'un objet texturé et en fait un nouvel objet texture
+Extrait la texture d'un objet texturï¿½ et en fait un nouvel objet texture
 
 <table border="1" width="100%">
 <tbody>
@@ -637,7 +637,7 @@ maillage temporel + texture fixe ne donnera qu'un seul instant)<br>
                </td>
                <td valign="top"><tt>int</tt> (optionnel)<br>
                </td>
-               <td valign="top">objet résultat
+               <td valign="top">objet rï¿½sultat
                </td>
              </tr>
 
@@ -673,9 +673,9 @@ Cr&eacute;e un objet fusion &agrave; partir de plusieurs autres<br>
 <a name="GenerateTexture"></a>
 <h3>GenerateTexture</h3>
 <b>Nouveau dans Anatomist 3.0</b><br>
-Génère une texture vierge (valeur 0 partout) correspondant à un objet maillé
-(maillage, bucket...). La texture sera créée en mode "auto-généré" (c'est à dire 
-que les valeurs seront générées par OpenGL à l'affichage, voir 
+Gï¿½nï¿½re une texture vierge (valeur 0 partout) correspondant ï¿½ un objet maillï¿½
+(maillage, bucket...). La texture sera crï¿½ï¿½e en mode "auto-gï¿½nï¿½rï¿½" (c'est ï¿½ dire 
+que les valeurs seront gï¿½nï¿½rï¿½es par OpenGL ï¿½ l'affichage, voir 
 <a href="#TexturingParams">TexturingParams</a>)
 
 <table border="1" width="100%">
@@ -686,8 +686,8 @@ que les valeurs seront générées par OpenGL à l'affichage, voir
                <td valign="top"><tt>int</tt> (optionnel)<br>
                </td>
                <td valign="top">objet sur lequel on construit la texture. S'il n'est 
-	         pas donné, la texture n'aura qu'un seul point et ne sera utilisable 
-		 qu'en mode "généré par OpenGL".
+	         pas donnï¿½, la texture n'aura qu'un seul point et ne sera utilisable 
+		 qu'en mode "gï¿½nï¿½rï¿½ par OpenGL".
                </td>
              </tr>
 	     <tr>
@@ -696,7 +696,7 @@ que les valeurs seront générées par OpenGL à l'affichage, voir
 	       <td valign="top"><tt>int</tt> (optionnel)
 	       </td>
 	       <td valign="top">dimension de la texture: 1 ou 2.<br>
-	         Défaut: 1
+	         Dï¿½faut: 1
 	       </td>
 	     </tr>
              <tr>
@@ -704,7 +704,7 @@ que les valeurs seront générées par OpenGL à l'affichage, voir
                </td>
                <td valign="top"><tt>int</tt> (optionnel)<br>
                </td>
-               <td valign="top">objet résultat
+               <td valign="top">objet rï¿½sultat
                </td>
              </tr>
                     
@@ -731,7 +731,7 @@ commande <tt> Output</tt>)
     <td><tt>aims_info</tt></td>
     <td><tt>int</tt> (bool) (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.1</b><br>
-      donne des informations sur la librairie AIMS (texte non structuré)
+      donne des informations sur la librairie AIMS (texte non structurï¿½)
     </td>
   </tr>
   <tr>
@@ -766,7 +766,7 @@ commande <tt> Output</tt>)
     <td><tt>list_commands</tt></td>
     <td><tt>int</tt> (bool) (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.1</b><br>
-      donne la liste des commandes connues par Anatomist, et leurs paramètres
+      donne la liste des commandes connues par Anatomist, et leurs paramï¿½tres
     </td>
   </tr>
   <tr>
@@ -795,7 +795,7 @@ commande <tt> Output</tt>)
     <td><tt>int</tt> (bool) (optionnel)<br>
     </td>
     <td><b>Nouveau dans Anatomist 3.0</b><br>
-      assigne des noms (id) aux référentiels qui n'en ont pas dans le contexte courant
+      assigne des noms (id) aux rï¿½fï¿½rentiels qui n'en ont pas dans le contexte courant
     </td>
   </tr>
   <tr>
@@ -813,7 +813,7 @@ commande <tt> Output</tt>)
     <td><tt>int</tt> (bool) (optionnel)<br>
     </td>
     <td>
-      assigne des noms (id) aux fenêtres qui n'en ont pas dans le contexte courant
+      assigne des noms (id) aux fenï¿½tres qui n'en ont pas dans le contexte courant
     </td>
   </tr>
   <tr>
@@ -831,14 +831,14 @@ commande <tt> Output</tt>)
   <tr>
     <td><tt>referentials</tt></td>
     <td><tt>int</tt> (bool) (optionnel)</td>
-    <td>demande la liste des référentiels
+    <td>demande la liste des rï¿½fï¿½rentiels
     </td>
   </tr>
   <tr>
     <td><tt>request_id</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0.3</b><br>
-      ID utilisé dans la réponse d'Anatomist pour identifier la requête. Cette option est utilisée par exemple par BrainVisa pour identifier les réponses à ses requêtes, qui ne sont pas nécéssairement traitées dans le bon ordre dans un contexte "multi-threadé"
+      ID utilisï¿½ dans la rï¿½ponse d'Anatomist pour identifier la requï¿½te. Cette option est utilisï¿½e par exemple par BrainVisa pour identifier les rï¿½ponses ï¿½ ses requï¿½tes, qui ne sont pas nï¿½cï¿½ssairement traitï¿½es dans le bon ordre dans un contexte "multi-threadï¿½"
     </td>
   </tr>
   <tr>
@@ -872,8 +872,13 @@ commande <tt> Output</tt>)
 </table>
 
 
+<a name="GraphDisplayProperties"></a>
+<h3><a href="../../en/programming/commands/graphdisplayproperties.html">GraphDisplayProperties</a></h3>
+
+
+<a name="GraphParams"></a>
 <h3>GraphParams</h3>
-Change les options relatives aux graphes et aux s&eacute;lections 
+Change les options globales relatives aux graphes et aux s&eacute;lections 
 
 <table border="1" width="100%">
 <tbody>
@@ -966,7 +971,7 @@ l'ancien nom est gard&eacute;   m&ecirc;me si on change le nom du graphe<br>
                         </td>
                         <td valign="top"><tt>int</tt> (optionnel)
                         </td>
-                        <td valign="top"><b>déprécié depuis Anatomist 3.0</b>: utilisez <tt>use_nomenclature</tt> maintenant.
+                        <td valign="top"><b>dï¿½prï¿½ciï¿½ depuis Anatomist 3.0</b>: utilisez <tt>use_nomenclature</tt> maintenant.
                         </td>
                       </tr>
                       </tr>
@@ -1039,7 +1044,7 @@ Lie les fen&ecirc;tres en un groupe
     <td><tt>int</tt> (optionnel)</td>
     <td>
       <b>Nouveau dans Anatomist 3.1</b>.
-      Numéro du groupe. -1 (défaut) signifie un nouveau groupe. On peut réutiliser un groupe existant.
+      Numï¿½ro du groupe. -1 (dï¿½faut) signifie un nouveau groupe. On peut rï¿½utiliser un groupe existant.
     </td>
   </tr>
 </tbody>
@@ -1052,13 +1057,13 @@ Lie les fen&ecirc;tres en un groupe
 
 <a name="LoadObject"></a>
 <h3><a href="../../en/programming/commands/loadobject.html">LoadObject</a></h3>
-Charge un objet à partir d'un fichier disque<br>
+Charge un objet ï¿½ partir d'un fichier disque<br>
 
 
 <h3>LoadTransformation</h3>
-Initialise une transformation entre deux référentiels, soit à partir d'un fichier disque (matrice de translation et rotation, format ASCII), soit avec une matrice donnée directement.
+Initialise une transformation entre deux rï¿½fï¿½rentiels, soit ï¿½ partir d'un fichier disque (matrice de translation et rotation, format ASCII), soit avec une matrice donnï¿½e directement.
 <br>
-Il faut préciser soit le nom de fichier, soit la matrice de transformation. Si les deux sont donnés, seul le fichier est pris  en compte.<br>
+Il faut prï¿½ciser soit le nom de fichier, soit la matrice de transformation. Si les deux sont donnï¿½s, seul le fichier est pris  en compte.<br>
 
 <table border="1" width="100%" nosave="">
 <tbody>
@@ -1067,9 +1072,9 @@ Il faut préciser soit le nom de fichier, soit la matrice de transformation. Si l
     <td><tt>int</tt></td>
     <td>
       <b>Optionnel depuis Anatomist 3.1</b><br>
-      ID du référentiel de départ<br>
-      Lorsqu'il n'est pas précisé, il peut être donné par le fichier associé.<br>
-      S'il n'y a pas de fichier associé, ou qu'il ne contient pas d'information d'origine, alors un nouveau repère est créé.
+      ID du rï¿½fï¿½rentiel de dï¿½part<br>
+      Lorsqu'il n'est pas prï¿½cisï¿½, il peut ï¿½tre donnï¿½ par le fichier associï¿½.<br>
+      S'il n'y a pas de fichier associï¿½, ou qu'il ne contient pas d'information d'origine, alors un nouveau repï¿½re est crï¿½ï¿½.
     </td>
   </tr>
   <tr>
@@ -1077,8 +1082,8 @@ Il faut préciser soit le nom de fichier, soit la matrice de transformation. Si l
     <td><tt>int</tt></td>
     <td>
       <b>Optionnel depuis Anatomist 3.1</b><br>
-      ID du référentiel d'arrivée<br>
-      Comme pour l'origine, le référentiel peut être donné par le fichier associé, ou créé à la volée.
+      ID du rï¿½fï¿½rentiel d'arrivï¿½e<br>
+      Comme pour l'origine, le rï¿½fï¿½rentiel peut ï¿½tre donnï¿½ par le fichier associï¿½, ou crï¿½ï¿½ ï¿½ la volï¿½e.
     </td>
   </tr>
   <tr>
@@ -1090,13 +1095,13 @@ Il faut préciser soit le nom de fichier, soit la matrice de transformation. Si l
     <td><tt>matrix</tt></td>
     <td><tt>float_vector</tt> (optionnel)</td>
     <td>
-      matrice de transformation: elle doit avoir 12 éléments à la suite (représentant 4 lignes de 3 colonnes). La 1ère ligne est la translation, le reste la matrice de rotation (même format que les fichiers)
+      matrice de transformation: elle doit avoir 12 ï¿½lï¿½ments ï¿½ la suite (reprï¿½sentant 4 lignes de 3 colonnes). La 1ï¿½re ligne est la translation, le reste la matrice de rotation (mï¿½me format que les fichiers)
     </td>
   </tr>
   <tr>
     <td><tt>res_pointer</tt></td>
     <td><tt>int</tt></td>
-    <td>ID de la transformation résultante</td>
+    <td>ID de la transformation rï¿½sultante</td>
   </tr>
 
 </tbody>
@@ -1106,20 +1111,20 @@ Il faut préciser soit le nom de fichier, soit la matrice de transformation. Si l
 <a name="NewId"></a>
 <h3><a href="../../en/programming/commands/newid.html">NewId</a></h3>
 <b>Nouveau dans Anatomist 3.0.2</b><br>
-Génère de nouveaux numéros d'ID pour des objets<br>
+Gï¿½nï¿½re de nouveaux numï¿½ros d'ID pour des objets<br>
 
 <table border="1" width="100%" nosave="">
 <tbody>
   <tr>
     <td><tt>num_ids</tt></td>
     <td><tt>int</tt> (optionnel)</td>
-    <td>nombre d'IDs à générer (1 par défaut)</td>
+    <td>nombre d'IDs ï¿½ gï¿½nï¿½rer (1 par dï¿½faut)</td>
   </tr>
   <tr>
     <td><tt>request_id</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0.3</b><br>
-      ID utilisé dans la réponse d'Anatomist pour identifier la requête. Cette option est utilisée par exemple par BrainVisa pour identifier les réponses à ses requêtes, qui ne sont pas nécéssairement traitées dans le bon ordre dans un contexte "multi-threadé"
+      ID utilisï¿½ dans la rï¿½ponse d'Anatomist pour identifier la requï¿½te. Cette option est utilisï¿½e par exemple par BrainVisa pour identifier les rï¿½ponses ï¿½ ses requï¿½tes, qui ne sont pas nï¿½cï¿½ssairement traitï¿½es dans le bon ordre dans un contexte "multi-threadï¿½"
     </td>
   </tr>
 </tbody>
@@ -1159,31 +1164,31 @@ sont &eacute;crites sur la sortie courante (r&eacute;glable avec la commande
   <tr>
     <td><tt>filename</tt></td>
     <td><tt>string </tt>(optionnel)</td>
-    <td>fichier ou "pipe nommé" dans lequel Anatomist écrit les informations</td>
+    <td>fichier ou "pipe nommï¿½" dans lequel Anatomist ï¿½crit les informations</td>
   </tr>
   <tr>
     <td><tt>objects</tt></td>
     <td><tt>int_vector</tt></td>
-    <td>IDs des éléments à décrire</td>
+    <td>IDs des ï¿½lï¿½ments ï¿½ dï¿½crire</td>
   </tr>
   <tr>
     <td><tt>name_children</tt></td>
     <td><tt>int</tt> (optionnel)</td>
-    <td>si ce flag est non-nul, un ID est assigné à chaque sous-objet qui n'en a pas</td>
+    <td>si ce flag est non-nul, un ID est assignï¿½ ï¿½ chaque sous-objet qui n'en a pas</td>
   </tr>
   <tr>
     <td valign="top"><tt>name_referentials</tt>
     </td>
     <td valign="top"><tt>int</tt> (optionnel)
     </td>
-    <td valign="top">si ce flag est non-nul, un ID est assigné à chaque reférentiel qui n'en a pas et qui est cité par les infos
+    <td valign="top">si ce flag est non-nul, un ID est assignï¿½ ï¿½ chaque refï¿½rentiel qui n'en a pas et qui est citï¿½ par les infos
     </td>
   </tr>
   <tr>
     <td><tt>request_id</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0.3</b><br>
-      ID utilisé dans la réponse d'Anatomist pour identifier la requête. Cette option est utilisée par exemple par BrainVisa pour identifier les réponses à ses requêtes, qui ne sont pas nécéssairement traitées dans le bon ordre dans un contexte "multi-threadé"
+      ID utilisï¿½ dans la rï¿½ponse d'Anatomist pour identifier la requï¿½te. Cette option est utilisï¿½e par exemple par BrainVisa pour identifier les rï¿½ponses ï¿½ ses requï¿½tes, qui ne sont pas nï¿½cï¿½ssairement traitï¿½es dans le bon ordre dans un contexte "multi-threadï¿½"
     </td>
   </tr>
 
@@ -1193,7 +1198,7 @@ sont &eacute;crites sur la sortie courante (r&eacute;glable avec la commande
 
 <a name="Output"></a>
 <h3>Output</h3>
-Ouvre un "flux" de sortie, soit par un nom de  fichier, soit par une connexion réseau TCP/IP (adresse internet + port)
+Ouvre un "flux" de sortie, soit par un nom de  fichier, soit par une connexion rï¿½seau TCP/IP (adresse internet + port)
 
 <table border="1" width="100%">
 <tbody>
@@ -1202,7 +1207,7 @@ Ouvre un "flux" de sortie, soit par un nom de  fichier, soit par une connexion r
     </td>
     <td valign="top"><tt>string </tt>(optionnel)
     </td>
-    <td valign="top">fichier ou "pipe nommé"
+    <td valign="top">fichier ou "pipe nommï¿½"
     </td>
   </tr>
   <tr>
@@ -1210,7 +1215,7 @@ Ouvre un "flux" de sortie, soit par un nom de  fichier, soit par une connexion r
     </td>
     <td valign="top"><tt>string </tt>(optionnel)
     </td>
-    <td valign="top">adresse tcp/ip réseau de la  machine à contacter
+    <td valign="top">adresse tcp/ip rï¿½seau de la  machine ï¿½ contacter
     </td>
   </tr>
   <tr>
@@ -1218,7 +1223,7 @@ Ouvre un "flux" de sortie, soit par un nom de  fichier, soit par une connexion r
     </td>
     <td valign="top"><tt>int </tt>(optionnel)
     </td>
-    <td valign="top">port tcp/ip sur lequel se connecter par réseau
+    <td valign="top">port tcp/ip sur lequel se connecter par rï¿½seau
     </td>
   </tr>
   <tr>
@@ -1226,7 +1231,7 @@ Ouvre un "flux" de sortie, soit par un nom de  fichier, soit par une connexion r
     </td>
     <td valign="top"><tt>int </tt>(optionnel)
     </td>
-    <td valign="top">indique s'il faut changer la sortie du  contexte   par défaut plutôt que le contexte courant
+    <td valign="top">indique s'il faut changer la sortie du  contexte   par dï¿½faut plutï¿½t que le contexte courant
     </td>
   </tr>
 </tbody>
@@ -1364,14 +1369,14 @@ S&eacute;lectionne et/ou d&eacute;s&eacute;lectionne des objets<br>
 
 <a name="SelectByHierarchy"></a>
 <h3>SelectByHierarchy</h3>
-<b>Déprécié à partir d'Anatomist 3.0</b>: cette commande est renommée 
+<b>Dï¿½prï¿½ciï¿½ ï¿½ partir d'Anatomist 3.0</b>: cette commande est renommï¿½e 
 <a href="#SelectByNomenclature"><tt>SelectByNomenclature</tt></a>.
 
 
 <a name="SelectByNomenclature"></a>
 <h3>SelectByNomenclature</h3>
 <b>Nouveau dans Anatomist 3.0</b> et remplace <tt>SelectByHierarchy</tt>.<br>
-Sélectionne par une nomenclature (action correspondant à un click sur une nomenclature 
+Sï¿½lectionne par une nomenclature (action correspondant ï¿½ un click sur une nomenclature 
 dans un browser)
 
 <table border="1" width="100%" nosave="">
@@ -1379,34 +1384,34 @@ dans un browser)
   <tr>
     <td><tt>nomenclature</tt></td>
     <td><tt>int</tt></td>
-    <td><b>Nouveau dans Anatomist 3.0</b>. nomenclature à utiliser pour la sélection</td>
+    <td><b>Nouveau dans Anatomist 3.0</b>. nomenclature ï¿½ utiliser pour la sï¿½lection</td>
   </tr>
   <tr>
     <td><tt><em>hierarchy</em></tt></td>
     <td><tt>int</tt></td>
-    <td><b>déprécié à partir d'Anatomist 3.0</b>: remplacé par <tt>nomenclature</tt>
+    <td><b>dï¿½prï¿½ciï¿½ ï¿½ partir d'Anatomist 3.0</b>: remplacï¿½ par <tt>nomenclature</tt>
     </td>
   </tr>
   <tr>
     <td><tt>names</tt></td>
     <td><tt>string</tt></td>
-    <td>liste des éléments de la nomenclature à sélectionner. Pour le moment on utilise 
-      l'espace pour séparer les noms (ce qui signifie qu'on ne peur pas mettre d'espaces 
+    <td>liste des ï¿½lï¿½ments de la nomenclature ï¿½ sï¿½lectionner. Pour le moment on utilise 
+      l'espace pour sï¿½parer les noms (ce qui signifie qu'on ne peur pas mettre d'espaces 
       dans les noms)
     </td>
   </tr>
   <tr>
     <td><tt>group</tt></td>
     <td><tt>int</tt> (optionnel)</td>
-    <td>groupe de fenêtres concerné</td>
+    <td>groupe de fenï¿½tres concernï¿½</td>
   </tr>
   <tr>
     <td><tt>modifiers</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td>comme pour la commande <tt>Select</tt><br>
-      <b>Nouveau dans la version 1.30b (corrigée):</b> nouveau mode 
-      <tt>"remove"</tt>, qui permet d'enlever les noeuds concernés des 
-      fenêtres concernées pour les faire disparaître.
+      <b>Nouveau dans la version 1.30b (corrigï¿½e):</b> nouveau mode 
+      <tt>"remove"</tt>, qui permet d'enlever les noeuds concernï¿½s des 
+      fenï¿½tres concernï¿½es pour les faire disparaï¿½tre.
     </td>
   </tr>
 </tbody>
@@ -1453,23 +1458,23 @@ Fixe le contr&ocirc;le actif sur les fen&ecirc;tres donn&eacute;es<br>
   
 <a name="SetMaterial"></a>
 <h3><a href="../../en/programming/commands/setmaterial.html">SetMaterial</a></h3>
-Fixe certaines ou toutes les propriétés de matériau des objets<br>
-Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécifiques 
-à l'objet
+Fixe certaines ou toutes les propriï¿½tï¿½s de matï¿½riau des objets<br>
+Depuis Anatomist 3.0, ces propriï¿½tï¿½s incluent aussi les modes de rendu 3D spï¿½cifiques 
+ï¿½ l'objet
 
 <table border="1" width="100%">
 <tbody>
   <tr>
     <td><tt>objects</tt></td>
     <td><tt>int_vector</tt></td>
-    <td id="txt">IDs des objets sur lesquels régler le matérieu</td>
+    <td id="txt">IDs des objets sur lesquels rï¿½gler le matï¿½rieu</td>
   </tr>
   <tr>
     <td><tt>ambient</tt></td>
     <td><tt>float_vector</tt> (optionnel)</td>
-    <td id="txt">Composantes RGBA de la composante ambiante du matériau 
-      (4  valeurs).  Les valeurs négatives sont inchangées (ancienne
-      valeur conservée)
+    <td id="txt">Composantes RGBA de la composante ambiante du matï¿½riau 
+      (4  valeurs).  Les valeurs nï¿½gatives sont inchangï¿½es (ancienne
+      valeur conservï¿½e)
     </td>
   </tr>
   <tr>
@@ -1490,38 +1495,38 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécif
   <tr>
     <td><tt>shininess</tt></td>
     <td><tt>float</tt> (optionnel)</td>
-    <td id="txt">Valeur 0-124, une valeur négative ne produit aucun 
+    <td id="txt">Valeur 0-124, une valeur nï¿½gative ne produit aucun 
       changement
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>refresh</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td id="txt">force la remise à jour des fenêtres contenant les objets 
-      concernés
+    <td id="txt">force la remise ï¿½ jour des fenï¿½tres contenant les objets 
+      concernï¿½s
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>lighting</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      active (1) ou désactive (0) l'éclairage/ombrage sur l'objet. La 
-      valeur -1 revient au mode par défaut (réglé par la vue pour l'ensemble de la 
-      scène)
+      active (1) ou dï¿½sactive (0) l'ï¿½clairage/ombrage sur l'objet. La 
+      valeur -1 revient au mode par dï¿½faut (rï¿½glï¿½ par la vue pour l'ensemble de la 
+      scï¿½ne)
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>smooth_shading</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      (0/1/-1) mode polygônes lisses ou plats
+      (0/1/-1) mode polygï¿½nes lisses ou plats
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>polygon_filtering</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      (0/1/-1) filtrage (antialiasing) des lignes/polygônes
+      (0/1/-1) filtrage (antialiasing) des lignes/polygï¿½nes
     </td>
   </tr>
   <tr>
@@ -1529,7 +1534,7 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécif
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
       (0/1/-1) imprime ou pas l'objet dans le Z-buffer. Vous pouvez le 
-      désactiver si vous voulez cliquer "à travers" l'objet (mais cela peut avoir des 
+      dï¿½sactiver si vous voulez cliquer "ï¿½ travers" l'objet (mais cela peut avoir des 
       effets bizarres sur le rendu)
     </td>
   </tr>
@@ -1537,37 +1542,37 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécif
     <td valign="top"><tt>face_culling</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      (0/1/-1) élimination des polygônes vus de dos. Le mieux est de l'activer 
-      pour les objets transparents, et le désactiver pour les maillages "ouverts" (dont on 
-      peut voir les deux faces) et opaques. Pour les objets à la fois transparents et 
-      ouverts, il n'y a pas de réglage parfait...
+      (0/1/-1) ï¿½limination des polygï¿½nes vus de dos. Le mieux est de l'activer 
+      pour les objets transparents, et le dï¿½sactiver pour les maillages "ouverts" (dont on 
+      peut voir les deux faces) et opaques. Pour les objets ï¿½ la fois transparents et 
+      ouverts, il n'y a pas de rï¿½glage parfait...
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>polygon_mode</tt></td>
     <td valign="top"><tt>string</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      mode d'affichage des polygônes: "<tt>normal</tt>", 
+      mode d'affichage des polygï¿½nes: "<tt>normal</tt>", 
       "<tt>wireframe</tt>" (fil de fer), 
       "<tt>outlined</tt>" (normal + fil de fer),
-      "<tt>hiddenface_wireframe</tt>" (fil de fer avec faces cachées), ou 
-      "<tt>default</tt>" (utiliser le réglage global de la vue).<br>
+      "<tt>hiddenface_wireframe</tt>" (fil de fer avec faces cachï¿½es), ou 
+      "<tt>default</tt>" (utiliser le rï¿½glage global de la vue).<br>
       <b>Nouveau dans Anatomist 3.1.5</b>:<br>
-      "<tt>ext_outlined</tt>" (contours extérieurs grossis + rendu normal).
+      "<tt>ext_outlined</tt>" (contours extï¿½rieurs grossis + rendu normal).
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>unlit_color</tt></td>
     <td valign="top"><tt>float_vector</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.1.4</b><br>
-      couleur utilisée pour les lignes en l'absence d'éclairage. A présent cela concerne seulement la couleur des contours des polygônes en mode  de rendu "<tt>outlined</tt>" ou "<tt>ext_outlined</tt>".
+      couleur utilisï¿½e pour les lignes en l'absence d'ï¿½clairage. A prï¿½sent cela concerne seulement la couleur des contours des polygï¿½nes en mode  de rendu "<tt>outlined</tt>" ou "<tt>ext_outlined</tt>".
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>line_width</tt></td>
     <td valign="top"><tt>float</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.1.4</b><br>
-      Épaisseur des lignes (maillages de segments, modes de rendu filaires). Une valeur nulle ou négative revient au défaut (1 en principe).
+      ï¿½paisseur des lignes (maillages de segments, modes de rendu filaires). Une valeur nulle ou nï¿½gative revient au dï¿½faut (1 en principe).
     </td>
   </tr>
 
@@ -1640,14 +1645,14 @@ de la  palette    par les objets.
     <td><tt>palette1Dmapping</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td>Mode de parcours d'une palette 2D (image) pour une texture 1D: 
-      <tt>FirstLine</tt> (1ère ligne de l'image) ou <tt>Diagonal</tt>
+      <tt>FirstLine</tt> (1ï¿½re ligne de l'image) ou <tt>Diagonal</tt>
     </td>
   </tr>
   <tr>
     <td><tt>absoluteMode</tt></td>
     <td><tt>int</tt> (optionnel)</td>
     <td><b>Nouveau dans Anatomist 3.1.4</b><br>
-      Si ce flag est non-nul, les valeurs <tt>min</tt>, <tt>max</tt>, <tt>min2</tt> et <tt>max2</tt> sont des valeurs absolues dans la texture des objets concernés. Sinon (par défaut) on est en mode proportionnel.
+      Si ce flag est non-nul, les valeurs <tt>min</tt>, <tt>max</tt>, <tt>min2</tt> et <tt>max2</tt> sont des valeurs absolues dans la texture des objets concernï¿½s. Sinon (par dï¿½faut) on est en mode proportionnel.
     </td>
   </tr>
 
@@ -1666,43 +1671,43 @@ de la  palette    par les objets.
 <a name="TexturingParams"></a>
 <h3>TexturingParams</h3>
 <b>Nouveau dans Anatomist 3.0</b><br>
-Règle les paramètres de plaquage de texture<br>
+Rï¿½gle les paramï¿½tres de plaquage de texture<br>
 
 <table border="1">
 <tbody>
         <tr>
           <td>objects</td>
           <td><tt>int_vector</tt></td>
-          <td>objets concernés</td>
+          <td>objets concernï¿½s</td>
         </tr>
         <tr>
           <td><tt>texture_index</tt></td>
           <td><tt>int</tt> (optionnel)</td>
-          <td id="txt">Numéro de texture concernée (pour les objets à plusieurs textures), 
-            défaut: <tt>0</tt>
+          <td id="txt">Numï¿½ro de texture concernï¿½e (pour les objets ï¿½ plusieurs textures), 
+            dï¿½faut: <tt>0</tt>
           </td>
         </tr>
         <tr>
           <td><tt>mode</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">mode de mélange de la couleur de texture: <tt>geometric</tt>, 
+          <td id="txt">mode de mï¿½lange de la couleur de texture: <tt>geometric</tt>, 
             <tt>linear</tt>, <tt>replace</tt>, <tt>decal</tt>, <tt>blend</tt>, 
             <tt>add</tt>, ou <tt>combine</tt>. Ces valeurs correspondent pour la 
-            plupart aux fonctions OpenGL, à part le mode linéaire qui pourrait 
-            éventuellement servir autrement sur certains objets (voir <tt>rate</tt>).
+            plupart aux fonctions OpenGL, ï¿½ part le mode linï¿½aire qui pourrait 
+            ï¿½ventuellement servir autrement sur certains objets (voir <tt>rate</tt>).
           </td>
         </tr>
         <tr>
           <td><tt>filtering</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">filtrage des textures: <tt>nearest</tt> (défaut) ou <tt>linear</tt></td>
+          <td id="txt">filtrage des textures: <tt>nearest</tt> (dï¿½faut) ou <tt>linear</tt></td>
         </tr>
         <tr>
           <td><tt>generation</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">mode de génération de texture (les textures générées automatiquement 
-            par OpenGL remplacent complètement la texture courante, cette option 
-            n'a donc aucun intérêt sinon faire joli): <tt>none</tt> (défaut), 
+          <td id="txt">mode de gï¿½nï¿½ration de texture (les textures gï¿½nï¿½rï¿½es automatiquement 
+            par OpenGL remplacent complï¿½tement la texture courante, cette option 
+            n'a donc aucun intï¿½rï¿½t sinon faire joli): <tt>none</tt> (dï¿½faut), 
             <tt>object_linear</tt>, <tt>eye_linear</tt>, <tt>sphere_map</tt>, 
             <tt>reflection_map</tt>, <tt>normal_map</tt>. (ces valeurs correspondent 
             directement aux fonctions OpenGL)
@@ -1711,44 +1716,44 @@ Règle les paramètres de plaquage de texture<br>
         <tr>
          <td><tt>generation_params_1</tt></td>
          <td><tt>float_vector</tt> (optionnel)</td>
-	 <td id="txt">Paramètres associés à la génération de texture pour la première 
-	   coordonnée de texture.<br>
-	   Ces paramètres sont utiles uniquement en mode <tt>object_linear</tt> ou 
-	   <tt>eye_linear</tt>. Il s'agit d'un vecteur de 4 flottants définissant la direction 
-	   de projection de la première coordonnée de texture en fonction des coordonnées 
-	   3D réelles dans le maillage.<br>
-	   Les paramètres donnés ici ne concernent que le mode de génération courant 
-	   (celui donné par le paramètre <tt>generation</tt>, ou le mode en cours si 
-	   <tt>generation</tt> n'est pas précisé).
+	 <td id="txt">Paramï¿½tres associï¿½s ï¿½ la gï¿½nï¿½ration de texture pour la premiï¿½re 
+	   coordonnï¿½e de texture.<br>
+	   Ces paramï¿½tres sont utiles uniquement en mode <tt>object_linear</tt> ou 
+	   <tt>eye_linear</tt>. Il s'agit d'un vecteur de 4 flottants dï¿½finissant la direction 
+	   de projection de la premiï¿½re coordonnï¿½e de texture en fonction des coordonnï¿½es 
+	   3D rï¿½elles dans le maillage.<br>
+	   Les paramï¿½tres donnï¿½s ici ne concernent que le mode de gï¿½nï¿½ration courant 
+	   (celui donnï¿½ par le paramï¿½tre <tt>generation</tt>, ou le mode en cours si 
+	   <tt>generation</tt> n'est pas prï¿½cisï¿½).
 	 </td>
         </tr>
         <tr>
          <td><tt>generation_params_2</tt></td>
          <td><tt>float_vector</tt> (optionnel)</td>
-	 <td id="txt">Paramètres associés à la génération de texture pour la seconde 
-	   coordonnée de texture.
+	 <td id="txt">Paramï¿½tres associï¿½s ï¿½ la gï¿½nï¿½ration de texture pour la seconde 
+	   coordonnï¿½e de texture.
 	 </td>
         </tr>
         <tr>
          <td><tt>generation_params_3</tt></td>
          <td><tt>float_vector</tt> (optionnel)</td>
-	 <td id="txt">Paramètres associés à la génération de texture pour la troisième 
-	   coordonnée de texture.<br>
-	   Pour le moment les textures 3D ne sont pas supportées, donc ce paramètre ne 
-	   sert à rien.
+	 <td id="txt">Paramï¿½tres associï¿½s ï¿½ la gï¿½nï¿½ration de texture pour la troisiï¿½me 
+	   coordonnï¿½e de texture.<br>
+	   Pour le moment les textures 3D ne sont pas supportï¿½es, donc ce paramï¿½tre ne 
+	   sert ï¿½ rien.
 	 </td>
         </tr>
         <tr>
           <td><tt>rate</tt></td>
           <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">taux de mélange en mode linéaire (pondération objet - texture). 
-            Ce paramètre n'a aucun effet sur la plupart des objets.
+          <td id="txt">taux de mï¿½lange en mode linï¿½aire (pondï¿½ration objet - texture). 
+            Ce paramï¿½tre n'a aucun effet sur la plupart des objets.
           </td>
         </tr>
 	<tr>
 	  <td><tt>interpolation</tt></td>
 	  <td><tt>string</tt> (optionnel)</td>
-	  <td id="txt">interpolation des couleurs des textures: <tt>palette</tt> (défaut) ou 
+	  <td id="txt">interpolation des couleurs des textures: <tt>palette</tt> (dï¿½faut) ou 
 	    <tt>rgb</tt>
 	  </td>
 	</tr>
@@ -1853,34 +1858,34 @@ des    fen&ecirc;tres  donn&eacute;es (&ccedil;a peut &ecirc;tre vari&eacute;)<b
     <td valign="top"><tt>snapshot</tt></td>
     <td valign="top"><tt>string</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.0</b>. 
-      Sauve l'image correspondant à la vue de la fenêtre dans un fichier
-      dont ne nom est précisé ici. Si <tt>windows</tt> contient plusieurs valeurs, 
-      plusieurs images doivent alors être sauvées: <tt>snapshot</tt> est alors une 
-      liste de noms de fichiers séparés par des espaces: il ne faut donc pas que les 
+      Sauve l'image correspondant ï¿½ la vue de la fenï¿½tre dans un fichier
+      dont ne nom est prï¿½cisï¿½ ici. Si <tt>windows</tt> contient plusieurs valeurs, 
+      plusieurs images doivent alors ï¿½tre sauvï¿½es: <tt>snapshot</tt> est alors une 
+      liste de noms de fichiers sï¿½parï¿½s par des espaces: il ne faut donc pas que les 
       fichiers contiennent des espaces (cette restriction ne s'applique pas si une 
-      seule fenêtre est concernée). Note: les caractères d'échappement ne sont pas 
-      supportés pour le moment.
+      seule fenï¿½tre est concernï¿½e). Note: les caractï¿½res d'ï¿½chappement ne sont pas 
+      supportï¿½s pour le moment.
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>fullscreen</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive le mode plein écran
+      active ou dï¿½sactive le mode plein ï¿½cran
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>show_cursor_position</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive l'affichage de la barre d'état en bas de fenêtre montrant la position du curseur et la valeur d'un objet courant à cette position.
+      active ou dï¿½sactive l'affichage de la barre d'ï¿½tat en bas de fenï¿½tre montrant la position du curseur et la valeur d'un objet courant ï¿½ cette position.
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>show_toolbars</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive l'affichage de tout ce qui est "autour" de la vue 3D (menus, barres de boutons, barre d'état, référentiel...)
+      active ou dï¿½sactive l'affichage de tout ce qui est "autour" de la vue 3D (menus, barres de boutons, barre d'ï¿½tat, rï¿½fï¿½rentiel...)
     </td>
   </tr>
     <td valign="top"><tt>transparent_depth_buffer</tt></td>
@@ -1903,29 +1908,29 @@ des    fen&ecirc;tres  donn&eacute;es (&ccedil;a peut &ecirc;tre vari&eacute;)<b
     <td valign="top"><tt>linkedcursor_on_slider_change</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.0</b>. 
-      active ou désactive le mode faisant agir les curseurs de 
-      coupe/temps comme des actions du curseur lié (propagation aux autres fenêtres)
+      active ou dï¿½sactive le mode faisant agir les curseurs de 
+      coupe/temps comme des actions du curseur liï¿½ (propagation aux autres fenï¿½tres)
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>fullscreen</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive le mode plein écran
+      active ou dï¿½sactive le mode plein ï¿½cran
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>show_cursor_position</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive l'affichage de la barre d'état en bas de fenêtre montrant la position du curseur et la valeur d'un objet courant à cette position.
+      active ou dï¿½sactive l'affichage de la barre d'ï¿½tat en bas de fenï¿½tre montrant la position du curseur et la valeur d'un objet courant ï¿½ cette position.
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>show_toolbars</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive l'affichage de tout ce qui est "autour" de la vue 3D (menus, barres de boutons, barre d'état, référentiel...)
+      active ou dï¿½sactive l'affichage de tout ce qui est "autour" de la vue 3D (menus, barres de boutons, barre d'ï¿½tat, rï¿½fï¿½rentiel...)
     </td>
   </tr>
 
@@ -1937,11 +1942,11 @@ des    fen&ecirc;tres  donn&eacute;es (&ccedil;a peut &ecirc;tre vari&eacute;)<b
                                                               
 <h3>Fusion2DParams</h3>
 R&egrave;gle les param&egrave;tres d'une fusion 2D. Cette commande est 
-en grande partie obsolète à partir d'Anatomist 3.0. En fait, seul le 
-paramètre <tt>reorder_objects</tt> a encore une utilité propre. Les 
-autres paramètres sont maintenant dans la commande 
+en grande partie obsolï¿½te ï¿½ partir d'Anatomist 3.0. En fait, seul le 
+paramï¿½tre <tt>reorder_objects</tt> a encore une utilitï¿½ propre. Les 
+autres paramï¿½tres sont maintenant dans la commande 
 <tt><a href="#TexturingParams">TexturingParams</a></tt> (puisqu'ils ne 
-sont plus spécifiques aux fusions 2D).<br>
+sont plus spï¿½cifiques aux fusions 2D).<br>
 
 <table border="1" width="100%" nosave="">
 <tbody>
@@ -1971,53 +1976,53 @@ sont plus spécifiques aux fusions 2D).<br>
       
 <h3>Fusion3DParams</h3>
 <b>Nouveau dans Anatomist 3.0</b><br>
-Règlage des paramètres d'une fusion 3D<br>
+Rï¿½glage des paramï¿½tres d'une fusion 3D<br>
 
 <table border="1">
 <tbody>
         <tr>
           <td>object</td>
           <td><tt>int</tt></td>
-          <td>objet concerné</td>
+          <td>objet concernï¿½</td>
         </tr>
         <tr>
           <td><tt>method</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">Méthode de calcul: <tt>point</tt> (défaut): valeur du voxel 
+          <td id="txt">Mï¿½thode de calcul: <tt>point</tt> (dï¿½faut): valeur du voxel 
 		    sous chaque noeud du maillage, <tt>point_offset_internal</tt>: valeur 
-			d'un voxel décalé vers l'intérieur de <tt>depth</tt> le long de la 
-			normale au maillage, <tt>point_offset_external</tt>: voxel décalé vers 
-			l'extérieur, <tt>line</tt>: intégration le long de la normale selon la 
-			sous-méthode <tt>submethod</tt>, <tt>line_internal</tt>: comme 
-			<tt>line</tt> mais seulement vers l'intérieur du maillage, 
-			<tt>line_external</tt>: idem vers l'extérieur, <tt>sphere</tt>: 
-			intégration dans une sphère de rayon <tt>depth</tt> autour de chaque 
+			d'un voxel dï¿½calï¿½ vers l'intï¿½rieur de <tt>depth</tt> le long de la 
+			normale au maillage, <tt>point_offset_external</tt>: voxel dï¿½calï¿½ vers 
+			l'extï¿½rieur, <tt>line</tt>: intï¿½gration le long de la normale selon la 
+			sous-mï¿½thode <tt>submethod</tt>, <tt>line_internal</tt>: comme 
+			<tt>line</tt> mais seulement vers l'intï¿½rieur du maillage, 
+			<tt>line_external</tt>: idem vers l'extï¿½rieur, <tt>sphere</tt>: 
+			intï¿½gration dans une sphï¿½re de rayon <tt>depth</tt> autour de chaque 
 			noeud du maillage
           </td>
         </tr>
         <tr>
           <td><tt>submethod</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">Sous-méthode du calcul. En fait ce paramètre indique la 
-		  manière d'intégrer les valeurs de plusieurs voxels (elle n'est donc 
-		  pas utilisée pour les méthodes <tt>point*</tt>): <tt>max</tt> (défaut), 
+          <td id="txt">Sous-mï¿½thode du calcul. En fait ce paramï¿½tre indique la 
+		  maniï¿½re d'intï¿½grer les valeurs de plusieurs voxels (elle n'est donc 
+		  pas utilisï¿½e pour les mï¿½thodes <tt>point*</tt>): <tt>max</tt> (dï¿½faut), 
 		  <tt>min</tt>, <tt>mean</tt>, <tt>mean_corrected</tt>: moyenne seulement les 
 		  valeurs non-nulles, <tt>mean_enhanced</tt>: plus personne ne se souvient 
-		  ce qu'est sensé faire ce mode...
+		  ce qu'est sensï¿½ faire ce mode...
           </td>
         </tr>
         <tr>
           <td><tt>depth</tt></td>
           <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">Profondeur d'intégration pour les méthodes <tt>line*</tt>, 
-		    ou décalage pour les méthodes <tt>point_offset_*</tt>, ou
-		    rayon de la sphère d'intégration pour la méthode <tt>sphere</tt>.
+          <td id="txt">Profondeur d'intï¿½gration pour les mï¿½thodes <tt>line*</tt>, 
+		    ou dï¿½calage pour les mï¿½thodes <tt>point_offset_*</tt>, ou
+		    rayon de la sphï¿½re d'intï¿½gration pour la mï¿½thode <tt>sphere</tt>.
 		  </td>
         </tr>
         <tr>
           <td><tt>step</tt></td>
           <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">Pas d'échantillonnage pour les méthodes d'intégration à 
+          <td id="txt">Pas d'ï¿½chantillonnage pour les mï¿½thodes d'intï¿½gration ï¿½ 
 		    plusieurs points.
           </td>
         </tr>
@@ -2030,37 +2035,37 @@ Règlage des paramètres d'une fusion 3D<br>
 <br>
                                                          
 <h3>CreateGraph</h3>
-Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ donne ses dimensions (taille de voxel, extrêma) au nouveau graphe.<br>
+Crï¿½e un graphe associï¿½ ï¿½ un objet 2D (par ex. un volume). L'objet de dï¿½part donne ses dimensions (taille de voxel, extrï¿½ma) au nouveau graphe.<br>
 
 <table border="1" width="100%" nosave="">
 <tbody>
   <tr>
     <td><tt>object</tt></td>
     <td><tt>int</tt></td>
-    <td>objet 2D servant de "modèle" au graphe</td>
+    <td>objet 2D servant de "modï¿½le" au graphe</td>
   </tr>
   <tr>
     <td><tt>res_pointer</tt></td>
     <td><tt>int</tt></td>
-    <td>ID du nouveau graphe créé</td>
+    <td>ID du nouveau graphe crï¿½ï¿½</td>
   </tr>
   <tr>
     <td><tt>name</tt></td>
     <td><tt>string</tt> (optionnel)</td>
-    <td>nom de l'objet graphe. Défaut: <tt>RoiArg</tt>.
+    <td>nom de l'objet graphe. Dï¿½faut: <tt>RoiArg</tt>.
     </td>
   </tr>
   <tr>
     <td><tt>filename</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td><b>Nouveau dans Anatomist 3.1.4</b><br>
-      nom de fichier associé au graphe. Défaut: aucun.
+      nom de fichier associï¿½ au graphe. Dï¿½faut: aucun.
     </td>
   </tr>
   <tr>
     <td><tt>syntax</tt></td>
     <td><tt>string</tt> (optionnel)</td>
-    <td>attribut syntaxique du graphe. Défaut: <tt>RoiArg</tt>.
+    <td>attribut syntaxique du graphe. Dï¿½faut: <tt>RoiArg</tt>.
     </td>
   </tr>
 

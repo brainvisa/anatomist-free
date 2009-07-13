@@ -44,6 +44,7 @@
 #ifndef _vtkQtRenderWindowInteractor_h
 #define _vtkQtRenderWindowInteractor_h
 
+#include <cstdlib>
 #include <qobject.h>
 #include <qtimer.h>
 #include <qcursor.h>

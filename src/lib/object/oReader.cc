@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/object/oReader.h>
 #include <aims/io/process.h>
 #include <aims/io/reader.h>

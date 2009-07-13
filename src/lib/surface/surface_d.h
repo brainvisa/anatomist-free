@@ -37,6 +37,7 @@
 #define ANA_SURFACE_SURFACE_D_H
 
 
+#include <cstdlib>
 #include <anatomist/surface/surface.h>
 #include <anatomist/application/Anatomist.h> 
 #include <anatomist/window/Window.h>

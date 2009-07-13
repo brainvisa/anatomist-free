@@ -243,8 +243,13 @@ void vtkAnatomistCamera::Render(vtkRenderer *ren)
   
   if(usize && vsize)
   {
+#if VTK_MAJOR_VERSION>5 || (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION >=4)
+    matrix->DeepCopy(this->GetProjectionTransformMatrix(
+							/*aspectModification*usize/vsize*/0.0, -1,1));
+#else
     matrix->DeepCopy(this->GetPerspectiveTransformMatrix(
 							 /*aspectModification*usize/vsize*/0.0, -1,1));
+#endif
     matrix->Transpose();
   }
   
@@ -352,8 +357,11 @@ vtkMatrix4x4 *vtkAnatomistCamera::GetProjectionTransformMatrix(double aspect,
   else
     {
     // set up a perspective frustum
-
+#if VTK_MAJOR_VERSION>5 || (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION >=4)
+    double tmp = tan(this->ViewAngle*vtkMath::RadiansFromDegrees(1.f)/2);
+#else
     double tmp = tan(this->ViewAngle*vtkMath::DoubleDegreesToRadians()/2);
+#endif
     double width;
     double height;
     if (this->UseHorizontalViewAngle)

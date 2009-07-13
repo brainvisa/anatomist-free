@@ -161,10 +161,12 @@ class VtkComponent( SystemComponent ):
       SystemComponent.findInclude( self )
 
   def _libraries( self ):
-    return [ 'QVTK', 'vtkWidgets', 'vtkHybrid', 'vtkRendering', 'vtkGraphics', 'vtkImaging', 'vtkIO', 'vtkFiltering', 'vtkCommon' ]
+    return [ 'vtkWidgets', 'vtkRendering', 'vtkGraphics',
+      'vtkIO', 'vtkCommon' ]
 
   def dependencies( self ):
-    return [ 'qt', 'opengl' ]
+    return [ 'qt', 'opengl',
+      'png', 'tiff', 'freetype' ]
 
 #-----------------------------------------------------------------------------
 class AnatomistAlgoComponent( GenericMakerModuleComponent ):
@@ -231,11 +233,22 @@ class VtkInria3DComponent( SystemComponent ):
   _includeFile = 'vtkINRIA3DConfigure.h'
   _libFile = 'libvtkDataManagement'
 
+  def postInit( self ):
+    if not self._initialized:
+      SystemComponent.postInit( self )
+      defines = self.get( 'defines' )
+      if not defines:
+        defines = []
+      defines.append( 'vtkINRIA3D_USE_ITK' )
+      defines.append( 'vtkINRIA3D_USE_HWSHADING' )
+      self._data[ 'defines' ] = defines
+
   def dependencies( self ):
     return [ VtkComponent ]
 
   def _libraries( self ):
-    return [ 'vtkVisuManagement', 'vtkRenderingAddOn', 'vtkDataManagement' ]
+    return [ 'vtkVisuManagement', 'vtkDataManagement',
+      'vtkHWShading', 'vtkRenderingAddOn' ]
 
 #-----------------------------------------------------------------------------
 class AnatomistVtkComponent( GenericMakerModuleComponent ):

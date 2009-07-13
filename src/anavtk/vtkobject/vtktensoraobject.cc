@@ -39,9 +39,13 @@ namespace anatomist
       return;
     }
 
+    anatomist::View* view = (anatomist::View*)widget; // needed to disambiguate between:
+    // AWindow* View::window()
+    // and
+    // QWidget* QWidget::window() inherited from vtkQAGLWidget
 
-    AWindow3D* window = dynamic_cast<AWindow3D*>( widget->window() );
-
+    
+    AWindow3D* window = dynamic_cast<AWindow3D*>( view->window() );
     const aims::Quaternion & quaternion = window->sliceQuaternion();
     
     if( quaternion.axis()[0] > 0.99 ) {
@@ -57,9 +61,9 @@ namespace anatomist
     vtkRenderer* renderer = widget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
 	
     vtkTensorManager* manager = vtkTensorManager::New();    
-    /*if (renderer )
+    if (renderer )
       manager->SetRenderWindowInteractor ( widget, renderer );
-      else*/
+    else
       manager->SetRenderWindowInteractor ( widget );
     manager->SetGlyphResolution (8);
     

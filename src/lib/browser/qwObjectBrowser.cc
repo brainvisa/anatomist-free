@@ -2334,7 +2334,7 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
     return; // if another button than the left is pressed: do nothing.
 
   // cout << "nomenclatureClick\n";
-  string	attrib;
+  string	attrib, gattrib;
 
   if( QGraphParam::theGP() )
     attrib = QGraphParam::theGP()->nomenclatureAttrib();
@@ -2398,9 +2398,13 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
   bool				done;
 
   for( ig=gr.begin(); ig!=fg; ++ig )
+  {
+    gattrib = attrib;
+    // if there a per-graph nomenclature property setting, use it
+    (*ig)->getProperty( "label_property", gattrib );
     for( iv=(*ig)->begin(), fv=(*ig)->end(); iv!=fv; ++iv )
       if( (*iv)->getProperty( "ana_object", obj ) 
-          && (*iv)->getProperty( attrib, name ) )
+          && (*iv)->getProperty( gattrib, name ) )
       {
         done = false;
         while( !name.empty() && !done )
@@ -2426,6 +2430,7 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
             }
         }
       }
+  }
 }
 
 

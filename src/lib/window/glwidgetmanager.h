@@ -39,9 +39,13 @@
 
 #include <anatomist/controler/view.h>
 #include <anatomist/primitive/primitive.h>
-#include <qgl.h>
 
-class QGLWidget;
+#include <qglobal.h>
+#if QT_VERSION>=0x040000
+#include <QtOpenGL/QGLWidget>
+#else
+#include <qgl.h>
+#endif
 
 namespace aims
 {
@@ -159,19 +163,19 @@ namespace anatomist
     bool recording() const;
 
     static QGLWidget* sharedWidget();
-  void setBackgroundAlpha( float a );
+    void setBackgroundAlpha( float a );
 
     GLWidgetManager* rightEye();
     GLWidgetManager* leftEye();
     void setRightEye( GLWidgetManager* );
     void setLeftEye( GLWidgetManager* );
 
-    /** force to use View::window() to avoind ambiguity with qt4
+    /** force to use View::window() to avoid ambiguity with qt4
         QWidget::window() */
-    anatomist::AWindow * window();
-    /** force to use View::window() to avoind ambiguity with qt4
-    QWidget::window() */
-    const anatomist::AWindow * window() const;
+    AWindow * window();
+    /** force to use View::window() to avoid ambiguity with qt4
+	QWidget::window() */
+    const AWindow * window() const;
 
     virtual int width() = 0;
     virtual int height() = 0;

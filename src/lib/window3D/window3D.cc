@@ -70,7 +70,12 @@
 #include <anatomist/control/graphParams.h>
 #include <anatomist/reference/transformobserver.h>
 #include <qslider.h>
+#include <qglobal.h>
+#if QT_VERSION>0x040000
+#include <QtOpenGL/QGLWidget>
+#else
 #include <qgl.h>
+#endif
 #include <aims/resampling/quaternion.h>
 #include <aims/qtcompat/qvbox.h>
 #include <aims/qtcompat/qhbox.h>

@@ -38,7 +38,12 @@
 #define private public
 #define protected public
 #endif
+#include <qglobal.h>
+#if QT_VERSION>0x040000
+#include <QtOpenGL/QGLWidget>
+#else
 #include <qgl.h>
+#endif
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #undef protected
 #undef private

@@ -53,9 +53,11 @@ using namespace std;
 
 GraphDisplayPropertiesCommand::GraphDisplayPropertiesCommand
 ( const set<AObject *> & graphs, const string & dispmode, 
-  const string & property )
+  const string & property, const string & nomenclatureproperty,
+  bool haspropmask, int propmask )
   : RegularCommand(), _graphs( graphs ), _displaymode( dispmode ), 
-    _property( property )
+    _property( property ), _nomenclatureproperty( nomenclatureproperty ),
+    _haspropertymask( haspropmask ), _propertymask( propmask )
 {
 }
 
@@ -73,6 +75,8 @@ bool GraphDisplayPropertiesCommand::initSyntax()
   s[ "objects"          ] = Semantic( "int_vector", true );
   s[ "display_mode"     ].type = "string";
   s[ "display_property" ].type = "string";
+  s[ "nomenclature_property" ].type = "string";
+  s[ "property_mask" ].type = "string";
   Registry::instance()->add( "GraphDisplayProperties", &read, ss );
   return( true );
 }
@@ -104,6 +108,15 @@ void GraphDisplayPropertiesCommand::doit()
           g->setColorMode( dm );
         if( setprop )
           g->setColorProperty( _property );
+        if( _haspropertymask )
+          g->setColorPropertyMask( _propertymask );
+        if( !_nomenclatureproperty.empty() )
+        {
+          if( _nomenclatureproperty == "default" )
+            g->setLabelProperty( "" );
+          else
+            g->setLabelProperty( _nomenclatureproperty );
+        }
         g->notifyObservers( this );
       }
 }
@@ -112,27 +125,33 @@ void GraphDisplayPropertiesCommand::doit()
 Command* GraphDisplayPropertiesCommand::read( const Tree & com, 
                                               CommandContext* context )
 {
-  string		dispmode, property;
+  string		dispmode, property, nomenclatureproperty;
   vector<int>		obj;
   set<AObject *>	aobj;
   unsigned		i, n;
   void			*ptr;
+  bool                  haspropmask = false;
+  int                   propmask = 0;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
   com.getProperty( "display_mode", dispmode );
   com.getProperty( "display_property", property );
+  haspropmask = com.getProperty( "property_mask", propmask );
+  com.getProperty( "nomenclature_property", nomenclatureproperty );
 
   for( i=0, n=obj.size(); i<n; ++i )
     {
       ptr = context->unserial->pointer( obj[i], "AObject" );
       if( ptr )
-	aobj.insert( (AObject *) ptr );
+        aobj.insert( (AObject *) ptr );
       else
-	cerr << "object id " << obj[i] << " not found\n";
+        cerr << "object id " << obj[i] << " not found\n";
     }
 
-  return new GraphDisplayPropertiesCommand( aobj, dispmode, property );
+  return new GraphDisplayPropertiesCommand( aobj, dispmode, property,
+                                            nomenclatureproperty, haspropmask,
+                                            propmask );
 }
 
 
@@ -150,6 +169,10 @@ void GraphDisplayPropertiesCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "display_mode", _displaymode );
   if( !_property.empty() )
     t->setProperty( "display_property", _property );
+  if( !_nomenclatureproperty.empty() )
+    t->setProperty( "nomenclature_property", _nomenclatureproperty );
+  if( _haspropertymask )
+    t->setProperty( "property_mask", _propertymask );
 
   com.insert( t );
 }

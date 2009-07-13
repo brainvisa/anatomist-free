@@ -44,6 +44,7 @@
 #include <string>
 #include <set>
 #include <qglobal.h>
+#include <aims/qtcompat/qlistview.h>
 
 class QPixmap;
 
@@ -109,11 +110,12 @@ public slots:
   virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
 
 protected slots:
-#if QT_VERSION >= 0x040000
+  //#if QT_VERSION >= 0x040000
   void doubleClickedSlot( Q3ListViewItem * );
-#else
+  /*#else
   void doubleClickedSlot( QListViewItem * );
 #endif
+  */
   void unselectInvisibleItems();
 
 private:

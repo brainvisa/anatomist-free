@@ -34,6 +34,7 @@
  */
 
 
+#include <cstdlib>
 #include <anatomist/application/settings.h>
 #include <anatomist/application/Anatomist.h>
 #include <cartobase/config/paths.h>
