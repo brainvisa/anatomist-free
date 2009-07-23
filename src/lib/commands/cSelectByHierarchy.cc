@@ -97,7 +97,7 @@ void SelectByHierarchyCommand::doit()
   cout << "group : " << _group << endl;
   cout << "modifiers : " << _modifiers << endl;
 
-  string	attrib;
+  string	attrib, gattrib;
 
   if( GraphParams::graphParams() )
     attrib = GraphParams::graphParams()->attribute;
@@ -168,6 +168,10 @@ void SelectByHierarchyCommand::doit()
 	  //cout << "graphs : " << gr.size() << endl;
 
 	  for( ig=gr.begin(); ig!=fg; ++ig )
+          {
+            gattrib = attrib;
+            // if there a per-graph nomenclature property setting, use it
+            (*ig)->getProperty( "label_property", gattrib );
 	    for( iv=(*ig)->begin(), fv=(*ig)->end(); iv!=fv; ++iv )
 	      if( (*iv)->getProperty( "ana_object", obj ) 
 		  && (*iv)->getProperty( attrib, name ) )
@@ -196,6 +200,7 @@ void SelectByHierarchyCommand::doit()
 			}
 		    }
 		}
+          }
 	}
     }
 

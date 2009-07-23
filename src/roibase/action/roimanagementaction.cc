@@ -3171,6 +3171,18 @@ RoiManagementAction::exportRegion( AGraphObject * o)
       avol.attributed()->setProperty( "volume_dimension", dim ) ;
       // take care of SPM origin/orientation properties
       vector<float>	org;
+      try
+      {
+        Object
+        ob = gra->attributed()->getProperty( "transformations" );
+        avol.attributed()->setProperty( "transformations", ob );
+        ob = gra->attributed()->getProperty( "referentials" );
+        avol.attributed()->setProperty( "referentials", ob );
+      }
+      catch( ... )
+      {
+      }
+      // old-style Analyze
       if( gra->attributed()->getProperty( "origin", org ) )
         avol.attributed()->setProperty( "origin", org );
       try
