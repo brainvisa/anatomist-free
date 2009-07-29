@@ -1,0 +1,28 @@
+/* XPM */
+static char * list_fascicle_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 6 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconGray6	m black	c #636363636363",
+"X	s iconGray3	m white	c #adadadadadad",
+"o	s iconGray1	m white	c #dededededede",
+"O	s iconColor3	m black	c red",
+"+	s iconGray4	m white	c #949494949494",
+/* pixels */
+"   ................ ",
+" ..XXXXXXXXXXXXXX...",
+" .oXooooooooooXXXX..",
+" ooooOOOooooooOXXX..",
+"oooOOooOoooOOOXXX...",
+"ooOoooooOOOOooXX..  ",
+"ooOoXXX+XooX+XX..   ",
+"ooOoX....++.....    ",
+"ooOoX............   ",
+"ooOoXXXX++++++XX.   ",
+"ooOooooooooooo+X.   ",
+"ooOOooOOOOOOOOXX.   ",
+"oooOOOOoooooooX..   ",
+" ooooooooXXXXX..    ",
+"   ooXXXX......     ",
+"  .......           "};

@@ -1,0 +1,223 @@
+/b/hANATOMIST
+
+
+
+
+
+
+The artificial anatomist
+which allows to walk around
+in your brain
+
+as if you were in it
+
+
+
+A work which began in 1997 approximatively
+
+
+
+
+
+
+Anatomist was made by :
+
+
+
+
+
+/bGuilty :
+
+
+Denis Rivière
+
+
+
+
+
+/bGrand Supervisors :
+
+
+Jean-François Mangin
+Vincent Frouin
+
+
+
+
+
+/bGrand Architect and Code Normalization service :
+
+
+Dimitri Papadopoulos-Orfanos
+
+
+
+
+
+/bGrand Anatomist
+/bwho we are trying to replicate :
+
+
+Jean Régis
+
+
+
+
+
+/bWorkforce (short and long term) :
+
+
+Yann Cointepas
+Renaud Maroy
+Cyril Poupon
+Fabrice Poupon
+Cédric Clouchoux
+Matthieu Perrot
+
+
+
+
+
+/bDocumentalist, tester
+/band user support :
+
+
+Isabelle Denghien
+
+
+
+
+
+/bAnother tester, very efficient
+/bat spotting the light on our bugs :
+
+
+Gwénaëlle Douaud
+
+
+
+
+
+/bFormer contributors :
+
+
+Bernard Sécher
+Olivier Pizzato
+
+
+
+
+
+
+
+/bContact :
+
+
+For bug reports, suggestions,
+go to our internet forum :
+
+
+/u/fhttp://brainvisa.info/forum/
+
+
+
+
+
+or, in last resort (for donations...),
+I can be contacted at :
+
+
+/u/fdenis.riviere@cea.fr
+
+
+
+
+
+
+
+Well, OK, you did not learn much reading
+this silly little message, but...
+
+
+
+
+
+/iEr... the music is really awful ?
+
+Yes, it's absolutely normal, I am just not a musician.
+I will regard any proposition to replace it.
+
+
+
+
+
+
+
+
+
+
+
+
+/iOh I almost forgot:
+
+I must mention everywhere and as often as possible our
+nice institution.
+
+Anatomist was developped at the CEA,
+
+formerly at the Service Hospitalier Frédéric Joliot until 2006,
+
+then at NeuroSpin since 2007 (our lab has moved)
+
+
+so:
+
+
+Anatomist is produced by
+
+/b/hNeuroSpin
+
+of
+/bC.E.A.
+
+in Saclay (France)
+
+
+
+/uNeuroSpin, CEA
+well, you've written it down ?
+
+
+
+No ?
+
+
+
+So, again:
+
+
+/b/iAnatomist, a NeuroSpin, Saclay production
+
+
+etc. etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

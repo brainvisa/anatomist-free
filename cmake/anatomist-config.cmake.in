@@ -1,0 +1,38 @@
+find_package( Qt3 REQUIRED )
+find_package( OpenGL REQUIRED )
+find_package( Qwt )
+find_package( PythonInterp )
+if( PYTHONINTERP_FOUND )
+  find_package( PythonLibs )
+  find_package( SIP )
+endif( PYTHONINTERP_FOUND )
+find_package( VTK QUIET )
+if( VTK_FOUND )
+  include("${VTK_USE_FILE}")
+  find_package( vtkINRIA3D QUIET )
+  if( vtkINRIA3D_FOUND )
+    include( "${vtkINRIA3D_USE_FILE}" )
+  endif( vtkINRIA3D_FOUND )
+endif( VTK_FOUND )
+
+if( BRAINVISA_BUILD_ALL_FROM_SOURCES )
+  set( ANATOMIST_BINARY_DIR "@ANATOMIST_BINARY_DIR@" )
+else( BRAINVISA_BUILD_ALL_FROM_SOURCES )
+  get_filename_component( ANATOMIST_BINARY_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH )
+  get_filename_component( ANATOMIST_BINARY_DIR "${ANATOMIST_BINARY_DIR}" PATH )
+  get_filename_component( ANATOMIST_BINARY_DIR "${ANATOMIST_BINARY_DIR}" PATH )
+endif( BRAINVISA_BUILD_ALL_FROM_SOURCES )
+
+set( ANATOMIST_DEFINITIONS @ANATOMIST_DEFINITIONS@ )
+set( ANATOMIST_INCLUDE_DIRS
+     "${ANATOMIST_BINARY_DIR}/include"
+     "${QT_INCLUDE_DIR}" )
+
+find_library( ANATOMIST_LIB anatomist "${ANATOMIST_BINARY_DIR}/lib" )
+set( ANATOMIST_LIBRARIES "${ANATOMIST_LIB}" )
+
+if( ANATOMIST_LIB )
+  set( ANATOMIST_FOUND true )
+else( ANATOMIST_LIB )
+  set( ANATOMIST_FOUND false )
+endif( ANATOMIST_LIB )

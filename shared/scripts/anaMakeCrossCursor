@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+import os, string
+
+output = '/tmp/cross.mesh'
+cfg = '/tmp/meshgenerate.cfg'
+size = 100
+radius = 0.5
+clearing = 1
+facets = 4
+
+def cylinder( p1, p2, ofile ):
+  print 'generating', ofile
+  f = open( cfg, 'w' )
+  f.write( 'attributes = {\n' )
+  f.write( '  "type" : "cylinder", \n' )
+  f.write( '  "point1" : ' + str( p1 ) + ', \n' )
+  f.write( '  "point2" : ' + str( p2 ) + ', \n' )
+  f.write( '  "radius" : ' + str( radius ) + ', \n' )
+  f.write( '  "facets" : ' + str( facets ) + ', \n' )
+  f.write( '}\n' )
+  f.close()
+
+  cmd = 'AimsMeshGenerate -i ' + cfg + ' -o ' + ofile
+  os.system( cmd )
+  os.unlink( cfg )
+
+ofile = []
+for i in xrange( 6 ):
+  ofile.append( os.path.join( '/tmp', 'cyl' + str(i) + '.mesh' ) )
+
+cylinder( [ -size, 0, 0 ], [ -clearing, 0, 0 ], ofile[0] )
+cylinder( [ clearing, 0, 0 ], [ size, 0, 0 ], ofile[1] )
+
+cylinder( [ 0, -size, 0 ], [ 0, -clearing, 0 ], ofile[2] )
+cylinder( [ 0, clearing, 0 ], [ 0, size, 0 ], ofile[3] )
+
+cylinder( [ 0, 0, -size ], [ 0, 0, -clearing ], ofile[4] )
+cylinder( [ 0, 0, clearing ], [ 0, 0, size ], ofile[5] )
+
+cmd = 'AimsZCat -o ' + output + string.join( map( lambda x: ' -i ' + x, ofile ) )
+os.system( cmd )
+
+for x in ofile:
+  os.unlink( x )
+  os.unlink( x + '.minf' )

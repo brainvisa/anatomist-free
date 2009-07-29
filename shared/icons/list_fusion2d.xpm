@@ -1,0 +1,33 @@
+/* XPM */
+static char * list_fusion2D_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 11 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconGray5	m black	c #737373737373",
+"X	s iconGray7	m black	c #424242424242",
+"o	s iconGray6	m black	c #636363636363",
+"O	s iconColor6	m white	c yellow",
+"+	s iconColor3	m black	c red",
+"@	s iconGray1	m white	c #dededededede",
+"#	s iconColor2	m white	c white",
+"$	s iconGray2	m white	c #bdbdbdbdbdbd",
+"%	s iconGray3	m white	c #adadadadadad",
+"&	s iconGray4	m white	c #949494949494",
+/* pixels */
+"                    ",
+"                    ",
+"       ...Xo..      ",
+"      .O+@XOO+.     ",
+"     o#++$$%+OO.    ",
+"     .+OOo$o$$@.    ",
+"    .%#%@&o&$@%&o   ",
+"    .O+@@%o%@%+O.   ",
+"    .+O%$$o#$@O+.   ",
+"    .++@@o$o@$++.   ",
+"    oO+O$%$@$O+O.   ",
+"     .%O+@X@@+O.    ",
+"     o.%&%o%%@o     ",
+"       ..oXo.o      ",
+"                    ",
+"                    "};

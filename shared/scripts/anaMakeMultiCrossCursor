@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+import os, string
+
+output = '/tmp/multicross.mesh'
+cfg = '/tmp/meshgenerate.cfg'
+size = 100
+radius = 0.1
+spacing = 0.5
+facets = 4
+
+def cylinder( p1, p2, ofile ):
+  print 'generating', ofile
+  f = open( cfg, 'w' )
+  f.write( 'attributes = {\n' )
+  f.write( '  "type" : "cylinder", \n' )
+  f.write( '  "point1" : ' + str( p1 ) + ', \n' )
+  f.write( '  "point2" : ' + str( p2 ) + ', \n' )
+  f.write( '  "radius" : ' + str( radius ) + ', \n' )
+  f.write( '  "facets" : ' + str( facets ) + ', \n' )
+  f.write( '}\n' )
+  f.close()
+
+  cmd = 'AimsMeshGenerate -i ' + cfg + ' -o ' + ofile
+  os.system( cmd )
+  os.unlink( cfg )
+
+ofile = []
+for i in xrange( 3 ):
+  for j in xrange( 4 ):
+    ofile.append( os.path.join( '/tmp', 'cyl' + str(i) + str(j) + '.mesh' ) )
+
+cylinder( [ -size, -spacing, -spacing ], [ size, -spacing, -spacing ], ofile[0] )
+cylinder( [ -size, -spacing, spacing ], [ size, -spacing, spacing ], ofile[1] )
+cylinder( [ -size, spacing, -spacing ], [ size, spacing, -spacing ], ofile[2] )
+cylinder( [ -size, spacing, spacing ], [ size, spacing, spacing ], ofile[3] )
+
+cylinder( [ -spacing, -size, -spacing ], [ -spacing, size, -spacing ], ofile[4] )
+cylinder( [ -spacing, -size, spacing ], [ -spacing, size, spacing ], ofile[5] )
+cylinder( [ spacing, -size, -spacing ], [ spacing, size, -spacing ], ofile[6] )
+cylinder( [ spacing, -size, spacing ], [ spacing, size, spacing ], ofile[7] )
+
+cylinder( [ -spacing, -spacing, -size ], [ -spacing, -spacing, size ], ofile[8] )
+cylinder( [ -spacing, spacing, -size ], [ -spacing, spacing, size ], ofile[9] )
+cylinder( [ spacing, -spacing, -size ], [ spacing, -spacing, size ], ofile[10] )
+cylinder( [ spacing, spacing, -size ], [ spacing, spacing, size ], ofile[11] )
+
+cmd = 'AimsZCat -o ' + output + string.join( map( lambda x: ' -i ' + x, ofile ) )
+os.system( cmd )
+
+for x in ofile:
+  os.unlink( x )
+  os.unlink( x + '.minf' )

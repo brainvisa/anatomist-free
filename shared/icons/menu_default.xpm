@@ -1,0 +1,22 @@
+/* XPM */
+static char * menu_default_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"16 10 6 1 -1 -1",
+/* colors */
+" 	s none	m none	c none",
+".	s iconColor1	m black	c black",
+"X	s iconGray1	m white	c #dededededede",
+"o	s iconGray3	m white	c #adadadadadad",
+"O	s iconGray2	m white	c #bdbdbdbdbdbd",
+"+	s iconGray4	m white	c #949494949494",
+/* pixels */
+"    ........... ",
+"   ..XoXOOXXOXo.",
+"  .XoOo........ ",
+" .XOoOXo++.     ",
+"..OOoOo....     ",
+"XXOoOXOo+.      ",
+"oOOoOo....      ",
+"++oooXo..       ",
+"........        ",
+"                "};

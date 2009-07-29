@@ -1,0 +1,28 @@
+/* XPM */
+static char * list_graph_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 6 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconGray8	m black	c #212121212121",
+"X	s iconColor1	m black	c black",
+"o	s iconGray5	m black	c #737373737373",
+"O	s iconColor3	m black	c red",
+"+	s iconGray7	m black	c #424242424242",
+/* pixels */
+"                    ",
+"         . XXX      ",
+"       ooo.XOXo     ",
+"      o  . XXX o    ",
+"   XXX      .   o   ",
+"   XOX     .o. +o+  ",
+"   XXX      o   +   ",
+"    .       o  XXX  ",
+"   .o.     o   XOX  ",
+"    o      o   XXX  ",
+"     o    o         ",
+"     o XXX          ",
+"      oXOX          ",
+"       XXX          ",
+"                    ",
+"                    "};

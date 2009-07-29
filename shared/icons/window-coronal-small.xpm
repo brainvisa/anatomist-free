@@ -1,0 +1,34 @@
+/* XPM */
+static char * list_winCoronal_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"22 19 9 1 0 0",
+/* colors */
+" 	s iconGray1	m white	c #dededededede",
+".	c #B0B0B0B0C2C2",
+"X	s iconGray3	m white	c #adadadadadad",
+"o	s iconGray4	m white	c #949494949494",
+"O	s iconColor1	m black	c black",
+"+	s iconGray2	m white	c #bdbdbdbdbdbd",
+"@	s iconGray7	m black	c #424242424242",
+"#	s iconGray6	m black	c #636363636363",
+"$	s iconGray8	m black	c #212121212121",
+/* pixels */
+"                     .",
+" XXXo XXXXXXXXXXXXXXXo",
+" X Xo XXXXXXXXXXXXXXXo",
+" XXXo XXXXXXXXXXXXXXXo",
+" ooooooooooooooooooooo",
+" OOOOOoXX+X+XXOOOOOOOo",
+" OOOOX@@@o@#o@#XOOOOOo",
+" OOOX##o#X##X o#+OOOOo",
+" OOOo$oX+ oo  Xo@oOOOo",
+" OOOX#o   Xo   +#XOOOo",
+" OOo#oX+ +#oX  o#oOOOo",
+" OOX@@o+ o##oo+#@oOOOo",
+" OO+@##o##o@##+#@@XOOo",
+" OOo#oX +o##o++Xo#oOOo",
+" OOX$o+ +#OO#o Xo$OOOo",
+" OOOo@oooOOO@XXo@XOOOo",
+" OOOOXO#OOOOOO#OXOOOOo",
+" OOOOOOOOOOOOOOOOOOOOo",
+".ooooooooooooooooooooo"};

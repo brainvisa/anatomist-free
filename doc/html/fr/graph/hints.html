@@ -1,0 +1,212 @@
+<!doctype public "-//w3c//dtd html 4.01 transitional//en" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Graph manipulation: trucs et recettes</title>
+  <style type="text/css">
+    BODY {
+	  text-align: justify;
+	  margin: 0.5cm;
+	}
+  </style>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+<table WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><img SRC="../../images/graph.png" NOSAVE align=CENTER></td>
+
+<td ALIGN=CENTER VALIGN=CENTER NOSAVE>
+<center>
+<h1>
+Anatomist: Manipulation de donn&eacute;es structur&eacute;es:</h1></center>
+
+<center>
+<h1>
+Trucs &amp; recettes</h1></center>
+</td>
+
+<td ALIGN=RIGHT NOSAVE><img SRC="../../images/anaLogo.png" NOSAVE align=CENTER></td>
+</tr>
+</table>
+
+<hr WIDTH="100%">
+<h1>
+Pourquoi ?</h1>
+<a href="#add_notseen">Quand on met un graphe dans une fen&ecirc;tre de
+visualisation, rien ne se passe et on ne voit rien</a>
+<br><a href="#remove_noeffect">Quand on retire un graphe d'une fen&ecirc;tre,
+les noeuds ne s'en vont pas, et encore une fois, rien ne semble se passer</a>
+<br><a href="#select_hierarchie">La s&eacute;lection par hi&eacute;rarchie
+ne marche pas</a>
+<br><a href="#destruction_lente">La destruction d'un graphe (ou la fermeture
+d'Anatomist) prend un temps incroyable, faisant penser qu'Anatomist a plant&eacute;</a>
+<br>&nbsp;
+<h1>
+Comment ?</h1>
+<a href="#voir_graphe">Voir un graphe</a>
+<br><a href="#voir_tous_noeuds">Voir tout le graphe</a>
+<br><a href="#enlever_graphe">Enlever un graphe d'une (ou plusieurs) fen&ecirc;tre(s)</a>
+<br><a href="#selectionner_tous_noeuds">S&eacute;lectionner tous les noeuds
+d'un graphe</a>
+<br><a href="#graphe_sans_anat">Voir un graphe sans anatomie dans une fen&ecirc;tre
+3D</a>
+<p>
+<hr WIDTH="100%">
+<h1>
+Pourquoi ?</h1>
+
+<li>
+<a NAME="add_notseen"></a><b>Quand on met un graphe dans une fen&ecirc;tre
+de visualisation, rien ne se passe et on ne voit rien</b></li>
+
+<p><br>Parce que seuls les noeuds qui ont &eacute;t&eacute; s&eacute;lectionn&eacute;s
+au moins une fois apparaissent. Le graphe lui-m&ecirc;me est un objet "invisible"
+et il n'affiche pas tous ses "enfants" par d&eacute;faut car c'est g&ecirc;nant
+dans les utilisations courantes.
+<br>&nbsp;
+<li>
+<a NAME="remove_noeffect"></a><b>Quand on retire un graphe d'une fen&ecirc;tre,
+les noeuds ne s'en vont pas, et encore une fois, rien ne semble se passer</b></li>
+
+<p><br>Le graphe est retir&eacute; de la fen&ecirc;tre, mais pas ses enfants
+(les noeuds). Les noeuds de graphe sont des objets anatomist &agrave; part
+enti&egrave;re et restent dans la fen&ecirc;tre jusqu'&agrave; ce qu'ils
+en soient explicitement retir&eacute;s ou qu'ils soient d&eacute;truits
+(voir: <a href="#enlever_graphe">comment retirer tout le graphe</a>)
+<br>&nbsp;
+<li>
+<a NAME="select_hierarchie"></a><b>La s&eacute;lection par hi&eacute;rarchie
+ne marche pas</b></li>
+
+<p><br>Plusieurs possibilit&eacute;s:
+<br>- la hi&eacute;rarchie ne correspond pas au graphe: son attribut "graph_syntax"
+ne correspond pas au type de graphe
+<br>- la correspondance entre hi&eacute;rarchie et graphe n'a pas &eacute;t&eacute;
+valid&eacute;e dans la fen&ecirc;tre de param&egrave;tres des graphes (bien
+que je pense que &ccedil;a n'affecte que les couleurs, pas la s&eacute;lection,
+autant que je me souvienne)
+<br>- Le graphe n'a pas &eacute;t&eacute; identifi&eacute;
+<br>- Le graphe a &eacute;t&eacute; identifi&eacute; automatiquement (les
+attributs "label" sont remplis) mais pas manuellement (les attributs "name"
+sont absents), et la correspondance se fait (par d&eacute;faut) par l'attribut
+"name". V&eacute;rifier dans les param&egrave;tres de graphe, l'option
+"use attribute" et "hierarchy/color bindings".
+<br>- Aucun noeud du graphe ne correspond aux noms demand&eacute;s
+<br>- il y a un bug ? ...
+<br>&nbsp;
+<li>
+<a NAME="destruction_lente"></a><b>La destruction d'un graphe (ou la fermeture
+d'Anatomist) prend un temps incroyable, faisant penser qu'Anatomist a plant&eacute;</b></li>
+
+<p><br>Apr&egrave;s m&ucirc;re r&eacute;flexion, je pense que c'est un
+bug...
+<br>Il me semble avoir corrig&eacute; ce comportement dans la plupart des
+cas, mais il m'a sembl&eacute; que cela arrive encore de temps en temps,
+de fa&ccedil;on moins grave tout de m&ecirc;me (30 secondes de blocage
+au lieu d'un bon 1/4 d'heure avant), peut-&ecirc;tre seulement lorsque
+le graphe est visible dans un browser.
+<br>C'est un d&eacute;faut de la structure interne d'Anatomist, pas facile
+&agrave; contourner dans l'&eacute;tat actuel des choses. Ca devrait &ecirc;tre
+encore mieux g&eacute;r&eacute; dans une future version d'Anatomist (dans
+1 an ou 2...)
+<br><b>Rem&egrave;de: </b>avant de d&eacute;truire un graphe, fermer les
+fen&ecirc;tres (surtout les browsers) qui le contiennent.
+<br>&nbsp;
+<h1>
+Comment ?</h1>
+
+<li>
+<a NAME="voir_graphe"></a><b>Voir un graphe</b></li>
+
+<p><br>Le mettre dans une fen&ecirc;tre de visu
+<br>S&eacute;lectionner des noeuds. Plusieurs m&eacute;thodes le permettent:
+voir la page pr&eacute;c&eacute;dente
+<br>&nbsp;
+<li>
+<a NAME="voir_tous_noeuds"></a><b>Voir tout le graphe</b></li>
+
+<p><br>Mettre le graphe dans une fen&ecirc;tre de visu
+<br>S&eacute;lectionner tous les noeuds:
+<br>Cf <a href="#selectionner_tous_noeuds">"comment s&eacute;lectionner
+tous les noeuds"</a>.
+<br>&nbsp;
+<li>
+<a NAME="enlever_graphe"></a><b>Enlever un graphe d'une (ou plusieurs)
+fen&ecirc;tre(s)</b></li>
+
+<p><br>C'est pas tr&egrave;s pratique, je l'avoue... Il y a plusieurs moyens
+plus ou moins tordus de s'en sortir:
+<br>Fermer la fen&ecirc;tre
+<br>D&eacute;truire le graphe
+<br>S&eacute;lectionner tous les noeuds et, dans le menu du bouton droit,
+choisir "Remove from windows of this group" ou "Remove from this window"
+selon ce qu'on veut faire. D'o&ugrave; la question suivante.
+<br>&nbsp;
+<li>
+<a NAME="selectionner_tous_noeuds"></a><b>S&eacute;lectionner tous les
+noeuds d'un graphe</b></li>
+
+<p><br>2 principales fa&ccedil;ons aussi:
+<br>&nbsp;
+<blockquote>
+<li>
+Avec une hi&eacute;rarchie (graphe identifi&eacute;):</li>
+</blockquote>
+Mettre la hi&eacute;archie dans un browser
+<br>Ouvrir la hi&eacute;rarchie de mani&egrave;re &agrave; voir les noms
+de premier niveau
+<br>Cliquer sur tous les noms de niveau le plus haut. Tous les noeuds du
+graphe sont normalement s&eacute;lectionn&eacute;s.
+<p>Remarque: si des noeuds sont mal nomm&eacute;s ou non-identifi&eacute;s,
+ils ne seront pas s&eacute;lectionn&eacute;s par cette m&eacute;thode (et
+resteront donc invisibles): prudence...
+<br>&nbsp;
+<blockquote>
+<li>
+Sans hi&eacute;rarchie ou graphe non identifi&eacute;:</li>
+</blockquote>
+
+<blockquote>
+<dl>
+<dl>
+<li>
+Manuellement:</li>
+</dl>
+</dl>
+</blockquote>
+Mettre le graphe dans un browser, et l'ouvrir de mani&egrave;re &agrave;
+voir ses noeuds
+<br>S&eacute;lectionner dans ce browser tous les noeuds: cliquer sur le
+premier noeud, puis sur le dernier en maintenant la touche "shift" enfonc&eacute;e.
+<blockquote>
+<blockquote>
+<li>
+Par voisinage:</li>
+</blockquote>
+</blockquote>
+S&eacute;lectionner un noeud (en cliquant sur l'image en mode s&eacute;lection,
+ou en choisissant un noeud au hasard dans un browser)
+<br>Avec le menu du bouton droit, choisir "Select neighbours": les voisins
+directs s'affichent et sont s&eacute;lectionn&eacute;s.
+<br>Recommencer "select neighbours" plusieurs fois: &agrave; chaque fois
+la s&eacute;lection grossit, jusqu'&agrave; ce que tous les noeuds soient
+s&eacute;lectionn&eacute;s.
+<p>Remarque: cette m&eacute;thode de s&eacute;lection par voisinage ne
+permet de s&eacute;lectionner qu'une composante connexe: si le graphe est
+d&eacute;coup&eacute; en plusieurs morceaux non connect&eacute;s, il faut
+avoir s&eacute;lectionn&eacute; au d&eacute;part au moins un noeud dans
+chaque composante connexe.
+<br>&nbsp;
+<li>
+<a NAME="graphe_sans_anat"></a><b>Voir un graphe sans anatomie dans une
+fen&ecirc;tre 3D</b></li>
+
+<p><br>Ouvrir 2 fen&ecirc;tres
+<br>Mettre dans la premiere l'anatomie + le graphe
+<br>Mettre dans la seconde le graphe seul
+<br>S&eacute;lectionner en cliqaunt dans la fen&ecirc;tre avec anatomie,
+les noeuds s'affichent aussi dans la fen&ecirc;tre avec le graphe seul.
+<br>&nbsp;
+</body>
+</html>

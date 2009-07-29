@@ -1,0 +1,183 @@
+
+A FAIRE
+-------
+
+12/05/2003, Yann
+* Palettes 3D :Fusion et affichage de maillages avec des palettes 3D donnant
+  directement des valeurs RVB.
+
+
+26/03/2003, Yann
+* Possibilité de faire passer une fenêtre devant les autres à partir de la
+  fenêtre principale d'Anatomist (par un double click ou par un menu contextuel
+  par exemple).
+----> fait 26/03/03 (denis)
+* Commande pour faire passer une fenêtre devant les autres
+----> fait 26/03/03 (denis)
+
+* La commande utilisée pour choisir un browser d'aide n'est pas sauvegardée
+  dans les préférences
+----> fait 26/03/03 (denis) : menu pour sauver la config
+  
+* Une commande pour sélectionner les noeuds d'un graphe. Au moins pour
+  sélectionner tous les noeuds afin de pouvoir afficher automatiquement un
+  graphe.
+----> (denis) on peut se débrouiller avec les commandes ObjectInfo et l'option 
+      name_children 31/03/03
+
+15/11/2001, Denis
+
+* réglage des transformations "manuel": rotation d'objets par rapport à la 
+  fenêtre 1) par le trackball, 2) par une interface spécifique (roues graduées 
+  à tourner...)
+  * 1) a été fait début 2002
+
+* Elimination / correction de choses un peu gênantes
+  - changement de point de vue en coupe oblique (dessin de ROI)
+  - slider (optionnel ?) en mode 3D
+----> plus ou moins fait en 2002...
+
+
+19/10/2001, Yann
+
+* Possibilité de changer l'orientation des plans de coupe dans une fenêtre sans 
+  changer de point de vue.
+
+* Créer les commandes pour changer les points de vue et les orientations des 
+  coupes dans une fenêtre.
+----> fait été 2002 (denis): commandes Camera et ViewConfig
+
+14/09/01, Denis
+
+* ROI: dessiner dans un volume
+
+* controles / interface des controles: gerer les groupes de controles
+
+* integrer certaines parties des modules dans le coeur:
+  - movie
+----> fait 29/03/03
+  - creation de graphes / noeuds & commandes associées (dans ROI actuellement)
+
+31/07/01, Fabrice
+
+* Ajouter un mode de representation des volumes/buckets sous forme
+  de planches (plusieurs coupes dans une seule fenetre).
+  -> des modifs seront necessaires dans les controles.
+
+21/07/01, Denis
+
+* Retravailler les palettes:
+  - palettes de RGBA, avec un A réglable séparément
+  - palettes en N dimensions (enfin, jusqu'à 3, voire 4)
+  - mode "labels" où OpenGL affiche par couleurs plutôt que par palettes
+    (enfin si c'est possible)
+  - Définition de la dynamique par morceaux avec des curseurs qu'on bouge à la 
+    souris (cf Xv etc) 
+    -> permettra de les appliquer au rendu volumique
+    -> permettra de seuiller la table sans changer le reste de la dynamique
+
+14/06/01
+
+* Modes de sélection différents selon le niveau de ce qu'on veut sélectionner 
+  (noeud / bucket (ROI))
+
+* Option pour créer un noeud dans un graphe
+  --pour l'instant il y a l'option des graphes
+
+* charger des hiérarchies au lancement d'anatomist
+
+* filtre sur ce qui est affiché par les browsers
+
+* sélection: faire clignoter ou pulser les couleurs de ce qui est sélectionné
+
+* permettre de grouper des objets à l'intérieur d'un graphe
+
+* entrées / sorties sur les groupes d'objets
+
+* régler la couleur alpha d'un ensemble d'objets (sans toucher aux RGB)
+
+07/06/2001, Renaud
+
+* Pour les ROI : Selection d'une region d'interet a partir d'une hierarchie et
+d'un graphe -> creation de la region si elle n'existe pas encore.
+
+
+FAIT
+----
+
+14/09/01, Denis
+
+* rendre le repère central (Talairach) accessible par un pipe
+  (commande pour lui donner un ID ?)
+  ----> fait 19/11/01: option de la commande AssignReferential
+
+14/09/01, Denis
+
+* Propager les transformations d'un repère à l'autre
+----> fait debut 10/01
+
+* ROI: "exporter" (et non pas "sauver") une région sous forme de volume binaire
+----> fait debut 10/01
+
+01/08/01, Denis
+* Recentrer la vue qd on passe en mode axial, coronal, sagittal
+----> fait 03/08/01
+
+10/07/2001, Yann
+
+* Ajout d'une commande pour sauver un objet. Suggestion :
+  SaveObject
+    object <object number>
+    file   <file name>
+    [ format <output format> ]
+----> fait 10/07/01, mais il n'y a pas encore de format et c'est pas file mais
+      filename
+
+03/07/2001, Yann
+
+* Ajout d'une option pour qu'Anatomiste detruire le fichier pipe dans
+  ClosePipe
+----> fait 05/07/01 (pas testé) denis
+
+29/06/2001, Yann
+
+* Ajout d'une commande pour fermer le pipe. Quand on quitte BrainVISA, les
+  fichiers temporaires (dont le pipe de connection avec Anatomist fait parti)
+  sont detruits. Si on veut conserver Anatomist, il faut qu'il ferme le pipe
+  avant cette destruction.
+----> fait (pas testé) denis
+  
+ * Possibilite de faire glisser directement un objet sur l'icone d'un type de
+   fenetre pour ouvrir une telle fenetre avec l'objet dedans.
+----> fait 05/07/01
+   
+14/06/01
+
+* optimiser l'affichage quand seul un objet temporaire a changé
+----> fait 18/06/01
+
+* Afficher les objets sous les noeuds des graphes dans les browsers
+----> fait 18/06/01
+
+* ne pas toucher à la couleur alpha des objets quand on les sélectionne
+----> c'était le cas en fait, j'ai ajouté des options dans la couleur de 
+      sélection
+
+07/06/2001, Renaud
+
+* Bucket ROI : Un bucket selectionne a une couleur de materiau reservee. Pour 
+l'instant, le bucket selectionne est opaque, ce qui est problematique pour le
+trace de roi. Il serait bien soit
+	- Que le bucket selectionne soit a moitie transparent (solution plus
+	simple mais pas satisfaisante a long terme)
+	- Qu'un bucket de type Region d'interet ne change pas de couleur
+	lorsqu'il est selectionne (on reconnait les ROIs par leurs couleurs).
+----> on peut régler la transparence de la couleur de sélection, ou des objets
+
+31/05/2001, Yann
+
+Ajout d'une commande pipe pour détruire n'importe quel type d'objet d'après son numéro
+----> fait: commande DeleteElement (cf doc) 31/05/2001
+
+
+

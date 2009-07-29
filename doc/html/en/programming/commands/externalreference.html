@@ -1,0 +1,91 @@
+<!DOCTYPE public "-//w3c//dtd html 4.01 transitional//en" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Anatomist commands reference: ExternalReference</title>
+  <style type="text/css">
+    BODY {
+	  text-align: justify;
+	  margin: 0.5cm;
+	  background-color: white;
+	  color: black;
+	 }
+    h3 { font-family: monospace; }
+    #txt { text-align: justify; }
+  </style>
+</head>
+<body>
+
+<center>
+<table id="title">
+<tbody>
+  <tr nosave="">
+    <td align="right" valign="CENTER" nosave="">
+      <img src="../../../images/anaLogo.png" nosave="" align="middle">
+    </td>
+    <td align="center" valign="CENTER" width="100%" nosave="">
+      <h1>Anatomist commands reference: <tt>ExternalReference</tt></h1>
+    </td>
+    <td><a href="http://www-dsv.cea.fr/content/cea/d_dep/d_drm/d_shfj/d_unaf/">
+      <img src="../../../images/logo_shfj_t.png" nosave="" border="0" align="middle"></a>
+      <a href="mailto:&#109;&#97;&#110;&#103;&#105;&#110;&#64;&#115;&#104;&#102;&#106;&#46;&#99;&#101;&#97;&#46;&#102;&#114;">
+        <img src="../../../images/feather.png" nosave="" border="0" align="middle"></a>
+    </td>
+  </tr>
+</tbody>
+</table>
+</center>
+
+<hr width="100%">
+
+<a name="ExternalReference"></a>
+<h3>ExternalReference</h3>
+<b>New in Anatomist 3.1</b><br>
+Manages reference counting inside Anatomist for objects, windows etc., allowing external applications (like BrainVisa) to use reference counting for their objects.<br>
+<b>Warning:</b> this command is reserved to experts and is highly dangerous since it can easily cause Anatomist to crash.
+
+<table border="1" width="100%">
+<tbody>
+  <tr>
+    <td><b>Attribute:</b></td>
+    <td><b>Type:</b></td>
+    <td><b>Description:</b></td>
+  </tr>
+  <tr>
+    <td><tt>elements</tt></td>
+    <td><tt>int_vector</tt></td>
+    <td id="txt">IDs of elements</td>
+  </tr>
+  <tr>
+    <td><tt>action_type</tt></td>
+    <td><tt>string</tt></td>
+    <td id="txt">
+      specifies which of reference counting operation is to be performed:
+      <ul>
+        <li><tt><b>TakeStrongRef</b></tt>: increments the "strong" (normal) reference counting counter of selected objects
+        </li>
+        <li><tt><b>TakeWeakSharedRef</b></tt>: increments the "weak shared" counter. weak shared references don't forbit manual deletion of objects, but will maintain a count and automatically delete them when nobody references them; It is like a standard reference counter, but still allows forcing destruction.
+        </li>
+        <li><tt><b>TakeWeakRef</b></tt>: no effect so far, no action is needed. A weak counter is an observer and is notified when the object is destroyed.
+        </li>
+        <li><tt><b>ReleaseStrongRef</b></tt>: decrements the strong reference counter on the object (and possibly destroy it if it reaches 0).
+        </li>
+        <li><tt><b>ReleaseWeakSharedRef</b></tt>: decrements the "weak shared" counter, possibly deleting the object.
+        </li>
+        <li><tt><b>ReleaseWeakRef</b></tt>: no effect so far.
+        </li>
+        <li><tt><b>ReleaseApplication</b></tt>: releases the Anatomist application reference on the object. By default all objects are referenced once in the application to keep them alive. If you wish to use reference counting from another application, you should first remove this Anatomist reference.
+        </li>
+      </ul>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+
+<p><a href="../../../fr/programmation/commands.html">Back to commands index</a>
+</p>
+
+</body>
+</html>

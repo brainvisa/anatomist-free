@@ -1,0 +1,225 @@
+/b/hANATOMIST
+
+
+
+
+
+
+L'anatomiste artificiel
+qui permet de se
+balader dans votre cerveau
+
+comme si vous y étiez
+
+
+
+Un chantier lancé en 1997 environ...
+
+
+
+
+
+
+Anatomist a été fait par :
+
+
+
+
+
+/bResponsable (et fautif) :
+
+
+Denis Rivière
+
+
+
+
+
+/bGrands Superviseurs :
+
+
+Jean-François Mangin
+Vincent Frouin
+
+
+
+
+
+/bGrand Génie (logiciel) et Nettoyeur :
+
+
+Dimitri Papadopoulos-Orfanos
+
+
+
+
+
+/bGrand Anatomiste
+/bque nous cherchons à répliquer :
+
+
+Jean Régis
+
+
+
+
+
+/bMain d'oeuvre plus ou moins bon marché :
+
+
+Yann Cointepas
+Renaud Maroy
+Cyril Poupon
+Fabrice Poupon
+Cédric Clouchoux
+Matthieu Perrot
+
+
+
+
+
+/bDocumentaliste, testeuse
+/bet support aux utilisateurs:
+
+
+Isabelle Denghien
+
+
+
+
+
+/bAutre testeuse très balèse
+/bpour mettre le doigt sur nos bugs :
+
+
+Gwénaëlle Douaud
+
+
+
+
+
+/bAnciens contributeurs :
+
+
+Bernard Sécher
+Olivier Pizzato
+
+
+
+
+
+
+
+/bContact :
+
+
+Pour les bug reports, les suggestions,
+rendez-vous sur notre forum internet :
+
+
+
+/u/fhttp://brainvisa.info/forum/
+
+
+
+
+
+ou au pire (pour les dons...),
+je suis joignable à :
+
+
+/u/fdenis.riviere@cea.fr
+
+
+
+
+
+
+
+Oui bon OK vous n'avez pas appris grand chose en
+lisant ce petit message, mais que voulez-vous ?...
+
+
+
+
+
+/iHum, la musique est nulle ?
+
+
+Oui c'est normal, je ne suis précisément pas musicien.
+Je suis ouvert à toute proposition pour la remplacer.
+
+
+
+
+
+
+
+
+
+
+
+
+/iAh j'allais oublier:
+
+Il faut que je mentionne partout où c'est possible
+notre belle institution qui nous paie et nous nourrit.
+
+Anatomist a été développé au CEA,
+
+au Service Hospitalier Frédéric Joliot jusqu'en 2006
+
+puis à NeuroSpin depuis 2007 où notre labo a déménagé.
+
+
+Donc:
+
+
+Anatomist est produit par
+
+/b/hNeuroSpin
+
+du
+/bC.E.A.
+
+à Saclay (France)
+
+
+
+/uNeuroSpin, CEA
+hein, c'est noté ?
+
+
+
+Non ?
+
+
+
+Alors encore:
+
+
+/b/iAnatomist, un produit NeuroSpin, Saclay
+
+
+etc. etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

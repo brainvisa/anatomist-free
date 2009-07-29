@@ -1,0 +1,31 @@
+/* XPM */
+static char * list_list_pm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"20 16 9 1 0 0",
+/* colors */
+" 	s none	m none	c none",
+".	s iconColor1	m black	c black",
+"X	s iconGray6	m black	c #636363636363",
+"o	s iconGray7	m black	c #424242424242",
+"O	s iconGray4	m white	c #949494949494",
+"+	s iconGray3	m white	c #adadadadadad",
+"@	s iconGray2	m white	c #bdbdbdbdbdbd",
+"#	s iconGray8	m black	c #212121212121",
+"$	s iconGray1	m white	c #dededededede",
+/* pixels */
+"                    ",
+"                    ",
+"                    ",
+"   ...............  ",
+"  .XXXo.OOOO++@@@+. ",
+"  .Xoo#.OOO+++@$$@. ",
+"  .Xo#.OOO+O+O@$$.  ",
+"  .X#o.OOO++@+@$@.  ",
+"  .Xo.OOO+O@++$@.   ",
+"  .oo.OOOOOO+@$+.   ",
+"  .X.OO+++O+$++.    ",
+"  .X.OO++@+@$$@.    ",
+"   ............     ",
+"                    ",
+"                    ",
+"                    "};

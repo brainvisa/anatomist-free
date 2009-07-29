@@ -1,0 +1,263 @@
+<!doctype public "-//w3c//dtd html 4.01 transitional//en" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Programmation Anatomist: faire une fenêtre</title>
+  <style type="text/css">
+    BODY {
+	  text-align: justify;
+	  margin: 0.5cm;
+	}
+  </style>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center><table WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=RIGHT VALIGN=CENTER NOSAVE>
+<img SRC="../../images/anaLogo.png" NOSAVE align=CENTER></td>
+
+<td ALIGN=CENTER VALIGN=CENTER WIDTH="100%" NOSAVE>
+<h1>
+Programmation dans Anatomist: fabriquer un nouveau type de fen&ecirc;tre</h1>
+</td>
+
+<td><a href="http://www-dsv.cea.fr/content/cea/d_dep/d_drm/d_shfj/d_unaf/">
+<img SRC="../../images/logo_shfj_t.png" NOSAVE BORDER=0 align=CENTER></a>
+<a href="mailto:&#109;&#97;&#110;&#103;&#105;&#110;&#64;&#115;&#104;&#102;&#106;&#46;&#99;&#101;&#97;&#46;&#102;&#114;">
+<img SRC="../../images/feather.png" NOSAVE BORDER=0 align=CENTER></a></td>
+</tr>
+</table></center>
+
+<hr WIDTH="100%">
+<p>Regardez toujours la doc automatique en meme temps... (et les sources
+des classes que je donne en exemple, &ccedil;a peut aider
+<br>aussi)
+<p>Les fen&ecirc;tres d&eacute;rivent de la classe de base AWindow, qui
+elle-m&ecirc;me est un observateur (une fen&ecirc;tre observe les objets
+qui sont affich&eacute;s dedans).
+<br>On va prendre l'exemple d'une nouvelle fen&ecirc;tre: <tt>ABubu</tt>.
+<br>Le m&eacute;nage n'ayant pas encore &eacute;t&eacute; fait dans les
+classes de fen&ecirc;tres, il y a encore pas mal de fonctions virtuelles
+pures et de choses &agrave; red&eacute;finir. C'est un peu plus complexe
+que pour les objets qui ont &eacute;t&eacute; un tout petit peu nettoy&eacute;s.
+<br>Il n'y a pas non plus d'exemple tr&egrave;s simple de fen&ecirc;tre
+dans la librairie anatomist, regardez quand-m&ecirc;me <tt>QObjectBrowser</tt>,
+c'est la plus r&eacute;cente et donc la plus propre (et aussi, elle ne
+fait pas de visu donc &ccedil;a simplifie la pr&eacute;senration de la
+partie g&eacute;n&eacute;rique sans visu).
+<blockquote>
+<pre>class ABubu : public AWindow
+{</pre>
+
+<pre>public:</pre>
+
+<pre>&nbsp; ABubu( params quelconques... );
+&nbsp; virtual ~ABubu();
+&nbsp; static AWindow* createBubu();
+&nbsp; virtual Type type() const;</pre>
+
+<pre>&nbsp; virtual Point3df GetPosition() const;
+&nbsp; virtual void SetPosition( const Point3df&amp; position , const Referential *refdep );
+&nbsp; virtual void SetTime( float time );
+&nbsp; virtual void DisplayClickPoint();</pre>
+
+<pre>&nbsp; virtual void setGeometry( int x, int y, unsigned w, unsigned h );
+&nbsp; virtual void geometry( int *x, int *y, unsigned *w, unsigned *h );
+&nbsp; virtual void CreatePixMap();&nbsp;&nbsp;&nbsp;&nbsp; // celle-l&agrave; devrait dispara&icirc;tre, je ne vois pas ce qu'elle fout ici...</pre>
+
+<pre>&nbsp; virtual void Refresh();</pre>
+
+<pre>protected:</pre>
+
+<pre>&nbsp; virtual void CreateTitle();
+&nbsp; virtual void Draw( bool flush = true );</pre>
+
+<pre>private:</pre>
+
+<pre>&nbsp; static int registerClass();</pre>
+
+<pre>&nbsp; static set&lt;unsigned>&nbsp;&nbsp;&nbsp; _bubuCount;
+&nbsp; static string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _baseTitle;
+&nbsp; static int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _classType;</pre>
+
+<pre>};</pre>
+</blockquote>
+Je n'ai mis ici que les fonctions virtuelles pures &agrave; red&eacute;finir
+obligatoirement, mais il y en a plein d'autres dont la red&eacute;finition
+est plus que fortement conseill&eacute;e. En fait un grand nombre de ces
+fonctions &agrave; red&eacute;finir vient du fait que l'interface est ind&eacute;pendante
+de la librairie graphique utilis&eacute;e (Motif/MPP ou Qt) et qu'il faut
+surcharger en fonction (resizes, g&eacute;om&eacute;trie, iconification,
+titre de la fen&ecirc;tre etc). Pour bien faire, il faudrait interposer
+une seconde couche Motif ou Qt (<tt>AQtWindow</tt> et <tt>AMotifWindow</tt>
+par ex.). C'est un peu ce qui est fait du c&ocirc;t&eacute; Motif/Mpp (<tt>AMainWindow</tt>
+/ <tt>AMenuWindow</tt>), et que j'ai pas fait du c&ocirc;t&eacute; Qt (mea
+culpa).
+<br>&nbsp;
+<h4>
+R&eacute;sum&eacute;</h4>
+<a href="#graph_lib">Fonctions sp&eacute;cifiques &agrave; la librairie
+graphique (g&eacute;om&eacute;trie et look de la fen&ecirc;tre)</a>
+<br><a href="#type">Enregistrement dynamique du type et cr&eacute;ation</a>
+<br><a href="#comptage">Comptage des fen&ecirc;tres de ce type</a>
+<br><a href="#construction">Construction et destruction</a>
+<br><a href="#display">Affichage dans la fen&ecirc;tre</a>
+<br>&nbsp;
+<h2>
+<a NAME="graph_lib"></a>Fonctions sp&eacute;cifiques &agrave; la librairie
+graphique (g&eacute;om&eacute;trie et look de la fen&ecirc;tre)</h2>
+Pour ces fonctions, regarder comment c'est fait dans <tt>QObjectBrowser</tt>
+(<tt>browser/qwObjectBrowser.cc</tt>) en Qt.
+<p><tt>setGeometry()</tt> positionne et dimentionne la fen&ecirc;tre sur
+l'&eacute;cran (<tt>QWidget::setGeometry()</tt> en Qt)
+<br><tt>geometry()</tt>au contraire, retourne la position et les dimentions
+de la fen&ecirc;tre
+<br><tt>show()</tt>affiche et d&eacute;siconifie la fen&ecirc;tre. Il faut
+toujours rappeler la fonction <tt>AWindow::show()</tt>. En Qt:
+<blockquote>
+<pre>void ABubu::show()
+{
+&nbsp; QWidget::show();
+&nbsp; AWindow::show();
+}</pre>
+</blockquote>
+<tt>Unmanage()</tt> iconifie la fen&ecirc;tre. Pareil que pour <tt>Manage()</tt>.
+En Qt:
+<blockquote>
+<pre>void ABubu::hide()
+{
+&nbsp; AWindow::hide();
+&nbsp; QWidget::hide();
+}</pre>
+</blockquote>
+<tt>SetTitle()</tt> met la ligne de titre de la fen&ecirc;tre (window manager).
+Il faut aussi appeler <tt>AWindow::SetTitle()</tt> avant. En Qt:
+<blockquote>
+<pre>void ABubu::SetTitle( const string title )
+{
+&nbsp; AWindow::SetTitle( title );
+
+&nbsp; setCaption( title.c_str() );
+}</pre>
+</blockquote>
+
+<h2>
+<a NAME="type"></a>Enregistrement dynamique du type et cr&eacute;ation</h2>
+Comme pour les objets, le type de fen&ecirc;tre doit &ecirc;tre demand&eacute;
+et d&eacute;clar&eacute; dans une usine &agrave; fen&ecirc;tre (<tt>AWindowFactory</tt>).
+On utilise aussi l'initialisation d'une variable statique pour effectuer
+cet enregistrement (&agrave; l'initialisation de la librairie, donc):
+<br>&nbsp;
+<blockquote>
+<pre>string&nbsp; ABubu::_baseTitle = "Bubu";&nbsp;&nbsp;&nbsp; // titre de base pour les fen&ecirc;tres de ce type
+int&nbsp;&nbsp;&nbsp;&nbsp; ABubu::_classType = registerClass();</pre>
+
+<pre>int ABubu::registerClass()
+{
+&nbsp; int type = AWindowFactory::registerType( _baseTitle, createBubu );
+
+&nbsp; return( type );
+}</pre>
+</blockquote>
+<tt>createBubu()</tt> est la fonction qui est appel&eacute;e par l'usine
+&agrave; fen&ecirc;tres et qui cr&eacute;e une fen&ecirc;tre &agrave; partir
+de l'interface graphique (bouton):
+<blockquote>
+<pre>AWindow* QABubu::createBubu()
+{
+&nbsp; ABubu* b = new ABubu( params... );
+
+&nbsp; b->Manage();
+&nbsp; return( b );
+}</pre>
+</blockquote>
+<b>Nouveau</b> (01/10/00): maintenant on peut aussi stocker les pixmaps
+et des descriptifs dans une extension de l'usine &agrave; fen&ecirc;tres:
+QAWindowFactory.&nbsp;Les pixmaps en 3 versions (small, large, active)
+sont stock&eacute;s ici.&nbsp;Ils sont charg&eacute;s automatiquement &agrave;
+la cr&eacute;ation de la fen&ecirc;tre de contr&ocirc;le -<i>rien besoin
+de faire !</i>- s'ils sont stock&eacute;s &agrave; l'emplacement standard
+avec des noms standards: <tt>dependencies/icons/window-<i>type</i>-small.xpm</tt>,
+<tt>dependencies/icons/window-<i>type</i>-large.xpm</tt>, <tt>dependencies/icons/window-<i>type</i>-active.xpm</tt>.
+<br>On n'a donc plus besoin de charger les ic&ocirc;nes "&agrave; la main",
+et surtout plus besoin de les d&eacute;clarer dans la class <tt>QWindowTree</tt>:
+cette classe ne devrait m&ecirc;me pas &ecirc;tre connue &agrave; l'ext&eacute;rieur
+de <tt>ControlWindow</tt> (c'est un peu une classe priv&eacute;&eacute;)
+et c'est maintenant possible.
+<br>Pour ajouter un descriptif &agrave; un type de fen&ecirc;tre <tt>Bubu</tt>:
+<blockquote>
+<pre>QAWindowFactory::setDescription( "Bubu", QAWindowFactoty::Descrip( "description br&egrave;ve",&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c'est une nouvelle fen&ecirc;tre.&nbsp;Elle s'appelle Bubu.&nbsp;"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "C'est un joli nom, non ?" ) );</pre>
+</blockquote>
+La description br&egrave;ve est mise par d&eacute;faut ("Fen&ecirc;tre
+de type Bubu") si on ne met rien.
+<br>M&ecirc;me m&eacute;canisme pour les ic&ocirc;nes avec <tt>setPixmaps()</tt>
+et <tt>QAWindowFactory::PixList</tt> (voir la doc automatique).
+<br>Cette cuisine doit &ecirc;tre faite &agrave; l'initialisation, dans
+<tt>registerClass()</tt> par exemple.
+<h2>
+<a NAME="comptage"></a>Comptage des fen&ecirc;tres de ce type</h2>
+<tt>_bubuCoun</tt>t est une liste statique des num&eacute;ros affect&eacute;s
+&agrave; chaque fen&ecirc;tre de ce type particulier. Cette variable doit
+donc &ecirc;tre red&eacute;finie pour chaque nouveau type de fen&ecirc;tre
+(-> pas automatisable). Elle sert &agrave; donner un num&eacute;ro &agrave;
+chacune ("Axial", "Axial(2)", etc). Le compteur est g&eacute;r&eacute;
+par la fonction <tt>CreateTitle()</tt>.
+<blockquote>
+<pre>void ABubu::CreateTitle()
+{
+&nbsp; if( _instNumber >= 0 ) return;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // already done
+
+&nbsp; set&lt;unsigned>::iterator&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; si;
+&nbsp; unsigned&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n;
+&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nstr[20];
+
+&nbsp; for( si=_bubuCount.begin(), n=0; si!=_bubuCount.end() &amp;&amp; *si==n;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ++si, ++n );
+&nbsp; _instNumber = n;
+&nbsp; _bubuCount.insert( n );
+&nbsp; sprintf( nstr, "%d", n+1 );
+&nbsp; if( n == 0 ) SetTitle( _baseTitle );
+&nbsp; else SetTitle( _baseTitle + " (" + nstr + ")" );
+}</pre>
+</blockquote>
+
+<h2>
+<a NAME="construction"></a>Construction et destruction</h2>
+Dans le constructeur, il faut:
+<li>
+Ben plus grand chose.&nbsp;En particulier, plus besoin d'enregistrer l'ic&ocirc;ne
+du type de fen&ecirc;tre dans l'afficheur de la fen&ecirc;tre de contr&ocirc;le.</li>
+
+<blockquote>
+<pre>ABubu::ABubu() : AWindow()
+{
+}</pre>
+</blockquote>
+Le destructeur doit retirer le num&eacute;ro de la fen&ecirc;tre dans la
+liste statique des num&eacute;ros utilis&eacute;s:
+<blockquote>
+<pre>ABubu::~ABubu
+{
+&nbsp; if( _instNumber != -1 )&nbsp;
+&nbsp;&nbsp;&nbsp; _bubuCount.erase( _bubuCount.find( _instNumber ) );
+}</pre>
+</blockquote>
+<b>N.B:</b> Heu, n'oublions pas qu'en Qt, quand on ferme une fen&ecirc;tre,
+par d&eacute;faut elle n'est pas d&eacute;truite. Pour que ce soit le cas,
+ne pas oublier de passer le flag <tt>WDestructiveClose</tt> au constructeur
+de <tt>QWidget</tt>.
+<h2>
+<a NAME="display"></a>Affichage dans la fen&ecirc;tre</h2>
+L'affichage des objets dans la fen&ecirc;tre est effectu&eacute; par la
+fonction <tt>Refresh()</tt>. On y met ce qu'on veut, par ex. les fen&ecirc;tres
+2D appellent les fonctions <tt>Update2D()</tt> des objets qu'elles contiennent,
+les fen&ecirc;tres 3D appellent les fonctions <tt>Update3D()</tt> des objets,
+et les fen&ecirc;tres Browser d&eacute;crivent les objets sous forme d'arbres
+attribu&eacute;s.
+<br>&nbsp;
+</body>
+</html>
