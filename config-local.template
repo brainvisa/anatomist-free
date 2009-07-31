@@ -31,7 +31,7 @@ defmodule(anavtk)       = @anavtk:enabled@
 
 module(anaalgo):INCLUDEPATH	+= @aimsalgo:includeBuild@
 module(anaqwt) :INCLUDEPATH	+= @qwt:includes@
-module(anavtk) :INCLUDEPATH     += @vtk:includes@
+module(anavtk) :INCLUDEPATH     += @vtkinria3d:includes@
 
 LIBS_FULL	 = @libLine@
 LIBS_WITH_ALGO	 = @anaalgo:libDepsLine@

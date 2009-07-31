@@ -17,7 +17,7 @@ class AnatomistComponent( GenericMakerComponent ):
     # Default options values
     self.setDefaultOption( 'anaalgo', 1 )
     self.setDefaultOption( 'anaqwt', 1 )
-    self.setDefaultOption( 'anavtk', 0 )
+    self.setDefaultOption( 'anavtk', 1 )
 
   def weakDependencies( self ):
     res = []
