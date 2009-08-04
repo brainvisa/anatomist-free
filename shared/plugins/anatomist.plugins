@@ -9,6 +9,6 @@ attributes = {
     'libanaroialgo.so', 
     'libpyanatomistmodule.so',
     'libanavolrender.so',
-    'libanavtk.so',
+#    'libanavtk.so',
   ],
 }
