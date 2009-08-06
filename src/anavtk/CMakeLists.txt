@@ -1,12 +1,12 @@
 # This is an obsolete file it have to be rewritten
 
-getFromPro(anavtk.pro HDRS SRCS)
+BRAINVISA_GET_FILE_LIST_FROM_PRO( anavtk.pro "HEADERS" _headers "SOURCES" _sources )
+BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist )
+BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 
-
+# getFromPro(anavtk.pro HDRS SRCS)
 # kde3_add_moc_files(SRCS ${HDRS})
-
-
-SHFJ_COPY_HEADERS(include/anatomist ${HDRS})
+# SHFJ_COPY_HEADERS(include/anatomist ${HDRS})
 
 
 SET(QTVTK2_HDRS
@@ -18,13 +18,13 @@ module/vtkQtRenderWindowInteractor2.cc
 module/vtkQtRenderWindow2.cxx
 )
 
-kde3_add_moc_files(QTVTK2_SRCS ${QTVTK2_HDRS})
+# kde3_add_moc_files(QTVTK2_SRCS ${QTVTK2_HDRS})
+BRAINVISA_ADD_MOC_FILES( QTVTK2_SRCS ${QTVTK2_HDRS} )
 
 
 add_library(qtvtk2 SHARED
 ${QTVTK2_SRCS}
 )
-
 
 target_link_libraries(qtvtk2
 ${QT_LIBRARIES}
@@ -35,9 +35,7 @@ vtkIO
 vtkCommon 
 )
 
-
-INSTALL(TARGETS qtvtk2 DESTINATION lib/)
-
+set_property( TARGET qtvtk2 PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
 
 
@@ -75,18 +73,19 @@ vtkobject/vtkmetadatasetaobject.h
 )
 
 
-SHFJ_COPY_HEADERS(include/anatomist ${ANAVTK_HDRS})
+# SHFJ_COPY_HEADERS(include/anatomist ${ANAVTK_HDRS})
+BRAINVISA_COPY_AND_INSTALL_HEADERS( ${ANAVTK_HDRS} anatomist )
+
+# kde3_add_moc_files(ANAVTK_SRCS ${ANAVTK_HDRS})
+BRAINVISA_ADD_MOC_FILES(ANAVTK_SRCS ${ANAVTK_HDRS})
 
 
-kde3_add_moc_files(ANAVTK_SRCS ${ANAVTK_HDRS})
-
-
-ADD_LIBRARY(anavtk MODULE
+add_library(anavtk MODULE
 ${ANAVTK_SRCS}
 )
 
 
-TARGET_LINK_LIBRARIES(anavtk
+target_link_libraries(anavtk
 anatomist
 qtvtk2
 vtkVisuManagement
@@ -100,16 +99,19 @@ vtkIO
 vtkCommon  
 )
 
-SET_TARGET_PROPERTIES(anavtk
-PROPERTIES SUFFIX "-${CARTO_DEBUGMODE}.so"
-${BrainVISA_LIBRARY_PROPERTIES}
-)
+set_property( TARGET anavtk PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
-IF(APPLE)
-  SET(GUI_EXECUTABLE MACOSX_BUNDLE)
-ELSE(APPLE)
-  SET(GUI_EXECUTABLE)
-ENDIF(APPLE)
+#SET_TARGET_PROPERTIES(anavtk
+#PROPERTIES SUFFIX "-${CARTO_DEBUGMODE}.so"
+#${BrainVISA_LIBRARY_PROPERTIES}
+#)
+
+
+if(APPLE)
+  set(GUI_EXECUTABLE MACOSX_BUNDLE)
+else(APPLE)
+  set(GUI_EXECUTABLE)
+endif(APPLE)
 
 add_executable(qtCone ${GUI_EXECUTABLE}
 module/testMain.cxx
@@ -125,4 +127,10 @@ vtkCommon
 vtkRenderingAddOn
 )
 
-INSTALL(TARGETS anavtk DESTINATION lib/)
+BRAINVISA_INSTALL( TARGETS qtvtk2 anavtk
+              DESTINATION lib
+              COMPONENT ${PROJECT_NAME} )
+
+BRAINVISA_INSTALL( TARGETS qtCone
+              DESTINATION bin
+              COMPONENT ${PROJECT_NAME} )
