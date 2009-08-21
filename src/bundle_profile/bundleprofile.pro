@@ -10,4 +10,4 @@ HEADERS =
 
 
 LIBS = $(LIBS_WITH_QWT)
-LIB += -lanaprofile${BUILDMODEEXT}
+LIBS += -lanaprofile${BUILDMODEEXT}
