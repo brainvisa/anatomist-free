@@ -130,7 +130,7 @@ class AnatomistComponent( GenericMakerComponent ):
 #-----------------------------------------------------------------------------
 class VtkComponent( SystemComponent ):
   _name = 'vtk'
-  _includeFile = 'QVTKWidget.h'
+  _includeFile = 'vtkWidgetsInstantiator.h'
   _libFile = 'libvtkCommon'
 
   def findInclude( self ):
