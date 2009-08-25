@@ -155,7 +155,7 @@ class VtkComponent( SystemComponent ):
 
   def _libraries( self ):
     return [ 'vtkWidgets', 'vtkRendering', 'vtkGraphics',
-      'vtkIO', 'vtkCommon' ]
+      'vtkIO', 'vtkCommon', 'vtkFiltering', 'vtkHybrid' ]
 
   def dependencies( self ):
     if systemname == 'darwin':
