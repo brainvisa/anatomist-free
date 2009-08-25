@@ -158,8 +158,11 @@ class VtkComponent( SystemComponent ):
       'vtkIO', 'vtkCommon' ]
 
   def dependencies( self ):
-    return [ 'qt', 'opengl',
-      'png', 'tiff', 'freetype' ]
+    if systemname == 'darwin':
+      return [ 'qt', 'opengl' ]
+    else:
+      return [ 'qt', 'opengl',
+        'png', 'tiff', 'freetype' ]
 
 #-----------------------------------------------------------------------------
 class AnatomistAlgoComponent( GenericMakerModuleComponent ):
