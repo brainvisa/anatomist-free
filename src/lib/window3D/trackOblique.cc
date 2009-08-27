@@ -100,7 +100,7 @@ Quaternion TrackOblique::rotation( int x, int y )
   if( _beginx < 0 || _beginy < 0 )
     return( Quaternion( 0, 0, 0, 1 ) );
 
-  QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
 
   if( !w )
     {
