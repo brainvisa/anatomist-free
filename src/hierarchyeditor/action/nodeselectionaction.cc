@@ -152,7 +152,7 @@ bool NodeSelectionAction::addVertex( Vertex * V )
 	//graph_graph_vertex_h::
 	newT->setProperty("comments",string("No comment"));
 	newT->setProperty("parallel_coord", 0.0F);
-	newT->setProperty("meridian_coord", 0.0F);  //sans le F, entier par défaut (F=float)
+	newT->setProperty("meridian_coord", 0.0F);  //sans le F, entier par dï¿½faut (F=float)
 	newT->setProperty("confidence",100);
 	newT->setProperty("type",string("Both"));
 	cout<<"Attributes set"<<endl;
@@ -180,7 +180,7 @@ bool NodeSelectionAction::addVertex( Vertex * V )
 	//action_hie->setChanged();
 	//action_hie->notifyObservers();
 
-//Pour "redéplier" le browser, sélectionner explicitement le dernier noeud pris en compte
+//Pour "redï¿½plier" le browser, sï¿½lectionner explicitement le dernier noeud pris en compte
 
 	return true;
 }
@@ -198,7 +198,7 @@ void NodeSelectionAction::add( int x, int y, int , int  )
 	}
 
 	/*Selection*/
-	QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+        GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
         AWindow	    *aw = view()->View::window();
 	if( !w )
 	{
@@ -215,7 +215,7 @@ void NodeSelectionAction::add( int x, int y, int , int  )
 		SelectFactory::Normal );
 	}
 
- /*Acces à la selection*/
+ /*Acces ï¿½ la selection*/
 	cout<<"acces a la Selection"<<endl;
 
 	std::map<unsigned, std::set<AObject *> >  current_element = SelectFactory::factory()->selected() ;
@@ -230,7 +230,7 @@ void NodeSelectionAction::add( int x, int y, int , int  )
 
 		return;
 
-	/* Le nouveau graph, s'il n'existe pas, devrait être créé ICI*/
+	/* Le nouveau graph, s'il n'existe pas, devrait ï¿½tre crï¿½ï¿½ ICI*/
 
 	AGraphObject * tempObj ;
 	//AGraph * temp_graph ;
@@ -268,7 +268,7 @@ void NodeSelectionAction::remove( int x, int y, int , int  )
 	}
 
 	/*Selection*/
-	QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+        GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
         AWindow     *aw = w->View::window();
 	if( !w )
 	{
@@ -285,7 +285,7 @@ void NodeSelectionAction::remove( int x, int y, int , int  )
 		SelectFactory::Normal );
 	}
 
-	/*Acces à la selection*/
+	/*Acces ï¿½ la selection*/
 
 	std::map<unsigned, std::set<AObject *> >  current_element = SelectFactory::factory()->selected() ;
 	std::set<AObject *>::iterator im ;
@@ -329,7 +329,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 		return;
 	}
 		/*Selection*/
-	QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+        GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
         AWindow     *aw = w->View::window();
 	if( !w )
 	{
@@ -345,7 +345,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 		SelectFactory::Normal );
 	}
 	
-	/*Acces à la selection*/
+	/*Acces ï¿½ la selection*/
 
 	std::map<unsigned, std::set<AObject *> >  current_element = SelectFactory::factory()->selected() ;
 	std::set<AObject *>::iterator im ;
@@ -359,7 +359,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 
 		return;
 
-	/* Le nouveau graph, s'il n'existe pas, devrait être créé ICI*/
+	/* Le nouveau graph, s'il n'existe pas, devrait ï¿½tre crï¿½ï¿½ ICI*/
 
 	AGraphObject * tempObj ;
 	//AGraph * temp_graph ;
@@ -376,7 +376,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 
 	current_vertex = (Vertex *) tempObj->attributed();
 
-	/*hierarchy temporaire pour sélectionner les noeuds dans tous les graphs du même groupe*/
+	/*hierarchy temporaire pour sï¿½lectionner les noeuds dans tous les graphs du mï¿½me groupe*/
 	Tree	*trt = new Tree( true, "hierarchy" );
 	Hierarchy	*hiera = new Hierarchy( trt) ;
 	const char* tyt = "hierarchy";

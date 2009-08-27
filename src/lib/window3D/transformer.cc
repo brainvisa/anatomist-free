@@ -151,7 +151,7 @@ Quaternion Transformer::rotation( int x, int y )
   if( _beginx < 0 || _beginy < 0 )
     return( Quaternion( 0, 0, 0, 1 ) );
 
-  QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
 
   if( !w )
     {
@@ -183,7 +183,7 @@ Quaternion Transformer::rotation( int x, int y )
 
 void Transformer::moveTrackball( int x, int y, int, int )
 {
-  QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
     {
       cerr << "Tranformer operating on wrong view type -- error\n";
@@ -335,7 +335,7 @@ void TranslaterAction::move( int x, int y, int, int )
       return;
     }
 
-  QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
     {
       cerr << "Translate3DAction operating on wrong view type -- error\n";
@@ -431,7 +431,7 @@ string PlanarTransformer::name() const
 
 Quaternion PlanarTransformer::rotation( int x, int y )
 {
-  QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
 
   if( !w )
     {
@@ -516,7 +516,7 @@ void ResizerAction::move( int /* x */, int y, int, int )
       return;
     }
 
-  QAGLWidget* w = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
     {
       cerr << "ResizeAction operating on wrong view type -- error\n";

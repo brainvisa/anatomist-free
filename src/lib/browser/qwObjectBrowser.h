@@ -207,11 +207,11 @@ protected slots:
   virtual void leftItemRenamed( Q3ListViewItem * item, int col,
                                 const QString & text );
 #else
-  virtual void rightButtonClickedSlot( Q3ListViewItem *, const QPoint &, int );
-  virtual void rightButtonRightPanel( Q3ListViewItem *, const QPoint &, int );
-  virtual void doubleClickedSlot( Q3ListViewItem* );
-  void rightPanelDoubleClicked( Q3ListViewItem* );
-  virtual void leftItemRenamed( Q3ListViewItem * item, int col,
+  virtual void rightButtonClickedSlot( QListViewItem *, const QPoint &, int );
+  virtual void rightButtonRightPanel( QListViewItem *, const QPoint &, int );
+  virtual void doubleClickedSlot( QListViewItem* );
+  void rightPanelDoubleClicked( QListViewItem* );
+  virtual void leftItemRenamed( QListViewItem * item, int col,
                                 const QString & text );
 #endif
   virtual void rightSelectionChangedSlot();
