@@ -709,8 +709,23 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   glBindTexture( GL_TEXTURE_3D, texName );
   status = glGetError();
   if( status != GL_NO_ERROR )
-    cerr << "GLComponent::glMakeTexImage : OpenGL error 2: "
+  {
+    cerr << "GLComponent::glMakeTexImage : OpenGL bindTexture failed: "
         << gluErrorString(status) << endl;
+    cerr << "3D texturing is probably not supported on your machine\n";
+    GLboolean t3d = false;
+    glEnable( GL_TEXTURE_3D );
+    glGetBooleanv( GL_TEXTURE_3D, &t3d );
+    cerr << "3D texture active: " << (int) t3d << endl << flush;
+    GLint mt3 = 0;
+    glGetIntegerv( GL_MAX_3D_TEXTURE_SIZE, &mt3 );
+    cerr << "max 3D texture size: " << mt3 << endl << flush;
+    delete[] palR;
+    delete[] palG;
+    delete[] palB;
+    delete[] palA;
+    return false;
+  }
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
   glPixelTransferi( GL_MAP_COLOR, GL_TRUE );
