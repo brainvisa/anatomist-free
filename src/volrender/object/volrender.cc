@@ -623,6 +623,11 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   if( d->pixformat != GL_COLOR_INDEX || d->pixtype == GL_BYTE
       || d->pixtype == GL_UNSIGNED_BYTE )
     dimx = 256;
+  // check if colormap is small enough to fit into OpenGL limitations
+  GLint mt = 0;
+  glGetIntegerv( GL_MAX_PIXEL_MAP_TABLE, &mt );
+  if( dimx > mt )
+    dimx = mt;
 
   // cout << "dim palette: " << dimx << endl;
 
