@@ -1,0 +1,22 @@
+if( @PROJECT_NAME_UPPER@_DEFINITIONS )
+  add_definitions(  ${@PROJECT_NAME_UPPER@_DEFINITIONS} )
+endif()
+if( @PROJECT_NAME_UPPER@_INCLUDE_DIRS )
+  include_directories( ${@PROJECT_NAME_UPPER@_INCLUDE_DIRS} )
+endif()
+
+if( @DESIRED_QT_VERSION@ EQUAL 3 )
+  include_directories( ${QT_INCLUDE_DIR} )
+  add_definitions( ${QT_DEFINITIONS} )
+else()
+  include( "${QT_USE_FILE}" )
+endif()
+
+if( VTK_FOUND )
+  include("${VTK_USE_FILE}")
+endif()
+if( vtkINRIA3D_FOUND )
+  include( "${vtkINRIA3D_USE_FILE}" )
+endif( vtkINRIA3D_FOUND )
+
+include( "${AIMS-GPL_USE_FILE}" )
