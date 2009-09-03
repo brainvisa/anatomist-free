@@ -610,14 +610,14 @@ void Anatomist::initialize()
     {
       modpath += ssep + "plugins" + sep + "anatomist.plugins";
       PluginLoader::pluginFiles().push_back
-        ( PluginLoader::PluginFile( modpath, libraryVersionString() ) );
+        ( PluginLoader::PluginFile( modpath, versionString() ) );
     }
   modpath = Settings::globalPath();
   if ( !modpath.empty() )
     {
       modpath += ssep + "plugins" + sep + "anatomist.plugins";
       PluginLoader::pluginFiles().push_back
-        ( PluginLoader::PluginFile( modpath, libraryVersionString() ) );
+        ( PluginLoader::PluginFile( modpath, versionString() ) );
     }
   PluginLoader::load();	// load plugins in new path
 

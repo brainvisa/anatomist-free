@@ -31,8 +31,11 @@ include_directories( ${ANATOMIST_INCLUDE_DIRS} )
 
 add_subdirectory( src )
 add_subdirectory( doc )
-BRAINVISA_COPY_DIRECTORY( ${CMAKE_CURRENT_SOURCE_DIR}/shared 
-                      share/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}
+# BRAINVISA_COPY_DIRECTORY( ${CMAKE_CURRENT_SOURCE_DIR}/shared 
+#                       share/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}
+#                       ${PROJECT_NAME}-share )
+BRAINVISA_COPY_DIRECTORY( ${CMAKE_CURRENT_SOURCE_DIR}/shared
+                      share/anatomist-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}
                       ${PROJECT_NAME}-share )
 
 BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
