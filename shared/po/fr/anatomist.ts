@@ -1971,8 +1971,8 @@ Bt droit   :  menu
         <translation>Impossible de trouver le fichier texte de ce message &quot;about.txt&quot;</translation>
     </message>
     <message>
-        <source>check config and SHFJ_SHARED_PATH or ANATOMIST_PATH environment variable</source>
-        <translation>Vérifiez la config et la variable d&apos;environnement SHFJ_SHARED_PATH  ou ANATOMIST_PATH</translation>
+        <source>check config and BRAINVISA_SHARE or ANATOMIST_PATH environment variable</source>
+        <translation>Vérifiez la config et la variable d&apos;environnement BRAINVISA_SHARE ou ANATOMIST_PATH</translation>
     </message>
 </context>
 <context>

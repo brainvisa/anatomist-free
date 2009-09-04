@@ -307,8 +307,7 @@ QAbout::QAbout( QWidget* parent, const char* name )
       QString	text = "\n\n\n\n";
       text += tr( "Cannot find about.txt file" );
       text += "\n\n\n";
-      text += tr( "check config and SHFJ_SHARED_PATH or ANATOMIST_PATH "
-          "environment variable" );
+      text += tr( "check config and BRAINVISA_SHARE environment variable" );
       d->edit->setText( text );
     }
 
