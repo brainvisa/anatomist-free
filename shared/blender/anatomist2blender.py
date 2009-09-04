@@ -52,7 +52,7 @@ from Blender.Mathutils import Matrix
 class PaletteReader:
   def __init__( self, fileName ):
     dim, ima = findFileNames( fileName, [ '.dim', '.ima' ] )
-    # Read header
+    #ï¿½Read header
     f = open( dim )
     volume_dimension = ([int(x) for x in f.readline().split()] + [ 1, 1, 1 ])[:4]
     if volume_dimension[ 1: ] != [ 1, 1, 1 ]:
@@ -109,7 +109,7 @@ class PaletteReader:
    
 
 def anatomistPalette( name ):
-  fileName = os.path.join( os.environ.get( 'SHFJ_SHARED_PATH', '/home/appli/share' ), 'anatomist', 'rgb', name )
+  fileName = os.path.join( os.environ.get( 'BRAINVISA_SHARE', '/home/a-sac-ns-research/share' ), 'anatomist', 'rgb', name )
   return PaletteReader( fileName ).read()
 
 

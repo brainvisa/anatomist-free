@@ -1923,7 +1923,7 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>check config and SHFJ_SHARED_PATH or ANATOMIST_PATH environment variable</source>
+        <source>check config and BRAINVISA_SOURCES or ANATOMIST_PATH environment variable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
