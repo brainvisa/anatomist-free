@@ -503,9 +503,9 @@ namespace
           ts[1] = tex;
           fm = ff->method( "FusionTexSurfMethod" );
           AObject	*tso = fm->fusion( ts );
-          tso->setName( theAnatomist->makeObjectName( name + "_texsurface" ) );
-          tso->setHeaderOptions();
-          theAnatomist->registerObject( tso, false );
+          ao->setName( theAnatomist->makeObjectName( name + "_mesh" ) );
+          ao->setHeaderOptions();
+          theAnatomist->registerObject( ao, false );
           /* tso->setName( theAnatomist->makeObjectName
              ( string( "texsurface_" ) + name ) ); */
           surf->header().removeProperty( "textures" );
