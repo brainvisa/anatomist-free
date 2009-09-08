@@ -115,10 +115,7 @@ class AnatomistComponent( GenericMakerComponent ):
       symlinks = self.getOption( 'symlinks' )
       dstdoc = os.path.join( packageDir(), self.docDir() )
       if 'userdoc' in packs:
-        docs = [ 'ana_man' ]
-        if 'private' in packs:
-          # the training doc is still unstable - will be in next version
-          docs += [ 'ana_training' ]
+        docs = [ 'ana_man', 'ana_training' ]
       if 'progdoc' in packs:
         docs += ['doxygen' ]
       for d in docs:
