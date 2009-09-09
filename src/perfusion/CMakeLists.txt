@@ -4,7 +4,7 @@ BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anaperfusion MODULE ${_sources} )
 add_dependencies( anaperfusion ${headersTarget} )
 set_property( TARGET anaperfusion PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( anaperfusion anatomist anaprofile ${AIMS_LIBRARIES} )
+target_link_libraries( anaperfusion anaprofile ${AIMS_AIMSALGO_LIB} )
 BRAINVISA_INSTALL( TARGETS anaperfusion
               DESTINATION lib
               COMPONENT ${PROJECT_NAME} )

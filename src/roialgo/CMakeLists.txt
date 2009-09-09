@@ -4,7 +4,7 @@ BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anaroialgo MODULE ${_sources} )
 add_dependencies( anaroialgo ${headersTarget} )
 set_property( TARGET anaroialgo PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( anaroialgo anatomist anaroibase ${AIMS_LIBRARIES} )
+target_link_libraries( anaroialgo anaroibase ${AIMS_AIMSALGO_LIB} )
 BRAINVISA_INSTALL( TARGETS anaroialgo
               DESTINATION lib
               COMPONENT ${PROJECT_NAME} )
