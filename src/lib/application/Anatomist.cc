@@ -555,13 +555,15 @@ void Anatomist::initialize()
   _privData->allObjectsFilter 
     = string( ControlWindow::tr( "All Anatomist objects" ).utf8().data() ) 
     + " (*.vimg *.vimg.Z *.vimg.gz *.img *.img.Z *.img.gz *.ima *.ima.Z" 
-    + " *.ima.gz *.v *.i *.p *.fdf *.jpg *.tif *.png *.bmp *.gif *.mng *.pbm *.pgm "
+    + " *.ima.gz *.v *.i *.p *.fdf *.jpg *.tif *.png *.bmp *.gif *.mng "
+    "*.pbm *.pgm "
     "*.ppm *.xbm *.xpm *.mnc *.mnc.Z *.mnc.gz *.nii *.nii.gz"
-    " *.tri *.tri.Z *.tri.gz *.mesh *.mesh.Z *.mesh.gz"
+    " *.tri *.tri.Z *.tri.gz *.mesh *.mesh.Z *.mesh.gz "
+    "*.ply *.ply.Z *.ply.gz *.gii *.gii.Z *.gii.gz"
     " *.arg *.bundles"
-    " *.bck"
-    " *.hie"
-    " *.tex *.erp"
+    " *.bck *.bck.Z *.bck.gz"
+    " *.hie *.hie.Z *.hie.gz"
+    " *.tex *.tex.Z *.tex.gz *.erp *.erp.Z *.erp.gz"
     " *.ana);;";
   _privData->specificFilters 
     = string( ControlWindow::tr( "Volumes" ).utf8().data() ) 
@@ -570,16 +572,18 @@ void Anatomist::initialize()
     "*.ppm *.xbm *.xpm *.mnc *.mnc.Z *.mnc.gz *.nii *.nii.gz);;"
     + ControlWindow::tr( "DICOM" ).utf8().data() 
     + " (*);;"
-    + ControlWindow::tr( "Triangular meshes" ).utf8().data() 
-    + " (*.tri *.tri.Z *.tri.gz *.mesh *.mesh.Z *.mesh.gz);;"
+    + ControlWindow::tr( "Surfacic meshes" ).utf8().data()
+    + " (*.tri *.tri.Z *.tri.gz *.mesh *.mesh.Z *.mesh.gz "
+      "*.ply *.ply.Z *.ply.gz *.gii *.gii.Z *.gii.gz);;"
     + ControlWindow::tr( "Graphs" ).utf8().data() 
     + " (*.arg *.bundles);;"
     + ControlWindow::tr( "ROIs" ).utf8().data() 
-    + " (*.bck);;"
+    + " (*.bck *.bck.Z *.bck.gz);;"
     + ControlWindow::tr( "Nomenclatures" ).utf8().data() 
     + " (*.hie);;"
     + ControlWindow::tr( "Textures" ).utf8().data() 
-    + " (*.tex *.val *.erp);;" 
+    + " (*.tex *.tex.Z *.tex.gz *.val *.erp *.erp.Z *.erp.gz "
+      "*.gii *.gii.Z *.gii.gz);;"
     + ControlWindow::tr( "Scripts" ).utf8().data() 
     + " (*.ana)";
   _privData->allFilesFilter = string( ";;" ) 
