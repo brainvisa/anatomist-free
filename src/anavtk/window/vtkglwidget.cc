@@ -95,25 +95,25 @@ vtkQAGLWidget::vtkQAGLWidget( AWindow* win, QWidget* parent, const char* name,
     std::cerr << "Cannot cast to AWindow3D!" << std::endl;
   }
 
-  
+
   vtkRenderer* ren = vtkRenderer::New();
   ren->SetBackground (1.0, 1.0, 1.0);    
   this->RenderWindow->AddRenderer(ren);
-  
 
-  vtkCornerAnnotation* corner = vtkCornerAnnotation::New();
+
+/*  vtkCornerAnnotation* corner = vtkCornerAnnotation::New();
   corner->SetNonlinearFontScaleFactor (0.3);
   vtkTextProperty* textProperty = vtkTextProperty::New();
   textProperty->SetColor (0.0,0.0,0.0);
   corner->SetTextProperty ( textProperty );
   corner->SetText (0, "Powered by VTK - Anatomist" );
-  
+
   this->AddActor (corner);
 
   corner->Delete();
-  textProperty->Delete();
+  textProperty->Delete();*/
   ren->Delete();
-  
+
   //this->RenderWindow->SetSwapBuffers (false);
 }
 
