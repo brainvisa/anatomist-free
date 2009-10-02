@@ -161,6 +161,21 @@ class VtkComponent( SystemComponent ):
       return [ 'qt', 'opengl',
         'png', 'tiff', 'freetype' ]
 
+  def _packlibraries( self ):
+    return [ 'vtkverdict', 'vtkCommon', 'vtkDICOMParser',
+      'vtkexoIIc', 'vtkexpat', 'vtkFiltering', 'vtkfreetype', 'vtkftgl',
+      'vtkGenericFiltering', 'vtkGraphics', 'vtkHybrid', 'vtkImaging',
+      'vtkInfovis', 'vtkIO', 'vtkjpeg', 'vtklibxml2', 'vtkmetaio',
+      'vtkNetCDF', 'vtkpng', 'vtkRendering', 'vtksys', 'vtktiff',
+      'vtkViews', 'vtkVolumeRendering', 'vtkWidgets', 'vtkzlib', 'vtksqlite', 'vtkParallel'
+    ]
+
+  def package(self):
+    l = self._libraries
+    self._libraries = self._packlibraries
+    SystemComponent.package( self )
+    self._libraries = l
+
 #-----------------------------------------------------------------------------
 class AnatomistAlgoComponent( GenericMakerModuleComponent ):
   _name = 'anaalgo'
@@ -241,7 +256,7 @@ class VtkInria3DComponent( SystemComponent ):
 
   def _libraries( self ):
     return [ 'vtkVisuManagement', 'vtkDataManagement',
-      'vtkHWShading', 'vtkRenderingAddOn' ]
+      'vtkHWShading', 'vtkRenderingAddOn', 'vtkHelpers' ]
 
 #-----------------------------------------------------------------------------
 class AnatomistVtkComponent( GenericMakerModuleComponent ):

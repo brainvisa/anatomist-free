@@ -39,6 +39,7 @@
 #include <anatomist/processor/Command.h>
 #include <anatomist/processor/Registry.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/processor/context.h>
 #include <graph/tree/tree.h>
 #include <stdlib.h>
 
@@ -112,7 +113,7 @@ RegularCommand::~RegularCommand()
 //--- methods -----------------------------------------------------------------
 
 SerializingCommand::SerializingCommand( CommandContext *context )
-  : _context ( context )
+  : _context ( context ? context : &CommandContext::defaultContext() )
 {
 }
 
