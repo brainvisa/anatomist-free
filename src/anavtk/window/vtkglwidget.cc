@@ -358,7 +358,9 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   qglWidget()->makeCurrent();
 
   //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
   
+  //rotate();  
   project();
 
 
@@ -367,8 +369,9 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   if( glIsList( lightGLList() ) )
     glCallList( lightGLList() );
   
-  
+
   rotate();
+  
   
 
   vtkUpdateCamera();
@@ -517,12 +520,13 @@ void vtkQAGLWidget::project()
 	    /*
 	      Every time the camera is accessed, it recomputes its ViewTransform internally.
 	      But as we have to -1 the first row, we have to do it again.
-	    */	    
+	    */
+	    /*
 	    vtkMatrix4x4* matrix = cam->GetViewTransformMatrix();
 	    for( int i=0; i<4; i++)
 	      matrix->SetElement (0, i, -1.0 * matrix->GetElement (0, i) );
-	    cam->GetViewTransformObject()->Update();
-	    
+	    cam->GetViewTransformObject()->Modified(); //Update();
+	    */
 	  }
 	}
       }
@@ -573,51 +577,19 @@ void vtkQAGLWidget::project()
        if( cam)
        {
 	 Point3df center = rotationCenter();
-	 /*
-	 double focal[3]={center[0], center[1], center[2]};
-	 double position[3]={center[0]+cam->GetDistance()*mat->GetElement(0,2),
-			     center[1]+cam->GetDistance()*mat->GetElement(1,2),
-			     center[2]+cam->GetDistance()*mat->GetElement(2,2)};
-	 double viewup[3]={mat->GetElement(0,1), mat->GetElement(1,1), mat->GetElement(2,1)};
 
-	 cam->SetFocalPoint (0, 0, -1);
-	 cam->SetPosition (0,0,0);
-	 cam->SetViewUp (0,1,0);
-
-	 vtkPerspectiveTransform* pTransform = vtkPerspectiveTransform::New();
-	 pTransform->SetupCamera (position, focal, viewup );
-	 vtkMatrix4x4* matrix = pTransform->GetMatrix();
-	 for( int i=0; i<4; i++)
-	   matrix->SetElement (0, i, -1.0 * matrix->GetElement (0, i) );
-
-	 vtkTransform* transform = vtkTransform::New();
-	 transform->SetMatrix ( matrix );
-	 
-	 cam->GetViewTransformObject()->SetInput ( transform );
-
-	 pTransform->Delete();
-	 transform->Delete();
-	 
-	 */
-	 	
 	 cam->SetFocalPoint (center[0], center[1], center[2]);
 	 cam->SetPosition (center[0]+cam->GetDistance()*mat->GetElement(0,2),
 			   center[1]+cam->GetDistance()*mat->GetElement(1,2),
 			   center[2]+cam->GetDistance()*mat->GetElement(2,2));
 	 cam->SetViewUp (mat->GetElement(0,1), mat->GetElement(1,1), mat->GetElement(2,1));
-	 
-	 vtkMatrix4x4* matrix = cam->GetViewTransformMatrix();
-	 //std::cout << *matrix << std::endl;
-	 for( int i=0; i<4; i++)
-	   matrix->SetElement (0, i, -1.0 * matrix->GetElement (0, i) );
-	 cam->GetViewTransformObject()->Update();
 
-	 /*
-	 vtkTransform* transform = vtkTransform::New();
-	 transform->SetMatrix ( mat );
-	 cam->GetViewTransformObject()->SetInput ( transform );
-	 transform->Delete();
-	 */
+	 vtkMatrix4x4* matrix = cam->GetViewTransformMatrix();
+	 for( int i=0; i<4; i++)
+	   for( int j=0; j<4; j++)
+	     matrix->SetElement (i, j, mat->GetElement (j, i) );
+	 cam->GetViewTransformObject()->Modified();
+	 cam->GetViewTransformObject()->Update();
 	 
 	 //ren->ResetCameraClippingRange(); // new clipping range for vtk
        }
@@ -631,6 +603,7 @@ void vtkQAGLWidget::project()
 
 void vtkQAGLWidget::setupView()
 {
+  //rotate();
   project();
 
   // Modelview matrix: we only apply rotation for now!
