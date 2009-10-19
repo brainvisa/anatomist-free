@@ -62,7 +62,8 @@ namespace anatomist
 			     bool mixFacflg = false, 
 			     float linMixFactor = 0.5, 
 			     const std::string & pal1Dmapping = "",
-                             bool absmode = false );
+                             bool absmode = false, int sizex = -2,
+                             int sizey = -2 );
     virtual ~SetObjectPaletteCommand();
 
     virtual std::string name() const { return( "SetObjectPalette" ); }
@@ -88,6 +89,8 @@ namespace anatomist
     bool		_max2flg;
     bool		_mixFacFlg;
     bool                _absmode;
+    int                 _sizex;
+    int                 _sizey;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

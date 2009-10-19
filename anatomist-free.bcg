@@ -123,6 +123,8 @@ class AnatomistComponent( GenericMakerComponent ):
           copyDirectory( os.path.join( doc, d ), os.path.join( dstdoc, d ),
                          symlinks=symlinks )
 
+  def qtTranslationFilename( self ):
+    return 'anatomist'
 
 #-----------------------------------------------------------------------------
 class VtkComponent( SystemComponent ):

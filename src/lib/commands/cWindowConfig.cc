@@ -35,6 +35,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glwidget.h>
+#include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/processor/Serializer.h>
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/Registry.h>
@@ -104,7 +105,7 @@ void WindowConfigCommand::doit()
   string	recbase;
   AWindow	*w;
   AWindow3D	*w3;
-  QAGLWidget	*v;
+  GLWidgetManager	*v;
   string	polymode;
   AWindow3D::RenderingMode	ipolmode = AWindow3D::Normal;
   int		persp, zbuf, cull, flat, filt, fog, clip;
@@ -166,7 +167,6 @@ void WindowConfigCommand::doit()
   _config->getProperty( "show_toolbars", showtoolbars );
   _config->getProperty( "show_cursor_position", showcursorpos );
   _config->getProperty( "fullscreen", fullscreen );
-
   for( iw=_windows.begin(); iw!=ew; ++iw )
     {
       w = *iw;
@@ -192,6 +192,7 @@ void WindowConfigCommand::doit()
       w3 = dynamic_cast<AWindow3D *>( w );
       if( w3 )
 	{
+
 	  if( bpolmode )
 	    w3->setRenderingMode( ipolmode );
 	  if( bpersp )
@@ -217,7 +218,7 @@ void WindowConfigCommand::doit()
           if( showcursorpos >= 0 )
             w3->showStatusBar( showcursorpos );
 
-          v = dynamic_cast<QAGLWidget *>( w3->view() );
+          v = dynamic_cast<GLWidgetManager *>( w3->view() );
           if( v )
             {
               if( recmode != -1 )
@@ -240,6 +241,7 @@ void WindowConfigCommand::doit()
               if( !v || i >= nsnap )
                 w3->Refresh();
 	    }
+
           if( v && i < nsnap )
             {
 	      w3->refreshNow();
