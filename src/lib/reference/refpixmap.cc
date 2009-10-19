@@ -35,10 +35,13 @@
 #include <anatomist/reference/refpixmap.h>
 #include <anatomist/reference/Referential.h>
 #include <anatomist/control/coloredpixmap.h>
+#include <anatomist/application/Anatomist.h>
 #include <aims/rgb/rgb.h>
 #include <qbitmap.h>
 #include <qpainter.h>
 #include <map>
+
+#include <qapplication.h>
 
 using namespace anatomist;
 using namespace std;
@@ -47,6 +50,8 @@ QPixmap ReferencePixmap::referencePixmap( const Referential* ref,
                                             bool ownref,
                                             unsigned RefPixSize )
 {
+  if( theAnatomist->destroying() )
+    return QPixmap();
   static map<QRgb, QPixmap> refpixs0;
   static map<QRgb, QPixmap> refpixs1;
   static QPixmap    noref;

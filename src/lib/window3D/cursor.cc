@@ -35,7 +35,7 @@
 #include <anatomist/application/settings.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/object/Object.h>
-#include <anatomist/application/Anatomist.h>
+#include "./../application/anatomistprivate.h"
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
 
@@ -65,6 +65,8 @@ namespace
 
   CursorPrivateStatic::~CursorPrivateStatic()
   {
+    if( !theAnatomist->destroying() )
+      anatomist::internal::AnatomistPrivate::setAnatomistDestroying( true );
     cleanup();
   }
 
