@@ -68,10 +68,13 @@ namespace anatomist
 
     carto::rc_ptr<APalette> refPalette() const { return( _refPal ); }
     carto::rc_ptr<APalette> refPalette2() const { return( _refPal2 ); }
-    void setRefPalette( carto::rc_ptr<APalette> pal ) { _refPal = pal; }
+    void setRefPalette( carto::rc_ptr<APalette> pal )
+    { if( _refPal != pal ) { clearColors(); _refPal = pal; } }
     void setRefPalette2( carto::rc_ptr<APalette> pal ) { _refPal2 = pal; }
-    const AimsData<AimsRGBA>* colors() const { return( _colors ); }
-    AimsData<AimsRGBA>* colors() { return( _colors ); }
+    const AimsData<AimsRGBA>* colors() const
+    { if( !_colors ) const_cast<AObjectPalette *>(this)->fill();
+    return _colors; }
+    AimsData<AimsRGBA>* colors() { if( !_colors ) fill(); return _colors; }
     void create( unsigned dimx, unsigned dimy = 1, unsigned dimz = 1, 
 		 unsigned dimt = 1 );
     virtual void fill();
@@ -115,6 +118,27 @@ namespace anatomist
 					const AObjectPalette & pal );
     bool set( const carto::GenericObject & );
     carto::Object genericDescription() const;
+    /** Maximum size of the internal palette image.
+        0 means unused: no palette image is needed.
+       -1 means no limit: may grow as large as the reference palette image
+       -2 means unchanged
+     */
+    int maxSizeX() const { return _maxSizeX; }
+    int maxSizeY() const { return _maxSizeY; }
+    void setMaxSize( int maxsizex, int maxsizey );
+    /** Maximum size of the OpenGL palette image, after scaling.
+        0 means unused: no GL palette image is needed.
+       -1 means no limit: may grow as large as the reference palette image
+       -2 means unchanged
+     */
+    int glMaxSizeX() const { return _glMaxSizeX; }
+    int glMaxSizeY() const { return _glMaxSizeY; }
+    void glSetMaxSize( int glmaxsizex, int glmaxsizey );
+    void clearColors();
+    /// if pal colors size is compatible, just copy it
+    void copyColors( const AObjectPalette & pal );
+    /// if pal colors size is compatible, just copy it; otherwise call fill()
+    void copyOrFillColors( const AObjectPalette & pal );
 
     static std::map<std::string, MixMethod>	mixMethods;
 
@@ -134,6 +158,10 @@ namespace anatomist
     Palette1DMapping	_palette1DMapping;
     bool		_mode2d;
     bool		_transp;
+    int                 _maxSizeX;
+    int                 _maxSizeY;
+    int                 _glMaxSizeX;
+    int                 _glMaxSizeY;
   };
 
 }

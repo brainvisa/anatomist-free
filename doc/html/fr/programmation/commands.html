@@ -1583,7 +1583,7 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
 <h3>SetObjectPalette</h3>
 Affecte une palette &agrave; des objets. Les param&egrave;tres 
 (tous    optionnels)  permettent de r&eacute;gler le mode d'utilisation
-de la  palette    par les objets.                                      
+de la  palette    par les objets.
 
 <table border="1" width="100%" nosave="">
 <tbody>
@@ -1594,7 +1594,7 @@ de la  palette    par les objets.
   </tr>
   <tr>
     <td><tt>palette</tt></td>
-    <td><tt>string</tt></td>
+    <td><tt>string</tt> (optionnel depuis la version 3.2)</td>
     <td>nom de la palette principale &agrave; appliquer</td>
   </tr>
   <tr>
@@ -1652,6 +1652,22 @@ de la  palette    par les objets.
     <td><tt>int</tt> (optionnel)</td>
     <td><b>Nouveau dans Anatomist 3.1.4</b><br>
       Si ce flag est non-nul, les valeurs <tt>min</tt>, <tt>max</tt>, <tt>min2</tt> et <tt>max2</tt> sont des valeurs absolues dans la texture des objets concernés. Sinon (par défaut) on est en mode proportionnel.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>sizex</tt></td>
+    <td><tt>int</tt> (optionnel)</td>
+    <td><b>Nouveau dans Anatomist 3.2</b><br>
+      Taille X de la palette/texture interne utilisée par OpenGL.<br/>
+      Ce paramètre peut être utile pour avoir une bonne précision de texture sur certains objets.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>sizey</tt></td>
+    <td><tt>int</tt> (optionnel)</td>
+    <td><b>Nouveau dans Anatomist 3.2</b><br>
+      Taille Y de la palette/texture interne utilisée par OpenGL.<br/>
+      Ce paramètre peut être utile pour avoir une bonne précision de texture sur certains objets.
     </td>
   </tr>
 

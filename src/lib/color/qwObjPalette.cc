@@ -814,7 +814,7 @@ void QAPaletteWin::palette1Changed( QListBoxItem* item )
 
   if( !objpal )
     return;
-  
+
   objpal->setRefPalette( pal );
   fillPalette1();
   updateObjPal();
@@ -1114,12 +1114,16 @@ void QAPaletteWin::updateObjects()
             ma = te.maxquant[0];
             if( mi == ma )	// protect against division by 0
               ma = mi + 1;
-            o->setPalette( *pal );
             // convert to object scale
             o->getOrCreatePalette();
+            o->setPalette( *pal );
             o->palette()->setMin1( ( omi - mi ) / ( ma - mi ) );
             o->palette()->setMax1( ( oma - mi ) / ( ma - mi ) );
             gl->glSetTexImageChanged();
+/*            cout << "obj palette size: " << o->palette()->maxSizeX()
+                << ", " << o->palette()->maxSizeY() << ", "
+                << o->palette()->glMaxSizeX() << ", "
+                << o->palette()->glMaxSizeY() << endl;*/
           }
         }
 #ifdef ANA_DEBUG

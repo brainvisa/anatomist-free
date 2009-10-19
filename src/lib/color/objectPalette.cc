@@ -59,30 +59,54 @@ map<string, AObjectPalette::MixMethod> AObjectPalette::defaultMixMethods()
 }
 
 
+namespace
+{
+
+  bool isSameColorsSize( AObjectPalette & pal,
+                         const AimsData<AimsRGBA> * cols )
+  {
+    if( !cols || !pal.refPalette() )
+      return false;
+    int sx = pal.refPalette()->dimX(), sy = pal.refPalette()->dimY();
+    if( pal.maxSizeX() >= 0 && sx > pal.maxSizeX() )
+      sx = pal.maxSizeX();
+    if( pal.is2dMode() && pal.refPalette2() )
+      sy = pal.refPalette2()->dimX();
+    if( pal.maxSizeY() >= 0 && sy > pal.maxSizeY() )
+      sy = pal.maxSizeY();
+    if( sx <= cols->dimX() && sy >= cols->dimY() )
+      return true;
+    return false;
+  }
+
+}
+
+
 AObjectPalette::AObjectPalette( rc_ptr<APalette> pal )
   : _refPal( pal ), _colors( 0 ), _min( 0 ), _max( 1 ), 
     _refPal2( 0 ), _min2( 0 ), _max2( 1 ), _mixMethod( &geometricMixMethod ), 
     _mixMethodName( "GEOMETRIC" ), _linMixFactor( 0.5 ),
-    _palette1DMapping( FIRSTLINE ), _mode2d( false ), _transp( false )
+    _palette1DMapping( FIRSTLINE ), _mode2d( false ), _transp( false ),
+    _maxSizeX( 256 ), _maxSizeY( 256 ), _glMaxSizeX( -1 ), _glMaxSizeY( -1 )
 {
 }
 
 
-AObjectPalette::AObjectPalette( const AObjectPalette & x ) 
+AObjectPalette::AObjectPalette( const AObjectPalette & x )
   : _refPal( x._refPal ), _colors( 0 ), 
     _min( x._min ), _max( x._max ), _refPal2( x._refPal2 ), 
     _min2( x._min2 ), _max2( x._max2 ), _mixMethod( x._mixMethod ), 
     _mixMethodName( x._mixMethodName ), _linMixFactor( x._linMixFactor ),
     _palette1DMapping( x._palette1DMapping ), _mode2d( x._mode2d ), 
-    _transp( x._transp )
+    _transp( x._transp ), _maxSizeX( x._maxSizeX ), _maxSizeY( x._maxSizeY ),
+    _glMaxSizeX( -1 ), _glMaxSizeY( -1 )
 {
-  if( x._colors )
-    _colors = new AimsData<AimsRGBA>( *x._colors );
 }
 
 
 AObjectPalette::~AObjectPalette()
 {
+  clearColors();
 }
 
 
@@ -90,11 +114,9 @@ AObjectPalette & AObjectPalette::operator = ( const AObjectPalette & x )
 {
   if( &x != this )
     {
+      clearColors();
       _refPal = x._refPal;
-      if( x._colors )
-	_colors = new AimsData<AimsRGBA>( *x._colors );
-      else
-	_colors = 0;
+      _colors = 0;
       _min = x._min;
       _max = x._max;
       _refPal2 = x._refPal2;
@@ -120,8 +142,12 @@ AObjectPalette* AObjectPalette::clone() const
 void AObjectPalette::create( unsigned dimx, unsigned dimy, unsigned dimz, 
 			     unsigned dimt )
 {
-  delete _colors;
-  _colors = new AimsData<AimsRGBA>( dimx, dimy, dimz, dimt );
+  clearColors();
+  if( ( !_mode2d || !_refPal2 ) && dimx == (unsigned) _refPal->dimX()
+        && dimy == (unsigned) _refPal->dimY() )
+    _colors = _refPal.get();
+  else
+    _colors = new AimsData<AimsRGBA>( dimx, dimy, dimz, dimt );
   if( dimy > 1 )
     set2dMode( true );
 }
@@ -141,9 +167,20 @@ void AObjectPalette::fill()
     mm = &palette2DMixMethod;
 
   if( !_colors || _colors->dimX() == 0 || _colors->dimY() == 0 )
-    {
-      create( dimpx < 256 ? dimpx : 256, dimpy < 256 ? dimpy : 256 );
-    }
+  {
+    unsigned dx = dimpx, dy = dimpy;
+    if( _maxSizeX == 0 )
+      dx = 0;
+    else if( _maxSizeX > 0 && dimpx > (unsigned) _maxSizeX )
+      dx = _maxSizeX;
+    if( _maxSizeY == 0 )
+      dy = 0;
+    else if( _maxSizeY > 0 && dimpy > (unsigned) _maxSizeY )
+      dy = _maxSizeY;
+    create( dx, dy );
+  }
+  if( _colors == _refPal.get() )
+    return;
 
   unsigned	dimx = _colors->dimX(), dimy = _colors->dimY(), x, y;
 
@@ -263,8 +300,9 @@ bool AObjectPalette::set( const GenericObject & obj )
       rc_ptr<APalette> p = pall.find( o->getString() );
       if( !p )
 	cerr << "AObjectPalette::set : warning: palette not found\n";
-      else
+      else if( _refPal != p );
         {
+          clearColors();
           _refPal = p;
           mod = true;
         }
@@ -350,6 +388,29 @@ bool AObjectPalette::set( const GenericObject & obj )
   catch( ... )
     {
     }
+  int sx = -1, sy = -1;
+  try
+    {
+      o = obj.getProperty( "sizex" );
+      sx = int( o->getScalar() );
+      mod = true;
+    }
+  catch( ... )
+    {
+      sx = glMaxSizeX();
+    }
+  try
+    {
+      o = obj.getProperty( "sizey" );
+      sy = int( o->getScalar() );
+      mod = true;
+    }
+  catch( ... )
+    {
+      sy = glMaxSizeY();
+    }
+  if( mod )
+    glSetMaxSize( sx, sy );
 
   return mod;
 }
@@ -369,8 +430,58 @@ Object AObjectPalette::genericDescription() const
   o->setProperty( "mixMethod", _mixMethodName );
   o->setProperty( "linMixFactor", _linMixFactor );
   o->setProperty( "palette1Dmapping", palette1DMappingName() );
+  o->setProperty( "sizex", glMaxSizeX() );
+  o->setProperty( "sizey", glMaxSizeY() );
 
   return o;
 }
 
+
+void AObjectPalette::setMaxSize( int sx, int sy )
+{
+  if( sx != -2 )
+    _maxSizeX = sx;
+  if( sy != -2 )
+    _maxSizeY = sy;
+}
+
+
+void AObjectPalette::glSetMaxSize( int sx, int sy )
+{
+  if( sx != -2 )
+    _glMaxSizeX = sx;
+  if( sy != -2 )
+    _glMaxSizeY = sy;
+}
+
+
+void AObjectPalette::clearColors()
+{
+  if( !_refPal || _colors != _refPal.get() )
+    delete _colors;
+  _colors = 0;
+}
+
+
+void AObjectPalette::copyColors( const AObjectPalette & pal )
+{
+  if( _colors )
+    return;
+  if( isSameColorsSize( *this, pal.colors() ) )
+  {
+    if( pal.colors() == _refPal.get() )
+      _colors = _refPal.get();
+    else
+      _colors = new AimsData<AimsRGBA>( pal.colors()->clone() );
+  }
+}
+
+
+void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
+{
+  copyColors( pal );
+  if( _colors )
+    return;
+  fill();
+}
 

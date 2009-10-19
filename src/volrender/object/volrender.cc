@@ -624,7 +624,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   // check if colormap is small enough to fit into OpenGL limitations
   GLint mt = 0;
   glGetIntegerv( GL_MAX_PIXEL_MAP_TABLE, &mt );
-  if( dimx > mt )
+  if( (int) dimx > mt )
     dimx = mt;
 
   // cout << "dim palette: " << dimx << endl;

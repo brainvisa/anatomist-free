@@ -50,7 +50,7 @@ using namespace carto;
 using namespace std;
 
 
-SetObjectPaletteCommand::SetObjectPaletteCommand( const set<AObject *> & obj, 
+SetObjectPaletteCommand::SetObjectPaletteCommand( const set<AObject *> & obj,
 						  const string & palname1, 
 						  bool min1flg, 
 						  float min1, bool max1flg, 
@@ -63,13 +63,15 @@ SetObjectPaletteCommand::SetObjectPaletteCommand( const set<AObject *> & obj,
 						  bool mixFacFlg, 
 						  float linMixFactor, 
 						  const string & pal1Dmapping,
-                                                  bool absmode )
+                                                  bool absmode, int sizex,
+                                                  int sizey )
   : RegularCommand(), _objL( obj ), _pal1( palname1 ), _pal2( palname2 ),
     _pal1Dmapping(pal1Dmapping),
     _min1( min1 ), _max1( max1 ), _min2( min2 ), _max2( max2 ), 
     _mixMethod( mixMethod ), _linMixFactor( linMixFactor ), 
     _min1flg( min1flg ), _max1flg( max1flg ), _min2flg( min2flg ), 
-    _max2flg( max2flg ), _mixFacFlg( mixFacFlg ), _absmode( absmode )
+    _max2flg( max2flg ), _mixFacFlg( mixFacFlg ), _absmode( absmode ),
+    _sizex( sizex ), _sizey( sizey )
 {
 }
 
@@ -84,29 +86,19 @@ bool SetObjectPaletteCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "SetObjectPalette" ];
   
-  s[ "objects"      ].type = "int_vector";
-  s[ "objects"      ].needed = true;
-  s[ "palette"      ].type = "string";
-  s[ "palette"      ].needed = true;
-  s[ "palette2"      ].type = "string";
-  s[ "palette2"      ].needed = false;
-  s[ "palette2"      ].type = "string";
-  s[ "palette2"      ].needed = false;
-  s[ "palette1Dmapping"      ].type = "string";
-  s[ "palette1Dmapping"      ].needed = false;
-  s[ "min"      ].type = "float";
-  s[ "min"      ].needed = false;
-  s[ "max"      ].type = "float";
-  s[ "max"      ].needed = false;
-  s[ "min2"      ].type = "float";
-  s[ "min2"      ].needed = false;
-  s[ "max2"      ].type = "float";
-  s[ "max2"      ].needed = false;
-  s[ "mixMethod"      ].type = "string";
-  s[ "mixMethod"      ].needed = false;
-  s[ "linMixFactor"      ].type = "float";
-  s[ "linMixFactor"      ].needed = false;
-  s[ "absoluteMode" ] = Semantic( "int", false );
+  s[ "objects"          ] = Semantic( "int_vector", true );
+  s[ "palette"          ] = Semantic( "string", false );
+  s[ "palette2"         ] = Semantic( "string", false );
+  s[ "palette1Dmapping" ] = Semantic( "string", false );
+  s[ "min"              ] = Semantic( "float", false );
+  s[ "max"              ] = Semantic( "float", false );
+  s[ "min2"             ] = Semantic( "float", false );
+  s[ "max2"             ] = Semantic( "float", false );
+  s[ "mixMethod"        ] = Semantic( "string", false );
+  s[ "linMixFactor"     ] = Semantic( "float", false );
+  s[ "absoluteMode"     ] = Semantic( "int", false );
+  s[ "sizex"            ] = Semantic( "int", false );
+  s[ "sizey"            ] = Semantic( "int", false );
   Registry::instance()->add( "SetObjectPalette", &read, ss );
   return( true );
 }
@@ -209,18 +201,26 @@ void SetObjectPaletteCommand::doit()
           else
             pal.setMax2( o->palette()->max2() );
         }
-	if( !_mixMethod.empty() )
-	  pal.setMixMethod( _mixMethod );
-	else
-	  pal.setMixMethod( o->palette()->mixMethodName() );
-	if( _mixFacFlg )
-	  pal.setLinearMixFactor( _linMixFactor );
-	else
-	  pal.setLinearMixFactor( o->palette()->linearMixFactor() );
-	pal.create( 0 );
-	pal.fill();
-	o->setPalette( pal );
-	o->notifyObservers( o );
+        if( !_mixMethod.empty() )
+          pal.setMixMethod( _mixMethod );
+        else
+          pal.setMixMethod( o->palette()->mixMethodName() );
+        if( _mixFacFlg )
+          pal.setLinearMixFactor( _linMixFactor );
+        else
+          pal.setLinearMixFactor( o->palette()->linearMixFactor() );
+        int sx = _sizex, sy = _sizey;
+        if( sx == -2 )
+        {
+          sx = o->palette()->glMaxSizeX();
+        }
+        if( sy == -2 )
+          sy = o->palette()->glMaxSizeY();
+        o->palette()->glSetMaxSize( sx, sy );
+        // TODO: incomplete
+        o->palette()->setMaxSize( -1, -1 );
+        o->setPalette( pal );
+        o->notifyObservers( o );
       }
 }
 
@@ -237,7 +237,7 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   bool			min1f = false, max1f = false, min2f = false, 
     max2f = false, mixf = false;
   float			linmix = -1;
-  int                   absmode = 0;
+  int                   absmode = 0, sizex = 0, sizey = 0;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -269,11 +269,13 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   if( com.getProperty( "linMixFactor", linmix ) )
     mixf = true;
   com.getProperty( "absoluteMode", absmode );
+  com.getProperty( "sizex", sizex );
+  com.getProperty( "sizey", sizey );
 
   return( new SetObjectPaletteCommand( objL, pal1, min1f, min1, max1f, max1, 
 				       pal2, min2f, min2, max2f, max2, mix, 
 				       mixf, linmix, pal1Dmapping,
-                                       absmode != 0 ) );
+                                       absmode != 0, sizex, sizey ) );
 }
 
 
@@ -310,5 +312,9 @@ void SetObjectPaletteCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "linMixFactor", _linMixFactor );
   if( _absmode )
     t->setProperty( "absoluteMode", 1 );
+  if( _sizex != 0 )
+    t->setProperty( "sizex", _sizex );
+  if( _sizey != 0 )
+    t->setProperty( "sizey", _sizey );
   com.insert( t );
 }

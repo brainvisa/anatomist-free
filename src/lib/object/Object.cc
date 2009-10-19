@@ -552,8 +552,20 @@ void AObject::setPalette( const AObjectPalette & pal )
 {
   if( &pal != _palette )
     {
+      int sx = -1, sy = -1, gsx = -1, gsy = -1;
+      if( _palette )
+      {
+        // keep same dimension limits
+        sx = _palette->maxSizeX();
+        sy = _palette->maxSizeY();
+        gsx = _palette->glMaxSizeX();
+        gsy = _palette->glMaxSizeY();
+      }
       delete _palette;
       _palette = pal.clone();
+      _palette->setMaxSize( sx, sy );
+      _palette->glSetMaxSize( gsx, gsy );
+      _palette->copyColors( pal );
     }
   GLComponent	*glc = glAPI();
   if( glc )

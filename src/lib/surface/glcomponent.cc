@@ -860,29 +860,101 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   const AimsData<AimsRGBA>	*cols = objpal->colors();
   float		min = objpal->min1(), max = objpal->max1();
   float		min2 = objpal->min2(), max2 = objpal->max2();
-  unsigned	dimx = 256, dimy = 256, x, y;
+  unsigned	dimx, dimy, x, y;
   unsigned	dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
   int		xs, ys;
   unsigned	dimtex = glDimTex( state, tex );
   TexInfo	& t = d->textures[ tex ];
 
-  if( dimtex == 1 )
-    dimy = 1;
-  if( dimx > dimpx )
-    dimx = dimpx;
-  if( dimy > dimpy )
-    dimy = dimpy;
+  dimx = dimpx;
+  dimy = dimpy;
+  if( objpal->glMaxSizeX() > 0 )
+    dimx = objpal->glMaxSizeX();
+  if( objpal->glMaxSizeY() > 0 )
+    dimy = objpal->glMaxSizeY();
   // texture dims must be a power of 2
-  for( x=0, utmp=1; x<10 && utmp<dimx; ++x )
+  for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
     utmp = utmp << 1;
   dimx = utmp;
-  for( x=0, utmp=1; x<10 && utmp<dimy; ++x )
+  for( x=0, utmp=1; x<32 && utmp<dimy; ++x )
     utmp = utmp << 1;
   dimy = utmp;
   if( dimx == 0 )
     dimx = 1;
   if( dimy == 0 )
     dimy = 1;
+
+  //	set up GL texture map
+  GLuint	texName = gltex.item();
+  //cout << "texName: " << texName << endl;
+  GLCaps::glActiveTexture( GLCaps::textureID( texu ) );
+  GLenum status = glGetError();
+  if( status != GL_NO_ERROR )
+  {
+    //if( status != GL_STACK_UNDERFLOW )
+    cerr << "GLComponent::glMakeTexImage : OpenGL error 1: "
+        << gluErrorString(status) << endl;
+    return false;
+  }
+
+  if( dimtex == 1 )
+  {
+    glBindTexture( GL_TEXTURE_1D, texName );
+    status = glGetError();
+    if( status != GL_NO_ERROR )
+    {
+      cerr << "GLComponent::glMakeTexImage : OpenGL error 2: "
+          << gluErrorString(status) << endl;
+      return false;
+    }
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+  }
+  else if( dimtex == 2 )
+  {
+    glBindTexture( GL_TEXTURE_2D, texName );
+    status = glGetError();
+    if( status != GL_NO_ERROR )
+    {
+      cerr << "GLComponent::glMakeTexImage : OpenGL error 3: "
+          << gluErrorString(status) << endl;
+      return false;
+    }
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+  }
+  bool ok = true;
+  do
+  {
+    GLint w;
+    if( dimtex == 1 )
+    {
+      glTexImage1D( GL_PROXY_TEXTURE_1D, 0, 4, dimx, 0, GL_RGBA,
+                    GL_FLOAT, 0 );
+      glGetTexLevelParameteriv( GL_PROXY_TEXTURE_1D, 0, GL_TEXTURE_WIDTH, &w );
+    }
+    else if( dimtex == 2 )
+    {
+      glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA,
+                    GL_FLOAT, 0 );
+      glGetTexLevelParameteriv( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w );
+    }
+    if( w == 0 || status != GL_NO_ERROR )
+    {
+      cout << "texture too large. Reducing\n";
+      if( dimx > dimy )
+        dimx /= 2;
+      else
+        dimy /= 2;
+      ok = false;
+    }
+    else
+      ok = true;
+  }
+  while( !ok && dimx > 0 && dimy > 0 );
+  if( dimx == 0 || dimy == 0 )
+  {
+    cerr << "texture proxy failed whatever its size\n";
+    return false;
+  }
 
   if( min == max )
     {
@@ -944,42 +1016,12 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   /* cout << "texture : " << dimx << " x " << dimy << ", dim: "
      << dimtex << endl; */
 
-  //	set up GL texture map
-
-  GLuint	texName = gltex.item();
-
-  //cout << "texName: " << texName << endl;
-  GLCaps::glActiveTexture( GLCaps::textureID( texu ) );
-  GLenum status = glGetError();
-  if( status != GL_NO_ERROR )
-    //if( status != GL_STACK_UNDERFLOW )
-    cerr << "GLComponent::glMakeTexImage : OpenGL error 1: " 
-         << gluErrorString(status) << endl;
-
-  /* always use 2d-texture with Mesa (bug in utah-GLX module at least with 
-     TNT2 cards (until the bug is fixed...) */
   if( dimtex == 1 )
-    {
-      glBindTexture( GL_TEXTURE_1D, texName );
-      status = glGetError();
-      if( status != GL_NO_ERROR )
-        cerr << "GLComponent::glMakeTexImage : OpenGL error 2: " 
-             << gluErrorString(status) << endl;
-      glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-      glTexImage1D( GL_TEXTURE_1D, 0, 4, dimx, 0, GL_RGBA, 
-		    GL_FLOAT, (GLvoid*) texImage );
-    }
+    glTexImage1D( GL_TEXTURE_1D, 0, 4, dimx, 0, GL_RGBA,
+                  GL_FLOAT, (GLvoid*) texImage );
   else if( dimtex == 2 )
-    {
-      glBindTexture( GL_TEXTURE_2D, texName );
-      status = glGetError();
-      if( status != GL_NO_ERROR )
-        cerr << "GLComponent::glMakeTexImage : OpenGL error 3: " 
-             << gluErrorString(status) << endl;
-      glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-      glTexImage2D( GL_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA, 
-		    GL_FLOAT, (GLvoid*) texImage );
-    }
+    glTexImage2D( GL_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA,
+                  GL_FLOAT, (GLvoid*) texImage );
 
   status = glGetError();
   if( status != GL_NO_ERROR )
