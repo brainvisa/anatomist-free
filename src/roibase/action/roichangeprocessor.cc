@@ -347,30 +347,32 @@ RoiChangeProcessor::selectedObjectsInWindow( AWindow * win )
 {
   set<AObject*> selObjsInWindow ;
 
-  if ( win == 0 ) {
+  if( win == 0 )
+  {
     map<unsigned, set<AObject *> >::const_iterator 
       groupIter(SelectFactory::factory()->selected().begin() ), 
       groupLast(SelectFactory::factory()->selected().end() ) ;
     while( groupIter != groupLast )
       {
-	selObjsInWindow.insert( groupIter->second.begin(), groupIter->second.end() ) ;
-	++groupIter ;
+        selObjsInWindow.insert( groupIter->second.begin(),
+                                groupIter->second.end() ) ;
+        ++groupIter ;
       }
-    return selObjsInWindow ;
+    return selObjsInWindow;
   }
 
   map<unsigned, set<AObject *> >::const_iterator 
     found( SelectFactory::factory()->selected().find( win->Group() ) ) ;
-  
+
   if( found == SelectFactory::factory()->selected().end() )
-    AWarning("No such a window group ! Fatal Error.") ;
-  
-  set<AObject*> winObjects = win->Objects() ;    
+    return selObjsInWindow;
+
+  set<AObject*> winObjects = win->Objects();
 
   set<AObject*>::iterator 
     iterSel( found->second.begin() ), lastSel( found->second.end() ), 
     iterInWin( winObjects.begin() ), lastInWin( winObjects.end() ) ;
-  
+
   while (iterSel != lastSel && iterInWin != lastInWin) 
     if (*iterSel < *iterInWin) 
       ++iterSel;

@@ -937,13 +937,13 @@ RoiManagementActionView::loadGraph( )
                    + " (*.ima *.img *.v *.vimg *.mnc)" ) ;
 
   QString capt = RoiManagementActionView::tr( "Load ROI Graph" ) ;
-  
+
   if ( filt == "" )
     filt = theAnatomist->objectsFileFilter().c_str();
-  
+
   if ( capt == "" )
     capt = tr( "Load ROI session" );
-  
+
   QFileDialog	& fd = anatomist::fileDialog();
   fd.setFilters( filt );
   fd.setCaption( capt );
@@ -953,7 +953,7 @@ RoiManagementActionView::loadGraph( )
 
   QStringList filenames = fd.selectedFiles();
   _private->myRoiManagementAction->loadGraph( filenames ) ;
-  
+
 //   if( _private->myRoiManagementAction->savableGraph() )
 //     _private->mySessionMenu->setItemEnabled( 105, true ) ;
 //   else
@@ -966,7 +966,7 @@ RoiManagementActionView::loadGraph( )
 void
 RoiManagementActionView::saveGraphAs( )
 {
-  _private->myRoiManagementAction->saveGraphAs( ) ;    
+  _private->myRoiManagementAction->saveGraphAs( ) ;
 
   if( _private->myRoiManagementAction->savableGraph() )
     _private->mySessionMenu->setItemEnabled( 105, true ) ;
@@ -977,7 +977,7 @@ RoiManagementActionView::saveGraphAs( )
 void
 RoiManagementActionView::reloadGraph( )
 {
-    _private->myRoiManagementAction->reloadGraph( ) ;    
+    _private->myRoiManagementAction->reloadGraph( );
 }
 
 void
@@ -2335,13 +2335,13 @@ RoiManagementAction::selectGraph( const string & graphName, int graphId  )
   #ifdef ANA_DEBUG
   cout << "RoiManagementAction::selectGraph( " << graphName << " )" << endl ;
 #endif
-  
+
   if ( _sharedData->myCurrentGraph == graphName && _sharedData->myCurrentGraphId == graphId )
     return ;
-  
+
   _sharedData->myCurrentGraph = graphName ;
   _sharedData->myCurrentGraphId = graphId ;
-  
+
   _sharedData->myCurrentGraphRegionsChanged = true ;
   getCurrentGraphRegions() ;
 
@@ -2602,7 +2602,7 @@ void
 RoiManagementAction::loadGraph( const QStringList& filenames )
 {
   //cout << "loadGraph()" << endl ;
-  
+
   LoadObjectCommand *command = 0 ;
   AObject	* loadedObj = 0 ;
 
@@ -2628,16 +2628,16 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 
   if(! loadedObj)
     return ;
-  
+
   theAnatomist->getControlWindow()->UnselectAllObjects();
-  
+
   _sharedData->myGraphNamesChanged = true ;
   _sharedData->myCurrentGraphRegionsChanged = true ;
-  
+
   _sharedData->refreshGraphs() ;
 
   getGraphNames() ;
-  
+
   int newId = 0 ;
   std::set<string>::const_iterator iterName( _sharedData->myGraphNames.begin() ), 
     lastName( _sharedData->myGraphNames.end() ) ;
@@ -2647,20 +2647,21 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 
     ++iterName ; ++newId ;
   }
-  
+
   _sharedData->myCurrentGraph = "" ;
   _sharedData->myCurrentGraphId = 0 ;
   selectGraph( loadedObj->name(), newId ) ;
-  
-  
+
+
   // If no hierarchy is loaded, load neuronames.hie
   set<AObject *> objs = theAnatomist->getObjects() ;
   set<AObject *>::iterator iter( objs.begin() ), last( objs.end() ), found ;
-  
+
   int objCount = 0 ;
   while ( iter != last )
     {
-      if( (*iter)->type() == Hierarchy::classType() ){
+      if( (*iter)->type() == Hierarchy::classType() )
+      {
 	++objCount ;
 	found = iter ;
 	break ;
@@ -2677,7 +2678,7 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
   }
 
   AObject * obj = _sharedData->getObjectByName(AObject::GRAPH, _sharedData->myCurrentGraph ) ;
-  AGraph * gr = dynamic_cast<AGraph*>( obj ) ;   
+  AGraph * gr = dynamic_cast<AGraph*>( obj ) ;
 #ifdef ANA_DEBUG
   cout << "gr = " << gr << endl ;
 #endif
@@ -2744,7 +2745,7 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 	   << (*foundVolume)->VoxelSize() - loadedObj->VoxelSize() << endl ;
       return ;
     }
-    
+
     if( (*foundVolume)->MinX2D() != loadedObj->MinX2D() || 
 	(*foundVolume)->MinY2D() != loadedObj->MinY2D() || 
 	(*foundVolume)->MinZ2D() != loadedObj->MinZ2D() ||
@@ -2767,18 +2768,18 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
       return ;
     }
   }
-    
+
   // Include roi graph in this RoiManagementAction associated window
   objs.clear() ;
   objs.insert( loadedObj ) ;
-    
+
   set<AWindow*> wins ;
   wins.insert( view()->window() ) ;
-    
-  Command	*cmd2 = new AddObjectCommand( objs, wins ) ;
+
+  Command	*cmd2 = new AddObjectCommand( objs, wins, false, true );
   theProcessor->execute( cmd2 ) ;
-    
-  Command	*cmd3 = new SetControlCommand( wins, "PaintControl" ) ;
+
+  Command	*cmd3 = new SetControlCommand( wins, "PaintControl" );
   theProcessor->execute( cmd3 ) ;
 }
 
@@ -2867,10 +2868,12 @@ RoiManagementAction::selectRegion( const string& regionName, int id )
 {
   //cout << "selectRegion( " << regionName << " )" << endl ;
   set<AObject*> objSet ;
-  
-  if( id != -1 ){
-    AGraphObject * graphObject = _sharedData->getGraphObjectByName( _sharedData->myCurrentGraph, 
-								    regionName ) ; 
+
+  if( id != -1 )
+  {
+    AGraphObject * graphObject
+      = _sharedData->getGraphObjectByName( _sharedData->myCurrentGraph,
+                                           regionName ) ;
     if( ! graphObject ){
       AWarning( "No such region exists" ) ;
       return ;
@@ -2882,7 +2885,7 @@ RoiManagementAction::selectRegion( const string& regionName, int id )
   theProcessor->execute( cmd );
 
   _sharedData->myCurrentRegionId = id ;
-  
+
   setChanged() ;
   notifyObservers() ;
 }
@@ -3522,7 +3525,7 @@ void RoiManagementActionSharedData::refreshGraphs() const
 	{
 	  ag->SetMaterial( ag->material() ) ;
 	  ag->notifyObservers( (void *) this ) ;
-	  completeSelection( ag ) ;
+	  // completeSelection( ag ) ;
 	}
     }
 }
@@ -3540,7 +3543,7 @@ RoiManagementActionSharedData::completeSelection( AGraph * graph ) const
 	objs.insert( go ) ;
       }
       ++iter ;
-    }  
+    }
   Command 	*cmd = new SelectCommand( objs ) ;
   theProcessor->execute( cmd ) ;
 }
