@@ -368,6 +368,7 @@ Anatomist::~Anatomist()
   delete SelectFactory::factory();
 
   delete _privData;
+  _privData = 0;
   theAnatomist = 0;
 }
 
@@ -1367,7 +1368,8 @@ bool Anatomist::hasReferential( const Referential * ref )
 
 bool Anatomist::destroying() const
 {
-  return _privData->destroying || qApp->closingDown();
+  return !theAnatomist || !_privData || _privData->destroying
+    || ( qApp && qApp->closingDown() );
 }
 
 

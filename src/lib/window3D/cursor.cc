@@ -65,7 +65,7 @@ namespace
 
   CursorPrivateStatic::~CursorPrivateStatic()
   {
-    if( !theAnatomist->destroying() )
+    if( theAnatomist && !theAnatomist->destroying() )
       anatomist::internal::AnatomistPrivate::setAnatomistDestroying( true );
     cleanup();
   }
