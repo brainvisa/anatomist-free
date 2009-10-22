@@ -77,6 +77,7 @@
 #include <anatomist/object/objectmenuCallbacks.h>
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/selection/selectFactory.h>
+#include "anatomistprivate.h"
 #include <aims/def/path.h>
 #include <cartobase/plugin/plugin.h>
 #include <cartobase/stream/directory.h>
@@ -203,6 +204,7 @@ struct Anatomist::Anatomist_privateData
   int			userLevel;
   Point3df		lastpos;
   mutable Referential	*lastref;
+  bool                  destroying;
 };
 
 
@@ -213,7 +215,7 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
   : historyW( new CommandWriter ), paletteList( 0 ),
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 0, 0, 0 ),
-    lastref( 0 )
+    lastref( 0 ), destroying( false )
 {
 }
 
@@ -320,6 +322,7 @@ Anatomist::~Anatomist()
   AObject	*obj;
 
 
+  _privData->destroying = true;
   while( !_privData->anaWin.empty() )
     delete _privData->anaWin.begin()->second.get();
 
@@ -365,6 +368,7 @@ Anatomist::~Anatomist()
   delete SelectFactory::factory();
 
   delete _privData;
+  _privData = 0;
   theAnatomist = 0;
 }
 
@@ -725,6 +729,8 @@ void Anatomist::registerObject( AObject* obj, int inctrl )
   cout << "Anatomist::registerObject " << obj << " (" 
        << typeid( *obj ).name() << ") - " << obj->name() << endl;
 #endif
+  if( _privData->destroying )
+    return;
   _privData->anaObj[ obj ]
       = shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, obj );
   if( inctrl ) mapObject( obj );
@@ -787,7 +793,7 @@ void Anatomist::unregisterReferential( Referential* ref )
 
 void Anatomist::mapObject( AObject* obj )
 {
-  if( getControlWindow() != 0)
+  if( getControlWindow() != 0 && !_privData->destroying )
     getControlWindow()->registerObject( obj );
 }
 
@@ -800,7 +806,7 @@ void Anatomist::unmapObject( AObject* obj )
 
 void Anatomist::UpdateInterface()
 {
-  if( getControlWindow() != 0)
+  if( getControlWindow() != 0 && !_privData->destroying )
     getControlWindow()->UpdateMenus();
 }
 
@@ -906,14 +912,14 @@ void Anatomist::Refresh()
 
 void Anatomist::NotifyMapWindow( AWindow* win )
 {
-  if( getControlWindow() != 0)
+  if( getControlWindow() != 0 && !_privData->destroying )
     getControlWindow()->registerWindow( win );
 }
 
 
 void Anatomist::NotifyUnmapWindow( AWindow* win )
 {
-  if( getControlWindow() != 0)
+  if( getControlWindow() != 0 )
     getControlWindow()->unregisterWindow( win );
 }
 
@@ -1357,5 +1363,28 @@ bool Anatomist::hasReferential( const Referential * ref )
 {
   return _privData->anaRef.find( const_cast<Referential *>( ref ) )
       != _privData->anaRef.end();
+}
+
+
+bool Anatomist::destroying() const
+{
+  return !theAnatomist || !_privData || _privData->destroying
+    || ( qApp && qApp->closingDown() );
+}
+
+
+namespace anatomist
+{
+
+  namespace internal
+  {
+
+    void AnatomistPrivate::setAnatomistDestroying( bool x )
+    {
+      theAnatomist->_privData->destroying = x;
+    }
+
+  }
+
 }
 

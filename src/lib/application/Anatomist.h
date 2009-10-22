@@ -56,6 +56,10 @@ namespace anatomist
   class GlobalConfiguration;
   class CommandWriter;
 
+  namespace internal
+  {
+    class AnatomistPrivate;
+  }
 
   /**	The Anatomist class holds information about all data handled by 
 	Anatomist: the objects, the windows, and other application-wide lists.
@@ -186,8 +190,11 @@ namespace anatomist
     void setUserLevel( int );
     void setLastPosition( const Point3df & pos, Referential * fromref = 0 );
     Point3df lastPosition( const Referential* toref = 0 ) const;
+    /// returns true if the Anatomist application is currently being destroyed
+    bool destroying() const;
 
   private:
+    friend class anatomist::internal::AnatomistPrivate;
     struct Anatomist_privateData;
 
     Anatomist_privateData		*_privData;
