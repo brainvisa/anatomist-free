@@ -289,17 +289,17 @@ namespace anatomist
         t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
         t2->setProperty( "callback", &ObjectActions::saveStatic );
         t->insert( t2 );
-        t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+        t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
                                                 "Rename object" ) );
         t2->setProperty( "callback", &ObjectActions::renameObject );
         t->insert( t2 );
-        t2 = new Tree( true, 
-                       QT_TRANSLATE_NOOP( "QSelectMenu", 
+        t2 = new Tree( true,
+                       QT_TRANSLATE_NOOP( "QSelectMenu",
                                           "Create generated 1D texture" ) );
         t2->setProperty( "callback", &ObjectActions::generateTexture1D );
         t->insert( t2 );
-        t2 = new Tree( true, 
-                       QT_TRANSLATE_NOOP( "QSelectMenu", 
+        t2 = new Tree( true,
+                       QT_TRANSLATE_NOOP( "QSelectMenu",
                                           "Create generated 2D texture" ) );
         t2->setProperty( "callback", &ObjectActions::generateTexture2D );
         t->insert( t2 );
@@ -309,16 +309,20 @@ namespace anatomist
         t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ) );
         t2->setProperty( "callback", &ObjectActions::colorMaterial );
         t->insert( t2 );
-        t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+        t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
                                                "Referential" ) );
         _optionTree->insert( t );
         t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Load" ) );
         t2->setProperty( "callback", &ObjectActions::referentialLoad );
         t->insert( t2 );
+        t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
+                       "Apply builtin referential (SPM/NIFTI)") );
+        t2->setProperty( "callback", &ObjectActions::setAutomaticReferential );
+        t->insert( t2 );
         t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Geometry" ) );
         _optionTree->insert( t );
-        t2 = new Tree( true, 
-                       QT_TRANSLATE_NOOP( "QSelectMenu", 
+        t2 = new Tree( true,
+                       QT_TRANSLATE_NOOP( "QSelectMenu",
                                           "Invert polygon orientation" ) );
         t2->setProperty( "callback", &invertPolygonsStatic );
         t->insert( t2 );
