@@ -3071,6 +3071,11 @@ void AWindow3D::setLinkedCursorPos()
   l->setSpacing( 5 );
   QLineEdit	*le = new QLineEdit( &dial );
   l->addWidget( le );
+  stringstream curpos;
+  Point3df pos = GetPosition();
+  curpos << pos[0] << " " << pos[1] << " " << pos[2];
+  le->setText( curpos.str() );
+  le->selectAll();
   QHBox		*hb = new QHBox( &dial );
   l->addWidget( hb );
   QPushButton	*pb = new QPushButton( tr( "OK" ), hb );
