@@ -1779,8 +1779,22 @@ void AWindow3D::registerObject( AObject* o, bool temporaryObject, int pos )
       updateWindowGeometry();
       setupSliceSlider();
 
-      // set cursor in middle of object
-      SetPosition( ( bmin + bmax ) * 0.5f, o->getReferential() );
+      set<AWindow*> wg = theAnatomist->getWindowsInGroup( Group() );
+      bool setpos = true;
+      if( wg.size() > 1 )
+      {
+        set<AWindow*>::const_iterator iw, ew = wg.end();
+        for( iw=wg.begin(); iw!=ew; ++iw )
+          if( *iw != this && dynamic_cast<const AWindow3D *>( *iw ) )
+          {
+            SetPosition( (*iw)->GetPosition(), (*iw)->getReferential() );
+            setpos = false;
+            break;
+          }
+      }
+      if( setpos )
+        // set cursor in middle of object
+        SetPosition( ( bmin + bmax ) * 0.5f, o->getReferential() );
       SetTime( 0 );
 
       // resize window if in 2D mode
