@@ -3074,7 +3074,7 @@ void AWindow3D::setLinkedCursorPos()
   stringstream curpos;
   Point3df pos = GetPosition();
   curpos << pos[0] << " " << pos[1] << " " << pos[2];
-  le->setText( curpos.str() );
+  le->setText( QString( curpos.str().c_str() ) );
   le->selectAll();
   QHBox		*hb = new QHBox( &dial );
   l->addWidget( hb );
