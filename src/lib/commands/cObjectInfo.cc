@@ -289,7 +289,7 @@ namespace
         vc[2] = q[2];
         vc[3] = q[3];
         ex->setProperty( "slice_quaternion", vc );
-        QAGLWidget *v = dynamic_cast<QAGLWidget *>( w3->view() );
+        GLWidgetManager *v = dynamic_cast<GLWidgetManager *>( w3->view() );
         if( v )
           {
             vector<int>	vi( 2 );

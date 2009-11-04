@@ -884,7 +884,8 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
     const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( state.window );
     if( w3 )
     {
-      const QAGLWidget *glv = dynamic_cast<const QAGLWidget *>( w3->view() );
+      const GLWidgetManager *glv
+          = dynamic_cast<const GLWidgetManager *>( w3->view() );
       if( glv )
       {
         hasorient = true;
