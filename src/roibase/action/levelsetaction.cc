@@ -450,7 +450,9 @@ RoiLevelSetActionSharedData::update (const Observable *, void *)
 RoiLevelSetActionSharedData::RoiLevelSetActionSharedData() : 
   Observer(), Observable(), myLevelSetActivation(false), myLevelSetDeactivation(false), 
   myCurrentImage(0), myDimensionMode(TWOD),
-  myLowLevel(0.), myHighLevel(0.), myImageMax(0.), myImageMin(0.), myMixMethod("GEOMETRIC"), myMixFactor(0.5),
+  myLowLevel(0.), myHighLevel(0.), myImageMax(0.), myImageMin(0.),
+  myMaxSize( 1. ), myPercentageOfMaximum( 1. ),
+  myMixMethod("GEOMETRIC"), myMixFactor(0.5),
   myGettingCurrentImage(false), myActivatingLevelSet(false), myUpdating(false)
 {
   //cout << "Constructor : myLevelSetActivation is " << (myLevelSetActivation ? "True" : "False") << endl ;
