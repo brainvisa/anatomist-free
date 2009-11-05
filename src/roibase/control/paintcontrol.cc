@@ -319,6 +319,7 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
                             &SliceAction::nextTime ) );
 
   // paint cursor action
+#ifndef __APPLE__
   mouseMoveEventSubscribe
     ( Qt::NoButton, Qt::NoButton,
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
@@ -326,6 +327,7 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
   focusOutEventSubscribe(
     FocusActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
                                     &PaintAction::hideCursor ) );
+#endif
 
   // Renaud : Pas top, mais en attendant mieux...
   myPaintAction = dynamic_cast<PaintAction*>( actionPool->action( "PaintAction" ) ) ;
