@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
 #      CEA/NeuroSpin, Batiment 145,
@@ -143,8 +144,8 @@ class MoveAObjectFromAWindowEventHandler(anatomist.EventHandler):
     self.registerHandler('RemoveObject', self)
 
   def doit(self, ev):
-    obj = ev.contents().get()['_object'].get()
-    win = ev.contents().get()['_window'].get()
+    obj = ev.contents()['_object']
+    win = ev.contents()['_window']
     aobj = anatomist.AObject.fromObject(obj)
     # The two next lines above are a small hack based on current
     # anatomist event system for objects deletion. In fact, these
