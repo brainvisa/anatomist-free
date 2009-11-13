@@ -133,7 +133,7 @@ void TrackCutAction::moveTrackball( int x, int y, int, int )
   SelfSliceable				*sl;
   map<AObject *, Point3df>::iterator	ic, ec = _cuts.end();
   Point3df				n, center, bmin, bmax;
-  QAGLWidget			*glw = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager	*glw = dynamic_cast<GLWidgetManager *>( view() );
   map<SelfSliceable *, AObject *>		sls;
   map<SelfSliceable *, AObject *>::iterator	isls, esls = sls.end();
   AObject					*o;
@@ -223,7 +223,7 @@ void TrackCutAction::setSlice( const Quaternion & q )
   set<AObject *>		obj = w->Objects();
   set<AObject *>::iterator	io, eo = obj.end();
   SelfSliceable			*sl;
-  QAGLWidget			*glw = dynamic_cast<QAGLWidget *>( view() );
+  GLWidgetManager	*glw = dynamic_cast<GLWidgetManager *>( view() );
   Point3df			n, center, bmin, bmax;
   map<SelfSliceable *, AObject *>               sls;
   map<SelfSliceable *, AObject *>::iterator     isls, esls = sls.end();

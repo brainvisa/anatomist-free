@@ -3074,7 +3074,7 @@ void AWindow3D::setLinkedCursorPos()
   stringstream curpos;
   Point3df pos = GetPosition();
   curpos << pos[0] << " " << pos[1] << " " << pos[2];
-  le->setText( curpos.str() );
+  le->setText( QString( curpos.str().c_str() ) );
   le->selectAll();
   QHBox		*hb = new QHBox( &dial );
   l->addWidget( hb );
@@ -3139,7 +3139,7 @@ void AWindow3D::setRightEyeWindow( AWindow3D* w )
   if( d->righteye )
     d->righteye->setLeftEyeWindow( 0 );
   d->righteye = w;
-  d->draw->setRightEye( w ? dynamic_cast<QAGLWidget *>( w->view() ) : 0 );
+  d->draw->setRightEye( w ? dynamic_cast<GLWidgetManager *>( w->view() ) : 0 );
   if( w )
     w->setLeftEyeWindow( this );
 }
@@ -3150,7 +3150,7 @@ void AWindow3D::setLeftEyeWindow( AWindow3D* w )
   if( d->lefteye && w )
     d->lefteye->setRightEyeWindow( 0 );
   d->lefteye = w;
-  d->draw->setLeftEye( w ? dynamic_cast<QAGLWidget *>( w->view() ) : 0 );
+  d->draw->setLeftEye( w ? dynamic_cast<GLWidgetManager *>( w->view() ) : 0 );
 }
 
 

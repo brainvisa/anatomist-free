@@ -117,7 +117,8 @@ void ControlledWindow::updateControls()
   list<shared_ptr<AObject> >::const_iterator	io, eo=_objects.end();
 
   for( io=_objects.begin(); io!=eo; ++io )
-    obj.push_back( AObject::objectTypeName( (*io)->type() ) );
+    if( !isTemporary( io->get() ) )
+      obj.push_back( AObject::objectTypeName( (*io)->type() ) );
   view()->controlSwitch()->setAvailableControls( obj );
   view()->controlSwitch()->setActivableControls();
   view()->controlSwitch()->notifyActionChange();
@@ -254,7 +255,7 @@ void ControlledWindow::updateActivableControls()
 
 void ControlledWindow::activeControlChanged()
 {
-  //cout << "ControlledWindow::activeControlChanged\n";
+  // cout << "ControlledWindow::activeControlChanged\n";
   //updateActiveControl();
 
   const string		ac = view()->controlSwitch()->activeControl();

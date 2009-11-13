@@ -166,7 +166,8 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
     {
       svs.orientation = &w3->sliceQuaternion();
       svs.winref = w3->getReferential();
-      const QAGLWidget *glv = dynamic_cast<const QAGLWidget *>( w3->view() );
+      const GLWidgetManager
+          *glv = dynamic_cast<const GLWidgetManager *>( w3->view() );
       if( glv )
         svs.vieworientation = &glv->quaternion();
     }

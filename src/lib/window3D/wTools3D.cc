@@ -252,7 +252,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   new QLabel( tr( "Number of rendering passes (0=as necessary)" ), dppb );
   QSpinBox	*dppass = new QSpinBox( dppb );
 
-  QAGLWidget	*da = (QAGLWidget *) win->view();
+  GLWidgetManager	*da = static_cast<GLWidgetManager *>( win->view() );
   if( !da->depthPeelingAllowed() )
     dpg->setEnabled( false );
   dpeel->setChecked( da->depthPeelingEnabled() );
@@ -449,14 +449,14 @@ void Tools3DWindow::setFog( bool x )
 
 void Tools3DWindow::enableDepthPeeling( bool x )
 {
-  QAGLWidget	*da = (QAGLWidget *) _window->view();
+  GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
   da->enableDepthPeeling( x );
 }
 
 
 void Tools3DWindow::setDepthPeelingPasses( int n )
 {
-  QAGLWidget	*da = (QAGLWidget *) _window->view();
+  GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
   da->setDepthPeelingPasses( (unsigned) n );
 }
 
@@ -464,7 +464,7 @@ void Tools3DWindow::setDepthPeelingPasses( int n )
 void Tools3DWindow::toggleSavingMode( int x )
 {
   cout << "toggleSavingMode " << x << endl;
-  QAGLWidget	*da = (QAGLWidget *) _window->view();
+  GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
   int	savem = da->otherBuffersSaveMode();
   savem ^= ( 1 << x );
   da->setOtherBuffersSaveMode( savem );

@@ -2260,6 +2260,9 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 
 void PaintAction::updateCursor()
 {
+#ifdef __APPLE__
+  return;
+#else
   // cout << "PaintAction::updateCursor\n" << flush;
   AWindow3D *win = dynamic_cast<AWindow3D *>( view()->window() );
   if( !win )
@@ -2351,6 +2354,7 @@ void PaintAction::updateCursor()
     win->renderBefore( _sharedData->myCursor, renderBeforeObject( win, g ) );
   }
   win->refreshTemp();
+#endif
 }
 
 
