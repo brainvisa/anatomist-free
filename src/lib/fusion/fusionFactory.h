@@ -84,6 +84,8 @@ namespace anatomist
     virtual FusionMethod* chooseMethod( const std::set<AObject *> & );
     virtual FusionMethod* chooseMethod( std::vector<AObject *> &, 
                                         bool allowreorder = false );
+    virtual std::set<std::string>
+        allowedMethods( const std::set<AObject *> & ) const;
     ///	Selects the method with ID name (if any)
     virtual FusionMethod* method( const std::string & name ) const;
 
@@ -94,6 +96,7 @@ namespace anatomist
     /**	is there at least one method which can actually make a fusion with 
 	these objects ? */
     static bool canFusion( const std::set<AObject *> & );
+    static std::set<std::string> methods();
 
   protected:
     static FusionFactory		*_theFactory;

@@ -171,6 +171,19 @@ FusionMethod* FusionFactory::chooseMethod( vector<AObject *> & objects,
 }
 
 
+set<string> FusionFactory::allowedMethods( const set<AObject *> & objs ) const
+{
+  set<string> meths;
+  set<FusionMethod *>::const_iterator	im, fm=_methods.end();
+
+  for( im=_methods.begin(); im!=fm; ++im )
+    if( (*im)->canFusion( objs ) )
+      meths.insert( (*im)->ID() );
+
+  return meths;
+}
+
+
 FusionMethod* FusionFactory::method( const string & name ) const
 {
   set<FusionMethod *>::const_iterator	im, em = _methods.end();
@@ -181,3 +194,14 @@ FusionMethod* FusionFactory::method( const string & name ) const
   else
     return( 0 );
 }
+
+
+set<string> FusionFactory::methods()
+{
+  set<string> meths;
+  set<FusionMethod *>::const_iterator im, em = _methods.end();
+  for( im=_methods.begin(); im!=em; ++im )
+    meths.insert( (*im)->ID() );
+  return meths;
+}
+
