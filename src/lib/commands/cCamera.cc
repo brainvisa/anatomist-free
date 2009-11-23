@@ -161,7 +161,7 @@ CameraCommand::doit()
 		fullrefresh = true;
 	      }
 	  }
-	QAGLWidget	*v = dynamic_cast<QAGLWidget *>( w->view() );
+	GLWidgetManager	*v = dynamic_cast<GLWidgetManager *>( w->view() );
 	if( v )
 	  {
 	    if( _obspos )
