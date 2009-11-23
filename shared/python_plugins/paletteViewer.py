@@ -146,7 +146,11 @@ class MoveAObjectFromAWindowEventHandler(anatomist.EventHandler):
   def doit(self, ev):
     obj = ev.contents()['_object']
     win = ev.contents()['_window']
-    aobj = anatomist.AObject.fromObject(obj)
+    try:
+      aobj = anatomist.AObject.fromObject(obj)
+    except RuntimeError:
+      # this generally means obj has been destroyed
+      return
     # The two next lines above are a small hack based on current
     # anatomist event system for objects deletion. In fact, these
     # lines allow to differentiate simple cases from objects
@@ -198,6 +202,8 @@ class PaletteWidget(MplCanvas):
     return (numpy.array(qtbg.getRgb(), dtype='f') / 255.).tolist()
 
   def update_palette(self):
+    if not self._obj.palette():
+      return
     self._aobjectPalette = self._obj.getOrCreatePalette()
     img = self._aobjectPalette.refPalette().volume()
     self._size = img.getSizeX()
@@ -486,6 +492,8 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
       groupwidget = topwidget.children()[1]
     layout = groupwidget.layout()
     for o in objects:
+      if not o.palette():
+        continue # do nothing on objects with no palette
       id = getObjectId(o)
       if groupwidget.has_key(id):
         groupwidget.remove(id)
