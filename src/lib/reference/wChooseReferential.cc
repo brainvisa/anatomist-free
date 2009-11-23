@@ -88,8 +88,14 @@ void ChooseReferentialWindow::drawContents( const char *name )
 {
   setCaption( name );
   QVBoxLayout	*lay = new QVBoxLayout( this, 10, 5 );
+#if QT_VERSION >= 0x040000
+  QGroupBox *grp = new QGroupBox( tr( "Referential:" ), this,
+                                  "buttonGroup" );
+  QVBoxLayout *glay = new QVBoxLayout( grp );
+#else
   QVButtonGroup	*grp = new QVButtonGroup( tr( "Referential:" ), this, 
 					  "buttonGroup" );
+#endif
   lay->addWidget( grp );
 #if QT_VERSION >= 0x040000
   QButtonGroup  *bg = new QButtonGroup( grp );
@@ -98,11 +104,13 @@ void ChooseReferentialWindow::drawContents( const char *name )
 
   QPushButton	*but = new QPushButton( tr( "None" ), grp );
 #if QT_VERSION >= 0x040000
+  glay->addWidget( but );
   bg->addButton( but, id++ );
 #endif
   setQtColorStyle( but );
   but = new QPushButton( tr( "New" ), grp );
 #if QT_VERSION >= 0x040000
+  glay->addWidget( but );
   bg->addButton( but, id++ );
 #endif
   setQtColorStyle( but );
@@ -124,6 +132,7 @@ void ChooseReferentialWindow::drawContents( const char *name )
         qrefname = tr( "Existing one" );
       but = new QPushButton( qrefname, grp );
 #if QT_VERSION >= 0x040000
+      glay->addWidget( but );
       bg->addButton( but, id++ );
 #endif
       setQtColorStyle( but );
