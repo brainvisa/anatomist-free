@@ -129,6 +129,9 @@ FusionInfoCommand::doit()
     ex->setProperty( "allowed_methods", mvec );
   }
 
+  if( !_requestid.empty() )
+    ex->setProperty( "request_id", _requestid );
+
   _result = ex;
 
   // cout << "ObjectInfoCommand::doit writing\n";
