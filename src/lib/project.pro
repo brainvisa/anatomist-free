@@ -44,7 +44,9 @@ HEADERS = \
 	commands/cExtractTexture.h \
 	commands/cFusion2DParams.h \
 	commands/cFusion3DParams.h \
-	commands/cGenerateTexture.h \
+        commands/cFusionInfo.h \
+        commands/cFusionObjects.h \
+        commands/cGenerateTexture.h \
 	commands/cGetInfo.h \
 	commands/cGraphDisplayProperties.h \
 	commands/cGraphParams.h \
@@ -60,7 +62,6 @@ HEADERS = \
 	commands/cPopupPalette.h \
 	commands/cReloadObject.h \
 	commands/cRemoveObject.h \
-	commands/cFusionObjects.h \
 	commands/cAssignReferential.h \
 	commands/cLoadTransformation.h \
 	commands/cSaveObject.h \
@@ -270,7 +271,8 @@ SOURCES = \
 	commands/cExtractTexture.cc \
 	commands/cFusion2DParams.cc \
 	commands/cFusion3DParams.cc \
-	commands/cFusionObjects.cc \
+        commands/cFusionInfo.cc \
+        commands/cFusionObjects.cc \
 	commands/cGenerateTexture.cc \
 	commands/cGetInfo.cc \
 	commands/cGraphDisplayProperties.cc \
