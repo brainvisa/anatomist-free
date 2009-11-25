@@ -196,7 +196,7 @@ namespace anatomist
     static float selectTolerence() { return( _selectTolerence ); }
     /// Set the selection tolerence distance
     static void setSelectTolerence( float tol ) { _selectTolerence = tol; }
-    virtual void displayClickPoint() = 0;
+    virtual void displayClickPoint() {}
     /**	Translates mouse position to Anatomist geometry position
 	@return	false if posision cannot be computed (out of viewport)
     */
@@ -222,11 +222,11 @@ namespace anatomist
     virtual void startRecord( const std::string & filename );
     virtual void stopRecord() {}
     /// Creates a new title for the window
-    virtual void CreateTitle() = 0;
+    virtual void CreateTitle() {}
 
-    virtual const std::set<unsigned> & typeCount() const = 0;
-    virtual std::set<unsigned> & typeCount() = 0;
-    virtual const std::string & baseTitle() const = 0;
+    virtual const std::set<unsigned> & typeCount() const;
+    virtual std::set<unsigned> & typeCount();
+    virtual const std::string & baseTitle() const;
     /** returns true if a refresh has been triggered and not performed yet
 	(in subclasses: AWindow always returns false) */
     virtual bool needsRedraw() const { return( false ); }
