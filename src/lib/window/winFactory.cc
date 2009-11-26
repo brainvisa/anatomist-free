@@ -34,6 +34,9 @@
 
 #include <anatomist/window/winFactory.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/control/controlMenuHandler.h>
+#include <anatomist/control/wControl.h>
+#include <anatomist/selection/qSelMenu.h>
 
 
 using namespace anatomist;
@@ -256,6 +259,16 @@ int AWindowFactory::registerType( const string & type,
   TypeID[ type ] = itype;
   TypeNames[ itype ] = type;
   Creators[ itype ] = rc_ptr<AWindowCreator>( creator );
+
+  ControlWindow* cw = theAnatomist->getControlWindow();
+  if( cw )
+  {
+    AControlMenuHandler* mh = cw->menuHandler();
+    QPopupMenu* pop = mh->getPopup( "Windows" );
+    pop->insertItem( type, cw, SLOT( openWindow( int ) ), 0, 
+                     itype + 1000, Creators.size()-1 );
+    pop->setItemParameter( 1000+itype, itype );
+  }
 
   return( itype );
 }
