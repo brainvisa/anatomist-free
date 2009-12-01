@@ -86,7 +86,8 @@ void AControlMenuHandler::create( const Tree & tr )
       if( !pop )
 	{
 	  pop = new QSelectMenu;
-	  _menubar->insertItem( subt->getSyntax().c_str(), pop );
+          _menubar->insertItem( QString::fromUtf8( subt->getSyntax().c_str() ),
+                                pop );
 	}
       for( it2=subt->begin(), et2=subt->end(); it2!=et2; ++it2 )
 	pop->addOptionMenus( pop, (const Tree *) *it2 );
@@ -253,13 +254,13 @@ void AControlMenuHandler::enablePreferencesMenu( bool state )
 
 void AControlMenuHandler::setGroupMenuText( const string & text )
 {
-  _menubar->changeItem( 105, text.c_str() );
+  _menubar->changeItem( 105, QString::fromUtf8( text.c_str() ) );
 }
 
 
 void AControlMenuHandler::setLinkMenuText( const string & text )
 {
-  _menubar->changeItem( 210, text.c_str() );
+  _menubar->changeItem( 210, QString::fromUtf8( text.c_str() ) );
 }
 
 
@@ -275,12 +276,13 @@ QSelectMenu* AControlMenuHandler::makePopup( const Tree & tr )
       subt = (const Tree *) *it;
       if( subt->size() == 0 )	// terminal item
 	{
-	  pop->insertItem( subt->getSyntax().c_str() );
+          pop->insertItem( QString::fromUtf8( subt->getSyntax().c_str() ) );
 	}
       else			// sub tree: new submenu popup
 	{
 	  QSelectMenu	*subp = makePopup( *subt );
-	  pop->insertItem( subt->getSyntax().c_str(), subp );
+          pop->insertItem( QString::fromUtf8( subt->getSyntax().c_str() ),
+                           subp );
 	}
     }
 
