@@ -48,8 +48,6 @@ namespace anatomist
 
     virtual int MType() const { return( AObject::LIST ); }
 
-    /**@name	Container methods */
-    //@{
     virtual size_t size() const;
     virtual iterator begin();
     virtual const_iterator begin() const;
@@ -61,11 +59,7 @@ namespace anatomist
     virtual void insert( AObject *, unsigned pos );
     virtual const_iterator find( const AObject * ) const;
     virtual void erase( iterator & );
-    //@}
     virtual bool CanRemove( AObject *obj );
-
-    virtual Tree* optionTree() const;
-    static Tree*	_optionTree;
 
   protected:
     ///		Data storage type, to be redefined by children classes

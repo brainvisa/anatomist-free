@@ -43,9 +43,6 @@ using namespace carto;
 using namespace std;
 
 
-Tree*	GLObjectList::_optionTree = 0;
-
-
 GLObjectList::GLObjectList() : GLMObject()
 {
   _type = AObject::LIST;
@@ -76,25 +73,6 @@ MObject::const_iterator GLObjectList::find( const AObject *obj ) const
                   const_cast<AObject *>( obj ) ) );
   if( i!=_data.end() ) return iterator( new const_ObjectListIterator( i ) );
   else return end();
-}
-
-
-Tree* GLObjectList::optionTree() const
-{
-  if( !_optionTree )
-    {
-      Tree	*t, *t2;
-      _optionTree = new Tree( true, "option tree" );
-      t = new Tree( true, "Color" );
-      _optionTree->insert( t );
-
-      t = new Tree( true, "Referential" );
-      _optionTree->insert( t );
-      t2 = new Tree( true, "Load" );
-      t2->setProperty( "callback", &ObjectActions::referentialLoad );
-      t->insert( t2 );
-    }
-  return( _optionTree );
 }
 
 

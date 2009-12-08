@@ -209,6 +209,14 @@ static ObjectMenu* agraphObjectOptionMenu()
   t2 = new Tree( true, "Material" );
   t2->setProperty( "callback", &ObjectActions::colorMaterial );
   t->insert( t2 );
+
+  t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+               "Referential"));
+  optionTree->insert(t);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Load"));
+  t2->setProperty("callback", &ObjectActions::referentialLoad);
+  t->insert(t2);
+
   om = new ObjectMenu(*optionTree);
   return om;
 }
