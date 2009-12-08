@@ -264,7 +264,7 @@ int AWindowFactory::registerType( const string & type,
   if( cw )
   {
     AControlMenuHandler* mh = cw->menuHandler();
-    QPopupMenu* pop = mh->getPopup( "Windows" );
+    QSelectMenu* pop = mh->getPopup( "Windows" );
     pop->insertItem( type.c_str(), cw, SLOT( openWindow( int ) ), 0, 
                      itype + 1000, Creators.size()-1 );
     pop->setItemParameter( 1000+itype, itype );

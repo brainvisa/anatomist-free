@@ -60,13 +60,24 @@ GLMObject::~GLMObject()
 }
 
 
-const Material *GLMObject::glMaterial() const
+//const Material *GLMObject::glMaterial() const
+const Material & GLMObject::material() const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glMaterial();
+    return *g->glMaterial();
   else
-    return 0;
+    return MObject::material();
+}
+
+
+Material & GLMObject::GetMaterial()
+{
+  const GLComponent     *g = glGeometry();
+  if( g )
+    return *const_cast<Material *>( g->glMaterial() );
+  else
+    return MObject::GetMaterial();
 }
 
 
