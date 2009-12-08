@@ -34,6 +34,9 @@
 
 #include <anatomist/window/winFactory.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/control/controlMenuHandler.h>
+#include <anatomist/control/wControl.h>
+#include <anatomist/selection/qSelMenu.h>
 
 
 using namespace anatomist;
@@ -63,10 +66,14 @@ bool AWindowFactory::initTypes()
   TypeID[ "Sagittal" ] = AWindow::SAGITTAL_WINDOW;
   TypeID[ "3D"       ] = AWindow::WINDOW_3D;
   
-  Creators[ AWindow::AXIAL_WINDOW    ] = createAxial;
-  Creators[ AWindow::CORONAL_WINDOW  ] = createCoronal;
-  Creators[ AWindow::SAGITTAL_WINDOW ] = createSagittal;
-  Creators[ AWindow::WINDOW_3D       ] = create3D;
+  Creators[ AWindow::AXIAL_WINDOW    ]
+      = rc_ptr<AWindowCreator>( new AWindowCreatorFunc( createAxial ) );
+  Creators[ AWindow::CORONAL_WINDOW  ]
+      = rc_ptr<AWindowCreator>( new AWindowCreatorFunc( createCoronal ));
+  Creators[ AWindow::SAGITTAL_WINDOW ]
+      = rc_ptr<AWindowCreator>( new AWindowCreatorFunc( createSagittal ));
+  Creators[ AWindow::WINDOW_3D       ]
+      = rc_ptr<AWindowCreator>( new AWindowCreatorFunc( create3D ));
 
   return( true );
 }
@@ -86,10 +93,11 @@ AWindow* AWindowFactory::createWindow( const string & type, void *dock,
 AWindow* AWindowFactory::createWindow( int type, void *dock, 
                                        carto::Object params )
 {
-  map<int, WinCreator>::const_iterator	it = Creators.find( type );
+  map<int, rc_ptr<AWindowCreator> >::const_iterator
+      it = Creators.find( type );
   if( it == Creators.end() )
-    return( 0 );
-  return (*it).second( dock, params );
+    return 0;
+  return (*it->second)( dock, params );
 }
 
 
@@ -229,6 +237,13 @@ int AWindowFactory::typeID( const string & type )
 
 int AWindowFactory::registerType( const string & type, WinCreator creator )
 {
+  return registerType( type, new AWindowCreatorFunc( creator ) );
+}
+
+
+int AWindowFactory::registerType( const string & type,
+                                  AWindowCreator *creator )
+{
   map<string, int>::const_iterator	it = TypeID.find( type );
 
   if( it != TypeID.end() )
@@ -243,7 +258,17 @@ int AWindowFactory::registerType( const string & type, WinCreator creator )
   for( ; in!=fn && (*in).first==itype; ++in, ++itype ) {}
   TypeID[ type ] = itype;
   TypeNames[ itype ] = type;
-  Creators[ itype ] = creator;
+  Creators[ itype ] = rc_ptr<AWindowCreator>( creator );
+
+  ControlWindow* cw = theAnatomist->getControlWindow();
+  if( cw )
+  {
+    AControlMenuHandler* mh = cw->menuHandler();
+    QSelectMenu* pop = mh->getPopup( "Windows" );
+    pop->insertItem( type.c_str(), cw, SLOT( openWindow( int ) ), 0, 
+                     itype + 1000, Creators.size()-1 );
+    pop->setItemParameter( 1000+itype, itype );
+  }
 
   return( itype );
 }
@@ -259,3 +284,20 @@ set<string> AWindowFactory::types()
 
   return( t );
 }
+
+
+AWindowCreator::~AWindowCreator()
+{
+}
+
+
+AWindowCreatorFunc::~AWindowCreatorFunc()
+{
+}
+
+
+AWindow* AWindowCreatorFunc::operator () ( void *dock, Object options ) const
+{
+  return _func( dock, options );
+}
+

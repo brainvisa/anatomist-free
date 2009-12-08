@@ -2317,7 +2317,7 @@ void PaintAction::updateCursor()
 
     _sharedData->myPainter->reset();
     _sharedData->myPainter->paint
-      ( win, theAnatomist->getTransformation(winRef, buckRef),
+      ( win, 0, // no transfo: draw at (0,0,0) in its own ref
         Point3df( 0, 0, 0 ), //_sharedData->myCursorPos,
         0, 0, _sharedData->myBrushSize, false, 0,
         Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ),

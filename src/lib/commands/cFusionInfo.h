@@ -31,82 +31,50 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-/*	Here I put a bunch of static variables, which may be initialized in 
-	the correct order. I'm a bit fed up of bus errors due to wrong 
-	ordering in initializations, depending on linkers and dynamic loaders
-*/
 
-//	AWindowFactory
+#ifndef ANA_COMMANDS_CFUSIONINFO_H
+#define ANA_COMMANDS_CFUSIONINFO_H
 
-#include <anatomist/window/winFactory.h>
 
-using namespace anatomist;
-using namespace std;
+#include <anatomist/processor/Command.h>
+#include <cartobase/object/object.h>
+#include <vector>
+
 
 namespace anatomist
 {
-  class StaticInitializers
+
+  class AObject;
+
+
+  class FusionInfoCommand : public RegularCommand, public SerializingCommand
   {
-    public:
-      static bool init();
+  public:
+    FusionInfoCommand( const std::vector<AObject *> & obj,
+                       const std::string & filename = "",
+                       const std::string & requestid = "",
+                       CommandContext* context = 0 );
+    virtual ~FusionInfoCommand();
+
+    virtual std::string name() const { return "FusionInfo"; }
+    virtual void write( Tree & com, Serializer* ser ) const;
+    carto::Object result();
+
+  protected:
+    virtual void doit();
+
+  private:
+    std::vector<AObject *> _obj;
+    std::string            _filename;
+    std::string            _requestid;
+    carto::Object          _result;
+
+    friend class StdModule;
+    static Command* read( const Tree & com, CommandContext* context );
+    static bool initSyntax();
   };
+
 }
 
-map<int, string>			AWindowFactory::TypeNames;
-map<string, int>			AWindowFactory::TypeID;
-map<int, carto::rc_ptr<AWindowCreator> >	AWindowFactory::Creators;
 
-static bool	AWindowFactory_initialized = AWindowFactory::initTypes();
-
-//	Commands Registry
-
-#include <anatomist/processor/Registry.h>
-
-Registry* Registry::_instance = 0;
-
-//	AObject
-
-#include <anatomist/object/Object.h>
-
-map<string, int>	AObject::_objectTypes;
-#ifndef _WIN32
-/* Denis (2003/07)
-   Well, on Win32-MinWG there is an assembler bug which causes
-   a symbol (_D) to be defined twice if we declare both AObjects static 
-   variables here. Strange, isnt't it ?
-   Hopefully I figured out that declaring the other variable somewhere else in 
-   the source solved the problem (!), so we'll do it a bit later...
-*/
-map<int,string> 	AObject::_objectTypeNames;
 #endif
-
-
-// second part of the MinGW assembler bug workaround, see earlier
-#ifdef _WIN32
-map<int,string> 	AObject::_objectTypeNames;
-#endif
-
-//	QObjectBrowser
-
-#include <anatomist/browser/qwObjectBrowser.h>
-
-//	Hierarchy
-
-#include <anatomist/hierarchy/hierarchy.h>
-
-int 		Hierarchy::_classType = Hierarchy::registerClass();
-
-
-bool StaticInitializers::init()
-{
-  QObjectBrowser::registerClass();
-  return true;
-}
-
-// run
-
-namespace
-{
-  bool dummy = StaticInitializers::init();
-}
-

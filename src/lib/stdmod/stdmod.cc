@@ -66,15 +66,16 @@
 #include <anatomist/commands/cExportTexture.h>
 #include <anatomist/commands/cExternalReference.h>
 #include <anatomist/commands/cExtractTexture.h>
+#include <anatomist/commands/cFusion2DParams.h>
+#include <anatomist/commands/cFusion3DParams.h>
+#include <anatomist/commands/cFusionInfo.h>
+#include <anatomist/commands/cFusionObjects.h>
 #include <anatomist/commands/cGenerateTexture.h>
 //#include <anatomist/commands/cGetGraphObjectNames.h>
 #include <anatomist/commands/cGetInfo.h>
 #include <anatomist/commands/cGraphDisplayProperties.h>
 #include <anatomist/commands/cGraphParams.h>
 #include <anatomist/commands/cGroupObjects.h>
-#include <anatomist/commands/cFusion2DParams.h>
-#include <anatomist/commands/cFusion3DParams.h>
-#include <anatomist/commands/cFusionObjects.h>
 #include <anatomist/commands/cLinkedCursor.h>
 #include <anatomist/commands/cLinkWindows.h>
 #include <anatomist/commands/cLoadGraphSubObjects.h>
@@ -220,15 +221,16 @@ void StdModule::actionsDeclaration()
   ExportTextureCommand::initSyntax();
   ExternalReferenceCommand::initSyntax();
   ExtractTextureCommand::initSyntax();
+  Fusion2DParamsCommand::initSyntax();
+  Fusion3DParamsCommand::initSyntax();
+  FusionInfoCommand::initSyntax();
+  FusionObjectsCommand::initSyntax();
   GenerateTextureCommand::initSyntax();
   //GetGraphObjectNamesCommand::initSyntax();
   GetInfoCommand::initSyntax();
   GraphDisplayPropertiesCommand::initSyntax();
   GraphParamsCommand::initSyntax();
   GroupObjectsCommand::initSyntax();
-  Fusion2DParamsCommand::initSyntax();
-  Fusion3DParamsCommand::initSyntax();
-  FusionObjectsCommand::initSyntax();
   LinkedCursorCommand::initSyntax();
   LinkWindowsCommand::initSyntax();
   LoadGraphSubObjectsCommand::initSyntax();

@@ -645,28 +645,32 @@ maillage temporel + texture fixe ne donnera qu'un seul instant)<br>
 </table>
 
 
+<a name="FusionInfo"></a>
+<h3><a href="../../en/programming/commands/fusioninfo.html">FusionInfo</a></h3>
+
+
 <a name="FusionObjects"></a>
 <h3>FusionObjects</h3>
 Cr&eacute;e un objet fusion &agrave; partir de plusieurs autres<br>
 
 <table border="1" width="100%" nosave="">
 <tbody>
-                        <tr>
-               <td><tt>objects</tt></td>
-                <td><tt>int_vector</tt></td>
-                <td><br>
-                          </td>
-               </tr>
-                <tr>
-               <td><tt>res_pointer</tt></td>
-                <td><tt>int</tt></td>
-                <td>ID de l'objet fusion nouvellement cr&eacute;e</td>
-               </tr>
-                <tr>
-               <td><tt>method</tt></td>
-                <td><tt>string</tt></td>
-                <td>m&eacute;thode de fusion utilis&eacute;e</td>
-               </tr>
+  <tr>
+    <td><tt>objects</tt></td>
+    <td><tt>int_vector</tt></td>
+    <td><br>
+    </td>
+  </tr>
+  <tr>
+    <td><tt>res_pointer</tt></td>
+    <td><tt>int</tt></td>
+    <td>ID de l'objet fusion nouvellement cr&eacute;e</td>
+  </tr>
+  <tr>
+    <td><tt>method</tt></td>
+    <td><tt>string</tt></td>
+    <td>m&eacute;thode de fusion utilis&eacute;e</td>
+  </tr>
 </tbody>
 </table>
 
@@ -1781,159 +1785,9 @@ Règle les paramètres de plaquage de texture<br>
 Fixe les param&egrave;tres de configuration 
 des    fen&ecirc;tres  donn&eacute;es (&ccedil;a peut &ecirc;tre vari&eacute;)<br>
 
-<table border="1" width="100%">
-<tbody>
-  <tr>
-    <td valign="top"><tt>windows</tt></td>
-    <td valign="top"><tt>int_vector (optionnel)</tt></td>
-    <td valign="top">fen&ecirc;tres concern&eacute;es</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>geometry</tt></td>
-    <td valign="top"><tt>int_vector</tt> (optionnel)</td>
-    <td valign="top">position et taille de la fen&ecirc;tre
-      (taille   ext&eacute;rieure). Si les tailles sont nulles ou non pr&eacute;cis&eacute;es, 
-      la taille de la fen&ecirc;tre n'est pas modifi&eacute;e<br>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>view_size</tt></td>
-    <td valign="top"><tt>int_vector</tt> (optionnel)</td>
-    <td valign="top">taille de la zone d'affichage (zone 
-      3D  sur   les fen&ecirc;tres 3D). Ce param&egrave;tre est prioritaire sur 
-      les  tailles   donn&eacute;es avec <tt>geometry</tt><br>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>record_mode</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive
-      (0)   le  mode   d'enregistrement des images (film) de fen&ecirc;tres 3D.
-      Pour  l'activer,    il faut aussi donner             <tt>record_basename</tt><br>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>record_basename</tt></td>
-    <td valign="top"><tt>string</tt> (optionnel)</td>
-    <td valign="top">nom des images sauv&eacute;es par 
-      l'enregistrement      automatique des films (ex: <tt>/tmp/toto.jpg</tt>). 
-      Les noms des images    auront  des chiffres ajout&eacute;s avant l'extension
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>clipping</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">nombre de plans de clipping: 0, 1 ou 2</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>clip_distance</tt></td>
-    <td valign="top"><tt>float</tt> (optionnel)</td>
-    <td valign="top">distance entre le plan de coupe et les
-      plans   de clipping
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>face_culling</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive (0) l'&eacute;limination 
-      des faces vues de dos</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>flat_shading</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive (0) le rendu 
-      en "faces planes" (sans lissage des couleurs)
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>fog</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive (0) le brouillard</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>perspective</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive (0) le mode perspective</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>polygon_filtering</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive (0) le lissage 
-      des polyg&ocirc;nes</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>polygon_mode</tt></td>
-    <td valign="top"><tt>string</tt> (optionnel)</td>
-    <td valign="top">mode d'affichage des polyg&ocirc;nes: "<tt>normal</tt>", 
-      "<tt>wireframe</tt>" (fil de fer), "<tt>outline</tt>" (normal + fil de fer),
-      "<tt>hiddenface_wireframe</tt>" (fil de fer avec faces cach&eacute;es)
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>snapshot</tt></td>
-    <td valign="top"><tt>string</tt> (optionnel)</td>
-    <td valign="top"><b>Nouveau dans Anatomist 3.0</b>. 
-      Sauve l'image correspondant à la vue de la fenêtre dans un fichier
-      dont ne nom est précisé ici. Si <tt>windows</tt> contient plusieurs valeurs, 
-      plusieurs images doivent alors être sauvées: <tt>snapshot</tt> est alors une 
-      liste de noms de fichiers séparés par des espaces: il ne faut donc pas que les 
-      fichiers contiennent des espaces (cette restriction ne s'applique pas si une 
-      seule fenêtre est concernée). Note: les caractères d'échappement ne sont pas 
-      supportés pour le moment.
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>fullscreen</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive le mode plein écran
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>show_cursor_position</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive l'affichage de la barre d'état en bas de fenêtre montrant la position du curseur et la valeur d'un objet courant à cette position.
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>show_toolbars</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top"><b>Nouveau dans Anatomist 3.1</b>.
-      active ou désactive l'affichage de tout ce qui est "autour" de la vue 3D (menus, barres de boutons, barre d'état, référentiel...)
-    </td>
-  </tr>
-    <td valign="top"><tt>transparent_depth_buffer</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">active (1) ou d&eacute;sactive (0)</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>iconify</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">ic&ocirc;nifie (ou cache) les fen&ecirc;tres</td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>raise</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top">d&eacute;sic&ocirc;nifie les fen&ecirc;tres
-      et les fait passer au premier plan
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><tt>linkedcursor_on_slider_change</tt></td>
-    <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td valign="top"><b>Nouveau dans Anatomist 3.0</b>. 
-      active ou désactive le mode faisant agir les curseurs de 
-      coupe/temps comme des actions du curseur lié (propagation aux autres fenêtres)
-    </td>
-  </tr>
-
-</tbody>
-</table>
-
 
 <h2> Commandes plus sp&eacute;cifiques:</h2>
-                                                              
+
 <h3>Fusion2DParams</h3>
 R&egrave;gle les param&egrave;tres d'une fusion 2D. Cette commande est 
 en grande partie obsolète à partir d'Anatomist 3.0. En fait, seul le 

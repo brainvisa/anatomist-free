@@ -65,7 +65,11 @@ struct AWindow::Private
   bool	destroying;
   bool	toolsvisible;
   int	hascursor;
-
+  static map<AWindow::Type, set<unsigned> > & typecounts()
+  {
+    static map<AWindow::Type, set<unsigned> > tc;
+    return tc;
+  }
 };
 
 
@@ -490,6 +494,26 @@ bool AWindow::hasCursor() const
     return d->hascursor > 0;
   return hasGlobalCursor();
 }
+
+
+const string & AWindow::baseTitle() const
+{
+  static string bt = "AWindow";
+  return bt;
+}
+
+
+const set<unsigned> & AWindow::typeCount() const
+{
+  return d->typecounts()[type()];
+}
+
+
+set<unsigned> & AWindow::typeCount()
+{
+  return d->typecounts()[type()];
+}
+
 
 #include <cartobase/object/object_d.h>
 INSTANTIATE_GENERIC_OBJECT_TYPE( AWindow * )

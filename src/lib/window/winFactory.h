@@ -44,6 +44,14 @@ namespace anatomist
 
   class AWindow;
 
+  /** Virtual functor for AWindowFactory */
+  class AWindowCreator
+  {
+  public:
+    virtual ~AWindowCreator();
+    virtual AWindow* operator() ( void *dock, carto::Object ) const = 0;
+  };
+
 
   /**	Window creator: (string) type -> new window.
 	All static...
@@ -66,11 +74,13 @@ namespace anatomist
     static bool exist( int type );
     static bool exist( const std::string & type );
     static int registerType( const std::string & type, WinCreator creator );
+    static int registerType( const std::string & type, AWindowCreator *c );
     static std::set<std::string> types();
     static const std::map<std::string, int> & typeID() { return( TypeID ); }
     static const std::map<int, std::string> & typeNames()
     { return( TypeNames ); }
-    static const std::map<int, WinCreator> & creators() { return( Creators ); }
+    static const std::map<int, carto::rc_ptr<AWindowCreator> > & creators()
+    { return( Creators ); }
 
   protected:
     static AWindow* createAxial( void *, carto::Object );
@@ -80,9 +90,24 @@ namespace anatomist
 
     static std::map<int, std::string>	TypeNames;
     static std::map<std::string, int>	TypeID;
-    static std::map<int, WinCreator>	Creators;
+    static std::map<int, carto::rc_ptr<AWindowCreator> > Creators;
 
   private:
+  };
+
+
+  /** Virtual functor for AWindowFactory, using a function pointer */
+  class AWindowCreatorFunc : public AWindowCreator
+  {
+  public:
+    AWindowCreatorFunc( AWindowFactory::WinCreator func )
+      : _func( func ) {}
+    virtual ~AWindowCreatorFunc();
+
+    virtual AWindow* operator() ( void *dock, carto::Object ) const;
+
+  private:
+    AWindowFactory::WinCreator _func;
   };
 
 }
