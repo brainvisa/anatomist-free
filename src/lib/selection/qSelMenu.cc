@@ -133,58 +133,58 @@ void QSelectMenu::update( AWindow* win, const Tree* specific )
   bool							hasgraph = false;
 
   if( im != SelectFactory::factory()->selected().end() )
+  {
+    const set<AObject *> & so = (*im).second;
+
+    if( !so.empty() )
     {
-      const set<AObject *> & so = (*im).second;
+      //	object manipulations (with Xt-compatible callbacks
+      Tree		otr;
 
-      if( !so.empty() )
-	{
-	  //	object manipulations (with Xt-compatible callbacks
-	  Tree		otr;
+      _objects = so;	// remember calling objects
+      OptionMatcher::commonOptions( _objects, otr );
 
-	  _objects = so;	// remember calling objects
-	  OptionMatcher::commonOptions( _objects, otr );
+      if( otr.size() != 0 )
+      {
+        otr.setSyntax( QT_TRANSLATE_NOOP( "QSelectMenu",
+                                          "Objects manipulations" ) );
+        addOptionMenus( this, &otr );
+      }
 
-	  if( otr.size() != 0 && (*otr.begin())->size() != 0 )
-	    {
-	      otr.setSyntax( QT_TRANSLATE_NOOP( "QSelectMenu", 
-						"Objects manipulations" ) );
-	      addOptionMenus( this, &otr );
-	    }
+      //	graph-specific stuff
 
-	  //	graph-specific stuff
+      for( io=so.begin(), fo=so.end(); !hasgraph && io!=fo; ++io )
+        if( (*io)->isMultiObject() )
+          switch( ((MObject *) (*io))->MType() )	// type-specific stuff
+          {
+          case AObject::GRAPHOBJECT:
+            hasgraph = true;
+            // cout << "graphobject " << (*io)->name() << " selected\n";
+            break;
+          default:
+            /* cout << "obj " << (*io)->name() << " type : "
+                  << (*io)->type() << endl; */
+            break;
+          }
 
-	  for( io=so.begin(), fo=so.end(); !hasgraph && io!=fo; ++io )
-	    if( (*io)->isMultiObject() )
-	      switch( ((MObject *) (*io))->MType() )	// type-specific stuff
-		{
-		case AObject::GRAPHOBJECT:
-		  hasgraph = true;
-		  cout << "graphobject " << (*io)->name() << " selected\n";
-		  break;
-		default:
-		  cout << "obj " << (*io)->name() << " type : " 
-		       << (*io)->type() << endl;
-		  break;
-		}
-
-	  if( hasgraph )
-	    {
-	      insertSeparator();
-	      insertItem( tr( "Select neighbours" ), this, 
-			  SLOT( neighboursSlot() ) );
-	      insertItem( tr( "Select nodes of attribute ..." ), this, 
-			  SLOT( selAttribSlot() ) );
-	    }
-	}
+      if( hasgraph )
+      {
+        insertSeparator();
+        insertItem( tr( "Select neighbours" ), this,
+                    SLOT( neighboursSlot() ) );
+        insertItem( tr( "Select nodes of attribute ..." ), this,
+                    SLOT( selAttribSlot() ) );
+      }
     }
+  }
 
   if( specific && specific->size() > 0 )
-    {
-      insertSeparator();
-      Tree::const_iterator	it, ft=specific->end();
-      for( it=specific->begin(); it!=ft; ++it )
-	addMenus( this, (Tree *) *it );
-    }
+  {
+    insertSeparator();
+    Tree::const_iterator	it, ft=specific->end();
+    for( it=specific->begin(); it!=ft; ++it )
+      addMenus( this, (Tree *) *it );
+  }
 }
 
 
