@@ -48,6 +48,28 @@ using namespace std;
 string Settings::globalPath()
 {
   string result;
+#ifdef USE_SHARE_CONFIG
+  const char *path = getenv( "ANATOMIST_PATH" );
+  char	s = FileUtil::separator();
+  Directory	d( "/" );
+
+  if ( path ) {
+    result = string( path );
+    d.chdir( result );
+    if( ! d.isValid() ) {
+      result.clear();
+    }
+  }
+  if( result.empty() ) {
+    result = Paths::globalShared() + FileUtil::separator() + "anatomist-"
+        + theAnatomist->libraryVersionString();
+    d.chdir( result );
+    if( !d.isValid() ) {
+      result = Paths::globalShared() + FileUtil::separator()
+               + "anatomist";
+    }
+  }
+#else // #ifdef USE_SHARE_CONFIG
   const char *path = getenv( "ANATOMIST_PATH" );
   char	s = FileUtil::separator();
   Directory	d( "/" );
@@ -79,6 +101,7 @@ string Settings::globalPath()
                 + "anatomist";
         }
     }
+#endif // #ifdef USE_SHARE_CONFIG
   return result;
 }
 

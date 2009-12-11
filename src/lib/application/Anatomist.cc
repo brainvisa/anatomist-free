@@ -108,6 +108,10 @@
 #include <cartobase/smart/rcptrtrick.h>
 #endif
 
+#ifdef USE_SHARE_CONFIG
+#include <brainvisa-share/config.h>
+#endif
+
 using namespace anatomist;
 using namespace aims;
 using namespace carto;
@@ -606,8 +610,13 @@ void Anatomist::initialize()
   stdmod->init();
 
   _privData->centralRef = new Referential;	// create central referential
+#ifdef USE_SHARE_CONFIG
+  string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "registration" + sep \
+      + "Talairach-AC_PC-Anatomist.referential";
+#else
   string talref = carto::Paths::shfjShared() + sep + "registration" + sep \
       + "Talairach-AC_PC-Anatomist.referential";
+#endif
   _privData->centralRef->load( talref );
   Referential::mniTemplateReferential(); // create SPM/MNI referential
 
