@@ -113,6 +113,7 @@ void GlobalConfiguration::load( const string & filename )
     {
       cerr << "(warning: no config file " << _filename << ": creating it)" 
            << endl;
+      save();
     }
   catch( exception & e )
     {
