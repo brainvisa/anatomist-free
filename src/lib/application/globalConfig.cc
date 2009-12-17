@@ -141,7 +141,7 @@ void GlobalConfiguration::save( const string & filename )
 
   string	path = FileUtil::dirname( _filename );
   Directory	dir( path );
-  dir.mkdir();
+  dir.makedirs();
 
   try
     {
