@@ -69,8 +69,10 @@ public:
   virtual void hide();
   virtual void iconify();
   virtual void unIconify();
-  virtual void close();
+  virtual bool close();
+#if QT_VERSION < 0x040000
   virtual bool close( bool alsodelete );
+#endif
   virtual void showToolBars( int state = 2 );
   void setFullScreen( int state = 2 );
   bool isFullScreen() const;
@@ -114,7 +116,12 @@ protected:
   virtual void CreateTitle();
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dropEvent( QDropEvent* );
-  virtual void mouseMoveEvent ( QMouseEvent * e );
+  virtual void mouseMoveEvent( QMouseEvent * e );
+#if QT_VERSION >= 0x040000
+  /* in qt4 we have to find a way to catch close events and prevent deletion
+     if ref-counting doesn't allow it */
+  virtual void closeEvent( QCloseEvent * event );
+#endif
 
 private:
   struct Private;

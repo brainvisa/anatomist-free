@@ -114,6 +114,7 @@ QAWindow::QAWindow( QWidget* parent, const char* name, Object params,
 
 QAWindow::~QAWindow()
 {
+  // cout << "~QAWindow\n";
   delete d;
 }
 
@@ -148,6 +149,7 @@ void QAWindow::unIconify()
 }
 
 
+#if QT_VERSION < 0x040000
 bool QAWindow::close( bool alsodelete )
 {
   if( testDeletable() )
@@ -161,18 +163,37 @@ bool QAWindow::close( bool alsodelete )
   }
   return false;
 }
+#endif
 
 
-void QAWindow::close()
+#if QT_VERSION >= 0x040000
+void QAWindow::closeEvent( QCloseEvent * event )
 {
   if( testDeletable() )
   {
-    QMainWindow::close();
+    event->accept();
+  }
+  else
+  {
+    cout << "can't delete window - just hiding it." << endl;
+    event->ignore();
+    hide();
+  }
+}
+#endif
+
+
+bool QAWindow::close()
+{
+  if( testDeletable() )
+  {
+    return QMainWindow::close();
   }
   else
   {
     cout << "can't delete window - just hiding it." << endl;
     hide();
+    return false;
   }
 }
 
