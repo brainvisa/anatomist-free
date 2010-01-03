@@ -92,7 +92,7 @@ void CreateWindowCommand::doit()
   if( _block )
     {
       // check if the block still exists
-      QWidget		*w =  (QWidget *) _block;
+      QWidget		*w =  _block;
 #if QT_VERSION >= 0x040000
       QWidgetList	wl4 = qApp->topLevelWidgets();
       QWidget		*w2 = 0;
@@ -136,21 +136,21 @@ void CreateWindowCommand::doit()
   else if( _blockid == 0 )
     _block = 0;
 
-  _win = AWindowFactory::createWindow( _type, (QWidget *) _block,
-		  					_options );
+  _win = AWindowFactory::createWindow( _type, _block, _options );
   if( _win )
     {
       if( _id >= 0 && context() && context()->unserial )
-	context()->unserial->registerPointer( _win, _id, "AWindow" );
+        context()->unserial->registerPointer( _win, _id, "AWindow" );
       if( _geom.size() == 4 )
-	_win->setGeometry( _geom[0], _geom[1], _geom[2], _geom[3] );
+        _win->setGeometry( _geom[0], _geom[1], _geom[2], _geom[3] );
       // send event
-      if (_block){
-        ((QAWindowBlock*)_block)->addWindowToBlock((AWindow3D *)_win);
-      
+      if( _block )
+      {
+        QAWindowBlock *qwb = dynamic_cast<QAWindowBlock *>( _block );
+        if( qwb )
+          qwb->addWindowToBlock((AWindow3D *)_win);
       }
-      Object	ex( (GenericObject *) 
-		    new ValueObject<Dictionary> );
+      Object	ex( (GenericObject *) new ValueObject<Dictionary> );
       ex->setProperty( "_window", Object::value( _win ) );
       ex->setProperty( "type", Object::value( _type ) );
       OutputEvent	ev( "CreateWindow", ex );

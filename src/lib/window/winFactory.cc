@@ -103,8 +103,10 @@ AWindow* AWindowFactory::createWindow( int type, void *dock,
 
 AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
 {
-  QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f = Qt::WType_TopLevel | Qt::WDestructiveClose;
+  QWidget	*dk = static_cast<QWidget *>( dock );
+  Qt::WFlags	f = Qt::WDestructiveClose;
+  if( dk )
+    f |= Qt::WType_TopLevel;
   if( params )
     try
     {
@@ -126,8 +128,10 @@ AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
 
 AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
 {
-  QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f = Qt::WType_TopLevel | Qt::WDestructiveClose;
+  QWidget       *dk = static_cast<QWidget *>( dock );
+  Qt::WFlags    f = Qt::WDestructiveClose;
+  if( dk )
+    f |= Qt::WType_TopLevel;
   if( params )
     try
     {
@@ -149,8 +153,10 @@ AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
 
 AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
 {
-  QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f = Qt::WType_TopLevel | Qt::WDestructiveClose;
+  QWidget       *dk = static_cast<QWidget *>( dock );
+  Qt::WFlags    f = Qt::WDestructiveClose;
+  if( dk )
+    f |= Qt::WType_TopLevel;
   if( params )
     try
     {
@@ -172,8 +178,10 @@ AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
 
 AWindow* AWindowFactory::create3D( void *dock, carto::Object params )
 {
-  QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f = Qt::WType_TopLevel | Qt::WDestructiveClose;
+  QWidget       *dk = static_cast<QWidget *>( dock );
+  Qt::WFlags    f = Qt::WDestructiveClose;
+  if( dk )
+    f |= Qt::WType_TopLevel;
   if( params )
     try
     {
