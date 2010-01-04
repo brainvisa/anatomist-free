@@ -36,6 +36,7 @@
 #define ANA_COLOR_LIGHT_H
 
 #include <anatomist/window/glcaps.h>
+#include <cartobase/object/object.h>
 
 
 namespace anatomist
@@ -170,6 +171,9 @@ namespace anatomist
 
     GLuint GetGLList();
 
+    void set( const carto::GenericObject & );
+    void set( const carto::Object & );
+    carto::Object genericDescription() const;
 
   protected:
     GLfloat _ambient[4];

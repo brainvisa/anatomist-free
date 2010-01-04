@@ -17,7 +17,7 @@
 </head>
 <body>
 
-<center>            
+<center>
 <table id="title">
 <tbody>
   <tr nosave="">
@@ -33,11 +33,11 @@
 	  <img src="../../../images/feather.png" nosave="" border="0" align="middle"></a>
 	</td>
   </tr>
-</tbody>              
+</tbody>
 </table>
 </center>
 
-<hr width="100%">               
+<hr width="100%">
 
 <a name="WindowConfig"></a>
 <h3>WindowConfig</h3>
@@ -103,10 +103,45 @@ Settings for windows (includes various settings)<br>
     <td valign="top">iconifies (or hides) windows</td>
   </tr>
   <tr>
+    <td valign="top"><tt>light</tt></td>
+    <td valign="top"><tt>object</tt> (optional)</td>
+    <td valign="top"><b>New in Anatomist 3.2.1</b>.
+      Windows lighting settings. This dictionary may include the following parameters:
+      <li><tt>ambient</tt>: ambiant lighting settings (list of float, 4 elements)
+      </li>
+      <li><tt>diffuse</tt>: diffuse lighting settings (list of float, 4 elements)
+      </li>
+      <li><tt>specular</tt>: specular lighting settings (list of float, 4 elements)
+      </li>
+      <li><tt>background</tt>: background color (list of float, 4 elements)
+      </li>
+      <li><tt>position</tt>: light position (list of float, 4 elements)
+      </li>
+      <li><tt>spot_direction</tt>: spot light direction (list of float, 3 elements)
+      </li>
+      <li><tt>spot_exponent</tt>: spot light intensity exponent (float)
+      </li>
+      <li><tt>spot_cutoff</tt>: spot light cutoff angle (float)
+      </li>
+      <li><tt>attenuation_offset</tt>: light attenuation, offset part (float)
+      </li>
+      <li><tt>attenuation_linear</tt>: light attenuation, linear coefficient (float)
+      </li>
+      <li><tt>attenuation_quadratic</tt>: light attenuation, quadratic coefficient (float)
+      </li>
+      <li><tt>model_ambient</tt>: don't really know... (list of float, 4 elements)
+      </li>
+      <li><tt>model_local_viewer</tt>: don't really know... (float)
+      </li>
+      <li><tt>model_two_side</tt>: don't really know (float)
+      </li>
+    </td>
+  </tr>
+  <tr>
     <td valign="top"><tt>linkedcursor_on_slider_change</tt></td>
     <td valign="top"><tt>int</tt> (optional)</td>
-    <td valign="top"><b>New in Anatomist 3.0</b>. 
-      enables or disables the mode when slice/time sliders act as linked 
+    <td valign="top"><b>New in Anatomist 3.0</b>.
+      enables or disables the mode when slice/time sliders act as linked
       cursor actions (with propagation to other views)
     </td>
   </tr>

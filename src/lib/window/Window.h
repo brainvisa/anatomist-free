@@ -108,7 +108,7 @@ namespace anatomist
     virtual void unIconify();
     virtual void show();
     virtual void hide();
-    virtual void close() = 0;
+    virtual bool close() = 0;
     /** Shows or hides all tools (menu, toolbars) around the main view area.
         0: hide, 1: show, 2: toggle */
     virtual void showToolBars( int state = 2 );

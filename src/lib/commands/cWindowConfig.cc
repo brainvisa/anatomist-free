@@ -40,6 +40,7 @@
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/Registry.h>
 #include <anatomist/processor/context.h>
+#include <anatomist/color/Light.h>
 #include <graph/tree/tree.h>
 #include <cartobase/object/syntax.h>
 #include <vector>
@@ -124,15 +125,15 @@ void WindowConfigCommand::doit()
     {
       bpolmode = true;
       if( polymode == "normal" )
-	ipolmode = AWindow3D::Normal;
+        ipolmode = AWindow3D::Normal;
       else if( polymode == "wireframe" )
-	ipolmode = AWindow3D::Wireframe;
+        ipolmode = AWindow3D::Wireframe;
       else if( polymode == "outline" )
-	ipolmode = AWindow3D::Outlined;
+        ipolmode = AWindow3D::Outlined;
       else if( polymode == "hiddenface_wireframe" )
-	ipolmode = AWindow3D::HiddenWireframe;
+        ipolmode = AWindow3D::HiddenWireframe;
       else
-	bpolmode = false;
+        bpolmode = false;
     }
   bpersp = _config->getProperty( "perspective", persp );
   bzbuf = _config->getProperty( "transparent_depth_buffer", zbuf );
@@ -167,21 +168,30 @@ void WindowConfigCommand::doit()
   _config->getProperty( "show_toolbars", showtoolbars );
   _config->getProperty( "show_cursor_position", showcursorpos );
   _config->getProperty( "fullscreen", fullscreen );
+  Object light;
+  try
+  {
+    light = _config->getProperty( "light" );
+  }
+  catch( ... )
+  {
+  }
+
   for( iw=_windows.begin(); iw!=ew; ++iw )
     {
       w = *iw;
       if( dogeom )
-	{
-	  if( dosize || geom.size() < 4 )
-	    w->setGeometry( geom[0], geom[1], 0, 0 );
-	  else
-	    w->setGeometry( geom[0], geom[1], geom[2], geom[3] );
-	}
+        {
+          if( dosize || geom.size() < 4 )
+            w->setGeometry( geom[0], geom[1], 0, 0 );
+          else
+            w->setGeometry( geom[0], geom[1], geom[2], geom[3] );
+        }
 
       if( raise )
-	w->show();
+        w->show();
       if( icon )
-	w->iconify();
+        w->iconify();
       if( bcurs )
         w->setHasCursor( hascursor );
       if( showtoolbars >= 0 )
@@ -191,32 +201,34 @@ void WindowConfigCommand::doit()
 
       w3 = dynamic_cast<AWindow3D *>( w );
       if( w3 )
-	{
+        {
+          if( bpolmode )
+            w3->setRenderingMode( ipolmode );
+          if( bpersp )
+            w3->enablePerspective( (bool) persp );
+          if( bzbuf )
+            w3->enableTransparentZ( (bool) zbuf );
+          if( bcull )
+            w3->setCulling( (bool) cull );
+          if( bflat )
+            w3->setFlatShading( (bool) flat );
+          if( bfilt )
+            w3->setSmoothing( (bool) filt );
+          if( bfog )
+            w3->setFog( (bool) fog );
+          if( bclip )
+            w3->setClipMode( (AWindow3D::ClipMode) clip );
+          if( bclipd )
+            w3->setClipDistance( clipd );
 
-	  if( bpolmode )
-	    w3->setRenderingMode( ipolmode );
-	  if( bpersp )
-	    w3->enablePerspective( (bool) persp );
-	  if( bzbuf )
-	    w3->enableTransparentZ( (bool) zbuf );
-	  if( bcull )
-	    w3->setCulling( (bool) cull );
-	  if( bflat )
-	    w3->setFlatShading( (bool) flat );
-	  if( bfilt )
-	    w3->setSmoothing( (bool) filt );
-	  if( bfog )
-	    w3->setFog( (bool) fog );
-	  if( bclip )
-	    w3->setClipMode( (AWindow3D::ClipMode) clip );
-	  if( bclipd )
-	    w3->setClipDistance( clipd );
-
-	  if( dosize )
-	    w3->resizeView( size[0], size[1] );
+          if( dosize )
+            w3->resizeView( size[0], size[1] );
 
           if( showcursorpos >= 0 )
             w3->showStatusBar( showcursorpos );
+
+          if( !light.isNull() )
+            w3->light()->set( light );
 
           v = dynamic_cast<GLWidgetManager *>( w3->view() );
           if( v )
@@ -232,25 +244,25 @@ void WindowConfigCommand::doit()
                   v->recordStop();
               }
             }
-  
-	  if( bpolmode || bpersp || bzbuf || bcull || bflat || bfilt || bfog 
-	      || bclip || bclipd || bcurs )
-	    {
-	      w3->setChanged();
-	      w3->notifyObservers( w3 );
+
+          if( bpolmode || bpersp || bzbuf || bcull || bflat || bfilt || bfog
+              || bclip || bclipd || bcurs || !light.isNull() )
+            {
+              w3->setChanged();
+              w3->notifyObservers( w3 );
               if( !v || i >= nsnap )
                 w3->Refresh();
-	    }
+            }
 
           if( v && i < nsnap )
             {
-	      w3->refreshNow();
+              w3->refreshNow();
               v->saveContents( snapfiles[i].c_str(), QString::null );
               ++i;
             }
           if( dolink )
             w3->setLinkedCursorOnSliderChange( linkon );
-	}
+        }
       else
         (*iw)->Refresh();
     }
@@ -306,6 +318,7 @@ bool WindowConfigCommand::initSyntax()
   s[ "show_toolbars"                 ] = Semantic( "int" );
   s[ "show_cursor_position"          ] = Semantic( "int" );
   s[ "fullscreen"                    ] = Semantic( "int" );
+  s[ "light"                         ] = Semantic( "object" );
 
   Registry::instance()->add( "WindowConfig", &read, ss );
   return( true );
