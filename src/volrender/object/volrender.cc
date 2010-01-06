@@ -207,12 +207,6 @@ GLComponent* VolRender::glAPI()
 }
 
 
-const Material* VolRender::glMaterial() const
-{
-  return &material();
-}
-
-
 const AObjectPalette* VolRender::glPalette( unsigned ) const
 {
   return getOrCreatePalette();

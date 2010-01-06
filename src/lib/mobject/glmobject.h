@@ -54,7 +54,7 @@ namespace anatomist
     virtual const GLComponent* glAPI() const { return this; }
     virtual GLComponent* glAPI() { return this; }
 
-//    virtual const Material *glMaterial() const;
+    virtual const Material *glMaterial() const;
     virtual Material & GetMaterial();
     virtual const Material & material() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
