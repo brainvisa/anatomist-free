@@ -82,7 +82,8 @@ namespace anatomist
     static void setShowType( ShowType type ) { _showType = type; }
     //@}
 
-    virtual const Material *glMaterial() const;
+    virtual const Material & material() const;
+    virtual Material & GetMaterial();
     virtual void SetMaterial( const Material & mat );
     virtual void SetMaterialOrDefault( const AGraph* agr, 
 				       const Material & mat );

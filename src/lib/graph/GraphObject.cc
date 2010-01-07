@@ -150,13 +150,15 @@ GLPrimitives AGraphObject::glMainGLL( const ViewState & vs )
 }
 
 
-const Material *AGraphObject::glMaterial() const
+const Material & AGraphObject::material() const
 {
-  /* cout << "AGraphObject::glMaterial ";
-  cout << material().Diffuse(0) << ", " << material().Diffuse(1) << ", "
-      << material().Diffuse(2) << ", " << material().Diffuse(3) << endl;
-  */
-  return &material();
+  return AObject::material();
+}
+
+
+Material & AGraphObject::GetMaterial()
+{
+  return AObject::GetMaterial();
 }
 
 
@@ -164,7 +166,7 @@ void AGraphObject::SetMaterial( const Material & mat )
 {
   /* cout << "AGraphObject::SetMaterial " << this << ", " << name() << ": "
        << mat.Diffuse(0) << ", "
-       << mat.Diffuse(1) << ", " << mat.Diffuse(2) << ", " 
+       << mat.Diffuse(1) << ", " << mat.Diffuse(2) << ", "
        << mat.Diffuse(3) << endl; */
 
   glSetChanged( glMATERIAL );
@@ -192,7 +194,9 @@ void AGraphObject::SetMaterial( const Material & mat )
 void AGraphObject::SetMaterialOrDefault( const AGraph* agr, 
 					 const Material & mat )
 {
-  // cout << "setMatOrDefault\n";
+  /* cout << "setMatOrDefault " << mat.Diffuse(0) << ", "
+      << mat.Diffuse(1) << ", " << mat.Diffuse(2) << ", "
+      << mat.Diffuse(3) << endl; */
 
   // see if there are some default colors
   const rc_ptr<map<string, vector<int> > > cols = agr->objAttColors();

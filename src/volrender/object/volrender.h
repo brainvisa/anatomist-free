@@ -74,7 +74,6 @@ namespace anatomist
 
     virtual const GLComponent* glAPI() const;
     virtual GLComponent* glAPI();
-    virtual const Material* glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
 
     virtual unsigned glDimTex( const ViewState &, unsigned tex = 0 ) const;
