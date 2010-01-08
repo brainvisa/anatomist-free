@@ -60,12 +60,12 @@ namespace anatomist
 
     float MinT() const { return( _minT ); }
     float MaxT() const { return( _maxT ); }
-    float MinX2D() const { return( (float)_minX ); }
-    float MinY2D() const { return( (float)_minY ); }
-    float MinZ2D() const { return( (float)_minZ ); }
-    float MaxX2D() const { return( (float)_maxX ); }
-    float MaxY2D() const { return( (float)_maxY ); }
-    float MaxZ2D() const { return( (float)_maxZ ); }
+    float MinX2D() const { return( _minX ); }
+    float MinY2D() const { return( _minY ); }
+    float MinZ2D() const { return( _minZ ); }
+    float MaxX2D() const { return( _maxX ); }
+    float MaxY2D() const { return( _maxY ); }
+    float MaxZ2D() const { return( _maxZ ); }
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
 
     virtual void 
@@ -126,8 +126,8 @@ namespace anatomist
 
   protected:
     carto::rc_ptr<aims::BucketMap<Void> > _bucket;
-    mutable float  _minX,_minY,_minZ,_minT;
-    mutable float  _maxX,_maxY,_maxZ,_maxT;
+    mutable int  _minX,_minY,_minZ,_minT;
+    mutable int  _maxX,_maxY,_maxZ,_maxT;
 
     void freeSurface() const;
     virtual void setBucketChanged() const;
