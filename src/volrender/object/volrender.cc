@@ -1136,6 +1136,12 @@ void VolRender::setPalette( const AObjectPalette &pal )
 }
 
 
+const Material* VolRender::glMaterial() const
+{
+  return &material();
+}
+
+
 Material & VolRender::GetMaterial()
 {
   return AObject::GetMaterial();
