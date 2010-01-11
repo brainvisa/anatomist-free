@@ -118,6 +118,7 @@ namespace anatomist
 					  const Point3df & orgVoxSz ) const;
     virtual float mixedValue( const std::vector<float> & pv ) const;
     virtual const Material *glMaterial() const;
+    virtual bool isTransparent() const;
 
     virtual Tree* optionTree() const;
     static Tree*	_optionTree;

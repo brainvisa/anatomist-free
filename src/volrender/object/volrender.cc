@@ -373,6 +373,19 @@ namespace
     SliceViewState vs( t, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
     VolumeRef<AimsRGBA> vol = avol->rgbaVolume( &vs );
+    if( !dynamic_cast<AObject *>( avol )->isTransparent() )
+    {
+      // make alpha channel transparent
+      AimsRGBA* buf = &vol->at( 0 );
+      size_t i, n = vol->getSizeX() * vol->getSizeY() * vol->getSizeZ();
+      for( i=0; i<n; ++i, ++buf )
+      {
+        AimsRGBA & rgb = *buf;
+        rgb.alpha() = sqrt( float( rgb.red() * rgb.red()
+            + rgb.green() * rgb.green()
+            + rgb.blue() * rgb.blue() ) );
+      }
+    }
     const char *data
         = reinterpret_cast<const char *>( &vol->at( 0 ) );
     GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, d->texdimx, d->texdimy,
