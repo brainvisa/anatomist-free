@@ -88,9 +88,13 @@ c = cd.getControlInstance( 'Default 3D control' )
 makePalettedSubclass( c )
 c = cd.getControlInstance( 'ObliqueControl' )
 makePalettedSubclass( c )
-import selection
-c = cd.getControlInstance( 'SelectionControl' )
-makePalettedSubclass( c )
+try:
+  import selection
+  c = cd.getControlInstance( 'SelectionControl' )
+  makePalettedSubclass( c )
+except:
+  c = cd.getControlInstance( 'Selection 3D' )
+  makePalettedSubclass( c )
 c = cd.getControlInstance( 'TransformControl' )
 makePalettedSubclass( c )
 c = cd.getControlInstance( 'CutControl' )
