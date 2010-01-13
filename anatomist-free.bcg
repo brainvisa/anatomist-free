@@ -38,9 +38,9 @@ class AnatomistComponent( GenericMakerComponent ):
 
   def dependencies( self ):
     if systemname != 'darwin' or x11:
-      return [ 'aims', 'aimsgui(aims-gpl)', LibZComponent, GLUComponent ]
+      return [ 'aimsgui(aims)', LibZComponent, GLUComponent ]
     else:
-      return [ 'aims', 'aimsgui(aims-gpl)', LibZComponent, OpenGLComponent ]
+      return [ 'aimsgui(aims)', LibZComponent, OpenGLComponent ]
 
   def _libraries( self ):
       return [ 'anatomist' ]
