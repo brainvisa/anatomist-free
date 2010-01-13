@@ -64,6 +64,7 @@ namespace anatomist
     virtual void setPalette( const AObjectPalette &pal );
     virtual Material & GetMaterial();
     virtual const Material & material() const;
+    virtual const Material* glMaterial() const;
     virtual void SetMaterial( const Material &mat );
     virtual bool isTransparent() const;
     virtual bool renderingIsObserverDependent() const;

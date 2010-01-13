@@ -148,13 +148,13 @@ void Bucket::setSubBucketGeomExtrema( const Point3df& pmin,
                                       const Point3df& pmax )
 {
   // Useful when only few points are added
-  if ( pmin[0] < _minX ) _minX = pmin[0] ;
-  if ( pmin[1] < _minY ) _minY = pmin[1] ;
-  if ( pmin[2] < _minZ ) _minZ = pmin[2] ;
+  if ( pmin[0] < _minX ) _minX = int( rint( pmin[0] ) );
+  if ( pmin[1] < _minY ) _minY = int( rint( pmin[1] ) );
+  if ( pmin[2] < _minZ ) _minZ = int( rint( pmin[2] ) );
   
-  if ( pmax[0] > _maxX ) _maxX = pmax[0] ;
-  if ( pmax[1] > _maxY ) _maxY = pmax[1] ;
-  if ( pmax[2] > _maxZ ) _maxZ = pmax[2] ;
+  if ( pmax[0] > _maxX ) _maxX = int( rint( pmax[0] ) );
+  if ( pmax[1] > _maxY ) _maxY = int( rint( pmax[1] ) );
+  if ( pmax[2] > _maxZ ) _maxZ = int( rint( pmax[2] ) );
 }
 
 
@@ -162,42 +162,59 @@ void Bucket::setGeomExtrema()
 {
   BucketMap<Void>::const_iterator		it1;
   BucketMap<Void>::Bucket::const_iterator	it2;
+  bool first = true;
 
-  _minX = _minY = _minZ = _minT = 1e38;
-  _maxX = _maxY = _maxZ = _maxT = -1e38;
+  _minX = _minY = _minZ = _minT = 0;
+  _maxX = _maxY = _maxZ = _maxT = 0;
   d->empty = true;
 
   for( it1=_bucket->begin(); it1!=_bucket->end(); ++it1 )
   {
-    if ( (*it1).first < _minT  )
-      _minT = (*it1).first;
-    if ( (*it1).first > _maxT )
-      _maxT = (*it1).first;
+    if( first )
+    {
+      _minT = it1->first;
+      _maxT = it1->first;
+    }
+    else
+    {
+      if ( (*it1).first < _minT  )
+        _minT = (*it1).first;
+      if ( (*it1).first > _maxT )
+        _maxT = (*it1).first;
+    }
 
     for( it2=((*it1).second).begin(); it2!=((*it1).second).end(); ++it2 )
-      {
-	d->empty = false;
-	const Point3d	& pos = it2->first;
-	if ( pos[0] < _minX )
-	  _minX = (float) pos[0];
-	if ( pos[0] > _maxX )
-	  _maxX = (float) pos[0];
-	if ( pos[1] < _minY )
-	  _minY = (float) pos[1];
-	if ( pos[1] > _maxY )
-	  _maxY = (float) pos[1];
-	if ( pos[2] < _minZ )
-	  _minZ = (float) pos[2];
-	if ( pos[2] > _maxZ )
-	  _maxZ = (float) pos[2];
-      }
-  }
-
-  if( d->empty )
     {
-      _minX = _minY = _minZ = _minT = 0;
-      _maxX = _maxY = _maxZ = _maxT = 0;
+      d->empty = false;
+      const Point3d   & pos = it2->first;
+      if( first )
+      {
+        first = false;
+        _minX = pos[0];
+        _maxX = _minX;
+        _minY = pos[1];
+        _maxY = _minY;
+        _minZ = pos[2];
+        _maxZ = _minZ;
+      }
+      else
+      {
+        if ( pos[0] < _minX )
+          _minX = pos[0];
+        if ( pos[0] > _maxX )
+          _maxX = pos[0];
+        if ( pos[1] < _minY )
+          _minY = pos[1];
+        if ( pos[1] > _maxY )
+          _maxY = pos[1];
+        if ( pos[2] < _minZ )
+          _minZ = pos[2];
+        if ( pos[2] > _maxZ )
+          _maxZ = pos[2];
+      }
     }
+    first = false;
+  }
 
 #if 0
   cout << "minx = " << _minX << endl;

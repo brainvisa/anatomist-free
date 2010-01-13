@@ -70,9 +70,12 @@
 
 <h5>Improvements:</h5>
 
-<li>New option in <tt>WindowConfig</tt> command: <tt>light</tt>.
+<li>A new custom application for a simple viewer more suitable for inexperienced users: <b><tt>anasimpleviewer.py</tt></b>, written in python (so, based on the python bindings API). It offers a classical, simple one-window, four-views viewer. It may be used as a code example, and can be useful for end users too.
 </li>
-<li>A new custom application for a simple viewer more suitable for inexperienced users: <b><tt>anasimpleviewer.py</tt></b>, written in python (so, based on the python bindings API).
+<li>A new histogram plugin using Matplotlib (written in python) is available and may replace the existing one (using Qwt): it is much more flexible (interactive zoom, possibility to save the plot...) and prettier.
+</li>
+<li>New command: FusionInfo</li>
+<li>New option in <tt>WindowConfig</tt> command: <tt>light</tt>.
 </li>
 
 
@@ -80,7 +83,20 @@
 
 </li>Many minor fixes...
 </li>
-
+<li>The ROI cursor was buggy on Mac and was disabled in 3.2.0. It is not fixed and enabled again. Actually the bug came from int/float conversion at the anatomist Bucket object level.
+</li>
+<li>Some objects opacity was not correctly taken into account (textured surfaces, 3D fusions...); this has been fixed.
+</li>
+<li>Fixed menu options for various multi-objects (graph objects). This also fixes the fact that right-clicking on a graph node in a browser window didn't provide the "object-specific" menu.
+</li>
+<li>Fixed the ROI cursor being drawn at the wrong position when using referentials and transformations
+</li>
+<li>Added new windows types in control window menu</li>
+<li>PaletteViewer doesn't show any palette on objects which don't have one. This prevents a crash, and avoids unneeded work
+</li>
+<li>added colormap variants, more suitable to linear fusions (which is the default today)
+</li>
+<li>Fixed some (the last?) side effects when the VTK plugin is loaded</li>
 
 <!-- -->
 

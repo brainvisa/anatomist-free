@@ -40,6 +40,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/transformobserver.h>
 #include <anatomist/reference/Referential.h>
+#include <anatomist/color/objectPalette.h>
 #include <graph/tree/tree.h>
 #include <cartobase/object/pythonwriter.h>
 #include <qtranslator.h>
@@ -640,4 +641,15 @@ const Referential* Fusion2D::getReferential() const
   return ObjectVector::getReferential();
 }
 
+
+bool Fusion2D::isTransparent() const
+{
+  if( material().IsBlended() )
+    return true;
+  iterator i, e = end();
+  for( i=begin(); i!=e; ++i )
+    if( (*i)->palette() && (*i)->palette()->isTransparent() )
+      return true;
+  return false;
+}
 

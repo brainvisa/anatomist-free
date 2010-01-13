@@ -122,26 +122,26 @@ ControlDictionary::testPriorityUnicity( int priority )
 void 
 ControlDictionary::addControl( const string& name, 
                                ControlCreatorBase *control, 
-			       int priority )
+                               int priority, bool allowreplace )
 {
-  map<string, ControlDictionaryElement>::const_iterator 
-    found( myControls.find( name ) ) ;
-  if( found != myControls.end() )
-    {
-      string	msg = string( "Control " ) + name 
-	+ " can not be added to dictionary, its name is already registered";
-      AWarning( msg.c_str() ) ;
-      return ;
-    }
   if( control == 0 )
-    {
-      cerr << "Control pointer is null" << endl ;
-      return ;
-    }
+  {
+    cerr << "Control pointer is null" << endl ;
+    return ;
+  }
+  map<string, ControlDictionaryElement>::const_iterator
+    found( myControls.find( name ) ) ;
+  if( found != myControls.end() && !allowreplace )
+  {
+    string	msg = string( "Control " ) + name
+      + " can not be added to dictionary, its name is already registered";
+    AWarning( msg.c_str() ) ;
+    return ;
+  }
   ControlDictionaryElement el ;
   el.priority = priority ;
   el.creator.reset( control );
-  
+
 #ifdef ANADEBUG
   cerr << "Test priority unicity" << endl ;
 #endif
@@ -153,7 +153,8 @@ ControlDictionary::addControl( const string& name,
 
 void 
 ControlDictionary::addControl( const string& name, ControlCreator control, 
-			       int priority )
+                               int priority, bool allowreplace )
 {
-  addControl( name, new ControlCreatorFunc( control ), priority );
+  addControl( name, new ControlCreatorFunc( control ), priority,
+              allowreplace );
 }

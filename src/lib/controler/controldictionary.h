@@ -77,9 +77,9 @@ namespace anatomist
     ControlPtr getControlInstance( const std::string& name ) ;
     int controlPriority( const std::string& name ) const;
     void addControl( const std::string& name, ControlCreator creator,
-		     int priority ) ;
+                     int priority, bool allowreplace = false ) ;
     void addControl( const std::string& name, ControlCreatorBase * creator, 
-		     int priority ) ;
+                     int priority, bool allowreplace = false ) ;
     int testPriorityUnicity( int priority ) ;
     
   private:    
