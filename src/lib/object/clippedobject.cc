@@ -33,14 +33,14 @@
 
 #include <anatomist/object/clippedobject.h>
 #include <anatomist/object/actions.h>
-#include <anatomist/reference/Geometry.h>
+#include <anatomist/reference/Transformation.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/window/glwidget.h>
-#include <aims/resampling/quaternion.h>
 #include <anatomist/window/viewstate.h>
+#include <aims/resampling/quaternion.h>
 #include <qpixmap.h>
 #include <graph/tree/tree.h>
 #include <qtranslator.h>
@@ -101,7 +101,7 @@ ClippedObject::ClippedObject( const vector<AObject *> & obj )
   if( size() > 0 )
   {
     o = *begin();
-    setReferential( o->getReferential() );
+    setReferentialInheritance( o );
 
 /*    Point3df	vs = o->VoxelSize();
     _offset = Point3df( ( o->MinX2D() + o->MaxX2D() ) * vs[0] / 2, 
@@ -140,7 +140,6 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
 {
   // cout << "ClippedObject::render " << quaternion().vector() << endl;
   aims::Quaternion    q = quaternion();
-  Geometry	geom = AWindow3D::setupWindowGeometry( _data, q );
   bool firstlist = false;
   PrimList::iterator ip = prim.end();
   if( ip == prim.begin() )
@@ -150,33 +149,10 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
   bool hasrendered = false;
   iterator i, e = end();
 
-  const SliceViewState *osvs = state.sliceVS();
-
-  SliceViewState  svs( state.time, osvs ? osvs->wantslice : false,
-                       osvs ? osvs->position : offset(),
-                           osvs ? osvs->orientation : 0,
-                           osvs ? osvs->winref : 0,
-                           osvs ? osvs->wingeom : &geom,
-                           osvs ? osvs->vieworientation : 0,
-                           state.window );
-  if( !osvs && state.window )
-  {
-    const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( state.window );
-    if( w3 )
-    {
-      svs.orientation = &w3->sliceQuaternion();
-      svs.winref = w3->getReferential();
-      const GLWidgetManager
-          *glv = dynamic_cast<const GLWidgetManager *>( w3->view() );
-      if( glv )
-        svs.vieworientation = &glv->quaternion();
-    }
-  }
-
   for( i=begin(); i!=e; ++i )
   {
     AObject* obj = *i;
-    if( obj->render( prim, svs ) )
+    if( obj->render( prim, state ) )
       hasrendered = true;
   }
   if( hasrendered )
@@ -192,26 +168,45 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
     glPushAttrib( GL_ENABLE_BIT );
     glEnable( GL_CLIP_PLANE2 + d->clipID );
     GLdouble pl[4];
+
+    const SliceViewState  *svs = state.sliceVS();
+    const Referential *wr = 0, *objref = getReferential();
+    if( objref )
+      if( svs )
+        wr = svs->winref;
+      else if( state.window )
+        wr = state.window->getReferential();
+    Transformation *trans = theAnatomist->getTransformation( objref, wr );
     const Point4df & p = plane();
-    pl[0] = p[0];
-    pl[1] = p[1];
-    pl[2] = p[2];
-    pl[3] = p[3];
+    if( trans )
+    {
+      // transform clipping plane
+      Point3df p2( p[0], p[1], p[2] );
+      p2.normalize();
+      p2 = trans->motion().transform_normal( p2 );
+      pl[0] = p2[0];
+      pl[1] = p2[1];
+      pl[2] = p2[2];
+      Point3df p3( 0. );
+      if( p[2] != 0 )
+        p3[2] = -p[3] / p[2];
+      else if( p[1] != 0 )
+        p3[1] = -p[3] / p[1];
+      else
+        p3[0] = -p[3] / p[0];
+      p3 = trans->transform( p3 );
+      pl[3] = - ( pl[0] * p3[0] + pl[1] * p3[1] + pl[2] * p3[2] );
+    }
+    else
+    {
+      pl[0] = p[0];
+      pl[1] = p[1];
+      pl[2] = p[2];
+      pl[3] = p[3];
+    }
     glClipPlane( GL_CLIP_PLANE2 + d->clipID, pl );
     glEndList();
     prim.insert( ip, rc_ptr<GLItem>( gll ) );
-
-    // referential transformation
-    const Referential *ref = getReferential();
-    GLPrimitives p2 = GLComponent::glHandleTransformation( state, ref );
-    bool hastr = !p2.empty();
-    if( hastr )
-    {
-      ++ip;
-      prim.insert( ip, p2.begin(), p2.end() );
-      p2 = GLComponent::glPopTransformation( state, ref );
-      prim.insert( prim.end(), p2.begin(), p2.end() );
-    }
 
     // finish clipping
     GLList *gll2 = new GLList;
