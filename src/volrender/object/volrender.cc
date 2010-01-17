@@ -47,8 +47,10 @@
 #include <anatomist/object/volrenderpanel.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/color/paletteList.h>
 #include <aims/resampling/motion.h>
 #include <aims/resampling/quaternion.h>
+#include <aims/math/mathelem.h>
 #include <graph/tree/tree.h>
 #include <qpixmap.h>
 #include <iostream>
@@ -1092,7 +1094,45 @@ GLComponent::TexExtrema & VolRender::glTexExtrema( unsigned tex )
 void VolRender::createDefaultPalette( const string & name )
 {
   if( name.empty() )
-    AObject::createDefaultPalette( "semitransparent" );
+  {
+    const AObjectPalette *pal = 0;
+    iterator i = begin();
+    if( i != end() )
+      pal = (*i)->palette();
+    if( !pal || pal->refPalette()->name() == "B-W LINEAR" )
+      AObject::createDefaultPalette( "semitransparent" );
+    else
+    {
+      rc_ptr<APalette> rpal = pal->refPalette();
+      if( pal->isTransparent() )
+      {
+        cout << "pal->isTransparent\n";
+        AObject::createDefaultPalette( rpal->name() );
+      }
+      else
+      {
+        string pname = rpal->name() + "-semitransparent";
+        rc_ptr<APalette> apal = theAnatomist->palettes().find( pname );
+        if( !apal )
+        {
+          int dx = rpal->dimX(), x;
+          apal.reset( new APalette( pname, dx ) );
+          for( x=0; x<dx; ++x )
+          {
+            const AimsRGBA & rgb = (*rpal)(x);
+            AimsRGBA & xrgb = (*apal)(x);
+            xrgb.red() = rgb.red();
+            xrgb.green() = rgb.green();
+            xrgb.blue() = rgb.blue();
+            xrgb.alpha() = (unsigned char) sqrt( sqr( rgb.red() )
+              + sqr( rgb.green() ) + sqr( rgb.blue() ) );
+          }
+          theAnatomist->palettes().push_back( apal );
+        }
+        AObject::createDefaultPalette( pname );
+      }
+    }
+  }
   else
     AObject::createDefaultPalette( name );
   palette()->create( 512 );
