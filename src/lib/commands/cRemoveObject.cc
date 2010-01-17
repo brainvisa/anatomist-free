@@ -41,6 +41,7 @@
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/Serializer.h>
 #include <anatomist/processor/context.h>
+#include <anatomist/mobject/MObject.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <vector>
@@ -52,8 +53,10 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 RemoveObjectCommand::RemoveObjectCommand( const set<AObject *> & objL, 
-					  const set<AWindow *> & winL ) 
-  : RegularCommand(), _objL( objL ), _winL( winL )
+                                          const set<AWindow *> & winL,
+                                          bool removechildren ) 
+  : RegularCommand(), _objL( objL ), _winL( winL ),
+    _removechildren( removechildren )
 {
 }
 
@@ -68,10 +71,9 @@ bool RemoveObjectCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "RemoveObject" ];
   
-  s[ "objects" ].type = "int_vector";
-  s[ "objects" ].needed = true;
-  s[ "windows" ].type = "int_vector";
-  s[ "windows" ].needed = true;
+  s[ "objects" ] = Semantic( "int_vector", true );
+  s[ "windows" ] = Semantic( "int_vector", true );
+  s[ "remove_children" ] = Semantic( "int", false );
   Registry::instance()->add( "RemoveObject", &read, ss );
   return( true );
 }
@@ -86,22 +88,32 @@ RemoveObjectCommand::doit()
   w=_winL.begin();
   while( w != fw )
     if( !theAnatomist->hasWindow( *w ) )
-      {
-	w2 = w;
-	++w;
-	_winL.erase( w2 );
-      }
+    {
+      w2 = w;
+      ++w;
+      _winL.erase( w2 );
+    }
     else
       ++w;
 
   for( o=_objL.begin(); o!=fo; ++o )
     if( theAnatomist->hasObject( *o ) )
+    {
+      MObject *mo = dynamic_cast<MObject *>( *o );
+      for( w=_winL.begin(); w!=fw; ++w )
       {
-	for( w=_winL.begin(); w!=fw; ++w )
-	  {
-	      (*w)->unregisterObject( *o );
-	    }
+        (*w)->unregisterObject( *o );
+        if( _removechildren )
+        {
+          if( mo )
+          {
+            MObject::iterator i, e = mo->end();
+            for( i=mo->begin(); i!=e; ++i )
+              (*w)->unregisterObject( *i );
+          }
+        }
       }
+    }
 
   theAnatomist->Refresh();
 }
@@ -114,35 +126,37 @@ Command* RemoveObjectCommand::read( const Tree & com, CommandContext* context )
   set<AWindow *>	winL;
   unsigned		i, n;
   void			*ptr;
+  int                   removechildren = 0;
 
   if( !com.getProperty( "objects", obj )
       || !com.getProperty( "windows", win ) )
     return( 0 );
 
   for( i=0, n=obj.size(); i<n; ++i )
+  {
+    ptr = context->unserial->pointer( obj[i], "AObject" );
+    if( ptr )
+      objL.insert( (AObject *) ptr );
+    else
     {
-      ptr = context->unserial->pointer( obj[i], "AObject" );
-      if( ptr )
-	objL.insert( (AObject *) ptr );
-      else
-	{
-	  cerr << "object id " << obj[i] << " not found\n";
-	  return( 0 );
-	}
+      cerr << "object id " << obj[i] << " not found\n";
+      return( 0 );
     }
+  }
   for( i=0, n=win.size(); i<n; ++i )
+  {
+    ptr = context->unserial->pointer( win[i], "AWindow" );
+    if( ptr )
+      winL.insert( (AWindow *) ptr );
+    else
     {
-      ptr = context->unserial->pointer( win[i], "AWindow" );
-      if( ptr )
-	winL.insert( (AWindow *) ptr );
-      else
-	{
-	  cerr << "window id " << win[i] << " not found\n";
-	  return( 0 );
-	}
+      cerr << "window id " << win[i] << " not found\n";
+      return( 0 );
     }
+  }
+  com.getProperty( "remove_children", removechildren );
 
-  return( new RemoveObjectCommand( objL, winL ) );
+  return( new RemoveObjectCommand( objL, winL, removechildren ) );
 }
 
 
@@ -162,5 +176,7 @@ void RemoveObjectCommand::write( Tree & com, Serializer* ser ) const
 
   t->setProperty( "objects", obj );
   t->setProperty( "windows", win );
+  if( _removechildren )
+    t->setProperty( "remove_children", (int) 1 );
   com.insert( t );
 }
