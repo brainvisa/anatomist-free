@@ -38,6 +38,8 @@ if( Qwt_FOUND )
   BRAINVISA_DEPENDENCY( RUN DEPENDS Qwt RUN )
 endif()
 
+option(CMAKE_OVERRIDE_COMPILER_MISMATCH "Check for compiler consistency" "On")
+
 find_package( VTK "5.4" QUIET )
 if( VTK_FOUND )
   include("${VTK_USE_FILE}")
