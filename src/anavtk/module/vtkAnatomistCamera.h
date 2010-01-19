@@ -65,9 +65,7 @@ public:
                                                       double,
                                                       double);
 #else
-  virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double,
-                                                      double,
-                                                      double);
+  #error VTK >= 5.4 is required
 #endif
   
   void SetPerspectiveBounds (const double&, const double&, const double&, const double&, const double&, const double&);

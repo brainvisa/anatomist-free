@@ -1,3 +1,6 @@
+include("${VTK_USE_FILE}")
+include( "${vtkINRIA3D_USE_FILE}" )
+
 BRAINVISA_GET_FILE_LIST_FROM_PRO( anavtk.pro "HEADERS" _headers "SOURCES" _sources )
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
