@@ -1124,8 +1124,8 @@ void VolRender::createDefaultPalette( const string & name )
             xrgb.red() = rgb.red();
             xrgb.green() = rgb.green();
             xrgb.blue() = rgb.blue();
-            xrgb.alpha() = (unsigned char) sqrt( sqr( rgb.red() )
-              + sqr( rgb.green() ) + sqr( rgb.blue() ) );
+            xrgb.alpha() = (unsigned char) sqrt( (double)( sqr( rgb.red() )
+              + sqr( rgb.green() ) + sqr( rgb.blue() ) ) );
           }
           theAnatomist->palettes().push_back( apal );
         }
