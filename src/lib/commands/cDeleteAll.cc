@@ -106,7 +106,8 @@ DeleteAllCommand::doit()
   set<Referential *>::iterator ir, er = refs.end();
   for( ir=refs.begin(); ir!=er; ++ir )
   {
-    if( *ir!=theAnatomist->centralReferential() )
+    if( *ir!=theAnatomist->centralReferential()
+        && *ir != Referential::mniTemplateReferential() )
       delete *ir;
   }
 

@@ -88,6 +88,7 @@ namespace anatomist
     bool redo();
     void allowExecWhileIdle( bool );
     bool execWhileIdle() const;
+    bool idle() const;
 
     /**@name	Helper structures*/
     //@{
