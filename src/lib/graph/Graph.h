@@ -158,6 +158,7 @@ namespace anatomist
     virtual GLComponent* glAPI();
     virtual const GLComponent* glAPI() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
+    virtual void setHeaderOptions();
 
   protected:
     void saveSubObjects( bool filenamechanged = false );

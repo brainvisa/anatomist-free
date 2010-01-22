@@ -139,7 +139,27 @@ int ClippedObject::clipID() const
 bool ClippedObject::render( PrimList & prim, const ViewState & state )
 {
   // cout << "ClippedObject::render " << quaternion().vector() << endl;
-  aims::Quaternion    q = quaternion();
+  /* always use a SliceViewState since the underlying object may need
+     orientation information (a VolRender needs view orientation) */
+  const SliceViewState *osvs = state.sliceVS();
+  SliceViewState svs;
+  if( !osvs || !osvs->vieworientation )
+  {
+    if( osvs )
+      svs = *osvs;
+    const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( state.window );
+    if( w3 )
+    {
+      svs.orientation = &w3->sliceQuaternion();
+      svs.winref = w3->getReferential();
+      const GLWidgetManager
+          *glv = dynamic_cast<const GLWidgetManager *>( w3->view() );
+      if( glv )
+        svs.vieworientation = &glv->quaternion();
+    }
+    osvs = &svs;
+  }
+
   bool firstlist = false;
   PrimList::iterator ip = prim.end();
   if( ip == prim.begin() )
@@ -152,7 +172,7 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
   for( i=begin(); i!=e; ++i )
   {
     AObject* obj = *i;
-    if( obj->render( prim, state ) )
+    if( obj->render( prim, *osvs ) )
       hasrendered = true;
   }
   if( hasrendered )
@@ -172,10 +192,12 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
     const SliceViewState  *svs = state.sliceVS();
     const Referential *wr = 0, *objref = getReferential();
     if( objref )
+    {
       if( svs )
         wr = svs->winref;
       else if( state.window )
         wr = state.window->getReferential();
+    }
     Transformation *trans = theAnatomist->getTransformation( objref, wr );
     const Point4df & p = plane();
     if( trans )

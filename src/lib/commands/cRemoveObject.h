@@ -53,7 +53,8 @@ namespace anatomist
   {
   public:
     RemoveObjectCommand( const std::set<AObject *> &, 
-			 const std::set<AWindow *> & );
+                         const std::set<AWindow *> &,
+                         bool removechildren = false );
     virtual ~RemoveObjectCommand();
 
     virtual std::string name() const { return( "RemoveObject" ); }
@@ -69,6 +70,7 @@ namespace anatomist
 
     std::set<AObject *>		_objL;
     std::set<AWindow *>		_winL;
+    bool                        _removechildren;
   };
 
 }

@@ -66,7 +66,7 @@
 
 <!-- -->
 
-<h4> <a name="version-3.2.1"></a>2010/01/04 - Version 3.2.1</h4>
+<h4> <a name="version-3.2.1"></a>2010/01/18 - Version 3.2.1</h4>
 
 <h5>Improvements:</h5>
 
@@ -74,8 +74,16 @@
 </li>
 <li>A new histogram plugin using Matplotlib (written in python) is available and may replace the existing one (using Qwt): it is much more flexible (interactive zoom, possibility to save the plot...) and prettier.
 </li>
+<li>Graphs now have the classical "apply builtin referential" option, and uses Talairach transformation info contained in the graph.
+</li>
+<li>Volume rendering is now using by default a palette derived from the underlying object palette, with transparency added.
+</li>
+<li>New plugin: menu option to set a distinct palette on a set of volumes, allowing to quickly display 2D fusions without opening the palette window on each volume and selecting one manually.
+</li>
 <li>New command: FusionInfo</li>
 <li>New option in <tt>WindowConfig</tt> command: <tt>light</tt>.
+</li>
+<li>New option in <tt>RemoveObject</tt> command: <tt>remove_children</tt>.
 </li>
 
 
@@ -83,7 +91,7 @@
 
 </li>Many minor fixes...
 </li>
-<li>The ROI cursor was buggy on Mac and was disabled in 3.2.0. It is not fixed and enabled again. Actually the bug came from int/float conversion at the anatomist Bucket object level.
+<li>The ROI cursor was buggy on Mac and was disabled in 3.2.0. It is now fixed and enabled again. Actually the bug came from int/float conversion at the anatomist Bucket object level.
 </li>
 <li>Some objects opacity was not correctly taken into account (textured surfaces, 3D fusions...); this has been fixed.
 </li>
@@ -97,6 +105,7 @@
 <li>added colormap variants, more suitable to linear fusions (which is the default today)
 </li>
 <li>Fixed some (the last?) side effects when the VTK plugin is loaded</li>
+<li>Fixed referentials problems on clipped objects</li>
 
 <!-- -->
 

@@ -533,7 +533,7 @@ template<> rc_ptr<TimeTexture<unsigned> >
 ObjectConverter<TimeTexture<unsigned> >::ana2aims( AObject *x, Object options )
 {
   Object scl;
-  bool rescale = false, always_copy = false;
+  bool rescale = false; //, always_copy = false;
   if( options )
     try
     {
