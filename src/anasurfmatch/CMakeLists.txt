@@ -3,8 +3,9 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anasurfmatch MODULE ${_sources} )
 add_dependencies( anasurfmatch ${headersTarget} )
-set_property( TARGET anasurfmatch PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( anasurfmatch anatomist )
+# set_property( TARGET anasurfmatch PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+set_property( TARGET anasurfmatch PROPERTY OUTPUT_NAME anasurfmatch.${${PROJECT_NAME}_VERSION} )
+target_link_libraries( anasurfmatch anatomist ${AIMS_AIMSALGO_LIBRARY} )
 BRAINVISA_INSTALL( TARGETS anasurfmatch
               DESTINATION lib
               COMPONENT ${PROJECT_NAME} )

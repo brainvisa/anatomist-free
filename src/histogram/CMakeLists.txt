@@ -5,7 +5,7 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anahistogram MODULE ${_sources} )
 add_dependencies( anahistogram ${headersTarget} )
-set_property( TARGET anahistogram PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+set_property( TARGET anahistogram PROPERTY OUTPUT_NAME anahistogram.${${PROJECT_NAME}_VERSION} )
 target_link_libraries( anahistogram anatomist "${QWT_LIBRARY}" )
 BRAINVISA_INSTALL( TARGETS anahistogram
               DESTINATION lib
