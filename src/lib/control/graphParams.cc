@@ -153,6 +153,54 @@ void GraphParams::allowRescanHierarchies( bool x )
 }
 
 
+bool GraphParams::nomenclatureColorForLabel( const string & label,
+                                             const Hierarchy *hie,
+                                             Material & mat )
+{
+  //	find matching element
+  vector<Tree *>	parents;
+  Tree	*t = 0;
+  string attval = label;
+
+  //	check for compound names
+  string		name;
+  string::size_type	pos;
+
+  while( !t && !attval.empty() )
+  {
+    pos = attval.find( '+' );
+    if( pos == string::npos )
+      pos = attval.size();
+    name = attval.substr( 0, pos );
+    attval.erase( 0, pos+1 );
+    t = findTreeWith( const_cast<Hierarchy *>(hie)->tree().get(), "name", name,
+                      parents );
+  }
+  if( !t )
+    return false;
+
+  vector<int>	col;
+  vector<Tree *>::const_iterator	it = parents.begin();
+
+  while( !t->getProperty( "color", col ) && it != parents.end() )
+  {
+    t = *it;
+    ++it;
+  }
+
+  if( col.size() >= 3 )
+  {
+    mat.SetDiffuse( ((float) col[0])/255, ((float) col[1])/255,
+                      ((float) col[2])/255, mat.Diffuse( 3 ) );
+    if( col.size() >= 4 )
+      mat.SetDiffuseA( (float) col[3] / 255 );
+    return true;
+  }
+
+  return false;
+}
+
+
 bool GraphParams::recolorLabelledGraph( AGraph*ag, AGraphObject* go,
                                         Material & mat )
 {
@@ -171,45 +219,7 @@ bool GraphParams::recolorLabelledGraph( AGraph*ag, AGraphObject* go,
   if( !hie )
     return false;
 
-  //	find matching element
-  vector<Tree *>	parents;
-  Tree	*t = 0;
-
-  //	check for compound names
-  string		name;
-  string::size_type	pos;
-
-  while( !t && !attval.empty() )
-    {
-      pos = attval.find( '+' );
-      if( pos == string::npos )
-        pos = attval.size();
-      name = attval.substr( 0, pos );
-      attval.erase( 0, pos+1 );
-      t = findTreeWith( hie->tree().get(), "name", name, parents );
-    }
-  if( !t )
-    return false;
-
-  vector<int>	col;
-  vector<Tree *>::const_iterator	it = parents.begin();
-
-  while( !t->getProperty( "color", col ) && it != parents.end() )
-    {
-      t = *it;
-      ++it;
-    }
-
-  if( col.size() >= 3 )
-    {
-      mat.SetDiffuse( ((float) col[0])/255, ((float) col[1])/255, 
-		      ((float) col[2])/255, mat.Diffuse( 3 ) );
-      if( col.size() >= 4 )
-        mat.SetDiffuseA( (float) col[3] / 255 );
-      return true;
-    }
-
-  return false;
+  return nomenclatureColorForLabel( attval, hie, mat );
 }
 
 

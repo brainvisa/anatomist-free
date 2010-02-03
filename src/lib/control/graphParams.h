@@ -48,6 +48,7 @@ namespace anatomist
   class AGraph;
   class AGraphObject;
   class Material;
+  class Hierarchy;
 
   class GraphParams
   {
@@ -63,6 +64,9 @@ namespace anatomist
        \see AGraph::specialColorFunc */
     static bool recolorLabelledGraph( AGraph* ag, AGraphObject* go, 
                                       Material & mat );
+    static bool nomenclatureColorForLabel( const std::string & label,
+                                           const Hierarchy *hie,
+                                           Material & mat );
     ///	This function should be part of the Tree class (in graph library).
     static Tree* findTreeWith( const Tree* tr, const std::string & attribute, 
                                const std::string & value, 
