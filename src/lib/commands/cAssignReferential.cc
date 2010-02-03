@@ -157,6 +157,8 @@ void AssignReferentialCommand::doit()
   if( !_obj.empty() )
   {
     // keep state of existing referentials
+    // force creating the MNI ref before taking the list...
+    Referential::mniTemplateReferential();
     set<Referential *> usedrefs = theAnatomist->getReferentials();
     if( ref )
       usedrefs.insert( ref );

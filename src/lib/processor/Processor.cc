@@ -83,6 +83,12 @@ Processor::~Processor()
 }
 
 
+bool Processor::idle() const
+{
+  return _idle;
+}
+
+
 void
 Processor::execute(Command* c)
 {

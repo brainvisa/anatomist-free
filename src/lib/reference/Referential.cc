@@ -377,6 +377,7 @@ Referential* Referential::acPcReferential()
 
 Referential* Referential::mniTemplateReferential()
 {
+  // cout << "Referential::mniTemplateReferential()\n";
   Referential * & ref = mniref();
   if( !ref )
   {
@@ -392,7 +393,11 @@ Referential* Referential::mniTemplateReferential()
         + sep + "Talairach-MNI_template-SPM.referential";
     AssignReferentialCommand  *c
         = new AssignReferentialCommand( 0, so, sw, -1, 0, mniref );
-    theProcessor->execute( c );
+    // exec command even if recursively
+    if( theProcessor->idle() )
+      theProcessor->execute( c );
+    else
+      c->execute();
     ref = c->ref();
     if( ref )
     {
@@ -426,6 +431,7 @@ Referential* Referential::referentialOfNameOrUUID( const AObject* o,
   Referential *ref = 0;
   unsigned  i, n = refs.size();
   Object  it = transs->objectIterator();
+
   if( refname == StandardReferentials::mniTemplateReferential()
       || refname == Referential::mniTemplateReferential()->uuid().toString() )
   {

@@ -3,7 +3,7 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anahierarchyeditor MODULE ${_sources} )
 add_dependencies( anahierarchyeditor ${headersTarget} )
-set_property( TARGET anahierarchyeditor PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+set_property( TARGET anahierarchyeditor PROPERTY OUTPUT_NAME anahierarchyeditor.${${PROJECT_NAME}_VERSION} )
 target_link_libraries( anahierarchyeditor anatomist )
 BRAINVISA_INSTALL( TARGETS anahierarchyeditor
               DESTINATION lib

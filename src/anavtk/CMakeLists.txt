@@ -6,7 +6,8 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anavtk MODULE ${_sources} )
 add_dependencies( anavtk ${headersTarget} )
-set_property( TARGET anavtk PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+# set_property( TARGET anavtk PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+set_property( TARGET anavtk PROPERTY OUTPUT_NAME anavtk.${${PROJECT_NAME}_VERSION} )
 target_link_libraries( anavtk
 anatomist
 vtkHybrid

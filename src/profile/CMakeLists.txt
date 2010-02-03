@@ -5,7 +5,7 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anaprofile SHARED ${_sources} )
 add_dependencies( anaprofile ${headersTarget} )
-set_property( TARGET anaprofile PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+set_property( TARGET anaprofile PROPERTY OUTPUT_NAME anaprofile.${${PROJECT_NAME}_VERSION} )
 target_link_libraries( anaprofile anatomist "${QWT_LIBRARY}" )
 BRAINVISA_INSTALL( TARGETS anaprofile
               DESTINATION lib
