@@ -40,6 +40,7 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/graph/attribAObject.h>
 #include <anatomist/graph/GraphObject.h>
+#include <anatomist/graph/Graph.h>
 #include <anatomist/hierarchy/hierarchy.h>
 #include <graph/tree/tree.h>
 #include <qtoolbar.h>
@@ -104,19 +105,29 @@ void LabelEditAction::pick()
     return;
   const set<AObject *> & obj = i->second;
   set<AObject *>::const_iterator io, eo = obj.end();
-  string label, label2, att = GraphParams::graphParams()->attribute;
+  string label, label2, att, attbis = GraphParams::graphParams()->attribute;
   AObject *gobj = 0;
   for( io=obj.begin(); io!=eo; ++io )
   {
     AttributedAObject *ato = dynamic_cast<AttributedAObject *>( *io );
-    if( ato && ato->attributed()->getProperty( att, label2 )
-        && !label2.empty() )
+    if( ato )
     {
-      if( label.empty() )
-        label = label2;
-      else if( label != label2 )
-        return; // inconsistency
-      gobj = *io;
+      AObject::ParentList::const_iterator ip, ep = (*io)->parents().end();
+      att = attbis;
+      for( ip=(*io)->parents().begin(); ip!=ep; ++ip )
+        if( (*ip)->type() == AObject::GRAPH )
+        {
+          att = static_cast<const AGraph *>( *ip )->labelProperty();
+          break;
+        }
+      if( ato->attributed()->getProperty( att, label2 ) && !label2.empty() )
+      {
+        if( label.empty() )
+          label = label2;
+        else if( label != label2 )
+          return; // inconsistency
+        gobj = *io;
+      }
     }
   }
   cout << "label: " << label << endl;
@@ -141,12 +152,20 @@ void LabelEditAction::edit()
   const set<AObject *> & obj = i->second;
   set<AObject *> aobj;
   set<AObject *>::const_iterator io, eo = obj.end();
-  string att = GraphParams::graphParams()->attribute;
+  string att, attbis = GraphParams::graphParams()->attribute;
   for( io=obj.begin(); io!=eo; ++io )
   {
     AttributedAObject *ato = dynamic_cast<AttributedAObject *>( *io );
     if( ato )
     {
+      AObject::ParentList::const_iterator ip, ep = (*io)->parents().end();
+      att = attbis;
+      for( ip=(*io)->parents().begin(); ip!=ep; ++ip )
+        if( (*ip)->type() == AObject::GRAPH )
+        {
+          att = static_cast<const AGraph *>( *ip )->labelProperty();
+          break;
+        }
       aobj.insert( *io );
       ato->attributed()->setProperty( att, _label );
       (*io)->setChanged();
@@ -189,9 +208,7 @@ void LabelEditAction::setLabel( const string & x, const AObject *obj )
       if( hie )
       {
         Material  mat;
-        if( GraphParams::recolorLabelledGraph( 0,
-            static_cast<AGraphObject *> ( const_cast<AObject *>( obj ) ),
-                                          mat ) )
+        if( GraphParams::nomenclatureColorForLabel( x, hie, mat ) )
         {
           col = QColor( int( mat.Diffuse(0) * 255.9 ),
                         int( mat.Diffuse(1) * 255.9 ),
