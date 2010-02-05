@@ -30,20 +30,35 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
 import sys
+qt4 = False
 if sys.modules.has_key( 'PyQt4' ):
-  raise RuntimeError( 'The Selection module has not been ported to ' \
-    'Qt4 yet.' )
+  qt4 = True
+  from PyQt4 import QtCore, QtGui
+  qt = QtGui
+  from PyQt4.uic import loadUiType
+  UIFormClass = None
+  findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
+  #raise RuntimeError( 'The Selection module has not been ported to ' \
+    #'Qt4 yet.' )
+else:
+  import qt, qtui
+  findChild = qt.QObject.child
 
 import anatomist.direct.api as anatomist
 from soma import aims
-import os, qt, qtui, sip
+import os, sip
 
 #disable_me
 
-class SelectionActionView( qt.QVBox ):
+class SelectionActionView( qt.QWidget ):
   def __init__( self, action, parent, name=None, flags=0 ):
     print 'create SelectionActionView'
-    qt.QVBox.__init__( self, parent, name, flags )
+    if qt4:
+      qt.QWidget.__init__( self, parent )
+      self.setObjectName( name )
+    else:
+      qt.QWidget.__init__( self, parent, name, flags )
+      layout = qt.QVBoxLayout( self )
     self._action = action
     window = self._action.view().window()
     objs = window.Objects()
@@ -70,31 +85,48 @@ class SelectionActionView( qt.QVBox ):
     name = __file__
     if name.endswith( '.pyc' ) or name.endswith( '.pyo' ):
       name = name[:-1]
-    name = os.path.join(os.path.dirname(os.path.realpath(name)),
-      'selection.ui')
-    qWidget = qtui.QWidgetFactory.create(name, self, self,
-      "Selection Widget UI" )
-    qWidget.child( 'nodesSlider' ).setValue(nodes_opacity)
-    qWidget.child( 'nodesLabel' ).setText(str(nodes_opacity))
-    qWidget.child( 'edgesSlider' ).setValue(edges_opacity)
-    qWidget.child( 'edgesLabel' ).setText(str(edges_opacity))
-    smc = qWidget.child( 'selectionModeCombo' )
+    if qt4:
+      name = os.path.join(os.path.dirname(os.path.realpath(name)),
+      'selection-qt4.ui')
+      global UIFormClass
+      if UIFormClass is None:
+        UIFormClass, baseclass = loadUiType( name )
+      qWidget = self
+      UIFormClass().setupUi( qWidget )
+      #layout.addWidget( qWidget )
+    else:
+      name = os.path.join(os.path.dirname(os.path.realpath(name)),
+        'selection.ui')
+      qWidget = qtui.QWidgetFactory.create(name, self, self,
+        "Selection Widget UI" )
+      layout.addWidget( qWidget )
+    findChild( qWidget, 'nodesSlider' ).setValue(nodes_opacity)
+    findChild( qWidget, 'nodesLabel' ).setText(str(nodes_opacity))
+    findChild( qWidget, 'edgesSlider' ).setValue(edges_opacity)
+    findChild( qWidget, 'edgesLabel' ).setText(str(edges_opacity))
+    smc = findChild( qWidget, 'selectionModeCombo' )
     for mode in self._action.modes_list:
-      smc.insertItem(mode)
-    smc.setCurrentItem(self._action.mode)
-    self.connect( qWidget.child( 'nodesSlider' ),
+      if qt4:
+        smc.insertItem(smc.count(), mode)
+      else:
+        smc.insertItem(mode)
+    if qt4:
+      smc.setCurrentIndex(self._action.mode)
+    else:
+      smc.setCurrentItem(self._action.mode)
+    self.connect( findChild( qWidget, 'nodesSlider' ),
       qt.SIGNAL( 'valueChanged(int)' ), self.nodesOpacityChanged )
-    self.connect( qWidget.child( 'edgesSlider' ),
+    self.connect( findChild( qWidget, 'edgesSlider' ),
       qt.SIGNAL( 'valueChanged(int)' ), self.edgesOpacityChanged )
     self.connect( smc, qt.SIGNAL( 'activated(int)' ),
       self.selectionModeChanged )
 
   def nodesOpacityChanged( self, value ):
-    self.child( 'nodesLabel' ).setText(str(value))
+    findChild( self, 'nodesLabel' ).setText(str(value))
     self._action.updateNodesOpacity(value)
 
   def edgesOpacityChanged( self, value ):
-    self.child( 'edgesLabel' ).setText(str(value))
+    findChild( self, 'edgesLabel' ).setText(str(value))
     self._action.updateEdgesOpacity(value)
 
   def selectionModeChanged( self, value ):

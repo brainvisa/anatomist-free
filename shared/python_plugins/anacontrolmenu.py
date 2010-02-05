@@ -117,12 +117,24 @@ def ipythonShell():
     # run interpreter
     consoleShellRunning = True
     if qt4:
-      ipshell = IPython.Shell.IPShell()
+      from PyQt4.QtGui import qApp
+      import time
+      ipshell = IPython.Shell.IPShellQt4( [ '-q4thread' ] )
     else:
+      from qt import qApp
       ipshell = IPython.Shell.IPShellQt( [ '-qthread' ] )
+    def dummy_mainloop(*args, **kw):
+      qApp.processEvents()
+      time.sleep( 0.02 )
+    # replace ipython shell event loop with a 'local loop'
+    ipshell.exec_ = dummy_mainloop
     ipshell.mainloop()
     consoleShellRunning = False
     print 'shell terminated'
+    if qt4:
+      qApp.exec_()
+    else:
+      qApp.exec_loop()
     return 1
   except:
     return 0
