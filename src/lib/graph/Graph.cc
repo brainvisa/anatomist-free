@@ -1397,9 +1397,9 @@ namespace
     if( graphObjectValue( *gen, prop, val ) )
     {
       // change material according to palette
-      if( val <= fmin )
+      if( val <= std::min( fmin, fmax ) )
         ind = 0;
-      else if( val >= fmax )
+      else if( val >= std::max( fmin, fmax ) )
         ind = ncol - 1;
       else
         ind = (int) ( ( val - fmin ) * scale );
@@ -1454,7 +1454,10 @@ namespace
         cmax = 1;
       }
 
-    scale = ((float) ncol) / ( ( cmax - cmin ) * ( maxval - minval ) );
+    if( minval == maxval )
+      scale = 1.;
+    else
+      scale = ((float) ncol) / ( ( cmax - cmin ) * ( maxval - minval ) );
     fmin = minval + cmin * ( maxval - minval );
     fmax = minval + cmax * ( maxval - minval );
     float galpha = g.GetMaterial().Diffuse(3);
