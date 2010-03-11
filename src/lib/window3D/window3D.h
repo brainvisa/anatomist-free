@@ -40,6 +40,7 @@
 #include <anatomist/observer/Observable.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/primitive/primitive.h>
+#include <anatomist/window/viewstate.h>
 
 namespace aims
 {
@@ -116,6 +117,14 @@ public:
                                int position = -1 );
   virtual void unregisterObject( anatomist::AObject* obj );
   virtual bool positionFromCursor( int x, int y, Point3df & pos );
+  /// pick the object at the cursor 2D position
+  virtual anatomist::AObject* objectAtCursorPosition( int x, int y );
+  /// pick several objects at the cursor 2D position
+  virtual std::list<anatomist::AObject*> *objectsAtCursorPosition( int x,
+      int y, int tolerenceRadius );
+  /// pick a polygon on a selected object at the cursor 2D position
+  virtual int polygonAtCursorPosition( int x, int y,
+                                       const anatomist::AObject* obj );
   void printPositionAndValue();
   virtual void displayClickPoint();
 
@@ -272,14 +281,22 @@ protected:
   void setupSliceSlider( float mins, float maxs );
   void setupSliceSlider();
   void updateViewTypeToolBar();
-  void updateObject( anatomist::AObject* obj, anatomist::PrimList* pl = 0 );
-  void updateObject2D( anatomist::AObject* obj, anatomist::PrimList* pl = 0 );
-  void updateObject3D( anatomist::AObject* obj, anatomist::PrimList* pl = 0 );
+  void updateObject( anatomist::AObject* obj, anatomist::PrimList* pl = 0,
+                     anatomist::ViewState::glSelectRenderMode selectmode
+                         = anatomist::ViewState::glSELECTRENDER_NONE );
+  void updateObject2D( anatomist::AObject* obj, anatomist::PrimList* pl = 0,
+                       anatomist::ViewState::glSelectRenderMode selectmode
+                           = anatomist::ViewState::glSELECTRENDER_NONE );
+  void updateObject3D( anatomist::AObject* obj, anatomist::PrimList* pl = 0,
+                       anatomist::ViewState::glSelectRenderMode selectmode
+                           = anatomist::ViewState::glSELECTRENDER_NONE );
   anatomist::GLPrimitives cursorGLL() const;
   int updateSliceSlider();
   /// Allows changing display lists from normal objects DLists
   void registerObjectModifier( ObjectModifier *mod );
   void unregisterObjectModifier( ObjectModifier *mod );
+  void renderSelectionBuffer( anatomist::ViewState::glSelectRenderMode mode,
+                              const anatomist::AObject *selectedobject = 0 );
 
   /// 3D windows static counter
   static std::set<unsigned>	_count3d;

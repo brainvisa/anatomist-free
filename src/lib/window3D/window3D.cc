@@ -299,6 +299,48 @@ namespace
     }
     return quat;
   }
+
+
+  AObject* objectWithGLID( int id )
+  {
+    if( id < 0 )
+      return 0;
+    static map<int, AObject *> cache;
+    map<int, AObject *>::iterator ic, ec = cache.end();
+    ic = cache.find( id );
+    if( ic != ec )
+    {
+      if( theAnatomist->hasObject( ic->second ) )
+      {
+        GLComponent* glc = ic->second->glAPI();
+        if( glc && glc->glObjectID() == id )
+        {
+          return ic->second;
+        }
+      }
+      cache.erase( ic ); // invalid
+    }
+    const set<AObject *> objs = theAnatomist->getObjects();
+    set<AObject *>::const_iterator io, eo = objs.end();
+    AObject *obj;
+    int oid;
+    for( io=objs.begin(); io!=eo; ++io )
+    {
+      obj = *io;
+      GLComponent* glc = obj->glAPI();
+      if( glc )
+      {
+        oid = glc->glObjectID();
+        cache[ oid ] = obj;
+        if( oid == id )
+        {
+          // TODO: check parents/children
+          return obj;
+        }
+      }
+    }
+    return 0;
+  }
 }
 
 
@@ -860,25 +902,29 @@ void AWindow3D::printPositionAndValue()
 }
 
 
-void AWindow3D::updateObject2D( AObject* obj, PrimList* pl )
+void AWindow3D::updateObject2D( AObject* obj, PrimList* pl,
+                                ViewState::glSelectRenderMode selectmode )
 {
   if( !pl )
     pl = &d->primitives;
   SliceViewState  st( _time, true, _position, &d->slicequat, getReferential(),
-                      windowGeometry(), &d->draw->quaternion(), this );
+                      windowGeometry(), &d->draw->quaternion(), this,
+                      selectmode );
   obj->render( *pl, st );
 }
 
 
-void AWindow3D::updateObject3D( AObject* obj, PrimList* pl )
+void AWindow3D::updateObject3D( AObject* obj, PrimList* pl,
+                                ViewState::glSelectRenderMode selectmode )
 {
   if( !pl )
     pl = &d->primitives;
-  obj->render( *pl, ViewState( _time, this ) );
+  obj->render( *pl, ViewState( _time, this, selectmode ) );
 }
 
 
-void AWindow3D::updateObject( AObject* obj, PrimList* pl )
+void AWindow3D::updateObject( AObject* obj, PrimList* pl,
+                              ViewState::glSelectRenderMode selectmode )
 {
   unsigned		l1 = 0, l2;
 
@@ -889,9 +935,9 @@ void AWindow3D::updateObject( AObject* obj, PrimList* pl )
 
   GLPrimitives	gp;
   if( !obj->Is2DObject() || ( d->viewtype == ThreeD && obj->Is3DObject() ) )
-    updateObject3D( obj, &gp );
+    updateObject3D( obj, &gp, selectmode );
   else
-    updateObject2D( obj, &gp );
+    updateObject2D( obj, &gp, selectmode );
 
   // perform lists modifications
   list<ObjectModifier *>::iterator	im, em = d->objmodifiers.end();
@@ -1364,6 +1410,8 @@ void AWindow3D::displayClickPoint()
 bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
 {
   bool	res = d->draw->positionFromCursor( x, y, position );
+/*  AObject *o = objectAtCursorPosition( x, y );
+  polygonAtCursorPosition( x, y, o );*/
   return( res );
 }
 
@@ -3356,3 +3404,125 @@ QSlider* AWindow3D::getSliceSlider() const
 {
   return d->slids;
 }
+
+
+AObject* AWindow3D::objectAtCursorPosition( int x, int y )
+{
+  AObject *obj = 0;
+  // render in ViewState::glSELECTRENDER_OBJECT mode (if needed)
+  renderSelectionBuffer( ViewState::glSELECTRENDER_OBJECT );
+  // read the color buffer at pos x,y
+  d->draw->qglWidget()->makeCurrent();
+  glFlush(); // or glFinish() ?
+  GLubyte r, g, b;
+  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+  // convert color -> ID
+  int id = (r << 16) | (g << 8) | b;
+/*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << id << endl;*/
+  // get object with the same ID
+  obj = objectWithGLID( id );
+  // cout << "object: " << obj << endl;
+  return obj;
+}
+
+
+list<AObject*> *AWindow3D::objectsAtCursorPosition( int x, int y,
+    int tolerenceRadius )
+{
+  // TODO
+  list<AObject *> *objs = 0;
+  // render in ViewState::glSELECTRENDER_OBJECTS mode (if needed)
+  renderSelectionBuffer( ViewState::glSELECTRENDER_OBJECTS );
+  // get the selection records
+  // get IDs
+  // get objects with the same IDs
+  return objs;
+}
+
+
+int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
+{
+  unsigned poly = 0;
+  if( x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y >= d->draw->qglWidget()->height() )
+    return -1;
+  // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
+  renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
+  // read the color buffer at pos x,y
+  d->draw->qglWidget()->makeCurrent();
+  glFlush(); // or glFinish() ?
+  GLubyte r, g, b;
+  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+  // convert color -> ID
+  poly = (r << 16) | (g << 8) | b;
+/*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;*/
+  // polygon num is this ID
+  return poly;
+}
+
+
+void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
+                                       const AObject *selectedobject )
+{
+  // cout << "renderSelectionBuffer...\n";
+
+  d->refreshneeded = Private::FullRefresh;
+  d->draw->qglWidget()->makeCurrent();
+
+  list<AObject *> renderobj;
+  list<AObject *>::iterator transparent = processRenderingOrder( renderobj );
+  list<AObject*>::iterator al, el = renderobj.end();
+
+  GLPrimitives primitives;
+
+  //	Rendering mode primitive (must be first)
+  GLList	*renderpr = new GLList;
+  renderpr->generate();
+  GLuint	renderGLL = renderpr->item();
+  if( !renderGLL )
+    AWarning( "AWindow3D::Refresh: OpenGL error." );
+
+  glNewList( renderGLL, GL_COMPILE );
+
+  glPushAttrib( GL_ALL_ATTRIB_BITS );
+  glLineWidth( 1 );
+  glShadeModel( GL_FLAT );
+  glDisable( GL_LINE_SMOOTH );
+  glDisable( GL_POLYGON_SMOOTH );
+  glDisable( GL_LIGHTING );
+  glPolygonOffset( 0, 0 );
+  glDisable( GL_POLYGON_OFFSET_FILL );
+  glDisable( GL_FOG );
+  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+  glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+  glDisable( GL_BLEND );
+  glEndList();
+  primitives.push_back( RefGLItem( renderpr ) );
+
+  //	Draw opaque objects
+  for( al=renderobj.begin(); al!=transparent; ++al )
+    if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
+      updateObject( *al, &primitives, mode );
+  //	Draw transparent objects
+  if( !transparentZEnabled() )
+    for( al=transparent; al!=el; ++al )
+      if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
+        updateObject( *al, &primitives, mode );
+
+  renderpr = new GLList;
+  renderpr->generate();
+  renderGLL = renderpr->item();
+  if( !renderGLL )
+    AWarning( "AWindow3D::Refresh: OpenGL error." );
+
+  glNewList( renderGLL, GL_COMPILE );
+  glPopAttrib();
+  glEndList();
+  primitives.push_back( RefGLItem( renderpr ) );
+
+  // d->draw->setPrimitives( d->primitives );
+  d->draw->setSelectionPrimitives( primitives );
+
+  // perform rendering, without swapBuffers
+  d->draw->renderBackBuffer( mode );
+}
+

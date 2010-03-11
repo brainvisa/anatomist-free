@@ -65,7 +65,20 @@ namespace anatomist
   */
   struct ViewState
   {
-    ViewState( float t = 0, AWindow* win = 0 );
+    enum glSelectRenderMode
+    {
+      /// no selection
+      glSELECTRENDER_NONE,
+      /// select a single object
+      glSELECTRENDER_OBJECT,
+      /// select multiple objects in a neighbourhood
+      glSELECTRENDER_OBJECTS,
+      /// select a polygon in a mesh
+      glSELECTRENDER_POLYGON,
+    };
+
+    ViewState( float t = 0, AWindow* win = 0,
+               glSelectRenderMode = glSELECTRENDER_NONE  );
     virtual ~ViewState();
 
     virtual SliceViewState *sliceVS() { return 0; }
@@ -73,6 +86,7 @@ namespace anatomist
 
     float	time;
     AWindow     *window;
+    glSelectRenderMode selectRenderMode;
   };
 
 
@@ -85,7 +99,8 @@ namespace anatomist
                     const Point3df & pos = Point3df(), 
                     const aims::Quaternion* orient = 0, 
                     const Referential* wref = 0, const Geometry* wgeom = 0,
-                    const aims::Quaternion* vorient = 0, AWindow* win = 0 );
+                    const aims::Quaternion* vorient = 0, AWindow* win = 0,
+                    glSelectRenderMode = glSELECTRENDER_NONE );
     virtual ~SliceViewState();
 
     virtual SliceViewState *sliceVS() { return this; }

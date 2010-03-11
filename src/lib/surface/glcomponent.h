@@ -36,6 +36,7 @@
 
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/glcaps.h>
+#include <anatomist/window/viewstate.h>
 #include <cartobase/object/object.h>
 #include <vector>
 #include <set>
@@ -47,7 +48,6 @@ namespace anatomist
   class Material;
   class AObjectPalette;
   class Sliceable;
-  struct ViewState;
   class Referential;
 
 
@@ -59,52 +59,54 @@ namespace anatomist
   {
   public:
     enum glTextureMode
-      {
-        glGEOMETRIC, 
-        glLINEAR, 
-        glREPLACE, 
-        glDECAL, 
-        glBLEND, 
-        glADD, 
-        glCOMBINE, 
-        glLINEAR_ON_DEFINED, 
-      };
+    {
+      glGEOMETRIC,
+      glLINEAR,
+      glREPLACE,
+      glDECAL,
+      glBLEND,
+      glADD,
+      glCOMBINE,
+      glLINEAR_ON_DEFINED,
+    };
 
     enum glTextureFiltering
-      {
-        glFILT_NEAREST, 
-        glFILT_LINEAR, 
-      };
+    {
+      glFILT_NEAREST,
+      glFILT_LINEAR,
+    };
 
     enum glPart
-      {
-        glGENERAL, 
-        glBODY, 
-        glMATERIAL, 
-        glGEOMETRY, 
-        glPALETTE, 
-        glREFERENTIAL, 
-        glTEXIMAGE, 
-        glTEXENV, 
+    {
+      glGENERAL,
+      glBODY,
+      glMATERIAL,
+      glGEOMETRY,
+      glPALETTE,
+      glREFERENTIAL,
+      glTEXIMAGE,
+      glTEXENV,
 
-        glNOPART, 
-        /** glTEXIMAGE_NUM + 2* texnum flags texture #texnum, reserved for 
-            Observable pattern */
-        glTEXIMAGE_NUM, 
-        /** glTEXENV_NUM + 2* texnum flags texture #texnum, reserved for 
-            Observable pattern */
-        glTEXENV_NUM, 
-      };
+      glNOPART,
+      /** glTEXIMAGE_NUM + 2* texnum flags texture #texnum, reserved for
+          Observable pattern */
+      glTEXIMAGE_NUM,
+      /** glTEXENV_NUM + 2* texnum flags texture #texnum, reserved for
+          Observable pattern */
+      glTEXENV_NUM,
+    };
 
     enum glAutoTexturingMode
-      {
-        glTEX_MANUAL, 
-        glTEX_OBJECT_LINEAR, 
-        glTEX_EYE_LINEAR, 
-        glTEX_SPHERE_MAP, 
-        glTEX_REFLECTION_MAP, 
-        glTEX_NORMAL_MAP, 
-      };
+    {
+      glTEX_MANUAL,
+      glTEX_OBJECT_LINEAR,
+      glTEX_EYE_LINEAR,
+      glTEX_SPHERE_MAP,
+      glTEX_REFLECTION_MAP,
+      glTEX_NORMAL_MAP,
+    };
+
+    typedef ViewState::glSelectRenderMode glSelectRenderMode;
 
     struct TexExtrema
     {
@@ -208,7 +210,7 @@ namespace anatomist
         \return true on success, false if the list could not be created
     */
     virtual bool glMakeBodyGLL( const ViewState & state, 
-				const GLList & gllist ) const;
+                                const GLList & gllist ) const;
     /// GL list to execute before the body is rendered
     virtual void glBeforeBodyGLL( const ViewState & state, 
 				  GLPrimitives & pl ) const;
@@ -265,6 +267,7 @@ namespace anatomist
         transformation matrix */
     static GLPrimitives glPopTransformation( const ViewState & vs,
                                              const Referential* myref );
+    int glObjectID() const;
 
   protected:
     void glAddTextures( unsigned ntex = 1 );

@@ -38,8 +38,9 @@ using namespace anatomist;
 using namespace aims;
 
 
-ViewState::ViewState( float t, AWindow* win )
-  : time( t ), window( win )
+ViewState::ViewState( float t, AWindow* win,
+                      glSelectRenderMode selectrendermode )
+  : time( t ), window( win ), selectRenderMode( selectrendermode )
 {
 }
 
@@ -55,9 +56,10 @@ SliceViewState::SliceViewState( float t, bool slicewanted,
                                 const Referential* wref, 
                                 const Geometry* wgeom,
                                 const Quaternion* vorient,
-                                AWindow* win )
-  : ViewState( t, win ), wantslice( slicewanted ), position( pos ), 
-    orientation( orient ), winref( wref ), wingeom( wgeom ),
+                                AWindow* win,
+                                glSelectRenderMode selectrendermode )
+  : ViewState( t, win, selectrendermode ), wantslice( slicewanted ),
+    position( pos ), orientation( orient ), winref( wref ), wingeom( wgeom ),
     vieworientation( vorient )
 {
   if( win )

@@ -80,6 +80,14 @@ struct GLComponent::Private
   Private();
   ~Private();
 
+  int id() const
+  {
+    if( globjectid >= 0 )
+      return globjectid;
+    return generateID();
+  }
+  int generateID() const;
+
   void makeRGBTex();
 
   mutable vector<bool>		changed;
@@ -94,17 +102,55 @@ struct GLComponent::Private
 
   static GLTexture		& rgtex();
   static GLTexture		& batex();
+  mutable int                   globjectid;
+  static set<int> & usedIDs();
 };
 
 
 GLComponent::Private::Private()
-  : changed( GLComponent::glNOPART ), memory( 4 ), ntex( 0 ) 
+  : changed( GLComponent::glNOPART ), memory( 4 ), ntex( 0 ), globjectid( -1 )
 {
 }
 
 
 GLComponent::Private::~Private()
 {
+  if( globjectid >= 0 )
+    usedIDs().erase( globjectid );
+}
+
+
+set<int> & GLComponent::Private::usedIDs()
+{
+  static set<int> ids;
+  return ids;
+}
+
+
+int GLComponent::Private::generateID() const
+{
+  set<int> & ids = usedIDs();
+  if( ids.empty() )
+  {
+    ids.insert( 0 );
+    globjectid = 0;
+    return 0;
+  }
+  if( ids.size() == (unsigned) *ids.rbegin() + 1 )
+  {
+    int id = ids.size();
+    ids.insert( id );
+    globjectid = id;
+    return id;
+  }
+  int id = 0;
+  set<int>::iterator is, es = ids.end();
+  for( is=ids.begin(); is!=es; ++is, ++id )
+    if( *is != id )
+      break;
+  ids.insert( id );
+  globjectid = id;
+  return id;
 }
 
 
@@ -1295,8 +1341,10 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   unsigned	nvert = glNumVertex( state );
   unsigned	npoly = glNumPolygon( state );
   unsigned	ppoly = glPolygonSize( state );
-
+  glSelectRenderMode selectmode = state.selectRenderMode;
   //cout << npoly << " polygones de " << ppoly << " pts\n";
+
+  //selectmode = ViewState::glSELECTRENDER_OBJECT; // FIXME
 
   if( !vpoly || !npoly || !ppoly || !vvertex || !nvert )
     return false;
@@ -1325,22 +1373,94 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
       return false;
     }
 
-  glEnableClientState( GL_VERTEX_ARRAY );
-  glVertexPointer( 3, GL_FLOAT, 0, vvertex );
-  if( vnormal )
-    {
-      glEnableClientState( GL_NORMAL_ARRAY );
-      glNormalPointer( GL_FLOAT, 0, vnormal );
-    }
-  else
-    {
-      glDisableClientState( GL_NORMAL_ARRAY );
-    }
-
   unsigned		i, n = glNumTextures( state ), m, tex = 0;
   const GLfloat		*texture;
   unsigned		ntex, dimtex;
   bool			texok;
+
+  // disable normals and shading in selection mode
+  if( selectmode != ViewState::glSELECTRENDER_NONE )
+  {
+    vnormal = 0;
+    glDisableClientState( GL_NORMAL_ARRAY );
+    glDisableClientState( GL_VERTEX_ARRAY );
+    m = GLCaps::numTextureUnits();
+    for( tex=0; tex<m; ++tex )
+    {
+      GLCaps::glClientActiveTexture( GLCaps::textureID( tex ) );
+      glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    }
+
+    glNewList( gllist.item(), GL_COMPILE );
+
+    for( tex=0; tex<m; ++tex )
+    {
+      GLCaps::glActiveTexture( GLCaps::textureID( tex ) );
+      glDisable( GL_TEXTURE_1D );
+      glDisable( GL_TEXTURE_2D );
+      glDisable( GL_TEXTURE_3D );
+    }
+    glPushAttrib( GL_LIGHTING_BIT );
+    glDisable( GL_LIGHTING );
+    glEnable( GL_COLOR_MATERIAL );
+    const GLuint *p = vpoly;
+    unsigned j;
+
+    switch( selectmode )
+    {
+    case ViewState::glSELECTRENDER_OBJECT:
+      {
+        int id = glObjectID();
+        glColor3ub( id >> 16, (id & 0xff00) >> 8, id & 0xff );
+        glBegin( polytype );
+        for( i=0; i<npoly; ++i )
+        {
+          for( j=0; j<ppoly; ++j, ++p )
+          {
+            glVertex3fv( vvertex + *p * 3 );
+          }
+        }
+        glEnd();
+      }
+      break;
+    case ViewState::glSELECTRENDER_POLYGON:
+      glBegin( polytype );
+      for( i=0; i<npoly; ++i )
+      {
+        glColor3ub( i >> 16, (i & 0xff00) >> 8, i & 0xff );
+        for( j=0; j<ppoly; ++j, ++p )
+        {
+          glVertex3fv( vvertex + *p * 3 );
+        }
+      }
+      glEnd();
+      break;
+    default:
+      break;
+    }
+
+    glPopAttrib();
+
+    glEndList();
+
+    return true;
+  }
+
+  /// ##########"
+
+
+
+  glEnableClientState( GL_VERTEX_ARRAY );
+  glVertexPointer( 3, GL_FLOAT, 0, vvertex );
+  if( vnormal )
+  {
+    glEnableClientState( GL_NORMAL_ARRAY );
+    glNormalPointer( GL_FLOAT, 0, vnormal );
+  }
+  else
+  {
+    glDisableClientState( GL_NORMAL_ARRAY );
+  }
 
   m = GLCaps::numTextureUnits();
   if( n > m )
@@ -1423,14 +1543,15 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
       GLCaps::glClientActiveTexture( GLCaps::textureID( tex ) );
       glDisableClientState( GL_TEXTURE_COORD_ARRAY );
     }
+  glDisableClientState( GL_COLOR_ARRAY );
 
   glNewList( gllist.item(), GL_COMPILE );
 
   if( !vnormal )
-    {
-      glPushAttrib( GL_LIGHTING_BIT );
-      glDisable( GL_LIGHTING );
-    }
+  {
+    glPushAttrib( GL_LIGHTING_BIT );
+    glDisable( GL_LIGHTING );
+  }
   glDrawElements( polytype, ppoly * npoly, GL_UNSIGNED_INT, vpoly );
   if( !vnormal )
     glPopAttrib();
@@ -1443,10 +1564,22 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
 
 string GLComponent::viewStateID( glPart part, const ViewState & state ) const
 {
+  // cout << "viewStateID " << part << ", smode: " << state.selectRenderMode << endl;
   string	s;
   float		t = state.time;
   if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL )
     return s;
+
+  if( state.selectRenderMode != ViewState::glSELECTRENDER_NONE )
+  {
+    if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL
+        || part == glPALETTE )
+      return s;
+    s.resize( sizeof(float) + sizeof( glSelectRenderMode ) );
+    (float &) s[0] = t;
+    (glSelectRenderMode &) s[sizeof(float)] = state.selectRenderMode;
+    return s;
+  }
 
   s.resize( sizeof(float) );
   (float &) s[0] = t;
@@ -1904,5 +2037,11 @@ GLPrimitives GLComponent::glPopTransformation( const ViewState &,
   glEndList();
   pl.push_back( RefGLItem( p2 ) );
   return pl;
+}
+
+
+int GLComponent::glObjectID() const
+{
+  return d->id();
 }
 

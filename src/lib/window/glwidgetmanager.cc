@@ -373,6 +373,29 @@ void GLWidgetManager::paintGL()
 }
 
 
+void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
+    selectmode )
+{
+  _pd->glwidget->makeCurrent();
+  DrawMode mode = Normal;
+  switch( selectmode )
+  {
+  case ViewState::glSELECTRENDER_OBJECT:
+    mode = ObjectSelect;
+    break;
+  case ViewState::glSELECTRENDER_OBJECTS:
+    mode = ObjectsSelect;
+    break;
+  case ViewState::glSELECTRENDER_POLYGON:
+    mode = PolygonSelect;
+    break;
+  default:
+    break;
+  }
+  paintGL( mode );
+}
+
+
 void GLWidgetManager::updateZBuffer()
 {
   if( _pd->zbuftimer )
@@ -456,10 +479,17 @@ void GLWidgetManager::paintGL( DrawMode m )
 void GLWidgetManager::drawObjects( DrawMode m )
 {
   // Draw objects
-  GLPrimitives::const_iterator	il, el = _primitives.end();
+  // cout << "GLWidgetManager::drawObjects " << m << endl;
+  GLPrimitives::const_iterator	il = _primitives.begin(),
+      el = _primitives.end();
+  if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
+  {
+    il = _selectprimitives.begin();
+    el = _selectprimitives.end();
+  }
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
-  for( il = _primitives.begin(); il!=el; ++il )
+  for( ; il!=el; ++il )
     {
       if( (*il)->ghost() )
         switch( m )
@@ -535,6 +565,7 @@ void GLWidgetManager::depthPeelingRender( DrawMode m )
 void GLWidgetManager::clearLists()
 {
   _primitives.clear();
+  _selectprimitives.clear();
 }
 
 
@@ -548,6 +579,18 @@ void GLWidgetManager::setPrimitives( const GLPrimitives & pl )
 GLPrimitives GLWidgetManager::primitives() const
 {
   return( _primitives );
+}
+
+
+void GLWidgetManager::setSelectionPrimitives( const GLPrimitives & pl )
+{
+  _selectprimitives = pl;
+}
+
+
+GLPrimitives GLWidgetManager::selectionPrimitives() const
+{
+  return( _selectprimitives );
 }
 
 
@@ -1157,6 +1200,20 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
       //cout << "readpixel position : " << position << endl;
       return( true );
     }
+}
+
+
+void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
+                                      GLubyte & green, GLubyte & blue )
+{
+  setupView();
+  glFlush(); // or glFinish() ?
+  glReadBuffer( GL_BACK );
+  GLubyte rgba[4];
+  glReadPixels( x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
+  red = rgba[0];
+  green = rgba[1];
+  blue = rgba[2];
 }
 
 

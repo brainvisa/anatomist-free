@@ -37,6 +37,7 @@
 
 #include <anatomist/controler/view.h>
 #include <anatomist/primitive/primitive.h>
+#include <anatomist/window/viewstate.h>
 
 #include <qglobal.h>
 #if QT_VERSION>=0x040000
@@ -75,6 +76,7 @@ namespace anatomist
   // public slots:
     /// to be reimplemented in "public slots"
     virtual void updateGL();
+    void renderBackBuffer( ViewState::glSelectRenderMode selectmode );
 
   protected:
     virtual void initializeGL();
@@ -105,6 +107,8 @@ namespace anatomist
 
     void setPrimitives( const anatomist::GLPrimitives & li );
     anatomist::GLPrimitives primitives() const;
+    void setSelectionPrimitives( const anatomist::GLPrimitives & li );
+    anatomist::GLPrimitives selectionPrimitives() const;
     void clearLists();
     /** set objects extrema, this also automatically sets the window bounding 
         box */
@@ -120,6 +124,8 @@ namespace anatomist
     void setPreferredSize( int, int );
     void setMinimumSizeHint( const QSize & );
     virtual bool positionFromCursor( int x, int y, Point3df & position );
+    virtual void readBackBuffer( int x, int y, GLubyte & red, GLubyte & green,
+                                 GLubyte & blue );
     virtual bool translateCursorPosition( float x, float y,
                                           Point3df & position );
 
@@ -187,7 +193,10 @@ namespace anatomist
     enum DrawMode
     {
       Normal,
-      ZSelect //,
+      ZSelect,
+      ObjectSelect,
+      ObjectsSelect,
+      PolygonSelect
     };
 
     virtual void project();
@@ -198,6 +207,7 @@ namespace anatomist
     void record();
 
     anatomist::GLPrimitives _primitives;
+    anatomist::GLPrimitives _selectprimitives;
 
   // protected slots:
     void updateZBuffer();

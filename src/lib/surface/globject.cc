@@ -98,14 +98,26 @@ void AGLObject::glSetTexEnvChanged( bool x, unsigned tex ) const
 std::string AGLObject::viewStateID( glPart part,
                                     const ViewState & state ) const
 {
-  if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL )
-    return string();
-  float	t = state.time;
+  // cout << "AGLObject::viewStateID " << part << ", smode: " << state.selectRenderMode << endl;
   string	s;
+  float		t = state.time;
+  if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL )
+    return s;
   if( t < MinT() )
     t = MinT();
   if( t > MaxT() )
     t = MaxT();
+
+  if( state.selectRenderMode != ViewState::glSELECTRENDER_NONE )
+  {
+    if( part == glPALETTE )
+      return s;
+    s.resize( sizeof(float) + sizeof( glSelectRenderMode ) );
+    (float &) s[0] = t;
+    (glSelectRenderMode &) s[sizeof(float)] = state.selectRenderMode;
+    return s;
+  }
+
   s.resize( sizeof(float) );
   (float &) s[0] = t;
   return s;
