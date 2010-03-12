@@ -414,9 +414,14 @@ void GLWidgetManager::paintGL( DrawMode m )
 {
   project();
 
-  // Lighting is described in the viewport coordinate system
-  if( glIsList( _pd->light ) )
-    glCallList( _pd->light );
+  if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
+    glClearColor( 1., 1., 1., 1. );
+  else
+  {
+    // Lighting is described in the viewport coordinate system
+    if( glIsList( _pd->light ) )
+      glCallList( _pd->light );
+  }
 
   // Clear the viewport
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
