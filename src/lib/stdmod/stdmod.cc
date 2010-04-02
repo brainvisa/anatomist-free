@@ -304,47 +304,85 @@ void StdModule::controlsDeclaration()
   ControlManager::instance()->addControl( "Browser", "", sbc.name() );
 
   //	Icons
+  {
   QPixmap	p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/trackball.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( c3.name(), p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/oblique.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( co.name(), p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/select.xpm" ).c_str() ) )
     {
       IconDictionary::instance()->addIcon( c3s.name(), p );
       IconDictionary::instance()->addIcon( sbc.name(), p );
     }
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/flight.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( fc.name(), p );
 
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/window-axial-small.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "axial", p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/window-coronal-small.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "coronal", p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/window-sagittal-small.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "sagittal", p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/window-oblique-small.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "oblique", p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/window-3d-small.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "3D", p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/control-transfo.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( tc.name(), p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
 		+ "/icons/control-cut.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( cc.name(), p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath()
       + "/icons/direct_ref_mark.png" ).c_str() ) )
     IconDictionary::instance()->addIcon( "direct_ref_mark", p );
+  }
+  {
+  QPixmap       p;
   if( p.load( ( Settings::globalPath() + "/icons/roi.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "RoiControl", p );
+  }
 }
