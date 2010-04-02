@@ -75,13 +75,11 @@ def setObjectId(object):
   import sip
   context = anatomist.CommandContext().defaultContext()
   context.mutex().lock()
-  type = 'AObject'
-  ptr = sip.voidptr(sip.unwrapinstance(object))
   un = context.unserial.get()
   try:
-    un.id(ptr, type)
+    un.id(object)
   except RuntimeError:
-    un.makeID(ptr, type)
+    un.makeID(object)
   context.mutex().unlock()
 
 
@@ -89,11 +87,9 @@ def getObjectId(object):
   import sip
   context = anatomist.CommandContext().defaultContext()
   context.mutex().lock()
-  object_type = 'AObject'
-  ptr = sip.voidptr(sip.unwrapinstance(object))
   un = context.unserial.get()
   try:
-    id = un.id(ptr, object_type)
+    id = un.id(object)
     return id
   except RuntimeError:
     return None
