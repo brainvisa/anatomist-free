@@ -100,8 +100,9 @@ class GradientPaletteWidget( qtgui.QWidget ):
   def __init__( self, objects, parent = None, name = None, flags = 0 ):
     if qt4:
       qtgui.QWidget.__init__( self, parent )
+      self.setAttribute( qt.Qt.WA_DeleteOnClose, True )
     else:
-      qtgui.QWidget.__init__( self, parent, name, flags )
+      qtgui.QWidget.__init__( self, parent, name, flags | qt.Qt.WDestructiveClose )
     lay = qtgui.QVBoxLayout( self )
     lay.setMargin( 5 )
     lay.setSpacing( 5 )
@@ -157,13 +158,12 @@ class GradientPaletteWidget( qtgui.QWidget ):
     self.connect( editbtn, qt.SIGNAL( 'clicked()' ), self.editGradient )
     self.connect( modecb, qt.SIGNAL( 'activated(int)' ), self.setMode )
 
-  def close( self, alsodelete=True ):
+  def closeEvent( self, event):
     gwManager.gradwidgets.remove( self )
-    qtgui.QWidget.close( self, alsodelete )
     for x in [] + self._objects:
       x.deleteObserver( self._observer )
     del self._observer
-    return True
+    qtgui.QWidget.closeEvent(self, event)
 
   def gradientChanged( self, s ):
     a = anatomist.Anatomist()
@@ -269,16 +269,28 @@ class GradientPaletteWidget( qtgui.QWidget ):
       a.releaseObject( apal )
 
   def editGradient( self ):
-    d = qtgui.QDialog( None, 'gradient', True )
-    d.setCaption( self.tr( 'Gradient definition:' ) )
+    d = qtgui.QDialog( )
+    d.setModal(True)
+    if qt4:
+      d.setObjectName( 'gradient' )
+      d.setWindowTitle( self.tr( 'Gradient definition:' ) )
+    else:
+      d.setName( 'gradient' )
+      d.setCaption( self.tr( 'Gradient definition:' ) )
+      
     l = qtgui.QVBoxLayout( d )
     t = qtgui.QTextEdit( d )
     l.addWidget( t )
-    t.setWordWrap( t.WidgetWidth )
-    t.setWrapPolicy( t.AtWordOrDocumentBoundary )
+    if qt4:
+      t.setWordWrapMode( qtgui.QTextOption.WrapAtWordBoundaryOrAnywhere )
+    else:
+      t.setWrapPolicy( t.AtWordOrDocumentBoundary )
     t.setText( self._gradw.getGradientString() )
     d.connect( t, qt.SIGNAL( 'returnPressed()' ), d.accept )
-    res = d.exec_loop()
+    if qt4:
+      res = d.exec_()
+    else:
+      res = d.exec_loop()
     if res:
       self._gradw.setGradient( t.text() )
       self._gradw.update()
@@ -289,13 +301,23 @@ class GradientPaletteWidget( qtgui.QWidget ):
     a = anatomist.Anatomist()
     pall = a.palettes()
     pali = obj.getOrCreatePalette().refPalette()
-    d = qtgui.QDialog( None, 'paletteName', True )
-    d.setCaption( self.tr( 'Palette name:' ) )
+    d = qtgui.QDialog( )
+    d.setModal(True)
+    if qt4:
+      d.setObjectName("paletteName")
+      d.setWindowTitle(self.tr( 'Palette name:' ))
+    else:
+      d.setName("paletteName")
+      d.setCaption( self.tr( 'Palette name:' ) )
     l = qtgui.QVBoxLayout( d )
     t = qtgui.QLineEdit( pali.name(), d )
     l.addWidget( t )
     d.connect( t, qt.SIGNAL( 'returnPressed()' ), d.accept )
-    res = d.exec_loop()
+    if qt4:
+      res = d.exec_()
+    else:
+      res = d.exec_loop()
+     
     if res:
       pal = anatomist.APalette( pali.get() )
       if qt4:
