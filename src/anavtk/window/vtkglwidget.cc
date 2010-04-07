@@ -456,29 +456,25 @@ void vtkQAGLWidget::project()
 
   glMatrixMode( GL_PROJECTION );
   glLoadIdentity();
+
+  double near =  -bmax[2];
+  double far  =  -bmin[2];
+
   if( perspectiveEnabled() )
     {
-      float pnear = -bmax[2], pfar = -bmin[2];
-      if( pnear <= 0 )
+      if( near <= 0 )
       {
-        if( pfar <= 0 )
-          pnear = 1;
+        if( far <= 0 )
+          near = 1;
         else
-          pnear = pfar * 0.05;
+          near = far * 0.05;
       }
-      if( pfar < pnear )
-        pfar = pnear * 10;
-      gluPerspective( 45, ratio, pnear, pfar );
+      if( far < near )
+        far = near * 10;
+      gluPerspective( 45, ratio, near, far );
     }
-  else
+  // else
     {
-
-      //cout << "clip [ " << bmin[2] << ", " << bmax[2] << "]\n";
-      //cout << "glWidget ortho : " << sizex*2 << " x " << sizey*2 << endl;
-      //glOrtho( -sizex, sizex, -sizey, sizey, -bmax[2], -bmin[2] );
-
-      double near =  -bmax[2];
-      double far  =  -bmin[2];
 
       //vtkRendererCollection* collec = this->GetRenderers();
       vtkRendererCollection* collec = this->RenderWindow->GetRenderers();
@@ -517,6 +513,15 @@ void vtkQAGLWidget::project()
 	    
 	    cam->SetPerspectiveBounds ( (double)-sizex, (double)sizex, (double)-sizey, (double)sizey, near, far);
 
+            // cam->SetParallelProjection( !perspectiveEnabled() );
+            if( perspectiveEnabled() )
+            {
+              // cout << "cam distance: " << cam->GetDistance() << endl;
+              // cout << "dolly: " << cam->GetDolly() << ", roll: " << cam->GetRoll() << endl;
+              cam->SetViewAngle( 45. );
+              cam->SetDistance( 50. );
+            }
+
 	    /*
 	      Every time the camera is accessed, it recomputes its ViewTransform internally.
 	      But as we have to -1 the first row, we have to do it again.
@@ -536,7 +541,7 @@ void vtkQAGLWidget::project()
        */
       //glDepthRange (-1, 1);
       //glOrtho( -sizex, sizex, -sizey, sizey, near, far );
-      
+
     }
   
   // Modelview matrix: we now use the viewport coordinate system
