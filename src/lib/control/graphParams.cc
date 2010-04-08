@@ -463,7 +463,11 @@ void QGraphParam::selColorClicked()
                                       ((float) col.blue()) / 255, 
                                       ((float) alpha) / 255, nalpha );
 
-      QPixmap	pix = *_selcol->pixmap();
+#if QT_VERSION >= 0x040000
+      QPixmap pix( 32, 16 );
+#else
+      QPixmap	pix = _selcol->pixmap();
+#endif
       pix.fill( col );
       _selcol->setPixmap( pix );
       SelectFactory::setSelectColor( hcol );
