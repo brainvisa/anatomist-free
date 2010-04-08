@@ -1076,6 +1076,9 @@ void AWindow3D::refreshNow()
                                  Material::ExtOutlined );
       }
       (*i)->SetMaterial( mat );
+      GLComponent *g = (*i)->glAPI();
+      if( g )
+        g->glSetChanged( GLComponent::glMATERIAL );
       ++u;
     }
 
@@ -1387,6 +1390,9 @@ void AWindow3D::refreshNow()
 
       mat.setRenderProperty( Material::RenderMode, tcol.mode );
       (*i)->SetMaterial( mat );
+      GLComponent *g = (*i)->glAPI();
+      if( g )
+        g->glSetChanged( GLComponent::glMATERIAL );
       ++u;
     }
   delete[] tmpcol;

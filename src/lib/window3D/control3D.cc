@@ -48,6 +48,7 @@
 #include <anatomist/control/objectDrag.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/window3D/labeleditaction.h>
+#include <anatomist/graph/GraphObject.h>
 #include <qtimer.h>
 #include <qtoolbar.h>
 #include <aims/qtcompat/qtoolbutton.h>
@@ -695,23 +696,56 @@ void SelectAction::select( int x, int y, int modifier )
       return;
     }
 
-  Point3df	pos;
-  if( w->positionFromCursor( x, y, pos ) )
+  if( theAnatomist->userLevel() >= 3 )
+  {
+    // allow this experimental selection feature only in debugger level
+    AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+    if( w3 )
     {
-      cout << "Position : " << pos << endl;
-
-      /*vector<float>	vp;
-      vp.push_back( pos[0] );
-      vp.push_back( pos[1] );
-      vp.push_back( pos[2] );
-      SelectionCommand	*c 
-	= new SelectionCommand( w->window(), vp );
-	theProcessor->execute( c );*/
-
-      view()->window()->selectObject( pos[0], pos[1], pos[2], 
-                                      view()->window()->GetTime(), 
-                                      (SelectFactory::SelectMode) modifier );
+      AObject *obj = w3->objectAtCursorPosition( x, y );
+      if( obj )
+      {
+        cout << "select obj: " << obj << ", name: " << obj->name() << endl;
+        // see if the objects belongs to a graph vertex/edge
+        AObject::ParentList pl = obj->parents();
+        AObject::ParentList::iterator ip, ep = pl.end();
+        while( !pl.empty() )
+        {
+          ip = pl.begin();
+          pl.erase( ip );
+          if( dynamic_cast<AGraphObject *>( *ip ) )
+          {
+            obj = *ip;
+            break;
+          }
+          pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
+        }
+        SelectFactory *sf = SelectFactory::factory();
+        set<AObject *> so;
+        so.insert( obj );
+        sf->select( (SelectFactory::SelectMode) modifier, w3->Group(), so );
+        sf->refresh();
+        return;
+      }
     }
+  }
+  Point3df      pos;
+  if( w->positionFromCursor( x, y, pos ) )
+  {
+    cout << "Position : " << pos << endl;
+
+    /*vector<float>	vp;
+    vp.push_back( pos[0] );
+    vp.push_back( pos[1] );
+    vp.push_back( pos[2] );
+    SelectionCommand	*c
+      = new SelectionCommand( w->window(), vp );
+      theProcessor->execute( c );*/
+
+    view()->window()->selectObject( pos[0], pos[1], pos[2],
+                                    view()->window()->GetTime(),
+                                    (SelectFactory::SelectMode) modifier );
+  }
 }
 
 
