@@ -466,7 +466,7 @@ void QGraphParam::selColorClicked()
 #if QT_VERSION >= 0x040000
       QPixmap pix( 32, 16 );
 #else
-      QPixmap	pix = _selcol->pixmap();
+      QPixmap	pix = *_selcol->pixmap();
 #endif
       pix.fill( col );
       _selcol->setPixmap( pix );
