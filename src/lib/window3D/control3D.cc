@@ -713,7 +713,8 @@ void SelectAction::select( int x, int y, int modifier )
         {
           ip = pl.begin();
           pl.erase( ip );
-          if( dynamic_cast<AGraphObject *>( *ip ) )
+          if( ( dynamic_cast<AGraphObject *>( *ip )
+            || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
           {
             obj = *ip;
             break;
