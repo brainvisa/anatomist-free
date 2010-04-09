@@ -64,6 +64,7 @@
 #include <vtkFibersManager.h>
 #include <vtkCornerAnnotation.h>
 #include <vtkTextProperty.h>
+#include <vtkIdentityTransform.h>
 
 using namespace anatomist;
 using namespace std;
@@ -508,18 +509,54 @@ void vtkQAGLWidget::project()
 	    /*
 	      Find out the best clipping range.
 	    */
-	    near = near<cam->GetClippingRange()[0]?near:cam->GetClippingRange()[0];
-	    far  = far>cam->GetClippingRange()[1]?far:cam->GetClippingRange()[1];
+	    double cnear = near<cam->GetClippingRange()[0]?near:cam->GetClippingRange()[0];
+	    double cfar  = far>cam->GetClippingRange()[1]?far:cam->GetClippingRange()[1];
 	    
-	    cam->SetPerspectiveBounds ( (double)-sizex, (double)sizex, (double)-sizey, (double)sizey, near, far);
+	    cam->SetPerspectiveBounds ( (double)-sizex, (double)sizex, (double)-sizey, (double)sizey, cnear, cfar);
 
-            // cam->SetParallelProjection( !perspectiveEnabled() );
+            //cam->SetParallelProjection( !perspectiveEnabled() );
             if( perspectiveEnabled() )
             {
               // cout << "cam distance: " << cam->GetDistance() << endl;
               // cout << "dolly: " << cam->GetDolly() << ", roll: " << cam->GetRoll() << endl;
               cam->SetViewAngle( 45. );
               cam->SetDistance( 50. );
+              // taken from gluPerspective doc
+              double	mat[16];
+              double fovy = 0.25 * M_PI; // 45 degrees
+              double f = 1./tan(fovy/2.);
+              cout << "near: " << near << ", far: " << far << endl;
+              mat[0] = f / ratio;
+              mat[4] = 0.;
+              mat[8] = 0.;
+              mat[12] = 0.;
+              mat[1] = 0.;
+              mat[5] = f;
+              mat[9] = 0.;
+              mat[13] = 0.;
+              mat[2] = 0.;
+              mat[6] = 0.;
+              mat[10] = ( far + near ) / ( near - far );
+              mat[14] = -1.;
+              mat[3] = 0.;
+              mat[7] = 0.;
+              mat[11] = far * near * 2. / ( near - far );
+              mat[15] = 0.;
+              vtkTransform *vtkt = vtkTransform::New();
+              vtkt->SetMatrix( mat );
+              if( invertedZ() )
+              {
+                vtkTransform *vtkt2 = vtkTransform::New();
+                double	mat2[16] = { 1.,0,0,0, 0,1.,0,0, 0,0,-1.,0, 0,0,0,1. };
+                vtkt2->SetMatrix( mat2 );
+                vtkt2->Concatenate( vtkt );
+                vtkt = vtkt2;
+              }
+              cam->SetUserTransform( vtkt );
+            }
+            else
+            {
+              cam->SetUserTransform( vtkIdentityTransform::New() );
             }
 
 	    /*
