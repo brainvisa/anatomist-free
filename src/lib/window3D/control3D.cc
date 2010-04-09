@@ -706,20 +706,25 @@ void SelectAction::select( int x, int y, int modifier )
       if( obj )
       {
         cout << "select obj: " << obj << ", name: " << obj->name() << endl;
-        // see if the objects belongs to a graph vertex/edge
-        AObject::ParentList pl = obj->parents();
-        AObject::ParentList::iterator ip, ep = pl.end();
-        while( !pl.empty() )
+        if( !w3->hasObject( obj ) )
         {
-          ip = pl.begin();
-          pl.erase( ip );
-          if( ( dynamic_cast<AGraphObject *>( *ip )
-            || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
+          // see if the objects belongs to a graph vertex/edge
+          AObject::ParentList pl = obj->parents();
+          AObject::ParentList::iterator ip, ep = pl.end();
+          while( !pl.empty() )
           {
-            obj = *ip;
-            break;
+            ip = pl.begin();
+            pl.erase( ip );
+            if( ( dynamic_cast<AGraphObject *>( *ip )
+              || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
+            {
+              obj = *ip;
+              cout << "--> translated to: " << obj << ", name: " << obj->name()
+                << endl;
+              break;
+            }
+            pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
           }
-          pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
         }
         SelectFactory *sf = SelectFactory::factory();
         set<AObject *> so;

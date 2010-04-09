@@ -550,20 +550,38 @@ string Sliceable::viewStateID( glPart part,
     case glBODY:
       {
         if( st->wingeom )
-          s.resize( 7*nf + 2*ns4 );
+          s.resize( 8*nf + 2*ns4 );
         else
-          s.resize( 7*nf );
+          s.resize( 8*nf );
         Point4df	o = st->orientation->vector();
         memcpy( &s[0], &o[0], 4*nf );
         memcpy( &s[4*nf], &st->position[0], 3*nf );
+        memcpy( &s[7*nf], &state.selectRenderMode, nf );
         if( st->wingeom )
           {
-            memcpy( &s[7*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[7*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+            memcpy( &s[8*nf], &st->wingeom->DimMin()[0], ns4 );
+            memcpy( &s[8*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
           }
       }
       break;
     case glGENERAL:
+      {
+        if( st->wingeom )
+          s.resize( 9*nf + 2*ns4 );
+        else
+          s.resize( 9*nf );
+        (float &) s[0] = t;
+        Point4df        o = st->orientation->vector();
+        memcpy( &s[nf], &o[0], 4*nf );
+        memcpy( &s[5*nf], &st->position[0], 3*nf );
+        memcpy( &s[8*nf], &state.selectRenderMode, nf );
+        if( st->wingeom )
+          {
+            memcpy( &s[9*nf], &st->wingeom->DimMin()[0], ns4 );
+            memcpy( &s[9*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+          }
+      }
+      break;
     case glTEXIMAGE:
     case glTEXENV:
       {

@@ -46,6 +46,7 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/commands/cRemoveObject.h>
+#include <anatomist/graph/GraphObject.h>
 
 
 using namespace anatomist;
@@ -195,39 +196,40 @@ void SelectFactory::select( unsigned group, const set<AObject *> & obj,
 
   for( io = obj.begin(); io != fo; ++io )
     {
+      bool go = dynamic_cast<AGraphObject *>( *io ) != 0;
       for( iw = gw.begin(), fw = gw.end(); iw != gw.end(); ++iw )
-	if( !(*iw)->hasObject( *io ) )
-	  {
-	    if( hasAncestor( *iw, *io ) )
-	      {
-		(*iw)->registerObject( *io );
-		_winToRefresh().insert( *iw );
-	      }
-	  }
+        if( !(*iw)->hasObject( *io ) )
+        {
+          if( go && hasAncestor( *iw, *io ) )
+          {
+            (*iw)->registerObject( *io );
+            _winToRefresh().insert( *iw );
+          }
+        }
 
       sel = true;
       if( so.find( *io ) != fs )	// already selected
-	{
-	  hcol = highlightColor( *io );
-	  setHighlightColor( *io, col );
-	  acol = highlightColor( *io );
-	  if ( acol.r == hcol.r &&
-	       acol.g == hcol.g &&
-	       acol.b == hcol.b &&
-	       acol.a == hcol.a )
-	    sel = false;
-	}
+      {
+        hcol = highlightColor( *io );
+        setHighlightColor( *io, col );
+        acol = highlightColor( *io );
+        if ( acol.r == hcol.r &&
+              acol.g == hcol.g &&
+              acol.b == hcol.b &&
+              acol.a == hcol.a )
+          sel = false;
+      }
       if( sel )
-	{
-	  so.insert( *io );
-	  setHighlightColor( *io, col );
+      {
+        so.insert( *io );
+        setHighlightColor( *io, col );
 
-	  const set<AWindow *>& win = (*io)->WinList();
+        const set<AWindow *>& win = (*io)->WinList();
 
-	  for ( iw=win.begin(), fw=win.end(); iw!=fw; ++iw )
-	    if ( (*iw)->Group() == (int) group )
-	      _winToRefresh().insert( *iw );
-	}
+        for ( iw=win.begin(), fw=win.end(); iw!=fw; ++iw )
+          if ( (*iw)->Group() == (int) group )
+            _winToRefresh().insert( *iw );
+      }
     }
 }
 

@@ -1583,12 +1583,13 @@ string Bucket::viewStateID( glPart part, const ViewState & state ) const
     case glBODY:
     case glGENERAL:
       {
-        s.resize( 8*nf );
+        s.resize( 9*nf );
         (float &) s[0] = state.time;
         Point4df	o =  st->orientation->vector();
         // WARNING: assumes AimsVector is contiguous (true today)
         memcpy( &s[nf], &o[0], 4*nf );
         memcpy( &s[5*nf], &st->position[0], 3*nf );
+        memcpy( &s[8*nf], &state.selectRenderMode, nf );
       }
       break;
     case glTEXIMAGE:
