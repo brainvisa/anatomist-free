@@ -34,6 +34,7 @@
 </center>
 <hr width="100%">
 <p>
+<b><a href="#version-4.0.0">Version 4.0.0</a></b><br>
 <b><a href="#version-3.2.1">Version 3.2.1</a></b><br>
 <b><a href="#version-3.2">Version 3.2</a></b><br>
 <b><a href="#version-3.1.6">Version 3.1.6</a></b><br>
@@ -63,6 +64,28 @@
 <b><a href="#version-1.17">Version 1.17</a></b> <br>
 <b><a href="#version-1.16">Version 1.16</a></b> <br>
 &nbsp; </p>
+
+<!-- -->
+
+<h4> <a name="version-4.0.0"></a>2010/04/12 - Version 4.0.0</h4>
+
+<p>This version of Anatomist is now built and distributed using Qt4 by default. It may bring some minor graphical interface differences, but everything should work as before in any case.
+</p>
+<p>The sources are still compatible with Qt3 also, both versions will be maintained for about 6 months until every developper switches to Qt4.
+</p>
+
+<h5>Improvements:</h5>
+
+<li>OpenGL-based selection infrastructure. Selection functions for meshes and polygons have been included in Anatomist. In "debugger" mode (userLevel &gt;= 3) this mode replaces the older graph/bucket selection mechanism. When correctly tested, it will completely replace it.<br/>
+A little texture drawing code example is now part of the examples.<br/>
+The new infrastructure is not optimized at all yet, so, drawing is slow, but we will improve it in time to avoid unnecessary OpenGL renderings.
+</li>
+<li>Python bindings and the python API have been slightly completed.</li>
+
+<h5>Bug fixes:</h5>
+
+<li>Many problems have been fixed when Anatomist is built using Qt4. Some modules had not been ported or tested, and Mac and Windows ports had not been tried. Now things are mainly tested.
+</li>
 
 <!-- -->
 
