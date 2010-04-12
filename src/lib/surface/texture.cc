@@ -384,56 +384,85 @@ rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool )
 namespace anatomist
 {
 
-template <>
-rc_ptr<Texture2d> ATexture::texture( bool rescaled, bool alwayscopy )
-{
-  if( 2 != d->dim )
-    return rc_ptr<Texture2d>( 0 );
-
-  switch( d->dim )
+  template <>
+  rc_ptr<Texture2d> ATexture::texture( bool rescaled, bool alwayscopy )
   {
-    case 2:
-    {
-      rc_ptr<TimeTexture<Point2df> > tex
-          = static_cast<Private_<Point2df> *>( d )->texture;
-      rc_ptr<TimeTexture<Point2df> > ftex = tex;
-      if( rescaled )
-      {
-        ftex.reset( new TimeTexture<Point2df> );
-        TexExtrema	& te = glTexExtrema();
-        TimeTexture<Point2df>::iterator i, e = ftex->end();
-        vector<Point2df>::iterator it, et;
-        float m0 = te.min[0];
-        float scl0 = (te.maxquant[0] - te.minquant[0])
-          / (te.max[0] - m0);
-        float off0 = te.minquant[0] - m0 * scl0;
-        float m1 = te.min[1];
-        float scl1 = (te.maxquant[1] - te.minquant[1])
-          / (te.max[1] - m1);
-        float off1 = te.minquant[1] - m1 * scl1;
-        for( i=ftex->begin(); i!=e; ++i )
-        {
-          Texture<Point2df> & ti = i->second;
-          Texture<Point2df> & to = (*ftex)[i->first];
-          to.reserve( ti.nItem() );
+    if( 2 != d->dim )
+      return rc_ptr<Texture2d>( 0 );
 
-          for( it=i->second.data().begin(), et=i->second.data().end();
-               it!=et; ++it )
-          {
-            to.push_back( Point2df( ( (*it)[0] - m0 ) * scl0 + off0,
-                          ( (*it)[1] - m1 ) * scl1 + off1 ) );
-          }
+    rc_ptr<TimeTexture<Point2df> > tex
+        = static_cast<Private_<Point2df> *>( d )->texture;
+    rc_ptr<TimeTexture<Point2df> > ftex = tex;
+    if( rescaled )
+    {
+      ftex.reset( new TimeTexture<Point2df> );
+      TexExtrema	& te = glTexExtrema();
+      TimeTexture<Point2df>::iterator i, e = tex->end();
+      vector<Point2df>::iterator it, et;
+      float m0 = te.min[0];
+      float scl0 = (te.maxquant[0] - te.minquant[0])
+        / (te.max[0] - m0);
+      float off0 = te.minquant[0] - m0 * scl0;
+      float m1 = te.min[1];
+      float scl1 = (te.maxquant[1] - te.minquant[1])
+        / (te.max[1] - m1);
+      float off1 = te.minquant[1] - m1 * scl1;
+      for( i=tex->begin(); i!=e; ++i )
+      {
+        Texture<Point2df> & ti = i->second;
+        Texture<Point2df> & to = (*ftex)[i->first];
+        to.reserve( ti.nItem() );
+
+        for( it=i->second.data().begin(), et=i->second.data().end();
+              it!=et; ++it )
+        {
+          to.push_back( Point2df( (*it)[0] * scl0 + off0,
+                        (*it)[1] * scl1 + off1 ) );
         }
       }
-      else if( alwayscopy )
-        ftex.reset( new TimeTexture<Point2df>( *tex ) );
-      return ftex;
     }
-    default:
-      break;
+    else if( alwayscopy )
+      ftex.reset( new TimeTexture<Point2df>( *tex ) );
+    return ftex;
   }
-  return static_cast<Private_<Point2df> *>( d )->texture;
-}
+
+
+  template <>
+  rc_ptr<Texture1d> ATexture::texture( bool rescaled, bool alwayscopy )
+  {
+    if( 1 != d->dim )
+      return rc_ptr<Texture1d>( 0 );
+
+    rc_ptr<TimeTexture<float> > tex
+        = static_cast<Private_<float> *>( d )->texture;
+    rc_ptr<TimeTexture<float> > ftex = tex;
+    if( rescaled )
+    {
+      ftex.reset( new TimeTexture<float> );
+      TexExtrema      & te = glTexExtrema();
+      TimeTexture<float>::iterator i, e = tex->end();
+      vector<float>::iterator it, et;
+      float m0 = te.min[0];
+      float scl0 = (te.maxquant[0] - te.minquant[0])
+        / (te.max[0] - m0);
+      float off0 = te.minquant[0] - m0 * scl0;
+      for( i=tex->begin(); i!=e; ++i )
+      {
+        Texture<float> & ti = i->second;
+        Texture<float> & to = (*ftex)[i->first];
+        to.reserve( ti.nItem() );
+
+        for( it=i->second.data().begin(), et=i->second.data().end();
+              it!=et; ++it )
+        {
+          to.push_back( *it * scl0 + off0 );
+        }
+      }
+    }
+    else if( alwayscopy )
+      ftex.reset( new TimeTexture<float>( *tex ) );
+    return ftex;
+  }
 
 }
 
