@@ -51,7 +51,6 @@
 #include <graph/tree/tree.h>
 #include <qpixmap.h>
 #include <stdio.h>
-#include <assert.h>
 
 
 using namespace anatomist;

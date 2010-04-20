@@ -48,7 +48,6 @@
 #include <aims/resampling/motion.h>
 #include <aims/resampling/quaternion.h>
 #include <qobject.h>
-#include <assert.h>
 #include <string.h>
 
 #ifdef _WIN32

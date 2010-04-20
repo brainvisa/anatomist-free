@@ -59,6 +59,7 @@
 #include <aims/qtcompat/qvaluelist.h>
 #include <graph/graph/graph.h>
 #include <graph/tree/tree.h>
+#include <cartobase/exception/assert.h>
 #include <cartobase/object/sreader.h>
 #include <qlayout.h>
 #include <qsplitter.h>
@@ -765,7 +766,7 @@ string QObjectBrowser::canSendToAny( QObjectBrowserWidget* br,
   string		synt, att, val;
   GenericObject	*ao;
 
-  assert( hie->tree()->getProperty( "graph_syntax", synt ) );
+  ASSERT( hie->tree()->getProperty( "graph_syntax", synt ) );
 
   switch( descr.type )
   {
@@ -1958,7 +1959,7 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
 
   for( tbr=dynamic_cast<QObjectBrowser *>( pw ); pw && !tbr;
        pw=pw->parentWidget(), tbr=dynamic_cast<QObjectBrowser *>( pw ) ) {}
-  assert( tbr );
+  ASSERT( tbr );
 
   if( staticState().receivingBrowser )	// special editor already in use
     return( stringEditor( objs, att, br, items ) );
@@ -2366,7 +2367,7 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
 	  if( (*io)->type() == AObject::GRAPH )
 	    {
 	      ag = dynamic_cast<AGraph *>( *io );
-	      assert( ag );
+	      ASSERT( ag );
 	      g = ag->graph();
 	      if( g->getSyntax() == synt )	// matching syntax ?
 	        gr.insert( g );
@@ -2377,7 +2378,7 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
 	      if( (*im)->type() == AObject::GRAPH )
 		{
 	          ag = dynamic_cast<AGraph *>( *im );
-	          assert( ag );
+	          ASSERT( ag );
 	          g = ag->graph();
 	          if( g->getSyntax() == synt )	// matching syntax ?
 	            gr.insert( g );
