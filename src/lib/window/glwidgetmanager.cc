@@ -47,6 +47,7 @@
 #include <aims/resampling/quaternion.h>
 #include <cartobase/type/string_conversion.h>
 #include <cartobase/stream/fileutil.h>
+#include <qapplication.h>
 #include <iostream>
 
 #if QT_VERSION >= 0x040000
@@ -686,15 +687,28 @@ void GLWidgetManager::record()
 void GLWidgetManager::saveContents( const QString & filename,
                                     const QString & format )
 {
-  /*QPixmap	pix;
-  //QPixmap	pix = renderPixmap( 0, 0, false ); // doesn't work....
+  window()->show();
+  qApp->processEvents();
+
+  /* // renderPixmap seems not to work with shared contexts:
+  // when using the existing context, the rendering is just crap.
+  // When using its own context, OpenGL fails with errors, either because
+  // the context is not shared, or because there are some makeCurrent() calls
+  // within our routines (and we may have to find a way to disable them)
+  int x, y;
+  unsigned w, h;
+  window()->geometry( &x, &y, &w, &h );
+  QPixmap pix = qglWidget()->renderPixmap( w, h, false ); // doesn't work....
   if( pix.isNull() )
-    {
-      //cout << "Pixmap rendering failed\n";
-      pix.resize( width(), height() );
-      bitBlt( &pix, 0, 0, this, 0, 0, width(), height(), CopyROP );
-    }
-    pix.save( filename, format, 100 );*/
+  {
+    cout << "Pixmap rendering failed\n";
+  }
+  else
+  {
+    pix.save( filename, format, 100 );
+    return;
+  }
+  */
 
   QString	f;
   if( format.isNull() )
