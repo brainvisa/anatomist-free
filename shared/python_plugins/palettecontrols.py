@@ -56,13 +56,13 @@ def neweventAutoSubscription( self, pool ):
     ControlModifier = key.ControlButton
     AltModifier = key.AltButton
   self.__class__.__base__.eventAutoSubscription( self, pool )
-  self.mouseLongEventSubscribe( key.RightButton, ShiftModifier,
-    pool.action( 'PaletteContrastAction' ).startContrast,
-    pool.action( 'PaletteContrastAction' ).moveContrast,
-    pool.action( 'PaletteContrastAction' ).stopContrast, True )
+  #self.mouseLongEventSubscribe( key.RightButton, ShiftModifier,
+    #pool.action( 'PaletteContrastAction' ).startContrast,
+    #pool.action( 'PaletteContrastAction' ).moveContrast,
+    #pool.action( 'PaletteContrastAction' ).stopContrast, True )
   self.mouseLongEventSubscribe( key.RightButton, ControlModifier,
     pool.action( 'PaletteContrastAction' ).startContrast,
-    pool.action( 'PaletteContrastAction' ).moveContrastMin,
+    pool.action( 'PaletteContrastAction' ).moveContrast,
     pool.action( 'PaletteContrastAction' ).stopContrast, True )
   self.keyPressEventSubscribe( key.Key_C, NoModifier,
     pool.action( "PaletteContrastAction" ).resetPalette )
