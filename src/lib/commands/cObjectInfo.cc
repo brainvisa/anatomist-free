@@ -341,7 +341,7 @@ namespace
   }
 
 
-  void printTransformation( Transformation* t, Object ex, 
+  void printTransformation( anatomist::Transformation* t, Object ex, 
                             map<void *, int> & ptrs, Unserializer & unser, 
                             bool nameref )
   {

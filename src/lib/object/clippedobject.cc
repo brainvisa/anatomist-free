@@ -205,7 +205,7 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
       // transform clipping plane
       Point3df p2( p[0], p[1], p[2] );
       p2.normalize();
-      p2 = trans->motion().transform_normal( p2 );
+      p2 = trans->motion().transformUnitNormal( p2 );
       pl[0] = p2[0];
       pl[1] = p2[1];
       pl[2] = p2[2];

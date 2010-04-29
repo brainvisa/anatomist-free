@@ -1071,14 +1071,15 @@ void Anatomist::NotifyWindowChange( AWindow* win )
     getControlWindow()->NotifyWindowChange( win );
 }
 
-Transformation* Anatomist::getTransformation( const Referential* src, 
-					      const Referential* dst )
+anatomist::Transformation*
+Anatomist::getTransformation( const Referential* src,
+                              const Referential* dst )
 {
   return( ATransformSet::instance()->transformation( src, dst ) );
 }
 
 
-const Transformation* 
+const anatomist::Transformation* 
 Anatomist::getTransformation( const Referential* src, 
 			      const Referential* dst ) const
 {

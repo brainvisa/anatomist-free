@@ -619,7 +619,8 @@ RoiHistoPlot::getRegionHisto( const string& image,
   nbOfPoints = 0 ;
   Referential* imageRef = img->getReferential() ;
   Referential* buckRef = bk->getReferential() ;
-  Transformation * transf = theAnatomist->getTransformation( buckRef, imageRef ) ;
+  anatomist::Transformation * transf
+      = theAnatomist->getTransformation( buckRef, imageRef ) ;
 
   float        imin = 0, imax = 1;
   GLComponent  *gl = img->glAPI();
@@ -646,9 +647,10 @@ RoiHistoPlot::getRegionHisto( const string& image,
   float val ;
   while ( iter != last){
     if( transf )
-      p = Transformation::transform( Point3df(float(iter->first[0] ), float(iter->first[1] ), 
-					      float(iter->first[2] )  ) , 
-				     transf, graphObject->VoxelSize(), img->VoxelSize() ) ;
+      p = anatomist::Transformation::transform
+          ( Point3df(float(iter->first[0] ), float(iter->first[1] ),
+            float(iter->first[2] )  ) , transf, graphObject->VoxelSize(),
+                  img->VoxelSize() ) ;
     else
       p = Point3df( float(iter->first[0] ), float(iter->first[1] ), 
 		    float(iter->first[2] ) ) ;

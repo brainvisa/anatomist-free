@@ -174,7 +174,7 @@ namespace
     }
     else
     {
-      Transformation  *t = _refwin->transfAt( p );
+      anatomist::Transformation  *t = _refwin->transfAt( p );
       if( t )
       {
         QString text( "Transformation:\n" );
@@ -288,7 +288,7 @@ void ReferentialWindow::openSelectBox()
 }
 
 
-void ReferentialWindow::saveTransformation( Transformation* trans )
+void ReferentialWindow::saveTransformation( anatomist::Transformation* trans )
 {
   QString filter = tr( "Transformation" );
   filter += " (*.trm *TO*);;";
@@ -324,7 +324,7 @@ void ReferentialWindow::saveTransformation( const string & filename )
   /*cout << "src: " << pdat->srcref << ", dst: " << pdat->dstref << endl;
     cout << "trans: " << pdat->trans << endl;*/
 
-  Transformation 
+  anatomist::Transformation 
     *t = pdat->trans;
 
   if( t )
@@ -343,14 +343,14 @@ void ReferentialWindow::refresh()
   pdat->refpos.clear();
 
   set<Referential *>	refs = theAnatomist->getReferentials();
-  set<Transformation *>	trans 
+  set<anatomist::Transformation *>	trans 
     = ATransformSet::instance()->allTransformations();
   unsigned		n = refs.size(), i;
   set<Referential *>::const_iterator	ir, fr=refs.end(), jr;
-  set<Transformation *>::const_iterator	it, ft=trans.end();
+  set<anatomist::Transformation *>::const_iterator	it, ft=trans.end();
   AimsRGB		col;
   Referential		*ref;
-  Transformation	*tr;
+  anatomist::Transformation	*tr;
   unsigned		x, y, sz = 20;
   int			w = width(), h = height(), R = w, Rmin = 50;
   QPixmap		pix( w, h );
@@ -473,7 +473,7 @@ void ReferentialWindow::mousePressEvent( QMouseEvent* ev )
 	  }
 	else
 	  {
-	    Transformation	*tr = transfAt( ev->pos() );
+	    anatomist::Transformation	*tr = transfAt( ev->pos() );
 	    if( tr )
 	      {
 		/*Referential	*src = tr->source(), *dst = tr->destination();
@@ -573,24 +573,25 @@ Referential* ReferentialWindow::refAt( const QPoint & pos, QPoint & newpos )
 }
 
 
-Transformation* ReferentialWindow::transfAt( const QPoint & pos )
+anatomist::Transformation* ReferentialWindow::transfAt( const QPoint & pos )
 {
-  vector<Transformation *>              trat = transformsAt( pos );
+  vector<anatomist::Transformation *> trat = transformsAt( pos );
   if( trat.empty() )
     return 0;
   return trat[0];
 }
 
 
-vector<Transformation*> ReferentialWindow::transformsAt( const QPoint & pos )
+vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
+    const QPoint & pos )
 {
-  set<Transformation *>                 trans 
+  set<anatomist::Transformation *>                 trans 
     = ATransformSet::instance()->allTransformations();
-  set<Transformation *>::const_iterator it, ft=trans.end();
-  Transformation                        *t;
+  set<anatomist::Transformation *>::const_iterator it, ft=trans.end();
+  anatomist::Transformation                        *t;
   QPoint                                rvec, relp;
   float                                 x, y, normv, norm;
-  vector<Transformation *>              trat;
+  vector<anatomist::Transformation *>              trat;
 
   // 1st pass on loaded transformations
   for( it=trans.begin(); it!=ft; ++it )
@@ -682,12 +683,12 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
 
 void ReferentialWindow::popupTransfMenu( const QPoint & pos )
 {
-  vector<Transformation *>  trans = transformsAt( pos );
+  vector<anatomist::Transformation *>  trans = transformsAt( pos );
   if( trans.empty() )
     return;
 
   unsigned        i, n = trans.size();
-  Transformation  *t;
+  anatomist::Transformation  *t;
   QPopupMenu      pop( this );
   vector<ReferentialWindow_TransCallback *> cbks;
   ReferentialWindow_TransCallback           *cbk;
@@ -774,7 +775,7 @@ void ReferentialWindow::deleteReferential()
 }
 
 
-void ReferentialWindow::deleteTransformation( Transformation* trans )
+void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 {
   delete trans;
   refresh();
@@ -832,8 +833,8 @@ void ReferentialWindow::clearUnusedReferentials()
       {
         // ref is linked to a "useful connected component"
         // we must check whether it would break the CC if we remove it
-        set<Transformation *> trs = ts->transformationsWith( ref );
-        set<Transformation *>::iterator it, jt, et = trs.end();
+        set<anatomist::Transformation *> trs = ts->transformationsWith( ref );
+        set<anatomist::Transformation *>::iterator it, jt, et = trs.end();
         // filter out generated transformations
         for( it=trs.begin(), et=trs.end(); it!=et; )
         {
@@ -861,7 +862,7 @@ void ReferentialWindow::clearUnusedReferentials()
           int usedcc = 0;
           for( it=trs.begin(), et=trs.end(); it!=et; ++it )
           {
-            Transformation *tr = *it;
+            anatomist::Transformation *tr = *it;
             // get other end
             Referential *ref2 = tr->source();
             if( ref2 == ref )
@@ -913,9 +914,9 @@ void ReferentialWindow::clearUnusedReferentials()
 }
 
 
-void ReferentialWindow::invertTransformation( Transformation* trans )
+void ReferentialWindow::invertTransformation( anatomist::Transformation* trans )
 {
-  Transformation	*other
+  anatomist::Transformation	*other
     = ATransformSet::instance()->transformation( trans->destination(),
 						 trans->source() );
   if( !other )
@@ -935,7 +936,7 @@ void ReferentialWindow::invertTransformation( Transformation* trans )
 }
 
 
-void ReferentialWindow::reloadTransformation( Transformation* trans )
+void ReferentialWindow::reloadTransformation( anatomist::Transformation* trans )
 {
   pdat->srcref = trans->source();
   pdat->dstref = trans->destination();
@@ -1010,7 +1011,7 @@ bool ReferentialWindow::event( QEvent* event )
 // -----------
 
 ReferentialWindow_TransCallback::ReferentialWindow_TransCallback
-  ( ReferentialWindow* rw, Transformation* t )
+  ( ReferentialWindow* rw, anatomist::Transformation* t )
   : QObject(), refwin( rw ), trans( t )
 {
 }

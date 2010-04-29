@@ -233,7 +233,7 @@ void Bucket::setGeomExtrema()
 namespace
 {
 
-  static inline void buildRotMatGL( Transformation* tr )
+  static inline void buildRotMatGL( anatomist::Transformation* tr )
   {
     if( tr )
       {
@@ -1499,9 +1499,9 @@ void Bucket::insert( const aims::BucketMap<Void> & region )
 	{
 	  t = ib->first;
 	  BucketMap<Void>::Bucket	& dst = (*_bucket)[ t ];
-	  if( t < _minT )
+	  if( (int) t < _minT )
 	    _minT = t;
-	  if( t > _maxT )
+	  if( (int) t > _maxT )
 	    _maxT = t;
 	  d->empty = false;
 	  setBucketChanged();

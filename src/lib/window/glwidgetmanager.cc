@@ -506,6 +506,8 @@ void GLWidgetManager::drawObjects( DrawMode m )
             break;
           case ZSelect:
             break;
+          default:
+            break;
           }
       else
         (*il)->callList();

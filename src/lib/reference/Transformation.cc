@@ -41,9 +41,10 @@
 
 
 using namespace anatomist;
-using namespace aims;
+// using namespace aims;
 using namespace carto;
 using namespace std;
+using aims::Quaternion;
 
 
 //--- methods -----------------------------------------------------------------

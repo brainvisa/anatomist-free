@@ -198,7 +198,7 @@ namespace
       quat = Quaternion( 0, 0, 1, 0 );
     if( ref && ref != Referential::acPcReferential() )
     {
-      const Transformation  *t
+      const anatomist::Transformation  *t
           = ATransformSet::instance()->transformation
             ( Referential::acPcReferential(), ref );
       if( t )
@@ -233,7 +233,7 @@ namespace
       quat = Quaternion( 0, c, c, 0 );
     if( ref && ref != Referential::acPcReferential() )
     {
-      const Transformation  *t
+      const anatomist::Transformation  *t
           = ATransformSet::instance()->transformation
           ( Referential::acPcReferential(), ref );
       if( t )
@@ -269,7 +269,7 @@ namespace
     Quaternion  quat( 0.5, 0.5, 0.5, 0.5 );
     if( ref && ref != Referential::acPcReferential() )
     {
-      const Transformation  *t
+      const anatomist::Transformation  *t
           = ATransformSet::instance()->transformation
           ( Referential::acPcReferential(), ref );
       if( t )
@@ -874,9 +874,8 @@ namespace
         for( i=0; i<indent; ++i )
           cout << ' ';
 	cout << obj->name() <<" : ";
-	pos = Transformation::transform( wpos, wref, obj->getReferential(), 
-                                         Point3df( 1, 1, 1 ), 
-                                         obj->VoxelSize() );
+	pos = anatomist::Transformation::transform( wpos, wref,
+            obj->getReferential(), Point3df( 1, 1, 1 ), obj->VoxelSize() );
 	if( obj->Is2DObject() )
 	  cout << Point3d( (short) rint( pos[0] ), (short) rint( pos[1] ), 
 			   (short) rint( pos[2] ) );
@@ -2101,7 +2100,7 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
   Point4d		dimMin, dimMax;
   Referential		*oref;
   AObject		*o;
-  Transformation	*tr;
+  anatomist::Transformation	*tr;
   Point3df		u, v, w;
 
   size = Point3df( 1, 1, 1 );
@@ -2354,7 +2353,7 @@ namespace
 void AWindow3D::SetPosition( const Point3df& position , 
 			     const Referential* orgref )
 {
-  Transformation	*tra 
+  anatomist::Transformation	*tra 
     = theAnatomist->getTransformation( orgref, getReferential() );
   Point3df		pos;
 
@@ -2549,7 +2548,7 @@ bool AWindow3D::boundingBox( Point3df & bmin, Point3df & bmax, float & tmin,
       AObject			*obj;
       Point3df			pmin, pmax, pmino, pmaxo;
       Referential		*wref = getReferential(), *oref;
-      Transformation		*tr;
+      anatomist::Transformation		*tr;
       float			tmp;
 
       tmin = FLT_MAX;
