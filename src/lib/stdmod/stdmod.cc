@@ -48,6 +48,7 @@
 
 // commands
 #include <anatomist/commands/cAddObject.h>
+#include <anatomist/commands/cApplyBuiltinReferential.h>
 #include <anatomist/commands/cAskTexExtrema.h>
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cCamera.h>
@@ -203,6 +204,7 @@ void StdModule::actionsDeclaration()
 
   //	Commands
   AddObjectCommand::initSyntax();
+  ApplyBuiltinReferentialCommand::initSyntax();
   AskTexExtremaCommand::initSyntax();
   AssignReferentialCommand::initSyntax();
   CameraCommand::initSyntax();

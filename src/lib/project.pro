@@ -25,6 +25,7 @@ HEADERS = \
 	color/Light.h \
 	color/wMaterial.h \
 	commands/cAddObject.h \
+	commands/cApplyBuiltinReferential.h \
 	commands/cAskTexExtrema.h \
         commands/cCamera.h \
 	commands/cChangePalette.h \
@@ -252,6 +253,7 @@ SOURCES = \
 	color/wMaterial.cc \
 	commands/cAddObject.cc \
 	commands/cAskTexExtrema.cc \
+	commands/cApplyBuiltinReferential.cc \
 	commands/cAssignReferential.cc \
         commands/cCamera.cc \
 	commands/cChangePalette.cc \
