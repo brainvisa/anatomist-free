@@ -59,6 +59,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/transfSet.h>
 #include <aims/resampling/standardreferentials.h>
+#include <aims/graph/graphmanip.h>
 #include <cartobase/stream/fileutil.h>
 #include <qfiledialog.h>
 #include <qcursor.h>
@@ -606,6 +607,21 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               vmot.push_back( m );
               vref.push_back( ref );
             }
+          }
+        }
+      }
+      else // not referentials/transformations properties
+      {
+        AGraph *ag = dynamic_cast<AGraph *>( go );
+        if( ag && ps->hasProperty( "Talairach_translation" ) )
+        {
+          AffineTransformation3d m = GraphManip::talairach( *ag->graph() );
+          if( !m.isIdentity() )
+          {
+            if( !ownref )
+              ownref = new Referential;
+            vref.push_back( Referential::acPcReferential() );
+            vmot.push_back( m );
           }
         }
       }
