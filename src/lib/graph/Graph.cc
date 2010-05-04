@@ -1149,7 +1149,8 @@ void AGraph::setGeomExtrema()
     }
 
   if( d->labelsVol && ( minx != d->minX || miny != d->minY || minz != d->minZ 
-                      || maxx != d->maxX || maxy != d->maxY || maxz != d->maxZ ) )
+                      || maxx != d->maxX || maxy != d->maxY || maxz != d->maxZ
+                      ) )
     clearLabelsVolume();
 }
 
@@ -1173,7 +1174,7 @@ void AGraph::setLabelsVolumeDimension( const Point3d & vd )
     return ;
 
   d->labelDim = vd;
-  
+
   if( d->labelsVol )
     clearLabelsVolume() ;
 }
@@ -1200,7 +1201,7 @@ AGraph::volumeOfLabels( int t )
 {
   if( d->labelsVol == 0 )
     d->labelsVol = new map<int, AimsData<AObject *> >;
-  
+
   if( t > MaxT() )
     t = (int) MaxT();
 
@@ -1208,7 +1209,7 @@ AGraph::volumeOfLabels( int t )
   if (found == d->labelsVol->end() )
     {
       cout << "Label Volume Dimension : "  << d->labelDim[0] << ", " 
-	   << d->labelDim[1] << ", " << d->labelDim[2] << endl ;
+           << d->labelDim[1] << ", " << d->labelDim[2] << endl ;
       AimsData<AObject *>	& vol = (*d->labelsVol)[t];
       vol = AimsData<AObject * >( d->labelDim[0], d->labelDim[1], 
                                   d->labelDim[2] );
@@ -1229,6 +1230,14 @@ Graph* AGraph::graph() const
 void AGraph::setGraph( rc_ptr<Graph> g )
 {
   d->graph = g;
+  int mask = 3, loaded = 0;
+  g->getProperty( "aims_reader_loaded_objects", loaded );
+  if( ( loaded & mask ) != mask )
+  {
+    if( !g->hasProperty( "aims_reader_filename" ) )
+      g->setProperty( "aims_reader_filename", fileName() );
+    files2Obj( this, (~loaded) & mask );
+  }
   setInternalsChanged();
 }
 
