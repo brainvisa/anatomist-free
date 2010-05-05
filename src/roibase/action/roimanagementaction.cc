@@ -3356,7 +3356,7 @@ RoiManagementAction::createWindow( const string& type )
       if( (*it)->type() == AObject::VOLUME  || (*it)->type() == AObject::FUSION2D )
 	objs.insert( *it ) ;
   }
-  cmd2 = new AddObjectCommand( objs, wins ) ;
+  cmd2 = new AddObjectCommand( objs, wins, false, true ) ;
   theProcessor->execute( cmd2 ) ;
 
   Command	*cmd3 = new SetControlCommand( wins, "PaintControl" ) ;
