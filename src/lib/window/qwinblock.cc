@@ -44,11 +44,9 @@ using namespace std;
 struct QAWindowBlock::Private
 {
   QGridLayout	*layout;
-  #if QT_VERSION >= 0x040000
-  int indexC;
-  int indexR;
+#if QT_VERSION >= 0x040000
   int cols;
-  #endif
+#endif
 
 };
 
@@ -74,8 +72,6 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
   d->layout->setSpacing(0); 
   d->layout->setMargin(5);
   setLayout(d->layout);
-  d->indexC=0;
-  d->indexR=0;
   d->cols =cols;
 #else
   d->layout = new QGridLayout( this, 1, cols, 0, 5 );
@@ -94,12 +90,38 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
 #if QT_VERSION >= 0x040000
   // if we don't remove the item's parent, the window will not be in the block but next to it.
   item->setParent(0);
-  if (d->indexC >= d->cols){ // next row
-    d->indexC =0;
-    d->indexR++;
+  int index, n = d->layout->count();
+  for( index=0; index<n; ++index )
+  {
+    QLayoutItem *li = d->layout->itemAt( index );
+    if( !li || !li->widget() )
+      break;
   }
-  d->layout->addWidget(item, d->indexR, d->indexC);
-  d->indexC++;
+  int row = 0, col = 0;
+  if( index == n )
+  {
+    int rowspan, colspan;
+    if( n > 0 )
+    {
+      d->layout->getItemPosition( n-1, &row, &col, &rowspan, &colspan );
+      if( col == d->cols-1 )
+      {
+        col = 0;
+        ++row;
+      }
+      else
+        ++col;
+    }
+  }
+  else
+  {
+    int rowspan, colspan;
+    d->layout->getItemPosition( index, &row, &col, &rowspan, &colspan );
+  }
+  d->layout->addWidget( item, row, col );
+#else
+  // Qt3
+  item->reparent( this, QPoint( 0, 0 ), true );
 #endif
 }
 
@@ -125,7 +147,7 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
           qw = dynamic_cast<QAWindow *>( *iw );
           if( qw )
             {
-              qw->reparent( this, QPoint( 0, 0 ), true );
+              addWindowToBlock( qw );
               qw->enableDetachMenu( true );
             }
         }
