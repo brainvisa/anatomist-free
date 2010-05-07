@@ -88,35 +88,20 @@ QAWindowBlock::~QAWindowBlock()
 void QAWindowBlock::addWindowToBlock(QWidget *item)
 {
 #if QT_VERSION >= 0x040000
-  // if we don't remove the item's parent, the window will not be in the block but next to it.
+  // if we don't remove the item's parent, the window will not be in the block
+  // but next to it.
   item->setParent(0);
-  int index, n = d->layout->count();
-  for( index=0; index<n; ++index )
+  int row = 0, col = 0, nr = d->layout->rowCount();
+  for( row=0; row<nr; ++row )
   {
-    QLayoutItem *li = d->layout->itemAt( index );
-    if( !li || !li->widget() )
-      break;
-  }
-  int row = 0, col = 0;
-  if( index == n )
-  {
-    int rowspan, colspan;
-    if( n > 0 )
+    for( col=0; col<d->cols; ++col )
     {
-      d->layout->getItemPosition( n-1, &row, &col, &rowspan, &colspan );
-      if( col == d->cols-1 )
-      {
-        col = 0;
-        ++row;
-      }
-      else
-        ++col;
+      if( !d->layout->itemAtPosition( row, col ) )
+        break;
     }
-  }
-  else
-  {
-    int rowspan, colspan;
-    d->layout->getItemPosition( index, &row, &col, &rowspan, &colspan );
+    if( col < d->cols )
+      break;
+    col = 0;
   }
   d->layout->addWidget( item, row, col );
 #else
