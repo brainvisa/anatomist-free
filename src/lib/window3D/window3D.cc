@@ -598,10 +598,15 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
       win->insertItem( tr( "Show/hide cursor position" ), this,
                        SLOT( toggleStatusBarVisibility() ) );
       win->insertSeparator();
+#if QT_VERSION >= 0x040000
+      setDetachMenuAction( win->addAction( tr( "Detach view" ), this,
+                                           SLOT( detach() ) ) );
+#else
       win->insertItem( tr( "Detach view" ), this, SLOT( detach() ), 0, 
                        DetachMenu );
+#endif
       if( !parent )
-        win->setItemEnabled( DetachMenu, false );
+        enableDetachMenu( false );
       if( theAnatomist->userLevel() >= 2 )
         win->insertItem( tr( "Open stereoscopic right eye view" ), this,
                          SLOT( openStereoView() ) );

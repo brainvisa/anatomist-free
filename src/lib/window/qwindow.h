@@ -52,10 +52,12 @@ class QAWindow : public QMainWindow, public anatomist::AWindow,
   Q_OBJECT
 
 public:
+#if QT_VERSION < 0x040000
   enum MenuIDs
   {
     DetachMenu = 5555 //, 
   };
+#endif
 
   QAWindow( QWidget* parent = 0, const char* name = 0, 
 	    carto::Object params = carto::none(), 
@@ -95,6 +97,7 @@ public:
   virtual void removeToolBar( QToolBar * toolbar );
   virtual QToolBar* removeToolBar( const QString & name );
   QToolBar* toolBar( const QString & name );
+  void setDetachMenuAction( QAction* );
 #endif
 
 public slots:

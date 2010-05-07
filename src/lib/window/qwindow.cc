@@ -70,12 +70,16 @@ struct QAWindow::Private
   Qt::ButtonState	button;
 #if QT_VERSION >= 0x040000
   set<QToolBar *>	toolbars;
+  QAction               *detachmenuaction;
 #endif
 };
 
 
 QAWindow::Private::Private() 
   : refreshtimer( 0 ), refreshneeded( false )
+#if QT_VERSION >= 0x040000
+    , detachmenuaction( 0 )
+#endif
 {
 }
 
@@ -438,7 +442,12 @@ void QAWindow::dropEvent( QDropEvent* event )
 
 void QAWindow::enableDetachMenu( bool x )
 {
+#if QT_VERSION >= 0x040000
+  if( d->detachmenuaction )
+    d->detachmenuaction->setEnabled( x );
+#else
   menuBar()->setItemEnabled( DetachMenu, x );
+#endif
 }
 
 
@@ -447,8 +456,19 @@ void QAWindow::detach()
   if( parent() )
     {
       reparent( 0, QPoint( 0, 0 ), true );
+#if QT_VERSION >= 0x040000
+      if( d->detachmenuaction )
+        d->detachmenuaction->setEnabled( false );
+#else
       menuBar()->setItemEnabled( DetachMenu, false );
+#endif
     }
+}
+
+
+void QAWindow::setDetachMenuAction( QAction* a )
+{
+  d->detachmenuaction = a;
 }
 
 
