@@ -38,6 +38,7 @@
 
 #include <map>
 #include <set>
+#include <list>
 
 
 namespace anatomist
@@ -80,13 +81,15 @@ namespace anatomist
 
     static ATransformSet* instance();
     std::set<Referential *> connectedComponent( Referential* r ) const;
+    std::list<Transformation *> shortestPath( Referential* src,
+                                              Referential *dst ) const;
 
   private:
     struct Private;
 
     void completeTransformations( Transformation* t );
     void propagate( Referential* ref, Referential* r2, 
-		    const std::set<Referential *> & others );
+                    const std::set<Referential *> & others );
     void deleteGeneratedConnections( Referential* r1, Referential* r2 );
 
     Private	*d;

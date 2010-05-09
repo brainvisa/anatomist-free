@@ -106,7 +106,6 @@ ATransformSet::Private::~Private()
         delete th.trans;
       else
         trans.begin()->second.erase( trans.begin()->second.begin() );
-        
     }
 }
 
@@ -765,6 +764,297 @@ void ATransformSet::notifyTransformationChanged( const Referential* src,
             }
         }
     }
+}
+
+
+#include <anatomist/reference/Referential.h> // FIXME: DEBUG
+namespace
+{
+
+  struct TransInfo
+  {
+    TransInfo( Transformation * t = 0, int d = 0 ) : trans( t ), dist( d ) {}
+    Transformation *trans;
+    int dist;
+  };
+
+
+  void walkbackPath( Referential *src, Referential *dst,
+                     const map<Referential *, TransInfo> & tset,
+                     list<Transformation *> & path )
+  {
+    map<Referential *, TransInfo>::const_iterator it, et = tset.end();
+    while( dst != src )
+    {
+      it = tset.find( src );
+      if( it == et )
+      {
+        cout << "BUG in walkbackPath: " << src->uuid().toString() << " not found\n";
+        return;
+      }
+      const TransInfo &ti = it->second;
+      path.push_back( ti.trans );
+      if( ti.trans->source() == src )
+        src = ti.trans->destination();
+      else
+        src = ti.trans->source();
+    }
+  }
+
+}
+
+
+list<Transformation *>
+ATransformSet::shortestPath( Referential* src, Referential *dst ) const
+{
+  map<Referential *, TransInfo> front1, front2, done1, done2;
+  map<Referential *, TransInfo>::iterator ir, ir2,
+    ef1 = front1.end(), ef2 = front2.end(),
+    dend1 = done1.end(), dend2 = done2.end();
+  Private::Ts::iterator   is, es = d->trans.end();
+  Private::Ts2::iterator  id, ed;
+  Referential *r1, *r2, *ris;
+  Transformation *t, *junctrans = 0;
+
+  front1[ src ] = TransInfo( 0, 0 );
+  front2[ dst ] = TransInfo( 0, 0 );
+  int connected = 0;
+
+  // FIXME: clean all generated connections to test
+  set<Transformation *>::iterator ist = d->tset.begin(), est = d->tset.end(), ist2;
+  while( ist != est )
+  {
+    bool erased = false;
+    if( (*ist)->isGenerated() )
+    {
+      t = *ist;
+      TransfHolder *th = d->transformation( t->destination(), t->source() );
+      if( !th || !th->trans || th->trans->isGenerated() )
+      {
+        cout << "erase sth\n";
+        ++ist;
+        delete t;
+        if( th && th->trans )
+        {
+          if( ist!=est && *ist == th->trans )
+            ++ist;
+          delete th->trans;
+        }
+        erased = true;
+      }
+    }
+    if( !erased )
+      ++ist;
+  }
+
+
+  // FIXME: place this first
+  TransfHolder* th = d->transformation( src, dst );
+  if( th && th->trans )
+  {
+    list<Transformation *> lt;
+    lt.push_back( th->trans );
+    return lt;
+  }
+
+
+  // front propagation (from both sides to speed it up)
+
+  while( !connected && ( !front1.empty() || !front2.empty() ) )
+  {
+    TransInfo ti1, ti2;
+    if( !front1.empty() )
+    {
+      ir = front1.begin();
+      r1 = ir->first;
+      ti1 = ir->second;
+      done1[ r1 ] = ti1;
+      front1.erase( ir );
+      cout << "pop front1: " << r1 << endl;
+    }
+    else
+      r1 = 0;
+    if( !front2.empty() )
+    {
+      ir = front2.begin();
+      r2 = ir->first;
+      ti2 = ir->second;
+      done2[ r2 ] = ti2;
+      front2.erase( ir );
+      cout << "pop front2: " << r2 << endl;
+    }
+    else
+      r2 = 0;
+
+    //cout << "front : " << r << endl;
+    for( is=d->trans.begin(); is != es; ++is )
+    {
+      // cout << "trans loop\n";
+      ed=is->second.end();
+      if( is->first == r1 )
+      {
+        // cout << "line\n";
+        for( id=is->second.begin(); id != ed; ++id )
+        {
+          t = id->second.trans;
+          if( t /* && !id->second.trans->isGenerated() */
+            && done1.find( id->first ) == dend1 )
+          {
+            if( done2.find( id->first ) != dend2 )
+            {
+              junctrans = t;
+              cout << "junctrans: " << t << ": " << t->source()->uuid().toString() << " -> " << t->destination()->uuid().toString() << endl;
+              if( t->isGenerated() )
+                connected = 1;
+              else
+              {
+                connected = 2; //strongly connected
+                break;
+              }
+            }
+            else
+            {
+              front1[ id->first ] = TransInfo( t, ti1.dist + 1 );
+              cout << "insert1 in front1: " << t << ", " << id->first->uuid().toString() << endl;
+            }
+          }
+        }
+      }
+      else if( is->first == r2 )
+      {
+        // cout << "line2\n";
+        for( id=is->second.begin(); id != ed; ++id )
+        {
+          t = id->second.trans;
+          if( t /* && !id->second.trans->isGenerated() */
+            && done2.find( id->first ) == dend2 )
+          {
+            if( done1.find( id->first ) != dend1 )
+            {
+              junctrans = t;
+              cout << "junctrans: " << t << ": " << t->source()->uuid().toString() << " -> " << t->destination()->uuid().toString() << endl;
+              if( t->isGenerated() )
+                connected = 1;
+              else
+              {
+                connected = 2; //strongly connected
+                break;
+              }
+            }
+            else
+            {
+              front2[ id->first ] = TransInfo( t, ti2.dist + 1 );;
+              cout << "insert1 in front2: " << t << ", " << id->first->uuid().toString() << endl;
+            }
+          }
+        }
+      }
+      else
+      {
+        // cout << "col\n";
+        id = is->second.find( r1 );
+        ris = is->first;
+        t = id->second.trans;
+        if( id != ed && t
+          /* && !id->second.trans->isGenerated() */
+          && done1.find( ris ) == dend1 )
+        {
+          if( done2.find( id->first ) != dend2 )
+          {
+            junctrans = t;
+            cout << "junctrans: " << t << ": " << t->source()->uuid().toString() << " -> " << t->destination()->uuid().toString() << endl;
+            if( t->isGenerated() )
+              connected = 1;
+            else
+            {
+              connected = 2; //strongly connected
+              break;
+            }
+          }
+          else
+          {
+            front1[ ris ] = TransInfo( t, ti1.dist + 1 );
+            cout << "insert2 in front1: " << t << ", " << ris->uuid().toString() << endl;
+          }
+        }
+        id = is->second.find( r1 );
+        if( id != ed && id->second.trans
+          /* && !id->second.trans->isGenerated() */
+          && done2.find( ris ) == dend2 )
+        {
+          t = id->second.trans;
+          if( done1.find( id->first ) != dend1 )
+          {
+            junctrans = t;
+            cout << "junctrans: " << t << ": " << t->source()->uuid().toString() << " -> " << t->destination()->uuid().toString() << endl;
+            if( t->isGenerated() )
+              connected = 1;
+            else
+            {
+              connected = 2; //strongly connected
+              break;
+            }
+          }
+          else
+          {
+            front2[ ris ] = TransInfo( t, ti2.dist + 1 );
+            cout << "insert2 in front2: " << t << ", " << ris->uuid().toString() << endl;
+          }
+        }
+      }
+      if( connected >= 2 )
+        break;
+    }
+    // cout << "end loop is\n";
+  }
+
+  // retreive the path
+  list<Transformation *> tl;
+
+  if( !connected )
+  {
+    // TODO: mark it to be unconnected to avoid this search next time
+    return tl;
+  }
+
+  cout << "follow path\n";
+  cout << "set1: " << done1.size() << ", set2: " << done2.size() << endl;
+
+  // start from junctrans
+  list<Transformation *> ltrans1, ltrans2;
+  if( done1.find( junctrans->source() ) == dend1 )
+  {
+    cout << "inverted\n";
+    // find inverse of junctrans
+    TransfHolder *th = d->transformation( junctrans->destination(),
+                                          junctrans->source() );
+    if( !th )
+    {
+      cout << "BUG in shortestPath: cannot find inverse of junctrans\n";
+      return tl;
+    }
+    junctrans = th->trans;
+  }
+  if( !junctrans )
+  {
+    cout << "BUG in shortestPath: junctrans is null\n";
+    return tl;
+  }
+  cout << "junctrans: " << junctrans->source()->uuid().toString() << " - "
+  << junctrans->destination()->uuid().toString() << endl;
+  cout << "walkbackPath 1\n";
+  walkbackPath( junctrans->source(), src, done1, ltrans1 );
+  cout << "walkbackPath 2\n";
+  walkbackPath( junctrans->destination(), dst, done2, ltrans2 );
+  cout << "make final list\n";
+  tl.insert( tl.end(), ltrans1.rbegin(), ltrans1.rend() );
+  tl.push_back( junctrans );
+  tl.insert( tl.end(), ltrans2.begin(), ltrans2.end() );
+  cout << "ltrans1: " << ltrans1.size() << ", ltrans2: " << ltrans2.size()
+    << endl;
+  cout << "tl: " << tl.size() << endl;
+
+  return tl;
 }
 
 
