@@ -466,10 +466,12 @@ void QAWindow::detach()
 }
 
 
+#if QT_VERSION >= 0x040000
 void QAWindow::setDetachMenuAction( QAction* a )
 {
   d->detachmenuaction = a;
 }
+#endif
 
 
 void QAWindow::mouseMoveEvent( QMouseEvent * ev )
