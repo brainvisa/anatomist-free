@@ -49,6 +49,7 @@
 #include <aims/qtcompat/qpopupmenu.h>
 #include <aims/qtcompat/qmouseevent.h>
 #include <cartobase/object/pythonwriter.h>
+#include <cartobase/stream/fileutil.h>
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qtooltip.h>
@@ -116,9 +117,9 @@ namespace
         try
         {
           val = i->currentValue()->getString();
-          text += "\n";
+          text += "<br/><b>";
           text += key.c_str();
-          text += ": ";
+          text += ":</b> ";
           for( x=key.length()+2; x<l; ++x )
             text += " ";
           text += val.c_str();
@@ -132,9 +133,9 @@ namespace
             pw.attach( ss );
             pw.setSingleLineMode( true );
             pw.write( i->currentValue(), false, false );
-            text += "\n";
+            text += "<br/><b>";
             text += key.c_str();
-            text += ": ";
+            text += ":</b> ";
             for( x=key.length()+2; x<l; ++x )
               text += " ";
             text += ss.str().c_str();
@@ -157,40 +158,86 @@ namespace
       string  name;
       PythonHeader  & ph = r->header();
       if( !ph.getProperty( "name", name ) )
-        name = "<unnamed>";
-      QString text( "Referential:  " );
+        name = "&lt;unnamed&gt;";
+
+      QPixmap pix( 16, 16 );
+      QPainter      ptr( &pix );
+      AimsRGB       col = r->Color();
+      ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+      ptr.fillRect( 0, 0, 16, 16, QColor( 255, 255, 255 ) );
+      ptr.drawEllipse( 0, 0, 16, 16 );
+      ptr.end();
+      pix.setMask( pix.createHeuristicMask() );
+      int fd;
+      string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+      pix.save( pixfname.c_str() );
+
+      /* QTextDocument document;
+      document.addResource( QTextDocument::ImageResource, QUrl("refimage.png"),
+                            pix ); */
+
+      QString text( "<h4>Referential:  <img src=\"" );
+      text += pixfname.c_str();
+      text += "\"></img></h4><em><b>  ";
       text += name.c_str();
-      text += "\nUUID        :  ";
+      text += "</b></em><br/><b>UUID</b>        :  ";
       text += r->uuid().toString().c_str();
+      text += "<br/>";
       set<string> exclude;
       exclude.insert( "name" );
       exclude.insert( "uuid" );
       text += headerPrint( ph, exclude );
 #if QT_VERSION >= 0x040000
-        QToolTip::showText( _refwin->mapToGlobal( p ), text );
+      QToolTip::showText( _refwin->mapToGlobal( p ), text );
 #else
-        tip( QRect( p, p + QPoint( 20, 20 ) ), text );
+      tip( QRect( p, p + QPoint( 20, 20 ) ), text );
 #endif
+      ::close( fd );
+      unlink( pixfname.c_str() );
     }
     else
     {
       anatomist::Transformation  *t = _refwin->transfAt( p );
       if( t )
       {
-        QString text( "Transformation:\n" );
+        QPixmap     pix( 64, 16 );
+        QPainter    ptr( &pix );
+        AimsRGB     col = t->source()->Color();
+        ptr.setBackgroundMode( Qt::OpaqueMode );
+        ptr.fillRect( 0, 0, 64, 16, QColor( 255, 255, 255 ) );
+        ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+        ptr.drawEllipse( 0, 0, 16, 16 );
+        col = t->destination()->Color();
+        ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+        ptr.drawEllipse( 48, 0, 16, 16 );
+        ptr.drawLine( 16, 8, 48, 8 );
+        ptr.drawLine( 40, 4, 48, 8 );
+        ptr.drawLine( 40, 12, 48, 8 );
+        ptr.end();
+        pix.setMask( pix.createHeuristicMask() );
+        int fd;
+        string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+        pix.save( pixfname.c_str() );
+
+        QString text( "<h4>Transformation:  <img src=\"" );
+        text += pixfname.c_str();
+        text += "\"/></h4>";
         AimsData<float> r = t->motion().rotation();
-        text += "R = " + QString::number( r( 0,0 ) ) + " "
-            + QString::number( r( 0,1 ) ) + " "
-            + QString::number( r( 0,2 ) ) + "\n      "
-            + QString::number( r( 1,0 ) ) + " "
-            + QString::number( r( 1,1 ) ) + " "
-            + QString::number( r( 1,2 ) ) + "\n      "
-            + QString::number( r( 2,0 ) ) + " "
-            + QString::number( r( 2,1 ) ) + " "
-            + QString::number( r( 2,2 ) ) + "\n"
-            + "T = " + QString::number( t->Translation( 0 ) ) + " "
-            + QString::number( t->Translation( 1 ) ) + " "
-            + QString::number( t->Translation( 2 ) );
+        text += "<table border=1><tr>"
+            "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
+            "<tr><td>"
+            + QString::number( r( 0,0 ) ) + "</td><td>"
+            + QString::number( r( 0,1 ) ) + "</td><td>"
+            + QString::number( r( 0,2 ) ) + "</td><td>"
+            + QString::number( t->Translation( 0 ) ) + "</td></tr><tr><td>"
+            + QString::number( r( 1,0 ) ) + "</td><td>"
+            + QString::number( r( 1,1 ) ) + "</td><td>"
+            + QString::number( r( 1,2 ) ) + "</td><td>"
+            + QString::number( t->Translation( 1 ) ) + "</td></tr><tr><td>"
+            + QString::number( r( 2,0 ) ) + "</td><td>"
+            + QString::number( r( 2,1 ) ) + "</td><td>"
+            + QString::number( r( 2,2 ) ) + "</td><td>"
+            + QString::number( t->Translation( 2 ) ) + "</td></tr></table>";
         PythonHeader  *ph = t->motion().header();
         if( ph )
           text += headerPrint( *ph );
@@ -199,6 +246,8 @@ namespace
 #else
         tip( QRect( p, p + QPoint( 20, 20 ) ), text );
 #endif
+        ::close( fd );
+        unlink( pixfname.c_str() );
       }
     }
   }
