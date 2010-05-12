@@ -91,6 +91,7 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
   // if we don't remove the item's parent, the window will not be in the block
   // but next to it.
   item->setParent(0);
+#if QT_VERSION >= 0x040400
   int row = 0, col = 0, nr = d->layout->rowCount();
   for( row=0; row<nr; ++row )
   {
@@ -104,6 +105,43 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
     col = 0;
   }
   d->layout->addWidget( item, row, col );
+#else // Qt version >= 4.0 and <= 4.3
+  vector< vector<bool> > used;
+  int i, j, k, n = d->layout->count();
+  int row, col, rspan, cspan;
+
+  for( i=0; i<n; ++i )
+  {
+    d->layout->getItemPosition( i, &row, &col, &rspan, &cspan );
+    while( row+rspan >= used.size() )
+      used.push_back( vector<bool>( false, d->cols ) );
+    for( j=row; j<row+rspan; ++j )
+    {
+      vector<bool> & urow = used[j];
+      while( urow.size() < col + cspan )
+        urow.push_back( false );
+      for( k=col; k<col+cspan; ++k )
+        urow[k] = true;
+    }
+  }
+  int nr = used.size(), nc;
+  col = 0;
+  row = 0;
+  for( row=0; row<nr; ++row )
+  {
+    vector<bool> & urow = used[row];
+    nc = urow.size();
+    for( col=0; col<nc; ++col )
+    {
+      if( !urow[col] )
+        break;
+    }
+    if( col < d->cols )
+      break;
+    col = 0;
+  }
+  d->layout->addWidget( item, row, col );
+#endif
 #else
   // Qt3
   item->reparent( this, QPoint( 0, 0 ), true );
