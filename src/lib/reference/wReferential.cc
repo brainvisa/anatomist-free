@@ -224,7 +224,7 @@ namespace
         text += pixfname.c_str();
         text += "\"/></h4>";
         AimsData<float> r = t->motion().rotation();
-        text += "<table border=1><tr>"
+        text += "<table border=1 cellspacing=0><tr>"
             "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
             "<tr><td>"
             + QString::number( r( 0,0 ) ) + "</td><td>"
