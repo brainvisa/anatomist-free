@@ -57,6 +57,7 @@
 #include <map>
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 
 
 using namespace anatomist;
