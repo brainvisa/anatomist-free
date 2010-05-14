@@ -38,7 +38,8 @@
 #include <qtimer.h>
 #include <qpainter.h>
 #include <qsound.h>
-#include <aims/qtcompat/qkeyevent.h>
+#include <qnamespace.h>
+#include <qevent.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <math.h>

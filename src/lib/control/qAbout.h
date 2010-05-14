@@ -61,7 +61,7 @@ protected:
   void keyPressEvent( QKeyEvent* kev );
 
   static void * musicThread( void* caller );
-  void music();
+  virtual void music();
   virtual QString scrollingMessageFileName() const;
   virtual QString errorMessage() const;
   virtual QString musicFileName() const;
