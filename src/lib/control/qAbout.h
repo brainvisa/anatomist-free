@@ -49,6 +49,8 @@ class QAbout : public QDialog
   Q_OBJECT
 
 public:
+  struct Private;
+
   QAbout( QWidget *parent = 0, const char* name = 0 );
   virtual ~QAbout();
 
@@ -60,9 +62,12 @@ protected:
 
   static void * musicThread( void* caller );
   void music();
+  virtual QString scrollingMessageFileName() const;
+  virtual QString errorMessage() const;
+  virtual QString musicFileName() const;
+  virtual QString temporaryMusicFileName() const;
 
 private:
-  struct Private;
   Private		*d;
 };
 

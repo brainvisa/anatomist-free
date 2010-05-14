@@ -19,6 +19,20 @@ class AnatomistComponent( GenericMakerComponent ):
     self.setDefaultOption( 'anaqwt', 1 )
     self.setDefaultOption( 'anavtk', 1 )
 
+  def postInit( self ):
+    if not self._initialized:
+      GenericMakerComponent.postInit( self )
+      # Define substitution variables
+      defines = self.get( 'defines' )
+      if not defines:
+        defines = []
+      if os.path.exists( '/usr/include/sys/soundcard.h' ) \
+        or os.path.exists( '/usr/include/sys/audioio.h' ):
+        defines.append( 'SOMA_SOUND_OSS' )
+      if weakDependency( 'alsa', self ):
+        defines.append( 'SOMA_SOUND_ALSA' )
+      self._data[ 'defines' ] = defines
+
   def weakDependencies( self ):
     res = []
     algo = 0
@@ -37,10 +51,14 @@ class AnatomistComponent( GenericMakerComponent ):
     return res
 
   def dependencies( self ):
+    res = []
     if systemname != 'darwin' or x11:
-      return [ 'aimsgui(aims)', LibZComponent, GLUComponent ]
+      res = [ 'aimsgui(aims)', LibZComponent, GLUComponent ]
     else:
-      return [ 'aimsgui(aims)', LibZComponent, OpenGLComponent ]
+      res = [ 'aimsgui(aims)', LibZComponent, OpenGLComponent ]
+    if weakDependency( 'alsa', self ):
+      res.append( AlsaComponent )
+    return res
 
   def _libraries( self ):
       return [ 'anatomist' ]

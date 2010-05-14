@@ -362,6 +362,7 @@ SOURCES = \
 	control/coloredpixmap.cc \
 	control/graphParams.cc \
 	control/qAbout.cc \
+	control/qAboutMessages.cc \
 	control/qWinTree.cc \
 	control/qObjTree.cc \
 #	control/toolTips.cc \
