@@ -425,7 +425,7 @@ void * QAbout::musicThread( void* caller )
 namespace
 {
 
-#if !defined( ABOUT_NO_SOUND ) && defined( SOMA_SOUND_OSS )
+#if !defined( ABOUT_NO_SOUND ) && defined( SOMA_SOUND_ALSA )
   bool initSoundAlsa( QAbout::Private *d, const WavHeader & hdr )
   {
     const char    audiodev[] = "default";
