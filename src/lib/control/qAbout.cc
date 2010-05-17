@@ -720,7 +720,7 @@ void QAbout::music()
   //   << endl;
 
   vector<char>	mbuf( d->soundBufferSize * hdr.sampleSize * hdr.channels );
-  int		n, sz = hdr.size;
+  int n, sz = hdr.size;
 #ifdef SOMA_SOUND_ALSA
   int done;
   snd_pcm_sframes_t frames = -1;
