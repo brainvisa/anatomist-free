@@ -802,7 +802,9 @@ void QAbout::music()
         if( frames < 0 )
         {
           // cout << "snd_pcm_writei < 0: " << snd_strerror(frames) << endl;
+#if SND_LIB_VERSION >= 0x010015
           frames = snd_pcm_recover( d->alsaHandle, frames, 1 );
+#endif
         }
         else
         {
