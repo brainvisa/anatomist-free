@@ -90,6 +90,15 @@ namespace anatomist
                                carto::Object options = carto::none() ) const;
     static AObject* readGraph( const std::string & filename, 
                                carto::Object options = carto::none() );
+    static std::string allSupportedFileExtensions();
+    static std::string anatomistSupportedFileExtensions();
+    static std::string supportedFileExtensions( const std::string & objtype );
+    static std::string
+      supportedFileExtensions( const std::set<std::string> & objtypes );
+    static std::set<std::string>
+      supportedFileExtensionsSet( const std::string & objtype );
+    static std::set<std::string>
+      anatomistSupportedFileExtensionsSet();
 
   protected:
     AObject* load_internal( const std::string & filename,

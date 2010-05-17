@@ -192,6 +192,8 @@ namespace anatomist
     Point3df lastPosition( const Referential* toref = 0 ) const;
     /// returns true if the Anatomist application is currently being destroyed
     bool destroying() const;
+    /// setup/update extensions list for readable files
+    void updateFileDialogObjectsFilter();
 
   private:
     friend class anatomist::internal::AnatomistPrivate;

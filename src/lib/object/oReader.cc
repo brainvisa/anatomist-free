@@ -1170,3 +1170,148 @@ ObjectReader::LoadFunctionClass::~LoadFunctionClass()
 {
 }
 
+
+namespace
+{
+
+  void addZippedFormats( set<string> & exts )
+  {
+    set<string>::iterator i, e = exts.end();
+    for( i=exts.begin(); i!=e; ++i )
+      if( !i->empty() )
+      {
+        if( i->length() < 2 || ( i->substr( i->length()-2, 2 ) != ".Z"
+            && ( i->length() < 3
+                || i->substr( i->length()-3, 3 ) != ".gz" ) ) )
+        exts.insert( *i + ".Z" );
+        if( i->length() < 3 || ( i->substr( i->length()-3, 3 ) != ".gz"
+            && i->substr( i->length()-2, 2 ) != ".Z" ) )
+        exts.insert( *i + ".gz" );
+      }
+  }
+
+
+  void formatsString( const set<string> & exts, string & sexts )
+  {
+    bool first = true;
+    set<string>::iterator i, e = exts.end();
+    for( i=exts.begin(); i!=e; ++i )
+      if( !i->empty() )
+    {
+      if( first )
+        first = false;
+      else
+        sexts += " ";
+      sexts += string( "*." ) + *i;
+    }
+  }
+
+}
+
+
+set<string> ObjectReader::anatomistSupportedFileExtensionsSet()
+{
+  set<string> exts;
+  _storagetype::const_iterator it, et = _loaders().end();
+  for( it=_loaders().begin(); it!=et; ++it )
+    exts.insert( it->first );
+  addZippedFormats( exts );
+  return exts;
+}
+
+
+string ObjectReader::allSupportedFileExtensions()
+{
+  // anatomist-specific extensions
+  set<string> exts = anatomistSupportedFileExtensionsSet();
+  // aims extensions
+  set<string> aexts = supportedFileExtensionsSet( "Volume" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Mesh" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Mesh4" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Segments" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Texture" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Graph" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Hierarchy" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Bucket" );
+  exts.insert( aexts.begin(), aexts.end() );
+
+  string sexts;
+  formatsString( exts, sexts );
+  return sexts;
+}
+
+
+set<string> ObjectReader::supportedFileExtensionsSet
+    ( const std::string & objtype )
+{
+  set<string> exts;
+  const map<string, map<string, IOObjectTypesDictionary::FormatInfo> >
+      & types = IOObjectTypesDictionary::types();
+  if( types.empty() )
+    return exts;
+  map<string, map<string,
+    IOObjectTypesDictionary::FormatInfo> >::const_iterator
+      it, et = types.end();
+  map<string, IOObjectTypesDictionary::FormatInfo>::const_iterator
+    ifo, efo;
+  set<string>::iterator ifm, efm;
+  for( it=types.begin(); it!=et; ++it )
+    if( it->first == objtype )
+    {
+      for( ifo=it->second.begin(), efo=it->second.end(); ifo!=efo; ++ifo )
+      {
+        const set<string> & formats = ifo->second();
+        for( ifm=formats.begin(), efm=formats.end(); ifm!=efm; ++ifm )
+        {
+          set<string> e = Finder::extensions( *ifm );
+          exts.insert( e.begin(), e.end() );
+        }
+      }
+      break;
+    }
+
+  addZippedFormats( exts );
+
+  return exts;
+}
+
+
+string ObjectReader::supportedFileExtensions( const string & objtype )
+{
+  set<string> exts = supportedFileExtensionsSet( objtype );
+  string sexts;
+  formatsString( exts, sexts );
+  return sexts;
+}
+
+
+string ObjectReader::supportedFileExtensions( const set<string> & objtypes )
+{
+  set<string> exts, exts2;
+  set<string>::const_iterator i, e = objtypes.end();
+  for( i=objtypes.begin(); i!=e; ++i )
+  {
+    exts2 = supportedFileExtensionsSet( *i );
+    exts.insert( exts2.begin(), exts2.end() );
+  }
+  string sexts;
+  formatsString( exts, sexts );
+  return sexts;
+}
+
+
+string ObjectReader::anatomistSupportedFileExtensions()
+{
+  set<string> exts = anatomistSupportedFileExtensionsSet();
+  string sexts;
+  formatsString( exts, sexts );
+  return sexts;
+}
+
