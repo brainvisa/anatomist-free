@@ -171,7 +171,7 @@ namespace
       pix.setMask( pix.createHeuristicMask() );
       int fd;
       string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
-      pix.save( pixfname.c_str() );
+      pix.save( QString( pixfname.c_str() ) );
 
       /* QTextDocument document;
       document.addResource( QTextDocument::ImageResource, QUrl("refimage.png"),
@@ -218,7 +218,7 @@ namespace
         pix.setMask( pix.createHeuristicMask() );
         int fd;
         string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
-        pix.save( pixfname.c_str() );
+        pix.save( QString( pixfname.c_str() ) );
 
         QString text( "<h4>Transformation:  <img src=\"" );
         text += pixfname.c_str();
