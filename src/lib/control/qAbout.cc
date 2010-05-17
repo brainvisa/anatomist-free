@@ -443,46 +443,86 @@ namespace
       return false;
     }
 
+    snd_pcm_hw_params_t *hw_params;
+    if( ( err = snd_pcm_hw_params_malloc( &hw_params ) ) < 0 )
+    {
+      cerr << snd_strerror(err) << endl;
+      snd_pcm_close(handle);
+      return false;
+    }
+
     // mono, 8 bits, 22 kHz
     snd_pcm_format_t format = SND_PCM_FORMAT_U8;
     if( hdr.sampleSize == 2 )
       format = SND_PCM_FORMAT_U16;
-    int freqDsp = hdr.rate;
+    unsigned freqDsp = hdr.rate;
     int channels = hdr.channels;
-    if( ( err = snd_pcm_set_params( handle, format,
-      SND_PCM_ACCESS_RW_INTERLEAVED, channels, freqDsp, 1, 50000 ) ) < 0 )
+    if( ( err = snd_pcm_hw_params_any( handle, hw_params ) ) < 0 )
+    {
+      cerr << snd_strerror(err) << endl;
+      snd_pcm_hw_params_free( hw_params );
+      snd_pcm_close(handle);
+      return false;
+    }
+    if( ( err = snd_pcm_hw_params_set_access( handle, hw_params,
+          SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 )
     {
       cerr << "ALSA error: " << snd_strerror(err) << endl;
-      snd_pcm_close( handle );
+      snd_pcm_hw_params_free( hw_params );
+      snd_pcm_close(handle);
+      return false;
+    }
+    if( ( err = snd_pcm_hw_params_set_format( handle, hw_params,
+          format ) ) < 0 )
+    {
+      cerr << "ALSA error: " << snd_strerror(err) << endl;
+      snd_pcm_hw_params_free( hw_params );
+      snd_pcm_close(handle);
+      return false;
+    }
+    if( ( err = snd_pcm_hw_params_set_rate_near( handle, hw_params, &freqDsp,
+          0 ) ) < 0 )
+    {
+      cerr << "ALSA error: " << snd_strerror(err) << endl;
+      snd_pcm_hw_params_free( hw_params );
+      snd_pcm_close(handle);
+      return false;
+    }
+    if( ( err = snd_pcm_hw_params_set_channels( handle, hw_params,
+          channels ) ) < 0 )
+    {
+      cerr << "ALSA error: " << snd_strerror(err) << endl;
+      snd_pcm_hw_params_free( hw_params );
+      snd_pcm_close(handle);
+      return false;
+    }
+    if( ( err = snd_pcm_hw_params( handle, hw_params ) ) < 0 )
+    {
+      cerr << "ALSA error: " << snd_strerror(err) << endl;
+      snd_pcm_hw_params_free( hw_params );
+      snd_pcm_close(handle);
       return false;
     }
 
-    snd_pcm_hw_params_t *hwparams = 0;
-    snd_pcm_hw_params_alloca( &hwparams ); // will be automatically freed
-    err = snd_pcm_hw_params_any( handle, hwparams );
-    if( err < 0 )
-    {
-      cerr << "Broken configuration for playback: no configurations available: "
-        << snd_strerror(err) << endl;
-      snd_pcm_close( handle );
-      return false;
-    }
     unsigned bufferTime = 25000;    // 1/40 second
     int dir = 1;
 
-    err = snd_pcm_hw_params_set_buffer_time_near( handle, hwparams, &bufferTime,
-                                                  &dir);
+    err = snd_pcm_hw_params_set_buffer_time_near( handle, hw_params,
+        &bufferTime, &dir);
     if (err < 0)
     {
+      /*
       cerr << "Unable to set buffer time " << bufferTime << " for playback: "
         << snd_strerror(err) << endl;
+      */
+      snd_pcm_hw_params_free( hw_params );
       snd_pcm_close(handle);
       return false;
     }
     // cout << "buffer time: " << bufferTime << endl;
 
     snd_pcm_uframes_t bufsz = 0;
-    err = snd_pcm_hw_params_get_buffer_size( hwparams, &bufsz );
+    err = snd_pcm_hw_params_get_buffer_size( hw_params, &bufsz );
     if (err < 0)
     {
       cerr << "Unable to get buffer size for playback: "
@@ -491,6 +531,14 @@ namespace
       bufsz = ((long long) bufferTime) * freqDsp / 1000000;
     }
     // cout << "obtained buffer size : " << bufsz << endl;
+    snd_pcm_hw_params_free( hw_params );
+
+    if( ( err = snd_pcm_prepare( handle ) ) < 0 )
+    {
+      cerr << "ALSA error: " << snd_strerror(err) << endl;
+      snd_pcm_close(handle);
+      return false;
+    }
 
     d->alsaHandle = handle;
     d->soundBufferSize = bufsz;
