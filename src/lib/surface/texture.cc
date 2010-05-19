@@ -1009,6 +1009,7 @@ namespace
     registerProcessType( "Texture", "FLOAT", &save<float> );
     registerProcessType( "Texture", "S16", &save<short> );
     registerProcessType( "Texture", "S32", &save<int> );
+    registerProcessType( "Texture", "U32", &save<uint32_t> );
   }
 
 
@@ -1039,11 +1040,21 @@ bool ATexture::save( const string & filename )
             string dt;
             if( tex->header().getProperty( "data_type", dt ) )
             {
+              string ft;
+              if( tex->header().getProperty( "file_type", ft ) && (ft == "GIFTI") )
+              {
+              std::cout << "save GIFTI texture type : " << dt << std::endl;
+              Writer<Texture1d>	w( filename );
+              w.write( *tex );
+              }
+              else
+              {
               TexSaver ts( filename, this );
               Finder f;
               f.setObjectType( "Texture" );
               f.setDataType( dt );
               ts.execute( f, filename );
+              }
             }
             else
             {
