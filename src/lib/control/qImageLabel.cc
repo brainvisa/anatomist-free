@@ -165,6 +165,7 @@ void QImageLabel::mousePressEvent( QMouseEvent* e )
   if( e->button() == Qt::RightButton && !movie() )
     {
 #if QT_VERSION >= 0x040000
+/*
       if( !_privdata->movie )
 	{
 	  _privdata->movie = 
@@ -180,7 +181,7 @@ void QImageLabel::mousePressEvent( QMouseEvent* e )
 	  _privdata->movie->start();
 	}
       setMovie( _privdata->movie );
-
+*/
 #else
 
       if( !_privdata->movie )
