@@ -28,9 +28,11 @@ class AnatomistComponent( GenericMakerComponent ):
         defines = []
       if os.path.exists( '/usr/include/sys/soundcard.h' ) \
         or os.path.exists( '/usr/include/sys/audioio.h' ):
-        defines.append( 'SOMA_SOUND_OSS' )
+        if 'SOMA_SOUND_OSS' not in defines:
+          defines.append( 'SOMA_SOUND_OSS' )
       if weakDependency( 'alsa', self ):
-        defines.append( 'SOMA_SOUND_ALSA' )
+        if 'SOMA_SOUND_ALSA' not in defines:
+          defines.append( 'SOMA_SOUND_ALSA' )
       self._data[ 'defines' ] = defines
 
   def weakDependencies( self ):
