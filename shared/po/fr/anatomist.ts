@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.0" language="fr_FR">
 <context>
     <name>ALandmarkPicker</name>
     <message>
@@ -258,7 +260,7 @@
     </message>
     <message>
         <source>ROIs</source>
-        <translation>Régions d&apos;intétêt</translation>
+        <translation type="obsolete">Régions d&apos;intétêt</translation>
     </message>
     <message>
         <source>Quit</source>
@@ -310,7 +312,7 @@
     </message>
     <message>
         <source>Triangular meshes</source>
-        <translation>Maillages triangulés</translation>
+        <translation type="obsolete">Maillages triangulés</translation>
     </message>
     <message>
         <source>Surface matching, texture interpolation, landmarks, ERPs reader</source>
@@ -623,6 +625,42 @@
     <message>
         <source>Anatomist is controlled by another application which does not allow closing the main window</source>
         <translation>Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
+    </message>
+    <message>
+        <source>VtkModule</source>
+        <translation>Module VTK</translation>
+    </message>
+    <message>
+        <source>Vtk bindings module: allows to use Vtk object in Anatomist windows</source>
+        <translation>Module de liens avec VTK: permet de visualiser des objets VTK dans les fenêtres Anatomist</translation>
+    </message>
+    <message>
+        <source>Surfacic meshes</source>
+        <translation>Maillages surfaciques</translation>
+    </message>
+    <message>
+        <source>Graphs/ROIs sets</source>
+        <translation>Graphes/Jeux de ROIs</translation>
+    </message>
+    <message>
+        <source>Voxels lists</source>
+        <translation>Listes de voxels</translation>
+    </message>
+    <message>
+        <source>Other object files</source>
+        <translation>Autres fichiers d&apos;objets</translation>
+    </message>
+    <message>
+        <source>Clear everything</source>
+        <translation>Tout effacer</translation>
+    </message>
+    <message>
+        <source>Delete all objects / windows /referentials ?</source>
+        <translation>Effacer tous les objets / fenêtres / référentiels ?</translation>
+    </message>
+    <message>
+        <source>All objects, windows, referentials and transformations will be deleted</source>
+        <translation>Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
     </message>
 </context>
 <context>
@@ -1313,6 +1351,10 @@ Bt droit   :  menu
         <source>FusionRGBAVolumeMethod</source>
         <translation>Extraction de volume RGBA</translation>
     </message>
+    <message>
+        <source>FusionClipMethod</source>
+        <translation>Clipping: tronque l&apos;objet par un demi-espace défini par un plan (un seul côté du plan est affiché)</translation>
+    </message>
 </context>
 <context>
     <name>GraphLandmarkPicker</name>
@@ -1940,6 +1982,10 @@ Bt droit   :  menu
         <source>Palette 1D Mapping :</source>
         <translation>Palette 1D :</translation>
     </message>
+    <message>
+        <source>Value 0 at center</source>
+        <translation>Valeur 0 au centre</translation>
+    </message>
 </context>
 <context>
     <name>QAWindowFactory</name>
@@ -1972,7 +2018,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>check config and BRAINVISA_SHARE or ANATOMIST_PATH environment variable</source>
-        <translation>Vérifiez la config et la variable d&apos;environnement BRAINVISA_SHARE ou ANATOMIST_PATH</translation>
+        <translation type="obsolete">Vérifiez la config et la variable d&apos;environnement BRAINVISA_SHARE ou ANATOMIST_PATH</translation>
+    </message>
+    <message>
+        <source>check config and BRAINVISA_SHARE environment variable</source>
+        <translation>vérifier la configuration et la variable d&apos;environnement BRAINVISA_SHARE</translation>
     </message>
 </context>
 <context>
@@ -2060,6 +2110,10 @@ Bt droit   :  menu
     <message>
         <source>Load sub-objects in relations</source>
         <translation>Charger les sous-objets des relations</translation>
+    </message>
+    <message>
+        <source>Selection highlight type :</source>
+        <translation>Type de visualisation de la sélection :</translation>
     </message>
 </context>
 <context>
