@@ -41,6 +41,8 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/surface/surface.h>
+#include <anatomist/surface/triangulated.h>
 
 namespace aims
 {
@@ -125,6 +127,10 @@ public:
   /// pick a polygon on a selected object at the cursor 2D position
   virtual int polygonAtCursorPosition( int x, int y,
                                        const anatomist::AObject* obj );
+  /// print all infos about vertex picked on a polygon selected
+  int computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as);
+		  //anatomist::ATriangulated *as);
+  void getInfos3DFromClickPoint( int x, int y );
   void printPositionAndValue();
   virtual void displayClickPoint();
 
