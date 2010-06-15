@@ -389,6 +389,26 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
 	  AVolume<int8_t> * vol8bits = dynamic_cast<AVolume<int8_t> *>(myCurrentImage) ;
 	  if( vol8bits )
 	    computeImageValueMap( *vol8bits, timePos ) ;
+	  else{
+	    AVolume<int32_t> * vol32bits = dynamic_cast<AVolume<int32_t> *>(myCurrentImage) ;
+	    if( vol32bits )
+	      computeImageValueMap( *vol32bits, timePos ) ;
+	    else {
+	      AVolume<uint16_t> * volu16bits = dynamic_cast<AVolume<uint16_t> *>(myCurrentImage) ;
+	      if( volu16bits )
+	        computeImageValueMap( *volu16bits, timePos ) ;
+	      else{
+	        AVolume<uint8_t> * volu8bits = dynamic_cast<AVolume<uint8_t> *>(myCurrentImage) ;
+	        if( volu8bits )
+	          computeImageValueMap( *volu8bits, timePos ) ;
+	        else{
+	          AVolume<uint32_t> * volu32bits = dynamic_cast<AVolume<uint32_t> *>(myCurrentImage) ;
+	          if( volu32bits )
+	            computeImageValueMap( *volu32bits, timePos ) ;
+	        }
+	      }
+	    }
+	  }
 	}
 	
 	std::map< int16_t, int32_t>::iterator found
