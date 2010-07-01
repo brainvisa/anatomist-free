@@ -40,8 +40,13 @@ endif()
 
 option(CMAKE_OVERRIDE_COMPILER_MISMATCH "Check for compiler consistency" "On")
 
-find_package( VTK "5.4" QUIET )
+#find_package( VTK "5.4" QUIET ) # doesn't work on Mandrava 2010-x86_64
+find_package( VTK )
 if( VTK_FOUND )
+  if( ( VTK_MAJOR_VERSION LESS 5 ) OR ( ( VTK_MAJOR_VERSION EQUALS 5 ) AND ( VTK_MINOR_VERSION LESS 4 ) ) )
+    message( "VTK version is too old." )
+    set( VTK_FOUND 0 )
+  endif()
   find_package( vtkINRIA3D QUIET )
   if( vtkINRIA3D_FOUND )
     BRAINVISA_DEPENDENCY( RUN DEPENDS VTK RUN ">=5.4" )
