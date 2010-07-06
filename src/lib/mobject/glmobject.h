@@ -74,6 +74,8 @@ namespace anatomist
 
     virtual void glSetTexImageChanged( bool x = true, unsigned tex = 0 ) const;
     virtual void glSetTexEnvChanged( bool x = true, unsigned tex = 0 ) const;
+    virtual const TexExtrema & glTexExtrema( unsigned tex = 0 ) const;
+    virtual TexExtrema & glTexExtrema( unsigned tex = 0 );
     virtual unsigned glNumTextures() const;
     virtual unsigned glNumTextures( const ViewState & ) const;
     virtual glTextureMode glTexMode( unsigned tex = 0 ) const;

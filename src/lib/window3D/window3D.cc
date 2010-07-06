@@ -1423,6 +1423,56 @@ void AWindow3D::displayClickPoint()
 {
 }
 
+
+namespace
+{
+
+  int computeNearestVertexFromPolygonPoint2( const ViewState & vs, int poly,
+                                             const GLComponent* glc,
+                                             const Point3df & position )
+  {
+    int index_nearest_vertex = -1;
+    Point3df pt;
+
+    const GLfloat *avert = glc->glVertexArray( vs );
+    const Point3df *vert = reinterpret_cast<const Point3df *>( avert );
+    unsigned npoly = glc->glNumPolygon( vs );
+    unsigned polsize = glc->glPolygonSize( vs );
+    unsigned v, i;
+
+    //compute the nearest polygon vertex
+    float min,dist_min = FLT_MAX;
+
+    if( poly >= 0 && (unsigned) poly < npoly )
+    {
+      const GLuint *apoly = glc->glPolygonArray( vs );
+      for( i=0; i<polsize; ++i )
+      {
+        v = apoly[poly*polsize+i];
+        pt = vert[v];
+        min = (position - pt).norm2();
+
+        if (min < dist_min)
+        {
+          dist_min = min;
+          index_nearest_vertex = v;
+        }
+      }
+      pt = vert[index_nearest_vertex];
+
+      cout << "3D point picked= " << position << "\n" ;
+      cout << "ID polygon selected = " << poly << "\n";
+      cout << "index nearest vertex = " << index_nearest_vertex << "\n";
+      cout << "3D coord vertex value = " << pt << "\n" ;
+    }
+
+    return index_nearest_vertex;
+
+  }
+
+}
+
+
 int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as)
 {
   int index_nearest_vertex,index_min= 0;
@@ -1493,9 +1543,10 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
       string t = o->objectTypeName( o->type() );
       int index_v = 0;
 
-      cout << "\nobjet type : " << t << endl;
+      cout << endl << o->name() << endl;
+      cout << "objet type : " << t << endl;
 
-#if 0 // work in progress...
+#if 1 // using the general GLComponent API
       GLComponent *glc = o->glAPI();
       if( glc )
       {
@@ -1508,28 +1559,43 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
         {
           vs = &vs3;
         }
-        // index_v = computeNearestVertexFromPolygonPoint( position, poly, s );
-        index_v = computeNearestVertexFromPolygonPoint( *vs, poly, glc );
-        if( index_v >= 0 && index_v < glc->glNumVertex( *vs ) )
+        index_v = computeNearestVertexFromPolygonPoint2( *vs, poly, glc,
+                                                         position );
+        if( index_v >= 0 && (unsigned) index_v < glc->glNumVertex( *vs ) )
         {
-          GLFloat* vert = glc->glVertexArray( *vs );
-          cout << "VERTEX: " << index_v << " : " << vert[ index_v * 3 ] << ", " 
-            << vert[ index_v * 3 + 1 ] << ", " << vert[ index_v * 3 + 2 ] << endl;
-          if( glc->glNumTextures( *vs ) > 0 )
+          /* const GLfloat* vert = glc->glVertexArray( *vs );
+          cout << "  vertex: " << index_v << " : " << vert[ index_v * 3 ]
+            << ", " << vert[ index_v * 3 + 1 ] << ", "
+            << vert[ index_v * 3 + 2 ] << endl;*/
+          unsigned ntex = glc->glNumTextures( *vs ), tx;
+          for( tx=0; tx<ntex; ++tx )
           {
-            unsigned nvtex = glc->glTexCoordSize( *vs );
-            if( nvtex > index_v )
+            unsigned nvtex = glc->glTexCoordSize( *vs, tx );
+            if( nvtex > (unsigned) index_v )
             {
-              GLFloat* tex = glc->glTexCoordArray( *vs );
-              if( tex )
+              const GLfloat* tc = glc->glTexCoordArray( *vs, tx );
+              if( tc )
               {
-                cout << "tex coord: " << tex[index_v] << endl;
+                const GLComponent::TexExtrema   & te = glc->glTexExtrema( tx );
+                unsigned dt = glc->glDimTex( *vs, tx ), i;
+                if( dt > 0 )
+                {
+                  cout << "texture " << tx << " value =";
+                  for( i=0; i<dt; ++i )
+                  {
+                    float scl = (te.maxquant[i] - te.minquant[i])
+                      / (te.max[i] - te.min[i]);
+                    float off = te.minquant[i] - scl * te.min[i];
+                    cout << " " << scl*tc[index_v*dt+i]+off;
+                  }
+                  cout << endl;
+                }
               }
             }
           }
         }
       }
-#endif
+#else
 
       /*else*/ if (t == "TEXTURED SURF.")
       {
@@ -1597,7 +1663,7 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
 
         index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
       }
-
+#endif
     }
   }
 }
