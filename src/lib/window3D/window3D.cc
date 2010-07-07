@@ -1423,6 +1423,56 @@ void AWindow3D::displayClickPoint()
 {
 }
 
+
+namespace
+{
+
+  int computeNearestVertexFromPolygonPoint2( const ViewState & vs, int poly,
+                                             const GLComponent* glc,
+                                             const Point3df & position )
+  {
+    int index_nearest_vertex = -1;
+    Point3df pt;
+
+    const GLfloat *avert = glc->glVertexArray( vs );
+    const Point3df *vert = reinterpret_cast<const Point3df *>( avert );
+    unsigned npoly = glc->glNumPolygon( vs );
+    unsigned polsize = glc->glPolygonSize( vs );
+    unsigned v, i;
+
+    //compute the nearest polygon vertex
+    float min,dist_min = FLT_MAX;
+
+    if( poly >= 0 && (unsigned) poly < npoly )
+    {
+      const GLuint *apoly = glc->glPolygonArray( vs );
+      for( i=0; i<polsize; ++i )
+      {
+        v = apoly[poly*polsize+i];
+        pt = vert[v];
+        min = (position - pt).norm2();
+
+        if (min < dist_min)
+        {
+          dist_min = min;
+          index_nearest_vertex = v;
+        }
+      }
+      pt = vert[index_nearest_vertex];
+
+      cout << "3D point picked= " << position << "\n" ;
+      cout << "ID polygon selected = " << poly << "\n";
+      cout << "index nearest vertex = " << index_nearest_vertex << "\n";
+      cout << "3D coord vertex value = " << pt << "\n" ;
+    }
+
+    return index_nearest_vertex;
+
+  }
+
+}
+
+
 int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as)
 {
   int index_nearest_vertex,index_min= 0;
@@ -1432,7 +1482,7 @@ int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly
   const vector<Point3df>	& vert  =  as->vertex();
   vector< AimsVector<uint,3> >	& tri = as->polygon();
 
-  if (poly < tri.size() && poly > 0)
+  if( poly < (int) tri.size() && poly >= 0)
   {
     v[0] = tri[poly][0];
     v[1] = tri[poly][1];
@@ -1442,24 +1492,24 @@ int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly
     pt[1] = vert[v[1]];
     pt[2] = vert[v[2]];
 
-  cout << "nb poly= " << tri.size() << endl;
+    cout << "nb poly= " << tri.size() << endl;
 
-  //compute the nearest polygon vertex
-  float min,dist_min = FLT_MAX;
+    //compute the nearest polygon vertex
+    float min,dist_min = FLT_MAX;
 
-  for (int i = 0 ; i < 3 ; i++)
-	{
-	  min = (float) sqrt (
-	  (position[0]-pt[i][0])*(position[0]-pt[i][0]) +
-	  (position[1]-pt[i][1])*(position[1]-pt[i][1]) +
-	  (position[2]-pt[i][2])*(position[2]-pt[i][2]) );
+    for (int i = 0 ; i < 3 ; i++)
+    {
+      min = (float) sqrt (
+      (position[0]-pt[i][0])*(position[0]-pt[i][0]) +
+      (position[1]-pt[i][1])*(position[1]-pt[i][1]) +
+      (position[2]-pt[i][2])*(position[2]-pt[i][2]) );
 
-	  if (min < dist_min)
-	  {
-		  dist_min = min;
-		  index_min = i;
-	  }
-	}
+      if (min < dist_min)
+      {
+        dist_min = min;
+        index_min = i;
+      }
+    }
   }
 
   index_nearest_vertex = v[index_min];
@@ -1493,11 +1543,64 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
       string t = o->objectTypeName( o->type() );
       int index_v = 0;
 
-      cout << "\nobjet type : " << t << endl;
-      if (t == "TEXTURED SURF.")
+      cout << endl << o->name() << endl;
+      cout << "objet type : " << t << endl;
+
+#if 1 // using the general GLComponent API
+      GLComponent *glc = o->glAPI();
+      if( glc )
       {
-	    ATexSurface *go;
-	    go = dynamic_cast<ATexSurface *>( o );
+        ViewState vs3( GetTime(), this );
+        SliceViewState  vs2( GetTime(), true, position, &d->slicequat, 
+                            getReferential(), windowGeometry(), 
+                            &d->draw->quaternion(), this );
+        ViewState *vs = &vs2;
+        if( !obj->Is2DObject() || ( d->viewtype == ThreeD && obj->Is3DObject() ) )
+        {
+          vs = &vs3;
+        }
+        index_v = computeNearestVertexFromPolygonPoint2( *vs, poly, glc,
+                                                         position );
+        if( index_v >= 0 && (unsigned) index_v < glc->glNumVertex( *vs ) )
+        {
+          /* const GLfloat* vert = glc->glVertexArray( *vs );
+          cout << "  vertex: " << index_v << " : " << vert[ index_v * 3 ]
+            << ", " << vert[ index_v * 3 + 1 ] << ", "
+            << vert[ index_v * 3 + 2 ] << endl;*/
+          unsigned ntex = glc->glNumTextures( *vs ), tx;
+          for( tx=0; tx<ntex; ++tx )
+          {
+            unsigned nvtex = glc->glTexCoordSize( *vs, tx );
+            if( nvtex > (unsigned) index_v )
+            {
+              const GLfloat* tc = glc->glTexCoordArray( *vs, tx );
+              if( tc )
+              {
+                const GLComponent::TexExtrema   & te = glc->glTexExtrema( tx );
+                unsigned dt = glc->glDimTex( *vs, tx ), i;
+                if( dt > 0 )
+                {
+                  cout << "texture " << tx << " value =";
+                  for( i=0; i<dt; ++i )
+                  {
+                    float scl = (te.maxquant[i] - te.minquant[i])
+                      / (te.max[i] - te.min[i]);
+                    float off = te.minquant[i] - scl * te.min[i];
+                    cout << " " << scl*tc[index_v*dt+i]+off;
+                  }
+                  cout << endl;
+                }
+              }
+            }
+          }
+        }
+      }
+#else
+
+      /*else*/ if (t == "TEXTURED SURF.")
+      {
+        ATexSurface *go;
+        go = dynamic_cast<ATexSurface *>( o );
 
         AObject *surf = go->surface();
         AObject *tex = go->texture();
@@ -1513,7 +1616,7 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
 
         string attdattypr;
         at->attributed()->getProperty( "data_type",attdattypr);
-      	cout << "data type = " << attdattypr << endl;
+        cout << "data type = " << attdattypr << endl;
 
         //float		it = at->TimeStep();
         //cout << "Time min = " << at->MinT() << " Time Max = " << at->MaxT() <<endl;
@@ -1528,41 +1631,39 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
         //Texture<float>	& text = (*Tt)[0];
 
         const GLComponent::TexExtrema	& te = at->glTexExtrema( 0 );
-        float m = te.min[0];
         float scl = (te.maxquant[0] - te.minquant[0]);
 
         index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
 
-		//cout << "texture coord value = " << tc[index_v] << "\n";
+        //cout << "texture coord value = " << tc[index_v] << "\n";
 
-		if ( (attdattypr == "S16") ||
-			(attdattypr == "U32") ||
-			(attdattypr == "S32"))
-		    cout << "texture value = " << (int) floor (scl*tc[index_v]+0.5) << "\n";
+        if ( (attdattypr == "S16") ||
+          (attdattypr == "U32") ||
+          (attdattypr == "S32"))
+          cout << "texture value = " << (int) rint (scl*tc[index_v]+te.minquant[0]) << "\n";
 
-		if (attdattypr == "FLOAT")
-			cout << "texture value = " << scl*tc[index_v] << "\n";
+        if (attdattypr == "FLOAT")
+          cout << "texture value = " << scl*tc[index_v]+te.minquant[0] << "\n";
       }
 
       if (t == "SURFACE")
       {
-       	ATriangulated	*as;
-       	as = dynamic_cast<ATriangulated *>( o );
+        ATriangulated	*as;
+        as = dynamic_cast<ATriangulated *>( o );
 
-//       	int size;
-//       	as->attributed()->getProperty( "nb_t_pos",size);
-//       	cout << "nb time pos = " << size << endl;
+      // int size;
+      // as->attributed()->getProperty( "nb_t_pos",size);
+      // cout << "nb time pos = " << size << endl;
 
-       	int	t = (int) GetTime();
-       	AimsSurface<3,Void> *s = as->surfaceOfTime( t );
-       	const vector<Point3df>	& vert  =  s->vertex();
+        int	t = (int) GetTime();
+        AimsSurface<3,Void> *s = as->surfaceOfTime( t );
 
-		if (as->MaxT()>0)
-			cout << "Time cursor = " << t << "/" << as->MaxT() << endl;
+        if (as->MaxT()>0)
+          cout << "Time cursor = " << t << "/" << as->MaxT() << endl;
 
-    	index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
+        index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
       }
-
+#endif
     }
   }
 }
@@ -3591,8 +3692,8 @@ AObject* AWindow3D::objectAtCursorPosition( int x, int y )
 }
 
 
-list<AObject*> *AWindow3D::objectsAtCursorPosition( int x, int y,
-    int tolerenceRadius )
+list<AObject*> *AWindow3D::objectsAtCursorPosition( int /*x*/, int /*y*/,
+    int /*tolerenceRadius*/ )
 {
   // TODO
   list<AObject *> *objs = 0;

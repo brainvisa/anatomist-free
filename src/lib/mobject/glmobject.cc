@@ -329,6 +329,25 @@ unsigned GLMObject::glNumTextures( const ViewState & s ) const
 }
 
 
+const GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
+  const
+{
+  const GLComponent     *t = glTexture();
+  if( t )
+    return t->glTexExtrema( tex );
+  return GLComponent::glTexExtrema( tex );
+}
+
+
+GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
+{
+  GLComponent     *t = glTexture();
+  if( t )
+    return t->glTexExtrema( tex );
+  return GLComponent::glTexExtrema( tex );
+}
+
+
 unsigned GLMObject::glDimTex( const ViewState & s, unsigned tex ) const
 {
   const GLComponent	*t = glTexture();
