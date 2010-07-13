@@ -49,8 +49,22 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
 
   minc0 = palette->min1();
   maxc0 = palette->max1(); // colormap min & max
+  if( minc0 == maxc0 )
+  {
+    if( minc0 == 1. )
+      minc0 = 0.;
+    else
+      maxc0 = 1.;
+  }
   minc1 = palette->min2();
   maxc1 = palette->max2(); // colormap min & max
+  if( minc1 == maxc1 )
+  {
+    if( minc1 == 1. )
+      minc1 = 0.;
+    else
+      maxc1 = 1.;
+  }
 
   if( mini == maxi )
     {
