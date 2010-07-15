@@ -1159,7 +1159,14 @@ template<typename T>
 void VolumeScalarTraits<T>::adjustPalette()
 {
   if( mini == maxi )
+  {
+    volume->getOrCreatePalette();
+    AObjectPalette        *pal = volume->palette();
+    pal->setMin1( 0 );
+    pal->setMax1( 1. );
+
     return;
+  }
 
   //	generate histogram
   unsigned		histo[ 256 ];
@@ -1189,7 +1196,7 @@ void VolumeScalarTraits<T>::adjustPalette()
   for( i=0; i<256 && n<limit; ++i )
     n += histo[ i ];
   if( i == 1 )	// patch Denis 100300: si tout est sur la 1ere bande,
-    i = 255;	// on d�active l'histo (vol. fonctionnel)
+    i = 255;	// on desactive l'histo (vol. fonctionnel)
   else if( i == 256 )
     i = 255;
   else if( nval < maxval )
