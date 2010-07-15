@@ -155,7 +155,11 @@ void SetObjectPaletteCommand::doit()
             GLComponent::TexExtrema	& te = glc->glTexExtrema();
             absmode = true;
             float m0 = te.minquant[0];
-            float scl0 = 1. / (te.maxquant[0] - m0);
+            float scl0;
+            if( te.maxquant[0] != m0 )
+              scl0 = 1. / (te.maxquant[0] - m0);
+            else
+              scl0 = 1.;
             if( _min1flg )
               pal.setMin1( ( _min1 - m0 ) * scl0 );
             else
@@ -170,7 +174,10 @@ void SetObjectPaletteCommand::doit()
             if( te.minquant.size() >= 2 )
             {
               m1 = te.minquant[1];
-              scl1 = 1. / (te.maxquant[1] - m1);
+              if( te.maxquant[1] != m1 )
+                scl1 = 1. / (te.maxquant[1] - m1);
+              else
+                scl1 = 1.;
               if( _min2flg )
                 pal.setMin2( ( _min2 - m1 ) * scl1 );
               else
