@@ -230,7 +230,7 @@ HEADERS = \
 	application/listDir.h \
 	application/anatomist_doc.h \
 	stdmod/stdmod.h \
-	primitive/primitive.h 
+	primitive/primitive.h
 
 SOURCES = \
 	threads/asyncHandler.cc \
@@ -452,7 +452,7 @@ SOURCES = \
 	application/syntax.cc \
 	application/listDir.cc \
 	stdmod/stdmod.cc \
-	primitive/primitive.cc 
+	primitive/primitive.cc
 
 #release-darwin:LIBS	= $(DARWINBUG_LIBS)
 
