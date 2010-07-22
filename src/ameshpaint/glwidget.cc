@@ -44,8 +44,8 @@ _adressTexOut(adressTexOut), _colorMap(colorMap), _dataType(dataType)
   Reader<TimeTexture<T> > rtexIn(adressTexIn);
   rtexIn.read(_tex);
 
-  _trackBall = TrackBall(0.05f, gfx::Vector3f::vector(0, 1, 0),TrackBall::Sphere);
-  _trackBall = TrackBall(0.0f, gfx::Vector3f::vector(0, 1, 0),TrackBall::Plane);
+  _trackBall = TrackBall(0.5f, gfx::Vector3f::vector(0, 1, 0),TrackBall::Sphere);
+  //_trackBall = TrackBall(0.0f, gfx::Vector3f::vector(0, 1, 0),TrackBall::Plane);
   setAutoFillBackground(false);
   setMinimumSize(320, 240);
   setWindowTitle(tr("painting on the mesh"));
@@ -485,7 +485,7 @@ GLuint myGLWidget<T>::checkIDpolygonPicked(int x, int y)
 template<typename T>
 void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 {
-  if (event->buttons() == Qt::LeftButton & _mode == 1)
+  if (event->buttons() == Qt::MidButton && _mode == 1)
   {
     _trackBall.start();
     _trackBall.push(pixelPosToViewPos(event->pos()),
@@ -494,16 +494,63 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
     updateGL();
   }
 
-  if (event->buttons() == Qt::LeftButton & _mode == 2)
+  if (event->buttons() == Qt::LeftButton && _mode == 2)
   {
     if (_resized)
       copyBackBuffer2Texture();
 
-    int indexPolygon = checkIDpolygonPicked(event->x(), event->y());
+
+    _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
     _point3Dpicked = check3DpointPicked(event->x(), event->y());
     _trackBall.stop();
+
+    Point3df p;
+    p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
+    p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
+    p[2] = _meshCenter[2] + (float) _point3Dpicked[2] / _meshScale;
+
+    _indexVertex = computeNearestVertexFromPolygonPoint(p, _indexPolygon,_mesh);
+
+    //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
+    const float* t = _ao->textureCoords();
+    if (_indexVertex < _mesh.vertex().size())
+    {
+//      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
+//          * t[_indexVertex])];
+//      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
+//          * t[_indexVertex]) + 1];
+//      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
+//          * t[_indexVertex]) + 2];
+      _textureValue = _tex[0].item(_indexVertex);
+
+      //cout << "coucou\n" << _indexPolygon << " " << _indexVertex << " " <<_textureValue << "\n";
+
+
+      typename std::map<int,T>::const_iterator it(_listVertexSelect.find(_indexVertex));
+
+      if (it != _listVertexSelect.end())
+        _textureValue = _listVertexSelect[_indexVertex];
+
+      _colorpicked[0] = _colors[3 * _indexVertex];
+      _colorpicked[1] = _colors[3 * _indexVertex + 1];
+      _colorpicked[2] = _colors[3 * _indexVertex + 2];
+
+      changeTextureValue(_textureValue);
+      updateInfosPicking(_indexPolygon,_indexVertex);
+      //cout << "texture value " << _textureValue << endl;
+    }
+    else
+    {
+      _textureValue = 0;
+      _colorpicked[0] = dataColorMap[0];
+      _colorpicked[1] = dataColorMap[1];
+      _colorpicked[2] = dataColorMap[2];
+    }
+
+    updateGL();
   }
-  if (_mode == 3)
+
+  if (event->buttons() == Qt::LeftButton && _mode == 3)
   {
     _trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -537,7 +584,7 @@ void myGLWidget<T>::mouseReleaseEvent(QMouseEvent *event)
   if (event->isAccepted())
     return;
 
-  if (event->buttons() & Qt::LeftButton & _mode == 1)
+  if (event->buttons() & Qt::MidButton & _mode == 1)
   {
     _trackBall.release(pixelPosToViewPos(event->pos()),gfx::Quaternionf::identity());
     event->accept();
@@ -554,14 +601,14 @@ void myGLWidget<T>::mouseReleaseEvent(QMouseEvent *event)
 template<typename T>
 void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
 {
-  if (event->buttons() == Qt::LeftButton && _mode == 1)
+  if (event->buttons() == Qt::MidButton && _mode == 1)
   {
     _trackBall.move(pixelPosToViewPos(event->pos()),gfx::Quaternionf::identity());
     event->accept();
     updateGL();
   }
 
-  if (_mode == 2)
+  if (event->buttons() == Qt::LeftButton && _mode == 2)
   {
     _trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -613,7 +660,7 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     updateGL();
   }
 
-  if (_mode == 3)
+  if (event->buttons() == Qt::LeftButton && _mode == 3)
   {
     _trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -1048,6 +1095,8 @@ int myGLWidget<T>::computeNearestVertexFromPolygonPoint(Point3df position,int po
 
   const vector<Point3df> & vert = as.vertex();
   vector<AimsVector<uint, 3> > & tri = as.polygon();
+
+  //cout << "poly= " << poly << endl;
 
   if (poly < (int) tri.size() && poly > 0)
   {

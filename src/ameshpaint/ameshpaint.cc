@@ -1,5 +1,5 @@
-//AimsMeshPaint -im /home/arnaud/Bureau/vrac/AYo1_t2_nobias_cortex_hemil.mesh -it /home/arnaud/Bureau/vrac/AYo1_blobs.tex -ic blue_red_bis.rgb -ot /home/arnaud/Bureau/vrac/texout.gii
-//AimsMeshPaint -im /home/arnaud/Bureau/vrac/subject01_Lwhite_inflated.mesh -it /home/arnaud/Bureau/vrac/subject01_Lwhite_curv.tex -ic blue_red_bis.rgb -ot /home/arnaud/Bureau/vrac/texout.gii
+//ameshpaint -im /home/arnaud/Bureau/vrac/AYo1_t2_nobias_cortex_hemil.mesh -it /home/arnaud/Bureau/vrac/AYo1_blobs.tex -ic blue_red_bis.rgb -ot /home/arnaud/Bureau/vrac/texout.gii
+//ameshpaint -im /home/arnaud/Bureau/vrac/subject01_Lwhite_inflated.mesh -it /home/arnaud/Bureau/vrac/subject01_Lwhite_curv.tex -ic blue_red_bis.rgb -ot /home/arnaud/Bureau/vrac/texout.gii
 //anatomist --userLevel 4  /home/arnaud/Bureau/vrac/subject01_Lwhite_inflated.mesh /home/arnaud/Bureau/vrac/subject01_Lwhite_curv.tex
 #include "meshpaint.h"
 
