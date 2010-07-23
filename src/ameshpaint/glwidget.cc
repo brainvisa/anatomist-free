@@ -8,9 +8,10 @@ enum
 };
 
 template<typename T>
-myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,string adressMeshIn, string adressTexOut, string colorMap,string dataType) :
-GLWidget(parent), _adressTexIn(adressTexIn), _adressMeshIn(adressMeshIn),
-_adressTexOut(adressTexOut), _colorMap(colorMap), _dataType(dataType)
+myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
+    string adressMeshIn, string adressTexOut, string colorMap, string dataType) :
+  GLWidget(parent), _adressTexIn(adressTexIn), _adressMeshIn(adressMeshIn),
+      _adressTexOut(adressTexOut), _colorMap(colorMap), _dataType(dataType)
 {
   _zoom = -2.0;
   _trans = 0.0;
@@ -44,7 +45,8 @@ _adressTexOut(adressTexOut), _colorMap(colorMap), _dataType(dataType)
   Reader<TimeTexture<T> > rtexIn(adressTexIn);
   rtexIn.read(_tex);
 
-  _trackBall = TrackBall(0.5f, gfx::Vector3f::vector(0, 1, 0),TrackBall::Sphere);
+  _trackBall = TrackBall(0.5f, gfx::Vector3f::vector(0, 1, 0),
+      TrackBall::Sphere);
   //_trackBall = TrackBall(0.0f, gfx::Vector3f::vector(0, 1, 0),TrackBall::Plane);
   setAutoFillBackground(false);
   setMinimumSize(320, 240);
@@ -59,7 +61,8 @@ myGLWidget<T>::~myGLWidget()
 }
 
 template<typename T>
-void myGLWidget<T>::unitize(AimsSurfaceTriangle as, Point3df *meshCenter,float *meshScale)
+void myGLWidget<T>::unitize(AimsSurfaceTriangle as, Point3df *meshCenter,
+    float *meshScale)
 {
   GLfloat maxx, minx, maxy, miny, maxz, minz;
   GLfloat w, h, d;
@@ -72,18 +75,12 @@ void myGLWidget<T>::unitize(AimsSurfaceTriangle as, Point3df *meshCenter,float *
 
   for (int j = 0; j < (int) vert.size(); ++j)
   {
-    if (maxx < vert[j][X])
-      maxx = vert[j][X];
-    if (minx > vert[j][X])
-      minx = vert[j][X];
-    if (maxy < vert[j][Y])
-      maxy = vert[j][Y];
-    if (miny > vert[j][Y])
-      miny = vert[j][Y];
-    if (maxz < vert[j][Z])
-      maxz = vert[j][Z];
-    if (minz > vert[j][Z])
-      minz = vert[j][Z];
+    if (maxx < vert[j][X]) maxx = vert[j][X];
+    if (minx > vert[j][X]) minx = vert[j][X];
+    if (maxy < vert[j][Y]) maxy = vert[j][Y];
+    if (miny > vert[j][Y]) miny = vert[j][Y];
+    if (maxz < vert[j][Z]) maxz = vert[j][Z];
+    if (minz > vert[j][Z]) minz = vert[j][Z];
   }
   /* calculate mesh width, height, and depth */
   w = fabs(maxx) + fabs(minx);
@@ -121,7 +118,7 @@ int myGLWidget<T>::buildDisplayList(AimsSurfaceTriangle as, int mode)
     vert[j][X] *= (_meshScale);
     vert[j][Y] *= (_meshScale);
     vert[j][Z] *= (_meshScale);
-    //vert[j][Z] *= -1 ;
+    vert[j][Z] *= -1;
   }
 
   glBegin( GL_TRIANGLES);
@@ -139,24 +136,20 @@ int myGLWidget<T>::buildDisplayList(AimsSurfaceTriangle as, int mode)
         glColor3ub(255, 255, 255);
     }
 
-    if (mode == 1)
-      glColor3ub(_indexTexture[3 * j], _indexTexture[3 * j + 1],_indexTexture[3 * j + 2]);
+    if (mode == 1) glColor3ub(_indexTexture[3 * j], _indexTexture[3 * j + 1],
+        _indexTexture[3 * j + 2]);
 
-    if (mode == 0)
-      glColor3ub(255, 255, 255);
+    if (mode == 0) glColor3ub(255, 255, 255);
 
-    if (mode == 0)
-      glTexCoord2d(t[tri[j][0]], 0);
+    if (mode == 0) glTexCoord2d(t[tri[j][0]], 0);
     glNormal3f(norm[tri[j][0]][0], norm[tri[j][0]][1], norm[tri[j][0]][2]);
     glVertex3f(vert[tri[j][0]][0], vert[tri[j][0]][1], vert[tri[j][0]][2]);
 
-    if (mode == 0)
-      glTexCoord2d(t[tri[j][1]], 0);
+    if (mode == 0) glTexCoord2d(t[tri[j][1]], 0);
     glNormal3f(norm[tri[j][1]][0], norm[tri[j][1]][1], norm[tri[j][1]][2]);
     glVertex3f(vert[tri[j][1]][0], vert[tri[j][1]][1], vert[tri[j][1]][2]);
 
-    if (mode == 0)
-      glTexCoord2d(t[tri[j][2]], 0);
+    if (mode == 0) glTexCoord2d(t[tri[j][2]], 0);
     glNormal3f(norm[tri[j][2]][0], norm[tri[j][2]][1], norm[tri[j][2]][2]);
     glVertex3f(vert[tri[j][2]][0], vert[tri[j][2]][1], vert[tri[j][2]][2]);
   }
@@ -193,12 +186,14 @@ void myGLWidget<T>::buildDataArray(void)
   for (j = 0; j < (int) vert.size(); j++)
   {
     _vertices[3 * j] = (GLfloat)(_meshScale * (vert[j][X] - _meshCenter[X]));
-    _vertices[3 * j + 1] = (GLfloat)(_meshScale * (vert[j][Y] - _meshCenter[Y]));
-    _vertices[3 * j + 2] = (GLfloat)(_meshScale * (vert[j][Z] - _meshCenter[Z]));
+    _vertices[3 * j + 1]
+        = (GLfloat)(_meshScale * (vert[j][Y] - _meshCenter[Y]));
+    _vertices[3 * j + 2] = -(GLfloat)(_meshScale
+        * (vert[j][Z] - _meshCenter[Z]));
 
-    _normals[3 * j] =  norm[j][X];
+    _normals[3 * j] = norm[j][X];
     _normals[3 * j + 1] = norm[j][Y];
-    _normals[3 * j + 2] = norm[j][Z];
+    _normals[3 * j + 2] = -norm[j][Z];
 
     //_textures[j] = t[j];
 
@@ -211,23 +206,23 @@ void myGLWidget<T>::buildDataArray(void)
 
   for (j = 0; j < (int) tri.size(); ++j)
   {
-    _indices[3*j] = (GLuint)tri[j][0];
-    _indices[3*j+1] = (GLuint)tri[j][1];
-    _indices[3*j+2] = (GLuint)tri[j][2];
+    _indices[3 * j] = (GLuint) tri[j][0];
+    _indices[3 * j + 1] = (GLuint) tri[j][1];
+    _indices[3 * j + 2] = (GLuint) tri[j][2];
   }
 
-//  for (j = 0; j < 20; j++) {
-//    cout << "v " << vert[j][0] << "v " << vert[j][1] << "v " << vert[j][2]
-//        << endl;
-//    cout << "vg " << _vertices[3 * j] << "vg " << _vertices[3 * j + 1]
-//        << "vg " << _vertices[3 * j + 2] << endl;
-//  }
-//
-//  for (j = 0; j < 20; j++){
-//    cout << j << endl;
-//    cout << " " << tri[j][0] << " " << tri[j][1] << " " << tri[j][2] << endl;
-//    cout << " " << (int)_indices[3*j]  << " " << (int)_indices[3*j+1]  << " " << (int)_indices[3*j+2] << endl;
-//  }
+  //  for (j = 0; j < 20; j++) {
+  //    cout << "v " << vert[j][0] << "v " << vert[j][1] << "v " << vert[j][2]
+  //        << endl;
+  //    cout << "vg " << _vertices[3 * j] << "vg " << _vertices[3 * j + 1]
+  //        << "vg " << _vertices[3 * j + 2] << endl;
+  //  }
+  //
+  //  for (j = 0; j < 20; j++){
+  //    cout << j << endl;
+  //    cout << " " << tri[j][0] << " " << tri[j][1] << " " << tri[j][2] << endl;
+  //    cout << " " << (int)_indices[3*j]  << " " << (int)_indices[3*j+1]  << " " << (int)_indices[3*j+2] << endl;
+  //  }
 }
 
 template<typename T>
@@ -247,7 +242,7 @@ void myGLWidget<T>::setTranslate(float t)
 template<typename T>
 void myGLWidget<T>::changeTextureValueInt(int value)
 {
-  float v = (float)(value - _minT)/(float)(_maxT - _minT);
+  float v = (float) (value - _minT) / (float) (_maxT - _minT);
   _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
   _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
   _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
@@ -260,7 +255,7 @@ void myGLWidget<T>::changeTextureValueInt(int value)
 template<typename T>
 void myGLWidget<T>::changeTextureValueFloat(double value)
 {
-  float v = (float)(value - _minT)/(float)(_maxT - _minT);
+  float v = (float) (value - _minT) / (float) (_maxT - _minT);
   _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
   _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
   _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
@@ -284,48 +279,44 @@ void myGLWidget<T>::changeIDVertexValue(int value)
 {
   _indexVertex = value;
 
- _point3Dpicked[0] = _vertices[3 * _indexVertex];
- _point3Dpicked[1] =  _vertices[3 * _indexVertex + 1];
- _point3Dpicked[2] = _vertices[3 * _indexVertex + 2];
-
- _vertexNearestpicked[0] = _point3Dpicked[0];
- _vertexNearestpicked[1] = _point3Dpicked[1];
- _vertexNearestpicked[2] = _point3Dpicked[2];
+  _vertexNearestpicked[0] = _vertices[3 * _indexVertex];
+  _vertexNearestpicked[1] = _vertices[3 * _indexVertex + 1];
+  _vertexNearestpicked[2] = _vertices[3 * _indexVertex + 2];
 
   updateGL();
   //cout << "changeIDVertexValue " << value << endl;
 }
-
 
 template<typename T>
 void myGLWidget<T>::saveTexture(void)
 {
   cout << "save Texture on disk " << endl;
 
-  typename std::map<int,T>::const_iterator mit(_listVertexSelect.begin()),mend(_listVertexSelect.end());
+  typename std::map<int, T>::const_iterator mit(_listVertexSelect.begin()),
+      mend(_listVertexSelect.end());
 
-  TimeTexture<T> out(1,_mesh.vertex().size() );
-  for (uint i=0;  i<_mesh.vertex().size(); i++)
+  TimeTexture<T> out(1, _mesh.vertex().size());
+  for (uint i = 0; i < _mesh.vertex().size(); i++)
   {
     if (_dataType == "FLOAT")
     {
-      out[0].item(i)= (float)(_tex[0].item(i));
+      out[0].item(i) = (float) (_tex[0].item(i));
     }
 
     if (_dataType == "S16")
     {
-      out[0].item(i)=  (int)(_tex[0].item(i));
+      out[0].item(i) = (int) (_tex[0].item(i));
     }
   }
 
   for (; mit != mend; ++mit)
   {
-  //cout << (int)mit->first << " " << mit->second << endl;
+    //cout << (int)mit->first << " " << mit->second << endl;
     out[0].item(mit->first) = mit->second;
   }
 
-  Writer< TimeTexture<T> > wt(_adressTexOut);
-  wt.write( out );
+  Writer<TimeTexture<T> > wt(_adressTexOut);
+  wt.write(out);
 }
 
 template<typename T>
@@ -334,8 +325,7 @@ void myGLWidget<T>::changeMode(int mode)
   _mode = mode;
   //cout << "mode = " << mode << endl;
 
-  if (mode == 2 || _mode == 3)
-    copyBackBuffer2Texture();
+  if (mode == 2 || _mode == 3) copyBackBuffer2Texture();
 }
 
 template<typename T>
@@ -345,13 +335,15 @@ void myGLWidget<T>::initializeGL()
   glEnable( GL_LIGHT0);
   glEnable( GL_DEPTH_TEST);
   glShadeModel( GL_SMOOTH);
-  static GLfloat lightPosition[4] = { 0.5, 5.0, 7.0, 1.0 };
+  static GLfloat lightPosition[4] =
+  { 0.5, 5.0, 7.0, 1.0 };
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
   glClearColor(1, 1, 1, 1);
 
   unitize(_mesh, &_meshCenter, &_meshScale);
   cout << "mesh scale = " << _meshScale << "\n";
-  cout << "mesh center = (" << _meshCenter[0] << "," << _meshCenter[1] << "," << _meshCenter[2] << ")\n";
+  cout << "mesh center = (" << _meshCenter[0] << "," << _meshCenter[1] << ","
+      << _meshCenter[2] << ")\n";
 
   computeIndexColor( _mesh);
 
@@ -360,20 +352,26 @@ void myGLWidget<T>::initializeGL()
   cout << "nb triangle = " << _mesh.polygon().size() << endl;
   cout << "nb vertex = " << _mesh.vertex().size() << endl;
 
-  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *>( _parent );
+  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
 
   toolbar->IDPolygonSpinBox->setRange(0, _mesh.polygon().size());
-  toolbar->IDVertexSpinBox->setRange(0,_mesh.vertex().size());
+  toolbar->IDVertexSpinBox->setRange(0, _mesh.vertex().size());
 
   //  _listMeshSmooth = buildDisplayList(_mesh, 0);
 
   // compute display list for index color rendering
   _listMeshPicking = buildDisplayList(_mesh, 1);
 
-//  _listMeshParcelation = buildDisplayList(_mesh, 2);
-//  _listMeshRender = _listMeshSmooth;
+  //  _listMeshParcelation = buildDisplayList(_mesh, 2);
+  //  _listMeshRender = _listMeshSmooth;
 
   buildDataArray();
+  QPointF p(width()/2,height()/2);
+
+  _trackBall.start();
+  _trackBall.push(pixelPosToViewPos(p),gfx::Quaternionf::identity());
+  trackBallTransformation();
+  //paintGL();
 }
 
 template<typename T>
@@ -429,7 +427,8 @@ void myGLWidget<T>::dropEvent(QDropEvent *event)
 template<typename T>
 QPointF myGLWidget<T>::pixelPosToViewPos(const QPointF& p)
 {
-  return QPointF(2.0 * float(p.x()) / width() - 1.0, 1.0 - 2.0 * float(p.y()) / height());
+  return QPointF(2.0 * float(p.x()) / width() - 1.0, 1.0 - 2.0 * float(p.y())
+      / height());
 }
 
 template<typename T>
@@ -458,7 +457,7 @@ Point3df myGLWidget<T>::check3DpointPicked(int x, int y)
   glReadPixels(x, viewport[3] - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &wz);
 
   gluUnProject((GLdouble) x, (GLdouble)(viewport[3] - y), (GLdouble) wz,
-    modelview, projection, viewport, &meshx, &meshy, &meshz);
+      modelview, projection, viewport, &meshx, &meshy, &meshz);
 
   p[0] = meshx;
   p[1] = meshy;
@@ -489,65 +488,66 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
   {
     _trackBall.start();
     _trackBall.push(pixelPosToViewPos(event->pos()),
-      gfx::Quaternionf::identity());
+        gfx::Quaternionf::identity());
     event->accept();
     updateGL();
   }
 
   if (event->buttons() == Qt::LeftButton && _mode == 2)
   {
-    if (_resized)
-      copyBackBuffer2Texture();
+    if (_resized) copyBackBuffer2Texture();
 
-
-    _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
-    _point3Dpicked = check3DpointPicked(event->x(), event->y());
     _trackBall.stop();
+      _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
+      //cout << "ID polygon : " << _indexPolygon << endl;
+      _point3Dpicked = check3DpointPicked(event->x(), event->y());
+      //cout << "3D : " << _point3Dpicked[0] << " " << _point3Dpicked[1] << " " << _point3Dpicked[2] << " " << endl;
 
-    Point3df p;
-    p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
-    p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
-    p[2] = _meshCenter[2] + (float) _point3Dpicked[2] / _meshScale;
+      Point3df p;
+      p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
+      p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
+      p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
 
-    _indexVertex = computeNearestVertexFromPolygonPoint(p, _indexPolygon,_mesh);
+      _indexVertex
+          = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
-    //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
-    const float* t = _ao->textureCoords();
-    if (_indexVertex < _mesh.vertex().size())
-    {
-//      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
-//          * t[_indexVertex])];
-//      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
-//          * t[_indexVertex]) + 1];
-//      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
-//          * t[_indexVertex]) + 2];
-      _textureValue = _tex[0].item(_indexVertex);
+      //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
+      const float* t = _ao->textureCoords();
+      if (_indexVertex < _mesh.vertex().size())
+      {
+        //      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
+        //          * t[_indexVertex])];
+        //      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
+        //          * t[_indexVertex]) + 1];
+        //      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
+        //          * t[_indexVertex]) + 2];
+        _textureValue = _tex[0].item(_indexVertex);
 
-      //cout << "coucou\n" << _indexPolygon << " " << _indexVertex << " " <<_textureValue << "\n";
+        typename std::map<int, T>::const_iterator it(_listVertexSelect.find(
+            _indexVertex));
 
+        if (it != _listVertexSelect.end()) _textureValue
+            = _listVertexSelect[_indexVertex];
 
-      typename std::map<int,T>::const_iterator it(_listVertexSelect.find(_indexVertex));
+        _colorpicked[0] = _colors[3 * _indexVertex];
+        _colorpicked[1] = _colors[3 * _indexVertex + 1];
+        _colorpicked[2] = _colors[3 * _indexVertex + 2];
 
-      if (it != _listVertexSelect.end())
-        _textureValue = _listVertexSelect[_indexVertex];
+        changeTextureValue( _textureValue);
+        updateInfosPicking(_indexPolygon, _indexVertex);
+        //cout << "texture value " << _textureValue << endl;
 
-      _colorpicked[0] = _colors[3 * _indexVertex];
-      _colorpicked[1] = _colors[3 * _indexVertex + 1];
-      _colorpicked[2] = _colors[3 * _indexVertex + 2];
+      }
+      else
+      {
+        _textureValue = 0;
+        _colorpicked[0] = dataColorMap[0];
+        _colorpicked[1] = dataColorMap[1];
+        _colorpicked[2] = dataColorMap[2];
+      }
 
-      changeTextureValue(_textureValue);
-      updateInfosPicking(_indexPolygon,_indexVertex);
-      //cout << "texture value " << _textureValue << endl;
-    }
-    else
-    {
-      _textureValue = 0;
-      _colorpicked[0] = dataColorMap[0];
-      _colorpicked[1] = dataColorMap[1];
-      _colorpicked[2] = dataColorMap[2];
-    }
+      updateGL();
 
-    updateGL();
   }
 
   if (event->buttons() == Qt::LeftButton && _mode == 3)
@@ -559,11 +559,12 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
     Point3df p;
     p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
     p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
-    p[2] = _meshCenter[2] + (float) _point3Dpicked[2] / _meshScale;
+    p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
 
-    _indexVertex = computeNearestVertexFromPolygonPoint(p,_indexPolygon, _mesh);
+    _indexVertex
+        = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
-    if (_indexVertex >= 0 && _indexVertex < 3*_mesh.vertex().size())
+    if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
     {
       _colors[3 * _indexVertex] = _colorpicked[0];
       _colors[3 * _indexVertex + 1] = _colorpicked[1];
@@ -571,7 +572,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
       _listVertexSelect[_indexVertex] = _textureValue;
 
-      updateInfosPicking(_indexPolygon,_indexVertex);
+      updateInfosPicking(_indexPolygon, _indexVertex);
     }
 
     updateGL();
@@ -581,17 +582,17 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 template<typename T>
 void myGLWidget<T>::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (event->isAccepted())
-    return;
+  if (event->isAccepted()) return;
 
-  if (event->buttons() & Qt::MidButton & _mode == 1)
+  if (event->buttons() & Qt::MidButton && _mode == 1)
   {
-    _trackBall.release(pixelPosToViewPos(event->pos()),gfx::Quaternionf::identity());
+    _trackBall.release(pixelPosToViewPos(event->pos()),
+        gfx::Quaternionf::identity());
     event->accept();
     updateGL();
   }
 
-  if (event->buttons() & Qt::LeftButton & _mode == 2)
+  if (event->buttons() & Qt::LeftButton && _mode == 2)
   {
     event->accept();
     updateGL();
@@ -603,7 +604,8 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
 {
   if (event->buttons() == Qt::MidButton && _mode == 1)
   {
-    _trackBall.move(pixelPosToViewPos(event->pos()),gfx::Quaternionf::identity());
+    _trackBall.move(pixelPosToViewPos(event->pos()),
+        gfx::Quaternionf::identity());
     event->accept();
     updateGL();
   }
@@ -619,33 +621,35 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     Point3df p;
     p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
     p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
-    p[2] = _meshCenter[2] + (float) _point3Dpicked[2] / _meshScale;
+    p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
 
-    _indexVertex = computeNearestVertexFromPolygonPoint(p, _indexPolygon,_mesh);
+    _indexVertex
+        = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
     //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
     const float* t = _ao->textureCoords();
     if (_indexVertex < _mesh.vertex().size())
     {
-//      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
-//          * t[_indexVertex])];
-//      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
-//          * t[_indexVertex]) + 1];
-//      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
-//          * t[_indexVertex]) + 2];
+      //      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
+      //          * t[_indexVertex])];
+      //      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
+      //          * t[_indexVertex]) + 1];
+      //      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
+      //          * t[_indexVertex]) + 2];
       _textureValue = _tex[0].item(_indexVertex);
 
-      typename std::map<int,T>::const_iterator it(_listVertexSelect.find(_indexVertex));
+      typename std::map<int, T>::const_iterator it(_listVertexSelect.find(
+          _indexVertex));
 
-      if (it != _listVertexSelect.end())
-        _textureValue = _listVertexSelect[_indexVertex];
+      if (it != _listVertexSelect.end()) _textureValue
+          = _listVertexSelect[_indexVertex];
 
       _colorpicked[0] = _colors[3 * _indexVertex];
       _colorpicked[1] = _colors[3 * _indexVertex + 1];
       _colorpicked[2] = _colors[3 * _indexVertex + 2];
 
-      changeTextureValue(_textureValue);
-      updateInfosPicking(_indexPolygon,_indexVertex);
+      changeTextureValue( _textureValue);
+      updateInfosPicking(_indexPolygon, _indexVertex);
       //cout << "texture value " << _textureValue << endl;
 
     }
@@ -669,18 +673,19 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     Point3df p;
     p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
     p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
-    p[2] = _meshCenter[2] + (float) _point3Dpicked[2] / _meshScale;
+    p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
 
-    _indexVertex = computeNearestVertexFromPolygonPoint(p,_indexPolygon, _mesh);
+    _indexVertex
+        = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
-    if (_indexVertex >= 0 && _indexVertex < 3*_mesh.vertex().size())
+    if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
     {
       _colors[3 * _indexVertex] = _colorpicked[0];
       _colors[3 * _indexVertex + 1] = _colorpicked[1];
       _colors[3 * _indexVertex + 2] = _colorpicked[2];
 
       _listVertexSelect[_indexVertex] = _textureValue;
-      updateInfosPicking(_indexPolygon,_indexVertex);
+      updateInfosPicking(_indexPolygon, _indexVertex);
     }
 
     updateGL();
@@ -690,47 +695,51 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
 template<typename T>
 void myGLWidget<T>::keyPressEvent(QKeyEvent *event)
 {
-typename std::map<int,T>::const_iterator mit(_listVertexSelect.begin()),mend(_listVertexSelect.end());
-const float* t = _ao->textureCoords();
+  typename std::map<int, T>::const_iterator mit(_listVertexSelect.begin()),
+      mend(_listVertexSelect.end());
+  const float* t = _ao->textureCoords();
 
-switch (event->key())
-{
-  case Qt::Key_Plus:
-    break;
-  case Qt::Key_Minus:
-    break;
-  case Qt::Key_Left:
-    break;
-  case Qt::Key_Right:
-    break;
-  case Qt::Key_Down:
-    break;
-  case Qt::Key_Up:
-    break;
-  case Qt::Key_I:
-    _showInfos = !_showInfos;
-    cout << "show infos\n";
-    break;
-  case Qt::Key_W:
-    _wireframe = !_wireframe;
-    break;
-  case Qt::Key_P:
-    _parcelation = !_parcelation;
-    break;
-  case Qt::Key_Space:
-    cout << "clear all vertex painted\n";
-    //_listTriangleSelect.clear();
-    for (; mit != mend; ++mit)
-    {
-      _colors[3 * mit->first] = (int) dataColorMap[3 * (int) (255 * t[mit->first])];
-      _colors[3 * mit->first+1] = (int) dataColorMap[3 * (int) (255 * t[mit->first]) + 1];
-      _colors[3 * mit->first+2] = (int) dataColorMap[3 * (int) (255 * t[mit->first]) + 2];
-    }
+  switch (event->key())
+  {
+    case Qt::Key_Plus:
+      break;
+    case Qt::Key_Minus:
+      break;
+    case Qt::Key_Left:
+      break;
+    case Qt::Key_Right:
+      break;
+    case Qt::Key_Down:
+      break;
+    case Qt::Key_Up:
+      break;
+    case Qt::Key_I:
+      _showInfos = !_showInfos;
+      cout << "show infos\n";
+      break;
+    case Qt::Key_W:
+      _wireframe = !_wireframe;
+      break;
+    case Qt::Key_P:
+      _parcelation = !_parcelation;
+      break;
+    case Qt::Key_Space:
+      cout << "clear all vertex painted\n";
+      //_listTriangleSelect.clear();
+      for (; mit != mend; ++mit)
+      {
+        _colors[3 * mit->first] = (int) dataColorMap[3 * (int) (255
+            * t[mit->first])];
+        _colors[3 * mit->first + 1] = (int) dataColorMap[3 * (int) (255
+            * t[mit->first]) + 1];
+        _colors[3 * mit->first + 2] = (int) dataColorMap[3 * (int) (255
+            * t[mit->first]) + 2];
+      }
 
-    _listVertexSelect.clear();
-    break;
-  default:
-    QWidget::keyPressEvent(event);
+      _listVertexSelect.clear();
+      break;
+    default:
+      QWidget::keyPressEvent(event);
   }
   updateGL();
 }
@@ -743,7 +752,8 @@ void myGLWidget<T>::wheelEvent(QWheelEvent *event)
 
   if (_mode == 1)
   {
-    _trackBall.push(pixelPosToViewPos(event->pos()),gfx::Quaternionf::identity());
+    _trackBall.push(pixelPosToViewPos(event->pos()),
+        gfx::Quaternionf::identity());
 
     if (event->orientation() == Qt::Horizontal)
     {
@@ -785,10 +795,10 @@ void myGLWidget<T>::drawColorMap(void)
   //
   glColor3ub(_colorpicked[0], _colorpicked[1], _colorpicked[2]);
 
-  glVertex2d(10,25);
-  glVertex2d(10,35);
-  glVertex2d(100,35);
-  glVertex2d(100,25);
+  glVertex2d(10, 25);
+  glVertex2d(10, 35);
+  glVertex2d(100, 35);
+  glVertex2d(100, 25);
   glEnd();
 
   glColor3f(1, 1, 1);
@@ -815,41 +825,41 @@ void myGLWidget<T>::drawTexturePaint(void)
 {
   glPushAttrib( GL_ALL_ATTRIB_BITS);
 
-//  std::map<int, int>::const_iterator mit(_listVertexSelect.begin()),
-//      mend(_listVertexSelect.end());
+  //  std::map<int, int>::const_iterator mit(_listVertexSelect.begin()),
+  //      mend(_listVertexSelect.end());
 
-//  vector<Point3df> & vert = _mesh.vertex();
-//  const vector<Point3df> & norm = _mesh.normal();
-//  vector<AimsVector<uint, 3> > & tri = _mesh.polygon();
+  //  vector<Point3df> & vert = _mesh.vertex();
+  //  const vector<Point3df> & norm = _mesh.normal();
+  //  vector<AimsVector<uint, 3> > & tri = _mesh.polygon();
 
-//  int v1, v2, v3;
-//
-//  glBegin( GL_TRIANGLES);
-//
-//  for (; mit != mend; ++mit) {
-//    glColor3ub(mit->second[0], mit->second[1], mit->second[2]);
-//
-//    glNormal3f(norm[tri[mit->first][0]][0], norm[tri[mit->first][0]][1],
-//        norm[tri[mit->first][0]][2]);
-//    glVertex3f(_meshScale * (vert[tri[mit->first][0]][0] - _meshCenter[0]),
-//        _meshScale * (vert[tri[mit->first][0]][1] - _meshCenter[1]),
-//        _meshScale * (vert[tri[mit->first][0]][2] - _meshCenter[2]));
-//
-//    //vert[tri[mit->first][0]][0], vert[tri[mit->first][0]][1], vert[tri[mit->first][0]][2]);
-//    glNormal3f(norm[tri[mit->first][1]][0], norm[tri[mit->first][1]][1],
-//        norm[tri[mit->first][1]][2]);
-//    glVertex3f(_meshScale * (vert[tri[mit->first][1]][0] - _meshCenter[0]),
-//        _meshScale * (vert[tri[mit->first][1]][1] - _meshCenter[1]),
-//        _meshScale * (vert[tri[mit->first][1]][2] - _meshCenter[2]));
-//
-//    //glVertex3f(vert[tri[mit->first][1]][0], vert[tri[mit->first][1]][1], vert[tri[mit->first][1]][2]);
-//    glNormal3f(norm[tri[mit->first][2]][0], norm[tri[mit->first][2]][1],
-//        norm[tri[mit->first][2]][2]);
-//    glVertex3f(_meshScale * (vert[tri[mit->first][2]][0] - _meshCenter[0]),
-//        _meshScale * (vert[tri[mit->first][2]][1] - _meshCenter[1]),
-//        _meshScale * (vert[tri[mit->first][2]][2] - _meshCenter[2]));
-//  }
-//  glEnd();
+  //  int v1, v2, v3;
+  //
+  //  glBegin( GL_TRIANGLES);
+  //
+  //  for (; mit != mend; ++mit) {
+  //    glColor3ub(mit->second[0], mit->second[1], mit->second[2]);
+  //
+  //    glNormal3f(norm[tri[mit->first][0]][0], norm[tri[mit->first][0]][1],
+  //        norm[tri[mit->first][0]][2]);
+  //    glVertex3f(_meshScale * (vert[tri[mit->first][0]][0] - _meshCenter[0]),
+  //        _meshScale * (vert[tri[mit->first][0]][1] - _meshCenter[1]),
+  //        _meshScale * (vert[tri[mit->first][0]][2] - _meshCenter[2]));
+  //
+  //    //vert[tri[mit->first][0]][0], vert[tri[mit->first][0]][1], vert[tri[mit->first][0]][2]);
+  //    glNormal3f(norm[tri[mit->first][1]][0], norm[tri[mit->first][1]][1],
+  //        norm[tri[mit->first][1]][2]);
+  //    glVertex3f(_meshScale * (vert[tri[mit->first][1]][0] - _meshCenter[0]),
+  //        _meshScale * (vert[tri[mit->first][1]][1] - _meshCenter[1]),
+  //        _meshScale * (vert[tri[mit->first][1]][2] - _meshCenter[2]));
+  //
+  //    //glVertex3f(vert[tri[mit->first][1]][0], vert[tri[mit->first][1]][1], vert[tri[mit->first][1]][2]);
+  //    glNormal3f(norm[tri[mit->first][2]][0], norm[tri[mit->first][2]][1],
+  //        norm[tri[mit->first][2]][2]);
+  //    glVertex3f(_meshScale * (vert[tri[mit->first][2]][0] - _meshCenter[0]),
+  //        _meshScale * (vert[tri[mit->first][2]][1] - _meshCenter[1]),
+  //        _meshScale * (vert[tri[mit->first][2]][2] - _meshCenter[2]));
+  //  }
+  //  glEnd();
 
   glPopAttrib();
 }
@@ -879,6 +889,11 @@ void myGLWidget<T>::drawPrimitivePicked(void)
   glTranslatef(-_vertexNearestpicked[0], -_vertexNearestpicked[1],
       -_vertexNearestpicked[2]);
 
+//  glColor3d(0, 1, 1);
+//  glTranslatef(pt[0][0], pt[0][1], pt[0][2]);
+//  gluSphere(quadric, 0.001, 36, 18);
+//  glTranslatef(-pt[0][0], -pt[0][1], -pt[0][2]);
+
   gluDeleteQuadric(quadric);
   //printf("angle %f ",(float)(180.*acos(model->facetnorms[3*triangle->findex + 2]))/M_PI);
   //glRotatef(acos(model->facetnorms[3*triangle->findex + 2]),1,0,0);
@@ -897,31 +912,32 @@ void myGLWidget<T>::drawPrimitivePicked(void)
   //
   //  glPopMatrix();
 
-  if (_indexPolygon >= 0 && _indexPolygon < 3*_mesh.polygon().size())
+  if (_indexPolygon >= 0 && _indexPolygon < 3 * _mesh.polygon().size())
   {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glEnable( GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable( GL_LINE_SMOOTH);
-  //glDisable(GL_COLOR_MATERIAL);
-  glDisable( GL_LIGHTING);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable( GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_LINE_SMOOTH);
+    //glDisable(GL_COLOR_MATERIAL);
+    glDisable(GL_LIGHTING);
 
-  glBegin( GL_TRIANGLES);
+    glBegin( GL_TRIANGLES);
 
-  glColor3ub(255 - _colorpicked[0],255 - _colorpicked[1],255 - _colorpicked[2]);
+    glColor3ub(255 - _colorpicked[0], 255 - _colorpicked[1], 255
+        - _colorpicked[2]);
 
-  glVertex3f( (_vertices[3 * _indices[3 * _indexPolygon]]), (_vertices[3 * _indices[3
-      * _indexPolygon] + 1]), (_vertices[3
-      * _indices[3 * _indexPolygon] + 2]));
+    glVertex3f((_vertices[3 * _indices[3 * _indexPolygon]]), (_vertices[3
+        * _indices[3 * _indexPolygon] + 1]), (_vertices[3 * _indices[3
+        * _indexPolygon] + 2]));
 
+    glVertex3f((_vertices[3 * _indices[3 * _indexPolygon + 1]]), (_vertices[3
+        * _indices[3 * _indexPolygon + 1] + 1]), (_vertices[3 * _indices[3
+        * _indexPolygon + 1] + 2]));
 
-  glVertex3f((_vertices[3 * _indices[3 * _indexPolygon + 1]]), (_vertices[3 * _indices[3
-      * _indexPolygon + 1] + 1]), (_vertices[3 * _indices[3 * _indexPolygon + 1] + 2]));
-
-
-  glVertex3f( (_vertices[3 * _indices[3 * _indexPolygon + 2]]), (_vertices[3 * _indices[3
-      * _indexPolygon + 2] + 1] ), (_vertices[3 * _indices[3 * _indexPolygon + 2] + 2]));
-  glEnd();
+    glVertex3f((_vertices[3 * _indices[3 * _indexPolygon + 2]]), (_vertices[3
+        * _indices[3 * _indexPolygon + 2] + 1]), (_vertices[3 * _indices[3
+        * _indexPolygon + 2] + 2]));
+    glEnd();
 
   }
 
@@ -993,7 +1009,8 @@ void myGLWidget<T>::paintGL()
   glEnable( GL_COLOR_MATERIAL);
   glPolygonOffset(1., 1.);
 
-  glDrawElements(GL_TRIANGLES, 3 * _mesh.polygon().size(), GL_UNSIGNED_INT,_indices);
+  glDrawElements(GL_TRIANGLES, 3 * _mesh.polygon().size(), GL_UNSIGNED_INT,
+      _indices);
 
   glDisable(GL_POLYGON_OFFSET_FILL);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1003,8 +1020,8 @@ void myGLWidget<T>::paintGL()
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_TEXTURE_2D);
 
-  if (_wireframe)
-    glDrawElements(GL_TRIANGLES, 3 * _mesh.polygon().size(),GL_UNSIGNED_INT, _indices);
+  if (_wireframe) glDrawElements(GL_TRIANGLES, 3 * _mesh.polygon().size(),
+      GL_UNSIGNED_INT, _indices);
 
   //  glCallList( _listMeshRender);
 
@@ -1087,7 +1104,8 @@ void myGLWidget<T>::setupViewport(int width, int height)
 }
 
 template<typename T>
-int myGLWidget<T>::computeNearestVertexFromPolygonPoint(Point3df position,int poly, AimsSurfaceTriangle as)
+int myGLWidget<T>::computeNearestVertexFromPolygonPoint(Point3df position,
+    int poly, AimsSurfaceTriangle as)
 {
   int index_nearest_vertex, index_min = 0;
   Point3df pt[3];
@@ -1108,17 +1126,14 @@ int myGLWidget<T>::computeNearestVertexFromPolygonPoint(Point3df position,int po
     pt[1] = vert[v[1]];
     pt[2] = vert[v[2]];
 
-    //cout << "nb poly= " << tri.size() << endl;
-
     //compute the nearest polygon vertex
     float min, dist_min = FLT_MAX;
 
     for (int i = 0; i < 3; i++)
     {
-      min = (float) sqrt((position[0] - pt[i][0]) * (position[0]
-          - pt[i][0]) + (position[1] - pt[i][1]) * (position[1]
-          - pt[i][1]) + (position[2] - pt[i][2]) * (position[2]
-          - pt[i][2]));
+      min = (float) sqrt((position[0] - pt[i][0]) * (position[0] - pt[i][0])
+          + (position[1] - pt[i][1]) * (position[1] - pt[i][1]) + (position[2]
+          - pt[i][2]) * (position[2] - pt[i][2]));
 
       if (min < dist_min)
       {
@@ -1136,8 +1151,12 @@ int myGLWidget<T>::computeNearestVertexFromPolygonPoint(Point3df position,int po
   _vertexNearestpicked[X] *= (_meshScale);
   _vertexNearestpicked[Y] *= (_meshScale);
   _vertexNearestpicked[Z] *= (_meshScale);
+  _vertexNearestpicked[Z] *= -1;
 
-  //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
+//  cout << "position 3D = " << position[X] << " " << position[Y] << " " << position[Z] << "\n";
+//  cout << "3D 1 = " << pt[0][X] << " " << pt[0][Y] << " " << pt[0][Z] << "\n";
+//  cout << "3D 2 = " << pt[1][X] << " " << pt[1][Y] << " " << pt[1][Z] << "\n";
+//  cout << "3D 3 = " << pt[2][X] << " " << pt[2][Y] << " " << pt[2][Z] << "\n";
 
   return index_nearest_vertex;
 }
@@ -1176,8 +1195,7 @@ void myGLWidget<T>::drawScenetoBackBuffer(void)
   glEnable( GL_COLOR_MATERIAL);
   glDisable( GL_TEXTURE_2D);
 
-  if (_listMeshPicking != 0)
-    glCallList( _listMeshPicking);
+  if (_listMeshPicking != 0) glCallList( _listMeshPicking);
 
   glPopAttrib();
 }
@@ -1189,23 +1207,26 @@ void myGLWidget<T>::copyBackBuffer2Texture(void)
   glFinish();
   //glFlush();
   glReadBuffer( GL_BACK);
-  glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE,backBufferTexture);
+  glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE,
+      backBufferTexture);
   _resized = false;
 }
 
 template<typename T>
 void myGLWidget<T>::changeTextureValue(T value)
 {
-  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *>( _parent );
+  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
   if (_dataType == "FLOAT")
   {
-    QDoubleSpinBox *textureFloatSpinBox = dynamic_cast<QDoubleSpinBox *>( toolbar->textureSpinBox );
+    QDoubleSpinBox *textureFloatSpinBox =
+        dynamic_cast<QDoubleSpinBox *> (toolbar->textureSpinBox);
     textureFloatSpinBox->setValue(value);
   }
 
   if (_dataType == "S16")
   {
-    QSpinBox *textureIntSpinBox = dynamic_cast<QSpinBox *>( toolbar->textureSpinBox );
+    QSpinBox *textureIntSpinBox =
+        dynamic_cast<QSpinBox *> (toolbar->textureSpinBox);
     textureIntSpinBox->setValue(value);
   }
 }
@@ -1213,7 +1234,7 @@ void myGLWidget<T>::changeTextureValue(T value)
 template<typename T>
 void myGLWidget<T>::updateInfosPicking(int idp, int idv)
 {
-  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *>( _parent );
+  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
   toolbar->IDPolygonSpinBox->setValue(idp);
   toolbar->IDVertexSpinBox->setValue(idv);
 }
@@ -1231,15 +1252,14 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   const Path & p = Path::singleton();
   char s = FileUtil::separator();
 
-  string path = p.globalShared() + s + "aims-"
-      + carto::cartobaseShortVersion() + s + "Rgb" + s + filename;
+  string path = p.globalShared() + s + "aims-" + carto::cartobaseShortVersion()
+      + s + "Rgb" + s + filename;
 
   cout << "colorMap : " << path << endl;
 
   file = fopen(path.c_str(), "rb");
 
-  if (file == NULL)
-    return 0;
+  if (file == NULL) return 0;
 
   // read texture data
   fscanf(file, "%s\n%d\nRed\n", &textureName, &width);
@@ -1287,8 +1307,8 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
 
   // select modulate to mix texture with color for shading
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, 1, 0, GL_RGB,
-      GL_UNSIGNED_BYTE, dataColorMap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, 1, 0, GL_RGB, GL_UNSIGNED_BYTE,
+      dataColorMap);
 
   rc_ptr<Texture1d> tex(new Texture1d);
   Converter<TimeTexture<T> , Texture1d> c;
@@ -1296,25 +1316,27 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _ao = new ATexture;
   _ao->setTexture(tex);
 
-  const GLComponent::TexExtrema  & te = _ao->glTexExtrema();
+  const GLComponent::TexExtrema & te = _ao->glTexExtrema();
   T min = te.minquant[0];
   T max = te.maxquant[0];
 
   _minT = min;
   _maxT = max;
 
-  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *>( _parent );
+  myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
 
   if (_dataType == "FLOAT")
   {
-    QDoubleSpinBox *textureFloatSpinBox = dynamic_cast<QDoubleSpinBox *>( toolbar->textureSpinBox );
-    textureFloatSpinBox->setRange(min,max);
+    QDoubleSpinBox *textureFloatSpinBox =
+        dynamic_cast<QDoubleSpinBox *> (toolbar->textureSpinBox);
+    textureFloatSpinBox->setRange(min, max);
   }
 
   if (_dataType == "S16")
   {
-    QSpinBox *textureIntSpinBox = dynamic_cast<QSpinBox *>( toolbar->textureSpinBox );
-    textureIntSpinBox->setRange(min,max);
+    QSpinBox *textureIntSpinBox =
+        dynamic_cast<QSpinBox *> (toolbar->textureSpinBox);
+    textureIntSpinBox->setRange(min, max);
   }
 
   _ao->normalize();
