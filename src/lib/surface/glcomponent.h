@@ -51,9 +51,14 @@ namespace anatomist
   class Referential;
 
 
-  /**	Base class for all OpenGL objects in Anatomist (with GL-lists...)
+  /** Base class for all OpenGL objects in Anatomist (with OpenGL display
+      lists)
 
-  This is the second version, it will replace AGLObject
+      This object represents the virtual API which allows Anatomist to use
+      objects geometric properties, and to render in 3D OpenGL views.
+
+      For a general explanation on how it is organized and works, see the
+      \ref objects_opengl page.
   */
   class GLComponent
   {
