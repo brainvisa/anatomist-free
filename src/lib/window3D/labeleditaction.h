@@ -63,6 +63,7 @@ namespace anatomist
     std::string label() const;
     // set (pick) current label. obj is used to find a nomenclature and color
     void setLabel( const std::string & l, const AObject* obj = 0 );
+    void setLabel( const std::string & l, const AimsRGB & color );
 
     QWidget* actionView();
     bool viewableAction();
@@ -70,6 +71,8 @@ namespace anatomist
   private:
     std::string _label;
     AimsRGB     _color;
+    struct Private;
+    Private *d;
   };
 
 }

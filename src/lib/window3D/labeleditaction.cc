@@ -54,25 +54,33 @@ using namespace carto;
 using namespace std;
 
 
+struct LabelEditAction::Private
+{
+  Private() {}
+};
+
+
 Action * 
 LabelEditAction::creator()
 {
   return new LabelEditAction;
 }
 
-LabelEditAction::LabelEditAction() : Action(), _color( 192, 192, 192 )
+LabelEditAction::LabelEditAction()
+  : Action(), _color( 192, 192, 192 ), d( new Private )
 {
 }
 
 
 LabelEditAction::LabelEditAction( const LabelEditAction & a )
-  : Action( a ), _label( a._label ), _color( a._color )
+  : Action( a ), _label( a._label ), _color( a._color ), d( new Private )
 {
 }
 
 
 LabelEditAction::~LabelEditAction()
 {
+  delete d;
 }
 
 string LabelEditAction::name() const
@@ -187,19 +195,8 @@ string LabelEditAction::label() const
 
 void LabelEditAction::setLabel( const string & x, const AObject *obj )
 {
-  _label = x;
-
-  // set label to toolbar
-  ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->window() );
-  if( !w )
-    return;
-  QLabel *ql = dynamic_cast<QLabel *>( w->child( "selectionLabel" ) );
-  if( !ql )
-    return; // no QLabel found
-
   // determine label color: find in hierarchies
-  bool colfound = false;
-  QColor  col( 192, 192, 192 );
+  AimsRGB  col( 192, 192, 192 );
   if( !x.empty() )
   {
     if( obj )
@@ -210,28 +207,58 @@ void LabelEditAction::setLabel( const string & x, const AObject *obj )
         Material  mat;
         if( GraphParams::nomenclatureColorForLabel( x, hie, mat ) )
         {
-          col = QColor( int( mat.Diffuse(0) * 255.9 ),
-                        int( mat.Diffuse(1) * 255.9 ),
-                        int( mat.Diffuse(2) * 255.9 ) );
-          colfound = true;
+          col = AimsRGB( int( mat.Diffuse(0) * 255.9 ),
+                         int( mat.Diffuse(1) * 255.9 ),
+                         int( mat.Diffuse(2) * 255.9 ) );
         }
       }
     }
     else
-      col = QColor( _color.red(), _color.green(), _color.blue() );
+      col = _color;
   }
 
-  if( colfound )
-    _color = AimsRGB( col.red(), col.green(), col.blue() );
+  // propagate to all windows in the same group
+  set<AWindow *> wins = theAnatomist->getWindowsInGroup(
+      view()->window()->Group() );
+  set<AWindow *>::iterator iw, ew = wins.end();
+  for( iw=wins.begin(); iw!=ew; ++iw )
+  {
+    ControlledWindow *w = dynamic_cast<ControlledWindow *>( *iw );
+    if( !w )
+      continue;
+    Action *ac = w->view()->controlSwitch()->getAction( name() );
+    if( ac )
+    {
+      LabelEditAction * lac = dynamic_cast<LabelEditAction *>( ac );
+      if( lac )
+        lac->setLabel( x, col );
+    }
+  }
+}
+
+void LabelEditAction::setLabel( const std::string & l, const AimsRGB & color )
+{
+  _label = l;
+  _color = color;
+
+  // set label to toolbar
+  ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->window() );
+  if( !w )
+    return;
+  QLabel *ql = dynamic_cast<QLabel *>( w->child( "selectionLabel" ) );
+  if( !ql )
+    return; // no QLabel found
+
+  QColor col( color.red(), color.green(), color.blue() );
   QPixmap pix( 20, 20 );
   pix.fill( col );
   ql->setPixmap( pix );
   QString text;
   text = ControlledWindow::tr( "Selected label: " );
-  if( x.empty() )
+  if( l.empty() )
     text += ControlledWindow::tr( "<none>" );
   else
-    text += x.c_str();
+    text += l.c_str();
   text += "\n\n";
   text += ControlledWindow::tr( "Label picker: <space> to pick the label "
       "from currently selected objects\n  <ctrl>+<return> to change the label "
