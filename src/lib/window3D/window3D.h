@@ -131,6 +131,7 @@ public:
   int computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as);
 		  //anatomist::ATriangulated *as);
   void getInfos3DFromClickPoint( int x, int y );
+  void getInfos3D(void);
   void printPositionAndValue();
   virtual void displayClickPoint();
 
@@ -312,6 +313,9 @@ private:
   struct Private;
 
   Private	*d;
+  int _mouseX;
+  int _mouseY;
+
 };
 
 

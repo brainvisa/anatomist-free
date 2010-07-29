@@ -103,7 +103,10 @@ void LinkedCursorCommand::doit()
     }
   AWindow3D	*w3 = dynamic_cast<AWindow3D *>( _win );
   if( w3 )
+    {
     w3->printPositionAndValue();
+    w3->getInfos3D();
+    }
   _win->displayTalairach();
   theAnatomist->Refresh();
 

@@ -1421,6 +1421,7 @@ void AWindow3D::showReferential()
 
 void AWindow3D::displayClickPoint()
 {
+  cout << "displayClickPoint\n";
 }
 
 
@@ -1671,21 +1672,23 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
 bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
 {
   bool	res = d->draw->positionFromCursor( x, y, position );
-
-  if( theAnatomist->userLevel() >= 4 )
-  {
-    getInfos3DFromClickPoint ( x, y);
-  }
-
+  _mouseX = x;
+  _mouseY = y;
   return( res );
 }
 
+void AWindow3D::getInfos3D(void)
+{
+  if( theAnatomist->userLevel() >= 4 )
+  {
+    getInfos3DFromClickPoint ( _mouseX, _mouseY);
+  }
+}
 
 View* AWindow3D::view()
 {
   return( d->draw );
 }
-
 
 const View* AWindow3D::view() const
 {
