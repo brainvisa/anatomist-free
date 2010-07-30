@@ -383,12 +383,15 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
   {
   case ViewState::glSELECTRENDER_OBJECT:
     mode = ObjectSelect;
+    _pd->zbufready = false;
     break;
   case ViewState::glSELECTRENDER_OBJECTS:
     mode = ObjectsSelect;
+    _pd->zbufready = false;
     break;
   case ViewState::glSELECTRENDER_POLYGON:
     mode = PolygonSelect;
+    _pd->zbufready = false;
     break;
   default:
     break;
@@ -1189,8 +1192,8 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   // get z coordinate in the depth buffer
   GLfloat z = 2.;
   glReadPixels( (GLint)x, (GLint) y, 1, 1, 
-		GL_DEPTH_COMPONENT, GL_FLOAT, &z );
-  //cout << "read (x,y,z) = " << x << ", " << y << ", " << z << endl;
+                GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+  // cout << "read (x,y,z) = " << x << ", " << y << ", " << z << endl;
 
   // if this z-buffer pixel still has its initial value,
   // we interpret it as being `background'
