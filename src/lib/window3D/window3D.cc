@@ -76,11 +76,13 @@
 #include <anatomist/reference/transformobserver.h>
 #include <qslider.h>
 #include <qglobal.h>
+
 #if QT_VERSION>0x040000
 #include <QtOpenGL/QGLWidget>
 #else
 #include <qgl.h>
 #endif
+
 #include <aims/resampling/quaternion.h>
 #include <aims/qtcompat/qvbox.h>
 #include <aims/qtcompat/qhbox.h>
@@ -191,6 +193,9 @@ struct AWindow3D::Private
   bool                          statusbarvisible;
   bool                          needsextrema;
   map<AObject *, ConstrainedObject>     renderconstraints;
+
+  int mouseX;
+  int mouseY;
 };
 
 
@@ -364,10 +369,11 @@ AWindow3D::Private::Private()
     transpz( true ), culling( true ), flatshading( false ), smooth( false ), 
     fog( false ), refreshneeded( FullRefresh ),
     linkonslider( false ), lefteye( 0 ), righteye( 0 ), objvallabel( 0 ),
-    statusbarvisible( false ),
+    statusbarvisible( false ), mouseX( 0 ), mouseY( 0 ),
     // needsboundingbox( false ),
     needsextrema( false ) // , needswingeom( false ),
     // needssliceslider( false )
+
 {
 }
 
@@ -1672,8 +1678,8 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
 bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
 {
   bool	res = d->draw->positionFromCursor( x, y, position );
-  _mouseX = x;
-  _mouseY = y;
+  d->mouseX = x;
+  d->mouseY = y;
   return( res );
 }
 
@@ -1681,7 +1687,7 @@ void AWindow3D::getInfos3D(void)
 {
   if( theAnatomist->userLevel() >= 4 )
   {
-    getInfos3DFromClickPoint ( _mouseX, _mouseY);
+    getInfos3DFromClickPoint ( d->mouseX, d->mouseY);
   }
 }
 
@@ -3729,7 +3735,6 @@ int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
   // polygon num is this ID
   return poly;
 }
-
 
 void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
                                        const AObject *selectedobject )

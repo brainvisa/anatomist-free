@@ -313,9 +313,6 @@ private:
   struct Private;
 
   Private	*d;
-  int _mouseX;
-  int _mouseY;
-
 };
 
 
