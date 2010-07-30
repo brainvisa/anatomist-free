@@ -37,6 +37,9 @@
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/graph/attribAObject.h>
 #include <cartobase/object/attributed.h>
+#include <anatomist/application/Anatomist.h>
+#include <anatomist/window3D/window3D.h>
+#include <anatomist/graph/GraphObject.h>
 #include <qlabel.h>
 #include <qapplication.h>
 #include <qtimer.h>
@@ -188,15 +191,55 @@ namespace
 void QAViewToolTip::maybeTip( const QPoint & pos )
 {
   Point3df	pos3;
-
-  if( !d->window->positionFromCursor( pos.x(), pos.y(), pos3 ) )
-    return;	// not a valid position
-
-  //cout << "point 3D : " << pos3 << endl;
-
   set<AObject *>	shown, hidden;
-  d->window->findObjectsAt( pos3[0], pos3[1], pos3[2], d->window->GetTime(), 
-                            shown, hidden );
+  bool usegl = ( theAnatomist->userLevel() >= 3 );
+
+  if( usegl )
+  {
+    AWindow3D *w3 = dynamic_cast<AWindow3D *>( d->window );
+    if( w3 )
+    {
+      AObject *obj = w3->objectAtCursorPosition( pos.x(), pos.y() );
+      if( obj )
+      {
+        if( !w3->hasObject( obj ) )
+        {
+          // see if the objects belongs to a graph vertex/edge
+          AObject::ParentList pl = obj->parents();
+          AObject::ParentList::iterator ip, ep = pl.end();
+          while( !pl.empty() )
+          {
+            ip = pl.begin();
+            pl.erase( ip );
+            if( ( dynamic_cast<AGraphObject *>( *ip )
+                  || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
+            {
+              obj = *ip;
+              break;
+            }
+            pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
+          }
+        }
+        shown.insert( obj );
+      }
+      else
+        usegl = false;
+    }
+    else
+      usegl = false;
+  }
+
+  if( !usegl )
+  {
+    if( !d->window->positionFromCursor( pos.x(), pos.y(), pos3 ) )
+      return;	// not a valid position
+
+    // cout << "point 3D : " << pos3 << endl;
+
+    d->window->findObjectsAt( pos3[0], pos3[1], pos3[2], d->window->GetTime(),
+                              shown, hidden );
+  }
+
   set<AObject *>::iterator      io = shown.begin(), jo, eo = shown.end();
   // filter out temporary objects
   while( io != eo )
