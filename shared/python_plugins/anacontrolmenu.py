@@ -255,7 +255,6 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
     try:
       a.theProcessor().allowExecWhileIdle( True )
       execfile( filename )
-      return list(a.getObjects())[0]
     except Exception, e:
       import traceback, sys
       sys.stdout.flush()
@@ -264,6 +263,7 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
       traceback.print_stack()
       sys.stderr.flush()
     a.theProcessor().allowExecWhileIdle( False )
+    return None
   run = staticmethod( run )
   def load( self, filename, options ):
     if not qt4:
