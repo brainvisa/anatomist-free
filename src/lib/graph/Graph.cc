@@ -1407,9 +1407,19 @@ namespace
     {
       // change material according to palette
       if( val <= std::min( fmin, fmax ) )
-        ind = 0;
+      {
+        if( fmin <= fmax )
+          ind = 0;
+        else
+          ind = ncol - 1;
+      }
       else if( val >= std::max( fmin, fmax ) )
-        ind = ncol - 1;
+      {
+        if( fmin <= fmax )
+          ind = ncol - 1;
+        else
+          ind = 0;
+      }
       else
         ind = (int) ( ( val - fmin ) * scale );
       //cout << "val : " << val << ", ind : " << ind << endl;
