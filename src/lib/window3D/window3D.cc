@@ -1672,7 +1672,7 @@ bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
 {
   bool	res = d->draw->positionFromCursor( x, y, position );
 
-  if( theAnatomist->userLevel() >= 4 )
+  if( theAnatomist->userLevel() >= 1 )
   {
     getInfos3DFromClickPoint ( x, y);
   }
