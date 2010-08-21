@@ -1685,16 +1685,16 @@ bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
 
 void AWindow3D::getInfos3D(void)
 {
-  if( theAnatomist->userLevel() >= 4 )
-  {
     getInfos3DFromClickPoint ( d->mouseX, d->mouseY);
-  }
+
 }
+
 
 View* AWindow3D::view()
 {
   return( d->draw );
 }
+
 
 const View* AWindow3D::view() const
 {
@@ -3735,6 +3735,7 @@ int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
   // polygon num is this ID
   return poly;
 }
+
 
 void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
                                        const AObject *selectedobject )

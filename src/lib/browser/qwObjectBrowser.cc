@@ -276,6 +276,11 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   d->modeWid->setFixedHeight( d->modeWid->sizeHint().height() );
   d->statbar->addWidget( d->modeWid, 0, true );
   d->statbar->setFixedHeight( d->statbar->sizeHint().height() );
+#if QT_VERSION >= 0x040000
+  // this is a bug in Qt4...
+  d->statbar->hide();
+  QTimer::singleShot( 0, d->statbar, SLOT( show() ) );
+#endif
 
   //elay->addWidget( fr );
   //elay->addWidget( d->statbar );
@@ -2077,10 +2082,22 @@ void QObjectBrowser::setMode( unsigned mode )
 	s.receivingBrowser = 0;
       d->editMode = mode;
       d->modeWid->setText( modeString().c_str() );
+#if QT_VERSION >= 0x040000
+      d->modeWid->setBackgroundRole( QPalette::Window );
+      QPalette pal = d->modeWid->palette();
+      if( d->editMode != 0 )
+        pal.setBrush(QPalette::Background, QColor( 255, 192, 192 ) );
+      else
+        pal.setBrush( QPalette::Background,
+          d->statbar->palette().brush( QPalette::Background ) );
+      d->modeWid->setPalette( pal );
+      d->modeWid->update();
+#else
       if( d->editMode != 0 )
 	d->modeWid->setBackgroundColor( QColor( 255, 192, 192 ) );
       else
 	d->modeWid->setBackgroundColor( d->statbar->backgroundColor() );
+#endif
       if( mode & EDIT )
 	s.receivingBrowser = this;
       if( !(mode & EDIT) && d->editor )

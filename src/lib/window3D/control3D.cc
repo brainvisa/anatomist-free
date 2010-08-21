@@ -696,45 +696,44 @@ void SelectAction::select( int x, int y, int modifier )
       return;
     }
 
-  if( theAnatomist->userLevel() >= 3 )
+  // new OpenGL-based selection (2010)
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  if( w3 )
   {
-    // allow this experimental selection feature only in debugger level
-    AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
-    if( w3 )
+    AObject *obj = w3->objectAtCursorPosition( x, y );
+    if( obj )
     {
-      AObject *obj = w3->objectAtCursorPosition( x, y );
-      if( obj )
+      cout << "select obj: " << obj << ", name: " << obj->name() << endl;
+      if( !w3->hasObject( obj ) )
       {
-        cout << "select obj: " << obj << ", name: " << obj->name() << endl;
-        if( !w3->hasObject( obj ) )
+        // see if the objects belongs to a graph vertex/edge
+        AObject::ParentList pl = obj->parents();
+        AObject::ParentList::iterator ip, ep = pl.end();
+        while( !pl.empty() )
         {
-          // see if the objects belongs to a graph vertex/edge
-          AObject::ParentList pl = obj->parents();
-          AObject::ParentList::iterator ip, ep = pl.end();
-          while( !pl.empty() )
+          ip = pl.begin();
+          pl.erase( ip );
+          if( ( dynamic_cast<AGraphObject *>( *ip )
+            || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
           {
-            ip = pl.begin();
-            pl.erase( ip );
-            if( ( dynamic_cast<AGraphObject *>( *ip )
-              || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
-            {
-              obj = *ip;
-              cout << "--> translated to: " << obj << ", name: " << obj->name()
-                << endl;
-              break;
-            }
-            pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
+            obj = *ip;
+            cout << "--> translated to: " << obj << ", name: " << obj->name()
+              << endl;
+            break;
           }
+          pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
         }
-        SelectFactory *sf = SelectFactory::factory();
-        set<AObject *> so;
-        so.insert( obj );
-        sf->select( (SelectFactory::SelectMode) modifier, w3->Group(), so );
-        sf->refresh();
-        return;
       }
+      SelectFactory *sf = SelectFactory::factory();
+      set<AObject *> so;
+      so.insert( obj );
+      sf->select( (SelectFactory::SelectMode) modifier, w3->Group(), so );
+      sf->refresh();
+      return;
     }
   }
+
+  // fallback to older selection
   Point3df      pos;
   if( w->positionFromCursor( x, y, pos ) )
   {

@@ -192,7 +192,7 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
 {
   Point3df	pos3;
   set<AObject *>	shown, hidden;
-  bool usegl = ( theAnatomist->userLevel() >= 3 );
+  bool usegl = true;
 
   if( usegl )
   {
