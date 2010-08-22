@@ -293,7 +293,31 @@ namespace anatomist
     }
 
     col[2] = (*colors)( ival0, ival1 )[2];
-    col[3] = 255;
+
+    val = (float) ::sqrt( in.red() * in.red() + in.green() * in.green()
+        + in.blue() * in.blue() );
+
+    if( val <= minv0 )
+      ival0 = cmin0;
+    else if( val >= maxv0 )
+      ival0 = cmax0;
+    else
+      ival0 = (int)( scale0 * val + decal0 );
+
+    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
+        colors->dimY() == 1 )
+      ival1 = 0 ;
+    else
+    {
+      if( val <= minv1 )
+        ival1 = cmin1;
+      else if( val >= maxv1 )
+        ival1 = cmax1;
+      else
+        ival1 = (int)( scale1 * val + decal1 );
+    }
+
+    col[3] = (*colors)( ival0, ival1 )[3];
 
     return col;
   }
