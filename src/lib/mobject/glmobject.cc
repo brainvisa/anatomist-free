@@ -261,7 +261,12 @@ unsigned GLMObject::glNumVertex( const ViewState & s ) const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glNumVertex( s );
+  {
+    if( g == this )
+      return GLComponent::glNumVertex( s );
+    else
+      return g->glNumVertex( s );
+  }
   return 0;
 }
 
@@ -270,7 +275,12 @@ const GLfloat* GLMObject::glVertexArray( const ViewState & s ) const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glVertexArray( s );
+  {
+    if( g == this )
+      return GLComponent::glVertexArray( s );
+    else
+      return g->glVertexArray( s );
+  }
   return 0;
 }
 
@@ -279,7 +289,12 @@ const GLfloat* GLMObject::glNormalArray( const ViewState & s ) const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glNormalArray( s );
+  {
+    if( g == this )
+      return GLComponent::glNormalArray( s );
+    else
+      return g->glNormalArray( s );
+  }
   return 0;
 }
 
@@ -288,7 +303,12 @@ unsigned GLMObject::glPolygonSize( const ViewState & s ) const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glPolygonSize( s );
+  {
+    if( g == this )
+      return GLComponent::glPolygonSize( s );
+    else
+      return g->glPolygonSize( s );
+  }
   return 0;
 }
 
@@ -297,7 +317,12 @@ unsigned GLMObject::glNumPolygon( const ViewState & s ) const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glNumPolygon( s );
+  {
+    if( g == this )
+      return GLComponent::glNumPolygon( s );
+    else
+      return g->glNumPolygon( s );
+  }
   return 0;
 }
 
@@ -306,7 +331,12 @@ const GLuint* GLMObject::glPolygonArray( const ViewState & s ) const
 {
   const GLComponent	*g = glGeometry();
   if( g )
-    return g->glPolygonArray( s );
+  {
+    if( g == this )
+      return GLComponent::glPolygonArray( s );
+    else
+      return g->glPolygonArray( s );
+  }
   return 0;
 }
 
@@ -315,7 +345,12 @@ unsigned GLMObject::glNumTextures() const
 {
   const GLComponent	*t = glTexture();
   if( t )
-    return t->glNumTextures();
+  {
+    if( t == this )
+      return GLComponent::glNumTextures();
+    else
+      return t->glNumTextures();
+  }
   return 0;
 }
 
@@ -324,7 +359,12 @@ unsigned GLMObject::glNumTextures( const ViewState & s ) const
 {
   const GLComponent	*t = glTexture();
   if( t )
-    return t->glNumTextures( s );
+  {
+    if( t == this )
+      return GLComponent::glNumTextures( s );
+    else
+      return t->glNumTextures( s );
+  }
   return 0;
 }
 
@@ -333,7 +373,7 @@ const GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
   const
 {
   const GLComponent     *t = glTexture();
-  if( t )
+  if( t && t != this )
     return t->glTexExtrema( tex );
   return GLComponent::glTexExtrema( tex );
 }
@@ -342,7 +382,7 @@ const GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
 GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
 {
   GLComponent     *t = glTexture();
-  if( t )
+  if( t && t != this )
     return t->glTexExtrema( tex );
   return GLComponent::glTexExtrema( tex );
 }
@@ -352,7 +392,12 @@ unsigned GLMObject::glDimTex( const ViewState & s, unsigned tex ) const
 {
   const GLComponent	*t = glTexture();
   if( t )
-    return t->glDimTex( s, tex );
+  {
+    if( t == this )
+      return GLComponent::glDimTex( s, tex );
+    else
+      return t->glDimTex( s, tex );
+  }
   return 0;
 }
 
@@ -361,7 +406,12 @@ unsigned GLMObject::glTexCoordSize( const ViewState & s, unsigned tex ) const
 {
   const GLComponent	*t = glTexture();
   if( t )
-    return t->glTexCoordSize( s, tex );
+  {
+    if( t == this )
+      return GLComponent::glTexCoordSize( tex );
+    else
+      return t->glTexCoordSize( s, tex );
+  }
   return 0;
 }
 
@@ -371,7 +421,12 @@ const GLfloat* GLMObject::glTexCoordArray( const ViewState & s,
 {
   const GLComponent	*t = glTexture();
   if( t )
-    return t->glTexCoordArray( s, tex );
+  {
+    if( t == this )
+      return GLComponent::glTexCoordArray( s, tex );
+    else
+      return t->glTexCoordArray( s, tex );
+  }
   return 0;
 }
 
