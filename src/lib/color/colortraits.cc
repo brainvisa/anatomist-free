@@ -119,6 +119,155 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
 }
 
 
+namespace anatomist
+{
+
+template <> 
+void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
+                                               const AimsRGB & )
+{
+  colors = palette->colors();
+
+  unsigned	ncol0, ncol1;
+  float		minc0, minc1, maxc0, maxc1;
+  float		mini = 0.F, maxi = 255.F;
+
+  ncol0 = colors->dimX();
+  ncol1 = colors->dimY();
+
+  minc0 = palette->min1();
+  maxc0 = palette->max1(); // colormap min & max
+  if( minc0 == maxc0 )
+  {
+    if( minc0 == 1. )
+      minc0 = 0.;
+    else
+      maxc0 = 1.;
+  }
+  minc1 = palette->min2();
+  maxc1 = palette->max2(); // colormap min & max
+  if( minc1 == maxc1 )
+  {
+    if( minc1 == 1. )
+      minc1 = 0.;
+    else
+      maxc1 = 1.;
+  }
+
+  minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
+  maxv0 = mini + maxc0 * (maxi - mini);
+  if( minv0 > maxv0 )
+  {
+    float tmp = minv0;
+    minv0 = maxv0;
+    maxv0 = tmp;
+  }
+  minv1 = mini + minc1 * (maxi - mini);	// thresholds in image values
+  maxv1 = mini + maxc1 * (maxi - mini);
+  if( minv1 > maxv1 )
+  {
+    float tmp = minv1;
+    minv1 = maxv1;
+    maxv1 = tmp;
+  }
+
+  scale0 = ( (float) ncol0 ) / ( (maxi - mini) * (maxc0 - minc0) );
+  scale1 = ( (float) ncol1 ) / ( (maxi - mini) * (maxc1 - minc1) );
+  decal0 = - ( mini / (maxi - mini) + minc0 ) * ncol0 / (maxc0 - minc0);
+  decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
+  cmin0 = 0;
+  cmin1 = 0;
+  cmax0 = colors->dimX() - 1;
+  cmax1 = colors->dimY() - 1;
+
+  if( scale0 < 0 )
+  {
+    cmin0 = cmax0;
+    cmax0 = 0;
+  }
+  if( scale1 < 0 )
+  {
+    cmin1 = cmax1;
+    cmax1 = 0;
+  }
+
+}
+
+
+template <> 
+void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
+    const AimsRGBA & )
+{
+  colors = palette->colors();
+
+  unsigned	ncol0, ncol1;
+  float		minc0, minc1, maxc0, maxc1;
+  float		mini = 0.F, maxi = 255.F;
+
+  ncol0 = colors->dimX();
+  ncol1 = colors->dimY();
+
+  minc0 = palette->min1();
+  maxc0 = palette->max1(); // colormap min & max
+  if( minc0 == maxc0 )
+  {
+    if( minc0 == 1. )
+      minc0 = 0.;
+    else
+      maxc0 = 1.;
+  }
+  minc1 = palette->min2();
+  maxc1 = palette->max2(); // colormap min & max
+  if( minc1 == maxc1 )
+  {
+    if( minc1 == 1. )
+      minc1 = 0.;
+    else
+      maxc1 = 1.;
+  }
+
+  minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
+  maxv0 = mini + maxc0 * (maxi - mini);
+  if( minv0 > maxv0 )
+  {
+    float tmp = minv0;
+    minv0 = maxv0;
+    maxv0 = tmp;
+  }
+  minv1 = mini + minc1 * (maxi - mini);	// thresholds in image values
+  maxv1 = mini + maxc1 * (maxi - mini);
+  if( minv1 > maxv1 )
+  {
+    float tmp = minv1;
+    minv1 = maxv1;
+    maxv1 = tmp;
+  }
+
+  scale0 = ( (float) ncol0 ) / ( (maxi - mini) * (maxc0 - minc0) );
+  scale1 = ( (float) ncol1 ) / ( (maxi - mini) * (maxc1 - minc1) );
+  decal0 = - ( mini / (maxi - mini) + minc0 ) * ncol0 / (maxc0 - minc0);
+  decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
+  cmin0 = 0;
+  cmin1 = 0;
+  cmax0 = colors->dimX() - 1;
+  cmax1 = colors->dimY() - 1;
+
+  if( scale0 < 0 )
+  {
+    cmin0 = cmax0;
+    cmax0 = 0;
+  }
+  if( scale1 < 0 )
+  {
+    cmin1 = cmax1;
+    cmax1 = 0;
+  }
+
+}
+
+}
+
+
 template class ColorScalarPaletteTraits<int8_t>;
 template class ColorScalarPaletteTraits<uint8_t>;
 template class ColorScalarPaletteTraits<int16_t>;
