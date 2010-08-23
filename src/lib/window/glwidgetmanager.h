@@ -38,6 +38,8 @@
 #include <anatomist/controler/view.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/surface/texture.h>
+#include <qdesktopwidget.h>
 
 #include <qglobal.h>
 #if QT_VERSION>=0x040000
@@ -77,6 +79,7 @@ namespace anatomist
     /// to be reimplemented in "public slots"
     virtual void updateGL();
     void renderBackBuffer( ViewState::glSelectRenderMode selectmode );
+    void copyBackBuffer2Texture(void);
 
   protected:
     virtual void initializeGL();
@@ -126,6 +129,7 @@ namespace anatomist
     virtual bool positionFromCursor( int x, int y, Point3df & position );
     virtual void readBackBuffer( int x, int y, GLubyte & red, GLubyte & green,
                                  GLubyte & blue );
+    GLubyte* getTextureFromBackBuffer (void);
     virtual bool translateCursorPosition( float x, float y,
                                           Point3df & position );
 

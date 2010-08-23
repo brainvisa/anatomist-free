@@ -44,6 +44,8 @@
 #include <anatomist/surface/surface.h>
 #include <anatomist/surface/triangulated.h>
 
+#include <qpainter.h>
+#include <QTime>
 namespace aims
 {
   class Quaternion;
@@ -102,7 +104,7 @@ public:
     AWindow3D *window() { return _window; }
 
   private:
-    AWindow3D	*_window;
+    AWindow3D *_window;
   };
 
 
@@ -129,24 +131,24 @@ public:
                                        const anatomist::AObject* obj );
   /// print all infos about vertex picked on a polygon selected
   int computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as);
-		  //anatomist::ATriangulated *as);
+      //anatomist::ATriangulated *as);
   void getInfos3DFromClickPoint( int x, int y );
   void getInfos3D(void);
   void printPositionAndValue();
   virtual void displayClickPoint();
 
-  ///		set the view of the scene
+  ///   set the view of the scene
   void setViewPoint( float *quaternion, 
-		     const float zoom );
+         const float zoom );
   anatomist::Light *light();
   void setLight( const anatomist::Light &light );
-  ///		Compass handling methods
+  ///   Compass handling methods
   void setOrientationCube( bool state );
   bool hasOrientationCube() const;
-  ///		Frame handling methods
+  ///   Frame handling methods
   void setBoundingFrame( bool state );
   bool hasBoundingFrame() const;
-  ///	Rendering mode (normal, wireframe, fast)
+  /// Rendering mode (normal, wireframe, fast)
   void setRenderingMode( RenderingMode mode );
   RenderingMode renderingMode() const;
 
@@ -154,7 +156,7 @@ public:
   virtual std::set<unsigned> & typeCount();
   virtual const std::string & baseTitle() const;
   virtual void SetPosition( const Point3df& position, 
-			    const anatomist::Referential* orgref );
+          const anatomist::Referential* orgref );
   virtual void updateWindowGeometry();
 
   static anatomist::Geometry 
@@ -179,7 +181,7 @@ public:
   /// Tries to resize the viewing area to given size
   void resizeView( int w, int h );
   bool boundingBox( Point3df & bmin, Point3df & bmax, float & tmin, 
-		    float & tmax ) const;
+        float & tmax ) const;
   ClipMode clipMode() const;
   void setClipMode( ClipMode m );
   float clipDistance() const;
@@ -302,17 +304,21 @@ protected:
   /// Allows changing display lists from normal objects DLists
   void registerObjectModifier( ObjectModifier *mod );
   void unregisterObjectModifier( ObjectModifier *mod );
+
+  /// 3D windows static counter
+  static std::set<unsigned> _count3d;
+  static std::string    _baseTitle;
+
+public :
   void renderSelectionBuffer( anatomist::ViewState::glSelectRenderMode mode,
                               const anatomist::AObject *selectedobject = 0 );
 
-  /// 3D windows static counter
-  static std::set<unsigned>	_count3d;
-  static std::string		_baseTitle;
+
 
 private:
   struct Private;
 
-  Private	*d;
+  Private *d;
 };
 
 

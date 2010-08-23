@@ -1686,7 +1686,6 @@ bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
 void AWindow3D::getInfos3D(void)
 {
     getInfos3DFromClickPoint ( d->mouseX, d->mouseY);
-
 }
 
 
@@ -3714,27 +3713,59 @@ list<AObject*> *AWindow3D::objectsAtCursorPosition( int /*x*/, int /*y*/,
   return objs;
 }
 
-
 int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
 {
   unsigned poly = 0;
   if( x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y >= d->draw->qglWidget()->height() )
     return -1;
   // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
-  renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
+  //renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
+
+  cout << "polygonAtCursorPosition\n";
+
+  GLubyte* tex = d->draw->getTextureFromBackBuffer();
+
   // read the color buffer at pos x,y
-  d->draw->qglWidget()->makeCurrent();
-  glFlush(); // or glFinish() ?
+//  d->draw->qglWidget()->makeCurrent();
+//  glFlush(); // or glFinish() ?
   GLubyte r, g, b;
-  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+
+  r = tex[3 * (d->draw->qglWidget()->height() - y) * d->draw->qglWidget()->width() + 3 * x];
+  g = tex[3 * (d->draw->qglWidget()->height() - y) * d->draw->qglWidget()->width() + 3 * x + 1];
+  b = tex[3 * (d->draw->qglWidget()->height() - y) * d->draw->qglWidget()->width() + 3 * x + 2];
+
+  //poly = (unsigned)(b + 256 * g + 256 * 256 * r);
+//  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+
   // convert color -> ID
   poly = (r << 16) | (g << 8) | b;
-  //cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
-  //cout << "ID polygon selected: " << poly << endl;
+  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
+  cout << "ID polygon selected: " << poly << endl;
 
   // polygon num is this ID
   return poly;
 }
+
+//int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
+//{
+//  unsigned poly = 0;
+//  if( x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y >= d->draw->qglWidget()->height() )
+//    return -1;
+//  // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
+//  renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
+//  // read the color buffer at pos x,y
+//  d->draw->qglWidget()->makeCurrent();
+//  glFlush(); // or glFinish() ?
+//  GLubyte r, g, b;
+//  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+//  // convert color -> ID
+//  poly = (r << 16) | (g << 8) | b;
+//  //cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
+//  //cout << "ID polygon selected: " << poly << endl;
+//
+//  // polygon num is this ID
+//  return poly;
+//}
 
 
 void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
@@ -3800,6 +3831,7 @@ void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
   d->draw->setSelectionPrimitives( primitives );
 
   // perform rendering, without swapBuffers
+
   d->draw->renderBackBuffer( mode );
 }
 

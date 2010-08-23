@@ -669,6 +669,7 @@ void
 ControlSwitch::mouseReleaseEvent( QMouseEvent * event )
 {
   //cout << "SWITCH : MOUSERELEASEEVENT" << endl ;
+
   map<string, ControlPtr>::iterator found( myControls.find(myActiveControl) ) ;
   if ( myControlEnabled )
     {

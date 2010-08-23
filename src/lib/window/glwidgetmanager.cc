@@ -49,6 +49,8 @@
 #include <cartobase/stream/fileutil.h>
 #include <qapplication.h>
 #include <iostream>
+#include <anatomist/window3D/window3D.h>
+#include <anatomist/window/viewstate.h>
 
 #if QT_VERSION >= 0x040000
 namespace Qt
@@ -161,6 +163,13 @@ struct GLWidgetManager::Private
   GLWidgetManager_Private_QObject *qobject;
   bool                  transparentBackground;
   unsigned char         backgroundAlpha;
+
+  //std::vector<int> _indexTexture;
+  GLubyte *backBufferTexture;
+  int mouseX;
+  int mouseY;
+  bool resized;
+  //ATexture  *_ao;
 };
 
 
@@ -178,7 +187,7 @@ GLWidgetManager::Private::Private()
     rgbbufready( false ), 
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
     qobject( 0 ),
-    transparentBackground( true ), backgroundAlpha( 128 )
+    transparentBackground( true ), backgroundAlpha( 128 ),resized(false)
 {
   buildRotationMatrix();
 }
@@ -291,12 +300,22 @@ void GLWidgetManager::initializeGL()
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
 
   glClearColor( 1, 1, 1, 1 );
+
+  _pd->backBufferTexture = NULL;
+  QDesktopWidget *desktop = QApplication::desktop();
+  int screenWidth = desktop->width();
+  int screenHeight = desktop->height();
+  cout << "screen resolution = " << screenWidth << "x" << screenHeight << endl;
+  //pd->glwidget->width()
+  _pd->backBufferTexture = (GLubyte*) malloc((screenWidth * screenHeight) * 3
+      * sizeof(GLubyte));
 }
 
 
 void GLWidgetManager::resizeGL( int w, int h )
 {
   glViewport( 0, 0, (GLint)w, (GLint)h );
+  _pd->resized = true;
 }
 
 
@@ -1226,6 +1245,40 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
     }
 }
 
+void GLWidgetManager::copyBackBuffer2Texture(void)
+{
+  setupView();
+
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (window());
+
+  if (w3)
+  {
+  // TODO : le rendu est fait sur l'object selectionné par la souris (à améliorer)
+    AObject *obj = w3->objectAtCursorPosition(_pd->mouseX,_pd->mouseY);
+    if (theAnatomist->userLevel() >= 4)
+    {
+      cout << "obj " << obj << endl;
+      cout << "mouseX " << _pd->mouseX << " mouseY " << _pd->mouseY << endl;
+    }
+    w3->renderSelectionBuffer(ViewState::glSELECTRENDER_POLYGON, obj);
+    //cout << "renderSelectionBuffer\n";
+  }
+
+  //glFlush(); // or glFinish() ?
+  glFinish();
+  glReadBuffer( GL_BACK);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGB,
+      GL_UNSIGNED_BYTE, _pd->backBufferTexture);
+  //_resized = false;
+
+  if (theAnatomist->userLevel() >= 4)
+  cout << "copyBackBuffer2Texture\n" << "largeur = " << _pd->glwidget->width() <<
+      " hauteur = "  << _pd->glwidget->height()<<endl;
+
+  _pd->resized = false;
+}
 
 void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
                                       GLubyte & green, GLubyte & blue )
@@ -1240,6 +1293,10 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   blue = rgba[2];
 }
 
+GLubyte* GLWidgetManager::getTextureFromBackBuffer(void)
+{
+  return _pd->backBufferTexture;
+}
 
 bool GLWidgetManager::translateCursorPosition( float x, float y,
                                                Point3df & position )
@@ -1271,14 +1328,25 @@ void GLWidgetManager::mousePressEvent( QMouseEvent* ev )
 {
   //cout << "GLWidgetManager::mousePressEvent\n";
   controlSwitch()->mousePressEvent( ev );
+  _pd->mouseX = ev->x();
+  _pd->mouseY = ev->y();
+
+  if (ev->buttons() == Qt::LeftButton && _pd->resized)
+    {
+    copyBackBuffer2Texture();
+    }
 }
 
 
 void GLWidgetManager::mouseReleaseEvent( QMouseEvent* ev )
 {
-  /*cout << "GLWidgetManager::mouseReleaseEvent\n";
-  cout << "button : " << (int) ev->button() << endl;
-  cout << "state  : " << (int) ev->state() << endl;*/
+//  cout << "GLWidgetManager::mouseReleaseEvent\n";
+//  cout << "button : " << (int) ev->button() << endl;
+//  cout << "state  : " << (int) ev->state() << endl;
+//
+  if ((ev->button() == 4) && (ev->state() == 4))
+    copyBackBuffer2Texture();
+
   controlSwitch()->mouseReleaseEvent( ev );
 }
 
@@ -1322,6 +1390,7 @@ void GLWidgetManager::keyReleaseEvent( QKeyEvent* ev )
 void GLWidgetManager::wheelEvent( QWheelEvent* ev )
 {
   controlSwitch()->wheelEvent( ev );
+  _pd->resized = true;
 }
 
 
