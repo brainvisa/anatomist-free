@@ -38,8 +38,6 @@
 #include <anatomist/controler/view.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
-#include <anatomist/surface/texture.h>
-#include <qdesktopwidget.h>
 
 #include <qglobal.h>
 #if QT_VERSION>=0x040000

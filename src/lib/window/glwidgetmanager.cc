@@ -51,6 +51,7 @@
 #include <iostream>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/viewstate.h>
+#include <qdesktopwidget.h>
 
 #if QT_VERSION >= 0x040000
 namespace Qt
@@ -165,7 +166,7 @@ struct GLWidgetManager::Private
   unsigned char         backgroundAlpha;
 
   //std::vector<int> _indexTexture;
-  GLubyte *backBufferTexture;
+  vector<GLubyte> backBufferTexture;
   int mouseX;
   int mouseY;
   bool resized;
@@ -301,14 +302,13 @@ void GLWidgetManager::initializeGL()
 
   glClearColor( 1, 1, 1, 1 );
 
-  _pd->backBufferTexture = NULL;
   QDesktopWidget *desktop = QApplication::desktop();
   int screenWidth = desktop->width();
   int screenHeight = desktop->height();
   cout << "screen resolution = " << screenWidth << "x" << screenHeight << endl;
   //pd->glwidget->width()
-  _pd->backBufferTexture = (GLubyte*) malloc((screenWidth * screenHeight) * 3
-      * sizeof(GLubyte));
+  _pd->backBufferTexture.reserve( screenWidth * screenHeight * 3 );
+  _pd->backBufferTexture.resize( screenWidth * screenHeight * 3 );
 }
 
 
@@ -1270,7 +1270,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGB,
-      GL_UNSIGNED_BYTE, _pd->backBufferTexture);
+      GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
   //_resized = false;
 
   if (theAnatomist->userLevel() >= 4)
@@ -1295,7 +1295,7 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
 
 GLubyte* GLWidgetManager::getTextureFromBackBuffer(void)
 {
-  return _pd->backBufferTexture;
+  return &_pd->backBufferTexture[0];
 }
 
 bool GLWidgetManager::translateCursorPosition( float x, float y,
