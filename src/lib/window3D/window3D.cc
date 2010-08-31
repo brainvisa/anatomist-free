@@ -369,11 +369,11 @@ AWindow3D::Private::Private()
     transpz( true ), culling( true ), flatshading( false ), smooth( false ), 
     fog( false ), refreshneeded( FullRefresh ),
     linkonslider( false ), lefteye( 0 ), righteye( 0 ), objvallabel( 0 ),
-    statusbarvisible( false ), mouseX( 0 ), mouseY( 0 ),
+    statusbarvisible( false ), 
     // needsboundingbox( false ),
-    needsextrema( false ) // , needswingeom( false ),
+    needsextrema( false ), // needswingeom( false ),
     // needssliceslider( false )
-
+    mouseX( 0 ), mouseY( 0 )
 {
 }
 

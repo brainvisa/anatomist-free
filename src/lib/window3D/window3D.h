@@ -42,10 +42,7 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/surface/surface.h>
-#include <anatomist/surface/triangulated.h>
 
-#include <qpainter.h>
-#include <QTime>
 namespace aims
 {
   class Quaternion;
