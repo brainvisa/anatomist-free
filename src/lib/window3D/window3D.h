@@ -41,8 +41,6 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
-#include <anatomist/surface/surface.h>
-#include <anatomist/surface/triangulated.h>
 
 namespace aims
 {
