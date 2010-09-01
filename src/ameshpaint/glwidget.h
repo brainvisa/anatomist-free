@@ -53,12 +53,12 @@ using namespace aims;
 using namespace std;
 using namespace anatomist;
 
-QT_BEGIN_NAMESPACE
+//QT_BEGIN_NAMESPACE
 class QPaintEvent;
 class QWidget;
 class QDragEnterEvent;
 class QDropEvent;
-QT_END_NAMESPACE
+//QT_END_NAMESPACE
 
 class GLWidget : public QGLWidget
 {
