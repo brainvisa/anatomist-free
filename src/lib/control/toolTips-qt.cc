@@ -40,6 +40,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/graph/GraphObject.h>
+#include <anatomist/graph/Graph.h>
 #include <qlabel.h>
 #include <qapplication.h>
 #include <qtimer.h>
@@ -127,8 +128,32 @@ QAViewToolTip::~QAViewToolTip()
 namespace
 {
 
-  QString printobj( const AObject* obj, const vector<string> & todisp )
+  void propertiesToDisplay( const AObject* obj, list<string> & todisp )
   {
+    todisp.push_back( "name" );
+    todisp.push_back( "label" );
+    todisp.push_back( "volume_dimension" );
+    todisp.push_back( "voxel_size" );
+    const AGraphObject * ago = dynamic_cast<const AGraphObject*>( obj );
+    if( ago )
+    {
+      const AObject::ParentList & pl = obj->parents();
+      AObject::ParentList::const_iterator ip, ep = pl.end();
+      for( ip=pl.begin(); ip!=ep; ++ip )
+      if( (*ip)->type() == AObject::GRAPH )
+      {
+        const AGraph * ag = reinterpret_cast<const AGraph *>( *ip );
+        if( ag->colorMode() == AGraph::PropertyMap )
+          todisp.push_back( ag->colorProperty() );
+      }
+    }
+  }
+
+
+  QString printobj( const AObject* obj )
+  {
+    list<string> todisp;
+    propertiesToDisplay( obj, todisp );
     QString	text = ( string( "<b>" ) + obj->name() + "</b>" ).c_str();
     const AObject::ParentList	& pl = obj->parents();
     if( !pl.empty() )
@@ -155,7 +180,7 @@ namespace
     if( aao )
       {
         int				len = 0, x;
-        vector<string>::const_iterator	ai, ae = todisp.end();
+        list<string>::const_iterator	ai, ae = todisp.end();
         for( ai=todisp.begin(); ai!=ae; ++ai )
           {
             x = ai->length();
@@ -163,24 +188,26 @@ namespace
               len = x;
           }
 
+        text += "<table>";
         for( ai=todisp.begin(); ai!=ae; ++ai )
+        {
           try
             {
               prop = aao->attributed()->getProperty( *ai );
               if( prop )
                 {
                   proptxt = prop->getString();
-                  text += QString( "<br>&nbsp;&nbsp;<em>" ) + ai->c_str() 
-                    + "</em>";
-                  for( x=0; x<len; ++x )
-                    text += "&nbsp;";
-                  text += ":&nbsp;";
-                  text += proptxt.c_str();
+                  text += QString( "<tr><td><em>" ) + ai->c_str()
+                    + ":&nbsp;</em></td>";
+                  text += QString( "<td>" ) + proptxt.c_str() + "</td>";
                 }
             }
           catch( ... )
             {
             }
+          text += QString( "</tr>" );
+        }
+        text += QString( "</table>" );
       }
     return text;
   }
@@ -270,10 +297,6 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   if( shown.empty() && hidden.empty() )
     return;
 
-  vector<string>		todisp(2);
-  todisp[0] = "name";
-  todisp[1] = "label";
-
   QString			text;
   string			label;
   set<AObject *>::iterator	i, e = shown.end();
@@ -285,7 +308,7 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
         first = false;
       else
         text += "<br>";
-      text += printobj( *i, todisp );
+      text += printobj( *i );
     }
   if( !hidden.empty() )
     {
@@ -295,7 +318,7 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
       for( i=hidden.begin(), e=hidden.end(); i!=e; ++i )
         {
           text += "<br>";
-          text += printobj( *i, todisp );
+          text += printobj( *i );
         }
     }
 
