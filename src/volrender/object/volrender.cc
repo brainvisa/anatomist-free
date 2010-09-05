@@ -395,7 +395,10 @@ namespace
   }
 
 
-  template <typename T> void resamplevol( AVolume<T> * avol,
+  template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
+      VolRender::Private * d, int t );
+
+  template <typename T> void resamplevolNoScale( AVolume<T> * avol,
       VolRender::Private * d, int t )
   {
     rc_ptr<Volume<T> > v0 = avol->volume()->volume();
@@ -435,6 +438,23 @@ namespace
   }
 
 
+  template <typename T> void resamplevol( AVolume<T> * avol,
+                                          VolRender::Private * d, int t )
+  {
+    if( !d->ownextrema ) // needs rescaling
+    {
+      if( d->pixtype == GL_UNSIGNED_BYTE )
+        resamplevolFloat<T, uint8_t>( avol, d, t );
+      else if( d->pixtype == GL_UNSIGNED_SHORT )
+        resamplevolFloat<T, uint16_t>( avol, d, t );
+      else
+        resamplevolFloat<T, int8_t>( avol, d, t );
+    }
+    else
+      resamplevolNoScale( avol, d, t );
+  }
+
+
   // special case of FLOAT and DOUBLE: resample as int (short)
   template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
       VolRender::Private * d, int t )
@@ -443,6 +463,8 @@ namespace
     VolumeRef<U>  vol;
     const GLComponent::TexExtrema  & te = avol->glTexExtrema( 0 );
     double scl = 65535.99 / ( te.max[0] - te.min[0] );
+    if( d->pixtype == GL_BYTE || d->pixtype == GL_UNSIGNED_BYTE )
+      scl = 255.99 / ( te.max[0] - te.min[0] );
     double offset = - te.min[0];
     const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t ) );
     if( d->ownextrema || d->dimx != d->texdimx || d->dimy != d->texdimy
@@ -478,6 +500,7 @@ namespace
             vol->at( x, y, z ) = zero;
       data = reinterpret_cast<const char *>( &vol->at( 0, 0, 0 ) );
     }
+    // FIXME: else take pixtype of the real input type (GL_FLOAT etc)
     GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, d->texdimx, d->texdimy,
                           d->texdimz, 0, d->pixformat, d->pixtype, data );
   }
@@ -526,6 +549,13 @@ namespace
     const char *data = reinterpret_cast<const char *>( &vol->at( 0, 0, 0 ) );
     GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, d->texdimx, d->texdimy,
                           d->texdimz, 0, d->pixformat, d->pixtype, data );
+  }
+
+
+  template <> void resamplevol( AVolume<AimsRGBA> * avol,
+                                VolRender::Private * d, int t )
+  {
+    resamplevolNoScale( avol, d, t );
   }
 
 }
@@ -633,8 +663,24 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   // check if colormap is small enough to fit into OpenGL limitations
   GLint mt = 0;
   glGetIntegerv( GL_MAX_PIXEL_MAP_TABLE, &mt );
+  // cout << "dimx: " << dimx << ", mt: " << mt << endl;
   if( (int) dimx > mt )
+  {
     dimx = mt;
+    if( d->sign && ( te.max[0] >= dimx/2 || te.min[0] < -dimx/2 )
+      || !d->sign && ( te.min[0] < 0 || te.max[0] >= dimx ) )
+    {
+      // adapt output (converted) type to the colormap scale
+      cout << "Volume rendering: voxel values need rescaling due to OpenGL "
+          "implementation limitations to color index map size" << endl;
+      d->sign = false;
+      d->ownextrema = false;
+      if( dimx <= 256 )
+        d->pixtype = GL_UNSIGNED_BYTE;
+      else
+        d->pixtype = GL_UNSIGNED_SHORT;
+    }
+  }
 
   // cout << "dim palette: " << dimx << endl;
 
@@ -758,8 +804,8 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   while( !done && d->dimx >= 1 && d->dimy >= 1 && d->dimz >= 1 )
   {
     // try a proxy first
-    GLCaps::glTexImage3D( GL_PROXY_TEXTURE_3D, 0, GL_RGBA, d->texdimx, 
-                          d->texdimy, d->texdimz, 0, d->pixformat, 
+    GLCaps::glTexImage3D( GL_PROXY_TEXTURE_3D, 0, GL_RGBA, d->texdimx,
+                          d->texdimy, d->texdimz, 0, d->pixformat,
                           d->pixtype, 0 );
     status = glGetError();
     if( status != GL_NO_ERROR )
