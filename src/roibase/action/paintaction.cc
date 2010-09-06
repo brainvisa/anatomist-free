@@ -1657,35 +1657,35 @@ DiskPaintStrategy::paintType()
 
 void 
 DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
-				 const Point3df& n,
-				 const AObject * originalLabel, 
-				 AObject * finalLabel,
-				 float brushSize, 
-				 AimsData<AObject*> *volumeOfLabels,
-				 const Point3df & voxelSize, 
-				 const Point3df & vlOffset, 
-				 BucketMap<Void>::Bucket & deltaModifications,
-				 list< pair< Point3d, ChangesItem> > & changes,
-				 bool replace,
-				 bool mm )
+  const Point3df& n,
+  const AObject * originalLabel,
+  AObject * finalLabel,
+  float brushSize,
+  AimsData<AObject*> *volumeOfLabels,
+  const Point3df & voxelSize,
+  const Point3df & vlOffset,
+  BucketMap<Void>::Bucket & deltaModifications,
+  list< pair< Point3d, ChangesItem> > & changes,
+  bool replace,
+  bool mm )
 {
   Point3df point ;
   Point3d realPoint ;
   int i, j, k ;
-  float brush = brushSize ;
-  float brush2 = brush * brush ;
-  
+  float brush = brushSize - 1.;
+  float brush2 = brush * brush + 0.001 ;
+
   if ( n[2] >= n[1] && n[2] >= n[0] )
-    {
-      i = 0, j = 1, k = 2 ;
-    }
+  {
+    i = 0, j = 1, k = 2 ;
+  }
   else if ( n[1] > n[0] && n[1] > n[2] )
-    {
-      i = 0, j = 2, k = 1 ;
-    } 
+  {
+    i = 0, j = 2, k = 1 ;
+  }
   else
     i = 1, j = 2, k = 0 ;
-  
+
   Point3df distanceToCenter ;
   float minVS = voxelSize[0] ;
   if( voxelSize[1] < minVS )
@@ -1694,17 +1694,20 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
     minVS = voxelSize[2] ;
   float invnk = 1 / n[k] ;
   float maxOnI, maxOnJ, minOnI, minOnJ ;
-  
-  if( mm ){
-    maxOnI = (float)(int)( diskCenter[i] + brush/minVS + 1) ;
-    maxOnJ = (float)(int)( diskCenter[j] + brush/minVS + 1 ) ;
-    minOnI = (float)(int)( diskCenter[i] - brush/minVS - 1 ) ; 
-    minOnJ = (float)(int)( diskCenter[j] - brush/minVS - 1 ) ;
-  } else {
-    maxOnI = (float)(int)( diskCenter[i] ) + brush + 1 ;
-    maxOnJ = (float)(int)( diskCenter[j] ) + brush + 1 ;
-    minOnI = (float)(int)( diskCenter[i] ) - brush - 1 ; 
-    minOnJ = (float)(int)( diskCenter[j] ) - brush - 1 ;
+
+  if( mm )
+  {
+    maxOnI = rint( diskCenter[i] + brush/minVS + 1) ;
+    maxOnJ = rint( diskCenter[j] + brush/minVS + 1 ) ;
+    minOnI = rint( diskCenter[i] - brush/minVS - 1 ) ;
+    minOnJ = rint( diskCenter[j] - brush/minVS - 1 ) ;
+  }
+  else
+  {
+    maxOnI = rint( diskCenter[i] + brush + 1 );
+    maxOnJ = rint( diskCenter[j] + brush + 1 );
+    minOnI = rint( diskCenter[i] - brush - 1 );
+    minOnJ = rint( diskCenter[j] - brush - 1 );
   }
   for ( point[i] = minOnI ; point[i] <= maxOnI ; point[i] += 1. )
     for ( point[j] = minOnJ ; point[j] <= maxOnJ ; point[j] += 1. )
@@ -1714,9 +1717,8 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
 
         distanceToCenter = point - diskCenter ;
 
-
-
-        if( mm ){
+        if( mm )
+        {
           distanceToCenter[0] *= voxelSize[0] ;
           distanceToCenter[1] *= voxelSize[1] ;
           distanceToCenter[2] *= voxelSize[2] ;
@@ -1728,12 +1730,12 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
               + distanceToCenter[2]*distanceToCenter[2] < brush2 &&
               in( volumeOfLabels, point, vlOffset ) )
           {
-            realPoint[0] = (int) ( point[0] + 0.5 ) ;
-            realPoint[1] = (int) ( point[1] + 0.5 ) ;
-            realPoint[2] = (int) ( point[2] + 0.5 ) ;
-            Point3d	VL( (int) rint( vlOffset[0] ),
-                            (int) rint( vlOffset[1] ),
-                            (int) rint( vlOffset[2] ));
+            realPoint[0] = (int) rint( point[0] ) ;
+            realPoint[1] = (int) rint( point[1] ) ;
+            realPoint[2] = (int) rint( point[2] ) ;
+            Point3d VL( (int) rint( vlOffset[0] ),
+                        (int) rint( vlOffset[1] ),
+                        (int) rint( vlOffset[2] ));
 
             if( volumeOfLabels )
             {
@@ -1759,20 +1761,20 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
 
 void 
 DiskPaintStrategy::paint( AWindow3D * win,
-			  Transformation * transf, const Point3df& point,
-			  const AObject * originalLabel, AObject * finalLabel,
-			  float brushSize, bool /*lineMode*/,
-			  AimsData<AObject*> *volumeOfLabels,
-			  const Point3df & vlOffset, 
-			  BucketMap<Void>::Bucket & deltaModifications,
-			  list< pair< Point3d, ChangesItem> > & changes,
-			  const Point3df& voxelSize,
-			  bool lineMode,
-			  bool replace,
-			  bool mm )
+  Transformation * transf, const Point3df& point,
+  const AObject * originalLabel, AObject * finalLabel,
+  float brushSize, bool /*lineMode*/,
+  AimsData<AObject*> *volumeOfLabels,
+  const Point3df & vlOffset,
+  BucketMap<Void>::Bucket & deltaModifications,
+  list< pair< Point3d, ChangesItem> > & changes,
+  const Point3df& voxelSize,
+  bool lineMode,
+  bool replace,
+  bool mm )
 {
   //cerr << "BallPaintStrategy::paint : entering" << endl ;
-  
+
   Point3df p ;
   if ( transf )
     p = Transformation::transform( point, transf, voxelSize ) ;
@@ -1782,55 +1784,55 @@ DiskPaintStrategy::paint( AWindow3D * win,
     p[1] /= voxelSize[1] ;
     p[2] /= voxelSize[2] ;
   }
-    
+
   Point3df normal(win->sliceQuaternion().apply(Point3df(0., 0., 1.) ) ) ;
-  
+
   if( lineMode && myPreviousPointExists )
+  {
+    list< Point3df > line = drawLine( myPreviousPoint, p - myPreviousPoint );
+    list< Point3df >::iterator iter( line.begin() ), last( line.end() );
+
+    while( iter != last )
     {
-      list< Point3df > line = drawLine( myPreviousPoint, 
-					p - myPreviousPoint ) ;
-      list< Point3df >::iterator iter( line.begin() ), last( line.end() ) ;
-    
-      while( iter != last ) {
-	if( normal[0] > 0.999 || normal[0] < -0.999 || 
-	    normal[1] > 0.999 || normal[1] < -0.999 || 
-	    normal[2] > 0.999 || normal[2] < -0.999 )
-	  brushPainter( Point3df( (float)(int)((*iter)[0] + 0.5 ),
-				  (float)(int)((*iter)[1] + 0.5 ),
-				  (float)(int)((*iter)[2] + 0.5 ) ),
-			normal,
-			originalLabel, finalLabel, brushSize, 
-			volumeOfLabels, voxelSize, vlOffset, deltaModifications, 
-			changes, replace, mm ) ;
-	else
-	  brushPainter( *iter, normal,
-			originalLabel, finalLabel, brushSize, 
-			volumeOfLabels, voxelSize, vlOffset, deltaModifications, 
-			changes, replace, mm ) ;
-	++iter ;
-      }
-    
-    } else
-      if( normal[0] > 0.999 || normal[0] < -0.999 || 
-	  normal[1] > 0.999 || normal[1] < -0.999 || 
-	  normal[2] > 0.999 || normal[2] < -0.999 )
-	brushPainter( Point3df( (float)(int)(p[0] + 0.5 ),
-				(float)(int)(p[1] + 0.5 ),
-				(float)(int)(p[2] + 0.5 ) ),
-		      normal,
-		      originalLabel, finalLabel, brushSize, 
-		      volumeOfLabels, voxelSize, vlOffset, deltaModifications, 
-		      changes, replace, mm ) ;
-  
+      if( normal[0] > 0.999 || normal[0] < -0.999 ||
+          normal[1] > 0.999 || normal[1] < -0.999 ||
+          normal[2] > 0.999 || normal[2] < -0.999 )
+        brushPainter( Point3df( (float)(int)((*iter)[0] + 0.5 ),
+          (float)(int)((*iter)[1] + 0.5 ),
+          (float)(int)((*iter)[2] + 0.5 ) ),
+          normal,
+          originalLabel, finalLabel, brushSize,
+          volumeOfLabels, voxelSize, vlOffset, deltaModifications,
+          changes, replace, mm );
+      else
+        brushPainter( *iter, normal,
+          originalLabel, finalLabel, brushSize,
+          volumeOfLabels, voxelSize, vlOffset, deltaModifications,
+          changes, replace, mm );
+      ++iter ;
+    }
+
+  }
+  else
+    if( normal[0] > 0.999 || normal[0] < -0.999 ||
+        normal[1] > 0.999 || normal[1] < -0.999 ||
+        normal[2] > 0.999 || normal[2] < -0.999 )
+    {
+      brushPainter( Point3df( rint(p[0]), rint(p[1]), rint(p[2]) ),
+        normal,
+        originalLabel, finalLabel, brushSize,
+        volumeOfLabels, voxelSize, vlOffset, deltaModifications,
+        changes, replace, mm );
+    }
     else
       brushPainter( p, normal,
-		    originalLabel, finalLabel, brushSize, 
-		    volumeOfLabels, voxelSize, vlOffset, deltaModifications, 
-		    changes, replace, mm ) ;
-  
+        originalLabel, finalLabel, brushSize,
+        volumeOfLabels, voxelSize, vlOffset, deltaModifications,
+        changes, replace, mm );
+
   myPreviousPointExists = true ;
   myPreviousPoint = p ;
-  
+
   //cerr << "BallPaintStrategy::Paint : exiting" << endl ;
 }
 
@@ -1849,30 +1851,18 @@ BallPaintStrategy::brush( int size )
 {
   static vector< vector<Point3d> > myBrush(51) ;
   static vector<bool> firstTime( 51, true) ;
+  float d2 = (size-1) * (size-1) + 0.001;
 
   if ( firstTime[size] )
-    {
-      firstTime[size] = false ;
-      myBrush[size].reserve( (2*size-1)*(2*size-1)*(2*size-1) ) ;
-      for( int i = -size+1 ; i <= size-1 ; ++i )
-	for( int j = -size+1 ; j <= size-1 ; ++j )
-	  for( int k = -size+1 ; k <= size-1 ; ++k )
-	    if( ::sqrt( i*i + j*j + k*k ) - 0.001 <= float(size-1) ) 
-	      myBrush[size].push_back( Point3d(i, j, k) ) ;
-
-//       float sq ;
-      
-//       for( int i = -49 ; i <= 49 ; i++ )
-// 	for( int j = -49 ; j <= 49 ; j++ ) 
-// 	  for( int k = -49 ; k <= 49 ; k++ )
-// 	    {
-// 	      sq = ::sqrt( i*i + j*j + k*k ) ;
-// 	      for( int l = static_cast<int>( sq + .0001 ) ; l <= 49 ; l++ )
-// 		{
-// 		  myBrush[l+1].bucket()[0][ Point3d(i, j, k) ] ;
-// 		}
-// 	    }
-    }  
+  {
+    firstTime[size] = false ;
+    myBrush[size].reserve( (2*size-1)*(2*size-1)*(2*size-1) ) ;
+    for( int i = -size+1 ; i <= size-1 ; ++i )
+    for( int j = -size+1 ; j <= size-1 ; ++j )
+      for( int k = -size+1 ; k <= size-1 ; ++k )
+        if( i*i + j*j + k*k <= d2 )
+          myBrush[size].push_back( Point3d(i, j, k) ) ;
+  }
   return myBrush[size] ;
 }
 
