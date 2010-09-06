@@ -75,15 +75,15 @@ namespace anatomist
 {
   struct PaintActionView_Private {
     PaintAction * myPaintAction ;
-    
+
     QHBox * myUpperPart ;
-    
+
     QVGroupBox * myBrushParameters ;
     QHButtonGroup * myBrushes ;
     QPushButton * myPointBrush ;
     QPushButton * myDiskBrush ;
     QPushButton * myBallBrush ;
-    
+
     QHGroupBox * myBrushSizeBox ;
     QSlider * myBrushSize ;
     QLabel * myBrushSizeLabel ;
@@ -91,30 +91,30 @@ namespace anatomist
     QHGroupBox * myRegionTransparencyBox ;
     QSlider * myRegionTransparency ;
     QLabel * myRegionTransparencyLabel ;
-    
+
     QVGroupBox * myModes ;
-    
+
     QHButtonGroup * myLineMode ;
     QRadioButton * myLineModeOn ;
     QRadioButton * myLineModeOff ;
     QHButtonGroup * myReplaceMode ;
     QRadioButton * myReplaceModeOn ;
     QRadioButton * myReplaceModeOff ;
-    
+
     QHButtonGroup * myLinkedCursorMode ;
     QRadioButton * myLinkedCursorModeOn ;
     QRadioButton * myLinkedCursorModeOff ;
     QHButtonGroup * myMmMode ;
     QRadioButton * myMmModeOn ;
     QRadioButton * myVoxelModeOn ;
-    
-    
+
+
     QVGroupBox * myDirectActions ;
     QHBox * myLeftDirectActions ;
     QPushButton * myUndoButton ;
     QPushButton * myRedoButton ;
-    
-    QHBox * myRightDirectActions ;  
+
+    QHBox * myRightDirectActions ;
     QPushButton * myFillButton ;
     QPushButton * myClearRegionButton ;
   } ;
@@ -132,12 +132,12 @@ PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
   _private->myPaintAction = paintAction ;
   paintAction->addObserver(this) ;
   RoiChangeProcessor::instance()->addObserver(this) ;
-  
+
   _private->myUpperPart = new QHBox( this ) ;
 
-  _private->myBrushParameters = new QVGroupBox( tr("Brush"), 
+  _private->myBrushParameters = new QVGroupBox( tr("Brush"),
 						_private->myUpperPart ) ;
-  _private->myBrushes = new QHButtonGroup( tr("Brushes"), 
+  _private->myBrushes = new QHButtonGroup( tr("Brushes"),
 					   _private->myBrushParameters ) ;
   _private->myBrushes->setExclusive(true) ;
   _private->myPointBrush = new QPushButton(tr("Point"), _private->myBrushes) ;
@@ -145,151 +145,151 @@ PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
   _private->myDiskBrush = new QPushButton(tr("Disk"), _private->myBrushes) ;
   _private->myDiskBrush->setToggleButton(true) ;
   _private->myBallBrush = new QPushButton(tr("Ball"), _private->myBrushes) ;
-  _private->myBallBrush->setToggleButton(true) ;  
-  
+  _private->myBallBrush->setToggleButton(true) ;
+
   if( _private->myPaintAction->paintType() == PaintStrategy::POINT)
     _private->myBrushes->setButton(0) ;
   else if( _private->myPaintAction->paintType() == PaintStrategy::DISK)
     _private->myBrushes->setButton(1) ;
   else if( _private->myPaintAction->paintType() == PaintStrategy::BALL)
     _private->myBrushes->setButton(2) ;
-  
-  _private->myBrushSizeBox = new QHGroupBox( tr("Brush Size"), 
+
+  _private->myBrushSizeBox = new QHGroupBox( tr("Brush Size"),
 						_private->myBrushParameters ) ;
   _private->myBrushSize = new QSlider( 1, 500, 10, int(rint(_private->myPaintAction->brushSize()*10.)),
 		     Qt::Horizontal, _private->myBrushSizeBox ) ;
-  _private->myBrushSize->setMinimumSize( 50, 
+  _private->myBrushSize->setMinimumSize( 50,
 					 _private->myBrushSize->sizeHint().height() );
-  _private->myBrushSizeLabel = 
-    new QLabel( QString::number(_private->myPaintAction->brushSize()), 
+  _private->myBrushSizeLabel =
+    new QLabel( QString::number(_private->myPaintAction->brushSize()),
 		_private->myBrushSizeBox ) ;
   _private->myBrushSizeLabel
     ->setMinimumSize( 25, _private->myBrushSizeLabel->sizeHint().height() );
 
-  
-  _private->myRegionTransparencyBox = new QHGroupBox( tr("Transparency"), 
+
+  _private->myRegionTransparencyBox = new QHGroupBox( tr("Transparency"),
 						      _private->myBrushParameters ) ;
   if( SelectFactory::selectColor().a == 1 )
     SelectFactory::selectColor().a = 0.99 ;
-  
-  _private->myRegionTransparency = 
-    new QSlider( 0, 100, 20, 
+
+  _private->myRegionTransparency =
+    new QSlider( 0, 100, 20,
 		 int(SelectFactory::selectColor().a * 100),
 		 Qt::Horizontal, _private->myRegionTransparencyBox ) ;
   _private->myRegionTransparency
     ->setMinimumSize( 50, _private->myBrushSize->sizeHint().height() );
   _private->myRegionTransparency->setTracking(true) ;
 
-  _private->myRegionTransparencyLabel = 
-    new QLabel( QString::number(int(SelectFactory::selectColor().a * 100)), 
+  _private->myRegionTransparencyLabel =
+    new QLabel( QString::number(int(SelectFactory::selectColor().a * 100)),
 		_private->myRegionTransparencyBox ) ;
   _private->myBrushSizeLabel
     ->setMinimumSize( 25, _private->myBrushSizeLabel->sizeHint().height() );
-  
+
 
   _private->myModes = new QVGroupBox( tr("Modes"), _private->myUpperPart ) ;
 
   _private->myLineMode = new QHButtonGroup( tr("Line"), _private->myModes ) ;
   _private->myLineMode->setExclusive(true) ;
   _private->myLineModeOn = new QRadioButton(tr("On"), _private->myLineMode ) ;
-  _private->myLineModeOff = new QRadioButton( tr("Off"), 
+  _private->myLineModeOff = new QRadioButton( tr("Off"),
 					      _private->myLineMode ) ;
   _private->myLineMode->setButton( 0 ) ;
-  
-  _private->myReplaceMode = new QHButtonGroup( tr("Replace"), 
+
+  _private->myReplaceMode = new QHButtonGroup( tr("Replace"),
 					       _private->myModes ) ;
   _private->myReplaceMode->setExclusive(true) ;
-  _private->myReplaceModeOn = new QRadioButton( tr("On"), 
+  _private->myReplaceModeOn = new QRadioButton( tr("On"),
 						_private->myReplaceMode ) ;
-  _private->myReplaceModeOff = new QRadioButton( tr("Off"), 
+  _private->myReplaceModeOff = new QRadioButton( tr("Off"),
 						 _private->myReplaceMode ) ;
   _private->myReplaceMode->setButton( 1 ) ;
-  
-  _private->myLinkedCursorMode = 
+
+  _private->myLinkedCursorMode =
     new QHButtonGroup( tr("LinkedCursor"), _private->myModes ) ;
   _private->myLinkedCursorMode->setExclusive(true) ;
-  _private->myLinkedCursorModeOn = 
+  _private->myLinkedCursorModeOn =
     new QRadioButton(tr("On"), _private->myLinkedCursorMode ) ;
-  _private->myLinkedCursorModeOff = 
+  _private->myLinkedCursorModeOff =
     new QRadioButton(tr("Off"), _private->myLinkedCursorMode ) ;
   _private->myLinkedCursorMode->setButton( 1 ) ;
 
-  _private->myMmMode = 
+  _private->myMmMode =
     new QHButtonGroup( tr("BrushUnit"), _private->myModes ) ;
   _private->myMmMode->setExclusive(true) ;
-  _private->myVoxelModeOn = 
+  _private->myVoxelModeOn =
     new QRadioButton(tr("Voxel"), _private->myMmMode ) ;
-  _private->myMmModeOn = 
+  _private->myMmModeOn =
     new QRadioButton(tr("Mm"), _private->myMmMode ) ;
   _private->myMmMode->setButton( ( _private->myPaintAction->mmMode() ? 1 : 0 ) ) ;
-  
-  _private->myDirectActions = 
+
+  _private->myDirectActions =
     new QVGroupBox( tr("Actions"), this ) ;
   _private->myLeftDirectActions = new QHBox( _private->myDirectActions ) ;
-  
-  _private->myUndoButton = new QPushButton(tr("Undo"), 
+
+  _private->myUndoButton = new QPushButton(tr("Undo"),
 					   _private->myLeftDirectActions ) ;
   if( !_private->myPaintAction->undoable() )
     _private->myUndoButton->setEnabled( false ) ;
-  
-  _private->myRedoButton = new QPushButton( tr("Redo"), 
+
+  _private->myRedoButton = new QPushButton( tr("Redo"),
 					    _private->myLeftDirectActions ) ;
   if( !_private->myPaintAction->redoable() )
     _private->myRedoButton->setEnabled( false ) ;
-  
+
   _private->myRightDirectActions = new QHBox( _private->myDirectActions ) ;
-  _private->myFillButton = 
+  _private->myFillButton =
     new QPushButton(tr("Fill Region"), _private->myRightDirectActions ) ;
   _private->myFillButton->setEnabled(false) ;
-    
-  _private->myClearRegionButton = 
+
+  _private->myClearRegionButton =
     new QPushButton(tr("Clear Region"), _private->myRightDirectActions ) ;
 
-  connect( _private->myBrushes, SIGNAL(clicked(int)), 
+  connect( _private->myBrushes, SIGNAL(clicked(int)),
 	  this, SLOT(brushSelection(int) ) ) ;
 
-  connect( _private->myBrushSize, SIGNAL(valueChanged(int)), 
+  connect( _private->myBrushSize, SIGNAL(valueChanged(int)),
 	   this, SLOT(brushSizeChange(int) ) ) ;
-  
-  connect( _private->myRegionTransparency, 
+
+  connect( _private->myRegionTransparency,
 	   SIGNAL(valueChanged(int) ),
 	   this, SLOT(regionTransparencyChange( int ) ) ) ;
-  
-  connect( _private->myLineModeOn, SIGNAL(clicked()), 
+
+  connect( _private->myLineModeOn, SIGNAL(clicked()),
 	   this, SLOT(lineModeOn()) ) ;
 
-  connect( _private->myLineModeOff, SIGNAL(clicked()), 
+  connect( _private->myLineModeOff, SIGNAL(clicked()),
 	   this, SLOT(lineModeOff()) ) ;
 
-  connect( _private->myReplaceModeOn, SIGNAL(clicked()), 
+  connect( _private->myReplaceModeOn, SIGNAL(clicked()),
 	  this, SLOT(replaceModeOn()) ) ;
 
-  connect( _private->myReplaceModeOff, SIGNAL(clicked()), 
+  connect( _private->myReplaceModeOff, SIGNAL(clicked()),
 	  this, SLOT(replaceModeOff()) ) ;
 
-  connect( _private->myLinkedCursorModeOn, SIGNAL(clicked()), 
+  connect( _private->myLinkedCursorModeOn, SIGNAL(clicked()),
 	  this, SLOT(linkedCursorModeOn()) ) ;
 
-  connect( _private->myLinkedCursorModeOff, SIGNAL(clicked()), 
+  connect( _private->myLinkedCursorModeOff, SIGNAL(clicked()),
 	  this, SLOT(linkedCursorModeOff()) ) ;
 
-  connect( _private->myMmModeOn, SIGNAL(clicked()), 
+  connect( _private->myMmModeOn, SIGNAL(clicked()),
 	  this, SLOT(mmModeOn()) ) ;
 
-  connect( _private->myVoxelModeOn, SIGNAL(clicked()), 
+  connect( _private->myVoxelModeOn, SIGNAL(clicked()),
 	  this, SLOT(voxelModeOn()) ) ;
 
-  connect( _private->myUndoButton, SIGNAL(clicked()), 
+  connect( _private->myUndoButton, SIGNAL(clicked()),
 	   this, SLOT(undoAction()) ) ;
 
-  connect( _private->myRedoButton, SIGNAL(clicked()), 
+  connect( _private->myRedoButton, SIGNAL(clicked()),
 	   this, SLOT(redoAction()) ) ;
 
-  connect( _private->myFillButton, SIGNAL(clicked()), 
+  connect( _private->myFillButton, SIGNAL(clicked()),
 	   this, SLOT(fillAction()) ) ;
 
-  connect( _private->myClearRegionButton, SIGNAL(clicked()), 
-	   this, SLOT(clearRegionAction()) ) ;  
+  connect( _private->myClearRegionButton, SIGNAL(clicked()),
+	   this, SLOT(clearRegionAction()) ) ;
 }
 
 
@@ -299,13 +299,13 @@ PaintActionView::~PaintActionView()
   RoiChangeProcessor::instance()->deleteObserver(this) ;
 }
 
-void 
-PaintActionView::brushSelection( int id ) 
+void
+PaintActionView::brushSelection( int id )
 {
   //cout <<  "BRUSH SELECTION" << endl ;
   if( myUpdatingFlag)
     return ;
-  
+
   switch( id) {
   case 0:
     _private->myPaintAction->brushToPoint() ;
@@ -324,124 +324,124 @@ PaintActionView::brushSelection( int id )
   }
 }
 
-void 
-PaintActionView::brushSizeChange( int size ) 
+void
+PaintActionView::brushSizeChange( int size )
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->setSize( (  _private->myPaintAction->mmMode() ? size / 10. : std::max( int(rint(size / 10.)), int(1)) ) ) ;
 
   _private->myBrushSizeLabel->setText( QString::number( ( _private->myPaintAction->mmMode() ? size / 10. :  std::max( int( rint(size / 10.) ), int(1) ) ) ) ) ;
 }
 
-void 
-PaintActionView::regionTransparencyChange( int alpha ) 
+void
+PaintActionView::regionTransparencyChange( int alpha )
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->changeRegionTransparency( float(alpha) / 100. ) ;
   _private->myRegionTransparencyLabel->setText( QString::number( alpha ) ) ;
 }
 
-void 
-PaintActionView::lineModeOn() 
+void
+PaintActionView::lineModeOn()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->lineOn() ;
 }
 
-void 
-PaintActionView::lineModeOff() 
+void
+PaintActionView::lineModeOff()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->lineOff() ;
 }
 
-void 
-PaintActionView::replaceModeOn() 
+void
+PaintActionView::replaceModeOn()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->replaceOn() ;
 }
 
-void 
-PaintActionView::replaceModeOff() 
+void
+PaintActionView::replaceModeOff()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->replaceOff() ;
 }
 
-void 
-PaintActionView::linkedCursorModeOn() 
+void
+PaintActionView::linkedCursorModeOn()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->followingLinkedCursorOn() ;
 }
 
-void 
-PaintActionView::linkedCursorModeOff() 
+void
+PaintActionView::linkedCursorModeOff()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->followingLinkedCursorOff() ;
 }
 
-void 
-PaintActionView::mmModeOn() 
+void
+PaintActionView::mmModeOn()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->brushToMm() ;
 }
 
-void 
-PaintActionView::voxelModeOn() 
+void
+PaintActionView::voxelModeOn()
 {
   if( myUpdatingFlag)
     return ;
-  
+
   _private->myPaintAction->brushToVoxel() ;
 }
 
-void 
-PaintActionView::undoAction() 
+void
+PaintActionView::undoAction()
 {
   _private->myPaintAction->undo() ;
 }
 
-void 
-PaintActionView::redoAction() 
+void
+PaintActionView::redoAction()
 {
   _private->myPaintAction->redo() ;
 }
 
-void 
-PaintActionView::fillAction() 
+void
+PaintActionView::fillAction()
 {
   //...
 }
 
-void 
-PaintActionView::clearRegionAction() 
+void
+PaintActionView::clearRegionAction()
 {
   _private->myPaintAction->clearRegion() ;
 }
 
-void 
+void
 PaintActionView::update( const Observable *, void * )
 {
   //cout << "PaintActionView::update" << endl ;
@@ -454,12 +454,12 @@ PaintActionView::update( const Observable *, void * )
     _private->myLineMode->setButton(0) ;
   else
     _private->myLineMode->setButton(1) ;
-  
+
   if ( _private->myPaintAction->replaceMode() )
     _private->myReplaceMode->setButton(0) ;
   else
     _private->myReplaceMode->setButton(1) ;
-  
+
   if ( _private->myPaintAction->followingLinkedCursorMode() )
     _private->myLinkedCursorMode->setButton(0) ;
   else
@@ -472,12 +472,12 @@ PaintActionView::update( const Observable *, void * )
     _private->myBrushes->setButton(1) ;
   else if( _private->myPaintAction->paintType() == PaintStrategy::BALL)
     _private->myBrushes->setButton(2) ;
-  
+
 
   float size = _private->myPaintAction->brushSize() ;
   _private->myBrushSize->setValue( int(size * 10) ) ;
   _private->myBrushSizeLabel->setText( QString::number( size ) ) ;
-  
+
   int transparency =  int(SelectFactory::selectColor().a * 100) ;
   _private->myRegionTransparency->setValue( transparency );
   _private->myRegionTransparencyLabel->setText( QString::number( transparency ) ) ;
@@ -487,7 +487,7 @@ PaintActionView::update( const Observable *, void * )
     _private->myRedoButton->setEnabled( true ) ;
   else
     _private->myRedoButton->setEnabled( false ) ;
-  
+
   if( _private->myPaintAction->undoable() )
     _private->myUndoButton->setEnabled( true ) ;
   else
@@ -506,7 +506,7 @@ PaintActionSharedData* PaintActionSharedData::instance()
   return _instance ;
 }
 
-void 
+void
 PaintActionSharedData::update (const Observable *, void *)
 {
   //cout << "PaintActionSharedData::update" << endl ;
@@ -519,42 +519,42 @@ PaintActionSharedData::update (const Observable *, void *)
 PaintAction::PaintAction() : Action()
 {
   _sharedData = PaintActionSharedData::instance() ;
-} 
+}
 
-PaintAction::~PaintAction( ) 
+PaintAction::~PaintAction( )
 {
 }
 
 string PaintAction::name() const
 {
   return QT_TRANSLATE_NOOP( "ControlSwitch", "PaintAction" );
-} 
+}
 
-// void 
-// PaintAction::refreshWindow( ) 
-// {  
+// void
+// PaintAction::refreshWindow( )
+// {
 //   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
 //   if (g)
 //     g->updateAll() ;
 // }
 
 
-void 
-PaintAction::increaseBrushSize( ) 
-{  
+void
+PaintAction::increaseBrushSize( )
+{
   cout << "PaintAction::increaseBrushSize" << endl ;
-  
+
   if ( _sharedData->myBrushSize >= 50. )
     return ;
   _sharedData->myBrushSize += 1. ;
-  
+
   setChanged() ;
   notifyObservers();
   _sharedData->myCursorShapeChanged = true;
   updateCursor();
 }
 
-void 
+void
 PaintAction::decreaseBrushSize( )
 {
   cout << "PaintAction::decreaseBrushSize" << endl ;
@@ -568,14 +568,14 @@ PaintAction::decreaseBrushSize( )
   updateCursor();
 }
 
-void 
+void
 PaintAction::setSize( float size)
 {
   _sharedData->myBrushSize = size ;
-  
+
   if( size < 1. )
     _sharedData->myBrushSize = 1. ;
-  
+
   if( size > 50. )
     _sharedData->myBrushSize = 50. ;
 
@@ -586,12 +586,12 @@ PaintAction::setSize( float size)
 }
 
 float
-PaintAction::brushSize() 
+PaintAction::brushSize()
 {
   return _sharedData->myBrushSize ;
 }
 
-PaintStrategy::PaintType 
+PaintStrategy::PaintType
 PaintAction::paintType()
 {
   return _sharedData->myPainter->paintType() ;
@@ -620,7 +620,7 @@ namespace
 }
 
 
-void 
+void
 PaintAction::paintStart( int x, int y, int globalX, int globalY )
 {
   hideCursor();
@@ -644,28 +644,28 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
       _sharedData->myCurrentModifiedRegion->GetMaterial().Diffuse(3) );
 
   _sharedData->myPainting = true ;
-  
+
   RoiChangeProcessor::instance()->setRedoable( false ) ;
-  
+
   setChanged() ;
-  
+
   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
   if (!g) return ;
-  
+
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
+  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) ||
       labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
       labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
+      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D()
+						     - g->MinX2D() ) + 1,
+				   static_cast<int>( g->MaxY2D()
 						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
+				   static_cast<int>( g->MaxZ2D()
 						     - g->MinZ2D() ) + 1 ) ;
     }
-  
+
   RoiChangeProcessor::instance()->getGraphObject( view()->window() )
     ->attributed()->setProperty("modified", true) ;
 
@@ -689,7 +689,7 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
 //   notifyObservers() ;
 }
 
-void 
+void
 PaintAction::paint( int x, int y, int, int )
 {
   // cerr << "PaintAction::paint : entering" << endl ;
@@ -714,13 +714,13 @@ PaintAction::paint( int x, int y, int, int )
       AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
 
       _sharedData->myPainter->paint( win,
-		        theAnatomist->getTransformation(winRef, buckRef), 
+		        theAnatomist->getTransformation(winRef, buckRef),
 			pos,
-			(AGraphObject *)0, RoiChangeProcessor::instance()->getGraphObject( view()->window() ), 
+			(AGraphObject *)0, RoiChangeProcessor::instance()->getGraphObject( view()->window() ),
 			_sharedData->myBrushSize, _sharedData->myLineMode,
 			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
 			&g->volumeOfLabels( 0 ),
-			Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ), 
+			Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ),
 			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
 			(_sharedData->myDeltaModifications->bucket())[0],
 			(*_sharedData->myCurrentChanges),
@@ -732,10 +732,10 @@ PaintAction::paint( int x, int y, int, int )
       _sharedData->myDeltaModifications->setBucketChanged() ;
       _sharedData->myDeltaModifications->setGeomExtrema();	// not optimal
 //       _sharedData->myDeltaModifications
-// 	->setSubBucketGeomExtrema(Point3df( _sharedData->myDeltaModifications->MinX2D(), 
+// 	->setSubBucketGeomExtrema(Point3df( _sharedData->myDeltaModifications->MinX2D(),
 // 					    _sharedData->myDeltaModifications->MinY2D(),
 // 					    _sharedData->myDeltaModifications->MinZ2D() ),
-// 				  Point3df( _sharedData->myDeltaModifications->MaxX2D(), 
+// 				  Point3df( _sharedData->myDeltaModifications->MaxX2D(),
 // 					    _sharedData->myDeltaModifications->MaxY2D(),
 // 					    _sharedData->myDeltaModifications->MaxZ2D()+1.) );
 
@@ -745,17 +745,17 @@ PaintAction::paint( int x, int y, int, int )
 	  vp.push_back( pos[0] );
 	  vp.push_back( pos[1] );
 	  vp.push_back( pos[2] );
-	  LinkedCursorCommand	*c 
+	  LinkedCursorCommand	*c
 	    = new LinkedCursorCommand( win, vp );
-	  theProcessor->execute( c );    
+	  theProcessor->execute( c );
 	}
 
-      list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ), 
+      list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ),
 	last( myLinkedWindows.end() ) ;
 
       while ( iter != last ){
 	(*iter)->refreshTemp() ;
-	++iter ; 
+	++iter ;
       }
 
     }
@@ -763,24 +763,24 @@ PaintAction::paint( int x, int y, int, int )
 
 
 
-void 
+void
 PaintAction::eraseStart( int x, int y, int globalX, int globalY )
 {
   hideCursor();
   //cerr << "PaintAction::eraseStart : entering" << endl ;
 
   // We got first to get the selected bucket.
-  if ( ! ( _sharedData->myCurrentModifiedRegion = 
+  if ( ! ( _sharedData->myCurrentModifiedRegion =
 	   RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) ) {
     _sharedData->myValidRegion = false ;
     return ;
   }
   _sharedData->myValidRegion = true ;
 
-  // Actions are always responsible of myCurrentChanges creation and 
+  // Actions are always responsible of myCurrentChanges creation and
   // RoiChangeProcessor of it's destruction
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> > ;
-  
+
   _sharedData->myDeltaModifications->bucket().clear() ;
   _sharedData->myDeltaModifications
     ->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() );
@@ -795,15 +795,15 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
   if( !g ) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
+  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) ||
       labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
       labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
     g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
+    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1,
 				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
 				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
   }
-  
+
   RoiChangeProcessor::instance()->getGraphObject( view()->window() )
     ->attributed()->setProperty("modified", true) ;
 
@@ -827,8 +827,8 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
   //cerr << "PaintAction::eraseStart : exiting" << endl ;
 }
 
-void 
-PaintAction::erase( int x, int y, int, int ) 
+void
+PaintAction::erase( int x, int y, int, int )
 {
   //cerr << "PaintAction::erase : entering" << endl ;
 
@@ -860,13 +860,13 @@ PaintAction::erase( int x, int y, int, int )
       AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
       _sharedData->myPainter-> paint( win,
 			 theAnatomist->getTransformation(winRef, buckRef), pos,
-			 RoiChangeProcessor::instance()->getGraphObject( view()->window() ), 
-			 0, _sharedData->myBrushSize, 
+			 RoiChangeProcessor::instance()->getGraphObject( view()->window() ),
+			 0, _sharedData->myBrushSize,
 			 _sharedData->myLineMode,
 			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
 			 &g->volumeOfLabels( 0 ),
 			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			 Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ), 
+			 Point3df( g->MinX2D(), g->MinY2D(), g->MinZ2D() ),
 			 //(temp->bucket())[0],
                          (_sharedData->myDeltaModifications->bucket())[0],
 			 (*_sharedData->myCurrentChanges),
@@ -905,10 +905,10 @@ PaintAction::erase( int x, int y, int, int )
 
 
 
-void 
+void
 PaintAction::clearRegion()
 {
-  if ( ! ( _sharedData->myCurrentModifiedRegion = 
+  if ( ! ( _sharedData->myCurrentModifiedRegion =
 	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
     _sharedData->myValidRegion = false ;
     return ;
@@ -916,56 +916,56 @@ PaintAction::clearRegion()
   _sharedData->myValidRegion = true ;
 
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> > ;
-  
+
   _sharedData->myDeltaModifications->bucket()[0].clear() ;
   _sharedData->myDeltaModifications
     ->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() );
   _sharedData->myDeltaModifications
     ->setReferential( _sharedData->myCurrentModifiedRegion->getReferential() );
-  
+
   AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
   AGraphObject * go = RoiChangeProcessor::instance()->getGraphObject( 0 ) ;
 
   if( go )
     go->attributed()->setProperty("modified", true) ;
-  
-  
+
+
   if (!g) return ;
   AimsData<AObject*>& label = g->volumeOfLabels( 0 ) ;
-  if( label.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
+  if( label.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) ||
       label.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
       label.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
     g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
+    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1,
 				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
 				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
   }
-  
+
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  
-  BucketMap<Void>::Bucket::iterator 
-    iter( _sharedData->myCurrentModifiedRegion->bucket()[0].begin() ), 
+
+  BucketMap<Void>::Bucket::iterator
+    iter( _sharedData->myCurrentModifiedRegion->bucket()[0].begin() ),
     last( _sharedData->myCurrentModifiedRegion->bucket()[0].end() ) ;
-  
+
   while ( iter != last){
     ChangesItem item ;
     item.after = 0 ;
     item.before = go ;
 
     _sharedData->myCurrentChanges->push_back( pair<Point3d, ChangesItem>(iter->first, item) ) ;
-    
+
     labels( iter->first ) = 0  ;
     ++iter ;
   }
-  
+
   if ( ! (*_sharedData->myCurrentChanges).empty() )
     RoiChangeProcessor::instance()->applyChange( _sharedData->myCurrentChanges ) ;
-  
+
   _sharedData->myCurrentModifiedRegion->setBucketChanged() ;
-    
+
   _sharedData->myIsChangeValidated = true ;
   _sharedData->myPainting = false ;
-  
+
   setChanged() ;
   notifyObservers() ;
 }
@@ -978,11 +978,11 @@ PaintAction::changeRegionTransparency( float alpha )
   SelectFactory::selectColor().na = false ;
 
   map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
-  
-  
-  map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ), 
+
+
+  map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),
     last( sel.end( ) ) ;
-  
+
   while( iter != last ){
     SelectFactory::factory()->unselectAll( iter->first ) ;
     SelectFactory::factory()->select( iter->first, iter->second ) ;
@@ -990,13 +990,13 @@ PaintAction::changeRegionTransparency( float alpha )
       (*it)->notifyObservers() ;
     ++iter ;
   }
-  
+
   setChanged() ;
   notifyObservers() ;
 }
 
-void 
-PaintAction::lineOn( ) 
+void
+PaintAction::lineOn( )
 {
   //cout << "Line mode set to ON" << endl ;
   _sharedData->myLineMode = true ;
@@ -1006,18 +1006,18 @@ PaintAction::lineOn( )
 }
 
 
-void 
-PaintAction::lineOff( ) 
+void
+PaintAction::lineOff( )
 {
   //cout << "Line mode set to OFF" << endl ;
-  _sharedData->myLineMode = false ; 
+  _sharedData->myLineMode = false ;
 
   setChanged() ;
   notifyObservers() ;
 }
 
-void 
-PaintAction::replaceOn( ) 
+void
+PaintAction::replaceOn( )
 {
   //cout << "Replace mode set to ON" << endl ;
   _sharedData->myReplaceMode = true ;
@@ -1027,18 +1027,18 @@ PaintAction::replaceOn( )
 }
 
 
-void 
-PaintAction::replaceOff( ) 
+void
+PaintAction::replaceOff( )
 {
   //cout << "Replace mode set to OFF" << endl ;
-  _sharedData->myReplaceMode = false ; 
+  _sharedData->myReplaceMode = false ;
 
   setChanged() ;
   notifyObservers() ;
 }
 
 
-void 
+void
 PaintAction::followingLinkedCursorOn( )
 {
   //cout << "Following linked cursor mode set to ON" << endl ;
@@ -1047,25 +1047,25 @@ PaintAction::followingLinkedCursorOn( )
   setChanged() ;
   notifyObservers() ;
 }
- 
-void 
+
+void
 PaintAction::followingLinkedCursorOff( )
 {
   //cout << "Following linked cursor mode set to Off" << endl ;
-  _sharedData->myFollowingLinkedCursor = false ;  
+  _sharedData->myFollowingLinkedCursor = false ;
 
   setChanged() ;
   notifyObservers() ;
 }
 
-void 
-PaintAction::brushToSquare( ) 
+void
+PaintAction::brushToSquare( )
 {
   //cerr << "PaintAction::brushToSquare : entering" << endl ;
 
   if ( _sharedData->myPainter->paintType() == PaintStrategy::SQUARE )
     return ;
-  if(_sharedData->myPainter) 
+  if(_sharedData->myPainter)
     delete _sharedData->myPainter ;
   _sharedData->myPainter = new SquarePaintStrategy ;
 
@@ -1079,12 +1079,12 @@ PaintAction::brushToSquare( )
 
 
 
-void 
-PaintAction::brushToDisk( ) 
+void
+PaintAction::brushToDisk( )
 {
   if ( _sharedData->myPainter->paintType() == PaintStrategy::DISK )
     return ;
-  if(_sharedData->myPainter) 
+  if(_sharedData->myPainter)
     delete _sharedData->myPainter ;
   _sharedData->myPainter = new DiskPaintStrategy ;
 
@@ -1094,12 +1094,12 @@ PaintAction::brushToDisk( )
   updateCursor();
 }
 
-void 
-PaintAction::brushToBall() 
+void
+PaintAction::brushToBall()
 {
   if ( _sharedData->myPainter->paintType() == PaintStrategy::BALL )
     return ;
-  if(_sharedData->myPainter) 
+  if(_sharedData->myPainter)
     delete _sharedData->myPainter ;
   _sharedData->myPainter = new BallPaintStrategy ;
 
@@ -1111,12 +1111,12 @@ PaintAction::brushToBall()
 
 
 // Beware, size doesn't matter in this mode.
-void 
-PaintAction::brushToPoint( ) 
+void
+PaintAction::brushToPoint( )
 {
   if ( _sharedData->myPainter->paintType() == PaintStrategy::POINT )
     return ;
-  if(_sharedData->myPainter) 
+  if(_sharedData->myPainter)
     delete _sharedData->myPainter ;
   _sharedData->myPainter = new PointPaintStrategy ;
 
@@ -1127,8 +1127,8 @@ PaintAction::brushToPoint( )
 }
 
 
-void 
-PaintAction::brushToMm( ) 
+void
+PaintAction::brushToMm( )
 {
   _sharedData->myMmMode = true ;
 
@@ -1138,8 +1138,8 @@ PaintAction::brushToMm( )
   updateCursor();
 }
 
-void 
-PaintAction::brushToVoxel( ) 
+void
+PaintAction::brushToVoxel( )
 {
   _sharedData->myMmMode = false ;
 
@@ -1149,15 +1149,15 @@ PaintAction::brushToVoxel( )
   updateCursor();
 }
 
-void 
+void
 PaintAction::validateChange( int, int, int, int )
 {
   //cerr << "PaintAction::validateChange : entering" << endl ;
   _sharedData->myPainter->reset() ;
-  
-  if( _sharedData->myIsChangeValidated || ( !_sharedData->myValidRegion )) 
+
+  if( _sharedData->myIsChangeValidated || ( !_sharedData->myValidRegion ))
     return ;
-  
+
   RoiChangeProcessor::instance()->applyChange( _sharedData->myCurrentChanges ) ;
 
   bool mustBeUnregistered = false ;
@@ -1166,7 +1166,7 @@ PaintAction::validateChange( int, int, int, int )
     _sharedData->myDeltaModifications->bucket()[0].clear() ;
   }
 
-  list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ), 
+  list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ),
     last( myLinkedWindows.end() ) ;
 
   while ( iter != last ){
@@ -1183,7 +1183,7 @@ PaintAction::validateChange( int, int, int, int )
   //cerr << "PaintAction::validateChange : exiting" << endl ;
 }
 
-void 
+void
 PaintAction::undo()
 {
   RoiChangeProcessor::instance()->undo() ;
@@ -1193,7 +1193,7 @@ void
 PaintAction::redo()
 {
   RoiChangeProcessor::instance()->redo() ;
-  
+
 //   setChanged() ;
 //   notifyObservers() ;
 }
@@ -1234,29 +1234,29 @@ PaintAction::fill(int x, int y, int, int )
 
   Point3df normalVector( win->sliceQuaternion().
 			 apply(Point3df(0., 0., 1.) ) ) ;
-  
+
   if( normalVector[0] <= 0.99 && normalVector[1] <= 0.99 && normalVector[2] <= 0.99 )
     return ;
-  
+
   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
   if (!g) return ;
-  
+
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> > ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
+  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) ||
       labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
       labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
+      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D()
+						     - g->MinX2D() ) + 1,
+				   static_cast<int>( g->MaxY2D()
 						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
+				   static_cast<int>( g->MaxZ2D()
 						     - g->MinZ2D() ) + 1 ) ;
     }
-  
+
   AGraphObject * graphObject = RoiChangeProcessor::instance()->getGraphObject( view()->window()) ;
   graphObject->attributed()->setProperty("modified", true) ;
 
@@ -1269,10 +1269,10 @@ PaintAction::fill(int x, int y, int, int )
     if ( win3d )
       myLinkedWindows.push_back( win3d ) ;
   }
-  
+
   if ( !_sharedData->myValidRegion )
     return ;
-  
+
   Referential* winRef = win->getReferential() ;
   Referential* buckRef = _sharedData->myCurrentModifiedRegion->getReferential() ;
   Point3df pos ;
@@ -1281,37 +1281,37 @@ PaintAction::fill(int x, int y, int, int )
       Point3df n( normalVector * normalVector.dot( pos - win->GetPosition() ) ) ;
       pos = pos - n ;
       AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
-      
+
       Point3df voxelSize ( _sharedData->myCurrentModifiedRegion->VoxelSize() ) ;
       Transformation * transf = theAnatomist->getTransformation(winRef, buckRef) ;
       if ( transf )
 	pos = Transformation::transform( pos, transf, voxelSize ) ;
       else {
-	pos[0] /= voxelSize[0] - g->MinX2D() ; 
+	pos[0] /= voxelSize[0] - g->MinX2D() ;
 	pos[1] /= voxelSize[1] - g->MinY2D() ;
 	pos[2] /= voxelSize[2] - g->MinZ2D() ;
       }
-      
+
       Point3d neighbourhood[4] ;
-      
+
       if( normalVector[0] > 0.99 ){
-	neighbourhood[0] = Point3d(0, -1, 0 ) ; neighbourhood[1] = Point3d(0, 1, 0 ) ; 
-	neighbourhood[2] = Point3d(0, 0, -1 ) ; neighbourhood[3] = Point3d(0, 0, 1 ) ; 
+	neighbourhood[0] = Point3d(0, -1, 0 ) ; neighbourhood[1] = Point3d(0, 1, 0 ) ;
+	neighbourhood[2] = Point3d(0, 0, -1 ) ; neighbourhood[3] = Point3d(0, 0, 1 ) ;
       }
       if( normalVector[1] > 0.99 ){
-	neighbourhood[0] = Point3d(-1, 0, 0 ) ; neighbourhood[1] = Point3d(1, 0, 0 ) ; 
-	neighbourhood[2] = Point3d(0, 0, -1 ) ; neighbourhood[3] = Point3d(0, 0, 1 ) ; 
+	neighbourhood[0] = Point3d(-1, 0, 0 ) ; neighbourhood[1] = Point3d(1, 0, 0 ) ;
+	neighbourhood[2] = Point3d(0, 0, -1 ) ; neighbourhood[3] = Point3d(0, 0, 1 ) ;
       }
       if( normalVector[2] > 0.99 ){
-	neighbourhood[0] = Point3d(-1, 0, 0 ) ; neighbourhood[1] = Point3d(1, 0, 0 ) ; 
-	neighbourhood[2] = Point3d(0, -1, 0 ) ; neighbourhood[3] = Point3d(0, 1, 0 ) ; 
+	neighbourhood[0] = Point3d(-1, 0, 0 ) ; neighbourhood[1] = Point3d(1, 0, 0 ) ;
+	neighbourhood[2] = Point3d(0, -1, 0 ) ; neighbourhood[3] = Point3d(0, 1, 0 ) ;
       }
-      
-      Point3d pt( (short) rint( pos[0] ), 
-		  (short) rint( pos[1] ), 
+
+      Point3d pt( (short) rint( pos[0] ),
+		  (short) rint( pos[1] ),
 		  (short) rint( pos[2] ) ) ;
-      
-      fillRegion2D( pt, neighbourhood, 
+
+      fillRegion2D( pt, neighbourhood,
 		    g->volumeOfLabels(), graphObject,
 		    (*_sharedData->myCurrentChanges) ) ;
       _sharedData->myIsChangeValidated = false ;
@@ -1324,33 +1324,33 @@ PaintAction::fillRegion2D( const Point3d& seed, Point3d neighbourhood[],
 			   AimsData<AObject*>& volumeOfLabels, AObject * final,
 			   list< pair< Point3d, ChangesItem> > & changes )
 {
-  if( _sharedData->myPainter->in( &volumeOfLabels, 
+  if( _sharedData->myPainter->in( &volumeOfLabels,
 				  Point3df( (float)seed[0], (float)seed[1], (float)seed[2]),
 				  Point3df(0., 0., 0.) ) ){
     AObject *& value = volumeOfLabels(seed[0], seed[1], seed[2]) ;
-    
+
     if ( ( !_sharedData->myReplaceMode && (value != 0) ) || (value == final) )
       return ;
     ChangesItem item ;
     item.before = value ;
     item.after = final ;
     changes.push_back( pair<Point3d, ChangesItem>(seed, item) ) ;
-    
+
     value = final ;
   }
 
   queue<Point3d> trialPoints ;
   trialPoints.push(seed) ;
-  
+
   Point3d p ;
   while( !trialPoints.empty( ) ){
     p = trialPoints.front() ;
     trialPoints.pop() ;
-    
+
     for(int i = 0 ; i < 4 ; ++i ){
       Point3d neighbour = p + neighbourhood[i] ;
       if( _sharedData->myPainter->in( &volumeOfLabels,
-				      Point3df( (float)neighbour[0], 
+				      Point3df( (float)neighbour[0],
 						(float)neighbour[1], (float)neighbour[2]),
 				      Point3df(0., 0., 0.) ) ){
 	AObject *& val = volumeOfLabels(neighbour[0], neighbour[1], neighbour[2]) ;
@@ -1360,7 +1360,7 @@ PaintAction::fillRegion2D( const Point3d& seed, Point3d neighbourhood[],
 	  item.before = val ;
 	  item.after = final ;
 	  changes.push_back( pair<Point3d, ChangesItem>(neighbour, item) ) ;
-	  
+
 	  val = final ;
 	}
       }
@@ -1368,7 +1368,7 @@ PaintAction::fillRegion2D( const Point3d& seed, Point3d neighbourhood[],
   }
 }
 
-void 
+void
 PaintActionSharedData::noMoreUndoable()
 {
   RoiChangeProcessor::instance()->noMoreUndoable() ;
@@ -1384,7 +1384,7 @@ PaintAction::creator()
 }
 
 
-PaintStrategy::PaintStrategy( ) : myPreviousPoint(Point3df(0,0,0)), 
+PaintStrategy::PaintStrategy( ) : myPreviousPoint(Point3df(0,0,0)),
   myPreviousPointExists(false)
 {}
 
@@ -1401,16 +1401,16 @@ PaintStrategy::drawFastLine( const Point3d& from, const Point3d& dep )
 {
   Point3d p = from ;
 
-  int sx = (dep[0] > 0 ? 1 : -1), 
-    sy = ( dep[1] > 0 ? 1 : -1), 
-    sz = ( dep[2] > 0 ? 1 : -1), 
-    ax = abs(dep[0]), ay = abs(dep[1]), az = abs(dep[2]), 
-    bx = 2*ax, by = 2*ay, bz = 2*az, 
+  int sx = (dep[0] > 0 ? 1 : -1),
+    sy = ( dep[1] > 0 ? 1 : -1),
+    sz = ( dep[2] > 0 ? 1 : -1),
+    ax = abs(dep[0]), ay = abs(dep[1]), az = abs(dep[2]),
+    bx = 2*ax, by = 2*ay, bz = 2*az,
     exy = ay - ax, exz = az - ax, ezy = ay - az,
     n = ax + ay + az ;
-  
+
   list< Point3d > line ;
-  
+
   while( n-- ){
     if( exy < 0 ){
       if( exz < 0 ){
@@ -1433,7 +1433,7 @@ PaintStrategy::drawFastLine( const Point3d& from, const Point3d& dep )
 	ezy -= bz ;
       }
     }
-    
+
     line.push_back( p ) ;
   }
   return line ;
@@ -1442,9 +1442,9 @@ PaintStrategy::drawFastLine( const Point3d& from, const Point3d& dep )
 list< Point3df >
 PaintStrategy::drawLine( const Point3df& from, const Point3df& dep )
 {
-  
+
   list< Point3df > line ;
-  
+
   Point3df p( from ) ;
   if( p[0] < 0. && fabs(p[0]) < 0.001 )
     p[0] = 0. ;
@@ -1454,16 +1454,16 @@ PaintStrategy::drawLine( const Point3df& from, const Point3df& dep )
     p[2] = 0. ;
   }
   line.push_back( p ) ;
-  
+
   float sx = ( dep[0] >= 0 ? 1. : -1. ), sy = ( dep[1] >= 0 ? 1. : -1. ), sz = (dep[2] >= 0 ? 1. : -1. ) ;
 
   float dx = ( sx*dep[0]  >= 1 ? sx / dep[0] : 2 ),
-    dy = ( sy*dep[1] >= 1 ? sy / dep[1] : 2 ), 
+    dy = ( sy*dep[1] >= 1 ? sy / dep[1] : 2 ),
     dz = ( sz*dep[2] >= 1 ? sz / dep[2] : 2 ),
     tx = dx,
     ty = dy,
     tz = dz ;
-  
+
   while ( tx < 1.0001 || ty < 1.0001 || tz < 1.0001 ){
     if( p[0] < 0. && fabs(p[0]) < 0.001 )
       p[0] = 0. ;
@@ -1472,24 +1472,24 @@ PaintStrategy::drawLine( const Point3df& from, const Point3df& dep )
     else if( p[2] < 0. && fabs(p[2]) < 0.001 ){
       p[2] = 0. ;
     }
-    
+
     if( tx <= ty && tx <= tz )
       {
 	p[0] += sx ;
 	line.push_back( p ) ;
 	tx += dx ;
-      } 
+      }
     else if ( ty <= tx && ty <= tz )
       {
 	p[1] += sy;
 	line.push_back( p ) ;
-	ty += dy ;	  
+	ty += dy ;
       }
     else
       {
 	p[2] += sz ;
 	line.push_back( p ) ;
-	tz += dz ;	  	
+	tz += dz ;
       }
   }
   return line ;
@@ -1506,13 +1506,13 @@ PointPaintStrategy::paintType()
   return PaintStrategy::POINT ;
 }
 
-void 
+void
 PointPaintStrategy::paint( AWindow3D * /*win*/,
 			   Transformation * transf, const Point3df& point,
 			   const AObject * originalLabel, AObject * finalLabel,
 			   float /*brushSize*/, bool /*lineMode*/,
 			   AimsData<AObject*> *volumeOfLabels,
-			   const Point3df & vlOffset, 
+			   const Point3df & vlOffset,
 			   BucketMap<Void>::Bucket & deltaModifications,
 			   list< pair< Point3d, ChangesItem> > & changes,
 			   const Point3df& voxelSize,
@@ -1520,28 +1520,28 @@ PointPaintStrategy::paint( AWindow3D * /*win*/,
 			   bool replace, bool /*mm*/ )
 {
   //cerr << "PointPaintStrategy::paint : entering" << endl ;
-  
+
   Point3df p ;
   if ( transf )
     p = Transformation::transform( point, transf, voxelSize ) ;
   else
     {
       p = point ;
-      p[0] /= voxelSize[0] ; 
+      p[0] /= voxelSize[0] ;
       p[1] /= voxelSize[1] ;
       p[2] /= voxelSize[2] ;
     }
-  
-  Point3d pToInt( static_cast<int> ( p[0] +.5 ), 
-		  static_cast<int> ( p[1] +.5 ), 
+
+  Point3d pToInt( static_cast<int> ( p[0] +.5 ),
+		  static_cast<int> ( p[1] +.5 ),
 		  static_cast<int> ( p[2] +.5 ) ) ;
-  Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ), 
-	       static_cast<int> ( p[1] - vlOffset[1] +.5 ), 
+  Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ),
+	       static_cast<int> ( p[1] - vlOffset[1] +.5 ),
 	       static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
 
   if( line && myPreviousPointExists )
     {
-      list< Point3df > line = drawLine( myPreviousPoint, 
+      list< Point3df > line = drawLine( myPreviousPoint,
 					p - myPreviousPoint ) ;
       list< Point3df >::iterator iter( line.begin() ), last( line.end() ) ;
       while( iter != last )
@@ -1580,7 +1580,7 @@ PointPaintStrategy::paint( AWindow3D * /*win*/,
         }
 
     }
-  else if ( in( volumeOfLabels, Point3df((float)pToInt[0], (float)pToInt[1], 
+  else if ( in( volumeOfLabels, Point3df((float)pToInt[0], (float)pToInt[1],
 					 (float)pToInt[2] ), vlOffset ) )
     {
       if( volumeOfLabels )
@@ -1619,25 +1619,25 @@ SquarePaintStrategy::paintType()
   return PaintStrategy::SQUARE ;
 }
 
-void 
+void
 SquarePaintStrategy::paint( AWindow3D */* win*/,
-			   Transformation * /*transf*/, 
+			   Transformation * /*transf*/,
 			    const Point3df& /*point*/,
-			    const AObject * /*originalLabel*/, 
-			    AObject * /*finalLabel*/, 
+			    const AObject * /*originalLabel*/,
+			    AObject * /*finalLabel*/,
 			    float /*brushSize*/, bool /*lineMode*/,
 			    AimsData<AObject*>* /*volumeOfLabels*/,
-			    const Point3df & /*vlOffset*/, 
+			    const Point3df & /*vlOffset*/,
 			    BucketMap<Void>::Bucket & /*deltaModifications*/,
 			    list< pair< Point3d, ChangesItem> > & /*changes*/,
 			    const Point3df& /*voxelSize*/,
 			    bool /*line*/,
 			    bool /*replace*/,
-			    bool /*mm*/ ) 
+			    bool /*mm*/ )
 {
 }
 
-DiskPaintStrategy::DiskPaintStrategy() 
+DiskPaintStrategy::DiskPaintStrategy()
 {
   /* Denis
      Aaaaaahh ? Tu prends des buckets Anatomist pour stocker tes brosses ????
@@ -1645,7 +1645,7 @@ DiskPaintStrategy::DiskPaintStrategy()
    */
 }
 
-DiskPaintStrategy::~DiskPaintStrategy() 
+DiskPaintStrategy::~DiskPaintStrategy()
 {
 }
 
@@ -1655,8 +1655,8 @@ DiskPaintStrategy::paintType()
   return PaintStrategy::DISK ;
 }
 
-void 
-DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
+void
+DiskPaintStrategy::brushPainter( const Point3df& diskCenter0,
   const Point3df& n,
   const AObject * originalLabel,
   AObject * finalLabel,
@@ -1671,6 +1671,10 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
 {
   Point3df point ;
   Point3d realPoint ;
+  Point3df diskCenter = diskCenter0;
+  if( brushSize == 2 )
+    // cheat a little bit to obtain a 2x2 square brush
+    diskCenter -= Point3df( 0.4 * voxelSize[0], 0.4 * voxelSize[1], 0 );
   int i, j, k ;
   float brush = brushSize - 1.;
   float brush2 = brush * brush + 0.001 ;
@@ -1759,7 +1763,7 @@ DiskPaintStrategy::brushPainter( const Point3df& diskCenter,
 }
 
 
-void 
+void
 DiskPaintStrategy::paint( AWindow3D * win,
   Transformation * transf, const Point3df& point,
   const AObject * originalLabel, AObject * finalLabel,
@@ -1780,7 +1784,7 @@ DiskPaintStrategy::paint( AWindow3D * win,
     p = Transformation::transform( point, transf, voxelSize ) ;
   else {
     p = point ;
-    p[0] /= voxelSize[0] ; 
+    p[0] /= voxelSize[0] ;
     p[1] /= voxelSize[1] ;
     p[2] /= voxelSize[2] ;
   }
@@ -1838,7 +1842,7 @@ DiskPaintStrategy::paint( AWindow3D * win,
 
 
 
-BallPaintStrategy::BallPaintStrategy() 
+BallPaintStrategy::BallPaintStrategy()
 {
 }
 
@@ -1872,14 +1876,14 @@ BallPaintStrategy::paintType()
   return PaintStrategy::BALL ;
 }
 
-void 
-BallPaintStrategy::brushPainter( const Point3d& pToInt, 
-				 const AObject * originalLabel, 
+void
+BallPaintStrategy::brushPainter( const Point3d& pToInt,
+				 const AObject * originalLabel,
 				 AObject * finalLabel,
-				 float brushSize, 
+				 float brushSize,
 				 AimsData<AObject*> *volumeOfLabels,
-				 const Point3df & voxelSize, 
-				 const Point3df & vlOffset, 
+				 const Point3df & voxelSize,
+				 const Point3df & vlOffset,
 				 BucketMap<Void>::Bucket & deltaModifications,
 				 list< pair< Point3d, ChangesItem> > & changes,
 				 bool replace, bool mm )
@@ -1925,8 +1929,8 @@ BallPaintStrategy::brushPainter( const Point3d& pToInt,
   }
   else
   {
-    vector<Point3d>::const_iterator 
-      iter( brush(int(rint(brushSize))).begin() ), 
+    vector<Point3d>::const_iterator
+      iter( brush(int(rint(brushSize))).begin() ),
       last( brush(int(rint(brushSize))).end() ) ;
 
     while( iter != last )
@@ -1966,13 +1970,13 @@ BallPaintStrategy::brushPainter( const Point3d& pToInt,
 }
 
 
-void 
+void
 BallPaintStrategy::paint( AWindow3D * /*win*/,
 			  Transformation * transf, const Point3df& point,
 			  const AObject * originalLabel, AObject * finalLabel,
 			  float brushSize, bool /*lineMode*/,
 			  AimsData<AObject*> *volumeOfLabels,
-			  const Point3df & vlOffset, 
+			  const Point3df & vlOffset,
 			  BucketMap<Void>::Bucket & deltaModifications,
 			  list< pair< Point3d, ChangesItem> > & changes,
 			  const Point3df& voxelSize,
@@ -1980,66 +1984,66 @@ BallPaintStrategy::paint( AWindow3D * /*win*/,
 			  bool replace, bool mm )
 {
   //cerr << "BallPaintStrategy::paint : entering" << endl ;
-  
+
   Point3df p ;
   if ( transf )
     p = Transformation::transform( point, transf, voxelSize ) ;
   else {
     p = point ;
-    p[0] /= voxelSize[0] ; 
+    p[0] /= voxelSize[0] ;
     p[1] /= voxelSize[1] ;
     p[2] /= voxelSize[2] ;
   }
-  
-  Point3d pToInt( static_cast<int> ( p[0] +.5 ), 
-		  static_cast<int> ( p[1] +.5 ), 
+
+  Point3d pToInt( static_cast<int> ( p[0] +.5 ),
+		  static_cast<int> ( p[1] +.5 ),
 		  static_cast<int> ( p[2] +.5 ) ) ;
-  
+
   if( line && myPreviousPointExists )
     {
-      list< Point3df > line = drawLine( myPreviousPoint, 
+      list< Point3df > line = drawLine( myPreviousPoint,
 					p - myPreviousPoint ) ;
       list< Point3df >::iterator iter( line.begin() ), last( line.end() ) ;
 
       while( iter != last )
 	{
-	  brushPainter( Point3d( (short) rint( (*iter)[0] ), 
-				 (short) rint( (*iter)[1] ), 
-				 (short) rint( (*iter)[2] ) ), originalLabel, 
-			finalLabel, brushSize, volumeOfLabels, voxelSize, vlOffset, 
-			deltaModifications, 
+	  brushPainter( Point3d( (short) rint( (*iter)[0] ),
+				 (short) rint( (*iter)[1] ),
+				 (short) rint( (*iter)[2] ) ), originalLabel,
+			finalLabel, brushSize, volumeOfLabels, voxelSize, vlOffset,
+			deltaModifications,
 			changes, replace, mm ) ;
 	  ++iter ;
 	}
-    
+
     } else
-    brushPainter( pToInt, originalLabel, finalLabel, brushSize, 
-		  volumeOfLabels, voxelSize, vlOffset, deltaModifications, 
+    brushPainter( pToInt, originalLabel, finalLabel, brushSize,
+		  volumeOfLabels, voxelSize, vlOffset, deltaModifications,
 		  changes, replace, mm ) ;
-  
+
   myPreviousPointExists = true ;
   myPreviousPoint = p ;
 }
 
 QWidget *
-PaintAction::actionView( QWidget * parent ) 
-{ 
+PaintAction::actionView( QWidget * parent )
+{
   PaintActionView * obs = new PaintActionView( this, parent ) ;
 //   myObserver = new PaintActionView( this, parent ) ;
 
   return obs ;
 }
-  
-bool 
-PaintAction::viewableAction( ) const 
-{ 
-  return true ; 
+
+bool
+PaintAction::viewableAction( ) const
+{
+  return true ;
 }
 
 
 PaintActionSharedData::PaintActionSharedData() : Observable(),
   myBrushSize(1.), myLineMode(true), myReplaceMode(false),
-  myFollowingLinkedCursor(false), myMmMode(false), myIsChangeValidated(true), 
+  myFollowingLinkedCursor(false), myMmMode(false), myIsChangeValidated(true),
   myPainting(true), myCurrentModifiedRegion(0), myCursor(0),
   myCursorPos( 0, 0, 0 ), myCursorShapeChanged( true ), myCursorRef( 0 )
 {
@@ -2052,7 +2056,7 @@ PaintActionSharedData::~PaintActionSharedData()
 {
   if( myPainter )
     delete myPainter ;
-  if( myDeltaModifications ) 
+  if( myDeltaModifications )
     delete myDeltaModifications ;
   if( myCursor )
   {
@@ -2065,13 +2069,13 @@ PaintActionSharedData::~PaintActionSharedData()
 
 
 
-void 
+void
 PaintAction::changeCursor( bool cross )
 {
   AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
   if (win)
   {
-    if ( cross ) 
+    if ( cross )
       win->setCursor(Qt::crossCursor) ;
     else
       win->setCursor(Qt::arrowCursor) ;
@@ -2079,10 +2083,10 @@ PaintAction::changeCursor( bool cross )
 }
 
 
-void 
+void
 PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 {
-  if ( ! ( _sharedData->myCurrentModifiedRegion = 
+  if ( ! ( _sharedData->myCurrentModifiedRegion =
 	   RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) )
     {
       _sharedData->myValidRegion = false ;
@@ -2091,34 +2095,34 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
   _sharedData->myValidRegion = true ;
 
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> > ;
-  
+
   Point3df voxelSize = _sharedData->myCurrentModifiedRegion->VoxelSize() ;
-  
+
   RoiChangeProcessor::instance()->setRedoable( false ) ;
-  
+
   setChanged() ;
-  
+
   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
   if (!g) return ;
-  
+
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
+  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) ||
       labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
       labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
+      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D()
+						     - g->MinX2D() ) + 1,
+				   static_cast<int>( g->MaxY2D()
 						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
+				   static_cast<int>( g->MaxZ2D()
 						     - g->MinZ2D() ) + 1 ) ;
     }
-  
+
   AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
   AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->window() ) ;
   grao->attributed()->setProperty("modified", true) ;
-  
+
   myLinkedWindows.clear() ;
   set<AWindow*> group = g->WinList() ;
   set<AWindow*>::iterator gbegin = group.begin();
@@ -2129,41 +2133,41 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
       myLinkedWindows.push_back( win3d ) ;
     }
   }
-  
+
   AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";
       return;
     }
-  
+
   if ( !_sharedData->myValidRegion )
     return ;
-  
+
   Referential* winRef = win->getReferential() ;
   Referential* buckRef = _sharedData->myCurrentModifiedRegion->getReferential() ;
 
   Point3df normalVector( win->sliceQuaternion().
 			 apply(Point3df(0., 0., 1.) ) ) ;
-  
+
   Point3df cursorPosition( win->GetPosition() ) ;
-  
+
   Transformation * transf = theAnatomist->getTransformation(winRef, buckRef) ;
-  
+
   Point3df cp ;
   if ( transf )
     cp = Transformation::transform( cursorPosition, transf, voxelSize ) ;
   else {
     cp = cursorPosition ;
-    cp[0] /= voxelSize[0] ; 
+    cp[0] /= voxelSize[0] ;
     cp[1] /= voxelSize[1] ;
     cp[2] /= voxelSize[2] ;
   }
-  
+
   Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
-  
-  Point3d pVL( static_cast<int> ( cp[0] - vlOffset[0] +.5 ), 
-	       static_cast<int> ( cp[1] - vlOffset[1] +.5 ), 
+
+  Point3d pVL( static_cast<int> ( cp[0] - vlOffset[0] +.5 ),
+	       static_cast<int> ( cp[1] - vlOffset[1] +.5 ),
 	       static_cast<int> ( cp[2] - vlOffset[2] +.5 ) );
 
   if( normalVector[0] > 0.99 || normalVector[1] > 0.99 || normalVector[2] > 0.99 )
@@ -2187,7 +2191,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 	  redirect[1] = 1 ;
 	  redirect[2] = 2 ;
 	}
-      
+
       Point3d dims(volumeOfLabels.dimX(), volumeOfLabels.dimY(),  volumeOfLabels.dimZ() ) ;
       Point3d p ;
       p[ redirect[2] ] = pVL[redirect[2]]  ;
@@ -2197,54 +2201,54 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
       int neighbourSlice = p[ redirect[2] ] + normal[redirect[2]] * sliceIncrement ;
       if( neighbourSlice < 0 && neighbourSlice > dims[redirect[2]] - 1 )
 	return ;
-      
+
       for( p[redirect[0]] = 0 ; p[redirect[0]] < dims[redirect[0]] ; ++p[redirect[0]] )
 	for( p[redirect[1]] = 0 ; p[redirect[1]] < dims[redirect[1]] ; ++p[redirect[1]] ){
 	  neighbor = p + (sliceIncrement > 0 ? normal : -normal)  ;
 	  // Si les conditions sont respect�es, ajouter ce voxel dans le bucket courant.
-	  if( (wholeSession && _sharedData->myReplaceMode ) || 
+	  if( (wholeSession && _sharedData->myReplaceMode ) ||
 	      (wholeSession && !(_sharedData->myReplaceMode) && (volumeOfLabels(p)==0) ) ||
-	      ((!wholeSession) && _sharedData->myReplaceMode && (volumeOfLabels(neighbor)==grao) ) || 
+	      ((!wholeSession) && _sharedData->myReplaceMode && (volumeOfLabels(neighbor)==grao) ) ||
 	      ((!wholeSession) && (!(_sharedData->myReplaceMode)) && (volumeOfLabels(neighbor)==grao) &&
 	       (volumeOfLabels(p)==0) ) )
 	    {
 	      // Delta
 	      //_sharedData->myDeltaModifications->bucket()[0][p] ;
-	      
+
 	      //Changements pour le processeur
 	      ChangesItem item ;
 	      item.before = volumeOfLabels(p) ;
 	      item.after = volumeOfLabels(neighbor) ;
-	      _sharedData->myCurrentChanges->push_back( pair<Point3d, ChangesItem>( p, 
+	      _sharedData->myCurrentChanges->push_back( pair<Point3d, ChangesItem>( p,
 										    item ) ) ;
-	      
+
 	      //Mise a jour du volume de labels
 	      volumeOfLabels(p) = volumeOfLabels(neighbor) ;
 	    }
-	} 
-    } 
-  else 
+	}
+    }
+  else
     {
       cerr << "Not implemented yet" << endl ;
     }
 
-  
+
   _sharedData->myIsChangeValidated = false ;
-  
+
   RoiChangeProcessor::instance()->applyChange( _sharedData->myCurrentChanges ) ;
 
-  
-  list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ), 
+
+  list<AWindow3D*>::iterator iter( myLinkedWindows.begin() ),
     last( myLinkedWindows.end() ) ;
-  
+
   while ( iter != last ){
     (*iter)->refreshTemp() ;
-    ++iter ; 
+    ++iter ;
   }
-  
-  
+
+
   notifyObservers() ;
-  
+
 }
 
 
