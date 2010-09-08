@@ -75,9 +75,9 @@ using namespace aims;
 using namespace carto;
 using namespace std;
 
-bool	(*AGraph::specialColorFunc)( AGraph* ag, AGraphObject* go, 
-  				     Material & mat ) 
-  = QGraphParam::labelColorsActivated() 
+bool	(*AGraph::specialColorFunc)( AGraph* ag, AGraphObject* go,
+  				     Material & mat )
+  = QGraphParam::labelColorsActivated()
   ? &GraphParams::recolorLabelledGraph : 0;
 
 
@@ -108,11 +108,11 @@ struct AGraph::Private
 
 
 AGraph::Private::Private()
-  : labelsVol( 0 ), 
-    minX( 0 ), minY( 0 ), minZ( 0 ), maxX( 0 ), maxY( 0 ), maxZ( 0 ), 
-    colormode( Normal ), 
-    //colormode( PropertyMap ), 
-    recolorrecurs( false ), 
+  : labelsVol( 0 ),
+    minX( 0 ), minY( 0 ), minZ( 0 ), maxX( 0 ), maxY( 0 ), maxZ( 0 ),
+    colormode( Normal ),
+    //colormode( PropertyMap ),
+    recolorrecurs( false ),
     colorproperty( "size" ), colorpropmask( 1 )
 {
 }
@@ -148,7 +148,7 @@ void AGraph::initialize( const string & filename, bool init,
                          const Point3d& labelDimension )
 {
 #ifdef ANA_DEBUG
-  cout << "AGraph: create " << this << ", current objects number: " 
+  cout << "AGraph: create " << this << ", current objects number: "
        << theAnatomist->getObjects().size() << endl;
 #endif
 
@@ -198,7 +198,7 @@ void AGraph::initialize( const string & filename, bool init,
 AGraph::~AGraph()
 {
 #ifdef ANA_DEBUG
-  cout << "~AGraph " << this << ": before cleanup. #obj: " 
+  cout << "~AGraph " << this << ": before cleanup. #obj: "
        << theAnatomist->getObjects().size() << endl;
 #endif
 
@@ -266,7 +266,7 @@ namespace
   {
     AimsGraphReader::PostProcessor & pp = (AimsGraphReader::PostProcessor &) p;
     AimsGraphReader::ElementInfo	& info = pp.elementInfo();
-    rc_ptr<T>		aimso( ((AimsGraphReader::ObjectWrapper<T> *) 
+    rc_ptr<T>		aimso( ((AimsGraphReader::ObjectWrapper<T> *)
 			  info.object)->data );
     /* cout << "insertItem : " << info.attribute << ": "
     << DataTypeCode<T>::name() << endl; */
@@ -274,8 +274,8 @@ namespace
     AObject	*obj = ObjectConverter<T>::aims2ana( aimso );
     if( !obj )
       {
-        cerr << "could not build AObject from type " 
-             << info.object->objectType() << " / " << info.object->dataType() 
+        cerr << "could not build AObject from type "
+             << info.object->objectType() << " / " << info.object->dataType()
              << endl;
         return false;
       }
@@ -286,7 +286,7 @@ namespace
     info.graph->getProperty( "ana_object", go1 );
     ag = (AGraph *) go1.get();
 
-    if( !info.element->getProperty( "ana_object", go1 ) 
+    if( !info.element->getProperty( "ana_object", go1 )
         || !(go = dynamic_cast<AGraphObject *>( go1.get() ) ) )
     {
       // cout << "no AGraphObject\n";
@@ -337,14 +337,14 @@ namespace
     if( im != mgec->end() )
       {
         DataTypeCode<BucketMap<Void> >	dtc;
-        map<string,GraphElementCode>::const_iterator 
+        map<string,GraphElementCode>::const_iterator
           ig, eg = im->second.end();
         AObject	*ana = 0;
         Bucket	*bck;
 
         for( ig=im->second.begin(); ig!=eg; ++ig )
-          if( ig->second.objectType == dtc.objectType() 
-              && ig->second.dataType == dtc.dataType() 
+          if( ig->second.objectType == dtc.objectType()
+              && ig->second.dataType == dtc.dataType()
               && ao->getProperty( ig->second.attribute + "_ana", ana ) )
             {
               bck = dynamic_cast<Bucket *>( ana );
@@ -647,7 +647,7 @@ rc_ptr<map<string, vector<int> > > AGraph::objAttColors()
   rc_ptr<map<string, vector<int> > >	cols;
   if( !d->graph->getProperty( "object_attributes_colors", cols ) )
     {
-      cols 
+      cols
 	= rc_ptr<map<string, vector<int> > >( new map<string, vector<int> > );
       d->graph->setProperty( "object_attributes_colors", cols );
     }
@@ -688,7 +688,7 @@ AObject* AGraph::ObjectAt( float x, float y, float z, float t, float tol )
     {
       cout << "creating volume of labels\n";
       d->labelsVol = new map<int, AimsData<AObject *> >;
-      pvol = &( (*d->labelsVol)[ dd ] 
+      pvol = &( (*d->labelsVol)[ dd ]
          	= AimsData<AObject *>( d->labelDim[ 0 ],
 				       d->labelDim[ 1 ],
 				       d->labelDim[ 2 ] ) );
@@ -696,8 +696,8 @@ AObject* AGraph::ObjectAt( float x, float y, float z, float t, float tol )
     }
   else if( d->labelsVol->find( dd ) == d->labelsVol->end() )
     {
-      pvol = &( (*d->labelsVol)[ dd ] 
-		= AimsData<AObject *>( d->labelDim[ 0 ], d->labelDim[ 1 ], 
+      pvol = &( (*d->labelsVol)[ dd ]
+		= AimsData<AObject *>( d->labelDim[ 0 ], d->labelDim[ 1 ],
 				       d->labelDim[ 2 ] ) );
       fillVol( *pvol, dd , mx, my, mz, Mx, My, Mz);
     }
@@ -796,10 +796,10 @@ AObject* AGraph::LoadGraph( const char* filename )
 }
 
 
-void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my, 
+void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
 		      float mz, float Mx, float My, float Mz )
 {
-  /*cout << "Filling volume of labels ( " << vol.dimX() << ", " 
+  /*cout << "Filling volume of labels ( " << vol.dimX() << ", "
     << vol.dimY() << ", " << vol.dimZ() << " )..." << flush;*/
   const_iterator			io, fo = end();
   AGraphObject				*go;
@@ -824,11 +824,11 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
     for( unsigned iy=0; iy<d->labelDim[ 1 ]; ++iy )
       for( unsigned ix=0; ix<d->labelDim[ 0 ]; ++ix )
         vol( ix, iy, iz ) = 0;
-  cout << &vol( 0, 0, 0 ) << " , " 
+  cout << &vol( 0, 0, 0 ) << " , "
        << &vol( d->labelDim[ 0 ]-1, d->labelDim[ 1 ]-1, d->labelDim[ 2 ]-1 ) << endl;
   cout << vol.begin() << " , " << vol.end() << endl;
-  cout << "dims vol : " << vol.dimX() << " X " << vol.dimY() << " X " 
-       << vol.dimZ() << " X " << vol.dimT() << "; bord : " 
+  cout << "dims vol : " << vol.dimX() << " X " << vol.dimY() << " X "
+       << vol.dimZ() << " X " << vol.dimT() << "; bord : "
        << vol.borderWidth() << endl;
   cout << "volume vid�. " << flush; */
 
@@ -843,30 +843,30 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
 	  bck = dynamic_cast<Bucket *>( *is );
 	  if( bck )
 	    {
-	      BucketMap<Void>::const_iterator ibi 
+	      BucketMap<Void>::const_iterator ibi
 		= bck->bucket().find( t );
 
 	      if( ibi != bck->bucket().end() )
-		for( ib=(*ibi).second.begin(), fb=(*ibi).second.end(); 
+		for( ib=(*ibi).second.begin(), fb=(*ibi).second.end();
 		     ib!=fb; ++ib )
 		  {
 		    const Point3d & loc = ib->first;
 		    /*xx = (unsigned) ( (loc[0]-mx) * rx);
 		    yy = (unsigned) ( (loc[1]-my) * ry);
 		    zz = (unsigned) ( (loc[2]-mz) * rz);
-		    cout << loc[0] << "->" << xx << " , " << loc[1] << "->" 
+		    cout << loc[0] << "->" << xx << " , " << loc[1] << "->"
 		    << yy << " , " << loc[2] << "->" << zz << endl;*/
 		    l[0] = (short) ( (loc[0]-mx) * rx);
 		    l[1] = (short) ( (loc[1]-my) * ry);
 		    l[2] = (short) ( (loc[2]-mz) * rz);
-		    if( l[0] < 0 || l[1] < 0 || l[2] < 0 
-			|| l[0] >= d->labelDim[0] || l[1] >= d->labelDim[1] 
+		    if( l[0] < 0 || l[1] < 0 || l[2] < 0
+			|| l[0] >= d->labelDim[0] || l[1] >= d->labelDim[1]
 			|| l[2] >= d->labelDim[2] )
 		      {
 			string name, label;
 			go->attributed()->getProperty( "name", name );
 			go->attributed()->getProperty( "label", label );
-			cerr << "Bucket outside bounding box: node name: " 
+			cerr << "Bucket outside bounding box: node name: "
 			     << name << ", label: " << label << ", bucket: "
 			     << (*is)->name() << " loc: " << loc << endl;
 		      }
@@ -907,7 +907,7 @@ bool AGraph::save( const string & filename )
     {
       if( !g.getProperty( "aims_reader_filename", reader ) )
         reader = fileName();
-      cout << "Graph " << reader << " has not been loaded entirely. " 
+      cout << "Graph " << reader << " has not been loaded entirely. "
            << "Loading missing elements...\n";
       // cout << reader << endl;
       files2Obj( this, (~loaded) & 3 );
@@ -941,7 +941,7 @@ bool AGraph::save( const string & filename )
       throw;
     }
 
-  GraphWriter	gw( FileUtil::removeExtension( filename ) + ".arg", 
+  GraphWriter	gw( FileUtil::removeExtension( filename ) + ".arg",
                     SyntaxRepository::exportedSyntax() );
   gw << *d->graph;
   */
@@ -953,7 +953,7 @@ bool AGraph::save( const string & filename )
 }
 
 
-template<class T> static bool extractElem( Process & p, const string &, 
+template<class T> static bool extractElem( Process & p, const string &,
 					   Finder & )
 {
   AimsGraphWriter		& pp = (AimsGraphWriter &) p;
@@ -961,7 +961,7 @@ template<class T> static bool extractElem( Process & p, const string &,
   shared_ptr<AObject>	go1;
   AGraphObject	*go;
 
-  if( !info.element->getProperty( "ana_object", go1 ) 
+  if( !info.element->getProperty( "ana_object", go1 )
       || !(go = dynamic_cast<AGraphObject *>( go1.get() ) ) )
     return( false );	// AGraphObject not found
 
@@ -999,8 +999,8 @@ void AGraph::saveSubObjects( bool filechanged )
 
   if( QGraphParam::autoSaveDirectory() )
     {
-      string	dname 
-        = FileUtil::removeExtension( FileUtil::basename( fileName() ) ) 
+      string	dname
+        = FileUtil::removeExtension( FileUtil::basename( fileName() ) )
         + ".data";
       if( !filechanged )
         {
@@ -1016,9 +1016,9 @@ void AGraph::saveSubObjects( bool filechanged )
   if( filechanged )
     savemod = false;
   aw.writeElements( *d->graph, (AimsGraphWriter::SavingMode)
-                    QGraphParam::savingMode(), 
-                    (AimsGraphWriter::SavingMode) 
-                    QGraphParam::savingMode(), 
+                    QGraphParam::savingMode(),
+                    (AimsGraphWriter::SavingMode)
+                    QGraphParam::savingMode(),
                     savemod );
 }
 
@@ -1114,9 +1114,9 @@ void AGraph::setGeomExtrema()
       d->maxX = bmax[0];
       d->maxY = bmax[1];
       d->maxZ = bmax[2];
-      cout << "bounding box found : " << d->minX << ", " << d->minY << ", " 
+      cout << "bounding box found : " << d->minX << ", " << d->minY << ", "
 	   << d->minZ << endl;
-      cout << "                     " << d->maxX << ", " << d->maxY << ", " 
+      cout << "                     " << d->maxX << ", " << d->maxY << ", "
 	   << d->maxZ << endl;
     }
   else
@@ -1130,14 +1130,14 @@ void AGraph::setGeomExtrema()
 	  d->maxX = pmax[0] / vs[0];
 	  d->maxY = pmax[1] / vs[1];
 	  d->maxZ = pmax[2] / vs[2];
-	  cout << "bounding box created : " << d->minX << ", " << d->minY << ", " 
+	  cout << "bounding box created : " << d->minX << ", " << d->minY << ", "
 	       << d->minZ << endl;
-	  cout << "                       " << d->maxX << ", " << d->maxY << ", " 
+	  cout << "                       " << d->maxX << ", " << d->maxY << ", "
 	       << d->maxZ << endl;
 	}
       else
 	{
-	  cout << "can't determine a bounding box - taking 'standard' values" 
+	  cout << "can't determine a bounding box - taking 'standard' values"
 	       << endl;
 	  d->minX = 0;
 	  d->minY = 0;
@@ -1148,7 +1148,7 @@ void AGraph::setGeomExtrema()
 	}
     }
 
-  if( d->labelsVol && ( minx != d->minX || miny != d->minY || minz != d->minZ 
+  if( d->labelsVol && ( minx != d->minX || miny != d->minY || minz != d->minZ
                       || maxx != d->maxX || maxy != d->maxY || maxz != d->maxZ
                       ) )
     clearLabelsVolume();
@@ -1188,15 +1188,15 @@ Point3d AGraph::labelsVolumeDimension() const
 
 bool AGraph::boundingBox( Point3df & bmin, Point3df & bmax ) const
 {
-  bmin = Point3df( d->minX * d->voxelSize.item( 0 ), d->minY * d->voxelSize.item( 1 ), 
+  bmin = Point3df( d->minX * d->voxelSize.item( 0 ), d->minY * d->voxelSize.item( 1 ),
 		   d->minZ * d->voxelSize.item( 2 ) );
-  bmax = Point3df( d->maxX * d->voxelSize.item( 0 ), d->maxY * d->voxelSize.item( 1 ), 
+  bmax = Point3df( d->maxX * d->voxelSize.item( 0 ), d->maxY * d->voxelSize.item( 1 ),
 		   d->maxZ * d->voxelSize.item( 2 ) );
   return( true );
 }
 
 
-AimsData<AObject *>& 
+AimsData<AObject *>&
 AGraph::volumeOfLabels( int t )
 {
   if( d->labelsVol == 0 )
@@ -1208,10 +1208,10 @@ AGraph::volumeOfLabels( int t )
   map<int, AimsData<AObject *> >::iterator found( d->labelsVol->find( t ) );
   if (found == d->labelsVol->end() )
     {
-      cout << "Label Volume Dimension : "  << d->labelDim[0] << ", " 
+      cout << "Label Volume Dimension : "  << d->labelDim[0] << ", "
            << d->labelDim[1] << ", " << d->labelDim[2] << endl ;
       AimsData<AObject *>	& vol = (*d->labelsVol)[t];
-      vol = AimsData<AObject * >( d->labelDim[0], d->labelDim[1], 
+      vol = AimsData<AObject * >( d->labelDim[0], d->labelDim[1],
                                   d->labelDim[2] );
       float	mx = d->minX, my = d->minY, mz = d->minZ;
       float	Mx = d->maxX, My = d->maxY, Mz = d->maxZ;
@@ -1376,7 +1376,7 @@ void AGraph::updateColors(void)
 namespace
 {
 
-  bool graphObjectValue( const GenericObject & o, const string & prop, 
+  bool graphObjectValue( const GenericObject & o, const string & prop,
                          double & val )
   {
     Object	p;
@@ -1568,13 +1568,13 @@ void AGraph::updateExtrema()
   iterator		i, e = end();
   double		val;
   AttributedAObject	*aao;
-  double		minval = numeric_limits<double>::max(), 
+  double		minval = numeric_limits<double>::max(),
     maxval = -numeric_limits<double>::max();
 
   if( d->colorpropmask & 1 )
     for( i=begin(); i!=e; ++i )
-      if( ( aao = dynamic_cast<AttributedAObject *>( *i ) ) 
-          && aao->attributed()->hasProperty( "ana_object" ) 
+      if( ( aao = dynamic_cast<AttributedAObject *>( *i ) )
+          && aao->attributed()->hasProperty( "ana_object" )
           && graphObjectValue( *aao->attributed(), d->colorproperty, val ) )
         {
           if( val > maxval )
@@ -1873,6 +1873,53 @@ void AGraph::setHeaderOptions()
     mot.push_back( m.toVector() );
     go->setProperty( "transformations", mot );
   }
+}
+
+
+set<string> AGraph::mappableVertexProperties() const
+{
+  Graph::const_iterator iv, ev = graph()->end();
+  Object ob;
+  set<string> props;
+  for( iv=graph()->begin(); iv!=ev; ++iv )
+  {
+    for( ob=(*iv)->objectIterator(); ob->isValid();
+          ob->next() )
+      try
+      {
+        ob->currentValue()->getScalar();
+        // if it hasn't failed, it's OK
+        props.insert( ob->key() );
+      }
+      catch( ... )
+      {
+      }
+  }
+  return props;
+}
+
+
+set<string> AGraph::mappableEdgeProperties() const
+{
+  const set<Edge *> & edges = graph()->edges();
+  set<Edge *>::const_iterator ie, ee = edges.end();
+  Object ob;
+  set<string> props;
+  for( ie=edges.begin(); ie!=ee; ++ie )
+  {
+    for( ob=(*ie)->objectIterator(); ob->isValid();
+          ob->next() )
+      try
+      {
+        ob->currentValue()->getScalar();
+        // if it hasn't failed, it's OK
+        props.insert( ob->key() );
+      }
+      catch( ... )
+      {
+      }
+  }
+  return props;
 }
 
 
