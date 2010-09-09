@@ -89,6 +89,8 @@ namespace anatomist
 				       const Material & mat );
 
     virtual carto::GenericObject* attributed() { return( _gobject.get() ); }
+    virtual const carto::GenericObject* attributed() const
+    { return( _gobject.get() ); }
     virtual void internalUpdate();
 
   protected:

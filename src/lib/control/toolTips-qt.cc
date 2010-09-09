@@ -40,6 +40,8 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/graph/GraphObject.h>
+#include <anatomist/graph/Graph.h>
+#include <cartobase/object/pythonwriter.h>
 #include <qlabel.h>
 #include <qapplication.h>
 #include <qtimer.h>
@@ -127,61 +129,95 @@ QAViewToolTip::~QAViewToolTip()
 namespace
 {
 
-  QString printobj( const AObject* obj, const vector<string> & todisp )
+  const GenericObject* propertiesToDisplay( const AObject* obj,
+    list<string> & todisp )
   {
+    todisp.push_back( "name" );
+    todisp.push_back( "label" );
+    todisp.push_back( "volume_dimension" );
+    todisp.push_back( "voxel_size" );
+    const AGraphObject * ago = dynamic_cast<const AGraphObject*>( obj );
+    if( ago )
+    {
+      const AObject::ParentList & pl = obj->parents();
+      AObject::ParentList::const_iterator ip, ep = pl.end();
+      for( ip=pl.begin(); ip!=ep; ++ip )
+      if( (*ip)->type() == AObject::GRAPH )
+      {
+        const AGraph * ag = reinterpret_cast<const AGraph *>( *ip );
+        if( ag->colorMode() == AGraph::PropertyMap )
+          todisp.push_back( ag->colorProperty() );
+      }
+      return ago->attributed();
+    }
+    const AttributedAObject
+      *aao = dynamic_cast<const AttributedAObject *>( obj );
+    if( aao )
+      return aao->attributed();
+    // cout << obj->name() << " is not an AttributedAObject\n";
+    return 0;
+  }
+
+
+  QString printobj( const AObject* obj )
+  {
+    list<string> todisp;
+    const GenericObject* aao = propertiesToDisplay( obj, todisp );
     QString	text = ( string( "<b>" ) + obj->name() + "</b>" ).c_str();
     const AObject::ParentList	& pl = obj->parents();
     if( !pl.empty() )
-      {
-        text += " (";
-        AObject::ParentList::const_iterator	ip, ep = pl.end();
-        bool				first = true;
-        for( ip=pl.begin(); ip!=ep; ++ip )
-          {
-            if( first )
-              first = false;
-            else
-              text += ", ";
-            text += (*ip)->name().c_str();
-          }
-        text += ")";
-      }
+    {
+      text += " (";
+      AObject::ParentList::const_iterator	ip, ep = pl.end();
+      bool				first = true;
+      for( ip=pl.begin(); ip!=ep; ++ip )
+        {
+          if( first )
+            first = false;
+          else
+            text += ", ";
+          text += (*ip)->name().c_str();
+        }
+      text += ")";
+    }
 
-    const AttributedAObject 
-      *aao = dynamic_cast<const AttributedAObject *>( obj );
     string	proptxt;
     Object	prop;
 
     if( aao )
+    {
+      list<string>::const_iterator	ai, ae = todisp.end();
+      text += "<table>";
+      for( ai=todisp.begin(); ai!=ae; ++ai )
       {
-        int				len = 0, x;
-        vector<string>::const_iterator	ai, ae = todisp.end();
-        for( ai=todisp.begin(); ai!=ae; ++ai )
+        try
+        {
+          prop = aao->getProperty( *ai );
+          if( prop )
           {
-            x = ai->length();
-            if( x > len )
-              len = x;
+            try
+            {
+              proptxt = prop->getString();
+            }
+            catch( ... )
+            {
+              PythonWriter pw;
+              ostringstream s;
+              pw.attach( s );
+              pw.write( prop, false, false );
+              proptxt = s.str();
+            }
+            text += QString( "<tr><td><em>" ) + ai->c_str()
+              + ":&nbsp;</em></td>";
+            text += QString( "<td>" ) + proptxt.c_str() + "</td></tr>";
           }
-
-        for( ai=todisp.begin(); ai!=ae; ++ai )
-          try
-            {
-              prop = aao->attributed()->getProperty( *ai );
-              if( prop )
-                {
-                  proptxt = prop->getString();
-                  text += QString( "<br>&nbsp;&nbsp;<em>" ) + ai->c_str() 
-                    + "</em>";
-                  for( x=0; x<len; ++x )
-                    text += "&nbsp;";
-                  text += ":&nbsp;";
-                  text += proptxt.c_str();
-                }
-            }
-          catch( ... )
-            {
-            }
+        }
+        catch( ... )
+        {
+        }
       }
+      text += QString( "</table>" );
+    }
     return text;
   }
 
@@ -270,10 +306,6 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   if( shown.empty() && hidden.empty() )
     return;
 
-  vector<string>		todisp(2);
-  todisp[0] = "name";
-  todisp[1] = "label";
-
   QString			text;
   string			label;
   set<AObject *>::iterator	i, e = shown.end();
@@ -285,7 +317,7 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
         first = false;
       else
         text += "<br>";
-      text += printobj( *i, todisp );
+      text += printobj( *i );
     }
   if( !hidden.empty() )
     {
@@ -295,7 +327,7 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
       for( i=hidden.begin(), e=hidden.end(); i!=e; ++i )
         {
           text += "<br>";
-          text += printobj( *i, todisp );
+          text += printobj( *i );
         }
     }
 

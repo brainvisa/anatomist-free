@@ -56,7 +56,7 @@ namespace anatomist
   public:
     enum ColorMode
       {
-        Normal, PropertyMap, 
+        Normal, PropertyMap,
       };
 
     AGraph( Graph *dataGraph, const std::string & filename,
@@ -100,7 +100,7 @@ namespace anatomist
     bool Is2DObject() { return(true); }
     /// Can be display in 3D windows.
     bool Is3DObject() { return(true); }
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
+    virtual AObject* ObjectAt( float x, float y, float z, float t,
 			       float tol = 0 );
     virtual void SetMaterial( const Material & mat );
 
@@ -120,16 +120,16 @@ namespace anatomist
     void setColorProperty( const std::string &, bool update = true );
     void updateColors(void);
 
-    /**	Used to map special colors on graph objects while changing the 
+    /**	Used to map special colors on graph objects while changing the
   	graph material. If this pointer is left null, no function is called
 	@return	true if mat has been changed
     */
-    static bool (*specialColorFunc)( AGraph* ag, AGraphObject* go, 
+    static bool (*specialColorFunc)( AGraph* ag, AGraphObject* go,
 				     Material & mat );
-  
-    const carto::rc_ptr<std::map<std::string, std::vector<int> > > 
+
+    const carto::rc_ptr<std::map<std::string, std::vector<int> > >
     objAttColors() const;
-    carto::rc_ptr<std::map<std::string, std::vector<int> > > 
+    carto::rc_ptr<std::map<std::string, std::vector<int> > >
     objAttColors();
     void copyAttributes( const std::string & oldatt,
                          const std::string & newatt, bool removeOld = false,
@@ -159,11 +159,13 @@ namespace anatomist
     virtual const GLComponent* glAPI() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
     virtual void setHeaderOptions();
+    std::set<std::string> mappableVertexProperties() const;
+    std::set<std::string> mappableEdgeProperties() const;
 
   protected:
     void saveSubObjects( bool filenamechanged = false );
     ///	Fills a volume of labels for a given time
-    virtual void fillVol( AimsData<AObject *> & vol, int t, float mx, 
+    virtual void fillVol( AimsData<AObject *> & vol, int t, float mx,
 			  float my, float mz, float Mx, float My, float Mz );
     void recolor();
     void updateExtrema();
