@@ -351,17 +351,17 @@ namespace
 }
 
 
-AWindow3D::Private::Private() 
+AWindow3D::Private::Private()
   : draw( 0 ), slidt( 0 ), refbox( 0 ), reflabel( 0 ), refdirmark( 0 ),
     timelabel( 0 ), timepanel( 0 ),
-    slids( 0 ), slicelabel( 0 ), slicepanel( 0 ), tooltip( 0 ), 
-    viewtype( AWindow3D::Oblique ), mute( 0 ), axialbt( 0 ), coronalbt( 0 ), 
-    sagittalbt( 0 ), obliquebt( 0 ), 
-    orientationCube( false ), boundingFrame( false ), 
-    renderingMode( AWindow3D::Normal ), tools( 0 ), 
-    poview( 0 ), lightview( 0 ), light( new Light ), slicequat( 0, 0, 0, 1 ), 
-    askedsize( 0, 0 ), clipmode( AWindow3D::NoClip ), clipdist( 1 ), 
-    transpz( true ), culling( true ), flatshading( false ), smooth( false ), 
+    slids( 0 ), slicelabel( 0 ), slicepanel( 0 ), tooltip( 0 ),
+    viewtype( AWindow3D::Oblique ), mute( 0 ), axialbt( 0 ), coronalbt( 0 ),
+    sagittalbt( 0 ), obliquebt( 0 ),
+    orientationCube( false ), boundingFrame( false ),
+    renderingMode( AWindow3D::Normal ), tools( 0 ),
+    poview( 0 ), lightview( 0 ), light( new Light ), slicequat( 0, 0, 0, 1 ),
+    askedsize( 0, 0 ), clipmode( AWindow3D::NoClip ), clipdist( 1 ),
+    transpz( true ), culling( true ), flatshading( false ), smooth( false ),
     fog( false ), refreshneeded( FullRefresh ),
     linkonslider( false ), lefteye( 0 ), righteye( 0 ), objvallabel( 0 ),
     statusbarvisible( false ),
@@ -464,9 +464,9 @@ namespace
 
 //	AWindow3D
 
-AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options, 
+AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
                       Qt::WFlags f )
-  : ControlledWindow( parent, "window3D", options, f ), 
+  : ControlledWindow( parent, "window3D", options, f ),
     Observable(), d( new AWindow3D::Private )
 {
   bool nodeco = !toolBarsVisible();
@@ -524,20 +524,20 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
   d->slicepanel = new QVBox( hb );
   d->slicelabel = new QLabel( d->slicepanel, "slice" );
   d->slicelabel->setFixedWidth( 30 );
-  d->slids = new QSlider( 0, 0, 1, 0, Qt::Vertical, d->slicepanel, 
+  d->slids = new QSlider( 0, 0, 1, 0, Qt::Vertical, d->slicepanel,
 			  "sliderS" );
   d->slids->setFixedWidth( d->slids->sizeHint().width() );
-  d->slicepanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
+  d->slicepanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
                                              QSizePolicy::Expanding ) );
   d->slicepanel->hide();
 
   d->timepanel = new QVBox( hb );
   d->timelabel = new QLabel( d->timepanel, "time" );
   d->timelabel->setFixedWidth( 30 );
-  d->slidt = new QSlider( 0, 0, 1, 0, Qt::Vertical, d->timepanel, 
+  d->slidt = new QSlider( 0, 0, 1, 0, Qt::Vertical, d->timepanel,
 			  "sliderT" );
   d->slidt->setFixedWidth( d->slidt->sizeHint().width() );
-  d->timepanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
+  d->timepanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
                                             QSizePolicy::Expanding ) );
   d->timepanel->hide();
 #if QT_VERSION >= 0x040000
@@ -571,7 +571,7 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
       const QObjectList			& ch = children();
       QObjectList::const_iterator	ic, ec = ch.end();
       QToolBar				*ntb = 0;
-      for( ic=ch.begin(); ic!=ec && !(ntb=qobject_cast<QToolBar *>( *ic ) ); 
+      for( ic=ch.begin(); ic!=ec && !(ntb=qobject_cast<QToolBar *>( *ic ) );
            ++ic );
       if( !ntb )
         ntb = addToolBar( tr( "controls" ), "controls" );
@@ -590,15 +590,15 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
       win->insertItem( tr( "Save..." ), d->draw->qobject(),
                        SLOT( saveContents() ) );
       //cout << "after connect\n";
-      win->insertItem( tr( "Start recording..." ), d->draw->qobject(), 
+      win->insertItem( tr( "Start recording..." ), d->draw->qobject(),
                        SLOT( recordStart() ) );
-      win->insertItem( tr( "Stop recording" ), d->draw->qobject(), 
+      win->insertItem( tr( "Stop recording" ), d->draw->qobject(),
                        SLOT( recordStop() ) );
       win->insertSeparator();
       win->insertItem( tr( "Resize..." ), this, SLOT( resizeView() ) );
       win->insertItem( tr( "Zoom..." ), this, SLOT( askZoom() ) );
       win->insertSeparator();
-      win->insertItem( tr( "Show/hide toolbox (ROI etc)" ), this, 
+      win->insertItem( tr( "Show/hide toolbox (ROI etc)" ), this,
                        SLOT( switchToolbox() ), Qt::Key_F1 );
       win->insertItem( tr( "Show/hide menus and toolbars" ), this,
                        SLOT( toggleToolBars() ) );
@@ -609,7 +609,7 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
       setDetachMenuAction( win->addAction( tr( "Detach view" ), this,
                                            SLOT( detach() ) ) );
 #else
-      win->insertItem( tr( "Detach view" ), this, SLOT( detach() ), 0, 
+      win->insertItem( tr( "Detach view" ), this, SLOT( detach() ), 0,
                        DetachMenu );
 #endif
       if( !parent )
@@ -618,24 +618,24 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
         win->insertItem( tr( "Open stereoscopic right eye view" ), this,
                          SLOT( openStereoView() ) );
       win->insertSeparator();
-      win->insertItem( tr( "Close" ), this, SLOT( close() ), 
+      win->insertItem( tr( "Close" ), this, SLOT( close() ),
                        Qt::CTRL + Qt::Key_W );
 
       QPopupMenu	*scene = new QPopupMenu( this );
       menuBar()->insertItem( tr( "Scene" ), scene );
       scene->insertItem( tr( "Lighting" ), this, SLOT( lightView() ) );
       scene->insertSeparator();
-      scene->insertItem( tr( "Fixed points of view" ), this, 
+      scene->insertItem( tr( "Fixed points of view" ), this,
                          SLOT( pointsOfView() ) );
       scene->insertItem( tr( "Tools" ), this, SLOT( tools() ) );
-      scene->insertItem( tr( "Sync 3D views in same group" ), this, 
+      scene->insertItem( tr( "Sync 3D views in same group" ), this,
                          SLOT( syncViews() ) );
-      scene->insertItem( tr( "Focus view on objects" ), this, 
+      scene->insertItem( tr( "Focus view on objects" ), this,
                          SLOT( focusView() ), Qt::Key_Home );
-      scene->insertItem( tr( "Auto-set rotation center in middle of scene" ), 
+      scene->insertItem( tr( "Auto-set rotation center in middle of scene" ),
                          this, SLOT( setAutoRotationCenter() ) );
-      scene->insertItem( tr( "Manually specify linked cursor position" ), 
-                         this, SLOT( setLinkedCursorPos() ), 
+      scene->insertItem( tr( "Manually specify linked cursor position" ),
+                         this, SLOT( setLinkedCursorPos() ),
                          Qt::CTRL + Qt::Key_P );
 
       //	Mutation toolbar
@@ -651,70 +651,70 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
       p = icons->getIconInstance( "axial" );
       if( p )
         {
-          d->axialbt = new Q34ToolButton( *p, tr( "Axial" ), 
-                                          tr( "Mute into axial view" ), 
+          d->axialbt = new Q34ToolButton( *p, tr( "Axial" ),
+                                          tr( "Mute into axial view" ),
                                           this, SLOT( muteAxial() ), d->mute );
         }
       else
         {
           d->axialbt = new Q34ToolButton( d->mute );
           d->axialbt->setTextLabel( tr( "Axial" ) );
-          connect( d->axialbt, SIGNAL( clicked() ), this, 
+          connect( d->axialbt, SIGNAL( clicked() ), this,
                    SLOT( muteAxial() ) );
         }
 
       p = icons->getIconInstance( "coronal" );
       if( p )
-        d->coronalbt = new Q34ToolButton( *p, tr( "Coronal" ), 
-                                          tr( "Mute into coronal view" ), 
-                                          this, SLOT( muteCoronal() ), 
+        d->coronalbt = new Q34ToolButton( *p, tr( "Coronal" ),
+                                          tr( "Mute into coronal view" ),
+                                          this, SLOT( muteCoronal() ),
                                           d->mute );
       else
         {
           d->coronalbt = new Q34ToolButton( d->mute );
           d->coronalbt->setTextLabel( tr( "Coronal" ) );
-          connect( d->coronalbt, SIGNAL( clicked() ), this, 
+          connect( d->coronalbt, SIGNAL( clicked() ), this,
                    SLOT( muteCoronal() ) );
         }
 
       p = icons->getIconInstance( "sagittal" );
       if( p )
-        d->sagittalbt = new Q34ToolButton( *p, tr( "Sagittal" ), 
-                                           tr( "Mute into sagittal view" ), 
-                                           this, SLOT( muteSagittal() ), 
+        d->sagittalbt = new Q34ToolButton( *p, tr( "Sagittal" ),
+                                           tr( "Mute into sagittal view" ),
+                                           this, SLOT( muteSagittal() ),
                                            d->mute );
       else
         {
           d->sagittalbt = new Q34ToolButton( d->mute );
           d->sagittalbt->setTextLabel( tr( "Sagittal" ) );
-          connect( d->sagittalbt, SIGNAL( clicked() ), this, 
+          connect( d->sagittalbt, SIGNAL( clicked() ), this,
                    SLOT( muteSagittal() ) );
         }
 
       p = icons->getIconInstance( "oblique" );
       if( p )
-        d->obliquebt = new Q34ToolButton( *p, tr( "Oblique" ), 
-                                          tr( "Mute into free orientation " 
-                                              "view" ), this, 
+        d->obliquebt = new Q34ToolButton( *p, tr( "Oblique" ),
+                                          tr( "Mute into free orientation "
+                                              "view" ), this,
                                           SLOT( muteOblique() ), d->mute );
       else
         {
           d->obliquebt = new Q34ToolButton( d->mute );
           d->obliquebt->setTextLabel( tr( "Oblique" ) );
-          connect( d->obliquebt, SIGNAL( clicked() ), this, 
+          connect( d->obliquebt, SIGNAL( clicked() ), this,
                    SLOT( muteOblique() ) );
         }
 
       p = icons->getIconInstance( "3D" );
       if( p )
-        d->threedbt = new Q34ToolButton( *p, tr( "3D" ), 
-                                         tr( "Mute into 3D view" ), 
+        d->threedbt = new Q34ToolButton( *p, tr( "3D" ),
+                                         tr( "Mute into 3D view" ),
                                          this, SLOT( mute3D() ), d->mute );
       else
         {
           d->threedbt = new Q34ToolButton( d->mute );
           d->threedbt->setTextLabel( tr( "3D" ) );
-          connect( d->threedbt, SIGNAL( clicked() ), this, 
+          connect( d->threedbt, SIGNAL( clicked() ), this,
                    SLOT( mute3D() ) );
         }
 
@@ -744,11 +744,11 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
 
   //	Signals & slots
 
-  connect( d->slids, SIGNAL( valueChanged( int ) ), this, 
+  connect( d->slids, SIGNAL( valueChanged( int ) ), this,
 	   SLOT( changeSlice( int ) ) );
-  connect( d->slidt, SIGNAL( valueChanged( int ) ), this, 
+  connect( d->slidt, SIGNAL( valueChanged( int ) ), this,
 	   SLOT( changeTime( int ) ) );
-  connect( d->reflabel, SIGNAL( clicked() ), this, 
+  connect( d->reflabel, SIGNAL( clicked() ), this,
 	   SLOT( changeReferential() ) );
 
   setViewType( t );
@@ -771,7 +771,7 @@ AWindow3D::~AWindow3D()
     d->righteye = 0;
     delete w;
   }
-  if( _instNumber != -1 ) 
+  if( _instNumber != -1 )
     _count3d.erase( _count3d.find( _instNumber ) );
 
   setChanged();
@@ -862,7 +862,7 @@ const string & AWindow3D::baseTitle() const
 namespace
 {
 
-  void printPositionAndValue( AObject* obj, const Referential* wref, 
+  void printPositionAndValue( AObject* obj, const Referential* wref,
                               const Point3df & wpos, float t, unsigned indent )
   {
     if( obj->isMultiObject() )
@@ -889,7 +889,7 @@ namespace
 	pos = anatomist::Transformation::transform( wpos, wref,
             obj->getReferential(), Point3df( 1, 1, 1 ), obj->VoxelSize() );
 	if( obj->Is2DObject() )
-	  cout << Point3d( (short) rint( pos[0] ), (short) rint( pos[1] ), 
+	  cout << Point3d( (short) rint( pos[0] ), (short) rint( pos[1] ),
 			   (short) rint( pos[2] ) );
 	else
 	  cout << pos;
@@ -1551,8 +1551,8 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
       if( glc )
       {
         ViewState vs3( GetTime(), this );
-        SliceViewState  vs2( GetTime(), true, position, &d->slicequat, 
-                            getReferential(), windowGeometry(), 
+        SliceViewState  vs2( GetTime(), true, position, &d->slicequat,
+                            getReferential(), windowGeometry(),
                             &d->draw->quaternion(), this );
         ViewState *vs = &vs2;
         if( !obj->Is2DObject() || ( d->viewtype == ThreeD && obj->Is3DObject() ) )
@@ -1578,13 +1578,21 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
               {
                 const GLComponent::TexExtrema   & te = glc->glTexExtrema( tx );
                 unsigned dt = glc->glDimTex( *vs, tx ), i;
+                // ensure all is consistant in texture extrema info
+                dt = ::min( dt, te.max.size() );
+                dt = ::min( dt, te.min.size() );
+                dt = ::min( dt, te.maxquant.size() );
+                dt = ::min( dt, te.minquant.size() );
                 if( dt > 0 )
                 {
                   cout << "texture " << tx << " value =";
                   for( i=0; i<dt; ++i )
                   {
-                    float scl = (te.maxquant[i] - te.minquant[i])
-                      / (te.max[i] - te.min[i]);
+                    float scl = te.max[i] - te.min[i];
+                    if( scl != 0 )
+                      scl = (te.maxquant[i] - te.minquant[i]) / scl;
+                    else
+                      scl = 1.;
                     float off = te.minquant[i] - scl * te.min[i];
                     cout << " " << scl*tc[index_v*dt+i]+off;
                   }
@@ -1714,9 +1722,9 @@ void AWindow3D::resizeView()
   hb2->setSpacing( 10 );
   QPushButton	*ok = new QPushButton( tr( "OK" ), hb2 );
   ok->setDefault( true );
-  connect( ok, SIGNAL( clicked() ), &rv, 
+  connect( ok, SIGNAL( clicked() ), &rv,
 	   SLOT( accept() ) );
-  connect( new QPushButton( tr( "Cancel" ), hb2 ), SIGNAL( clicked() ), &rv, 
+  connect( new QPushButton( tr( "Cancel" ), hb2 ), SIGNAL( clicked() ), &rv,
 	   SLOT( reject() ) );
 
   if( rv.exec() )
@@ -1736,7 +1744,7 @@ void AWindow3D::askZoom()
     {
       gs = g->Size();
       dim = g->DimMax() - g->DimMin();
-      float	zx = z * sz.width() / ( gs[0] * dim[0] ), 
+      float	zx = z * sz.width() / ( gs[0] * dim[0] ),
 	zy = z * sz.height() / ( gs[1] * dim[1] );
       z = zx;
       if( zy > z )
@@ -1753,7 +1761,7 @@ void AWindow3D::askZoom()
 	  if( g && viewType() != ThreeD )
 	    {
 	      float	w = gs[0] * dim[0] * z2, h = gs[1] * dim[1] * z2;
-	      int	scrw = QApplication::desktop()->width(), 
+	      int	scrw = QApplication::desktop()->width(),
 		scrh = QApplication::desktop()->height();
 	      z2 = 1;
 	      if( w > scrw )
@@ -1772,7 +1780,7 @@ void AWindow3D::askZoom()
 	    }
 	  else
 	    {
-	      resizeView( (int) ( z2 / z * sz.width() ), 
+	      resizeView( (int) ( z2 / z * sz.width() ),
 			  (int) ( z2 / z * sz.height() ) );
 	    }
 	}
@@ -1807,16 +1815,16 @@ void AWindow3D::resizeView( int w, int h )
       //resize( sizeHint() );
       resize( minimumSize() );
       QTimer::singleShot( 500, this, SLOT( freeResize() ) );
-      /*cout << "slice sl : " << d->slids->width() << ", " 
-	   << d->slids->minimumWidth() << ", " << d->slids->sizeHint().width() 
-	   << ", " << d->slids->minimumSizeHint().width() 
+      /*cout << "slice sl : " << d->slids->width() << ", "
+	   << d->slids->minimumWidth() << ", " << d->slids->sizeHint().width()
+	   << ", " << d->slids->minimumSizeHint().width()
 	   << ", " << d->slids->minimumSize().width() << endl;
-      cout << "slice pan : " << d->slicepanel->width() << ", " 
-	   << d->slicepanel->minimumWidth() << ", " 
-	   << d->slicepanel->sizeHint().width() 
-	   << ", " << d->slicepanel->minimumSizeHint().width() 
+      cout << "slice pan : " << d->slicepanel->width() << ", "
+	   << d->slicepanel->minimumWidth() << ", "
+	   << d->slicepanel->sizeHint().width()
+	   << ", " << d->slicepanel->minimumSizeHint().width()
 	   << ", " << d->slicepanel->minimumSize().width() << endl;
-      cout << "new width: " << width() << ", hint: " << sizeHint().width() 
+      cout << "new width: " << width() << ", hint: " << sizeHint().width()
       << endl;*/
     }
 }
@@ -1850,7 +1858,7 @@ void AWindow3D::setupTimeSlider( float mint, float maxt )
 void AWindow3D::setupSliceSlider( float mins, float maxs )
 {
   //cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
-  if( d->slids->minValue() != (int) mins 
+  if( d->slids->minValue() != (int) mins
       || d->slids->maxValue() != (int) maxs )
     {
       d->slids->blockSignals( true );
@@ -1957,7 +1965,7 @@ int AWindow3D::updateSliceSlider()
   if( d->slids->value() != sl )
     {
       d->slids->setValue( sl );
-      /*cout << "S slider change : " << d->slids->value() << " -> " 
+      /*cout << "S slider change : " << d->slids->value() << " -> "
 	<< sl << endl;*/
     }
   QString	ns = QString::number( sl );
@@ -2060,7 +2068,7 @@ void AWindow3D::registerObject( AObject* o, bool temporaryObject, int pos )
   float	tmin, tmax;
   //boundingBox( bmin, bmax, tmin, tmax );
 
-  // cout << "bmin = " <<  bmin << "bmax = "  << endl ; 
+  // cout << "bmin = " <<  bmin << "bmax = "  << endl ;
 
   bool fst = _objects.empty();
   ControlledWindow::registerObject( o, temporaryObject, pos );
@@ -2265,8 +2273,8 @@ GLPrimitives AWindow3D::cursorGLL() const
               if( !useDefaultCursorColor() )
                 {
                   AimsRGB	rgb = cursorColor();
-                  mat.SetDiffuse( ((float) rgb[0]) / 255, 
-                                  ((float) rgb[1]) / 255, 
+                  mat.SetDiffuse( ((float) rgb[0]) / 255,
+                                  ((float) rgb[1]) / 255,
                                   ((float) rgb[2]) / 255, mat.Diffuse( 3 ) );
                 }
               else
@@ -2308,7 +2316,7 @@ GLPrimitives AWindow3D::cursorGLL() const
                   glMatrixMode( GL_MODELVIEW );
                   glPushMatrix();
                   glMultMatrixf( mat );
-                  glPushAttrib( GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT 
+                  glPushAttrib( GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT
                                 | GL_DEPTH_BUFFER_BIT );
                   //glDepthMask( GL_FALSE ); // don't write cursor in z-buffer
                   glEndList();
@@ -2330,7 +2338,7 @@ GLPrimitives AWindow3D::cursorGLL() const
                   for( i=curspl.begin(); i!=e; ++i )
                     (*i)->setGhost( true );
 
-                  d->primitives.insert( d->primitives.end(), curspl.begin(), 
+                  d->primitives.insert( d->primitives.end(), curspl.begin(),
                                         curspl.end() );
                 }
             }
@@ -2351,8 +2359,8 @@ void AWindow3D::updateWindowGeometry()
 
 Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
                                          & objects,
-                                         const Quaternion & slicequat, 
-                                         const Referential *wref, 
+                                         const Quaternion & slicequat,
+                                         const Referential *wref,
                                          QGLWidget* glw )
 {
   list<shared_ptr<AObject> >::const_iterator obj;
@@ -2419,14 +2427,14 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
 	  w = slicequat.apply( w );
 	  //cout << "base : " << u << endl << v << endl << w << endl;
 
-	  s2 = Point3df( 1. / max( max( fabs( u[0] / s2[0] ), 
-					fabs( u[1] / s2[1] ) ), 
-				   fabs( u[2] / s2[2] ) ), 
-			 1. / max( max( fabs( v[0] / s2[0] ), 
-					fabs( v[1] / s2[1] ) ), 
-				   fabs( v[2] / s2[2] ) ), 
-			 1. / max( max( fabs( w[0] / s2[0] ), 
-					fabs( w[1] / s2[1] ) ), 
+	  s2 = Point3df( 1. / max( max( fabs( u[0] / s2[0] ),
+					fabs( u[1] / s2[1] ) ),
+				   fabs( u[2] / s2[2] ) ),
+			 1. / max( max( fabs( v[0] / s2[0] ),
+					fabs( v[1] / s2[1] ) ),
+				   fabs( v[2] / s2[2] ) ),
+			 1. / max( max( fabs( w[0] / s2[0] ),
+					fabs( w[1] / s2[1] ) ),
 					fabs( w[2] / s2[2] ) ) );
 
 	  // check extrema
@@ -2519,7 +2527,7 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
     }
   else
     {
-      /* keep resolution of textured objects in x & y directions, 
+      /* keep resolution of textured objects in x & y directions,
 	 and of all 2D objects in z direction */
       size[0] = vst[0];
       size[1] = vst[1];
@@ -2549,7 +2557,7 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
 
   if( dimMax[0] - dimMin[0] >= dimmax )
     {
-      cerr << "warning: window geometry too small (dimx : " 
+      cerr << "warning: window geometry too small (dimx : "
 	   << dimMax[0] - dimMin[0] << ")\n";
       float	scl = ((float) dimMax[0] - dimMin[0] + 1) / dimmax;
       size[0] *= scl;
@@ -2558,7 +2566,7 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
     }
   if( dimMax[1] - dimMin[1] > dimmax )
     {
-      cerr << "warning: window geometry too small (dimy : " 
+      cerr << "warning: window geometry too small (dimy : "
 	   << dimMax[1] - dimMin[1] << ")\n";
       float	scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
       size[1] *= scl;
@@ -2567,7 +2575,7 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
     }
   if( dimMax[2] - dimMin[2] > dimmax )
     {
-      cerr << "warning: window geometry too small (dimz : " 
+      cerr << "warning: window geometry too small (dimz : "
 	   << dimMax[2] - dimMin[2] << ")\n";
       float	scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
       size[2] *= scl;
@@ -2611,10 +2619,10 @@ namespace
 }
 
 
-void AWindow3D::SetPosition( const Point3df& position , 
+void AWindow3D::SetPosition( const Point3df& position ,
 			     const Referential* orgref )
 {
-  anatomist::Transformation	*tra 
+  anatomist::Transformation	*tra
     = theAnatomist->getTransformation( orgref, getReferential() );
   Point3df		pos;
 
@@ -2669,7 +2677,7 @@ void AWindow3D::SetPosition( const Point3df& position ,
 }
 
 
-void AWindow3D::setViewPoint( float *quaternion, 
+void AWindow3D::setViewPoint( float *quaternion,
 			      const float zoom )
 {
   d->draw->setZoom( zoom );
@@ -2776,7 +2784,7 @@ void AWindow3D::syncViews( bool keepextrema )
                 {
                   da2->setAutoCentering( false );
                   //da2->setExtrema( da->boundingMin(), da->boundingMax() );
-                  da2->setWindowExtrema( da->windowBoundingMin(), 
+                  da2->setWindowExtrema( da->windowBoundingMin(),
                                          da->windowBoundingMax() );
                 }
 	      da2->setZoom( da->zoom() );
@@ -2790,7 +2798,7 @@ void AWindow3D::syncViews( bool keepextrema )
 }
 
 
-bool AWindow3D::boundingBox( Point3df & bmin, Point3df & bmax, float & tmin, 
+bool AWindow3D::boundingBox( Point3df & bmin, Point3df & bmax, float & tmin,
 			     float & tmax ) const
 {
   bool			valid = false;
@@ -2803,7 +2811,7 @@ bool AWindow3D::boundingBox( Point3df & bmin, Point3df & bmax, float & tmin,
       tmin = tmax = 0;
       return( false );
     }
-  else 
+  else
     {
       list<shared_ptr<AObject> >::const_iterator	i, e = _objects.end();
       AObject			*obj;
@@ -2820,7 +2828,7 @@ bool AWindow3D::boundingBox( Point3df & bmin, Point3df & bmax, float & tmin,
 	  obj = i->get();
 	  if( obj->boundingBox( pmino, pmaxo ) )
 	    {
-	      if( wref && ( oref = obj->getReferential() ) 
+	      if( wref && ( oref = obj->getReferential() )
 		  && ( tr = theAnatomist->getTransformation( oref, wref ) ) )
 		tr->transformBoundingBox( pmino, pmaxo, pmin, pmax );
 	      else
@@ -3064,11 +3072,11 @@ void AWindow3D::refreshTempNow()
   //	re-order objects for faster deletion
   map<unsigned, pair<AObject*,unsigned> >		to2;
   map<unsigned, pair<AObject*,unsigned> >::iterator	io2, eo2;
-  map<AObject *, pair<unsigned, unsigned> >::iterator 
+  map<AObject *, pair<unsigned, unsigned> >::iterator
     io, eo = d->tmpprims.end();
 
   for( io=d->tmpprims.begin(); io!=eo; ++io )
-    to2[ io->second.first ] 
+    to2[ io->second.first ]
       = pair<AObject *,unsigned>( io->first, io->second.second );
 
   //cout << "done\n";
@@ -3216,37 +3224,37 @@ void AWindow3D::refreshTempNow()
 }
 
 
-int 
-AWindow3D::getSliceSliderPosition() 
+int
+AWindow3D::getSliceSliderPosition()
 {
   return( d->slids->value() ) ;
 }
 
-int 
-AWindow3D::getSliceSliderMaxPosition() 
+int
+AWindow3D::getSliceSliderMaxPosition()
 {
   return( d->slids->maxValue() ) ;
 }
 
-int 
-AWindow3D::getTimeSliderPosition() 
+int
+AWindow3D::getTimeSliderPosition()
 {
-  return( d->slidt->value() ) ;  
+  return( d->slidt->value() ) ;
 }
 
-int 
-AWindow3D::getTimeSliderMaxPosition() 
+int
+AWindow3D::getTimeSliderMaxPosition()
 {
-  return( d->slidt->maxValue() ) ;  
+  return( d->slidt->maxValue() ) ;
 }
 
-void 
-AWindow3D::setSliceSliderPosition( int position ) 
+void
+AWindow3D::setSliceSliderPosition( int position )
 {
   d->slids->setValue( position ) ;
 }
 
-void 
+void
 AWindow3D::setTimeSliderPosition( int position )
 {
   d->slidt->setValue( position ) ;
@@ -3267,7 +3275,7 @@ void AWindow3D::registerObjectModifier( ObjectModifier *mod )
 
 void AWindow3D::unregisterObjectModifier( ObjectModifier *mod )
 {
-  list<ObjectModifier *>::iterator	e = d->objmodifiers.end(), 
+  list<ObjectModifier *>::iterator	e = d->objmodifiers.end(),
     i = std::find( d->objmodifiers.begin(), e, mod );
   if( i != e )
     d->objmodifiers.erase( i );
@@ -3288,11 +3296,11 @@ void AWindow3D::update( const Observable* o, void* arg )
       if( ao->obsHasChanged( GLComponent::glREFERENTIAL ) )
         {
 #ifdef ANA_DEBUG_UPDATE
-          cout << "object " << ao->name() << " (" << o 
-               << ") has changed ref in window " << name() << " (" 
+          cout << "object " << ao->name() << " (" << o
+               << ") has changed ref in window " << name() << " ("
                << this << ")\n";
 #endif
-          const Referential 
+          const Referential
             *r1 = getReferential(), *r2 = ao->previousReferential();
           if( r1 )
             {
@@ -3419,7 +3427,7 @@ void AWindow3D::setLinkedCursorPos()
           nums.push_back( s.toFloat( &ok ) );
           if( !ok )
             {
-              cerr << "unable to parse coords in string \"" << txt.utf8().data() 
+              cerr << "unable to parse coords in string \"" << txt.utf8().data()
                    << "\"" << endl;
             }
           l = m;

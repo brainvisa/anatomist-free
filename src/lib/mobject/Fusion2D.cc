@@ -70,10 +70,22 @@ Fusion2D::Fusion2D( const vector<AObject *> & obj )
   glAddTextures( n );
   glSetTexMode( glDECAL );
   for( i=1; i<n; ++i )
-    {
-      glSetTexRate( 1. / (n-i+1), i );
-      glSetTexMode( glLINEAR, i );
-    }
+  {
+    glSetTexRate( 1. / (n-i+1), i );
+    glSetTexMode( glLINEAR, i );
+  }
+  for( i=0; i<n; ++i )
+  {
+    GLComponent::TexExtrema   & te = glTexExtrema( i );
+    te.min.push_back( 0. );
+    te.min.push_back( 0. );
+    te.max.push_back( 1. );
+    te.max.push_back( 1. );
+    te.minquant.push_back( 0. );
+    te.minquant.push_back( 0. );
+    te.maxquant.push_back( 1. );
+    te.maxquant.push_back( 1. );
+  }
   setReferentialInheritance( *begin() );
 }
 
@@ -218,11 +230,11 @@ namespace
   void _mix_item<0>( unsigned char* src, unsigned char *dst, float )
   {
     *dst = (unsigned char) sqrt( ((float) *src) * ((float) *dst) );
-    *(dst+1) = (unsigned char) 
+    *(dst+1) = (unsigned char)
       rint( sqrt( ((float) *(src+1)) * ((float) *(dst+1)) ) );
-    *(dst+2) = (unsigned char) 
+    *(dst+2) = (unsigned char)
       rint( sqrt( ((float) *(src+2)) * ((float) *(dst+2)) ) );
-    *(dst+3) = (unsigned char) 
+    *(dst+3) = (unsigned char)
       rint( sqrt( ((float) *(src+3)) * ((float) *(dst+3)) ) );
   }
 
@@ -262,8 +274,8 @@ namespace
   }
 
 
-  template<int T> 
-  void _mix2( unsigned char *dst, unsigned char *src, unsigned w, 
+  template<int T>
+  void _mix2( unsigned char *dst, unsigned char *src, unsigned w,
               unsigned h, unsigned offset_xim, float rate )
   {
     // cout << "_mix2 " << T << endl;
@@ -281,7 +293,7 @@ namespace
   }
 
 
-  void _mix( int mode, unsigned char *dst, unsigned char *src, unsigned w, 
+  void _mix( int mode, unsigned char *dst, unsigned char *src, unsigned w,
              unsigned h, unsigned offset_xim, float rate )
   {
     switch( mode )
@@ -309,8 +321,8 @@ bool Fusion2D::render( PrimList & prim, const ViewState & state )
 }
 
 
-bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos, 
-                                const SliceViewState & state, 
+bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
+                                const SliceViewState & state,
                                 unsigned ) const
 {
   const Referential	*winref = state.winref;
@@ -333,7 +345,7 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
   int size = ximage.width * ximage.height * ximage.depth / 8;
 
   //cout << "im size : " << ximage.width << " x " << ximage.height << endl;
-  if( (winref == NULL) && ( (mri()->getReferential() != NULL) 
+  if( (winref == NULL) && ( (mri()->getReferential() != NULL)
                             || (functional()->getReferential() != NULL) ) )
   winref = getReferential();
   if( !winref )
@@ -346,7 +358,7 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
 
   datatype::const_reverse_iterator	io=_data.rbegin(), fo=_data.rend();
   unsigned			w = ximage.width, h = ximage.height;
-  unsigned			offset_xim 
+  unsigned			offset_xim
     = ( ximage.effectiveWidth - w ) * ximage.depth / 8;
   AImage			fimage;
   unsigned			tex = _data.size() - 1;
@@ -374,7 +386,7 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
       // merge with previous images
       //cout << "mode " << tex << ": " << glTexMode( tex ) << endl;
 
-     _mix( glTexMode( tex ), (unsigned char *) functionalImage, 
+     _mix( glTexMode( tex ), (unsigned char *) functionalImage,
             (unsigned char *) ximage.data, w, h, 0, glTexRate( tex ) );
     }
   fimage.data = 0;
@@ -386,8 +398,8 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
   cout << "mode 1: " << glTexMode( 1 ) << endl;
   */
   // merge with previous images
-  _mix( glTexMode( 1 ), (unsigned char *) ximage.data, 
-        (unsigned char *) functionalImage, w, h, offset_xim, 
+  _mix( glTexMode( 1 ), (unsigned char *) ximage.data,
+        (unsigned char *) functionalImage, w, h, offset_xim,
         1. - glTexRate( 1 ) );
   //cout << "OK\n";
 
@@ -404,7 +416,7 @@ Tree* Fusion2D::optionTree() const
       _optionTree = new Tree( true, "option tree" );
       t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
       _optionTree->insert( t );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
 					      "Rename object" ) );
       t2->setProperty( "callback", &ObjectActions::renameObject );
       t->insert( t2 );
@@ -426,7 +438,7 @@ Tree* Fusion2D::optionTree() const
 
       t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Fusion" ) );
       _optionTree->insert( t );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
 					      "Control 2D fusion" ) );
       t2->setProperty( "callback", &ObjectActions::fusion2DControl );
       t->insert( t2 );
@@ -498,8 +510,8 @@ vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
 }
 
 
-vector<float> Fusion2D::texValues( const Point3df & pos, float time, 
-				   const Referential* orgRef, 
+vector<float> Fusion2D::texValues( const Point3df & pos, float time,
+				   const Referential* orgRef,
 				   const Point3df & orgVoxSz ) const
 {
   unsigned			i;
@@ -519,8 +531,8 @@ float Fusion2D::mixedTexValue( const Point3df & pos, float time ) const
 }
 
 
-float Fusion2D::mixedTexValue( const Point3df & pos, float time, 
-			       const Referential* orgRef, 
+float Fusion2D::mixedTexValue( const Point3df & pos, float time,
+			       const Referential* orgRef,
 			       const Point3df & orgVoxSz ) const
 {
   return( mixedValue( texValues( pos, time, orgRef, orgVoxSz ) ) );
@@ -615,7 +627,7 @@ unsigned Fusion2D::glNumTextures( const ViewState & ) const
 }
 
 
-set<GLComponent::glTextureMode> 
+set<GLComponent::glTextureMode>
 Fusion2D::glAllowedTexModes( unsigned tex ) const
 {
   if( tex == 0 )
