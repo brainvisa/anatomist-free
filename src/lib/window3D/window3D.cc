@@ -1579,10 +1579,10 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
                 const GLComponent::TexExtrema   & te = glc->glTexExtrema( tx );
                 unsigned dt = glc->glDimTex( *vs, tx ), i;
                 // ensure all is consistant in texture extrema info
-                dt = ::min( dt, te.max.size() );
-                dt = ::min( dt, te.min.size() );
-                dt = ::min( dt, te.maxquant.size() );
-                dt = ::min( dt, te.minquant.size() );
+                dt = fmin( dt, te.max.size() );
+                dt = fmin( dt, te.min.size() );
+                dt = fmin( dt, te.maxquant.size() );
+                dt = fmin( dt, te.minquant.size() );
                 if( dt > 0 )
                 {
                   cout << "texture " << tx << " value =";
