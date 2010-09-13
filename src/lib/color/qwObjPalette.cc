@@ -133,8 +133,8 @@ struct QAPaletteWin::Private
 
 
 QAPaletteWin::Private::Private( const set<AObject *> & o )
-  : responsive( true ), objpal( 0 ), dim( 1 ), objMin( 0 ), objMax( 1 ), 
-    objMin2( 0 ), objMax2( 1 ), recursive( false ), updatingFlag( false ), 
+  : responsive( true ), objpal( 0 ), dim( 1 ), objMin( 0 ), objMax( 1 ),
+    objMin2( 0 ), objMax2( 1 ), recursive( false ), updatingFlag( false ),
     initial( o ), main( 0 ), modified( false )
 {
 }
@@ -164,11 +164,11 @@ namespace
 }
 
 
-QAPaletteWin::QAPaletteWin( const set<AObject *> & obj ) 
+QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   : QWidget( 0 ), APaletteWin( obj ), d( new Private( obj ) )
 {
   setCaption( tr( "Object palette composition" ) );
-  QPixmap	anaicon( ( Settings::globalPath() 
+  QPixmap	anaicon( ( Settings::globalPath()
 			   + "/icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
     setIcon( anaicon );
@@ -212,7 +212,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->dimBox2 = new DimBox;
   makeDimBox( tr( "2nd dimension settings :" ), pal2Panel, d->dimBox2 );
 
-  d->usepal2 = new QCheckBox( tr( "Use a second palette for 2D" ), 
+  d->usepal2 = new QCheckBox( tr( "Use a second palette for 2D" ),
 					  d->dimBox2->topBox );
   d->pal2SetBox = new QVBox( d->dimBox2->topBox );
   d->pal2SetBox->setSpacing( 10 );
@@ -223,9 +223,9 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   new QLabel( tr( "Palettes mixing method :" ), pal2box );
   d->mixBox = new QComboBox( pal2box, "2d_mixing_method" );
   new QLabel( tr( "Palette 1D Mapping :" ), pal2box );
-  d->palette1dMappingBox = new QComboBox( pal2box, 
+  d->palette1dMappingBox = new QComboBox( pal2box,
                                           "palette_1d_mapping_method" );
-  
+
   fillPalette2List();
   fillMixMethods();
   fillPalette1DMappingMethods() ;
@@ -233,7 +233,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   QHBox		*mixFacBox = new QHBox( d->pal2SetBox );
   mixFacBox->setSpacing( 10 );
   new QLabel( tr( "Mixing factor :" ), mixFacBox );
-  d->mixSlid = new QSlider( 0, 100, 1, 0, Qt::Horizontal, 
+  d->mixSlid = new QSlider( 0, 100, 1, 0, Qt::Horizontal,
 					mixFacBox, "mixSlid" );
   d->mixValueLabel = new QLabel( "100", mixFacBox );
   d->mixValueLabel->setMinimumWidth( 30 );
@@ -247,68 +247,68 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   updateInterface();
 
-  connect( d->dimBgp, SIGNAL( clicked( int ) ), this, 
+  connect( d->dimBgp, SIGNAL( clicked( int ) ), this,
            SLOT( dimChanged( int ) ) );
 #if QT_VERSION >= 0x040000
   connect( d->palettes, SIGNAL( selectionChanged( Q3ListBoxItem* ) ),
            this, SLOT( palette1Changed( Q3ListBoxItem* ) ) );
 #else
-  connect( d->palettes, SIGNAL( selectionChanged( QListBoxItem* ) ), 
+  connect( d->palettes, SIGNAL( selectionChanged( QListBoxItem* ) ),
 	   this, SLOT( palette1Changed( QListBoxItem* ) ) );
 #endif
-  connect( d->dimBox1->minSlider, SIGNAL( valueChanged( int ) ), 
+  connect( d->dimBox1->minSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( min1Changed( int ) ) );
-  connect( d->dimBox1->maxSlider, SIGNAL( valueChanged( int ) ), 
+  connect( d->dimBox1->maxSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( max1Changed( int ) ) );
-  connect( d->dimBox1->minEd, SIGNAL( returnPressed() ), this, 
+  connect( d->dimBox1->minEd, SIGNAL( returnPressed() ), this,
 	   SLOT( min1EditChanged() ) );
-  connect( d->dimBox1->minEd, SIGNAL( focusLost() ), this, 
+  connect( d->dimBox1->minEd, SIGNAL( focusLost() ), this,
 	   SLOT( min1EditChanged() ) );
-  connect( d->dimBox1->maxEd, SIGNAL( returnPressed() ), this, 
+  connect( d->dimBox1->maxEd, SIGNAL( returnPressed() ), this,
 	   SLOT( max1EditChanged() ) );
-  connect( d->dimBox1->maxEd, SIGNAL( focusLost() ), this, 
+  connect( d->dimBox1->maxEd, SIGNAL( focusLost() ), this,
 	   SLOT( max1EditChanged() ) );
-  connect( d->dimBox1->autoValBtn, SIGNAL( clicked() ), this, 
+  connect( d->dimBox1->autoValBtn, SIGNAL( clicked() ), this,
 	   SLOT( resetValues1() ) );
-  connect( d->dimBox1->autoBoundsBtn, SIGNAL( clicked() ), this, 
+  connect( d->dimBox1->autoBoundsBtn, SIGNAL( clicked() ), this,
 	   SLOT( resetBounds1() ) );
 
-  connect( d->dimBox2->minSlider, SIGNAL( valueChanged( int ) ), 
+  connect( d->dimBox2->minSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( min2Changed( int ) ) );
-  connect( d->dimBox2->maxSlider, SIGNAL( valueChanged( int ) ), 
+  connect( d->dimBox2->maxSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( max2Changed( int ) ) );
-  connect( d->dimBox2->minEd, SIGNAL( returnPressed() ), this, 
+  connect( d->dimBox2->minEd, SIGNAL( returnPressed() ), this,
 	   SLOT( min2EditChanged() ) );
-  connect( d->dimBox2->minEd, SIGNAL( focusLost() ), this, 
+  connect( d->dimBox2->minEd, SIGNAL( focusLost() ), this,
 	   SLOT( min2EditChanged() ) );
-  connect( d->dimBox2->maxEd, SIGNAL( returnPressed() ), this, 
+  connect( d->dimBox2->maxEd, SIGNAL( returnPressed() ), this,
 	   SLOT( max2EditChanged() ) );
-  connect( d->dimBox2->maxEd, SIGNAL( focusLost() ), this, 
+  connect( d->dimBox2->maxEd, SIGNAL( focusLost() ), this,
 	   SLOT( max2EditChanged() ) );
-  connect( d->dimBox2->autoValBtn, SIGNAL( clicked() ), this, 
+  connect( d->dimBox2->autoValBtn, SIGNAL( clicked() ), this,
 	   SLOT( resetValues2() ) );
-  connect( d->dimBox2->autoBoundsBtn, SIGNAL( clicked() ), this, 
+  connect( d->dimBox2->autoBoundsBtn, SIGNAL( clicked() ), this,
 	   SLOT( resetBounds2() ) );
 
-  connect( respBtn, SIGNAL( toggled( bool ) ), 
+  connect( respBtn, SIGNAL( toggled( bool ) ),
 	   this, SLOT( responsiveToggled( bool ) ) );
   connect( updateBtn, SIGNAL( clicked() ), this, SLOT( updateClicked() ) );
 
-  connect( d->palette2Box, SIGNAL( activated( const QString & ) ), 
+  connect( d->palette2Box, SIGNAL( activated( const QString & ) ),
 	   this, SLOT( palette2Changed( const QString & ) ) );
-  connect( d->mixBox, SIGNAL( activated( const QString & ) ), 
+  connect( d->mixBox, SIGNAL( activated( const QString & ) ),
 	   this, SLOT( mixMethodChanged( const QString & ) ) );
-  connect( d->palette1dMappingBox, SIGNAL( activated( const QString & ) ), 
+  connect( d->palette1dMappingBox, SIGNAL( activated( const QString & ) ),
 	   this, SLOT( palette1DMappingMethodChanged( const QString & ) ) );
-  connect( d->usepal2, SIGNAL( toggled( bool ) ), 
+  connect( d->usepal2, SIGNAL( toggled( bool ) ),
 	   this, SLOT( enablePalette2( bool ) ) );
-  connect( d->mixSlid, SIGNAL( valueChanged( int ) ), 
+  connect( d->mixSlid, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( mixFactorChanged( int ) ) );
-  connect( d->objsel, SIGNAL( selectionStarts() ), this, 
+  connect( d->objsel, SIGNAL( selectionStarts() ), this,
            SLOT( chooseObject() ) );
-  connect( d->objsel, 
+  connect( d->objsel,
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
-           this, 
+           this,
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
 
   if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL )
@@ -322,7 +322,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 }
 
 
-QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent, 
+QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
 				   struct DimBox* dbox )
 {
   dbox->topBox = new QVGroupBox( title, parent );
@@ -330,14 +330,14 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   QGrid		*minmaxbox = new QGrid( 3, dbox->topBox );
   minmaxbox->setSpacing( 10 );
   new QLabel( tr( "Min:" ), minmaxbox );
-  dbox->minSlider = new QSlider( 0, 1000, 1, 0, Qt::Horizontal, 
+  dbox->minSlider = new QSlider( 0, 1000, 1, 0, Qt::Horizontal,
 				 minmaxbox, "minSlider" );
   dbox->minSlider->setLineStep( 1 );
   dbox->minLabel = new QLabel( "0", minmaxbox, "minLabel" );
   dbox->minLabel->setMinimumWidth( 50 );
 
   new QLabel( tr( "Max:" ), minmaxbox );
-  dbox->maxSlider = new QSlider( 0, 1000, 1, 1000, Qt::Horizontal, 
+  dbox->maxSlider = new QSlider( 0, 1000, 1, 1000, Qt::Horizontal,
 				 minmaxbox, "maxSlider" );
   dbox->maxSlider->setLineStep( 1 );
   dbox->maxLabel = new QLabel( "1", minmaxbox, "max1dlabel" );
@@ -570,7 +570,7 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
               d->palette1dMappingBox->setCurrentItem( 1 ) ;
               dimChanged(1) ;
             }
-          else 
+          else
             d->palette1dMappingBox->setCurrentItem( 0 ) ;
 
           QListBoxItem *palitem = d->palettes->findItem
@@ -585,7 +585,7 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
               d->usepal2->setChecked( true );
               int i, n=d->palette2Box->count();
               for( i=0; i<n; ++i )
-                if( d->palette2Box->text( i ) 
+                if( d->palette2Box->text( i )
                     == d->objpal->refPalette2()->name().c_str() )
                   {
                     d->palette2Box->setCurrentItem( i );
@@ -606,16 +606,16 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
 	        d->objMax = te.maxquant[0];
               if( d->objMin == d->objMax )
                 d->objMax = d->objMin + 1;	// avoid pbs of division by 0
-              setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(), 
+              setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(),
                          d->objMin, d->objMax );
-              setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(), 
+              setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(),
                          d->objMin2, d->objMax2 );
 	    }
 	}
-   
+
       int i, n=d->mixBox->count();
       for( i=0; i<n; ++i )
-	if( d->mixBox->text( i ) 
+	if( d->mixBox->text( i )
 	    == d->objpal->mixMethodName().c_str() )
 	  {
 	    d->mixBox->setCurrentItem( i );
@@ -862,7 +862,7 @@ void QAPaletteWin::palette2Changed( const QString & palname )
 }
 
 
-void QAPaletteWin::setValues( DimBox* dimBox, float m, float M, 
+void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
 			      float objMin, float objMax )
 {
   bool rec = d->recursive;
@@ -883,11 +883,11 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
       min = M;
       max = m;
     }
-  dimBox->minSlider->setValue( (int) ( ( m - dimBox->slrelmin ) * 1000 
-                                       / ( dimBox->slrelmax 
+  dimBox->minSlider->setValue( (int) ( ( m - dimBox->slrelmin ) * 1000
+                                       / ( dimBox->slrelmax
                                            - dimBox->slrelmin ) ) );
-  dimBox->maxSlider->setValue( (int) ( ( M - dimBox->slrelmin ) * 1000 
-                                       / ( dimBox->slrelmax 
+  dimBox->maxSlider->setValue( (int) ( ( M - dimBox->slrelmin ) * 1000
+                                       / ( dimBox->slrelmax
                                            - dimBox->slrelmin ) ) );
   min = objMin + ( objMax - objMin ) * m;
   max = objMin + ( objMax - objMin ) * M;
@@ -910,7 +910,7 @@ void QAPaletteWin::setValues1()
   AObjectPalette	*objpal = objPalette();
   if( !objpal )
     return;
-  
+
   float	m = objpal->min1(), M = objpal->max1();
 
   setValues( d->dimBox1, m, M, d->objMin, d->objMax );
@@ -922,7 +922,7 @@ void QAPaletteWin::setValues2()
   AObjectPalette	*objpal = objPalette();
   if( !objpal )
     return;
-  
+
   float	m = objpal->min2(), M = objpal->max2();
 
   setValues( d->dimBox2, m, M, d->objMin2, d->objMax2 );
@@ -935,7 +935,7 @@ void QAPaletteWin::min1Changed( int value )
     return;
 
   // d->recursive = true;
-  float	relval = d->dimBox1->slrelmin + 0.001 * value 
+  float	relval = d->dimBox1->slrelmin + 0.001 * value
     * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin );
 
   float	min = d->objMin + ( d->objMax - d->objMin ) * relval;
@@ -974,7 +974,7 @@ void QAPaletteWin::max1Changed( int value )
   if( d->recursive )
     return;
 
-  float	relval = d->dimBox1->slrelmin + 0.001 * value 
+  float	relval = d->dimBox1->slrelmin + 0.001 * value
     * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin );
 
   float	max = d->objMin + ( d->objMax - d->objMin ) * relval;
@@ -1012,7 +1012,7 @@ void QAPaletteWin::min2Changed( int value )
   if( d->recursive )
     return;
 
-  float	relval = d->dimBox2->slrelmin + 0.001 * value 
+  float	relval = d->dimBox2->slrelmin + 0.001 * value
     * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin );
 
   d->dimBox2->minLabel->setText( QString::number( relval ) );
@@ -1048,7 +1048,7 @@ void QAPaletteWin::max2Changed( int value )
   if( d->recursive )
     return;
 
-  float	relval = d->dimBox2->slrelmin + 0.001 * value 
+  float	relval = d->dimBox2->slrelmin + 0.001 * value
     * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin );
 
   d->dimBox2->maxLabel->setText( QString::number( relval ) );
@@ -1115,19 +1115,15 @@ void QAPaletteWin::updateObjects()
             if( mi == ma )	// protect against division by 0
               ma = mi + 1;
             // convert to object scale
-            o->getOrCreatePalette();
-            o->setPalette( *pal );
-            o->palette()->setMin1( ( omi - mi ) / ( ma - mi ) );
-            o->palette()->setMax1( ( oma - mi ) / ( ma - mi ) );
+            AObjectPalette op = *pal;
+            op.setMin1( ( omi - mi ) / ( ma - mi ) );
+            op.setMax1( ( oma - mi ) / ( ma - mi ) );
+            o->setPalette( op );
             gl->glSetTexImageChanged();
-/*            cout << "obj palette size: " << o->palette()->maxSizeX()
-                << ", " << o->palette()->maxSizeY() << ", "
-                << o->palette()->glMaxSizeX() << ", "
-                << o->palette()->glMaxSizeY() << endl;*/
           }
         }
 #ifdef ANA_DEBUG
-      cout << "QAPaletteWin " << (Observer *) this 
+      cout << "QAPaletteWin " << (Observer *) this
            << " ::updateObjects, obj: " << o << ": " << o->name() << endl;
 #endif
       o->notifyObservers( o );
@@ -1208,14 +1204,14 @@ void QAPaletteWin::updateObjPal()
 
   objpal->create( dimx, dimy );
   objpal->fill();
-  /*cout << "objpal dims : " << objpal->colors()->dimX() << " x " 
+  /*cout << "objpal dims : " << objpal->colors()->dimX() << " x "
     << objpal->colors()->dimY() << endl;*/
 }
 
 
 void QAPaletteWin::fillMixMethods()
 {
-  map<string, AObjectPalette::MixMethod>::const_iterator	im, 
+  map<string, AObjectPalette::MixMethod>::const_iterator	im,
     fm = AObjectPalette::mixMethods.end();
 
   for( im=AObjectPalette::mixMethods.begin(); im!=fm; ++im )
@@ -1238,21 +1234,21 @@ void QAPaletteWin::mixMethodChanged( const QString & methname )
     updateObjects();
 }
 
-void 
+void
 QAPaletteWin::fillPalette1DMappingMethods()
 {
   d->palette1dMappingBox->insertItem("FirstLine") ;
-  d->palette1dMappingBox->insertItem("Diagonal") ;  
+  d->palette1dMappingBox->insertItem("Diagonal") ;
 }
 
-void 
+void
 QAPaletteWin::palette1DMappingMethodChanged( const QString & methname )
 {
   if( d->recursive )
     return;
 
   AObjectPalette	*objpal = objPalette();
-  
+
   if( methname == "FirstLine" )
     objpal->setPalette1DMapping( AObjectPalette::FIRSTLINE ) ;
   else
@@ -1315,11 +1311,11 @@ void QAPaletteWin::min1EditChanged()
     return;
 
   float	val = d->dimBox1->minEd->text().toFloat();
-  float curval = float( d->dimBox1->minSlider->value() ) * 0.001 
-    * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) 
+  float curval = float( d->dimBox1->minSlider->value() ) * 0.001
+    * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
   d->dimBox1->slrelmin = (val - d->objMin ) / ( d->objMax - d->objMin );
-  int	ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000 
+  int	ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
                            / ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) );
   d->dimBox1->minSlider->setValue( ival );
 }
@@ -1331,11 +1327,11 @@ void QAPaletteWin::max1EditChanged()
     return;
 
   float	val = d->dimBox1->maxEd->text().toFloat();
-  float curval = float( d->dimBox1->maxSlider->value() ) * 0.001 
-    * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) 
+  float curval = float( d->dimBox1->maxSlider->value() ) * 0.001
+    * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
   d->dimBox1->slrelmax = (val - d->objMin ) / ( d->objMax - d->objMin );
-  int	ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000 
+  int	ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
                            / ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) );
   d->dimBox1->maxSlider->setValue( ival );
 }
@@ -1347,11 +1343,11 @@ void QAPaletteWin::min2EditChanged()
     return;
 
   float	val = d->dimBox2->minEd->text().toFloat();
-  float curval = float( d->dimBox2->minSlider->value() ) * 0.001 
-    * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin ) 
+  float curval = float( d->dimBox2->minSlider->value() ) * 0.001
+    * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
   d->dimBox2->slrelmin = val;
-  int	ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000 
+  int	ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
                            / ( d->dimBox2->slrelmax - d->dimBox2->slrelmin ) );
   d->dimBox2->minSlider->setValue( ival );
 }
@@ -1363,11 +1359,11 @@ void QAPaletteWin::max2EditChanged()
     return;
 
   float	val = d->dimBox2->maxEd->text().toFloat();
-  float curval = float( d->dimBox2->maxSlider->value() ) * 0.001 
-    * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin ) 
+  float curval = float( d->dimBox2->maxSlider->value() ) * 0.001
+    * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
   d->dimBox2->slrelmax = val;
-  int	ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000 
+  int	ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
                            / ( d->dimBox2->slrelmax - d->dimBox2->slrelmin ) );
   d->dimBox2->maxSlider->setValue( ival );
 }
@@ -1419,7 +1415,7 @@ void QAPaletteWin::chooseObject()
 {
   // cout << "chooseObject\n";
   // filter out objects that don't exist anymore
-  set<AObject *>::iterator	ir = d->initial.begin(), 
+  set<AObject *>::iterator	ir = d->initial.begin(),
     er = d->initial.end(), ir2;
   while( ir!=er )
     if( theAnatomist->hasObject( *ir ) )
@@ -1467,17 +1463,17 @@ void QAPaletteWin::runCommand()
       if( d->objpal->refPalette2() )
       {
         com = new SetObjectPaletteCommand( _parents,
-					   d->objpal->refPalette()->name(), 
+					   d->objpal->refPalette()->name(),
 					   true, omi, true, oma,
-					   d->objpal->refPalette2()->name(), 
+					   d->objpal->refPalette2()->name(),
 					   true, omi2, true, oma2,
-					   d->objpal->mixMethodName(), true, 
+					   d->objpal->mixMethodName(), true,
                                            d->objpal->linearMixFactor(), "",
                                            true );
       }
       else
-	com = new SetObjectPaletteCommand( _parents, 
-					   d->objpal->refPalette()->name(), 
+	com = new SetObjectPaletteCommand( _parents,
+					   d->objpal->refPalette()->name(),
 					   true, omi, true, oma,
 					   "", true, omi2,  true, oma2, "",
                                            false, 0.5, "", true );
