@@ -51,25 +51,25 @@ using namespace std;
 
 
 SetObjectPaletteCommand::SetObjectPaletteCommand( const set<AObject *> & obj,
-						  const string & palname1, 
-						  bool min1flg, 
-						  float min1, bool max1flg, 
-						  float max1, 
+						  const string & palname1,
+						  bool min1flg,
+						  float min1, bool max1flg,
+						  float max1,
 						  const string & palname2,
-						  bool min2flg, 
-						  float min2, bool max2flg, 
-						  float max2, 
-						  const string & mixMethod, 
-						  bool mixFacFlg, 
-						  float linMixFactor, 
+						  bool min2flg,
+						  float min2, bool max2flg,
+						  float max2,
+						  const string & mixMethod,
+						  bool mixFacFlg,
+						  float linMixFactor,
 						  const string & pal1Dmapping,
                                                   bool absmode, int sizex,
                                                   int sizey )
   : RegularCommand(), _objL( obj ), _pal1( palname1 ), _pal2( palname2 ),
     _pal1Dmapping(pal1Dmapping),
-    _min1( min1 ), _max1( max1 ), _min2( min2 ), _max2( max2 ), 
-    _mixMethod( mixMethod ), _linMixFactor( linMixFactor ), 
-    _min1flg( min1flg ), _max1flg( max1flg ), _min2flg( min2flg ), 
+    _min1( min1 ), _max1( max1 ), _min2( min2 ), _max2( max2 ),
+    _mixMethod( mixMethod ), _linMixFactor( linMixFactor ),
+    _min1flg( min1flg ), _max1flg( max1flg ), _min2flg( min2flg ),
     _max2flg( max2flg ), _mixFacFlg( mixFacFlg ), _absmode( absmode ),
     _sizex( sizex ), _sizey( sizey )
 {
@@ -85,7 +85,7 @@ bool SetObjectPaletteCommand::initSyntax()
 {
   SyntaxSet	ss;
   Syntax	& s = ss[ "SetObjectPalette" ];
-  
+
   s[ "objects"          ] = Semantic( "int_vector", true );
   s[ "palette"          ] = Semantic( "string", false );
   s[ "palette2"         ] = Semantic( "string", false );
@@ -128,24 +128,29 @@ void SetObjectPaletteCommand::doit()
   for( io=_objL.begin(); io!=fo; ++io )
     if( theAnatomist->hasObject( *io ) )
       {
-	o = *io;
+        o = *io;
 
-	if( _pal1.empty() )
-	  p1 = o->getOrCreatePalette()->refPalette();
+        if( _pal1.empty() )
+        {
+          if( !o->getOrCreatePalette() )
+            // doesn't really have a palette...
+            continue;
+          p1 = o->getOrCreatePalette()->refPalette();
+        }
 
-	AObjectPalette	pal( p1 );
+        AObjectPalette	pal( p1 );
 
-	if( p2 )
-	  pal.setRefPalette2( p2 ) ;
-	else
-	  pal.setRefPalette2( o->getOrCreatePalette()->refPalette2() );
-	
-	if( !_pal1Dmapping.empty() )
-	  pal.setPalette1DMappingName( _pal1Dmapping ) ;
-	else
-	  pal.setPalette1DMappingName( o->palette()->palette1DMappingName() ) ;
-	if( _pal1Dmapping == "Diagonal" )
-	  pal.set2dMode( true ) ;
+        if( p2 )
+          pal.setRefPalette2( p2 ) ;
+        else
+          pal.setRefPalette2( o->getOrCreatePalette()->refPalette2() );
+
+        if( !_pal1Dmapping.empty() )
+          pal.setPalette1DMappingName( _pal1Dmapping ) ;
+        else
+          pal.setPalette1DMappingName( o->palette()->palette1DMappingName() ) ;
+        if( _pal1Dmapping == "Diagonal" )
+          pal.set2dMode( true ) ;
         bool absmode = false;
         if( _absmode )
         {
@@ -232,7 +237,7 @@ void SetObjectPaletteCommand::doit()
 }
 
 
-Command* SetObjectPaletteCommand::read( const Tree & com, 
+Command* SetObjectPaletteCommand::read( const Tree & com,
 					CommandContext* context )
 {
   vector<int>		obj;
@@ -241,7 +246,7 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   void			*ptr;
   string		pal1, pal2, pal1Dmapping, mix;
   float			min1 = -1, min2 = -1, max1 = -1, max2 = -1;
-  bool			min1f = false, max1f = false, min2f = false, 
+  bool			min1f = false, max1f = false, min2f = false,
     max2f = false, mixf = false;
   float			linmix = -1;
   int                   absmode = 0, sizex = 0, sizey = 0;
@@ -279,8 +284,8 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   com.getProperty( "sizex", sizex );
   com.getProperty( "sizey", sizey );
 
-  return( new SetObjectPaletteCommand( objL, pal1, min1f, min1, max1f, max1, 
-				       pal2, min2f, min2, max2f, max2, mix, 
+  return( new SetObjectPaletteCommand( objL, pal1, min1f, min1, max1f, max1,
+				       pal2, min2f, min2, max2f, max2, mix,
 				       mixf, linmix, pal1Dmapping,
                                        absmode != 0, sizex, sizey ) );
 }
@@ -293,7 +298,7 @@ void SetObjectPaletteCommand::write( Tree & com, Serializer* ser ) const
   set<AObject *>::const_iterator	io;
   vector<int>				obj;
 
-  for( io=_objL.begin(); io!=_objL.end(); ++io ) 
+  for( io=_objL.begin(); io!=_objL.end(); ++io )
     obj.push_back( ser->serialize( *io ) );
 
   t->setProperty( "objects", obj );
