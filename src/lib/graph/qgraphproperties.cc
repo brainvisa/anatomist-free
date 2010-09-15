@@ -39,6 +39,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/commands/cGraphDisplayProperties.h>
 #include <anatomist/processor/Processor.h>
+#include <anatomist/color/objectPalette.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <aims/qtcompat/qvbox.h>
@@ -80,16 +81,17 @@ struct QGraphProperties::Private
   QLabel                *proplabel;
   QVButtonGroup         *maskgroup;
   QVButtonGroup         *labelpropgroup;
+  QCheckBox             *keeppalette;
 };
 
 
-QGraphProperties::QGraphProperties( const set<AObject *> & obj, 
-                                    QWidget* parent ) 
-  : QWidget( parent, "graphProperties", Qt::WDestructiveClose ), 
+QGraphProperties::QGraphProperties( const set<AObject *> & obj,
+                                    QWidget* parent )
+  : QWidget( parent, "graphProperties", Qt::WDestructiveClose ),
     d( new Private( obj ) )
 {
   setCaption( "Graph display properties" );
-  QPixmap	anaicon( ( Settings::globalPath() 
+  QPixmap	anaicon( ( Settings::globalPath()
 			   + "/icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
     setIcon( anaicon );
@@ -115,6 +117,10 @@ QGraphProperties::QGraphProperties( const set<AObject *> & obj,
   d->propcombo = new QComboBox( modeb );
   d->propcombo->setEditable( true );
 
+  d->keeppalette = new QCheckBox( tr( "Keep palette absolute values" ),
+    modeb );
+  new QWidget( modeb );
+
   d->maskgroup = new QVButtonGroup( tr( "Map property on :" ),
                                              modeb );
   d->vertexmask = new QCheckBox( tr( "nodes" ), d->maskgroup );
@@ -132,19 +138,19 @@ QGraphProperties::QGraphProperties( const set<AObject *> & obj,
 
   updateInterface();
 
-  connect( d->objsel, SIGNAL( selectionStarts() ), this, 
+  connect( d->objsel, SIGNAL( selectionStarts() ), this,
            SLOT( chooseObject() ) );
-  connect( d->objsel, 
+  connect( d->objsel,
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
-           this, 
+           this,
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
-  connect( d->modecombo, SIGNAL( textChanged( const QString & ) ), this, 
+  connect( d->modecombo, SIGNAL( textChanged( const QString & ) ), this,
            SLOT( modeChanged( const QString & ) ) );
-  connect( d->modecombo, SIGNAL( activated( int ) ), this, 
+  connect( d->modecombo, SIGNAL( activated( int ) ), this,
            SLOT( modeChanged( int ) ) );
-  connect( d->propcombo, SIGNAL( textChanged( const QString & ) ), this, 
+  connect( d->propcombo, SIGNAL( textChanged( const QString & ) ), this,
            SLOT( propertyChanged( const QString & ) ) );
-  connect( d->propcombo, SIGNAL( activated( int ) ), this, 
+  connect( d->propcombo, SIGNAL( activated( int ) ), this,
            SLOT( propertyChanged( int ) ) );
   connect( d->vertexmask, SIGNAL( toggled( bool ) ), this,
            SLOT( vertexMaskChanged( bool ) ) );
@@ -276,7 +282,7 @@ void QGraphProperties::updateInterface()
         {
           aao = dynamic_cast<const AttributedAObject *>( *ig );
           if( aao )
-            for( ob=aao->attributed()->objectIterator(); ob->isValid(); 
+            for( ob=aao->attributed()->objectIterator(); ob->isValid();
                  ob->next() )
               try
                 {
@@ -345,9 +351,24 @@ void QGraphProperties::updateObjects()
   if( d->modecombo->currentText() == tr( "Property map" ) )
     cm = AGraph::PropertyMap;
 
+  bool keeppalette = d->keeppalette->isChecked();
+  float minp = 0, maxp = 0;
+
   for( io=d->objects.begin(); io!=fo; ++io )
     {
       g = static_cast<AGraph *>( *io );
+      if( keeppalette )
+      {
+        AObjectPalette *pal = g->palette();
+        const GLComponent::TexExtrema & te = g->glTexExtrema( 0 );
+        minp = te.minquant[0];
+        maxp = te.maxquant[0];
+        float tspan = maxp - minp;
+        if( tspan == 0. )
+          tspan = 1.;
+        maxp = pal->max1() * tspan + minp;
+        minp = pal->min1() * tspan + minp;
+      }
       g->setColorMode( cm, false );
       g->setColorProperty( d->propcombo->currentText().utf8().data(), false );
       g->setColorPropertyMask( ( d->vertexmask->isChecked() & 1 )
@@ -380,7 +401,18 @@ void QGraphProperties::updateObjects()
         }
         break;
       }
-      g->updateColors();
+      g->updateExtrema();
+      if( keeppalette )
+      {
+        AObjectPalette *pal = g->palette();
+        const GLComponent::TexExtrema & te = g->glTexExtrema( 0 );
+        float span = te.maxquant[0] - te.minquant[0];
+        if( span == 0 )
+          span = 1.;
+        pal->setMin1( ( minp - te.minquant[0] ) / span );
+        pal->setMax1( ( maxp - te.minquant[0] ) / span );
+      }
+      g->recolor();
       g->notifyObservers( this );
     }
 }
@@ -395,7 +427,7 @@ void QGraphProperties::chooseObject()
 {
   // cout << "chooseObject\n";
   // filter out objects that don't exist anymore
-  set<AObject *>::iterator	ir = d->initial.begin(), 
+  set<AObject *>::iterator	ir = d->initial.begin(),
     er = d->initial.end(), ir2;
   while( ir!=er )
     if( theAnatomist->hasObject( *ir ) )
@@ -434,9 +466,9 @@ void QGraphProperties::runCommand()
     {
       AGraph	*g = static_cast<AGraph *>( *d->objects.begin() );
       string	modes[] = { "Normal", "PropertyMap" };
-      GraphDisplayPropertiesCommand	*com 
-        = new GraphDisplayPropertiesCommand( d->objects, 
-                                             modes[ g->colorMode() ], 
+      GraphDisplayPropertiesCommand	*com
+        = new GraphDisplayPropertiesCommand( d->objects,
+                                             modes[ g->colorMode() ],
                                              g->colorProperty() );
 
       // pb: unnecessary command execution: should be only writen, not executed

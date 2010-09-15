@@ -44,6 +44,8 @@
 #include <aims/data/data.h>
 
 
+class QGraphProperties;
+
 namespace anatomist
 {
 
@@ -174,6 +176,8 @@ namespace anatomist
     typedef std::set<carto::shared_ptr<AObject> > datatype;
 
   private:
+    friend class ::QGraphProperties;
+
     void initialize( const std::string & filename, bool init,
                      const Point3d& labelDimension );
 
