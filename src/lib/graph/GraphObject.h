@@ -46,7 +46,7 @@ namespace anatomist
   class AGraph;
 
 
-  /**	Anatomist graph object: a list that manages destruction of its 
+  /**	Anatomist graph object: a list that manages destruction of its
 	sub-elements
   */
   class AGraphObject : public GLObjectList, public AttributedAObject
@@ -56,11 +56,11 @@ namespace anatomist
     enum ShowType
     {
       ///	Affiche les triangulations seulement
-      TRIANG, 
+      TRIANG,
       ///	Affiche les buckets seulement
-      BUCKET, 
+      BUCKET,
       ///	Affiche tous les objets 3D
-      ALL, 
+      ALL,
       ///	Affiche seulement le 1er objet 3D de la liste
       FIRST
     };
@@ -85,13 +85,15 @@ namespace anatomist
     virtual const Material & material() const;
     virtual Material & GetMaterial();
     virtual void SetMaterial( const Material & mat );
-    virtual void SetMaterialOrDefault( const AGraph* agr, 
+    virtual void SetMaterialOrDefault( const AGraph* agr,
 				       const Material & mat );
 
     virtual carto::GenericObject* attributed() { return( _gobject.get() ); }
     virtual const carto::GenericObject* attributed() const
     { return( _gobject.get() ); }
     virtual void internalUpdate();
+    virtual const AObjectPalette* palette() const { return 0; }
+    virtual AObjectPalette* palette() { return 0; }
 
   protected:
     carto::rc_ptr<carto::GenericObject>	_gobject;
