@@ -178,7 +178,7 @@ bool FusionTextureMethod::canFusion( const set<AObject *> & obj )
   ATexture				*t2 = dynamic_cast<ATexture *>( *io );
   if( !t2 || t2->dimTexture() != 1 )
     return( false );
-  if( t1->MinT() != t2->MinT() || t1->MaxT() != t2->MaxT() 
+  if( t1->MinT() != t2->MinT() || t1->MaxT() != t2->MaxT()
       || t1->TimeStep() != t2->TimeStep() )
     return( false );
 
@@ -359,8 +359,16 @@ string FusionClipMethod::ID() const
 }
 
 
-bool FusionClipMethod::canFusion( const set<AObject *> & )
+bool FusionClipMethod::canFusion( const set<AObject *> & obj )
 {
+  set<AObject *>::const_iterator io, eo = obj.end();
+  ViewState vs;
+  for( io=obj.begin(); io!=eo; ++io )
+  {
+    GLComponent *glc = (*io)->glAPI();
+    if( !glc || glc->glNumVertex( vs ) == 0 )
+      return false;
+  }
   return true;
 }
 
