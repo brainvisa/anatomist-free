@@ -366,8 +366,15 @@ bool FusionClipMethod::canFusion( const set<AObject *> & obj )
   for( io=obj.begin(); io!=eo; ++io )
   {
     GLComponent *glc = (*io)->glAPI();
-    if( !glc || glc->glNumVertex( vs ) == 0 )
+    if( !glc )
       return false;
+    if( glc->sliceableAPI() ) // volumes, fusions 2D ...
+      continue;
+    if( (*io)->renderingIsObserverDependent() ) // volrender...
+      continue;
+    if( glc->glNumVertex( vs ) != 0 ) // meshes and others
+      continue;
+    return false; // otherwise: not accepted
   }
   return true;
 }
