@@ -34,8 +34,8 @@ endif()
 
 
 find_package( Qwt )
-if( Qwt_FOUND )
-  BRAINVISA_DEPENDENCY( RUN DEPENDS Qwt RUN )
+if( QWT_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libqwt5-qt4 RUN)
 endif()
 
 option(CMAKE_OVERRIDE_COMPILER_MISMATCH "Check for compiler consistency" "On")
