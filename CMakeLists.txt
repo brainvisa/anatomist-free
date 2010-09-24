@@ -56,6 +56,16 @@ endif( VTK_FOUND )
 find_package( Doxygen )
 
 set( ANATOMIST_DEFINITIONS "-DANATOMIST_EXPORTS" )
+
+find_package(Alsa)
+if (EXISTS '/usr/include/sys/soundcard.h' OR EXISTS '/usr/include/sys/audioio.h' )
+          set(ANATOMIST_DEFINITIONS "${ANATOMIST_DEFINITIONS} -DSOMA_SOUND_OSS" )
+endif()
+if(ALSA_FOUND)
+  BRAINVISA_DEPENDENCY(RUN RECOMMENDS libasound2 RUN)
+  set(ANATOMIST_DEFINITIONS "${ANATOMIST_DEFINITIONS} -DSOMA_SOUND_ALSA")
+endif()
+
 add_definitions( ${ANATOMIST_DEFINITIONS} )
 
 include( "${AIMS-GPL_USE_FILE}" )
