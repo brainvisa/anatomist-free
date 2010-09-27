@@ -6,7 +6,11 @@ if( APPLE )
 endif( APPLE )
 add_executable( anatomist-bin ${_guiExecutable} anatomist.cc )
 set_property( TARGET anatomist-bin PROPERTY OUTPUT_NAME anatomist )
-target_link_libraries( anatomist-bin anatomist ${AIMS-GPL_LIBRARIES} ${QT_LIBRARIES} ${ALSA_LIBRARIES} )
+set(ana_link_libraries ${AIMS-GPL_LIBRARIES} ${QT_LIBRARIES} )
+if(ALSA_FOUND)
+  set(ana_link_libraries ${ana_link_libraries} ${ALSA_LIBRARIES} ) 
+endif()
+target_link_libraries( anatomist-bin anatomist ${ana_link_libraries} )
 BRAINVISA_INSTALL( TARGETS anatomist-bin
               DESTINATION bin
               COMPONENT ${PROJECT_NAME} ) 
