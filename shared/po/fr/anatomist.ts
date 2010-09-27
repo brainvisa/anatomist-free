@@ -170,6 +170,10 @@
         <source>Open the ROI toolbox</source>
         <translation>Ouvrir la boîte à outils de ROI</translation>
     </message>
+    <message>
+        <source>surfPaint</source>
+        <translation>outils de dessin</translation>
+    </message>
 </context>
 <context>
     <name>AttributedChooser</name>
@@ -911,6 +915,22 @@ Right Button   :  menu
     <message>
         <source>RoiControl</source>
         <translation type="obsolete">Ouvre la boite à outil de ROI</translation>
+    </message>
+    <message>
+        <source>SurfpaintControl</source>
+        <translation type="obsolete">Outils dessin maillages</translation>
+    </message>
+    <message>
+        <source>SurfpaintColorPickerControl</source>
+        <translation>pipette à texture :
+        clic gauche : choisir un vertex
+        </translation>
+    </message>
+    <message>
+        <source>SurfpaintBrushControl</source>
+        <translation>pinceau :
+        clic gauche : attribue la valeur de texture sélectionnée au vertex le plus proche
+        </translation>
     </message>
     <message>
         <source>Browser Selection</source>
@@ -3714,6 +3734,16 @@ rendu des très gros maillages, mais pour l&apos;instant...</translation>
     <message>
         <source>Zoom :</source>
         <translation>Zoom :</translation>
+    </message>
+</context>
+
+<context>
+    <name>paintingToolBox</name>
+    <message>
+        <source>SurfpaintColorPickerControl</source>
+        <translation>pipette à texture :
+        clic gauche : choisir un vertex
+        </translation>
     </message>
 </context>
 </TS>

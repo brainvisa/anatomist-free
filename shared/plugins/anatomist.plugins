@@ -4,11 +4,12 @@ attributes = {
     'libanahistogram.so',
     'libanaprofile.so',
     'libanaperfusion.so',
+    'libanasurfpaint.so',
     'libanasurfmatch.so',
     'libanaroibase.so',
     'libanaroialgo.so', 
     'libpyanatomistmodule.so',
     'libanavolrender.so',
-    'libanavtk.so',
+    'libanavtk.so'
   ],
 }

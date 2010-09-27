@@ -856,6 +856,22 @@ Right Button   :  menu
     <message>
         <source>RoiControl</source>
         <translation>Open ROI Tool Box</translation>
+    </message> 
+    <message>
+        <source>SurfpaintControl</source>
+        <translation type="obsolete">Open painting Tool Box</translation>
+    </message>
+    <message>
+        <source>SurfpaintColorPickerControl</source>
+        <translation>texture value picking:
+        left clic : choose a vertex
+        </translation>
+    </message>
+    <message>
+        <source>SurfpaintBrushControl</source>
+        <translation>brush :
+        left clic : change texture value 
+        </translation>
     </message>
     <message>
         <source>Browser Selection</source>
