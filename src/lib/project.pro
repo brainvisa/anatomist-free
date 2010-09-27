@@ -189,6 +189,7 @@ HEADERS = \
 	window3D/wFixedPointOfView.h \
 	window3D/wLightModel.h \
 	window3D/wTools3D.h \
+	window3D/wSurfpaintTools.h \
 	window3D/zoomDialog.h \
 	mobject/globjectlist.h \
 	mobject/globjectvector.h \
@@ -413,6 +414,7 @@ SOURCES = \
 	window3D/wFixedPointOfView.cc \
 	window3D/wLightModel.cc \
 	window3D/wTools3D.cc \
+	window3D/wSurfpaintTools.cc \
 	window3D/zoomDialog.cc \
 	mobject/globjectlist.cc \
 	mobject/globjectvector.cc \

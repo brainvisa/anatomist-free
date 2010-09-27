@@ -42,6 +42,8 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 
+using namespace std;
+
 namespace aims
 {
   class Quaternion;
@@ -120,19 +122,24 @@ public:
   /// pick the object at the cursor 2D position
   virtual anatomist::AObject* objectAtCursorPosition( int x, int y );
   /// pick several objects at the cursor 2D position
-  virtual std::list<anatomist::AObject*> *objectsAtCursorPosition( int x,
-      int y, int tolerenceRadius );
+  virtual std::list<anatomist::AObject*> *objectsAtCursorPosition( int x, int y, int tolerenceRadius );
   /// pick a polygon on a selected object at the cursor 2D position
-  virtual int polygonAtCursorPosition( int x, int y,
-                                       const anatomist::AObject* obj );
+  virtual int polygonAtCursorPosition( int x, int y,const anatomist::AObject* obj );
   /// print all infos about vertex picked on a polygon selected
   int computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as);
-      //anatomist::ATriangulated *as);
+  int computeNearestVertexFromPolygonPointNew( Point3df position, int poly, AimsSurface<3,Void> *as, Point3df & positionNearestVertex);
   void getInfos3DFromClickPoint( int x, int y );
+  void getInfos3DFromClickPointNew( int x, int y, Point3df & position, int *poly, anatomist::AObject *objselect, string & objtype,
+      float *texvalue, string & textype, Point3df & positionNearestVertex, int* indexNearestVertex);
+  void setTextureValue(float tex);
+  float getTextureValue(void);
+  void setPolygon(int poly);
+  void setVertex(int vertex);
+  void updateTextureValue(anatomist::AObject *o, string textype, int indexVertex, float value);
   void getInfos3D(void);
+  bool surfpaintIsVisible(void);
   void printPositionAndValue();
   virtual void displayClickPoint();
-
   ///   set the view of the scene
   void setViewPoint( float *quaternion, 
          const float zoom );
@@ -245,6 +252,7 @@ public slots:
   void syncViews( bool keepextrema = false );
   void focusView();
   void toolsWinDestroyed();
+  void painttoolsWinDestroyed();
   void povWinDestroyed();
   void lightWinDestroyed();
   virtual void Refresh();
@@ -274,6 +282,9 @@ public slots:
   void setLinkedCursorPos();
   void openStereoView();
   void toggleStatusBarVisibility();
+
+  void togglePaintingToolbox();
+  void showPaintingToolbox();
 
 protected slots:
   void freeResize();
@@ -308,8 +319,6 @@ protected:
 public :
   void renderSelectionBuffer( anatomist::ViewState::glSelectRenderMode mode,
                               const anatomist::AObject *selectedobject = 0 );
-
-
 
 private:
   struct Private;

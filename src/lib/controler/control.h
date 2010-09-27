@@ -624,7 +624,7 @@ namespace anatomist {
     ShowHideActionLink *myShowAction ;
     ShowHideActionLink *myHideAction ;
     SelectionChangedActionLink *mySelectionChangedAction;
-
+    //SurfpaintActionLink *mySurfpaintAction ;
     anatomist::LongActions * myLongActions ;
   };
 
@@ -831,6 +831,5 @@ private:
 //     bool myExclusiveActionnnn ;
 //     Qtimer * myTimer ;
 //   };
-
 
 #endif

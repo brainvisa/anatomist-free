@@ -60,7 +60,6 @@ namespace anatomist
   private:
   };
 
-
   class Select3DControl : public Control
   {
   public:

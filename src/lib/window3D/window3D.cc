@@ -59,6 +59,7 @@
 #include <anatomist/window3D/wLightModel.h>
 #include <anatomist/window3D/wFixedPointOfView.h>
 #include <anatomist/window3D/wTools3D.h>
+#include <anatomist/window3D/wSurfpaintTools.h>
 #include <anatomist/window3D/cursor.h>
 #include <anatomist/window3D/zoomDialog.h>
 #include <anatomist/window/colorstyle.h>
@@ -74,8 +75,11 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/control/graphParams.h>
 #include <anatomist/reference/transformobserver.h>
+#include <anatomist/application/settings.h>
 #include <qslider.h>
 #include <qglobal.h>
+#include <qmessagebox.h>
+#include <anatomist/object/objectConverter.h>
 
 #if QT_VERSION>0x040000
 #include <QtOpenGL/QGLWidget>
@@ -109,6 +113,9 @@
 #define rint(x) floor(x+0.5)
 #endif
 
+#include <anatomist/graph/attribAObject.h>
+#include <anatomist/graph/GraphObject.h>
+#include <anatomist/graph/Graph.h>
 // uncomment this to enable debug output for update pattern
 //#define ANA_DEBUG_UPDATE
 
@@ -116,7 +123,6 @@ using namespace anatomist;
 using namespace aims;
 using namespace carto;
 using namespace std;
-
 
 // static
 
@@ -128,106 +134,102 @@ static string AWindow3D_coronalTitle = "C";
 static string AWindow3D_sagittalTitle = "S";
 static string AWindow3D_3DTitle = "3D";
 
-
 struct AWindow3D::Private
 {
-  enum RefreshType
-  {
-    LightRefresh,
-    TempRefresh,
-    FullRefresh,
-  };
-  enum RenderConstraint
-  {
-    RenderAfter,
-    RenderBefore,
-  };
-  typedef pair<RenderConstraint, AObject *> ConstrainedObject;
+    enum RefreshType
+    {
+      LightRefresh, TempRefresh, FullRefresh,
+    };
+    enum RenderConstraint
+    {
+      RenderAfter, RenderBefore,
+    };
+    typedef pair<RenderConstraint, AObject *> ConstrainedObject;
 
-  Private();
-  ~Private();
-  void deleteLists();
+    Private();
+    ~Private();
+    void deleteLists();
 
-  GLWidgetManager		*draw;
-  QSlider			*slidt;
-  QHBox                         *refbox;
-  QPushButton			*reflabel;
-  QLabel                        *refdirmark;
-  QLabel			*timelabel;
-  QVBox				*timepanel;
-  QSlider			*slids;
-  QLabel			*slicelabel;
-  QVBox				*slicepanel;
-  QAViewToolTip			*tooltip;
-  AWindow3D::ViewType		viewtype;
-  QToolBar			*mute;
-  QToolButton			*axialbt;
-  QToolButton			*coronalbt;
-  QToolButton			*sagittalbt;
-  QToolButton			*obliquebt;
-  QToolButton			*threedbt;
-  PrimList			primitives;
-  bool				orientationCube;
-  bool				boundingFrame;
-  AWindow3D::RenderingMode	renderingMode;
-  Tools3DWindow			*tools;
-  FixedPointOfViewWindow	*poview;
-  LightModelWindow		*lightview;
-  Light				*light;
-  Quaternion			slicequat;
-  QSize				askedsize;
-  AWindow3D::ClipMode		clipmode;
-  float				clipdist;
-  bool				transpz;
-  bool				culling;
-  bool				flatshading;
-  bool				smooth;
-  bool				fog;
-  map<AObject*, pair<unsigned,unsigned> > tmpprims;
-  RefreshType			refreshneeded;
-  list<ObjectModifier *>	objmodifiers;
-  bool				linkonslider;
-  AWindow3D                     *lefteye;
-  AWindow3D                     *righteye;
-  QLabel                        *objvallabel;
-  bool                          statusbarvisible;
-  bool                          needsextrema;
-  map<AObject *, ConstrainedObject>     renderconstraints;
+    GLWidgetManager *draw;
+    QSlider *slidt;
+    QHBox *refbox;
+    QPushButton *reflabel;
+    QLabel *refdirmark;
+    QLabel *timelabel;
+    QVBox *timepanel;
+    QSlider *slids;
+    QLabel *slicelabel;
+    QVBox *slicepanel;
+    QAViewToolTip *tooltip;
+    AWindow3D::ViewType viewtype;
+    QToolBar *mute;
+    QToolButton *axialbt;
+    QToolButton *coronalbt;
+    QToolButton *sagittalbt;
+    QToolButton *obliquebt;
+    QToolButton *threedbt;
+    PrimList primitives;
+    bool orientationCube;
+    bool boundingFrame;
+    AWindow3D::RenderingMode renderingMode;
+    Tools3DWindow *tools;
+    SurfpaintToolsWindow *painttools;
+    FixedPointOfViewWindow *poview;
+    LightModelWindow *lightview;
+    Light *light;
+    Quaternion slicequat;
+    QSize askedsize;
+    AWindow3D::ClipMode clipmode;
+    float clipdist;
+    bool transpz;
+    bool culling;
+    bool flatshading;
+    bool smooth;
+    bool fog;
+    map<AObject*, pair<unsigned, unsigned> > tmpprims;
+    RefreshType refreshneeded;
+    list<ObjectModifier *> objmodifiers;
+    bool linkonslider;
+    AWindow3D *lefteye;
+    AWindow3D *righteye;
+    QLabel *objvallabel;
+    bool statusbarvisible;
+    bool needsextrema;
+    map<AObject *, ConstrainedObject> renderconstraints;
 
-  int mouseX;
-  int mouseY;
+    int mouseX;
+    int mouseY;
+    bool surfpaintState;
 };
-
 
 namespace
 {
-  Quaternion axialQuaternion( Referential* ref )
+  Quaternion axialQuaternion(Referential* ref)
   {
     string ax;
-    theAnatomist->config()->getProperty( "axialConvention", ax );
-    Quaternion  quat( 1, 0, 0, 0 );
-    if( ax == "neuro" )
-      quat = Quaternion( 0, 0, 1, 0 );
-    if( ref && ref != Referential::acPcReferential() )
+    theAnatomist->config()->getProperty("axialConvention", ax);
+    Quaternion quat(1, 0, 0, 0);
+    if (ax == "neuro") quat = Quaternion(0, 0, 1, 0);
+    if (ref && ref != Referential::acPcReferential())
     {
-      const anatomist::Transformation  *t
-          = ATransformSet::instance()->transformation
-            ( Referential::acPcReferential(), ref );
-      if( t )
+      const anatomist::Transformation *t =
+          ATransformSet::instance()->transformation(
+              Referential::acPcReferential(), ref);
+      if (t)
       {
-        Point3df  p = t->transform( Point3df( 1, 0, 0 ) );
-        Quaternion  q;
-        if( p[0] < 0 )
+        Point3df p = t->transform(Point3df(1, 0, 0));
+        Quaternion q;
+        if (p[0] < 0)
         {
-          q.fromAxis( Point3df( 0, 0, 1 ), M_PI );
+          q.fromAxis(Point3df(0, 0, 1), M_PI);
           quat *= q;
-          q.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
-        p = t->transform( Point3df( 0, 1, 0 ) );
-        if( p[1] < 0 )
+        p = t->transform(Point3df(0, 1, 0));
+        if (p[1] < 0)
         {
-          q.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
       }
@@ -235,116 +237,113 @@ namespace
     return quat;
   }
 
-  Quaternion coronalQuaternion( Referential* ref )
+  Quaternion coronalQuaternion(Referential* ref)
   {
-    static const float	c = 1. / sqrt( 2. );
+    static const float c = 1. / sqrt(2.);
     string ax;
-    theAnatomist->config()->getProperty( "axialConvention", ax );
-    Quaternion  quat( c, 0, 0, c );
-    if( ax == "neuro" )
-      quat = Quaternion( 0, c, c, 0 );
-    if( ref && ref != Referential::acPcReferential() )
+    theAnatomist->config()->getProperty("axialConvention", ax);
+    Quaternion quat(c, 0, 0, c);
+    if (ax == "neuro") quat = Quaternion(0, c, c, 0);
+    if (ref && ref != Referential::acPcReferential())
     {
-      const anatomist::Transformation  *t
-          = ATransformSet::instance()->transformation
-          ( Referential::acPcReferential(), ref );
-      if( t )
+      const anatomist::Transformation *t =
+          ATransformSet::instance()->transformation(
+              Referential::acPcReferential(), ref);
+      if (t)
       {
-        Point3df  p = t->transform( Point3df( 1, 0, 0 ) );
-        Quaternion  q;
-        if( p[0] < 0 )
+        Point3df p = t->transform(Point3df(1, 0, 0));
+        Quaternion q;
+        if (p[0] < 0)
         {
-          q.fromAxis( Point3df( 0, 1, 0 ), M_PI );
+          q.fromAxis(Point3df(0, 1, 0), M_PI);
           quat *= q;
-          q.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
-        p = t->transform( Point3df( 0, 0, 1 ) );
-        if( p[2] < 0 )
+        p = t->transform(Point3df(0, 0, 1));
+        if (p[2] < 0)
         {
-          q.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
       }
-      if( ref->isDirect() )
+      if (ref->isDirect())
       {
         // remove the bottom-up inversion
-        Quaternion  q( 1, 0, 0, 0 );
+        Quaternion q(1, 0, 0, 0);
         quat *= q;
       }
     }
     return quat;
   }
 
-  Quaternion sagittalQuaternion( Referential* ref )
+  Quaternion sagittalQuaternion(Referential* ref)
   {
-    Quaternion  quat( 0.5, 0.5, 0.5, 0.5 );
-    if( ref && ref != Referential::acPcReferential() )
+    Quaternion quat(0.5, 0.5, 0.5, 0.5);
+    if (ref && ref != Referential::acPcReferential())
     {
-      const anatomist::Transformation  *t
-          = ATransformSet::instance()->transformation
-          ( Referential::acPcReferential(), ref );
-      if( t )
+      const anatomist::Transformation *t =
+          ATransformSet::instance()->transformation(
+              Referential::acPcReferential(), ref);
+      if (t)
       {
-        Point3df  p = t->transform( Point3df( 0, 1, 0 ) );
-        Quaternion  q;
-        if( p[1] < 0 )
+        Point3df p = t->transform(Point3df(0, 1, 0));
+        Quaternion q;
+        if (p[1] < 0)
         {
-          q.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
-          q.fromAxis( Point3df( 0, 1, 0 ), M_PI );
+          q.fromAxis(Point3df(0, 1, 0), M_PI);
           quat *= q;
         }
-        p = t->transform( Point3df( 0, 0, 1 ) );
-        if( p[2] < 0 )
+        p = t->transform(Point3df(0, 0, 1));
+        if (p[2] < 0)
         {
-          q.fromAxis( Point3df( 0, 1, 0 ), M_PI );
+          q.fromAxis(Point3df(0, 1, 0), M_PI);
           quat *= q;
         }
       }
-      if( ref->isDirect() )
+      if (ref->isDirect())
       {
         // remove the bottom-up inversion
-        Quaternion  q( 0, 1, 0, 0 );
+        Quaternion q(0, 1, 0, 0);
         quat *= q;
       }
     }
     return quat;
   }
 
-
-  AObject* objectWithGLID( int id )
+  AObject* objectWithGLID(int id)
   {
-    if( id < 0 )
-      return 0;
+    if (id < 0) return 0;
     static map<int, AObject *> cache;
     map<int, AObject *>::iterator ic, ec = cache.end();
-    ic = cache.find( id );
-    if( ic != ec )
+    ic = cache.find(id);
+    if (ic != ec)
     {
-      if( theAnatomist->hasObject( ic->second ) )
+      if (theAnatomist->hasObject(ic->second))
       {
         GLComponent* glc = ic->second->glAPI();
-        if( glc && glc->glObjectID() == id )
+        if (glc && glc->glObjectID() == id)
         {
           return ic->second;
         }
       }
-      cache.erase( ic ); // invalid
+      cache.erase(ic); // invalid
     }
     const set<AObject *> objs = theAnatomist->getObjects();
     set<AObject *>::const_iterator io, eo = objs.end();
     AObject *obj;
     int oid;
-    for( io=objs.begin(); io!=eo; ++io )
+    for (io = objs.begin(); io != eo; ++io)
     {
       obj = *io;
       GLComponent* glc = obj->glAPI();
-      if( glc )
+      if (glc)
       {
         oid = glc->glObjectID();
-        cache[ oid ] = obj;
-        if( oid == id )
+        cache[oid] = obj;
+        if (oid == id)
         {
           // TODO: check parents/children
           return obj;
@@ -355,109 +354,94 @@ namespace
   }
 }
 
-
-AWindow3D::Private::Private()
-  : draw( 0 ), slidt( 0 ), refbox( 0 ), reflabel( 0 ), refdirmark( 0 ),
-    timelabel( 0 ), timepanel( 0 ),
-    slids( 0 ), slicelabel( 0 ), slicepanel( 0 ), tooltip( 0 ),
-    viewtype( AWindow3D::Oblique ), mute( 0 ), axialbt( 0 ), coronalbt( 0 ),
-    sagittalbt( 0 ), obliquebt( 0 ),
-    orientationCube( false ), boundingFrame( false ),
-    renderingMode( AWindow3D::Normal ), tools( 0 ),
-    poview( 0 ), lightview( 0 ), light( new Light ), slicequat( 0, 0, 0, 1 ),
-    askedsize( 0, 0 ), clipmode( AWindow3D::NoClip ), clipdist( 1 ),
-    transpz( true ), culling( true ), flatshading( false ), smooth( false ),
-    fog( false ), refreshneeded( FullRefresh ),
-    linkonslider( false ), lefteye( 0 ), righteye( 0 ), objvallabel( 0 ),
-    statusbarvisible( false ), 
-    // needsboundingbox( false ),
-    needsextrema( false ), // needswingeom( false ),
-    // needssliceslider( false )
-    mouseX( 0 ), mouseY( 0 )
+AWindow3D::Private::Private() :
+  draw(0), slidt(0), refbox(0), reflabel(0), refdirmark(0), timelabel(0),
+      timepanel(0), slids(0), slicelabel(0), slicepanel(0), tooltip(0),
+      viewtype(AWindow3D::Oblique), mute(0), axialbt(0), coronalbt(0),
+      sagittalbt(0), obliquebt(0), orientationCube(false),
+      boundingFrame(false), renderingMode(AWindow3D::Normal), tools(0),
+      painttools(0), poview(0), lightview(0), light(new Light), slicequat(0, 0,
+          0, 1), askedsize(0, 0), clipmode(AWindow3D::NoClip), clipdist(1),
+      transpz(true), culling(true), flatshading(false), smooth(false), fog(
+          false), refreshneeded(FullRefresh), linkonslider(false), lefteye(0),
+      righteye(0), objvallabel(0), statusbarvisible(false),
+      // needsboundingbox( false ),
+      needsextrema(false), // needswingeom( false ),
+      // needssliceslider( false )
+      mouseX(0), mouseY(0), surfpaintState(false)
 {
 }
 
-
 AWindow3D::Private::~Private()
 {
-  while( !objmodifiers.empty() )
+  while (!objmodifiers.empty())
     delete objmodifiers.front();
   delete tools;
+  delete painttools;
   delete poview;
   delete lightview;
   delete light;
 }
 
-
 void AWindow3D::Private::deleteLists()
 {
 }
 
-
 //	Objects modifier
 
 
-AWindow3D::ObjectModifier::ObjectModifier( AWindow3D* w )
-  : _window( w )
+AWindow3D::ObjectModifier::ObjectModifier(AWindow3D* w) :
+  _window(w)
 {
-  w->registerObjectModifier( this );
+  w->registerObjectModifier(this);
 }
-
 
 AWindow3D::ObjectModifier::~ObjectModifier()
 {
-  _window->unregisterObjectModifier( this );
+  _window->unregisterObjectModifier(this);
 }
-
 
 namespace
 {
 
-  void paintRefLabel( QPushButton* reflabel, QLabel* refdirmark,
-                      const Referential* ref )
+  void paintRefLabel(QPushButton* reflabel, QLabel* refdirmark,
+      const Referential* ref)
   {
-    if( ref && ref->isDirect() )
+    if (ref && ref->isDirect())
     {
-      AimsRGB	col = ref->Color();
+      AimsRGB col = ref->Color();
       QPixmap pix;
-      pix.resize( 32, 7 );
-      pix.fill( QColor( col.red(), col.green(), col.blue() ) );
-      QPainter  p;
+      pix.resize(32, 7);
+      pix.fill(QColor(col.red(), col.green(), col.blue()));
+      QPainter p;
       int darken = 25;
-      p.begin( &pix );
-      p.setPen( QPen( QColor( col.red() > darken ? col.red() - darken :
-                                  col.red() + darken,
-                              col.green() > darken ? col.green() - darken :
-                                  col.green() + darken,
-                              col.blue() > darken ? col.blue() - darken :
-                                  col.blue() + darken ),
-                      5 ) );
-      p.drawLine( 3, 10, 25, -3 );
+      p.begin(&pix);
+      p.setPen(QPen(QColor(col.red() > darken ? col.red() - darken : col.red()
+          + darken, col.green() > darken ? col.green() - darken : col.green()
+          + darken, col.blue() > darken ? col.blue() - darken : col.blue()
+          + darken), 5));
+      p.drawLine(3, 10, 25, -3);
       p.end();
       reflabel->unsetPalette();
-      reflabel->setPalette( QPalette( QColor( col.red(), col.green(),
-                            col.blue() ) ) );
-      reflabel->setPaletteBackgroundPixmap( pix );
-      if( refdirmark )
-        refdirmark->show();
+      reflabel->setPalette(QPalette(QColor(col.red(), col.green(), col.blue())));
+      reflabel->setPaletteBackgroundPixmap(pix);
+      if (refdirmark) refdirmark->show();
     }
     else
     {
       reflabel->unsetPalette();
-      reflabel->setBackgroundMode( Qt::PaletteButton );
-      if( refdirmark )
-        refdirmark->hide();
-      if( ref )
+      reflabel->setBackgroundMode(Qt::PaletteButton);
+      if (refdirmark) refdirmark->hide();
+      if (ref)
       {
-        AimsRGB	col = ref->Color();
-        reflabel->setPalette( QPalette( QColor( col.red(), col.green(),
-                              col.blue() ) ) );
+        AimsRGB col = ref->Color();
+        reflabel->setPalette(QPalette(
+            QColor(col.red(), col.green(), col.blue())));
       }
       else
-        reflabel->setPalette( QPalette( QColor( 192, 192, 192 ) ) );
+        reflabel->setPalette(QPalette(QColor(192, 192, 192)));
     }
   }
-
 
   AWindow3D::GLWidgetCreator & glWidgetCreator()
   {
@@ -467,84 +451,78 @@ namespace
 
 }
 
-
 //	AWindow3D
 
-AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
-                      Qt::WFlags f )
-  : ControlledWindow( parent, "window3D", options, f ),
-    Observable(), d( new AWindow3D::Private )
+AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) :
+  ControlledWindow(parent, "window3D", options, f), Observable(), d(
+      new AWindow3D::Private)
 {
   bool nodeco = !toolBarsVisible();
 
-  QVBox		*vb = new QVBox( this );
-  vb->setMargin( 2 );
-  vb->setSpacing( 5 );
-  d->refbox = new QHBox( vb );
-  d->reflabel = new QPushButton( d->refbox );
+  QVBox *vb = new QVBox(this);
+  vb->setMargin(2);
+  vb->setSpacing(5);
+  d->refbox = new QHBox(vb);
+  d->reflabel = new QPushButton(d->refbox);
   const QPixmap *directpix;
-  IconDictionary	*icons = IconDictionary::instance();
-  directpix = icons->getIconInstance( "direct_ref_mark" );
-  d->refdirmark = new QLabel( d->refbox );
-  if( directpix )
-    d->refdirmark->setPixmap( *directpix );
-  d->refdirmark->setFixedSize( QSize( 21, 7 ) );
+  IconDictionary *icons = IconDictionary::instance();
+  directpix = icons->getIconInstance("direct_ref_mark");
+  d->refdirmark = new QLabel(d->refbox);
+  if (directpix) d->refdirmark->setPixmap(*directpix);
+  d->refdirmark->setFixedSize(QSize(21, 7));
   d->refdirmark->hide();
-  setQtColorStyle( d->reflabel );
-  d->reflabel->setFixedHeight( 7 );
-  d->refbox->setFixedHeight( d->refbox->sizeHint().height() );
-  if( nodeco )
-    d->refbox->hide();
+  setQtColorStyle(d->reflabel);
+  d->reflabel->setFixedHeight(7);
+  d->refbox->setFixedHeight(d->refbox->sizeHint().height());
+  if (nodeco) d->refbox->hide();
 
-  QHBox		*hb = new QHBox( vb );
-  hb->setSpacing( 5 );
+  QHBox *hb = new QHBox(vb);
+  hb->setSpacing(5);
 
-  paintRefLabel( d->reflabel, d->refdirmark, getReferential() );
+  paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 
-  if( glWidgetCreator() )
-    d->draw = glWidgetCreator()( this, hb, "GL drawing area",
-                                 GLWidgetManager::sharedWidget(), 0 );
+  if (glWidgetCreator())
+    d->draw = glWidgetCreator()(this, hb, "GL drawing area",
+        GLWidgetManager::sharedWidget(), 0);
   else
-    d->draw = new QAGLWidget3D( this, hb, "GL drawing area",
-                                GLWidgetManager::sharedWidget() );
+    d->draw = new QAGLWidget3D(this, hb, "GL drawing area",
+        GLWidgetManager::sharedWidget());
 
-  float	wf = 1;
-  theAnatomist->config()->getProperty( "windowSizeFactor", wf );
+  float wf = 1;
+  theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
   //if( QWidget::parent() == 0 )
-  switch( t )
-    {
+  switch (t)
+  {
     case Axial:
-      d->draw->setPreferredSize( int( 256 * wf ), int( 256 * wf ) );
+      d->draw->setPreferredSize(int(256 * wf), int(256 * wf));
       break;
     case Coronal:
-      d->draw->setPreferredSize( int( 256 * wf ), int( 124 * wf ) );
+      d->draw->setPreferredSize(int(256 * wf), int(124 * wf));
       break;
     case Sagittal:
-      d->draw->setPreferredSize( int( 256 * wf ), int( 124 * wf ) );
+      d->draw->setPreferredSize(int(256 * wf), int(124 * wf));
       break;
     default:
       break;
-    }
+  }
 
-  d->slicepanel = new QVBox( hb );
-  d->slicelabel = new QLabel( d->slicepanel, "slice" );
-  d->slicelabel->setFixedWidth( 30 );
-  d->slids = new QSlider( 0, 0, 1, 0, Qt::Vertical, d->slicepanel,
-			  "sliderS" );
-  d->slids->setFixedWidth( d->slids->sizeHint().width() );
-  d->slicepanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-                                             QSizePolicy::Expanding ) );
+  d->slicepanel = new QVBox(hb);
+  d->slicelabel = new QLabel(d->slicepanel, "slice");
+  d->slicelabel->setFixedWidth(30);
+  d->slids = new QSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel, "sliderS");
+  d->slids->setFixedWidth(d->slids->sizeHint().width());
+  d->slicepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
+      QSizePolicy::Expanding));
   d->slicepanel->hide();
 
-  d->timepanel = new QVBox( hb );
-  d->timelabel = new QLabel( d->timepanel, "time" );
-  d->timelabel->setFixedWidth( 30 );
-  d->slidt = new QSlider( 0, 0, 1, 0, Qt::Vertical, d->timepanel,
-			  "sliderT" );
-  d->slidt->setFixedWidth( d->slidt->sizeHint().width() );
-  d->timepanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-                                            QSizePolicy::Expanding ) );
+  d->timepanel = new QVBox(hb);
+  d->timelabel = new QLabel(d->timepanel, "time");
+  d->timelabel->setFixedWidth(30);
+  d->slidt = new QSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel, "sliderT");
+  d->slidt->setFixedWidth(d->slidt->sizeHint().width());
+  d->timepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
+      QSizePolicy::Expanding));
   d->timepanel->hide();
 #if QT_VERSION >= 0x040000
   // behave like in Qt3: 0 at top
@@ -554,231 +532,222 @@ AWindow3D::AWindow3D( ViewType t, QWidget* parent, Object options,
   d->slids->setInvertedControls( true );
 #endif
 
-  d->objvallabel = new QLabel( statusBar() );
-  statusBar()->addWidget( d->objvallabel, 0, true );
+  d->objvallabel = new QLabel(statusBar());
+  statusBar()->addWidget(d->objvallabel, 0, true);
   statusBar()->hide();
 
-  setCentralWidget( vb );
+  setCentralWidget(vb);
 
   //	controls
 
-  d->draw->controlSwitch()->attach( this );
+  d->draw->controlSwitch()->attach(this);
   d->draw->controlSwitch()->notifyAvailableControlChange();
   d->draw->controlSwitch()->notifyActivableControlChange();
-  d->draw->controlSwitch()->setActiveControl( "Default 3D control" );
+  d->draw->controlSwitch()->setActiveControl("Default 3D control");
   // should be done in ControlSwitch
   d->draw->controlSwitch()->notifyActiveControlChange();
   d->draw->controlSwitch()->notifyActionChange();
-  setFocusProxy( d->draw->qglWidget() );
+  setFocusProxy(d->draw->qglWidget());
 
-  if( !nodeco )
+  if (!nodeco)
+  {
+#if QT_VERSION >= 0x040000
+    const QObjectList & ch = children();
+    QObjectList::const_iterator ic, ec = ch.end();
+    QToolBar *ntb = 0;
+    for( ic=ch.begin(); ic!=ec && !(ntb=qobject_cast<QToolBar *>( *ic ) );
+        ++ic );
+    if( !ntb )
+    ntb = addToolBar( tr( "controls" ), "controls" );
+    addToolBar( Qt::LeftToolBarArea, ntb, "controls" );
+#else
+    moveToolBar(toolBars(Qt::Top).take(), Qt::Left);
+#endif
+
+    //	Menus
+
+    QPopupMenu *win = new QPopupMenu(this);
+    menuBar()->insertItem(tr("Window"), win);
+    //cout << "before connect\n";
+    //cout << d->draw->qobject() << endl;
+    //cout << d->draw->qobject()->name() << endl;
+    win->insertItem(tr("Save..."), d->draw->qobject(), SLOT(saveContents()));
+    //cout << "after connect\n";
+    win->insertItem(tr("Start recording..."), d->draw->qobject(), SLOT(
+        recordStart()));
+    win->insertItem(tr("Stop recording"), d->draw->qobject(),
+        SLOT(recordStop()));
+    win->insertSeparator();
+    win->insertItem(tr("Resize..."), this, SLOT(resizeView()));
+    win->insertItem(tr("Zoom..."), this, SLOT(askZoom()));
+    win->insertSeparator();
+    win->insertItem(tr("Show/hide toolbox (ROI etc)"), this, SLOT(
+        switchToolbox()), Qt::Key_F1);
+    win->insertItem(tr("Show/hide menus and toolbars"), this, SLOT(
+        toggleToolBars()));
+    win->insertItem(tr("Show/hide cursor position"), this, SLOT(
+        toggleStatusBarVisibility()));
+    win->insertSeparator();
+#if QT_VERSION >= 0x040000
+    setDetachMenuAction( win->addAction( tr( "Detach view" ), this,
+            SLOT( detach() ) ) );
+#else
+    win->insertItem(tr("Detach view"), this, SLOT(detach()), 0, DetachMenu);
+#endif
+    if (!parent) enableDetachMenu(false);
+    if (theAnatomist->userLevel() >= 2) win->insertItem(tr(
+        "Open stereoscopic right eye view"), this, SLOT(openStereoView()));
+    win->insertSeparator();
+    win->insertItem(tr("Close"), this, SLOT(close()), Qt::CTRL + Qt::Key_W);
+
+    QPopupMenu *scene = new QPopupMenu(this);
+    menuBar()->insertItem(tr("Scene"), scene);
+    scene->insertItem(tr("Lighting"), this, SLOT(lightView()));
+    scene->insertSeparator();
+    scene->insertItem(tr("Fixed points of view"), this, SLOT(pointsOfView()));
+    scene->insertItem(tr("Tools"), this, SLOT(tools()));
+    scene->insertItem(tr("SurfpaintControl"), this, SLOT(
+        togglePaintingToolbox()));
+    scene->insertItem(tr("Sync 3D views in same group"), this,
+        SLOT(syncViews()));
+    scene->insertItem(tr("Focus view on objects"), this, SLOT(focusView()),
+        Qt::Key_Home);
+    scene->insertItem(tr("Auto-set rotation center in middle of scene"), this,
+        SLOT(setAutoRotationCenter()));
+    scene->insertItem(tr("Manually specify linked cursor position"), this,
+        SLOT(setLinkedCursorPos()), Qt::CTRL + Qt::Key_P);
+
+    //	Mutation toolbar
+
+#if QT_VERSION >= 0x040000
+    d->mute = addToolBar( tr( "mutations" ), "mutations" );
+    d->mute->setIconSize( QSize( 20, 20 ) );
+#else
+    d->mute = new QToolBar(this, tr("mutations"));
+#endif
+    const QPixmap *p;
+
+    p = icons->getIconInstance("axial");
+    if (p)
     {
-#if QT_VERSION >= 0x040000
-      const QObjectList			& ch = children();
-      QObjectList::const_iterator	ic, ec = ch.end();
-      QToolBar				*ntb = 0;
-      for( ic=ch.begin(); ic!=ec && !(ntb=qobject_cast<QToolBar *>( *ic ) );
-           ++ic );
-      if( !ntb )
-        ntb = addToolBar( tr( "controls" ), "controls" );
-      addToolBar( Qt::LeftToolBarArea, ntb, "controls" );
-#else
-      moveToolBar( toolBars( Qt::Top ).take(), Qt::Left );
-#endif
-
-      //	Menus
-
-      QPopupMenu	*win = new QPopupMenu( this );
-      menuBar()->insertItem( tr( "Window" ), win );
-      //cout << "before connect\n";
-      //cout << d->draw->qobject() << endl;
-      //cout << d->draw->qobject()->name() << endl;
-      win->insertItem( tr( "Save..." ), d->draw->qobject(),
-                       SLOT( saveContents() ) );
-      //cout << "after connect\n";
-      win->insertItem( tr( "Start recording..." ), d->draw->qobject(),
-                       SLOT( recordStart() ) );
-      win->insertItem( tr( "Stop recording" ), d->draw->qobject(),
-                       SLOT( recordStop() ) );
-      win->insertSeparator();
-      win->insertItem( tr( "Resize..." ), this, SLOT( resizeView() ) );
-      win->insertItem( tr( "Zoom..." ), this, SLOT( askZoom() ) );
-      win->insertSeparator();
-      win->insertItem( tr( "Show/hide toolbox (ROI etc)" ), this,
-                       SLOT( switchToolbox() ), Qt::Key_F1 );
-      win->insertItem( tr( "Show/hide menus and toolbars" ), this,
-                       SLOT( toggleToolBars() ) );
-      win->insertItem( tr( "Show/hide cursor position" ), this,
-                       SLOT( toggleStatusBarVisibility() ) );
-      win->insertSeparator();
-#if QT_VERSION >= 0x040000
-      setDetachMenuAction( win->addAction( tr( "Detach view" ), this,
-                                           SLOT( detach() ) ) );
-#else
-      win->insertItem( tr( "Detach view" ), this, SLOT( detach() ), 0,
-                       DetachMenu );
-#endif
-      if( !parent )
-        enableDetachMenu( false );
-      if( theAnatomist->userLevel() >= 2 )
-        win->insertItem( tr( "Open stereoscopic right eye view" ), this,
-                         SLOT( openStereoView() ) );
-      win->insertSeparator();
-      win->insertItem( tr( "Close" ), this, SLOT( close() ),
-                       Qt::CTRL + Qt::Key_W );
-
-      QPopupMenu	*scene = new QPopupMenu( this );
-      menuBar()->insertItem( tr( "Scene" ), scene );
-      scene->insertItem( tr( "Lighting" ), this, SLOT( lightView() ) );
-      scene->insertSeparator();
-      scene->insertItem( tr( "Fixed points of view" ), this,
-                         SLOT( pointsOfView() ) );
-      scene->insertItem( tr( "Tools" ), this, SLOT( tools() ) );
-      scene->insertItem( tr( "Sync 3D views in same group" ), this,
-                         SLOT( syncViews() ) );
-      scene->insertItem( tr( "Focus view on objects" ), this,
-                         SLOT( focusView() ), Qt::Key_Home );
-      scene->insertItem( tr( "Auto-set rotation center in middle of scene" ),
-                         this, SLOT( setAutoRotationCenter() ) );
-      scene->insertItem( tr( "Manually specify linked cursor position" ),
-                         this, SLOT( setLinkedCursorPos() ),
-                         Qt::CTRL + Qt::Key_P );
-
-      //	Mutation toolbar
-
-#if QT_VERSION >= 0x040000
-      d->mute = addToolBar( tr( "mutations" ), "mutations" );
-      d->mute->setIconSize( QSize( 20, 20 ) );
-#else
-      d->mute = new QToolBar( this, tr( "mutations" ) );
-#endif
-      const QPixmap		*p;
-
-      p = icons->getIconInstance( "axial" );
-      if( p )
-        {
-          d->axialbt = new Q34ToolButton( *p, tr( "Axial" ),
-                                          tr( "Mute into axial view" ),
-                                          this, SLOT( muteAxial() ), d->mute );
-        }
-      else
-        {
-          d->axialbt = new Q34ToolButton( d->mute );
-          d->axialbt->setTextLabel( tr( "Axial" ) );
-          connect( d->axialbt, SIGNAL( clicked() ), this,
-                   SLOT( muteAxial() ) );
-        }
-
-      p = icons->getIconInstance( "coronal" );
-      if( p )
-        d->coronalbt = new Q34ToolButton( *p, tr( "Coronal" ),
-                                          tr( "Mute into coronal view" ),
-                                          this, SLOT( muteCoronal() ),
-                                          d->mute );
-      else
-        {
-          d->coronalbt = new Q34ToolButton( d->mute );
-          d->coronalbt->setTextLabel( tr( "Coronal" ) );
-          connect( d->coronalbt, SIGNAL( clicked() ), this,
-                   SLOT( muteCoronal() ) );
-        }
-
-      p = icons->getIconInstance( "sagittal" );
-      if( p )
-        d->sagittalbt = new Q34ToolButton( *p, tr( "Sagittal" ),
-                                           tr( "Mute into sagittal view" ),
-                                           this, SLOT( muteSagittal() ),
-                                           d->mute );
-      else
-        {
-          d->sagittalbt = new Q34ToolButton( d->mute );
-          d->sagittalbt->setTextLabel( tr( "Sagittal" ) );
-          connect( d->sagittalbt, SIGNAL( clicked() ), this,
-                   SLOT( muteSagittal() ) );
-        }
-
-      p = icons->getIconInstance( "oblique" );
-      if( p )
-        d->obliquebt = new Q34ToolButton( *p, tr( "Oblique" ),
-                                          tr( "Mute into free orientation "
-                                              "view" ), this,
-                                          SLOT( muteOblique() ), d->mute );
-      else
-        {
-          d->obliquebt = new Q34ToolButton( d->mute );
-          d->obliquebt->setTextLabel( tr( "Oblique" ) );
-          connect( d->obliquebt, SIGNAL( clicked() ), this,
-                   SLOT( muteOblique() ) );
-        }
-
-      p = icons->getIconInstance( "3D" );
-      if( p )
-        d->threedbt = new Q34ToolButton( *p, tr( "3D" ),
-                                         tr( "Mute into 3D view" ),
-                                         this, SLOT( mute3D() ), d->mute );
-      else
-        {
-          d->threedbt = new Q34ToolButton( d->mute );
-          d->threedbt->setTextLabel( tr( "3D" ) );
-          connect( d->threedbt, SIGNAL( clicked() ), this,
-                   SLOT( mute3D() ) );
-        }
-
-      d->axialbt->setToggleButton( true );
-      d->coronalbt->setToggleButton( true );
-      d->sagittalbt->setToggleButton( true );
-      d->obliquebt->setToggleButton( true );
-      d->threedbt->setToggleButton( true );
-
-      d->mute->addSeparator();
-      p = icons->getIconInstance( "RoiControl" );
-      Q34ToolButton *roibt;
-      if( p )
-        roibt = new Q34ToolButton( *p, tr( "ROI toolbox" ),
-                                   tr( "Open the ROI toolbox" ),
-                                   this, SLOT( switchToolbox() ),
-                                   d->mute );
-      else
-        {
-          roibt = new Q34ToolButton( d->mute );
-          roibt->setTextLabel( tr( "3D" ) );
-          connect( roibt, SIGNAL( clicked() ), this,
-                   SLOT( switchToolbox() ) );
-        }
-
+      d->axialbt = new Q34ToolButton(*p, tr("Axial"),
+          tr("Mute into axial view"), this, SLOT(muteAxial()), d->mute);
+    }
+    else
+    {
+      d->axialbt = new Q34ToolButton(d->mute);
+      d->axialbt->setTextLabel(tr("Axial"));
+      connect(d->axialbt, SIGNAL(clicked()), this, SLOT(muteAxial()));
     }
 
+    p = icons->getIconInstance("coronal");
+    if (p)
+      d->coronalbt = new Q34ToolButton(*p, tr("Coronal"), tr(
+          "Mute into coronal view"), this, SLOT(muteCoronal()), d->mute);
+    else
+    {
+      d->coronalbt = new Q34ToolButton(d->mute);
+      d->coronalbt->setTextLabel(tr("Coronal"));
+      connect(d->coronalbt, SIGNAL(clicked()), this, SLOT(muteCoronal()));
+    }
+
+    p = icons->getIconInstance("sagittal");
+    if (p)
+      d->sagittalbt = new Q34ToolButton(*p, tr("Sagittal"), tr(
+          "Mute into sagittal view"), this, SLOT(muteSagittal()), d->mute);
+    else
+    {
+      d->sagittalbt = new Q34ToolButton(d->mute);
+      d->sagittalbt->setTextLabel(tr("Sagittal"));
+      connect(d->sagittalbt, SIGNAL(clicked()), this, SLOT(muteSagittal()));
+    }
+
+    p = icons->getIconInstance("oblique");
+    if (p)
+      d->obliquebt = new Q34ToolButton(*p, tr("Oblique"), tr(
+          "Mute into free orientation "
+            "view"), this, SLOT(muteOblique()), d->mute);
+    else
+    {
+      d->obliquebt = new Q34ToolButton(d->mute);
+      d->obliquebt->setTextLabel(tr("Oblique"));
+      connect(d->obliquebt, SIGNAL(clicked()), this, SLOT(muteOblique()));
+    }
+
+    p = icons->getIconInstance("3D");
+    if (p)
+      d->threedbt = new Q34ToolButton(*p, tr("3D"), tr("Mute into 3D view"),
+          this, SLOT(mute3D()), d->mute);
+    else
+    {
+      d->threedbt = new Q34ToolButton(d->mute);
+      d->threedbt->setTextLabel(tr("3D"));
+      connect(d->threedbt, SIGNAL(clicked()), this, SLOT(mute3D()));
+    }
+
+    d->axialbt->setToggleButton(true);
+    d->coronalbt->setToggleButton(true);
+    d->sagittalbt->setToggleButton(true);
+    d->obliquebt->setToggleButton(true);
+    d->threedbt->setToggleButton(true);
+
+    d->mute->addSeparator();
+    p = icons->getIconInstance("RoiControl");
+    Q34ToolButton *roibt;
+    if (p)
+      roibt = new Q34ToolButton(*p, tr("ROI toolbox"), tr(
+          "Open the ROI toolbox"), this, SLOT(switchToolbox()), d->mute);
+    else
+    {
+      roibt = new Q34ToolButton(d->mute);
+      roibt->setTextLabel(tr("3D"));
+      connect(roibt, SIGNAL(clicked()), this, SLOT(switchToolbox()));
+    }
+
+    //ARN 09/10
+    p = icons->getIconInstance("SurfpaintControl");
+
+    Q34ToolButton *paintbt;
+    if (p)
+      paintbt = new Q34ToolButton(*p, tr("SurfpaintControl"), tr(
+          "Open the painting toolbox"), this, SLOT(togglePaintingToolbox()),
+          d->mute);
+    else
+    {
+      paintbt = new Q34ToolButton(d->mute);
+      paintbt->setTextLabel(tr("SurfpaintControl"));
+      connect(roibt, SIGNAL(clicked()), this, SLOT(togglePaintingToolbox()));
+    }
+
+  }
+
   //	Signals & slots
-
   connect( d->slids, SIGNAL( valueChanged( int ) ), this,
-	   SLOT( changeSlice( int ) ) );
+      SLOT( changeSlice( int ) ) );
   connect( d->slidt, SIGNAL( valueChanged( int ) ), this,
-	   SLOT( changeTime( int ) ) );
-  connect( d->reflabel, SIGNAL( clicked() ), this,
-	   SLOT( changeReferential() ) );
+      SLOT( changeTime( int ) ) );
+  connect(d->reflabel, SIGNAL(clicked()), this, SLOT(changeReferential()));
 
-  setViewType( t );
+  setViewType(t);
 
-  d->tooltip = new QAViewToolTip( this, d->draw->qglWidget() );
+  d->tooltip = new QAViewToolTip(this, d->draw->qglWidget());
 }
-
 
 AWindow3D::~AWindow3D()
 {
-  if( d->lefteye )
+  if (d->lefteye)
   {
     AWindow3D *w = d->lefteye;
     d->lefteye = 0;
-    w->setRightEyeWindow( 0 );
+    w->setRightEyeWindow(0);
   }
-  if( d->righteye )
+  if (d->righteye)
   {
     AWindow3D *w = d->righteye;
     d->righteye = 0;
     delete w;
   }
-  if( _instNumber != -1 )
-    _count3d.erase( _count3d.find( _instNumber ) );
+  if (_instNumber != -1) _count3d.erase(_count3d.find(_instNumber));
 
   setChanged();
   notifyUnregisterObservers();
@@ -786,43 +755,39 @@ AWindow3D::~AWindow3D()
   delete d;
 }
 
-
-void AWindow3D::setGLWidgetCreator( GLWidgetCreator c )
+void AWindow3D::setGLWidgetCreator(GLWidgetCreator c)
 {
   glWidgetCreator() = c;
 }
 
-
 AWindow::Type AWindow3D::type() const
 {
-  if( viewType() == ThreeD )
-    return( WINDOW_3D );
+  if (viewType() == ThreeD)
+    return (WINDOW_3D);
   else
-    return( WINDOW_2D );
+    return (WINDOW_2D);
 }
-
 
 AWindow::SubType AWindow3D::subtype() const
 {
-  switch( viewType() )
-    {
+  switch (viewType())
+  {
     case Axial:
-      return( AXIAL_WINDOW );
+      return (AXIAL_WINDOW);
       break;
     case Coronal:
-      return( CORONAL_WINDOW );
+      return (CORONAL_WINDOW);
       break;
     case Sagittal:
-      return( SAGITTAL_WINDOW );
+      return (SAGITTAL_WINDOW);
       break;
     case ThreeD:
-      return( (SubType) 0 );
+      return ((SubType) 0);
       break;
     default:
-      return( OBLIQUE_WINDOW );
-    }
+      return (OBLIQUE_WINDOW);
+  }
 }
-
 
 void AWindow3D::polish()
 {
@@ -830,162 +795,147 @@ void AWindow3D::polish()
   CreateTitle();
 }
 
-
 const set<unsigned> & AWindow3D::typeCount() const
 {
-  return( _count3d );
+  return (_count3d);
 }
-
 
 set<unsigned> & AWindow3D::typeCount()
 {
-  return( _count3d );
+  return (_count3d);
 }
-
 
 const string & AWindow3D::baseTitle() const
 {
-  switch( d->viewtype )
-    {
+  switch (d->viewtype)
+  {
     case Axial:
-      return( AWindow3D_axialTitle );
+      return (AWindow3D_axialTitle);
       break;
     case Coronal:
-      return( AWindow3D_coronalTitle );
+      return (AWindow3D_coronalTitle);
       break;
     case Sagittal:
-      return( AWindow3D_sagittalTitle );
+      return (AWindow3D_sagittalTitle);
       break;
     case ThreeD:
-      return( AWindow3D_3DTitle );
+      return (AWindow3D_3DTitle);
       break;
     default:
-      return( _baseTitle );
-    }
+      return (_baseTitle);
+  }
 }
-
 
 namespace
 {
 
-  void printPositionAndValue( AObject* obj, const Referential* wref,
-                              const Point3df & wpos, float t, unsigned indent )
+  void printPositionAndValue(AObject* obj, const Referential* wref,
+      const Point3df & wpos, float t, unsigned indent)
   {
-    if( obj->isMultiObject() )
-      {
-        unsigned	i;
-        for( i=0; i<indent; ++i )
-          cout << ' ';
-	cout << obj->name() <<" :\n";
-        const MObject		*mo = (const MObject *) obj;
-        MObject::const_iterator	im, em = mo->end();
-        for( im=mo->begin(); im!=em; ++im )
-          printPositionAndValue( *im, wref, wpos, t, indent + 2 );
-      }
-    else if( obj->hasTexture() )
-      {
-        Point3df	pos;
-        vector<float>	vals;
-        unsigned	i, n;
+    if (obj->isMultiObject())
+    {
+      unsigned i;
+      for (i = 0; i < indent; ++i)
+        cout << ' ';
+      cout << obj->name() << " :\n";
+      const MObject *mo = (const MObject *) obj;
+      MObject::const_iterator im, em = mo->end();
+      for (im = mo->begin(); im != em; ++im)
+        printPositionAndValue(*im, wref, wpos, t, indent + 2);
+    }
+    else if (obj->hasTexture())
+    {
+      Point3df pos;
+      vector<float> vals;
+      unsigned i, n;
 
-	vals = obj->texValues( wpos, t, wref, Point3df( 1, 1, 1 ) );
-        for( i=0; i<indent; ++i )
-          cout << ' ';
-	cout << obj->name() <<" : ";
-	pos = anatomist::Transformation::transform( wpos, wref,
-            obj->getReferential(), Point3df( 1, 1, 1 ), obj->VoxelSize() );
-	if( obj->Is2DObject() )
-	  cout << Point3d( (short) rint( pos[0] ), (short) rint( pos[1] ),
-			   (short) rint( pos[2] ) );
-	else
-	  cout << pos;
-	cout << " -> (";
-	for( i=0, n=vals.size(); i<n; ++i )
-	  cout << " " << vals[i];
-	cout << " )" << endl;
-      }
+      vals = obj->texValues(wpos, t, wref, Point3df(1, 1, 1));
+      for (i = 0; i < indent; ++i)
+        cout << ' ';
+      cout << obj->name() << " : ";
+      pos = anatomist::Transformation::transform(wpos, wref,
+          obj->getReferential(), Point3df(1, 1, 1), obj->VoxelSize());
+      if (obj->Is2DObject())
+        cout << Point3d((short) rint(pos[0]), (short) rint(pos[1]),
+            (short) rint(pos[2]));
+      else
+        cout << pos;
+      cout << " -> (";
+      for (i = 0, n = vals.size(); i < n; ++i)
+        cout << " " << vals[i];
+      cout << " )" << endl;
+    }
   }
 
 }
 
-
 void AWindow3D::printPositionAndValue()
 {
-  list<shared_ptr<AObject> >::iterator	obj;
+  list<shared_ptr<AObject> >::iterator obj;
 
-  for( obj=_objects.begin(); obj!=_objects.end(); ++obj )
-    ::printPositionAndValue( obj->get(), getReferential(), _position, _time,
-                             0 );
+  for (obj = _objects.begin(); obj != _objects.end(); ++obj)
+    ::printPositionAndValue(obj->get(), getReferential(), _position, _time, 0);
 }
 
-
-void AWindow3D::updateObject2D( AObject* obj, PrimList* pl,
-                                ViewState::glSelectRenderMode selectmode )
+void AWindow3D::updateObject2D(AObject* obj, PrimList* pl,
+    ViewState::glSelectRenderMode selectmode)
 {
-  if( !pl )
-    pl = &d->primitives;
-  SliceViewState  st( _time, true, _position, &d->slicequat, getReferential(),
-                      windowGeometry(), &d->draw->quaternion(), this,
-                      selectmode );
-  obj->render( *pl, st );
+  if (!pl) pl = &d->primitives;
+  SliceViewState st(_time, true, _position, &d->slicequat, getReferential(),
+      windowGeometry(), &d->draw->quaternion(), this, selectmode);
+  obj->render(*pl, st);
 }
 
-
-void AWindow3D::updateObject3D( AObject* obj, PrimList* pl,
-                                ViewState::glSelectRenderMode selectmode )
+void AWindow3D::updateObject3D(AObject* obj, PrimList* pl,
+    ViewState::glSelectRenderMode selectmode)
 {
-  if( !pl )
-    pl = &d->primitives;
-  obj->render( *pl, ViewState( _time, this, selectmode ) );
+  if (!pl) pl = &d->primitives;
+  obj->render(*pl, ViewState(_time, this, selectmode));
 }
 
-
-void AWindow3D::updateObject( AObject* obj, PrimList* pl,
-                              ViewState::glSelectRenderMode selectmode )
+void AWindow3D::updateObject(AObject* obj, PrimList* pl,
+    ViewState::glSelectRenderMode selectmode)
 {
-  unsigned		l1 = 0, l2;
+  unsigned l1 = 0, l2;
 
-  if( pl )
+  if (pl)
     l1 = pl->size();
   else
     l1 = d->primitives.size();
 
-  GLPrimitives	gp;
-  if( !obj->Is2DObject() || ( d->viewtype == ThreeD && obj->Is3DObject() ) )
-    updateObject3D( obj, &gp, selectmode );
+  GLPrimitives gp;
+  if (!obj->Is2DObject() || (d->viewtype == ThreeD && obj->Is3DObject()))
+    updateObject3D(obj, &gp, selectmode);
   else
-    updateObject2D( obj, &gp, selectmode );
+    updateObject2D(obj, &gp, selectmode);
 
   // perform lists modifications
-  list<ObjectModifier *>::iterator	im, em = d->objmodifiers.end();
-  for( im=d->objmodifiers.begin(); im!=em; ++im )
-    (*im)->modify( obj, gp );
+  list<ObjectModifier *>::iterator im, em = d->objmodifiers.end();
+  for (im = d->objmodifiers.begin(); im != em; ++im)
+    (*im)->modify(obj, gp);
 
-  if( pl )
-    pl->insert( pl->end(), gp.begin(), gp.end() );
+  if (pl)
+    pl->insert(pl->end(), gp.begin(), gp.end());
   else
-    d->primitives.insert( d->primitives.end(), gp.begin(), gp.end() );
+    d->primitives.insert(d->primitives.end(), gp.begin(), gp.end());
 
-  if( pl )
+  if (pl)
     l2 = pl->size();
   else
     l2 = d->primitives.size();
-  if( l2 > l1 )
-    d->tmpprims[ obj ] = pair<unsigned, unsigned>( l1, l2 );
+  if (l2 > l1) d->tmpprims[obj] = pair<unsigned, unsigned> (l1, l2);
 }
-
 
 void AWindow3D::freeResize()
 {
   /*cout << "freeResize - DA size : " << d->draw->width() << " x "
-    << d->draw->height() << endl;*/
-  d->draw->qglWidget()->setMinimumSize( QSize( 0, 0 ) );
+   << d->draw->height() << endl;*/
+  d->draw->qglWidget()->setMinimumSize(QSize(0, 0));
 }
-
 
 void AWindow3D::refreshNow()
 {
-  switch( d->refreshneeded )
+  switch (d->refreshneeded)
   {
     case Private::LightRefresh:
       refreshLightViewNow();
@@ -1004,41 +954,41 @@ void AWindow3D::refreshNow()
   d->tmpprims.clear();
   updateWindowGeometry(); // do this only in special cases ?
 
-  list<shared_ptr<AObject> >::iterator	i;
+  list<shared_ptr<AObject> >::iterator i;
 
-  float			mint = 0, maxt = 0;
-  Point3df		vs, bmin, bmax;
+  float mint = 0, maxt = 0;
+  Point3df vs, bmin, bmax;
 
-  boundingBox( bmin, bmax, mint, maxt );
-  if( d->needsextrema )
+  boundingBox(bmin, bmax, mint, maxt);
+  if (d->needsextrema)
   {
-    d->draw->setExtrema( bmin, bmax );
+    d->draw->setExtrema(bmin, bmax);
     d->needsextrema = false;
   }
 
-  Geometry	*geom = windowGeometry();
+  Geometry *geom = windowGeometry();
 
-  Point4d	dmin;
-  Point4d	dmax;
+  Point4d dmin;
+  Point4d dmax;
 
-  if( geom )
-    {
-      dmin = geom->DimMin();
-      dmax = geom->DimMax();
-    }
+  if (geom)
+  {
+    dmin = geom->DimMin();
+    dmax = geom->DimMax();
+  }
   else
-    {
-      dmin = Point4d( 0, 0, 0, 0 );
-      dmax = Point4d( 1, 1, 1, 0 );
-    }
+  {
+    dmin = Point4d(0, 0, 0, 0);
+    dmax = Point4d(1, 1, 1, 0);
+  }
 
   setupSliceSlider();
-  setupTimeSlider( mint, maxt );
-  if( d->askedsize.width() >= 0 && d->askedsize.height() > 0 )
-    {
-      resizeView( d->askedsize.width(), d->askedsize.height() );
-      d->askedsize = QSize( 0, 0 );
-    }
+  setupTimeSlider(mint, maxt);
+  if (d->askedsize.width() >= 0 && d->askedsize.height() > 0)
+  {
+    resizeView(d->askedsize.width(), d->askedsize.height());
+    d->askedsize = QSize(0, 0);
+  }
 
   d->draw->qglWidget()->makeCurrent();
   d->deleteLists();
@@ -1046,26 +996,26 @@ void AWindow3D::refreshNow()
   // Denis: selection
   struct TmpCol
   {
-    SelectFactory::HColor diffuse;
-    SelectFactory::HColor unlit;
-    int mode;
+      SelectFactory::HColor diffuse;
+      SelectFactory::HColor unlit;
+      int mode;
   };
 
-  TmpCol *tmpcol = new TmpCol[ _objects.size() ];
+  TmpCol *tmpcol = new TmpCol[_objects.size()];
   unsigned u = 0;
 
   // handle selection
-  for( i=_objects.begin(); i!=_objects.end(); ++i )
-    if( SelectFactory::factory()->isSelected( Group(), i->get() ) )
+  for (i = _objects.begin(); i != _objects.end(); ++i)
+    if (SelectFactory::factory()->isSelected(Group(), i->get()))
     {
       Material & mat = (*i)->GetMaterial();
-      SelectFactory::HColor	col
-        = SelectFactory::factory()->highlightColor( i->get() );
-      GLfloat	*dif = mat.Diffuse();
-      GLfloat       *unl = mat.unlitColor();
+      SelectFactory::HColor col = SelectFactory::factory()->highlightColor(
+          i->get());
+      GLfloat *dif = mat.Diffuse();
+      GLfloat *unl = mat.unlitColor();
 
       TmpCol & tcol = tmpcol[u];
-      tcol.diffuse.r = dif[0];	// sauver les vraies couleurs
+      tcol.diffuse.r = dif[0]; // sauver les vraies couleurs
       tcol.diffuse.g = dif[1];
       tcol.diffuse.b = dif[2];
       tcol.diffuse.a = dif[3];
@@ -1073,313 +1023,302 @@ void AWindow3D::refreshNow()
       tcol.unlit.g = unl[1];
       tcol.unlit.b = unl[2];
       tcol.unlit.a = unl[3];
-      tcol.mode = mat.renderProperty( Material::RenderMode );
-      switch( GraphParams::graphParams()->selectRenderMode )
+      tcol.mode = mat.renderProperty(Material::RenderMode);
+      switch (GraphParams::graphParams()->selectRenderMode)
       {
         case 0:
           dif[0] = col.r;
           dif[1] = col.g;
           dif[2] = col.b;
-          if( !col.na )
-            dif[3] = col.a;
+          if (!col.na) dif[3] = col.a;
           break;
         case 1:
           unl[0] = col.r;
           unl[1] = col.g;
           unl[2] = col.b;
-          if( !col.na )
-            unl[3] = col.a;
-          mat.setRenderProperty( Material::RenderMode,
-                                 Material::ExtOutlined );
+          if (!col.na) unl[3] = col.a;
+          mat.setRenderProperty(Material::RenderMode, Material::ExtOutlined);
       }
-      (*i)->SetMaterial( mat );
+      (*i)->SetMaterial(mat);
       GLComponent *g = (*i)->glAPI();
-      if( g )
-        g->glSetChanged( GLComponent::glMATERIAL );
+      if (g) g->glSetChanged(GLComponent::glMATERIAL);
       ++u;
     }
 
   list<AObject *> renderobj;
-  list<AObject *>::iterator transparent = processRenderingOrder( renderobj );
+  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
   list<AObject*>::iterator al, el = renderobj.end();
 
   //	Rendering mode primitive (must be first)
-  GLList	*renderpr = new GLList;
+  GLList *renderpr = new GLList;
   renderpr->generate();
-  GLuint	renderGLL = renderpr->item();
-  if( !renderGLL )
-    AWarning( "AWindow3D::Refresh: OpenGL error." );
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
 
-  glNewList( renderGLL, GL_COMPILE );
+  glNewList(renderGLL, GL_COMPILE);
 
-  glLineWidth( 1 );
-  if( flatShading() )
-    glShadeModel( GL_FLAT );
+  glLineWidth(1);
+  if (flatShading())
+    glShadeModel( GL_FLAT);
   else
-    glShadeModel( GL_SMOOTH );
-  if( cullingEnabled() )
-    glEnable( GL_CULL_FACE );
+    glShadeModel( GL_SMOOTH);
+  if (cullingEnabled())
+    glEnable( GL_CULL_FACE);
   else
-    glDisable( GL_CULL_FACE );
-  if( smoothing() )
-    {
-      glEnable( GL_LINE_SMOOTH );
-      glEnable( GL_POLYGON_SMOOTH );
-    }
+    glDisable(GL_CULL_FACE);
+  if (smoothing())
+  {
+    glEnable( GL_LINE_SMOOTH);
+    glEnable( GL_POLYGON_SMOOTH);
+  }
   else
-    {
-      glDisable( GL_LINE_SMOOTH );
-      glDisable( GL_POLYGON_SMOOTH );
-    }
-  glEnable( GL_LIGHTING );
-  glPolygonOffset( 0, 0 );
-  glDisable( GL_POLYGON_OFFSET_FILL );
-  if( fog() )
-    {
-      glEnable( GL_FOG );
-      glFogi( GL_FOG_MODE, GL_EXP );
-      glFogf( GL_FOG_DENSITY, 0.01 );
-      glFogfv( GL_FOG_COLOR, light()->Background() );
-    }
+  {
+    glDisable( GL_LINE_SMOOTH);
+    glDisable( GL_POLYGON_SMOOTH);
+  }
+  glEnable( GL_LIGHTING);
+  glPolygonOffset(0, 0);
+  glDisable( GL_POLYGON_OFFSET_FILL);
+  if (fog())
+  {
+    glEnable( GL_FOG);
+    glFogi(GL_FOG_MODE, GL_EXP);
+    glFogf(GL_FOG_DENSITY, 0.01);
+    glFogfv(GL_FOG_COLOR, light()->Background());
+  }
   else
-    glDisable( GL_FOG );
+    glDisable( GL_FOG);
 
-  switch( renderingMode() )
-    {
+  switch (renderingMode())
+  {
     case Wireframe:
-      glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-      glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
       break;
     case HiddenWireframe:
-      glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-      glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
-      glPolygonOffset( 1.05, 1 );
-      glEnable( GL_POLYGON_OFFSET_FILL );
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+      glPolygonOffset(1.05, 1);
+      glEnable(GL_POLYGON_OFFSET_FILL);
       break;
     case Material::Outlined:
-      glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-      glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-      glPolygonOffset( 1.05, 1 );
-      glEnable( GL_POLYGON_OFFSET_FILL );
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+      glPolygonOffset(1.05, 1);
+      glEnable(GL_POLYGON_OFFSET_FILL);
     default:
-      glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-      glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-    }
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  }
 
   glEndList();
-  d->primitives.push_back( RefGLItem( renderpr ) );
+  d->primitives.push_back(RefGLItem(renderpr));
 
   //	Things to do before rendering objects
-  Primitive	*pr = new Primitive;
+  Primitive *pr = new Primitive;
 
-  GLuint	localGLL = glGenLists(2);
-  if( !localGLL )
-    AWarning( "AWindow3D::Refresh: OpenGL error." );
+  GLuint localGLL = glGenLists(2);
+  if (!localGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
 
-  glNewList( localGLL, GL_COMPILE );
+  glNewList(localGLL, GL_COMPILE);
 
-  glDisable( GL_BLEND );
+  glDisable( GL_BLEND);
 
-  GLdouble	plane[4];
-  Point3df	dir = d->slicequat.apply( Point3df( 0, 0, -1 ) );
+  GLdouble plane[4];
+  Point3df dir = d->slicequat.apply(Point3df(0, 0, -1));
   plane[0] = dir[0];
   plane[1] = dir[1];
   plane[2] = dir[2];
-  plane[3] = - dir.dot( _position ) + d->clipdist;
+  plane[3] = -dir.dot(_position) + d->clipdist;
 
-  switch( clipMode() )
-    {
+  switch (clipMode())
+  {
     case Single:
-      glEnable( GL_CLIP_PLANE0 );
-      glDisable( GL_CLIP_PLANE1 );
-      glClipPlane( GL_CLIP_PLANE0, plane );
+      glEnable( GL_CLIP_PLANE0);
+      glDisable( GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
       // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
       break;
     case Double:
-      glEnable( GL_CLIP_PLANE0 );
-      glEnable( GL_CLIP_PLANE1 );
-      glClipPlane( GL_CLIP_PLANE0, plane );
+      glEnable(GL_CLIP_PLANE0);
+      glEnable(GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
       plane[0] *= -1;
       plane[1] *= -1;
       plane[2] *= -1;
-      plane[3] = dir.dot( _position ) + d->clipdist;
-      glClipPlane( GL_CLIP_PLANE1, plane );
+      plane[3] = dir.dot(_position) + d->clipdist;
+      glClipPlane(GL_CLIP_PLANE1, plane);
       // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
       break;
     default:
-      glDisable( GL_CLIP_PLANE0 );
-      glDisable( GL_CLIP_PLANE1 );
+      glDisable(GL_CLIP_PLANE0);
+      glDisable(GL_CLIP_PLANE1);
       // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
       break;
-    }
+  }
 
   glEndList();
 
-  pr->insertList( localGLL );
-  d->primitives.push_back( RefGLItem( pr ) );
+  pr->insertList(localGLL);
+  d->primitives.push_back(RefGLItem(pr));
 
   //	Draw opaque objects
-  for( al=renderobj.begin(); al!=transparent; ++al )
-    updateObject( *al );
+  for (al = renderobj.begin(); al != transparent; ++al)
+    updateObject(*al);
 
   //	Settings between opaque and transparent objects
-  GLPrimitives	curspl = cursorGLL();
+  GLPrimitives curspl = cursorGLL();
 
-  Primitive	*pr2 = 0;
+  Primitive *pr2 = 0;
 
   /*if( !blended.empty() )
-    {*/
-  d->draw->setTransparentObjects( true );
+   {*/
+  d->draw->setTransparentObjects(true);
   //if( !pr2 )
   pr2 = new Primitive;
-  pr2->insertList( localGLL+1 );
-  glNewList( localGLL+1, GL_COMPILE );
-  glEnable( GL_BLEND );
-  if( !transparentZEnabled() )
-    glDepthMask( GL_FALSE );	// don't write in z-buffer
+  pr2->insertList(localGLL + 1);
+  glNewList(localGLL + 1, GL_COMPILE);
+  glEnable(GL_BLEND);
+  if (!transparentZEnabled()) glDepthMask( GL_FALSE); // don't write in z-buffer
   glEndList();
-    /*}
-  else
-    {
-      glDeleteLists( localGLL+1, 1 );
-      d->draw->setTransparentObjects( false );
-    }*/
+  /*}
+   else
+   {
+   glDeleteLists( localGLL+1, 1 );
+   d->draw->setTransparentObjects( false );
+   }*/
 
-  if( pr2 )
-    d->primitives.push_back( RefGLItem( pr2 ) );
+  if (pr2) d->primitives.push_back(RefGLItem(pr2));
 
   //	Draw transparent objects
-  for( al=transparent; al!=el; ++al )
-    updateObject( *al );
+  for (al = transparent; al != el; ++al)
+    updateObject(*al);
 
   //	Settings after transparent objects
-  Primitive	*pr3 = 0;
+  Primitive *pr3 = 0;
 
-  if( !transparentZEnabled() )
+  if (!transparentZEnabled())
+  {
+    pr3 = new Primitive;
+
+    GLuint zGLL = glGenLists(1);
+    if (!zGLL)
     {
-      pr3 = new Primitive;
-
-      GLuint zGLL = glGenLists( 1 );
-      if( !zGLL )
-      {
-        cerr << "AWindow3D: OpenGL error.\n";
-      }
-      else
-      {
-        glNewList( zGLL, GL_COMPILE );
-        glDepthMask( GL_TRUE );	// write again in z-buffer
-        glEndList();
-        pr3->insertList( zGLL );
-      }
+      cerr << "AWindow3D: OpenGL error.\n";
     }
-
-  if( clipMode() != NoClip )
+    else
     {
-      if( !pr3 )
-        pr3 = new Primitive;
-
-      GLuint clipGLL = glGenLists( 1 );
-      if( !clipGLL )
-      {
-        cerr << "AWindow3D: OpenGL error.\n";
-      }
-      else
-      {
-        glNewList( clipGLL, GL_COMPILE );
-        glDisable( GL_CLIP_PLANE0 );
-        glDisable( GL_CLIP_PLANE1 );
-        glEndList();
-
-        pr3->insertList( clipGLL );
-      }
+      glNewList(zGLL, GL_COMPILE);
+      glDepthMask( GL_TRUE); // write again in z-buffer
+      glEndList();
+      pr3->insertList(zGLL);
     }
+  }
 
-  if( pr3 )
-    d->primitives.push_back( RefGLItem( pr3 ) );
+  if (clipMode() != NoClip)
+  {
+    if (!pr3) pr3 = new Primitive;
+
+    GLuint clipGLL = glGenLists(1);
+    if (!clipGLL)
+    {
+      cerr << "AWindow3D: OpenGL error.\n";
+    }
+    else
+    {
+      glNewList(clipGLL, GL_COMPILE);
+      glDisable( GL_CLIP_PLANE0);
+      glDisable( GL_CLIP_PLANE1);
+      glEndList();
+
+      pr3->insertList(clipGLL);
+    }
+  }
+
+  if (pr3) d->primitives.push_back(RefGLItem(pr3));
   //	draw the cursor a second time after transparent objects
   //	(since it's not written in Z-buffer, it always appears behind)
   /*  if( !curspl.empty() )
-    d->primitives.insert( d->primitives.end(), curspl.begin(), curspl.end() );
-  */
+   d->primitives.insert( d->primitives.end(), curspl.begin(), curspl.end() );
+   */
 
   /*	Finish rendering mode operations: restore initial modes
-	and eventually performs a second rendering of all objects */
-  Primitive	*renderoffpr = 0;
-  bool		rendertwice = false;
-  switch( renderingMode() )
-    {
+   and eventually performs a second rendering of all objects */
+  Primitive *renderoffpr = 0;
+  bool rendertwice = false;
+  switch (renderingMode())
+  {
     case HiddenWireframe:
+    {
+      renderoffpr = new Primitive;
+      GLuint hwfGLL = glGenLists(1);
+      if (!hwfGLL)
       {
-	renderoffpr = new Primitive;
-	GLuint hwfGLL = glGenLists( 1 );
-	if( !hwfGLL )
-	  {
-	    cerr << "AWindow3D: not enough OGL memory.\n";
-	    delete renderoffpr;
-	  }
-	else
-	  {
-	    glNewList( hwfGLL, GL_COMPILE );
-	    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-	    glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-	    // glLineWidth( 2 );
-	    glEndList();
-
-	    renderoffpr->insertList( hwfGLL );
-	  }
-	rendertwice = true;
+        cerr << "AWindow3D: not enough OGL memory.\n";
+        delete renderoffpr;
       }
+      else
+      {
+        glNewList(hwfGLL, GL_COMPILE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        // glLineWidth( 2 );
+        glEndList();
+
+        renderoffpr->insertList(hwfGLL);
+      }
+      rendertwice = true;
+    }
       break;
     case Material::Outlined:
+    {
+      renderoffpr = new Primitive;
+      GLuint hwfGLL = glGenLists(1);
+      if (!hwfGLL)
       {
-	renderoffpr = new Primitive;
-	GLuint hwfGLL = glGenLists( 1 );
-	if( !hwfGLL )
-	  {
-	    cerr << "AWindow3D: not enough OGL memory.\n";
-	    delete renderoffpr;
-	  }
-	else
-	  {
-	    glNewList( hwfGLL, GL_COMPILE );
-	    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-	    glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-	    //glLineWidth( 2 );
-	    //glShadeModel( GL_FLAT );
-	    glDisable( GL_LIGHTING );
-	    // glColor3f( 0, 0, 0 );
-	    glEndList();
-
-	    renderoffpr->insertList( hwfGLL );
-	  }
-	rendertwice = true;
+        cerr << "AWindow3D: not enough OGL memory.\n";
+        delete renderoffpr;
       }
+      else
+      {
+        glNewList(hwfGLL, GL_COMPILE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        //glLineWidth( 2 );
+        //glShadeModel( GL_FLAT );
+        glDisable(GL_LIGHTING);
+        // glColor3f( 0, 0, 0 );
+        glEndList();
+
+        renderoffpr->insertList(hwfGLL);
+      }
+      rendertwice = true;
+    }
       break;
     default:
       break;
-    }
-  if( renderoffpr )
-    d->primitives.push_back( RefGLItem( renderoffpr ) );
+  }
+  if (renderoffpr) d->primitives.push_back(RefGLItem(renderoffpr));
 
-  if( rendertwice )
-    {
-      // copy whole primitives list except first and last (render modes)
-      unsigned					i, n = d->primitives.size()-2;
-      PrimList::iterator	ip = d->primitives.begin();
-      for( ++ip, i=0; i<n; ++i, ++ip )
-	d->primitives.push_back( *ip );
-    }
-
-  d->draw->setPrimitives( d->primitives );
-  d->primitives.clear();	// delete local references
-
-  if( d->light )
+  if (rendertwice)
   {
-    d->draw->setLightGLList( d->light->GetGLList() );
-    d->draw->setBackgroundAlpha( d->light->Background(3) );
+    // copy whole primitives list except first and last (render modes)
+    unsigned i, n = d->primitives.size() - 2;
+    PrimList::iterator ip = d->primitives.begin();
+    for (++ip, i = 0; i < n; ++i, ++ip)
+      d->primitives.push_back(*ip);
+  }
+
+  d->draw->setPrimitives(d->primitives);
+  d->primitives.clear(); // delete local references
+
+  if (d->light)
+  {
+    d->draw->setLightGLList(d->light->GetGLList());
+    d->draw->setBackgroundAlpha(d->light->Background(3));
   }
   else
-    d->draw->setBackgroundAlpha( 1. );
+    d->draw->setBackgroundAlpha(1.);
 
   ResetRefreshFlag();
 
@@ -1388,15 +1327,15 @@ void AWindow3D::refreshNow()
   // Denis : selection (suite)
 
   u = 0;
-  for (i=_objects.begin(); i!=_objects.end(); ++i)
-    if( SelectFactory::factory()->isSelected( Group(), i->get() ) )
+  for (i = _objects.begin(); i != _objects.end(); ++i)
+    if (SelectFactory::factory()->isSelected(Group(), i->get()))
     {
       Material & mat = (*i)->GetMaterial();
       TmpCol & tcol = tmpcol[u];
-      GLfloat	*dif = mat.Diffuse();
+      GLfloat *dif = mat.Diffuse();
       GLfloat *unl = mat.unlitColor();
 
-      dif[0] = tcol.diffuse.r;	// remettre les vraies couleurs
+      dif[0] = tcol.diffuse.r; // remettre les vraies couleurs
       dif[1] = tcol.diffuse.g;
       dif[2] = tcol.diffuse.b;
       dif[3] = tcol.diffuse.a;
@@ -1405,11 +1344,10 @@ void AWindow3D::refreshNow()
       unl[2] = tcol.unlit.b;
       unl[3] = tcol.unlit.a;
 
-      mat.setRenderProperty( Material::RenderMode, tcol.mode );
-      (*i)->SetMaterial( mat );
+      mat.setRenderProperty(Material::RenderMode, tcol.mode);
+      (*i)->SetMaterial(mat);
       GLComponent *g = (*i)->glAPI();
-      if( g )
-        g->glSetChanged( GLComponent::glMATERIAL );
+      if (g) g->glSetChanged(GLComponent::glMATERIAL);
       ++u;
     }
   delete[] tmpcol;
@@ -1418,44 +1356,40 @@ void AWindow3D::refreshNow()
   showReferential();
 }
 
-
 void AWindow3D::showReferential()
 {
-  paintRefLabel( d->reflabel, d->refdirmark, getReferential() );
+  paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 }
-
 
 void AWindow3D::displayClickPoint()
 {
   cout << "displayClickPoint\n";
 }
 
-
 namespace
 {
 
-  int computeNearestVertexFromPolygonPoint2( const ViewState & vs, int poly,
-                                             const GLComponent* glc,
-                                             const Point3df & position )
+  int computeNearestVertexFromPolygonPoint2(const ViewState & vs, int poly,
+      const GLComponent* glc, const Point3df & position)
   {
     int index_nearest_vertex = -1;
     Point3df pt;
 
-    const GLfloat *avert = glc->glVertexArray( vs );
-    const Point3df *vert = reinterpret_cast<const Point3df *>( avert );
-    unsigned npoly = glc->glNumPolygon( vs );
-    unsigned polsize = glc->glPolygonSize( vs );
+    const GLfloat *avert = glc->glVertexArray(vs);
+    const Point3df *vert = reinterpret_cast<const Point3df *> (avert);
+    unsigned npoly = glc->glNumPolygon(vs);
+    unsigned polsize = glc->glPolygonSize(vs);
     unsigned v, i;
 
     //compute the nearest polygon vertex
-    float min,dist_min = FLT_MAX;
+    float min, dist_min = FLT_MAX;
 
-    if( poly >= 0 && (unsigned) poly < npoly )
+    if (poly >= 0 && (unsigned) poly < npoly)
     {
-      const GLuint *apoly = glc->glPolygonArray( vs );
-      for( i=0; i<polsize; ++i )
+      const GLuint *apoly = glc->glPolygonArray(vs);
+      for (i = 0; i < polsize; ++i)
       {
-        v = apoly[poly*polsize+i];
+        v = apoly[poly * polsize + i];
         pt = vert[v];
         min = (position - pt).norm2();
 
@@ -1467,10 +1401,10 @@ namespace
       }
       pt = vert[index_nearest_vertex];
 
-      cout << "3D point picked= " << position << "\n" ;
+      cout << "3D point picked= " << position << "\n";
       cout << "ID polygon selected = " << poly << "\n";
       cout << "index nearest vertex = " << index_nearest_vertex << "\n";
-      cout << "3D coord vertex value = " << pt << "\n" ;
+      cout << "3D coord vertex value = " << pt << "\n";
     }
 
     return index_nearest_vertex;
@@ -1479,17 +1413,17 @@ namespace
 
 }
 
-
-int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as)
+int AWindow3D::computeNearestVertexFromPolygonPoint(Point3df position,
+    int poly, AimsSurface<3, Void> *as)
 {
-  int index_nearest_vertex,index_min= 0;
-  Point3df			pt[3];
-  uint				v[3];
+  int index_nearest_vertex, index_min = 0;
+  Point3df pt[3];
+  uint v[3];
 
-  const vector<Point3df>	& vert  =  as->vertex();
-  vector< AimsVector<uint,3> >	& tri = as->polygon();
+  const vector<Point3df> & vert = as->vertex();
+  vector<AimsVector<uint, 3> > & tri = as->polygon();
 
-  if( poly < (int) tri.size() && poly >= 0)
+  if (poly < (int) tri.size() && poly >= 0)
   {
     v[0] = tri[poly][0];
     v[1] = tri[poly][1];
@@ -1502,14 +1436,13 @@ int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly
     cout << "nb poly= " << tri.size() << endl;
 
     //compute the nearest polygon vertex
-    float min,dist_min = FLT_MAX;
+    float min, dist_min = FLT_MAX;
 
-    for (int i = 0 ; i < 3 ; i++)
+    for (int i = 0; i < 3; i++)
     {
-      min = (float) sqrt (
-      (position[0]-pt[i][0])*(position[0]-pt[i][0]) +
-      (position[1]-pt[i][1])*(position[1]-pt[i][1]) +
-      (position[2]-pt[i][2])*(position[2]-pt[i][2]) );
+      min = (float) sqrt((position[0] - pt[i][0]) * (position[0] - pt[i][0])
+          + (position[1] - pt[i][1]) * (position[1] - pt[i][1]) + (position[2]
+          - pt[i][2]) * (position[2] - pt[i][2]));
 
       if (min < dist_min)
       {
@@ -1521,33 +1454,117 @@ int AWindow3D::computeNearestVertexFromPolygonPoint( Point3df position, int poly
 
   index_nearest_vertex = v[index_min];
 
-  cout << "3D point picked= " << position[0] << " " << position[1] << " " << position[2] << "\n" ;
+  cout << "3D point picked= " << position[0] << " " << position[1] << " "
+      << position[2] << "\n";
   cout << "ID polygon selected = " << poly << "\n";
   cout << "index nearest vertex = " << v[index_min] << "\n";
-  cout << "3D coord vertex value = " << pt[index_min][0] << " " << pt[index_min][1] << " " << pt[index_min][2] << "\n" ;
+  cout << "3D coord vertex value = " << pt[index_min][0] << " "
+      << pt[index_min][1] << " " << pt[index_min][2] << "\n";
 
   return index_nearest_vertex;
 }
 
-void AWindow3D::getInfos3DFromClickPoint( int x, int y)
+namespace
+{
+
+  int computeNearestVertexFromPolygonPointNew2(const ViewState & vs, int poly,
+      const GLComponent* glc, const Point3df & position,
+      Point3df & positionNearestVertex)
+  {
+    int index_nearest_vertex = -1;
+
+    const GLfloat *avert = glc->glVertexArray(vs);
+    const Point3df *vert = reinterpret_cast<const Point3df *> (avert);
+    unsigned npoly = glc->glNumPolygon(vs);
+    unsigned polsize = glc->glPolygonSize(vs);
+    unsigned v, i;
+
+    //compute the nearest polygon vertex
+    float min, dist_min = FLT_MAX;
+
+    if (poly >= 0 && (unsigned) poly < npoly)
+    {
+      const GLuint *apoly = glc->glPolygonArray(vs);
+      for (i = 0; i < polsize; ++i)
+      {
+        v = apoly[poly * polsize + i];
+        positionNearestVertex = vert[v];
+        min = (position - positionNearestVertex).norm2();
+
+        if (min < dist_min)
+        {
+          dist_min = min;
+          index_nearest_vertex = v;
+        }
+      }
+      positionNearestVertex = vert[index_nearest_vertex];
+    }
+    return index_nearest_vertex;
+  }
+
+}
+
+int AWindow3D::computeNearestVertexFromPolygonPointNew(Point3df position,
+    int poly, AimsSurface<3, Void> *as, Point3df & positionNearestVertex)
+{
+  int index_nearest_vertex, index_min = 0;
+  Point3df pt[3];
+  uint v[3];
+
+  const vector<Point3df> & vert = as->vertex();
+  vector<AimsVector<uint, 3> > & tri = as->polygon();
+
+  if (poly < (int) tri.size() && poly >= 0)
+  {
+    v[0] = tri[poly][0];
+    v[1] = tri[poly][1];
+    v[2] = tri[poly][2];
+
+    pt[0] = vert[v[0]];
+    pt[1] = vert[v[1]];
+    pt[2] = vert[v[2]];
+
+    //compute the nearest polygon vertex
+    float min, dist_min = FLT_MAX;
+
+    for (int i = 0; i < 3; i++)
+    {
+      min = (float) sqrt((position[0] - pt[i][0]) * (position[0] - pt[i][0])
+          + (position[1] - pt[i][1]) * (position[1] - pt[i][1]) + (position[2]
+          - pt[i][2]) * (position[2] - pt[i][2]));
+
+      if (min < dist_min)
+      {
+        dist_min = min;
+        index_min = i;
+      }
+    }
+  }
+
+  index_nearest_vertex = v[index_min];
+
+  return index_nearest_vertex;
+}
+
+void AWindow3D::getInfos3DFromClickPoint(int x, int y)
 {
   Point3df position;
 
-  d->draw->positionFromCursor( x, y, position );
+  d->draw->positionFromCursor(x, y, position);
 
-  AObject *obj = objectAtCursorPosition( x, y );
+  AObject *obj = objectAtCursorPosition(x, y);
 
-  int poly = polygonAtCursorPosition( x, y, obj );
+  int poly = polygonAtCursorPosition(x, y, obj);
 
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
 
-  if( obj )
+  if (obj)
   {
-    AObject *o = w3->objectAtCursorPosition( x, y );
+    AObject *o = w3->objectAtCursorPosition(x, y);
 
-    if( o != NULL && w3->hasObject( o ) )
+    if (o != NULL && w3->hasObject(o))
     {
-      string t = o->objectTypeName( o->type() );
+      string t = o->objectTypeName(o->type());
       int index_v = 0;
 
       cout << endl << o->name() << endl;
@@ -1555,53 +1572,44 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
 
 #if 1 // using the general GLComponent API
       GLComponent *glc = o->glAPI();
-      if( glc )
+      if (glc)
       {
-        ViewState vs3( GetTime(), this );
-        SliceViewState  vs2( GetTime(), true, position, &d->slicequat,
-                            getReferential(), windowGeometry(),
-                            &d->draw->quaternion(), this );
+        ViewState vs3(GetTime(), this);
+        SliceViewState vs2(GetTime(), true, position, &d->slicequat,
+            getReferential(), windowGeometry(), &d->draw->quaternion(), this);
         ViewState *vs = &vs2;
-        if( !obj->Is2DObject() || ( d->viewtype == ThreeD && obj->Is3DObject() ) )
+        if (!obj->Is2DObject() || (d->viewtype == ThreeD && obj->Is3DObject()))
         {
           vs = &vs3;
         }
-        index_v = computeNearestVertexFromPolygonPoint2( *vs, poly, glc,
-                                                         position );
-        if( index_v >= 0 && (unsigned) index_v < glc->glNumVertex( *vs ) )
+        index_v = computeNearestVertexFromPolygonPoint2(*vs, poly, glc,
+            position);
+        if (index_v >= 0 && (unsigned) index_v < glc->glNumVertex(*vs))
         {
           /* const GLfloat* vert = glc->glVertexArray( *vs );
-          cout << "  vertex: " << index_v << " : " << vert[ index_v * 3 ]
-            << ", " << vert[ index_v * 3 + 1 ] << ", "
-            << vert[ index_v * 3 + 2 ] << endl;*/
-          unsigned ntex = glc->glNumTextures( *vs ), tx;
-          for( tx=0; tx<ntex; ++tx )
+           cout << "  vertex: " << index_v << " : " << vert[ index_v * 3 ]
+           << ", " << vert[ index_v * 3 + 1 ] << ", "
+           << vert[ index_v * 3 + 2 ] << endl;*/
+          unsigned ntex = glc->glNumTextures(*vs), tx;
+          for (tx = 0; tx < ntex; ++tx)
           {
-            unsigned nvtex = glc->glTexCoordSize( *vs, tx );
-            if( nvtex > (unsigned) index_v )
+            unsigned nvtex = glc->glTexCoordSize(*vs, tx);
+            if (nvtex > (unsigned) index_v)
             {
-              const GLfloat* tc = glc->glTexCoordArray( *vs, tx );
-              if( tc )
+              const GLfloat* tc = glc->glTexCoordArray(*vs, tx);
+              if (tc)
               {
-                const GLComponent::TexExtrema   & te = glc->glTexExtrema( tx );
-                unsigned dt = glc->glDimTex( *vs, tx ), i;
-                // ensure all is consistant in texture extrema info
-                dt = fmin( dt, te.max.size() );
-                dt = fmin( dt, te.min.size() );
-                dt = fmin( dt, te.maxquant.size() );
-                dt = fmin( dt, te.minquant.size() );
-                if( dt > 0 )
+                const GLComponent::TexExtrema & te = glc->glTexExtrema(tx);
+                unsigned dt = glc->glDimTex(*vs, tx), i;
+                if (dt > 0)
                 {
                   cout << "texture " << tx << " value =";
-                  for( i=0; i<dt; ++i )
+                  for (i = 0; i < dt; ++i)
                   {
-                    float scl = te.max[i] - te.min[i];
-                    if( scl != 0 )
-                      scl = (te.maxquant[i] - te.minquant[i]) / scl;
-                    else
-                      scl = 1.;
+                    float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i]
+                        - te.min[i]);
                     float off = te.minquant[i] - scl * te.min[i];
-                    cout << " " << scl*tc[index_v*dt+i]+off;
+                    cout << " " << scl * tc[index_v * dt + i] + off;
                   }
                   cout << endl;
                 }
@@ -1612,7 +1620,7 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
       }
 #else
 
-      /*else*/ if (t == "TEXTURED SURF.")
+      /*else*/if (t == "TEXTURED SURF.")
       {
         ATexSurface *go;
         go = dynamic_cast<ATexSurface *>( o );
@@ -1620,12 +1628,12 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
         AObject *surf = go->surface();
         AObject *tex = go->texture();
 
-        ATexture				*at;
+        ATexture *at;
         at = dynamic_cast<ATexture *>( tex );
-        ATriangulated				*as;
+        ATriangulated *as;
         as = dynamic_cast<ATriangulated *>( surf );
 
-        int	t = (int) GetTime();
+        int t = (int) GetTime();
 
         AimsSurface<3,Void> *s = as->surfaceOfTime( t );
 
@@ -1645,7 +1653,7 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
         //carto::rc_ptr<TimeTexture<float> > Tt = at->ATexture::texture<float>(false,false);
         //Texture<float>	& text = (*Tt)[0];
 
-        const GLComponent::TexExtrema	& te = at->glTexExtrema( 0 );
+        const GLComponent::TexExtrema & te = at->glTexExtrema( 0 );
         float scl = (te.maxquant[0] - te.minquant[0]);
 
         index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
@@ -1653,28 +1661,28 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
         //cout << "texture coord value = " << tc[index_v] << "\n";
 
         if ( (attdattypr == "S16") ||
-          (attdattypr == "U32") ||
-          (attdattypr == "S32"))
-          cout << "texture value = " << (int) rint (scl*tc[index_v]+te.minquant[0]) << "\n";
+            (attdattypr == "U32") ||
+            (attdattypr == "S32"))
+        cout << "texture value = " << (int) rint (scl*tc[index_v]+te.minquant[0]) << "\n";
 
         if (attdattypr == "FLOAT")
-          cout << "texture value = " << scl*tc[index_v]+te.minquant[0] << "\n";
+        cout << "texture value = " << scl*tc[index_v]+te.minquant[0] << "\n";
       }
 
       if (t == "SURFACE")
       {
-        ATriangulated	*as;
+        ATriangulated *as;
         as = dynamic_cast<ATriangulated *>( o );
 
-      // int size;
-      // as->attributed()->getProperty( "nb_t_pos",size);
-      // cout << "nb time pos = " << size << endl;
+        // int size;
+        // as->attributed()->getProperty( "nb_t_pos",size);
+        // cout << "nb time pos = " << size << endl;
 
-        int	t = (int) GetTime();
+        int t = (int) GetTime();
         AimsSurface<3,Void> *s = as->surfaceOfTime( t );
 
         if (as->MaxT()>0)
-          cout << "Time cursor = " << t << "/" << as->MaxT() << endl;
+        cout << "Time cursor = " << t << "/" << as->MaxT() << endl;
 
         index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
       }
@@ -1683,707 +1691,745 @@ void AWindow3D::getInfos3DFromClickPoint( int x, int y)
   }
 }
 
-bool AWindow3D::positionFromCursor( int x, int y, Point3df & position )
+void AWindow3D::getInfos3DFromClickPointNew(int x, int y, Point3df & position,
+    int *poly, AObject *objselect, string & objtype, float *texvalue, string & textype,
+    Point3df & positionNearestVertex, int* indexNearestVertex)
 {
-  bool	res = d->draw->positionFromCursor( x, y, position );
+  d->draw->positionFromCursor(x, y, position);
+
+  *poly = polygonAtCursorPosition(x, y, objselect);
+
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
+
+  if (objselect)
+  {
+    if (w3->hasObject(objselect))
+    {
+      objtype = objselect->objectTypeName(objselect->type());
+      *indexNearestVertex = 0;
+
+      GLComponent *glc = objselect->glAPI();
+      if (glc)
+      {
+        ViewState vs3(GetTime(), this);
+        SliceViewState vs2(GetTime(), true, position, &d->slicequat,
+            getReferential(), windowGeometry(), &d->draw->quaternion(), this);
+        ViewState *vs = &vs2;
+
+        string text = objselect->name();
+        AttributedAObject *aao = dynamic_cast<AttributedAObject *> (objselect);
+
+        if (objtype == "SURFACE" && aao) aao->attributed()->getProperty(
+            "data_type", textype);
+
+        if (objtype == "TEXTURED SURF.")
+        {
+          ATexSurface *go;
+          go = dynamic_cast<ATexSurface *> (objselect);
+          AObject *surf = go->surface();
+          AObject *tex = go->texture();
+          ATexture *at;
+          at = dynamic_cast<ATexture *> (tex);
+          ATriangulated *as;
+          as = dynamic_cast<ATriangulated *> (surf);
+          int t = (int) GetTime();
+          AimsSurface<3, Void> *s = as->surfaceOfTime(t);
+          at->attributed()->getProperty("data_type", textype);
+        }
+
+        if (!objselect->Is2DObject() || (d->viewtype == ThreeD && objselect->Is3DObject()))
+          vs = &vs3;
+
+        *indexNearestVertex = computeNearestVertexFromPolygonPointNew2(*vs,
+            *poly, glc, position, positionNearestVertex);
+        if (*indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
+            < glc->glNumVertex(*vs))
+        {
+          unsigned ntex = glc->glNumTextures(*vs), tx;
+          for (tx = 0; tx < ntex; ++tx)
+          {
+            unsigned nvtex = glc->glTexCoordSize(*vs, tx);
+            if (nvtex > (unsigned) *indexNearestVertex)
+            {
+              const GLfloat* tc = glc->glTexCoordArray(*vs, tx);
+              if (tc)
+              {
+                const GLComponent::TexExtrema & te = glc->glTexExtrema(tx);
+
+                unsigned dt = glc->glDimTex(*vs, tx), i;
+                if (dt > 0)
+                {
+                  for (i = 0; i < dt; ++i)
+                  {
+                    float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i] - te.min[i]);
+                    float off = te.minquant[i] - scl * te.min[i];
+                    *texvalue = scl * tc[*indexNearestVertex * dt + i] + off;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
+{
+  bool res = d->draw->positionFromCursor(x, y, position);
   d->mouseX = x;
   d->mouseY = y;
-  return( res );
+  return (res);
 }
 
 void AWindow3D::getInfos3D(void)
 {
-    getInfos3DFromClickPoint ( d->mouseX, d->mouseY);
+  cout << "getInfos3DFromClickPoint " << d->mouseX << endl;
+  getInfos3DFromClickPoint(d->mouseX, d->mouseY);
 }
-
 
 View* AWindow3D::view()
 {
-  return( d->draw );
+  return (d->draw);
 }
-
 
 const View* AWindow3D::view() const
 {
-  return( d->draw );
+  return (d->draw);
 }
-
 
 void AWindow3D::resizeView()
 {
   //	piggy way quick-designed dialog...
 
-  QDialog	rv( this, "resize dialog", true );
-  QVBoxLayout	*l = new QVBoxLayout( &rv );
-  QVBox	*vb = new QVBox( &rv );
-  l->addWidget( vb );
-  vb->setMargin( 5 );
-  vb->setSpacing( 5 );
-  new QLabel( tr( "New window size :" ), vb );
-  QHBox	*hb = new QHBox( vb );
-  hb->setSpacing( 10 );
-  QSize	sz = d->draw->qglWidget()->size();
-  QLineEdit	*xed = new QLineEdit( QString::number( sz.width() ), hb );
-  new QLabel( "x", hb );
-  QLineEdit	*yed = new QLineEdit( QString::number( sz.height() ), hb );
-  QHBox		*hb2 = new QHBox( vb );
-  hb2->setSpacing( 10 );
-  QPushButton	*ok = new QPushButton( tr( "OK" ), hb2 );
-  ok->setDefault( true );
-  connect( ok, SIGNAL( clicked() ), &rv,
-	   SLOT( accept() ) );
-  connect( new QPushButton( tr( "Cancel" ), hb2 ), SIGNAL( clicked() ), &rv,
-	   SLOT( reject() ) );
+  QDialog rv(this, "resize dialog", true);
+  QVBoxLayout *l = new QVBoxLayout(&rv);
+  QVBox *vb = new QVBox(&rv);
+  l->addWidget(vb);
+  vb->setMargin(5);
+  vb->setSpacing(5);
+  new QLabel(tr("New window size :"), vb);
+  QHBox *hb = new QHBox(vb);
+  hb->setSpacing(10);
+  QSize sz = d->draw->qglWidget()->size();
+  QLineEdit *xed = new QLineEdit(QString::number(sz.width()), hb);
+  new QLabel("x", hb);
+  QLineEdit *yed = new QLineEdit(QString::number(sz.height()), hb);
+  QHBox *hb2 = new QHBox(vb);
+  hb2->setSpacing(10);
+  QPushButton *ok = new QPushButton(tr("OK"), hb2);
+  ok->setDefault(true);
+  connect(ok, SIGNAL(clicked()), &rv, SLOT(accept()));
+  connect(new QPushButton(tr("Cancel"), hb2), SIGNAL(clicked()), &rv, SLOT(
+      reject()));
 
-  if( rv.exec() )
-    resizeView( xed->text().toInt(), yed->text().toInt() );
+  if (rv.exec()) resizeView(xed->text().toInt(), yed->text().toInt());
 }
-
 
 void AWindow3D::askZoom()
 {
-  float		z = d->draw->zoom();
-  QSize		sz = d->draw->qglWidget()->size();
-  Geometry	*g = windowGeometry();
-  Point3df	gs = Point3df( 1, 1, 1 );
-  Point4d	dim = Point4d( sz.width(), sz.height(), 1, 1 );
+  float z = d->draw->zoom();
+  QSize sz = d->draw->qglWidget()->size();
+  Geometry *g = windowGeometry();
+  Point3df gs = Point3df(1, 1, 1);
+  Point4d dim = Point4d(sz.width(), sz.height(), 1, 1);
 
-  if( g && viewType() != ThreeD )
+  if (g && viewType() != ThreeD)
+  {
+    gs = g->Size();
+    dim = g->DimMax() - g->DimMin();
+    float zx = z * sz.width() / (gs[0] * dim[0]), zy = z * sz.height() / (gs[1]
+        * dim[1]);
+    z = zx;
+    if (zy > z) z = zy;
+  }
+
+  ZoomDialog zd(z, true, this, "zoom dialog", true);
+
+  if (zd.exec())
+  {
+    float z2 = zd.zoomText().toFloat();
+    if (zd.mustResize())
     {
-      gs = g->Size();
-      dim = g->DimMax() - g->DimMin();
-      float	zx = z * sz.width() / ( gs[0] * dim[0] ),
-	zy = z * sz.height() / ( gs[1] * dim[1] );
-      z = zx;
-      if( zy > z )
-	z = zy;
-    }
+      if (g && viewType() != ThreeD)
+      {
+        float w = gs[0] * dim[0] * z2, h = gs[1] * dim[1] * z2;
+        int scrw = QApplication::desktop()->width(), scrh =
+            QApplication::desktop()->height();
+        z2 = 1;
+        if (w > scrw)
+        {
+          z2 = w / scrw;
+          w = scrw;
+        }
+        if (h > scrh)
+        {
+          z2 = h / scrh;
+          h = scrh;
+        }
 
-  ZoomDialog	zd( z, true, this, "zoom dialog", true );
-
-  if( zd.exec() )
-    {
-      float	z2 = zd.zoomText().toFloat();
-      if( zd.mustResize() )
-	{
-	  if( g && viewType() != ThreeD )
-	    {
-	      float	w = gs[0] * dim[0] * z2, h = gs[1] * dim[1] * z2;
-	      int	scrw = QApplication::desktop()->width(),
-		scrh = QApplication::desktop()->height();
-	      z2 = 1;
-	      if( w > scrw )
-		{
-		  z2 = w / scrw;
-		  w = scrw;
-		}
-	      if( h > scrh )
-		{
-		  z2 = h / scrh;
-		  h = scrh;
-		}
-
-	      d->draw->setZoom( z2 );
-	      resizeView( (int) w, (int) h );
-	    }
-	  else
-	    {
-	      resizeView( (int) ( z2 / z * sz.width() ),
-			  (int) ( z2 / z * sz.height() ) );
-	    }
-	}
+        d->draw->setZoom(z2);
+        resizeView((int) w, (int) h);
+      }
       else
-	{
-	  d->draw->setZoom( z2 );
-	  refreshLightViewNow();
-	}
+      {
+        resizeView((int) (z2 / z * sz.width()), (int) (z2 / z * sz.height()));
+      }
     }
+    else
+    {
+      d->draw->setZoom(z2);
+      refreshLightViewNow();
+    }
+  }
 }
 
-
-void AWindow3D::resizeView( int w, int h )
+void AWindow3D::resizeView(int w, int h)
 {
   /*
-  if( parent() != 0 )	// don't try this if we are already in a layout
-    return;
-  */
+   if( parent() != 0 )	// don't try this if we are already in a layout
+   return;
+   */
 
-  if( w > QApplication::desktop()->width() )
-    w = QApplication::desktop()->width();
-  if( h > QApplication::desktop()->height() )
-    h = QApplication::desktop()->height();
+  cout << "resize window 3D\n";
 
-  QSize	s = QSize( w, h );
-  if( d->draw->qglWidget()->size() != s )
-    {
-      d->draw->setPreferredSize( s.width(), s.height() );
-      d->draw->qglWidget()->setMinimumSize( s );
-      //d->draw->setMinimumSizeHint( s );
-      d->draw->qglWidget()->updateGeometry();
-      //resize( sizeHint() );
-      resize( minimumSize() );
-      QTimer::singleShot( 500, this, SLOT( freeResize() ) );
-      /*cout << "slice sl : " << d->slids->width() << ", "
-	   << d->slids->minimumWidth() << ", " << d->slids->sizeHint().width()
-	   << ", " << d->slids->minimumSizeHint().width()
-	   << ", " << d->slids->minimumSize().width() << endl;
-      cout << "slice pan : " << d->slicepanel->width() << ", "
-	   << d->slicepanel->minimumWidth() << ", "
-	   << d->slicepanel->sizeHint().width()
-	   << ", " << d->slicepanel->minimumSizeHint().width()
-	   << ", " << d->slicepanel->minimumSize().width() << endl;
-      cout << "new width: " << width() << ", hint: " << sizeHint().width()
-      << endl;*/
-    }
+
+  if (w > QApplication::desktop()->width()) w
+      = QApplication::desktop()->width();
+  if (h > QApplication::desktop()->height()) h
+      = QApplication::desktop()->height();
+
+  QSize s = QSize(w, h);
+  if (d->draw->qglWidget()->size() != s)
+  {
+    d->draw->setPreferredSize(s.width(), s.height());
+    d->draw->qglWidget()->setMinimumSize(s);
+    //d->draw->setMinimumSizeHint( s );
+    d->draw->qglWidget()->updateGeometry();
+    //resize( sizeHint() );
+    resize( minimumSize());
+    QTimer::singleShot(500, this, SLOT(freeResize()));
+    /*cout << "slice sl : " << d->slids->width() << ", "
+     << d->slids->minimumWidth() << ", " << d->slids->sizeHint().width()
+     << ", " << d->slids->minimumSizeHint().width()
+     << ", " << d->slids->minimumSize().width() << endl;
+     cout << "slice pan : " << d->slicepanel->width() << ", "
+     << d->slicepanel->minimumWidth() << ", "
+     << d->slicepanel->sizeHint().width()
+     << ", " << d->slicepanel->minimumSizeHint().width()
+     << ", " << d->slicepanel->minimumSize().width() << endl;
+     cout << "new width: " << width() << ", hint: " << sizeHint().width()
+     << endl;*/
+  }
 }
 
-
-void AWindow3D::setupTimeSlider( float mint, float maxt )
+void AWindow3D::setupTimeSlider(float mint, float maxt)
 {
-  if( mint >= maxt )
-    {
-      d->timepanel->hide();
-      d->slidt->setValue( 0 );
-      //cout << "hide time, mint : " << mint << ", maxt : " << maxt << "\n";
-      return;
-    }
-  d->slidt->setMinValue( (int) mint );
-  d->slidt->setMaxValue( (int) maxt );
-  int	t = (int) GetTime();
-  if( d->slidt->value() != t )
-    {
-      cout << "T slider change : " << d->slidt->value() << " -> "
-	<< t << endl;
+  if (mint >= maxt)
+  {
+    d->timepanel->hide();
+    d->slidt->setValue(0);
+    //cout << "hide time, mint : " << mint << ", maxt : " << maxt << "\n";
+    return;
+  }
+  d->slidt->setMinValue((int) mint);
+  d->slidt->setMaxValue((int) maxt);
+  int t = (int) GetTime();
+  if (d->slidt->value() != t)
+  {
+    cout << "T slider change : " << d->slidt->value() << " -> " << t << endl;
 
-      d->slidt->setValue( t );
-      d->timelabel->setText( QString::number( t ) );
-    }
+    d->slidt->setValue(t);
+    d->timelabel->setText(QString::number(t));
+  }
   d->timepanel->show();
   //cout << "show time\n";
 }
 
-
-void AWindow3D::setupSliceSlider( float mins, float maxs )
+void AWindow3D::setupSliceSlider(float mins, float maxs)
 {
   //cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
-  if( d->slids->minValue() != (int) mins
-      || d->slids->maxValue() != (int) maxs )
-    {
-      d->slids->blockSignals( true );
-      d->slids->setMinValue( (int) mins );
-      d->slids->setMaxValue( (int) maxs );
-      d->slids->blockSignals( false );
-    }
+  if (d->slids->minValue() != (int) mins || d->slids->maxValue() != (int) maxs)
+  {
+    d->slids->blockSignals(true);
+    d->slids->setMinValue((int) mins);
+    d->slids->setMaxValue((int) maxs);
+    d->slids->blockSignals(false);
+  }
 
   updateSliceSlider();
 
-  if( /*d->viewtype == ThreeD ||*/ mins >= maxs )
-    {
-      d->slicepanel->hide();
-      updateGeometry();
-    }
+  if ( /*d->viewtype == ThreeD ||*/mins >= maxs)
+  {
+    d->slicepanel->hide();
+    updateGeometry();
+  }
   else
-    {
-      d->slicepanel->show();
-      updateGeometry();
-    }
+  {
+    d->slicepanel->show();
+    updateGeometry();
+  }
   // d->needssliceslider = false;
 }
 
-
 void AWindow3D::setupSliceSlider()
 {
-  float		mins, maxs;
-  Geometry	*geom = windowGeometry();
+  float mins, maxs;
+  Geometry *geom = windowGeometry();
 
-  if( geom )
-    {
-      mins = 0;
-      maxs = geom->DimMax()[2] - geom->DimMin()[2] - 1;
-    }
+  if (geom)
+  {
+    mins = 0;
+    maxs = geom->DimMax()[2] - geom->DimMin()[2] - 1;
+  }
   else
-    {
-      mins = 0;
-      maxs = 0;
-    }
+  {
+    mins = 0;
+    maxs = 0;
+  }
 
-  setupSliceSlider( mins, maxs );
+  setupSliceSlider(mins, maxs);
 }
 
-
-void AWindow3D::changeTime( int t )
+void AWindow3D::changeTime(int t)
 {
-  if( t != (int) GetTime() )
+  if (t != (int) GetTime())
+  {
+    d->timelabel->setText(QString::number(t));
+    if (d->linkonslider)
     {
-      d->timelabel->setText( QString::number( t ) );
-      if( d->linkonslider )
-        {
-          vector<float>	p( 4 );
-          Point3df	pos = GetPosition();
-          p[0] = pos[0];
-          p[1] = pos[1];
-          p[2] = pos[2];
-          p[3] = t;
-          LinkedCursorCommand	*c = new LinkedCursorCommand( this, p );
-          theProcessor->execute( c );
-        }
-      else
-        {
-          SetTime( t );
-          Refresh();
-        }
+      vector<float> p(4);
+      Point3df pos = GetPosition();
+      p[0] = pos[0];
+      p[1] = pos[1];
+      p[2] = pos[2];
+      p[3] = t;
+      LinkedCursorCommand *c = new LinkedCursorCommand(this, p);
+      theProcessor->execute(c);
     }
+    else
+    {
+      SetTime(t);
+      Refresh();
+    }
+  }
 }
-
 
 int AWindow3D::updateSliceSlider()
 {
-  Point3df	pos = GetPosition();
-  int		sl;
-  Geometry	*geom = windowGeometry();
-  Point3df	vs;
-  float		minsl = 0;
+  Point3df pos = GetPosition();
+  int sl;
+  Geometry *geom = windowGeometry();
+  Point3df vs;
+  float minsl = 0;
 
-  if( geom )
-    {
-      vs = geom->Size();
-      minsl = geom->DimMin()[2];
-    }
+  if (geom)
+  {
+    vs = geom->Size();
+    minsl = geom->DimMin()[2];
+  }
   else
-    vs = Point3df( 1, 1, 1 );
+    vs = Point3df(1, 1, 1);
 
   // get slice plane
-  Point3df	norm = d->slicequat.apply( Point3df( 0, 0, 1 ) );
-  float		ds = norm.dot( pos );
+  Point3df norm = d->slicequat.apply(Point3df(0, 0, 1));
+  float ds = norm.dot(pos);
 
-  sl = (int) rint( ds / vs[2] - minsl );
+  sl = (int) rint(ds / vs[2] - minsl);
   //cout << "slice : " << sl << endl;
 
   /* if( sl < d->slids->minValue() )
-    {
-      cerr << "slider value : " << sl << " below minimum\n";
-      //sl = d->slids->minValue();
-    }
-  if( sl > d->slids->maxValue() )
-    {
-      cerr << "slider value : " << sl << " above maximum\n";
-      //sl = d->slids->maxValue();
-      }*/
+   {
+   cerr << "slider value : " << sl << " below minimum\n";
+   //sl = d->slids->minValue();
+   }
+   if( sl > d->slids->maxValue() )
+   {
+   cerr << "slider value : " << sl << " above maximum\n";
+   //sl = d->slids->maxValue();
+   }*/
 
-  if( d->slids->value() != sl )
-    {
-      d->slids->setValue( sl );
-      /*cout << "S slider change : " << d->slids->value() << " -> "
-	<< sl << endl;*/
-    }
-  QString	ns = QString::number( sl );
-  if( d->slicelabel->text() != ns )
-    d->slicelabel->setText( ns );
+  if (d->slids->value() != sl)
+  {
+    d->slids->setValue(sl);
+    /*cout << "S slider change : " << d->slids->value() << " -> "
+     << sl << endl;*/
+  }
+  QString ns = QString::number(sl);
+  if (d->slicelabel->text() != ns) d->slicelabel->setText(ns);
 
-  return( sl );
+  return (sl);
 }
 
-
-void AWindow3D::changeSlice( int s )
+void AWindow3D::changeSlice(int s)
 {
   // cout << "changeSlice " << s << endl;
-  Point3df	pos = GetPosition();
-  Geometry	*geom = windowGeometry();
-  Point3df	vs;
-  float		minsl = 0;
+  Point3df pos = GetPosition();
+  Geometry *geom = windowGeometry();
+  Point3df vs;
+  float minsl = 0;
 
-  if( geom )
-    {
-      vs = geom->Size();
-      minsl = vs[2] * geom->DimMin()[2];
-    }
+  if (geom)
+  {
+    vs = geom->Size();
+    minsl = vs[2] * geom->DimMin()[2];
+  }
   else
-    vs = Point3df( 1, 1, 1 );
+    vs = Point3df(1, 1, 1);
 
   // get slice plane
-  Point3df	norm = d->slicequat.apply( Point3df( 0, 0, 1 ) );
+  Point3df norm = d->slicequat.apply(Point3df(0, 0, 1));
   // project
-  float		ds = - norm.dot( pos );
-  pos = pos + ( vs[2] * s + minsl + ds ) * norm;
+  float ds = -norm.dot(pos);
+  pos = pos + (vs[2] * s + minsl + ds) * norm;
 
   // cout << "new pos : " << pos << endl;
 
-  if( pos != _position )
+  if (pos != _position)
+  {
+    //cout << "rechange pos\n";
+    //d->slicelabel->setText( QString::number( updateSliceSlider() ) );
+    if (d->linkonslider)
     {
-      //cout << "rechange pos\n";
-      //d->slicelabel->setText( QString::number( updateSliceSlider() ) );
-      if( d->linkonslider )
-        {
-          vector<float>	p( 4 );
-          p[0] = pos[0];
-          p[1] = pos[1];
-          p[2] = pos[2];
-          p[3] = GetTime();
-          LinkedCursorCommand	*c = new LinkedCursorCommand( this, p );
-          theProcessor->execute( c );
-        }
-      else
-        {
-          _position = pos;
-          updateSliceSlider();
-          Refresh();
-        }
+      vector<float> p(4);
+      p[0] = pos[0];
+      p[1] = pos[1];
+      p[2] = pos[2];
+      p[3] = GetTime();
+      LinkedCursorCommand *c = new LinkedCursorCommand(this, p);
+      theProcessor->execute(c);
     }
+    else
+    {
+      _position = pos;
+      updateSliceSlider();
+      Refresh();
+    }
+  }
 }
-
 
 void AWindow3D::changeReferential()
 {
-  set<AWindow *>	sw;
-  sw.insert( this );
-  ( new ChooseReferentialWindow( sw, "Choose Referential Window" ) )->show();
+  set<AWindow *> sw;
+  sw.insert(this);
+  (new ChooseReferentialWindow(sw, "Choose Referential Window"))->show();
 }
 
-
-void AWindow3D::unregisterObject( AObject* o )
+void AWindow3D::unregisterObject(AObject* o)
 {
-  d->tmpprims.erase( o );
-  d->renderconstraints.erase( o );
-  map<AObject *, Private::ConstrainedObject>::iterator
-    i = d->renderconstraints.begin(), e = d->renderconstraints.end(), j;
-  while( i != e )
+  d->tmpprims.erase(o);
+  d->renderconstraints.erase(o);
+  map<AObject *, Private::ConstrainedObject>::iterator i =
+      d->renderconstraints.begin(), e = d->renderconstraints.end(), j;
+  while (i != e)
   {
-    if( i->second.second == o )
+    if (i->second.second == o)
     {
       j = i;
       ++i;
-      d->renderconstraints.erase( j );
+      d->renderconstraints.erase(j);
     }
     else
       ++i;
   }
 
-  Referential	*r1 = getReferential();
-  if( r1 )
-    {
-      Referential	*r2 = o->getReferential();
-      if( r2 )
-        ATransformSet::instance()->unregisterObserver( r1, r2, this );
-    }
+  Referential *r1 = getReferential();
+  if (r1)
+  {
+    Referential *r2 = o->getReferential();
+    if (r2) ATransformSet::instance()->unregisterObserver(r1, r2, this);
+  }
 
-  ControlledWindow::unregisterObject( o );
+  ControlledWindow::unregisterObject(o);
 }
 
-
-void AWindow3D::registerObject( AObject* o, bool temporaryObject, int pos )
+void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
 {
-  Point3df	bmin, bmax;
-  float	tmin, tmax;
+  Point3df bmin, bmax;
+  float tmin, tmax;
   //boundingBox( bmin, bmax, tmin, tmax );
 
   // cout << "bmin = " <<  bmin << "bmax = "  << endl ;
 
   bool fst = _objects.empty();
-  ControlledWindow::registerObject( o, temporaryObject, pos );
-  Referential	*r1 = getReferential();
-  if( r1 )
+  ControlledWindow::registerObject(o, temporaryObject, pos);
+  Referential *r1 = getReferential();
+  if (r1)
+  {
+    Referential *r2 = o->getReferential();
+    if (r2) ATransformSet::instance()->registerObserver(r1, r2, this);
+  }
+
+  if (!temporaryObject)
+  {
+    // d->needsboundingbox = true;
+    d->needsextrema = true;
+    // d->needswingeom = true;
+    // d->needssliceslider = true;
+
+    /*boundingBox( bmin, bmax, tmin, tmax );
+     d->draw->setExtrema( bmin, bmax );
+     updateWindowGeometry();
+     setupSliceSlider();*/
+  }
+
+  if (fst && _objects.size() == 1)
+  {
+    boundingBox(bmin, bmax, tmin, tmax);
+    d->draw->setExtrema(bmin, bmax);
+    d->needsextrema = false;
+    updateWindowGeometry();
+    setupSliceSlider();
+
+    set<AWindow*> wg = theAnatomist->getWindowsInGroup(Group());
+    bool setpos = true;
+    if (wg.size() > 1)
     {
-      Referential	*r2 = o->getReferential();
-      if( r2 )
-        ATransformSet::instance()->registerObserver( r1, r2, this );
-    }
-
-  if( !temporaryObject )
-    {
-      // d->needsboundingbox = true;
-      d->needsextrema = true;
-      // d->needswingeom = true;
-      // d->needssliceslider = true;
-
-      /*boundingBox( bmin, bmax, tmin, tmax );
-      d->draw->setExtrema( bmin, bmax );
-      updateWindowGeometry();
-      setupSliceSlider();*/
-    }
-
-  if( fst && _objects.size() == 1 )
-    {
-      boundingBox( bmin, bmax, tmin, tmax );
-      d->draw->setExtrema( bmin, bmax );
-      d->needsextrema = false;
-      updateWindowGeometry();
-      setupSliceSlider();
-
-      set<AWindow*> wg = theAnatomist->getWindowsInGroup( Group() );
-      bool setpos = true;
-      if( wg.size() > 1 )
-      {
-        set<AWindow*>::const_iterator iw, ew = wg.end();
-        for( iw=wg.begin(); iw!=ew; ++iw )
-          if( *iw != this && dynamic_cast<const AWindow3D *>( *iw ) )
-          {
-            SetPosition( (*iw)->GetPosition(), (*iw)->getReferential() );
-            setpos = false;
-            break;
-          }
-      }
-      if( setpos )
-        // set cursor in middle of object
-        SetPosition( ( bmin + bmax ) * 0.5f, o->getReferential() );
-      SetTime( 0 );
-
-      // resize window if in 2D mode
-      if( o->Is2DObject() )
-      {
-        float	wf = 1;
-        theAnatomist->config()->getProperty( "windowSizeFactor", wf );
-
-        Point3df	vs = o->VoxelSize();
-        switch( viewType() )
+      set<AWindow*>::const_iterator iw, ew = wg.end();
+      for (iw = wg.begin(); iw != ew; ++iw)
+        if (*iw != this && dynamic_cast<const AWindow3D *> (*iw))
         {
+          SetPosition((*iw)->GetPosition(), (*iw)->getReferential());
+          setpos = false;
+          break;
+        }
+    }
+    if (setpos)
+    // set cursor in middle of object
+    SetPosition((bmin + bmax) * 0.5f, o->getReferential());
+    SetTime(0);
+
+    // resize window if in 2D mode
+    if (o->Is2DObject())
+    {
+      float wf = 1;
+      theAnatomist->config()->getProperty("windowSizeFactor", wf);
+
+      Point3df vs = o->VoxelSize();
+      switch (viewType())
+      {
         case Axial:
-          d->askedsize
-            = QSize( (int) ( vs[0] * wf
-                              * ( o->MaxX2D() - o->MinX2D() + 1 ) ),
-                      (int) ( vs[1] * wf
-                              * ( o->MaxY2D() - o->MinY2D() + 1 ) ) );
+          d->askedsize = QSize((int) (vs[0] * wf * (o->MaxX2D() - o->MinX2D()
+              + 1)), (int) (vs[1] * wf * (o->MaxY2D() - o->MinY2D() + 1)));
           break;
         case Coronal:
-          d->askedsize
-            = QSize( (int) ( vs[0] * wf
-                              * ( o->MaxX2D() - o->MinX2D() + 1 ) ),
-                      (int) ( vs[2] * wf
-                              * ( o->MaxZ2D() - o->MinZ2D() + 1 ) ) );
+          d->askedsize = QSize((int) (vs[0] * wf * (o->MaxX2D() - o->MinX2D()
+              + 1)), (int) (vs[2] * wf * (o->MaxZ2D() - o->MinZ2D() + 1)));
           break;
         case Sagittal:
-          d->askedsize
-            = QSize( (int) ( vs[1] * wf
-                              * ( o->MaxY2D() - o->MinY2D() + 1 ) ),
-                      (int) ( vs[2] * wf
-                              * ( o->MaxZ2D() - o->MinZ2D() + 1 ) ) );
+          d->askedsize = QSize((int) (vs[1] * wf * (o->MaxY2D() - o->MinY2D()
+              + 1)), (int) (vs[2] * wf * (o->MaxZ2D() - o->MinZ2D() + 1)));
           break;
         default:
           break;
-        }
       }
     }
+  }
 
-  if( temporaryObject )
+  if (temporaryObject)
     refreshTemp();
   else
     Refresh();
 }
 
-
-void AWindow3D::setViewType( ViewType t )
+void AWindow3D::setViewType(ViewType t)
 {
-  static const float	c = 1. / sqrt( 2. );
+  static const float c = 1. / sqrt(2.);
 
   d->viewtype = t;
   updateViewTypeToolBar();
   // handle point of view
-  switch( t )
-    {
+  switch (t)
+  {
     case Axial:
-      d->draw->setQuaternion( axialQuaternion( getReferential() ) );
-      d->slicequat = Point4df( 0, 0, 0, 1 );
+      d->draw->setQuaternion(axialQuaternion(getReferential()));
+      d->slicequat = Point4df(0, 0, 0, 1);
       focusView();
       break;
     case Coronal:
-      d->draw->setQuaternion( coronalQuaternion( getReferential() ) );
-      d->slicequat = Point4df( c, 0, 0, c );
+      d->draw->setQuaternion(coronalQuaternion(getReferential()));
+      d->slicequat = Point4df(c, 0, 0, c);
       focusView();
       break;
     case Sagittal:
-      d->draw->setQuaternion( sagittalQuaternion( getReferential() ) );
-      d->slicequat = Point4df( -0.5, -0.5, -0.5, 0.5 );
+      d->draw->setQuaternion(sagittalQuaternion(getReferential()));
+      d->slicequat = Point4df(-0.5, -0.5, -0.5, 0.5);
       focusView();
       break;
     default:
       break;
-    }
+  }
 }
-
 
 AWindow3D::ViewType AWindow3D::viewType() const
 {
-  return( d->viewtype );
+  return (d->viewtype);
 }
-
 
 void AWindow3D::muteAxial()
 {
-  setViewType( Axial );
+  setViewType( Axial);
   updateControls();
-  theAnatomist->NotifyWindowChange( this );
+  theAnatomist->NotifyWindowChange(this);
   Refresh();
 }
-
 
 void AWindow3D::muteCoronal()
 {
-  setViewType( Coronal );
+  setViewType( Coronal);
   updateControls();
-  theAnatomist->NotifyWindowChange( this );
+  theAnatomist->NotifyWindowChange(this);
   Refresh();
 }
-
 
 void AWindow3D::muteSagittal()
 {
-  setViewType( Sagittal );
+  setViewType( Sagittal);
   updateControls();
-  theAnatomist->NotifyWindowChange( this );
+  theAnatomist->NotifyWindowChange(this);
   Refresh();
 }
-
 
 void AWindow3D::muteOblique()
 {
-  setViewType( Oblique );
+  setViewType( Oblique);
   updateControls();
-  theAnatomist->NotifyWindowChange( this );
+  theAnatomist->NotifyWindowChange(this);
   Refresh();
 }
-
 
 void AWindow3D::mute3D()
 {
-  setViewType( ThreeD );
+  setViewType( ThreeD);
   updateControls();
-  theAnatomist->NotifyWindowChange( this );
+  theAnatomist->NotifyWindowChange(this);
   Refresh();
 }
 
-
 void AWindow3D::updateViewTypeToolBar()
 {
-  if( toolBarsVisible() )
-    {
-      d->axialbt->setOn( d->viewtype == Axial );
-      d->coronalbt->setOn( d->viewtype == Coronal );
-      d->sagittalbt->setOn( d->viewtype == Sagittal );
-      d->obliquebt->setOn( d->viewtype == Oblique );
-      d->threedbt->setOn( d->viewtype == ThreeD );
-    }
+  if (toolBarsVisible())
+  {
+    d->axialbt->setOn(d->viewtype == Axial);
+    d->coronalbt->setOn(d->viewtype == Coronal);
+    d->sagittalbt->setOn(d->viewtype == Sagittal);
+    d->obliquebt->setOn(d->viewtype == Oblique);
+    d->threedbt->setOn(d->viewtype == ThreeD);
+  }
 }
-
 
 GLPrimitives AWindow3D::cursorGLL() const
 {
-  GLPrimitives	curspl;
-  if( hasCursor() )
+  GLPrimitives curspl;
+  if (hasCursor())
+  {
+    AObject *curs = Cursor::currentCursor();
+    if (curs)
     {
-      AObject	*curs = Cursor::currentCursor();
-      if( curs )
+      GLComponent *gc = curs->glAPI();
+      if (gc)
+      {
+        ViewState vs(0);
+        // cursor color
+        Material mat = curs->GetMaterial();
+        if (!useDefaultCursorColor())
         {
-          GLComponent	*gc = curs->glAPI();
-          if( gc )
-            {
-              ViewState	vs( 0 );
-              // cursor color
-              Material	mat = curs->GetMaterial();
-              if( !useDefaultCursorColor() )
-                {
-                  AimsRGB	rgb = cursorColor();
-                  mat.SetDiffuse( ((float) rgb[0]) / 255,
-                                  ((float) rgb[1]) / 255,
-                                  ((float) rgb[2]) / 255, mat.Diffuse( 3 ) );
-                }
-              else
-                mat.SetDiffuse( 224./255, 0, 0, mat.Diffuse( 3 ) );
-              curs->SetMaterial( mat );
-
-              curspl = gc->glMainGLL( vs );
-              if( !curspl.empty() )
-                {
-                  bool          dr = getReferential()
-                      && getReferential()->isDirect();
-                  Point3df	pos = GetPosition();
-                  GLList	*posl = new GLList;
-                  posl->generate();
-                  glNewList( posl->item(), GL_COMPILE );
-                  GLfloat	mat[16];
-                  GLfloat	scl = ((GLfloat) cursorSize()) / 20;
-
-                  // write 4x4 matrix in column
-                  mat[0] = scl;
-                  mat[1] = 0;
-                  mat[2] = 0;
-                  mat[3] = 0;
-                  mat[4] = 0;
-                  mat[5] = scl;
-                  mat[6] = 0;
-                  mat[7] = 0;
-                  mat[8] = 0;
-                  mat[9] = 0;
-                  mat[10] = scl;
-                  mat[11] = 0;
-                  mat[12] = pos[0];
-                  mat[13] = pos[1];
-                  mat[14] = pos[2];
-                  mat[15] = 1;
-
-                  if( dr )
-                    glFrontFace( GL_CCW );
-                  glMatrixMode( GL_MODELVIEW );
-                  glPushMatrix();
-                  glMultMatrixf( mat );
-                  glPushAttrib( GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT
-                                | GL_DEPTH_BUFFER_BIT );
-                  //glDepthMask( GL_FALSE ); // don't write cursor in z-buffer
-                  glEndList();
-
-                  curspl.insert( curspl.begin(), RefGLItem( posl ) );
-
-                  posl = new GLList;
-                  posl->generate();
-                  glNewList( posl->item(), GL_COMPILE );
-                  glPopAttrib();
-                  glMatrixMode( GL_MODELVIEW );
-                  glPopMatrix();
-                  if( dr )
-                    glFrontFace( GL_CW );
-                  glEndList();
-                  curspl.push_back( RefGLItem( posl ) );
-
-                  GLPrimitives::iterator	i, e = curspl.end();
-                  for( i=curspl.begin(); i!=e; ++i )
-                    (*i)->setGhost( true );
-
-                  d->primitives.insert( d->primitives.end(), curspl.begin(),
-                                        curspl.end() );
-                }
-            }
+          AimsRGB rgb = cursorColor();
+          mat.SetDiffuse(((float) rgb[0]) / 255, ((float) rgb[1]) / 255,
+              ((float) rgb[2]) / 255, mat.Diffuse(3));
         }
+        else
+          mat.SetDiffuse(224. / 255, 0, 0, mat.Diffuse(3));
+        curs->SetMaterial(mat);
+
+        curspl = gc->glMainGLL(vs);
+        if (!curspl.empty())
+        {
+          bool dr = getReferential() && getReferential()->isDirect();
+          Point3df pos = GetPosition();
+          GLList *posl = new GLList;
+          posl->generate();
+          glNewList(posl->item(), GL_COMPILE);
+          GLfloat mat[16];
+          GLfloat scl = ((GLfloat) cursorSize()) / 20;
+
+          // write 4x4 matrix in column
+          mat[0] = scl;
+          mat[1] = 0;
+          mat[2] = 0;
+          mat[3] = 0;
+          mat[4] = 0;
+          mat[5] = scl;
+          mat[6] = 0;
+          mat[7] = 0;
+          mat[8] = 0;
+          mat[9] = 0;
+          mat[10] = scl;
+          mat[11] = 0;
+          mat[12] = pos[0];
+          mat[13] = pos[1];
+          mat[14] = pos[2];
+          mat[15] = 1;
+
+          if (dr) glFrontFace( GL_CCW);
+          glMatrixMode( GL_MODELVIEW);
+          glPushMatrix();
+          glMultMatrixf(mat);
+          glPushAttrib(GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT
+              | GL_DEPTH_BUFFER_BIT);
+          //glDepthMask( GL_FALSE ); // don't write cursor in z-buffer
+          glEndList();
+
+          curspl.insert(curspl.begin(), RefGLItem(posl));
+
+          posl = new GLList;
+          posl->generate();
+          glNewList(posl->item(), GL_COMPILE);
+          glPopAttrib();
+          glMatrixMode(GL_MODELVIEW);
+          glPopMatrix();
+          if (dr) glFrontFace( GL_CW);
+          glEndList();
+          curspl.push_back(RefGLItem(posl));
+
+          GLPrimitives::iterator i, e = curspl.end();
+          for (i = curspl.begin(); i != e; ++i)
+            (*i)->setGhost(true);
+
+          d->primitives.insert(d->primitives.end(), curspl.begin(),
+              curspl.end());
+        }
+      }
     }
+  }
   return curspl;
 }
 
-
 void AWindow3D::updateWindowGeometry()
 {
-  Geometry
-      *g = new Geometry( setupWindowGeometry( _objects, d->slicequat,
-                         getReferential(), d->draw->qglWidget() ) );
-  setWindowGeometry( g );
+  Geometry *g = new Geometry(setupWindowGeometry(_objects, d->slicequat,
+      getReferential(), d->draw->qglWidget()));
+  setWindowGeometry(g);
 }
 
-
-Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
-                                         & objects,
-                                         const Quaternion & slicequat,
-                                         const Referential *wref,
-                                         QGLWidget* glw )
+Geometry AWindow3D::setupWindowGeometry(
+    const list<shared_ptr<AObject> > & objects, const Quaternion & slicequat,
+    const Referential *wref, QGLWidget* glw)
 {
   list<shared_ptr<AObject> >::const_iterator obj;
-  bool			first = true, firsttex = true;
-  Point3df		size, s2, vst, vs, p, pmin, pmax, dmin, dmax;
-  Point4d		dimMin, dimMax;
-  Referential		*oref;
-  AObject		*o;
-  anatomist::Transformation	*tr;
-  Point3df		u, v, w;
+  bool first = true, firsttex = true;
+  Point3df size, s2, vst, vs, p, pmin, pmax, dmin, dmax;
+  Point4d dimMin, dimMax;
+  Referential *oref;
+  AObject *o;
+  anatomist::Transformation *tr;
+  Point3df u, v, w;
 
-  size = Point3df( 1, 1, 1 );
-  vst = Point3df( 1, 1, 1 );
-  dimMin = Point4d( 0, 0, 0, 0 );
-  dimMax = Point4d( 1, 1, 1, 0 );
+  size = Point3df(1, 1, 1);
+  vst = Point3df(1, 1, 1);
+  dimMin = Point4d(0, 0, 0, 0);
+  dimMax = Point4d(1, 1, 1, 0);
 
   // local macro
 #define check_extremum( p )				\
@@ -2404,502 +2450,638 @@ Geometry AWindow3D::setupWindowGeometry( const list<shared_ptr<AObject> >
 	    dmax[2] = p[2];
   // end macro
 
-  for( obj=objects.begin(); obj!=objects.end(); ++obj )
+  for (obj = objects.begin(); obj != objects.end(); ++obj)
+  {
+    o = obj->get();
+
+    if (o->Is2DObject())
     {
-      o = obj->get();
+      vs = s2 = o->VoxelSize();
+      //cout << "Object " << o->name() << ", vs : " << vs << endl;
 
-      if( o->Is2DObject() )
-	{
-	  vs = s2 = o->VoxelSize();
-	  //cout << "Object " << o->name() << ", vs : " << vs << endl;
+      tr = 0;
+      if (wref)
+      {
+        oref = o->getReferential();
+        if (oref) tr = theAnatomist->getTransformation(oref, wref);
+      }
 
-	  tr = 0;
-	  if( wref )
-	    {
-	      oref = o->getReferential();
-	      if( oref )
-		tr = theAnatomist->getTransformation( oref, wref );
-	    }
+      u = Point3df(1, 0, 0);
+      v = Point3df(0, 1, 0);
+      w = Point3df(0, 0, 1);
+      if (tr)
+      {
+        u = tr->transform(u) - tr->transform(Point3df(0, 0, 0));
+        v = tr->transform(v) - tr->transform(Point3df(0, 0, 0));
+        w = tr->transform(w) - tr->transform(Point3df(0, 0, 0));
+      }
+      u = slicequat.apply(u);
+      v = slicequat.apply(v);
+      w = slicequat.apply(w);
+      //cout << "base : " << u << endl << v << endl << w << endl;
 
-	  u = Point3df( 1, 0, 0 );
-	  v = Point3df( 0, 1, 0 );
-	  w = Point3df( 0, 0, 1 );
-	  if( tr )
-	    {
-	      u = tr->transform( u ) - tr->transform( Point3df( 0, 0, 0 ) );
-	      v = tr->transform( v ) - tr->transform( Point3df( 0, 0, 0 ) );
-	      w = tr->transform( w ) - tr->transform( Point3df( 0, 0, 0 ) );
-	    }
-	  u = slicequat.apply( u );
-	  v = slicequat.apply( v );
-	  w = slicequat.apply( w );
-	  //cout << "base : " << u << endl << v << endl << w << endl;
+      s2 = Point3df(1. / max(max(fabs(u[0] / s2[0]), fabs(u[1] / s2[1])), fabs(
+          u[2] / s2[2])), 1. / max(max(fabs(v[0] / s2[0]), fabs(v[1] / s2[1])),
+          fabs(v[2] / s2[2])), 1. / max(max(fabs(w[0] / s2[0]), fabs(w[1]
+          / s2[1])), fabs(w[2] / s2[2])));
 
-	  s2 = Point3df( 1. / max( max( fabs( u[0] / s2[0] ),
-					fabs( u[1] / s2[1] ) ),
-				   fabs( u[2] / s2[2] ) ),
-			 1. / max( max( fabs( v[0] / s2[0] ),
-					fabs( v[1] / s2[1] ) ),
-				   fabs( v[2] / s2[2] ) ),
-			 1. / max( max( fabs( w[0] / s2[0] ),
-					fabs( w[1] / s2[1] ) ),
-					fabs( w[2] / s2[2] ) ) );
+      // check extrema
 
-	  // check extrema
+      if ((*obj)->boundingBox(pmin, pmax))
+      {
+        //cout << "boundingbox : " << pmin << " / " << pmax << endl;
+        p = pmin;
+        if (tr) p = tr->transform(p);
+        p = slicequat.applyInverse(p);
 
-	  if( (*obj)->boundingBox( pmin, pmax ) )
-	    {
-	      //cout << "boundingbox : " << pmin << " / " << pmax << endl;
-	      p = pmin;
-	      if( tr )
-		p = tr->transform( p );
-	      p = slicequat.applyInverse( p );
+        if (o->textured2D())
+        { // keep voxel resolution of only textured objects
+          if (firsttex)
+          {
+            vst = s2;
+            firsttex = false;
+          }
+          else
+          {
+            if (s2[0] < vst[0]) vst[0] = s2[0];
+            if (s2[1] < vst[1]) vst[1] = s2[1];
+            if (s2[2] < vst[2]) vst[2] = s2[2];
+          }
+        }
 
-	      if( o->textured2D() )
-		{	// keep voxel resolution of only textured objects
-		  if( firsttex )
-		    {
-		      vst = s2;
-		      firsttex = false;
-		    }
-		  else
-		    {
-		      if( s2[0] < vst[0] )
-			vst[0] = s2[0];
-		      if( s2[1] < vst[1] )
-			vst[1] = s2[1];
-		      if( s2[2] < vst[2] )
-			vst[2] = s2[2];
-		    }
-		}
+        if (first)
+        {
+          size = s2;
+          dmin = dmax = p;
+          dimMin[3] = dimMax[3] = (int) (*obj)->MinT();
+          first = false;
+        }
+        else
+        {
+          if (s2[0] < size[0]) size[0] = s2[0];
+          if (s2[1] < size[1]) size[1] = s2[1];
+          if (s2[2] < size[2]) size[2] = s2[2];
 
-	      if( first )
-		{
-		  size = s2;
-		  dmin = dmax = p;
-		  dimMin[3] = dimMax[3] = (int) (*obj)->MinT();
-		  first = false;
-		}
-	      else
-		{
-		  if( s2[0] < size[0] )
-		    size[0] = s2[0];
-		  if( s2[1] < size[1] )
-		    size[1] = s2[1];
-		  if( s2[2] < size[2] )
-		    size[2] = s2[2];
+          if (p[0] < dmin[0]) dmin[0] = p[0];
+          if (p[1] < dmin[1]) dmin[1] = p[1];
+          if (p[2] < dmin[2]) dmin[2] = p[2];
+          if ((int) (*obj)->MinT() < dimMin[3]) dimMin[3]
+              = (int) (*obj)->MinT();
+        }
+        if (p[0] > dmax[0]) dmax[0] = p[0];
+        if (p[1] > dmax[1]) dmax[1] = p[1];
+        if (p[2] > dmax[2]) dmax[2] = p[2];
+        if ((int) (*obj)->MaxT() > dimMax[3]) dimMax[3] = (int) (*obj)->MaxT();
 
-		  if( p[0] < dmin[0] )
-		    dmin[0] = p[0];
-		  if( p[1] < dmin[1] )
-		    dmin[1] = p[1];
-		  if( p[2] < dmin[2] )
-		    dmin[2] = p[2];
-		  if( (int)(*obj)->MinT() < dimMin[3] )
-		    dimMin[3] = (int)(*obj)->MinT();
-		}
-	      if( p[0] > dmax[0] )
-		dmax[0] = p[0];
-	      if( p[1] > dmax[1] )
-		dmax[1] = p[1];
-	      if( p[2] > dmax[2] )
-		dmax[2] = p[2];
-	      if ((int)(*obj)->MaxT() > dimMax[3])
-		dimMax[3] = (int)(*obj)->MaxT();
-
-	      p = Point3df( pmax[0], pmin[1], pmin[2] );
-	      check_extremum( p );
-	      p = Point3df( pmax[0], pmax[1], pmin[2] );
-	      check_extremum( p );
-	      p = Point3df( pmin[0], pmax[1], pmin[2] );
-	      check_extremum( p );
-	      p = Point3df( pmin[0], pmin[1], pmax[2] );
-	      check_extremum( p );
-	      p = Point3df( pmax[0], pmin[1], pmax[2] );
-	      check_extremum( p );
-	      p = Point3df( pmax[0], pmax[1], pmax[2] );
-	      check_extremum( p );
-	      p = Point3df( pmin[0], pmax[1], pmax[2] );
-	      check_extremum( p );
-	    }
-	}
+        p = Point3df(pmax[0], pmin[1], pmin[2]);
+        check_extremum( p );
+        p = Point3df(pmax[0], pmax[1], pmin[2]);
+        check_extremum( p );
+        p = Point3df(pmin[0], pmax[1], pmin[2]);
+        check_extremum( p );
+        p = Point3df(pmin[0], pmin[1], pmax[2]);
+        check_extremum( p );
+        p = Point3df(pmax[0], pmin[1], pmax[2]);
+        check_extremum( p );
+        p = Point3df(pmax[0], pmax[1], pmax[2]);
+        check_extremum( p );
+        p = Point3df(pmin[0], pmax[1], pmax[2]);
+        check_extremum( p );
+      }
     }
+  }
 
 #undef check_extremum
 
-  if( first )	// no object
-    {
-      //size = Point3df( 1, 1, 1 );
-      dimMin = Point4d( 0, 0, 0, 0);
-      dimMax = Point4d( 1, 1, 1, 0);
-    }
+  if (first) // no object
+  {
+    //size = Point3df( 1, 1, 1 );
+    dimMin = Point4d(0, 0, 0, 0);
+    dimMax = Point4d(1, 1, 1, 0);
+  }
   else
-    {
-      /* keep resolution of textured objects in x & y directions,
-	 and of all 2D objects in z direction */
-      size[0] = vst[0];
-      size[1] = vst[1];
+  {
+    /* keep resolution of textured objects in x & y directions,
+     and of all 2D objects in z direction */
+    size[0] = vst[0];
+    size[1] = vst[1];
 
-      dimMin[0] = (short) ::ceil( dmin[0] / size[0] );
-      dimMin[1] = (short) ::ceil( dmin[1] / size[1] );
-      dimMin[2] = (short) ::ceil( dmin[2] / size[2] );
-      dimMax[0] = (short) rint( ( dmax[0] - dmin[0] ) / size[0] ) + dimMin[0];
-      dimMax[1] = (short) rint( ( dmax[1] - dmin[1] ) / size[1] ) + dimMin[1];
-      dimMax[2] = (short) rint( ( dmax[2] - dmin[2] ) / size[2] ) + dimMin[2];
-    }
+    dimMin[0] = (short) ::ceil(dmin[0] / size[0]);
+    dimMin[1] = (short) ::ceil(dmin[1] / size[1]);
+    dimMin[2] = (short) ::ceil(dmin[2] / size[2]);
+    dimMax[0] = (short) rint((dmax[0] - dmin[0]) / size[0]) + dimMin[0];
+    dimMax[1] = (short) rint((dmax[1] - dmin[1]) / size[1]) + dimMin[1];
+    dimMax[2] = (short) rint((dmax[2] - dmin[2]) / size[2]) + dimMin[2];
+  }
 
   /*cout << "new win geometry : vs : " << size << endl;
-  cout << "dimmin : " << dimMin << endl;
-  cout << "dimmax : " << dimMax << " ( " << dimMax - dimMin << " )" << endl;*/
+   cout << "dimmin : " << dimMin << endl;
+   cout << "dimmax : " << dimMax << " ( " << dimMax - dimMin << " )" << endl;*/
 
   // check if dimensions can be handled by GL textures
-  static GLint	dimmax = 0;
-  if( dimmax == 0 )
-    {
-      if( !glw )
-        glw = GLWidgetManager::sharedWidget();
-      glw->makeCurrent();
-      glGetIntegerv( GL_MAX_TEXTURE_SIZE, &dimmax );
-    }
+  static GLint dimmax = 0;
+  if (dimmax == 0)
+  {
+    if (!glw) glw = GLWidgetManager::sharedWidget();
+    glw->makeCurrent();
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &dimmax);
+  }
 
+  if (dimMax[0] - dimMin[0] >= dimmax)
+  {
+    cerr << "warning: window geometry too small (dimx : " << dimMax[0]
+        - dimMin[0] << ")\n";
+    float scl = ((float) dimMax[0] - dimMin[0] + 1) / dimmax;
+    size[0] *= scl;
+    dimMin[0] = (short) (dimMin[0] / scl);
+    dimMax[0] = dimMin[0] + dimmax;
+  }
+  if (dimMax[1] - dimMin[1] > dimmax)
+  {
+    cerr << "warning: window geometry too small (dimy : " << dimMax[1]
+        - dimMin[1] << ")\n";
+    float scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
+    size[1] *= scl;
+    dimMin[1] = (short) (dimMin[1] / scl);
+    dimMax[1] = dimMin[1] + dimmax;
+  }
+  if (dimMax[2] - dimMin[2] > dimmax)
+  {
+    cerr << "warning: window geometry too small (dimz : " << dimMax[2]
+        - dimMin[2] << ")\n";
+    float scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
+    size[2] *= scl;
+    dimMin[2] = (short) (dimMin[2] / scl);
+    dimMax[2] = dimMin[2] + dimmax;
+  }
 
-  if( dimMax[0] - dimMin[0] >= dimmax )
-    {
-      cerr << "warning: window geometry too small (dimx : "
-	   << dimMax[0] - dimMin[0] << ")\n";
-      float	scl = ((float) dimMax[0] - dimMin[0] + 1) / dimmax;
-      size[0] *= scl;
-      dimMin[0] = (short) ( dimMin[0] / scl );
-      dimMax[0] = dimMin[0] + dimmax;
-    }
-  if( dimMax[1] - dimMin[1] > dimmax )
-    {
-      cerr << "warning: window geometry too small (dimy : "
-	   << dimMax[1] - dimMin[1] << ")\n";
-      float	scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
-      size[1] *= scl;
-      dimMin[1] = (short) ( dimMin[1] / scl );
-      dimMax[1] = dimMin[1] + dimmax;
-    }
-  if( dimMax[2] - dimMin[2] > dimmax )
-    {
-      cerr << "warning: window geometry too small (dimz : "
-	   << dimMax[2] - dimMin[2] << ")\n";
-      float	scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
-      size[2] *= scl;
-      dimMin[2] = (short) ( dimMin[2] / scl );
-      dimMax[2] = dimMin[2] + dimmax;
-    }
-
-  return Geometry( size, dimMin, dimMax );
+  return Geometry(size, dimMin, dimMax);
 }
-
 
 namespace
 {
 
-  AObject* objectToShow( const AWindow3D* w, const set<AObject *> & objs )
+  AObject* objectToShow(const AWindow3D* w, const set<AObject *> & objs)
   {
     AObject *obj = 0;
     SelectFactory *sf = SelectFactory::factory();
     unsigned nobj = 0, nsel = 0;
 
-    set<AObject *>::const_iterator  io, eo = objs.end();
-    for( io=objs.begin(); io!=eo; ++io )
-      if( (*io)->hasTexture() )
+    set<AObject *>::const_iterator io, eo = objs.end();
+    for (io = objs.begin(); io != eo; ++io)
+      if ((*io)->hasTexture())
       {
         ++nobj;
-        if( nobj == 1 )
-          obj = *io;
-        if( sf->isSelected( w->Group(), *io ) )
+        if (nobj == 1) obj = *io;
+        if (sf->isSelected(w->Group(), *io))
         {
-          if( nsel > 0 )
-            return 0; // ambiguity
+          if (nsel > 0) return 0; // ambiguity
           ++nsel;
           obj = *io;
         }
       }
-    if( nsel == 1 || ( nsel == 0 && nobj == 1 ) )
-      return obj;
+    if (nsel == 1 || (nsel == 0 && nobj == 1)) return obj;
     return 0;
   }
 
 }
 
-
-void AWindow3D::SetPosition( const Point3df& position ,
-			     const Referential* orgref )
+void AWindow3D::SetPosition(const Point3df& position, const Referential* orgref)
 {
-  anatomist::Transformation	*tra
-    = theAnatomist->getTransformation( orgref, getReferential() );
-  Point3df		pos;
+  anatomist::Transformation *tra = theAnatomist->getTransformation(orgref,
+      getReferential());
+  Point3df pos;
 
-  if( tra )
-    pos = tra->transform( position );
+  if (tra)
+    pos = tra->transform(position);
   else
     pos = position;
 
-  Geometry	*geom = windowGeometry();
+  Geometry *geom = windowGeometry();
 
-  if( geom && viewType() != ThreeD )
-    {	// snap to nearest slice
-      Point3df	dir = d->slicequat.apply( Point3df( 0, 0, 1 ) );
-      float		z = dir.dot( pos ) / geom->Size()[2];
+  if (geom && viewType() != ThreeD)
+  { // snap to nearest slice
+    Point3df dir = d->slicequat.apply(Point3df(0, 0, 1));
+    float z = dir.dot(pos) / geom->Size()[2];
 
-      pos += float( rint( z ) - z ) * geom->Size()[2] * dir;
-    }
+    pos += float(rint(z) - z) * geom->Size()[2] * dir;
+  }
 
-  if( pos != _position )
+  if (pos != _position)
+  {
+    _position = pos;
+    SetRefreshFlag();
+    updateSliceSlider();
+    // status bar
+    QStatusBar *sb = statusBar();
+    sb->message(tr("cursor position: ") + "( " + QString::number(_position[0])
+        + ", " + QString::number(_position[1]) + ", " + QString::number(
+        _position[2]) + ", " + QString::number(_time) + " )");
+    // object value
+    AObject *obj = objectToShow(this, _sobjects);
+    if (obj)
     {
-      _position = pos;
-      SetRefreshFlag();
-      updateSliceSlider();
-      // status bar
-      QStatusBar  *sb = statusBar();
-      sb->message( tr( "cursor position: " ) + "( " +
-          QString::number( _position[0] ) +
-          ", " + QString::number( _position[1] ) + ", " +
-          QString::number( _position[2] ) + ", " +
-          QString::number( _time ) + " )" );
-      // object value
-      AObject *obj = objectToShow( this, _sobjects );
-      if( obj )
+      vector<float> vals = obj->texValues(_position, _time, getReferential(),
+          Point3df(1, 1, 1));
+      QString txt;
+      unsigned i, n = vals.size();
+      for (i = 0; i < n; ++i)
       {
-        vector<float>
-            vals = obj->texValues( _position, _time, getReferential(),
-                                   Point3df( 1, 1, 1 ) );
-        QString txt;
-        unsigned	i, n = vals.size();
-        for( i=0; i<n; ++i )
-        {
-          if( i != 0 )
-            txt += ", ";
-          txt += QString::number( vals[i] );
-        }
-        if( d->objvallabel )
-          d->objvallabel->setText( txt );
+        if (i != 0) txt += ", ";
+        txt += QString::number(vals[i]);
       }
-      else if( d->objvallabel )
-        d->objvallabel->setText( "" );
+      if (d->objvallabel) d->objvallabel->setText(txt);
     }
+    else if (d->objvallabel) d->objvallabel->setText("");
+  }
 }
 
-
-void AWindow3D::setViewPoint( float *quaternion,
-			      const float zoom )
+void AWindow3D::setViewPoint(float *quaternion, const float zoom)
 {
-  d->draw->setZoom( zoom );
-  d->draw->setQuaternion( quaternion );
+  d->draw->setZoom(zoom);
+  d->draw->setQuaternion(quaternion);
   refreshLightViewNow();
 }
 
-
-void AWindow3D::setLight( const Light & l )
+void AWindow3D::setLight(const Light & l)
 {
-  if( !d->light )
-    d->light = new Light( l );
+  if (!d->light)
+    d->light = new Light(l);
   else
     *d->light = l;
 }
 
-
 Light* AWindow3D::light()
 {
-  return( d->light );
+  return (d->light);
 }
 
-
-void AWindow3D::setOrientationCube( bool state )
+void AWindow3D::setOrientationCube(bool state)
 {
   d->orientationCube = state;
 }
 
-
 bool AWindow3D::hasOrientationCube() const
 {
-  return( d->orientationCube );
+  return (d->orientationCube);
 }
 
-
-void AWindow3D::setBoundingFrame( bool state )
+void AWindow3D::setBoundingFrame(bool state)
 {
   d->boundingFrame = state;
 }
 
-
 bool AWindow3D::hasBoundingFrame() const
 {
-  return( d->boundingFrame );
+  return (d->boundingFrame);
 }
 
-
-void AWindow3D::setRenderingMode( RenderingMode mode )
+void AWindow3D::setRenderingMode(RenderingMode mode)
 {
   d->renderingMode = mode;
 }
 
-
 AWindow3D::RenderingMode AWindow3D::renderingMode() const
 {
-  return( d->renderingMode );
+  return (d->renderingMode);
 }
-
 
 void AWindow3D::lightView()
 {
-  if( !d->lightview )
-    d->lightview = new LightModelWindow( this );
+  if (!d->lightview) d->lightview = new LightModelWindow(this);
   d->lightview->show();
   d->lightview->raise();
 }
 
-
 void AWindow3D::pointsOfView()
 {
-  if( !d->poview )
-    d->poview = new FixedPointOfViewWindow( this, 0, "Fixed points of view" );
+  if (!d->poview) d->poview = new FixedPointOfViewWindow(this, 0,
+      "Fixed points of view");
   d->poview->show();
   d->poview->raise();
 }
 
-
 void AWindow3D::tools()
 {
-  if( !d->tools )
-    d->tools = new Tools3DWindow( this );
+  if (!d->tools) d->tools = new Tools3DWindow(this);
   d->tools->show();
   d->tools->raise();
 }
 
-
-void AWindow3D::syncViews( bool keepextrema )
+void AWindow3D::setPolygon(int poly)
 {
-  AWindow3D		*w2;
-  set<AWindow *>	win = theAnatomist->getWindows();
-  set<AWindow *>::const_iterator	iw, fw=win.end();
-  GLWidgetManager	*da = d->draw, *da2;
-  Point2df		tr;
-
-  for( iw=win.begin(); iw!=fw; ++iw )
-    {
-      if( *iw != this && (*iw)->Group() == Group() )
-	{
-	  w2 = dynamic_cast<AWindow3D *>( *iw );
-	  if( w2 && w2->viewType() == ThreeD )
-	    {
-	      da2 = w2->d->draw;
-              if( !keepextrema )
-                {
-                  da2->setAutoCentering( false );
-                  //da2->setExtrema( da->boundingMin(), da->boundingMax() );
-                  da2->setWindowExtrema( da->windowBoundingMin(),
-                                         da->windowBoundingMax() );
-                }
-	      da2->setZoom( da->zoom() );
-	      da2->setQuaternion( da->quaternion() );
-              if( !keepextrema )
-                da2->setRotationCenter( da->rotationCenter() );
-	      w2->refreshLightViewNow();
-	    }
-	}
-    }
+  d->painttools->setPolygon(poly);
 }
 
-
-bool AWindow3D::boundingBox( Point3df & bmin, Point3df & bmax, float & tmin,
-			     float & tmax ) const
+void AWindow3D::setVertex(int vertex)
 {
-  bool			valid = false;
+  d->painttools->setVertex(vertex);
+}
+
+void AWindow3D::setTextureValue(float tex)
+{
+  d->painttools->setTextureValue(tex);
+}
+
+float AWindow3D::getTextureValue(void)
+{
+  return d->painttools->getTextureValue();
+}
+
+bool AWindow3D::surfpaintIsVisible(void)
+{
+  return d->surfpaintState;
+}
+
+void AWindow3D::updateTextureValue(anatomist::AObject *o, string textype,
+    int indexVertex, float value)
+{
+
+  Point3df position;
+
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
+
+  if (o != NULL && w3->hasObject(o))
+  {
+    string objtype = o->objectTypeName(o->type());
+
+    if (objtype == "TEXTURED SURF.")
+    {
+      ATexSurface *go;
+      go = dynamic_cast<ATexSurface *> (o);
+
+      AObject *tex = go->texture();
+
+      ATexture *at;
+      at = dynamic_cast<ATexture *> (tex);
+
+      Object options = Object::value(Dictionary());
+      options->setProperty("scale", 0);
+
+      float it = at->TimeStep();
+      const GLComponent::TexExtrema & te = at->glTexExtrema(0);
+
+      float scl = (te.maxquant[0] - te.minquant[0]);
+
+      rc_ptr<TimeTexture<float> > t;
+      t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+
+      if ((textype == "S16") || (textype == "U32") || (textype == "S32"))
+        (*t).item(indexVertex) = (float) value / scl;
+
+      if (textype == "FLOAT") (*t).item(indexVertex) = (float) value ;
+
+      tex->setChanged();
+      tex->notifyObservers();
+      tex->setInternalsChanged();
+    }
+  }
+
+}
+
+void AWindow3D::showPaintingToolbox()
+{
+  if (d->painttools)
+    d->painttools->show();
+  else
+    togglePaintingToolbox();
+  //  d->painttools = new SurfpaintToolsWindow( this , "FLOAT");
+
+}
+
+void AWindow3D::togglePaintingToolbox()
+{
+  cout << "togglePaintingToolbox\n";
+  if (!d->painttools)
+  {
+    AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
+
+    d->surfpaintState = true;
+    //bof bof
+    QSize s = d->draw->qglWidget()->size();
+    AObject *o = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
+
+    GLComponent *glc = o->glAPI();
+
+    if (o != NULL && w3->hasObject(o))
+    {
+      string objtype = o->objectTypeName(o->type());
+
+      if (objtype == "SURFACE")
+      {
+        QMessageBox::warning( this, tr( "not texture associated" ),
+                                    tr( "Cannot open surfpaint Toolbox"
+                                      ) );
+//        ATriangulated *as;
+//        as = dynamic_cast<ATriangulated *> (o);
+//        int t = (int) GetTime();
+//        AimsSurface<3, Void> *s = as->surfaceOfTime(t);
+//        vector<AimsVector<uint, 3> > & tri = s->polygon();
+//
+//        d->painttools = new SurfpaintToolsWindow(this, "FLOAT");
+//        d->painttools->setMaxPoly(tri.size());
+
+      }
+      if (objtype == "TEXTURED SURF.")
+      {
+        glc->glAPI()->glSetTexRGBInterpolation( true );
+
+        ATexSurface *go;
+        go = dynamic_cast<ATexSurface *> (o);
+
+        AObject *surf = go->surface();
+        AObject *tex = go->texture();
+
+        ATexture *at;
+        at = dynamic_cast<ATexture *> (tex);
+        ATriangulated *as;
+        as = dynamic_cast<ATriangulated *> (surf);
+
+        int t = (int) GetTime();
+
+        AimsSurface<3, Void> *s = as->surfaceOfTime(t);
+
+        vector<AimsVector<uint, 3> > & tri = s->polygon();
+
+        string textype;
+        at->attributed()->getProperty("data_type", textype);
+
+        cout << "type texture :" << textype << endl;
+
+        const vector<Point3df> & vert = s->vertex();
+
+        float it = at->TimeStep();
+        const GLComponent::TexExtrema & te = at->glTexExtrema(0);
+
+        //float scl = (te.maxquant[0] - te.minquant[0]);
+        cout << "minmax tex : " << te.min[0] << " " << te.max[0] << endl;
+        cout << "minmax quant tex : " << te.minquant[0] << " "
+            << te.maxquant[0] << endl;
+        cout << "textype " << textype << endl;
+
+//        float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i] - te.min[i]);
+//        float off = te.minquant[i] - scl * te.min[i];
+
+        d->painttools = new SurfpaintToolsWindow(this, textype);
+
+        d->painttools->setMaxPoly(tri.size());
+        d->painttools->setMaxVertex(vert.size());
+
+        if ( (textype == "S16") || (textype == "U32") || (textype == "S32"))
+          d->painttools->setMinMaxTexture((float)(te.minquant[0]),(float)(te.maxquant[0]));
+
+        if (textype == "FLOAT")
+          d->painttools->setMinMaxTexture(te.min[0],te.max[0]);
+
+        d->painttools->show();
+        d->painttools->raise();
+      }
+
+
+    }
+  }
+  else
+  {
+    if (d->painttools->isVisible())
+    {
+      d->painttools->hide();
+      d->surfpaintState = false;
+    }
+    else
+    {
+      d->painttools->show();
+      d->surfpaintState = true;
+    }
+  }
+}
+
+void AWindow3D::syncViews(bool keepextrema)
+{
+  AWindow3D *w2;
+  set<AWindow *> win = theAnatomist->getWindows();
+  set<AWindow *>::const_iterator iw, fw = win.end();
+  GLWidgetManager *da = d->draw, *da2;
+  Point2df tr;
+
+  for (iw = win.begin(); iw != fw; ++iw)
+  {
+    if (*iw != this && (*iw)->Group() == Group())
+    {
+      w2 = dynamic_cast<AWindow3D *> (*iw);
+      if (w2 && w2->viewType() == ThreeD)
+      {
+        da2 = w2->d->draw;
+        if (!keepextrema)
+        {
+          da2->setAutoCentering(false);
+          //da2->setExtrema( da->boundingMin(), da->boundingMax() );
+          da2->setWindowExtrema(da->windowBoundingMin(),
+              da->windowBoundingMax());
+        }
+        da2->setZoom(da->zoom());
+        da2->setQuaternion(da->quaternion());
+        if (!keepextrema) da2->setRotationCenter(da->rotationCenter());
+        w2->refreshLightViewNow();
+      }
+    }
+  }
+}
+
+bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax, float & tmin,
+    float & tmax) const
+{
+  bool valid = false;
 
   //	determine objects extrema
-  if( _objects.empty() )
-    {
-      bmin = Point3df( 0, 0, 0 );
-      bmax = Point3df( 1, 1, 1 );
-      tmin = tmax = 0;
-      return( false );
-    }
+  if (_objects.empty())
+  {
+    bmin = Point3df(0, 0, 0);
+    bmax = Point3df(1, 1, 1);
+    tmin = tmax = 0;
+    return (false);
+  }
   else
+  {
+    list<shared_ptr<AObject> >::const_iterator i, e = _objects.end();
+    AObject *obj;
+    Point3df pmin, pmax, pmino, pmaxo;
+    Referential *wref = getReferential(), *oref;
+    anatomist::Transformation *tr;
+    float tmp;
+
+    tmin = FLT_MAX;
+    tmax = -FLT_MAX;
+
+    for (i = _objects.begin(); i != e; ++i)
     {
-      list<shared_ptr<AObject> >::const_iterator	i, e = _objects.end();
-      AObject			*obj;
-      Point3df			pmin, pmax, pmino, pmaxo;
-      Referential		*wref = getReferential(), *oref;
-      anatomist::Transformation		*tr;
-      float			tmp;
+      obj = i->get();
+      if (obj->boundingBox(pmino, pmaxo))
+      {
+        if (wref && (oref = obj->getReferential()) && (tr
+            = theAnatomist->getTransformation(oref, wref)))
+          tr->transformBoundingBox(pmino, pmaxo, pmin, pmax);
+        else
+        {
+          pmin = pmino;
+          pmax = pmaxo;
+        }
 
-      tmin = FLT_MAX;
-      tmax = - FLT_MAX;
-
-      for( i=_objects.begin(); i!=e; ++i )
-	{
-	  obj = i->get();
-	  if( obj->boundingBox( pmino, pmaxo ) )
-	    {
-	      if( wref && ( oref = obj->getReferential() )
-		  && ( tr = theAnatomist->getTransformation( oref, wref ) ) )
-		tr->transformBoundingBox( pmino, pmaxo, pmin, pmax );
-	      else
-		{
-		  pmin = pmino;
-		  pmax = pmaxo;
-		}
-
-	      if( valid )
-		{
-		  if( pmin[0] < bmin[0] ) bmin[0] = pmin[0];
-		  if( pmin[1] < bmin[1] ) bmin[1] = pmin[1];
-		  if( pmin[2] < bmin[2] ) bmin[2] = pmin[2];
-		  if( pmax[0] > bmax[0] ) bmax[0] = pmax[0];
-		  if( pmax[1] > bmax[1] ) bmax[1] = pmax[1];
-		  if( pmax[2] > bmax[2] ) bmax[2] = pmax[2];
-		}
-	      else
-		{
-		  bmin = pmin;
-		  bmax = pmax;
-		}
-	      valid = true;
-	    }
-	  tmp = obj->MinT();
-	  if( tmp < tmin ) tmin = tmp;
-	  tmp = obj->MaxT();
-	  if( tmp > tmax ) tmax = tmp;
-	}
+        if (valid)
+        {
+          if (pmin[0] < bmin[0]) bmin[0] = pmin[0];
+          if (pmin[1] < bmin[1]) bmin[1] = pmin[1];
+          if (pmin[2] < bmin[2]) bmin[2] = pmin[2];
+          if (pmax[0] > bmax[0]) bmax[0] = pmax[0];
+          if (pmax[1] > bmax[1]) bmax[1] = pmax[1];
+          if (pmax[2] > bmax[2]) bmax[2] = pmax[2];
+        }
+        else
+        {
+          bmin = pmin;
+          bmax = pmax;
+        }
+        valid = true;
+      }
+      tmp = obj->MinT();
+      if (tmp < tmin) tmin = tmp;
+      tmp = obj->MaxT();
+      if (tmp > tmax) tmax = tmp;
     }
+  }
 
   // d->needsboundingbox = false;
-  return( valid );
+  return (valid);
 }
-
 
 void AWindow3D::focusView()
 {
-  float		tmin, tmax;
-  Point3df	bmin, bmax;
+  float tmin, tmax;
+  Point3df bmin, bmax;
 
-  if( boundingBox( bmin, bmax, tmin, tmax ) )
-    {
-      d->draw->setExtrema( bmin, bmax );
-      d->needsextrema = false;
-      d->draw->setZoom( 1. );
-      d->draw->setAutoCentering( true );
-      Refresh();
-    }
+  if (boundingBox(bmin, bmax, tmin, tmax))
+  {
+    d->draw->setExtrema(bmin, bmax);
+    d->needsextrema = false;
+    d->draw->setZoom(1.);
+    d->draw->setAutoCentering(true);
+    Refresh();
+  }
 }
-
 
 void AWindow3D::toolsWinDestroyed()
 {
   d->tools = 0;
 }
 
+void AWindow3D::painttoolsWinDestroyed()
+{
+  d->painttools = 0;
+}
 
 void AWindow3D::povWinDestroyed()
 {
   d->poview = 0;
 }
-
 
 void AWindow3D::lightWinDestroyed()
 {
@@ -2907,122 +3089,102 @@ void AWindow3D::lightWinDestroyed()
   //cout << "AWindow3D::lightWinDestroyed\n";
 }
 
-
 bool AWindow3D::perspectiveEnabled() const
 {
-  return( d->draw->perspectiveEnabled() );
+  return (d->draw->perspectiveEnabled());
 }
 
-
-void AWindow3D::enablePerspective( bool state )
+void AWindow3D::enablePerspective(bool state)
 {
-  d->draw->enablePerspective( state );
+  d->draw->enablePerspective(state);
 }
-
 
 void AWindow3D::setAutoRotationCenter()
 {
-  d->draw->setAutoCentering( true );
+  d->draw->setAutoCentering(true);
   refreshLightViewNow();
 }
 
-
 const Quaternion & AWindow3D::sliceQuaternion() const
 {
-  return( d->slicequat );
+  return (d->slicequat);
 }
 
-
-void AWindow3D::setSliceQuaternion( const Quaternion & q )
+void AWindow3D::setSliceQuaternion(const Quaternion & q)
 {
   d->slicequat = q;
 }
 
-
 AWindow3D::ClipMode AWindow3D::clipMode() const
 {
-  return( d->clipmode );
+  return (d->clipmode);
 }
 
-
-void AWindow3D::setClipMode( ClipMode m )
+void AWindow3D::setClipMode(ClipMode m)
 {
   d->clipmode = m;
   setChanged();
 }
 
-
 float AWindow3D::clipDistance() const
 {
-  return( d->clipdist );
+  return (d->clipdist);
 }
 
-
-void AWindow3D::setClipDistance( float dis )
+void AWindow3D::setClipDistance(float dis)
 {
   d->clipdist = dis;
 }
 
-
 bool AWindow3D::transparentZEnabled() const
 {
-  return( d->transpz );
+  return (d->transpz);
 }
 
-
-void AWindow3D::enableTransparentZ( bool x )
+void AWindow3D::enableTransparentZ(bool x)
 {
   d->transpz = x;
 }
 
-
 bool AWindow3D::cullingEnabled() const
 {
-  return( d->culling );
+  return (d->culling);
 }
 
-
-void AWindow3D::setCulling( bool x )
+void AWindow3D::setCulling(bool x)
 {
   d->culling = x;
 }
 
-
 bool AWindow3D::flatShading() const
 {
-  return( d->flatshading );
+  return (d->flatshading);
 }
 
-
-void AWindow3D::setFlatShading( bool x )
+void AWindow3D::setFlatShading(bool x)
 {
   d->flatshading = x;
 }
 
-
 bool AWindow3D::smoothing() const
 {
-  return( d->smooth );
+  return (d->smooth);
 }
 
-
-void AWindow3D::setSmoothing( bool x )
+void AWindow3D::setSmoothing(bool x)
 {
   d->smooth = x;
 }
 
-
 bool AWindow3D::fog() const
 {
-  return( d->fog );
+  return (d->fog);
 }
 
-
-void AWindow3D::setFog( bool x )
+void AWindow3D::setFog(bool x)
 {
   d->fog = x;
 }
-
 
 void AWindow3D::Refresh()
 {
@@ -3030,40 +3192,37 @@ void AWindow3D::Refresh()
   ControlledWindow::Refresh();
 }
 
-
 void AWindow3D::refreshLightView()
 {
-  if( !needsRedraw() )
+  if (!needsRedraw())
   {
     d->refreshneeded = Private::LightRefresh;
     ControlledWindow::Refresh();
   }
 }
 
-
 void AWindow3D::refreshLightViewNow()
 {
   d->refreshneeded = Private::FullRefresh;
   list<shared_ptr<AObject> >::iterator i, e = _objects.end();
-  for( i=_objects.begin(); i!=e && !(*i)->renderingIsObserverDependent();
-       ++i ) {}
-  if( i == e )
+  for (i = _objects.begin(); i != e && !(*i)->renderingIsObserverDependent(); ++i)
+  {
+  }
+  if (i == e)
     d->draw->updateGL();
   else
     // could be optimized on a by-object basis
     refreshNow();
 }
 
-
 void AWindow3D::refreshTemp()
 {
-  if( !needsRedraw() || d->refreshneeded == Private::LightRefresh )
+  if (!needsRedraw() || d->refreshneeded == Private::LightRefresh)
   {
     d->refreshneeded = Private::TempRefresh;
     ControlledWindow::Refresh();
   }
 }
-
 
 void AWindow3D::refreshTempNow()
 {
@@ -3073,25 +3232,25 @@ void AWindow3D::refreshTempNow()
 
   // const set<AObject *>	& tempobj = temporaryObjects();
 
-  PrimList				pl = d->draw->primitives();
-  PrimList::iterator			ip, ip2, iendobj;
+  PrimList pl = d->draw->primitives();
+  PrimList::iterator ip, ip2, iendobj;
 
   //cout << "re-order objects...\n";
   //	re-order objects for faster deletion
-  map<unsigned, pair<AObject*,unsigned> >		to2;
-  map<unsigned, pair<AObject*,unsigned> >::iterator	io2, eo2;
-  map<AObject *, pair<unsigned, unsigned> >::iterator
-    io, eo = d->tmpprims.end();
+  map<unsigned, pair<AObject*, unsigned> > to2;
+  map<unsigned, pair<AObject*, unsigned> >::iterator io2, eo2;
+  map<AObject *, pair<unsigned, unsigned> >::iterator io, eo =
+      d->tmpprims.end();
 
-  for( io=d->tmpprims.begin(); io!=eo; ++io )
-    to2[ io->second.first ]
-      = pair<AObject *,unsigned>( io->first, io->second.second );
+  for (io = d->tmpprims.begin(); io != eo; ++io)
+    to2[io->second.first] = pair<AObject *, unsigned> (io->first,
+        io->second.second);
 
   //cout << "done\n";
 
   //	convert unsigned pointers to iterators
-  unsigned							i, j, k;
-  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >	pli;
+  unsigned i, j, k;
+  map<AObject *, pair<PrimList::iterator, PrimList::iterator> > pli;
   map<unsigned, pair<PrimList::iterator, PrimList::iterator> > orphan_chunks;
 
   // index of end-of-objects as iterator
@@ -3100,31 +3259,30 @@ void AWindow3D::refreshTempNow()
   k = 0;
 
   // cout << "convert unsigned to iterators...\n";
-  for( io2=to2.begin(), eo2=to2.end(); io2!=eo2; ++io2 )
+  for (io2 = to2.begin(), eo2 = to2.end(); io2 != eo2; ++io2)
   {
     j = io2->first;
     ip2 = ip;
     k = i;
-    while( i < j )
-      {
-        ++ip;
-        ++i;
-      }
-    if( k < j )
-      orphan_chunks[ k ] = make_pair( ip2, ip );
+    while (i < j)
+    {
+      ++ip;
+      ++i;
+    }
+    if (k < j) orphan_chunks[k] = make_pair(ip2, ip);
     ip2 = ip;
     j = io2->second.second;
-    while( i < j )
-      {
-        ++ip;
-        ++i;
-      }
-    pli[ io2->second.first ]
-      = pair<PrimList::iterator, PrimList::iterator>( ip2, ip );
+    while (i < j)
+    {
+      ++ip;
+      ++i;
+    }
+    pli[io2->second.first] = pair<PrimList::iterator, PrimList::iterator> (ip2,
+        ip);
   }
-  if( ip != pl.end() )
+  if (ip != pl.end())
   {
-    orphan_chunks[ i ] = make_pair( ip, pl.end() );
+    orphan_chunks[i] = make_pair(ip, pl.end());
   }
   // cout << "done\n";
 
@@ -3132,63 +3290,62 @@ void AWindow3D::refreshTempNow()
   list<shared_ptr<AObject> >::const_iterator ilo, elo = _objects.end();
   list<AObject *>::iterator ioo = objs.begin(), eoo = objs.end(), nexto;
   AObject *ao;
-  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator
-  ipl, epl = pli.end();
+  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator ipl,
+      epl = pli.end();
 
-  processRenderingOrder( objs );
+  processRenderingOrder(objs);
 
   //	rebuild lists
   // cout << "rebuild lists...\n";
 
-  bool	newobj = false;
+  bool newobj = false;
   i = 0;
   map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator
-    nextipl = pli.begin();
+      nextipl = pli.begin();
 
-  PrimList      plnew;
+  PrimList plnew;
   ip = pl.begin();
-  unsigned      orphan, plnewlen = 0, oldlen;
-  map<unsigned, pair<PrimList::iterator, PrimList::iterator> >::iterator
-    ior = orphan_chunks.begin(), eor = orphan_chunks.end();
+  unsigned orphan, plnewlen = 0, oldlen;
+  map<unsigned, pair<PrimList::iterator, PrimList::iterator> >::iterator ior =
+      orphan_chunks.begin(), eor = orphan_chunks.end();
 
   // in real rendering order
-  for( ioo=objs.begin(); ioo!=eoo; ++ioo )
+  for (ioo = objs.begin(); ioo != eoo; ++ioo)
   {
     ao = *ioo;
     // copy orphan lists
-    ipl = pli.find( ao );
-    if( ipl != epl )
+    ipl = pli.find(ao);
+    if (ipl != epl)
     {
-      orphan = d->tmpprims[ ipl->first ].first;
-      while( ior!=eor && ior->first < orphan )
+      orphan = d->tmpprims[ipl->first].first;
+      while (ior != eor && ior->first < orphan)
       {
-        plnew.insert( plnew.end(), ior->second.first, ior->second.second );
+        plnew.insert(plnew.end(), ior->second.first, ior->second.second);
         ++ior;
       }
       plnewlen = plnew.size();
     }
 
-    if( isTemporary( ao ) )
+    if (isTemporary(ao))
     {
-      if( ipl == epl )
+      if (ipl == epl)
       {
         newobj = true;
         // new temp object, copy orphans up to next object
         nexto = ioo;
         ++nexto;
-        while( nexto != eoo )
+        while (nexto != eoo)
         {
-          io = d->tmpprims.find( *nexto );
-          if( io != eo )
-            break;
+          io = d->tmpprims.find(*nexto);
+          if (io != eo) break;
           ++nexto;
         }
-        if( nexto != eoo )
+        if (nexto != eoo)
         {
           orphan = io->second.first;
-          while( ior!=eor && ior->first < orphan )
+          while (ior != eor && ior->first < orphan)
           {
-            plnew.insert( plnew.end(), ior->second.first, ior->second.second );
+            plnew.insert(plnew.end(), ior->second.first, ior->second.second);
             ++ior;
           }
           plnewlen = plnew.size();
@@ -3196,136 +3353,119 @@ void AWindow3D::refreshTempNow()
       }
 
       oldlen = plnewlen;
-      updateObject( ao, &plnew );
+      updateObject(ao, &plnew);
       plnewlen = plnew.size();
-      if( plnewlen == oldlen )
-        d->tmpprims.erase( ao );
+      if (plnewlen == oldlen) d->tmpprims.erase(ao);
     }
     else
     {
       // non-temp object: copy its lists without redrawing
-      if( ipl != epl ) // already drawn
+      if (ipl != epl) // already drawn
       {
         oldlen = plnewlen;
-        plnew.insert( plnew.end(), ipl->second.first, ipl->second.second );
+        plnew.insert(plnew.end(), ipl->second.first, ipl->second.second);
         plnewlen = plnew.size();
-        pair<unsigned, unsigned> & tp = d->tmpprims[ ao ];
+        pair<unsigned, unsigned> & tp = d->tmpprims[ao];
         tp.first = oldlen;
         tp.second = plnewlen;
       }
     }
   }
 
-  if( newobj || !to2.empty() )
+  if (newobj || !to2.empty())
   {
     // copy end of list
-    while( ior!=eor )
+    while (ior != eor)
     {
-      plnew.insert( plnew.end(), ior->second.first, ior->second.second );
+      plnew.insert(plnew.end(), ior->second.first, ior->second.second);
       ++ior;
     }
 
-    d->draw->setPrimitives( plnew );
+    d->draw->setPrimitives(plnew);
     d->draw->updateGL();
   }
   //cout << "refreshTempNow finished\n";
 }
 
-
-int
-AWindow3D::getSliceSliderPosition()
+int AWindow3D::getSliceSliderPosition()
 {
-  return( d->slids->value() ) ;
+  return (d->slids->value());
 }
 
-int
-AWindow3D::getSliceSliderMaxPosition()
+int AWindow3D::getSliceSliderMaxPosition()
 {
-  return( d->slids->maxValue() ) ;
+  return (d->slids->maxValue());
 }
 
-int
-AWindow3D::getTimeSliderPosition()
+int AWindow3D::getTimeSliderPosition()
 {
-  return( d->slidt->value() ) ;
+  return (d->slidt->value());
 }
 
-int
-AWindow3D::getTimeSliderMaxPosition()
+int AWindow3D::getTimeSliderMaxPosition()
 {
-  return( d->slidt->maxValue() ) ;
+  return (d->slidt->maxValue());
 }
 
-void
-AWindow3D::setSliceSliderPosition( int position )
+void AWindow3D::setSliceSliderPosition(int position)
 {
-  d->slids->setValue( position ) ;
+  d->slids->setValue(position);
 }
 
-void
-AWindow3D::setTimeSliderPosition( int position )
+void AWindow3D::setTimeSliderPosition(int position)
 {
-  d->slidt->setValue( position ) ;
+  d->slidt->setValue(position);
 }
-
 
 void AWindow3D::switchToolbox()
 {
   view()->controlSwitch()->switchToolBoxVisible();
 }
 
-
-void AWindow3D::registerObjectModifier( ObjectModifier *mod )
+void AWindow3D::registerObjectModifier(ObjectModifier *mod)
 {
-  d->objmodifiers.push_back( mod );
+  d->objmodifiers.push_back(mod);
 }
 
-
-void AWindow3D::unregisterObjectModifier( ObjectModifier *mod )
+void AWindow3D::unregisterObjectModifier(ObjectModifier *mod)
 {
-  list<ObjectModifier *>::iterator	e = d->objmodifiers.end(),
-    i = std::find( d->objmodifiers.begin(), e, mod );
-  if( i != e )
-    d->objmodifiers.erase( i );
+  list<ObjectModifier *>::iterator e = d->objmodifiers.end(), i = std::find(
+      d->objmodifiers.begin(), e, mod);
+  if (i != e) d->objmodifiers.erase(i);
 }
 
-
-void AWindow3D::update( const Observable* o, void* arg )
+void AWindow3D::update(const Observable* o, void* arg)
 {
 #ifdef ANA_DEBUG_UPDATE
   cout << "AWindow3D::update()\n";
 #endif
-  const AObject	*ao = dynamic_cast<const AObject*>( o );
+  const AObject *ao = dynamic_cast<const AObject*> (o);
   bool temp = false;
-  if( ao )
+  if (ao)
+  {
+    if (isTemporary(const_cast<AObject *> (ao))) temp = true;
+    if (ao->obsHasChanged(GLComponent::glREFERENTIAL))
     {
-      if( isTemporary( const_cast<AObject *>( ao ) ) )
-        temp = true;
-      if( ao->obsHasChanged( GLComponent::glREFERENTIAL ) )
-        {
 #ifdef ANA_DEBUG_UPDATE
-          cout << "object " << ao->name() << " (" << o
-               << ") has changed ref in window " << name() << " ("
-               << this << ")\n";
+      cout << "object " << ao->name() << " (" << o
+      << ") has changed ref in window " << name() << " ("
+      << this << ")\n";
 #endif
-          const Referential
-            *r1 = getReferential(), *r2 = ao->previousReferential();
-          if( r1 )
-            {
-              ATransformSet	*ts = ATransformSet::instance();
-              if( r2 )
-                ts->unregisterObserver( r1, r2, this );
-              r2 = ao->getReferential();
-              if( r2 )
-                ts->registerObserver( r1, r2, this );
-            }
-        }
+      const Referential *r1 = getReferential(), *r2 = ao->previousReferential();
+      if (r1)
+      {
+        ATransformSet *ts = ATransformSet::instance();
+        if (r2) ts->unregisterObserver(r1, r2, this);
+        r2 = ao->getReferential();
+        if (r2) ts->registerObserver(r1, r2, this);
+      }
     }
+  }
   else
   {
-    const TransformationObserver *to
-      = dynamic_cast<const TransformationObserver *>( o );
-    if( to )
+    const TransformationObserver *to =
+        dynamic_cast<const TransformationObserver *> (o);
+    if (to)
     {
       // try not trigger a full refresh if only local internal (hidden)
       // transformations are involved
@@ -3333,260 +3473,233 @@ void AWindow3D::update( const Observable* o, void* arg )
       set<const Referential *>::const_iterator ir, er = refs.end();
       unsigned nothidden = 0;
       bool hidden;
-      for( ir=refs.begin(); ir!=er; ++ir )
-        if( !(*ir)->header().getProperty( "hidden", hidden ) || !hidden )
+      for (ir = refs.begin(); ir != er; ++ir)
+        if (!(*ir)->header().getProperty("hidden", hidden) || !hidden)
         {
-          ++ nothidden;
-          if( nothidden >= 2 )
-            break;
+          ++nothidden;
+          if (nothidden >= 2) break;
         }
-      if( nothidden <= 1 )
-        temp = true;
+      if (nothidden <= 1) temp = true;
     }
   }
 
-  if( temp )
+  if (temp)
     refreshTemp();
   else
-    AWindow::update( o, arg );
+    AWindow::update(o, arg);
 }
 
-
-void AWindow3D::setReferential( Referential* ref )
+void AWindow3D::setReferential(Referential* ref)
 {
-  ATransformSet	*ts = ATransformSet::instance();
-  Referential	*old = getReferential(), *r2;
-  list<shared_ptr<AObject> >::iterator	io, eo = _objects.end();
+  ATransformSet *ts = ATransformSet::instance();
+  Referential *old = getReferential(), *r2;
+  list<shared_ptr<AObject> >::iterator io, eo = _objects.end();
 
-  if( old )
-    // remove all observers for me
-    for( io=_objects.begin(); io!=eo; ++io )
-      {
-        r2 = (*io)->getReferential();
-        ts->unregisterObserver( old, r2, this );
-      }
+  if (old)
+  // remove all observers for me
+  for (io = _objects.begin(); io != eo; ++io)
+  {
+    r2 = (*io)->getReferential();
+    ts->unregisterObserver(old, r2, this);
+  }
 
-  ControlledWindow::setReferential( ref );
+  ControlledWindow::setReferential(ref);
 
-  if( ref )
-    // put back observers to all objects
-    for( io=_objects.begin(); io!=eo; ++io )
-      {
-        r2 = (*io)->getReferential();
-        ts->registerObserver( ref, r2, this );
-      }
+  if (ref)
+  // put back observers to all objects
+  for (io = _objects.begin(); io != eo; ++io)
+  {
+    r2 = (*io)->getReferential();
+    ts->registerObserver(ref, r2, this);
+  }
 
-  d->draw->setZDirection( ref ? !ref->isDirect() : false );
+  d->draw->setZDirection(ref ? !ref->isDirect() : false);
 }
-
 
 bool AWindow3D::linkedCursorOnSliderChange() const
 {
   return d->linkonslider;
 }
 
-
-void AWindow3D::setLinkedCursorOnSliderChange( bool x )
+void AWindow3D::setLinkedCursorOnSliderChange(bool x)
 {
   d->linkonslider = x;
 }
 
-
 void AWindow3D::setLinkedCursorPos()
 {
-  QDialog	dial( this, "set linked cursor position", true );
-  dial.setCaption( "Set linked cursor position" );
-  QVBoxLayout	*l = new QVBoxLayout( &dial );
-  l->setMargin( 5 );
-  l->setSpacing( 5 );
-  QLineEdit	*le = new QLineEdit( &dial );
-  l->addWidget( le );
+  QDialog dial(this, "set linked cursor position", true);
+  dial.setCaption("Set linked cursor position");
+  QVBoxLayout *l = new QVBoxLayout(&dial);
+  l->setMargin(5);
+  l->setSpacing(5);
+  QLineEdit *le = new QLineEdit(&dial);
+  l->addWidget(le);
   stringstream curpos;
   Point3df pos = GetPosition();
   curpos << pos[0] << " " << pos[1] << " " << pos[2];
-  le->setText( QString( curpos.str().c_str() ) );
+  le->setText(QString(curpos.str().c_str()));
   le->selectAll();
-  QHBox		*hb = new QHBox( &dial );
-  l->addWidget( hb );
-  QPushButton	*pb = new QPushButton( tr( "OK" ), hb );
-  pb->setAutoDefault( true );
-  pb->setDefault( true );
-  connect( pb, SIGNAL( clicked() ), &dial, SLOT( accept() ) );
-  pb = new QPushButton( tr( "Cancel" ), hb );
-  connect( pb, SIGNAL( clicked() ), &dial, SLOT( reject() ) );
+  QHBox *hb = new QHBox(&dial);
+  l->addWidget(hb);
+  QPushButton *pb = new QPushButton(tr("OK"), hb);
+  pb->setAutoDefault(true);
+  pb->setDefault(true);
+  connect(pb, SIGNAL(clicked()), &dial, SLOT(accept()));
+  pb = new QPushButton(tr("Cancel"), hb);
+  connect(pb, SIGNAL(clicked()), &dial, SLOT(reject()));
 
-  if( dial.exec() )
+  if (dial.exec())
+  {
+    QString txt = le->text();
+    vector<float> nums;
+    nums.reserve(4);
+    int i, l = 0, m = 0, n = txt.length();
+    bool ok = true;
+    for (i = 0; i < 4 && l < n; ++i)
     {
-      QString	txt = le->text();
-      vector<float>	nums;
-      nums.reserve( 4 );
-      int	i, l = 0, m = 0, n = txt.length();
-      bool	ok = true;
-      for( i=0; i<4 && l<n; ++i )
-        {
-          while( txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',' )
-            ++l;
-          m = txt.find( ' ', l );
-          if( m == -1 )
-            m = txt.length();
-          QString	s = txt;
-          s.remove( 0, l );
-          s.remove( m - l, txt.length() - m );
-          nums.push_back( s.toFloat( &ok ) );
-          if( !ok )
-            {
-              cerr << "unable to parse coords in string \"" << txt.utf8().data()
-                   << "\"" << endl;
-            }
-          l = m;
-        }
-      n = nums.size();
-      if( n >= 3 )
-        {
-          LinkedCursorCommand	*c = new LinkedCursorCommand( this, nums );
-          theProcessor->execute( c );
-        }
-      else
-        cerr << "not a 3D/4D position" << endl;
+      while (txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',')
+        ++l;
+      m = txt.find(' ', l);
+      if (m == -1) m = txt.length();
+      QString s = txt;
+      s.remove(0, l);
+      s.remove(m - l, txt.length() - m);
+      nums.push_back(s.toFloat(&ok));
+      if (!ok)
+      {
+        cerr << "unable to parse coords in string \"" << txt.utf8().data()
+            << "\"" << endl;
+      }
+      l = m;
     }
+    n = nums.size();
+    if (n >= 3)
+    {
+      LinkedCursorCommand *c = new LinkedCursorCommand(this, nums);
+      theProcessor->execute(c);
+    }
+    else
+      cerr << "not a 3D/4D position" << endl;
+  }
 }
-
 
 AWindow3D* AWindow3D::rightEyeWindow()
 {
   return d->righteye;
 }
 
-
 AWindow3D* AWindow3D::leftEyeWindow()
 {
   return d->lefteye;
 }
 
-
-void AWindow3D::setRightEyeWindow( AWindow3D* w )
+void AWindow3D::setRightEyeWindow(AWindow3D* w)
 {
-  if( d->righteye )
-    d->righteye->setLeftEyeWindow( 0 );
+  if (d->righteye) d->righteye->setLeftEyeWindow(0);
   d->righteye = w;
-  d->draw->setRightEye( w ? dynamic_cast<GLWidgetManager *>( w->view() ) : 0 );
-  if( w )
-    w->setLeftEyeWindow( this );
+  d->draw->setRightEye(w ? dynamic_cast<GLWidgetManager *> (w->view()) : 0);
+  if (w) w->setLeftEyeWindow(this);
 }
 
-
-void AWindow3D::setLeftEyeWindow( AWindow3D* w )
+void AWindow3D::setLeftEyeWindow(AWindow3D* w)
 {
-  if( d->lefteye && w )
-    d->lefteye->setRightEyeWindow( 0 );
+  if (d->lefteye && w) d->lefteye->setRightEyeWindow(0);
   d->lefteye = w;
-  d->draw->setLeftEye( w ? dynamic_cast<GLWidgetManager *>( w->view() ) : 0 );
+  d->draw->setLeftEye(w ? dynamic_cast<GLWidgetManager *> (w->view()) : 0);
 }
-
 
 void AWindow3D::openStereoView()
 {
-  CreateWindowCommand *c = new CreateWindowCommand( "3D" );
-  theProcessor->execute( c );
-  AWindow3D *w = static_cast<AWindow3D *>( c->createdWindow() );
-  setRightEyeWindow( w );
+  CreateWindowCommand *c = new CreateWindowCommand("3D");
+  theProcessor->execute(c);
+  AWindow3D *w = static_cast<AWindow3D *> (c->createdWindow());
+  setRightEyeWindow(w);
   set<AWindow *> sw;
-  sw.insert( w );
-  AddObjectCommand *c2 = new AddObjectCommand( Objects(), sw );
-  theProcessor->execute( c2 );
+  sw.insert(w);
+  AddObjectCommand *c2 = new AddObjectCommand(Objects(), sw);
+  theProcessor->execute(c2);
 }
 
-
-void AWindow3D::showToolBars( int state )
+void AWindow3D::showToolBars(int state)
 {
-  if( state < 0 || state >= 2 )
-    state = 1 - toolBarsVisible();
-  if( state )
+  if (state < 0 || state >= 2) state = 1 - toolBarsVisible();
+  if (state)
   {
     d->refbox->show();
-    if( d->statusbarvisible )
-      statusBar()->show();
+    if (d->statusbarvisible) statusBar()->show();
   }
   else
   {
     d->refbox->hide();
     statusBar()->hide();
   }
-  ControlledWindow::showToolBars( state );
+  ControlledWindow::showToolBars(state);
 }
-
 
 void AWindow3D::toggleStatusBarVisibility()
 {
-  Object  p = Object::value( Dictionary() );
-  set<AWindow *>  sw;
-  sw.insert( this );
-  p->value<Dictionary>()[ "show_cursor_position" ] = Object::value( 2 );
-  WindowConfigCommand *c = new WindowConfigCommand( sw, *p );
-  theProcessor->execute( c );
+  Object p = Object::value(Dictionary());
+  set<AWindow *> sw;
+  sw.insert(this);
+  p->value<Dictionary> ()["show_cursor_position"] = Object::value(2);
+  WindowConfigCommand *c = new WindowConfigCommand(sw, *p);
+  theProcessor->execute(c);
 }
 
-
-void AWindow3D::showStatusBar( int x )
+void AWindow3D::showStatusBar(int x)
 {
-  if( x < 0 || x >= 2 )
-    x = !d->statusbarvisible;
-  if( x != d->statusbarvisible )
+  if (x < 0 || x >= 2) x = !d->statusbarvisible;
+  if (x != d->statusbarvisible)
   {
     d->statusbarvisible = x;
-    if( x && toolBarsVisible() )
+    if (x && toolBarsVisible())
       statusBar()->show();
     else
       statusBar()->hide();
   }
 }
 
-
-void AWindow3D::renderAfter( AObject* obj, AObject* after )
+void AWindow3D::renderAfter(AObject* obj, AObject* after)
 {
-  if( after )
-    d->renderconstraints[ obj ]
-      = Private::ConstrainedObject( Private::RenderAfter, after );
+  if (after)
+    d->renderconstraints[obj] = Private::ConstrainedObject(
+        Private::RenderAfter, after);
   else
-    d->renderconstraints.erase( obj );
+    d->renderconstraints.erase(obj);
 }
 
-
-void AWindow3D::renderBefore( AObject* obj, AObject* before )
+void AWindow3D::renderBefore(AObject* obj, AObject* before)
 {
-  if( before )
-    d->renderconstraints[ obj ]
-      = Private::ConstrainedObject( Private::RenderBefore, before );
+  if (before)
+    d->renderconstraints[obj] = Private::ConstrainedObject(
+        Private::RenderBefore, before);
   else
-    d->renderconstraints.erase( obj );
+    d->renderconstraints.erase(obj);
 }
-
 
 namespace
 {
 
-  GLfloat selectedOpacity( const AWindow3D* win, AObject* obj )
+  GLfloat selectedOpacity(const AWindow3D* win, AObject* obj)
   {
-    if( SelectFactory::factory()->isSelected( win->Group(), obj ) )
+    if (SelectFactory::factory()->isSelected(win->Group(), obj))
     {
-      SelectFactory::HColor     col
-      = SelectFactory::factory()->highlightColor( obj );
+      SelectFactory::HColor col = SelectFactory::factory()->highlightColor(obj);
 
-      if( GraphParams::graphParams()->selectRenderMode == 0 && !col.na )
-        return col.a;
+      if (GraphParams::graphParams()->selectRenderMode == 0 && !col.na) return col.a;
     }
     return obj->GetMaterial().Diffuse()[3];
   }
 
 }
 
-
-list<AObject *>::iterator
-AWindow3D::processRenderingOrder( list<AObject *> & ordered ) const
+list<AObject *>::iterator AWindow3D::processRenderingOrder(
+    list<AObject *> & ordered) const
 {
-  list<shared_ptr<AObject> >::const_iterator  i, e = _objects.end();
-  map<AObject *, Private::ConstrainedObject>::iterator
-    ic, ec = d->renderconstraints.end();
+  list<shared_ptr<AObject> >::const_iterator i, e = _objects.end();
+  map<AObject *, Private::ConstrainedObject>::iterator ic, ec =
+      d->renderconstraints.end();
   AObject *ao;
   multimap<float, AObject *> blended;
   multimap<float, AObject *>::reverse_iterator ib, eb;
@@ -3597,87 +3710,82 @@ AWindow3D::processRenderingOrder( list<AObject *> & ordered ) const
   bool ctrans = false;
   GLfloat op;
 
-  for( i=_objects.begin(); i!=_objects.end(); ++i )
+  for (i = _objects.begin(); i != _objects.end(); ++i)
   {
     ao = i->get();
-    ic = d->renderconstraints.find( ao );
-    if( ic == ec ) // non-constrained position
+    ic = d->renderconstraints.find(ao);
+    if (ic == ec) // non-constrained position
     {
       // not constrained: use opacity
-      op = selectedOpacity( this, ao );
-      if( op < 1. )
-        blended.insert( pair<float, AObject *>( op, ao ) );
+      op = selectedOpacity(this, ao);
+      if (op < 1.)
+        blended.insert(pair<float, AObject *> (op, ao));
       else
       {
-        rev[ ao ] = ordered.insert( eo, ao );
+        rev[ao] = ordered.insert(eo, ao);
       }
     }
   }
   // append transparent objects
-  for( ib=blended.rbegin(), eb=blended.rend(); ib!=eb; ++ib )
+  for (ib = blended.rbegin(), eb = blended.rend(); ib != eb; ++ib)
   {
-    rev[ ib->second ] = ordered.insert( eo, ib->second );
-    if( transparent == ordered.end() )
-      transparent = rev[ ib->second ];
+    rev[ib->second] = ordered.insert(eo, ib->second);
+    if (transparent == ordered.end()) transparent = rev[ib->second];
   }
 
   // now insert constrained objects
   map<AObject *, Private::ConstrainedObject> c1, c2;
-  map<AObject *, Private::ConstrainedObject>
-    *constrained = &d->renderconstraints, *notdone = &c1;
+  map<AObject *, Private::ConstrainedObject> *constrained =
+      &d->renderconstraints, *notdone = &c1;
   do
   {
-    if( !notdone->empty() )
+    if (!notdone->empty())
     {
       constrained = notdone;
-      if( notdone == &c1 )
+      if (notdone == &c1)
         notdone = &c2;
       else
         notdone = &c1;
       notdone->clear();
     }
 
-    for( ic=constrained->begin(), ec=constrained->end(); ic!=ec; ++ic )
+    for (ic = constrained->begin(), ec = constrained->end(); ic != ec; ++ic)
     {
-      ir = rev.find( ic->second.second );
-      if( ir == er ) // not found: maybe another constrained object
+      ir = rev.find(ic->second.second);
+      if (ir == er) // not found: maybe another constrained object
       {
-        (*notdone)[ ic->first ] = ic->second;
+        (*notdone)[ic->first] = ic->second;
       }
       else
       {
         io = ir->second;
-        if( ic->second.first == Private::RenderAfter )
-          ++io;
-        io = ordered.insert( io, ic->first );
-        rev[ ic->first ] = io;
-        if( ic->first->isTransparent() )
-          ctrans = true;
+        if (ic->second.first == Private::RenderAfter) ++io;
+        io = ordered.insert(io, ic->first);
+        rev[ic->first] = io;
+        if (ic->first->isTransparent()) ctrans = true;
       }
     }
   }
-  while( !notdone->empty() && notdone->size() != constrained->size() );
+  while (!notdone->empty() && notdone->size() != constrained->size());
 
   // add randomly remaining objects
-  if( !notdone->empty() )
+  if (!notdone->empty())
   {
-    for( ic=notdone->begin(), ec=notdone->end(); ic!=ec; ++ic )
+    for (ic = notdone->begin(), ec = notdone->end(); ic != ec; ++ic)
     {
-      ordered.push_back( ic->first );
-      if( ic->first->isTransparent() )
-        ctrans = true;
+      ordered.push_back(ic->first);
+      if (ic->first->isTransparent()) ctrans = true;
     }
   }
 
   // if there were any transparent constrained objects, recount the first
   // transparent one
-  if( ctrans )
-    for( io=ordered.begin(); io!=transparent; ++io )
-      if( (*io)->isTransparent() )
-      {
-        transparent = io;
-        break;
-      }
+  if (ctrans) for (io = ordered.begin(); io != transparent; ++io)
+    if ((*io)->isTransparent())
+    {
+      transparent = io;
+      break;
+    }
 
   return transparent;
 }
@@ -3687,97 +3795,87 @@ QSlider* AWindow3D::getSliceSlider() const
   return d->slids;
 }
 
-
-AObject* AWindow3D::objectAtCursorPosition( int x, int y )
+AObject* AWindow3D::objectAtCursorPosition(int x, int y)
 {
   AObject *obj = 0;
   // render in ViewState::glSELECTRENDER_OBJECT mode (if needed)
-  renderSelectionBuffer( ViewState::glSELECTRENDER_OBJECT );
+  renderSelectionBuffer(ViewState::glSELECTRENDER_OBJECT);
   // read the color buffer at pos x,y
   d->draw->qglWidget()->makeCurrent();
   glFlush(); // or glFinish() ?
   GLubyte r, g, b;
-  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+  d->draw->readBackBuffer(x, d->draw->qglWidget()->height() - y, r, g, b);
   // convert color -> ID
   int id = (r << 16) | (g << 8) | b;
-/*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << id << endl;*/
+  /*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << id << endl;*/
   // get object with the same ID
-  obj = objectWithGLID( id );
+  obj = objectWithGLID(id);
   // cout << "object: " << obj << endl;
   return obj;
 }
 
-
-list<AObject*> *AWindow3D::objectsAtCursorPosition( int /*x*/, int /*y*/,
-    int /*tolerenceRadius*/ )
+list<AObject*> *AWindow3D::objectsAtCursorPosition(int /*x*/, int /*y*/, int /*tolerenceRadius*/)
 {
   // TODO
   list<AObject *> *objs = 0;
   // render in ViewState::glSELECTRENDER_OBJECTS mode (if needed)
-  renderSelectionBuffer( ViewState::glSELECTRENDER_OBJECTS );
+  renderSelectionBuffer(ViewState::glSELECTRENDER_OBJECTS);
   // get the selection records
   // get IDs
   // get objects with the same IDs
   return objs;
 }
 
-int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
+//ARN 09/10
+int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 {
   unsigned poly = 0;
-  if( x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y >= d->draw->qglWidget()->height() )
-    return -1;
-  // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
-  //renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
+  if (x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y
+      >= d->draw->qglWidget()->height()) return -1;
 
-  cout << "polygonAtCursorPosition\n";
+  //cout << "polygonAtCursorPosition\n";
 
-  GLubyte* tex = d->draw->getTextureFromBackBuffer();
-
-  // read the color buffer at pos x,y
-//  d->draw->qglWidget()->makeCurrent();
-//  glFlush(); // or glFinish() ?
   GLubyte r, g, b;
 
-  r = tex[3 * (d->draw->qglWidget()->height() - y) * d->draw->qglWidget()->width() + 3 * x];
-  g = tex[3 * (d->draw->qglWidget()->height() - y) * d->draw->qglWidget()->width() + 3 * x + 1];
-  b = tex[3 * (d->draw->qglWidget()->height() - y) * d->draw->qglWidget()->width() + 3 * x + 2];
+  if (surfpaintIsVisible())
+  {
+    //cout << "with optimization for surfpaint\n";
 
-  //poly = (unsigned)(b + 256 * g + 256 * 256 * r);
-//  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+    GLubyte* tex = d->draw->getTextureFromBackBuffer();
+
+    r = tex[3 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 3 * x];
+    g = tex[3 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 3 * x + 1];
+    b = tex[3 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 3 * x + 2];
+
+    //  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
+    //      << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
+    //  cout << "ID polygon selected: " << poly << endl;
+    }
+
+  else
+  {
+    //cout << "without optimization\n";
+
+    // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
+    renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
+    // read the color buffer at pos x,y
+    d->draw->qglWidget()->makeCurrent();
+    glFlush(); // or glFinish() ?
+    d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
+  }
 
   // convert color -> ID
   poly = (r << 16) | (g << 8) | b;
-  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
-  cout << "ID polygon selected: " << poly << endl;
-
   // polygon num is this ID
+
   return poly;
 }
 
-//int AWindow3D::polygonAtCursorPosition( int x, int y, const AObject* obj )
-//{
-//  unsigned poly = 0;
-//  if( x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y >= d->draw->qglWidget()->height() )
-//    return -1;
-//  // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
-//  renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
-//  // read the color buffer at pos x,y
-//  d->draw->qglWidget()->makeCurrent();
-//  glFlush(); // or glFinish() ?
-//  GLubyte r, g, b;
-//  d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
-//  // convert color -> ID
-//  poly = (r << 16) | (g << 8) | b;
-//  //cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
-//  //cout << "ID polygon selected: " << poly << endl;
-//
-//  // polygon num is this ID
-//  return poly;
-//}
-
-
-void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
-                                       const AObject *selectedobject )
+void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
+    const AObject *selectedobject)
 {
   // cout << "renderSelectionBuffer...\n";
 
@@ -3785,61 +3883,58 @@ void AWindow3D::renderSelectionBuffer( ViewState::glSelectRenderMode mode,
   d->draw->qglWidget()->makeCurrent();
 
   list<AObject *> renderobj;
-  list<AObject *>::iterator transparent = processRenderingOrder( renderobj );
+  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
   list<AObject*>::iterator al, el = renderobj.end();
 
   GLPrimitives primitives;
 
   //	Rendering mode primitive (must be first)
-  GLList	*renderpr = new GLList;
+  GLList *renderpr = new GLList;
   renderpr->generate();
-  GLuint	renderGLL = renderpr->item();
-  if( !renderGLL )
-    AWarning( "AWindow3D::Refresh: OpenGL error." );
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
 
-  glNewList( renderGLL, GL_COMPILE );
+  glNewList(renderGLL, GL_COMPILE);
 
-  glPushAttrib( GL_ALL_ATTRIB_BITS );
-  glLineWidth( 1 );
-  glShadeModel( GL_FLAT );
-  glDisable( GL_LINE_SMOOTH );
-  glDisable( GL_POLYGON_SMOOTH );
-  glDisable( GL_LIGHTING );
-  glPolygonOffset( 0, 0 );
-  glDisable( GL_POLYGON_OFFSET_FILL );
-  glDisable( GL_FOG );
-  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-  glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-  glDisable( GL_BLEND );
+  glPushAttrib( GL_ALL_ATTRIB_BITS);
+  glLineWidth(1);
+  glShadeModel( GL_FLAT);
+  glDisable( GL_LINE_SMOOTH);
+  glDisable( GL_POLYGON_SMOOTH);
+  glDisable( GL_LIGHTING);
+  glPolygonOffset(0, 0);
+  glDisable( GL_POLYGON_OFFSET_FILL);
+  glDisable( GL_FOG);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDisable( GL_BLEND);
   glEndList();
-  primitives.push_back( RefGLItem( renderpr ) );
+  primitives.push_back(RefGLItem(renderpr));
 
   //	Draw opaque objects
-  for( al=renderobj.begin(); al!=transparent; ++al )
-    if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
-      updateObject( *al, &primitives, mode );
+  for (al = renderobj.begin(); al != transparent; ++al)
+    if (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) updateObject(
+        *al, &primitives, mode);
   //	Draw transparent objects
-  if( !transparentZEnabled() )
-    for( al=transparent; al!=el; ++al )
-      if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
-        updateObject( *al, &primitives, mode );
+  if (!transparentZEnabled()) for (al = transparent; al != el; ++al)
+    if (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) updateObject(
+        *al, &primitives, mode);
 
   renderpr = new GLList;
   renderpr->generate();
   renderGLL = renderpr->item();
-  if( !renderGLL )
-    AWarning( "AWindow3D::Refresh: OpenGL error." );
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
 
-  glNewList( renderGLL, GL_COMPILE );
+  glNewList(renderGLL, GL_COMPILE);
   glPopAttrib();
   glEndList();
-  primitives.push_back( RefGLItem( renderpr ) );
+  primitives.push_back(RefGLItem(renderpr));
 
   // d->draw->setPrimitives( d->primitives );
-  d->draw->setSelectionPrimitives( primitives );
+  d->draw->setSelectionPrimitives(primitives);
 
   // perform rendering, without swapBuffers
 
-  d->draw->renderBackBuffer( mode );
+  d->draw->renderBackBuffer(mode);
 }
 

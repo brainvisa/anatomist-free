@@ -312,105 +312,105 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::NoButton, 
       MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ), 
-				       &SelectAction::execSelect ) );
+               &SelectAction::execSelect ) );
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::ShiftButton, 
       MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ), 
-				       &SelectAction::execSelectAdding ) );
+               &SelectAction::execSelectAdding ) );
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::ControlButton, 
       MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ), 
-				       &SelectAction::execSelectToggling ) );
+               &SelectAction::execSelectToggling ) );
   mousePressButtonEventSubscribe
     ( Qt::RightButton, Qt::NoButton, 
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+             &MenuAction::execMenu ) );
 
   // general window shortcuts
 
   keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
+        KeyActionLinkOf<WindowActions>
+        ( actionPool->action( "WindowActions" ),
+          &WindowActions::close ) );
   keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
+        KeyActionLinkOf<WindowActions>
+        ( actionPool->action( "WindowActions" ),
+          &WindowActions::toggleFullScreen ) );
   keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+        KeyActionLinkOf<WindowActions>
+        ( actionPool->action( "WindowActions" ),
+          &WindowActions::toggleShowTools ) );
 
   // selection shortcuts
 
   keyPressEventSubscribe( Qt::Key_A, Qt::ControlButton, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::toggleSelectAll ) );
+        KeyActionLinkOf<SelectAction>
+        ( actionPool->action( "SelectAction" ),
+          &SelectAction::toggleSelectAll ) );
   keyPressEventSubscribe( Qt::Key_Delete, Qt::NoButton, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::removeFromWindow ) );
+        KeyActionLinkOf<SelectAction>
+        ( actionPool->action( "SelectAction" ),
+          &SelectAction::removeFromWindow ) );
   keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlButton, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::removeFromGroup ) );
+        KeyActionLinkOf<SelectAction>
+        ( actionPool->action( "SelectAction" ),
+          &SelectAction::removeFromGroup ) );
 
-  //	rotation center
+  //  rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlButton, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::setCenter ) );
+        KeyActionLinkOf<Trackball>
+        ( actionPool->action( "Trackball" ),
+          &Trackball::setCenter ) );
   keyPressEventSubscribe( Qt::Key_C, Qt::AltButton, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::showRotationCenter ) );
+        KeyActionLinkOf<Trackball>
+        ( actionPool->action( "Trackball" ),
+          &Trackball::showRotationCenter ) );
 
-  //	sync
+  //  sync
   keyPressEventSubscribe( Qt::Key_S, Qt::NoButton, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSync ) );
+        KeyActionLinkOf<Sync3DAction>
+        ( actionPool->action( "Sync3DAction" ),
+          &Sync3DAction::execSync ) );
 
   // rotation
 
   mouseLongEventSubscribe
     ( Qt::MidButton, Qt::NoButton, 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
+            &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
+            &Trackball::moveTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+            &Trackball::endTrackball ), true );
 
   // zoom
 
   mouseLongEventSubscribe
     ( Qt::MidButton, Qt::ShiftButton, 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::beginZoom ), 
+               &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::moveZoom ), 
+               &Zoom3DAction::moveZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::endZoom ), true );
+               &Zoom3DAction::endZoom ), true );
 
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
                        ( actionPool->action( "Zoom3DAction" ), 
                          &Zoom3DAction::zoomWheel ) );
 
-  //	translation
+  //  translation
 
   mouseLongEventSubscribe
     ( Qt::MidButton, Qt::ControlButton, 
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::beginTranslate ), 
+  &Translate3DAction::beginTranslate ),
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::moveTranslate ), 
+  &Translate3DAction::moveTranslate ),
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::endTranslate ), true );
+  &Translate3DAction::endTranslate ), true );
 
   // Slice action
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoButton, 
@@ -502,7 +502,6 @@ void Select3DControl::doAlsoOnDeselect( ActionPool* pool )
   cerr << "bug: selection toolbar not found\n";
 #endif
 }
-
 
 // ----
 
@@ -852,8 +851,13 @@ void Zoom3DAction::endZoom( int, int, int, int )
 
 void Zoom3DAction::endZoomKey()
 {
-  //cout << "Zoom3DAction::endZoom\n";
+  cout << "Zoom3DAction::endZoom\n";
   _beginpos = -1;
+
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
+  if (w && w3 && w3->surfpaintIsVisible() )
+    w->copyBackBuffer2Texture();
 }
 
 
@@ -1003,6 +1007,11 @@ void Translate3DAction::beginTranslate( int x, int y, int, int )
 void Translate3DAction::endTranslate( int, int, int, int )
 {
   endTranslateKey();
+
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
+  if (w && w3 && w3->surfpaintIsVisible() )
+    w->copyBackBuffer2Texture();
 }
 
 

@@ -335,6 +335,7 @@ Control::~Control()
   delete myHideAction ;
   
   delete myLongActions ;
+  //delete mySurfpaintAction ;
 }
 
 void

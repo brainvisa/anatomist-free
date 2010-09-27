@@ -107,8 +107,8 @@ ToolBox::resetActions()
 void
 ToolBox::updateActiveControl( const string& activeControlDescription ) 
 {
-  //cout << "ToolBox::updateActiveControl, this=" << this << ", descr: " 
-  //     << activeControlDescription << endl;
+  cout << "ToolBox::updateActiveControl, this=" << this << ", descr: "
+       << activeControlDescription << endl;
 
   myControlDescription = activeControlDescription ;
   if ( myControlDescriptionWidget )

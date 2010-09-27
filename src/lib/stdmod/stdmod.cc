@@ -387,4 +387,9 @@ void StdModule::controlsDeclaration()
   if( p.load( ( Settings::globalPath() + "/icons/roi.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "RoiControl", p );
   }
+  {
+    QPixmap       p;
+    if( p.load( ( Settings::globalPath() + "/icons/meshPaint/SurfpaintControl.png" ).c_str() ) )
+      IconDictionary::instance()->addIcon( "SurfpaintControl", p );
+  }
 }
