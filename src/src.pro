@@ -14,6 +14,7 @@ PSUBDIRS = \
 
 module(anaalgo):PSUBDIRS	+= \
 		anasurfmatch \
+		surfpaint \
 		volrender
 
 module(anaalgo)-module(anaqwt):PSUBDIRS	+= \
