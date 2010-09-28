@@ -200,6 +200,7 @@ struct AWindow3D::Private
     int mouseX;
     int mouseY;
     bool surfpaintState;
+    ATexture *surfpaintTexInit;
 };
 
 namespace
@@ -2882,6 +2883,7 @@ void AWindow3D::togglePaintingToolbox()
 //        d->painttools->setMaxPoly(tri.size());
 
       }
+
       if (objtype == "TEXTURED SURF.")
       {
         glc->glAPI()->glSetTexRGBInterpolation( true );
@@ -2894,10 +2896,11 @@ void AWindow3D::togglePaintingToolbox()
 
         ATexture *at;
         at = dynamic_cast<ATexture *> (tex);
-        ATriangulated *as;
-        as = dynamic_cast<ATriangulated *> (surf);
 
         int t = (int) GetTime();
+
+        ATriangulated *as;
+        as = dynamic_cast<ATriangulated *> (surf);
 
         AimsSurface<3, Void> *s = as->surfaceOfTime(t);
 
@@ -2907,6 +2910,38 @@ void AWindow3D::togglePaintingToolbox()
         at->attributed()->getProperty("data_type", textype);
 
         cout << "type texture :" << textype << endl;
+        cout << "save Texture" << endl;
+
+        d->surfpaintTexInit = new ATexture;
+
+//        if (textype == "S16")
+//        {
+//        TimeTexture<float> out(1, at->size(t));
+//
+//        Object options = Object::value(Dictionary());
+//        options->setProperty("scale", 0);
+//
+//        rc_ptr<TimeTexture<float> > text;
+//        text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+//
+//        d->surfpaintTexInit->setTexture(tex);
+//
+//        rc_ptr<Texture1d> tex(new Texture1d);
+//        Converter<TimeTexture<float> , Texture1d> c;
+//        c.convert(_tex, *tex);
+//          _ao = new ATexture;
+//          _ao->setTexture(tex);
+//        cout << "tex size " << at->size() << endl;
+//
+//        for (uint i = 0; i < at->size(); i++)
+//          out[0].item(i) = (*text).item(i);
+//
+//
+//        for (int i = 0 ; i < 30 ; i++)
+//          cout << out[0].item(i) << " " ;
+//
+//        cout << endl;
+//        }
 
         const vector<Point3df> & vert = s->vertex();
 
@@ -2927,11 +2962,12 @@ void AWindow3D::togglePaintingToolbox()
         d->painttools->setMaxPoly(tri.size());
         d->painttools->setMaxVertex(vert.size());
 
-        if ( (textype == "S16") || (textype == "U32") || (textype == "S32"))
-          d->painttools->setMinMaxTexture((float)(te.minquant[0]),(float)(te.maxquant[0]));
-
-        if (textype == "FLOAT")
-          d->painttools->setMinMaxTexture(te.min[0],te.max[0]);
+//        if ( (textype == "S16") || (textype == "U32") || (textype == "S32"))
+//          d->painttools->setMinMaxTexture((float)(te.minquant[0]),(float)(te.maxquant[0]));
+//
+//        if (textype == "FLOAT")
+//
+        d->painttools->setMinMaxTexture((float)(te.minquant[0]),(float)(te.maxquant[0]));
 
         d->painttools->show();
         d->painttools->raise();

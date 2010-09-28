@@ -55,7 +55,6 @@ class QSpinBox;
      QWidget *textureSpinBox;
      QSpinBox *IDPolygonSpinBox;
      QSpinBox *IDVertexSpinBox;
-
      string _textype;
  };
 

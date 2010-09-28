@@ -104,7 +104,7 @@ Infos3DTab::Infos3DTab(string textype, QWidget *parent)
     textureFloatSpinBox->setDecimals(3);
     textureFloatSpinBox->setFixedHeight(30);
     textureFloatSpinBox->setFixedWidth(100);
-    textureFloatSpinBox->setValue(0.01);
+    textureFloatSpinBox->setValue(0.000);
     textureSpinBox = static_cast<QDoubleSpinBox*> (textureFloatSpinBox);
     connect  (textureFloatSpinBox,SIGNAL(valueChanged(double)),parent,SLOT(setTextureValueFloat(double)));
   }
@@ -155,7 +155,6 @@ ConstraintsEditorTab::ConstraintsEditorTab(QWidget *parent)
   QLabel *buildicon = new QLabel(widget);
   buildicon->setPixmap(*p);
 
-  //buildicon->setMaximumSize(QSize(50, 30));
   buildicon->setGeometry(QRect(10, 0, 50, 30));
   QLabel *buildtext = new QLabel(widget);
   buildtext->setText("module en construction");
