@@ -110,16 +110,16 @@ void SurfpaintModule::controlsDeclaration()
   ControlDictionary::instance()->addControl("SurfpaintEraseControl",SurfpaintEraseControl::creator, 557 ) ;
   ControlDictionary::instance()->addControl("SurfpaintShortestPathControl",SurfpaintShortestPathControl::creator, 558 ) ;
 
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintBrushControl" ) ;
+  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintBrushControl" ) ;
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintBrushControl" ) ;
 
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintColorPickerControl" ) ;
+  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintColorPickerControl" ) ;
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintColorPickerControl" ) ;
 
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintEraseControl" ) ;
+  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintEraseControl" ) ;
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintEraseControl" ) ;
 
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintShortestPathControl" ) ;
+  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintShortestPathControl" ) ;
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintShortestPathControl" ) ;
 
 
