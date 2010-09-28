@@ -1255,8 +1255,9 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 
   if (w3 && w3->surfpaintIsVisible() )
   {
-  // TODO : le rendu est fait sur l'object selectionné par la souris (à améliorer)
-    AObject *obj = w3->objectAtCursorPosition(_pd->mouseX,_pd->mouseY);
+  // TODO : le rendu est fait sur l'object situé au centre de l'image (à améliorer)
+    //AObject *obj = w3->objectAtCursorPosition(_pd->mouseX,_pd->mouseY);
+    AObject *obj = w3->objectAtCursorPosition(_pd->glwidget->width()/2,_pd->glwidget->height()/2);
     if (theAnatomist->userLevel() >= 3)
     {
       cout << "obj " << obj << endl;
