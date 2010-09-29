@@ -1,4 +1,4 @@
-<!DOCTYPE public "-//w3c//dtd html 4.01 transitional//en" 
+<!DOCTYPE public "-//w3c//dtd html 4.01 transitional//en"
 		"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -68,12 +68,12 @@ Ouvre une nouvelle fen&ecirc;tre
   <tr>
     <td><tt>block</tt></td>
     <td><tt>int</tt> (optional)</td>
-    <td><b>New in Anatomist 3.0</b>. Allows to insert the new window in 
-      a "block" which may contain several views. By default (<tt>block=0</tt>), 
-      the window will not be in any block. If <tt>block</tt> doesn't exist 
-      anymore, a new block will be created, otherwise the window will be 
+    <td><b>New in Anatomist 3.0</b>. Allows to insert the new window in
+      a "block" which may contain several views. By default (<tt>block=0</tt>),
+      the window will not be in any block. If <tt>block</tt> doesn't exist
+      anymore, a new block will be created, otherwise the window will be
       added to an existing block.<br>
-      <b>Note:</b> The block number is an ID just like those of objects, 
+      <b>Note:</b> The block number is an ID just like those of objects,
       windows etc.: a number already allocated must not be reused.
     </td>
   </tr>
@@ -88,24 +88,29 @@ Ouvre une nouvelle fen&ecirc;tre
   <tr>
     <td><tt>options</tt></td>
     <td><tt><a href="../dicttype.html">dictionary</a></tt> (optional)</td>
-    <td><b>New in Anatomisr 3.0</b>. Additional options passed to the new window 
+    <td><b>New in Anatomist 3.0</b>. Additional options passed to the new window
       upon creation. Some windows types may interpret some specific options.<br>
       For instance:<br>
       <code>options { '__syntax__' : 'tree', 'no_decoration': 1 }</code><br>
       At the moment, known options are:
       <table border="1">
         <tr>
-	  <td><tt>no_decoration</tt></td>
-	  <td><tt>bool</tt></td>
-	  <td>Don't draw "decorations" around the main area of the view: no menus, 
-	    no buttons. This way the view may be inserted in a specialized application 
-	    and be completely controlled by this application.
-	  </td>
+          <td><tt>no_decoration</tt></td>
+          <td><tt>bool</tt></td>
+          <td>Don't draw "decorations" around the main area of the view: no menus,
+            no buttons. This way the view may be inserted in a specialized application
+            and be completely controlled by this application.
+          </td>
+        </tr>
+        <tr>
+          <td><tt>hidden</tt></td>
+          <td><tt>bool</tt></td>
+          <td><b>New in Anatomist 4.0.2</b>. Don't display the created window, until a specific show action is used (see <a href="windowconfig.html">WindowConfig</a> / raise, or in an embedded widget)</td>
         </tr>
       </table>
     </td>
   </tr>
-</tbody>                                                         
+</tbody>
 </table>
 
 

@@ -43,7 +43,7 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-//	static member variables have been moved to 
+//	static member variables have been moved to
 //	<anatomist/application/statics.h>
 
 
@@ -52,20 +52,20 @@ bool AWindowFactory::initTypes()
   if( !TypeNames.empty() )
     return( false );
 
-  TypeNames[ AWindow::AXIAL_WINDOW    ] = QT_TRANSLATE_NOOP( "ControlWindow", 
+  TypeNames[ AWindow::AXIAL_WINDOW    ] = QT_TRANSLATE_NOOP( "ControlWindow",
 							     "Axial" );
-  TypeNames[ AWindow::CORONAL_WINDOW  ] = QT_TRANSLATE_NOOP( "ControlWindow", 
+  TypeNames[ AWindow::CORONAL_WINDOW  ] = QT_TRANSLATE_NOOP( "ControlWindow",
 							     "Coronal" );
-  TypeNames[ AWindow::SAGITTAL_WINDOW ] = QT_TRANSLATE_NOOP( "ControlWindow", 
+  TypeNames[ AWindow::SAGITTAL_WINDOW ] = QT_TRANSLATE_NOOP( "ControlWindow",
 							     "Sagittal" );
-  TypeNames[ AWindow::WINDOW_3D       ] = QT_TRANSLATE_NOOP( "ControlWindow", 
+  TypeNames[ AWindow::WINDOW_3D       ] = QT_TRANSLATE_NOOP( "ControlWindow",
 							     "3D" );
 
   TypeID[ "Axial"    ] = AWindow::AXIAL_WINDOW;
   TypeID[ "Coronal"  ] = AWindow::CORONAL_WINDOW;
   TypeID[ "Sagittal" ] = AWindow::SAGITTAL_WINDOW;
   TypeID[ "3D"       ] = AWindow::WINDOW_3D;
-  
+
   Creators[ AWindow::AXIAL_WINDOW    ]
       = rc_ptr<AWindowCreator>( new AWindowCreatorFunc( createAxial ) );
   Creators[ AWindow::CORONAL_WINDOW  ]
@@ -79,7 +79,7 @@ bool AWindowFactory::initTypes()
 }
 
 
-AWindow* AWindowFactory::createWindow( const string & type, void *dock, 
+AWindow* AWindowFactory::createWindow( const string & type, void *dock,
                                        carto::Object params )
 {
   map<string, int>::const_iterator	it = TypeID.find( type );
@@ -90,14 +90,39 @@ AWindow* AWindowFactory::createWindow( const string & type, void *dock,
 }
 
 
-AWindow* AWindowFactory::createWindow( int type, void *dock, 
+AWindow* AWindowFactory::createWindow( int type, void *dock,
                                        carto::Object params )
 {
   map<int, rc_ptr<AWindowCreator> >::const_iterator
       it = Creators.find( type );
   if( it == Creators.end() )
     return 0;
-  return (*it->second)( dock, params );
+  AWindow *win = (*it->second)( dock, params );
+  if( win )
+    applyCommonOptions( win, params );
+  return win;
+}
+
+
+void AWindowFactory::applyCommonOptions( AWindow* win, Object params )
+{
+  bool hidden = false;
+  if( params )
+    try
+    {
+      hidden = bool( (int) params->getProperty( "hidden" )->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+
+  if( !hidden )
+  {
+    win->show();
+    QWidget* qw = dynamic_cast<QWidget *>( win );
+    if( qw && qw->parentWidget() )
+        qw->parentWidget()->resize( qw->parentWidget()->sizeHint() );
+  }
 }
 
 
@@ -119,10 +144,7 @@ AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
   if( dock )
     f = 0;
   AWindow	*w = new AWindow3D( AWindow3D::Axial, dk, params, f );
-  w->show();
-  if( dk )
-    dk->resize( dk->sizeHint() );
-  return( w );
+  return w;
 }
 
 
@@ -144,9 +166,6 @@ AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
   if( dock )
     f = 0;
   AWindow	*w = new AWindow3D( AWindow3D::Coronal, dk, params, f );
-  w->show();
-  if( dk )
-    dk->resize( dk->sizeHint() );
   return( w );
 }
 
@@ -169,9 +188,6 @@ AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
   if( dock )
     f = 0;
   AWindow	*w = new AWindow3D( AWindow3D::Sagittal, dk, params, f );
-  w->show();
-  if( dk )
-    dk->resize( dk->sizeHint() );
   return( w );
 }
 
@@ -194,9 +210,6 @@ AWindow* AWindowFactory::create3D( void *dock, carto::Object params )
   if( dock )
     f = 0;
   AWindow3D	*w = new AWindow3D( AWindow3D::ThreeD, dk, params, f );
-  w->show();
-  if( dk )
-    dk->resize( dk->sizeHint() );
 
   return( w );
 }
@@ -260,7 +273,7 @@ int AWindowFactory::registerType( const string & type,
     }
 
   int	itype = AWindow::OTHER + 1;
-  map<int, string>::const_iterator	in = TypeNames.find( itype ), 
+  map<int, string>::const_iterator	in = TypeNames.find( itype ),
     fn=TypeNames.end();
 
   for( ; in!=fn && (*in).first==itype; ++in, ++itype ) {}
@@ -273,7 +286,7 @@ int AWindowFactory::registerType( const string & type,
   {
     AControlMenuHandler* mh = cw->menuHandler();
     QSelectMenu* pop = mh->getPopup( "Windows" );
-    pop->insertItem( type.c_str(), cw, SLOT( openWindow( int ) ), 0, 
+    pop->insertItem( type.c_str(), cw, SLOT( openWindow( int ) ), 0,
                      itype + 1000, Creators.size()-1 );
     pop->setItemParameter( 1000+itype, itype );
   }

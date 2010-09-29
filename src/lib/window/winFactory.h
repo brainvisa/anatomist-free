@@ -64,9 +64,9 @@ namespace anatomist
     //AWindowFactory();
     //virtual ~AWindowFactory();
 
-    static AWindow* createWindow( const std::string & type, void *dock = 0, 
+    static AWindow* createWindow( const std::string & type, void *dock = 0,
                                   carto::Object params = carto::none() );
-    static AWindow* createWindow( int type, void *dock = 0, 
+    static AWindow* createWindow( int type, void *dock = 0,
                                   carto::Object params = carto::none() );
     static bool initTypes();
     static std::string typeString( int type, int subtype = 0 );
@@ -87,6 +87,7 @@ namespace anatomist
     static AWindow* createSagittal( void *, carto::Object );
     static AWindow* createCoronal( void *, carto::Object );
     static AWindow* create3D( void *, carto::Object );
+    static void applyCommonOptions( AWindow* win, carto::Object params );
 
     static std::map<int, std::string>	TypeNames;
     static std::map<std::string, int>	TypeID;
