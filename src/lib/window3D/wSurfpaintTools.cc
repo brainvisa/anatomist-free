@@ -168,7 +168,7 @@ SurfpaintToolsWindow::SurfpaintToolsWindow(AWindow3D *win, string textype) :
   QWidget(0, "SurfpaintControl", Qt::WDestructiveClose), Observer(), _window(
       win), _textype(textype), destroying(false)
 {
-  win->addObserver(this);
+  //win->addObserver(this);
   setCaption(tr("SurfpaintControl") + _window->Title().c_str());
 
   const QPixmap *p;
@@ -194,9 +194,9 @@ SurfpaintToolsWindow::SurfpaintToolsWindow(AWindow3D *win, string textype) :
 SurfpaintToolsWindow::~SurfpaintToolsWindow()
 {
   destroying = true;
-  _window->deleteObserver(this);
-  _window->painttoolsWinDestroyed();
-  cleanupObserver();
+//  _window->deleteObserver(this);
+//  _window->painttoolsWinDestroyed();
+//  cleanupObserver();
   //_window->deleteObserver( this );
   //delete tabI3d;
 }
@@ -205,22 +205,22 @@ void SurfpaintToolsWindow::update(const Observable*, void* arg)
 {
   cout << "SurfpaintToolsWindow::update\n";
 
-  if (arg == 0)
-  {
-    cout << "called obsolete SurfpaintToolsWindow::update( obs, NULL )\n";
-    delete this;
-    return;
-  }
-
-  blockSignals(true);
-
-  blockSignals(false);
+//  if (arg == 0)
+//  {
+//    cout << "called obsolete SurfpaintToolsWindow::update( obs, NULL )\n";
+//    delete this;
+//    return;
+//  }
+//
+//  blockSignals(true);
+//
+//  blockSignals(false);
 }
 
 void SurfpaintToolsWindow::unregisterObservable(Observable* o)
 {
-  Observer::unregisterObservable(o);
-  if (!destroying) delete this;
+//  Observer::unregisterObservable(o);
+//  if (!destroying) delete this;
 }
 
 void SurfpaintToolsWindow::setPolygon(int p)

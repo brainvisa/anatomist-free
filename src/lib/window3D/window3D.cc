@@ -38,6 +38,7 @@
 #include <anatomist/surface/triangulated.h>
 #include <aims/vector/vector.h>
 #include <anatomist/surface/glcomponent.h>
+#include <aims/utility/converter_texture.h>
 
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glwidgetmanager.h>
@@ -200,7 +201,7 @@ struct AWindow3D::Private
     int mouseX;
     int mouseY;
     bool surfpaintState;
-    ATexture *surfpaintTexInit;
+    Texture1d *surfpaintTexInit;
 };
 
 namespace
@@ -2827,10 +2828,11 @@ void AWindow3D::updateTextureValue(anatomist::AObject *o, string textype,
       rc_ptr<TimeTexture<float> > t;
       t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
 
-      if ((textype == "S16") || (textype == "U32") || (textype == "S32"))
-        (*t).item(indexVertex) = (float) value / scl;
+//      if ((textype == "S16") || (textype == "U32") || (textype == "S32"))
+//        (*t).item(indexVertex) = (float) value / scl;
+//      if (textype == "FLOAT")
 
-      if (textype == "FLOAT") (*t).item(indexVertex) = (float) value ;
+      (*t).item(indexVertex) = (float) value / scl ;
 
       tex->setChanged();
       tex->notifyObservers();
@@ -2912,17 +2914,23 @@ void AWindow3D::togglePaintingToolbox()
         cout << "type texture :" << textype << endl;
         cout << "save Texture" << endl;
 
-        d->surfpaintTexInit = new ATexture;
+        //d->surfpaintTexInit = new ATexture;
 
-//        if (textype == "S16")
-//        {
-//        TimeTexture<float> out(1, at->size(t));
-//
-//        Object options = Object::value(Dictionary());
-//        options->setProperty("scale", 0);
-//
-//        rc_ptr<TimeTexture<float> > text;
-//        text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+        if (textype == "S16")
+        {
+        d->surfpaintTexInit = new Texture1d;
+        d->surfpaintTexInit->reserve( at->size() );
+        Object options = Object::value(Dictionary());
+        options->setProperty("scale", 0);
+
+        rc_ptr<TimeTexture<float> > text;
+        text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+
+        for (uint i = 0; i < at->size(); i++)
+          d->surfpaintTexInit[0].item(i) = (*text).item(i);
+
+//        Converter<TimeTexture<float> , Texture1d> c;
+//        c.convert(text, d->surfpaintTexInit);
 //
 //        d->surfpaintTexInit->setTexture(tex);
 //
@@ -2933,15 +2941,14 @@ void AWindow3D::togglePaintingToolbox()
 //          _ao->setTexture(tex);
 //        cout << "tex size " << at->size() << endl;
 //
-//        for (uint i = 0; i < at->size(); i++)
-//          out[0].item(i) = (*text).item(i);
 //
 //
-//        for (int i = 0 ; i < 30 ; i++)
-//          cout << out[0].item(i) << " " ;
+//
+        for (int i = 0 ; i < 30 ; i++)
+          cout << d->surfpaintTexInit[0].item(i) << " " ;
 //
 //        cout << endl;
-//        }
+        }
 
         const vector<Point3df> & vert = s->vertex();
 
