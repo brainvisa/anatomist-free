@@ -2794,6 +2794,54 @@ bool AWindow3D::surfpaintIsVisible(void)
 {
   return d->surfpaintState;
 }
+void AWindow3D::restoreTextureValue(anatomist::AObject *o, string textype,int indexVertex)
+{
+
+  Point3df position;
+
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
+
+  if (o != NULL && w3->hasObject(o))
+  {
+    string objtype = o->objectTypeName(o->type());
+
+    if (objtype == "TEXTURED SURF.")
+    {
+      ATexSurface *go;
+      go = dynamic_cast<ATexSurface *> (o);
+
+      AObject *tex = go->texture();
+
+      ATexture *at;
+      at = dynamic_cast<ATexture *> (tex);
+
+      Object options = Object::value(Dictionary());
+      options->setProperty("scale", 0);
+
+      float it = at->TimeStep();
+      const GLComponent::TexExtrema & te = at->glTexExtrema(0);
+
+      float scl = (te.maxquant[0] - te.minquant[0]);
+
+      rc_ptr<TimeTexture<float> > t;
+      t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+
+//      if ((textype == "S16") || (textype == "U32") || (textype == "S32"))
+//        (*t).item(indexVertex) = (float) value / scl;
+//      if (textype == "FLOAT")
+      float value;
+
+      value =  d->surfpaintTexInit[0].item(indexVertex);
+
+      (*t).item(indexVertex) = (float) value  ;
+
+      tex->setChanged();
+      tex->notifyObservers();
+      tex->setInternalsChanged();
+    }
+  }
+
+}
 
 void AWindow3D::updateTextureValue(anatomist::AObject *o, string textype,
     int indexVertex, float value)
@@ -2914,10 +2962,6 @@ void AWindow3D::togglePaintingToolbox()
         cout << "type texture :" << textype << endl;
         cout << "save Texture" << endl;
 
-        //d->surfpaintTexInit = new ATexture;
-
-        if (textype == "S16")
-        {
         d->surfpaintTexInit = new Texture1d;
         d->surfpaintTexInit->reserve( at->size() );
         Object options = Object::value(Dictionary());
@@ -2928,27 +2972,6 @@ void AWindow3D::togglePaintingToolbox()
 
         for (uint i = 0; i < at->size(); i++)
           d->surfpaintTexInit[0].item(i) = (*text).item(i);
-
-//        Converter<TimeTexture<float> , Texture1d> c;
-//        c.convert(text, d->surfpaintTexInit);
-//
-//        d->surfpaintTexInit->setTexture(tex);
-//
-//        rc_ptr<Texture1d> tex(new Texture1d);
-//        Converter<TimeTexture<float> , Texture1d> c;
-//        c.convert(_tex, *tex);
-//          _ao = new ATexture;
-//          _ao->setTexture(tex);
-//        cout << "tex size " << at->size() << endl;
-//
-//
-//
-//
-        for (int i = 0 ; i < 30 ; i++)
-          cout << d->surfpaintTexInit[0].item(i) << " " ;
-//
-//        cout << endl;
-        }
 
         const vector<Point3df> & vert = s->vertex();
 

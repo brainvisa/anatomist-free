@@ -136,6 +136,7 @@ public:
   void setPolygon(int poly);
   void setVertex(int vertex);
   void updateTextureValue(anatomist::AObject *o, string textype, int indexVertex, float value);
+  void restoreTextureValue(anatomist::AObject *o, string textype, int indexVertex);
   void getInfos3D(void);
   bool surfpaintIsVisible(void);
   void printPositionAndValue();

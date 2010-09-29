@@ -153,7 +153,8 @@ ConstraintsEditorTab::ConstraintsEditorTab(QWidget *parent)
   p = IconDictionary::instance()->getIconInstance("buildIcon");
 
   QLabel *buildicon = new QLabel(widget);
-  buildicon->setPixmap(*p);
+  if (p)
+    buildicon->setPixmap(*p);
 
   buildicon->setGeometry(QRect(10, 0, 50, 30));
   QLabel *buildtext = new QLabel(widget);
