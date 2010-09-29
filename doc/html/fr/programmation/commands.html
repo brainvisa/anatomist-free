@@ -1,4 +1,4 @@
-<!DOCTYPE public "-//w3c//dtd html 4.01 transitional//en" 
+<!DOCTYPE public "-//w3c//dtd html 4.01 transitional//en"
 		"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -40,17 +40,17 @@
 <hr width="100%">
 <h2> Syntaxe des commandes</h2>
 Les commandes peuvent &ecirc;tre
-<li> lues dans un fichier 
+<li> lues dans un fichier
  de  config.     depuis  le menu "File / Replay scenario" de la fen&ecirc;tre
  de contr&ocirc;le</li>
-<li> lues dans un fichier depuis le d&eacute;marrage d'Anatomist: 
+<li> lues dans un fichier depuis le d&eacute;marrage d'Anatomist:
 "<tt>anatomist -f fichier.his</tt>"</li>
-<li> lues sur un "pipe nomm&eacute;" ouvert au d&eacute;marrage 
-  et  sur   lequel on peut &eacute;crire n'importe quand (-&gt; t&eacute;l&eacute;commande): 
+<li> lues sur un "pipe nomm&eacute;" ouvert au d&eacute;marrage
+  et  sur   lequel on peut &eacute;crire n'importe quand (-&gt; t&eacute;l&eacute;commande):
 "<tt>anatomist -p nom_pipe</tt>"</li>
 
 <p><br>
-La syntaxe des commandes est celle des arbres de la librairie 
+La syntaxe des commandes est celle des arbres de la librairie
 <b>  graph</b>        de Dimitri Papadopoulos: </p>
 
 <blockquote>
@@ -95,16 +95,16 @@ La syntaxe des commandes est celle des arbres de la librairie
   </tbody>
 </table>
 
-<p>Les commandes sont encapsul&eacute;es dans des arbres imbriqu&eacute;s 
-       a priori sur 2 niveaux: le premier pr&eacute;cise si la commande doit 
+<p>Les commandes sont encapsul&eacute;es dans des arbres imbriqu&eacute;s
+       a priori sur 2 niveaux: le premier pr&eacute;cise si la commande doit
    &ecirc;tre    ex&eacute;cut&eacute;e ou annul&eacute;e: syntaxe <tt>EXECUTE</tt>
-     ou   <tt>  UNDO</tt>.   Le second niveau est la commande elle-m&ecirc;me. 
+     ou   <tt>  UNDO</tt>.   Le second niveau est la commande elle-m&ecirc;me.
    Ex:    </p>
 
 <blockquote>
   <pre>*BEGIN TREE EXECUTE<br>*BEGIN TREE LoadObject<br>filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; toto.ima<br>res_pointer&nbsp;&nbsp;&nbsp; 1<br>*END<br>*END</pre>
                </blockquote>
-               Les objets et fen&ecirc;tres sont manipul&eacute;es en interne 
+               Les objets et fen&ecirc;tres sont manipul&eacute;es en interne
   dans   Anatomist   par leurs pointeurs. Evidemment ce format n'est pas exportable
     dans les entr&eacute;es/sorties disque. On passe donc par une conversion
    pointeur - identifiant entier, effectu&eacute;e par les classes <tt>Serializer</tt>
@@ -120,7 +120,7 @@ commandes ont g&eacute;n&eacute;ralement    un attribut "<tt>res_pointer</tt>
               Dans la suite, &agrave; chaque fois qu'on manipule des objets,
   des   fen&ecirc;tre,    des r&eacute;f&eacute;rentiels, on les d&eacute;signe
   par  cet identifiant.    <br>
-              Ex: la commande suivante met les objets d'identifiants 1, 2 
+              Ex: la commande suivante met les objets d'identifiants 1, 2
 et  3  dans   les  fen&ecirc;tres d'identifiants 100 et 101.
 
 <blockquote>
@@ -134,8 +134,8 @@ et  3  dans   les  fen&ecirc;tres d'identifiants 100 et 101.
     pour le moment et &ccedil;a  doit pouvoir faire planter m&eacute;chamment.
 
 <h4> Pr&eacute;cisions sur les identifiants:</h4>
-                <li> Il sont locaux &agrave; un "flux d'entr&eacute;e" donn&eacute; 
-     dans  Anatomist: un fichier sc&eacute;nario, ou un pipe. En clair &ccedil;a 
+                <li> Il sont locaux &agrave; un "flux d'entr&eacute;e" donn&eacute;
+     dans  Anatomist: un fichier sc&eacute;nario, ou un pipe. En clair &ccedil;a
      veut  dire que lorsqu'on lit 2 fichiers de sc&eacute;nario &agrave; la
   suite,   le  second ne peut pas r&eacute;utiliser les ID du premier sans
  les red&eacute;finir.     Par contre ils restent valables sur un pipe pendant
@@ -143,21 +143,21 @@ et  3  dans   les  fen&ecirc;tres d'identifiants 100 et 101.
 fichiers  sur le pipe ("<tt>cat&nbsp;fichier.his&nbsp;&gt;&gt;&nbsp;pipe</tt>" sous
 Unix) en r&eacute;utilisant les   m&ecirc;mes ID pour d&eacute;signer les
 m&ecirc;mes  &eacute;l&eacute;ments.</li>
-                <li> En principe rien n'emp&ecirc;che de red&eacute;finir 
+                <li> En principe rien n'emp&ecirc;che de red&eacute;finir
 un  ID  d&eacute;ja     utilis&eacute;. A ce moment-l&agrave; l'ancienne affectation
    de cet entier     dispara&icirc;t et l'objet auquel il correspondait n'est
    plus accessible    par les commandes. L'avantage c'est que &ccedil;a permet
-   de faire facilement    des "sc&eacute;narios g&eacute;n&eacute;riques": 
- appliquer  une m&ecirc;me    s&eacute;rie de commandes &agrave; des objets 
- diff&eacute;rents,  en utilisant    des fichiers de sc&eacute;nario tout 
-faits, en initialisant  juste l'ID par   un nouveau chargement d'objet. Par 
-ex. sur un pipe nomm&eacute;,  on peut  envoyer d'abord une commande <tt>LoadObject</tt> 
- d&eacute;finissant  l'ID 1, puis un fichier de sc&eacute;nario tout fait 
-utilisant (sans le d&eacute;finir)     l'objet 1. Ensuite il est possible 
-de lancer une autre commande <tt>LoadObject</tt>        red&eacute;finissant 
-le m&ecirc;me ID 1 et r&eacute;-envoyer le m&ecirc;me     sc&eacute;nario: 
-il sera alors appliqu&eacute; de la m&ecirc;me fa&ccedil;on     au nouvel 
-objet. Le syst&egrave;me peut bien sur &ecirc;tre am&eacute;lior&eacute;, 
+   de faire facilement    des "sc&eacute;narios g&eacute;n&eacute;riques":
+ appliquer  une m&ecirc;me    s&eacute;rie de commandes &agrave; des objets
+ diff&eacute;rents,  en utilisant    des fichiers de sc&eacute;nario tout
+faits, en initialisant  juste l'ID par   un nouveau chargement d'objet. Par
+ex. sur un pipe nomm&eacute;,  on peut  envoyer d'abord une commande <tt>LoadObject</tt>
+ d&eacute;finissant  l'ID 1, puis un fichier de sc&eacute;nario tout fait
+utilisant (sans le d&eacute;finir)     l'objet 1. Ensuite il est possible
+de lancer une autre commande <tt>LoadObject</tt>        red&eacute;finissant
+le m&ecirc;me ID 1 et r&eacute;-envoyer le m&ecirc;me     sc&eacute;nario:
+il sera alors appliqu&eacute; de la m&ecirc;me fa&ccedil;on     au nouvel
+objet. Le syst&egrave;me peut bien sur &ecirc;tre am&eacute;lior&eacute;,
      mais &ccedil;a permet d&eacute;j&agrave; de faire des choses.</li>
 
 
@@ -165,7 +165,7 @@ objet. Le syst&egrave;me peut bien sur &ecirc;tre am&eacute;lior&eacute;,
 
 
 <h3><a href="../../en/programming/commands/addobject.html">AddObject</a></h3>
-Ajoute un objet dans une fen&ecirc;tre  
+Ajoute un objet dans une fen&ecirc;tre
 
 
 <a name="ApplyBuiltinReferential"></a>
@@ -173,7 +173,7 @@ Ajoute un objet dans une fen&ecirc;tre
 
 
 <h3>AskTexExtrema</h3>
-Provoque l'affichage dans la sortie standard d'Anatomist des valeurs 
+Provoque l'affichage dans la sortie standard d'Anatomist des valeurs
 extr&ecirc;mes  de la texture de l'objet<br>
 
 <table border="1" width="100%" nosave="">
@@ -266,7 +266,7 @@ Fixe le point de vue, le zoom etc de fen&ecirc;tres 3D
   <tr>
     <td><tt>slice_quaternion</tt></td>
     <td><tt>float_vector</tt> (optionnel)</td>
-    <td id="txt">rotation du plan de coupe oblique (4&nbsp;composantes 
+    <td id="txt">rotation du plan de coupe oblique (4&nbsp;composantes
       norm&eacute;es)</td>
   </tr>
   <tr>
@@ -314,9 +314,9 @@ Fixe le point de vue, le zoom etc de fen&ecirc;tres 3D
 </tbody>
 </table>
 
-               
+
 <h3>ChangePalette</h3>
-Modifie une palette de la liste (panneau de gauche de la fen&ecirc;tre 
+Modifie une palette de la liste (panneau de gauche de la fen&ecirc;tre
 de palettes)
 
 <table border="1" width="100%" nosave="">
@@ -340,10 +340,10 @@ de palettes)
     </td>
   </tr>
 
-</tbody>                                                         
+</tbody>
 </table>
 
-               
+
 <h3>ClosePipe</h3>
 Ferme le pipe de lecture sur lequel cette commande est envoy&eacute;e
 - fermeture de la t&eacute;l&eacute;commande, en d'autres termes.<br>
@@ -396,77 +396,14 @@ Ouvre ou ferme la fenête de paramètres ds contrôles
 
 
 <h3>CreateControlWindow</h3>
-Cr&eacute;e la fen&ecirc;tre de contr&ocirc;le. 
-Comme   c'est fait automatiquement  dans l'appli, cette commande ne sert 
+Cr&eacute;e la fen&ecirc;tre de contr&ocirc;le.
+Comme   c'est fait automatiquement  dans l'appli, cette commande ne sert
 en fait  &agrave; rien...
 
 
 <a name="CreateWindow"></a>
 <h3><a href="../../en/programming/commands/createwindow.html">CreateWindow</a></h3>
 Ouvre une nouvelle fen&ecirc;tre
-
-<table border="1" nosave="" width="100%">
-<tbody>
-  <tr>
-    <td><tt>type</tt></td>
-    <td><tt>string</tt></td>
-    <td>"Axial", "Sagittal", "Coronal", "3D", "Browser", "Profile"</td>
-  </tr>
-  <tr>
-    <td><tt>res_pointer</tt></td>
-    <td><tt>int</tt></td>
-    <td>ID de la fen&ecirc;tre nouvellement cr&eacute;ee</td>
-  </tr>
-  <tr>
-    <td><tt>geometry</tt></td>
-    <td><tt>int_vector</tt> (optionnel)</td>
-    <td>position et taille de la fen&ecirc;tre: x, y, w, h</td>
-  </tr>
-  <tr>
-    <td><tt>block</tt></td>
-    <td><tt>int</tt> (optionnel)</td>
-    <td><b>Nouveau dans Anatomist 3.0</b>. Permet d'insérer la nouvelle 
-      fenêtre dans un "bloc" qui en contient éventuellement plusieurs. 
-      Par défaut (<tt>bloc=0</tt>) la fenêtre n'est pas dans un bloc. Si 
-      <tt>bloc</tt> n'existe pas encore, un nouveau bloc est créé, sinon 
-      la fenêtre est ajoutée à un bloc existant.<br>
-      <b>Note:</b> Le numéro de bloc est un identifiant comme ceux des 
-      objets, fenêtres etc: il ne faut donc pas réutiliser un numéro 
-      déjà pris.
-    </td>
-  </tr>
-  <tr>
-    <td><tt>block_columns</tt></td>
-    <td><tt>int</tt> (optionnel)</td>
-    <td>
-      <b>Nouveau dans Anatomist 3.1</b>.
-      Si <tt>block</tt> spécifie un nouveau bloc à créer, il aura ce nombre de colonnes. Défaut: 2.
-    </td>
-  </tr>
-  <tr>
-    <td><tt>options</tt></td>
-    <td><tt><a href="../../en/programming/dicttype.html">dictionary</a></tt> (optionnel)</td>
-    <td><b>Nouveau dans Anatomist 3.0</b>. Options supplémentaires passées à la 
-      fenêtre au moment de la créer. Certains types de fenêtres peuvent interpréter 
-      des options spécifiques.<br>
-      Par ex.:<br>
-      <code>options { '__syntax__' : 'tree', 'no_decoration': 1 }</code><br>
-      Pour le moment, les options reconnues sont:
-      <table border="1">
-        <tr>
-	  <td><tt>no_decoration</tt></td>
-	  <td><tt>bool</tt></td>
-	  <td>Ne dessine pas de "décorations" autour de la zone utile de la 
-	    vue: pas de menus, pas de boutons. De cette manière la vue 
-	    pourra être incrustée dans une application spécialisée et entièrement 
-	    contrôlée par cette application.
-	  </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</tbody>
-</table>
 
 
 <h3>DeleteAll</h3>
@@ -476,7 +413,7 @@ No parameters.
 
 
 <h3>DeleteElement</h3>
-D&eacute;truit n'importe quel type d'&eacute;l&eacute;ment anatomist 
+D&eacute;truit n'importe quel type d'&eacute;l&eacute;ment anatomist
 connu  (objets, fen&ecirc;tres, r&eacute;f&eacute;rentiels)<br>
 
 <table border="1" width="100%" nosave="">
@@ -520,7 +457,7 @@ sur le canal de sortie associ&eacute; &agrave; ce canal de commandes
     </td>
     <td valign="top"><tt>string</tt><br>
     </td>
-    <td valign="top">liste d'&eacute;v&eacute;nements 
+    <td valign="top">liste d'&eacute;v&eacute;nements
       &agrave;   filtrer (c.a.d. &agrave; laiser voir si le filtrage par d&eacute;faut
       est   actif, ou au contraire &agrave; ne pas voir si le filtrage par d&eacute;faut
       est inactif). <tt>filter </tt>est une liste de chaines s&eacute;par&eacute;es
@@ -532,8 +469,8 @@ sur le canal de sortie associ&eacute; &agrave; ce canal de commandes
     </td>
     <td valign="top"><tt>string</tt><br>
     </td>
-    <td valign="top">liste d'&eacute;v&eacute;nements 
-      &agrave;   ne plus filtrer: ceux-ci sont enlev&eacute;s de la liste <tt>"filter" 
+    <td valign="top">liste d'&eacute;v&eacute;nements
+      &agrave;   ne plus filtrer: ceux-ci sont enlev&eacute;s de la liste <tt>"filter"
       </tt>    pr&eacute;c&eacute;dente du filtre.<br>
     </td>
   </tr>
@@ -567,7 +504,7 @@ Sort d'Anatomist
 
 <a name="ExportTexture"></a>
 <h3>ExportTexture</h3>
-Extrait la texture d'un objet textur&eacute; et l'&eacute;crit sur disque 
+Extrait la texture d'un objet textur&eacute; et l'&eacute;crit sur disque
 sous forme de texture
 
 <table border="1" width="100%">
@@ -683,8 +620,8 @@ Cr&eacute;e un objet fusion &agrave; partir de plusieurs autres<br>
 <h3>GenerateTexture</h3>
 <b>Nouveau dans Anatomist 3.0</b><br>
 Génère une texture vierge (valeur 0 partout) correspondant à un objet maillé
-(maillage, bucket...). La texture sera créée en mode "auto-généré" (c'est à dire 
-que les valeurs seront générées par OpenGL à l'affichage, voir 
+(maillage, bucket...). La texture sera créée en mode "auto-généré" (c'est à dire
+que les valeurs seront générées par OpenGL à l'affichage, voir
 <a href="#TexturingParams">TexturingParams</a>)
 
 <table border="1" width="100%">
@@ -694,8 +631,8 @@ que les valeurs seront générées par OpenGL à l'affichage, voir
                </td>
                <td valign="top"><tt>int</tt> (optionnel)<br>
                </td>
-               <td valign="top">objet sur lequel on construit la texture. S'il n'est 
-	         pas donné, la texture n'aura qu'un seul point et ne sera utilisable 
+               <td valign="top">objet sur lequel on construit la texture. S'il n'est
+	         pas donné, la texture n'aura qu'un seul point et ne sera utilisable
 		 qu'en mode "généré par OpenGL".
                </td>
              </tr>
@@ -716,8 +653,8 @@ que les valeurs seront générées par OpenGL à l'affichage, voir
                <td valign="top">objet résultat
                </td>
              </tr>
-                    
-</tbody>                     
+
+</tbody>
 </table>
 
 
@@ -725,10 +662,10 @@ que les valeurs seront générées par OpenGL à l'affichage, voir
 <h3>GetInfo</h3>
 Demande &agrave; Anatomist des informations sur l'&eacute;tat
 de  l'application      (objets, fen&ecirc;tres, ...).&nbsp; <br>
-Les informations sont donn&eacute;es entre accolades sous forme 
+Les informations sont donn&eacute;es entre accolades sous forme
 de  dictionnaire    python (directement utilisable par un interpr&eacute;teur
 python).&nbsp;         <br>
-Pour obtenir des infos pr&eacute;cises sur des objets ou fen&ecirc;tres, 
+Pour obtenir des infos pr&eacute;cises sur des objets ou fen&ecirc;tres,
 utiliser la commande <tt>ObjectInfo</tt>.<br>
 Si <tt>filename</tt> n'est pas pr&eacute;cis&eacute;, les informations
 sont  &eacute;crites sur la sortie courante (r&eacute;glable avec la
@@ -746,7 +683,7 @@ commande <tt> Output</tt>)
   <tr>
     <td><tt>filename</tt></td>
     <td><tt>string</tt> (optionnel)</td>
-    <td>fichier ou du "pipe nomm&eacute;" dans lequel Anatomist 
+    <td>fichier ou du "pipe nomm&eacute;" dans lequel Anatomist
       &eacute;crit       les informations demand&eacute;es</td>
   </tr>
   <tr>
@@ -755,8 +692,8 @@ commande <tt> Output</tt>)
     <td><tt>int</tt> (bool) (optionnel)<br>
     </td>
     <td>donne la derni&egrave;re position cliqu&eacute;e
-      pour le curseur li&eacute; (tous groupes confondus), dans le rep&egrave;re 
-      donn&eacute; par le param&egrave;tre <tt>linkcursor_referential</tt> s'il 
+      pour le curseur li&eacute; (tous groupes confondus), dans le rep&egrave;re
+      donn&eacute; par le param&egrave;tre <tt>linkcursor_referential</tt> s'il
       est pr&eacute;cis&eacute;<br>
     </td>
   </tr>
@@ -766,7 +703,7 @@ commande <tt> Output</tt>)
     <td><tt>int</tt> (optionnel)<br>
     </td>
     <td>rep&egrave;re dans lequel la position du curseur
-      li&eacute; doit &ecirc;tre donn&eacute;e (utilse seulement avec le param&egrave;tre 
+      li&eacute; doit &ecirc;tre donn&eacute;e (utilse seulement avec le param&egrave;tre
       <tt>linkcursor_lastpos</tt>). S'il n'est pas pr&eacute;cis&eacute;,
       le "rep&egrave;re central" d'anatomist est utilis&eacute;<br>
     </td>
@@ -792,7 +729,7 @@ commande <tt> Output</tt>)
     </td>
     <td>Permet de donner des noms (id)
       aux   objets  qui n'en ont pas dans le contexte courant.<tt><br>
-      "top"</tt>: assigne des noms aux objets "toplevel" seulement (ceux 
+      "top"</tt>: assigne des noms aux objets "toplevel" seulement (ceux
       qui   n'ont  pas de parent).<br>
       <tt>"all"</tt>, <tt>"yes"</tt>, <tt>"1"</tt>:
       assigne des noms &agrave; tous les objets contenus dans Anatomist<br>
@@ -886,7 +823,7 @@ commande <tt> Output</tt>)
 
 
 <h3>GraphParams</h3>
-Change les options globales relatives aux graphes et aux s&eacute;lections 
+Change les options globales relatives aux graphes et aux s&eacute;lections
 
 <table border="1" width="100%">
 <tbody>
@@ -895,8 +832,8 @@ Change les options globales relatives aux graphes et aux s&eacute;lections
                         </td>
                         <td valign="top"><tt>string</tt> (optionnel)<br>
                         </td>
-                        <td valign="top">Mode d'affichage des sous-objets 
-contenus   dans les noeuds de graphes: "<tt>mesh</tt>", "<tt>bucket</tt>", 
+                        <td valign="top">Mode d'affichage des sous-objets
+contenus   dans les noeuds de graphes: "<tt>mesh</tt>", "<tt>bucket</tt>",
 "<tt>all</tt>   ", "<tt>first</tt>"<br>
                         </td>
                       </tr>
@@ -948,8 +885,8 @@ l'objet s&eacute;lectionn&eacute;.<br>
                         </td>
                         <td valign="top"><tt>int</tt>&nbsp; (optionnel)<br>
                         </td>
-                        <td valign="top">bool&eacute;en, s'il est mis, la 
-s&eacute;lection   inverse les couleurs plut&ocirc;t que d'utiliser une couleur 
+                        <td valign="top">bool&eacute;en, s'il est mis, la
+s&eacute;lection   inverse les couleurs plut&ocirc;t que d'utiliser une couleur
 fixe<br>
                         </td>
                       </tr>
@@ -958,9 +895,9 @@ fixe<br>
                         </td>
                         <td valign="top"><tt>int</tt>&nbsp; (optionnel)<br>
                         </td>
-                        <td valign="top">bool&eacute;en, s'il est mis les 
-sous-objets   d'un graphe sont sauv&eacute;s dans un r&eacute;pertoire qui 
-porte le m&ecirc;me   nom qui lui, avec l'extension "<tt>.data</tt>". Sinon 
+                        <td valign="top">bool&eacute;en, s'il est mis les
+sous-objets   d'un graphe sont sauv&eacute;s dans un r&eacute;pertoire qui
+porte le m&ecirc;me   nom qui lui, avec l'extension "<tt>.data</tt>". Sinon
 l'ancien nom est gard&eacute;   m&ecirc;me si on change le nom du graphe<br>
                         </td>
                       </tr>
@@ -969,8 +906,8 @@ l'ancien nom est gard&eacute;   m&ecirc;me si on change le nom du graphe<br>
                         </td>
                         <td valign="top"><tt>int</tt>&nbsp; (optionnel)<br>
                         </td>
-                        <td valign="top">Active ou invalide l'affichage des 
- bulles  qui indiquent les noms des noeuds de graphes dans les fen&ecirc;tres 
+                        <td valign="top">Active ou invalide l'affichage des
+ bulles  qui indiquent les noms des noeuds de graphes dans les fen&ecirc;tres
  2D/3D<br>
                         </td>
                       </tr>
@@ -988,15 +925,15 @@ l'ancien nom est gard&eacute;   m&ecirc;me si on change le nom du graphe<br>
                         </td>
                         <td valign="top"><tt>int</tt> (optionnel)<br>
                         </td>
-                        <td valign="top"><b>Nouveau dans Anatomist 3.0</b>. 
-			Active ou invalide la colorisation des graphes en fonction de la 
+                        <td valign="top"><b>Nouveau dans Anatomist 3.0</b>.
+			Active ou invalide la colorisation des graphes en fonction de la
 			nomenclature
                         </td>
                       </tr>
 
-</tbody>                                                
+</tbody>
 </table>
-               
+
 <h3>GroupObjects</h3>
 Cr&eacute;e une liste d'objets (groupe simple)<br>
 
@@ -1017,7 +954,7 @@ Cr&eacute;e une liste d'objets (groupe simple)<br>
 </table>
 
 <h3>LinkedCursor</h3>
-D&eacute;place le curseur li&eacute; sur les fen&ecirc;tres du 
+D&eacute;place le curseur li&eacute; sur les fen&ecirc;tres du
 m&ecirc;me        groupe<br>
 
 <table border="1" width="100%" nosave="">
@@ -1163,9 +1100,9 @@ D&eacute;crit aussi pr&eacute;cis&eacute;ment que possible  les
 anatomist, de fen&ecirc;tres,     de r&eacute;f&eacute;rentiels, de transformations,
 ...&nbsp; <br>
 La description est faite sous forme de dictionnaire python.<br>
-Si <tt>filename</tt> n'est pas pr&eacute;cis&eacute;, les informations 
+Si <tt>filename</tt> n'est pas pr&eacute;cis&eacute;, les informations
 sont &eacute;crites sur la sortie courante (r&eacute;glable avec la commande
-<tt>Output</tt>)                                       
+<tt>Output</tt>)
 
 <table border="1" width="100%" nosave="">
 <tbody>
@@ -1263,7 +1200,7 @@ objets      donn&eacute;s<br>
 
 <h3>ReloadObject</h3>
 Recharge des objets d&eacute;j&agrave; en m&eacute;moire &agrave;
-partir     de leurs fichiers disque (s'ils ont chang&eacute;). Attention, 
+partir     de leurs fichiers disque (s'ils ont chang&eacute;). Attention,
 &ccedil;a     ne marche pas pour tous les objets.<br>
 
 <table border="1" width="100%" nosave="">
@@ -1322,9 +1259,9 @@ Ecrit un fichier de transformation<br>
                           <td valign="top">ID de la transformation<br>
                           </td>
                         </tr>
-</tbody>                                                         
+</tbody>
 </table>
-               
+
 <h3>Select</h3>
 S&eacute;lectionne et/ou d&eacute;s&eacute;lectionne des objets<br>
 
@@ -1343,7 +1280,7 @@ S&eacute;lectionne et/ou d&eacute;s&eacute;lectionne des objets<br>
                 <tr>
                <td><tt>group</tt></td>
                 <td><tt>int</tt> (optionnel)</td>
-                <td>groupe de s&eacute;lection concern&eacute; - par d&eacute;faut, 
+                <td>groupe de s&eacute;lection concern&eacute; - par d&eacute;faut,
      0</td>
                </tr>
                 <tr>
@@ -1355,20 +1292,20 @@ S&eacute;lectionne et/ou d&eacute;s&eacute;lectionne des objets<br>
    et <tt>add</tt> sinon.</td>
                </tr>
 
-</tbody>                                                         
+</tbody>
 </table>
 
 
 <a name="SelectByHierarchy"></a>
 <h3>SelectByHierarchy</h3>
-<b>Déprécié à partir d'Anatomist 3.0</b>: cette commande est renommée 
+<b>Déprécié à partir d'Anatomist 3.0</b>: cette commande est renommée
 <a href="#SelectByNomenclature"><tt>SelectByNomenclature</tt></a>.
 
 
 <a name="SelectByNomenclature"></a>
 <h3>SelectByNomenclature</h3>
 <b>Nouveau dans Anatomist 3.0</b> et remplace <tt>SelectByHierarchy</tt>.<br>
-Sélectionne par une nomenclature (action correspondant à un click sur une nomenclature 
+Sélectionne par une nomenclature (action correspondant à un click sur une nomenclature
 dans un browser)
 
 <table border="1" width="100%" nosave="">
@@ -1387,8 +1324,8 @@ dans un browser)
   <tr>
     <td><tt>names</tt></td>
     <td><tt>string</tt></td>
-    <td>liste des éléments de la nomenclature à sélectionner. Pour le moment on utilise 
-      l'espace pour séparer les noms (ce qui signifie qu'on ne peur pas mettre d'espaces 
+    <td>liste des éléments de la nomenclature à sélectionner. Pour le moment on utilise
+      l'espace pour séparer les noms (ce qui signifie qu'on ne peur pas mettre d'espaces
       dans les noms)
     </td>
   </tr>
@@ -1401,8 +1338,8 @@ dans un browser)
     <td><tt>modifiers</tt></td>
     <td><tt>string</tt> (optionnel)</td>
     <td>comme pour la commande <tt>Select</tt><br>
-      <b>Nouveau dans la version 1.30b (corrigée):</b> nouveau mode 
-      <tt>"remove"</tt>, qui permet d'enlever les noeuds concernés des 
+      <b>Nouveau dans la version 1.30b (corrigée):</b> nouveau mode
+      <tt>"remove"</tt>, qui permet d'enlever les noeuds concernés des
       fenêtres concernées pour les faire disparaître.
     </td>
   </tr>
@@ -1411,9 +1348,9 @@ dans un browser)
 
 
 <h3>Server</h3>
-Passe Anatomist en mode serveur. Dans ce mode, Anatomist &eacute;coute 
-les  connexions r&eacute;seau. Chaque connexion est une source de commandes 
-ind&eacute;pendante.                                                  
+Passe Anatomist en mode serveur. Dans ce mode, Anatomist &eacute;coute
+les  connexions r&eacute;seau. Chaque connexion est une source de commandes
+ind&eacute;pendante.
 
 <table cellpadding="2" cellspacing="2" border="1" width="100%">
 <tbody>
@@ -1425,7 +1362,7 @@ ind&eacute;pendante.
                      <td valign="top">port TCP &agrave; &eacute;couter<br>
                      </td>
                    </tr>
-</tbody>                                                         
+</tbody>
 </table>
 
 <h3>SetControl</h3>
@@ -1445,13 +1382,13 @@ Fixe le contr&ocirc;le actif sur les fen&ecirc;tres donn&eacute;es<br>
                 <td><br>
                           </td>
                </tr>
-</tbody>                                                         
+</tbody>
 </table>
-  
+
 <a name="SetMaterial"></a>
 <h3><a href="../../en/programming/commands/setmaterial.html">SetMaterial</a></h3>
 Fixe certaines ou toutes les propriétés de matériau des objets<br>
-Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécifiques 
+Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spécifiques
 à l'objet
 
 <table border="1" width="100%">
@@ -1464,7 +1401,7 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
   <tr>
     <td><tt>ambient</tt></td>
     <td><tt>float_vector</tt> (optionnel)</td>
-    <td id="txt">Composantes RGBA de la composante ambiante du matériau 
+    <td id="txt">Composantes RGBA de la composante ambiante du matériau
       (4  valeurs).  Les valeurs négatives sont inchangées (ancienne
       valeur conservée)
     </td>
@@ -1487,14 +1424,14 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
   <tr>
     <td><tt>shininess</tt></td>
     <td><tt>float</tt> (optionnel)</td>
-    <td id="txt">Valeur 0-124, une valeur négative ne produit aucun 
+    <td id="txt">Valeur 0-124, une valeur négative ne produit aucun
       changement
     </td>
   </tr>
   <tr>
     <td valign="top"><tt>refresh</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
-    <td id="txt">force la remise à jour des fenêtres contenant les objets 
+    <td id="txt">force la remise à jour des fenêtres contenant les objets
       concernés
     </td>
   </tr>
@@ -1502,8 +1439,8 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
     <td valign="top"><tt>lighting</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      active (1) ou désactive (0) l'éclairage/ombrage sur l'objet. La 
-      valeur -1 revient au mode par défaut (réglé par la vue pour l'ensemble de la 
+      active (1) ou désactive (0) l'éclairage/ombrage sur l'objet. La
+      valeur -1 revient au mode par défaut (réglé par la vue pour l'ensemble de la
       scène)
     </td>
   </tr>
@@ -1525,8 +1462,8 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
     <td valign="top"><tt>depth_buffer</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      (0/1/-1) imprime ou pas l'objet dans le Z-buffer. Vous pouvez le 
-      désactiver si vous voulez cliquer "à travers" l'objet (mais cela peut avoir des 
+      (0/1/-1) imprime ou pas l'objet dans le Z-buffer. Vous pouvez le
+      désactiver si vous voulez cliquer "à travers" l'objet (mais cela peut avoir des
       effets bizarres sur le rendu)
     </td>
   </tr>
@@ -1534,9 +1471,9 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
     <td valign="top"><tt>face_culling</tt></td>
     <td valign="top"><tt>int</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      (0/1/-1) élimination des polygônes vus de dos. Le mieux est de l'activer 
-      pour les objets transparents, et le désactiver pour les maillages "ouverts" (dont on 
-      peut voir les deux faces) et opaques. Pour les objets à la fois transparents et 
+      (0/1/-1) élimination des polygônes vus de dos. Le mieux est de l'activer
+      pour les objets transparents, et le désactiver pour les maillages "ouverts" (dont on
+      peut voir les deux faces) et opaques. Pour les objets à la fois transparents et
       ouverts, il n'y a pas de réglage parfait...
     </td>
   </tr>
@@ -1544,10 +1481,10 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
     <td valign="top"><tt>polygon_mode</tt></td>
     <td valign="top"><tt>string</tt> (optionnel)</td>
     <td id="txt"><b>Nouveau dans Anatomist 3.0</b><br>
-      mode d'affichage des polygônes: "<tt>normal</tt>", 
-      "<tt>wireframe</tt>" (fil de fer), 
+      mode d'affichage des polygônes: "<tt>normal</tt>",
+      "<tt>wireframe</tt>" (fil de fer),
       "<tt>outlined</tt>" (normal + fil de fer),
-      "<tt>hiddenface_wireframe</tt>" (fil de fer avec faces cachées), ou 
+      "<tt>hiddenface_wireframe</tt>" (fil de fer avec faces cachées), ou
       "<tt>default</tt>" (utiliser le réglage global de la vue).<br>
       <b>Nouveau dans Anatomist 3.1.5</b>:<br>
       "<tt>ext_outlined</tt>" (contours extérieurs grossis + rendu normal).
@@ -1574,7 +1511,7 @@ Depuis Anatomist 3.0, ces propriétés incluent aussi les modes de rendu 3D spé
 
 <a name="SetObjectPalette"></a>
 <h3>SetObjectPalette</h3>
-Affecte une palette &agrave; des objets. Les param&egrave;tres 
+Affecte une palette &agrave; des objets. Les param&egrave;tres
 (tous    optionnels)  permettent de r&eacute;gler le mode d'utilisation
 de la  palette    par les objets.
 
@@ -1599,21 +1536,21 @@ de la  palette    par les objets.
   <tr>
     <td><tt>min</tt></td>
     <td><tt>float</tt> (optionnel)</td>
-    <td>proportion min de la palette correspondant au min des 
+    <td>proportion min de la palette correspondant au min des
       valeurs de la texture de l'objet associ&eacute;es</td>
   </tr>
   <tr>
     <td><tt>max</tt></td>
     <td><tt>float</tt> (optionnel)</td>
-    <td>pareil pour le max. <tt>min</tt> <tt>max</tt> peuvent 
-      &ecirc;tre      n&eacute;gatifs  (utilisation d'une sous-partie de lapalette) 
-     et <tt>max</tt>         peut &ecirc;tre  sup&eacute;rieur &agrave; <tt>min</tt> 
+    <td>pareil pour le max. <tt>min</tt> <tt>max</tt> peuvent
+      &ecirc;tre      n&eacute;gatifs  (utilisation d'une sous-partie de lapalette)
+     et <tt>max</tt>         peut &ecirc;tre  sup&eacute;rieur &agrave; <tt>min</tt>
      (-&gt;palette    invers&eacute;e)</td>
   </tr>
   <tr>
     <td><tt>min2</tt></td>
     <td><tt>float</tt> (optionnel)</td>
-    <td>pareil pour l'affectation de la 2&egrave;me palette sur 
+    <td>pareil pour l'affectation de la 2&egrave;me palette sur
        la  2&egrave;me     composante de texture (objets avec texture 2D)</td>
   </tr>
   <tr>
@@ -1624,7 +1561,7 @@ de la  palette    par les objets.
   <tr>
     <td><tt>mixMethod</tt></td>
     <td><tt>string</tt> (optionnel)</td>
-    <td>Mode de m&eacute;lange des 2 palettes pour former une 
+    <td>Mode de m&eacute;lange des 2 palettes pour former une
       palette 2D: "<tt>LINEAR</tt>" ou "<tt>GEOMETRIC</tt>" pour le moment</td>
   </tr>
   <tr>
@@ -1636,7 +1573,7 @@ de la  palette    par les objets.
   <tr>
     <td><tt>palette1Dmapping</tt></td>
     <td><tt>string</tt> (optionnel)</td>
-    <td>Mode de parcours d'une palette 2D (image) pour une texture 1D: 
+    <td>Mode de parcours d'une palette 2D (image) pour une texture 1D:
       <tt>FirstLine</tt> (1ère ligne de l'image) ou <tt>Diagonal</tt>
     </td>
   </tr>
@@ -1691,17 +1628,17 @@ Règle les paramètres de plaquage de texture<br>
         <tr>
           <td><tt>texture_index</tt></td>
           <td><tt>int</tt> (optionnel)</td>
-          <td id="txt">Numéro de texture concernée (pour les objets à plusieurs textures), 
+          <td id="txt">Numéro de texture concernée (pour les objets à plusieurs textures),
             défaut: <tt>0</tt>
           </td>
         </tr>
         <tr>
           <td><tt>mode</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">mode de mélange de la couleur de texture: <tt>geometric</tt>, 
-            <tt>linear</tt>, <tt>replace</tt>, <tt>decal</tt>, <tt>blend</tt>, 
-            <tt>add</tt>, ou <tt>combine</tt>. Ces valeurs correspondent pour la 
-            plupart aux fonctions OpenGL, à part le mode linéaire qui pourrait 
+          <td id="txt">mode de mélange de la couleur de texture: <tt>geometric</tt>,
+            <tt>linear</tt>, <tt>replace</tt>, <tt>decal</tt>, <tt>blend</tt>,
+            <tt>add</tt>, ou <tt>combine</tt>. Ces valeurs correspondent pour la
+            plupart aux fonctions OpenGL, à part le mode linéaire qui pourrait
             éventuellement servir autrement sur certains objets (voir <tt>rate</tt>).
           </td>
         </tr>
@@ -1713,55 +1650,55 @@ Règle les paramètres de plaquage de texture<br>
         <tr>
           <td><tt>generation</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">mode de génération de texture (les textures générées automatiquement 
-            par OpenGL remplacent complètement la texture courante, cette option 
-            n'a donc aucun intérêt sinon faire joli): <tt>none</tt> (défaut), 
-            <tt>object_linear</tt>, <tt>eye_linear</tt>, <tt>sphere_map</tt>, 
-            <tt>reflection_map</tt>, <tt>normal_map</tt>. (ces valeurs correspondent 
+          <td id="txt">mode de génération de texture (les textures générées automatiquement
+            par OpenGL remplacent complètement la texture courante, cette option
+            n'a donc aucun intérêt sinon faire joli): <tt>none</tt> (défaut),
+            <tt>object_linear</tt>, <tt>eye_linear</tt>, <tt>sphere_map</tt>,
+            <tt>reflection_map</tt>, <tt>normal_map</tt>. (ces valeurs correspondent
             directement aux fonctions OpenGL)
           </td>
         </tr>
         <tr>
          <td><tt>generation_params_1</tt></td>
          <td><tt>float_vector</tt> (optionnel)</td>
-	 <td id="txt">Paramètres associés à la génération de texture pour la première 
+	 <td id="txt">Paramètres associés à la génération de texture pour la première
 	   coordonnée de texture.<br>
-	   Ces paramètres sont utiles uniquement en mode <tt>object_linear</tt> ou 
-	   <tt>eye_linear</tt>. Il s'agit d'un vecteur de 4 flottants définissant la direction 
-	   de projection de la première coordonnée de texture en fonction des coordonnées 
+	   Ces paramètres sont utiles uniquement en mode <tt>object_linear</tt> ou
+	   <tt>eye_linear</tt>. Il s'agit d'un vecteur de 4 flottants définissant la direction
+	   de projection de la première coordonnée de texture en fonction des coordonnées
 	   3D réelles dans le maillage.<br>
-	   Les paramètres donnés ici ne concernent que le mode de génération courant 
-	   (celui donné par le paramètre <tt>generation</tt>, ou le mode en cours si 
+	   Les paramètres donnés ici ne concernent que le mode de génération courant
+	   (celui donné par le paramètre <tt>generation</tt>, ou le mode en cours si
 	   <tt>generation</tt> n'est pas précisé).
 	 </td>
         </tr>
         <tr>
          <td><tt>generation_params_2</tt></td>
          <td><tt>float_vector</tt> (optionnel)</td>
-	 <td id="txt">Paramètres associés à la génération de texture pour la seconde 
+	 <td id="txt">Paramètres associés à la génération de texture pour la seconde
 	   coordonnée de texture.
 	 </td>
         </tr>
         <tr>
          <td><tt>generation_params_3</tt></td>
          <td><tt>float_vector</tt> (optionnel)</td>
-	 <td id="txt">Paramètres associés à la génération de texture pour la troisième 
+	 <td id="txt">Paramètres associés à la génération de texture pour la troisième
 	   coordonnée de texture.<br>
-	   Pour le moment les textures 3D ne sont pas supportées, donc ce paramètre ne 
+	   Pour le moment les textures 3D ne sont pas supportées, donc ce paramètre ne
 	   sert à rien.
 	 </td>
         </tr>
         <tr>
           <td><tt>rate</tt></td>
           <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">taux de mélange en mode linéaire (pondération objet - texture). 
+          <td id="txt">taux de mélange en mode linéaire (pondération objet - texture).
             Ce paramètre n'a aucun effet sur la plupart des objets.
           </td>
         </tr>
 	<tr>
 	  <td><tt>interpolation</tt></td>
 	  <td><tt>string</tt> (optionnel)</td>
-	  <td id="txt">interpolation des couleurs des textures: <tt>palette</tt> (défaut) ou 
+	  <td id="txt">interpolation des couleurs des textures: <tt>palette</tt> (défaut) ou
 	    <tt>rgb</tt>
 	  </td>
 	</tr>
@@ -1771,18 +1708,18 @@ Règle les paramètres de plaquage de texture<br>
 
 <a name="WindowConfig"></a>
 <h3><a href=../../en/programming/commands/windowconfig.html>WindowConfig</a></h3>
-Fixe les param&egrave;tres de configuration 
+Fixe les param&egrave;tres de configuration
 des    fen&ecirc;tres  donn&eacute;es (&ccedil;a peut &ecirc;tre vari&eacute;)<br>
 
 
 <h2> Commandes plus sp&eacute;cifiques:</h2>
 
 <h3>Fusion2DParams</h3>
-R&egrave;gle les param&egrave;tres d'une fusion 2D. Cette commande est 
-en grande partie obsolète à partir d'Anatomist 3.0. En fait, seul le 
-paramètre <tt>reorder_objects</tt> a encore une utilité propre. Les 
-autres paramètres sont maintenant dans la commande 
-<tt><a href="#TexturingParams">TexturingParams</a></tt> (puisqu'ils ne 
+R&egrave;gle les param&egrave;tres d'une fusion 2D. Cette commande est
+en grande partie obsolète à partir d'Anatomist 3.0. En fait, seul le
+paramètre <tt>reorder_objects</tt> a encore une utilité propre. Les
+autres paramètres sont maintenant dans la commande
+<tt><a href="#TexturingParams">TexturingParams</a></tt> (puisqu'ils ne
 sont plus spécifiques aux fusions 2D).<br>
 
 <table border="1" width="100%" nosave="">
@@ -1808,9 +1745,9 @@ sont plus spécifiques aux fusions 2D).<br>
                 <td><tt>int_vector</tt> (optionnel)</td>
                 <td>num&eacute;ros des objets dans le bon ordre</td>
                </tr>
-</tbody>                                                         
+</tbody>
 </table>
-      
+
 <h3>Fusion3DParams</h3>
 <b>Nouveau dans Anatomist 3.0</b><br>
 Règlage des paramètres d'une fusion 3D<br>
@@ -1825,33 +1762,33 @@ Règlage des paramètres d'une fusion 3D<br>
         <tr>
           <td><tt>method</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">Méthode de calcul: <tt>point</tt> (défaut): valeur du voxel 
-		    sous chaque noeud du maillage, <tt>point_offset_internal</tt>: valeur 
-			d'un voxel décalé vers l'intérieur de <tt>depth</tt> le long de la 
-			normale au maillage, <tt>point_offset_external</tt>: voxel décalé vers 
-			l'extérieur, <tt>line</tt>: intégration le long de la normale selon la 
-			sous-méthode <tt>submethod</tt>, <tt>line_internal</tt>: comme 
-			<tt>line</tt> mais seulement vers l'intérieur du maillage, 
-			<tt>line_external</tt>: idem vers l'extérieur, <tt>sphere</tt>: 
-			intégration dans une sphère de rayon <tt>depth</tt> autour de chaque 
+          <td id="txt">Méthode de calcul: <tt>point</tt> (défaut): valeur du voxel
+		    sous chaque noeud du maillage, <tt>point_offset_internal</tt>: valeur
+			d'un voxel décalé vers l'intérieur de <tt>depth</tt> le long de la
+			normale au maillage, <tt>point_offset_external</tt>: voxel décalé vers
+			l'extérieur, <tt>line</tt>: intégration le long de la normale selon la
+			sous-méthode <tt>submethod</tt>, <tt>line_internal</tt>: comme
+			<tt>line</tt> mais seulement vers l'intérieur du maillage,
+			<tt>line_external</tt>: idem vers l'extérieur, <tt>sphere</tt>:
+			intégration dans une sphère de rayon <tt>depth</tt> autour de chaque
 			noeud du maillage
           </td>
         </tr>
         <tr>
           <td><tt>submethod</tt></td>
           <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">Sous-méthode du calcul. En fait ce paramètre indique la 
-		  manière d'intégrer les valeurs de plusieurs voxels (elle n'est donc 
-		  pas utilisée pour les méthodes <tt>point*</tt>): <tt>max</tt> (défaut), 
-		  <tt>min</tt>, <tt>mean</tt>, <tt>mean_corrected</tt>: moyenne seulement les 
-		  valeurs non-nulles, <tt>mean_enhanced</tt>: plus personne ne se souvient 
+          <td id="txt">Sous-méthode du calcul. En fait ce paramètre indique la
+		  manière d'intégrer les valeurs de plusieurs voxels (elle n'est donc
+		  pas utilisée pour les méthodes <tt>point*</tt>): <tt>max</tt> (défaut),
+		  <tt>min</tt>, <tt>mean</tt>, <tt>mean_corrected</tt>: moyenne seulement les
+		  valeurs non-nulles, <tt>mean_enhanced</tt>: plus personne ne se souvient
 		  ce qu'est sensé faire ce mode...
           </td>
         </tr>
         <tr>
           <td><tt>depth</tt></td>
           <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">Profondeur d'intégration pour les méthodes <tt>line*</tt>, 
+          <td id="txt">Profondeur d'intégration pour les méthodes <tt>line*</tt>,
 		    ou décalage pour les méthodes <tt>point_offset_*</tt>, ou
 		    rayon de la sphère d'intégration pour la méthode <tt>sphere</tt>.
 		  </td>
@@ -1859,7 +1796,7 @@ Règlage des paramètres d'une fusion 3D<br>
         <tr>
           <td><tt>step</tt></td>
           <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">Pas d'échantillonnage pour les méthodes d'intégration à 
+          <td id="txt">Pas d'échantillonnage pour les méthodes d'intégration à
 		    plusieurs points.
           </td>
         </tr>
@@ -1870,7 +1807,7 @@ Règlage des paramètres d'une fusion 3D<br>
 <h2> Commandes des modules:</h2>
 <li> <b><i><font color="#990000">Module ROI :</font></i></b></li>
 <br>
-                                                         
+
 <h3>CreateGraph</h3>
 Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ donne ses dimensions (taille de voxel, extrêma) au nouveau graphe.<br>
 
@@ -1911,7 +1848,7 @@ Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ 
 
 
 <h3>AddNode</h3>
-Ajoute un noeud dans un graphe, avec &eacute;ventuellement  un 
+Ajoute un noeud dans un graphe, avec &eacute;ventuellement  un
 bucket    vide  &agrave; l'int&eacute;rieur<br>
 
 <table border="1" width="100%" nosave="">
@@ -1958,7 +1895,7 @@ le  noeud&nbsp;                   <br>
  0</td>
                </tr>
 
-</tbody>                                                         
+</tbody>
 </table>
 
 
