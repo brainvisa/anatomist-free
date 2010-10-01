@@ -272,6 +272,13 @@ void SurfpaintEraseControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<MenuAction> (actionPool->action("MenuAction"),
           &MenuAction::execMenu));
 
+  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoButton, MouseActionLinkOf<
+      SurfpaintEraseAction> (actionPool->action("SurfpaintEraseAction"),
+        &SurfpaintEraseAction::eraseStart), MouseActionLinkOf<
+        SurfpaintEraseAction> (actionPool->action("SurfpaintEraseAction"),
+        &SurfpaintEraseAction::eraseMove),
+        MouseActionLinkOf<SurfpaintEraseAction> (actionPool->action(
+            "SurfpaintEraseAction"), &SurfpaintEraseAction::eraseStop), true);
   //  // rotation
   //
   mouseLongEventSubscribe(Qt::MidButton, Qt::NoButton, MouseActionLinkOf<

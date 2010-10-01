@@ -96,6 +96,10 @@ namespace anatomist
       AObject * get_o();
       static Action* creator();
 
+      void eraseMove ( int x, int y, int globalX, int globalY  );
+      void eraseStart( int x, int y, int globalX, int globalY );
+      void eraseStop( int x, int y, int globalX, int globalY );
+
     private:
       AObject *objselect;
 

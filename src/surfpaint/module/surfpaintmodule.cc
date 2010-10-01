@@ -95,7 +95,10 @@ void SurfpaintModule::viewsDeclaration() { }
 void SurfpaintModule::actionsDeclaration()
 {
   //std::cout << "Surfpaint actions\n" << std::endl;
-  ActionDictionary::instance()->addAction("SurfpaintColorPickerAction", SurfpaintColorPickerAction::creator ) ;
+
+  SurfpaintColorPickerAction aCP;
+  ActionDictionary::instance()->addAction("SurfpaintColorPickerAction", &SurfpaintColorPickerAction::creator ) ;
+
   ActionDictionary::instance()->addAction("SurfpaintBrushAction", SurfpaintBrushAction::creator ) ;
   ActionDictionary::instance()->addAction("SurfpaintEraseAction", SurfpaintEraseAction::creator ) ;
   ActionDictionary::instance()->addAction("SurfpaintShortestPathAction", SurfpaintShortestPathAction::creator ) ;
@@ -105,7 +108,13 @@ void SurfpaintModule::actionsDeclaration()
 void SurfpaintModule::controlsDeclaration()
 {
   //std::cout << "Surfpaint control\n" << std::endl;
-  ControlDictionary::instance()->addControl("SurfpaintColorPickerControl",SurfpaintColorPickerControl::creator, 555 ) ;
+
+  SurfpaintColorPickerControl   cCP;
+  ControlDictionary::instance()->addControl( cCP.name(), &SurfpaintColorPickerControl::creator,
+      cCP.priority() );
+  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ), cCP.name() );
+
+  //ControlDictionary::instance()->addControl("SurfpaintColorPickerControl",SurfpaintColorPickerControl::creator, 555 ) ;
   ControlDictionary::instance()->addControl("SurfpaintBrushControl",SurfpaintBrushControl::creator, 556 ) ;
   ControlDictionary::instance()->addControl("SurfpaintEraseControl",SurfpaintEraseControl::creator, 557 ) ;
   ControlDictionary::instance()->addControl("SurfpaintShortestPathControl",SurfpaintShortestPathControl::creator, 558 ) ;
@@ -121,35 +130,4 @@ void SurfpaintModule::controlsDeclaration()
 
   //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintShortestPathControl" ) ;
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintShortestPathControl" ) ;
-
-
-  {
-    QPixmap p;
-    if( p.load( ( Settings::globalPath() + "/icons/meshPaint/colorpicker.png" ).c_str() ) )
-      IconDictionary::instance()->addIcon( "SurfpaintColorPickerControl", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/paintbrush.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "SurfpaintBrushControl", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/build.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "buildIcon", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/erase.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "SurfpaintEraseControl", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/shortestpath.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "SurfpaintShortestPathControl", p );
-  }
 }

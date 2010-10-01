@@ -184,6 +184,45 @@ SurfpaintEraseAction::SurfpaintEraseAction()
 SurfpaintEraseAction::~SurfpaintEraseAction()
 {
 }
+void
+SurfpaintEraseAction::eraseStart( int x, int y, int globalX, int globalY )
+{
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  objselect = w3->objectAtCursorPosition( x, y );
+
+  //cout << "brushStart" << endl;
+  eraseMove(x,y,0,0);
+  //hideCursor();
+}
+
+void
+SurfpaintEraseAction::eraseStop( int x, int y, int globalX, int globalY )
+{
+  //showCursor();
+  //cout << "brushStop" << endl;
+}
+
+void SurfpaintEraseAction::eraseMove(int x, int y, int, int)
+{
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+
+  //cout << "brushMove" << endl;
+
+  Point3df  pos;
+  int poly;
+  string objtype;
+  float texvalue;
+  string textype;
+  int indexVertex;
+  Point3df positionNearestVertex;
+  int indexNearestVertex;
+
+  w3->getInfos3DFromClickPointNew( x, y, pos, &poly , objselect, objtype, &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  //texvalue = w3->getTextureValue();
+  w3->setPolygon(poly);
+  w3->setVertex(indexNearestVertex);
+  w3->restoreTextureValue( objselect, textype, indexNearestVertex);
+}
 /////////////////
 
 Action*
