@@ -1,3 +1,0 @@
-
-SHFJ_COPY_CURRENT_DIRECTORY(share/anatomist-${BrainVISA_VERSION})
-
