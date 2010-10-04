@@ -89,9 +89,10 @@ protected:
   void fillCtrlPoints();
   void processThread();
   void notifyUpdate();
-  QString strAttribute( const std::string & attr, 
-			const carto::AttributedObject & ao, 
+  QString strAttribute( const std::string & attr,
+			const carto::AttributedObject & ao,
 			const carto::SyntaxSet & synt );
+  bool event( QEvent * e );
 
   anatomist::ASurfMatcher	*_obj;
   Widgets			*_widgets;
@@ -105,7 +106,7 @@ class QSurfMatchWin_AttEdit : public QLineEdit
   Q_OBJECT
 
 public:
-  QSurfMatchWin_AttEdit( const std::string & attr, const QString & txt, 
+  QSurfMatchWin_AttEdit( const std::string & attr, const QString & txt,
 			 QWidget* parent );
   virtual ~QSurfMatchWin_AttEdit();
 

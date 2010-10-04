@@ -6,7 +6,6 @@ TARGET		= anatomist${BUILDMODEEXT}
 DEFINES	+= ANATOMIST_EXPORTS
 
 HEADERS = \
-	threads/asyncHandler.h \
 	browser/browsercontrol.h \
 	browser/labeledit.h \
 	browser/attributedchooser.h \
@@ -234,7 +233,6 @@ HEADERS = \
 	primitive/primitive.h
 
 SOURCES = \
-	threads/asyncHandler.cc \
 	browser/browsercontrol.cc \
 	browser/labeledit.cc \
 	browser/attributedchooser.cc \
