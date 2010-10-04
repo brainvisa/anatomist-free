@@ -6,7 +6,6 @@ TARGET		= anatomist${BUILDMODEEXT}
 DEFINES	+= ANATOMIST_EXPORTS
 
 HEADERS = \
-	threads/asyncHandler.h \
 	browser/browsercontrol.h \
 	browser/labeledit.h \
 	browser/attributedchooser.h \
@@ -230,10 +229,9 @@ HEADERS = \
 	application/listDir.h \
 	application/anatomist_doc.h \
 	stdmod/stdmod.h \
-	primitive/primitive.h 
+	primitive/primitive.h
 
 SOURCES = \
-	threads/asyncHandler.cc \
 	browser/browsercontrol.cc \
 	browser/labeledit.cc \
 	browser/attributedchooser.cc \
@@ -452,7 +450,7 @@ SOURCES = \
 	application/syntax.cc \
 	application/listDir.cc \
 	stdmod/stdmod.cc \
-	primitive/primitive.cc 
+	primitive/primitive.cc
 
 #release-darwin:LIBS	= $(DARWINBUG_LIBS)
 

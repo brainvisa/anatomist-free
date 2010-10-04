@@ -59,9 +59,9 @@ namespace anatomist
 
   struct ASurfMatcher_processData
   {
-    ASurfMatcher_processData() : nneighbours( 5 ), attraction( 2. ), 
-      pressure( 0.05 ), cohesion( 0.02 ), ctrlAttraction( 1. ), 
-      restLength( 0.8 ), maxLengthFactor( 5. ), meanLength( 0 ), 
+    ASurfMatcher_processData() : nneighbours( 5 ), attraction( 2. ),
+      pressure( 0.05 ), cohesion( 0.02 ), ctrlAttraction( 1. ),
+      restLength( 0.8 ), maxLengthFactor( 5. ), meanLength( 0 ),
       reversenorm( false )
     {}
 
@@ -109,7 +109,7 @@ int ASurfMatcher::registerClass()
 //
 
 ASurfMatcher::ASurfMatcher( AObject* o1, AObject* o2 )
-  : ObjectVector(), _ascending( true ), _processFinished( false ), 
+  : ObjectVector(), _ascending( true ), _processFinished( false ),
     _record( false ), _mdata( 0 ), _ctrlPts( new ASurfMatcher_ctrlPts )
 {
   _type = _classType;
@@ -126,6 +126,8 @@ ASurfMatcher::ASurfMatcher( AObject* o1, AObject* o2 )
   ATriangulated	*s3 = new ATriangulated( "matchsurf.mesh" );
 
   s3->setName( theAnatomist->makeObjectName( "Matchsurf" ) );
+  s3->setReferential( s1->getReferential() );
+  s3->setSurface( new AimsSurfaceTriangle( *s1->surface() ) );
   insert( s3 );
   theAnatomist->registerObject( s3, 0 );
   theAnatomist->registerSubObject( this, s3 );
@@ -162,14 +164,14 @@ Tree* ASurfMatcher::optionTree() const
       _optionTree = new Tree( true, "option tree" );
       t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
       _optionTree->insert( t );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
 					      "Rename object" ) );
       t2->setProperty( "callback", &ObjectActions::renameObject );
       t->insert( t2 );
 
       t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Fusion" ) );
       _optionTree->insert( t );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
 					      "Surface matching window" ) );
       t2->setProperty( "callback", &surfMatchControl );
       t->insert( t2 );
@@ -350,7 +352,7 @@ void ASurfMatcher::processStep()
 
 	  /*if( sqd[i] > 0 )
 	    {*/
-	  dn = ( d[0] * nf[0] + d[1] * nf[1] + d[2] * nf[2] ) 
+	  dn = ( d[0] * nf[0] + d[1] * nf[1] + d[2] * nf[2] )
 	    / ( sqrt( sqd[i] ) + 1. );
 	  vec1[0] += dn * nf[0];
 	  vec1[1] += dn * nf[1];
@@ -390,7 +392,7 @@ void ASurfMatcher::processStep()
 	  vec1[0] = v1[0] - pt[0];
 	  vec1[1] = v1[1] - pt[1];
 	  vec1[2] = v1[2] - pt[2];
-	  d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1] 
+	  d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1]
 		     + vec1[2] * vec1[2] );
 	  if( d2 == 0 )
 	    {
@@ -411,7 +413,7 @@ void ASurfMatcher::processStep()
 	  vec1[0] = v2[0] - pt[0];
 	  vec1[1] = v2[1] - pt[1];
 	  vec1[2] = v2[2] - pt[2];
-	  d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1] 
+	  d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1]
 		     + vec1[2] * vec1[2] );
 	  if( d2 == 0 )
 	    {
@@ -454,7 +456,7 @@ void ASurfMatcher::processStep()
 	  norm[1] = vec1[2] * vec2[0] - vec2[2] * vec1[0];
 	  norm[2] = vec1[0] * vec2[1] - vec2[0] * vec1[1];
 
-	  dn = 1.; /* / sqrt( norm[0] * norm[0] + norm[1] * norm[1] 
+	  dn = 1.; /* / sqrt( norm[0] * norm[0] + norm[1] * norm[1]
 		      + norm[2] * norm[2] );*/
 	  if( _mdata->reversenorm )
 	    dn = -dn;
@@ -465,7 +467,7 @@ void ASurfMatcher::processStep()
 	  snorm[1] += norm[1] * dn;
 	  snorm[2] += norm[2] * dn;
 	}
-      dn = 1. / sqrt( snorm[0] * snorm[0] + snorm[1] * snorm[1] 
+      dn = 1. / sqrt( snorm[0] * snorm[0] + snorm[1] * snorm[1]
 		      + snorm[2] * snorm[2] );
       nrm[0] = snorm[0] * dn;
       nrm[1] = snorm[1] * dn;
@@ -540,14 +542,14 @@ void ASurfMatcher::computeLength( ATriangulated* s, unsigned time )
       const Point3df			& p2 = pts[ poly[1] ];
       const Point3df			& p3 = pts[ poly[2] ];
 
-      d += ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) 
-	+ ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) 
+      d += ( p1[0] - p2[0] ) * ( p1[0] - p2[0] )
+	+ ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
 	+ ( p1[2] - p2[2] ) * ( p1[2] - p2[2] );
-      d += ( p1[0] - p3[0] ) * ( p1[0] - p3[0] ) 
-	+ ( p1[1] - p3[1] ) * ( p1[1] - p3[1] ) 
+      d += ( p1[0] - p3[0] ) * ( p1[0] - p3[0] )
+	+ ( p1[1] - p3[1] ) * ( p1[1] - p3[1] )
 	+ ( p1[2] - p3[2] ) * ( p1[2] - p3[2] );
-      d += ( p3[0] - p2[0] ) * ( p3[0] - p2[0] ) 
-	+ ( p3[1] - p2[1] ) * ( p3[1] - p2[1] ) 
+      d += ( p3[0] - p2[0] ) * ( p3[0] - p2[0] )
+	+ ( p3[1] - p2[1] ) * ( p3[1] - p2[1] )
 	+ ( p3[2] - p2[2] ) * ( p3[2] - p2[2] );
     }
   d /= np * 3;
@@ -641,6 +643,7 @@ void ASurfMatcher::resetProcess()
   ++i;
   ATriangulated	*surf = (ATriangulated *) *i;
   surf->setSurface( new AimsSurfaceTriangle( *s1->surface() ) );
+  surf->setReferential( s1->getReferential() );
 
   //	reset control points
   vector<unsigned>	ocp = _ctrlPts->orgCtrlPts;
