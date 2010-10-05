@@ -652,7 +652,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
           for (unsigned i = 0; i < _listIndexVertexTemp.size(); ++i)
           {
-          //cout << " " << _listIndexVertexTemp[i] ;
+          cout << " " << _listIndexVertexTemp[i] ;
           _listVertexSelect[_listIndexVertexTemp[i]] = _textureValue;
           _colors[3 * _listIndexVertexTemp[i]] = _colorpicked[0];
           _colors[3 * _listIndexVertexTemp[i] + 1] = _colorpicked[1];
