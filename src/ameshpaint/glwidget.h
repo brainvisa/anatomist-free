@@ -34,6 +34,8 @@
 #include <float.h>
 #include "trackball.h"
 
+#include "spath/geodesic_mesh.h"
+
 #if defined(__APPLE__)
 # include <OpenGL/gl.h>
 # include <OpenGL/glu.h>
@@ -175,7 +177,10 @@ private:
   float _meshScale;
 
   std::vector<int> _indexTexture;
-  GLubyte *backBufferTexture;
+
+  //GLubyte *backBufferTexture;
+  vector<GLubyte> backBufferTexture;
+
   ATexture	*_ao;
   T _minT;
   T _maxT;
@@ -201,6 +206,19 @@ private:
   GLubyte *_colors;
   GLuint *_indices;
   //GLfloat *_textures;
+
+  std::vector<double> _pointsSP;
+  std::vector<unsigned> _facesSP;
+  geodesic::Mesh _meshSP;
+  std::vector<geodesic::SurfacePoint> _pathSP;
+  std::vector<geodesic::SurfacePoint> _pathExactSP;
+
+  std::vector<int> _listIndexVertexTemp;
+
+  std::vector<int> _listVertexSelectShortPath;
+  std::vector<int> _listIndexVertexShortPath;
+//td::vector<int> list_vertex_short_path;
+
 };
 
 #endif

@@ -1,5 +1,8 @@
 #include "glwidget.h"
 #include "meshpaint.h"
+#include "spath/geodesic_algorithm_dijkstra.h"
+#include "spath/geodesic_algorithm_subdivision.h"
+#include "spath/geodesic_algorithm_exact.h"
 
 /* enums */
 enum
@@ -25,17 +28,18 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _parent = parent;
   _showInfos = true;
 
-  backBufferTexture = NULL;
-
-  QDesktopWidget *desktop = QApplication::desktop();
-
-  int screenWidth = desktop->width();
-  int screenHeight = desktop->height();
-
-  cout << screenWidth << " " << screenHeight << endl;
-
-  backBufferTexture = (GLubyte*) malloc((screenWidth * screenHeight) * 3
-      * sizeof(GLubyte));
+//  backBufferTexture = NULL;
+//
+//  QDesktopWidget *desktop = QApplication::desktop();
+//
+//  int screenWidth = desktop->width();
+//  int screenHeight = desktop->height();
+//
+//  cout << screenWidth << " " << screenHeight << endl;
+//
+//  backBufferTexture = (GLubyte*) malloc((screenWidth * screenHeight) * 3
+//      * sizeof(GLubyte));
+  backBufferTexture.resize( parent->width() * parent->height() * 3 );
 
   std::cout << "Reading mesh and texture" << endl;
 
@@ -211,18 +215,26 @@ void myGLWidget<T>::buildDataArray(void)
     _indices[3 * j + 2] = (GLuint) tri[j][2];
   }
 
-  //  for (j = 0; j < 20; j++) {
-  //    cout << "v " << vert[j][0] << "v " << vert[j][1] << "v " << vert[j][2]
-  //        << endl;
-  //    cout << "vg " << _vertices[3 * j] << "vg " << _vertices[3 * j + 1]
-  //        << "vg " << _vertices[3 * j + 2] << endl;
-  //  }
-  //
-  //  for (j = 0; j < 20; j++){
-  //    cout << j << endl;
-  //    cout << " " << tri[j][0] << " " << tri[j][1] << " " << tri[j][2] << endl;
-  //    cout << " " << (int)_indices[3*j]  << " " << (int)_indices[3*j+1]  << " " << (int)_indices[3*j+2] << endl;
-  //  }
+  _pointsSP.resize(3*vert.size());
+  _facesSP.resize(3*tri.size());
+
+  for (j = 0; j < (int) vert.size(); j++)
+  {
+    _pointsSP[3*j] = vert[j][0];
+    _pointsSP[3*j+1] = vert[j][1];
+    _pointsSP[3*j+2] = vert[j][2];
+    //cout <<   _pointsSP[3*j]  << ' ' <<  _pointsSP[3*j +1 ] << ' ' <<   _pointsSP[3*j+2] << endl;
+  }
+
+  for (j = 0; j < (int) tri.size(); j++)
+  {
+    _facesSP[3*j] = tri[j][0];
+    _facesSP[3*j+1] = tri[j][1];
+    _facesSP[3*j+2] = tri[j][2];
+  }
+
+  _meshSP.initialize_mesh_data(_pointsSP,_facesSP); //create internal mesh data structure including edges
+
 }
 
 template<typename T>
@@ -325,7 +337,7 @@ void myGLWidget<T>::changeMode(int mode)
   _mode = mode;
   //cout << "mode = " << mode << endl;
 
-  if (mode == 2 || _mode == 3) copyBackBuffer2Texture();
+  if (mode == 2 || _mode == 3 || _mode == 4) copyBackBuffer2Texture();
 }
 
 template<typename T>
@@ -577,6 +589,119 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
     updateGL();
   }
+
+  if (event->buttons() == Qt::LeftButton && _mode == 4)
+    {
+      _trackBall.stop();
+      _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
+      _point3Dpicked = check3DpointPicked(event->x(), event->y());
+
+      Point3df p;
+      p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
+      p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
+      p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
+
+      _indexVertex
+          = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
+
+      if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
+      {
+
+        _listVertexSelectShortPath.push_back(_indexVertex);
+
+        std::vector<int>::iterator ite;
+        _listIndexVertexShortPath.push_back(_indexVertex);
+        ite = _listIndexVertexShortPath.end();
+
+        int nb_vertex;
+        printf("nb vertex path = %d\n", _listVertexSelectShortPath.size());
+
+        std::vector<geodesic::SurfacePoint> sources;
+        std::vector<geodesic::SurfacePoint> targets; //same thing with targets
+
+//        geodesic::GeodesicAlgorithmExact exact_algorithm(&_meshSP); //exact algorithm
+        geodesic::GeodesicAlgorithmDijkstra dijkstra_algorithm(&_meshSP); //simplest approximate algorithm: path only allowed on the edges of the mesh
+//        unsigned const subdivision_level = 3; //three additional vertices per every edge in subdivision algorithm
+//        //geodesic::GeodesicAlgorithmSubdivision subdivision_algorithm(&_meshSP,2);  //with subdivision_level=0 this algorithm becomes Dijkstra, with subdivision_level->infinity it becomes exact
+
+
+        if (_listIndexVertexShortPath.size() >= 2)
+        {
+          unsigned target_vertex_index = (*(--ite) );
+          unsigned source_vertex_index = (*(--ite) );
+
+          printf("indice source = %d target = %d \n",
+              source_vertex_index, target_vertex_index);
+
+          std::vector<geodesic::SurfacePoint> short_path;
+
+          short_path.clear();
+          _listIndexVertexTemp.clear();
+
+          geodesic::SurfacePoint short_sources(
+              &_meshSP.vertices()[source_vertex_index]);
+          geodesic::SurfacePoint short_targets(
+              &_meshSP.vertices()[target_vertex_index]);
+
+          dijkstra_algorithm.geodesic2(short_sources,
+              short_targets, short_path, _listIndexVertexTemp);
+
+//          exact_algorithm.geodesic(short_sources,
+//                        short_targets, short_path);
+          cout << "path = ";
+
+          for (unsigned i = 0; i < _listIndexVertexTemp.size(); ++i)
+          {
+          //cout << " " << _listIndexVertexTemp[i] ;
+          _listVertexSelect[_listIndexVertexTemp[i]] = _textureValue;
+          _colors[3 * _listIndexVertexTemp[i]] = _colorpicked[0];
+          _colors[3 * _listIndexVertexTemp[i] + 1] = _colorpicked[1];
+          _colors[3 * _listIndexVertexTemp[i] + 2] = _colorpicked[2];
+          }
+
+          cout << endl;
+
+          for (unsigned i = 0; i < short_path.size(); ++i)
+          {
+            geodesic::SurfacePoint ss ;
+            ss.x() = (-_meshCenter[0] + (float) short_path[short_path.size() - i - 1].x()) * _meshScale;
+            ss.y() = (-_meshCenter[1] + (float) short_path[short_path.size() - i - 1].y()) * _meshScale;
+            ss.z() = (_meshCenter[2] - (float) short_path[short_path.size() - i - 1].z()) * _meshScale;
+            _pathSP.push_back(ss);
+
+            //cout << i << " " << ss.x() << ' ' << ss.y() << ' ' <<  ss.z() << endl;
+          }
+
+            //scale*(s.x()-cx),scale*(s.y()-cy),scale*(s.z()-cz)
+
+//            gluProject(scale*(ss.x()-cx),scale*(ss.y()-cy),scale*(ss.z()-cz), modelview, projection, viewport, &meshx,
+//                      &meshy, &meshz);
+//
+//            pixel[0] = dataTexture[3 * (  (int)meshy) * largeur_frame + 3
+//                      * (int)meshx];
+//            pixel[1] = dataTexture[3 * ( (int)meshy) * largeur_frame + 3
+//                * (int)meshx + 1];
+//            pixel[2] = dataTexture[3 * (  (int)meshy) * largeur_frame + 3
+//                * (int)meshx + 2];
+//
+//            indice_triangle
+//                = (pixel[2] + 256 * pixel[1] + 256 * 256 * pixel[0]) - 1;
+//
+//            printf("t %d ",indice_triangle);
+//            //recherche du vertex le plus proche
+//            indice_vertex = find_near_vertex(scale*(ss.x()-cx),scale*(ss.y()-cy),scale*(ss.z()-cz),indice_triangle);
+//            printf("v %d\n",indice_vertex);
+//            list_index_vertex_short_path.push_back(indice_vertex);
+//         }
+
+        }
+
+        updateInfosPicking(_indexPolygon, _indexVertex);
+      }
+
+      updateGL();
+    }
+
 }
 
 template<typename T>
@@ -630,12 +755,6 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     const float* t = _ao->textureCoords();
     if (_indexVertex < _mesh.vertex().size())
     {
-      //      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
-      //          * t[_indexVertex])];
-      //      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
-      //          * t[_indexVertex]) + 1];
-      //      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
-      //          * t[_indexVertex]) + 2];
       _textureValue = _tex[0].item(_indexVertex);
 
       typename std::map<int, T>::const_iterator it(_listVertexSelect.find(
@@ -737,6 +856,11 @@ void myGLWidget<T>::keyPressEvent(QKeyEvent *event)
       }
 
       _listVertexSelect.clear();
+      _listVertexSelectShortPath.clear();
+      _listIndexVertexShortPath.clear();
+      _pathSP.clear();
+      _pathExactSP.clear();
+
       break;
     default:
       QWidget::keyPressEvent(event);
@@ -889,38 +1013,52 @@ void myGLWidget<T>::drawPrimitivePicked(void)
   glTranslatef(-_vertexNearestpicked[0], -_vertexNearestpicked[1],
       -_vertexNearestpicked[2]);
 
-//  glColor3d(0, 1, 1);
-//  glTranslatef(pt[0][0], pt[0][1], pt[0][2]);
-//  gluSphere(quadric, 0.001, 36, 18);
-//  glTranslatef(-pt[0][0], -pt[0][1], -pt[0][2]);
+  std::vector<int>::iterator ite;
+  ite = _listVertexSelectShortPath.begin();
+
+  glColor3d(1, 1, 1);
+
+  for (; ite != _listVertexSelectShortPath.end(); ++ite)
+  {
+    glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+    gluSphere(quadric, 0.003, 36, 18);
+    glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
+  }
+
+//  ite = _listIndexVertexShortPath.begin();
+//
+//  glColor3d(0, 0, 0);
+//
+//  for (; ite != _listIndexVertexShortPath.end(); ++ite)
+//  {
+//    glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+//    gluSphere(quadric, 0.003, 36, 18);
+//    glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
+//  }
+
+
+//   for(int p = 0; p<((int)_pathSP.size()); p++)
+//   {
+//     geodesic::SurfacePoint& s = _pathSP[p];
+//     glColor3d(1,0,0);
+//     glTranslatef(s.x(),s.y(),s.z());
+//     gluSphere(quadric, 0.003, 36, 18);
+//     glTranslatef(-s.x(),-s.y(),-s.z());
+//   }
+
 
   gluDeleteQuadric(quadric);
-  //printf("angle %f ",(float)(180.*acos(model->facetnorms[3*triangle->findex + 2]))/M_PI);
-  //glRotatef(acos(model->facetnorms[3*triangle->findex + 2]),1,0,0);
-  //glutSolidSphere(0.001, 15, 15);
 
-  //     glMultMatrixf(matrice_rotation);
-  //
-  //     glColor3d(1,1,0);
-  //     gluCylinder(qobj_cone,0,0.002,0.004,20,1);
-  //     glColor3d(0,1,1);
-  //     gluCylinder(qobj_cone,0,0.001,0.01,20,1);
-  //
-  //
-  //  glPushMatrix();
-  //
-  //
-  //  glPopMatrix();
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glEnable( GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable( GL_LINE_SMOOTH);
+  glDisable(GL_LIGHTING);
+
+
 
   if (_indexPolygon >= 0 && _indexPolygon < 3 * _mesh.polygon().size())
   {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glEnable( GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable( GL_LINE_SMOOTH);
-    //glDisable(GL_COLOR_MATERIAL);
-    glDisable(GL_LIGHTING);
-
     glBegin( GL_TRIANGLES);
 
     glColor3ub(255 - _colorpicked[0], 255 - _colorpicked[1], 255
@@ -1092,6 +1230,8 @@ template<typename T>
 void myGLWidget<T>::resizeGL(int width, int height)
 {
   //cout << "w " << width << "h " << height << endl;
+  backBufferTexture.resize( width * height * 3);
+
   _resized = true;
   _mode = 1;
   setupViewport(width, height);
@@ -1208,7 +1348,7 @@ void myGLWidget<T>::copyBackBuffer2Texture(void)
   //glFlush();
   glReadBuffer( GL_BACK);
   glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE,
-      backBufferTexture);
+      &backBufferTexture[0]);
   _resized = false;
 }
 

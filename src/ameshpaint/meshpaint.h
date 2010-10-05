@@ -34,6 +34,7 @@ protected :
 	  trackballAction->setChecked(true);
 	  paintBrushAction->setChecked(false);
 	  colorPickerAction->setChecked(false);
+	  shortPathAction->setChecked(false);
   }
 
   virtual void changeMode(int mode){};
@@ -45,6 +46,7 @@ private slots:
   {
     paintBrushAction->setChecked(false);
   	colorPickerAction->setChecked(false);
+  	shortPathAction->setChecked(false);
   	changeMode(1);
   }
 
@@ -52,6 +54,7 @@ private slots:
   {
     paintBrushAction->setChecked(false);
     trackballAction->setChecked(false);
+    shortPathAction->setChecked(false);
     changeMode(2);
   }
 
@@ -59,15 +62,22 @@ private slots:
   {
     colorPickerAction->setChecked(false);
     trackballAction->setChecked(false);
+    shortPathAction->setChecked(false);
     changeMode(3);
+  }
+
+  void shortPath()
+  {
+    colorPickerAction->setChecked(false);
+    trackballAction->setChecked(false);
+    paintBrushAction->setChecked(false);
+    changeMode(4);
   }
 
   void save()
   {
     saveTexture();
   }
-
-
 
 protected :
   QToolBar *paintToolBar;
@@ -80,6 +90,7 @@ private :
   QAction *colorPickerAction;
   QAction *paintBrushAction;
   QAction *trackballAction;
+  QAction *shortPathAction;
   QAction *saveAction;
 };
 

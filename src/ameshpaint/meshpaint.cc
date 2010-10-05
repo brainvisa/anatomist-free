@@ -131,12 +131,21 @@ void MeshPaint::createActions()
 
   iconname = Settings::globalPath() + "/icons/meshPaint/zoom.png";
 
-  trackballAction = new QAction(QIcon(iconname.c_str()), tr("&trackballAction"), this);
+  trackballAction = new QAction(QIcon(iconname.c_str()), tr("&trackball"), this);
   trackballAction->setShortcut(tr("t"));
   trackballAction->setStatusTip(tr("trackball"));
   trackballAction->setCheckable(true);
   trackballAction->setChecked(true);
   connect(trackballAction, SIGNAL(triggered()), this, SLOT(trackball()));
+
+  iconname = Settings::globalPath() + "/icons/meshPaint/shortpath.png";
+
+  shortPathAction = new QAction(QIcon(iconname.c_str()), tr("&shortPath"), this);
+  shortPathAction->setShortcut(tr("p"));
+  shortPathAction->setStatusTip(tr("shortPath"));
+  shortPathAction->setCheckable(true);
+  shortPathAction->setChecked(true);
+  connect(shortPathAction, SIGNAL(triggered()), this, SLOT(shortPath()));
 
   iconname = Settings::globalPath() + "/icons/meshPaint/save.png";
 
@@ -154,6 +163,7 @@ void MeshPaint::createToolBars()
   paintToolBar->addAction(trackballAction);
   paintToolBar->addAction(colorPickerAction);
   paintToolBar->addAction(paintBrushAction);
+  paintToolBar->addAction(shortPathAction);
   paintToolBar->addAction(saveAction);
 
   infosToolBar = new QToolBar( tr( "InfosToolBar" ), this );
