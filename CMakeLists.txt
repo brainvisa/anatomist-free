@@ -62,7 +62,7 @@ if (EXISTS '/usr/include/sys/soundcard.h' OR EXISTS '/usr/include/sys/audioio.h'
           set(ANATOMIST_DEFINITIONS "${ANATOMIST_DEFINITIONS} -DSOMA_SOUND_OSS" )
 endif()
 if(ALSA_FOUND)
-  BRAINVISA_DEPENDENCY(RUN RECOMMENDS libasound2 RUN)
+  BRAINVISA_DEPENDENCY(RUN DEPENDS libasound2 RUN)
   set(ANATOMIST_DEFINITIONS "${ANATOMIST_DEFINITIONS} -DSOMA_SOUND_ALSA")
 endif()
 
@@ -75,7 +75,7 @@ include_directories( ${ANATOMIST_INCLUDE_DIRS} )
 
 add_subdirectory( src )
 
-# qt translation files 
+# qt translation files
 BRAINVISA_ADD_TRANSLATION( "shared" "share/anatomist-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}" ${PROJECT_NAME})
 
 BRAINVISA_COPY_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/doc"
