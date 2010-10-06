@@ -33,10 +33,10 @@ public:
 	void initialize_mesh_data(unsigned num_vertices,
 							  Points& p, 
 							  unsigned num_faces,
-							  Faces& tri);		//build mesh from regular point-triangle representation
+							  Faces& tri, const float* curvature);		//build mesh from regular point-triangle representation
 
 	template<class Points, class Faces>
-	void initialize_mesh_data(Points& p, Faces& tri);		//build mesh from regular point-triangle representation
+	void initialize_mesh_data(Points& p, Faces& tri, const float* curvature);		//build mesh from regular point-triangle representation
 
 	std::vector<Vertex>& vertices(){return m_vertices;};
 	std::vector<Edge>& edges(){return m_edges;};
@@ -47,7 +47,7 @@ public:
 
 private:
 
-	void build_adjacencies();		//build internal structure of the mesh
+	void build_adjacencies(const float *curvature);		//build internal structure of the mesh
 	bool verify();					//verifies connectivity of the mesh and prints some debug info
 
 	typedef void* void_pointer;
@@ -110,21 +110,21 @@ inline unsigned Mesh::closest_vertices(SurfacePoint* p,
 }
 
 template<class Points, class Faces>
-void Mesh::initialize_mesh_data(Points& p, Faces& tri)		//build mesh from regular point-triangle representation
+void Mesh::initialize_mesh_data(Points& p, Faces& tri, const float* curvature)		//build mesh from regular point-triangle representation
 {
 	assert(p.size() % 3 == 0);
 	unsigned const num_vertices = p.size() / 3;
 	assert(tri.size() % 3 == 0);
 	unsigned const num_faces = tri.size() / 3; 
 
-	initialize_mesh_data(num_vertices, p, num_faces, tri);
+	initialize_mesh_data(num_vertices, p, num_faces, tri, curvature);
 }
 
 template<class Points, class Faces>
 void Mesh::initialize_mesh_data(unsigned num_vertices,
 								Points& p, 
 								unsigned num_faces,
-								Faces& tri)
+								Faces& tri, const float* curvature)
 {
 	printf("initialize_mesh_data\n");
 
@@ -174,10 +174,10 @@ void Mesh::initialize_mesh_data(unsigned num_vertices,
 
 	printf("build the structure of the mesh \n");
 
-	build_adjacencies();	//build the structure of the mesh
+	build_adjacencies(curvature);	//build the structure of the mesh
 }
 
-inline void Mesh::build_adjacencies()
+inline void Mesh::build_adjacencies(const float *curvature)
 {
 	//		Vertex->adjacent Faces
 	std::vector<unsigned> count(m_vertices.size());	//count adjacent vertices
@@ -261,8 +261,18 @@ inline void Mesh::build_adjacencies()
 		e.adjacent_vertices()[0] = &m_vertices[half_edges[i].vertex_0];
 		e.adjacent_vertices()[1] = &m_vertices[half_edges[i].vertex_1];
 
-		e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
-		assert(e.length() > 1e-100);		//algorithm works well with non-degenerate meshes only 
+		//ARN
+		vertex_pointer v1 = e.adjacent_vertices()[0];
+    vertex_pointer v2 = e.adjacent_vertices()[1];
+    //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
+    //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
+
+    if (curvature!= NULL)
+      e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
+    else
+      e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
+
+    assert(e.length() > 1e-100);		//algorithm works well with non-degenerate meshes only
 
 		if(i != half_edges.size()-1 && half_edges[i] == half_edges[i+1])	//double edge
 		{
@@ -303,6 +313,16 @@ inline void Mesh::build_adjacencies()
 			v->adjacent_edges()[count[v->id()]++] = &e;
 		}
 	}	
+//	//ARN
+//	for(unsigned i=0; i<m_edges.size(); ++i)
+//	  {
+//	    Edge& e = m_edges[i];
+//	    vertex_pointer v1 = e.adjacent_vertices()[0];
+//	    vertex_pointer v2 = e.adjacent_vertices()[1];
+//	    //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
+//	    //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
+//	    e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
+//	  }
 
 	//			Faces->adjacent Edges
 	for(unsigned i=0; i<m_faces.size(); ++i)
@@ -338,7 +358,9 @@ inline void Mesh::build_adjacencies()
 			}
 
 			double angle = angle_from_edges(abc[0], abc[1], abc[2]);
-			assert(angle>1e-5);						//algorithm works well with non-degenerate meshes only 
+
+			//ARN
+			//assert(angle>1e-5);						//algorithm works well with non-degenerate meshes only
 
 			f.corner_angles()[j] = angle;
 			sum += angle;

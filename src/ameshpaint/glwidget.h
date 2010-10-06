@@ -199,7 +199,7 @@ private:
 
   GLuint _IDcolorMap;
 
-  map<int,T> _listVertexSelect;
+  map<int,T> _listVertexChanged;
 
   GLfloat *_vertices;
   GLfloat *_normals;
@@ -209,15 +209,20 @@ private:
 
   std::vector<double> _pointsSP;
   std::vector<unsigned> _facesSP;
+
   geodesic::Mesh _meshSP;
+  geodesic::Mesh _meshCurvSP;
+
   std::vector<geodesic::SurfacePoint> _pathSP;
+  std::vector<geodesic::SurfacePoint> _pathCurvSP;
   std::vector<geodesic::SurfacePoint> _pathExactSP;
 
-  std::vector<int> _listIndexVertexTemp;
+  std::vector<int> _listIndexVertexPathSP;
+  std::vector<int> _listIndexVertexPathCurvSP;
 
-  std::vector<int> _listVertexSelectShortPath;
-  std::vector<int> _listIndexVertexShortPath;
-//td::vector<int> list_vertex_short_path;
+  std::vector<int> _listIndexVertexSelectSP;
+  //std::vector<int> _listIndexVertexSelectSP;
+
 
 };
 

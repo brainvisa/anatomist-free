@@ -198,6 +198,7 @@ inline void GeodesicAlgorithmBase::set_stop_conditions(std::vector<SurfacePoint>
 		for(unsigned j = 0; j < possible_vertices.size(); ++j)
 		{
 			double distance = point->distance(possible_vertices[j]);
+
 			if(distance < min_distance)
 			{
 				min_distance = distance;
