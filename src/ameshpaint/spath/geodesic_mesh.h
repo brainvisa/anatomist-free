@@ -264,11 +264,29 @@ inline void Mesh::build_adjacencies(const float *curvature)
 		//ARN
 		vertex_pointer v1 = e.adjacent_vertices()[0];
     vertex_pointer v2 = e.adjacent_vertices()[1];
+
     //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
     //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
 
+//    if (curvature!= NULL)
+//      e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
+//    else
+//      e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
+//
+    double a1,a2;
+
     if (curvature!= NULL)
-      e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
+      {
+      // Sulcal
+      a1 = pow ((1.0)/(1.0 + exp(-5*curvature[v1->id()])), 2);
+      a2 = pow ((1.0)/(1.0 + exp(-5*curvature[v2->id()])), 2);
+
+      // Gyral
+//      a1 = pow ((1.0)/(1.0 + exp(5*curvature[v1->id()])), 2);
+//      a2 = pow ((1.0)/(1.0 + exp(5*curvature[v2->id()])), 2);
+//
+      e.length() = (v1->distance(v2) * (a1 + a2));
+      }
     else
       e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
 
