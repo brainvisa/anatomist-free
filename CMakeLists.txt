@@ -55,7 +55,7 @@ if( VTK_FOUND )
 endif( VTK_FOUND )
 find_package( Doxygen )
 
-set( ANATOMIST_DEFINITIONS "-DANATOMIST_EXPORTS" )
+set( ANATOMIST_DEFINITIONS "-DANATOMIST_EXPORTS" "-DHAS_GLEXT" )
 
 find_package(Alsa)
 if (EXISTS '/usr/include/sys/soundcard.h' OR EXISTS '/usr/include/sys/audioio.h' )
