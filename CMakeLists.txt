@@ -74,6 +74,7 @@ set( ANATOMIST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/include" ${AIMS-GPL_INCLUDE_DIR
 include_directories( ${ANATOMIST_INCLUDE_DIRS} )
 
 add_subdirectory( src )
+add_subdirectory( doxygen )
 
 # qt translation files
 BRAINVISA_ADD_TRANSLATION( "shared" "share/anatomist-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}" ${PROJECT_NAME})
