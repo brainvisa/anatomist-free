@@ -367,7 +367,12 @@ bool FusionClipMethod::canFusion( const set<AObject *> & obj )
   {
     GLComponent *glc = (*io)->glAPI();
     if( !glc )
-      return false;
+    {
+      if( dynamic_cast<SelfSliceable *>( *io ) )
+        continue;
+      else
+        return false;
+    }
     if( glc->sliceableAPI() ) // volumes, fusions 2D ...
       continue;
     if( (*io)->renderingIsObserverDependent() ) // volrender...

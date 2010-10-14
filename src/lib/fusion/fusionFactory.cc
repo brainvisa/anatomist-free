@@ -109,6 +109,9 @@ bool FusionFactory::registerMethod( FusionMethod* method )
 
 bool FusionFactory::canFusion( const set<AObject *> & objects )
 {
+  if( objects.size() == 0 )
+    return false;
+
   set<FusionMethod *>::const_iterator	im, fm=_methods.end();
 
   for( im=_methods.begin(); im!=fm; ++im )
@@ -129,9 +132,12 @@ FusionMethod* FusionFactory::chooseMethod( const set<AObject *> & objects )
 }
 
 
-FusionMethod* FusionFactory::chooseMethod( vector<AObject *> & objects, 
+FusionMethod* FusionFactory::chooseMethod( vector<AObject *> & objects,
                                            bool ordering )
 {
+  if( objects.size() == 0 )
+    return 0;
+
   set<FusionMethod *>			sm;
   set<FusionMethod *>::const_iterator	im, fm=_methods.end();
   set<AObject *>	objs;
