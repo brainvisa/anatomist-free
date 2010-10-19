@@ -1,8 +1,8 @@
 #include "meshpaint.h"
 
 template<typename T>
-myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adressTexOut,string colorMap, string dataType)
-	:_adressTexIn(adressTexIn),_adressMeshIn(adressMeshIn),_adressTexOut(adressTexOut),_colorMap(colorMap),_dataType(dataType)
+myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adressTexCurvIn, string adressTexOut,string colorMap, string dataType)
+	:_adressTexIn(adressTexIn),_adressMeshIn(adressMeshIn),_adressTexCurvIn(adressTexCurvIn), _adressTexOut(adressTexOut),_colorMap(colorMap),_dataType(dataType)
 {
   QRect r = geometry();
   r.moveCenter(QApplication::desktop()->availableGeometry().center());
@@ -10,7 +10,7 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adress
 
   resize(640,480);
 
-  glWidget = new myGLWidget<T> (this,adressTexIn,adressMeshIn,adressTexOut,colorMap,dataType);
+  glWidget = new myGLWidget<T> (this,adressTexIn,adressMeshIn,adressTexCurvIn,adressTexOut,colorMap,dataType);
 
   setCentralWidget(glWidget);
   glWidget->setFocusPolicy(Qt::StrongFocus);
@@ -24,7 +24,7 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adress
     textureFloatSpinBox->setSingleStep(0.01);
     textureFloatSpinBox->setFixedHeight(30);
     textureFloatSpinBox->setFixedWidth(75);
-    textureFloatSpinBox->setValue(0.1);
+    textureFloatSpinBox->setValue(0.0);
 
     textureSpinBox = static_cast<QDoubleSpinBox*>(textureFloatSpinBox);
     connect(textureFloatSpinBox,SIGNAL(valueChanged(double)),glWidget,SLOT(changeTextureSpinBoxFloat(double)));
@@ -79,6 +79,7 @@ myMeshPaint<T>::~myMeshPaint()
 
 MeshPaint::MeshPaint()
 {
+  _mode = 4;
   createActions();
   createToolBars();
   show();
@@ -103,8 +104,6 @@ void myMeshPaint<T>::saveTexture(void)
   glWidget->saveTexture();
 }
 
-
-
 template<typename T>
 void myMeshPaint<T>::keyPressEvent( QKeyEvent* event )
 {
@@ -113,18 +112,18 @@ void myMeshPaint<T>::keyPressEvent( QKeyEvent* event )
 
 void MeshPaint::createActions()
 {
-  string iconname = Settings::globalPath() + "/icons/meshPaint/colorpicker.png";
+  string iconname = Settings::globalPath() + "/icons/meshPaint/pipette.png";
 
   colorPickerAction = new QAction(QIcon(iconname.c_str()), tr("&ColorPicker"), this);
-  colorPickerAction->setShortcut(tr("c"));
+  //colorPickerAction->setShortcut(tr("c"));
   colorPickerAction->setStatusTip(tr("ColorPicker"));
   colorPickerAction->setCheckable(true);
   connect(colorPickerAction, SIGNAL(triggered()), this, SLOT(colorPicker()));
 
-  iconname = Settings::globalPath() + "/icons/meshPaint/paintbrush.png";
+  iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
 
   paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&PaintBrush"), this);
-  paintBrushAction->setShortcut(tr("b"));
+  //paintBrushAction->setShortcut(tr("b"));
   paintBrushAction->setStatusTip(tr("PaintBrush"));
   paintBrushAction->setCheckable(true);
   connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
@@ -132,25 +131,30 @@ void MeshPaint::createActions()
   iconname = Settings::globalPath() + "/icons/meshPaint/zoom.png";
 
   trackballAction = new QAction(QIcon(iconname.c_str()), tr("&trackball"), this);
-  trackballAction->setShortcut(tr("t"));
+  //trackballAction->setShortcut(tr("t"));
   trackballAction->setStatusTip(tr("trackball"));
   trackballAction->setCheckable(true);
   trackballAction->setChecked(true);
   connect(trackballAction, SIGNAL(triggered()), this, SLOT(trackball()));
 
-  iconname = Settings::globalPath() + "/icons/meshPaint/shortpath.png";
+  iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
 
-  shortPathAction = new QAction(QIcon(iconname.c_str()), tr("&shortPath"), this);
-  shortPathAction->setShortcut(tr("p"));
-  shortPathAction->setStatusTip(tr("shortPath"));
-  shortPathAction->setCheckable(true);
-  shortPathAction->setChecked(true);
-  connect(shortPathAction, SIGNAL(triggered()), this, SLOT(shortPath()));
+  fillAction = new QAction(QIcon(iconname.c_str()), tr("&fill"), this);
+  fillAction->setStatusTip(tr("fill"));
+  fillAction->setCheckable(true);
+  connect(fillAction, SIGNAL(triggered()), this, SLOT(fill()));
 
-  iconname = Settings::globalPath() + "/icons/meshPaint/save.png";
+  iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
+
+  clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
+  clearAction->setStatusTip(tr("clear"));
+  clearAction->setCheckable(true);
+  connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
+
+  iconname = Settings::globalPath() + "/icons/meshPaint/sauver.png";
 
   saveAction = new QAction(QIcon(iconname.c_str()), tr("&Save Texture"), this);
-  saveAction->setShortcut(tr("s"));
+  //saveAction->setShortcut(tr("s"));
   saveAction->setStatusTip(tr("save"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 }
@@ -163,7 +167,50 @@ void MeshPaint::createToolBars()
   paintToolBar->addAction(trackballAction);
   paintToolBar->addAction(colorPickerAction);
   paintToolBar->addAction(paintBrushAction);
-  paintToolBar->addAction(shortPathAction);
+
+  string iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
+
+  pathButton = new QToolButton;
+  pathButton->setIcon(QIcon(iconname.c_str()));
+  pathButton->setPopupMode(QToolButton::MenuButtonPopup);
+  pathButton->setCheckable(true);
+  pathButton->setChecked(false);
+  pathButton->setIconSize(QSize(32, 32));
+  pathButton->setToolTip(tr("Shortest Path"));
+
+  connect(pathButton, SIGNAL(clicked()), this, SLOT(path()));
+
+  QMenu *menu = new QMenu(this);
+
+  shortPathAction = new QAction(QIcon(iconname.c_str()), tr("&Unconstrained"), this);
+  shortPathAction->setToolTip(tr("Unconstrained"));
+
+  connect(shortPathAction, SIGNAL(triggered()), this, SLOT(shortPath()));
+  menu->addAction(shortPathAction);
+
+  iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
+
+  sulciPathAction = new QAction(QIcon(iconname.c_str()), tr("&sulci"), this);
+  sulciPathAction->setToolTip(tr("sulci"));
+  connect(sulciPathAction, SIGNAL(triggered()), this, SLOT(sulciPath()));
+  menu->addAction(sulciPathAction);
+
+  iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
+
+  gyriPathAction = new QAction(QIcon(iconname.c_str()), tr("&gyri"), this);
+  gyriPathAction->setToolTip(tr("gyri"));
+  connect(gyriPathAction, SIGNAL(triggered()), this, SLOT(gyriPath()));
+  menu->addAction(gyriPathAction);
+
+  pathButton->setMenu(menu);
+
+//  pathAction = pathButton->menu()->defaultAction();
+//  pathButton->setDefaultAction(pathAction);
+
+  paintToolBar->addAction(fillAction);
+  paintToolBar->addAction(clearAction);
+  paintToolBar->addWidget(pathButton);
+  paintToolBar->addSeparator();
   paintToolBar->addAction(saveAction);
 
   infosToolBar = new QToolBar( tr( "InfosToolBar" ), this );

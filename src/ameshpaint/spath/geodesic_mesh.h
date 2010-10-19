@@ -33,10 +33,10 @@ public:
 	void initialize_mesh_data(unsigned num_vertices,
 							  Points& p, 
 							  unsigned num_faces,
-							  Faces& tri, const float* curvature);		//build mesh from regular point-triangle representation
+							  Faces& tri, const float* curvature, int mode);		//build mesh from regular point-triangle representation
 
 	template<class Points, class Faces>
-	void initialize_mesh_data(Points& p, Faces& tri, const float* curvature);		//build mesh from regular point-triangle representation
+	void initialize_mesh_data(Points& p, Faces& tri, const float* curvature, int mode);		//build mesh from regular point-triangle representation
 
 	std::vector<Vertex>& vertices(){return m_vertices;};
 	std::vector<Edge>& edges(){return m_edges;};
@@ -47,7 +47,7 @@ public:
 
 private:
 
-	void build_adjacencies(const float *curvature);		//build internal structure of the mesh
+	void build_adjacencies(const float *curvature,int mode);		//build internal structure of the mesh
 	bool verify();					//verifies connectivity of the mesh and prints some debug info
 
 	typedef void* void_pointer;
@@ -110,21 +110,21 @@ inline unsigned Mesh::closest_vertices(SurfacePoint* p,
 }
 
 template<class Points, class Faces>
-void Mesh::initialize_mesh_data(Points& p, Faces& tri, const float* curvature)		//build mesh from regular point-triangle representation
+void Mesh::initialize_mesh_data(Points& p, Faces& tri, const float* curvature, int mode)		//build mesh from regular point-triangle representation
 {
 	assert(p.size() % 3 == 0);
 	unsigned const num_vertices = p.size() / 3;
 	assert(tri.size() % 3 == 0);
 	unsigned const num_faces = tri.size() / 3; 
 
-	initialize_mesh_data(num_vertices, p, num_faces, tri, curvature);
+	initialize_mesh_data(num_vertices, p, num_faces, tri, curvature, mode);
 }
 
 template<class Points, class Faces>
 void Mesh::initialize_mesh_data(unsigned num_vertices,
 								Points& p, 
 								unsigned num_faces,
-								Faces& tri, const float* curvature)
+								Faces& tri, const float* curvature, int mode)
 {
 	printf("initialize_mesh_data\n");
 
@@ -174,10 +174,10 @@ void Mesh::initialize_mesh_data(unsigned num_vertices,
 
 	printf("build the structure of the mesh \n");
 
-	build_adjacencies(curvature);	//build the structure of the mesh
+	build_adjacencies(curvature,mode);	//build the structure of the mesh
 }
 
-inline void Mesh::build_adjacencies(const float *curvature)
+inline void Mesh::build_adjacencies(const float *curvature, int mode)
 {
 	//		Vertex->adjacent Faces
 	std::vector<unsigned> count(m_vertices.size());	//count adjacent vertices
@@ -278,13 +278,19 @@ inline void Mesh::build_adjacencies(const float *curvature)
     if (curvature!= NULL)
       {
       // Sulcal
-      a1 = pow ((1.0)/(1.0 + exp(-5*curvature[v1->id()])), 2);
-      a2 = pow ((1.0)/(1.0 + exp(-5*curvature[v2->id()])), 2);
+      if (mode == 1)
+      {
+        a1 = pow ((1.0)/(1.0 + exp(-2*curvature[v1->id()])), 2);
+        a2 = pow ((1.0)/(1.0 + exp(-2*curvature[v2->id()])), 2);
+      }
 
       // Gyral
-//      a1 = pow ((1.0)/(1.0 + exp(5*curvature[v1->id()])), 2);
-//      a2 = pow ((1.0)/(1.0 + exp(5*curvature[v2->id()])), 2);
-//
+      if (mode == 2)
+      {
+        a1 = pow ((1.0)/(1.0 + exp(2*curvature[v1->id()])), 2);
+        a2 = pow ((1.0)/(1.0 + exp(2*curvature[v2->id()])), 2);
+      }
+
       e.length() = (v1->distance(v2) * (a1 + a2));
       }
     else
@@ -414,7 +420,7 @@ inline void Mesh::build_adjacencies(const float *curvature)
 		}
 	}
 
-	assert(verify());
+	//assert(verify());
 }
 
 inline bool Mesh::verify()		//verifies connectivity of the mesh and prints some debug info

@@ -34,7 +34,6 @@ protected :
 	  trackballAction->setChecked(true);
 	  paintBrushAction->setChecked(false);
 	  colorPickerAction->setChecked(false);
-	  shortPathAction->setChecked(false);
   }
 
   virtual void changeMode(int mode){};
@@ -46,7 +45,9 @@ private slots:
   {
     paintBrushAction->setChecked(false);
   	colorPickerAction->setChecked(false);
-  	shortPathAction->setChecked(false);
+  	pathButton->setChecked(false);
+    clearAction->setChecked(false);
+    fillAction->setChecked(false);
   	changeMode(1);
   }
 
@@ -54,7 +55,9 @@ private slots:
   {
     paintBrushAction->setChecked(false);
     trackballAction->setChecked(false);
-    shortPathAction->setChecked(false);
+    pathButton->setChecked(false);
+    clearAction->setChecked(false);
+    fillAction->setChecked(false);
     changeMode(2);
   }
 
@@ -62,7 +65,9 @@ private slots:
   {
     colorPickerAction->setChecked(false);
     trackballAction->setChecked(false);
-    shortPathAction->setChecked(false);
+    pathButton->setChecked(false);
+    clearAction->setChecked(false);
+    fillAction->setChecked(false);
     changeMode(3);
   }
 
@@ -71,7 +76,75 @@ private slots:
     colorPickerAction->setChecked(false);
     trackballAction->setChecked(false);
     paintBrushAction->setChecked(false);
-    changeMode(4);
+    clearAction->setChecked(false);
+    fillAction->setChecked(false);
+    string iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
+    pathButton->setIcon(QIcon(iconname.c_str()));
+    pathButton->setChecked(true);
+    cout << "shortPath\n";
+    _mode = 4;
+    changeMode(_mode);
+  }
+
+  void sulciPath()
+  {
+    colorPickerAction->setChecked(false);
+    trackballAction->setChecked(false);
+    paintBrushAction->setChecked(false);
+    clearAction->setChecked(false);
+    fillAction->setChecked(false);
+    string iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
+    pathButton->setIcon(QIcon(iconname.c_str()));
+    pathButton->setChecked(true);
+    cout << "sulciPath\n";
+    _mode = 5;
+    changeMode(_mode);
+  }
+
+  void gyriPath()
+  {
+    colorPickerAction->setChecked(false);
+    trackballAction->setChecked(false);
+    paintBrushAction->setChecked(false);
+    clearAction->setChecked(false);
+    fillAction->setChecked(false);
+    string iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
+    pathButton->setIcon(QIcon(iconname.c_str()));
+    pathButton->setChecked(true);
+    cout << "gyriPath\n";
+    _mode = 6;
+    changeMode(_mode);
+  }
+
+  void fill()
+  {
+    colorPickerAction->setChecked(false);
+    trackballAction->setChecked(false);
+    paintBrushAction->setChecked(false);
+    clearAction->setChecked(false);
+    pathButton->setChecked(false);
+    cout << "fill\n";
+    changeMode(7);
+  }
+
+  void path()
+  {
+    colorPickerAction->setChecked(false);
+    trackballAction->setChecked(false);
+    paintBrushAction->setChecked(false);
+    fillAction->setChecked(false);
+    clearAction->setChecked(false);
+    changeMode(_mode);
+  }
+
+  void clear()
+  {
+    colorPickerAction->setChecked(false);
+    trackballAction->setChecked(false);
+    paintBrushAction->setChecked(false);
+    fillAction->setChecked(false);
+    pathButton->setChecked(false);
+    changeMode(8);
   }
 
   void save()
@@ -87,10 +160,22 @@ private :
   void createActions();
   void createToolBars();
 
+  int _mode;
+
   QAction *colorPickerAction;
   QAction *paintBrushAction;
   QAction *trackballAction;
+  QAction *clearAction;
+
+  QToolButton *pathButton;
+
+  QAction *pathAction;
   QAction *shortPathAction;
+  QAction *sulciPathAction;
+  QAction *gyriPathAction;
+
+  QAction *fillAction;
+
   QAction *saveAction;
 };
 
@@ -98,7 +183,7 @@ template<typename T>
 class myMeshPaint : public MeshPaint
 {
 public:
-  myMeshPaint(string adressTexIn,string adressMeshIn,string adressTexOut,string colorMap, string dataType);
+  myMeshPaint(string adressTexIn,string adressMeshIn,string adressTexCurvIn,string adressTexOut,string colorMap, string dataType);
   ~myMeshPaint();
 
   void changeMode(int mode);
@@ -114,6 +199,7 @@ public :
 private :
   string _adressTexIn;
   string _adressMeshIn;
+  string _adressTexCurvIn;
   string _adressTexOut;
   string _colorMap;
   string _dataType;

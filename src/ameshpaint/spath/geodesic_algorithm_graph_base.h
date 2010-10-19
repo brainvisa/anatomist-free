@@ -296,6 +296,7 @@ inline void GeodesicAlgorithmGraphBase<Node>::trace_back2(SurfacePoint& destinat
     SurfacePoint *source2 = &node->surface_point();
     vertex_pointer v = (vertex_pointer)source2->base_element();
     indexVertex.push_back((int)node_index(v));
+
     path.push_back(node->surface_point());
   }
 

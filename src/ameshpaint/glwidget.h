@@ -33,8 +33,17 @@
 #include <aims/utility/converter_texture.h>
 #include <float.h>
 #include "trackball.h"
-
 #include "spath/geodesic_mesh.h"
+#include <map>
+
+#include <aims/mesh/surfaceOperation.h>
+
+//#include <aims/distancemap/meshdistance.h>
+//#include <aims/distancemap/meshmorphomat.h>
+//#include <aims/distancemap/meshmorphomat_d.h>
+//#include <aims/connectivity/meshcc.h>
+//#include <aims/connectivity/meshcc_d.h>
+
 
 #if defined(__APPLE__)
 # include <OpenGL/gl.h>
@@ -89,7 +98,7 @@ template<typename T>
 class myGLWidget : public GLWidget
 {
 public:
-  myGLWidget (QWidget *parent, string adressTexIn,string adressMeshIn,string adressTexOut,string colorMap,string dataType);
+  myGLWidget (QWidget *parent, string adressTexIn,string adressMeshIn,string adressTexCurvIn,string adressTexOut,string colorMap,string dataType);
   ~myGLWidget ();
 
 protected :
@@ -143,6 +152,7 @@ protected:
   void trackBallTransformation(void);
   void drawPrimitivePicked (void);
   void drawTexturePaint (void);
+  void floodFill(int indexVertex, T newTextureValue, T oldTextureValue);
 
 private:
 
@@ -163,9 +173,11 @@ private:
   string _dataType;
   AimsSurfaceTriangle _mesh;
   TimeTexture<T> _tex;
+  TimeTexture<T> _texCurv;
 
   string _adressTexIn;
   string _adressMeshIn;
+  string _adressTexCurvIn;
   string _adressTexOut;
   string _colorMap;
 
@@ -178,10 +190,10 @@ private:
 
   std::vector<int> _indexTexture;
 
-  //GLubyte *backBufferTexture;
   vector<GLubyte> backBufferTexture;
 
-  ATexture	*_ao;
+  ATexture	*_aTex;
+  ATexture  *_aTexCurv;
   T _minT;
   T _maxT;
 
@@ -195,7 +207,8 @@ private:
   GLuint _indexVertex;
   T _textureValue;
   bool _wireframe;
-  bool _parcelation;
+  //bool _parcelation;
+  bool _texCurvDisplay;
 
   GLuint _IDcolorMap;
 
@@ -204,26 +217,25 @@ private:
   GLfloat *_vertices;
   GLfloat *_normals;
   GLubyte *_colors;
+  GLubyte *_colorsCurv;
   GLuint *_indices;
-  //GLfloat *_textures;
 
   std::vector<double> _pointsSP;
   std::vector<unsigned> _facesSP;
 
   geodesic::Mesh _meshSP;
-  geodesic::Mesh _meshCurvSP;
+  geodesic::Mesh _meshGyriCurvSP;
+  geodesic::Mesh _meshSulciCurvSP;
+  std::vector<std::set<uint> >  neighbours;
 
   std::vector<geodesic::SurfacePoint> _pathSP;
-  std::vector<geodesic::SurfacePoint> _pathCurvSP;
-  std::vector<geodesic::SurfacePoint> _pathExactSP;
+  //std::vector<geodesic::SurfacePoint> _pathCurvSP;
+  //std::vector<geodesic::SurfacePoint> _pathExactSP;
 
   std::vector<int> _listIndexVertexPathSP;
-  std::vector<int> _listIndexVertexPathCurvSP;
-
+  //std::vector<int> _listIndexVertexPathCurvSP;
   std::vector<int> _listIndexVertexSelectSP;
-  //std::vector<int> _listIndexVertexSelectSP;
-
-
+  std::vector<int> _listIndexVertexSelectFill;
 };
 
 #endif

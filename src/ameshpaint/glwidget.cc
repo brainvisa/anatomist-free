@@ -12,8 +12,8 @@ enum
 
 template<typename T>
 myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
-    string adressMeshIn, string adressTexOut, string colorMap, string dataType) :
-  GLWidget(parent), _adressTexIn(adressTexIn), _adressMeshIn(adressMeshIn),
+    string adressMeshIn, string adressTexCurvIn, string adressTexOut, string colorMap, string dataType) :
+  GLWidget(parent), _adressTexIn(adressTexIn),_adressTexCurvIn(adressTexCurvIn), _adressMeshIn(adressMeshIn),
       _adressTexOut(adressTexOut), _colorMap(colorMap), _dataType(dataType)
 {
   _zoom = -2.0;
@@ -22,23 +22,20 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _listMeshPicking = 0;
   _indexVertex = 0;
   _indexPolygon = 0;
-  _parcelation = false;
+  _texCurvDisplay = false;
   _wireframe = false;
   _resized = false;
   _parent = parent;
   _showInfos = true;
 
 //  backBufferTexture = NULL;
-//
 //  QDesktopWidget *desktop = QApplication::desktop();
-//
 //  int screenWidth = desktop->width();
 //  int screenHeight = desktop->height();
-//
 //  cout << screenWidth << " " << screenHeight << endl;
-//
 //  backBufferTexture = (GLubyte*) malloc((screenWidth * screenHeight) * 3
 //      * sizeof(GLubyte));
+
   backBufferTexture.resize( parent->width() * parent->height() * 3 );
 
   std::cout << "Reading mesh and texture" << endl;
@@ -48,6 +45,15 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
 
   Reader<TimeTexture<T> > rtexIn(adressTexIn);
   rtexIn.read(_tex);
+  cout << "texture curvature : " << adressTexCurvIn << endl;
+
+  Reader<TimeTexture<T> > rtexCurvIn(adressTexCurvIn);
+  rtexCurvIn.read(_texCurv);
+
+  std::cout << " OK" << endl;
+
+  //calcul du voisinage des vertex
+  neighbours = SurfaceManip::surfaceNeighbours(_mesh);
 
   _trackBall = TrackBall(0.5f, gfx::Vector3f::vector(0, 1, 0),
       TrackBall::Sphere);
@@ -112,7 +118,7 @@ int myGLWidget<T>::buildDisplayList(AimsSurfaceTriangle as, int mode)
 
   vector<AimsVector<uint, 3> > & tri = as.polygon();
 
-  const float* t = _ao->textureCoords();
+  const float* t = _aTex->textureCoords();
 
   for (j = 0; j < (int) vert.size(); ++j)
   {
@@ -180,12 +186,15 @@ void myGLWidget<T>::buildDataArray(void)
 
   vector<AimsVector<uint, 3> > & tri = _mesh.polygon();
 
-  const float* t = _ao->textureCoords();
+  const float* t = _aTex->textureCoords();
+  const float* tcurv = _aTexCurv->textureCoords();
 
   _vertices = (GLfloat*) malloc(3 * vert.size() * sizeof(GLfloat));
   //_textures = (GLfloat*) malloc(vert.size() * sizeof(GLfloat));
   _normals = (GLfloat*) malloc(3 * vert.size() * sizeof(GLfloat));
   _colors = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
+
+  _colorsCurv = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
 
   for (j = 0; j < (int) vert.size(); j++)
   {
@@ -199,11 +208,13 @@ void myGLWidget<T>::buildDataArray(void)
     _normals[3 * j + 1] = norm[j][Y];
     _normals[3 * j + 2] = -norm[j][Z];
 
-    //_textures[j] = t[j];
-
     _colors[3 * j] = (int) dataColorMap[3 * (int) (256 * t[j])];
     _colors[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * t[j]) + 1];
     _colors[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * t[j]) + 2];
+
+    _colorsCurv[3 * j] = (int) dataColorMap[3 * (int) (256 * tcurv[j])];
+    _colorsCurv[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 1];
+    _colorsCurv[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 2];
   }
 
   _indices = (GLuint*) malloc(3 * tri.size() * sizeof(GLuint));
@@ -232,10 +243,12 @@ void myGLWidget<T>::buildDataArray(void)
     _facesSP[3*j+1] = tri[j][1];
     _facesSP[3*j+2] = tri[j][2];
   }
-  const float *f = _ao->textureCoords();
 
-  _meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL); //create internal mesh data structure including edges
-  _meshCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f); //create internal mesh data structure including edges
+  const float *f = _aTexCurv->textureCoords();
+
+  _meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0);
+  _meshSulciCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,1);
+  _meshGyriCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,2);
 }
 
 template<typename T>
@@ -255,12 +268,23 @@ void myGLWidget<T>::setTranslate(float t)
 template<typename T>
 void myGLWidget<T>::changeTextureValueInt(int value)
 {
-  float v = (float) (value - _minT) / (float) (_maxT - _minT);
-  _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
-  _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
-  _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
+  float v;
+    if ((_maxT - _minT)!=0)
+    {
+      v = (float) (value - _minT) / (float) (_maxT - _minT);
+      _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
+      _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
+      _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
+      _textureValue = value;
+    }
+    else
+    {
+      _colorpicked[0] = 0;
+      _colorpicked[1] = 0;
+      _colorpicked[2] = 0;
+      _textureValue = 0;
+    }
 
-  _textureValue = value;
   //cout << "changeTextureValueInt " << (int) dataColorMap[3 * (int) (255 * v)] << endl;
   updateGL();
 }
@@ -268,12 +292,22 @@ void myGLWidget<T>::changeTextureValueInt(int value)
 template<typename T>
 void myGLWidget<T>::changeTextureValueFloat(double value)
 {
-  float v = (float) (value - _minT) / (float) (_maxT - _minT);
-  _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
-  _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
-  _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
-
-  _textureValue = value;
+  float v;
+  if ((_maxT - _minT)!=0)
+  {
+    v = (float) (value - _minT) / (float) (_maxT - _minT);
+    _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
+    _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
+    _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
+    _textureValue = value;
+  }
+  else
+  {
+    _colorpicked[0] = 0;
+    _colorpicked[1] = 0;
+    _colorpicked[2] = 0;
+    _textureValue = 0;
+  }
 
   updateGL();
   //cout << "changeTextureValueFloat " << value << endl;
@@ -308,25 +342,40 @@ void myGLWidget<T>::saveTexture(void)
   typename std::map<int, T>::const_iterator mit(_listVertexChanged.begin()),
       mend(_listVertexChanged.end());
 
+  const float* t = _aTex->textureCoords();
+
+
   TimeTexture<T> out(1, _mesh.vertex().size());
   for (uint i = 0; i < _mesh.vertex().size(); i++)
   {
     if (_dataType == "FLOAT")
     {
       out[0].item(i) = (float) (_tex[0].item(i));
+      //out[0].item(i) = 0;
     }
 
     if (_dataType == "S16")
     {
       out[0].item(i) = (int) (_tex[0].item(i));
+      //out[0].item(i) = 0;
     }
   }
 
   for (; mit != mend; ++mit)
   {
     //cout << (int)mit->first << " " << mit->second << endl;
+
+    _tex[0].item(mit->first) = mit->second;
     out[0].item(mit->first) = mit->second;
+    //out[0].item(mit->first) = 1;
   }
+
+  rc_ptr<Texture1d> tex(new Texture1d);
+  Converter<TimeTexture<T> , Texture1d> c;
+  c.convert(_tex, *tex);
+  _aTex->setTexture(tex);
+
+  _listVertexChanged.clear();
 
   Writer<TimeTexture<T> > wt(_adressTexOut);
   wt.write(out);
@@ -338,7 +387,9 @@ void myGLWidget<T>::changeMode(int mode)
   _mode = mode;
   //cout << "mode = " << mode << endl;
 
-  if (mode == 2 || _mode == 3 || _mode == 4) copyBackBuffer2Texture();
+  if (mode != 1) copyBackBuffer2Texture();
+
+  updateGL();
 }
 
 template<typename T>
@@ -525,15 +576,9 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
           = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
       //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
-      const float* t = _ao->textureCoords();
-      if (_indexVertex < _mesh.vertex().size())
+
+      if (_indexVertex >= 0 && _indexVertex < _mesh.vertex().size())
       {
-        //      _colorpicked[0] = (int) dataColorMap[3 * (int) (256
-        //          * t[_indexVertex])];
-        //      _colorpicked[1] = (int) dataColorMap[3 * (int) (256
-        //          * t[_indexVertex]) + 1];
-        //      _colorpicked[2] = (int) dataColorMap[3 * (int) (256
-        //          * t[_indexVertex]) + 2];
         _textureValue = _tex[0].item(_indexVertex);
 
         typename std::map<int, T>::const_iterator it(_listVertexChanged.find(
@@ -563,7 +608,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
   }
 
-  if (event->buttons() == Qt::LeftButton && _mode == 3)
+  if (event->buttons() == Qt::LeftButton && (_mode == 3 || _mode == 8 || _mode == 7) )
   {
     _trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -579,11 +624,44 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
     if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
     {
-      _colors[3 * _indexVertex] = _colorpicked[0];
-      _colors[3 * _indexVertex + 1] = _colorpicked[1];
-      _colors[3 * _indexVertex + 2] = _colorpicked[2];
+      if (_mode == 7)
+      {
+        //_listIndexVertexSelectSP.clear();
+        _listIndexVertexSelectFill.clear();
 
-      _listVertexChanged[_indexVertex] = _textureValue;
+        typename std::map<int, T>::iterator itef;
+        itef = _listVertexChanged.find(_indexVertex);
+
+        cout << "new tex = " << _textureValue << " old tex = " << _tex[0].item(_indexVertex) << endl;
+
+        //_listIndexVertexSelectSP.insert(_listIndexVertexSelectSP.end(), _listIndexVertexPathSP.begin(), _listIndexVertexPathSP.end());
+
+        if (itef != _listVertexChanged.end())
+          floodFill (_indexVertex, _textureValue,itef->second);
+        else
+          floodFill (_indexVertex, _textureValue,_tex[0].item(_indexVertex));
+
+      }
+
+
+      if (_mode == 3)
+      {
+        _colors[3 * _indexVertex] = _colorpicked[0];
+        _colors[3 * _indexVertex + 1] = _colorpicked[1];
+        _colors[3 * _indexVertex + 2] = _colorpicked[2];
+        _listVertexChanged[_indexVertex] = _textureValue;
+      }
+
+      if (_mode == 8)
+      {
+        const float* t = _aTex->textureCoords();
+
+        _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex])];
+        _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 1];
+        _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 2];
+        _listVertexChanged[_indexVertex] = _tex[0].item(_indexVertex);
+      }
+
 
       updateInfosPicking(_indexPolygon, _indexVertex);
     }
@@ -591,109 +669,135 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
     updateGL();
   }
 
-  if (event->buttons() == Qt::LeftButton && _mode == 4)
+  if ( _mode == 7 && event->buttons() == Qt::RightButton)
+  {
+    //remplissage de région fermée
+    for (unsigned i = 0; i < _listIndexVertexSelectFill.size(); i++)
+    {
+      //cout << i << " " << _colorpicked[0] << " " << _colorpicked << " " << _colorpicked[2] << endl;
+      _listVertexChanged[_listIndexVertexSelectFill[i]] = _textureValue;
+      _colors[3 * _listIndexVertexSelectFill[i]] = _colorpicked[0];
+      _colors[3 * _listIndexVertexSelectFill[i] + 1] = _colorpicked[1];
+      _colors[3 * _listIndexVertexSelectFill[i] + 2] = _colorpicked[2];
+    }
+
+  _listIndexVertexSelectSP.clear();
+  _listIndexVertexSelectFill.clear();
+  updateGL();
+  }
+
+  if ( (_mode == 4 || _mode == 5 ||_mode == 6 ) )
     {
       _trackBall.stop();
-      _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
-      _point3Dpicked = check3DpointPicked(event->x(), event->y());
 
-      Point3df p;
-      p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
-      p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
-      p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
-
-      _indexVertex
-          = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
-
-      if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
+      if (event->buttons() == Qt::RightButton)
       {
-
-        std::vector<int>::iterator ite;
-        _listIndexVertexSelectSP.push_back(_indexVertex);
-        ite = _listIndexVertexSelectSP.end();
-
-        int nb_vertex;
-        printf("nb vertex path = %d\n", _listIndexVertexSelectSP.size());
-
-        std::vector<geodesic::SurfacePoint> sources;
-        std::vector<geodesic::SurfacePoint> targets; //same thing with targets
-
-        //geodesic::GeodesicAlgorithmExact exact_algorithm(&_meshSP); //exact algorithm
-        geodesic::GeodesicAlgorithmDijkstra dijkstra_algorithm(&_meshSP); //simplest approximate algorithm: path only allowed on the edges of the mesh
-        geodesic::GeodesicAlgorithmDijkstra dijkstra_algorithm_constraint(&_meshCurvSP); //simplest approximate algorithm: path only allowed on the edges of the mesh
-
-        //unsigned const subdivision_level = 3; //three additional vertices per every edge in subdivision algorithm
-        //geodesic::GeodesicAlgorithmSubdivision subdivision_algorithm(&_meshSP,2);  //with subdivision_level=0 this algorithm becomes Dijkstra, with subdivision_level->infinity it becomes exact
-
-
-        if (_listIndexVertexSelectSP.size() >= 2)
+       for (unsigned i = 0; i < _listIndexVertexPathSP.size(); i++)
+       {
+         _listVertexChanged[_listIndexVertexPathSP[i]] = _textureValue;
+         _colors[3 * _listIndexVertexPathSP[i]] = _colorpicked[0];
+         _colors[3 * _listIndexVertexPathSP[i] + 1] = _colorpicked[1];
+         _colors[3 * _listIndexVertexPathSP[i] + 2] = _colorpicked[2];
+       }
+       _listIndexVertexPathSP.clear();
+       _listIndexVertexSelectSP.clear();
+      }
+      else
+      {
+        if (event->buttons() == Qt::LeftButton)
         {
-          unsigned target_vertex_index = (*(--ite) );
-          unsigned source_vertex_index = (*(--ite) );
-
-          printf("indice source = %d target = %d \n",
-              source_vertex_index, target_vertex_index);
-
-          std::vector<geodesic::SurfacePoint> SPath;
-          SPath.clear();
-
-          std::vector<geodesic::SurfacePoint> curvSPath;
-          curvSPath.clear();
-
-          _listIndexVertexPathSP.clear();
-
-          geodesic::SurfacePoint short_sources(
-              &_meshSP.vertices()[source_vertex_index]);
-          geodesic::SurfacePoint short_targets(
-              &_meshSP.vertices()[target_vertex_index]);
-
-          dijkstra_algorithm.geodesic2(short_sources,
-              short_targets, SPath, _listIndexVertexPathSP);
-
-          dijkstra_algorithm_constraint.geodesic2(short_sources,
-                        short_targets, curvSPath, _listIndexVertexPathCurvSP);
-
-          cout << "path dijkstra = ";
-
-          for (unsigned i = 0; i < _listIndexVertexPathSP.size(); ++i)
-          {
-          cout << " " << _listIndexVertexPathSP[i] ;
-//          _listVertexChanged[_listIndexVertexPathSP[i]] = _textureValue;
-//          _colors[3 * _listIndexVertexPathSP[i]] = _colorpicked[0];
-//          _colors[3 * _listIndexVertexPathSP[i] + 1] = _colorpicked[1];
-//          _colors[3 * _listIndexVertexPathSP[i] + 2] = _colorpicked[2];
-          }
-
-          cout << endl;
-
-          cout << "path dijkstra curv constraint = ";
-
-          for (unsigned i = 0; i < _listIndexVertexPathCurvSP.size(); ++i)
-          {
-          cout << " " << _listIndexVertexPathCurvSP[i] ;
-          _listVertexChanged[_listIndexVertexPathCurvSP[i]] = _textureValue;
-          _colors[3 * _listIndexVertexPathCurvSP[i]] = _colorpicked[0];
-          _colors[3 * _listIndexVertexPathCurvSP[i] + 1] = _colorpicked[1];
-          _colors[3 * _listIndexVertexPathCurvSP[i] + 2] = _colorpicked[2];
-          }
-
-          cout << endl;
-
-          for (unsigned i = 0; i < SPath.size(); ++i)
-          {
-            geodesic::SurfacePoint ss ;
-            ss.x() = (-_meshCenter[0] + (float) SPath[SPath.size() - i - 1].x()) * _meshScale;
-            ss.y() = (-_meshCenter[1] + (float) SPath[SPath.size() - i - 1].y()) * _meshScale;
-            ss.z() = (_meshCenter[2] - (float) SPath[SPath.size() - i - 1].z()) * _meshScale;
-            _pathSP.push_back(ss);
-
-            //cout << i << " " << ss.x() << ' ' << ss.y() << ' ' <<  ss.z() << endl;
-          }
-
-
+          _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
+          _point3Dpicked = check3DpointPicked(event->x(), event->y());
+          Point3df p;
+          p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
+          p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
+          p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
+          _indexVertex
+              = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
         }
 
-        updateInfosPicking(_indexPolygon, _indexVertex);
+        if (event->buttons() == Qt::MidButton)
+          _listIndexVertexSelectSP.push_back(*_listIndexVertexSelectSP.begin());
+
+        if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
+        {
+          if (event->buttons() == Qt::LeftButton)
+            _listIndexVertexSelectSP.push_back(_indexVertex);
+
+          std::vector<int>::iterator ite;
+          ite = _listIndexVertexSelectSP.end();
+
+          int nb_vertex;
+          printf("nb vertex path = %d\n", _listIndexVertexSelectSP.size());
+
+          std::vector<geodesic::SurfacePoint> sources;
+          std::vector<geodesic::SurfacePoint> targets;
+
+          geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+
+          if (_mode == 4)
+            dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSP);
+
+          if (_mode == 5)
+            dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSulciCurvSP);
+
+          if (_mode == 6)
+            dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshGyriCurvSP);
+
+          if (_listIndexVertexSelectSP.size() >= 2)
+          {
+            unsigned target_vertex_index = (*(--ite) );
+            unsigned source_vertex_index = (*(--ite) );
+
+            printf("indice source = %d target = %d \n",
+                source_vertex_index, target_vertex_index);
+
+            std::vector<geodesic::SurfacePoint> SPath;
+            SPath.clear();
+
+            std::vector<int> _listIndexVertexPathSPtemp;
+
+            _listIndexVertexPathSPtemp.clear();
+
+            geodesic::SurfacePoint short_sources(
+                &_meshSP.vertices()[source_vertex_index]);
+            geodesic::SurfacePoint short_targets(
+                &_meshSP.vertices()[target_vertex_index]);
+
+            dijkstra_algorithm->geodesic2(short_sources,short_targets, SPath, _listIndexVertexPathSPtemp);
+
+            ite = _listIndexVertexPathSPtemp.end();
+
+            reverse(_listIndexVertexPathSPtemp.begin(),_listIndexVertexPathSPtemp.end());
+            _listIndexVertexPathSPtemp.push_back((int)target_vertex_index);
+
+            _listIndexVertexPathSP.insert(_listIndexVertexPathSP.end(), _listIndexVertexPathSPtemp.begin(), _listIndexVertexPathSPtemp.end());
+
+            cout << "path dijkstra = ";
+
+            for (unsigned i = 0; i < _listIndexVertexPathSP.size(); i++)
+              cout << _listIndexVertexPathSP[i] << " " ;
+
+            cout << endl;
+            cout << "path dijkstra temp= ";
+            cout << endl;
+            for (unsigned i = 0; i < _listIndexVertexPathSPtemp.size(); i++)
+              cout << _listIndexVertexPathSPtemp[i] << " " ;
+
+            cout << endl;
+            for (unsigned i = 0; i < SPath.size(); ++i)
+            {
+              geodesic::SurfacePoint ss ;
+              ss.x() = (-_meshCenter[0] + (float) SPath[SPath.size() - i - 1].x()) * _meshScale;
+              ss.y() = (-_meshCenter[1] + (float) SPath[SPath.size() - i - 1].y()) * _meshScale;
+              ss.z() = (_meshCenter[2] - (float) SPath[SPath.size() - i - 1].z()) * _meshScale;
+              _pathSP.push_back(ss);
+              //cout << i << " " << ss.x() << ' ' << ss.y() << ' ' <<  ss.z() << endl;
+            }
+
+          }
+          updateInfosPicking(_indexPolygon, _indexVertex);
+        }
       }
 
       updateGL();
@@ -749,8 +853,8 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
         = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
     //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
-    const float* t = _ao->textureCoords();
-    if (_indexVertex < _mesh.vertex().size())
+    const float* t = _aTex->textureCoords();
+    if (_indexVertex >= 0 && _indexVertex < _mesh.vertex().size())
     {
       _textureValue = _tex[0].item(_indexVertex);
 
@@ -780,7 +884,7 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     updateGL();
   }
 
-  if (event->buttons() == Qt::LeftButton && _mode == 3)
+  if (event->buttons() == Qt::LeftButton && (_mode == 3 || _mode == 8))
   {
     _trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -794,7 +898,7 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     _indexVertex
         = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
-    if (_indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
+    if (_mode == 3 && _indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
     {
       _colors[3 * _indexVertex] = _colorpicked[0];
       _colors[3 * _indexVertex + 1] = _colorpicked[1];
@@ -804,6 +908,15 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
       updateInfosPicking(_indexPolygon, _indexVertex);
     }
 
+    if (_mode == 8 && _indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
+    {
+      const float* t = _aTex->textureCoords();
+
+      _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex])];
+      _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 1];
+      _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 2];
+      _listVertexChanged[_indexVertex] = _tex[0].item(_indexVertex);
+    }
     updateGL();
   }
 }
@@ -813,7 +926,7 @@ void myGLWidget<T>::keyPressEvent(QKeyEvent *event)
 {
   typename std::map<int, T>::const_iterator mit(_listVertexChanged.begin()),
       mend(_listVertexChanged.end());
-  const float* t = _ao->textureCoords();
+  const float* t = _aTex->textureCoords();
 
   switch (event->key())
   {
@@ -836,29 +949,17 @@ void myGLWidget<T>::keyPressEvent(QKeyEvent *event)
     case Qt::Key_W:
       _wireframe = !_wireframe;
       break;
-    case Qt::Key_P:
-      _parcelation = !_parcelation;
+    case Qt::Key_T:
+      _texCurvDisplay = !_texCurvDisplay;
       break;
     case Qt::Key_Space:
       cout << "clear all vertex painted\n";
-      //_listTriangleSelect.clear();
-      for (; mit != mend; ++mit)
-      {
-        _colors[3 * mit->first] = (int) dataColorMap[3 * (int) (255
-            * t[mit->first])];
-        _colors[3 * mit->first + 1] = (int) dataColorMap[3 * (int) (255
-            * t[mit->first]) + 1];
-        _colors[3 * mit->first + 2] = (int) dataColorMap[3 * (int) (255
-            * t[mit->first]) + 2];
-      }
 
-      _listIndexVertexPathCurvSP.clear();
+      //_listVertexChanged.clear();
       _listIndexVertexPathSP.clear();
       _listIndexVertexSelectSP.clear();
-
+      _listIndexVertexSelectFill.clear();
       _pathSP.clear();
-      _pathCurvSP.clear();
-      _pathExactSP.clear();
 
       break;
     default:
@@ -986,6 +1087,56 @@ void myGLWidget<T>::drawTexturePaint(void)
 
   glPopAttrib();
 }
+//Recursive 4-way floodfill, crashes if recursion stack is full
+
+template<typename T>
+void  myGLWidget<T>::floodFill(int indexVertex, T newTextureValue, T oldTextureValue)
+{
+  T textureValue;
+  bool go;
+  bool stop;
+
+  std::set<uint> voisins=neighbours[indexVertex];
+  std::set<uint>::iterator voisIt=voisins.begin();
+
+  voisIt=voisins.begin();
+
+  std::vector<int>::iterator s1=_listIndexVertexPathSP.begin();
+  std::vector<int>::iterator s2=_listIndexVertexPathSP.end();
+  std::vector<int>::iterator ite = std::find(s1,s2, indexVertex);
+
+  std::vector<int>::iterator f1=_listIndexVertexSelectFill.begin();
+  std::vector<int>::iterator f2=_listIndexVertexSelectFill.end();
+  std::vector<int>::iterator itef = std::find(f1,f2, indexVertex);
+
+
+  typename std::map<int, T>::iterator itemap;
+  itemap = _listVertexChanged.begin();
+  itemap = _listVertexChanged.find(indexVertex);
+
+  go = false;
+  stop = false;
+
+  if (itemap != _listVertexChanged.end() )
+    {
+    if ((*itemap).second != oldTextureValue)
+      stop = true;
+
+    if ((*itemap).second == oldTextureValue)
+      go = true;
+    }
+
+  if ( (go  || (_tex[0].item(indexVertex)==oldTextureValue && !stop)) && (ite == _listIndexVertexPathSP.end())
+      && (itef == _listIndexVertexSelectFill.end() ) )
+  {
+    //_listIndexVertexSelectSP.push_back(indexVertex);
+    _listIndexVertexSelectFill.push_back(indexVertex);
+    for ( ; voisIt != voisins.end(); voisIt++)
+      floodFill(*voisIt, newTextureValue, oldTextureValue);
+  }
+
+}
+
 
 template<typename T>
 void myGLWidget<T>::drawPrimitivePicked(void)
@@ -1020,27 +1171,34 @@ void myGLWidget<T>::drawPrimitivePicked(void)
   for (; ite != _listIndexVertexSelectSP.end(); ++ite)
   {
     glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
-    gluSphere(quadric, 0.003, 36, 18);
+    gluSphere(quadric, 0.003, 10, 10);
     glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
   }
 
-  glColor3d(1, 0, 0);
+  if (_mode == 7)
+    glColor3ub(_colorpicked[0],_colorpicked[1],_colorpicked[2]);
+  else
+    glColor3d(1, 1, 1);
+
+  ite = _listIndexVertexSelectFill.begin();
+  for (; ite != _listIndexVertexSelectFill.end(); ++ite)
+  {
+    glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+    gluSphere(quadric, 0.002, 10, 10);
+    glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
+  }
+
+  if (_mode == 4 || _mode == 5 || _mode == 6 )
+    glColor3ub(_colorpicked[0],_colorpicked[1],_colorpicked[2]);
+  else
+    glColor3d(1, 1, 1);
+
   ite = _listIndexVertexPathSP.begin();
 
   for (; ite != _listIndexVertexPathSP.end(); ++ite)
   {
     glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
-    gluSphere(quadric, 0.001, 36, 18);
-    glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
-  }
-
-  glColor3d(0, 1, 0);
-  ite = _listIndexVertexPathCurvSP.begin();
-
-  for (; ite != _listIndexVertexPathCurvSP.end(); ++ite)
-  {
-    glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
-    gluSphere(quadric, 0.001, 36, 18);
+    gluSphere(quadric, 0.002, 36, 18);
     glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
   }
 
@@ -1048,9 +1206,11 @@ void myGLWidget<T>::drawPrimitivePicked(void)
   glEnable( GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable( GL_LINE_SMOOTH);
+  glLineWidth(2.0);
   glDisable(GL_LIGHTING);
 
-  glColor3d(1, 0, 0);
+  glColor3d(1, 1, 1);
+
   glBegin( GL_LINE_STRIP);
   ite = _listIndexVertexPathSP.begin();
   for (; ite != _listIndexVertexPathSP.end(); ++ite)
@@ -1058,15 +1218,17 @@ void myGLWidget<T>::drawPrimitivePicked(void)
 
   glEnd();
 
-  glColor3d(0, 1, 0);
-  glBegin( GL_LINE_STRIP);
-  ite = _listIndexVertexPathCurvSP.begin();
-  for (; ite != _listIndexVertexPathCurvSP.end(); ++ite)
-    glVertex3f(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
-
-  glEnd();
+//  glColor3d(0, 1, 0);
+//  glBegin( GL_LINE_STRIP);
+//  ite = _listIndexVertexPathCurvSP.begin();
+//  for (; ite != _listIndexVertexPathCurvSP.end(); ++ite)
+//    glVertex3f(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+//
+//  glEnd();
 
   gluDeleteQuadric(quadric);
+
+  glLineWidth(1.0);
 
   if (_indexPolygon >= 0 && _indexPolygon < 3 * _mesh.polygon().size())
   {
@@ -1143,7 +1305,13 @@ void myGLWidget<T>::paintGL()
   glEnableClientState( GL_COLOR_ARRAY);
   glEnableClientState( GL_VERTEX_ARRAY);
   glNormalPointer(GL_FLOAT, 0, _normals);
-  glColorPointer(3, GL_UNSIGNED_BYTE, 0, _colors);
+
+
+  if (_texCurvDisplay)
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, _colorsCurv);
+  else
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, _colors);
+
   glVertexPointer(3, GL_FLOAT, 0, _vertices);
 
   //  if (_listMeshRender == _listMeshSmooth) {
@@ -1461,13 +1629,23 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, 1, 0, GL_RGB, GL_UNSIGNED_BYTE,
       dataColorMap);
 
+  rc_ptr<Texture1d> texCurv(new Texture1d);
+  Converter<TimeTexture<T> , Texture1d> cTexCurv;
+  cTexCurv.convert(_texCurv, *texCurv);
+  _aTexCurv = new ATexture;
+  _aTexCurv->setTexture(texCurv);
+
+  //_aTexCurv->normalize();
+
   rc_ptr<Texture1d> tex(new Texture1d);
   Converter<TimeTexture<T> , Texture1d> c;
   c.convert(_tex, *tex);
-  _ao = new ATexture;
-  _ao->setTexture(tex);
+  _aTex = new ATexture;
+  _aTex->setTexture(tex);
 
-  const GLComponent::TexExtrema & te = _ao->glTexExtrema();
+  //_aTex->normalize();
+
+  const GLComponent::TexExtrema & te = _aTex->glTexExtrema();
   T min = te.minquant[0];
   T max = te.maxquant[0];
 
@@ -1480,6 +1658,10 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   {
     QDoubleSpinBox *textureFloatSpinBox =
         dynamic_cast<QDoubleSpinBox *> (toolbar->textureSpinBox);
+
+    //ARN
+    //gérer le cas où min=max = 0
+    //demander les bornes à l'utilisateur et le type
     textureFloatSpinBox->setRange(min, max);
   }
 
@@ -1489,8 +1671,6 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
         dynamic_cast<QSpinBox *> (toolbar->textureSpinBox);
     textureIntSpinBox->setRange(min, max);
   }
-
-  _ao->normalize();
 
   _colorpicked[0] = dataColorMap[0];
   _colorpicked[1] = dataColorMap[1];
