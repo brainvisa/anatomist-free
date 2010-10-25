@@ -22,6 +22,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _listMeshPicking = 0;
   _indexVertex = 0;
   _indexPolygon = 0;
+  _textureValue = 0;
   _texCurvDisplay = false;
   _wireframe = false;
   _resized = false;
