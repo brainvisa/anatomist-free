@@ -1,19 +1,25 @@
 #include "meshpaint.h"
 
 template<typename T>
-myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adressTexCurvIn, string adressTexOut,string colorMap, string dataType)
-	:_adressTexIn(adressTexIn),_adressMeshIn(adressMeshIn),_adressTexCurvIn(adressTexCurvIn), _adressTexOut(adressTexOut),_colorMap(colorMap),_dataType(dataType)
+myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
+    string adressTexCurvIn, string adressTexOut, string colorMap,
+    string dataType) :
+  _adressTexIn(adressTexIn), _adressMeshIn(adressMeshIn), _adressTexCurvIn(
+      adressTexCurvIn), _adressTexOut(adressTexOut), _colorMap(colorMap),
+      _dataType(dataType)
 {
   QRect r = geometry();
   r.moveCenter(QApplication::desktop()->availableGeometry().center());
   setGeometry(r);
 
-  resize(640,480);
+  resize(800, 600);
 
-  glWidget = new myGLWidget<T> (this,adressTexIn,adressMeshIn,adressTexCurvIn,adressTexOut,colorMap,dataType);
+  glWidget = new myGLWidget<T> (this, adressTexIn, adressMeshIn,
+      adressTexCurvIn, adressTexOut, colorMap, dataType);
 
-  setCentralWidget(glWidget);
+  setCentralWidget( glWidget);
   glWidget->setFocusPolicy(Qt::StrongFocus);
+
 
   QLabel *SpinBoxLabel = new QLabel(tr("Texture Value : "));
 
@@ -26,8 +32,8 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adress
     textureFloatSpinBox->setFixedWidth(75);
     textureFloatSpinBox->setValue(0.0);
 
-    textureSpinBox = static_cast<QDoubleSpinBox*>(textureFloatSpinBox);
-    connect(textureFloatSpinBox,SIGNAL(valueChanged(double)),glWidget,SLOT(changeTextureSpinBoxFloat(double)));
+    textureSpinBox = static_cast<QDoubleSpinBox*> (textureFloatSpinBox);
+    connect  (textureFloatSpinBox,SIGNAL(valueChanged(double)),glWidget,SLOT(changeTextureSpinBoxFloat(double)));
   }
 
   if (_dataType == "S16")
@@ -70,6 +76,10 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn,string adressMeshIn,string adress
 
   connect(IDPolygonSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeIDPolygonSpinBox(int)));
   connect(IDVertexSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeIDVertexSpinBox(int)));
+
+  connect(toleranceSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeToleranceSpinBox(int)));
+  connect(constraintPathSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeConstraintPathSpinBox(int)));
+
 }
 
 template<typename T>
@@ -77,9 +87,53 @@ myMeshPaint<T>::~myMeshPaint()
 {
 }
 
+template<typename T>
+void myMeshPaint<T>::DisplayConstraintList (void)
+{
+  int  item = constraintList->currentItem();
+  string  constraintLabel = string(constraintList->currentText());
+
+  cout << constraintLabel << " value " << item << endl;
+
+  glWidget->changeTextureValue(item);
+
+}
+
 MeshPaint::MeshPaint()
 {
   _mode = 4;
+
+  char sep = FileUtil::separator();
+
+  #ifdef USE_SHARE_CONFIG
+    string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep + "surfaceanalysis" + sep
+    + "constraint_correspondance.txt";
+  #else
+    string talref = carto::Paths::shfjShared() + sep + "nomenclature" + sep
+        + "surfaceanalysis" + sep + "constraint_correspondance.txt";
+  #endif
+
+    cout << "File contraints loaded : " << talref << endl;
+
+  constraintList = new QComboBox( );
+
+  string line;
+  ifstream myfile (talref.c_str());
+  if (myfile.is_open())
+  {
+    while ( myfile.good() )
+    {
+      getline (myfile,line);
+      if (line.length() != 0)
+        constraintList->addItem(line.c_str());
+    }
+    myfile.close();
+  }
+
+  else cout << "Unable to open file " << talref << endl;
+
+  connect( constraintList, SIGNAL( activated( int ) ), this,  SLOT( updateConstraintList() ) );
+
   createActions();
   createToolBars();
   show();
@@ -90,12 +144,17 @@ MeshPaint::~MeshPaint()
 }
 
 template<typename T>
+void myMeshPaint<T>::fillRegionOrPath(void)
+{
+  glWidget->fill();
+}
+
+template<typename T>
 void myMeshPaint<T>::changeMode(int mode)
 {
   //cout << "mode = " << mode << endl;
   glWidget->changeMode(mode);
 }
-
 
 template<typename T>
 void myMeshPaint<T>::saveTexture(void)
@@ -105,71 +164,44 @@ void myMeshPaint<T>::saveTexture(void)
 }
 
 template<typename T>
-void myMeshPaint<T>::keyPressEvent( QKeyEvent* event )
+void myMeshPaint<T>::keyPressEvent(QKeyEvent* event)
 {
-  glWidget->keyPressEvent( event );
+  glWidget->keyPressEvent(event);
 }
 
 void MeshPaint::createActions()
 {
-  string iconname = Settings::globalPath() + "/icons/meshPaint/pipette.png";
-
-  colorPickerAction = new QAction(QIcon(iconname.c_str()), tr("&ColorPicker"), this);
-  //colorPickerAction->setShortcut(tr("c"));
-  colorPickerAction->setStatusTip(tr("ColorPicker"));
-  colorPickerAction->setCheckable(true);
-  connect(colorPickerAction, SIGNAL(triggered()), this, SLOT(colorPicker()));
-
-  iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
-
-  paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&PaintBrush"), this);
-  //paintBrushAction->setShortcut(tr("b"));
-  paintBrushAction->setStatusTip(tr("PaintBrush"));
-  paintBrushAction->setCheckable(true);
-  connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
-
-  iconname = Settings::globalPath() + "/icons/meshPaint/zoom.png";
-
+  //zoom
+  string iconname = Settings::globalPath() + "/icons/meshPaint/zoom.png";
   trackballAction = new QAction(QIcon(iconname.c_str()), tr("&trackball"), this);
-  //trackballAction->setShortcut(tr("t"));
   trackballAction->setStatusTip(tr("trackball"));
   trackballAction->setCheckable(true);
   trackballAction->setChecked(true);
   connect(trackballAction, SIGNAL(triggered()), this, SLOT(trackball()));
 
-  iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
+  //pipette
+  iconname = Settings::globalPath() + "/icons/meshPaint/pipette.png";
+  colorPickerAction = new QAction(QIcon(iconname.c_str()), tr("&ColorPicker"),this);
+  colorPickerAction->setStatusTip(tr("ColorPicker"));
+  colorPickerAction->setCheckable(true);
+  connect(colorPickerAction, SIGNAL(triggered()), this, SLOT(colorPicker()));
 
-  fillAction = new QAction(QIcon(iconname.c_str()), tr("&fill"), this);
-  fillAction->setStatusTip(tr("fill"));
-  fillAction->setCheckable(true);
-  connect(fillAction, SIGNAL(triggered()), this, SLOT(fill()));
+  //baguette magique
+  iconname = Settings::globalPath() + "/icons/meshPaint/magic_selection.png";
+  selectionAction = new QAction(QIcon(iconname.c_str()),tr("&magic_selection"), this);
+  selectionAction->setStatusTip(tr("magic_selection"));
+  selectionAction->setCheckable(true);
+  connect(selectionAction, SIGNAL(triggered()), this, SLOT(selection()));
+  toleranceSpinBoxLabel = new QLabel(tr("tolerance : "));
+  toleranceSpinBox = new QSpinBox;
+  toleranceSpinBox->setSingleStep(1);
+  toleranceSpinBox->setFixedHeight(30);
+  toleranceSpinBox->setFixedWidth(55);
+  toleranceSpinBox->setValue(0);
+  toleranceSpinBox->setRange(0,100);
 
-  iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
-
-  clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
-  clearAction->setStatusTip(tr("clear"));
-  clearAction->setCheckable(true);
-  connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
-
-  iconname = Settings::globalPath() + "/icons/meshPaint/sauver.png";
-
-  saveAction = new QAction(QIcon(iconname.c_str()), tr("&Save Texture"), this);
-  //saveAction->setShortcut(tr("s"));
-  saveAction->setStatusTip(tr("save"));
-  connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
-}
-
-void MeshPaint::createToolBars()
-{
-  paintToolBar = addToolBar(tr("PaintToolBar"));
-  paintToolBar->setIconSize(QSize(32, 32));
-
-  paintToolBar->addAction(trackballAction);
-  paintToolBar->addAction(colorPickerAction);
-  paintToolBar->addAction(paintBrushAction);
-
-  string iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
-
+  //plus court chemin
+  iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
   pathButton = new QToolButton;
   pathButton->setIcon(QIcon(iconname.c_str()));
   pathButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -177,50 +209,115 @@ void MeshPaint::createToolBars()
   pathButton->setChecked(false);
   pathButton->setIconSize(QSize(32, 32));
   pathButton->setToolTip(tr("Shortest Path"));
-
   connect(pathButton, SIGNAL(clicked()), this, SLOT(path()));
-
   QMenu *menu = new QMenu(this);
-
-  shortPathAction = new QAction(QIcon(iconname.c_str()), tr("&Unconstrained"), this);
+  shortPathAction = new QAction(QIcon(iconname.c_str()), tr("&Unconstrained"),this);
   shortPathAction->setToolTip(tr("Unconstrained"));
-
   connect(shortPathAction, SIGNAL(triggered()), this, SLOT(shortPath()));
   menu->addAction(shortPathAction);
-
   iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
-
   sulciPathAction = new QAction(QIcon(iconname.c_str()), tr("&sulci"), this);
   sulciPathAction->setToolTip(tr("sulci"));
   connect(sulciPathAction, SIGNAL(triggered()), this, SLOT(sulciPath()));
   menu->addAction(sulciPathAction);
-
   iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
-
   gyriPathAction = new QAction(QIcon(iconname.c_str()), tr("&gyri"), this);
   gyriPathAction->setToolTip(tr("gyri"));
   connect(gyriPathAction, SIGNAL(triggered()), this, SLOT(gyriPath()));
   menu->addAction(gyriPathAction);
-
   pathButton->setMenu(menu);
+  constraintPathSpinBoxLabel = new QLabel(tr("constraint : "));
+  constraintPathSpinBox = new QSpinBox;
+  constraintPathSpinBox->setSingleStep(1);
+  constraintPathSpinBox->setFixedHeight(30);
+  constraintPathSpinBox->setFixedWidth(55);
+  constraintPathSpinBox->setValue(2);
+  constraintPathSpinBox->setRange(0,100);
 
-//  pathAction = pathButton->menu()->defaultAction();
-//  pathButton->setDefaultAction(pathAction);
+  //Brush
+  iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+  paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&PaintBrush"),this);
+  paintBrushAction->setStatusTip(tr("PaintBrush"));
+  paintBrushAction->setCheckable(true);
+  connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
 
-  paintToolBar->addAction(fillAction);
-  paintToolBar->addAction(clearAction);
-  paintToolBar->addWidget(pathButton);
-  paintToolBar->addSeparator();
-  paintToolBar->addAction(saveAction);
+  //remplissage
+  iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
+  fillAction = new QAction(QIcon(iconname.c_str()), tr("&filling"), this);
+  fillAction->setStatusTip(tr("fill"));
+  connect(fillAction, SIGNAL(triggered()), this, SLOT(filling()));
 
-  infosToolBar = new QToolBar( tr( "InfosToolBar" ), this );
-  infosToolBar->setIconSize(QSize(32, 32));
+  //gomme
+  iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
+  clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
+  clearAction->setStatusTip(tr("clear"));
+  clearAction->setCheckable(true);
+  connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
-  addToolBar(Qt::BottomToolBarArea,infosToolBar);
-
-
+  //Sauvegarde
+  iconname = Settings::globalPath() + "/icons/meshPaint/sauver.png";
+  saveAction = new QAction(QIcon(iconname.c_str()), tr("&Save Texture"), this);
+  saveAction->setStatusTip(tr("save"));
+  connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 }
 
-template class myMeshPaint<float>;
-template class myMeshPaint<short>;
+void MeshPaint::popAllButtonPaintToolBar()
+{
+  trackballAction->setChecked(false);
+  colorPickerAction->setChecked(false);
+  paintBrushAction->setChecked(false);
+  clearAction->setChecked(false);
+  selectionAction->setChecked(false);
+  fillAction->setChecked(false);
+  pathButton->setChecked(false);
+}
+
+void MeshPaint::createToolBars()
+{
+  paintToolBar = addToolBar(tr("PaintToolBar"));
+  paintToolBar->setIconSize(QSize(32, 32));
+
+  // zoom
+  paintToolBar->addAction(trackballAction);
+  paintToolBar->addSeparator();
+
+  // liste des contraintes
+  paintToolBar->addWidget(constraintList);
+
+  //pipette
+  paintToolBar->addAction(colorPickerAction);
+
+  paintToolBar->addSeparator();
+  //baguette magique
+  paintToolBar->addAction(selectionAction);
+  //paintToolBar->addWidget(toleranceSpinBoxLabel);
+  paintToolBar->addWidget(toleranceSpinBox);
+
+  paintToolBar->addSeparator();
+  //plus court chemin
+  paintToolBar->addWidget(pathButton);
+  //paintToolBar->addWidget(constraintPathSpinBoxLabel);
+  paintToolBar->addWidget(constraintPathSpinBox);
+
+  paintToolBar->addSeparator();
+
+  //Brush
+  paintToolBar->addAction(paintBrushAction);
+  // Remplissage
+  paintToolBar->addAction(fillAction);
+  //Gomme
+  paintToolBar->addAction(clearAction);
+
+  paintToolBar->addSeparator();
+
+  //Sauvegarde
+  paintToolBar->addAction(saveAction);
+
+  infosToolBar = new QToolBar(tr("InfosToolBar"), this);
+  infosToolBar->setIconSize(QSize(32, 32));
+  addToolBar(Qt::BottomToolBarArea, infosToolBar);
+}
+
+template class myMeshPaint<float> ;
+template class myMeshPaint<short> ;
 

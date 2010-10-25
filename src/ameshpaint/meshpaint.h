@@ -12,6 +12,11 @@
 #include <aims/io/process.h>
 #include <aims/io/finder.h>
 
+#include <aims/def/path.h>
+#include <cartobase/config/version.h>
+#include <cartobase/config/paths.h>
+#include <cartobase/stream/fileutil.h>
+
 #include "glwidget.h"
 
 using namespace anatomist;
@@ -31,120 +36,94 @@ protected :
   void resizeEvent(QResizeEvent *event )
   {
 	  event->accept();
-	  trackballAction->setChecked(true);
-	  paintBrushAction->setChecked(false);
-	  colorPickerAction->setChecked(false);
   }
-
+  virtual void DisplayConstraintList (void){};
+  virtual void fillRegionOrPath(void){};
   virtual void changeMode(int mode){};
   virtual void saveTexture(void){};
 
 private slots:
 
+  void updateConstraintList () {DisplayConstraintList();}
+
   void trackball()
   {
-    paintBrushAction->setChecked(false);
-  	colorPickerAction->setChecked(false);
-  	pathButton->setChecked(false);
-    clearAction->setChecked(false);
-    fillAction->setChecked(false);
+    popAllButtonPaintToolBar();
+    trackballAction->setChecked(true);
   	changeMode(1);
   }
 
   void colorPicker()
   {
-    paintBrushAction->setChecked(false);
-    trackballAction->setChecked(false);
-    pathButton->setChecked(false);
-    clearAction->setChecked(false);
-    fillAction->setChecked(false);
+    popAllButtonPaintToolBar();
+    colorPickerAction->setChecked(true);
     changeMode(2);
   }
 
   void paintBrush()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    pathButton->setChecked(false);
-    clearAction->setChecked(false);
-    fillAction->setChecked(false);
+    popAllButtonPaintToolBar();
+    paintBrushAction->setChecked(true);
     changeMode(3);
   }
 
   void shortPath()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    paintBrushAction->setChecked(false);
-    clearAction->setChecked(false);
-    fillAction->setChecked(false);
+    popAllButtonPaintToolBar();
     string iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "shortPath\n";
     _mode = 4;
-    changeMode(_mode);
+    changeMode(4);
   }
 
   void sulciPath()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    paintBrushAction->setChecked(false);
-    clearAction->setChecked(false);
-    fillAction->setChecked(false);
+    popAllButtonPaintToolBar();
     string iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "sulciPath\n";
     _mode = 5;
-    changeMode(_mode);
+    changeMode(5);
   }
 
   void gyriPath()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    paintBrushAction->setChecked(false);
-    clearAction->setChecked(false);
-    fillAction->setChecked(false);
+    popAllButtonPaintToolBar();
     string iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "gyriPath\n";
     _mode = 6;
-    changeMode(_mode);
+    changeMode(6);
   }
 
-  void fill()
+  void filling()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    paintBrushAction->setChecked(false);
-    clearAction->setChecked(false);
-    pathButton->setChecked(false);
-    cout << "fill\n";
-    changeMode(7);
+    fillRegionOrPath();
   }
 
   void path()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    paintBrushAction->setChecked(false);
-    fillAction->setChecked(false);
-    clearAction->setChecked(false);
+    popAllButtonPaintToolBar();
+    pathButton->setChecked(true);
     changeMode(_mode);
   }
 
   void clear()
   {
-    colorPickerAction->setChecked(false);
-    trackballAction->setChecked(false);
-    paintBrushAction->setChecked(false);
-    fillAction->setChecked(false);
-    pathButton->setChecked(false);
+    popAllButtonPaintToolBar();
+    clearAction->setChecked(true);
     changeMode(8);
+  }
+
+  void selection()
+  {
+    popAllButtonPaintToolBar();
+    selectionAction->setChecked(true);
+    changeMode(9);
   }
 
   void save()
@@ -156,25 +135,35 @@ protected :
   QToolBar *paintToolBar;
   QToolBar *infosToolBar;
 
+  QSpinBox *toleranceSpinBox;
+  QLabel *toleranceSpinBoxLabel;
+  QSpinBox *constraintPathSpinBox;
+  QLabel *constraintPathSpinBoxLabel;
+
+  QToolButton *pathButton;
+
+public :
+  QComboBox *constraintList;
+
 private :
+  void popAllButtonPaintToolBar ();
   void createActions();
   void createToolBars();
 
   int _mode;
 
-  QAction *colorPickerAction;
-  QAction *paintBrushAction;
   QAction *trackballAction;
-  QAction *clearAction;
 
-  QToolButton *pathButton;
-
+  QAction *colorPickerAction;
+  QAction *selectionAction;
   QAction *pathAction;
   QAction *shortPathAction;
   QAction *sulciPathAction;
   QAction *gyriPathAction;
 
+  QAction *paintBrushAction;
   QAction *fillAction;
+  QAction *clearAction;
 
   QAction *saveAction;
 };
@@ -186,15 +175,18 @@ public:
   myMeshPaint(string adressTexIn,string adressMeshIn,string adressTexCurvIn,string adressTexOut,string colorMap, string dataType);
   ~myMeshPaint();
 
+  void fillRegionOrPath(void);
   void changeMode(int mode);
   void saveTexture(void);
   void keyPressEvent( QKeyEvent* event );
+
+protected :
+  void DisplayConstraintList ();
 
 public :
   QWidget *textureSpinBox;
   QSpinBox *IDPolygonSpinBox;
   QSpinBox *IDVertexSpinBox;
-
 
 private :
   string _adressTexIn;

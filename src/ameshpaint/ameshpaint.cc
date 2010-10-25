@@ -6,10 +6,10 @@
 int main(int argc, const char **argv)
 {
   //DECLARATIONS
-  std::string adressTexIn="./";
-  std::string adressMeshIn="./";
-  std::string adressTexOut="./";
-  std::string adressTexCurvIn="./";
+  std::string adressTexIn="";
+  std::string adressMeshIn="";
+  std::string adressTexOut="";
+  std::string adressTexCurvIn="";
   std::string colorMap="blue_red_bis.rgb";
 
   AimsApplication     app( argc, argv, "MeshPaint : draw a texture on mesh");
@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
   {
     app.addOption( adressMeshIn, "-im", "input mesh");
     app.alias( "--inputMesh", "-im" );
-    app.addOption( adressTexIn, "-it", "input texture");
+    app.addOption( adressTexIn, "-it", "input texture",true);
     app.alias( "--inputTex", "-it" );
     app.addOption( colorMap, "-ic", "input colormap (blue_red_bis.rgb by default)",true);
     app.alias( "--inputColorMap", "-ic" );
@@ -58,6 +58,12 @@ int main(int argc, const char **argv)
   {
     myMeshPaint<short> ws(adressTexIn,adressMeshIn,adressTexCurvIn,adressTexOut,colorMap,type);
     a.exec();
+  }
+
+  if (type.length() == 0)
+  {
+      myMeshPaint<short> ws(adressTexIn,adressMeshIn,adressTexCurvIn,adressTexOut,colorMap,"S16");
+      a.exec();
   }
 
   return 1;

@@ -38,6 +38,8 @@ public:
 	template<class Points, class Faces>
 	void initialize_mesh_data(Points& p, Faces& tri, const float* curvature, int mode);		//build mesh from regular point-triangle representation
 
+	void update_weight(const float *curvature,int mode,int constraint);    //build internal structure of the mesh
+
 	std::vector<Vertex>& vertices(){return m_vertices;};
 	std::vector<Edge>& edges(){return m_edges;};
 	std::vector<Face>& faces(){return m_faces;};
@@ -126,17 +128,17 @@ void Mesh::initialize_mesh_data(unsigned num_vertices,
 								unsigned num_faces,
 								Faces& tri, const float* curvature, int mode)
 {
-	printf("initialize_mesh_data\n");
+	//printf("initialize_mesh_data\n");
 
 	unsigned const approximate_number_of_internal_pointers = (num_vertices + num_faces)*4;
 
-	printf("approximate_number_of_internal_pointers = \n");
+	//printf("approximate_number_of_internal_pointers = \n");
 
 	unsigned const max_number_of_pointer_blocks = 100; 
 	m_pointer_allocator.reset(approximate_number_of_internal_pointers, 
 							  max_number_of_pointer_blocks);
 
-	printf("copy coordinates to vertices\n");
+	//printf("copy coordinates to vertices\n");
 
 	m_vertices.resize(num_vertices);
 	for(unsigned i=0; i<num_vertices; ++i)		//copy coordinates to vertices
@@ -150,7 +152,7 @@ void Mesh::initialize_mesh_data(unsigned num_vertices,
 		v.z() = p[shift + 2];
 	}
 
-	printf("copy adjacent vertices to polygons/faces \n");
+	//printf("copy adjacent vertices to polygons/faces \n");
 
 	m_faces.resize(num_faces);
 	for(unsigned i=0; i<num_faces; ++i)		//copy adjacent vertices to polygons/faces
@@ -172,97 +174,97 @@ void Mesh::initialize_mesh_data(unsigned num_vertices,
 		}
 	}
 
-	printf("build the structure of the mesh \n");
+	//printf("build the structure of the mesh \n");
 
 	build_adjacencies(curvature,mode);	//build the structure of the mesh
 }
 
 inline void Mesh::build_adjacencies(const float *curvature, int mode)
 {
-	//		Vertex->adjacent Faces
-	std::vector<unsigned> count(m_vertices.size());	//count adjacent vertices
-	for(unsigned i=0; i<m_faces.size(); ++i)
-	{
-		Face& f = m_faces[i];
-		for(unsigned j=0; j<3; ++j)
-		{
-			unsigned vertex_id = f.adjacent_vertices()[j]->id();
-			assert(vertex_id < m_vertices.size());
-			count[vertex_id]++;
-		}
-	}
+  //    Vertex->adjacent Faces
+  std::vector<unsigned> count(m_vertices.size()); //count adjacent vertices
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      unsigned vertex_id = f.adjacent_vertices()[j]->id();
+      assert(vertex_id < m_vertices.size());
+      count[vertex_id]++;
+    }
+  }
 
-	for(unsigned i=0; i<m_vertices.size(); ++i)		//reserve space
-	{
-		Vertex& v = m_vertices[i];
-		unsigned num_adjacent_faces = count[i];
+  for(unsigned i=0; i<m_vertices.size(); ++i)   //reserve space
+  {
+    Vertex& v = m_vertices[i];
+    unsigned num_adjacent_faces = count[i];
 
-		v.adjacent_faces().set_allocation(allocate_pointers(num_adjacent_faces),		//allocate three units of memory
-										  num_adjacent_faces);	
-	}
+    v.adjacent_faces().set_allocation(allocate_pointers(num_adjacent_faces),    //allocate three units of memory
+                      num_adjacent_faces);
+  }
 
-	std::fill(count.begin(), count.end(), 0);
-	for(unsigned i=0; i<m_faces.size(); ++i)
-	{
-		Face& f = m_faces[i];
-		for(unsigned j=0; j<3; ++j)
-		{
-			vertex_pointer v = f.adjacent_vertices()[j];
-			v->adjacent_faces()[count[v->id()]++] = &f;
-		}
-	}
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      vertex_pointer v = f.adjacent_vertices()[j];
+      v->adjacent_faces()[count[v->id()]++] = &f;
+    }
+  }
 
-	//find all edges
-	//i.e. find all half-edges, sort and combine them into edges
-	std::vector<HalfEdge> half_edges(m_faces.size()*3);
-	unsigned k = 0;
-	for(unsigned i=0; i<m_faces.size(); ++i)
-	{
-		Face& f = m_faces[i];
-		for(unsigned j=0; j<3; ++j)
-		{
-			half_edges[k].face_id = i;
-			unsigned vertex_id_1 = f.adjacent_vertices()[j]->id();
-			unsigned vertex_id_2 = f.adjacent_vertices()[(j+1) % 3]->id();
-			half_edges[k].vertex_0 = std::min(vertex_id_1, vertex_id_2);
-			half_edges[k].vertex_1 = std::max(vertex_id_1, vertex_id_2);
+  //find all edges
+  //i.e. find all half-edges, sort and combine them into edges
+  std::vector<HalfEdge> half_edges(m_faces.size()*3);
+  unsigned k = 0;
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      half_edges[k].face_id = i;
+      unsigned vertex_id_1 = f.adjacent_vertices()[j]->id();
+      unsigned vertex_id_2 = f.adjacent_vertices()[(j+1) % 3]->id();
+      half_edges[k].vertex_0 = std::min(vertex_id_1, vertex_id_2);
+      half_edges[k].vertex_1 = std::max(vertex_id_1, vertex_id_2);
 
-			k++;	
-		}
-	}
-	std::sort(half_edges.begin(), half_edges.end());
+      k++;
+    }
+  }
+  std::sort(half_edges.begin(), half_edges.end());
 
-	unsigned number_of_edges = 1;
-	for(unsigned i=1; i<half_edges.size(); ++i)
-	{
-		if(half_edges[i] != half_edges[i-1])
-		{
-			++number_of_edges;
-		}
-		else
-		{
-			if(i<half_edges.size()-1)		//sanity check: there should be at most two equal half-edges
-			{								//if it fails, most likely the input data are messed up
-				assert(half_edges[i] != half_edges[i+1]);
-			}
-		}
-	}
+  unsigned number_of_edges = 1;
+  for(unsigned i=1; i<half_edges.size(); ++i)
+  {
+    if(half_edges[i] != half_edges[i-1])
+    {
+      ++number_of_edges;
+    }
+    else
+    {
+      if(i<half_edges.size()-1)   //sanity check: there should be at most two equal half-edges
+      {               //if it fails, most likely the input data are messed up
+        assert(half_edges[i] != half_edges[i+1]);
+      }
+    }
+  }
 
-	//		Edges->adjacent Vertices and Faces
-	m_edges.resize(number_of_edges);
-	unsigned edge_id = 0;
-	for(unsigned i=0; i<half_edges.size();)
-	{
-		Edge& e = m_edges[edge_id];
-		e.id() = edge_id++;
+  //    Edges->adjacent Vertices and Faces
+  m_edges.resize(number_of_edges);
+  unsigned edge_id = 0;
+  for(unsigned i=0; i<half_edges.size();)
+  {
+    Edge& e = m_edges[edge_id];
+    e.id() = edge_id++;
 
-		e.adjacent_vertices().set_allocation(allocate_pointers(2),2);		//allocate two units of memory
+    e.adjacent_vertices().set_allocation(allocate_pointers(2),2);   //allocate two units of memory
 
-		e.adjacent_vertices()[0] = &m_vertices[half_edges[i].vertex_0];
-		e.adjacent_vertices()[1] = &m_vertices[half_edges[i].vertex_1];
+    e.adjacent_vertices()[0] = &m_vertices[half_edges[i].vertex_0];
+    e.adjacent_vertices()[1] = &m_vertices[half_edges[i].vertex_1];
 
-		//ARN
-		vertex_pointer v1 = e.adjacent_vertices()[0];
+    //ARN
+    vertex_pointer v1 = e.adjacent_vertices()[0];
     vertex_pointer v2 = e.adjacent_vertices()[1];
 
     //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
@@ -296,133 +298,370 @@ inline void Mesh::build_adjacencies(const float *curvature, int mode)
     else
       e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
 
-    assert(e.length() > 1e-100);		//algorithm works well with non-degenerate meshes only
+    //assert(e.length() > 1e-100);
+    //algorithm works well with non-degenerate meshes only
 
-		if(i != half_edges.size()-1 && half_edges[i] == half_edges[i+1])	//double edge
-		{
-			e.adjacent_faces().set_allocation(allocate_pointers(2),2);
-			e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
-			e.adjacent_faces()[1] = &m_faces[half_edges[i+1].face_id];
-			i += 2;
-		}
-		else			//single edge
-		{
-			e.adjacent_faces().set_allocation(allocate_pointers(1),1);		//one adjucent faces
-			e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
-			i += 1;
-		}
-	}
+    if(i != half_edges.size()-1 && half_edges[i] == half_edges[i+1])  //double edge
+    {
+      e.adjacent_faces().set_allocation(allocate_pointers(2),2);
+      e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
+      e.adjacent_faces()[1] = &m_faces[half_edges[i+1].face_id];
+      i += 2;
+    }
+    else      //single edge
+    {
+      e.adjacent_faces().set_allocation(allocate_pointers(1),1);    //one adjucent faces
+      e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
+      i += 1;
+    }
+  }
 
-	//			Vertices->adjacent Edges
-	std::fill(count.begin(), count.end(), 0);
-	for(unsigned i=0; i<m_edges.size(); ++i)
-	{
-		Edge& e = m_edges[i];
-		assert(e.adjacent_vertices().size()==2);
-		count[e.adjacent_vertices()[0]->id()]++;
-		count[e.adjacent_vertices()[1]->id()]++;
-	}
-	for(unsigned i=0; i<m_vertices.size(); ++i)
-	{
-		m_vertices[i].adjacent_edges().set_allocation(allocate_pointers(count[i]),
-													  count[i]);	
-	}
-	std::fill(count.begin(), count.end(), 0);
-	for(unsigned i=0; i<m_edges.size(); ++i)
-	{
-		Edge& e = m_edges[i];
-		for(unsigned j=0; j<2; ++j)
-		{
-			vertex_pointer v = e.adjacent_vertices()[j];
-			v->adjacent_edges()[count[v->id()]++] = &e;
-		}
-	}	
-//	//ARN
-//	for(unsigned i=0; i<m_edges.size(); ++i)
-//	  {
-//	    Edge& e = m_edges[i];
-//	    vertex_pointer v1 = e.adjacent_vertices()[0];
-//	    vertex_pointer v2 = e.adjacent_vertices()[1];
-//	    //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
-//	    //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
-//	    e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
-//	  }
+  //      Vertices->adjacent Edges
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    assert(e.adjacent_vertices().size()==2);
+    count[e.adjacent_vertices()[0]->id()]++;
+    count[e.adjacent_vertices()[1]->id()]++;
+  }
+  for(unsigned i=0; i<m_vertices.size(); ++i)
+  {
+    m_vertices[i].adjacent_edges().set_allocation(allocate_pointers(count[i]),
+                            count[i]);
+  }
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    for(unsigned j=0; j<2; ++j)
+    {
+      vertex_pointer v = e.adjacent_vertices()[j];
+      v->adjacent_edges()[count[v->id()]++] = &e;
+    }
+  }
 
-	//			Faces->adjacent Edges
-	for(unsigned i=0; i<m_faces.size(); ++i)
-	{
-		m_faces[i].adjacent_edges().set_allocation(allocate_pointers(3),3);	
-	}
+  //      Faces->adjacent Edges
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    m_faces[i].adjacent_edges().set_allocation(allocate_pointers(3),3);
+  }
 
-	count.resize(m_faces.size());
-	std::fill(count.begin(), count.end(), 0);
-	for(unsigned i=0; i<m_edges.size(); ++i)
-	{
-		Edge& e = m_edges[i];
-		for(unsigned j=0; j<e.adjacent_faces().size(); ++j)
-		{
-			face_pointer f = e.adjacent_faces()[j];
-			assert(count[f->id()]<3);
-			f->adjacent_edges()[count[f->id()]++] = &e;
-		}
-	}	
+  count.resize(m_faces.size());
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    for(unsigned j=0; j<e.adjacent_faces().size(); ++j)
+    {
+      face_pointer f = e.adjacent_faces()[j];
+      assert(count[f->id()]<3);
+      f->adjacent_edges()[count[f->id()]++] = &e;
+    }
+  }
 
-		//compute angles for the faces
-	for(unsigned i=0; i<m_faces.size(); ++i)
-	{
-		Face& f = m_faces[i];
-		double abc[3];		
-		double sum = 0;
-		for(unsigned j=0; j<3; ++j)		//compute angle adjacent to the vertex j
-		{
-			for(unsigned k=0; k<3; ++k)
-			{
-				vertex_pointer v = f.adjacent_vertices()[(j + k)%3];
-				abc[k] = f.opposite_edge(v)->length();
-			}
+    //compute angles for the faces
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    double abc[3];
+    double sum = 0;
+    for(unsigned j=0; j<3; ++j)   //compute angle adjacent to the vertex j
+    {
+      for(unsigned k=0; k<3; ++k)
+      {
+        vertex_pointer v = f.adjacent_vertices()[(j + k)%3];
+        abc[k] = f.opposite_edge(v)->length();
+      }
 
-			double angle = angle_from_edges(abc[0], abc[1], abc[2]);
+      double angle = angle_from_edges(abc[0], abc[1], abc[2]);
 
-			//ARN
-			//assert(angle>1e-5);						//algorithm works well with non-degenerate meshes only
+      //ARN
+      //assert(angle>1e-5);           //algorithm works well with non-degenerate meshes only
 
-			f.corner_angles()[j] = angle;
-			sum += angle;
-		}
-		assert(std::abs(sum - M_PI) < 1e-5);		//algorithm works well with non-degenerate meshes only 
-	}
+      f.corner_angles()[j] = angle;
+      sum += angle;
+    }
+    assert(std::abs(sum - M_PI) < 1e-5);    //algorithm works well with non-degenerate meshes only
+  }
 
-		//define m_turn_around_flag for vertices
-	std::vector<double> total_vertex_angle(m_vertices.size());
-	for(unsigned i=0; i<m_faces.size(); ++i)
-	{
-		Face& f = m_faces[i];
-		for(unsigned j=0; j<3; ++j)
-		{
-			vertex_pointer v = f.adjacent_vertices()[j];
-			total_vertex_angle[v->id()] += f.corner_angles()[j];
-		}
-	}
+    //define m_turn_around_flag for vertices
+  std::vector<double> total_vertex_angle(m_vertices.size());
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      vertex_pointer v = f.adjacent_vertices()[j];
+      total_vertex_angle[v->id()] += f.corner_angles()[j];
+    }
+  }
 
-	for(unsigned i=0; i<m_vertices.size(); ++i)
-	{
-		Vertex& v = m_vertices[i];
-		v.saddle_or_boundary() = (total_vertex_angle[v.id()] > 2.0*M_PI - 1e-5); 
-	}
+  for(unsigned i=0; i<m_vertices.size(); ++i)
+  {
+    Vertex& v = m_vertices[i];
+    v.saddle_or_boundary() = (total_vertex_angle[v.id()] > 2.0*M_PI - 1e-5);
+  }
 
-	for(unsigned i=0; i<m_edges.size(); ++i)
-	{
-		Edge& e = m_edges[i];
-		if(e.is_boundary())
-		{
-			e.adjacent_vertices()[0]->saddle_or_boundary() = true;
-			e.adjacent_vertices()[1]->saddle_or_boundary() = true;
-		}
-	}
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    if(e.is_boundary())
+    {
+      e.adjacent_vertices()[0]->saddle_or_boundary() = true;
+      e.adjacent_vertices()[1]->saddle_or_boundary() = true;
+    }
+  }
 
-	//assert(verify());
+  //assert(verify());
 }
 
+inline void Mesh::update_weight(const float *curvature, int mode,int constraint)
+{
+  //    Vertex->adjacent Faces
+  std::vector<unsigned> count(m_vertices.size()); //count adjacent vertices
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      unsigned vertex_id = f.adjacent_vertices()[j]->id();
+      assert(vertex_id < m_vertices.size());
+      count[vertex_id]++;
+    }
+  }
+
+  for(unsigned i=0; i<m_vertices.size(); ++i)   //reserve space
+  {
+    Vertex& v = m_vertices[i];
+    unsigned num_adjacent_faces = count[i];
+
+    v.adjacent_faces().set_allocation(allocate_pointers(num_adjacent_faces),    //allocate three units of memory
+                      num_adjacent_faces);
+  }
+
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      vertex_pointer v = f.adjacent_vertices()[j];
+      v->adjacent_faces()[count[v->id()]++] = &f;
+    }
+  }
+
+  //find all edges
+  //i.e. find all half-edges, sort and combine them into edges
+  std::vector<HalfEdge> half_edges(m_faces.size()*3);
+  unsigned k = 0;
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      half_edges[k].face_id = i;
+      unsigned vertex_id_1 = f.adjacent_vertices()[j]->id();
+      unsigned vertex_id_2 = f.adjacent_vertices()[(j+1) % 3]->id();
+      half_edges[k].vertex_0 = std::min(vertex_id_1, vertex_id_2);
+      half_edges[k].vertex_1 = std::max(vertex_id_1, vertex_id_2);
+
+      k++;
+    }
+  }
+  std::sort(half_edges.begin(), half_edges.end());
+
+  unsigned number_of_edges = 1;
+  for(unsigned i=1; i<half_edges.size(); ++i)
+  {
+    if(half_edges[i] != half_edges[i-1])
+    {
+      ++number_of_edges;
+    }
+    else
+    {
+      if(i<half_edges.size()-1)   //sanity check: there should be at most two equal half-edges
+      {               //if it fails, most likely the input data are messed up
+        assert(half_edges[i] != half_edges[i+1]);
+      }
+    }
+  }
+
+  //    Edges->adjacent Vertices and Faces
+  m_edges.resize(number_of_edges);
+  unsigned edge_id = 0;
+  for(unsigned i=0; i<half_edges.size();)
+  {
+    Edge& e = m_edges[edge_id];
+    e.id() = edge_id++;
+
+    e.adjacent_vertices().set_allocation(allocate_pointers(2),2);   //allocate two units of memory
+
+    e.adjacent_vertices()[0] = &m_vertices[half_edges[i].vertex_0];
+    e.adjacent_vertices()[1] = &m_vertices[half_edges[i].vertex_1];
+
+    //ARN
+    vertex_pointer v1 = e.adjacent_vertices()[0];
+    vertex_pointer v2 = e.adjacent_vertices()[1];
+
+    //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
+    //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
+
+//    if (curvature!= NULL)
+//      e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
+//    else
+//      e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
+//
+    double a1,a2;
+
+    if (curvature!= NULL)
+      {
+      // Sulcal
+      if (mode == 1)
+      {
+        a1 = pow ((1.0)/(1.0 + exp(-constraint*curvature[v1->id()])), 2);
+        a2 = pow ((1.0)/(1.0 + exp(-constraint*curvature[v2->id()])), 2);
+      }
+
+      // Gyral
+      if (mode == 2)
+      {
+        a1 = pow ((1.0)/(1.0 + exp(constraint*curvature[v1->id()])), 2);
+        a2 = pow ((1.0)/(1.0 + exp(constraint*curvature[v2->id()])), 2);
+      }
+
+      e.length() = (v1->distance(v2) * (a1 + a2));
+      }
+    else
+      e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
+
+    assert(e.length() > 1e-100);    //algorithm works well with non-degenerate meshes only
+
+    if(i != half_edges.size()-1 && half_edges[i] == half_edges[i+1])  //double edge
+    {
+      e.adjacent_faces().set_allocation(allocate_pointers(2),2);
+      e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
+      e.adjacent_faces()[1] = &m_faces[half_edges[i+1].face_id];
+      i += 2;
+    }
+    else      //single edge
+    {
+      e.adjacent_faces().set_allocation(allocate_pointers(1),1);    //one adjucent faces
+      e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
+      i += 1;
+    }
+  }
+
+  //      Vertices->adjacent Edges
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    assert(e.adjacent_vertices().size()==2);
+    count[e.adjacent_vertices()[0]->id()]++;
+    count[e.adjacent_vertices()[1]->id()]++;
+  }
+  for(unsigned i=0; i<m_vertices.size(); ++i)
+  {
+    m_vertices[i].adjacent_edges().set_allocation(allocate_pointers(count[i]),
+                            count[i]);
+  }
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    for(unsigned j=0; j<2; ++j)
+    {
+      vertex_pointer v = e.adjacent_vertices()[j];
+      v->adjacent_edges()[count[v->id()]++] = &e;
+    }
+  }
+//  //ARN
+//  for(unsigned i=0; i<m_edges.size(); ++i)
+//    {
+//      Edge& e = m_edges[i];
+//      vertex_pointer v1 = e.adjacent_vertices()[0];
+//      vertex_pointer v2 = e.adjacent_vertices()[1];
+//      //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
+//      //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
+//      e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
+//    }
+
+  //      Faces->adjacent Edges
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    m_faces[i].adjacent_edges().set_allocation(allocate_pointers(3),3);
+  }
+
+  count.resize(m_faces.size());
+  std::fill(count.begin(), count.end(), 0);
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    for(unsigned j=0; j<e.adjacent_faces().size(); ++j)
+    {
+      face_pointer f = e.adjacent_faces()[j];
+      assert(count[f->id()]<3);
+      f->adjacent_edges()[count[f->id()]++] = &e;
+    }
+  }
+
+    //compute angles for the faces
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    double abc[3];
+    double sum = 0;
+    for(unsigned j=0; j<3; ++j)   //compute angle adjacent to the vertex j
+    {
+      for(unsigned k=0; k<3; ++k)
+      {
+        vertex_pointer v = f.adjacent_vertices()[(j + k)%3];
+        abc[k] = f.opposite_edge(v)->length();
+      }
+
+      double angle = angle_from_edges(abc[0], abc[1], abc[2]);
+
+      //ARN
+      //assert(angle>1e-5);           //algorithm works well with non-degenerate meshes only
+
+      f.corner_angles()[j] = angle;
+      sum += angle;
+    }
+    assert(std::abs(sum - M_PI) < 1e-5);    //algorithm works well with non-degenerate meshes only
+  }
+
+    //define m_turn_around_flag for vertices
+  std::vector<double> total_vertex_angle(m_vertices.size());
+  for(unsigned i=0; i<m_faces.size(); ++i)
+  {
+    Face& f = m_faces[i];
+    for(unsigned j=0; j<3; ++j)
+    {
+      vertex_pointer v = f.adjacent_vertices()[j];
+      total_vertex_angle[v->id()] += f.corner_angles()[j];
+    }
+  }
+
+  for(unsigned i=0; i<m_vertices.size(); ++i)
+  {
+    Vertex& v = m_vertices[i];
+    v.saddle_or_boundary() = (total_vertex_angle[v.id()] > 2.0*M_PI - 1e-5);
+  }
+
+  for(unsigned i=0; i<m_edges.size(); ++i)
+  {
+    Edge& e = m_edges[i];
+    if(e.is_boundary())
+    {
+      e.adjacent_vertices()[0]->saddle_or_boundary() = true;
+      e.adjacent_vertices()[1]->saddle_or_boundary() = true;
+    }
+  }
+
+  //assert(verify());
+  //assert(verify());
+}
 inline bool Mesh::verify()		//verifies connectivity of the mesh and prints some debug info
 {
 	std::cout << std::endl;

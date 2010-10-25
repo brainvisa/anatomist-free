@@ -80,6 +80,8 @@ protected :
   virtual void changeTextureValueInt(int){}
   virtual void changeIDPolygonValue(int){}
   virtual void changeIDVertexValue(int){}
+  virtual void changeToleranceValue(int){}
+  virtual void changeConstraintPathValue(int){}
 
 private slots:
 
@@ -87,6 +89,9 @@ private slots:
   void changeTextureSpinBoxInt(int v) {changeTextureValueInt(v);}
   void changeIDPolygonSpinBox(int v) {changeIDPolygonValue(v);}
   void changeIDVertexSpinBox(int v) {changeIDVertexValue(v);}
+
+  void changeToleranceSpinBox(int v) {changeToleranceValue(v);}
+  void changeConstraintPathSpinBox(int v) {changeConstraintPathValue(v);}
 
 
 public:
@@ -101,17 +106,21 @@ public:
   myGLWidget (QWidget *parent, string adressTexIn,string adressMeshIn,string adressTexCurvIn,string adressTexOut,string colorMap,string dataType);
   ~myGLWidget ();
 
-protected :
+public :
   void changeTextureValueFloat(double );
   void changeTextureValueInt(int );
   void changeIDPolygonValue(int );
   void changeIDVertexValue(int );
+
+  void changeToleranceValue(int );
+  void changeConstraintPathValue(int );
 
 public:
   int getMode () const { return _mode; }
   float getZoom () const { return _zoom; }
   float getTranslate () const { return _trans; }
 
+  void fill(void);
   void changeMode (int mode);
   void changeTextureValue(T value);
   void updateInfosPicking(int idp, int idv);
@@ -205,6 +214,11 @@ private:
 
   GLuint _indexPolygon;
   GLuint _indexVertex;
+
+  GLuint _constraintPathValue;
+  GLuint _toleranceValue;
+  float _stepToleranceValue;
+
   T _textureValue;
   bool _wireframe;
   //bool _parcelation;
