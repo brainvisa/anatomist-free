@@ -160,7 +160,6 @@ protected:
   void projectionOrtho (void);
   void trackBallTransformation(void);
   void drawPrimitivePicked (void);
-  void drawTexturePaint (void);
   void floodFill(int indexVertex, T newTextureValue, T oldTextureValue);
 
 private:
@@ -182,7 +181,7 @@ private:
   string _dataType;
   AimsSurfaceTriangle _mesh;
   TimeTexture<T> _tex;
-  TimeTexture<T> _texCurv;
+  TimeTexture<float> _texCurv;
 
   string _adressTexIn;
   string _adressMeshIn;
@@ -247,6 +246,8 @@ private:
   //std::vector<geodesic::SurfacePoint> _pathExactSP;
 
   std::vector<int> _listIndexVertexPathSP;
+  std::vector<int> _listIndexVertexPathSPLast;
+
   //std::vector<int> _listIndexVertexPathCurvSP;
   std::vector<int> _listIndexVertexSelectSP;
   std::vector<int> _listIndexVertexSelectFill;

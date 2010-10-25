@@ -5,6 +5,8 @@
 #include <QtGui>
 #include <cstdlib>
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <string.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <anatomist/application/globalConfig.h>
@@ -112,18 +114,18 @@ private slots:
     changeMode(_mode);
   }
 
+  void selection()
+  {
+    popAllButtonPaintToolBar();
+    selectionAction->setChecked(true);
+    changeMode(7);
+  }
+
   void clear()
   {
     popAllButtonPaintToolBar();
     clearAction->setChecked(true);
     changeMode(8);
-  }
-
-  void selection()
-  {
-    popAllButtonPaintToolBar();
-    selectionAction->setChecked(true);
-    changeMode(9);
   }
 
   void save()

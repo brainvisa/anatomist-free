@@ -10,7 +10,7 @@ int main(int argc, const char **argv)
   std::string adressMeshIn="";
   std::string adressTexOut="";
   std::string adressTexCurvIn="";
-  std::string colorMap="blue_red_bis.rgb";
+  std::string colorMap="blue_red_fusion.rgb";
 
   AimsApplication     app( argc, argv, "MeshPaint : draw a texture on mesh");
 
@@ -22,8 +22,8 @@ int main(int argc, const char **argv)
     app.alias( "--inputTex", "-it" );
     app.addOption( colorMap, "-ic", "input colormap (blue_red_bis.rgb by default)",true);
     app.alias( "--inputColorMap", "-ic" );
-    app.addOption( adressTexCurvIn, "-icurv", "input curvature texture");
-    app.alias( "--inputCurvTex", "-icurv" );
+    app.addOption( adressTexCurvIn, "-icurv", "input curvature texture (barycenter)",true);
+    app.alias( "--inputCurvTex", "-icurv");
     app.addOption( adressTexOut, "-ot", "output texture");
     app.alias( "--outputTex", "-ot" );
     app.initialize();

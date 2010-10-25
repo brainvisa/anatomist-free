@@ -282,15 +282,15 @@ inline void Mesh::build_adjacencies(const float *curvature, int mode)
       // Sulcal
       if (mode == 1)
       {
-        a1 = pow ((1.0)/(1.0 + exp(-2*curvature[v1->id()])), 2);
-        a2 = pow ((1.0)/(1.0 + exp(-2*curvature[v2->id()])), 2);
+        a1 = pow ((1.0)/(1.0 + exp(-5*curvature[v1->id()])), 2);
+        a2 = pow ((1.0)/(1.0 + exp(-5*curvature[v2->id()])), 2);
       }
 
       // Gyral
       if (mode == 2)
       {
-        a1 = pow ((1.0)/(1.0 + exp(2*curvature[v1->id()])), 2);
-        a2 = pow ((1.0)/(1.0 + exp(2*curvature[v2->id()])), 2);
+        a1 = pow ((1.0)/(1.0 + exp(5*curvature[v1->id()])), 2);
+        a2 = pow ((1.0)/(1.0 + exp(5*curvature[v2->id()])), 2);
       }
 
       e.length() = (v1->distance(v2) * (a1 + a2));
@@ -576,16 +576,6 @@ inline void Mesh::update_weight(const float *curvature, int mode,int constraint)
       v->adjacent_edges()[count[v->id()]++] = &e;
     }
   }
-//  //ARN
-//  for(unsigned i=0; i<m_edges.size(); ++i)
-//    {
-//      Edge& e = m_edges[i];
-//      vertex_pointer v1 = e.adjacent_vertices()[0];
-//      vertex_pointer v2 = e.adjacent_vertices()[1];
-//      //cout << i <<  "v1 = " << v1->id() << " curv = " << curvature[v1->id()];;
-//      //cout << " v2 = " << v2->id() << " curv = " << curvature[v2->id()] << endl;
-//      e.length() = (v1->distance(v2)*(fabs(curvature[v2->id()] - curvature[v1->id()])) ) ;
-//    }
 
   //      Faces->adjacent Edges
   for(unsigned i=0; i<m_faces.size(); ++i)

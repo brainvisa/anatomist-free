@@ -63,6 +63,9 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
   IDVertexSpinBox->setFixedWidth(75);
   IDVertexSpinBox->setValue(0);
 
+  // liste des contraintes
+  infosToolBar->addWidget(constraintList);
+
   infosToolBar->addWidget(SpinBoxLabel);
   infosToolBar->addWidget(textureSpinBox);
   infosToolBar->addSeparator();
@@ -93,10 +96,18 @@ void myMeshPaint<T>::DisplayConstraintList (void)
   int  item = constraintList->currentItem();
   string  constraintLabel = string(constraintList->currentText());
 
-  cout << constraintLabel << " value " << item << endl;
+  //cout << constraintLabel << " value " << item << endl;
 
-  glWidget->changeTextureValue(item);
+  int position = constraintLabel.find_last_of (' ');
 
+  //cout << "contrainte : " << constraintLabel.substr(0,position) << endl;
+
+  std::istringstream strin(constraintLabel.substr(position+1));
+  int value;
+  strin >> value;
+  cout << value << endl;
+
+  glWidget->changeTextureValue(value);
 }
 
 MeshPaint::MeshPaint()
@@ -231,7 +242,7 @@ void MeshPaint::createActions()
   constraintPathSpinBox->setSingleStep(1);
   constraintPathSpinBox->setFixedHeight(30);
   constraintPathSpinBox->setFixedWidth(55);
-  constraintPathSpinBox->setValue(2);
+  constraintPathSpinBox->setValue(5);
   constraintPathSpinBox->setRange(0,100);
 
   //Brush
@@ -280,9 +291,6 @@ void MeshPaint::createToolBars()
   // zoom
   paintToolBar->addAction(trackballAction);
   paintToolBar->addSeparator();
-
-  // liste des contraintes
-  paintToolBar->addWidget(constraintList);
 
   //pipette
   paintToolBar->addAction(colorPickerAction);
