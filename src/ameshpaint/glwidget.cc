@@ -1788,8 +1788,8 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _aTexCurv = new ATexture;
   _aTexCurv->setTexture(texCurv);
 
-  _aTexCurv->normalize();
-  _aTex->normalize();
+//  _aTexCurv->normalize();
+//  _aTex->normalize();
 
   const GLComponent::TexExtrema & te = _aTex->glTexExtrema();
   T min = te.minquant[0];
@@ -1797,6 +1797,8 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
 
   _minT = min;
   _maxT = max;
+
+  cout << "minquant " << min << " maxquant " << max << endl;
 
   myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
 
@@ -1813,13 +1815,14 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
     QSpinBox *textureIntSpinBox =
         dynamic_cast<QSpinBox *> (toolbar->textureSpinBox);
 
+    _minT = 0;
+    _maxT = 360;
+
     if (_adressTexIn.length()!=0)
-      textureIntSpinBox->setRange(min, max);
+      textureIntSpinBox->setRange(_minT, _maxT);
     else
       {
-      _minT = 0;
       //_maxT = toolbar->constraintList->count() - 1;
-      _maxT = 360;
       textureIntSpinBox->setRange(_minT,_maxT);
       }
   }
