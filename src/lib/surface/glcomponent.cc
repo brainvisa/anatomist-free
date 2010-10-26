@@ -1160,9 +1160,12 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
   GLCaps::glActiveTexture( GLCaps::textureID( texid ) );
   glMatrixMode( GL_TEXTURE );
   glLoadIdentity();
-  TexInfo & t = d->textures[ tex ];
-  glTranslatef( t.texoffset[0], t.texoffset[1], t.texoffset[2] );
-  glScalef( t.texscale[0], t.texscale[1], t.texscale[2] );
+  if( !rgb )
+  {
+    TexInfo & t = d->textures[ tex ];
+    glTranslatef( t.texoffset[0], t.texoffset[1], t.texoffset[2] );
+    glScalef( t.texscale[0], t.texscale[1], t.texscale[2] );
+  }
   glMatrixMode( GL_MODELVIEW );
 
   if( texok )
