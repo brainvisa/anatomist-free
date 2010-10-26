@@ -68,57 +68,78 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
     //calcul de la courbure
     cout << "compute texture curvature : ";
 
+    //TimeTexture<float> AimsMeshCurvature( const AimsSurface<3,Void> & mesh);
+
     _texCurv = TimeTexture<float>(1, _mesh.vertex().size());
-    float nx, ny, nz, ix, iy, iz, vx, vy , vz;
-    int Ni;
-    for (uint i = 0; i < _mesh.vertex().size(); i++)
-    {
-      std::set<uint> voisins=neighbours[i];
-      std::set<uint>::iterator voisIt=voisins.begin();
-      voisIt=voisins.begin();
 
-      Ni = voisins.size();
+    //const AimsSurface<3,Void>   & surface = _mesh[0];
+    _texCurv = AimsMeshCurvature(_mesh[0]);
+//
+//    CurvatureFactory CF;
+//    Curvature *curvat = CF.createCurvature(_mesh,"barycenter");
+//    _texCurv[0] = curvat->doIt();
+//    curvat->regularize(_texCurv[0],1);
+//    curvat->getTex  tureProperties(_texCurv[0]);
+//    delete curvat;
 
-      float nix, niy, niz;
-      float vix, viy, viz;
-      float nvix, nviy, nviz;
-      float ci;
+//    CurvatureFactory CF;
+//    Curvature * curv = CF.createCurvature(surface,"fem");
+//    cout << "processing..." << flush;
+//
 
-      ci = 0;
-      nix = 0; niy = 0 ; niz = 0;
+    //_texCurv = AimsMeshCurvature (surface);
 
-      ix = ((_mesh.vertex())[i])[0];
-      iy = ((_mesh.vertex())[i])[1];
-      iz = ((_mesh.vertex())[i])[2];
+//    float nx, ny, nz, ix, iy, iz, vx, vy , vz;
+//    int Ni;
+//    for (uint i = 0; i < _mesh.vertex().size(); i++)
+//    {
+//      std::set<uint> voisins=neighbours[i];
+//      std::set<uint>::iterator voisIt=voisins.begin();
+//      voisIt=voisins.begin();
+//
+//      Ni = voisins.size();
+//
+//      float nix, niy, niz;
+//      float vix, viy, viz;
+//      float nvix, nviy, nviz;
+//      float ci;
+//
+//      ci = 0;
+//      nix = 0; niy = 0 ; niz = 0;
+//
+//      ix = ((_mesh.vertex())[i])[0];
+//      iy = ((_mesh.vertex())[i])[1];
+//      iz = ((_mesh.vertex())[i])[2];
+//
+//      for ( ; voisIt != voisins.end(); voisIt++)
+//      {
+//        nix += ((_mesh.normal())[*voisIt])[0];
+//        niy += ((_mesh.normal())[*voisIt])[1];
+//        niz += ((_mesh.normal())[*voisIt])[2];
+//      }
+//
+//      nix = (float)nix/Ni;
+//      niy = (float)niy/Ni;
+//      niz = (float)niz/Ni;
+//
+//      voisIt=voisins.begin();
+//
+//      for ( ; voisIt != voisins.end(); voisIt++)
+//      {
+//        vx=((_mesh.vertex())[*voisIt])[0];
+//        vy=((_mesh.vertex())[*voisIt])[1];
+//        vz=((_mesh.vertex())[*voisIt])[2];
+//        vix = ix - vx;
+//        viy = iy - vy;
+//        viz = iz - vz;
+//        nvix = sqrt(vix*vix);
+//        nviy = sqrt(viy*viy);
+//        nviz = sqrt(viz*viz);
+//        ci += (float)(nix*vix + niy*viy + niz*viz)/(nvix + nviy + nviz);
+//      }
+//    _texCurv[0].item(i) = (float)ci/Ni;
+//    }
 
-      for ( ; voisIt != voisins.end(); voisIt++)
-      {
-        nix += ((_mesh.normal())[*voisIt])[0];
-        niy += ((_mesh.normal())[*voisIt])[1];
-        niz += ((_mesh.normal())[*voisIt])[2];
-      }
-
-      nix = (float)nix/Ni;
-      niy = (float)niy/Ni;
-      niz = (float)niz/Ni;
-
-      voisIt=voisins.begin();
-
-      for ( ; voisIt != voisins.end(); voisIt++)
-      {
-        vx=((_mesh.vertex())[*voisIt])[0];
-        vy=((_mesh.vertex())[*voisIt])[1];
-        vz=((_mesh.vertex())[*voisIt])[2];
-        vix = ix - vx;
-        viy = iy - vy;
-        viz = iz - vz;
-        nvix = sqrt(vix*vix);
-        nviy = sqrt(viy*viy);
-        nviz = sqrt(viz*viz);
-        ci += (float)(nix*vix + niy*viy + niz*viz)/(nvix + nviy + nviz);
-      }
-    _texCurv[0].item(i) = (float)ci/Ni;
-    }
     //fin calcul de la courbure
     cout << " OK" << endl;
   }

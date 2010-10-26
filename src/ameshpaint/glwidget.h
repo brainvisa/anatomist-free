@@ -36,8 +36,18 @@
 #include "spath/geodesic_mesh.h"
 #include <map>
 
+#include <aims/mesh/curv.h>
+#include <aims/data/data.h>
 #include <aims/mesh/surfaceOperation.h>
-
+#include <aims/mesh/geometric.h>
+#include <aims/data/data_g.h>
+#include <aims/io/io_g.h>
+#include <aims/math/math_g.h>
+#include <aims/vector/vector.h>
+#include <aims/mesh/texture.h>
+#include <aims/distancemap/meshdistance_d.h>
+#include <aims/distancemap/distancemap_g.h>
+#include <aims/morphology/morphology_g.h>
 //#include <aims/distancemap/meshdistance.h>
 //#include <aims/distancemap/meshmorphomat.h>
 //#include <aims/distancemap/meshmorphomat_d.h>
@@ -63,6 +73,7 @@ using namespace carto;
 using namespace aims;
 using namespace std;
 using namespace anatomist;
+using namespace aims::meshdistance;
 
 //QT_BEGIN_NAMESPACE
 class QPaintEvent;

@@ -4,7 +4,7 @@ win32:TARGET    = ameshpaint.exe
 
 #!include ../../config-app
 
-LIBS += -lanatomist
+LIBS += -lanatomist -laimsalgo
 
 HEADERS = glwidget.h \
     meshpaint.h \
