@@ -70,6 +70,8 @@ namespace
     bool				rgbinterp;
     float				texgenparams_object[3][4];
     float				texgenparams_eye[3][4];
+    GLfloat                             texscale[3];
+    GLfloat                             texoffset[3];
   };
 
 }
@@ -265,6 +267,12 @@ TexInfo::TexInfo()
   texgenparams_eye[2][1] = 0;
   texgenparams_eye[2][2] = 0.01;
   texgenparams_eye[2][3] = 0;
+  texscale[0] = 1.;
+  texscale[1] = 1.;
+  texscale[2] = 1.;
+  texoffset[0] = 0.;
+  texoffset[1] = 0.;
+  texoffset[2] = 0.;
 }
 
 
@@ -1017,6 +1025,38 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   float	dx = min * cols->dimX() / ( max - min );
   float	dy = min2 * cols->dimY() / ( max2 - min2 );
 
+  // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
+  /* if the texture image can contain the whole colormap, then use it unscaled,
+     and use the OpenGL texture matrix to zoom into it.
+     TODO: in that case we could avoid re-making the teximage if it's already
+     done.
+  */
+  float fxbis = facx;
+  float fybis = facy;
+  float dxbis = 0., dybis = 0.;
+  if( dimx < dimpx )
+    fxbis = 1.;
+  else
+  {
+    facx = 1.;
+    dxbis = - dx / dimx;
+    dx = 0.;
+  }
+  if( dimy < dimpy )
+    fybis = 1.;
+  else
+  {
+    facy = 1.;
+    dybis = -dy / dimy;
+    dy = 0.;
+  }
+  t.texscale[0] = fxbis;
+  t.texscale[1] = fybis;
+  t.texscale[2] = 1.;
+  t.texoffset[0] = dxbis;
+  t.texoffset[1] = dybis;
+  t.texoffset[2] = 0.;
+
   // allocate colormap
   GLfloat	*texImage = new GLfloat[ dimx*dimy*4 ];
   GLfloat	*ptr = texImage;
@@ -1028,39 +1068,40 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   float		ir = 1. - r;
 
   for( y=0; y<dimy; ++y )
+  {
+    ys = (int) ( facy * y - dy );
+    if( ys < 0 )
+      ys = 0;
+    else if( ys >= (int) dimpy )
+      ys = dimpy - 1;
+    for( x=0; x<dimx; ++x )
     {
-      ys = (int) ( facy * y - dy );
-      if( ys < 0 )
-	ys = 0;
-      else if( ys >= (int) dimpy )
-	ys = dimpy - 1;
-      for( x=0; x<dimx; ++x )
-	{
-	  xs = (int) ( facx * x - dx );
-	  if( xs < 0 )
-	    xs = 0;
-	  else if( xs >= (int) dimpx )
-	    xs = dimpx - 1;
+      xs = (int) ( facx * x - dx );
+      if( xs < 0 )
+        xs = 0;
+      else if( xs >= (int) dimpx )
+        xs = dimpx - 1;
 
-	  rgb = (*cols)( xs, ys );
-          if( t.mode == glLINEAR )
-            {
-              *ptr++ = (GLfloat) rgb.red()   / 255;
-              *ptr++ = (GLfloat) rgb.green() / 255;
-              *ptr++ = (GLfloat) rgb.blue()  / 255;
-              *ptr++ = ( (GLfloat) rgb.alpha() / 255 ) * r;
-            }
-          else
-            {
-              *ptr++ = ( (GLfloat) rgb.red()   / 255 ) * r + ir;
-              *ptr++ = ( (GLfloat) rgb.green() / 255 ) * r + ir;
-              *ptr++ = ( (GLfloat) rgb.blue()  / 255 ) * r + ir;
-              *ptr++ = (GLfloat) rgb.alpha() / 255;
-            }
-	}
+      rgb = (*cols)( xs, ys );
+      if( t.mode == glLINEAR )
+      {
+        *ptr++ = (GLfloat) rgb.red()   / 255;
+        *ptr++ = (GLfloat) rgb.green() / 255;
+        *ptr++ = (GLfloat) rgb.blue()  / 255;
+        *ptr++ = ( (GLfloat) rgb.alpha() / 255 ) * r;
+      }
+      else
+      {
+        *ptr++ = ( (GLfloat) rgb.red()   / 255 ) * r + ir;
+        *ptr++ = ( (GLfloat) rgb.green() / 255 ) * r + ir;
+        *ptr++ = ( (GLfloat) rgb.blue()  / 255 ) * r + ir;
+        *ptr++ = (GLfloat) rgb.alpha() / 255;
+      }
+      }
     }
-  /* cout << "texture : " << dimx << " x " << dimy << ", dim: "
+   /* cout << "texture : " << dimx << " x " << dimy << ", dim: "
      << dimtex << endl; */
+  for(int n = 0; n<35; ++n )
 
   if( dimtex == 1 )
     glTexImage1D( GL_TEXTURE_1D, 0, 4, dimx, 0, GL_RGBA,
@@ -1119,6 +1160,12 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
   GLCaps::glActiveTexture( GLCaps::textureID( texid ) );
   glMatrixMode( GL_TEXTURE );
   glLoadIdentity();
+  if( !rgb )
+  {
+    TexInfo & t = d->textures[ tex ];
+    glTranslatef( t.texoffset[0], t.texoffset[1], t.texoffset[2] );
+    glScalef( t.texscale[0], t.texscale[1], t.texscale[2] );
+  }
   glMatrixMode( GL_MODELVIEW );
 
   if( texok )
