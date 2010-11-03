@@ -33,7 +33,9 @@
 #include <aims/utility/converter_texture.h>
 #include <float.h>
 #include "trackball.h"
-#include "spath/geodesic_mesh.h"
+
+#include <cortical_surface/geodesicpath/geodesic_mesh.h>
+
 #include <map>
 
 #include <aims/mesh/curv.h>
@@ -177,7 +179,7 @@ private:
 
   QWidget *_parent;
   void setupViewport (int width, int height);
-//
+
   int _mode;
   float _zoom ;
   float _trans;

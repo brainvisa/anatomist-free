@@ -1,8 +1,8 @@
 #include "glwidget.h"
 #include "meshpaint.h"
-#include "spath/geodesic_algorithm_dijkstra.h"
-#include "spath/geodesic_algorithm_subdivision.h"
-#include "spath/geodesic_algorithm_exact.h"
+#include <cortical_surface/geodesicpath/geodesic_algorithm_dijkstra.h>
+#include <cortical_surface/geodesicpath/geodesic_algorithm_subdivision.h>
+#include <cortical_surface/geodesicpath/geodesic_algorithm_exact.h>
 
 /* enums */
 enum
@@ -28,6 +28,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _resized = false;
   _parent = parent;
   _showInfos = true;
+  _constraintPathValue = 5;
 
   backBufferTexture.resize( parent->width() * parent->height() * 3 );
 
@@ -333,11 +334,17 @@ void myGLWidget<T>::buildDataArray(void)
     _facesSP[3*j+2] = tri[j][2];
   }
 
-  const float *f = _aTexCurv->textureCoords();
+  //const float *f = _aTexCurv->textureCoords();
 
-  _meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0);
-  _meshSulciCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,1);
-  _meshGyriCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,2);
+  float *f = (float*) malloc (_texCurv[0].nItem() * sizeof(float));
+  for( uint i = 0; i < _texCurv[0].nItem(); i++)
+  {
+  f[i] = (float)(_texCurv[0].item(i));
+  }
+
+  _meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0,0);
+  _meshSulciCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,1,_constraintPathValue);
+  _meshGyriCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,2,_constraintPathValue);
 }
 
 template<typename T>
@@ -427,7 +434,13 @@ void myGLWidget<T>::changeConstraintPathValue(int value)
 {
   _constraintPathValue = value;
 
-  const float *f = _aTexCurv->textureCoords();
+  //const float *f = _aTexCurv->textureCoords();
+  float *f = (float*) malloc (_texCurv[0].nItem() * sizeof(float));
+  for( uint i = 0; i < _texCurv[0].nItem(); i++)
+  {
+  f[i] = (float)(_texCurv[0].item(i));
+  }
+
   //_meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0);
   _meshSulciCurvSP.update_weight(f,1, (int)_constraintPathValue);
   _meshGyriCurvSP.update_weight(f,2, (int)_constraintPathValue);
@@ -476,7 +489,7 @@ void myGLWidget<T>::changeConstraintPathValue(int value)
       geodesic::SurfacePoint short_targets(
           &_meshSP.vertices()[target_vertex_index]);
 
-      dijkstra_algorithm->geodesic2(short_sources,short_targets, SPath, _listIndexVertexPathSPLast);
+      dijkstra_algorithm->geodesic(short_sources,short_targets, SPath, _listIndexVertexPathSPLast);
 
       ite = _listIndexVertexPathSPLast.end();
 
@@ -961,7 +974,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
           geodesic::SurfacePoint short_targets(
               &_meshSP.vertices()[target_vertex_index]);
 
-          dijkstra_algorithm->geodesic2(short_sources,short_targets, SPath, _listIndexVertexPathSPLast);
+          dijkstra_algorithm->geodesic(short_sources,short_targets, SPath, _listIndexVertexPathSPLast);
 
           ite = _listIndexVertexPathSPLast.end();
 
