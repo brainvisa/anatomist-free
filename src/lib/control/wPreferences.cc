@@ -81,7 +81,7 @@ struct PreferencesWindow::Private
 {
   Private()
     : tab( 0 ), cursEdit( 0 ), cursSlider( 0 ), cursColBtn( 0 ), 
-      defobjref( 0 ), defwinref( 0 ) {}
+      defobjref( 0 ), defwinref( 0 ), browsattlen( 0 ) {}
 
   unsigned		tab;
   vector<QWidget *>	tabs;
@@ -94,6 +94,7 @@ struct PreferencesWindow::Private
   QLineEdit		*winszed;
   QPushButton		*defobjref;
   QPushButton		*defwinref;
+  QLineEdit             *browsattlen;
 };
 
 
@@ -312,7 +313,24 @@ PreferencesWindow::PreferencesWindow()
   _pdat->winszed->setText( QString::number( wf ) );
   _pdat->winszed->setValidator( new QDoubleValidator( 0.001, 1e6, 3, 
                                                       _pdat->winszed ) );
-
+  QVGroupBox *brows = new QVGroupBox( tr( "Browsers" ), winbox );
+  QHBox *brattlen = new QHBox( brows );
+  new QLabel( tr( "limit browsers attribute values to: " ), brattlen );
+  _pdat->browsattlen = new QLineEdit( brattlen );
+  new QLabel( tr( " characters" ), brattlen );
+  _pdat->browsattlen->setValidator( new QIntValidator( 0, 1000000,
+    _pdat->browsattlen ) );
+  int bal = 0;
+  try
+  {
+    Object  x = cfg->getProperty( "clipBrowserValues" );
+    if( !x.isNull() )
+      bal = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  _pdat->browsattlen->setText( QString::number( bal ) );
 
   //	control window tab
 
@@ -382,6 +400,8 @@ PreferencesWindow::PreferencesWindow()
 	   SLOT( setAxialConvention( int ) ) );
   connect( _pdat->winszed, SIGNAL( returnPressed() ), this, 
            SLOT( defaultWinSizeChanged() ) );
+  connect( _pdat->browsattlen, SIGNAL( returnPressed() ), this,
+           SLOT( browserAttributeLenChanged() ) );
 
   connect( cwlogo, SIGNAL( toggled( bool ) ), 
 	   theAnatomist->getControlWindow(), SLOT( enableLogo( bool ) ) );
@@ -663,6 +683,22 @@ void PreferencesWindow::changeDefWindowsRef()
       theAnatomist->getControlWindow()
         ->setDefaultWindowsReferential( crw.selectedReferential() );
     }
+}
+
+
+void PreferencesWindow::browserAttributeLenChanged()
+{
+  bool  ok = true;
+  int len = _pdat->browsattlen->text().toInt( &ok );
+  if( !ok )
+  {
+    len = 0;
+    theAnatomist->config()->getProperty( "clipBrowserValues", len );
+  }
+  _pdat->browsattlen->blockSignals( true );
+  _pdat->browsattlen->setText( QString::number( len ) );
+  theAnatomist->config()->setProperty( "clipBrowserValues", len );
+  _pdat->browsattlen->blockSignals( false );
 }
 
 
