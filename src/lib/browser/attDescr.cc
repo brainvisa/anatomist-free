@@ -35,6 +35,7 @@
 #include <anatomist/browser/qObjBrowserWid.h>
 #include <anatomist/control/coloredpixmap.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/application/globalConfig.h>
 #include <aims/listview/editablelistviewitem.h>
 #include <aims/qtcompat/qlistview.h>
 #include <cartobase/object/attributed.h>
@@ -247,6 +248,31 @@ void AttDescr::treeListHelper( QObjectBrowserWidget* br,
 }
 
 
+namespace
+{
+
+  void clipValueString( string & value, long cut = -1 )
+  {
+    if( cut < 0 )
+      try
+      {
+        cut = 0;
+        Object o = theAnatomist->config()->getProperty( "clipBrowserValues" );
+        if( o )
+          cut = (long) o->getScalar();
+      }
+      catch( exception & )
+      {
+      }
+    if( cut <= 0 )
+      return;
+    if( value.length() > (string::size_type) cut )
+      value.replace( cut, value.length() - cut, " [...]" );
+  }
+
+}
+
+
 void AttDescr::printAttribute( QObjectBrowserWidget* br, 
 			       const GenericObject* ao, 
 			       const string & semantic, 
@@ -256,12 +282,25 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
 {
   ListHelperSet::const_iterator	ilh;
 
+  int clip = 0;
+  try
+  {
+    Object o = theAnatomist->config()->getProperty( "clipBrowserValues" );
+    if( o )
+      clip = (long) o->getScalar();
+  }
+  catch( exception & )
+  {
+  }
+
   if( (ilh = listHelpers.find( type )) != listHelpers.end() )
     ((*ilh).second)( br, *ao, semantic, parent, this, regist );
   else
     {
       string value = printAttribute( br, ao, semantic, type );
       Q3ListViewItem	*item;
+
+      clipValueString( value, clip );
 
       if( checkexisting )
         if( regist )
