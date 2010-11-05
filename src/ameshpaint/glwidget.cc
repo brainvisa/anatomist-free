@@ -1,8 +1,8 @@
 #include "glwidget.h"
 #include "meshpaint.h"
-#include <cortical_surface/geodesicpath/geodesic_algorithm_dijkstra.h>
-#include <cortical_surface/geodesicpath/geodesic_algorithm_subdivision.h>
-#include <cortical_surface/geodesicpath/geodesic_algorithm_exact.h>
+#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
+#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
+#include <aims/geodesicpath/geodesic_algorithm_exact.h>
 
 /* enums */
 enum

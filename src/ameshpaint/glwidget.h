@@ -34,7 +34,7 @@
 #include <float.h>
 #include "trackball.h"
 
-#include <cortical_surface/geodesicpath/geodesic_mesh.h>
+#include <aims/geodesicpath/geodesic_mesh.h>
 
 #include <map>
 
@@ -50,12 +50,6 @@
 #include <aims/distancemap/meshdistance_d.h>
 #include <aims/distancemap/distancemap_g.h>
 #include <aims/morphology/morphology_g.h>
-//#include <aims/distancemap/meshdistance.h>
-//#include <aims/distancemap/meshmorphomat.h>
-//#include <aims/distancemap/meshmorphomat_d.h>
-//#include <aims/connectivity/meshcc.h>
-//#include <aims/connectivity/meshcc_d.h>
-
 
 #if defined(__APPLE__)
 # include <OpenGL/gl.h>

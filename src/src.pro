@@ -8,6 +8,7 @@ module(anaqwt):SUBDIRS	+= profile \
 
 PSUBDIRS = \
 		anatomist \
+		ameshpaint \
 		mkhierarchy \
 		hierarchyeditor
 
