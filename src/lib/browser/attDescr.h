@@ -46,8 +46,8 @@ class QObjectBrowserWidget;
 namespace anatomist
 {
 
-  /**	Descripteur d'objet attribu�
-	Ecrit dans un arbre.
+  /**	Attributed object descriptor.
+	Writes in a tree.
   */
   class AttDescr
   {
@@ -93,10 +93,10 @@ namespace anatomist
 
     void describeTree( QObjectBrowserWidget* br, const Tree* tr, 
 		       Q3ListViewItem* parent, bool regist = true ) const;
-    ///	ne recr� pas l'arbre de base
+    ///	does not recreate the base tree
     void describeTreeInside( QObjectBrowserWidget* br, const Tree* tr, 
 			     Q3ListViewItem* parent, bool regist ) const;
-    ///	ne recr� pas l'arbre de base
+    ///	does not recreate the base tree
     void describeUnregisteredTreeInside( QObjectBrowserWidget* br, 
 					 const Tree* tr, 
 					 Q3ListViewItem* parent ) const;
