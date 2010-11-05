@@ -69,6 +69,7 @@ public slots:
   void defaultWinSizeChanged();
   void changeDefObjectsRef();
   void changeDefWindowsRef();
+  void browserAttributeLenChanged();
 
 protected:
   void updateWindows();

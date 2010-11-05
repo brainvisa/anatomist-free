@@ -96,7 +96,17 @@ since Anatomist 1.29.</p>
 	<td>Display convention for axial and coronal slices</td>
 	<td>1.30</td>
   </tr>
-  
+
+  <tr>
+    <td><tt>clipBrowserValues</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td><tt>positive int</tt></td>
+        <td>Maximum number of characters displayed in graph, nomenclatures and other tree attributes in browsers. 0 means unlimited (default). It may be useful to set a limit here because on some Linux X servers and some Qt implementations, displaying too large text may result in anatomist crashing.
+        </td>
+        <td>4.0.2</td>
+  </tr>
+
   <tr>
     <td><tt>controlWindowLogo</tt></td>
 	<td><tt>int</tt></td>
