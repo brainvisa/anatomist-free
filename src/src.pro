@@ -8,14 +8,14 @@ module(anaqwt):SUBDIRS	+= profile \
 
 PSUBDIRS = \
 		anatomist \
-		ameshpaint \
 		mkhierarchy \
 		hierarchyeditor
 
 module(anaalgo):PSUBDIRS	+= \
 		anasurfmatch \
 		surfpaint \
-		volrender
+		volrender \
+                ameshpaint
 
 module(anaalgo)-module(anaqwt):PSUBDIRS	+= \
 		perfusion \

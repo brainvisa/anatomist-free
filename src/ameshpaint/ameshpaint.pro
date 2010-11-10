@@ -1,10 +1,9 @@
 TEMPLATE    = app
 TARGET      = ameshpaint
-win32:TARGET    = ameshpaint.exe
 
 #!include ../../config-app
 
-LIBS += -lanatomist -laimsalgo
+LIBS = ${LIBS_WITH_ALGO}
 
 HEADERS = glwidget.h \
     meshpaint.h \
