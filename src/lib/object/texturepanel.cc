@@ -59,7 +59,12 @@ struct QTexturePanel::Private
   Q3ButtonGroup			*modebox;
   Q3ButtonGroup			*filtbox;
   QHGroupBox			*ratebox;
-  Q3ButtonGroup			*genbox;
+#if QT_VERSION >= 0x040000
+  QGroupBox                     *genbox;
+  QButtonGroup                  *geng;
+#else
+  Q3ButtonGroup                 *genbox;
+#endif
   Q3ButtonGroup			*rgbintbox;
   QCheckBox			*rgbint;
   QSlider			*mixsl;
@@ -134,18 +139,52 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   mainlay->addWidget( vbox );
   vbox->setSpacing( 10 );
 
-  d->genbox = new QVButtonGroup( tr( "Texture generation" ), vbox );
+#if QT_VERSION >= 0x040000
+  d->genbox = new QGroupBox( tr( "Texture generation" ), vbox );
+  QButtonGroup * geng = new QButtonGroup( d->genbox );
+  d->geng = geng;
+  QVBoxLayout *vlay = new QVBoxLayout( d->genbox );
+  d->genbox->setLayout( vlay );
+  QRadioButton *btn = new QRadioButton( tr( "None" ), d->genbox );
+  vlay->addWidget( btn );
+  geng->addButton( btn );
+  geng->setId( btn, 0 );
+  btn = new QRadioButton( tr( "Linear - object" ), d->genbox );
+  vlay->addWidget( btn );
+  geng->addButton( btn );
+  geng->setId( btn, 1 );
+  btn = new QRadioButton( tr( "Linear - eye" ), d->genbox );
+  vlay->addWidget( btn );
+  geng->addButton( btn );
+  geng->setId( btn, 2 );
+  btn = new QRadioButton( tr( "Sphere reflection" ), d->genbox );
+  vlay->addWidget( btn );
+  geng->addButton( btn );
+  geng->setId( btn, 3 );
+  btn = new QRadioButton( tr( "Reflection" ), d->genbox );
+  vlay->addWidget( btn );
+  geng->addButton( btn );
+  geng->setId( btn, 4 );
+  btn = new QRadioButton( tr( "Normal" ), d->genbox );
+  vlay->addWidget( btn );
+  geng->addButton( btn );
+  geng->setId( btn, 5 );
+  QPushButton	*gpb = new QPushButton( tr( "Parameters..." ), d->genbox, 
+                                        "genparams_button" );
+  vlay->addWidget( gpb );
+  geng->setExclusive( true );
+#else // Qt 3
+  d->genbox =  new QVButtonGroup( d->genbox );
   new QRadioButton( tr( "None" ), d->genbox );
   new QRadioButton( tr( "Linear - object" ), d->genbox );
   new QRadioButton( tr( "Linear - eye" ), d->genbox );
   new QRadioButton( tr( "Sphere reflection" ), d->genbox );
   new QRadioButton( tr( "Reflection" ), d->genbox );
   new QRadioButton( tr( "Normal" ), d->genbox );
-  QPushButton	*gpb = new QPushButton( tr( "Parameters..." ), d->genbox, 
-                                        "genparams_button" );
-  d->genparambutton = gpb;
   d->genbox->setRadioButtonExclusive( true );
   d->genbox->setExclusive( false );
+#endif
+  d->genparambutton = gpb;
   gpb->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
   d->filtbox = new QVButtonGroup( tr( "Texture filtering" ), vbox );
@@ -161,8 +200,13 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   connect( d->modebox, SIGNAL( clicked( int ) ), SLOT( modeChanged( int ) ) );
   connect( d->filtbox, SIGNAL( clicked( int ) ), 
            SLOT( filteringChanged( int ) ) );
+#if QT_VERSION >= 0x040000
+  connect( d->geng, SIGNAL( buttonClicked( int ) ),
+           SLOT( generationChanged( int ) ) );
+  #else
   connect( d->genbox, SIGNAL( clicked( int ) ), 
            SLOT( generationChanged( int ) ) );
+#endif
   connect( d->mixsl, SIGNAL( valueChanged( int ) ), 
            SLOT( rateChanged( int ) ) );
   connect( d->rgbint, SIGNAL( toggled( bool ) ), this, 
@@ -326,7 +370,11 @@ void QTexturePanel::updateWindow()
       d->modebox->setButton( d->mode );
       d->filtbox->setButton( d->filt );
       d->rgbint->setChecked( d->rgbinterpol );
+#if QT_VERSION >= 0x040000
+      d->geng->button( d->genmode )->setChecked( true );
+#else
       d->genbox->setButton( d->genmode );
+#endif
       d->mixsl->setValue( d->rate );
       d->mixlb->setText( QString::number( d->rate ) );
 
