@@ -40,6 +40,7 @@
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/surface/mtexture.h>
+#include <anatomist/surface/tesselatedmesh.h>
 #include <anatomist/volume/slice.h>
 #include <anatomist/volume/Volume.h>
 #include <anatomist/object/clippedobject.h>
@@ -388,6 +389,39 @@ bool FusionClipMethod::canFusion( const set<AObject *> & obj )
 AObject* FusionClipMethod::fusion( const vector<AObject *> & obj )
 {
   return new ClippedObject( obj );
+}
+
+
+// ---------------
+
+string FusionTesselationMethod::ID() const
+{
+  return( QT_TRANSLATE_NOOP( "FusionChooser", "TesselationMethod" ) );
+}
+
+
+bool FusionTesselationMethod::canFusion( const set<AObject *> & obj )
+{
+  if( theAnatomist->userLevel() < 3 )
+    return false;
+
+  set<AObject *>::const_iterator io, eo = obj.end();
+  ViewState vs;
+  for( io=obj.begin(); io!=eo; ++io )
+  {
+    GLComponent *glc = (*io)->glAPI();
+    if( !glc )
+      return false;
+    if( glc->glPolygonSize( vs ) != 2 ) // segments meshes only
+      return false;
+  }
+  return true;
+}
+
+
+AObject* FusionTesselationMethod::fusion( const vector<AObject *> & obj )
+{
+  return new TesselatedMesh( obj );
 }
 
 

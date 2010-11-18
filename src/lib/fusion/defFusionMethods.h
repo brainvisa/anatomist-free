@@ -168,6 +168,17 @@ namespace anatomist
       virtual std::string ID() const;
   };
 
+
+  class FusionTesselationMethod : public FusionMethod
+  {
+  public:
+    FusionTesselationMethod() {}
+    virtual ~FusionTesselationMethod() {}
+    virtual bool canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+  };
+
 }
 
 

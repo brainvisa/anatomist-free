@@ -111,6 +111,7 @@ HEADERS = \
 	surface/planarfusion3d.h \
 	surface/surface.h \
 	surface/surface_d.h \
+	surface/tesselatedmesh.h \
 	surface/texsurface.h \
 	surface/texture.h \
 	surface/triangulated.h \
@@ -335,6 +336,7 @@ SOURCES = \
 	surface/globject.cc \
 	surface/mtexture.cc \
 	surface/planarfusion3d.cc \
+	surface/tesselatedmesh.cc \
 	surface/texsurface.cc \
 	surface/texture.cc \
 	surface/triangulated.cc \
