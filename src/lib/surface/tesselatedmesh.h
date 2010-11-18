@@ -50,6 +50,8 @@ namespace anatomist
   class TesselatedMesh : public GLObjectVector
   {
   public:
+    struct Private;
+
     TesselatedMesh( const std::vector<AObject *> & obj );
     virtual ~TesselatedMesh();
 
@@ -84,7 +86,6 @@ namespace anatomist
     AObject* firstPolygon();
 
   private:
-    struct Private;
     /// ensures the object class is registered in Anatomist
     static int registerClass();
     void tesselate( const ViewState & );
