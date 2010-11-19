@@ -216,7 +216,6 @@ namespace
   void tessVertex( GLvoid* vertex, void* /*client*/ )
   {
     // TesselatedMesh* tmesh = reinterpret_cast<TesselatedMesh *>( client );
-    // cout << "tessVertex\n";
     glVertex3dv( (GLdouble *) vertex );
   }
 
@@ -224,14 +223,12 @@ namespace
   void tessBegin( GLenum polytype, void* /*client*/ )
   {
     // TesselatedMesh* tmesh = reinterpret_cast<TesselatedMesh *>( client );
-    cout << "tessBegin type: " << polytype << ", tri: " << GL_TRIANGLES << ", fan: " << GL_TRIANGLE_FAN << ", strip: " << GL_TRIANGLE_STRIP << ", line_loop: " << GL_LINE_LOOP << endl;
     glBegin( polytype );
   }
 
 
   void tessEnd( void* /*client*/ )
   {
-    cout << "tessEnd\n";
     glEnd();
   }
 
@@ -247,14 +244,10 @@ namespace
     GLdouble **outdata, void* /*client*/ )
   {
     // TesselatedMesh* tmesh = reinterpret_cast<TesselatedMesh *>( client );
-    cout << "combine. coords: " << coords << ", vdata: " << vdata << ", weight: " << weight << endl;
     GLdouble *vertex = (GLdouble *) malloc( 6 * sizeof( GLdouble ) );
     vertex[0] = coords[0];
     vertex[1] = coords[1];
     vertex[2] = coords[2];
-    cout << "coords: " << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << endl;
-    cout << "weights: " << weight[0] << ", " << weight[1] << ", " << weight[2] << ", " << weight[3] << endl;
-    cout << "vdata: " << vdata[0] << ", " << vdata[1] << ", " << vdata[2] << ", " << vdata[3] << endl;
     for( unsigned i=3; i<6; ++i )
     {
       GLdouble & v = vertex[i];
@@ -269,7 +262,6 @@ namespace
       if( vdata[3] )
         v += weight[3] * vdata[3][i];
     }
-    cout << "weighting done\n";
     *outdata = vertex;
   }
 
@@ -284,11 +276,7 @@ namespace
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
-    // cout << "poly tessVertex\n";
     GLdouble *v = (GLdouble *) vertex, *v2;
-    // d->tmppts.push_back( Point3dd( v[0], v[1], v[2] ) );
-    // v2 = &d->tmppts.back()[0];
-    // gluTessVertex( d->tesselator, v2, v2 );
     gluTessVertex( d->tesselator, v, v );
     glVertex3dv( (GLdouble *) vertex );
   }
@@ -298,10 +286,7 @@ namespace
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
-    // GLUtesselator* tess = reinterpret_cast<GLUtesselator *>( client );
-    cout << "poly begin, type: " << polytype << ", tri: " << GL_TRIANGLES << ", fan: " << GL_TRIANGLE_FAN << ", strip: " << GL_TRIANGLE_STRIP << ", line_loop: " << GL_LINE_LOOP << ", d: " << d << endl;
     gluTessBeginContour( d->tesselator );
-    cout << "after gluTessBeginContour\n";
     glBegin( polytype );
   }
 
@@ -310,8 +295,6 @@ namespace
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
-    cout << "poly tessEnd " << d << endl;
-    // GLUtesselator* tess = reinterpret_cast<GLUtesselator *>( client );
     gluTessEndContour( d->tesselator );
     glEnd();
   }
@@ -327,7 +310,6 @@ namespace
                         GLfloat weight[4], GLdouble **outdata,
                         void* /*client*/ )
   {
-    cout << "poly combine.\n";
     GLdouble *vertex = (GLdouble *) malloc( 6 * sizeof( GLdouble ) );
     vertex[0] = coords[0];
     vertex[1] = coords[1];
@@ -345,7 +327,6 @@ namespace
     if( npol == 0 )
       return 0;
 
-    cout << "reorder polygons: " << npol << " : " << poly << endl;
     map<GLuint, AimsVector<GLuint,2> > neigh;
     map<GLuint, AimsVector<GLuint,2> >::iterator in, jn, en = neigh.end();
     const GLuint *iv, *ev = poly + npol*2;
@@ -356,7 +337,6 @@ namespace
       i = *iv;
       ++iv;
       j = *iv;
-//       cout << i << " " << j << ", ";
 
       in = neigh.find( i );
       if( in == en )
@@ -377,10 +357,8 @@ namespace
       else
         w[1] = i;
     }
-//     cout << endl;
 
     unsigned n = neigh.size(), ndone = 0, nv = 0;
-//     cout << "neigh: " << n << endl;
     list<GLuint> todo;
     set<GLuint> done;
     set<GLuint>::iterator notdone = done.end();
@@ -392,7 +370,6 @@ namespace
       {}
       todo.push_back( in->first );
       newcurve = true;
-      cout << "new curve\n";
       while( !todo.empty() )
       {
         i = todo.front();
@@ -408,7 +385,6 @@ namespace
         ++nv;
         AimsVector<GLuint,2> & nx = neigh[i];
         ordered.push_back( i );
-//         cout << i << " ";
         j = nx[1];
         if( j != (unsigned) -1 )
         {
@@ -431,7 +407,6 @@ namespace
         }
       }
     }
-//     cout << endl;
     return nv;
   }
 
@@ -471,6 +446,20 @@ void TesselatedMesh::tesselate( const ViewState & vs )
     gluTessProperty( d->polytess, GLU_TESS_BOUNDARY_ONLY, GL_TRUE );
     gluTessProperty( d->polytess, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
+    ASurface<2> *surf = dynamic_cast<ASurface<2> *>( firstPolygon() );
+    if( surf && surf->isPlanar() )
+    {
+      GLComponent *gl = surf->glAPI();
+      if( gl )
+      {
+        const GLfloat* narr = gl->glNormalArray( vs );
+        if( narr )
+        {
+          gluTessNormal( d->tesselator, narr[0], narr[1], narr[2] );
+          gluTessNormal( d->polytess, narr[0], narr[1], narr[2] );
+        }
+      }
+    }
   }
   iterator io = begin(), eo = end();
   unsigned nvert = 0, v = 0;
@@ -491,7 +480,6 @@ void TesselatedMesh::tesselate( const ViewState & vs )
   vector<GLdouble> vertices;
   vertices.reserve( nvert * 3 );
   list<list<list<GLuint> > >::iterator iov = ordered.begin();
-  cout << "vertices: " << nvert << endl;
 
   gluTessBeginPolygon( d->polytess, d );
   gluTessBeginPolygon( d->tesselator, this );
@@ -503,7 +491,6 @@ void TesselatedMesh::tesselate( const ViewState & vs )
     list<list<GLuint> > & overt = *iov;
     list<list<GLuint> >::iterator iiov, eiov = overt.end();
     const GLfloat* vert = gl->glVertexArray( vs );
-//     cout << "nv: " << gl->glNumVertex( vs ) << ", vert: " << vert << " / " << overt.size() << endl;
 
     list<GLuint>::iterator iord, eord;
     for( iiov=overt.begin(); iiov!=eiov; ++iiov )
@@ -513,20 +500,17 @@ void TesselatedMesh::tesselate( const ViewState & vs )
       for( iord=iiov->begin(), eord=iiov->end(); iord!=eord; ++iord )
       {
         unsigned ind = 3 * *iord;
-        // cout << "ind: " << *iiov << endl;
         vertices.push_back( vert[ ind + 0 ] );
         vertices.push_back( vert[ ind + 1 ] );
         vertices.push_back( vert[ ind + 2 ] );
         gluTessVertex( d->polytess, &vertices[v], &vertices[v] );
         v += 3;
       }
-      cout << "end contour\n";
       gluTessEndContour( d->polytess );
     }
     ++iov;
   }
   gluTessEndPolygon( d->polytess );
-  cout << "1st pass polygon done\n";
   gluTessEndPolygon( d->tesselator );
   d->tmppts.clear();
   cout << "tesselate done\n";
@@ -548,7 +532,7 @@ bool TesselatedMesh::glMakeBodyGLL( const ViewState & state,
 void TesselatedMesh::update( const Observable* observable, void* arg )
 {
   cout << "TesselatedMesh::update " << this << " " << size() << endl;
-  glSetChanged( glGEOMETRY );
+  GLComponent::glSetChanged( glGEOMETRY );
 }
 
 
