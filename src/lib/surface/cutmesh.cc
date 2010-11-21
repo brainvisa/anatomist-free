@@ -39,6 +39,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/fusion/defFusionMethods.h>
 #include <anatomist/surface/triangulated.h>
+#include <anatomist/surface/tesselatedmesh.h>
 #include <anatomist/object/actions.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <anatomist/control/qObjTree.h>
@@ -187,6 +188,32 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
   insert( bp );
   bp->setReferentialInheritance( s );
 
+#if 0
+  // tesselation
+  FusionTesselationMethod tessmet;
+  vector<AObject *> tessobj( 1 );
+  tessobj[0] = bp;
+  TesselatedMesh *tessm
+    = static_cast<TesselatedMesh *>( tessmet.fusion( tessobj ) );
+  tessm->setName( theAnatomist->makeObjectName( "TesselatedPolygon" ) );
+  theAnatomist->registerObject( tessm, false );
+  insert( tessm );
+  tessm->setReferentialInheritance( s ); // should be bp
+
+  cut();
+
+  // planar fusion
+  PlanarFusion3dMethod      fm;
+  vector<AObject *> sobj( 2 );
+  sobj[0] = tessm;
+  sobj[1] = v;
+  AObject   *fus = fm.fusion( sobj );
+  fus->setName( theAnatomist->makeObjectName( "PlanarFusion3D" ) );
+  theAnatomist->registerObject( fus, false );
+  insert( fus );
+  fus->setReferentialInheritance( s ); // should be tessm but update issue
+
+#else
   if( true /* theAnatomist->userLevel() >= 3 */ )
     {
       // planar mesh
@@ -235,6 +262,7 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
                                  ( bmin[2] + bmax[2] ) / 2 ) );
       cut();
     }
+#endif
   d->otherplanarfusionindex = size();
   if( nplanar > 0 )
   {

@@ -61,17 +61,12 @@ namespace anatomist
     virtual bool CanRemove( AObject* obj );
 
     virtual void update( const Observable* observable, void* arg );
-    // virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, const ViewState & );
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
-    virtual void clearHasChangedFlags();
 
-    //virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
     virtual void SetMaterial( const Material & );
-    // virtual Material & GetMaterial();
     virtual AObject* fallbackReferentialInheritance() const;
-    virtual bool glMakeBodyGLL( const ViewState & state,
-                                const GLList & gllist ) const;
 
     virtual Tree* optionTree() const;
 
