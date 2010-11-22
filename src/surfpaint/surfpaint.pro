@@ -3,7 +3,7 @@ TARGET		= anasurfpaint${BUILDMODEEXT}
 
 #!include ../../config
 
-LIBS=${LIBS_FULL}
+LIBS = ${LIBS_WITH_ALGO}
 
 HEADERS = \
 	module/surfpaintmodule.h \
