@@ -125,6 +125,7 @@ PlanarFusion3D::PlanarFusion3D( const vector<AObject *> & obj )
     insert( *io );
 
   glAddTextures( 1 );
+  SetMaterial( mesh()->GetMaterial() );
 }
 
 

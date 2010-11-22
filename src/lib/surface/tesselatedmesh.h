@@ -64,8 +64,17 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
+    virtual unsigned glNumVertex( const ViewState & ) const;
+    virtual const GLfloat* glVertexArray( const ViewState & ) const;
+    virtual const GLfloat* glNormalArray( const ViewState & ) const;
+    virtual unsigned glPolygonSize( const ViewState & ) const;
+    virtual unsigned glNumPolygon( const ViewState & ) const;
+    virtual const GLuint* glPolygonArray( const ViewState & ) const;
 
     virtual void SetMaterial( const Material & );
+    virtual const Material *glMaterial() const;
+    virtual Material & GetMaterial();
+    virtual const Material & material() const;
     virtual AObject* fallbackReferentialInheritance() const;
 
     virtual Tree* optionTree() const;
@@ -79,13 +88,13 @@ namespace anatomist
     AObject* tesselatedMesh();
     const AObject* firstPolygon() const;
     AObject* firstPolygon();
+    void tesselate( const ViewState & ) const;
 
   private:
     /// ensures the object class is registered in Anatomist
     static int registerClass();
-    void tesselate( const ViewState & );
 
-    Private     *d;
+    mutable Private     *d;
   };
 
 

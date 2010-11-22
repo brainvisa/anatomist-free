@@ -205,16 +205,75 @@ const GLComponent* TesselatedMesh::glTexture( unsigned ) const
 }
 
 
+unsigned TesselatedMesh::glNumVertex( const ViewState & vs ) const
+{
+  tesselate( vs );
+  return tesselatedMesh()->glAPI()->glNumVertex( vs );
+}
+
+
+const GLfloat* TesselatedMesh::glVertexArray( const ViewState & vs ) const
+{
+  tesselate( vs );
+  return tesselatedMesh()->glAPI()->glVertexArray( vs );
+}
+
+
+const GLfloat* TesselatedMesh::glNormalArray( const ViewState & vs ) const
+{
+  tesselate( vs );
+  return tesselatedMesh()->glAPI()->glNormalArray( vs );
+}
+
+
+unsigned TesselatedMesh::glPolygonSize( const ViewState & vs ) const
+{
+  tesselate( vs );
+  return tesselatedMesh()->glAPI()->glPolygonSize( vs );
+}
+
+
+unsigned TesselatedMesh::glNumPolygon( const ViewState & vs ) const
+{
+  tesselate( vs );
+  return tesselatedMesh()->glAPI()->glNumPolygon( vs );
+}
+
+
+const GLuint* TesselatedMesh::glPolygonArray( const ViewState & vs ) const
+{
+  tesselate( vs );
+  return tesselatedMesh()->glAPI()->glPolygonArray( vs );
+}
+
+
+const Material *TesselatedMesh::glMaterial() const
+{
+  return &material();
+}
+
+
+Material & TesselatedMesh::GetMaterial()
+{
+  return tesselatedMesh()->GetMaterial();
+}
+
+
+const Material & TesselatedMesh::material() const
+{
+  const GLComponent     *g = glGeometry();
+  if( g && g != this )
+    return *g->glMaterial();
+  else
+    return MObject::material();
+}
+
+
 bool TesselatedMesh::render( PrimList & prim, const ViewState & state )
 {
-  // cout << "render, bodychanged: " << GLComponent::glHasChanged( glGEOMETRY ) << endl;
-  if( GLComponent::glHasChanged( glGEOMETRY ) )
-    tesselate( state );
+  tesselate( state );
 
   bool ok = tesselatedMesh()->render( prim, state );
-  glClearHasChangedFlags();
-  clearHasChangedFlags();
-  // cout << "now: bodychanged: " << GLComponent::glHasChanged( glGEOMETRY ) << endl;
   return ok;
 }
 
@@ -347,12 +406,6 @@ namespace
   }
 
 
-  void tessEdgeFlag( bool /*flag*/, void* /*client*/ )
-  {
-    // glEdgeFlag( flag );
-  }
-
-
   void tessPolyVertex( GLvoid* vertex, void* client )
   {
     TesselatedMesh::Private *d
@@ -413,8 +466,173 @@ namespace
   }
 
 
+  bool tryConnectCurve( GLuint i, AimsVector<GLuint,2> & nx,
+                        list<GLuint> & ordered,
+                        list<list<GLuint> > & orderedlist,
+                        map<GLuint, AimsVector<GLuint,2> > neigh,
+                        const GLfloat* vertices )
+  {
+    bool connected = false;
+    const Point3df *pvert = reinterpret_cast< const Point3df *>( vertices );
+    const float eps = 1e-5;
+
+    GLuint j = nx[0];
+    if( j == (unsigned) -1 || j == i )
+    {
+      j = nx[1];
+      if( j == i )
+        j = (unsigned) -1;
+    }
+    list<list<GLuint> >::iterator il, el = orderedlist.end();
+    if( j != (unsigned) -1 )
+      for( il=orderedlist.begin(); il!=el && &*il != &ordered; ++il )
+        if( il->size() != 0 )
+        {
+          GLuint b = il->back();
+          if( b == j )
+          {
+            // insert at end of *il, in reverse order
+            il->insert( il->end(), ordered.rbegin(), ordered.rend() );
+            connected = true;
+            break;
+          }
+          b = il->front();
+          if( b == j )
+          {
+            // insert at beginning of *il
+            il->insert( il->begin(), ordered.begin(), ordered.end() );
+            connected = true;
+            break;
+          }
+        }
+
+    // try using 3D positions
+    if( !connected )
+    {
+      Point3df pi = pvert[i];
+      for( il=orderedlist.begin(); il!=el && &*il != &ordered; ++il )
+        if( il->size() != 0 )
+        {
+          GLuint b = il->back();
+          if( ( pvert[b] - pi ).norm2() < eps )
+          {
+            // insert at end of *il, in reverse order, skip i
+            list<GLuint>::reverse_iterator ii = ordered.rbegin();
+            ++ii;
+            il->insert( il->end(), ii, ordered.rend() );
+            connected = true;
+            break;
+          }
+          b = il->front();
+          if( ( pvert[b] - pi ).norm2() < eps )
+          {
+            // insert at beginning of *il, skip i
+            list<GLuint>::iterator ii = ordered.end();
+            --ii;
+            il->insert( il->begin(), ordered.begin(), ii );
+            connected = true;
+            break;
+          }
+        }
+    }
+
+    if( ordered.size() < 2 )
+      return connected;
+
+    // try other end
+    list<GLuint>::iterator is = ordered.begin();
+    AimsVector<GLuint,2> & nx0 = neigh[ *is ];
+    ++is;
+    j = nx0[0];
+    if( j == *is || j == (unsigned) -1 )
+    {
+      j = nx0[1];
+      if( j == *is )
+        j = (unsigned) -1;
+    }
+
+    if( !connected )
+    {
+      il = orderedlist.end();
+      --il; // point to ordered
+    }
+    list<GLuint> & curve = *il;
+    list<list<GLuint> >::iterator ilc = il;
+    bool connected2 = false;
+
+    if( j != (unsigned) -1 )
+      for( il=orderedlist.begin(); il!=el && &*il != &ordered; ++il )
+      {
+        if( il == ilc )
+          continue;
+        if( il->size() != 0 )
+        {
+          GLuint b = il->back();
+          if( b == j )
+          {
+            // insert at end of *il
+            il->insert( il->end(), curve.begin(), curve.end() );
+            connected = true;
+            connected2 = true;
+            orderedlist.erase( ilc );
+            break;
+          }
+          b = il->front();
+          if( b == j )
+          {
+            // insert at beginning of *il, in reverse order
+            il->insert( il->begin(), curve.rbegin(), curve.rend() );
+            connected = true;
+            connected2 = true;
+            break;
+          }
+        }
+      }
+
+    // try using positions
+    if( !connected2 )
+    {
+      GLuint i2 = *is;
+      Point3df pi = pvert[i2];
+      for( il=orderedlist.begin(); il!=el && &*il != &ordered; ++il )
+      {
+        if( il == ilc )
+          continue;
+        if( il->size() != 0 )
+        {
+          GLuint b = il->back();
+          if( ( pvert[b] - pi ).norm2() < eps )
+          {
+            // insert at end of *il, skip i2
+            list<GLuint>::iterator ii = curve.begin();
+            ++ii;
+            il->insert( il->end(), ii, curve.end() );
+            connected = true;
+            orderedlist.erase( ilc );
+            break;
+          }
+          b = il->front();
+          if( b == j )
+          {
+            // insert at beginning of *il, in reverse order, skip i2
+            list<GLuint>::reverse_iterator ii = curve.rend();
+            --ii;
+            il->insert( il->begin(), curve.rbegin(), ii );
+            connected = true;
+            connected2 = true;
+            break;
+          }
+        }
+      }
+    }
+
+    return connected;
+  }
+
+
   unsigned reorderPolygon( unsigned npol, const GLuint* poly,
-                           list<list<GLuint> > & orderedlist )
+                           list<list<GLuint> > & orderedlist,
+                           const GLfloat* vertices )
   {
     if( npol == 0 )
       return 0;
@@ -491,24 +709,39 @@ namespace
         if( j != (unsigned) -1 )
         {
           if( done.find( j ) == notdone )
+          {
             todo.push_back( j );
+            continue;
+          }
         }
         else if( !ngb )
         {
           cout << "vertex " << i << " without neighbour\n";
           ordered.pop_back();
           --nv;
+          continue;
+        }
+        // end of curve. Try connect it to another existing one
+        if( tryConnectCurve( i, nx, ordered, orderedlist, neigh, vertices ) )
+        {
+          list<list<GLuint> >::iterator last = orderedlist.end();
+          --last;
+          orderedlist.erase( last );
         }
       }
     }
+    // cout << "curves: " << orderedlist.size() << endl;
     return nv;
   }
 
 }
 
 
-void TesselatedMesh::tesselate( const ViewState & vs )
+void TesselatedMesh::tesselate( const ViewState & vs ) const
 {
+  if( !GLComponent::glHasChanged( glGEOMETRY ) )
+    return;
+
   if( !d->tesselator )
   {
     d->tesselator = gluNewTess();
@@ -522,8 +755,6 @@ void TesselatedMesh::tesselate( const ViewState & vs )
                      (void (*)()) tessError );
     gluTessCallback( d->tesselator, GLU_TESS_COMBINE_DATA,
                      (void (*)()) tessCombine );
-    gluTessCallback( d->tesselator, GLU_TESS_EDGE_FLAG_DATA,
-                     (void (*)()) tessEdgeFlag );
     gluTessProperty( d->tesselator, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
     d->polytess = gluNewTess();
@@ -540,10 +771,10 @@ void TesselatedMesh::tesselate( const ViewState & vs )
     gluTessProperty( d->polytess, GLU_TESS_BOUNDARY_ONLY, GL_TRUE );
     gluTessProperty( d->polytess, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
-    ASurface<2> *surf = dynamic_cast<ASurface<2> *>( firstPolygon() );
+    const ASurface<2> *surf = dynamic_cast<const ASurface<2> *>( firstPolygon() );
     if( surf && surf->isPlanar() )
     {
-      GLComponent *gl = surf->glAPI();
+      const GLComponent *gl = surf->glAPI();
       if( gl )
       {
         const GLfloat* narr = gl->glNormalArray( vs );
@@ -567,13 +798,16 @@ void TesselatedMesh::tesselate( const ViewState & vs )
     {
       ordered.push_back( list<list<GLuint> >() );
       nvert += reorderPolygon( gl->glNumPolygon( vs ),
-                               gl->glPolygonArray( vs ), ordered.back() );
+                               gl->glPolygonArray( vs ), ordered.back(),
+                               gl->glVertexArray( vs ) );
+      // cout << "polygon: " << ordered.back().size() << " curves, " << nvert << " vertices" << endl;
     }
   }
   vector<GLdouble> vertices;
   vertices.reserve( nvert * 3 );
   list<list<list<GLuint> > >::iterator iov = ordered.begin();
-  ATriangulated *asurf = static_cast<ATriangulated *>( tesselatedMesh() );
+  ATriangulated *asurf = const_cast<ATriangulated *>(
+    static_cast<const ATriangulated *>( tesselatedMesh() ) );
   rc_ptr<AimsSurfaceTriangle> surf = asurf->surface();
   d->vertices = &surf->vertex();
   d->vertices->clear();
@@ -632,7 +866,7 @@ void TesselatedMesh::tesselate( const ViewState & vs )
   asurf->UpdateMinAndMax();
   asurf->glSetChanged( glGEOMETRY );
   asurf->setChanged();
-  asurf->notifyObservers( this );
+  asurf->notifyObservers( const_cast<TesselatedMesh *>( this ) );
 
   // cleanup private struct
   d->vertices = 0;
@@ -645,6 +879,9 @@ void TesselatedMesh::tesselate( const ViewState & vs )
   d->polytype = 0;
   d->index0 = 0;
   d->index1 = 0;
+
+  glClearHasChangedFlags();
+  clearHasChangedFlags();
 }
 
 
