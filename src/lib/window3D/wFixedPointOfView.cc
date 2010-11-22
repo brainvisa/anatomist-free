@@ -99,15 +99,15 @@ FixedPointOfViewWindow_PrivateData::FixedPointOfViewWindow_PrivateData()
   edge[1][2] = 0;
   edge[1][3] = -0.430661;
 
-  edge[2][0] = -0.664493;
-  edge[2][1] = 0.235447;
-  edge[2][2] = 0.241882;
-  edge[2][3] = -0.666717;
+  edge[2][0] = -0.663981;
+  edge[2][1] = -0.240523;
+  edge[2][2] = -0.238736;
+  edge[2][3] = -0.666549;
 
-  edge[3][0] = -0.663981;
-  edge[3][1] = -0.240523;
-  edge[3][2] = -0.238736;
-  edge[3][3] = -0.666549;
+  edge[3][0] = -0.664493;
+  edge[3][1] = 0.235447;
+  edge[3][2] = 0.241882;
+  edge[3][3] = -0.666717;
 
   edge[4][0] = 0;
   edge[4][1] = 0.428861;
@@ -129,15 +129,15 @@ FixedPointOfViewWindow_PrivateData::FixedPointOfViewWindow_PrivateData()
   edge[7][2] = -0.665614;
   edge[7][3] = 0.237873;
 
-  edge[8][0] = 0.272457;
+  edge[8][0] = -0.272457;
   edge[8][1] = -0.271965;
   edge[8][2] = -0.65204;
-  edge[8][3] = 0.653181;
+  edge[8][3] = -0.653181;
 
-  edge[9][0] = 0.654997;
+  edge[9][0] = -0.654997;
   edge[9][1] = -0.652452;
   edge[9][2] = -0.267328;
-  edge[9][3] = 0.2717;
+  edge[9][3] = -0.2717;
 
   edge[10][0] = -0.272103;
   edge[10][1] = 0.270793;
@@ -150,13 +150,13 @@ FixedPointOfViewWindow_PrivateData::FixedPointOfViewWindow_PrivateData()
   edge[11][3] = 0.269745;
 
   corner[0][0] = -0.423109;
-  corner[0][1] = 0.178352;
-  corner[0][2] = 0.335986;
+  corner[0][1] = -0.178352;
+  corner[0][2] = -0.335986;
   corner[0][3] = -0.822358;
 
   corner[1][0] = -0.423109;
-  corner[1][1] = -0.178352;
-  corner[1][2] = -0.335986;
+  corner[1][1] = 0.178352;
+  corner[1][2] = 0.335986;
   corner[1][3] = -0.822358;
 
   corner[2][0] = -0.817231;
@@ -201,145 +201,187 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
   setCaption( tr( "Standard point of view" ) );
   QHBoxLayout	*lay = new QHBoxLayout( this, 10, 10 );
 
-  QVButtonGroup	*straight = new QVButtonGroup( tr( "Straight view :" ), this );
 #if QT_VERSION >= 0x040000
+  QGroupBox *straight = new QGroupBox( tr( "Straight view :" ), this );
+  QVBoxLayout *vlay = new QVBoxLayout( straight );
+  straight->setLayout( vlay );
   QButtonGroup  *bg = new QButtonGroup( straight );
   int id = 0;
-#endif
+
   QPushButton *but = new QPushButton( tr( "Front" ), straight );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Back" ), straight );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Left" ), straight );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Right" ), straight );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Top" ), straight );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Bottom" ), straight );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
+  vlay->addWidget( but );
+  vlay->addItem( new QSpacerItem( 1, 1, QSizePolicy::Expanding,
+                                  QSizePolicy::Expanding ) );
   connect( bg, SIGNAL( buttonClicked( int ) ), this,
            SLOT( straightPOV( int ) ) );
-#endif
 
-  QVButtonGroup	*edge = new QVButtonGroup( tr( "Edge view :" ), this );
-#if QT_VERSION >= 0x040000
-  bg = new QButtonGroup( straight );
+  QGroupBox  *edge = new QGroupBox( tr( "Edge view :" ), this );
+  vlay = new QVBoxLayout( edge );
+  edge->setLayout( vlay );
+  bg = new QButtonGroup( edge );
   id = 0;
-#endif
+
   but = new QPushButton( tr( "Front top" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Front bottom" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Front left" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Front right" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Back top" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Back bottom" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Back left" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Back right" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Left top" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Left bottom" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Right top" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
-#endif
+  vlay->addWidget( but );
+
   but = new QPushButton( tr( "Right bottom" ), edge );
-#if QT_VERSION >= 0x040000
   bg->addButton( but, id++ );
+  vlay->addWidget( but );
+  vlay->addItem( new QSpacerItem( 1, 1, QSizePolicy::Expanding,
+                                  QSizePolicy::Expanding ) );
+
   connect( bg, SIGNAL( buttonClicked( int ) ), this,
            SLOT( edgePOV( int ) ) );
-#endif
+
+  QGroupBox *corner = new QGroupBox( tr( "Corner view :" ), this );
+  vlay = new QVBoxLayout( corner );
+  corner->setLayout( vlay );
+  bg = new QButtonGroup( corner );
+  id = 0;
+
+  but = new QPushButton( tr( "Front top left" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Front top right" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Front bottom left" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Front bottom right" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Back top left" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Back top right" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Back bottom left" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+
+  but = new QPushButton( tr( "Back bottom right" ), corner );
+  bg->addButton( but, id++ );
+  vlay->addWidget( but );
+  vlay->addItem( new QSpacerItem( 1, 1, QSizePolicy::Expanding,
+                                  QSizePolicy::Expanding ) );
+
+  connect( bg, SIGNAL( buttonClicked( int ) ), this,
+           SLOT( cornerPOV( int ) ) );
+
+#else // Qt 3
+  QVButtonGroup *straight = new QVButtonGroup( tr( "Straight view :" ),
+                                               this );
+  QPushButton *but = new QPushButton( tr( "Front" ), straight );
+  but = new QPushButton( tr( "Back" ), straight );
+  but = new QPushButton( tr( "Left" ), straight );
+  but = new QPushButton( tr( "Right" ), straight );
+  but = new QPushButton( tr( "Top" ), straight );
+  but = new QPushButton( tr( "Bottom" ), straight );
+
+  QVButtonGroup	*edge = new QVButtonGroup( tr( "Edge view :" ), this );
+  but = new QPushButton( tr( "Front top" ), edge );
+  but = new QPushButton( tr( "Front bottom" ), edge );
+  but = new QPushButton( tr( "Front left" ), edge );
+  but = new QPushButton( tr( "Front right" ), edge );
+  but = new QPushButton( tr( "Back top" ), edge );
+  but = new QPushButton( tr( "Back bottom" ), edge );
+  but = new QPushButton( tr( "Back left" ), edge );
+  but = new QPushButton( tr( "Back right" ), edge );
+  but = new QPushButton( tr( "Left top" ), edge );
+  but = new QPushButton( tr( "Left bottom" ), edge );
+  but = new QPushButton( tr( "Right top" ), edge );
+  but = new QPushButton( tr( "Right bottom" ), edge );
 
   QVButtonGroup	*corner = new QVButtonGroup( tr( "Corner view :" ), this );
-#if QT_VERSION >= 0x040000
-  bg = new QButtonGroup( straight );
-  id = 0;
-#endif
   but = new QPushButton( tr( "Front top left" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Front top right" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Front bottom left" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Front bottom right" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Back top left" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Back top right" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Back bottom left" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
-#endif
   but = new QPushButton( tr( "Back bottom right" ), corner );
-#if QT_VERSION >= 0x040000
-  bg->addButton( but, id++ );
+
+  connect( straight, SIGNAL( clicked( int ) ), this,
+           SLOT( straightPOV( int ) ) );
+  connect( edge, SIGNAL( clicked( int ) ), this, SLOT( edgePOV( int ) ) );
+  connect( corner, SIGNAL( clicked( int ) ), this, SLOT( cornerPOV( int ) ) );
+
 #endif
 
   lay->addWidget( straight );
   lay->addWidget( edge );
   lay->addWidget( corner );
-
-#if QT_VERSION >= 0x040000
-  connect( bg, SIGNAL( buttonClicked( int ) ), this,
-           SLOT( cornerPOV( int ) ) );
-#else
-  connect( straight, SIGNAL( clicked( int ) ), this,
-	   SLOT( straightPOV( int ) ) );
-  connect( edge, SIGNAL( clicked( int ) ), this, SLOT( edgePOV( int ) ) );
-  connect( corner, SIGNAL( clicked( int ) ), this, SLOT( cornerPOV( int ) ) );
-#endif
 }
 
 
