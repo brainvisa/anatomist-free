@@ -830,7 +830,8 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
     gluTessProperty( d->polytess, GLU_TESS_BOUNDARY_ONLY, GL_TRUE );
     gluTessProperty( d->polytess, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
-    const ASurface<2> *surf = dynamic_cast<const ASurface<2> *>( firstPolygon() );
+    const ASurface<2> *surf
+      = dynamic_cast<const ASurface<2> *>( firstPolygon() );
     if( surf && surf->isPlanar() )
     {
       const GLComponent *gl = surf->glAPI();
@@ -859,7 +860,6 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
       nvert += reorderPolygon( gl->glNumPolygon( vs ),
                                gl->glPolygonArray( vs ), ordered.back(),
                                gl->glVertexArray( vs ) );
-      // cout << "polygon: " << ordered.back().size() << " curves, " << nvert << " vertices" << endl;
     }
   }
   vector<GLdouble> vertices;
@@ -908,6 +908,7 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
   gluTessEndPolygon( d->polytess );
   gluTessEndPolygon( d->tesselator );
   // cout << "tesselate done\n";
+
   // recreate normals, fast
   if( d->polygons->size() != 0 )
   {
@@ -919,7 +920,7 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
       Point3df v1 = (*d->vertices)[ pol[1] ] - (*d->vertices)[ pol[0] ];
       Point3df v2 = (*d->vertices)[ pol[2] ] - (*d->vertices)[ pol[1] ];
       pvec = vectProduct( v1, v2 );
-      if( pvec.norm2() >= 1e-6 * v1.norm2() * v2.norm2() )
+      if( pvec.norm2() >= 1e-4 * v1.norm2() * v2.norm2() )
         break; // non-flat triangle
     }
     pvec.normalize();
