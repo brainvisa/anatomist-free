@@ -478,8 +478,6 @@ namespace
     if( ordered.empty() )
       return true;
 
-    cout << "TEST " << ordered.front() << " - " << ordered.back() << endl;
-
     list<GLuint>::reverse_iterator ior = ordered.rbegin(), eor = ordered.rend();
     GLuint i = *ior;
     GLuint ni = (unsigned) -1;
@@ -490,9 +488,6 @@ namespace
     GLuint j = nx[0];
     bool startside = true; // next check the starting side
 
-    Point3df pos = pvert[i]; // DEBUG FIXME
-    int num = 0;
-
     if( j == (unsigned) -1 || j == ni )
     {
       j = nx[1];
@@ -502,14 +497,12 @@ namespace
     list<list<GLuint> >::iterator il, el = orderedlist.end();
     --el; // stop before ordered, the last curve in list
     if( j != (unsigned) -1 )
-    {      cout << "test end1 " << pvert[j] << " / " << j << endl;
-      for( il=orderedlist.begin(); il!=el; ++il, ++num )
+      for( il=orderedlist.begin(); il!=el; ++il )
         if( !il->empty() )
         {
           GLuint b = il->back();
           if( b == j )
           {
-            cout << "connect end 1 " << pos << " / " << b << " to " << num << endl;
             // insert at end of *il, in reverse order
             il->insert( il->end(), ordered.rbegin(), ordered.rend() );
             connected = true;
@@ -519,28 +512,23 @@ namespace
           b = il->front();
           if( b == j )
           {
-            cout << "connect end 2 " << pos << " / " << b << " to " << num << endl;
             // insert at beginning of *il
             il->insert( il->begin(), ordered.begin(), ordered.end() );
             connected = true;
             break;
           }
         }
-    }
 
     // try using 3D positions
     if( !connected )
     {
       Point3df pi = pvert[i];
-      cout << "test end2 " << pi << " / " << i << endl;
-      num = 0;
-      for( il=orderedlist.begin(); il!=el; ++il, ++num )
+      for( il=orderedlist.begin(); il!=el; ++il )
         if( !il->empty() )
         {
           GLuint b = il->back();
           if( ( pvert[b] - pi ).norm2() < eps )
           {
-            cout << "connect end 3 " << pos << " / " << b << " to " << num << endl;
             // insert at end of *il, in reverse order, skip i
             list<GLuint>::reverse_iterator ii = ordered.rbegin();
             ++ii;
@@ -552,7 +540,6 @@ namespace
           b = il->front();
           if( ( pvert[b] - pi ).norm2() < eps )
           {
-            cout << "connect end 4 " << pos << " / " << b << " to " << num << endl;
             // insert at beginning of *il, skip i
             list<GLuint>::iterator ii = ordered.end();
             --ii;
@@ -562,9 +549,6 @@ namespace
           }
         }
     }
-
-    if( !connected )
-      cout << "could not reconnect end  point " <<  pvert[i] << endl;
 
     // try other end
     if( !connected )
@@ -582,7 +566,6 @@ namespace
     }
     GLuint i2 = *is;
     AimsVector<GLuint,2> & nx0 = neigh[ i2 ];
-    pos = pvert[i2]; // DEBUG FIXME
     GLuint ni2 = (unsigned) -1;
     if( curve.size() >= 2 )
     {
@@ -602,7 +585,6 @@ namespace
     }
 
     if( j != (unsigned) -1 )
-    { cout << "test start1 " << pvert[j] << " / " << j << endl;
       for( il=orderedlist.begin(); il!=el; ++il )
       {
         if( il == ilc )
@@ -612,7 +594,6 @@ namespace
           GLuint b = il->back();
           if( b == j )
           {
-            cout << "connect start 1 " << pos << " / " << b << endl;
             // insert at end of *il
             if( startside )
               il->insert( il->end(), curve.begin(), curve.end() );
@@ -627,7 +608,6 @@ namespace
           b = il->front();
           if( b == j )
           {
-            cout << "connect start 2 " << pos << " / " << b << endl;
             // insert at beginning of *il, in reverse order
             if( startside )
               il->insert( il->begin(), curve.rbegin(), curve.rend() );
@@ -641,13 +621,11 @@ namespace
           }
         }
       }
-    }
 
     // try using positions
     if( !connected2 )
     {
       Point3df pi = pvert[i2];
-      cout << "test start2 " << pi << " / " << i2 << endl;
       for( il=orderedlist.begin(); il!=el; ++il )
       {
         if( il == ilc )
@@ -657,7 +635,6 @@ namespace
           GLuint b = il->back();
           if( ( pvert[b] - pi ).norm2() < eps )
           {
-            cout << "connect start 3 " << pos << " / " << b << endl;
             // insert at end of *il, skip i2
             if( startside )
             {
@@ -679,7 +656,6 @@ namespace
           b = il->front();
           if( ( pvert[b] - pi ).norm2() < eps )
           {
-            cout << "connect start 4 " << pos << " / " << b << endl;
             // insert at beginning of *il, in reverse order, skip i2
             if( startside )
             {
@@ -702,8 +678,6 @@ namespace
       }
     }
 
-    if( !connected )
-      cout << "could not reconnect start point " <<  pvert[i2] << endl;
     return connected;
   }
 
@@ -807,11 +781,15 @@ namespace
         orderedlist.erase( last );
       }
     }
+    /*
     cout << "curves: " << orderedlist.size() << "\nextremities:" << endl;
     list<list<GLuint> >::iterator ic, ec = orderedlist.end();
     const Point3df *pt = reinterpret_cast<const Point3df *>( vertices );
     for( ic=orderedlist.begin(); ic!=ec; ++ic )
-      cout << pt[ic->front()] << "  / " << ic->front() << "  -  " <<  pt[ic->back()] << "  / " << ic->back() << "  : " << ic->size() << endl;
+      cout << pt[ic->front()] << "  / " << ic->front() << "  -  "
+        <<  pt[ic->back()] << "  / " << ic->back() << "  : " << ic->size()
+        << endl;
+    */
     return nv;
   }
 
