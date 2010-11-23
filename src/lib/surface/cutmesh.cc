@@ -47,6 +47,7 @@
 #include <qpixmap.h>
 #include <qtranslator.h>
 
+#define USE_TESSELATION
 
 using namespace anatomist;
 using namespace aims;
@@ -128,7 +129,13 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
       }
       ao = cm->planarMesh();
       if( ao )
-        surf.push_back( ao );
+      {
+        TesselatedMesh *tm = dynamic_cast<TesselatedMesh *>( ao );
+        if( tm )
+          surf.push_back( tm->tesselatedMesh() );
+        else
+          surf.push_back( ao );
+      }
     }
     else
       vol.push_back( *io );
@@ -188,7 +195,7 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
   insert( bp );
   bp->setReferentialInheritance( s );
 
-#if 0
+#ifdef USE_TESSELATION
   // tesselation
   FusionTesselationMethod tessmet;
   vector<AObject *> tessobj( 1 );
@@ -199,19 +206,26 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
   theAnatomist->registerObject( tessm, false );
   insert( tessm );
   tessm->setReferentialInheritance( s ); // should be bp
+  d->planeindex = d->polygonindex + 1;
 
+  Point3df  bmin, bmax;
+  s->boundingBox( bmin, bmax );
+  setOffsetSilent( Point3df( ( bmin[0] + bmax[0] ) / 2,
+                             ( bmin[1] + bmax[1] ) / 2,
+                             ( bmin[2] + bmax[2] ) / 2 ) );
   cut();
 
   // planar fusion
   PlanarFusion3dMethod      fm;
   vector<AObject *> sobj( 2 );
-  sobj[0] = tessm;
+  sobj[0] = tessm; //->tesselatedMesh();
   sobj[1] = v;
   AObject   *fus = fm.fusion( sobj );
   fus->setName( theAnatomist->makeObjectName( "PlanarFusion3D" ) );
   theAnatomist->registerObject( fus, false );
   insert( fus );
   fus->setReferentialInheritance( s ); // should be tessm but update issue
+  d->planarfusionindex = d->planeindex + 1;
 
 #else
   if( true /* theAnatomist->userLevel() >= 3 */ )
@@ -326,7 +340,7 @@ CutMesh::~CutMesh()
       i = find( o );
       erase( i );
       if( o->Parents().empty() )
-	delete o;
+        delete o;
     }
   delete d;
 }
@@ -601,7 +615,7 @@ void CutMesh::clearHasChangedFlags()
 void CutMesh::cut()
 {
   // cout << "CutMesh::cut...\n";
-  ATriangulated		*p = (ATriangulated *) planarMesh();
+  // # ATriangulated		*p = (ATriangulated *) planarMesh();
   ASurface<2>		*border = (ASurface<2> *) borderPolygon();
 
   vector<const AimsSurfaceTriangle *> insurf;
@@ -618,9 +632,12 @@ void CutMesh::cut()
   vector<rc_ptr<AimsSurfaceTriangle> > cut( nmesh );
   for( ; i<d->cutmeshindex; ++i, ++io ) {}
   AimsTimeSurface<2,Void>	*pol = 0;
+#ifndef USE_TESSELATION
   AimsSurfaceTriangle		*ps = 0;
+#endif
   try
   {
+#ifndef USE_TESSELATION
     if( p )
       {
         ps = new AimsSurfaceTriangle;
@@ -632,7 +649,9 @@ void CutMesh::cut()
         else
           SurfaceManip::cutMesh( insurf, plane(), cut, *ps );
       }
-    else if( border || nmesh != 0 )
+    else
+#endif
+    if( border || nmesh != 0 )
       {
         pol = new AimsTimeSurface<2,Void>;
         SurfaceManip::cutMesh( insurf, plane(), cut, *pol );
@@ -648,14 +667,22 @@ void CutMesh::cut()
     cut[i].release();
     // (*io)->notifyObservers( this );
   }
+#ifndef USE_TESSELATION
   if( p )
   {
     p->setSurface( ps );
     // p->notifyObservers( this );
   }
+#endif
   if( border )
   {
     border->setSurface( pol );
+    Point4df plan = plane();
+    vector<float> normal( 3 );
+    normal[0] = plan[0];
+    normal[1] = plan[1];
+    normal[2] = plan[2];
+    border->attributed()->setProperty( "normal", normal );
     // border->notifyObservers( this );
   }
   else

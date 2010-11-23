@@ -64,7 +64,8 @@ struct TesselatedMesh::Private
 {
   Private() : tesselator( 0 ), polytess( 0 ),
   vertices( 0 ), polygons( 0 ), nvert( 0 ), polytype( 0 ), count( 0 ),
-  index0( 0 ), index1( 0 ), odd( false )
+  index0( 0 ), index1( 0 ), odd( false ), hasnormal( false ),
+  invorder( false ), invorderChecked( false )
   {}
 
   GLUtesselator *tesselator;
@@ -78,6 +79,10 @@ struct TesselatedMesh::Private
   unsigned index0;
   unsigned index1;
   bool odd;
+  Point3df normal;
+  bool hasnormal;
+  bool invorder;
+  bool invorderChecked;
 };
 
 
@@ -292,6 +297,8 @@ namespace
     d->vertices->push_back( pos );
     ++d->count;
     if( d->count == 3 )
+    {
+      bool failed = false;
       switch( d->polytype )
       {
       case GL_TRIANGLES:
@@ -331,7 +338,27 @@ namespace
         break;
       default:
         cout << "unknown polygon code: " << d->polytype << endl;
+        failed = true;
       }
+      if( !failed && d->hasnormal )
+      {
+        AimsVector<uint, 3> & pol = d->polygons->back();
+        if( !d->invorderChecked ) // check if polygons need to be reversed
+        {
+          d->invorderChecked = true;
+          Point3df v1 = (*d->vertices)[pol[1]] - (*d->vertices)[pol[0]];
+          Point3df v2 = (*d->vertices)[pol[2]] - (*d->vertices)[pol[1]];
+          if( vectProduct( v1, v2 ).dot( d->normal ) > 0 )
+            d->invorder = true;
+        }
+        if( d->invorder )
+        {
+          unsigned x = pol[1];
+          pol[1] = pol[2];
+          pol[2] = x;
+        }
+      }
+    }
     else
     {
       if( d->count == 1 )
@@ -830,22 +857,56 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
     gluTessProperty( d->polytess, GLU_TESS_BOUNDARY_ONLY, GL_TRUE );
     gluTessProperty( d->polytess, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
-    const ASurface<2> *surf
-      = dynamic_cast<const ASurface<2> *>( firstPolygon() );
-    if( surf && surf->isPlanar() )
+  }
+
+  vector<float> normal;
+  bool hasnormal = false;
+  const ASurface<2> *surfp
+    = dynamic_cast<const ASurface<2> *>( firstPolygon() );
+  if( surfp )
+  {
+    if( surfp->attributed()->getProperty( "normal", normal )
+      && normal.size() == 3 )
+      hasnormal = true;
+    else if( surfp->isPlanar() )
     {
-      const GLComponent *gl = surf->glAPI();
+      const GLComponent *gl = surfp->glAPI();
       if( gl )
       {
         const GLfloat* narr = gl->glNormalArray( vs );
         if( narr )
         {
-          gluTessNormal( d->tesselator, narr[0], narr[1], narr[2] );
-          gluTessNormal( d->polytess, narr[0], narr[1], narr[2] );
+          normal.clear();
+          normal.reserve( 3 );
+          normal.push_back( narr[0] );
+          normal.push_back( narr[1] );
+          normal.push_back( narr[2] );
+          hasnormal = true;
         }
       }
     }
   }
+
+  if( hasnormal )
+  {
+    gluTessNormal( d->tesselator, normal[0], normal[1], normal[2] );
+    gluTessNormal( d->polytess, normal[0], normal[1], normal[2] );
+  }
+  else
+  {
+    gluTessNormal( d->tesselator, 0., 0., 0. );
+    gluTessNormal( d->polytess, 0., 0., 0. );
+  }
+  d->hasnormal = hasnormal;
+  if( hasnormal )
+  {
+    d->normal[0] = normal[0];
+    d->normal[1] = normal[1];
+    d->normal[2] = normal[2];
+  }
+  d->invorder = false;
+  d->invorderChecked = false;
+
   iterator io = begin(), eo = end();
   unsigned nvert = 0, v = 0;
 
@@ -910,20 +971,32 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
   // cout << "tesselate done\n";
 
   // recreate normals, fast
-  if( d->polygons->size() != 0 )
+  Point3df pvec;
+  bool donormal = false;
+  if( hasnormal )
+  {
+    pvec[0] = normal[0];
+    pvec[1] = normal[1];
+    pvec[2] = normal[2];
+    donormal = true;
+  }
+  else if( d->polygons->size() != 0 )
   {
     unsigned ip, np = d->polygons->size();
-    Point3df pvec;
     for( ip=0; ip!=np; ++ip )
     {
       AimsVector<uint, 3> & pol = (*d->polygons)[ip];
       Point3df v1 = (*d->vertices)[ pol[1] ] - (*d->vertices)[ pol[0] ];
       Point3df v2 = (*d->vertices)[ pol[2] ] - (*d->vertices)[ pol[1] ];
       pvec = vectProduct( v1, v2 );
-      if( pvec.norm2() >= 1e-4 * v1.norm2() * v2.norm2() )
+      if( pvec.norm2() >= abs( 1e-4 * v1.norm2() * v2.norm2() ) )
         break; // non-flat triangle
     }
+    donormal = true;
     pvec.normalize();
+  }
+  if( donormal )
+  {
     unsigned i, n=d->vertices->size();
     vector<Point3df> & norm = surf->normal();
     norm.reserve( n );
