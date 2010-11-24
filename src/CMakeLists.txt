@@ -5,6 +5,7 @@ message( "WARNING: ameshpaint is not configured yet for compilation with brainvi
 add_subdirectory(mkhierarchy)
 add_subdirectory(hierarchyeditor)
 add_subdirectory(anasurfmatch)
+add_subdirectory(surfpaint)
 add_subdirectory(volrender)
 if( QWT_FOUND )
   add_subdirectory(profile)
