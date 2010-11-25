@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
 #      CEA/NeuroSpin, Batiment 145,
@@ -241,7 +242,7 @@ def listmods():
 
 def loadpython():
   print 'load python file'
-  file = QFileDialog.getOpenFileName( None, '*.py' )
+  file = QFileDialog.getOpenFileName( None, '*.py', options=QFileDialog.DontUseNativeDialog )
   if file is not None:
     if qt4:
       execfile( file.toLocal8Bit().data() )
