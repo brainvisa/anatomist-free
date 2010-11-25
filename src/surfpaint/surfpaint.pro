@@ -13,5 +13,5 @@ HEADERS = \
 SOURCES = \
 	module/surfpaintmodule.cc \
     action/surfpaintaction.cc \
-    control/surfpaintcontrol
+    control/surfpaintcontrol.cc
 
