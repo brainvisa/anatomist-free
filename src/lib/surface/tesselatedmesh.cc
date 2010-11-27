@@ -46,6 +46,9 @@
 #include <qpixmap.h>
 #include <qtranslator.h>
 
+#if !defined( _WIN32 ) && !defined( APIENTRY )
+#define APIENTRY
+#endif
 
 using namespace anatomist;
 using namespace aims;
@@ -286,7 +289,7 @@ bool TesselatedMesh::render( PrimList & prim, const ViewState & state )
 namespace
 {
 
-  void tessVertex( GLvoid* vertex, void* client )
+  void APIENTRY tessVertex( GLvoid* vertex, void* client )
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
@@ -371,7 +374,7 @@ namespace
   }
 
 
-  void tessBegin( GLenum polytype, void* client )
+  void APIENTRY tessBegin( GLenum polytype, void* client )
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
@@ -390,21 +393,21 @@ namespace
   }
 
 
-  void tessEnd( void* /*client*/ )
+  void APIENTRY tessEnd( void* /*client*/ )
   {
     // glEnd();
   }
 
 
-  void tessError( GLenum errcode, void* /*client*/ )
+  void APIENTRY tessError( GLenum errcode, void* /*client*/ )
   {
     // TesselatedMesh* tmesh = reinterpret_cast<TesselatedMesh *>( client );
     cout << "Tesselation error: " << gluErrorString( errcode ) << endl;
   }
 
 
-  void tessCombine( GLdouble coords[3], GLdouble* vdata[4], GLfloat weight[4],
-    GLdouble **outdata, void* client )
+  void APIENTRY tessCombine( GLdouble coords[3], GLdouble* vdata[4],
+    GLfloat weight[4], GLdouble **outdata, void* client )
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
@@ -433,7 +436,7 @@ namespace
   }
 
 
-  void tessPolyVertex( GLvoid* vertex, void* client )
+  void APIENTRY tessPolyVertex( GLvoid* vertex, void* client )
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
@@ -443,7 +446,7 @@ namespace
   }
 
 
-  void tessPolyBegin( GLenum /*polytype*/, void* client )
+  void APIENTRY tessPolyBegin( GLenum /*polytype*/, void* client )
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
@@ -452,7 +455,7 @@ namespace
   }
 
 
-  void tessPolyEnd( void* client )
+  void APIENTRY tessPolyEnd( void* client )
   {
     TesselatedMesh::Private *d
       = reinterpret_cast<TesselatedMesh::Private *>( client );
@@ -461,13 +464,13 @@ namespace
   }
 
 
-  void tessPolyError( GLenum errcode, void* /*client*/ )
+  void APIENTRY tessPolyError( GLenum errcode, void* /*client*/ )
   {
     cout << "Poly Tesselation error: " << gluErrorString( errcode ) << endl;
   }
 
 
-  void tessPolyCombine( GLdouble coords[3], GLdouble* vdata[4],
+  void APIENTRY tessPolyCombine( GLdouble coords[3], GLdouble* vdata[4],
                         GLfloat weight[4], GLdouble **outdata,
                         void* /*client*/ )
   {
@@ -832,28 +835,28 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
   {
     d->tesselator = gluNewTess();
     gluTessCallback( d->tesselator, GLU_TESS_VERTEX_DATA,
-                     (void (*)()) tessVertex );
+                     (void (APIENTRY *)()) tessVertex );
     gluTessCallback( d->tesselator, GLU_TESS_BEGIN_DATA,
-                     (void (*)()) tessBegin );
+                     (void (APIENTRY *)()) tessBegin );
     gluTessCallback( d->tesselator, GLU_TESS_END_DATA,
-                     (void (*)()) tessEnd );
+                     (void (APIENTRY *)()) tessEnd );
     gluTessCallback( d->tesselator, GLU_TESS_ERROR_DATA,
-                     (void (*)()) tessError );
+                     (void (APIENTRY *)()) tessError );
     gluTessCallback( d->tesselator, GLU_TESS_COMBINE_DATA,
-                     (void (*)()) tessCombine );
+                     (void (APIENTRY *)()) tessCombine );
     gluTessProperty( d->tesselator, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
     d->polytess = gluNewTess();
     gluTessCallback( d->polytess, GLU_TESS_VERTEX_DATA,
-                     (void (*)()) tessPolyVertex );
+                     (void (APIENTRY *)()) tessPolyVertex );
     gluTessCallback( d->polytess, GLU_TESS_BEGIN_DATA,
-                     (void (*)()) tessPolyBegin );
+                     (void (APIENTRY *)()) tessPolyBegin );
     gluTessCallback( d->polytess, GLU_TESS_END_DATA,
-                     (void (*)()) tessPolyEnd );
+                     (void (APIENTRY *)()) tessPolyEnd );
     gluTessCallback( d->polytess, GLU_TESS_ERROR_DATA,
-                     (void (*)()) tessPolyError );
+                     (void (APIENTRY *)()) tessPolyError );
     gluTessCallback( d->polytess, GLU_TESS_COMBINE_DATA,
-                     (void (*)()) tessPolyCombine );
+                     (void (APIENTRY *)()) tessPolyCombine );
     gluTessProperty( d->polytess, GLU_TESS_BOUNDARY_ONLY, GL_TRUE );
     gluTessProperty( d->polytess, GLU_TESS_WINDING_RULE,
                      GLU_TESS_WINDING_ODD );
