@@ -47,6 +47,10 @@
 #include <qtranslator.h>
 
 #if !defined( _WIN32 ) && !defined( APIENTRY )
+/* GLU tesselation callbacks on Windows need this crappy APIENTRY macros.
+ * Normally Mesa defines them according to the system, but in case it's not
+ * defined (or it's not Mesa)...
+ */
 #define APIENTRY
 #endif
 
