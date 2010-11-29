@@ -139,6 +139,7 @@ public slots:
   /// same as chooseReferential() but for windows only
   void chooseWinReferential();
   void chooseReferential();
+  void openConstraintEditor();
   void fusionObjects();
   void openPreferencesWin();
   void viewRefColors();

@@ -1253,7 +1253,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (window());
 
-  if (w3 && w3->surfpaintIsVisible() )
+  if (w3 /*&& w3->surfpaintIsVisible() */)
   {
   // TODO : le rendu est fait sur l'object situé au centre de l'image (à améliorer)
     //AObject *obj = w3->objectAtCursorPosition(_pd->mouseX,_pd->mouseY);

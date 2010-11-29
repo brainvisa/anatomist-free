@@ -31,77 +31,50 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef ANATOMIST_WINDOW3D_WSURFPAINTTOOLS_H
-#define ANATOMIST_WINDOW3D_WSURFPAINTTOOLS_H
+
+#ifndef ANA_CONSTRAINT_EDITOR_H
+#define ANA_CONSTRAINT_EDITOR_H
+
 
 #include <anatomist/observer/Observer.h>
-#include <qwidget.h>
-#include <qspinbox.h>
+#include <qdialog.h>
+#include <set>
 
-using namespace std;
+namespace anatomist
+{
+  class AObject;
+  class AWindow;
+  class Finder;
+  class SurfpaintToolsAction;
+//  typedef SurfpaintToolsAction* surfpaint_pointer;
 
-class AWindow3D;
-class QTabWidget;
-class QSpinBox;
 
- class Infos3DTab : public QWidget
- {
-     Q_OBJECT
-
- public:
-     Infos3DTab(string textype, QWidget *parent);
-
- public:
-     QWidget *textureSpinBox;
-     QSpinBox *IDPolygonSpinBox;
-     QSpinBox *IDVertexSpinBox;
-     string _textype;
- };
-
- class ConstraintsEditorTab : public QWidget
- {
-     Q_OBJECT
-
- public:
-     ConstraintsEditorTab(QWidget *parent = 0);
- };
-
-///	Settings for 3D windows
-class SurfpaintToolsWindow: public QWidget, public anatomist::Observer
+class ConstraintEditorWindow : public QDialog, public anatomist::Observer
 {
   Q_OBJECT
 
-  public:
-    SurfpaintToolsWindow(AWindow3D *win, string t);
-    virtual ~SurfpaintToolsWindow();
+public:
+  ConstraintEditorWindow(  const std::set<anatomist::AObject *> & ,
+			   const char *name, 
+                           Qt::WFlags = 
+                           Qt::WDestructiveClose | Qt::WType_Modal );
 
-    virtual void update(const anatomist::Observable* observable, void* arg);
+  virtual ~ConstraintEditorWindow();
 
-  public slots:
-    float getTextureValue(void);
-    void setTextureValue(float v);
-    void setTextureValueInt(int v);
-    void setTextureValueFloat(double v);
+  void update(const anatomist::Observable* observable, void* arg);
 
-    void setMinMaxTexture(float min, float max);
+public slots:
+  virtual void accept();
 
-    void setPolygon(int p);
-    void setMaxPoly(int max);
-    void setVertex(int v);
-    void setMaxVertex(int max);
+protected:
+  void drawContents( const char *name );
+  virtual void unregisterObservable( anatomist::Observable* );
 
-  protected:
-    AWindow3D *_window;
-
-    virtual void unregisterObservable(anatomist::Observable*);
-
-  private:
-    QTabWidget *tabWidget;
-    Infos3DTab *tabI3D;
-    ConstraintsEditorTab *tabCE;
-
-    string _textype;
-    bool destroying;
+private:
+  struct Private;
+  Private *d;
 };
+
+}
 
 #endif

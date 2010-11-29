@@ -60,13 +60,11 @@
 #include <anatomist/window3D/wLightModel.h>
 #include <anatomist/window3D/wFixedPointOfView.h>
 #include <anatomist/window3D/wTools3D.h>
-#include <anatomist/window3D/wSurfpaintTools.h>
 #include <anatomist/window3D/cursor.h>
 #include <anatomist/window3D/zoomDialog.h>
 #include <anatomist/window/colorstyle.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/viewstate.h>
-#include <anatomist/surface/glcomponent.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/commands/cLinkedCursor.h>
@@ -174,7 +172,6 @@ struct AWindow3D::Private
     bool boundingFrame;
     AWindow3D::RenderingMode renderingMode;
     Tools3DWindow *tools;
-    SurfpaintToolsWindow *painttools;
     FixedPointOfViewWindow *poview;
     LightModelWindow *lightview;
     Light *light;
@@ -201,7 +198,7 @@ struct AWindow3D::Private
     int mouseX;
     int mouseY;
     bool surfpaintState;
-    Texture1d *surfpaintTexInit;
+    bool constraintEditorState;
 };
 
 namespace
@@ -362,7 +359,8 @@ AWindow3D::Private::Private() :
       viewtype(AWindow3D::Oblique), mute(0), axialbt(0), coronalbt(0),
       sagittalbt(0), obliquebt(0), orientationCube(false),
       boundingFrame(false), renderingMode(AWindow3D::Normal), tools(0),
-      painttools(0), poview(0), lightview(0), light(new Light), slicequat(0, 0,
+      //painttools(0),
+      poview(0), lightview(0), light(new Light), slicequat(0, 0,
           0, 1), askedsize(0, 0), clipmode(AWindow3D::NoClip), clipdist(1),
       transpz(true), culling(true), flatshading(false), smooth(false), fog(
           false), refreshneeded(FullRefresh), linkonslider(false), lefteye(0),
@@ -370,7 +368,7 @@ AWindow3D::Private::Private() :
       // needsboundingbox( false ),
       needsextrema(false), // needswingeom( false ),
       // needssliceslider( false )
-      mouseX(0), mouseY(0), surfpaintState(false)
+      mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false)
 {
 }
 
@@ -379,7 +377,7 @@ AWindow3D::Private::~Private()
   while (!objmodifiers.empty())
     delete objmodifiers.front();
   delete tools;
-  delete painttools;
+  //delete painttools;
   delete poview;
   delete lightview;
   delete light;
@@ -608,8 +606,6 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     scene->insertSeparator();
     scene->insertItem(tr("Fixed points of view"), this, SLOT(pointsOfView()));
     scene->insertItem(tr("Tools"), this, SLOT(tools()));
-    scene->insertItem(tr("SurfpaintControl"), this, SLOT(
-        togglePaintingToolbox()));
     scene->insertItem(tr("Sync 3D views in same group"), this,
         SLOT(syncViews()));
     scene->insertItem(tr("Focus view on objects"), this, SLOT(focusView()),
@@ -704,21 +700,6 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
       roibt = new Q34ToolButton(d->mute);
       roibt->setTextLabel(tr("3D"));
       connect(roibt, SIGNAL(clicked()), this, SLOT(switchToolbox()));
-    }
-
-    //ARN 09/10
-    p = icons->getIconInstance("SurfpaintControl");
-
-    Q34ToolButton *paintbt;
-    if (p)
-      paintbt = new Q34ToolButton(*p, tr("SurfpaintControl"), tr(
-          "Open the painting toolbox"), this, SLOT(togglePaintingToolbox()),
-          d->mute);
-    else
-    {
-      paintbt = new Q34ToolButton(d->mute);
-      paintbt->setTextLabel(tr("SurfpaintControl"));
-      connect(roibt, SIGNAL(clicked()), this, SLOT(togglePaintingToolbox()));
     }
 
   }
@@ -2770,255 +2751,24 @@ void AWindow3D::tools()
   d->tools->raise();
 }
 
-void AWindow3D::setPolygon(int poly)
-{
-  d->painttools->setPolygon(poly);
-}
-
-void AWindow3D::setVertex(int vertex)
-{
-  d->painttools->setVertex(vertex);
-}
-
-void AWindow3D::setTextureValue(float tex)
-{
-  d->painttools->setTextureValue(tex);
-}
-
-float AWindow3D::getTextureValue(void)
-{
-  return d->painttools->getTextureValue();
-}
-
 bool AWindow3D::surfpaintIsVisible(void)
 {
   return d->surfpaintState;
 }
-void AWindow3D::restoreTextureValue(anatomist::AObject *o, string textype,int indexVertex)
+
+void AWindow3D::setVisibleSurfpaint(bool b)
 {
-
-  Point3df position;
-
-  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
-
-  if (o != NULL && w3->hasObject(o))
-  {
-    string objtype = o->objectTypeName(o->type());
-
-    if (objtype == "TEXTURED SURF.")
-    {
-      ATexSurface *go;
-      go = dynamic_cast<ATexSurface *> (o);
-
-      AObject *tex = go->texture();
-
-      ATexture *at;
-      at = dynamic_cast<ATexture *> (tex);
-
-      Object options = Object::value(Dictionary());
-      options->setProperty("scale", 0);
-
-      float it = at->TimeStep();
-      const GLComponent::TexExtrema & te = at->glTexExtrema(0);
-
-      float scl = (te.maxquant[0] - te.minquant[0]);
-
-      rc_ptr<TimeTexture<float> > t;
-      t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
-
-//      if ((textype == "S16") || (textype == "U32") || (textype == "S32"))
-//        (*t).item(indexVertex) = (float) value / scl;
-//      if (textype == "FLOAT")
-      float value;
-
-      value =  d->surfpaintTexInit[0].item(indexVertex);
-
-      (*t).item(indexVertex) = (float) value  ;
-
-      tex->setChanged();
-      tex->notifyObservers();
-      tex->setInternalsChanged();
-    }
-  }
-
+  d->surfpaintState = b;
 }
 
-void AWindow3D::updateTextureValue(anatomist::AObject *o, string textype,
-    int indexVertex, float value)
+bool AWindow3D::constraintEditorIsActive(void)
 {
-
-  Point3df position;
-
-  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
-
-  if (o != NULL && w3->hasObject(o))
-  {
-    string objtype = o->objectTypeName(o->type());
-
-    if (objtype == "TEXTURED SURF.")
-    {
-      ATexSurface *go;
-      go = dynamic_cast<ATexSurface *> (o);
-
-      AObject *tex = go->texture();
-
-      ATexture *at;
-      at = dynamic_cast<ATexture *> (tex);
-
-      Object options = Object::value(Dictionary());
-      options->setProperty("scale", 0);
-
-      float it = at->TimeStep();
-      const GLComponent::TexExtrema & te = at->glTexExtrema(0);
-
-      float scl = (te.maxquant[0] - te.minquant[0]);
-
-      rc_ptr<TimeTexture<float> > t;
-      t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
-
-//      if ((textype == "S16") || (textype == "U32") || (textype == "S32"))
-//        (*t).item(indexVertex) = (float) value / scl;
-//      if (textype == "FLOAT")
-
-      (*t).item(indexVertex) = (float) value / scl ;
-
-      tex->setChanged();
-      tex->notifyObservers();
-      tex->setInternalsChanged();
-    }
-  }
-
+  return d->constraintEditorState;
 }
 
-void AWindow3D::showPaintingToolbox()
+void AWindow3D::setActiveConstraintEditor(bool b)
 {
-  if (d->painttools)
-    d->painttools->show();
-  else
-    togglePaintingToolbox();
-  //  d->painttools = new SurfpaintToolsWindow( this , "FLOAT");
-
-}
-
-void AWindow3D::togglePaintingToolbox()
-{
-  cout << "togglePaintingToolbox\n";
-  if (!d->painttools)
-  {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
-
-    d->surfpaintState = true;
-    //bof bof
-    QSize s = d->draw->qglWidget()->size();
-    AObject *o = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
-
-    GLComponent *glc = o->glAPI();
-
-    if (o != NULL && w3->hasObject(o))
-    {
-      string objtype = o->objectTypeName(o->type());
-
-      if (objtype == "SURFACE")
-      {
-        QMessageBox::warning( this, tr( "not texture associated" ),
-                                    tr( "Cannot open surfpaint Toolbox"
-                                      ) );
-//        ATriangulated *as;
-//        as = dynamic_cast<ATriangulated *> (o);
-//        int t = (int) GetTime();
-//        AimsSurface<3, Void> *s = as->surfaceOfTime(t);
-//        vector<AimsVector<uint, 3> > & tri = s->polygon();
-//
-//        d->painttools = new SurfpaintToolsWindow(this, "FLOAT");
-//        d->painttools->setMaxPoly(tri.size());
-
-      }
-
-      if (objtype == "TEXTURED SURF.")
-      {
-        glc->glAPI()->glSetTexRGBInterpolation( true );
-
-        ATexSurface *go;
-        go = dynamic_cast<ATexSurface *> (o);
-
-        AObject *surf = go->surface();
-        AObject *tex = go->texture();
-
-        ATexture *at;
-        at = dynamic_cast<ATexture *> (tex);
-
-        int t = (int) GetTime();
-
-        ATriangulated *as;
-        as = dynamic_cast<ATriangulated *> (surf);
-
-        AimsSurface<3, Void> *s = as->surfaceOfTime(t);
-
-        vector<AimsVector<uint, 3> > & tri = s->polygon();
-
-        string textype;
-        at->attributed()->getProperty("data_type", textype);
-
-        cout << "type texture :" << textype << endl;
-        cout << "save Texture" << endl;
-
-        d->surfpaintTexInit = new Texture1d;
-        d->surfpaintTexInit->reserve( at->size() );
-        Object options = Object::value(Dictionary());
-        options->setProperty("scale", 0);
-
-        rc_ptr<TimeTexture<float> > text;
-        text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
-
-        for (uint i = 0; i < at->size(); i++)
-          d->surfpaintTexInit[0].item(i) = (*text).item(i);
-
-        const vector<Point3df> & vert = s->vertex();
-
-        float it = at->TimeStep();
-        const GLComponent::TexExtrema & te = at->glTexExtrema(0);
-
-        //float scl = (te.maxquant[0] - te.minquant[0]);
-        cout << "minmax tex : " << te.min[0] << " " << te.max[0] << endl;
-        cout << "minmax quant tex : " << te.minquant[0] << " "
-            << te.maxquant[0] << endl;
-        cout << "textype " << textype << endl;
-
-//        float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i] - te.min[i]);
-//        float off = te.minquant[i] - scl * te.min[i];
-
-        d->painttools = new SurfpaintToolsWindow(this, textype);
-
-        d->painttools->setMaxPoly(tri.size());
-        d->painttools->setMaxVertex(vert.size());
-
-//        if ( (textype == "S16") || (textype == "U32") || (textype == "S32"))
-//          d->painttools->setMinMaxTexture((float)(te.minquant[0]),(float)(te.maxquant[0]));
-//
-//        if (textype == "FLOAT")
-//
-        d->painttools->setMinMaxTexture((float)(te.minquant[0]),(float)(te.maxquant[0]));
-
-        d->painttools->show();
-        d->painttools->raise();
-      }
-
-
-    }
-  }
-  else
-  {
-    if (d->painttools->isVisible())
-    {
-      d->painttools->hide();
-      d->surfpaintState = false;
-    }
-    else
-    {
-      d->painttools->show();
-      d->surfpaintState = true;
-    }
-  }
+  d->constraintEditorState = b;
 }
 
 void AWindow3D::syncViews(bool keepextrema)
@@ -3138,11 +2888,11 @@ void AWindow3D::toolsWinDestroyed()
 {
   d->tools = 0;
 }
-
-void AWindow3D::painttoolsWinDestroyed()
-{
-  d->painttools = 0;
-}
+//
+//void AWindow3D::painttoolsWinDestroyed()
+//{
+//  d->painttools = 0;
+//}
 
 void AWindow3D::povWinDestroyed()
 {

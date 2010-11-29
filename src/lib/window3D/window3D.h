@@ -43,12 +43,12 @@
 #include <anatomist/window/viewstate.h>
 
 using namespace std;
+using namespace anatomist;
 
 namespace aims
 {
   class Quaternion;
 }
-
 
 namespace anatomist
 {
@@ -131,14 +131,13 @@ public:
   void getInfos3DFromClickPoint( int x, int y );
   void getInfos3DFromClickPointNew( int x, int y, Point3df & position, int *poly, anatomist::AObject *objselect, string & objtype,
       float *texvalue, string & textype, Point3df & positionNearestVertex, int* indexNearestVertex);
-  void setTextureValue(float tex);
-  float getTextureValue(void);
-  void setPolygon(int poly);
-  void setVertex(int vertex);
-  void updateTextureValue(anatomist::AObject *o, string textype, int indexVertex, float value);
-  void restoreTextureValue(anatomist::AObject *o, string textype, int indexVertex);
+
   void getInfos3D(void);
   bool surfpaintIsVisible(void);
+  void setVisibleSurfpaint(bool b);
+  bool constraintEditorIsActive(void);
+  void setActiveConstraintEditor(bool b);
+
   void printPositionAndValue();
   virtual void displayClickPoint();
   ///   set the view of the scene
@@ -253,7 +252,7 @@ public slots:
   void syncViews( bool keepextrema = false );
   void focusView();
   void toolsWinDestroyed();
-  void painttoolsWinDestroyed();
+  //void painttoolsWinDestroyed();
   void povWinDestroyed();
   void lightWinDestroyed();
   virtual void Refresh();
@@ -284,8 +283,8 @@ public slots:
   void openStereoView();
   void toggleStatusBarVisibility();
 
-  void togglePaintingToolbox();
-  void showPaintingToolbox();
+  //void togglePaintingToolbox();
+  //void showPaintingToolbox();
 
 protected slots:
   void freeResize();

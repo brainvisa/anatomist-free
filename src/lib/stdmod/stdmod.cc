@@ -391,37 +391,7 @@ void StdModule::controlsDeclaration()
   {
     QPixmap       p;
     if( p.load( ( Settings::globalPath() + "/icons/meshPaint/SurfpaintControl.png" ).c_str() ) )
-      IconDictionary::instance()->addIcon( "SurfpaintControl", p );
-  }
-
-  {
-    QPixmap p;
-    if( p.load( ( Settings::globalPath() + "/icons/meshPaint/colorpicker.png" ).c_str() ) )
-      IconDictionary::instance()->addIcon( "SurfpaintColorPickerControl", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/paintbrush.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "SurfpaintBrushControl", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/build.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "buildIcon", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/erase.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "SurfpaintEraseControl", p );
-  }
-
-  {
-  QPixmap p;
-  if( p.load( ( Settings::globalPath() + "/icons/meshPaint/shortestpath.png" ).c_str() ) )
-    IconDictionary::instance()->addIcon( "SurfpaintShortestPathControl", p );
+      IconDictionary::instance()->addIcon( "SurfpaintToolsControl", p );
   }
 
 }

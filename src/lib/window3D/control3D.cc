@@ -856,7 +856,7 @@ void Zoom3DAction::endZoomKey()
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
-  if (w && w3 && w3->surfpaintIsVisible() )
+  if (w && w3 /*&& w3->surfpaintIsVisible() */)
     w->copyBackBuffer2Texture();
 }
 
@@ -1010,7 +1010,7 @@ void Translate3DAction::endTranslate( int, int, int, int )
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
-  if (w && w3 && w3->surfpaintIsVisible() )
+  if (w && w3 /*&& w3->surfpaintIsVisible()*/ )
     w->copyBackBuffer2Texture();
 }
 

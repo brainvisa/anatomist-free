@@ -37,7 +37,15 @@
 
 
 #include <anatomist/window/qwindow.h>
-
+#include <aims/qtcompat/qtoolbutton.h>
+#include <anatomist/controler/icondictionary.h>
+#include <anatomist/controler/controldictionary.h>
+#include <anatomist/controler/view.h>
+#include <anatomist/object/Object.h>
+#include <anatomist/selection/selectFactory.h>
+#include <qtoolbar.h>
+#include <qtimer.h>
+#include <iostream>
 
 namespace anatomist
 {
@@ -69,6 +77,9 @@ public:
 
   virtual anatomist::View* view() = 0;
   virtual const anatomist::View* view() const = 0;
+
+  //ARN
+  std::map<std::string, QToolButton *> getControlButtonObjects( void );
 
 public slots:
   /** just calls \updateActiveControl(). We cannot use directly 

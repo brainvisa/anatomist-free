@@ -33,15 +33,6 @@
 
 
 #include <anatomist/window/controlledWindow.h>
-#include <anatomist/controler/icondictionary.h>
-#include <anatomist/controler/controldictionary.h>
-#include <anatomist/controler/view.h>
-#include <anatomist/object/Object.h>
-#include <anatomist/selection/selectFactory.h>
-#include <aims/qtcompat/qtoolbutton.h>
-#include <qtoolbar.h>
-#include <qtimer.h>
-#include <iostream>
 
 using namespace anatomist;
 using namespace carto;
@@ -89,6 +80,11 @@ ControlledWindow::~ControlledWindow()
   delete d;
 }
 
+//ARN
+map<string, QToolButton *> ControlledWindow::getControlButtonObjects( void )
+{
+  return d->ctlbts;
+}
 
 void ControlledWindow::registerObject( AObject* o, bool temporaryObject,
                                        int pos )

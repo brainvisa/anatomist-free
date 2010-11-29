@@ -81,6 +81,8 @@ namespace anatomist
       { return( 0 ); }
 
     virtual void setTexExtrema();
+    void setTexExtrema(float min,float max);
+
     virtual void normalize();
     template <typename T> void setTexture( carto::rc_ptr<TimeTexture<T> >
         tex );

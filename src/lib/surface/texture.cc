@@ -644,6 +644,15 @@ void ATexture::normalize()
   glSetChanged( glBODY );
 }
 
+void ATexture::setTexExtrema(float min, float max)
+{
+  TexExtrema  & te = glTexExtrema( 0 );
+  te.min.clear();
+  te.max.clear();
+  te.min.push_back( min );
+  te.max.push_back( max );
+  cout << "Texture extrema : [ " << min << " " << max << " ]\n";
+}
 
 void ATexture::setTexExtrema()
 {

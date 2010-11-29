@@ -189,7 +189,6 @@ HEADERS = \
 	window3D/wFixedPointOfView.h \
 	window3D/wLightModel.h \
 	window3D/wTools3D.h \
-	window3D/wSurfpaintTools.h \
 	window3D/zoomDialog.h \
 	mobject/globjectlist.h \
 	mobject/globjectvector.h \
@@ -231,7 +230,8 @@ HEADERS = \
 	application/listDir.h \
 	application/anatomist_doc.h \
 	stdmod/stdmod.h \
-	primitive/primitive.h
+	primitive/primitive.h \
+	constrainteditor/wConstraintEditor.h
 
 SOURCES = \
 	browser/browsercontrol.cc \
@@ -414,7 +414,6 @@ SOURCES = \
 	window3D/wFixedPointOfView.cc \
 	window3D/wLightModel.cc \
 	window3D/wTools3D.cc \
-	window3D/wSurfpaintTools.cc \
 	window3D/zoomDialog.cc \
 	mobject/globjectlist.cc \
 	mobject/globjectvector.cc \
@@ -454,7 +453,8 @@ SOURCES = \
 	application/syntax.cc \
 	application/listDir.cc \
 	stdmod/stdmod.cc \
-	primitive/primitive.cc
+	primitive/primitive.cc \
+	constrainteditor/wConstraintEditor.cc
 
 #release-darwin:LIBS	= $(DARWINBUG_LIBS)
 
