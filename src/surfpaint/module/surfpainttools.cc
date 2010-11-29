@@ -395,8 +395,11 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         cout << "done" << endl;
 
+        //const AimsSurfaceTriangle &mesh;
+
         rc_ptr<AimsSurfaceTriangle > mesh;
-        mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
+        //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
+        mesh = as->surface();
 
         cout << "compute surface neighbours : ";
         neighbours = SurfaceManip::surfaceNeighbours(*mesh);
@@ -754,7 +757,8 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       tex->setInternalsChanged();
       //      win3D->setChanged();
       //      win3D->notifyObservers( this );
-      win3D->Refresh();
+      //win3D->Refresh();
+      win3D->refreshNow();
     }
   }
 }
