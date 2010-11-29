@@ -38,11 +38,13 @@
 
 #include <anatomist/application/module.h>
 
+
 namespace anatomist
 {
   class AObject ;
   class AGraph ;
   class AGraphObject ;
+
 
   class SurfpaintModule : public anatomist::Module
   {

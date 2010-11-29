@@ -35,10 +35,12 @@
 #ifndef SURFPAINT_ACTION_H
 #define SURFPAINT_ACTION_H
 
-#include "anatomist/controler/action.h"
-#include <anatomist/object/Object.h>
+#include <anatomist/controler/action.h>
 
-class QWidget ;
+using namespace anatomist;
+using namespace aims;
+using namespace std;
+
 class AWindow3D ;
 
 namespace anatomist
@@ -48,78 +50,54 @@ namespace anatomist
   class AGraphObject ;
   class AObject ;
 
-  class SurfpaintColorPickerAction : public Action
+  class SurfpaintToolsAction : public Action
   {
     public:
-      SurfpaintColorPickerAction() ;
-      virtual ~SurfpaintColorPickerAction() ;
+      SurfpaintToolsAction() ;
+      virtual ~SurfpaintToolsAction() ;
 
     // Action inputs
       virtual std::string name() const;
       AObject * get_o();
       static Action* creator();
+
+      void pressRightButton( int x, int y, int globalX, int globalY  );
+      void longLeftButtonStart( int x, int y, int globalX, int globalY  );
+      void longLeftButtonMove( int x, int y, int globalX, int globalY  );
+      void longLeftButtonStop( int x, int y, int globalX, int globalY  );
 
       void colorpicker( int x, int y, int globalX, int globalY  );
 
-    private:
-      AObject *objselect;
-  };
-
-  class SurfpaintBrushAction : public Action
-  {
-    public:
-      SurfpaintBrushAction() ;
-      virtual ~SurfpaintBrushAction() ;
-
-    // Action inputs
-      virtual std::string name() const;
-      AObject * get_o();
-      static Action* creator();
+      void magicselection( int x, int y, int globalX, int globalY );
 
       void brushMove ( int x, int y, int globalX, int globalY  );
       void brushStart( int x, int y, int globalX, int globalY );
       void brushStop( int x, int y, int globalX, int globalY );
 
-    private:
-      AObject *objselect;
-
-  };
-
-  class SurfpaintEraseAction : public Action
-  {
-    public:
-      SurfpaintEraseAction() ;
-      virtual ~SurfpaintEraseAction() ;
-
-    // Action inputs
-      virtual std::string name() const;
-      AObject * get_o();
-      static Action* creator();
-
       void eraseMove ( int x, int y, int globalX, int globalY  );
       void eraseStart( int x, int y, int globalX, int globalY );
       void eraseStop( int x, int y, int globalX, int globalY );
 
-    private:
-      AObject *objselect;
-
-  };
-
-  class SurfpaintShortestPathAction : public Action
-  {
-    public:
-      SurfpaintShortestPathAction() ;
-      virtual ~SurfpaintShortestPathAction() ;
-
-    // Action inputs
-      virtual std::string name() const;
-      AObject * get_o();
-      static Action* creator();
+      //void shortestpathMove ( int x, int y, int globalX, int globalY  );
+      void shortestpathStart( int x, int y, int globalX, int globalY  );
+      void shortestpathStop( int x, int y, int globalX, int globalY  );
+      void shortestpathClose( int x, int y, int globalX, int globalY  );
 
     private:
-      AObject *objselect;
 
+      AWindow3D *win3D;
+      AObject *objselect;
+      Point3df pos;
+      int poly;
+      string objtype;
+      float texvalue;
+      string textype;
+      int indexVertex;
+      Point3df positionNearestVertex;
+      int indexNearestVertex;
+      int activeControl;
   };
+
 }
 
 #endif

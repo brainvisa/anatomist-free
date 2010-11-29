@@ -30,37 +30,45 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#include <anatomist/action/nodeselectionaction.h>
 
+#include <anatomist/module/surfpainttools.h>
 #include <anatomist/module/surfpaintmodule.h>
 #include <anatomist/action/surfpaintaction.h>
 #include <anatomist/control/surfpaintcontrol.h>
-#include <qtranslator.h>
 
+#include <qtranslator.h>
 #include <anatomist/controler/actiondictionary.h>
 #include <anatomist/controler/controldictionary.h>
 #include <anatomist/controler/controlmanager.h>
+#include <anatomist/controler/controlgroupdictionary.h>
 #include <anatomist/controler/icondictionary.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/misc/error.h>
-
 #include <aims/mesh/surface.h>
 #include <anatomist/surface/triangulated.h>
 #include <aims/mesh/texture.h>
 #include <anatomist/surface/texture.h>
 
+#include <aims/mesh/curv.h>
+#include <aims/mesh/surfaceOperation.h>
+#include <aims/mesh/surfaceOperation.h>
+#include <aims/mesh/surfacegen.h>
+#include <anatomist/surface/triangulated.h>
+#include <anatomist/application/Anatomist.h>
+
 using namespace anatomist;
 using namespace std;
-
+using namespace aims;
 
 static bool initSurfpaintModule()
 {
-  //cout << "initSurfpaintModule\n";
+
   SurfpaintModule	*a = new SurfpaintModule;
   a->init();
+  cout << "initSurfpaintModule\n";
   return( true );
 }
 
@@ -71,17 +79,14 @@ SurfpaintModule::SurfpaintModule() : Module()
 {
 }
 
-
 SurfpaintModule::~SurfpaintModule()
 {
 }
-
 
 string SurfpaintModule::name() const
 {
   return( QT_TRANSLATE_NOOP( "ControlWindow", "Surfpaint" ) );
 }
-
 
 string SurfpaintModule::description() const
 {
@@ -94,40 +99,23 @@ void SurfpaintModule::viewsDeclaration() { }
 
 void SurfpaintModule::actionsDeclaration()
 {
-  //std::cout << "Surfpaint actions\n" << std::endl;
+  std::cout << "Surfpaint actions\n" << std::endl;
 
-  SurfpaintColorPickerAction aCP;
-  ActionDictionary::instance()->addAction("SurfpaintColorPickerAction", &SurfpaintColorPickerAction::creator ) ;
-
-  ActionDictionary::instance()->addAction("SurfpaintBrushAction", SurfpaintBrushAction::creator ) ;
-  ActionDictionary::instance()->addAction("SurfpaintEraseAction", SurfpaintEraseAction::creator ) ;
-  ActionDictionary::instance()->addAction("SurfpaintShortestPathAction", SurfpaintShortestPathAction::creator ) ;
-
+  SurfpaintToolsAction aT;
+  ActionDictionary::instance()->addAction( aT.name(), &SurfpaintToolsAction::creator ) ;
 }
 
 void SurfpaintModule::controlsDeclaration()
 {
-  //std::cout << "Surfpaint control\n" << std::endl;
+  std::cout << "Surfpaint control\n" << std::endl;
 
-  SurfpaintColorPickerControl   cCP;
-  ControlDictionary::instance()->addControl( cCP.name(), &SurfpaintColorPickerControl::creator,
-      cCP.priority() );
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ), cCP.name() );
+//  std::set<string> test;
+//  test.insert("coucou");
+//  test.insert("toto");
+//  ControlGroupDictionary::instance()->addControlGroup( "controlGroup", test);
+//  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ), "controlGroup" );
 
-  //ControlDictionary::instance()->addControl("SurfpaintColorPickerControl",SurfpaintColorPickerControl::creator, 555 ) ;
-  ControlDictionary::instance()->addControl("SurfpaintBrushControl",SurfpaintBrushControl::creator, 556 ) ;
-  ControlDictionary::instance()->addControl("SurfpaintEraseControl",SurfpaintEraseControl::creator, 557 ) ;
-  ControlDictionary::instance()->addControl("SurfpaintShortestPathControl",SurfpaintShortestPathControl::creator, 558 ) ;
-
-  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintBrushControl" ) ;
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintBrushControl" ) ;
-
-  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintColorPickerControl" ) ;
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintColorPickerControl" ) ;
-
-  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintEraseControl" ) ;
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintEraseControl" ) ;
-
-  //ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TRIANG ),"SurfpaintShortestPathControl" ) ;
-  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ),"SurfpaintShortestPathControl" ) ;
+  SurfpaintToolsControl   cT;
+  ControlDictionary::instance()->addControl( cT.name(), &SurfpaintToolsControl::creator, cT.priority() );
+  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ), cT.name() );
 }

@@ -30,13 +30,10 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
-//#include <anatomist/application/hierarchyeditor.h>
+#include <anatomist/module/surfpainttools.h>
 #include <anatomist/control/surfpaintcontrol.h>
 #include <anatomist/action/surfpaintaction.h>
 #include <anatomist/window/glwidgetmanager.h>
-//#include <anatomist/graph/Graph.h>
-//#include <anatomist/hierarchy/hierarchy.h>
 #include <anatomist/window3D/control3D.h>
 #include <anatomist/controler/view.h>
 #include <anatomist/window3D/trackball.h>
@@ -53,38 +50,47 @@ using namespace carto;
 using namespace std;
 
 Control *
-SurfpaintColorPickerControl::creator()
+SurfpaintToolsControl::creator()
 {
-  //cout<<"creator Control"<<endl;
-  SurfpaintColorPickerControl * ns = new SurfpaintColorPickerControl();
+  SurfpaintToolsControl * ns = new SurfpaintToolsControl();
   return (ns);
 }
 
-SurfpaintColorPickerControl::SurfpaintColorPickerControl() :
-  Control(555, QT_TRANSLATE_NOOP("ControlledWindow",
-      "SurfpaintColorPickerControl"))
+SurfpaintToolsControl::SurfpaintToolsControl() :
+  Control(518, QT_TRANSLATE_NOOP("ControlledWindow",
+      "SurfpaintToolsControl"))
 {
-  //cout<<"Constructeur SurfpaintColorPickerControl"<<endl;
 }
 
-SurfpaintColorPickerControl::SurfpaintColorPickerControl(
-    const SurfpaintColorPickerControl & c) :
+SurfpaintToolsControl::SurfpaintToolsControl(
+    const SurfpaintToolsControl & c) :
   Control(c)
 {
-  //cout<<"Constructeur COPIE SurfpaintColorPickerControl"<<endl;
 }
 
-SurfpaintColorPickerControl::~SurfpaintColorPickerControl()
+SurfpaintToolsControl::~SurfpaintToolsControl()
 {
-  //cout<<"Destructor SurfpaintColorPickerControl"<<endl;
 }
 
-void SurfpaintColorPickerControl::eventAutoSubscription(ActionPool * actionPool)
+void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
 {
-  mousePressButtonEventSubscribe(Qt::LeftButton, Qt::NoButton,
-      MouseActionLinkOf<SurfpaintColorPickerAction> (actionPool->action(
-          "SurfpaintColorPickerAction"),
-          &SurfpaintColorPickerAction::colorpicker));
+//  mousePressButtonEventSubscribe(Qt::LeftButton, Qt::NoButton,
+//        MouseActionLinkOf<SurfpaintToolsAction> (actionPool->action(
+//            "SurfpaintToolsAction"),
+//            &SurfpaintToolsAction::pressLeftButton));
+
+  mousePressButtonEventSubscribe(Qt::RightButton, Qt::NoButton,
+          MouseActionLinkOf<SurfpaintToolsAction> (actionPool->action(
+              "SurfpaintToolsAction"),
+              &SurfpaintToolsAction::pressRightButton));
+
+  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoButton, MouseActionLinkOf<
+      SurfpaintToolsAction> (actionPool->action("SurfpaintToolsAction"),
+      &SurfpaintToolsAction::longLeftButtonStart), MouseActionLinkOf<
+      SurfpaintToolsAction> (actionPool->action("SurfpaintToolsAction"),
+      &SurfpaintToolsAction::longLeftButtonMove),
+      MouseActionLinkOf<SurfpaintToolsAction> (actionPool->action(
+          "SurfpaintToolsAction"), &SurfpaintToolsAction::longLeftButtonStop), true);
 
   mouseLongEventSubscribe(Qt::MidButton, Qt::NoButton, MouseActionLinkOf<
       Trackball> (actionPool->action("Trackball"), &Trackball::beginTrackball),
@@ -113,300 +119,51 @@ void SurfpaintColorPickerControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<Translate3DAction> (actionPool->action(
           "Translate3DAction"), &Translate3DAction::endTranslate), true);
 
-  /*Creation of action*/
-  myAction = dynamic_cast<SurfpaintColorPickerAction *> (actionPool->action(
-      "SurfpaintColorPickerAction"));
+
+    /*Creation of action*/
+  myAction = dynamic_cast<SurfpaintToolsAction *> (actionPool->action(
+      "SurfpaintToolsAction"));
 }
 
-void SurfpaintColorPickerControl::doAlsoOnSelect(ActionPool * /* pool */)
+
+
+void SurfpaintToolsControl::doAlsoOnSelect(ActionPool * /* pool */)
+{
+  if (myAction)
+  {
+    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
+
+    if (w3)
+      {
+
+      if (!w3->surfpaintIsVisible())
+      {
+        SurfpaintTools::instance()->addToolBarInfosTexture(w3);
+        SurfpaintTools::instance()->addToolBarControls(w3);
+        SurfpaintTools::instance()->initSurfPaintModule(w3);
+        w3->setVisibleSurfpaint(true);
+      }
+
+//      GLWidgetManager* w = dynamic_cast<GLWidgetManager *> (w3->view());
+//      if (w)
+//        w->copyBackBuffer2Texture();
+    }
+  }
+}
+
+void SurfpaintToolsControl::doAlsoOnDeselect(ActionPool * /* pool */)
 {
   if (myAction)
   {
     AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
     if (w3)
-    {
-      w3->showPaintingToolbox();
-      GLWidgetManager* w = dynamic_cast<GLWidgetManager *> (w3->view());
-      if (w)
-        w->copyBackBuffer2Texture();
-    }
-  }
-}
+      {
+      SurfpaintTools::instance()->removeToolBarInfosTexture(w3);
+      SurfpaintTools::instance()->removeToolBarControls(w3);
 
-void SurfpaintColorPickerControl::doAlsoOnDeselect(ActionPool * /* pool */)
-{
-  if (myAction)
-  {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
+      if (w3->surfpaintIsVisible())
+        w3->setVisibleSurfpaint(false);
+      }
   }
 
-}
-
-Control *
-SurfpaintBrushControl::creator()
-{
-  //cout<<"creator Control"<<endl;
-  SurfpaintBrushControl * ns = new SurfpaintBrushControl();
-  return (ns);
-}
-
-SurfpaintBrushControl::SurfpaintBrushControl() :
-  Control(556, QT_TRANSLATE_NOOP("ControlledWindow", "SurfpaintBrushControl"))
-{
-  //cout<<"Constructeur SurfpaintBrushControl"<<endl;
-}
-
-SurfpaintBrushControl::SurfpaintBrushControl(const SurfpaintBrushControl & c) :
-  Control(c)
-{
-  //cout<<"Constructeur COPIE SurfpaintBrushControl"<<endl;
-}
-
-SurfpaintBrushControl::~SurfpaintBrushControl()
-{
-  //cout<<"Destructor SurfpaintBrushControl"<<endl;
-}
-
-void SurfpaintBrushControl::eventAutoSubscription(ActionPool * actionPool)
-{
-  //  cout<<"EVENT SUSCRIPTION"<<endl;
-
-  mousePressButtonEventSubscribe(Qt::RightButton, Qt::NoButton,
-      MouseActionLinkOf<MenuAction> (actionPool->action("MenuAction"),
-          &MenuAction::execMenu));
-
-  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoButton, MouseActionLinkOf<
-      SurfpaintBrushAction> (actionPool->action("SurfpaintBrushAction"),
-      &SurfpaintBrushAction::brushStart), MouseActionLinkOf<
-      SurfpaintBrushAction> (actionPool->action("SurfpaintBrushAction"),
-      &SurfpaintBrushAction::brushMove),
-      MouseActionLinkOf<SurfpaintBrushAction> (actionPool->action(
-          "SurfpaintBrushAction"), &SurfpaintBrushAction::brushStop), true);
-  //  // rotation
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::NoButton, MouseActionLinkOf<
-      Trackball> (actionPool->action("Trackball"), &Trackball::beginTrackball),
-      MouseActionLinkOf<Trackball> (actionPool->action("Trackball"),
-          &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
-          actionPool->action("Trackball"), &Trackball::endTrackball), true);
-  //
-  //  // zoom
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ShiftButton, MouseActionLinkOf<
-      Zoom3DAction> (actionPool->action("Zoom3DAction"),
-      &Zoom3DAction::beginZoom), MouseActionLinkOf<Zoom3DAction> (
-      actionPool->action("Zoom3DAction"), &Zoom3DAction::moveZoom),
-      MouseActionLinkOf<Zoom3DAction> (actionPool->action("Zoom3DAction"),
-          &Zoom3DAction::endZoom), true);
-
-  wheelEventSubscribe(WheelActionLinkOf<Zoom3DAction> (actionPool->action(
-      "Zoom3DAction"), &Zoom3DAction::zoomWheel));
-  //  //  translation
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ControlButton, MouseActionLinkOf<
-      Translate3DAction> (actionPool->action("Translate3DAction"),
-      &Translate3DAction::beginTranslate),
-      MouseActionLinkOf<Translate3DAction> (actionPool->action(
-          "Translate3DAction"), &Translate3DAction::moveTranslate),
-      MouseActionLinkOf<Translate3DAction> (actionPool->action(
-          "Translate3DAction"), &Translate3DAction::endTranslate), true);
-
-  /*Creation of action*/
-  myAction = dynamic_cast<SurfpaintBrushAction *> (actionPool->action(
-      "SurfpaintBrushAction"));
-}
-
-void SurfpaintBrushControl::doAlsoOnSelect(ActionPool * /* pool */)
-{
-  if (myAction)
-  {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
-    if (w3)
-    {
-      w3->showPaintingToolbox();
-      GLWidgetManager* w = dynamic_cast<GLWidgetManager *> (w3->view());
-      if (w)
-        w->copyBackBuffer2Texture();
-    }
-  }
-}
-
-void SurfpaintBrushControl::doAlsoOnDeselect(ActionPool * /* pool */)
-{
-  if (myAction)
-  {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
-  }
-}
-
-Control *
-SurfpaintEraseControl::creator()
-{
-  //cout<<"creator Control"<<endl;
-  SurfpaintEraseControl * ns = new SurfpaintEraseControl();
-  return (ns);
-}
-
-SurfpaintEraseControl::SurfpaintEraseControl() :
-  Control(557, QT_TRANSLATE_NOOP("ControlledWindow", "SurfpaintEraseControl"))
-{
-  //cout<<"Constructeur SurfpaintEraseControl"<<endl;
-}
-
-SurfpaintEraseControl::SurfpaintEraseControl(const SurfpaintEraseControl & c) :
-  Control(c)
-{
-  //cout<<"Constructeur COPIE SurfpaintEraseControl"<<endl;
-}
-
-SurfpaintEraseControl::~SurfpaintEraseControl()
-{
-  //cout<<"Destructor SurfpaintEraseControl"<<endl;
-}
-
-void SurfpaintEraseControl::eventAutoSubscription(ActionPool * actionPool)
-{
-  //  cout<<"EVENT SUSCRIPTION"<<endl;
-
-  mousePressButtonEventSubscribe(Qt::RightButton, Qt::NoButton,
-      MouseActionLinkOf<MenuAction> (actionPool->action("MenuAction"),
-          &MenuAction::execMenu));
-
-  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoButton, MouseActionLinkOf<
-      SurfpaintEraseAction> (actionPool->action("SurfpaintEraseAction"),
-        &SurfpaintEraseAction::eraseStart), MouseActionLinkOf<
-        SurfpaintEraseAction> (actionPool->action("SurfpaintEraseAction"),
-        &SurfpaintEraseAction::eraseMove),
-        MouseActionLinkOf<SurfpaintEraseAction> (actionPool->action(
-            "SurfpaintEraseAction"), &SurfpaintEraseAction::eraseStop), true);
-  //  // rotation
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::NoButton, MouseActionLinkOf<
-      Trackball> (actionPool->action("Trackball"), &Trackball::beginTrackball),
-      MouseActionLinkOf<Trackball> (actionPool->action("Trackball"),
-          &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
-          actionPool->action("Trackball"), &Trackball::endTrackball), true);
-  //
-  //  // zoom
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ShiftButton, MouseActionLinkOf<
-      Zoom3DAction> (actionPool->action("Zoom3DAction"),
-      &Zoom3DAction::beginZoom), MouseActionLinkOf<Zoom3DAction> (
-      actionPool->action("Zoom3DAction"), &Zoom3DAction::moveZoom),
-      MouseActionLinkOf<Zoom3DAction> (actionPool->action("Zoom3DAction"),
-          &Zoom3DAction::endZoom), true);
-
-  wheelEventSubscribe(WheelActionLinkOf<Zoom3DAction> (actionPool->action(
-      "Zoom3DAction"), &Zoom3DAction::zoomWheel));
-
-  //  //  translation
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ControlButton, MouseActionLinkOf<
-      Translate3DAction> (actionPool->action("Translate3DAction"),
-      &Translate3DAction::beginTranslate),
-      MouseActionLinkOf<Translate3DAction> (actionPool->action(
-          "Translate3DAction"), &Translate3DAction::moveTranslate),
-      MouseActionLinkOf<Translate3DAction> (actionPool->action(
-          "Translate3DAction"), &Translate3DAction::endTranslate), true);
-
-  /*Creation of action*/
-  myAction = dynamic_cast<SurfpaintEraseAction *> (actionPool->action(
-      "SurfpaintEraseAction"));
-}
-
-void SurfpaintEraseControl::doAlsoOnSelect(ActionPool * /* pool */)
-{
-  if (myAction)
-  {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
-    w3->showPaintingToolbox();
-  }
-}
-
-void SurfpaintEraseControl::doAlsoOnDeselect(ActionPool * /* pool */)
-{
-}
-
-Control *
-SurfpaintShortestPathControl::creator()
-{
-  //cout<<"creator Control"<<endl;
-  SurfpaintShortestPathControl * ns = new SurfpaintShortestPathControl();
-  return (ns);
-}
-
-SurfpaintShortestPathControl::SurfpaintShortestPathControl() :
-  Control(558, QT_TRANSLATE_NOOP("ControlledWindow",
-      "SurfpaintShortestPathControl"))
-{
-  //cout<<"Constructeur SurfpaintShortestPathControl"<<endl;
-}
-
-SurfpaintShortestPathControl::SurfpaintShortestPathControl(
-    const SurfpaintShortestPathControl & c) :
-  Control(c)
-{
-  //cout<<"Constructeur COPIE SurfpaintShortestPathControl"<<endl;
-}
-
-SurfpaintShortestPathControl::~SurfpaintShortestPathControl()
-{
-  //cout<<"Destructor SurfpaintShortestPathControl"<<endl;
-}
-
-void SurfpaintShortestPathControl::eventAutoSubscription(
-    ActionPool * actionPool)
-{
-  //  cout<<"EVENT SUSCRIPTION"<<endl;
-
-  mousePressButtonEventSubscribe(Qt::RightButton, Qt::NoButton,
-      MouseActionLinkOf<MenuAction> (actionPool->action("MenuAction"),
-          &MenuAction::execMenu));
-
-  //  // rotation
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::NoButton, MouseActionLinkOf<
-      Trackball> (actionPool->action("Trackball"), &Trackball::beginTrackball),
-      MouseActionLinkOf<Trackball> (actionPool->action("Trackball"),
-          &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
-          actionPool->action("Trackball"), &Trackball::endTrackball), true);
-  //
-  //  // zoom
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ShiftButton, MouseActionLinkOf<
-      Zoom3DAction> (actionPool->action("Zoom3DAction"),
-      &Zoom3DAction::beginZoom), MouseActionLinkOf<Zoom3DAction> (
-      actionPool->action("Zoom3DAction"), &Zoom3DAction::moveZoom),
-      MouseActionLinkOf<Zoom3DAction> (actionPool->action("Zoom3DAction"),
-          &Zoom3DAction::endZoom), true);
-
-  wheelEventSubscribe(WheelActionLinkOf<Zoom3DAction> (actionPool->action(
-      "Zoom3DAction"), &Zoom3DAction::zoomWheel));
-  //
-  //  //  translation
-  //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ControlButton, MouseActionLinkOf<
-      Translate3DAction> (actionPool->action("Translate3DAction"),
-      &Translate3DAction::beginTranslate),
-      MouseActionLinkOf<Translate3DAction> (actionPool->action(
-          "Translate3DAction"), &Translate3DAction::moveTranslate),
-      MouseActionLinkOf<Translate3DAction> (actionPool->action(
-          "Translate3DAction"), &Translate3DAction::endTranslate), true);
-
-  /*Creation of action*/
-  myAction = dynamic_cast<SurfpaintShortestPathAction *> (actionPool->action(
-      "SurfpaintShortestPathAction"));
-}
-
-void SurfpaintShortestPathControl::doAlsoOnSelect(ActionPool * /* pool */)
-{
-  if (myAction)
-  {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
-    w3->showPaintingToolbox();
-  }
-}
-
-void SurfpaintShortestPathControl::doAlsoOnDeselect(ActionPool * /* pool */)
-{
 }

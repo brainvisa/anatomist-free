@@ -30,7 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
+#include <anatomist/module/surfpainttools.h>
 #include <anatomist/action/surfpaintaction.h>
 #include <anatomist/control/surfpaintcontrol.h>
 #include <anatomist/object/Object.h>
@@ -40,208 +40,281 @@
 #include <anatomist/window3D/trackball.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/selection/selectFactory.h>
-#include <anatomist/graph/Graph.h>
-#include <anatomist/graph/GraphObject.h>
 #include <anatomist/controler/view.h>
 #include <anatomist/application/Anatomist.h>
-#include <anatomist/control/qObjTree.h>
-#include <anatomist/hierarchy/hierarchy.h>
-#include <anatomist/control/graphParams.h>
-#include <graph/tree/tree.h>
-#include <graph/tree/treader.h>
-#include <graph/tree/twriter.h>
-#include <anatomist/processor/Processor.h>
 
-#include <cartobase/stream/fileutil.h>
+//#include <cartobase/stream/fileutil.h>
+//#include <aims/utility/converter_texture.h>
+//#include <anatomist/color/colortraits.h>
+
 
 using namespace std;
 using namespace anatomist;
 using namespace aims;
 
-Action*
-SurfpaintColorPickerAction::creator()
-{
-  return new SurfpaintColorPickerAction;
-}
-
-string SurfpaintColorPickerAction::name() const
-{
-  return QT_TRANSLATE_NOOP("ControlSwitch", "SurfpaintColorPickerAction");
-}
-
-SurfpaintColorPickerAction::SurfpaintColorPickerAction()
-{
-}
-
-SurfpaintColorPickerAction::~SurfpaintColorPickerAction()
-{
-}
-
-void SurfpaintColorPickerAction::colorpicker(int x, int y, int, int)
-{
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
-
-  Point3df  pos;
-  int poly;
-  string objtype;
-  float texvalue;
-  string textype;
-  int indexVertex;
-  Point3df positionNearestVertex;
-  int indexNearestVertex;
-
-  objselect = w3->objectAtCursorPosition( x, y );
-
-  w3->getInfos3DFromClickPointNew( x, y, pos, &poly , objselect, objtype, &texvalue, textype, positionNearestVertex, &indexNearestVertex);
-  w3->setTextureValue(texvalue);
-  w3->setPolygon(poly);
-  w3->setVertex(indexNearestVertex);
-}
-
-/////////////////
+using namespace geodesic;
 
 Action*
-SurfpaintBrushAction::creator()
+SurfpaintToolsAction::creator()
 {
-  return new SurfpaintBrushAction;
+  return new SurfpaintToolsAction;
 }
 
-string SurfpaintBrushAction::name() const
+string SurfpaintToolsAction::name() const
 {
-  return QT_TRANSLATE_NOOP("ControlSwitch", "SurfpaintBrushAction");
+  return QT_TRANSLATE_NOOP("ControlSwitch", "SurfpaintToolsAction");
 }
 
-/* Constr. */
+SurfpaintToolsAction::SurfpaintToolsAction()
+{
+  //cout << "SurfpaintToolsAction\n";
+}
 
-SurfpaintBrushAction::SurfpaintBrushAction()
+SurfpaintToolsAction::~SurfpaintToolsAction()
 {
 }
 
-SurfpaintBrushAction::~SurfpaintBrushAction()
+void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globalY)
 {
+  //cout << "pressRightButton\n" ;
+
+  activeControl = SurfpaintTools::instance()->getActiveControl();
+  //cout << "active control = " << activeControl <<endl;
+
+  SurfpaintTools::instance()->setClosePath(true);
+
+  switch (activeControl)
+  {
+  case 3 :
+    shortestpathClose(x,y,globalX,globalY);
+    break;
+  }
 }
 
-void
-SurfpaintBrushAction::brushStart( int x, int y, int globalX, int globalY )
+void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int globalY)
 {
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
-  objselect = w3->objectAtCursorPosition( x, y );
+  //cout << "longLeftButtonStart\n" ;
 
+  win3D = dynamic_cast<AWindow3D *> (view()->window());
+
+  objselect = win3D->objectAtCursorPosition(x, y);
+
+  win3D->getInfos3DFromClickPointNew(x, y, pos, &poly, objselect, objtype,
+      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+
+  activeControl = SurfpaintTools::instance()->getActiveControl();
+  //cout << "active control = " << activeControl <<endl;
+
+  SurfpaintTools::instance()->setClosePath(false);
+
+  switch (activeControl)
+  {
+  case 1 :
+    colorpicker(x,y,globalX,globalY);
+    break;
+  case 2 :
+    magicselection(x,y,globalX,globalY);
+    break;
+  case 3 :
+    shortestpathStart(x,y,globalX,globalY);
+    break;
+  case 4 :
+    brushStart(x,y,globalX,globalY);
+    break;
+  case 5 :
+    eraseStart(x,y,globalX,globalY);
+    break;
+  }
+
+}
+
+void SurfpaintToolsAction::longLeftButtonMove(int x, int y, int globalX, int globalY)
+{
+  //cout << "longLeftButtonMove\n" ;
+
+  switch (activeControl)
+  {
+  case 1 :
+    colorpicker(x,y,globalX,globalY);
+    break;
+  case 4 :
+    brushMove(x,y,globalX,globalY);
+    break;
+  case 5 :
+    eraseMove(x,y,globalX,globalY);
+    break;
+  }
+}
+
+void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int globalY)
+{
+  //cout << "longLeftButtonStop\n" ;
+
+  switch (activeControl)
+  {
+  case 3 :
+    shortestpathStop(x,y,globalX,globalY);
+    break;
+  case 4 :
+    brushStop(x,y,globalX,globalY);
+    break;
+  case 5 :
+    eraseStop(x,y,globalX,globalY);
+    break;
+  }
+}
+
+void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
+{
+  win3D = dynamic_cast<AWindow3D *> (view()->window());
+
+  objselect = win3D->objectAtCursorPosition(x, y);
+
+  if (objselect)
+  win3D->getInfos3DFromClickPointNew(x, y, pos, &poly, objselect, objtype,
+      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  else
+  {
+    texvalue = 0;
+    poly = -1;
+    indexNearestVertex = -1;
+  }
+
+  SurfpaintTools::instance()->setTextureValueFloat(texvalue);
+  SurfpaintTools::instance()->setPolygon(poly);
+  SurfpaintTools::instance()->setVertex(indexNearestVertex);
+}
+
+void SurfpaintToolsAction::magicselection(int x, int y, int globalX, int globalY)
+{
+  win3D = dynamic_cast<AWindow3D *> (view()->window());
+
+  objselect = win3D->objectAtCursorPosition(x, y);
+
+  if (objselect)
+  win3D->getInfos3DFromClickPointNew(x, y, pos, &poly, objselect, objtype,
+      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  else
+  {
+    poly = -1;
+    indexNearestVertex = -1;
+  }
+
+  SurfpaintTools::instance()->setPolygon(poly);
+  SurfpaintTools::instance()->setVertex(indexNearestVertex);
+
+  SurfpaintTools::instance()->floodFillStart (indexNearestVertex);
+  SurfpaintTools::instance()->floodFillStop ();
+}
+
+void SurfpaintToolsAction::brushStart(int x, int y, int globalX, int globalY)
+{
   //cout << "brushStart" << endl;
-  brushMove(x,y,0,0);
-  //hideCursor();
+  brushMove(x, y, globalX, globalY);
 }
 
-void
-SurfpaintBrushAction::brushStop( int x, int y, int globalX, int globalY )
+void SurfpaintToolsAction::brushStop(int x, int y, int globalX, int globalY)
 {
-  //showCursor();
   //cout << "brushStop" << endl;
 }
 
-void SurfpaintBrushAction::brushMove(int x, int y, int, int)
+void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
 {
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
-
   //cout << "brushMove" << endl;
+  win3D = dynamic_cast<AWindow3D *> (view()->window());
 
-  Point3df  pos;
-  int poly;
-  string objtype;
-  float texvalue;
-  string textype;
-  int indexVertex;
-  Point3df positionNearestVertex;
-  int indexNearestVertex;
+  objselect = win3D->objectAtCursorPosition(x, y);
+  if (objselect)
+  win3D->getInfos3DFromClickPointNew(x, y, pos, &poly, objselect, objtype,
+      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  else
+  {
+    poly = -1;
+    indexNearestVertex = -1;
+  }
 
-  w3->getInfos3DFromClickPointNew( x, y, pos, &poly , objselect, objtype, &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  SurfpaintTools::instance()->setPolygon(poly);
+  SurfpaintTools::instance()->setVertex(indexNearestVertex);
 
-  texvalue = w3->getTextureValue();
-  w3->setPolygon(poly);
+  texvalue = (float)(SurfpaintTools::instance()->getTextureValueFloat());
 
-  w3->setVertex(indexNearestVertex);
-  w3->updateTextureValue( objselect, textype, indexNearestVertex, texvalue);
+  if (objselect)
+    SurfpaintTools::instance()->updateTextureValue(indexNearestVertex, texvalue);
+
 }
-/////////////////
 
-Action*
-SurfpaintEraseAction::creator()
+void SurfpaintToolsAction::eraseStart(int x, int y, int globalX, int globalY)
 {
-  return new SurfpaintEraseAction;
+  //cout << "eraseStart" << endl;
+  eraseMove(x, y, 0, 0);
 }
 
-string SurfpaintEraseAction::name() const
+void SurfpaintToolsAction::eraseStop(int x, int y, int globalX, int globalY)
 {
-  return QT_TRANSLATE_NOOP("ControlSwitch", "SurfpaintEraseAction");
+  //cout << "eraseStop" << endl;
 }
 
-/* Constr. */
-
-SurfpaintEraseAction::SurfpaintEraseAction()
+void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
 {
+  //cout << "eraseMove" << endl;
+
+  win3D = dynamic_cast<AWindow3D *> (view()->window());
+
+  objselect = win3D->objectAtCursorPosition(x, y);
+  if (objselect)
+  win3D->getInfos3DFromClickPointNew(x, y, pos, &poly, objselect, objtype,
+      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  else
+  {
+    poly = -1;
+    indexNearestVertex = -1;
+  }
+
+  SurfpaintTools::instance()->setPolygon(poly);
+  SurfpaintTools::instance()->setVertex(indexNearestVertex);
+
+  if (objselect)
+    SurfpaintTools::instance()->restoreTextureValue(indexNearestVertex);
 }
 
-SurfpaintEraseAction::~SurfpaintEraseAction()
+void SurfpaintToolsAction::shortestpathClose(int x, int y, int globalX, int globalY)
 {
+  //cout << "shortestpathClose" << endl;
+
+  shortestpathStart(x, y, globalX, globalY);
 }
-void
-SurfpaintEraseAction::eraseStart( int x, int y, int globalX, int globalY )
+
+void SurfpaintToolsAction::shortestpathStart(int x, int y, int globalX, int globalY)
 {
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
-  objselect = w3->objectAtCursorPosition( x, y );
+  //cout << "shortestpathStart" << endl;
 
-  //cout << "brushStart" << endl;
-  eraseMove(x,y,0,0);
-  //hideCursor();
+  win3D->getInfos3DFromClickPointNew(x, y, pos, &poly, objselect, objtype,
+      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+
+  //cout << "index " << indexNearestVertex << endl;
+
+  texvalue = (float)(SurfpaintTools::instance()->getTextureValueFloat());
+
+  if (!SurfpaintTools::instance()->pathIsClosed())
+    {
+    SurfpaintTools::instance()->setPolygon(poly);
+    SurfpaintTools::instance()->setVertex(indexNearestVertex);
+    }
+
+  if (indexNearestVertex>= 0)
+  {
+    SurfpaintTools::instance()->addGeodesicPath (indexNearestVertex,positionNearestVertex);
+  }
+
 }
 
-void
-SurfpaintEraseAction::eraseStop( int x, int y, int globalX, int globalY )
+void SurfpaintToolsAction::shortestpathStop(int x, int y, int globalX,
+    int globalY)
 {
-  //showCursor();
-  //cout << "brushStop" << endl;
+  //cout << "shortestpathStop" << endl;
 }
 
-void SurfpaintEraseAction::eraseMove(int x, int y, int, int)
-{
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
-
-  //cout << "brushMove" << endl;
-
-  Point3df  pos;
-  int poly;
-  string objtype;
-  float texvalue;
-  string textype;
-  int indexVertex;
-  Point3df positionNearestVertex;
-  int indexNearestVertex;
-
-  w3->getInfos3DFromClickPointNew( x, y, pos, &poly , objselect, objtype, &texvalue, textype, positionNearestVertex, &indexNearestVertex);
-  //texvalue = w3->getTextureValue();
-  w3->setPolygon(poly);
-  w3->setVertex(indexNearestVertex);
-  w3->restoreTextureValue( objselect, textype, indexNearestVertex);
-}
-/////////////////
-
-Action*
-SurfpaintShortestPathAction::creator()
-{
-  return new SurfpaintShortestPathAction;
-}
-
-string SurfpaintShortestPathAction::name() const
-{
-  return QT_TRANSLATE_NOOP("ControlSwitch", "SurfpaintShortestPathAction");
-}
-
-/* Constr. */
-
-SurfpaintShortestPathAction::SurfpaintShortestPathAction()
-{
-}
-
-SurfpaintShortestPathAction::~SurfpaintShortestPathAction()
-{
-}
+//void SurfpaintToolsAction::shortestpathMove(int x, int y, int, int)
+//{
+//  cout << "shortestpathMove" << endl;
+//}

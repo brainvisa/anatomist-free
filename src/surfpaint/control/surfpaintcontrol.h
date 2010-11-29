@@ -37,36 +37,24 @@
 #include <anatomist/controler/control_d.h>
 #include <anatomist/action/surfpaintaction.h>
 
+//SurfpaintColorPickerControl
+//SurfpaintMagicSelectionControl
+//SurfpaintBrushControl
+//SurfpaintFillControl
+//SurfpaintEraseControl
+//SurfpaintSaveControl
+
 namespace anatomist{
 
-  class SurfpaintColorPickerControl : public Control
-      {
-        public:
-        static ControlPtr creator( ) ;
-
-
-        SurfpaintColorPickerControl( ) ;
-        SurfpaintColorPickerControl( const SurfpaintColorPickerControl & c );
-        virtual ~SurfpaintColorPickerControl() ;
-
-        virtual void eventAutoSubscription( ActionPool * actionPool ) ;
-
-        virtual void doAlsoOnDeselect ( ActionPool * pool ) ;
-        virtual void doAlsoOnSelect( ActionPool * pool ) ;
-
-        private:
-        SurfpaintColorPickerAction * myAction;
-
-      };
-
-  class SurfpaintBrushControl : public Control
+  class SurfpaintToolsControl : public Control
   {
     public:
     static ControlPtr creator( ) ;
 
-    SurfpaintBrushControl( ) ;
-    SurfpaintBrushControl( const SurfpaintBrushControl & c );
-    virtual ~SurfpaintBrushControl() ;
+
+    SurfpaintToolsControl( ) ;
+    SurfpaintToolsControl( const SurfpaintToolsControl & c );
+    virtual ~SurfpaintToolsControl() ;
 
     virtual void eventAutoSubscription( ActionPool * actionPool ) ;
 
@@ -74,46 +62,24 @@ namespace anatomist{
     virtual void doAlsoOnSelect( ActionPool * pool ) ;
 
     private:
-    SurfpaintBrushAction * myAction;
+    SurfpaintToolsAction * myAction;
 
-  };
-
-  class SurfpaintEraseControl : public Control
-  {
-    public:
-    static ControlPtr creator( ) ;
-
-    SurfpaintEraseControl( ) ;
-    SurfpaintEraseControl( const SurfpaintEraseControl & c );
-    virtual ~SurfpaintEraseControl() ;
-
-    virtual void eventAutoSubscription( ActionPool * actionPool ) ;
-
-    virtual void doAlsoOnDeselect ( ActionPool * pool ) ;
-    virtual void doAlsoOnSelect( ActionPool * pool ) ;
-
-    private:
-    SurfpaintEraseAction * myAction;
-  };
-
-  class SurfpaintShortestPathControl : public Control
-  {
-    public:
-    static ControlPtr creator( ) ;
-
-    SurfpaintShortestPathControl( ) ;
-    SurfpaintShortestPathControl( const SurfpaintShortestPathControl & c );
-    virtual ~SurfpaintShortestPathControl() ;
-
-    virtual void eventAutoSubscription( ActionPool * actionPool ) ;
-
-    virtual void doAlsoOnDeselect ( ActionPool * pool ) ;
-    virtual void doAlsoOnSelect( ActionPool * pool ) ;
-
-    private:
-    SurfpaintShortestPathAction * myAction;
   };
 
 }
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
