@@ -3655,7 +3655,7 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 
   if (surfpaintIsVisible())
   {
-    //cout << "with optimization for surfpaint\n";
+    cout << "with optimization for surfpaint\n";
 
     GLubyte* tex = d->draw->getTextureFromBackBuffer();
 
