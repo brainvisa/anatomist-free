@@ -912,7 +912,7 @@ void SurfpaintTools::loadConstraintsList()
 {
   char sep = carto::FileUtil::separator();
 
-#ifdef USE_SHARE_CONFIG
+#if 0 // def USE_SHARE_CONFIG
   string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep + "surfaceanalysis" + sep
   + "constraint_correspondance.txt";
 #else
@@ -1033,7 +1033,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     cout << "path dijkstra = ";
 
-    for (int i = 0; i < listIndexVertexPathSP.size(); i++)
+    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
     {
       cout << listIndexVertexPathSP[i] << " ";
     }
