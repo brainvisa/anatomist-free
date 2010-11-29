@@ -259,7 +259,7 @@ void MeshPaint::createActions()
   connect(fillAction, SIGNAL(triggered()), this, SLOT(filling()));
 
   //gomme
-  iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
+  iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
   clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
   clearAction->setStatusTip(tr("clear"));
   clearAction->setCheckable(true);
