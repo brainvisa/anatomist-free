@@ -128,6 +128,7 @@ namespace anatomist
     virtual void readBackBuffer( int x, int y, GLubyte & red, GLubyte & green,
                                  GLubyte & blue );
     GLubyte* getTextureFromBackBuffer (void);
+    //GLubyte* getTextureFromBackBuffer (void);
     virtual bool translateCursorPosition( float x, float y,
                                           Point3df & position );
 
