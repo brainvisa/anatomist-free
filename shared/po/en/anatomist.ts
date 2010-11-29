@@ -608,6 +608,14 @@
         <source>Histogram window</source>
         <translation type="unfinished"></translation>
     </message>
+   <message>
+        <source>ConstraintEditor</source>
+        <translation type="Constraint Editor"></translation>
+   </message> 
+   <message>
+        <source>OpenCE</source>
+        <translation type="Open Constraint Editor on the selected mesh"></translation>
+   </message>  
 </context>
 <context>
     <name>ControlledWindow</name>
@@ -1943,6 +1951,19 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
 </context>
+
+<context>
+    <name>SurfpaintToolsWindow</name>
+    <message>
+        <source>ConstraintEditor</source>
+        <translation>Constraint editor</translation>
+    </message>
+    <message>
+        <source>TextureValue</source>
+        <translation>Texture value</translation>
+    </message>
+</context>
+
 <context>
     <name>QGraphParam</name>
     <message>

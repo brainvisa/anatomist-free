@@ -430,6 +430,17 @@
         <source>Fusion objects</source>
         <translation>Fusionner les objets</translation>
     </message>
+    
+    <message>
+        <source>ConstraintEditor</source>
+        <translation>Editeur de contraintes</translation>
+    </message>
+    
+    <message>
+        <source>OpenCE</source>
+        <translation type="Ouvrir l'éditeur de contraintes sur le maillage sélectionné"></translation>
+   </message>  
+   
     <message>
         <source>Scripts</source>
         <translation>Scripts</translation>
@@ -666,6 +677,7 @@
         <source>All objects, windows, referentials and transformations will be deleted</source>
         <translation>Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
     </message>
+    
 </context>
 <context>
     <name>ControlledWindow</name>
@@ -1454,6 +1466,10 @@ Bt droit   :  menu
         <translation>Paramètres :</translation>
     </message>
     <message>
+        <source>Controlers :</source>
+        <translation>Contrôleurs :</translation>
+    </message>
+    <message>
         <source>Light model : </source>
         <translation>Modèle de lumière : </translation>
     </message>
@@ -2045,6 +2061,48 @@ Bt droit   :  menu
         <translation>vérifier la configuration et la variable d&apos;environnement BRAINVISA_SHARE</translation>
     </message>
 </context>
+
+<context>
+    <name>SurfpaintTools</name>
+    <message>
+        <source>ConstraintEditor</source>
+        <translation>Editeur de contraintes</translation>
+    </message>
+    <message>
+        <source>TextureValue</source>
+        <translation>Texture :</translation>
+    </message>
+    <message>
+        <source>IDPolygon</source>
+        <translation>Triangle :</translation>
+    </message>
+    <message>
+        <source>IDVertex</source>
+        <translation>Sommet :</translation>
+    </message>
+    <message>
+        <source>tolerance</source>
+        <translation>Tolérance :</translation>
+    </message>
+    <message>
+        <source>constraint</source>
+        <translation>Tension :</translation>
+    </message>
+    
+    <message>
+        <source>surfpainttoolbarTex</source>
+        <translation>Infos texture (surfpaint)</translation>
+    </message>
+    <message>
+        <source>surfpainttoolbar3D</source>
+        <translation>Infos 3D (surfpaint)</translation>
+    </message>
+    <message>
+        <source>surfpainttoolbarControls</source>
+        <translation>Actions (surfpaint)</translation>
+    </message>
+</context>
+
 <context>
     <name>QGraphParam</name>
     <message>
