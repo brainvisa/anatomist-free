@@ -340,12 +340,17 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         as = dynamic_cast<ATriangulated *> (surf);
 
-        AimsSurface<3, Void> *s = as->surfaceOfTime(t);
+        rc_ptr<AimsSurfaceTriangle > mesh;
+        //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
+        mesh = as->surface();
+
+        //AimsSurfaceTriangle mesh;
+        //AimsSurface<3, Void> *s = as->surfaceOfTime(t);
 
         cout << "AimsSurface " << endl;
 
-        vector<AimsVector<uint, 3> > & tri = s->polygon();
-        const vector<Point3df> & vert = s->vertex();
+        vector<AimsVector<uint, 3> > & tri = mesh->polygon();
+        const vector<Point3df> & vert = mesh->vertex();
 
         at->attributed()->getProperty("data_type", textype);
 
@@ -385,7 +390,14 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << "compute texture curvature : ";
         texCurv = TimeTexture<float> (1, vert.size());
 
-        texCurv = AimsMeshCurvature(s[0]);
+        CurvatureFactory CF;
+        Curvature *curvat = CF.createCurvature(*mesh,"barycenter");
+        texCurv[0] = curvat->doIt();
+        curvat->regularize(texCurv[0],1);
+        curvat->getTextureProperties(texCurv[0]);
+        delete curvat;
+
+//        texCurv = AimsMeshCurvature(mesh);
         cout << "done" << endl;
 
         texCurvature = (float*) malloc(texCurv[0].nItem() * sizeof(float));
@@ -426,9 +438,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << "done" << endl;
 
 
-        rc_ptr<AimsSurfaceTriangle > mesh;
-        //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
-        mesh = as->surface();
+
 
         cout << "compute surface neighbours : ";
         neighbours = SurfaceManip::surfaceNeighbours(*mesh);
