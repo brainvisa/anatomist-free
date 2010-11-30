@@ -311,6 +311,8 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
     cout << objselect << endl;
 
     GLComponent *glc = o->glAPI();
+    if( !glc )
+      return;
     glc->glAPI()->glSetTexRGBInterpolation(true);
 
     if (o != NULL && w3->hasObject(o))
@@ -331,9 +333,19 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << "coucou" << endl;
 
         go = dynamic_cast<ATexSurface *> (o);
+        if( !go )
+        {
+          cout << "not a ATexSurface\n";
+          return;
+        }
         surf = go->surface();
         tex = go->texture();
         at = dynamic_cast<ATexture *> (tex);
+        if( !at )
+        {
+          cout << "ATexSurface texture is not a ATexture\n";
+          return;
+        }
         int t = (int) w3->GetTime();
 
         cout << "t " << t << endl;
@@ -341,6 +353,12 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         as = dynamic_cast<ATriangulated *> (surf);
 
         cout << "as " << endl;
+        if( !as )
+        {
+          cout << "ATexSurface geometry is not a ATriangulated\n";
+          return;
+        }
+        cout << "as name: " << as->name() << endl;
         rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
 
         cout << "mesh " << endl;

@@ -187,7 +187,8 @@ GLWidgetManager::Private::Private()
     rgbbufready( false ), 
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
     qobject( 0 ),
-    transparentBackground( true ), backgroundAlpha( 128 ),resized(false)
+    transparentBackground( true ), backgroundAlpha( 128 ),
+    mouseX( 0 ), mouseY( 0 ), resized(false)
 {
   buildRotationMatrix();
 }
@@ -1269,16 +1270,25 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     if (theAnatomist->userLevel() >= 3)
     {
       cout << "obj " << obj << endl;
+      cout << obj->name() << endl;
       cout << "mouseX " << _pd->mouseX << " mouseY " << _pd->mouseY << endl;
     }
     w3->renderSelectionBuffer(ViewState::glSELECTRENDER_POLYGON, obj);
-    //cout << "renderSelectionBuffer\n";
+    cout << "renderSelectionBuffer\n";
 
     glFlush(); // or glFinish() ?
     glFinish();
     glReadBuffer( GL_BACK);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+    unsigned long bufsz = _pd->glwidget->width() * _pd->glwidget->height() * 4;
+
+    cout << "back buffer size: " << _pd->backBufferTexture.size() << ", needs: " << _pd->glwidget->width() << " x " << _pd->glwidget->height() << " x 4 = " << bufsz << endl;
+
+    if( bufsz != _pd->backBufferTexture.size() )
+      _pd->backBufferTexture.resize( _pd->glwidget->width()
+        * _pd->glwidget->height() * 4 );
 
     glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGBA,
         GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
