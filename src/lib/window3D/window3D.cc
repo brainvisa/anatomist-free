@@ -3655,16 +3655,16 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 
   if (surfpaintIsVisible())
   {
-    cout << "with optimization for surfpaint\n";
+    //cout << "with optimization for surfpaint\n";
 
     GLubyte* tex = d->draw->getTextureFromBackBuffer();
 
-    r = tex[3 * (d->draw->qglWidget()->height() - y)
-        * d->draw->qglWidget()->width() + 3 * x];
-    g = tex[3 * (d->draw->qglWidget()->height() - y)
-        * d->draw->qglWidget()->width() + 3 * x + 1];
-    b = tex[3 * (d->draw->qglWidget()->height() - y)
-        * d->draw->qglWidget()->width() + 3 * x + 2];
+    r = tex[4 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 4 * x];
+    g = tex[4 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 4 * x + 1];
+    b = tex[4 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 4 * x + 2];
 
     //  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
     //      << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;

@@ -165,8 +165,8 @@ struct GLWidgetManager::Private
   bool                  transparentBackground;
   unsigned char         backgroundAlpha;
 
-  GLubyte *backBufferTexture;
-  //vector<GLubyte> backBufferTexture;
+  //GLubyte *backBufferTexture;
+  vector<GLubyte> backBufferTexture;
   int mouseX;
   int mouseY;
   bool resized;
@@ -309,9 +309,8 @@ void GLWidgetManager::initializeGL()
 //  pd->glwidget->width()
 
   //_pd->backBufferTexture.reserve( _pd->glwidget->width()* _pd->glwidget->height() * 3 );
-  //_pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 3 );
-
-  _pd->backBufferTexture = (GLubyte*)new GLubyte[((_pd->glwidget->width()* _pd->glwidget->height())* 3 * sizeof(GLubyte))];
+  _pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 4 );
+  //_pd->backBufferTexture = (GLubyte*)new GLubyte[((_pd->glwidget->width()* _pd->glwidget->height())* 3 * sizeof(GLubyte))];
   cout << "backBufferTexture.resize " << _pd->glwidget->width() << " " << _pd->glwidget->height() << "\n";
 }
 
@@ -323,10 +322,10 @@ void GLWidgetManager::resizeGL( int w, int h )
 
   _pd->resized = true;
 
-  delete [] _pd->backBufferTexture;
-  _pd->backBufferTexture = (GLubyte*)new GLubyte[((_pd->glwidget->width()* _pd->glwidget->height())* 3 * sizeof(GLubyte))];
+  //delete [] _pd->backBufferTexture;
+  //_pd->backBufferTexture = (GLubyte*)new GLubyte[((_pd->glwidget->width()* _pd->glwidget->height())* 3 * sizeof(GLubyte))];
 
-  //_pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 3 );
+  _pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 4 );
 }
 
 
@@ -1280,12 +1279,13 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     glReadBuffer( GL_BACK);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-//    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGB,
-//        GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
 
-    if (_pd->backBufferTexture)
-    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGB,
-            GL_UNSIGNED_BYTE, _pd->backBufferTexture );
+    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGBA,
+        GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
+
+//    if (_pd->backBufferTexture)
+//    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGB,
+//            GL_UNSIGNED_BYTE, _pd->backBufferTexture );
 
     if (theAnatomist->userLevel() >= 3)
     cout << "copyBackBuffer2Texture\n" << "largeur = " << _pd->glwidget->width() <<
@@ -1311,8 +1311,8 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
 
 GLubyte* GLWidgetManager::getTextureFromBackBuffer(void)
 {
-  //return &_pd->backBufferTexture[0];
-  return _pd->backBufferTexture;
+  return &_pd->backBufferTexture[0];
+  //return _pd->backBufferTexture;
 }
 
 bool GLWidgetManager::translateCursorPosition( float x, float y,
