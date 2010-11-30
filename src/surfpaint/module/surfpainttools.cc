@@ -341,28 +341,32 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         as = dynamic_cast<ATriangulated *> (surf);
 
         cout << "as " << endl;
-
-        rc_ptr<AimsSurfaceTriangle> mesh(new AimsSurfaceTriangle);
+        rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
 
         cout << "mesh " << endl;
+        AimsSurface<3,Void>   & surf3 = (*mesh)[0];
+        cout << "surf3 " << endl;
+        vector<Point3df>    & vert = surf3.vertex();
+        cout << "vert " << endl;
+        vector<AimsVector<uint, 3> >  & tri = surf3.polygon();
+        cout << "tri " << endl;
 
         Object options = Object::value(Dictionary());
         options->setProperty("scale", 0);
 
-        mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
+        //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
         //mesh = as->surface();
 
         //AimsSurfaceTriangle mesh;
         //AimsSurface<3, Void> *s = as->surfaceOfTime(t);
 
-        cout << "AimsSurface " << endl;
+//        vector<AimsVector<uint, 3> > & tri = (*mesh)[0].polygon();
+//        const vector<Point3df> & vert = (*mesh)[0].vertex();
 
-        vector<AimsVector<uint, 3> > & tri = (*mesh)[0].polygon();
-        const vector<Point3df> & vert = (*mesh)[0].vertex();
 
-        at->attributed()->getProperty("data_type", textype);
+        //at->attributed()->getProperty("data_type", textype);
 
-        cout << "type texture :" << textype << endl;
+        //cout << "type texture :" << textype << endl;
         cout << "create Texture temp" << endl;
 
         surfpaintTexInit = new Texture1d;
@@ -402,7 +406,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 //        curvat->getTextureProperties(texCurv[0]);
 //        delete curvat;
 
-        texCurv = AimsMeshCurvature((*mesh)[0]);
+        texCurv = AimsMeshCurvature(surf3);
         cout << "done" << endl;
 
         texCurvature = (float*) malloc(texCurv[0].nItem() * sizeof(float));
