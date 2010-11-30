@@ -340,9 +340,17 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         as = dynamic_cast<ATriangulated *> (surf);
 
-        rc_ptr<AimsSurfaceTriangle > mesh;
-        //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
-        mesh = as->surface();
+        cout << "as " << endl;
+
+        rc_ptr<AimsSurfaceTriangle> mesh(new AimsSurfaceTriangle);
+
+        cout << "mesh " << endl;
+
+        Object options = Object::value(Dictionary());
+        options->setProperty("scale", 0);
+
+        mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
+        //mesh = as->surface();
 
         //AimsSurfaceTriangle mesh;
         //AimsSurface<3, Void> *s = as->surfaceOfTime(t);
@@ -360,8 +368,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         surfpaintTexInit = new Texture1d;
         surfpaintTexInit->reserve(at->size());
 
-        Object options = Object::value(Dictionary());
-        options->setProperty("scale", 0);
+
 
         rc_ptr<TimeTexture<float> > text;
         text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
