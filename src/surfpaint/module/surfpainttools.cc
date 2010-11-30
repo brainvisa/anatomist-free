@@ -357,8 +357,8 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         cout << "AimsSurface " << endl;
 
-        vector<AimsVector<uint, 3> > & tri = mesh->polygon();
-        const vector<Point3df> & vert = mesh->vertex();
+        vector<AimsVector<uint, 3> > & tri = (*mesh)[0].polygon();
+        const vector<Point3df> & vert = (*mesh)[0].vertex();
 
         at->attributed()->getProperty("data_type", textype);
 
@@ -367,8 +367,6 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         surfpaintTexInit = new Texture1d;
         surfpaintTexInit->reserve(at->size());
-
-
 
         rc_ptr<TimeTexture<float> > text;
         text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
@@ -397,14 +395,14 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << "compute texture curvature : ";
         texCurv = TimeTexture<float> (1, vert.size());
 
-        CurvatureFactory CF;
-        Curvature *curvat = CF.createCurvature(*mesh,"barycenter");
-        texCurv[0] = curvat->doIt();
-        curvat->regularize(texCurv[0],1);
-        curvat->getTextureProperties(texCurv[0]);
-        delete curvat;
+//        CurvatureFactory CF;
+//        Curvature *curvat = CF.createCurvature(*mesh,"barycenter");
+//        texCurv[0] = curvat->doIt();
+//        curvat->regularize(texCurv[0],1);
+//        curvat->getTextureProperties(texCurv[0]);
+//        delete curvat;
 
-//        texCurv = AimsMeshCurvature(mesh);
+        texCurv = AimsMeshCurvature((*mesh)[0]);
         cout << "done" << endl;
 
         texCurvature = (float*) malloc(texCurv[0].nItem() * sizeof(float));
