@@ -200,6 +200,8 @@ void SurfpaintToolsAction::magicselection(int x, int y, int globalX, int globalY
     indexNearestVertex = -1;
   }
 
+  SurfpaintTools::instance()->clearRegion();
+
   SurfpaintTools::instance()->setPolygon(poly);
   SurfpaintTools::instance()->setVertex(indexNearestVertex);
 
@@ -241,6 +243,7 @@ void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
   if (objselect)
     SurfpaintTools::instance()->updateTextureValue(indexNearestVertex, texvalue);
 
+  win3D->refreshNow();
 }
 
 void SurfpaintToolsAction::eraseStart(int x, int y, int globalX, int globalY)
@@ -275,6 +278,8 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
 
   if (objselect)
     SurfpaintTools::instance()->restoreTextureValue(indexNearestVertex);
+
+  win3D->refreshNow();
 }
 
 void SurfpaintToolsAction::shortestpathClose(int x, int y, int globalX, int globalY)
@@ -306,6 +311,7 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y, int globalX, int glob
     SurfpaintTools::instance()->addGeodesicPath (indexNearestVertex,positionNearestVertex);
   }
 
+  win3D->refreshNow();
 }
 
 void SurfpaintToolsAction::shortestpathStop(int x, int y, int globalX,

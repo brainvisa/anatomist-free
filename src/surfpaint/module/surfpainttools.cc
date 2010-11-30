@@ -168,7 +168,8 @@ void SurfpaintTools::fill()
       updateTextureValue(listIndexVertexSelectFill[i], texvalue);
       listVertexChanged[listIndexVertexSelectFill[i]] = texvalue;
     }
-    //listIndexVertexSelectFill.clear();
+
+    clearRegion();
   }
 
   //remplissage path
@@ -179,8 +180,12 @@ void SurfpaintTools::fill()
       updateTextureValue(listIndexVertexPathSP[i], texvalue);
       listVertexChanged[listIndexVertexPathSP[i]] = texvalue;
     }
-    //clearPath();
+
+    clearPath();
   }
+
+
+  //win3D->refreshNow();
 }
 
 void SurfpaintTools::erase()
@@ -190,25 +195,36 @@ void SurfpaintTools::erase()
   changeControl(5);
 }
 
+void SurfpaintTools::clearAll()
+{
+  clearPath();
+  clearRegion();
+}
+
 void SurfpaintTools::clearPath()
 {
   listIndexVertexSelectSP.clear();
   listIndexVertexPathSP.clear();
   listIndexVertexPathSPLast.clear();
   pathSP.clear();
-  listIndexVertexSelectFill.clear();
 
   std::vector<ATriangulated*>::iterator ite;
   ite = pathObject.begin();
 
   for (; ite != pathObject.end(); ++ite)
   {
-    //cout <<  (*ite) << endl;
     win3D->unregisterObject((*ite));
     theAnatomist->unregisterObject((*ite));
   }
 
   pathObject.clear();
+}
+
+void SurfpaintTools::clearRegion()
+{
+  listIndexVertexSelectFill.clear();
+
+  std::vector<ATriangulated*>::iterator ite;
 
   ite = fillObject.begin();
 
@@ -288,7 +304,11 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
     QSize s = glw->qglWidget()->size();
     AObject *o = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
 
+    cout << "size : " << s.width() << " " <<  s.height() << endl;
+
     objselect = o;
+
+    cout << objselect << endl;
 
     GLComponent *glc = o->glAPI();
     glc->glAPI()->glSetTexRGBInterpolation(true);
@@ -296,6 +316,8 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
     if (o != NULL && w3->hasObject(o))
     {
       objtype = o->objectTypeName(o->type());
+
+      cout << objtype << endl;
 
       if (objtype == "SURFACE")
       {
@@ -306,14 +328,22 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       if (objtype == "TEXTURED SURF.")
       {
+        cout << "coucou" << endl;
+
         go = dynamic_cast<ATexSurface *> (o);
         surf = go->surface();
         tex = go->texture();
         at = dynamic_cast<ATexture *> (tex);
         int t = (int) w3->GetTime();
+
+        cout << "t " << t << endl;
+
         as = dynamic_cast<ATriangulated *> (surf);
 
         AimsSurface<3, Void> *s = as->surfaceOfTime(t);
+
+        cout << "AimsSurface " << endl;
+
         vector<AimsVector<uint, 3> > & tri = s->polygon();
         const vector<Point3df> & vert = s->vertex();
 
@@ -395,7 +425,6 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         cout << "done" << endl;
 
-        //const AimsSurfaceTriangle &mesh;
 
         rc_ptr<AimsSurfaceTriangle > mesh;
         //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
@@ -498,7 +527,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     clearPathAction->setToolTip(ControlledWindow::tr(
         "Delete all selected objects"));
     clearPathAction->setIconSize(QSize(32, 32));
-    connect(clearPathAction, SIGNAL(clicked()), this, SLOT(clearPath()));
+    connect(clearPathAction, SIGNAL(clicked()), this, SLOT(clearAll()));
 
     //brush
     iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
@@ -512,7 +541,8 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(paintBrushAction, SIGNAL(clicked()), this, SLOT(brush()));
 
     //fill
-    iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
+    //iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
+    iconname = Settings::globalPath() + "/icons/meshPaint/valide.png";
     fillAction = new QToolButton();
     fillAction->setIcon(QIcon(iconname.c_str()));
     fillAction->setToolTip(ControlledWindow::tr("Fill area or path selected"));
@@ -758,7 +788,8 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       //      win3D->setChanged();
       //      win3D->notifyObservers( this );
       //win3D->Refresh();
-      win3D->refreshNow();
+      //win3D->refreshNow();
+      listVertexChanged[indexVertex] = value;
     }
   }
 }
@@ -1075,9 +1106,13 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     const anatomist::AObjectPalette *pal;
 
-    GLComponent *glc = objselect->glAPI();
+    //GLComponent *glc = objselect->glAPI();
 
-    pal = glc->glPalette(0);
+    GLComponent *glc = at->glAPI();
+
+    pal = at->glAPI()->glPalette(0);
+
+    at->setTexExtrema(0,360);
 
     const AimsData<AimsRGBA> *col = pal->colors();
 

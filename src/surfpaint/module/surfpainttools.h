@@ -166,6 +166,8 @@ namespace anatomist
       void brush();
       void fill();
       void clearPath();
+      void clearRegion();
+      void clearAll();
       void erase();
       void save();
 
