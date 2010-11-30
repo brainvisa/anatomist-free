@@ -261,7 +261,7 @@ void ConstraintEditorWindow::accept()
     c.convert(texLatLon, *tex);
     aTex->setTexture(tex);
 
-    aTex->setTexExtrema(0,360);
+    // aTex->setTexExtrema(0,360);
 
     string  constraintLabel = "TexConstraint" + string(d->latlon->currentText());
 

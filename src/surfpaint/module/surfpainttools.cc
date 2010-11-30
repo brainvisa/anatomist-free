@@ -810,18 +810,66 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       options->setProperty("scale", 0);
 
       float it = at->TimeStep();
-      const GLComponent::TexExtrema & te = at->glTexExtrema(0);
+      int tn = 0; // 1st texture
+      GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+      int tx = 0; // 1st tex coord
 
-      float scl = (te.maxquant[0] - te.minquant[0]);
+      ViewState vs;
+      GLfloat* texbuf = const_cast<GLfloat *>( at->glTexCoordArray( vs, tn ) );
+      // hum, don't look at this const_cast...
 
-      rc_ptr<TimeTexture<float> > t;
-      t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+      float scl = (te.maxquant[tx] - te.minquant[tx]);
+      if( value < te.minquant[tx] || value > te.maxquant[tx] )
+      {
+        // extrema will need to change
+        // value in internally rescaled texture
+        float rval = value - te.minquant[tx];
+        if( scl == 0 )
+          scl = 1.;
+        else
+          rval /= scl;
+        if( rval < 0 || rval > 1. )
+        {
+          /* the whole tex needs rescaling because they need to fit in [0-1]
+             for OpenGL */
+          float offs = 0.;
+          float nscl = 1. / ( std::max( rval, te.max[tx] )
+            - std::min( rval, te.min[tx] ) );
+          if( rval < 0 )
+            offs = - rval * nscl;
+          unsigned i, n = at->glTexCoordSize( vs, tn );
+          GLfloat *tb = texbuf;
+          for( unsigned i=0; i<n; ++i )
+            *tb++ = *tb * nscl + offs;
+          // update internal extrema
+          te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
+          te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
+        }
+        // update scaled extrema
+        if( value < te.minquant[tx] )
+          te.minquant[tx] = value;
+        else
+          te.maxquant[tx] = value;
+        scl = te.maxquant[tx] - te.minquant[tx];
+      }
 
-      (*t).item(indexVertex) = (float) value / scl;
+      float svalue = ( value - te.minquant[tx] ) / scl;
+      if( svalue < te.min[tx] )
+        te.min[tx] = svalue;
+      else if( svalue > te.max[tx] )
+        te.max[tx] = svalue;
 
+      texbuf[ indexVertex ] = svalue;
+
+//       rc_ptr<TimeTexture<float> > t;
+//       t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
+// 
+//       (*t).item(indexVertex) = (float) value / scl;
+
+      at->glSetChanged( GLComponent::glBODY );
       tex->setChanged();
-      tex->notifyObservers(this);
       tex->setInternalsChanged();
+      tex->notifyObservers(this);
       //      win3D->setChanged();
       //      win3D->notifyObservers( this );
       //win3D->Refresh();
@@ -1149,7 +1197,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     pal = at->glAPI()->glPalette(0);
 
-    at->setTexExtrema(0,360);
+    // at->setTexExtrema(0,360);
 
     const AimsData<AimsRGBA> *col = pal->colors();
 
