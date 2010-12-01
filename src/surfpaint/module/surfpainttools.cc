@@ -291,7 +291,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
   //w3->addObserver(this);
   stepToleranceValue = 0;
 
-  const string ac = w3->view()->controlSwitch()->activeControl();
+  //const string ac = w3->view()->controlSwitch()->activeControl();
   //cout << "active control: " << ac << endl;
 
   GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
@@ -308,7 +308,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
     objselect = o;
 
-    cout << objselect << endl;
+    cout << objselect << " " << objselect->fileName() << endl;
 
     GLComponent *glc = o->glAPI();
     if( !glc )
@@ -338,19 +338,27 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
           cout << "not a ATexSurface\n";
           return;
         }
+
         surf = go->surface();
+        cout << surf << " " << surf->fileName() << endl;
+
         tex = go->texture();
+        cout << tex << " " << tex->fileName() << endl;
+
         at = dynamic_cast<ATexture *> (tex);
         if( !at )
         {
           cout << "ATexSurface texture is not a ATexture\n";
           return;
         }
+        cout << at << " " << at->fileName() << endl;
+
         int t = (int) w3->GetTime();
 
         cout << "t " << t << endl;
 
         as = dynamic_cast<ATriangulated *> (surf);
+        cout << as << " " << as->fileName() << endl;
 
         cout << "as " << endl;
         if( !as )
@@ -1198,40 +1206,61 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
     delete tmpMeshOut;
 
-    const anatomist::AObjectPalette *pal;
-
-    //GLComponent *glc = objselect->glAPI();
 
     GLComponent *glc = at->glAPI();
 
-    pal = at->glAPI()->glPalette(0);
+    const AObjectPalette *pal = at->getOrCreatePalette();
 
-    // at->setTexExtrema(0,360);
+    cout << "tex name "  << tex->name() << endl;
 
     const AimsData<AimsRGBA> *col = pal->colors();
+
+    unsigned  ncol0, ncol1;
+    float   min1, max1;
+    float   min2, max2;
+    float a,b,c,d,e,f;
+
+    ncol0 = col->dimX();
+    ncol1 = col->dimY();
+
+    min1 = pal->min1();
+    max1 = pal->max1();
+
+    cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
+    cout << "min1 = " << min1 << " max1 = " << max1 << endl;
 
     const GLComponent::TexExtrema & te = glc->glTexExtrema(0);
 
     AimsRGBA empty;
 
-    empty = (*col)((int) 255
-        * (float) (getTextureValueFloat() / 360));
+    float indice = ((float)(getTextureValueFloat() - min1)/(float)(max1 - min1))*ncol0;
 
-//    cout << "minq = " << te.min[0] << "maxq = " << te.maxquant[0] << endl;
-//    cout << "min = " << te.minquant[0] << "max = " << te.max[0] << endl;
+    cout << "i = " << indice << endl;
+//    empty = pal->normColor((float) (getTextureValueFloat() / 360.));
+//    cout << "texture value RGB norm" << (int) empty.red() << " "
+//         << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
+
+    if (indice)
+    empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+
+    cout << "minq = " << te.min[0] << "maxq = " << te.maxquant[0] << endl;
+    cout << "min = " << te.minquant[0] << "max = " << te.max[0] << endl;
 
     cout << "texture value RGB " << (int) empty.red() << " "
         << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
     Material mat2;
     mat2.setRenderProperty(Material::Ghost, 1);
     mat2.setRenderProperty(Material::RenderLighting, 1);
-    mat2.SetDiffuse((float) empty.red() / 255, (float) empty.green() / 255,
-        (float) empty.blue() / 255, 1.);
+    mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
+        (float) (empty.blue() / 255.), 1.);
 
     ATriangulated *s3 = new ATriangulated();
     s3->setName(theAnatomist->makeObjectName("path"));
     s3->setSurface(MeshOut);
     s3->SetMaterial(mat2);
+
+    s3->setPalette( *pal );
+
     //win3D->registerObject(s3, true, 0);
     win3D->registerObject(s3, true, 1);
     theAnatomist->registerObject(s3, 0);
