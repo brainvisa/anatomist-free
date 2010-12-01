@@ -188,11 +188,11 @@ namespace anatomist
       static SurfpaintTools * my_instance ;
 
       AObject *objselect;
-      ATexSurface *go;
-      AObject *tex;
-      AObject *surf;
-      ATexture *at;
-      ATriangulated *as;
+//      ATexSurface *go;
+//      AObject *tex;
+//      AObject *surf;
+//      ATexture *at;
+//      ATriangulated *as;
 
       QToolBar  *tbTextureValue;
       QDoubleSpinBox *textureFloatSpinBox;

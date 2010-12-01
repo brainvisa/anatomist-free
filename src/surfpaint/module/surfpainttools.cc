@@ -302,22 +302,21 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
     //sélectionne l'objet positionné au milieu de la fenêtre (bof !)
     QSize s = glw->qglWidget()->size();
-    AObject *o = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
+
+    objselect = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
 
     cout << "size : " << s.width() << " " <<  s.height() << endl;
 
-    objselect = o;
+    cout << objselect << " " << objselect->name() << endl;
 
-    cout << objselect << " " << objselect->fileName() << endl;
-
-    GLComponent *glc = o->glAPI();
+    GLComponent *glc = objselect->glAPI();
     if( !glc )
       return;
     glc->glAPI()->glSetTexRGBInterpolation(true);
 
-    if (o != NULL && w3->hasObject(o))
+    if (objselect != NULL && w3->hasObject(objselect))
     {
-      objtype = o->objectTypeName(o->type());
+      objtype = objselect->objectTypeName(objselect->type());
 
       cout << objtype << endl;
 
@@ -331,33 +330,37 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
       if (objtype == "TEXTURED SURF.")
       {
         cout << "coucou" << endl;
-
-        go = dynamic_cast<ATexSurface *> (o);
+        //      ATexSurface *go;
+        //      AObject *tex;
+        //      AObject *surf;
+        //      ATexture *at;
+        //      ATriangulated *as;
+        ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
         if( !go )
         {
           cout << "not a ATexSurface\n";
           return;
         }
 
-        surf = go->surface();
-        cout << surf << " " << surf->fileName() << endl;
+        AObject *surf = go->surface();
+        cout << surf << " " << surf->name() << endl;
 
-        tex = go->texture();
-        cout << tex << " " << tex->fileName() << endl;
+        AObject *tex = go->texture();
+        cout << tex << " " << tex->name() << endl;
 
-        at = dynamic_cast<ATexture *> (tex);
+        ATexture *at = dynamic_cast<ATexture *> (tex);
         if( !at )
         {
           cout << "ATexSurface texture is not a ATexture\n";
           return;
         }
-        cout << at << " " << at->fileName() << endl;
+        cout << at << " " << at->name() << endl;
 
         int t = (int) w3->GetTime();
 
         cout << "t " << t << endl;
 
-        as = dynamic_cast<ATriangulated *> (surf);
+        ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
         cout << as << " " << as->fileName() << endl;
 
         cout << "as " << endl;
@@ -746,14 +749,14 @@ void SurfpaintTools::removeToolBarInfosTexture(AWindow3D *w3)
     return;
 
 #if QT_VERSION >= 0x040000
-  tbTextureValue = w3->removeToolBar( "surfpaint_toolbar_Tex" );
-  tbInfos3D = w3->removeToolBar( "surfpaint_toolbar_3D" );
+  tbTextureValue = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbarTex") );
+  tbInfos3D = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbar3D") );
   delete tbTextureValue;
   delete tbInfos3D;
 #else
   tbTextureValue
-      = dynamic_cast<QToolBar *> (w3->child("surfpaint_toolbar_Tex"));
-  tbInfos3D = dynamic_cast<QToolBar *> (w3->child("surfpaint_toolbar_3D"));
+      = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbarTex")));
+  tbInfos3D = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbar3D")));
   if (tbTextureValue)
   {
     delete tbTextureValue;
@@ -774,13 +777,14 @@ void SurfpaintTools::restoreTextureValue(int indexVertex)
   {
     if (objtype == "TEXTURED SURF.")
     {
-      ATexSurface *go;
-      go = dynamic_cast<ATexSurface *> (objselect);
-
-      AObject *tex = go->texture();
-
       Object options = Object::value(Dictionary());
       options->setProperty("scale", 0);
+
+      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+      //AObject *surf = go->surface();
+      AObject *tex = go->texture();
+      ATexture *at = dynamic_cast<ATexture *> (tex);
+      //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
 
       float it = at->TimeStep();
       const GLComponent::TexExtrema & te = at->glTexExtrema(0);
@@ -809,10 +813,11 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
   {
     if (objtype == "TEXTURED SURF.")
     {
-      ATexSurface *go;
-      go = dynamic_cast<ATexSurface *> (objselect);
-
+      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+      //AObject *surf = go->surface();
       AObject *tex = go->texture();
+      ATexture *at = dynamic_cast<ATexture *> (tex);
+      //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
 
       Object options = Object::value(Dictionary());
       options->setProperty("scale", 0);
@@ -913,6 +918,13 @@ void SurfpaintTools::floodFillStart(int indexVertex)
 
 void SurfpaintTools::floodFillStop(void)
 {
+
+  ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+  AObject *surf = go->surface();
+  //AObject *tex = go->texture();
+  //ATexture *at = dynamic_cast<ATexture *> (tex);
+  ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
+
   AimsSurface<3, Void> *s = as->surfaceOfTime(0);
   const vector<Point3df> & vert = s->vertex();
 
@@ -1206,6 +1218,11 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
     delete tmpMeshOut;
 
+    ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+    //AObject *surf = go->surface();
+    AObject *tex = go->texture();
+    ATexture *at = dynamic_cast<ATexture *> (tex);
+    //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
 
     GLComponent *glc = at->glAPI();
 
