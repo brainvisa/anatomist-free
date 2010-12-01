@@ -62,6 +62,7 @@
 #include <anatomist/commands/cRemoveObject.h>
 #include <anatomist/commands/cGroupObjects.h>
 #include <anatomist/commands/cFusionObjects.h>
+#include <anatomist/color/objectPalette.h>
 
 #include <aims/io/finder.h>
 #include <aims/io/reader.h>
@@ -273,6 +274,12 @@ void ConstraintEditorWindow::accept()
     aTex->attributed()->setProperty( "byte_swapping",  0);
     aTex->attributed()->setProperty( "vertex_number",  d->nnodesMesh);
     theAnatomist->registerObject( aTex );
+
+    aTex->getOrCreatePalette();
+    AObjectPalette *pal = aTex->palette();
+    pal->setMin1( 0 );
+    pal->setMax1( 360. );
+    aTex->setPalette( *pal );
 
     vObjSelect.push_back(aTex);
   }

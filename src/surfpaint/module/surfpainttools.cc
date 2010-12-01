@@ -849,8 +849,17 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
         if( value < te.minquant[tx] )
           te.minquant[tx] = value;
         else
+        {
+          // update colormap bounds
+          tex->getOrCreatePalette();
+          AObjectPalette *pal = tex->palette();
+          pal->setMax1( scl * pal->max1() / ( value - te.minquant[tx] ) );
+          tex->setPalette( *pal );
+
           te.maxquant[tx] = value;
+        }
         scl = te.maxquant[tx] - te.minquant[tx];
+
       }
 
       float svalue = ( value - te.minquant[tx] ) / scl;
