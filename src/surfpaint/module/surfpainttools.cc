@@ -361,7 +361,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << "t " << t << endl;
 
         ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-        cout << as << " " << as->fileName() << endl;
+        cout << as << " " << as->name() << endl;
 
         cout << "as " << endl;
         if( !as )
@@ -369,7 +369,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
           cout << "ATexSurface geometry is not a ATriangulated\n";
           return;
         }
-        cout << "as name: " << as->name() << endl;
+
         rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
 
         cout << "mesh " << endl;
