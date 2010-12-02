@@ -298,7 +298,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
   if (glw)
   {
-    glw->copyBackBuffer2Texture();
+    //glw->copyBackBuffer2Texture();
 
     //sélectionne l'objet positionné au milieu de la fenêtre (bof !)
     QSize s = glw->qglWidget()->size();
@@ -342,8 +342,11 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
           return;
         }
 
-        AObject *surf = go->surface();
-        cout << surf << " " << surf->name() << endl;
+        ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
+        cout << as << " " << as->name() << endl;
+
+//        AObject *surf = go->surface();
+//        cout << surf << " " << surf->name() << endl;
 
         AObject *tex = go->texture();
         cout << tex << " " << tex->name() << endl;
@@ -360,8 +363,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
         cout << "t " << t << endl;
 
-        ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-        cout << as << " " << as->name() << endl;
+
 
         cout << "as " << endl;
         if( !as )
