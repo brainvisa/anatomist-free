@@ -33,6 +33,13 @@
 
 //#include <anatomist/module/surfpainttools.h>
 //#include "../../surfpaint/action/surfpaintaction.h"
+
+#include <anatomist/surface/texsurface.h>
+#include <anatomist/surface/texture.h>
+#include <anatomist/surface/surface.h>
+#include <anatomist/surface/triangulated.h>
+#include <anatomist/surface/glcomponent.h>
+
 #include <anatomist/constrainteditor/wConstraintEditor.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/colorstyle.h>
@@ -302,6 +309,17 @@ void ConstraintEditorWindow::accept()
     AWindow3D *w3 = dynamic_cast<AWindow3D *> (w);
 
     w3->setActiveConstraintEditor(true);
+
+
+    ATexSurface *go = dynamic_cast<ATexSurface *> (tso);
+    AObject *surf = go->surface();
+    AObject *tex = go->texture();
+    ATexture *at = dynamic_cast<ATexture *> (tex);
+    ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
+
+    cout << surf << " " << tex << " " << at << " " << as << " " <<endl;
+    cout << surf->name() << " " << tex->name() << " " << at->name() << " " << as->name() << " " <<endl;
+
     //w3->setVisibleSurfpaint(true);
 
 //    w3->view()->controlSwitch()->notifyAvailableControlChange();

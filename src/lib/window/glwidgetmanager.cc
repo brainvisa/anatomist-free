@@ -310,7 +310,7 @@ void GLWidgetManager::initializeGL()
 //  pd->glwidget->width()
 
   //_pd->backBufferTexture.reserve( _pd->glwidget->width()* _pd->glwidget->height() * 3 );
-  _pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 4 );
+  _pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 3 );
   //_pd->backBufferTexture = (GLubyte*)new GLubyte[((_pd->glwidget->width()* _pd->glwidget->height())* 3 * sizeof(GLubyte))];
   cout << "backBufferTexture.resize " << _pd->glwidget->width() << " " << _pd->glwidget->height() << "\n";
 }
@@ -326,7 +326,7 @@ void GLWidgetManager::resizeGL( int w, int h )
   //delete [] _pd->backBufferTexture;
   //_pd->backBufferTexture = (GLubyte*)new GLubyte[((_pd->glwidget->width()* _pd->glwidget->height())* 3 * sizeof(GLubyte))];
 
-  _pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 4 );
+  _pd->backBufferTexture.resize( _pd->glwidget->width()* _pd->glwidget->height() * 3 );
 }
 
 
@@ -1260,9 +1260,12 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 {
   setupView();
 
+  cout << "Begin copyBackBuffer2Texture\n" << "largeur = " << _pd->glwidget->width() <<
+          " hauteur = "  << _pd->glwidget->height()<<endl;
+
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (window());
 
-  if (w3 /*&& w3->surfpaintIsVisible() */)
+  if (w3 && w3->surfpaintIsVisible())
   {
   // TODO : le rendu est fait sur l'object situé au centre de l'image (à améliorer)
     //AObject *obj = w3->objectAtCursorPosition(_pd->mouseX,_pd->mouseY);
@@ -1277,22 +1280,29 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     w3->renderSelectionBuffer(ViewState::glSELECTRENDER_POLYGON, obj);
     cout << "renderSelectionBuffer\n";
 
-    glFlush(); // or glFinish() ?
+    //glFlush(); // or glFinish() ?
     glFinish();
     glReadBuffer( GL_BACK);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    unsigned long bufsz = _pd->glwidget->width() * _pd->glwidget->height() * 4;
+    //glPixelStorei(GL_PACK_ALIGNMENT, 4); /* Force> 4-byte alignment */
+    //glPixelStorei(GL_PACK_ROW_LENGTH,_pd->glwidget->height());
+    //glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+    //glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+
+    unsigned long bufsz = _pd->glwidget->width() * _pd->glwidget->height() * 3;
 
     cout << "back buffer size: " << _pd->backBufferTexture.size() << ", needs: " << _pd->glwidget->width() << " x " << _pd->glwidget->height() << " x 4 = " << bufsz << endl;
 
     if( bufsz != _pd->backBufferTexture.size() )
       _pd->backBufferTexture.resize( _pd->glwidget->width()
-        * _pd->glwidget->height() * 4 );
+        * _pd->glwidget->height() * 3 );
 
-    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGBA,
+    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(),GL_RGB,
         GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
+//    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGBA,
+//        GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
 
 //    if (_pd->backBufferTexture)
 //    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(), GL_RGB,
@@ -1358,10 +1368,10 @@ void GLWidgetManager::mousePressEvent( QMouseEvent* ev )
   _pd->mouseY = ev->y();
 
 //  ARN 09/10
-  if (ev->buttons() == Qt::LeftButton && _pd->resized)
-    {
-    copyBackBuffer2Texture();
-    }
+//  if (ev->buttons() == Qt::LeftButton && _pd->resized)
+//    {
+//    copyBackBuffer2Texture();
+//    }
 
   controlSwitch()->mousePressEvent( ev );
 }
@@ -1374,8 +1384,8 @@ void GLWidgetManager::mouseReleaseEvent( QMouseEvent* ev )
 //  cout << "state  : " << (int) ev->state() << endl;
 
 //  ARN 09/10
-  if ((ev->button() == 4) && (ev->state() == 4))
-    copyBackBuffer2Texture();
+//  if ((ev->button() == 4) && (ev->state() == 4))
+//    copyBackBuffer2Texture();
 
   controlSwitch()->mouseReleaseEvent( ev );
 }
