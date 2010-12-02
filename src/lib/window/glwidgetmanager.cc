@@ -1270,7 +1270,8 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     if (theAnatomist->userLevel() >= 3)
     {
       cout << "obj " << obj << endl;
-      cout << obj->name() << endl;
+      if( obj )
+        cout << obj->name() << endl;
       cout << "mouseX " << _pd->mouseX << " mouseY " << _pd->mouseY << endl;
     }
     w3->renderSelectionBuffer(ViewState::glSELECTRENDER_POLYGON, obj);
