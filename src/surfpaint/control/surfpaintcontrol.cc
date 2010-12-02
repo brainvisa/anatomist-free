@@ -138,8 +138,8 @@ void SurfpaintToolsControl::doAlsoOnSelect(ActionPool * /* pool */)
 
       if (!w3->surfpaintIsVisible())
       {
-        SurfpaintTools::instance()->addToolBarInfosTexture(w3);
-        SurfpaintTools::instance()->addToolBarControls(w3);
+//        SurfpaintTools::instance()->addToolBarInfosTexture(w3);
+//        SurfpaintTools::instance()->addToolBarControls(w3);
         SurfpaintTools::instance()->initSurfPaintModule(w3);
         w3->setVisibleSurfpaint(true);
       }

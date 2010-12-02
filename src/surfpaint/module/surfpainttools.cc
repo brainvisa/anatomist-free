@@ -416,10 +416,10 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << "minmax quant tex : " << te.minquant[0] << " "
             << te.maxquant[0] << endl;
 
-        setMaxPoly(tri.size());
-        setMaxVertex(vert.size());
-
-        setMinMaxTexture(0, 360);
+//        setMaxPoly(tri.size());
+//        setMaxVertex(vert.size());
+//
+//        setMinMaxTexture(0, 360);
 
 //        if (w3->constraintEditorIsActive())
 //          setMinMaxTexture(0, 360);
