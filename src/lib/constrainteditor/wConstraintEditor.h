@@ -67,7 +67,7 @@ public slots:
   virtual void accept();
 
 protected:
-  void drawContents( const char *name );
+  void drawContents( const char *name, const std::set<AObject *> & );
   virtual void unregisterObservable( anatomist::Observable* );
 
 private:

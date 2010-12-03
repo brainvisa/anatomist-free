@@ -88,112 +88,113 @@ using namespace carto;
 
 struct ConstraintEditorWindow::Private
 {
-  Private( const set<AObject *>& objects );
-  set<AObject *> objects;
+  Private();
   QListBox  *listobjet;
   QComboBox *latlon;
 
   QLineEdit  *newTextureName;
 
-  bool textureExist;
-  bool meshExist;
-  int nnodesMesh;
-  int nnodesTexture;
   AObject *meshSelect;
   AObject *texSelect;
 };
 
-ConstraintEditorWindow::Private::Private( const set<AObject *> &obj )
-  : listobjet( 0 )
-{
-  set<AObject *>::const_iterator i, e = obj.end();
-  for( i=obj.begin(); i!=e; ++i )
-    objects.insert( *i );
 
-  textureExist = false;
-  meshExist = false;
+ConstraintEditorWindow::Private::Private()
+  : listobjet( 0 ), meshSelect( 0 ), texSelect( 0 )
+{
 }
+
 
 ConstraintEditorWindow::ConstraintEditorWindow( const set<AObject*> &objects,
-						  const char *name, Qt::WFlags f ) : QDialog( 0, name, true, f ), d( new Private( objects ) )
+                                                const char *name, Qt::WFlags f ) : QDialog( 0, name, true, f ), d( new Private )
 {
-  drawContents( name );
+  drawContents( name, objects );
 }
+
 
 ConstraintEditorWindow::~ConstraintEditorWindow()
 {
 }
 
-void ConstraintEditorWindow::drawContents( const char *name )
+
+void ConstraintEditorWindow::drawContents( const char *name,
+                                           const set<AObject *> & obj )
 {
   setCaption( name );
   this->setFixedWidth(300);
 
   QVBoxLayout *mainlay = new QVBoxLayout( this, 5, 5 );
 
-  //d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+  /* convert objects list to a real list because we may append sub-objects to
+     the list to check
+  */
+  list<AObject *> objects( obj.begin(), obj.end() );
+  list<AObject *>::const_iterator i, e = objects.end();
+  size_t nnodes = 0;
 
-//  if( !d->objects.empty())
-//  {
-//    d->listobjet = new QListBox( this );
-//    d->listobjet->setFixedWidth(250);
-//  }
-
-  set<AObject *>::const_iterator i, e = d->objects.end();
-
-  for( i=d->objects.begin(); i!=e; ++i )
+  for( i=objects.begin(); i!=e; ++i )
   {
     cout << (*i)->fileName() << "\n" << (*i)->type() << "\n";
 
-    //on cherche une surface parmi les fichiers sélectionnés
-    aims::Finder f;
-    if( f.check(  (*i)->fileName() ))
-        cout << "objtype = " << f.objectType() << "\ndatatype = " << f.dataType() << endl;
-    else
-      cout << "file not found\n";
-
-    int nnodes;
-    const PythonHeader  *hdr = dynamic_cast<const PythonHeader *>( f.header() );
-    if( !hdr )
-      exit( 1 );
-
-    if( !hdr->getProperty( "vertex_number", nnodes ) )
-      {
-        cerr << "Couldn't determine mesh nodes number (strange !)\n";
-        exit( 1 );
-      }
-
-    if (f.objectType() == "Mesh")
-      {
-      d->nnodesMesh = nnodes;
-      d->meshSelect = (*i);
-      d->meshExist = true;
-      }
-
-    if (f.objectType() == "Texture" && f.dataType() == "FLOAT")
+    ATriangulated *surf = dynamic_cast<ATriangulated *>( *i );
+    if( surf && !d->meshSelect )
     {
-      d->nnodesTexture = nnodes;
-      d->textureExist = true;
-      d->texSelect = (*i);
+      rc_ptr<AimsSurfaceTriangle> aimss = surf->surface();
+      if( aimss->empty() )
+        continue;
+
+      size_t nnodesm = aimss->vertex().size();
+
+      if( d->texSelect && nnodes != nnodesm )
+        d->texSelect = 0; // texture is incompatible: don't keep it'
+
+      nnodes = nnodesm;
+      d->meshSelect = surf;
+      continue;
     }
 
-    cout << "vertex_number " << nnodes << endl;
+    ATexture *atex = dynamic_cast<ATexture *>( *i );
+    if( atex && atex->dimTexture() == 1 )
+    {
+      ViewState vs;
+      size_t nnodest = atex->glTexCoordSize( vs, 0 );
+      if( !d->meshSelect || nnodest == nnodes )
+        d->texSelect = (*i);
+      continue;
+    }
+
+    MObject *mo = dynamic_cast<MObject *>( *i );
+    if( mo )
+    {
+      MObject::iterator im, em = mo->end();
+      for( im=mo->begin(); im!=em; ++im )
+        objects.push_back( *im ); // check sub-objects
+    }
+
   }
 
   QHBox *hbm = new QHBox();
   QLabel  *meshLabel = new QLabel( "Mesh : ",hbm);
   QLabel  *meshName;
 
-  if (d->meshExist)
+  if (d->meshSelect)
     meshName = new QLabel( d->meshSelect->name().c_str(),hbm);
   else
+  {
     meshName = new QLabel( "no mesh selected",hbm);
+    QPushButton *cancel = new QPushButton( tr( "Cancel" ), this );
+    mainlay->addWidget( meshName );
+    mainlay->addWidget( cancel );
+    cancel->setDefault( true );
+    connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+    return;
+  }
   meshName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
   QHBox *hbt = new QHBox();
   QLabel  *textureLabel = new QLabel( "Texture : ",hbt);
 
-  if ((d->textureExist && (d->nnodesMesh==d->nnodesTexture)) )
+  if ( d->texSelect )
     d->newTextureName = new QLineEdit(  d->texSelect->name().c_str(),hbt);
   else
     d->newTextureName = new QLineEdit( "TexConstraint",hbt);;
@@ -250,23 +251,20 @@ void ConstraintEditorWindow::accept()
   vector<AObject *> vObjSelect;
   vObjSelect.reserve(2);
 
-  if (d->meshExist)
+  if (d->meshSelect)
     vObjSelect.push_back(d->meshSelect);
 
   //on crée un texture FLOAT (0 - 360 pour lon) ou (0- 180 pour lat)
   //si il y a un maillage
   //s'il n'y a pas de texture sélectionnée ou que les dimensions de la texture et du mesh ne correspondent pas
 
-  if (d->meshExist && (!d->textureExist || (d->nnodesMesh!=d->nnodesTexture)) )
+  if (d->meshSelect && !d->texSelect )
   {
-    TimeTexture<float> texLatLon;
-    texLatLon = TimeTexture<float>(1, d->nnodesMesh);
-
     ATexture  *aTex;
     aTex = new ATexture;
-    rc_ptr<Texture1d> tex(new Texture1d);
-    Converter<TimeTexture<float> , Texture1d> c;
-    c.convert(texLatLon, *tex);
+    ViewState vs;
+    size_t nnodes = d->meshSelect->glAPI()->glNumVertex( vs );
+    rc_ptr<Texture1d> tex( new Texture1d(1, nnodes) );
     aTex->setTexture(tex);
 
     // aTex->setTexExtrema(0,360);
@@ -279,7 +277,7 @@ void ConstraintEditorWindow::accept()
     aTex->attributed()->setProperty( "nb_t_pos",1);
     aTex->attributed()->setProperty( "ascii",  0);
     aTex->attributed()->setProperty( "byte_swapping",  0);
-    aTex->attributed()->setProperty( "vertex_number",  d->nnodesMesh);
+    aTex->attributed()->setProperty( "vertex_number",  nnodes );
     theAnatomist->registerObject( aTex );
 
     aTex->getOrCreatePalette();
@@ -288,13 +286,13 @@ void ConstraintEditorWindow::accept()
     pal->setMax1( 360. );
     aTex->setPalette( *pal );
 
-    vObjSelect.push_back(aTex);
+    d->texSelect = aTex;
   }
 
-  if ((d->textureExist && (d->nnodesMesh==d->nnodesTexture)) )
+  if ( d->texSelect )
     vObjSelect.push_back(d->texSelect);
 
-  if (d->meshExist)
+  if (d->meshSelect)
   {
     fm = ff->method( "FusionTexSurfMethod" );
     AObject *tso = fm->fusion( vObjSelect );
@@ -306,16 +304,16 @@ void ConstraintEditorWindow::accept()
     w = AWindowFactory::createWindow("3D") ;
     w->registerObject(tso);
 
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (w);
+    AWindow3D *w3 = static_cast<AWindow3D *> (w);
 
     w3->setActiveConstraintEditor(true);
 
 
-    ATexSurface *go = dynamic_cast<ATexSurface *> (tso);
+    ATexSurface *go = static_cast<ATexSurface *> (tso);
     AObject *surf = go->surface();
     AObject *tex = go->texture();
-    ATexture *at = dynamic_cast<ATexture *> (tex);
-    ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
+    ATexture *at = static_cast<ATexture *> (tex);
+    ATriangulated *as = static_cast<ATriangulated *> (surf);
 
     cout << surf << " " << tex << " " << at << " " << as << " " <<endl;
     cout << surf->name() << " " << tex->name() << " " << at->name() << " " << as->name() << " " <<endl;
