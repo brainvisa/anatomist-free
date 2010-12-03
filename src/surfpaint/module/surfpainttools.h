@@ -185,7 +185,7 @@ namespace anatomist
 
       AWindow3D *win3D;
 
-      static SurfpaintTools * my_instance ;
+      static SurfpaintTools *& my_instance() ;
 
       AObject *objselect;
 //      ATexSurface *go;

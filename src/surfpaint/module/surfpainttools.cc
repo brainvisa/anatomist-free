@@ -37,16 +37,52 @@
 #include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
 #include <aims/geodesicpath/geodesic_algorithm_exact.h>
 
-SurfpaintTools* SurfpaintTools::my_instance = 0;
+SurfpaintTools* & SurfpaintTools::my_instance()
+{
+  static SurfpaintTools* instance = 0;
+  return instance;
+}
 
 SurfpaintTools* SurfpaintTools::instance()
 {
-  if (my_instance == 0)
-    my_instance = new SurfpaintTools;
-  return my_instance;
+  if (my_instance() == 0)
+    my_instance() = new SurfpaintTools;
+  return my_instance();
 }
 
 SurfpaintTools::SurfpaintTools()/* : Observer()*/
+  : QWidget(),
+  surfpaintTexInit( 0 ),
+  win3D( 0 ),
+  objselect( 0 ),
+  tbTextureValue( 0 ),
+  textureFloatSpinBox( 0 ),
+  tbInfos3D( 0 ),
+  IDPolygonSpinBox( 0 ),
+  IDVertexSpinBox( 0 ),
+  tbControls( 0 ),
+  colorPickerAction( 0 ),
+  selectionAction( 0 ),
+  pathAction( 0 ),
+  shortestPathAction( 0 ),
+  sulciPathAction( 0 ),
+  gyriPathAction( 0 ),
+  paintBrushAction( 0 ),
+  fillAction( 0 ),
+  eraseAction( 0 ),
+  clearPathAction( 0 ),
+  saveAction( 0 ),
+  constraintList( 0 ),
+  toleranceSpinBox( 0 ),
+  toleranceSpinBoxLabel( 0 ),
+  constraintPathSpinBox( 0 ),
+  constraintPathSpinBoxLabel( 0 ),
+  constraintPathValue( 0 ),
+  toleranceValue( 0 ),
+  stepToleranceValue( 0 ),
+  IDActiveControl( -1 ),
+  texCurvature( 0 ),
+  pathClosed( false )
 {
   changeControl(0);
   shortestPathSelectedType = "ShortestPath";
@@ -54,7 +90,9 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
 
 SurfpaintTools::~SurfpaintTools()
 {
+  delete my_instance();
   //win3D->deleteObserver( this );
+  delete[] texCurvature;
 }
 
 //void SurfpaintTools::update( const Observable*, void* arg )
@@ -288,6 +326,13 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 {
   //cout << "initSurfPaintModule\n";
 
+  if( texCurvature )
+  {
+    // cleanup
+    delete[] texCurvature;
+    texCurvature = 0;
+  }
+
   //w3->addObserver(this);
   stepToleranceValue = 0;
 
@@ -308,13 +353,14 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
     cout << "size : " << s.width() << " " <<  s.height() << endl;
 
     cout << objselect << " " << objselect->name() << endl;
-
+    if( !objselect )
+      return;
     GLComponent *glc = objselect->glAPI();
     if( !glc )
       return;
     glc->glAPI()->glSetTexRGBInterpolation(true);
 
-    if (objselect != NULL && w3->hasObject(objselect))
+    if ( w3->hasObject(objselect) )
     {
       objtype = objselect->objectTypeName(objselect->type());
 
@@ -440,7 +486,7 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         texCurv = AimsMeshCurvature(surf3);
         cout << "done" << endl;
 
-        texCurvature = (float*) malloc(texCurv[0].nItem() * sizeof(float));
+        texCurvature = new float[ texCurv[0].nItem() * sizeof(float) ];
         for (uint i = 0; i < texCurv[0].nItem(); i++)
         {
           texCurvature[i] = (float) (texCurv[0].item(i));
