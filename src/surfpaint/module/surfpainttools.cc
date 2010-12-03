@@ -33,9 +33,9 @@
 
 #include <anatomist/module/surfpainttools.h>
 
-#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
-#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
-#include <aims/geodesicpath/geodesic_algorithm_exact.h>
+//#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
+//#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
+//#include <aims/geodesicpath/geodesic_algorithm_exact.h>
 
 SurfpaintTools* & SurfpaintTools::my_instance()
 {
@@ -515,11 +515,11 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         // compute adjacence graph
         cout << "compute adjacences graphs : ";
 
-        meshSP.initialize_mesh_data(pointsSP, facesSP, NULL, 0, 0);
-        meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature,
-            1, 5);
-        meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2,
-            5);
+//        meshSP.initialize_mesh_data(pointsSP, facesSP, NULL, 0, 0);
+//        meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature,
+//            1, 5);
+//        meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2,
+//            5);
 
         cout << "done" << endl;
 
@@ -1144,194 +1144,194 @@ void SurfpaintTools::changeConstraintPathSpinBox(int v)
 void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     Point3df positionNearestVertex)
 {
-  int i;
-
-  AimsSurfaceTriangle *tmpMeshOut;
-  tmpMeshOut = new AimsSurfaceTriangle;
-
-  Material mat;
-  mat.setRenderProperty(Material::Ghost, 1);
-  //mat.setRenderProperty(Material::RenderLighting, 1);
-  mat.SetDiffuse(1., 1.0, 1.0, 0.5);
-
-  tmpMeshOut = SurfaceGenerator::sphere(positionNearestVertex, 0.50, 50);
-
-  ATriangulated *sp = new ATriangulated();
-  sp->setName(theAnatomist->makeObjectName("select"));
-  sp->setSurface(tmpMeshOut);
-  sp->SetMaterial(mat);
-
-  if (!pathIsClosed())
-  {
-    win3D->registerObject(sp, true, 1);
-    //win3D->registerObject(sp, true, 0);
-    //theAnatomist->registerObject(sp, 1);
-    theAnatomist->registerObject(sp, 0);
-    pathObject.push_back(sp);
-  }
-
-  std::vector<int>::iterator ite;
-
-  if (!pathIsClosed())
-    listIndexVertexSelectSP.push_back(indexNearestVertex);
-  else
-    listIndexVertexSelectSP.push_back(*listIndexVertexSelectSP.begin());
-
-  ite = listIndexVertexSelectSP.end();
-
-  int nb_vertex;
-  printf("nb vertex path = %d\n", listIndexVertexSelectSP.size());
-
-  std::vector<geodesic::SurfacePoint> sources;
-  std::vector<geodesic::SurfacePoint> targets;
-
-  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
-  geodesic::Mesh meshSP;
-
-  const string ac = getPathType();
-
-  if (ac.compare("ShortestPath") == 0)
-    meshSP = getMeshStructSP();
-  else if (ac.compare("SulciPath") == 0)
-    meshSP = getMeshStructSulciP();
-  else if (ac.compare("GyriPath") == 0)
-    meshSP = getMeshStructGyriP();
-
-  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
-
-  if (listIndexVertexSelectSP.size() >= 2)
-  {
-    unsigned target_vertex_index = (*(--ite));
-    unsigned source_vertex_index = (*(--ite));
-
-    printf("indice source = %d target = %d \n", source_vertex_index,
-        target_vertex_index);
-
-    std::vector<geodesic::SurfacePoint> SPath;
-    SPath.clear();
-
-    listIndexVertexPathSPLast.clear();
-
-    geodesic::SurfacePoint short_sources(
-        &meshSP.vertices()[source_vertex_index]);
-    geodesic::SurfacePoint short_targets(
-        &meshSP.vertices()[target_vertex_index]);
-
-    dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
-        listIndexVertexPathSPLast);
-
-    ite = listIndexVertexPathSPLast.end();
-
-    reverse(listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-    listIndexVertexPathSPLast.push_back((int) target_vertex_index);
-
-    listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
-        listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-
-    cout << "path dijkstra = ";
-
-    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
-    {
-      cout << listIndexVertexPathSP[i] << " ";
-    }
-    cout << endl;
-
-    std::vector<Point3df> vertexList;
-    Point3df newVertex;
-
-    AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
-
-    for (i = 0; i < SPath.size(); ++i)
-    {
-      newVertex[0] = SPath[i].x();
-      newVertex[1] = SPath[i].y();
-      newVertex[2] = SPath[i].z();
-      vertexList.push_back(newVertex);
-    }
-
-    for (i = 0; i < vertexList.size() - 1; ++i)
-    {
-
-      tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.25, 50);
-      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
-      delete tmpMeshOut;
-
-      tmpMeshOut = SurfaceGenerator::cylinder(vertexList[i], vertexList[i + 1],
-          0.1, 0.1, 12, false, true);
-      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
-      delete tmpMeshOut;
-    }
-
-    tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.2, 10);
-    SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
-    delete tmpMeshOut;
-
-    ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-    //AObject *surf = go->surface();
-    AObject *tex = go->texture();
-    ATexture *at = dynamic_cast<ATexture *> (tex);
-    //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-
-    GLComponent *glc = at->glAPI();
-
-    const AObjectPalette *pal = at->getOrCreatePalette();
-
-    cout << "tex name "  << tex->name() << endl;
-
-    const AimsData<AimsRGBA> *col = pal->colors();
-
-    unsigned  ncol0, ncol1;
-    float   min1, max1;
-    float   min2, max2;
-    float a,b,c,d,e,f;
-
-    ncol0 = col->dimX();
-    ncol1 = col->dimY();
-
-    min1 = pal->min1();
-    max1 = pal->max1();
-
-    cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
-    cout << "min1 = " << min1 << " max1 = " << max1 << endl;
-
-    const GLComponent::TexExtrema & te = glc->glTexExtrema(0);
-
-    AimsRGBA empty;
-
-    float indice = ((float)(getTextureValueFloat() - min1)/(float)(max1 - min1))*ncol0;
-
-    cout << "i = " << indice << endl;
-//    empty = pal->normColor((float) (getTextureValueFloat() / 360.));
-//    cout << "texture value RGB norm" << (int) empty.red() << " "
-//         << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
-
-    if (indice)
-    empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
-
-    cout << "minq = " << te.min[0] << "maxq = " << te.maxquant[0] << endl;
-    cout << "min = " << te.minquant[0] << "max = " << te.max[0] << endl;
-
-    cout << "texture value RGB " << (int) empty.red() << " "
-        << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
-    Material mat2;
-    mat2.setRenderProperty(Material::Ghost, 1);
-    mat2.setRenderProperty(Material::RenderLighting, 1);
-    mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
-        (float) (empty.blue() / 255.), 1.);
-
-    ATriangulated *s3 = new ATriangulated();
-    s3->setName(theAnatomist->makeObjectName("path"));
-    s3->setSurface(MeshOut);
-    s3->SetMaterial(mat2);
-
-    s3->setPalette( *pal );
-
-    //win3D->registerObject(s3, true, 0);
-    win3D->registerObject(s3, true, 1);
-    theAnatomist->registerObject(s3, 0);
-    //theAnatomist->registerObject(s3, 1);
-    pathObject.push_back(s3);
-  }
+//  int i;
+//
+//  AimsSurfaceTriangle *tmpMeshOut;
+//  tmpMeshOut = new AimsSurfaceTriangle;
+//
+//  Material mat;
+//  mat.setRenderProperty(Material::Ghost, 1);
+//  //mat.setRenderProperty(Material::RenderLighting, 1);
+//  mat.SetDiffuse(1., 1.0, 1.0, 0.5);
+//
+//  tmpMeshOut = SurfaceGenerator::sphere(positionNearestVertex, 0.50, 50);
+//
+//  ATriangulated *sp = new ATriangulated();
+//  sp->setName(theAnatomist->makeObjectName("select"));
+//  sp->setSurface(tmpMeshOut);
+//  sp->SetMaterial(mat);
+//
+//  if (!pathIsClosed())
+//  {
+//    win3D->registerObject(sp, true, 1);
+//    //win3D->registerObject(sp, true, 0);
+//    //theAnatomist->registerObject(sp, 1);
+//    theAnatomist->registerObject(sp, 0);
+//    pathObject.push_back(sp);
+//  }
+//
+//  std::vector<int>::iterator ite;
+//
+//  if (!pathIsClosed())
+//    listIndexVertexSelectSP.push_back(indexNearestVertex);
+//  else
+//    listIndexVertexSelectSP.push_back(*listIndexVertexSelectSP.begin());
+//
+//  ite = listIndexVertexSelectSP.end();
+//
+//  int nb_vertex;
+//  printf("nb vertex path = %d\n", listIndexVertexSelectSP.size());
+//
+//  std::vector<geodesic::SurfacePoint> sources;
+//  std::vector<geodesic::SurfacePoint> targets;
+//
+//  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+//  geodesic::Mesh meshSP;
+//
+//  const string ac = getPathType();
+//
+//  if (ac.compare("ShortestPath") == 0)
+//    meshSP = getMeshStructSP();
+//  else if (ac.compare("SulciPath") == 0)
+//    meshSP = getMeshStructSulciP();
+//  else if (ac.compare("GyriPath") == 0)
+//    meshSP = getMeshStructGyriP();
+//
+//  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
+//
+//  if (listIndexVertexSelectSP.size() >= 2)
+//  {
+//    unsigned target_vertex_index = (*(--ite));
+//    unsigned source_vertex_index = (*(--ite));
+//
+//    printf("indice source = %d target = %d \n", source_vertex_index,
+//        target_vertex_index);
+//
+//    std::vector<geodesic::SurfacePoint> SPath;
+//    SPath.clear();
+//
+//    listIndexVertexPathSPLast.clear();
+//
+//    geodesic::SurfacePoint short_sources(
+//        &meshSP.vertices()[source_vertex_index]);
+//    geodesic::SurfacePoint short_targets(
+//        &meshSP.vertices()[target_vertex_index]);
+//
+//    dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
+//        listIndexVertexPathSPLast);
+//
+//    ite = listIndexVertexPathSPLast.end();
+//
+//    reverse(listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
+//    listIndexVertexPathSPLast.push_back((int) target_vertex_index);
+//
+//    listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
+//        listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
+//
+//    cout << "path dijkstra = ";
+//
+//    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
+//    {
+//      cout << listIndexVertexPathSP[i] << " ";
+//    }
+//    cout << endl;
+//
+//    std::vector<Point3df> vertexList;
+//    Point3df newVertex;
+//
+//    AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
+//
+//    for (i = 0; i < SPath.size(); ++i)
+//    {
+//      newVertex[0] = SPath[i].x();
+//      newVertex[1] = SPath[i].y();
+//      newVertex[2] = SPath[i].z();
+//      vertexList.push_back(newVertex);
+//    }
+//
+//    for (i = 0; i < vertexList.size() - 1; ++i)
+//    {
+//
+//      tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.25, 50);
+//      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+//      delete tmpMeshOut;
+//
+//      tmpMeshOut = SurfaceGenerator::cylinder(vertexList[i], vertexList[i + 1],
+//          0.1, 0.1, 12, false, true);
+//      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+//      delete tmpMeshOut;
+//    }
+//
+//    tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.2, 10);
+//    SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+//    delete tmpMeshOut;
+//
+//    ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+//    //AObject *surf = go->surface();
+//    AObject *tex = go->texture();
+//    ATexture *at = dynamic_cast<ATexture *> (tex);
+//    //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
+//
+//    GLComponent *glc = at->glAPI();
+//
+//    const AObjectPalette *pal = at->getOrCreatePalette();
+//
+//    cout << "tex name "  << tex->name() << endl;
+//
+//    const AimsData<AimsRGBA> *col = pal->colors();
+//
+//    unsigned  ncol0, ncol1;
+//    float   min1, max1;
+//    float   min2, max2;
+//    float a,b,c,d,e,f;
+//
+//    ncol0 = col->dimX();
+//    ncol1 = col->dimY();
+//
+//    min1 = pal->min1();
+//    max1 = pal->max1();
+//
+//    cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
+//    cout << "min1 = " << min1 << " max1 = " << max1 << endl;
+//
+//    const GLComponent::TexExtrema & te = glc->glTexExtrema(0);
+//
+//    AimsRGBA empty;
+//
+//    float indice = ((float)(getTextureValueFloat() - min1)/(float)(max1 - min1))*ncol0;
+//
+//    cout << "i = " << indice << endl;
+////    empty = pal->normColor((float) (getTextureValueFloat() / 360.));
+////    cout << "texture value RGB norm" << (int) empty.red() << " "
+////         << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
+//
+//    if (indice)
+//    empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+//
+//    cout << "minq = " << te.min[0] << "maxq = " << te.maxquant[0] << endl;
+//    cout << "min = " << te.minquant[0] << "max = " << te.max[0] << endl;
+//
+//    cout << "texture value RGB " << (int) empty.red() << " "
+//        << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
+//    Material mat2;
+//    mat2.setRenderProperty(Material::Ghost, 1);
+//    mat2.setRenderProperty(Material::RenderLighting, 1);
+//    mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
+//        (float) (empty.blue() / 255.), 1.);
+//
+//    ATriangulated *s3 = new ATriangulated();
+//    s3->setName(theAnatomist->makeObjectName("path"));
+//    s3->setSurface(MeshOut);
+//    s3->SetMaterial(mat2);
+//
+//    s3->setPalette( *pal );
+//
+//    //win3D->registerObject(s3, true, 0);
+//    win3D->registerObject(s3, true, 1);
+//    theAnatomist->registerObject(s3, 0);
+//    //theAnatomist->registerObject(s3, 1);
+//    pathObject.push_back(s3);
+//  }
 }
 
 /////////////////////////////

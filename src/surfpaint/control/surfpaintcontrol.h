@@ -62,7 +62,7 @@ namespace anatomist{
     virtual void doAlsoOnSelect( ActionPool * pool ) ;
 
     private:
-    SurfpaintToolsAction * myAction;
+    Action * myAction;
 
   };
 
