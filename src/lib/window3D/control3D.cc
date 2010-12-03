@@ -31,6 +31,12 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+//only for debug
+#include <anatomist/surface/texsurface.h>
+#include <anatomist/surface/texture.h>
+#include <anatomist/surface/surface.h>
+#include <anatomist/surface/triangulated.h>
+#include <anatomist/surface/glcomponent.h>
 
 #include <anatomist/window3D/control3D.h>
 #include <anatomist/controler/actiondictionary.h>
@@ -703,6 +709,30 @@ void SelectAction::select( int x, int y, int modifier )
     if( obj )
     {
       cout << "select obj: " << obj << ", name: " << obj->name() << endl;
+
+//      list<AObject *> objects( obj.begin(), obj.end() );
+//      list<AObject *>::const_iterator i, e = objects.end();
+
+      MObject *mo = dynamic_cast<MObject *>( obj );
+      if( mo )
+      {
+        MObject::iterator im, em = mo->end();
+        for( im=mo->begin(); im!=em; ++im )
+          cout << (*im)->name() << " " << (*im)->type() << "\n";
+
+        ATexSurface *go = static_cast<ATexSurface *> (obj);
+        AObject *surf = go->surface();
+        AObject *tex = go->texture();
+        ATexture *at = static_cast<ATexture *> (tex);
+        ATriangulated *as = static_cast<ATriangulated *> (surf);
+
+        cout << surf << " " << tex << " " << at << " " << as << " " <<endl;
+        cout << surf->name() << " " << tex->name() << " " << at->name() << " " << as->name() << " " <<endl;
+      }
+
+//      for( i=objects.begin(); i!=e; ++i )
+//        cout << (*i)->fileName() << "\n" << (*i)->type() << "\n";
+
       if( !w3->hasObject( obj ) )
       {
         // see if the objects belongs to a graph vertex/edge
