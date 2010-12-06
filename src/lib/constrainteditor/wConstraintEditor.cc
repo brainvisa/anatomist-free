@@ -147,7 +147,10 @@ void ConstraintEditorWindow::drawContents( const char *name,
       size_t nnodesm = aimss->vertex().size();
 
       if( d->texSelect && nnodes != nnodesm )
+        {
+        cout << "texture is incompatible\n";
         d->texSelect = 0; // texture is incompatible: don't keep it'
+        }
 
       nnodes = nnodesm;
       d->meshSelect = surf;
@@ -155,12 +158,17 @@ void ConstraintEditorWindow::drawContents( const char *name,
     }
 
     ATexture *atex = dynamic_cast<ATexture *>( *i );
+
+    cout << atex << " " << atex->dimTexture() << "\n";
     if( atex && atex->dimTexture() == 1 )
     {
       ViewState vs;
       size_t nnodest = atex->glTexCoordSize( vs, 0 );
       if( !d->meshSelect || nnodest == nnodes )
+        {
+        nnodes = nnodest;
         d->texSelect = (*i);
+        }
       continue;
     }
 
@@ -261,8 +269,6 @@ void ConstraintEditorWindow::accept()
     theAnatomist->registerObject( aTex );
 
     aTex->createDefaultPalette( "Blue-Red-fusion" );
-    //aTex->palette()->set2dMode( false );
-    //aTex->palette()->create( aTex->palette()->colors()->dimX(), 256 );
 
     //aTex->getOrCreatePalette();
     AObjectPalette *pal = aTex->palette();
@@ -274,7 +280,11 @@ void ConstraintEditorWindow::accept()
   }
 
   if ( d->texSelect )
+    {
+    d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
     vObjSelect.push_back(d->texSelect);
+    }
+
 
   if (d->meshSelect)
   {
