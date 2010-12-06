@@ -34,8 +34,7 @@
 #ifndef ANATOMIST_WINDOW3D_WSURFPAINTTOOLS_H
 #define ANATOMIST_WINDOW3D_WSURFPAINTTOOLS_H
 
-//#include <anatomist/observer/Observer.h>
-
+#include <anatomist/selection/selectFactory.h>
 #include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/surface/surface.h>
@@ -43,14 +42,10 @@
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/color/objectPalette.h>
 #include <aims/rgb/rgb.h>
-
 #include <aims/utility/converter_texture.h>
-
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/objectConverter.h>
-
 #include <anatomist/control/surfpaintcontrol.h>
-
 #include <anatomist/observer/Observer.h>
 #include <anatomist/controler/icondictionary.h>
 #include <anatomist/controler/controlmanager.h>
@@ -62,7 +57,6 @@
 #include <anatomist/window/glwidget.h>
 #include <aims/qtcompat/qhgroupbox.h>
 #include <aims/qtcompat/qvgroupbox.h>
-
 #include <qcheckbox.h>
 #include <qlayout.h>
 #include <qradiobutton.h>
@@ -80,12 +74,10 @@
 #include <qaction.h>
 #include <iostream>
 #include <qmenubar.h>
-
 #include <aims/def/path.h>
 #include <cartobase/config/version.h>
 #include <cartobase/config/paths.h>
 #include <cartobase/stream/fileutil.h>
-
 #include <iostream>
 #include <string.h>
 #include <fstream>
@@ -104,12 +96,9 @@ using namespace carto;
 
 namespace anatomist
 {
-  class SurfpaintTools: public QWidget/*, public anatomist::Observer*/
+  class SurfpaintTools: public QWidget
   {
     Q_OBJECT
-
-//    protected:
-//      virtual void unregisterObservable(anatomist::Observable*);
 
     public:
 
@@ -118,9 +107,7 @@ namespace anatomist
 
       static SurfpaintTools* instance() ;
 
-//      virtual void update( const anatomist::Observable* observable, void* arg );
-
-      void initSurfPaintModule(AWindow3D *w3);
+      bool initSurfPaintModule(AWindow3D *w3);
       void addToolBarControls(AWindow3D *w3);
       void removeToolBarControls(AWindow3D *w3);
       void addToolBarInfosTexture(AWindow3D *w3);
@@ -182,22 +169,13 @@ namespace anatomist
     private:
 
       Texture1d *surfpaintTexInit;
-
       AWindow3D *win3D;
 
       static SurfpaintTools *& my_instance() ;
 
       AObject *objselect;
-//      ATexSurface *go;
-//      AObject *tex;
-//      AObject *surf;
-//      ATexture *at;
-//      ATriangulated *as;
-
       QToolBar  *tbTextureValue;
       QDoubleSpinBox *textureFloatSpinBox;
-
-      //QWidget *textureSpinBox;
 
       string textype;
       string objtype;
@@ -252,105 +230,5 @@ namespace anatomist
       std::vector<ATriangulated*> pathObject;
       std::vector<ATriangulated*> fillObject;
   };
-//
-//  class SurfpaintToolsWindow: public QWidget, public anatomist::Observer
-//  {
-//    Q_OBJECT
-//
-//    typedef Mesh* mesh_pointer;
-//
-//    public:
-//      SurfpaintToolsWindow(AWindow3D *win, string t, AObject *surf, AObject *tex);
-//      virtual ~SurfpaintToolsWindow();
-//
-//      virtual void update( const anatomist::Observable* observable, void* arg );
-//
-//      virtual const std::string & baseTitle() const;
-//
-//      virtual anatomist::View* view();
-//      virtual const anatomist::View* view() const;
-//
-//      void fillRegionOrPath();
-//      void changeMode(int mode);
-//      void saveTexture();
-//
-//      AObject* getSurface() {return _surf;};
-//      geodesic::Mesh getMeshStructSP() {return meshSP;};
-//      geodesic::Mesh getMeshStructGyriP() {return meshGyriCurvSP;};
-//      geodesic::Mesh getMeshStructSulciP() {return meshSulciCurvSP;};
-//      //std::vector<std::set<uint> >  neighbours;
-//
-//    private :
-//      void popAllButtonPaintToolBar();
-//
-//    public slots:
-//
-//      void colorPicker();
-//      void magicSelection();
-//      void path();
-//      void shortestPath();
-//      void sulciPath();
-//      void gyriPath();
-//      void brush();
-//      void fill();
-//      void clear();
-//      void save();
-//
-//
-//      float getTextureValue();
-//      void setTextureValue(float v);
-//      void setTextureValueInt(int v);
-//      void setTextureValueFloat(double v);
-//
-//      void setMinMaxTexture(float min, float max);
-//
-//      void setPolygon(int p);
-//      void setMaxPoly(int max);
-//      void setVertex(int v);
-//      void setMaxVertex(int max);
-//
-
-//    protected:
-//      AWindow3D *_window;
-//      static std::string    _baseTitle;
-//
-//      virtual void unregisterObservable(anatomist::Observable*);
-//
-//    public :
-//
-//
-//    private:
-//
-//      QToolButton *colorPickerAction;
-//      QToolButton *selectionAction;
-//      QToolButton *pathAction;
-//      QAction     *shortestPathAction;
-//      QAction     *sulciPathAction;
-//      QAction     *gyriPathAction;
-//      QToolButton *paintBrushAction;
-//      QToolButton *fillAction;
-//      QToolButton *clearAction;
-//      QToolButton *saveAction;
-//
-
-//
-//      QWidget *textureSpinBox;
-//      QSpinBox *IDPolygonSpinBox;
-//      QSpinBox *IDVertexSpinBox;
-//      string _textype;
-//      bool destroying;
-//
-//      AObject *_surf;
-//      AObject *_tex;
-//
-//      float *texCurvature;
-//      geodesic::Mesh meshSP;
-//      geodesic::Mesh meshGyriCurvSP;
-//      geodesic::Mesh meshSulciCurvSP;
-//      std::vector<std::set<uint> >  neighbours;
-//
-//      string shortestPathSelectedType;
-//  };
 }
-
 #endif

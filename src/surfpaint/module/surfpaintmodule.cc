@@ -65,10 +65,8 @@ using namespace aims;
 
 static bool initSurfpaintModule()
 {
-
   SurfpaintModule	*a = new SurfpaintModule;
   a->init();
-  cout << "initSurfpaintModule\n";
   return( true );
 }
 
@@ -99,22 +97,14 @@ void SurfpaintModule::viewsDeclaration() { }
 
 void SurfpaintModule::actionsDeclaration()
 {
-  std::cout << "Surfpaint actions\n" << std::endl;
-
+  //std::cout << "Surfpaint actions\n" << std::endl;
   SurfpaintToolsAction aT;
   ActionDictionary::instance()->addAction( aT.name(), &SurfpaintToolsAction::creator ) ;
 }
 
 void SurfpaintModule::controlsDeclaration()
 {
-  std::cout << "Surfpaint control\n" << std::endl;
-
-//  std::set<string> test;
-//  test.insert("coucou");
-//  test.insert("toto");
-//  ControlGroupDictionary::instance()->addControlGroup( "controlGroup", test);
-//  ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ), "controlGroup" );
-
+  //std::cout << "Surfpaint control\n" << std::endl;
   SurfpaintToolsControl   cT;
   ControlDictionary::instance()->addControl( cT.name(), &SurfpaintToolsControl::creator, cT.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::TEXSURFACE ), cT.name() );

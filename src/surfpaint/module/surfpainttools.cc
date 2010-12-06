@@ -33,9 +33,9 @@
 
 #include <anatomist/module/surfpainttools.h>
 
-//#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
-//#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
-//#include <aims/geodesicpath/geodesic_algorithm_exact.h>
+#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
+#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
+#include <aims/geodesicpath/geodesic_algorithm_exact.h>
 
 SurfpaintTools* & SurfpaintTools::my_instance()
 {
@@ -91,26 +91,8 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
 SurfpaintTools::~SurfpaintTools()
 {
   delete my_instance();
-  //win3D->deleteObserver( this );
   delete[] texCurvature;
 }
-
-//void SurfpaintTools::update( const Observable*, void* arg )
-//{
-//  cout << "Tools3DWindow::update\n";
-//
-//  if( arg == 0 )
-//    {
-//      delete this;
-//      return;
-//    }
-//}
-//
-//
-//void SurfpaintTools::unregisterObservable( Observable* o )
-//{
-//  Observer::unregisterObservable( o );
-//}
 
 void SurfpaintTools::popAllButtonPaintToolBar()
 {
@@ -128,7 +110,6 @@ void SurfpaintTools::colorPicker()
 {
   popAllButtonPaintToolBar();
   colorPickerAction->setChecked(true);
-  //cout << "colorPickerAction\n";
   changeControl(1);
 }
 
@@ -136,7 +117,6 @@ void SurfpaintTools::magicSelection()
 {
   popAllButtonPaintToolBar();
   selectionAction->setChecked(true);
-  //cout << "magicSelectionAction\n";
   changeControl(2);
 }
 
@@ -221,9 +201,6 @@ void SurfpaintTools::fill()
 
     clearPath();
   }
-
-
-  //win3D->refreshNow();
 }
 
 void SurfpaintTools::erase()
@@ -322,9 +299,9 @@ void SurfpaintTools::save()
   //  wt.write(out);
 }
 
-void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
+bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 {
-  //cout << "initSurfPaintModule\n";
+  win3D = w3;
 
   if( texCurvature )
   {
@@ -333,208 +310,166 @@ void SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
     texCurvature = 0;
   }
 
-  //w3->addObserver(this);
   stepToleranceValue = 0;
 
-  //const string ac = w3->view()->controlSwitch()->activeControl();
-  //cout << "active control: " << ac << endl;
+  //sélectionne l'objet positionné au milieu de la fenêtre (bof !)
+  //QSize s = glw->qglWidget()->size();
+  //objselect = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
+  //cout << objselect << " " << objselect->name() << endl;
 
-  GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
+  //récupère parmi tous les objets sélectionnés le dernier objet de type ATexSurface
+  map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
+  map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),last( sel.end( ) ) ;
 
-  if (glw)
+  while( iter != last )
   {
-    //glw->copyBackBuffer2Texture();
-
-    //sélectionne l'objet positionné au milieu de la fenêtre (bof !)
-    QSize s = glw->qglWidget()->size();
-
-    objselect = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
-
-    cout << "size : " << s.width() << " " <<  s.height() << endl;
-
-    cout << objselect << " " << objselect->name() << endl;
-    if( !objselect )
-      return;
-    GLComponent *glc = objselect->glAPI();
-    if( !glc )
-      return;
-    glc->glAPI()->glSetTexRGBInterpolation(true);
-
-    if ( w3->hasObject(objselect) )
+    for( set<AObject*>::iterator it = iter->second.begin() ; it != iter->second.end() ; ++it )
     {
-      objtype = objselect->objectTypeName(objselect->type());
-
-      cout << objtype << endl;
-
-      if (objtype == "SURFACE")
+      if ((AObject::objectTypeName((*it)->type()) == "TEXTURED SURF."))
       {
-        QMessageBox::warning(this, ControlledWindow::tr(
-            "not texture associated"), ControlledWindow::tr(
-            "Cannot open surfpaint Toolbox"));
+        objtype = AObject::objectTypeName((*it)->type());
+        objselect = (*it);
+        cout << " " << (*it)->name() << "\n";
+      }
+    }
+    ++iter ;
+  }
+
+  if( !objselect )
+  {
+  QMessageBox::warning(this, ControlledWindow::tr("not object selected"),
+      ControlledWindow::tr("Cannot open surfpaint Toolbox"));
+  return false;
+  }
+
+  GLComponent *glc = objselect->glAPI();
+
+  if( !glc )
+    return false;
+
+  glc->glAPI()->glSetTexRGBInterpolation(true);
+
+  if ( w3->hasObject(objselect))
+  {
+    objtype = objselect->objectTypeName(objselect->type());
+
+    cout << objtype << endl;
+
+    if (objtype == "SURFACE")
+    {
+      QMessageBox::warning(this, ControlledWindow::tr("not texture associated"),
+          ControlledWindow::tr("Cannot open surfpaint Toolbox"));
+    }
+
+    if (objtype == "TEXTURED SURF.")
+    {
+      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+      if( !go )
+      {
+        cout << "not a ATexSurface\n";
+        return false;
       }
 
-      if (objtype == "TEXTURED SURF.")
+      ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
+
+      cout << as << " " << as->name() << "\n";
+      if( !go )
       {
-        cout << "coucou" << endl;
-        //      ATexSurface *go;
-        //      AObject *tex;
-        //      AObject *surf;
-        //      ATexture *at;
-        //      ATriangulated *as;
-        ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-        if( !go )
-        {
-          cout << "not a ATexSurface\n";
-          return;
-        }
+        cout << "ATexSurface geometry is not a ATriangulated\n";
+        return false;
+      }
 
-        ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
-        cout << as << " " << as->name() << endl;
+      ATexture *at = dynamic_cast<ATexture *> (go->texture());
+      cout << at << " " << at->name() << "\n";
 
-//        AObject *surf = go->surface();
-//        cout << surf << " " << surf->name() << endl;
+      if( !at )
+      {
+        cout << "ATexSurface texture is not a ATexture\n";
+        return false;
+      }
 
-        AObject *tex = go->texture();
-        cout << tex << " " << tex->name() << endl;
+      int t = (int) w3->GetTime();
 
-        ATexture *at = dynamic_cast<ATexture *> (tex);
-        if( !at )
-        {
-          cout << "ATexSurface texture is not a ATexture\n";
-          return;
-        }
-        cout << at << " " << at->name() << endl;
+      rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
 
-        int t = (int) w3->GetTime();
+      AimsSurface<3,Void>   & surf = (*mesh)[0];
+      vector<Point3df>    & vert = surf.vertex();
+      vector<AimsVector<uint, 3> >  & tri = surf.polygon();
 
-        cout << "t " << t << endl;
+      Object options = Object::value(Dictionary());
+      options->setProperty("scale", 0);
 
+      at->attributed()->getProperty("data_type", textype);
+      cout << "type texture :" << textype << endl;
 
+      cout << "create Texture temp" << endl;
 
-        cout << "as " << endl;
-        if( !as )
-        {
-          cout << "ATexSurface geometry is not a ATriangulated\n";
-          return;
-        }
+      surfpaintTexInit = new Texture1d;
+      surfpaintTexInit->reserve(at->size());
 
-        rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
+      rc_ptr<TimeTexture<float> > text ;
+      text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
 
-        cout << "mesh " << endl;
-        AimsSurface<3,Void>   & surf3 = (*mesh)[0];
-        cout << "surf3 " << endl;
-        vector<Point3df>    & vert = surf3.vertex();
-        cout << "vert " << endl;
-        vector<AimsVector<uint, 3> >  & tri = surf3.polygon();
-        cout << "tri " << endl;
+      for (uint i = 0; i < at->size(); i++)
+        surfpaintTexInit[0].item(i) = (*text).item(i);
 
-        Object options = Object::value(Dictionary());
-        options->setProperty("scale", 0);
+      float it = at->TimeStep();
+      const GLComponent::TexExtrema & te = at->glTexExtrema(it);
 
-        //mesh = ObjectConverter<AimsSurfaceTriangle>::ana2aims(as, options);
-        //mesh = as->surface();
-
-        //AimsSurfaceTriangle mesh;
-        //AimsSurface<3, Void> *s = as->surfaceOfTime(t);
-
-//        vector<AimsVector<uint, 3> > & tri = (*mesh)[0].polygon();
-//        const vector<Point3df> & vert = (*mesh)[0].vertex();
-
-
-        //at->attributed()->getProperty("data_type", textype);
-
-        //cout << "type texture :" << textype << endl;
-        cout << "create Texture temp" << endl;
-
-        surfpaintTexInit = new Texture1d;
-        surfpaintTexInit->reserve(at->size());
-
-        rc_ptr<TimeTexture<float> > text;
-        text = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
-
-        for (uint i = 0; i < at->size(); i++)
-          surfpaintTexInit[0].item(i) = (*text).item(i);
-
-        float it = at->TimeStep();
-        const GLComponent::TexExtrema & te = at->glTexExtrema(0);
-
-        cout << "minmax tex : " << te.min[0] << " " << te.max[0] << endl;
-        cout << "minmax quant tex : " << te.minquant[0] << " "
-            << te.maxquant[0] << endl;
-
-//        setMaxPoly(tri.size());
-//        setMaxVertex(vert.size());
-//
-//        setMinMaxTexture(0, 360);
+      setMaxPoly(tri.size());
+      setMaxVertex(vert.size());
+      setMinMaxTexture(0, 360);
 
 //        if (w3->constraintEditorIsActive())
 //          setMinMaxTexture(0, 360);
 //        else
 //          setMinMaxTexture((float) (te.minquant[0]), (float) (te.maxquant[0]));
 
-        TimeTexture<float> texCurv;
-        cout << "compute texture curvature : ";
-        texCurv = TimeTexture<float> (1, vert.size());
+      TimeTexture<float> texCurv;
+      cout << "compute texture curvature : ";
+      texCurv = TimeTexture<float> (1, vert.size());
+      texCurv = AimsMeshCurvature(surf);
+      cout << "done" << endl;
 
-//        CurvatureFactory CF;
-//        Curvature *curvat = CF.createCurvature(*mesh,"barycenter");
-//        texCurv[0] = curvat->doIt();
-//        curvat->regularize(texCurv[0],1);
-//        curvat->getTextureProperties(texCurv[0]);
-//        delete curvat;
-
-        texCurv = AimsMeshCurvature(surf3);
-        cout << "done" << endl;
-
-        texCurvature = new float[ texCurv[0].nItem() * sizeof(float) ];
-        for (uint i = 0; i < texCurv[0].nItem(); i++)
-        {
-          texCurvature[i] = (float) (texCurv[0].item(i));
-          //cout << texCurvature[i] << endl;
-        }
-
-        // copy vertex and faces vector
-        std::vector<double> pointsSP;
-        std::vector<unsigned> facesSP;
-        pointsSP.resize(3 * vert.size());
-        facesSP.resize(3 * tri.size());
-
-        for (uint j = 0; j < (int) vert.size(); j++)
-        {
-          pointsSP[3 * j] = vert[j][0];
-          pointsSP[3 * j + 1] = vert[j][1];
-          pointsSP[3 * j + 2] = vert[j][2];
-        }
-        for (uint j = 0; j < (int) tri.size(); j++)
-        {
-          facesSP[3 * j] = tri[j][0];
-          facesSP[3 * j + 1] = tri[j][1];
-          facesSP[3 * j + 2] = tri[j][2];
-        }
-
-        // compute adjacence graph
-        cout << "compute adjacences graphs : ";
-
-//        meshSP.initialize_mesh_data(pointsSP, facesSP, NULL, 0, 0);
-//        meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature,
-//            1, 5);
-//        meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2,
-//            5);
-
-        cout << "done" << endl;
-
-
-
-
-        cout << "compute surface neighbours : ";
-        neighbours = SurfaceManip::surfaceNeighbours(*mesh);
-        cout << "done" << endl;
-
+      texCurvature = new float[ texCurv[0].nItem() * sizeof(float) ];
+      for (uint i = 0; i < texCurv[0].nItem(); i++)
+      {
+        texCurvature[i] = (float) (texCurv[0].item(i));
       }
+
+      // copy vertex and faces vector
+      std::vector<double> pointsSP;
+      std::vector<unsigned> facesSP;
+      pointsSP.resize(3 * vert.size());
+      facesSP.resize(3 * tri.size());
+
+      for (uint j = 0; j < (int) vert.size(); j++)
+      {
+        pointsSP[3 * j] = vert[j][0];
+        pointsSP[3 * j + 1] = vert[j][1];
+        pointsSP[3 * j + 2] = vert[j][2];
+      }
+      for (uint j = 0; j < (int) tri.size(); j++)
+      {
+        facesSP[3 * j] = tri[j][0];
+        facesSP[3 * j + 1] = tri[j][1];
+        facesSP[3 * j + 2] = tri[j][2];
+      }
+
+      cout << "compute adjacences graphs : ";
+      meshSP.initialize_mesh_data(pointsSP, facesSP, NULL, 0, 0);
+      meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 1, 5);
+      meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2, 5);
+      cout << "done" << endl;
+
+      cout << "compute surface neighbours : ";
+      neighbours = SurfaceManip::surfaceNeighbours((*mesh));
+      cout << "done" << endl;
     }
   }
 
   w3->Refresh();
+  return true;
 }
 
 void SurfpaintTools::addToolBarControls(AWindow3D *w3)
@@ -543,8 +478,6 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 
   if (w3)
   {
-    win3D = w3;
-
     const QPixmap *p;
 
     tbControls = new QToolBar(w3, ControlledWindow::tr(
@@ -706,15 +639,15 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     tbTextureValue = new QToolBar(w3, ControlledWindow::tr(
         "surfpainttoolbarTex"));
 
-#if QT_VERSION >= 0x040000
-    w3->addToolBar( Qt::BottomToolBarArea,tbTextureValue, ControlledWindow::tr( "surfpainttoolbarTex" ) );
-    tbTextureValue->setLabel( ControlledWindow::tr( "surfpainttoolbarTex" ) );
-    tbTextureValue->setIconSize( QSize( 20, 20 ) );
-#else
-    tbTextureValue = new QToolBar(w3, ControlledWindow::tr(
-        "surfpainttoolbarTex"));
-    tbTextureValue->setLabel(ControlledWindow::tr("surfpainttoolbarTex"));
-#endif
+    #if QT_VERSION >= 0x040000
+        w3->addToolBar( Qt::BottomToolBarArea,tbTextureValue, ControlledWindow::tr( "surfpainttoolbarTex" ) );
+        tbTextureValue->setLabel( ControlledWindow::tr( "surfpainttoolbarTex" ) );
+        tbTextureValue->setIconSize( QSize( 20, 20 ) );
+    #else
+        tbTextureValue = new QToolBar(w3, ControlledWindow::tr(
+            "surfpainttoolbarTex"));
+        tbTextureValue->setLabel(ControlledWindow::tr("surfpainttoolbarTex"));
+    #endif
 
     QHBox *infosTextureValue = new QHBox();
 
@@ -733,61 +666,60 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     {
       constraintList = new QComboBox(infosTextureValue);
       loadConstraintsList();
-connect    ( constraintList, SIGNAL( activated( int ) ), this, SLOT( updateConstraintList() ) );
+      connect( constraintList, SIGNAL( activated( int ) ), this, SLOT( updateConstraintList() ) );
+    }
+
+    tbTextureValue->addWidget(infosTextureValue);
+    tbTextureValue->show();
+
+    tbInfos3D = new QToolBar( w3,ControlledWindow::tr( "surfpainttoolbar3D") );
+    #if QT_VERSION >= 0x040000
+      w3->addToolBar( Qt::BottomToolBarArea,tbInfos3D, ControlledWindow::tr( "surfpainttoolbar3D" ) );
+      tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
+      tbInfos3D->setIconSize( QSize( 20, 20 ) );
+    #else
+      tbInfos3D = new QToolBar( w3, ControlledWindow::tr( "surfpainttoolbar3D" ) );
+      tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
+    #endif
+
+    QHBox *infos3D = new QHBox();
+
+    QLabel *IDPolygonSpinBoxLabel = new QLabel(ControlledWindow::tr("IDPolygon"),infos3D);
+
+    IDPolygonSpinBox = new QSpinBox(infos3D);
+    IDPolygonSpinBox->setSingleStep(1);
+    IDPolygonSpinBox->setFixedHeight(30);
+    IDPolygonSpinBox->setFixedWidth(75);
+    IDPolygonSpinBox->setValue(0);
+
+    QLabel *IDVertexSpinBoxLabel = new QLabel(ControlledWindow::tr("IDVertex"),infos3D);
+
+    IDVertexSpinBox = new QSpinBox(infos3D);
+    IDVertexSpinBox->setSingleStep(1);
+    IDVertexSpinBox->setFixedHeight(30);
+    IDVertexSpinBox->setFixedWidth(75);
+    IDVertexSpinBox->setValue(0);
+
+    toleranceSpinBoxLabel = new QLabel(tr("tolerance"),infos3D);
+    toleranceSpinBox = new QSpinBox (infos3D);
+    toleranceSpinBox->setSingleStep(1);
+    toleranceSpinBox->setFixedHeight(30);
+    toleranceSpinBox->setFixedWidth(55);
+    toleranceSpinBox->setValue(0);
+    toleranceSpinBox->setRange(0,100);
+
+    constraintPathSpinBoxLabel = new QLabel(ControlledWindow::tr("constraint"),infos3D);
+    constraintPathSpinBox = new QSpinBox(infos3D);
+    constraintPathSpinBox->setSingleStep(1);
+    constraintPathSpinBox->setFixedHeight(30);
+    constraintPathSpinBox->setFixedWidth(55);
+    constraintPathSpinBox->setValue(5);
+    constraintPathSpinBox->setRange(0,100);
+
+    tbInfos3D->addWidget(infos3D);
+
+    tbInfos3D->show();
   }
-
-  tbTextureValue->addWidget(infosTextureValue);
-
-  tbTextureValue->show();
-
-  tbInfos3D = new QToolBar( w3,ControlledWindow::tr( "surfpainttoolbar3D") );
-#if QT_VERSION >= 0x040000
-  w3->addToolBar( Qt::BottomToolBarArea,tbInfos3D, ControlledWindow::tr( "surfpainttoolbar3D" ) );
-  tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
-  tbInfos3D->setIconSize( QSize( 20, 20 ) );
-#else
-  tbInfos3D = new QToolBar( w3, ControlledWindow::tr( "surfpainttoolbar3D" ) );
-  tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
-#endif
-
-  QHBox *infos3D = new QHBox();
-
-  QLabel *IDPolygonSpinBoxLabel = new QLabel(ControlledWindow::tr("IDPolygon"),infos3D);
-
-  IDPolygonSpinBox = new QSpinBox(infos3D);
-  IDPolygonSpinBox->setSingleStep(1);
-  IDPolygonSpinBox->setFixedHeight(30);
-  IDPolygonSpinBox->setFixedWidth(75);
-  IDPolygonSpinBox->setValue(0);
-
-  QLabel *IDVertexSpinBoxLabel = new QLabel(ControlledWindow::tr("IDVertex"),infos3D);
-
-  IDVertexSpinBox = new QSpinBox(infos3D);
-  IDVertexSpinBox->setSingleStep(1);
-  IDVertexSpinBox->setFixedHeight(30);
-  IDVertexSpinBox->setFixedWidth(75);
-  IDVertexSpinBox->setValue(0);
-
-  toleranceSpinBoxLabel = new QLabel(tr("tolerance"),infos3D);
-  toleranceSpinBox = new QSpinBox (infos3D);
-  toleranceSpinBox->setSingleStep(1);
-  toleranceSpinBox->setFixedHeight(30);
-  toleranceSpinBox->setFixedWidth(55);
-  toleranceSpinBox->setValue(0);
-  toleranceSpinBox->setRange(0,100);
-
-  constraintPathSpinBoxLabel = new QLabel(ControlledWindow::tr("constraint"),infos3D);
-  constraintPathSpinBox = new QSpinBox(infos3D);
-  constraintPathSpinBox->setSingleStep(1);
-  constraintPathSpinBox->setFixedHeight(30);
-  constraintPathSpinBox->setFixedWidth(55);
-  constraintPathSpinBox->setValue(5);
-  constraintPathSpinBox->setRange(0,100);
-
-  tbInfos3D->addWidget(infos3D);
-
-  tbInfos3D->show();
-}
 }
 
 void SurfpaintTools::removeToolBarInfosTexture(AWindow3D *w3)
@@ -796,62 +728,37 @@ void SurfpaintTools::removeToolBarInfosTexture(AWindow3D *w3)
   if (!w3)
     return;
 
-#if QT_VERSION >= 0x040000
-  tbTextureValue = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbarTex") );
-  tbInfos3D = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbar3D") );
-  delete tbTextureValue;
-  delete tbInfos3D;
-#else
-  tbTextureValue
-      = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbarTex")));
-  tbInfos3D = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbar3D")));
-  if (tbTextureValue)
-  {
+  #if QT_VERSION >= 0x040000
+    tbTextureValue = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbarTex") );
+    tbInfos3D = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbar3D") );
     delete tbTextureValue;
-    return;
-  }
-  if (tbInfos3D)
-  {
     delete tbInfos3D;
-    return;
-  }
+  #else
+    tbTextureValue
+        = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbarTex")));
+    tbInfos3D = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbar3D")));
+    if (tbTextureValue)
+    {
+      delete tbTextureValue;
+      return;
+    }
+    if (tbInfos3D)
+    {
+      delete tbInfos3D;
+      return;
+    }
 
-#endif
+  #endif
 }
 
 void SurfpaintTools::restoreTextureValue(int indexVertex)
 {
-  if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect))
+  float value;
+
+  if (surfpaintTexInit)
   {
-    if (objtype == "TEXTURED SURF.")
-    {
-      Object options = Object::value(Dictionary());
-      options->setProperty("scale", 0);
-
-      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-      //AObject *surf = go->surface();
-      AObject *tex = go->texture();
-      ATexture *at = dynamic_cast<ATexture *> (tex);
-      //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-
-      float it = at->TimeStep();
-      const GLComponent::TexExtrema & te = at->glTexExtrema(0);
-
-      float scl = (te.maxquant[0] - te.minquant[0]);
-
-      rc_ptr<TimeTexture<float> > t;
-      t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
-
-      float value;
-      value = surfpaintTexInit[0].item(indexVertex);
-      (*t).item(indexVertex) = (float) value;
-
-      tex->setChanged();
-      tex->notifyObservers();
-      tex->setInternalsChanged();
-      //tex->internalUpdate();
-      win3D->Refresh();
-    }
+  value = surfpaintTexInit[0].item(indexVertex);
+  updateTextureValue (indexVertex,value);
   }
 }
 
@@ -920,7 +827,6 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
           te.maxquant[tx] = value;
         }
         scl = te.maxquant[tx] - te.minquant[tx];
-
       }
 
       float svalue = ( value - te.minquant[tx] ) / scl;
@@ -931,17 +837,10 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
 
       texbuf[ indexVertex ] = svalue;
 
-//       rc_ptr<TimeTexture<float> > t;
-//       t = ObjectConverter<TimeTexture<float> >::ana2aims(tex, options);
-// 
-//       (*t).item(indexVertex) = (float) value / scl;
-
       at->glSetChanged( GLComponent::glBODY );
       tex->setChanged();
       tex->setInternalsChanged();
       tex->notifyObservers(this);
-      //      win3D->setChanged();
-      //      win3D->notifyObservers( this );
       //win3D->Refresh();
       //win3D->refreshNow();
       listVertexChanged[indexVertex] = value;
@@ -966,13 +865,10 @@ void SurfpaintTools::floodFillStart(int indexVertex)
 
 void SurfpaintTools::floodFillStop(void)
 {
-
   ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-  AObject *surf = go->surface();
-  //AObject *tex = go->texture();
-  //ATexture *at = dynamic_cast<ATexture *> (tex);
-  ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-
+  AObject *tex = go->texture();
+  ATexture *at = dynamic_cast<ATexture *> (tex);
+  ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
   AimsSurface<3, Void> *s = as->surfaceOfTime(0);
   const vector<Point3df> & vert = s->vertex();
 
@@ -988,19 +884,29 @@ void SurfpaintTools::floodFillStop(void)
     delete tmpMeshOut;
   }
 
-  const anatomist::AObjectPalette *pal;
-  GLComponent *glc = objselect->glAPI();
-  pal = glc->glPalette(0);
+  const AObjectPalette *pal = at->getOrCreatePalette();
 
   const AimsData<AimsRGBA> *col = pal->colors();
-  const GLComponent::TexExtrema & te = glc->glTexExtrema(0);
+
+  unsigned  ncol0, ncol1;
+  float   min1, max1;
+  float   min2, max2;
+
+  ncol0 = col->dimX();
+  ncol1 = col->dimY();
+  min1 = pal->min1();
+  max1 = pal->max1();
+
+  cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
+  cout << "min1 = " << min1 << " max1 = " << max1 << endl;
 
   AimsRGBA empty;
-  empty = (*col)((int) 255
-      * (float) (getTextureValueFloat() / 360));
+
+  empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
 
   cout << "texture value RGB " << (int) empty.red() << " "
       << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
+
   Material mat2;
   mat2.setRenderProperty(Material::Ghost, 1);
   mat2.setRenderProperty(Material::RenderLighting, 1);
@@ -1088,21 +994,14 @@ void SurfpaintTools::updateConstraintList(void)
   std::istringstream strin(constraintLabel.substr(position + 1));
   int value;
   strin >> value;
-  //cout << value << endl;
 
   setTextureValueFloat((float) value);
-  //  if (_textype == "S16" || (_textype == "U32") || (_textype == "S32"))
-  //    setTextureValueInt(value);
-  //
-  //  if (_textype == "FLOAT")
-  //    setTextureValueFloat(value);
 }
 
 void SurfpaintTools::changeToleranceSpinBox(int v)
 {
   toleranceValue = v;
   stepToleranceValue = toleranceValue * (float)(360 - 0)/100.;
-  //cout << "ToleranceValue " << stepToleranceValue << endl;
 }
 
 void SurfpaintTools::loadConstraintsList()
@@ -1144,445 +1043,171 @@ void SurfpaintTools::changeConstraintPathSpinBox(int v)
 void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     Point3df positionNearestVertex)
 {
-//  int i;
-//
-//  AimsSurfaceTriangle *tmpMeshOut;
-//  tmpMeshOut = new AimsSurfaceTriangle;
-//
-//  Material mat;
-//  mat.setRenderProperty(Material::Ghost, 1);
-//  //mat.setRenderProperty(Material::RenderLighting, 1);
-//  mat.SetDiffuse(1., 1.0, 1.0, 0.5);
-//
-//  tmpMeshOut = SurfaceGenerator::sphere(positionNearestVertex, 0.50, 50);
-//
-//  ATriangulated *sp = new ATriangulated();
-//  sp->setName(theAnatomist->makeObjectName("select"));
-//  sp->setSurface(tmpMeshOut);
-//  sp->SetMaterial(mat);
-//
-//  if (!pathIsClosed())
-//  {
-//    win3D->registerObject(sp, true, 1);
-//    //win3D->registerObject(sp, true, 0);
-//    //theAnatomist->registerObject(sp, 1);
-//    theAnatomist->registerObject(sp, 0);
-//    pathObject.push_back(sp);
-//  }
-//
-//  std::vector<int>::iterator ite;
-//
-//  if (!pathIsClosed())
-//    listIndexVertexSelectSP.push_back(indexNearestVertex);
-//  else
-//    listIndexVertexSelectSP.push_back(*listIndexVertexSelectSP.begin());
-//
-//  ite = listIndexVertexSelectSP.end();
-//
-//  int nb_vertex;
-//  printf("nb vertex path = %d\n", listIndexVertexSelectSP.size());
-//
-//  std::vector<geodesic::SurfacePoint> sources;
-//  std::vector<geodesic::SurfacePoint> targets;
-//
-//  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
-//  geodesic::Mesh meshSP;
-//
-//  const string ac = getPathType();
-//
-//  if (ac.compare("ShortestPath") == 0)
-//    meshSP = getMeshStructSP();
-//  else if (ac.compare("SulciPath") == 0)
-//    meshSP = getMeshStructSulciP();
-//  else if (ac.compare("GyriPath") == 0)
-//    meshSP = getMeshStructGyriP();
-//
-//  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
-//
-//  if (listIndexVertexSelectSP.size() >= 2)
-//  {
-//    unsigned target_vertex_index = (*(--ite));
-//    unsigned source_vertex_index = (*(--ite));
-//
-//    printf("indice source = %d target = %d \n", source_vertex_index,
-//        target_vertex_index);
-//
-//    std::vector<geodesic::SurfacePoint> SPath;
-//    SPath.clear();
-//
-//    listIndexVertexPathSPLast.clear();
-//
-//    geodesic::SurfacePoint short_sources(
-//        &meshSP.vertices()[source_vertex_index]);
-//    geodesic::SurfacePoint short_targets(
-//        &meshSP.vertices()[target_vertex_index]);
-//
-//    dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
-//        listIndexVertexPathSPLast);
-//
-//    ite = listIndexVertexPathSPLast.end();
-//
-//    reverse(listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-//    listIndexVertexPathSPLast.push_back((int) target_vertex_index);
-//
-//    listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
-//        listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-//
-//    cout << "path dijkstra = ";
-//
-//    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
-//    {
-//      cout << listIndexVertexPathSP[i] << " ";
-//    }
-//    cout << endl;
-//
-//    std::vector<Point3df> vertexList;
-//    Point3df newVertex;
-//
-//    AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
-//
-//    for (i = 0; i < SPath.size(); ++i)
-//    {
-//      newVertex[0] = SPath[i].x();
-//      newVertex[1] = SPath[i].y();
-//      newVertex[2] = SPath[i].z();
-//      vertexList.push_back(newVertex);
-//    }
-//
-//    for (i = 0; i < vertexList.size() - 1; ++i)
-//    {
-//
-//      tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.25, 50);
-//      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
-//      delete tmpMeshOut;
-//
-//      tmpMeshOut = SurfaceGenerator::cylinder(vertexList[i], vertexList[i + 1],
-//          0.1, 0.1, 12, false, true);
-//      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
-//      delete tmpMeshOut;
-//    }
-//
-//    tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.2, 10);
-//    SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
-//    delete tmpMeshOut;
-//
-//    ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-//    //AObject *surf = go->surface();
-//    AObject *tex = go->texture();
-//    ATexture *at = dynamic_cast<ATexture *> (tex);
-//    //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-//
-//    GLComponent *glc = at->glAPI();
-//
-//    const AObjectPalette *pal = at->getOrCreatePalette();
-//
-//    cout << "tex name "  << tex->name() << endl;
-//
-//    const AimsData<AimsRGBA> *col = pal->colors();
-//
-//    unsigned  ncol0, ncol1;
-//    float   min1, max1;
-//    float   min2, max2;
-//    float a,b,c,d,e,f;
-//
-//    ncol0 = col->dimX();
-//    ncol1 = col->dimY();
-//
-//    min1 = pal->min1();
-//    max1 = pal->max1();
-//
-//    cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
-//    cout << "min1 = " << min1 << " max1 = " << max1 << endl;
-//
-//    const GLComponent::TexExtrema & te = glc->glTexExtrema(0);
-//
-//    AimsRGBA empty;
-//
-//    float indice = ((float)(getTextureValueFloat() - min1)/(float)(max1 - min1))*ncol0;
-//
-//    cout << "i = " << indice << endl;
-////    empty = pal->normColor((float) (getTextureValueFloat() / 360.));
-////    cout << "texture value RGB norm" << (int) empty.red() << " "
-////         << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
-//
-//    if (indice)
-//    empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
-//
-//    cout << "minq = " << te.min[0] << "maxq = " << te.maxquant[0] << endl;
-//    cout << "min = " << te.minquant[0] << "max = " << te.max[0] << endl;
-//
-//    cout << "texture value RGB " << (int) empty.red() << " "
-//        << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
-//    Material mat2;
-//    mat2.setRenderProperty(Material::Ghost, 1);
-//    mat2.setRenderProperty(Material::RenderLighting, 1);
-//    mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
-//        (float) (empty.blue() / 255.), 1.);
-//
-//    ATriangulated *s3 = new ATriangulated();
-//    s3->setName(theAnatomist->makeObjectName("path"));
-//    s3->setSurface(MeshOut);
-//    s3->SetMaterial(mat2);
-//
-//    s3->setPalette( *pal );
-//
-//    //win3D->registerObject(s3, true, 0);
-//    win3D->registerObject(s3, true, 1);
-//    theAnatomist->registerObject(s3, 0);
-//    //theAnatomist->registerObject(s3, 1);
-//    pathObject.push_back(s3);
-//  }
+  int i;
+
+  AimsSurfaceTriangle *tmpMeshOut;
+  tmpMeshOut = new AimsSurfaceTriangle;
+
+  Material mat;
+  mat.setRenderProperty(Material::Ghost, 1);
+  //mat.setRenderProperty(Material::RenderLighting, 1);
+  mat.SetDiffuse(1., 1.0, 1.0, 0.5);
+
+  tmpMeshOut = SurfaceGenerator::sphere(positionNearestVertex, 0.50, 50);
+
+  ATriangulated *sp = new ATriangulated();
+  sp->setName(theAnatomist->makeObjectName("select"));
+  sp->setSurface(tmpMeshOut);
+  sp->SetMaterial(mat);
+
+  if (!pathIsClosed())
+  {
+    win3D->registerObject(sp, true, 1);
+    //win3D->registerObject(sp, true, 0);
+    //theAnatomist->registerObject(sp, 1);
+    theAnatomist->registerObject(sp, 0);
+    pathObject.push_back(sp);
+  }
+
+  std::vector<int>::iterator ite;
+
+  if (!pathIsClosed())
+    listIndexVertexSelectSP.push_back(indexNearestVertex);
+  else
+    listIndexVertexSelectSP.push_back(*listIndexVertexSelectSP.begin());
+
+  ite = listIndexVertexSelectSP.end();
+
+  int nb_vertex;
+  printf("nb vertex path = %d\n", listIndexVertexSelectSP.size());
+
+  std::vector<geodesic::SurfacePoint> sources;
+  std::vector<geodesic::SurfacePoint> targets;
+
+  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+  geodesic::Mesh meshSP;
+
+  const string ac = getPathType();
+
+  if (ac.compare("ShortestPath") == 0)
+    meshSP = getMeshStructSP();
+  else if (ac.compare("SulciPath") == 0)
+    meshSP = getMeshStructSulciP();
+  else if (ac.compare("GyriPath") == 0)
+    meshSP = getMeshStructGyriP();
+
+  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
+
+  if (listIndexVertexSelectSP.size() >= 2)
+  {
+    unsigned target_vertex_index = (*(--ite));
+    unsigned source_vertex_index = (*(--ite));
+
+    printf("indice source = %d target = %d \n", source_vertex_index,
+        target_vertex_index);
+
+    std::vector<geodesic::SurfacePoint> SPath;
+    SPath.clear();
+
+    listIndexVertexPathSPLast.clear();
+
+    geodesic::SurfacePoint short_sources(
+        &meshSP.vertices()[source_vertex_index]);
+    geodesic::SurfacePoint short_targets(
+        &meshSP.vertices()[target_vertex_index]);
+
+    dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
+        listIndexVertexPathSPLast);
+
+    ite = listIndexVertexPathSPLast.end();
+
+    reverse(listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
+    listIndexVertexPathSPLast.push_back((int) target_vertex_index);
+
+    listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
+        listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
+
+    cout << "path dijkstra = ";
+
+    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
+    {
+      cout << listIndexVertexPathSP[i] << " ";
+    }
+    cout << endl;
+
+    std::vector<Point3df> vertexList;
+    Point3df newVertex;
+
+    AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
+
+    for (i = 0; i < SPath.size(); ++i)
+    {
+      newVertex[0] = SPath[i].x();
+      newVertex[1] = SPath[i].y();
+      newVertex[2] = SPath[i].z();
+      vertexList.push_back(newVertex);
+    }
+
+    for (i = 0; i < vertexList.size() - 1; ++i)
+    {
+
+      tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.25, 50);
+      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+      delete tmpMeshOut;
+
+      tmpMeshOut = SurfaceGenerator::cylinder(vertexList[i], vertexList[i + 1],
+          0.1, 0.1, 12, false, true);
+      SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+      delete tmpMeshOut;
+    }
+
+    tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.2, 10);
+    SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+    delete tmpMeshOut;
+
+    ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+    AObject *tex = go->texture();
+    ATexture *at = dynamic_cast<ATexture *> (tex);
+
+    const AObjectPalette *pal = at->getOrCreatePalette();
+
+    const AimsData<AimsRGBA> *col = pal->colors();
+
+    unsigned  ncol0, ncol1;
+    float   min1, max1;
+    float   min2, max2;
+
+    ncol0 = col->dimX();
+    ncol1 = col->dimY();
+    min1 = pal->min1();
+    max1 = pal->max1();
+
+    cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
+    cout << "min1 = " << min1 << " max1 = " << max1 << endl;
+
+    AimsRGBA empty;
+
+    empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+
+    cout << "texture value RGB " << (int) empty.red() << " "
+        << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
+    Material mat2;
+    mat2.setRenderProperty(Material::Ghost, 1);
+    mat2.setRenderProperty(Material::RenderLighting, 1);
+    mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
+        (float) (empty.blue() / 255.), 1.);
+
+    ATriangulated *s3 = new ATriangulated();
+    s3->setName(theAnatomist->makeObjectName("path"));
+    s3->setSurface(MeshOut);
+    s3->SetMaterial(mat2);
+
+    s3->setPalette( *pal );
+
+    //win3D->registerObject(s3, true, 0);
+    win3D->registerObject(s3, true, 1);
+    theAnatomist->registerObject(s3, 0);
+    //theAnatomist->registerObject(s3, 1);
+    pathObject.push_back(s3);
+  }
 }
-
-/////////////////////////////
-
-//
-//View* SurfpaintToolsWindow::view()
-//{
-//  return (_window->view());
-//}
-//
-//const View* SurfpaintToolsWindow::view() const
-//{
-//  return (_window->view());
-//}
-//
-//const string & SurfpaintToolsWindow::baseTitle() const
-//{
-//  return (_baseTitle);
-//}
-//
-//
-//void SurfpaintToolsWindow::colorPicker()
-//{
-//  popAllButtonPaintToolBar();
-//  colorPickerAction->setChecked(true);
-//  cout << "colorPickerAction\n";
-//
-//  _window->view()->controlSwitch()->notifyAvailableControlChange();
-//  _window->view()->controlSwitch()->notifyActivableControlChange();
-//
-//  _window->view()->controlSwitch()->setActiveControl("SurfpaintColorPickerControl");
-//  _window->view()->controlSwitch()->notifyActiveControlChange();
-//  _window->view()->controlSwitch()->notifyActionChange();
-//
-//SurfpaintToolsWindow::SurfpaintToolsWindow(AWindow3D *win, string textype, AObject *surf, AObject *tex) :
-//    QWidget(0, "SurfpaintControl", Qt::WDestructiveClose),
-////    ControlledWindow(win, "paintcontrol3D", NULL, 0),
-//    Observer(),
-//    _window(win),
-//    _surf(surf),
-//    _textype(textype), destroying(false)
-//{
-//  shortestPathSelectedType = "ShortestPath";
-//
-//  //SurfpaintModule     *sp = SurfpaintModule::instance();
-//
-//  // read triangulation
-////  cout << "reading triangulation   : " << flush;
-////  AimsSurfaceTriangle surface;
-////  Reader<AimsSurfaceTriangle> triR( meshFileIn );
-////  triR >> surface;
-////  cout << "done" << endl;
-//
-// // AimsSurfaceTriangle surface;
-//  ATriangulated *as;
-//  as = dynamic_cast<ATriangulated *> (surf);
-//  AimsSurface<3, Void> *s = as->surfaceOfTime(0);
-//
-//  // compute and copy curvature
-
-//
-//  win->addObserver(this);
-//
-//  setCaption(tr("SurfpaintControl") + _window->Title().c_str());
-//  const QPixmap *p;
-//  p = IconDictionary::instance()->getIconInstance("SurfpaintControl");
-//  this->setWindowIcon(*p);
-//
-//  QVBoxLayout *mainlay = new QVBoxLayout( this, 10, 5 );
-//
-//  QHGroupBox  *actions = new QHGroupBox( tr( "Controlers :" ), this );
-//
-//
-//  //QHBox *ctrl = new QHBox();
-//
-////
-
-//
-//  string iconname;
-//
-//  //pipette
-//  iconname = Settings::globalPath() + "/icons/meshPaint/pipette.png";
-//  colorPickerAction = new QToolButton (actions);
-//  colorPickerAction->setIcon(QIcon(iconname.c_str()));
-//  //colorPickerAction->setStatusTip(tr("Texture value selection"));
-//  colorPickerAction->setToolTip(tr("Texture value selection"));
-//  colorPickerAction->setCheckable(true);
-//  colorPickerAction->setChecked(false);
-//  colorPickerAction->setIconSize(QSize(32, 32));
-//  //colorPickerAction->setFocusPolicy(Qt::StrongFocus);
-//  colorPickerAction->setAutoRaise(true);
-//  connect(colorPickerAction, SIGNAL(clicked()), this, SLOT(colorPicker()));
-//
-//  //baguette magique
-//  iconname = Settings::globalPath() + "/icons/meshPaint/magic_selection.png";
-//  selectionAction = new QToolButton (actions);
-//  selectionAction->setIcon(QIcon(iconname.c_str()));
-//  selectionAction->setToolTip(tr("Area magic selection"));
-//  selectionAction->setCheckable(true);
-//  selectionAction->setChecked(false);
-//  //selectionAction->setFocusPolicy(Qt::StrongFocus);
-//  selectionAction->setIconSize(QSize(32, 32));
-//  selectionAction->setAutoRaise(true);
-//
-//  connect(selectionAction, SIGNAL(clicked()), this, SLOT(magicSelection()));
-
-//  mainlay->addWidget(actions);
-//
-//  QVGroupBox  *infos = new QVGroupBox( tr( "Parameters :" ), this );
-//
-//  QHBox *infosTextureValue = new QHBox(infos);
-//
-//  QLabel *SpinBoxLabel = new QLabel(tr("TextureValue"), infosTextureValue);
-//
-//  if (_textype == "FLOAT")
-//  {
-//    QDoubleSpinBox *textureFloatSpinBox = new QDoubleSpinBox(infosTextureValue);
-//
-//    textureFloatSpinBox->setSingleStep(0.1);
-//    textureFloatSpinBox->setDecimals(2);
-//    textureFloatSpinBox->setFixedHeight(30);
-//    textureFloatSpinBox->setFixedWidth(100);
-//    textureFloatSpinBox->setValue(0.000);
-//    textureSpinBox = static_cast<QDoubleSpinBox*> (textureFloatSpinBox);
-//    connect  (textureFloatSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setTextureValueFloat(double)));
-//  }
-//
-//  if (_textype == "S16" || (_textype == "U32") || (_textype == "S32"))
-//  {
-//    QSpinBox *textureIntSpinBox = new QSpinBox(infosTextureValue);
-//    textureIntSpinBox->setSingleStep(1);
-//    textureIntSpinBox->setFixedHeight(30);
-//    textureIntSpinBox->setFixedWidth(75);
-//    textureIntSpinBox->setValue(0);
-//    textureSpinBox = static_cast<QSpinBox*>(textureIntSpinBox);
-//    connect(textureIntSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setTextureValueInt(int)));
-//  }
-//
-
-//
-//  QHBox *infos3D = new QHBox(infos);
-//
-//  QLabel *IDPolygonSpinBoxLabel = new QLabel(tr("ID Polygon : "),infos3D);
-//
-//  IDPolygonSpinBox = new QSpinBox(infos3D);
-//  IDPolygonSpinBox->setSingleStep(1);
-//  IDPolygonSpinBox->setFixedHeight(30);
-//  IDPolygonSpinBox->setFixedWidth(75);
-//  IDPolygonSpinBox->setValue(0);
-//
-//  QLabel *IDVertexSpinBoxLabel = new QLabel(tr("ID Vertex : "),infos3D);
-//
-//  IDVertexSpinBox = new QSpinBox(infos3D);
-//  IDVertexSpinBox->setSingleStep(1);
-//  IDVertexSpinBox->setFixedHeight(30);
-//  IDVertexSpinBox->setFixedWidth(75);
-//  IDVertexSpinBox->setValue(0);
-//
-//  mainlay->addWidget(infos);
-//
-////  QHBox *parameters = new QHBox(infos);
-////
-//  connect(toleranceSpinBox ,SIGNAL(valueChanged(int)),this,SLOT(changeToleranceSpinBox(int)));
-////  connect(constraintPathSpinBox ,SIGNAL(valueChanged(int)),this,SLOT(changeConstraintPathSpinBox(int)));
-//
-//
-//  setLayout(mainlay);
-//}
-//
-//SurfpaintToolsWindow::~SurfpaintToolsWindow()
-//{
-//  destroying = true;
-//  //_window->deleteObserver( this );
-//  //cleanupObserver();
-//  //_window->painttoolsWinDestroyed();
-//}
-//
-//void SurfpaintToolsWindow::update(const Observable*, void* arg)
-//{
-//  cout << "SurfpaintToolsWindow::update\n";
-//
-//}
-//
-//void SurfpaintToolsWindow::unregisterObservable(Observable* o)
-//{
-////  Observer::unregisterObservable(o);
-////  if (!destroying) delete this;
-//}
-//
-//void SurfpaintToolsWindow::setPolygon(int p)
-//{
-//  IDPolygonSpinBox->setValue(p);
-//
-//  _window->Refresh();
-//}
-//
-//void SurfpaintToolsWindow::setVertex(int v)
-//{
-//  IDVertexSpinBox->setValue(v);
-//
-//  _window->Refresh();
-//}
-//float SurfpaintToolsWindow::getTextureValue(void)
-//{
-//  if (_textype == "S16" || (_textype == "U32") || (_textype == "S32")) return (float) (dynamic_cast<QSpinBox*> (textureSpinBox)->value());
-//
-//  if (_textype == "FLOAT") return (float) (dynamic_cast<QDoubleSpinBox*> (textureSpinBox)->value());
-//}
-//
-//void SurfpaintToolsWindow::setTextureValue(float v)
-//{
-//  if (_textype == "S16" || (_textype == "U32") || (_textype == "S32"))
-//    setTextureValueInt((int) v);
-//
-//  if (_textype == "FLOAT") setTextureValueFloat((double) v);
-//
-//  _window->Refresh();
-//}
-//
-//void SurfpaintToolsWindow::setTextureValueInt(int v)
-//{
-//  dynamic_cast<QSpinBox*> (textureSpinBox)->setValue(v);
-//
-//  _window->Refresh();
-//}
-//
-//void SurfpaintToolsWindow::setTextureValueFloat(double v)
-//{
-//  dynamic_cast<QDoubleSpinBox*> (textureSpinBox)->setValue(v);
-//
-//  _window->Refresh();
-//}
-//
-//void SurfpaintToolsWindow::setMaxPoly(int max)
-//{
-//  IDPolygonSpinBox->setRange(0, max);
-//  _window->Refresh();
-//}
-//
-//void SurfpaintToolsWindow::setMaxVertex(int max)
-//{
-//  IDVertexSpinBox->setRange(0, max);
-//  _window->Refresh();
-//}
-//
-//void SurfpaintToolsWindow::setMinMaxTexture(float min, float max)
-//{
-//  if (_textype == "S16" || (_textype == "U32") || (_textype == "S32")) dynamic_cast<QSpinBox*> (textureSpinBox)->setRange(
-//      (int) min, (int) max);
-//
-//  if (_textype == "FLOAT") dynamic_cast<QDoubleSpinBox*> (textureSpinBox)->setRange( min, max);
-//
-//  _window->Refresh();
-//}

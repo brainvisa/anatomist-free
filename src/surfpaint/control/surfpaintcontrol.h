@@ -37,20 +37,12 @@
 #include <anatomist/controler/control_d.h>
 #include <anatomist/action/surfpaintaction.h>
 
-//SurfpaintColorPickerControl
-//SurfpaintMagicSelectionControl
-//SurfpaintBrushControl
-//SurfpaintFillControl
-//SurfpaintEraseControl
-//SurfpaintSaveControl
-
 namespace anatomist{
 
   class SurfpaintToolsControl : public Control
   {
     public:
     static ControlPtr creator( ) ;
-
 
     SurfpaintToolsControl( ) ;
     SurfpaintToolsControl( const SurfpaintToolsControl & c );
@@ -63,7 +55,6 @@ namespace anatomist{
 
     private:
     Action * myAction;
-
   };
 
 }
