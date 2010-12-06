@@ -1349,332 +1349,50 @@ void AWindow3D::displayClickPoint()
   cout << "displayClickPoint\n";
 }
 
-namespace
+int AWindow3D::computeNearestVertexFromPolygonPoint(const ViewState & vs, int poly,
+      const GLComponent* glc, const Point3df & position,
+      Point3df & positionNearestVertex)
 {
+  int index_nearest_vertex = -1;
 
-  int computeNearestVertexFromPolygonPoint2(const ViewState & vs, int poly,
-      const GLComponent* glc, const Point3df & position)
+  const GLfloat *avert = glc->glVertexArray(vs);
+  const Point3df *vert = reinterpret_cast<const Point3df *> (avert);
+  unsigned npoly = glc->glNumPolygon(vs);
+  unsigned polsize = glc->glPolygonSize(vs);
+  unsigned v, i;
+
+  //compute the nearest polygon vertex
+  float min, dist_min = FLT_MAX;
+
+  if (poly >= 0 && (unsigned) poly < npoly)
   {
-    int index_nearest_vertex = -1;
-    Point3df pt;
-
-    const GLfloat *avert = glc->glVertexArray(vs);
-    const Point3df *vert = reinterpret_cast<const Point3df *> (avert);
-    unsigned npoly = glc->glNumPolygon(vs);
-    unsigned polsize = glc->glPolygonSize(vs);
-    unsigned v, i;
-
-    //compute the nearest polygon vertex
-    float min, dist_min = FLT_MAX;
-
-    if (poly >= 0 && (unsigned) poly < npoly)
+    const GLuint *apoly = glc->glPolygonArray(vs);
+    for (i = 0; i < polsize; ++i)
     {
-      const GLuint *apoly = glc->glPolygonArray(vs);
-      for (i = 0; i < polsize; ++i)
+      v = apoly[poly * polsize + i];
+      positionNearestVertex = vert[v];
+      min = (position - positionNearestVertex).norm2();
+
+      if (min < dist_min)
       {
-        v = apoly[poly * polsize + i];
-        pt = vert[v];
-        min = (position - pt).norm2();
-
-        if (min < dist_min)
-        {
-          dist_min = min;
-          index_nearest_vertex = v;
-        }
+        dist_min = min;
+        index_nearest_vertex = v;
       }
-      pt = vert[index_nearest_vertex];
+    }
+    positionNearestVertex = vert[index_nearest_vertex];
 
+    if (theAnatomist->userLevel() >= 3)
+    {
       cout << "3D point picked= " << position << "\n";
       cout << "ID polygon selected = " << poly << "\n";
       cout << "index nearest vertex = " << index_nearest_vertex << "\n";
-      cout << "3D coord vertex value = " << pt << "\n";
-    }
-
-    return index_nearest_vertex;
-
-  }
-
-}
-
-int AWindow3D::computeNearestVertexFromPolygonPoint(Point3df position,
-    int poly, AimsSurface<3, Void> *as)
-{
-  int index_nearest_vertex, index_min = 0;
-  Point3df pt[3];
-  uint v[3];
-
-  const vector<Point3df> & vert = as->vertex();
-  vector<AimsVector<uint, 3> > & tri = as->polygon();
-
-  if (poly < (int) tri.size() && poly >= 0)
-  {
-    v[0] = tri[poly][0];
-    v[1] = tri[poly][1];
-    v[2] = tri[poly][2];
-
-    pt[0] = vert[v[0]];
-    pt[1] = vert[v[1]];
-    pt[2] = vert[v[2]];
-
-    cout << "nb poly= " << tri.size() << endl;
-
-    //compute the nearest polygon vertex
-    float min, dist_min = FLT_MAX;
-
-    for (int i = 0; i < 3; i++)
-    {
-      min = (float) sqrt((position[0] - pt[i][0]) * (position[0] - pt[i][0])
-          + (position[1] - pt[i][1]) * (position[1] - pt[i][1]) + (position[2]
-          - pt[i][2]) * (position[2] - pt[i][2]));
-
-      if (min < dist_min)
-      {
-        dist_min = min;
-        index_min = i;
-      }
+      cout << "3D coord vertex value = " << positionNearestVertex << "\n";
     }
   }
-
-  index_nearest_vertex = v[index_min];
-
-  cout << "3D point picked= " << position[0] << " " << position[1] << " "
-      << position[2] << "\n";
-  cout << "ID polygon selected = " << poly << "\n";
-  cout << "index nearest vertex = " << v[index_min] << "\n";
-  cout << "3D coord vertex value = " << pt[index_min][0] << " "
-      << pt[index_min][1] << " " << pt[index_min][2] << "\n";
-
   return index_nearest_vertex;
 }
 
-namespace
-{
-
-  int computeNearestVertexFromPolygonPointNew2(const ViewState & vs, int poly,
-      const GLComponent* glc, const Point3df & position,
-      Point3df & positionNearestVertex)
-  {
-    int index_nearest_vertex = -1;
-
-    const GLfloat *avert = glc->glVertexArray(vs);
-    const Point3df *vert = reinterpret_cast<const Point3df *> (avert);
-    unsigned npoly = glc->glNumPolygon(vs);
-    unsigned polsize = glc->glPolygonSize(vs);
-    unsigned v, i;
-
-    //compute the nearest polygon vertex
-    float min, dist_min = FLT_MAX;
-
-    if (poly >= 0 && (unsigned) poly < npoly)
-    {
-      const GLuint *apoly = glc->glPolygonArray(vs);
-      for (i = 0; i < polsize; ++i)
-      {
-        v = apoly[poly * polsize + i];
-        positionNearestVertex = vert[v];
-        min = (position - positionNearestVertex).norm2();
-
-        if (min < dist_min)
-        {
-          dist_min = min;
-          index_nearest_vertex = v;
-        }
-      }
-      positionNearestVertex = vert[index_nearest_vertex];
-    }
-    return index_nearest_vertex;
-  }
-
-}
-
-int AWindow3D::computeNearestVertexFromPolygonPointNew(Point3df position,
-    int poly, AimsSurface<3, Void> *as, Point3df & positionNearestVertex)
-{
-  int index_nearest_vertex, index_min = 0;
-  Point3df pt[3];
-  uint v[3];
-
-  const vector<Point3df> & vert = as->vertex();
-  vector<AimsVector<uint, 3> > & tri = as->polygon();
-
-  if (poly < (int) tri.size() && poly >= 0)
-  {
-    v[0] = tri[poly][0];
-    v[1] = tri[poly][1];
-    v[2] = tri[poly][2];
-
-    pt[0] = vert[v[0]];
-    pt[1] = vert[v[1]];
-    pt[2] = vert[v[2]];
-
-    //compute the nearest polygon vertex
-    float min, dist_min = FLT_MAX;
-
-    for (int i = 0; i < 3; i++)
-    {
-      min = (float) sqrt((position[0] - pt[i][0]) * (position[0] - pt[i][0])
-          + (position[1] - pt[i][1]) * (position[1] - pt[i][1]) + (position[2]
-          - pt[i][2]) * (position[2] - pt[i][2]));
-
-      if (min < dist_min)
-      {
-        dist_min = min;
-        index_min = i;
-      }
-    }
-  }
-
-  index_nearest_vertex = v[index_min];
-
-  return index_nearest_vertex;
-}
-
-void AWindow3D::getInfos3DFromClickPoint(int x, int y)
-{
-  Point3df position;
-
-  d->draw->positionFromCursor(x, y, position);
-
-  AObject *obj = objectAtCursorPosition(x, y);
-
-  int poly = polygonAtCursorPosition(x, y, obj);
-
-  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
-
-  if (obj)
-  {
-    AObject *o = w3->objectAtCursorPosition(x, y);
-
-    if (o != NULL && w3->hasObject(o))
-    {
-      string t = o->objectTypeName(o->type());
-      int index_v = 0;
-
-      cout << endl << o->name() << endl;
-      cout << "objet type : " << t << endl;
-
-#if 1 // using the general GLComponent API
-      GLComponent *glc = o->glAPI();
-      if (glc)
-      {
-        ViewState vs3(GetTime(), this);
-        SliceViewState vs2(GetTime(), true, position, &d->slicequat,
-            getReferential(), windowGeometry(), &d->draw->quaternion(), this);
-        ViewState *vs = &vs2;
-        if (!obj->Is2DObject() || (d->viewtype == ThreeD && obj->Is3DObject()))
-        {
-          vs = &vs3;
-        }
-        index_v = computeNearestVertexFromPolygonPoint2(*vs, poly, glc,
-            position);
-        if (index_v >= 0 && (unsigned) index_v < glc->glNumVertex(*vs))
-        {
-          /* const GLfloat* vert = glc->glVertexArray( *vs );
-           cout << "  vertex: " << index_v << " : " << vert[ index_v * 3 ]
-           << ", " << vert[ index_v * 3 + 1 ] << ", "
-           << vert[ index_v * 3 + 2 ] << endl;*/
-          unsigned ntex = glc->glNumTextures(*vs), tx;
-          for (tx = 0; tx < ntex; ++tx)
-          {
-            unsigned nvtex = glc->glTexCoordSize(*vs, tx);
-            if (nvtex > (unsigned) index_v)
-            {
-              const GLfloat* tc = glc->glTexCoordArray(*vs, tx);
-              if (tc)
-              {
-                const GLComponent::TexExtrema & te = glc->glTexExtrema(tx);
-                unsigned dt = glc->glDimTex(*vs, tx), i;
-                if (dt > 0)
-                {
-                  cout << "texture " << tx << " value =";
-                  for (i = 0; i < dt; ++i)
-                  {
-                    float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i]
-                        - te.min[i]);
-                    float off = te.minquant[i] - scl * te.min[i];
-                    cout << " " << scl * tc[index_v * dt + i] + off;
-                  }
-                  cout << endl;
-                }
-              }
-            }
-          }
-        }
-      }
-#else
-
-      /*else*/if (t == "TEXTURED SURF.")
-      {
-        ATexSurface *go;
-        go = dynamic_cast<ATexSurface *>( o );
-
-        AObject *surf = go->surface();
-        AObject *tex = go->texture();
-
-        ATexture *at;
-        at = dynamic_cast<ATexture *>( tex );
-        ATriangulated *as;
-        as = dynamic_cast<ATriangulated *>( surf );
-
-        int t = (int) GetTime();
-
-        AimsSurface<3,Void> *s = as->surfaceOfTime( t );
-
-        string attdattypr;
-        at->attributed()->getProperty( "data_type",attdattypr);
-        cout << "data type = " << attdattypr << endl;
-
-        //float		it = at->TimeStep();
-        //cout << "Time min = " << at->MinT() << " Time Max = " << at->MaxT() <<endl;
-        //cout << "Texture Dim = " << at->dimTexture() ;
-
-        if (at->MaxT()>0)
-        cout << "Time cursor = " << t << "/" << at->MaxT() << endl;
-
-        float* tc = (float *)at->textureCoords(t);
-
-        //carto::rc_ptr<TimeTexture<float> > Tt = at->ATexture::texture<float>(false,false);
-        //Texture<float>	& text = (*Tt)[0];
-
-        const GLComponent::TexExtrema & te = at->glTexExtrema( 0 );
-        float scl = (te.maxquant[0] - te.minquant[0]);
-
-        index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
-
-        //cout << "texture coord value = " << tc[index_v] << "\n";
-
-        if ( (attdattypr == "S16") ||
-            (attdattypr == "U32") ||
-            (attdattypr == "S32"))
-        cout << "texture value = " << (int) rint (scl*tc[index_v]+te.minquant[0]) << "\n";
-
-        if (attdattypr == "FLOAT")
-        cout << "texture value = " << scl*tc[index_v]+te.minquant[0] << "\n";
-      }
-
-      if (t == "SURFACE")
-      {
-        ATriangulated *as;
-        as = dynamic_cast<ATriangulated *>( o );
-
-        // int size;
-        // as->attributed()->getProperty( "nb_t_pos",size);
-        // cout << "nb time pos = " << size << endl;
-
-        int t = (int) GetTime();
-        AimsSurface<3,Void> *s = as->surfaceOfTime( t );
-
-        if (as->MaxT()>0)
-        cout << "Time cursor = " << t << "/" << as->MaxT() << endl;
-
-        index_v = computeNearestVertexFromPolygonPoint( position, poly, s);
-      }
-#endif
-    }
-  }
-}
-
-void AWindow3D::getInfos3DFromClickPointNew(int x, int y, Point3df & position,
+void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
     int *poly, AObject *objselect, string & objtype, float *texvalue, string & textype,
     Point3df & positionNearestVertex, int* indexNearestVertex)
 {
@@ -1702,29 +1420,14 @@ void AWindow3D::getInfos3DFromClickPointNew(int x, int y, Point3df & position,
         string text = objselect->name();
         AttributedAObject *aao = dynamic_cast<AttributedAObject *> (objselect);
 
-        if (objtype == "SURFACE" && aao) aao->attributed()->getProperty(
-            "data_type", textype);
-
-        if (objtype == "TEXTURED SURF.")
-        {
-          ATexSurface *go;
-          go = dynamic_cast<ATexSurface *> (objselect);
-          AObject *surf = go->surface();
-          AObject *tex = go->texture();
-          ATexture *at;
-          at = dynamic_cast<ATexture *> (tex);
-          ATriangulated *as;
-          as = dynamic_cast<ATriangulated *> (surf);
-          int t = (int) GetTime();
-          AimsSurface<3, Void> *s = as->surfaceOfTime(t);
-          at->attributed()->getProperty("data_type", textype);
-        }
+        if (aao)
+          aao->attributed()->getProperty("data_type", textype);
 
         if (!objselect->Is2DObject() || (d->viewtype == ThreeD && objselect->Is3DObject()))
           vs = &vs3;
 
-        *indexNearestVertex = computeNearestVertexFromPolygonPointNew2(*vs,
-            *poly, glc, position, positionNearestVertex);
+        *indexNearestVertex = computeNearestVertexFromPolygonPoint(*vs, *poly, glc, position, positionNearestVertex);
+
         if (*indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
             < glc->glNumVertex(*vs))
         {
@@ -1768,8 +1471,8 @@ bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
 
 void AWindow3D::getInfos3D(void)
 {
-  cout << "getInfos3DFromClickPoint " << d->mouseX << endl;
-  getInfos3DFromClickPoint(d->mouseX, d->mouseY);
+  cout << "getInfos3DFromClickPoint " << d->mouseX << " " << d->mouseY << endl;
+  //getInfos3DFromClickPoint(d->mouseX, d->mouseY);
 }
 
 View* AWindow3D::view()
@@ -3653,28 +3356,26 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 
   GLubyte r, g, b;
 
-//  if (surfpaintIsVisible())
-//  {
-//    //cout << "with optimization for surfpaint\n";
-//
-//    GLubyte* tex = d->draw->getTextureFromBackBuffer();
-//
-//    r = tex[3 * (d->draw->qglWidget()->height() - y)
-//        * d->draw->qglWidget()->width() + 3 * x];
-//    g = tex[3 * (d->draw->qglWidget()->height() - y)
-//        * d->draw->qglWidget()->width() + 3 * x + 1];
-//    b = tex[3 * (d->draw->qglWidget()->height() - y)
-//        * d->draw->qglWidget()->width() + 3 * x + 2];
-//
-//    //  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
-//    //      << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
-//    //  cout << "ID polygon selected: " << poly << endl;
-//    }
-//
-//  else
+  if (surfpaintIsVisible())
+  {
+    //cout << "with optimization for surfpaint\n";
+
+    GLubyte* tex = d->draw->getTextureFromBackBuffer();
+
+    r = tex[3 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 3 * x];
+    g = tex[3 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 3 * x + 1];
+    b = tex[3 * (d->draw->qglWidget()->height() - y)
+        * d->draw->qglWidget()->width() + 3 * x + 2];
+
+    //  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
+    //      << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
+    //  cout << "ID polygon selected: " << poly << endl;
+  }
+  else
   {
     //cout << "without optimization\n";
-
     // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
     renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
     // read the color buffer at pos x,y

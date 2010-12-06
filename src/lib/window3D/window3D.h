@@ -126,10 +126,9 @@ public:
   /// pick a polygon on a selected object at the cursor 2D position
   virtual int polygonAtCursorPosition( int x, int y,const anatomist::AObject* obj );
   /// print all infos about vertex picked on a polygon selected
-  int computeNearestVertexFromPolygonPoint( Point3df position, int poly, AimsSurface<3,Void> *as);
-  int computeNearestVertexFromPolygonPointNew( Point3df position, int poly, AimsSurface<3,Void> *as, Point3df & positionNearestVertex);
-  void getInfos3DFromClickPoint( int x, int y );
-  void getInfos3DFromClickPointNew( int x, int y, Point3df & position, int *poly, anatomist::AObject *objselect, string & objtype,
+
+  int computeNearestVertexFromPolygonPoint(const ViewState & vs, int poly,const GLComponent* glc, const Point3df & position,Point3df & positionNearestVertex);
+  void getInfos3DFromClickPoint( int x, int y, Point3df & position, int *poly, anatomist::AObject *objselect, string & objtype,
       float *texvalue, string & textype, Point3df & positionNearestVertex, int* indexNearestVertex);
 
   void getInfos3D(void);

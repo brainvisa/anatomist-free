@@ -40,6 +40,7 @@
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/glcomponent.h>
 
+#include <anatomist/selection/selectFactory.h>
 #include <anatomist/constrainteditor/wConstraintEditor.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/colorstyle.h>
@@ -201,25 +202,9 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   d->newTextureName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
-  //->setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
-
-//  if( d->listobjet )
-//  {
-//    set<AObject *>::const_iterator i, e = d->objects.end();
-//    int       x = 0;
-//    for( i=d->objects.begin(); i!=e; ++i, ++x )
-//      {
-//      //cout << (*i)->name() << " ";
-//      d->listobjet->insertItem(  (*i)->name().c_str());
-//        //d->objectsmap[ d->order->qListBox()->item( x ) ] = *i;
-//      }
-//  }
-
   QHBox *hblatlon = new QHBox();
   new QLabel( "Type : ",hblatlon);
   d->latlon = new QComboBox( hblatlon );
-//  d->latlon->setFixedHeight(30);
-//  d->latlon->setFixedWidth(50);
   d->latlon->insertItem("lat");
   d->latlon->insertItem("lon");
   d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -232,9 +217,6 @@ void ConstraintEditorWindow::drawContents( const char *name,
   mainlay->addWidget(hbm);
   mainlay->addWidget(hbt);
   mainlay->addWidget(hblatlon);
-
-//  if( d->listobjet )
-//    mainlay->addWidget( d->listobjet );
 
   mainlay->addWidget( butts );
   ok->setDefault( true );
@@ -267,8 +249,6 @@ void ConstraintEditorWindow::accept()
     rc_ptr<Texture1d> tex( new Texture1d(1, nnodes) );
     aTex->setTexture(tex);
 
-    // aTex->setTexExtrema(0,360);
-
     string  constraintLabel = "TexConstraint" + string(d->latlon->currentText());
 
     aTex->setName( theAnatomist->makeObjectName( string(d->newTextureName->text()) ) );
@@ -280,7 +260,11 @@ void ConstraintEditorWindow::accept()
     aTex->attributed()->setProperty( "vertex_number",  nnodes );
     theAnatomist->registerObject( aTex );
 
-    aTex->getOrCreatePalette();
+    aTex->createDefaultPalette( "Blue-Red-fusion" );
+    //aTex->palette()->set2dMode( false );
+    //aTex->palette()->create( aTex->palette()->colors()->dimX(), 256 );
+
+    //aTex->getOrCreatePalette();
     AObjectPalette *pal = aTex->palette();
     pal->setMin1( 0 );
     pal->setMax1( 360. );
@@ -305,28 +289,21 @@ void ConstraintEditorWindow::accept()
     w->registerObject(tso);
 
     AWindow3D *w3 = static_cast<AWindow3D *> (w);
-
     w3->setActiveConstraintEditor(true);
 
+    map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
+    map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),
+      last( sel.end( ) ) ;
 
-    ATexSurface *go = static_cast<ATexSurface *> (tso);
-    AObject *surf = go->surface();
-    AObject *tex = go->texture();
-    ATexture *at = static_cast<ATexture *> (tex);
-    ATriangulated *as = static_cast<ATriangulated *> (surf);
+    while( iter != last ){
+      SelectFactory::factory()->unselectAll( iter->first ) ;
+      ++iter ;
+    }
 
-    cout << surf << " " << tex << " " << at << " " << as << " " <<endl;
-    cout << surf->name() << " " << tex->name() << " " << at->name() << " " << as->name() << " " <<endl;
-
-    //w3->setVisibleSurfpaint(true);
-
-//    w3->view()->controlSwitch()->notifyAvailableControlChange();
-//    w3->view()->controlSwitch()->notifyActivableControlChange();
-//
-//    w3->view()->controlSwitch()->setActiveControl("SurfpaintToolsControl");
-//    w3->view()->controlSwitch()->notifyActiveControlChange();
-//    w3->view()->controlSwitch()->notifyActionChange();
-
+//    unsigned id_insert = 0;
+//    set<AObject *> vObjSelected;
+//    vObjSelected.insert(tso);
+//    SelectFactory::factory()->select( id_insert, vObjSelected ) ;
   }
 
   QDialog::accept();
