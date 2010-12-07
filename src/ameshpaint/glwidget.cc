@@ -28,7 +28,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _resized = false;
   _parent = parent;
   _showInfos = true;
-  _constraintPathValue = 5;
+  _constraintPathValue = 3;
 
   backBufferTexture.resize( parent->width() * parent->height() * 3 );
 

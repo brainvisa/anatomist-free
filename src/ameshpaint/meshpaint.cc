@@ -242,7 +242,7 @@ void MeshPaint::createActions()
   constraintPathSpinBox->setSingleStep(1);
   constraintPathSpinBox->setFixedHeight(30);
   constraintPathSpinBox->setFixedWidth(55);
-  constraintPathSpinBox->setValue(5);
+  constraintPathSpinBox->setValue(3);
   constraintPathSpinBox->setRange(0,100);
 
   //Brush
@@ -253,7 +253,8 @@ void MeshPaint::createActions()
   connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
 
   //remplissage
-  iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
+  //iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
+  iconname = Settings::globalPath() + "/icons/meshPaint/valide.png";
   fillAction = new QAction(QIcon(iconname.c_str()), tr("&filling"), this);
   fillAction->setStatusTip(tr("fill"));
   connect(fillAction, SIGNAL(triggered()), this, SLOT(filling()));
