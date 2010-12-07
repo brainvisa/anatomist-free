@@ -401,7 +401,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         return false;
       }
 
-      ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
+      ATriangulated *as = static_cast<ATriangulated *> (go->surface());
 
       cout << as << " " << as->name() << "\n";
       if( !go )
@@ -489,8 +489,8 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       cout << "compute adjacences graphs : ";
       meshSP.initialize_mesh_data(pointsSP, facesSP, NULL, 0, 0);
-      meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 1, 5);
-      meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2, 5);
+      meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 1, 3);
+      meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2, 3);
       cout << "done" << endl;
 
       cout << "compute surface neighbours : ";
@@ -746,7 +746,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     constraintPathSpinBox->setSingleStep(1);
     constraintPathSpinBox->setFixedHeight(30);
     constraintPathSpinBox->setFixedWidth(55);
-    constraintPathSpinBox->setValue(5);
+    constraintPathSpinBox->setValue(3);
     constraintPathSpinBox->setRange(0,100);
 
     connect( constraintPathSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeConstraintPathSpinBox(int) ) );
