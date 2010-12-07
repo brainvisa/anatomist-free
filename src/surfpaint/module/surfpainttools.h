@@ -127,6 +127,8 @@ namespace anatomist
       void floodFillStop(void);
       void floodFillMove(int indexVertex, float newTextureValue, float oldTextureValue);
 
+      void fillHolesOnPath (void);
+
       string getPathType(void){return shortestPathSelectedType;}
 
       void setClosePath(bool c){pathClosed = c;}
@@ -137,6 +139,7 @@ namespace anatomist
       geodesic::Mesh getMeshStructSulciP() {return meshSulciCurvSP;}
 
       void addGeodesicPath(int indexNearestVertex,Point3df positionNearestVertex);
+      void addSimpleShortPath(int indexSource,int indexDest);
 
       void changeControl(int control){IDActiveControl = control;}
       int getActiveControl(void){return IDActiveControl;}
@@ -154,6 +157,7 @@ namespace anatomist
       void fill();
       void clearPath();
       void clearRegion();
+      void clearHoles();
       void clearAll();
       void erase();
       void save();
@@ -225,10 +229,14 @@ namespace anatomist
       std::vector<int> listIndexVertexSelectSP;
       map<int,float> listVertexChanged;
 
+      std::vector<int> listIndexVertexBrushPath;
+      std::vector<int> listIndexVertexHolesPath;
+
       std::vector<int> listIndexVertexSelectFill;
 
       std::vector<ATriangulated*> pathObject;
       std::vector<ATriangulated*> fillObject;
+      std::vector<ATriangulated*> holesObject;
   };
 }
 #endif

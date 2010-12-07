@@ -201,6 +201,18 @@ void SurfpaintTools::fill()
 
     clearPath();
   }
+
+  //remplissage trous
+  if (IDActiveControl == 4)
+  {
+    for (unsigned i = 0; i < listIndexVertexHolesPath.size(); i++)
+    {
+      updateTextureValue(listIndexVertexHolesPath[i], texvalue);
+      listVertexChanged[listIndexVertexHolesPath[i]] = texvalue;
+    }
+
+    clearHoles();
+  }
 }
 
 void SurfpaintTools::erase()
@@ -214,11 +226,13 @@ void SurfpaintTools::clearAll()
 {
   clearPath();
   clearRegion();
+  clearHoles();
 }
 
 void SurfpaintTools::clearPath()
 {
   listIndexVertexSelectSP.clear();
+  listIndexVertexBrushPath.clear();
   listIndexVertexPathSP.clear();
   listIndexVertexPathSPLast.clear();
   pathSP.clear();
@@ -233,6 +247,23 @@ void SurfpaintTools::clearPath()
   }
 
   pathObject.clear();
+}
+
+void SurfpaintTools::clearHoles()
+{
+  listIndexVertexBrushPath.clear();
+  listIndexVertexHolesPath.clear();
+
+  std::vector<ATriangulated*>::iterator ite;
+  ite = holesObject.begin();
+
+  for (; ite != holesObject.end(); ++ite)
+  {
+    win3D->unregisterObject((*ite));
+    theAnatomist->unregisterObject((*ite));
+  }
+
+  holesObject.clear();
 }
 
 void SurfpaintTools::clearRegion()
@@ -708,6 +739,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     toleranceSpinBox->setValue(0);
     toleranceSpinBox->setRange(0,100);
 
+    connect( toleranceSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeToleranceSpinBox(int) ) );
+
     constraintPathSpinBoxLabel = new QLabel(ControlledWindow::tr("constraint"),infos3D);
     constraintPathSpinBox = new QSpinBox(infos3D);
     constraintPathSpinBox->setSingleStep(1);
@@ -715,6 +748,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     constraintPathSpinBox->setFixedWidth(55);
     constraintPathSpinBox->setValue(5);
     constraintPathSpinBox->setRange(0,100);
+
+    connect( constraintPathSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeConstraintPathSpinBox(int) ) );
 
     tbInfos3D->addWidget(infos3D);
 
@@ -844,6 +879,8 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       //win3D->Refresh();
       //win3D->refreshNow();
       listVertexChanged[indexVertex] = value;
+
+      listIndexVertexBrushPath.push_back(indexVertex);
     }
   }
 }
@@ -1001,7 +1038,20 @@ void SurfpaintTools::updateConstraintList(void)
 void SurfpaintTools::changeToleranceSpinBox(int v)
 {
   toleranceValue = v;
-  stepToleranceValue = toleranceValue * (float)(360 - 0)/100.;
+
+  ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+  AObject *tex = go->texture();
+  ATexture *at = dynamic_cast<ATexture *> (tex);
+
+  float it = at->TimeStep();
+  int tn = 0; // 1st texture
+  GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+  int tx = 0; // 1st tex coord
+  float scl = (te.maxquant[tx] - te.minquant[tx]);
+
+  stepToleranceValue = toleranceValue * (float)(scl)/100.;
+
+  cout << "stepToleranceValue " << stepToleranceValue << endl;
 }
 
 void SurfpaintTools::loadConstraintsList()
@@ -1038,6 +1088,33 @@ void SurfpaintTools::loadConstraintsList()
 void SurfpaintTools::changeConstraintPathSpinBox(int v)
 {
 
+}
+
+void SurfpaintTools::fillHolesOnPath (void)
+{
+  int i;
+
+  for ( i = 0; i < listIndexVertexBrushPath.size(); i++)
+    cout << listIndexVertexBrushPath[i] <<  " ";
+
+  cout << endl;
+
+  for ( i = 0; i < listIndexVertexBrushPath.size() - 1; i++)
+  {
+    std::set<uint> voisins = neighbours[listIndexVertexBrushPath[i]];
+    //std::set<uint>::iterator voisIt = voisins.begin();
+
+    std::set<uint>::iterator ite = std::find(voisins.begin(),voisins.end(), listIndexVertexBrushPath[i+1]);
+
+    if (ite == voisins.end() && listIndexVertexBrushPath[i]!=listIndexVertexBrushPath[i+1])
+      {
+      //add geodesic path
+      addSimpleShortPath(listIndexVertexBrushPath[i],listIndexVertexBrushPath[i+1]);
+      //cout << listIndexVertexBrushPath[i] << "-->" << listIndexVertexBrushPath[i+1] << endl;
+      }
+
+   //cout << listIndexVertexBrushPath[i] << endl;
+  }
 }
 
 void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
@@ -1210,4 +1287,157 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     //theAnatomist->registerObject(s3, 1);
     pathObject.push_back(s3);
   }
+}
+
+void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
+{
+  int i;
+
+
+  ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+  ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
+  rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
+  AimsSurface<3,Void>   & surf = (*mesh)[0];
+  vector<Point3df>    & vert = surf.vertex();
+  AObject *tex = go->texture();
+  ATexture *at = dynamic_cast<ATexture *> (tex);
+
+  AimsSurfaceTriangle *tmpMeshOut;
+  tmpMeshOut = new AimsSurfaceTriangle;
+
+  Material mat;
+  mat.setRenderProperty(Material::Ghost, 1);
+  mat.SetDiffuse(1., 1.0, 1.0, 0.5);
+
+//  tmpMeshOut = SurfaceGenerator::sphere(vert[indexSource], 0.50, 50);
+//  ATriangulated *sp = new ATriangulated();
+//  sp->setName(theAnatomist->makeObjectName("select"));
+//  sp->setSurface(tmpMeshOut);
+//  sp->SetMaterial(mat);
+//  win3D->registerObject(sp, true, 1);
+//  theAnatomist->registerObject(sp, 0);
+//  holesObject.push_back(sp);
+//
+//  tmpMeshOut = SurfaceGenerator::sphere(vert[indexDest], 0.50, 50);
+//  ATriangulated *sp = new ATriangulated();
+//  sp->setName(theAnatomist->makeObjectName("select"));
+//  sp->setSurface(tmpMeshOut);
+//  sp->SetMaterial(mat);
+//  win3D->registerObject(sp, true, 1);
+//  theAnatomist->registerObject(sp, 0);
+//  holesObject.push_back(sp);
+
+
+  std::vector<geodesic::SurfacePoint> sources;
+  std::vector<geodesic::SurfacePoint> targets;
+
+  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+  geodesic::Mesh meshSP;
+
+  meshSP = getMeshStructSP();
+
+  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
+
+  unsigned target_vertex_index = indexSource;
+  unsigned source_vertex_index = indexDest;
+
+  printf("indice source = %d target = %d \n", source_vertex_index,
+      target_vertex_index);
+
+  std::vector<geodesic::SurfacePoint> SPath;
+  SPath.clear();
+
+  std::vector<int> listIndexVertexHolesPathTemp;
+
+  listIndexVertexHolesPathTemp.clear();
+
+  geodesic::SurfacePoint short_sources(
+      &meshSP.vertices()[source_vertex_index]);
+  geodesic::SurfacePoint short_targets(
+      &meshSP.vertices()[target_vertex_index]);
+
+  dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
+      listIndexVertexHolesPathTemp);
+
+  listIndexVertexHolesPath.insert(listIndexVertexHolesPath.end(),
+      listIndexVertexHolesPathTemp.begin(), listIndexVertexHolesPathTemp.end());
+
+  cout << "path dijkstra = ";
+
+  for ( i = 0; i < listIndexVertexHolesPathTemp.size(); i++)
+  {
+    cout << listIndexVertexHolesPathTemp[i] << " ";
+  }
+  cout << endl;
+
+  std::vector<Point3df> vertexList;
+  Point3df newVertex;
+
+  AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
+
+  for (i = 0; i < SPath.size(); ++i)
+  {
+    newVertex[0] = SPath[i].x();
+    newVertex[1] = SPath[i].y();
+    newVertex[2] = SPath[i].z();
+    vertexList.push_back(newVertex);
+  }
+
+  for (i = 0; i < vertexList.size() - 1; ++i)
+  {
+    tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.25, 50);
+    SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+    delete tmpMeshOut;
+
+    tmpMeshOut = SurfaceGenerator::cylinder(vertexList[i], vertexList[i + 1],
+        0.1, 0.1, 12, false, true);
+    SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+    delete tmpMeshOut;
+  }
+
+  tmpMeshOut = SurfaceGenerator::sphere(vertexList[i], 0.2, 10);
+  SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
+  delete tmpMeshOut;
+
+  const AObjectPalette *pal = at->getOrCreatePalette();
+
+  const AimsData<AimsRGBA> *col = pal->colors();
+
+  unsigned  ncol0, ncol1;
+  float   min1, max1;
+  float   min2, max2;
+
+  ncol0 = col->dimX();
+  ncol1 = col->dimY();
+  min1 = pal->min1();
+  max1 = pal->max1();
+
+  cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
+  cout << "min1 = " << min1 << " max1 = " << max1 << endl;
+
+  AimsRGBA empty;
+
+  empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+
+  cout << "texture value RGB " << (int) empty.red() << " "
+      << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
+  Material mat2;
+  mat2.setRenderProperty(Material::Ghost, 1);
+  mat2.setRenderProperty(Material::RenderLighting, 1);
+  mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
+      (float) (empty.blue() / 255.), 1.);
+
+  ATriangulated *s3 = new ATriangulated();
+  s3->setName(theAnatomist->makeObjectName("path"));
+  s3->setSurface(MeshOut);
+  s3->SetMaterial(mat2);
+
+  s3->setPalette( *pal );
+
+  //win3D->registerObject(s3, true, 0);
+  win3D->registerObject(s3, true, 1);
+  theAnatomist->registerObject(s3, 0);
+  //theAnatomist->registerObject(s3, 1);
+  holesObject.push_back(s3);
+
 }
