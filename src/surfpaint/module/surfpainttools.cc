@@ -82,7 +82,13 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   stepToleranceValue( 0 ),
   IDActiveControl( -1 ),
   texCurvature( 0 ),
-  pathClosed( false )
+  pathClosed( false ),
+  go(0),
+  as(0),
+  mesh(0),
+  tex(0),
+  at(0),
+  options(0)
 {
   changeControl(0);
   shortestPathSelectedType = "ShortestPath";
@@ -286,48 +292,65 @@ void SurfpaintTools::clearRegion()
 
 void SurfpaintTools::save()
 {
-  //cout << "save Texture on disk " << endl;
+  cout << "save Texture on disk " << endl;
 
-  //  typename std::map<int, T>::const_iterator mit(_listVertexChanged.begin()),
-  //      mend(_listVertexChanged.end());
-  //
-  //  const float* t = _aTex->textureCoords();
-  //
-  //
-  //  TimeTexture<T> out(1, _mesh.vertex().size());
-  //  for (uint i = 0; i < _mesh.vertex().size(); i++)
-  //  {
-  //    if (_dataType == "FLOAT")
-  //    {
-  //      out[0].item(i) = (float) (_tex[0].item(i));
-  //      //out[0].item(i) = 0;
-  //    }
-  //
-  //    if (_dataType == "S16")
-  //    {
-  //      out[0].item(i) = (int) (_tex[0].item(i));
-  //      //out[0].item(i) = 0;
-  //    }
-  //  }
-  //
-  //  for (; mit != mend; ++mit)
-  //  {
-  //    //cout << (int)mit->first << " " << mit->second << endl;
-  //
-  //    _tex[0].item(mit->first) = mit->second;
-  //    out[0].item(mit->first) = mit->second;
-  //    //out[0].item(mit->first) = 1;
-  //  }
-  //
-  //  rc_ptr<Texture1d> tex(new Texture1d);
-  //  Converter<TimeTexture<T> , Texture1d> c;
-  //  c.convert(_tex, *tex);
-  //  _aTex->setTexture(tex);
-  //
-  //  _listVertexChanged.clear();
-  //
-  //  Writer<TimeTexture<T> > wt(_adressTexOut);
-  //  wt.write(out);
+  std::map<int, float>::const_iterator mit(listVertexChanged.begin()),mend(listVertexChanged.end());
+
+  rc_ptr<TimeTexture<float> > out( new TimeTexture<float>(1, at->size()) );
+
+  rc_ptr<TimeTexture<float> > text ;
+  text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
+
+  float it = at->TimeStep();
+
+  int tn = 0; // 1st texture
+  GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+  int tx = 0; // 1st tex coord
+  float scl = (te.maxquant[tx] - te.minquant[tx]);
+
+  cout << "scale = " <<  scl << endl;
+
+  for (uint i = 0; i < at->size(); i++)
+    {
+    (*out).item(i) = (*text).item(i)*scl;
+    }
+
+  for (; mit != mend; ++mit)
+    (*out).item(mit->first) = mit->second*scl;
+
+  for (uint i = 0; i < at->size(); i++)
+    surfpaintTexInit[0].item(i) = (*out).item(i);
+
+  cout << "scale = " <<  scl << endl;
+  rc_ptr<Texture1d> textemp(new Texture1d);
+  Converter<TimeTexture<float> , Texture1d> c;
+  c.convert(*out, *textemp);
+  at->setTexture(textemp);
+
+  listVertexChanged.clear();
+
+//  set<AObject*> toSave ;
+//  toSave.insert( at ) ;
+
+//  string fileName =
+//      ObjectActions::specificSaveStatic( ana,
+//                 string( ( const char * )(ControlledWindow::tr( "Texture" )+ " (*.tex)" ) ),
+//                 string( "Save Texture" ) ) ;
+//
+//  cout << "fileName " << fileName << endl;
+
+  QString filt = ControlledWindow::tr( "Texture" ) + " (*.tex)" ;
+  QString capt = "Save Texture" ;
+
+  QString filename = QFileDialog::getSaveFileName( QString::null, filt, 0, 0, capt );
+
+  if( !filename.isNull() )
+  {
+    Writer<TimeTexture<float> > wt(filename.latin1());
+    wt.write((*out));
+  }
+
+  clearAll();
 }
 
 bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
@@ -394,40 +417,37 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
     if (objtype == "TEXTURED SURF.")
     {
-      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
+      go = dynamic_cast<ATexSurface *> (objselect);
+
       if( !go )
       {
         cout << "not a ATexSurface\n";
         return false;
       }
 
-      ATriangulated *as = static_cast<ATriangulated *> (go->surface());
+      as = static_cast<ATriangulated *> (go->surface());
 
-      cout << as << " " << as->name() << "\n";
-      if( !go )
+      tex = go->texture();
+
+      try
       {
-        cout << "ATexSurface geometry is not a ATriangulated\n";
-        return false;
+        at=dynamic_cast<ATexture *> (go->texture());
       }
-
-      ATexture *at = dynamic_cast<ATexture *> (go->texture());
-      cout << at << " " << at->name() << "\n";
-
-      if( !at )
+      catch (const std::bad_cast& e)
       {
-        cout << "ATexSurface texture is not a ATexture\n";
-        return false;
+        std::cerr << e.what() << std::endl;
+        std::cerr <<  objselect << " is not a Atexture" << std::endl;
       }
 
       int t = (int) w3->GetTime();
 
-      rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
+      mesh = as->surface();
 
-      AimsSurface<3,Void>   & surf = (*mesh)[0];
+      AimsSurface<3,Void>   & surf= (*mesh)[0];
       vector<Point3df>    & vert = surf.vertex();
       vector<AimsVector<uint, 3> >  & tri = surf.polygon();
 
-      Object options = Object::value(Dictionary());
+      options = Object::value(Dictionary());
       options->setProperty("scale", 0);
 
       at->attributed()->getProperty("data_type", textype);
@@ -803,12 +823,6 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
   {
     if (objtype == "TEXTURED SURF.")
     {
-      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-      //AObject *surf = go->surface();
-      AObject *tex = go->texture();
-      ATexture *at = dynamic_cast<ATexture *> (tex);
-      //ATriangulated *as = dynamic_cast<ATriangulated *> (surf);
-
       Object options = Object::value(Dictionary());
       options->setProperty("scale", 0);
 
@@ -902,12 +916,8 @@ void SurfpaintTools::floodFillStart(int indexVertex)
 
 void SurfpaintTools::floodFillStop(void)
 {
-  ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-  AObject *tex = go->texture();
-  ATexture *at = dynamic_cast<ATexture *> (tex);
-  ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
-  AimsSurface<3, Void> *s = as->surfaceOfTime(0);
-  const vector<Point3df> & vert = s->vertex();
+  AimsSurface<3,Void>   & surf= (*mesh)[0];
+  vector<Point3df>    & vert = surf.vertex();
 
   AimsSurfaceTriangle *MeshOut,*tmpMeshOut;
   MeshOut = new AimsSurfaceTriangle;
@@ -969,6 +979,7 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
   bool stop;
   bool pip;
 
+
   std::set<uint> voisins = neighbours[indexVertex];
   std::set<uint>::iterator voisIt = voisins.begin();
 
@@ -1012,6 +1023,8 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
   if ((go || (pip && !stop)) && (ite == listIndexVertexPathSP.end()) && (itef
       == listIndexVertexSelectFill.end()))
   {
+    cout << indexVertex << " " ;
+
     listIndexVertexSelectFill.push_back(indexVertex);
     for (; voisIt != voisins.end(); voisIt++)
       floodFillMove(*voisIt, newTextureValue, oldTextureValue);
@@ -1038,10 +1051,6 @@ void SurfpaintTools::updateConstraintList(void)
 void SurfpaintTools::changeToleranceSpinBox(int v)
 {
   toleranceValue = v;
-
-  ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-  AObject *tex = go->texture();
-  ATexture *at = dynamic_cast<ATexture *> (tex);
 
   float it = at->TimeStep();
   int tn = 0; // 1st texture
@@ -1242,10 +1251,6 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
     delete tmpMeshOut;
 
-    ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-    AObject *tex = go->texture();
-    ATexture *at = dynamic_cast<ATexture *> (tex);
-
     const AObjectPalette *pal = at->getOrCreatePalette();
 
     const AimsData<AimsRGBA> *col = pal->colors();
@@ -1294,13 +1299,7 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   int i;
 
 
-  ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
-  ATriangulated *as = dynamic_cast<ATriangulated *> (go->surface());
-  rc_ptr<AimsSurfaceTriangle> mesh = as->surface();
-  AimsSurface<3,Void>   & surf = (*mesh)[0];
-  vector<Point3df>    & vert = surf.vertex();
-  AObject *tex = go->texture();
-  ATexture *at = dynamic_cast<ATexture *> (tex);
+
 
   AimsSurfaceTriangle *tmpMeshOut;
   tmpMeshOut = new AimsSurfaceTriangle;

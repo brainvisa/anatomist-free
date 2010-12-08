@@ -71,6 +71,7 @@
 #include <qspinbox.h>
 #include <qtooltip.h>
 #include <qcombobox.h>
+#include <qfiledialog.h>
 #include <qaction.h>
 #include <iostream>
 #include <qmenubar.h>
@@ -85,7 +86,7 @@
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/geometric.h>
-
+#include <anatomist/object/actions.h>
 #include <aims/geodesicpath/geodesic_mesh.h>
 
 using namespace aims;
@@ -171,6 +172,14 @@ namespace anatomist
       void popAllButtonPaintToolBar();
 
     private:
+
+      ATexSurface *go;
+      ATriangulated *as;
+      rc_ptr<AimsSurfaceTriangle> mesh;
+      AObject *tex;
+      ATexture *at;
+
+      Object options;
 
       Texture1d *surfpaintTexInit;
       AWindow3D *win3D;

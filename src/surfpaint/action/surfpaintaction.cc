@@ -219,7 +219,7 @@ void SurfpaintToolsAction::brushStop(int x, int y, int globalX, int globalY)
 {
   cout << "brushStop" << endl;
 
-  SurfpaintTools::instance()->fillHolesOnPath();
+  //SurfpaintTools::instance()->fillHolesOnPath();
 }
 
 void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
