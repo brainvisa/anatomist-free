@@ -282,6 +282,10 @@ void ConstraintEditorWindow::accept()
   if ( d->texSelect )
     {
     d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
+    AObjectPalette *pal = d->texSelect->palette();
+    pal->setMin1( 0 );
+    pal->setMax1( 360. );
+    d->texSelect->setPalette( *pal );
     vObjSelect.push_back(d->texSelect);
     }
 
