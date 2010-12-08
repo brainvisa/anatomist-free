@@ -983,8 +983,6 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
   std::set<uint> voisins = neighbours[indexVertex];
   std::set<uint>::iterator voisIt = voisins.begin();
 
-  voisIt = voisins.begin();
-
   std::vector<int>::iterator s1 = listIndexVertexPathSP.begin();
   std::vector<int>::iterator s2 = listIndexVertexPathSP.end();
   std::vector<int>::iterator ite = std::find(s1, s2, indexVertex);
@@ -1026,6 +1024,7 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
     cout << indexVertex << " " ;
 
     listIndexVertexSelectFill.push_back(indexVertex);
+    voisIt= voisins.begin();
     for (; voisIt != voisins.end(); voisIt++)
       floodFillMove(*voisIt, newTextureValue, oldTextureValue);
   }
