@@ -268,9 +268,9 @@ void ConstraintEditorWindow::accept()
     aTex->attributed()->setProperty( "vertex_number",  nnodes );
     theAnatomist->registerObject( aTex );
 
-    aTex->createDefaultPalette( "Blue-Red-fusion" );
+    //aTex->createDefaultPalette( "Blue-Red-fusion" );
 
-    //aTex->getOrCreatePalette();
+    aTex->getOrCreatePalette();
     AObjectPalette *pal = aTex->palette();
     pal->setMin1( 0 );
     pal->setMax1( 360. );
@@ -282,10 +282,24 @@ void ConstraintEditorWindow::accept()
   if ( d->texSelect )
     {
     d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
+    //d->texSelect->getOrCreatePalette();
+
+    GLComponent *glc = d->texSelect->glAPI();
+
+    int tn = 0; // 1st texture
+    GLComponent::TexExtrema & te = glc->glTexExtrema(tn);
+    int tx = 0; // 1st tex coord
+    float scl = (te.maxquant[tx] - te.minquant[tx]);
+
     AObjectPalette *pal = d->texSelect->palette();
     pal->setMin1( 0 );
-    pal->setMax1( 360. );
+    if (scl != 0)
+      pal->setMax1( (float)(360./scl) );
+    else
+      pal->setMax1( 360 );
+
     d->texSelect->setPalette( *pal );
+
     vObjSelect.push_back(d->texSelect);
     }
 
