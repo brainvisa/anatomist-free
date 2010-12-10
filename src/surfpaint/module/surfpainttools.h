@@ -88,6 +88,7 @@
 #include <aims/mesh/geometric.h>
 #include <anatomist/object/actions.h>
 #include <aims/geodesicpath/geodesic_mesh.h>
+#include <queue>
 
 using namespace aims;
 using namespace std;
@@ -127,6 +128,7 @@ namespace anatomist
       void floodFillStart(int indexVertex);
       void floodFillStop(void);
       void floodFillMove(int indexVertex, float newTextureValue, float oldTextureValue);
+      void fastFillMove(int indexVertex, float newTextureValue, float oldTextureValue);
 
       void fillHolesOnPath (void);
 
@@ -242,6 +244,7 @@ namespace anatomist
       std::vector<int> listIndexVertexHolesPath;
 
       std::vector<int> listIndexVertexSelectFill;
+      std::set<int> listIndexVertexFill;
 
       std::vector<ATriangulated*> pathObject;
       std::vector<ATriangulated*> fillObject;

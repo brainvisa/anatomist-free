@@ -187,10 +187,14 @@ void SurfpaintTools::fill()
   //remplissage de région fermée
   if (IDActiveControl == 2)
   {
-    for (unsigned i = 0; i < listIndexVertexSelectFill.size(); i++)
+    std::set<int>::iterator ite = listIndexVertexFill.begin();
+    for (; ite != listIndexVertexFill.end(); ite++)
+    //for (unsigned i = 0; i < listIndexVertexSelectFill.size(); i++)
     {
-      updateTextureValue(listIndexVertexSelectFill[i], texvalue);
-      listVertexChanged[listIndexVertexSelectFill[i]] = texvalue;
+      //updateTextureValue(listIndexVertexSelectFill[i], texvalue);
+      //listVertexChanged[listIndexVertexSelectFill[i]] = texvalue;
+      updateTextureValue(*ite, texvalue);
+      listVertexChanged[*ite] = texvalue;
     }
 
     clearRegion();
@@ -308,24 +312,41 @@ void SurfpaintTools::save()
   int tx = 0; // 1st tex coord
   float scl = (te.maxquant[tx] - te.minquant[tx]);
 
-  cout << "scale = " <<  scl << endl;
+  for (uint i = 0; i < at->size(); i++)
+    {
+    (*out).item(i) = surfpaintTexInit[0].item(i)*scl;
+    if (surfpaintTexInit[0].item(i) >1)
+      cout << surfpaintTexInit[0].item(i) << " " ;
+    }
+
+  cout << "coucou" << endl;
 
   for (uint i = 0; i < at->size(); i++)
     {
     (*out).item(i) = (*text).item(i)*scl;
+    if ((*text).item(i) > 1)
+      cout << (*out).item(i) << " ";
     }
 
+  cout << "coucou" << endl;
+
   for (; mit != mend; ++mit)
-    (*out).item(mit->first) = mit->second*scl;
+    {
+    (*out).item(mit->first) = mit->second;
+    cout << mit->second << " ";
+    }
 
   for (uint i = 0; i < at->size(); i++)
-    surfpaintTexInit[0].item(i) = (*out).item(i);
+    {
+    surfpaintTexInit[0].item(i) = (*out).item(i)/scl;
+    }
 
-  cout << "scale = " <<  scl << endl;
-  rc_ptr<Texture1d> textemp(new Texture1d);
-  Converter<TimeTexture<float> , Texture1d> c;
-  c.convert(*out, *textemp);
-  at->setTexture(textemp);
+  cout << "coucou" << endl;
+//  cout << "scale = " <<  scl << endl;
+//  rc_ptr<Texture1d> textemp(new Texture1d);
+//  Converter<TimeTexture<float> , Texture1d> c;
+//  c.convert(*out, *textemp);
+//  at->setTexture(textemp);
 
   listVertexChanged.clear();
 
@@ -902,16 +923,22 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
 void SurfpaintTools::floodFillStart(int indexVertex)
 {
   listIndexVertexSelectFill.clear();
+  listIndexVertexFill.clear();
 
   std::map<int, float>::iterator itef;
   itef = listVertexChanged.find(indexVertex);
 
   float texvalue = getTextureValueFloat();
 
+//  if (itef != listVertexChanged.end())
+//    floodFillMove (indexVertex, texvalue,itef->second);
+//  else
+//    floodFillMove (indexVertex, texvalue,surfpaintTexInit[0].item(indexVertex));
+//
   if (itef != listVertexChanged.end())
-    floodFillMove (indexVertex, texvalue,itef->second);
+    fastFillMove (indexVertex, texvalue,itef->second);
   else
-    floodFillMove (indexVertex, texvalue,surfpaintTexInit[0].item(indexVertex));
+    fastFillMove (indexVertex, texvalue,surfpaintTexInit[0].item(indexVertex));
 }
 
 void SurfpaintTools::floodFillStop(void)
@@ -922,10 +949,14 @@ void SurfpaintTools::floodFillStop(void)
   AimsSurfaceTriangle *MeshOut,*tmpMeshOut;
   MeshOut = new AimsSurfaceTriangle;
 
-  for (unsigned i = 0; i < listIndexVertexSelectFill.size(); i++)
+  std::set<int>::iterator ite = listIndexVertexFill.begin();
+
+  for (; ite != listIndexVertexFill.end(); ite++)
+  //for (unsigned i = 0; i < listIndexVertexSelectFill.size(); i++)
+  //for (unsigned i = 0; i < listIndexVertexFill.size(); i++)
   {
     //Point3df pt;
-    tmpMeshOut = SurfaceGenerator::sphere(vert[listIndexVertexSelectFill[i]], 0.25, 50);
+    tmpMeshOut = SurfaceGenerator::sphere(vert[*ite], 0.25, 50);
 
     SurfaceManip::meshMerge(*MeshOut, *tmpMeshOut);
     delete tmpMeshOut;
@@ -971,6 +1002,71 @@ void SurfpaintTools::floodFillStop(void)
   fillObject.push_back(fillObjectTemp);
 }
 
+
+void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
+    float oldTextureValue)
+{
+  cout << indexVertex << " " << newTextureValue << endl;
+
+  std::queue<int> stack;
+  stack.push(indexVertex);
+
+  int indexCurr;
+
+  while (!stack.empty())
+  {
+    indexCurr = stack.front();
+    stack.pop();
+
+    std::set<uint> voisins = neighbours[indexCurr];
+    std::set<uint>::iterator voisIt = voisins.begin();
+
+    //on parcourt tous les voisins du sommet
+    for (; voisIt != voisins.end(); voisIt++)
+    {
+      indexCurr = *voisIt;
+
+      set<int>::const_iterator itef;
+      itef = listIndexVertexFill.find(indexCurr);
+
+      if (itef != listIndexVertexFill.end())
+        continue;
+
+      //on n'empile pas si le sommet appartient à un chemin en cours de tracé
+      std::vector<int>::iterator s1 = listIndexVertexPathSP.begin();
+      std::vector<int>::iterator s2 = listIndexVertexPathSP.end();
+      std::vector<int>::iterator ite = std::find(s1, s2, indexCurr);
+
+      if (ite != listIndexVertexPathSP.end())
+        continue;
+
+      std::map<int, float>::iterator itemap;
+      itemap = listVertexChanged.begin();
+      itemap = listVertexChanged.find(indexCurr);
+
+      if (itemap != listVertexChanged.end())
+      {
+        if ((*itemap).second > (oldTextureValue + stepToleranceValue)
+            || (*itemap).second < (oldTextureValue - stepToleranceValue))
+          continue;
+        else
+          {
+          listIndexVertexFill.insert(indexCurr);
+          cout << indexCurr << endl;
+          stack.push(indexCurr);
+          continue;
+          }
+      }
+
+      if ((surfpaintTexInit[0].item(indexCurr) <= (oldTextureValue + stepToleranceValue))
+          && (surfpaintTexInit[0].item(indexCurr) >= (oldTextureValue - stepToleranceValue)))
+      {
+      listIndexVertexFill.insert(indexCurr);
+      stack.push(indexCurr);
+      }
+    }
+  }
+}
 
 void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
     float oldTextureValue)
@@ -1021,7 +1117,7 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
   if ((go || (pip && !stop)) && (ite == listIndexVertexPathSP.end()) && (itef
       == listIndexVertexSelectFill.end()))
   {
-    cout << indexVertex << " " ;
+    //cout << indexVertex << " " ;
 
     listIndexVertexSelectFill.push_back(indexVertex);
     voisIt= voisins.begin();
@@ -1030,6 +1126,8 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
   }
 
 }
+
+
 
 void SurfpaintTools::updateConstraintList(void)
 {

@@ -205,8 +205,11 @@ void SurfpaintToolsAction::magicselection(int x, int y, int globalX, int globalY
   SurfpaintTools::instance()->setPolygon(poly);
   SurfpaintTools::instance()->setVertex(indexNearestVertex);
 
-  SurfpaintTools::instance()->floodFillStart (indexNearestVertex);
-  SurfpaintTools::instance()->floodFillStop ();
+  if (indexNearestVertex >= 0)
+  {
+    SurfpaintTools::instance()->floodFillStart (indexNearestVertex);
+    SurfpaintTools::instance()->floodFillStop ();
+  }
 }
 
 void SurfpaintToolsAction::brushStart(int x, int y, int globalX, int globalY)
@@ -242,7 +245,7 @@ void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
 
   texvalue = (float)(SurfpaintTools::instance()->getTextureValueFloat());
 
-  if (objselect)
+  if (objselect && indexNearestVertex>=0)
     SurfpaintTools::instance()->updateTextureValue(indexNearestVertex, texvalue);
 
   win3D->refreshNow();
@@ -278,7 +281,7 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
   SurfpaintTools::instance()->setPolygon(poly);
   SurfpaintTools::instance()->setVertex(indexNearestVertex);
 
-  if (objselect)
+  if (objselect && indexNearestVertex>=0 )
     SurfpaintTools::instance()->restoreTextureValue(indexNearestVertex);
 
   win3D->refreshNow();
