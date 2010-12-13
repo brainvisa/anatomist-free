@@ -328,10 +328,6 @@ void ConstraintEditorWindow::accept()
       ++iter ;
     }
 
-//    unsigned id_insert = 0;
-//    set<AObject *> vObjSelected;
-//    vObjSelected.insert(tso);
-//    SelectFactory::factory()->select( id_insert, vObjSelected ) ;
   }
 
   QDialog::accept();
