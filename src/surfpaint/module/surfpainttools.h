@@ -186,7 +186,7 @@ namespace anatomist
       Texture1d *surfpaintTexInit;
       AWindow3D *win3D;
 
-      static SurfpaintTools *& my_instance() ;
+      static SurfpaintTools *& my_instance();
 
       AObject *objselect;
       QToolBar  *tbTextureValue;

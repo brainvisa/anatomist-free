@@ -46,7 +46,9 @@ SurfpaintTools* & SurfpaintTools::my_instance()
 SurfpaintTools* SurfpaintTools::instance()
 {
   if (my_instance() == 0)
+    {
     my_instance() = new SurfpaintTools;
+    }
   return my_instance();
 }
 
@@ -314,34 +316,37 @@ void SurfpaintTools::save()
 
   for (uint i = 0; i < at->size(); i++)
     {
-    (*out).item(i) = surfpaintTexInit[0].item(i)*scl;
-    if (surfpaintTexInit[0].item(i) >1)
-      cout << surfpaintTexInit[0].item(i) << " " ;
+    (*out).item(i) = surfpaintTexInit[0].item(i);
+    if ((*out).item(i)>0)
+      cout << (*out).item(i) << " " ;
     }
 
-  cout << "coucou" << endl;
+//  cout << "coucou" << endl;
+//
+//  for (uint i = 0; i < at->size(); i++)
+//    {
+//    (*out).item(i) = (*text).item(i)*scl;
+//    if ((*text).item(i) > 0)
+//      cout << (*out).item(i) << " ";
+//    }
 
-  for (uint i = 0; i < at->size(); i++)
-    {
-    (*out).item(i) = (*text).item(i)*scl;
-    if ((*text).item(i) > 1)
-      cout << (*out).item(i) << " ";
-    }
-
-  cout << "coucou" << endl;
+  cout << "coucou1" << endl;
 
   for (; mit != mend; ++mit)
     {
     (*out).item(mit->first) = mit->second;
-    cout << mit->second << " ";
+    if ((*out).item(mit->first) > 0)
+      cout << (*out).item(mit->first) << " ";
     }
+
+  cout << "coucou2" << endl;
 
   for (uint i = 0; i < at->size(); i++)
     {
-    surfpaintTexInit[0].item(i) = (*out).item(i)/scl;
+    surfpaintTexInit[0].item(i) = (*out).item(i);
     }
 
-  cout << "coucou" << endl;
+  cout << "coucou3" << endl;
 //  cout << "scale = " <<  scl << endl;
 //  rc_ptr<Texture1d> textemp(new Texture1d);
 //  Converter<TimeTexture<float> , Texture1d> c;
@@ -407,6 +412,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         cout << " " << (*it)->name() << "\n";
       }
     }
+
     ++iter ;
   }
 
@@ -460,7 +466,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         std::cerr <<  objselect << " is not a Atexture" << std::endl;
       }
 
-      int t = (int) w3->GetTime();
+      //int t = (int) w3->GetTime();
 
       mesh = as->surface();
 
@@ -476,6 +482,12 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       cout << "create Texture temp" << endl;
 
+      float it = at->TimeStep();
+      int tn = 0; // 1st texture
+      GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+      int tx = 0; // 1st tex coord
+      float scl = (te.maxquant[tx] - te.minquant[tx]);
+
       surfpaintTexInit = new Texture1d;
       surfpaintTexInit->reserve(at->size());
 
@@ -483,10 +495,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
       text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
 
       for (uint i = 0; i < at->size(); i++)
-        surfpaintTexInit[0].item(i) = (*text).item(i);
-
-      float it = at->TimeStep();
-      const GLComponent::TexExtrema & te = at->glTexExtrema(it);
+        surfpaintTexInit[0].item(i) = scl*(*text).item(i);
 
       setMaxPoly(tri.size());
       setMaxVertex(vert.size());

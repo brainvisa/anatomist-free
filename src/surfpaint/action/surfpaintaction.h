@@ -49,6 +49,7 @@ namespace anatomist
   class AGraph ;
   class AGraphObject ;
   class AObject ;
+  class SurfpaintTools;
 
   class SurfpaintToolsAction : public Action
   {
@@ -83,6 +84,9 @@ namespace anatomist
       void shortestpathStop( int x, int y, int globalX, int globalY  );
       void shortestpathClose( int x, int y, int globalX, int globalY  );
 
+      void setTools(SurfpaintTools *t){ myTools = t; } ;
+      SurfpaintTools* getTools(){ return myTools; } ;
+
     private:
 
       AWindow3D *win3D;
@@ -96,6 +100,8 @@ namespace anatomist
       Point3df positionNearestVertex;
       int indexNearestVertex;
       int activeControl;
+
+      SurfpaintTools *myTools;
   };
 
 }

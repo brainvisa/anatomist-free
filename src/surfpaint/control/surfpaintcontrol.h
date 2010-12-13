@@ -36,8 +36,12 @@
 
 #include <anatomist/controler/control_d.h>
 #include <anatomist/action/surfpaintaction.h>
+#include <anatomist/module/surfpainttools.h>
 
 namespace anatomist{
+
+  class SurfpaintTools;
+  class SurfpaintToolsAction;
 
   class SurfpaintToolsControl : public Control
   {
@@ -53,8 +57,12 @@ namespace anatomist{
     virtual void doAlsoOnDeselect ( ActionPool * pool ) ;
     virtual void doAlsoOnSelect( ActionPool * pool ) ;
 
+    SurfpaintTools* getTools(void){return myTools;};
+
     private:
-    Action * myAction;
+    SurfpaintToolsAction * myAction;
+    SurfpaintTools* myTools ;
+
   };
 
 }

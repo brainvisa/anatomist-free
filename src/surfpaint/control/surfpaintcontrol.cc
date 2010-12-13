@@ -115,7 +115,12 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
 
 
   /*Creation of action*/
-  myAction = dynamic_cast<SurfpaintToolsAction *> (actionPool->action("SurfpaintToolsAction"));
+
+  myAction = static_cast<SurfpaintToolsAction *> (actionPool->action("SurfpaintToolsAction"));
+  myTools = new SurfpaintTools();
+
+  if (myAction && myTools)
+    myAction->setTools(myTools);
 }
 
 void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
@@ -128,12 +133,12 @@ void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
     {
       if (!w3->surfpaintIsVisible())
       {
-        SurfpaintTools::instance()->addToolBarInfosTexture(w3);
+        myTools->addToolBarInfosTexture(w3);
 
-        if (SurfpaintTools::instance()->initSurfPaintModule(w3))
+        if (myTools->initSurfPaintModule(w3))
         {
           w3->setVisibleSurfpaint(true);
-          SurfpaintTools::instance()->addToolBarControls(w3);
+          myTools->addToolBarControls(w3);
 
           GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
           if (glw)
@@ -141,7 +146,7 @@ void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
 
         }
         else
-          SurfpaintTools::instance()->removeToolBarInfosTexture(w3);
+          myTools->removeToolBarInfosTexture(w3);
       }
     }
   }
@@ -157,8 +162,8 @@ void SurfpaintToolsControl::doAlsoOnDeselect(ActionPool * /* pool */)
       if (w3->surfpaintIsVisible())
       {
       w3->setVisibleSurfpaint(false);
-      SurfpaintTools::instance()->removeToolBarInfosTexture(w3);
-      SurfpaintTools::instance()->removeToolBarControls(w3);
+      myTools->removeToolBarInfosTexture(w3);
+      myTools->removeToolBarControls(w3);
       }
     }
   }
