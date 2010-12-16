@@ -132,6 +132,7 @@ public:
   void changeTextureValue(T value);
   void updateInfosPicking(int idp, int idv);
   void saveTexture (void);
+  void clearAll (void);
 
   void unitize (AimsSurfaceTriangle as, Point3df *meshCenter, float *meshScale);
   int buildDisplayList (AimsSurfaceTriangle as,int mode);
@@ -139,6 +140,9 @@ public:
   int computeNearestVertexFromPolygonPoint (Point3df position, int poly, AimsSurfaceTriangle as);
   void computeIndexColor (AimsSurfaceTriangle as);
   void copyBackBuffer2Texture (void);
+
+  void fillHolesOnPath (void);
+  void addSimpleShortPath(int indexSource,int indexDest);
 
   GLuint loadColorMap (const char * filename);
   void drawColorMap (void);
@@ -167,6 +171,7 @@ protected:
   void projectionOrtho (void);
   void trackBallTransformation(void);
   void drawPrimitivePicked (void);
+  void drawHoles (void);
   void floodFill(int indexVertex, T newTextureValue, T oldTextureValue);
 
 private:
@@ -258,6 +263,10 @@ private:
   //std::vector<int> _listIndexVertexPathCurvSP;
   std::vector<int> _listIndexVertexSelectSP;
   std::vector<int> _listIndexVertexSelectFill;
+
+  std::vector<int> _listIndexVertexBrushPath;
+  std::vector<std::vector<int> >  _listIndexVertexHolesPath;
+
 };
 
 #endif

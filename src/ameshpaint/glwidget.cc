@@ -631,6 +631,38 @@ void myGLWidget<T>::fill(void)
   _listIndexVertexPathSP.clear();
   }
 
+  std::vector<std::vector<int> >::const_iterator ite = _listIndexVertexHolesPath.begin();
+
+//  int i;
+//
+//  i = 0;
+
+  if (_mode == 9 || _mode == 10)
+  {
+    if (!_listIndexVertexHolesPath.empty())
+    {
+      for (; ite != _listIndexVertexHolesPath.end(); ++ite)
+      {
+        std::vector<int> holes = *ite;
+        std::vector< int >::const_iterator ite_holes = holes.begin();
+
+        for (; ite_holes != holes.end(); ++ite_holes)
+        {
+          //cout << *ite_holes << " ";
+
+          _listVertexChanged[*ite_holes] = _textureValue;
+          _colors[3 * (*ite_holes)] = _colorpicked[0];
+          _colors[3 * (*ite_holes) + 1] = _colorpicked[1];
+          _colors[3 * (*ite_holes) + 2] = _colorpicked[2];
+        }
+        //cout << "\n" << i++ <<endl;
+      }
+
+      _listIndexVertexHolesPath.clear();
+      _listIndexVertexBrushPath.clear();
+    }
+  }
+
   updateGL();
 }
 
@@ -790,7 +822,6 @@ GLuint myGLWidget<T>::checkIDpolygonPicked(int x, int y)
 template<typename T>
 void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 {
-
   //cout << "mousePressEvent\n" <<  event->buttons() << endl;
   if (_resized) copyBackBuffer2Texture();
 
@@ -802,6 +833,13 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
     event->accept();
     updateGL();
   }
+
+  if (event->buttons() == Qt::LeftButton && _mode == 10)
+    {
+    cout << "clear Holes\n";
+    _listIndexVertexHolesPath.clear();
+    _listIndexVertexBrushPath.clear();
+    }
 
   if (event->buttons() == Qt::LeftButton && _mode == 2)
   {
@@ -852,9 +890,10 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
   }
 
-  if (event->buttons() == Qt::LeftButton && (_mode == 3 || _mode == 8 || _mode == 7) )
+  if (event->buttons() == Qt::LeftButton && (_mode == 10 || _mode == 9 || _mode == 8 || _mode == 7) )
   {
     //_trackBall.stop();
+
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
     _point3Dpicked = check3DpointPicked(event->x(), event->y());
 
@@ -886,12 +925,14 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
 
       }
 
-      if (_mode == 3)
+      if (_mode == 10 ||_mode == 9)
       {
         _colors[3 * _indexVertex] = _colorpicked[0];
         _colors[3 * _indexVertex + 1] = _colorpicked[1];
         _colors[3 * _indexVertex + 2] = _colorpicked[2];
         _listVertexChanged[_indexVertex] = _textureValue;
+
+
       }
 
       if (_mode == 8)
@@ -1031,6 +1072,12 @@ void myGLWidget<T>::mouseReleaseEvent(QMouseEvent *event)
     updateGL();
   }
 
+  if (_mode == 10 && event->button() == Qt::LeftButton)
+  {
+    cout << "fillHolesOnPath\n";
+    fillHolesOnPath();
+    updateGL();
+  }
 }
 
 template<typename T>
@@ -1096,7 +1143,7 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     updateGL();
   }
 
-  if (event->buttons() == Qt::LeftButton && (_mode == 3 || _mode == 8))
+  if (event->buttons() == Qt::LeftButton && (_mode == 10 || _mode == 9 || _mode == 8))
   {
     //_trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -1110,13 +1157,15 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     _indexVertex
         = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
-    if (_mode == 3 && _indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
+    if ((_mode == 10 || _mode == 9) && _indexVertex >= 0 && _indexVertex < 3 * _mesh.vertex().size())
     {
       _colors[3 * _indexVertex] = _colorpicked[0];
       _colors[3 * _indexVertex + 1] = _colorpicked[1];
       _colors[3 * _indexVertex + 2] = _colorpicked[2];
 
       _listVertexChanged[_indexVertex] = _textureValue;
+      _listIndexVertexBrushPath.push_back(_indexVertex);
+
       updateInfosPicking(_indexPolygon, _indexVertex);
     }
 
@@ -1131,6 +1180,19 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     }
     updateGL();
   }
+}
+template<typename T>
+void myGLWidget<T>::clearAll(void)
+{
+  cout << "clear all vertex painted\n";
+  _listIndexVertexPathSP.clear();
+  _listIndexVertexSelectSP.clear();
+  _listIndexVertexSelectFill.clear();
+  _listIndexVertexBrushPath.clear();
+  _listIndexVertexHolesPath.clear();
+  _pathSP.clear();
+
+  updateGL();
 }
 
 template<typename T>
@@ -1314,6 +1376,138 @@ void  myGLWidget<T>::floodFill(int indexVertex, T newTextureValue, T oldTextureV
       floodFill(*voisIt, newTextureValue, oldTextureValue);
   }
 
+}
+template<typename T>
+void myGLWidget<T>::drawHoles(void)
+{
+  glPushAttrib( GL_ALL_ATTRIB_BITS);
+
+  glDisable( GL_TEXTURE_2D);
+  glEnable( GL_COLOR_MATERIAL);
+  glEnable( GL_LIGHTING);
+
+  GLUquadricObj *quadric;
+  quadric = gluNewQuadric();
+  gluQuadricDrawStyle(quadric, GLU_FILL);
+
+  std::vector<std::vector<int> >::const_iterator ite = _listIndexVertexHolesPath.begin();
+
+//  int i;
+//
+//  i = 0;
+
+  glColor3ub(_colorpicked[0],_colorpicked[1],_colorpicked[2]);
+
+  if (!_listIndexVertexHolesPath.empty())
+  {
+    for (; ite != _listIndexVertexHolesPath.end(); ++ite)
+    {
+      std::vector<int> holes = *ite;
+      std::vector< int >::const_iterator ite_holes = holes.begin();
+
+      for (; ite_holes != holes.end(); ++ite_holes)
+      {
+        //cout << *ite_holes << " ";
+
+        glTranslatef(_vertices[*ite_holes * 3], _vertices[*ite_holes * 3 + 1 ],_vertices[*ite_holes * 3 + 2]);
+        gluSphere(quadric, 0.003, 10, 10);
+        glTranslatef(-_vertices[*ite_holes * 3], -_vertices[*ite_holes * 3 + 1 ],-_vertices[*ite_holes * 3 + 2]);
+      }
+      //cout << "\n" << i++ <<endl;
+    }
+  }
+//
+//    std::set<uint> voisins = neighbours[_listIndexVertexBrushPath[i]];
+//      //std::set<uint>::iterator voisIt = voisins.begin();
+//
+//      std::set<uint>::iterator ite = std::find(voisins.begin(),voisins.end(), _listIndexVertexBrushPath[i+1]);
+//
+//      if (ite == voisins.end() && _listIndexVertexBrushPath[i]!=_listIndexVertexBrushPath[i+1])
+
+//
+//
+//
+//  ite = _listIndexVertexSelectSP.begin();
+//
+
+//
+//  for (; ite != _listIndexVertexSelectSP.end(); ++ite)
+//  {
+//
+//  }
+//
+//  if (_mode == 7)
+//    glColor3ub(_colorpicked[0],_colorpicked[1],_colorpicked[2]);
+//  else
+//    glColor3d(1, 1, 1);
+//
+//  ite = _listIndexVertexSelectFill.begin();
+//  for (; ite != _listIndexVertexSelectFill.end(); ++ite)
+//  {
+//    glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+//    gluSphere(quadric, 0.002, 10, 10);
+//    glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
+//  }
+//
+//  if (_mode == 4 || _mode == 5 || _mode == 6 )
+//    glColor3ub(_colorpicked[0],_colorpicked[1],_colorpicked[2]);
+//  else
+//    glColor3d(1, 1, 1);
+//
+//  ite = _listIndexVertexPathSP.begin();
+//
+//  for (; ite != _listIndexVertexPathSP.end(); ++ite)
+//  {
+//    glTranslatef(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+//    gluSphere(quadric, 0.002, 36, 18);
+//    glTranslatef(-_vertices[*ite * 3], -_vertices[*ite * 3 + 1 ],-_vertices[*ite * 3 + 2]);
+//  }
+//
+//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//  glEnable( GL_BLEND);
+//  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//  glEnable( GL_LINE_SMOOTH);
+//  glLineWidth(2.0);
+//  glDisable(GL_LIGHTING);
+//
+//  glColor3d(1, 1, 1);
+//
+//  glBegin( GL_LINE_STRIP);
+//  ite = _listIndexVertexPathSP.begin();
+//  for (; ite != _listIndexVertexPathSP.end(); ++ite)
+//    glVertex3f(_vertices[*ite * 3], _vertices[*ite * 3 + 1 ],_vertices[*ite * 3 + 2]);
+//
+//  glEnd();
+//
+//
+//
+  gluDeleteQuadric(quadric);
+//
+//  glLineWidth(1.0);
+//
+//  if (_indexPolygon >= 0 && _indexPolygon < 3 * _mesh.polygon().size())
+//  {
+//    glBegin( GL_TRIANGLES);
+//
+//    glColor3ub(255 - _colorpicked[0], 255 - _colorpicked[1], 255
+//        - _colorpicked[2]);
+//
+//    glVertex3f((_vertices[3 * _indices[3 * _indexPolygon]]), (_vertices[3
+//        * _indices[3 * _indexPolygon] + 1]), (_vertices[3 * _indices[3
+//        * _indexPolygon] + 2]));
+//
+//    glVertex3f((_vertices[3 * _indices[3 * _indexPolygon + 1]]), (_vertices[3
+//        * _indices[3 * _indexPolygon + 1] + 1]), (_vertices[3 * _indices[3
+//        * _indexPolygon + 1] + 2]));
+//
+//    glVertex3f((_vertices[3 * _indices[3 * _indexPolygon + 2]]), (_vertices[3
+//        * _indices[3 * _indexPolygon + 2] + 1]), (_vertices[3 * _indices[3
+//        * _indexPolygon + 2] + 2]));
+//    glEnd();
+//
+//  }
+
+  glPopAttrib();
 }
 
 
@@ -1534,6 +1728,7 @@ void myGLWidget<T>::paintGL()
   glDisableClientState(GL_NORMAL_ARRAY);
 
   drawPrimitivePicked();
+  drawHoles();
 
   if (_showInfos)
   {
@@ -1711,6 +1906,86 @@ void myGLWidget<T>::copyBackBuffer2Texture(void)
   glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE,
       &backBufferTexture[0]);
   _resized = false;
+}
+
+template<typename T>
+void myGLWidget<T>::fillHolesOnPath (void)
+{
+  int i;
+
+//  for ( i = 0; i < _listIndexVertexBrushPath.size(); i++)
+//    cout << _listIndexVertexBrushPath[i] <<  " ";
+//
+//  cout << endl;
+
+  if (!_listIndexVertexBrushPath.empty())
+  {
+    for ( i = 0; i < _listIndexVertexBrushPath.size() - 1; i++)
+    {
+      std::set<uint> voisins = neighbours[_listIndexVertexBrushPath[i]];
+      //std::set<uint>::iterator voisIt = voisins.begin();
+
+      std::set<uint>::iterator ite = std::find(voisins.begin(),voisins.end(), _listIndexVertexBrushPath[i+1]);
+
+      if (ite == voisins.end() && _listIndexVertexBrushPath[i]!=_listIndexVertexBrushPath[i+1])
+        {
+        //add geodesic path
+        addSimpleShortPath(_listIndexVertexBrushPath[i],_listIndexVertexBrushPath[i+1]);
+        cout << _listIndexVertexBrushPath[i] << "-->" << _listIndexVertexBrushPath[i+1] << endl;
+        }
+
+     //cout << listIndexVertexBrushPath[i] << endl;
+    }
+  }
+}
+
+template<typename T>
+void myGLWidget<T>::addSimpleShortPath(int indexSource,int indexDest)
+{
+  int i;
+
+  std::vector<geodesic::SurfacePoint> sources;
+  std::vector<geodesic::SurfacePoint> targets;
+
+  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+  //geodesic::Mesh meshSP;
+  //meshSP = getMeshStructSP();
+
+  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSP);
+
+  unsigned target_vertex_index = indexSource;
+  unsigned source_vertex_index = indexDest;
+
+//  printf("indice source = %d target = %d \n", source_vertex_index,
+//      target_vertex_index);
+
+  std::vector<geodesic::SurfacePoint> SPath;
+  SPath.clear();
+
+  std::vector<int> listIndexVertexHolesPathTemp;
+
+  listIndexVertexHolesPathTemp.clear();
+
+  geodesic::SurfacePoint short_sources(
+      &_meshSP.vertices()[source_vertex_index]);
+  geodesic::SurfacePoint short_targets(
+      &_meshSP.vertices()[target_vertex_index]);
+
+  dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
+      listIndexVertexHolesPathTemp);
+
+  listIndexVertexHolesPathTemp.insert(listIndexVertexHolesPathTemp.begin(),indexSource);
+
+  _listIndexVertexHolesPath.push_back(listIndexVertexHolesPathTemp);
+
+//  cout << "path dijkstra = ";
+//
+//  for ( i = 0; i < listIndexVertexHolesPathTemp.size(); i++)
+//  {
+//    cout << listIndexVertexHolesPathTemp[i] << " ";
+//  }
+//  cout << endl;
+
 }
 
 template<typename T>

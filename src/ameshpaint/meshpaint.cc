@@ -112,7 +112,8 @@ void myMeshPaint<T>::DisplayConstraintList (void)
 
 MeshPaint::MeshPaint()
 {
-  _mode = 4;
+  _modePath = 4;
+  _modeBrush = 9;
 
   char sep = FileUtil::separator();
 
@@ -172,6 +173,13 @@ void myMeshPaint<T>::saveTexture(void)
 {
   //cout << "mode = " << mode << endl;
   glWidget->saveTexture();
+}
+
+template<typename T>
+void myMeshPaint<T>::clearAll(void)
+{
+  //cout << "mode = " << mode << endl;
+  glWidget->clearAll();
 }
 
 template<typename T>
@@ -247,10 +255,40 @@ void MeshPaint::createActions()
 
   //Brush
   iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
-  paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&PaintBrush"),this);
-  paintBrushAction->setStatusTip(tr("PaintBrush"));
-  paintBrushAction->setCheckable(true);
+  brushButton = new QToolButton;
+  brushButton->setIcon(QIcon(iconname.c_str()));
+  brushButton->setPopupMode(QToolButton::MenuButtonPopup);
+  brushButton->setCheckable(true);
+  brushButton->setChecked(false);
+  brushButton->setIconSize(QSize(32, 32));
+  brushButton->setToolTip(tr("Brush"));
+  connect(brushButton, SIGNAL(clicked()), this, SLOT(brush()));
+  QMenu *menuBrush = new QMenu(this);
+  paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&paintBrush"),this);
+  paintBrushAction->setToolTip(tr("paintBrush"));
   connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
+  menuBrush->addAction(paintBrushAction);
+  iconname = Settings::globalPath() + "/icons/meshPaint/magic_pencil.png";
+  magicBrushAction = new QAction(QIcon(iconname.c_str()), tr("&magicBrush"), this);
+  magicBrushAction->setToolTip(tr("magicBrush"));
+  connect(magicBrushAction, SIGNAL(triggered()), this, SLOT(magicBrush()));
+  menuBrush->addAction(magicBrushAction);
+  //gomme
+  iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
+  eraseAction = new QAction(QIcon(iconname.c_str()), tr("&erase"), this);
+  eraseAction->setStatusTip(tr("erase"));
+  eraseAction->setCheckable(true);
+  connect(eraseAction, SIGNAL(triggered()), this, SLOT(erase()));
+  menuBrush->addAction(eraseAction);
+
+  brushButton->setMenu(menuBrush);
+
+//
+//  iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+//  paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&PaintBrush"),this);
+//  paintBrushAction->setStatusTip(tr("PaintBrush"));
+//  paintBrushAction->setCheckable(true);
+//  connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
 
   //remplissage
   //iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
@@ -259,11 +297,12 @@ void MeshPaint::createActions()
   fillAction->setStatusTip(tr("fill"));
   connect(fillAction, SIGNAL(triggered()), this, SLOT(filling()));
 
-  //gomme
-  iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
+
+
+  //balai
+  iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
   clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
   clearAction->setStatusTip(tr("clear"));
-  clearAction->setCheckable(true);
   connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
   //Sauvegarde
@@ -277,11 +316,10 @@ void MeshPaint::popAllButtonPaintToolBar()
 {
   trackballAction->setChecked(false);
   colorPickerAction->setChecked(false);
-  paintBrushAction->setChecked(false);
-  clearAction->setChecked(false);
+  eraseAction->setChecked(false);
   selectionAction->setChecked(false);
-  fillAction->setChecked(false);
   pathButton->setChecked(false);
+  brushButton->setChecked(false);
 }
 
 void MeshPaint::createToolBars()
@@ -311,10 +349,13 @@ void MeshPaint::createToolBars()
   paintToolBar->addSeparator();
 
   //Brush
-  paintToolBar->addAction(paintBrushAction);
+  paintToolBar->addWidget(brushButton);
+  //paintToolBar->addAction(paintBrushAction);
+
   // Remplissage
   paintToolBar->addAction(fillAction);
-  //Gomme
+
+  //Balai
   paintToolBar->addAction(clearAction);
 
   paintToolBar->addSeparator();

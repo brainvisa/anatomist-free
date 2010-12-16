@@ -43,6 +43,7 @@ protected :
   virtual void fillRegionOrPath(void){};
   virtual void changeMode(int mode){};
   virtual void saveTexture(void){};
+  virtual void clearAll(void){};
 
 private slots:
 
@@ -62,11 +63,44 @@ private slots:
     changeMode(2);
   }
 
+  void brush()
+  {
+    popAllButtonPaintToolBar();
+    brushButton->setChecked(true);
+    changeMode(_modeBrush);
+  }
+
   void paintBrush()
   {
     popAllButtonPaintToolBar();
-    paintBrushAction->setChecked(true);
-    changeMode(3);
+    string iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+    brushButton->setIcon(QIcon(iconname.c_str()));
+    brushButton->setChecked(true);
+    cout << "paint brush\n";
+    _modeBrush = 9;
+    changeMode(_modeBrush);
+  }
+
+  void magicBrush()
+  {
+    popAllButtonPaintToolBar();
+    string iconname = Settings::globalPath() + "/icons/meshPaint/magic_pencil.png";
+    brushButton->setIcon(QIcon(iconname.c_str()));
+    brushButton->setChecked(true);
+    cout << "magic brush\n";
+    _modeBrush = 10;
+    changeMode(_modeBrush);
+  }
+
+  void erase()
+  {
+    popAllButtonPaintToolBar();
+    string iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
+    brushButton->setIcon(QIcon(iconname.c_str()));
+    brushButton->setChecked(true);
+    cout << "eraser\n";
+    _modeBrush = 8;
+    changeMode(_modeBrush);
   }
 
   void shortPath()
@@ -76,7 +110,7 @@ private slots:
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "shortPath\n";
-    _mode = 4;
+    _modePath = 4;
     changeMode(4);
   }
 
@@ -87,7 +121,7 @@ private slots:
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "sulciPath\n";
-    _mode = 5;
+    _modePath = 5;
     changeMode(5);
   }
 
@@ -98,7 +132,7 @@ private slots:
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "gyriPath\n";
-    _mode = 6;
+    _modePath = 6;
     changeMode(6);
   }
 
@@ -111,7 +145,7 @@ private slots:
   {
     popAllButtonPaintToolBar();
     pathButton->setChecked(true);
-    changeMode(_mode);
+    changeMode(_modePath);
   }
 
   void selection()
@@ -123,9 +157,7 @@ private slots:
 
   void clear()
   {
-    popAllButtonPaintToolBar();
-    clearAction->setChecked(true);
-    changeMode(8);
+    clearAll();
   }
 
   void save()
@@ -143,6 +175,7 @@ protected :
   QLabel *constraintPathSpinBoxLabel;
 
   QToolButton *pathButton;
+  QToolButton *brushButton;
 
 public :
   QComboBox *constraintList;
@@ -152,21 +185,24 @@ private :
   void createActions();
   void createToolBars();
 
-  int _mode;
+  int _modePath;
+  int _modeBrush;
 
   QAction *trackballAction;
 
   QAction *colorPickerAction;
   QAction *selectionAction;
-  QAction *pathAction;
+  //QAction *pathAction;
   QAction *shortPathAction;
   QAction *sulciPathAction;
   QAction *gyriPathAction;
 
+  //QAction *brushAction;
   QAction *paintBrushAction;
+  QAction *magicBrushAction;
   QAction *fillAction;
   QAction *clearAction;
-
+  QAction *eraseAction;
   QAction *saveAction;
 };
 
@@ -180,6 +216,7 @@ public:
   void fillRegionOrPath(void);
   void changeMode(int mode);
   void saveTexture(void);
+  void clearAll(void);
   void keyPressEvent( QKeyEvent* event );
 
 protected :
