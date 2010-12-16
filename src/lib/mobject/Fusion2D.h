@@ -129,7 +129,7 @@ namespace anatomist
     virtual void insert( AObject* o, unsigned pos )
     { ObjectVector::insert( o, pos ); }
     virtual void insert( const carto::shared_ptr<AObject> & o,
-                         unsigned pos = 0  )
+                         unsigned pos = -1 )
     { ObjectVector::insert( o, pos  ); }
     virtual void erase( iterator & i ) { ObjectVector::erase( i ); }
   };
