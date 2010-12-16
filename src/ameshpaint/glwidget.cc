@@ -285,6 +285,7 @@ void myGLWidget<T>::buildDataArray(void)
   _colors = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
 
   _colorsCurv = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
+  _colorsDist = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
 
   for (j = 0; j < (int) vert.size(); j++)
   {
@@ -305,6 +306,10 @@ void myGLWidget<T>::buildDataArray(void)
     _colorsCurv[3 * j] = (int) dataColorMap[3 * (int) (256 * tcurv[j])];
     _colorsCurv[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 1];
     _colorsCurv[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 2];
+
+    _colorsDist[3 * j] = (int) dataColorMap[0];
+    _colorsDist[3 * j + 1] = (int) dataColorMap[0];
+    _colorsDist[3 * j + 2] = (int) dataColorMap[0];
   }
 
   _indices = (GLuint*) malloc(3 * tri.size() * sizeof(GLuint));
@@ -835,58 +840,62 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
   }
 
   if (event->buttons() == Qt::LeftButton && _mode == 10)
-    {
-    cout << "clear Holes\n";
-    _listIndexVertexHolesPath.clear();
-    _listIndexVertexBrushPath.clear();
-    }
+  {
+  //cout << "clear Holes\n";
+  _listIndexVertexHolesPath.clear();
+  _listIndexVertexBrushPath.clear();
+  }
 
-  if (event->buttons() == Qt::LeftButton && _mode == 2)
+  if (event->buttons() == Qt::LeftButton && (_mode == 2 || _mode == 12) )
   {
     //_trackBall.stop();
-      _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
-      //cout << "ID polygon : " << _indexPolygon << endl;
-      _point3Dpicked = check3DpointPicked(event->x(), event->y());
-      //cout << "3D : " << _point3Dpicked[0] << " " << _point3Dpicked[1] << " " << _point3Dpicked[2] << " " << endl;
+    _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
+    //cout << "ID polygon : " << _indexPolygon << endl;
+    _point3Dpicked = check3DpointPicked(event->x(), event->y());
+    //cout << "3D : " << _point3Dpicked[0] << " " << _point3Dpicked[1] << " " << _point3Dpicked[2] << " " << endl;
 
-      Point3df p;
-      p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
-      p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
-      p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
+    Point3df p;
+    p[0] = _meshCenter[0] + (float) _point3Dpicked[0] / _meshScale;
+    p[1] = _meshCenter[1] + (float) _point3Dpicked[1] / _meshScale;
+    p[2] = _meshCenter[2] + (float) -_point3Dpicked[2] / _meshScale;
 
-      _indexVertex
-          = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
+    _indexVertex
+        = computeNearestVertexFromPolygonPoint(p, _indexPolygon, _mesh);
 
-      //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
 
-      if (_indexVertex >= 0 && _indexVertex < _mesh.vertex().size())
-      {
-        _textureValue = _tex[0].item(_indexVertex);
+    //cout << "3D coord vertex value = " << _vertexNearestpicked[X] << " " << _vertexNearestpicked[Y] << " " << _vertexNearestpicked[Z] << "\n" ;
 
-        typename std::map<int, T>::const_iterator it(_listVertexChanged.find(
-            _indexVertex));
+    if (_indexVertex >= 0 && _indexVertex < _mesh.vertex().size())
+    {
+      if (_mode == 12)
+        computeIsoline(_indexVertex);
 
-        if (it != _listVertexChanged.end()) _textureValue
-            = _listVertexChanged[_indexVertex];
+      _textureValue = _tex[0].item(_indexVertex);
 
-        _colorpicked[0] = _colors[3 * _indexVertex];
-        _colorpicked[1] = _colors[3 * _indexVertex + 1];
-        _colorpicked[2] = _colors[3 * _indexVertex + 2];
+      typename std::map<int, T>::const_iterator it(_listVertexChanged.find(
+          _indexVertex));
 
-        changeTextureValue( _textureValue);
-        updateInfosPicking(_indexPolygon, _indexVertex);
-        //cout << "texture value " << _textureValue << endl;
+      if (it != _listVertexChanged.end()) _textureValue
+          = _listVertexChanged[_indexVertex];
 
-      }
-      else
-      {
-        _textureValue = 0;
-        _colorpicked[0] = dataColorMap[0];
-        _colorpicked[1] = dataColorMap[1];
-        _colorpicked[2] = dataColorMap[2];
-      }
+      _colorpicked[0] = _colors[3 * _indexVertex];
+      _colorpicked[1] = _colors[3 * _indexVertex + 1];
+      _colorpicked[2] = _colors[3 * _indexVertex + 2];
 
-      updateGL();
+      changeTextureValue( _textureValue);
+      updateInfosPicking(_indexPolygon, _indexVertex);
+      //cout << "texture value " << _textureValue << endl;
+
+    }
+    else
+    {
+      _textureValue = 0;
+      _colorpicked[0] = dataColorMap[0];
+      _colorpicked[1] = dataColorMap[1];
+      _colorpicked[2] = dataColorMap[2];
+    }
+
+    updateGL();
 
   }
 
@@ -1688,6 +1697,9 @@ void myGLWidget<T>::paintGL()
   else
     glColorPointer(3, GL_UNSIGNED_BYTE, 0, _colors);
 
+  if (_mode==12)
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, _colorsDist);
+
   glVertexPointer(3, GL_FLOAT, 0, _vertices);
 
   //  if (_listMeshRender == _listMeshSmooth) {
@@ -1789,7 +1801,7 @@ void myGLWidget<T>::resizeGL(int width, int height)
   backBufferTexture.resize( width * height * 3);
 
   _resized = true;
-  _mode = 1;
+  //_mode = 1;
   setupViewport(width, height);
 }
 
@@ -1985,6 +1997,60 @@ void myGLWidget<T>::addSimpleShortPath(int indexSource,int indexDest)
 //    cout << listIndexVertexHolesPathTemp[i] << " ";
 //  }
 //  cout << endl;
+
+}
+
+template<typename T>
+void myGLWidget<T>::computeIsoline(int indexSource)
+{
+  int i;
+
+  std::vector<geodesic::SurfacePoint> sources;
+
+  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+
+  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSP);
+
+  unsigned source_vertex_index = indexSource;
+
+  std::vector<geodesic::SurfacePoint> SPath;
+  SPath.clear();
+
+  std::vector<int> listIndexVertexHolesPathTemp;
+
+  listIndexVertexHolesPathTemp.clear();
+
+  geodesic::SurfacePoint short_sources(
+      &_meshSP.vertices()[source_vertex_index]);
+//  geodesic::SurfacePoint short_targets(
+//      &_meshSP.vertices()[target_vertex_index]);
+
+  std::vector<geodesic::SurfacePoint> all_sources(1,short_sources);
+  dijkstra_algorithm->propagate(all_sources);
+
+  double max_distance = 0.0;
+  double distance_temp;
+  std::vector<double> distance(_meshSP.vertices().size(), 0.0);
+
+  for(unsigned i=0; i<_meshSP.vertices().size(); ++i)
+  {
+    geodesic::SurfacePoint p(&_meshSP.vertices()[i]);
+
+    unsigned best_source = dijkstra_algorithm->best_source(p,distance_temp);   //for a given surface point, find closets source and distance to this source
+
+    distance[i] = distance_temp;
+    //_listVertexChanged[i] = distance;
+    max_distance = std::max(max_distance, distance_temp);
+    //std::cout << i << " -" << distance[i] << "-";   //print geodesic distance for every vertex
+  }
+
+  for(unsigned i=0; i<_meshSP.vertices().size(); ++i)
+  {
+    //cout << distance[i] << " " << (3 * (int)(256*(float)(distance[i]/max_distance)) << "\n";
+    _colorsDist[3 * i] = (int) dataColorMap[(3 * (int)(256*(float)(distance[i]/max_distance))) ];
+    _colorsDist[3 * i + 1] = (int) dataColorMap[(3 * (int)(256*(float)(distance[i]/max_distance))) +1 ];
+    _colorsDist[3 * i + 2] = (int) dataColorMap[(3 * (int)(256*(float)(distance[i]/max_distance))) +2];
+  }
 
 }
 

@@ -143,7 +143,7 @@ public:
 
   void fillHolesOnPath (void);
   void addSimpleShortPath(int indexSource,int indexDest);
-
+  void computeIsoline(int indexSource);
   GLuint loadColorMap (const char * filename);
   void drawColorMap (void);
   void keyPressEvent (QKeyEvent *event);
@@ -243,6 +243,7 @@ private:
   GLfloat *_normals;
   GLubyte *_colors;
   GLubyte *_colorsCurv;
+  GLubyte *_colorsDist;
   GLuint *_indices;
 
   std::vector<double> _pointsSP;

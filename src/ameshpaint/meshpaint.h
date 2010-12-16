@@ -61,6 +61,11 @@ private slots:
     popAllButtonPaintToolBar();
     colorPickerAction->setChecked(true);
     changeMode(2);
+
+    if (checkBoxDistance->isChecked())
+      changeMode(12);
+    else
+      changeMode(2);
   }
 
   void brush()
@@ -165,6 +170,14 @@ private slots:
     saveTexture();
   }
 
+  void checkDistance( bool state )
+  {
+    if (state)
+      changeMode(12);
+    else
+      changeMode(2);
+  }
+
 protected :
   QToolBar *paintToolBar;
   QToolBar *infosToolBar;
@@ -176,6 +189,8 @@ protected :
 
   QToolButton *pathButton;
   QToolButton *brushButton;
+
+  QCheckBox *checkBoxDistance;
 
 public :
   QComboBox *constraintList;

@@ -12,7 +12,7 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
   r.moveCenter(QApplication::desktop()->availableGeometry().center());
   setGeometry(r);
 
-  resize(800, 600);
+  resize(880, 600);
 
   glWidget = new myGLWidget<T> (this, adressTexIn, adressMeshIn,
       adressTexCurvIn, adressTexOut, colorMap, dataType);
@@ -83,6 +83,10 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
   connect(toleranceSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeToleranceSpinBox(int)));
   connect(constraintPathSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeConstraintPathSpinBox(int)));
 
+  checkBoxDistance = new QCheckBox(tr("distance geodesic"));
+  checkBoxDistance->setChecked(false);
+  connect( checkBoxDistance, SIGNAL( toggled( bool ) ), this,  SLOT( checkDistance( bool ) ) );
+  infosToolBar->addWidget(checkBoxDistance);
 }
 
 template<typename T>
@@ -277,7 +281,6 @@ void MeshPaint::createActions()
   iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
   eraseAction = new QAction(QIcon(iconname.c_str()), tr("&erase"), this);
   eraseAction->setStatusTip(tr("erase"));
-  eraseAction->setCheckable(true);
   connect(eraseAction, SIGNAL(triggered()), this, SLOT(erase()));
   menuBrush->addAction(eraseAction);
 
@@ -310,7 +313,10 @@ void MeshPaint::createActions()
   saveAction = new QAction(QIcon(iconname.c_str()), tr("&Save Texture"), this);
   saveAction->setStatusTip(tr("save"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+
 }
+
+
 
 void MeshPaint::popAllButtonPaintToolBar()
 {
@@ -333,6 +339,7 @@ void MeshPaint::createToolBars()
 
   //pipette
   paintToolBar->addAction(colorPickerAction);
+
 
   paintToolBar->addSeparator();
   //baguette magique
@@ -357,7 +364,6 @@ void MeshPaint::createToolBars()
 
   //Balai
   paintToolBar->addAction(clearAction);
-
   paintToolBar->addSeparator();
 
   //Sauvegarde
