@@ -218,6 +218,8 @@ private:
   ATexture  *_aTexCurv;
   T _minT;
   T _maxT;
+  T _minquant;
+  T _maxquant;
 
   unsigned char* dataColorMap;
 

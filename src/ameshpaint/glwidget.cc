@@ -300,9 +300,9 @@ void myGLWidget<T>::buildDataArray(void)
     _normals[3 * j + 1] = norm[j][Y];
     _normals[3 * j + 2] = -norm[j][Z];
 
-    _colors[3 * j] = (int) dataColorMap[3 * (int) (256 * t[j])];
-    _colors[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * t[j]) + 1];
-    _colors[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * t[j]) + 2];
+    _colors[3 * j] = (int) dataColorMap[3 * (int) (256 *  (float)(_maxquant*t[j]/_maxT))];
+    _colors[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[j]/_maxT)) + 1];
+    _colors[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[j]/_maxT)) + 2];
 
     _colorsCurv[3 * j] = (int) dataColorMap[3 * (int) (256 * tcurv[j])];
     _colorsCurv[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 1];
@@ -374,9 +374,9 @@ void myGLWidget<T>::changeTextureValueInt(int value)
   if ((_maxT - _minT)!=0)
   {
     v = (float) (value - _minT) / (float) (_maxT - _minT);
-    _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
-    _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
-    _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
+    _colorpicked[0] = (int) dataColorMap[3 * (int) (256 * v)];
+    _colorpicked[1] = (int) dataColorMap[3 * (int) (256 * v) + 1];
+    _colorpicked[2] = (int) dataColorMap[3 * (int) (256 * v) + 2];
     _textureValue = value;
   }
   else
@@ -398,9 +398,9 @@ void myGLWidget<T>::changeTextureValueFloat(double value)
   if ((_maxT - _minT)!=0)
   {
     v = (float) (value - _minT) / (float) (_maxT - _minT);
-    _colorpicked[0] = (int) dataColorMap[3 * (int) (255 * v)];
-    _colorpicked[1] = (int) dataColorMap[3 * (int) (255 * v) + 1];
-    _colorpicked[2] = (int) dataColorMap[3 * (int) (255 * v) + 2];
+    _colorpicked[0] = (int) dataColorMap[3 * (int) (256 * v)];
+    _colorpicked[1] = (int) dataColorMap[3 * (int) (256 * v) + 1];
+    _colorpicked[2] = (int) dataColorMap[3 * (int) (256 * v) + 2];
     _textureValue = value;
   }
   else
@@ -952,10 +952,9 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
       if (_mode == 8)
       {
         const float* t = _aTex->textureCoords();
-
-        _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex])];
-        _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 1];
-        _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 2];
+        _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[_indexVertex]/_maxT))];
+        _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[_indexVertex]/_maxT)) + 1];
+        _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[_indexVertex]/_maxT)) + 2];
         _listVertexChanged[_indexVertex] = _tex[0].item(_indexVertex);
       }
 
@@ -1190,9 +1189,13 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     {
       const float* t = _aTex->textureCoords();
 
-      _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex])];
-      _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 1];
-      _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 2];
+      _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[_indexVertex]/_maxT))];
+      _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[_indexVertex]/_maxT)) + 1];
+      _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[_indexVertex]/_maxT)) + 2];
+
+//      _colors[3 * _indexVertex] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex])];
+//      _colors[3 * _indexVertex + 1] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 1];
+//      _colors[3 * _indexVertex + 2] = (int) dataColorMap[3 * (int) (256 * t[_indexVertex]) + 2];
       _listVertexChanged[_indexVertex] = _tex[0].item(_indexVertex);
     }
     updateGL();
@@ -2173,8 +2176,27 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   rc_ptr<Texture1d> tex(new Texture1d);
   Converter<TimeTexture<T> , Texture1d> c;
   c.convert(_tex, *tex);
+
   _aTex = new ATexture;
   _aTex->setTexture(tex);
+
+  const GLComponent::TexExtrema & te = _aTex->glTexExtrema();
+  T min = te.minquant[0];
+  T max = te.maxquant[0];
+
+  _minquant = te.minquant[0];
+  _maxquant = te.maxquant[0];
+
+  _minT = min;
+  _maxT = max;
+
+  if (min == 0 && max <= 360)
+  {
+  _minT = 0;
+  _maxT = 360;
+  }
+
+  //_aTex->setTexExtrema(0,360);
 
   rc_ptr<Texture1d> texCurv(new Texture1d);
   Converter<TimeTexture<float> , Texture1d> cTexCurv;
@@ -2185,14 +2207,9 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
 //  _aTexCurv->normalize();
 //  _aTex->normalize();
 
-  const GLComponent::TexExtrema & te = _aTex->glTexExtrema();
-  T min = te.minquant[0];
-  T max = te.maxquant[0];
 
-  _minT = min;
-  _maxT = max;
 
-  cout << "minquant " << min << " maxquant " << max << endl;
+  cout << "min " << _minT << " max " << _maxT << endl;
 
   myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
 
@@ -2201,7 +2218,7 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
     QDoubleSpinBox *textureFloatSpinBox =
         dynamic_cast<QDoubleSpinBox *> (toolbar->textureSpinBox);
 
-    textureFloatSpinBox->setRange(min, max);
+    textureFloatSpinBox->setRange(_minT, _maxT);
   }
 
   if (_dataType == "S16")
@@ -2209,16 +2226,7 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
     QSpinBox *textureIntSpinBox =
         dynamic_cast<QSpinBox *> (toolbar->textureSpinBox);
 
-    _minT = 0;
-    _maxT = 360;
-
-    if (_adressTexIn.length()!=0)
-      textureIntSpinBox->setRange(_minT, _maxT);
-    else
-      {
-      //_maxT = toolbar->constraintList->count() - 1;
-      textureIntSpinBox->setRange(_minT,_maxT);
-      }
+    textureIntSpinBox->setRange(_minT, _maxT);
   }
 
   _colorpicked[0] = dataColorMap[0];

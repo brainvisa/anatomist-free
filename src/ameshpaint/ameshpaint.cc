@@ -62,7 +62,7 @@ int main(int argc, const char **argv)
 
   if (type.length() == 0)
   {
-      myMeshPaint<short> ws(adressTexIn,adressMeshIn,adressTexCurvIn,adressTexOut,colorMap,"S16");
+      myMeshPaint<float> ws(adressTexIn,adressMeshIn,adressTexCurvIn,adressTexOut,colorMap,"FLOAT");
       a.exec();
   }
 
