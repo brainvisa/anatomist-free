@@ -129,6 +129,7 @@ public:
 
   void fill(void);
   void changeMode (int mode);
+  void changeModePath (int mode);
   void changeTextureValue(T value);
   void updateInfosPicking(int idp, int idv);
   void saveTexture (void);
@@ -180,6 +181,7 @@ private:
   void setupViewport (int width, int height);
 
   int _mode;
+  int _modePath;
   float _zoom ;
   float _trans;
   bool _resized;

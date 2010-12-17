@@ -61,11 +61,13 @@ private slots:
     popAllButtonPaintToolBar();
     colorPickerAction->setChecked(true);
     changeMode(2);
+  }
 
-    if (checkBoxDistance->isChecked())
-      changeMode(12);
-    else
-      changeMode(2);
+  void geodesicDistance()
+  {
+    popAllButtonPaintToolBar();
+    geodesicDistanceAction->setChecked(true);
+    changeMode(12);
   }
 
   void brush()
@@ -170,14 +172,6 @@ private slots:
     saveTexture();
   }
 
-  void checkDistance( bool state )
-  {
-    if (state)
-      changeMode(12);
-    else
-      changeMode(2);
-  }
-
 protected :
   QToolBar *paintToolBar;
   QToolBar *infosToolBar;
@@ -190,7 +184,8 @@ protected :
   QToolButton *pathButton;
   QToolButton *brushButton;
 
-  QCheckBox *checkBoxDistance;
+  QSpinBox *distanceSpinBox;
+  QLabel *distanceSpinBoxLabel;
 
 public :
   QComboBox *constraintList;
@@ -207,6 +202,9 @@ private :
 
   QAction *colorPickerAction;
   QAction *selectionAction;
+
+  QAction *geodesicDistanceAction;
+
   //QAction *pathAction;
   QAction *shortPathAction;
   QAction *sulciPathAction;

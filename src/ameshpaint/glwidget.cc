@@ -19,6 +19,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _zoom = -2.0;
   _trans = 0.0;
   _mode = 1;
+  _modePath = 1;
   _listMeshPicking = 0;
   _indexVertex = 0;
   _indexPolygon = 0;
@@ -595,10 +596,14 @@ template<typename T>
 void myGLWidget<T>::changeMode(int mode)
 {
   _mode = mode;
-  //cout << "mode = " << mode << endl;
-  //if (mode != 1) copyBackBuffer2Texture();
   updateGL();
+}
 
+template<typename T>
+void myGLWidget<T>::changeModePath(int mode)
+{
+  _modePath = mode;
+  updateGL();
 }
 
 template<typename T>
@@ -2009,7 +2014,18 @@ void myGLWidget<T>::computeIsoline(int indexSource)
 
   geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
 
-  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSP);
+  geodesic::Mesh *mesh;
+
+  if (_modePath == 1)
+    mesh = &_meshSP;
+
+  if (_modePath == 2)
+    mesh = &_meshSulciCurvSP;
+
+  if (_modePath == 3)
+    mesh = &_meshGyriCurvSP;
+
+  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(mesh);
 
   unsigned source_vertex_index = indexSource;
 
@@ -2020,8 +2036,7 @@ void myGLWidget<T>::computeIsoline(int indexSource)
 
   listIndexVertexHolesPathTemp.clear();
 
-  geodesic::SurfacePoint short_sources(
-      &_meshSP.vertices()[source_vertex_index]);
+  geodesic::SurfacePoint short_sources(&(*mesh).vertices()[source_vertex_index]);
 //  geodesic::SurfacePoint short_targets(
 //      &_meshSP.vertices()[target_vertex_index]);
 
@@ -2030,11 +2045,11 @@ void myGLWidget<T>::computeIsoline(int indexSource)
 
   double max_distance = 0.0;
   double distance_temp;
-  std::vector<double> distance(_meshSP.vertices().size(), 0.0);
+  std::vector<double> distance(mesh->vertices().size(), 0.0);
 
-  for(unsigned i=0; i<_meshSP.vertices().size(); ++i)
+  for(unsigned i=0; i<mesh->vertices().size(); ++i)
   {
-    geodesic::SurfacePoint p(&_meshSP.vertices()[i]);
+    geodesic::SurfacePoint p(&(*mesh).vertices()[i]);
 
     unsigned best_source = dijkstra_algorithm->best_source(p,distance_temp);   //for a given surface point, find closets source and distance to this source
 
@@ -2044,7 +2059,7 @@ void myGLWidget<T>::computeIsoline(int indexSource)
     //std::cout << i << " -" << distance[i] << "-";   //print geodesic distance for every vertex
   }
 
-  for(unsigned i=0; i<_meshSP.vertices().size(); ++i)
+  for(unsigned i=0; i<mesh->vertices().size(); ++i)
   {
     //cout << distance[i] << " " << (3 * (int)(256*(float)(distance[i]/max_distance)) << "\n";
     _colorsDist[3 * i] = (int) dataColorMap[(3 * (int)(256*(float)(distance[i]/max_distance))) ];

@@ -82,11 +82,6 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
 
   connect(toleranceSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeToleranceSpinBox(int)));
   connect(constraintPathSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeConstraintPathSpinBox(int)));
-
-  checkBoxDistance = new QCheckBox(tr("distance geodesic"));
-  checkBoxDistance->setChecked(false);
-  connect( checkBoxDistance, SIGNAL( toggled( bool ) ), this,  SLOT( checkDistance( bool ) ) );
-  infosToolBar->addWidget(checkBoxDistance);
 }
 
 template<typename T>
@@ -170,6 +165,13 @@ void myMeshPaint<T>::changeMode(int mode)
 {
   //cout << "mode = " << mode << endl;
   glWidget->changeMode(mode);
+
+  if (mode == 4)
+    glWidget->changeModePath(1);
+  if (mode == 5)
+    glWidget->changeModePath(2);
+  if (mode == 6)
+    glWidget->changeModePath(3);
 }
 
 template<typename T>
@@ -208,6 +210,21 @@ void MeshPaint::createActions()
   colorPickerAction->setStatusTip(tr("ColorPicker"));
   colorPickerAction->setCheckable(true);
   connect(colorPickerAction, SIGNAL(triggered()), this, SLOT(colorPicker()));
+
+  //geodesic Distance
+  iconname = Settings::globalPath() + "/icons/meshPaint/geodesic_distance.png";
+  geodesicDistanceAction = new QAction(QIcon(iconname.c_str()), tr("&GeodesicDistance"),this);
+  geodesicDistanceAction->setStatusTip(tr("GeodesicDistance"));
+  geodesicDistanceAction->setCheckable(true);
+  connect(geodesicDistanceAction, SIGNAL(triggered()), this, SLOT(geodesicDistance()));
+
+  distanceSpinBoxLabel = new QLabel(tr("distance : "));
+  distanceSpinBox = new QSpinBox;
+  distanceSpinBox->setSingleStep(0.5);
+  distanceSpinBox->setFixedHeight(30);
+  distanceSpinBox->setFixedWidth(55);
+  distanceSpinBox->setValue(0);
+  distanceSpinBox->setRange(0,1000);
 
   //baguette magique
   iconname = Settings::globalPath() + "/icons/meshPaint/magic_selection.png";
@@ -300,8 +317,6 @@ void MeshPaint::createActions()
   fillAction->setStatusTip(tr("fill"));
   connect(fillAction, SIGNAL(triggered()), this, SLOT(filling()));
 
-
-
   //balai
   iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
   clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
@@ -322,6 +337,7 @@ void MeshPaint::popAllButtonPaintToolBar()
 {
   trackballAction->setChecked(false);
   colorPickerAction->setChecked(false);
+  geodesicDistanceAction->setChecked(false);
   eraseAction->setChecked(false);
   selectionAction->setChecked(false);
   pathButton->setChecked(false);
@@ -340,6 +356,12 @@ void MeshPaint::createToolBars()
   //pipette
   paintToolBar->addAction(colorPickerAction);
 
+  paintToolBar->addSeparator();
+
+  //geodesic distance
+  paintToolBar->addAction(geodesicDistanceAction);
+  //paintToolBar->addWidget(distanceSpinBoxLabel);
+  paintToolBar->addWidget(distanceSpinBox);
 
   paintToolBar->addSeparator();
   //baguette magique
