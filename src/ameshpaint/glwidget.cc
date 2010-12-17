@@ -1109,7 +1109,7 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     updateGL();
   }
 
-  if (event->buttons() == Qt::LeftButton && _mode == 2)
+  if (event->buttons() == Qt::LeftButton && (_mode == 2 || _mode == 12))
   {
     //_trackBall.stop();
     _indexPolygon = checkIDpolygonPicked(event->x(), event->y());
@@ -1129,6 +1129,9 @@ void myGLWidget<T>::mouseMoveEvent(QMouseEvent *event)
     const float* t = _aTex->textureCoords();
     if (_indexVertex >= 0 && _indexVertex < _mesh.vertex().size())
     {
+      if (_mode == 12)
+        computeIsoline(_indexVertex);
+
       _textureValue = _tex[0].item(_indexVertex);
 
       typename std::map<int, T>::const_iterator it(_listVertexChanged.find(
@@ -2038,7 +2041,7 @@ void myGLWidget<T>::computeIsoline(int indexSource)
 
   geodesic::SurfacePoint short_sources(&(*mesh).vertices()[source_vertex_index]);
 //  geodesic::SurfacePoint short_targets(
-//      &_meshSP.vertices()[target_vertex_index]);
+//  &_meshSP.vertices()[target_vertex_index]);
 
   std::vector<geodesic::SurfacePoint> all_sources(1,short_sources);
   dijkstra_algorithm->propagate(all_sources);
