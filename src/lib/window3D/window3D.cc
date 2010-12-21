@@ -1893,19 +1893,23 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
       theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
       Point3df vs = o->VoxelSize();
+      Point3df mo, Mo;
       switch (viewType())
       {
         case Axial:
-          d->askedsize = QSize((int) (vs[0] * wf * (o->MaxX2D() - o->MinX2D()
-              + 1)), (int) (vs[1] * wf * (o->MaxY2D() - o->MinY2D() + 1)));
+          o->boundingBox2D( mo, Mo );
+          d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
+              (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ) );
           break;
         case Coronal:
-          d->askedsize = QSize((int) (vs[0] * wf * (o->MaxX2D() - o->MinX2D()
-              + 1)), (int) (vs[2] * wf * (o->MaxZ2D() - o->MinZ2D() + 1)));
+          o->boundingBox2D( mo, Mo );
+          d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
+              (int) ( wf * ( Mo[2] - mo[1] + vs[2] ) ) );
           break;
         case Sagittal:
-          d->askedsize = QSize((int) (vs[1] * wf * (o->MaxY2D() - o->MinY2D()
-              + 1)), (int) (vs[2] * wf * (o->MaxZ2D() - o->MinZ2D() + 1)));
+          o->boundingBox2D( mo, Mo );
+          d->askedsize = QSize( (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ),
+              (int) ( wf * (Mo[2] - mo[2] + vs[2] ) ) );
           break;
         default:
           break;

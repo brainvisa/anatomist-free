@@ -341,7 +341,11 @@ AObject* FusionRGBAVolumeMethod::fusion( const std::vector<AObject *> & obj )
   GLComponent *glc = o->glAPI();
   AVolume<AimsRGBA> *vol
       = new AVolume<AimsRGBA>( glc->sliceableAPI()->rgbaVolume() );
-  vol->setReferential( o->getReferential() );
+  set<AObject *> so;
+  so.insert( vol );
+  ObjectActions::setAutomaticReferential( so );
+  if( !vol->getReferential() )
+    vol->setReferential( o->getReferential() );
   return vol;
 }
 

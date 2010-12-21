@@ -36,6 +36,7 @@
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/reference/Referential.h>
 #include <aims/resampling/quaternion.h>
 #include <cartodata/volume/volume.h>
 #include <aims/rgb/rgb.h>
@@ -617,23 +618,27 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
                                            int tex ) const
 {
   Point3d dims;
-  Point3df vs;
+  Point3df vs, dmin;
 
   if( svs && svs->wingeom )
   {
     vs = svs->wingeom->Size();
-    Point4d	dm = svs->wingeom->DimMax() - svs->wingeom->DimMin();
+    Point4d dmm = svs->wingeom->DimMin();
+    Point4d	dm = svs->wingeom->DimMax() - dmm;
     dims[0] = dm[0];
     dims[1] = dm[1];
     dims[2] = dm[2];
+    dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
   else
   {
     // no geometry case
-    Point4df	max2d = glMax2D() + Point4df( 1.F );
+    Point4df dmm = glMin2D();
+    Point4df	max2d = glMax2D() - dmm + Point4df( 1.F );
     vs = glVoxelSize();
     dims = Point3d( (short) rint( max2d[0] ), (short) rint( max2d[1] ),
                     (short) rint( max2d[2] ) );
+    dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
 
   VolumeRef<AimsRGBA> vol( new Volume<AimsRGBA>( dims[0], dims[1], dims[2] ) );
@@ -642,6 +647,25 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
   vvs[1] = vs[1];
   vvs[2] = vs[2];
   vol->header().setProperty( "voxel_size", vvs );
+  if( dmin[0] != 0 || dmin[1] != 0 || dmin[2] != 0 )
+  {
+    vector<string> refs(1);
+    vector<vector<float> > trans(1);
+    refs[0] = getReferential()->uuid().toString();
+    vector<float> & t = trans[0];
+    t.reserve( 16 );
+    for( int i=0; i<16; ++i )
+      t.push_back( 0. );
+    t[0] = 1.;
+    t[5] = 1.;
+    t[10] = 1.;
+    t[15] = 1.;
+    t[3] = dmin[0] * vs[0];
+    t[7] = dmin[1] * vs[1];
+    t[11] = dmin[2] * vs[2];
+    vol->header().setProperty( "transformations", trans );
+    vol->header().setProperty( "referentials", refs );
+  }
   rgbaVolume( *vol, svs, tex );
   return vol;
 }
@@ -668,6 +692,44 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
     svs.vieworientation = slvs->vieworientation;
     // don't copy wingeom since the volume has his own
   }
+
+  Point4d vmin( int16_t( 0 ) );
+
+  if( vol.header().hasProperty( "transformations" ) )
+  {
+    string rid = getReferential()->uuid().toString();
+    try
+    {
+      Object trans = vol.header().getProperty( "transformations" );
+      Object refs = vol.header().getProperty( "referentials" );
+      Object it1, it2;
+      for( it1=trans->objectIterator(), it2=refs->objectIterator();
+        it1->isValid() && it2->isValid(); it1->next(), it2->next() )
+      {
+        if( it2->currentValue()->getString() == rid )
+          break;
+      }
+      if( it1->isValid() && it2->isValid() )
+      {
+        AffineTransformation3d tr( it1->currentValue() );
+        Referential *nref = new Referential;
+/*        nref->header().setProperty( "uuid",
+          vol.header().getProperty( "referential" ) );*/
+        Transformation *at = new Transformation( nref,
+          const_cast<Referential *>( getReferential() ) );
+        at->motion() = tr;
+        at->registerTrans();
+        svs.winref = nref;
+        Point3df p0 = tr.transform( Point3df( 0, 0, 0 ) );
+        vmin = Point4d( int16_t( rint( p0[0] ) ), int16_t( rint( p0[1] ) ),
+                        int16_t( rint( p0[2] ) ), 0 );
+      }
+    }
+    catch( ... )
+    {
+    }
+  }
+
   if( !svs.winref )
     svs.winref = getReferential();
 
@@ -689,7 +751,7 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
       }
     }
   }
-  Geometry geom( vs, Point4d( short(0) ), Point4d( vol.getSizeX() - 1,
+  Geometry geom( vs, vmin, Point4d( vol.getSizeX() - 1,
                  vol.getSizeY() - 1, vol.getSizeZ() - 1, 0 ) );
   svs.wingeom = &geom;
 

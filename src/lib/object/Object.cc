@@ -700,6 +700,15 @@ bool AObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
 }
 
 
+bool AObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
+{
+  Point3df vs = VoxelSize();
+  bmin = Point3df( MinX2D() * vs[0], MinY2D() * vs[1], MinZ2D() * vs[2] );
+  bmax = Point3df( MaxX2D() * vs[0], MaxY2D() * vs[1], MaxZ2D() * vs[2] );
+  return true;
+}
+
+
 bool AObject::isTransparent() const
 {
   return material().IsBlended() 

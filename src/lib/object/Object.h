@@ -174,6 +174,8 @@ namespace anatomist
     virtual float MaxX2D() const { return 0; }
     virtual float MaxY2D() const { return 0; }
     virtual float MaxZ2D() const { return 0; }
+    /// more modern replacement for MinX2D... maxZ2D, in float coords
+    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
 
     /**	Fills \a bmin and \a bmax with the 3D bounding box extrema in the 
 	object's referential coordinates 

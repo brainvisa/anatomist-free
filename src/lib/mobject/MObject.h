@@ -275,6 +275,7 @@ namespace anatomist
     virtual float MaxX2D() const;
     virtual float MaxY2D() const;
     virtual float MaxZ2D() const;
+    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
 
     virtual Point3df VoxelSize() const;
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
