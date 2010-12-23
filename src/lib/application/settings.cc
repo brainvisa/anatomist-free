@@ -145,3 +145,10 @@ void Settings::setUserProfile( const string & p )
 }
 
 
+string Settings::findResourceFile( const string & filename )
+{
+  return Paths::findResourceFile( filename, "anatomist",
+    theAnatomist->libraryVersionString() );
+}
+
+

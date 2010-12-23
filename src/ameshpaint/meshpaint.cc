@@ -119,21 +119,15 @@ MeshPaint::MeshPaint()
 
   char sep = FileUtil::separator();
 
-#ifdef USE_SHARE_CONFIG
-  string talref = carto::Paths::globalShared() + sep
-    + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep
-    + "surfaceanalysis" + sep + "constraint_correspondance.txt";
-#else
-  string talref = carto::Paths::shfjShared() + sep + "nomenclature" + sep
-      + "surfaceanalysis" + sep + "constraint_correspondance.txt";
-#endif
+  string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
+    + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
 
-    cout << "Loading constraints file : " << talref << endl;
+    cout << "Loading constraints file : " << consfile << endl;
 
   constraintList = new QComboBox( );
 
   string line;
-  ifstream myfile (talref.c_str());
+  ifstream myfile (consfile.c_str());
   if (myfile.is_open())
   {
     while ( myfile.good() )
@@ -145,7 +139,7 @@ MeshPaint::MeshPaint()
     myfile.close();
   }
 
-  else cout << "Unable to open file " << talref << endl;
+  else cout << "Unable to open file " << consfile << endl;
 
   connect( constraintList, SIGNAL( activated( int ) ), this,  SLOT( updateConstraintList() ) );
 

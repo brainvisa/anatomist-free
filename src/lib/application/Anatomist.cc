@@ -108,10 +108,6 @@
 #include <cartobase/smart/rcptrtrick.h>
 #endif
 
-#ifdef USE_SHARE_CONFIG
-#include <brainvisa-share/config.h>
-#endif
-
 using namespace anatomist;
 using namespace aims;
 using namespace carto;
@@ -165,8 +161,8 @@ namespace
         QWidget	*w = (QWidget *) watched;
         if( w->icon() == 0 )
           {
-            static QPixmap	icn( ( Settings::globalPath() 
-                                       + "/icons/icon.xpm" ).c_str() );
+            static QPixmap icn( Settings::findResourceFile(
+              "icons/icon.xpm" ).c_str() );
             if( !icn.isNull() )
               w->setIcon( icn );
           }
@@ -458,8 +454,11 @@ void Anatomist::initialize()
   /* palettes should be read before the config because they might be used by 
      config options, like cursors */
 
-  _privData->paletteList->load( Settings::globalPath() + "/rgb" );
-  _privData->paletteList->load( Settings::localPath() + sep + "rgb" );
+  list<string> palettespaths = Paths::findResourceFiles( "rgb", "anatomist",
+    libraryVersionString() );
+  list<string>::const_reverse_iterator ipl, epl = palettespaths.rend();
+  for( ipl=palettespaths.rbegin(); ipl!=epl; ++ipl )
+    _privData->paletteList->load( *ipl );
   // cout << _paletteList->size() << " palettes loaded\n";
 
   //	config
@@ -485,75 +484,64 @@ void Anatomist::initialize()
 
   //	Language
 
-  string langpath = Settings::globalPath() + sep + "po" + sep;
-
   string lang = language();
-  string langpathold = langpath;
-  langpath += lang;
+  string langpath = Settings::findResourceFile( string( "po" ) + sep + lang );
   list<string>	translations 
     = anatomist::listDirectory( langpath, "*.qm", QDir::Name, 
-				QDir::Files | QDir::Readable );
+                                QDir::Files | QDir::Readable );
 
   if( translations.empty() && lang != "en" )
-    {
-      langpath = langpathold + "en";
-      translations = anatomist::listDirectory( langpath, "*.qm", QDir::Name, 
-					       QDir::Files | QDir::Readable );
-    }
+  {
+    langpath = Settings::findResourceFile( string( "po" ) + sep + "en" );
+    translations = anatomist::listDirectory( langpath, "*.qm", QDir::Name,
+                                              QDir::Files | QDir::Readable );
+  }
 
   list<string>::iterator	it, et = translations.end();
   for( it=translations.begin(); it!=et; ++it )
+  {
+    QTranslator	*tr = new QTranslator( qApp, "Translator" );
+    if( tr->load( it->c_str(), langpath.c_str() ) )
+      qApp->installTranslator( tr );
+    else
     {
-      QTranslator	*tr = new QTranslator( qApp, "Translator" );
-      if( tr->load( it->c_str(), langpath.c_str() ) )
-	qApp->installTranslator( tr );
-      else
-	{
-	  cerr << "warning: translation file not found\n";
-	  cerr << "path : " << langpath << "\nfile: " << *it << "\n";
-	  delete tr;
-	}
+      cerr << "warning: translation file not found\n";
+      cerr << "path : " << langpath << "\nfile: " << *it << "\n";
+      delete tr;
     }
+  }
 
   string	ver;
   Object	over;
   try
-    {
-      over = _privData->config->getProperty( "anatomist_version" );
-      if( !over.isNone() )
-        ver = over->getString();
-      /* cout << "cast 1: " << dynamic_cast<ValueObject<string> *>( over.get() ) 
-           << endl;
-      cout << "cast 2: " << dynamic_cast<TypedObject<string> *>( over.get() ) 
-      << endl; */
-    }
+  {
+    over = _privData->config->getProperty( "anatomist_version" );
+    if( !over.isNone() )
+      ver = over->getString();
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   if( ver != versionString() )
+  {
+    string::size_type	p = ver.find( '.' );
+    bool	wn = true;
+    if( p != string::npos )
     {
-      string::size_type	p = ver.find( '.' );
-      bool	wn = true;
-      if( p != string::npos )
-	{
-	  int		majv = 0, minv = 0, majo = 0, mino = 0;
-	  sscanf( versionString().c_str(), "%d.%d", &majv, &minv );
-	  sscanf( ver.c_str(), "%d.%d", &majo, &mino );
-	  /* cout << "version : maj : " << majv << " . min : " << minv 
-	       << endl;
-	  cout << "previous version : maj : " << majo << " . min : " << mino 
-	  << endl; */
-	  if( majv < majo || ( majv == majo && minv < mino ) )
-	    wn = false;
-	}
-
-      if( wn )
-	{
-	  WhatsNew	wn;
-	  wn.exec();
-	  _privData->config->save();
-	}
+      int		majv = 0, minv = 0, majo = 0, mino = 0;
+      sscanf( versionString().c_str(), "%d.%d", &majv, &minv );
+      sscanf( ver.c_str(), "%d.%d", &majo, &mino );
+      if( majv < majo || ( majv == majo && minv < mino ) )
+        wn = false;
     }
+
+    if( wn )
+    {
+      WhatsNew	wn;
+      wn.exec();
+      _privData->config->save();
+    }
+  }
   // Init Menu objects (objects replacing optionTree menu)
   initMenuObjects();
 
@@ -569,30 +557,20 @@ void Anatomist::initialize()
   stdmod->init();
 
   _privData->centralRef = new Referential;	// create central referential
-#ifdef USE_SHARE_CONFIG
-  string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "registration" + sep \
-      + "Talairach-AC_PC-Anatomist.referential";
-#else
-  string talref = carto::Paths::shfjShared() + sep + "registration" + sep \
-      + "Talairach-AC_PC-Anatomist.referential";
-#endif
-  _privData->centralRef->load( talref );
+  string talref = carto::Paths::findResourceFile( string( "registration" )
+    + sep + "Talairach-AC_PC-Anatomist.referential" );
+  if( !talref.empty() )
+    _privData->centralRef->load( talref );
   Referential::mniTemplateReferential(); // create SPM/MNI referential
 
-  string	modpath = Settings::localPath();
-  if ( !modpath.empty() )
-    {
-      modpath += ssep + "plugins" + sep + "anatomist.plugins";
-      PluginLoader::pluginFiles().push_back
-        ( PluginLoader::PluginFile( modpath, versionString() ) );
-    }
-  modpath = Settings::globalPath();
-  if ( !modpath.empty() )
-    {
-      modpath += ssep + "plugins" + sep + "anatomist.plugins";
-      PluginLoader::pluginFiles().push_back
-        ( PluginLoader::PluginFile( modpath, versionString() ) );
-    }
+  list<string> modfiles = Paths::findResourceFiles( string( "plugins" ) + sep
+    + "anatomist.plugins", "anatomist", theAnatomist->libraryVersionString() );
+  list<string>::iterator imf, emf = modfiles.end();
+  for( imf=modfiles.begin(); imf!=emf; ++imf )
+  {
+    PluginLoader::pluginFiles().push_back
+      ( PluginLoader::PluginFile( *imf, versionString() ) );
+  }
   PluginLoader::load();	// load plugins in new path
   // file filters
   updateFileDialogObjectsFilter();

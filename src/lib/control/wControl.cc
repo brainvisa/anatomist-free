@@ -163,8 +163,8 @@ ControlWindow::ControlWindow()
 
   if( parent() == 0 )
     {
-      QPixmap	anaicon( ( Settings::globalPath() 
-			   + "/icons/icon.xpm" ).c_str() );
+      QPixmap	anaicon( Settings::findResourceFile(
+                         "icons/icon.xpm" ).c_str() );
       if( !anaicon.isNull() )
         setIcon( anaicon );
     }
@@ -220,11 +220,9 @@ void ControlWindow::createMenu()
 
 void ControlWindow::drawContents()
 {
-  string path = Settings::globalPath();
-
   setCaption( ( string( "Anatomist " ) + theAnatomist->versionString() 
-		+ " - CEA/NeuroSpin/SHFJ" ).c_str() );
-  QPixmap anaicon( ( path + "/icons/anaIcon.xpm" ).c_str() );
+                + " - CEA/NeuroSpin/SHFJ" ).c_str() );
+  QPixmap anaicon( Settings::findResourceFile( "icons/anaIcon.xpm" ).c_str() );
   if( !anaicon.isNull() )
     setIcon( anaicon );
 
@@ -293,7 +291,6 @@ void ControlWindow::createIcons()
 
   //	Icon bar
 
-  string path = Settings::globalPath();
 #if QT_VERSION >= 0x040000
   QToolBar	*iconbar = new QToolBar( tr( "Icons" ), this );
   addToolBar( Qt::LeftToolBarArea, iconbar );
@@ -310,16 +307,17 @@ void ControlWindow::createIcons()
   iconbar->setFont( fnt );
 
 #if QT_VERSION >= 0x040000
-  QIcon	is( ( path + "/icons/open.xpm" ).c_str() );
-  is.addFile( ( path + "/icons/open-active.xpm" ).c_str(), QSize(), 
-              QIcon::Active );
+  QIcon	is( Settings::findResourceFile( "icons/open.xpm" ).c_str() );
+  is.addFile( Settings::findResourceFile( "icons/open-active.xpm" ).c_str(),
+              QSize(), QIcon::Active );
   iconbar->addAction( is, tr( "Load object" ), this, SLOT( loadObject() ) );
 
 #else
-  QPixmap openpix( ( path + "/icons/open.xpm" ).c_str() );
+  QPixmap openpix( Settings::findResourceFile( "icons/open.xpm" ).c_str() );
   if( !openpix.isNull() )
     {
-      QPixmap	p( ( path + "/icons/open-active.xpm" ).c_str() );
+      QPixmap	p( Settings::findResourceFile(
+        "icons/open-active.xpm" ).c_str() );
       QIconSet	is( openpix, QIconSet::Large );
       if( !p.isNull() )
 	is.setPixmap( p, QIconSet::Large, QIconSet::Active );
@@ -374,10 +372,11 @@ void ControlWindow::createIcons()
 	}
     }
 
-  QPixmap addpix( ( path + "/icons/add.xpm" ).c_str() );
+  QPixmap addpix( Settings::findResourceFile( "icons/add.xpm" ).c_str() );
   if( !addpix.isNull() )
     {
-      QPixmap	p( ( path + "/icons/add-active.xpm" ).c_str() );
+      QPixmap	p( Settings::findResourceFile(
+        "icons/add-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
       QIcon	is( addpix );
       if( !p.isNull() )
@@ -397,10 +396,11 @@ void ControlWindow::createIcons()
 #endif
     }
 
-  QPixmap rmvpix( ( path + "/icons/remove.xpm" ).c_str() );
+  QPixmap rmvpix( Settings::findResourceFile( "icons/remove.xpm" ).c_str() );
   if( !rmvpix.isNull() )
     {
-      QPixmap	p( ( path + "/icons/remove-active.xpm" ).c_str() );
+      QPixmap	p( Settings::findResourceFile(
+        "icons/remove-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
       QIcon	is( rmvpix );
       if( !p.isNull() )
@@ -420,10 +420,12 @@ void ControlWindow::createIcons()
 #endif
     }
 
-  QPixmap fusionpix( ( path + "/icons/fusion.xpm" ).c_str() );
+  QPixmap fusionpix( Settings::findResourceFile(
+    "icons/fusion.xpm" ).c_str() );
   if( !fusionpix.isNull() )
     {
-      QPixmap	p( ( path + "/icons/fusion-active.xpm" ).c_str() );
+      QPixmap	p( Settings::findResourceFile(
+        "icons/fusion-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
       QIcon	is( fusionpix );
       if( !p.isNull() )
@@ -443,10 +445,12 @@ void ControlWindow::createIcons()
 #endif
     }
 
-  QPixmap refpix( ( path + "/icons/reference.xpm" ).c_str() );
+  QPixmap refpix( Settings::findResourceFile(
+    "icons/reference.xpm" ).c_str() );
   if( !refpix.isNull() )
     {
-      QPixmap	p( ( path + "/icons/reference-active.xpm" ).c_str() );
+      QPixmap	p( Settings::findResourceFile(
+        "icons/reference-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
       QIcon	is( refpix );
       if( !p.isNull() )
@@ -468,10 +472,12 @@ void ControlWindow::createIcons()
     }
 
   //ARN BEGIN
-  QPixmap conEdpix( ( path + "/icons/meshPaint/sulci.png" ).c_str() );
+  QPixmap conEdpix( Settings::findResourceFile(
+    "icons/meshPaint/sulci.png" ).c_str() );
     if( !conEdpix.isNull() )
       {
-        QPixmap p( ( path + "/icons/meshPaint/gyri.png" ).c_str() );
+        QPixmap p( Settings::findResourceFile(
+          "icons/meshPaint/gyri.png" ).c_str() );
   #if QT_VERSION >= 0x040000
         QIcon is( conEdpix );
         if( !p.isNull() )
@@ -1463,7 +1469,7 @@ void ControlWindow::languageFrench()
 
 void ControlWindow::setLanguage( const string & filename )
 {
-  string path = Settings::globalPath() + "/po";
+  string path = Settings::findResourceFile( "po" );
   QTranslator	*tr = new QTranslator( qApp, "Translator" );
 
   if( tr->load( filename.c_str(), path.c_str() ) )

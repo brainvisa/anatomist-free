@@ -110,7 +110,7 @@ void QImageLabel::installImage()
   string icon( Settings::localPath() + "/icons/anatomist.png" );
   QPixmap anapix( icon.c_str() );
   if( anapix.isNull() )
-    anapix.load( ( Settings::globalPath() + "/icons/anatomist.png" ).c_str() );
+    anapix.load( Settings::findResourceFile( "icons/anatomist.png" ).c_str() );
   if( !anapix.isNull() )
     setPixmap( anapix );
 }
@@ -169,8 +169,8 @@ void QImageLabel::mousePressEvent( QMouseEvent* e )
       if( !_privdata->movie )
 	{
 	  _privdata->movie = 
-	    new QMovie( ( Settings::globalPath()
-			  + "/movie/anatomist.gif" ).c_str(), QByteArray(), 
+	    new QMovie( Settings::findResourceFile(
+                        "movie/anatomist.gif" ).c_str(), QByteArray(),
                         this );
           connect( _privdata->movie, 
                    SIGNAL( stateChanged( QMovie::MovieState ) ), 
@@ -187,8 +187,8 @@ void QImageLabel::mousePressEvent( QMouseEvent* e )
       if( !_privdata->movie )
 	{
 	  _privdata->movie = 
-	    new QMovie( ( Settings::globalPath()
-			  + "/movie/anatomist.gif" ).c_str() );
+	    new QMovie( Settings::findResourceFile(
+                        "movie/anatomist.gif" ).c_str() );
 	  _privdata->movie->connectStatus( this, 
 					   SLOT( movieStatusChanged( int ) ) );
 	}

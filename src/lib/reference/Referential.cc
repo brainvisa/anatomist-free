@@ -46,9 +46,6 @@
 #include <cartobase/exception/file.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/paths.h>
-#ifdef USE_SHARE_CONFIG
-#include <brainvisa-share/config.h>
-#endif
 
 using namespace anatomist;
 using namespace aims;
@@ -384,31 +381,32 @@ Referential* Referential::mniTemplateReferential()
     set<AObject *> so;
     set<AWindow *> sw;
     char           sep = FileUtil::separator();
-#ifdef USE_SHARE_CONFIG
-    string share = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY;
-#else //#ifdef USE_SHARE_CONFIG
-    string share = carto::Paths::shfjShared();
-#endif //#ifdef USE_SHARE_CONFIG
-    string mniref = share + sep + "registration"
-        + sep + "Talairach-MNI_template-SPM.referential";
-    AssignReferentialCommand  *c
-        = new AssignReferentialCommand( 0, so, sw, -1, 0, mniref );
-    // exec command even if recursively
-    if( theProcessor->idle() )
-      theProcessor->execute( c );
-    else
-      c->execute();
-    ref = c->ref();
+    string mniref = Paths::findResourceFile( string( "registration" ) + sep
+      + "Talairach-MNI_template-SPM.referential" );
+    if( !mniref.empty() )
+    {
+      AssignReferentialCommand  *c
+          = new AssignReferentialCommand( 0, so, sw, -1, 0, mniref );
+      // exec command even if recursively
+      if( theProcessor->idle() )
+        theProcessor->execute( c );
+      else
+        c->execute();
+      ref = c->ref();
+    }
     if( ref )
     {
       ref->setColor( AimsRGB( 128, 128, 255 ) );
       ref->header().setProperty( "name",
         StandardReferentials::mniTemplateReferential() );
-      string acpcmni = share + sep + "transformation"
-          + sep + "talairach_TO_spm_template_novoxels.trm";
-      LoadTransformationCommand *c2
-          = new LoadTransformationCommand( acpcmni, acPcReferential(), ref );
-      theProcessor->execute( c2 );
+      string acpcmni = Paths::findResourceFile( string( "transformation" )
+        + sep + "talairach_TO_spm_template_novoxels.trm" );
+      if( !acpcmni.empty() )
+      {
+        LoadTransformationCommand *c2
+            = new LoadTransformationCommand( acpcmni, acPcReferential(), ref );
+        theProcessor->execute( c2 );
+      }
     }
   }
   return ref;

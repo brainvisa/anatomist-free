@@ -95,8 +95,8 @@ QSelectMenu::QSelectMenu()
 {
   if( !_defPixmap )
     {
-      _defPixmap = new QPixmap( (Settings::globalPath() 
-				 + "/icons/menu_default.xpm").c_str() );
+      _defPixmap = new QPixmap( Settings::findResourceFile(
+                                "icons/menu_default.xpm" ).c_str() );
     }
 }
 

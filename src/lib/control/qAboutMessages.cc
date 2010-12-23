@@ -45,7 +45,7 @@ using namespace std;
 
 QString QAbout::scrollingMessageFileName() const
 {
-  return ( Settings::globalPath() + "/po/" + theAnatomist->language()
+  return Settings::findResourceFile( "po/" + theAnatomist->language()
     + "/about.txt" ).c_str();
 }
 
@@ -60,9 +60,9 @@ QString QAbout::errorMessage() const
 QString QAbout::musicFileName() const
 {
   struct stat   buf;
-  string musicfile = Settings::globalPath() + "/config/music.adc";
+  string musicfile = Settings::findResourceFile( "config/music.adc" );
   if( stat( musicfile.c_str(), &buf ) )
-    musicfile = Settings::globalPath() + "/config/music.wav";
+    musicfile = Settings::findResourceFile( "config/music.wav" );
   return musicfile.c_str();
 }
 

@@ -66,10 +66,10 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   : QWidget( parent, name  ), _viewRefCol( true )
 {
   if( !LinkIcon )
-    {
-      string s = Settings::globalPath() + "/icons/list_link.xpm";
-      LinkIcon = new QPixmap( s.c_str() );
-    }
+  {
+    string s = Settings::findResourceFile( "icons/list_link.xpm" );
+    LinkIcon = new QPixmap( s.c_str() );
+  }
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 0, -1, "OTlayout1" );
   QFrame	*fr = new QFrame( this, "OTframe" );

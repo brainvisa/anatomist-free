@@ -36,9 +36,6 @@
 #include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
 #include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
 #include <aims/geodesicpath/geodesic_algorithm_exact.h>
-#ifdef USE_SHARE_CONFIG
-#include <brainvisa-share/config.h>
-#endif
 
 SurfpaintTools* & SurfpaintTools::my_instance()
 {
@@ -146,7 +143,8 @@ void SurfpaintTools::path()
 void SurfpaintTools::shortestPath()
 {
   popAllButtonPaintToolBar();
-  string iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
+  string iconname = Settings::findResourceFile(
+    "icons/meshPaint/shortest.png" );
   pathAction->setIcon(QIcon(iconname.c_str()));
   pathAction->setChecked(true);
   shortestPathSelectedType = "ShortestPath";
@@ -157,7 +155,7 @@ void SurfpaintTools::shortestPath()
 void SurfpaintTools::sulciPath()
 {
   popAllButtonPaintToolBar();
-  string iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
+  string iconname = Settings::findResourceFile( "icons/meshPaint/sulci.png" );
   pathAction->setIcon(QIcon(iconname.c_str()));
   pathAction->setChecked(true);
   shortestPathSelectedType = "SulciPath";
@@ -168,7 +166,7 @@ void SurfpaintTools::sulciPath()
 void SurfpaintTools::gyriPath()
 {
   popAllButtonPaintToolBar();
-  string iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
+  string iconname = Settings::findResourceFile( "icons/meshPaint/gyri.png" );
   pathAction->setIcon(QIcon(iconname.c_str()));
   pathAction->setChecked(true);
   shortestPathSelectedType = "GyriPath";
@@ -592,7 +590,8 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(colorPickerAction, SIGNAL(clicked()), this, SLOT(colorPicker()));
 
     //baguette magique
-    iconname = Settings::globalPath() + "/icons/meshPaint/magic_selection.png";
+    iconname = Settings::findResourceFile(
+      "icons/meshPaint/magic_selection.png" );
     selectionAction = new QToolButton();
     selectionAction->setIcon(QIcon(iconname.c_str()));
     selectionAction->setToolTip(ControlledWindow::tr("Area magic selection"));
@@ -603,7 +602,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(selectionAction, SIGNAL(clicked()), this, SLOT(magicSelection()));
 
     //plus court chemin
-    iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/shortest.png" );
     pathAction = new QToolButton();
     pathAction->setIcon(QIcon(iconname.c_str()));
     pathAction->setPopupMode(QToolButton::MenuButtonPopup);
@@ -619,13 +618,13 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     shortestPathAction->setToolTip(tr("Unconstrained"));
     connect(shortestPathAction, SIGNAL(triggered()), this, SLOT(shortestPath()));
     menu->addAction(shortestPathAction);
-    iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/sulci.png" );
     sulciPathAction = new QAction(QIcon(iconname.c_str()),
         ControlledWindow::tr("sulci"), this);
     sulciPathAction->setToolTip(tr("sulci"));
     connect(sulciPathAction, SIGNAL(triggered()), this, SLOT(sulciPath()));
     menu->addAction(sulciPathAction);
-    iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/gyri.png" );
     gyriPathAction = new QAction(QIcon(iconname.c_str()), ControlledWindow::tr(
         "gyri"), this);
     gyriPathAction->setToolTip(tr("gyri"));
@@ -634,7 +633,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     pathAction->setMenu(menu);
 
     //clear
-    iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/clear.png" );
     clearPathAction = new QToolButton();
     clearPathAction->setIcon(QIcon(iconname.c_str()));
     clearPathAction->setToolTip(ControlledWindow::tr(
@@ -643,7 +642,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(clearPathAction, SIGNAL(clicked()), this, SLOT(clearAll()));
 
     //brush
-    iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
     paintBrushAction = new QToolButton();
     paintBrushAction->setIcon(QIcon(iconname.c_str()));
     paintBrushAction->setToolTip(ControlledWindow::tr("Brush"));
@@ -655,7 +654,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 
     //fill
     //iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
-    iconname = Settings::globalPath() + "/icons/meshPaint/valide.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/valide.png" );
     fillAction = new QToolButton();
     fillAction->setIcon(QIcon(iconname.c_str()));
     fillAction->setToolTip(ControlledWindow::tr("Fill area or path selected"));
@@ -663,7 +662,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(fillAction, SIGNAL(clicked()), this, SLOT(fill()));
 
     //erase
-    iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/erase.png" );
     eraseAction = new QToolButton();
     eraseAction->setIcon(QIcon(iconname.c_str()));
     eraseAction->setToolTip(ControlledWindow::tr("Eraser"));
@@ -674,7 +673,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(eraseAction, SIGNAL(clicked()), this, SLOT(erase()));
 
     //save
-    iconname = Settings::globalPath() + "/icons/meshPaint/sauver.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/sauver.png" );
     saveAction = new QToolButton();
     saveAction->setIcon(QIcon(iconname.c_str()));
     saveAction->setToolTip(ControlledWindow::tr("Save texture"));
@@ -1176,18 +1175,13 @@ void SurfpaintTools::loadConstraintsList()
 {
   char sep = carto::FileUtil::separator();
 
-#ifdef USE_SHARE_CONFIG
-  string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep + "surfaceanalysis" + sep
-  + "constraint_correspondance.txt";
-#else
-  string talref = carto::Paths::shfjShared() + sep + "nomenclature" + sep
-      + "surfaceanalysis" + sep + "constraint_correspondance.txt";
-#endif
+  string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
+    + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
 
-  cout << "Loading constraints file : " << talref << endl;
+  cout << "Loading constraints file : " << consfile << endl;
 
   string line;
-  ifstream myfile(talref.c_str());
+  ifstream myfile(consfile.c_str());
   if (myfile.is_open())
   {
     while (myfile.good())
@@ -1200,7 +1194,7 @@ void SurfpaintTools::loadConstraintsList()
   }
 
   else
-    cout << "Unable to open file " << talref << endl;
+    cout << "Unable to open file " << consfile << endl;
 }
 
 void SurfpaintTools::changeConstraintPathSpinBox(int v)

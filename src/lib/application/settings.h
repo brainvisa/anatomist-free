@@ -50,6 +50,11 @@ namespace anatomist
     static std::string docPath();
     static void setUserProfile( const std::string & );
     static std::string & userProfile();
+    /** convenience function for:
+        carto::Paths::findResourceFile( filename, "anatomist",
+          theAnatomist->libraryVersionString() )
+    */
+    static std::string findResourceFile( const std::string & filename );
   };
 
 }

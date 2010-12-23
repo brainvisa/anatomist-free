@@ -168,8 +168,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   : QWidget( 0 ), APaletteWin( obj ), d( new Private( obj ) )
 {
   setCaption( tr( "Object palette composition" ) );
-  QPixmap	anaicon( ( Settings::globalPath()
-			   + "/icons/icon.xpm" ).c_str() );
+  QPixmap	anaicon( Settings::findResourceFile(
+    "icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
     setIcon( anaicon );
 

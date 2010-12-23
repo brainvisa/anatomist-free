@@ -67,6 +67,7 @@
 #include <qvalidator.h>
 #include <aims/qtcompat/qgrid.h>
 #include <aims/qtcompat/qfiledialog.h>
+#include <cartobase/config/paths.h>
 #include <vector>
 #include <map>
 #include <iostream>
@@ -176,9 +177,16 @@ PreferencesWindow::PreferencesWindow()
   cfg->getProperty( "language", lang );
   langbox->insertItem( tr( "default" ) );
 
-  list<string>	langdirs 
-    = listDirectory( Settings::globalPath() + "/po", 
-		     "", QDir::Name, QDir::Dirs | QDir::NoSymLinks );
+  list<string>  langdl = Paths::findResourceFiles( "po", "anatomist",
+    theAnatomist->libraryVersionString() );
+  list<string> langdirs;
+  list<string>::iterator il, el = langdl.end();
+  for( il=langdl.begin(); il!=el; ++il )
+  {
+    list<string> ll = listDirectory( *il, "", QDir::Name,
+                                     QDir::Dirs | QDir::NoSymLinks );
+    langdirs.insert( langdirs.end(), ll.begin(), ll.end() );
+  }
   list<string>::iterator	id, ed = langdirs.end();
   unsigned			i = 0, langind = 0;
 

@@ -39,6 +39,7 @@
 #include <cartobase/stream/directory.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/verbose.h>
+#include <cartobase/config/paths.h>
 #include <sys/types.h>
 #include <iostream>
 
@@ -56,9 +57,11 @@ SyntaxRepository::SyntaxRepository()
 {
   if( _path.empty() )
     {
-      _path.push_back( Settings::globalPath() + "/syntax" );
-      _path.push_back( Path::singleton().syntax() );
-      _path.push_back( Settings::localPath() + "/syntax" );
+      list<string> p = Paths::findResourceFiles( "syntax", "anatomist",
+        theAnatomist->libraryVersionString() );
+      _path.insert( _path.end(), p.rbegin(), p.rend() );
+      p = Paths::findResourceFiles( "nomenclature/syntax" );
+      _path.insert( _path.end(), p.rbegin(), p.rend() );
     }
 }
 

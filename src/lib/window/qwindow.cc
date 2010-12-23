@@ -106,8 +106,8 @@ QAWindow::QAWindow( QWidget* parent, const char* name, Object params,
 
   if( parent == 0 )
     {
-      QPixmap	anaicon( ( Settings::globalPath() 
-			   + "/icons/icon.xpm" ).c_str() );
+      QPixmap	anaicon( Settings::findResourceFile(
+			 "icons/icon.xpm" ).c_str() );
       if( !anaicon.isNull() )
         setIcon( anaicon );
     }

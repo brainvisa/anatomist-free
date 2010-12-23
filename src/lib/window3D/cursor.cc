@@ -38,6 +38,7 @@
 #include "./../application/anatomistprivate.h"
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
+#include <cartobase/config/paths.h>
 
 using namespace anatomist;
 using namespace carto;
@@ -191,9 +192,11 @@ void Cursor::deleteCusror( const std::string & name )
 void Cursor::loadCursors()
 {
   CursorPrivateStatic & st = cursorPrivateStatic();
-  string	path = Settings::globalPath();
-  st.loadCursors( Settings::globalPath() + FileUtil::separator() + "cursors" );
-  st.loadCursors( Settings::localPath() + FileUtil::separator() + "cursors" );
+  list<string>	path = Paths::findResourceFiles( "cursors", "anatomist",
+    theAnatomist->libraryVersionString() );
+  list<string>::reverse_iterator ip, ep = path.rend();
+  for( ip=path.rbegin(); ip!=ep; ++ip )
+    st.loadCursors( *ip );
 }
 
 

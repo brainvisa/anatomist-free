@@ -60,13 +60,14 @@ WhatsNew::WhatsNew( QWidget* parent, const char * name, bool modal,
   /*txt->setText( tr( "Anatomist version is now " ) 
     + theAnatomist->versionString().c_str() );*/
 
-  string fname = Settings::globalPath() + "/po/";
+  string fname = "po/";
   string lang = "en";
   theAnatomist->config()->getProperty( "language", lang );
   fname += lang + "/new.html";
+  fname = Settings::findResourceFile( fname );
   if( FileUtil::fileStat( fname ).find( '+' ) == string::npos
       && lang != "en" )
-    fname = Settings::globalPath() + "/po/en/new.html";
+    fname = Settings::findResourceFile( "po/en/new.html" );
 #if QT_VERSION >= 0x040000
   txt->setSource( QUrl( fname.c_str() ) );
 #else

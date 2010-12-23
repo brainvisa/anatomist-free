@@ -61,7 +61,7 @@ QPixmap ColoredPixmapCache::coloredPixmap( const QColor & rgb, unsigned size,
   if( i == e )
   {
     bg1 = &imgs[ colbgfilename ];
-    bg1->load( (Settings::globalPath() + "/icons/" + colbgfilename).c_str() );
+    bg1->load( Settings::findResourceFile( "icons/" + colbgfilename).c_str() );
   }
   else
     bg1 = &i->second;
@@ -71,7 +71,7 @@ QPixmap ColoredPixmapCache::coloredPixmap( const QColor & rgb, unsigned size,
   if( i == e )
   {
     fg1 = &imgs[ fgfilename ];
-    fg1->load( (Settings::globalPath() + "/icons/" + fgfilename).c_str() );
+    fg1->load( Settings::findResourceFile( "icons/" + fgfilename).c_str() );
   }
   else
     fg1 = &i->second;

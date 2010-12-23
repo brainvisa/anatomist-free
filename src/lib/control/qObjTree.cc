@@ -88,79 +88,79 @@ void QObjectTree::initIcons()
     return;	// already done
 
   string str;
-  str = Settings::globalPath() + "/icons/list_volume.xpm";
+  str = Settings::findResourceFile( "icons/list_volume.xpm" );
   if( !TypeIcons[ AObject::VOLUME ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::VOLUME );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_bucket.xpm";
+  str = Settings::findResourceFile( "icons/list_bucket.xpm" );
   if( !TypeIcons[ AObject::BUCKET ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::BUCKET );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_surface.xpm";
+  str = Settings::findResourceFile( "icons/list_surface.xpm" );
   if( !TypeIcons[ AObject::TRIANG ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::TRIANG );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_list.xpm";
+  str = Settings::findResourceFile( "icons/list_list.xpm" );
   if( !TypeIcons[ AObject::LIST ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::LIST );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_vector.xpm";
+  str = Settings::findResourceFile( "icons/list_vector.xpm" );
   if( !TypeIcons[ AObject::VECTOR ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::VECTOR );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_graph.xpm";
+  str = Settings::findResourceFile( "icons/list_graph.xpm" );
   if( !TypeIcons[ AObject::GRAPH ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::GRAPH );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_node.xpm";
+  str = Settings::findResourceFile( "icons/list_node.xpm" );
   if( !TypeIcons[ AObject::GRAPHOBJECT ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::GRAPHOBJECT );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_fusion2d.xpm";
+  str = Settings::findResourceFile( "icons/list_fusion2d.xpm" );
   if( !TypeIcons[ AObject::FUSION2D ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::FUSION2D );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_fusion3d.xpm";
+  str = Settings::findResourceFile( "icons/list_fusion3d.xpm" );
   if( !TypeIcons[ AObject::FUSION3D ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::FUSION3D );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_fascicle.xpm";
+  str = Settings::findResourceFile( "icons/list_fascicle.xpm" );
   if( !TypeIcons[ AObject::FASCICLE ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::FASCICLE );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_fascgraph.xpm";
+  str = Settings::findResourceFile( "icons/list_fascgraph.xpm" );
   if( !TypeIcons[ AObject::FASCICLEGRAPH ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::FASCICLEGRAPH );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_texture.xpm";
+  str = Settings::findResourceFile( "icons/list_texture.xpm" );
   if( !TypeIcons[ AObject::TEXTURE ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::TEXTURE );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
-  str = Settings::globalPath() + "/icons/list_fusiontexsurf.xpm";
+  str = Settings::findResourceFile( "icons/list_fusiontexsurf.xpm" );
   if( !TypeIcons[ AObject::TEXSURFACE ].load( str.c_str() ) )
     {
       TypeIcons.erase( AObject::TEXSURFACE );
