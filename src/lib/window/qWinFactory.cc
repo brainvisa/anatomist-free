@@ -50,7 +50,6 @@ map<int, QAWindowFactory::Descrip>	QAWindowFactory::_description;
 void QAWindowFactory::loadDefaultPixmaps( int type )
 {
   string tstr = typeString( type );
-  string path = Settings::globalPath();
 
   Descrip & des = _description[ type ];
   if( des.brief.isEmpty() )
