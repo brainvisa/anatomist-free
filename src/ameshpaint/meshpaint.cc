@@ -1,4 +1,7 @@
 #include "meshpaint.h"
+#ifdef USE_SHARE_CONFIG
+#include <brainvisa-share/config.h>
+#endif
 
 template<typename T>
 myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
@@ -116,15 +119,16 @@ MeshPaint::MeshPaint()
 
   char sep = FileUtil::separator();
 
-  #ifdef USE_SHARE_CONFIG
-    string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep + "surfaceanalysis" + sep
-    + "constraint_correspondance.txt";
-  #else
-    string talref = carto::Paths::shfjShared() + sep + "nomenclature" + sep
-        + "surfaceanalysis" + sep + "constraint_correspondance.txt";
-  #endif
+#ifdef USE_SHARE_CONFIG
+  string talref = carto::Paths::globalShared() + sep
+    + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep
+    + "surfaceanalysis" + sep + "constraint_correspondance.txt";
+#else
+  string talref = carto::Paths::shfjShared() + sep + "nomenclature" + sep
+      + "surfaceanalysis" + sep + "constraint_correspondance.txt";
+#endif
 
-    cout << "File contraints loaded : " << talref << endl;
+    cout << "Loading constraints file : " << talref << endl;
 
   constraintList = new QComboBox( );
 

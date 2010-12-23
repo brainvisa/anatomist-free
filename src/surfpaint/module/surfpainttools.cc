@@ -36,6 +36,9 @@
 #include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
 #include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
 #include <aims/geodesicpath/geodesic_algorithm_exact.h>
+#ifdef USE_SHARE_CONFIG
+#include <brainvisa-share/config.h>
+#endif
 
 SurfpaintTools* & SurfpaintTools::my_instance()
 {
@@ -1173,7 +1176,7 @@ void SurfpaintTools::loadConstraintsList()
 {
   char sep = carto::FileUtil::separator();
 
-#if 0 // def USE_SHARE_CONFIG
+#ifdef USE_SHARE_CONFIG
   string talref = carto::Paths::globalShared() + sep + BRAINVISA_SHARE_DIRECTORY + sep + "nomenclature" + sep + "surfaceanalysis" + sep
   + "constraint_correspondance.txt";
 #else
@@ -1181,7 +1184,7 @@ void SurfpaintTools::loadConstraintsList()
       + "surfaceanalysis" + sep + "constraint_correspondance.txt";
 #endif
 
-  cout << "File contraints loaded : " << talref << endl;
+  cout << "Loading constraints file : " << talref << endl;
 
   string line;
   ifstream myfile(talref.c_str());
