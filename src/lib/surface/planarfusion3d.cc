@@ -91,12 +91,12 @@ PlanarFusion3D::PlanarFusion3D( const vector<AObject *> & obj )
 
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
     {
-      string str = Settings::globalPath() + "/icons/list_planarfusion.xpm";
+      string str = Settings::findResourceFile( "icons/list_planarfusion.xpm" );
       if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
-	{
-	  QObjectTree::TypeIcons.erase( _type );
-	  cerr << "Icon " << str.c_str() << " not found\n";
-	}
+      {
+        QObjectTree::TypeIcons.erase( _type );
+        cerr << "Icon " << str.c_str() << " not found\n";
+      }
 
       QObjectTree::TypeNames[ _type ] = "Planar fusion";
     }

@@ -75,7 +75,7 @@ GlobalConfiguration::~GlobalConfiguration()
 
 void GlobalConfiguration::initSyntax()
 {
-  string syntname = Settings::globalPath() + "/config/settings.stx";
+  string syntname = Settings::findResourceFile( "config/settings.stx" );
 
   try
     {

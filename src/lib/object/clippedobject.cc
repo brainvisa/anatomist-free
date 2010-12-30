@@ -72,7 +72,8 @@ ClippedObject::ClippedObject( const vector<AObject *> & obj )
 
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
   {
-    string str = Settings::globalPath() + "/icons/list_clippedobject.png";
+    string str = Settings::findResourceFile(
+      "icons/list_clippedobject.png" );
     if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
     {
       QObjectTree::TypeIcons.erase( _type );

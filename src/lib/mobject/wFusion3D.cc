@@ -126,12 +126,12 @@ Fusion3DWindow::Fusion3DWindow( const set<AObject *> &objL, QWidget* parent,
 
   setCaption( name );
   if( parent == 0 )
-    {
-      QPixmap	anaicon( ( Settings::globalPath() 
-			   + "/icons/icon.xpm" ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
+  {
+    QPixmap	anaicon( Settings::findResourceFile(
+      "icons/icon.xpm" ).c_str() );
+    if( !anaicon.isNull() )
+      setIcon( anaicon );
+  }
 
   drawContents();
 }

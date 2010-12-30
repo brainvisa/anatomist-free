@@ -92,12 +92,12 @@ Fusion2DWindow::Fusion2DWindow( const set<AObject *> &objL,
 
   setCaption( tr( "Fusion 2D control" ) );
   if( parent == 0 )
-    {
-      QPixmap	anaicon( ( Settings::globalPath() 
-			   + "/icons/icon.xpm" ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
+  {
+    QPixmap	anaicon( Settings::findResourceFile(
+                        "icons/icon.xpm" ).c_str() );
+    if( !anaicon.isNull() )
+      setIcon( anaicon );
+  }
 
   drawContents();
 }

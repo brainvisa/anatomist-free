@@ -46,6 +46,7 @@
 #include <cartobase/object/sreader.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/verbose.h>
+#include <cartobase/config/paths.h>
 #include <qpixmap.h>
 #include <stdio.h>
 #include <iostream>
@@ -81,8 +82,8 @@ Hierarchy::Hierarchy( Tree* tr )
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
   {
     char str[200];
-    sprintf( str, ( Settings::globalPath()
-        + "/icons/list_hierarchy.xpm" ).c_str() );
+    sprintf( str, Settings::findResourceFile(
+        "icons/list_hierarchy.xpm" ).c_str() );
     if( !QObjectTree::TypeIcons[ _type ].load( str ) )
     {
       QObjectTree::TypeIcons.erase( _type );
@@ -104,8 +105,8 @@ Hierarchy::Hierarchy( rc_ptr<Tree> tr )
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
   {
     char str[200];
-    sprintf( str, ( Settings::globalPath()
-        + "/icons/list_hierarchy.xpm" ).c_str() );
+    sprintf( str, Settings::findResourceFile(
+        "icons/list_hierarchy.xpm" ).c_str() );
     if( !QObjectTree::TypeIcons[ _type ].load( str ) )
     {
       QObjectTree::TypeIcons.erase( _type );
@@ -151,7 +152,7 @@ AObject* Hierarchy::loadHierarchy( const string & filename, Object options )
       catch( exception & e )
 	{
 	  cerr << e.what() << endl;
-	  sname = Settings::globalPath() + "/syntax/hierarchy.stx";
+	  sname = Settings::findResourceFile( "syntax/hierarchy.stx" );
 
 	  try
 	    {
@@ -218,30 +219,17 @@ bool Hierarchy::save( const string & filename )
     {
       //cout << "init Hierarchy syntax\n";
       _syntax = new SyntaxSet;
-      string sname = Path::singleton().syntax() + "/hierarchy.stx";
+      string sname = Paths::findResourceFile( "syntax/hierarchy.stx" );
       try
-	{
-	  SyntaxReader	sr( sname );
-	  sr.read( *_syntax );
-	}
+      {
+        SyntaxReader	sr( sname );
+        sr.read( *_syntax );
+      }
       catch( exception & e )
-	{
-	  cerr << e.what() << endl;
-	  sname = Settings::globalPath() + "/syntax/hierarchy.stx";
-
-	  try
-	    {
-	      SyntaxReader	sr( sname );
-	      sr.read( *_syntax );
-              if( carto::verbose > 0 )
-	        cout << "Loaded syntax " << sname << ", OK" << endl;
-	    }
-	  catch( exception & e )
-	    {
-	      cerr << "Cannot read syntax for Hierarchy objects :\n";
-	      cerr << e.what() << endl;
-	    }
-	}
+      {
+        cerr << "Cannot read syntax for Hierarchy objects :\n";
+        cerr << e.what() << endl;
+      }
     }
 
   try

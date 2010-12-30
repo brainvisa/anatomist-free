@@ -85,12 +85,12 @@ QTextureWin::QTextureWin( const set<AObject *> & obj,
 {
   setCaption( tr( "Texturing properties" ) );
   if( parent == 0 )
-    {
-      QPixmap	anaicon( ( Settings::globalPath() 
-			   + "/icons/icon.xpm" ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
+  {
+    QPixmap	anaicon( Settings::findResourceFile(
+      "icons/icon.xpm" ).c_str() );
+    if( !anaicon.isNull() )
+      setIcon( anaicon );
+  }
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 5, 5, "mainlayout" );
 

@@ -91,8 +91,8 @@ QGraphProperties::QGraphProperties( const set<AObject *> & obj,
     d( new Private( obj ) )
 {
   setCaption( "Graph display properties" );
-  QPixmap	anaicon( ( Settings::globalPath()
-			   + "/icons/icon.xpm" ).c_str() );
+  QPixmap	anaicon( Settings::findResourceFile(
+                         "icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
     setIcon( anaicon );
 

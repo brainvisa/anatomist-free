@@ -63,12 +63,12 @@ Slice::Slice( const vector<AObject *> & obj )
 
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
     {
-      string str = Settings::globalPath() + "/icons/list_slice.xpm";
+      string str = Settings::findResourceFile( "icons/list_slice.xpm" );
       if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
-	{
-	  QObjectTree::TypeIcons.erase( _type );
-	  cerr << "Icon " << str.c_str() << " not found\n";
-	}
+      {
+        QObjectTree::TypeIcons.erase( _type );
+        cerr << "Icon " << str.c_str() << " not found\n";
+      }
 
       QObjectTree::TypeNames[ _type ] = "Slice";
     }
