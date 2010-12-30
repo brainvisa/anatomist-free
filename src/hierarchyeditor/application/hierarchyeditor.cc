@@ -152,7 +152,7 @@ cout<<"control2"<<endl;
 cout<<"control3"<<endl;
 
   QPixmap	p;
-  if( p.load( ( Settings::globalPath() + "/icons/edit_graph.xpm" ).c_str() ) )
+  if( p.load( Settings::findResourceFile( "icons/edit_graph.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "NodeSelectionControl", p );
 
 }

@@ -143,7 +143,7 @@ VolRender::VolRender( AObject * vol )
   _type = classType();
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
   {
-    string str = Settings::globalPath() + "/icons/list_volrender.png";
+    string str = Settings::findResourceFile( "icons/list_volrender.png" );
     if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
     {
       QObjectTree::TypeIcons.erase( _type );

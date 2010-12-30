@@ -80,7 +80,8 @@ private slots:
   void paintBrush()
   {
     popAllButtonPaintToolBar();
-    string iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+    string iconname = Settings::findResourceFile(
+      "icons/meshPaint/stylo.png" );
     brushButton->setIcon(QIcon(iconname.c_str()));
     brushButton->setChecked(true);
     cout << "paint brush\n";
@@ -91,7 +92,8 @@ private slots:
   void magicBrush()
   {
     popAllButtonPaintToolBar();
-    string iconname = Settings::globalPath() + "/icons/meshPaint/magic_pencil.png";
+    string iconname = Settings::findResourceFile(
+      "icons/meshPaint/magic_pencil.png" );
     brushButton->setIcon(QIcon(iconname.c_str()));
     brushButton->setChecked(true);
     cout << "magic brush\n";
@@ -102,7 +104,8 @@ private slots:
   void erase()
   {
     popAllButtonPaintToolBar();
-    string iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
+    string iconname = Settings::findResourceFile(
+      "icons/meshPaint/erase.png" );
     brushButton->setIcon(QIcon(iconname.c_str()));
     brushButton->setChecked(true);
     cout << "eraser\n";
@@ -113,7 +116,8 @@ private slots:
   void shortPath()
   {
     popAllButtonPaintToolBar();
-    string iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
+    string iconname = Settings::findResourceFile(
+      "icons/meshPaint/shortest.png" );
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "shortPath\n";
@@ -124,7 +128,8 @@ private slots:
   void sulciPath()
   {
     popAllButtonPaintToolBar();
-    string iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
+    string iconname = Settings::findResourceFile(
+      "icons/meshPaint/sulci.png" );
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "sulciPath\n";
@@ -135,7 +140,7 @@ private slots:
   void gyriPath()
   {
     popAllButtonPaintToolBar();
-    string iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
+    string iconname = Settings::findResourceFile( "icons/meshPaint/gyri.png" );
     pathButton->setIcon(QIcon(iconname.c_str()));
     pathButton->setChecked(true);
     cout << "gyriPath\n";

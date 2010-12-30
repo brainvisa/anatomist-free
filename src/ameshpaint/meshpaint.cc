@@ -195,7 +195,7 @@ void myMeshPaint<T>::keyPressEvent(QKeyEvent* event)
 void MeshPaint::createActions()
 {
   //zoom
-  string iconname = Settings::globalPath() + "/icons/meshPaint/zoom.png";
+  string iconname = Settings::findResourceFile( "icons/meshPaint/zoom.png" );
   trackballAction = new QAction(QIcon(iconname.c_str()), tr("&trackball"), this);
   trackballAction->setStatusTip(tr("trackball"));
   trackballAction->setCheckable(true);
@@ -203,14 +203,15 @@ void MeshPaint::createActions()
   connect(trackballAction, SIGNAL(triggered()), this, SLOT(trackball()));
 
   //pipette
-  iconname = Settings::globalPath() + "/icons/meshPaint/pipette.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/pipette.png" );
   colorPickerAction = new QAction(QIcon(iconname.c_str()), tr("&ColorPicker"),this);
   colorPickerAction->setStatusTip(tr("ColorPicker"));
   colorPickerAction->setCheckable(true);
   connect(colorPickerAction, SIGNAL(triggered()), this, SLOT(colorPicker()));
 
   //geodesic Distance
-  iconname = Settings::globalPath() + "/icons/meshPaint/geodesic_distance.png";
+  iconname = Settings::findResourceFile(
+    "icons/meshPaint/geodesic_distance.png" );
   geodesicDistanceAction = new QAction(QIcon(iconname.c_str()), tr("&GeodesicDistance"),this);
   geodesicDistanceAction->setStatusTip(tr("GeodesicDistance"));
   geodesicDistanceAction->setCheckable(true);
@@ -225,7 +226,8 @@ void MeshPaint::createActions()
   distanceSpinBox->setRange(0,1000);
 
   //baguette magique
-  iconname = Settings::globalPath() + "/icons/meshPaint/magic_selection.png";
+  iconname = Settings::findResourceFile(
+    "icons/meshPaint/magic_selection.png" );
   selectionAction = new QAction(QIcon(iconname.c_str()),tr("&magic_selection"), this);
   selectionAction->setStatusTip(tr("magic_selection"));
   selectionAction->setCheckable(true);
@@ -239,7 +241,7 @@ void MeshPaint::createActions()
   toleranceSpinBox->setRange(0,100);
 
   //plus court chemin
-  iconname = Settings::globalPath() + "/icons/meshPaint/shortest.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/shortest.png" );
   pathButton = new QToolButton;
   pathButton->setIcon(QIcon(iconname.c_str()));
   pathButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -253,12 +255,12 @@ void MeshPaint::createActions()
   shortPathAction->setToolTip(tr("Unconstrained"));
   connect(shortPathAction, SIGNAL(triggered()), this, SLOT(shortPath()));
   menu->addAction(shortPathAction);
-  iconname = Settings::globalPath() + "/icons/meshPaint/sulci.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/sulci.png" );
   sulciPathAction = new QAction(QIcon(iconname.c_str()), tr("&sulci"), this);
   sulciPathAction->setToolTip(tr("sulci"));
   connect(sulciPathAction, SIGNAL(triggered()), this, SLOT(sulciPath()));
   menu->addAction(sulciPathAction);
-  iconname = Settings::globalPath() + "/icons/meshPaint/gyri.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/gyri.png" );
   gyriPathAction = new QAction(QIcon(iconname.c_str()), tr("&gyri"), this);
   gyriPathAction->setToolTip(tr("gyri"));
   connect(gyriPathAction, SIGNAL(triggered()), this, SLOT(gyriPath()));
@@ -273,7 +275,7 @@ void MeshPaint::createActions()
   constraintPathSpinBox->setRange(0,100);
 
   //Brush
-  iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
   brushButton = new QToolButton;
   brushButton->setIcon(QIcon(iconname.c_str()));
   brushButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -287,13 +289,13 @@ void MeshPaint::createActions()
   paintBrushAction->setToolTip(tr("paintBrush"));
   connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
   menuBrush->addAction(paintBrushAction);
-  iconname = Settings::globalPath() + "/icons/meshPaint/magic_pencil.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/magic_pencil.png" );
   magicBrushAction = new QAction(QIcon(iconname.c_str()), tr("&magicBrush"), this);
   magicBrushAction->setToolTip(tr("magicBrush"));
   connect(magicBrushAction, SIGNAL(triggered()), this, SLOT(magicBrush()));
   menuBrush->addAction(magicBrushAction);
   //gomme
-  iconname = Settings::globalPath() + "/icons/meshPaint/erase.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/erase.png" );
   eraseAction = new QAction(QIcon(iconname.c_str()), tr("&erase"), this);
   eraseAction->setStatusTip(tr("erase"));
   connect(eraseAction, SIGNAL(triggered()), this, SLOT(erase()));
@@ -302,27 +304,27 @@ void MeshPaint::createActions()
   brushButton->setMenu(menuBrush);
 
 //
-//  iconname = Settings::globalPath() + "/icons/meshPaint/stylo.png";
+//  iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
 //  paintBrushAction = new QAction(QIcon(iconname.c_str()), tr("&PaintBrush"),this);
 //  paintBrushAction->setStatusTip(tr("PaintBrush"));
 //  paintBrushAction->setCheckable(true);
 //  connect(paintBrushAction, SIGNAL(triggered()), this, SLOT(paintBrush()));
 
   //remplissage
-  //iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
-  iconname = Settings::globalPath() + "/icons/meshPaint/valide.png";
+  //iconname = Settings::findResourceFile( "icons/meshPaint/fill.png" );
+  iconname = Settings::findResourceFile( "icons/meshPaint/valide.png" );
   fillAction = new QAction(QIcon(iconname.c_str()), tr("&filling"), this);
   fillAction->setStatusTip(tr("fill"));
   connect(fillAction, SIGNAL(triggered()), this, SLOT(filling()));
 
   //balai
-  iconname = Settings::globalPath() + "/icons/meshPaint/clear.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/clear.png" );
   clearAction = new QAction(QIcon(iconname.c_str()), tr("&clear"), this);
   clearAction->setStatusTip(tr("clear"));
   connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
   //Sauvegarde
-  iconname = Settings::globalPath() + "/icons/meshPaint/sauver.png";
+  iconname = Settings::findResourceFile( "icons/meshPaint/sauver.png" );
   saveAction = new QAction(QIcon(iconname.c_str()), tr("&Save Texture"), this);
   saveAction->setStatusTip(tr("save"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));

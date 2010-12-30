@@ -134,12 +134,12 @@ ASurfMatcher::ASurfMatcher( AObject* o1, AObject* o2 )
 
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
     {
-      string str = Settings::globalPath() + "/icons/list_surfmatcher.xpm";
+      string str = Settings::findResourceFile( "icons/list_surfmatcher.xpm" );
       if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
-	{
-	  QObjectTree::TypeIcons.erase( _type );
-	  cerr << "Icon " << str.c_str() << " not found\n";
-	}
+      {
+        QObjectTree::TypeIcons.erase( _type );
+        cerr << "Icon " << str.c_str() << " not found\n";
+      }
 
       QObjectTree::TypeNames[ _type ] = "SurfaceMatcher";
     }

@@ -578,7 +578,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     string iconname;
 
     //pipette
-    iconname = Settings::globalPath() + "/icons/meshPaint/pipette.png";
+    iconname = Settings::findResourceFile( "icons/meshPaint/pipette.png" );
     colorPickerAction = new QToolButton();
     colorPickerAction->setIcon(QIcon(iconname.c_str()));
     //colorPickerAction->setStatusTip(tr("Texture value selection"));
@@ -653,7 +653,6 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(paintBrushAction, SIGNAL(clicked()), this, SLOT(brush()));
 
     //fill
-    //iconname = Settings::globalPath() + "/icons/meshPaint/fill.png";
     iconname = Settings::findResourceFile( "icons/meshPaint/valide.png" );
     fillAction = new QToolButton();
     fillAction->setIcon(QIcon(iconname.c_str()));

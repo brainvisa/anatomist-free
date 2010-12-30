@@ -176,17 +176,17 @@ void RoiBaseModule::controlsDeclaration()
 
   {
     QPixmap	p;
-    if( p.load( ( Settings::globalPath() + "/icons/draw.xpm" ).c_str() ) )
+    if( p.load( Settings::findResourceFile( "icons/draw.xpm" ).c_str() ) )
       IconDictionary::instance()->addIcon( "PaintControl", p );
   }
   {
     QPixmap	p;
-    if( p.load( ( Settings::globalPath() + "/icons/level.xpm" ).c_str() ) )
+    if( p.load( Settings::findResourceFile( "icons/level.xpm" ).c_str() ) )
       IconDictionary::instance()->addIcon( "ConnectivityThresholdControl", p );
   }
   {
     QPixmap	p;
-    if( p.load( ( Settings::globalPath() + "/icons/name.xpm" ).c_str() ) )
+    if( p.load( Settings::findResourceFile( "icons/name.xpm" ).c_str() ) )
       IconDictionary::instance()->addIcon( "LabelNamingControl", p );
   }
 }

@@ -128,7 +128,7 @@ void RoiAlgoModule::controlsDeclaration()
   
   
   QPixmap	p;
-  if( p.load( ( Settings::globalPath() + "/icons/dynsegment.xpm" ).c_str() ) )
+  if( p.load( Settings::findResourceFile( "icons/dynsegment.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( "DynSegmentControl", p );
 }
 
