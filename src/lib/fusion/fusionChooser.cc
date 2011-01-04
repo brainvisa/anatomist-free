@@ -75,16 +75,17 @@ FusionChooser::Private::Private( const vector<AObject *>* obj )
 }
 
 
-FusionChooser::FusionChooser( const set<FusionMethod *> & methods, 
+FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
 			      QWidget* parent, const char *name, 
 			      bool modal, Qt::WFlags f, 
                               const vector<AObject *>* objects )
   : QDialog( parent, name, modal, f ), d( new Private( objects ) )
 {
-  set<FusionMethod *>::const_iterator	ims, ems = methods.end();
+  multimap<int, FusionMethod *>::const_reverse_iterator
+    ims, ems = methods.rend();
   d->methods.reserve( methods.size() );
-  for( ims=methods.begin(); ims!=ems; ++ims )
-    d->methods.push_back( *ims );
+  for( ims=methods.rbegin(); ims!=ems; ++ims )
+    d->methods.push_back( ims->second );
 
   setCaption( tr( "Which fusion ?" ) );
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 5, 5 );

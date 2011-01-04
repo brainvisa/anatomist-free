@@ -49,7 +49,7 @@ namespace anatomist
     PlaneFusionMethod() {}
     virtual ~PlaneFusionMethod();
 
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
@@ -61,7 +61,7 @@ namespace anatomist
     CylinderFusionMethod() {}
     virtual ~CylinderFusionMethod();
 
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };

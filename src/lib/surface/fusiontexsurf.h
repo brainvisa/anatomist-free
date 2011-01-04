@@ -47,7 +47,7 @@ namespace anatomist
     FusionTexSurfMethod() : FusionMethod() {}
     virtual ~FusionTexSurfMethod() {}
 
-    virtual bool canFusion( const std::set<AObject *> & obj );
+    virtual int canFusion( const std::set<AObject *> & obj );
     virtual AObject* fusion( const std::vector<AObject *> & obj );
     ///	identifier for the method
     virtual std::string ID() const;

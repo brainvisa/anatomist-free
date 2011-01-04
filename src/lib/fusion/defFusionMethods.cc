@@ -61,18 +61,18 @@ string Fusion2dMethod::ID() const
 }
 
 
-bool Fusion2dMethod::canFusion( const set<AObject *> & obj )
+int Fusion2dMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() < 2 )
-    return false;
+    return 0;
 
   set<AObject *>::const_iterator	io, fo=obj.end();
   GLComponent				*gl;
 
   for( io=obj.begin(); io!=fo; ++io )
     if( !(gl = (*io)->glAPI()) || !gl->sliceableAPI() )
-      return false;
-  return true;
+      return 0;
+  return 100;
 }
 
 
@@ -88,10 +88,10 @@ string Fusion3dMethod::ID() const
 }
 
 
-bool Fusion3dMethod::canFusion( const set<AObject *> & obj )
+int Fusion3dMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() < 2 )
-    return( false );
+    return 0;
 
   set<AObject *>::const_iterator	io, fo = obj.end();
   unsigned				ns = 0, nv = 0;
@@ -107,15 +107,15 @@ bool Fusion3dMethod::canFusion( const set<AObject *> & obj )
           else if( glc->glNumVertex( ViewState( 0 ) ) > 0 )
             ++ns;
           else
-            return false;
+            return 0;
         }
       else
-        return false;
+        return 0;
     }
 
   if( ns >= 1 && nv >= 1 )
-    return( true );
-  return( false );
+    return 101;
+  return 0;
 }
 
 
@@ -132,10 +132,10 @@ string PlanarFusion3dMethod::ID() const
 }
 
 
-bool PlanarFusion3dMethod::canFusion( const set<AObject *> & obj )
+int PlanarFusion3dMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )
-    return false;
+    return 0;
 
   set<AObject *>::const_iterator	io, fo = obj.end();
   unsigned				ns = 0, nv = 0;
@@ -150,13 +150,13 @@ bool PlanarFusion3dMethod::canFusion( const set<AObject *> & obj )
 	  if( tr && tr->isPlanar() )
 	    ++ns;
 	  else
-	    return false;
+	    return 0;
 	}
     }
 
   if( ns >= 1 && nv >= 1 )
-    return true;
-  return false;
+    return 30;
+  return 0;
 }
 
 
@@ -166,28 +166,28 @@ AObject* PlanarFusion3dMethod::fusion( const vector<AObject *> & obj )
 }
 
 
-bool FusionTextureMethod::canFusion( const set<AObject *> & obj )
+int FusionTextureMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )
-    return( false );
+    return 0;
 
   set<AObject *>::const_iterator	io = obj.begin();
   ATexture				*t1 = dynamic_cast<ATexture *>( *io );
   if( !t1 || t1->dimTexture() != 1 )
-    return( false );
+    return 0;
   ++io;
   ATexture				*t2 = dynamic_cast<ATexture *>( *io );
   if( !t2 || t2->dimTexture() != 1 )
-    return( false );
+    return 0;
   if( t1->MinT() != t2->MinT() || t1->MaxT() != t2->MaxT()
       || t1->TimeStep() != t2->TimeStep() )
-    return( false );
+    return 0;
 
   float	t, te, it = t1->TimeStep();
   for( t=t1->MinT(), te=t1->MaxT(); t<=te; t+=it )
     if( t1->size( t ) != t2->size( t ) )
-      return( false );
-  return( true );
+      return 0;
+  return 30;
 }
 
 
@@ -233,7 +233,7 @@ string FusionMultiTextureMethod::ID() const
 }
 
 
-bool FusionMultiTextureMethod::canFusion( const set<AObject *> & obj )
+int FusionMultiTextureMethod::canFusion( const set<AObject *> & obj )
 {
   set<AObject *>::const_iterator	io, eo = obj.end();
   GLComponent				*c;
@@ -242,11 +242,11 @@ bool FusionMultiTextureMethod::canFusion( const set<AObject *> & obj )
     {
       c = dynamic_cast<GLComponent *>( *io );
       if( !c )
-        return false;
+        return 0;
       if( c->glNumTextures() == 0 || (*io)->type() == AObject::VOLUME )
-        return false;
+        return 0;
     }
-  return true;
+  return 35;
 }
 
 
@@ -262,7 +262,7 @@ string FusionCutMeshMethod::ID() const
 }
 
 
-bool FusionCutMeshMethod::canFusion( const set<AObject *> & obj )
+int FusionCutMeshMethod::canFusion( const set<AObject *> & obj )
 {
   // cout << "FusionCutMeshMethod::canFusion\n";
   set<AObject *>::const_iterator	io, fo = obj.end();
@@ -283,13 +283,13 @@ bool FusionCutMeshMethod::canFusion( const set<AObject *> & obj )
 	      ++ns;
           }
 	  else
-	    return false;
+	    return 0;
 	}
     }
 
   if( ( ns >= 1 && nv == 1 ) || nc >= 1 )
-    return true;
-  return false;
+    return 40;
+  return 0;
 }
 
 
@@ -305,15 +305,15 @@ string FusionSliceMethod::ID() const
 }
 
 
-bool FusionSliceMethod::canFusion( const set<AObject *> & obj )
+int FusionSliceMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 1 )
-    return false;
+    return 0;
 
   GLComponent *glc = (*obj.begin())->glAPI();
   if( glc && glc->sliceableAPI() )
-    return true;
-  return false;
+    return 37;
+  return 0;
 }
 
 
@@ -323,15 +323,15 @@ AObject* FusionSliceMethod::fusion( const vector<AObject *> & obj )
 }
 
 
-bool FusionRGBAVolumeMethod::canFusion( const std::set<AObject *> & obj )
+int FusionRGBAVolumeMethod::canFusion( const std::set<AObject *> & obj )
 {
   if( obj.size() != 1 )
-    return false;
+    return 0;
 
   GLComponent *glc = (*obj.begin())->glAPI();
   if( glc && glc->sliceableAPI() )
-    return true;
-  return false;
+    return 15;
+  return 0;
 }
 
 
@@ -364,7 +364,7 @@ string FusionClipMethod::ID() const
 }
 
 
-bool FusionClipMethod::canFusion( const set<AObject *> & obj )
+int FusionClipMethod::canFusion( const set<AObject *> & obj )
 {
   set<AObject *>::const_iterator io, eo = obj.end();
   ViewState vs;
@@ -376,7 +376,7 @@ bool FusionClipMethod::canFusion( const set<AObject *> & obj )
       if( dynamic_cast<SelfSliceable *>( *io ) )
         continue;
       else
-        return false;
+        return 0;
     }
     if( glc->sliceableAPI() ) // volumes, fusions 2D ...
       continue;
@@ -384,9 +384,9 @@ bool FusionClipMethod::canFusion( const set<AObject *> & obj )
       continue;
     if( glc->glNumVertex( vs ) != 0 ) // meshes and others
       continue;
-    return false; // otherwise: not accepted
+    return 0; // otherwise: not accepted
   }
-  return true;
+  return 10;
 }
 
 
@@ -404,10 +404,10 @@ string FusionTesselationMethod::ID() const
 }
 
 
-bool FusionTesselationMethod::canFusion( const set<AObject *> & obj )
+int FusionTesselationMethod::canFusion( const set<AObject *> & obj )
 {
   if( theAnatomist->userLevel() < 3 )
-    return false;
+    return 0;
 
   set<AObject *>::const_iterator io, eo = obj.end();
   ViewState vs;
@@ -415,11 +415,11 @@ bool FusionTesselationMethod::canFusion( const set<AObject *> & obj )
   {
     GLComponent *glc = (*io)->glAPI();
     if( !glc )
-      return false;
+      return 0;
     if( glc->glPolygonSize( vs ) != 2 ) // segments meshes only
-      return false;
+      return 0;
   }
-  return true;
+  return 25;
 }
 
 

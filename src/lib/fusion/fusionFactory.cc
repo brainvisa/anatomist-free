@@ -116,7 +116,7 @@ bool FusionFactory::canFusion( const set<AObject *> & objects )
   set<FusionMethod *>::const_iterator	im, fm=_methods.end();
 
   for( im=_methods.begin(); im!=fm; ++im )
-    if( (*im)->canFusion( objects ) )
+    if( (*im)->canFusion( objects ) != 0 )
       return( true );
   return( false );
 }
@@ -139,23 +139,26 @@ FusionMethod* FusionFactory::chooseMethod( vector<AObject *> & objects,
   if( objects.size() == 0 )
     return 0;
 
-  set<FusionMethod *>			sm;
-  set<FusionMethod *>::const_iterator	im, fm=_methods.end();
+  multimap<int, FusionMethod *> sm;
+  set<FusionMethod *>::const_iterator im, fm=_methods.end();
   set<AObject *>	objs;
 
   objs.insert( objects.begin(), objects.end() );
   for( im=_methods.begin(); im!=fm; ++im )
-    if( (*im)->canFusion( objs ) )
-      {
-        sm.insert( *im );
-        ordering |= (*im)->orderingMatters();
-      }
+  {
+    int p = (*im)->canFusion( objs );
+    if( p != 0 )
+    {
+      sm.insert( make_pair( p, *im ) );
+      ordering |= (*im)->orderingMatters();
+    }
+  }
 
   if( sm.empty() )
     return 0;	// not found
 
   if( sm.size() == 1 && ( !ordering || objects.size() == 1 ) )
-    return( *sm.begin() );
+    return sm.begin()->second;
 
   vector<AObject *>	*obj = 0;
   if( ordering )
@@ -178,14 +181,18 @@ FusionMethod* FusionFactory::chooseMethod( vector<AObject *> & objects,
 }
 
 
-set<string> FusionFactory::allowedMethods( const set<AObject *> & objs ) const
+multimap<int, string> FusionFactory::allowedMethods( const set<AObject *>
+  & objs ) const
 {
-  set<string> meths;
+  multimap<int, string> meths;
   set<FusionMethod *>::const_iterator	im, fm=_methods.end();
 
   for( im=_methods.begin(); im!=fm; ++im )
-    if( (*im)->canFusion( objs ) )
-      meths.insert( (*im)->ID() );
+  {
+    int p = (*im)->canFusion( objs );
+    if( p != 0 )
+      meths.insert( make_pair( p, (*im)->ID() ) );
+  }
 
   return meths;
 }

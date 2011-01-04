@@ -52,10 +52,10 @@ ASurfMatchMethod::~ASurfMatchMethod()
 }
 
 
-bool ASurfMatchMethod::canFusion( const set<AObject *> & obj )
+int ASurfMatchMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )
-    return( false );
+    return 0;
 
   set<AObject *>::const_iterator	io = obj.begin();
   AObject				*o1, *o2;
@@ -68,9 +68,9 @@ bool ASurfMatchMethod::canFusion( const set<AObject *> & obj )
   go2 = dynamic_cast<ATriangulated *>( o2 );
 
   if( go1 && go2 )
-    return( true );
+    return 8;
   else
-    return( false );
+    return 0;
 }
 
 

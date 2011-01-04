@@ -49,15 +49,15 @@ VolRenderFusionMethod::~VolRenderFusionMethod()
 }
 
 
-bool VolRenderFusionMethod::canFusion( const std::set<AObject *> & obj )
+int VolRenderFusionMethod::canFusion( const std::set<AObject *> & obj )
 {
   if( obj.size() != 1 )
-    return false;
+    return 0;
 
   //if( (*obj.begin())->type() == AObject::VOLUME )
   if( dynamic_cast<Sliceable *>( *obj.begin() ) )
-    return true;
-  return false;
+    return 60;
+  return 0;
 }
 
 

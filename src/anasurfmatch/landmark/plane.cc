@@ -68,10 +68,10 @@ PlaneFusionMethod::~PlaneFusionMethod()
 }
 
 
-bool PlaneFusionMethod::canFusion( const set<AObject *> & obj )
+int PlaneFusionMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 3 )
-    return false;
+    return 0;
 
   float					diam = 8;
   set<AObject *>::const_iterator	io, fo=obj.end();
@@ -81,14 +81,14 @@ bool PlaneFusionMethod::canFusion( const set<AObject *> & obj )
     {
       glo = (*io)->glAPI();
       if( !glo )
-	return false;
+	return 0;
       if( !(*io)->boundingBox( bmin, bmax ) )
-        return false;
+        return 0;
       if( (bmax - bmin).norm() > diam )
-        return false;	// avoid big objects
+        return 0;	// avoid big objects
     }
 
-  return true;
+  return 3;
 }
 
 
@@ -235,10 +235,10 @@ CylinderFusionMethod::~CylinderFusionMethod()
 }
 
 
-bool CylinderFusionMethod::canFusion( const set<AObject *> & obj )
+int CylinderFusionMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )
-    return false;
+    return 0;
 
   float					diam = 12;
   set<AObject *>::const_iterator	io, fo=obj.end();
@@ -248,14 +248,14 @@ bool CylinderFusionMethod::canFusion( const set<AObject *> & obj )
     {
       glo = (*io)->glAPI();
       if( !glo )
-	return false;
+	return 0;
       if( !(*io)->boundingBox( bmin, bmax ) )
-        return false;
+        return 0;
       if( (bmax - bmin).norm() > diam )
-        return false;	// avoid big objects
+        return 0;	// avoid big objects
     }
 
-  return true;
+  return 5;
 }
 
 

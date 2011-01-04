@@ -121,11 +121,13 @@ FusionInfoCommand::doit()
   }
   else
   {
-    set<string> meths = FusionFactory::factory()->
+    multimap<int, string> meths = FusionFactory::factory()->
       allowedMethods( set<AObject *>( _obj.begin(), _obj.end() ) );
     vector<string> mvec;
     mvec.reserve( meths.size() );
-    mvec.insert( mvec.begin(), meths.begin(), meths.end() );
+    multimap<int, string>::const_reverse_iterator im, em = meths.rend();
+    for( im=meths.rbegin(); im!=em; ++im )
+      mvec.push_back( im->second );
     ex->setProperty( "allowed_methods", mvec );
   }
 

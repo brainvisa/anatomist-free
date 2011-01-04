@@ -50,7 +50,7 @@ namespace anatomist
     Fusion2dMethod() {}
     virtual ~Fusion2dMethod() {}
 
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     ///	creates the fusion
     virtual AObject* fusion( const std::vector<AObject *> & );
     ///	identifier for the method
@@ -74,7 +74,7 @@ namespace anatomist
   public:
     Fusion3dMethod() {}
     virtual ~Fusion3dMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     ///	creates the fusion
     virtual AObject* fusion( const std::vector<AObject *> & );
     ///	identifier for the method
@@ -91,7 +91,7 @@ namespace anatomist
   public:
     PlanarFusion3dMethod() {}
     virtual ~PlanarFusion3dMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     ///	creates the fusion
     virtual AObject* fusion( const std::vector<AObject *> & );
     ///	identifier for the method
@@ -108,7 +108,7 @@ namespace anatomist
   public:
     FusionTextureMethod() {}
     virtual ~FusionTextureMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
@@ -119,7 +119,7 @@ namespace anatomist
   public:
     FusionMultiTextureMethod() {}
     virtual ~FusionMultiTextureMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
@@ -130,7 +130,7 @@ namespace anatomist
   public:
     FusionCutMeshMethod() {}
     virtual ~FusionCutMeshMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
@@ -141,7 +141,7 @@ namespace anatomist
   public:
     FusionSliceMethod() {}
     virtual ~FusionSliceMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
@@ -152,7 +152,7 @@ namespace anatomist
   public:
     FusionRGBAVolumeMethod() {}
     virtual ~FusionRGBAVolumeMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
@@ -163,7 +163,7 @@ namespace anatomist
     public:
       FusionClipMethod() {}
       virtual ~FusionClipMethod() {}
-      virtual bool canFusion( const std::set<AObject *> & );
+      virtual int canFusion( const std::set<AObject *> & );
       virtual AObject* fusion( const std::vector<AObject *> & );
       virtual std::string ID() const;
   };
@@ -174,7 +174,7 @@ namespace anatomist
   public:
     FusionTesselationMethod() {}
     virtual ~FusionTesselationMethod() {}
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };

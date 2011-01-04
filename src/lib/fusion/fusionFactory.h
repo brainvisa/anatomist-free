@@ -38,6 +38,7 @@
 
 #include <list>
 #include <set>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -58,7 +59,10 @@ namespace anatomist
     FusionMethod() {}
     virtual ~FusionMethod();
 
-    virtual bool canFusion( const std::set<AObject *> & ) = 0;
+    /** returns 0 if fusion is not possible on the given objects, or a
+        positive number if it is allowed. The returned number is a priority
+        (or likelihood) for that fusion on the given objects */
+    virtual int canFusion( const std::set<AObject *> & ) = 0;
     ///	creates the fusion
     virtual AObject* fusion( const std::vector<AObject *> & ) = 0;
     ///	identifier for the method
@@ -84,7 +88,9 @@ namespace anatomist
     virtual FusionMethod* chooseMethod( const std::set<AObject *> & );
     virtual FusionMethod* chooseMethod( std::vector<AObject *> &, 
                                         bool allowreorder = false );
-    virtual std::set<std::string>
+    /** lists all possible fusions on the given objects, classed with a
+        priority */
+    virtual std::multimap<int, std::string>
         allowedMethods( const std::set<AObject *> & ) const;
     ///	Selects the method with ID name (if any)
     virtual FusionMethod* method( const std::string & name ) const;

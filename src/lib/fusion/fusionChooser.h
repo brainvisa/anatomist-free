@@ -38,6 +38,7 @@
 #include <qdialog.h>
 #include <set>
 #include <vector>
+#include <map>
 
 namespace anatomist
 {
@@ -51,7 +52,7 @@ class FusionChooser : public QDialog
   Q_OBJECT
 
 public:
-  FusionChooser( const std::set<anatomist::FusionMethod *> & methods, 
+  FusionChooser( const std::multimap<int, anatomist::FusionMethod *> & methods,
 		 QWidget* parent = 0,
 		 const char *name = 0, bool modal = true, Qt::WFlags f = 0, 
                  const std::vector<anatomist::AObject *>* objects = 0 );

@@ -51,10 +51,10 @@ string AInterpolerMethod::ID() const
   return( QT_TRANSLATE_NOOP( "FusionChooser", "Interpoler" ) );
 }
 
-bool AInterpolerMethod::canFusion( const set<AObject *> & obj )
+int AInterpolerMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )
-    return( false );
+    return 0;
 
   set<AObject *>::const_iterator	io = obj.begin();
   AObject				*o1, *o2;
@@ -73,14 +73,14 @@ bool AInterpolerMethod::canFusion( const set<AObject *> & obj )
       o2 = o;
     }
   if( !go1 )
-    return( false );
+    return 0;
 
   go2 = dynamic_cast<ATexSurface *>( o2 );
 
   if( go2 )
-    return( true );
+    return 18;
   else
-    return( false );
+    return 0;
 }
 
 

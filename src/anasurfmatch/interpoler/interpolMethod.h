@@ -48,7 +48,7 @@ namespace anatomist
     AInterpolerMethod() {}
     virtual ~AInterpolerMethod();
 
-    virtual bool canFusion( const std::set<AObject *> & );
+    virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
 

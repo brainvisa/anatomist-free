@@ -47,10 +47,10 @@ string FusionTexSurfMethod::ID() const
 }
 
 
-bool FusionTexSurfMethod::canFusion( const set<AObject *> & obj )
+int FusionTexSurfMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )
-    return false;
+    return 0;
 
   GLComponent				*o1, *o2;
   set<AObject *>::const_iterator	io;
@@ -58,19 +58,19 @@ bool FusionTexSurfMethod::canFusion( const set<AObject *> & obj )
   io = obj.begin();
   o1 = (*io)->glAPI();
   if( !o1 || o1->sliceableAPI() )
-    return false;
+    return 0;
   ++io;
   o2 = (*io)->glAPI();
   if( !o2 || o2->sliceableAPI() )
-    return false;
+    return 0;
 
   ViewState	s( 0 );
   if( o1->glNumPolygon( s ) != 0 && o2->glNumTextures() != 0 )
-    return true;
+    return 80;
   if( o2->glNumPolygon( s ) != 0 && o1->glNumTextures() != 0 )
-    return true;
+    return 80;
 
-  return false;
+  return 0;
 }
 
 
