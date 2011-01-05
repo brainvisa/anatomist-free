@@ -56,7 +56,7 @@ int VolRenderFusionMethod::canFusion( const std::set<AObject *> & obj )
 
   //if( (*obj.begin())->type() == AObject::VOLUME )
   if( dynamic_cast<Sliceable *>( *obj.begin() ) )
-    return 60;
+    return 120;
   return 0;
 }
 

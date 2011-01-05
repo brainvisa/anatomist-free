@@ -72,7 +72,7 @@ int Fusion2dMethod::canFusion( const set<AObject *> & obj )
   for( io=obj.begin(); io!=fo; ++io )
     if( !(gl = (*io)->glAPI()) || !gl->sliceableAPI() )
       return 0;
-  return 100;
+  return 140;
 }
 
 
@@ -114,7 +114,7 @@ int Fusion3dMethod::canFusion( const set<AObject *> & obj )
     }
 
   if( ns >= 1 && nv >= 1 )
-    return 101;
+    return 150;
   return 0;
 }
 
@@ -143,19 +143,19 @@ int PlanarFusion3dMethod::canFusion( const set<AObject *> & obj )
   for( io=obj.begin(); io!=fo; ++io )
     {
       if( (*io)->Is2DObject() )
-	++nv;
+        ++nv;
       else
-	{
-	  ATriangulated	*tr = dynamic_cast<ATriangulated*>( *io );
-	  if( tr && tr->isPlanar() )
-	    ++ns;
-	  else
-	    return 0;
-	}
+      {
+        ATriangulated	*tr = dynamic_cast<ATriangulated*>( *io );
+        if( tr && tr->isPlanar() )
+          ++ns;
+        else
+          return 0;
+      }
     }
 
   if( ns >= 1 && nv >= 1 )
-    return 30;
+    return 160;
   return 0;
 }
 
@@ -187,7 +187,7 @@ int FusionTextureMethod::canFusion( const set<AObject *> & obj )
   for( t=t1->MinT(), te=t1->MaxT(); t<=te; t+=it )
     if( t1->size( t ) != t2->size( t ) )
       return 0;
-  return 30;
+  return 50;
 }
 
 
@@ -246,7 +246,7 @@ int FusionMultiTextureMethod::canFusion( const set<AObject *> & obj )
       if( c->glNumTextures() == 0 || (*io)->type() == AObject::VOLUME )
         return 0;
     }
-  return 35;
+  return 60;
 }
 
 
@@ -288,7 +288,7 @@ int FusionCutMeshMethod::canFusion( const set<AObject *> & obj )
     }
 
   if( ( ns >= 1 && nv == 1 ) || nc >= 1 )
-    return 40;
+    return 110;
   return 0;
 }
 
@@ -312,7 +312,7 @@ int FusionSliceMethod::canFusion( const set<AObject *> & obj )
 
   GLComponent *glc = (*obj.begin())->glAPI();
   if( glc && glc->sliceableAPI() )
-    return 37;
+    return 80;
   return 0;
 }
 
@@ -330,7 +330,7 @@ int FusionRGBAVolumeMethod::canFusion( const std::set<AObject *> & obj )
 
   GLComponent *glc = (*obj.begin())->glAPI();
   if( glc && glc->sliceableAPI() )
-    return 15;
+    return 90;
   return 0;
 }
 
@@ -419,7 +419,7 @@ int FusionTesselationMethod::canFusion( const set<AObject *> & obj )
     if( glc->glPolygonSize( vs ) != 2 ) // segments meshes only
       return 0;
   }
-  return 25;
+  return 100;
 }
 
 

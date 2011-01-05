@@ -289,7 +289,7 @@ class ModelsFusionMethod(anatomist.FusionMethod):
 				if isinstance(t, sigraph.FRGraph)])
 		if nCgraph != 1 or (nFRGraph != len(objects) - 1):
 			return 0
-		return 13
+		return 30
 
 	def fusion(self, objects):
 		import sigraph

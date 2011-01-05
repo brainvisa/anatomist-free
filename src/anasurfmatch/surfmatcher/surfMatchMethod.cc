@@ -68,7 +68,7 @@ int ASurfMatchMethod::canFusion( const set<AObject *> & obj )
   go2 = dynamic_cast<ATriangulated *>( o2 );
 
   if( go1 && go2 )
-    return 8;
+    return 20;
   else
     return 0;
 }

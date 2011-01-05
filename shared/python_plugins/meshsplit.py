@@ -58,7 +58,7 @@ class MeshSplitFusionMethod(anatomist.FusionMethod):
       else:
         return 0
     if mesh and tex:
-      return 37
+      return 70
     return 0
 
   def fusion(self, objects):

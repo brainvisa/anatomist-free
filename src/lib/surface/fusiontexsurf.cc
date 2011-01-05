@@ -68,7 +68,7 @@ int FusionTexSurfMethod::canFusion( const set<AObject *> & obj )
   if( o1->glNumPolygon( s ) != 0 && o2->glNumTextures() != 0 )
     return 80;
   if( o2->glNumPolygon( s ) != 0 && o1->glNumTextures() != 0 )
-    return 80;
+    return 130;
 
   return 0;
 }

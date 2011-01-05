@@ -78,7 +78,7 @@ int AInterpolerMethod::canFusion( const set<AObject *> & obj )
   go2 = dynamic_cast<ATexSurface *>( o2 );
 
   if( go2 )
-    return 18;
+    return 40;
   else
     return 0;
 }
