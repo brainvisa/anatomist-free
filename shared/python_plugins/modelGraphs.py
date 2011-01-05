@@ -277,19 +277,19 @@ class ModelsFusionMethod(anatomist.FusionMethod):
 
 	def canFusion(self, objects):
 		import sigraph
-		if len(objects) not in [2, 3]: return False
+		if len(objects) not in [2, 3]: return 0
 		types = []
 		for o in objects:
 			if not isinstance(o, anatomist.AGraph):
-				return False
+				return 0
 			types.append(o.graph())
 		nCgraph = len([t for t in types \
 				if isinstance(t, sigraph.CGraph)])
 		nFRGraph = len([t for t in types \
 				if isinstance(t, sigraph.FRGraph)])
 		if nCgraph != 1 or (nFRGraph != len(objects) - 1):
-			return False
-		return True
+			return 0
+		return 13
 
 	def fusion(self, objects):
 		import sigraph

@@ -47,7 +47,7 @@ class MeshSplitFusionMethod(anatomist.FusionMethod):
 
   def canFusion(self, objects):
     if len(objects) != 2:
-      return False
+      return 0
     mesh = None
     tex = None
     for o in objects:
@@ -56,10 +56,10 @@ class MeshSplitFusionMethod(anatomist.FusionMethod):
       elif o.type() == anatomist.AObject.TEXTURE:
         tex = o
       else:
-        return False
+        return 0
     if mesh and tex:
-      return True
-    return False
+      return 37
+    return 0
 
   def fusion(self, objects):
     mesh = None
