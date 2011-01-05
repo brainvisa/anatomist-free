@@ -1175,7 +1175,7 @@ void SurfpaintTools::loadConstraintsList()
   char sep = carto::FileUtil::separator();
 
   string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
-    + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
+    + "surfaceanalysis" + sep + "constraint_correspondance.txt" , "shfj" );
 
   cout << "Loading constraints file : " << consfile << endl;
 
