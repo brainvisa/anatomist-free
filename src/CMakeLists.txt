@@ -1,7 +1,6 @@
 add_subdirectory(lib)
 add_subdirectory(anatomist)
-message( "WARNING: ameshpaint is not configured yet for compilation with brainvisa-cmake" )
-#add_subdirectory(ameshpaint)
+add_subdirectory(ameshpaint)
 add_subdirectory(mkhierarchy)
 add_subdirectory(hierarchyeditor)
 add_subdirectory(anasurfmatch)
