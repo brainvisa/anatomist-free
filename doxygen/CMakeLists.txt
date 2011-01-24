@@ -8,4 +8,5 @@ IF ( DOXYGEN_FOUND )
   set( DOXYFILE_TAGFILES "${CMAKE_BINARY_DIR}/share/doc/aims-gpl-${aims-gpl_version}/doxygen/aims-gpl.tag=../../aims-gpl-${aims-gpl_version}/doxygen ${CMAKE_BINARY_DIR}/share/doc/aimsdata-${aims-free_version}/doxygen/aimsdata.tag=../../aimsdata-${aims-free_version}/doxygen ${CMAKE_BINARY_DIR}/share/doc/graph-${aims-free_version}/doxygen/graph.tag=../../graph-${aims-free_version}/doxygen ${CMAKE_BINARY_DIR}/share/doc/cartobase-${aims-free_version}/doxygen/cartobase.tag=../../cartobase-${aims-free_version}/doxygen ${CMAKE_BINARY_DIR}/share/doc/cartodata-${aims-free_version}/doxygen/cartodata.tag=../../cartodata-${aims-free_version}/doxygen")
   BRAINVISA_GENERATE_DOXYGEN_DOC( _doxygenInput  head_${component_name}.html ${component_name}.png ${component_name}.gif
                                   COMPONENT "${component_name}" )
+  add_dependencies( ${component_name}-doxygen aims-gpl-doxygen aimsdata-doxygen graph-doxygen cartobase-doxygen cartodata-doxygen )
 ENDIF ( DOXYGEN_FOUND )
