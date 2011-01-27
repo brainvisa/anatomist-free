@@ -174,13 +174,15 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   vlay->addWidget( gpb );
   geng->setExclusive( true );
 #else // Qt 3
-  d->genbox =  new QVButtonGroup( d->genbox );
+  d->genbox = new QVButtonGroup( tr( "Texture generation" ), vbox );
   new QRadioButton( tr( "None" ), d->genbox );
   new QRadioButton( tr( "Linear - object" ), d->genbox );
   new QRadioButton( tr( "Linear - eye" ), d->genbox );
   new QRadioButton( tr( "Sphere reflection" ), d->genbox );
   new QRadioButton( tr( "Reflection" ), d->genbox );
   new QRadioButton( tr( "Normal" ), d->genbox );
+  QPushButton	*gpb = new QPushButton( tr( "Parameters..." ), d->genbox,
+                                      "genparams_button" );
   d->genbox->setRadioButtonExclusive( true );
   d->genbox->setExclusive( false );
 #endif
