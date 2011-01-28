@@ -1,4 +1,5 @@
 BRAINVISA_GET_FILE_LIST_FROM_PRO( project.pro "HEADERS" _headers "SOURCES" _sources )
+set(LIB_HEADERS ${_headers} PARENT_SCOPE)
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
 BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anatomist SHARED ${_sources} )

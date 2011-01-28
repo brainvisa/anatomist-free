@@ -1,5 +1,6 @@
 BRAINVISA_GET_FILE_LIST_FROM_PRO( bundleprofile.pro "HEADERS" _headers "SOURCES" _sources )
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )
+set(BUNDLEPROFILE_HEADERS ${_headers} PARENT_SCOPE)
 add_library( bundle_anaprofile MODULE ${_sources} )
 add_dependencies( bundle_anaprofile ${headersTarget} )
 if( NOT APPLE )
