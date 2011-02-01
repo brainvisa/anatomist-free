@@ -2010,7 +2010,7 @@ RoiManagementAction::selectHierarchy( const string& hieName, int hieId )
   if( hieName != "Free" ){
     AObject * obj = _sharedData->getObjectByName( Hierarchy::classType(), hieName ) ;
     if ( ! obj ){
-      Command	*cmd = new LoadObjectCommand( Path::Path().hierarchy() + "/"
+      Command	*cmd = new LoadObjectCommand( Path().hierarchy() + "/"
 					      + hieName ) ;
       theProcessor->execute( cmd ) ;
       _sharedData->myHierarchyNamesChanged = true ;
@@ -2439,7 +2439,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
     }
 
   if( objCount == 0 ){
-    Command	*cmd4 = new LoadObjectCommand( Path::Path().hierarchy() 
+    Command	*cmd4 = new LoadObjectCommand( Path().hierarchy() 
 					       + "/neuronames.hie" ) ;
     theProcessor->execute( cmd4 ) ;
     _sharedData->myHierarchyNamesChanged = true ;
@@ -2670,7 +2670,7 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
     }
 
   if( objCount == 0 ){
-    Command	*cmd4 = new LoadObjectCommand( Path::Path().hierarchy() 
+    Command	*cmd4 = new LoadObjectCommand( Path().hierarchy() 
 					       + "/neuronames.hie" ) ;
     theProcessor->execute( cmd4 ) ;
     _sharedData->myHierarchyNamesChanged = true ;
