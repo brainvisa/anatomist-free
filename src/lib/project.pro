@@ -106,6 +106,7 @@ HEADERS = \
 	surface/cutmesh.h \
 	surface/fusiontexsurf.h \
 	surface/glcomponent.h \
+        surface/glcomponent_internals.h \
 	surface/globject.h \
 	surface/mtexture.h \
 	surface/planarfusion3d.h \

@@ -31,7 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <anatomist/surface/glcomponent.h>
+#include <anatomist/surface/glcomponent_internals.h>
 #include <anatomist/color/Material.h>
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/window/viewstate.h>
@@ -50,31 +50,6 @@
 using namespace anatomist;
 using namespace carto;
 using namespace std;
-
-namespace
-{
-
-  struct TexInfo
-  {
-    TexInfo();
-
-    GLComponent::glTextureMode		mode;
-    GLComponent::glTextureFiltering	filter;
-    GLComponent::glAutoTexturingMode	automode;
-    float				rate;
-    bool				changed;
-    bool				envchanged;
-    map<string, RefGLItem>		name;
-    map<string, RefGLItem>		texenv;
-    GLComponent::TexExtrema		extrema;
-    bool				rgbinterp;
-    float				texgenparams_object[3][4];
-    float				texgenparams_eye[3][4];
-    GLfloat                             texscale[3];
-    GLfloat                             texoffset[3];
-  };
-
-}
 
 
 struct GLComponent::Private
@@ -238,7 +213,7 @@ GLTexture &  GLComponent::Private::batex()
 }
 
 
-TexInfo::TexInfo()
+GLComponent::TexInfo::TexInfo()
   : mode( GLComponent::glGEOMETRIC ), filter( GLComponent::glFILT_NEAREST ), 
     automode( GLComponent::glTEX_MANUAL ), rate( 1. ), 
     changed( true ), envchanged( true ), rgbinterp( false )
@@ -340,7 +315,7 @@ unsigned GLComponent::glNumTextures( const ViewState & ) const
 
 GLComponent::glTextureMode GLComponent::glTexMode( unsigned tex ) const
 {
-  return d->textures[tex].mode;
+  return glTexInfo( tex ).mode;
 }
 
 
@@ -357,7 +332,7 @@ void GLComponent::glSetTexMode( GLComponent::glTextureMode mode, unsigned tex )
 GLComponent::glAutoTexturingMode 
 GLComponent::glAutoTexMode( unsigned tex ) const
 {
-  return d->textures[tex].automode;
+  return glTexInfo( tex ).automode;
 }
 
 
@@ -371,14 +346,13 @@ void GLComponent::glSetAutoTexMode( GLComponent::glAutoTexturingMode mode,
 
 float GLComponent::glTexRate( unsigned tex ) const
 {
-  return d->textures[ tex ].rate;
+  return glTexInfo( tex ).rate;
 }
 
 
 void GLComponent::glSetTexRate( float rate, unsigned tex )
 {
   d->textures[ tex ].rate = rate;
-  //if( d->textures[ tex ].mode == glLINEAR )
   glSetTexImageChanged( true, tex );
 }
 
@@ -386,7 +360,7 @@ void GLComponent::glSetTexRate( float rate, unsigned tex )
 GLComponent::glTextureFiltering 
 GLComponent::glTexFiltering( unsigned tex ) const
 {
-  return d->textures[ tex ].filter;
+  return glTexInfo( tex ).filter;
 }
 
 
@@ -669,7 +643,8 @@ GLPrimitives GLComponent::glTexEnvGLL( const ViewState & state,
     }
 
   string s = viewStateID( glTEXENV, state );
-  TexInfo	& t = d->textures[ tex ];
+  const TexInfo	& t = glTexInfo( tex );
+  TexInfo & ti = d->textures[ tex ];
   bool	changed = glTexEnvChanged( tex );
   if( !changed )
     {
@@ -682,7 +657,7 @@ GLPrimitives GLComponent::glTexEnvGLL( const ViewState & state,
         }
     }
   if( changed )
-    t.texenv.clear();
+    ti.texenv.clear();
 
   GLList	*l = new GLList;
   l->generate();
@@ -710,12 +685,12 @@ GLPrimitives GLComponent::glTexEnvGLL( const ViewState & state,
       for( ip=tx.begin(); ip!=ep; ++ip )
         ne->items.push_back( *ip );
     }
-  t.texenv[ s ] = rel;
+  ti.texenv[ s ] = rel;
 
   if( l->item() )
     p.push_back( rel );
   if( changed )
-    t.envchanged = false;
+    ti.envchanged = false;
   return p;
 }
 
@@ -775,7 +750,8 @@ GLPrimitives GLComponent::glTexNameGLL( const ViewState & state,
   bool		changed;
   string	s = viewStateID( glTEXIMAGE, state );
 
-  TexInfo	& t = d->textures[tex];
+  const TexInfo	& t = glTexInfo( tex );
+  TexInfo & ti = d->textures[ tex ];
   changed = glTexImageChanged( tex );
   if( !changed )
     {
@@ -792,12 +768,12 @@ GLPrimitives GLComponent::glTexNameGLL( const ViewState & state,
 
   if( changed )
     {
-      t.name.clear();
-      t.texenv.clear();
+      ti.name.clear();
+      ti.texenv.clear();
     }
 
   //glSetTexEnvChanged( tex );
-  t.envchanged = true;
+  ti.envchanged = true;
 
   GLTexture	*l( new GLTexture );
   l->generate();
@@ -810,12 +786,12 @@ GLPrimitives GLComponent::glTexNameGLL( const ViewState & state,
     }
 
   RefGLItem	rl( l );
-  t.name[ s ] = rl;
+  ti.name[ s ] = rl;
   if( l->item() )
     p.push_back( rl );
   if( changed )
     //glSetTexImageChanged( false, tex );
-    t.changed = false;
+    ti.changed = false;
 
   return p;
 }
@@ -848,7 +824,7 @@ void GLComponent::glSetTexNameGLL( const string & state, RefGLItem x,
 
 bool GLComponent::glTexImageChanged( unsigned tex ) const
 {
-  return d->textures[ tex ].changed;
+  return glTexInfo( tex ).changed;
 }
 
 
@@ -879,7 +855,7 @@ bool GLComponent::glTexEnvChanged( unsigned tex ) const
 {
   /* cout << "GLComponent::glTexEnvChanged( " << tex 
      << " )" << endl; */
-  return d->textures[ tex ].envchanged;
+  return glTexInfo( tex ).envchanged;
 }
 
 
@@ -918,7 +894,8 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   unsigned	dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
   int		xs, ys;
   unsigned	dimtex = glDimTex( state, tex );
-  TexInfo	& t = d->textures[ tex ];
+  const TexInfo	& t = glTexInfo( tex );
+  TexInfo & ti = d->textures[ tex ];
 
   dimx = dimpx;
   dimy = dimpy;
@@ -1050,12 +1027,12 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
     dybis = -dy / dimy;
     dy = 0.;
   }
-  t.texscale[0] = fxbis;
-  t.texscale[1] = fybis;
-  t.texscale[2] = 1.;
-  t.texoffset[0] = dxbis;
-  t.texoffset[1] = dybis;
-  t.texoffset[2] = 0.;
+  ti.texscale[0] = fxbis;
+  ti.texscale[1] = fybis;
+  ti.texscale[2] = 1.;
+  ti.texoffset[0] = dxbis;
+  ti.texoffset[1] = dybis;
+  ti.texoffset[2] = 0.;
 
   // allocate colormap
   GLfloat	*texImage = new GLfloat[ dimx*dimy*4 ];
@@ -1097,9 +1074,9 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
         *ptr++ = ( (GLfloat) rgb.blue()  / 255 ) * r + ir;
         *ptr++ = (GLfloat) rgb.alpha() / 255;
       }
-      }
     }
-   /* cout << "texture : " << dimx << " x " << dimy << ", dim: "
+  }
+  /* cout << "texture : " << dimx << " x " << dimy << ", dim: "
      << dimtex << endl; */
   for(int n = 0; n<35; ++n )
 
@@ -1125,7 +1102,7 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
 bool GLComponent::glMakeTexEnvGLL( const ViewState & state, 
                                    const GLList & gllist, unsigned tex ) const
 {
-  /* cout << "GLComponent::glMakeTexEnvGLL tex " << tex << ", this: " << this 
+  /* cout << "GLComponent::glMakeTexEnvGLL tex " << tex << ", this: " << this
      << endl; */
   unsigned		dimtex, texname = 0, texid, i;
   bool			texok;
@@ -1162,7 +1139,7 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
   glLoadIdentity();
   if( !rgb )
   {
-    TexInfo & t = d->textures[ tex ];
+    const TexInfo & t = glTexInfo( tex );
     glTranslatef( t.texoffset[0], t.texoffset[1], t.texoffset[2] );
     glScalef( t.texscale[0], t.texscale[1], t.texscale[2] );
   }
@@ -1726,7 +1703,7 @@ void GLComponent::glGarbageCollector( int n )
   for( tex=0; tex<nt; ++tex )
     {
       TexInfo	& t = d->textures[ tex ];
-      
+
       ct = 0;
       for( i=t.texenv.begin(), e=t.texenv.end(); i!=e; ++i )
         if( i->second.refCount() == 1 )
@@ -1785,13 +1762,13 @@ unsigned GLComponent::glStateMemory() const
 
 const GLComponent::TexExtrema & GLComponent::glTexExtrema( unsigned tex ) const
 {
-  return d->textures[ tex ].extrema;
+  return glTexInfo( tex ).extrema;
 }
 
 
 GLComponent::TexExtrema & GLComponent::glTexExtrema( unsigned tex )
 {
-  return d->textures[ tex ].extrema;
+  return glTexInfo( tex ).extrema;
 }
 
 
@@ -1848,7 +1825,7 @@ bool GLComponent::glAllowedTexRate( unsigned ) const
 
 bool GLComponent::glTexRGBInterpolation( unsigned tex ) const
 {
-  return d->textures[ tex ].rgbinterp;
+  return glTexInfo( tex ).rgbinterp;
 }
 
 
@@ -1937,7 +1914,7 @@ Object GLComponent::debugInfo() const
           //cout << "tex " << i << endl;
           txl.push_back( Object::value( Dictionary() ) );
           Dictionary	& t = txl.back()->value<Dictionary>();
-          const TexInfo	& ti = d->textures[i];
+          const TexInfo	& ti = glTexInfo( i );
           //cout << "fill tex info\n";
           t[ "mode" ] = Object::value( (int) ti.mode );
           t[ "filtering" ] = Object::value( (int) ti.filter );
@@ -1974,9 +1951,9 @@ const float* GLComponent::glAutoTexParams( unsigned coord, unsigned tex ) const
   switch( glAutoTexMode( tex ) )
     {
     case glTEX_OBJECT_LINEAR:
-      return d->textures[ tex ].texgenparams_object[coord];
+      return glTexInfo( tex ).texgenparams_object[coord];
     case glTEX_EYE_LINEAR:
-      return d->textures[ tex ].texgenparams_eye[coord];
+      return glTexInfo( tex ).texgenparams_eye[coord];
     default:
       return 0;
     }
@@ -2091,4 +2068,11 @@ int GLComponent::glObjectID() const
 {
   return d->id();
 }
+
+
+GLComponent::TexInfo & GLComponent::glTexInfo( unsigned tex ) const
+{
+  return d->textures[ tex ];
+}
+
 

@@ -97,6 +97,7 @@ namespace anatomist
     virtual Tree* optionTree() const;
     virtual GLComponent* glTexture( unsigned n = 0 );
     virtual const GLComponent* glTexture( unsigned n = 0 ) const;
+    virtual TexInfo & glTexInfo( unsigned tex = 0 ) const;
 
   private:
     static int registerClass();

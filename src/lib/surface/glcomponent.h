@@ -128,6 +128,8 @@ namespace anatomist
       bool			scaled;
     };
 
+    struct TexInfo;
+
     GLComponent();
     virtual ~GLComponent();
 
@@ -273,11 +275,10 @@ namespace anatomist
     static GLPrimitives glPopTransformation( const ViewState & vs,
                                              const Referential* myref );
     int glObjectID() const;
+    virtual TexInfo & glTexInfo( unsigned tex = 0 ) const;
 
   protected:
     void glAddTextures( unsigned ntex = 1 );
-    /** changed flags are mutable but can only be modified as const in 
-        subclasses */
 
   private:
     struct Private;

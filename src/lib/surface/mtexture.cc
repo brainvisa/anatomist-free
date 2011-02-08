@@ -34,6 +34,7 @@
 #include <anatomist/surface/mtexture.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/surface/glcomponent_internals.h>
 #include <qpixmap.h>
 
 using namespace anatomist;
@@ -264,7 +265,6 @@ void AMTexture::update( const Observable* obs, void* arg )
           for( i=begin(); i!=e && *i != o; ++i, ++n ) {}
           if( i != e )
             {
-              // cout << "MTexture: texture changed: " << n << endl;
               if( o->obsHasChanged( glTEXIMAGE ) )
               {
                 glSetTexImageChanged( true, n );
@@ -412,6 +412,18 @@ GLComponent* AMTexture::glTexture( unsigned n )
 const GLComponent* AMTexture::glTexture( unsigned n ) const
 {
   return this;
+}
+
+
+GLComponent::TexInfo & AMTexture::glTexInfo( unsigned tex ) const
+{
+  const_iterator        i, e = end();
+  unsigned              n = 0;
+
+  for( i=begin(); i!=e && n < tex; ++i, ++n ) {}
+  if( i != e )
+    return (*i)->glAPI()->glTexInfo( 0 );
+  return GLComponent::glTexInfo( tex );
 }
 
 
