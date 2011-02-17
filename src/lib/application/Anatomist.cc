@@ -459,7 +459,7 @@ void Anatomist::initialize()
   list<string>::const_reverse_iterator ipl, epl = palettespaths.rend();
   for( ipl=palettespaths.rbegin(); ipl!=epl; ++ipl )
     _privData->paletteList->load( *ipl );
-  // cout << _paletteList->size() << " palettes loaded\n";
+  // cout << _privData->paletteList->size() << " palettes loaded\n";
 
   //	config
   _privData->config->registerLocalConfiguration( new ControlConfiguration );

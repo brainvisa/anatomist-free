@@ -77,12 +77,13 @@ void GlobalConfiguration::initSyntax()
 {
   string syntname = Settings::findResourceFile( "config/settings.stx" );
 
-  try
+  if( !syntname.empty() )
+    try
     {
       SyntaxReader	sr( syntname );
       sr >> _syntax;
     }
-  catch( exception & e )
+    catch( exception & e )
     {
       cerr << e.what() << endl;
     }

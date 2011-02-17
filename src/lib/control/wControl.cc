@@ -338,166 +338,162 @@ void ControlWindow::createIcons()
       wtype = (*it).first;
       QAWindowFactory::loadDefaultPixmaps( wtype );
       const QAWindowFactory::PixList & pix 
-	= QAWindowFactory::pixmaps( wtype );
+        = QAWindowFactory::pixmaps( wtype );
+#if QT_VERSION >= 0x040000
+      const QAWindowFactory::Descrip & des
+        = QAWindowFactory::description( wtype );
+      QToolButtonInt        *tb = new QToolButtonInt( wtype, iconbar );
+      QAction *act;
       if( !pix.plarge.isNull() )
-	{
-#if QT_VERSION >= 0x040000
-          QIcon	is( pix.plarge );
-          if( !pix.pactive.isNull() )
-            is.addPixmap( pix.pactive, QIcon::Active );
-	  const QAWindowFactory::Descrip & des 
-	    = QAWindowFactory::description( wtype );
-	  QToolButtonInt	*tb = new QToolButtonInt( wtype, iconbar );
-          tb->setDefaultAction( new QAction( is, des.brief, iconbar ) );
-          connect( tb, SIGNAL( activated( int ) ), this, 
-                   SLOT( openWindow( int ) ) );
+      {
+        QIcon	is( pix.plarge );
+        if( !pix.pactive.isNull() )
+          is.addPixmap( pix.pactive, QIcon::Active );
+        act = new QAction( is, des.brief, iconbar );
+      }
+      else
+        act = new QAction( des.brief, iconbar );
+      tb->setDefaultAction( act );
+      connect( tb, SIGNAL( activated( int ) ), this,
+               SLOT( openWindow( int ) ) );
 #else
-	  QIconSet	is( pix.plarge, QIconSet::Large );
-	  if( !pix.pactive.isNull() )
-	    is.setPixmap( pix.pactive, QIconSet::Large, QIconSet::Active );
-	  const QAWindowFactory::Descrip & des 
-	    = QAWindowFactory::description( wtype );
-	  QToolButtonInt	*tb 
-	    = new QToolButtonInt( wtype, is, des.brief, des.longer, this, 
-				  SLOT( openWindow( int ) ), iconbar );
+      QToolButtonInt    *tb;
+      QIconSet        is( pix.plarge, QIconSet::Large );
+      if( !pix.pactive.isNull() )
+        is.setPixmap( pix.pactive, QIconSet::Large, QIconSet::Active );
+      const QAWindowFactory::Descrip & des
+        = QAWindowFactory::description( wtype );
+      tb = new QToolButtonInt( wtype, is, des.brief, des.longer, this,
+                                SLOT( openWindow( int ) ), iconbar );
 #endif
-	  // connect drag & drop signals to drag objects on windows icons
-	  tb->setAcceptDrops( true );
-	  connect( tb, SIGNAL( dropped( int, QDropEvent* ) ), this,
-		   SLOT( dropOnWindowIcon( int, QDropEvent* ) ) );
-          connect( tb, SIGNAL( dragEntered( int, QDragEnterEvent* ) ), this,
-                   SLOT( dragEnterOnWindowIcon( int, QDragEnterEvent* ) ) );
-          connect( tb, SIGNAL( dragMoved( int, QDragMoveEvent* ) ), this,
-		   SLOT( dragMoveOnWindowIcon( int, QDragMoveEvent* ) ) );
-	}
+      // connect drag & drop signals to drag objects on windows icons
+      tb->setAcceptDrops( true );
+      connect( tb, SIGNAL( dropped( int, QDropEvent* ) ), this,
+                SLOT( dropOnWindowIcon( int, QDropEvent* ) ) );
+      connect( tb, SIGNAL( dragEntered( int, QDragEnterEvent* ) ), this,
+                SLOT( dragEnterOnWindowIcon( int, QDragEnterEvent* ) ) );
+      connect( tb, SIGNAL( dragMoved( int, QDragMoveEvent* ) ), this,
+                SLOT( dragMoveOnWindowIcon( int, QDragMoveEvent* ) ) );
     }
 
-  QPixmap addpix( Settings::findResourceFile( "icons/add.xpm" ).c_str() );
-  if( !addpix.isNull() )
-    {
-      QPixmap	p( Settings::findResourceFile(
-        "icons/add-active.xpm" ).c_str() );
+  {
+    QPixmap addpix( Settings::findResourceFile( "icons/add.xpm" ).c_str() );
+    QPixmap   p( Settings::findResourceFile( "icons/add-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
-      QIcon	is( addpix );
-      if( !p.isNull() )
-        is.addPixmap( p, QIcon::Active );
-      iconbar->addAction( is, tr( "Add objects in windows" ), this, 
-                          SLOT( addObjectsInWindows() ) );
+    QIcon       is( addpix );
+    if( !p.isNull() )
+      is.addPixmap( p, QIcon::Active );
+    iconbar->addAction( is, tr( "Add objects in windows" ), this,
+                        SLOT( addObjectsInWindows() ) );
 #else
-      QIconSet	is( addpix, QIconSet::Large );
-      if( !p.isNull() )
-	is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-      addbtn = 
-	new QToolButton( is, tr( "Add objects in windows" ), 
-			 tr( "Puts selected objects in selected windows" ), 
-			 this, SLOT( addObjectsInWindows() ), iconbar, 
-			 "addBtn" );
-      //openbtn->setUsesTextLabel( true );
+    QIconSet	is( addpix, QIconSet::Large );
+    if( !p.isNull() )
+      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
+    addbtn = new QToolButton( is, tr( "Add objects in windows" ),
+                              tr( "Puts selected objects in selected windows" ),
+                              this, SLOT( addObjectsInWindows() ), iconbar,
+                              "addBtn" );
+    //openbtn->setUsesTextLabel( true );
 #endif
-    }
+  }
 
-  QPixmap rmvpix( Settings::findResourceFile( "icons/remove.xpm" ).c_str() );
-  if( !rmvpix.isNull() )
-    {
-      QPixmap	p( Settings::findResourceFile(
-        "icons/remove-active.xpm" ).c_str() );
+  {
+    QPixmap rmvpix( Settings::findResourceFile( "icons/remove.xpm" ).c_str() );
+    QPixmap   p( Settings::findResourceFile(
+      "icons/remove-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
-      QIcon	is( rmvpix );
-      if( !p.isNull() )
-        is.addPixmap( p, QIcon::Active );
-      iconbar->addAction( is, tr( "Removes objects from windows" ), this, 
-                          SLOT( removeObjects() ) );
+    QIcon       is( rmvpix );
+    if( !p.isNull() )
+      is.addPixmap( p, QIcon::Active );
+    iconbar->addAction( is, tr( "Removes objects from windows" ), this,
+                        SLOT( removeObjects() ) );
 #else
-      QIconSet	is( rmvpix, QIconSet::Large );
-      if( !p.isNull() )
-	is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-      rmvbtn = 
-	new QToolButton( is, tr( "Removes objects from windows" ), 
-		       tr( "Removes selected objects from selected windows" ), 
-			 this, SLOT( removeObjects() ), 
-			 iconbar, "removeBtn" );
-      //openbtn->setUsesTextLabel( true );
+    QIconSet	is( rmvpix, QIconSet::Large );
+    if( !p.isNull() )
+      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
+    rmvbtn =
+      new QToolButton( is, tr( "Removes objects from windows" ),
+                      tr( "Removes selected objects from selected windows" ),
+                        this, SLOT( removeObjects() ),
+                        iconbar, "removeBtn" );
+    //openbtn->setUsesTextLabel( true );
 #endif
-    }
+  }
 
-  QPixmap fusionpix( Settings::findResourceFile(
-    "icons/fusion.xpm" ).c_str() );
-  if( !fusionpix.isNull() )
-    {
-      QPixmap	p( Settings::findResourceFile(
-        "icons/fusion-active.xpm" ).c_str() );
+  {
+    QPixmap fusionpix( Settings::findResourceFile(
+      "icons/fusion.xpm" ).c_str() );
+    QPixmap   p( Settings::findResourceFile(
+      "icons/fusion-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
-      QIcon	is( fusionpix );
-      if( !p.isNull() )
-        is.addPixmap( p, QIcon::Active );
-      iconbar->addAction( is, tr( "Fusion objects" ), this, 
-                          SLOT( fusionObjects() ) );
+    QIcon	is( fusionpix );
+    if( !p.isNull() )
+      is.addPixmap( p, QIcon::Active );
+    iconbar->addAction( is, tr( "Fusion objects" ), this,
+                        SLOT( fusionObjects() ) );
 #else
-      QIconSet	is( fusionpix, QIconSet::Large );
-      if( !p.isNull() )
-	is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-      d->fusionbtn 
-	= new QToolButton( is, tr( "Fusion objects" ), 
-		     tr( "Creates a new object combining the selected ones" ), 
-			   this, SLOT( fusionObjects() ), iconbar, 
-			   "fusionBtn" );
-      //openbtn->setUsesTextLabel( true );
+    QIconSet	is( fusionpix, QIconSet::Large );
+    if( !p.isNull() )
+      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
+    d->fusionbtn
+      = new QToolButton( is, tr( "Fusion objects" ),
+                  tr( "Creates a new object combining the selected ones" ),
+                        this, SLOT( fusionObjects() ), iconbar, "fusionBtn" );
+    //openbtn->setUsesTextLabel( true );
 #endif
-    }
+  }
 
-  QPixmap refpix( Settings::findResourceFile(
-    "icons/reference.xpm" ).c_str() );
-  if( !refpix.isNull() )
-    {
-      QPixmap	p( Settings::findResourceFile(
-        "icons/reference-active.xpm" ).c_str() );
+  {
+    QPixmap refpix( Settings::findResourceFile(
+      "icons/reference.xpm" ).c_str() );
+    QPixmap	p( Settings::findResourceFile(
+      "icons/reference-active.xpm" ).c_str() );
 #if QT_VERSION >= 0x040000
-      QIcon	is( refpix );
-      if( !p.isNull() )
-        is.addPixmap( p, QIcon::Active );
-      iconbar->addAction( is, tr( "Assign referential" ), this, 
-                          SLOT( chooseReferential() ) );
+    QIcon	is( refpix );
+    if( !p.isNull() )
+      is.addPixmap( p, QIcon::Active );
+    iconbar->addAction( is, tr( "Assign referential" ), this,
+                        SLOT( chooseReferential() ) );
 #else
-      QIconSet	is( refpix, QIconSet::Large );
-      is.setPixmap( refpix, QIconSet::Small, QIconSet::Active );
-      if( !p.isNull() )
-	is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-      d->referencebtn 
-	= new QToolButton( is, tr( "Assign referential" ), 
-			   tr( "Choose a referential on objects or windows" ), 
-			   this, SLOT( chooseReferential() ), iconbar, 
-			   "referenceBtn" );
-      //openbtn->setUsesTextLabel( true );
+    QIconSet	is( refpix, QIconSet::Large );
+    is.setPixmap( refpix, QIconSet::Small, QIconSet::Active );
+    if( !p.isNull() )
+      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
+    d->referencebtn
+      = new QToolButton( is, tr( "Assign referential" ),
+                          tr( "Choose a referential on objects or windows" ),
+                          this, SLOT( chooseReferential() ), iconbar,
+                          "referenceBtn" );
+    //openbtn->setUsesTextLabel( true );
 #endif
-    }
+  }
 
   //ARN BEGIN
-  QPixmap conEdpix( Settings::findResourceFile(
-    "icons/meshPaint/sulci.png" ).c_str() );
-    if( !conEdpix.isNull() )
-      {
-        QPixmap p( Settings::findResourceFile(
-          "icons/meshPaint/gyri.png" ).c_str() );
-  #if QT_VERSION >= 0x040000
-        QIcon is( conEdpix );
-        if( !p.isNull() )
-          is.addPixmap( p, QIcon::Active );
-        iconbar->addAction( is, tr( "ConstraintEditor" ), this,
-                            SLOT( openConstraintEditor() ) );
-  #else
-        QIconSet  is( conEdpix, QIconSet::Large );
-        is.setPixmap( conEdpix, QIconSet::Small, QIconSet::Active );
-        if( !p.isNull() )
-    is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-        d->constrainteditorbtn
-    = new QToolButton( is, tr( "ConstraintEditor" ),
+  {
+    QPixmap conEdpix( Settings::findResourceFile(
+      "icons/meshPaint/sulci.png" ).c_str() );
+    QPixmap p( Settings::findResourceFile(
+      "icons/meshPaint/gyri.png" ).c_str() );
+#if QT_VERSION >= 0x040000
+    QIcon is( conEdpix );
+    if( !p.isNull() )
+      is.addPixmap( p, QIcon::Active );
+    iconbar->addAction( is, tr( "ConstraintEditor" ), this,
+                        SLOT( openConstraintEditor() ) );
+#else
+    QIconSet  is( conEdpix, QIconSet::Large );
+    is.setPixmap( conEdpix, QIconSet::Small, QIconSet::Active );
+    if( !p.isNull() )
+      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
+    d->constrainteditorbtn
+      = new QToolButton( is, tr( "ConstraintEditor" ),
            tr( "OpenCE" ),
            this, SLOT( openConstraintEditor() ), iconbar,
            "constrainteditorbtn" );
-        //openbtn->setUsesTextLabel( true );
-  #endif
-      }
-    //ARN END
+    //openbtn->setUsesTextLabel( true );
+#endif
+  }
+  //ARN END
 }
 
 

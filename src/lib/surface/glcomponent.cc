@@ -452,7 +452,7 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
   for( it=0; it<ntexunits; ++it )
     {
       GLPrimitives	tp2 = glTexEnvGLL( state, it );
-      //cout << "TexEnv: " << tp2.size() << " items\n";
+      // cout << "TexEnv: " << tp2.size() << " items\n";
       if( !tp2.empty() )
         {
           tp.push_back( tp2.front() );
@@ -471,7 +471,7 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
   GLPrimitives::iterator	ip, ep;
 
   // make main list
-  //cout << "making main list\n";
+  // cout << "making main list\n";
   GLList	*ml = new GLList;
   ml->generate();
   glNewList( ml->item(), GL_COMPILE );
@@ -744,7 +744,7 @@ GLPrimitives GLComponent::glMaterialGLL( const ViewState & state ) const
 GLPrimitives GLComponent::glTexNameGLL( const ViewState & state, 
                                         unsigned tex ) const
 {
-  /* cout << "GLComponent::glTexNameGLL for tex " << tex << " in " << this 
+  /* cout << "GLComponent::glTexNameGLL for tex " << tex << " in " << this
      << endl; */
   GLPrimitives	p;
   bool		changed;
@@ -888,6 +888,8 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
     return false;
 
   const AimsData<AimsRGBA>	*cols = objpal->colors();
+  if( !cols )
+    return false;
   float		min = objpal->min1(), max = objpal->max1();
   float		min2 = objpal->min2(), max2 = objpal->max2();
   unsigned	dimx, dimy, x, y;
