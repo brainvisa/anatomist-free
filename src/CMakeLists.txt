@@ -11,6 +11,7 @@ set(HEADERS ${LIB_HEADERS} ${HIERARCHYEDITOR_HEADERS} ${ANASURFMATCH_HEADERS} ${
 if( QWT_FOUND )
   add_subdirectory(profile)
   add_subdirectory(roibase)
+  add_subdirectory(roialgo)
   set(HEADERS ${HEADERS} ${PROFILE_HEADERS} ${ROIBASE_HEADERS})
 # Directory painting does not exist !
 #  add_subdirectory(painting)
@@ -25,7 +26,6 @@ else( QWT_FOUND )
   message( "WARNING: anatomist modules anaroibase and anahistogram will not be build because Qwt library has not been found" )
 endif( QWT_FOUND )
 add_subdirectory(perfusion)
-add_subdirectory(roialgo)
 set(HEADERS ${HEADERS} ${PERFUSION_HEADERS} ${ROIALGO_HEADERS})
 # TODO:
 if( VTK_FOUND AND vtkINRIA3D_FOUND )
