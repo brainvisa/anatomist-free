@@ -151,7 +151,7 @@ unsigned AMTexture::glTexCoordSize( const ViewState & s, unsigned tex ) const
 const float* AMTexture::glTexCoordArray( const ViewState & s, 
                                          unsigned tex ) const
 {
-  // cout << "AMTexture::glTexCoordArray for tex " << tex << endl;
+  // cout << "AMTexture::glTexCoordArray for tex " << tex << ", time: " << s.time << endl;
   const_iterator	i, e = end();
   unsigned		n = 0;
 
@@ -424,6 +424,25 @@ GLComponent::TexInfo & AMTexture::glTexInfo( unsigned tex ) const
   if( i != e )
     return (*i)->glAPI()->glTexInfo( 0 );
   return GLComponent::glTexInfo( tex );
+}
+
+
+std::string AMTexture::viewStateID( glPart part,
+                                    const ViewState & state ) const
+{
+  switch( part )
+    {
+    case glGENERAL:
+    case glBODY:
+      return GLComponent::viewStateID( part, state );
+    case glTEXIMAGE:
+    case glTEXENV:
+      return GLComponent::viewStateID( part, state );
+    default:
+      break;
+    }
+
+  return string();
 }
 
 

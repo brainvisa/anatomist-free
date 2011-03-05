@@ -98,6 +98,7 @@ namespace anatomist
     virtual GLComponent* glTexture( unsigned n = 0 );
     virtual const GLComponent* glTexture( unsigned n = 0 ) const;
     virtual TexInfo & glTexInfo( unsigned tex = 0 ) const;
+    virtual std::string viewStateID( glPart part, const ViewState & ) const;
 
   private:
     static int registerClass();
