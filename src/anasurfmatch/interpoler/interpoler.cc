@@ -48,12 +48,14 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/reference/transformobserver.h>
+#include <aims/mesh/meshinterpoler.h>
 #include <graph/tree/tree.h>
 #include <qpixmap.h>
 #include <stdio.h>
 
 
 using namespace anatomist;
+using namespace aims;
 using namespace carto;
 using namespace std;
 
@@ -67,14 +69,14 @@ struct AInterpoler::Private
   typedef vector<GLfloat> CoordVec;
   Private();
 
-  mutable vector<unsigned>			triCorresp;
+  mutable MeshInterpoler *interpol;
   mutable map<unsigned, vector<CoordVec> >	texCoords;
   bool					neighboursHasChanged;
 };
 
 
 AInterpoler::Private::Private()
-  : neighboursHasChanged( true )
+  : interpol( 0 ), neighboursHasChanged( true )
 {
 }
 
@@ -141,6 +143,7 @@ AInterpoler::AInterpoler( AObject* o1, AObject* o2 )
 AInterpoler::~AInterpoler()
 {
   cleanup();
+  delete d->interpol;
   delete d;
 }
 
@@ -247,6 +250,8 @@ void AInterpoler::refreshTexCoordArray( const ViewState & state )
 
   if( hasNeighboursChanged() )
     {
+      delete d->interpol;
+      d->interpol = 0;
       d->texCoords.clear();
       computeNeighbours( state.time );
       clearNeighboursChanged();
@@ -301,112 +306,14 @@ void AInterpoler::refreshTexCoordArray( const ViewState & state )
       if( cvec[ tex ].size() != texsize[ tex ] )
         cvec[ tex ] = Private::CoordVec( texsize[ tex ] );
       ptr[ tex ] = &cvec[tex][0];
-    }
-
-  for( i=0; i<n; ++i )
-    {
-      const Point3df		& pt = pd[i];
-
-      tri = d->triCorresp[i];
-      const AimsVector<uint,3>	& triang = polyo[tri];
-      j1 = triang[0];
-      j2 = triang[1];
-      j3 = triang[2];
-      const Point3df		& p1 = po[j1];
-      const Point3df		& p2 = po[j2];
-      const Point3df		& p3 = po[j3];
-
-      // project point on triangle
-
-      vec1[0] = pt[0] - p1[0];
-      vec1[1] = pt[1] - p1[1];
-      vec1[2] = pt[2] - p1[2];
-
-      vec2[0] = p2[0] - p1[0];
-      vec2[1] = p2[1] - p1[1];
-      vec2[2] = p2[2] - p1[2];
-      l1 = 1. 
-	/ sqrt( vec2[0] * vec2[0] + vec2[1] * vec2[1] + vec2[2] * vec2[2] );
-      vec2[0] *= l1;
-      vec2[1] *= l1;
-      vec2[2] *= l1;
-
-      vec3[0] = p3[0] - p1[0];
-      vec3[1] = p3[1] - p1[1];
-      vec3[2] = p3[2] - p1[2];
-      l2 = 1. 
-	/ sqrt( vec3[0] * vec3[0] + vec3[1] * vec3[1] + vec3[2] * vec3[2] );
-      vec3[0] *= l2;
-      vec3[1] *= l2;
-      vec3[2] *= l2;
-
-      // make an orthogonal referential
-
-      a = - ( vec2[0] * vec3[0] + vec2[1] * vec3[1] + vec2[2] * vec3[2] );
-      b = 1. / sqrt( 1. - a * a );
-      a *= b;
-      vec4[0] = a * vec2[0] + b * vec3[0];
-      vec4[1] = a * vec2[1] + b * vec3[1];
-      vec4[2] = a * vec2[2] + b * vec3[2];
-
-      // project
-
-      x1 = vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2];
-      x2 = vec1[0] * vec4[0] + vec1[1] * vec4[1] + vec1[2] * vec4[2];
-
-      // return to triangle coordinates
-
-      d2 = ( x1 + a * x2 ) * l1;
-      d3 = ( b * x2 ) * l2;
-      xxfar = false;
-
-      if( d2 < 0 )
-	{
-	  if( d2 < -1 )
-	    xxfar = true;
-	  d2 = 0;
-	}
-      else if( d2 > 1 )
-	{
-	  if( d2 > 2 )
-	    xxfar = true;
-	  d2 = 1;
-	}
-      if( d3 < 0 )
-	{
-	  if( d3 < -1 )
-	    xxfar = true;
-	  d3 = 0;
-	}
-      else if( d3 > 1. - d2 )
-	{
-	  if( d3 > 2 - d2 )
-	    xxfar = true;
-	  d3 = 1. - d2;
-	}
-
-      d1 = 1. - d2 - d3;
-
-      for( tex=0; tex<ntex; ++tex )
-        {
-      /* je desactive ce test temporairement 
-       if( xxfar )
-	{
-	  // too far from any triangle: no texture (coord 0)
-	  for( t=0; t<dim; ++t )
-	    *ptr++ = 0;
-	}
+      if( dim[tex] == 2 )
+        d->interpol->resampleTexture(
+          reinterpret_cast<const Point2df *>( orgTex[ tex ] ),
+          reinterpret_cast<Point2df *>( ptr[ tex ] ), 0 );
       else
-      {*/
-	  ptro1 = orgTex[tex] + j1 * dim[tex];
-	  ptro2 = orgTex[tex] + j2 * dim[tex];
-	  ptro3 = orgTex[tex] + j3 * dim[tex];
-
-          for( t=0; t<dim[tex]; ++t )
-            *ptr[tex]++ = *ptro1++ * d1 + *ptro2++ * d2 + *ptro3++ * d3;
-	  //}
-        }
+        d->interpol->resampleTexture( orgTex[ tex ], ptr[ tex ] );
     }
+
   glSetChanged( glBODY, false );
 }
 
@@ -426,41 +333,14 @@ void AInterpoler::computeNeighbours( const ViewState & state )
     = (const AimsVector<uint,3> *) s1->glPolygonArray( state );
   unsigned			i, t, n2 = s2->glNumVertex( state );
   unsigned			nt1 = s1->glNumPolygon( state );
-  float				dd, dmin;
-  unsigned			trimin;
-  Point3df			bary;
 
-  d->triCorresp.clear();
-  d->triCorresp.reserve( n2 );
-  d->triCorresp.insert( d->triCorresp.end(), n2, 0 );
+  delete d->interpol;
+  d->interpol = new MeshInterpoler( vert1, tri1, nt1, vert2,
+                                    (const AimsVector<uint,3> *)
+                                      s2->glPolygonArray( state ), n2,
+                                    s2->glNumPolygon( state ) );
+  d->interpol->project();
 
-  for( i=0; i<n2; ++i )
-    {
-      const Point3df	& pt = vert2[i];
-
-      dmin = 1e38;
-      trimin = 0;
-
-      for( t=0; t<nt1; ++t )
-	{
-	  const AimsVector<uint, 3>	& tri = tri1[t];
-	  const Point3df		& p1 = vert1[ tri[0] ];
-	  const Point3df		& p2 = vert1[ tri[1] ];
-	  const Point3df		& p3 = vert1[ tri[2] ];
-
-	  bary[0] = ( p1[0] + p2[0] + p3[0] ) * 0.333 - pt[0];
-	  bary[1] = ( p1[1] + p2[1] + p3[1] ) * 0.333 - pt[1];
-	  bary[2] = ( p1[2] + p2[2] + p3[2] ) * 0.333 - pt[2];
-
-	  dd = bary[0] * bary[0] + bary[1] * bary[1] + bary[2] * bary[2];
-	  if( dd < dmin )
-	    {
-	      trimin = t;
-	      dmin = dd;
-	    }
-	}
-      d->triCorresp[i] = trimin;
-    }
   theAnatomist->setCursor( Anatomist::Normal );
 }
 
