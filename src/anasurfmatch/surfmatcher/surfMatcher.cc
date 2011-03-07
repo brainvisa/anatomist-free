@@ -45,6 +45,9 @@
 #include <qpixmap.h>
 #include <stdio.h>
 #include <assert.h>
+#ifdef CARTO_USE_KDTREE
+#include <kdtree++/kdtree.hpp>
+#endif
 
 
 using namespace anatomist;
@@ -54,6 +57,29 @@ using namespace std;
 
 // internal formats & data
 
+#ifdef CARTO_USE_KDTREE
+namespace
+{
+
+  struct Bracket_accessor_PointIndex
+  {
+    typedef float result_type;
+    typedef pair<uint, Point3df> _Val;
+
+    result_type
+    operator()(_Val const& V, size_t const N) const
+    {
+      return V.second[N];
+    }
+  };
+
+  typedef KDTree::KDTree<3, pair<uint, Point3df>, Bracket_accessor_PointIndex >
+    _KDTree;
+
+}
+#endif
+
+
 namespace anatomist
 {
 
@@ -62,8 +88,10 @@ namespace anatomist
     ASurfMatcher_processData() : nneighbours( 5 ), attraction( 2. ),
       pressure( 0.05 ), cohesion( 0.02 ), ctrlAttraction( 1. ),
       restLength( 0.8 ), maxLengthFactor( 5. ), meanLength( 0 ),
-      reversenorm( false )
+      reversenorm( false ), kdtree( 0 )
     {}
+    ~ASurfMatcher_processData()
+    { delete kdtree; }
 
     map<unsigned, set<unsigned> >	neigh3;
     unsigned	nneighbours;
@@ -77,6 +105,9 @@ namespace anatomist
     float		meanLength;
 
     bool		reversenorm;
+#ifdef CARTO_USE_KDTREE
+    _KDTree              *kdtree;
+#endif
   };
 
 
@@ -180,6 +211,16 @@ Tree* ASurfMatcher::optionTree() const
 }
 
 
+void ASurfMatcher::setAscending( bool asc )
+{
+  _ascending = asc;
+#ifdef CARTO_USE_KDTREE
+  if( _mdata )
+    delete _mdata->kdtree;
+#endif
+}
+
+
 bool ASurfMatcher::CanRemove( AObject* )
 {
   return false;
@@ -268,10 +309,32 @@ void ASurfMatcher::processStep()
   Point3df		neigh[nneigh];
   float			sqd[nneigh];
   unsigned		ind[nneigh];
+  unsigned      ver, vf, i;
+
+#ifdef CARTO_USE_KDTREE
+  unsigned long kdtmin = 2000; // under this number of nodes x searches,
+  // the kd tree is slower than an exaustive neighbour search.
+  if( !_mdata->kdtree && nv2 * nneigh > kdtmin )
+  {
+    cout << "generating kd tree..."  << flush;
+    // make a kd tree of target vertices
+    vector<pair<uint, Point3df> > *ivert2
+      = new vector<pair<uint, Point3df> >( nv2 );
+    for( vf=0; vf<nv2; ++vf )
+    {
+      (*ivert2)[vf].first = vf;
+      (*ivert2)[vf].second = vert2[vf];
+    }
+
+    // make a KDtree with vertices list
+    _mdata->kdtree = new _KDTree( ivert2->begin(), ivert2->end() );
+    delete ivert2; // get rid of this temporary list
+    cout << " done.\n";
+  }
+#endif
 
   //	processing
 
-  unsigned	ver, vf, i;
   float		dn, d2;
   Point3df	dif, norm, snorm, vec1, vec2;
   unsigned	maxi = 0;
@@ -300,192 +363,217 @@ void ASurfMatcher::processStep()
   //	move each point according to various forces
 
   for( ver=0; ver<nv3; ++ver )
+  {
+    Point3df	& pt = vert3[ver];
+
+#ifdef CARTO_USE_KDTREE
+    if( nv2 * nneigh > kdtmin )
     {
-      Point3df	& pt = vert3[ver];
+      for( i=0; i<nneigh; ++i )
+      {
+        if( i != 0 )
+          // remove previous nearest neighbour
+          _mdata->kdtree->erase( make_pair( ind[i-1], vert2[ind[i-1]] ) );
+        pair<_KDTree::const_iterator, _KDTree::distance_type> in
+          = _mdata->kdtree->find_nearest( make_pair( 0U, pt ) );
+        ind[i] = in.first->first;
+        neigh[i] = pt - vert2[ in.first->first ];
+        sqd[i] = in.second * in.second;
+      }
+      // put back points which were removed
+      for( i=0; i<nneigh-1; ++i )
+        _mdata->kdtree->insert( make_pair( ind[i], vert2[ind[i]] ) );
+    }
+    else
+    {
+#endif
 
       for( i=0; i<nneigh; ++i )
-	{
-	  //neigh[i] = Point3df( 1e38, 1e38, 1e38 );
-	  sqd[i] = 1e38;
-	}
+      {
+        //neigh[i] = Point3df( 1e38, 1e38, 1e38 );
+        sqd[i] = 1e38;
+      }
       maxi = 0;
       maxd = 1e38;
 
       // find the nneigh nearest points in s2
 
       for( vf=0; vf<nv2; ++vf )
-	{
-	  const Point3df	& pf = vert2[vf];
+      {
+        const Point3df	& pf = vert2[vf];
 
-	  dif[0] = pt[0] - pf[0];
-	  dif[1] = pt[1] - pf[1];
-	  dif[2] = pt[2] - pf[2];
-	  dn = dif[0] * dif[0] + dif[1] * dif[1] + dif[2] * dif[2];
+        dif[0] = pt[0] - pf[0];
+        dif[1] = pt[1] - pf[1];
+        dif[2] = pt[2] - pf[2];
+        dn = dif[0] * dif[0] + dif[1] * dif[1] + dif[2] * dif[2];
 
-	  if( dn < maxd )
-	    {
-	      neigh[maxi] = dif;
-	      sqd[maxi] = dn;
-	      maxd = dn;
-	      ind[maxi] = vf;
+        if( dn < maxd )
+        {
+          neigh[maxi] = dif;
+          sqd[maxi] = dn;
+          maxd = dn;
+          ind[maxi] = vf;
 
-	      for( i=0; i<nneigh; ++i )
-		{
-		  if( sqd[i] > maxd )
-		    {
-		      maxi = i;
-		      maxd = sqd[i];
-		    }
-		}
-	    }
-	}
-
-      // now apply deplacements towards nearest neighbours
-
-      vec1 = Point3df( 0, 0, 0 );
-
-      for( i=0; i<nneigh; ++i )
-	{
-	  vf = ind[i];
-	  Point3df		& nf = norm2[vf];
-	  Point3df		& d = neigh[i];
-
-	  /*if( sqd[i] > 0 )
-	    {*/
-	  dn = ( d[0] * nf[0] + d[1] * nf[1] + d[2] * nf[2] )
-	    / ( sqrt( sqd[i] ) + 1. );
-	  vec1[0] += dn * nf[0];
-	  vec1[1] += dn * nf[1];
-	  vec1[2] += dn * nf[2];
-	      /*}*/
-	}
-      dn = - attraction / nneigh;
-      pt[0] += dn * vec1[0];
-      pt[1] += dn * vec1[1];
-      pt[2] += dn * vec1[2];
-
-      // pressure force (along normal)
-      Point3df	& nrm = norm3[ver];
-
-      pt[0] += pressure * nrm[0];
-      pt[1] += pressure * nrm[1];
-      pt[2] += pressure * nrm[2];
-
-      // cohesion force (along edges of triangles) (=smoothing)
-      set<unsigned>	& nbr = neigh3[ver];
-
-      vec2 = Point3df( 0, 0, 0 );
-
-      for( in=nbr.begin(), fn=nbr.end(); in!=fn; ++in )
-	{
-	  AimsVector<uint, 3>	& poly = poly3[*in];
-	  if( poly[0] == ver )
-	    i = 1;
-	  else
-	    i = 0;
-	  Point3df		&v1 = vert3[poly[i]];
-	  ++i;
-	  if( poly[i] == ver )
-	    ++i;
-	  Point3df		&v2 = vert3[poly[i]];
-
-	  vec1[0] = v1[0] - pt[0];
-	  vec1[1] = v1[1] - pt[1];
-	  vec1[2] = v1[2] - pt[2];
-	  d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1]
-		     + vec1[2] * vec1[2] );
-	  if( d2 == 0 )
-	    {
-	      d2 = 1.;
-	      vec1[0] = 1.;
-	    }
-	  dn = ( d2 - meanLength ) * cohesion;
-	  if( dn < -maxLengthFactor )
-	    dn = -maxLengthFactor;
-	  else if( dn > maxLengthFactor )
-	    dn = maxLengthFactor;
-	  dn /= d2;
-
-	  vec2[0] += dn * vec1[0];
-	  vec2[1] += dn * vec1[1];
-	  vec2[2] += dn * vec1[2];
-
-	  vec1[0] = v2[0] - pt[0];
-	  vec1[1] = v2[1] - pt[1];
-	  vec1[2] = v2[2] - pt[2];
-	  d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1]
-		     + vec1[2] * vec1[2] );
-	  if( d2 == 0 )
-	    {
-	      d2 = 1.;
-	      vec1[0] = 1.;
-	    }
-	  dn = ( d2 - meanLength ) * cohesion;
-	  if( dn < -maxLengthFactor )
-	    dn = -maxLengthFactor;
-	  else if( dn > maxLengthFactor )
-	    dn = maxLengthFactor;
-	  dn /= d2;
-
-	  vec2[0] += dn * vec1[0];
-	  vec2[1] += dn * vec1[1];
-	  vec2[2] += dn * vec1[2];
-	}
-
-      pt[0] += vec2[0];
-      pt[1] += vec2[1];
-      pt[2] += vec2[2];
-
-      // after deplacements, recompute normal
-      snorm = Point3df( 0, 0, 0 );
-
-      for( in=nbr.begin(), fn=nbr.end(); in!=fn; ++in )
-	{
-	  AimsVector<uint, 3>	& poly = poly3[*in];
-	  Point3df		&v1 = vert3[poly[0]];
-	  Point3df		&v2 = vert3[poly[1]];
-	  Point3df		&v3 = vert3[poly[2]];
-
-	  vec1[0] = v2[0] - v1[0];
-	  vec1[1] = v2[1] - v1[1];
-	  vec1[2] = v2[2] - v1[2];
-	  vec2[0] = v1[0] - v3[0];
-	  vec2[1] = v1[1] - v3[1];
-	  vec2[2] = v1[2] - v3[2];
-	  norm[0] = vec1[1] * vec2[2] - vec2[1] * vec1[2];
-	  norm[1] = vec1[2] * vec2[0] - vec2[2] * vec1[0];
-	  norm[2] = vec1[0] * vec2[1] - vec2[0] * vec1[1];
-
-	  dn = 1.; /* / sqrt( norm[0] * norm[0] + norm[1] * norm[1]
-		      + norm[2] * norm[2] );*/
-	  if( _mdata->reversenorm )
-	    dn = -dn;
-	  if( ( norm[0] * nrm[0] + norm[1] * nrm[1] + norm[2] * nrm[2] )
-	      * ( _mdata->reversenorm ? -1 : 1 ) < 0 )
-	    ++notherside;
-	  snorm[0] += norm[0] * dn;
-	  snorm[1] += norm[1] * dn;
-	  snorm[2] += norm[2] * dn;
-	}
-      dn = 1. / sqrt( snorm[0] * snorm[0] + snorm[1] * snorm[1]
-		      + snorm[2] * snorm[2] );
-      nrm[0] = snorm[0] * dn;
-      nrm[1] = snorm[1] * dn;
-      nrm[2] = snorm[2] * dn;
+          for( i=0; i<nneigh; ++i )
+          {
+            if( sqd[i] > maxd )
+            {
+              maxi = i;
+              maxd = sqd[i];
+            }
+          }
+        }
+      }
+#ifdef CARTO_USE_KDTREE
     }
+#endif
 
-  if( notherside >= nv3 / 2 )
-    {
-      _mdata->reversenorm = !_mdata->reversenorm;
-      cout << "reversenorm : " << _mdata->reversenorm << endl;
-      for( ver=0; ver<nv3; ++ver )
-	{
-	  Point3df	&nrm = norm3[ver];
-	  nrm[0] *= -1;
-	  nrm[1] *= -1;
-	  nrm[2] *= -1;
-	}
-    }
+    // now apply displacements towards nearest neighbours
+
+    vec1 = Point3df( 0, 0, 0 );
+
+    for( i=0; i<nneigh; ++i )
+      {
+        vf = ind[i];
+        Point3df		& nf = norm2[vf];
+        Point3df		& d = neigh[i];
+
+        /*if( sqd[i] > 0 )
+          {*/
+        dn = ( d[0] * nf[0] + d[1] * nf[1] + d[2] * nf[2] )
+          / ( sqrt( sqd[i] ) + 1. );
+        vec1[0] += dn * nf[0];
+        vec1[1] += dn * nf[1];
+        vec1[2] += dn * nf[2];
+            /*}*/
+      }
+    dn = - attraction / nneigh;
+    pt[0] += dn * vec1[0];
+    pt[1] += dn * vec1[1];
+    pt[2] += dn * vec1[2];
+
+    // pressure force (along normal)
+    Point3df	& nrm = norm3[ver];
+
+    pt[0] += pressure * nrm[0];
+    pt[1] += pressure * nrm[1];
+    pt[2] += pressure * nrm[2];
+
+    // cohesion force (along edges of triangles) (=smoothing)
+    set<unsigned>	& nbr = neigh3[ver];
+
+    vec2 = Point3df( 0, 0, 0 );
+
+    for( in=nbr.begin(), fn=nbr.end(); in!=fn; ++in )
+      {
+        AimsVector<uint, 3>	& poly = poly3[*in];
+        if( poly[0] == ver )
+          i = 1;
+        else
+          i = 0;
+        Point3df		&v1 = vert3[poly[i]];
+        ++i;
+        if( poly[i] == ver )
+          ++i;
+        Point3df		&v2 = vert3[poly[i]];
+
+        vec1[0] = v1[0] - pt[0];
+        vec1[1] = v1[1] - pt[1];
+        vec1[2] = v1[2] - pt[2];
+        d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1]
+                    + vec1[2] * vec1[2] );
+        if( d2 == 0 )
+          {
+            d2 = 1.;
+            vec1[0] = 1.;
+          }
+        dn = ( d2 - meanLength ) * cohesion;
+        if( dn < -maxLengthFactor )
+          dn = -maxLengthFactor;
+        else if( dn > maxLengthFactor )
+          dn = maxLengthFactor;
+        dn /= d2;
+
+        vec2[0] += dn * vec1[0];
+        vec2[1] += dn * vec1[1];
+        vec2[2] += dn * vec1[2];
+
+        vec1[0] = v2[0] - pt[0];
+        vec1[1] = v2[1] - pt[1];
+        vec1[2] = v2[2] - pt[2];
+        d2 = sqrt( vec1[0] * vec1[0] + vec1[1] * vec1[1]
+                    + vec1[2] * vec1[2] );
+        if( d2 == 0 )
+          {
+            d2 = 1.;
+            vec1[0] = 1.;
+          }
+        dn = ( d2 - meanLength ) * cohesion;
+        if( dn < -maxLengthFactor )
+          dn = -maxLengthFactor;
+        else if( dn > maxLengthFactor )
+          dn = maxLengthFactor;
+        dn /= d2;
+
+        vec2[0] += dn * vec1[0];
+        vec2[1] += dn * vec1[1];
+        vec2[2] += dn * vec1[2];
+      }
+
+    pt[0] += vec2[0];
+    pt[1] += vec2[1];
+    pt[2] += vec2[2];
+
+    // after deplacements, recompute normal
+    snorm = Point3df( 0, 0, 0 );
+
+    for( in=nbr.begin(), fn=nbr.end(); in!=fn; ++in )
+      {
+        AimsVector<uint, 3>	& poly = poly3[*in];
+        Point3df		&v1 = vert3[poly[0]];
+        Point3df		&v2 = vert3[poly[1]];
+        Point3df		&v3 = vert3[poly[2]];
+
+        vec1[0] = v2[0] - v1[0];
+        vec1[1] = v2[1] - v1[1];
+        vec1[2] = v2[2] - v1[2];
+        vec2[0] = v1[0] - v3[0];
+        vec2[1] = v1[1] - v3[1];
+        vec2[2] = v1[2] - v3[2];
+        norm[0] = vec1[1] * vec2[2] - vec2[1] * vec1[2];
+        norm[1] = vec1[2] * vec2[0] - vec2[2] * vec1[0];
+        norm[2] = vec1[0] * vec2[1] - vec2[0] * vec1[1];
+
+        dn = 1.; /* / sqrt( norm[0] * norm[0] + norm[1] * norm[1]
+                    + norm[2] * norm[2] );*/
+        if( _mdata->reversenorm )
+          dn = -dn;
+        if( ( norm[0] * nrm[0] + norm[1] * nrm[1] + norm[2] * nrm[2] )
+            * ( _mdata->reversenorm ? -1 : 1 ) < 0 )
+          ++notherside;
+        snorm[0] += norm[0] * dn;
+        snorm[1] += norm[1] * dn;
+        snorm[2] += norm[2] * dn;
+      }
+    dn = 1. / sqrt( snorm[0] * snorm[0] + snorm[1] * snorm[1]
+                    + snorm[2] * snorm[2] );
+    nrm[0] = snorm[0] * dn;
+    nrm[1] = snorm[1] * dn;
+    nrm[2] = snorm[2] * dn;
+  }
+
+if( notherside >= nv3 / 2 )
+  {
+    _mdata->reversenorm = !_mdata->reversenorm;
+    cout << "reversenorm : " << _mdata->reversenorm << endl;
+    for( ver=0; ver<nv3; ++ver )
+      {
+        Point3df	&nrm = norm3[ver];
+        nrm[0] *= -1;
+        nrm[1] *= -1;
+        nrm[2] *= -1;
+      }
+  }
 
   //
 

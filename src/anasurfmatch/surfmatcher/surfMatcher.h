@@ -70,7 +70,7 @@ namespace anatomist
 
     /// true if direction is matching ascending (object 1 -> object 2)
     bool ascending() const { return _ascending; }
-    virtual void setAscending( bool asc ) { _ascending = asc; }
+    virtual void setAscending( bool asc );
     virtual void processStep();
     bool processFinished() const { return _processFinished; }
     bool record() const { return _record; }
