@@ -88,10 +88,15 @@ namespace anatomist
     ASurfMatcher_processData() : nneighbours( 5 ), attraction( 2. ),
       pressure( 0.05 ), cohesion( 0.02 ), ctrlAttraction( 1. ),
       restLength( 0.8 ), maxLengthFactor( 5. ), meanLength( 0 ),
-      reversenorm( false ), kdtree( 0 )
+      reversenorm( false )
+#ifdef CARTO_USE_KDTREE
+      , kdtree( 0 )
+#endif
     {}
+#ifdef CARTO_USE_KDTREE
     ~ASurfMatcher_processData()
     { delete kdtree; }
+#endif
 
     map<unsigned, set<unsigned> >	neigh3;
     unsigned	nneighbours;
