@@ -53,7 +53,6 @@ if sys.modules.has_key( 'PyQt4' ):
   qt.QPoint = QtCore.QPoint
   qt.QSize = QtCore.QSize
   qt.QObject = QtCore.QObject
-  qt.QString = QtCore.QString
   qt.SIGNAL = QtCore.SIGNAL
   qt.PYSIGNAL = QtCore.SIGNAL
   Qt = QtCore.Qt

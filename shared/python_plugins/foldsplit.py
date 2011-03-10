@@ -319,7 +319,7 @@ class SplitFoldControl( anatomist.Control ):
 sf = SplitFoldModule()
 
 a = anatomist.Anatomist()
-pix = qtgui.QPixmap( a.anatomistSharedPath() + os.sep + qt.QString( 'icons' ) \
+pix = qtgui.QPixmap( a.anatomistSharedPath() + os.sep + 'icons' \
   + os.sep + 'control-foldsplit.png' )
 anatomist.IconDictionary.instance().addIcon( 'SplitFoldControl', pix )
 ad = anatomist.ActionDictionary.instance()
