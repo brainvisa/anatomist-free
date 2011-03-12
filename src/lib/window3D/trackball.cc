@@ -359,7 +359,7 @@ void ContinuousTrackball::goOn()
 
 void ContinuousTrackball::stop()
 {
-  cout << "stop rotating\n";
+
   if( d->timer )
     d->timer->stop();
   d->running = false;
@@ -372,7 +372,6 @@ void ContinuousTrackball::startOrStop()
     stop();
   else
     {
-      cout << "start autorotate\n";
       d->running = true;
     }
 }
