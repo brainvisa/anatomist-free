@@ -12,12 +12,16 @@ target_link_libraries( anatomist-bin anatomist ${ana_link_libraries} )
 if( APPLE )
   add_custom_command( TARGET anatomist-bin POST_BUILD
     COMMAND "ln"
-    ARGS "-s"
+    ARGS "-sf"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/anatomist.app/Contents/MacOS/anatomist"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/anatomist"
   )
+  BRAINVISA_INSTALL( FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/anatomist"
+              DESTINATION bin
+              COMPONENT ${PROJECT_NAME} )
 endif()
 
 BRAINVISA_INSTALL( TARGETS anatomist-bin
               DESTINATION bin
               COMPONENT ${PROJECT_NAME} )
+
