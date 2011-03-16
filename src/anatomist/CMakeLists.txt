@@ -11,3 +11,9 @@ target_link_libraries( anatomist-bin anatomist ${ana_link_libraries} )
 BRAINVISA_INSTALL( TARGETS anatomist-bin
               DESTINATION bin
               COMPONENT ${PROJECT_NAME} ) 
+
+if( APPLE )
+  add_custom_command( TARGET anatomist-bin POST_BUILD
+    COMMAND "ln -s ${RUNTIME_OUTPUT_DIRECTORY}/anatomist.app/Contents/MacOS/anatomist ${RUNTIME_OUTPUT_DIRECTORY}/anatomist"
+  )
+endif()
