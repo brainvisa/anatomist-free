@@ -449,6 +449,30 @@ namespace
     return c;
   }
 
+
+  /* this subclassed slider always accepts the MouseMove event so that
+     the drag system doesn't start, which causes problems because then the
+     slider doesn't get MouseRelease events
+  */
+  class NoDragSlider : public QSlider
+  {
+  public:
+    NoDragSlider( int minValue, int maxValue, int pageStep, int value,
+                  Qt::Orientation orientation, QWidget * parent = 0,
+                  const char * name = 0 )
+      : QSlider( minValue, maxValue, pageStep, value, orientation, parent,
+                 name )
+    {}
+
+    virtual ~NoDragSlider() {}
+
+    virtual void mouseMoveEvent( QMouseEvent * e )
+    {
+      QSlider::mouseMoveEvent( e );
+      e->accept();
+    }
+  };
+
 }
 
 //	AWindow3D
@@ -510,7 +534,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   d->slicepanel = new QVBox(hb);
   d->slicelabel = new QLabel(d->slicepanel, "slice");
   d->slicelabel->setFixedWidth(30);
-  d->slids = new QSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel, "sliderS");
+  d->slids = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel,
+                              "sliderS");
   d->slids->setFixedWidth(d->slids->sizeHint().width());
   d->slicepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
       QSizePolicy::Expanding));
@@ -519,7 +544,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   d->timepanel = new QVBox(hb);
   d->timelabel = new QLabel(d->timepanel, "time");
   d->timelabel->setFixedWidth(30);
-  d->slidt = new QSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel, "sliderT");
+  d->slidt = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel,
+                              "sliderT");
   d->slidt->setFixedWidth(d->slidt->sizeHint().width());
   d->timepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
       QSizePolicy::Expanding));
