@@ -37,6 +37,12 @@
 #include <qtimer.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#if QT_VERSION >= 0x040600
+#include <QGestureEvent>
+#include <QPinchGesture>
+#include <QPanGesture>
+#include <math.h>
+#endif
 #include <iostream>
 #include <typeinfo>
 
@@ -588,6 +594,106 @@ void Control::selectionChangedEvent()
   if( mySelectionChangedAction )
     mySelectionChangedAction->execute();
 }
+
+
+#if QT_VERSION >= 0x040600
+void Control::gestureEvent( QGestureEvent * event )
+{
+  cout << "Gesture event\n";
+  if( QGesture *pinch = event->gesture(Qt::PinchGesture ) )
+  {
+    event->setAccepted( pinch, pinchGesture(
+      static_cast<QPinchGesture *>( pinch ) ) );
+  }
+  if( QGesture *pan = event->gesture( Qt::PanGesture ) )
+  {
+    event->setAccepted( pan, panGesture( static_cast<QPanGesture *>( pan ) ) );
+  }
+}
+
+
+bool Control::pinchGesture( QPinchGesture * gesture )
+{
+  if( gesture->state() == Qt::GestureStarted )
+  {
+    // for now, simulate corresponding mouse events
+    QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
+                    QPoint( (int) gesture->hotSpot().rx(),
+                            (int) gesture->hotSpot().rx() ),
+                    Qt::MidButton,
+                    Qt::ShiftModifier );
+    mousePressEvent( &ev );
+  }
+  else if( gesture->state() == Qt::GestureUpdated )
+  {
+    // for now, simulate corresponding mouse events
+    QPoint p = QPoint( 0,
+                       - (int)( 100 * log( gesture->totalScaleFactor() ) ) );
+    QMouseEvent ev( QEvent::MouseMove, p,
+                    QPoint( (int) gesture->hotSpot().rx(),
+                            (int) gesture->hotSpot().rx() ) + p,
+                    Qt::MidButton,
+                    Qt::ShiftModifier );
+    mouseMoveEvent( &ev );
+  }
+  else if( gesture->state() == Qt::GestureCanceled
+    || gesture->state() == Qt::GestureFinished )
+  {
+    // for now, simulate corresponding mouse events
+    QPoint p = QPoint( 0,
+                       - (int)( 100 * log( gesture->totalScaleFactor() ) ) );
+    QMouseEvent ev( QEvent::MouseButtonRelease, p,
+                    QPoint( (int) gesture->hotSpot().rx(),
+                            (int) gesture->hotSpot().rx() ) + p,
+                    Qt::MidButton,
+                    Qt::ShiftModifier );
+    mouseReleaseEvent( &ev );
+  }
+  return true;
+}
+
+
+bool Control::panGesture( QPanGesture * gesture )
+{
+  if( gesture->state() == Qt::GestureStarted )
+  {
+    // for now, simulate corresponding mouse events
+    QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
+                    QPoint( (int) gesture->hotSpot().rx(),
+                            (int) gesture->hotSpot().rx() ),
+                    Qt::MidButton,
+                    0 /*TODO: get actual current modifiers */ );
+    mousePressEvent( &ev );
+  }
+  else if( gesture->state() == Qt::GestureUpdated )
+  {
+    // for now, simulate corresponding mouse events
+    QMouseEvent ev( QEvent::MouseMove,
+                    QPoint( (int) gesture->offset().rx(),
+                            (int) gesture->offset().ry() ),
+                    QPoint( (int) gesture->hotSpot().rx(),
+                            (int) gesture->hotSpot().rx() ),
+                    Qt::MidButton,
+                    0 /*TODO: get actual current modifiers */ );
+    mouseMoveEvent( &ev );
+  }
+  else if( gesture->state() == Qt::GestureCanceled
+    || gesture->state() == Qt::GestureFinished )
+  {
+    // for now, simulate corresponding mouse events
+    QMouseEvent ev( QEvent::MouseButtonRelease,
+                    QPoint( (int) gesture->offset().rx(),
+                            (int) gesture->offset().ry() ),
+                    QPoint( (int) gesture->hotSpot().rx(),
+                            (int) gesture->hotSpot().rx() ),
+                    Qt::MidButton,
+                    0 /*TODO: get actual current modifiers */ );
+    mouseReleaseEvent( &ev );
+  }
+  return true;
+}
+#endif // Qt >= 4.6
+
 
 bool 
 Control::keyPressEventSubscribe( int key, 

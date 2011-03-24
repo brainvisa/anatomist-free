@@ -45,6 +45,10 @@
 #else
 #include <qgl.h>
 #endif
+#if QT_VERSION >= 0x040600
+#include <QGestureEvent>
+#endif
+
 
 namespace aims
 {
@@ -83,6 +87,9 @@ namespace anatomist
     virtual void initializeGL();
     virtual void resizeGL( int w, int h );
     virtual void paintGL();
+#if QT_VERSION >= 0x040600
+    virtual void gestureEvent( QGestureEvent *event );
+#endif
     virtual void mousePressEvent( QMouseEvent* me );
     virtual void mouseReleaseEvent( QMouseEvent* me );
     virtual void mouseMoveEvent( QMouseEvent* me );

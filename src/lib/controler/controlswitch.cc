@@ -909,6 +909,24 @@ ControlSwitch::selectionChangedEvent()
 }
 
 
+#if QT_VERSION >= 0x040600
+void
+ControlSwitch::gestureEvent( QGestureEvent *event )
+{
+  map<string, ControlPtr>::iterator found( myControls.find(myActiveControl) );
+  if ( myControlEnabled )
+  {
+    if( found == myControls.end() )
+    {
+      cerr << "Error : showEvent : bad active control" << endl;
+      ASSERT(0);
+    }
+    found->second->gestureEvent( event );
+  }
+}
+#endif
+
+
 void 
 ControlSwitch::getSelectedObjectNames()
 {

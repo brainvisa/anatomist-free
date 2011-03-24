@@ -48,6 +48,9 @@
 #include <aims/qtcompat/qhbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
+#if QT_VERSION >= 0x040600
+#include <QGestureEvent>
+#endif
 
 #include <vector>
 #include <list>
@@ -168,7 +171,10 @@ public:
   void showEvent ( QShowEvent * ) ;
   void hideEvent ( QHideEvent * ) ;
   void selectionChangedEvent();
-  //void customEvent ( QCustomEvent * ) ; 
+  //void customEvent ( QCustomEvent * ) ;
+#if QT_VERSION >= 0x040600
+  void gestureEvent( QGestureEvent * );
+#endif
 
   void setAvailableControls( const std::list<std::string>& objects ) ;
   void setActivableControls( bool init = false) ;

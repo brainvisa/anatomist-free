@@ -70,6 +70,9 @@ public slots:
   virtual void updateGL();
 
 protected:
+#if QT_VERSION >= 0x040600
+  virtual bool event( QEvent * );
+#endif
   virtual void initializeGL();
   virtual void resizeGL( int w, int h );
   virtual void paintGL();

@@ -40,6 +40,11 @@
 #include <qobject.h>
 #include <qtabwidget.h>
 #include <qwidget.h>
+#if QT_VERSION >= 0x040600
+class QGestureEvent;
+class QPinchGesture;
+class QPanGesture;
+#endif
 #include <list>
 #include <map>
 #include <string>
@@ -77,7 +82,8 @@ namespace anatomist {
   class KeyAndMouseLongEvent ;
   class LongActions ;
   
-  class Control {
+  class Control
+  {
 
   public:
 
@@ -452,7 +458,12 @@ namespace anatomist {
     virtual void showEvent ( QShowEvent * event ) ;
     virtual void hideEvent ( QHideEvent * event ) ;
     virtual void selectionChangedEvent();
-    //virtual void customEvent ( QCustomEvent * ) ; 
+    //virtual void customEvent ( QCustomEvent * ) ;
+#if QT_VERSION >= 0x040600
+    virtual void gestureEvent( QGestureEvent * event );
+    virtual bool pinchGesture( QPinchGesture * gesture );
+    virtual bool panGesture( QPanGesture * gesture );
+#endif
 
     bool keyPressEventSubscribe( int key, 
 				 Qt::ButtonState buttonState,

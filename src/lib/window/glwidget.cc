@@ -89,6 +89,19 @@ void QAGLWidget::paintGL()
 }
 
 
+#if QT_VERSION >= 0x040600
+bool QAGLWidget::event( QEvent * event )
+{
+  if( event->type() == QEvent::Gesture )
+  {
+    gestureEvent( static_cast<QGestureEvent*>( event ) );
+    return true;
+  }
+  return QWidget::event(event);
+}
+#endif
+
+
 void QAGLWidget::mousePressEvent( QMouseEvent* me )
 {
   GLWidgetManager::mousePressEvent( me );

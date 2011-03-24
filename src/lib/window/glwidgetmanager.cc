@@ -1349,6 +1349,15 @@ bool GLWidgetManager::translateCursorPosition( float x, float y,
   return true;
 }
 
+
+#if QT_VERSION >= 0x040600
+void GLWidgetManager::gestureEvent( QGestureEvent * event )
+{
+  controlSwitch()->gestureEvent( event );
+}
+#endif
+
+
 void GLWidgetManager::mousePressEvent( QMouseEvent* ev )
 {
   //cout << "GLWidgetManager::mousePressEvent\n";
