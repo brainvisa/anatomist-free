@@ -113,6 +113,7 @@ private slots :
   void selectRegion( Q3ListBoxItem * ) ;
   void renameRegion( Q3ListBoxItem * ) ;
   void selectImage( Q3ListBoxItem * ) ;
+  void contextMenu( Q3ListBoxItem *, const QPoint & );
 #else
   void selectGraph( QListBoxItem * ) ;
   void renameGraph( QListBoxItem * ) ;

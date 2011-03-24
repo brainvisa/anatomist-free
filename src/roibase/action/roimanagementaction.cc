@@ -259,9 +259,12 @@ RegionsFusionWindow::selectedRegionsChanged()
 }
 
 
-namespace anatomist{
-  struct RoiManagementActionView_Private {
-    enum FrameWork{
+namespace anatomist
+{
+  struct RoiManagementActionView_Private
+  {
+    enum FrameWork
+    {
       NEURO = 301,
       LATERALNEURO = 302,
       SULCI = 303,
@@ -269,7 +272,7 @@ namespace anatomist{
       USERDEFINED,
       FREE
     };
-    
+
 
     RoiManagementAction * myRoiManagementAction ;
 
@@ -308,7 +311,6 @@ namespace anatomist{
     QHGroupBox * myGraphTransparencyBox ;
     QSlider * myGraphTransparency ;
     QLabel * myGraphTransparencyLabel ;
-    
   } ;
 }
 
@@ -342,44 +344,41 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   _private->myRoiManagementAction = action ;
   action->addObserver(this) ;
 
-  
   _private->myMainMenu = new QMenuBar(this) ;
-  _private->mySessionMenu = new QPopupMenu ;
-  _private->mySessionMenu->insertItem( tr("New"), this, 
-				       SLOT( newGraph() ), 
-				       Qt::CTRL + Qt::ALT + Qt::Key_N, 101 ) ;
+  _private->mySessionMenu = new QPopupMenu( this );
+  _private->mySessionMenu->insertItem( tr("New"), this,
+                    SLOT( newGraph() ),
+                    Qt::CTRL + Qt::ALT + Qt::Key_N, 101 ) ;
 
   _private->mySessionMenu->insertItem( tr("Open"), this,
-				       SLOT( loadGraph() ), 
-                                       Qt::CTRL + Qt::Key_O, 
-				       102 ) ;
+                    SLOT( loadGraph() ),
+                    Qt::CTRL + Qt::Key_O,
+                    102 ) ;
 
-//   _private->mySessionMenu->insertItem( tr("Reload"), this, 
-// 				       SLOT( reloadGraph() ), 0, 103 ) ;
-  
-  _private->mySessionMenu->insertItem( tr("Close"), this, 
-				       SLOT( deleteGraph() ), 0, 104 ) ;
+//   _private->mySessionMenu->insertItem( tr("Reload"), this,
+//                                     SLOT( reloadGraph() ), 0, 103 ) ;
+
+  _private->mySessionMenu->insertItem( tr("Close"), this,
+                    SLOT( deleteGraph() ), 0, 104 ) ;
 
   _private->mySessionMenu->insertSeparator() ;
-  _private->mySessionMenu->insertItem( tr("Save"), this, 
-				       SLOT( saveGraph() ), 
-                                       Qt::CTRL + Qt::Key_S, 
-				       105 );
+  _private->mySessionMenu->insertItem( tr("Save"), this,
+                    SLOT( saveGraph() ),
+                    Qt::CTRL + Qt::Key_S,
+                    105 );
 
-  _private->mySessionMenu->insertItem( tr("Save As"), this, 
-				       SLOT( saveGraphAs() ), 
-				       Qt::CTRL + Qt::SHIFT + Qt::Key_S, 
-                                       106 ) ;
+  _private->mySessionMenu->insertItem( tr("Save As"), this,
+                    SLOT( saveGraphAs() ),
+                    Qt::CTRL + Qt::SHIFT + Qt::Key_S,
+                    106 ) ;
 
-  _private->mySessionMenu->insertItem( tr("Clean"), this, 
-				       SLOT( cleanSession() ), 
-				       Qt::CTRL + Qt::SHIFT + Qt::Key_C, 
-                                       107 ) ;
+  _private->mySessionMenu->insertItem( tr("Clean"), this,
+                    SLOT( cleanSession() ),
+                    Qt::CTRL + Qt::SHIFT + Qt::Key_C,
+                    107 ) ;
 
-  if( _private->myRoiManagementAction->savableGraph() )
-    _private->mySessionMenu->setItemEnabled( 105, true ) ;
-  else
-    _private->mySessionMenu->setItemEnabled( 105, false ) ;
+  _private->mySessionMenu->setItemEnabled( 105,
+    _private->myRoiManagementAction->savableGraph() ) ;
 
   _private->myMainMenu->insertItem( tr( "Session" ), 
 				    _private->mySessionMenu ) ;
@@ -568,6 +567,15 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
            this, SLOT( selectRegion( Q3ListBoxItem * ) ) ) ;
   connect( _private->mySelectRegion, SIGNAL( selected( Q3ListBoxItem * ) ),
            this, SLOT( renameRegion( Q3ListBoxItem * ) ) ) ;
+  connect( _private->mySelectGraph,
+           SIGNAL( contextMenuRequested( Q3ListBoxItem *, const QPoint & ) ),
+           this, SLOT( contextMenu( Q3ListBoxItem *, const QPoint & ) ) ) ;
+  connect( _private->mySelectRegion,
+           SIGNAL( contextMenuRequested( Q3ListBoxItem *, const QPoint & ) ),
+           this, SLOT( contextMenu( Q3ListBoxItem *, const QPoint & ) ) ) ;
+  connect( _private->mySelectImage,
+           SIGNAL( contextMenuRequested( Q3ListBoxItem *, const QPoint & ) ),
+           this, SLOT( contextMenu( Q3ListBoxItem *, const QPoint & ) ) ) ;
 #else
   connect( _private->mySelectGraph,
            SIGNAL( selectionChanged( QListBoxItem * ) ),
@@ -1510,6 +1518,19 @@ RoiManagementActionView::graphTransparencyChange( int alpha )
   _private->myGraphTransparencyLabel->setText( QString::number( alpha ) ) ;
 }
 
+
+#if QT_VERSION >= 0x040000
+void RoiManagementActionView::contextMenu( Q3ListBoxItem *, const QPoint & pos )
+{
+  QMenu pop;
+  pop.addMenu( _private->mySessionMenu );
+  pop.addMenu( _private->myRegionMenu );
+  pop.addMenu( _private->myFrameWorkMenu );
+  pop.addMenu( _private->myUserDefinedFrameWorkMenu );
+  pop.addMenu( _private->myWindowMenu );
+  pop.exec( pos );
+}
+#endif
 
 
 // ---
@@ -3669,6 +3690,7 @@ RoiManagementAction::graphTransparency()
   //cout << "get Graph Transparency : " << g->material().Diffuse(3) << endl ;
   return g->material().Diffuse(3) ;
 }
+
 
 
 
