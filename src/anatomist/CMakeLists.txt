@@ -13,7 +13,7 @@ if( APPLE )
   add_custom_command( TARGET anatomist-bin POST_BUILD
     COMMAND "ln"
     ARGS "-sf"
-    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/anatomist.app/Contents/MacOS/anatomist"
+    "anatomist.app/Contents/MacOS/anatomist"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/anatomist"
   )
   BRAINVISA_INSTALL( FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/anatomist"
