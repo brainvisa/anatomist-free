@@ -35,8 +35,8 @@
 #ifndef ANATOMIST_WINDOW_VTKGLWIDGET_H
 #define ANATOMIST_WINDOW_VTKGLWIDGET_H
 
-#include <anatomist/window/vtkglcontext.h>
 #include <anatomist/window/glwidgetmanager.h>
+#include <anatomist/window/vtkglcontext.h>
 
 namespace anatomist
 {
