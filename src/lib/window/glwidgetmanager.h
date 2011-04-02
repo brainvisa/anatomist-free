@@ -46,7 +46,7 @@
 #include <qgl.h>
 #endif
 #if QT_VERSION >= 0x040600
-#include <QGestureEvent>
+class QGestureEvent;
 #endif
 
 
