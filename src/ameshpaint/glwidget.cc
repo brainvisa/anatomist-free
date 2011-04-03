@@ -272,6 +272,8 @@ void myGLWidget<T>::buildDataArray(void)
 {
   int j;
 
+  cout << "coucou1\n";
+
   vector<Point3df> & vert = _mesh.vertex();
   const vector<Point3df> & norm = _mesh.normal();
 
@@ -279,6 +281,8 @@ void myGLWidget<T>::buildDataArray(void)
 
   const float* t = _aTex->textureCoords();
   const float* tcurv = _aTexCurv->textureCoords();
+
+  cout << "coucou2\n";
 
   _vertices = (GLfloat*) malloc(3 * vert.size() * sizeof(GLfloat));
   //_textures = (GLfloat*) malloc(vert.size() * sizeof(GLfloat));
@@ -312,6 +316,8 @@ void myGLWidget<T>::buildDataArray(void)
     _colorsDist[3 * j + 1] = (int) dataColorMap[0];
     _colorsDist[3 * j + 2] = (int) dataColorMap[0];
   }
+
+  cout << "coucou3\n";
 
   _indices = (GLuint*) malloc(3 * tri.size() * sizeof(GLuint));
 
@@ -1058,7 +1064,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
             _pathSP.push_back(ss);
             //cout << i << " " << ss.x() << ' ' << ss.y() << ' ' <<  ss.z() << endl;
           }
-
+          delete (dijkstra_algorithm);
         }
         updateInfosPicking(_indexPolygon, _indexVertex);
       }
@@ -2008,7 +2014,7 @@ void myGLWidget<T>::addSimpleShortPath(int indexSource,int indexDest)
 //    cout << listIndexVertexHolesPathTemp[i] << " ";
 //  }
 //  cout << endl;
-
+  delete (dijkstra_algorithm);
 }
 
 template<typename T>
@@ -2073,6 +2079,7 @@ void myGLWidget<T>::computeIsoline(int indexSource)
     _colorsDist[3 * i + 2] = (int) dataColorMap[(3 * (int)(256*(float)(distance[i]/max_distance))) +2];
   }
 
+  delete (dijkstra_algorithm);
 }
 
 template<typename T>
@@ -2190,11 +2197,12 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _minT = min;
   _maxT = max;
 
-  if (min == 0 && max <= 360)
-  {
-  _minT = 0;
-  _maxT = 360;
-  }
+  if (max == 0) _maxT = 360.0;
+//  if (min == 0 && max <= 360)
+//  {
+//  _minT = 0;
+//  _maxT = 360;
+//  }
 
   //_aTex->setTexExtrema(0,360);
 
