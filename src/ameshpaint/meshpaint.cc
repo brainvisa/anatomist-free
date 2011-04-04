@@ -33,8 +33,8 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
     textureFloatSpinBox->setSingleStep(0.01);
     textureFloatSpinBox->setFixedHeight(30);
     textureFloatSpinBox->setFixedWidth(75);
-    textureFloatSpinBox->setValue(0.0);
-
+    textureFloatSpinBox->setValue(360.0);
+    textureFloatSpinBox->setRange(0,360.0);
     textureSpinBox = static_cast<QDoubleSpinBox*> (textureFloatSpinBox);
     connect  (textureFloatSpinBox,SIGNAL(valueChanged(double)),glWidget,SLOT(changeTextureSpinBoxFloat(double)));
   }
@@ -45,7 +45,9 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
     textureIntSpinBox->setSingleStep(1);
     textureIntSpinBox->setFixedHeight(30);
     textureIntSpinBox->setFixedWidth(75);
-    textureIntSpinBox->setValue(0);
+    textureIntSpinBox->setValue(360);
+    textureIntSpinBox->setRange(0,360);
+
     textureSpinBox = static_cast<QSpinBox*>(textureIntSpinBox);
     connect(textureIntSpinBox,SIGNAL(valueChanged(int)),glWidget,SLOT(changeTextureSpinBoxInt(int)));
   }

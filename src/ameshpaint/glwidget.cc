@@ -23,7 +23,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _listMeshPicking = 0;
   _indexVertex = 0;
   _indexPolygon = 0;
-  _textureValue = 0;
+  _textureValue = 360.;
   _texCurvDisplay = false;
   _wireframe = false;
   _resized = false;
@@ -31,6 +31,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _showInfos = true;
   _constraintPathValue = 3;
   _sigmoPathValue = 2.0;
+
 
   backBufferTexture.resize( parent->width() * parent->height() * 3 );
 
@@ -64,75 +65,21 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
     //const AimsSurface<3,Void>   & surface = _mesh[0];
     _texCurv = AimsMeshCurvature(_mesh[0]);
 
+    double a1,c;
+    if (_modePath == 1)
+      c = _constraintPathValue*-1;
+    else
+      c = _constraintPathValue;
 
+    _texWeight = TimeTexture<float>(1, _mesh.vertex().size());
+    for (uint i = 0; i < _mesh.vertex().size(); i++)
+    {
 
-//
-//    CurvatureFactory CF;
-//    Curvature *curvat = CF.createCurvature(_mesh,"barycenter");
-//    _texCurv[0] = curvat->doIt();
-//    curvat->regularize(_texCurv[0],1);
-//    curvat->getTextureProperties(_texCurv[0]);
-//    delete curvat;
+        a1 = pow ((1.0)/(1.0 + exp(c*_texCurv[0].item(i))), _sigmoPathValue);
+        _texWeight[0].item(i) = (float)a1;
+        //cout << _texWeight[0].item(i) << " ";
+    }
 
-//    CurvatureFactory CF;
-//    Curvature * curv = CF.createCurvature(surface,"fem");
-//    cout << "processing..." << flush;
-//
-
-    //_texCurv = AimsMeshCurvature (surface);
-
-//    float nx, ny, nz, ix, iy, iz, vx, vy , vz;
-//    int Ni;
-//    for (uint i = 0; i < _mesh.vertex().size(); i++)
-//    {
-//      std::set<uint> voisins=neighbours[i];
-//      std::set<uint>::iterator voisIt=voisins.begin();
-//      voisIt=voisins.begin();
-//
-//      Ni = voisins.size();
-//
-//      float nix, niy, niz;
-//      float vix, viy, viz;
-//      float nvix, nviy, nviz;
-//      float ci;
-//
-//      ci = 0;
-//      nix = 0; niy = 0 ; niz = 0;
-//
-//      ix = ((_mesh.vertex())[i])[0];
-//      iy = ((_mesh.vertex())[i])[1];
-//      iz = ((_mesh.vertex())[i])[2];
-//
-//      for ( ; voisIt != voisins.end(); voisIt++)
-//      {
-//        nix += ((_mesh.normal())[*voisIt])[0];
-//        niy += ((_mesh.normal())[*voisIt])[1];
-//        niz += ((_mesh.normal())[*voisIt])[2];
-//      }
-//
-//      nix = (float)nix/Ni;
-//      niy = (float)niy/Ni;
-//      niz = (float)niz/Ni;
-//
-//      voisIt=voisins.begin();
-//
-//      for ( ; voisIt != voisins.end(); voisIt++)
-//      {
-//        vx=((_mesh.vertex())[*voisIt])[0];
-//        vy=((_mesh.vertex())[*voisIt])[1];
-//        vz=((_mesh.vertex())[*voisIt])[2];
-//        vix = ix - vx;
-//        viy = iy - vy;
-//        viz = iz - vz;
-//        nvix = sqrt(vix*vix);
-//        nviy = sqrt(viy*viy);
-//        nviz = sqrt(viz*viz);
-//        ci += (float)(nix*vix + niy*viy + niz*viz)/(nvix + nviy + nviz);
-//      }
-//    _texCurv[0].item(i) = (float)ci/Ni;
-//    }
-
-    //fin calcul de la courbure
     cout << " OK" << endl;
 
     if (adressTexIn.length()!=0)
@@ -149,16 +96,6 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
        for (uint i = 0; i < _mesh.vertex().size(); i++)
          _tex[0].item(i) = 0;
        cout << " OK" << endl;
-
-
-       double a1;
-       _texWeight = TimeTexture<float>(1, _mesh.vertex().size());
-       for (uint i = 0; i < _mesh.vertex().size(); i++)
-       {
-           a1 = pow ((1.0)/(1.0 + exp(_constraintPathValue*_texCurv[0].item(i))), _sigmoPathValue);
-           _texWeight[0].item(i) = (float)a1;
-       }
-
      }
 
   }
@@ -412,7 +349,7 @@ void myGLWidget<T>::changeTextureValueInt(int value)
     _textureValue = 0;
   }
 
-  //cout << "changeTextureValueInt " << (int) dataColorMap[3 * (int) (255 * v)] << endl;
+  cout << "changeTextureValueInt " << (int) dataColorMap[3 * (int) (255 * v)] << endl;
   updateGL();
 }
 
@@ -437,7 +374,7 @@ void myGLWidget<T>::changeTextureValueFloat(double value)
   }
 
   updateGL();
-  //cout << "changeTextureValueFloat " << value << endl;
+  cout << "changeTextureValueFloat " << value << endl;
 }
 
 template<typename T>
@@ -463,10 +400,17 @@ void myGLWidget<T>::changeToleranceValue(int value)
 template<typename T>
 void myGLWidget<T>::compute_weight_dijkstra (double strain, double sigmo)
 {
-  double a1;
+  double a1,c;
+  if (_modePath == 2)
+    c = strain*-1;
+  if (_modePath == 3)
+    c = strain;
+
+  cout << "c = " << c << " " << _modePath << endl;
+
   for (uint i = 0; i < _mesh.vertex().size(); i++)
   {
-  a1 = pow ((1.0)/(1.0 + exp(strain*_texCurv[0].item(i))), sigmo);
+  a1 = pow ((1.0)/(1.0 + exp(c*_texCurv[0].item(i))), sigmo);
   _texWeight[0].item(i) = (float)a1;
   }
 
@@ -795,6 +739,9 @@ void myGLWidget<T>::initializeGL()
   _trackBall.push(pixelPosToViewPos(p),gfx::Quaternionf::identity());
   trackBallTransformation();
   //paintGL();
+
+  changeTextureValue (_textureValue);
+
 }
 
 template<typename T>
@@ -2266,12 +2213,7 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _minT = min;
   _maxT = max;
 
-  if (max == 0) _maxT = 360.0;
-//  if (min == 0 && max <= 360)
-//  {
-//  _minT = 0;
-//  _maxT = 360;
-//  }
+
 
   //_aTex->setTexExtrema(0,360);
 
@@ -2291,12 +2233,14 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _aTexWeight->setTexture(texWeight);
   _aTexWeight->normalize();
 
-  cout << "min " << _minT << " max " << _maxT << endl;
+  cout << "min T" << _minT << " max T" << _maxT << endl;
 
   myMeshPaint<T> *toolbar = dynamic_cast<myMeshPaint<T> *> (_parent);
 
   if (_dataType == "FLOAT")
   {
+    if (max == 0) _maxT = 360.0;
+
     QDoubleSpinBox *textureFloatSpinBox =
         dynamic_cast<QDoubleSpinBox *> (toolbar->textureSpinBox);
 
@@ -2305,6 +2249,14 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
 
   if (_dataType == "S16")
   {
+    //if (max == 0) _maxT = 360;
+
+    if (min == 0 && max <= 360)
+    {
+    _minT = 0;
+    _maxT = 360;
+    }
+
     QSpinBox *textureIntSpinBox =
         dynamic_cast<QSpinBox *> (toolbar->textureSpinBox);
 
