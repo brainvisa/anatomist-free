@@ -87,7 +87,10 @@
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/geometric.h>
 #include <anatomist/object/actions.h>
-#include <aims/geodesicpath/geodesic_mesh.h>
+
+#include <aims/geodesicpath/geodesicPath.h>
+//#include <cortical_surface/mesh/geodesicPath.h>
+
 #include <queue>
 
 using namespace aims;
@@ -137,9 +140,13 @@ namespace anatomist
       void setClosePath(bool c){pathClosed = c;}
       bool pathIsClosed(void){return pathClosed;}
 
-      geodesic::Mesh getMeshStructSP() {return meshSP;}
-      geodesic::Mesh getMeshStructGyriP() {return meshGyriCurvSP;}
-      geodesic::Mesh getMeshStructSulciP() {return meshSulciCurvSP;}
+//      geodesic::Mesh getMeshStructSP() {return meshSP;}
+//      geodesic::Mesh getMeshStructGyriP() {return meshGyriCurvSP;}
+//      geodesic::Mesh getMeshStructSulciP() {return meshSulciCurvSP;}
+
+      GeodesicPath* getMeshStructSP() {return sp;}
+      GeodesicPath* getMeshStructSulciP() {return sp_sulci;}
+      GeodesicPath* getMeshStructGyriP() {return sp_gyri;}
 
       void addGeodesicPath(int indexNearestVertex,Point3df positionNearestVertex);
       void addSimpleShortPath(int indexSource,int indexDest);
@@ -180,6 +187,7 @@ namespace anatomist
       rc_ptr<AimsSurfaceTriangle> mesh;
       AObject *tex;
       ATexture *at;
+      TimeTexture<float> texCurv;
 
       Object options;
 
@@ -227,10 +235,14 @@ namespace anatomist
       int IDActiveControl;
       string shortestPathSelectedType;
 
-      float *texCurvature;
-      geodesic::Mesh meshSP;
-      geodesic::Mesh meshGyriCurvSP;
-      geodesic::Mesh meshSulciCurvSP;
+      GeodesicPath *sp;
+      GeodesicPath *sp_sulci;
+      GeodesicPath *sp_gyri;
+
+//      geodesic::Mesh meshSP;
+//      geodesic::Mesh meshGyriCurvSP;
+//      geodesic::Mesh meshSulciCurvSP;
+//
       std::vector<std::set<uint> >  neighbours;
       bool pathClosed;
 

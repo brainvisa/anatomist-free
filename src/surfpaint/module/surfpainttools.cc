@@ -33,9 +33,9 @@
 
 #include <anatomist/module/surfpainttools.h>
 
-#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
-#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
-#include <aims/geodesicpath/geodesic_algorithm_exact.h>
+//#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
+//#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
+//#include <aims/geodesicpath/geodesic_algorithm_exact.h>
 
 SurfpaintTools* & SurfpaintTools::my_instance()
 {
@@ -83,7 +83,6 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   toleranceValue( 0 ),
   stepToleranceValue( 0 ),
   IDActiveControl( -1 ),
-  texCurvature( 0 ),
   pathClosed( false ),
   go(0),
   as(0),
@@ -99,7 +98,9 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
 SurfpaintTools::~SurfpaintTools()
 {
   delete my_instance();
-  delete[] texCurvature;
+  delete sp;
+  delete sp_sulci;
+  delete sp_gyri;
 }
 
 void SurfpaintTools::popAllButtonPaintToolBar()
@@ -318,8 +319,8 @@ void SurfpaintTools::save()
   for (uint i = 0; i < at->size(); i++)
     {
     (*out).item(i) = surfpaintTexInit[0].item(i);
-    if ((*out).item(i)>0)
-      cout << (*out).item(i) << " " ;
+//    if ((*out).item(i)>0)
+//      cout << (*out).item(i) << " " ;
     }
 
 //  cout << "coucou" << endl;
@@ -331,23 +332,18 @@ void SurfpaintTools::save()
 //      cout << (*out).item(i) << " ";
 //    }
 
-  cout << "coucou1" << endl;
-
   for (; mit != mend; ++mit)
     {
     (*out).item(mit->first) = mit->second;
-    if ((*out).item(mit->first) > 0)
-      cout << (*out).item(mit->first) << " ";
+//    if ((*out).item(mit->first) > 0)
+//      cout << (*out).item(mit->first) << " ";
     }
-
-  cout << "coucou2" << endl;
 
   for (uint i = 0; i < at->size(); i++)
     {
     surfpaintTexInit[0].item(i) = (*out).item(i);
     }
 
-  cout << "coucou3" << endl;
 //  cout << "scale = " <<  scl << endl;
 //  rc_ptr<Texture1d> textemp(new Texture1d);
 //  Converter<TimeTexture<float> , Texture1d> c;
@@ -383,13 +379,6 @@ void SurfpaintTools::save()
 bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 {
   win3D = w3;
-
-  if( texCurvature )
-  {
-    // cleanup
-    delete[] texCurvature;
-    texCurvature = 0;
-  }
 
   stepToleranceValue = 0;
 
@@ -501,23 +490,30 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
       setMaxPoly(tri.size());
       setMaxVertex(vert.size());
       setMinMaxTexture(0, 360);
-
+      setTextureValueFloat(360);
 //        if (w3->constraintEditorIsActive())
 //          setMinMaxTexture(0, 360);
 //        else
 //          setMinMaxTexture((float) (te.minquant[0]), (float) (te.maxquant[0]));
 
-      TimeTexture<float> texCurv;
+
       cout << "compute texture curvature : ";
       texCurv = TimeTexture<float> (1, vert.size());
       texCurv = AimsMeshCurvature(surf);
       cout << "done" << endl;
 
-      texCurvature = new float[ texCurv[0].nItem() * sizeof(float) ];
-      for (uint i = 0; i < texCurv[0].nItem(); i++)
-      {
-        texCurvature[i] = (float) (texCurv[0].item(i));
-      }
+      //cout << "compute adjacences graphs : ";
+
+      sp = new GeodesicPath(*mesh,texCurv,0,0);
+      sp_sulci = new GeodesicPath(*mesh,texCurv,1,3);
+      sp_gyri = new GeodesicPath(*mesh,texCurv,2,3);
+
+      //cout << "done" << endl;
+
+      //computeGraphDijkstra(_mesh, 1 , strain);
+
+      /*
+      vector<float> &curv = texCurv[0].data();
 
       // copy vertex and faces vector
       std::vector<double> pointsSP;
@@ -540,13 +536,15 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       cout << "compute adjacences graphs : ";
       meshSP.initialize_mesh_data(pointsSP, facesSP, NULL, 0, 0);
-      meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 1, 3);
-      meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, texCurvature, 2, 3);
+      meshSulciCurvSP.initialize_mesh_data(pointsSP, facesSP, &curv[0], 1, 3);
+      meshGyriCurvSP.initialize_mesh_data(pointsSP, facesSP, &curv[0], 2, 3);
       cout << "done" << endl;
-
+       */
       cout << "compute surface neighbours : ";
       neighbours = SurfaceManip::surfaceNeighbours((*mesh));
       cout << "done" << endl;
+
+
     }
   }
 
@@ -1198,7 +1196,11 @@ void SurfpaintTools::loadConstraintsList()
 
 void SurfpaintTools::changeConstraintPathSpinBox(int v)
 {
+  delete sp_sulci;
+  delete sp_gyri;
 
+  sp_sulci = new GeodesicPath(*mesh,texCurv,1,v);
+  sp_gyri = new GeodesicPath(*mesh,texCurv,2,v);
 }
 
 void SurfpaintTools::fillHolesOnPath (void)
@@ -1269,72 +1271,84 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   int nb_vertex;
   printf("nb vertex path = %d\n", listIndexVertexSelectSP.size());
 
-  std::vector<geodesic::SurfacePoint> sources;
-  std::vector<geodesic::SurfacePoint> targets;
-
-  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
-  geodesic::Mesh meshSP;
+//  std::vector<geodesic::SurfacePoint> sources;
+//  std::vector<geodesic::SurfacePoint> targets;
+//
+//  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+//  geodesic::Mesh meshSP;
 
   const string ac = getPathType();
 
-  if (ac.compare("ShortestPath") == 0)
-    meshSP = getMeshStructSP();
-  else if (ac.compare("SulciPath") == 0)
-    meshSP = getMeshStructSulciP();
-  else if (ac.compare("GyriPath") == 0)
-    meshSP = getMeshStructGyriP();
+  GeodesicPath *sptemp;
 
-  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
+  if (ac.compare("ShortestPath") == 0)
+    sptemp = getMeshStructSP();
+  else if (ac.compare("SulciPath") == 0)
+    sptemp = getMeshStructSulciP();
+  else if (ac.compare("GyriPath") == 0)
+    sptemp = getMeshStructGyriP();
+
+  //dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
 
   if (listIndexVertexSelectSP.size() >= 2)
   {
+
+    std::vector<Point3df> vertexList;
+
     unsigned target_vertex_index = (*(--ite));
     unsigned source_vertex_index = (*(--ite));
 
-    printf("indice source = %d target = %d \n", source_vertex_index,
-        target_vertex_index);
+    //vertexList = sptemp->shortestPathCoordVextex(source_vertex_index,target_vertex_index);
 
-    std::vector<geodesic::SurfacePoint> SPath;
-    SPath.clear();
-
+//    printf("indice source = %d target = %d \n", source_vertex_index,
+//        target_vertex_index);
+//
+//    std::vector<geodesic::SurfacePoint> SPath;
+//    SPath.clear();
+//
     listIndexVertexPathSPLast.clear();
 
-    geodesic::SurfacePoint short_sources(
-        &meshSP.vertices()[source_vertex_index]);
-    geodesic::SurfacePoint short_targets(
-        &meshSP.vertices()[target_vertex_index]);
+    sptemp->shortestPathIndiceCoordVextex(source_vertex_index,target_vertex_index,listIndexVertexPathSPLast,vertexList);
 
-    dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
-        listIndexVertexPathSPLast);
-
-    ite = listIndexVertexPathSPLast.end();
-
-    reverse(listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-    listIndexVertexPathSPLast.push_back((int) target_vertex_index);
-
+//
+//    geodesic::SurfacePoint short_sources(
+//        &meshSP.vertices()[source_vertex_index]);
+//    geodesic::SurfacePoint short_targets(
+//        &meshSP.vertices()[target_vertex_index]);
+//
+//    dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
+//        listIndexVertexPathSPLast);
+//
+//    ite = listIndexVertexPathSPLast.end();
+//
+//    reverse(listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
+//    listIndexVertexPathSPLast.push_back((int) target_vertex_index);
+//
     listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
         listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-
-    cout << "path dijkstra = ";
-
-    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
-    {
-      cout << listIndexVertexPathSP[i] << " ";
-    }
-    cout << endl;
-
-    std::vector<Point3df> vertexList;
-    Point3df newVertex;
+//
+//    cout << "path dijkstra = ";
+//
+//    for ( i = 0; i < listIndexVertexPathSP.size(); i++)
+//    {
+//      cout << listIndexVertexPathSP[i] << " ";
+//    }
+//    cout << endl;
+//
+//    std::vector<Point3df> vertexList;
+//    Point3df newVertex;
+//
+//
+//
+//    for (i = 0; i < SPath.size(); ++i)
+//    {
+//      newVertex[0] = SPath[i].x();
+//      newVertex[1] = SPath[i].y();
+//      newVertex[2] = SPath[i].z();
+//      vertexList.push_back(newVertex);
+//    }
 
     AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
-
-    for (i = 0; i < SPath.size(); ++i)
-    {
-      newVertex[0] = SPath[i].x();
-      newVertex[1] = SPath[i].y();
-      newVertex[2] = SPath[i].z();
-      vertexList.push_back(newVertex);
-    }
 
     for (i = 0; i < vertexList.size() - 1; ++i)
     {
@@ -1400,9 +1414,6 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 {
   int i;
 
-
-
-
   AimsSurfaceTriangle *tmpMeshOut;
   tmpMeshOut = new AimsSurfaceTriangle;
 
@@ -1428,61 +1439,66 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 //  theAnatomist->registerObject(sp, 0);
 //  holesObject.push_back(sp);
 
+//
+//  std::vector<geodesic::SurfacePoint> sources;
+//  std::vector<geodesic::SurfacePoint> targets;
+//
+//  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
+//  geodesic::Mesh meshSP;
+//
+//  meshSP = getMeshStructSP();
+//
+//  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
+//
 
-  std::vector<geodesic::SurfacePoint> sources;
-  std::vector<geodesic::SurfacePoint> targets;
-
-  geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
-  geodesic::Mesh meshSP;
-
-  meshSP = getMeshStructSP();
-
-  dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&meshSP);
+//
+//  printf("indice source = %d target = %d \n", source_vertex_index,
+//      target_vertex_index);
+//
+//  std::vector<geodesic::SurfacePoint> SPath;
+//  SPath.clear();
+//
+//  std::vector<int> listIndexVertexHolesPathTemp;
+//
+//  listIndexVertexHolesPathTemp.clear();
+//
+//  geodesic::SurfacePoint short_sources(
+//      &meshSP.vertices()[source_vertex_index]);
+//  geodesic::SurfacePoint short_targets(
+//      &meshSP.vertices()[target_vertex_index]);
+//
+//  dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
+//      listIndexVertexHolesPathTemp);
+//
+//  listIndexVertexHolesPath.insert(listIndexVertexHolesPath.end(),
+//      listIndexVertexHolesPathTemp.begin(), listIndexVertexHolesPathTemp.end());
+//
+//  cout << "path dijkstra = ";
+//
+//  for ( i = 0; i < listIndexVertexHolesPathTemp.size(); i++)
+//  {
+//    cout << listIndexVertexHolesPathTemp[i] << " ";
+//  }
+//  cout << endl;
 
   unsigned target_vertex_index = indexSource;
   unsigned source_vertex_index = indexDest;
+//
+  vector<Point3df> vertexList;
+//
+  vertexList = sp->shortestPathCoordVextex(source_vertex_index,target_vertex_index);
 
-  printf("indice source = %d target = %d \n", source_vertex_index,
-      target_vertex_index);
-
-  std::vector<geodesic::SurfacePoint> SPath;
-  SPath.clear();
-
-  std::vector<int> listIndexVertexHolesPathTemp;
-
-  listIndexVertexHolesPathTemp.clear();
-
-  geodesic::SurfacePoint short_sources(
-      &meshSP.vertices()[source_vertex_index]);
-  geodesic::SurfacePoint short_targets(
-      &meshSP.vertices()[target_vertex_index]);
-
-  dijkstra_algorithm->geodesic(short_sources, short_targets, SPath,
-      listIndexVertexHolesPathTemp);
-
-  listIndexVertexHolesPath.insert(listIndexVertexHolesPath.end(),
-      listIndexVertexHolesPathTemp.begin(), listIndexVertexHolesPathTemp.end());
-
-  cout << "path dijkstra = ";
-
-  for ( i = 0; i < listIndexVertexHolesPathTemp.size(); i++)
-  {
-    cout << listIndexVertexHolesPathTemp[i] << " ";
-  }
-  cout << endl;
-
-  std::vector<Point3df> vertexList;
-  Point3df newVertex;
+  //Point3df newVertex;
 
   AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
 
-  for (i = 0; i < SPath.size(); ++i)
-  {
-    newVertex[0] = SPath[i].x();
-    newVertex[1] = SPath[i].y();
-    newVertex[2] = SPath[i].z();
-    vertexList.push_back(newVertex);
-  }
+//  for (i = 0; i < SPath.size(); ++i)
+//  {
+//    newVertex[0] = SPath[i].x();
+//    newVertex[1] = SPath[i].y();
+//    newVertex[2] = SPath[i].z();
+//    vertexList.push_back(newVertex);
+//  }
 
   for (i = 0; i < vertexList.size() - 1; ++i)
   {
