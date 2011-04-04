@@ -183,8 +183,10 @@ protected :
 
   QSpinBox *toleranceSpinBox;
   QLabel *toleranceSpinBoxLabel;
-  QSpinBox *constraintPathSpinBox;
+  QDoubleSpinBox *constraintPathSpinBox;
   QLabel *constraintPathSpinBoxLabel;
+  QDoubleSpinBox *sigmoPathSpinBox;
+  QLabel *sigmoPathSpinBoxLabel;
 
   QToolButton *pathButton;
   QToolButton *brushButton;

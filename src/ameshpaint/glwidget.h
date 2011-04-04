@@ -88,7 +88,8 @@ protected :
   virtual void changeIDPolygonValue(int){}
   virtual void changeIDVertexValue(int){}
   virtual void changeToleranceValue(int){}
-  virtual void changeConstraintPathValue(int){}
+  virtual void changeConstraintPathValue(double){}
+  virtual void changeSigmoPathValue(double){}
 
 private slots:
 
@@ -98,7 +99,8 @@ private slots:
   void changeIDVertexSpinBox(int v) {changeIDVertexValue(v);}
 
   void changeToleranceSpinBox(int v) {changeToleranceValue(v);}
-  void changeConstraintPathSpinBox(int v) {changeConstraintPathValue(v);}
+  void changeConstraintPathSpinBox(double v) {changeConstraintPathValue(v);}
+  void changeSigmoPathSpinBox(double v) {changeSigmoPathValue(v);}
 
 
 public:
@@ -120,7 +122,8 @@ public :
   void changeIDVertexValue(int );
 
   void changeToleranceValue(int );
-  void changeConstraintPathValue(int );
+  void changeConstraintPathValue(double );
+  void changeSigmoPathValue(double );
 
 public:
   int getMode () const { return _mode; }
@@ -174,6 +177,7 @@ protected:
   void drawPrimitivePicked (void);
   void drawHoles (void);
   void floodFill(int indexVertex, T newTextureValue, T oldTextureValue);
+  void compute_weight_dijkstra (double strain, double sigmo);
 
 private:
 
@@ -196,6 +200,7 @@ private:
   AimsSurfaceTriangle _mesh;
   TimeTexture<T> _tex;
   TimeTexture<float> _texCurv;
+  TimeTexture<float> _texWeight;
 
   string _adressTexIn;
   string _adressMeshIn;
@@ -216,6 +221,7 @@ private:
 
   ATexture	*_aTex;
   ATexture  *_aTexCurv;
+  ATexture  *_aTexWeight;
   T _minT;
   T _maxT;
   T _minquant;
@@ -230,7 +236,9 @@ private:
   GLuint _indexPolygon;
   GLuint _indexVertex;
 
-  GLuint _constraintPathValue;
+
+  double _constraintPathValue;
+  double _sigmoPathValue;
   GLuint _toleranceValue;
   float _stepToleranceValue;
 

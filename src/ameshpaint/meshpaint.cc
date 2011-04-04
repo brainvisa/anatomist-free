@@ -84,7 +84,8 @@ myMeshPaint<T>::myMeshPaint(string adressTexIn, string adressMeshIn,
   connect(IDVertexSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeIDVertexSpinBox(int)));
 
   connect(toleranceSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeToleranceSpinBox(int)));
-  connect(constraintPathSpinBox ,SIGNAL(valueChanged(int)),glWidget,SLOT(changeConstraintPathSpinBox(int)));
+  connect(constraintPathSpinBox ,SIGNAL(valueChanged(double)),glWidget,SLOT(changeConstraintPathSpinBox(double)));
+  connect(sigmoPathSpinBox ,SIGNAL(valueChanged(double)),glWidget,SLOT(changeSigmoPathSpinBox(double)));
 }
 
 template<typename T>
@@ -267,12 +268,20 @@ void MeshPaint::createActions()
   menu->addAction(gyriPathAction);
   pathButton->setMenu(menu);
   constraintPathSpinBoxLabel = new QLabel(tr("constraint : "));
-  constraintPathSpinBox = new QSpinBox;
+  constraintPathSpinBox = new QDoubleSpinBox;
   constraintPathSpinBox->setSingleStep(1);
   constraintPathSpinBox->setFixedHeight(30);
   constraintPathSpinBox->setFixedWidth(55);
-  constraintPathSpinBox->setValue(3);
+  constraintPathSpinBox->setValue(3.0);
   constraintPathSpinBox->setRange(0,100);
+
+  sigmoPathSpinBoxLabel = new QLabel(tr("sigmo : "));
+  sigmoPathSpinBox = new QDoubleSpinBox;
+  sigmoPathSpinBox->setSingleStep(0.1);
+  sigmoPathSpinBox->setFixedHeight(30);
+  sigmoPathSpinBox->setFixedWidth(55);
+  sigmoPathSpinBox->setValue(2);
+  sigmoPathSpinBox->setRange(1,20);
 
   //Brush
   iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
@@ -374,7 +383,7 @@ void MeshPaint::createToolBars()
   paintToolBar->addWidget(pathButton);
   //paintToolBar->addWidget(constraintPathSpinBoxLabel);
   paintToolBar->addWidget(constraintPathSpinBox);
-
+  paintToolBar->addWidget(sigmoPathSpinBox);
   paintToolBar->addSeparator();
 
   //Brush

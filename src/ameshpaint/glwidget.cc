@@ -30,6 +30,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   _parent = parent;
   _showInfos = true;
   _constraintPathValue = 3;
+  _sigmoPathValue = 2.0;
 
   backBufferTexture.resize( parent->width() * parent->height() * 3 );
 
@@ -42,21 +43,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
   neighbours = SurfaceManip::surfaceNeighbours(_mesh);
   cout << " OK" << endl;
 
-  if (adressTexIn.length()!=0)
-  {
-    cout << "load texture : " << adressTexIn;
-    Reader<TimeTexture<T> > rtexIn(adressTexIn);
-    rtexIn.read(_tex);
-    std::cout << " OK" << endl;
-  }
-  else
-  {
-    cout << "create texture : " << adressTexIn;
-    _tex = TimeTexture<T> (1,_mesh.vertex().size() );
-    for (uint i = 0; i < _mesh.vertex().size(); i++)
-      _tex[0].item(i) = 0;
-    cout << " OK" << endl;
-  }
+
 
   if (adressTexCurvIn.length()!=0)
   {
@@ -76,12 +63,15 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
 
     //const AimsSurface<3,Void>   & surface = _mesh[0];
     _texCurv = AimsMeshCurvature(_mesh[0]);
+
+
+
 //
 //    CurvatureFactory CF;
 //    Curvature *curvat = CF.createCurvature(_mesh,"barycenter");
 //    _texCurv[0] = curvat->doIt();
 //    curvat->regularize(_texCurv[0],1);
-//    curvat->getTex  tureProperties(_texCurv[0]);
+//    curvat->getTextureProperties(_texCurv[0]);
 //    delete curvat;
 
 //    CurvatureFactory CF;
@@ -144,6 +134,33 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
 
     //fin calcul de la courbure
     cout << " OK" << endl;
+
+    if (adressTexIn.length()!=0)
+     {
+       cout << "load texture : " << adressTexIn;
+       Reader<TimeTexture<T> > rtexIn(adressTexIn);
+       rtexIn.read(_tex);
+       std::cout << " OK" << endl;
+     }
+     else
+     {
+       cout << "create texture : " << adressTexIn;
+       _tex = TimeTexture<T> (1,_mesh.vertex().size() );
+       for (uint i = 0; i < _mesh.vertex().size(); i++)
+         _tex[0].item(i) = 0;
+       cout << " OK" << endl;
+
+
+       double a1;
+       _texWeight = TimeTexture<float>(1, _mesh.vertex().size());
+       for (uint i = 0; i < _mesh.vertex().size(); i++)
+       {
+           a1 = pow ((1.0)/(1.0 + exp(_constraintPathValue*_texCurv[0].item(i))), _sigmoPathValue);
+           _texWeight[0].item(i) = (float)a1;
+       }
+
+     }
+
   }
 
   _trackBall = TrackBall(0.5f, gfx::Vector3f::vector(0, 1, 0),
@@ -159,6 +176,13 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
 template<typename T>
 myGLWidget<T>::~myGLWidget()
 {
+
+  free(_vertices);
+  free(_normals);
+  free(_colors);
+  free(_colorsCurv);
+  free(_colorsDist);
+  //free(_indice);
 }
 
 template<typename T>
@@ -272,17 +296,13 @@ void myGLWidget<T>::buildDataArray(void)
 {
   int j;
 
-  cout << "coucou1\n";
-
   vector<Point3df> & vert = _mesh.vertex();
   const vector<Point3df> & norm = _mesh.normal();
 
   vector<AimsVector<uint, 3> > & tri = _mesh.polygon();
 
   const float* t = _aTex->textureCoords();
-  const float* tcurv = _aTexCurv->textureCoords();
-
-  cout << "coucou2\n";
+  const float* tcurv = _aTexWeight->textureCoords();
 
   _vertices = (GLfloat*) malloc(3 * vert.size() * sizeof(GLfloat));
   //_textures = (GLfloat*) malloc(vert.size() * sizeof(GLfloat));
@@ -317,8 +337,6 @@ void myGLWidget<T>::buildDataArray(void)
     _colorsDist[3 * j + 2] = (int) dataColorMap[0];
   }
 
-  cout << "coucou3\n";
-
   _indices = (GLuint*) malloc(3 * tri.size() * sizeof(GLuint));
 
   for (j = 0; j < (int) tri.size(); ++j)
@@ -348,15 +366,16 @@ void myGLWidget<T>::buildDataArray(void)
 
   //const float *f = _aTexCurv->textureCoords();
 
-  float *f = (float*) malloc (_texCurv[0].nItem() * sizeof(float));
-  for( uint i = 0; i < _texCurv[0].nItem(); i++)
-  {
-  f[i] = (float)(_texCurv[0].item(i));
-  }
+//  float *f = (float*) malloc (_texCurv[0].nItem() * sizeof(float));
+//  for( uint i = 0; i < _texCurv[0].nItem(); i++)
+//  {
+//  f[i] = (float)(_texCurv[0].item(i));
+//  }
+  vector<float> &curv = _texCurv[0].data();
 
   _meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0,0);
-  _meshSulciCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,1,_constraintPathValue);
-  _meshGyriCurvSP.initialize_mesh_data(_pointsSP,_facesSP, f,2,_constraintPathValue);
+  _meshSulciCurvSP.initialize_mesh_data(_pointsSP,_facesSP, &curv[0], 1,_constraintPathValue);
+  _meshGyriCurvSP.initialize_mesh_data(_pointsSP,_facesSP,&curv[0],2,_constraintPathValue);
 }
 
 template<typename T>
@@ -442,96 +461,146 @@ void myGLWidget<T>::changeToleranceValue(int value)
 }
 
 template<typename T>
-void myGLWidget<T>::changeConstraintPathValue(int value)
+void myGLWidget<T>::compute_weight_dijkstra (double strain, double sigmo)
+{
+  double a1;
+  for (uint i = 0; i < _mesh.vertex().size(); i++)
+  {
+  a1 = pow ((1.0)/(1.0 + exp(strain*_texCurv[0].item(i))), sigmo);
+  _texWeight[0].item(i) = (float)a1;
+  }
+
+  rc_ptr<Texture1d> texWeight(new Texture1d);
+  Converter<TimeTexture<float> , Texture1d> cTexWeight;
+  cTexWeight.convert(_texWeight, *texWeight);
+  _aTexWeight->setTexture(texWeight);
+  _aTexWeight->normalize();
+
+  const float* tcurv = _aTexWeight->textureCoords();
+
+  for (uint i = 0; i < _mesh.vertex().size(); i++)
+  {
+    _colorsCurv[3 * i] = (int) dataColorMap[3 * (int) (256 * tcurv[i])];
+    _colorsCurv[3 * i + 1] = (int) dataColorMap[3 * (int) (256 * tcurv[i]) + 1];
+    _colorsCurv[3 * i + 2] = (int) dataColorMap[3 * (int) (256 * tcurv[i]) + 2];
+  }
+}
+
+template<typename T>
+void myGLWidget<T>::changeSigmoPathValue(double value)
+{
+  _sigmoPathValue = value;
+
+  cout << _sigmoPathValue << endl;
+
+  compute_weight_dijkstra(_constraintPathValue,_sigmoPathValue);
+  updateGL();
+
+}
+
+template<typename T>
+void myGLWidget<T>::changeConstraintPathValue(double value)
 {
   _constraintPathValue = value;
 
+  cout << _constraintPathValue << endl;
   //const float *f = _aTexCurv->textureCoords();
-  float *f = (float*) malloc (_texCurv[0].nItem() * sizeof(float));
-  for( uint i = 0; i < _texCurv[0].nItem(); i++)
+//  float *f = (float*) malloc (_texCurv[0].nItem() * sizeof(float));
+//  for( uint i = 0; i < _texCurv[0].nItem(); i++)
+//  {
+//  f[i] = (float)(_texCurv[0].item(i));
+//  }
+
+  if (!_texCurvDisplay)
   {
-  f[i] = (float)(_texCurv[0].item(i));
-  }
+    vector<float> &curv = _texCurv[0].data();
 
-  //_meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0);
-  _meshSulciCurvSP.update_weight(f,1, (int)_constraintPathValue);
-  _meshGyriCurvSP.update_weight(f,2, (int)_constraintPathValue);
+    //_meshSP.initialize_mesh_data(_pointsSP,_facesSP, NULL,0);
+    _meshSulciCurvSP.update_weight(&curv[0],1, _constraintPathValue,_sigmoPathValue);
+    _meshGyriCurvSP.update_weight(&curv[0],2, _constraintPathValue,_sigmoPathValue);
 
-  if ( (_mode == 4 || _mode == 5 ||_mode == 6 ) )
-  {
-    for (unsigned i = 0; i < _listIndexVertexPathSPLast.size(); ++i)
-    _listIndexVertexPathSP.pop_back();
-
-   // _listIndexVertexPathSP.clear();
-
-    std::vector<int>::iterator ite;
-    ite = _listIndexVertexSelectSP.end();
-
-    std::vector<geodesic::SurfacePoint> sources;
-    std::vector<geodesic::SurfacePoint> targets;
-
-    geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
-
-    if (_mode == 4)
-    dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSP);
-
-    if (_mode == 5)
-    dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSulciCurvSP);
-
-    if (_mode == 6)
-    dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshGyriCurvSP);
-
-    if (_listIndexVertexSelectSP.size() >= 2)
+    if ( (_mode == 4 || _mode == 5 ||_mode == 6 ) )
     {
-      unsigned target_vertex_index = (*(--ite) );
-      unsigned source_vertex_index = (*(--ite) );
+      for (unsigned i = 0; i < _listIndexVertexPathSPLast.size(); ++i)
+      _listIndexVertexPathSP.pop_back();
 
-      printf("indice source = %d target = %d \n",
-          source_vertex_index, target_vertex_index);
+     // _listIndexVertexPathSP.clear();
 
-      std::vector<geodesic::SurfacePoint> SPath;
-      SPath.clear();
+      std::vector<int>::iterator ite;
+      ite = _listIndexVertexSelectSP.end();
 
-      //std::vector<int> _listIndexVertexPathSPLast;
+      std::vector<geodesic::SurfacePoint> sources;
+      std::vector<geodesic::SurfacePoint> targets;
 
-      _listIndexVertexPathSPLast.clear();
+      geodesic::GeodesicAlgorithmDijkstra *dijkstra_algorithm;
 
-      geodesic::SurfacePoint short_sources(
-          &_meshSP.vertices()[source_vertex_index]);
-      geodesic::SurfacePoint short_targets(
-          &_meshSP.vertices()[target_vertex_index]);
+      if (_mode == 4)
+      dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSP);
 
-      dijkstra_algorithm->geodesic(short_sources,short_targets, SPath, _listIndexVertexPathSPLast);
+      if (_mode == 5)
+      dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshSulciCurvSP);
 
-      ite = _listIndexVertexPathSPLast.end();
+      if (_mode == 6)
+      dijkstra_algorithm = new geodesic::GeodesicAlgorithmDijkstra(&_meshGyriCurvSP);
 
-      reverse(_listIndexVertexPathSPLast.begin(),_listIndexVertexPathSPLast.end());
-      _listIndexVertexPathSPLast.push_back((int)target_vertex_index);
-
-      _listIndexVertexPathSP.insert(_listIndexVertexPathSP.end(), _listIndexVertexPathSPLast.begin(), _listIndexVertexPathSPLast.end());
-
-      cout << "path dijkstra = ";
-
-      for (unsigned i = 0; i < _listIndexVertexPathSP.size(); i++)
-        cout << _listIndexVertexPathSP[i] << " " ;
-
-      cout << endl;
-      cout << "path dijkstra temp= ";
-      cout << endl;
-      for (unsigned i = 0; i < _listIndexVertexPathSPLast.size(); i++)
-        cout << _listIndexVertexPathSPLast[i] << " " ;
-
-      cout << endl;
-      for (unsigned i = 0; i < SPath.size(); ++i)
+      if (_listIndexVertexSelectSP.size() >= 2)
       {
-        geodesic::SurfacePoint ss ;
-        ss.x() = (-_meshCenter[0] + (float) SPath[SPath.size() - i - 1].x()) * _meshScale;
-        ss.y() = (-_meshCenter[1] + (float) SPath[SPath.size() - i - 1].y()) * _meshScale;
-        ss.z() = (_meshCenter[2] - (float) SPath[SPath.size() - i - 1].z()) * _meshScale;
-        _pathSP.push_back(ss);
-        //cout << i << " " << ss.x() << ' ' << ss.y() << ' ' <<  ss.z() << endl;
+        unsigned target_vertex_index = (*(--ite) );
+        unsigned source_vertex_index = (*(--ite) );
+
+        printf("indice source = %d target = %d \n",
+            source_vertex_index, target_vertex_index);
+
+        std::vector<geodesic::SurfacePoint> SPath;
+        SPath.clear();
+
+        //std::vector<int> _listIndexVertexPathSPLast;
+
+        _listIndexVertexPathSPLast.clear();
+
+        geodesic::SurfacePoint short_sources(
+            &_meshSP.vertices()[source_vertex_index]);
+        geodesic::SurfacePoint short_targets(
+            &_meshSP.vertices()[target_vertex_index]);
+
+        dijkstra_algorithm->geodesic(short_sources,short_targets, SPath, _listIndexVertexPathSPLast);
+
+        ite = _listIndexVertexPathSPLast.end();
+
+        reverse(_listIndexVertexPathSPLast.begin(),_listIndexVertexPathSPLast.end());
+        _listIndexVertexPathSPLast.push_back((int)target_vertex_index);
+
+        _listIndexVertexPathSP.insert(_listIndexVertexPathSP.end(), _listIndexVertexPathSPLast.begin(), _listIndexVertexPathSPLast.end());
+
+        cout << "path dijkstra = ";
+
+        for (unsigned i = 0; i < _listIndexVertexPathSP.size(); i++)
+          cout << _listIndexVertexPathSP[i] << " " ;
+
+        cout << endl;
+        cout << "path dijkstra temp= ";
+        cout << endl;
+        for (unsigned i = 0; i < _listIndexVertexPathSPLast.size(); i++)
+          cout << _listIndexVertexPathSPLast[i] << " " ;
+
+        cout << endl;
+        for (unsigned i = 0; i < SPath.size(); ++i)
+        {
+          geodesic::SurfacePoint ss ;
+          ss.x() = (-_meshCenter[0] + (float) SPath[SPath.size() - i - 1].x()) * _meshScale;
+          ss.y() = (-_meshCenter[1] + (float) SPath[SPath.size() - i - 1].y()) * _meshScale;
+          ss.z() = (_meshCenter[2] - (float) SPath[SPath.size() - i - 1].z()) * _meshScale;
+          _pathSP.push_back(ss);
+          //cout << i << " " << ss.x() << ' ' << ss.y() << ' ' <<  ss.z() << endl;
+        }
+
+        delete (dijkstra_algorithm);
       }
     }
+  }
+  else
+  {
+    compute_weight_dijkstra(_constraintPathValue,_sigmoPathValue);
   }
 
   updateGL();
@@ -2215,7 +2284,12 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
 //  _aTexCurv->normalize();
 //  _aTex->normalize();
 
-
+  rc_ptr<Texture1d> texWeight(new Texture1d);
+  Converter<TimeTexture<float> , Texture1d> cTexWeight;
+  cTexWeight.convert(_texWeight, *texWeight);
+  _aTexWeight = new ATexture;
+  _aTexWeight->setTexture(texWeight);
+  _aTexWeight->normalize();
 
   cout << "min " << _minT << " max " << _maxT << endl;
 
