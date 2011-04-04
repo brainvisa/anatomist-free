@@ -1655,17 +1655,17 @@ void ControlWindow::enableClose( bool x )
   d->closeEnabled = x;
 }
 
-
-bool ControlWindow::close( bool alsoDelete )
+void ControlWindow::closeEvent(QCloseEvent *event)
 {
-  if( d->closeEnabled )
-    return QMainWindow::close( alsoDelete );
-  QMessageBox::warning( this, tr( "Closing forbidden" ),
-                        tr( "Anatomist is controlled by another application "
-                          "which does not allow closing the main window" ) );
-  return false;
+  if ( d->closeEnabled ) {
+      event->accept();
+  } else {
+      QMessageBox::warning( this, tr( "Closing forbidden" ),
+                                  tr( "Anatomist is controlled by another application "
+                                    "which does not allow closing the main window" ) );
+      event->ignore();
+  }
 }
-
 
 void ControlWindow::clearAll()
 {

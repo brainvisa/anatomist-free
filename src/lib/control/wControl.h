@@ -101,7 +101,6 @@ public:
   anatomist::Referential* defaultWindowsReferential() const;
   void setDefaultObjectsReferential( anatomist::Referential* );
   void setDefaultWindowsReferential( anatomist::Referential* );
-  virtual bool close( bool alsoDelete );
   /// allows or forbids closing the control window
   void enableClose( bool );
   bool closeEnabled() const;
@@ -163,6 +162,7 @@ public slots:
   void clearAll();
 
 protected:
+  void closeEvent(QCloseEvent *event);
   virtual void createMenu();
   virtual void createIcons();
   virtual void drawContents();
