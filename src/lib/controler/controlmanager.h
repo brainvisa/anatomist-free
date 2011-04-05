@@ -68,6 +68,7 @@ namespace anatomist
   class ControlManager
   {
   public:
+    ~ControlManager();
     
     static ControlManager* instance() ;
     

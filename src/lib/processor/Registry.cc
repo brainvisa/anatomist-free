@@ -58,6 +58,12 @@ Registry::Registry()
 }
 
 
+Registry::~Registry()
+{
+  _instance = 0;
+}
+
+
 Registry*
 Registry::instance()
 {

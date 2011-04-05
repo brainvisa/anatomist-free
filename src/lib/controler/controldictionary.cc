@@ -42,7 +42,8 @@ using namespace std;
 
 ControlDictionary* ControlDictionary::_instance = 0 ;
 
-ControlDictionary* ControlDictionary::instance(){
+ControlDictionary* ControlDictionary::instance()
+{
   if( _instance == 0 )
     _instance = new ControlDictionary ;
   return _instance ;
@@ -76,7 +77,9 @@ ControlDictionary::ControlDictionary()
 
 
 ControlDictionary::~ControlDictionary() 
-{}
+{
+  _instance = 0;
+}
 
 ControlPtr 
 ControlDictionary::getControlInstance( const string& name )

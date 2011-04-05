@@ -40,10 +40,17 @@ using namespace std ;
 
 ControlManager* ControlManager::_instance = 0 ;
 
-ControlManager* ControlManager::instance(){
+ControlManager* ControlManager::instance()
+{
   if( _instance == 0 )
     _instance = new ControlManager ;
   return _instance ;
+}
+
+
+ControlManager::~ControlManager()
+{
+  _instance = 0;
 }
 
 set<string> 

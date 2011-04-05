@@ -77,7 +77,9 @@ ActionDictionary::ActionDictionary()
 
 
 ActionDictionary::~ActionDictionary() 
-{}
+{
+  _instance = 0;
+}
 
 ActionPtr 
 ActionDictionary::getActionInstance( string name )

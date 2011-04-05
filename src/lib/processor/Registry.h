@@ -72,6 +72,8 @@ namespace anatomist
      *	@return always the same unique instance of Registry
      */
     static Registry* instance();
+    
+    ~Registry();
 
     const carto::SyntaxSet & syntax() const { return( _syntax ); }
 

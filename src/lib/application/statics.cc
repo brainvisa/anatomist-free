@@ -49,6 +49,7 @@ namespace anatomist
   {
     public:
       static bool init();
+      static void cleanup();
   };
 }
 
@@ -101,6 +102,33 @@ bool StaticInitializers::init()
 {
   QObjectBrowser::registerClass();
   return true;
+}
+
+
+#include <anatomist/controler/controlmanager.h>
+#include <anatomist/controler/controlgroupdictionary.h>
+#include <anatomist/controler/controldictionary.h>
+#include <anatomist/controler/actiondictionary.h>
+#include <anatomist/controler/icondictionary.h>
+
+
+void StaticInitializers::cleanup()
+{
+  AWindowFactory::TypeNames.clear();
+  AWindowFactory::TypeID.clear();
+  AWindowFactory::Creators.clear();
+  
+  AObject::_objectTypes.clear();
+  AObject::_objectTypeNames.clear();
+  AObject::_objectmenu_map.clear();
+  
+  delete ControlManager::instance();
+  delete ControlGroupDictionary::instance();
+  delete ControlDictionary::instance();
+  delete ActionDictionary::instance();
+  delete IconDictionary::instance();
+  
+  delete Registry::instance();
 }
 
 // run

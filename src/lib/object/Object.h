@@ -424,6 +424,8 @@ namespace anatomist
     static std::map<std::string, carto::rc_ptr<ObjectMenu> >
         _objectmenu_map;
 
+    friend class StaticInitializers;
+
   private:
     struct Private;
     Private	*d;

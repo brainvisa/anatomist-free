@@ -40,7 +40,8 @@ using namespace std;
 
 ControlGroupDictionary* ControlGroupDictionary::_instance = 0 ;
 
-ControlGroupDictionary* ControlGroupDictionary::instance(){
+ControlGroupDictionary* ControlGroupDictionary::instance()
+{
   if( _instance == 0 )
     _instance = new ControlGroupDictionary ;
   return _instance ;
@@ -52,6 +53,7 @@ ControlGroupDictionary::ControlGroupDictionary()
 
 ControlGroupDictionary::~ControlGroupDictionary()
 {
+  _instance = 0;
 }
 
 set< string > 

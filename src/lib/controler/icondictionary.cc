@@ -41,7 +41,8 @@ using namespace std;
 
 IconDictionary* IconDictionary::_instance = 0 ;
 
-IconDictionary* IconDictionary::instance(){
+IconDictionary* IconDictionary::instance()
+{
   if( _instance == 0 )
     _instance = new IconDictionary ;
   return _instance ;
@@ -59,6 +60,7 @@ IconDictionary::~IconDictionary()
     delete iter->second ;
     ++iter ;
   }
+  _instance = 0;
 }
 
 const QPixmap * 

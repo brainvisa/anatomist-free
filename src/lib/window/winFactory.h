@@ -92,6 +92,8 @@ namespace anatomist
     static std::map<int, std::string>	TypeNames;
     static std::map<std::string, int>	TypeID;
     static std::map<int, carto::rc_ptr<AWindowCreator> > Creators;
+    
+    friend class StaticInitializers;
 
   private:
   };

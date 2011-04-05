@@ -133,6 +133,17 @@ string Anatomist::libraryVersionString() const
 }
 
 
+namespace anatomist
+{
+  class StaticInitializers
+  {
+    public:
+      static bool init();
+      static void cleanup();
+  };
+}
+
+
 namespace
 {
 
@@ -366,6 +377,8 @@ Anatomist::~Anatomist()
   delete FusionFactory::factory();
   AObject::cleanStatic();
   delete SelectFactory::factory();
+  
+  StaticInitializers::cleanup();
 
   delete _privData;
   _privData = 0;
