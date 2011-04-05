@@ -512,7 +512,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     d->draw = new QAGLWidget3D(this, hb, "GL drawing area",
         GLWidgetManager::sharedWidget());
 
-  float wf = 1;
+  float wf = 1.5;
   theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
   //if( QWidget::parent() == 0 )
@@ -1915,7 +1915,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
     // resize window if in 2D mode
     if (o->Is2DObject())
     {
-      float wf = 1;
+      float wf = 1.5;
       theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
       Point3df vs = o->VoxelSize();

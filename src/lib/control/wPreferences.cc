@@ -316,7 +316,7 @@ PreferencesWindow::PreferencesWindow()
     = new QHGroupBox( tr( "Default windows size" ), winbox );
   _pdat->winszed = new QLineEdit( winsz );
   new QLabel( tr( "pixel / mm" ), winsz );
-  float	wf = 1;
+  float	wf = 1.5;
   theAnatomist->config()->getProperty( "windowSizeFactor", wf );
   _pdat->winszed->setText( QString::number( wf ) );
   _pdat->winszed->setValidator( new QDoubleValidator( 0.001, 1e6, 3, 
@@ -654,7 +654,7 @@ void PreferencesWindow::defaultWinSizeChanged()
   float	f = _pdat->winszed->text().toFloat( &ok );
   if( !ok )
     {
-      f = 1;
+      f = 1.5;
       theAnatomist->config()->getProperty( "windowSizeFactor", f );
     }
   _pdat->winszed->blockSignals( true );
