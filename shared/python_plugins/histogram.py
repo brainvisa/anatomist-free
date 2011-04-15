@@ -155,8 +155,9 @@ class AHistogram( ana.cpp.QAWindow ):
       ana.cpp.QAWindow.registerObject( self, obj, temporaryObject, position )
       if obj.objectTypeName( obj.type() ) == 'VOLUME':
         figure = pyplot.figure( self._histo.number )
-        h = pylab.hist( numpy.array( ana.cpp.AObjectConverter.aims( \
-          obj ).volume(), copy=False ), 256, label=obj.name() )
+        h = pylab.hist( numpy.ravel( \
+          numpy.array( ana.cpp.AObjectConverter.aims( \
+          obj ).volume(), copy=False ) ), 256, label=obj.name() )
         pylab.legend()
         self._histo.canvas.draw()
         self._plots[ ana.cpp.weak_ptr_AObject( obj ) ] = h[2]
