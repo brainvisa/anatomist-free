@@ -83,7 +83,7 @@ class GradientPaletteWidget( qtgui.QWidget ):
     def update( self, observable, args ):
       self._gradpal.update( observable, args )
 
-  class GradientObjectParamSelect( anatomist.ObjectParamSelect ):
+  class GradientObjectParamSelect( anatomist.ObjectParamSelectSip ):
     def __init__( self, objects, parent ):
       anatomist.ObjectParamSelect.__init__( self, objects, parent )
 
@@ -98,11 +98,8 @@ class GradientPaletteWidget( qtgui.QWidget ):
       return False
 
   def __init__( self, objects, parent = None, name = None, flags = 0 ):
-    if qt4:
-      qtgui.QWidget.__init__( self, parent )
-      self.setAttribute( qt.Qt.WA_DeleteOnClose, True )
-    else:
-      qtgui.QWidget.__init__( self, parent, name, flags | qt.Qt.WDestructiveClose )
+    qtgui.QWidget.__init__( self, parent )
+    self.setAttribute( qt.Qt.WA_DeleteOnClose, True )
     lay = qtgui.QVBoxLayout( self )
     lay.setMargin( 5 )
     lay.setSpacing( 5 )
@@ -148,11 +145,8 @@ class GradientPaletteWidget( qtgui.QWidget ):
     gwManager.gradwidgets.add( self )
     if o0 is not None:
       self.update( o0, None )
-    self.connect( self._objsel, qt.SIGNAL( 'selectionStarts()' ),
-      self.chooseObject );
-    self.connect( self._objsel,
-      qt.SIGNAL( 'objectsSelected( const std::set<anatomist::AObject *> & )' ),
-      self.objectsChosen );
+    self._objsel.selectionStarts.connect( self.chooseObject )
+    self._objsel.objectsSelectedSip.connect( self.objectsChosen )
     self.connect( savebtn, qt.SIGNAL( 'clicked()' ), self.save )
     self.connect( keepbtn, qt.SIGNAL( 'clicked()' ), self.makeStaticPalette )
     self.connect( editbtn, qt.SIGNAL( 'clicked()' ), self.editGradient )
@@ -242,6 +236,7 @@ class GradientPaletteWidget( qtgui.QWidget ):
     self._objsel.selectObjects( [ x.get() for x in self._initial ],
         [ x.get() for x in self._objects ] );
 
+  @qt.pyqtSlot( 'const set_AObjectPtr &' )
   def objectsChosen( self, objects ):
     objects = self._objsel.selectedObjects()
     for x in [] + self._objects:
