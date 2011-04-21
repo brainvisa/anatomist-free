@@ -366,9 +366,12 @@ namespace
       graphPtr rcptrMesh2;
       go->getProperty( attribute, rcptrMesh2 );
 
+      /* I guess this has no reason to be any longer since all AObjects
+         use reference counting on Aims objects now.
       if ( rcptrMesh2.count() != 2 )
         throw runtime_error( "Internal error while post-processing graph "
             "in Anatomist: object rc_ptr should be referenced only once" );
+      */
       go->removeProperty( attribute );
       pmesh2 = rcptrMesh2.release();
     }
