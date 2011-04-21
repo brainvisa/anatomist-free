@@ -64,6 +64,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
 
     //const AimsSurface<3,Void>   & surface = _mesh[0];
     _texCurv = AimsMeshCurvature(_mesh[0]);
+  }
 
     double a1,c;
     if (_modePath == 1)
@@ -98,7 +99,7 @@ myGLWidget<T>::myGLWidget(QWidget *parent, string adressTexIn,
        cout << " OK" << endl;
      }
 
-  }
+
 
   _trackBall = TrackBall(0.5f, gfx::Vector3f::vector(0, 1, 0),
       TrackBall::Sphere);
@@ -249,6 +250,8 @@ void myGLWidget<T>::buildDataArray(void)
   _colorsCurv = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
   _colorsDist = (GLubyte*) malloc(3 * vert.size() * sizeof(GLubyte));
 
+  cout << _maxT << endl;
+
   for (j = 0; j < (int) vert.size(); j++)
   {
     _vertices[3 * j] = (GLfloat)(_meshScale * (vert[j][X] - _meshCenter[X]));
@@ -265,6 +268,7 @@ void myGLWidget<T>::buildDataArray(void)
     _colors[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[j]/_maxT)) + 1];
     _colors[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * (float)(_maxquant*t[j]/_maxT)) + 2];
 
+    //cout << tcurv[j] << " " ;
     _colorsCurv[3 * j] = (int) dataColorMap[3 * (int) (256 * tcurv[j])];
     _colorsCurv[3 * j + 1] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 1];
     _colorsCurv[3 * j + 2] = (int) dataColorMap[3 * (int) (256 * tcurv[j]) + 2];
@@ -2213,7 +2217,8 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _minT = min;
   _maxT = max;
 
-
+  _minT = 0;
+  _maxT = 1.0;
 
   //_aTex->setTexExtrema(0,360);
 
