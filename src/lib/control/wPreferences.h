@@ -70,6 +70,7 @@ public slots:
   void changeDefObjectsRef();
   void changeDefWindowsRef();
   void browserAttributeLenChanged();
+  void enableDisplayCursorPosition( bool x );
 
 protected:
   void updateWindows();
