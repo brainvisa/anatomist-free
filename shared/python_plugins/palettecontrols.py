@@ -34,8 +34,7 @@
 
 """Palette controls: add palette contrast actions in standard anatomist
 controls:
-shift+right mouse button: change max
-ctrl+right mouse button: change min
+ctrl+right mouse button: left-right: change min, up-down: change max
 """
 
 import anatomist.cpp as anatomist
@@ -55,11 +54,10 @@ def neweventAutoSubscription( self, pool ):
     ShiftModifier = key.ShiftButton
     ControlModifier = key.ControlButton
     AltModifier = key.AltButton
-  self.__class__.__base__.eventAutoSubscription( self, pool )
-  #self.mouseLongEventSubscribe( key.RightButton, ShiftModifier,
-    #pool.action( 'PaletteContrastAction' ).startContrast,
-    #pool.action( 'PaletteContrastAction' ).moveContrast,
-    #pool.action( 'PaletteContrastAction' ).stopContrast, True )
+  if hasattr( self, '_initial_eventAutoSubscription' ):
+    self._initial_eventAutoSubscription( pool )
+  else:
+    self.__class__.__base__.eventAutoSubscription( self, pool )
   self.mouseLongEventSubscribe( key.RightButton, ControlModifier,
     pool.action( 'PaletteContrastAction' ).startContrast,
     pool.action( 'PaletteContrastAction' ).moveContrast,
@@ -78,6 +76,7 @@ def makePalettedSubclass( c ):
     setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
   else:
     cl = c.__class__
+    cl._initial_eventAutoSubscription = cl.eventAutoSubscription
     setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
   cd = anatomist.ControlDictionary.instance()
   cd.addControl( c.name(), cl, c.priority(), True )
