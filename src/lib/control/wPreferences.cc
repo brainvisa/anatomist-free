@@ -93,6 +93,7 @@ struct PreferencesWindow::Private
   QPushButton		*cursColBtn;
   QComboBox		*userLevel;
   QLineEdit		*winszed;
+  QCheckBox             *disppos;
   QPushButton		*defobjref;
   QPushButton		*defwinref;
   QLineEdit             *browsattlen;
@@ -218,10 +219,11 @@ PreferencesWindow::PreferencesWindow()
   htmlbox->insertItem( "explorer.exe %1" );
 #endif
 #endif
+  htmlbox->insertItem( "konqueror %1 &" );
+  htmlbox->insertItem( "firefox %1 &" );
   htmlbox->insertItem( "mozilla %1 &" );
   htmlbox->insertItem( "netscape -noraise -remote openBrowser\\(file:%1\\) "
       "2> /dev/null || netscape -no-about-splash file:%1 &" );
-  htmlbox->insertItem( "konqueror %1 &" );
   htmlbox->insertItem( "kfmclient openURL=%1" );
   htmlbox->setCurrentItem( 0 );
 
@@ -312,6 +314,19 @@ PreferencesWindow::PreferencesWindow()
     = new QCheckBox( tr( "Display L/R in corners" ), flip );
   flipDisplay->setChecked( AWindow::leftRightDisplay() );
   flipDisplay->setEnabled( false );
+  _pdat->disppos = new QCheckBox( tr( "Display cursor position by default" ),
+                                  winbox );
+  int dispposfg = 1;
+  try
+  {
+    Object  x = cfg->getProperty( "displayCursorPosition" );
+    if( !x.isNull() )
+      dispposfg = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  _pdat->disppos->setChecked( dispposfg );
   QHGroupBox	*winsz 
     = new QHGroupBox( tr( "Default windows size" ), winbox );
   _pdat->winszed = new QLineEdit( winsz );
@@ -408,6 +423,8 @@ PreferencesWindow::PreferencesWindow()
 	   SLOT( setAxialConvention( int ) ) );
   connect( _pdat->winszed, SIGNAL( returnPressed() ), this, 
            SLOT( defaultWinSizeChanged() ) );
+  connect( _pdat->disppos, SIGNAL( toggled( bool ) ), this,
+           SLOT( enableDisplayCursorPosition( bool ) ) );
   connect( _pdat->browsattlen, SIGNAL( returnPressed() ), this,
            SLOT( browserAttributeLenChanged() ) );
 
@@ -709,4 +726,17 @@ void PreferencesWindow::browserAttributeLenChanged()
   _pdat->browsattlen->blockSignals( false );
 }
 
+
+void PreferencesWindow::enableDisplayCursorPosition( bool x )
+{
+  if( x )
+  {
+    if( theAnatomist->config()->hasProperty( "displayCursorPosition" ) )
+      theAnatomist->config()->removeProperty( "displayCursorPosition" );
+  }
+  else
+  {
+    theAnatomist->config()->setProperty( "displayCursorPosition", int(0) );
+  }
+}
 

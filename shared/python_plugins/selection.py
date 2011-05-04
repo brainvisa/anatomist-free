@@ -349,11 +349,6 @@ class SelectionControl( anatomist.cpp.Select3DControl ):
 
 a = anatomist.Anatomist()
 
-#iconname = __file__
-#if iconname.endswith( '.pyc' ) or iconname.endswith( '.pyo' ):
-  #iconname = iconname[:-1]
-#iconname = os.path.join(os.path.dirname(os.path.realpath(iconname)),'SelectionIcon.jpg')
-#pix = qt.QPixmap( iconname )
 icon = anatomist.cpp.IconDictionary.instance().getIconInstance( \
   'Selection 3D' )
 anatomist.cpp.IconDictionary.instance().addIcon( 'SelectionControl',

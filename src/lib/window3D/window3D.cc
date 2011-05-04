@@ -560,7 +560,23 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
   d->objvallabel = new QLabel(statusBar());
   statusBar()->addWidget(d->objvallabel, 0, true);
-  statusBar()->hide();
+  bool showsbar = !nodeco;
+  if( showsbar )
+    try
+    {
+      Object o = theAnatomist->config()->getProperty( "displayCursorPosition"
+        );
+      if( !o.isNull() )
+        showsbar = (bool) o->getScalar();
+    }
+    catch( ... )
+    {
+    }
+
+  if( showsbar )
+    d->statusbarvisible = true;
+  else
+    statusBar()->hide();
 
   setCentralWidget(vb);
 
