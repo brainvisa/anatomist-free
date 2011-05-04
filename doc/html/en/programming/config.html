@@ -152,9 +152,19 @@ since Anatomist 1.29.</p>
     <td><tt>cursorSize</tt></td>
 	<td><tt>int</tt></td>
 	<td><tt>20</tt></td>
-	<td></td>
+	<td>positive int</td>
 	<td>Size of the 3D cursor (in mm)</td>
 	<td>all</td>
+  </tr>
+  
+  
+  <tr>
+    <td><tt>displayCursorPosition</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>1</tt></td>
+        <td>0, 1</td>
+        <td>Display or not the statusbar in 3D windows with the cursor position and image values</td>
+        <td>4.1</td>
   </tr>
   
   <tr>
@@ -319,13 +329,13 @@ since Anatomist 1.29.</p>
   <tr>
     <td><tt>windowSizeFactor</tt></td>
 	<td><tt>float</tt></td>
-	<td><tt>1.0</tt></td>
+	<td><tt>1.5</tt></td>
 	<td><tt>> 0</tt></td>
 	<td>Default windows size factor. 1.0 corresponds to 1 pixel for 1mm in data space, 
 	  larger values means larger windows. Depending on the size and resolution of 
 	  your screen, you may want to change this default value.
 	</td>
-	<td>3.0</td>
+	<td>3.0 (default changed from 1. to 1.5 in Anatomist 4.1)</td>
   </tr>  
 </table>
 
