@@ -442,11 +442,13 @@ unsigned GLCaps::numTextureUnits()
 
 GLenum GLCaps::textureID( unsigned x )
 {
-#ifdef GL_VERSION_1_4
+#ifdef GL_VERSION_1_3
 
   static unsigned	texids[] = { GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, 
                                      GL_TEXTURE3, GL_TEXTURE4, GL_TEXTURE5, 
                                      GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, };
+  if( x > 8 )
+    return texids[0] + x;
   return texids[ x ];
 
 #else
@@ -457,6 +459,8 @@ GLenum GLCaps::textureID( unsigned x )
 				     GL_TEXTURE4_ARB, GL_TEXTURE5_ARB, 
                                      GL_TEXTURE6_ARB, GL_TEXTURE7_ARB, 
 				     GL_TEXTURE8_ARB, };
+  if( x > 8 )
+    return texids[0] + x;
   return texids[ x ];
 
 #else

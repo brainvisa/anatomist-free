@@ -42,6 +42,9 @@
 
 #ifdef _WIN32 // TODO: remove this workaround (added by Denis for Windows)
 #include <qgl.h>
+#ifndef HAS_GLEXT
+#  define HAS_GLEXT
+#endif
 #endif
 
 #if defined(__APPLE__)
