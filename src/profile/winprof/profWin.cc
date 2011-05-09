@@ -38,6 +38,7 @@
 #include <anatomist/winprof/profX.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/winFactory.h>
+#include <anatomist/reference/Transformation.h>
 #include <aims/qtcompat/qhbox.h>
 #include <aims/qtcompat/qvbox.h>
 #include <qlayout.h>
@@ -304,91 +305,94 @@ void QAProfileWindow::initX()
   pmax = Point4df( 0.0f, 0.0f, 0.0f, 0.0f );
 
   set< AObject * >::iterator it;
-  Point3df		bmin, bmax;
+  Point3df		bmin, bmax, bmin2, bmax2;
+  Referential *ref = getReferential();
 
   if ( !_sobjects.empty() )
+  {
+    for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {
-      for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
-	{
-	  (*it)->boundingBox( bmin, bmax );
+      (*it)->boundingBox( bmin, bmax );
+      Referential *oref = (*it)->getReferential();
+      Transformation *tra = theAnatomist->getTransformation( ref, oref );
+      
+      if( tra )
+      {
+        tra->transformBoundingBox( bmin, bmax, 
+                                   bmin2, bmax2 );
+        bmin = bmin2;
+        bmax = bmax2;
+      }
 
-    Point3df vs = (*it)->VoxelSize();
-    bmin[ 0 ] = bmin[ 0 ] / vs[ 0 ] + 0.5f;
-    bmin[ 1 ] = bmin[ 1 ] / vs[ 1 ] + 0.5f;
-    bmin[ 2 ] = bmin[ 2 ] / vs[ 2 ] + 0.5f;
-    bmax[ 0 ] = bmax[ 0 ] / vs[ 0 ] + 0.5f;
-    bmax[ 1 ] = bmax[ 1 ] / vs[ 1 ] + 0.5f;
-    bmax[ 2 ] = bmax[ 2 ] / vs[ 2 ] + 0.5f;
-    
-	  if ( bmin[0] < pmin[0] ) pmin[0] = bmin[0];
-	  if ( bmax[0] > pmax[0] ) pmax[0] = bmax[0];
-	  if ( bmin[1] < pmin[1] ) pmin[1] = bmin[1];
-	  if ( bmax[1] > pmax[1] ) pmax[1] = bmax[1];
-	  if ( bmin[2] < pmin[2] ) pmin[2] = bmin[2];
-	  if ( bmax[2] > pmax[2] ) pmax[2] = bmax[2];
-	  if ( (*it)->MinT() < pmin[3] ) pmin[3] = (*it)->MinT();
-	  if ( (*it)->MaxT() > pmax[3] ) pmax[3] = (*it)->MaxT();
-	}
-
-      bt1->setEnabled( ( pmax[0] > pmin[0] ) ? true : false );
-      bt2->setEnabled( ( pmax[1] > pmin[1] ) ? true : false );
-      bt3->setEnabled( ( pmax[2] > pmin[2] ) ? true : false );
-      bt4->setEnabled( ( pmax[3] > pmin[3] ) ? true : false );
-
-      delete x_curve;
-      pdim = profS->size( pmin, pmax );
-      x_curve = profS->abscisse( pmin, pdim );
-
-      switch( pDir )
-	{
-	case QAProfileWindow::alongX:
-	  {
-	    if ( pmax[0] <= pmin[0] && bt2->isEnabled() )
-	      {
-		bt2->setChecked( true );
-		dirChange( 1 );
-	      }
-	    break;
-	  }
-	case QAProfileWindow::alongY:
-	  {
-	    if ( pmax[1] <= pmin[1] && bt1->isEnabled() )
-	      {
-		bt1->setChecked( true );
-		dirChange( 0 );
-	      }
-	    break;
-	  }
-	case QAProfileWindow::alongZ:
-	  {
-	    if ( pmax[2] <= pmin[2] && bt1->isEnabled() )
-	      {
-		bt1->setChecked( true );
-		dirChange( 0 );
-	      }
-	    break;
-	  }
-	case QAProfileWindow::alongT:
-	  {
-	    if ( pmax[3] <= pmin[3] && bt1->isEnabled() )
-	      {
-		bt1->setChecked( true );
-		dirChange( 0 );
-	      }
-	    break;
-	  }
-	}
+      if ( bmin[0] < pmin[0] ) pmin[0] = bmin[0];
+      if ( bmax[0] > pmax[0] ) pmax[0] = bmax[0];
+      if ( bmin[1] < pmin[1] ) pmin[1] = bmin[1];
+      if ( bmax[1] > pmax[1] ) pmax[1] = bmax[1];
+      if ( bmin[2] < pmin[2] ) pmin[2] = bmin[2];
+      if ( bmax[2] > pmax[2] ) pmax[2] = bmax[2];
+      if ( (*it)->MinT() < pmin[3] ) pmin[3] = (*it)->MinT();
+      if ( (*it)->MaxT() > pmax[3] ) pmax[3] = (*it)->MaxT();
     }
+
+    bt1->setEnabled( ( pmax[0] > pmin[0] ) ? true : false );
+    bt2->setEnabled( ( pmax[1] > pmin[1] ) ? true : false );
+    bt3->setEnabled( ( pmax[2] > pmin[2] ) ? true : false );
+    bt4->setEnabled( ( pmax[3] > pmin[3] ) ? true : false );
+
+    delete x_curve;
+    pdim = profS->size( pmin, pmax );
+    x_curve = profS->abscisse( pmin, pdim );
+
+    switch( pDir )
+    {
+    case QAProfileWindow::alongX:
+      {
+        if ( pmax[0] <= pmin[0] && bt2->isEnabled() )
+          {
+            bt2->setChecked( true );
+            dirChange( 1 );
+          }
+        break;
+      }
+    case QAProfileWindow::alongY:
+      {
+        if ( pmax[1] <= pmin[1] && bt1->isEnabled() )
+          {
+            bt1->setChecked( true );
+            dirChange( 0 );
+          }
+        break;
+      }
+    case QAProfileWindow::alongZ:
+      {
+        if ( pmax[2] <= pmin[2] && bt1->isEnabled() )
+          {
+            bt1->setChecked( true );
+            dirChange( 0 );
+          }
+        break;
+      }
+    case QAProfileWindow::alongT:
+      {
+        if ( pmax[3] <= pmin[3] && bt1->isEnabled() )
+          {
+            bt1->setChecked( true );
+            dirChange( 0 );
+          }
+        break;
+      }
+    }
+  }
   else
-    {
-      pDir = QAProfileWindow::alongX;
-      graphic->setAxisTitle( QwtPlot::xBottom, "Columns" );
-      bt1->setChecked( true );
-      bt1->setEnabled( false );
-      bt2->setEnabled( false );
-      bt3->setEnabled( false );
-      bt4->setEnabled( false );
-    }
+  {
+    pDir = QAProfileWindow::alongX;
+    graphic->setAxisTitle( QwtPlot::xBottom, "Columns" );
+    bt1->setChecked( true );
+    bt1->setEnabled( false );
+    bt2->setEnabled( false );
+    bt3->setEnabled( false );
+    bt4->setEnabled( false );
+  }
 }
 
 
@@ -400,15 +404,68 @@ void QAProfileWindow::refreshNow()
 
   Point3df vs;
   Point3df thePos;
+  Referential *ref = getReferential();
+
+  Point4df incw;
+  switch( pDir )
+  {
+    case alongX:
+      incw = Point4df( 1, 0, 0, 0 );
+      break;
+    case alongY:
+      incw = Point4df( 0, 1, 0, 0 );
+      break;
+    case alongZ:
+      incw = Point4df( 0, 0, 1, 0 );
+      break;
+    case alongT:
+      incw = Point4df( 0, 0, 0, 1 );
+      break;
+  }
+  
+  Point3df pos0 = Point3df( pmin[0], pmin[1], pmin[2] );
+  float t0 = pmin[3];
+  if( incw[0] == 0. )
+    pos0[0] = _position[0];
+  if( incw[1] == 0. )
+    pos0[1] = _position[1];
+  if( incw[2] == 0. )
+    pos0[2] = _position[2];
+  if( incw[3] == 0. )
+    t0 = _time;
 
   for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {
+      Referential *oref = (*it)->getReferential();
+      Transformation *tra = theAnatomist->getTransformation( ref, oref );
+      if( tra )
+        thePos = tra->transform( pos0 );
+      else
+        thePos = pos0;
       vs = (*it)->VoxelSize();
-      thePos[0] = _position[0] / vs[0];
-      thePos[1] = _position[1] / vs[1];
-      thePos[2] = _position[2] / vs[2];
+      Point4df increment;
+      Point3df inc3;
+      if( tra )
+      {
+        inc3 = tra->transform( Point3df( incw[0], incw[1], incw[2] ) ) 
+          - tra->transform( Point3df( 0, 0, 0 ) );
+        increment[0] = inc3[0];
+        increment[1] = inc3[1];
+        increment[2] = inc3[2];
+        increment[3] = incw[3];
+      }
+      else
+      {
+        increment = incw;
+      }
+      /* thePos[0] /= vs[0];
+      thePos[1] /= vs[1];
+      thePos[2] /= vs[2]; */
       if ( pprof.find( *it ) != pprof.end() )  delete[] pprof[ *it ];
-      pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim );
+      //pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim );
+      cout << "doit...\n";
+      pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim, increment );
+      cout << "done\n";
 #if QWT_VERSION >= 0x050000
       QwtPlotCurve	*crv = d->mcurve[ *it ];
       crv->setPen( QPen( QColor( d->pcol[ crv ] ) ) );

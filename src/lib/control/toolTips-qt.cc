@@ -41,6 +41,7 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/graph/Graph.h>
+#include <anatomist/application/globalConfig.h>
 #include <cartobase/object/pythonwriter.h>
 #include <qlabel.h>
 #include <qapplication.h>
@@ -228,7 +229,19 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
 {
   Point3df	pos3;
   set<AObject *>	shown, hidden;
-  bool usegl = true;
+
+  GlobalConfiguration   *cfg = theAnatomist->config();
+  int glxsel = 0;
+  try
+  {
+    Object  x = cfg->getProperty( "disableOpenGLSelection" );
+    if( !x.isNull() )
+      glxsel = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  bool usegl = !glxsel;
 
   if( usegl )
   {

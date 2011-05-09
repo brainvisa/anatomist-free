@@ -82,7 +82,7 @@ struct PreferencesWindow::Private
 {
   Private()
     : tab( 0 ), cursEdit( 0 ), cursSlider( 0 ), cursColBtn( 0 ), 
-      defobjref( 0 ), defwinref( 0 ), browsattlen( 0 ) {}
+      defobjref( 0 ), defwinref( 0 ), browsattlen( 0 ), texmax( 0 ) {}
 
   unsigned		tab;
   vector<QWidget *>	tabs;
@@ -97,6 +97,7 @@ struct PreferencesWindow::Private
   QPushButton		*defobjref;
   QPushButton		*defwinref;
   QLineEdit             *browsattlen;
+  QComboBox             *texmax;
 };
 
 
@@ -148,19 +149,12 @@ PreferencesWindow::PreferencesWindow()
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 10 );
   QTabBar	*tbar = new QTabBar( this );
 
-#if QT_VERSION >= 0x040000
   _pdat->tabnum[ tbar->addTab( tr( "Application" ) )    ] = 0;
   _pdat->tabnum[ tbar->addTab( tr( "Linked cursor" ) )  ] = 1;
   _pdat->tabnum[ tbar->addTab( tr( "Windows" ) )        ] = 2;
   _pdat->tabnum[ tbar->addTab( tr( "Control window" ) ) ] = 3;
   _pdat->tabnum[ tbar->addTab( tr( "Volumes" ) )        ] = 4;
-#else
-  _pdat->tabnum[ tbar->addTab( new QTab( tr( "Application" ) ) )    ] = 0;
-  _pdat->tabnum[ tbar->addTab( new QTab( tr( "Linked cursor" ) ) )  ] = 1;
-  _pdat->tabnum[ tbar->addTab( new QTab( tr( "Windows" ) ) )        ] = 2;
-  _pdat->tabnum[ tbar->addTab( new QTab( tr( "Control window" ) ) ) ] = 3;
-  _pdat->tabnum[ tbar->addTab( new QTab( tr( "Volumes" ) ) )        ] = 4;
-#endif
+  _pdat->tabnum[ tbar->addTab( tr( "OpenGL" ) )         ] = 5;
 
   GlobalConfiguration	*cfg = theAnatomist->config();
 
@@ -206,7 +200,7 @@ PreferencesWindow::PreferencesWindow()
   htmlbox->setDuplicatesEnabled( false );
   htmlbox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
                                        QSizePolicy::Fixed ) );
-  htmlbox->setMaximumWidth( 400 );
+  // htmlbox->setMaximumWidth( 400 );
   string	htmltxt;
   if( cfg->getProperty( "html_browser", htmltxt ) )
     htmlbox->insertItem( htmltxt.c_str() );
@@ -235,11 +229,11 @@ PreferencesWindow::PreferencesWindow()
   au->insertItem( "Expert" );
   au->setEditable( true );
   au->setInsertionPolicy( QComboBox::NoInsertion );
-   au->setValidator( new QRegExpValidator( QRegExp(
-  "\\d*|Basic|Advanced|Expert|Debugger", false ), au ) );
+  au->setValidator( new QRegExpValidator( QRegExp(
+    "\\d*|Basic|Advanced|Expert|Debugger", false ), au ) );
   resetUserLevel();
   connect( au, SIGNAL( activated( const QString & ) ), this,
-  SLOT( setUserLevel( const QString & ) ) );
+    SLOT( setUserLevel( const QString & ) ) );
 
   QVGroupBox	*refs = new QVGroupBox( tr( "Default referentials" ), app );
   QGrid		*refg = new QGrid( 2, refs );
@@ -370,7 +364,7 @@ PreferencesWindow::PreferencesWindow()
   tvol->hide();
   _pdat->tabs.push_back( tvol );
   QCheckBox	*tvint = new QCheckBox( tr( "Interpolation on volumes when "
-					    "changing referential" ), tvol );
+                                            "changing referential" ), tvol );
   int	tvich = 1;
   cfg->getProperty( "volumeInterpolation", tvich );
   tvint->setChecked( tvich );
@@ -388,6 +382,71 @@ PreferencesWindow::PreferencesWindow()
   {
   }
   tvspm->setChecked( tvuspm );
+  
+  //    OpenGL tab
+
+  QVGroupBox    *tgl = new QVGroupBox( this );
+  tgl->hide();
+  _pdat->tabs.push_back( tgl );
+
+  QHBox *btexmax = new QHBox( tgl );
+  new QLabel( tr( "limit number of textures: " ), btexmax );
+  QComboBox *texmax = new QComboBox( btexmax );
+  _pdat->texmax = texmax;
+  texmax->setDuplicatesEnabled( false );
+  texmax->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
+                                      QSizePolicy::Fixed ) );
+  texmax->insertItem( tr( "Unlimited" ) );
+  texmax->insertItem( "0" );
+  texmax->insertItem( "1" );
+  texmax->insertItem( "2" );
+  texmax->insertItem( "3" );
+  texmax->insertItem( "4" );
+  texmax->insertItem( "5" );
+  texmax->insertItem( "6" );
+  texmax->insertItem( "7" );
+  texmax->insertItem( "8" );
+  texmax->setEditable( true );
+  texmax->setValidator( new QRegExpValidator( QRegExp(
+    "\\d*|Unlimited|-1", false ), texmax ) );
+  int   ntexmax = -1;
+  try
+  {
+    Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
+    if( !x.isNull() )
+      ntexmax = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  texmax->setCurrentItem( ntexmax + 1 );
+  btexmax->setToolTip( tr( "Try this option if you encounter OpenGL rendering "
+  "problems.\n"
+  "Such problems have been seen on Windows machines, where rendering was not "
+  "performed at all\n"
+  "if more than 3 texture units were enabled (even on non-tetured objects).\n"
+  "Use 'Unlimited' if rendering is OK."
+  ) );
+
+  QCheckBox *glselect = new QCheckBox( tr( "Use OpenGL selection" ), tgl );
+  int   useglsel = 1;
+  try
+  {
+    Object  x = cfg->getProperty( "disableOpenGLSelection" );
+    if( !x.isNull() )
+      useglsel = (int) !x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  glselect->setChecked( useglsel );
+  glselect->setToolTip( tr( "Disabling OpenGL-based selection (in selection "
+  "control, and 3D windows tooltips)\n"
+  "may be needed with some buggy OpenGL implementations which may cause "
+  "Anatomist to crash.\n"
+  "The \"Surface Paint\" tool also makes use of it in an unconditional way, "
+  "so this module\n"
+  "might still crash with such an OpenGL implementation." ) );
 
   //	top-level widget setting
 
@@ -397,6 +456,7 @@ PreferencesWindow::PreferencesWindow()
   mainlay->addWidget( winbox );
   mainlay->addWidget( cwin );
   mainlay->addWidget( tvol );
+  mainlay->addWidget( tgl );
 
   connect( tbar, SIGNAL( selected( int ) ), this, SLOT( enableTab( int ) ) );
   connect( htmlbox, SIGNAL( activated( const QString & ) ), this, 
@@ -435,6 +495,10 @@ PreferencesWindow::PreferencesWindow()
 	   SLOT( enableVolInterpolation( bool ) ) );
   connect( tvspm, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enableAutomaticReferential( bool ) ) );
+  connect( texmax, SIGNAL( activated( const QString & ) ), this,
+           SLOT( setMaxTextures( const QString & ) ) );
+  connect( glselect, SIGNAL( toggled( bool ) ), this,
+           SLOT( enableOpenGLSelection( bool ) ) );
 }
 
 
@@ -724,6 +788,79 @@ void PreferencesWindow::browserAttributeLenChanged()
   _pdat->browsattlen->setText( QString::number( len ) );
   theAnatomist->config()->setProperty( "clipBrowserValues", len );
   _pdat->browsattlen->blockSignals( false );
+}
+
+
+void PreferencesWindow::enableDisplayCursorPosition( bool x )
+{
+  if( x )
+  {
+    if( theAnatomist->config()->hasProperty( "displayCursorPosition" ) )
+      theAnatomist->config()->removeProperty( "displayCursorPosition" );
+  }
+  else
+  {
+    theAnatomist->config()->setProperty( "displayCursorPosition", int(0) );
+  }
+}
+
+
+void PreferencesWindow::setMaxTextures( const QString & mt )
+{
+  GlobalConfiguration   *cfg = theAnatomist->config();
+  int imt = -1;
+  try
+  {
+    Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
+    if( !x.isNull() )
+      imt = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  if( mt.lower() == "unlimited" )
+    imt = -1;
+  else
+  {
+    bool ok = false;
+    int imt2 = mt.toInt( &ok );
+    if( ok )
+      imt = imt2;
+  }
+  if( imt < 0 )
+  {
+    imt = -1;
+    if( cfg->hasProperty( "maxTextureUnitsUsed" ) )
+      cfg->removeProperty( "maxTextureUnitsUsed" );
+  }
+  else
+    cfg->setProperty( "maxTextureUnitsUsed", imt );
+  GLCaps::updateTextureUnits();
+
+  QString mt2;
+  if( imt < 0 )
+  {
+    mt2 = "Unlimited";
+    imt = -1;
+  }
+  else
+    mt2 = QString::number( imt );
+  if( mt2 != mt )
+    _pdat->texmax->setCurrentItem( imt + 1 );
+}
+
+
+void PreferencesWindow::enableOpenGLSelection( bool x )
+{
+  if( x )
+  {
+    if( theAnatomist->config()->hasProperty( "disableOpenGLSelection" ) )
+      theAnatomist->config()->removeProperty( "disableOpenGLSelection" );
+  }
+  else
+  {
+    theAnatomist->config()->setProperty( "disableOpenGLSelection", int(1) );
+  }
 }
 
 

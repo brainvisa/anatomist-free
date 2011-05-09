@@ -150,11 +150,11 @@ since Anatomist 1.29.</p>
   
   <tr>
     <td><tt>cursorSize</tt></td>
-	<td><tt>int</tt></td>
-	<td><tt>20</tt></td>
-	<td>positive int</td>
-	<td>Size of the 3D cursor (in mm)</td>
-	<td>all</td>
+    <td><tt>int</tt></td>
+    <td><tt>20</tt></td>
+    <td>positive int</td>
+    <td>Size of the 3D cursor (in mm)</td>
+    <td>all</td>
   </tr>
   
   
@@ -165,6 +165,25 @@ since Anatomist 1.29.</p>
         <td>0, 1</td>
         <td>Display or not the statusbar in 3D windows with the cursor position and image values</td>
         <td>4.1</td>
+  </tr>
+  
+  <tr>
+    <td><tt>disableOpenGLSelection</tt></td>
+    <td><tt>int</tt></td>
+    <td><tt>0</tt></td>
+    <td><tt>0</tt>, <tt>1</tt></td>
+    <td>Avoid using OpenGL-based selection (in selection control, and 3D windows tooltips). It may be needed with some buggy OpenGL implementations which may cause Anatomist to crash. The "Surface Paint" tool also makes use of it in an unconditional way, so this module might still crash with such an OpenGL implementation.
+    </td>
+    <td>4.1</td>
+  </tr>
+
+  <tr>
+    <td><tt>displayCursorPosition</tt></td>
+    <td><tt>int</tt></td>
+    <td><tt>1</tt></td>
+    <td><tt>0</tt>, <tt>1</tt></td>
+    <td>Display or not the statusbar in 3D windows with the cursor position and image values</td>
+    <td>4.1</td>
   </tr>
   
   <tr>
@@ -252,26 +271,36 @@ since Anatomist 1.29.</p>
   
   <tr>
     <td><tt>listview_background</tt></td>
-	<td><tt>string</tt></td>
-	<td>None</td>
-	<td></td>
-	<td>Image file to be displayed in "listview" widgets of the GUI: the control 
-	window objects and windows lists, browsers etc. This is only a gadget to customize
-	the look of Anatomist. Filenames without an absolute path are taken in the 
-	<tt>${HOME}/.anatomist/icons/</tt> directory</td>
-	<td>all</td>
+    <td><tt>string</tt></td>
+    <td>None</td>
+    <td></td>
+    <td>Image file to be displayed in "listview" widgets of the GUI: the control
+    window objects and windows lists, browsers etc. This is only a gadget to customize
+    the look of Anatomist. Filenames without an absolute path are taken in the
+    <tt>${HOME}/.anatomist/icons/</tt> directory</td>
+    <td>all</td>
+  </tr>
+  
+  <tr>
+    <td><tt>maxTextureUnitsUsed</tt></td>
+    <td><tt>int</tt></td>
+    <td>-1</td>
+    <td>&gt;= -1</td>
+    <td>Limit the number of OpenGL texture units used. The default is -1, unlimited. Try this option if you encounter OpenGL rendering problems. Such problems have been seen on Windows machines, where rendering was not performed at all if more than 3 texture units were enabled (even on non-tetured objects).
+    </td>
+    <td>4.1</td>
   </tr>
   
   <tr>
     <td><tt>path_list</tt></td>
-	<td><tt>string</tt></td>
-	<td></td>
-	<td></td>
-	<td>Paths list to be inserted in the pre-seelcted directories of file dialogs. It 
-	can be useful to reach quickly your favorite data directories</td>
-	<td>all</td>
+    <td><tt>string</tt></td>
+    <td></td>
+    <td></td>
+    <td>Paths list to be inserted in the pre-seelcted directories of file dialogs. It
+    can be useful to reach quickly your favorite data directories</td>
+    <td>all</td>
   </tr>
-  
+
   <tr>
     <td><tt>selectionColor</tt></td>
 	<td><tt>int_vector</tt></td>

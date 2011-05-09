@@ -1133,15 +1133,8 @@ void SurfpaintTools::loadConstraintsList()
 {
   char sep = carto::FileUtil::separator();
 
-//  string consfile = Paths::globalShared() + sep + "shfj-" + carto::cartobaseShortVersion()
-//      + sep + "nomenclature" + sep + "surfaceanalysis" + sep + "constraint_correspondance.txt";
-
-  string consfile = Paths::globalShared() + sep + "brainvisa-share-" + carto::cartobaseShortVersion()
-        + sep + "nomenclature" + sep + "surfaceanalysis" + sep + "constraint_correspondance.txt";
-
-  ///home/.../brainvisa/build/trunk/share/shfj-4.2/nomenclature/surfaceanalysis/constraint_correspondance.txt
-  //replace by
-  //brainvisa-share-4.2/nomenclature/surfaceanalysis/
+ string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
+   + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
 
   cout << "Loading constraints file : " << consfile << endl;
 

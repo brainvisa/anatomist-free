@@ -47,7 +47,7 @@ public:
   int size( Point4df&, Point4df& );
 
   double *abscisse( Point4df&, int );
-  double *doit( anatomist::AObject *, Point3df&, float, Point4df&, int );
+  // double *doit( anatomist::AObject *, Point3df&, float, Point4df&, int );
 
   double markerPos( Point3df&, float, Point4df& );
 };

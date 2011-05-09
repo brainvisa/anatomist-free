@@ -71,6 +71,8 @@ public slots:
   void changeDefWindowsRef();
   void browserAttributeLenChanged();
   void enableDisplayCursorPosition( bool x );
+  void setMaxTextures( const QString & );
+  void enableOpenGLSelection( bool x );
 
 protected:
   void updateWindows();

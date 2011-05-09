@@ -34,6 +34,8 @@
 
 //#define GL_GLEXT_PROTOTYPES
 #include <anatomist/window/glcaps.h>
+#include <anatomist/application/globalConfig.h>
+#include <anatomist/application/Anatomist.h>
 #include <iostream>
 #ifdef _WIN32
 #include <windows.h>
@@ -43,6 +45,7 @@
 #endif
 
 using namespace anatomist;
+using namespace carto;
 using namespace std;
 
 namespace
@@ -70,6 +73,7 @@ namespace
   struct GLCapsPrivate
   {
     GLCapsPrivate();
+    void updateTextureUnits();
 
     bool	ext_ARB_multitexture;
     bool	ext_ARB_shadow;
@@ -287,10 +291,9 @@ namespace
 
 #endif
 
-      GLint	ntex;
-      glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
-      numTextureUnits = (unsigned) ntex;
-      cout << "Number of texture units: " << numTextureUnits << endl;
+      cout << "before updateTextureUnits\n";
+      updateTextureUnits();
+      cout << "after\n";
 
       if( glActiveTexture == _void_glActiveTexture 
           || glClientActiveTexture == _void_glActiveTexture )
@@ -380,6 +383,32 @@ namespace
 }
 
 
+void GLCapsPrivate::updateTextureUnits()
+{
+  cout << "updateTextureUnits\n";
+  GLint     ntex;
+  glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
+  numTextureUnits = (unsigned) ntex;
+  cout << "Number of texture units: " << numTextureUnits << endl;
+  GlobalConfiguration   *cfg = theAnatomist->config();
+  int imt = -1;
+  try
+  {
+    Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
+    if( !x.isNull() )
+      imt = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  if( imt >= 0 && imt < ntex )
+  {
+    cout << "Texture units limited in configuration: " << imt << endl;
+    numTextureUnits = (unsigned) imt;
+  }
+}
+
+
 bool GLCaps::hasMultiTexture()
 {
   return _glcapsPrivate().ext_ARB_multitexture;
@@ -442,11 +471,13 @@ unsigned GLCaps::numTextureUnits()
 
 GLenum GLCaps::textureID( unsigned x )
 {
-#ifdef GL_VERSION_1_4
+#ifdef GL_VERSION_1_3
 
   static unsigned	texids[] = { GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, 
                                      GL_TEXTURE3, GL_TEXTURE4, GL_TEXTURE5, 
                                      GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, };
+  if( x > 8 )
+    return texids[0] + x;
   return texids[ x ];
 
 #else
@@ -457,6 +488,8 @@ GLenum GLCaps::textureID( unsigned x )
 				     GL_TEXTURE4_ARB, GL_TEXTURE5_ARB, 
                                      GL_TEXTURE6_ARB, GL_TEXTURE7_ARB, 
 				     GL_TEXTURE8_ARB, };
+  if( x > 8 )
+    return texids[0] + x;
   return texids[ x ];
 
 #else
@@ -492,6 +525,13 @@ void GLCaps::glTexImage3D( GLenum target, GLint level, GLint internalformat,
 {
   _glcapsPrivate().glTexImage3D( target, level, internalformat, width, height, 
                                  depth, border, format, type, data );
+}
+
+
+void GLCaps::updateTextureUnits()
+{
+  cout << "updateTextureUnits 1\n";
+  _glcapsPrivate().updateTextureUnits();
 }
 
 

@@ -44,10 +44,34 @@ double *QAProfileStrategy::abscisse( Point4df&, int )
 }
 
 
-double *QAProfileStrategy::doit( AObject *, Point3df&, float, Point4df&, int )
+double *QAProfileStrategy::doit( AObject *d, Point3df& pt, float t, 
+                                 Point4df& pmin, int pdim, 
+                                 const Point4df & increment )
 {
-  return (double *)0;
+  Point3df vs = d->VoxelSize();
+  float sx = vs[ 0 ];
+  double *y = new double[ pdim ];
+  Point3df pos, incs( increment[0], increment[1], increment[2] );
+  float inct = increment[3];
+  int i;
+
+  pos = pt;
+  pos[0] /= vs[0];
+  pos[1] /= vs[1];
+  pos[2] /= vs[2];
+  incs[0] /= vs[0];
+  incs[1] /= vs[1];
+  incs[2] /= vs[2];
+
+  for( i=0; i<pdim; i++, pos += incs, t += inct )
+  {
+    y[ i ] = d->mixedTexValue( pos, t );
+  }
+
+  return y;
 }
+
+
 
 
 int QAProfileStrategy::size( Point4df&, Point4df& )

@@ -49,6 +49,7 @@ double *QAProfileY::abscisse( Point4df& pmin, int pdim )
 }
 
 
+/*
 double *QAProfileY::doit( AObject *d, Point3df& pt, float t, Point4df& pmin, 
 			  int pdim )
 {
@@ -68,6 +69,7 @@ double *QAProfileY::doit( AObject *d, Point3df& pt, float t, Point4df& pmin,
 
   return y;
 }
+*/
 
 
 int QAProfileY::size( Point4df& pmin, Point4df& pmax )

@@ -42,6 +42,9 @@
 
 #ifdef _WIN32 // TODO: remove this workaround (added by Denis for Windows)
 #include <qgl.h>
+#ifndef HAS_GLEXT
+#  define HAS_GLEXT
+#endif
 #endif
 
 #if defined(__APPLE__)
@@ -89,6 +92,8 @@ namespace anatomist
     static bool hasGlTexImage3D();
     static void glTexImage3D( GLenum, GLint, GLint, GLsizei, GLsizei, 
                               GLsizei, GLint, GLenum, GLenum, const void* );
+    /// re-calculate number of texture units
+    static void updateTextureUnits();
   };
 
 }

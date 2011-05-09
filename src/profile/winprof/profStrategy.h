@@ -49,7 +49,7 @@ public:
 
   virtual double *abscisse( Point4df&, int );
   virtual double *doit( anatomist::AObject *, Point3df&, float, Point4df&, 
-			int );
+			int, const Point4df & increment );
 
   virtual double markerPos( Point3df&, float, Point4df& );
 };
