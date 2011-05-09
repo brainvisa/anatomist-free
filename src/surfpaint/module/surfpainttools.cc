@@ -1253,7 +1253,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     listIndexVertexPathSPLast.clear();
 
-    sptemp->shortestPathIndiceCoordVextex(source_vertex_index,target_vertex_index,listIndexVertexPathSPLast,vertexList);
+    sptemp->shortestPath_1_1_ind_xyz(source_vertex_index,target_vertex_index,listIndexVertexPathSPLast,vertexList);
 
     listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
         listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
@@ -1355,7 +1355,7 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 //
   vector<Point3df> vertexList;
 
-  vertexList = sp->shortestPathCoordVextex(source_vertex_index,target_vertex_index);
+  vertexList = sp->shortestPath_1_1_xyz(source_vertex_index,target_vertex_index);
 
   AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
 
