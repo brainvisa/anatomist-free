@@ -55,6 +55,7 @@
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/window3D/labeleditaction.h>
 #include <anatomist/graph/GraphObject.h>
+#include <anatomist/application/globalConfig.h>
 #include <qtimer.h>
 #include <qtoolbar.h>
 #include <aims/qtcompat/qtoolbutton.h>
@@ -705,37 +706,51 @@ void SelectAction::select( int x, int y, int modifier )
   AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
   if( w3 )
   {
-    AObject *obj = w3->objectAtCursorPosition( x, y );
-    if( obj )
+    GlobalConfiguration   *cfg = theAnatomist->config();
+    int glxsel = 0;
+    try
     {
-      cout << "select obj: " << obj << ", name: " << obj->name() << endl;
-
-      if( !w3->hasObject( obj ) )
+      Object  x = cfg->getProperty( "disableOpenGLSelection" );
+      if( !x.isNull() )
+        glxsel = (int) x->getScalar();
+    }
+    catch( ... )
+    {
+    }
+    if( !glxsel )
+    {
+      AObject *obj = w3->objectAtCursorPosition( x, y );
+      if( obj )
       {
-        // see if the objects belongs to a graph vertex/edge
-        AObject::ParentList pl = obj->parents();
-        AObject::ParentList::iterator ip, ep = pl.end();
-        while( !pl.empty() )
+        cout << "select obj: " << obj << ", name: " << obj->name() << endl;
+
+        if( !w3->hasObject( obj ) )
         {
-          ip = pl.begin();
-          pl.erase( ip );
-          if( ( dynamic_cast<AGraphObject *>( *ip )
-            || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
+          // see if the objects belongs to a graph vertex/edge
+          AObject::ParentList pl = obj->parents();
+          AObject::ParentList::iterator ip, ep = pl.end();
+          while( !pl.empty() )
           {
-            obj = *ip;
-            cout << "--> translated to: " << obj << ", name: " << obj->name()
-              << endl;
-            break;
+            ip = pl.begin();
+            pl.erase( ip );
+            if( ( dynamic_cast<AGraphObject *>( *ip )
+              || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
+            {
+              obj = *ip;
+              cout << "--> translated to: " << obj << ", name: " << obj->name()
+                << endl;
+              break;
+            }
+            pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
           }
-          pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
         }
+        SelectFactory *sf = SelectFactory::factory();
+        set<AObject *> so;
+        so.insert( obj );
+        sf->select( (SelectFactory::SelectMode) modifier, w3->Group(), so );
+        sf->refresh();
+        return;
       }
-      SelectFactory *sf = SelectFactory::factory();
-      set<AObject *> so;
-      so.insert( obj );
-      sf->select( (SelectFactory::SelectMode) modifier, w3->Group(), so );
-      sf->refresh();
-      return;
     }
   }
 

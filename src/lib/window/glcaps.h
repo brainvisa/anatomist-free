@@ -92,6 +92,8 @@ namespace anatomist
     static bool hasGlTexImage3D();
     static void glTexImage3D( GLenum, GLint, GLint, GLsizei, GLsizei, 
                               GLsizei, GLint, GLenum, GLenum, const void* );
+    /// re-calculate number of texture units
+    static void updateTextureUnits();
   };
 
 }

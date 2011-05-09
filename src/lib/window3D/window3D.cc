@@ -3355,10 +3355,12 @@ list<AObject *>::iterator AWindow3D::processRenderingOrder(
   return transparent;
 }
 
+
 QSlider* AWindow3D::getSliceSlider() const
 {
   return d->slids;
 }
+
 
 AObject* AWindow3D::objectAtCursorPosition(int x, int y)
 {

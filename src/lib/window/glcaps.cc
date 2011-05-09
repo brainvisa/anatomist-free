@@ -34,6 +34,8 @@
 
 //#define GL_GLEXT_PROTOTYPES
 #include <anatomist/window/glcaps.h>
+#include <anatomist/application/globalConfig.h>
+#include <anatomist/application/Anatomist.h>
 #include <iostream>
 #ifdef _WIN32
 #include <windows.h>
@@ -43,6 +45,7 @@
 #endif
 
 using namespace anatomist;
+using namespace carto;
 using namespace std;
 
 namespace
@@ -70,6 +73,7 @@ namespace
   struct GLCapsPrivate
   {
     GLCapsPrivate();
+    void updateTextureUnits();
 
     bool	ext_ARB_multitexture;
     bool	ext_ARB_shadow;
@@ -287,10 +291,9 @@ namespace
 
 #endif
 
-      GLint	ntex;
-      glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
-      numTextureUnits = (unsigned) ntex;
-      cout << "Number of texture units: " << numTextureUnits << endl;
+      cout << "before updateTextureUnits\n";
+      updateTextureUnits();
+      cout << "after\n";
 
       if( glActiveTexture == _void_glActiveTexture 
           || glClientActiveTexture == _void_glActiveTexture )
@@ -376,6 +379,32 @@ namespace
   //CloseHandle( handle );
 #endif
 
+  }
+}
+
+
+void GLCapsPrivate::updateTextureUnits()
+{
+  cout << "updateTextureUnits\n";
+  GLint     ntex;
+  glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
+  numTextureUnits = (unsigned) ntex;
+  cout << "Number of texture units: " << numTextureUnits << endl;
+  GlobalConfiguration   *cfg = theAnatomist->config();
+  int imt = -1;
+  try
+  {
+    Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
+    if( !x.isNull() )
+      imt = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  if( imt >= 0 && imt < ntex )
+  {
+    cout << "Texture units limited in configuration: " << imt << endl;
+    numTextureUnits = (unsigned) imt;
   }
 }
 
@@ -496,6 +525,13 @@ void GLCaps::glTexImage3D( GLenum target, GLint level, GLint internalformat,
 {
   _glcapsPrivate().glTexImage3D( target, level, internalformat, width, height, 
                                  depth, border, format, type, data );
+}
+
+
+void GLCaps::updateTextureUnits()
+{
+  cout << "updateTextureUnits 1\n";
+  _glcapsPrivate().updateTextureUnits();
 }
 
 
