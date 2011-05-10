@@ -864,16 +864,3 @@ void PreferencesWindow::enableOpenGLSelection( bool x )
 }
 
 
-void PreferencesWindow::enableDisplayCursorPosition( bool x )
-{
-  if( x )
-  {
-    if( theAnatomist->config()->hasProperty( "displayCursorPosition" ) )
-      theAnatomist->config()->removeProperty( "displayCursorPosition" );
-  }
-  else
-  {
-    theAnatomist->config()->setProperty( "displayCursorPosition", int(0) );
-  }
-}
-
