@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
 #      CEA/NeuroSpin, Batiment 145,
@@ -52,7 +53,6 @@ import os, sip
 
 class SelectionActionView( qt.QWidget ):
   def __init__( self, action, parent, name=None, flags=0 ):
-    print 'create SelectionActionView'
     if qt4:
       qt.QWidget.__init__( self, parent )
       self.setObjectName( name )
@@ -197,7 +197,7 @@ class SelectionAction( anatomist.cpp.Action ):
             mat.set(mat_desc)
             v0.SetMaterial(mat)
             v0.notifyObservers()
-    print 'time:', time.time() - t
+    #print 'time:', time.time() - t
 
   def changeColorByTargets(self, vertex_source, edge):
     vertices = edge.vertices()
@@ -214,35 +214,36 @@ class SelectionAction( anatomist.cpp.Action ):
       mat_edge.set(matEdge_desc)
       edgeAna_object.SetMaterial(mat_edge)
       edgeAna_object.notifyObservers()
-  
+
   def changeColorBySources(self, edge):
-    vertices = edge.vertices()
-    sf = anatomist.cpp.SelectFactory.factory()
-    window = self.view().window()
-    group = window.Group()
-    for vertex in vertices:
-      if vertex.has_key('ana_object') and sf.isSelected(group, vertex['ana_object']):
-        mat = vertex["ana_object"].GetMaterial()
-        edgeAna_object = edge['ana_object']
-        mat_desc = mat.genericDescription()
-        mat_edge = edgeAna_object.GetMaterial()
-        matEdge_desc = mat_edge.genericDescription()
-        matEdge_desc = { 'diffuse': [mat_desc['diffuse'][0],  mat_desc['diffuse'][1], mat_desc['diffuse'][2], matEdge_desc['diffuse'][3] ] }
-        mat_edge.set(matEdge_desc)
-        edgeAna_object.SetMaterial(mat_edge)
-        edgeAna_object.notifyObservers()
-        break
+    if edge.has_key( 'ana_object' ):
+      vertices = edge.vertices()
+      sf = anatomist.cpp.SelectFactory.factory()
+      window = self.view().window()
+      group = window.Group()
+      for vertex in vertices:
+        if vertex.has_key('ana_object') \
+          and sf.isSelected(group, vertex['ana_object']):
+          mat = vertex["ana_object"].GetMaterial()
+          edgeAna_object = edge['ana_object']
+          mat_desc = mat.genericDescription()
+          mat_edge = edgeAna_object.GetMaterial()
+          matEdge_desc = mat_edge.genericDescription()
+          matEdge_desc = { 'diffuse': [mat_desc['diffuse'][0],  mat_desc['diffuse'][1], mat_desc['diffuse'][2], matEdge_desc['diffuse'][3] ] }
+          mat_edge.set(matEdge_desc)
+          edgeAna_object.SetMaterial(mat_edge)
+          edgeAna_object.notifyObservers()
+          break
 
   def edgeSelection( self ):
     try:
       recursion = getattr( self, '_recursion' )
       if recursion:
-        #print "recursion"
         return
     except:
       pass
     self._recursion = True
-    print 'edgeSelection'
+    #print 'edgeSelection'
     sf = anatomist.cpp.SelectFactory.factory()
     sel = sf.selected()
     window = self.view().window()
