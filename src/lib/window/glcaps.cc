@@ -38,7 +38,6 @@
 #include <anatomist/application/Anatomist.h>
 #include <iostream>
 #ifdef _WIN32
-#include <windows.h>
 #include <wingdi.h>
 #else
 #include <dlfcn.h>
