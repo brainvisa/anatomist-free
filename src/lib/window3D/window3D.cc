@@ -3364,6 +3364,10 @@ QSlider* AWindow3D::getSliceSlider() const
 
 AObject* AWindow3D::objectAtCursorPosition(int x, int y)
 {
+  if( x < 0 || y < 0 || x >= d->draw->qglWidget()->width()
+    || y >= d->draw->qglWidget()->height() )
+    return 0;
+  // cerr << "objectAtCursorPosition " << x << ", " << y << endl;
   AObject *obj = 0;
   // render in ViewState::glSELECTRENDER_OBJECT mode (if needed)
   renderSelectionBuffer(ViewState::glSELECTRENDER_OBJECT);
