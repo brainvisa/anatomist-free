@@ -137,47 +137,61 @@ void ConstraintEditorWindow::drawContents( const char *name,
   {
     cout << (*i)->fileName() << "\n" << (*i)->type() << "\n";
 
-    ATriangulated *surf = dynamic_cast<ATriangulated *>( *i );
-    if( surf && !d->meshSelect )
+    // mesh+texture type
+    if ((*i)->type()== 19)
     {
-      rc_ptr<AimsSurfaceTriangle> aimss = surf->surface();
-      if( aimss->empty() )
+      MObject *mo = dynamic_cast<MObject *>( *i );
+
+      if( mo )
+      {
+        MObject::iterator im, em = mo->end();
+        for( im=mo->begin(); im!=em; ++im )
+          objects.push_back( *im ); // check sub-objects
+      }
+    }
+
+    // mesh type
+    if ((*i)->type()== 3)
+    {
+      ATriangulated *surf = dynamic_cast<ATriangulated *>( *i );
+
+      if( surf && !d->meshSelect )
+      {
+        rc_ptr<AimsSurfaceTriangle> aimss = surf->surface();
+        if( aimss->empty() )
+          continue;
+
+        size_t nnodesm = aimss->vertex().size();
+
+        if( d->texSelect && nnodes != nnodesm )
+          {
+          cout << "texture is incompatible\n";
+          d->texSelect = 0; // texture is incompatible: don't keep it'
+          }
+
+        nnodes = nnodesm;
+        d->meshSelect = surf;
         continue;
-
-      size_t nnodesm = aimss->vertex().size();
-
-      if( d->texSelect && nnodes != nnodesm )
-        {
-        cout << "texture is incompatible\n";
-        d->texSelect = 0; // texture is incompatible: don't keep it'
-        }
-
-      nnodes = nnodesm;
-      d->meshSelect = surf;
-      continue;
+      }
     }
 
-    ATexture *atex = dynamic_cast<ATexture *>( *i );
-
-    cout << atex << " " << atex->dimTexture() << "\n";
-    if( atex && atex->dimTexture() == 1 )
+    // texture type
+    if ((*i)->type()== 18)
     {
-      ViewState vs;
-      size_t nnodest = atex->glTexCoordSize( vs, 0 );
-      if( !d->meshSelect || nnodest == nnodes )
-        {
-        nnodes = nnodest;
-        d->texSelect = (*i);
-        }
-      continue;
-    }
+      ATexture *atex = dynamic_cast<ATexture *>( *i );
 
-    MObject *mo = dynamic_cast<MObject *>( *i );
-    if( mo )
-    {
-      MObject::iterator im, em = mo->end();
-      for( im=mo->begin(); im!=em; ++im )
-        objects.push_back( *im ); // check sub-objects
+      cout << atex << " " << atex->dimTexture() << "\n";
+      if( atex && atex->dimTexture() == 1 )
+      {
+        ViewState vs;
+        size_t nnodest = atex->glTexCoordSize( vs, 0 );
+        if( !d->meshSelect || nnodest == nnodes )
+          {
+          nnodes = nnodest;
+          d->texSelect = (*i);
+          }
+        continue;
+      }
     }
 
   }
