@@ -411,9 +411,9 @@ void Light::RefreshGLList()
   glLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &_linearAttenuation);
   glLightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, &_quadraticAttenuation);
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, _modelAmbient);
-  glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, &_modelLocalViewer);
-  glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, &_modelTwoSide);
-  glClearColor(_background[0], _background[1], 
+  glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, _modelLocalViewer);
+  glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, _modelTwoSide);
+  glClearColor(_background[0], _background[1],
 	       _background[2], _background[3]);
   glEndList();
 }
