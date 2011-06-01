@@ -45,6 +45,7 @@
 #include <math.h>
 #endif
 #include <qwidget.h>
+#include <qapplication.h>
 #include <iostream>
 #include <typeinfo>
 
@@ -72,7 +73,9 @@ namespace
     pair<int, QWidget *> & track = _mouseTracking();
     if( track.second )
     {
-      track.second->setMouseTracking( false );
+      QWidgetList wl = qApp->allWidgets();
+      if( wl.find( track.second ) != wl.end() )
+        track.second->setMouseTracking( false );
       track.first = 0;
       track.second = 0;
     }
