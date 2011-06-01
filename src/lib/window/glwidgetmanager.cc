@@ -1384,6 +1384,18 @@ void GLWidgetManager::mouseReleaseEvent( QMouseEvent* ev )
 }
 
 
+void GLWidgetManager::mouseDoubleClickEvent( QMouseEvent* ev )
+{
+  _pd->mouseX = ev->x();
+  _pd->mouseY = ev->y();
+
+  if (ev->buttons() == Qt::LeftButton && _pd->resized)
+    copyBackBuffer2Texture();
+
+  controlSwitch()->mouseDoubleClickEvent( ev );
+}
+
+
 void GLWidgetManager::mouseMoveEvent( QMouseEvent* ev )
 {
 //  cout << "GLWidgetManager::mouseMoveEvent\n";

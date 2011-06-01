@@ -123,6 +123,12 @@ void QAGLWidget::mouseMoveEvent( QMouseEvent* me )
 }
 
 
+void QAGLWidget::mouseDoubleClickEvent( QMouseEvent* me )
+{
+  GLWidgetManager::mouseDoubleClickEvent( me );
+}
+
+
 void QAGLWidget::keyPressEvent( QKeyEvent* ev )
 {
   GLWidgetManager::keyPressEvent( ev );
