@@ -46,8 +46,6 @@ namespace anatomist
   class AWindow;
   class Finder;
   class SurfpaintToolsAction;
-//  typedef SurfpaintToolsAction* surfpaint_pointer;
-
 
 class ConstraintEditorWindow : public QDialog, public anatomist::Observer
 {
@@ -65,6 +63,9 @@ public:
 
 public slots:
   virtual void accept();
+  void constraintTexOpen();
+  void constraintListOpen();
+  void constraintListInit();
 
 protected:
   void drawContents( const char *name, const std::set<AObject *> & );

@@ -48,10 +48,10 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qcombobox.h>
-#include <aims/qtcompat/qlistbox.h>
 #include <aims/qtcompat/qhbox.h>
 #include <aims/qtcompat/qvbox.h>
 #include <qlineedit.h>
+#include <aims/qtcompat/qlistbox.h>
 
 #include <anatomist/object/Object.h>
 #include <qlabel.h>
@@ -82,6 +82,11 @@
 #include <aims/mesh/texture.h>
 #include <aims/utility/converter_texture.h>
 
+#include <qfiledialog.h>
+#include <anatomist/application/settings.h>
+#include <cartobase/stream/fileutil.h>
+#include <cartobase/config/paths.h>
+
 using namespace anatomist;
 using namespace aims;
 using namespace std;
@@ -90,25 +95,141 @@ using namespace carto;
 struct ConstraintEditorWindow::Private
 {
   Private();
-  QListBox  *listobjet;
   QComboBox *latlon;
-
   QLineEdit  *newTextureName;
+  QToolButton *constraintTextureButton;
+  QLabel  *constraintTextureLabel;
+  QToolButton *constraintListButton;
+  QComboBox  *constraintListValues;
 
   AObject *meshSelect;
   AObject *texSelect;
+  AObject *texConstraint;
+
+  vector<string> constraintList;
+  int constraintValuesType; //min_max or lat_lon
+
+  size_t nnodes;
 };
 
 
 ConstraintEditorWindow::Private::Private()
-  : listobjet( 0 ), meshSelect( 0 ), texSelect( 0 )
+: latlon(0), newTextureName(0), constraintTextureButton(0), meshSelect(0),
+  texSelect(0), texConstraint(NULL), nnodes(0), constraintTextureLabel(0), constraintListValues(0), constraintListButton(0)
+  ,constraintValuesType(0),constraintList(0)
 {
 }
 
+void ConstraintEditorWindow::constraintTexOpen()
+{
+  QString filt = ControlledWindow::tr( "Texture" ) + " (*.tex)" ;
+  QString capt = "Open Texture" ;
+
+  QString filename;
+
+  filename = QFileDialog::getOpenFileName( QString::null, filt, 0, 0, capt );
+
+  if( d->meshSelect )
+  {
+    if( !filename.isNull() )
+    {
+      LoadObjectCommand *cmd = 0 ;
+      cmd = new LoadObjectCommand( filename.latin1() /*, -1, "", false, NULL*/ ) ;
+      theProcessor->execute( cmd ) ;
+
+      ATexture *atex = dynamic_cast<ATexture *>( cmd->loadedObject() );
+
+      cout << atex << " " << atex->dimTexture() << "\n";
+      if( atex && atex->dimTexture() == 1 )
+      {
+        ViewState vs;
+        size_t nnodest = atex->glTexCoordSize( vs, 0 );
+
+        if (nnodest == d->nnodes)
+        {
+          d->texConstraint = cmd->loadedObject() ;
+          cout << d->texConstraint->name() << endl;
+          d->constraintTextureLabel->setText(d->texConstraint->name().c_str());
+        }
+        else
+        {
+          d->texConstraint = NULL;
+        }
+      }
+    }
+  }
+}
+
+void ConstraintEditorWindow::constraintListOpen()
+{
+  QString filt = "(*.txt)" ;
+  QString capt = "Open constraints file" ;
+
+  QString filename;
+
+  filename = QFileDialog::getOpenFileName( QString::null, filt, 0, 0, capt );
+
+  d->constraintListValues->clear();
+  d->constraintList.clear();
+
+  string line;
+  ifstream myfile(filename.latin1());
+
+  if (myfile.is_open())
+  {
+    while (myfile.good())
+    {
+      getline(myfile, line);
+      if (line.length() != 0)
+        {
+        d->constraintListValues->insertItem(line.c_str()) ;
+        d->constraintListValues->setEditable( false );
+        d->constraintList.push_back(line.c_str());
+        }
+
+    }
+    myfile.close();
+  }
+
+}
+
+void ConstraintEditorWindow::constraintListInit()
+{
+  char sep = carto::FileUtil::separator();
+
+ string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
+   + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
+
+  cout << "Loading constraints file : " << consfile << endl;
+
+  d->constraintList.clear();
+
+  string line;
+  ifstream myfile(consfile.c_str());
+  if (myfile.is_open())
+  {
+    while (myfile.good())
+    {
+      getline(myfile, line);
+      if (line.length() != 0)
+        {
+        d->constraintListValues->insertItem(line.c_str()) ;
+        d->constraintListValues->setEditable( false );
+        d->constraintList.push_back(line.c_str());
+        }
+
+    }
+    myfile.close();
+  }
+
+  else
+    cout << "Unable to open file " << consfile << endl;
+}
 
 ConstraintEditorWindow::ConstraintEditorWindow( const set<AObject*> &objects,
                                                 const char *name, Qt::WFlags f ) : QDialog( 0, name, true, f ), d( new Private )
 {
+
   drawContents( name, objects );
 }
 
@@ -122,7 +243,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
                                            const set<AObject *> & obj )
 {
   setCaption( name );
-  this->setFixedWidth(300);
+  this->setFixedWidth(400);
 
   QVBoxLayout *mainlay = new QVBoxLayout( this, 5, 5 );
 
@@ -131,7 +252,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
   */
   list<AObject *> objects( obj.begin(), obj.end() );
   list<AObject *>::const_iterator i, e = objects.end();
-  size_t nnodes = 0;
+
+  d->nnodes = 0;
 
   for( i=objects.begin(); i!=e; ++i )
   {
@@ -163,13 +285,13 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
         size_t nnodesm = aimss->vertex().size();
 
-        if( d->texSelect && nnodes != nnodesm )
+        if( d->texSelect && d->nnodes != nnodesm )
           {
           cout << "texture is incompatible\n";
           d->texSelect = 0; // texture is incompatible: don't keep it'
           }
 
-        nnodes = nnodesm;
+        d->nnodes = nnodesm;
         d->meshSelect = surf;
         continue;
       }
@@ -185,9 +307,9 @@ void ConstraintEditorWindow::drawContents( const char *name,
       {
         ViewState vs;
         size_t nnodest = atex->glTexCoordSize( vs, 0 );
-        if( !d->meshSelect || nnodest == nnodes )
+        if( !d->meshSelect || nnodest == d->nnodes )
           {
-          nnodes = nnodest;
+          d->nnodes = nnodest;
           d->texSelect = (*i);
           }
         continue;
@@ -218,17 +340,24 @@ void ConstraintEditorWindow::drawContents( const char *name,
   QLabel  *textureLabel = new QLabel( "Texture : ",hbt);
 
   if ( d->texSelect )
+    {
     d->newTextureName = new QLineEdit(  d->texSelect->name().c_str(),hbt);
+    d->newTextureName->setReadOnly (true);
+
+    }
   else
-    d->newTextureName = new QLineEdit( "TexConstraint",hbt);;
+    d->newTextureName = new QLineEdit( "TexConstraint",hbt);
 
   d->newTextureName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
   QHBox *hblatlon = new QHBox();
   new QLabel( "Type : ",hblatlon);
   d->latlon = new QComboBox( hblatlon );
-  d->latlon->insertItem("lat");
-  d->latlon->insertItem("lon");
+  //d->latlon->insertItem("lat");
+  //d->latlon->insertItem("lon");
+  d->latlon->insertItem("lat_lon (predefined)");
+  d->latlon->insertItem("min_max (editable)");
+
   d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
   QHBox   *butts = new QHBox( this );
@@ -236,11 +365,44 @@ void ConstraintEditorWindow::drawContents( const char *name,
   QPushButton *ok = new QPushButton( tr( "OK" ), butts );
   QPushButton *cancel = new QPushButton( tr( "Cancel" ), butts );
 
+  QHBox *hbtc = new QHBox();
+  new QLabel( "map of constrained path : ",hbtc);
+
+  d->constraintTextureLabel = new QLabel( "curvature by default",hbtc);
+  d->constraintTextureLabel->setFixedWidth(180);
+
+  const QPixmap *p;
+  string iconname;
+  iconname = Settings::findResourceFile( "icons/meshPaint/geodesic_distance.png" );
+  d->constraintTextureButton = new QToolButton(hbtc);
+  d->constraintTextureButton->setIcon(QIcon(iconname.c_str()));
+  d->constraintTextureButton->setToolTip(ControlledWindow::tr("Open map of constrained path"));
+  d->constraintTextureButton->setIconSize(QSize(20, 20));
+  connect(d->constraintTextureButton, SIGNAL(clicked()), this, SLOT(constraintTexOpen()));
+
+  QHBox *hbcv = new QHBox();
+  new QLabel( "list of constrained values : ",hbcv);
+
+  d->constraintListValues = new QComboBox(hbcv );
+  d->constraintListValues->setFixedWidth(180);
+  constraintListInit();
+
+
+  iconname = Settings::findResourceFile( "icons/meshPaint/palette.png" );
+  d->constraintListButton = new QToolButton(hbcv);
+  d->constraintListButton->setIcon(QIcon(iconname.c_str()));
+  d->constraintListButton->setToolTip(ControlledWindow::tr("Open list of constrained value"));
+  d->constraintListButton->setIconSize(QSize(20, 20));
+  connect(d->constraintListButton, SIGNAL(clicked()), this, SLOT(constraintListOpen()));
+
   mainlay->addWidget(hbm);
   mainlay->addWidget(hbt);
   mainlay->addWidget(hblatlon);
-
+  mainlay->addWidget(hbcv);
+  mainlay->addWidget(hbtc);
   mainlay->addWidget( butts );
+
+
   ok->setDefault( true );
 
   connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -249,6 +411,10 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
 void ConstraintEditorWindow::accept()
 {
+  float min,max;
+
+  d->constraintValuesType = d->latlon->currentIndex();
+
   FusionFactory *ff = FusionFactory::factory();
   FusionMethod  *fm;
 
@@ -271,9 +437,13 @@ void ConstraintEditorWindow::accept()
     rc_ptr<Texture1d> tex( new Texture1d(1, nnodes) );
     aTex->setTexture(tex);
 
-    string  constraintLabel = "TexConstraint" + string(d->latlon->currentText());
+    string  texName = d->newTextureName->text().latin1();
 
-    aTex->setName( theAnatomist->makeObjectName( string(d->newTextureName->text()) ) );
+    if ( d->constraintValuesType == 0) {min = 0.0; max = 0.0;}
+    if ( d->constraintValuesType == 1) {min = 0.0; max = 1.0;}
+
+    aTex->setName( theAnatomist->makeObjectName(texName));
+
     aTex->attributed()->setProperty( "object_type", string( "Texture" )  );
     aTex->attributed()->setProperty( "data_type", DataTypeCode<float>::name() );
     aTex->attributed()->setProperty( "nb_t_pos",1);
@@ -282,12 +452,10 @@ void ConstraintEditorWindow::accept()
     aTex->attributed()->setProperty( "vertex_number",  nnodes );
     theAnatomist->registerObject( aTex );
 
-    //aTex->createDefaultPalette( "Blue-Red-fusion" );
-
     aTex->getOrCreatePalette();
     AObjectPalette *pal = aTex->palette();
-    pal->setMin1( 0 );
-    pal->setMax1( 360. );
+    pal->setMin1( min );
+    pal->setMax1( max );
     aTex->setPalette( *pal );
 
     d->texSelect = aTex;
@@ -296,7 +464,6 @@ void ConstraintEditorWindow::accept()
   if ( d->texSelect )
     {
     d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
-    //d->texSelect->getOrCreatePalette();
 
     GLComponent *glc = d->texSelect->glAPI();
 
@@ -306,11 +473,25 @@ void ConstraintEditorWindow::accept()
     float scl = (te.maxquant[tx] - te.minquant[tx]);
 
     AObjectPalette *pal = d->texSelect->palette();
-    pal->setMin1( 0 );
-    if (scl != 0)
-      pal->setMax1( (float)(360./scl) );
-    else
-      pal->setMax1( 360 );
+
+    if ( d->constraintValuesType == 0) {min = 0.0; max = 0.0;}
+    if ( d->constraintValuesType == 1)
+    {
+      min = te.minquant[tx];
+      max = te.maxquant[tx];
+    }
+
+//    pal->setMin1( 0 );
+//    if (scl != 0)
+//      pal->setMax1( (float)(360./scl) );
+//    else
+//      pal->setMax1( 360 );
+
+    cout << "min/max " << min << " " << max << endl;
+
+    pal->setMin1( min );
+    pal->setMax1( max );
+
 
     d->texSelect->setPalette( *pal );
 
@@ -332,12 +513,16 @@ void ConstraintEditorWindow::accept()
 
     AWindow3D *w3 = static_cast<AWindow3D *> (w);
     w3->setActiveConstraintEditor(true);
+    w3->loadConstraintData( d->constraintList, d->constraintValuesType, d->texConstraint);
+
+    cout << "unselect all objet selected : \n";
 
     map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
     map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),
       last( sel.end( ) ) ;
 
     while( iter != last ){
+      cout << iter->first << endl;
       SelectFactory::factory()->unselectAll( iter->first ) ;
       ++iter ;
     }

@@ -137,6 +137,11 @@ public:
   bool constraintEditorIsActive(void);
   void setActiveConstraintEditor(bool b);
 
+  void loadConstraintData(std::vector<string> constraintList, int constraintType, AObject *texConstraint);
+  std::vector<string> getConstraintList(void);
+  int getConstraintType(void);
+  AObject* getConstraintTexture(void);
+
   void printPositionAndValue();
   virtual void displayClickPoint();
   ///   set the view of the scene
@@ -281,9 +286,6 @@ public slots:
   void setLinkedCursorPos();
   void openStereoView();
   void toggleStatusBarVisibility();
-
-  //void togglePaintingToolbox();
-  //void showPaintingToolbox();
 
 protected slots:
   void freeResize();

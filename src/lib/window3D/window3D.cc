@@ -199,6 +199,10 @@ struct AWindow3D::Private
     int mouseY;
     bool surfpaintState;
     bool constraintEditorState;
+
+    std::vector<string> constraintList;
+    int constraintType;
+    AObject *texConstraint;
 };
 
 namespace
@@ -359,16 +363,13 @@ AWindow3D::Private::Private() :
       viewtype(AWindow3D::Oblique), mute(0), axialbt(0), coronalbt(0),
       sagittalbt(0), obliquebt(0), orientationCube(false),
       boundingFrame(false), renderingMode(AWindow3D::Normal), tools(0),
-      //painttools(0),
       poview(0), lightview(0), light(new Light), slicequat(0, 0,
           0, 1), askedsize(0, 0), clipmode(AWindow3D::NoClip), clipdist(1),
       transpz(true), culling(true), flatshading(false), smooth(false), fog(
           false), refreshneeded(FullRefresh), linkonslider(false), lefteye(0),
-      righteye(0), objvallabel(0), statusbarvisible(false),
-      // needsboundingbox( false ),
-      needsextrema(false), // needswingeom( false ),
-      // needssliceslider( false )
-      mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false)
+      righteye(0), objvallabel(0), statusbarvisible(false),needsextrema(false),
+      mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
+      constraintList(NULL),constraintType(0),texConstraint(NULL)
 {
 }
 
@@ -377,7 +378,6 @@ AWindow3D::Private::~Private()
   while (!objmodifiers.empty())
     delete objmodifiers.front();
   delete tools;
-  //delete painttools;
   delete poview;
   delete lightview;
   delete light;
@@ -2520,6 +2520,28 @@ void AWindow3D::setActiveConstraintEditor(bool b)
   d->constraintEditorState = b;
 }
 
+std::vector<string> AWindow3D::getConstraintList(void)
+{
+  return d->constraintList;
+}
+
+int AWindow3D::getConstraintType(void)
+{
+  return d->constraintType;
+}
+
+AObject* AWindow3D::getConstraintTexture(void)
+{
+  return d->texConstraint;
+}
+
+void AWindow3D::loadConstraintData(std::vector<string> constraintList, int constraintType, AObject *texConstraint)
+{
+  d->constraintList = constraintList;
+  d->constraintType = constraintType;
+  d->texConstraint = texConstraint;
+}
+
 void AWindow3D::syncViews(bool keepextrema)
 {
   AWindow3D *w2;
@@ -2637,11 +2659,6 @@ void AWindow3D::toolsWinDestroyed()
 {
   d->tools = 0;
 }
-//
-//void AWindow3D::painttoolsWinDestroyed()
-//{
-//  d->painttools = 0;
-//}
 
 void AWindow3D::povWinDestroyed()
 {
