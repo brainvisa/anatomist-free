@@ -93,6 +93,9 @@
 
 #include <queue>
 
+#include <float.h>
+
+
 using namespace aims;
 using namespace std;
 using namespace geodesic;
@@ -127,6 +130,7 @@ namespace anatomist
       float getTextureValueFloat(void){return textureFloatSpinBox->value();}
       void setTextureValueFloat(double v){textureFloatSpinBox->setValue(v);}
       void updateTextureValue(int indexVertex, float value);
+      void updateTexture (vector<float> values);
       void restoreTextureValue(int indexVertex);
       void floodFillStart(int indexVertex);
       void floodFillStop(void);
@@ -140,16 +144,14 @@ namespace anatomist
       void setClosePath(bool c){pathClosed = c;}
       bool pathIsClosed(void){return pathClosed;}
 
-//      geodesic::Mesh getMeshStructSP() {return meshSP;}
-//      geodesic::Mesh getMeshStructGyriP() {return meshGyriCurvSP;}
-//      geodesic::Mesh getMeshStructSulciP() {return meshSulciCurvSP;}
-
       GeodesicPath* getMeshStructSP() {return sp;}
       GeodesicPath* getMeshStructSulciP() {return sp_sulci;}
       GeodesicPath* getMeshStructGyriP() {return sp_gyri;}
 
       void addGeodesicPath(int indexNearestVertex,Point3df positionNearestVertex);
       void addSimpleShortPath(int indexSource,int indexDest);
+
+      void computeDistanceMap(int indexNearestVertex);
 
       void changeControl(int control){IDActiveControl = control;}
       int getActiveControl(void){return IDActiveControl;}
@@ -164,7 +166,9 @@ namespace anatomist
       void sulciPath();
       void gyriPath();
       void brush();
+      void magicbrush();
       void fill();
+      void distance();
       void clearPath();
       void clearRegion();
       void clearHoles();
@@ -173,9 +177,13 @@ namespace anatomist
       void save();
 
       void updateConstraintList();
-      void loadConstraintsList();
+      void loadConstraintsList(vector<string> clist);
+
       void changeToleranceSpinBox(int v);
       void changeConstraintPathSpinBox(int v);
+
+      void changeMinValueSpinBox(double v);
+      void changeMaxValueSpinBox(double v);
 
     private :
       void popAllButtonPaintToolBar();
@@ -215,7 +223,12 @@ namespace anatomist
       QAction     *shortestPathAction;
       QAction     *sulciPathAction;
       QAction     *gyriPathAction;
+
       QToolButton *paintBrushAction;
+      QToolButton *magicBrushAction;
+
+      QToolButton *distanceAction;
+
       QToolButton *fillAction;
       QToolButton *eraseAction;
       QToolButton *clearPathAction;
@@ -228,6 +241,9 @@ namespace anatomist
       QSpinBox *constraintPathSpinBox;
       QLabel *constraintPathSpinBoxLabel;
 
+      QDoubleSpinBox *textureValueMinSpinBox;
+      QDoubleSpinBox *textureValueMaxSpinBox;
+
       GLuint constraintPathValue;
       GLuint toleranceValue;
       float stepToleranceValue;
@@ -239,10 +255,6 @@ namespace anatomist
       GeodesicPath *sp_sulci;
       GeodesicPath *sp_gyri;
 
-//      geodesic::Mesh meshSP;
-//      geodesic::Mesh meshGyriCurvSP;
-//      geodesic::Mesh meshSulciCurvSP;
-//
       std::vector<std::set<uint> >  neighbours;
       bool pathClosed;
 

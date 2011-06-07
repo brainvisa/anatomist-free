@@ -33,10 +33,6 @@
 
 #include <anatomist/module/surfpainttools.h>
 
-//#include <aims/geodesicpath/geodesic_algorithm_dijkstra.h>
-//#include <aims/geodesicpath/geodesic_algorithm_subdivision.h>
-//#include <aims/geodesicpath/geodesic_algorithm_exact.h>
-
 SurfpaintTools* & SurfpaintTools::my_instance()
 {
   static SurfpaintTools* instance = 0;
@@ -70,13 +66,17 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   sulciPathAction( 0 ),
   gyriPathAction( 0 ),
   paintBrushAction( 0 ),
+  magicBrushAction( 0 ),
   fillAction( 0 ),
   eraseAction( 0 ),
   clearPathAction( 0 ),
   saveAction( 0 ),
+  distanceAction( 0 ),
   constraintList( 0 ),
   toleranceSpinBox( 0 ),
   toleranceSpinBoxLabel( 0 ),
+  textureValueMinSpinBox( 0 ),
+  textureValueMaxSpinBox( 0 ),
   constraintPathSpinBox( 0 ),
   constraintPathSpinBoxLabel( 0 ),
   constraintPathValue( 0 ),
@@ -106,12 +106,14 @@ SurfpaintTools::~SurfpaintTools()
 void SurfpaintTools::popAllButtonPaintToolBar()
 {
   colorPickerAction->setChecked(false);
+  distanceAction->setChecked(false);
   selectionAction->setChecked(false);
   pathAction->setChecked(false);
   shortestPathAction->setChecked(false);
   sulciPathAction->setChecked(false);
   gyriPathAction->setChecked(false);
   paintBrushAction->setChecked(false);
+  magicBrushAction->setChecked(false);
   eraseAction->setChecked(false);
 }
 
@@ -120,6 +122,13 @@ void SurfpaintTools::colorPicker()
   popAllButtonPaintToolBar();
   colorPickerAction->setChecked(true);
   changeControl(1);
+}
+
+void SurfpaintTools::distance()
+{
+  popAllButtonPaintToolBar();
+  distanceAction->setChecked(true);
+  changeControl(7);
 }
 
 void SurfpaintTools::magicSelection()
@@ -182,6 +191,13 @@ void SurfpaintTools::brush()
   changeControl(4);
 }
 
+void SurfpaintTools::magicbrush()
+{
+  popAllButtonPaintToolBar();
+  magicBrushAction->setChecked(true);
+  changeControl(6);
+}
+
 void SurfpaintTools::fill()
 {
   int i;
@@ -193,10 +209,7 @@ void SurfpaintTools::fill()
   {
     std::set<int>::iterator ite = listIndexVertexFill.begin();
     for (; ite != listIndexVertexFill.end(); ite++)
-    //for (unsigned i = 0; i < listIndexVertexSelectFill.size(); i++)
     {
-      //updateTextureValue(listIndexVertexSelectFill[i], texvalue);
-      //listVertexChanged[listIndexVertexSelectFill[i]] = texvalue;
       updateTextureValue(*ite, texvalue);
       listVertexChanged[*ite] = texvalue;
     }
@@ -217,7 +230,7 @@ void SurfpaintTools::fill()
   }
 
   //remplissage trous
-  if (IDActiveControl == 4)
+  if (IDActiveControl == 6)
   {
     for (unsigned i = 0; i < listIndexVertexHolesPath.size(); i++)
     {
@@ -227,6 +240,7 @@ void SurfpaintTools::fill()
 
     clearHoles();
   }
+
 }
 
 void SurfpaintTools::erase()
@@ -234,6 +248,7 @@ void SurfpaintTools::erase()
   popAllButtonPaintToolBar();
   eraseAction->setChecked(true);
   changeControl(5);
+  clearAll();
 }
 
 void SurfpaintTools::clearAll()
@@ -306,8 +321,8 @@ void SurfpaintTools::save()
 
   rc_ptr<TimeTexture<float> > out( new TimeTexture<float>(1, at->size()) );
 
-  rc_ptr<TimeTexture<float> > text ;
-  text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
+//  rc_ptr<TimeTexture<float> > text ;
+//  text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
 
   float it = at->TimeStep();
 
@@ -487,17 +502,49 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       setMaxPoly(tri.size());
       setMaxVertex(vert.size());
-      setMinMaxTexture(0, 360);
-      setTextureValueFloat(360);
-//        if (w3->constraintEditorIsActive())
-//          setMinMaxTexture(0, 360);
-//        else
-//          setMinMaxTexture((float) (te.minquant[0]), (float) (te.maxquant[0]));
 
-      cout << "compute texture curvature : ";
-      texCurv = TimeTexture<float> (1, vert.size());
-      texCurv = AimsMeshCurvature(surf);
-      cout << "done" << endl;
+      int constraintType = w3->getConstraintType();
+      AObject *constraintTex = w3->getConstraintTexture();
+
+      if (w3->constraintEditorIsActive() && constraintType == 0)
+      {
+        setMinMaxTexture(-FLT_MAX, FLT_MAX);
+      }
+      else
+      {
+        setMinMaxTexture((float) (te.minquant[0]), (float) (te.maxquant[0]));
+        textureValueMinSpinBox->setValue(te.minquant[0]);
+        textureValueMaxSpinBox->setValue(te.maxquant[0]);
+      }
+
+      if (constraintTex == NULL)
+      {
+        cout << "compute texture curvature : ";
+        texCurv = TimeTexture<float> (1, vert.size());
+        texCurv = AimsMeshCurvature(surf);
+        cout << "done" << endl;
+      }
+      else
+      {
+        cout << "load constraint texture  : ";
+        texCurv = TimeTexture<float> (1, vert.size());
+
+        try
+        {
+          ATexture *at=dynamic_cast<ATexture *> (constraintTex);
+
+          text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
+          texCurv = *text;
+
+          cout << "done" << endl;
+        }
+        catch (const std::bad_cast& e)
+        {
+          std::cerr << e.what() << std::endl;
+          std::cerr <<  constraintTex << " is not a Atexture" << std::endl;
+        }
+
+      }
 
       sp = new GeodesicPath(*mesh,texCurv,0,0);
       sp_sulci = new GeodesicPath(*mesh,texCurv,1,3);
@@ -547,6 +594,17 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     colorPickerAction->setIconSize(QSize(32, 32));
     colorPickerAction->setAutoRaise(true);
     connect(colorPickerAction, SIGNAL(clicked()), this, SLOT(colorPicker()));
+
+    //pipette
+    iconname = Settings::findResourceFile( "icons/meshPaint/geodesic_distance.png" );
+    distanceAction = new QToolButton();
+    distanceAction->setIcon(QIcon(iconname.c_str()));
+    distanceAction->setToolTip(tr("distance map"));
+    distanceAction->setCheckable(true);
+    distanceAction->setChecked(false);
+    distanceAction->setIconSize(QSize(32, 32));
+    distanceAction->setAutoRaise(true);
+    connect(distanceAction, SIGNAL(clicked()), this, SLOT(distance()));
 
     //baguette magique
     iconname = Settings::findResourceFile(
@@ -600,6 +658,17 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     clearPathAction->setIconSize(QSize(32, 32));
     connect(clearPathAction, SIGNAL(clicked()), this, SLOT(clearAll()));
 
+    //magic brush
+    iconname = Settings::findResourceFile( "icons/meshPaint/magic_pencil.png" );
+    magicBrushAction = new QToolButton();
+    magicBrushAction->setIcon(QIcon(iconname.c_str()));
+    magicBrushAction->setToolTip(ControlledWindow::tr("MagicBrush"));
+    magicBrushAction->setCheckable(true);
+    magicBrushAction->setChecked(false);
+    magicBrushAction->setIconSize(QSize(32, 32));
+    magicBrushAction->setAutoRaise(true);
+    connect(magicBrushAction, SIGNAL(clicked()), this, SLOT(magicbrush()));
+
     //brush
     iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
     paintBrushAction = new QToolButton();
@@ -639,10 +708,12 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     connect(saveAction, SIGNAL(clicked()), this, SLOT(save()));
 
     tbControls->addWidget(colorPickerAction);
+    tbControls->addWidget(distanceAction);
     tbControls->addWidget(selectionAction);
     tbControls->addWidget(pathAction);
     tbControls->addWidget(clearPathAction);
     tbControls->addWidget(paintBrushAction);
+    tbControls->addWidget(magicBrushAction);
     tbControls->addWidget(fillAction);
     tbControls->addWidget(eraseAction);
     tbControls->addWidget(saveAction);
@@ -700,14 +771,47 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     textureFloatSpinBox->setDecimals(2);
     textureFloatSpinBox->setFixedHeight(30);
     textureFloatSpinBox->setFixedWidth(100);
-    textureFloatSpinBox->setValue(0.000);
+    textureFloatSpinBox->setMinimum(-FLT_MAX);
+    textureFloatSpinBox->setMaximum(FLT_MAX);
+    //textureFloatSpinBox->setValue(0.000);
 
-    // ARN on affiche la liste des contraintes seulement si le module ConstraintEditor a été lancé ?
-    if (w3->constraintEditorIsActive())
+    // si le module ConstraintEditor n'a pas été lancé ou l'intervalle des valeurs de contraintes est réglable min/max ?
+
+    if (!w3->constraintEditorIsActive() || w3->getConstraintType()==1 )
     {
+      textureValueMinSpinBox = new QDoubleSpinBox(infosTextureValue);
+      textureValueMinSpinBox->setSingleStep(0.1);
+      textureValueMinSpinBox->setDecimals(2);
+      textureValueMinSpinBox->setFixedHeight(30);
+      textureValueMinSpinBox->setFixedWidth(100);
+      textureValueMinSpinBox->setMinimum(-FLT_MAX);
+      textureValueMinSpinBox->setMaximum(FLT_MAX);
+
+      connect( textureValueMinSpinBox, SIGNAL( valueChanged( double ) ), this, SLOT( changeMinValueSpinBox(double) ) );
+
+      textureValueMaxSpinBox = new QDoubleSpinBox(infosTextureValue);
+      textureValueMaxSpinBox->setSingleStep(0.1);
+      textureValueMaxSpinBox->setDecimals(2);
+      textureValueMaxSpinBox->setFixedHeight(30);
+      textureValueMaxSpinBox->setFixedWidth(100);
+      textureValueMaxSpinBox->setMinimum(-FLT_MAX);
+      textureValueMaxSpinBox->setMaximum(FLT_MAX);
+
+      connect( textureValueMaxSpinBox, SIGNAL( valueChanged( double ) ), this, SLOT( changeMaxValueSpinBox(double) ) );
+    }
+
+    // ARN on affiche la liste des contraintes seulement si le module ConstraintEditor a été lancé en mode lat/lon?
+    if (w3->constraintEditorIsActive() &&  w3->getConstraintType()==0)
+    {
+      textureFloatSpinBox->setReadOnly(true);
       constraintList = new QComboBox(infosTextureValue);
-      loadConstraintsList();
+
+      if (!w3->getConstraintList().empty())
+        loadConstraintsList(w3->getConstraintList());
+
       connect( constraintList, SIGNAL( activated( int ) ), this, SLOT( updateConstraintList() ) );
+
+      updateConstraintList();
     }
 
     tbTextureValue->addWidget(infosTextureValue);
@@ -807,6 +911,7 @@ void SurfpaintTools::restoreTextureValue(int indexVertex)
   }
 }
 
+
 void SurfpaintTools::updateTextureValue(int indexVertex, float value)
 {
   if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect))
@@ -826,6 +931,8 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       // hum, don't look at this const_cast...
 
       float scl = (te.maxquant[tx] - te.minquant[tx]);
+
+
       if( value < te.minquant[tx] || value > te.maxquant[tx] )
       {
         // extrema will need to change
@@ -852,9 +959,12 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
           te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
           te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
         }
+
         // update scaled extrema
         if( value < te.minquant[tx] )
           te.minquant[tx] = value;
+        else if( value > te.maxquant[tx] )
+          te.maxquant[tx] = value;
         else
         {
           // update colormap bounds
@@ -868,23 +978,149 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
         scl = te.maxquant[tx] - te.minquant[tx];
       }
 
-      float svalue = ( value - te.minquant[tx] ) / scl;
+      float svalue;
+
+      svalue = ( value - te.minquant[tx] ) / scl;
+
       if( svalue < te.min[tx] )
         te.min[tx] = svalue;
       else if( svalue > te.max[tx] )
         te.max[tx] = svalue;
 
       texbuf[ indexVertex ] = svalue;
+      listVertexChanged[indexVertex] = value;
 
       at->glSetChanged( GLComponent::glBODY );
       tex->setChanged();
       tex->setInternalsChanged();
       tex->notifyObservers(this);
+
+
+      if (IDActiveControl == 3 || IDActiveControl == 6)
+        listIndexVertexBrushPath.push_back(indexVertex);
+    }
+  }
+}
+
+void SurfpaintTools::updateTexture (vector<float> values)
+{
+  if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect))
+  {
+    if (objtype == "TEXTURED SURF.")
+    {
+      Object options = Object::value(Dictionary());
+      options->setProperty("scale", 0);
+
+      float it = at->TimeStep();
+      int tn = 0; // 1st texture
+      GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+      int tx = 0; // 1st tex coord
+
+      ViewState vs;
+      GLfloat* texbuf = const_cast<GLfloat *>( at->glTexCoordArray( vs, tn ) );
+      // hum, don't look at this const_cast...
+
+      float scl;
+
+      float value,minv,maxv;
+
+      vector<float>::iterator itemin = min_element (values.begin(), values.end());
+      vector<float>::iterator itemax = max_element (values.begin(), values.end());
+
+      minv = *itemin;
+      maxv = *itemax;
+
+      if (maxv > te.maxquant[tx] )
+      {
+      tex->getOrCreatePalette();
+      AObjectPalette *pal = tex->palette();
+      //pal->setMax1( maxv );
+      tex->setPalette( *pal );
+      te.maxquant[tx] = maxv;
+      }
+
+      scl = (te.maxquant[tx] - te.minquant[tx]);
+
+      //
+
+
+//      if( minv < te.minquant[tx])
+//        value = minv;
+//      if (maxv > te.maxquant[tx] )
+//        value = maxv;
+//
+//        // extrema will need to change
+//        // value in internally rescaled texture
+//        float rval = value - te.minquant[tx];
+//        if( scl == 0 )
+//          scl = 1.;
+//        else
+//          rval /= scl;
+//        if( rval < 0 || rval > 1. )
+//        {
+//          /* the whole tex needs rescaling because they need to fit in [0-1]
+//             for OpenGL */
+//          float offs = 0.;
+//          float nscl = 1. / ( std::max( rval, te.max[tx] )
+//            - std::min( rval, te.min[tx] ) );
+//          if( rval < 0 )
+//            offs = - rval * nscl;
+//          unsigned i, n = at->glTexCoordSize( vs, tn );
+//          GLfloat *tb = texbuf;
+//          for( unsigned i=0; i<n; ++i )
+//            *tb++ = *tb * nscl + offs;
+//          // update internal extrema
+//          te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
+//          te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
+//        }
+//
+//        // update scaled extrema
+//        if( value < te.minquant[tx] )
+//          te.minquant[tx] = value;
+//        else if( value > te.maxquant[tx] )
+//          te.maxquant[tx] = value;
+//        else
+//        {
+//          // update colormap bounds
+//          tex->getOrCreatePalette();
+//          AObjectPalette *pal = tex->palette();
+//          pal->setMax1( scl * pal->max1() / ( value - te.minquant[tx] ) );
+//          tex->setPalette( *pal );
+//
+//          te.maxquant[tx] = value;
+//        }
+//        scl = te.maxquant[tx] - te.minquant[tx];
+
+      float svalue;
+
+//
+
+      vector<float>::iterator ite = values.begin();
+      int i = 0;
+
+      for (; ite != values.end(); ite++)
+      {
+        svalue = ( *ite - te.minquant[tx] ) / scl;
+//        if( svalue < te.min[tx] )
+//          te.min[tx] = svalue;
+//        else if( svalue > te.max[tx] )
+//          te.max[tx] = svalue;
+
+        texbuf[ i ] = svalue;
+        listVertexChanged[i++] = *ite;
+      }
+
+      at->glSetChanged( GLComponent::glBODY );
+      tex->setChanged();
+      tex->setInternalsChanged();
+      tex->notifyObservers(this);
+
       //win3D->Refresh();
       //win3D->refreshNow();
-      listVertexChanged[indexVertex] = value;
+      //
 
-      listIndexVertexBrushPath.push_back(indexVertex);
+//      if (IDActiveControl == 3 || IDActiveControl == 6)
+//        listIndexVertexBrushPath.push_back(indexVertex);
     }
   }
 }
@@ -1129,30 +1365,54 @@ void SurfpaintTools::changeToleranceSpinBox(int v)
   cout << "stepToleranceValue " << stepToleranceValue << endl;
 }
 
-void SurfpaintTools::loadConstraintsList()
+void SurfpaintTools::loadConstraintsList(vector<string> clist)
 {
   char sep = carto::FileUtil::separator();
 
- string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
-   + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
+  vector<string>::iterator it = clist.begin();
 
-  cout << "Loading constraints file : " << consfile << endl;
-
-  string line;
-  ifstream myfile(consfile.c_str());
-  if (myfile.is_open())
-  {
-    while (myfile.good())
+  for (; it != clist.end(); ++it)
     {
-      getline(myfile, line);
-      if (line.length() != 0)
-        constraintList->addItem(line.c_str());
+    if ((*it).length() != 0)
+    constraintList->addItem((*it).c_str());
     }
-    myfile.close();
-  }
 
-  else
-    cout << "Unable to open file " << consfile << endl;
+//    consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
+//   + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
+//
+//  cout << "Loading constraints file : " << consfile << endl;
+
+
+//  string line;
+//  ifstream myfile(consfile.c_str());
+//  if (myfile.is_open())
+//  {
+//    while (myfile.good())
+//    {
+//      getline(myfile, line);
+//      if (line.length() != 0)
+//        constraintList->addItem(line.c_str());
+//    }
+//    myfile.close();
+//  }
+//
+//  else
+//    cout << "Unable to open file " << consfile << endl;
+}
+
+void SurfpaintTools::changeMinValueSpinBox(double v)
+{
+  setMinMaxTexture((float) v, (float) textureValueMaxSpinBox->value());
+
+  textureValueMinSpinBox->setValue(v);
+}
+
+void SurfpaintTools::changeMaxValueSpinBox(double v)
+{
+  setMinMaxTexture((float) textureValueMinSpinBox->value(), (float) v);
+
+  textureValueMaxSpinBox->setValue(v);
+
 }
 
 void SurfpaintTools::changeConstraintPathSpinBox(int v)
@@ -1166,28 +1426,16 @@ void SurfpaintTools::changeConstraintPathSpinBox(int v)
 
 void SurfpaintTools::fillHolesOnPath (void)
 {
-  int i;
+  vector<int>::iterator it = listIndexVertexBrushPath.begin();
 
-  for ( i = 0; i < listIndexVertexBrushPath.size(); i++)
-    cout << listIndexVertexBrushPath[i] <<  " ";
-
-  cout << endl;
-
-  for ( i = 0; i < listIndexVertexBrushPath.size() - 1; i++)
+  for (; it < listIndexVertexBrushPath.end()-1; ++it)
   {
-    std::set<uint> voisins = neighbours[listIndexVertexBrushPath[i]];
-    //std::set<uint>::iterator voisIt = voisins.begin();
+    std::set<uint> voisins = neighbours[*it];
 
-    std::set<uint>::iterator ite = std::find(voisins.begin(),voisins.end(), listIndexVertexBrushPath[i+1]);
+    std::set<uint>::iterator ite = std::find(voisins.begin(),voisins.end(), *(it+1) );
 
-    if (ite == voisins.end() && listIndexVertexBrushPath[i]!=listIndexVertexBrushPath[i+1])
-      {
-      //add geodesic path
-      addSimpleShortPath(listIndexVertexBrushPath[i],listIndexVertexBrushPath[i+1]);
-      //cout << listIndexVertexBrushPath[i] << "-->" << listIndexVertexBrushPath[i+1] << endl;
-      }
-
-   //cout << listIndexVertexBrushPath[i] << endl;
+    if (ite == voisins.end() && ((*it)!=*(it+1)) )
+      addSimpleShortPath(*it,*(it+1));
   }
 }
 
@@ -1332,30 +1580,15 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   mat.setRenderProperty(Material::Ghost, 1);
   mat.SetDiffuse(1., 1.0, 1.0, 0.5);
 
-//  tmpMeshOut = SurfaceGenerator::sphere(vert[indexSource], 0.50, 50);
-//  ATriangulated *sp = new ATriangulated();
-//  sp->setName(theAnatomist->makeObjectName("select"));
-//  sp->setSurface(tmpMeshOut);
-//  sp->SetMaterial(mat);
-//  win3D->registerObject(sp, true, 1);
-//  theAnatomist->registerObject(sp, 0);
-//  holesObject.push_back(sp);
-//
-//  tmpMeshOut = SurfaceGenerator::sphere(vert[indexDest], 0.50, 50);
-//  ATriangulated *sp = new ATriangulated();
-//  sp->setName(theAnatomist->makeObjectName("select"));
-//  sp->setSurface(tmpMeshOut);
-//  sp->SetMaterial(mat);
-//  win3D->registerObject(sp, true, 1);
-//  theAnatomist->registerObject(sp, 0);
-//  holesObject.push_back(sp);
-
   unsigned target_vertex_index = indexSource;
   unsigned source_vertex_index = indexDest;
-//
-  vector<Point3df> vertexList;
 
-  vertexList = sp->shortestPath_1_1_xyz(source_vertex_index,target_vertex_index);
+  vector<Point3df> vertexList;
+  vector<int> indexList;
+
+  //vertexList = sp->shortestPath_1_1_xyz(source_vertex_index,target_vertex_index);
+  sp->shortestPath_1_1_ind_xyz(source_vertex_index,target_vertex_index, indexList,vertexList);
+  copy(indexList.begin(), indexList.end(), std::back_inserter(listIndexVertexHolesPath));
 
   AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
 
@@ -1416,3 +1649,35 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   //theAnatomist->registerObject(s3, 1);
   holesObject.push_back(s3);
 }
+
+void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
+{
+  vector<float> distanceMap;
+  double length;
+
+  distanceMap.clear();
+
+  const string ac = getPathType();
+
+  GeodesicPath *sptemp;
+
+  if (ac.compare("ShortestPath") == 0)
+  sptemp = getMeshStructSP();
+  else if (ac.compare("SulciPath") == 0)
+  sptemp = getMeshStructSulciP();
+  else if (ac.compare("GyriPath") == 0)
+  sptemp = getMeshStructGyriP();
+
+ sptemp->distanceMap_1_N_ind(indexNearestVertex, distanceMap,&length, 0);
+
+//  vector<float>::iterator it = distanceMap.begin();
+//  int i = 0;
+//  for (; it != distanceMap.end(); ++it)
+//    {
+//    //cout << *it << " ";
+//    //updateTextureValue(i++, *it);
+//    }
+
+  updateTexture(distanceMap);
+}
+

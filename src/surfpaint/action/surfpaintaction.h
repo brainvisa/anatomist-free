@@ -71,9 +71,17 @@ namespace anatomist
 
       void magicselection( int x, int y, int globalX, int globalY );
 
+      void distanceMove ( int x, int y, int globalX, int globalY  );
+      void distanceStart( int x, int y, int globalX, int globalY );
+      void distanceStop( int x, int y, int globalX, int globalY );
+
       void brushMove ( int x, int y, int globalX, int globalY  );
       void brushStart( int x, int y, int globalX, int globalY );
       void brushStop( int x, int y, int globalX, int globalY );
+
+      void magicbrushMove ( int x, int y, int globalX, int globalY  );
+      void magicbrushStart( int x, int y, int globalX, int globalY );
+      void magicbrushStop( int x, int y, int globalX, int globalY );
 
       void eraseMove ( int x, int y, int globalX, int globalY  );
       void eraseStart( int x, int y, int globalX, int globalY );
