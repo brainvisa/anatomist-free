@@ -243,7 +243,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
                                            const set<AObject *> & obj )
 {
   setCaption( name );
-  this->setFixedWidth(400);
+  this->setFixedWidth(350);
 
   QVBoxLayout *mainlay = new QVBoxLayout( this, 5, 5 );
 
@@ -355,8 +355,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
   d->latlon = new QComboBox( hblatlon );
   //d->latlon->insertItem("lat");
   //d->latlon->insertItem("lon");
-  d->latlon->insertItem("lat_lon (predefined)");
-  d->latlon->insertItem("min_max (editable)");
+  d->latlon->insertItem("predefined constraints");
+  d->latlon->insertItem("user defined");
 
   d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
@@ -365,34 +365,35 @@ void ConstraintEditorWindow::drawContents( const char *name,
   QPushButton *ok = new QPushButton( tr( "OK" ), butts );
   QPushButton *cancel = new QPushButton( tr( "Cancel" ), butts );
 
-  QHBox *hbtc = new QHBox();
-  new QLabel( "map of constrained path : ",hbtc);
-
-  d->constraintTextureLabel = new QLabel( "curvature by default",hbtc);
-  d->constraintTextureLabel->setFixedWidth(180);
-
-  const QPixmap *p;
   string iconname;
-  iconname = Settings::findResourceFile( "icons/meshPaint/geodesic_distance.png" );
+
+  QHBox *hbtc = new QHBox();
+  new QLabel( "weight map : ",hbtc);
+
+  iconname = Settings::findResourceFile( "icons/meshPaint/constraint_map.png" );
   d->constraintTextureButton = new QToolButton(hbtc);
   d->constraintTextureButton->setIcon(QIcon(iconname.c_str()));
   d->constraintTextureButton->setToolTip(ControlledWindow::tr("Open map of constrained path"));
   d->constraintTextureButton->setIconSize(QSize(20, 20));
   connect(d->constraintTextureButton, SIGNAL(clicked()), this, SLOT(constraintTexOpen()));
 
+  d->constraintTextureLabel = new QLabel( "curvature (default)",hbtc);
+  d->constraintTextureLabel->setFixedWidth(180);
+
   QHBox *hbcv = new QHBox();
-  new QLabel( "list of constrained values : ",hbcv);
+  new QLabel( "constraint list : ",hbcv);
+
+  iconname = Settings::findResourceFile( "icons/meshPaint/list_constraint.png" );
+  d->constraintListButton = new QToolButton(hbcv);
+  d->constraintListButton->setIcon(QIcon(iconname.c_str()));
+  d->constraintListButton->setToolTip(ControlledWindow::tr("Open list of constrained value"));
+  d->constraintListButton->setIconSize(QSize(20, 20));
 
   d->constraintListValues = new QComboBox(hbcv );
   d->constraintListValues->setFixedWidth(180);
   constraintListInit();
 
 
-  iconname = Settings::findResourceFile( "icons/meshPaint/palette.png" );
-  d->constraintListButton = new QToolButton(hbcv);
-  d->constraintListButton->setIcon(QIcon(iconname.c_str()));
-  d->constraintListButton->setToolTip(ControlledWindow::tr("Open list of constrained value"));
-  d->constraintListButton->setIconSize(QSize(20, 20));
   connect(d->constraintListButton, SIGNAL(clicked()), this, SLOT(constraintListOpen()));
 
   mainlay->addWidget(hbm);
