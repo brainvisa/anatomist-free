@@ -668,6 +668,19 @@ void vtkQAGLWidget::setupView()
 }
 
 
+#if QT_VERSION >= 0x040600
+bool vtkQAGLWidget::event( QEvent * event )
+{
+  if( event->type() == QEvent::Gesture )
+  {
+    gestureEvent( static_cast<QGestureEvent*>( event ) );
+    return true;
+  }
+  return QWidget::event(event);
+}
+#endif
+
+
 void vtkQAGLWidget::mousePressEvent( QMouseEvent* ev )
 {
 
@@ -703,6 +716,19 @@ void vtkQAGLWidget::mouseMoveEvent( QMouseEvent* ev )
   GLWidgetManager::mouseMoveEvent( ev );
 
   vtkGLWidget::mouseMoveEvent( ev );
+
+}
+
+
+void vtkQAGLWidget::mouseDoubleClickEvent( QMouseEvent* ev )
+{
+  /*cout << "vtkQAGLWidget::mouseDoubleClickEvent\n";
+  cout << "button : " << (int) ev->button() << endl;
+  cout << "state  : " << (int) ev->state() << endl;*/
+
+  GLWidgetManager::mouseDoubleClickEvent( ev );
+
+  vtkGLWidget::mouseDoubleClickEvent( ev );
 
 }
 

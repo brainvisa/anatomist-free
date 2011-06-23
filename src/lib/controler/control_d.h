@@ -85,6 +85,14 @@ Control::MouseActionLinkOf<T>::MouseActionLinkOf( Action * action, Callback acti
 
 
 template<typename T>
+Action*
+Control::MouseActionLinkOf<T>::action()
+{
+  return actionInstance;
+}
+
+
+template<typename T>
 void
 Control::MouseActionLinkOf<T>::execute(  int x, int y, int globalX, int globalY ) 
 {

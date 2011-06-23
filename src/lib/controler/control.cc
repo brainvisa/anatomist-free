@@ -34,6 +34,7 @@
 
 #include "anatomist/controler/control_d.h"
 #include "anatomist/controler/actionpool.h"
+#include "anatomist/controler/view.h"
 #include <qtimer.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -43,6 +44,8 @@
 #include <QPanGesture>
 #include <math.h>
 #endif
+#include <qwidget.h>
+#include <qapplication.h>
 #include <iostream>
 #include <typeinfo>
 
@@ -55,6 +58,41 @@ using anatomist::Control ;
 using anatomist::KeyAndMouseLongEvent ;
 using anatomist::MouseLongEvent ;
 using anatomist::LongActions ;
+
+
+namespace
+{
+  pair<int, QWidget *> & _mouseTracking()
+  {
+    static pair<int, QWidget *> _tracking( 0, 0 );
+    return _tracking;
+  }
+
+  void _removeMouseTracking()
+  {
+    pair<int, QWidget *> & track = _mouseTracking();
+    if( track.second )
+    {
+      QWidgetList wl = qApp->allWidgets();
+      if( wl.find( track.second ) != wl.end() )
+        track.second->setMouseTracking( false );
+      track.first = 0;
+      track.second = 0;
+    }
+  }
+
+  void _setMouseTracking( int n, QWidget * w )
+  {
+    _removeMouseTracking();
+    if( n == 0 )
+      return;
+    pair<int, QWidget *> & track = _mouseTracking();
+    track.first = n;
+    track.second = w;
+    w->setMouseTracking( true );
+  }
+}
+
 
 // ControlObserver::ControlObserver( QWidget * parent, Control * subject )
 //   : QTabWidget( parent, "ControlObserver", Qt::WDestructiveClose ), 
@@ -232,6 +270,20 @@ MouseLongEvent::~MouseLongEvent()
   delete myLongAction ;
   delete myEndingAction ;
 }
+
+
+void MouseLongEvent::setMouseTracking( bool t )
+{
+  QWidget *w = dynamic_cast< QWidget * >( myLongAction->action()->view() );
+  if( w )
+  {
+    if( t )
+      _setMouseTracking( 2, w );
+    else
+      _removeMouseTracking();
+  }
+}
+
 
 void
 MouseLongEvent::executeStart( int x, int y, int globalX, int globalY ) 
@@ -420,13 +472,22 @@ Control::keyReleaseEvent( QKeyEvent * event )
     event->ignore();
 }
 
-void 
+
+void
 Control::mousePressEvent ( QMouseEvent * event  ) 
 {
 //   cout << "MOUSEPRESSEVENT" << endl ;
 //   cout << "Control :" << this << endl ;
 
-   if ( myLongActions->submitMousePressEvent( event ) )
+  if( _mouseTracking().first > 0 )
+  {
+    pair<int, QWidget *> & track = _mouseTracking();
+    --track.first;
+    if( track.first == 0 )
+      _removeMouseTracking();
+  }
+
+  if ( myLongActions->submitMousePressEvent( event ) )
     return ;
   
   MouseButtonMapKey k( event->button(), event->state() ) ;
@@ -438,11 +499,15 @@ Control::mousePressEvent ( QMouseEvent * event  )
 			   event->globalX(), event->globalY() ) ;  
 }
 
-void 
+void
 Control::mouseReleaseEvent ( QMouseEvent * event  ) 
 {
 //   cout << "MOUSERELEASEEVENT" << endl ;
 //   cout << "Control :" << this << endl ;
+
+  if( _mouseTracking().first )
+    return;
+
   if( myLongActions->submitMouseReleaseEvent( event ) )
     return ;
 
@@ -460,12 +525,17 @@ Control::mouseDoubleClickEvent ( QMouseEvent * event  )
 {
 //   cout << "MOUSEDOUBLE CLICK" << endl ;
   MouseButtonMapKey k( event->button(), event->state() ) ;
-  
+
   map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator 
     iter( myMouseDoubleClickButtonActionMap.find( k ) ) ;
   if( iter != myMouseDoubleClickButtonActionMap.end() )
     iter->second->execute( event->x(), event->y(), 
-                          event->globalX(), event->globalY() ) ;  
+                          event->globalX(), event->globalY() ) ;
+  else
+  {
+    if( myLongActions->submitMousePressEvent( event ) )
+      myLongActions->setMouseTracking( true );
+  }
 }
 
 void 
@@ -491,7 +561,7 @@ Control::wheelEvent ( QWheelEvent * event  )
   if( myWheelAction )
     myWheelAction->execute( event->delta(), event->x(), event->y(), 
                             event->globalX(), event->globalY() ) ;
-  else cout << "no wheel action\n";
+//   else cout << "no wheel action\n";
 }
 
 void 
@@ -1372,6 +1442,13 @@ LongActions::reset()
 
 //   cout << "myActiveMouseLongEvent set to 0 : reset" << endl ;
 
+}
+
+
+void
+LongActions::setMouseTracking( bool t )
+{
+  myActiveMouseLongEvent->setMouseTracking( t );
 }
 
 bool 

@@ -93,6 +93,7 @@ namespace anatomist
     virtual void mousePressEvent( QMouseEvent* me );
     virtual void mouseReleaseEvent( QMouseEvent* me );
     virtual void mouseMoveEvent( QMouseEvent* me );
+    virtual void mouseDoubleClickEvent( QMouseEvent * );
     virtual void keyPressEvent( QKeyEvent* ev );
     virtual void keyReleaseEvent( QKeyEvent* ev );
     virtual void focusInEvent( QFocusEvent * );

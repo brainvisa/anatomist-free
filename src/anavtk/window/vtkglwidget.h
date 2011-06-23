@@ -94,9 +94,13 @@ protected:
   virtual void vtkRender  (void);
   virtual void vtkRotate  (void);
 
+#if QT_VERSION >= 0x040600
+  virtual bool event( QEvent * );
+#endif
   virtual void mousePressEvent( QMouseEvent* me );
   virtual void mouseReleaseEvent( QMouseEvent* me );
   virtual void mouseMoveEvent( QMouseEvent* me );
+  virtual void mouseDoubleClickEvent( QMouseEvent * );
   virtual void keyPressEvent( QKeyEvent* ev );
   virtual void keyReleaseEvent( QKeyEvent* ev );
   virtual void focusInEvent( QFocusEvent * );

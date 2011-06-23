@@ -200,6 +200,7 @@ namespace anatomist {
   public:
     virtual ~MouseActionLink( ) = 0 ;
     virtual void execute( int x, int y, int globalX, int globalY ) = 0 ;
+    virtual Action* action() = 0;
     virtual MouseActionLink* clone() const = 0 ;
     };
   
@@ -210,11 +211,12 @@ namespace anatomist {
     MouseActionLinkOf() ;
     MouseActionLinkOf( anatomist::Action * action, Callback actionCb) ;
     virtual ~MouseActionLinkOf() {}
-    
-    
+
     virtual void execute( int x, int y, int globalX, int globalY ) ;
-    
+
     virtual MouseActionLink* clone() const ;
+    virtual Action* action();
+
   private:
     T * actionInstance ;
     Callback actionCallback ;
@@ -699,6 +701,7 @@ namespace anatomist {
     void executeStart( int x, int y, int globalX, int globalY ) ;
     void executeLong( int x, int y, int globalX, int globalY ) ;
     void executeEnd( int x, int y, int globalX, int globalY ) ;
+    void setMouseTracking( bool );
     
   private:
     Control::MouseButtonMapKey myStartingEvent ;
@@ -766,7 +769,8 @@ namespace anatomist {
 					Qt::ButtonState startingButtonState, 
 					int endingKey, 
 					Qt::ButtonState endingButtonState ) ;
-    
+    void setMouseTracking( bool );
+
   private:
     std::map<Control::KeyMapKey, KeyAndMouseLongEvent*, Control::LessKeyMap> 
     myKeyAndMouseLongEventMap ;
