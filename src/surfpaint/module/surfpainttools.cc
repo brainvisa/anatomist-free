@@ -769,7 +769,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     textureFloatSpinBox = new QDoubleSpinBox(infosTextureValue);
     textureFloatSpinBox->setSingleStep(0.1);
     textureFloatSpinBox->setDecimals(2);
-    textureFloatSpinBox->setFixedHeight(30);
+    //textureFloatSpinBox->setFixedHeight(30);
     textureFloatSpinBox->setFixedWidth(100);
     textureFloatSpinBox->setMinimum(-FLT_MAX);
     textureFloatSpinBox->setMaximum(FLT_MAX);
@@ -782,7 +782,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       textureValueMinSpinBox = new QDoubleSpinBox(infosTextureValue);
       textureValueMinSpinBox->setSingleStep(0.1);
       textureValueMinSpinBox->setDecimals(2);
-      textureValueMinSpinBox->setFixedHeight(30);
+      //textureValueMinSpinBox->setFixedHeight(30);
       textureValueMinSpinBox->setFixedWidth(100);
       textureValueMinSpinBox->setMinimum(-FLT_MAX);
       textureValueMinSpinBox->setMaximum(FLT_MAX);
@@ -792,7 +792,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       textureValueMaxSpinBox = new QDoubleSpinBox(infosTextureValue);
       textureValueMaxSpinBox->setSingleStep(0.1);
       textureValueMaxSpinBox->setDecimals(2);
-      textureValueMaxSpinBox->setFixedHeight(30);
+      //textureValueMaxSpinBox->setFixedHeight(30);
       textureValueMaxSpinBox->setFixedWidth(100);
       textureValueMaxSpinBox->setMinimum(-FLT_MAX);
       textureValueMaxSpinBox->setMaximum(FLT_MAX);
@@ -803,7 +803,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     // ARN on affiche la liste des contraintes seulement si le module ConstraintEditor a été lancé en mode lat/lon?
     if (w3->constraintEditorIsActive() &&  w3->getConstraintType()==0)
     {
-      textureFloatSpinBox->setReadOnly(true);
+      //textureFloatSpinBox->setReadOnly(true);
       constraintList = new QComboBox(infosTextureValue);
 
       if (!w3->getConstraintList().empty())
@@ -833,7 +833,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
     IDPolygonSpinBox = new QSpinBox(infos3D);
     IDPolygonSpinBox->setSingleStep(1);
-    IDPolygonSpinBox->setFixedHeight(30);
+    //IDPolygonSpinBox->setFixedHeight(30);
     IDPolygonSpinBox->setFixedWidth(75);
     IDPolygonSpinBox->setValue(0);
 
@@ -841,14 +841,14 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
     IDVertexSpinBox = new QSpinBox(infos3D);
     IDVertexSpinBox->setSingleStep(1);
-    IDVertexSpinBox->setFixedHeight(30);
+    //IDVertexSpinBox->setFixedHeight(30);
     IDVertexSpinBox->setFixedWidth(75);
     IDVertexSpinBox->setValue(0);
 
     toleranceSpinBoxLabel = new QLabel(tr("tolerance"),infos3D);
     toleranceSpinBox = new QSpinBox (infos3D);
     toleranceSpinBox->setSingleStep(1);
-    toleranceSpinBox->setFixedHeight(30);
+    //toleranceSpinBox->setFixedHeight(30);
     toleranceSpinBox->setFixedWidth(55);
     toleranceSpinBox->setValue(0);
     toleranceSpinBox->setRange(0,100);
@@ -858,7 +858,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     constraintPathSpinBoxLabel = new QLabel(ControlledWindow::tr("constraint"),infos3D);
     constraintPathSpinBox = new QSpinBox(infos3D);
     constraintPathSpinBox->setSingleStep(1);
-    constraintPathSpinBox->setFixedHeight(30);
+    //constraintPathSpinBox->setFixedHeight(30);
     constraintPathSpinBox->setFixedWidth(55);
     constraintPathSpinBox->setValue(3);
     constraintPathSpinBox->setRange(0,100);
@@ -1238,9 +1238,9 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
         continue;
 
       //on n'empile pas si le sommet appartient à un chemin en cours de tracé
-      std::vector<int>::iterator s1 = listIndexVertexPathSP.begin();
-      std::vector<int>::iterator s2 = listIndexVertexPathSP.end();
-      std::vector<int>::iterator ite = std::find(s1, s2, indexCurr);
+      std::vector<unsigned>::iterator s1 = listIndexVertexPathSP.begin();
+      std::vector<unsigned>::iterator s2 = listIndexVertexPathSP.end();
+      std::vector<unsigned>::iterator ite = std::find(s1, s2, indexCurr);
 
       if (ite != listIndexVertexPathSP.end())
         continue;
@@ -1263,8 +1263,8 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
           }
       }
 
-      if ((surfpaintTexInit[0].item(indexCurr) <= (oldTextureValue + stepToleranceValue))
-          && (surfpaintTexInit[0].item(indexCurr) >= (oldTextureValue - stepToleranceValue)))
+      if ((surfpaintTexInit[0].item(indexCurr) <= (oldTextureValue + 0.001 + stepToleranceValue))
+          && (surfpaintTexInit[0].item(indexCurr) >= (oldTextureValue - 0.001 - stepToleranceValue)))
       {
       listIndexVertexFill.insert(indexCurr);
       stack.push(indexCurr);
@@ -1284,13 +1284,13 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
   std::set<uint> voisins = neighbours[indexVertex];
   std::set<uint>::iterator voisIt = voisins.begin();
 
-  std::vector<int>::iterator s1 = listIndexVertexPathSP.begin();
-  std::vector<int>::iterator s2 = listIndexVertexPathSP.end();
-  std::vector<int>::iterator ite = std::find(s1, s2, indexVertex);
+  std::vector<unsigned>::iterator s1 = listIndexVertexPathSP.begin();
+  std::vector<unsigned>::iterator s2 = listIndexVertexPathSP.end();
+  std::vector<unsigned>::iterator ite = std::find(s1, s2, indexVertex);
 
-  std::vector<int>::iterator f1 = listIndexVertexSelectFill.begin();
-  std::vector<int>::iterator f2 = listIndexVertexSelectFill.end();
-  std::vector<int>::iterator itef = std::find(f1, f2, indexVertex);
+  std::vector<unsigned>::iterator f1 = listIndexVertexSelectFill.begin();
+  std::vector<unsigned>::iterator f2 = listIndexVertexSelectFill.end();
+  std::vector<unsigned>::iterator itef = std::find(f1, f2, indexVertex);
 
   std::map<int, float>::iterator itemap;
 
@@ -1426,7 +1426,7 @@ void SurfpaintTools::changeConstraintPathSpinBox(int v)
 
 void SurfpaintTools::fillHolesOnPath (void)
 {
-  vector<int>::iterator it = listIndexVertexBrushPath.begin();
+  vector<unsigned>::iterator it = listIndexVertexBrushPath.begin();
 
   for (; it < listIndexVertexBrushPath.end()-1; ++it)
   {
@@ -1468,7 +1468,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     pathObject.push_back(sp);
   }
 
-  std::vector<int>::iterator ite;
+  std::vector<unsigned>::iterator ite;
 
   if (!pathIsClosed())
     listIndexVertexSelectSP.push_back(indexNearestVertex);
@@ -1584,7 +1584,7 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   unsigned source_vertex_index = indexDest;
 
   vector<Point3df> vertexList;
-  vector<int> indexList;
+  vector<unsigned> indexList;
 
   //vertexList = sp->shortestPath_1_1_xyz(source_vertex_index,target_vertex_index);
   sp->shortestPath_1_1_ind_xyz(source_vertex_index,target_vertex_index, indexList,vertexList);

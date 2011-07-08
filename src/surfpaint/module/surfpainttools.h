@@ -259,15 +259,15 @@ namespace anatomist
       bool pathClosed;
 
       std::vector<geodesic::SurfacePoint> pathSP;
-      std::vector<int> listIndexVertexPathSP;
-      std::vector<int> listIndexVertexPathSPLast;
-      std::vector<int> listIndexVertexSelectSP;
+      std::vector<unsigned> listIndexVertexPathSP;
+      std::vector<unsigned> listIndexVertexPathSPLast;
+      std::vector<unsigned> listIndexVertexSelectSP;
       map<int,float> listVertexChanged;
 
-      std::vector<int> listIndexVertexBrushPath;
-      std::vector<int> listIndexVertexHolesPath;
+      std::vector<unsigned> listIndexVertexBrushPath;
+      std::vector<unsigned> listIndexVertexHolesPath;
 
-      std::vector<int> listIndexVertexSelectFill;
+      std::vector<unsigned> listIndexVertexSelectFill;
       std::set<int> listIndexVertexFill;
 
       std::vector<ATriangulated*> pathObject;

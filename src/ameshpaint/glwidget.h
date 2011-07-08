@@ -270,15 +270,15 @@ private:
   //std::vector<geodesic::SurfacePoint> _pathCurvSP;
   //std::vector<geodesic::SurfacePoint> _pathExactSP;
 
-  std::vector<int> _listIndexVertexPathSP;
-  std::vector<int> _listIndexVertexPathSPLast;
+  std::vector<unsigned> _listIndexVertexPathSP;
+  std::vector<unsigned> _listIndexVertexPathSPLast;
 
   //std::vector<int> _listIndexVertexPathCurvSP;
-  std::vector<int> _listIndexVertexSelectSP;
-  std::vector<int> _listIndexVertexSelectFill;
+  std::vector<unsigned> _listIndexVertexSelectSP;
+  std::vector<unsigned> _listIndexVertexSelectFill;
 
   std::vector<int> _listIndexVertexBrushPath;
-  std::vector<std::vector<int> >  _listIndexVertexHolesPath;
+  std::vector<std::vector<unsigned> >  _listIndexVertexHolesPath;
 
 };
 

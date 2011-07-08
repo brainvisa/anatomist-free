@@ -474,7 +474,7 @@ void myGLWidget<T>::changeConstraintPathValue(double value)
 
      // _listIndexVertexPathSP.clear();
 
-      std::vector<int>::iterator ite;
+      std::vector<unsigned>::iterator ite;
       ite = _listIndexVertexSelectSP.end();
 
       std::vector<geodesic::SurfacePoint> sources;
@@ -502,7 +502,7 @@ void myGLWidget<T>::changeConstraintPathValue(double value)
         std::vector<geodesic::SurfacePoint> SPath;
         SPath.clear();
 
-        //std::vector<int> _listIndexVertexPathSPLast;
+        //std::vector<unsigned> _listIndexVertexPathSPLast;
 
         _listIndexVertexPathSPLast.clear();
 
@@ -664,7 +664,7 @@ void myGLWidget<T>::fill(void)
   _listIndexVertexPathSP.clear();
   }
 
-  std::vector<std::vector<int> >::const_iterator ite = _listIndexVertexHolesPath.begin();
+  std::vector<std::vector<unsigned> >::const_iterator ite = _listIndexVertexHolesPath.begin();
 
 //  int i;
 //
@@ -676,8 +676,8 @@ void myGLWidget<T>::fill(void)
     {
       for (; ite != _listIndexVertexHolesPath.end(); ++ite)
       {
-        std::vector<int> holes = *ite;
-        std::vector< int >::const_iterator ite_holes = holes.begin();
+        std::vector<unsigned> holes = *ite;
+        std::vector<unsigned>::const_iterator ite_holes = holes.begin();
 
         for (; ite_holes != holes.end(); ++ite_holes)
         {
@@ -917,6 +917,17 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
       updateInfosPicking(_indexPolygon, _indexVertex);
       //cout << "texture value " << _textureValue << endl;
 
+      std::set<uint> voisins=neighbours[_indexVertex];
+      std::set<uint>::iterator voisIt=voisins.begin();
+
+      voisIt=voisins.begin();
+
+      cout << "voisins : " << _indexVertex << " = ";
+      for ( ; voisIt != voisins.end(); voisIt++)
+        cout << *voisIt << " ";
+
+      cout << endl;
+
     }
     else
     {
@@ -1014,7 +1025,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
         if (event->buttons() == Qt::LeftButton)
           _listIndexVertexSelectSP.push_back(_indexVertex);
 
-        std::vector<int>::iterator ite;
+        std::vector<unsigned>::iterator ite;
         ite = _listIndexVertexSelectSP.end();
 
         int nb_vertex;
@@ -1045,7 +1056,7 @@ void myGLWidget<T>::mousePressEvent(QMouseEvent *event)
           std::vector<geodesic::SurfacePoint> SPath;
           SPath.clear();
 
-          //std::vector<int> _listIndexVertexPathSPLast;
+          //std::vector<unsigned> _listIndexVertexPathSPLast;
 
           _listIndexVertexPathSPLast.clear();
 
@@ -1381,13 +1392,13 @@ void  myGLWidget<T>::floodFill(int indexVertex, T newTextureValue, T oldTextureV
 
   voisIt=voisins.begin();
 
-  std::vector<int>::iterator s1=_listIndexVertexPathSP.begin();
-  std::vector<int>::iterator s2=_listIndexVertexPathSP.end();
-  std::vector<int>::iterator ite = std::find(s1,s2, indexVertex);
+  std::vector<unsigned>::iterator s1=_listIndexVertexPathSP.begin();
+  std::vector<unsigned>::iterator s2=_listIndexVertexPathSP.end();
+  std::vector<unsigned>::iterator ite = std::find(s1,s2, indexVertex);
 
-  std::vector<int>::iterator f1=_listIndexVertexSelectFill.begin();
-  std::vector<int>::iterator f2=_listIndexVertexSelectFill.end();
-  std::vector<int>::iterator itef = std::find(f1,f2, indexVertex);
+  std::vector<unsigned>::iterator f1=_listIndexVertexSelectFill.begin();
+  std::vector<unsigned>::iterator f2=_listIndexVertexSelectFill.end();
+  std::vector<unsigned>::iterator itef = std::find(f1,f2, indexVertex);
 
 
   typename std::map<int, T>::iterator itemap;
@@ -1436,7 +1447,7 @@ void myGLWidget<T>::drawHoles(void)
   quadric = gluNewQuadric();
   gluQuadricDrawStyle(quadric, GLU_FILL);
 
-  std::vector<std::vector<int> >::const_iterator ite = _listIndexVertexHolesPath.begin();
+  std::vector<std::vector<unsigned> >::const_iterator ite = _listIndexVertexHolesPath.begin();
 
 //  int i;
 //
@@ -1448,8 +1459,8 @@ void myGLWidget<T>::drawHoles(void)
   {
     for (; ite != _listIndexVertexHolesPath.end(); ++ite)
     {
-      std::vector<int> holes = *ite;
-      std::vector< int >::const_iterator ite_holes = holes.begin();
+      std::vector<unsigned> holes = *ite;
+      std::vector< unsigned >::const_iterator ite_holes = holes.begin();
 
       for (; ite_holes != holes.end(); ++ite_holes)
       {
@@ -1582,7 +1593,7 @@ void myGLWidget<T>::drawPrimitivePicked(void)
   glTranslatef(-_vertexNearestpicked[0], -_vertexNearestpicked[1],
       -_vertexNearestpicked[2]);
 
-  std::vector<int>::iterator ite;
+  std::vector<unsigned>::iterator ite;
   ite = _listIndexVertexSelectSP.begin();
 
   if (_mode == 7)
@@ -2011,7 +2022,7 @@ void myGLWidget<T>::addSimpleShortPath(int indexSource,int indexDest)
   std::vector<geodesic::SurfacePoint> SPath;
   SPath.clear();
 
-  std::vector<int> listIndexVertexHolesPathTemp;
+  std::vector<unsigned> listIndexVertexHolesPathTemp;
 
   listIndexVertexHolesPathTemp.clear();
 
@@ -2064,7 +2075,7 @@ void myGLWidget<T>::computeIsoline(int indexSource)
   std::vector<geodesic::SurfacePoint> SPath;
   SPath.clear();
 
-  std::vector<int> listIndexVertexHolesPathTemp;
+  std::vector<unsigned> listIndexVertexHolesPathTemp;
 
   listIndexVertexHolesPathTemp.clear();
 
@@ -2217,8 +2228,8 @@ GLuint myGLWidget<T>::loadColorMap(const char * filename)
   _minT = min;
   _maxT = max;
 
-  _minT = 0;
-  _maxT = 1.0;
+//  _minT = 0;
+//  _maxT = 1.0;
 
   //_aTex->setTexExtrema(0,360);
 
