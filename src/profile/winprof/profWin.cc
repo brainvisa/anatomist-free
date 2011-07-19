@@ -466,7 +466,11 @@ void QAProfileWindow::refreshNow()
       cout << "doit...\n";
       pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim, increment );
       cout << "done\n";
-#if QWT_VERSION >= 0x050000
+#if QWT_VERSION >= 0x060000
+      QwtPlotCurve      *crv = d->mcurve[ *it ];
+      crv->setPen( QPen( QColor( d->pcol[ crv ] ) ) );
+      crv->setSamples( x_curve, pprof[ *it ], pdim );
+#elif QWT_VERSION >= 0x050000
       QwtPlotCurve	*crv = d->mcurve[ *it ];
       crv->setPen( QPen( QColor( d->pcol[ crv ] ) ) );
       crv->setData( x_curve, pprof[ *it ], pdim );
