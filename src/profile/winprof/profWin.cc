@@ -409,7 +409,11 @@ void QAProfileWindow::refreshNow()
       thePos[2] = _position[2] / vs[2];
       if ( pprof.find( *it ) != pprof.end() )  delete[] pprof[ *it ];
       pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim );
-#if QWT_VERSION >= 0x050000
+#if QWT_VERSION >= 0x060000
+      QwtPlotCurve      *crv = d->mcurve[ *it ];
+      crv->setPen( QPen( QColor( d->pcol[ crv ] ) ) );
+      crv->setSamples( x_curve, pprof[ *it ], pdim );
+#elif QWT_VERSION >= 0x050000
       QwtPlotCurve	*crv = d->mcurve[ *it ];
       crv->setPen( QPen( QColor( d->pcol[ crv ] ) ) );
       crv->setData( x_curve, pprof[ *it ], pdim );
