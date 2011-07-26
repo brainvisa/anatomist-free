@@ -463,6 +463,22 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           && ( transs = ps->getProperty( "transformations" ) )
           && refs.size() >= 1 && transs->size() >= 1 )
       {
+        // check that transformations is a list of trans and not a single trans
+        try
+        {
+          if( transs->size() != 0 )
+          {
+            Object it = transs->objectIterator();
+            it->size();
+          }
+        }
+        catch( runtime_error )
+        {
+          Object transs1 = transs;
+          transs = Object::value( vector<Object>( 1, transs ) );
+          cout << "Warning: non-conform transformations list in volume header "
+            "(single transformation)\n";
+        }
         Object      it;
         n = refs.size();
         // cout << "nifti transfo: " << n << endl;
