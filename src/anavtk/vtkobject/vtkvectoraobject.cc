@@ -30,6 +30,8 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef ANATOMIST_NO_VTKINRIA3D
+
 #include "anatomist/window3D/window3D.h"
 #include "anatomist/window/vtkglwidget.h"
 #include "anatomist/vtkobject/vtkvectoraobject.h"
@@ -150,4 +152,5 @@ namespace anatomist
   */
 }
 
-  
+#endif // #ifndef ANATOMIST_NO_VTKINRIA3D
+

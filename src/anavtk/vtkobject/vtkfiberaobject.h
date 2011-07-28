@@ -33,6 +33,8 @@
 #ifndef _vtk_fiberaobject_h_
 #define _vtk_fiberaobject_h_
 
+#ifndef ANATOMIST_NO_VTKINRIA3D
+
 #include "anatomist/vtkobject/vtkaobject.h"
 
 #include <vtkFibersManager.h>
@@ -64,5 +66,7 @@ namespace anatomist
   
 } // end of namespace
 
+
+#endif // #ifndef ANATOMIST_NO_VTKINRIA3D
 
 #endif

@@ -61,7 +61,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkDataSetMapper.h"
 #include "vtkActor.h"
+#ifndef ANATOMIST_NO_VTKINRIA3D
 #include <vtkFibersManager.h>
+#endif
 #include <vtkCornerAnnotation.h>
 #include <vtkTextProperty.h>
 #include <vtkIdentityTransform.h>

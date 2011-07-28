@@ -44,7 +44,9 @@
 #include <vtkPolyData.h>
 #include <vtkStructuredPoints.h>
 #include <vtkPointData.h>
+#ifndef ANATOMIST_NO_VTKINRIA3D
 #include <vtkMetaDataSetSequence.h>
+#endif
 //#include <vtkSmartPointer.h>
 
 
@@ -108,18 +110,21 @@ AObject* vtkAReader::readVTK (const std::string& filename, Object options)
   
   if( polydata )
   {
+#ifndef ANATOMIST_NO_VTKINRIA3D
     if( polydata->GetNumberOfLines()>0 )
     {
       obj = vtkFiberAObject::New();
       obj->SetDataSet (output);
     }
-    else
-    {
+//    else
+#endif
+/*    {
       std::cerr << "Error: Only vtkPolyData with lines are supported for now, and you vtkPolyData has no line." << std::endl;
-    }
+    }*/
   }
   else if (spoints)
   {
+#ifndef ANATOMIST_NO_VTKINRIA3D
     if ( spoints->GetPointData()->GetTensors() )
     {
       obj = vtkTensorAObject::New();
@@ -130,11 +135,18 @@ AObject* vtkAReader::readVTK (const std::string& filename, Object options)
       obj = vtkVectorAObject::New();
       obj->SetDataSet (output);
     }
-    else
-    {
+//    else
+#endif
+/*    {
       std::cerr << "Error: Only vtkStructuredPoints with tensors are supported for now, and you vtkStructuredPoints has no tensor attribute." << std::endl;
-    }
+    }*/
   }
+
+//   if( !obj )
+//   {
+//     obj = new vtkAObject;
+//     obj->SetDataSet( output );
+//   }
 
   if( obj )
     vtkAReader::ObjectList.push_back(obj);
@@ -149,7 +161,7 @@ AObject* vtkAReader::readVTK (const std::string& filename, Object options)
 
 AObject* vtkAReader::readVTKSequence (const std::string& filename, Object options)
 {
-  
+#ifndef ANATOMIST_NO_VTKINRIA3D
   std::ifstream buffer (filename.c_str());
   if( buffer.fail() )
   {
@@ -175,5 +187,8 @@ AObject* vtkAReader::readVTKSequence (const std::string& filename, Object option
   sequence->Delete();
 
   return obj;
-  
+
+#else
+  return 0;
+#endif
 }

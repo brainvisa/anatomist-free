@@ -33,6 +33,10 @@
 #ifndef _vtk_VectorAObject_h_
 #define _vtk_VectorAObject_h_
 
+#include <qobject.h> // for Moc if ANATOMIST_NO_VTKINRIA3D is set
+
+#ifndef ANATOMIST_NO_VTKINRIA3D
+
 #include "anatomist/vtkobject/vtkaobject.h"
 
 #include <vtkVectorVisuManager.h>
@@ -70,5 +74,6 @@ namespace anatomist
   
 } // end of namespace
 
+#endif // #ifndef ANATOMIST_NO_VTKINRIA3D
 
 #endif

@@ -33,6 +33,8 @@
 #ifndef _vtk_MetaDataSetAObject_h_
 #define _vtk_MetaDataSetAObject_h_
 
+#ifndef ANATOMIST_NO_VTKINRIA3D
+
 #include "anatomist/vtkobject/vtkaobject.h"
 #include <vtkMetaDataSet.h>
 #include <vtkCallbackCommand.h>
@@ -131,5 +133,6 @@ namespace anatomist
   
 }
 
+#endif // #ifndef ANATOMIST_NO_VTKINRIA3D
 
 #endif
