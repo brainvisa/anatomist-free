@@ -33,6 +33,9 @@
 #ifndef _vtk_tensoraobject_h_
 #define _vtk_tensoraobject_h_
 
+#include <qobject.h> // for Moc if ANATOMIST_NO_VTKINRIA3D is set
+#ifndef ANATOMIST_NO_VTKINRIA3D
+
 #include "anatomist/vtkobject/vtkaobject.h"
 
 #include <vtkTensorManager.h>
@@ -69,5 +72,6 @@ namespace anatomist
   
 } // end of namespace
 
+#endif // #ifndef ANATOMIST_NO_VTKINRIA3D
 
 #endif
