@@ -469,7 +469,18 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           if( transs->size() != 0 )
           {
             Object it = transs->objectIterator();
-            it->size();
+            if( it->isValid() )
+            {
+              Object o = it->currentValue();
+              it = o->objectIterator();
+              if( !it->isValid() )
+              {
+                Object transs1 = transs;
+                transs = Object::value( vector<Object>( 1, transs ) );
+                cout << "Warning: non-conform transformations list in volume "
+                  "header (single transformation)\n";
+              }
+            }
           }
         }
         catch( runtime_error )
