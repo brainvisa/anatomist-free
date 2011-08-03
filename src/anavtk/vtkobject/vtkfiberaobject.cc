@@ -35,6 +35,7 @@
 #include "anatomist/vtkobject/vtkfiberaobject.h"
 
 #include <vtkObjectFactory.h>
+#include <vtkPolyData.h>
 
 namespace anatomist
 {
