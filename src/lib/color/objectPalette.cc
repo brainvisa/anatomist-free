@@ -180,7 +180,10 @@ void AObjectPalette::fill()
     create( dx, dy );
   }
   if( _colors == _refPal.get() )
+  {
+    _transp = _refPal->isTransparent();
     return;
+  }
 
   unsigned	dimx = _colors->dimX(), dimy = _colors->dimY(), x, y;
 
