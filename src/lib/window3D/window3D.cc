@@ -3269,9 +3269,15 @@ namespace
     {
       SelectFactory::HColor col = SelectFactory::factory()->highlightColor(obj);
 
-      if (GraphParams::graphParams()->selectRenderMode == 0 && !col.na) return col.a;
+      if (GraphParams::graphParams()->selectRenderMode == 0 && !col.na)
+        return col.a;
     }
-    return obj->GetMaterial().Diffuse()[3];
+    GLfloat difop = obj->GetMaterial().Diffuse()[3];
+    if( difop < 1. )
+      return difop;
+    if( obj->isTransparent() )
+      return 0.99; // transparent palette
+    return 1.; // opaque object
   }
 
 }

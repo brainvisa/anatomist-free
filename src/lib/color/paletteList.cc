@@ -145,6 +145,7 @@ void PaletteList::load( const string & dirname, bool clr )
                   //cout << "trying to read " << filename << " as RGBA...\n";
                   Reader<AimsData<AimsRGBA> > dr( filename );
                   dr.read( *pal, 0, &format );
+                  pal->update();
                   if( newpal )
                     _pal.push_back( pal );
                 }
@@ -167,6 +168,7 @@ void PaletteList::load( const string & dirname, bool clr )
                     tpal2( x, y, z, t ) = tpal( x, y, z, t );
                   (AimsData<AimsRGBA> &) *pal = tpal2;
                   pal->setHeader( tpal.header()->cloneHeader() );
+                  pal->update();
                   if( newpal )
                     _pal.push_back( pal );
                   //cout << "OK\n";

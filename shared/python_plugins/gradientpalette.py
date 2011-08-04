@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
 #      CEA/NeuroSpin, Batiment 145,
@@ -184,6 +185,7 @@ class GradientPaletteWidget( qtgui.QWidget ):
       pal.header()[ "palette_gradients_mode" ] = 'HSV'
     else:
       pal.header()[ "palette_gradients_mode" ] = 'RGB'
+    pal.update()
     for obj in self._objects:
       opal = obj.getOrCreatePalette()
       opal.setRefPalette( pal )

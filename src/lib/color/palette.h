@@ -52,9 +52,12 @@ namespace anatomist
     virtual ~APalette();
     std::string name() const { return( _name ); }
     void setName( const std::string & name ) { _name = name; }
+    bool isTransparent() const { return _transp; }
+    void update();
 
   protected:
     std::string	_name;
+    bool _transp;
 
   private:
   };
