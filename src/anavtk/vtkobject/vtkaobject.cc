@@ -36,6 +36,8 @@
 
 #include "anatomist/vtkobject/vtkaobject.h"
 #include <vtkObjectFactory.h>
+#include <vtkCollectionIterator.h>
+#include <vtkRendererCollection.h>
 
 
 using namespace anatomist;
@@ -43,12 +45,14 @@ using namespace carto;
 using namespace std;
 
 vtkCxxRevisionMacro(vtkAObject, "$Revision: 1.0 $");
+vtkStandardNewMacro (vtkAObject);
 
 
 int vtkAObject::_classType = vtkAObject::registerClass();
 
 
 vtkAObject::vtkAObject()
+  : _vtkProp( 0 )
 {
   _type = _classType;
   this->DataSet = 0;
@@ -61,6 +65,8 @@ vtkAObject::~vtkAObject()
   {
     this->DataSet->Delete();
   }
+  if( _vtkProp )
+    _vtkProp->Delete();
 }
 
 
@@ -77,7 +83,29 @@ bool vtkAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
 
   if( !this->DataSet )
   {
-    return false;
+    if( _vtkProp )
+    {
+      double* bounds = _vtkProp->GetBounds();
+      if( !bounds )
+      {
+        cout << "no bounds in VTK object !\n";
+        return false;
+      }
+
+      bmin[0] = bounds[0];
+      bmin[1] = bounds[2];
+      bmin[2] = bounds[4];
+
+      bmax[0] = bounds[1];
+      bmax[1] = bounds[3];
+      bmax[2] = bounds[5];
+
+//       cout << "BBox: " << bmin << " / " << bmax << endl;
+
+      return true;
+    }
+    else
+      return false;
   }
 
 
@@ -92,7 +120,6 @@ bool vtkAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
   bmax[2] = bounds[5];
 
   return true;
-  
 }
 
 
@@ -154,3 +181,55 @@ void vtkAObject::changeSlice (int slice)
 
 void vtkAObject::setSlice (int)
 {}
+
+
+void vtkAObject::addActors (vtkQAGLWidget* widget)
+{
+  if( !_vtkProp )
+    return;
+  vtkRendererCollection* collec = widget->GetRenderWindow()->GetRenderers();
+  if( !collec )
+    return;
+  vtkCollectionSimpleIterator rsit;
+  collec->InitTraversal(rsit);
+  vtkRenderer* ren = collec->GetNextRenderer(rsit);
+  if ( ren == NULL )
+    return;
+//   cout << "has 1: " << ren->HasViewProp( _vtkProp ) << endl;
+  ren->AddActor( _vtkProp );
+/*  cout << "actor " << _vtkProp << " added in renderer " << ren << endl;
+  cout << "renderer has " << ren->GetActors()->GetNumberOfItems() << " items" << endl;
+  cout << "has 2: " << ren->HasViewProp( _vtkProp ) << endl;*/
+}
+
+
+void vtkAObject::removeActors (vtkQAGLWidget* widget)
+{
+  if( !_vtkProp )
+    return;
+  vtkRendererCollection* collec = widget->GetRenderWindow()->GetRenderers();
+  if( !collec )
+    return;
+  vtkCollectionSimpleIterator rsit;
+  collec->InitTraversal(rsit);
+  vtkRenderer* ren = collec->GetNextRenderer(rsit);
+  if ( ren == NULL )
+    return;
+  ren->RemoveActor( _vtkProp );
+}
+
+
+void vtkAObject::setVtkProp( vtkProp* prop )
+{
+  if( _vtkProp )
+    _vtkProp->Delete();
+  _vtkProp = prop;
+}
+
+
+vtkProp* vtkAObject::getVtkProp() const
+{
+  return _vtkProp;
+}
+
+

@@ -49,6 +49,10 @@
 #endif
 //#include <vtkSmartPointer.h>
 
+// FIXME: test
+#include <vtkTextActor3D.h>
+#include <vtkTextProperty.h>
+
 
 using namespace anatomist;
 using namespace aims;
@@ -142,19 +146,35 @@ AObject* vtkAReader::readVTK (const std::string& filename, Object options)
     }*/
   }
 
-//   if( !obj )
-//   {
-//     obj = new vtkAObject;
-//     obj->SetDataSet( output );
-//   }
+  // FIXME: just trying things...
+  /*
+  if( !obj )
+  {
+    obj = vtkAObject::New();
+    vtkTextActor3D *text = vtkTextActor3D::New();
+    text->SetPosition( 100, 100, 80 );
+    text->SetInput( "Rototor" );
+    vtkTextProperty* textProperty = text->GetTextProperty();
+    textProperty->SetFontSize( 18 );
+    textProperty->SetFontFamilyToArial();
+    textProperty->SetJustificationToCentered();
+    textProperty->BoldOn();
+    textProperty->ItalicOn();
+    textProperty->ShadowOn();
+    textProperty->SetColor( 0, 0, 1 );
+    text->SetTextProperty( textProperty );
+    obj->setVtkProp( text );
+    cout << "text object created: " << text << ", font: " << textProperty->GetOpacity() << endl;
+  }
+  */
 
   if( obj )
     vtkAReader::ObjectList.push_back(obj);
 
   reader->Delete();
-  
+
   return obj;
-  
+
 }
 
 

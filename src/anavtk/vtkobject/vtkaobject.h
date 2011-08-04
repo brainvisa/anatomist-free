@@ -42,6 +42,7 @@
 #include <vtkObject.h>
 #include <vtkDataSet.h>
 
+
 namespace anatomist
 {
   
@@ -52,7 +53,8 @@ namespace anatomist
       
   public :
     vtkTypeRevisionMacro(vtkAObject, vtkObject);
-    
+    static vtkAObject* New();
+
     vtkSetObjectMacro(DataSet, vtkDataSet);
     vtkGetObjectMacro(DataSet, vtkDataSet);
 
@@ -61,28 +63,32 @@ namespace anatomist
 
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
 
-    virtual void registerWindow  (AWindow* window);    
+    virtual void registerWindow  (AWindow* window);
     virtual void unregisterWindow(AWindow* window);
 
     virtual void setSlice (int);
 
-    virtual void addActors (vtkQAGLWidget*) = 0;
-    virtual void removeActors (vtkQAGLWidget*) = 0;
-    
-    
+    virtual void addActors (vtkQAGLWidget*);
+    virtual void removeActors (vtkQAGLWidget*);
+
+    virtual void setVtkProp( vtkProp * prop );
+    virtual vtkProp* getVtkProp() const;
+
+
   public slots:
     void changeSlice (int);
 
-    
+
   protected:
     vtkAObject();
     ~vtkAObject();
-    
-    vtkDataSet* DataSet;
 
-  private:    
-    
-    static int registerClass();    
+    vtkDataSet* DataSet;
+    vtkProp *_vtkProp;
+
+  private:
+
+    static int registerClass();
     static int	_classType;
   };
   
