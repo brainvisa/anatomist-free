@@ -32,11 +32,16 @@
  */
 
 #include <anatomist/surface/transformedobject.h>
+#include <anatomist/window/glwidgetmanager.h>
+#include <anatomist/window/controlledWindow.h>
 
 using namespace anatomist;
 using namespace std;
 
-TransformedObject::TransformedObject( const vector<AObject *> & obj )
+TransformedObject::TransformedObject( const vector<AObject *> & obj,
+                                      bool followorientation,
+                                      bool followposition )
+  : _followorientation( followorientation ), _followposition( followposition )
 {
   vector<AObject *>::const_iterator io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
@@ -55,9 +60,82 @@ bool TransformedObject::renderingIsObserverDependent() const
 }
 
 
-bool render( PrimList & pl, const ViewState & vs )
+bool TransformedObject::render( PrimList & pl, const ViewState & vs )
 {
-  
+  // change transformation matrixes
+  setupTransforms( pl, vs );
+
+  // render sub-objects
+  bool res = false;
+  iterator io, eo = end();
+  for( io=begin(); io!=eo; ++io )
+    res |= (*io)->render( pl, vs );
+
+  // pop matrixes
+  popTransformationMatrixes( pl );
+
+  return res;
+}
+
+
+void TransformedObject::setupTransforms( GLPrimitives & pl,
+                                         const ViewState & vs )
+{
+  if( _followorientation && _followposition )
+    return;
+  GLList *gll = new GLList;
+  gll->generate();
+  pl.push_back( RefGLItem( gll ) );
+  glNewList( gll->item(), GL_COMPILE );
+
+  // save matrixes
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
+  if( !_followposition )
+  {
+    int winDim = 70;
+    glPushAttrib( GL_VIEWPORT_BIT );
+    glViewport( 0, 0, winDim, winDim );
+    glLoadIdentity();
+    GLfloat orthoMinX = - 1.5;
+    GLfloat orthoMinY = - 1.5;
+    GLfloat orthoMinZ = - 1.5;
+    GLfloat orthoMaxX =   1.5;
+    GLfloat orthoMaxY =   1.5;
+    GLfloat orthoMaxZ =   1.5;
+    glOrtho( orthoMinX, orthoMaxX, orthoMinY, orthoMaxY, orthoMinZ,
+             orthoMaxZ );
+  }
+  AWindow *win = vs.window;
+  GLWidgetManager *view = 0;
+  if( win )
+  {
+    ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
+    view = dynamic_cast<GLWidgetManager *>( cw->view() );
+  }
+
+  glEndList();
+}
+
+
+void TransformedObject::popTransformationMatrixes( GLPrimitives & pl )
+{
+  if( _followorientation && _followposition )
+    return;
+  GLList *gll = new GLList;
+  gll->generate();
+  pl.push_back( RefGLItem( gll ) );
+  glNewList( gll->item(), GL_COMPILE );
+  glMatrixMode( GL_PROJECTION );
+  if( !_followposition )
+    glPopAttrib();
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+  glEndList();
 }
 
 

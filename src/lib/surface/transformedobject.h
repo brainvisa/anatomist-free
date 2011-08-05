@@ -55,11 +55,21 @@ namespace anatomist
   class TransformedObject : public ObjectVector, public GLComponent
   {
   public:
-    TransformedObject( const std::vector<AObject *> & );
+    TransformedObject( const std::vector<AObject *> &,
+                       bool followorientation=true,
+                       bool followposition=false );
     virtual ~TransformedObject();
 
     virtual bool renderingIsObserverDependent() const;
     virtual bool render( PrimList &, const ViewState & );
+
+  protected:
+    void setupTransforms( GLPrimitives &, const ViewState & );
+    void popTransformationMatrixes( GLPrimitives & );
+
+  private:
+    bool _followorientation;
+    bool _followposition;
   };
 
 }
