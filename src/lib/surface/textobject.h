@@ -32,44 +32,40 @@
  */
 
 
-#ifndef ANA_SURFACE_TRANSFORMEDOBJECT_H
-#define ANA_SURFACE_TRANSFORMEDOBJECT_H
+#ifndef ANA_SURFACE_TEXTOBJECT_H
+#define ANA_SURFACE_TEXTOBJECT_H
 
 
-#include <anatomist/mobject/objectVector.h>
-#include <anatomist/surface/glcomponent.h>
+#include <anatomist/surface/surface.h>
 
+/* TODO: Experimental code - not even compiled yet
+ */
 
 namespace anatomist
 {
 
-  class Referential;
-  class Geometry;
-
-
   /** A container object which displays its children either with a fixed
      orientation, or at a fixed position in the window corner.
    */
-  class TransformedObject : public ObjectVector, public GLComponent
+  class TextObject : public ASurface<3>
   {
   public:
-    TransformedObject( const std::vector<AObject *> &,
-                       bool followorientation=true,
-                       bool followposition=false,
-                       const Point3df & posoffset=Point3df( 1, 1, 0 ) );
-    virtual ~TransformedObject();
+    TextObject( const std::string & text="" );
+    virtual ~TextObject();
+    const std::string & text() const;
+    void setText( const std::string & );
 
-    virtual bool renderingIsObserverDependent() const;
-    virtual bool render( PrimList &, const ViewState & );
-
-  protected:
-    void setupTransforms( GLPrimitives &, const ViewState & );
-    void popTransformationMatrixes( GLPrimitives & );
+    virtual unsigned glDimTex( const ViewState &, unsigned tex = 0 ) const;
+    virtual unsigned glTexCoordSize( const ViewState &,
+                                     unsigned tex = 0 ) const;
+    virtual const GLfloat* glTexCoordArray( const ViewState &,
+                                            unsigned tex = 0 ) const;
+    virtual bool glMakeTexImage( const ViewState & state,
+                                 const GLTexture & gltex, unsigned tex ) const;
 
   private:
-    bool _followorientation;
-    bool _followposition;
-    Point3df _posoffset;
+    struct Private;
+    Private *d;
   };
 
 }
