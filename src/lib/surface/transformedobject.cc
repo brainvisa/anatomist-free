@@ -34,14 +34,18 @@
 #include <anatomist/surface/transformedobject.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window/controlledWindow.h>
+#include <aims/transformation/affinetransformation3d.h>
 
 using namespace anatomist;
+using namespace aims;
 using namespace std;
 
 TransformedObject::TransformedObject( const vector<AObject *> & obj,
                                       bool followorientation,
-                                      bool followposition )
-  : _followorientation( followorientation ), _followposition( followposition )
+                                      bool followposition,
+                                      const Point3df & posoffset )
+  : _followorientation( followorientation ), _followposition( followposition ),
+    _posoffset( posoffset )
 {
   vector<AObject *>::const_iterator io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
@@ -115,6 +119,36 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
   {
     ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
     view = dynamic_cast<GLWidgetManager *>( cw->view() );
+  }
+  if( !view )
+    return;
+
+  if( !_followorientation )
+  {
+    glTranslatef( _posoffset[0], _posoffset[1], _posoffset[2] );
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+    /* keep the translation part of the view orientation
+    (mut apply the inverse rotation to it) */
+    Point3df trans = view->rotationCenter();
+    AffineTransformation3d r \
+      = AffineTransformation3d( view->quaternion() ).inverse();
+    AffineTransformation3d p;
+    p.translation()[0] = trans[0];
+    p.translation()[1] = trans[1];
+    p.translation()[2] = -trans[2]; // Why - ?
+    r = r *p;
+    glTranslatef( -r.translation()[0], -r.translation()[1],
+      -r.translation()[2] );
+    glScalef( 1., 1., -1. );
+  }
+  else
+  {
+    glMatrixMode( GL_MODELVIEW );
+    /* keep the rotation part of the view orientation, removing the
+      translation part */
+    Point3df trans = view->rotationCenter();
+    glTranslatef( trans[0], trans[1], trans[2] );
   }
 
   glEndList();

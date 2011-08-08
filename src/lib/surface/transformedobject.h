@@ -57,7 +57,8 @@ namespace anatomist
   public:
     TransformedObject( const std::vector<AObject *> &,
                        bool followorientation=true,
-                       bool followposition=false );
+                       bool followposition=false,
+                       const Point3df & posoffset=Point3df( 1, 1, 0 ) );
     virtual ~TransformedObject();
 
     virtual bool renderingIsObserverDependent() const;
@@ -70,6 +71,7 @@ namespace anatomist
   private:
     bool _followorientation;
     bool _followposition;
+    Point3df _posoffset;
   };
 
 }
