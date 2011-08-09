@@ -46,18 +46,19 @@ using namespace std;
 
 struct TextObject::Private
 {
-  Private();
+  Private( const Point3df & pos );
   ~Private();
 
   string text;
   GLfloat texcoords[8];
   QFont* font;
   float scale;
+  Point3df pos;
 };
 
 
-TextObject::Private::Private()
-  : font( 0 ), scale( 1. )
+TextObject::Private::Private( const Point3df & pos )
+  : font( 0 ), scale( 1. ), pos( pos )
 {
   texcoords[0] = 0;
   texcoords[1] = 0;
@@ -76,17 +77,18 @@ TextObject::Private::~Private()
 }
 
 
-TextObject::TextObject( const std::string & text )
-  : ASurface<3>(), d( new Private )
+TextObject::TextObject( const std::string & text,
+                        const Point3df & pos )
+  : ASurface<3>(), d( new Private( pos ) )
 {
   AimsTimeSurface<3> *mesh = new AimsTimeSurface<3>();
   vector<Point3df> &vert = mesh->vertex();
   vector<AimsVector<uint32_t, 3> > & poly= mesh->polygon();
   vert.reserve( 4 );
-  vert.push_back( Point3df( 0, -1, 0 ) );
-  vert.push_back( Point3df( 0, 0, 0 ) );
-  vert.push_back( Point3df( 1, 0, 0 ) );
-  vert.push_back( Point3df( 1, -1, 0 ) );
+  vert.push_back( pos + Point3df( 0, -1, 0 ) );
+  vert.push_back( pos + Point3df( 0, 0, 0 ) );
+  vert.push_back( pos + Point3df( 1, 0, 0 ) );
+  vert.push_back( pos + Point3df( 1, -1, 0 ) );
   poly.reserve( 2 );
   poly.push_back( AimsVector<uint32_t, 3>( 0, 1, 2 ) );
   poly.push_back( AimsVector<uint32_t, 3>( 0, 2, 3 ) );
@@ -148,10 +150,14 @@ void TextObject::setText( const std::string & text )
     dimy = 1;
 
   vector<Point3df> &vert = surface()->vertex();
-  vert[0][1] = -sz.height();
-  vert[2][0] = sz.width();
-  vert[3][1] = -sz.height();
-  vert[3][0] = sz.width();
+  vert[0] = d->pos;
+  vert[1] = d->pos;
+  vert[2] = d->pos;
+  vert[3] = d->pos;
+  vert[0][1] -= sz.height() * d->scale;
+  vert[2][0] += sz.width() * d->scale;
+  vert[3][1] -= sz.height() * d->scale;
+  vert[3][0] += sz.width() * d->scale;
   d->texcoords[3] = float(sz.height())/dimy;
   d->texcoords[4] = float(sz.width())/dimx;
   d->texcoords[5] = float(sz.height())/dimy;
@@ -281,13 +287,19 @@ void TextObject::setScale( float s )
     return;
   if( d->scale != s )
   {
-    float scf = s / d->scale;
-    d->scale = s;
     vector<Point3df> &vert = surface()->vertex();
-    vert[0][1] *= scf;
-    vert[2][0] *= scf;
-    vert[3][1] *= scf;
-    vert[3][0] *= scf;
+    float scf = s / d->scale;
+    float w = ( vert[2][0] - vert[0][0] ) * scf;
+    float h = ( vert[1][1] - vert[0][0] ) * scf;
+    d->scale = s;
+    vert[0] = d->pos;
+    vert[1] = d->pos;
+    vert[2] = d->pos;
+    vert[3] = d->pos;
+    vert[1][1] += h;
+    vert[2][0] += w;
+    vert[2][1] += h;
+    vert[3][0] += w;
     glSetChanged( glGEOMETRY );
     UpdateMinAndMax();
   }
@@ -305,6 +317,27 @@ void TextObject::glSetChanged( glPart part, bool x ) const
   ASurface<3>::glSetChanged( part, x );
   if( x && part == glMATERIAL )
     glSetTexImageChanged( true, 0 );
+}
+
+
+void TextObject::setPosition( const Point3df & pos )
+{
+  vector<Point3df> &vert = surface()->vertex();
+  Point3df oldpos = vert[0];
+  d->pos = pos;
+  Point3df delta = pos - oldpos;
+  vert[0] += delta;
+  vert[1] += delta;
+  vert[2] += delta;
+  vert[3] += delta;
+  glSetChanged( glGEOMETRY );
+  UpdateMinAndMax();
+}
+
+
+Point3df TextObject::position() const
+{
+  return d->pos;
 }
 
 

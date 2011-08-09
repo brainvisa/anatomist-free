@@ -47,7 +47,8 @@ namespace anatomist
   class TextObject : public ASurface<3>
   {
   public:
-    TextObject( const std::string & text="" );
+    TextObject( const std::string & text="",
+                const Point3df & pos=Point3df( 0, 0, 0 ) );
     virtual ~TextObject();
     const std::string & text() const;
     void setText( const std::string & );
@@ -66,6 +67,8 @@ namespace anatomist
     const QFont* font() const;
     void setScale( float );
     float scale() const;
+    void setPosition( const Point3df & );
+    Point3df position() const;
 
   private:
     struct Private;
