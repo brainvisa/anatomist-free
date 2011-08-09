@@ -37,15 +37,12 @@
 
 
 #include <anatomist/surface/surface.h>
-
-/* TODO: Experimental code - not even compiled yet
- */
+class QFont;
 
 namespace anatomist
 {
 
-  /** A container object which displays its children either with a fixed
-     orientation, or at a fixed position in the window corner.
+  /** A text object: displays text messages as textures in 3D objects
    */
   class TextObject : public ASurface<3>
   {
@@ -62,6 +59,13 @@ namespace anatomist
                                             unsigned tex = 0 ) const;
     virtual bool glMakeTexImage( const ViewState & state,
                                  const GLTexture & gltex, unsigned tex ) const;
+    virtual bool isTransparent() const { return true; }
+    virtual void glSetChanged( glPart, bool = true ) const;
+    void setFont( QFont *font );
+    QFont* font();
+    const QFont* font() const;
+    void setScale( float );
+    float scale() const;
 
   private:
     struct Private;

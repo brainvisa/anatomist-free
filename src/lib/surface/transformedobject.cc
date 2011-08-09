@@ -140,7 +140,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     r = r *p;
     glTranslatef( -r.translation()[0], -r.translation()[1],
       -r.translation()[2] );
-    glScalef( 1., 1., -1. );
+    glScalef( 1., -1., 1. );
   }
   else
   {

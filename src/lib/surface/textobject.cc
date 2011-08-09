@@ -47,13 +47,17 @@ using namespace std;
 struct TextObject::Private
 {
   Private();
+  ~Private();
 
   string text;
   GLfloat texcoords[8];
+  QFont* font;
+  float scale;
 };
 
 
 TextObject::Private::Private()
+  : font( 0 ), scale( 1. )
 {
   texcoords[0] = 0;
   texcoords[1] = 0;
@@ -66,6 +70,12 @@ TextObject::Private::Private()
 }
 
 
+TextObject::Private::~Private()
+{
+  delete font;
+}
+
+
 TextObject::TextObject( const std::string & text )
   : ASurface<3>(), d( new Private )
 {
@@ -73,10 +83,10 @@ TextObject::TextObject( const std::string & text )
   vector<Point3df> &vert = mesh->vertex();
   vector<AimsVector<uint32_t, 3> > & poly= mesh->polygon();
   vert.reserve( 4 );
+  vert.push_back( Point3df( 0, -1, 0 ) );
   vert.push_back( Point3df( 0, 0, 0 ) );
-  vert.push_back( Point3df( 0, 0, 1 ) );
-  vert.push_back( Point3df( 1, 0, 1 ) );
   vert.push_back( Point3df( 1, 0, 0 ) );
+  vert.push_back( Point3df( 1, -1, 0 ) );
   poly.reserve( 2 );
   poly.push_back( AimsVector<uint32_t, 3>( 0, 1, 2 ) );
   poly.push_back( AimsVector<uint32_t, 3>( 0, 2, 3 ) );
@@ -89,6 +99,8 @@ TextObject::TextObject( const std::string & text )
   te.max.push_back( 1 );
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 1 );
+  glSetTexMode( glREPLACE, 0 );
+  GetMaterial().SetDiffuse( 0, 0, 0, 1 );
   setText( text );
 }
 
@@ -110,6 +122,42 @@ void TextObject::setText( const std::string & text )
   d->text = text;
   glSetTexImageChanged( 0 );
   glSetChanged( glBODY );
+
+  const QFont *font = d->font;
+  auto_ptr<QFont> fontdel( 0 );
+  if( !font )
+  {
+    fontdel.reset( new QFont( qApp->font().family(), 30 ) );
+    font = fontdel.get();
+  }
+  QFontMetrics fm( *font );
+//   QRect br = fm.tightBoundingRect( d->text.c_str() );
+  QRect br = fm.boundingRect( QRect( QPoint( 0, 0 ), QSize( 1000, 1000 ) ),
+                              Qt::AlignLeft, d->text.c_str() );
+  QSize sz = br.size();
+  unsigned      dimx = sz.width(), dimy = sz.height(), x, utmp;
+  for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
+    utmp = utmp << 1;
+  dimx = utmp;
+  for( x=0, utmp=1; x<32 && utmp<dimy; ++x )
+    utmp = utmp << 1;
+  dimy = utmp;
+  if( dimx == 0 )
+    dimx = 1;
+  if( dimy == 0 )
+    dimy = 1;
+
+  vector<Point3df> &vert = surface()->vertex();
+  vert[0][1] = -sz.height();
+  vert[2][0] = sz.width();
+  vert[3][1] = -sz.height();
+  vert[3][0] = sz.width();
+  d->texcoords[3] = float(sz.height())/dimy;
+  d->texcoords[4] = float(sz.width())/dimx;
+  d->texcoords[5] = float(sz.height())/dimy;
+  d->texcoords[6] = float(sz.width())/dimx;
+  glSetChanged( glGEOMETRY );
+  UpdateMinAndMax();
 }
 
 
@@ -144,11 +192,27 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
     return false;
   }
 
-  cout << "TextObject::glMakeTexImage\n";
+  glBindTexture( GL_TEXTURE_2D, texName );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+  {
+    cerr << "TextObject::glMakeTexImage : OpenGL error: "
+        << gluErrorString(status) << endl;
+    return false;
+  }
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
-  QFont font( qApp->font().family(), 30 );
-  QFontMetrics fm( font );
-  QRect br = fm.tightBoundingRect( d->text.c_str() );
+  QFont *font = d->font;
+  auto_ptr<QFont> fontdel( 0 );
+  if( !font )
+  {
+    fontdel.reset( new QFont( qApp->font().family(), 30 ) );
+    font = fontdel.get();
+  }
+  QFontMetrics fm( *font );
+//   QRect br = fm.tightBoundingRect( d->text.c_str() );
+  QRect br = fm.boundingRect( QRect( QPoint( 0, 0 ), QSize( 0, 0 ) ),
+                              Qt::AlignLeft, d->text.c_str() );
   QSize sz = br.size();
   unsigned      dimx = sz.width(), dimy = sz.height(), x, utmp;
   for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
@@ -162,15 +226,22 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
   if( dimy == 0 )
     dimy = 1;
 
-  QImage im( sz, QImage::Format_ARGB32 );
+  QImage im( QSize( dimx, dimy ), QImage::Format_ARGB32 );
   im.fill( qRgba( 255, 255, 255, 0 ) );
   QPainter p( &im );
-  p.setFont( font );
-  p.drawText( QPoint( -br.x(), -br.y() ), d->text.c_str() );
+  const Material & mat = material();
+  p.setPen( QPen( QColor( int( mat.Diffuse(0) * 255.99 ),
+                          int( mat.Diffuse(1) * 255.99 ),
+                          int( mat.Diffuse(2) * 255.99 ),
+                          int( mat.Diffuse(3) * 255.99 ) ) ) );
+  p.setFont( *font );
+/*  p.drawText( QRect( QPoint( -br.x(), -br.y() ), br.size() ),
+              Qt::AlignLeft, d->text.c_str() );*/
+  p.drawText( br, Qt::AlignLeft, d->text.c_str() );
   p.end();
 
-  glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA,
-                GL_FLOAT, 0 );
+  glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_BGRA,
+                GL_UNSIGNED_BYTE, 0 );
   GLint w;
   glGetTexLevelParameteriv( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w );
   if( w == 0 || status != GL_NO_ERROR )
@@ -179,10 +250,62 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
     return false;
   }
 
-  glTexImage2D( GL_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA,
-                GL_FLOAT, (GLvoid *) im.bits() );
-
+  glTexImage2D( GL_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_BGRA,
+                GL_UNSIGNED_BYTE, (GLvoid *) im.bits() );
   return true;
 }
+
+
+void TextObject::setFont( QFont* font )
+{
+  delete d->font;
+  d->font = font;
+}
+
+
+QFont* TextObject::font()
+{
+  return d->font;
+}
+
+
+const QFont* TextObject::font() const
+{
+  return d->font;
+}
+
+
+void TextObject::setScale( float s )
+{
+  if( s == 0. )
+    return;
+  if( d->scale != s )
+  {
+    float scf = s / d->scale;
+    d->scale = s;
+    vector<Point3df> &vert = surface()->vertex();
+    vert[0][1] *= scf;
+    vert[2][0] *= scf;
+    vert[3][1] *= scf;
+    vert[3][0] *= scf;
+    glSetChanged( glGEOMETRY );
+    UpdateMinAndMax();
+  }
+}
+
+
+float TextObject::scale() const
+{
+  return d->scale;
+}
+
+
+void TextObject::glSetChanged( glPart part, bool x ) const
+{
+  ASurface<3>::glSetChanged( part, x );
+  if( x && part == glMATERIAL )
+    glSetTexImageChanged( true, 0 );
+}
+
 
 
