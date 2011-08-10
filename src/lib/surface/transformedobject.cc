@@ -40,12 +40,33 @@ using namespace anatomist;
 using namespace aims;
 using namespace std;
 
+struct TransformedObject::Private
+{
+  Private( bool followorientation,
+           bool followposition,
+           const Point3df & pos );
+
+  bool followorientation;
+  bool followposition;
+  Point3df posoffset;
+  Point3df pos;
+};
+
+
+TransformedObject::Private::Private( bool followorientation,
+                                     bool followposition,
+                                     const Point3df & pos )
+  : followorientation( followorientation ), followposition( followposition ),
+    posoffset( 0, 0, 0 ), pos( pos )
+{
+}
+
+
 TransformedObject::TransformedObject( const vector<AObject *> & obj,
                                       bool followorientation,
                                       bool followposition,
-                                      const Point3df & posoffset )
-  : _followorientation( followorientation ), _followposition( followposition ),
-    _posoffset( posoffset )
+                                      const Point3df & pos )
+  : d( new Private( followorientation, followposition, pos ) )
 {
   vector<AObject *>::const_iterator io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
@@ -55,6 +76,7 @@ TransformedObject::TransformedObject( const vector<AObject *> & obj,
 
 TransformedObject::~TransformedObject()
 {
+  delete d;
 }
 
 
@@ -85,7 +107,7 @@ bool TransformedObject::render( PrimList & pl, const ViewState & vs )
 void TransformedObject::setupTransforms( GLPrimitives & pl,
                                          const ViewState & vs )
 {
-  if( _followorientation && _followposition )
+  if( d->followorientation && d->followposition )
     return;
   GLList *gll = new GLList;
   gll->generate();
@@ -98,7 +120,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
-  if( !_followposition )
+  if( !d->followposition )
   {
     int winDim = 70;
     glPushAttrib( GL_VIEWPORT_BIT );
@@ -123,14 +145,15 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
   if( !view )
     return;
 
-  if( !_followorientation )
+  if( !d->followorientation )
   {
-    glTranslatef( _posoffset[0], _posoffset[1], _posoffset[2] );
+    glTranslatef( d->posoffset[0], d->posoffset[1], d->posoffset[2] );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
+//     glTranslatef( d->pos[0], -d->pos[1], -d->pos[2] );
     /* keep the translation part of the view orientation
     (mut apply the inverse rotation to it) */
-    Point3df trans = view->rotationCenter();
+    Point3df trans = view->rotationCenter() - d->pos;
     AffineTransformation3d r \
       = AffineTransformation3d( view->quaternion() ).inverse();
     AffineTransformation3d p;
@@ -157,19 +180,44 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
 
 void TransformedObject::popTransformationMatrixes( GLPrimitives & pl )
 {
-  if( _followorientation && _followposition )
+  if( d->followorientation && d->followposition )
     return;
   GLList *gll = new GLList;
   gll->generate();
   pl.push_back( RefGLItem( gll ) );
   glNewList( gll->item(), GL_COMPILE );
   glMatrixMode( GL_PROJECTION );
-  if( !_followposition )
+  if( !d->followposition )
     glPopAttrib();
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
   glEndList();
 }
+
+
+void TransformedObject::setPosition( const Point3df & pos )
+{
+  d->pos = pos;
+}
+
+
+Point3df TransformedObject::position() const
+{
+  return d->pos;
+}
+
+
+void TransformedObject::setOffset( const Point3df & posoffset )
+{
+  d->posoffset = posoffset;
+}
+
+
+Point3df TransformedObject::offset() const
+{
+  return d->posoffset;
+}
+
 
 

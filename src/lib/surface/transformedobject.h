@@ -56,20 +56,25 @@ namespace anatomist
     TransformedObject( const std::vector<AObject *> &,
                        bool followorientation=true,
                        bool followposition=false,
-                       const Point3df & posoffset=Point3df( 1, 1, 0 ) );
+                       const Point3df & pos=Point3df( 1, 1, 0 ) );
     virtual ~TransformedObject();
 
     virtual bool renderingIsObserverDependent() const;
     virtual bool render( PrimList &, const ViewState & );
+    void setPosition( const Point3df & );
+    /// position in model view coords
+    Point3df position() const;
+    void setOffset( const Point3df & );
+    /// 3D constant offset in camera coords
+    Point3df offset() const;
 
   protected:
     void setupTransforms( GLPrimitives &, const ViewState & );
     void popTransformationMatrixes( GLPrimitives & );
 
   private:
-    bool _followorientation;
-    bool _followposition;
-    Point3df _posoffset;
+    struct Private;
+    Private *d;
   };
 
 }

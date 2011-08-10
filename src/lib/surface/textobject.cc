@@ -61,13 +61,13 @@ TextObject::Private::Private( const Point3df & pos )
   : font( 0 ), scale( 1. ), pos( pos )
 {
   texcoords[0] = 0;
-  texcoords[1] = 0;
+  texcoords[1] = 1;
   texcoords[2] = 0;
-  texcoords[3] = 1;
+  texcoords[3] = 0;
   texcoords[4] = 1;
-  texcoords[5] = 1;
+  texcoords[5] = 0;
   texcoords[6] = 1;
-  texcoords[7] = 0;
+  texcoords[7] = 1;
 }
 
 
@@ -154,14 +154,14 @@ void TextObject::setText( const std::string & text )
   vert[1] = d->pos;
   vert[2] = d->pos;
   vert[3] = d->pos;
-  vert[0][1] -= sz.height() * d->scale;
+  vert[1][1] -= sz.height() * d->scale;
   vert[2][0] += sz.width() * d->scale;
   vert[3][1] -= sz.height() * d->scale;
   vert[3][0] += sz.width() * d->scale;
-  d->texcoords[3] = float(sz.height())/dimy;
+  d->texcoords[1] = float(sz.height())/dimy;
   d->texcoords[4] = float(sz.width())/dimx;
-  d->texcoords[5] = float(sz.height())/dimy;
   d->texcoords[6] = float(sz.width())/dimx;
+  d->texcoords[7] = float(sz.height())/dimy;
   glSetChanged( glGEOMETRY );
   UpdateMinAndMax();
 }
