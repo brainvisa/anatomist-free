@@ -85,16 +85,17 @@ TextObject::TextObject( const std::string & text,
   vector<Point3df> &vert = mesh->vertex();
   vector<AimsVector<uint32_t, 3> > & poly= mesh->polygon();
   vert.reserve( 4 );
-  vert.push_back( pos + Point3df( 0, -1, 0 ) );
   vert.push_back( pos + Point3df( 0, 0, 0 ) );
-  vert.push_back( pos + Point3df( 1, 0, 0 ) );
+  vert.push_back( pos + Point3df( 0, -1, 0 ) );
   vert.push_back( pos + Point3df( 1, -1, 0 ) );
+  vert.push_back( pos + Point3df( 1, 0, 0 ) );
   poly.reserve( 2 );
   poly.push_back( AimsVector<uint32_t, 3>( 0, 1, 2 ) );
   poly.push_back( AimsVector<uint32_t, 3>( 0, 2, 3 ) );
   mesh->updateNormals();
   setSurface( mesh );
   GetMaterial().setRenderProperty( Material::RenderFaceCulling, 0 );
+  GetMaterial().setRenderProperty( Material::RenderZBuffer, 0 );
   glAddTextures( 1 );
   TexExtrema  & te = GLComponent::glTexExtrema( 0 );
   te.min.push_back( 0 );
@@ -156,7 +157,7 @@ void TextObject::setText( const std::string & text )
   vert[3] = d->pos;
   vert[1][1] -= sz.height() * d->scale;
   vert[2][0] += sz.width() * d->scale;
-  vert[3][1] -= sz.height() * d->scale;
+  vert[2][1] -= sz.height() * d->scale;
   vert[3][0] += sz.width() * d->scale;
   d->texcoords[1] = float(sz.height())/dimy;
   d->texcoords[4] = float(sz.width())/dimx;
