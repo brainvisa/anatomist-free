@@ -67,6 +67,10 @@ namespace anatomist
     void setOffset( const Point3df & );
     /// 3D constant offset in camera coords
     Point3df offset() const;
+    void setDynamicOffsetFromPoint( const Point3df & );
+    void removeDynamicOffset();
+    bool usesDynamicOffset() const;
+    Point3df dynamicOffsetFromPoint() const;
 
   protected:
     void setupTransforms( GLPrimitives &, const ViewState & );

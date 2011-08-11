@@ -50,6 +50,8 @@ struct TransformedObject::Private
   bool followposition;
   Point3df posoffset;
   Point3df pos;
+  bool dynamicoffset;
+  Point3df offsetfrom;
 };
 
 
@@ -57,7 +59,8 @@ TransformedObject::Private::Private( bool followorientation,
                                      bool followposition,
                                      const Point3df & pos )
   : followorientation( followorientation ), followposition( followposition ),
-    posoffset( 0, 0, 0 ), pos( pos )
+    posoffset( 0, 0, 0 ), pos( pos ), dynamicoffset( false ),
+    offsetfrom( 0, 0, 0 )
 {
 }
 
@@ -148,9 +151,58 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
   if( !d->followorientation )
   {
     glTranslatef( d->posoffset[0], d->posoffset[1], d->posoffset[2] );
+    if( d->dynamicoffset )
+    {
+      // project offsetfrom point into camera coords
+      AffineTransformation3d r \
+        = AffineTransformation3d( view->quaternion() ); //.inverse();
+      AffineTransformation3d p;
+      p.rotation()( 2, 2 ) = -1.;
+      r = ( p * r ).inverse();
+      Point3df proj = r.transform( d->pos - d->offsetfrom );
+
+      // align correct corner
+      Point3df bmin, bmax, bmt, bmat;
+      iterator io, eo = end();
+      bool first = true;
+      for( io=begin(); io!=eo; ++io ) // TODO: use refs
+      {
+        (*io)->boundingBox( bmt, bmat );
+        if( first )
+        {
+          bmin = bmt;
+          bmax = bmat;
+          first = false;
+        }
+        else
+        {
+          if( bmin[0] > bmt[0] )
+            bmin[0] = bmt[0];
+          if( bmin[1] > bmt[1] )
+            bmin[1] = bmt[1];
+          if( bmin[2] > bmt[2] )
+            bmin[2] = bmt[2];
+          if( bmax[0] < bmat[0] )
+            bmax[0] = bmat[0];
+          if( bmax[0] < bmat[1] )
+            bmax[0] = bmat[0];
+          if( bmax[0] < bmat[0] )
+            bmax[0] = bmat[0];
+        }
+      }
+      Point3df dynoffset( 0, 0, 0 );
+      if( proj[0] < 0 )
+        dynoffset[0] = -bmax[0];
+      else
+        dynoffset[0] = -bmin[0];
+      if( proj[1] > 0 )
+        dynoffset[1] = bmax[1];
+      else
+        dynoffset[1] = bmin[1];
+      glTranslatef( dynoffset[0], dynoffset[1], dynoffset[2] );
+    }
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-//     glTranslatef( d->pos[0], -d->pos[1], -d->pos[2] );
     /* keep the translation part of the view orientation
     (mut apply the inverse rotation to it) */
     Point3df trans = view->rotationCenter() - d->pos;
@@ -219,5 +271,29 @@ Point3df TransformedObject::offset() const
   return d->posoffset;
 }
 
+
+void TransformedObject::setDynamicOffsetFromPoint( const Point3df & pos )
+{
+  d->offsetfrom = pos;
+  d->dynamicoffset = true;
+}
+
+
+void TransformedObject::removeDynamicOffset()
+{
+  d->dynamicoffset = false;
+}
+
+
+bool TransformedObject::usesDynamicOffset() const
+{
+  return d->dynamicoffset;
+}
+
+
+Point3df TransformedObject::dynamicOffsetFromPoint() const
+{
+  return d->offsetfrom;
+}
 
 
