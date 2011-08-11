@@ -103,6 +103,7 @@ TextObject::TextObject( const std::string & text,
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 1 );
   glSetTexMode( glREPLACE, 0 );
+  glSetTexFiltering( glFILT_LINEAR, 0 );
   GetMaterial().SetDiffuse( 0, 0, 0, 1 );
   setText( text );
 }
@@ -134,7 +135,6 @@ void TextObject::setText( const std::string & text )
     font = fontdel.get();
   }
   QFontMetrics fm( *font );
-//   QRect br = fm.tightBoundingRect( d->text.c_str() );
   QRect br = fm.boundingRect( QRect( QPoint( 0, 0 ), QSize( 1000, 1000 ) ),
                               Qt::AlignLeft, d->text.c_str() );
   QSize sz = br.size();
@@ -217,7 +217,6 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
     font = fontdel.get();
   }
   QFontMetrics fm( *font );
-//   QRect br = fm.tightBoundingRect( d->text.c_str() );
   QRect br = fm.boundingRect( QRect( QPoint( 0, 0 ), QSize( 0, 0 ) ),
                               Qt::AlignLeft, d->text.c_str() );
   QSize sz = br.size();
@@ -242,8 +241,6 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
                           int( mat.Diffuse(2) * 255.99 ),
                           int( mat.Diffuse(3) * 255.99 ) ) ) );
   p.setFont( *font );
-/*  p.drawText( QRect( QPoint( -br.x(), -br.y() ), br.size() ),
-              Qt::AlignLeft, d->text.c_str() );*/
   p.drawText( br, Qt::AlignLeft, d->text.c_str() );
   p.end();
 
