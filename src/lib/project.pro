@@ -114,7 +114,9 @@ HEADERS = \
 	surface/surface_d.h \
 	surface/tesselatedmesh.h \
 	surface/texsurface.h \
+        surface/textobject.h \
 	surface/texture.h \
+	surface/transformedobject.h \
 	surface/triangulated.h \
 	graph/AGraphIterator.h \
 	graph/attribAObject.h \
@@ -339,7 +341,9 @@ SOURCES = \
 	surface/planarfusion3d.cc \
 	surface/tesselatedmesh.cc \
 	surface/texsurface.cc \
+        surface/textobject.cc \
 	surface/texture.cc \
+        surface/transformedobject.cc \
 	surface/triangulated.cc \
 	graph/AGraphIterator.cc \
 	graph/attribAObject.cc \
