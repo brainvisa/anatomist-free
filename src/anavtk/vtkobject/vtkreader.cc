@@ -33,10 +33,6 @@
  */
 #include <anatomist/vtkobject/vtkreader.h>
 #include <anatomist/vtkobject/vtkaobject.h>
-#include <anatomist/vtkobject/vtkfiberaobject.h>
-#include <anatomist/vtkobject/vtktensoraobject.h>
-#include <anatomist/vtkobject/vtkvectoraobject.h>
-#include <anatomist/vtkobject/vtkmetadatasetaobject.h>
 #include <anatomist/object/oReader.h>
 
 #include <vtkDataSetReader.h>
@@ -45,6 +41,10 @@
 #include <vtkStructuredPoints.h>
 #include <vtkPointData.h>
 #ifndef ANATOMIST_NO_VTKINRIA3D
+#include <anatomist/vtkobject/vtkfiberaobject.h>
+#include <anatomist/vtkobject/vtktensoraobject.h>
+#include <anatomist/vtkobject/vtkvectoraobject.h>
+#include <anatomist/vtkobject/vtkmetadatasetaobject.h>
 #include <vtkMetaDataSetSequence.h>
 #endif
 //#include <vtkSmartPointer.h>
