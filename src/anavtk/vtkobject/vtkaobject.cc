@@ -38,6 +38,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkCollectionIterator.h>
 #include <vtkRendererCollection.h>
+#include <vtkRenderWindow.h>
 
 
 using namespace anatomist;
