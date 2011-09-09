@@ -109,6 +109,7 @@ def bsaClickHandler(eventName, params):
       f = urllib2.urlopen(req)
       values = f.read()
       del f
+      # WARNING TODO: take byte order into account !
       value = ctypes.cast( values, ctypes.POINTER( ctypes.c_float ) )[0]
       probs.append( value )
 
