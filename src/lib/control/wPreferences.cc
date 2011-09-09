@@ -409,7 +409,16 @@ PreferencesWindow::PreferencesWindow()
   texmax->setEditable( true );
   texmax->setValidator( new QRegExpValidator( QRegExp(
     "\\d*|Unlimited|-1", false ), texmax ) );
+  #ifdef _WIN32
+  /* On Windows for an unknown reason (probably a bug well hidden somewhere in
+     anatomist), allowing more than 3 textures results to nothing being 
+     displayed, whatever the 3D hardware... So we limit to 3 textures by 
+     default by now.
+  */
+  int   ntexmax = 3;
+  #else
   int   ntexmax = -1;
+  #endif
   try
   {
     Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
@@ -808,7 +817,11 @@ void PreferencesWindow::enableDisplayCursorPosition( bool x )
 void PreferencesWindow::setMaxTextures( const QString & mt )
 {
   GlobalConfiguration   *cfg = theAnatomist->config();
+  #ifdef _WIN32
+  int imt = 3;
+  #else
   int imt = -1;
+  #endif
   try
   {
     Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
@@ -827,6 +840,8 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
     if( ok )
       imt = imt2;
   }
+  #ifndef _WIN32
+  // On Windows, due to the default limitation to 3 textures, we save any value
   if( imt < 0 )
   {
     imt = -1;
@@ -834,6 +849,7 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
       cfg->removeProperty( "maxTextureUnitsUsed" );
   }
   else
+  #endif
     cfg->setProperty( "maxTextureUnitsUsed", imt );
   GLCaps::updateTextureUnits();
 
