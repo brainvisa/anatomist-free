@@ -120,14 +120,14 @@ def bsaClickHandler(eventName, params):
       text += '<tr><td>%d&nbsp;</td><td>%f&nbsp;</td><td>%s&nbsp;</td><td>%s</td></tr>' \
         % ( sp[i], probs[sp[i]], labels[sp[i]][7], labels[sp[i]][8] )
   text += '</p></html>'
-  for bsaw in BSAWindow._instances:
-    lw = bsaw.centralWidget()
-    lw.setText( text )
+  bsaw = BSAWindow._instance
+  lw = bsaw.centralWidget()
+  lw.setText( text )
 
 
 
 class BSAWindow( ana.cpp.QAWindow ):
-  _instances = set()
+  _instance = None
   _classType = ana.cpp.AWindow.Type( ana.cpp.AWindowFactory.types().size() )
 
   def __init__( self, parent=None, name=None, options=aims.Object(), f=None ):
@@ -144,7 +144,7 @@ class BSAWindow( ana.cpp.QAWindow ):
     self.setCentralWidget( wid )
     # keep a reference to the python object to prevent destruction of the
     # python part
-    BSAWindow._instances.add( self )
+    BSAWindow._instance = self
     self.connect( self, QtCore.SIGNAL( 'destroyed()' ), self.destroyNotified )
     a = ana.Anatomist()
     # register the function on the cursor notifier of anatomist. It will be called when the user click on a window
@@ -152,7 +152,7 @@ class BSAWindow( ana.cpp.QAWindow ):
 
   def releaseref( self ):
     '''WARNING:
-    the instance in _instances shouldn't count on C++ side
+    the instance in _instance shouldn't count on C++ side
     PROBLEM: all python refs are one unique ref for C++,
     all being of the same type, so later references will not be strong refs.
     the less annoying workaround at the moment is that python refs are
@@ -162,7 +162,7 @@ class BSAWindow( ana.cpp.QAWindow ):
     will hold a deleted C++ object.
     This way, only C++ may destroy the object.
     When the C++ instance is destroyed, the QObject destroyed callback is
-    used to cleanup the additional python reference in AHistogram._instances
+    used to cleanup the additional python reference in BSAWindow._instance
     so that the python instance can also be destroyed when python doesn't
     use it any longer.
     That's the best I can do for now...
@@ -185,8 +185,8 @@ class BSAWindow( ana.cpp.QAWindow ):
     # release internal reference which kept the python side of the object
     # alive - now the python object may be destroyed since the C++ side
     # will be also destroyed anyway.
-    if self in BSAWindow._instances:
-      BSAWindow._instances.remove( self )
+    if self == BSAWindow._instance:
+      BSAWindow._instance = None
 
   def type( self ):
     return self._classType;
@@ -210,6 +210,8 @@ class BSAModule( ana.cpp.Module ):
 
 class createBSAWindow( ana.cpp.AWindowCreator ):
   def __call__( self, dock, options ):
+    if BSAWindow._instance is not None:
+      return None
     h = BSAWindow()
     h.releaseref()
     h.show()
