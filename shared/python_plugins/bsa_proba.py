@@ -54,10 +54,25 @@ labels = [ l.strip().split(',') for l in labels[1:] ]
 def bsaClickHandler(eventName, params):
   pos=params['position']
   win=params['window']
-  wref = win.getReferential()
-  mniref = ana.cpp.Referential.mniTemplateReferential()
   a = ana.Anatomist()
+  wref = win.getReferential()
+  print type( wref )
+  print type( wref )
+  print wref.refUuid
+  mniref = a.mniTemplateRef
+  print 'mni:', type( mniref )
+  #if mniref is not None:
+    #mniref = a.Referential( a, mniref, mniref.uuid() )
   tr = a.getTransformation( wref, mniref )
+  bsaw = BSAWindow._instance
+  if bsaw is None:
+    return
+  lw = bsaw.centralWidget()
+  if tr is None and wref != mniref:
+    text = '<html>Window has no transformation to the MNI space referential.</html>'
+    lw.setText( text )
+    return
+
   if tr is not None:
     pos = tr.transform( pos[:3] )
 
@@ -73,7 +88,7 @@ def bsaClickHandler(eventName, params):
   if posvox[0] < 0 or posvox[0] >= imgdim[0] \
     or posvox[1] < 0 or posvox[1] >= imgdim[1] \
     or posvox[2] < 0 or posvox[2] >= imgdim[2]:
-      print 'Out of atlas space.'
+      lw.setText( '<html>Out of atlas space.</html>' )
       return
   offset0 = ( posvox[0] + posvox[1] * imgdim[0] + posvox[2] * imgdim[0]*imgdim[1] ) *4 + hdrsz
   offsets = [ t * imgdim[0]*imgdim[1]*imgdim[2]*4 + offset0 for t in xrange(imgdim[3]) ]
@@ -99,6 +114,7 @@ def bsaClickHandler(eventName, params):
         break
       val = values[p+1:p+5]
       poff = p+6
+      # WARNING TODO: take byte order into account !
       value = ctypes.cast( val, ctypes.POINTER( ctypes.c_float ) )[0]
       probs.append( value )
 
@@ -120,8 +136,6 @@ def bsaClickHandler(eventName, params):
       text += '<tr><td>%d&nbsp;</td><td>%f&nbsp;</td><td>%s&nbsp;</td><td>%s</td></tr>' \
         % ( sp[i], probs[sp[i]], labels[sp[i]][7], labels[sp[i]][8] )
   text += '</p></html>'
-  bsaw = BSAWindow._instance
-  lw = bsaw.centralWidget()
   lw.setText( text )
 
 
