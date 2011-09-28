@@ -89,7 +89,8 @@ Slice::Slice( const vector<AObject *> & obj )
   if( size() > 0 )
   {
     o = *begin();
-    setReferential( o->getReferential() );
+    setReferentialInheritance( o );
+    cout << "init ref: " << o->getReferential() << endl;
 
     Point3df	vs = o->VoxelSize();
     _offset = Point3df( ( o->MinX2D() + o->MaxX2D() ) * vs[0] / 2, 
@@ -224,7 +225,7 @@ void Slice::sliceChanged()
 
 void Slice::update( const Observable *observable, void * )
 {
-//   cout << "Slice::update\n";
+  // cout << "Slice::update\n";
 
   if( observable == volume() )
   {
@@ -261,6 +262,7 @@ void Slice::update( const Observable *observable, void * )
       // g->glSetChanged( GLComponent::glGEOMETRY );
     }
     updateSubObjectReferential( obj );
+    AObject::update( observable, 0 );
   }
 
   notifyObservers( this );

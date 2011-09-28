@@ -3574,16 +3574,16 @@ void
 RoiManagementAction::cleanSession( )
 {
   AGraph * graph = RoiChangeProcessor::instance()->getGraph(0) ;
-  
+  if( !graph )
+    return;
+
   AGraph::iterator iter( graph->begin() ), last( graph->end() ) ;
-  set<AObject*> objs ;
   while( iter != last )
-    {
-      AGraphObject * go = dynamic_cast<AGraphObject*>( *iter ) ;
-      
-      cleanRegion( go ) ;
-      ++iter ;
-    }
+  {
+    AGraphObject * go = dynamic_cast<AGraphObject*>( *iter ) ;
+    cleanRegion( go ) ;
+    ++iter ;
+  }
 }
 
 void

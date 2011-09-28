@@ -487,7 +487,7 @@ RoiChangeProcessor::getGraph( AWindow * win )
 {
   AGraphObject * grao = getGraphObject( win ) ;
   if( grao == 0 )
-    return 0 ;
+    return myCurrentGraph;
 
   AObject::ParentList parents = grao->Parents() ;
   AObject::ParentList::iterator
