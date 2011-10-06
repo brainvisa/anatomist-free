@@ -101,6 +101,9 @@ public:
   void editValidate();
   //@}
 
+  void setShowDetailsUponRegister( bool );
+  bool showDetailsUponRegister() const;
+
   static int classType();
   static anatomist::AttDescr & attDescr();
   static void registerTypeEditor( const std::string & type, EditFunc func );
