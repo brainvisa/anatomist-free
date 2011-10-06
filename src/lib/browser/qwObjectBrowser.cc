@@ -155,6 +155,7 @@ struct QObjectBrowser::Private
   bool                  tempAddedNewSyntax;
   string                tempAddedSyntax;
   string                tempAddedName;
+  bool                  showDetailsUponRegister;
 };
 
 
@@ -185,10 +186,11 @@ QObjectBrowser::Private::Private( QObjectBrowser* br )
     editMode( QObjectBrowser::NORMAL ), editor( 0 ), lastActivePanel( 0 ),
     rviewrefreshtimer( 0 ), rviewrefresh( false ),
     view( new BrowserView( br ) ),
-    lastselectednode1( 0 ), lastselectednode2( 0 )
+    lastselectednode1( 0 ), lastselectednode2( 0 ),
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-    , editedMainItem( 0 )
+    editedMainItem( 0 ),
 #endif
+    showDetailsUponRegister( false )
 {
 }
 
@@ -433,7 +435,8 @@ void QObjectBrowser::registerObject( AObject* object, bool temporaryObject,
   if( _sobjects.find( object ) == _sobjects.end() )
   {
     QAWindow::registerObject( object, temporaryObject, pos );
-    d->lview->registerObject( object, temporaryObject, pos );
+    d->lview->registerObject( object, temporaryObject, pos,
+                              d->showDetailsUponRegister );
   }
 }
 
@@ -2793,5 +2796,17 @@ const View* QObjectBrowser::view() const
 void QObjectBrowser::keyPressEvent( QKeyEvent* ev )
 {
   d->view->controlSwitch()->keyPressEvent( ev );
+}
+
+
+bool QObjectBrowser::showDetailsUponRegister() const
+{
+  return d->showDetailsUponRegister;
+}
+
+
+void QObjectBrowser::setShowDetailsUponRegister( bool x )
+{
+  d->showDetailsUponRegister = x;
 }
 

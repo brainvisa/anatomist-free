@@ -41,6 +41,8 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/graph/Graph.h>
 #include <anatomist/processor/Processor.h>
+#include <anatomist/commands/cAddObject.h>
+#include <anatomist/commands/cCreateWindow.h>
 
 #include <graph/graph/graph.h>
 #include <qcursor.h>
@@ -100,17 +102,17 @@ void QSelectFactory::handleSelectionMenu( AWindow* win, int, int,
 
 void QSelectFactory::view( AWindow* win )
 {
-  QObjectBrowser	*br = new QObjectBrowser;
+  CreateWindowCommand *cc = new CreateWindowCommand( "Browser" );
+  theProcessor->execute( cc );
+  AWindow *br = cc->createdWindow();
 
   br->SetGroup( win->Group() );
   br->show();
 
-  set<AObject *>		obj = win->Objects();
-  set<AObject *>::iterator	io, fo=obj.end();
-
-  for( io=obj.begin(); io!=fo; ++io )
-    br->registerObject( *io );
-  br->Refresh();
+  set<AWindow *> wl;
+  wl.insert( br );
+  AddObjectCommand *ac = new AddObjectCommand( win->Objects(), wl );
+  theProcessor->execute( ac );
 }
 
 

@@ -103,7 +103,8 @@ public:
   /// Add an AObject to the objects
   virtual void registerObject( anatomist::AObject* object,
                                bool temporaryObject = false,
-                               int position = -1 );
+                               int position = -1,
+                               bool showDetailsUponRegister = false );
   /// Remove an AObject from the objects
   virtual void unregisterObject( anatomist::AObject* object );
   /// Updates an object contents (after a change)

@@ -80,7 +80,8 @@ QObjectBrowserWidget::~QObjectBrowserWidget()
 
 void QObjectBrowserWidget::registerObject( AObject* object,
                                            bool /*temporaryObject*/,
-                                           int /*pos*/ )
+                                           int /*pos*/,
+                                           bool showDetailsUponRegister )
 {
   /* cout << "QObjectBrowserWidget::registerObject( AObject* object, bool ) "
   << object->name() << endl; */
@@ -125,6 +126,8 @@ void QObjectBrowserWidget::registerObject( AObject* object,
 
   Q3ListViewItem	*item = insertObject( object );
   item->setText( regColumn, "*" );
+  if( showDetailsUponRegister )
+    item->setOpen( true );
 }
 
 

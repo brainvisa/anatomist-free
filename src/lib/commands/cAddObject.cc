@@ -41,6 +41,7 @@
 #include <anatomist/processor/Serializer.h>
 #include <anatomist/processor/context.h>
 #include <anatomist/graph/Graph.h>
+#include <anatomist/browser/qwObjectBrowser.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <vector>
@@ -89,58 +90,62 @@ namespace
 
   void addobject( AObject* o, const set<AObject *> & obj, 
                   const set<AWindow *> & win, bool addchildren, bool addnodes,
-                  bool addrels )
+                  bool addrels, bool showDetails )
   {
-    if( theAnatomist->hasObject( o ) )
+    AObject::ParentList::iterator	ip, ep;
+    set<AObject *>::const_iterator	eo = obj.end();
+    AObject::ParentList		& parents = o->Parents();
+    for( ip=parents.begin(), ep=parents.end(); ip!=ep; ++ip )
+      if( obj.find( *ip ) != eo )
+        addobject( *ip, obj, win, false, false, false, showDetails );
+
+    set<AWindow*>::const_iterator w, ew = win.end();
+    for( w=win.begin(); w!=ew; ++w )
     {
-      AObject::ParentList::iterator	ip, ep;
-      set<AObject *>::const_iterator	eo = obj.end();
-      AObject::ParentList		& parents = o->Parents();
-      for( ip=parents.begin(), ep=parents.end(); ip!=ep; ++ip )
-        if( obj.find( *ip ) != eo )
-          addobject( *ip, obj, win, false, false, false );
+      // special case for browsers with details requested
+      QObjectBrowser *br = dynamic_cast<QObjectBrowser *>( *w );
+      if( showDetails && br )
+        br->setShowDetailsUponRegister( showDetails );
+      (*w)->registerObject( o );
+      if( showDetails && br )
+        br->setShowDetailsUponRegister( false );
+    }
 
-      set<AWindow*>::const_iterator w, ew = win.end();
-      for( w=win.begin(); w!=ew; ++w )
-        (*w)->registerObject( o );
-
-      if( addchildren )
+    if( addchildren )
+    {
+      MObject *mo = dynamic_cast<MObject *>( o );
+      if( mo )
       {
-        MObject *mo = dynamic_cast<MObject *>( o );
-        if( mo )
-        {
-          MObject::iterator i, e = mo->end();
-          set<AWindow*>::const_iterator w, ew = win.end();
-          for( i=mo->begin(); i!=e; ++i )
-            for( w=win.begin(); w!=ew; ++w )
-              (*w)->registerObject( *i );
-        }
+        MObject::iterator i, e = mo->end();
+        set<AWindow*>::const_iterator w, ew = win.end();
+        for( i=mo->begin(); i!=e; ++i )
+          for( w=win.begin(); w!=ew; ++w )
+            (*w)->registerObject( *i );
       }
-      else
+    }
+    else
+    {
+      AGraph *ag = dynamic_cast<AGraph *>( o );
+      if( ag )
       {
-        AGraph *ag = dynamic_cast<AGraph *>( o );
-        if( ag )
+        Graph *g = ag->graph();
+        shared_ptr<AObject> ao;
+        if( addnodes )
         {
-          Graph *g = ag->graph();
-          shared_ptr<AObject> ao;
-          if( addnodes )
-          {
-            cout << "addnodes\n";
-            Graph::const_iterator iv, ev = g->end();
-            for( iv=g->begin(); iv!=ev; ++iv )
-              if( (*iv)->getProperty( "ana_object", ao ) )
-                for( w=win.begin(); w!=ew; ++w )
-                  (*w)->registerObject( ao.get() );
-          }
-          if( addrels )
-          {
-            const set<Edge *> & edg = g->edges();
-            set<Edge *>::const_iterator ie, ee = edg.end();
-            for( ie=edg.begin(); ie!=ee; ++ie )
-              if( (*ie)->getProperty( "ana_object", ao ) )
-                for( w=win.begin(); w!=ew; ++w )
-                  (*w)->registerObject( ao.get() );
-          }
+          Graph::const_iterator iv, ev = g->end();
+          for( iv=g->begin(); iv!=ev; ++iv )
+            if( (*iv)->getProperty( "ana_object", ao ) )
+              for( w=win.begin(); w!=ew; ++w )
+                (*w)->registerObject( ao.get() );
+        }
+        if( addrels )
+        {
+          const set<Edge *> & edg = g->edges();
+          set<Edge *>::const_iterator ie, ee = edg.end();
+          for( ie=edg.begin(); ie!=ee; ++ie )
+            if( (*ie)->getProperty( "ana_object", ao ) )
+              for( w=win.begin(); w!=ew; ++w )
+                (*w)->registerObject( ao.get() );
         }
       }
     }
@@ -166,10 +171,46 @@ AddObjectCommand::doit()
     else
       ++w;
 
-  set<MObject *>::const_iterator	ip, ep;
-  for( o=_objL.begin(); o!=fo; ++o )
-    if( theAnatomist->hasObject( *o ) )
-      addobject( *o, _objL, _winL, _addchildren, _addnodes, _addrels );
+  // insert, parent objects first
+  set<AObject *> currents, todo1, todo2;
+  set<AObject *>::const_iterator ic, ec = currents.end(), et;
+  set<MObject *>::const_iterator ip, ep;
+  set<AObject *> *todo = &_objL, *nexttodo = &todo1;
+  bool showDetails = _objL.size() < 2;
+  do
+  {
+    currents.clear();
+    nexttodo->clear();
+    for( o=todo->begin(), fo=todo->end(); o!=fo; ++o )
+      if( todo != &_objL || theAnatomist->hasObject( *o ) )
+      {
+        const AObject::ParentList & pl = (*o)->parents();
+        for( ip=pl.begin(), ep=pl.end(); ip!=ep; ++ip )
+          if( todo->find( *ip ) != fo )
+            break;
+        if( ip == ep )
+          currents.insert( *o );
+        else
+          nexttodo->insert( *o );
+      }
+
+    for( ic=currents.begin(); ic!=ec; ++ic )
+      addobject( *ic, _objL, _winL, _addchildren, _addnodes, _addrels,
+                 showDetails );
+
+    // switch todo lists
+    if( todo != &todo1 )
+    {
+      todo = &todo1;
+      nexttodo = &todo2;
+    }
+    else
+    {
+      todo = &todo2;
+      nexttodo = &todo1;
+    }
+  }
+  while( !todo->empty() );
 
   theAnatomist->Refresh();
 }
