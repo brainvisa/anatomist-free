@@ -88,7 +88,7 @@ static ObjectMenu* volumeScalarTraitsOptionMenu()
   om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Load"),
                   &ObjectActions::referentialLoad );
   om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
-                  "Apply builtin referential (SPM/NIFTI)"),
+                  "Load information from file header"),
                   &ObjectActions::setAutomaticReferential);
   return om;
 }

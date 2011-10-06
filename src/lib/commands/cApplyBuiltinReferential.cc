@@ -70,6 +70,11 @@ bool ApplyBuiltinReferentialCommand::initSyntax()
 
   s[ "objects"     ] = Semantic( "int_vector", true );
   Registry::instance()->add( "ApplyBuiltinReferential", &read, ss );
+
+  // new name for this command
+  ss[ "LoadReferentialFromHeader" ] = s;
+  Registry::instance()->add( "LoadReferentialFromHeader", &read, ss );
+
   return true;
 }
 
