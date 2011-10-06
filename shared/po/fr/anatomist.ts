@@ -1589,7 +1589,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <source>Linear :</source>
@@ -1597,7 +1597,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Modèle</translation>
+        <translation type="obsolete">Modèle</translation>
     </message>
     <message>
         <source>Position :</source>
@@ -1609,11 +1609,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="unfinished">Atténuation</translation>
+        <translation type="obsolete">Atténuation</translation>
     </message>
     <message>
         <source>Exponent :</source>
@@ -1700,7 +1700,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="unfinished">Réglages avancés</translation>
+        <translation type="obsolete">Réglages avancés</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1708,7 +1708,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Fast color selection</source>
-        <translation type="unfinished">Sélection rapide</translation>
+        <translation type="obsolete">Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
@@ -1728,7 +1728,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Rendering</source>
-        <translation type="unfinished">Rendu</translation>
+        <translation type="obsolete">Rendu</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
@@ -2048,7 +2048,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Control window</source>
-        <translation>Fenêtre de contrôle</translation>
+        <translation type="obsolete">Fenêtre de contrôle</translation>
     </message>
     <message>
         <source>Anatomist global settings</source>
@@ -2068,7 +2068,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation>Curseur lié</translation>
+        <translation type="obsolete">Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2096,7 +2096,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Volumes</source>
-        <translation>Volumes</translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <source>Display linked cursor</source>
@@ -2112,7 +2112,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation>Application</translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <source>Unstable/in development features</source>
@@ -2152,7 +2152,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation>Fenêtres</translation>
+        <translation type="obsolete">Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2200,7 +2200,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>OpenGL</source>
-        <translation>OpenGL</translation>
+        <translation type="obsolete">OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
