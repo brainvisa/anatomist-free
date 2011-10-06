@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.0">
 <context>
     <name>ALandmarkPicker</name>
     <message>
@@ -157,6 +159,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ROI toolbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the ROI toolbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>cursor position: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -200,6 +210,17 @@
     </message>
 </context>
 <context>
+    <name>ConstraintEditorWindow</name>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+</context>
+<context>
     <name>ControlSwitch</name>
     <message>
         <source>PaintAction</source>
@@ -222,15 +243,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LabelNamingAction</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>DynSegmentAction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MorphoMathAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LabelNamingAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SurfpaintToolsAction</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -258,7 +283,7 @@
     </message>
     <message>
         <source>Triangular meshes</source>
-        <translation type="unfinished">Triangular meshes</translation>
+        <translation type="obsolete">Triangular meshes</translation>
     </message>
     <message>
         <source>Graphs</source>
@@ -266,7 +291,7 @@
     </message>
     <message>
         <source>ROIs</source>
-        <translation type="unfinished">ROIs</translation>
+        <translation type="obsolete">ROIs</translation>
     </message>
     <message>
         <source>Hierarchies</source>
@@ -525,7 +550,47 @@
         <translation type="unfinished">Volume rendering package</translation>
     </message>
     <message>
+        <source>VtkModule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vtk bindings module: allows to use Vtk object in Anatomist windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Graph Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Histogram window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Surfacic meshes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graphs/ROIs sets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voxels lists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nomenclatures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Other object files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear everything</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -545,7 +610,31 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ConstraintEditor</source>
+        <translation type="unfinished">Constraint editor</translation>
+    </message>
+    <message>
+        <source>OpenCE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Anatomist / AIMS libraries information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing forbidden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Anatomist is controlled by another application which does not allow closing the main window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete all objects / windows /referentials ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All objects, windows, referentials and transformations will be deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -573,15 +662,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Nomenclatures</source>
+        <source>Regions of Interest Algos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Label volumes</source>
+        <source>Segmentation and manipulation of regions of interest : Algorithms module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Anatomist Histograms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Label volumes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -593,35 +686,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Regions of Interest Algos</source>
+        <source>Surfpaint</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Segmentation and manipulation of regions of interest : Algorithms module</source>
+        <source>picking and painting a texture value on the mesh</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Histogram</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Histogram window</source>
-        <translation type="unfinished"></translation>
-    </message>
-   <message>
-        <source>ConstraintEditor</source>
-        <translation type="Constraint Editor"></translation>
-   </message> 
-   <message>
-        <source>OpenCE</source>
-        <translation type="Open Constraint Editor on the selected mesh"></translation>
-   </message>  
 </context>
 <context>
     <name>ControlledWindow</name>
     <message>
         <source>Default 3D control</source>
-        <translation>Default 3D control
+        <translation type="unfinished">Default 3D control
 Left btn: linked cursor
 Mid btn: rotation
            &lt;shift&gt; / wheel : zoom/distance
@@ -653,7 +730,7 @@ Slice movie:
     </message>
     <message>
         <source>Selection 3D</source>
-        <translation>Selection
+        <translation type="obsolete">Selection
 Left btn: selection
            &lt;shift&gt;: additive selection
            &lt;ctrl&gt; : toggle selection
@@ -680,7 +757,7 @@ Slice movie:
     </message>
     <message>
         <source>Flight control</source>
-        <translation>Flight simulator control
+        <translation type="unfinished">Flight simulator control
 This control is not fully operational yet...
 It allows to change the view point with the keyboard
 Left btn: linked cursor
@@ -701,7 +778,7 @@ Right btn:  menu
     </message>
     <message>
         <source>ObliqueControl</source>
-        <translation>Oblique view control
+        <translation type="unfinished">Oblique view control
 Left btn: linked cursor
 Mid btn: rotation
            &lt;shift&gt;: rotate slice plane
@@ -721,7 +798,7 @@ Slice movie:
     </message>
     <message>
         <source>TransformControl</source>
-        <translation>Transformation control:
+        <translation type="unfinished">Transformation control:
 changes the transformation between the selected objects and
 the view
 It works like the oblique control but operates on the transformation
@@ -732,7 +809,7 @@ In addition:
     </message>
     <message>
         <source>PaintControl</source>
-        <translation>Hand-drawing of Regions of Interest (ROI)
+        <translation type="unfinished">Hand-drawing of Regions of Interest (ROI)
 Other functionalities will be added in the future
 Use of several brush types is allowed, linked cursor tracking mode, 
 undo, redo...
@@ -794,7 +871,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>DynSegmentControl</source>
-        <translation>ROI design by discriminating analysis (only on dynamic datas)
+        <translation type="unfinished">ROI design by discriminating analysis (only on dynamic datas)
 Define a ROI on your dynamic data, then select a point inside the organ to segment
 (Tested on oligo-nucleotidic rat images)
 
@@ -823,7 +900,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>CutControl</source>
-        <translation>Mesh cutting
+        <translation type="unfinished">Mesh cutting
 Moves the cutting plane on cut meshes
 Left btn: linked cursor
 Mid btn: rotation
@@ -846,7 +923,7 @@ Right btn:  menu
     </message>
     <message>
         <source>LabelNamingControl</source>
-        <translation>ROI drawing mode by label selection
+        <translation type="unfinished">ROI drawing mode by label selection
 Define a ROI on an image of labels and clik on a label to draw your region
 
 Left button : add component connected to clicked point to region
@@ -863,27 +940,27 @@ Right Button   :  menu
     </message>
     <message>
         <source>RoiControl</source>
-        <translation>Open ROI Tool Box</translation>
-    </message> 
+        <translation type="obsolete">Open ROI Tool Box</translation>
+    </message>
     <message>
         <source>SurfpaintControl</source>
         <translation type="obsolete">Open painting Tool Box</translation>
     </message>
     <message>
         <source>SurfpaintColorPickerControl</source>
-        <translation>texture value picking:
+        <translation type="obsolete">texture value picking:
         left clic : choose a vertex
         </translation>
     </message>
     <message>
         <source>SurfpaintBrushControl</source>
-        <translation>brush :
+        <translation type="obsolete">brush :
         left clic : change texture value 
         </translation>
     </message>
     <message>
         <source>Browser Selection</source>
-        <translation>Browser control
+        <translation type="unfinished">Browser control
 &lt;ctrl+w&gt;  :  close window
 &lt;F9&gt;       :  full screen
 &lt;F10&gt;     :  show/hide menus/buttons
@@ -919,7 +996,7 @@ BRUSH
     </message>
     <message>
         <source>ConnectivityThresholdControl</source>
-        <translation>Threshold ROI drawing mode under connectivity to clicked point constraint
+        <translation type="unfinished">Threshold ROI drawing mode under connectivity to clicked point constraint
 Define a ROI, activate threshold previsualization in ToolBox, set min and max bounds then click on the colored image zone to segment
 Left button : add to current region
               &lt;ctrl&gt; : replace current region
@@ -951,6 +1028,14 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Selection tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection label</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selected label: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -964,11 +1049,91 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selection tools</source>
+        <source>SurfpaintToolsControl</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selection label</source>
+        <source>Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not object selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot open surfpaint Toolbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not texture associated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>surfpainttoolbarControls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Area magic selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GeodesicPath</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unconstrained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sulci</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>gyri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete all selected objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brush</source>
+        <translation type="unfinished">Brush</translation>
+    </message>
+    <message>
+        <source>Fill area or path selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eraser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>surfpainttoolbarTex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextureValue</source>
+        <translation type="unfinished">Texture value</translation>
+    </message>
+    <message>
+        <source>surfpainttoolbar3D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IDPolygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IDVertex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>constraint</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1131,6 +1296,61 @@ Right Button   :  menu
     <message>
         <source>Back bottom right</source>
         <translation type="unfinished">Back bottom right</translation>
+    </message>
+</context>
+<context>
+    <name>Form</name>
+    <message>
+        <source>Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Affichage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>Données :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type :</source>
+        <translation type="unfinished">Type :</translation>
+    </message>
+    <message>
+        <source>raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bad</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>good</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sillons seulements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sillons + relations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>Différences absolues</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fermer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appliquer</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1308,6 +1528,18 @@ Right Button   :  menu
     <message>
         <source>Interpoler</source>
         <translation type="unfinished">Interpoler: allows to map and interpolate textures from a mesh to another mesh with a different geometry. To obtain reasonable results, it is recommended to use a &quot;SurfaceMatcher&quot; first, it will warp a surface towards the other one</translation>
+    </message>
+    <message>
+        <source>FusionRGBAVolumeMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FusionClipMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TesselationMethod</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>VolumeRenderingFusionMethod</source>
@@ -1488,7 +1720,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Rendering mode :</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rendering mode :</translation>
     </message>
     <message>
         <source>Default (view setting)</source>
@@ -1496,19 +1728,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Normal</translation>
     </message>
     <message>
         <source>Wireframe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wireframe</translation>
     </message>
     <message>
         <source>Outlined (filled faces + wireframes)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Outlined (filled faces + wireframes)</translation>
     </message>
     <message>
         <source>Wireframe with hidden faces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wireframe with hidden faces</translation>
     </message>
     <message>
         <source>Display properties :</source>
@@ -1524,7 +1756,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Smooth polygons / lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Smooth polygons / lines</translation>
     </message>
     <message>
         <source>Write in depth buffer</source>
@@ -1532,10 +1764,149 @@ Right Button   :  menu
     </message>
     <message>
         <source>Cull polygon faces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cull polygon faces</translation>
     </message>
     <message>
         <source>Blue:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MeshPaint</name>
+    <message>
+        <source>&amp;trackball</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>trackball</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ColorPicker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ColorPicker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GeodesicDistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GeodesicDistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>distance : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;magic_selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>magic_selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tolerance : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shortest Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unconstrained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unconstrained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;sulci</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sulci</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;gyri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>gyri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>constraint : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sigmo : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brush</source>
+        <translation type="unfinished">Brush</translation>
+    </message>
+    <message>
+        <source>&amp;paintBrush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>paintBrush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;magicBrush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>magicBrush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;erase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>erase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;filling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PaintToolBar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>InfosToolBar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1733,6 +2104,14 @@ Right Button   :  menu
     </message>
     <message>
         <source>Windows</source>
+        <translation type="unfinished">Windows</translation>
+    </message>
+    <message>
+        <source>OpenGL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1764,6 +2143,10 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Display cursor position by default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Default windows size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1772,15 +2155,15 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load Anatomist objects</source>
+        <source>Browsers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default objects referential</source>
+        <source>limit browsers attribute values to: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default windows referential</source>
+        <source> characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1788,7 +2171,41 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User level</source>
+        <source>limit number of textures: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlimited</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Try this option if you encounter OpenGL rendering problems.
+Such problems have been seen on Windows machines, where rendering was not performed at all
+if more than 3 texture units were enabled (even on non-tetured objects).
+Use &apos;Unlimited&apos; if rendering is OK.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use OpenGL selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disabling OpenGL-based selection (in selection control, and 3D windows tooltips)
+may be needed with some buggy OpenGL implementations which may cause Anatomist to crash.
+The &quot;Surface Paint&quot; tool also makes use of it in an unconditional way, so this module
+might still crash with such an OpenGL implementation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Anatomist objects</source>
+        <translation type="unfinished">Load Anatomist objects</translation>
+    </message>
+    <message>
+        <source>Default objects referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default windows referential</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1916,6 +2333,10 @@ Right Button   :  menu
         <source>None</source>
         <translation type="unfinished">None</translation>
     </message>
+    <message>
+        <source>Value 0 at center</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QAWindowFactory</name>
@@ -1947,23 +2368,10 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>check config and BRAINVISA_SOURCES or ANATOMIST_PATH environment variable</source>
+        <source>check config and BRAINVISA_SHARE environment variable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-
-<context>
-    <name>SurfpaintToolsWindow</name>
-    <message>
-        <source>ConstraintEditor</source>
-        <translation>Constraint editor</translation>
-    </message>
-    <message>
-        <source>TextureValue</source>
-        <translation>Texture value</translation>
-    </message>
-</context>
-
 <context>
     <name>QGraphParam</name>
     <message>
@@ -2043,6 +2451,10 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Selection highlight type :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>IO settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2059,7 +2471,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Normal</translation>
     </message>
     <message>
         <source>Property map</source>
@@ -2070,15 +2482,35 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Keep palette absolute values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Map property on :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>nodes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">nodes</translation>
     </message>
     <message>
         <source>relations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>label / nomenclature property :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>default (as in settings)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>name (manual)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>label (automatic)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2446,6 +2878,30 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished">Surface matching window</translation>
     </message>
     <message>
+        <source>Set value </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> as &quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot; property to any selected object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create generated 1D texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create generated 2D texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texturing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export texture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2454,16 +2910,12 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Texturing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Default Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">default</translation>
     </message>
     <message>
         <source>Apply builtin referential (SPM/NIFTI)</source>
@@ -2486,27 +2938,27 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create generated 1D texture</source>
+        <source>Labeling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create generated 2D texture</source>
+        <source>Move automatic labeling (&apos;label&apos;) to manual (&apos;name&apos;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use automatic labeling (&apos;label&apos;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use manual labeling (&apos;name&apos;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use default labeling property</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Volume rendering properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set value </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> as &quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot; property to any selected object</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2620,7 +3072,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Replace</translation>
     </message>
     <message>
         <source>Decal</source>
@@ -2652,7 +3104,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <source>Linear - object</source>
@@ -2672,7 +3124,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Normal</translation>
     </message>
     <message>
         <source>Parameters...</source>
@@ -2818,8 +3270,12 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Referential</source>
+        <source>Clear unused referentials</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Referential</source>
+        <translation type="unfinished">Referential</translation>
     </message>
 </context>
 <context>
@@ -2861,15 +3317,15 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Dimension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dimension</translation>
     </message>
     <message>
         <source>2D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">2D</translation>
     </message>
     <message>
         <source>3D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">3D</translation>
     </message>
     <message>
         <source>Find Nearest Minimum</source>
@@ -2889,7 +3345,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Region</translation>
     </message>
     <message>
         <source>Whole Image</source>
@@ -2904,7 +3360,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <name>RoiHistoPlot</name>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Image</translation>
     </message>
     <message>
         <source>ROI Session</source>
@@ -3117,6 +3573,24 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished">Graph Opacity</translation>
     </message>
     <message>
+        <source>Huge amount of data !</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can procced, but it will 
+take few minutes
+Do you still want to proceed ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clean</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3130,7 +3604,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Load</translation>
     </message>
     <message>
         <source>Define new region</source>
@@ -3187,24 +3661,6 @@ user defined one will be deleted.
 Do you want to save it ?</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>&amp;Yes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;No</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Huge amount of data !</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You can procced, but it will 
-take few minutes
-Do you still want to proceed ?</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>RoiMorphoMathActionView</name>
@@ -3250,11 +3706,76 @@ Do you still want to proceed ?</source>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Region</translation>
     </message>
     <message>
         <source>Session</source>
+        <translation type="unfinished">Session</translation>
+    </message>
+</context>
+<context>
+    <name>SelectionParameters</name>
+    <message>
+        <source>Form1</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edges display mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opacity:</source>
+        <translation type="unfinished">Opacity:</translation>
+    </message>
+    <message>
+        <source>Nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>100</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opacity: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SurfpaintTools</name>
+    <message>
+        <source>Texture value selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unconstrained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sulci</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>gyri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tolerance</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SurfpaintToolsWindow</name>
+    <message>
+        <source>ConstraintEditor</source>
+        <translation type="obsolete">Constraint editor</translation>
+    </message>
+    <message>
+        <source>TextureValue</source>
+        <translation type="obsolete">Texture value</translation>
     </message>
 </context>
 <context>
@@ -3523,22 +4044,6 @@ and you don&apos;t know what will be drawn and what won&apos;t be</translation>
     </message>
     <message>
         <source>Volume rendering mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>VRShader</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MIPShader</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SumShader</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MPVRShader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
