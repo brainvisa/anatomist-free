@@ -384,6 +384,7 @@ PaintControl::doAlsoOnDeselect ( ActionPool * /*pool*/ )
         = dynamic_cast<AWindow3D *>( myPaintAction->view()->window() );
       if( w3 )
         {
+          w3->enableToolTips( true );
           map<AWindow3D *,AWindow3D::ObjectModifier *>::iterator 
             m = d->modifiers().find( w3 );
           if( m != d->modifiers().end() )
@@ -407,7 +408,10 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
       AWindow3D	*w3 
         = dynamic_cast<AWindow3D *>( myPaintAction->view()->window() );
       if( w3 )
+      {
         d->modifiers()[ w3 ] = new GhostSelected( w3 );
+        w3->enableToolTips( false );
+      }
 
       ControlSwitch	*cs = myPaintAction->view()->controlSwitch();
       if( !cs->isToolBoxVisible() )
