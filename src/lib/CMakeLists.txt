@@ -1,3 +1,8 @@
+configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/anatomist/config/version.h" @ONLY )
+BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/anatomist/config/version.h" 
+                   DESTINATION "include/anatomist/config" 
+                   COMPONENT ${PROJECT_NAME}-dev )
+
 BRAINVISA_GET_FILE_LIST_FROM_PRO( project.pro "HEADERS" _headers "SOURCES" _sources )
 set(LIB_HEADERS ${_headers} PARENT_SCOPE)
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers anatomist headersTarget )

@@ -82,7 +82,7 @@
 #include <cartobase/plugin/plugin.h>
 #include <cartobase/stream/directory.h>
 #include <cartobase/stream/fileutil.h>
-#include <cartobase/config/version.h>
+#include <anatomist/config/version.h>
 #include <cartobase/config/paths.h>
 #include <cartobase/smart/rcptrtrick.h>
 #include <string.h>
@@ -121,7 +121,15 @@ Anatomist* theAnatomist = 0;
 
 string Anatomist::versionString() const
 {
-  return carto::cartobaseVersionString();
+  static string	ver;
+  if( ver.empty() )
+    {
+      ostringstream	s;
+      s << ANATOMIST_VERSION_MAJOR << '.' << ANATOMIST_VERSION_MINOR << '.' 
+        << ANATOMIST_VERSION_TINY;
+      ver = s.str();
+    }
+  return ver;
 }
 
 
@@ -129,7 +137,14 @@ string Anatomist::versionString() const
 
 string Anatomist::libraryVersionString() const
 {
-  return carto::cartobaseShortVersion();
+  static string	ver;
+  if( ver.empty() )
+    {
+      ostringstream	s;
+      s << ANATOMIST_VERSION_MAJOR << '.' << ANATOMIST_VERSION_MINOR;
+      ver = s.str();
+    }
+  return ver;
 }
 
 
