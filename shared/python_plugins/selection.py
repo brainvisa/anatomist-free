@@ -46,6 +46,7 @@ else:
   findChild = qt.QObject.child
 
 import anatomist.direct.api as anatomist
+import anatomist.cpp.followerobject as followerobject
 from soma import aims
 import os, sip
 
@@ -114,12 +115,21 @@ class SelectionActionView( qt.QWidget ):
       smc.setCurrentIndex(self._action.mode)
     else:
       smc.setCurrentItem(self._action.mode)
+    boxHighlight = findChild( qWidget, 'boxHighlight' )
+    boxHighlightIndividual = findChild( qWidget, 'boxHighlightIndividual' )
+    boxHighlight.setChecked( self._action.useBoxHighlight )
+    boxHighlightIndividual.setChecked( self._action.useBoxHighlightIndividual )
+
     self.connect( findChild( qWidget, 'nodesSlider' ),
       qt.SIGNAL( 'valueChanged(int)' ), self.nodesOpacityChanged )
     self.connect( findChild( qWidget, 'edgesSlider' ),
       qt.SIGNAL( 'valueChanged(int)' ), self.edgesOpacityChanged )
     self.connect( smc, qt.SIGNAL( 'activated(int)' ),
       self.selectionModeChanged )
+    self.connect( boxHighlight, qt.SIGNAL( 'stateChanged(int)' ),
+      self.switchBoxHighligting )
+    self.connect( boxHighlightIndividual, qt.SIGNAL( 'stateChanged(int)' ),
+      self.switchBoxHighligtingIndividual )
 
   def nodesOpacityChanged( self, value ):
     findChild( self, 'nodesLabel' ).setText(str(value))
@@ -132,6 +142,13 @@ class SelectionActionView( qt.QWidget ):
   def selectionModeChanged( self, value ):
     self._action.setMode(value)
 
+  def switchBoxHighligting( self, value ):
+    self._action.switchBoxHighligting(value)
+
+  def switchBoxHighligtingIndividual( self, value ):
+    self._action.switchBoxHighligtingIndividual(value)
+
+
 class SelectionAction( anatomist.cpp.Action ):
   modes_list = ["Basic", "Intersection", "Union"]
   mode_basic = 0
@@ -141,6 +158,8 @@ class SelectionAction( anatomist.cpp.Action ):
   def __init__(self):
     anatomist.cpp.Action.__init__(self)
     self.mode = self.mode_basic
+    self.useBoxHighlight = True
+    self.useBoxHighlightIndividual = False
 
   def setMode(self,mode):
     if type(mode) is type('') or type(mode) is type(u''):
@@ -319,6 +338,66 @@ class SelectionAction( anatomist.cpp.Action ):
 
     del self._recursion
 
+  def boxSelection( self ):
+    if hasattr( self, '_recursing' ):
+      return
+    self._recursing = True
+    a = anatomist.cpp.Anatomist()
+    v = self.view()
+    w = v.window()
+    if self.useBoxHighlight:
+      sf = anatomist.cpp.SelectFactory.factory()
+      sel = sf.selected().get( w.Group() )
+    else:
+      sel = set()
+    if not hasattr( self, '_selectboxes' ):
+      self._selectboxes = {}
+    if not sel:
+      sel = []
+    selectboxes = {}
+    bboxglob = None
+    globalbb = not self.useBoxHighlightIndividual
+    def makefollower( self, objs, w, selectboxes, key ):
+      if key in self._selectboxes:
+        f = self._selectboxes[ key ]
+        f.setObserved( objs )
+      else:
+        f = followerobject.ObjectFollowerCube( objs )
+        f.setName( 'follower' )
+        a.releaseObject( f )
+      selectboxes[ key ] = f
+      w.registerObject( f, True )
+      w.refreshTemp()
+    tosel = []
+    for obj in sel:
+      if not w.hasObject( obj ) or w.isTemporary( obj ):
+        continue
+      tosel.append( obj )
+      if not globalbb:
+        if self._selectboxes.has_key( anatomist.cpp.weak_ptr_AObject( obj ) ):
+          selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ] \
+            = self._selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ]
+          continue
+        makefollower( self, [ obj ], w, selectboxes,
+          anatomist.cpp.weak_ptr_AObject( obj ) )
+    if globalbb:
+      if tosel:
+        makefollower( self, tosel, w, selectboxes, 'global' )
+    self._selectboxes = selectboxes
+    del self._recursing
+
+  def switchBoxHighligting( self, value ):
+    self.useBoxHighlight = value
+    self.boxSelection()
+
+  def switchBoxHighligtingIndividual( self, value ):
+    self.useBoxHighlightIndividual = value
+    self.boxSelection()
+
+  def selectionChanged( self ):
+    self.edgeSelection()
+    self.boxSelection()
+
   def cleanup( self ):
     if hasattr( self, '_recursion' ):
       return
@@ -338,7 +417,7 @@ class SelectionControl( anatomist.cpp.Select3DControl ):
   def eventAutoSubscription( self, pool ):
     anatomist.cpp.Select3DControl.eventAutoSubscription( self, pool )
     self.selectionChangedEventSubscribe( pool.action( \
-      'SelectionAction' ).edgeSelection )
+      'SelectionAction' ).selectionChanged )
 
   def doAlsoOnSelect( self, actionpool ):
     anatomist.cpp.Select3DControl.doAlsoOnSelect( self, actionpool )
