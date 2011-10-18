@@ -52,7 +52,7 @@ public:
 		 bool modal = true, bool allowAlpha = false, 
 		 bool allowNeutralAlpha = false, int initalpha = 255, 
 		 bool neutralph = false );
-  ~QAColorDialog();
+  virtual ~QAColorDialog();
 
   static QColor getColor( QColor, QWidget * parent = 0, 
 			  const char * name = 0, int* alpha = 0, 

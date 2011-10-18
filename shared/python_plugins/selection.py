@@ -119,6 +119,13 @@ class SelectionActionView( qt.QWidget ):
     boxHighlightIndividual = findChild( qWidget, 'boxHighlightIndividual' )
     boxHighlight.setChecked( self._action.useBoxHighlight )
     boxHighlightIndividual.setChecked( self._action.useBoxHighlightIndividual )
+    boxColorMode = findChild( qWidget, 'boxColorMode' )
+    boxCustomColor = findChild( qWidget, 'boxCustomColor' )
+    boxColorMode.setCurrentIndex( self._action.boxSelectionColorMode )
+    col = QtGui.QColor( self._action.boxSelectionCustomColor.r * 255.99,
+      self._action.boxSelectionCustomColor.g * 255.99,
+      self._action.boxSelectionCustomColor.b * 255.99 )
+    boxCustomColor.setPalette( QtGui.QPalette( col ) )
 
     self.connect( findChild( qWidget, 'nodesSlider' ),
       qt.SIGNAL( 'valueChanged(int)' ), self.nodesOpacityChanged )
@@ -130,6 +137,10 @@ class SelectionActionView( qt.QWidget ):
       self.switchBoxHighligting )
     self.connect( boxHighlightIndividual, qt.SIGNAL( 'stateChanged(int)' ),
       self.switchBoxHighligtingIndividual )
+    self.connect( boxColorMode, qt.SIGNAL( 'activated(int)' ),
+      self.switchBoxColorMode )
+    self.connect( boxCustomColor, qt.SIGNAL( 'clicked(bool)' ),
+      self.selectCustomBoxColor )
 
   def nodesOpacityChanged( self, value ):
     findChild( self, 'nodesLabel' ).setText(str(value))
@@ -148,18 +159,58 @@ class SelectionActionView( qt.QWidget ):
   def switchBoxHighligtingIndividual( self, value ):
     self._action.switchBoxHighligtingIndividual(value)
 
+  def switchBoxColorMode( self, value ):
+    self._action.switchBoxColorMode( value )
+
+  def selectCustomBoxColor( self, value ):
+    self._action.selectCustomBoxColor()
+    col = QtGui.QColor( self._action.boxSelectionCustomColor.r * 255.99,
+      self._action.boxSelectionCustomColor.g * 255.99,
+      self._action.boxSelectionCustomColor.b * 255.99 )
+    findChild( self, 'boxCustomColor' ).setPalette( QtGui.QPalette( col ) )
+
 
 class SelectionAction( anatomist.cpp.Action ):
   modes_list = ["Basic", "Intersection", "Union"]
   mode_basic = 0
   mode_intersection = 1
   mode_union = 2
+  BoxColor_Gray = 0
+  BoxColor_AsSelection = 1
+  BoxColor_Custom = 2
+  BoxColor_Modes = ( 'gray', 'as_selection', 'custom' )
 
   def __init__(self):
     anatomist.cpp.Action.__init__(self)
     self.mode = self.mode_basic
+    gconf = a.config()
     self.useBoxHighlight = True
     self.useBoxHighlightIndividual = False
+    self.boxSelectionColorMode = self.BoxColor_Gray
+    self.boxSelectionCustomColor = anatomist.cpp.SelectFactory.HColor()
+    self.boxSelectionCustomColor.r = 0.7
+    self.boxSelectionCustomColor.g = 0.7
+    self.boxSelectionCustomColor.b = 0.7
+    self.boxSelectionCustomColor.a = 1.
+    self.boxSelectionCustomColor.na = False
+    if gconf.has_key( 'boxSelectionHighlight' ):
+      self.useBoxHighlight = gconf[ 'boxSelectionHighlight' ]
+    if gconf.has_key( 'boxSelectionIndividual' ):
+      self.useBoxHighlightIndividual = gconf[ 'boxSelectionIndividual' ]
+    if gconf.has_key( 'boxSelectionColorMode' ):
+      self.boxSelectionColorMode = self.BoxColor_Modes.index( \
+        gconf[ 'boxSelectionColorMode' ] )
+    if gconf.has_key( 'boxSelectionCustomColor' ):
+      col = gconf[ 'boxSelectionCustomColor' ]
+      self.boxSelectionCustomColor.r = col[0]
+      self.boxSelectionCustomColor.g = col[1]
+      self.boxSelectionCustomColor.b = col[2]
+      if len( col ) >= 4:
+        self.boxSelectionCustomColor.a = col[3]
+        self.boxSelectionCustomColor.na = False
+      else:
+        self.boxSelectionCustomColor.a = 1.
+        self.boxSelectionCustomColor.na = True
 
   def setMode(self,mode):
     if type(mode) is type('') or type(mode) is type(u''):
@@ -338,6 +389,26 @@ class SelectionAction( anatomist.cpp.Action ):
 
     del self._recursion
 
+
+  def boxSelectionColor( self, objs=None ):
+    if self.boxSelectionColorMode == self.BoxColor_Gray:
+      col = anatomist.cpp.SelectFactory.HColor()
+      col.r = 0.7
+      col.g = 0.7
+      col.b = 0.7
+      col.a = 1.
+      col.na = False
+      return col
+    elif self.boxSelectionColorMode == self.BoxColor_Custom:
+      return self.boxSelectionCustomColor
+    else:
+      sf = anatomist.cpp.SelectFactory.factory()
+      for obj in objs:
+        break
+      col = sf.highlightColor( obj )
+    return col
+
+
   def boxSelection( self ):
     if hasattr( self, '_recursing' ):
       return
@@ -366,6 +437,10 @@ class SelectionAction( anatomist.cpp.Action ):
         f.setName( 'follower' )
         a.releaseObject( f )
       selectboxes[ key ] = f
+      col = self.boxSelectionColor( objs )
+      mat = f.GetMaterial()
+      mat.set( { 'diffuse' : [ col.r, col.g, col.b, col.a ] } )
+      f.SetMaterial( mat )
       w.registerObject( f, True )
       w.refreshTemp()
     tosel = []
@@ -388,11 +463,62 @@ class SelectionAction( anatomist.cpp.Action ):
 
   def switchBoxHighligting( self, value ):
     self.useBoxHighlight = value
+    gconf = a.config()
+    if value == 0:
+      gconf[ 'boxSelectionHighlight' ] = 0
+    elif gconf.has_key( 'boxSelectionHighlight' ):
+      del gconf[ 'boxSelectionHighlight' ]
     self.boxSelection()
 
   def switchBoxHighligtingIndividual( self, value ):
     self.useBoxHighlightIndividual = value
+    gconf = a.config()
+    if value != 0:
+      gconf[ 'boxSelectionIndividual' ] = 1
+    elif gconf.has_key( 'boxSelectionIndividual' ):
+      del gconf[ 'boxSelectionIndividual' ]
     self.boxSelection()
+
+  def switchBoxColorMode( self, value ):
+    self.boxSelectionColorMode = value
+    gconf = a.config()
+    if value != 0:
+      gconf[ 'boxSelectionColorMode' ] = self.BoxColor_Modes[ value ]
+    elif gconf.has_key( 'boxSelectionColorMode' ):
+      del gconf[ 'boxSelectionColorMode' ]
+    if hasattr( self, '_selectboxes' ):
+      del self._selectboxes
+    self.boxSelection()
+
+  def selectCustomBoxColor( self ):
+    sc = self.boxSelectionCustomColor
+    alpha = int( sc.a * 255.99 )
+    nalpha = sc.na
+    col, alpha, nalpha = anatomist.cpp.QAColorDialog.getColor( \
+      QtGui.QColor( int( sc.r * 255.99 ),
+                    int( sc.g * 255.99 ),
+                    int( sc.b * 255.99 ) ), None,
+      'Selection color', alpha, nalpha )
+    if col.isValid():
+      hcol = anatomist.cpp.SelectFactory.HColor()
+      hcol.r = float( col.red() ) / 255.99
+      hcol.g = float( col.green() ) / 255.99
+      hcol.b = float( col.blue() ) / 255.99
+      hcol.a = float( alpha ) / 255.99
+      hcol.na = nalpha
+      self.boxSelectionCustomColor = hcol
+      gconf = a.config()
+      cval = [ hcol.r, hcol.g, hcol.b ]
+      if not hcol.na:
+        cval.append( hcol.a )
+      gconf[ 'boxSelectionCustomColor' ] = cval
+      if cval != [ 0.7, 0.7, 0.7, 1. ]:
+        gconf[ 'boxSelectionCustomColor' ] = cval
+      elif gconf.has_key( 'boxSelectionCustomColor' ):
+        del gconf[ 'boxSelectionCustomColor' ]
+      if hasattr( self, '_selectboxes' ):
+        del self._selectboxes
+      self.boxSelection()
 
   def selectionChanged( self ):
     self.edgeSelection()

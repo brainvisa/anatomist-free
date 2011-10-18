@@ -3775,6 +3775,30 @@ Do you want to save it ?</source>
         <source>Use one box per selected object</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Box color: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom box color: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gray</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SurfpaintTools</name>

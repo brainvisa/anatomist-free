@@ -1,7 +1,7 @@
 <!doctype public "-//w3c//dtd html 4.01 transitional//en" 
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Configuration options</title>
   <style type="text/css">
     BODY {
@@ -95,6 +95,42 @@ since Anatomist 1.29.</p>
 	<td><tt>radio, neuro</tt></td>
 	<td>Display convention for axial and coronal slices</td>
 	<td>1.30</td>
+  </tr>
+
+  <tr>
+    <td><tt>boxSelectionColorMode</tt></td>
+        <td><tt>string</tt></td>
+        <td><tt>gray</tt></td>
+        <td><tt>gray, as_selection, custom</tt></td>
+        <td>When box selection highlighting is enabled (see <tt>boxSelectionHighlight</tt>), this parameter determines how boxes colors are set. In <tt>custom</tt> mode, the custom color is given by the <tt>boxSelectionCustomColor</tt> parameter.</td>
+        <td>4.2</td>
+  </tr>
+
+  <tr>
+    <td><tt>boxSelectionCustomColor</tt></td>
+        <td><tt>float_vector</tt></td>
+        <td><tt>[ 0.7, 0.7, 0.7, 1. ]</tt></td>
+        <td>RGB (3 float between 0 and 1), or RGBA</td>
+        <td>When box selection highlighting is enabled (see <tt>boxSelectionHighlight</tt>), and in <tt>custom</tt> color mode (see <tt>boxSelectionColorMode</tt>), this parameter specified the boxes colors.</td>
+        <td>4.2</td>
+  </tr>
+
+  <tr>
+    <td><tt>boxSelectionIndividual</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td>0, 1</td>
+        <td>When box selection highlighting is enabled (see <tt>boxSelectionHighlight</tt>), this parameter specified whether there is one global box (<tt>0</tt>) or one box for each selected object (<tt>1</tt>).</td>
+        <td>4.2</td>
+  </tr>
+
+  <tr>
+    <td><tt>boxSelectionHighlight</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>1</tt></td>
+        <td>0, 1</td>
+        <td>Enables (<tt>1</tt>) or disables (<tt>0</tt>) box selection highlighting. Box selection draws a bow around selected objects in seletion control mode. Several parameters control the way bowes are rendered: see <tt>boxSelectionIndividual</tt>, <tt>boxSelectionColorMode</tt>, and <tt>boxSelectionCustomColor</tt>.</td>
+        <td>4.2</td>
   </tr>
 
   <tr>

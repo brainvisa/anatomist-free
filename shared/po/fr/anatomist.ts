@@ -3837,6 +3837,34 @@ Voulez-vous continuer ?</translation>
         <source>Use one box per selected object</source>
         <translation>Utiliser une boîte par objet sélectionné</translation>
     </message>
+    <message>
+        <source>Box color: </source>
+        <translation>Couleur des boîtes :</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation type="obsolete">Gris</translation>
+    </message>
+    <message>
+        <source>As selection</source>
+        <translation>Comme la sélection</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Personnalisé</translation>
+    </message>
+    <message>
+        <source>Custom box color: </source>
+        <translation>Couleur personnalisée pour les boîtes :</translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <source>Gray</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SurfpaintTools</name>
