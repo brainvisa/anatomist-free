@@ -408,6 +408,8 @@ class SelectionAction( anatomist.cpp.Action ):
         window.unregisterObject(obj.get())
       del self._tempedges
       del self._recursion
+    if hasattr( self, '_selectboxes' ):
+      del self._selectboxes
 
 
 class SelectionControl( anatomist.cpp.Select3DControl ):
@@ -422,6 +424,7 @@ class SelectionControl( anatomist.cpp.Select3DControl ):
   def doAlsoOnSelect( self, actionpool ):
     anatomist.cpp.Select3DControl.doAlsoOnSelect( self, actionpool )
     actionpool.action("SelectionAction").edgeSelection()
+    actionpool.action("SelectionAction").boxSelection()
 
   def doAlsoOnDeselect( self, actionpool ):
     anatomist.cpp.Select3DControl.doAlsoOnDeselect( self, actionpool )
