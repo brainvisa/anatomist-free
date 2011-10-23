@@ -109,6 +109,13 @@ def fixMatplotlib():
       pass
 
 def ipythonConsoleShell():
+  try:
+    import IPython
+    fixMatplotlib()
+  except:
+    return 0
+  if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
+    return 0 # Qt console does not exist in ipython <= 0.10
   global ipConsole
   if ipConsole is None:
     print 'runing IP console kernel'
@@ -132,42 +139,48 @@ def ipythonConsoleShell():
   return 1
 
 def ipythonShell():
-  try:
-    import IPython
-    fixMatplotlib()
-  except:
-    return 0
-  if [ int(x) for x in IPython.__version__.split('.') ] >= [ 0, 11 ]:
-    return ipythonConsoleShell()
   global consoleShellRunning
   if consoleShellRunning:
     print 'console shell is already running.'
     return 1
-  try:
+  #try:
+  if 1:
+    import IPython
+    fixMatplotlib()
     # run interpreter
     consoleShellRunning = True
-    if qt4:
+    if [ int(x) for x in IPython.__version__.split('.') ] >= [ 0, 11 ]:
+      # new Ipython API
+      def mylooprunning( app=None ):
+        return True
+      from IPython.lib import guisupport
+      guisupport.is_event_loop_running_qt4  = mylooprunning
+      from IPython.frontend.terminal.ipapp import TerminalIPythonApp
+      app = TerminalIPythonApp.instance()
+      #from PyQt4.QtGui import qApp
+      #qApp._in_event_loop = True # no effet...
+      app.initialize( [ '--gui=qt' ] )
+      app.start()
+    else:
+      # Old IPython <= 0.10 API
       from PyQt4.QtGui import qApp
       import time
       ipshell = IPython.Shell.IPShellQt4( [ '-q4thread' ] )
-    else:
-      from qt import qApp
-      ipshell = IPython.Shell.IPShellQt( [ '-qthread' ] )
-    def dummy_mainloop(*args, **kw):
-      qApp.processEvents()
-      time.sleep( 0.02 )
-    # replace ipython shell event loop with a 'local loop'
-    ipshell.exec_ = dummy_mainloop
-    ipshell.mainloop()
-    consoleShellRunning = False
-    print 'shell terminated'
-    if qt4:
-      qApp.exec_()
-    else:
-      qApp.exec_loop()
-    return 1
-  except:
-    return 0
+      def dummy_mainloop(*args, **kw):
+        qApp.processEvents()
+        time.sleep( 0.02 )
+      # replace ipython shell event loop with a 'local loop'
+      ipshell.exec_ = dummy_mainloop
+      ipshell.mainloop()
+      consoleShellRunning = False
+      print 'shell terminated'
+      if qt4:
+        qApp.exec_()
+      else:
+        qApp.exec_loop()
+      return 1
+  #except:
+    #return 0
 
 def pythonShell():
   global consoleShellRunning
@@ -231,9 +244,10 @@ def pyShell():
   return 1
 
 def openshell():
+  if ipythonConsoleShell():
+    return
   if pyCuteShell():
     return # OK
-  print 'PyCute not found, trying a console shell'
   global consoleShellRunning
   if consoleShellRunning:
     print 'console shell is already running.'
@@ -331,70 +345,40 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
 cw = a.getControlWindow()
 if cw is not None:
   menu = cw.menuBar()
-  if qt4:
-    p = menu.addMenu( 'Python' )
-    p.addAction( 'Open python shell', openshell )
-    pop = p.addMenu( 'Specific python shells' )
-    pcshell = pop.addAction( 'Pycute shell', pyCuteShell )
-    ipshell = pop.addAction( 'Console IPython shell', ipythonShell )
-    pshell = pop.addAction( 'Console standard python shell', pythonShell )
-    pyshell = pop.addAction( 'PyShell', pyShell )
-    p.addSeparator()
-    p.addAction( 'list loaded python modules', listmods )
-    p.addAction( 'run python script file...', loadpython )
+  p = menu.addMenu( 'Python' )
+  p.addAction( 'Open python shell', openshell )
+  pop = p.addMenu( 'Specific python shells' )
+  ipcshell = pop.addAction( 'Graphical IPython shell', ipythonConsoleShell )
+  ipshell = pop.addAction( 'Console IPython shell', ipythonShell )
+  pcshell = pop.addAction( 'Pycute shell', pyCuteShell )
+  pshell = pop.addAction( 'Console standard python shell', pythonShell )
+  pyshell = pop.addAction( 'PyShell', pyShell )
+  p.addSeparator()
+  p.addAction( 'list loaded python modules', listmods )
+  p.addAction( 'run python script file...', loadpython )
+  try:
+    import Pycute
+  except:
+    pcshell.setEnabled( False )
+  try:
+    import IPython
+    fixMatplotlib()
+    if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
+      ipcshell.setEnabled( False )
+  except:
+    ipcshell.setEnabled( False )
+    ipshell.setEnabled( False )
+  try:
+    import Tkinter
     try:
-      import Pycute
+      import idlelib.PyShell
     except:
-      pcshell.setEnabled( False )
-    try:
-      import IPython
-      fixMatplotlib()
-    except:
-      ipshell.setEnabled( False )
-    try:
-      import Tkinter
       try:
-        import idlelib.PyShell
+        import idle.PyShell
       except:
-        try:
-          import idle.PyShell
-        except:
-          pyshell.setEnabled( False )
-    except:
-      pyshell.setEnabled( False )
-  else:
-    p = QPopupMenu()
-    p.insertItem( 'Open python shell', openshell )
-    pop = QPopupMenu()
-    pop.insertItem( 'Pycute shell', pyCuteShell, 0, 1000 )
-    pop.insertItem( 'Console IPython shell', ipythonShell, 0, 1001 )
-    pop.insertItem( 'Console standard python shell', pythonShell, 0, 1002 )
-    pop.insertItem( 'PyShell', pyShell, 0, 1003 )
-    p.insertItem( 'Specific python shells', pop )
-    p.insertSeparator()
-    p.insertItem( 'list loaded python modules', listmods )
-    p.insertItem( 'run python script file...', loadpython )
-    menu.insertItem( 'Python', p, -1, menu.count() - 1 )
-    try:
-      import Pycute
-    except:
-      pop.setItemEnabled( 1000, False )
-    try:
-      import IPython
-      fixMatplotlib()
-    except:
-      pop.setItemEnabled( 1001, False )
-    try:
-      import Tkinter
-      try:
-        import idlelib.PyShell
-      except:
-        try:
-          import idle.PyShell
-        except:
-          pop.setItemEnabled( 1003, False )
-    except:
-      pop.setItemEnabled( 1003, False )
+        pyshell.setEnabled( False )
+  except:
+    pyshell.setEnabled( False )
 
 pm = PyAnatomistModule()
 if not qt4:
