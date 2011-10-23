@@ -527,13 +527,14 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
               break;
             case Material::ExtOutlined:
               glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+              glCullFace( GL_FRONT );
               glDisable( GL_LIGHTING );
-              glPolygonOffset( 15, 15 );
+//               glPolygonOffset( 15, 15 );
               if( mat->lineWidth() > 0 )
                 glLineWidth( mat->lineWidth() + 5 );
               else
                 glLineWidth( 5. );
-              glEnable( GL_POLYGON_OFFSET_LINE );
+//               glEnable( GL_POLYGON_OFFSET_LINE );
               {
                 const GLfloat * c = mat->unlitColor();
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, c );
