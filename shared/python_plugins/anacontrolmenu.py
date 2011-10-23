@@ -53,6 +53,7 @@ else:
 import anatomist.cpp as anatomist
 
 consoleShellRunning = False
+ipConsole = None
 
 
 class PyAnatomistModule( anatomist.Module ):
@@ -107,14 +108,42 @@ def fixMatplotlib():
       print 'exception:', e
       pass
 
+def ipythonConsoleShell():
+  global ipConsole
+  if ipConsole is None:
+    print 'runing IP console kernel'
+    def mylooprunning( app=None ):
+      return True
+    from IPython.lib import guisupport
+    guisupport.is_event_loop_running_qt4  = mylooprunning
+    from IPython.zmq.ipkernel import IPKernelApp
+    app = IPKernelApp.instance()
+    ipConsole = app
+    app.hb_port = 50042 # don't know why this is not set automatically
+    app.initialize( [ 'qtconsole', '--pylab=qt',
+      "--KernelApp.parent_appname='ipython-qtconsole'" ] )
+    app.start()
+  import subprocess
+  subprocess.Popen( [ sys.executable, '-c',
+    'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
+    'launch_new_instance()', 'qtconsole', '--existing',
+    '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
+    '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
+  return 1
+
 def ipythonShell():
+  try:
+    import IPython
+    fixMatplotlib()
+  except:
+    return 0
+  if [ int(x) for x in IPython.__version__.split('.') ] >= [ 0, 11 ]:
+    return ipythonConsoleShell()
   global consoleShellRunning
   if consoleShellRunning:
     print 'console shell is already running.'
     return 1
   try:
-    import IPython
-    fixMatplotlib()
     # run interpreter
     consoleShellRunning = True
     if qt4:
