@@ -1167,6 +1167,8 @@ void SurfpaintTools::floodFillStop(void)
     delete tmpMeshOut;
   }
 
+  cout << "vertex number = " << listIndexVertexFill.size() << endl;
+
   const AObjectPalette *pal = at->getOrCreatePalette();
 
   const AimsData<AimsRGBA> *col = pal->colors();
@@ -1680,4 +1682,3 @@ void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
 
   updateTexture(distanceMap);
 }
-

@@ -68,17 +68,3 @@ namespace anatomist{
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -65,7 +65,7 @@ using namespace aims;
 
 static bool initSurfpaintModule()
 {
-  SurfpaintModule	*a = new SurfpaintModule;
+  SurfpaintModule *a = new SurfpaintModule;
   a->init();
   return( true );
 }
