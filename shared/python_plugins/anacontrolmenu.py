@@ -54,6 +54,12 @@ import anatomist.cpp as anatomist
 
 consoleShellRunning = False
 ipConsole = None
+ipsubprocs = []
+
+# doesn't work anyway...
+#def delipsubprocs():
+  #global ipsubprocs
+  #del ipsubprocs
 
 
 class PyAnatomistModule( anatomist.Module ):
@@ -108,6 +114,13 @@ def fixMatplotlib():
       print 'exception:', e
       pass
 
+
+class _ProcDeleter( object ):
+  def __init__( self, o ):
+    self.o = o
+  def __del__( self ):
+    o.kill()
+
 def ipythonConsoleShell():
   try:
     import IPython
@@ -116,7 +129,7 @@ def ipythonConsoleShell():
     return 0
   if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
     return 0 # Qt console does not exist in ipython <= 0.10
-  global ipConsole
+  global ipConsole, ipsubprocs
   if ipConsole is None:
     print 'runing IP console kernel'
     def mylooprunning( app=None ):
@@ -129,13 +142,16 @@ def ipythonConsoleShell():
     app.hb_port = 50042 # don't know why this is not set automatically
     app.initialize( [ 'qtconsole', '--pylab=qt',
       "--KernelApp.parent_appname='ipython-qtconsole'" ] )
+    #from PyQt4.QtGui import qApp
+    #qApp.connect( qApp, SIGNAL( 'aboutToQuit()' ), delipsubprocs )
     app.start()
   import subprocess
-  subprocess.Popen( [ sys.executable, '-c',
+  sp = subprocess.Popen( [ sys.executable, '-c',
     'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
     'launch_new_instance()', 'qtconsole', '--existing',
     '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
     '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
+  ipsubprocs.append( _ProcDeleter( sp ) )
   return 1
 
 def ipythonShell():
