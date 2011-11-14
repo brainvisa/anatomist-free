@@ -2549,6 +2549,7 @@ void AWindow3D::syncViews(bool keepextrema)
   set<AWindow *>::const_iterator iw, fw = win.end();
   GLWidgetManager *da = d->draw, *da2;
   Point2df tr;
+  Referential *ref = getReferential();
 
   for (iw = win.begin(); iw != fw; ++iw)
   {
@@ -2557,17 +2558,29 @@ void AWindow3D::syncViews(bool keepextrema)
       w2 = dynamic_cast<AWindow3D *> (*iw);
       if (w2 && w2->viewType() == ThreeD)
       {
+        anatomist::Transformation *tr = 0;
         da2 = w2->d->draw;
         if (!keepextrema)
         {
+          tr = theAnatomist->getTransformation( ref, w2->getReferential() );
           da2->setAutoCentering(false);
+          Point3df bmin = da->windowBoundingMin(),
+            bmax = da->windowBoundingMax();
+          if( tr )
+            tr->transformBoundingBox( da->windowBoundingMin(),
+                                      da->windowBoundingMax(), bmin, bmax );
           //da2->setExtrema( da->boundingMin(), da->boundingMax() );
-          da2->setWindowExtrema(da->windowBoundingMin(),
-              da->windowBoundingMax());
+          da2->setWindowExtrema( bmin, bmax );
         }
         da2->setZoom(da->zoom());
         da2->setQuaternion(da->quaternion());
-        if (!keepextrema) da2->setRotationCenter(da->rotationCenter());
+        if (!keepextrema)
+        {
+          Point3df rcent = da->rotationCenter();
+          if( tr )
+            rcent = tr->transform( rcent );
+          da2->setRotationCenter( rcent );
+        }
         w2->refreshLightViewNow();
       }
     }

@@ -3819,7 +3819,7 @@ Voulez-vous continuer ?</translation>
     </message>
     <message>
         <source>Opacity: </source>
-        <translation>Opacité :</translation>
+        <translation type="obsolete">Opacité :</translation>
     </message>
     <message>
         <source>Edge selection:</source>

@@ -3756,10 +3756,6 @@ Do you want to save it ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Opacity: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edge selection:</source>
         <translation type="unfinished"></translation>
     </message>
