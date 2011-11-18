@@ -223,6 +223,14 @@ class PaletteWidget(MplCanvas):
     return matplotlib.colors.LinearSegmentedColormap(\
       'my_colormap', cdict, self._size)
 
+  def _savePalette(self):
+    fig_fn = qt.QFileDialog.getSaveFileName(self,"Save Figure", 
+                                            os.getenv('HOME'), 
+                                            "Images (*.png)")
+    #print 'fig_fn:', fig_fn
+    if fig_fn is not None:
+      self._figure.savefig(str(fig_fn))
+
   def _display(self, palette):
     import pylab, numpy
     figure = pylab.figure(self.number)
@@ -239,6 +247,7 @@ class PaletteWidget(MplCanvas):
       extent=(0, 1, rmin, rmax))
     pylab.xticks([], [])
     self.draw()
+    self._figure = figure
 
   if qt4:
     def close(self):
@@ -280,8 +289,14 @@ class ClosableWidget(qt.QWidget):
     if qt4:
       closeButton = qt.QPushButton(self)
       closeButton.setObjectName( "closeButton" )
+      saveButton = qt.QPushButton(self)
+      saveButton.setObjectName( "saveButton" )
     else:
       closeButton = qt.QPushButton(self, "closeButton")
+      saveButton = qt.QPushButton(self,'saveButton')
+    saveButton.setText('Save')
+    saveButton.setSizePolicy(qt.QSizePolicy.Fixed,
+                    qt.QSizePolicy.Fixed)
     closeButton.setText('x')
     closeButton.setSizePolicy(qt.QSizePolicy.Fixed,
                     qt.QSizePolicy.Fixed)
@@ -294,6 +309,7 @@ class ClosableWidget(qt.QWidget):
     else:
       closeButton.setPixmap(pix)
     layout.addItem(spacer)
+    layout.addWidget(saveButton)
     layout.addWidget(closeButton)
     biglayout.addLayout(layout)
     label = qt.QLabel(self)
@@ -313,10 +329,11 @@ class ClosableWidget(qt.QWidget):
     biglayout.addWidget(subwidget)
     biglayout.addWidget(label)
     self._closeButton = closeButton
+    self._saveButton = saveButton
     self._sublayout = sublayout
     self._label = label
     self.subwidget = subwidget
-
+    
   if qt4:
     def close( self ):
       self._child.close()
@@ -325,6 +342,9 @@ class ClosableWidget(qt.QWidget):
     def close( self, alsoDelete=True ):
       self._child.close()
       return qt.QWidget.close( self, alsoDelete )
+
+  def savePalette(self,):
+    self._child._savePalette()
 
   def setChild(self, child):
     self._child = child
@@ -400,6 +420,8 @@ class GroupClosableWidget(qt.QWidget):
     self._widgets[id] = widget
     qt.QObject.connect(widget._closeButton, qt.SIGNAL("clicked()"),
                        slot.doit)
+    qt.QObject.connect(widget._saveButton, qt.SIGNAL("clicked()"),
+                       widget.savePalette)
     self.show()
 
   def get(self, id):
