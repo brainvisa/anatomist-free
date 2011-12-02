@@ -21,7 +21,8 @@ HEADERS = \
 	commands/cCreateGraph.h \
 	commands/cGetConnThres.h \
 	commands/cSetConnThres.h \
-	commands/cAddNode.h 
+	commands/cAddNode.h \
+	commands/cPaintParams.h
 
 SOURCES = \
         action/levelsetaction.cc \
@@ -39,4 +40,5 @@ SOURCES = \
 	commands/cCreateGraph.cc \
 	commands/cGetConnThres.cc \
 	commands/cSetConnThres.cc \
-	commands/cAddNode.cc
+	commands/cAddNode.cc \
+        commands/cPaintParams.cc
