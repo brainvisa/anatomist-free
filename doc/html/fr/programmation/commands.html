@@ -1758,7 +1758,7 @@ Règlage des paramètres d'une fusion 3D<br>
 
 <table border="1">
 <tbody>
-        <tr>
+  <tr>
           <td>object</td>
           <td><tt>int</tt></td>
           <td>objet concerné</td>
@@ -1808,9 +1808,62 @@ Règlage des paramètres d'une fusion 3D<br>
 </table>
 
 
+
 <h2> Commandes des modules:</h2>
 <li> <b><i><font color="#990000">Module ROI :</font></i></b></li>
 <br>
+
+<h3>AddNode</h3>
+Ajoute un noeud dans un graphe, avec &eacute;ventuellement  un
+bucket    vide  &agrave; l'int&eacute;rieur<br>
+
+<table border="1" width="100%" nosave="">
+<tbody>
+  <tr>
+    <td><tt>graph</tt></td>
+    <td><tt>int</tt></td>
+    <td>graphe auquel on ajoute un noeud</td>
+  </tr>
+  <tr>
+    <td><tt>res_pointer</tt></td>
+    <td><tt>int</tt></td>
+    <td>ID du nouveau noeud cr&eacute;&eacute;</td>
+  </tr>
+  <tr>
+    <td><tt>name</tt></td>
+    <td><tt>string</tt> (optionnel)</td>
+    <td>nom de l'objet noeud&nbsp; <br>
+  d&eacute;faut: <tt>RoiArg</tt></td>
+  </tr>
+  <tr>
+    <td><tt>syntax</tt></td>
+    <td><tt>string</tt> (optionnel)</td>
+    <td>attribut syntaxique du noeud&nbsp; <br>
+  d&eacute;faut: <tt>roi</tt></td>
+  </tr>
+  <tr>
+    <td><tt>with_bucket</tt></td>
+    <td><tt>int</tt> (optionnel)</td>
+    <td>pr&eacute;cise s'il faut cr&eacute;er un bucket dans
+le  noeud&nbsp;                   <br>
+  d&eacute;faut: oui</td>
+  </tr>
+  <tr>
+    <td><tt>res_bucket</tt></td>
+    <td><tt>int</tt> (optionnel)</td>
+    <td>ID du bucket cr&eacute;e (s'il est cr&eacute;e)</td>
+  </tr>
+  <tr>
+    <td><tt>no_duplicate</tt></td>
+    <td><tt>int</tt> (optionnel)</td>
+    <td>si mis &agrave; 1, emp&ecirc;che de recr&eacute;er des
+ noeuds    qui   ont  le m&ecirc;me attribut "<tt>name</tt>". D&eacute;faut:
+ 0</td>
+  </tr>
+</tbody>
+</table>
+
+
 
 <h3>CreateGraph</h3>
 Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ donne ses dimensions (taille de voxel, extrêma) au nouveau graphe.<br>
@@ -1851,56 +1904,8 @@ Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ 
 </table>
 
 
-<h3>AddNode</h3>
-Ajoute un noeud dans un graphe, avec &eacute;ventuellement  un
-bucket    vide  &agrave; l'int&eacute;rieur<br>
-
-<table border="1" width="100%" nosave="">
-<tbody>
-                        <tr>
-               <td><tt>graph</tt></td>
-                <td><tt>int</tt></td>
-                <td>graphe auquel on ajoute un noeud</td>
-               </tr>
-                <tr>
-               <td><tt>res_pointer</tt></td>
-                <td><tt>int</tt></td>
-                <td>ID du nouveau noeud cr&eacute;&eacute;</td>
-               </tr>
-                <tr>
-               <td><tt>name</tt></td>
-                <td><tt>string</tt> (optionnel)</td>
-                <td>nom de l'objet noeud&nbsp; <br>
-              d&eacute;faut: <tt>RoiArg</tt></td>
-               </tr>
-                <tr>
-               <td><tt>syntax</tt></td>
-                <td><tt>string</tt> (optionnel)</td>
-                <td>attribut syntaxique du noeud&nbsp; <br>
-              d&eacute;faut: <tt>roi</tt></td>
-               </tr>
-                <tr>
-               <td><tt>with_bucket</tt></td>
-                <td><tt>int</tt> (optionnel)</td>
-                <td>pr&eacute;cise s'il faut cr&eacute;er un bucket dans
-le  noeud&nbsp;                   <br>
-              d&eacute;faut: oui</td>
-               </tr>
-                <tr>
-               <td><tt>res_bucket</tt></td>
-                <td><tt>int</tt> (optionnel)</td>
-                <td>ID du bucket cr&eacute;e (s'il est cr&eacute;e)</td>
-               </tr>
-                <tr>
-               <td><tt>no_duplicate</tt></td>
-                <td><tt>int</tt> (optionnel)</td>
-                <td>si mis &agrave; 1, emp&ecirc;che de recr&eacute;er des
- noeuds    qui   ont  le m&ecirc;me attribut "<tt>name</tt>". D&eacute;faut:
- 0</td>
-               </tr>
-
-</tbody>
-</table>
+<a name="PaintParams"></a>
+<h3><a href="../../en/programming/commands/paintparams.html">PaintParams</a></h3>
 
 
 </body>

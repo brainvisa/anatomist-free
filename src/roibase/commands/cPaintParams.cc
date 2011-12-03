@@ -69,10 +69,12 @@ bool PaintParamsCommand::initSyntax()
   SyntaxSet     ss;
   Syntax        & s = ss[ "PaintParams" ];
 
-  s[ "brush_type"   ] = Semantic( "string", false );
-  s[ "brush_size"   ] = Semantic( "float", false );
-  s[ "line_mode"    ] = Semantic( "int", false );
-  s[ "replace_mode" ] = Semantic( "int", false );
+  s[ "brush_type"           ] = Semantic( "string", false );
+  s[ "brush_size"           ] = Semantic( "float", false );
+  s[ "line_mode"            ] = Semantic( "int", false );
+  s[ "replace_mode"         ] = Semantic( "int", false );
+  s[ "follow_linked_cursor" ] = Semantic( "int", false );
+  s[ "millimeter_mode"      ] = Semantic( "int", false );
   Registry::instance()->add( "PaintParams", &read, ss );
   return true;
 }
@@ -81,10 +83,13 @@ bool PaintParamsCommand::initSyntax()
 void
 PaintParamsCommand::doit()
 {
-  cout << "PaintParamsCommand::doit()\n";
+  PaintAction *pa = 0;
+  /* Retreive a working instance of PaintAction.
+     We have to search it through existing windows, since they actually belong to the
+     control system. It's a bit painful...
+   */
   set<AWindow *> wl = theAnatomist->getWindows();
   set<AWindow *>::iterator iw, ew = wl.end();
-  PaintAction *pa = 0;
   for( iw=wl.begin(); iw!=ew; ++iw )
   {
     ControlledWindow *cw = dynamic_cast<ControlledWindow *>( *iw );
@@ -102,12 +107,10 @@ PaintParamsCommand::doit()
   }
   if( !pa )
     return;
-  cout << "paint action: " << pa << endl;
 
   try
   {
     string btype = _params->getProperty( "brush_type" )->getString();
-    cout << "brush type: " << btype << endl;
     if( btype == "point" )
       pa->brushToPoint();
     else if( btype == "square" )
@@ -123,7 +126,7 @@ PaintParamsCommand::doit()
   try
   {
     float bsize = (float) _params->getProperty( "brush_size" )->getScalar();
-    cout << "brush size: " << bsize << endl;
+    pa->setSize( bsize );
   }
   catch( ... )
   {
@@ -131,7 +134,10 @@ PaintParamsCommand::doit()
   try
   {
     bool lmode = (bool) _params->getProperty( "line_mode" )->getScalar();
-    cout << "line mode: " << lmode << endl;
+    if( lmode )
+      pa->lineOn();
+    else
+      pa->lineOff();
   }
   catch( ... )
   {
@@ -139,7 +145,34 @@ PaintParamsCommand::doit()
   try
   {
     bool rmode = (bool) _params->getProperty( "replace_mode" )->getScalar();
-    cout << "replace mode: " << rmode << endl;
+    if( rmode )
+      pa->replaceOn();
+    else
+      pa->replaceOff();
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+    bool follow
+      = (bool) _params->getProperty( "follow_linked_cursor" )->getScalar();
+    if( follow )
+      pa->followingLinkedCursorOn();
+    else
+      pa->followingLinkedCursorOff();
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+    bool mmmode
+      = (bool) _params->getProperty( "millimeter_mode" )->getScalar();
+    if( mmmode )
+      pa->brushToMm();
+    else
+      pa->brushToVoxel();
   }
   catch( ... )
   {

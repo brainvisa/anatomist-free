@@ -1,264 +1,329 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR">
+<TS version="2.0">
 <context>
     <name>ALandmarkPicker</name>
     <message>
-        <source>Pick landmark</source>
-        <translation>Choisir un point de repère</translation>
-    </message>
-    <message>
-        <source>Nearest</source>
-        <translation>Plus proche</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/landmark/landmPicker.cc" line="132"/>
         <source>Landmark picker : </source>
-        <translation>Prise de points de repère : </translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/landmark/landmPicker.cc" line="154"/>
+        <source>Nearest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/landmark/landmPicker.cc" line="156"/>
+        <source>Pick landmark</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>AWindow3D</name>
     <message>
-        <source>3D</source>
-        <translation>3D</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Axial</source>
-        <translation>Axiale</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-    <message>
-        <source>Mute into axial view</source>
-        <translation>Changer en vue axiale</translation>
-    </message>
-    <message>
-        <source>Scene</source>
-        <translation>Scène</translation>
-    </message>
-    <message>
-        <source>Tools</source>
-        <translation>Outils</translation>
-    </message>
-    <message>
-        <source>Fixed points of view</source>
-        <translation>Points de vue standard</translation>
-    </message>
-    <message>
-        <source>Zoom...</source>
-        <translation>Zoom...</translation>
-    </message>
-    <message>
-        <source>Auto-set rotation center in middle of scene</source>
-        <translation>Fixer automatiquement le centre de rotation</translation>
-    </message>
-    <message>
-        <source>Mute into 3D view</source>
-        <translation>Changer en vue 3D</translation>
-    </message>
-    <message>
-        <source>Stop recording</source>
-        <translation>Arrêter l&apos;enregistrement</translation>
-    </message>
-    <message>
-        <source>Focus view on objects</source>
-        <translation>Focaliser la vue sur ses objets</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Oblique</source>
-        <translation>Oblique</translation>
-    </message>
-    <message>
-        <source>Window</source>
-        <translation>Fenêtre</translation>
-    </message>
-    <message>
-        <source>Mute into coronal view</source>
-        <translation>Changer en vue coronale</translation>
-    </message>
-    <message>
-        <source>Sagittal</source>
-        <translation>Sagittale</translation>
-    </message>
-    <message>
-        <source>Mute into sagittal view</source>
-        <translation>Changer en vue sagittale</translation>
-    </message>
-    <message>
-        <source>Mute into free orientation view</source>
-        <translation>Changer en vue d&apos;orientation libre</translation>
-    </message>
-    <message>
-        <source>Start recording...</source>
-        <translation>Enregistrer un film...</translation>
-    </message>
-    <message>
-        <source>Save...</source>
-        <translation>Sauver l&apos;image...</translation>
-    </message>
-    <message>
-        <source>Resize...</source>
-        <translation>Redimensionner...</translation>
-    </message>
-    <message>
-        <source>New window size :</source>
-        <translation>Nouvelle taille de fenêtre :</translation>
-    </message>
-    <message>
-        <source>Coronal</source>
-        <translation>Coronale</translation>
-    </message>
-    <message>
-        <source>Sync 3D views in same group</source>
-        <translation>Synchroniser les autres vues 3D</translation>
-    </message>
-    <message>
-        <source>Lighting</source>
-        <translation>Éclairage</translation>
-    </message>
-    <message>
-        <source>Show/hide toolbox (ROI etc)</source>
-        <translation>Afficher/cacher la boîte à outils (ROI etc)</translation>
-    </message>
-    <message>
-        <source>Detach view</source>
-        <translation>Détacher la vue</translation>
-    </message>
-    <message>
-        <source>Manually specify linked cursor position</source>
-        <translation>Spécifier manuellement la position du curseur lié</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="603"/>
         <source>controls</source>
-        <translation>contrôles</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>mutations</source>
-        <translation>mutations</translation>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="612"/>
+        <source>Window</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="616"/>
+        <source>Save...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="618"/>
+        <source>Start recording...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="620"/>
+        <source>Stop recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="623"/>
+        <source>Resize...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="624"/>
+        <source>Zoom...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="626"/>
+        <source>Show/hide toolbox (ROI etc)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="628"/>
         <source>Show/hide menus and toolbars</source>
-        <translation>Afficher/cacher les menus et barres d&apos;outils</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="630"/>
         <source>Show/hide cursor position</source>
-        <translation>Afficher/cacher la position du curseur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="634"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="637"/>
+        <source>Detach view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="640"/>
         <source>Open stereoscopic right eye view</source>
-        <translation>Ouvrir une vue stéréoscopique &quot;oeil droit&quot;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>cursor position: </source>
-        <translation>position du curseur: </translation>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="643"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="646"/>
+        <source>Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="647"/>
+        <source>Lighting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="649"/>
+        <source>Fixed points of view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="650"/>
+        <source>Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="651"/>
+        <source>Sync 3D views in same group</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="653"/>
+        <source>Focus view on objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="655"/>
+        <source>Auto-set rotation center in middle of scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="657"/>
+        <source>Manually specify linked cursor position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="663"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="666"/>
+        <source>mutations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="673"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="679"/>
+        <source>Axial</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="674"/>
+        <source>Mute into axial view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="685"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="690"/>
+        <source>Coronal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="685"/>
+        <source>Mute into coronal view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="696"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="701"/>
+        <source>Sagittal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="696"/>
+        <source>Mute into sagittal view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="707"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="713"/>
+        <source>Oblique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="707"/>
+        <source>Mute into free orientation view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="719"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="724"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="743"/>
+        <source>3D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="719"/>
+        <source>Mute into 3D view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="738"/>
         <source>ROI toolbox</source>
-        <translation>Boîte à outils ROI</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="738"/>
         <source>Open the ROI toolbox</source>
-        <translation>Ouvrir la boîte à outils de ROI</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>surfPaint</source>
-        <translation type="obsolete">outils de dessin</translation>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="1540"/>
+        <source>New window size :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="1549"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="3140"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="1552"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="3144"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="2409"/>
+        <source>cursor position: </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>AttributedChooser</name>
     <message>
+        <location filename="../../../src/lib/browser/attributedchooser.cc" line="59"/>
         <source>Name :</source>
-        <translation type="unfinished">Nom :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/attributedchooser.cc" line="60"/>
         <source>Type :</source>
-        <translation type="unfinished">Type :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/attributedchooser.cc" line="61"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/attributedchooser.cc" line="62"/>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ChooseReferentialWindow</name>
     <message>
-        <source>New</source>
-        <translation type="unfinished">Nouveau</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">Aucun</translation>
-    </message>
-    <message>
-        <source>Existing one</source>
-        <translation type="unfinished">Réf. existant</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/reference/wChooseReferential.cc" line="92"/>
+        <location filename="../../../src/lib/reference/wChooseReferential.cc" line="96"/>
         <source>Referential:</source>
-        <translation type="unfinished">Référentiel :</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wChooseReferential.cc" line="105"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wChooseReferential.cc" line="111"/>
+        <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wChooseReferential.cc" line="132"/>
+        <source>Existing one</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConstraintEditorWindow</name>
     <message>
+        <location filename="../../../src/lib/constrainteditor/wConstraintEditor.cc" line="330"/>
+        <location filename="../../../src/lib/constrainteditor/wConstraintEditor.cc" line="366"/>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/constrainteditor/wConstraintEditor.cc" line="365"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ControlSwitch</name>
     <message>
-        <source>PaintAction</source>
-        <translation type="unfinished">Dessin ROI</translation>
-    </message>
-    <message>
-        <source>RoiManagementAction</source>
-        <translation type="unfinished">Contrôle ROI</translation>
-    </message>
-    <message>
-        <source>LevelSetAction</source>
-        <translation type="obsolete">LevelSet</translation>
-    </message>
-    <message>
-        <source>DynSegmentAction</source>
-        <translation type="unfinished">Segmentation Dynamique</translation>
-    </message>
-    <message>
-        <source>MorphoMathAction</source>
-        <translation type="unfinished">Morphologie mathématique</translation>
-    </message>
-    <message>
-        <source>LabelNamingAction</source>
-        <translation type="unfinished">Identification de labels</translation>
-    </message>
-    <message>
+        <location filename="../../../src/hierarchyeditor/action/nodeselectionaction.cc" line="71"/>
         <source>NodeSelectionAction</source>
-        <translation type="unfinished">Sélection de noeuds</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="322"/>
+        <source>DynSegmentAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="254"/>
+        <source>MorphoMathAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/labelnaming.cc" line="87"/>
+        <source>LabelNamingAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="476"/>
+        <location filename="../../../src/roibase/commands/cGetConnThres.cc" line="103"/>
+        <location filename="../../../src/roibase/commands/cSetConnThres.cc" line="120"/>
         <source>ConnectivityThresholdAction</source>
-        <translation type="unfinished">Seuillage avec connexité</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="530"/>
+        <source>PaintAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1626"/>
+        <source>RoiManagementAction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/action/surfpaintaction.cc" line="65"/>
         <source>SurfpaintToolsAction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -266,1109 +331,1086 @@
 <context>
     <name>ControlWindow</name>
     <message>
-        <source>File</source>
-        <translation type="unfinished">Fichier</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="unfinished">Aide</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation type="unfinished">Ouvrir</translation>
-    </message>
-    <message>
-        <source>ROIs</source>
-        <translation type="obsolete">Régions d&apos;intétêt</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="unfinished">Quitter</translation>
-    </message>
-    <message>
-        <source>DICOM</source>
-        <translation type="unfinished">DICOM</translation>
-    </message>
-    <message>
-        <source>Axial</source>
-        <translation type="unfinished">Axiale</translation>
-    </message>
-    <message>
-        <source>Index :</source>
-        <translation type="unfinished">Indice :</translation>
-    </message>
-    <message>
-        <source>Icons</source>
-        <translation type="unfinished">Icônes</translation>
-    </message>
-    <message>
-        <source>Load Anatomist objects</source>
-        <translation type="unfinished">Charger des objets Anatomist</translation>
-    </message>
-    <message>
-        <source>Removes selected objects from selected windows</source>
-        <translation type="unfinished">Enlève les objets sélectionnés des fenêtres sélectionnées</translation>
-    </message>
-    <message>
-        <source>Choose a referential on objects or windows</source>
-        <translation type="unfinished">Choisir un référentiel pour les objets ou fenêtres</translation>
-    </message>
-    <message>
-        <source>Save global settings</source>
-        <translation type="unfinished">Sauver les préférences</translation>
-    </message>
-    <message>
-        <source>Add objects in windows</source>
-        <translation type="unfinished">Mettre les objets dans les fenêtres</translation>
-    </message>
-    <message>
-        <source>Graph parameters</source>
-        <translation type="unfinished">Paramètres des graphes</translation>
-    </message>
-    <message>
-        <source>Perfusion processing</source>
-        <translation type="unfinished">Traitements pour la perfusion</translation>
-    </message>
-    <message>
-        <source>Triangular meshes</source>
-        <translation type="obsolete">Maillages triangulés</translation>
-    </message>
-    <message>
-        <source>Surface matching, texture interpolation, landmarks, ERPs reader</source>
-        <translation type="unfinished">Mise en correspondance de surfaces, interpolation de textures, points de repère, chargeur d&apos;ERPs</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/module/anasurfmatch.cc" line="64"/>
         <source>Surface matching</source>
-        <translation type="unfinished">Déformation de surfaces</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Graphs</source>
-        <translation type="unfinished">Graphes</translation>
+        <location filename="../../../src/anasurfmatch/module/anasurfmatch.cc" line="70"/>
+        <source>Surface matching, texture interpolation, landmarks, ERPs reader</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Removes objects from windows</source>
-        <translation type="unfinished">Enlève les objets des fenêtres</translation>
-    </message>
-    <message>
-        <source>Name :</source>
-        <translation type="unfinished">Nom :</translation>
-    </message>
-    <message>
-        <source>Reload palettes</source>
-        <translation type="unfinished">Recharger les palettes</translation>
-    </message>
-    <message>
-        <source>Objects</source>
-        <translation type="unfinished">Objets</translation>
-    </message>
-    <message>
-        <source>Puts selected objects in selected windows</source>
-        <translation type="unfinished">Met les objets sélectionnés dans les fenêtres sélectionnées</translation>
-    </message>
-    <message>
-        <source>Object-specific</source>
-        <translation type="unfinished">Objet-spécifique</translation>
-    </message>
-    <message>
-        <source>Remove objects from windows</source>
-        <translation type="unfinished">Enlever les objets des fenêtres</translation>
-    </message>
-    <message>
-        <source>View Reference colors</source>
-        <translation type="unfinished">Afficher les couleurs des référentiels</translation>
-    </message>
-    <message>
-        <source>Reads a new object from a file</source>
-        <translation type="unfinished">Lit un nouvel objet depuis un fichier disque</translation>
-    </message>
-    <message>
-        <source>Load object</source>
-        <translation type="unfinished">Charger un objet</translation>
-    </message>
-    <message>
-        <source>Restore windows</source>
-        <translation type="unfinished">Désicônifier les fenêtres</translation>
-    </message>
-    <message>
-        <source>Core module</source>
-        <translation type="unfinished">Module de base</translation>
-    </message>
-    <message>
-        <source>Profile</source>
-        <translation type="unfinished">Profil</translation>
-    </message>
-    <message>
-        <source>Close windows</source>
-        <translation type="unfinished">Fermer les fenêtres</translation>
-    </message>
-    <message>
-        <source>Sagittal</source>
-        <translation type="unfinished">Sagittale</translation>
-    </message>
-    <message>
-        <source>Creates a new object combining the selected ones</source>
-        <translation type="unfinished">Crée un nouvel objet en combinant ceux sélectionnés</translation>
-    </message>
-    <message>
-        <source>Referential window</source>
-        <translation type="unfinished">Référentiels et transformations</translation>
-    </message>
-    <message>
-        <source>Hierarchies</source>
-        <translation type="unfinished">Hiérarchies</translation>
-    </message>
-    <message>
-        <source>Link windows</source>
-        <translation type="unfinished">Lier les fenêtres</translation>
-    </message>
-    <message>
-        <source>Unlink windows</source>
-        <translation type="unfinished">Défaire le groupe de fenêtres</translation>
-    </message>
-    <message>
-        <source>Perfusion</source>
-        <translation type="unfinished">Perfusion</translation>
-    </message>
-    <message>
-        <source>Referential</source>
-        <translation type="unfinished">Référentiel</translation>
-    </message>
-    <message>
-        <source>Modules list</source>
-        <translation type="unfinished">Liste des modules</translation>
-    </message>
-    <message>
-        <source>All Anatomist objects</source>
-        <translation type="unfinished">Tous les objets Anatomist</translation>
-    </message>
-    <message>
-        <source>Fusion objects</source>
-        <translation type="unfinished">Fusionner les objets</translation>
-    </message>
-    <message>
-        <source>ConstraintEditor</source>
-        <translation type="unfinished">Editeur de contraintes</translation>
-    </message>
-    <message>
-        <source>Scripts</source>
-        <translation type="unfinished">Scripts</translation>
-    </message>
-    <message>
-        <source>Delete objects</source>
-        <translation type="unfinished">Détruire les objets</translation>
-    </message>
-    <message>
-        <source>Scenario</source>
-        <translation type="unfinished">Scénario</translation>
-    </message>
-    <message>
-        <source>Reload objects</source>
-        <translation type="unfinished">Recharger les objets</translation>
-    </message>
-    <message>
-        <source>Coronal</source>
-        <translation type="unfinished">Coronale</translation>
-    </message>
-    <message>
-        <source>Save windows configuration</source>
-        <translation type="unfinished">Sauver la configuration des fenêtres</translation>
-    </message>
-    <message>
-        <source>Ungroup objects</source>
-        <translation type="unfinished">Défaire le groupe d&apos;objets</translation>
-    </message>
-    <message>
-        <source>Group objects</source>
-        <translation type="unfinished">Grouper les objets</translation>
-    </message>
-    <message>
-        <source>Iconify windows</source>
-        <translation type="unfinished">Icônifier les fenêtres</translation>
-    </message>
-    <message>
-        <source>Modules...</source>
-        <translation type="unfinished">Modules...</translation>
-    </message>
-    <message>
-        <source>Assign referential</source>
-        <translation type="unfinished">Assigner un référentiel</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation type="unfinished">Réglages</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation type="unfinished">Préférences</translation>
-    </message>
-    <message>
-        <source>Textures</source>
-        <translation type="unfinished">Textures</translation>
-    </message>
-    <message>
-        <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
-    </message>
-    <message>
-        <source>Description :</source>
-        <translation type="unfinished">Description :</translation>
-    </message>
-    <message>
-        <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
-    </message>
-    <message>
-        <source>All files</source>
-        <translation type="unfinished">Tous les fichiers</translation>
-    </message>
-    <message>
-        <source>About Anatomist</source>
-        <translation type="unfinished">À propos d&apos;Anatomist</translation>
-    </message>
-    <message>
-        <source>Profile window</source>
-        <translation type="unfinished">Fenêtres profils (courbes d&apos;intensité selon une direction)</translation>
-    </message>
-    <message>
-        <source>Replay scenario</source>
-        <translation type="unfinished">Rejouer un scénario</translation>
-    </message>
-    <message>
-        <source>Anatomist scripts</source>
-        <translation type="unfinished">Scripts Anatomist</translation>
-    </message>
-    <message>
-        <source>Open scenario</source>
-        <translation type="unfinished">Jouer un scénario</translation>
-    </message>
-    <message>
-        <source>3D</source>
-        <translation type="unfinished">3D</translation>
-    </message>
-    <message>
-        <source>Internal to the core Anatomist distribution - always present</source>
-        <translation type="unfinished">Interne à la distribution Anatomist de base - toujours présent</translation>
-    </message>
-    <message>
-        <source>VolRender</source>
-        <translation type="unfinished">Rendu volumique</translation>
-    </message>
-    <message>
-        <source>Volume rendering package</source>
-        <translation type="unfinished">Module de rendu volumique</translation>
-    </message>
-    <message>
-        <source>Save preferences</source>
-        <translation type="unfinished">Sauver les préférences</translation>
-    </message>
-    <message>
-        <source>Regions of Interest Algos</source>
-        <translation type="unfinished">Algorithmes pour les régions d&apos;intérêt</translation>
-    </message>
-    <message>
-        <source>Segmentation and manipulation of regions of interest : Algorithms module</source>
-        <translation type="unfinished">Segmentation et manipulation de régions d&apos;intérêt: module algorithmes</translation>
-    </message>
-    <message>
-        <source>Anatomist Histograms</source>
-        <translation type="unfinished">Histogrammes</translation>
-    </message>
-    <message>
-        <source>Regions of Interest Base</source>
-        <translation type="unfinished">Base des régions d&apos;intérêt</translation>
-    </message>
-    <message>
-        <source>Segmentation and manipulation of regions of interest : Base module</source>
-        <translation type="unfinished">Segmentation et manipulation de régions d&apos;intérêt: module de base</translation>
-    </message>
-    <message>
-        <source>Open 3 standard views</source>
-        <translation type="unfinished">Ouvrir 3 vues standard</translation>
-    </message>
-    <message>
-        <source>Open a 4 views block</source>
-        <translation type="unfinished">Ouvrir un bloc de 4 vues</translation>
-    </message>
-    <message>
-        <source>Graph Editor</source>
-        <translation type="unfinished">Editeur de graphe</translation>
-    </message>
-    <message>
-        <source>Save object</source>
-        <translation type="unfinished">Sauvegarde d&apos;objet</translation>
-    </message>
-    <message>
-        <source>Save one object at a time !</source>
-        <translation type="unfinished">Sauvez un seul objet à la fois !</translation>
-    </message>
-    <message>
-        <source>Overwrite File ?</source>
-        <translation type="unfinished">Écraser le fichier ?</translation>
-    </message>
-    <message>
-        <source>A file called %1 already exists.Do you want to overwrite it?</source>
-        <translation type="unfinished">Un fichier nommé %1 existe déjà. Voulez-vous l&apos;écraser ?</translation>
-    </message>
-    <message>
-        <source>&amp;Yes</source>
-        <translation type="unfinished">&amp;Oui</translation>
-    </message>
-    <message>
-        <source>&amp;No</source>
-        <translation type="unfinished">&amp;Non</translation>
-    </message>
-    <message>
-        <source>Nomenclatures</source>
-        <translation type="unfinished">Nomenclatures</translation>
-    </message>
-    <message>
-        <source>Label volumes</source>
-        <translation type="unfinished">Volumes de labels</translation>
-    </message>
-    <message>
-        <source>Anatomist / AIMS libraries information</source>
-        <translation type="unfinished">Informations sur les librairies Anatomist / AIMS</translation>
-    </message>
-    <message>
-        <source>Anatomist/AIMS information</source>
-        <translation type="unfinished">Informations sur Anatomist/AIMS</translation>
-    </message>
-    <message>
-        <source>Histogram</source>
-        <translation type="unfinished">Histogramme</translation>
-    </message>
-    <message>
-        <source>Histogram window</source>
-        <translation type="unfinished">Fenêtre Histogramme</translation>
-    </message>
-    <message>
-        <source>Closing forbidden</source>
-        <translation type="unfinished">Fermeture interdite</translation>
-    </message>
-    <message>
-        <source>Anatomist is controlled by another application which does not allow closing the main window</source>
-        <translation type="unfinished">Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anavtk/module/vtkmodule.cc" line="75"/>
         <source>VtkModule</source>
-        <translation type="unfinished">Module VTK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/anavtk/module/vtkmodule.cc" line="81"/>
         <source>Vtk bindings module: allows to use Vtk object in Anatomist windows</source>
-        <translation type="unfinished">Module de liens avec VTK: permet de visualiser des objets VTK dans les fenêtres Anatomist</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/hierarchyeditor/application/hierarchyeditor.cc" line="129"/>
+        <location filename="../../../src/hierarchyeditor/application/hierarchyeditor.cc" line="135"/>
+        <source>Graph Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/histogram/module/histogram.cc" line="64"/>
+        <location filename="../../../src/histogram/winhisto/histoWin.cc" line="154"/>
+        <source>Histogram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/histogram/module/histogram.cc" line="70"/>
+        <source>Histogram window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="655"/>
+        <source>All Anatomist objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="662"/>
+        <source>Volumes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="664"/>
+        <source>DICOM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="665"/>
         <source>Surfacic meshes</source>
-        <translation type="unfinished">Maillages surfaciques</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="667"/>
         <source>Graphs/ROIs sets</source>
-        <translation type="unfinished">Graphes/Jeux de ROIs</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="669"/>
         <source>Voxels lists</source>
-        <translation type="unfinished">Listes de voxels</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="671"/>
+        <source>Nomenclatures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="673"/>
+        <source>Textures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="675"/>
         <source>Other object files</source>
-        <translation type="unfinished">Autres fichiers d&apos;objets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="677"/>
+        <source>Scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/application/Anatomist.cc" line="680"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="325"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="345"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1011"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1033"/>
+        <source>All files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="102"/>
+        <source>File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="103"/>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="106"/>
+        <source>Save global settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="108"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="1214"/>
+        <source>Save windows configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="110"/>
+        <source>Replay scenario</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="113"/>
         <source>Clear everything</source>
-        <translation type="unfinished">Tout effacer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete all objects / windows /referentials ?</source>
-        <translation type="unfinished">Effacer tous les objets / fenêtres / référentiels ?</translation>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="116"/>
+        <source>Quit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All objects, windows, referentials and transformations will be deleted</source>
-        <translation type="unfinished">Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="121"/>
+        <source>Objects</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="122"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="386"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="392"/>
+        <source>Add objects in windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="125"/>
+        <source>Remove objects from windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="129"/>
+        <source>Delete objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="131"/>
+        <source>Reload objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="134"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="605"/>
+        <source>Group objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="136"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="432"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="439"/>
+        <source>Fusion objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="141"/>
+        <source>Windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="153"/>
+        <source>Open 3 standard views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="155"/>
+        <source>Open a 4 views block</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="159"/>
+        <source>Iconify windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="161"/>
+        <source>Restore windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="163"/>
+        <source>Close windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="165"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="657"/>
+        <source>Link windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="168"/>
+        <source>Referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="173"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="174"/>
+        <source>Referential window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="176"/>
+        <source>View Reference colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="179"/>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="181"/>
+        <source>Graph parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="183"/>
+        <source>Save preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="186"/>
+        <source>Reload palettes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="191"/>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="192"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="195"/>
+        <source>About Anatomist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="198"/>
+        <source>Modules...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="200"/>
+        <source>Anatomist/AIMS information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/controlMenuHandler.cc" line="321"/>
+        <source>Object-specific</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="295"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="300"/>
+        <source>Icons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="313"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="324"/>
+        <source>Load object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="325"/>
+        <source>Reads a new object from a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="393"/>
+        <source>Puts selected objects in selected windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="408"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="415"/>
+        <source>Removes objects from windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="416"/>
+        <source>Removes selected objects from selected windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="440"/>
+        <source>Creates a new object combining the selected ones</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="455"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="463"/>
+        <source>Assign referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="464"/>
+        <source>Choose a referential on objects or windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="481"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="489"/>
+        <location filename="../../../src/lib/control/wControl.cc" line="1170"/>
+        <source>ConstraintEditor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="490"/>
         <source>OpenCE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="617"/>
+        <source>Ungroup objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="640"/>
+        <source>Unlink windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="789"/>
+        <source>Load Anatomist objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="837"/>
+        <source>Scenario</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="838"/>
+        <source>Open scenario</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1213"/>
+        <source>Anatomist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1519"/>
+        <source>Index :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1520"/>
+        <source>Name :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1521"/>
+        <source>Description :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1522"/>
+        <source>Modules list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1549"/>
+        <source>Anatomist / AIMS libraries information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1663"/>
+        <source>Closing forbidden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1664"/>
+        <source>Anatomist is controlled by another application which does not allow closing the main window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1673"/>
+        <source>Delete all objects / windows /referentials ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wControl.cc" line="1674"/>
+        <source>All objects, windows, referentials and transformations will be deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/actions.cc" line="158"/>
+        <source>Save object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/actions.cc" line="159"/>
+        <source>Save one object at a time !</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/actions.cc" line="180"/>
+        <source>Overwrite File ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/actions.cc" line="181"/>
+        <source>A file called %1 already exists.Do you want to overwrite it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/actions.cc" line="183"/>
+        <source>&amp;Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/actions.cc" line="183"/>
+        <source>&amp;No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/stdmod/stdmod.cc" line="121"/>
+        <source>Core module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/stdmod/stdmod.cc" line="127"/>
+        <source>Internal to the core Anatomist distribution - always present</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window/winFactory.cc" line="55"/>
+        <source>Axial</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window/winFactory.cc" line="57"/>
+        <source>Coronal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window/winFactory.cc" line="59"/>
+        <source>Sagittal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window/winFactory.cc" line="61"/>
+        <source>3D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/perfusion/module/perfusion.cc" line="65"/>
+        <source>Perfusion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/perfusion/module/perfusion.cc" line="71"/>
+        <source>Perfusion processing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/profile/module/profile.cc" line="64"/>
+        <location filename="../../../src/profile/winprof/profWin.cc" line="176"/>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/profile/module/profile.cc" line="70"/>
+        <source>Profile window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roialgo/application/roialgomodule.cc" line="84"/>
+        <source>Regions of Interest Algos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roialgo/application/roialgomodule.cc" line="90"/>
+        <source>Segmentation and manipulation of regions of interest : Algorithms module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="511"/>
+        <source>Anatomist Histograms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="940"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2827"/>
+        <source>Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="944"/>
+        <source>Label volumes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1205"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2051"/>
+        <source>Hierarchies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="93"/>
+        <source>Regions of Interest Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="99"/>
+        <source>Segmentation and manipulation of regions of interest : Base module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpaintmodule.cc" line="86"/>
         <source>Surfpaint</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/surfpaint/module/surfpaintmodule.cc" line="91"/>
         <source>picking and painting a texture value on the mesh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/volrender/module/volrendermodule.cc" line="71"/>
+        <source>VolRender</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/volrender/module/volrendermodule.cc" line="77"/>
+        <source>Volume rendering package</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ControlledWindow</name>
     <message>
-        <source>ObliqueControl</source>
-        <translation type="unfinished">Contrôle des vues obliques
-Bt gauche: curseur lié
-Bt milieu: rotation
-           &lt;shift&gt;: rotation du plan de coupe
-           &lt;ctrl&gt; : rotation des objets avec plan de coupe fixe
-Bt droit:  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;     :  synchro vues
-&lt;ctrl+c&gt;:  fixe le centre de vue
-&lt;alt+c&gt; :  affiche la position du centre de vue
-Défilement des coupes:
-&lt;PgUp&gt;              :  coupe précédente
-&lt;PgDown&gt;         :  coupe suivante
-&lt;shift+PgUp&gt;     :  temps précédent
-&lt;shift+PgDown&gt;:  temps suivant</translation>
-    </message>
-    <message>
-        <source>Flight control</source>
-        <translation type="unfinished">Simulateur de vol
-Ce contrôle n&apos;est pas encore complètement opérationnel...
-Il permet de changer le point de vue avec les touches du clavier
-Bt gauche: curseur lié
-Bt milieu: rotation
-           &lt;shift&gt;: zoom/distance
-           &lt;ctrl&gt; : translation
-Bt droit :  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;     :  synchro vues
-&lt;ctrl+c&gt;:  fixe le centre de vue
-&lt;alt+c&gt; :  affiche la position du centre de vue
-&lt;flèches&gt;:  manche à balai
-&lt;ctrl+gauche&gt;, &lt;ctrl+droite&gt;:  tourne à plat (palonnier)
-&lt;q&gt;      :  accélère
-&lt;a&gt;      :  freine
-&lt;f&gt;      :  mode vol continu
-&lt;g&gt;      :  arrête le vol continu
-&lt;r&gt;      :  marche avant / arrière</translation>
-    </message>
-    <message>
-        <source>PaintControl</source>
-        <translation type="unfinished">Tracé au pinceau de régions d&apos;intérêt
-D&apos;autres fonctionnalités seront rajoutées ultérieurement
-Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
-Bt gauche  :  Dessin
-        &lt;ctrl&gt;  : Gomme
-                   &lt;shift&gt; : Pot de peinture (remplisage de la région)
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-PINCEAU
-  &lt;p&gt;      :  point
-  &lt;d&gt;      :  disque
-  &lt;b&gt;      :  boule
-  &lt;+&gt;      :  agrandit le rayon du pinceau
-  &lt;-&gt;       :  diminue le rayon du pinceau
-  &lt;shift+l&gt;:  active le mode &apos;ligne&apos;
-  &lt;ctrl +l&gt; :  désactive le mode &apos;ligne&apos;
-  &lt;shift+c&gt;:  active le mode &apos;suivi par curseur lié&apos;
-  &lt;ctrl +c&gt;:  désactive le mode &apos;suivi par curseur lié&apos;
-  &lt;shift+r&gt;:  active le mode de remplacement par la région dessinée
-  &lt;ctrl +r&gt; :  désactive le mode de remplacement par la région dessinée
-  &lt;ctrl +e&gt;:  efface la region dessinée
-  &lt;m&gt;      :  l&apos;unité de la brosse est le mm
-  &lt;v&gt;       :  l&apos;unité de la brosse est le voxel
-  &lt;ctrl+PageUp&gt; : copie sur cette coupe la coupe précédente de la même région
-  &lt;shift+PageUp&gt; : copie sur cette coupe la coupe précédente de la session entière
-  &lt;ctrl+PageDown&gt; : copie sur cette coupe la coupe suivante de la même région
-  &lt;shift+PageDown&gt; : copie sur cette coupe la coupe suivante de la session entière
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo (efface la dernière modification)
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
-        <source>Selection 3D</source>
-        <translation type="obsolete">Sélection
-Bt gauche: sélection
-           &lt;shift&gt;: sélection additive
-           &lt;ctrl&gt; : modif. sélection
-Bt milieu: rotation
-           &lt;shift&gt;/ molette : zoom/distance
-           &lt;ctrl&gt; : translation
-Bt droit:  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;     :  synchro vues
-&lt;ctrl+c&gt;:  fixe le centre de vue
-&lt;alt+c&gt; :  affiche la position du centre de vue
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe
-Défilement des coupes:
-&lt;PgUp&gt;              :  coupe précédente
-&lt;PgDown&gt;         :  coupe suivante
-&lt;shift+PgUp&gt;     :  temps précédent
-&lt;shift+PgDown&gt;:  temps suivant
-&lt;espace&gt;         : &quot;pipette&quot;, mémorise le label des objets sélectionnés
-&lt;ctrl&gt;+&lt;entrée&gt;: applique le label courant aux objets sélectionnés</translation>
-    </message>
-    <message>
-        <source>Default 3D control</source>
-        <translation type="unfinished">Contrôle par défaut
-Bt gauche: curseur lié
-Bt milieu: rotation
-     &lt;shift&gt; ou molette : zoom/distance
-     &lt;ctrl&gt;                   : translation
-Bt droit    :  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;         :  synchro vues
-&lt;alt+s&gt;    :  synchro vues (orientation seulement)
-&lt;ctrl+c&gt;   :  fixe le centre de vue
-&lt;alt+c&gt;    :  affiche la position du centre de vue
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe
-Défilement des coupes:
-&lt;PgUp&gt;             :  coupe précédente
-&lt;PgDown&gt;         :  coupe suivante
-&lt;shift+PgUp&gt;     :  temps précédent
-&lt;shift+PgDown&gt; :  temps suivant
-&lt;ctrl+l&gt;              :  mode curseur lié bougeant avec les coupes
-&lt;ctrl+s&gt;             :  sélection du mode &apos;coupes&apos;
-&lt;ctrl+t&gt;              :  sélection du mode &apos;temps&apos;
-&lt;espace&gt;           :  défilement / arrêt du défilement des coupes
-&lt;ctrl+espace&gt;    :  mode &quot;apesanteur&quot;: rotation continue
-&lt;ctrl+m&gt;            :  change le mode de défilement des coupes
-&lt;+&gt;                   :  défile plus vite
-&lt;-&gt;                    :  défile moins vite</translation>
-    </message>
-    <message>
-        <source>TransformControl</source>
-        <translation type="unfinished">Contrôle de transformation:
-joue sur la transformation entre les objets sélectionnés et
-la vue
-Il s&apos;utilise comme le contrôle des vues obliques, sauf qu&apos;il
-opère sur la transformation au lieu du plan de coupe:
-les coordonnées des objets changent par raport aux autres.
-De plus:
-&lt;shift&gt; + btn gauche : change l&apos;échelle
-&lt;ctrl&gt;   + btn gauche : rotation dans le plan de coupe</translation>
-    </message>
-    <message>
-        <source>LevelSetControl</source>
-        <translation type="obsolete">Obtention de régions d&apos;intérêt par iso-contours
-Définissez une ROI, activez le LevelSet dans la boite à outil, choisissez vos bornes inférieure et supérieure,
-puis cliquez dans l&apos;image sur la région colorée à segmenter.
-
-Bouton de gauche : Ajout à la région courante
-              &lt;ctrl&gt; : Remplace la région courante
-              &lt;shift&gt;: segmentation d&apos;un blob autour de l&apos;extremum local le plus proche 
-                          (sélectionnez sa taille dans la Boite à Outil : LevelSet)
-
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-&lt;a&gt;               : active les iso-contours
-&lt;d&gt;               : désactive les iso-contourss
-&lt;Shift&gt; + &lt;B&gt; : Mode &quot;bosse&quot; pour la segmentation de blob
-&lt;Cntrl&gt; + &lt;B&gt; : Mode &quot;creux&quot; pour la segmentation de blob
-&lt;Shift&gt; + &lt;2&gt;  : mode 2D
-&lt;Shift&gt; + &lt;3&gt;  : mode 3D
-&lt;u&gt;      :  undo (efface la dernière modification)
-&lt;r&gt;      :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
-        <source>DynSegmentControl</source>
-        <translation type="unfinished">Obtention de régions d&apos;intérêt par analyse discriminante (séries dynamiques seulement)
-Définissez une ROI sur l&apos;image dynamique, puis cliquez sur la série dynamique au sein de l&apos;organe à segmenter.
-(Cette fonctionalité a été testée sur les images de ligands oligonucléotidiques)
-
-Bouton de gauche : Ajout à la région courante
-              &lt;ctrl&gt; : Remplace la région courante
-
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-&lt;Shift&gt; + &lt;2&gt;  : mode 2D
-&lt;Shift&gt; + &lt;3&gt;  : mode 3D
-&lt;Shift&gt; + &lt;o&gt;  : augmentation du nombre de valeurs propres prises en compte
-&lt;Ctrl&gt;  + &lt;o&gt;  : diminution du nombre de valeurs propres prises en compte
-&lt;Shift&gt; + &lt;f&gt;   : augmentation de l&apos;intervalle de confiance
-&lt;Ctrl&gt;  + &lt;f&gt;   : diminution de l&apos;intervalle de confiance
-&lt;Shift&gt; + &lt;m&gt; : activation du mode de recherche du minimum d&apos;erreur le plus proche
-&lt;Ctrl&gt;  + &lt;m&gt;  : désactivation du mode de recherche du minimum d&apos;erreur le plus proche
-
-&lt;u&gt;      :  undo (efface la dernière modification)
-&lt;r&gt;      :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
-        <source>CutControl</source>
-        <translation type="unfinished">Coupe sur maillage
-Bouge le plan de coupe des maillages coupés
-Bt gauche: curseur lié
-Bt milieu: rotation
-     &lt;shift&gt; : rotation du plan de coupe des objets sélectionnés
-     &lt;ctrl&gt;   : translation du plan de coupe des objets sélectionnés
-Bt droit    :  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;         :  synchro vues
-&lt;alt+s&gt;    :  synchro vues (orientation seulement)
-&lt;ctrl+c&gt;   :  fixe le centre de vue
-&lt;alt+c&gt;    :  affiche la position du centre de vue
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe
-&lt;shift+a&gt; :  plan axial
-&lt;shift+c&gt; :  plan coronal
-&lt;shift+s&gt; :  plan sagittal</translation>
-    </message>
-    <message>
-        <source>LabelNamingControl</source>
-        <translation type="unfinished">Mode de dessin de ROI par selection de label
-Définissez une ROI sur une image de labels et clicked sur un label de l&apos;image
-pour dessiner votre région
-
-Bouton Gauche : ajouter à la région la composante connexe au point sélectionné
-              &lt;ctrl&gt; : enlever de la région la composante connexe au point sélectionné
-            &lt;shift&gt; : ajouter à la région tout les points de l&apos;image du label selectionné
-
-Middle Button  :  rotation
-              &lt;shift&gt;: zoom
-              &lt;ctrl&gt; : translation
-Right Button   :  menu
-
-&lt;u&gt;               :  undo (efface la dernière modification)
-&lt;r&gt;                :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
-        <source>RoiControl</source>
-        <translation type="obsolete">Ouvre la boite à outil de ROI</translation>
-    </message>
-    <message>
-        <source>SurfpaintControl</source>
-        <translation type="obsolete">Outils dessin maillages</translation>
-    </message>
-    <message>
-        <source>SurfpaintColorPickerControl</source>
-        <translation type="obsolete">pipette à texture :
-        clic gauche : choisir un vertex
-        </translation>
-    </message>
-    <message>
-        <source>SurfpaintBrushControl</source>
-        <translation type="obsolete">pinceau :
-        clic gauche : attribue la valeur de texture sélectionnée au vertex le plus proche
-        </translation>
-    </message>
-    <message>
-        <source>Browser Selection</source>
-        <translation type="unfinished">Contrôle du browser
-&lt;ctrl+w&gt;  :  fermer la fenêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe</translation>
-    </message>
-    <message>
-        <source>ThresholdControl</source>
-        <translation type="obsolete">Tracé semi-automatique de ROI avec une contraite de connectivité.
-Bt Gauche : ajoute à la région courante la zone bleue de l&apos;image connexe au point cliqué
-        &lt;ctrl&gt;  : remplace la région courante par la zone bleue de l&apos;image connexe au point cliqué
-        &lt;shift&gt; : segmente le blob ou le trou le plus proche du point cliqué (pensez à sélectionner les valeurs correctes des paramètres &quot;taille de région&quot; et &quot;pourcentage de l&apos;extremum&quot;)
-
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-
-BRUSH
-  &lt;a&gt; :  activation de la pré-visualisation du seuillage
-  &lt;d&gt; :  désactivation de la pré-visualisation du seuillage
-  &lt;shift+b&gt; :  mode Blob pour la détection de blob
-  &lt;control+b&gt;       :  mode Trou pour la détection de blob
-  &lt;shift+2&gt;       :  seuillage de la coupe courante
-  &lt;shift+3&gt;       :  seuillage du volume
-  &lt;ctrl+PageUp&gt; : copie sur cette coupe la coupe précédente de la même région
-  &lt;shift+PageUp&gt; : copie sur cette coupe la coupe précédente de la session entière
-  &lt;ctrl+PageDown&gt; : copie sur cette coupe la coupe suivante de la même région
-  &lt;shift+PageDown&gt; : copie sur cette coupe la coupe suivante de la session entière
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo (efface la dernière modification)
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
-        <source>ConnectivityThresholdControl</source>
-        <translation type="unfinished">Obtention de régions d&apos;intérêt par seuillage avec une contrainte de connexité
-Définissez une ROI, activez la prévisualisation du seuillage dans la boite à outil, choisissez vos bornes 
-inférieure et supérieure, puis cliquez dans l&apos;image sur la région colorée à segmenter.
-
-Bouton de gauche : Ajout à la région courante
-              &lt;ctrl&gt; : Remplace la région courante
-              &lt;shift&gt;: segmentation d&apos;un blob autour de l&apos;extremum local le plus proche 
-                          (sélectionnez sa taille dans la Boite à Outil : LevelSet)
-
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-&lt;a&gt;               : active les iso-contours
-&lt;d&gt;               : désactive les iso-contourss
-&lt;Shift&gt; + &lt;B&gt; : Mode &quot;bosse&quot; pour la segmentation de blob
-&lt;Cntrl&gt; + &lt;B&gt; : Mode &quot;creux&quot; pour la segmentation de blob
-&lt;Shift&gt; + &lt;2&gt;  : mode 2D
-&lt;Shift&gt; + &lt;3&gt;  : mode 3D
-&lt;u&gt;      :  undo (efface la dernière modification)
-&lt;r&gt;      :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
-        <source>controls</source>
-        <translation type="unfinished">contrôles</translation>
-    </message>
-    <message>
+        <location filename="../../../src/hierarchyeditor/control/nodeselectioncontrol.cc" line="65"/>
         <source>NodeSelectionControl</source>
-        <translation type="unfinished">Contrôle de sélection de noeuds</translation>
-    </message>
-    <message>
-        <source>Selected label: </source>
-        <translation type="unfinished">Label sélectionné: </translation>
-    </message>
-    <message>
-        <source>&lt;none&gt;</source>
-        <translation type="unfinished">&lt;aucun&gt;</translation>
-    </message>
-    <message>
-        <source>Label picker: &lt;space&gt; to pick the label from currently selected objects
-  &lt;ctrl&gt;+&lt;return&gt; to change the label of currently selected objects to this label</source>
-        <translation type="unfinished">Pipette à label: &lt;espace&gt; pour récupérer l&apos;étiquette des objets sélectionnés
-  &lt;ctrl&gt;+&lt;entrée&gt; pour changer pour ce label l&apos;étiquette des objets sélectionnés</translation>
-    </message>
-    <message>
-        <source>Selection tools</source>
-        <translation type="unfinished">Outils de sélection</translation>
-    </message>
-    <message>
-        <source>Selection label</source>
-        <translation type="unfinished">Label de sélection</translation>
-    </message>
-    <message>
-        <source>SurfpaintToolsControl</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/browsercontrol.cc" line="49"/>
+        <source>Browser Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/constrainteditor/wConstraintEditor.cc" line="125"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="378"/>
         <source>Texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>not object selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot open surfpaint Toolbox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>not texture associated</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>surfpainttoolbarControls</source>
-        <translation type="unfinished">Actions (surfpaint)</translation>
-    </message>
-    <message>
-        <source>Area magic selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GeodesicPath</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unconstrained</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sulci</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>gyri</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete all selected objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Brush</source>
-        <translation type="unfinished">Pinceau</translation>
-    </message>
-    <message>
-        <source>Fill area or path selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Eraser</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save texture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>surfpainttoolbarTex</source>
-        <translation type="unfinished">Infos texture (surfpaint)</translation>
-    </message>
-    <message>
-        <source>TextureValue</source>
-        <translation type="unfinished">Texture :</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbar3D</source>
-        <translation type="unfinished">Infos 3D (surfpaint)</translation>
-    </message>
-    <message>
-        <source>IDPolygon</source>
-        <translation type="unfinished">Triangle :</translation>
-    </message>
-    <message>
-        <source>IDVertex</source>
-        <translation type="unfinished">Sommet :</translation>
-    </message>
-    <message>
-        <source>constraint</source>
-        <translation type="unfinished">Tension :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/constrainteditor/wConstraintEditor.cc" line="376"/>
         <source>Open map of constrained path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/constrainteditor/wConstraintEditor.cc" line="389"/>
         <source>Open list of constrained value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window/controlledWindow.cc" line="160"/>
+        <source>controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="83"/>
+        <source>Default 3D control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="471"/>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="477"/>
+        <source>Selection tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="479"/>
+        <source>Selection label</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="1148"/>
+        <source>Flight control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="1372"/>
+        <source>ObliqueControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="1499"/>
+        <source>TransformControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/control3D.cc" line="1641"/>
+        <source>CutControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/labeleditaction.cc" line="257"/>
+        <source>Selected label: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/labeleditaction.cc" line="259"/>
+        <source>&lt;none&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/labeleditaction.cc" line="263"/>
+        <source>Label picker: &lt;space&gt; to pick the label from currently selected objects
+  &lt;ctrl&gt;+&lt;return&gt; to change the label of currently selected objects to this label</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roialgo/control/dynsegmentcontrol.cc" line="80"/>
+        <source>DynSegmentControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/control/labelnamingcontrol.cc" line="79"/>
+        <source>LabelNamingControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/control/levelsetcontrol.cc" line="80"/>
+        <source>ConnectivityThresholdControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/control/paintcontrol.cc" line="82"/>
+        <source>PaintControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/control/surfpaintcontrol.cc" line="61"/>
+        <source>SurfpaintToolsControl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="424"/>
+        <source>not object selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="425"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="445"/>
+        <source>Cannot open surfpaint Toolbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="444"/>
+        <source>not texture associated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="571"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="575"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="576"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="579"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="581"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="730"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="733"/>
+        <source>surfpainttoolbarControls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="614"/>
+        <source>Area magic selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="626"/>
+        <source>GeodesicPath</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="634"/>
+        <source>Unconstrained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="640"/>
+        <source>sulci</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="645"/>
+        <source>gyri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="656"/>
+        <source>Delete all selected objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="665"/>
         <source>MagicBrush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="676"/>
+        <source>Brush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="687"/>
+        <source>Fill area or path selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="695"/>
+        <source>Eraser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="706"/>
+        <source>Save texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="751"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="755"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="756"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="759"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="761"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="881"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="887"/>
+        <source>surfpainttoolbarTex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="766"/>
+        <source>TextureValue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="820"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="822"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="823"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="826"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="827"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="882"/>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="888"/>
+        <source>surfpainttoolbar3D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="832"/>
+        <source>IDPolygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="840"/>
+        <source>IDVertex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="858"/>
+        <source>constraint</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ErpWraper</name>
     <message>
-        <source>Cell:</source>
-        <translation type="unfinished">Cellule :</translation>
-    </message>
-    <message>
-        <source>Observation:</source>
-        <translation type="unfinished">Observation :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/erpio/erpWraper.cc" line="87"/>
         <source>ERP loader : </source>
-        <translation type="unfinished">Chargeur d&apos;ERP : </translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/erpio/erpWraper.cc" line="99"/>
+        <source>Cell:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/erpio/erpWraper.cc" line="109"/>
+        <source>Observation:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ErrorMessage</name>
     <message>
+        <location filename="../../../src/lib/commands/cSaveObject.cc" line="88"/>
         <source>Save failed: object </source>
-        <translation type="unfinished">Echec de la sauvegarde: l&apos;objet </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/commands/cSaveObject.cc" line="92"/>
         <source> could not be saved to </source>
-        <translation type="unfinished"> n&apos;a pas pu être sauvé sous </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/processor/errormessage.cc" line="49"/>
         <source>Warning</source>
-        <translation type="unfinished">Attention</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/processor/errormessage.cc" line="53"/>
         <source>Error</source>
-        <translation type="unfinished">Erreur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/processor/errormessage.cc" line="57"/>
         <source>Message</source>
-        <translation type="unfinished">Message</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FixedPointOfViewWindow</name>
     <message>
-        <source>Top</source>
-        <translation type="unfinished">Haut</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation type="unfinished">Arrière</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">Gauche</translation>
-    </message>
-    <message>
-        <source>Front</source>
-        <translation type="unfinished">Avant</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">Droite</translation>
-    </message>
-    <message>
-        <source>Front bottom</source>
-        <translation type="unfinished">Avant bas</translation>
-    </message>
-    <message>
-        <source>Right bottom</source>
-        <translation type="unfinished">Droite bas</translation>
-    </message>
-    <message>
-        <source>Front bottom left</source>
-        <translation type="unfinished">Avant bas gauche</translation>
-    </message>
-    <message>
-        <source>Front top right</source>
-        <translation type="unfinished">Avant haut droite</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation type="unfinished">Bas</translation>
-    </message>
-    <message>
-        <source>Front left</source>
-        <translation type="unfinished">Avant gauche</translation>
-    </message>
-    <message>
-        <source>Back top right</source>
-        <translation type="unfinished">Arrière haut droite</translation>
-    </message>
-    <message>
-        <source>Front right</source>
-        <translation type="unfinished">Avant droite</translation>
-    </message>
-    <message>
-        <source>Front top</source>
-        <translation type="unfinished">Avant haut</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="201"/>
         <source>Standard point of view</source>
-        <translation type="unfinished">Points de vue standards</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Back bottom</source>
-        <translation type="unfinished">Arrière bas</translation>
-    </message>
-    <message>
-        <source>Left bottom</source>
-        <translation type="unfinished">Gauche bas</translation>
-    </message>
-    <message>
-        <source>Edge view :</source>
-        <translation type="unfinished">Vue d&apos;une arête :</translation>
-    </message>
-    <message>
-        <source>Back top</source>
-        <translation type="unfinished">Arrière haut</translation>
-    </message>
-    <message>
-        <source>Back bottom left</source>
-        <translation type="unfinished">Arrière bas gauche</translation>
-    </message>
-    <message>
-        <source>Back bottom right</source>
-        <translation type="unfinished">Arrière bas droite</translation>
-    </message>
-    <message>
-        <source>Back left</source>
-        <translation type="unfinished">Arrière gauche</translation>
-    </message>
-    <message>
-        <source>Left top</source>
-        <translation type="unfinished">Gauche haut</translation>
-    </message>
-    <message>
-        <source>Front bottom right</source>
-        <translation type="unfinished">Avant bas droite</translation>
-    </message>
-    <message>
-        <source>Back right</source>
-        <translation type="unfinished">Arrière droite</translation>
-    </message>
-    <message>
-        <source>Corner view :</source>
-        <translation type="unfinished">Vue d&apos;un coin :</translation>
-    </message>
-    <message>
-        <source>Right top</source>
-        <translation type="unfinished">Droite haut</translation>
-    </message>
-    <message>
-        <source>Back top left</source>
-        <translation type="unfinished">Arrière haut gauche</translation>
-    </message>
-    <message>
-        <source>Front top left</source>
-        <translation type="unfinished">Avant haut gauche</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="205"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="342"/>
         <source>Straight view :</source>
-        <translation type="unfinished">Vue directe :</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="211"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="344"/>
+        <source>Front</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="215"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="345"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="219"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="346"/>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="223"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="347"/>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="227"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="348"/>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="231"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="349"/>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="239"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="351"/>
+        <source>Edge view :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="245"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="352"/>
+        <source>Front top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="249"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="353"/>
+        <source>Front bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="253"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="354"/>
+        <source>Front left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="257"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="355"/>
+        <source>Front right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="261"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="356"/>
+        <source>Back top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="265"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="357"/>
+        <source>Back bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="269"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="358"/>
+        <source>Back left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="273"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="359"/>
+        <source>Back right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="277"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="360"/>
+        <source>Left top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="281"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="361"/>
+        <source>Left bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="285"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="362"/>
+        <source>Right top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="289"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="363"/>
+        <source>Right bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="298"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="365"/>
+        <source>Corner view :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="304"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="366"/>
+        <source>Front top left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="308"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="367"/>
+        <source>Front top right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="312"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="368"/>
+        <source>Front bottom left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="316"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="369"/>
+        <source>Front bottom right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="320"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="370"/>
+        <source>Back top left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="324"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="371"/>
+        <source>Back top right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="328"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="372"/>
+        <source>Back bottom left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="332"/>
+        <location filename="../../../src/lib/window3D/wFixedPointOfView.cc" line="373"/>
+        <source>Back bottom right</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Form</name>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="24"/>
         <source>Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="35"/>
         <source>Affichage</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
+        <location filename="../../python_plugins/modelGraphs.ui" line="62"/>
         <source>Données :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="70"/>
         <source>Type :</source>
-        <translation type="unfinished">Type :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="86"/>
         <source>raw</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="91"/>
         <source>mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="96"/>
         <source>bad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="101"/>
         <source>good</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="111"/>
         <source>sillons seulements</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="116"/>
         <source>sillons + relations</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
+        <location filename="../../python_plugins/modelGraphs.ui" line="140"/>
         <source>Différences absolues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="222"/>
         <source>Fermer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/modelGraphs.ui" line="230"/>
         <source>Appliquer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1376,560 +1418,656 @@ Bt droit   :  menu
 <context>
     <name>Fusion2DWindow</name>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion2D.cc" line="93"/>
         <source>Fusion 2D control</source>
-        <translation type="unfinished">Contrôle de fusion 2D</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion2D.cc" line="205"/>
         <source>Objects :</source>
-        <translation type="unfinished">Objets :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion2D.cc" line="209"/>
         <source>Up</source>
-        <translation type="unfinished">Monter</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion2D.cc" line="210"/>
         <source>Down</source>
-        <translation type="unfinished">Descendre</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Fusion3DWindow</name>
     <message>
-        <source>Max</source>
-        <translation type="unfinished">Max</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation type="unfinished">Min</translation>
-    </message>
-    <message>
-        <source>Mean</source>
-        <translation type="unfinished">Moyenne</translation>
-    </message>
-    <message>
-        <source>Rate</source>
-        <translation type="unfinished">Proportion</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="175"/>
         <source>Apply</source>
-        <translation type="unfinished">Appliquer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Line to point</source>
-        <translation type="unfinished">Ligne</translation>
-    </message>
-    <message>
-        <source>Linear</source>
-        <translation type="unfinished">Linéaire</translation>
-    </message>
-    <message>
-        <source>Inside line to point</source>
-        <translation type="unfinished">Ligne à l&apos;intérieur</translation>
-    </message>
-    <message>
-        <source>Enhanced mean</source>
-        <translation type="unfinished">Moyenne rehaussée</translation>
-    </message>
-    <message>
-        <source>Point to point</source>
-        <translation type="unfinished">Point</translation>
-    </message>
-    <message>
-        <source>Outside line to point</source>
-        <translation type="unfinished">Ligne à l&apos;extérieur</translation>
-    </message>
-    <message>
-        <source>Parameters :</source>
-        <translation type="unfinished">Paramètres :</translation>
-    </message>
-    <message>
-        <source>Depth (mm)</source>
-        <translation type="unfinished">Profondeur (mm)</translation>
-    </message>
-    <message>
-        <source>Methods :</source>
-        <translation type="unfinished">Méthodes :</translation>
-    </message>
-    <message>
-        <source>Step (mm)</source>
-        <translation type="unfinished">Pas (mm)</translation>
-    </message>
-    <message>
-        <source>Geometrical</source>
-        <translation type="unfinished">Géométrique</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="181"/>
         <source>Fusion mode :</source>
-        <translation type="unfinished">Mode de fusion :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Corrected mean</source>
-        <translation type="unfinished">Moyenne corrigée</translation>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="183"/>
+        <source>Geometrical</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Submethods :</source>
-        <translation type="unfinished">Sous-méthodes :</translation>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="184"/>
+        <source>Linear</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sphere to point</source>
-        <translation type="unfinished">Sphère</translation>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="189"/>
+        <source>Rate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="192"/>
+        <source>Methods :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="194"/>
+        <source>Point to point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="195"/>
         <source>Point to point with depth offset (inside)</source>
-        <translation type="unfinished">Point à point décalé en profondeur (intérieur)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="197"/>
         <source>Point to point with depth offset (outside)</source>
-        <translation type="unfinished">Point à point décalé en profondeur (extérieur)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="199"/>
+        <source>Line to point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="200"/>
+        <source>Inside line to point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="201"/>
+        <source>Outside line to point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="202"/>
+        <source>Sphere to point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="205"/>
+        <source>Submethods :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="207"/>
+        <source>Max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="208"/>
+        <source>Min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="209"/>
+        <source>Mean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="210"/>
+        <source>Corrected mean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="212"/>
+        <source>Enhanced mean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="213"/>
         <source>Abs. Max</source>
-        <translation type="unfinished">Max. abs</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="215"/>
+        <source>Parameters :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="223"/>
+        <source>Depth (mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/wFusion3D.cc" line="231"/>
+        <source>Step (mm)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FusionChooser</name>
     <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <source>Which fusion ?</source>
-        <translation type="unfinished">Quelle fusion ?</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
-        <source>Fusion2DMethod</source>
-        <translation type="unfinished">Volumes superposés</translation>
-    </message>
-    <message>
-        <source>Fusion3DMethod</source>
-        <translation type="unfinished">Plaque sur le maillage une texture correspondant aux valeurs trouvées dans le volume</translation>
-    </message>
-    <message>
-        <source>PlanarFusion3DMethod</source>
-        <translation type="unfinished">Plaque sur un maillage planaire une texture 2D correspondant à une coupe de volume</translation>
-    </message>
-    <message>
-        <source>FusionTextureMethod</source>
-        <translation type="unfinished">Fabrique une texture 2D à partir de deux textures 1D</translation>
-    </message>
-    <message>
-        <source>FusionMultiTextureMethod</source>
-        <translation type="unfinished">Multi-texture: permet d&apos;appliquer plusieurs textures sur un maillage</translation>
-    </message>
-    <message>
-        <source>FusionCutMeshMethod</source>
-        <translation type="unfinished">Maillage coupé par un plan: le plan de coupe contiendra la texture du volume</translation>
-    </message>
-    <message>
-        <source>FusionSliceMethod</source>
-        <translation type="unfinished">Coupe d&apos;orientation indépendante de la vue</translation>
-    </message>
-    <message>
-        <source>FusionTexSurfMethod</source>
-        <translation type="unfinished">Surface texturée</translation>
-    </message>
-    <message>
-        <source>Plane</source>
-        <translation type="unfinished">Intersection d&apos;un maillage et d&apos;un plan de coupe</translation>
-    </message>
-    <message>
-        <source>Cylinder</source>
-        <translation type="unfinished">Cylindre passant par les centres de gravité des deux objets sélectionnés</translation>
-    </message>
-    <message>
-        <source>SurfaceMatcher</source>
-        <translation type="unfinished">Mise en correspondance de surfaces. Cet objet donne accès à un algorithme de déformation de surface qui déformera une surface vers l&apos;autre</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/interpoler/interpolMethod.cc" line="51"/>
         <source>Interpoler</source>
-        <translation type="unfinished">Interpoleur: permet d&apos;interpoler les textures faites pour un maillage sur un autre maillage de géométrie différente. Pour espérer un résultat raisonnable, il vaut mieux utiliser d&apos;abord un &quot;SurfaceMatcher&quot; qui déforme une surface vers l&apos;autre</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>VolumeRenderingFusionMethod</source>
-        <translation type="unfinished">Rendu volumique</translation>
+        <location filename="../../../src/anasurfmatch/landmark/plane.cc" line="62"/>
+        <source>Plane</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/anasurfmatch/landmark/plane.cc" line="229"/>
+        <source>Cylinder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/surfmatcher/surfMatchMethod.cc" line="46"/>
+        <source>SurfaceMatcher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="60"/>
+        <source>Fusion2DMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="87"/>
+        <source>Fusion3DMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="131"/>
+        <source>PlanarFusion3DMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="196"/>
+        <source>FusionTextureMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="232"/>
+        <source>FusionMultiTextureMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="261"/>
+        <source>FusionCutMeshMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="304"/>
+        <source>FusionSliceMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="355"/>
         <source>FusionRGBAVolumeMethod</source>
-        <translation type="unfinished">Extraction de volume RGBA</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="363"/>
         <source>FusionClipMethod</source>
-        <translation type="unfinished">Clipping: tronque l&apos;objet par un demi-espace défini par un plan (un seul côté du plan est affiché)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/fusion/defFusionMethods.cc" line="403"/>
         <source>TesselationMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/fusionChooser.cc" line="90"/>
+        <source>Which fusion ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/fusionChooser.cc" line="99"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/fusion/fusionChooser.cc" line="100"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/surface/fusiontexsurf.cc" line="46"/>
+        <source>FusionTexSurfMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/volrender/module/volrenderfusionmethod.cc" line="72"/>
+        <source>VolumeRenderingFusionMethod</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GraphLandmarkPicker</name>
     <message>
-        <source>Pick landmark</source>
-        <translation type="unfinished">Choisir un point de repère</translation>
-    </message>
-    <message>
-        <source>Landmark type :</source>
-        <translation type="unfinished">Type de points de repère :</translation>
-    </message>
-    <message>
-        <source>Point bucket</source>
-        <translation type="unfinished">Voxel (bucket)</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/landmark/graphLandmark.cc" line="125"/>
         <source>Landmarks picker on </source>
-        <translation type="unfinished">Prise de points de repère sur </translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/landmark/graphLandmark.cc" line="130"/>
+        <source>Landmark type :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/landmark/graphLandmark.cc" line="132"/>
+        <source>Point bucket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/landmark/graphLandmark.cc" line="134"/>
+        <source>Pick landmark</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LightModelWindow</name>
     <message>
-        <source>X :</source>
-        <translation type="unfinished">X :</translation>
-    </message>
-    <message>
-        <source>Y :</source>
-        <translation type="unfinished">Y :</translation>
-    </message>
-    <message>
-        <source>Z :</source>
-        <translation type="unfinished">Z :</translation>
-    </message>
-    <message>
-        <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
-    </message>
-    <message>
-        <source>Linear :</source>
-        <translation type="unfinished">Linéaire :</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="unfinished">Modèle</translation>
-    </message>
-    <message>
-        <source>Position :</source>
-        <translation type="unfinished">Position :</translation>
-    </message>
-    <message>
-        <source>Local viewer</source>
-        <translation type="unfinished">Observateur local</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation type="unfinished">Source</translation>
-    </message>
-    <message>
-        <source>Attenuation</source>
-        <translation type="unfinished">Atténuation</translation>
-    </message>
-    <message>
-        <source>Exponent :</source>
-        <translation type="unfinished">Exposant :</translation>
-    </message>
-    <message>
-        <source>Quadratic :</source>
-        <translation type="unfinished">Quadratique :</translation>
-    </message>
-    <message>
-        <source>Ambient :</source>
-        <translation type="unfinished">Ambiante :</translation>
-    </message>
-    <message>
-        <source>Parameters :</source>
-        <translation type="unfinished">Paramètres :</translation>
-    </message>
-    <message>
-        <source>Controlers :</source>
-        <translation type="obsolete">Contrôleurs :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="90"/>
         <source>Light model : </source>
-        <translation type="unfinished">Modèle de lumière : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Constant :</source>
-        <translation type="unfinished">Constant :</translation>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="117"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="141"/>
+        <source>Ambient :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specular :</source>
-        <translation type="unfinished">Spéculaire :</translation>
-    </message>
-    <message>
-        <source>Direction :</source>
-        <translation type="unfinished">Direction :</translation>
-    </message>
-    <message>
-        <source>Cutoff :</source>
-        <translation type="unfinished">Coupure :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="123"/>
         <source>Diffuse :</source>
-        <translation type="unfinished">Diffuse :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="129"/>
+        <source>Specular :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="147"/>
         <source>Background :</source>
-        <translation type="unfinished">Fond :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="154"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="212"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="241"/>
+        <source>Parameters :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="155"/>
+        <source>Local viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="157"/>
         <source>Two side</source>
-        <translation type="unfinished">Eclairage des 2 côtés</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="166"/>
+        <source>Position :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="169"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="192"/>
+        <source>X :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="176"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="199"/>
+        <source>Y :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="183"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="206"/>
+        <source>Z :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="189"/>
+        <source>Direction :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="213"/>
+        <source>Exponent :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="220"/>
+        <source>Cutoff :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="242"/>
+        <source>Constant :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="250"/>
+        <source>Linear :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="258"/>
+        <source>Quadratic :</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MaterialWindow</name>
     <message>
-        <source>Blue</source>
-        <translation type="obsolete">Bleu</translation>
-    </message>
-    <message>
-        <source>Red:</source>
-        <translation type="unfinished">Rouge :</translation>
-    </message>
-    <message>
-        <source>Shininess :</source>
-        <translation type="unfinished">Étendue des reflets :</translation>
-    </message>
-    <message>
-        <source>Green:</source>
-        <translation type="unfinished">Vert :</translation>
-    </message>
-    <message>
-        <source>Value:</source>
-        <translation type="unfinished">Valeur :</translation>
-    </message>
-    <message>
-        <source>Opacity:</source>
-        <translation type="unfinished">Opacité :</translation>
-    </message>
-    <message>
-        <source>Responsive</source>
-        <translation type="unfinished">Temps-réel</translation>
-    </message>
-    <message>
-        <source>Advanced settings</source>
-        <translation type="unfinished">Réglages avancés</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="211"/>
         <source>Ambient :</source>
-        <translation type="unfinished">Ambiante :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fast color selection</source>
-        <translation type="unfinished">Sélection rapide</translation>
-    </message>
-    <message>
-        <source>Emission :</source>
-        <translation type="unfinished">Emission :</translation>
-    </message>
-    <message>
-        <source>Specular :</source>
-        <translation type="unfinished">Spéculaire :</translation>
-    </message>
-    <message>
-        <source>Update mode :</source>
-        <translation type="unfinished">Mode de mise à jour :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="214"/>
         <source>Diffuse :</source>
-        <translation type="unfinished">Diffuse :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rendering</source>
-        <translation type="unfinished">Rendu</translation>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="217"/>
+        <source>Emission :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="220"/>
+        <source>Specular :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="223"/>
+        <source>Shininess :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="226"/>
+        <source>Value:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="235"/>
+        <source>Update mode :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="236"/>
+        <source>Responsive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="247"/>
         <source>Rendering mode :</source>
-        <translation type="unfinished">Mode d&apos;affichage :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="249"/>
         <source>Default (view setting)</source>
-        <translation type="unfinished">Défaut (réglages de la vue)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="250"/>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="251"/>
         <source>Wireframe</source>
-        <translation type="unfinished">Fil de fer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="252"/>
         <source>Outlined (filled faces + wireframes)</source>
-        <translation type="unfinished">Entourés (faces pleines + fils de fer)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="253"/>
         <source>Wireframe with hidden faces</source>
-        <translation type="unfinished">Fil de fer avec faces cachées</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="255"/>
         <source>Display properties :</source>
-        <translation type="unfinished">Propriétés d&apos;affichage :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="257"/>
         <source>Enable lighting</source>
-        <translation type="unfinished">Activer l&apos;éclairage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="259"/>
         <source>Smooth shading</source>
-        <translation type="unfinished">Couleurs lissées</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="261"/>
         <source>Smooth polygons / lines</source>
-        <translation type="unfinished">Polygônes / lignes filtrés</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="263"/>
         <source>Write in depth buffer</source>
-        <translation type="unfinished">Écrire dans le buffer de profondeur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="265"/>
         <source>Cull polygon faces</source>
-        <translation type="unfinished">Eliminer les faces vues de dos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="300"/>
+        <source>Red:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="309"/>
+        <source>Green:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="318"/>
         <source>Blue:</source>
-        <translation type="unfinished">Bleu :</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="327"/>
+        <source>Opacity:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MeshPaint</name>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="202"/>
         <source>&amp;trackball</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="203"/>
         <source>trackball</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="210"/>
         <source>&amp;ColorPicker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="211"/>
         <source>ColorPicker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="218"/>
         <source>&amp;GeodesicDistance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="219"/>
         <source>GeodesicDistance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="223"/>
         <source>distance : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="234"/>
         <source>&amp;magic_selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="235"/>
         <source>magic_selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="238"/>
         <source>tolerance : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="254"/>
         <source>Shortest Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="257"/>
         <source>&amp;Unconstrained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="258"/>
         <source>Unconstrained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="262"/>
         <source>&amp;sulci</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="263"/>
         <source>sulci</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="267"/>
         <source>&amp;gyri</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="268"/>
         <source>gyri</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="272"/>
         <source>constraint : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="280"/>
         <source>sigmo : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="296"/>
         <source>Brush</source>
-        <translation type="unfinished">Pinceau</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="299"/>
         <source>&amp;paintBrush</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="300"/>
         <source>paintBrush</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="304"/>
         <source>&amp;magicBrush</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="305"/>
         <source>magicBrush</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="310"/>
         <source>&amp;erase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="311"/>
         <source>erase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="327"/>
         <source>&amp;filling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="328"/>
         <source>fill</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="333"/>
         <source>&amp;clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="334"/>
         <source>clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="339"/>
         <source>&amp;Save Texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="340"/>
         <source>save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="360"/>
         <source>PaintToolBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/ameshpaint/meshpaint.cc" line="405"/>
         <source>InfosToolBar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1937,2339 +2075,2784 @@ Bt droit   :  menu
 <context>
     <name>ObjectParamSelect</name>
     <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="73"/>
         <source>&lt;no object&gt;</source>
-        <translation type="unfinished">&lt;pas d&apos;objet&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="267"/>
         <source>Set parameters on these objects:</source>
-        <translation type="unfinished">Réglage de paramètres sur les objets suivants:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show all objects</source>
-        <translation type="unfinished">Montrer tous les objets</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="278"/>
         <source>Show initial objects</source>
-        <translation type="unfinished">Montrer les objets initiaux</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="279"/>
+        <source>Show all objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="280"/>
         <source>Show top-level objects</source>
-        <translation type="unfinished">Montrer les objets principaux</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="288"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectparamselect.cc" line="292"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PaintActionView</name>
     <message>
-        <source>On</source>
-        <translation type="unfinished">Activé</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="unfinished">Désactivé</translation>
-    </message>
-    <message>
-        <source>Ball</source>
-        <translation type="unfinished">Boule</translation>
-    </message>
-    <message>
-        <source>Disk</source>
-        <translation type="unfinished">Disque</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="unfinished">Ligne</translation>
-    </message>
-    <message>
-        <source>Redo</source>
-        <translation type="unfinished">Refaire</translation>
-    </message>
-    <message>
-        <source>Undo</source>
-        <translation type="unfinished">Défaire</translation>
-    </message>
-    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="138"/>
         <source>Brush</source>
-        <translation type="unfinished">Pinceau</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Modes</source>
-        <translation type="unfinished">Modes</translation>
-    </message>
-    <message>
-        <source>Point</source>
-        <translation type="unfinished">Point</translation>
-    </message>
-    <message>
-        <source>Clear Region</source>
-        <translation type="unfinished">Effacer la région</translation>
-    </message>
-    <message>
-        <source>Transparency</source>
-        <translation type="unfinished">Opacité</translation>
-    </message>
-    <message>
-        <source>Fill Region</source>
-        <translation type="unfinished">Remplir la région</translation>
-    </message>
-    <message>
-        <source>Actions</source>
-        <translation type="unfinished">Actions</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation type="unfinished">Remplacement</translation>
-    </message>
-    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="140"/>
         <source>Brushes</source>
-        <translation type="unfinished">Pinceaux</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="143"/>
+        <source>Point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="145"/>
+        <source>Disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="147"/>
+        <source>Ball</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="157"/>
         <source>Brush Size</source>
-        <translation type="unfinished">Rayon du pinceau</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="170"/>
+        <source>Transparency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="190"/>
+        <source>Modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="192"/>
+        <source>Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="194"/>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="202"/>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="212"/>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="195"/>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="204"/>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="214"/>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="199"/>
+        <source>Replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="209"/>
         <source>LinkedCursor</source>
-        <translation type="unfinished">Curseur lié</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="218"/>
         <source>BrushUnit</source>
-        <translation type="unfinished">Taille du pinceau en </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="221"/>
         <source>Voxel</source>
-        <translation type="unfinished">Voxel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="223"/>
         <source>Mm</source>
-        <translation type="unfinished">mm</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="227"/>
+        <source>Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="230"/>
+        <source>Undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="235"/>
+        <source>Redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="242"/>
+        <source>Fill Region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="246"/>
+        <source>Clear Region</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow</name>
     <message>
-        <source>Language options will apply the next time you start Anatomist (save preferences !)</source>
-        <translation>La nouvelle langue s&apos;appliquera au prochain lancement d&apos;Anatomist (sauvez les préférences !)</translation>
-    </message>
-    <message>
-        <source>Control window</source>
-        <translation type="unfinished">Fenêtre de contrôle</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="147"/>
         <source>Anatomist global settings</source>
-        <translation>Anatomist : réglages globaux</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Interpolation on volumes when changing referential</source>
-        <translation>Interpolation pour les changements de référentiels pour les volumes</translation>
-    </message>
-    <message>
-        <source>Cursor shape :</source>
-        <translation>Forme du curseur :</translation>
-    </message>
-    <message>
-        <source>Size :</source>
-        <translation>Taille :</translation>
-    </message>
-    <message>
-        <source>Linked cursor</source>
-        <translation type="unfinished">Curseur lié</translation>
-    </message>
-    <message>
-        <source>Cursor color :</source>
-        <translation>Couleur du curseur :</translation>
-    </message>
-    <message>
-        <source>Custom color :</source>
-        <translation>Couleur personnelle :</translation>
-    </message>
-    <message>
-        <source>default</source>
-        <translation>défaut</translation>
-    </message>
-    <message>
-        <source>Display L/R in corners</source>
-        <translation>Afficher L/R dans les coins</translation>
-    </message>
-    <message>
-        <source>Display nice logo</source>
-        <translation>Afficher le beau logo</translation>
-    </message>
-    <message>
-        <source>Use default color</source>
-        <translation>Couleur automatique</translation>
-    </message>
-    <message>
-        <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
-    </message>
-    <message>
-        <source>Display linked cursor</source>
-        <translation>Afficher le curseur lié</translation>
-    </message>
-    <message>
-        <source>HTML browser command line :</source>
-        <translation>Lancement du browser HTML :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="167"/>
         <source>Language :</source>
-        <translation>Langue :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation type="unfinished">Application</translation>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="168"/>
+        <source>Language options will apply the next time you start Anatomist (save preferences !)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unstable/in development features</source>
-        <translation type="obsolete">Fonctionnalités instables / en développement</translation>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="173"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="680"/>
+        <source>default</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Attention</translation>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="198"/>
+        <source>HTML browser command line :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unstable features may cause anatomist to crash</source>
-        <translation type="obsolete">Les fonctionnalités instables peuvent faire &quot;planter&quot; Anatomist</translation>
-    </message>
-    <message>
-        <source>Enable unstable features in this session</source>
-        <translation type="obsolete">Activer les fonctionnalités instables pour cette session</translation>
-    </message>
-    <message>
-        <source>Enable unstable features in all sessions</source>
-        <translation type="obsolete">Activer les fonctionnalités instables pour troutes les sessions</translation>
-    </message>
-    <message>
-        <source>Radioligical convention (seen from bottom, L/R flipped)</source>
-        <translation>Convention radiologique (vue par dessous, G/D inversées)</translation>
-    </message>
-    <message>
-        <source>Neurological convention (seen from top)</source>
-        <translation>Convention neurologique (vue de dessus)</translation>
-    </message>
-    <message>
-        <source>By default, build a transformation to the origin of SPM volumes</source>
-        <translation type="obsolete">Par défaut, utiliser une transformation vers l&apos;origine des volumes SPM</translation>
-    </message>
-    <message>
-        <source>Axial/coronal slices orientation</source>
-        <translation>Orientation des vues axiales / coronales</translation>
-    </message>
-    <message>
-        <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
-    </message>
-    <message>
-        <source>Default windows size</source>
-        <translation>Taille par défaut des fenêtres</translation>
-    </message>
-    <message>
-        <source>pixel / mm</source>
-        <translation>pixel / mm</translation>
-    </message>
-    <message>
-        <source>Default referentials</source>
-        <translation>Référentiels par défaut</translation>
-    </message>
-    <message>
-        <source>Default referential for loaded objects</source>
-        <translation>Référentiel par défaut au chargement des objets</translation>
-    </message>
-    <message>
-        <source>Default referential for new windows</source>
-        <translation>Référentiel par défaut pour les nouvelles fenêtres</translation>
-    </message>
-    <message>
-        <source>Default objects referential</source>
-        <translation>Référentiel par défaut pour les objets</translation>
-    </message>
-    <message>
-        <source>Default windows referential</source>
-        <translation>Référentiel par défaut pour les fenêtres</translation>
-    </message>
-    <message>
-        <source>Load...</source>
-        <translation>Charger...</translation>
-    </message>
-    <message>
-        <source>Load Anatomist objects</source>
-        <translation>Charger des objets Anatomist</translation>
-    </message>
-    <message>
-        <source>Use referential / transformations information found in objects headers (SPM, NIFTI...)</source>
-        <translation>Utiliser les information de référentiel / transformations trouvés dans les en-têtes des objets (SPM, NIFTI...)</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="224"/>
         <source>User level</source>
-        <translation>Niveau d&apos;utilisateur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OpenGL</source>
-        <translation type="unfinished">OpenGL</translation>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="238"/>
+        <source>Default referentials</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="240"/>
+        <source>Default referential for loaded objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="246"/>
+        <source>Default referential for new windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="264"/>
+        <source>Display linked cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="267"/>
+        <source>Cursor shape :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
+        <source>Load...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="276"/>
+        <source>Size :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="281"/>
+        <source>Cursor color :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="282"/>
+        <source>Use default color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="283"/>
+        <source>Custom color :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="296"/>
+        <source>Axial/coronal slices orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="298"/>
+        <source>Radioligical convention (seen from bottom, L/R flipped)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="300"/>
+        <source>Neurological convention (seen from top)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="308"/>
+        <source>Display L/R in corners</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="311"/>
         <source>Display cursor position by default</source>
-        <translation>Afficher par défaut la position du curseur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="325"/>
+        <source>Default windows size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="327"/>
+        <source>pixel / mm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="333"/>
         <source>Browsers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="335"/>
         <source>limit browsers attribute values to: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="337"/>
         <source> characters</source>
-        <translation> caractères</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="357"/>
+        <source>Display nice logo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="366"/>
+        <source>Interpolation on volumes when changing referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="372"/>
+        <source>Use referential / transformations information found in objects headers (SPM, NIFTI...)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="393"/>
         <source>limit number of textures: </source>
-        <translation>limitater le nombre de textures: </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="399"/>
         <source>Unlimited</source>
-        <translation>Illimité</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="432"/>
         <source>Try this option if you encounter OpenGL rendering problems.
 Such problems have been seen on Windows machines, where rendering was not performed at all
 if more than 3 texture units were enabled (even on non-tetured objects).
 Use &apos;Unlimited&apos; if rendering is OK.</source>
-        <translation>Essayez cette option si vous rencontrez des problèmes de rendu OpenGL.
-De tels problèmes ont été rencontrés sur des systèmes Windows: le rendu n&apos;était pas effectué du tout
-si plus de 3 unités de textures étaient activées (même sur des objets non-texturés).
-Utilisez &quot;Illimité&quot; si le rendu fonctionne normalement.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="440"/>
         <source>Use OpenGL selection</source>
-        <translation>Utiliser la sélection par OpenGL</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="452"/>
         <source>Disabling OpenGL-based selection (in selection control, and 3D windows tooltips)
 may be needed with some buggy OpenGL implementations which may cause Anatomist to crash.
 The &quot;Surface Paint&quot; tool also makes use of it in an unconditional way, so this module
 might still crash with such an OpenGL implementation.</source>
-        <translation>Désactiver la sélection basée sur OpenGL (dans le contrôle de sélection et les bulles d&apos;aides des fenêtres 3D)
-peut être nécessaire avec certaines implémentations boguées d&apos;OpenGL, ce qui peut faire planter Anatomist.
-L&apos;outil &quot;Dessin sur surfaces&quot; l&apos;utilise aussi de manière inconditionnelle, donc ce module
-peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="567"/>
+        <source>Load Anatomist objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="761"/>
+        <source>Default objects referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="776"/>
+        <source>Default windows referential</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QAColorDialog</name>
     <message>
+        <location filename="../../../src/lib/dialogs/colorDialog.cc" line="60"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/dialogs/colorDialog.cc" line="61"/>
         <source>Cancel</source>
-        <translation>Annuler</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QAColorWidget</name>
     <message>
-        <source>A :</source>
-        <translation type="unfinished">A :</translation>
-    </message>
-    <message>
-        <source>B :</source>
-        <translation type="unfinished">B :</translation>
-    </message>
-    <message>
-        <source>G :</source>
-        <translation type="unfinished">V :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/dialogs/colorWidget.cc" line="83"/>
         <source>R :</source>
-        <translation type="unfinished">R :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/dialogs/colorWidget.cc" line="89"/>
+        <source>G :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/dialogs/colorWidget.cc" line="95"/>
+        <source>B :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/dialogs/colorWidget.cc" line="105"/>
+        <source>A :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/dialogs/colorWidget.cc" line="109"/>
         <source>Neutral alpha channel</source>
-        <translation type="unfinished">Transparence indifférente</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QAPaletteWin</name>
     <message>
-        <source>1D</source>
-        <translation type="unfinished">1D</translation>
-    </message>
-    <message>
-        <source>2D</source>
-        <translation type="unfinished">2D</translation>
-    </message>
-    <message>
-        <source>Max:</source>
-        <translation type="unfinished">Max:</translation>
-    </message>
-    <message>
-        <source>Min:</source>
-        <translation type="unfinished">Min:</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">Aucune</translation>
-    </message>
-    <message>
-        <source>Reset values</source>
-        <translation type="unfinished">Valeurs par défaut</translation>
-    </message>
-    <message>
-        <source>Available palettes :</source>
-        <translation type="unfinished">Palettes disponibles :</translation>
-    </message>
-    <message>
-        <source>Reset bounds</source>
-        <translation type="unfinished">Bornes standard</translation>
-    </message>
-    <message>
-        <source>1st dimension settings :</source>
-        <translation type="unfinished">Réglages pour la 1ère dimension :</translation>
-    </message>
-    <message>
-        <source>2nd dimension settings :</source>
-        <translation type="unfinished">Réglages pour la 2nde dimension :</translation>
-    </message>
-    <message>
-        <source>Second palette :</source>
-        <translation type="unfinished">Seconde palette :</translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="unfinished">Rafraîchir</translation>
-    </message>
-    <message>
-        <source>Dimension :</source>
-        <translation type="unfinished">Dimension :</translation>
-    </message>
-    <message>
-        <source>Responsive</source>
-        <translation type="unfinished">Temps réel</translation>
-    </message>
-    <message>
-        <source>Mixing factor :</source>
-        <translation type="unfinished">Facteur de mélange :</translation>
-    </message>
-    <message>
-        <source>Bounds:</source>
-        <translation type="unfinished">Bornes :</translation>
-    </message>
-    <message>
-        <source>Update mode :</source>
-        <translation type="unfinished">Mode de mise à jour :</translation>
-    </message>
-    <message>
-        <source>Palettes mixing method :</source>
-        <translation type="unfinished">Méthode de melange des palettes :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="170"/>
         <source>Object palette composition</source>
-        <translation type="unfinished">Composition d&apos;une palette d&apos;objet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="188"/>
+        <source>Available palettes :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="196"/>
+        <source>Update mode :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="197"/>
+        <source>Responsive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="199"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="202"/>
+        <source>Dimension :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="203"/>
+        <source>1D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="204"/>
+        <source>2D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="208"/>
+        <source>1st dimension settings :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="213"/>
+        <source>2nd dimension settings :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="215"/>
         <source>Use a second palette for 2D</source>
-        <translation type="unfinished">Utiliser une seconde palette pour le 2D</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Palette view :</source>
-        <translation type="unfinished">Vue de la palette :</translation>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="221"/>
+        <source>Second palette :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="223"/>
+        <source>Palettes mixing method :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="225"/>
         <source>Palette 1D Mapping :</source>
-        <translation type="unfinished">Palette 1D :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="235"/>
+        <source>Mixing factor :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="241"/>
+        <source>Palette view :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="332"/>
+        <source>Min:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="339"/>
+        <source>Max:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="347"/>
+        <source>Bounds:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="353"/>
         <source>Value 0 at center</source>
-        <translation type="unfinished">Valeur 0 au centre</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="357"/>
+        <source>Reset values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="358"/>
+        <source>Reset bounds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="403"/>
+        <location filename="../../../src/lib/color/qwObjPalette.cc" line="835"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QAWindowFactory</name>
     <message>
+        <location filename="../../../src/lib/window/qWinFactory.cc" line="56"/>
         <source>Open window of type </source>
-        <translation type="unfinished">Ouvrir une fenêtre de type </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QAbout</name>
     <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <source>Cannot find text file</source>
-        <translation type="obsolete">Impossible de trouver le fichier texte de ce message</translation>
-    </message>
-    <message>
-        <source>check config and ANATOMIST_PATH environment variable</source>
-        <translation type="obsolete">Vérifiez la config et la variable d&apos;environnement ANATOMIST_PATH</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/qAbout.cc" line="270"/>
         <source>About Anatomist</source>
-        <translation type="unfinished">À propos d&apos;Anatomist</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/qAbout.cc" line="284"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/qAboutMessages.cc" line="55"/>
         <source>Cannot find about.txt file</source>
-        <translation type="unfinished">Impossible de trouver le fichier texte de ce message &quot;about.txt&quot;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>check config and BRAINVISA_SHARE or ANATOMIST_PATH environment variable</source>
-        <translation type="obsolete">Vérifiez la config et la variable d&apos;environnement BRAINVISA_SHARE ou ANATOMIST_PATH</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/qAboutMessages.cc" line="56"/>
         <source>check config and BRAINVISA_SHARE environment variable</source>
-        <translation type="unfinished">vérifier la configuration et la variable d&apos;environnement BRAINVISA_SHARE</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QGraphParam</name>
     <message>
-        <source>Colors (2D / 3D)</source>
-        <translation type="unfinished">Couleurs (2D / 3D)</translation>
-    </message>
-    <message>
-        <source>Display first object</source>
-        <translation type="unfinished">Afficher le premier objet</translation>
-    </message>
-    <message>
-        <source>Use one file per individual sub-object</source>
-        <translation type="unfinished">Sauver chaque sous-objet dans un fichier individuel</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="283"/>
         <source>Graph parameters</source>
-        <translation type="unfinished">Paramètres des graphes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Display all</source>
-        <translation type="unfinished">Afficher tout</translation>
-    </message>
-    <message>
-        <source>Selection color</source>
-        <translation type="unfinished">Couleur de sélection</translation>
-    </message>
-    <message>
-        <source>Display trangulations</source>
-        <translation type="unfinished">Afficher les surfaces</translation>
-    </message>
-    <message>
-        <source>Display ToolTips</source>
-        <translation type="unfinished">Afficher les bulles</translation>
-    </message>
-    <message>
-        <source>Use one file per sub-object type</source>
-        <translation type="unfinished">Sauver un fichier par type de sous-objet</translation>
-    </message>
-    <message>
-        <source>IO saving settings</source>
-        <translation type="obsolete">Paramètres de sauvegarde</translation>
-    </message>
-    <message>
-        <source>Constant color :</source>
-        <translation type="unfinished">Couleur fixe :</translation>
-    </message>
-    <message>
-        <source>Display facets</source>
-        <translation type="unfinished">Afficher les facettes</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="287"/>
         <source>Graph 3D display mode</source>
-        <translation type="unfinished">Mode d&apos;affichage 3D des graphes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use inverse color</source>
-        <translation type="unfinished">Utiliser la couleur inverse</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="289"/>
+        <source>Display trangulations</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save only modified sub-objects</source>
-        <translation type="unfinished">Sauver seulement les sous-objest modifiés</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="290"/>
+        <source>Display facets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use attribute :</source>
-        <translation type="unfinished">Utiliser l&apos;attribut :</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="291"/>
+        <source>Display all</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set sub-objects dir. from graph filename</source>
-        <translation type="unfinished">Fixer le répertoire des sous-objets au du nom du graphe</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="292"/>
+        <source>Display first object</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default (as loaded)</source>
-        <translation type="unfinished">Défaut (tel qu&apos;au chargement)</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="296"/>
+        <source>Colors (2D / 3D)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="299"/>
         <source>Use Nomenclature/color bindings (if any)</source>
-        <translation type="unfinished">Utiliser la correspondance Nomenclature/couleur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>IO settings</source>
-        <translation type="unfinished">Paramètres de lecture / sauvegarde</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="304"/>
+        <source>Use attribute :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load sub-objects in relations</source>
-        <translation type="unfinished">Charger les sous-objets des relations</translation>
+        <location filename="../../../src/lib/control/graphParams.cc" line="316"/>
+        <source>Display ToolTips</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="321"/>
+        <location filename="../../../src/lib/control/graphParams.cc" line="458"/>
+        <source>Selection color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="324"/>
         <source>Selection highlight type :</source>
-        <translation type="unfinished">Type de visualisation de la sélection :</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="333"/>
+        <source>Use inverse color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="339"/>
+        <source>Constant color :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="351"/>
+        <source>IO settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="354"/>
+        <source>Load sub-objects in relations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="357"/>
+        <source>Default (as loaded)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="358"/>
+        <source>Use one file per sub-object type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="359"/>
+        <source>Use one file per individual sub-object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="361"/>
+        <source>Save only modified sub-objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/graphParams.cc" line="364"/>
+        <source>Set sub-objects dir. from graph filename</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QGraphProperties</name>
     <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="111"/>
         <source>Display mode : </source>
-        <translation type="unfinished">Mode d&apos;affichage : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="113"/>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="114"/>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="351"/>
         <source>Property map</source>
-        <translation type="unfinished">Propriété</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="116"/>
         <source>Property to be mapped : </source>
-        <translation type="unfinished">Propriété à afficher : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Map property on :</source>
-        <translation type="unfinished">Afficher la propriété sur :</translation>
-    </message>
-    <message>
-        <source>nodes</source>
-        <translation type="unfinished">noeuds</translation>
-    </message>
-    <message>
-        <source>relations</source>
-        <translation type="unfinished">relations</translation>
-    </message>
-    <message>
-        <source>label / nomenclature property :</source>
-        <translation type="unfinished">propriété label / nomenclature :</translation>
-    </message>
-    <message>
-        <source>default (as in settings)</source>
-        <translation type="unfinished">défaut (comme réglages)</translation>
-    </message>
-    <message>
-        <source>name (manual)</source>
-        <translation type="unfinished">name (manuel)</translation>
-    </message>
-    <message>
-        <source>label (automatic)</source>
-        <translation type="unfinished">label (automatique)</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="120"/>
         <source>Keep palette absolute values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="124"/>
+        <source>Map property on :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="126"/>
+        <source>nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="127"/>
+        <source>relations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="130"/>
+        <source>label / nomenclature property :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="132"/>
+        <source>default (as in settings)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="133"/>
+        <source>name (manual)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/graph/qgraphproperties.cc" line="134"/>
+        <source>label (automatic)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QImageLabel</name>
     <message>
+        <location filename="../../../src/lib/control/qImageLabel.cc" line="89"/>
+        <location filename="../../../src/lib/control/qImageLabel.cc" line="94"/>
         <source>  This big stupid logo annoys you ?  
   Remove it !
   (in Settings-&gt;Prefs)...</source>
-        <translation type="unfinished">  Ce logo n&apos;est pas beau ?
-  Enlevez-le (menu Réglages-&gt;Préférences)  
-  ou mettez le vôtre à la place !
-  (placez-le en ~/.anatomist/icons/anatomist.png)
-  Envoyez-moi donc les plus beaux (à riviere@shfj.cea.fr)...  </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QObjectBrowser</name>
     <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <source>EDIT</source>
-        <translation type="unfinished">EDITION</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished">Nom</translation>
-    </message>
-    <message>
-        <source>Reg.</source>
-        <translation type="unfinished">Enr.</translation>
-    </message>
-    <message>
-        <source>Sel.</source>
-        <translation type="unfinished">Sél.</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished">Type</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="unfinished">Étiquette</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="unfinished">Valeur</translation>
-    </message>
-    <message>
-        <source>Cannot determine attribute characteristics</source>
-        <translation type="unfinished">Je ne peux pas déterminer les caractéristiques de l&apos;attribut</translation>
-    </message>
-    <message>
-        <source>Cannot determine attributed object</source>
-        <translation type="unfinished">Je ne peux pas déterminer l&apos;objet attribué</translation>
-    </message>
-    <message>
-        <source>SEND edit</source>
-        <translation type="unfinished">ENVOI édit</translation>
-    </message>
-    <message>
-        <source>Conflicting type for attribute </source>
-        <translation type="unfinished">conflit de types pour l&apos;attribut </translation>
-    </message>
-    <message>
-        <source>Delete attribute </source>
-        <translation type="unfinished">Effacer l&apos;attribut </translation>
-    </message>
-    <message>
-        <source>New attribute in </source>
-        <translation type="unfinished">Nouvel attribut dans </translation>
-    </message>
-    <message>
-        <source>Modify attribute</source>
-        <translation type="unfinished">Modifier l&apos;attribut</translation>
-    </message>
-    <message>
-        <source>I cannot edit this attribute type</source>
-        <translation type="unfinished">Je ne peux pas éditer ce type d&apos;attribut</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
-        <source>Modify attribute </source>
-        <translation type="unfinished">Modifier l&apos;attribut </translation>
-    </message>
-    <message>
-        <source>Label1</source>
-        <translation type="unfinished">Étiquette1</translation>
-    </message>
-    <message>
-        <source>Label2</source>
-        <translation type="unfinished">Étiquette2</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="201"/>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="202"/>
+        <source>EDIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="203"/>
+        <source>SEND edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="214"/>
+        <source>Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="262"/>
         <source>Object</source>
-        <translation type="unfinished">Objet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Color for </source>
-        <translation type="unfinished">Couleur pour </translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="263"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="270"/>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete attribute</source>
-        <translation type="unfinished">Effacer l&apos;attribut</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="264"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="271"/>
+        <source>Value</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>so cannot be edited as </source>
-        <translation type="unfinished">donc ne peut pas être édité en tant que </translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="265"/>
+        <source>Label</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="266"/>
+        <source>Sel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="267"/>
+        <source>Reg.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="269"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="272"/>
+        <source>Label1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="273"/>
+        <source>Label2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1092"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1186"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="2238"/>
+        <source>Modify attribute </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1097"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1191"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1279"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1455"/>
+        <source>An editor is already open. close it first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1121"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1130"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1143"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1150"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1239"/>
+        <source>Modify attribute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1122"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1218"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1480"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="2240"/>
+        <source>Cannot determine attribute characteristics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1131"/>
+        <source>Can only edit the same attribute on multiple items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1144"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1240"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1294"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1471"/>
+        <source>Item not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1151"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1247"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1392"/>
+        <source>I cannot edit this attribute type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1227"/>
+        <source>Can&apos;t find attribute in tree.
+Try using &quot;add attribute (?)&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1278"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1293"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1303"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1347"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1369"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1391"/>
+        <source>Add attribute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1304"/>
+        <source>Cannot determine attributed object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1320"/>
+        <source>New attribute in </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1343"/>
+        <source>Conflicting type for attribute </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1344"/>
         <source>exists as </source>
-        <translation type="unfinished">existe en tant que </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1346"/>
+        <source>so cannot be edited as </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1370"/>
         <source>Attribute exists and I can&apos;t get it!
 (not direct child in tree ?)
 try clicking it and selecting &apos;Modify&apos;</source>
-        <translation type="unfinished">L&apos;attribut existe mais je ne peux pas le récupérer
-(pas un enfant direct dans l&apos;arbre ?)
-Essayez de cliquer et de sélectionner &apos;Modifier&apos;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add attribute</source>
-        <translation type="unfinished">Ajouter un attribut</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1450"/>
+        <source>Delete attribute </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Item not found</source>
-        <translation type="unfinished">Element pas trouvé</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1470"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1479"/>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1486"/>
+        <source>Delete attribute</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>An editor is already open. close it first.</source>
-        <translation type="unfinished">Un éditeur est déjà ouvert. Fermez-le d&apos;abord.</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1487"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Can&apos;t find attribute in tree.
-Try using &quot;add attribute (?)&quot;</source>
-        <translation type="unfinished">L&apos;attribut n&apos;existe pas dans l&apos;arbre.
-Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1487"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser</source>
-        <translation type="unfinished">Browser</translation>
-    </message>
-    <message>
-        <source>Can only edit the same attribute on multiple items</source>
-        <translation type="unfinished">Il n&apos;est possible d&apos;éditer plusieurs éléments que pour le même attribut</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="2482"/>
+        <source>Color for </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QObjectBrowserWidget</name>
     <message>
-        <source>nodes</source>
-        <translation type="unfinished">noeuds</translation>
-    </message>
-    <message>
-        <source>Graph nodes</source>
-        <translation type="unfinished">Noeuds du graphe</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/browser/qObjBrowserWid.cc" line="489"/>
+        <location filename="../../../src/lib/browser/qObjBrowserWid.cc" line="491"/>
         <source>Global attributes</source>
-        <translation type="unfinished">Attributs globaux</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qObjBrowserWid.cc" line="493"/>
+        <source>Graph nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/browser/qObjBrowserWid.cc" line="494"/>
+        <source>nodes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QObjectTree</name>
     <message>
+        <location filename="../../../src/lib/control/qObjTree.cc" line="197"/>
         <source>Ref</source>
-        <translation type="unfinished">Ref</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation type="unfinished">Type</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/qObjTree.cc" line="198"/>
         <source>Objects</source>
-        <translation type="unfinished">Objets</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/qObjTree.cc" line="199"/>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QSelAttrib</name>
     <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
-        <source>Value :</source>
-        <translation type="unfinished">Valeur :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/selection/qwSelAttrib.cc" line="53"/>
         <source>AnaQt attribute criterion</source>
-        <translation type="unfinished">Critère d&apos;attribut</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/selection/qwSelAttrib.cc" line="56"/>
         <source>Attribute :</source>
-        <translation type="unfinished">Attribut :</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qwSelAttrib.cc" line="57"/>
+        <source>Value :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qwSelAttrib.cc" line="58"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qwSelAttrib.cc" line="59"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QSelectMenu</name>
     <message>
+        <location filename="../../../src/anasurfmatch/erpio/erpWraper.cc" line="142"/>
+        <location filename="../../../src/anasurfmatch/interpoler/interpoler.cc" line="157"/>
+        <location filename="../../../src/anasurfmatch/surfmatcher/surfMatcher.cc" line="201"/>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="417"/>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="848"/>
+        <location filename="../../../src/lib/object/clippedobject.cc" line="254"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="55"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="72"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="103"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="140"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="225"/>
+        <location filename="../../../src/lib/surface/planarfusion3d.cc" line="285"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="284"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="192"/>
+        <location filename="../../../src/lib/volume/slice.cc" line="174"/>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="234"/>
         <source>File</source>
-        <translation type="unfinished">Fichier</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load</source>
-        <translation type="unfinished">Charger</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="unfinished">Sauver</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="unfinished">Couleur</translation>
-    </message>
-    <message>
-        <source>Create associated roi graph</source>
-        <translation type="unfinished">Créer un graphe associé</translation>
-    </message>
-    <message>
-        <source>Objects manipulations</source>
-        <translation type="unfinished">Objet-spécifique</translation>
-    </message>
-    <message>
-        <source>Invert polygon orientation</source>
-        <translation type="unfinished">Inverser l&apos;orientation des polygones</translation>
-    </message>
-    <message>
-        <source>Select nodes of attribute ...</source>
-        <translation type="unfinished">Sélectionner les noeuds d&apos;attribut ...</translation>
-    </message>
-    <message>
-        <source>Remove from this window</source>
-        <translation type="unfinished">Enlever de cette fenêtre</translation>
-    </message>
-    <message>
-        <source>Landmarks</source>
-        <translation type="unfinished">Points de repère</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation type="unfinished">Recharger</translation>
-    </message>
-    <message>
-        <source>Unselect</source>
-        <translation type="unfinished">Dé-sélectionner</translation>
-    </message>
-    <message>
-        <source>Delete attribute</source>
-        <translation type="unfinished">Effacer l&apos;attribut</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/erpio/erpWraper.cc" line="143"/>
         <source>ERP loader</source>
-        <translation type="unfinished">Chargeur d&apos;ERPs</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add region</source>
-        <translation type="unfinished">Nouvelle région</translation>
-    </message>
-    <message>
-        <source>Send value </source>
-        <translation type="unfinished">Envoyer la valeur </translation>
-    </message>
-    <message>
-        <source>Select neighbours</source>
-        <translation type="unfinished">Sélectionner les voisins</translation>
-    </message>
-    <message>
-        <source>Export mask as volume</source>
-        <translation type="unfinished">Exporter le masque sous forme de volume</translation>
-    </message>
-    <message>
-        <source>Material</source>
-        <translation type="unfinished">Matériau</translation>
-    </message>
-    <message>
-        <source>Referential</source>
-        <translation type="unfinished">Référentiel</translation>
-    </message>
-    <message>
-        <source>Remove from windows of this group</source>
-        <translation type="unfinished">Enlever des fenêtres de ce groupe</translation>
-    </message>
-    <message>
-        <source>Surface matching window</source>
-        <translation type="unfinished">Mise en correspondance de surfaces</translation>
-    </message>
-    <message>
-        <source>Modify attribute...</source>
-        <translation type="unfinished">Modifier l&apos;attribut...</translation>
-    </message>
-    <message>
-        <source>Pick landmarks</source>
-        <translation type="unfinished">Prendre des points de repère</translation>
-    </message>
-    <message>
-        <source>Select all</source>
-        <translation type="unfinished">Tout sélectionner</translation>
-    </message>
-    <message>
-        <source>Geometry</source>
-        <translation type="unfinished">Géométrie</translation>
-    </message>
-    <message>
-        <source>Set name</source>
-        <translation type="unfinished">Changer le nom</translation>
-    </message>
-    <message>
-        <source>View / select objects</source>
-        <translation type="unfinished">Voir / sélectionner les objets</translation>
-    </message>
-    <message>
-        <source>Modify name</source>
-        <translation type="unfinished">Modifier &apos;name&apos;</translation>
-    </message>
-    <message>
-        <source>Modify label</source>
-        <translation type="unfinished">Modifier &apos;label&apos;</translation>
-    </message>
-    <message>
-        <source>Add attribute...</source>
-        <translation type="unfinished">Ajouter l&apos;attribut...</translation>
-    </message>
-    <message>
-        <source>Control 2D fusion</source>
-        <translation type="unfinished">Contrôle de la fusion 2D</translation>
-    </message>
-    <message>
-        <source>Control 3D fusion</source>
-        <translation type="unfinished">Contrôle de la fusion 3D</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/interpoler/interpoler.cc" line="159"/>
+        <location filename="../../../src/anasurfmatch/surfmatcher/surfMatcher.cc" line="203"/>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="419"/>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="850"/>
+        <location filename="../../../src/lib/object/clippedobject.cc" line="256"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="60"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="77"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="108"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="149"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="233"/>
+        <location filename="../../../src/lib/surface/planarfusion3d.cc" line="287"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="292"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="197"/>
+        <location filename="../../../src/lib/volume/slice.cc" line="176"/>
         <source>Rename object</source>
-        <translation type="unfinished">Renommer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Palette</source>
-        <translation type="unfinished">Palette</translation>
+        <location filename="../../../src/anasurfmatch/interpoler/interpoler.cc" line="167"/>
+        <location filename="../../../src/anasurfmatch/landmark/graphLandmark.cc" line="110"/>
+        <source>Landmarks</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Roi</source>
-        <translation type="unfinished">ROI</translation>
+        <location filename="../../../src/anasurfmatch/interpoler/interpoler.cc" line="169"/>
+        <location filename="../../../src/anasurfmatch/landmark/graphLandmark.cc" line="112"/>
+        <source>Pick landmarks</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Perfusion</source>
-        <translation type="unfinished">Perfusion</translation>
-    </message>
-    <message>
-        <source>Perfusion Control Window</source>
-        <translation type="unfinished">Fenêtre de contrôle de la perfusion</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/surfmatcher/surfMatcher.cc" line="208"/>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="439"/>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="876"/>
+        <location filename="../../../src/volrender/object/volrender.cc" line="82"/>
         <source>Fusion</source>
-        <translation type="unfinished">Fusionner</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export texture</source>
-        <translation type="unfinished">Exporter la texture</translation>
+        <location filename="../../../src/anasurfmatch/surfmatcher/surfMatcher.cc" line="210"/>
+        <source>Surface matching window</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Translate origin (SPM)</source>
-        <translation type="obsolete">Translation de l&apos;origine (SPM)</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1016"/>
+        <source>Modify name</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Texturing</source>
-        <translation type="unfinished">Texture</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1025"/>
+        <source>Modify label</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create generated 1D texture</source>
-        <translation type="unfinished">Créer une texture 1D auto-générée</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1031"/>
+        <source>Add attribute...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create generated 2D texture</source>
-        <translation type="unfinished">Créer une texture 2D auto-générée</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1038"/>
+        <source>Modify attribute...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Extract texture as new object</source>
-        <translation type="unfinished">Extraire la texture en tant que nouvel objet</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1044"/>
+        <source>Delete attribute</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Display</source>
-        <translation type="unfinished">Afficher</translation>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1059"/>
+        <source>Send value </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apply builtin referential (SPM/NIFTI)</source>
-        <translation type="unfinished">Appliquer le changement de référentiel (SPM/NIFTI)</translation>
-    </message>
-    <message>
-        <source>Default Menu</source>
-        <translation type="unfinished">Menu par défaut</translation>
-    </message>
-    <message>
-        <source>default</source>
-        <translation type="unfinished">défaut</translation>
-    </message>
-    <message>
-        <source>Display nodes</source>
-        <translation type="unfinished">Afficher les noeuds</translation>
-    </message>
-    <message>
-        <source>Display relations</source>
-        <translation type="unfinished">Afficher les relations</translation>
-    </message>
-    <message>
-        <source>Load all sub-objects</source>
-        <translation type="unfinished">Charger tous les sous-objets</translation>
-    </message>
-    <message>
-        <source>Volume rendering properties</source>
-        <translation type="unfinished">Propriétés de rendu volumique</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1068"/>
         <source>Set value </source>
-        <translation type="unfinished">Appliquer la valeur </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1069"/>
         <source> as &quot;</source>
-        <translation type="unfinished">pour la propriété &quot;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/browser/qwObjectBrowser.cc" line="1071"/>
         <source>&quot; property to any selected object</source>
-        <translation type="unfinished">&quot; de tous les objets sélectionnés</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Labeling</source>
-        <translation type="unfinished">Étiquetage</translation>
+        <location filename="../../../src/lib/bucket/Bucket.cc" line="1145"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="297"/>
+        <source>Create generated 1D texture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move automatic labeling (&apos;label&apos;) to manual (&apos;name&apos;)</source>
-        <translation type="unfinished">Déplacer l&apos;étiquetage automatique (&apos;label&apos;) vers le manuel (&apos;name&apos;)</translation>
+        <location filename="../../../src/lib/bucket/Bucket.cc" line="1150"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="302"/>
+        <source>Create generated 2D texture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use automatic labeling (&apos;label&apos;)</source>
-        <translation type="unfinished">Utiliser l&apos;étiquetage automatique (&apos;label&apos;)</translation>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="424"/>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="864"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="80"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="110"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="154"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="238"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="307"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="200"/>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use manual labeling (&apos;name&apos;)</source>
-        <translation type="unfinished">Utiliser l&apos;étiquetage manuel (&apos;name&apos;)</translation>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="426"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="83"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="113"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="240"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="309"/>
+        <source>Material</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use default labeling property</source>
-        <translation type="unfinished">Utiliser l&apos;étiquetage par défaut</translation>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="429"/>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="866"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="85"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="115"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="203"/>
+        <source>Texturing</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/mobject/Fusion2D.cc" line="441"/>
+        <source>Control 2D fusion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="854"/>
+        <location filename="../../../src/lib/surface/planarfusion3d.cc" line="291"/>
+        <source>Export texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="859"/>
+        <location filename="../../../src/lib/surface/planarfusion3d.cc" line="296"/>
+        <source>Extract texture as new object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/mobject/Fusion3D.cc" line="878"/>
+        <source>Control 3D fusion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="53"/>
+        <source>Default Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="54"/>
+        <source>default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="56"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="73"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="104"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="227"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="286"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="193"/>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="58"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="75"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="106"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="146"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="230"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="289"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="195"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="81"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="111"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="156"/>
+        <location filename="../../../src/lib/surface/texture.cc" line="201"/>
+        <source>Palette</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="87"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="117"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="166"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="217"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="243"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="312"/>
+        <source>Referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="88"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="118"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="169"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="220"/>
+        <location filename="../../../src/lib/surface/curve.cc" line="245"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="315"/>
+        <source>Load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="90"/>
         <source>Load information from file header</source>
-        <translation>Charger les informations de l&apos;en-tête de fichier</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="131"/>
+        <source>Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="133"/>
+        <source>Display nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="136"/>
+        <source>Display relations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="142"/>
+        <source>Load all sub-objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="172"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="318"/>
+        <source>Apply builtin referential (SPM/NIFTI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="177"/>
+        <source>Labeling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="179"/>
+        <source>Move automatic labeling (&apos;label&apos;) to manual (&apos;name&apos;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="183"/>
+        <source>Use automatic labeling (&apos;label&apos;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="187"/>
+        <source>Use manual labeling (&apos;name&apos;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="191"/>
+        <source>Use default labeling property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="116"/>
+        <source>View / select objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="117"/>
+        <source>Unselect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="118"/>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="119"/>
+        <source>Remove from windows of this group</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="121"/>
+        <source>Remove from this window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="149"/>
+        <source>Objects manipulations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="173"/>
+        <source>Select neighbours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelMenu.cc" line="175"/>
+        <source>Select nodes of attribute ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/surface/curve.cc" line="248"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="322"/>
+        <source>Geometry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/surface/curve.cc" line="250"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="325"/>
+        <source>Invert polygon orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/perfusion/winperf/perfWin.cc" line="374"/>
+        <source>Perfusion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/perfusion/winperf/perfWin.cc" line="376"/>
+        <source>Perfusion Control Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="203"/>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="219"/>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="241"/>
+        <source>Roi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="206"/>
+        <source>Create associated roi graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="221"/>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="243"/>
+        <source>Set name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="225"/>
+        <source>Add region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/application/roibasemodule.cc" line="236"/>
+        <source>Export mask as volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/volrender/object/volrender.cc" line="85"/>
+        <source>Volume rendering properties</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QSelectWidget</name>
     <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
-        <source>Select</source>
-        <translation type="unfinished">Sélectionner</translation>
-    </message>
-    <message>
-        <source>Selectable objects</source>
-        <translation type="unfinished">Objets sélectionnables</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/selection/qSelectWid.cc" line="67"/>
         <source>Select object(s)</source>
-        <translation type="unfinished">Sélection d&apos;objet(s)</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelectWid.cc" line="75"/>
+        <source>Selectable objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelectWid.cc" line="108"/>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/selection/qSelectWid.cc" line="109"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QSurfMatchWin</name>
     <message>
-        <source>to:</source>
-        <translation type="unfinished">vers :</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="unfinished">Arrêter</translation>
-    </message>
-    <message>
-        <source>On / Off</source>
-        <translation type="unfinished">On / Off</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="108"/>
         <source>Surface matching control: </source>
-        <translation type="unfinished">Contrôle de la mise en correspondance de surfaces : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>From:</source>
-        <translation type="unfinished">De :</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="unfinished">Remise à zéro</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation type="unfinished">Commencer</translation>
-    </message>
-    <message>
-        <source>Matching parameters:</source>
-        <translation type="unfinished">Paramètres des forces :</translation>
-    </message>
-    <message>
-        <source>Origin surface:</source>
-        <translation type="unfinished">Surface d&apos;origine :</translation>
-    </message>
-    <message>
-        <source>Delete point</source>
-        <translation type="unfinished">Enlever ce point</translation>
-    </message>
-    <message>
-        <source>Add point (number)</source>
-        <translation type="unfinished">Ajouter un point (num.)</translation>
-    </message>
-    <message>
-        <source>Change</source>
-        <translation type="unfinished">Changer</translation>
-    </message>
-    <message>
-        <source>Control points:</source>
-        <translation type="unfinished">Points de conrôle :</translation>
-    </message>
-    <message>
-        <source>Add point (click)</source>
-        <translation type="unfinished">Ajouter un point (click)</translation>
-    </message>
-    <message>
-        <source>Destination surface:</source>
-        <translation type="unfinished">Surface cible :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="115"/>
         <source>Direction :</source>
-        <translation type="unfinished">Direction :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="116"/>
+        <source>From:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="118"/>
+        <source>to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="125"/>
+        <source>Change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="128"/>
         <source>Record over time:</source>
-        <translation type="unfinished">Enregistrer au cours du temps :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="130"/>
+        <source>On / Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="133"/>
         <source>Processing:</source>
-        <translation type="unfinished">Calcul :</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="134"/>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="136"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="139"/>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="371"/>
+        <source>Matching parameters:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="464"/>
+        <source>Control points:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="467"/>
+        <source>Origin surface:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="468"/>
+        <source>Destination surface:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="471"/>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="473"/>
+        <source>Add point (click)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="475"/>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="477"/>
+        <source>Add point (number)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="479"/>
+        <location filename="../../../src/anasurfmatch/interface/qwSurfMatch.cc" line="480"/>
+        <source>Delete point</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QTexturePanel</name>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="116"/>
         <source>Mapping mode</source>
-        <translation type="unfinished">Mode de plaquage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="118"/>
         <source>Geometric</source>
-        <translation type="unfinished">Géométrique</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="119"/>
         <source>Linear</source>
-        <translation type="unfinished">Linéaire</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="120"/>
         <source>Replace</source>
-        <translation type="unfinished">Remplacement</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Texture filtering</source>
-        <translation type="unfinished">Filtrage de la texture</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">Aucun</translation>
-    </message>
-    <message>
-        <source>Linear filter</source>
-        <translation type="unfinished">Filtrage linéaire</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="121"/>
         <source>Decal</source>
-        <translation type="unfinished">Décalage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="122"/>
         <source>Blend</source>
-        <translation type="unfinished">Mélange</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="123"/>
         <source>Add</source>
-        <translation type="unfinished">Addition</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="124"/>
         <source>Combine</source>
-        <translation type="unfinished">Combinaison</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Texture generation</source>
-        <translation type="unfinished">Génération de texture</translation>
-    </message>
-    <message>
-        <source>Linear - object</source>
-        <translation type="unfinished">Linéaire - objet</translation>
-    </message>
-    <message>
-        <source>Linear - eye</source>
-        <translation type="unfinished">Linéaire - oeil</translation>
-    </message>
-    <message>
-        <source>Sphere reflection</source>
-        <translation type="unfinished">Réflexion sphérique</translation>
-    </message>
-    <message>
-        <source>Reflection</source>
-        <translation type="unfinished">Réflexion</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
-    </message>
-    <message>
-        <source>Mixing rate</source>
-        <translation type="unfinished">Taux de mélange</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="125"/>
         <source>Linear on non-nul</source>
-        <translation type="unfinished">Linéaire sur valeurs non-nulles</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Texture interpolation</source>
-        <translation type="unfinished">Interpolation de texture</translation>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="128"/>
+        <source>Mixing rate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>RGB space interpolation (label textures)</source>
-        <translation type="unfinished">Interpolation dans l&apos;espace RGB (textures de labels)</translation>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="143"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="177"/>
+        <source>Texture generation</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="148"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="178"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="193"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="152"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="179"/>
+        <source>Linear - object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="156"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="180"/>
+        <source>Linear - eye</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="160"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="181"/>
+        <source>Sphere reflection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="164"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="182"/>
+        <source>Reflection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="168"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="183"/>
+        <source>Normal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="172"/>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="184"/>
         <source>Parameters...</source>
-        <translation type="unfinished">Paramètres...</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="192"/>
+        <source>Texture filtering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="194"/>
+        <source>Linear filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="196"/>
+        <source>Texture interpolation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/texturepanel.cc" line="197"/>
+        <source>RGB space interpolation (label textures)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QTextureParams</name>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="311"/>
         <source>Texture generation parameters</source>
-        <translation type="unfinished">Paramètres de génération de texture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="320"/>
         <source>1st comp.</source>
-        <translation type="unfinished">1ère comp.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="322"/>
         <source>2nd comp.</source>
-        <translation type="unfinished">2nde comp.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="324"/>
         <source>3rd comp.</source>
-        <translation type="unfinished">3ème comp.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="326"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="327"/>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QTextureVectorEditor</name>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="150"/>
         <source>Direction:</source>
-        <translation type="unfinished">Direction:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/qtextureparams.cc" line="151"/>
         <source>Scale:</source>
-        <translation type="unfinished">Éhelle:</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QTextureWin</name>
     <message>
+        <location filename="../../../src/lib/object/texturewin.cc" line="86"/>
         <source>Texturing properties</source>
-        <translation type="unfinished">Propriétés de texturage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/object/texturewin.cc" line="104"/>
         <source>Texture number</source>
-        <translation type="unfinished">Numéro de texture</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QWindowTree</name>
     <message>
+        <location filename="../../../src/lib/control/qWinTree.cc" line="83"/>
         <source>Ref</source>
-        <translation type="unfinished">Ref</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation type="unfinished">Type</translation>
-    </message>
-    <message>
-        <source>Nb. obj.</source>
-        <translation type="unfinished">Nb. obj.</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/qWinTree.cc" line="84"/>
         <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/qWinTree.cc" line="85"/>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/qWinTree.cc" line="86"/>
+        <source>Nb. obj.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ReferentialWindow</name>
     <message>
-        <source>Transformation</source>
-        <translation type="unfinished">Transformation</translation>
-    </message>
-    <message>
-        <source>Delete transformation</source>
-        <translation type="unfinished">Effacer la transformation</translation>
-    </message>
-    <message>
-        <source>Reload transformation</source>
-        <translation type="unfinished">Recharger la transformation</translation>
-    </message>
-    <message>
-        <source>Open transformation</source>
-        <translation type="unfinished">Charger une transformation</translation>
-    </message>
-    <message>
-        <source>Delete referential</source>
-        <translation type="unfinished">Détruire le référentiel</translation>
-    </message>
-    <message>
-        <source>Invert transformation</source>
-        <translation type="unfinished">Inverser la transformation</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="289"/>
         <source>Referentials</source>
-        <translation type="unfinished">Référentiels</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save transformation...</source>
-        <translation type="unfinished">Sauver la transformation...</translation>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="323"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="343"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1031"/>
+        <source>Transformation</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="329"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1037"/>
+        <source>Open transformation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="349"/>
         <source>Save transformation</source>
-        <translation type="unfinished">Sauver la transformation</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="711"/>
+        <source>Delete referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="713"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1015"/>
         <source>Load referential information</source>
-        <translation type="unfinished">Charger les informations sur le référentiel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="778"/>
+        <source>Delete transformation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="780"/>
+        <source>Invert transformation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="782"/>
+        <source>Reload transformation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="785"/>
+        <source>Save transformation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="807"/>
         <source>New referential</source>
-        <translation type="unfinished">Nouveau référentiel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="809"/>
         <source>Load referential</source>
-        <translation type="unfinished">Charger un référentiel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="811"/>
         <source>Load transformation</source>
-        <translation type="unfinished">Charger une transformation</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Referential</source>
-        <translation type="unfinished">Référentiel</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="813"/>
         <source>Clear unused referentials</source>
-        <translation type="unfinished">Effacer les référentiels inutilisés</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1009"/>
+        <source>Referential</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RegionsFusionWindow</name>
     <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="175"/>
         <source>Regions Fusion</source>
-        <translation type="unfinished">Fusion de régions</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="195"/>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="198"/>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RoiDynSegmentActionView</name>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="108"/>
         <source>Faith Interval</source>
-        <translation type="unfinished">Intervalle de confiance</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="112"/>
         <source>Order Interval</source>
-        <translation type="unfinished">Nombre de Valeurs Propres</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="116"/>
         <source>Confidence Measurements</source>
-        <translation type="unfinished">Mesures du taux de confiance</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="117"/>
         <source>Mean Error : </source>
-        <translation type="unfinished">Erreur moyenne : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="119"/>
         <source>Error Deviation : </source>
-        <translation type="unfinished">Écart-type : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="124"/>
         <source>Dimension</source>
-        <translation type="unfinished">Dimension</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="125"/>
         <source>2D</source>
-        <translation type="unfinished">2D</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="126"/>
         <source>3D</source>
-        <translation type="unfinished">3D</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="130"/>
         <source>Find Nearest Minimum</source>
-        <translation type="unfinished">Chercher le minimum le plus proche</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="131"/>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="146"/>
         <source>Yes</source>
-        <translation type="unfinished">Oui</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="132"/>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="147"/>
         <source>No</source>
-        <translation type="unfinished">Non</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="137"/>
         <source>Compute Mode</source>
-        <translation type="unfinished">Mode de calcul</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="138"/>
         <source>Region</source>
-        <translation type="unfinished">Région</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="139"/>
         <source>Whole Image</source>
-        <translation type="unfinished">Toute l&apos;image</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/dynsegmentaction.cc" line="145"/>
         <source>Refine Mode</source>
-        <translation type="unfinished">Mode d&apos;affinage</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RoiHistoPlot</name>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="115"/>
         <source>Image</source>
-        <translation type="unfinished">Image</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="119"/>
         <source>ROI Session</source>
-        <translation type="unfinished">Session de ROI</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="134"/>
         <source>Bins</source>
-        <translation type="unfinished">Echantillons</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="137"/>
         <source>Ignore Under Low</source>
-        <translation type="unfinished">Ignorer sous seuil bas</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="139"/>
         <source>Roi Histos</source>
-        <translation type="unfinished">Histo ROI</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="140"/>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="168"/>
         <source>Image Histo</source>
-        <translation type="unfinished">Histo image</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="141"/>
         <source>Save Histos</source>
-        <translation type="unfinished">Sauver histos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="174"/>
         <source>Graph Histos</source>
-        <translation type="unfinished">Histo graphe</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="358"/>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="490"/>
         <source>High</source>
-        <translation type="unfinished">Haut</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="364"/>
+        <location filename="../../../src/roibase/action/histoplot.cc" line="496"/>
         <source>Low</source>
-        <translation type="unfinished">Bas</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RoiLevelSetActionView</name>
     <message>
-        <source>Levelset Activation</source>
-        <translation type="obsolete">Activation du Levelset</translation>
-    </message>
-    <message>
-        <source>Activate Levelset</source>
-        <translation type="obsolete">Activer</translation>
-    </message>
-    <message>
-        <source>Deactivate Levelset</source>
-        <translation type="obsolete">Désactiver</translation>
-    </message>
-    <message>
-        <source>Low Level</source>
-        <translation type="unfinished">Niveau bas</translation>
-    </message>
-    <message>
-        <source>High Level</source>
-        <translation type="unfinished">Niveau haut</translation>
-    </message>
-    <message>
-        <source>Dimension</source>
-        <translation type="unfinished">Dimension</translation>
-    </message>
-    <message>
-        <source>2D</source>
-        <translation type="unfinished">2D</translation>
-    </message>
-    <message>
-        <source>3D</source>
-        <translation type="unfinished">3D</translation>
-    </message>
-    <message>
-        <source>MixMethod</source>
-        <translation type="unfinished">Méthode de mélange</translation>
-    </message>
-    <message>
-        <source>Mixing Factor</source>
-        <translation type="unfinished">Facteur de mélange</translation>
-    </message>
-    <message>
-        <source>Blob segmentation</source>
-        <translation type="unfinished">Segmentation de blobs</translation>
-    </message>
-    <message>
-        <source>Region max size</source>
-        <translation type="unfinished">Taille max de région</translation>
-    </message>
-    <message>
-        <source>Percentage of extremum</source>
-        <translation type="unfinished">Pourcentage de l&apos;extrêmum</translation>
-    </message>
-    <message>
-        <source>Region Max Size</source>
-        <translation type="obsolete">Taille max de la région</translation>
-    </message>
-    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="120"/>
         <source>Threshold Preview Activation</source>
-        <translation type="unfinished">Activation de la prévisualisation du seuillage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="121"/>
         <source>Activate Threshold Preview</source>
-        <translation type="unfinished">Activation de la prévisualisation du seuillage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="125"/>
         <source>Deactivate Threshold Preview</source>
-        <translation type="unfinished">Désactivation de la prévisualisation du seuillage</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="134"/>
+        <source>Low Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="143"/>
+        <source>High Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="156"/>
+        <source>Dimension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="157"/>
+        <source>2D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="158"/>
+        <source>3D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="168"/>
+        <source>Blob segmentation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="169"/>
+        <source>Region max size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="175"/>
+        <source>Percentage of extremum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="184"/>
+        <source>MixMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/levelsetaction.cc" line="190"/>
+        <source>Mixing Factor</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RoiManagementActionView</name>
     <message>
-        <source>Save</source>
-        <translation type="unfinished">Sauver</translation>
-    </message>
-    <message>
-        <source>Load Hierarchy</source>
-        <translation type="unfinished">Charger</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="unfinished">Nouvelle</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation type="unfinished">Ouvrir</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="unfinished">Fermer</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation type="unfinished">Sauver sous</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Détruire</translation>
-    </message>
-    <message>
-        <source>Fusion</source>
-        <translation type="unfinished">Fusionner</translation>
-    </message>
-    <message>
-        <source>Export as mask</source>
-        <translation type="unfinished">Exporter en tant que masque</translation>
-    </message>
-    <message>
-        <source>Neuro</source>
-        <translation type="unfinished">Neuro</translation>
-    </message>
-    <message>
-        <source>Sulci</source>
-        <translation type="unfinished">Sillons</translation>
-    </message>
-    <message>
-        <source>Rat_wb</source>
-        <translation type="unfinished">Rat_wb</translation>
-    </message>
-    <message>
-        <source>Axial</source>
-        <translation type="unfinished">Axiale</translation>
-    </message>
-    <message>
-        <source>Sagittal</source>
-        <translation type="unfinished">Sagittale</translation>
-    </message>
-    <message>
-        <source>Coronal</source>
-        <translation type="unfinished">Coronale</translation>
-    </message>
-    <message>
-        <source>3D</source>
-        <translation type="unfinished">3D</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation type="unfinished">Session</translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation type="unfinished">Région</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation type="unfinished">Image</translation>
-    </message>
-    <message>
-        <source>Painting Views</source>
-        <translation type="unfinished">Vues de dessin</translation>
-    </message>
-    <message>
-        <source>Load ROI Graph</source>
-        <translation type="unfinished">Charger un graphe de ROI</translation>
-    </message>
-    <message>
-        <source>Load Anatomist objects</source>
-        <translation type="unfinished">Charger des objets Anatomist</translation>
-    </message>
-    <message>
-        <source>FrameWork</source>
-        <translation type="unfinished">Nomenclature</translation>
-    </message>
-    <message>
-        <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation type="unfinished">Nettoyer</translation>
-    </message>
-    <message>
-        <source>Lateral Neuro</source>
-        <translation type="unfinished">Neuro Latéralisée</translation>
-    </message>
-    <message>
-        <source>Region Transparency</source>
-        <translation type="unfinished">Opacité de la région</translation>
-    </message>
-    <message>
-        <source>Graph Transparency</source>
-        <translation type="unfinished">Opacité du graphe</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation type="unfinished">Charger</translation>
-    </message>
-    <message>
-        <source>Define new region</source>
-        <translation type="unfinished">Définir une nouvelle région</translation>
-    </message>
-    <message>
-        <source>Modify region name</source>
-        <translation type="unfinished">Modifier un nom de région</translation>
-    </message>
-    <message>
-        <source>Modify region color</source>
-        <translation type="unfinished">Modifier une couleur de région</translation>
-    </message>
-    <message>
-        <source>Personnal</source>
-        <translation type="unfinished">Personnelle</translation>
-    </message>
-    <message>
-        <source>Free</source>
-        <translation type="unfinished">Libre</translation>
-    </message>
-    <message>
-        <source>Please enter new framework&apos;s name</source>
-        <translation type="unfinished">Veuillez entrer le nom de votre nouvelle nomenclature</translation>
-    </message>
-    <message>
-        <source>Load User Defined Framework</source>
-        <translation type="unfinished">Charger une nomenclature personnelle</translation>
-    </message>
-    <message>
-        <source>Modify Frame Work Region Name</source>
-        <translation type="unfinished">Modification d&apos;un nom de région de la nomenclature</translation>
-    </message>
-    <message>
-        <source>Choose the name of the region
-whose color you want to change</source>
-        <translation type="unfinished">Choisissez le nom de la région
-dont vous voulez changer la couleur
-</translation>
-    </message>
-    <message>
-        <source>Change Framework ?</source>
-        <translation type="unfinished">Changer de nomenclature ?</translation>
-    </message>
-    <message>
-        <source>If you change of framework, your 
-user defined one will be deleted.
-Do you want to save it ?</source>
-        <translation type="unfinished">Si vous changez de nomenclature, votre nomenclature 
-personnelle actuellement ouvert sera détruite !
-Voulez-vous la sauver ?</translation>
-    </message>
-    <message>
-        <source>&amp;Yes</source>
-        <translation type="unfinished">&amp;Oui</translation>
-    </message>
-    <message>
-        <source>&amp;No</source>
-        <translation type="unfinished">&amp;Non</translation>
-    </message>
-    <message>
-        <source>Morpho Stats</source>
-        <translation type="unfinished">Stats morpho</translation>
-    </message>
-    <message>
-        <source>Load ROI session</source>
-        <translation type="unfinished">Charger une session de ROI</translation>
-    </message>
-    <message>
-        <source>Delete region name</source>
-        <translation type="unfinished">Effacer le nom de région</translation>
-    </message>
-    <message>
+        <location filename="../../../src/roibase/action/labelnaming.cc" line="427"/>
         <source>Huge amount of data !</source>
-        <translation type="unfinished">Données énormes !</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roibase/action/labelnaming.cc" line="428"/>
         <source>You can procced, but it will 
 take few minutes
 Do you still want to proceed ?</source>
-        <translation type="unfinished">Vous pouvez continuer, mais cela peut
-prendre quelques minutes
-Voulez-vous continuer ?</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/labelnaming.cc" line="431"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2014"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2099"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2165"/>
+        <source>&amp;Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/labelnaming.cc" line="432"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2015"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2100"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2166"/>
+        <source>&amp;No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="349"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="387"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="421"/>
+        <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="353"/>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="361"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="365"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="425"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="370"/>
+        <source>Save As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="375"/>
+        <source>Clean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="383"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="477"/>
+        <source>Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="391"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="395"/>
+        <source>Fusion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="399"/>
+        <source>Export as mask</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="401"/>
+        <source>Morpho Stats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="405"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="482"/>
+        <source>Region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="410"/>
+        <source>Neuro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="412"/>
+        <source>Lateral Neuro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="415"/>
+        <source>Sulci</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="417"/>
+        <source>Rat_wb</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="423"/>
+        <source>Load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="428"/>
+        <source>Define new region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="435"/>
+        <source>Modify region name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="440"/>
+        <source>Modify region color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="445"/>
+        <source>Delete region name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="455"/>
+        <source>Personnal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="458"/>
+        <source>Free</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="460"/>
+        <source>FrameWork</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="465"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="499"/>
+        <source>Axial</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="467"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="502"/>
+        <source>Sagittal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="469"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="505"/>
+        <source>Coronal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="471"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="508"/>
+        <source>3D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="474"/>
+        <source>Windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="488"/>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="495"/>
+        <source>Painting Views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="510"/>
+        <source>Region Transparency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="525"/>
+        <source>Graph Transparency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="947"/>
+        <source>Load ROI Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="953"/>
+        <source>Load ROI session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1191"/>
+        <source>Please enter new framework&apos;s name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1207"/>
+        <source>Load User Defined Framework</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1213"/>
+        <source>Load Anatomist objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1287"/>
+        <source>Modify Frame Work Region Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="1334"/>
+        <source>Choose the name of the region
+whose color you want to change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2010"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2095"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2161"/>
+        <source>Change Framework ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2011"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2096"/>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2162"/>
+        <source>If you change of framework, your 
+user defined one will be deleted.
+Do you want to save it ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/roibase/action/roimanagementaction.cc" line="2052"/>
+        <source>Load Hierarchy</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RoiMorphoMathActionView</name>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="90"/>
         <source>Structuring Element Radius</source>
-        <translation type="unfinished">Rayon de l&apos;élément structurant</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="96"/>
         <source>Distance Mode</source>
-        <translation type="unfinished">Mode de distance</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="97"/>
         <source>mm</source>
-        <translation type="unfinished">mm</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="98"/>
         <source>voxel</source>
-        <translation type="unfinished">voxel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="102"/>
         <source>Mathematic Morphology Actions</source>
-        <translation type="unfinished">Actions de morphologie mathématique</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="104"/>
         <source>Erosion</source>
-        <translation type="unfinished">Érosion</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="105"/>
         <source>Dilation</source>
-        <translation type="unfinished">Dilatation</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="106"/>
         <source>Opening</source>
-        <translation type="unfinished">Ouverture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="107"/>
         <source>Closure</source>
-        <translation type="unfinished">Fermeture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="109"/>
         <source>Apply on ROI region or session</source>
-        <translation type="unfinished">Appliquer à une région ROI ou à une session</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="110"/>
         <source>Region</source>
-        <translation type="unfinished">Région</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/roialgo/action/morphomath.cc" line="111"/>
         <source>Session</source>
-        <translation type="unfinished">Session</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SelectionParameters</name>
     <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="14"/>
         <source>Form1</source>
-        <translation>Form1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edges display mode:</source>
-        <translation>Mode de visu des relations :</translation>
-    </message>
-    <message>
-        <source>Opacity:</source>
-        <translation>Opacité :</translation>
-    </message>
-    <message>
-        <source>Nodes</source>
-        <translation>Noeuds</translation>
-    </message>
-    <message>
-        <source>100</source>
-        <translation>100</translation>
-    </message>
-    <message>
-        <source>Edges</source>
-        <translation>Relations</translation>
-    </message>
-    <message>
-        <source>Opacity: </source>
-        <translation type="obsolete">Opacité :</translation>
-    </message>
-    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="20"/>
         <source>Edge selection:</source>
-        <translation>Sélection des relationos :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="34"/>
+        <source>Edges display mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="59"/>
+        <source>Opacity:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="73"/>
+        <source>Nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="96"/>
+        <location filename="../../python_plugins/selection-qt4.ui" line="139"/>
+        <source>100</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="116"/>
+        <source>Edges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="154"/>
         <source>Box highlight:</source>
-        <translation>Affichage des boîtes :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="166"/>
         <source>Use box highlighting for selection</source>
-        <translation>Afficher des boîtes pour la sélection</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="179"/>
         <source>Use one box per selected object</source>
-        <translation>Utiliser une boîte par objet sélectionné</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="188"/>
         <source>Box color: </source>
-        <translation>Couleur des boîtes :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Grey</source>
-        <translation type="obsolete">Gris</translation>
-    </message>
-    <message>
-        <source>As selection</source>
-        <translation>Comme la sélection</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Personnalisé</translation>
-    </message>
-    <message>
-        <source>Custom box color: </source>
-        <translation>Couleur personnalisée pour les boîtes :</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="196"/>
         <source>Gray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="201"/>
+        <source>As selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="206"/>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="218"/>
+        <source>Custom box color: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../python_plugins/selection-qt4.ui" line="231"/>
+        <source>...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SurfpaintTools</name>
     <message>
-        <source>ConstraintEditor</source>
-        <translation type="obsolete">Editeur de contraintes</translation>
-    </message>
-    <message>
-        <source>TextureValue</source>
-        <translation type="obsolete">Texture :</translation>
-    </message>
-    <message>
-        <source>IDPolygon</source>
-        <translation type="obsolete">Triangle :</translation>
-    </message>
-    <message>
-        <source>IDVertex</source>
-        <translation type="obsolete">Sommet :</translation>
-    </message>
-    <message>
-        <source>tolerance</source>
-        <translation type="unfinished">Tolérance :</translation>
-    </message>
-    <message>
-        <source>constraint</source>
-        <translation type="obsolete">Tension :</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbarTex</source>
-        <translation type="obsolete">Infos texture (surfpaint)</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbar3D</source>
-        <translation type="obsolete">Infos 3D (surfpaint)</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbarControls</source>
-        <translation type="obsolete">Actions (surfpaint)</translation>
-    </message>
-    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="591"/>
         <source>Texture value selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="602"/>
+        <source>distance map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="635"/>
         <source>Unconstrained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="641"/>
         <source>sulci</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="647"/>
         <source>gyri</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>distance map</source>
+        <location filename="../../../src/surfpaint/module/surfpainttools.cc" line="848"/>
+        <source>tolerance</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ToolBox</name>
     <message>
-        <source>Tool Box</source>
-        <translation type="unfinished">Boîte à outils</translation>
+        <location filename="../../../src/lib/controler/controlswitch.cc" line="83"/>
+        <source>Show control description</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show control description</source>
-        <translation type="unfinished">Montrer la description du contrôle</translation>
+        <location filename="../../../src/lib/controler/controlswitch.cc" line="104"/>
+        <source>Tool Box</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Tools3DWindow</name>
     <message>
-        <source>Fog</source>
-        <translation type="unfinished">Brouillard</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="117"/>
+        <source>3D settings : </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Flat-shaded polygons</source>
-        <translation type="unfinished">Polygônes plats</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="120"/>
+        <source>Helper gadgets :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use perspective</source>
-        <translation type="unfinished">Vue en perspective</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="121"/>
+        <source>Display cursor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Clipping plane :</source>
-        <translation type="unfinished">Plan de clipping :</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="125"/>
+        <source>Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Single plane</source>
-        <translation type="unfinished">Plan simple</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="128"/>
+        <source>Display orientation cube</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="131"/>
+        <source>Display bounding frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="137"/>
+        <source>Rendering mode :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="140"/>
+        <source>Normal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="141"/>
+        <source>Normal rendering mode - you should almost always
+use this one. It uses filled polygons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="143"/>
+        <source>Wireframe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="145"/>
         <source>Only polygon edges are drawn. Hidden faces are also
 drawn, except for polygons facing back if culling
 is enabled</source>
-        <translation type="unfinished">Seules les arêtes des polygônes sont dessinées.
-Les faces cachées sont dessinées également, sauf les
-polygônes vus de dos si l&apos;élimination des polygônes
-de dos est activée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No clipping</source>
-        <translation type="unfinished">Pas de clipping</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="148"/>
+        <source>Outlined (filled faces + wireframes)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="150"/>
+        <source>Polygons are filled and polygon edges are re-drawn
+using a different color (black). This mode is quite
+slow as two renderings are performed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="153"/>
+        <source>Wireframe with hidden faces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="154"/>
+        <source>Only polygon edges are drawn, and hidden faces are
+actually hidden. To do so two renderings must be
+performed like in outline mode (slow)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="157"/>
+        <source>Fast rendering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="158"/>
+        <source>Well, this mode doesn&apos;t exist in fact...
+Maybe one day it will perform real-time polygon
+pruning to speed-up huge mesh rendering,
+but up to now...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="165"/>
+        <source>Use perspective</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="169"/>
         <source>Normal projection mode is orthogonal. In perspective
 mode, you can get a distance effect between the
 observer and objects. It is useful for the
 &apos;flight simulator&apos; control.</source>
-        <translation type="unfinished">Le mode normal de projection est orthogonal. En
-perspective, vous pouvez avoir un effet de distance
-entre l&apos;observateur et les objets. C&apos;est utile pour
-le contrôle &apos;simulateur de vol&apos;.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Normal rendering uses smoothed colors polygons, so you
-don&apos;t see polygon boundaries. It&apos;s nicer but if you
-are looking at exact details of where polygons are,
-you&apos;ll have to use either flat-shading, or a rendering
-mode showing polygon edges (wireframe, outline, ...)</source>
-        <translation type="unfinished">Le rendu normal utilise des polygônes lisses, vous
-ne voyez donc pas les bords des polygônes. C&apos;est plus
-joli mais si vous regardez les limites exactes des
-polygônes, vous devrez utiliser soit des polygônes plats
-soit un mode de rendu montrant les arêtes des polygônes
-(fil de fer, faces entourées, ...)</translation>
-    </message>
-    <message>
-        <source>This enables smooth filtering (anti-aliasing) of lines
-and polygons edges, but doesn&apos;t work well in all
-cases (polygons should be sorted by depth), and it can
-be very slow</source>
-        <translation type="unfinished">Cette option active le filtrage (anti-aliasing)
-des lignes et arêtes de polygônes, mais ne fonctionne
-pas bien dans tous les cas (les polygônes devraient
-être triés par profondeur), et cela peut être très lent</translation>
-    </message>
-    <message>
-        <source>Cull polygon faces</source>
-        <translation type="unfinished">Eliminer les faces vues de dos</translation>
-    </message>
-    <message>
-        <source>Smooth polygons / lines</source>
-        <translation type="unfinished">Polygônes / lignes filtrés</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="174"/>
         <source>Transparent objects are drawn in depth buffer</source>
-        <translation type="unfinished">La profondeur des objets transparents s&apos;imprime</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You can clip the whole scene to cut meshes on one or
-both sides of the current plane of the 2D window mode</source>
-        <translation type="unfinished">Il est possible de tronquer la scène entière pour
-couper les maillages d&apos;un côté ou des deux côtés du
-plan de coupe courant de la fenêtre en mode 2D</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="178"/>
+        <source>Enable this if you want to click on opaque objects
+through transparent ones, or if some superimposed
+transparent objects can&apos;t be seen. As a counterpart
+objects superimposition will not be handled correctly</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use fog (useful only in perspective mode</source>
-        <translation type="unfinished">Ajouter du brouillard (utile seulement en mode perspecive)</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="185"/>
+        <source>Cull polygon faces</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
-    </message>
-    <message>
-        <source>Polygons are filled and polygon edges are re-drawn
-using a different color (black). This mode is quite
-slow as two renderings are performed</source>
-        <translation type="unfinished">Les polygônes sont pleins et les arêtes sont
-re-dessinées avec une couleur différente (noir).
-Ce mode est assez lent puisque deux rendus
-doivent être effectués</translation>
-    </message>
-    <message>
-        <source>Only polygon edges are drawn, and hidden faces are
-actually hidden. To do so two renderings must be
-performed like in outline mode (slow)</source>
-        <translation type="unfinished">Seules les arêtes des polygônes sont dessinées
-et les faces cachées sont effectivement cachées.
-Pour se faire, deux rendus doivent être effectués
-comme dans le mode contour (lent, donc)</translation>
-    </message>
-    <message>
-        <source>Normal rendering mode - you should almost always
-use this one. It uses filled polygons</source>
-        <translation type="unfinished">Mode de rendu normal - vous devriez presque toujours
-utiliser celui-ci. Il utilise des polygônes pleins</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="188"/>
         <source>Culling avoids drawing polygons facing back.
 Without this options, transparent objects will look
 bad, but only the external side of open (or clipped)
 meshes will be seen, so it depends on what you&apos;re
 looking at</source>
-        <translation type="unfinished">Ne dessine pas les polygônes vus de dos.
-Sans cette option, les objets transparents ne seront
-pas beaux, mais seule la face externe des maillages
-ouverts (ou tronqués) sera visible, donc ça dépend de
-ce que vous regardez</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireframe</source>
-        <translation type="unfinished">Fil de fer</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="195"/>
+        <source>Flat-shaded polygons</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Display bounding frame</source>
-        <translation type="unfinished">Afficher la boîte englobante</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="198"/>
+        <source>Normal rendering uses smoothed colors polygons, so you
+don&apos;t see polygon boundaries. It&apos;s nicer but if you
+are looking at exact details of where polygons are,
+you&apos;ll have to use either flat-shading, or a rendering
+mode showing polygon edges (wireframe, outline, ...)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireframe with hidden faces</source>
-        <translation type="unfinished">Fil de fer avec faces cachées</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="206"/>
+        <source>Smooth polygons / lines</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>3D settings : </source>
-        <translation type="unfinished">Réglages 3D : </translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="209"/>
+        <source>This enables smooth filtering (anti-aliasing) of lines
+and polygons edges, but doesn&apos;t work well in all
+cases (polygons should be sorted by depth), and it can
+be very slow</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="214"/>
+        <source>Fog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="216"/>
+        <source>Use fog (useful only in perspective mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="219"/>
+        <source>Clipping plane :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="221"/>
+        <source>No clipping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="222"/>
+        <source>Single plane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="224"/>
+        <source>You can clip the whole scene to cut meshes on one or
+both sides of the current plane of the 2D window mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="227"/>
         <source>Clip both sides</source>
-        <translation type="unfinished">Couper des deux côtés</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fast rendering</source>
-        <translation type="unfinished">Affichage rapide</translation>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="232"/>
+        <source>Distance to current plane (mm) :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Helper gadgets :</source>
-        <translation type="unfinished">Gadgets d&apos;aide :</translation>
-    </message>
-    <message>
-        <source>Enable this if you want to click on opaque objects
-through transparent ones, or if some superimposed
-transparent objects can&apos;t be seen. As a counterpart
-objects superimposition will not be handled correctly</source>
-        <translation type="unfinished">Mettez cette option si vous voulez cliquer
-sur des objets opaques à travers des objets transparents,
-ou si certains objets transparents superposés ne
-s&apos;affichent pas. En contrepartie, la superposition des
-objets ne sera pas correcte</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="234"/>
         <source>This is the thickness of the slice between the current
 2D window plane and the clipping plane(s). If you are
 using a volume (slice), don&apos;t set the distance to zero
 because the slice will be just on the clipping plane,
 and you don&apos;t know what will be drawn and what won&apos;t be</source>
-        <translation type="unfinished">Épaisseur de la tranche entre le plan courant de
-la fenêtre en mode 2D et le(s) plan(s) de troncature.
-Si vous visualisez un volume (coupe), me mettez pas cette
-distance à zéro, car la coupe sera alors juste dans le
-plan de troncature, et on ne peut alors pas savoir ce qui
-sera dessiné et ce qui ne le sera pas</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Outlined (filled faces + wireframes)</source>
-        <translation type="unfinished">Entourés (faces pleines + fils de fer)</translation>
-    </message>
-    <message>
-        <source>Rendering mode :</source>
-        <translation type="unfinished">Mode d&apos;affichage :</translation>
-    </message>
-    <message>
-        <source>Display orientation cube</source>
-        <translation type="unfinished">Afficher le cube d&apos;orientation</translation>
-    </message>
-    <message>
-        <source>Well, this mode doesn&apos;t exist in fact...
-Maybe one day it will perform real-time polygon
-pruning to speed-up huge mesh rendering,
-but up to now...</source>
-        <translation type="unfinished">Bon, ce mode n&apos;existe pas en fait...
-Peut-être qu&apos;un jour il effectuera une décimation
-en temps réel des polygônes pour accélérer le
-rendu des très gros maillages, mais pour l&apos;instant...</translation>
-    </message>
-    <message>
-        <source>Distance to current plane (mm) :</source>
-        <translation type="unfinished">Distance au plan courant (mm) :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="245"/>
         <source>Transparency improvement:</source>
-        <translation type="unfinished">Amélioration de la transparence:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="247"/>
         <source>Use slower-but-better transparency rendering algorithm</source>
-        <translation type="unfinished">Algorithme lent pour un meilleur rendu de la transparence</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="252"/>
         <source>Number of rendering passes (0=as necessary)</source>
-        <translation type="unfinished">Nombre de passes de rendu (0=autant que nécessaire)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="262"/>
         <source>Window saving modes:</source>
-        <translation type="unfinished">Modes de sauvegarde des images:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="263"/>
         <source>RGB buffer</source>
-        <translation type="unfinished">Couleurs RVB</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="264"/>
         <source>Alpha buffer</source>
-        <translation type="unfinished">Opacité (alpha)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="265"/>
         <source>RGBA buffer</source>
-        <translation type="unfinished">RGBA</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="266"/>
         <source>Depth buffer</source>
-        <translation type="unfinished">Carte de profondeur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wTools3D.cc" line="267"/>
         <source>Luminance buffer</source>
-        <translation type="unfinished">Luminance</translation>
-    </message>
-    <message>
-        <source>Display cursor</source>
-        <translation type="unfinished">Afficher le curseur</translation>
-    </message>
-    <message>
-        <source>Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)</source>
-        <translation type="unfinished">Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VolRenderPanel</name>
     <message>
+        <location filename="../../../src/volrender/object/volrenderpanel.cc" line="174"/>
         <source>Volume Rendering Properties</source>
-        <translation type="unfinished">Propriétés de rendu volumique</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/volrender/object/volrenderpanel.cc" line="175"/>
         <source>Volume rendering mode</source>
-        <translation type="unfinished">Mode de rendu volumique</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>VRShader</source>
-        <translation type="obsolete">Rendu Volumique</translation>
-    </message>
-    <message>
-        <source>MIPShader</source>
-        <translation type="obsolete">MIP (Projection du Maximum d&apos;Intensité)</translation>
-    </message>
-    <message>
-        <source>SumShader</source>
-        <translation type="obsolete">Somme</translation>
-    </message>
-    <message>
-        <source>MPVRShader</source>
-        <translation type="obsolete">MPVR (coupes épaisses)</translation>
-    </message>
-    <message>
+        <location filename="../../../src/volrender/object/volrenderpanel.cc" line="181"/>
         <source>Limit number of slices :</source>
-        <translation type="unfinished">Limiter le nombre de coupes :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/volrender/object/volrenderpanel.cc" line="182"/>
         <source>Max.</source>
-        <translation type="unfinished">Max.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/volrender/object/volrenderpanel.cc" line="183"/>
         <source>MPVR slab thickness</source>
-        <translation type="unfinished">Épaisseur de la tranche MPVR</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>WhatsNew</name>
     <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <location filename="../../../src/lib/control/whatsNew.cc" line="53"/>
+        <source>Anatomist News</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Anatomist News</source>
-        <translation type="unfinished">News Anatomist</translation>
+        <location filename="../../../src/lib/control/whatsNew.cc" line="57"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ZoomDialog</name>
     <message>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <source>Resize window to fit objects</source>
-        <translation type="unfinished">Redimensionner la fenêtre pour cadrer des objets</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/window3D/zoomDialog.cc" line="66"/>
         <source>Zoom selection</source>
-        <translation type="unfinished">Sélection du zoom</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/zoomDialog.cc" line="73"/>
         <source>Zoom :</source>
-        <translation type="unfinished">Zoom :</translation>
+        <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>paintingToolBox</name>
     <message>
-        <source>SurfpaintColorPickerControl</source>
-        <translation type="obsolete">pipette à texture :
-        clic gauche : choisir un vertex
-        </translation>
+        <location filename="../../../src/lib/window3D/zoomDialog.cc" line="96"/>
+        <source>Resize window to fit objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/zoomDialog.cc" line="101"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/zoomDialog.cc" line="104"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
