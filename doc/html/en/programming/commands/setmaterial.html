@@ -132,6 +132,14 @@ set on the object
     </td>
   </tr>
   <tr>
+    <td valign="top"><tt>line_width</tt></td>
+    <td valign="top"><tt>float</tt> (optional)</td>
+    <td id="txt"><b>New in Anatomist 3.1.4</b><br>
+      Lines thickness (meshes, segments, wireframe rendering modes).
+      A null or negative value fallsback to default (1 in principle).
+    </td>
+  </tr>
+  <tr>
     <td valign="top"><tt>polygon_mode</tt></td>
     <td valign="top"><tt>string</tt> (optional)</td>
     <td id="txt"><b>New in Anatomist 3.0</b><br>
@@ -139,11 +147,21 @@ set on the object
       "<tt>wireframe</tt>", 
       "<tt>outline</tt>" (normal + wireframe), 
       "<tt>hiddenface_wireframe</tt>" (wireframe with hidden faces), or 
-      "<tt>default</tt>" (use the global view settings)
+      "<tt>default</tt>" (use the global view settings)<br/>
+      <b>New in Anatomist 3.1.5</b>:<br>
+      "<tt>ext_outlined</tt>" (thickened external boundaries + normal rendering).
+
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><tt>unlit_color</tt></td>
+    <td valign="top"><tt>float_vector</tt> (optional)</td>
+    <td id="txt"><b>New in Anatomist 3.1.4</b><br>
+      color used for lines when lighting is off. For now it only affects polygons boundaries in "<tt>outlined</tt>" or "<tt>ext_outlined</tt>" polygon modes.
     </td>
   </tr>
 
-</tbody>                                                         
+</tbody>
 </table>
 
 
