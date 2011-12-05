@@ -313,7 +313,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/roibase/action/paintaction.cc" line="530"/>
+        <location filename="../../../src/roibase/action/paintaction.cc" line="535"/>
         <source>PaintAction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1685,6 +1685,30 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="96"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="101"/>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="97"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="102"/>
+        <source>Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="98"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="103"/>
+        <source>Spot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="99"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="104"/>
+        <source>Attenuation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="117"/>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="141"/>
         <source>Ambient :</source>
@@ -1778,6 +1802,24 @@
 </context>
 <context>
     <name>MaterialWindow</name>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="186"/>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="191"/>
+        <source>Fast color selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="187"/>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="193"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="188"/>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="195"/>
+        <source>Rendering</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="211"/>
         <source>Ambient :</source>
@@ -2227,6 +2269,36 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="147"/>
         <source>Anatomist global settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="152"/>
+        <source>Application</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="153"/>
+        <source>Linked cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="154"/>
+        <source>Windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="155"/>
+        <source>Control window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="156"/>
+        <source>Volumes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="157"/>
+        <source>OpenGL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

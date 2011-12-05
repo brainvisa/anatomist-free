@@ -465,6 +465,11 @@ PaintActionView::update( const Observable *, void * )
   else
     _private->myLinkedCursorMode->setButton(1) ;
 
+  if( _private->myPaintAction->mmMode() )
+    _private->myMmMode->setButton( 1 );
+  else
+    _private->myMmMode->setButton( 0 );
+
   // Updating BrushParameters
   if( _private->myPaintAction->paintType() == PaintStrategy::POINT)
     _private->myBrushes->setButton(0) ;
