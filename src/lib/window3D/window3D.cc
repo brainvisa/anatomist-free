@@ -3543,3 +3543,25 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   d->draw->renderBackBuffer(mode);
 }
 
+
+bool AWindow3D::toopTipsEnabled() const
+{
+  return d->tooltip != 0;
+}
+
+
+void AWindow3D::enableToolTips( bool x )
+{
+  if( x )
+  {
+    if( !d->tooltip )
+      d->tooltip = new QAViewToolTip( this, d->draw->qglWidget() );
+  }
+  else if( d->tooltip )
+  {
+    QAViewToolTip::hide();
+    delete d->tooltip;
+    d->tooltip = 0;
+  }
+}
+

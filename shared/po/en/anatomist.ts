@@ -1858,7 +1858,23 @@
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="236"/>
         <source>Responsive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Responsive</translation>
+    </message>
+    <message>
+        <source>Red:</source>
+        <translation type="unfinished">Red:</translation>
+    </message>
+    <message>
+        <source>Green:</source>
+        <translation type="unfinished">Green:</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation type="obsolete">Blue</translation>
+    </message>
+    <message>
+        <source>Opacity:</source>
+        <translation type="unfinished">Opacity:</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="247"/>
@@ -1936,8 +1952,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="327"/>
-        <source>Opacity:</source>
+        <source>Rendering</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2348,9 +2363,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="267"/>
-        <source>Cursor shape :</source>
-        <translation type="unfinished"></translation>
+        <source>Custom color :</source>
+        <translation type="unfinished">Custom color :</translation>
+    </message>
+    <message>
+        <source>Display L/R in corners</source>
+        <translation type="unfinished">Display L/R in corners</translation>
+    </message>
+    <message>
+        <source>Display nice logo</source>
+        <translation type="unfinished">Display nice logo</translation>
+    </message>
+    <message>
+        <source>Interpolation on volumes when changing referential</source>
+        <translation type="unfinished">Interpolation on volumes when changing referential</translation>
+    </message>
+    <message>
+        <source>Windows</source>
+        <translation type="unfinished">Windows</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
@@ -2486,6 +2516,10 @@ might still crash with such an OpenGL implementation.</source>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="776"/>
         <source>Default windows referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenGL</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

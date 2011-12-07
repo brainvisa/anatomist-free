@@ -45,7 +45,7 @@
 #include <qpen.h>
 #include <qpainter.h>
 #include <qbitmap.h>
-#include <aims/qtcompat/qlistbox.h>
+#include <qlistwidget.h>
 #include <aims/qtcompat/qvbox.h>
 #include <qpixmap.h>
 #include <anatomist/application/Anatomist.h>
@@ -69,7 +69,7 @@ struct Fusion2DWindow::Private
   ObjectParamSelect	*objsel;
   bool			recurs;
   QVGroupBox		*objbox;
-  QListBox		*orderbx;
+  QListWidget		*orderbx;
   int			currentsub;
   set<AObject *>	initial;
 };
@@ -203,7 +203,7 @@ void Fusion2DWindow::drawContents()
   hb0->setSpacing( 5 );
 
   pdat->objbox = new QVGroupBox( tr( "Objects :" ), hb0 );
-  pdat->orderbx = new QListBox( pdat->objbox );
+  pdat->orderbx = new QListWidget( pdat->objbox );
   QHBox	*hb1 = new QHBox( pdat->objbox );
   hb1->setSpacing( 5 );
   QPushButton	*up = new QPushButton( tr( "Up" ), hb1 );
@@ -218,7 +218,7 @@ void Fusion2DWindow::drawContents()
 
   selectSubObject( 1 );
 
-  connect( pdat->orderbx, SIGNAL( selectionChanged() ), this, 
+  connect( pdat->orderbx, SIGNAL( itemSelectionChanged() ), this,
            SLOT( subObjectSelected() ) );
   connect( up, SIGNAL( clicked() ), this, SLOT( moveUpSubObject() ) );
   connect( dn, SIGNAL( clicked() ), this, SLOT( moveDownSubObject() ) );
@@ -247,8 +247,8 @@ void Fusion2DWindow::updateInterface()
         {
           Fusion2D::const_iterator	i, e = f->end();
           for( i=f->begin(); i!=e; ++i )
-            pdat->orderbx->insertItem( (*i)->name().c_str() );
-          pdat->orderbx->setSelected( pdat->currentsub, true );
+            pdat->orderbx->addItem( (*i)->name().c_str() );
+          pdat->orderbx->item( pdat->currentsub )->setSelected( true );
           if( pdat->orderbx->count() > 1 )
             {
               pdat->objbox->setEnabled( true );
@@ -273,12 +273,11 @@ void Fusion2DWindow::moveUpSubObject()
   Fusion2D	*f = currentObject();
   if( !f )
     return;
-  QListBoxItem	*item = pdat->orderbx->firstItem();
-  while( item && !pdat->orderbx->isSelected( item ) )
-    item = item->next();
-  if( !item )
+  QList<QListWidgetItem	*> items = pdat->orderbx->selectedItems();
+  if( items.empty() )
     return;
-  int	i = pdat->orderbx->index( item );
+  QListWidgetItem *item = items[0];
+  int	i = pdat->orderbx->row( item );
 
   if( i == 0 )
     return;
@@ -304,12 +303,11 @@ void Fusion2DWindow::moveDownSubObject()
   Fusion2D	*f = currentObject();
   if( !f )
     return;
-  QListBoxItem	*item = pdat->orderbx->firstItem();
-  while( item && !pdat->orderbx->isSelected( item ) )
-    item = item->next();
-  if( !item )
+  QList<QListWidgetItem *> items = pdat->orderbx->selectedItems();
+  if( items.empty() )
     return;
-  int	i = pdat->orderbx->index( item );
+  QListWidgetItem *item = items[0];
+  int	i = pdat->orderbx->row( item );
 
   if( (unsigned) i + 1 >= f->size() )
     return;
@@ -355,12 +353,11 @@ void Fusion2DWindow::subObjectSelected()
   Fusion2D	*f = currentObject();
   if( !f )
     return;
-  QListBoxItem	*item = pdat->orderbx->firstItem();
-  while( item && !pdat->orderbx->isSelected( item ) )
-    item = item->next();
-  if( !item )
+  QList<QListWidgetItem *> items = pdat->orderbx->selectedItems();
+  if( items.empty() )
     return;
-  int	x = pdat->orderbx->index( item );
+  QListWidgetItem *item = items[0];
+  int	x = pdat->orderbx->row( item );
   selectSubObject( x );
 }
 

@@ -286,6 +286,8 @@ public slots:
   void setLinkedCursorPos();
   void openStereoView();
   void toggleStatusBarVisibility();
+  bool toopTipsEnabled() const;
+  void enableToolTips( bool );
 
 protected slots:
   void freeResize();

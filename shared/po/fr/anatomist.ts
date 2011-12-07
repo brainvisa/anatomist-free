@@ -2272,9 +2272,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="152"/>
-        <source>Application</source>
-        <translation type="unfinished"></translation>
+        <source>Control window</source>
+        <translation type="unfinished">Fenêtre de contrôle</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="153"/>
@@ -2297,9 +2296,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="157"/>
-        <source>OpenGL</source>
-        <translation type="unfinished"></translation>
+        <source>Linked cursor</source>
+        <translation type="unfinished">Curseur lié</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="167"/>
@@ -2333,9 +2331,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="240"/>
-        <source>Default referential for loaded objects</source>
-        <translation type="unfinished"></translation>
+        <source>Volumes</source>
+        <translation type="unfinished">Volumes</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="246"/>
@@ -2353,9 +2350,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
-        <source>Load...</source>
-        <translation type="unfinished"></translation>
+        <source>Application</source>
+        <translation type="unfinished">Application</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="276"/>
@@ -2403,7 +2399,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="325"/>
+        <source>Windows</source>
+        <translation type="unfinished">Fenêtres</translation>
+    </message>
+    <message>
         <source>Default windows size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2440,6 +2439,22 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="372"/>
         <source>Use referential / transformations information found in objects headers (SPM, NIFTI...)</source>
+        <translation>Utiliser les information de référentiel / transformations trouvés dans les en-têtes des objets (SPM, NIFTI...)</translation>
+    </message>
+    <message>
+        <source>User level</source>
+        <translation>Niveau d&apos;utilisateur</translation>
+    </message>
+    <message>
+        <source>OpenGL</source>
+        <translation type="unfinished">OpenGL</translation>
+    </message>
+    <message>
+        <source>Display cursor position by default</source>
+        <translation>Afficher par défaut la position du curseur</translation>
+    </message>
+    <message>
+        <source>Browsers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
