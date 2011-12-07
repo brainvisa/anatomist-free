@@ -681,6 +681,7 @@ void Light::set( const GenericObject & obj )
   catch( ... )
   {
   }
+  RefreshGLList();
 }
 
 
