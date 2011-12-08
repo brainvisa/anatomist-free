@@ -1378,28 +1378,6 @@ void SurfpaintTools::loadConstraintsList(vector<string> clist)
     if ((*it).length() != 0)
     constraintList->addItem((*it).c_str());
     }
-
-//    consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
-//   + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
-//
-//  cout << "Loading constraints file : " << consfile << endl;
-
-
-//  string line;
-//  ifstream myfile(consfile.c_str());
-//  if (myfile.is_open())
-//  {
-//    while (myfile.good())
-//    {
-//      getline(myfile, line);
-//      if (line.length() != 0)
-//        constraintList->addItem(line.c_str());
-//    }
-//    myfile.close();
-//  }
-//
-//  else
-//    cout << "Unable to open file " << consfile << endl;
 }
 
 void SurfpaintTools::changeMinValueSpinBox(double v)

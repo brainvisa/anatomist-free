@@ -198,7 +198,7 @@ void ConstraintEditorWindow::constraintListInit()
   char sep = carto::FileUtil::separator();
 
  string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
-   + "surfaceanalysis" + sep + "constraint_correspondance.txt" );
+   + "surfaceanalysis" + sep + "constraint_correspondance_2011.txt" );
 
   cout << "Loading constraints file : " << consfile << endl;
 
@@ -464,7 +464,8 @@ void ConstraintEditorWindow::accept()
 
   if ( d->texSelect )
     {
-    d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
+    //d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
+    d->texSelect->createDefaultPalette( "Graph-Label" );
 
     GLComponent *glc = d->texSelect->glAPI();
 
