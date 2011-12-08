@@ -38,9 +38,6 @@
 """
 
 import sys, os, weakref
-#if sys.modules.has_key( 'PyQt4' ):
-  #raise RuntimeError( 'disabling PaletteViewer module ' \
-    #'because it uses Qt3, not Qt4' )
 import anatomist.cpp as anatomist
 from soma import aims
 
@@ -50,23 +47,16 @@ processor = an.theProcessor()
 from soma.gui.api import chooseMatplotlibBackend
 chooseMatplotlibBackend()
 
-if sys.modules.has_key( 'PyQt4' ):
-  qt4 = True
-  from PyQt4 import QtCore
-  from PyQt4 import QtGui as qt
-  # copy needed classes to fake qt (yes, it's a horrible hack)
-  qt.QPoint = QtCore.QPoint
-  qt.QSize = QtCore.QSize
-  qt.QObject = QtCore.QObject
-  qt.SIGNAL = QtCore.SIGNAL
-  qt.PYSIGNAL = QtCore.SIGNAL
-  from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg \
-    as FigureCanvas
-else:
-  qt4 = False
-  import qt, qtui
-  from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg \
-    as FigureCanvas
+from PyQt4 import QtCore
+from PyQt4 import QtGui as qt
+# copy needed classes to fake qt (yes, it's a horrible hack)
+qt.QPoint = QtCore.QPoint
+qt.QSize = QtCore.QSize
+qt.QObject = QtCore.QObject
+qt.SIGNAL = QtCore.SIGNAL
+qt.PYSIGNAL = QtCore.SIGNAL
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg \
+  as FigureCanvas
 from matplotlib.figure import Figure
 
 
@@ -113,12 +103,8 @@ class MplCanvas(FigureCanvas):
       qt.QSizePolicy.Preferred,
       qt.QSizePolicy.Preferred)
     FigureCanvas.updateGeometry(self)
-    if qt4:
-      self.setObjectName(name)
-      self.setParent(parent)
-    else:
-      self.setName(name)
-      self.reparent(parent, qt.QPoint(0, 0))
+    self.setObjectName(name)
+    self.setParent(parent)
 
   def sizeHint(self):
     w, h = self.get_width_height()
@@ -190,10 +176,7 @@ class PaletteWidget(MplCanvas):
 
   def _init_bgcolor(self, widget):
     import numpy
-    if qt4:
-      qtbg = widget.palette().color( qt.QPalette.Active, qt.QPalette.Window )
-    else:
-      qtbg = widget.colorGroup().background()
+    qtbg = widget.palette().color( qt.QPalette.Active, qt.QPalette.Window )
     return (numpy.array(qtbg.getRgb(), dtype='f') / 255.).tolist()
 
   def update_palette(self):
@@ -249,14 +232,9 @@ class PaletteWidget(MplCanvas):
     self.draw()
     self._figure = figure
 
-  if qt4:
-    def close(self):
-      self.fig.set_canvas(None)
-      return MplCanvas.close(self)
-  else:
-    def close(self, alsoDelete=True):
-      self.fig.set_canvas(None)
-      return MplCanvas.close(self, alsoDelete)
+  def close(self):
+    self.fig.set_canvas(None)
+    return MplCanvas.close(self)
 
 cross_img_data = [ "8 8 9 1", "# c #000000", "g c #f1f1f1", "f c #f3f3f3",
   "e c #f4f4f4", "d c #f6f6f6", "c c #f8f8f8", "b c #f9f9f9",
@@ -266,34 +244,23 @@ cross_img_data = [ "8 8 9 1", "# c #000000", "g c #f1f1f1", "f c #f3f3f3",
 
 class ClosableWidget(qt.QWidget):
   def __init__(self, parent, name = ''):
-    if qt4:
-      qt.QWidget.__init__(self, parent)
-      self.setObjectName( name )
-    else:
-      qt.QWidget.__init__(self, parent, name)
+    qt.QWidget.__init__(self, parent)
+    self.setObjectName( name )
     self._child = None
-    if qt4:
-      biglayout = qt.QVBoxLayout(self)
-      biglayout.setObjectName( "biglayout" )
-      biglayout.setMargin( 11 )
-      biglayout.setSpacing( 6 )
-      layout = qt.QHBoxLayout(None)
-      layout.setObjectName( "layout1" )
-      layout.setMargin( 0 )
-      layout.setSpacing( 6 )
-    else:
-      biglayout = qt.QVBoxLayout(self, 11, 6, "biglayout")
-      layout = qt.QHBoxLayout(None, 0, 6, "layout1")
+    biglayout = qt.QVBoxLayout(self)
+    biglayout.setObjectName( "biglayout" )
+    biglayout.setMargin( 11 )
+    biglayout.setSpacing( 6 )
+    layout = qt.QHBoxLayout(None)
+    layout.setObjectName( "layout1" )
+    layout.setMargin( 0 )
+    layout.setSpacing( 6 )
     spacer = qt.QSpacerItem(10,10, qt.QSizePolicy.Expanding,
                             qt.QSizePolicy.Minimum)
-    if qt4:
-      closeButton = qt.QPushButton(self)
-      closeButton.setObjectName( "closeButton" )
-      saveButton = qt.QPushButton(self)
-      saveButton.setObjectName( "saveButton" )
-    else:
-      closeButton = qt.QPushButton(self, "closeButton")
-      saveButton = qt.QPushButton(self,'saveButton')
+    closeButton = qt.QPushButton(self)
+    closeButton.setObjectName( "closeButton" )
+    saveButton = qt.QPushButton(self)
+    saveButton.setObjectName( "saveButton" )
     saveButton.setText('Save')
     saveButton.setSizePolicy(qt.QSizePolicy.Fixed,
                     qt.QSizePolicy.Fixed)
@@ -304,10 +271,7 @@ class ClosableWidget(qt.QWidget):
     closeButton.setFixedWidth(12)
     pix = qt.QPixmap(cross_img_data)
 
-    if qt4:
-      closeButton.setIcon( qt.QIcon( pix ) )
-    else:
-      closeButton.setPixmap(pix)
+    closeButton.setIcon( qt.QIcon( pix ) )
     layout.addItem(spacer)
     layout.addWidget(saveButton)
     layout.addWidget(closeButton)
@@ -319,13 +283,10 @@ class ClosableWidget(qt.QWidget):
     label.setSizePolicy(qt.QSizePolicy.Ignored,
                     qt.QSizePolicy.Fixed)
     subwidget = qt.QWidget(self)
-    if qt4:
-      sublayout = qt.QHBoxLayout(subwidget)
-      sublayout.setObjectName( "sublayout" )
-      sublayout.setMargin( 0 )
-      sublayout.setSpacing( 0 )
-    else:
-      sublayout = qt.QHBoxLayout(subwidget, 0, 0, "sublayout")
+    sublayout = qt.QHBoxLayout(subwidget)
+    sublayout.setObjectName( "sublayout" )
+    sublayout.setMargin( 0 )
+    sublayout.setSpacing( 0 )
     biglayout.addWidget(subwidget)
     biglayout.addWidget(label)
     self._closeButton = closeButton
@@ -333,15 +294,10 @@ class ClosableWidget(qt.QWidget):
     self._sublayout = sublayout
     self._label = label
     self.subwidget = subwidget
-    
-  if qt4:
-    def close( self ):
-      self._child.close()
-      return qt.QWidget.close( self )
-  else:
-    def close( self, alsoDelete=True ):
-      self._child.close()
-      return qt.QWidget.close( self, alsoDelete )
+
+  def close( self ):
+    self._child.close()
+    return qt.QWidget.close( self )
 
   def savePalette(self,):
     self._child._savePalette()
@@ -355,11 +311,6 @@ class ClosableWidget(qt.QWidget):
 
   def getChild(self):
     return self._child
-
-  if not qt4:
-    def setToolTip(self, text):
-      qt.QToolTip.add(self, text)
-      qt.QToolTip.setWakeUpDelay(300)
 
   def id(self):
     return getObjectId(self._child._obj)
@@ -385,33 +336,18 @@ class GroupClosableWidget(qt.QWidget):
       self._group = weakref.ref( group )
 
     def doit(self):
-      if qt4:
-        self._group().emit( qt.PYSIGNAL('clicked(int)'), self._id )
-      else:
-        qt.QObject.emit(self._group(), qt.PYSIGNAL('clicked(int)'),
-          (self._id,))
+      self._group().emit( qt.PYSIGNAL('clicked(int)'), self._id )
 
   def __init__(self, parent, name = ''):
-    if qt4:
-      qt.QWidget.__init__(self, parent)
-      self._layout = qt.QHBoxLayout(self)
-    else:
-      qt.QWidget.__init__(self, parent, name)
-      self._layout = qt.QHBoxLayout(self, 1)
+    qt.QWidget.__init__(self, parent)
+    self._layout = qt.QHBoxLayout(self)
     self._slots = {}
     self._widgets = {}
 
-  if qt4:
-    def close( self ):
-      for id in self._widgets.keys():
-        self.remove( id )
-      return qt.QWidget.close( self )
-  else:
-    def close( self, alsoDelete=True ):
-      for id in self._widgets.keys():
-        self.remove( id )
-      return qt.QWidget.close( self, alsoDelete )
-
+  def close( self ):
+    for id in self._widgets.keys():
+      self.remove( id )
+    return qt.QWidget.close( self )
 
   def add(self, widget, id):
     self._layout.addWidget(widget)
@@ -431,10 +367,7 @@ class GroupClosableWidget(qt.QWidget):
     widget = self._widgets[id]
     del self._slots[id]
     del self._widgets[id]
-    if qt4:
-      widget.close()
-    else:
-      widget.close( True )
+    widget.close()
     if len(self._widgets) == 0: self.hide()
 
   def has_key(self, id):
@@ -470,22 +403,13 @@ class GroupPaletteWidget(GroupClosableWidget):
 
 class topWidgetWindow(qt.QSplitter):
   def __init__(self, parent=None, name=''):
-    if qt4:
-      qt.QSplitter.__init__(self, parent)
-    else:
-      qt.QSplitter.__init__(self, parent, name)
+    qt.QSplitter.__init__(self, parent)
     ReparentManager.addWidget(self)
 
-  if qt4:
-    def close(self):
-      ReparentManager.removeWidget(self)
-      self.children()[1].close()
-      return qt.QSplitter.close(self)
-  else:
-    def close(self, alsoDelete):
-      ReparentManager.removeWidget(self)
-      self.children()[1].close()
-      return qt.QSplitter.close(self, True)
+  def close(self):
+    ReparentManager.removeWidget(self)
+    self.children()[1].close()
+    return qt.QSplitter.close(self)
 
 
 class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
@@ -503,10 +427,7 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
 
   def _togglePalettes(self, window, objects):
     topwidget = self._getOrCreateTopWidget(window)
-    if qt4:
-      groupwidget = topwidget.findChild( qt.QWidget, 'paletteviewer_group' )
-    else:
-      groupwidget = topwidget.children()[1]
+    groupwidget = topwidget.findChild( qt.QWidget, 'paletteviewer_group' )
     layout = groupwidget.layout()
     for o in objects:
       if not o.palette():
@@ -520,17 +441,10 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
   def _getOrCreateTopWidget(self, window):
     if window.parent() == None:
       topwidget = topWidgetWindow()
-      if qt4:
-        window.setParent( topwidget )
-        topwidget.setWindowTitle(window.Title())
-      else:
-        window.reparent(topwidget, 0, qt.QPoint(0,0), True)
-        topwidget.setCaption(window.Title())
+      window.setParent( topwidget )
+      topwidget.setWindowTitle(window.Title())
       groupwidget = GroupPaletteWidget(topwidget)
-      if qt4:
-        groupwidget.setObjectName( 'paletteviewer_group' )
-      else:
-        topwidget.setResizeMode(groupwidget, qt.QSplitter.FollowSizeHint)
+      groupwidget.setObjectName( 'paletteviewer_group' )
       return topwidget
     else:
       return window.parent()

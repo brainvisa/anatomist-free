@@ -33,12 +33,8 @@ import anatomist.cpp as anatomist
 from soma import aims, aimsalgo
 import numpy
 import os, sys
-if sys.modules.has_key( 'PyQt4' ):
-  import PyQt4.QtCore as qt
-  import PyQt4.QtGui as qtgui
-else:
-  import qt
-  qtgui = qt
+import PyQt4.QtCore as qt
+import PyQt4.QtGui as qtgui
 
 
 class SplitFoldModule( anatomist.Module ):
@@ -262,58 +258,31 @@ class SplitFoldControl( anatomist.Control ):
     self.setUserLevel( 2 )
 
   def eventAutoSubscription( self, pool ):
-    if sys.modules.has_key( 'PyQt4' ):
-      self.mousePressButtonEventSubscribe( \
-        qt.Qt.LeftButton, qt.Qt.NoModifier,
-        pool.action( 'SplitFoldAction' ).split )
-      self.mousePressButtonEventSubscribe( \
-        qt.Qt.LeftButton, qt.Qt.ControlModifier,
-        pool.action( 'SplitFoldAction' ).subdivize )
-      self.mousePressButtonEventSubscribe( \
-        qt.Qt.LeftButton, qt.Qt.ShiftModifier,
-        pool.action( 'SplitFoldAction' ).subdivizeGraph )
-      # std actions
-      self.mousePressButtonEventSubscribe( qt.Qt.RightButton, qt.Qt.NoModifier,
-        pool.action( "MenuAction" ).execMenu )
-      self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.NoModifier,
-        pool.action( "Trackball" ).beginTrackball,
-        pool.action( "Trackball" ).moveTrackball,
-        pool.action( "Trackball" ).endTrackball, True )
-      self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.ShiftModifier,
-        pool.action( "Zoom3DAction" ).beginZoom,
-        pool.action( "Zoom3DAction" ).moveZoom,
-        pool.action( "Zoom3DAction" ).endZoom, True )
-      self.wheelEventSubscribe( pool.action( "Zoom3DAction" ).zoomWheel )
-      self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.ControlModifier,
-        pool.action( "Translate3DAction" ).beginTranslate,
-        pool.action( "Translate3DAction" ).moveTranslate,
-        pool.action( "Translate3DAction" ).endTranslate, True )
-    else:
-      self.mousePressButtonEventSubscribe( \
-        qt.Qt.LeftButton, qt.Qt.NoButton,
-        pool.action( 'SplitFoldAction' ).split )
-      self.mousePressButtonEventSubscribe( \
-        qt.Qt.LeftButton, qt.Qt.ControlButton,
-        pool.action( 'SplitFoldAction' ).subdivize )
-      self.mousePressButtonEventSubscribe( \
-        qt.Qt.LeftButton, qt.Qt.ShiftButton,
-        pool.action( 'SplitFoldAction' ).subdivizeGraph )
-      # std actions
-      self.mousePressButtonEventSubscribe( qt.Qt.RightButton, qt.Qt.NoButton,
-        pool.action( "MenuAction" ).execMenu )
-      self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.NoButton,
-        pool.action( "Trackball" ).beginTrackball,
-        pool.action( "Trackball" ).moveTrackball,
-        pool.action( "Trackball" ).endTrackball, True )
-      self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.ShiftButton,
-        pool.action( "Zoom3DAction" ).beginZoom,
-        pool.action( "Zoom3DAction" ).moveZoom,
-        pool.action( "Zoom3DAction" ).endZoom, True )
-      self.wheelEventSubscribe( pool.action( "Zoom3DAction" ).zoomWheel )
-      self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.ControlButton,
-        pool.action( "Translate3DAction" ).beginTranslate,
-        pool.action( "Translate3DAction" ).moveTranslate,
-        pool.action( "Translate3DAction" ).endTranslate, True )
+    self.mousePressButtonEventSubscribe( \
+      qt.Qt.LeftButton, qt.Qt.NoModifier,
+      pool.action( 'SplitFoldAction' ).split )
+    self.mousePressButtonEventSubscribe( \
+      qt.Qt.LeftButton, qt.Qt.ControlModifier,
+      pool.action( 'SplitFoldAction' ).subdivize )
+    self.mousePressButtonEventSubscribe( \
+      qt.Qt.LeftButton, qt.Qt.ShiftModifier,
+      pool.action( 'SplitFoldAction' ).subdivizeGraph )
+    # std actions
+    self.mousePressButtonEventSubscribe( qt.Qt.RightButton, qt.Qt.NoModifier,
+      pool.action( "MenuAction" ).execMenu )
+    self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.NoModifier,
+      pool.action( "Trackball" ).beginTrackball,
+      pool.action( "Trackball" ).moveTrackball,
+      pool.action( "Trackball" ).endTrackball, True )
+    self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.ShiftModifier,
+      pool.action( "Zoom3DAction" ).beginZoom,
+      pool.action( "Zoom3DAction" ).moveZoom,
+      pool.action( "Zoom3DAction" ).endZoom, True )
+    self.wheelEventSubscribe( pool.action( "Zoom3DAction" ).zoomWheel )
+    self.mouseLongEventSubscribe( qt.Qt.MidButton, qt.Qt.ControlModifier,
+      pool.action( "Translate3DAction" ).beginTranslate,
+      pool.action( "Translate3DAction" ).moveTranslate,
+      pool.action( "Translate3DAction" ).endTranslate, True )
 
 
 sf = SplitFoldModule()

@@ -42,13 +42,8 @@ options dealing with python modules:
 """
 
 import sys, os, string, glob
-if sys.modules.has_key( 'PyQt4' ):
-  from PyQt4.QtCore import *
-  from PyQt4.QtGui import *
-  qt4 = 1
-else:
-  from qt import *
-  qt4 = 0
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
 import anatomist.cpp as anatomist
 
@@ -190,10 +185,7 @@ def ipythonShell():
       ipshell.mainloop()
       consoleShellRunning = False
       print 'shell terminated'
-      if qt4:
-        qApp.exec_()
-      else:
-        qApp.exec_loop()
+      qApp.exec_()
       return 1
   #except:
     #return 0
@@ -207,22 +199,7 @@ def pythonShell():
     import code
     # try Qwt hook into Qt loop
     # (not needed with Qt 4)
-    if qt4:
-      iqt = None
-    else:
-      try:
-        import Qwt5._iqt as iqt
-      except:
-        try:
-          import Qwt4._iqt as iqt
-        except:
-          iqt = None
-      # try completion setup
-      if iqt:
-        iqt.hook(True)
-      else:
-        print 'Warning Qwt not here, the event loop is stopped while in ' \
-        'the python shell.'
+    iqt = None
     try:
       # then readline
       import readline, rlcompleter
@@ -303,10 +280,7 @@ def loadpython():
   print 'load python file'
   file = QFileDialog.getOpenFileName( None, '*.py', options=QFileDialog.DontUseNativeDialog )
   if file is not None:
-    if qt4:
-      execfile( file.toLocal8Bit().data() )
-    else:
-      execfile( file.latin1() )
+    execfile( file.toLocal8Bit().data() )
 
 
 class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
@@ -326,13 +300,8 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
     return None
   run = staticmethod( run )
   def load( self, filename, options ):
-    if not qt4:
-      from soma.qt3gui import qt3thread
-      res = qt3thread.QtThreadCall().push( PythonScriptRun.run, filename,
-        options )
-    else:
-      print 'warning, running python script in an arbitrary thread'
-      res = self.run( filename, options )
+    print 'warning, running python script in an arbitrary thread'
+    res = self.run( filename, options )
     return res
 
 
@@ -397,10 +366,6 @@ if cw is not None:
     pyshell.setEnabled( False )
 
 pm = PyAnatomistModule()
-if not qt4:
-  from soma.qt3gui import qt3thread
-  tc = qt3thread.QtThreadCall()
-  del tc
 pythonscriptloader = PythonScriptRun()
 anatomist.ObjectReader.registerLoader( 'py', pythonscriptloader )
 

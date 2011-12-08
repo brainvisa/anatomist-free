@@ -375,7 +375,7 @@
     <message>
         <location filename="../../../src/lib/application/Anatomist.cc" line="662"/>
         <source>Volumes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volumes</translation>
     </message>
     <message>
         <location filename="../../../src/lib/application/Anatomist.cc" line="664"/>
@@ -505,7 +505,7 @@
     <message>
         <location filename="../../../src/lib/control/controlMenuHandler.cc" line="141"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fenêtres</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/controlMenuHandler.cc" line="153"/>
@@ -1685,32 +1685,26 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="96"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="101"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="97"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="102"/>
-        <source>Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="98"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="103"/>
-        <source>Spot</source>
-        <translation type="obsolete">Spot</translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="99"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="104"/>
-        <source>Attenuation</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Model</source>
         <translation type="obsolete">Modèle</translation>
+    </message>
+    <message>
+        <source>Spot</source>
+        <translation type="obsolete">Spot</translation>
+    </message>
+    <message>
+        <source>Attenuation</source>
+        <translation type="obsolete">Atténuation</translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="117"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="141"/>
+        <source>Ambient :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="123"/>
@@ -1720,15 +1714,19 @@
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="129"/>
         <source>Specular :</source>
+        <translation type="unfinished">Spéculaire :</translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="147"/>
+        <source>Background :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Source</source>
-        <translation type="obsolete">Source</translation>
-    </message>
-    <message>
-        <source>Attenuation</source>
-        <translation type="obsolete">Atténuation</translation>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="154"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="212"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="241"/>
+        <source>Parameters :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="155"/>
@@ -1797,22 +1795,16 @@
 <context>
     <name>MaterialWindow</name>
     <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="186"/>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="191"/>
         <source>Fast color selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Sélection rapide</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="187"/>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="193"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Réglages avancés</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="188"/>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="195"/>
         <source>Rendering</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Rendu</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="211"/>
@@ -1827,16 +1819,17 @@
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="217"/>
         <source>Emission :</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Emission :</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="220"/>
         <source>Specular :</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spéculaire :</translation>
     </message>
     <message>
-        <source>Advanced settings</source>
-        <translation type="obsolete">Réglages avancés</translation>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="223"/>
+        <source>Shininess :</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="226"/>
@@ -1844,18 +1837,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fast color selection</source>
-        <translation type="obsolete">Sélection rapide</translation>
-    </message>
-    <message>
-        <source>Emission :</source>
-        <translation type="unfinished">Emission :</translation>
-    </message>
-    <message>
-        <source>Specular :</source>
-        <translation type="unfinished">Spéculaire :</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="235"/>
         <source>Update mode :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1865,10 +1847,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rendering</source>
-        <translation type="obsolete">Rendu</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="247"/>
         <source>Rendering mode :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2283,28 +2262,16 @@
         <translation type="obsolete">Fenêtre de contrôle</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="153"/>
-        <source>Linked cursor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="154"/>
-        <source>Windows</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="155"/>
-        <source>Control window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="156"/>
-        <source>Volumes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Linked cursor</source>
         <translation type="obsolete">Curseur lié</translation>
+    </message>
+    <message>
+        <source>Windows</source>
+        <translation type="obsolete">Fenêtres</translation>
+    </message>
+    <message>
+        <source>Volumes</source>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="167"/>
@@ -2330,7 +2297,7 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="224"/>
         <source>User level</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Niveau d&apos;utilisateur</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="238"/>
@@ -2338,8 +2305,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Volumes</source>
-        <translation type="obsolete">Volumes</translation>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="240"/>
+        <source>Default referential for loaded objects</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="246"/>
@@ -2359,6 +2327,11 @@
     <message>
         <source>Application</source>
         <translation type="obsolete">Application</translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
+        <source>Load...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="276"/>
@@ -2403,13 +2376,10 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="311"/>
         <source>Display cursor position by default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher par défaut la position du curseur</translation>
     </message>
     <message>
-        <source>Windows</source>
-        <translation type="obsolete">Fenêtres</translation>
-    </message>
-    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="325"/>
         <source>Default windows size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2449,20 +2419,8 @@
         <translation>Utiliser les information de référentiel / transformations trouvés dans les en-têtes des objets (SPM, NIFTI...)</translation>
     </message>
     <message>
-        <source>User level</source>
-        <translation>Niveau d&apos;utilisateur</translation>
-    </message>
-    <message>
         <source>OpenGL</source>
         <translation type="obsolete">OpenGL</translation>
-    </message>
-    <message>
-        <source>Display cursor position by default</source>
-        <translation>Afficher par défaut la position du curseur</translation>
-    </message>
-    <message>
-        <source>Browsers</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="393"/>
@@ -3848,7 +3806,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
     <message>
         <location filename="../../../src/lib/control/qWinTree.cc" line="84"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fenêtres</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/qWinTree.cc" line="85"/>
@@ -4347,7 +4305,7 @@ Do you still want to proceed ?</source>
     <message>
         <location filename="../../../src/roibase/action/roimanagementaction.cc" line="474"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fenêtres</translation>
     </message>
     <message>
         <location filename="../../../src/roibase/action/roimanagementaction.cc" line="488"/>

@@ -375,7 +375,7 @@
     <message>
         <location filename="../../../src/lib/application/Anatomist.cc" line="662"/>
         <source>Volumes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volumes</translation>
     </message>
     <message>
         <location filename="../../../src/lib/application/Anatomist.cc" line="664"/>
@@ -505,7 +505,7 @@
     <message>
         <location filename="../../../src/lib/control/controlMenuHandler.cc" line="141"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Windows</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/controlMenuHandler.cc" line="153"/>
@@ -1685,26 +1685,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="96"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="101"/>
         <source>Source</source>
         <translation type="obsolete">Source</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="97"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="102"/>
         <source>Model</source>
         <translation type="obsolete">Model</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="98"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="103"/>
         <source>Spot</source>
         <translation type="obsolete">Spot</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="99"/>
-        <location filename="../../../src/lib/window3D/wLightModel.cc" line="104"/>
         <source>Attenuation</source>
         <translation type="obsolete">Attenuation</translation>
     </message>
@@ -1803,22 +1795,12 @@
 <context>
     <name>MaterialWindow</name>
     <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="186"/>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="191"/>
         <source>Fast color selection</source>
         <translation type="obsolete">Fast color selection</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="187"/>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="193"/>
         <source>Advanced settings</source>
         <translation type="obsolete">Advanced settings</translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="188"/>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="195"/>
-        <source>Rendering</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="211"/>
@@ -1861,10 +1843,12 @@
         <translation type="unfinished">Responsive</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="300"/>
         <source>Red:</source>
         <translation type="unfinished">Red:</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="309"/>
         <source>Green:</source>
         <translation type="unfinished">Green:</translation>
     </message>
@@ -1873,6 +1857,7 @@
         <translation type="obsolete">Blue</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="327"/>
         <source>Opacity:</source>
         <translation type="unfinished">Opacity:</translation>
     </message>
@@ -1934,16 +1919,6 @@
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="265"/>
         <source>Cull polygon faces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="300"/>
-        <source>Red:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/color/wMaterial.cc" line="309"/>
-        <source>Green:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2283,34 +2258,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="152"/>
         <source>Application</source>
         <translation type="obsolete">Application</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="153"/>
         <source>Linked cursor</source>
         <translation type="obsolete">Linked cursor</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="154"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Windows</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="155"/>
         <source>Control window</source>
         <translation type="obsolete">Control window</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="156"/>
         <source>Volumes</source>
         <translation type="obsolete">Volumes</translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="157"/>
-        <source>OpenGL</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="167"/>
@@ -2359,28 +2324,33 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="283"/>
         <source>Custom color :</source>
         <translation type="unfinished">Custom color :</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="308"/>
         <source>Display L/R in corners</source>
         <translation type="unfinished">Display L/R in corners</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="357"/>
         <source>Display nice logo</source>
         <translation type="unfinished">Display nice logo</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="366"/>
         <source>Interpolation on volumes when changing referential</source>
         <translation type="unfinished">Interpolation on volumes when changing referential</translation>
     </message>
     <message>
-        <source>Windows</source>
-        <translation type="obsolete">Windows</translation>
-    </message>
-    <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
         <source>Load...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="267"/>
+        <source>Cursor shape :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2399,11 +2369,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="283"/>
-        <source>Custom color :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="296"/>
         <source>Axial/coronal slices orientation</source>
         <translation type="unfinished"></translation>
@@ -2416,11 +2381,6 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="300"/>
         <source>Neurological convention (seen from top)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="308"/>
-        <source>Display L/R in corners</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2451,16 +2411,6 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="337"/>
         <source> characters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="357"/>
-        <source>Display nice logo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="366"/>
-        <source>Interpolation on volumes when changing referential</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2576,7 +2526,7 @@ might still crash with such an OpenGL implementation.</source>
     <message>
         <location filename="../../../src/lib/color/qwObjPalette.cc" line="197"/>
         <source>Responsive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Responsive</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/qwObjPalette.cc" line="199"/>
@@ -3852,7 +3802,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
     <message>
         <location filename="../../../src/lib/control/qWinTree.cc" line="84"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Windows</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/qWinTree.cc" line="85"/>
@@ -4351,7 +4301,7 @@ Do you still want to proceed ?</source>
     <message>
         <location filename="../../../src/roibase/action/roimanagementaction.cc" line="474"/>
         <source>Windows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Windows</translation>
     </message>
     <message>
         <location filename="../../../src/roibase/action/roimanagementaction.cc" line="488"/>
@@ -4514,7 +4464,7 @@ Do you want to save it ?</source>
     <message>
         <location filename="../../python_plugins/selection-qt4.ui" line="59"/>
         <source>Opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opacity:</translation>
     </message>
     <message>
         <location filename="../../python_plugins/selection-qt4.ui" line="73"/>

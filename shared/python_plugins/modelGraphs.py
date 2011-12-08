@@ -36,11 +36,8 @@
 """
 
 import sys, os
-if sys.modules.has_key( 'PyQt4' ):
-  import PyQt4.QtCore as qt
-  import PyQt4.QtGui as qtui
-else:
-  import qt, qtui
+import PyQt4.QtCore as qt
+import PyQt4.QtGui as qtui
 import anatomist.cpp as anatomist
 from soma import aims
 

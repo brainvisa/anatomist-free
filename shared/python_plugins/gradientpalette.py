@@ -47,14 +47,8 @@ except:
 import anatomist.cpp as anatomist
 from soma import aims
 import sip, weakref
-if sys.modules.has_key( 'PyQt4' ):
-  import PyQt4.QtCore as qt
-  import PyQt4.QtGui as qtgui
-  qt4 = True
-else:
-  import qt
-  qtgui = qt
-  qt4 = False
+import PyQt4.QtCore as qt
+import PyQt4.QtGui as qtgui
 
 
 class GWManager( qt.QObject ):
@@ -120,14 +114,9 @@ class GradientPaletteWidget( qtgui.QWidget ):
     hblay.addWidget( editbtn, 0, 1 )
     hblay.addWidget( keepbtn, 1, 0 )
     modecb = qtgui.QComboBox( hb )
-    if qt4:
-      modecb.insertItem( 0, self.tr( 'RGB mode' ) )
-      modecb.insertItem( 1, self.tr( 'HSV mode' ) )
-      modecb.setCurrentIndex( 0 )
-    else:
-      modecb.insertItem( self.tr( 'RGB mode' ) )
-      modecb.insertItem( self.tr( 'HSV mode' ) )
-      modecb.setCurrentItem( 0 )
+    modecb.insertItem( 0, self.tr( 'RGB mode' ) )
+    modecb.insertItem( 1, self.tr( 'HSV mode' ) )
+    modecb.setCurrentIndex( 0 )
     hblay.addWidget( modecb, 1, 1 )
     hb.setSizePolicy( qtgui.QSizePolicy.Preferred, qtgui.QSizePolicy.Fixed )
     self._objects = []
@@ -175,12 +164,8 @@ class GradientPaletteWidget( qtgui.QWidget ):
       for i in xrange(paldim):
         pdata.setValue( aims.AimsRGBA( ord(rgb[i*4+1]), ord(rgb[i*4+2]),
           ord(rgb[i*4+3]), ord(rgb[i*4]) ), i )
-    if qt4:
-      pal.header()[ "palette_gradients" ] \
-        = self._gradw.getGradientString().toLocal8Bit().data()
-    else:
-      pal.header()[ "palette_gradients" ] \
-        = self._gradw.getGradientString().latin1()
+    pal.header()[ "palette_gradients" ] \
+      = self._gradw.getGradientString().toLocal8Bit().data()
     if self._gradw.isHsv():
       pal.header()[ "palette_gradients_mode" ] = 'HSV'
     else:
@@ -254,13 +239,9 @@ class GradientPaletteWidget( qtgui.QWidget ):
       apal = anatomist.AObjectConverter.anatomist( pal.volume() )
       apal.setName( pal.name() )
       a = anatomist.Anatomist()
-      if qt4:
-        apal.setFileName( os.path.join(
-          a.anatomistHomePath().toLocal8Bit().data(), 'rgb',
-          pal.name() ) )
-      else:
-        apal.setFileName( os.path.join( a.anatomistHomePath().latin1(), 'rgb',
-          pal.name() ) )
+      apal.setFileName( os.path.join(
+        a.anatomistHomePath().toLocal8Bit().data(), 'rgb',
+        pal.name() ) )
       anatomist.ObjectActions.saveStatic( [ apal ] )
       a = anatomist.Anatomist()
       a.releaseObject( apal )
@@ -268,26 +249,16 @@ class GradientPaletteWidget( qtgui.QWidget ):
   def editGradient( self ):
     d = qtgui.QDialog( )
     d.setModal(True)
-    if qt4:
-      d.setObjectName( 'gradient' )
-      d.setWindowTitle( self.tr( 'Gradient definition:' ) )
-    else:
-      d.setName( 'gradient' )
-      d.setCaption( self.tr( 'Gradient definition:' ) )
-      
+    d.setObjectName( 'gradient' )
+    d.setWindowTitle( self.tr( 'Gradient definition:' ) )
+
     l = qtgui.QVBoxLayout( d )
     t = qtgui.QTextEdit( d )
     l.addWidget( t )
-    if qt4:
-      t.setWordWrapMode( qtgui.QTextOption.WrapAtWordBoundaryOrAnywhere )
-    else:
-      t.setWrapPolicy( t.AtWordOrDocumentBoundary )
+    t.setWordWrapMode( qtgui.QTextOption.WrapAtWordBoundaryOrAnywhere )
     t.setText( self._gradw.getGradientString() )
     d.connect( t, qt.SIGNAL( 'returnPressed()' ), d.accept )
-    if qt4:
-      res = d.exec_()
-    else:
-      res = d.exec_loop()
+    res = d.exec_()
     if res:
       self._gradw.setGradient( t.text() )
       self._gradw.update()
@@ -300,27 +271,17 @@ class GradientPaletteWidget( qtgui.QWidget ):
     pali = obj.getOrCreatePalette().refPalette()
     d = qtgui.QDialog( )
     d.setModal(True)
-    if qt4:
-      d.setObjectName("paletteName")
-      d.setWindowTitle(self.tr( 'Palette name:' ))
-    else:
-      d.setName("paletteName")
-      d.setCaption( self.tr( 'Palette name:' ) )
+    d.setObjectName("paletteName")
+    d.setWindowTitle(self.tr( 'Palette name:' ))
     l = qtgui.QVBoxLayout( d )
     t = qtgui.QLineEdit( pali.name(), d )
     l.addWidget( t )
     d.connect( t, qt.SIGNAL( 'returnPressed()' ), d.accept )
-    if qt4:
-      res = d.exec_()
-    else:
-      res = d.exec_loop()
-     
+    res = d.exec_()
+
     if res:
       pal = anatomist.APalette( pali.get() )
-      if qt4:
-        pal.setName( t.text().toLocal8Bit().data() )
-      else:
-        pal.setName( t.text().latin1() )
+      pal.setName( t.text().toLocal8Bit().data() )
       pall.push_back( pal )
 
   def setMode( self, mode ):
@@ -346,12 +307,8 @@ class GradientPaletteCallback( anatomist.ObjectMenuCallback ):
     anatomist.ObjectMenuCallback.__init__(self)
 
   def doit( self, objects ):
-    if qt4:
-      w = GradientPaletteWidget( objects )
-      w.setAttribute( qt.Qt.WA_DeleteOnClose, True )
-    else:
-      w = GradientPaletteWidget( objects, None, 'gradientpalette',
-        qt.Qt.WDestructiveClose )
+    w = GradientPaletteWidget( objects )
+    w.setAttribute( qt.Qt.WA_DeleteOnClose, True )
     w.show()
 
 callbacks_list = []

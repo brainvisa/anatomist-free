@@ -45,21 +45,15 @@ chooseMatplotlibBackend()
 from matplotlib import pyplot
 import pylab, sip
 
-if sys.modules.has_key( 'PyQt4' ):
-  qt4 = True
-  from PyQt4 import QtCore
-  from PyQt4 import QtGui as qt
-  # copy needed classes to fake qt (yes, it's a horrible hack)
-  qt.QPoint = QtCore.QPoint
-  qt.QSize = QtCore.QSize
-  qt.QObject = QtCore.QObject
-  qt.SIGNAL = QtCore.SIGNAL
-  qt.PYSIGNAL = QtCore.SIGNAL
-  Qt = QtCore.Qt
-else:
-  qt4 = False
-  import qt, qtui
-  Qt = qt.Qt
+from PyQt4 import QtCore
+from PyQt4 import QtGui as qt
+# copy needed classes to fake qt (yes, it's a horrible hack)
+qt.QPoint = QtCore.QPoint
+qt.QSize = QtCore.QSize
+qt.QObject = QtCore.QObject
+qt.SIGNAL = QtCore.SIGNAL
+qt.PYSIGNAL = QtCore.SIGNAL
+Qt = QtCore.Qt
 
 
 class AHistogram( ana.cpp.QAWindow ):
@@ -77,24 +71,14 @@ class AHistogram( ana.cpp.QAWindow ):
     (which may be solved).
     '''
     if f is None:
-      if qt4:
-        f = Qt.WindowFlags( Qt.Window )
-      else:
-        f = Qt.WType_TopLevel | Qt.WDestructiveClose
+      f = Qt.WindowFlags( Qt.Window )
     ana.cpp.QAWindow.__init__( self, parent, name, options, f )
     self._histo = pyplot.figure()
-    if qt4:
-      self.setAttribute( Qt.WA_DeleteOnClose )
-      self._histo.set_facecolor( str( self.palette().color( \
-        qt.QPalette.Active, qt.QPalette.Window ).name() ) )
-    else:
-      self._histo.set_facecolor( str( self.palette().color( \
-        qt.QPalette.Active, qt.QColorGroup.Background ).name() ) )
+    self.setAttribute( Qt.WA_DeleteOnClose )
+    self._histo.set_facecolor( str( self.palette().color( \
+      qt.QPalette.Active, qt.QPalette.Window ).name() ) )
     wid = pyplot._pylab_helpers.Gcf.get_fig_manager(self._histo.number).window
-    if qt4:
-      wid.setParent( self )
-    else:
-      wid.reparent( self, qt.QPoint(0, 0) )
+    wid.setParent( self )
     self.setCentralWidget( wid )
     # keep a reference to the python object to prevent destruction of the
     # python part
@@ -128,13 +112,7 @@ class AHistogram( ana.cpp.QAWindow ):
       action_type='ReleaseStrongRef' )
 
   def __del__( self ):
-    print 'AHistogram.__del__'
-    if not qt4:
-      try:
-        # try to cleanup things
-        pyplot.close( self._histo )
-      except RuntimeError:
-        pass
+    #print 'AHistogram.__del__'
     ana.cpp.QAWindow.__del__( self )
 
   def destroyNotified( self ):
@@ -177,20 +155,6 @@ class AHistogram( ana.cpp.QAWindow ):
 
   def baseTitle( self ):
     return 'Histogram'
-
-  #if qt4:
-    #def close(self):
-      #print 'AHistogram.close'
-      #x = ana.cpp.QAWindow.close( self )
-      #if x:
-        #pyplot.close( self._histo )
-        ##self._histo.set_canvas(None)
-      #return x
-  if not qt4:
-    def close(self, alsoDelete=True):
-      if alsoDelete and self.testDeletable():
-        pyplot.close( self._histo )
-      return ana.cpp.QAWindow.close( self, True )
 
 
 class HistogramModule( ana.cpp.Module ):

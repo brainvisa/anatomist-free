@@ -31,19 +31,11 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
 import sys
-qt4 = False
-if sys.modules.has_key( 'PyQt4' ):
-  qt4 = True
-  from PyQt4 import QtCore, QtGui
-  qt = QtGui
-  from PyQt4.uic import loadUiType
-  UIFormClass = None
-  findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
-  #raise RuntimeError( 'The Selection module has not been ported to ' \
-    #'Qt4 yet.' )
-else:
-  import qt, qtui
-  findChild = qt.QObject.child
+from PyQt4 import QtCore, QtGui
+qt = QtGui
+from PyQt4.uic import loadUiType
+UIFormClass = None
+findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
 
 import anatomist.direct.api as anatomist
 import anatomist.cpp.followerobject as followerobject
@@ -54,12 +46,8 @@ import os, sip
 
 class SelectionActionView( qt.QWidget ):
   def __init__( self, action, parent, name=None, flags=0 ):
-    if qt4:
-      qt.QWidget.__init__( self, parent )
-      self.setObjectName( name )
-    else:
-      qt.QWidget.__init__( self, parent, name, flags )
-      layout = qt.QVBoxLayout( self )
+    qt.QWidget.__init__( self, parent )
+    self.setObjectName( name )
     self._action = action
     window = self._action.view().window()
     objs = window.Objects()
@@ -86,35 +74,22 @@ class SelectionActionView( qt.QWidget ):
     name = __file__
     if name.endswith( '.pyc' ) or name.endswith( '.pyo' ):
       name = name[:-1]
-    if qt4:
-      name = os.path.join(os.path.dirname(os.path.realpath(name)),
-      'selection-qt4.ui')
-      global UIFormClass
-      if UIFormClass is None:
-        UIFormClass, baseclass = loadUiType( name )
-      qWidget = self
-      UIFormClass().setupUi( qWidget )
-      #layout.addWidget( qWidget )
-    else:
-      name = os.path.join(os.path.dirname(os.path.realpath(name)),
-        'selection.ui')
-      qWidget = qtui.QWidgetFactory.create(name, self, self,
-        "Selection Widget UI" )
-      layout.addWidget( qWidget )
+    name = os.path.join(os.path.dirname(os.path.realpath(name)),
+    'selection-qt4.ui')
+    global UIFormClass
+    if UIFormClass is None:
+      UIFormClass, baseclass = loadUiType( name )
+    qWidget = self
+    UIFormClass().setupUi( qWidget )
+    #layout.addWidget( qWidget )
     findChild( qWidget, 'nodesSlider' ).setValue(nodes_opacity)
     findChild( qWidget, 'nodesLabel' ).setText(str(nodes_opacity))
     findChild( qWidget, 'edgesSlider' ).setValue(edges_opacity)
     findChild( qWidget, 'edgesLabel' ).setText(str(edges_opacity))
     smc = findChild( qWidget, 'selectionModeCombo' )
     for mode in self._action.modes_list:
-      if qt4:
-        smc.insertItem(smc.count(), mode)
-      else:
-        smc.insertItem(mode)
-    if qt4:
-      smc.setCurrentIndex(self._action.mode)
-    else:
-      smc.setCurrentItem(self._action.mode)
+      smc.insertItem(smc.count(), mode)
+    smc.setCurrentIndex(self._action.mode)
     boxHighlight = findChild( qWidget, 'boxHighlight' )
     boxHighlightIndividual = findChild( qWidget, 'boxHighlightIndividual' )
     boxHighlight.setChecked( self._action.useBoxHighlight )

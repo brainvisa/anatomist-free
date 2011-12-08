@@ -42,18 +42,11 @@ from anatomist.cpp import palettecontrastaction
 import types
 
 def neweventAutoSubscription( self, pool ):
-  if palettecontrastaction.qt4:
-    key = palettecontrastaction.QtCore.Qt
-    NoModifier = key.NoModifier
-    ShiftModifier = key.ShiftModifier
-    ControlModifier = key.ControlModifier
-    AltModifier = key.AltModifier
-  else:
-    key = palettecontrastaction.qt.Qt
-    NoModifier = key.NoButton
-    ShiftModifier = key.ShiftButton
-    ControlModifier = key.ControlButton
-    AltModifier = key.AltButton
+  key = palettecontrastaction.QtCore.Qt
+  NoModifier = key.NoModifier
+  ShiftModifier = key.ShiftModifier
+  ControlModifier = key.ControlModifier
+  AltModifier = key.AltModifier
   if hasattr( self, '_initial_eventAutoSubscription' ):
     self._initial_eventAutoSubscription( pool )
   else:
