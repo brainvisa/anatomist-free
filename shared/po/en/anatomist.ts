@@ -1688,25 +1688,25 @@
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="96"/>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="101"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="97"/>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="102"/>
         <source>Model</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Model</translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="98"/>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="103"/>
         <source>Spot</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="99"/>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="104"/>
         <source>Attenuation</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Attenuation</translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="117"/>
@@ -1806,13 +1806,13 @@
         <location filename="../../../src/lib/color/wMaterial.cc" line="186"/>
         <location filename="../../../src/lib/color/wMaterial.cc" line="191"/>
         <source>Fast color selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Fast color selection</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="187"/>
         <location filename="../../../src/lib/color/wMaterial.cc" line="193"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Advanced settings</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="188"/>
@@ -1949,10 +1949,6 @@
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="318"/>
         <source>Blue:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rendering</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2289,12 +2285,12 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="152"/>
         <source>Application</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="153"/>
         <source>Linked cursor</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Linked cursor</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="154"/>
@@ -2304,12 +2300,12 @@
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="155"/>
         <source>Control window</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Control window</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="156"/>
         <source>Volumes</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="157"/>
@@ -2380,7 +2376,7 @@
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Windows</translation>
+        <translation type="obsolete">Windows</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
@@ -2516,10 +2512,6 @@ might still crash with such an OpenGL implementation.</source>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="776"/>
         <source>Default windows referential</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OpenGL</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
