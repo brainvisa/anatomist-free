@@ -80,7 +80,6 @@ void Light::SetAmbient(float r, float g, float b, float a)
   _ambient[2] = b;
   _ambient[3] = a;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetDiffuse(float r, float g, float b, float a)
@@ -90,7 +89,6 @@ void Light::SetDiffuse(float r, float g, float b, float a)
   _diffuse[2] = b;
   _diffuse[3] = a;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpecular(float r, float g, float b, float a)
@@ -100,7 +98,6 @@ void Light::SetSpecular(float r, float g, float b, float a)
   _specular[2] = b;
   _specular[3] = a;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetBackground(float r, float g, float b, float a)
@@ -110,7 +107,6 @@ void Light::SetBackground(float r, float g, float b, float a)
   _background[2] = b;
   _background[3] = a;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetPosition(float x, float y, float z, float w)
@@ -120,7 +116,6 @@ void Light::SetPosition(float x, float y, float z, float w)
   _position[2] = z;
   _position[3] = w;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpotDirection(float x, float y, float z)
@@ -129,7 +124,6 @@ void Light::SetSpotDirection(float x, float y, float z)
   _spotDirection[1] = y;
   _spotDirection[2] = z;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelAmbient(float r, float g, float b, float a)
@@ -139,266 +133,234 @@ void Light::SetModelAmbient(float r, float g, float b, float a)
   _modelAmbient[2] = b;
   _modelAmbient[3] = a;
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpotExponent(float val) 
 { 
   _spotExponent = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpotCutoff(float val) 
 { 
   _spotCutoff = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetConstantAttenuation(float val) 
 { 
   _constantAttenuation = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetLinearAttenuation(float val) 
 { 
   _linearAttenuation = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetQuadraticAttenuation(float val) 
 { 
   _quadraticAttenuation = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelLocalViewer(float val) 
 { 
   _modelLocalViewer = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelTwoSide(float val) 
 { 
   _modelTwoSide = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetPositionX(float val) 
 {
   _position[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetPositionY(float val) 
 {
   _position[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetPositionZ(float val) 
 { 
   _position[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetPositionW(float val) 
 { 
   _position[3] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpotDirectionX(float val)  
 { 
   _spotDirection[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpotDirectionY(float val) 
 {
   _spotDirection[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpotDirectionZ(float val) 
 {
   _spotDirection[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelAmbientR(float val) 
 {
   _modelAmbient[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelAmbientG(float val) 
 {
   _modelAmbient[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelAmbientB(float val) 
 {
   _modelAmbient[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetModelAmbientA(float val) 
 {
   _modelAmbient[3] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetAmbientR(float val) 
 {
   _ambient[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetAmbientG(float val) 
 {
   _ambient[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetAmbientB(float val) 
 {
   _ambient[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetAmbientA(float val) 
 {
   _ambient[3] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetDiffuseR(float val) 
 {
   _diffuse[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetDiffuseG(float val) 
 {
   _diffuse[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetDiffuseB(float val) 
 {
   _diffuse[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetDiffuseA(float val) 
 {
   _diffuse[3] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpecularR(float val) 
 {
   _specular[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpecularG(float val) 
 {
   _specular[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpecularB(float val) 
 {
   _specular[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetSpecularA(float val) 
 {
   _specular[3] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetBackgroundR(float val) 
 {
   _background[0] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetBackgroundG(float val) 
 {
   _background[1] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetBackgroundB(float val) 
 {
   _background[2] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
 void Light::SetBackgroundA(float val) 
 {
   _background[3] = val; 
   _GLLRefreshFlag = true;
-  RefreshGLList();
 }
 
-GLuint Light::GetGLList()
+GLuint Light::getGLList()
 {
-  if (_GLLRefreshFlag)
-    {
-      RefreshGLList();
-      _GLLRefreshFlag = false;
-    }
-
-  return (_GLList);
+  refreshGLList();
+  return _GLList;
 }
 
-void Light::RefreshGLList()
+
+void Light::setChanged( bool x )
+{
+  _GLLRefreshFlag = x;
+}
+
+void Light::refreshGLList()
 {
   if (!_GLList)
     {
       _GLList = glGenLists(1);
       if (!_GLList)
-	AError("Light::GetGLList : not enough OGL memory.");
+	AError("Light::RefreshGLList : OpenGL error in glGenLists." );
     }
+  if( !_GLLRefreshFlag )
+    return;
   glNewList(_GLList, GL_COMPILE);
   glLightfv(GL_LIGHT0, GL_AMBIENT, _ambient);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, _diffuse);
@@ -416,6 +378,7 @@ void Light::RefreshGLList()
   glClearColor(_background[0], _background[1],
 	       _background[2], _background[3]);
   glEndList();
+  _GLLRefreshFlag = false;
 }
 
 
@@ -681,7 +644,7 @@ void Light::set( const GenericObject & obj )
   catch( ... )
   {
   }
-  RefreshGLList();
+  _GLLRefreshFlag = true;
 }
 
 

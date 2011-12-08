@@ -1339,7 +1339,7 @@ void AWindow3D::refreshNow()
 
   if (d->light)
   {
-    d->draw->setLightGLList(d->light->GetGLList());
+    d->draw->setLightGLList(d->light->getGLList());
     d->draw->setBackgroundAlpha(d->light->Background(3));
   }
   else

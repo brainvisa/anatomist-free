@@ -169,7 +169,9 @@ namespace anatomist
     /// 		Set the specular alpha coefficient of the light.
     void SetBackgroundA(float val);
 
-    GLuint GetGLList();
+    GLuint getGLList();
+    void refreshGLList();
+    void setChanged( bool=true );
 
     void set( const carto::GenericObject & );
     void set( const carto::Object & );
@@ -192,8 +194,6 @@ namespace anatomist
     GLfloat _modelTwoSide;
     GLuint  _GLList;
     bool    _GLLRefreshFlag;
-
-    void RefreshGLList();
   };
 
 }
