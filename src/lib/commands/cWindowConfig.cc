@@ -318,7 +318,7 @@ bool WindowConfigCommand::initSyntax()
   s[ "show_toolbars"                 ] = Semantic( "int" );
   s[ "show_cursor_position"          ] = Semantic( "int" );
   s[ "fullscreen"                    ] = Semantic( "int" );
-  s[ "light"                         ] = Semantic( "object" );
+  s[ "light"                         ] = Semantic( "dictionary" );
 
   Registry::instance()->add( "WindowConfig", &read, ss );
   return( true );

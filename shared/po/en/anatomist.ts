@@ -1573,19 +1573,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Model</translation>
+        <translation type="obsolete">Model</translation>
     </message>
     <message>
         <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="unfinished">Attenuation</translation>
+        <translation type="obsolete">Attenuation</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1660,11 +1660,11 @@ Right Button   :  menu
     <name>MaterialWindow</name>
     <message>
         <source>Fast color selection</source>
-        <translation type="unfinished">Fast color selection</translation>
+        <translation type="obsolete">Fast color selection</translation>
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="unfinished">Advanced settings</translation>
+        <translation type="obsolete">Advanced settings</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1764,10 +1764,6 @@ Right Button   :  menu
     </message>
     <message>
         <source>Blue:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rendering</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2036,19 +2032,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished">Application</translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation type="unfinished">Linked cursor</translation>
+        <translation type="obsolete">Linked cursor</translation>
     </message>
     <message>
         <source>Control window</source>
-        <translation type="unfinished">Control window</translation>
+        <translation type="obsolete">Control window</translation>
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <source>Language :</source>
@@ -2104,7 +2100,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Windows</translation>
+        <translation type="obsolete">Windows</translation>
     </message>
     <message>
         <source>User level</source>
@@ -2202,10 +2198,6 @@ might still crash with such an OpenGL implementation.</source>
     </message>
     <message>
         <source>Default windows referential</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OpenGL</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
