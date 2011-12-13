@@ -52,9 +52,10 @@ namespace anatomist
   class RemoveObjectCommand : public RegularCommand
   {
   public:
+    /// if removechildren == -1, MObject::shouldRemoveChildrenWithMe() is used
     RemoveObjectCommand( const std::set<AObject *> &, 
                          const std::set<AWindow *> &,
-                         bool removechildren = false );
+                         int removechildren = -1 );
     virtual ~RemoveObjectCommand();
 
     virtual std::string name() const { return( "RemoveObject" ); }
@@ -70,7 +71,7 @@ namespace anatomist
 
     std::set<AObject *>		_objL;
     std::set<AWindow *>		_winL;
-    bool                        _removechildren;
+    int                         _removechildren;
   };
 
 }

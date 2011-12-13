@@ -327,6 +327,9 @@ namespace anatomist
 
     virtual void SetMaterial( const Material & mat );
     virtual void setPalette( const AObjectPalette & pal );
+    /** tells whether children objects should be removed from views when
+        this MObject is removed from a view. Useful for graphs. */
+    virtual bool shouldRemoveChildrenWithMe() const;
 
 
   protected:

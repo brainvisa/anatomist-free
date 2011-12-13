@@ -610,3 +610,8 @@ void MObject::setReferential( Referential* ref )
 }
 
 
+bool MObject::shouldRemoveChildrenWithMe() const
+{
+  return false;
+}
+

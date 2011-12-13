@@ -105,6 +105,7 @@ namespace anatomist
     virtual AObject* ObjectAt( float x, float y, float z, float t,
 			       float tol = 0 );
     virtual void SetMaterial( const Material & mat );
+    virtual bool shouldRemoveChildrenWithMe() const;
 
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;

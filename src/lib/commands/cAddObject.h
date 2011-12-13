@@ -56,7 +56,7 @@ namespace anatomist
   {
   public:
     AddObjectCommand( const std::set<AObject*> &, const std::set<AWindow*> &,
-                      bool addchildren = false, bool addgraphnodes = false,
+                      bool addchildren = false, bool addgraphnodes = true,
                       bool addgraphrels = false );
     virtual ~AddObjectCommand();
 

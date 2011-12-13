@@ -1926,6 +1926,12 @@ set<string> AGraph::mappableEdgeProperties() const
 }
 
 
+bool AGraph::shouldRemoveChildrenWithMe() const
+{
+  return true;
+}
+
+
 // compilation of some Volume classes on Aims types
 
 #include <cartodata/volume/volume_d.h>

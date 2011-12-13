@@ -54,7 +54,7 @@ using namespace std;
 
 RemoveObjectCommand::RemoveObjectCommand( const set<AObject *> & objL, 
                                           const set<AWindow *> & winL,
-                                          bool removechildren ) 
+                                          int removechildren )
   : RegularCommand(), _objL( objL ), _winL( winL ),
     _removechildren( removechildren )
 {
@@ -103,14 +103,12 @@ RemoveObjectCommand::doit()
       for( w=_winL.begin(); w!=fw; ++w )
       {
         (*w)->unregisterObject( *o );
-        if( _removechildren )
+        if( mo && ( _removechildren > 0
+          || ( _removechildren < 0 && mo->shouldRemoveChildrenWithMe() ) ) )
         {
-          if( mo )
-          {
-            MObject::iterator i, e = mo->end();
-            for( i=mo->begin(); i!=e; ++i )
-              (*w)->unregisterObject( *i );
-          }
+          MObject::iterator i, e = mo->end();
+          for( i=mo->begin(); i!=e; ++i )
+            (*w)->unregisterObject( *i );
         }
       }
     }
@@ -126,7 +124,7 @@ Command* RemoveObjectCommand::read( const Tree & com, CommandContext* context )
   set<AWindow *>	winL;
   unsigned		i, n;
   void			*ptr;
-  int                   removechildren = 0;
+  int                   removechildren = -1;
 
   if( !com.getProperty( "objects", obj )
       || !com.getProperty( "windows", win ) )
@@ -176,7 +174,7 @@ void RemoveObjectCommand::write( Tree & com, Serializer* ser ) const
 
   t->setProperty( "objects", obj );
   t->setProperty( "windows", win );
-  if( _removechildren )
-    t->setProperty( "remove_children", (int) 1 );
+  if( _removechildren >= 0 )
+    t->setProperty( "remove_children", _removechildren );
   com.insert( t );
 }

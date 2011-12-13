@@ -130,6 +130,10 @@ static ObjectMenu* agraphOptionMenu()
 
   t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display"));
   optionTree->insert(t);
+  t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
+                                        "Add without nodes"));
+  t2->setProperty("callback", &ObjectActions::addGraphWithoutChildren);
+  t->insert(t2);
   t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu", "Display nodes"));
   t2->setProperty("callback", &ObjectActions::displayGraphChildren);
   t->insert(t2);

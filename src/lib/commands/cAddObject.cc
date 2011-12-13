@@ -58,7 +58,7 @@ AddObjectCommand::AddObjectCommand( const set<AObject *> & objL,
                                     bool addchildren, bool addnodes,
                                     bool addrels ) 
   : RegularCommand(), _objL( objL ), _winL( winL ),
-    _addchildren( addchildren ),_addnodes( addnodes ), _addrels( addrels )
+    _addchildren( addchildren ), _addnodes( addnodes ), _addrels( addrels )
 {
 }
 
@@ -229,7 +229,7 @@ Command* AddObjectCommand::read( const Tree & com, CommandContext* context )
   set<AWindow *>	winL;
   unsigned		i, n;
   void			*ptr;
-  int                   addch = 0, addnodes = 0, addrels = 0;
+  int                   addch = 0, addnodes = 1, addrels = 0;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -283,8 +283,7 @@ void AddObjectCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "add_children", 1 );
   else
   {
-    if( _addnodes )
-      t->setProperty( "add_graph_nodes", 1 );
+    t->setProperty( "add_graph_nodes", int( _addnodes ) );
     if( _addrels )
       t->setProperty( "add_graph_relations", 1 );
   }

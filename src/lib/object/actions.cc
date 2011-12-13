@@ -306,6 +306,44 @@ void ObjectActions::generateTexture2D( const std::set<AObject *> & obj )
 }
 
 
+void ObjectActions::addGraphWithoutChildren(const std::set<AObject *> &obj)
+{
+  theAnatomist->setCursor( Anatomist::Working );
+
+  set<AObject *>::const_iterator        io, eo = obj.end();
+  set<AWindow*> winL = theAnatomist->getControlWindow()->selectedWindows();
+  if (winL.size() == 0) winL = theAnatomist->getWindows();
+  set<AWindow*>::iterator iw=winL.begin(), ew = winL.end(), iw2;
+  // filter out non-3D windows
+  while( iw!=ew )
+  {
+    if( (*iw)->type() != AWindow::WINDOW_3D
+          && (*iw)->type() != AWindow::WINDOW_2D )
+    {
+      iw2 = iw;
+      ++iw;
+      winL.erase( iw2 );
+    }
+    else
+      ++iw;
+  }
+  if( winL.empty() )
+  {
+    // cout << "displayGraphWithoutChildren - new window\n";
+    CreateWindowCommand *c = new CreateWindowCommand( "3D" );
+    theProcessor->execute( c );
+    winL.insert( c->createdWindow() );
+  }
+
+  shared_ptr<AObject> ao;
+
+  AddObjectCommand    *c = new AddObjectCommand(obj, winL, false, false);
+  theProcessor->execute(c);
+
+  theAnatomist->setCursor( Anatomist::Normal );
+}
+
+
 void ObjectActions::displayGraphChildren(const std::set<AObject *> &obj)
 {
   theAnatomist->setCursor( Anatomist::Working );

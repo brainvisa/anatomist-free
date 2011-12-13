@@ -111,7 +111,8 @@ void QSelectFactory::view( AWindow* win )
 
   set<AWindow *> wl;
   wl.insert( br );
-  AddObjectCommand *ac = new AddObjectCommand( win->Objects(), wl );
+  AddObjectCommand *ac = new AddObjectCommand( win->Objects(), wl, false,
+                                               false );
   theProcessor->execute( ac );
 }
 

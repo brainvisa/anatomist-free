@@ -66,6 +66,9 @@ Removes objects from windows
     <td>
       <b>New in Anatomist 3.2.1</b><br>
       Also remove the given objects children (useful for graphs for instance)
+      <br/>
+      <b>Changed in Anatomist 4.2:</b><br/>
+      The value is now a tristate (-1, 0, 1), -1 being the default and meaning that the behaviour is object dependent: true for graphs, and false for other objects types, mainly. This makes the use of this parameter unneeded most of the time.
     </td>
   </tr>
 </tbody>

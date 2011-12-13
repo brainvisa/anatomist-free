@@ -72,6 +72,7 @@ namespace anatomist
     static void renameObject( const std::set<AObject *> & obj );
     static void generateTexture1D( const std::set<AObject *> & obj );
     static void generateTexture2D( const std::set<AObject *> & obj );
+    static void addGraphWithoutChildren( const std::set<AObject *> & obj );
     static void displayGraphChildren( const std::set<AObject *> & obj );
     static void displayGraphRelations( const std::set<AObject *> & obj );
     static void loadGraphSubObjects( const std::set<AObject *> & obj );
@@ -85,7 +86,6 @@ namespace anatomist
     static void graphUseDefaultLabelProperty( const std::set<AObject *>
         & obj );
 
-    /// returns a callback object for the reload action
     static ObjectMenuCallback* fileReloadMenuCallback();
     static ObjectMenuCallback* colorPaletteMenuCallback();
     static ObjectMenuCallback* colorMaterialMenuCallback();
