@@ -3109,6 +3109,8 @@ void AWindow3D::setReferential(Referential* ref)
   }
 
   d->draw->setZDirection(ref ? !ref->isDirect() : false);
+  // refocus view on objects in the new referential
+  focusView();
 }
 
 bool AWindow3D::linkedCursorOnSliderChange() const
