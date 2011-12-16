@@ -58,6 +58,7 @@
 #include <anatomist/reference/Referential.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/transfSet.h>
+#include <anatomist/application/globalConfig.h>
 #include <aims/resampling/standardreferentials.h>
 #include <aims/graph/graphmanip.h>
 #include <cartobase/stream/fileutil.h>
@@ -474,6 +475,18 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
   int userLevel = theAnatomist->userLevel();
   set<AObject *>::const_iterator        io, eo = obj.end();
 
+  bool commonScannerRef = false;
+  try
+  {
+    Object x = theAnatomist->config()->getProperty(
+      "commonScannerBasedReferential" );
+    if( !x.isNull() )
+      commonScannerRef = (bool) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+
   for( io=obj.begin(); io!=eo; ++io )
   {
     PythonAObject *go = dynamic_cast<PythonAObject *>( *io );
@@ -585,9 +598,19 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           }
           else
           {
+            if( commonScannerRef && sref
+              == StandardReferentials::commonScannerBasedReferential() )
+              sref = StandardReferentials::commonScannerBasedReferentialID();
+
             // cout << "unspecified ref\n";
             carto::UUID uid( sref );
-            if( uid.toString() != sref )
+            if( sref
+              == StandardReferentials::commonScannerBasedReferentialID() )
+            {
+              sref = "Scanner-based anatomical coordinates";
+              ref = Referential::referentialOfUUID( sref );
+            }
+            else if( uid.toString() != sref )
             {
                 // sref doesn't correspond to an UUID, so it is not unique
               sref = sref + " for " + (*io)->name();

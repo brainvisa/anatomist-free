@@ -382,6 +382,21 @@ PreferencesWindow::PreferencesWindow()
   {
   }
   tvspm->setChecked( tvuspm );
+
+  QCheckBox     *refscan
+    = new QCheckBox( tr(
+      "Assume all 'scanner-based' referentials are the same " ), tvol );
+  int   refscanu = 0;
+  try
+  {
+    Object  x = cfg->getProperty( "commonScannerBasedReferential" );
+    if( !x.isNull() )
+      refscanu = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  refscan->setChecked( refscanu );
   
   //    OpenGL tab
 
@@ -504,6 +519,9 @@ PreferencesWindow::PreferencesWindow()
 	   SLOT( enableVolInterpolation( bool ) ) );
   connect( tvspm, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enableAutomaticReferential( bool ) ) );
+  connect( refscan, SIGNAL( toggled( bool ) ), this,
+           SLOT( commonScannerBasedReferential( bool ) ) );
+
   connect( texmax, SIGNAL( activated( const QString & ) ), this,
            SLOT( setMaxTextures( const QString & ) ) );
   connect( glselect, SIGNAL( toggled( bool ) ), this,
@@ -876,6 +894,23 @@ void PreferencesWindow::enableOpenGLSelection( bool x )
   else
   {
     theAnatomist->config()->setProperty( "disableOpenGLSelection", int(1) );
+  }
+}
+
+
+void PreferencesWindow::commonScannerBasedReferential( bool x )
+{
+  if( !x )
+  {
+    if( theAnatomist->config()->hasProperty(
+      "commonScannerBasedReferential" ) )
+      theAnatomist->config()->removeProperty(
+        "commonScannerBasedReferential" );
+  }
+  else
+  {
+    theAnatomist->config()->setProperty( "commonScannerBasedReferential",
+                                         int(1) );
   }
 }
 

@@ -62,6 +62,7 @@ public slots:
   void setAxialConvention( int );
   void enableVolInterpolation( bool );
   void enableAutomaticReferential( bool );
+  void commonScannerBasedReferential( bool );
   void languageChanged( const QString & );
   void htmlBrowserChanged( const QString & );
   void setUserLevel( const QString & );
