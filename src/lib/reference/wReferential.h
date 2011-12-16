@@ -97,6 +97,7 @@ protected slots:
   void loadReferential();
   void loadNewTransformation();
   void clearUnusedReferentials();
+  void splitReferential();
 
 private:
   anatomist::ReferentialWindow_PrivateData	*pdat;

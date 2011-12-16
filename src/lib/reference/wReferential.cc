@@ -712,6 +712,8 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
 			   SLOT( deleteReferential() ), 0, 10 );
       pop->insertItem( tr( "Load referential information" ), this,
                        SLOT( loadReferential() ), 0, 11 );
+      pop->insertItem( tr( "Split referential to disconnect transformations" ),
+        this, SLOT( splitReferential() ), 0, 15 );
     }
   pop->setItemEnabled( 10, pdat->srcref->index() != 0 );
   pop->setItemEnabled( 11, pdat->srcref->index() != 0 );
@@ -1042,6 +1044,70 @@ void ReferentialWindow::loadNewTransformation()
   pdat->srcref = 0;
   pdat->dstref = 0;
   loadTransformation( filename.utf8().data() );
+}
+
+
+void ReferentialWindow::splitReferential()
+{
+  set<anatomist::Transformation *> trs
+    = ATransformSet::instance()->transformationsWith( pdat->srcref );
+  set<anatomist::Transformation *>::iterator it, et = trs.end();
+  anatomist::Transformation *tr;
+  Referential *sr, *dr;
+  set<AObject *>  o;
+  set<AWindow *>  w;
+  bool first = true;
+  for( it=trs.begin(); it!=et; ++it )
+  {
+    tr = *it;
+    if( !tr->isGenerated() )
+    {
+      if( first )
+      {
+        // let the first transfo unchanged
+        first = false;
+      }
+      else
+      {
+        AssignReferentialCommand      *com
+          = new AssignReferentialCommand( 0, o, w, -1 );
+        theProcessor->execute( com );
+        Referential *ref = com->ref();
+        if( tr->source() == pdat->srcref )
+        {
+          sr = ref;
+          dr = tr->destination();
+        }
+        else
+        {
+          sr = tr->source();
+          dr = ref;
+        }
+        vector<float> matrix(12);
+        matrix[0] = tr->motion().translation()[0];
+        matrix[1] = tr->motion().translation()[1];
+        matrix[2] = tr->motion().translation()[2];
+        matrix[3] = tr->motion().rotation()(0,0);
+        matrix[4] = tr->motion().rotation()(1,0);
+        matrix[5] = tr->motion().rotation()(2,0);
+        matrix[6] = tr->motion().rotation()(0,1);
+        matrix[7] = tr->motion().rotation()(1,1);
+        matrix[8] = tr->motion().rotation()(2,1);
+        matrix[9] = tr->motion().rotation()(0,2);
+        matrix[10] = tr->motion().rotation()(1,2);
+        matrix[11] = tr->motion().rotation()(2,2);
+
+        delete tr;
+        /* cout << "create " << sr->uuid().toString() << " -> "
+          << dr->uuid().toString() << endl; */
+        LoadTransformationCommand *com2
+          = new LoadTransformationCommand( matrix, sr, dr );
+        theProcessor->execute( com2 );
+      }
+    }
+  }
+  theAnatomist->Refresh();
+  refresh();
 }
 
 
