@@ -206,13 +206,13 @@
     </message>
     <message>
         <location filename="../../../src/lib/window3D/window3D.cc" line="1549"/>
-        <location filename="../../../src/lib/window3D/window3D.cc" line="3140"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="3142"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/window3D.cc" line="1552"/>
-        <location filename="../../../src/lib/window3D/window3D.cc" line="3144"/>
+        <location filename="../../../src/lib/window3D/window3D.cc" line="3146"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -421,8 +421,8 @@
         <location filename="../../../src/lib/application/Anatomist.cc" line="680"/>
         <location filename="../../../src/lib/reference/wReferential.cc" line="325"/>
         <location filename="../../../src/lib/reference/wReferential.cc" line="345"/>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="1011"/>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="1033"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1013"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1035"/>
         <source>All files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -741,32 +741,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/actions.cc" line="158"/>
+        <location filename="../../../src/lib/object/actions.cc" line="159"/>
         <source>Save object</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/actions.cc" line="159"/>
+        <location filename="../../../src/lib/object/actions.cc" line="160"/>
         <source>Save one object at a time !</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/actions.cc" line="180"/>
+        <location filename="../../../src/lib/object/actions.cc" line="181"/>
         <source>Overwrite File ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/actions.cc" line="181"/>
+        <location filename="../../../src/lib/object/actions.cc" line="182"/>
         <source>A file called %1 already exists.Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/actions.cc" line="183"/>
+        <location filename="../../../src/lib/object/actions.cc" line="184"/>
         <source>&amp;Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/actions.cc" line="183"/>
+        <location filename="../../../src/lib/object/actions.cc" line="184"/>
         <source>&amp;No</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1685,20 +1685,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="96"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="101"/>
         <source>Source</source>
-        <translation type="obsolete">Source</translation>
+        <translation type="unfinished">Source</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="97"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="102"/>
         <source>Model</source>
-        <translation type="obsolete">Modèle</translation>
+        <translation type="unfinished">Modèle</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="98"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="103"/>
         <source>Spot</source>
-        <translation type="obsolete">Spot</translation>
+        <translation type="unfinished">Spot</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="99"/>
+        <location filename="../../../src/lib/window3D/wLightModel.cc" line="104"/>
         <source>Attenuation</source>
-        <translation type="obsolete">Atténuation</translation>
+        <translation type="unfinished">Atténuation</translation>
     </message>
     <message>
         <location filename="../../../src/lib/window3D/wLightModel.cc" line="117"/>
@@ -1795,16 +1803,22 @@
 <context>
     <name>MaterialWindow</name>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="186"/>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="191"/>
         <source>Fast color selection</source>
-        <translation type="obsolete">Sélection rapide</translation>
+        <translation type="unfinished">Sélection rapide</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="187"/>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="193"/>
         <source>Advanced settings</source>
-        <translation type="obsolete">Réglages avancés</translation>
+        <translation type="unfinished">Réglages avancés</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="188"/>
+        <location filename="../../../src/lib/color/wMaterial.cc" line="195"/>
         <source>Rendering</source>
-        <translation type="obsolete">Rendu</translation>
+        <translation type="unfinished">Rendu</translation>
     </message>
     <message>
         <location filename="../../../src/lib/color/wMaterial.cc" line="211"/>
@@ -2258,20 +2272,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="155"/>
         <source>Control window</source>
-        <translation type="obsolete">Fenêtre de contrôle</translation>
+        <translation type="unfinished">Fenêtre de contrôle</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="153"/>
         <source>Linked cursor</source>
-        <translation type="obsolete">Curseur lié</translation>
+        <translation type="unfinished">Curseur lié</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="154"/>
         <source>Windows</source>
-        <translation type="obsolete">Fenêtres</translation>
+        <translation type="unfinished">Fenêtres</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="156"/>
         <source>Volumes</source>
-        <translation type="obsolete">Volumes</translation>
+        <translation type="unfinished">Volumes</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="167"/>
@@ -2285,7 +2303,7 @@
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="173"/>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="680"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="698"/>
         <source>default</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2325,8 +2343,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="152"/>
         <source>Application</source>
-        <translation type="obsolete">Application</translation>
+        <translation type="unfinished">Application</translation>
     </message>
     <message>
         <location filename="../../../src/lib/control/wPreferences.cc" line="269"/>
@@ -2419,21 +2438,27 @@
         <translation>Utiliser les information de référentiel / transformations trouvés dans les en-têtes des objets (SPM, NIFTI...)</translation>
     </message>
     <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="157"/>
         <source>OpenGL</source>
-        <translation type="obsolete">OpenGL</translation>
+        <translation type="unfinished">OpenGL</translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="393"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="387"/>
+        <source>Assume all &apos;scanner-based&apos; referentials are the same </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="408"/>
         <source>limit number of textures: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="399"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="414"/>
         <source>Unlimited</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="432"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="447"/>
         <source>Try this option if you encounter OpenGL rendering problems.
 Such problems have been seen on Windows machines, where rendering was not performed at all
 if more than 3 texture units were enabled (even on non-tetured objects).
@@ -2441,12 +2466,12 @@ Use &apos;Unlimited&apos; if rendering is OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="440"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="455"/>
         <source>Use OpenGL selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="452"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="467"/>
         <source>Disabling OpenGL-based selection (in selection control, and 3D windows tooltips)
 may be needed with some buggy OpenGL implementations which may cause Anatomist to crash.
 The &quot;Surface Paint&quot; tool also makes use of it in an unconditional way, so this module
@@ -2454,17 +2479,17 @@ might still crash with such an OpenGL implementation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="567"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="585"/>
         <source>Load Anatomist objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="761"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="779"/>
         <source>Default objects referential</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/control/wPreferences.cc" line="776"/>
+        <location filename="../../../src/lib/control/wPreferences.cc" line="794"/>
         <source>Default windows referential</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3118,7 +3143,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="55"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="72"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="103"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="140"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="144"/>
         <location filename="../../../src/lib/surface/curve.cc" line="225"/>
         <location filename="../../../src/lib/surface/planarfusion3d.cc" line="285"/>
         <location filename="../../../src/lib/surface/surface_d.h" line="284"/>
@@ -3142,7 +3167,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="60"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="77"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="108"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="149"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="153"/>
         <location filename="../../../src/lib/surface/curve.cc" line="233"/>
         <location filename="../../../src/lib/surface/planarfusion3d.cc" line="287"/>
         <location filename="../../../src/lib/surface/surface_d.h" line="292"/>
@@ -3238,7 +3263,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
         <location filename="../../../src/lib/mobject/Fusion3D.cc" line="864"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="80"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="110"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="154"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="158"/>
         <location filename="../../../src/lib/surface/curve.cc" line="238"/>
         <location filename="../../../src/lib/surface/surface_d.h" line="307"/>
         <location filename="../../../src/lib/surface/texture.cc" line="200"/>
@@ -3309,7 +3334,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="58"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="75"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="106"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="146"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="150"/>
         <location filename="../../../src/lib/surface/curve.cc" line="230"/>
         <location filename="../../../src/lib/surface/surface_d.h" line="289"/>
         <location filename="../../../src/lib/surface/texture.cc" line="195"/>
@@ -3319,7 +3344,7 @@ try clicking it and selecting &apos;Modify&apos;</source>
     <message>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="81"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="111"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="156"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="160"/>
         <location filename="../../../src/lib/surface/texture.cc" line="201"/>
         <source>Palette</source>
         <translation type="unfinished"></translation>
@@ -3327,8 +3352,8 @@ try clicking it and selecting &apos;Modify&apos;</source>
     <message>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="87"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="117"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="166"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="217"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="170"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="221"/>
         <location filename="../../../src/lib/surface/curve.cc" line="243"/>
         <location filename="../../../src/lib/surface/surface_d.h" line="312"/>
         <source>Referential</source>
@@ -3337,8 +3362,8 @@ try clicking it and selecting &apos;Modify&apos;</source>
     <message>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="88"/>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="118"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="169"/>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="220"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="173"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="224"/>
         <location filename="../../../src/lib/surface/curve.cc" line="245"/>
         <location filename="../../../src/lib/surface/surface_d.h" line="315"/>
         <source>Load</source>
@@ -3346,6 +3371,8 @@ try clicking it and selecting &apos;Modify&apos;</source>
     </message>
     <message>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="90"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="176"/>
+        <location filename="../../../src/lib/surface/surface_d.h" line="318"/>
         <source>Load information from file header</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3356,47 +3383,46 @@ try clicking it and selecting &apos;Modify&apos;</source>
     </message>
     <message>
         <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="133"/>
+        <source>Add without nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="137"/>
         <source>Display nodes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="136"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="140"/>
         <source>Display relations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="142"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="146"/>
         <source>Load all sub-objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="172"/>
-        <location filename="../../../src/lib/surface/surface_d.h" line="318"/>
-        <source>Apply builtin referential (SPM/NIFTI)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="177"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="181"/>
         <source>Labeling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="179"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="183"/>
         <source>Move automatic labeling (&apos;label&apos;) to manual (&apos;name&apos;)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="183"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="187"/>
         <source>Use automatic labeling (&apos;label&apos;)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="187"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="191"/>
         <source>Use manual labeling (&apos;name&apos;)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="191"/>
+        <location filename="../../../src/lib/object/objectmenuCallbacks.cc" line="195"/>
         <source>Use default labeling property</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3829,13 +3855,13 @@ try clicking it and selecting &apos;Modify&apos;</source>
     <message>
         <location filename="../../../src/lib/reference/wReferential.cc" line="323"/>
         <location filename="../../../src/lib/reference/wReferential.cc" line="343"/>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="1031"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1033"/>
         <source>Transformation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/reference/wReferential.cc" line="329"/>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="1037"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1039"/>
         <source>Open transformation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3851,52 +3877,57 @@ try clicking it and selecting &apos;Modify&apos;</source>
     </message>
     <message>
         <location filename="../../../src/lib/reference/wReferential.cc" line="713"/>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="1015"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1017"/>
         <source>Load referential information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="778"/>
-        <source>Delete transformation</source>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="715"/>
+        <source>Split referential to disconnect transformations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/reference/wReferential.cc" line="780"/>
-        <source>Invert transformation</source>
+        <source>Delete transformation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/lib/reference/wReferential.cc" line="782"/>
+        <source>Invert transformation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="784"/>
         <source>Reload transformation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="785"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="787"/>
         <source>Save transformation...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="807"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="809"/>
         <source>New referential</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="809"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="811"/>
         <source>Load referential</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="811"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="813"/>
         <source>Load transformation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="813"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="815"/>
         <source>Clear unused referentials</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/lib/reference/wReferential.cc" line="1009"/>
+        <location filename="../../../src/lib/reference/wReferential.cc" line="1011"/>
         <source>Referential</source>
         <translation type="unfinished"></translation>
     </message>

@@ -174,7 +174,7 @@ static ObjectMenu* agraphOptionMenu()
   t2->setProperty("callback", &ObjectActions::referentialLoad);
   t->insert(t2);
   t2 = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
-                "Apply builtin referential (SPM/NIFTI)"));
+                "Load information from file header"));
   t2->setProperty("callback", &ObjectActions::setAutomaticReferential);
   t->insert(t2);
 
