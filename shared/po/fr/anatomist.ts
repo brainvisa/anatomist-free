@@ -809,7 +809,7 @@ Défilement des coupes:
     </message>
     <message>
         <source>Default 3D control</source>
-        <translation type="unfinished">Contrôle par défaut
+        <translation>Contrôle par défaut
 Bt gauche: curseur lié
 Bt milieu: rotation
      &lt;shift&gt; ou molette : zoom/distance
@@ -841,7 +841,7 @@ Défilement des coupes:
     </message>
     <message>
         <source>TransformControl</source>
-        <translation type="unfinished">Contrôle de transformation:
+        <translation>Contrôle de transformation:
 joue sur la transformation entre les objets sélectionnés et
 la vue
 Il s&apos;utilise comme le contrôle des vues obliques, sauf qu&apos;il
@@ -878,7 +878,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>DynSegmentControl</source>
-        <translation type="unfinished">Obtention de régions d&apos;intérêt par analyse discriminante (séries dynamiques seulement)
+        <translation>Obtention de régions d&apos;intérêt par analyse discriminante (séries dynamiques seulement)
 Définissez une ROI sur l&apos;image dynamique, puis cliquez sur la série dynamique au sein de l&apos;organe à segmenter.
 (Cette fonctionalité a été testée sur les images de ligands oligonucléotidiques)
 
@@ -904,7 +904,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>CutControl</source>
-        <translation type="unfinished">Coupe sur maillage
+        <translation>Coupe sur maillage
 Bouge le plan de coupe des maillages coupés
 Bt gauche: curseur lié
 Bt milieu: rotation
@@ -927,7 +927,7 @@ Bt droit    :  menu
     </message>
     <message>
         <source>LabelNamingControl</source>
-        <translation type="unfinished">Mode de dessin de ROI par selection de label
+        <translation>Mode de dessin de ROI par selection de label
 Définissez une ROI sur une image de labels et clicked sur un label de l&apos;image
 pour dessiner votre région
 
@@ -965,7 +965,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Browser Selection</source>
-        <translation type="unfinished">Contrôle du browser
+        <translation>Contrôle du browser
 &lt;ctrl+w&gt;  :  fermer la fenêtre
 &lt;F9&gt;       :  plein écran
 &lt;F10&gt;     :  montre/cache les menus/boutons
@@ -1003,7 +1003,7 @@ BRUSH
     </message>
     <message>
         <source>ConnectivityThresholdControl</source>
-        <translation type="unfinished">Obtention de régions d&apos;intérêt par seuillage avec une contrainte de connexité
+        <translation>Obtention de régions d&apos;intérêt par seuillage avec une contrainte de connexité
 Définissez une ROI, activez la prévisualisation du seuillage dans la boite à outil, choisissez vos bornes 
 inférieure et supérieure, puis cliquez dans l&apos;image sur la région colorée à segmenter.
 
@@ -1028,33 +1028,33 @@ Bt droit   :  menu
     </message>
     <message>
         <source>controls</source>
-        <translation type="unfinished">contrôles</translation>
+        <translation>contrôles</translation>
     </message>
     <message>
         <source>NodeSelectionControl</source>
-        <translation type="unfinished">Contrôle de sélection de noeuds</translation>
+        <translation>Contrôle de sélection de noeuds</translation>
     </message>
     <message>
         <source>Selected label: </source>
-        <translation type="unfinished">Label sélectionné: </translation>
+        <translation>Label sélectionné: </translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished">&lt;aucun&gt;</translation>
+        <translation>&lt;aucun&gt;</translation>
     </message>
     <message>
         <source>Label picker: &lt;space&gt; to pick the label from currently selected objects
   &lt;ctrl&gt;+&lt;return&gt; to change the label of currently selected objects to this label</source>
-        <translation type="unfinished">Pipette à label: &lt;espace&gt; pour récupérer l&apos;étiquette des objets sélectionnés
+        <translation>Pipette à label: &lt;espace&gt; pour récupérer l&apos;étiquette des objets sélectionnés
   &lt;ctrl&gt;+&lt;entrée&gt; pour changer pour ce label l&apos;étiquette des objets sélectionnés</translation>
     </message>
     <message>
         <source>Selection tools</source>
-        <translation type="unfinished">Outils de sélection</translation>
+        <translation>Outils de sélection</translation>
     </message>
     <message>
         <source>Selection label</source>
-        <translation type="unfinished">Label de sélection</translation>
+        <translation>Label de sélection</translation>
     </message>
     <message>
         <source>SurfpaintToolsControl</source>
@@ -1062,7 +1062,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Texture</translation>
     </message>
     <message>
         <source>not object selected</source>
@@ -1070,7 +1070,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Cannot open surfpaint Toolbox</source>
-        <translation type="unfinished"></translation>
+        <translation>La boîte à outils SurfPaint ne peut pas être ouverte</translation>
     </message>
     <message>
         <source>not texture associated</source>
@@ -1082,67 +1082,67 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Area magic selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection magique de région</translation>
     </message>
     <message>
         <source>GeodesicPath</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin géodésique</translation>
     </message>
     <message>
         <source>Unconstrained</source>
-        <translation type="unfinished"></translation>
+        <translation>Non-contraint</translation>
     </message>
     <message>
         <source>sulci</source>
-        <translation type="unfinished"></translation>
+        <translation>sillons</translation>
     </message>
     <message>
         <source>gyri</source>
-        <translation type="unfinished"></translation>
+        <translation>gyri</translation>
     </message>
     <message>
         <source>Delete all selected objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer tous les objets sélectionnés</translation>
     </message>
     <message>
         <source>Brush</source>
-        <translation type="unfinished">Pinceau</translation>
+        <translation>Pinceau</translation>
     </message>
     <message>
         <source>Fill area or path selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplir une région ou un chemin sélectionné</translation>
     </message>
     <message>
         <source>Eraser</source>
-        <translation type="unfinished"></translation>
+        <translation>Gomme</translation>
     </message>
     <message>
         <source>Save texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauver la texture</translation>
     </message>
     <message>
         <source>surfpainttoolbarTex</source>
-        <translation type="unfinished">Infos texture (surfpaint)</translation>
+        <translation>Infos texture (surfpaint)</translation>
     </message>
     <message>
         <source>TextureValue</source>
-        <translation type="unfinished">Texture :</translation>
+        <translation>Texture :</translation>
     </message>
     <message>
         <source>surfpainttoolbar3D</source>
-        <translation type="unfinished">Infos 3D (surfpaint)</translation>
+        <translation>Infos 3D (surfpaint)</translation>
     </message>
     <message>
         <source>IDPolygon</source>
-        <translation type="unfinished">Triangle :</translation>
+        <translation>Triangle :</translation>
     </message>
     <message>
         <source>IDVertex</source>
-        <translation type="unfinished">Sommet :</translation>
+        <translation>Sommet :</translation>
     </message>
     <message>
         <source>constraint</source>
-        <translation type="unfinished">Tension :</translation>
+        <translation>Tension :</translation>
     </message>
     <message>
         <source>Open map of constrained path</source>
@@ -1154,7 +1154,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>MagicBrush</source>
-        <translation type="unfinished"></translation>
+        <translation>Baguette magique</translation>
     </message>
 </context>
 <context>
@@ -2060,7 +2060,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Control window</source>
-        <translation type="unfinished">Fenêtre de contrôle</translation>
+        <translation>Fenêtre de contrôle</translation>
     </message>
     <message>
         <source>Anatomist global settings</source>
@@ -2080,7 +2080,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation type="unfinished">Curseur lié</translation>
+        <translation>Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2108,7 +2108,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
+        <translation>Volumes</translation>
     </message>
     <message>
         <source>Display linked cursor</source>
@@ -2124,7 +2124,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished">Application</translation>
+        <translation>Application</translation>
     </message>
     <message>
         <source>Unstable/in development features</source>
@@ -2164,7 +2164,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
+        <translation>Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2212,7 +2212,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>OpenGL</source>
-        <translation type="unfinished">OpenGL</translation>
+        <translation>OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
@@ -2224,7 +2224,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>limit browsers attribute values to: </source>
-        <translation type="unfinished"></translation>
+        <translation>limiter la taille des valeurs des attributs dans les browsers :</translation>
     </message>
     <message>
         <source> characters</source>
@@ -2301,95 +2301,95 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <name>QAPaletteWin</name>
     <message>
         <source>1D</source>
-        <translation type="unfinished">1D</translation>
+        <translation>1D</translation>
     </message>
     <message>
         <source>2D</source>
-        <translation type="unfinished">2D</translation>
+        <translation>2D</translation>
     </message>
     <message>
         <source>Max:</source>
-        <translation type="unfinished">Max:</translation>
+        <translation>Max:</translation>
     </message>
     <message>
         <source>Min:</source>
-        <translation type="unfinished">Min:</translation>
+        <translation>Min:</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Aucune</translation>
+        <translation>Aucune</translation>
     </message>
     <message>
         <source>Reset values</source>
-        <translation type="unfinished">Valeurs par défaut</translation>
+        <translation>Valeurs par défaut</translation>
     </message>
     <message>
         <source>Available palettes :</source>
-        <translation type="unfinished">Palettes disponibles :</translation>
+        <translation>Palettes disponibles :</translation>
     </message>
     <message>
         <source>Reset bounds</source>
-        <translation type="unfinished">Bornes standard</translation>
+        <translation>Bornes standard</translation>
     </message>
     <message>
         <source>1st dimension settings :</source>
-        <translation type="unfinished">Réglages pour la 1ère dimension :</translation>
+        <translation>Réglages pour la 1ère dimension :</translation>
     </message>
     <message>
         <source>2nd dimension settings :</source>
-        <translation type="unfinished">Réglages pour la 2nde dimension :</translation>
+        <translation>Réglages pour la 2nde dimension :</translation>
     </message>
     <message>
         <source>Second palette :</source>
-        <translation type="unfinished">Seconde palette :</translation>
+        <translation>Seconde palette :</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Rafraîchir</translation>
+        <translation>Rafraîchir</translation>
     </message>
     <message>
         <source>Dimension :</source>
-        <translation type="unfinished">Dimension :</translation>
+        <translation>Dimension :</translation>
     </message>
     <message>
         <source>Responsive</source>
-        <translation type="unfinished">Temps réel</translation>
+        <translation>Temps réel</translation>
     </message>
     <message>
         <source>Mixing factor :</source>
-        <translation type="unfinished">Facteur de mélange :</translation>
+        <translation>Facteur de mélange :</translation>
     </message>
     <message>
         <source>Bounds:</source>
-        <translation type="unfinished">Bornes :</translation>
+        <translation>Bornes :</translation>
     </message>
     <message>
         <source>Update mode :</source>
-        <translation type="unfinished">Mode de mise à jour :</translation>
+        <translation>Mode de mise à jour :</translation>
     </message>
     <message>
         <source>Palettes mixing method :</source>
-        <translation type="unfinished">Méthode de melange des palettes :</translation>
+        <translation>Méthode de melange des palettes :</translation>
     </message>
     <message>
         <source>Object palette composition</source>
-        <translation type="unfinished">Composition d&apos;une palette d&apos;objet</translation>
+        <translation>Composition d&apos;une palette d&apos;objet</translation>
     </message>
     <message>
         <source>Use a second palette for 2D</source>
-        <translation type="unfinished">Utiliser une seconde palette pour le 2D</translation>
+        <translation>Utiliser une seconde palette pour le 2D</translation>
     </message>
     <message>
         <source>Palette view :</source>
-        <translation type="unfinished">Vue de la palette :</translation>
+        <translation>Vue de la palette :</translation>
     </message>
     <message>
         <source>Palette 1D Mapping :</source>
-        <translation type="unfinished">Palette 1D :</translation>
+        <translation>Palette 1D :</translation>
     </message>
     <message>
         <source>Value 0 at center</source>
-        <translation type="unfinished">Valeur 0 au centre</translation>
+        <translation>Valeur 0 au centre</translation>
     </message>
 </context>
 <context>
@@ -3886,7 +3886,7 @@ Voulez-vous continuer ?</translation>
     </message>
     <message>
         <source>tolerance</source>
-        <translation type="unfinished">Tolérance :</translation>
+        <translation>Tolérance :</translation>
     </message>
     <message>
         <source>constraint</source>
@@ -3906,34 +3906,34 @@ Voulez-vous continuer ?</translation>
     </message>
     <message>
         <source>Texture value selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection de la valeur de texture</translation>
     </message>
     <message>
         <source>Unconstrained</source>
-        <translation type="unfinished"></translation>
+        <translation>Non-contraint</translation>
     </message>
     <message>
         <source>sulci</source>
-        <translation type="unfinished"></translation>
+        <translation>sillons</translation>
     </message>
     <message>
         <source>gyri</source>
-        <translation type="unfinished"></translation>
+        <translation>gyri</translation>
     </message>
     <message>
         <source>distance map</source>
-        <translation type="unfinished"></translation>
+        <translation>carte de distance</translation>
     </message>
 </context>
 <context>
     <name>ToolBox</name>
     <message>
         <source>Tool Box</source>
-        <translation type="unfinished">Boîte à outils</translation>
+        <translation>Boîte à outils</translation>
     </message>
     <message>
         <source>Show control description</source>
-        <translation type="unfinished">Montrer la description du contrôle</translation>
+        <translation>Montrer la description du contrôle</translation>
     </message>
 </context>
 <context>
