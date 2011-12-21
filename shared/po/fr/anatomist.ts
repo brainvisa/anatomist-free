@@ -179,60 +179,60 @@
     <name>AttributedChooser</name>
     <message>
         <source>Name :</source>
-        <translation type="unfinished">Nom :</translation>
+        <translation>Nom :</translation>
     </message>
     <message>
         <source>Type :</source>
-        <translation type="unfinished">Type :</translation>
+        <translation>Type :</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
     <name>ChooseReferentialWindow</name>
     <message>
         <source>New</source>
-        <translation type="unfinished">Nouveau</translation>
+        <translation>Nouveau</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Aucun</translation>
+        <translation>Aucun</translation>
     </message>
     <message>
         <source>Existing one</source>
-        <translation type="unfinished">Réf. existant</translation>
+        <translation>Réf. existant</translation>
     </message>
     <message>
         <source>Referential:</source>
-        <translation type="unfinished">Référentiel :</translation>
+        <translation>Référentiel :</translation>
     </message>
 </context>
 <context>
     <name>ConstraintEditorWindow</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
     <name>ControlSwitch</name>
     <message>
         <source>PaintAction</source>
-        <translation type="unfinished">Dessin ROI</translation>
+        <translation>Dessin ROI</translation>
     </message>
     <message>
         <source>RoiManagementAction</source>
-        <translation type="unfinished">Contrôle ROI</translation>
+        <translation>Contrôle ROI</translation>
     </message>
     <message>
         <source>LevelSetAction</source>
@@ -240,42 +240,42 @@
     </message>
     <message>
         <source>DynSegmentAction</source>
-        <translation type="unfinished">Segmentation Dynamique</translation>
+        <translation>Segmentation Dynamique</translation>
     </message>
     <message>
         <source>MorphoMathAction</source>
-        <translation type="unfinished">Morphologie mathématique</translation>
+        <translation>Morphologie mathématique</translation>
     </message>
     <message>
         <source>LabelNamingAction</source>
-        <translation type="unfinished">Identification de labels</translation>
+        <translation>Identification de labels</translation>
     </message>
     <message>
         <source>NodeSelectionAction</source>
-        <translation type="unfinished">Sélection de noeuds</translation>
+        <translation>Sélection de noeuds</translation>
     </message>
     <message>
         <source>ConnectivityThresholdAction</source>
-        <translation type="unfinished">Seuillage avec connexité</translation>
+        <translation>Seuillage avec connexité</translation>
     </message>
     <message>
         <source>SurfpaintToolsAction</source>
-        <translation type="unfinished"></translation>
+        <translation>Outils de dessin sur les surfaces</translation>
     </message>
 </context>
 <context>
     <name>ControlWindow</name>
     <message>
         <source>File</source>
-        <translation type="unfinished">Fichier</translation>
+        <translation>Fichier</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Aide</translation>
+        <translation>Aide</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Ouvrir</translation>
+        <translation>Ouvrir</translation>
     </message>
     <message>
         <source>ROIs</source>
@@ -283,51 +283,51 @@
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished">Quitter</translation>
+        <translation>Quitter</translation>
     </message>
     <message>
         <source>DICOM</source>
-        <translation type="unfinished">DICOM</translation>
+        <translation>DICOM</translation>
     </message>
     <message>
         <source>Axial</source>
-        <translation type="unfinished">Axiale</translation>
+        <translation>Axiale</translation>
     </message>
     <message>
         <source>Index :</source>
-        <translation type="unfinished">Indice :</translation>
+        <translation>Indice :</translation>
     </message>
     <message>
         <source>Icons</source>
-        <translation type="unfinished">Icônes</translation>
+        <translation>Icônes</translation>
     </message>
     <message>
         <source>Load Anatomist objects</source>
-        <translation type="unfinished">Charger des objets Anatomist</translation>
+        <translation>Charger des objets Anatomist</translation>
     </message>
     <message>
         <source>Removes selected objects from selected windows</source>
-        <translation type="unfinished">Enlève les objets sélectionnés des fenêtres sélectionnées</translation>
+        <translation>Enlève les objets sélectionnés des fenêtres sélectionnées</translation>
     </message>
     <message>
         <source>Choose a referential on objects or windows</source>
-        <translation type="unfinished">Choisir un référentiel pour les objets ou fenêtres</translation>
+        <translation>Choisir un référentiel pour les objets ou fenêtres</translation>
     </message>
     <message>
         <source>Save global settings</source>
-        <translation type="unfinished">Sauver les préférences</translation>
+        <translation>Sauver les préférences</translation>
     </message>
     <message>
         <source>Add objects in windows</source>
-        <translation type="unfinished">Mettre les objets dans les fenêtres</translation>
+        <translation>Mettre les objets dans les fenêtres</translation>
     </message>
     <message>
         <source>Graph parameters</source>
-        <translation type="unfinished">Paramètres des graphes</translation>
+        <translation>Paramètres des graphes</translation>
     </message>
     <message>
         <source>Perfusion processing</source>
-        <translation type="unfinished">Traitements pour la perfusion</translation>
+        <translation>Traitements pour la perfusion</translation>
     </message>
     <message>
         <source>Triangular meshes</source>
@@ -335,355 +335,355 @@
     </message>
     <message>
         <source>Surface matching, texture interpolation, landmarks, ERPs reader</source>
-        <translation type="unfinished">Mise en correspondance de surfaces, interpolation de textures, points de repère, chargeur d&apos;ERPs</translation>
+        <translation>Mise en correspondance de surfaces, interpolation de textures, points de repère, chargeur d&apos;ERPs</translation>
     </message>
     <message>
         <source>Surface matching</source>
-        <translation type="unfinished">Déformation de surfaces</translation>
+        <translation>Déformation de surfaces</translation>
     </message>
     <message>
         <source>Graphs</source>
-        <translation type="unfinished">Graphes</translation>
+        <translation>Graphes</translation>
     </message>
     <message>
         <source>Removes objects from windows</source>
-        <translation type="unfinished">Enlève les objets des fenêtres</translation>
+        <translation>Enlève les objets des fenêtres</translation>
     </message>
     <message>
         <source>Name :</source>
-        <translation type="unfinished">Nom :</translation>
+        <translation>Nom :</translation>
     </message>
     <message>
         <source>Reload palettes</source>
-        <translation type="unfinished">Recharger les palettes</translation>
+        <translation>Recharger les palettes</translation>
     </message>
     <message>
         <source>Objects</source>
-        <translation type="unfinished">Objets</translation>
+        <translation>Objets</translation>
     </message>
     <message>
         <source>Puts selected objects in selected windows</source>
-        <translation type="unfinished">Met les objets sélectionnés dans les fenêtres sélectionnées</translation>
+        <translation>Met les objets sélectionnés dans les fenêtres sélectionnées</translation>
     </message>
     <message>
         <source>Object-specific</source>
-        <translation type="unfinished">Objet-spécifique</translation>
+        <translation>Objet-spécifique</translation>
     </message>
     <message>
         <source>Remove objects from windows</source>
-        <translation type="unfinished">Enlever les objets des fenêtres</translation>
+        <translation>Enlever les objets des fenêtres</translation>
     </message>
     <message>
         <source>View Reference colors</source>
-        <translation type="unfinished">Afficher les couleurs des référentiels</translation>
+        <translation>Afficher les couleurs des référentiels</translation>
     </message>
     <message>
         <source>Reads a new object from a file</source>
-        <translation type="unfinished">Lit un nouvel objet depuis un fichier disque</translation>
+        <translation>Lit un nouvel objet depuis un fichier disque</translation>
     </message>
     <message>
         <source>Load object</source>
-        <translation type="unfinished">Charger un objet</translation>
+        <translation>Charger un objet</translation>
     </message>
     <message>
         <source>Restore windows</source>
-        <translation type="unfinished">Désicônifier les fenêtres</translation>
+        <translation>Désicônifier les fenêtres</translation>
     </message>
     <message>
         <source>Core module</source>
-        <translation type="unfinished">Module de base</translation>
+        <translation>Module de base</translation>
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished">Profil</translation>
+        <translation>Profil</translation>
     </message>
     <message>
         <source>Close windows</source>
-        <translation type="unfinished">Fermer les fenêtres</translation>
+        <translation>Fermer les fenêtres</translation>
     </message>
     <message>
         <source>Sagittal</source>
-        <translation type="unfinished">Sagittale</translation>
+        <translation>Sagittale</translation>
     </message>
     <message>
         <source>Creates a new object combining the selected ones</source>
-        <translation type="unfinished">Crée un nouvel objet en combinant ceux sélectionnés</translation>
+        <translation>Crée un nouvel objet en combinant ceux sélectionnés</translation>
     </message>
     <message>
         <source>Referential window</source>
-        <translation type="unfinished">Référentiels et transformations</translation>
+        <translation>Référentiels et transformations</translation>
     </message>
     <message>
         <source>Hierarchies</source>
-        <translation type="unfinished">Hiérarchies</translation>
+        <translation>Hiérarchies</translation>
     </message>
     <message>
         <source>Link windows</source>
-        <translation type="unfinished">Lier les fenêtres</translation>
+        <translation>Lier les fenêtres</translation>
     </message>
     <message>
         <source>Unlink windows</source>
-        <translation type="unfinished">Défaire le groupe de fenêtres</translation>
+        <translation>Défaire le groupe de fenêtres</translation>
     </message>
     <message>
         <source>Perfusion</source>
-        <translation type="unfinished">Perfusion</translation>
+        <translation>Perfusion</translation>
     </message>
     <message>
         <source>Referential</source>
-        <translation type="unfinished">Référentiel</translation>
+        <translation>Référentiel</translation>
     </message>
     <message>
         <source>Modules list</source>
-        <translation type="unfinished">Liste des modules</translation>
+        <translation>Liste des modules</translation>
     </message>
     <message>
         <source>All Anatomist objects</source>
-        <translation type="unfinished">Tous les objets Anatomist</translation>
+        <translation>Tous les objets Anatomist</translation>
     </message>
     <message>
         <source>Fusion objects</source>
-        <translation type="unfinished">Fusionner les objets</translation>
+        <translation>Fusionner les objets</translation>
     </message>
     <message>
         <source>ConstraintEditor</source>
-        <translation type="unfinished">Editeur de contraintes</translation>
+        <translation>Editeur de contraintes</translation>
     </message>
     <message>
         <source>Scripts</source>
-        <translation type="unfinished">Scripts</translation>
+        <translation>Scripts</translation>
     </message>
     <message>
         <source>Delete objects</source>
-        <translation type="unfinished">Détruire les objets</translation>
+        <translation>Détruire les objets</translation>
     </message>
     <message>
         <source>Scenario</source>
-        <translation type="unfinished">Scénario</translation>
+        <translation>Scénario</translation>
     </message>
     <message>
         <source>Reload objects</source>
-        <translation type="unfinished">Recharger les objets</translation>
+        <translation>Recharger les objets</translation>
     </message>
     <message>
         <source>Coronal</source>
-        <translation type="unfinished">Coronale</translation>
+        <translation>Coronale</translation>
     </message>
     <message>
         <source>Save windows configuration</source>
-        <translation type="unfinished">Sauver la configuration des fenêtres</translation>
+        <translation>Sauver la configuration des fenêtres</translation>
     </message>
     <message>
         <source>Ungroup objects</source>
-        <translation type="unfinished">Défaire le groupe d&apos;objets</translation>
+        <translation>Défaire le groupe d&apos;objets</translation>
     </message>
     <message>
         <source>Group objects</source>
-        <translation type="unfinished">Grouper les objets</translation>
+        <translation>Grouper les objets</translation>
     </message>
     <message>
         <source>Iconify windows</source>
-        <translation type="unfinished">Icônifier les fenêtres</translation>
+        <translation>Icônifier les fenêtres</translation>
     </message>
     <message>
         <source>Modules...</source>
-        <translation type="unfinished">Modules...</translation>
+        <translation>Modules...</translation>
     </message>
     <message>
         <source>Assign referential</source>
-        <translation type="unfinished">Assigner un référentiel</translation>
+        <translation>Assigner un référentiel</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished">Réglages</translation>
+        <translation>Réglages</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Préférences</translation>
+        <translation>Préférences</translation>
     </message>
     <message>
         <source>Textures</source>
-        <translation type="unfinished">Textures</translation>
+        <translation>Textures</translation>
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
+        <translation>Volumes</translation>
     </message>
     <message>
         <source>Description :</source>
-        <translation type="unfinished">Description :</translation>
+        <translation>Description :</translation>
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
+        <translation>Fenêtres</translation>
     </message>
     <message>
         <source>All files</source>
-        <translation type="unfinished">Tous les fichiers</translation>
+        <translation>Tous les fichiers</translation>
     </message>
     <message>
         <source>About Anatomist</source>
-        <translation type="unfinished">À propos d&apos;Anatomist</translation>
+        <translation>À propos d&apos;Anatomist</translation>
     </message>
     <message>
         <source>Profile window</source>
-        <translation type="unfinished">Fenêtres profils (courbes d&apos;intensité selon une direction)</translation>
+        <translation>Fenêtres profils (courbes d&apos;intensité selon une direction)</translation>
     </message>
     <message>
         <source>Replay scenario</source>
-        <translation type="unfinished">Rejouer un scénario</translation>
+        <translation>Rejouer un scénario</translation>
     </message>
     <message>
         <source>Anatomist scripts</source>
-        <translation type="unfinished">Scripts Anatomist</translation>
+        <translation>Scripts Anatomist</translation>
     </message>
     <message>
         <source>Open scenario</source>
-        <translation type="unfinished">Jouer un scénario</translation>
+        <translation>Jouer un scénario</translation>
     </message>
     <message>
         <source>3D</source>
-        <translation type="unfinished">3D</translation>
+        <translation>3D</translation>
     </message>
     <message>
         <source>Internal to the core Anatomist distribution - always present</source>
-        <translation type="unfinished">Interne à la distribution Anatomist de base - toujours présent</translation>
+        <translation>Interne à la distribution Anatomist de base - toujours présent</translation>
     </message>
     <message>
         <source>VolRender</source>
-        <translation type="unfinished">Rendu volumique</translation>
+        <translation>Rendu volumique</translation>
     </message>
     <message>
         <source>Volume rendering package</source>
-        <translation type="unfinished">Module de rendu volumique</translation>
+        <translation>Module de rendu volumique</translation>
     </message>
     <message>
         <source>Save preferences</source>
-        <translation type="unfinished">Sauver les préférences</translation>
+        <translation>Sauver les préférences</translation>
     </message>
     <message>
         <source>Regions of Interest Algos</source>
-        <translation type="unfinished">Algorithmes pour les régions d&apos;intérêt</translation>
+        <translation>Algorithmes pour les régions d&apos;intérêt</translation>
     </message>
     <message>
         <source>Segmentation and manipulation of regions of interest : Algorithms module</source>
-        <translation type="unfinished">Segmentation et manipulation de régions d&apos;intérêt: module algorithmes</translation>
+        <translation>Segmentation et manipulation de régions d&apos;intérêt: module algorithmes</translation>
     </message>
     <message>
         <source>Anatomist Histograms</source>
-        <translation type="unfinished">Histogrammes</translation>
+        <translation>Histogrammes</translation>
     </message>
     <message>
         <source>Regions of Interest Base</source>
-        <translation type="unfinished">Base des régions d&apos;intérêt</translation>
+        <translation>Base des régions d&apos;intérêt</translation>
     </message>
     <message>
         <source>Segmentation and manipulation of regions of interest : Base module</source>
-        <translation type="unfinished">Segmentation et manipulation de régions d&apos;intérêt: module de base</translation>
+        <translation>Segmentation et manipulation de régions d&apos;intérêt: module de base</translation>
     </message>
     <message>
         <source>Open 3 standard views</source>
-        <translation type="unfinished">Ouvrir 3 vues standard</translation>
+        <translation>Ouvrir 3 vues standard</translation>
     </message>
     <message>
         <source>Open a 4 views block</source>
-        <translation type="unfinished">Ouvrir un bloc de 4 vues</translation>
+        <translation>Ouvrir un bloc de 4 vues</translation>
     </message>
     <message>
         <source>Graph Editor</source>
-        <translation type="unfinished">Editeur de graphe</translation>
+        <translation>Editeur de graphe</translation>
     </message>
     <message>
         <source>Save object</source>
-        <translation type="unfinished">Sauvegarde d&apos;objet</translation>
+        <translation>Sauvegarde d&apos;objet</translation>
     </message>
     <message>
         <source>Save one object at a time !</source>
-        <translation type="unfinished">Sauvez un seul objet à la fois !</translation>
+        <translation>Sauvez un seul objet à la fois !</translation>
     </message>
     <message>
         <source>Overwrite File ?</source>
-        <translation type="unfinished">Écraser le fichier ?</translation>
+        <translation>Écraser le fichier ?</translation>
     </message>
     <message>
         <source>A file called %1 already exists.Do you want to overwrite it?</source>
-        <translation type="unfinished">Un fichier nommé %1 existe déjà. Voulez-vous l&apos;écraser ?</translation>
+        <translation>Un fichier nommé %1 existe déjà. Voulez-vous l&apos;écraser ?</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
-        <translation type="unfinished">&amp;Oui</translation>
+        <translation>&amp;Oui</translation>
     </message>
     <message>
         <source>&amp;No</source>
-        <translation type="unfinished">&amp;Non</translation>
+        <translation>&amp;Non</translation>
     </message>
     <message>
         <source>Nomenclatures</source>
-        <translation type="unfinished">Nomenclatures</translation>
+        <translation>Nomenclatures</translation>
     </message>
     <message>
         <source>Label volumes</source>
-        <translation type="unfinished">Volumes de labels</translation>
+        <translation>Volumes de labels</translation>
     </message>
     <message>
         <source>Anatomist / AIMS libraries information</source>
-        <translation type="unfinished">Informations sur les librairies Anatomist / AIMS</translation>
+        <translation>Informations sur les librairies Anatomist / AIMS</translation>
     </message>
     <message>
         <source>Anatomist/AIMS information</source>
-        <translation type="unfinished">Informations sur Anatomist/AIMS</translation>
+        <translation>Informations sur Anatomist/AIMS</translation>
     </message>
     <message>
         <source>Histogram</source>
-        <translation type="unfinished">Histogramme</translation>
+        <translation>Histogramme</translation>
     </message>
     <message>
         <source>Histogram window</source>
-        <translation type="unfinished">Fenêtre Histogramme</translation>
+        <translation>Fenêtre Histogramme</translation>
     </message>
     <message>
         <source>Closing forbidden</source>
-        <translation type="unfinished">Fermeture interdite</translation>
+        <translation>Fermeture interdite</translation>
     </message>
     <message>
         <source>Anatomist is controlled by another application which does not allow closing the main window</source>
-        <translation type="unfinished">Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
+        <translation>Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
     </message>
     <message>
         <source>VtkModule</source>
-        <translation type="unfinished">Module VTK</translation>
+        <translation>Module VTK</translation>
     </message>
     <message>
         <source>Vtk bindings module: allows to use Vtk object in Anatomist windows</source>
-        <translation type="unfinished">Module de liens avec VTK: permet de visualiser des objets VTK dans les fenêtres Anatomist</translation>
+        <translation>Module de liens avec VTK: permet de visualiser des objets VTK dans les fenêtres Anatomist</translation>
     </message>
     <message>
         <source>Surfacic meshes</source>
-        <translation type="unfinished">Maillages surfaciques</translation>
+        <translation>Maillages surfaciques</translation>
     </message>
     <message>
         <source>Graphs/ROIs sets</source>
-        <translation type="unfinished">Graphes/Jeux de ROIs</translation>
+        <translation>Graphes/Jeux de ROIs</translation>
     </message>
     <message>
         <source>Voxels lists</source>
-        <translation type="unfinished">Listes de voxels</translation>
+        <translation>Listes de voxels</translation>
     </message>
     <message>
         <source>Other object files</source>
-        <translation type="unfinished">Autres fichiers d&apos;objets</translation>
+        <translation>Autres fichiers d&apos;objets</translation>
     </message>
     <message>
         <source>Clear everything</source>
-        <translation type="unfinished">Tout effacer</translation>
+        <translation>Tout effacer</translation>
     </message>
     <message>
         <source>Delete all objects / windows /referentials ?</source>
-        <translation type="unfinished">Effacer tous les objets / fenêtres / référentiels ?</translation>
+        <translation>Effacer tous les objets / fenêtres / référentiels ?</translation>
     </message>
     <message>
         <source>All objects, windows, referentials and transformations will be deleted</source>
-        <translation type="unfinished">Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
+        <translation>Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
     </message>
     <message>
         <source>OpenCE</source>
@@ -691,18 +691,18 @@
     </message>
     <message>
         <source>Surfpaint</source>
-        <translation type="unfinished"></translation>
+        <translation>SurfPaint</translation>
     </message>
     <message>
         <source>picking and painting a texture value on the mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>sélectionner et dessiner une valeur de texture sur le maillage</translation>
     </message>
 </context>
 <context>
     <name>ControlledWindow</name>
     <message>
         <source>ObliqueControl</source>
-        <translation type="unfinished">Contrôle des vues obliques
+        <translation>Contrôle des vues obliques
 Bt gauche: curseur lié
 Bt milieu: rotation
            &lt;shift&gt;: rotation du plan de coupe
@@ -722,7 +722,7 @@ Défilement des coupes:
     </message>
     <message>
         <source>Flight control</source>
-        <translation type="unfinished">Simulateur de vol
+        <translation>Simulateur de vol
 Ce contrôle n&apos;est pas encore complètement opérationnel...
 Il permet de changer le point de vue avec les touches du clavier
 Bt gauche: curseur lié
@@ -746,7 +746,7 @@ Bt droit :  menu
     </message>
     <message>
         <source>PaintControl</source>
-        <translation type="unfinished">Tracé au pinceau de régions d&apos;intérêt
+        <translation>Tracé au pinceau de régions d&apos;intérêt
 D&apos;autres fonctionnalités seront rajoutées ultérieurement
 Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
 Bt gauche  :  Dessin
@@ -1058,7 +1058,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>SurfpaintToolsControl</source>
-        <translation type="unfinished"></translation>
+        <translation>Contrôle des outils SurfPaint</translation>
     </message>
     <message>
         <source>Texture</source>
@@ -1066,7 +1066,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>not object selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas d&apos;objet sélectionné</translation>
     </message>
     <message>
         <source>Cannot open surfpaint Toolbox</source>
@@ -1074,11 +1074,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>not texture associated</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas de texture associée</translation>
     </message>
     <message>
         <source>surfpainttoolbarControls</source>
-        <translation type="unfinished">Actions (surfpaint)</translation>
+        <translation>Actions (surfpaint)</translation>
     </message>
     <message>
         <source>Area magic selection</source>
@@ -1146,11 +1146,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Open map of constrained path</source>
-        <translation type="unfinished"></translation>
+        <translation>Charger une carte de contraintes pour les chemins</translation>
     </message>
     <message>
         <source>Open list of constrained value</source>
-        <translation type="unfinished"></translation>
+        <translation>Charger une liste de valeurs de contraintes</translation>
     </message>
     <message>
         <source>MagicBrush</source>
@@ -1807,67 +1807,67 @@ Bt droit   :  menu
     </message>
     <message>
         <source>&amp;ColorPicker</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection de &amp;Couleur</translation>
     </message>
     <message>
         <source>ColorPicker</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection de couleur</translation>
     </message>
     <message>
         <source>&amp;GeodesicDistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Distance &amp;Géodésique</translation>
     </message>
     <message>
         <source>GeodesicDistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Distance géodésique</translation>
     </message>
     <message>
         <source>distance : </source>
-        <translation type="unfinished"></translation>
+        <translation>distance :</translation>
     </message>
     <message>
         <source>&amp;magic_selection</source>
-        <translation type="unfinished"></translation>
+        <translation>sélection &amp;magique</translation>
     </message>
     <message>
         <source>magic_selection</source>
-        <translation type="unfinished"></translation>
+        <translation>sélection magique</translation>
     </message>
     <message>
         <source>tolerance : </source>
-        <translation type="unfinished"></translation>
+        <translation>tolérence :</translation>
     </message>
     <message>
         <source>Shortest Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Plus court chemin</translation>
     </message>
     <message>
         <source>&amp;Unconstrained</source>
-        <translation type="unfinished"></translation>
+        <translation>Non-contraint (&amp;U)</translation>
     </message>
     <message>
         <source>Unconstrained</source>
-        <translation type="unfinished"></translation>
+        <translation>Non-contraint</translation>
     </message>
     <message>
         <source>&amp;sulci</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;sillons</translation>
     </message>
     <message>
         <source>sulci</source>
-        <translation type="unfinished"></translation>
+        <translation>sillons</translation>
     </message>
     <message>
         <source>&amp;gyri</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;gyri</translation>
     </message>
     <message>
         <source>gyri</source>
-        <translation type="unfinished"></translation>
+        <translation>gyri</translation>
     </message>
     <message>
         <source>constraint : </source>
-        <translation type="unfinished"></translation>
+        <translation>contrainte :</translation>
     </message>
     <message>
         <source>sigmo : </source>
@@ -1875,181 +1875,181 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Brush</source>
-        <translation type="unfinished">Pinceau</translation>
+        <translation>Pinceau</translation>
     </message>
     <message>
         <source>&amp;paintBrush</source>
-        <translation type="unfinished"></translation>
+        <translation>brosse &amp;pinceau</translation>
     </message>
     <message>
         <source>paintBrush</source>
-        <translation type="unfinished"></translation>
+        <translation>brosse peinceau</translation>
     </message>
     <message>
         <source>&amp;magicBrush</source>
-        <translation type="unfinished"></translation>
+        <translation>brosse &amp;magique</translation>
     </message>
     <message>
         <source>magicBrush</source>
-        <translation type="unfinished"></translation>
+        <translation>brosse magique</translation>
     </message>
     <message>
         <source>&amp;erase</source>
-        <translation type="unfinished"></translation>
+        <translation>gomme (&amp;e)</translation>
     </message>
     <message>
         <source>erase</source>
-        <translation type="unfinished"></translation>
+        <translation>gomme</translation>
     </message>
     <message>
         <source>&amp;filling</source>
-        <translation type="unfinished"></translation>
+        <translation>remplissage (&amp;f)</translation>
     </message>
     <message>
         <source>fill</source>
-        <translation type="unfinished"></translation>
+        <translation>remplissage</translation>
     </message>
     <message>
         <source>&amp;clear</source>
-        <translation type="unfinished"></translation>
+        <translation>effacer (&amp;e)</translation>
     </message>
     <message>
         <source>clear</source>
-        <translation type="unfinished"></translation>
+        <translation>effacer</translation>
     </message>
     <message>
         <source>&amp;Save Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sauver la textuire</translation>
     </message>
     <message>
         <source>save</source>
-        <translation type="unfinished"></translation>
+        <translation>sauver</translation>
     </message>
     <message>
         <source>PaintToolBar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre d&apos;outils de dessin</translation>
     </message>
     <message>
         <source>InfosToolBar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre d&apos;outils d&apos;infos</translation>
     </message>
 </context>
 <context>
     <name>ObjectParamSelect</name>
     <message>
         <source>&lt;no object&gt;</source>
-        <translation type="unfinished">&lt;pas d&apos;objet&gt;</translation>
+        <translation>&lt;pas d&apos;objet&gt;</translation>
     </message>
     <message>
         <source>Set parameters on these objects:</source>
-        <translation type="unfinished">Réglage de paramètres sur les objets suivants:</translation>
+        <translation>Réglage de paramètres sur les objets suivants:</translation>
     </message>
     <message>
         <source>Show all objects</source>
-        <translation type="unfinished">Montrer tous les objets</translation>
+        <translation>Montrer tous les objets</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Show initial objects</source>
-        <translation type="unfinished">Montrer les objets initiaux</translation>
+        <translation>Montrer les objets initiaux</translation>
     </message>
     <message>
         <source>Show top-level objects</source>
-        <translation type="unfinished">Montrer les objets principaux</translation>
+        <translation>Montrer les objets principaux</translation>
     </message>
 </context>
 <context>
     <name>PaintActionView</name>
     <message>
         <source>On</source>
-        <translation type="unfinished">Activé</translation>
+        <translation>Activé</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Désactivé</translation>
+        <translation>Désactivé</translation>
     </message>
     <message>
         <source>Ball</source>
-        <translation type="unfinished">Boule</translation>
+        <translation>Boule</translation>
     </message>
     <message>
         <source>Disk</source>
-        <translation type="unfinished">Disque</translation>
+        <translation>Disque</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">Ligne</translation>
+        <translation>Ligne</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished">Refaire</translation>
+        <translation>Refaire</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished">Défaire</translation>
+        <translation>Défaire</translation>
     </message>
     <message>
         <source>Brush</source>
-        <translation type="unfinished">Pinceau</translation>
+        <translation>Pinceau</translation>
     </message>
     <message>
         <source>Modes</source>
-        <translation type="unfinished">Modes</translation>
+        <translation>Modes</translation>
     </message>
     <message>
         <source>Point</source>
-        <translation type="unfinished">Point</translation>
+        <translation>Point</translation>
     </message>
     <message>
         <source>Clear Region</source>
-        <translation type="unfinished">Effacer la région</translation>
+        <translation>Effacer la région</translation>
     </message>
     <message>
         <source>Transparency</source>
-        <translation type="unfinished">Opacité</translation>
+        <translation>Opacité</translation>
     </message>
     <message>
         <source>Fill Region</source>
-        <translation type="unfinished">Remplir la région</translation>
+        <translation>Remplir la région</translation>
     </message>
     <message>
         <source>Actions</source>
-        <translation type="unfinished">Actions</translation>
+        <translation>Actions</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation type="unfinished">Remplacement</translation>
+        <translation>Remplacement</translation>
     </message>
     <message>
         <source>Brushes</source>
-        <translation type="unfinished">Pinceaux</translation>
+        <translation>Pinceaux</translation>
     </message>
     <message>
         <source>Brush Size</source>
-        <translation type="unfinished">Rayon du pinceau</translation>
+        <translation>Rayon du pinceau</translation>
     </message>
     <message>
         <source>LinkedCursor</source>
-        <translation type="unfinished">Curseur lié</translation>
+        <translation>Curseur lié</translation>
     </message>
     <message>
         <source>BrushUnit</source>
-        <translation type="unfinished">Taille du pinceau en </translation>
+        <translation>Taille du pinceau en </translation>
     </message>
     <message>
         <source>Voxel</source>
-        <translation type="unfinished">Voxel</translation>
+        <translation>Voxel</translation>
     </message>
     <message>
         <source>Mm</source>
-        <translation type="unfinished">mm</translation>
+        <translation>mm</translation>
     </message>
 </context>
 <context>
@@ -2220,7 +2220,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Browsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Browsers</translation>
     </message>
     <message>
         <source>limit browsers attribute values to: </source>
@@ -2261,6 +2261,10 @@ might still crash with such an OpenGL implementation.</source>
 peut être nécessaire avec certaines implémentations boguées d&apos;OpenGL, ce qui peut faire planter Anatomist.
 L&apos;outil &quot;Dessin sur surfaces&quot; l&apos;utilise aussi de manière inconditionnelle, donc ce module
 peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation>
+    </message>
+    <message>
+        <source>Assume all &apos;scanner-based&apos; referentials are the same </source>
+        <translation>Supposer que tous les référentiels &apos;scanner-based&apos; sont les mêmes</translation>
     </message>
 </context>
 <context>
@@ -2967,7 +2971,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Apply builtin referential (SPM/NIFTI)</source>
-        <translation type="unfinished">Appliquer le changement de référentiel (SPM/NIFTI)</translation>
+        <translation type="obsolete">Appliquer le changement de référentiel (SPM/NIFTI)</translation>
     </message>
     <message>
         <source>Default Menu</source>
@@ -3028,6 +3032,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Load information from file header</source>
         <translation>Charger les informations de l&apos;en-tête de fichier</translation>
+    </message>
+    <message>
+        <source>Add without nodes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3287,141 +3295,145 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <name>ReferentialWindow</name>
     <message>
         <source>Transformation</source>
-        <translation type="unfinished">Transformation</translation>
+        <translation>Transformation</translation>
     </message>
     <message>
         <source>Delete transformation</source>
-        <translation type="unfinished">Effacer la transformation</translation>
+        <translation>Effacer la transformation</translation>
     </message>
     <message>
         <source>Reload transformation</source>
-        <translation type="unfinished">Recharger la transformation</translation>
+        <translation>Recharger la transformation</translation>
     </message>
     <message>
         <source>Open transformation</source>
-        <translation type="unfinished">Charger une transformation</translation>
+        <translation>Charger une transformation</translation>
     </message>
     <message>
         <source>Delete referential</source>
-        <translation type="unfinished">Détruire le référentiel</translation>
+        <translation>Détruire le référentiel</translation>
     </message>
     <message>
         <source>Invert transformation</source>
-        <translation type="unfinished">Inverser la transformation</translation>
+        <translation>Inverser la transformation</translation>
     </message>
     <message>
         <source>Referentials</source>
-        <translation type="unfinished">Référentiels</translation>
+        <translation>Référentiels</translation>
     </message>
     <message>
         <source>Save transformation...</source>
-        <translation type="unfinished">Sauver la transformation...</translation>
+        <translation>Sauver la transformation...</translation>
     </message>
     <message>
         <source>Save transformation</source>
-        <translation type="unfinished">Sauver la transformation</translation>
+        <translation>Sauver la transformation</translation>
     </message>
     <message>
         <source>Load referential information</source>
-        <translation type="unfinished">Charger les informations sur le référentiel</translation>
+        <translation>Charger les informations sur le référentiel</translation>
     </message>
     <message>
         <source>New referential</source>
-        <translation type="unfinished">Nouveau référentiel</translation>
+        <translation>Nouveau référentiel</translation>
     </message>
     <message>
         <source>Load referential</source>
-        <translation type="unfinished">Charger un référentiel</translation>
+        <translation>Charger un référentiel</translation>
     </message>
     <message>
         <source>Load transformation</source>
-        <translation type="unfinished">Charger une transformation</translation>
+        <translation>Charger une transformation</translation>
     </message>
     <message>
         <source>Referential</source>
-        <translation type="unfinished">Référentiel</translation>
+        <translation>Référentiel</translation>
     </message>
     <message>
         <source>Clear unused referentials</source>
-        <translation type="unfinished">Effacer les référentiels inutilisés</translation>
+        <translation>Effacer les référentiels inutilisés</translation>
+    </message>
+    <message>
+        <source>Split referential to disconnect transformations</source>
+        <translation>Dupliquer le référentiel pour déconnecter les transformations</translation>
     </message>
 </context>
 <context>
     <name>RegionsFusionWindow</name>
     <message>
         <source>Regions Fusion</source>
-        <translation type="unfinished">Fusion de régions</translation>
+        <translation>Fusion de régions</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
     <name>RoiDynSegmentActionView</name>
     <message>
         <source>Faith Interval</source>
-        <translation type="unfinished">Intervalle de confiance</translation>
+        <translation>Intervalle de confiance</translation>
     </message>
     <message>
         <source>Order Interval</source>
-        <translation type="unfinished">Nombre de Valeurs Propres</translation>
+        <translation>Nombre de Valeurs Propres</translation>
     </message>
     <message>
         <source>Confidence Measurements</source>
-        <translation type="unfinished">Mesures du taux de confiance</translation>
+        <translation>Mesures du taux de confiance</translation>
     </message>
     <message>
         <source>Mean Error : </source>
-        <translation type="unfinished">Erreur moyenne : </translation>
+        <translation>Erreur moyenne : </translation>
     </message>
     <message>
         <source>Error Deviation : </source>
-        <translation type="unfinished">Écart-type : </translation>
+        <translation>Écart-type : </translation>
     </message>
     <message>
         <source>Dimension</source>
-        <translation type="unfinished">Dimension</translation>
+        <translation>Dimension</translation>
     </message>
     <message>
         <source>2D</source>
-        <translation type="unfinished">2D</translation>
+        <translation>2D</translation>
     </message>
     <message>
         <source>3D</source>
-        <translation type="unfinished">3D</translation>
+        <translation>3D</translation>
     </message>
     <message>
         <source>Find Nearest Minimum</source>
-        <translation type="unfinished">Chercher le minimum le plus proche</translation>
+        <translation>Chercher le minimum le plus proche</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Oui</translation>
+        <translation>Oui</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Non</translation>
+        <translation>Non</translation>
     </message>
     <message>
         <source>Compute Mode</source>
-        <translation type="unfinished">Mode de calcul</translation>
+        <translation>Mode de calcul</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished">Région</translation>
+        <translation>Région</translation>
     </message>
     <message>
         <source>Whole Image</source>
-        <translation type="unfinished">Toute l&apos;image</translation>
+        <translation>Toute l&apos;image</translation>
     </message>
     <message>
         <source>Refine Mode</source>
-        <translation type="unfinished">Mode d&apos;affinage</translation>
+        <translation>Mode d&apos;affinage</translation>
     </message>
 </context>
 <context>

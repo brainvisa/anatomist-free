@@ -474,24 +474,11 @@ void ControlWindow::createIcons()
       "icons/meshPaint/sulci.png" ).c_str() );
     QPixmap p( Settings::findResourceFile(
       "icons/meshPaint/gyri.png" ).c_str() );
-#if QT_VERSION >= 0x040000
     QIcon is( conEdpix );
     if( !p.isNull() )
       is.addPixmap( p, QIcon::Active );
     iconbar->addAction( is, tr( "ConstraintEditor" ), this,
                         SLOT( openConstraintEditor() ) );
-#else
-    QIconSet  is( conEdpix, QIconSet::Large );
-    is.setPixmap( conEdpix, QIconSet::Small, QIconSet::Active );
-    if( !p.isNull() )
-      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-    d->constrainteditorbtn
-      = new QToolButton( is, tr( "ConstraintEditor" ),
-           tr( "OpenCE" ),
-           this, SLOT( openConstraintEditor() ), iconbar,
-           "constrainteditorbtn" );
-    //openbtn->setUsesTextLabel( true );
-#endif
   }
   //ARN END
 }
