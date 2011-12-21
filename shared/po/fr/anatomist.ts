@@ -686,10 +686,6 @@
         <translation>Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
     </message>
     <message>
-        <source>OpenCE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Surfpaint</source>
         <translation>SurfPaint</translation>
     </message>
@@ -1161,38 +1157,38 @@ Bt droit   :  menu
     <name>ErpWraper</name>
     <message>
         <source>Cell:</source>
-        <translation type="unfinished">Cellule :</translation>
+        <translation>Cellule :</translation>
     </message>
     <message>
         <source>Observation:</source>
-        <translation type="unfinished">Observation :</translation>
+        <translation>Observation :</translation>
     </message>
     <message>
         <source>ERP loader : </source>
-        <translation type="unfinished">Chargeur d&apos;ERP : </translation>
+        <translation>Chargeur d&apos;ERP : </translation>
     </message>
 </context>
 <context>
     <name>ErrorMessage</name>
     <message>
         <source>Save failed: object </source>
-        <translation type="unfinished">Echec de la sauvegarde: l&apos;objet </translation>
+        <translation>Echec de la sauvegarde: l&apos;objet </translation>
     </message>
     <message>
         <source> could not be saved to </source>
-        <translation type="unfinished"> n&apos;a pas pu être sauvé sous </translation>
+        <translation> n&apos;a pas pu être sauvé sous </translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Attention</translation>
+        <translation>Attention</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Erreur</translation>
+        <translation>Erreur</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished">Message</translation>
+        <translation>Message</translation>
     </message>
 </context>
 <context>
@@ -1570,19 +1566,19 @@ Bt droit   :  menu
     <name>GraphLandmarkPicker</name>
     <message>
         <source>Pick landmark</source>
-        <translation type="unfinished">Choisir un point de repère</translation>
+        <translation>Choisir un point de repère</translation>
     </message>
     <message>
         <source>Landmark type :</source>
-        <translation type="unfinished">Type de points de repère :</translation>
+        <translation>Type de points de repère :</translation>
     </message>
     <message>
         <source>Point bucket</source>
-        <translation type="unfinished">Voxel (bucket)</translation>
+        <translation>Voxel (bucket)</translation>
     </message>
     <message>
         <source>Landmarks picker on </source>
-        <translation type="unfinished">Prise de points de repère sur </translation>
+        <translation>Prise de points de repère sur </translation>
     </message>
 </context>
 <context>
@@ -1799,11 +1795,11 @@ Bt droit   :  menu
     <name>MeshPaint</name>
     <message>
         <source>&amp;trackball</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;trackball</translation>
     </message>
     <message>
         <source>trackball</source>
-        <translation type="unfinished"></translation>
+        <translation>trackball</translation>
     </message>
     <message>
         <source>&amp;ColorPicker</source>
@@ -1871,7 +1867,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>sigmo : </source>
-        <translation type="unfinished"></translation>
+        <translation>sigmo :</translation>
     </message>
     <message>
         <source>Brush</source>
@@ -4206,11 +4202,11 @@ rendu des très gros maillages, mais pour l&apos;instant...</translation>
     <name>VolRenderPanel</name>
     <message>
         <source>Volume Rendering Properties</source>
-        <translation type="unfinished">Propriétés de rendu volumique</translation>
+        <translation>Propriétés de rendu volumique</translation>
     </message>
     <message>
         <source>Volume rendering mode</source>
-        <translation type="unfinished">Mode de rendu volumique</translation>
+        <translation>Mode de rendu volumique</translation>
     </message>
     <message>
         <source>VRShader</source>
@@ -4230,49 +4226,49 @@ rendu des très gros maillages, mais pour l&apos;instant...</translation>
     </message>
     <message>
         <source>Limit number of slices :</source>
-        <translation type="unfinished">Limiter le nombre de coupes :</translation>
+        <translation>Limiter le nombre de coupes :</translation>
     </message>
     <message>
         <source>Max.</source>
-        <translation type="unfinished">Max.</translation>
+        <translation>Max.</translation>
     </message>
     <message>
         <source>MPVR slab thickness</source>
-        <translation type="unfinished">Épaisseur de la tranche MPVR</translation>
+        <translation>Épaisseur de la tranche MPVR</translation>
     </message>
 </context>
 <context>
     <name>WhatsNew</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Anatomist News</source>
-        <translation type="unfinished">News Anatomist</translation>
+        <translation>News Anatomist</translation>
     </message>
 </context>
 <context>
     <name>ZoomDialog</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Resize window to fit objects</source>
-        <translation type="unfinished">Redimensionner la fenêtre pour cadrer des objets</translation>
+        <translation>Redimensionner la fenêtre pour cadrer des objets</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Zoom selection</source>
-        <translation type="unfinished">Sélection du zoom</translation>
+        <translation>Sélection du zoom</translation>
     </message>
     <message>
         <source>Zoom :</source>
-        <translation type="unfinished">Zoom :</translation>
+        <translation>Zoom :</translation>
     </message>
 </context>
 <context>
