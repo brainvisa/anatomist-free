@@ -982,9 +982,9 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
   bool donormal = false;
   if( hasnormal )
   {
-    pvec[0] = normal[0];
-    pvec[1] = normal[1];
-    pvec[2] = normal[2];
+    pvec[0] = -normal[0];
+    pvec[1] = -normal[1];
+    pvec[2] = -normal[2];
     donormal = true;
   }
   else if( d->polygons->size() != 0 )

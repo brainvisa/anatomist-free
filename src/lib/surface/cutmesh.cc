@@ -622,7 +622,7 @@ void CutMesh::cut()
   insurf.reserve( d->texindex );
   int               i;
   MObject::iterator io;
-  cout << "cutMesh " << d->texindex << " meshes\n";
+  // cout << "cutMesh " << d->texindex << " meshes\n";
   for( i=0, io=begin(); i<d->texindex; ++i, ++io )
   {
     insurf.push_back( static_cast<const ATriangulated *>(
