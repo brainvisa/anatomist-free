@@ -319,14 +319,14 @@ void ConstraintEditorWindow::drawContents( const char *name,
   }
 
   QHBox *hbm = new QHBox();
-  QLabel  *meshLabel = new QLabel( "Mesh : ",hbm);
+  QLabel  *meshLabel = new QLabel( tr( "Mesh : " ),hbm);
   QLabel  *meshName;
 
   if (d->meshSelect)
     meshName = new QLabel( d->meshSelect->name().c_str(),hbm);
   else
   {
-    meshName = new QLabel( "no mesh selected",hbm);
+    meshName = new QLabel( tr( "no mesh selected" ),hbm);
     QPushButton *cancel = new QPushButton( tr( "Cancel" ), this );
     mainlay->addWidget( meshName );
     mainlay->addWidget( cancel );
@@ -337,7 +337,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
   meshName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
   QHBox *hbt = new QHBox();
-  QLabel  *textureLabel = new QLabel( "Texture : ",hbt);
+  QLabel  *textureLabel = new QLabel( tr( "Texture : " ),hbt);
 
   if ( d->texSelect )
     {
@@ -346,17 +346,17 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
     }
   else
-    d->newTextureName = new QLineEdit( "TexConstraint",hbt);
+    d->newTextureName = new QLineEdit( tr( "TexConstraint" ),hbt);
 
   d->newTextureName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
   QHBox *hblatlon = new QHBox();
-  new QLabel( "Type : ",hblatlon);
+  new QLabel( tr( "Type : " ),hblatlon);
   d->latlon = new QComboBox( hblatlon );
   //d->latlon->insertItem("lat");
   //d->latlon->insertItem("lon");
-  d->latlon->insertItem("predefined constraints");
-  d->latlon->insertItem("user defined");
+  d->latlon->insertItem( tr( "predefined constraints" ) );
+  d->latlon->insertItem( tr( "user defined" ));
 
   d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
@@ -368,25 +368,25 @@ void ConstraintEditorWindow::drawContents( const char *name,
   string iconname;
 
   QHBox *hbtc = new QHBox();
-  new QLabel( "weight map : ",hbtc);
+  new QLabel( tr( "weight map : " ),hbtc);
 
   iconname = Settings::findResourceFile( "icons/meshPaint/constraint_map.png" );
   d->constraintTextureButton = new QToolButton(hbtc);
   d->constraintTextureButton->setIcon(QIcon(iconname.c_str()));
-  d->constraintTextureButton->setToolTip(ControlledWindow::tr("Open map of constrained path"));
+  d->constraintTextureButton->setToolTip( tr("Open map of constrained path"));
   d->constraintTextureButton->setIconSize(QSize(20, 20));
   connect(d->constraintTextureButton, SIGNAL(clicked()), this, SLOT(constraintTexOpen()));
 
-  d->constraintTextureLabel = new QLabel( "curvature (default)",hbtc);
+  d->constraintTextureLabel = new QLabel( tr( "curvature (default)" ),hbtc);
   d->constraintTextureLabel->setFixedWidth(180);
 
   QHBox *hbcv = new QHBox();
-  new QLabel( "constraint list : ",hbcv);
+  new QLabel( tr( "constraint list : " ),hbcv);
 
   iconname = Settings::findResourceFile( "icons/meshPaint/list_constraint.png" );
   d->constraintListButton = new QToolButton(hbcv);
   d->constraintListButton->setIcon(QIcon(iconname.c_str()));
-  d->constraintListButton->setToolTip(ControlledWindow::tr("Open list of constrained value"));
+  d->constraintListButton->setToolTip( tr("Open list of constrained value") );
   d->constraintListButton->setIconSize(QSize(20, 20));
 
   d->constraintListValues = new QComboBox(hbcv );

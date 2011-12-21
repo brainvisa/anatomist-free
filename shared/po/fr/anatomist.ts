@@ -223,6 +223,54 @@
         <source>OK</source>
         <translation>OK</translation>
     </message>
+    <message>
+        <source>Mesh : </source>
+        <translation>Maillage : </translation>
+    </message>
+    <message>
+        <source>no mesh selected</source>
+        <translation>pas de maillage sélectionné</translation>
+    </message>
+    <message>
+        <source>Texture : </source>
+        <translation>Texture : </translation>
+    </message>
+    <message>
+        <source>TexConstraint</source>
+        <translation>Contraintes de texture</translation>
+    </message>
+    <message>
+        <source>Type : </source>
+        <translation>Type : </translation>
+    </message>
+    <message>
+        <source>predefined constraints</source>
+        <translation>contraintes prédéfinies</translation>
+    </message>
+    <message>
+        <source>user defined</source>
+        <translation>définies par l&apos;utilisateur</translation>
+    </message>
+    <message>
+        <source>weight map : </source>
+        <translation>carte de poids : </translation>
+    </message>
+    <message>
+        <source>Open map of constrained path</source>
+        <translation>Charger une carte de contraintes pour les chemins</translation>
+    </message>
+    <message>
+        <source>curvature (default)</source>
+        <translation>courbure (défaut)</translation>
+    </message>
+    <message>
+        <source>constraint list : </source>
+        <translation>liste de contraintes : </translation>
+    </message>
+    <message>
+        <source>Open list of constrained value</source>
+        <translation>Charger une liste de valeurs de contraintes</translation>
+    </message>
 </context>
 <context>
     <name>ControlSwitch</name>
@@ -1142,11 +1190,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Open map of constrained path</source>
-        <translation>Charger une carte de contraintes pour les chemins</translation>
+        <translation type="obsolete">Charger une carte de contraintes pour les chemins</translation>
     </message>
     <message>
         <source>Open list of constrained value</source>
-        <translation>Charger une liste de valeurs de contraintes</translation>
+        <translation type="obsolete">Charger une liste de valeurs de contraintes</translation>
     </message>
     <message>
         <source>MagicBrush</source>
@@ -1195,123 +1243,123 @@ Bt droit   :  menu
     <name>FixedPointOfViewWindow</name>
     <message>
         <source>Top</source>
-        <translation type="unfinished">Haut</translation>
+        <translation>Haut</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished">Arrière</translation>
+        <translation>Arrière</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Gauche</translation>
+        <translation>Gauche</translation>
     </message>
     <message>
         <source>Front</source>
-        <translation type="unfinished">Avant</translation>
+        <translation>Avant</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Droite</translation>
+        <translation>Droite</translation>
     </message>
     <message>
         <source>Front bottom</source>
-        <translation type="unfinished">Avant bas</translation>
+        <translation>Avant bas</translation>
     </message>
     <message>
         <source>Right bottom</source>
-        <translation type="unfinished">Droite bas</translation>
+        <translation>Droite bas</translation>
     </message>
     <message>
         <source>Front bottom left</source>
-        <translation type="unfinished">Avant bas gauche</translation>
+        <translation>Avant bas gauche</translation>
     </message>
     <message>
         <source>Front top right</source>
-        <translation type="unfinished">Avant haut droite</translation>
+        <translation>Avant haut droite</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">Bas</translation>
+        <translation>Bas</translation>
     </message>
     <message>
         <source>Front left</source>
-        <translation type="unfinished">Avant gauche</translation>
+        <translation>Avant gauche</translation>
     </message>
     <message>
         <source>Back top right</source>
-        <translation type="unfinished">Arrière haut droite</translation>
+        <translation>Arrière haut droite</translation>
     </message>
     <message>
         <source>Front right</source>
-        <translation type="unfinished">Avant droite</translation>
+        <translation>Avant droite</translation>
     </message>
     <message>
         <source>Front top</source>
-        <translation type="unfinished">Avant haut</translation>
+        <translation>Avant haut</translation>
     </message>
     <message>
         <source>Standard point of view</source>
-        <translation type="unfinished">Points de vue standards</translation>
+        <translation>Points de vue standards</translation>
     </message>
     <message>
         <source>Back bottom</source>
-        <translation type="unfinished">Arrière bas</translation>
+        <translation>Arrière bas</translation>
     </message>
     <message>
         <source>Left bottom</source>
-        <translation type="unfinished">Gauche bas</translation>
+        <translation>Gauche bas</translation>
     </message>
     <message>
         <source>Edge view :</source>
-        <translation type="unfinished">Vue d&apos;une arête :</translation>
+        <translation>Vue d&apos;une arête :</translation>
     </message>
     <message>
         <source>Back top</source>
-        <translation type="unfinished">Arrière haut</translation>
+        <translation>Arrière haut</translation>
     </message>
     <message>
         <source>Back bottom left</source>
-        <translation type="unfinished">Arrière bas gauche</translation>
+        <translation>Arrière bas gauche</translation>
     </message>
     <message>
         <source>Back bottom right</source>
-        <translation type="unfinished">Arrière bas droite</translation>
+        <translation>Arrière bas droite</translation>
     </message>
     <message>
         <source>Back left</source>
-        <translation type="unfinished">Arrière gauche</translation>
+        <translation>Arrière gauche</translation>
     </message>
     <message>
         <source>Left top</source>
-        <translation type="unfinished">Gauche haut</translation>
+        <translation>Gauche haut</translation>
     </message>
     <message>
         <source>Front bottom right</source>
-        <translation type="unfinished">Avant bas droite</translation>
+        <translation>Avant bas droite</translation>
     </message>
     <message>
         <source>Back right</source>
-        <translation type="unfinished">Arrière droite</translation>
+        <translation>Arrière droite</translation>
     </message>
     <message>
         <source>Corner view :</source>
-        <translation type="unfinished">Vue d&apos;un coin :</translation>
+        <translation>Vue d&apos;un coin :</translation>
     </message>
     <message>
         <source>Right top</source>
-        <translation type="unfinished">Droite haut</translation>
+        <translation>Droite haut</translation>
     </message>
     <message>
         <source>Back top left</source>
-        <translation type="unfinished">Arrière haut gauche</translation>
+        <translation>Arrière haut gauche</translation>
     </message>
     <message>
         <source>Front top left</source>
-        <translation type="unfinished">Avant haut gauche</translation>
+        <translation>Avant haut gauche</translation>
     </message>
     <message>
         <source>Straight view :</source>
-        <translation type="unfinished">Vue directe :</translation>
+        <translation>Vue directe :</translation>
     </message>
 </context>
 <context>
@@ -1487,79 +1535,79 @@ Bt droit   :  menu
     <name>FusionChooser</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Which fusion ?</source>
-        <translation type="unfinished">Quelle fusion ?</translation>
+        <translation>Quelle fusion ?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Fusion2DMethod</source>
-        <translation type="unfinished">Volumes superposés</translation>
+        <translation>Volumes superposés</translation>
     </message>
     <message>
         <source>Fusion3DMethod</source>
-        <translation type="unfinished">Plaque sur le maillage une texture correspondant aux valeurs trouvées dans le volume</translation>
+        <translation>Plaque sur le maillage une texture correspondant aux valeurs trouvées dans le volume</translation>
     </message>
     <message>
         <source>PlanarFusion3DMethod</source>
-        <translation type="unfinished">Plaque sur un maillage planaire une texture 2D correspondant à une coupe de volume</translation>
+        <translation>Plaque sur un maillage planaire une texture 2D correspondant à une coupe de volume</translation>
     </message>
     <message>
         <source>FusionTextureMethod</source>
-        <translation type="unfinished">Fabrique une texture 2D à partir de deux textures 1D</translation>
+        <translation>Fabrique une texture 2D à partir de deux textures 1D</translation>
     </message>
     <message>
         <source>FusionMultiTextureMethod</source>
-        <translation type="unfinished">Multi-texture: permet d&apos;appliquer plusieurs textures sur un maillage</translation>
+        <translation>Multi-texture: permet d&apos;appliquer plusieurs textures sur un maillage</translation>
     </message>
     <message>
         <source>FusionCutMeshMethod</source>
-        <translation type="unfinished">Maillage coupé par un plan: le plan de coupe contiendra la texture du volume</translation>
+        <translation>Maillage coupé par un plan: le plan de coupe contiendra la texture du volume</translation>
     </message>
     <message>
         <source>FusionSliceMethod</source>
-        <translation type="unfinished">Coupe d&apos;orientation indépendante de la vue</translation>
+        <translation>Coupe d&apos;orientation indépendante de la vue</translation>
     </message>
     <message>
         <source>FusionTexSurfMethod</source>
-        <translation type="unfinished">Surface texturée</translation>
+        <translation>Surface texturée</translation>
     </message>
     <message>
         <source>Plane</source>
-        <translation type="unfinished">Intersection d&apos;un maillage et d&apos;un plan de coupe</translation>
+        <translation>Intersection d&apos;un maillage et d&apos;un plan de coupe</translation>
     </message>
     <message>
         <source>Cylinder</source>
-        <translation type="unfinished">Cylindre passant par les centres de gravité des deux objets sélectionnés</translation>
+        <translation>Cylindre passant par les centres de gravité des deux objets sélectionnés</translation>
     </message>
     <message>
         <source>SurfaceMatcher</source>
-        <translation type="unfinished">Mise en correspondance de surfaces. Cet objet donne accès à un algorithme de déformation de surface qui déformera une surface vers l&apos;autre</translation>
+        <translation>Mise en correspondance de surfaces. Cet objet donne accès à un algorithme de déformation de surface qui déformera une surface vers l&apos;autre</translation>
     </message>
     <message>
         <source>Interpoler</source>
-        <translation type="unfinished">Interpoleur: permet d&apos;interpoler les textures faites pour un maillage sur un autre maillage de géométrie différente. Pour espérer un résultat raisonnable, il vaut mieux utiliser d&apos;abord un &quot;SurfaceMatcher&quot; qui déforme une surface vers l&apos;autre</translation>
+        <translation>Interpoleur: permet d&apos;interpoler les textures faites pour un maillage sur un autre maillage de géométrie différente. Pour espérer un résultat raisonnable, il vaut mieux utiliser d&apos;abord un &quot;SurfaceMatcher&quot; qui déforme une surface vers l&apos;autre</translation>
     </message>
     <message>
         <source>VolumeRenderingFusionMethod</source>
-        <translation type="unfinished">Rendu volumique</translation>
+        <translation>Rendu volumique</translation>
     </message>
     <message>
         <source>FusionRGBAVolumeMethod</source>
-        <translation type="unfinished">Extraction de volume RGBA</translation>
+        <translation>Extraction de volume RGBA</translation>
     </message>
     <message>
         <source>FusionClipMethod</source>
-        <translation type="unfinished">Clipping: tronque l&apos;objet par un demi-espace défini par un plan (un seul côté du plan est affiché)</translation>
+        <translation>Clipping: tronque l&apos;objet par un demi-espace défini par un plan (un seul côté du plan est affiché)</translation>
     </message>
     <message>
         <source>TesselationMethod</source>
-        <translation type="unfinished"></translation>
+        <translation>Tesselation de polygône</translation>
     </message>
 </context>
 <context>
@@ -1684,111 +1732,111 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Red:</source>
-        <translation type="unfinished">Rouge :</translation>
+        <translation>Rouge :</translation>
     </message>
     <message>
         <source>Shininess :</source>
-        <translation type="unfinished">Étendue des reflets :</translation>
+        <translation>Étendue des reflets :</translation>
     </message>
     <message>
         <source>Green:</source>
-        <translation type="unfinished">Vert :</translation>
+        <translation>Vert :</translation>
     </message>
     <message>
         <source>Value:</source>
-        <translation type="unfinished">Valeur :</translation>
+        <translation>Valeur :</translation>
     </message>
     <message>
         <source>Opacity:</source>
-        <translation type="unfinished">Opacité :</translation>
+        <translation>Opacité :</translation>
     </message>
     <message>
         <source>Responsive</source>
-        <translation type="unfinished">Temps-réel</translation>
+        <translation>Temps-réel</translation>
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="unfinished">Réglages avancés</translation>
+        <translation>Réglages avancés</translation>
     </message>
     <message>
         <source>Ambient :</source>
-        <translation type="unfinished">Ambiante :</translation>
+        <translation>Ambiante :</translation>
     </message>
     <message>
         <source>Fast color selection</source>
-        <translation type="unfinished">Sélection rapide</translation>
+        <translation>Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
-        <translation type="unfinished">Emission :</translation>
+        <translation>Emission :</translation>
     </message>
     <message>
         <source>Specular :</source>
-        <translation type="unfinished">Spéculaire :</translation>
+        <translation>Spéculaire :</translation>
     </message>
     <message>
         <source>Update mode :</source>
-        <translation type="unfinished">Mode de mise à jour :</translation>
+        <translation>Mode de mise à jour :</translation>
     </message>
     <message>
         <source>Diffuse :</source>
-        <translation type="unfinished">Diffuse :</translation>
+        <translation>Diffuse :</translation>
     </message>
     <message>
         <source>Rendering</source>
-        <translation type="unfinished">Rendu</translation>
+        <translation>Rendu</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
-        <translation type="unfinished">Mode d&apos;affichage :</translation>
+        <translation>Mode d&apos;affichage :</translation>
     </message>
     <message>
         <source>Default (view setting)</source>
-        <translation type="unfinished">Défaut (réglages de la vue)</translation>
+        <translation>Défaut (réglages de la vue)</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Wireframe</source>
-        <translation type="unfinished">Fil de fer</translation>
+        <translation>Fil de fer</translation>
     </message>
     <message>
         <source>Outlined (filled faces + wireframes)</source>
-        <translation type="unfinished">Entourés (faces pleines + fils de fer)</translation>
+        <translation>Entourés (faces pleines + fils de fer)</translation>
     </message>
     <message>
         <source>Wireframe with hidden faces</source>
-        <translation type="unfinished">Fil de fer avec faces cachées</translation>
+        <translation>Fil de fer avec faces cachées</translation>
     </message>
     <message>
         <source>Display properties :</source>
-        <translation type="unfinished">Propriétés d&apos;affichage :</translation>
+        <translation>Propriétés d&apos;affichage :</translation>
     </message>
     <message>
         <source>Enable lighting</source>
-        <translation type="unfinished">Activer l&apos;éclairage</translation>
+        <translation>Activer l&apos;éclairage</translation>
     </message>
     <message>
         <source>Smooth shading</source>
-        <translation type="unfinished">Couleurs lissées</translation>
+        <translation>Couleurs lissées</translation>
     </message>
     <message>
         <source>Smooth polygons / lines</source>
-        <translation type="unfinished">Polygônes / lignes filtrés</translation>
+        <translation>Polygônes / lignes filtrés</translation>
     </message>
     <message>
         <source>Write in depth buffer</source>
-        <translation type="unfinished">Écrire dans le buffer de profondeur</translation>
+        <translation>Écrire dans le buffer de profondeur</translation>
     </message>
     <message>
         <source>Cull polygon faces</source>
-        <translation type="unfinished">Eliminer les faces vues de dos</translation>
+        <translation>Eliminer les faces vues de dos</translation>
     </message>
     <message>
         <source>Blue:</source>
-        <translation type="unfinished">Bleu :</translation>
+        <translation>Bleu :</translation>
     </message>
 </context>
 <context>
@@ -2278,23 +2326,23 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <name>QAColorWidget</name>
     <message>
         <source>A :</source>
-        <translation type="unfinished">A :</translation>
+        <translation>A :</translation>
     </message>
     <message>
         <source>B :</source>
-        <translation type="unfinished">B :</translation>
+        <translation>B :</translation>
     </message>
     <message>
         <source>G :</source>
-        <translation type="unfinished">V :</translation>
+        <translation>V :</translation>
     </message>
     <message>
         <source>R :</source>
-        <translation type="unfinished">R :</translation>
+        <translation>R :</translation>
     </message>
     <message>
         <source>Neutral alpha channel</source>
-        <translation type="unfinished">Transparence indifférente</translation>
+        <translation>Transparence indifférente</translation>
     </message>
 </context>
 <context>
@@ -2396,7 +2444,7 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <name>QAWindowFactory</name>
     <message>
         <source>Open window of type </source>
-        <translation type="unfinished">Ouvrir une fenêtre de type </translation>
+        <translation>Ouvrir une fenêtre de type </translation>
     </message>
 </context>
 <context>
@@ -2569,7 +2617,7 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
     <message>
         <source>Keep palette absolute values</source>
-        <translation type="unfinished"></translation>
+        <translation>Garder les valeurs absolue de la palette</translation>
     </message>
 </context>
 <context>
@@ -3871,7 +3919,7 @@ Voulez-vous continuer ?</translation>
     </message>
     <message>
         <source>Gray</source>
-        <translation type="unfinished"></translation>
+        <translation>Gris</translation>
     </message>
 </context>
 <context>
