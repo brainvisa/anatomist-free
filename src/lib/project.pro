@@ -75,6 +75,7 @@ HEADERS = \
         commands/cShowObject.h \
 	commands/cSliceParams.h \
 	commands/cTexturingParams.h \
+        commands/cWindowBlock.h \
 	commands/cWindowConfig.h \
         config/anatomist_config.h \
 	dialogs/qaFileDialog.h \
@@ -306,6 +307,7 @@ SOURCES = \
         commands/cShowObject.cc \
 	commands/cSliceParams.cc \
 	commands/cTexturingParams.cc \
+        commands/cWindowBlock.cc \
 	commands/cWindowConfig.cc \
 	dialogs/qaFileDialog.cc \
 	dialogs/colorDialog.cc \

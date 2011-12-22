@@ -100,6 +100,7 @@
 #include <anatomist/commands/cShowObject.h>
 #include <anatomist/commands/cSliceParams.h>
 #include <anatomist/commands/cTexturingParams.h>
+#include <anatomist/commands/cWindowBlock.h>
 #include <anatomist/commands/cWindowConfig.h>
 
 using namespace anatomist;
@@ -256,6 +257,7 @@ void StdModule::actionsDeclaration()
   ShowObjectCommand::initSyntax();
   SliceParamsCommand::initSyntax();
   TexturingParamsCommand::initSyntax();
+  WindowBlockCommand::initSyntax();
   WindowConfigCommand::initSyntax();
 }
 

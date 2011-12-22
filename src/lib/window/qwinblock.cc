@@ -294,21 +294,32 @@ void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
 
 void QAWindowBlock::arrangeInRect( float widthHeightRatio )
 {
-  QList<QWidget *> ch = findChildren<QWidget *>();
-  int sz = ch.count();
+  int row, col, nr = d->layout->rowCount(), sz = 0;
+  QLayoutItem *litem;
+
+  for( row=0; row<nr; ++row )
+    for( col=0; col<d->colsrows; ++col )
+    {
+      litem = d->layout->itemAtPosition( row, col );
+      if( litem && litem->widget() )
+        ++sz;
+    }
+
   if( sz == 0 )
     return;
   int h = (int) floor( sqrt( sz / widthHeightRatio ) );
   if( h == 0 )
     h = 1;
-  int w = (int) ceil( sz / h );
+  int w = (int) ceil( float(sz) / h );
   int h2 = h + 1;
-  int w2 = (int) ceil( sz / h2 );
+  int w2 = (int) ceil( float(sz) / h2 );
+//   cout << "w: " << w << ", h: " << h << ", w2: " << w2 << ", h2 : " << h2 << endl;
   if( w * h > w2 * h2 )
   {
     h = h2;
     w = w2;
   }
+//   cout << "w: " << w << ", h: " << h << endl;
   if( d->inrows )
     setColsOrRows( true, w );
   else
