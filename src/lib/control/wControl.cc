@@ -1555,14 +1555,14 @@ void ControlWindow::openBlockView()
   QWidget *block = command->block();
   w.insert( command->createdWindow() );
 
-  typestr = AWindowFactory::typeString( AWindow::SAGITTAL_WINDOW );
+  typestr = AWindowFactory::typeString( AWindow::AXIAL_WINDOW );
   command = new CreateWindowCommand( typestr, -1, 0, (vector<int>) 0, true, 
                                      block );
   theProcessor->execute( command );
   w.insert( command->createdWindow() );
 
-  typestr = AWindowFactory::typeString( AWindow::AXIAL_WINDOW );
-  command = new CreateWindowCommand( typestr, -1, 0, (vector<int>) 0, true, 
+  typestr = AWindowFactory::typeString( AWindow::SAGITTAL_WINDOW );
+  command = new CreateWindowCommand( typestr, -1, 0, (vector<int>) 0, true,
                                      block );
   theProcessor->execute( command );
   w.insert( command->createdWindow() );

@@ -109,20 +109,20 @@ void CreateWindowCommand::doit()
   if( _blockid != 0 && !_block )
     {
       // create a block widget
-      int colsrows = _cols;
-      bool inrows = true;
-      if( colsrows == 0 && _rows > 0 )
+      int colsrows = _rows;
+      bool inrows = false;
+      if( colsrows == 0 && _cols > 0 )
       {
         inrows = false;
-        colsrows = _rows;
+        colsrows = _cols;
       }
       QAWindowBlock	*dk = new QAWindowBlock(NULL, NULL,
         Qt::WType_TopLevel | Qt::WDestructiveClose, colsrows, inrows );
       dk->show();
       _block = dk;
       if( _blockid > 0 && context() && context()->unserial )
-	context()->unserial->registerPointer( (void *) _block,
-					_blockid, "Widget" );
+        context()->unserial->registerPointer( (void *) _block, _blockid,
+                                              "Widget" );
     }
   else if( _blockid == 0 )
     _block = 0;
