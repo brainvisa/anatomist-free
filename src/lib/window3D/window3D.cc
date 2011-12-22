@@ -369,7 +369,7 @@ AWindow3D::Private::Private() :
           false), refreshneeded(FullRefresh), linkonslider(false), lefteye(0),
       righteye(0), objvallabel(0), statusbarvisible(false),needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(NULL),constraintType(0),texConstraint(NULL)
+      constraintList(),constraintType(0),texConstraint(0)
 {
 }
 

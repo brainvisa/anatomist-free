@@ -82,7 +82,17 @@ Ouvre une nouvelle fen&ecirc;tre
     <td><tt>int</tt> (optional)</td>
     <td>
       <b>New in Anatomist 3.1</b>.
-      If <tt>block</tt> specifies a new block to be created, then it will have this number of columns. Default: 2.
+      If <tt>block</tt> specifies a new block to be created, then it will have this number of columns. Default: 2, but see below.<br/>
+      <b>New in Anatomist 4.2</b>: The default is 2, but if specified, it will force an existing block to resize at 2 columns, whereas if unspecified, the block will be left unchanged.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>block_rows</tt></td>
+    <td><tt>int</tt> (optional)</td>
+    <td>
+      <b>New in Anatomist 4.2</b>.
+      If <tt>block</tt> specifies a new block to be created, then it will have this number of rows. As for <tt>block_columns</tt>, the default is 2, but if specified, it will force an existing block to resize at 2 rows, whereas if unspecified, the block will be left unchanged.<br>
+      This option is incompatible with <tt>block_columns</tt>. If both are used, <tt>block_columns</tt> will override <tt>block_rows</tt>.
     </td>
   </tr>
   <tr>

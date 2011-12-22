@@ -56,11 +56,11 @@ CreateWindowCommand::CreateWindowCommand( const string & type, int id,
 					  CommandContext* context, 
 					  const vector<int> & geom, 
                                           int blockid, QWidget *block,
-                                          int cols,
+                                          int cols, int rows,
                                           Object options )
   : RegularCommand(), SerializingCommand( context ), _type( type ), _win( 0 ), 
     _id( id ), _geom( geom ), _blockid( blockid ), _block( block ),
-    _cols(cols),
+    _cols(cols), _rows( rows ),
     _options( options )
 {
 }
@@ -79,6 +79,7 @@ bool CreateWindowCommand::initSyntax()
   s[ "type"          ] = Semantic( "string", true );
   s[ "res_pointer"   ] = Semantic( "int", true );
   s[ "block_columns" ] = Semantic( "int", false );
+  s[ "block_rows"    ] = Semantic( "int", false );
   s[ "geometry"      ] = Semantic( "int_vector", false );
   s[ "block"         ] = Semantic( "int", false );
   s[ "options"       ] = Semantic( "dictionary", false );
@@ -93,7 +94,6 @@ void CreateWindowCommand::doit()
     {
       // check if the block still exists
       QWidget		*w =  _block;
-#if QT_VERSION >= 0x040000
       QWidgetList	wl4 = qApp->topLevelWidgets();
       QWidget		*w2 = 0;
       int		i, n = wl4.size();
@@ -103,30 +103,21 @@ void CreateWindowCommand::doit()
           wl4 = qApp->allWidgets();
           for( i=0, n=wl4.size(); i < n && (w2=wl4.at(i)) != w; ++i );
         }
-#else
-      QWidgetList	*wl = qApp->topLevelWidgets();
-      QWidgetListIt it( *wl );
-      QWidget		*w2;
-      while( (w2=it.current()) != 0 && w2 != w )
-        ++it;
-      delete wl;
-      if( w != w2 )
-        {
-          wl = qApp->allWidgets();
-          it = *wl;
-          while( (w2=it.current()) != 0 && w2 != w )
-            ++it;
-          delete wl;
-        }
-#endif
       if( w != w2 )
         _block = 0; // not living anymore
     }
   if( _blockid != 0 && !_block )
     {
       // create a block widget
+      int colsrows = _cols;
+      bool inrows = true;
+      if( colsrows == 0 && _rows > 0 )
+      {
+        inrows = false;
+        colsrows = _rows;
+      }
       QAWindowBlock	*dk = new QAWindowBlock(NULL, NULL,
-			Qt::WType_TopLevel | Qt::WDestructiveClose, _cols);
+        Qt::WType_TopLevel | Qt::WDestructiveClose, colsrows, inrows );
       dk->show();
       _block = dk;
       if( _blockid > 0 && context() && context()->unserial )
@@ -135,6 +126,23 @@ void CreateWindowCommand::doit()
     }
   else if( _blockid == 0 )
     _block = 0;
+  else if( _block )
+  {
+    QAWindowBlock *qb = dynamic_cast<QAWindowBlock *>( _block );
+    if( qb )
+    {
+      // check if block colums/rows should be changed or not
+      int inrows = true;
+      int colsrows = _cols;
+      if( _cols == 0 && _rows != 0 )
+      {
+        inrows = false;
+        colsrows = _rows;
+      }
+      if( colsrows > 0 )
+        qb->setColsOrRows( inrows, colsrows );
+    }
+  }
 
   _win = AWindowFactory::createWindow( _type, _block, _options );
   if( _win )
@@ -169,7 +177,7 @@ void CreateWindowCommand::undoit()
 Command* CreateWindowCommand::read( const Tree & com, CommandContext* context )
 {
   string	type;
-  int		id, blockid = 0, cols = 2;
+  int		id, blockid = 0, cols = 0, rows = 0;
   vector<int>	geom;
   void		*ptr = 0;
 
@@ -179,6 +187,7 @@ Command* CreateWindowCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "geometry", geom );
   com.getProperty( "block", blockid );
   com.getProperty( "block_columns", cols );
+  com.getProperty( "block_rows", rows );
   if( blockid > 0 )
     ptr = context->unserial->pointer( blockid, "Widget" );
   Object	options;
@@ -190,7 +199,7 @@ Command* CreateWindowCommand::read( const Tree & com, CommandContext* context )
     {
     }
   return new CreateWindowCommand( type, id, context, geom,
-		  blockid, (QWidget *) ptr, cols, options );
+		  blockid, (QWidget *) ptr, cols, rows, options );
 }
 
 
@@ -202,6 +211,10 @@ void CreateWindowCommand::write( Tree & com, Serializer* ser ) const
   t->setProperty( "res_pointer", ser->serialize( _win ) );
   if( _blockid != 0 && _block )
     t->setProperty( "block", ser->serialize( _block ) );
+  if( _cols )
+    t->setProperty( "block_columns", _cols );
+  else if( _rows )
+    t->setProperty( "block_rows", _rows );
   if( _options.get() )
     t->setProperty( "options", _options );
   com.insert( t );

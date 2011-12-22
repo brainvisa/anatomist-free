@@ -54,7 +54,7 @@ namespace anatomist
 			 CommandContext* context = 0, 
 			 const std::vector<int> & geom 
 			 = (std::vector<int>) 0, int blockid = 0, 
-                         QWidget *block = 0, int cols = 2,
+                         QWidget *block = 0, int cols = 0, int rows = 0,
                          carto::Object options = carto::none() );
     virtual ~CreateWindowCommand();
 
@@ -80,6 +80,7 @@ namespace anatomist
     int			_blockid;
     QWidget		*_block;
     int			_cols;
+    int                 _rows;
     carto::Object	_options;
   };
 

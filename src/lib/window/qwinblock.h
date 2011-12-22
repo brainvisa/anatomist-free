@@ -40,11 +40,16 @@
 class QAWindowBlock : public QWidget
 {
 public:
+  /** colsrows is either the number of columns (if inrows is true), or the
+      number of rows (if inrows is false).
+   */
   QAWindowBlock( QWidget* parent = 0, const char* name = 0, 
                  Qt::WFlags f = Qt::WType_TopLevel | Qt::WDestructiveClose,
-		 int cols = 2);
+		 int colsrows = 2, bool inrows = true );
   virtual ~QAWindowBlock();
   void addWindowToBlock(QWidget* item);
+  void setColsOrRows( bool inrows, int colsrows );
+  void arrangeInRect( float widthHeightRatio = 1. );
 
 protected:
   virtual void dragEnterEvent( QDragEnterEvent* event );

@@ -44,15 +44,13 @@ using namespace std;
 struct QAWindowBlock::Private
 {
   QGridLayout	*layout;
-#if QT_VERSION >= 0x040000
-  int cols;
-#endif
-
+  bool inrows;
+  int colsrows;
 };
 
 
 QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
-  int cols)
+  int colsrows, bool inrows )
   : QWidget( parent, name, f ), d( new QAWindowBlock::Private )
 {
   if( parent == 0 )
@@ -63,20 +61,16 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
         setIcon( anaicon );
     }
 
-  setAcceptDrops(TRUE);
-  
-  
+  setAcceptDrops( true );
 
-#if QT_VERSION >= 0x040000
   d->layout = new QGridLayout;
   d->layout->setSpacing(0); 
   d->layout->setMargin(5);
   setLayout(d->layout);
-  d->cols =cols;
-#else
-  d->layout = new QGridLayout( this, 1, cols, 0, 5 );
-  d->layout->setAutoAdd( true );
-#endif
+  d->inrows = inrows;
+  d->colsrows = colsrows;
+  if( d->colsrows == 0 )
+    d->colsrows = 2;
 }
 
 
@@ -87,23 +81,46 @@ QAWindowBlock::~QAWindowBlock()
 
 void QAWindowBlock::addWindowToBlock(QWidget *item)
 {
-#if QT_VERSION >= 0x040000
   // if we don't remove the item's parent, the window will not be in the block
   // but next to it.
   item->setParent(0);
 #if QT_VERSION >= 0x040400
-  int row = 0, col = 0, nr = d->layout->rowCount();
-  for( row=0; row<nr; ++row )
+  int row = 0, col = 0;
+  QLayoutItem *litem;
+
+  if( d->inrows )
   {
-    for( col=0; col<d->cols; ++col )
+    int nr = d->layout->rowCount();
+    for( row=0; row<nr; ++row )
     {
-      if( !d->layout->itemAtPosition( row, col ) )
+      for( col=0; col<d->colsrows; ++col )
+      {
+        litem = d->layout->itemAtPosition( row, col );
+        if( !litem || !litem->widget() )
+          break;
+      }
+      if( col < d->colsrows )
         break;
+      col = 0;
     }
-    if( col < d->cols )
-      break;
-    col = 0;
   }
+  else
+  {
+    int nc = d->layout->columnCount();
+    for( col=0; col<nc; ++col )
+    {
+      for( row=0; row<d->colsrows; ++row )
+      {
+        litem = d->layout->itemAtPosition( row, col );
+        if( !litem || !litem->widget() )
+          break;
+      }
+      if( row < d->colsrows )
+        break;
+      row = 0;
+    }
+  }
+  cout << "add in block, row: " << row << ", col: " << col << endl;
   d->layout->addWidget( item, row, col );
 #else // Qt version >= 4.0 and <= 4.3
   vector< vector<bool> > used;
@@ -142,10 +159,6 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
   }
   d->layout->addWidget( item, row, col );
 #endif
-#else
-  // Qt3
-  item->reparent( this, QPoint( 0, 0 ), true );
-#endif
 }
 
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
@@ -175,6 +188,131 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
             }
         }
     }
+}
+
+
+void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
+{
+  if( d->inrows == inrows && d->colsrows == colsrows )
+    return; // nothing to do
+
+#if QT_VERSION >= 0x040400
+  int row = 0, col = 0, irow = 0, icol = 0;
+  d->inrows = inrows;
+  d->colsrows = colsrows;
+  QWidget *widget;
+  QLayoutItem *item;
+  list<pair<QWidget *, pair<int, int> > > moved;
+
+  if( inrows )
+  {
+    int nr = d->layout->rowCount(), nc = d->layout->columnCount();
+    for( row=0; row<nr; ++row )
+    {
+      for( col=0; col<nc; ++col )
+      {
+        item = d->layout->itemAtPosition( row, col );
+        if( item )
+        {
+          widget = item->widget();
+          if( widget )
+          {
+            d->layout->removeWidget( widget );
+            item = d->layout->itemAtPosition( row, col );
+            if( item )
+            {
+              d->layout->removeItem( item );
+              delete item;
+            }
+            moved.push_back( make_pair( widget, make_pair( irow, icol ) ) );
+//             d->layout->addWidget( widget, irow, icol );
+            ++icol;
+            if( icol >= colsrows )
+            {
+              icol = 0;
+              ++irow;
+            }
+          }
+          else
+          {
+            d->layout->removeItem( item );
+            delete item;
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    int nr = d->layout->rowCount(), nc = d->layout->columnCount();
+    for( col=0; col<nc; ++col )
+    {
+      for( row=0; row<nr; ++row )
+      {
+        item = d->layout->itemAtPosition( row, col );
+        if( item )
+        {
+          widget = item->widget();
+          if( widget )
+          {
+            d->layout->removeWidget( widget );
+            item = d->layout->itemAtPosition( row, col );
+            if( item )
+            {
+              d->layout->removeItem( item );
+              delete item;
+            }
+            moved.push_back( make_pair( widget, make_pair( irow, icol ) ) );
+//             d->layout->addWidget( widget, irow, icol );
+            ++irow;
+            if( irow >= colsrows )
+            {
+              irow = 0;
+              ++icol;
+            }
+          }
+          else
+          {
+            d->layout->removeItem( item );
+            delete item;
+          }
+        }
+      }
+    }
+  }
+
+  list<pair<QWidget *, pair<int, int> > >::iterator im, em = moved.end();
+  for( im=moved.begin(); im!=em; ++im )
+    d->layout->addWidget( im->first, im->second.first, im->second.second );
+
+#else // Qt version >= 4.0 and <= 4.3
+  // nothing....
+#warning QAWindowBlock::setColsOrRows not implemented for Qt < 4.4
+#endif
+}
+
+
+void QAWindowBlock::arrangeInRect( float widthHeightRatio )
+{
+  QList<QWidget *> ch = findChildren<QWidget *>();
+  int sz = ch.count();
+  if( sz == 0 )
+    return;
+  int h = (int) floor( sqrt( sz / widthHeightRatio ) );
+  if( h == 0 )
+    h = 1;
+  int w = (int) ceil( sz / h );
+  int h2 = h + 1;
+  int w2 = (int) ceil( sz / h2 );
+  if( w * h > w2 * h2 )
+  {
+    h = h2;
+    w = w2;
+  }
+  if( d->inrows )
+    setColsOrRows( true, w );
+  else
+    setColsOrRows( false, h );
 }
 
 
