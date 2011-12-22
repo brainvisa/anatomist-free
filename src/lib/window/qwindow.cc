@@ -396,12 +396,13 @@ void QAWindow::enableDetachMenu( bool x )
 void QAWindow::detach()
 {
   if( parent() )
-    {
-      setParent( 0 );
-      setAttribute( Qt::WA_DeleteOnClose );
-      if( d->detachmenuaction )
-        d->detachmenuaction->setEnabled( false );
-    }
+  {
+    setParent( 0 );
+    setAttribute( Qt::WA_DeleteOnClose );
+    if( d->detachmenuaction )
+      d->detachmenuaction->setEnabled( false );
+    show();
+  }
 }
 
 
