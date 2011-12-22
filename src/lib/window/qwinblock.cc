@@ -37,6 +37,10 @@
 #include <anatomist/control/windowdrag.h>
 #include <qlayout.h>
 #include <qpixmap.h>
+#include <qmenubar.h>
+#include <qdialog.h>
+#include <qspinbox.h>
+#include <qlineedit.h>
 
 using namespace anatomist;
 using namespace std;
@@ -46,12 +50,13 @@ struct QAWindowBlock::Private
   QGridLayout	*layout;
   bool inrows;
   int colsrows;
+  float rectratio;
 };
 
 
 QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
   int colsrows, bool inrows )
-  : QWidget( parent, name, f ), d( new QAWindowBlock::Private )
+  : QMainWindow( parent, name, f ), d( new QAWindowBlock::Private )
 {
   if( parent == 0 )
     {
@@ -63,14 +68,41 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
 
   setAcceptDrops( true );
 
-  d->layout = new QGridLayout;
+  QWidget *mainw = new QWidget( this );
+  setCentralWidget( mainw );
+  d->layout = new QGridLayout( mainw );
   d->layout->setSpacing(0); 
   d->layout->setMargin(5);
-  setLayout(d->layout);
+  mainw->setLayout(d->layout);
   d->inrows = inrows;
   d->colsrows = colsrows;
   if( d->colsrows == 0 )
     d->colsrows = 2;
+  d->rectratio = 1.;
+
+  QMenuBar *mb = menuBar();
+  QMenu *menu = mb->addMenu( tr( "Windows block layout" ) );
+  QAction *colac = new QAction( tr( "Lay in columns" ), this );
+  menu->addAction( colac );
+  QAction *rowac = new QAction( tr( "Lay in rows" ), this );
+  menu->addAction( rowac );
+  QAction *recac = new QAction( tr( "Lay in rectangle" ), this );
+  menu->addAction( recac );
+  menu->addSeparator();
+  QAction *ncolac = new QAction( tr( "Set number of columns" ), this );
+  menu->addAction( ncolac );
+  QAction *nrowac = new QAction( tr( "Set number of rows" ), this );
+  menu->addAction( nrowac );
+  QAction *ratac = new QAction(
+    tr( "Set columns / rows ratio for rectangular layout" ), this );
+  menu->addAction( ratac );
+
+  connect( colac, SIGNAL( triggered() ), this, SLOT( layInColumns() ) );
+  connect( rowac, SIGNAL( triggered() ), this, SLOT( layInRows() ) );
+  connect( recac, SIGNAL( triggered() ), this, SLOT( layInRectangle() ) );
+  connect( ncolac, SIGNAL( triggered() ), this, SLOT( setColumnsNumber() ) );
+  connect( nrowac, SIGNAL( triggered() ), this, SLOT( setRowsNumber() ) );
+  connect( ratac, SIGNAL( triggered() ), this, SLOT( setRectangularRatio() ) );
 }
 
 
@@ -192,7 +224,9 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
 
 void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
 {
-  if( d->inrows == inrows && d->colsrows == colsrows )
+  if( d->inrows == inrows && d->colsrows == colsrows
+    && ( ( d->inrows && d->layout->columnCount() == colsrows )
+      || ( !d->inrows && d->layout->rowCount() == colsrows ) ) )
     return; // nothing to do
 
 #if QT_VERSION >= 0x040400
@@ -306,23 +340,123 @@ void QAWindowBlock::arrangeInRect( float widthHeightRatio )
 
   if( sz == 0 )
     return;
-  int h = (int) floor( sqrt( sz / widthHeightRatio ) );
+  int h = (int) rint( sqrt( sz / widthHeightRatio ) );
   if( h == 0 )
     h = 1;
   int w = (int) ceil( float(sz) / h );
-  int h2 = h + 1;
+  int h2 = h;
+  if( h > 1 && h - sqrt( sz / widthHeightRatio ) >= 0 )
+    h2 -= 1;
+  else
+    h2 += 1;
   int w2 = (int) ceil( float(sz) / h2 );
-//   cout << "w: " << w << ", h: " << h << ", w2: " << w2 << ", h2 : " << h2 << endl;
-  if( w * h > w2 * h2 )
+  // cout << "w: " << w << ", h: " << h << ", w2: " << w2 << ", h2 : " << h2 << endl;
+  if( abs( w2 - w ) <= 1 &&  abs( w2 * h2 - sz ) < abs( w * h - sz ) )
   {
     h = h2;
     w = w2;
   }
-//   cout << "w: " << w << ", h: " << h << endl;
+  // cout << "w: " << w << ", h: " << h << endl;
+  d->rectratio = widthHeightRatio;
   if( d->inrows )
     setColsOrRows( true, w );
   else
     setColsOrRows( false, h );
+}
+
+
+void QAWindowBlock::layInColumns()
+{
+  setColsOrRows( true, d->colsrows );
+}
+
+
+void QAWindowBlock::layInRows()
+{
+  setColsOrRows( false, d->colsrows );
+}
+
+
+void QAWindowBlock::layInRectangle()
+{
+  arrangeInRect( d->rectratio );
+}
+
+
+void QAWindowBlock::setColumnsNumber()
+{
+  QDialog dial( this );
+  dial.setModal( true );
+  dial.setWindowTitle( tr( "Set number of columns" ) );
+  QVBoxLayout *lay = new QVBoxLayout( &dial );
+  QSpinBox *sb = new QSpinBox( &dial );
+  lay->addWidget( sb );
+  QHBoxLayout *lay2 = new QHBoxLayout( lay );
+  QPushButton *ok = new QPushButton( tr( "OK" ), &dial );
+  lay2->addWidget( ok );
+  ok->setDefault( true );
+  connect( ok, SIGNAL( pressed() ), &dial, SLOT( accept() ) );
+  QPushButton *cancel = new QPushButton( tr( "Cancel" ), &dial );
+  lay2->addWidget( cancel );
+  connect( cancel, SIGNAL( pressed() ), &dial, SLOT( reject() ) );
+  sb->setValue( d->colsrows );
+  int res = dial.exec();
+  if( res && sb->value() > 0 )
+  {
+    setColsOrRows( true, sb->value() );
+  }
+}
+
+
+void QAWindowBlock::setRowsNumber()
+{
+  QDialog dial( this );
+  dial.setModal( true );
+  dial.setWindowTitle( tr( "Set number of rows" ) );
+  QVBoxLayout *lay = new QVBoxLayout( &dial );
+  QSpinBox *sb = new QSpinBox( &dial );
+  lay->addWidget( sb );
+  QHBoxLayout *lay2 = new QHBoxLayout( lay );
+  QPushButton *ok = new QPushButton( tr( "OK" ), &dial );
+  lay2->addWidget( ok );
+  ok->setDefault( true );
+  connect( ok, SIGNAL( pressed() ), &dial, SLOT( accept() ) );
+  QPushButton *cancel = new QPushButton( tr( "Cancel" ), &dial );
+  lay2->addWidget( cancel );
+  connect( cancel, SIGNAL( pressed() ), &dial, SLOT( reject() ) );
+  sb->setValue( d->colsrows );
+  int res = dial.exec();
+  if( res && sb->value() > 0 )
+  {
+    setColsOrRows( false, sb->value() );
+  }
+}
+
+
+void QAWindowBlock::setRectangularRatio()
+{
+  QDialog dial( this );
+  dial.setModal( true );
+  dial.setWindowTitle( tr( "Set columns / rows ratio" ) );
+  QVBoxLayout *lay = new QVBoxLayout( &dial );
+  QLineEdit *sb = new QLineEdit( &dial );
+  lay->addWidget( sb );
+  QHBoxLayout *lay2 = new QHBoxLayout( lay );
+  QPushButton *ok = new QPushButton( tr( "OK" ), &dial );
+  lay2->addWidget( ok );
+  ok->setDefault( true );
+  connect( ok, SIGNAL( pressed() ), &dial, SLOT( accept() ) );
+  QPushButton *cancel = new QPushButton( tr( "Cancel" ), &dial );
+  lay2->addWidget( cancel );
+  connect( cancel, SIGNAL( pressed() ), &dial, SLOT( reject() ) );
+  sb->setText( QString::number( d->rectratio ) );
+  int res = dial.exec();
+  if( res )
+  {
+    float val = sb->text().toFloat();
+    if( val > 0 )
+      arrangeInRect( val );
+  }
 }
 
 

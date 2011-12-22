@@ -34,22 +34,32 @@
 #ifndef ANATOMIST_WINDOW_QWINBLOCK_H
 #define ANATOMIST_WINDOW_QWINBLOCK_H
 
-#include <qwidget.h>
+#include <qmainwindow.h>
 
 
-class QAWindowBlock : public QWidget
+class QAWindowBlock : public QMainWindow
 {
+  Q_OBJECT
+
 public:
   /** colsrows is either the number of columns (if inrows is true), or the
       number of rows (if inrows is false).
    */
   QAWindowBlock( QWidget* parent = 0, const char* name = 0, 
                  Qt::WFlags f = Qt::WType_TopLevel | Qt::WDestructiveClose,
-		 int colsrows = 2, bool inrows = true );
+                 int colsrows = 2, bool inrows = false );
   virtual ~QAWindowBlock();
   void addWindowToBlock(QWidget* item);
   void setColsOrRows( bool inrows, int colsrows );
   void arrangeInRect( float widthHeightRatio = 1. );
+
+public slots:
+  void layInColumns();
+  void layInRows();
+  void layInRectangle();
+  void setColumnsNumber();
+  void setRowsNumber();
+  void setRectangularRatio();
 
 protected:
   virtual void dragEnterEvent( QDragEnterEvent* event );
