@@ -52,12 +52,6 @@ class QAWindow : public QMainWindow, public anatomist::AWindow,
   Q_OBJECT
 
 public:
-#if QT_VERSION < 0x040000
-  enum MenuIDs
-  {
-    DetachMenu = 5555 //, 
-  };
-#endif
 
   QAWindow( QWidget* parent = 0, const char* name = 0, 
 	    carto::Object params = carto::none(), 
@@ -72,9 +66,6 @@ public:
   virtual void iconify();
   virtual void unIconify();
   virtual bool close();
-#if QT_VERSION < 0x040000
-  virtual bool close( bool alsodelete );
-#endif
   virtual void showToolBars( int state = 2 );
   void setFullScreen( int state = 2 );
   bool isFullScreen() const;
@@ -89,7 +80,6 @@ public:
 	called when the timer timesout. That's why Refresh is not virtual 
 	anymore. */
   void Refresh();
-#if QT_VERSION >= 0x040000
   virtual QToolBar* addToolBar( const QString & title, const QString & name );
   virtual void addToolBar( QToolBar*, const QString & name );
   virtual void addToolBar( Qt::ToolBarArea area, QToolBar* toolbar,
@@ -98,7 +88,6 @@ public:
   virtual QToolBar* removeToolBar( const QString & name );
   QToolBar* toolBar( const QString & name );
   void setDetachMenuAction( QAction* );
-#endif
 
 public slots:
   /**	Real drawing function, replacing AWindow::Refresh in subclasses of 
@@ -120,11 +109,9 @@ protected:
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dropEvent( QDropEvent* );
   virtual void mouseMoveEvent( QMouseEvent * e );
-#if QT_VERSION >= 0x040000
   /* in qt4 we have to find a way to catch close events and prevent deletion
      if ref-counting doesn't allow it */
   virtual void closeEvent( QCloseEvent * event );
-#endif
 
 private:
   struct Private;

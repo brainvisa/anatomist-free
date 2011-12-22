@@ -48,11 +48,7 @@
 #include <anatomist/commands/cLoadObject.h>
 #include <qtimer.h>
 #include <qmenubar.h>
-#if QT_VERSION < 0x040000
-#include <qobjectlist.h>
-#else
 #include <qtoolbar.h>
-#endif
 #include <stdio.h>
 
 
@@ -68,18 +64,13 @@ struct QAWindow::Private
   QTimer		*refreshtimer;
   bool			refreshneeded;
   Qt::ButtonState	button;
-#if QT_VERSION >= 0x040000
   set<QToolBar *>	toolbars;
   QAction               *detachmenuaction;
-#endif
 };
 
 
 QAWindow::Private::Private() 
-  : refreshtimer( 0 ), refreshneeded( false )
-#if QT_VERSION >= 0x040000
-    , detachmenuaction( 0 )
-#endif
+  : refreshtimer( 0 ), refreshneeded( false ), detachmenuaction( 0 )
 {
 }
 
@@ -153,29 +144,16 @@ void QAWindow::unIconify()
 }
 
 
-#if QT_VERSION < 0x040000
-bool QAWindow::close( bool alsodelete )
-{
-  if( testDeletable() )
-  {
-    return QMainWindow::close( alsodelete );
-  }
-  else
-  {
-    cout << "can't delete window - just hiding it." << endl;
-    hide();
-  }
-  return false;
-}
-#endif
-
-
-#if QT_VERSION >= 0x040000
 void QAWindow::closeEvent( QCloseEvent * event )
 {
   if( testDeletable() )
   {
     event->accept();
+    if( parent() )
+    {
+      setParent( 0 );
+      setAttribute( Qt::WA_DeleteOnClose );
+    }
   }
   else
   {
@@ -184,13 +162,17 @@ void QAWindow::closeEvent( QCloseEvent * event )
     hide();
   }
 }
-#endif
 
 
 bool QAWindow::close()
 {
   if( testDeletable() )
   {
+    if( parent() )
+    {
+      setParent( 0 );
+      setAttribute( Qt::WA_DeleteOnClose );
+    }
     return QMainWindow::close();
   }
   else
@@ -210,7 +192,6 @@ void QAWindow::showToolBars( int state )
     {
     case 0:
       {
-#if QT_VERSION >= 0x040000
         const QObjectList		& ch = children();
         QObjectList::const_iterator	ic, ec = ch.end();
         for( ic=ch.begin(); ic!=ec; ++ic )
@@ -218,19 +199,10 @@ void QAWindow::showToolBars( int state )
             if( *ic != centralWidget() && (*ic)->isWidgetType() )
               ((QWidget *) *ic)->hide();
           }
-#else
-        menuBar()->hide();
-        //statusBar()->hide();
-        QPtrList<QDockWindow> dk = dockWindows();
-        QDockWindow	*dw;
-        for( dw=dk.first(); dw; dw=dk.next() )
-          dw->hide();
-#endif
       }
       break;
     default:
       {
-#if QT_VERSION >= 0x040000
         const QObjectList		& ch = children();
         QObjectList::const_iterator	ic, ec = ch.end();
         for( ic=ch.begin(); ic!=ec; ++ic )
@@ -238,17 +210,6 @@ void QAWindow::showToolBars( int state )
             if( *ic != centralWidget() && (*ic)->isWidgetType() )
               ((QWidget *) *ic)->show();
           }
-#else
-        if( menuBar()->count() > 0 )
-          menuBar()->show();
-        else
-          menuBar()->hide();
-        //statusBar()->show();
-        QPtrList<QDockWindow> dk = dockWindows();
-        QDockWindow	*dw;
-        for( dw=dk.first(); dw; dw=dk.next() )
-          dw->show();
-#endif
       }
     }
   AWindow::showToolBars( state );
@@ -271,28 +232,13 @@ void QAWindow::setFullScreen( int x )
   switch( x )
     {
     case 0:
-#if QT_VERSION >= 0x30300
       setWindowState( windowState() & ~Qt::WindowFullScreen );
-#else
-      showNormal();
-#endif
       break;
     case 1:
-#if QT_VERSION >= 0x30300
       setWindowState( windowState() | Qt::WindowFullScreen );
-#else
-      showFullScreen();
-#endif
       break;
     default:
-#if QT_VERSION >= 0x30300
       setWindowState( windowState() ^ Qt::WindowFullScreen );
-#else
-      if( isFullScreen() )
-        showNormal();
-      else
-        showFullScreen();
-#endif
     }
 }
 
@@ -442,12 +388,8 @@ void QAWindow::dropEvent( QDropEvent* event )
 
 void QAWindow::enableDetachMenu( bool x )
 {
-#if QT_VERSION >= 0x040000
   if( d->detachmenuaction )
     d->detachmenuaction->setEnabled( x );
-#else
-  menuBar()->setItemEnabled( DetachMenu, x );
-#endif
 }
 
 
@@ -455,23 +397,18 @@ void QAWindow::detach()
 {
   if( parent() )
     {
-      reparent( 0, QPoint( 0, 0 ), true );
-#if QT_VERSION >= 0x040000
+      setParent( 0 );
+      setAttribute( Qt::WA_DeleteOnClose );
       if( d->detachmenuaction )
         d->detachmenuaction->setEnabled( false );
-#else
-      menuBar()->setItemEnabled( DetachMenu, false );
-#endif
     }
 }
 
 
-#if QT_VERSION >= 0x040000
 void QAWindow::setDetachMenuAction( QAction* a )
 {
   d->detachmenuaction = a;
 }
-#endif
 
 
 void QAWindow::mouseMoveEvent( QMouseEvent * ev )
@@ -526,7 +463,6 @@ void QAWindow::mouseMoveEvent( QMouseEvent * ev )
 }
 
 
-#if QT_VERSION >= 0x040000
 QToolBar* QAWindow::addToolBar( const QString & title, const QString & name )
 {
   QToolBar* tb = QMainWindow::addToolBar( title );
@@ -577,6 +513,5 @@ QToolBar* QAWindow::removeToolBar( const QString & name )
     removeToolBar( tb );
   return tb;
 }
-#endif
 
 

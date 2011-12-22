@@ -120,7 +120,6 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
       row = 0;
     }
   }
-  cout << "add in block, row: " << row << ", col: " << col << endl;
   d->layout->addWidget( item, row, col );
 #else // Qt version >= 4.0 and <= 4.3
   vector< vector<bool> > used;

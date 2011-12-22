@@ -630,12 +630,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     win->insertItem(tr("Show/hide cursor position"), this, SLOT(
         toggleStatusBarVisibility()));
     win->insertSeparator();
-#if QT_VERSION >= 0x040000
     setDetachMenuAction( win->addAction( tr( "Detach view" ), this,
             SLOT( detach() ) ) );
-#else
-    win->insertItem(tr("Detach view"), this, SLOT(detach()), 0, DetachMenu);
-#endif
     if (!parent) enableDetachMenu(false);
     if (theAnatomist->userLevel() >= 2) win->insertItem(tr(
         "Open stereoscopic right eye view"), this, SLOT(openStereoView()));
@@ -659,12 +655,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
     //	Mutation toolbar
 
-#if QT_VERSION >= 0x040000
     d->mute = addToolBar( tr( "mutations" ), "mutations" );
     d->mute->setIconSize( QSize( 20, 20 ) );
-#else
-    d->mute = new QToolBar(this, tr("mutations"));
-#endif
     const QPixmap *p;
 
     p = icons->getIconInstance("axial");
