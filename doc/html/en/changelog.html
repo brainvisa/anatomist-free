@@ -34,6 +34,7 @@
 </center>
 <hr width="100%">
 <p>
+<b><a href="#version-4.2.0">Version 4.2.0</a></b><br>
 <b><a href="#version-4.1.1">Version 4.1.1</a></b><br>
 <b><a href="#version-4.1.0">Version 4.1.0</a></b><br>
 <b><a href="#version-4.0.2">Version 4.0.2</a></b><br>
@@ -68,6 +69,91 @@
 <b><a href="#version-1.17">Version 1.17</a></b> <br>
 <b><a href="#version-1.16">Version 1.16</a></b> <br>
 &nbsp; </p>
+
+<!-- -->
+<h4> <a name="version-4.2.0"></a>2012/01/04 - Version 4.2.0</h4>
+
+<h5>Visible changes (users):</h5>
+
+<ul>
+</li>
+<li>Add possibility to open browser window items when registering objects:
+  <ul>
+  <li>In practical use, when adding one object in a browser, the item is open; if several objects are added, it is not.
+  </li>
+  <li>When adding several objects in windows, parent objects (graphs...) are added before their children. It avoids randomly having nodes together with their parent graph in browsers open via the "view/select objects" option of 3D windows.
+  </li>
+  </ul>
+</li>
+<li>Fusion 2D parameters window: fixed a crash in Qt when "dragging" an item in the list.
+</li>
+<li>Added a box selection highligting feature to the improved selection control
+</li>
+<li>Slightly modified outline selection using a more conventional "cel-shading" technique. It is maybe a bit less ugly, and has fewer side effects.
+</li>
+<li>Disabled tooltips when to ROI drawing tool is active</li>
+<li>Made a few referentials / transformations menus clearer (about header info)
+<li>Use the IPython Qt console in Anatomist if ipython >= 0.11 is present.
+</li>
+<li>Surfpaint module update.</li>
+<li>Behaviour change in Anatomist:
+  <ul>
+  <li>Add graph nodes with graphs in windows by default.</li>
+  <li>Remove graph nodes with the graph from views also. Children removal is governed by a new shouldRemoveChildrenWithMe() method in MObject.
+  </li>
+  <li>Menu option to add a graph without its children, to allow the older behaviour when needed.
+  </li>
+  </ul>
+</li>
+<li>Windows blocks improvements:
+  <ul>
+  <li>Possibility to arrange block windows in rows or columns, or rearrange as a rectangle.
+  </li>
+  <li>Flexibility on dynamic rows / columns layout arrangement of blocks: number of rows/cols can be specified.</li>
+  <li>Fix in adding a window into a block: empty spaces (for closed windows) will be used properly now.
+  </li>
+  <li>Windows blocks now default to fixed number of rows (since screens are generally wider than high)
+  </li>
+  </ul>
+</li>
+<li>Re-focus view after referential change</li>
+<li>New config option: <tt>commonScannerBasedReferential</tt>. When enabled, all such referentials found in image headers are assumed to be the same.
+</li>
+<li>New menu option in referentials window: split referential to dissociate transformations.
+</li>
+<li>Colorbar saving option in "view palette" feature (thanks Thomas)</li>
+<li>New palettes: "Graph-Label", "pastel-256", "French"</li>
+<li>Planar mesh in CutMesh objects: Inverted planar mesh normals to avoid in/out notion inversion.
+</li>
+<li>Docs updates, especially about the surface paint tool.</li>
+<li>avoid crash in ROI menu "session/clean" when the current graph cannot be retreived. (I Don't know what this is supposed to do anyway...)
+</li>
+<li>Fixed referential inheritance on slice object</li>
+<li>Fixes in lighting settings update in Anatomist windows</li>
+<li>Take referentials / transformations into account when syncing views</li>
+<li>Roi module: fixed GUI update of BrushUnit</li>
+<li>Ensure windows are destroyed when closed even if they are not top-level windows (in blocks for instance).
+</li>
+<li>Fix in PyAnatomist (socket implementation) asynchronous processing mess-up after destruction of objects.
+</li>
+</ul>
+
+<h5>Internal changes (programmers):</h5>
+
+<ul>
+<li>New command: <tt>PaintParam</tt></li>
+<li>Modified parameters of <tt>AddObject</tt> and <tt>RemoveObject</tt> commands accordingly, and cooresponding docs.
+</li>
+<li>New command: <tt>WindowBlock</tt></li>
+<li>A few more Python bindings on the C++ library API, improvements and fixes</li>
+<li>Changed applyBuiltinReferential functions to loadReferentialFromHeader() in python API.
+</li>
+<li>Implement Anatomist.sync() in anatomist.direct.api: it just did nothing before. Now it calls qApp.processEvents().
+</li>
+<li>added a Anatomist.paintParams() method in python API</li>
+<li>Fixed memory leaks in AObjectConverter::anatomist() functions.</li>
+</ul>
+
 <!-- -->
 <h4> <a name="version-4.1.1"></a>2011/09/14 - Version 4.1.1</h4>
 
