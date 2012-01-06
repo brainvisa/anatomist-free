@@ -41,6 +41,7 @@
 #include <wingdi.h>
 #else
 #include <dlfcn.h>
+#define APIENTRY
 #endif
 
 using namespace anatomist;
@@ -49,22 +50,20 @@ using namespace std;
 
 namespace
 {
-  typedef void (*glActiveTextureFunc)( GLenum );
-  typedef void (*glBlendEquationFunc)( GLenum );
-  typedef void (*glTexImage3DFunc)( GLenum, GLint, GLint, GLsizei, GLsizei, 
-                                    GLsizei, GLint, GLenum, GLenum, 
-                                    const void* );
+  typedef PFNGLACTIVETEXTUREARBPROC glActiveTextureFunc;
+  typedef PFNGLBLENDEQUATIONEXTPROC glBlendEquationFunc;
+  typedef PFNGLTEXIMAGE3DEXTPROC glTexImage3DFunc;
 
-  void _void_glActiveTexture( GLenum )
+  void APIENTRY _void_glActiveTexture( GLenum )
   {
   }
   
   
-  void _void_glBlendEquation( GLenum )
+  void APIENTRY _void_glBlendEquation( GLenum )
   {
   }
 
-  void _void_glTexImage3D( GLenum, GLint, GLint, GLsizei, GLsizei,  
+  void APIENTRY _void_glTexImage3D( GLenum, GLint, GLenum, GLsizei, GLsizei,  
                            GLsizei, GLint, GLenum, GLenum, const void* )
   {
   }
@@ -518,7 +517,7 @@ bool GLCaps::hasGlTexImage3D()
 }
 
 
-void GLCaps::glTexImage3D( GLenum target, GLint level, GLint internalformat, 
+void GLCaps::glTexImage3D( GLenum target, GLint level, GLenum internalformat, 
     GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, 
     GLenum type, const void* data )
 {
