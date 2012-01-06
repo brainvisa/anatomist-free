@@ -49,22 +49,20 @@ using namespace std;
 
 namespace
 {
-  typedef void (*glActiveTextureFunc)( GLenum );
-  typedef void (*glBlendEquationFunc)( GLenum );
-  typedef void (*glTexImage3DFunc)( GLenum, GLint, GLint, GLsizei, GLsizei, 
-                                    GLsizei, GLint, GLenum, GLenum, 
-                                    const void* );
+  typedef PFNGLACTIVETEXTUREARBPROC glActiveTextureFunc;
+  typedef PFNGLBLENDEQUATIONEXTPROC glBlendEquationFunc;
+  typedef PFNGLTEXIMAGE3DEXTPROC glTexImage3DFunc;
 
-  void _void_glActiveTexture( GLenum )
+  void APIENTRY _void_glActiveTexture( GLenum )
   {
   }
   
   
-  void _void_glBlendEquation( GLenum )
+  void APIENTRY _void_glBlendEquation( GLenum )
   {
   }
 
-  void _void_glTexImage3D( GLenum, GLint, GLint, GLsizei, GLsizei,  
+  void APIENTRY _void_glTexImage3D( GLenum, GLint, GLenum, GLsizei, GLsizei,  
                            GLsizei, GLint, GLenum, GLenum, const void* )
   {
   }
@@ -290,9 +288,7 @@ namespace
 
 #endif
 
-      cout << "before updateTextureUnits\n";
       updateTextureUnits();
-      cout << "after\n";
 
       if( glActiveTexture == _void_glActiveTexture 
           || glClientActiveTexture == _void_glActiveTexture )
@@ -384,9 +380,14 @@ namespace
 
 void GLCapsPrivate::updateTextureUnits()
 {
-  cout << "updateTextureUnits\n";
-  GLint     ntex;
+//   cout << "updateTextureUnits\n";
+  glGetError();
+  GLint     ntex = 0;
   glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
+  int status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "OpenGL error: "
+         << gluErrorString(status) << endl;
   numTextureUnits = (unsigned) ntex;
   cout << "Number of texture units: " << numTextureUnits << endl;
   GlobalConfiguration   *cfg = theAnatomist->config();
@@ -518,7 +519,7 @@ bool GLCaps::hasGlTexImage3D()
 }
 
 
-void GLCaps::glTexImage3D( GLenum target, GLint level, GLint internalformat, 
+void GLCaps::glTexImage3D( GLenum target, GLint level, GLenum internalformat, 
     GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, 
     GLenum type, const void* data )
 {
@@ -529,7 +530,6 @@ void GLCaps::glTexImage3D( GLenum target, GLint level, GLint internalformat,
 
 void GLCaps::updateTextureUnits()
 {
-  cout << "updateTextureUnits 1\n";
   _glcapsPrivate().updateTextureUnits();
 }
 
