@@ -408,7 +408,7 @@ PreferencesWindow::PreferencesWindow()
   texmax->insertItem( "8" );
   texmax->setEditable( true );
   texmax->setValidator( new QRegExpValidator( QRegExp(
-    "\\d*|Unlimited|-1", false ), texmax ) );
+    "\\d*|" + tr( "Unlimited" ) + "|-1", false ), texmax ) );
   #ifdef _WIN32
   /* On Windows for an unknown reason (probably a bug well hidden somewhere in
      anatomist), allowing more than 3 textures results to nothing being 
@@ -831,7 +831,8 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
   catch( ... )
   {
   }
-  if( mt.lower() == "unlimited" )
+  cout << "setMaxTextures: " << mt.lower().utf8().data() << " / " << tr( "Unlimited" ).utf8().data() << endl;
+  if( mt.lower() == tr( "Unlimited" ).lower() )
     imt = -1;
   else
   {
@@ -856,7 +857,7 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
   QString mt2;
   if( imt < 0 )
   {
-    mt2 = "Unlimited";
+    mt2 = tr( "Unlimited" );
     imt = -1;
   }
   else

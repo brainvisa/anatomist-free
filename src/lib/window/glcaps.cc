@@ -41,7 +41,6 @@
 #include <wingdi.h>
 #else
 #include <dlfcn.h>
-#define APIENTRY
 #endif
 
 using namespace anatomist;
@@ -289,9 +288,7 @@ namespace
 
 #endif
 
-      cout << "before updateTextureUnits\n";
       updateTextureUnits();
-      cout << "after\n";
 
       if( glActiveTexture == _void_glActiveTexture 
           || glClientActiveTexture == _void_glActiveTexture )
@@ -383,9 +380,14 @@ namespace
 
 void GLCapsPrivate::updateTextureUnits()
 {
-  cout << "updateTextureUnits\n";
-  GLint     ntex;
+//   cout << "updateTextureUnits\n";
+  glGetError();
+  GLint     ntex = 0;
   glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
+  int status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "OpenGL error: "
+         << gluErrorString(status) << endl;
   numTextureUnits = (unsigned) ntex;
   cout << "Number of texture units: " << numTextureUnits << endl;
   GlobalConfiguration   *cfg = theAnatomist->config();
@@ -528,7 +530,6 @@ void GLCaps::glTexImage3D( GLenum target, GLint level, GLenum internalformat,
 
 void GLCaps::updateTextureUnits()
 {
-  cout << "updateTextureUnits 1\n";
   _glcapsPrivate().updateTextureUnits();
 }
 
