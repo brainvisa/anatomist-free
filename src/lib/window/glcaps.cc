@@ -49,20 +49,32 @@ using namespace std;
 
 namespace
 {
+#ifdef _WIN32
+  /* would be OK for linux also, but MacOS, of course, does not have
+     these types defined */
   typedef PFNGLACTIVETEXTUREARBPROC glActiveTextureFunc;
   typedef PFNGLBLENDEQUATIONEXTPROC glBlendEquationFunc;
   typedef PFNGLTEXIMAGE3DEXTPROC glTexImage3DFunc;
+#else
+  typedef void (*glActiveTextureFunc)( GLenum );
+  typedef void (*glBlendEquationFunc)( GLenum );
+  typedef void (*glTexImage3DFunc)( GLenum, GLint, GLenum, GLsizei, GLsizei,
+                                    GLsizei, GLint, GLenum, GLenum,
+                                    const void* );
+#endif
 
+  /* the APIENTRY macro here seems to be very important on Windows: it caused
+     display bugs and crashed for one year without it. */
   void APIENTRY _void_glActiveTexture( GLenum )
   {
   }
-  
-  
+
+
   void APIENTRY _void_glBlendEquation( GLenum )
   {
   }
 
-  void APIENTRY _void_glTexImage3D( GLenum, GLint, GLenum, GLsizei, GLsizei,  
+  void APIENTRY _void_glTexImage3D( GLenum, GLint, GLenum, GLsizei, GLsizei,
                            GLsizei, GLint, GLenum, GLenum, const void* )
   {
   }
