@@ -38,9 +38,12 @@
 #include <anatomist/application/Anatomist.h>
 #include <iostream>
 #ifdef _WIN32
-#include <wingdi.h>
+#  include <wingdi.h>
 #else
-#include <dlfcn.h>
+#  include <dlfcn.h>
+#  ifndef APIENTRY
+#    define APIENTRY
+#  endif
 #endif
 
 using namespace anatomist;
