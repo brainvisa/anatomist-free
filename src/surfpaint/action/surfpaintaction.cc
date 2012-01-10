@@ -246,7 +246,7 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
     indexNearestVertex = -1;
   }
 
-  //distanceMove(x, y, globalX, globalY);
+  distanceMove(x, y, globalX, globalY);
 }
 
 void SurfpaintToolsAction::distanceStop(int x, int y, int globalX, int globalY)

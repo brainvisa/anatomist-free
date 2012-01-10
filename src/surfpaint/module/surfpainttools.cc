@@ -1202,6 +1202,7 @@ void SurfpaintTools::floodFillStop(void)
   fillObjectTemp->setName(theAnatomist->makeObjectName("fill"));
   fillObjectTemp->setSurface(MeshOut);
   fillObjectTemp->SetMaterial(mat2);
+  fillObjectTemp->setReferentialInheritance( objselect );
   //win3D->registerObject(fillObject, true, 0);
   win3D->registerObject(fillObjectTemp, true, 1);
   theAnatomist->registerObject(fillObjectTemp, 0);
@@ -1438,6 +1439,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   sp->setName(theAnatomist->makeObjectName("select"));
   sp->setSurface(tmpMeshOut);
   sp->SetMaterial(mat);
+  sp->setReferentialInheritance( objselect );
 
   if (!pathIsClosed())
   {
@@ -1458,7 +1460,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   ite = listIndexVertexSelectSP.end();
 
   int nb_vertex;
-  printf("nb vertex path = %d\n", listIndexVertexSelectSP.size());
+  printf("nb vertex path = %lu\n", listIndexVertexSelectSP.size());
 
   const string ac = getPathType();
 
@@ -1523,7 +1525,12 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     AimsRGBA empty;
 
-    empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+    int ind = int( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.) );
+    if( ind < 0 )
+      ind = 0;
+    else if( ind >= ncol0 )
+      ind = ncol0 - 1;
+    empty = (*col)( ind );
 
     cout << "texture value RGB " << (int) empty.red() << " "
         << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
@@ -1537,6 +1544,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     s3->setName(theAnatomist->makeObjectName("path"));
     s3->setSurface(MeshOut);
     s3->SetMaterial(mat2);
+    s3->setReferentialInheritance( objselect );
 
     s3->setPalette( *pal );
 
@@ -1620,8 +1628,8 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   s3->setName(theAnatomist->makeObjectName("path"));
   s3->setSurface(MeshOut);
   s3->SetMaterial(mat2);
-
   s3->setPalette( *pal );
+  s3->setReferentialInheritance( objselect );
 
   //win3D->registerObject(s3, true, 0);
   win3D->registerObject(s3, true, 1);
