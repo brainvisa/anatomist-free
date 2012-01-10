@@ -1187,7 +1187,12 @@ void SurfpaintTools::floodFillStop(void)
 
   AimsRGBA empty;
 
-  empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+  int ind = int( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.) );
+  if( ind < 0 )
+    ind = 0;
+  else if( ind >= ncol0 )
+    ind = ncol0 - 1;
+  empty = (*col)( ind );
 
   cout << "texture value RGB " << (int) empty.red() << " "
       << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
@@ -1614,7 +1619,12 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 
   AimsRGBA empty;
 
-  empty = (*col)( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.));
+  int ind = int( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.) );
+  if( ind < 0 )
+    ind = 0;
+  else if( ind >= ncol0 )
+    ind = ncol0 - 1;
+  empty = (*col)( ind );
 
   cout << "texture value RGB " << (int) empty.red() << " "
       << (int) empty.green() << " " << (int) empty.blue() << " " << endl;

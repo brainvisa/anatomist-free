@@ -1198,7 +1198,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>MagicBrush</source>
-        <translation>Baguette magique</translation>
+        <translation>Chemin continu à main levée</translation>
     </message>
 </context>
 <context>
