@@ -599,6 +599,17 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 
     string iconname;
 
+    //brush
+    iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
+    paintBrushAction = new QToolButton();
+    paintBrushAction->setIcon(QIcon(iconname.c_str()));
+    paintBrushAction->setToolTip(ControlledWindow::tr("Brush"));
+    paintBrushAction->setCheckable(true);
+    paintBrushAction->setChecked(false);
+    paintBrushAction->setIconSize(QSize(32, 32));
+    paintBrushAction->setAutoRaise(true);
+    connect(paintBrushAction, SIGNAL(clicked()), this, SLOT(brush()));
+
     //pipette
     iconname = Settings::findResourceFile( "icons/meshPaint/pipette.png" );
     colorPickerAction = new QToolButton();
@@ -611,18 +622,18 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     colorPickerAction->setAutoRaise(true);
     connect(colorPickerAction, SIGNAL(clicked()), this, SLOT(colorPicker()));
 
-    //pipette
-    iconname = Settings::findResourceFile( "icons/meshPaint/geodesic_distance.png" );
-    distanceAction = new QToolButton();
-    distanceAction->setIcon(QIcon(iconname.c_str()));
-    distanceAction->setToolTip(tr("distance map"));
-    distanceAction->setCheckable(true);
-    distanceAction->setChecked(false);
-    distanceAction->setIconSize(QSize(32, 32));
-    distanceAction->setAutoRaise(true);
-    connect(distanceAction, SIGNAL(clicked()), this, SLOT(distance()));
+    //erase
+    iconname = Settings::findResourceFile( "icons/meshPaint/erase.png" );
+    eraseAction = new QToolButton();
+    eraseAction->setIcon(QIcon(iconname.c_str()));
+    eraseAction->setToolTip(ControlledWindow::tr("Eraser"));
+    eraseAction->setCheckable(true);
+    eraseAction->setChecked(false);
+    eraseAction->setIconSize(QSize(32, 32));
+    eraseAction->setAutoRaise(true);
+    connect(eraseAction, SIGNAL(clicked()), this, SLOT(erase()));
 
-    //baguette magique
+    //magic wand
     iconname = Settings::findResourceFile(
       "icons/meshPaint/magic_selection.png" );
     selectionAction = new QToolButton();
@@ -665,15 +676,6 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     menu->addAction(gyriPathAction);
     pathAction->setMenu(menu);
 
-    //clear
-    iconname = Settings::findResourceFile( "icons/meshPaint/clear.png" );
-    clearPathAction = new QToolButton();
-    clearPathAction->setIcon(QIcon(iconname.c_str()));
-    clearPathAction->setToolTip(ControlledWindow::tr(
-        "Delete all selected objects"));
-    clearPathAction->setIconSize(QSize(32, 32));
-    connect(clearPathAction, SIGNAL(clicked()), this, SLOT(clearAll()));
-
     //magic brush
     iconname = Settings::findResourceFile( "icons/meshPaint/magic_pencil.png" );
     magicBrushAction = new QToolButton();
@@ -685,18 +687,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     magicBrushAction->setAutoRaise(true);
     connect(magicBrushAction, SIGNAL(clicked()), this, SLOT(magicbrush()));
 
-    //brush
-    iconname = Settings::findResourceFile( "icons/meshPaint/stylo.png" );
-    paintBrushAction = new QToolButton();
-    paintBrushAction->setIcon(QIcon(iconname.c_str()));
-    paintBrushAction->setToolTip(ControlledWindow::tr("Brush"));
-    paintBrushAction->setCheckable(true);
-    paintBrushAction->setChecked(false);
-    paintBrushAction->setIconSize(QSize(32, 32));
-    paintBrushAction->setAutoRaise(true);
-    connect(paintBrushAction, SIGNAL(clicked()), this, SLOT(brush()));
-
-    //fill
+    //validate
     iconname = Settings::findResourceFile( "icons/meshPaint/valide.png" );
     fillAction = new QToolButton();
     fillAction->setIcon(QIcon(iconname.c_str()));
@@ -704,16 +695,25 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     fillAction->setIconSize(QSize(32, 32));
     connect(fillAction, SIGNAL(clicked()), this, SLOT(fill()));
 
-    //erase
-    iconname = Settings::findResourceFile( "icons/meshPaint/erase.png" );
-    eraseAction = new QToolButton();
-    eraseAction->setIcon(QIcon(iconname.c_str()));
-    eraseAction->setToolTip(ControlledWindow::tr("Eraser"));
-    eraseAction->setCheckable(true);
-    eraseAction->setChecked(false);
-    eraseAction->setIconSize(QSize(32, 32));
-    eraseAction->setAutoRaise(true);
-    connect(eraseAction, SIGNAL(clicked()), this, SLOT(erase()));
+    //cancel
+    iconname = Settings::findResourceFile( "icons/meshPaint/clear.png" );
+    clearPathAction = new QToolButton();
+    clearPathAction->setIcon(QIcon(iconname.c_str()));
+    clearPathAction->setToolTip(ControlledWindow::tr(
+        "Delete all selected objects"));
+    clearPathAction->setIconSize(QSize(32, 32));
+    connect(clearPathAction, SIGNAL(clicked()), this, SLOT(clearAll()));
+
+    //distance
+    iconname = Settings::findResourceFile( "icons/meshPaint/geodesic_distance.png" );
+    distanceAction = new QToolButton();
+    distanceAction->setIcon(QIcon(iconname.c_str()));
+    distanceAction->setToolTip(tr("distance map"));
+    distanceAction->setCheckable(true);
+    distanceAction->setChecked(false);
+    distanceAction->setIconSize(QSize(32, 32));
+    distanceAction->setAutoRaise(true);
+    connect(distanceAction, SIGNAL(clicked()), this, SLOT(distance()));
 
     //save
     iconname = Settings::findResourceFile( "icons/meshPaint/sauver.png" );
@@ -723,15 +723,15 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     saveAction->setIconSize(QSize(32, 32));
     connect(saveAction, SIGNAL(clicked()), this, SLOT(save()));
 
+    tbControls->addWidget(paintBrushAction);
     tbControls->addWidget(colorPickerAction);
-    tbControls->addWidget(distanceAction);
+    tbControls->addWidget(eraseAction);
     tbControls->addWidget(selectionAction);
     tbControls->addWidget(pathAction);
-    tbControls->addWidget(clearPathAction);
-    tbControls->addWidget(paintBrushAction);
     tbControls->addWidget(magicBrushAction);
     tbControls->addWidget(fillAction);
-    tbControls->addWidget(eraseAction);
+    tbControls->addWidget(clearPathAction);
+    tbControls->addWidget(distanceAction);
     tbControls->addWidget(saveAction);
   }
 }
