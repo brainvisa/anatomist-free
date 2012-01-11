@@ -331,6 +331,9 @@ Anatomist::Anatomist( int argc, const char **argv,
   _privData->config = new GlobalConfiguration;
 
   _privData->paletteList = new PaletteList;
+//   qApp->setQuitOnLastWindowClosed(true);// default is already true
+//   cout<<"quitOnLastWindowClosed() (when true the qApp will be closed) : "<<QApplication::quitOnLastWindowClosed()<<endl;
+
 }
 
 
