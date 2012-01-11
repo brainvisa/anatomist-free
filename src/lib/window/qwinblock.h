@@ -64,6 +64,7 @@ public slots:
 protected:
   virtual void dragEnterEvent( QDragEnterEvent* event );
   virtual void dropEvent( QDropEvent* );
+  virtual void closeEvent( QCloseEvent * event );
 
 private:
   struct Private;

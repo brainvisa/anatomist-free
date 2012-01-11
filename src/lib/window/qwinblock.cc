@@ -108,7 +108,7 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
 
 QAWindowBlock::~QAWindowBlock()
 {
-  delete d;
+   delete d;
 }
 
 void QAWindowBlock::addWindowToBlock(QWidget *item)
@@ -221,6 +221,38 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
     }
 }
 
+void QAWindowBlock::closeEvent( QCloseEvent * event )
+{
+  // if one of its widgets cannot be closed, the block is not closed either but only hidden.
+  int row, col;
+  int nr = d->layout->rowCount(), nc = d->layout->columnCount();
+  QWidget *widget;
+  QLayoutItem *item;
+  bool closeOk=1;
+  for( row=0; row<nr; ++row )
+    {
+      for( col=0; col<nc; ++col )
+      {
+        item = d->layout->itemAtPosition( row, col );
+        if( item )
+        {
+          widget = item->widget();
+          if( widget )
+          {
+            closeOk = closeOk & widget->close();
+          }
+        }
+      }
+    }
+    if (closeOk){
+      event->accept();
+    }
+    else{
+      cout << "can't delete windows block - just hiding it." << endl;
+      event->ignore();
+      hide();
+    }
+}
 
 void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
 {

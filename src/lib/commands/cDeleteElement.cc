@@ -83,7 +83,7 @@ DeleteElementCommand::doit()
   vector<int>::iterator i;
   void			*ptr;
   string		type;
-
+  
   for( i=_elem.begin(); i!=_elem.end(); ++i )
     {
       ptr = context()->unserial->pointer( *i );
@@ -159,8 +159,15 @@ DeleteElementCommand::doit()
                   delete wl;
                 }
 #endif
-              if( w == w2 )
-                delete w;
+              if( w == w2 ){
+                // Call the close method of the widget because it could be impossible to close it if there are still references on it
+                bool closeOk=w->close();
+                // if the close method deletes the widget, we mustn't call the destructor again
+                bool destructiveClose = (w->windowFlags() & Qt::WDestructiveClose);
+                bool deleteOnClose = w->testAttribute( Qt::WA_DeleteOnClose);
+                if ((closeOk) && (!destructiveClose) && (!deleteOnClose))
+                  delete w;
+              }
             }
 	  else
 	    cerr << "DeleteElementCommand: Unrecognized element type " << type 
