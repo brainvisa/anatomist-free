@@ -1433,10 +1433,8 @@ void ControlWindow::graphParams()
 
 void ControlWindow::quit()
 {   
-  // qApp->quit();// we don't want to quit the qapp here, because the qapp may be shared with brainvisa (if anatomist was imported using brainvisa.anatomist)
-  // don't worry, when all windows will be closed (thanks to DeleteAllCommand ) the qapp will be quit when lastWindowClosed() (because quitOnLastWindowClosed is true)
-  DeleteAllCommand *dc = new DeleteAllCommand;
-  theProcessor->execute( dc );
+  cout << "Exiting QApplication"<<endl;
+  qApp->quit();// we really need to quit qApp here (even if qApp was shared with another application e.g. brainvisa).  
   //exit( EXIT_SUCCESS );
 }
 
