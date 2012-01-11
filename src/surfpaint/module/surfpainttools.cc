@@ -789,7 +789,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     textureFloatSpinBox->setFixedWidth(100);
     textureFloatSpinBox->setMinimum(-FLT_MAX);
     textureFloatSpinBox->setMaximum(FLT_MAX);
-    //textureFloatSpinBox->setValue(0.000);
+    textureFloatSpinBox->setValue(1.000);
 
     // si le module ConstraintEditor n'a pas été lancé ou l'intervalle des valeurs de contraintes est réglable min/max ?
 
@@ -1361,16 +1361,21 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
 void SurfpaintTools::updateConstraintList(void)
 {
   int item = constraintList->currentItem();
-  string constraintLabel = string(constraintList->currentText());
+  int value = 1;
+  if( item >= 0 )
+  {
+    string constraintLabel = string(constraintList->currentText());
 
-  //cout << constraintLabel << " value " << item << endl;
-  int position = constraintLabel.find_last_of(' ');
+    // cout << constraintLabel << " value " << item << endl;
+    int position = constraintLabel.find_last_of(' ');
 
-  //cout << "contrainte : " << constraintLabel.substr(0,position) << endl;
-  std::istringstream strin(constraintLabel.substr(position + 1));
-  int value;
-  strin >> value;
-
+    if( position != string::npos )
+    {
+      // cout << "contrainte : " << constraintLabel.substr(0,position) << endl;
+      std::istringstream strin(constraintLabel.substr(position + 1));
+      strin >> value;
+    }
+  }
   setTextureValueFloat((float) value);
 }
 
