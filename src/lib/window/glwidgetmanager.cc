@@ -1252,26 +1252,43 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 
     //le rendu est fait sur le dernier objet sélectionné de type ATexSurface
 
-    AObject *obj;
+    AObject *obj = 0;
     string objtype;
 
     map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
     map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),last( sel.end( ) ) ;
     int num_obj = 0;
 
-    while( iter != last ){
-      for( set<AObject*>::iterator it = iter->second.begin() ; it != iter->second.end() ; ++it )
+    while( iter != last )
+    {
+      for( set<AObject*>::iterator it = iter->second.begin() ;
+        it != iter->second.end() ; ++it )
       {
-      if ((AObject::objectTypeName((*it)->type()) == "TEXTURED SURF."))
+        if ((AObject::objectTypeName((*it)->type()) == "TEXTURED SURF."))
         {
-        objtype = AObject::objectTypeName((*it)->type());
-        obj = (*it);
-        cout << obj << " " << (*it)->name() << "\n";
+          objtype = AObject::objectTypeName((*it)->type());
+          obj = (*it);
+          cout << obj << " " << (*it)->name() << "\n";
+          break;
         }
       }
       ++iter ;
     }
-
+    if( !obj )
+    {
+      set<AObject *> objs = w3->Objects();
+      for( set<AObject*>::iterator it=objs.begin(), et=objs.end(); it!=et;
+        ++it )
+      {
+        if ((AObject::objectTypeName((*it)->type()) == "TEXTURED SURF."))
+        {
+          objtype = AObject::objectTypeName((*it)->type());
+          obj = (*it);
+          cout << " " << (*it)->name() << "\n";
+          break;
+        }
+      }
+    }
 
     if (theAnatomist->userLevel() >= 3)
     {

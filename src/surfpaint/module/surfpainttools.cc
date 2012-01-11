@@ -413,6 +413,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         objtype = AObject::objectTypeName((*it)->type());
         objselect = (*it);
         cout << " " << (*it)->name() << "\n";
+        break;
       }
     }
 
@@ -421,7 +422,22 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
   if( !objselect )
   {
-  QMessageBox::warning(this, ControlledWindow::tr("not object selected"),
+    set<AObject *> objs = w3->Objects();
+    for( set<AObject*>::iterator it=objs.begin(), et=objs.end(); it!=et; ++it )
+    {
+      if ((AObject::objectTypeName((*it)->type()) == "TEXTURED SURF."))
+      {
+        objtype = AObject::objectTypeName((*it)->type());
+        objselect = (*it);
+        cout << " " << (*it)->name() << "\n";
+        break;
+      }
+    }
+  }
+
+  if( !objselect )
+  {
+  QMessageBox::warning(this, ControlledWindow::tr("No object selected"),
       ControlledWindow::tr("Cannot open surfpaint Toolbox"));
   return false;
   }
@@ -437,7 +453,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
   {
     objtype = objselect->objectTypeName(objselect->type());
 
-    cout << objtype << endl;
+    // cout << objtype << endl;
 
     if (objtype == "SURFACE")
     {
@@ -1370,7 +1386,7 @@ void SurfpaintTools::changeToleranceSpinBox(int v)
 
   stepToleranceValue = toleranceValue * (float)(scl)/100.;
 
-  cout << "stepToleranceValue " << stepToleranceValue << endl;
+  // cout << "stepToleranceValue " << stepToleranceValue << endl;
 }
 
 void SurfpaintTools::loadConstraintsList(vector<string> clist)

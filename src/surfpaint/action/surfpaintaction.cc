@@ -287,7 +287,7 @@ void SurfpaintToolsAction::brushStart(int x, int y, int globalX, int globalY)
 
 void SurfpaintToolsAction::brushStop(int x, int y, int globalX, int globalY)
 {
-  cout << "brushStop" << endl;
+  // cout << "brushStop" << endl;
 }
 
 void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
@@ -326,7 +326,7 @@ void SurfpaintToolsAction::magicbrushStart(int x, int y, int globalX, int global
 
 void SurfpaintToolsAction::magicbrushStop(int x, int y, int globalX, int globalY)
 {
-  cout << "magicbrushStop" << endl;
+  // cout << "magicbrushStop" << endl;
 
   getTools()->fillHolesOnPath();
 }
@@ -337,14 +337,11 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y, int globalX, int globalY
   win3D = dynamic_cast<AWindow3D *> (view()->window());
 
   objselect = win3D->objectAtCursorPosition(x, y);
-  if (objselect)
+  if (!objselect)
+    return;
+
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
-  else
-  {
-    poly = -1;
-    indexNearestVertex = -1;
-  }
+    &texvalue, textype, positionNearestVertex, &indexNearestVertex);
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
