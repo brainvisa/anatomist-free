@@ -1432,9 +1432,11 @@ void ControlWindow::graphParams()
 
 
 void ControlWindow::quit()
-{  
+{   
   // qApp->quit();// we don't want to quit the qapp here, because the qapp may be shared with brainvisa (if anatomist was imported using brainvisa.anatomist)
-  // don't worry, the qapp will be quit when lastWindowClosed() (because quitOnLastWindowClosed is true)
+  // don't worry, when all windows will be closed (thanks to DeleteAllCommand ) the qapp will be quit when lastWindowClosed() (because quitOnLastWindowClosed is true)
+  DeleteAllCommand *dc = new DeleteAllCommand;
+  theProcessor->execute( dc );
   //exit( EXIT_SUCCESS );
 }
 
