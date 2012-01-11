@@ -937,7 +937,7 @@ ControlSwitch::getSelectedObjectNames()
   list<ControlSwitchObserver *>::iterator
     iter( myObservers.begin() ), last( myObservers.end() ) ;
 
-  // cerr << "Observers size " << myObservers.size() << endl ;
+  // cout << "Observers size " << myObservers.size() << endl ;
 
   ControlledWindow * win = 0 ;
   while( iter != last )
@@ -956,25 +956,27 @@ ControlSwitch::getSelectedObjectNames()
     ASSERT(0) ;
   }
 
-  map<unsigned, set<AObject *> >::const_iterator
-    found( so.find( win->Group() ) ) ;
-  if( found == so.end() )
-    return;
-  set<AObject *>::const_iterator
-    soIter( found->second.begin() ), soLast( found->second.end() ) ;
-
   set<string> otypes;
   string otype;
   size_t n = 0;
-  while( soIter != soLast )
-  {
-    otype = AObject::objectTypeName( (*soIter)->type() );
-    n = otypes.size();
-    otypes.insert( otype );
-    if( otypes.size() != n ) // avoid inserting several times the same type
-      mySelectedObjects.push_back( otype );
 
-    ++soIter ;
+  map<unsigned, set<AObject *> >::const_iterator
+    found( so.find( win->Group() ) ) ;
+  if( found != so.end() )
+  {
+    set<AObject *>::const_iterator
+      soIter( found->second.begin() ), soLast( found->second.end() ) ;
+
+    while( soIter != soLast )
+    {
+      otype = AObject::objectTypeName( (*soIter)->type() );
+      n = otypes.size();
+      otypes.insert( otype );
+      if( otypes.size() != n ) // avoid inserting several times the same type
+        mySelectedObjects.push_back( otype );
+
+      ++soIter ;
+    }
   }
 
   // if no selection: insert all objects types that are present in a window
