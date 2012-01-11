@@ -136,13 +136,15 @@
 </li>
 <li>Fix in PyAnatomist (socket implementation) asynchronous processing mess-up after destruction of objects.
 </li>
+<li>Fixed multi-texturing bug on Windows OS. Actually it was the way to use OpenGL extension functions which did not work (or not always). Limiting the number of textures units should not be needed any longer.
+</li>
 </ul>
 
 <h5>Internal changes (programmers):</h5>
 
 <ul>
 <li>New command: <tt>PaintParam</tt></li>
-<li>Modified parameters of <tt>AddObject</tt> and <tt>RemoveObject</tt> commands accordingly, and cooresponding docs.
+<li>Modified parameters of <tt>AddObject</tt> and <tt>RemoveObject</tt> commands, and cooresponding docs.
 </li>
 <li>New command: <tt>WindowBlock</tt></li>
 <li>A few more Python bindings on the C++ library API, improvements and fixes</li>
