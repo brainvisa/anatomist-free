@@ -130,7 +130,7 @@ namespace
       ext_SGIX_shadow( false ), ext_ARB_depth_texture( false ), 
       ext_SGIX_depth_texture( false ), 
       glActiveTexture( _void_glActiveTexture ), 
-      glClientActiveTexture( _void_glActiveTexture ), numTextureUnits( 1 ), 
+      glClientActiveTexture( _void_glActiveTexture ), numTextureUnits( 0 ), 
       depthpeeling( false )
   {
   const GLubyte	*p = glGetString( GL_EXTENSIONS );
@@ -477,9 +477,22 @@ void GLCaps::glClientActiveTexture( GLenum x )
   _glcapsPrivate().glClientActiveTexture( x );
 }
 
+bool & GLCaps::mustRefresh()
+{
+  static bool r = true;
+  return r;
+}
 
 unsigned GLCaps::numTextureUnits()
 {
+  if (mustRefresh())
+  {
+    // Number of texture units may have been processed in an unavailable context
+    // try to refresh it
+    updateTextureUnits();
+    mustRefresh() = false;
+  }
+
   return _glcapsPrivate().numTextureUnits;
 }
 

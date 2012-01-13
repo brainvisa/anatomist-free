@@ -76,6 +76,7 @@ namespace anatomist
   class GLCaps
   {
   public:
+    static bool & mustRefresh();
     static bool hasMultiTexture();
     static bool ext_ARB_shadow();
     static bool ext_SGIX_shadow();
