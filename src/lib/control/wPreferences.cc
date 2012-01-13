@@ -817,11 +817,8 @@ void PreferencesWindow::enableDisplayCursorPosition( bool x )
 void PreferencesWindow::setMaxTextures( const QString & mt )
 {
   GlobalConfiguration   *cfg = theAnatomist->config();
-  #ifdef _WIN32
-  int imt = 3;
-  #else
+
   int imt = -1;
-  #endif
   try
   {
     Object  x = cfg->getProperty( "maxTextureUnitsUsed" );
@@ -841,18 +838,14 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
     if( ok )
       imt = imt2;
   }
-  #ifndef _WIN32
-  // On Windows, due to the default limitation to 3 textures, we save any value
-  if( imt < 0 )
-  {
-    imt = -1;
-    if( cfg->hasProperty( "maxTextureUnitsUsed" ) )
-      cfg->removeProperty( "maxTextureUnitsUsed" );
-  }
-  else
-  #endif
-    cfg->setProperty( "maxTextureUnitsUsed", imt );
-  GLCaps::updateTextureUnits();
+  
+  cfg->setProperty( "maxTextureUnitsUsed", imt );
+
+  // As we are not sure to be in valid OpenGL context
+  // we only invalidate current number of textures used.
+  // Correct texture number will be processed during next 
+  // call to updateTextureUnits in a valid OpenGL context
+  GLCaps::mustRefresh() = true;
 
   QString mt2;
   if( imt < 0 )
