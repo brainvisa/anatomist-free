@@ -938,6 +938,7 @@ QStringList fileAndFormat( const QString & caption )
   for( c=formats.first(); c; c=formats.next(), ++i )
   {
 #endif
+    c = (char *)stringUpper(c).c_str();
     if( !strcmp( c, "JPEG" ) )
     {
       filter.prepend( "JPEG (*.jpg)" );
