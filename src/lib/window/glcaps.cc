@@ -397,7 +397,7 @@ void GLCapsPrivate::updateTextureUnits()
 {
 //   cout << "updateTextureUnits\n";
   glGetError();
-  GLint     ntex = 0;
+  GLint     ntex = 1;
   glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &ntex );
   int status = glGetError();
   if( status != GL_NO_ERROR )
