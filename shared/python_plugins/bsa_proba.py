@@ -47,8 +47,7 @@ bsa_url = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atla
 labelsfile = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.csv'
 use_multirange = True
 
-labels = urllib2.urlopen( labelsfile ).readlines()
-labels = [ l.strip().split(',') for l in labels[1:] ]
+labels = None
 
 
 def bsaClickHandler(eventName, params):
@@ -128,6 +127,11 @@ def bsaClickHandler(eventName, params):
       # WARNING TODO: take byte order into account !
       value = ctypes.cast( values, ctypes.POINTER( ctypes.c_float ) )[0]
       probs.append( value )
+
+  global labels
+  if labels is None:
+    labels = urllib2.urlopen( labelsfile ).readlines()
+    labels = [ l.strip().split(',') for l in labels[1:] ]
 
   text = '<html><p>Position: <b>%f, %f, %f</b></p><p><table><tr><td><b>index:</b></td><td><b>proba:</b></td><td><b>label:</b></td><td><b>common name:</b></td></tr>' % tuple( pos[:3] )
   sp = numpy.argsort( probs )
