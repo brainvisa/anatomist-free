@@ -735,8 +735,6 @@ void SelectAction::select( int x, int y, int modifier )
               || (*ip)->parents().empty() ) && w3->hasObject( *ip ) )
             {
               obj = *ip;
-              cout << "--> translated to: " << obj << ", name: " << obj->name()
-                << endl;
               break;
             }
             pl.insert( (*ip)->parents().begin(), (*ip)->parents().end() );
@@ -756,8 +754,6 @@ void SelectAction::select( int x, int y, int modifier )
   Point3df      pos;
   if( w->positionFromCursor( x, y, pos ) )
   {
-    cout << "Position : " << pos << endl;
-
     /*vector<float>	vp;
     vp.push_back( pos[0] );
     vp.push_back( pos[1] );
@@ -871,7 +867,6 @@ void Zoom3DAction::endZoom( int, int, int, int )
 
 void Zoom3DAction::endZoomKey()
 {
-  cout << "Zoom3DAction::endZoom\n";
   _beginpos = -1;
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
@@ -1345,8 +1340,6 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
 
 void FlightControl::doAlsoOnDeselect( ActionPool * )
 {
-  cout << "FlightControl::doAlsoOnDeselect\n";
-  cout << "actions: " << myActions.size() << endl;
   map<string, ActionPtr>::const_iterator	ia, ea=myActions.end();
   KeyFlightAction				*kf;
 
