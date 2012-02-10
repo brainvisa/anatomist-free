@@ -170,10 +170,11 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
     initial = object->fileName().c_str();
   else if( !object->name().empty() )
     initial = object->name().c_str();
-  /* cout << "specificSaveStatic filename: " 
-     << ( initial.isNull() ? "<Null>" : initial ) << endl; */
+  /* cout << "specificSaveStatic filename: "
+     << ( initial.isNull() ? "<Null>" : initial.utf8().data() ) << endl; */
 
-  QString filename = QFileDialog::getSaveFileName( initial, filt, 0, 0, capt );
+  QString filename = QFileDialog::getSaveFileName( 0, "Save object file",
+    initial, filt );
   if ( filename != QString::null )
     {
       if( FileUtil::fileStat( filename.utf8().data() ).find( '+' ) != string::npos 
