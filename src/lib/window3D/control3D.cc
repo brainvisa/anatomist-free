@@ -722,8 +722,6 @@ void SelectAction::select( int x, int y, int modifier )
       AObject *obj = w3->objectAtCursorPosition( x, y );
       if( obj )
       {
-        cout << "select obj: " << obj << ", name: " << obj->name() << endl;
-
         if( !w3->hasObject( obj ) )
         {
           // see if the objects belongs to a graph vertex/edge
