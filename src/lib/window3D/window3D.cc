@@ -1505,7 +1505,7 @@ bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
 
 void AWindow3D::getInfos3D(void)
 {
-  cout << "getInfos3DFromClickPoint " << d->mouseX << " " << d->mouseY << endl;
+  // cout << "getInfos3DFromClickPoint " << d->mouseX << " " << d->mouseY << endl;
   //getInfos3DFromClickPoint(d->mouseX, d->mouseY);
 }
 
