@@ -114,7 +114,7 @@ class _ProcDeleter( object ):
   def __init__( self, o ):
     self.o = o
   def __del__( self ):
-    o.kill()
+    self.o.kill()
 
 def ipythonConsoleShell():
   try:
