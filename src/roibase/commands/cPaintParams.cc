@@ -75,6 +75,7 @@ bool PaintParamsCommand::initSyntax()
   s[ "replace_mode"         ] = Semantic( "int", false );
   s[ "follow_linked_cursor" ] = Semantic( "int", false );
   s[ "millimeter_mode"      ] = Semantic( "int", false );
+  s[ "region_transparency"  ] = Semantic( "float", false );
   Registry::instance()->add( "PaintParams", &read, ss );
   return true;
 }
@@ -173,6 +174,14 @@ PaintParamsCommand::doit()
       pa->brushToMm();
     else
       pa->brushToVoxel();
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+	  float rtransparency = (float)_params->getProperty( "region_transparency" )->getScalar();
+      pa->changeRegionTransparency( rtransparency );
   }
   catch( ... )
   {
