@@ -402,6 +402,7 @@ void Tools3DWindow::setClipMode( int m )
 {
   _window->setClipMode( (AWindow3D::ClipMode) m );
   _window->Refresh();
+  ( (GLWidgetManager *) _window->view() )->copyBackBuffer2Texture();
 }
 
 
@@ -409,6 +410,7 @@ void Tools3DWindow::setClipDistance( int d )
 {
   _window->setClipDistance( (float) d );
   _window->Refresh();
+  ( (GLWidgetManager *) _window->view() )->copyBackBuffer2Texture();
 }
 
 
