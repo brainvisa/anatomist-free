@@ -733,6 +733,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     tbControls->addWidget(clearPathAction);
     tbControls->addWidget(distanceAction);
     tbControls->addWidget(saveAction);
+    brush();
   }
 }
 

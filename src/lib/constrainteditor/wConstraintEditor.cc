@@ -44,6 +44,7 @@
 #include <anatomist/constrainteditor/wConstraintEditor.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/colorstyle.h>
+#include <anatomist/commands/cSetControl.h>
 #include <aims/qtcompat/qvbuttongroup.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
@@ -55,6 +56,7 @@
 
 #include <anatomist/object/Object.h>
 #include <qlabel.h>
+#include <qapplication.h>
 
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/fusion/fusionChooser.h>
@@ -517,17 +519,22 @@ void ConstraintEditorWindow::accept()
     w3->setActiveConstraintEditor(true);
     w3->loadConstraintData( d->constraintList, d->constraintValuesType, d->texConstraint);
 
-    cout << "unselect all objet selected : \n";
-
     map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
     map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),
       last( sel.end( ) ) ;
 
     while( iter != last ){
-      cout << iter->first << endl;
       SelectFactory::factory()->unselectAll( iter->first ) ;
       ++iter ;
     }
+    /* notifyObservers + processEvents (maybe not both?) seem needed to update
+       the window state otherwise nothing can be drawn. */
+    w3->notifyObservers( this );
+    qApp->processEvents();
+    set<AWindow *> sw;
+    sw.insert( w );
+    SetControlCommand *c = new SetControlCommand( sw, "SurfpaintToolsControl" );
+    theProcessor->execute( c );
 
   }
 
