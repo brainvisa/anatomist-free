@@ -3507,6 +3507,38 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDisable( GL_BLEND);
+  // clipping planes
+  GLdouble plane[4];
+  Point3df dir = d->slicequat.apply(Point3df(0, 0, -1));
+  plane[0] = dir[0];
+  plane[1] = dir[1];
+  plane[2] = dir[2];
+  plane[3] = -dir.dot(_position) + d->clipdist;
+  switch (clipMode())
+  {
+    case Single:
+      glEnable( GL_CLIP_PLANE0);
+      glDisable( GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+      break;
+    case Double:
+      glEnable(GL_CLIP_PLANE0);
+      glEnable(GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      plane[0] *= -1;
+      plane[1] *= -1;
+      plane[2] *= -1;
+      plane[3] = dir.dot(_position) + d->clipdist;
+      glClipPlane(GL_CLIP_PLANE1, plane);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+      break;
+    default:
+      glDisable(GL_CLIP_PLANE0);
+      glDisable(GL_CLIP_PLANE1);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
+      break;
+  }
   glEndList();
   primitives.push_back(RefGLItem(renderpr));
 
