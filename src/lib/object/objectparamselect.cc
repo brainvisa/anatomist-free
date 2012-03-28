@@ -139,7 +139,7 @@ void ObjectParamSelect::selectObjects( const set<AObject *> & obj,
 {
   //cout << "selectObjects init: " << obj.size() << ", sel: " << sel.size() 
   //     << endl;
-  ObjectChooseDialog	dial( obj, sel, this, 0 );
+  ObjectChooseDialog	dial( obj, sel, this, (QWidget*)theAnatomist->getControlWindow() );
   dial.setObjectsViewMode( d->viewmode );
 
   int	res = dial.exec();
@@ -262,9 +262,11 @@ ObjectChooseDialog::Private::Private( const set<AObject *> & o,
 ObjectChooseDialog::ObjectChooseDialog( const set<AObject *> & obj, 
                                         const set<AObject *> & sel, 
                                         ObjectParamSelect* s, QWidget* parent )
-  : QDialog( parent, "selectobject", true ), d( new Private( obj, sel, s ) )
+  : QDialog( parent ), d( new Private( obj, sel, s ) )
 {
   setCaption( ObjectParamSelect::tr( "Set parameters on these objects:" ) );
+  setObjectName("selectobject");
+  setModal(true);
   QVBoxLayout	*l = new QVBoxLayout( this );
   l->setMargin( 5 );
   l->setSpacing( 5 );

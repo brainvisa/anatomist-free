@@ -63,7 +63,7 @@ namespace anatomist
 
   /**	The Anatomist class holds information about all data handled by 
 	Anatomist: the objects, the windows, and other application-wide lists.
-	Althrough the Control and Referntial Windows are one amongst the many
+	Althrough the Control and Referential Windows are one amongst the many
 	Anatomist windows, they are in fact the image of the application, so
 	they have a particular place in the Anatomist class.
   */

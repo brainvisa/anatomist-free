@@ -80,11 +80,12 @@ namespace
 
 
 QTextureWin::QTextureWin( const set<AObject *> & obj, 
-                          QWidget* parent, const char *name, Qt::WFlags f )
-  : QWidget( parent, name, f ), Observer(), d( new Private( obj ) )
+                          QWidget* parent, const char *name, Qt::WindowFlags f )
+  : QWidget( parent, f ), Observer(), d( new Private( obj ) )
 {
   setCaption( tr( "Texturing properties" ) );
-  if( parent == 0 )
+  setObjectName(name);
+  if( windowFlags() & Qt::Window )
   {
     QPixmap	anaicon( Settings::findResourceFile(
       "icons/icon.xpm" ).c_str() );

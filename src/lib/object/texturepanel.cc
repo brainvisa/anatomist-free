@@ -102,9 +102,10 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
 
 QTexturePanel::QTexturePanel( const set<AObject *> & obj, 
                               QWidget* parent, const char *name )
-  : QWidget( parent, name ), Observer(), d( new Private( obj ) )
+  : QWidget( parent ), Observer(), d( new Private( obj ) )
 {
   setCaption( name );
+  setObjectName( name );
 
   QHBoxLayout	*mainlay = new QHBoxLayout( this );
   QVBox		*vbox = new QVBox( this );

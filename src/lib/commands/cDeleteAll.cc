@@ -39,6 +39,8 @@
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <qwidget.h>
+#include <qlist.h>
+#include <qapplication.h>
 
 using namespace anatomist;
 using namespace carto;
@@ -111,6 +113,14 @@ DeleteAllCommand::doit()
       delete *ir;
   }
 
+  // close other widgets that have Anatomist control window as parent
+  QWidgetList otherWidgets = qApp->topLevelWidgets();
+  QList<QWidget *>::iterator iow, eow = otherWidgets.end();
+  for ( iow=otherWidgets.begin(); iow != eow; ++iow ){
+    if ((*iow)->parentWidget() == (QWidget*)theAnatomist->getControlWindow())
+      (*iow)->close();
+  }
+  
   theAnatomist->UpdateInterface();
   theAnatomist->Refresh();
 }
