@@ -64,6 +64,9 @@ namespace anatomist
         RenderMode,
         /// ghost mode (invisible to clicks)
         Ghost,
+        /** specify which is the front face
+        (normally CW in our indirect referentials) */
+        FrontFace,
       };
 
   enum RenderingMode

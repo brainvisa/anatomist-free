@@ -40,7 +40,7 @@ using namespace std;
 
 namespace
 {
-  const size_t NrenderProps = Material::Ghost + 1;
+  const size_t NrenderProps = Material::FrontFace + 1;
 }
 
 struct Material::Private
@@ -310,9 +310,11 @@ void Material::setGLMaterial() const
     | ( d->renderProps[ RenderSmoothShading ] != -1 ) * GL_LIGHTING_BIT
     | ( d->renderProps[ RenderFiltering ] != -1 ) * GL_LINE_BIT
     | ( d->renderProps[ RenderZBuffer ] != -1 ) * GL_DEPTH_BUFFER_BIT
-    | ( d->renderProps[ RenderFaceCulling ] != -1 ) * GL_POLYGON_BIT
-    | ( d->renderProps[ RenderMode ] != -1 ) 
+    | ( d->renderProps[ RenderFaceCulling ] != -1
+        || d->renderProps[ FrontFace ] != -1 ) * GL_POLYGON_BIT
+    | ( d->renderProps[ RenderMode ] != -1 )
     * ( GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+
   //if( topush != 0 )
   glPushAttrib( topush );
 
@@ -394,6 +396,17 @@ void Material::setGLMaterial() const
     default:
       break;
     }
+  switch( d->renderProps[ FrontFace ] )
+  {
+    case 0:
+      glFrontFace( GL_CW );
+      break;
+    case 1:
+      glFrontFace( GL_CCW );
+      break;
+    default:
+      break;
+  }
   switch( d->renderProps[ RenderMode ] )
     {
     case Normal:
@@ -515,6 +528,7 @@ bool Material::operator != ( const Material & mat ) const
           || d->renderProps[ RenderMode ] 
           != mat.d->renderProps[ RenderMode ]
           || d->renderProps[ Ghost ] != mat.d->renderProps[ Ghost ]
+          || d->renderProps[ FrontFace ] != mat.d->renderProps[ FrontFace ]
           || d->unlitColor[0] != mat.d->unlitColor[0]
           || d->unlitColor[1] != mat.d->unlitColor[1]
           || d->unlitColor[2] != mat.d->unlitColor[2]
@@ -765,6 +779,26 @@ void Material::set( const GenericObject & obj )
   }
   try
   {
+    vec = obj.getProperty( "front_face" );
+    try
+    {
+      string        m = vec->getString();
+      if( m ==  "cw" || m =="clockwise" )
+        d->renderProps[ FrontFace ] = 0;
+      else if( m ==  "ccw" || m == "counterclockwise" )
+        d->renderProps[ FrontFace ] = 1;
+      else // default
+        d->renderProps[ RenderMode ] = -1;
+    }
+    catch( ... )
+    {
+    }
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
     vec = obj.getProperty( "line_width" );
     float w = vec->getScalar();
     if( w > 0 )
@@ -837,6 +871,13 @@ Object Material::genericDescription() const
     }
   if( d->renderProps[ Ghost ] >= 0 )
     o->setProperty( "ghost", d->renderProps[ Ghost ] );
+  if( d->renderProps[ FrontFace ] >= 0 )
+  {
+    if( d->renderProps[ FrontFace ] == 0 )
+      o->setProperty( "front_face", "clockwise" );
+    else
+      o->setProperty( "front_face", "counterclockwise" );
+  }
   if( d->lineWidth > 0 )
     o->setProperty( "line_width", d->lineWidth );
 

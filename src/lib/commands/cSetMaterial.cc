@@ -56,11 +56,13 @@ SetMaterialCommand::SetMaterialCommand( const set<AObject *> & obj,
                                         int lighting, int smoothshading, 
                                         int polyfiltering, int zbuffer, 
                                         int faceculling, 
-                                        const std::string & polymode )
+                                        const std::string & polymode,
+                                        int frontface )
   : RegularCommand(), _obj( obj ), _shininess( shininess ), 
     _refresh( refresh ), _lighting( lighting ), 
     _smoothshading( smoothshading ), _polygonfiltering( polyfiltering ), 
-    _zbuffer( zbuffer), _faceculling( faceculling ), _polygonmode( polymode )
+    _zbuffer( zbuffer), _faceculling( faceculling ), _polygonmode( polymode ),
+    _frontface( frontface )
 {
   if( ambient )
     {
@@ -144,6 +146,7 @@ bool SetMaterialCommand::initSyntax()
   s[ "depth_buffer"      ] = Semantic( "int" );
   s[ "face_culling"      ] = Semantic( "int" );
   s[ "polygon_mode"      ] = Semantic( "string" );
+  s[ "front_face"        ] = Semantic( "string" );
 
   Registry::instance()->add( "SetMaterial", &read, ss );
   return( true );
@@ -237,6 +240,11 @@ void SetMaterialCommand::doit()
               mat.setRenderProperty( Material::RenderMode, -1 );
             changed = true;
           }
+        if( _frontface != -1 )
+        {
+          mat.setRenderProperty( Material::FrontFace, _frontface );
+          changed = true;
+        }
 
         if( changed )
           o->SetMaterial( mat );
@@ -258,8 +266,8 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   unsigned		i, n;
   void			*ptr;
   int			refresh = true, lighting = -2, smooth = -2, 
-    filter = -2, zbuffer = -2, facecull = -2;
-  string		polymode;
+    filter = -2, zbuffer = -2, facecull = -2, frontface = -1;
+  string		polymode, fface;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -292,10 +300,21 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "depth_buffer", zbuffer );
   com.getProperty( "face_culling", facecull );
   com.getProperty( "polygon_mode", polymode );
+  com.getProperty( "front_face", fface );
+  if( !fface.empty() )
+  {
+    if( fface == "cw" || fface == "clockwise" )
+      frontface = 0;
+    else if( fface == "ccw" || fface == "counterclockwise" )
+      frontface = 1;
+    else if( fface != "neutral" )
+      cout << "warning: front_face value " << fface << " is not understood."
+        << endl;
+  }
 
   return( new SetMaterialCommand( objL, amb, dif, emi, spe, shininess, 
-				  (bool) refresh, lighting, smooth, filter, 
-                                  zbuffer, facecull, polymode ) );
+                                  (bool) refresh, lighting, smooth, filter, 
+                                  zbuffer, facecull, polymode, frontface ) );
 }
 
 
@@ -338,5 +357,12 @@ void SetMaterialCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "face_culling", _faceculling );
   if( !_polygonmode.empty() )
     t->setProperty( "polygon_mode", _polygonmode );
+  if( _frontface >= 0 )
+  {
+    if( _frontface == 0 )
+      t->setProperty( "front_face", (int) 0 );
+    else
+      t->setProperty( "front_face", (int) 1 );
+  }
   com.insert( t );
 }
