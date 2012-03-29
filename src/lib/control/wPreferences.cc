@@ -141,10 +141,11 @@ namespace
 
 
 PreferencesWindow::PreferencesWindow()
-  : QWidget( theAnatomist->getControlWindow(), Qt::Window | Qt::WDestructiveClose ), 
+  : QWidget( theAnatomist->getControlWindow(), Qt::Window ), 
     _pdat( new Private )
 {
   setCaption( tr( "Anatomist global settings" ) );
+  setAttribute(Qt::WA_DeleteOnClose);
   setObjectName("prefWin");
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 10 );

@@ -56,9 +56,11 @@ struct QAWindowBlock::Private
 
 QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
   int colsrows, bool inrows )
-  : QMainWindow( parent, name, f ), d( new QAWindowBlock::Private )
+  : QMainWindow( parent, f ), d( new QAWindowBlock::Private )
 {
-  if( parent == 0 )
+  setObjectName(name);
+  setAttribute(Qt::WA_DeleteOnClose);
+  if( windowFlags() & Qt::Window )
     {
       QPixmap	anaicon( Settings::findResourceFile(
                          "icons/icon.xpm" ).c_str() );

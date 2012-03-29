@@ -46,7 +46,7 @@ public:
       number of rows (if inrows is false).
    */
   QAWindowBlock( QWidget* parent = 0, const char* name = 0, 
-                 Qt::WFlags f = Qt::WType_TopLevel | Qt::WDestructiveClose,
+                 Qt::WFlags f = Qt::Window,
                  int colsrows = 2, bool inrows = false );
   virtual ~QAWindowBlock();
   void addWindowToBlock(QWidget* item);

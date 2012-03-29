@@ -43,6 +43,7 @@
 #include <qapplication.h>
 #include <aims/qtcompat/qwidgetlist.h>
 #include <qwidget.h>
+#include <anatomist/application/Anatomist.h>
 
 using namespace anatomist;
 using namespace carto;
@@ -112,8 +113,8 @@ void WindowBlockCommand::doit()
       inrows = false;
       colsrows = _rows;
     }
-    block = new QAWindowBlock( 0, 0,
-      Qt::WType_TopLevel | Qt::WDestructiveClose, colsrows, inrows );
+    block = new QAWindowBlock( (QWidget *)theAnatomist->getControlWindow(), 0,
+      Qt::Window, colsrows, inrows );
     block->show();
     _block = block;
     if( _id > 0 && context() && context()->unserial )

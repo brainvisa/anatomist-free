@@ -77,17 +77,8 @@ DeleteAllCommand::doit()
   for( iw=wins.begin(); iw!=ew; ++iw )
   {
     QWidget *qw = dynamic_cast<QWidget *>( *iw );
-    if( qw && qw->parent() != 0 )
-    {
-      QWidget *qw2 = dynamic_cast<QWidget *>( qw->parent() );
-      if( qw2 )
-        wids.insert( qw2 );
-    }
     (*iw)->tryDelete();
   }
-  set<QWidget *>::iterator iqw, eqw=wids.end();
-  for( iqw=wids.begin(); iqw!=eqw; ++iqw )
-    delete *iqw;
 
   set<AObject *> objs;
   set<AObject *>::iterator io, eo=objs.end();
@@ -117,8 +108,9 @@ DeleteAllCommand::doit()
   QWidgetList otherWidgets = qApp->topLevelWidgets();
   QList<QWidget *>::iterator iow, eow = otherWidgets.end();
   for ( iow=otherWidgets.begin(); iow != eow; ++iow ){
-    if ((*iow)->parentWidget() == (QWidget*)theAnatomist->getControlWindow())
+    if ((*iow)->parentWidget() == (QWidget*)theAnatomist->getControlWindow()){
       (*iow)->close();
+    }
   }
   
   theAnatomist->UpdateInterface();
