@@ -85,6 +85,7 @@ QTextureWin::QTextureWin( const set<AObject *> & obj,
 {
   setCaption( tr( "Texturing properties" ) );
   setObjectName(name);
+  setAttribute( Qt::WA_DeleteOnClose );
   if( windowFlags() & Qt::Window )
   {
     QPixmap	anaicon( Settings::findResourceFile(

@@ -138,7 +138,7 @@ void ObjectActions::fusion3DControl( const set<AObject *> & obj )
 void ObjectActions::textureControl( const set<AObject *> & obj )
 {
   QTextureWin	*tp
-    = new QTextureWin( obj, theAnatomist->getControlWindow(), theAnatomist->catObjectNames( obj ).c_str(), Qt::Window | Qt::WDestructiveClose );
+    = new QTextureWin( obj, theAnatomist->getQWidgetAncestor(), theAnatomist->catObjectNames( obj ).c_str(), Qt::Window );
   tp->show();
 }
 

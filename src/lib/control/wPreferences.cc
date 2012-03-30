@@ -141,7 +141,7 @@ namespace
 
 
 PreferencesWindow::PreferencesWindow()
-  : QWidget( theAnatomist->getControlWindow(), Qt::Window ), 
+  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), 
     _pdat( new Private )
 {
   setCaption( tr( "Anatomist global settings" ) );

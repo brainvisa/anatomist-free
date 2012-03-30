@@ -37,6 +37,7 @@
 
 #include <anatomist/config/anatomist_config.h>
 #include <aims/getopt/getopt2.h>
+#include <qwidget.h>
 #include <set>
 #include <map>
 
@@ -97,6 +98,8 @@ namespace anatomist
 
     virtual void createControlWindow();
     ControlWindow* getControlWindow() const;
+    /// Gets an empty QWidget that is created in Anatomist application to become a default parent for all Anatomist windows
+    QWidget* getQWidgetAncestor() const;
 
     /// Create the referential window and update it
     virtual void createReferentialWindow();

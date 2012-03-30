@@ -231,6 +231,9 @@ struct Anatomist::Anatomist_privateData
   Point3df		lastpos;
   mutable Referential	*lastref;
   bool                  destroying;
+  // This QWidget is the parent of all windows in Anatomist. 
+  // This enable to close all windows of Anatomist even when Anatomist is embedded in another Qt application, like Axon for example.
+  QWidget* qWidgetAncestor;
 };
 
 
@@ -241,7 +244,7 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
   : historyW( new CommandWriter ), paletteList( 0 ),
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 0, 0, 0 ),
-    lastref( 0 ), destroying( false )
+    lastref( 0 ), destroying( false ), qWidgetAncestor( new QWidget)
 {
 }
 
@@ -257,6 +260,7 @@ Anatomist::Anatomist_privateData::~Anatomist_privateData()
     }
   delete config;
   delete paletteList;
+  delete qWidgetAncestor;
 }
 
 
@@ -1110,6 +1114,9 @@ ControlWindow* Anatomist::getControlWindow() const
   return ControlWindow::theControlWindow();
 }
 
+QWidget* Anatomist::getQWidgetAncestor() const{
+  return _privData->qWidgetAncestor;
+}
 
 void Anatomist::createReferentialWindow()
 {

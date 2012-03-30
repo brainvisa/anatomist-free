@@ -139,7 +139,7 @@ void ObjectParamSelect::selectObjects( const set<AObject *> & obj,
 {
   //cout << "selectObjects init: " << obj.size() << ", sel: " << sel.size() 
   //     << endl;
-  ObjectChooseDialog	dial( obj, sel, this, (QWidget*)theAnatomist->getControlWindow() );
+  ObjectChooseDialog	dial( obj, sel, this, theAnatomist->getQWidgetAncestor() );
   dial.setObjectsViewMode( d->viewmode );
 
   int	res = dial.exec();

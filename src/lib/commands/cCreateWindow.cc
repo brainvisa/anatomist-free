@@ -117,7 +117,7 @@ void CreateWindowCommand::doit()
         inrows = false;
         colsrows = _cols;
       }
-      QAWindowBlock	*dk = new QAWindowBlock( (QWidget *)theAnatomist->getControlWindow(), NULL,
+      QAWindowBlock	*dk = new QAWindowBlock( theAnatomist->getQWidgetAncestor(), NULL,
         Qt::Window, colsrows, inrows );
       dk->show();
       _block = dk;

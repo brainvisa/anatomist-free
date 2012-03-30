@@ -108,7 +108,7 @@ DeleteAllCommand::doit()
   QWidgetList otherWidgets = qApp->topLevelWidgets();
   QList<QWidget *>::iterator iow, eow = otherWidgets.end();
   for ( iow=otherWidgets.begin(); iow != eow; ++iow ){
-    if ((*iow)->parentWidget() == (QWidget*)theAnatomist->getControlWindow()){
+    if ((*iow)->parentWidget() == theAnatomist->getQWidgetAncestor()){
       (*iow)->close();
     }
   }

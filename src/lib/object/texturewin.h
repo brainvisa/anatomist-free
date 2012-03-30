@@ -55,7 +55,7 @@ class QTextureWin : public QWidget, public anatomist::Observer
 public:
   QTextureWin( const std::set<anatomist::AObject *> &, 
                QWidget* parent, const char *name = 0, 
-               Qt::WindowFlags f = Qt::WDestructiveClose );
+               Qt::WindowFlags f = 0 );
   virtual ~QTextureWin();
 
   const std::set<anatomist::AObject *> & objects() const;

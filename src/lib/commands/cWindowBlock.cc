@@ -113,7 +113,7 @@ void WindowBlockCommand::doit()
       inrows = false;
       colsrows = _rows;
     }
-    block = new QAWindowBlock( (QWidget *)theAnatomist->getControlWindow(), 0,
+    block = new QAWindowBlock( theAnatomist->getQWidgetAncestor(), 0,
       Qt::Window, colsrows, inrows );
     block->show();
     _block = block;
