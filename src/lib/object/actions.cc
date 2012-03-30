@@ -104,7 +104,7 @@ void ObjectActions::colorMaterial( const set<AObject *> & obj )
   for( io=obj.begin(); io!=fo; ++io )
     ol.insert( *io );
 
-  MaterialWindow* mw = new MaterialWindow( ol, 0, "Material Window" );
+  MaterialWindow* mw = new MaterialWindow( ol, theAnatomist->getQWidgetAncestor(), "Material Window", Qt::Window );
   mw->show();
 }
 

@@ -47,9 +47,11 @@ QAColorDialog::QAColorDialog( QColor init, QWidget * parent,
 			      const char * name, bool modal, bool allowAlpha, 
 			      bool allowNeutralAlpha, int initalpha, 
 			      bool neutral )
-  : QDialog( parent, name, modal )
+  : QDialog( parent )
 {
   setCaption( name );
+  setObjectName(name);
+  setModal(modal);
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 5 );
 
   _widget = new QAColorWidget( init, this, 0, 0, allowAlpha, 
@@ -84,10 +86,11 @@ QAColorDialog::~QAColorDialog()
 QColor QAColorDialog::getColor( QColor init, QWidget* parent, 
 				const char* name, int* alpha, bool* neutralph )
 {
-  if( !_dialog )
+  if( !_dialog ){
     _dialog = new QAColorDialog( init, parent, name, true, alpha, neutralph, 
 				 alpha ? *alpha : 255, 
 				 neutralph ? *neutralph : false );
+  }
   else
     {
       _dialog->setCaption( name );

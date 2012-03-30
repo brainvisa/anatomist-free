@@ -37,8 +37,10 @@
 
 
 QAFileDialog::QAFileDialog( QWidget * parent, const char * name, bool modal )
-  : QFileDialog( parent, name, modal )
+  : QFileDialog( parent )
 {
+  setObjectName(name);
+  setModal(modal);
   /*QPushButton	*filtB = new QPushButton( "Update", this );
   addWidgets( 0, 0, filtB );
   connect( this, SIGNAL( clicked() ), this, SLOT( updateDialog() ) );*/

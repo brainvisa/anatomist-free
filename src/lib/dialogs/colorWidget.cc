@@ -65,10 +65,10 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
 			      const char * name, Qt::WFlags flags, 
 			      bool allowAlpha, bool allowNeutralAlpha, 
 			      int initalpha, bool neutral )
-  : QWidget( parent, name, flags ), _pdat( new QAColorWidget_PrivateData )
+  : QWidget( parent, flags ), _pdat( new QAColorWidget_PrivateData )
 {
   setCaption( name );
-
+  setObjectName(name);
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "lay1" );
   _pdat->color = new QLabel( this, "color" );
   QPixmap		pix( 80, 40 );

@@ -102,10 +102,12 @@ void QANumSlider::transformChange( int value )
 
 
 MaterialWindow::MaterialWindow( const set<AObject *> &objL, QWidget* parent, 
-				const char *name ) 
-  : QWidget( parent, name, Qt::WDestructiveClose ), _parents( objL ), 
+				const char *name, Qt::WindowFlags f ) 
+  : QWidget( parent, f ), _parents( objL ), 
     _privdata( new Private( objL ) )
 {
+  setObjectName(name);
+  setAttribute(Qt::WA_DeleteOnClose);
   if( _parents.size() > 0 )
     _material = (*_parents.begin())->GetMaterial();
 
@@ -114,7 +116,7 @@ MaterialWindow::MaterialWindow( const set<AObject *> &objL, QWidget* parent,
     (*it)->addObserver( (Observer*)this );
 
   setCaption( name );
-  if( parent == 0 )
+  if( windowFlags() & Qt::Window )
     {
       QPixmap anaicon( Settings::findResourceFile( "icons/icon.xpm"
         ).c_str() );

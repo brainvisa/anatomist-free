@@ -79,8 +79,10 @@ FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
 			      QWidget* parent, const char *name, 
 			      bool modal, Qt::WFlags f, 
                               const vector<AObject *>* objects )
-  : QDialog( parent, name, modal, f ), d( new Private( objects ) )
+  : QDialog( parent, f ), d( new Private( objects ) )
 {
+  setObjectName(name);
+  setModal(modal);
   multimap<int, FusionMethod *>::const_reverse_iterator
     ims, ems = methods.rend();
   d->methods.reserve( methods.size() );

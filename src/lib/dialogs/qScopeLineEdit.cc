@@ -36,15 +36,17 @@
 
 
 QScopeLineEdit::QScopeLineEdit( QWidget * parent, const char * name )
-  : QLineEdit( parent, name )
+  : QLineEdit( parent )
 {
+  setObjectName(name);
 }
 
 
 QScopeLineEdit::QScopeLineEdit( const QString & text, QWidget * parent, 
 				const char * name )
-  : QLineEdit( text, parent, name )
+  : QLineEdit( text, parent )
 {
+    setObjectName(name);
 }
 
 

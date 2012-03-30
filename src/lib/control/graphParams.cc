@@ -454,7 +454,7 @@ void QGraphParam::selColorClicked()
     = QAColorDialog::getColor
     ( QColor( (int) ( SelectFactory::selectColor().r * 255 ), 
 	      (int) ( SelectFactory::selectColor().g * 255 ), 
-	      (int) ( SelectFactory::selectColor().b * 255 ) ), 0, 
+	      (int) ( SelectFactory::selectColor().b * 255 ) ), theAnatomist->getQWidgetAncestor(), 
       tr( "Selection color" ), &alpha, &nalpha );
   if( col.isValid() )
     {

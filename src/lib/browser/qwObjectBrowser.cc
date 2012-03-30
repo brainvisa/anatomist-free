@@ -2495,7 +2495,7 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
   }
   QColor	col = QAColorDialog::getColor( QColor( attval[0], attval[1],
                                                        attval[2] ),
-                                               0, name, &alpha, &neutralpha );
+                                               theAnatomist->getQWidgetAncestor(), name, &alpha, &neutralpha );
   if( col.isValid() )
   {
     attval[0] = col.red();

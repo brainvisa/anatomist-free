@@ -165,7 +165,7 @@ namespace
 
 
 QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
-  : QWidget( 0 ), APaletteWin( obj ), d( new Private( obj ) )
+  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), APaletteWin( obj ), d( new Private( obj ) )
 {
   setCaption( tr( "Object palette composition" ) );
   QPixmap	anaicon( Settings::findResourceFile(

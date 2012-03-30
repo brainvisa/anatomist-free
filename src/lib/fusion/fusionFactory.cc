@@ -36,6 +36,8 @@
 #include <anatomist/fusion/defFusionMethods.h>
 #include <anatomist/surface/fusiontexsurf.h>
 #include <anatomist/fusion/fusionChooser.h>
+#include <anatomist/application/Anatomist.h>
+
 
 
 using namespace anatomist;
@@ -170,7 +172,7 @@ FusionMethod* FusionFactory::chooseMethod( vector<AObject *> & objects,
   }
 
   // several fusions avalable
-  FusionChooser	fc( sm, 0, 0, true, 0, obj );
+  FusionChooser	fc( sm, theAnatomist->getQWidgetAncestor(), 0, true, Qt::Window, obj );
   if( !fc.exec() )
     return( 0 );	// cancelled
 

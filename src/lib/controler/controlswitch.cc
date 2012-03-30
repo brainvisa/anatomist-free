@@ -64,12 +64,14 @@ struct ToolBox::Private
 
 
 ToolBox::ToolBox( const string& activeControlDescription = "" ):
-  QWidget( 0, "ToolBox", Qt::WDestructiveClose ), myActionTab(0), 
+  QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), myActionTab(0), 
   myControlDescriptionActivation(0), 
   myControlDescription(activeControlDescription),
   myControlDescriptionWidget(0), myDescriptionActivated(false), 
   d( new Private )
 {
+  setObjectName("ToolBox");
+  setAttribute(Qt::WA_DeleteOnClose);
   //cout << "ToolBox::ToolBox, this=" << this << endl;
   myLayout = new QVBoxLayout( this, 10, 10, "Layout") ;
   myLayout->setEnabled(true) ;
