@@ -88,15 +88,15 @@ DeleteAllCommand::doit()
     delete *iqw;
 
   set<AObject *> objs;
-  set<AObject *>::iterator io, eo=objs.end();
+  set<AObject *>::iterator io, eo;
   size_t cnt;
   do
   {
     cnt = 0;
     objs = theAnatomist->getObjects();
-    for( io=objs.begin(); io!=eo; ++io )
+    for( io=objs.begin(), eo=objs.end(); io!=eo; ++io )
     {
-      if( (*io)->CanBeDestroyed() )
+      if( theAnatomist->hasObject( *io ) && (*io)->CanBeDestroyed() )
         cnt += theAnatomist->destroyObject( *io );
     }
   }
