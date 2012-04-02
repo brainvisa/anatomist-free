@@ -48,9 +48,11 @@ string		QSelAttrib::_lastValue;
 
 
 QSelAttrib::QSelAttrib( QWidget* parent, const char* name ) 
-  : QDialog( parent, name, true )
+  : QDialog( parent )
 {
   setCaption( tr( "AnaQt attribute criterion" ) );
+  setObjectName(name);
+  setModal(true);
 
   QGridLayout	*lay = new QGridLayout( this, 3, 2, 5, 5, "QSAttLay" );
   QLabel	*lab1 = new QLabel( tr( "Attribute :" ), this, "attr" );

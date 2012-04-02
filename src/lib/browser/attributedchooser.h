@@ -38,6 +38,7 @@
 
 #include <cartobase/object/syntax.h>
 #include <cartobase/object/attributed.h>
+#include <anatomist/application/Anatomist.h>
 #include <qdialog.h>
 
 class QComboBox;
@@ -50,7 +51,7 @@ class AttributedChooser : public QDialog
 public:
   AttributedChooser( const carto::GenericObject & ao, 
                      const carto::SyntaxSet & ss, bool newonly = true, 
-                     QWidget* parent = 0, const char* name = 0, 
+                     QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, 
                      Qt::WFlags f = 0 );
   virtual ~AttributedChooser();
 

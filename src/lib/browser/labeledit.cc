@@ -67,9 +67,12 @@ QLabelEdit::QLabelEdit( const string & text, int x, int y, unsigned w,
 			unsigned h, QObjectBrowser* br, GenericObject* ao, 
 			const string & att, Q3ListViewItem* item, 
 			QWidget* parent, const char* name, WFlags f )
-  : QDialog( parent, name, false, f | WDestructiveClose ), _browser( br ), 
+  : QDialog( parent, f ), _browser( br ), 
     _att( att ), d( new Private )
 {
+  setObjectName(name);
+  setModal(false);
+  setAttribute(Qt::WA_DeleteOnClose);
   d->aobj.insert( ao );
   d->items.insert( item );
   drawContents( text, x, y, w, h, name );
@@ -82,9 +85,12 @@ QLabelEdit::QLabelEdit( const string & text, int x, int y, unsigned w,
 			const string & att,
                         const set<Q3ListViewItem*> & items, 
 			QWidget* parent, const char* name, WFlags f )
-  : QDialog( parent, name, false, f | WDestructiveClose ), _browser( br ), 
+  : QDialog( parent, f ), _browser( br ), 
     _att( att ), d( new Private( ao, items ) )
 {
+  setObjectName(name);
+  setModal(false);
+  setAttribute(Qt::WA_DeleteOnClose);
   drawContents( text, x, y, w, h, name );
 }
 

@@ -283,10 +283,11 @@ namespace anatomist
 
 ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name, 
 				      Qt::WFlags f )
-  : QLabel( parent, name, f ), 
+  : QLabel( parent, f ), 
   pdat( new ReferentialWindow_PrivateData )
 {
   setCaption( tr( "Referentials" ) );
+  setObjectName(name);
   resize( 256, 256 );
   setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );

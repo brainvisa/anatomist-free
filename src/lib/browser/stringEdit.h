@@ -35,9 +35,11 @@
 #ifndef ANAQT_BROWSER_STRINGEDIT_H
 #define ANAQT_BROWSER_STRINGEDIT_H
 
+#include <anatomist/application/Anatomist.h>
 #include <qdialog.h>
 #include <qlineedit.h>
 #include <string>
+
 
 
 ///	A "cancelable" line edit: hitting 'esc' sends the "cancel()" signal
@@ -47,10 +49,10 @@ class QCancelLineEdit : public QLineEdit
 
 public:
   QCancelLineEdit( QWidget* parent = 0, const char* name = 0 ) 
-    : QLineEdit( parent, name ) {}
+    : QLineEdit( parent ) { setObjectName(name); }
   QCancelLineEdit( const QString & txt, QWidget* parent = 0, 
 		   const char* name = 0 ) 
-    : QLineEdit( txt, parent, name ) {}
+    : QLineEdit( txt, parent ) { setObjectName(name); }
 
 signals:
   void cancel();
@@ -68,7 +70,7 @@ class QStringEdit : public QDialog
 public:
   ///
   QStringEdit( const std::string & text, int x, int y, int w, int h, 
-	       QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
+	       QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   ///
   ~QStringEdit();
 

@@ -36,6 +36,7 @@
 #define ANAQT_BROWSER_LABELEDIT_H
 
 #include <cartobase/object/attributed.h>
+#include <anatomist/application/Anatomist.h>
 #include <aims/qtcompat/qlistview.h>
 #include <qdialog.h>
 
@@ -52,11 +53,11 @@ public:
   QLabelEdit( const std::string & text, int x, int y, unsigned w, unsigned h, 
 	      QObjectBrowser* br, carto::GenericObject* ao, 
 	      const std::string & att, Q3ListViewItem* item, 
-	      QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
+	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   QLabelEdit( const std::string & text, int x, int y, unsigned w, unsigned h, 
 	      QObjectBrowser* br, const std::set<carto::GenericObject*> & ao,
 	      const std::string & att, const std::set<Q3ListViewItem*> & item, 
-	      QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
+	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   ~QLabelEdit();
 
   std::string text() const;

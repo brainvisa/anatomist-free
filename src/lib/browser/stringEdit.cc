@@ -60,10 +60,13 @@ void QCancelLineEdit:: keyPressEvent( QKeyEvent* kev )
 
 QStringEdit::QStringEdit( const string & text, int x, int y, int w, int h, 
 			  QWidget* parent, const char* name, WFlags f )
-  : QDialog( parent, name, true, f )
+  : QDialog( parent, f )
 {
-  if( name )
+  if( name ){
     setCaption( name );
+    setObjectName( name );
+  }
+  setModal(true);
   setFocusPolicy( StrongFocus );
   QVBoxLayout	*lay = new QVBoxLayout( this, 0, 0, "lay" );
   _le = new QCancelLineEdit( this, "lineedit" );

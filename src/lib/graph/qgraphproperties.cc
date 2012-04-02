@@ -87,10 +87,12 @@ struct QGraphProperties::Private
 
 QGraphProperties::QGraphProperties( const set<AObject *> & obj,
                                     QWidget* parent )
-  : QWidget( parent, "graphProperties", Qt::WDestructiveClose ),
+  : QWidget( parent ),
     d( new Private( obj ) )
 {
   setCaption( "Graph display properties" );
+  setObjectName("graphProperties");
+  setAttribute(Qt::WA_DeleteOnClose);
   QPixmap	anaicon( Settings::findResourceFile(
                          "icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
@@ -480,7 +482,8 @@ void QGraphProperties::runCommand()
 
 void QGraphProperties::openProperties( const set<AObject *> & obj )
 {
-  QGraphProperties	*x = new QGraphProperties( obj );
+  QGraphProperties	*x = new QGraphProperties( obj, theAnatomist->getQWidgetAncestor() );
+  x->setWindowFlags(Qt::Window);
   x->show();
 }
 

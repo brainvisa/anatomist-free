@@ -1316,7 +1316,7 @@ void QObjectBrowser::addAttribute()
   else
     snt = ao->type();
 
-  AttributedChooser ach( *ao, sset, true, 0, 
+  AttributedChooser ach( *ao, sset, true, theAnatomist->getQWidgetAncestor(), 
                          tr( "New attribute in " ) + snt.c_str(), 0 );
   if( ach.exec() )
     {
@@ -1663,8 +1663,8 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
   //tbr->setMode( EDIT );
   return false;
 #else
-  QStringEdit	ed( attval, xy.x() + dx, xy.y(), w, pos.height(), 0,
-                    att.c_str(), Qt::WStyle_StaysOnTop );
+  QStringEdit	ed( attval, xy.x() + dx, xy.y(), w, pos.height(), theAnatomist->getQWidgetAncestor(),
+                    att.c_str(), Qt::WindowStaysOnTopHint );
   if( ed.exec() )
   {
     set<GenericObject *>::const_iterator  io, eo = objs.end();
@@ -1718,8 +1718,8 @@ bool QObjectBrowser::intEditor( const std::set<GenericObject*> & objs,
   if( w < 30 )
     w = 30;
 
-  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), 0, att.c_str(), 
-                    Qt::WStyle_StaysOnTop /*WStyle_Customize | WStyle_NoBorder
+  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), theAnatomist->getQWidgetAncestor(), att.c_str(), 
+                    Qt::WindowStaysOnTopHint /*WStyle_Customize | WStyle_NoBorder
                         | WStyle_Tool*/ );
   ed.lineEdit()->setValidator( new QIntValidator( ed.lineEdit() ) );
   if( ed.exec() )
@@ -1775,8 +1775,8 @@ bool QObjectBrowser::floatEditor( const std::set<GenericObject*> & objs,
   if( w < 30 )
     w = 30;
 
-  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), 0, att.c_str(), 
-                    Qt::WStyle_StaysOnTop /*WStyle_Customize | WStyle_NoBorder
+  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), theAnatomist->getQWidgetAncestor(), att.c_str(), 
+                    Qt::WindowStaysOnTopHint /*WStyle_Customize | WStyle_NoBorder
                         | WStyle_Tool*/ );
   ed.lineEdit()->setValidator( new QDoubleValidator( -FLT_MAX, FLT_MAX, 30, 
 						     ed.lineEdit() ) );
@@ -1834,8 +1834,8 @@ bool QObjectBrowser::doubleEditor( const std::set<GenericObject*> & objs,
   if( w < 30 )
     w = 30;
 
-  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), 0, att.c_str(), 
-                    Qt::WStyle_StaysOnTop /*WStyle_Customize | WStyle_NoBorder
+  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), theAnatomist->getQWidgetAncestor(), att.c_str(), 
+                    Qt::WindowStaysOnTopHint /*WStyle_Customize | WStyle_NoBorder
                         | WStyle_Tool*/ );
   ed.lineEdit()->setValidator( new QDoubleValidator( -HUGE_VAL, HUGE_VAL, 30, 
 						     ed.lineEdit() ) );
@@ -2068,8 +2068,8 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
     w = 30;
 
   tbr->d->editor = new QLabelEdit( attval, xy.x() + dx, xy.y(), w, 
-                                   pos.height(), tbr, objs, att, items, 0,
-                                   att.c_str(), Qt::WStyle_StaysOnTop );
+                                   pos.height(), tbr, objs, att, items, theAnatomist->getQWidgetAncestor(),
+                                   att.c_str(), Qt::WindowStaysOnTopHint );
   tbr->d->editor->show();
 
   return false;

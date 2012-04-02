@@ -49,10 +49,12 @@ AttributedChooser::AttributedChooser( const GenericObject & ao,
                                       const SyntaxSet & ss, bool newonly, 
                                       QWidget* parent, const char* name, 
                                       Qt::WFlags f )
-  : QDialog( parent, name, true, f ), _newonly( newonly ), _ao( &ao ), 
+  : QDialog( parent, f ), _newonly( newonly ), _ao( &ao ), 
     _syntax( &ss )
 {
   setCaption( name );
+  setObjectName(name);
+  setModal(true);
   QGridLayout	*lay1 = new QGridLayout( this, 3, 2, 10, -1, "lay1" );
   _nameBox = new QComboBox( true, this, "name" );
   _typeBox = new QComboBox( true, this, "type" );

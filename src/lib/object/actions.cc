@@ -225,8 +225,8 @@ bool ObjectActions::askName( string & newname, const string & type,
   message += string( " name" ) ;
   QPoint	pos = QCursor::pos();
   QStringEdit	*nameSetter 
-    = new QStringEdit( originalName.c_str(), pos.x(), pos.y(), -1, -1, 0, 
-		       message.c_str(), Qt::WType_Modal );
+    = new QStringEdit( originalName.c_str(), pos.x(), pos.y(), -1, -1, theAnatomist->getQWidgetAncestor(), 
+		       message.c_str() );
 
   if( nameSetter->exec() )
     {
