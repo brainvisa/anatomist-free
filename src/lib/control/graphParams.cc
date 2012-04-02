@@ -38,7 +38,6 @@
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/graph/Graph.h>
 #include <anatomist/hierarchy/hierarchy.h>
-#include <anatomist/application/Anatomist.h>
 #include <graph/tree/tree.h>
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/dialogs/colorDialog.h>
@@ -269,11 +268,7 @@ QGraphParam* QGraphParam::theGP()
 
 QGraphParam::QGraphParam( QWidget* parent, const char* name )
   :
-#if QT_VERSION >= 0x040000
-    QWidget( parent, Qt::WType_TopLevel | Qt::WDestructiveClose ),
-#else
-    QWidget( parent, name, Qt::WType_TopLevel | Qt::WDestructiveClose ),
-#endif
+    QWidget( parent, Qt::Window ),
     d( new Private )
 {
   delete _qGraphParam();
@@ -281,6 +276,8 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   GraphParams	*gp = GraphParams::graphParams();
 
   setCaption( tr( "Graph parameters" ) );
+  setObjectName(name);
+  setAttribute(Qt::WA_DeleteOnClose);
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "GraphParamLay1" );
   QVButtonGroup	*bgr 

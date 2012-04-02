@@ -48,9 +48,11 @@ using namespace std;
 
 WhatsNew::WhatsNew( QWidget* parent, const char * name, bool modal, 
                     Qt::WFlags f )
-  : QDialog( parent, name, modal, f )
+  : QDialog( parent, f )
 {
   setCaption( tr( "Anatomist News" ) );
+  setObjectName(name);
+  setModal(modal);
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 10 );
   QTextBrowser	*txt = new QTextBrowser( this );

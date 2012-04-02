@@ -36,6 +36,7 @@
 #define ANATOMIST_CONTROL_WHATSNEW_H
 
 
+#include <anatomist/application/Anatomist.h>
 #include <qdialog.h>
 
 
@@ -47,7 +48,7 @@ namespace anatomist
     Q_OBJECT
 
   public:
-    WhatsNew( QWidget* parent = 0, const char * name = 0, bool modal = true, 
+    WhatsNew( QWidget* parent = theAnatomist->getQWidgetAncestor(), const char * name = 0, bool modal = true, 
 	      Qt::WFlags f = 0 );
     virtual ~WhatsNew();
 

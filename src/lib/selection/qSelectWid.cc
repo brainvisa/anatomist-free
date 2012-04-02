@@ -48,16 +48,20 @@ using namespace std;
 
 QSelectWidget::QSelectWidget( unsigned gr, const set<AObject *> & objects, 
 			      QWidget * parent, const char * name )
-  : QDialog( parent, name, true ), WSelectChooser( gr, objects )
+  : QDialog( parent), WSelectChooser( gr, objects )
 {
+  setObjectName(name);
+  setModal(true);
   init( gr, objects );
 }
 
 
 QSelectWidget::QSelectWidget( unsigned gr, const set<AObject *> & objects )
-  : QDialog( 0, "QSelectWidget", true ), 
+  : QDialog( theAnatomist->getQWidgetAncestor() ), 
     WSelectChooser( gr, objects )
 {
+  setObjectName("QSelectWidget");
+  setModal(true);
   init( gr, objects );
 }
 

@@ -36,6 +36,7 @@
 #define ANATOMIST_CONTROL_GRAPHPARAMS_H
 
 
+#include <anatomist/application/Anatomist.h>
 #include <qwidget.h>
 #include <string>
 #include <vector>
@@ -101,7 +102,7 @@ class QGraphParam : public QWidget
   Q_OBJECT
 
 public:
-  QGraphParam( QWidget* parent = 0, const char* name = 0 );
+  QGraphParam( QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0 );
   virtual ~QGraphParam();
 
   ///	Access the singleton

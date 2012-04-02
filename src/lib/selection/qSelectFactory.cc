@@ -68,7 +68,7 @@ WSelectChooser*
 QSelectFactory::createSelectChooser( unsigned group, 
 				     const set<AObject *> & objects ) const
 {
-  return( new QSelectWidget( group, objects, 0, "Selection" ) );
+  return( new QSelectWidget( group, objects, theAnatomist->getQWidgetAncestor(), "Selection" ) );
 }
 
 
@@ -215,7 +215,7 @@ void QSelectFactory::selAttrib( AWindow* win )
       QSelAttrib::attributes().insert( "name" );
     }
 
-  QSelAttrib	sat( 0, "attribSel" );
+  QSelAttrib	sat( theAnatomist->getQWidgetAncestor(), "attribSel" );
 
   if( sat.exec() )
     {
