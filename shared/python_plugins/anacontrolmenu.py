@@ -144,7 +144,10 @@ def ipythonQtConsoleShell():
   global _ipsubprocs
   ipConsole = runIPConsoleKernel()
   import subprocess
-  sp = subprocess.Popen( [ sys.executable, '-c',
+  exe = sys.executable
+  if sys.platform == 'darwin':
+    exe = 'python'
+  sp = subprocess.Popen( [ exe, '-c',
     'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
     'launch_new_instance()', 'qtconsole', '--existing',
     '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
@@ -165,7 +168,10 @@ def ipythonShell():
     # new Ipython API
     ipConsole = runIPConsoleKernel()
     import subprocess
-    sp = subprocess.Popen( [ sys.executable, '-c',
+    exe = sys.executable
+    if sys.platform == 'darwin':
+      exe = 'python'
+    sp = subprocess.Popen( [ exe, '-c',
       'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
       'launch_new_instance()', 'console', '--existing',
       '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
