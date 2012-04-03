@@ -49,8 +49,8 @@ Slot = pyqtSlot
 import anatomist.cpp as anatomist
 
 consoleShellRunning = False
-ipConsole = None
-ipsubprocs = []
+_ipConsole = None
+_ipsubprocs = []
 
 # doesn't work anyway...
 #def delipsubprocs():
@@ -119,23 +119,19 @@ class _ProcDeleter( object ):
 
 
 def runIPConsoleKernel():
-  global ipConsole, ipsubprocs
-  if ipConsole is None:
+  global _ipConsole
+  if _ipConsole is None:
     print 'runing IP console kernel'
-    def mylooprunning( app=None ):
-      return True
     from IPython.lib import guisupport
-    guisupport.is_event_loop_running_qt4  = mylooprunning
+    guisupport.in_event_loop  = True
     from IPython.zmq.ipkernel import IPKernelApp
     app = IPKernelApp.instance()
-    ipConsole = app
+    _ipConsole = app
     app.hb_port = 50042 # don't know why this is not set automatically
     app.initialize( [ 'qtconsole', '--pylab=qt',
       "--KernelApp.parent_appname='ipython-qtconsole'" ] )
-    #from PyQt4.QtGui import qApp
-    #qApp.connect( qApp, SIGNAL( 'aboutToQuit()' ), delipsubprocs )
     app.start()
-  return ipConsole
+  return _ipConsole
 
 def ipythonQtConsoleShell():
   try:
@@ -145,7 +141,7 @@ def ipythonQtConsoleShell():
     return 0
   if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
     return 0 # Qt console does not exist in ipython <= 0.10
-  global ipsubprocs
+  global _ipsubprocs
   ipConsole = runIPConsoleKernel()
   import subprocess
   sp = subprocess.Popen( [ sys.executable, '-c',
@@ -153,7 +149,7 @@ def ipythonQtConsoleShell():
     'launch_new_instance()', 'qtconsole', '--existing',
     '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
     '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
-  ipsubprocs.append( _ProcDeleter( sp ) )
+  _ipsubprocs.append( _ProcDeleter( sp ) )
   return 1
 
 def ipythonShell():
@@ -174,7 +170,7 @@ def ipythonShell():
       'launch_new_instance()', 'console', '--existing',
       '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
       '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
-    ipsubprocs.append( sp )
+    _ipsubprocs.append( sp )
 
     #from IPython.lib import guisupport
     #guisupport.in_event_loop  = True
