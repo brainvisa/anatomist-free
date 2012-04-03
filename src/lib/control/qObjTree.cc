@@ -183,8 +183,9 @@ void QObjectTree::initIcons()
 
 
 QObjectTree::QObjectTree( QWidget *parent, const char *name )
-  : QWidget( parent, name ), _viewRefCol( true )
+  : QWidget( parent ), _viewRefCol( true )
 {
+  setObjectName(name);
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 0, -1, "OTlayout1" );
   QFrame	*fr = new QFrame( this, "OTframe" );
 

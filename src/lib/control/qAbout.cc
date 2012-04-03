@@ -265,8 +265,10 @@ QAbout::Private::Private()
 
 
 QAbout::QAbout( QWidget* parent, const char* name ) 
-  : QDialog( parent, name, true ), d( new Private )
+  : QDialog( parent ), d( new Private )
 {
+  setObjectName(name);
+  setModal(true);
   setCaption( tr( "About Anatomist" ) );
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "lay1" );

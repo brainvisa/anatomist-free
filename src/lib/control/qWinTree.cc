@@ -63,8 +63,9 @@ QPixmap			*QWindowTree::LinkIcon = 0;
 
 
 QWindowTree::QWindowTree( QWidget *parent, const char *name )
-  : QWidget( parent, name  ), _viewRefCol( true )
+  : QWidget( parent ), _viewRefCol( true )
 {
+  setObjectName(name);
   if( !LinkIcon )
   {
     string s = Settings::findResourceFile( "icons/list_link.xpm" );

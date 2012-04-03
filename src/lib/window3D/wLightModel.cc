@@ -84,9 +84,11 @@ struct LightModelWindow_PrivateData
 
 
 LightModelWindow::LightModelWindow( AWindow3D *win )
-  : QWidget( 0, "light model", Qt::WDestructiveClose ), Observer(), 
+  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), Observer(),
     _window( win ), _pdat( new LightModelWindow_PrivateData )
 {
+  setObjectName("light model");
+  setAttribute(Qt::WA_DeleteOnClose);
   setCaption( tr( "Light model : " ) + win->Title().c_str() );
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 10 );

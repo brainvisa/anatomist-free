@@ -61,9 +61,11 @@ namespace anatomist
 
 ZoomDialog::ZoomDialog( float zoom, bool forceResize, QWidget* parent, 
 			const char* name, bool modal, Qt::WFlags f )
-  : QDialog( parent, name, modal, f ), d( new ZoomDialog_Private )
+  : QDialog( parent, f ), d( new ZoomDialog_Private )
 {
   setCaption( tr( "Zoom selection" ) );
+  setObjectName(name);
+  setModal(modal);
 
   QVBoxLayout	*l = new QVBoxLayout( this );
   QVBox	*vb = new QVBox( this );

@@ -1245,7 +1245,7 @@ void ControlWindow::enableFusionMenu( bool state )
 
 void ControlWindow::about()
 {
-  QAbout abw( 0, "About Anatomist" );
+  QAbout abw( theAnatomist->getQWidgetAncestor(), "About Anatomist" );
   abw.exec();
 }
 

@@ -35,6 +35,7 @@
 #ifndef ANATOMIST_WINDOW3D_ZOOMDIALOG_H
 #define ANATOMIST_WINDOW3D_ZOOMDIALOG_H
 
+#include <anatomist/application/Anatomist.h>
 #include <qdialog.h>
 
 
@@ -49,8 +50,8 @@ class ZoomDialog : public QDialog
   Q_OBJECT
 
 public:
-  ZoomDialog( float zoom, bool forceResize, QWidget* parent = 0, 
-	      const char* name = 0, bool modal = false, Qt::WFlags f = 0 );
+  ZoomDialog( float zoom, bool forceResize, QWidget* parent = theAnatomist->getQWidgetAncestor(),
+              const char* name = 0, bool modal = false, Qt::WFlags f = 0 );
   virtual ~ZoomDialog();
 
   QString zoomText() const;

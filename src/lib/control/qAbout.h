@@ -35,7 +35,7 @@
 #ifndef ANAQT_CONTROL_QABOUT_H
 #define ANAQT_CONTROL_QABOUT_H
 
-
+#include <anatomist/application/Anatomist.h>
 #include <qdialog.h>
 
 
@@ -51,7 +51,7 @@ class QAbout : public QDialog
 public:
   struct Private;
 
-  QAbout( QWidget *parent = 0, const char* name = 0 );
+  QAbout( QWidget *parent = theAnatomist->getQWidgetAncestor(), const char* name = 0 );
   virtual ~QAbout();
 
 public slots:

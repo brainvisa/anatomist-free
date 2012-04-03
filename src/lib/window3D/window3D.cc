@@ -1565,7 +1565,7 @@ void AWindow3D::askZoom()
     if (zy > z) z = zy;
   }
 
-  ZoomDialog zd(z, true, this, "zoom dialog", true);
+  ZoomDialog zd(z, true, theAnatomist->getQWidgetAncestor(), "zoom dialog", true);
 
   if (zd.exec())
   {

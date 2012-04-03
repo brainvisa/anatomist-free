@@ -73,8 +73,9 @@ struct QImageLabel_privateData
 
 
 QImageLabel::QImageLabel( QWidget* parent, const char* name, Qt::WFlags f )
-  : QLabel( parent, name, f ), _privdata( new QImageLabel_privateData )
+  : QLabel( parent, f ), _privdata( new QImageLabel_privateData )
 {
+  setObjectName(name);
   string	align;
   theAnatomist->config()->getProperty( "controlWindowLogoAlignment", align );
   if( align == "left" )
