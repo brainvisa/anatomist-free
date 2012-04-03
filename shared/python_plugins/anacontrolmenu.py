@@ -176,14 +176,10 @@ def ipythonShell():
       '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
     ipsubprocs.append( sp )
 
-    #def mylooprunning( app=None ):
-      #return True
     #from IPython.lib import guisupport
-    #guisupport.is_event_loop_running_qt4  = mylooprunning
+    #guisupport.in_event_loop  = True
     #from IPython.frontend.terminal.ipapp import TerminalIPythonApp
     #app = TerminalIPythonApp.instance()
-    ##from PyQt4.QtGui import qApp
-    ##qApp._in_event_loop = True # no effet...
     #app.initialize( [ '--gui=qt' ] )
     #app.start()
     consoleShellRunning = False
@@ -199,7 +195,7 @@ def ipythonShell():
     ipshell.exec_ = dummy_mainloop
     ipshell.mainloop()
     consoleShellRunning = False
-    print 'shell terminated'
+    # print 'shell terminated'
     return 1
 
 def pythonShell():
