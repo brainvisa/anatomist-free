@@ -44,6 +44,7 @@ options dealing with python modules:
 import sys, os, string, glob
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+Slot = pyqtSlot
 
 import anatomist.cpp as anatomist
 
@@ -116,14 +117,8 @@ class _ProcDeleter( object ):
   def __del__( self ):
     self.o.kill()
 
-def ipythonConsoleShell():
-  try:
-    import IPython
-    fixMatplotlib()
-  except:
-    return 0
-  if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
-    return 0 # Qt console does not exist in ipython <= 0.10
+
+def runIPConsoleKernel():
   global ipConsole, ipsubprocs
   if ipConsole is None:
     print 'runing IP console kernel'
@@ -140,6 +135,18 @@ def ipythonConsoleShell():
     #from PyQt4.QtGui import qApp
     #qApp.connect( qApp, SIGNAL( 'aboutToQuit()' ), delipsubprocs )
     app.start()
+  return ipConsole
+
+def ipythonQtConsoleShell():
+  try:
+    import IPython
+    fixMatplotlib()
+  except:
+    return 0
+  if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
+    return 0 # Qt console does not exist in ipython <= 0.10
+  global ipsubprocs
+  ipConsole = runIPConsoleKernel()
   import subprocess
   sp = subprocess.Popen( [ sys.executable, '-c',
     'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
@@ -154,41 +161,46 @@ def ipythonShell():
   if consoleShellRunning:
     print 'console shell is already running.'
     return 1
-  #try:
-  if 1:
-    import IPython
-    fixMatplotlib()
-    # run interpreter
-    consoleShellRunning = True
-    if [ int(x) for x in IPython.__version__.split('.') ] >= [ 0, 11 ]:
-      # new Ipython API
-      def mylooprunning( app=None ):
-        return True
-      from IPython.lib import guisupport
-      guisupport.is_event_loop_running_qt4  = mylooprunning
-      from IPython.frontend.terminal.ipapp import TerminalIPythonApp
-      app = TerminalIPythonApp.instance()
-      #from PyQt4.QtGui import qApp
-      #qApp._in_event_loop = True # no effet...
-      app.initialize( [ '--gui=qt' ] )
-      app.start()
-    else:
-      # Old IPython <= 0.10 API
-      from PyQt4.QtGui import qApp
-      import time
-      ipshell = IPython.Shell.IPShellQt4( [ '-q4thread' ] )
-      def dummy_mainloop(*args, **kw):
-        qApp.processEvents()
-        time.sleep( 0.02 )
-      # replace ipython shell event loop with a 'local loop'
-      ipshell.exec_ = dummy_mainloop
-      ipshell.mainloop()
-      consoleShellRunning = False
-      print 'shell terminated'
-      qApp.exec_()
-      return 1
-  #except:
-    #return 0
+  import IPython
+  fixMatplotlib()
+  # run interpreter
+  consoleShellRunning = True
+  if [ int(x) for x in IPython.__version__.split('.') ] >= [ 0, 11 ]:
+    # new Ipython API
+    ipConsole = runIPConsoleKernel()
+    import subprocess
+    sp = subprocess.Popen( [ sys.executable, '-c',
+      'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
+      'launch_new_instance()', 'console', '--existing',
+      '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
+      '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
+    ipsubprocs.append( sp )
+
+    #def mylooprunning( app=None ):
+      #return True
+    #from IPython.lib import guisupport
+    #guisupport.is_event_loop_running_qt4  = mylooprunning
+    #from IPython.frontend.terminal.ipapp import TerminalIPythonApp
+    #app = TerminalIPythonApp.instance()
+    ##from PyQt4.QtGui import qApp
+    ##qApp._in_event_loop = True # no effet...
+    #app.initialize( [ '--gui=qt' ] )
+    #app.start()
+    consoleShellRunning = False
+  else:
+    # Old IPython <= 0.10 API
+    from PyQt4.QtGui import qApp
+    import time
+    ipshell = IPython.Shell.IPShellQt4( [ '-q4thread' ] )
+    def dummy_mainloop(*args, **kw):
+      qApp.processEvents()
+      time.sleep( 0.02 )
+    # replace ipython shell event loop with a 'local loop'
+    ipshell.exec_ = dummy_mainloop
+    ipshell.mainloop()
+    consoleShellRunning = False
+    print 'shell terminated'
+    return 1
 
 def pythonShell():
   global consoleShellRunning
@@ -237,7 +249,7 @@ def pyShell():
   return 1
 
 def openshell():
-  if ipythonConsoleShell():
+  if ipythonQtConsoleShell():
     return
   if pyCuteShell():
     return # OK
@@ -333,7 +345,7 @@ if cw is not None:
   p = menu.addMenu( 'Python' )
   p.addAction( 'Open python shell', openshell )
   pop = p.addMenu( 'Specific python shells' )
-  ipcshell = pop.addAction( 'Graphical IPython shell', ipythonConsoleShell )
+  ipcshell = pop.addAction( 'Graphical IPython shell', ipythonQtConsoleShell )
   ipshell = pop.addAction( 'Console IPython shell', ipythonShell )
   pcshell = pop.addAction( 'Pycute shell', pyCuteShell )
   pshell = pop.addAction( 'Console standard python shell', pythonShell )
