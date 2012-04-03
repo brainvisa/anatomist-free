@@ -80,10 +80,12 @@ bool QAPerfusionWindow::_typePW = registerClass();
 
 
 QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name ) 
-  : QHBox( p, name, Qt::WDestructiveClose )
+  : QHBox( p )
 {
   assert( theAnatomist );
   setCaption( "Perfusion" );
+  setObjectName(name);
+  setAttribute(Qt::WA_DeleteOnClose);
   setSpacing( 5 );
 
   procC = new PerfusionProcessingCenter();
@@ -403,7 +405,8 @@ void QAPerfusionWindow::createPerfusion( const set< AObject * >& obj )
 	    }
 	}
 
-      QAPerfusionWindow *qpw = new QAPerfusionWindow( 0, "Perfusion" );
+      QAPerfusionWindow *qpw = new QAPerfusionWindow( theAnatomist->getQWidgetAncestor(), "Perfusion" );
+      qpw->setWindowFlags(Qt::Window);
 
       set< AWindow * > wlist;
       set< AObject * > olist;
