@@ -194,11 +194,12 @@ FixedPointOfViewWindow_PrivateData::FixedPointOfViewWindow_PrivateData()
 FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win, 
 						QWidget* parent, 
 						const char* name )
-  : QWidget( parent, name ), Observer(), _window( win ), 
+  : QWidget( parent ), Observer(), _window( win ),
     _pdat( new FixedPointOfViewWindow_PrivateData )
 {
   //_window->addObserver( this );
   setCaption( tr( "Standard point of view" ) );
+  setObjectName(name);
   QHBoxLayout	*lay = new QHBoxLayout( this, 10, 10 );
 
 #if QT_VERSION >= 0x040000

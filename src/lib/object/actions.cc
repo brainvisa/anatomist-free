@@ -119,8 +119,8 @@ void ObjectActions::fusion2DControl( const set<AObject *> & obj )
 {
   //	command removed
   Fusion2DWindow	*fw
-    = new Fusion2DWindow( obj, 0, 
-			  theAnatomist->catObjectNames( obj ).c_str() );
+    = new Fusion2DWindow( obj, theAnatomist->getQWidgetAncestor(),
+              theAnatomist->catObjectNames( obj ).c_str(), Qt::Window );
   fw->show();
 }
 
@@ -129,8 +129,9 @@ void ObjectActions::fusion3DControl( const set<AObject *> & obj )
 {
   //	command removed
   Fusion3DWindow	*fw
-    = new Fusion3DWindow( obj, 0, 
+    = new Fusion3DWindow( obj, theAnatomist->getQWidgetAncestor(),
 			  theAnatomist->catObjectNames( obj ).c_str() );
+  fw->setWindowFlags(Qt::Window);
   fw->show();
 }
 

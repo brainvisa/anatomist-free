@@ -91,9 +91,11 @@ struct Fusion3DWindow::Private
 
 Fusion3DWindow::Fusion3DWindow( const set<AObject *> &objL, QWidget* parent, 
 				const char *name ) 
-  : QWidget( parent, name, Qt::WDestructiveClose ), Observer(), 
+  : QWidget( parent ), Observer(),
     d( new Private )
 {
+    setObjectName(name);
+    setAttribute(Qt::WA_DeleteOnClose);
   set<AObject*>::const_iterator	io, fo = objL.end();
 
   for( io=objL.begin(); io!=fo; ++io )

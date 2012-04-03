@@ -108,10 +108,12 @@ namespace
 
 
 Tools3DWindow::Tools3DWindow( AWindow3D *win )
-  : QWidget( 0, "tools3D", Qt::WDestructiveClose ), Observer(), 
+  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), Observer(),
     _window( win ), 
     d( new Private )
 {
+  setObjectName("tools3D");
+  setAttribute(Qt::WA_DeleteOnClose);
   win->addObserver( this );
 
   setCaption( tr( "3D settings : " ) + _window->Title().c_str() );
