@@ -122,7 +122,7 @@ def runIPConsoleKernel():
   guisupport.in_event_loop  = True
   from IPython.zmq.ipkernel import IPKernelApp
   app = IPKernelApp.instance()
-  if not app.initialized():
+  if not app.initialized() or not app.kernel:
     print 'runing IP console kernel'
     app.hb_port = 50042 # don't know why this is not set automatically
     app.initialize( [ 'qtconsole', '--pylab=qt',
