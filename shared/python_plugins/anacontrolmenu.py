@@ -49,7 +49,6 @@ Slot = pyqtSlot
 import anatomist.cpp as anatomist
 
 consoleShellRunning = False
-_ipConsole = None
 _ipsubprocs = []
 
 # doesn't work anyway...
@@ -119,19 +118,17 @@ class _ProcDeleter( object ):
 
 
 def runIPConsoleKernel():
-  global _ipConsole
-  if _ipConsole is None:
+  from IPython.lib import guisupport
+  guisupport.in_event_loop  = True
+  from IPython.zmq.ipkernel import IPKernelApp
+  app = IPKernelApp.instance()
+  if not app.initialized():
     print 'runing IP console kernel'
-    from IPython.lib import guisupport
-    guisupport.in_event_loop  = True
-    from IPython.zmq.ipkernel import IPKernelApp
-    app = IPKernelApp.instance()
-    _ipConsole = app
     app.hb_port = 50042 # don't know why this is not set automatically
     app.initialize( [ 'qtconsole', '--pylab=qt',
       "--KernelApp.parent_appname='ipython-qtconsole'" ] )
     app.start()
-  return _ipConsole
+  return app
 
 def ipythonQtConsoleShell():
   try:
