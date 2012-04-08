@@ -89,6 +89,33 @@ class AProfile( ana.cpp.QAWindow ):
     toolbar.addAction( 'Y', self.muteOrientationY )
     toolbar.addAction( 'Z', self.muteOrientationZ )
     wid.addToolBar( toolbar )
+    # referential bar
+    cw = wid.centralWidget()
+    nw = QtGui.QWidget( wid )
+    lay = QtGui.QVBoxLayout( nw )
+    lay.setContentsMargins( 0, 0, 0, 0 )
+    lay.setSpacing( 5 )
+    nw.setLayout( lay )
+    refbox = QtGui.QWidget( nw )
+    lay.addWidget( refbox )
+    cw.setParent( nw )
+    lay.addWidget( cw )
+    wid.setCentralWidget( nw )
+    rlay = QtGui.QHBoxLayout( refbox )
+    refbox.setLayout( rlay )
+    rbut = QtGui.QPushButton( refbox )
+    rlay.addWidget( rbut )
+    refdirmark = QtGui.QLabel( refbox )
+    rlay.addWidget( refdirmark )
+    refdirmark.setFixedSize( QtCore.QSize( 21, 7 ) )
+    rbut.setFixedHeight( 7 )
+    refbox.setFixedHeight( refbox.sizeHint().height() )
+    self._refbutton = rbut
+    self._reflabel = refdirmark
+    ana.cpp.anatomist.setQtColorStyle( rbut )
+    self.paintRefLabel()
+    self.connect( rbut, QtGui.SIGNAL( 'clicked()' ), self.changeReferential )
+
 
   def releaseref( self ):
     '''WARNING:
@@ -249,10 +276,11 @@ class AProfile( ana.cpp.QAWindow ):
       self.plotObject( obj )
     self.drawCursor()
     # pick events
-    if not self._picker_installed:
+    if not self._picker_installed and len( self._fig.axes ) > 0:
       self._fig.axes[0].set_picker( True )
       self._fig.canvas.mpl_connect( 'pick_event', self.onPick )
       self._picker_installed = True
+    self.paintRefLabel()
 
   def drawCursor( self ):
     pos = self.GetPosition()
@@ -260,6 +288,8 @@ class AProfile( ana.cpp.QAWindow ):
       for x in self._cursorplot:
         x.remove()
       del self._cursorplot
+    if len( self._fig.axes ) == 0:
+      return
     ax = self._fig.axes[0]
     if not ax:
       self._cursorplot = None
@@ -295,6 +325,61 @@ class AProfile( ana.cpp.QAWindow ):
       return
     pos[ self._coordindex ] = event.mouseevent.xdata
     a.execute( 'LinkedCursor', window=self, position=pos )
+
+  def paintRefLabel( self ):
+    ref = self.getReferential()
+    if ref is not None and ref.isDirect():
+      col = ref.Color()
+      pix = QtGui.QPixmap( 32,7 )
+      pix.fill( QtGui.QColor( col.red(), col.green(), col.blue() ) )
+      p = QtGui.QPainter()
+      darken = 25;
+      p.begin( pix )
+      red = col.red()
+      if red > darken:
+        red = col.red() - darken
+      else:
+        red += darken
+      green = col.green()
+      if green > darken:
+        green = col.green() - darken
+      else:
+        green += darken
+      blue = col.blue()
+      if blue > darken:
+        blue = col.blue() - darken
+      else:
+        blue += darken
+      p.setPen( QtGui.QPen( QtGui.QColor( red, green, blue ), 5 ) )
+      p.drawLine(3, 10, 25, -3)
+      p.end()
+      del p
+      #self._refbutton.unsetPalette()
+      self._refbutton.setPalette( QtGui.QPalette( QtGui.QColor(col.red(), col.green(),
+        col.blue() ) ) )
+      #self._refbutton.setPaletteBackgroundPixmap( pix )
+      if self._reflabel is not None:
+        self._reflabel.show()
+    else:
+      #self._refbutton.unsetPalette()
+      #self._refbutton.setBackgroundMode( QtCore.Qt.PaletteButton )
+      if self._reflabel is not None:
+        self._reflabel.hide()
+      if ref is not None:
+        col = ref.Color()
+        self._refbutton.setPalette( QtGui.QPalette( \
+            QtGui.QColor( col.red(), col.green(), col.blue() ) ) )
+      else:
+        self._refbutton.setPalette( QtGui.QPalette( \
+          QtGui.QColor(192, 192, 192) ) )
+
+  def changeReferential( self ):
+    sw = ana.cpp.set_AWindowPtr( [ self ] )
+    #sw.insert( self )
+    w = ana.cpp.ChooseReferentialWindow( sw, 'Choose Referential Window' )
+    w.setParent( self )
+    w.setWindowFlags( QtCore.Qt.Window )
+    w.show()
 
 
 
