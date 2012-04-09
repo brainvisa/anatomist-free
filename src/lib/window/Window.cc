@@ -42,6 +42,7 @@
 #include <anatomist/reference/Referential.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/processor/event.h>
+#include <anatomist/reference/Transformation.h>
 #include <aims/qtcompat/qfiledialog.h>
 #include <algorithm>
 #include <assert.h>
@@ -411,11 +412,19 @@ Point3df AWindow::GetPosition() const
 
 
 void AWindow::SetPosition( const Point3df& position , 
-			   const Referential * /*refdep*/ )
+			   const Referential * orgref )
 {
-  if( position != _position )
+  anatomist::Transformation *tra = theAnatomist->getTransformation(orgref,
+      getReferential());
+  Point3df pos;
+
+  if (tra)
+    pos = tra->transform(position);
+  else
+    pos = position;
+  if( pos != _position )
   {
-    _position = position;
+    _position = pos;
     SetRefreshFlag();
   }
 }
