@@ -105,7 +105,11 @@ class AProfile( ana.cpp.QAWindow ):
     refbox.setLayout( rlay )
     rbut = QtGui.QPushButton( refbox )
     rlay.addWidget( rbut )
+    icons = ana.cpp.IconDictionary.instance()
+    directpix = icons.getIconInstance( 'direct_ref_mark' )
     refdirmark = QtGui.QLabel( refbox )
+    if directpix is not None:
+      refdirmark.setPixmap( directpix )
     rlay.addWidget( refdirmark )
     refdirmark.setFixedSize( QtCore.QSize( 21, 7 ) )
     rbut.setFixedHeight( 7 )
@@ -115,6 +119,11 @@ class AProfile( ana.cpp.QAWindow ):
     ana.cpp.anatomist.setQtColorStyle( rbut )
     self.paintRefLabel()
     self.connect( rbut, QtGui.SIGNAL( 'clicked()' ), self.changeReferential )
+    # close shortcut
+    ac = QtGui.QAction( 'Close', self )
+    ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
+    self.connect( ac, QtGui.SIGNAL( 'triggered(bool)' ), self.closeAction )
+    self.addAction( ac )
 
 
   def releaseref( self ):
@@ -167,7 +176,12 @@ class AProfile( ana.cpp.QAWindow ):
   def unregisterObject( self, obj ):
     if hasattr( obj, 'internalRep' ):
       obj = obj.internalRep
+    self.eraseObject( obj )
     ana.cpp.QAWindow.unregisterObject( self, obj )
+
+  def eraseObject( self, obj ):
+    if hasattr( obj, 'internalRep' ):
+      obj = obj.internalRep
     p =  self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
     if p:
       for x in p:
@@ -193,6 +207,7 @@ class AProfile( ana.cpp.QAWindow ):
       if trans is not None:
         # get in object space
         uvect = trans.transform( uvect ) - trans.transform( [ 0, 0, 0 ] )
+        uvect.normalize()
         opos = trans.transform( pos )
       vs = vol.header()[ 'voxel_size' ][:3]
       dims = aims.Point3df( ( vol.getSizeX()-1 ) * vs[0],
@@ -209,6 +224,11 @@ class AProfile( ana.cpp.QAWindow ):
         if t1 < t0:
           t0, t1 = t1, t0 # ensure t0 is the min
         bounds = [ t0, t1 ]
+      else:
+        # parallel to x plane: ensure opos is between both planes
+        if (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) * (dims - opos).dot( v ) > 0:
+          self.eraseObject( obj )
+          return
       # y plane, v=(0,1,0)
       v = aims.Point3df( 0, 1, 0 )
       uv = uvect.dot( v )
@@ -220,10 +240,18 @@ class AProfile( ana.cpp.QAWindow ):
         if len( bounds ) == 0:
           bounds = [ t0, t1 ]
         else: # take minimum interval
+          if t0 > bounds[1] or t1 < bounds[0]:
+            self.eraseObject( obj )
+            return
           if bounds[0] < t0:
             bounds[0] = t0
           if bounds[1] > t1:
             bounds[1] = t1
+      else:
+        # parallel to y plane: ensure opos is between both planes
+        if (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) * (dims - opos).dot( v ) > 0:
+          self.eraseObject( obj )
+          return
       # z plane, v=(0,0,1)
       v = aims.Point3df( 0, 0, 1 )
       uv = uvect.dot( v )
@@ -235,10 +263,19 @@ class AProfile( ana.cpp.QAWindow ):
         if len( bounds ) == 0:
           bounds = [ t0, t1 ]
         else: # take minimum interval
+          if t0 > bounds[1] or t1 < bounds[0]:
+            self.eraseObject( obj )
+            return
           if bounds[0] < t0:
             bounds[0] = t0
           if bounds[1] > t1:
             bounds[1] = t1
+      else:
+        # parallel to z plane: ensure opos is between both planes
+        if (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) * (dims - opos).dot( v ) > 0:
+          self.eraseObject( obj )
+          return
+      t0, t1 = bounds
       step = min( vs ) # not optimal.
       indices = [ opos+uvect*(t0+x*step) for x in \
         xrange( 0, int( (t1-t0)/step ) ) ]
@@ -354,15 +391,15 @@ class AProfile( ana.cpp.QAWindow ):
       p.drawLine(3, 10, 25, -3)
       p.end()
       del p
-      #self._refbutton.unsetPalette()
-      self._refbutton.setPalette( QtGui.QPalette( QtGui.QColor(col.red(), col.green(),
-        col.blue() ) ) )
-      #self._refbutton.setPaletteBackgroundPixmap( pix )
+      pal = QtGui.QPalette( QtGui.QColor( col.red(), col.green(),
+        col.blue() ) )
+      self._refbutton.setBackgroundRole( QtGui.QPalette.Window )
+      # doesn't work... maybe due to styles forcing it ?
+      pal.setBrush( self._refbutton.backgroundRole(), QtGui.QBrush( pix ) )
+      self._refbutton.setPalette( pal )
       if self._reflabel is not None:
         self._reflabel.show()
     else:
-      #self._refbutton.unsetPalette()
-      #self._refbutton.setBackgroundMode( QtCore.Qt.PaletteButton )
       if self._reflabel is not None:
         self._reflabel.hide()
       if ref is not None:
@@ -375,11 +412,13 @@ class AProfile( ana.cpp.QAWindow ):
 
   def changeReferential( self ):
     sw = ana.cpp.set_AWindowPtr( [ self ] )
-    #sw.insert( self )
     w = ana.cpp.ChooseReferentialWindow( sw, 'Choose Referential Window' )
     w.setParent( self )
     w.setWindowFlags( QtCore.Qt.Window )
     w.show()
+
+  def closeAction( self, dummy ):
+    self.close()
 
 
 
