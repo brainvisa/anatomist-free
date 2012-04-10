@@ -88,6 +88,7 @@ class AProfile( ana.cpp.QAWindow ):
     toolbar.addAction( 'X', self.muteOrientationX )
     toolbar.addAction( 'Y', self.muteOrientationY )
     toolbar.addAction( 'Z', self.muteOrientationZ )
+    toolbar.addAction( 'T', self.muteOrientationT )
     wid.addToolBar( toolbar )
     # referential bar
     cw = wid.centralWidget()
@@ -193,6 +194,8 @@ class AProfile( ana.cpp.QAWindow ):
 
   def plotObject( self, obj ):
     if obj.objectTypeName( obj.type() ) == 'VOLUME':
+      if self._coordindex == 3:
+        return self.plotTprofile( obj )
       figure = pyplot.figure( self._fig.number )
       vol = ana.cpp.AObjectConverter.aims( obj ).volume()
       ar = numpy.array( vol, copy=False )
@@ -304,6 +307,43 @@ class AProfile( ana.cpp.QAWindow ):
       self._fig.canvas.draw()
       self._plots[ ana.cpp.weak_ptr_AObject( obj ) ] = h
 
+  def plotTprofile( self, obj ):
+    figure = pyplot.figure( self._fig.number )
+    vol = ana.cpp.AObjectConverter.aims( obj ).volume()
+    ar = numpy.array( vol, copy=False )
+    pos = self.GetPosition()
+    tpos = self.GetTime()
+    opos = pos
+    oref = obj.getReferential()
+    wref = self.getReferential()
+    a = ana.Anatomist()
+    trans = a.getTransformation( wref, oref )
+    if trans:
+      opos = trans.transform( pos )
+    vs = vol.header()[ 'voxel_size' ]
+    if len( vs ) >= 4:
+      ts = vs[3]
+    else:
+      ts = 1.
+    xdata = [ x * ts for x in xrange( vol.getSizeT() ) ]
+    ipos = numpy.array( opos ) / vs[:3]
+    if ipos[0] < 0 or ipos[1] < 0 or ipos[2] < 0 or ipos[0] >= vol.getSizeX() \
+      or ipos[1] >= vol.getSizeY() or ipos[2] >= vol.getSizeZ():
+      self.eraseObject( obj )
+      return
+    data = ar[ ipos[0], ipos[1], ipos[2], : ]
+    kw = {}
+    p = self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
+    if p:
+      kw['color'] = p[0].get_color()
+      for x in p:
+        x.remove()
+      del self._plots[ ana.cpp.weak_ptr_AObject( obj ) ]
+    h = pylab.plot( xdata, data, label=obj.name(), **kw )
+    pylab.legend()
+    self._fig.canvas.draw()
+    self._plots[ ana.cpp.weak_ptr_AObject( obj ) ] = h
+
   def baseTitle( self ):
     return 'Profile'
 
@@ -320,7 +360,7 @@ class AProfile( ana.cpp.QAWindow ):
     self.paintRefLabel()
 
   def drawCursor( self ):
-    pos = self.GetPosition()
+    pos = self.GetPosition()[:3] + [ self.GetTime() ]
     if self._cursorplot:
       for x in self._cursorplot:
         x.remove()
@@ -332,7 +372,8 @@ class AProfile( ana.cpp.QAWindow ):
       self._cursorplot = None
       return
     ax.grid( True )
-    ax.xaxis.set_label_text( [ 'X', 'Y', 'Z' ][self._coordindex] )
+    ax.xaxis.set_label_text( [ 'X (mm)', 'Y (mm)', 'Z (mm)',
+      'T (s)' ][self._coordindex] )
     if not hasattr( ax, 'get_ylim' ):
       self._cursorplot = None
       return
@@ -352,6 +393,10 @@ class AProfile( ana.cpp.QAWindow ):
   def muteOrientationZ( self ):
     self._orientation = aims.Quaternion( 1, 0, 1, 0 ).normalized()
     self._coordindex = 2
+    self.Refresh()
+
+  def muteOrientationT( self ):
+    self._coordindex = 3
     self.Refresh()
 
   def onPick( self, event ):
