@@ -50,18 +50,10 @@ from soma.gui.api import chooseMatplotlibBackend
 chooseMatplotlibBackend()
 
 from matplotlib import pyplot
-import pylab, sip
+import pylab, sip, matplotlib
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui
-#qt = GtGui
-## copy needed classes to fake qt (yes, it's a horrible hack)
-#qt.QPoint = QtCore.QPoint
-#qt.QSize = QtCore.QSize
-#qt.QObject = QtCore.QObject
-#qt.SIGNAL = QtCore.SIGNAL
-#qt.PYSIGNAL = QtCore.SIGNAL
-#Qt = QtCore.Qt
 
 
 class AHistogram( ana.cpp.QAWindow ):
@@ -160,14 +152,7 @@ class AHistogram( ana.cpp.QAWindow ):
     if hasattr( obj, 'internalRep' ):
       obj = obj.internalRep
     ana.cpp.QAWindow.unregisterObject( self, obj )
-    p =  self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
-    if p:
-      for x in p:
-        x.remove()
-      del self._plots[ ana.cpp.weak_ptr_AObject( obj ) ]
-      if len( self._plots ) >= 0:
-        pylab.legend()
-      self._histo.canvas.draw()
+    self.eraseObject( obj )
 
   def eraseObject( self, obj ):
     if hasattr( obj, 'internalRep' ):
@@ -176,7 +161,11 @@ class AHistogram( ana.cpp.QAWindow ):
     if p:
       for x in p:
         x.remove()
+      if isinstance( p, matplotlib.container.Container ):
+        self._histo.axes[0].containers.remove( p )
       del self._plots[ ana.cpp.weak_ptr_AObject( obj ) ]
+      if len( self._histo.axes ) != 0:
+        self._histo.axes[0].legend_ = None # fix a bug in matplotlib ?
       if len( self._plots ) >= 0:
         pylab.legend()
       self._histo.canvas.draw()
@@ -218,19 +207,34 @@ class AHistogram( ana.cpp.QAWindow ):
           ipos1[2] = vol.getSizeZ() - 1
         ar = ar[ ipos0[0]:ipos1[0], ipos0[1]:ipos1[1], ipos0[2]:ipos1[2] ]
       h = None
-      if False: #use_aimsalgo:
+      if use_aimsalgo:
         typecode = aims.typeCode( str( ar.dtype ) )
         hisclass = getattr( aims, 'RegularBinnedHistogram_' + typecode, None )
-        ha = hisclass( 256 )
-        ha.doit( aims.Volume( ar ) )
-        d = ha.data()
-        har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
-        step = float( ha.maxDataValue() - ha.minDataValue() ) /  ha.bins()
-        his = ( har, numpy.arange( ha.minDataValue(), ha.maxDataValue() + step,
-          step ) )
-        print 'plotting with aims histo'
-        h = None, None, pylab.bar( his[1][:-1], his[0], label=obj.name(),
-          width=1., **kw )
+        if hisclass is not None:
+          # print 'plotting with aims histo'
+          ha = hisclass( 256 )
+          if ( not self._histo4d and vol.getSizeT() != 1 ) or self._localHisto:
+            # get a real sub-volume (to avoid a bug in pyaims with sub-ndarrays)
+            # print 'copy vol'
+            ar = numpy.array( ar, copy=True )
+          ha.doit( aims.Volume( ar ) )
+          d = ha.data()
+          har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
+          step = float( ha.maxDataValue() - ha.minDataValue() ) /  ha.bins()
+          his = ( har, numpy.arange( ha.minDataValue(), ha.maxDataValue() + step,
+            step ) )
+          # fix colors
+          if 'facecolor' not in kw:
+            cols = 'bgrcmykw'
+            if hasattr( self, '_colornum' ):
+              cn = ( self._colornum + 1 ) % len( cols )
+            else:
+              cn = 0
+            self._colornum = cn
+            kw[ 'color' ] = cols[ cn ]
+          h = pylab.bar( his[1][:-1], his[0], label=obj.name(),
+            width=his[1][1]-his[1][0], **kw )
+          h = None, None, h
       if h is None: # fallback to numpy/matplotlib hist (slow...)
         h = pylab.hist( numpy.ravel( ar ), 256, label=obj.name(), **kw )
       pylab.legend()
