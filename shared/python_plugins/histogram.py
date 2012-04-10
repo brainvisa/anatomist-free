@@ -39,6 +39,12 @@ A Matplotlib-based histogram window for Anatomist
 import anatomist.direct.api as ana
 from soma import aims
 import numpy, sys
+try:
+  from soma import aimsalgo
+  use_aimsalgo = True
+except:
+  use_aimsalgo = False
+  print 'warning: aimsalgo cannot be used - histograms will be slow.'
 
 from soma.gui.api import chooseMatplotlibBackend
 chooseMatplotlibBackend()
@@ -211,7 +217,22 @@ class AHistogram( ana.cpp.QAWindow ):
         if ipos1[2] >= vol.getSizeZ():
           ipos1[2] = vol.getSizeZ() - 1
         ar = ar[ ipos0[0]:ipos1[0], ipos0[1]:ipos1[1], ipos0[2]:ipos1[2] ]
-      h = pylab.hist( numpy.ravel( ar ), 256, label=obj.name(), **kw )
+      h = None
+      if False: #use_aimsalgo:
+        typecode = aims.typeCode( str( ar.dtype ) )
+        hisclass = getattr( aims, 'RegularBinnedHistogram_' + typecode, None )
+        ha = hisclass( 256 )
+        ha.doit( aims.Volume( ar ) )
+        d = ha.data()
+        har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
+        step = float( ha.maxDataValue() - ha.minDataValue() ) /  ha.bins()
+        his = ( har, numpy.arange( ha.minDataValue(), ha.maxDataValue() + step,
+          step ) )
+        print 'plotting with aims histo'
+        h = None, None, pylab.bar( his[1][:-1], his[0], label=obj.name(),
+          width=1., **kw )
+      if h is None: # fallback to numpy/matplotlib hist (slow...)
+        h = pylab.hist( numpy.ravel( ar ), 256, label=obj.name(), **kw )
       pylab.legend()
       self._histo.canvas.draw()
       self._plots[ ana.cpp.weak_ptr_AObject( obj ) ] = h[2]
