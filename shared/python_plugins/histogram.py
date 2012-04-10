@@ -223,7 +223,7 @@ class AHistogram( ana.cpp.QAWindow ):
     ana.cpp.QAWindow.Refresh( self )
     for obj in self.Objects():
       self.plotObject( obj )
-    if len( self._plots ) != 0:
+    if len( self._histo.axes ) != 0:
       ax = self._histo.axes[0]
       ax.relim()
       ax.autoscale_view()
