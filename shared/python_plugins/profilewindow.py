@@ -201,6 +201,12 @@ class AProfile( ana.cpp.QAWindow ):
       ar = numpy.array( vol, copy=False )
       pos = self.GetPosition()
       tpos = self.GetTime()
+      if len( vol.header()[ 'voxel_size' ] ) >= 4:
+        tpos /= vol.header()[ 'voxel_size' ][3]
+      if tpos < 0:
+        tpos = 0
+      elif tpos >= vol.getSizeT():
+        tpos = vol.getSizeT() - 1
       opos = pos
       oref = obj.getReferential()
       wref = self.getReferential()
@@ -285,8 +291,9 @@ class AProfile( ana.cpp.QAWindow ):
       besti = numpy.argmax( numpy.abs( self._orientation.transform( [ 1, 0, 0 ] ) ) )
       self._coordindex = besti
       avs = numpy.array(vs)
-      aind = numpy.hstack( [ numpy.round( numpy.hstack( ( ( numpy.array(x)/avs ),
-        tpos ) ) ).astype( int ).reshape(4,1) for x in indices ] )
+      aind = numpy.hstack( [ numpy.round( numpy.hstack( ( \
+        ( numpy.array(x)/avs ), tpos ) ) ).astype( int ).reshape(4,1) \
+        for x in indices ] )
       data = ar[ tuple( aind ) ]
       if trans is None:
         xdata = [ x[self._coordindex] for x in indices ]
