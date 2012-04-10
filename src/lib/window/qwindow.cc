@@ -95,7 +95,7 @@ QAWindow::QAWindow( QWidget* parent, const char* name, Object params,
       {
       }
 
-  if( parent == 0 )
+  if( isWindow() )
     {
       QPixmap	anaicon( Settings::findResourceFile(
 			 "icons/icon.xpm" ).c_str() );

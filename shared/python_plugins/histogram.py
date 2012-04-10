@@ -64,7 +64,7 @@ class AHistogram( ana.cpp.QAWindow ):
   counting problems. See the doc of the releaseref() method.
   '''
   _instances = set()
-  _classType = ana.cpp.AWindow.Type( ana.cpp.AWindowFactory.types().size() )
+  _classType = ana.cpp.AWindow.Type( 0 )
 
   def __init__( self, parent=None, name=None, options=aims.Object(), f=None ):
     '''The releaseref() method should be called after the constructor - see
@@ -100,7 +100,7 @@ class AHistogram( ana.cpp.QAWindow ):
     ac.setCheckable( True )
     self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.setLocalHisto )
     toolbar.addAction( ac )
-    toolbar.addAction( 'Neighborhood', self.setHistoNeighborhood )
+    toolbar.addAction( 'Neighborhood...', self.setHistoNeighborhood )
     wid.addToolBar( toolbar )
 
   def releaseref( self ):
@@ -282,8 +282,9 @@ class createHistogramWindow( ana.cpp.AWindowCreator ):
 createhisto = createHistogramWindow()
 
 def init():
-  ana.cpp.AWindowFactory.registerType( 'Matplotlib-histogram',
-    createhisto )
+  AHistogram._classType = AHistogram.Type( ana.cpp.AWindowFactory.registerType\
+    ( 'Matplotlib-histogram', createhisto ) )
+  ana.cpp.QAWindowFactory.loadDefaultPixmaps( 'Matplotlib-histogram' )
 
 
 hm = HistogramModule()

@@ -56,7 +56,7 @@ class AProfile( ana.cpp.QAWindow ):
   counting problems. See the doc of the releaseref() method.
   '''
   _instances = set()
-  _classType = ana.cpp.AWindow.Type( ana.cpp.AWindowFactory.types().size() )
+  _classType = ana.cpp.AWindow.Type( 0 )
 
   def __init__( self, parent=None, name=None, options=aims.Object(), f=None ):
     '''The releaseref() method should be called after the constructor - see
@@ -491,8 +491,9 @@ class createProfileWindow( ana.cpp.AWindowCreator ):
 createprofile = createProfileWindow()
 
 def init():
-  ana.cpp.AWindowFactory.registerType( 'Matplotlib-profile',
-    createprofile )
+  AProfile._classType = AProfile.Type( ana.cpp.AWindowFactory.registerType( \
+    'Matplotlib-profile', createprofile ) )
+  ana.cpp.QAWindowFactory.loadDefaultPixmaps( 'Matplotlib-profile' )
 
 
 hm = ProfileModule()
