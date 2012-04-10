@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
 #      CEA/NeuroSpin, Batiment 145,
@@ -46,14 +47,15 @@ from matplotlib import pyplot
 import pylab, sip
 
 from PyQt4 import QtCore
-from PyQt4 import QtGui as qt
-# copy needed classes to fake qt (yes, it's a horrible hack)
-qt.QPoint = QtCore.QPoint
-qt.QSize = QtCore.QSize
-qt.QObject = QtCore.QObject
-qt.SIGNAL = QtCore.SIGNAL
-qt.PYSIGNAL = QtCore.SIGNAL
-Qt = QtCore.Qt
+from PyQt4 import QtGui
+#qt = GtGui
+## copy needed classes to fake qt (yes, it's a horrible hack)
+#qt.QPoint = QtCore.QPoint
+#qt.QSize = QtCore.QSize
+#qt.QObject = QtCore.QObject
+#qt.SIGNAL = QtCore.SIGNAL
+#qt.PYSIGNAL = QtCore.SIGNAL
+#Qt = QtCore.Qt
 
 
 class AHistogram( ana.cpp.QAWindow ):
@@ -71,20 +73,35 @@ class AHistogram( ana.cpp.QAWindow ):
     (which may be solved).
     '''
     if f is None:
-      f = Qt.WindowFlags( Qt.Window )
+      f = QtCore.Qt.WindowFlags( QtCore.Qt.Window )
     ana.cpp.QAWindow.__init__( self, parent, name, options, f )
     self._histo = pyplot.figure()
-    self.setAttribute( Qt.WA_DeleteOnClose )
+    self.setAttribute( QtCore.Qt.WA_DeleteOnClose )
     self._histo.set_facecolor( str( self.palette().color( \
-      qt.QPalette.Active, qt.QPalette.Window ).name() ) )
+      QtGui.QPalette.Active, QtGui.QPalette.Window ).name() ) )
     wid = pyplot._pylab_helpers.Gcf.get_fig_manager(self._histo.number).window
     wid.setParent( self )
     self.setCentralWidget( wid )
     # keep a reference to the python object to prevent destruction of the
     # python part
     AHistogram._instances.add( self )
-    self.connect( self, qt.SIGNAL( 'destroyed()' ), self.destroyNotified )
+    self.connect( self, QtCore.SIGNAL( 'destroyed()' ), self.destroyNotified )
     self._plots = {}
+    self._histo4d = True
+    self._localHisto = False
+    self._localSize = 20
+    # additional toolbar
+    toolbar = QtGui.QToolBar( wid )
+    ac = QtGui.QAction( '3D', toolbar )
+    ac.setCheckable( True )
+    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.set3DHisto )
+    toolbar.addAction( ac )
+    ac = QtGui.QAction( 'Local', toolbar )
+    ac.setCheckable( True )
+    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.setLocalHisto )
+    toolbar.addAction( ac )
+    toolbar.addAction( 'Neighborhood', self.setHistoNeighborhood )
+    wid.addToolBar( toolbar )
 
   def releaseref( self ):
     '''WARNING:
@@ -131,14 +148,7 @@ class AHistogram( ana.cpp.QAWindow ):
       obj = obj.internalRep
     if not self.hasObject( obj ):
       ana.cpp.QAWindow.registerObject( self, obj, temporaryObject, position )
-      if obj.objectTypeName( obj.type() ) == 'VOLUME':
-        figure = pyplot.figure( self._histo.number )
-        h = pylab.hist( numpy.ravel( \
-          numpy.array( ana.cpp.AObjectConverter.aims( \
-          obj ).volume(), copy=False ) ), 256, label=obj.name() )
-        pylab.legend()
-        self._histo.canvas.draw()
-        self._plots[ ana.cpp.weak_ptr_AObject( obj ) ] = h[2]
+      self.plotObject( obj )
 
   def unregisterObject( self, obj ):
     if hasattr( obj, 'internalRep' ):
@@ -153,8 +163,106 @@ class AHistogram( ana.cpp.QAWindow ):
         pylab.legend()
       self._histo.canvas.draw()
 
+  def eraseObject( self, obj ):
+    if hasattr( obj, 'internalRep' ):
+      obj = obj.internalRep
+    p =  self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
+    if p:
+      for x in p:
+        x.remove()
+      del self._plots[ ana.cpp.weak_ptr_AObject( obj ) ]
+      if len( self._plots ) >= 0:
+        pylab.legend()
+      self._histo.canvas.draw()
+
+  def plotObject( self, obj ):
+    if obj.objectTypeName( obj.type() ) == 'VOLUME':
+      figure = pyplot.figure( self._histo.number )
+      kw = {}
+      p = self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
+      if p:
+        col = p[0].get_facecolor()
+        kw['facecolor'] = col
+        kw[ 'color'] = col
+        col = p[0].get_edgecolor()
+        kw['edgecolor'] = col
+        self.eraseObject( obj )
+      vol = ana.cpp.AObjectConverter.aims( obj ).volume()
+      ar = numpy.array( vol, copy=False )
+      if not self._histo4d:
+        ar = ar[ :, :, :, self.GetTime() ]
+      if self._localHisto:
+        pos = self.GetPosition()
+        oref = obj.getReferential()
+        wref = self.getReferential()
+        a = ana.Anatomist()
+        trans = a.getTransformation( wref, oref )
+        if trans is not None:
+          pos = trans.transform( pos )
+        vs = vol.header()[ 'voxel_size' ]
+        ipos = numpy.round( numpy.array( pos ) / vs[:3] ).astype( int )
+        ipos0 = ipos - self._localSize / numpy.array( vs[:3] )
+        ipos1 = ipos + self._localSize / numpy.array( vs[:3] )
+        ipos0[ numpy.where( ipos0 < 0 ) ] = 0
+        if ipos1[0] >= vol.getSizeX():
+          ipos1[0] = vol.getSizeX() - 1
+        if ipos1[1] >= vol.getSizeY():
+          ipos1[1] = vol.getSizeY() - 1
+        if ipos1[2] >= vol.getSizeZ():
+          ipos1[2] = vol.getSizeZ() - 1
+        ar = ar[ ipos0[0]:ipos1[0], ipos0[1]:ipos1[1], ipos0[2]:ipos1[2] ]
+      h = pylab.hist( numpy.ravel( ar ), 256, label=obj.name(), **kw )
+      pylab.legend()
+      self._histo.canvas.draw()
+      self._plots[ ana.cpp.weak_ptr_AObject( obj ) ] = h[2]
+
   def baseTitle( self ):
     return 'Histogram'
+
+  def Refresh( self ):
+    ana.cpp.QAWindow.Refresh( self )
+    for obj in self.Objects():
+      self.plotObject( obj )
+    if len( self._plots ) != 0:
+      ax = self._histo.axes[0]
+      ax.relim()
+      ax.autoscale_view()
+
+  def set3DHisto( self, is3d ):
+    self._histo4d = not is3d
+    self.Refresh()
+
+  def setLocalHisto( self, islocal ):
+    self._localHisto = islocal
+    self.Refresh()
+
+  def setHistoNeighborhood( self ):
+    dia = QtGui.QDialog( self )
+    dia.setWindowTitle( 'Neighborhood half-size (mm)' )
+    l = QtGui.QVBoxLayout( dia )
+    dia.setLayout( l )
+    le = QtGui.QLineEdit( dia )
+    v = QtGui.QIntValidator( le )
+    v.setBottom( 0 )
+    le.setValidator( v )
+    le.setText( str( self._localSize ) )
+    le.selectAll()
+    l.addWidget( le )
+    b = QtGui.QWidget( dia )
+    l.addWidget( b )
+    l2 = QtGui.QHBoxLayout( b )
+    b.setLayout( l2 )
+    ok = QtGui.QPushButton( 'OK', b )
+    cancel = QtGui.QPushButton( 'Cancel', b )
+    l2.addWidget( ok )
+    l2.addWidget( cancel )
+    dia.connect( ok, QtGui.SIGNAL( 'pressed()' ), dia.accept )
+    dia.connect( cancel, QtGui.SIGNAL( 'pressed()' ), dia.reject )
+    res = dia.exec_()
+    if res:
+      val = int( le.text() )
+      self._localSize = val
+      self.Refresh()
 
 
 class HistogramModule( ana.cpp.Module ):
