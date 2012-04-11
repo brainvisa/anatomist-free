@@ -207,17 +207,18 @@ class AHistogram( ana.cpp.QAWindow ):
           ipos1[2] = vol.getSizeZ() - 1
         ar = ar[ ipos0[0]:ipos1[0], ipos0[1]:ipos1[1], ipos0[2]:ipos1[2] ]
       h = None
-      if use_aimsalgo:
+      if False: #use_aimsalgo:
         typecode = aims.typeCode( str( ar.dtype ) )
         hisclass = getattr( aims, 'RegularBinnedHistogram_' + typecode, None )
         if hisclass is not None:
           # print 'plotting with aims histo'
           ha = hisclass( 256 )
+          varr = vol
           if ( not self._histo4d and vol.getSizeT() != 1 ) or self._localHisto:
-            # get a real sub-volume (to avoid a bug in pyaims with sub-ndarrays)
-            # print 'copy vol'
-            ar = numpy.array( ar, copy=True )
-          ha.doit( aims.Volume( ar ) )
+            # get a sub-volume
+            vcl = getattr( aims, 'VolumeView_' + typecode )
+            varr = vcl( vol, vcl.Position4Di( *ipos0 ), vcl.Position4Di( *(ipos1 - ipos0 ) ) )
+          ha.doit( varr )
           d = ha.data()
           har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
           step = float( ha.maxDataValue() - ha.minDataValue() ) /  ha.bins()
