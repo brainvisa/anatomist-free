@@ -47,12 +47,16 @@ listboxeditor::listboxeditor( const string & /*text*/, int x, int y, unsigned w,
 			unsigned h, QObjectBrowser* br, GenericObject* ao, 
 			const string & att, Q3ListViewItem* item, 
                               QWidget* parent, const char* name, Qt::WFlags f )
-  : QDialog( parent, name, false, f | Qt::WDestructiveClose ), _browser( br ),
+  : QDialog( parent, f ), _browser( br ),
     _ao( ao ), _att( att.c_str() ), 
     _item( item )
 {
-  	if( name )
+    if( name ){
+        setObjectName(name);
     	setCaption( name );
+    }
+    setModal(false);
+    setAttribute(Qt::WA_DeleteOnClose);
 
 #if QT_VERSION >= 0x040000
   	setFocusPolicy( Qt::StrongFocus );

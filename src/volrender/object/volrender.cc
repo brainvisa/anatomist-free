@@ -1351,8 +1351,9 @@ bool VolRender::renderingIsObserverDependent() const
 void VolRender::volrenderProperties( const set<AObject *> & obj )
 {
   VolRenderPanel	*w
-      = new VolRenderPanel( obj, 0,
+      = new VolRenderPanel( obj, theAnatomist->getQWidgetAncestor(),
                             theAnatomist->catObjectNames( obj ).c_str() );
+  w->setWindowFlags(Qt::Window);
   w->show();
 }
 

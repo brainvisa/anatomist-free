@@ -72,6 +72,7 @@ private:
 #include <cartobase/object/object.h>
 #include <qdialog.h>
 #include <aims/qtcompat/qlistview.h>
+#include <anatomist/application/Anatomist.h>
 
 //class QCancelLineEdit;
 class QObjectBrowser;
@@ -87,7 +88,7 @@ public:
   listboxeditor( const std::string & text, int x, int y, unsigned w, 
                  unsigned h, QObjectBrowser* br, carto::GenericObject* ao,
                  const std::string & att, Q3ListViewItem* item,
-                 QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
+                 QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   ~listboxeditor();
 
 //  std::string text() const;

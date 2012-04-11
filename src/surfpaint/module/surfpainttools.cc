@@ -49,7 +49,7 @@ SurfpaintTools* SurfpaintTools::instance()
 }
 
 SurfpaintTools::SurfpaintTools()/* : Observer()*/
-  : QWidget(),
+    : QWidget(theAnatomist->getQWidgetAncestor(), Qt::Window),
   surfpaintTexInit( 0 ),
   win3D( 0 ),
   objselect( 0 ),

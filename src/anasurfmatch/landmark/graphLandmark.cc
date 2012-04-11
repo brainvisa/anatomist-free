@@ -117,11 +117,12 @@ void GraphLandmarkPicker::addGraphLandmarkOptions( Tree* tr )
 
 GraphLandmarkPicker::GraphLandmarkPicker( AGraph* ag, QWidget* parent, 
 					  const char* name, Qt::WFlags f )
-  : QWidget( parent, name, f ), _graph( ag ), 
+  : QWidget( parent, f ), _graph( ag ),
   pdat( new GraphLandmarkPicker_privateData )
 {
   _graph->addObserver( this );
-
+    setObjectName(name);
+    setAttribute(Qt::WA_DeleteOnClose);
   setCaption( tr( "Landmarks picker on " ) + _graph->name().c_str() );
   QVBoxLayout	*l = new QVBoxLayout( this, 5, 5 );
   QHBox		*ltbox = new QHBox( this );
@@ -204,7 +205,7 @@ void GraphLandmarkPicker::startInterface( const set<AObject*> & obj )
     }
 
   GraphLandmarkPicker	*lp 
-    = new GraphLandmarkPicker( ag );
+    = new GraphLandmarkPicker( ag, theAnatomist->getQWidgetAncestor(), 0, Qt::Window );
   lp->show();
 }
 

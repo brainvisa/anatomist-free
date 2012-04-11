@@ -80,8 +80,10 @@ VolRenderPanel::Private::Private()
 VolRenderPanel::VolRenderPanel( const std::set<anatomist::AObject *> & obj,
                                 QWidget* parent, const char* name,
                                 Qt::WFlags fl )
-  : QWidget( parent, name, fl ), Observer(), d( new Private )
+  : QWidget( parent, fl ), Observer(), d( new Private )
 {
+  setObjectName(name);
+  setAttribute(Qt::WA_DeleteOnClose);
   d->objects = obj;
   set<AObject *>::const_iterator  io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )

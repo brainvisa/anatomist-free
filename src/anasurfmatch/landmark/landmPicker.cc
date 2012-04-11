@@ -126,12 +126,13 @@ namespace anatomist
 //	class
 
 ALandmarkPicker::ALandmarkPicker( const set<AObject *> & obj ) 
-  : QWidget( 0, "LandmarkPicker", Qt::WDestructiveClose ), _obj( obj ), 
+  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), _obj( obj ),
     _privdata( new ALandmarkPicker_privateData )
 {
   QString				title = tr( "Landmark picker : " );
   set<AObject *>::const_iterator	io, fo = obj.end();
-
+   setObjectName("LandmarkPicker");
+   setAttribute(Qt::WA_DeleteOnClose);
   for( io=obj.begin(); io!=fo; ++io )
     {
       (*io)->addObserver( this );

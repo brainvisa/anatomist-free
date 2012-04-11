@@ -234,7 +234,8 @@ bool ASurfMatcher::CanRemove( AObject* )
 
 void ASurfMatcher::surfMatchControl( const set<AObject *> & obj )
 {
-  QSurfMatchWin	*w = new QSurfMatchWin( 0, (ASurfMatcher *) *obj.begin() );
+  QSurfMatchWin	*w = new QSurfMatchWin( theAnatomist->getQWidgetAncestor(), (ASurfMatcher *) *obj.begin() );
+  w->setWindowFlags(Qt::Window);
   w->show();
 }
 

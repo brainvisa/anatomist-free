@@ -98,7 +98,7 @@
 #include <qtextedit.h>
 #include <qaction.h>
 #include <qmessagebox.h>
-
+#include <qtreewidget.h>
 #include <stdio.h>
 #include <algorithm>
 
@@ -1500,25 +1500,36 @@ void ControlWindow::modulesList()
   ModuleManager::const_iterator	im, em=mm->end();
   unsigned			i = 0;
 
-  QVBox		*mv = new QVBox( 0, "Modules list", Qt::WDestructiveClose );
-  mv->setMargin( 10 );
-  Q3ListView	*lv = new Q3ListView( mv, "Modules listview" );
-  lv->addColumn( tr( "Index :" ) );
-  lv->addColumn( tr( "Name :" ) );
-  lv->addColumn( tr( "Description :" ) );
+  QWidget		*mv = new QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window );
+  mv->setObjectName("Modules list");
+  mv->setAttribute(Qt::WA_DeleteOnClose);
+  QVBoxLayout* layout = new QVBoxLayout;
+  QTreeWidget	*lv = new QTreeWidget( mv );
+  lv->setObjectName("Modules listview");
+  lv->setColumnCount(3);
+  QStringList labels;
+  labels << tr( "Index :" ) << tr( "Name :" )<< tr( "Description :" );
+  lv->setHeaderLabels(labels);
+  layout->addWidget(lv);
   mv->setCaption( tr( "Modules list" ) );
 
   cout << "Modules list :\n";
+  QTreeWidgetItem *item;
   for( im=mm->begin(); im!=em; ++im, ++i )
     {
       cout << i << " : " << (*im)->name() << endl;
       cout << "   " << (*im)->description() << endl;
-      new Q3ListViewItem( lv, QString::number( i+1 ), 
-			  QString( "  " ) + tr( (*im)->name().c_str() ), 
-			  QString( "  " ) 
-			  + tr( (*im)->description().c_str() ) );
+      QStringList text;
+      text << QString::number( i+1 ) << QString( "  " ) + tr( (*im)->name().c_str() ) << QString( "  " ) + tr( (*im)->description().c_str() ) ;
+      item = new QTreeWidgetItem( lv, text );
+      item->setTextAlignment(0, Qt::AlignTop);
+      item->setTextAlignment(1, Qt::AlignTop);
+      item->setTextAlignment(2, Qt::AlignTop);
     }
-
+  lv->resizeColumnToContents(1);
+  lv->resizeColumnToContents(2);
+  mv->setLayout(layout);
+  mv->resize(800, 400);
   mv->show();
 }
 
@@ -1527,19 +1538,17 @@ void ControlWindow::aimsInfo()
 {
   ostringstream	txt;
   Info::print( txt );
-  QVBox		*w = new QVBox( 0, 0, Qt::WDestructiveClose );
-#if QT_VERSION >= 0x040000
+  QWidget		*w = new QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window );
+  w->setAttribute(Qt::WA_DeleteOnClose);
+  QVBoxLayout *layout = new QVBoxLayout;
+  w->setLayout(layout);
   QTextEdit     *info = new QTextEdit( w );
-#else
-  QTextEdit	*info = new QTextEdit( txt.str().c_str(), QString::null, w );
-#endif
+  layout->addWidget(info);
   w->setCaption( tr( "Anatomist / AIMS libraries information" ) );
   w->resize( 600, 400 );
   info->setReadOnly( true );
   info->setTextFormat( Qt::LogText );
-#if QT_VERSION >= 0x040000
   info->setPlainText( txt.str().c_str() );
-#endif
   w->show();
 }
 

@@ -81,9 +81,11 @@ static bool ErpWraper_initialized = ErpWraper::initTexOptions();
 
 
 ErpWraper::ErpWraper( ATexture* obj, const string & dirname, QWidget* parent ) 
-  : QWidget( parent, "ErpWraper", Qt::WDestructiveClose ), 
+  : QWidget( parent ),
     _dirname( dirname ), _texture( obj ), _data( new ErpWraper_data )
 {
+   setObjectName("ErpWraper");
+   setAttribute(Qt::WA_DeleteOnClose);
   setCaption( tr( "ERP loader : " ) + dirname.c_str() );
   obj->addObserver( this );
   scanDir();
@@ -168,7 +170,8 @@ void ErpWraper::openWraper( const set<AObject *> & obj )
 	{
 	  if( tex->fileName().empty() )
 	    tex->setFileName( tex->name() );
-	  ErpWraper	*erpw = new ErpWraper( tex, tex->fileName() );
+      ErpWraper	*erpw = new ErpWraper( tex, tex->fileName(), theAnatomist->getQWidgetAncestor() );
+      erpw->setWindowFlags(Qt::Window);
 	  erpw->show();
 	}
     }
