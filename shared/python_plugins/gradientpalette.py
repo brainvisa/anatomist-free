@@ -93,8 +93,10 @@ class GradientPaletteWidget( qtgui.QWidget ):
       return False
 
   def __init__( self, objects, parent = None, name = None, flags = 0 ):
-    qtgui.QWidget.__init__( self, parent )
+    qtgui.QWidget.__init__( self, parent, flags )
     self.setAttribute( qt.Qt.WA_DeleteOnClose, True )
+    if name:
+      self.setObjectName(name)
     lay = qtgui.QVBoxLayout( self )
     lay.setMargin( 5 )
     lay.setSpacing( 5 )
@@ -307,7 +309,7 @@ class GradientPaletteCallback( anatomist.ObjectMenuCallback ):
     anatomist.ObjectMenuCallback.__init__(self)
 
   def doit( self, objects ):
-    w = GradientPaletteWidget( objects )
+    w = GradientPaletteWidget( objects, anatomist.Anatomist().getQWidgetAncestor(), None, qt.Qt.Window  )
     w.setAttribute( qt.Qt.WA_DeleteOnClose, True )
     w.show()
 
