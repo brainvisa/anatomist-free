@@ -161,7 +161,9 @@ class AHistogram( ana.cpp.QAWindow ):
     if p:
       for x in p:
         x.remove()
-      if isinstance( p, matplotlib.container.Container ):
+      if hasattr( matplotlib, 'container' ) \
+        and isinstance( p, matplotlib.container.Container ):
+        # in matplotlib 1.1 this has to be done manually
         self._histo.axes[0].containers.remove( p )
       del self._plots[ ana.cpp.weak_ptr_AObject( obj ) ]
       if len( self._histo.axes ) != 0:
