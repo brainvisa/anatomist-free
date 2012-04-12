@@ -100,6 +100,11 @@ class AHistogram( ana.cpp.QAWindow ):
     toolbar.addAction( ac )
     toolbar.addAction( 'Neighborhood...', self.setHistoNeighborhood )
     wid.addToolBar( toolbar )
+    # close shortcut
+    ac = QtGui.QAction( 'Close', self )
+    ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
+    self.connect( ac, QtGui.SIGNAL( 'triggered(bool)' ), self.closeAction )
+    self.addAction( ac )
 
   def releaseref( self ):
     '''WARNING:
@@ -292,6 +297,9 @@ class AHistogram( ana.cpp.QAWindow ):
       self._localSize = val
       self.Refresh()
 
+  def closeAction( self, dummy ):
+    self.close()
+
 
 class HistogramModule( ana.cpp.Module ):
   def name(self):
@@ -311,8 +319,10 @@ createhisto = createHistogramWindow()
 
 def init():
   AHistogram._classType = AHistogram.Type( ana.cpp.AWindowFactory.registerType\
-    ( 'Matplotlib-histogram', createhisto ) )
+    ( 'Matplotlib-histogram', createhisto, True ) )
   ana.cpp.QAWindowFactory.loadDefaultPixmaps( 'Matplotlib-histogram' )
+  ana.cpp.AWindowFactory.setHasControlWindowButton( \
+    ana.cpp.AWindowFactory.typeID( 'Histogram' ), False )
 
 
 hm = HistogramModule()

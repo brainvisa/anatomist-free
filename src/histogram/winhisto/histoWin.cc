@@ -151,9 +151,9 @@ QAHistogramWindow::~QAHistogramWindow()
 
 int QAHistogramWindow::registerClass()
 {
-  int type = AWindowFactory::registerType( QT_TRANSLATE_NOOP( "ControlWindow", 
-							      "Histogram" ), 
-					   createHistogramWindow );
+  int type = AWindowFactory::registerType(
+    QT_TRANSLATE_NOOP( "ControlWindow", "Histogram" ), createHistogramWindow,
+    true );
 
   return type;
 }

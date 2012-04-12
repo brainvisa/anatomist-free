@@ -75,6 +75,11 @@ bool AWindowFactory::initTypes()
   Creators[ AWindow::WINDOW_3D       ]
       = rc_ptr<AWindowCreator>( new AWindowCreatorFunc( create3D ));
 
+  CtrlWinVisibleTypes.insert( AWindow::AXIAL_WINDOW );
+  CtrlWinVisibleTypes.insert( AWindow::SAGITTAL_WINDOW );
+  CtrlWinVisibleTypes.insert( AWindow::CORONAL_WINDOW );
+  CtrlWinVisibleTypes.insert( AWindow::WINDOW_3D );
+
   return( true );
 }
 
@@ -256,14 +261,17 @@ int AWindowFactory::typeID( const string & type )
 }
 
 
-int AWindowFactory::registerType( const string & type, WinCreator creator )
+int AWindowFactory::registerType( const string & type, WinCreator creator,
+                                  bool visibleinCtrlWin )
 {
-  return registerType( type, new AWindowCreatorFunc( creator ) );
+  return registerType( type, new AWindowCreatorFunc( creator ),
+                       visibleinCtrlWin );
 }
 
 
 int AWindowFactory::registerType( const string & type,
-                                  AWindowCreator *creator )
+                                  AWindowCreator *creator,
+                                  bool visibleinCtrlWin )
 {
   map<string, int>::const_iterator	it = TypeID.find( type );
 
@@ -280,6 +288,8 @@ int AWindowFactory::registerType( const string & type,
   TypeID[ type ] = itype;
   TypeNames[ itype ] = type;
   Creators[ itype ] = rc_ptr<AWindowCreator>( creator );
+  if( visibleinCtrlWin )
+    CtrlWinVisibleTypes.insert( itype );
 
   ControlWindow* cw = theAnatomist->getControlWindow();
   if( cw )
@@ -289,6 +299,8 @@ int AWindowFactory::registerType( const string & type,
     pop->insertItem( type.c_str(), cw, SLOT( openWindow( int ) ), 0,
                      itype + 1000, Creators.size()-1 );
     pop->setItemParameter( 1000+itype, itype );
+    if( visibleinCtrlWin )
+      cw->setWindowTypeVisible( itype, true );
   }
 
   return( itype );
@@ -304,6 +316,25 @@ set<string> AWindowFactory::types()
     t.insert( (*it).first );
 
   return( t );
+}
+
+
+bool AWindowFactory::hasControlWindowButton( int type )
+{
+  set<int>::const_iterator i = CtrlWinVisibleTypes.find( type );
+  return i != CtrlWinVisibleTypes.end();
+}
+
+
+void AWindowFactory::setHasControlWindowButton( int type, bool visible )
+{
+  if( visible )
+    CtrlWinVisibleTypes.insert( type );
+  else
+    CtrlWinVisibleTypes.erase( type );
+  ControlWindow* cw = theAnatomist->getControlWindow();
+  if( cw )
+    cw->setWindowTypeVisible( type, visible );
 }
 
 

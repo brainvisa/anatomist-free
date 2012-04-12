@@ -104,6 +104,7 @@ public:
   /// allows or forbids closing the control window
   void enableClose( bool );
   bool closeEnabled() const;
+  void setWindowTypeVisible( int type, bool visible=true );
 
   static ControlWindow* theControlWindow() { return( _theControlWindow ); }
 

@@ -56,6 +56,7 @@ namespace anatomist
 map<int, string>			AWindowFactory::TypeNames;
 map<string, int>			AWindowFactory::TypeID;
 map<int, carto::rc_ptr<AWindowCreator> >	AWindowFactory::Creators;
+set<int> AWindowFactory::CtrlWinVisibleTypes;
 
 static bool	AWindowFactory_initialized = AWindowFactory::initTypes();
 

@@ -212,7 +212,7 @@ QObjectBrowser::Static & QObjectBrowser::staticState()
 int QObjectBrowser::registerClass()
 {
   int type = AWindowFactory::registerType( QT_TR_NOOP( "Browser" ), 
-					   createBrowser );
+					   createBrowser, true );
   staticState().classType = type;
 
   return type;

@@ -173,9 +173,9 @@ QAProfileWindow::~QAProfileWindow()
 
 int QAProfileWindow::registerClass()
 {
-  int type = AWindowFactory::registerType( QT_TRANSLATE_NOOP( "ControlWindow", 
-							      "Profile" ), 
-					   createProfileWindow );
+  int type = AWindowFactory::registerType(
+    QT_TRANSLATE_NOOP( "ControlWindow", "Profile" ), createProfileWindow,
+    true );
 
   return type;
 }

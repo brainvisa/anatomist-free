@@ -73,14 +73,18 @@ namespace anatomist
     static int typeID( const std::string & type );
     static bool exist( int type );
     static bool exist( const std::string & type );
-    static int registerType( const std::string & type, WinCreator creator );
-    static int registerType( const std::string & type, AWindowCreator *c );
+    static int registerType( const std::string & type, WinCreator creator,
+                             bool visibleinCtrlWin=false );
+    static int registerType( const std::string & type, AWindowCreator *c,
+                             bool visibleinCtrlWin=false );
     static std::set<std::string> types();
     static const std::map<std::string, int> & typeID() { return( TypeID ); }
     static const std::map<int, std::string> & typeNames()
     { return( TypeNames ); }
     static const std::map<int, carto::rc_ptr<AWindowCreator> > & creators()
     { return( Creators ); }
+    static bool hasControlWindowButton( int type );
+    static void setHasControlWindowButton( int type, bool visible );
 
   protected:
     static AWindow* createAxial( void *, carto::Object );
@@ -92,7 +96,8 @@ namespace anatomist
     static std::map<int, std::string>	TypeNames;
     static std::map<std::string, int>	TypeID;
     static std::map<int, carto::rc_ptr<AWindowCreator> > Creators;
-    
+    static std::set<int>                CtrlWinVisibleTypes;
+
     friend class StaticInitializers;
 
   private:

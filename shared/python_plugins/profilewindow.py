@@ -492,8 +492,10 @@ createprofile = createProfileWindow()
 
 def init():
   AProfile._classType = AProfile.Type( ana.cpp.AWindowFactory.registerType( \
-    'Matplotlib-profile', createprofile ) )
+    'Matplotlib-profile', createprofile, True ) )
   ana.cpp.QAWindowFactory.loadDefaultPixmaps( 'Matplotlib-profile' )
+  ana.cpp.AWindowFactory.setHasControlWindowButton( \
+    ana.cpp.AWindowFactory.typeID( 'Profile' ), False )
 
 
 hm = ProfileModule()
