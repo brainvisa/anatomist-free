@@ -152,10 +152,11 @@ struct ControlWindow::Private
 //	Constructors
 
 ControlWindow::ControlWindow() 
-  : QMainWindow( 0, "Control Window", 
-                 Qt::WType_TopLevel | Qt::WDestructiveClose ), 
+  : QMainWindow(), 
   d( new Private )
 {
+  setObjectName("Control Window");
+  setAttribute(Qt::WA_DeleteOnClose);
   if( _theControlWindow )
     {
       cerr << "Error: ControlWindow instantiated several times\n";
@@ -171,7 +172,7 @@ ControlWindow::ControlWindow()
     }
 
   _menu = new AControlMenuHandler( menuBar(), this );
-
+  
   drawContents();
 
 #if QT_VERSION >= 0x040000
@@ -199,6 +200,7 @@ ControlWindow::ControlWindow()
 
 ControlWindow::~ControlWindow()
 {
+  bool quitapp = d->closeEnabled;
   if( _theControlWindow == this )
     _theControlWindow = 0;
 
@@ -208,7 +210,10 @@ ControlWindow::~ControlWindow()
   delete _menu;
   delete d;
 
-  this->quit();
+  // quit the QApplication only if Anatomist is authorized to do so. It may not be the case if Anatomist is embedded in another QApplication (Axon).
+  if (quitapp){
+    this->quit();
+  }
 }
 
 
@@ -1370,7 +1375,7 @@ void ControlWindow::graphParams()
 void ControlWindow::quit()
 {   
   cout << "Exiting QApplication"<<endl;
-  qApp->quit();// we really need to quit qApp here (even if qApp was shared with another application e.g. brainvisa).  
+  qApp->quit();
   //exit( EXIT_SUCCESS );
 }
 
@@ -1589,22 +1594,22 @@ void ControlWindow::enableClose( bool x )
 
 void ControlWindow::closeEvent(QCloseEvent *event)
 {
-  if ( d->closeEnabled ) {
-      event->accept();
-  } else {
-      QMessageBox::warning( this, tr( "Closing forbidden" ),
-                                  tr( "Anatomist is controlled by another application "
-                                    "which does not allow closing the main window" ) );
-      event->ignore();
+  int x = QMessageBox::warning( this, tr( "Quit" ), tr( "Do you really want to quit Anatomist ?" ), QMessageBox::Ok,
+    QMessageBox::Cancel );
+  if( x == QMessageBox::Ok ){
+    DeleteAllCommand *dc = new DeleteAllCommand;
+    theProcessor->execute( dc );
+    event->accept();
   }
+  else event->ignore();
 }
 
 void ControlWindow::clearAll()
 {
   /// warn / confirm
-  int x = QMessageBox::critical( this, tr( "Delete all objects / windows "
+  int x = QMessageBox::warning( this, tr( "Close all objects / windows "
     "/referentials ?" ), tr( "All objects, windows, referentials and "
-    "transformations will be deleted" ), QMessageBox::Ok,
+    "transformations will be closed" ), QMessageBox::Ok,
     QMessageBox::Cancel );
   if( x != QMessageBox::Ok )
     return;
