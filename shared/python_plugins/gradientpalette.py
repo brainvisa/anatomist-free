@@ -322,7 +322,7 @@ class GradientPaletteMenuRegistrer( anatomist.ObjectMenuRegistrerClass ):
       if menu is None:
         menu = anatomist.ObjectMenu()
       gradpalette = GradientPaletteCallback()
-      menu.insertItem( ['Color'], 'gradient palette', gradpalette )
+      menu.insertItem( ['Color'], 'Palette editor', gradpalette )
     return menu
 
 
