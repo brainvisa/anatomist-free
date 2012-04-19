@@ -91,16 +91,17 @@ class AnnotationAction( anatomist.cpp.Action ):
     return 'AnnotationAction'
 
   def annotationSelected( self ):
-    self._built = True
     win = self.view().window()
     objs = win.Objects()
     graphs = []
-    self._labels = []
+    self._temp = []
     for o in objs:
       if o.objectTypeName( o.type() ) == 'GRAPH':
         graphs.append( o )
     for graph in graphs:
       self.buildGraphAnnotations( graph )
+    if len( self._temp ) != 0:
+      self._built = True
 
   def cleanAnnotations( self ):
     self._built = False
@@ -164,6 +165,8 @@ class AnnotationAction( anatomist.cpp.Action ):
           color = [ 0, 0, 0, 1 ]
         objects += makelabel( label, gc, pos, color, props, colors )
 
+    if len( objects ) == 0:
+      return
     lines.vertex().assign( props.lvert )
     lines.polygon().assign( props.lpoly )
     alines = a.toAObject( lines )
