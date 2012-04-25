@@ -515,8 +515,8 @@ class SelectionAction( anatomist.cpp.Action ):
 
 
 class SelectionControl( anatomist.cpp.Select3DControl ):
-  def __init__( self ):
-    anatomist.cpp.Select3DControl.__init__( self, 'SelectionControl' )
+  def __init__( self, name='SelectionControl' ):
+    anatomist.cpp.Select3DControl.__init__( self, name )
 
   def eventAutoSubscription( self, pool ):
     anatomist.cpp.Select3DControl.eventAutoSubscription( self, pool )
