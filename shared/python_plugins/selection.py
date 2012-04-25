@@ -154,10 +154,10 @@ class SelectionAction( anatomist.cpp.Action ):
   BoxColor_AsSelection = 1
   BoxColor_Custom = 2
   BoxColor_Modes = ( 'gray', 'as_selection', 'custom' )
+  mode = mode_basic
 
   def __init__(self):
     anatomist.cpp.Action.__init__(self)
-    self.mode = self.mode_basic
     gconf = a.config()
     self.useBoxHighlight = True
     self.useBoxHighlightIndividual = False
@@ -190,7 +190,7 @@ class SelectionAction( anatomist.cpp.Action ):
   def setMode(self,mode):
     if type(mode) is type('') or type(mode) is type(u''):
       mode = self.modes_list.index( mode )
-    self.mode = mode
+    SelectionAction.mode = mode
     self.cleanup()
     self.edgeSelection()
 
@@ -288,7 +288,7 @@ class SelectionAction( anatomist.cpp.Action ):
     except:
       pass
     self._recursion = True
-    #print 'edgeSelection'
+    # print 'edgeSelection'
     sf = anatomist.cpp.SelectFactory.factory()
     sel = sf.selected()
     window = self.view().window()
@@ -352,14 +352,15 @@ class SelectionAction( anatomist.cpp.Action ):
       #for graph in graphs:
         #graph.setChanged()
         #graph.notifyObservers()
+
     if self.mode != self.mode_basic:
-      objlist = window.Objects()
+      objlist = [ obj for obj in window.Objects() \
+        if obj.type() == anatomist.cpp.AObject.GRAPHOBJECT ]
       for obj in objlist:
-        if obj.type() == anatomist.cpp.AObject.GRAPHOBJECT:
-          go = obj.attributed()
-          if isinstance( go, aims.Edge ):
-            if anatomist.cpp.weak_ptr_AObject( obj ) not in selectedEdges_set:
-              window.unregisterObject(obj)
+        go = obj.attributed()
+        if isinstance( go, aims.Edge ):
+          if anatomist.cpp.weak_ptr_AObject( obj ) not in selectedEdges_set:
+            window.unregisterObject(obj)
     self._tempedges = selectedEdges_set
 
     del self._recursion
