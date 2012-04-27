@@ -52,17 +52,19 @@ class AnnotationProperties( object ):
     self.colorlabels = True
     self.center = aims.Point3df()
 
-def makelabel( label, gc, pos, color, props, colors ):
+def makelabel( label, gc, pos, color, props, colors, agraph ):
   objects = []
   to = TObj( label )
   to.setScale( 0.1 )
   to.setName( 'label: ' + label )
+  to.setReferentialInheritance( agraph )
   if colors.has_key( label ):
     color = colors[ label ]
     if props.usespheres:
       sph = aims.SurfaceGenerator.icosphere( gc, 2, 50 )
       asph = a.toAObject( sph )
       asph.releaseAppRef()
+      asph.setReferentialInheritance( agraph )
       a.unmapObject( asph )
       asph.setMaterial( diffuse=color )
       asph.setName( 'gc: ' + label )
@@ -70,6 +72,7 @@ def makelabel( label, gc, pos, color, props, colors ):
     if props.colorlabels:
       to.GetMaterial().set( { 'diffuse': color } )
   texto = anatomist.cpp.TransformedObject( [ to ], False, True, pos )
+  texto.setReferentialInheritance( agraph )
   texto.setDynamicOffsetFromPoint( props.center )
   texto.setName( 'annot: ' + label )
   objects.append( texto )
@@ -153,7 +156,8 @@ class AnnotationAction( anatomist.cpp.Action ):
             colors[ label ] = color
           if byvertex:
             pos = gc + ( gc - props.center ).normalize() * size
-            objects += makelabel( label, gc, pos, color, props, colors )
+            objects += makelabel( label, gc, pos, color, props, colors,
+              agraph )
 
     if not byvertex:
       for label, elem in elements.iteritems():
@@ -163,7 +167,7 @@ class AnnotationAction( anatomist.cpp.Action ):
           color = colors[ label ]
         else:
           color = [ 0, 0, 0, 1 ]
-        objects += makelabel( label, gc, pos, color, props, colors )
+        objects += makelabel( label, gc, pos, color, props, colors, agraph )
 
     if len( objects ) == 0:
       return
@@ -172,8 +176,10 @@ class AnnotationAction( anatomist.cpp.Action ):
     alines = a.toAObject( lines )
     alines.releaseAppRef()
     alines.setMaterial( diffuse=[ 0, 0, 0, 1 ] )
+    alines.setReferentialInheritance( agraph )
     objects.append( alines )
     labels = a.groupObjects( objects )
+    labels.setReferentialInheritance( agraph )
     labels.releaseAppRef()
     a.unmapObject( alines )
     a.unmapObject( labels )
