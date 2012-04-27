@@ -1594,9 +1594,25 @@ void ControlWindow::enableClose( bool x )
 
 void ControlWindow::closeEvent(QCloseEvent *event)
 {
-  int x = QMessageBox::warning( this, tr( "Quit" ), tr( "Do you really want to quit Anatomist ?" ), QMessageBox::Ok,
-    QMessageBox::Cancel );
-  if( x == QMessageBox::Ok ){
+  bool ask = true, doclose = true;
+  try
+  {
+    Object oask = theAnatomist->config()->getProperty( "confirmBeforeQuit" );
+    if( !oask.isNull() )
+      ask = (bool) oask->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  if( ask )
+  {
+    int x = QMessageBox::warning( this, tr( "Quit" ), tr( "Do you really want to quit Anatomist ?" ), QMessageBox::Ok,
+      QMessageBox::Cancel );
+    if( x != QMessageBox::Ok )
+      doclose = false;
+  }
+  if( doclose )
+  {
     DeleteAllCommand *dc = new DeleteAllCommand;
     theProcessor->execute( dc );
     event->accept();
