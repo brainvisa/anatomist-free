@@ -223,8 +223,16 @@ PreferencesWindow::PreferencesWindow()
   htmlbox->insertItem( "kfmclient openURL=%1" );
   htmlbox->setCurrentItem( 0 );
 
-  QVGroupBox *unst = new QVGroupBox( tr( "User level" ), app );
-  QComboBox *au = new QComboBox( true, unst );
+  QWidget *ulev = new QWidget( app );
+  QHBoxLayout *ulevl = new QHBoxLayout( ulev );
+  ulevl->setSpacing( 5 );
+  ulevl->setContentsMargins( 0, 0, 0, 0 );
+  ulev->setLayout( ulevl );
+  QLabel *ull = new QLabel( tr( "User level :" ), ulev );
+  ull->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+  ulevl->addWidget( ull );
+  QComboBox *au = new QComboBox( true, ulev );
+  ulevl->addWidget( au );
   _pdat->userLevel = au;
   au->insertItem( "Basic" );
   au->insertItem( "Advanced" );
@@ -236,6 +244,28 @@ PreferencesWindow::PreferencesWindow()
   resetUserLevel();
   connect( au, SIGNAL( activated( const QString & ) ), this,
     SLOT( setUserLevel( const QString & ) ) );
+
+  QWidget *confirm = new QWidget( app );
+  QHBoxLayout *confl = new QHBoxLayout( confirm );
+  confl->setSpacing( 5 );
+  confl->setContentsMargins( 0, 0, 0, 0 );
+  confirm->setLayout( confl );
+  QCheckBox *confla = new QCheckBox( tr( "Confirm before quitting" ),
+                                     confirm );
+  confl->addWidget( confla );
+  bool confbq = true;
+  try
+  {
+    Object oask = theAnatomist->config()->getProperty( "confirmBeforeQuit" );
+    if( !oask.isNull() )
+      confbq = (bool) oask->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  confla->setChecked( confbq );
+  connect( confla, SIGNAL( stateChanged( int ) ), this,
+           SLOT( confirmBeforeQuitChanged( int ) ) );
 
   QVGroupBox	*refs = new QVGroupBox( tr( "Default referentials" ), app );
   QGrid		*refg = new QGrid( 2, refs );
@@ -909,5 +939,19 @@ void PreferencesWindow::commonScannerBasedReferential( bool x )
                                          int(1) );
   }
 }
+
+
+void PreferencesWindow::confirmBeforeQuitChanged( int x )
+{
+  cout << "confirmBeforeQuitChanged: " << x << endl;
+  if( x )
+  {
+    if( theAnatomist->config()->hasProperty( "confirmBeforeQuit" ) )
+      theAnatomist->config()->removeProperty( "confirmBeforeQuit" );
+  }
+  else
+    theAnatomist->config()->setProperty( "confirmBeforeQuit", int(0) );
+}
+
 
 
