@@ -137,21 +137,35 @@ class AnnotationAction( anatomist.cpp.Action ):
     colors = {}
 
     for v in graph.vertices():
-      if v.has_key( 'gravity_center' ) and v.has_key( labelatt ):
-        gc = aims.Point3df( numpy.array( v['gravity_center' ] ) * vs )
+      if v.has_key( labelatt ):
         label = v[ labelatt ]
         if label != 'unknown':
+          gc = None
+          if v.has_key( 'gravity_center' ):
+            gc = aims.Point3df( numpy.array( v['gravity_center' ] ) * vs )
+          av = None
+          if v.has_key( 'ana_object' ):
+            av = v[ 'ana_object' ]
+          if gc is None and av is not None:
+            gbb = av.boundingbox()
+            gc = ( gbb[0] + gbb[1] ) / 2
+          if gc is None:
+            continue
           if not elements.has_key( label ):
             elem = [ aims.Point3df( 0, 0, 0 ), 0. ]
             elements[ label ] = elem
           else:
             elem = elements[ label ]
-          sz = v[ 'size' ]
+          if v.has_key( 'size' ):
+            sz = v[ 'size' ]
+            if sz == 0:
+              sz = 1.
+          else:
+            sz = 1.
           elem[0] += gc * sz
           elem[1] += sz
           color = [ 0, 0, 0, 1 ]
-          if v.has_key( 'ana_object' ):
-            av = v[ 'ana_object' ]
+          if av is not None:
             color = av.GetMaterial().genericDescription()[ 'diffuse' ]
             colors[ label ] = color
           if byvertex:
@@ -161,7 +175,10 @@ class AnnotationAction( anatomist.cpp.Action ):
 
     if not byvertex:
       for label, elem in elements.iteritems():
-        gc = elem[0] / elem[1]
+        if elem[1] != 0:
+          gc = elem[0] / elem[1]
+        else:
+          gc = elem[0]
         pos = gc + ( gc - props.center ).normalize() * size
         if colors.has_key( label ):
           color = colors[ label ]
