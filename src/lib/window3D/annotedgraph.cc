@@ -52,7 +52,8 @@ namespace
   {
     AnnotationProperties() :
       usespheres( true ),
-      colorlabels( true )
+      colorlabels( true ),
+      size( 1. )
     {
     }
 
@@ -61,6 +62,8 @@ namespace
     bool usespheres;
     bool colorlabels;
     Point3df center;
+    Point3df bsize;
+    float size;
   };
 
 
@@ -117,6 +120,30 @@ namespace
     theAnatomist->releaseObject( texto );
   }
 
+
+  Point3df getExtremity( const Point3df & p0, const Point3df & v,
+                         const AnnotationProperties & props )
+  {
+    /* ellipsoid intersect:
+       p = p0 + alpha * v (alpha > 0 )
+       p-center: (x,y,z): (x/a)^2 + (y/b)^2 + (z/c)^2 = r^2
+       -> this gets to a 2nd order polynom aa * alpha^2 + bb * alpha + cc = 0
+    */
+    float a = props.bsize[0] * props.bsize[0] / 4;
+    float b = props.bsize[1] * props.bsize[1] / 4;
+    float c = props.bsize[2] * props.bsize[2] / 4;
+    Point3df cp = p0 - props.center;
+    float aa = b * c * v[0]*v[0] + a * c * v[1]*v[1] + a * b * v[2]*v[2];
+    float bb = ( b * c * cp[0] * v[0] + a * c * cp[1] * v[1]
+      + a * b * cp[2] * v[2] ) * 2;
+    float cc = b * c * cp[0] * cp[0] + a * c * cp[1] * cp[1]
+      + a * b * cp[2] * cp[2] - a * b * c * props.size;
+    float delta = bb * bb - 4 * aa * cc; // discriminant
+    if( delta < 0 )
+      return p0 + v * props.size; // no intersection with ellipsoid.
+    float alpha = ( - bb + sqrt( delta ) ) / ( aa * 2 ); // largest solution
+    return p0 + v * alpha;
+  }
 
 }
 
@@ -220,7 +247,10 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
   agraph->boundingBox( bmin, bmax );
   AnnotationProperties props;
   props.center = ( bmin + bmax ) / 2;
-  float size = ( bmax - bmin ).norm() * 0.2;
+  // float size = ( bmax - bmin ).norm() * 0.2;
+  props.bsize = bmax - bmin;
+//   float size = bsize[0] * bsize[1] * bsize[2];
+  props.size = 2.; // ellipsoid going through the corner of the bbox
   Point3df vs = agraph->VoxelSize();
   list<rc_ptr<AObject> > objects;
   AimsTimeSurface<2, Void> *lines = new AimsTimeSurface<2, Void>;
@@ -296,7 +326,9 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
       }
       if( isByVertex() )
       {
-        Point3df pos = gc + ( gc - props.center ).normalize() * size;
+//         Point3df pos = gc + ( gc - props.center ).normalize() * size;
+        Point3df pos = getExtremity( gc, ( gc - props.center ).normalize(),
+                                     props );
         makelabel( label, gc, pos, color, props, colors, agraph, objects );
       }
     }
@@ -315,7 +347,8 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
         gc = elem.first / elem.second;
       else
         gc = elem.first;
-      pos = gc + ( gc - props.center ).normalize() * size;
+//       pos = gc + ( gc - props.center ).normalize() * size;
+      pos = getExtremity( gc, ( gc - props.center ).normalize(), props );
       if( colors.find( label ) != colors.end() )
         color = colors[ label ];
       else

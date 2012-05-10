@@ -463,58 +463,52 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
 void Select3DControl::doAlsoOnSelect( ActionPool* pool )
 {
   Action *a = pool->action( "LabelEditAction" );
-  if( !a )
-    return;
-  View  *v = a->view();
-  if( !v )
-    return;
-  QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
-  if( !aw )
-    return;
-  QToolBar *tb = dynamic_cast<QToolBar *>( aw->child( "select3D_toolbar" ) );
-  if( tb )
-    return; // toolbar found: it already exists.
-#if QT_VERSION >= 0x040000
-  tb = aw->addToolBar( ControlledWindow::tr( "Selection tools" ),
-                       "select3D_toolbar" );
-  //d->toolbars.push_back( d->mute );
-  tb->setIconSize( QSize( 20, 20 ) );
-#else
-  tb = new QToolBar( aw, "select3D_toolbar" );
-  tb->setLabel( ControlledWindow::tr( "Selection tools" ) );
-#endif
-  new QLabel( ControlledWindow::tr( "Selection label" ), tb,
-              "selectionLabel" );
-  LabelEditAction *la = static_cast<LabelEditAction *>( a );
-  la->setLabel( la->label() );
-  tb->show();
+  if( a )
+  {
+    View  *v = a->view();
+    if( !v )
+      return;
+    QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
+    if( !aw )
+      return;
+    QToolBar *tb = dynamic_cast<QToolBar *>( aw->child( "select3D_toolbar" ) );
+    if( tb )
+      return; // toolbar found: it already exists.
+    tb = aw->addToolBar( ControlledWindow::tr( "Selection tools" ),
+                        "select3D_toolbar" );
+    //d->toolbars.push_back( d->mute );
+    tb->setIconSize( QSize( 20, 20 ) );
+    new QLabel( ControlledWindow::tr( "Selection label" ), tb,
+                "selectionLabel" );
+    LabelEditAction *la = static_cast<LabelEditAction *>( a );
+    la->setLabel( la->label() );
+    tb->show();
+  }
+  // annotation
+  a = pool->action( "AnnotationAction" );
+  if( a )
+    static_cast<AnnotationAction *>( a )->cleanAnnotations();
 }
 
 
 void Select3DControl::doAlsoOnDeselect( ActionPool* pool )
 {
   Action *a = pool->action( "LabelEditAction" );
-  if( !a )
-    return;
-  View  *v = a->view();
-  if( !v )
-    return;
-  QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
-  if( !aw )
-    return;
-#if QT_VERSION >= 0x040000
-  QToolBar *tb = aw->removeToolBar( "select3D_toolbar" );
-  delete tb;
-#else
-  QToolBar *tb = dynamic_cast<QToolBar *>( aw->child( "select3D_toolbar" ) );
-  if( tb )
+  if( a )
   {
+    View  *v = a->view();
+    if( !v )
+      return;
+    QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
+    if( !aw )
+      return;
+    QToolBar *tb = aw->removeToolBar( "select3D_toolbar" );
     delete tb;
-    return;
   }
-  // selection toolbar not found: strange...
-  cerr << "bug: selection toolbar not found\n";
-#endif
+  // annotation
+  a = pool->action( "AnnotationAction" );
+  if( a )
+    static_cast<AnnotationAction *>( a )->cleanAnnotations();
 }
 
 // ----
