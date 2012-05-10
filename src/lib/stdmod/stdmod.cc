@@ -38,6 +38,7 @@
 #include <anatomist/window3D/transformer.h>
 #include <anatomist/window3D/trackcut.h>
 #include <anatomist/window3D/labeleditaction.h>
+#include <anatomist/window3D/annotedgraph.h>
 #include <anatomist/browser/browsercontrol.h>
 #include <anatomist/controler/controldictionary.h>
 #include <anatomist/controler/controlmanager.h>
@@ -201,6 +202,10 @@ void StdModule::actionsDeclaration()
   LabelEditAction lea;
   ActionDictionary::instance()->addAction( lea.name(),
                              &LabelEditAction::creator );
+
+  AnnotationAction anac;
+  ActionDictionary::instance()->addAction( anac.name(),
+                                           &AnnotationAction::creator );
 
 
   //	Commands

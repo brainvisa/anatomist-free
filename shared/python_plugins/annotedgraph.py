@@ -36,6 +36,8 @@ from soma import aims
 import numpy
 import selection
 
+raise RuntimeError( 'Disabled annotedgraph python version' )
+
 byvertex = False
 
 # This intermediate class is only here because I cannot (yet) make SIP

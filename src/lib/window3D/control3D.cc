@@ -54,6 +54,7 @@
 #include <anatomist/control/objectDrag.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/window3D/labeleditaction.h>
+#include <anatomist/window3D/annotedgraph.h>
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/application/globalConfig.h>
 #include <qtimer.h>
@@ -450,6 +451,12 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
                           KeyActionLinkOf<LabelEditAction>
                               ( actionPool->action( "LabelEditAction" ),
                                 &LabelEditAction::edit ) );
+
+  // graph annotation
+  keyPressEventSubscribe( Qt::Key_A, Qt::NoButton,
+                          KeyActionLinkOf<AnnotationAction>
+                          ( actionPool->action( "AnnotationAction" ),
+                            &AnnotationAction::switchAnnotations ) );
 }
 
 
