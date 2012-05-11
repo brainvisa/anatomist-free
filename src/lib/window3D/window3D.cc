@@ -1612,9 +1612,6 @@ void AWindow3D::resizeView(int w, int h)
    return;
    */
 
-  cout << "resize window 3D\n";
-
-
   if (w > QApplication::desktop()->width()) w
       = QApplication::desktop()->width();
   if (h > QApplication::desktop()->height()) h
