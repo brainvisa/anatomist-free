@@ -81,33 +81,20 @@ class SplitFoldAction( anatomist.Action ):
     vs = g[ 'voxel_size' ]
     posi = aims.Point3d( round( pos[0] / vs[0] ), round( pos[1] / vs[1] ),
       round( pos[2] / vs[2] ) )
-    newvertex = fov.splitVertex( vertex, posi )
-    if newvertex is None:
-      print 'Split failed.'
-      return
-    try:
-      bk = vertex[ 'aims_ss_ana' ]
-      bk.setInternalsChanged()
-    except:
-      pass
-    try:
-      bk = vertex[ 'aims_bottom_ana' ]
-      bk.setInternalsChanged()
-    except:
-      pass
-    try:
-      bk = vertex[ 'aims_other_ana' ]
-      bk.setInternalsChanged()
-    except:
-      pass
-    ag.updateAfterAimsChange()
-    av = newvertex[ 'ana_object' ]
-    w.registerObject( av )
-    sf = anatomist.SelectFactory.factory()
-    sf.unselectAll( w.Group() )
-    sf.select( w.Group(), [ av ] )
-    ag.notifyObservers()
-    sf.refresh()
+    splitline = fov.findSplitLine( vertex, posi )
+    # show split line
+    asplit = anatomist.AObjectConverter.anatomist( splitline )
+    a.unmapObject( asplit )
+    a.releaseObject( asplit )
+    mat = asplit.GetMaterial()
+    mat.set( { 'diffuse' : [ 0., 0.3, 1., 1. ] } )
+    asplit.SetMaterial( mat )
+    w.registerObject( asplit, True )
+
+    self.temporary = { 'splitline' : splitline,
+      'graph' : g,
+      'vertex' : vertex,
+      'tempobjects' : [ asplit ] }
 
   def subdivize( self, x, y, globx, globy ):
     self.cleanup()
@@ -318,7 +305,10 @@ class SplitFoldAction( anatomist.Action ):
       return
     g = ag.attributed()
     data = getattr( self, 'temporary', {} )
-    if data.has_key( 'graph' ):
+    if data.has_key( 'splitline' ):
+      self.cleanup()
+      data = {}
+    elif data.has_key( 'graph' ):
       oldg = data[ 'graph' ]
       if oldg != g:
         print 'different graph.'
@@ -340,7 +330,7 @@ class SplitFoldAction( anatomist.Action ):
       round( pos[2] / vs[2] ) )
     points.append( posi )
     data[ 'points' ] = points
-    sph = aims.SurfaceGenerator.icosahedron( pos, min( vs ) / 2.2 )
+    sph = aims.SurfaceGenerator.icosahedron( pos, min( vs ) * 0.6 )
     asph = anatomist.AObjectConverter.anatomist( sph )
     #asph = anatomist.rc_ptr_AObject( asph )
     a.unmapObject( asph )
@@ -349,57 +339,76 @@ class SplitFoldAction( anatomist.Action ):
     mat.set( { 'diffuse' : [ 0.8, 0.3, 0., 1. ] } )
     asph.SetMaterial( mat )
     w.registerObject( asph, True )
-    spheres = data.get( 'spheres', [] )
+    spheres = data.get( 'tempobjects', [] )
     spheres.append( asph )
-    data[ 'spheres' ] = spheres
+    data[ 'tempobjects' ] = spheres
 
   def doSplitDotted( self ):
     if not hasattr( self, 'temporary' ):
       print 'nothing to split yet. Use ctrl+left button to set split points.'
       return
     data = self.temporary
-    self.cleanup()
-    if not data.has_key( 'graph' ) or not data.has_key( 'vertex' ) \
-      or not data.has_key( 'points' ):
-      print 'missing split information. Use ctrl+left button to set split points.'
-      return
-    graph = data[ 'graph' ]
-    vertex = data[ 'vertex' ]
-    points = data[ 'points' ]
-    if len( points ) == 0:
-      print 'no split points set. Use ctrl+left button to set split points.'
-      return
-    fos = aims.FoldArgOverSegment( graph )
-    newvertex = fos.splitVertex( vertex, points )
-    if newvertex is None:
-      print 'Split failed.'
-      return
-    try:
-      bk = vertex[ 'aims_ss_ana' ]
-      bk.setInternalsChanged()
-    except:
-      pass
-    try:
-      bk = vertex[ 'aims_bottom_ana' ]
-      bk.setInternalsChanged()
-    except:
-      pass
-    try:
-      bk = vertex[ 'aims_other_ana' ]
-      bk.setInternalsChanged()
-    except:
-      pass
-    ag = graph[ 'ana_object' ]
-    ag.loadSubObjects( 3 )
-    ag.updateAfterAimsChange()
-    av = newvertex[ 'ana_object' ]
-    w = self.view().window()
-    w.registerObject( av )
-    sf = anatomist.SelectFactory.factory()
-    sf.unselectAll( w.Group() )
-    sf.select( w.Group(), [ av ] )
-    ag.notifyObservers()
-    sf.refresh()
+    if data.has_key( 'splitline' ): # split confirmed
+      self.cleanup()
+      splitline = data[ 'splitline' ]
+      graph = data[ 'graph' ]
+      vertex = data[ 'vertex' ]
+      fos = aims.FoldArgOverSegment( graph )
+      print 'splitline:', type( splitline )
+      newvertex = fos.splitVertex( vertex, splitline, 50 )
+      if newvertex is None:
+        print 'Split failed.'
+        return
+      try:
+        bk = vertex[ 'aims_ss_ana' ]
+        bk.setInternalsChanged()
+      except:
+        pass
+      try:
+        bk = vertex[ 'aims_bottom_ana' ]
+        bk.setInternalsChanged()
+      except:
+        pass
+      try:
+        bk = vertex[ 'aims_other_ana' ]
+        bk.setInternalsChanged()
+      except:
+        pass
+      ag = graph[ 'ana_object' ]
+      ag.loadSubObjects( 3 )
+      ag.updateAfterAimsChange()
+      av = newvertex[ 'ana_object' ]
+      w = self.view().window()
+      w.registerObject( av )
+      sf = anatomist.SelectFactory.factory()
+      sf.unselectAll( w.Group() )
+      sf.select( w.Group(), [ av ] )
+      ag.notifyObservers()
+      sf.refresh()
+    else: #  make split line from points
+      if not data.has_key( 'graph' ) or not data.has_key( 'vertex' ) \
+        or not data.has_key( 'points' ):
+        print 'missing split information. Use ctrl+left button to set split points.'
+        return
+      graph = data[ 'graph' ]
+      vertex = data[ 'vertex' ]
+      points = data[ 'points' ]
+      if len( points ) == 0:
+        print 'no split points set. Use ctrl+left button to set split points.'
+        return
+      fos = aims.FoldArgOverSegment( graph )
+      splitline = fos.findSplitLine( vertex, points )
+      data[ 'splitline' ] = splitline
+      # show split line
+      asplit = anatomist.AObjectConverter.anatomist( splitline )
+      a.unmapObject( asplit )
+      a.releaseObject( asplit )
+      mat = asplit.GetMaterial()
+      mat.set( { 'diffuse' : [ 0., 0.3, 1., 1. ] } )
+      asplit.SetMaterial( mat )
+      w = self.view().window()
+      w.registerObject( asplit, True )
+      data[ 'tempobjects' ].append( asplit )
 
 
 class SplitFoldControl( anatomist.Control ):
