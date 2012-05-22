@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
 #      CEA/NeuroSpin, Batiment 145,
@@ -50,6 +51,7 @@ class SplitFoldAction( anatomist.Action ):
     return 'SplitFoldAction'
 
   def split( self, x, y, globx, globy ):
+    self.cleanup()
     a = anatomist.Anatomist()
     v = self.view()
     w = v.window()
@@ -57,22 +59,14 @@ class SplitFoldAction( anatomist.Action ):
     ok = v.positionFromCursor( x, y, pos )
     if not ok:
       return
-    obj = w.objectAt( pos[0], pos[1], pos[2], w.GetTime() )
-    if not obj:
-      print 'No object at that position'
-      return
-    if obj.type() != anatomist.AObject.GRAPHOBJECT:
-      print 'Not a Vertex:', obj
-      return
-    print 'pos:', pos
-    vertex = obj.attributed()
-    if vertex.getSyntax() != 'fold':
-      print 'Not a cortical fold:', obj
+    vertex = self.findVertex( pos, w )
+    if vertex is None:
       return
     ag = None
     try:
       ag = vertex[ 'agraph' ]
     except:
+      obj = vertex[ 'ana_object' ]
       ps = obj.parents()
       for p in ps:
         if p.type() == anatomist.AObject.GRAPH:
@@ -116,6 +110,7 @@ class SplitFoldAction( anatomist.Action ):
     sf.refresh()
 
   def subdivize( self, x, y, globx, globy ):
+    self.cleanup()
     a = anatomist.Anatomist()
     v = self.view()
     w = v.window()
@@ -123,22 +118,14 @@ class SplitFoldAction( anatomist.Action ):
     ok = v.positionFromCursor( x, y, pos )
     if not ok:
       return
-    obj = w.objectAt( pos[0], pos[1], pos[2], w.GetTime() )
-    if not obj:
-      print 'No object at that position'
-      return
-    if obj.type() != anatomist.AObject.GRAPHOBJECT:
-      print 'Not a Vertex:', obj
-      return
-    print 'pos:', pos
-    vertex = obj.attributed()
-    if vertex.getSyntax() != 'fold':
-      print 'Not a cortical fold:', obj
+    vertex = self.findVertex( pos, w )
+    if vertex is None:
       return
     ag = None
     try:
       ag = vertex[ 'agraph' ]
     except:
+      obj = vertex[ 'ana_object' ]
       ps = obj.parents()
       for p in ps:
         if p.type() == anatomist.AObject.GRAPH:
@@ -175,6 +162,7 @@ class SplitFoldAction( anatomist.Action ):
     ag.notifyObservers()
 
   def subdivizeGraph( self, x, y, globx, globy ):
+    self.cleanup()
     a = anatomist.Anatomist()
     v = self.view()
     w = v.window()
@@ -201,21 +189,13 @@ class SplitFoldAction( anatomist.Action ):
       ok = v.positionFromCursor( x, y, pos )
       if not ok:
         return
-      obj = w.objectAt( pos[0], pos[1], pos[2], w.GetTime() )
-      if not obj:
-        print 'No object at that position'
-        return
-      if obj.type() != anatomist.AObject.GRAPHOBJECT:
-        print 'Not a Vertex:', obj
-        return
-      print 'pos:', pos
-      vertex = obj.attributed()
-      if vertex.getSyntax() != 'fold':
-        print 'Not a cortical fold:', obj
+      vertex = self.findVertex( pos, w )
+      if vertex is None:
         return
       try:
         ag = vertex[ 'agraph' ]
       except:
+        obj = vertex[ 'ana_object' ]
         ps = obj.parents()
         for p in ps:
           if p.type() == anatomist.AObject.GRAPH:
@@ -251,6 +231,176 @@ class SplitFoldAction( anatomist.Action ):
       w.registerObject( av )
     ag.notifyObservers()
 
+  def cleanup( self ):
+    if hasattr( self, 'temporary' ):
+      del self.temporary
+
+  def distanceToVertex( self, pos, vertex ):
+    bck = []
+    if vertex.has_key( 'aims_ss' ):
+      bck.append( vertex[ 'aims_ss' ] )
+    if vertex.has_key( 'aims_bottom' ):
+      bck.append( vertex[ 'aims_bottom' ] )
+    if vertex.has_key( 'aims_other' ):
+      bck.append( vertex[ 'aims_other' ] )
+    dmin = 1.e38
+    pmin = None
+    if len( bck ) != 0:
+      vs = aims.Point3df( bck[0].sizeX(), bck[0].sizeY(), bck[0].sizeZ() )
+      for bk in bck:
+        for pt in bk[0].keys():
+          d = ( aims.Point3df( pt[0] * vs[0], pt[1] * vs[1], pt[2] * vs[2] )\
+                - pos ).norm2()
+          if d < dmin:
+            dmin = d
+            pmin = pt
+    return numpy.sqrt( dmin ), pmin
+
+  def findVertex( self, pos, win, tolerance=4. ):
+    existingvertex = None
+    if hasattr( self, 'temporary' ):
+      data = self.temporary
+      if data.has_key( 'vertex' ):
+        existingvertex = data[ 'vertex' ]
+    if existingvertex:
+      dmin, pmin = self.distanceToVertex( pos, existingvertex )
+      if dmin < tolerance:
+        return existingvertex
+    obj = win.objectAt( pos[0], pos[1], pos[2], win.GetTime() )
+    if not obj:
+      print 'No object at that position'
+      return
+    if obj.type() != anatomist.AObject.GRAPHOBJECT:
+      print 'Not a Vertex:', obj
+      return
+    vertex = obj.attributed()
+    if vertex.getSyntax() != 'fold':
+      if vertex.getSyntax() in \
+        [ 'cortical', 'hull_junction', 'junction', 'plidepassage' ]:
+        edge = vertex
+        dmin = 1.e38
+        vertex = None
+        for v in edge.vertices():
+          d, pmin = self.distanceToVertex( pos, v )
+          if d < dmin:
+            dmin = d
+            vertex = v
+        if dmin < tolerance:
+          return vertex
+      print 'Not a cortical fold:', obj, vertex.getSyntax()
+      return
+    return vertex
+
+  def splitDotted( self, x, y, globx, globy ):
+    print 'splitDotted'
+    a = anatomist.Anatomist()
+    v = self.view()
+    w = v.window()
+    pos = aims.Point3df()
+    ok = v.positionFromCursor( x, y, pos )
+    if not ok:
+      return
+    vertex = self.findVertex( pos, w )
+    if vertex is None:
+      return
+    ag = None
+    try:
+      ag = vertex[ 'agraph' ]
+    except:
+      obj = vertex[ 'ana_object' ]
+      ps = obj.parents()
+      for p in ps:
+        if p.type() == anatomist.AObject.GRAPH:
+          ag = p
+          break
+    if ag is None:
+      print 'Vertex has no parent graph, strange. Aborting.'
+      return
+    g = ag.attributed()
+    data = getattr( self, 'temporary', {} )
+    if data.has_key( 'graph' ):
+      oldg = data[ 'graph' ]
+      if oldg != g:
+        print 'different graph.'
+        self.cleanup()
+        data = {}
+      else:
+        if data.has_key( 'vertex' ):
+          oldv = data[ 'vertex' ]
+          if oldv != vertex:
+            print 'different vertex'
+            self.cleanup()
+            data = {}
+    self.temporary = data
+    data[ 'graph' ] = g
+    data[ 'vertex' ] = vertex
+    points = data.get( 'points', [] )
+    vs = g[ 'voxel_size' ]
+    posi = aims.Point3d( round( pos[0] / vs[0] ), round( pos[1] / vs[1] ),
+      round( pos[2] / vs[2] ) )
+    points.append( posi )
+    data[ 'points' ] = points
+    sph = aims.SurfaceGenerator.icosahedron( pos, min( vs ) / 2.2 )
+    asph = anatomist.AObjectConverter.anatomist( sph )
+    #asph = anatomist.rc_ptr_AObject( asph )
+    a.unmapObject( asph )
+    a.releaseObject( asph )
+    mat = asph.GetMaterial()
+    mat.set( { 'diffuse' : [ 0.8, 0.3, 0., 1. ] } )
+    asph.SetMaterial( mat )
+    w.registerObject( asph, True )
+    spheres = data.get( 'spheres', [] )
+    spheres.append( asph )
+    data[ 'spheres' ] = spheres
+
+  def doSplitDotted( self ):
+    if not hasattr( self, 'temporary' ):
+      print 'nothing to split yet. Use ctrl+left button to set split points.'
+      return
+    data = self.temporary
+    self.cleanup()
+    if not data.has_key( 'graph' ) or not data.has_key( 'vertex' ) \
+      or not data.has_key( 'points' ):
+      print 'missing split information. Use ctrl+left button to set split points.'
+      return
+    graph = data[ 'graph' ]
+    vertex = data[ 'vertex' ]
+    points = data[ 'points' ]
+    if len( points ) == 0:
+      print 'no split points set. Use ctrl+left button to set split points.'
+      return
+    fos = aims.FoldArgOverSegment( graph )
+    newvertex = fos.splitVertex( vertex, points )
+    if newvertex is None:
+      print 'Split failed.'
+      return
+    try:
+      bk = vertex[ 'aims_ss_ana' ]
+      bk.setInternalsChanged()
+    except:
+      pass
+    try:
+      bk = vertex[ 'aims_bottom_ana' ]
+      bk.setInternalsChanged()
+    except:
+      pass
+    try:
+      bk = vertex[ 'aims_other_ana' ]
+      bk.setInternalsChanged()
+    except:
+      pass
+    ag = graph[ 'ana_object' ]
+    ag.loadSubObjects( 3 )
+    ag.updateAfterAimsChange()
+    av = newvertex[ 'ana_object' ]
+    w = self.view().window()
+    w.registerObject( av )
+    sf = anatomist.SelectFactory.factory()
+    sf.unselectAll( w.Group() )
+    sf.select( w.Group(), [ av ] )
+    ag.notifyObservers()
+    sf.refresh()
+
 
 class SplitFoldControl( anatomist.Control ):
   def __init__( self, prio = 150 ):
@@ -262,11 +412,18 @@ class SplitFoldControl( anatomist.Control ):
       qt.Qt.LeftButton, qt.Qt.NoModifier,
       pool.action( 'SplitFoldAction' ).split )
     self.mousePressButtonEventSubscribe( \
-      qt.Qt.LeftButton, qt.Qt.ControlModifier,
+      qt.Qt.RightButton, qt.Qt.ControlModifier,
       pool.action( 'SplitFoldAction' ).subdivize )
     self.mousePressButtonEventSubscribe( \
-      qt.Qt.LeftButton, qt.Qt.ShiftModifier,
+      qt.Qt.RightButton, qt.Qt.ShiftModifier,
       pool.action( 'SplitFoldAction' ).subdivizeGraph )
+    self.mousePressButtonEventSubscribe( \
+      qt.Qt.LeftButton, qt.Qt.ControlModifier,
+      pool.action( 'SplitFoldAction' ).splitDotted )
+    self.keyPressEventSubscribe( qt.Qt.Key_S, qt.Qt.NoModifier,
+      pool.action( 'SplitFoldAction' ).doSplitDotted )
+    self.keyPressEventSubscribe( qt.Qt.Key_Escape, qt.Qt.NoModifier,
+      pool.action( 'SplitFoldAction' ).cleanup )
     # std actions
     self.mousePressButtonEventSubscribe( qt.Qt.RightButton, qt.Qt.NoModifier,
       pool.action( "MenuAction" ).execMenu )
@@ -284,6 +441,13 @@ class SplitFoldControl( anatomist.Control ):
       pool.action( "Translate3DAction" ).moveTranslate,
       pool.action( "Translate3DAction" ).endTranslate, True )
 
+  def doAlsoOnSelect( self, actionpool ):
+    anatomist.Control.doAlsoOnSelect( self, actionpool )
+    actionpool.action( 'SplitFoldAction' ).cleanup()
+
+  def doAlsoOnDeselect( self, actionpool ):
+    anatomist.Control.doAlsoOnDeselect( self, actionpool )
+    actionpool.action( 'SplitFoldAction' ).cleanup()
 
 sf = SplitFoldModule()
 
