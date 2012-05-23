@@ -515,7 +515,8 @@ class SelectionAction( anatomist.cpp.Action ):
 
 
 class SelectionControl( anatomist.cpp.Select3DControl ):
-  def __init__( self, name='SelectionControl' ):
+  def __init__( self,
+    name=QtCore.QT_TRANSLATE_NOOP( 'ControlledWindow', 'SelectionControl' ) ):
     anatomist.cpp.Select3DControl.__init__( self, name )
 
   def eventAutoSubscription( self, pool ):
