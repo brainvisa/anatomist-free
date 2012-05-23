@@ -355,7 +355,7 @@
     </message>
     <message>
         <source>Removes selected objects from selected windows</source>
-        <translation>Enlève les objets sélectionnés des fenêtres sélectionnées</translation>
+        <translation type="obsolete">Enlève les objets sélectionnés des fenêtres sélectionnées</translation>
     </message>
     <message>
         <source>Choose a referential on objects or windows</source>
@@ -411,7 +411,7 @@
     </message>
     <message>
         <source>Puts selected objects in selected windows</source>
-        <translation>Met les objets sélectionnés dans les fenêtres sélectionnées</translation>
+        <translation type="obsolete">Met les objets sélectionnés dans les fenêtres sélectionnées</translation>
     </message>
     <message>
         <source>Object-specific</source>
@@ -427,7 +427,7 @@
     </message>
     <message>
         <source>Reads a new object from a file</source>
-        <translation>Lit un nouvel objet depuis un fichier disque</translation>
+        <translation type="obsolete">Lit un nouvel objet depuis un fichier disque</translation>
     </message>
     <message>
         <source>Load object</source>
@@ -455,7 +455,7 @@
     </message>
     <message>
         <source>Creates a new object combining the selected ones</source>
-        <translation>Crée un nouvel objet en combinant ceux sélectionnés</translation>
+        <translation type="obsolete">Crée un nouvel objet en combinant ceux sélectionnés</translation>
     </message>
     <message>
         <source>Referential window</source>
@@ -691,11 +691,11 @@
     </message>
     <message>
         <source>Closing forbidden</source>
-        <translation>Fermeture interdite</translation>
+        <translation type="obsolete">Fermeture interdite</translation>
     </message>
     <message>
         <source>Anatomist is controlled by another application which does not allow closing the main window</source>
-        <translation>Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
+        <translation type="obsolete">Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
     </message>
     <message>
         <source>VtkModule</source>
@@ -727,11 +727,11 @@
     </message>
     <message>
         <source>Delete all objects / windows /referentials ?</source>
-        <translation>Effacer tous les objets / fenêtres / référentiels ?</translation>
+        <translation type="obsolete">Effacer tous les objets / fenêtres / référentiels ?</translation>
     </message>
     <message>
         <source>All objects, windows, referentials and transformations will be deleted</source>
-        <translation>Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
+        <translation type="obsolete">Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
     </message>
     <message>
         <source>Surfpaint</source>
@@ -740,6 +740,18 @@
     <message>
         <source>picking and painting a texture value on the mesh</source>
         <translation>sélectionner et dessiner une valeur de texture sur le maillage</translation>
+    </message>
+    <message>
+        <source>Do you really want to quit Anatomist ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close all objects / windows /referentials ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All objects, windows, referentials and transformations will be closed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -853,35 +865,37 @@ Défilement des coupes:
     </message>
     <message>
         <source>Default 3D control</source>
-        <translation>Contrôle par défaut
-Bt gauche: curseur lié
-Bt milieu: rotation
-     &lt;shift&gt; ou molette : zoom/distance
-     &lt;ctrl&gt;                   : translation
-Bt droit    :  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;         :  synchro vues
-&lt;alt+s&gt;    :  synchro vues (orientation seulement)
-&lt;ctrl+c&gt;   :  fixe le centre de vue
-&lt;alt+c&gt;    :  affiche la position du centre de vue
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe
-Défilement des coupes:
-&lt;PgUp&gt;             :  coupe précédente
-&lt;PgDown&gt;         :  coupe suivante
-&lt;shift+PgUp&gt;     :  temps précédent
-&lt;shift+PgDown&gt; :  temps suivant
-&lt;ctrl+l&gt;              :  mode curseur lié bougeant avec les coupes
-&lt;ctrl+s&gt;             :  sélection du mode &apos;coupes&apos;
-&lt;ctrl+t&gt;              :  sélection du mode &apos;temps&apos;
-&lt;espace&gt;           :  défilement / arrêt du défilement des coupes
-&lt;ctrl+espace&gt;    :  mode &quot;apesanteur&quot;: rotation continue
-&lt;ctrl+m&gt;            :  change le mode de défilement des coupes
-&lt;+&gt;                   :  défile plus vite
-&lt;-&gt;                    :  défile moins vite</translation>
+        <translation>&lt;html&gt;Contrôle par défaut 3D / Curseur lié:
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;lt;shift&amp;gt; / molette&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;lt;ctrl&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+W&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fermer la fenêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;F9&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;F10&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;shift+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues (orientation seulement)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;alt+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+A&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Défilement des coupes:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;coupes&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+T&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;temps&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+L&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;&lt;/td&gt;mode curseur lié bougeant avec les coupes&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défilement / arrêt du défilement des coupes&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;mode &quot;apesanteur&quot;: rotation continue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+M&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change le mode de défilement des coupes&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;+&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile plus vite&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;-&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile moins vite&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>TransformControl</source>
@@ -1110,7 +1124,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>not object selected</source>
-        <translation>Pas d&apos;objet sélectionné</translation>
+        <translation type="obsolete">Pas d&apos;objet sélectionné</translation>
     </message>
     <message>
         <source>Cannot open surfpaint Toolbox</source>
@@ -1199,6 +1213,10 @@ Bt droit   :  menu
     <message>
         <source>MagicBrush</source>
         <translation>Chemin continu à main levée</translation>
+    </message>
+    <message>
+        <source>No object selected</source>
+        <translation>Aucun objet sélecionné</translation>
     </message>
 </context>
 <context>
@@ -1645,7 +1663,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <source>Linear :</source>
@@ -1653,7 +1671,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Modèle</translation>
+        <translation type="obsolete">Modèle</translation>
     </message>
     <message>
         <source>Position :</source>
@@ -1665,11 +1683,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="unfinished">Atténuation</translation>
+        <translation type="obsolete">Atténuation</translation>
     </message>
     <message>
         <source>Exponent :</source>
@@ -1756,7 +1774,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation>Réglages avancés</translation>
+        <translation type="obsolete">Réglages avancés</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1764,7 +1782,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Fast color selection</source>
-        <translation>Sélection rapide</translation>
+        <translation type="obsolete">Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
@@ -1784,7 +1802,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Rendering</source>
-        <translation>Rendu</translation>
+        <translation type="obsolete">Rendu</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
@@ -2104,7 +2122,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Control window</source>
-        <translation>Fenêtre de contrôle</translation>
+        <translation type="obsolete">Fenêtre de contrôle</translation>
     </message>
     <message>
         <source>Anatomist global settings</source>
@@ -2124,7 +2142,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation>Curseur lié</translation>
+        <translation type="obsolete">Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2152,7 +2170,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Volumes</source>
-        <translation>Volumes</translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <source>Display linked cursor</source>
@@ -2168,7 +2186,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation>Application</translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <source>Unstable/in development features</source>
@@ -2208,7 +2226,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation>Fenêtres</translation>
+        <translation type="obsolete">Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2252,11 +2270,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>User level</source>
-        <translation>Niveau d&apos;utilisateur</translation>
+        <translation type="obsolete">Niveau d&apos;utilisateur</translation>
     </message>
     <message>
         <source>OpenGL</source>
-        <translation>OpenGL</translation>
+        <translation type="obsolete">OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
@@ -2309,6 +2327,14 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <message>
         <source>Assume all &apos;scanner-based&apos; referentials are the same </source>
         <translation>Supposer que tous les référentiels &apos;scanner-based&apos; sont les mêmes</translation>
+    </message>
+    <message>
+        <source>User level :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm before quitting</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2438,6 +2464,49 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <message>
         <source>Value 0 at center</source>
         <translation>Valeur 0 au centre</translation>
+    </message>
+</context>
+<context>
+    <name>QAWindowBlock</name>
+    <message>
+        <source>Windows block layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lay in columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lay in rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lay in rectangle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set number of columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set number of rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set columns / rows ratio for rectangular layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuler</translation>
+    </message>
+    <message>
+        <source>Set columns / rows ratio</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

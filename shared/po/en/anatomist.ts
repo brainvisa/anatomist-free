@@ -219,6 +219,54 @@
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
+    <message>
+        <source>Mesh : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no mesh selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texture : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TexConstraint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>predefined constraints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>user defined</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>weight map : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open map of constrained path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>curvature (default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>constraint list : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open list of constrained value</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ControlSwitch</name>
@@ -335,7 +383,7 @@
     </message>
     <message>
         <source>Reads a new object from a file</source>
-        <translation type="unfinished">Reads a new object from a file</translation>
+        <translation type="obsolete">Reads a new object from a file</translation>
     </message>
     <message>
         <source>Add objects in windows</source>
@@ -343,7 +391,7 @@
     </message>
     <message>
         <source>Puts selected objects in selected windows</source>
-        <translation type="unfinished">Puts selected objects in selected windows</translation>
+        <translation type="obsolete">Puts selected objects in selected windows</translation>
     </message>
     <message>
         <source>Removes objects from windows</source>
@@ -351,7 +399,7 @@
     </message>
     <message>
         <source>Removes selected objects from selected windows</source>
-        <translation type="unfinished">Removes selected objects from selected windows</translation>
+        <translation type="obsolete">Removes selected objects from selected windows</translation>
     </message>
     <message>
         <source>Fusion objects</source>
@@ -359,7 +407,7 @@
     </message>
     <message>
         <source>Creates a new object combining the selected ones</source>
-        <translation type="unfinished">Creates a new object combining the selected ones</translation>
+        <translation type="obsolete">Creates a new object combining the selected ones</translation>
     </message>
     <message>
         <source>Assign referential</source>
@@ -614,27 +662,7 @@
         <translation type="unfinished">Constraint editor</translation>
     </message>
     <message>
-        <source>OpenCE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Anatomist / AIMS libraries information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Closing forbidden</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Anatomist is controlled by another application which does not allow closing the main window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete all objects / windows /referentials ?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All objects, windows, referentials and transformations will be deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -693,40 +721,54 @@
         <source>picking and painting a texture value on the mesh</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Do you really want to quit Anatomist ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close all objects / windows /referentials ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All objects, windows, referentials and transformations will be closed</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ControlledWindow</name>
     <message>
         <source>Default 3D control</source>
-        <translation type="unfinished">Default 3D control
-Left btn: linked cursor
-Mid btn: rotation
-           &lt;shift&gt; / wheel : zoom/distance
-           &lt;ctrl&gt; : translation
-Right btn:  menu
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;s&gt;         :  synchro views
-&lt;shift+s&gt; :  sync views orientation
-&lt;ctrl+c&gt;   :  set center of view
-&lt;alt+c&gt;    :  show position of the center of view
-&lt;ctrl+a&gt;   :  select/unselect all objects
-&lt;del&gt;       :  remove selected object from this view
-&lt;ctrl+del&gt; :  remove selected objects from group
-Slice movie:
-&lt;PgUp&gt;             :  previous slice
-&lt;PgDown&gt;         : next slice
-&lt;shift+PgUp&gt;     : previous time
-&lt;shift+PgDown&gt; : next time
-&lt;ctrl+s&gt;             :  select &apos;slice&apos; mode
-&lt;ctrl+t&gt;              :  select &apos;time&apos; mode
-&lt;ctrl+l&gt;              :  moving linked cursor mode
-&lt;space&gt;             :  start / stop slice slider movie
-&lt;ctrl+space&gt;       :  weightlessness mode: continuous rotation
-&lt;ctrl+m&gt;             :  change slice movie mode
-&lt;+&gt;                    :  increase movie speed
-&lt;-&gt;                     :  decrease movie speed</translation>
+        <translation>&lt;html&gt;Default 3D / Linked Cursor control:
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;lt;shift&amp;gt; / wheel&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;lt;ctrl&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+W&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;F9&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;F10&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;shift+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sync views orientation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;alt+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+A&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Slice movie:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;slice&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+T&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;time&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+L&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;moving linked cursor mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;start / stop slice slider movie&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;weightlessness mode: continuous rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+M&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change slice movie mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;+&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;increase movie speed&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;-&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;decrease movie speed&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Selection 3D</source>
@@ -1057,10 +1099,6 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>not object selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot open surfpaint Toolbox</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1137,15 +1175,11 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open map of constrained path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open list of constrained value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>MagicBrush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No object selected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1585,19 +1619,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Model</translation>
+        <translation type="obsolete">Model</translation>
     </message>
     <message>
         <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="unfinished">Attenuation</translation>
+        <translation type="obsolete">Attenuation</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1672,11 +1706,11 @@ Right Button   :  menu
     <name>MaterialWindow</name>
     <message>
         <source>Fast color selection</source>
-        <translation type="unfinished">Fast color selection</translation>
+        <translation type="obsolete">Fast color selection</translation>
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="unfinished">Advanced settings</translation>
+        <translation type="obsolete">Advanced settings</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1776,10 +1810,6 @@ Right Button   :  menu
     </message>
     <message>
         <source>Blue:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rendering</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2048,19 +2078,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished">Application</translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation type="unfinished">Linked cursor</translation>
+        <translation type="obsolete">Linked cursor</translation>
     </message>
     <message>
         <source>Control window</source>
-        <translation type="unfinished">Control window</translation>
+        <translation type="obsolete">Control window</translation>
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <source>Language :</source>
@@ -2116,11 +2146,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Windows</translation>
-    </message>
-    <message>
-        <source>User level</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Windows</translation>
     </message>
     <message>
         <source>Default referentials</source>
@@ -2217,7 +2243,15 @@ might still crash with such an OpenGL implementation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OpenGL</source>
+        <source>User level :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm before quitting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Assume all &apos;scanner-based&apos; referentials are the same </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2347,6 +2381,49 @@ might still crash with such an OpenGL implementation.</source>
     </message>
     <message>
         <source>Value 0 at center</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QAWindowBlock</name>
+    <message>
+        <source>Windows block layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lay in columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lay in rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lay in rectangle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set number of columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set number of rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set columns / rows ratio for rectangular layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <source>Set columns / rows ratio</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2930,10 +3007,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished">default</translation>
     </message>
     <message>
-        <source>Apply builtin referential (SPM/NIFTI)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Display</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2975,6 +3048,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Load information from file header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add without nodes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3292,6 +3369,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <message>
         <source>Referential</source>
         <translation type="unfinished">Referential</translation>
+    </message>
+    <message>
+        <source>Split referential to disconnect transformations</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
