@@ -1913,8 +1913,8 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
         }
     }
     if (setpos)
-    // set cursor in middle of object
-    SetPosition((bmin + bmax) * 0.5f, o->getReferential());
+      // set cursor in middle of object
+      SetPosition((bmin + bmax) * 0.5f, getReferential() );
     SetTime(0);
 
     // resize window if in 2D mode
