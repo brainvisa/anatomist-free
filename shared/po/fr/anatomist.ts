@@ -743,15 +743,15 @@
     </message>
     <message>
         <source>Do you really want to quit Anatomist ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voulez-vous vraiment quitter Anatomist ?</translation>
     </message>
     <message>
         <source>Close all objects / windows /referentials ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Fermer tous les objets / fenêtres / référentiels ?</translation>
     </message>
     <message>
         <source>All objects, windows, referentials and transformations will be closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les objets, fenêtres, référentiels et transformations vont être détruits</translation>
     </message>
 </context>
 <context>
@@ -1439,114 +1439,114 @@ Bt droit   :  menu
     <name>Fusion2DWindow</name>
     <message>
         <source>Fusion 2D control</source>
-        <translation type="unfinished">Contrôle de fusion 2D</translation>
+        <translation>Contrôle de fusion 2D</translation>
     </message>
     <message>
         <source>Objects :</source>
-        <translation type="unfinished">Objets :</translation>
+        <translation>Objets :</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">Monter</translation>
+        <translation>Monter</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished">Descendre</translation>
+        <translation>Descendre</translation>
     </message>
 </context>
 <context>
     <name>Fusion3DWindow</name>
     <message>
         <source>Max</source>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
         <source>Min</source>
-        <translation type="unfinished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
         <source>Mean</source>
-        <translation type="unfinished">Moyenne</translation>
+        <translation>Moyenne</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Proportion</translation>
+        <translation>Proportion</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Appliquer</translation>
+        <translation>Appliquer</translation>
     </message>
     <message>
         <source>Line to point</source>
-        <translation type="unfinished">Ligne</translation>
+        <translation>Ligne</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Linéaire</translation>
+        <translation>Linéaire</translation>
     </message>
     <message>
         <source>Inside line to point</source>
-        <translation type="unfinished">Ligne à l&apos;intérieur</translation>
+        <translation>Ligne à l&apos;intérieur</translation>
     </message>
     <message>
         <source>Enhanced mean</source>
-        <translation type="unfinished">Moyenne rehaussée</translation>
+        <translation>Moyenne rehaussée</translation>
     </message>
     <message>
         <source>Point to point</source>
-        <translation type="unfinished">Point</translation>
+        <translation>Point</translation>
     </message>
     <message>
         <source>Outside line to point</source>
-        <translation type="unfinished">Ligne à l&apos;extérieur</translation>
+        <translation>Ligne à l&apos;extérieur</translation>
     </message>
     <message>
         <source>Parameters :</source>
-        <translation type="unfinished">Paramètres :</translation>
+        <translation>Paramètres :</translation>
     </message>
     <message>
         <source>Depth (mm)</source>
-        <translation type="unfinished">Profondeur (mm)</translation>
+        <translation>Profondeur (mm)</translation>
     </message>
     <message>
         <source>Methods :</source>
-        <translation type="unfinished">Méthodes :</translation>
+        <translation>Méthodes :</translation>
     </message>
     <message>
         <source>Step (mm)</source>
-        <translation type="unfinished">Pas (mm)</translation>
+        <translation>Pas (mm)</translation>
     </message>
     <message>
         <source>Geometrical</source>
-        <translation type="unfinished">Géométrique</translation>
+        <translation>Géométrique</translation>
     </message>
     <message>
         <source>Fusion mode :</source>
-        <translation type="unfinished">Mode de fusion :</translation>
+        <translation>Mode de fusion :</translation>
     </message>
     <message>
         <source>Corrected mean</source>
-        <translation type="unfinished">Moyenne corrigée</translation>
+        <translation>Moyenne corrigée</translation>
     </message>
     <message>
         <source>Submethods :</source>
-        <translation type="unfinished">Sous-méthodes :</translation>
+        <translation>Sous-méthodes :</translation>
     </message>
     <message>
         <source>Sphere to point</source>
-        <translation type="unfinished">Sphère</translation>
+        <translation>Sphère</translation>
     </message>
     <message>
         <source>Point to point with depth offset (inside)</source>
-        <translation type="unfinished">Point à point décalé en profondeur (intérieur)</translation>
+        <translation>Point à point décalé en profondeur (intérieur)</translation>
     </message>
     <message>
         <source>Point to point with depth offset (outside)</source>
-        <translation type="unfinished">Point à point décalé en profondeur (extérieur)</translation>
+        <translation>Point à point décalé en profondeur (extérieur)</translation>
     </message>
     <message>
         <source>Abs. Max</source>
-        <translation type="unfinished">Max. abs</translation>
+        <translation>Max. abs</translation>
     </message>
 </context>
 <context>
@@ -1651,15 +1651,15 @@ Bt droit   :  menu
     <name>LightModelWindow</name>
     <message>
         <source>X :</source>
-        <translation type="unfinished">X :</translation>
+        <translation>X :</translation>
     </message>
     <message>
         <source>Y :</source>
-        <translation type="unfinished">Y :</translation>
+        <translation>Y :</translation>
     </message>
     <message>
         <source>Z :</source>
-        <translation type="unfinished">Z :</translation>
+        <translation>Z :</translation>
     </message>
     <message>
         <source>Spot</source>
@@ -1667,7 +1667,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linear :</source>
-        <translation type="unfinished">Linéaire :</translation>
+        <translation>Linéaire :</translation>
     </message>
     <message>
         <source>Model</source>
@@ -1675,11 +1675,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Position :</source>
-        <translation type="unfinished">Position :</translation>
+        <translation>Position :</translation>
     </message>
     <message>
         <source>Local viewer</source>
-        <translation type="unfinished">Observateur local</translation>
+        <translation>Observateur local</translation>
     </message>
     <message>
         <source>Source</source>
@@ -1691,19 +1691,19 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Exponent :</source>
-        <translation type="unfinished">Exposant :</translation>
+        <translation>Exposant :</translation>
     </message>
     <message>
         <source>Quadratic :</source>
-        <translation type="unfinished">Quadratique :</translation>
+        <translation>Quadratique :</translation>
     </message>
     <message>
         <source>Ambient :</source>
-        <translation type="unfinished">Ambiante :</translation>
+        <translation>Ambiante :</translation>
     </message>
     <message>
         <source>Parameters :</source>
-        <translation type="unfinished">Paramètres :</translation>
+        <translation>Paramètres :</translation>
     </message>
     <message>
         <source>Controlers :</source>
@@ -1711,35 +1711,35 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Light model : </source>
-        <translation type="unfinished">Modèle de lumière : </translation>
+        <translation>Modèle de lumière : </translation>
     </message>
     <message>
         <source>Constant :</source>
-        <translation type="unfinished">Constant :</translation>
+        <translation>Constant :</translation>
     </message>
     <message>
         <source>Specular :</source>
-        <translation type="unfinished">Spéculaire :</translation>
+        <translation>Spéculaire :</translation>
     </message>
     <message>
         <source>Direction :</source>
-        <translation type="unfinished">Direction :</translation>
+        <translation>Direction :</translation>
     </message>
     <message>
         <source>Cutoff :</source>
-        <translation type="unfinished">Coupure :</translation>
+        <translation>Coupure :</translation>
     </message>
     <message>
         <source>Diffuse :</source>
-        <translation type="unfinished">Diffuse :</translation>
+        <translation>Diffuse :</translation>
     </message>
     <message>
         <source>Background :</source>
-        <translation type="unfinished">Fond :</translation>
+        <translation>Fond :</translation>
     </message>
     <message>
         <source>Two side</source>
-        <translation type="unfinished">Eclairage des 2 côtés</translation>
+        <translation>Eclairage des 2 côtés</translation>
     </message>
 </context>
 <context>
@@ -2294,7 +2294,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>limit number of textures: </source>
-        <translation>limitater le nombre de textures: </translation>
+        <translation>limiter le nombre de textures: </translation>
     </message>
     <message>
         <source>Unlimited</source>
@@ -2330,11 +2330,11 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
     <message>
         <source>User level :</source>
-        <translation type="unfinished"></translation>
+        <translation>Niveau d&apos;utilisateur :</translation>
     </message>
     <message>
         <source>Confirm before quitting</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmer avant de quitter</translation>
     </message>
 </context>
 <context>
@@ -2470,43 +2470,43 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <name>QAWindowBlock</name>
     <message>
         <source>Windows block layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposition des fenêtres dans le bloc</translation>
     </message>
     <message>
         <source>Lay in columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposer en colonnes</translation>
     </message>
     <message>
         <source>Lay in rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposer en lignes</translation>
     </message>
     <message>
         <source>Lay in rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposer en rectangle</translation>
     </message>
     <message>
         <source>Set number of columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixer le nombre de colonnes</translation>
     </message>
     <message>
         <source>Set number of rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixer le nombre de lignes</translation>
     </message>
     <message>
         <source>Set columns / rows ratio for rectangular layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixer le ratio colonnes / lignes pour la disposition rectangulaire</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Set columns / rows ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixer le ratio colonnes / lignes</translation>
     </message>
 </context>
 <context>
@@ -2520,7 +2520,7 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <name>QAbout</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cannot find text file</source>
@@ -2532,11 +2532,11 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
     <message>
         <source>About Anatomist</source>
-        <translation type="unfinished">À propos d&apos;Anatomist</translation>
+        <translation>À propos d&apos;Anatomist</translation>
     </message>
     <message>
         <source>Cannot find about.txt file</source>
-        <translation type="unfinished">Impossible de trouver le fichier texte de ce message &quot;about.txt&quot;</translation>
+        <translation>Impossible de trouver le fichier texte de ce message &quot;about.txt&quot;</translation>
     </message>
     <message>
         <source>check config and BRAINVISA_SHARE or ANATOMIST_PATH environment variable</source>
@@ -2544,46 +2544,46 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
     <message>
         <source>check config and BRAINVISA_SHARE environment variable</source>
-        <translation type="unfinished">vérifier la configuration et la variable d&apos;environnement BRAINVISA_SHARE</translation>
+        <translation>vérifier la configuration et la variable d&apos;environnement BRAINVISA_SHARE</translation>
     </message>
 </context>
 <context>
     <name>QGraphParam</name>
     <message>
         <source>Colors (2D / 3D)</source>
-        <translation type="unfinished">Couleurs (2D / 3D)</translation>
+        <translation>Couleurs (2D / 3D)</translation>
     </message>
     <message>
         <source>Display first object</source>
-        <translation type="unfinished">Afficher le premier objet</translation>
+        <translation>Afficher le premier objet</translation>
     </message>
     <message>
         <source>Use one file per individual sub-object</source>
-        <translation type="unfinished">Sauver chaque sous-objet dans un fichier individuel</translation>
+        <translation>Sauver chaque sous-objet dans un fichier individuel</translation>
     </message>
     <message>
         <source>Graph parameters</source>
-        <translation type="unfinished">Paramètres des graphes</translation>
+        <translation>Paramètres des graphes</translation>
     </message>
     <message>
         <source>Display all</source>
-        <translation type="unfinished">Afficher tout</translation>
+        <translation>Afficher tout</translation>
     </message>
     <message>
         <source>Selection color</source>
-        <translation type="unfinished">Couleur de sélection</translation>
+        <translation>Couleur de sélection</translation>
     </message>
     <message>
         <source>Display trangulations</source>
-        <translation type="unfinished">Afficher les surfaces</translation>
+        <translation>Afficher les surfaces</translation>
     </message>
     <message>
         <source>Display ToolTips</source>
-        <translation type="unfinished">Afficher les bulles</translation>
+        <translation>Afficher les bulles</translation>
     </message>
     <message>
         <source>Use one file per sub-object type</source>
-        <translation type="unfinished">Sauver un fichier par type de sous-objet</translation>
+        <translation>Sauver un fichier par type de sous-objet</translation>
     </message>
     <message>
         <source>IO saving settings</source>
@@ -2591,98 +2591,98 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
     <message>
         <source>Constant color :</source>
-        <translation type="unfinished">Couleur fixe :</translation>
+        <translation>Couleur fixe :</translation>
     </message>
     <message>
         <source>Display facets</source>
-        <translation type="unfinished">Afficher les facettes</translation>
+        <translation>Afficher les facettes</translation>
     </message>
     <message>
         <source>Graph 3D display mode</source>
-        <translation type="unfinished">Mode d&apos;affichage 3D des graphes</translation>
+        <translation>Mode d&apos;affichage 3D des graphes</translation>
     </message>
     <message>
         <source>Use inverse color</source>
-        <translation type="unfinished">Utiliser la couleur inverse</translation>
+        <translation>Utiliser la couleur inverse</translation>
     </message>
     <message>
         <source>Save only modified sub-objects</source>
-        <translation type="unfinished">Sauver seulement les sous-objest modifiés</translation>
+        <translation>Sauver seulement les sous-objest modifiés</translation>
     </message>
     <message>
         <source>Use attribute :</source>
-        <translation type="unfinished">Utiliser l&apos;attribut :</translation>
+        <translation>Utiliser l&apos;attribut :</translation>
     </message>
     <message>
         <source>Set sub-objects dir. from graph filename</source>
-        <translation type="unfinished">Fixer le répertoire des sous-objets au du nom du graphe</translation>
+        <translation>Fixer le répertoire des sous-objets au du nom du graphe</translation>
     </message>
     <message>
         <source>Default (as loaded)</source>
-        <translation type="unfinished">Défaut (tel qu&apos;au chargement)</translation>
+        <translation>Défaut (tel qu&apos;au chargement)</translation>
     </message>
     <message>
         <source>Use Nomenclature/color bindings (if any)</source>
-        <translation type="unfinished">Utiliser la correspondance Nomenclature/couleur</translation>
+        <translation>Utiliser la correspondance Nomenclature/couleur</translation>
     </message>
     <message>
         <source>IO settings</source>
-        <translation type="unfinished">Paramètres de lecture / sauvegarde</translation>
+        <translation>Paramètres de lecture / sauvegarde</translation>
     </message>
     <message>
         <source>Load sub-objects in relations</source>
-        <translation type="unfinished">Charger les sous-objets des relations</translation>
+        <translation>Charger les sous-objets des relations</translation>
     </message>
     <message>
         <source>Selection highlight type :</source>
-        <translation type="unfinished">Type de visualisation de la sélection :</translation>
+        <translation>Type de visualisation de la sélection :</translation>
     </message>
 </context>
 <context>
     <name>QGraphProperties</name>
     <message>
         <source>Display mode : </source>
-        <translation type="unfinished">Mode d&apos;affichage : </translation>
+        <translation>Mode d&apos;affichage : </translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Property map</source>
-        <translation type="unfinished">Propriété</translation>
+        <translation>Propriété</translation>
     </message>
     <message>
         <source>Property to be mapped : </source>
-        <translation type="unfinished">Propriété à afficher : </translation>
+        <translation>Propriété à afficher : </translation>
     </message>
     <message>
         <source>Map property on :</source>
-        <translation type="unfinished">Afficher la propriété sur :</translation>
+        <translation>Afficher la propriété sur :</translation>
     </message>
     <message>
         <source>nodes</source>
-        <translation type="unfinished">noeuds</translation>
+        <translation>noeuds</translation>
     </message>
     <message>
         <source>relations</source>
-        <translation type="unfinished">relations</translation>
+        <translation>relations</translation>
     </message>
     <message>
         <source>label / nomenclature property :</source>
-        <translation type="unfinished">propriété label / nomenclature :</translation>
+        <translation>propriété label / nomenclature :</translation>
     </message>
     <message>
         <source>default (as in settings)</source>
-        <translation type="unfinished">défaut (comme réglages)</translation>
+        <translation>défaut (comme réglages)</translation>
     </message>
     <message>
         <source>name (manual)</source>
-        <translation type="unfinished">name (manuel)</translation>
+        <translation>name (manuel)</translation>
     </message>
     <message>
         <source>label (automatic)</source>
-        <translation type="unfinished">label (automatique)</translation>
+        <translation>label (automatique)</translation>
     </message>
     <message>
         <source>Keep palette absolute values</source>
@@ -2695,368 +2695,368 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
         <source>  This big stupid logo annoys you ?  
   Remove it !
   (in Settings-&gt;Prefs)...</source>
-        <translation type="unfinished">  Ce logo n&apos;est pas beau ?
+        <translation>  Ce logo n&apos;est pas beau ?
   Enlevez-le (menu Réglages-&gt;Préférences)  
   ou mettez le vôtre à la place !
   (placez-le en ~/.anatomist/icons/anatomist.png)
-  Envoyez-moi donc les plus beaux (à riviere@shfj.cea.fr)...  </translation>
+  Envoyez-moi donc les plus beaux (à denis.riviere@cea.fr)...  </translation>
     </message>
 </context>
 <context>
     <name>QObjectBrowser</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>EDIT</source>
-        <translation type="unfinished">EDITION</translation>
+        <translation>EDITION</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Reg.</source>
-        <translation type="unfinished">Enr.</translation>
+        <translation>Enr.</translation>
     </message>
     <message>
         <source>Sel.</source>
-        <translation type="unfinished">Sél.</translation>
+        <translation>Sél.</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Type</translation>
+        <translation>Type</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">Étiquette</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Valeur</translation>
+        <translation>Valeur</translation>
     </message>
     <message>
         <source>Cannot determine attribute characteristics</source>
-        <translation type="unfinished">Je ne peux pas déterminer les caractéristiques de l&apos;attribut</translation>
+        <translation>Je ne peux pas déterminer les caractéristiques de l&apos;attribut</translation>
     </message>
     <message>
         <source>Cannot determine attributed object</source>
-        <translation type="unfinished">Je ne peux pas déterminer l&apos;objet attribué</translation>
+        <translation>Je ne peux pas déterminer l&apos;objet attribué</translation>
     </message>
     <message>
         <source>SEND edit</source>
-        <translation type="unfinished">ENVOI édit</translation>
+        <translation>ENVOI édit</translation>
     </message>
     <message>
         <source>Conflicting type for attribute </source>
-        <translation type="unfinished">conflit de types pour l&apos;attribut </translation>
+        <translation>conflit de types pour l&apos;attribut </translation>
     </message>
     <message>
         <source>Delete attribute </source>
-        <translation type="unfinished">Effacer l&apos;attribut </translation>
+        <translation>Effacer l&apos;attribut </translation>
     </message>
     <message>
         <source>New attribute in </source>
-        <translation type="unfinished">Nouvel attribut dans </translation>
+        <translation>Nouvel attribut dans </translation>
     </message>
     <message>
         <source>Modify attribute</source>
-        <translation type="unfinished">Modifier l&apos;attribut</translation>
+        <translation>Modifier l&apos;attribut</translation>
     </message>
     <message>
         <source>I cannot edit this attribute type</source>
-        <translation type="unfinished">Je ne peux pas éditer ce type d&apos;attribut</translation>
+        <translation>Je ne peux pas éditer ce type d&apos;attribut</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Modify attribute </source>
-        <translation type="unfinished">Modifier l&apos;attribut </translation>
+        <translation>Modifier l&apos;attribut </translation>
     </message>
     <message>
         <source>Label1</source>
-        <translation type="unfinished">Étiquette1</translation>
+        <translation>Étiquette1</translation>
     </message>
     <message>
         <source>Label2</source>
-        <translation type="unfinished">Étiquette2</translation>
+        <translation>Étiquette2</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Object</source>
-        <translation type="unfinished">Objet</translation>
+        <translation>Objet</translation>
     </message>
     <message>
         <source>Color for </source>
-        <translation type="unfinished">Couleur pour </translation>
+        <translation>Couleur pour </translation>
     </message>
     <message>
         <source>Delete attribute</source>
-        <translation type="unfinished">Effacer l&apos;attribut</translation>
+        <translation>Effacer l&apos;attribut</translation>
     </message>
     <message>
         <source>so cannot be edited as </source>
-        <translation type="unfinished">donc ne peut pas être édité en tant que </translation>
+        <translation>donc ne peut pas être édité en tant que </translation>
     </message>
     <message>
         <source>exists as </source>
-        <translation type="unfinished">existe en tant que </translation>
+        <translation>existe en tant que </translation>
     </message>
     <message>
         <source>Attribute exists and I can&apos;t get it!
 (not direct child in tree ?)
 try clicking it and selecting &apos;Modify&apos;</source>
-        <translation type="unfinished">L&apos;attribut existe mais je ne peux pas le récupérer
+        <translation>L&apos;attribut existe mais je ne peux pas le récupérer
 (pas un enfant direct dans l&apos;arbre ?)
 Essayez de cliquer et de sélectionner &apos;Modifier&apos;</translation>
     </message>
     <message>
         <source>Add attribute</source>
-        <translation type="unfinished">Ajouter un attribut</translation>
+        <translation>Ajouter un attribut</translation>
     </message>
     <message>
         <source>Item not found</source>
-        <translation type="unfinished">Element pas trouvé</translation>
+        <translation>Element pas trouvé</translation>
     </message>
     <message>
         <source>An editor is already open. close it first.</source>
-        <translation type="unfinished">Un éditeur est déjà ouvert. Fermez-le d&apos;abord.</translation>
+        <translation>Un éditeur est déjà ouvert. Fermez-le d&apos;abord.</translation>
     </message>
     <message>
         <source>Can&apos;t find attribute in tree.
 Try using &quot;add attribute (?)&quot;</source>
-        <translation type="unfinished">L&apos;attribut n&apos;existe pas dans l&apos;arbre.
+        <translation>L&apos;attribut n&apos;existe pas dans l&apos;arbre.
 Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Browser</source>
-        <translation type="unfinished">Browser</translation>
+        <translation>Browser</translation>
     </message>
     <message>
         <source>Can only edit the same attribute on multiple items</source>
-        <translation type="unfinished">Il n&apos;est possible d&apos;éditer plusieurs éléments que pour le même attribut</translation>
+        <translation>Il n&apos;est possible d&apos;éditer plusieurs éléments que pour le même attribut</translation>
     </message>
 </context>
 <context>
     <name>QObjectBrowserWidget</name>
     <message>
         <source>nodes</source>
-        <translation type="unfinished">noeuds</translation>
+        <translation>noeuds</translation>
     </message>
     <message>
         <source>Graph nodes</source>
-        <translation type="unfinished">Noeuds du graphe</translation>
+        <translation>Noeuds du graphe</translation>
     </message>
     <message>
         <source>Global attributes</source>
-        <translation type="unfinished">Attributs globaux</translation>
+        <translation>Attributs globaux</translation>
     </message>
 </context>
 <context>
     <name>QObjectTree</name>
     <message>
         <source>Ref</source>
-        <translation type="unfinished">Ref</translation>
+        <translation>Ref</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Type</translation>
+        <translation>Type</translation>
     </message>
     <message>
         <source>Objects</source>
-        <translation type="unfinished">Objets</translation>
+        <translation>Objets</translation>
     </message>
 </context>
 <context>
     <name>QSelAttrib</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Value :</source>
-        <translation type="unfinished">Valeur :</translation>
+        <translation>Valeur :</translation>
     </message>
     <message>
         <source>AnaQt attribute criterion</source>
-        <translation type="unfinished">Critère d&apos;attribut</translation>
+        <translation>Critère d&apos;attribut</translation>
     </message>
     <message>
         <source>Attribute :</source>
-        <translation type="unfinished">Attribut :</translation>
+        <translation>Attribut :</translation>
     </message>
 </context>
 <context>
     <name>QSelectMenu</name>
     <message>
         <source>File</source>
-        <translation type="unfinished">Fichier</translation>
+        <translation>Fichier</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Charger</translation>
+        <translation>Charger</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Sauver</translation>
+        <translation>Sauver</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Couleur</translation>
+        <translation>Couleur</translation>
     </message>
     <message>
         <source>Create associated roi graph</source>
-        <translation type="unfinished">Créer un graphe associé</translation>
+        <translation>Créer un graphe associé</translation>
     </message>
     <message>
         <source>Objects manipulations</source>
-        <translation type="unfinished">Objet-spécifique</translation>
+        <translation>Objet-spécifique</translation>
     </message>
     <message>
         <source>Invert polygon orientation</source>
-        <translation type="unfinished">Inverser l&apos;orientation des polygones</translation>
+        <translation>Inverser l&apos;orientation des polygones</translation>
     </message>
     <message>
         <source>Select nodes of attribute ...</source>
-        <translation type="unfinished">Sélectionner les noeuds d&apos;attribut ...</translation>
+        <translation>Sélectionner les noeuds d&apos;attribut ...</translation>
     </message>
     <message>
         <source>Remove from this window</source>
-        <translation type="unfinished">Enlever de cette fenêtre</translation>
+        <translation>Enlever de cette fenêtre</translation>
     </message>
     <message>
         <source>Landmarks</source>
-        <translation type="unfinished">Points de repère</translation>
+        <translation>Points de repère</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished">Recharger</translation>
+        <translation>Recharger</translation>
     </message>
     <message>
         <source>Unselect</source>
-        <translation type="unfinished">Dé-sélectionner</translation>
+        <translation>Dé-sélectionner</translation>
     </message>
     <message>
         <source>Delete attribute</source>
-        <translation type="unfinished">Effacer l&apos;attribut</translation>
+        <translation>Effacer l&apos;attribut</translation>
     </message>
     <message>
         <source>ERP loader</source>
-        <translation type="unfinished">Chargeur d&apos;ERPs</translation>
+        <translation>Chargeur d&apos;ERPs</translation>
     </message>
     <message>
         <source>Add region</source>
-        <translation type="unfinished">Nouvelle région</translation>
+        <translation>Nouvelle région</translation>
     </message>
     <message>
         <source>Send value </source>
-        <translation type="unfinished">Envoyer la valeur </translation>
+        <translation>Envoyer la valeur </translation>
     </message>
     <message>
         <source>Select neighbours</source>
-        <translation type="unfinished">Sélectionner les voisins</translation>
+        <translation>Sélectionner les voisins</translation>
     </message>
     <message>
         <source>Export mask as volume</source>
-        <translation type="unfinished">Exporter le masque sous forme de volume</translation>
+        <translation>Exporter le masque sous forme de volume</translation>
     </message>
     <message>
         <source>Material</source>
-        <translation type="unfinished">Matériau</translation>
+        <translation>Matériau</translation>
     </message>
     <message>
         <source>Referential</source>
-        <translation type="unfinished">Référentiel</translation>
+        <translation>Référentiel</translation>
     </message>
     <message>
         <source>Remove from windows of this group</source>
-        <translation type="unfinished">Enlever des fenêtres de ce groupe</translation>
+        <translation>Enlever des fenêtres de ce groupe</translation>
     </message>
     <message>
         <source>Surface matching window</source>
-        <translation type="unfinished">Mise en correspondance de surfaces</translation>
+        <translation>Mise en correspondance de surfaces</translation>
     </message>
     <message>
         <source>Modify attribute...</source>
-        <translation type="unfinished">Modifier l&apos;attribut...</translation>
+        <translation>Modifier l&apos;attribut...</translation>
     </message>
     <message>
         <source>Pick landmarks</source>
-        <translation type="unfinished">Prendre des points de repère</translation>
+        <translation>Prendre des points de repère</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished">Tout sélectionner</translation>
+        <translation>Tout sélectionner</translation>
     </message>
     <message>
         <source>Geometry</source>
-        <translation type="unfinished">Géométrie</translation>
+        <translation>Géométrie</translation>
     </message>
     <message>
         <source>Set name</source>
-        <translation type="unfinished">Changer le nom</translation>
+        <translation>Changer le nom</translation>
     </message>
     <message>
         <source>View / select objects</source>
-        <translation type="unfinished">Voir / sélectionner les objets</translation>
+        <translation>Voir / sélectionner les objets</translation>
     </message>
     <message>
         <source>Modify name</source>
-        <translation type="unfinished">Modifier &apos;name&apos;</translation>
+        <translation>Modifier &apos;name&apos;</translation>
     </message>
     <message>
         <source>Modify label</source>
-        <translation type="unfinished">Modifier &apos;label&apos;</translation>
+        <translation>Modifier &apos;label&apos;</translation>
     </message>
     <message>
         <source>Add attribute...</source>
-        <translation type="unfinished">Ajouter l&apos;attribut...</translation>
+        <translation>Ajouter l&apos;attribut...</translation>
     </message>
     <message>
         <source>Control 2D fusion</source>
-        <translation type="unfinished">Contrôle de la fusion 2D</translation>
+        <translation>Contrôle de la fusion 2D</translation>
     </message>
     <message>
         <source>Control 3D fusion</source>
-        <translation type="unfinished">Contrôle de la fusion 3D</translation>
+        <translation>Contrôle de la fusion 3D</translation>
     </message>
     <message>
         <source>Rename object</source>
-        <translation type="unfinished">Renommer</translation>
+        <translation>Renommer</translation>
     </message>
     <message>
         <source>Palette</source>
-        <translation type="unfinished">Palette</translation>
+        <translation>Palette</translation>
     </message>
     <message>
         <source>Roi</source>
-        <translation type="unfinished">ROI</translation>
+        <translation>ROI</translation>
     </message>
     <message>
         <source>Perfusion</source>
-        <translation type="unfinished">Perfusion</translation>
+        <translation>Perfusion</translation>
     </message>
     <message>
         <source>Perfusion Control Window</source>
-        <translation type="unfinished">Fenêtre de contrôle de la perfusion</translation>
+        <translation>Fenêtre de contrôle de la perfusion</translation>
     </message>
     <message>
         <source>Fusion</source>
-        <translation type="unfinished">Fusionner</translation>
+        <translation>Fusionner</translation>
     </message>
     <message>
         <source>Export texture</source>
-        <translation type="unfinished">Exporter la texture</translation>
+        <translation>Exporter la texture</translation>
     </message>
     <message>
         <source>Translate origin (SPM)</source>
@@ -3064,23 +3064,23 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Texturing</source>
-        <translation type="unfinished">Texture</translation>
+        <translation>Texture</translation>
     </message>
     <message>
         <source>Create generated 1D texture</source>
-        <translation type="unfinished">Créer une texture 1D auto-générée</translation>
+        <translation>Créer une texture 1D auto-générée</translation>
     </message>
     <message>
         <source>Create generated 2D texture</source>
-        <translation type="unfinished">Créer une texture 2D auto-générée</translation>
+        <translation>Créer une texture 2D auto-générée</translation>
     </message>
     <message>
         <source>Extract texture as new object</source>
-        <translation type="unfinished">Extraire la texture en tant que nouvel objet</translation>
+        <translation>Extraire la texture en tant que nouvel objet</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished">Afficher</translation>
+        <translation>Afficher</translation>
     </message>
     <message>
         <source>Apply builtin referential (SPM/NIFTI)</source>
@@ -3088,59 +3088,59 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Default Menu</source>
-        <translation type="unfinished">Menu par défaut</translation>
+        <translation>Menu par défaut</translation>
     </message>
     <message>
         <source>default</source>
-        <translation type="unfinished">défaut</translation>
+        <translation>défaut</translation>
     </message>
     <message>
         <source>Display nodes</source>
-        <translation type="unfinished">Afficher les noeuds</translation>
+        <translation>Afficher les noeuds</translation>
     </message>
     <message>
         <source>Display relations</source>
-        <translation type="unfinished">Afficher les relations</translation>
+        <translation>Afficher les relations</translation>
     </message>
     <message>
         <source>Load all sub-objects</source>
-        <translation type="unfinished">Charger tous les sous-objets</translation>
+        <translation>Charger tous les sous-objets</translation>
     </message>
     <message>
         <source>Volume rendering properties</source>
-        <translation type="unfinished">Propriétés de rendu volumique</translation>
+        <translation>Propriétés de rendu volumique</translation>
     </message>
     <message>
         <source>Set value </source>
-        <translation type="unfinished">Appliquer la valeur </translation>
+        <translation>Appliquer la valeur </translation>
     </message>
     <message>
         <source> as &quot;</source>
-        <translation type="unfinished">pour la propriété &quot;</translation>
+        <translation>pour la propriété &quot;</translation>
     </message>
     <message>
         <source>&quot; property to any selected object</source>
-        <translation type="unfinished">&quot; de tous les objets sélectionnés</translation>
+        <translation>&quot; de tous les objets sélectionnés</translation>
     </message>
     <message>
         <source>Labeling</source>
-        <translation type="unfinished">Étiquetage</translation>
+        <translation>Étiquetage</translation>
     </message>
     <message>
         <source>Move automatic labeling (&apos;label&apos;) to manual (&apos;name&apos;)</source>
-        <translation type="unfinished">Déplacer l&apos;étiquetage automatique (&apos;label&apos;) vers le manuel (&apos;name&apos;)</translation>
+        <translation>Déplacer l&apos;étiquetage automatique (&apos;label&apos;) vers le manuel (&apos;name&apos;)</translation>
     </message>
     <message>
         <source>Use automatic labeling (&apos;label&apos;)</source>
-        <translation type="unfinished">Utiliser l&apos;étiquetage automatique (&apos;label&apos;)</translation>
+        <translation>Utiliser l&apos;étiquetage automatique (&apos;label&apos;)</translation>
     </message>
     <message>
         <source>Use manual labeling (&apos;name&apos;)</source>
-        <translation type="unfinished">Utiliser l&apos;étiquetage manuel (&apos;name&apos;)</translation>
+        <translation>Utiliser l&apos;étiquetage manuel (&apos;name&apos;)</translation>
     </message>
     <message>
         <source>Use default labeling property</source>
-        <translation type="unfinished">Utiliser l&apos;étiquetage par défaut</translation>
+        <translation>Utiliser l&apos;étiquetage par défaut</translation>
     </message>
     <message>
         <source>Load information from file header</source>
@@ -3148,260 +3148,260 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Add without nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter sans les noeuds</translation>
     </message>
 </context>
 <context>
     <name>QSelectWidget</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished">Sélectionner</translation>
+        <translation>Sélectionner</translation>
     </message>
     <message>
         <source>Selectable objects</source>
-        <translation type="unfinished">Objets sélectionnables</translation>
+        <translation>Objets sélectionnables</translation>
     </message>
     <message>
         <source>Select object(s)</source>
-        <translation type="unfinished">Sélection d&apos;objet(s)</translation>
+        <translation>Sélection d&apos;objet(s)</translation>
     </message>
 </context>
 <context>
     <name>QSurfMatchWin</name>
     <message>
         <source>to:</source>
-        <translation type="unfinished">vers :</translation>
+        <translation>vers :</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Arrêter</translation>
+        <translation>Arrêter</translation>
     </message>
     <message>
         <source>On / Off</source>
-        <translation type="unfinished">On / Off</translation>
+        <translation>On / Off</translation>
     </message>
     <message>
         <source>Surface matching control: </source>
-        <translation type="unfinished">Contrôle de la mise en correspondance de surfaces : </translation>
+        <translation>Contrôle de la mise en correspondance de surfaces : </translation>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished">De :</translation>
+        <translation>De :</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Remise à zéro</translation>
+        <translation>Remise à zéro</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished">Commencer</translation>
+        <translation>Commencer</translation>
     </message>
     <message>
         <source>Matching parameters:</source>
-        <translation type="unfinished">Paramètres des forces :</translation>
+        <translation>Paramètres des forces :</translation>
     </message>
     <message>
         <source>Origin surface:</source>
-        <translation type="unfinished">Surface d&apos;origine :</translation>
+        <translation>Surface d&apos;origine :</translation>
     </message>
     <message>
         <source>Delete point</source>
-        <translation type="unfinished">Enlever ce point</translation>
+        <translation>Enlever ce point</translation>
     </message>
     <message>
         <source>Add point (number)</source>
-        <translation type="unfinished">Ajouter un point (num.)</translation>
+        <translation>Ajouter un point (num.)</translation>
     </message>
     <message>
         <source>Change</source>
-        <translation type="unfinished">Changer</translation>
+        <translation>Changer</translation>
     </message>
     <message>
         <source>Control points:</source>
-        <translation type="unfinished">Points de conrôle :</translation>
+        <translation>Points de conrôle :</translation>
     </message>
     <message>
         <source>Add point (click)</source>
-        <translation type="unfinished">Ajouter un point (click)</translation>
+        <translation>Ajouter un point (click)</translation>
     </message>
     <message>
         <source>Destination surface:</source>
-        <translation type="unfinished">Surface cible :</translation>
+        <translation>Surface cible :</translation>
     </message>
     <message>
         <source>Direction :</source>
-        <translation type="unfinished">Direction :</translation>
+        <translation>Direction :</translation>
     </message>
     <message>
         <source>Record over time:</source>
-        <translation type="unfinished">Enregistrer au cours du temps :</translation>
+        <translation>Enregistrer au cours du temps :</translation>
     </message>
     <message>
         <source>Processing:</source>
-        <translation type="unfinished">Calcul :</translation>
+        <translation>Calcul :</translation>
     </message>
 </context>
 <context>
     <name>QTexturePanel</name>
     <message>
         <source>Mapping mode</source>
-        <translation type="unfinished">Mode de plaquage</translation>
+        <translation>Mode de plaquage</translation>
     </message>
     <message>
         <source>Geometric</source>
-        <translation type="unfinished">Géométrique</translation>
+        <translation>Géométrique</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Linéaire</translation>
+        <translation>Linéaire</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation type="unfinished">Remplacement</translation>
+        <translation>Remplacement</translation>
     </message>
     <message>
         <source>Texture filtering</source>
-        <translation type="unfinished">Filtrage de la texture</translation>
+        <translation>Filtrage de la texture</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Aucun</translation>
+        <translation>Aucun</translation>
     </message>
     <message>
         <source>Linear filter</source>
-        <translation type="unfinished">Filtrage linéaire</translation>
+        <translation>Filtrage linéaire</translation>
     </message>
     <message>
         <source>Decal</source>
-        <translation type="unfinished">Décalage</translation>
+        <translation>Décalage</translation>
     </message>
     <message>
         <source>Blend</source>
-        <translation type="unfinished">Mélange</translation>
+        <translation>Mélange</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Addition</translation>
+        <translation>Addition</translation>
     </message>
     <message>
         <source>Combine</source>
-        <translation type="unfinished">Combinaison</translation>
+        <translation>Combinaison</translation>
     </message>
     <message>
         <source>Texture generation</source>
-        <translation type="unfinished">Génération de texture</translation>
+        <translation>Génération de texture</translation>
     </message>
     <message>
         <source>Linear - object</source>
-        <translation type="unfinished">Linéaire - objet</translation>
+        <translation>Linéaire - objet</translation>
     </message>
     <message>
         <source>Linear - eye</source>
-        <translation type="unfinished">Linéaire - oeil</translation>
+        <translation>Linéaire - oeil</translation>
     </message>
     <message>
         <source>Sphere reflection</source>
-        <translation type="unfinished">Réflexion sphérique</translation>
+        <translation>Réflexion sphérique</translation>
     </message>
     <message>
         <source>Reflection</source>
-        <translation type="unfinished">Réflexion</translation>
+        <translation>Réflexion</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Mixing rate</source>
-        <translation type="unfinished">Taux de mélange</translation>
+        <translation>Taux de mélange</translation>
     </message>
     <message>
         <source>Linear on non-nul</source>
-        <translation type="unfinished">Linéaire sur valeurs non-nulles</translation>
+        <translation>Linéaire sur valeurs non-nulles</translation>
     </message>
     <message>
         <source>Texture interpolation</source>
-        <translation type="unfinished">Interpolation de texture</translation>
+        <translation>Interpolation de texture</translation>
     </message>
     <message>
         <source>RGB space interpolation (label textures)</source>
-        <translation type="unfinished">Interpolation dans l&apos;espace RGB (textures de labels)</translation>
+        <translation>Interpolation dans l&apos;espace RGB (textures de labels)</translation>
     </message>
     <message>
         <source>Parameters...</source>
-        <translation type="unfinished">Paramètres...</translation>
+        <translation>Paramètres...</translation>
     </message>
 </context>
 <context>
     <name>QTextureParams</name>
     <message>
         <source>Texture generation parameters</source>
-        <translation type="unfinished">Paramètres de génération de texture</translation>
+        <translation>Paramètres de génération de texture</translation>
     </message>
     <message>
         <source>1st comp.</source>
-        <translation type="unfinished">1ère comp.</translation>
+        <translation>1ère comp.</translation>
     </message>
     <message>
         <source>2nd comp.</source>
-        <translation type="unfinished">2nde comp.</translation>
+        <translation>2nde comp.</translation>
     </message>
     <message>
         <source>3rd comp.</source>
-        <translation type="unfinished">3ème comp.</translation>
+        <translation>3ème comp.</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
     <name>QTextureVectorEditor</name>
     <message>
         <source>Direction:</source>
-        <translation type="unfinished">Direction:</translation>
+        <translation>Direction:</translation>
     </message>
     <message>
         <source>Scale:</source>
-        <translation type="unfinished">Éhelle:</translation>
+        <translation>Éhelle:</translation>
     </message>
 </context>
 <context>
     <name>QTextureWin</name>
     <message>
         <source>Texturing properties</source>
-        <translation type="unfinished">Propriétés de texturage</translation>
+        <translation>Propriétés de texturage</translation>
     </message>
     <message>
         <source>Texture number</source>
-        <translation type="unfinished">Numéro de texture</translation>
+        <translation>Numéro de texture</translation>
     </message>
 </context>
 <context>
     <name>QWindowTree</name>
     <message>
         <source>Ref</source>
-        <translation type="unfinished">Ref</translation>
+        <translation>Ref</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Type</translation>
+        <translation>Type</translation>
     </message>
     <message>
         <source>Nb. obj.</source>
-        <translation type="unfinished">Nb. obj.</translation>
+        <translation>Nb. obj.</translation>
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
+        <translation>Fenêtres</translation>
     </message>
 </context>
 <context>
@@ -3553,43 +3553,43 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <name>RoiHistoPlot</name>
     <message>
         <source>Image</source>
-        <translation type="unfinished">Image</translation>
+        <translation>Image</translation>
     </message>
     <message>
         <source>ROI Session</source>
-        <translation type="unfinished">Session de ROI</translation>
+        <translation>Session de ROI</translation>
     </message>
     <message>
         <source>Bins</source>
-        <translation type="unfinished">Echantillons</translation>
+        <translation>Echantillons</translation>
     </message>
     <message>
         <source>Ignore Under Low</source>
-        <translation type="unfinished">Ignorer sous seuil bas</translation>
+        <translation>Ignorer sous seuil bas</translation>
     </message>
     <message>
         <source>Roi Histos</source>
-        <translation type="unfinished">Histo ROI</translation>
+        <translation>Histo ROI</translation>
     </message>
     <message>
         <source>Image Histo</source>
-        <translation type="unfinished">Histo image</translation>
+        <translation>Histo image</translation>
     </message>
     <message>
         <source>Save Histos</source>
-        <translation type="unfinished">Sauver histos</translation>
+        <translation>Sauver histos</translation>
     </message>
     <message>
         <source>Graph Histos</source>
-        <translation type="unfinished">Histo graphe</translation>
+        <translation>Histo graphe</translation>
     </message>
     <message>
         <source>High</source>
-        <translation type="unfinished">Haut</translation>
+        <translation>Haut</translation>
     </message>
     <message>
         <source>Low</source>
-        <translation type="unfinished">Bas</translation>
+        <translation>Bas</translation>
     </message>
 </context>
 <context>
@@ -3608,43 +3608,43 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Low Level</source>
-        <translation type="unfinished">Niveau bas</translation>
+        <translation>Niveau bas</translation>
     </message>
     <message>
         <source>High Level</source>
-        <translation type="unfinished">Niveau haut</translation>
+        <translation>Niveau haut</translation>
     </message>
     <message>
         <source>Dimension</source>
-        <translation type="unfinished">Dimension</translation>
+        <translation>Dimension</translation>
     </message>
     <message>
         <source>2D</source>
-        <translation type="unfinished">2D</translation>
+        <translation>2D</translation>
     </message>
     <message>
         <source>3D</source>
-        <translation type="unfinished">3D</translation>
+        <translation>3D</translation>
     </message>
     <message>
         <source>MixMethod</source>
-        <translation type="unfinished">Méthode de mélange</translation>
+        <translation>Méthode de mélange</translation>
     </message>
     <message>
         <source>Mixing Factor</source>
-        <translation type="unfinished">Facteur de mélange</translation>
+        <translation>Facteur de mélange</translation>
     </message>
     <message>
         <source>Blob segmentation</source>
-        <translation type="unfinished">Segmentation de blobs</translation>
+        <translation>Segmentation de blobs</translation>
     </message>
     <message>
         <source>Region max size</source>
-        <translation type="unfinished">Taille max de région</translation>
+        <translation>Taille max de région</translation>
     </message>
     <message>
         <source>Percentage of extremum</source>
-        <translation type="unfinished">Pourcentage de l&apos;extrêmum</translation>
+        <translation>Pourcentage de l&apos;extrêmum</translation>
     </message>
     <message>
         <source>Region Max Size</source>
@@ -3652,215 +3652,215 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Threshold Preview Activation</source>
-        <translation type="unfinished">Activation de la prévisualisation du seuillage</translation>
+        <translation>Activation de la prévisualisation du seuillage</translation>
     </message>
     <message>
         <source>Activate Threshold Preview</source>
-        <translation type="unfinished">Activation de la prévisualisation du seuillage</translation>
+        <translation>Activation de la prévisualisation du seuillage</translation>
     </message>
     <message>
         <source>Deactivate Threshold Preview</source>
-        <translation type="unfinished">Désactivation de la prévisualisation du seuillage</translation>
+        <translation>Désactivation de la prévisualisation du seuillage</translation>
     </message>
 </context>
 <context>
     <name>RoiManagementActionView</name>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Sauver</translation>
+        <translation>Sauver</translation>
     </message>
     <message>
         <source>Load Hierarchy</source>
-        <translation type="unfinished">Charger</translation>
+        <translation>Charger</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Nouvelle</translation>
+        <translation>Nouvelle</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Ouvrir</translation>
+        <translation>Ouvrir</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Fermer</translation>
+        <translation>Fermer</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">Sauver sous</translation>
+        <translation>Sauver sous</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Détruire</translation>
+        <translation>Détruire</translation>
     </message>
     <message>
         <source>Fusion</source>
-        <translation type="unfinished">Fusionner</translation>
+        <translation>Fusionner</translation>
     </message>
     <message>
         <source>Export as mask</source>
-        <translation type="unfinished">Exporter en tant que masque</translation>
+        <translation>Exporter en tant que masque</translation>
     </message>
     <message>
         <source>Neuro</source>
-        <translation type="unfinished">Neuro</translation>
+        <translation>Neuro</translation>
     </message>
     <message>
         <source>Sulci</source>
-        <translation type="unfinished">Sillons</translation>
+        <translation>Sillons</translation>
     </message>
     <message>
         <source>Rat_wb</source>
-        <translation type="unfinished">Rat_wb</translation>
+        <translation>Rat_wb</translation>
     </message>
     <message>
         <source>Axial</source>
-        <translation type="unfinished">Axiale</translation>
+        <translation>Axiale</translation>
     </message>
     <message>
         <source>Sagittal</source>
-        <translation type="unfinished">Sagittale</translation>
+        <translation>Sagittale</translation>
     </message>
     <message>
         <source>Coronal</source>
-        <translation type="unfinished">Coronale</translation>
+        <translation>Coronale</translation>
     </message>
     <message>
         <source>3D</source>
-        <translation type="unfinished">3D</translation>
+        <translation>3D</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation type="unfinished">Session</translation>
+        <translation>Session</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished">Région</translation>
+        <translation>Région</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished">Image</translation>
+        <translation>Image</translation>
     </message>
     <message>
         <source>Painting Views</source>
-        <translation type="unfinished">Vues de dessin</translation>
+        <translation>Vues de dessin</translation>
     </message>
     <message>
         <source>Load ROI Graph</source>
-        <translation type="unfinished">Charger un graphe de ROI</translation>
+        <translation>Charger un graphe de ROI</translation>
     </message>
     <message>
         <source>Load Anatomist objects</source>
-        <translation type="unfinished">Charger des objets Anatomist</translation>
+        <translation>Charger des objets Anatomist</translation>
     </message>
     <message>
         <source>FrameWork</source>
-        <translation type="unfinished">Nomenclature</translation>
+        <translation>Nomenclature</translation>
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
+        <translation>Fenêtres</translation>
     </message>
     <message>
         <source>Clean</source>
-        <translation type="unfinished">Nettoyer</translation>
+        <translation>Nettoyer</translation>
     </message>
     <message>
         <source>Lateral Neuro</source>
-        <translation type="unfinished">Neuro Latéralisée</translation>
+        <translation>Neuro Latéralisée</translation>
     </message>
     <message>
         <source>Region Transparency</source>
-        <translation type="unfinished">Opacité de la région</translation>
+        <translation>Opacité de la région</translation>
     </message>
     <message>
         <source>Graph Transparency</source>
-        <translation type="unfinished">Opacité du graphe</translation>
+        <translation>Opacité du graphe</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Charger</translation>
+        <translation>Charger</translation>
     </message>
     <message>
         <source>Define new region</source>
-        <translation type="unfinished">Définir une nouvelle région</translation>
+        <translation>Définir une nouvelle région</translation>
     </message>
     <message>
         <source>Modify region name</source>
-        <translation type="unfinished">Modifier un nom de région</translation>
+        <translation>Modifier un nom de région</translation>
     </message>
     <message>
         <source>Modify region color</source>
-        <translation type="unfinished">Modifier une couleur de région</translation>
+        <translation>Modifier une couleur de région</translation>
     </message>
     <message>
         <source>Personnal</source>
-        <translation type="unfinished">Personnelle</translation>
+        <translation>Personnelle</translation>
     </message>
     <message>
         <source>Free</source>
-        <translation type="unfinished">Libre</translation>
+        <translation>Libre</translation>
     </message>
     <message>
         <source>Please enter new framework&apos;s name</source>
-        <translation type="unfinished">Veuillez entrer le nom de votre nouvelle nomenclature</translation>
+        <translation>Veuillez entrer le nom de votre nouvelle nomenclature</translation>
     </message>
     <message>
         <source>Load User Defined Framework</source>
-        <translation type="unfinished">Charger une nomenclature personnelle</translation>
+        <translation>Charger une nomenclature personnelle</translation>
     </message>
     <message>
         <source>Modify Frame Work Region Name</source>
-        <translation type="unfinished">Modification d&apos;un nom de région de la nomenclature</translation>
+        <translation>Modification d&apos;un nom de région de la nomenclature</translation>
     </message>
     <message>
         <source>Choose the name of the region
 whose color you want to change</source>
-        <translation type="unfinished">Choisissez le nom de la région
+        <translation>Choisissez le nom de la région
 dont vous voulez changer la couleur
 </translation>
     </message>
     <message>
         <source>Change Framework ?</source>
-        <translation type="unfinished">Changer de nomenclature ?</translation>
+        <translation>Changer de nomenclature ?</translation>
     </message>
     <message>
         <source>If you change of framework, your 
 user defined one will be deleted.
 Do you want to save it ?</source>
-        <translation type="unfinished">Si vous changez de nomenclature, votre nomenclature 
+        <translation>Si vous changez de nomenclature, votre nomenclature 
 personnelle actuellement ouvert sera détruite !
 Voulez-vous la sauver ?</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
-        <translation type="unfinished">&amp;Oui</translation>
+        <translation>&amp;Oui</translation>
     </message>
     <message>
         <source>&amp;No</source>
-        <translation type="unfinished">&amp;Non</translation>
+        <translation>&amp;Non</translation>
     </message>
     <message>
         <source>Morpho Stats</source>
-        <translation type="unfinished">Stats morpho</translation>
+        <translation>Stats morpho</translation>
     </message>
     <message>
         <source>Load ROI session</source>
-        <translation type="unfinished">Charger une session de ROI</translation>
+        <translation>Charger une session de ROI</translation>
     </message>
     <message>
         <source>Delete region name</source>
-        <translation type="unfinished">Effacer le nom de région</translation>
+        <translation>Effacer le nom de région</translation>
     </message>
     <message>
         <source>Huge amount of data !</source>
-        <translation type="unfinished">Données énormes !</translation>
+        <translation>Données énormes !</translation>
     </message>
     <message>
         <source>You can procced, but it will 
 take few minutes
 Do you still want to proceed ?</source>
-        <translation type="unfinished">Vous pouvez continuer, mais cela peut
+        <translation>Vous pouvez continuer, mais cela peut
 prendre quelques minutes
 Voulez-vous continuer ?</translation>
     </message>
@@ -3869,51 +3869,51 @@ Voulez-vous continuer ?</translation>
     <name>RoiMorphoMathActionView</name>
     <message>
         <source>Structuring Element Radius</source>
-        <translation type="unfinished">Rayon de l&apos;élément structurant</translation>
+        <translation>Rayon de l&apos;élément structurant</translation>
     </message>
     <message>
         <source>Distance Mode</source>
-        <translation type="unfinished">Mode de distance</translation>
+        <translation>Mode de distance</translation>
     </message>
     <message>
         <source>mm</source>
-        <translation type="unfinished">mm</translation>
+        <translation>mm</translation>
     </message>
     <message>
         <source>voxel</source>
-        <translation type="unfinished">voxel</translation>
+        <translation>voxel</translation>
     </message>
     <message>
         <source>Mathematic Morphology Actions</source>
-        <translation type="unfinished">Actions de morphologie mathématique</translation>
+        <translation>Actions de morphologie mathématique</translation>
     </message>
     <message>
         <source>Erosion</source>
-        <translation type="unfinished">Érosion</translation>
+        <translation>Érosion</translation>
     </message>
     <message>
         <source>Dilation</source>
-        <translation type="unfinished">Dilatation</translation>
+        <translation>Dilatation</translation>
     </message>
     <message>
         <source>Opening</source>
-        <translation type="unfinished">Ouverture</translation>
+        <translation>Ouverture</translation>
     </message>
     <message>
         <source>Closure</source>
-        <translation type="unfinished">Fermeture</translation>
+        <translation>Fermeture</translation>
     </message>
     <message>
         <source>Apply on ROI region or session</source>
-        <translation type="unfinished">Appliquer à une région ROI ou à une session</translation>
+        <translation>Appliquer à une région ROI ou à une session</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished">Région</translation>
+        <translation>Région</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation type="unfinished">Session</translation>
+        <translation>Session</translation>
     </message>
 </context>
 <context>
@@ -4065,43 +4065,43 @@ Voulez-vous continuer ?</translation>
     <name>Tools3DWindow</name>
     <message>
         <source>Fog</source>
-        <translation type="unfinished">Brouillard</translation>
+        <translation>Brouillard</translation>
     </message>
     <message>
         <source>Flat-shaded polygons</source>
-        <translation type="unfinished">Polygônes plats</translation>
+        <translation>Polygônes plats</translation>
     </message>
     <message>
         <source>Use perspective</source>
-        <translation type="unfinished">Vue en perspective</translation>
+        <translation>Vue en perspective</translation>
     </message>
     <message>
         <source>Clipping plane :</source>
-        <translation type="unfinished">Plan de clipping :</translation>
+        <translation>Plan de clipping :</translation>
     </message>
     <message>
         <source>Single plane</source>
-        <translation type="unfinished">Plan simple</translation>
+        <translation>Plan simple</translation>
     </message>
     <message>
         <source>Only polygon edges are drawn. Hidden faces are also
 drawn, except for polygons facing back if culling
 is enabled</source>
-        <translation type="unfinished">Seules les arêtes des polygônes sont dessinées.
+        <translation>Seules les arêtes des polygônes sont dessinées.
 Les faces cachées sont dessinées également, sauf les
 polygônes vus de dos si l&apos;élimination des polygônes
 de dos est activée</translation>
     </message>
     <message>
         <source>No clipping</source>
-        <translation type="unfinished">Pas de clipping</translation>
+        <translation>Pas de clipping</translation>
     </message>
     <message>
         <source>Normal projection mode is orthogonal. In perspective
 mode, you can get a distance effect between the
 observer and objects. It is useful for the
 &apos;flight simulator&apos; control.</source>
-        <translation type="unfinished">Le mode normal de projection est orthogonal. En
+        <translation>Le mode normal de projection est orthogonal. En
 perspective, vous pouvez avoir un effet de distance
 entre l&apos;observateur et les objets. C&apos;est utile pour
 le contrôle &apos;simulateur de vol&apos;.</translation>
@@ -4112,7 +4112,7 @@ don&apos;t see polygon boundaries. It&apos;s nicer but if you
 are looking at exact details of where polygons are,
 you&apos;ll have to use either flat-shading, or a rendering
 mode showing polygon edges (wireframe, outline, ...)</source>
-        <translation type="unfinished">Le rendu normal utilise des polygônes lisses, vous
+        <translation>Le rendu normal utilise des polygônes lisses, vous
 ne voyez donc pas les bords des polygônes. C&apos;est plus
 joli mais si vous regardez les limites exactes des
 polygônes, vous devrez utiliser soit des polygônes plats
@@ -4124,43 +4124,43 @@ soit un mode de rendu montrant les arêtes des polygônes
 and polygons edges, but doesn&apos;t work well in all
 cases (polygons should be sorted by depth), and it can
 be very slow</source>
-        <translation type="unfinished">Cette option active le filtrage (anti-aliasing)
+        <translation>Cette option active le filtrage (anti-aliasing)
 des lignes et arêtes de polygônes, mais ne fonctionne
 pas bien dans tous les cas (les polygônes devraient
 être triés par profondeur), et cela peut être très lent</translation>
     </message>
     <message>
         <source>Cull polygon faces</source>
-        <translation type="unfinished">Eliminer les faces vues de dos</translation>
+        <translation>Eliminer les faces vues de dos</translation>
     </message>
     <message>
         <source>Smooth polygons / lines</source>
-        <translation type="unfinished">Polygônes / lignes filtrés</translation>
+        <translation>Polygônes / lignes filtrés</translation>
     </message>
     <message>
         <source>Transparent objects are drawn in depth buffer</source>
-        <translation type="unfinished">La profondeur des objets transparents s&apos;imprime</translation>
+        <translation>La profondeur des objets transparents s&apos;imprime</translation>
     </message>
     <message>
         <source>You can clip the whole scene to cut meshes on one or
 both sides of the current plane of the 2D window mode</source>
-        <translation type="unfinished">Il est possible de tronquer la scène entière pour
+        <translation>Il est possible de tronquer la scène entière pour
 couper les maillages d&apos;un côté ou des deux côtés du
 plan de coupe courant de la fenêtre en mode 2D</translation>
     </message>
     <message>
         <source>Use fog (useful only in perspective mode</source>
-        <translation type="unfinished">Ajouter du brouillard (utile seulement en mode perspecive)</translation>
+        <translation>Ajouter du brouillard (utile seulement en mode perspecive)</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Polygons are filled and polygon edges are re-drawn
 using a different color (black). This mode is quite
 slow as two renderings are performed</source>
-        <translation type="unfinished">Les polygônes sont pleins et les arêtes sont
+        <translation>Les polygônes sont pleins et les arêtes sont
 re-dessinées avec une couleur différente (noir).
 Ce mode est assez lent puisque deux rendus
 doivent être effectués</translation>
@@ -4169,7 +4169,7 @@ doivent être effectués</translation>
         <source>Only polygon edges are drawn, and hidden faces are
 actually hidden. To do so two renderings must be
 performed like in outline mode (slow)</source>
-        <translation type="unfinished">Seules les arêtes des polygônes sont dessinées
+        <translation>Seules les arêtes des polygônes sont dessinées
 et les faces cachées sont effectivement cachées.
 Pour se faire, deux rendus doivent être effectués
 comme dans le mode contour (lent, donc)</translation>
@@ -4177,7 +4177,7 @@ comme dans le mode contour (lent, donc)</translation>
     <message>
         <source>Normal rendering mode - you should almost always
 use this one. It uses filled polygons</source>
-        <translation type="unfinished">Mode de rendu normal - vous devriez presque toujours
+        <translation>Mode de rendu normal - vous devriez presque toujours
 utiliser celui-ci. Il utilise des polygônes pleins</translation>
     </message>
     <message>
@@ -4186,7 +4186,7 @@ Without this options, transparent objects will look
 bad, but only the external side of open (or clipped)
 meshes will be seen, so it depends on what you&apos;re
 looking at</source>
-        <translation type="unfinished">Ne dessine pas les polygônes vus de dos.
+        <translation>Ne dessine pas les polygônes vus de dos.
 Sans cette option, les objets transparents ne seront
 pas beaux, mais seule la face externe des maillages
 ouverts (ou tronqués) sera visible, donc ça dépend de
@@ -4194,38 +4194,38 @@ ce que vous regardez</translation>
     </message>
     <message>
         <source>Wireframe</source>
-        <translation type="unfinished">Fil de fer</translation>
+        <translation>Fil de fer</translation>
     </message>
     <message>
         <source>Display bounding frame</source>
-        <translation type="unfinished">Afficher la boîte englobante</translation>
+        <translation>Afficher la boîte englobante</translation>
     </message>
     <message>
         <source>Wireframe with hidden faces</source>
-        <translation type="unfinished">Fil de fer avec faces cachées</translation>
+        <translation>Fil de fer avec faces cachées</translation>
     </message>
     <message>
         <source>3D settings : </source>
-        <translation type="unfinished">Réglages 3D : </translation>
+        <translation>Réglages 3D : </translation>
     </message>
     <message>
         <source>Clip both sides</source>
-        <translation type="unfinished">Couper des deux côtés</translation>
+        <translation>Couper des deux côtés</translation>
     </message>
     <message>
         <source>Fast rendering</source>
-        <translation type="unfinished">Affichage rapide</translation>
+        <translation>Affichage rapide</translation>
     </message>
     <message>
         <source>Helper gadgets :</source>
-        <translation type="unfinished">Gadgets d&apos;aide :</translation>
+        <translation>Gadgets d&apos;aide :</translation>
     </message>
     <message>
         <source>Enable this if you want to click on opaque objects
 through transparent ones, or if some superimposed
 transparent objects can&apos;t be seen. As a counterpart
 objects superimposition will not be handled correctly</source>
-        <translation type="unfinished">Mettez cette option si vous voulez cliquer
+        <translation>Mettez cette option si vous voulez cliquer
 sur des objets opaques à travers des objets transparents,
 ou si certains objets transparents superposés ne
 s&apos;affichent pas. En contrepartie, la superposition des
@@ -4237,7 +4237,7 @@ objets ne sera pas correcte</translation>
 using a volume (slice), don&apos;t set the distance to zero
 because the slice will be just on the clipping plane,
 and you don&apos;t know what will be drawn and what won&apos;t be</source>
-        <translation type="unfinished">Épaisseur de la tranche entre le plan courant de
+        <translation>Épaisseur de la tranche entre le plan courant de
 la fenêtre en mode 2D et le(s) plan(s) de troncature.
 Si vous visualisez un volume (coupe), me mettez pas cette
 distance à zéro, car la coupe sera alors juste dans le
@@ -4246,73 +4246,73 @@ sera dessiné et ce qui ne le sera pas</translation>
     </message>
     <message>
         <source>Outlined (filled faces + wireframes)</source>
-        <translation type="unfinished">Entourés (faces pleines + fils de fer)</translation>
+        <translation>Entourés (faces pleines + fils de fer)</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
-        <translation type="unfinished">Mode d&apos;affichage :</translation>
+        <translation>Mode d&apos;affichage :</translation>
     </message>
     <message>
         <source>Display orientation cube</source>
-        <translation type="unfinished">Afficher le cube d&apos;orientation</translation>
+        <translation>Afficher le cube d&apos;orientation</translation>
     </message>
     <message>
         <source>Well, this mode doesn&apos;t exist in fact...
 Maybe one day it will perform real-time polygon
 pruning to speed-up huge mesh rendering,
 but up to now...</source>
-        <translation type="unfinished">Bon, ce mode n&apos;existe pas en fait...
+        <translation>Bon, ce mode n&apos;existe pas en fait...
 Peut-être qu&apos;un jour il effectuera une décimation
 en temps réel des polygônes pour accélérer le
 rendu des très gros maillages, mais pour l&apos;instant...</translation>
     </message>
     <message>
         <source>Distance to current plane (mm) :</source>
-        <translation type="unfinished">Distance au plan courant (mm) :</translation>
+        <translation>Distance au plan courant (mm) :</translation>
     </message>
     <message>
         <source>Transparency improvement:</source>
-        <translation type="unfinished">Amélioration de la transparence:</translation>
+        <translation>Amélioration de la transparence:</translation>
     </message>
     <message>
         <source>Use slower-but-better transparency rendering algorithm</source>
-        <translation type="unfinished">Algorithme lent pour un meilleur rendu de la transparence</translation>
+        <translation>Algorithme lent pour un meilleur rendu de la transparence</translation>
     </message>
     <message>
         <source>Number of rendering passes (0=as necessary)</source>
-        <translation type="unfinished">Nombre de passes de rendu (0=autant que nécessaire)</translation>
+        <translation>Nombre de passes de rendu (0=autant que nécessaire)</translation>
     </message>
     <message>
         <source>Window saving modes:</source>
-        <translation type="unfinished">Modes de sauvegarde des images:</translation>
+        <translation>Modes de sauvegarde des images:</translation>
     </message>
     <message>
         <source>RGB buffer</source>
-        <translation type="unfinished">Couleurs RVB</translation>
+        <translation>Couleurs RVB</translation>
     </message>
     <message>
         <source>Alpha buffer</source>
-        <translation type="unfinished">Opacité (alpha)</translation>
+        <translation>Opacité (alpha)</translation>
     </message>
     <message>
         <source>RGBA buffer</source>
-        <translation type="unfinished">RGBA</translation>
+        <translation>RGBA</translation>
     </message>
     <message>
         <source>Depth buffer</source>
-        <translation type="unfinished">Carte de profondeur</translation>
+        <translation>Carte de profondeur</translation>
     </message>
     <message>
         <source>Luminance buffer</source>
-        <translation type="unfinished">Luminance</translation>
+        <translation>Luminance</translation>
     </message>
     <message>
         <source>Display cursor</source>
-        <translation type="unfinished">Afficher le curseur</translation>
+        <translation>Afficher le curseur</translation>
     </message>
     <message>
         <source>Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)</source>
-        <translation type="unfinished">Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)</translation>
+        <translation>Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)</translation>
     </message>
 </context>
 <context>
