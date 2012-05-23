@@ -413,7 +413,8 @@ class SplitFoldAction( anatomist.Action ):
 
 class SplitFoldControl( anatomist.Control ):
   def __init__( self, prio = 150 ):
-    anatomist.Control.__init__( self, prio, 'SplitFoldControl' )
+    anatomist.Control.__init__( self, prio,
+      qt.QT_TRANSLATE_NOOP( 'ControlledWindow', 'SplitFoldControl' ) )
     self.setUserLevel( 2 )
 
   def eventAutoSubscription( self, pool ):
