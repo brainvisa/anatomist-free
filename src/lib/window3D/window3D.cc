@@ -2385,7 +2385,17 @@ void AWindow3D::SetPosition(const Point3df& position, const Referential* orgref)
     Point3df dir = d->slicequat.apply(Point3df(0, 0, 1));
     float z = dir.dot(pos) / geom->Size()[2];
 
-    pos += float(rint(z) - z) * geom->Size()[2] * dir;
+    /* compare to current position, and avoid changing if it is just half way
+       between slices */
+    Point3df curpos = _position;
+    if (tra)
+      curpos = tra->transform( curpos );
+    float cz = dir.dot( curpos ) / geom->Size()[2];
+    cz = rint( cz );
+    if( abs( z - cz ) <= 0.6 ) // snap to current slice
+      pos += float( cz - z ) * geom->Size()[2] * dir;
+    else // further than that: snap to other slice
+      pos += float( rint(z) - z ) * geom->Size()[2] * dir;
   }
 
   if (pos != _position)
