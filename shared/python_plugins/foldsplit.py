@@ -82,19 +82,20 @@ class SplitFoldAction( anatomist.Action ):
     posi = aims.Point3d( round( pos[0] / vs[0] ), round( pos[1] / vs[1] ),
       round( pos[2] / vs[2] ) )
     splitline = fov.findSplitLine( vertex, posi )
-    # show split line
-    asplit = anatomist.AObjectConverter.anatomist( splitline )
-    a.unmapObject( asplit )
-    a.releaseObject( asplit )
-    mat = asplit.GetMaterial()
-    mat.set( { 'diffuse' : [ 0., 0.3, 1., 1. ] } )
-    asplit.SetMaterial( mat )
-    w.registerObject( asplit, True )
+    if splitline:
+      # show split line
+      asplit = anatomist.AObjectConverter.anatomist( splitline )
+      a.unmapObject( asplit )
+      a.releaseObject( asplit )
+      mat = asplit.GetMaterial()
+      mat.set( { 'diffuse' : [ 0., 0.3, 1., 1. ] } )
+      asplit.SetMaterial( mat )
+      w.registerObject( asplit, True )
 
-    self.temporary = { 'splitline' : splitline,
-      'graph' : g,
-      'vertex' : vertex,
-      'tempobjects' : [ asplit ] }
+      self.temporary = { 'splitline' : splitline,
+        'graph' : g,
+        'vertex' : vertex,
+        'tempobjects' : [ asplit ] }
 
   def subdivize( self, x, y, globx, globy ):
     self.cleanup()
@@ -279,7 +280,6 @@ class SplitFoldAction( anatomist.Action ):
     return vertex
 
   def splitDotted( self, x, y, globx, globy ):
-    print 'splitDotted'
     a = anatomist.Anatomist()
     v = self.view()
     w = v.window()
@@ -343,7 +343,7 @@ class SplitFoldAction( anatomist.Action ):
     spheres.append( asph )
     data[ 'tempobjects' ] = spheres
 
-  def doSplitDotted( self ):
+  def doSplit( self ):
     if not hasattr( self, 'temporary' ):
       print 'nothing to split yet. Use ctrl+left button to set split points.'
       return
@@ -353,6 +353,8 @@ class SplitFoldAction( anatomist.Action ):
       splitline = data[ 'splitline' ]
       graph = data[ 'graph' ]
       vertex = data[ 'vertex' ]
+      ag = graph[ 'ana_object' ]
+      ag.loadSubObjects( 3 )
       fos = aims.FoldArgOverSegment( graph )
       print 'splitline:', type( splitline )
       newvertex = fos.splitVertex( vertex, splitline, 50 )
@@ -374,8 +376,6 @@ class SplitFoldAction( anatomist.Action ):
         bk.setInternalsChanged()
       except:
         pass
-      ag = graph[ 'ana_object' ]
-      ag.loadSubObjects( 3 )
       ag.updateAfterAimsChange()
       av = newvertex[ 'ana_object' ]
       w = self.view().window()
@@ -431,7 +431,7 @@ class SplitFoldControl( anatomist.Control ):
       qt.Qt.LeftButton, qt.Qt.ControlModifier,
       pool.action( 'SplitFoldAction' ).splitDotted )
     self.keyPressEventSubscribe( qt.Qt.Key_S, qt.Qt.NoModifier,
-      pool.action( 'SplitFoldAction' ).doSplitDotted )
+      pool.action( 'SplitFoldAction' ).doSplit )
     self.keyPressEventSubscribe( qt.Qt.Key_Escape, qt.Qt.NoModifier,
       pool.action( 'SplitFoldAction' ).cleanup )
     # std actions
