@@ -88,7 +88,7 @@ class SplitFoldAction( anatomist.Action ):
       a.unmapObject( asplit )
       a.releaseObject( asplit )
       mat = asplit.GetMaterial()
-      mat.set( { 'diffuse' : [ 0., 0.3, 1., 1. ] } )
+      mat.set( { 'diffuse' : [ 0.6, 0., 0.8, 1. ] } )
       asplit.SetMaterial( mat )
       w.registerObject( asplit, True )
 
@@ -398,17 +398,18 @@ class SplitFoldAction( anatomist.Action ):
         return
       fos = aims.FoldArgOverSegment( graph )
       splitline = fos.findSplitLine( vertex, points )
-      data[ 'splitline' ] = splitline
-      # show split line
-      asplit = anatomist.AObjectConverter.anatomist( splitline )
-      a.unmapObject( asplit )
-      a.releaseObject( asplit )
-      mat = asplit.GetMaterial()
-      mat.set( { 'diffuse' : [ 0., 0.3, 1., 1. ] } )
-      asplit.SetMaterial( mat )
-      w = self.view().window()
-      w.registerObject( asplit, True )
-      data[ 'tempobjects' ].append( asplit )
+      if splitline:
+        data[ 'splitline' ] = splitline
+        # show split line
+        asplit = anatomist.AObjectConverter.anatomist( splitline )
+        a.unmapObject( asplit )
+        a.releaseObject( asplit )
+        mat = asplit.GetMaterial()
+        mat.set( { 'diffuse' : [ 0.6, 0., 0.8, 1. ] } )
+        asplit.SetMaterial( mat )
+        w = self.view().window()
+        w.registerObject( asplit, True )
+        data[ 'tempobjects' ].append( asplit )
 
 
 class SplitFoldControl( anatomist.Control ):
