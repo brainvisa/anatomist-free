@@ -48,6 +48,11 @@
       HighOverview = new Image();
       HighOverview.src = "../images/overview-light.png";
 
+      IconManual = new Image();
+      IconManual.src = "../images/manual.png";
+      HighManual = new Image();
+      HighManual.src = "../images/manual-light.png";
+
       function change(nr,obj)
       {
       window.document.images[nr].src = obj.src;
@@ -86,17 +91,24 @@
 <hr><a href="../fr/index.html">(French version <img src="../images/french.png"
  alt="" width="46" height="30" border="0">)</a><br>
 
-<hr width="100%" size="2">Sorry, most of the doc is in french, and there's 
-  still a lot of work to make a real documentation...<br>
-     <br>
-           
+<hr width="100%" size="2">
+
 <div align="center">The official web site of Anatomist and BrainVISA can be
 reached at these two addresses:<br>
-      <font size="+2"><a href="http://anatomist.info">http://anatomist.info</a> 
-  and <a href="http://brainvisa.info">http://brainvisa.info</a></font><br>
-      (The two addresses are the same website).</div>
-      <br>
-           
+  <font size="+2"><a href="http://anatomist.info">http://anatomist.info</a>
+and <a href="http://brainvisa.info">http://brainvisa.info</a></font><br>
+  (The two addresses are the same website).</div>
+<div><b>Getting started</b>:
+<li>New to Anatomist ? Try <b><a href="../../ana_training/en/html/ch08.html">AnaSimpleViewer</a></b> first (command: <tt>anasimpleviewer.py</tt>)<br>
+  <p align="center">
+  <a href="../../ana_training/en/html/ch08.html"><img width="200" src="../../ana_training/en/html/images/anasimpleviewer_multiobjects.png"/></a></p>
+</li>
+<li>Read the <a href="../../ana_training/en/html/index.html">tutorial</a>.
+</li>
+</div>
+<div>The current embedded doc is largely obsolete and mostly in french, but there is a <a href="../../ana_man/en/html/index.html">manual</a> now.
+</div>
+
 <hr>      
 <center>     
 <table border="0" cellspacing="0" cellpadding="10" width="100%"
@@ -104,21 +116,21 @@ reached at these two addresses:<br>
       <tbody>
          <tr align="center" valign="CENTER" nosave="">
       <td nosave=""><a href="../fr/visualize/visualize.html"
- onmouseover="change(4,HighVisu);" onmouseout="change(4,IconVisu);"><img
+ onmouseover="change(5,HighVisu);" onmouseout="change(5,IconVisu);"><img
  src="../images/visualize.png" alt="Visualize a volume" nosave=""
  border="0" height="100" width="191">
            </a></td>
        <td nosave=""><a href="../fr/fusion/fusion.html"
- onmouseover="change(5,HighFusion);" onmouseout="change(5,IconFusion);"><img
+ onmouseover="change(6,HighFusion);" onmouseout="change(6,IconFusion);"><img
  src="../images/fusion.png" alt="Fusion two volumes" nosave="" border="0"
  height="100" width="83">
            </a></td>
-       <td><a href="../fr/tms/tms.html" onmouseover="change(6,HighTms);"
- onmouseout="change(6,IconTms);"><img src="../images/tms.png"
+       <td><a href="../fr/tms/tms.html" onmouseover="change(7,HighTms);"
+ onmouseout="change(7,IconTms);"><img src="../images/tms.png"
  alt="Application to TMS" nosave="" border="0" height="100" width="124">
            </a></td>
       <td nosave=""><a href="../fr/graph/graph.html"
- onmouseover="change(7,HighGraph);" onmouseout="change(7,IconGraph);"><img
+ onmouseover="change(8,HighGraph);" onmouseout="change(8,IconGraph);"><img
  src="../images/graph.png" alt="Graphs and structural data" nosave=""
  border="0" height="100" width="141">
            </a></td>
@@ -144,23 +156,23 @@ reached at these two addresses:<br>
       <tbody>
          <tr align="center" valign="CENTER" nosave="">
        <td><a href="../fr/texture/index.html"
- onmouseover="change(8,HighTexture);"
- onmouseout="change(8,IconTexture);"><img src="../images/texture.jpg"
+ onmouseover="change(9,HighTexture);"
+ onmouseout="change(9,IconTexture);"><img src="../images/texture.jpg"
  alt="Textures and surfacic data" nosave="" border="0" height="100"
  width="116">
            </a></td>
        <td><a href="../fr/roi/index.html"
- onmouseover="change(9,HighRoi);" onmouseout="change(9,IconRoi);"><img
+ onmouseover="change(10,HighRoi);" onmouseout="change(10,IconRoi);"><img
  src="../images/roi.png" alt="ROI" nosave="" border="0" height="100"
  width="105">
            </a></td>
        <td nosave=""><a href="../fr/programmation/index.html"
- onmouseover="change(10,HighProg);" onmouseout="change(10,IconProg);"><img
+ onmouseover="change(11,HighProg);" onmouseout="change(11,IconProg);"><img
  src="../images/program.png" alt="Programmation help" nosave=""
  border="0" height="100" width="117">
            </a></td>
        <td nosave=""><a href="../en/overview/index.html"
- onmouseover="change(11,HighOverview);" onmouseout="change(11,IconOverview);"><img
+ onmouseover="change(12,HighOverview);" onmouseout="change(12,IconOverview);"><img
  src="../images/overview.png" alt="Overview of other features" nosave=""
  border="0" height="100">
            </a></td>
@@ -190,10 +202,21 @@ reached at these two addresses:<br>
            </a><font color="#ff0000"><font size="+2"><a
  href="changelog.html">News &amp; latest modifs</a></font></font></td>
       </tr>
+
+  <tr>
+    <td align="right" bgcolor="#ffffe2"><a href="../../ana_man/fr/html/index.html" onmouseover="change(15,HighManual);" onmouseout="change(15,IconManual);"><img src="../images/manual.png" border="0" height="92"></a>
+    </td>
+    <td><font size="+1"><a href="../../ana_man/en/html/index.html">Manual</a> and <a href="../../ana_training/en/html/index.html">Tutorial</a></font>
+      <ul>
+        <li><b>A beginning of real doc doc</b></li>
+      </ul>
+    </td>
+  </tr>
+
        <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave=""><a
  href="../fr/visualize/visualize.html"
- onmouseover="change(14,HighVisu);" onmouseout="change(14,IconVisu);"><img
+ onmouseover="change(16,HighVisu);" onmouseout="change(16,IconVisu);"><img
  src="../images/visualize.png" alt="" nosave="" border="0" height="92"
  width="175" align="middle">
            </a></td>
@@ -209,8 +232,8 @@ reached at these two addresses:<br>
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave="">    
                                
       <div align="right"><a href="../fr/fusion/fusion.html"
- onmouseover="change(15,HighFusion);"
- onmouseout="change(15,IconFusion);"><img src="../images/fusion.png" alt=""
+ onmouseover="change(17,HighFusion);"
+ onmouseout="change(17,IconFusion);"><img src="../images/fusion.png" alt=""
  nosave="" border="0" height="92" width="76" align="middle">
            </a></div>
       </td>
@@ -224,8 +247,8 @@ reached at these two addresses:<br>
       </tr>
        <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave=""><a
- href="../fr/tms/tms.html" onmouseover="change(16,HighTms);"
- onmouseout="change(16,IconTms);"><img src="../images/tms.png" alt=""
+ href="../fr/tms/tms.html" onmouseover="change(18,HighTms);"
+ onmouseout="change(18,IconTms);"><img src="../images/tms.png" alt=""
  nosave="" border="0" height="92" width="113" align="middle">
            </a></td>
        <td><font size="+1"><a href="../fr/tms/tms.html">Using Anatomist for 
@@ -239,8 +262,8 @@ reached at these two addresses:<br>
       </tr>
        <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave=""><a
- href="../fr/graph/graph.html" onmouseover="change(17,HighGraph);"
- onmouseout="change(17,IconGraph);"><img src="../images/graph.png" nosave=""
+ href="../fr/graph/graph.html" onmouseover="change(19,HighGraph);"
+ onmouseout="change(19,IconGraph);"><img src="../images/graph.png" nosave=""
  border="0" height="92" width="130" align="middle">
            </a></td>
        <td><font size="+1"><a href="../fr/graph/graph.html">Structural 
@@ -253,8 +276,8 @@ reached at these two addresses:<br>
       </tr>
        <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave=""><a
- href="../fr/texture/index.html" onmouseover="change(18,HighTexture);"
- onmouseout="change(18,IconTexture);"><img src="../images/texture.jpg"
+ href="../fr/texture/index.html" onmouseover="change(20,HighTexture);"
+ onmouseout="change(20,IconTexture);"><img src="../images/texture.jpg"
  nosave="" border="0" height="92" width="110">
            </a></td>
        <td><font size="+1"><a href="../fr/texture/index.html">Mapping activations 
@@ -268,8 +291,8 @@ reached at these two addresses:<br>
       </tr>
        <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave=""><a
- href="../fr/roi/index.html" onmouseover="change(19,HighRoi);"
- onmouseout="change(19,IconRoi);"><img src="../images/roi.png" nosave=""
+ href="../fr/roi/index.html" onmouseover="change(21,HighRoi);"
+ onmouseout="change(21,IconRoi);"><img src="../images/roi.png" nosave=""
  border="0" height="92" width="97">
            </a></td>
        <td><font size="+1"><a href="../fr/roi/index.html">Drawing Regions
@@ -284,7 +307,7 @@ reached at these two addresses:<br>
        <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave=""><a
  href="../fr/programmation/index.html"
- onmouseover="change(20,HighProg);" onmouseout="change(20,IconProg);"><img
+ onmouseover="change(22,HighProg);" onmouseout="change(22,IconProg);"><img
  src="../images/program.png" nosave="" border="0" height="92" width="107">
            </a></td>
        <td><font size="+1"><a href="../fr/programmation/index.html">Programming 
@@ -298,8 +321,8 @@ reached at these two addresses:<br>
                      
       <tr nosave="">
       <td align="right" valign="CENTER" bgcolor="#ffffe2" nosave="">
-	    <a href="../en/overview/index.html" onmouseover="change(21,HighOverview);" 
-	    onmouseout="change(21,IconOverview);">
+	    <a href="../en/overview/index.html" onmouseover="change(23,HighOverview);"
+	    onmouseout="change(23,IconOverview);">
 	  	<img src="../images/overview.png" nosave="" border="0" height="92">
         </a></td>
        <td><font size="+1"><a href="../en/overview/index.html">Overview</a></font>                                    
