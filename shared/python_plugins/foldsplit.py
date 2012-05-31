@@ -79,6 +79,11 @@ class SplitFoldAction( anatomist.Action ):
     ag.loadSubObjects( 3 )
     fov = aims.FoldArgOverSegment( g )
     vs = g[ 'voxel_size' ]
+    ro = ag.getReferential()
+    rw = w.getReferential()
+    tr = a.getTransformation( rw, ro )
+    if tr is not None:
+      pos = tr.transform( pos )
     posi = aims.Point3d( round( pos[0] / vs[0] ), round( pos[1] / vs[1] ),
       round( pos[2] / vs[2] ) )
     splitline = fov.findSplitLine( vertex, posi )
@@ -246,12 +251,20 @@ class SplitFoldAction( anatomist.Action ):
 
   def findVertex( self, pos, win, tolerance=4. ):
     existingvertex = None
+    opos = None
     if hasattr( self, 'temporary' ):
       data = self.temporary
       if data.has_key( 'vertex' ):
         existingvertex = data[ 'vertex' ]
     if existingvertex:
-      dmin, pmin = self.distanceToVertex( pos, existingvertex )
+      ro = data[ 'graph' ][ 'ana_object' ].getReferential()
+      rw = win.getReferential()
+      tr = anatomist.Anatomist().getTransformation( rw, ro )
+      if tr is not None:
+        opos = tr.transform( pos )
+      else:
+        opos = pos
+      dmin, pmin = self.distanceToVertex( opos, existingvertex )
       if dmin < tolerance:
         return existingvertex
     obj = win.objectAt( pos[0], pos[1], pos[2], win.GetTime() )
@@ -268,8 +281,16 @@ class SplitFoldAction( anatomist.Action ):
         edge = vertex
         dmin = 1.e38
         vertex = None
+        if opos is None:
+          ro = obj.getReferential()
+          rw = win.getReferential()
+          tr = anatomist.Anatomist().getTransformation( rw, ro )
+          if tr is not None:
+            opos = tr.transform( pos )
+          else:
+            opos = pos
         for v in edge.vertices():
-          d, pmin = self.distanceToVertex( pos, v )
+          d, pmin = self.distanceToVertex( opos, v )
           if d < dmin:
             dmin = d
             vertex = v
@@ -326,13 +347,18 @@ class SplitFoldAction( anatomist.Action ):
     data[ 'vertex' ] = vertex
     points = data.get( 'points', [] )
     vs = g[ 'voxel_size' ]
+    ro = ag.getReferential()
+    rw = w.getReferential()
+    tr = a.getTransformation( rw, ro )
+    if tr is not None:
+      pos = tr.transform( pos )
     posi = aims.Point3d( round( pos[0] / vs[0] ), round( pos[1] / vs[1] ),
       round( pos[2] / vs[2] ) )
     points.append( posi )
     data[ 'points' ] = points
     sph = aims.SurfaceGenerator.icosahedron( pos, min( vs ) * 0.6 )
     asph = anatomist.AObjectConverter.anatomist( sph )
-    #asph = anatomist.rc_ptr_AObject( asph )
+    asph.setReferentialInheritance( ag )
     a.unmapObject( asph )
     a.releaseObject( asph )
     mat = asph.GetMaterial()
@@ -356,7 +382,6 @@ class SplitFoldAction( anatomist.Action ):
       ag = graph[ 'ana_object' ]
       ag.loadSubObjects( 3 )
       fos = aims.FoldArgOverSegment( graph )
-      print 'splitline:', type( splitline )
       newvertex = fos.splitVertex( vertex, splitline, 50 )
       if newvertex is None:
         print 'Split failed.'
