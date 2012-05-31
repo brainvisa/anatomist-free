@@ -38,7 +38,7 @@
 #include <qframe.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
-#include <anatomist/window/Window.h>
+#include <anatomist/window/qwindow.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/reference/Referential.h>
@@ -50,6 +50,7 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/control/backPixmap_P.h>
 #include <anatomist/commands/cLoadObject.h>
+#include <q3header.h>
 #include <stdio.h>
 
 
@@ -63,7 +64,7 @@ QPixmap			*QWindowTree::LinkIcon = 0;
 
 
 QWindowTree::QWindowTree( QWidget *parent, const char *name )
-  : QWidget( parent ), _viewRefCol( true )
+  : QWidget( parent ), _viewRefCol( true ), _highlightedWindow( 0 )
 {
   setObjectName(name);
   if( !LinkIcon )
@@ -101,6 +102,7 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   resize( 300, 300 );
 
   setAcceptDrops(TRUE);
+  setMouseTracking( true );
 
   _lview->connect( _lview, SIGNAL( selectionChanged() ), this, 
                    SLOT( unselectInvisibleItems() ) );
@@ -504,4 +506,53 @@ void QWindowTree::unselectInvisibleItems()
   _lview->unselectInvisibleItems();
   emit selectionChanged();
 }
+
+
+void QWindowTree::mouseMoveEvent( QMouseEvent* ev )
+{
+  cout << "mouseMoveEvent\n";
+//   QPoint p( _lview->contentsToViewport( _lview->mapFrom( this, ev->pos() ) ) );
+  QPoint p( _lview->mapFrom( this, ev->pos() ) - QPoint( 0, _lview->header()->height() ) );
+//   cout << "ev pos: " << ev->pos().y() << ", p: " << p.y() << endl;
+  Q3ListViewItem *item = _lview->itemAt( p );
+  if( item )
+  {
+    AWindow *win = _items[ item ];
+    if( win == _highlightedWindow )
+      return;
+    highlightWindow( _highlightedWindow, false );
+    highlightWindow( win, true );
+  }
+  else
+  {
+    highlightWindow( _highlightedWindow, false );
+  }
+  ev->ignore();
+}
+
+
+void QWindowTree::highlightWindow( AWindow *win, bool state )
+{
+  if( win && theAnatomist->hasWindow( win ) )
+  {
+    QAWindow *qwin = dynamic_cast<QAWindow *>( win );
+    if( qwin )
+    {
+      if( state )
+      {
+        cout << "highlight win: " << qwin << endl;
+        qwin->setPalette( QColor( 255, 160, 160 ) );
+        _highlightedWindow = win;
+        return;
+      }
+      else
+      {
+        cout << "unhighlight win: " << qwin << endl;
+        qwin->setPalette( QPalette() );
+      }
+    }
+  }
+  _highlightedWindow = 0;
+}
+
 

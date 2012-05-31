@@ -96,6 +96,8 @@ protected:
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
   virtual void dropEvent( QDropEvent* );
+  virtual void mouseMoveEvent( QMouseEvent* );
+  void highlightWindow( anatomist::AWindow *win, bool state );
 
   std::map<anatomist::AWindow *, Q3ListViewItem *>	_windows;
   std::map<int, Q3ListViewItem *>			_groups;
@@ -103,6 +105,7 @@ protected:
   std::map<Q3ListViewItem *, int>			_groupItems;
   aims::gui::QAListView					*_lview;
   bool							_viewRefCol;
+  anatomist::AWindow *_highlightedWindow;
 
 public slots:
   virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
