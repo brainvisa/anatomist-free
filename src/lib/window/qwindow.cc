@@ -117,8 +117,10 @@ QAWindow::~QAWindow()
 void QAWindow::show()
 {
   QMainWindow::show();
-  if( parent() == 0 )
+  if( isWindow() )
     raise();
+  if( isMinimized() )
+    showNormal();
   AWindow::show();
 }
 

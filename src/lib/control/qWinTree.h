@@ -95,9 +95,10 @@ protected:
   virtual void decorateItem( Q3ListViewItem* item, anatomist::AWindow* obj );
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
+  virtual void dragLeaveEvent( QDragLeaveEvent* );
   virtual void dropEvent( QDropEvent* );
-  virtual void mouseMoveEvent( QMouseEvent* );
   void highlightWindow( anatomist::AWindow *win, bool state );
+  void clearWindowsHighlights();
 
   std::map<anatomist::AWindow *, Q3ListViewItem *>	_windows;
   std::map<int, Q3ListViewItem *>			_groups;
@@ -111,15 +112,14 @@ public slots:
   virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
 
 protected slots:
-#if QT_VERSION >= 0x040000
   void doubleClickedSlot( Q3ListViewItem * );
-#else
-  void doubleClickedSlot( QListViewItem * );
-#endif
-
   void unselectInvisibleItems();
+  void itemChanged( Q3ListViewItem *, int );
+  void raiseDropWindows();
 
 private:
+  struct Private;
+  Private *d;
 };
 
 

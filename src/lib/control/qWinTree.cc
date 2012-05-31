@@ -51,6 +51,7 @@
 #include <anatomist/control/backPixmap_P.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <q3header.h>
+#include <qtimer.h>
 #include <stdio.h>
 
 
@@ -62,9 +63,46 @@ using namespace std;
 unsigned		QWindowTree::RefPixSize = 10;
 QPixmap			*QWindowTree::LinkIcon = 0;
 
+struct QWindowTree::Private
+{
+  Private( QWindowTree* parent );
+  ~Private();
+
+  QTimer &timer();
+  QTimer *_timer;
+  QWindowTree* parent;
+  set<QAWindow *> highlighted;
+};
+
+
+QWindowTree::Private::Private( QWindowTree* parent ) : _timer( 0 ),
+  parent( parent )
+{
+}
+
+
+QWindowTree::Private::~Private()
+{
+  delete _timer;
+}
+
+
+QTimer & QWindowTree::Private::timer()
+{
+  if( !_timer )
+  {
+    _timer = new QTimer( parent );
+    _timer->setSingleShot( true );
+    QObject::connect( _timer, SIGNAL( timeout() ), parent,
+                      SLOT( raiseDropWindows() ) );
+  }
+  return *_timer;
+}
+
 
 QWindowTree::QWindowTree( QWidget *parent, const char *name )
-  : QWidget( parent ), _viewRefCol( true ), _highlightedWindow( 0 )
+  : QWidget( parent ), _viewRefCol( true ), _highlightedWindow( 0 ),
+  d( new Private( this ) )
 {
   setObjectName(name);
   if( !LinkIcon )
@@ -102,25 +140,23 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   resize( 300, 300 );
 
   setAcceptDrops(TRUE);
-  setMouseTracking( true );
+  _lview->setMouseTracking( true );
 
   _lview->connect( _lview, SIGNAL( selectionChanged() ), this, 
                    SLOT( unselectInvisibleItems() ) );
-#if QT_VERSION >= 0x040000
   connect( _lview, SIGNAL( doubleClicked( Q3ListViewItem * ) ), this,
 	   SLOT( doubleClickedSlot( Q3ListViewItem * ) ) );
-#else
-  connect( _lview, SIGNAL( doubleClicked( QListViewItem * ) ), this,
-           SLOT( doubleClickedSlot( QListViewItem * ) ) );
-#endif
   connect( _lview, SIGNAL( dragStart( Q3ListViewItem*, Qt::ButtonState ) ),
            this,
            SLOT( startDragging( Q3ListViewItem*, Qt::ButtonState ) ) );
+  connect( _lview, SIGNAL( cursorMoved( Q3ListViewItem*, int ) ),
+           this, SLOT( itemChanged( Q3ListViewItem*, int ) ) );
 }
 
 
 QWindowTree::~QWindowTree()
 {
+  delete d;
 }
 
 
@@ -399,22 +435,69 @@ void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
   Q3ListViewItem	*item
     = _lview->itemAt( _lview->viewport()->mapFromParent( event->pos() ) );
   if( item )
+  {
+    //cout << "QWindowTree::dragMoveEvent\n";
+    map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator	iw
+      = _items.find( item );
+    if( iw != _items.end() )
     {
-      //cout << "QWindowTree::dragMoveEvent\n";
-      map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator	iw
-	= _items.find( item );
-      event->accept( iw != _items.end()
-          && ( QAObjectDrag::canDecode( event )
-            || QAObjectDrag::canDecodeURI( event ) ) );
+      if( iw->second != _highlightedWindow )
+      {
+        highlightWindow( _highlightedWindow, false );
+        highlightWindow( iw->second, true );
+      }
+      bool ok = ( QAObjectDrag::canDecode( event )
+            || QAObjectDrag::canDecodeURI( event ) );
+      if( ok )
+      {
+        set<AWindow *>    *sw;
+        if( item->isSelected() )
+          sw = SelectedWindows();
+        else
+        {
+          sw = new set<AWindow *>;
+          sw->insert( (*iw).second );
+        }
+        set<QAWindow *>::iterator iw, ew = d->highlighted.end();
+        for( iw=d->highlighted.begin(); iw!=ew; ++iw )
+        {
+          if( sw->find( *iw ) == sw->end() )
+            highlightWindow( *iw, false );
+        }
+        set<AWindow *>::iterator iw2, ew2 = sw->end();
+        d->highlighted.clear();
+        QAWindow *qwin;
+        for( iw2=sw->begin(); iw2!=ew2; ++iw2 )
+        {
+          qwin = dynamic_cast<QAWindow *>( *iw2 );
+          if( qwin )
+          {
+            d->highlighted.insert( qwin );
+            highlightWindow( qwin, true );
+          }
+        }
+        delete sw;
+        d->timer().start( 800 );
+        event->accept( true );
+        return;
+      }
     }
-  else
-    event->accept( false );
+  }
+  highlightWindow( _highlightedWindow, false );
+  d->timer().stop();
+  set<QAWindow *>::iterator iw, ew = d->highlighted.end();
+  for( iw=d->highlighted.begin(); iw!=ew; ++iw )
+    highlightWindow( *iw, false );
+  d->highlighted.clear();
+  event->accept( false );
 }
 
 
 void QWindowTree::dropEvent( QDropEvent* event )
 {
   //cout << "QWindowTree::dropEvent\n";
+  clearWindowsHighlights();
+  d->timer().stop();
   Q3ListViewItem	*item 
     = _lview->itemAt( _lview->viewport()->mapFromParent( event->pos() ) );
   if( item )
@@ -458,6 +541,12 @@ void QWindowTree::dropEvent( QDropEvent* event )
       delete sw;
     }
   }
+}
+
+
+void QWindowTree::dragLeaveEvent( QDragLeaveEvent* )
+{
+  clearWindowsHighlights();
 }
 
 
@@ -508,26 +597,26 @@ void QWindowTree::unselectInvisibleItems()
 }
 
 
-void QWindowTree::mouseMoveEvent( QMouseEvent* ev )
+void QWindowTree::itemChanged( Q3ListViewItem *item, int )
 {
-  cout << "mouseMoveEvent\n";
-//   QPoint p( _lview->contentsToViewport( _lview->mapFrom( this, ev->pos() ) ) );
-  QPoint p( _lview->mapFrom( this, ev->pos() ) - QPoint( 0, _lview->header()->height() ) );
-//   cout << "ev pos: " << ev->pos().y() << ", p: " << p.y() << endl;
-  Q3ListViewItem *item = _lview->itemAt( p );
   if( item )
   {
     AWindow *win = _items[ item ];
-    if( win == _highlightedWindow )
-      return;
+    map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator       iw
+      = _items.find( item );
+    if( iw != _items.end() )
+    {
+      if( iw->second != _highlightedWindow )
+      {
+        highlightWindow( _highlightedWindow, false );
+        highlightWindow( iw->second, true );
+      }
+    }
+    else
     highlightWindow( _highlightedWindow, false );
-    highlightWindow( win, true );
   }
   else
-  {
     highlightWindow( _highlightedWindow, false );
-  }
-  ev->ignore();
 }
 
 
@@ -540,19 +629,40 @@ void QWindowTree::highlightWindow( AWindow *win, bool state )
     {
       if( state )
       {
-        cout << "highlight win: " << qwin << endl;
-        qwin->setPalette( QColor( 255, 160, 160 ) );
+        QColor col( QPalette().color( QPalette::Window ) );
+        if( col.blue() < 235 )
+          col.setBlue( col.blue() + 20 );
+        else
+          col.setBlue( 255 );
+        qwin->setPalette( col );
         _highlightedWindow = win;
         return;
       }
       else
       {
-        cout << "unhighlight win: " << qwin << endl;
         qwin->setPalette( QPalette() );
       }
     }
   }
   _highlightedWindow = 0;
+}
+
+
+void QWindowTree::raiseDropWindows()
+{
+  set<QAWindow *>::iterator iw, ew = d->highlighted.end();
+  for( iw=d->highlighted.begin(); iw!=ew; ++iw )
+    (*iw)->show();
+}
+
+
+void QWindowTree::clearWindowsHighlights()
+{
+  highlightWindow( _highlightedWindow, false );
+  set<QAWindow *>::iterator iw, ew = d->highlighted.end();
+  for( iw=d->highlighted.begin(); iw!=ew; ++iw )
+    highlightWindow( *iw, false );
+  d->highlighted.clear();
 }
 
 
