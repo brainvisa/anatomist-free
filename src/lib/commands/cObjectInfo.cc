@@ -51,6 +51,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/processor/context.h>
+#include <anatomist/control/wControl.h>
 #include <aims/resampling/quaternion.h>
 #include <cartobase/object/object.h>
 #include <cartobase/object/pythonwriter.h>
@@ -240,6 +241,14 @@ namespace
     ex->setProperty( "windowType", 
                      AWindowFactory::typeString( w->type(), w->subtype() ) );
     ex->setProperty( "group", w->Group() );
+    bool sel = false;
+    if( theAnatomist->getControlWindow() )
+    {
+      set<AWindow *> selw =
+        theAnatomist->getControlWindow()->selectedWindows();
+      sel = selw.find( w ) != selw.end();
+    }
+    ex->setProperty( "selected", (int) sel );
     Point3df	pos = w->GetPosition();
     vector<float>	posv( 4 );
     posv[0] = pos[0];
