@@ -69,6 +69,9 @@ AControlMenuHandler::AControlMenuHandler( QMenuBar* menubar,
 
 AControlMenuHandler::~AControlMenuHandler()
 {
+  map<string, QSelectMenu *>::iterator ip, ep = d->popups.end();
+  for( ip=d->popups.begin(); ip!=ep; ++ip )
+    delete ip->second;
   delete d;
 }
 
