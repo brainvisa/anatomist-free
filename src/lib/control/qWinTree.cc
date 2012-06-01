@@ -620,6 +620,32 @@ void QWindowTree::itemChanged( Q3ListViewItem *item, int )
 }
 
 
+namespace
+{
+
+  QColor modifiedColor( const QColor & icol, int r, int g, int b )
+  {
+    int rr = icol.red() + r;
+    if( rr < 0 )
+      rr = 0;
+    else if( rr > 255 )
+      rr = 255;
+    int gg = icol.green() + g;
+    if( gg < 0 )
+      gg = 0;
+    else if( gg > 255 )
+      gg = 255;
+    int bb = icol.blue() + b;
+    if( bb < 0 )
+      bb = 0;
+    else if( bb > 255 )
+      bb = 255;
+    return QColor( rr, gg, bb );
+  }
+
+}
+
+
 void QWindowTree::highlightWindow( AWindow *win, bool state )
 {
   if( win && theAnatomist->hasWindow( win ) )
@@ -629,18 +655,18 @@ void QWindowTree::highlightWindow( AWindow *win, bool state )
     {
       if( state )
       {
-        QColor col( QPalette().color( QPalette::Window ) );
-        if( col.blue() < 235 )
-          col.setBlue( col.blue() + 20 );
-        else
-          col.setBlue( 255 );
-        qwin->setPalette( col );
+        int modr = -5, modg = -5, modb = 25;
+        if( !qwin->isWindow() )
+          qwin->setAutoFillBackground( true );
+        qwin->setPalette( modifiedColor( QPalette().color(
+          QPalette::Button ), modr, modg, modb ) );
         _highlightedWindow = win;
         return;
       }
       else
       {
         qwin->setPalette( QPalette() );
+        qwin->setAutoFillBackground( false );
       }
     }
   }
