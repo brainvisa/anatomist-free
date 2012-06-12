@@ -47,6 +47,7 @@
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qpushbutton.h>
+#include <qcombobox.h>
 
 using namespace anatomist;
 using namespace std;
@@ -76,11 +77,10 @@ struct QTexturePanel::Private
   vector<bool>			partvisible;
   bool				recurs;
   bool				uptodate;
-  vector<QRadioButton *>	modes;
+  QComboBox                     *modes;
   vector<QRadioButton *>	filters;
   vector<QRadioButton *>	autotex;
   vector<float>			genparams[3];
-  vector<int>                   allowedTexModes;
   vector<QString>               texModesStrings;
 };
 
@@ -88,30 +88,14 @@ struct QTexturePanel::Private
 QTexturePanel::Private::Private( const set<AObject *> & obj )
   : objects( obj ), mode( 0 ), filt( 0 ), rgbinterpol( false ), 
     updating( false ), tex( 0 ), 
-    partvisible( 5 ), recurs( false ), uptodate( true )
+    partvisible( 5 ), recurs( false ), uptodate( true ), modes( 0 )
 {
   partvisible[0] = true;
   partvisible[1] = true;
   partvisible[2] = true;
   partvisible[3] = true;
   partvisible[4] = true;
-  allowedTexModes.reserve( 15 );
-  allowedTexModes.push_back( GLComponent::glGEOMETRIC );
-  allowedTexModes.push_back( GLComponent::glLINEAR );
-  allowedTexModes.push_back( GLComponent::glADD );
-  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_A );
-  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_B );
-  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_NOT_A );
-  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_NOT_B );
-  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_A_ALPHA );
-  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_NOT_B_ALPHA );
-  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_A );
-  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_B );
-  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_NOT_A );
-  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_NOT_B );
-  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_B_ALPHA );
-  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_NOT_A_ALPHA );
-  texModesStrings.reserve( GLComponent::glLINEAR_B_IF_NOT_A_ALPHA + 1 );
+  texModesStrings.reserve( GLComponent::glMIN_ALPHA + 1 );
   texModesStrings.push_back( QTexturePanel::tr( "Geometric" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Replace" ) );
@@ -119,13 +103,14 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
   texModesStrings.push_back( QTexturePanel::tr( "Blend" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Add" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Combine" ) );
-  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is white" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / A if A is white" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is white" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / A if A is black" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is black" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / B if A is white" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / B if B is white" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / B if A is black" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / B if B is black" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / A if A is opaque"
     ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is not opaque"
@@ -134,6 +119,10 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
     ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear / B if A is not opaque"
     ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Max channel" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Min channel" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Max opacity" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Min opacity" ) );
 }
 
 
@@ -151,24 +140,8 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   vbox->setSpacing( 10 );
   mainlay->addWidget( vbox );
 
-  /* QVButtonGroup *mgrp = new QVButtonGroup( tr( "Mapping mode" ), vbox );
-  d->modebox = new QComboBox( mgrp );
-  int i, n = d->allowedTexModes.size();
-  for( i=0; i<n; ++i )
-    d->modebox->insertElement( d->texModesStrings[ d->allowedTexModes[i] ] );
-  */
-
   d->modebox = new QVButtonGroup( tr( "Mapping mode" ), vbox );
-  d->modes.reserve( 8 );
-  d->modes.push_back( new QRadioButton( tr( "Geometric" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Linear" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Replace" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Decal" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Blend" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Add" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Combine" ), d->modebox ) );
-  d->modes.push_back( new QRadioButton( tr( "Linear on non-nul" ), 
-                                        d->modebox ) );
+  d->modes = new QComboBox( d->modebox );
 
   d->ratebox = new QHGroupBox( tr( "Mixing rate" ), vbox );
   d->mixsl = new QSlider( Qt::Horizontal, d->ratebox );
@@ -184,7 +157,6 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   mainlay->addWidget( vbox );
   vbox->setSpacing( 10 );
 
-#if QT_VERSION >= 0x040000
   d->genbox = new QGroupBox( tr( "Texture generation" ), vbox );
   QButtonGroup * geng = new QButtonGroup( d->genbox );
   d->geng = geng;
@@ -218,19 +190,6 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
                                         "genparams_button" );
   vlay->addWidget( gpb );
   geng->setExclusive( true );
-#else // Qt 3
-  d->genbox = new QVButtonGroup( tr( "Texture generation" ), vbox );
-  new QRadioButton( tr( "None" ), d->genbox );
-  new QRadioButton( tr( "Linear - object" ), d->genbox );
-  new QRadioButton( tr( "Linear - eye" ), d->genbox );
-  new QRadioButton( tr( "Sphere reflection" ), d->genbox );
-  new QRadioButton( tr( "Reflection" ), d->genbox );
-  new QRadioButton( tr( "Normal" ), d->genbox );
-  QPushButton	*gpb = new QPushButton( tr( "Parameters..." ), d->genbox,
-                                      "genparams_button" );
-  d->genbox->setRadioButtonExclusive( true );
-  d->genbox->setExclusive( false );
-#endif
   d->genparambutton = gpb;
   gpb->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
@@ -244,16 +203,11 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
 
   updateWindow();
 
-  connect( d->modebox, SIGNAL( clicked( int ) ), SLOT( modeChanged( int ) ) );
+  connect( d->modes, SIGNAL( activated( int ) ), SLOT( modeChanged( int ) ) );
   connect( d->filtbox, SIGNAL( clicked( int ) ), 
            SLOT( filteringChanged( int ) ) );
-#if QT_VERSION >= 0x040000
   connect( d->geng, SIGNAL( buttonClicked( int ) ),
            SLOT( generationChanged( int ) ) );
-  #else
-  connect( d->genbox, SIGNAL( clicked( int ) ), 
-           SLOT( generationChanged( int ) ) );
-#endif
   connect( d->mixsl, SIGNAL( valueChanged( int ) ), 
            SLOT( rateChanged( int ) ) );
   connect( d->rgbint, SIGNAL( toggled( bool ) ), this, 
@@ -414,14 +368,9 @@ void QTexturePanel::updateWindow()
       d->rgbinterpol = c->glTexRGBInterpolation( d->tex );
       d->genmode = c->glAutoTexMode( d->tex );
       d->rate = (int) rint( c->glTexRate( d->tex ) * 100 );
-      d->modebox->setButton( d->mode );
       d->filtbox->setButton( d->filt );
       d->rgbint->setChecked( d->rgbinterpol );
-#if QT_VERSION >= 0x040000
       d->geng->button( d->genmode )->setChecked( true );
-#else
-      d->genbox->setButton( d->genmode );
-#endif
       d->mixsl->setValue( d->rate );
       d->mixlb->setText( QString::number( d->rate ) );
 
@@ -429,17 +378,17 @@ void QTexturePanel::updateWindow()
 
       set<GLComponent::glTextureMode>	modes = c->glAllowedTexModes( d->tex );
       set<GLComponent::glTextureMode>::iterator	is, es = modes.end();
-      int					i = 0, nm = d->modes.size();
-      for( is=modes.begin(); is!=es; ++is )
-        {
-          for( ; i<*is && i<nm; ++i )
-            d->modes[i]->hide();
-          if( *is < nm )
-            d->modes[*is]->show();
-          ++i;
-        }
-      for( ; i<nm; ++i )
-        d->modes[i]->hide();
+      int i = 0, nm, mode = 0;
+      while( d->modes->count() != 0 )
+        d->modes->removeItem( 0 );
+      for( is=modes.begin(); is!=es; ++is, ++i )
+      {
+        d->modes->addItem( d->texModesStrings[ *is ] );
+        if( *is == d->mode )
+          mode = i;
+      }
+      d->modes->setCurrentItem( mode );
+
       if( modes.size() > 1 )
         mv[ Mode ] = true;
 
@@ -447,6 +396,7 @@ void QTexturePanel::updateWindow()
         filts = c->glAllowedTexFilterings( d->tex );
       set<GLComponent::glTextureFiltering>::iterator	itf, etf = filts.end();
       nm = d->filters.size();
+      i = 0;
       for( itf=filts.begin(); itf!=etf; ++itf )
         {
           for( ; i<*itf && i<nm; ++i )
@@ -467,6 +417,7 @@ void QTexturePanel::updateWindow()
         gens = c->glAllowedAutoTexModes( d->tex );
       set<GLComponent::glAutoTexturingMode>::iterator	itg, etg = gens.end();
       nm = d->autotex.size();
+      i = 0;
       for( itg=gens.begin(); itg!=etg; ++itg )
         {
           for( ; i<*itg && i<nm; ++i )
@@ -523,12 +474,22 @@ void QTexturePanel::modeChanged( int x )
 {
   //cout << "QTexturePanel::modeChanged " << x << " / " << d->mode << endl;
   if( d->mode != x )
+  {
+    d->mode = x;
+    d->uptodate = false;
+    QString m = d->modes->currentText();
+    int i, n = d->texModesStrings.size(), mode = 0;
+    for( i=0; i<n; ++i )
     {
-      d->mode = x;
-      d->uptodate = false;
-      runCommand();
-      // updateObjects();
+      if( d->texModesStrings[i] == m )
+      {
+        mode = i;
+        break;
+      }
     }
+    d->mode = mode;
+    runCommand();
+  }
 }
 
 
@@ -699,9 +660,11 @@ void QTexturePanel::generationParamsDialog()
 }
 
 
+/*
 void QTexturePanel::setAllowedTextureModes( const vector<int> & at )
 {
   d->allowedTexModes = at;
   // TODO: update interface
 }
+*/
 

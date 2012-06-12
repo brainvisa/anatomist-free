@@ -193,14 +193,34 @@ Command* TexturingParamsCommand::read( const Tree & com,
   static map<string, bool>				inters;
   if( modes.empty() )
     {
-      modes[ "geometric"        ] = GLComponent::glGEOMETRIC;
-      modes[ "linear"           ] = GLComponent::glLINEAR;
-      modes[ "replace"          ] = GLComponent::glREPLACE;
-      modes[ "decal"            ] = GLComponent::glDECAL;
-      modes[ "blend"            ] = GLComponent::glBLEND;
-      modes[ "add"              ] = GLComponent::glADD;
-      modes[ "combine"          ] = GLComponent::glCOMBINE;
-      modes[ "linear_on_nonnul" ] = GLComponent::glLINEAR_ON_DEFINED;
+      modes[ "geometric"                 ] = GLComponent::glGEOMETRIC;
+      modes[ "linear"                    ] = GLComponent::glLINEAR;
+      modes[ "replace"                   ] = GLComponent::glREPLACE;
+      modes[ "decal"                     ] = GLComponent::glDECAL;
+      modes[ "blend"                     ] = GLComponent::glBLEND;
+      modes[ "add"                       ] = GLComponent::glADD;
+      modes[ "combine"                   ] = GLComponent::glCOMBINE;
+      modes[ "linear_on_nonnul"          ] = GLComponent::glLINEAR_A_IF_B;
+      modes[ "linear_A_if_A_white"       ] = GLComponent::glLINEAR_A_IF_A;
+      modes[ "linear_A_if_B_white"       ] = GLComponent::glLINEAR_A_IF_B;
+      modes[ "linear_A_if_A_black"       ] = GLComponent::glLINEAR_A_IF_NOT_A;
+      modes[ "linear_A_if_B_black"       ] = GLComponent::glLINEAR_A_IF_NOT_B;
+      modes[ "linear_A_if_A_opaque"      ]
+        = GLComponent::glLINEAR_A_IF_A_ALPHA;
+      modes[ "linear_A_if_B_transparent" ]
+        = GLComponent::glLINEAR_A_IF_NOT_B_ALPHA;
+      modes[ "linear_B_if_A_white"       ] = GLComponent::glLINEAR_B_IF_A;
+      modes[ "linear_B_if_B_white"       ] = GLComponent::glLINEAR_B_IF_B;
+      modes[ "linear_B_if_A_black"       ] = GLComponent::glLINEAR_B_IF_NOT_A;
+      modes[ "linear_B_if_B_black"       ] = GLComponent::glLINEAR_B_IF_NOT_B;
+      modes[ "linear_B_if_B_opaque"      ]
+        = GLComponent::glLINEAR_B_IF_B_ALPHA;
+      modes[ "linear_B_if_A_transparent" ]
+        = GLComponent::glLINEAR_B_IF_NOT_A_ALPHA;
+      modes[ "max_channel"               ] = GLComponent::glMAX_CHANNEL;
+      modes[ "min_channel"               ] = GLComponent::glMIN_CHANNEL;
+      modes[ "max_opacity"               ] = GLComponent::glMAX_ALPHA;
+      modes[ "min_opacity"               ] = GLComponent::glMIN_ALPHA;
       filters[ "nearest"        ] = GLComponent::glFILT_NEAREST;
       filters[ "linear"         ] = GLComponent::glFILT_LINEAR;
       gens[ "none"           ] = GLComponent::glTEX_MANUAL;
@@ -272,11 +292,11 @@ void TexturingParamsCommand::write( Tree & com, Serializer* ser ) const
   if( _tex != 0 )
     t->setProperty( "texture_index", (int) _tex );
 
-  if( _mode >= 0 && _mode < 8 )
+  if( _mode >= 0 && _mode <= GLComponent::glMIN_ALPHA )
     {
       static const string smode[] = 
         { "geometric", "linear", "replace", "decal", "blend", "add", "combine",
-          "linear_on_nonnul", 
+          "linear_A_if_A_white", "linear_A_if_B_white", "linear_A_if_A_black", "linear_A_if_B_black", "linear_B_if_A_white", " linear_B_if_B_white", "linear_B_if_A_black", "linear_B_if_B_black", "linear_A_if_A_opaque", "linear_A_if_B_transparent", "linear_B_if_B_opaque", "linear_B_if_A_transparent", "max_channel", "min_channel", "max_opacity", "min_opacity"
         };
       t->setProperty( "mode", smode[_mode] );
     }

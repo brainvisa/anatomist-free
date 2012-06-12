@@ -404,9 +404,59 @@ namespace
   template<> inline
   void _mix_item<14>( unsigned char* src, unsigned char *dst, float rate )
   {
-    if( *(src+3) == 255 )
+    if( *(dst+3) == 255 )
       _mix_item<1>( src, dst, rate );
     else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // max
+  template<> inline
+  void _mix_item<15>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    *dst = max( *src, *dst );
+    *(dst+1) = max( *(src+1), *(dst+1) );
+    *(dst+2) = max( *(src+2), *(dst+2) );
+    *(dst+3) = max( *(src+3), *(dst+3) );
+  }
+
+
+  // min
+  template<> inline
+  void _mix_item<16>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    *dst = min( *src, *dst );
+    *(dst+1) = min( *(src+1), *(dst+1) );
+    *(dst+2) = min( *(src+2), *(dst+2) );
+    *(dst+3) = min( *(src+3), *(dst+3) );
+  }
+
+
+  // max alpha
+  template<> inline
+  void _mix_item<17>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) > *(dst+3) )
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // min alpha
+  template<> inline
+  void _mix_item<18>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) < *(dst+3) )
     {
       *dst = *src;
       *(dst+1) = *(src+1);
@@ -446,11 +496,11 @@ namespace
       case GLComponent::glADD:
         _mix2<3>( dst, src, w, h, offset_xim, rate );
         break;
-      case GLComponent::glLINEAR_A_IF_B:
-        _mix2<2>( dst, src, w, h, offset_xim, rate );
-        break;
       case GLComponent::glLINEAR_A_IF_A:
         _mix2<4>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_A_IF_B:
+        _mix2<2>( dst, src, w, h, offset_xim, rate );
         break;
       case GLComponent::glLINEAR_A_IF_NOT_A:
         _mix2<5>( dst, src, w, h, offset_xim, rate );
@@ -468,7 +518,31 @@ namespace
         _mix2<9>( dst, src, w, h, offset_xim, rate );
         break;
       case GLComponent::glLINEAR_B_IF_NOT_B:
-        _mix2<2>( dst, src, w, h, offset_xim, rate );
+        _mix2<10>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_A_IF_A_ALPHA:
+        _mix2<11>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_A_IF_NOT_B_ALPHA:
+        _mix2<12>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_B_IF_B_ALPHA:
+        _mix2<13>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_B_IF_NOT_A_ALPHA:
+        _mix2<14>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glMAX_CHANNEL:
+        _mix2<15>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glMIN_CHANNEL:
+        _mix2<16>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glMAX_ALPHA:
+        _mix2<17>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glMIN_ALPHA:
+        _mix2<18>( dst, src, w, h, offset_xim, rate );
         break;
       default:
         _mix2<0>( dst, src, w, h, offset_xim, rate );
@@ -800,7 +874,22 @@ Fusion2D::glAllowedTexModes( unsigned tex ) const
   a.insert( glGEOMETRIC );
   a.insert( glLINEAR );
   a.insert( glADD );
-  a.insert( glLINEAR_ON_DEFINED );
+  a.insert( glLINEAR_A_IF_A );
+  a.insert( glLINEAR_A_IF_B );
+  a.insert( glLINEAR_A_IF_NOT_A );
+  a.insert( glLINEAR_A_IF_NOT_B );
+  a.insert( glLINEAR_B_IF_A );
+  a.insert( glLINEAR_B_IF_B );
+  a.insert( glLINEAR_B_IF_NOT_A );
+  a.insert( glLINEAR_B_IF_NOT_B );
+  a.insert( glLINEAR_A_IF_A_ALPHA );
+  a.insert( glLINEAR_A_IF_NOT_B_ALPHA );
+  a.insert( glLINEAR_B_IF_B_ALPHA );
+  a.insert( glLINEAR_B_IF_NOT_A_ALPHA );
+  a.insert( glMAX_CHANNEL );
+  a.insert( glMIN_CHANNEL );
+  a.insert( glMAX_ALPHA );
+  a.insert( glMIN_ALPHA );
   return a;
 }
 

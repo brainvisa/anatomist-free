@@ -72,9 +72,9 @@ namespace anatomist
       glBLEND,
       glADD,
       glCOMBINE,
+      glLINEAR_A_IF_A,
       glLINEAR_ON_DEFINED,
       glLINEAR_A_IF_B = glLINEAR_ON_DEFINED,
-      glLINEAR_A_IF_A,
       glLINEAR_A_IF_NOT_A,
       glLINEAR_A_IF_NOT_B,
       glLINEAR_B_IF_A,
@@ -85,6 +85,10 @@ namespace anatomist
       glLINEAR_A_IF_NOT_B_ALPHA,
       glLINEAR_B_IF_B_ALPHA,
       glLINEAR_B_IF_NOT_A_ALPHA,
+      glMAX_CHANNEL,
+      glMIN_CHANNEL,
+      glMAX_ALPHA,
+      glMIN_ALPHA,
     };
 
     enum glTextureFiltering
