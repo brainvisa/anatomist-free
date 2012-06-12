@@ -1326,8 +1326,8 @@ void QObjectBrowser::addAttribute()
 
       if( newsynt )
 	{
-	  sset[ name ];
-	  iss = sset.find( name );
+	  sset[ snt ];
+	  iss = sset.find( snt );
 	}
 
       SemanticSet::iterator	is = (*iss).second.find( name );
