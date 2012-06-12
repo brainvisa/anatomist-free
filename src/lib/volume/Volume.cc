@@ -278,6 +278,7 @@ AVolume<T>::~AVolume()
 
 static const float	c = 1. / ::sqrt( 2 );
 static const float	eps = 1.e-5;
+static const float      eps2 = 1.e-10;
 
 
 template <class T>
@@ -322,7 +323,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
   Point3df		gs = wingeom->Size();
   // cout << "quaternion : " << vec << endl;
 
-  if( vec == Point4df( 0, 0, 0, 1 ) )	// ID : axial
+  if( ( vec - Point4df( 0, 0, 0, 1 ) ).norm2() < eps2 )	// ID : axial
     {
       // cout << "axial orientation\n";
       if( fabs( gs[0] - _volume->sizeX() ) <= eps
@@ -336,28 +337,29 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
 	  return true;
 	}
     }
-  else if( vec == Point4df( c, 0, 0, c ) )	// coronal
+  else if( ( vec - Point4df( c, 0, 0, c ) ).norm2() < eps2 )	// coronal
     {
-      //cout << "coronal orientation\n";
-      if( fabs( gs[0] - _volume->sizeX() ) <= eps && fabs( gs[1] - _volume->sizeZ() ) <= eps )
+      // cout << "coronal orientation\n";
+      if( fabs( gs[0] - _volume->sizeX() ) <= eps
+        && fabs( gs[1] - _volume->sizeZ() ) <= eps )
 	{
 	  Point3df	post( pos );
 	  if( tra )
 	    post = tra->transform( pos );
-	  //cout << "coronal optimized\n";
+	  // cout << "coronal optimized\n";
 	  updateCoronal( &ximage, post, time );
 	  return true;
 	}
     }
-  else if( vec == Point4df( -0.5, -0.5, -0.5, 0.5 ) )	// sagittial
+  else if( ( vec - Point4df( -0.5, -0.5, -0.5, 0.5 ) ).norm2() < eps2 )	// sagittial
     {
-      //cout << "sagittal orientation\n";
+      // cout << "sagittal orientation\n";
       if( fabs( gs[0] - _volume->sizeY() ) <= eps && fabs( gs[1] - _volume->sizeZ() ) <= eps )
 	{
 	  Point3df	post( pos );
 	  if( tra )
 	    post = tra->transform( pos );
-	  //cout << "sagittal optimized\n";
+	  // cout << "sagittal optimized\n";
 	  updateSagittal( &ximage, post, time );
 	  return true;
 	}
@@ -375,6 +377,31 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
   return true;
 }
 
+
+namespace
+{
+
+  bool _hasInterpolation( const PythonAObject *volume )
+  {
+    int       intp = true;
+    const PythonHeader *ph
+      = dynamic_cast<const PythonHeader *>( volume->attributed() );
+    if( ph )
+      try
+      {
+        Object o = ph->getProperty( "volumeInterpolation" );
+        if( !o.isNull() )
+          return bool( o->getScalar() );
+      }
+      catch( ... )
+      {
+      }
+    theAnatomist->config()->getProperty( "volumeInterpolation", intp );
+    return (bool) intp;
+  }
+
+}
+
 template <class T>
 void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time, 
 			      const Transformation* tra, const Point3df & inc, 
@@ -387,11 +414,8 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
     << image.height << "\n";*/
 
 
-  bool	ppv;	// ? c'est quoi � ? flag d'interpolation .. ?
-		// Aaaaaaah j'y suis: "Plus Proche Voisin" !!
-  int	intp = true;
-  theAnatomist->config()->getProperty( "volumeInterpolation", intp );
-  ppv = !intp;
+  // interpolation flag: "Plus Proche Voisin" (nearest neighbour)
+  bool	ppv = !_hasInterpolation( this );
 
   ColorTraits<T>	coltraits( getOrCreatePalette(), 
 				   d->traits.minTypedTexValue(), 
