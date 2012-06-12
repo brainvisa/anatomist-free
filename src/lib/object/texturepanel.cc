@@ -59,12 +59,8 @@ struct QTexturePanel::Private
   Q3ButtonGroup			*modebox;
   Q3ButtonGroup			*filtbox;
   QHGroupBox			*ratebox;
-#if QT_VERSION >= 0x040000
   QGroupBox                     *genbox;
   QButtonGroup                  *geng;
-#else
-  Q3ButtonGroup                 *genbox;
-#endif
   Q3ButtonGroup			*rgbintbox;
   QCheckBox			*rgbint;
   QSlider			*mixsl;
@@ -84,6 +80,8 @@ struct QTexturePanel::Private
   vector<QRadioButton *>	filters;
   vector<QRadioButton *>	autotex;
   vector<float>			genparams[3];
+  vector<int>                   allowedTexModes;
+  vector<QString>               texModesStrings;
 };
 
 
@@ -97,6 +95,45 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
   partvisible[2] = true;
   partvisible[3] = true;
   partvisible[4] = true;
+  allowedTexModes.reserve( 15 );
+  allowedTexModes.push_back( GLComponent::glGEOMETRIC );
+  allowedTexModes.push_back( GLComponent::glLINEAR );
+  allowedTexModes.push_back( GLComponent::glADD );
+  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_A );
+  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_B );
+  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_NOT_A );
+  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_NOT_B );
+  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_A_ALPHA );
+  allowedTexModes.push_back( GLComponent::glLINEAR_A_IF_NOT_B_ALPHA );
+  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_A );
+  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_B );
+  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_NOT_A );
+  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_NOT_B );
+  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_B_ALPHA );
+  allowedTexModes.push_back( GLComponent::glLINEAR_B_IF_NOT_A_ALPHA );
+  texModesStrings.reserve( GLComponent::glLINEAR_B_IF_NOT_A_ALPHA + 1 );
+  texModesStrings.push_back( QTexturePanel::tr( "Geometric" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Replace" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Decal" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Blend" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Add" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Combine" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is white" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if A is white" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if A is black" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is black" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / B if A is white" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / B if B is white" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / B if A is black" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if A is opaque"
+    ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / A if B is not opaque"
+    ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / B if B is opaque"
+    ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Linear / B if A is not opaque"
+    ) );
 }
 
 
@@ -113,6 +150,13 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   mainlay->setSpacing( 10 );
   vbox->setSpacing( 10 );
   mainlay->addWidget( vbox );
+
+  /* QVButtonGroup *mgrp = new QVButtonGroup( tr( "Mapping mode" ), vbox );
+  d->modebox = new QComboBox( mgrp );
+  int i, n = d->allowedTexModes.size();
+  for( i=0; i<n; ++i )
+    d->modebox->insertElement( d->texModesStrings[ d->allowedTexModes[i] ] );
+  */
 
   d->modebox = new QVButtonGroup( tr( "Mapping mode" ), vbox );
   d->modes.reserve( 8 );
@@ -654,4 +698,10 @@ void QTexturePanel::generationParamsDialog()
     }
 }
 
+
+void QTexturePanel::setAllowedTextureModes( const vector<int> & at )
+{
+  d->allowedTexModes = at;
+  // TODO: update interface
+}
 

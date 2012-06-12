@@ -75,6 +75,7 @@ public:
   void setVisibility( Part p, bool x );
   bool isVisible( Part p ) const;
   void updateObjects();
+  void setAllowedTextureModes( const std::vector<int> & );
 
 protected:
   void updateWindow();

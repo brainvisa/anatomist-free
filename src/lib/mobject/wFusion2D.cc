@@ -81,8 +81,8 @@ Fusion2DWindow::Fusion2DWindow( const set<AObject *> &objL,
   : QWidget( parent, f ), Observer(),
     pdat( new Private( objL ) )
 {
-    setObjectName(name);
-    setAttribute(Qt::WA_DeleteOnClose);
+  setObjectName(name);
+  setAttribute(Qt::WA_DeleteOnClose);
   set<AObject *>::const_iterator	io, fo = objL.end();
 
   for( io=objL.begin(); io!=fo; ++io )

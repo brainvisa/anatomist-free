@@ -250,7 +250,7 @@ namespace
   }
 
 
-  // linear-on-defined
+  // linear-on-defined (A if B)
   template<> inline
   void _mix_item<2>( unsigned char* src, unsigned char *dst, float rate )
   {
@@ -263,14 +263,156 @@ namespace
   template<> inline
   void _mix_item<3>( unsigned char* src, unsigned char *dst, float rate )
   {
-    float	x = rate* (*src) + *dst;
+    float srcalpha = *(src+3) / 255., dstalpha = *(dst+3) / 255.;
+    float	x = rate* (*src) * srcalpha + *dst * dstalpha;
     *dst = ( x >= 255 ? 255 : (unsigned char) rint( x ) );
-    x = rate*(*(src+1)) + *(dst+1);
+    x = rate*(*(src+1)) * srcalpha + *(dst+1) * dstalpha;
     *(dst+1) = ( x >= 255 ? 255 : (unsigned char) rint( x ) );
-    x = rate*(*(src+2)) + *(dst+2);
+    x = rate*(*(src+2)) * srcalpha + *(dst+2) * dstalpha;
     *(dst+2) = ( x >= 255 ? 255 : (unsigned char) rint( x ) );
-    x = rate*(*(src+3)) + *(dst+3);
+    x = max( rate*(*(src+3)), (float) *(dst+3) );
     *(dst+3) = ( x >= 255 ? 255 : (unsigned char) rint( x ) );
+  }
+
+
+  // linear-on-defined (A if A)
+  template<> inline
+  void _mix_item<4>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *dst != 255 || *(dst+1) != 255 || *(dst+2) != 255 )
+      _mix_item<1>( src, dst, rate );
+  }
+
+
+  // linear-on-defined (A if not A)
+  template<> inline
+  void _mix_item<5>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(dst+3) != 0 && ( *dst != 0 || *(dst+1) != 0 || *(dst+2) != 0 ) )
+      _mix_item<1>( src, dst, rate );
+  }
+
+
+  // linear-on-defined (A if not B)
+  template<> inline
+  void _mix_item<6>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) != 0 && ( *src != 0 || *(src+1) != 0 || *(src+2) != 0 ) )
+      _mix_item<1>( src, dst, rate );
+  }
+
+
+  // linear-on-defined (B if A)
+  template<> inline
+  void _mix_item<7>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *dst != 255 || *(dst+1) != 255 || *(dst+2) != 255 )
+      _mix_item<1>( src, dst, rate );
+    else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // linear-on-defined (B if B)
+  template<> inline
+  void _mix_item<8>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *src != 255 || *(src+1) != 255 || *(src+2) != 255 )
+      _mix_item<1>( src, dst, rate );
+    else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // linear-on-defined (B if not A)
+  template<> inline
+  void _mix_item<9>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(dst+3) != 0 && ( *dst != 0 || *(dst+1) != 0 || *(dst+2) != 0 ) )
+      _mix_item<1>( src, dst, rate );
+    else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // linear-on-defined (B if not B)
+  template<> inline
+  void _mix_item<10>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) = 0 && ( *src != 0 || *(src+1) != 0 || *(src+2) != 0 ) )
+      _mix_item<1>( src, dst, rate );
+    else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // linear-on-defined (A if alpha(A))
+  template<> inline
+  void _mix_item<11>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(dst+3) != 255 )
+      _mix_item<1>( src, dst, rate );
+  }
+
+
+  // linear-on-defined (A if not alpha(B))
+  template<> inline
+  void _mix_item<12>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) == 255 )
+      _mix_item<1>( src, dst, rate );
+  }
+
+
+  // linear-on-defined (B if alpha(B))
+  template<> inline
+  void _mix_item<13>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) != 255 )
+      _mix_item<1>( src, dst, rate );
+    else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
+  }
+
+
+  // linear-on-defined (B if not alpha(A))
+  template<> inline
+  void _mix_item<14>( unsigned char* src, unsigned char *dst, float rate )
+  {
+    if( *(src+3) == 255 )
+      _mix_item<1>( src, dst, rate );
+    else
+    {
+      *dst = *src;
+      *(dst+1) = *(src+1);
+      *(dst+2) = *(src+2);
+      *(dst+3) = *(src+3);
+    }
   }
 
 
@@ -304,7 +446,28 @@ namespace
       case GLComponent::glADD:
         _mix2<3>( dst, src, w, h, offset_xim, rate );
         break;
-      case GLComponent::glLINEAR_ON_DEFINED:
+      case GLComponent::glLINEAR_A_IF_B:
+        _mix2<2>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_A_IF_A:
+        _mix2<4>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_A_IF_NOT_A:
+        _mix2<5>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_A_IF_NOT_B:
+        _mix2<6>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_B_IF_A:
+        _mix2<7>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_B_IF_B:
+        _mix2<8>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_B_IF_NOT_A:
+        _mix2<9>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glLINEAR_B_IF_NOT_B:
         _mix2<2>( dst, src, w, h, offset_xim, rate );
         break;
       default:
