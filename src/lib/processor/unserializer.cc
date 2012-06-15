@@ -178,7 +178,7 @@ void Unserializer::garbageCollect()
   while( j != f )
     if( done.find( j->first ) == garbage )
       {
-	cerr << "pointer with no ID, deleting, type: " << j->second << endl;
+	cerr << "pointer with no ID, deleting, type: " << j->second << ", ptr: " << j->first << endl;
 	j2 = j;
 	++j;
 	_ptr2type.erase( j2 );

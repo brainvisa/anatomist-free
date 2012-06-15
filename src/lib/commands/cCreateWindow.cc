@@ -124,6 +124,10 @@ void CreateWindowCommand::doit()
       if( _blockid > 0 && context() && context()->unserial )
         context()->unserial->registerPointer( (void *) _block, _blockid,
                                               "Widget" );
+      Object    ex( (GenericObject *) new ValueObject<Dictionary> );
+      ex->setProperty( "_block", Object::value( _block ) );
+      OutputEvent       ev( "CreateWindowBlock", ex );
+      ev.send();
     }
   else if( _blockid == 0 )
     _block = 0;
