@@ -895,6 +895,9 @@ Défilement des coupes:
 &lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+M&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change le mode de défilement des coupes&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;lt;+&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile plus vite&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;lt;-&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile moins vite&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Couleurs:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+bt droit&amp;gt; et déplacement horizontal&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur min de la palette&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+bt droit&amp;gt; et déplacement vertical&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur max de la palette&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -1663,7 +1666,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Spot</source>
-        <translation type="obsolete">Spot</translation>
+        <translation type="unfinished">Spot</translation>
     </message>
     <message>
         <source>Linear :</source>
@@ -1671,7 +1674,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Model</source>
-        <translation type="obsolete">Modèle</translation>
+        <translation type="unfinished">Modèle</translation>
     </message>
     <message>
         <source>Position :</source>
@@ -1683,11 +1686,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="obsolete">Source</translation>
+        <translation type="unfinished">Source</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="obsolete">Atténuation</translation>
+        <translation type="unfinished">Atténuation</translation>
     </message>
     <message>
         <source>Exponent :</source>
@@ -1774,7 +1777,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="obsolete">Réglages avancés</translation>
+        <translation type="unfinished">Réglages avancés</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1782,7 +1785,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Fast color selection</source>
-        <translation type="obsolete">Sélection rapide</translation>
+        <translation type="unfinished">Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
@@ -1802,7 +1805,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Rendering</source>
-        <translation type="obsolete">Rendu</translation>
+        <translation type="unfinished">Rendu</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
@@ -2122,7 +2125,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Control window</source>
-        <translation type="obsolete">Fenêtre de contrôle</translation>
+        <translation type="unfinished">Fenêtre de contrôle</translation>
     </message>
     <message>
         <source>Anatomist global settings</source>
@@ -2142,7 +2145,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation type="obsolete">Curseur lié</translation>
+        <translation type="unfinished">Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2170,7 +2173,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="obsolete">Volumes</translation>
+        <translation type="unfinished">Volumes</translation>
     </message>
     <message>
         <source>Display linked cursor</source>
@@ -2186,7 +2189,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation type="obsolete">Application</translation>
+        <translation type="unfinished">Application</translation>
     </message>
     <message>
         <source>Unstable/in development features</source>
@@ -2226,7 +2229,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation type="obsolete">Fenêtres</translation>
+        <translation type="unfinished">Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2274,7 +2277,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>OpenGL</source>
-        <translation type="obsolete">OpenGL</translation>
+        <translation type="unfinished">OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
@@ -3321,7 +3324,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Linear on non-nul</source>
-        <translation>Linéaire sur valeurs non-nulles</translation>
+        <translation type="obsolete">Linéaire sur valeurs non-nulles</translation>
     </message>
     <message>
         <source>Texture interpolation</source>
@@ -3334,6 +3337,70 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Parameters...</source>
         <translation>Paramètres...</translation>
+    </message>
+    <message>
+        <source>Linear / A if A is white</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / A if B is white</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / A if A is black</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / A if B is black</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / B if A is white</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / B if B is white</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / B if A is black</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / B if B is black</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / A if A is opaque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / A if B is not opaque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / B if B is opaque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear / B if A is not opaque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min opacity</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
