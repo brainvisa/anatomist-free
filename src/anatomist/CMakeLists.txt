@@ -4,7 +4,7 @@
 if( APPLE )
   set( _guiExecutable MACOSX_BUNDLE )
 endif( APPLE )
-add_executable( anatomist-bin ${_guiExecutable} anatomist.cc )
+brainvisa_add_executable( anatomist-bin ${_guiExecutable} anatomist.cc )
 set_property( TARGET anatomist-bin PROPERTY OUTPUT_NAME anatomist )
 set(ana_link_libraries ${AIMS-FREE_LIBRARIES} ${QT_LIBRARIES} )
 target_link_libraries( anatomist-bin anatomist ${ana_link_libraries} )
