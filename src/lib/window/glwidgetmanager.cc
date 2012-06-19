@@ -1016,9 +1016,9 @@ QStringList fileAndFormat( const QString & caption )
 
   QFileDialog	& fdiag = fileDialog();
   //fdiag.setFilters( QStringList::fromStrList( filter ).join( ";;" ) );
-  fdiag.setFilters( filter.join( ";;" ) );
+  fdiag.selectNameFilter( filter.join( ";;" ) );
   fdiag.setCaption( caption );
-  fdiag.setMode( QFileDialog::AnyFile );
+  fdiag.setFileMode( QFileDialog::AnyFile );
   if( fdiag.exec() )
   {
     QString	filename = fdiag.selectedFile();

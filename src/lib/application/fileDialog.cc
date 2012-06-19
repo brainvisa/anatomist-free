@@ -38,9 +38,6 @@
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/application/Anatomist.h>
 #include <cartobase/stream/fileutil.h>
-#if QT_VERSION >= 0x040000
-#include <Q3ComboBox>
-#endif
 
 using namespace aims;
 using namespace carto;
@@ -54,53 +51,35 @@ QFileDialog & anatomist::fileDialog()
 {
   if( !_fdialog )
     {
-      _fdialog = new QFileDialog( 0, "anatomist file dialog", true );
-      QObject	*pw = _fdialog->child( "directory history/editor" );
-      if( pw )
-	{
-#if QT_VERSION >= 0x040000
-          Q3ComboBox	*pcb = dynamic_cast<Q3ComboBox *>( pw );
-#else
-          QComboBox	*pcb = dynamic_cast<QComboBox *>( pw );
-#endif
-	  if( pcb )
-	    {
-	      const QPixmap	*pix = pcb->pixmap( 0 );
-	      string		p = Path::singleton().hierarchy() + '/';
+      _fdialog = new QFileDialog( 0, Qt::Dialog );
+      _fdialog->setWindowModality( Qt::ApplicationModal );
 
-	      if( pix )
-		pcb->insertItem( *pix, p.c_str(), 0 );
-	      else
-		pcb->insertItem( p.c_str(), 0 );
+      GlobalConfiguration       *cfg = theAnatomist->config();
+      string            cpath;
 
-	      GlobalConfiguration	*cfg = theAnatomist->config();
-	      string		cpath;
-	      int		i = 1;
+      QStringList hist;
+      string            p = Path::singleton().hierarchy() + '/';
+      hist += p.c_str();
 
-	      if( cfg && cfg->getProperty( "path_list", cpath ) )
-		{
-		  string::size_type	pos;
-		  while( !cpath.empty() )
-		    {
-		      pos = cpath.find( FileUtil::pathSeparator() );
-		      if( pos == string::npos )
-			pos = cpath.length();
-		      if( pos != 0 )
-			{
-			  p = cpath.substr( 0, pos );
-			  if( p[p.length() - 1] != '/' )
-			    p += '/';
-			  if( pix )
-			    pcb->insertItem( *pix, p.c_str(), i );
-			  else
-			    pcb->insertItem( p.c_str(), i );
-			  ++i;
-			}
-		      cpath.erase( 0, pos+1 );
-		    }
-		}
-	    }
-	}
+      if( cfg && cfg->getProperty( "path_list", cpath ) )
+      {
+        string::size_type     pos;
+        while( !cpath.empty() )
+        {
+          pos = cpath.find( FileUtil::pathSeparator() );
+          if( pos == string::npos )
+            pos = cpath.length();
+          if( pos != 0 )
+          {
+            p = cpath.substr( 0, pos );
+            if( p[p.length() - 1] != '/' )
+              p += '/';
+            hist += p.c_str();
+          }
+          cpath.erase( 0, pos+1 );
+        }
+      }
+      _fdialog->setHistory( hist );
     }
   return( *_fdialog );
 }

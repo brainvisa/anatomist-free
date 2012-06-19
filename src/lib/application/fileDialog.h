@@ -36,7 +36,7 @@
 #define ANATOMIST_APPLICATION_FILEDIALOG_H
 
 
-#include <aims/qtcompat/qfiledialog.h>
+#include <qfiledialog.h>
 
 namespace anatomist
 {

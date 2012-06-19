@@ -78,7 +78,6 @@ HEADERS = \
         commands/cWindowBlock.h \
 	commands/cWindowConfig.h \
         config/anatomist_config.h \
-	dialogs/qaFileDialog.h \
 	dialogs/colorDialog.h \
 	dialogs/colorWidget.h \
 	dialogs/qScopeLineEdit.h \
@@ -310,7 +309,6 @@ SOURCES = \
 	commands/cTexturingParams.cc \
         commands/cWindowBlock.cc \
 	commands/cWindowConfig.cc \
-	dialogs/qaFileDialog.cc \
 	dialogs/colorDialog.cc \
 	dialogs/colorWidget.cc \
 	dialogs/qScopeLineEdit.cc \
