@@ -617,7 +617,7 @@ void PreferencesWindow::loadCursor()
   QString capt = tr( "Load Anatomist objects" );
   
   QFileDialog	& fd = fileDialog();
-  fd.selectNameFilter( filt );
+  fd.setNameFilter( filt );
   fd.setCaption( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )

@@ -391,7 +391,7 @@ void AWindow::startRecord()
   QString caption = "Record JPEG images";
 
   QFileDialog	& fd = fileDialog();
-  fd.selectNameFilter( filter );
+  fd.setNameFilter( filter );
   fd.setCaption( caption );
   fd.setFileMode( QFileDialog::AnyFile );
   if( !fd.exec() )

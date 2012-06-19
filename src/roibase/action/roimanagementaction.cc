@@ -953,9 +953,9 @@ RoiManagementActionView::loadGraph( )
     capt = tr( "Load ROI session" );
 
   QFileDialog	& fd = anatomist::fileDialog();
-  fd.setFilters( filt );
+  fd.setNameFilter( filt );
   fd.setCaption( capt );
-  fd.setMode( QFileDialog::ExistingFiles );
+  fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )
     return;
 
@@ -1213,9 +1213,9 @@ RoiManagementActionView::loadUserDefinedFrameWork()
     capt = tr( "Load Anatomist objects" );
   
   QFileDialog	& fd = anatomist::fileDialog();
-  fd.setFilters( filt );
+  fd.setNameFilter( filt );
   fd.setCaption( capt );
-  fd.setMode( QFileDialog::ExistingFiles );
+  fd.setFileMode( QFileDialog::ExistingFiles );
   fd.setDir(QDir( (Settings::localPath() + FileUtil::separator() 
                    + "frameworks/").c_str(), 
                   QString("*.hie") ) ) ;

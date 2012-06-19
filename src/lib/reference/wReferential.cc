@@ -326,7 +326,7 @@ void ReferentialWindow::openSelectBox()
   filter += ControlWindow::tr( "All files" );
   filter += " (*)";
   QFileDialog	& fd = fileDialog();
-  fd.selectNameFilter( filter );
+  fd.setNameFilter( filter );
   fd.setCaption( tr( "Open transformation" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
@@ -346,7 +346,7 @@ void ReferentialWindow::saveTransformation( anatomist::Transformation* trans )
   filter += ControlWindow::tr( "All files" );
   filter += " (*)";
   QFileDialog	& fd = fileDialog();
-  fd.selectNameFilter( filter );
+  fd.setNameFilter( filter );
   fd.setCaption( tr( "Save transformation" ) );
   fd.setFileMode( QFileDialog::AnyFile );
   if( !fd.exec() )
@@ -1014,7 +1014,7 @@ void ReferentialWindow::loadReferential()
   filter += ControlWindow::tr( "All files" );
   filter += " (*)";
   QFileDialog   & fd = fileDialog();
-  fd.selectNameFilter( filter );
+  fd.setNameFilter( filter );
   fd.setCaption( tr( "Load referential information" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
@@ -1036,7 +1036,7 @@ void ReferentialWindow::loadNewTransformation()
   filter += ControlWindow::tr( "All files" );
   filter += " (*)";
   QFileDialog   & fd = fileDialog();
-  fd.selectNameFilter( filter );
+  fd.setNameFilter( filter );
   fd.setCaption( tr( "Open transformation" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )

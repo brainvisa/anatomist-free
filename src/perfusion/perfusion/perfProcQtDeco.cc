@@ -40,6 +40,7 @@
 #include <anatomist/bucket/Bucket.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/winperf/perfWin.h>
+#include <anatomist/application/fileDialog.h>
 
 #include <aims/utility/converter_volume.h>
 #include <aims/perfusion/perfMask.h>
@@ -671,14 +672,13 @@ void PerfusionProcessingQtDecorator::saveMaps()
 
   QString filt = "Float GIS files (*.ima);;All files (*)";
 
-  QFileDialog *fdia = new QFileDialog( QString::null, filt, _parent,
-				       "saveMaps", true);
-  fdia->setCaption( "Save maps" );
-  fdia->setMode( QFileDialog::AnyFile );
+  QFileDialog   & fdia = fileDialog();
 
-  if ( fdia->exec() == QDialog::Accepted )  fname = fdia->selectedFile();
+  fdia.setCaption( "Save maps" );
+  fdia.setNameFilter( filt );
+  fdia.setFileMode( QFileDialog::AnyFile );
 
-  delete fdia;
+  if ( fdia.exec() == QDialog::Accepted )  fname = fdia.selectedFile();
 
   if ( !fname.isEmpty() )
     {

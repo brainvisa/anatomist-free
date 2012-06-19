@@ -1015,8 +1015,7 @@ QStringList fileAndFormat( const QString & caption )
   filter.prepend( genformat + " )" );
 
   QFileDialog	& fdiag = fileDialog();
-  //fdiag.setFilters( QStringList::fromStrList( filter ).join( ";;" ) );
-  fdiag.selectNameFilter( filter.join( ";;" ) );
+  fdiag.setNameFilter( filter.join( ";;" ) );
   fdiag.setCaption( caption );
   fdiag.setFileMode( QFileDialog::AnyFile );
   if( fdiag.exec() )
@@ -1029,11 +1028,7 @@ QStringList fileAndFormat( const QString & caption )
       QString format2 = formatFromName( filename );
       if( format2.isEmpty() )
       {
-#if QT_VERSION >= 0x040000
         int				nf = filter.indexOf( format );
-#else
-        int				nf = filter.findIndex( format );
-#endif
         list<unsigned>::iterator	il;
 
         if( nf > 0 && nf <= (int) formats.count() )

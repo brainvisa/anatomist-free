@@ -717,7 +717,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
     capt = tr( "Load Anatomist objects" );
   
   QFileDialog	& fd = fileDialog();
-  fd.selectNameFilter( filt );
+  fd.setNameFilter( filt );
   fd.setCaption( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )
@@ -769,7 +769,7 @@ void ControlWindow::replayScenario()
   QString caption = tr( "Open scenario" );
   /*QString filename = QFileDialog::getOpenFileName( QString::null,
     filter, 0, 0, caption );*/
-  fd.selectNameFilter( filter );
+  fd.setNameFilter( filter );
   fd.setCaption( caption );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
