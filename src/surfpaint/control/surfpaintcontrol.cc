@@ -117,7 +117,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
   /*Creation of action*/
 
   myAction = static_cast<SurfpaintToolsAction *> (actionPool->action("SurfpaintToolsAction"));
-  myTools = new SurfpaintTools();
+  myTools = SurfpaintTools::instance();
 
   if (myAction && myTools)
     myAction->setTools(myTools);

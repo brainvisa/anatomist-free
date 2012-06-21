@@ -97,7 +97,6 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
 
 SurfpaintTools::~SurfpaintTools()
 {
-  delete my_instance();
   delete sp;
   delete sp_sulci;
   delete sp_gyri;

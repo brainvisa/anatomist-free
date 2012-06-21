@@ -110,7 +110,6 @@ namespace anatomist
 
     public:
 
-      SurfpaintTools();
       virtual ~SurfpaintTools() ;
 
       static SurfpaintTools* instance() ;
@@ -186,6 +185,7 @@ namespace anatomist
       void changeMaxValueSpinBox(double v);
 
     private :
+      SurfpaintTools();
       void popAllButtonPaintToolBar();
 
     private:
