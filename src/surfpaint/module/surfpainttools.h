@@ -110,9 +110,8 @@ namespace anatomist
 
     public:
 
+      SurfpaintTools();
       virtual ~SurfpaintTools() ;
-
-      static SurfpaintTools* instance() ;
 
       bool initSurfPaintModule(AWindow3D *w3);
       void addToolBarControls(AWindow3D *w3);
@@ -185,7 +184,6 @@ namespace anatomist
       void changeMaxValueSpinBox(double v);
 
     private :
-      SurfpaintTools();
       void popAllButtonPaintToolBar();
 
     private:
@@ -201,8 +199,6 @@ namespace anatomist
 
       Texture1d *surfpaintTexInit;
       AWindow3D *win3D;
-
-      static SurfpaintTools *& my_instance();
 
       AObject *objselect;
       QToolBar  *tbTextureValue;

@@ -33,20 +33,6 @@
 
 #include <anatomist/module/surfpainttools.h>
 
-SurfpaintTools* & SurfpaintTools::my_instance()
-{
-  static SurfpaintTools* instance = 0;
-  return instance;
-}
-
-SurfpaintTools* SurfpaintTools::instance()
-{
-  if (my_instance() == 0)
-    {
-    my_instance() = new SurfpaintTools;
-    }
-  return my_instance();
-}
 
 SurfpaintTools::SurfpaintTools()/* : Observer()*/
     : QWidget(theAnatomist->getQWidgetAncestor(), Qt::Window),

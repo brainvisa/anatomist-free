@@ -117,10 +117,15 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
   /*Creation of action*/
 
   myAction = static_cast<SurfpaintToolsAction *> (actionPool->action("SurfpaintToolsAction"));
-  myTools = SurfpaintTools::instance();
+  myTools = new SurfpaintTools;
 
   if (myAction && myTools)
+  {
+    QWidget* pw = dynamic_cast<QWidget *>( myAction->view() );
+    if( pw )
+      myTools->setParent( pw );
     myAction->setTools(myTools);
+  }
 }
 
 void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
