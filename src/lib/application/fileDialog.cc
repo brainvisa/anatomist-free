@@ -44,42 +44,60 @@ using namespace carto;
 using namespace std;
 
 
-static QFileDialog *_fdialog = 0;
-
-
 QFileDialog & anatomist::fileDialog()
 {
-  if( !_fdialog )
+  static QFileDialog *_fdialog = 0;
+  QString path;
+  QRect geom;
+  bool oldone = false;
+
+  if( _fdialog )
+  {
+    oldone = true;
+    QStringList filenames = _fdialog->selectedFiles();
+    if( !filenames.empty() )
     {
-      _fdialog = new QFileDialog( 0, Qt::Dialog );
-      _fdialog->setWindowModality( Qt::ApplicationModal );
-
-      GlobalConfiguration       *cfg = theAnatomist->config();
-      string            cpath;
-
-      QStringList hist;
-      string            p = Path::singleton().hierarchy() + '/';
-      hist += p.c_str();
-
-      if( cfg && cfg->getProperty( "path_list", cpath ) )
-      {
-        string::size_type     pos;
-        while( !cpath.empty() )
-        {
-          pos = cpath.find( FileUtil::pathSeparator() );
-          if( pos == string::npos )
-            pos = cpath.length();
-          if( pos != 0 )
-          {
-            p = cpath.substr( 0, pos );
-            if( p[p.length() - 1] != '/' )
-              p += '/';
-            hist += p.c_str();
-          }
-          cpath.erase( 0, pos+1 );
-        }
-      }
-      _fdialog->setHistory( hist );
+      path = FileUtil::dirname( filenames.begin()->toUtf8().data() ).c_str();
+      geom = _fdialog->geometry();
     }
+    delete _fdialog;
+  }
+
+  _fdialog = new QFileDialog( 0, Qt::Dialog );
+  _fdialog->setWindowModality( Qt::ApplicationModal );
+  if( oldone )
+  {
+    if( !path.isEmpty() )
+      _fdialog->setDirectory( path );
+    _fdialog->setGeometry( geom );
+  }
+
+  GlobalConfiguration       *cfg = theAnatomist->config();
+  string            cpath;
+
+  QStringList hist;
+  string            p = Path::singleton().hierarchy() + '/';
+  hist += p.c_str();
+
+  if( cfg && cfg->getProperty( "path_list", cpath ) )
+  {
+    string::size_type     pos;
+    while( !cpath.empty() )
+    {
+      pos = cpath.find( FileUtil::pathSeparator() );
+      if( pos == string::npos )
+        pos = cpath.length();
+      if( pos != 0 )
+      {
+        p = cpath.substr( 0, pos );
+        if( p[p.length() - 1] != '/' )
+          p += '/';
+        hist += p.c_str();
+      }
+      cpath.erase( 0, pos+1 );
+    }
+  }
+  _fdialog->setHistory( hist );
+
   return( *_fdialog );
 }
