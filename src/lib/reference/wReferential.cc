@@ -46,7 +46,6 @@
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/misc/error.h>
 #include <aims/def/general.h>
-#include <aims/qtcompat/qpopupmenu.h>
 #include <aims/qtcompat/qmouseevent.h>
 #include <cartobase/object/pythonwriter.h>
 #include <cartobase/stream/fileutil.h>
@@ -58,6 +57,9 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
+#include <qmenu.h>
+#include <qaction.h>
+#include <qicon.h>
 
 
 using namespace anatomist;
@@ -273,8 +275,8 @@ namespace anatomist
     QPoint			pos;
     bool			tracking;
     map<Referential *, QPoint>	refpos;
-    QPopupMenu			*refmenu;
-    QPopupMenu                  *bgmenu;
+    QMenu			*refmenu;
+    QMenu                  *bgmenu;
     RefToolTip                  *tooltip;
   };
 
@@ -700,24 +702,29 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
 
 void ReferentialWindow::popupRefMenu( const QPoint & pos )
 {
-  QPopupMenu	*pop = pdat->refmenu;
+  QMenu	*pop = pdat->refmenu;
+  QAction *delete_action, *load_action, *icon_action;
 
   if( !pop )
     {
-      pop = new QPopupMenu( this );
+      pop = new QMenu( this );
       pdat->refmenu = pop;
 
-      pop->insertItem( QPixmap( 16, 16 ), 0 );
-      pop->insertSeparator();
-      pop->insertItem( tr( "Delete referential" ), this, 
-			   SLOT( deleteReferential() ), 0, 10 );
-      pop->insertItem( tr( "Load referential information" ), this,
-                       SLOT( loadReferential() ), 0, 11 );
-      pop->insertItem( tr( "Split referential to disconnect transformations" ),
-        this, SLOT( splitReferential() ), 0, 15 );
+      pop->addAction( QIcon(QPixmap( 16, 16 )), "" );
+      pop->addSeparator();
+      delete_action = pop->addAction( tr( "Delete referential" ), this,
+               SLOT( deleteReferential() ));
+      load_action = pop->addAction( tr( "Load referential information" ), this,
+                       SLOT( loadReferential() ));
+      pop->addAction( tr( "Split referential to disconnect transformations" ),
+        this, SLOT( splitReferential() ));
     }
-  pop->setItemEnabled( 10, pdat->srcref->index() != 0 );
-  pop->setItemEnabled( 11, pdat->srcref->index() != 0 );
+  else{
+      delete_action = pop->actions()[1];
+      load_action = pop->actions()[2];
+  }
+  delete_action->setEnabled( pdat->srcref->index() != 0 );
+  load_action->setEnabled( pdat->srcref->index() != 0 );
 
   QPixmap	pix( 16, 16 );
   QPainter	p( &pix );
@@ -728,7 +735,9 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
   p.drawEllipse( 0, 0, 16, 16 );
   p.end();
   pix.setMask( pix.createHeuristicMask() );
-  pop->changeItem( 0, pix );
+  icon_action = pop->actions()[0];
+  icon_action->setIcon( QIcon(pix) );
+  icon_action->setIconVisibleInMenu(true);
 
   pop->popup( pos );
 }
@@ -742,7 +751,7 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
 
   unsigned        i, n = trans.size();
   anatomist::Transformation  *t;
-  QPopupMenu      pop( this );
+  QMenu      pop( this );
   vector<ReferentialWindow_TransCallback *> cbks;
   ReferentialWindow_TransCallback           *cbk;
 
@@ -771,24 +780,25 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
     p.drawLine( 40, 12, 48, 8 );
     p.end();
     pix.setMask( pix.createHeuristicMask() );
-    pop.insertItem( pix, 0 );
+    QAction* icon_action = pop.addAction( QIcon(pix), "" );
+    icon_action->setIconVisibleInMenu(true);
 
-    pop.insertSeparator();
+    pop.addSeparator();
     cbk = new ReferentialWindow_TransCallback( this, t );
     cbks.push_back( cbk );
     if( !t->isGenerated() )
     {
-      pop.insertItem( tr( "Delete transformation" ), cbk,
+      pop.addAction( tr( "Delete transformation" ), cbk,
                       SLOT( deleteTransformation() ) );
-      pop.insertItem( tr( "Invert transformation" ), cbk,
+      pop.addAction( tr( "Invert transformation" ), cbk,
                       SLOT( invertTransformation() ) );
-      pop.insertItem( tr( "Reload transformation" ), cbk,
+      pop.addAction( tr( "Reload transformation" ), cbk,
                       SLOT( reloadTransformation() ) );
     }
-    pop.insertItem( tr( "Save transformation..." ), cbk,
+    pop.addAction( tr( "Save transformation..." ), cbk,
                     SLOT( saveTransformation() ) );
     if( i < n-1 )
-      pop.insertSeparator();
+      pop.addSeparator();
   }
 
   pop.exec( mapToGlobal( pos ) );
@@ -800,20 +810,20 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
 
 void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
 {
-  QPopupMenu    *pop = pdat->bgmenu;
+  QMenu    *pop = pdat->bgmenu;
 
   if( !pop )
   {
-    pop = new QPopupMenu( this );
+    pop = new QMenu( this );
     pdat->bgmenu = pop;
 
-    pop->insertItem( tr( "New referential" ), this,
+    pop->addAction( tr( "New referential" ), this,
                      SLOT( newReferential() ) );
-    pop->insertItem( tr( "Load referential" ), this,
+    pop->addAction( tr( "Load referential" ), this,
                      SLOT( loadReferential() ) );
-    pop->insertItem( tr( "Load transformation" ), this,
+    pop->addAction( tr( "Load transformation" ), this,
                      SLOT( loadNewTransformation() ) );
-    pop->insertItem( tr( "Clear unused referentials" ), this,
+    pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
   }
 
