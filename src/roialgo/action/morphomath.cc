@@ -98,6 +98,8 @@ RoiMorphoMathActionView::RoiMorphoMathActionView( anatomist::RoiMorphoMathAction
   new QRadioButton(tr("voxel"), _private->myDistanceMode) ;
   _private->myDistanceMode->setExclusive(true) ;
   _private->myDistanceMode->setButton(0) ;
+  // myDistanceMode is NEVER used !
+  _private->myDistanceMode->hide();
   
   _private->myMorphoButtons =  new QVGroupBox( tr("Mathematic Morphology Actions"), this ) ;
   _private->myMorphoGrid = new QGrid( 2, _private->myMorphoButtons ) ;
@@ -111,7 +113,18 @@ RoiMorphoMathActionView::RoiMorphoMathActionView( anatomist::RoiMorphoMathAction
   new QRadioButton(tr("Session"), _private->myRegionMode) ;
   _private->myRegionMode->setExclusive(true) ;
   _private->myRegionMode->setButton(0) ;
-  
+
+  _private->myStructElRadiusBox->setSizePolicy( QSizePolicy::Expanding,
+                                                QSizePolicy::Fixed );
+  _private->myDistanceMode->setSizePolicy( QSizePolicy::Expanding,
+                                           QSizePolicy::Fixed );
+  _private->myMorphoButtons->setSizePolicy( QSizePolicy::Expanding,
+                                            QSizePolicy::Fixed );
+  _private->myRegionMode->setSizePolicy( QSizePolicy::Expanding,
+                                         QSizePolicy::Fixed );
+  QWidget *w = new QWidget( this ); // act as stretch
+  w->setMinimumHeight( 0 );
+
   connect( _private->myStructElRadiusSlider, SIGNAL(valueChanged(int)), 
 	   this, SLOT(structuringElementRadiusChanged(int) ) ) ;
   connect( _private->myDistanceMode, SIGNAL(clicked(int)), 
@@ -330,9 +343,7 @@ RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
   
   AimsData<int16_t> * binMask = new AimsData<int16_t>( labels.dimX(), labels.dimY(), labels.dimZ(), 1, 1 );
   binMask->setSizeXYZT( g->VoxelSize()[0], g->VoxelSize()[1], g->VoxelSize()[2], 1.0 ) ;
-  cout << "bin mask voxel size = " << binMask->sizeX() << " , " << binMask->sizeY() 
-       << " , " << binMask->sizeZ() << endl ;
-  
+
   if(!go)
     return 0 ;
   
@@ -391,20 +402,19 @@ RoiMorphoMathAction::doingDilation( AGraphObject * go,  list< pair< Point3d, Cha
 
   AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
   if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
 
-  
   bool replaceMode = PaintActionSharedData::instance()->replaceMode() ;
-  
   AimsData<int16_t> * binMask = regionBinaryMask(go) ;
   if( !binMask )
     return ;
+  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   
   int maskZ = min(3, binMask->dimZ() ) ;
   int maskY = min(3, binMask->dimY() ) ;
   int maskX = min(3, binMask->dimX() ) ;
-  AimsData<int16_t> dilMask = AimsMorphoChamferDilation( *binMask, myStructuringElementRadius, 
-						       maskX, maskY, maskZ, 50 ) ;
+  AimsData<int16_t> dilMask
+    = AimsMorphoChamferDilation( *binMask, myStructuringElementRadius,
+                                 maskX, maskY, maskZ, 50 );
   
   ChangesItem item ;
   item.before = 0 ;
@@ -413,12 +423,12 @@ RoiMorphoMathAction::doingDilation( AGraphObject * go,  list< pair< Point3d, Cha
   for(int z = 0 ; z < dilMask.dimZ() ; ++z )
     for(int y = 0 ; y < dilMask.dimY() ; ++y )
       for(int x = 0 ; x < dilMask.dimX() ; ++x )
-	if( dilMask(x, y, z) && (!(*binMask)(x, y, z) ) && 
-	    ( replaceMode || labels(x, y, z) == 0 ) ){
-	  changes->push_back(pair<Point3d, ChangesItem>( Point3d(x, y, z), item ) )  ;
-	  labels( x, y, z ) = go  ;
-	}
-  
+        if( dilMask(x, y, z) && (!(*binMask)(x, y, z) ) &&
+            ( replaceMode || labels(x, y, z) == 0 ) )
+        {
+          changes->push_back(pair<Point3d, ChangesItem>( Point3d(x, y, z), item ) )  ;
+          labels( x, y, z ) = go  ;
+        }
   delete binMask ;
 }
 
@@ -449,11 +459,10 @@ RoiMorphoMathAction::erosion(  )
 void 
 RoiMorphoMathAction::doingErosion( AGraphObject * go, list< pair< Point3d, ChangesItem> >* changes )
 {
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
-  if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   if(!go)
     return ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
+  if (!g) return ;
   
   int maskZ, maskY, maskX ;
   
@@ -461,6 +470,7 @@ RoiMorphoMathAction::doingErosion( AGraphObject * go, list< pair< Point3d, Chang
   if( !binMask )
     return ;
   
+  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   maskZ = min(3, binMask->dimZ() ) ;
   maskY = min(3, binMask->dimY() ) ;
   maskX = min(3, binMask->dimX() ) ;
