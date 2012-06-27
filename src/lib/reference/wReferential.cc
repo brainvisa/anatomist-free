@@ -737,7 +737,6 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
   pix.setMask( pix.createHeuristicMask() );
   icon_action = pop->actions()[0];
   icon_action->setIcon( QIcon(pix) );
-  icon_action->setIconVisibleInMenu(true);
 
   pop->popup( pos );
 }
@@ -780,8 +779,7 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
     p.drawLine( 40, 12, 48, 8 );
     p.end();
     pix.setMask( pix.createHeuristicMask() );
-    QAction* icon_action = pop.addAction( QIcon(pix), "" );
-    icon_action->setIconVisibleInMenu(true);
+    pop.addAction( QIcon(pix), "" );
 
     pop.addSeparator();
     cbk = new ReferentialWindow_TransCallback( this, t );
