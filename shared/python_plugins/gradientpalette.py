@@ -49,6 +49,14 @@ from soma import aims
 import sip, weakref
 import PyQt4.QtCore as qt
 import PyQt4.QtGui as qtgui
+use_qstring = False
+try:
+  # test SIP and QString API
+  import sip
+  if sip.getapi( 'QString' ) < 2:
+    use_qstring = True
+except:
+  pass
 
 
 class GWManager( qt.QObject ):
@@ -166,8 +174,10 @@ class GradientPaletteWidget( qtgui.QWidget ):
       for i in xrange(paldim):
         pdata.setValue( aims.AimsRGBA( ord(rgb[i*4+1]), ord(rgb[i*4+2]),
           ord(rgb[i*4+3]), ord(rgb[i*4]) ), i )
-    pal.header()[ "palette_gradients" ] \
-      = self._gradw.getGradientString().toLocal8Bit().data()
+    gradientString = self._gradw.getGradientString()
+    if use_qstring:
+      gradientString = gradientString.toLocal8Bit().data()
+    pal.header()[ "palette_gradients" ] = gradientString
     if self._gradw.isHsv():
       pal.header()[ "palette_gradients_mode" ] = 'HSV'
     else:
@@ -241,9 +251,10 @@ class GradientPaletteWidget( qtgui.QWidget ):
       apal = anatomist.AObjectConverter.anatomist( pal.volume() )
       apal.setName( pal.name() )
       a = anatomist.Anatomist()
-      apal.setFileName( os.path.join(
-        a.anatomistHomePath().toLocal8Bit().data(), 'rgb',
-        pal.name() ) )
+      hp = a.anatomistHomePath()
+      if use_qstring:
+        hp = hp.toLocal8Bit().data()
+      apal.setFileName( os.path.join( hp, 'rgb', pal.name() ) )
       anatomist.ObjectActions.saveStatic( [ apal ] )
       a = anatomist.Anatomist()
       a.releaseObject( apal )
@@ -283,7 +294,10 @@ class GradientPaletteWidget( qtgui.QWidget ):
 
     if res:
       pal = anatomist.APalette( pali.get() )
-      pal.setName( t.text().toLocal8Bit().data() )
+      txt = t.text()
+      if use_qstring:
+        txt = txt.toLocal8Bit().data()
+      pal.setName( txt )
       pall.push_back( pal )
 
   def setMode( self, mode ):
