@@ -448,7 +448,7 @@ namespace
         || d->zscalefac != 1 )
     {
       vol = VolumeRef<T>( d->texdimx, d->texdimy, d->texdimz );
-      size_t x, y, z, t = t0;
+      long x, y, z, t = t0;
       /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
           << d->dimy << "/" << d->texdimy << ", "
           << d->dimz << "/" << d->texdimz << endl; */
@@ -510,7 +510,7 @@ namespace
         || d->zscalefac != 1 || scl != 1. || offset != 0. )
     {
       vol = VolumeRef<U>( d->texdimx, d->texdimy, d->texdimz );
-      size_t x, y, z, t = t0;
+      long x, y, z, t = t0;
       /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
       << d->dimy << "/" << d->texdimy << ", "
       << d->dimz << "/" << d->texdimz << endl; */
@@ -555,7 +555,7 @@ namespace
     rc_ptr<Volume<AimsRGB> > v0 = avol->volume()->volume();
     VolumeRef<AimsRGBA>  vol = VolumeRef<AimsRGBA>( d->texdimx, d->texdimy,
         d->texdimz );
-    size_t x, y, z, t = t0;
+    long x, y, z, t = t0;
     /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
         << d->dimy << "/" << d->texdimy << ", "
         << d->dimz << "/" << d->texdimz << endl; */
