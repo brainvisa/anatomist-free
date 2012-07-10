@@ -437,17 +437,18 @@ namespace
       VolRender::Private * d, int t );
 
   template <typename T> void resamplevolNoScale( AVolume<T> * avol,
-      VolRender::Private * d, int t )
+      VolRender::Private * d, int t0 )
   {
     rc_ptr<Volume<T> > v0 = avol->volume()->volume();
     VolumeRef<T>  vol;
-    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t ) );
+    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0,
+                                                                t0 ) );
     if( d->dimx != d->texdimx || d->dimy != d->texdimy
         || d->dimz != d->texdimz || d->xscalefac != 1 || d->yscalefac != 1
         || d->zscalefac != 1 )
     {
       vol = VolumeRef<T>( d->texdimx, d->texdimy, d->texdimz );
-      unsigned x, y, z;
+      size_t x, y, z, t = t0;
       /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
           << d->dimy << "/" << d->texdimy << ", "
           << d->dimz << "/" << d->texdimz << endl; */
@@ -496,20 +497,20 @@ namespace
 
   // special case of FLOAT and DOUBLE: resample as int (short)
   template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
-      VolRender::Private * d, int t )
+      VolRender::Private * d, int t0 )
   {
     rc_ptr<Volume<T> > v0 = avol->volume()->volume();
     VolumeRef<U>  vol;
     const GLComponent::TexExtrema  & te = avol->glTexExtrema( 0 );
     double scl = ( d->maxval + .99 ) / ( te.max[0] - te.min[0] );
     double offset = - te.min[0];
-    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t ) );
+    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t0 ) );
     if( !d->ownextrema || d->dimx != d->texdimx || d->dimy != d->texdimy
         || d->dimz != d->texdimz || d->xscalefac != 1 || d->yscalefac != 1
         || d->zscalefac != 1 || scl != 1. || offset != 0. )
     {
       vol = VolumeRef<U>( d->texdimx, d->texdimy, d->texdimz );
-      unsigned x, y, z;
+      size_t x, y, z, t = t0;
       /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
       << d->dimy << "/" << d->texdimy << ", "
       << d->dimz << "/" << d->texdimz << endl; */
@@ -549,12 +550,12 @@ namespace
 
   // special case for RGB: add a A component
   template <> void resamplevol( AVolume<AimsRGB> * avol,
-      VolRender::Private * d, int t )
+      VolRender::Private * d, int t0 )
   {
     rc_ptr<Volume<AimsRGB> > v0 = avol->volume()->volume();
     VolumeRef<AimsRGBA>  vol = VolumeRef<AimsRGBA>( d->texdimx, d->texdimy,
         d->texdimz );
-    unsigned x, y, z;
+    size_t x, y, z, t = t0;
     /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
         << d->dimy << "/" << d->texdimy << ", "
         << d->dimz << "/" << d->texdimz << endl; */
