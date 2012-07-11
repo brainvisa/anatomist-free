@@ -54,7 +54,7 @@ void OptionMatcher::commonOptions( const set<AObject *> & obj, Tree & tr )
 
   /* For a while optionTree will remain. These few lines switch between the
      old system and the new one. A default menu is available when any menu
-     were found either in optionTree() nor optionMen(). */
+     were found either in optionTree() nor optionMenu(). */
   ot = (*io)->optionTree();
   if (!ot)
   {
