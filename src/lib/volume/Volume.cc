@@ -443,13 +443,13 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   typename AimsData<T>::const_iterator 
     pim0 =  _volume->begin() + _volume->oFirstPoint() + _volume->oVolume() * t;
   typename AimsData<T>::const_iterator	pim;
-  int		dyi = (int)_volume->dimX() + _volume->oPointBetweenLine();
-  int		dzi = _volume->oSlice();
-  int		dyxi = dyi + 1;
-  int		dzyi = dzi + dyi;
-  int		dzxi = dzi + 1;
-  int		dzyxi = dzyi + 1;
-  int		offset_xim 
+  long		dyi = (int)_volume->dimX() + _volume->oPointBetweenLine();
+  long		dzi = _volume->oSlice();
+  long		dyxi = dyi + 1;
+  long		dzyi = dzi + dyi;
+  long		dzxi = dzi + 1;
+  long		dzyxi = dzyi + 1;
+  long		offset_xim
     = (image.effectiveWidth - image.width) * image.depth / 32;
 
   if( ppv )	// no interpolation
@@ -487,7 +487,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
       /*--dx;
       --dy;
       --dz;*/
-      int	nextx, nexty, nextyx, nextz, nextzy, nextzx, nextzyx;
+      long	nextx, nexty, nextyx, nextz, nextzy, nextzx, nextzyx;
       bool	done;
 
       for( y=0; y<image.height; ++y )
@@ -618,8 +618,8 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
 			      float time ) const
 {
   // cout << "UpdateAxial simple, pos : " << pf0 << " on " << name() << endl;
-  int	dx, dxx, dy;		// Dimensions du volume
-  int	dslice;			// Taille d'une coupe
+  long	dx, dxx, dy;		// Dimensions du volume
+  long	dslice;			// Taille d'une coupe
 
   Point3df	p0 = Point3df( rint( pf0[0] / _volume->sizeX() ), 
                                rint( pf0[1] / _volume->sizeY() ),
@@ -705,8 +705,8 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 				float time ) const
 {
   // cout << "UpdateCoronal simple, p0 : " << pf0 << "\n";
-  int	dx, dxx, dz;		// Dimensions du volume
-  int	dline;			// Taille d'une ligne
+  long	dx, dxx, dz;		// Dimensions du volume
+  long	dline;			// Taille d'une ligne
   Point3df	p0 = Point3df( rint( pf0[0] / _volume->sizeX() ), 
 			       rint( pf0[1] / _volume->sizeY() ), 
 			       rint( pf0[2] / _volume->sizeZ() ) );
@@ -790,8 +790,8 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 				 float time ) const
 {
   // cout << "UpdateSagittal simple, pf0 : " << pf0 << "\n";
-  int	dyy, dy, dz;		// Dimensions du volume 
-  int	decY = _volume->oPointBetweenLine() + _volume->dimX();
+  long	dyy, dy, dz;		// Dimensions du volume
+  long	decY = _volume->oPointBetweenLine() + _volume->dimX();
   Point3df	p0 = Point3df( rint( pf0[0] / _volume->sizeX() ), 
 			       rint( pf0[1] / _volume->sizeY() ), 
 			       rint( pf0[2] / _volume->sizeZ() ) );
@@ -1226,12 +1226,12 @@ void VolumeScalarTraits<T>::adjustPalette()
   else if( nval < maxval )
     i = 255;
 
-  /* cout << "limit : " << limit << endl;
-     cout << "coupure histo : " << ((float)i)/255 << endl;*/
-  /*cout << "min   : " << _mini << endl;
+   /* cout << "limit : " << limit << endl;
+     cout << "coupure histo : " << ((float)i)/255 << endl; */
+  /* cout << "min   : " << _mini << endl;
     cout << "max   : " << _maxi << endl;
     cout << "nc    : " << _objPal->NumberOfColors() << endl;
-    cout << "scale : " << _scale << endl;*/
+    cout << "scale : " << _scale << endl; */
   volume->getOrCreatePalette();
   AObjectPalette	*pal = volume->palette();
   pal->setMin1( 0 );
