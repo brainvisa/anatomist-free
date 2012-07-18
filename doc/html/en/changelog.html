@@ -82,6 +82,15 @@
 <li>Fix closing mode in ROI toolbox</li>
 <li>Fix to enable displaying huge images</li>
 <li>The <i>Clear everything</i> menu can really close all windows now</li>
+<li>The matplotlib-histogram window has been improved, and now replaces the old one as the default histogram window (in windows buttons). Similarly, a new plugin brings a matlotlib-based profine window, which correctly handles coordinates transformations.</li>
+<li>The manual sulci splitting plugin has been significantly improved, both on the algorithmic part (possibility to manually mark several points where the cut should go through) and the user interface (the cut line is visible before actually splitting, possibility to abort, etc).
+</li>
+<li>Graph labels display as text in 3D, included in the selection control, and activated by hitting &lt;A&gt;, implemented in a fast way (compiled C++).
+</li>
+<li>Anatomist windows highlighting: shows which window corresponds to the one under the mouse cursor in the list of the main window, or when using drag and drop</li>
+<li>Optimizations in huge nomenclature / graphs coloring, which were terribly slow.</li>
+<li>Use the Qt4 file dialog (which is more modern, but in some styles may lack some features, unfortunately...)
+</li>
 </ul>
 
 <!-- -->
