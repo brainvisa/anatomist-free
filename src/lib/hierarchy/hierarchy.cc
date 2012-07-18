@@ -50,6 +50,7 @@
 #include <qpixmap.h>
 #include <stdio.h>
 #include <iostream>
+#include <algorithm>
 
 
 using namespace anatomist;
@@ -60,6 +61,26 @@ using namespace std;
 
 SyntaxSet	*Hierarchy::_syntax = 0;
 Tree		*Hierarchy::_optionTree = 0;
+
+struct Hierarchy::Private
+{
+  Private() {}
+  mutable map<string, list<Tree *> > nodesByName;
+  PropertySet::Signal::slot_list_type::iterator propslot;
+};
+
+
+struct Hierarchy::PrivateStatic
+{
+  map<string, list<Hierarchy *> > nomBySyntax;
+};
+
+
+Hierarchy::PrivateStatic* Hierarchy::staticStruct()
+{
+  static PrivateStatic ps;
+  return &ps;
+}
 
 
 int Hierarchy::registerClass()
@@ -73,7 +94,8 @@ int Hierarchy::registerClass()
 
 
 Hierarchy::Hierarchy( Tree* tr )
-  : AObject(), AttributedAObject(), _tree( rc_ptr<Tree>( tr ) )
+  : AObject(), AttributedAObject(), d( new Private ),
+  _tree( rc_ptr<Tree>( tr ) )
 {
   _type = _classType;
   //_objMenu    = new ObjectMenu( "Nomenclature", 1 );
@@ -82,7 +104,7 @@ Hierarchy::Hierarchy( Tree* tr )
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
   {
     char str[200];
-    sprintf( str, Settings::findResourceFile(
+    sprintf( str, "%s", Settings::findResourceFile(
         "icons/list_hierarchy.xpm" ).c_str() );
     if( !QObjectTree::TypeIcons[ _type ].load( str ) )
     {
@@ -92,11 +114,18 @@ Hierarchy::Hierarchy( Tree* tr )
 
     QObjectTree::TypeNames[ _type ] = "Nomenclature";
   }
+
+  string hsynt;
+  if( attributed()->getProperty( "graph_syntax", hsynt ) )
+    staticStruct()->nomBySyntax[ hsynt ].push_back( this );
+  // listen to properties changes
+  d->propslot = _tree->getValue().getSignalPropertyChanged().connect(
+    ::sigc::mem_fun( *this, &Hierarchy::slotPropertyChanged ) );
 }
 
 
 Hierarchy::Hierarchy( rc_ptr<Tree> tr )
-  : AObject(), AttributedAObject(), _tree( tr )
+  : AObject(), AttributedAObject(), d( new Private ), _tree( tr )
 {
   _type = _classType;
   //_objMenu    = new ObjectMenu( "Nomenclature", 1 );
@@ -105,7 +134,7 @@ Hierarchy::Hierarchy( rc_ptr<Tree> tr )
   if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
   {
     char str[200];
-    sprintf( str, Settings::findResourceFile(
+    sprintf( str, "%s", Settings::findResourceFile(
         "icons/list_hierarchy.xpm" ).c_str() );
     if( !QObjectTree::TypeIcons[ _type ].load( str ) )
     {
@@ -115,12 +144,36 @@ Hierarchy::Hierarchy( rc_ptr<Tree> tr )
 
     QObjectTree::TypeNames[ _type ] = "Nomenclature";
   }
+
+  string hsynt;
+  if( attributed()->getProperty( "graph_syntax", hsynt ) )
+    staticStruct()->nomBySyntax[ hsynt ].push_back( this );
+  // listen to properties changes
+  d->propslot = _tree->getValue().getSignalPropertyChanged().connect(
+    ::sigc::mem_fun( *this, &Hierarchy::slotPropertyChanged ) );
 }
 
 
 Hierarchy::~Hierarchy()
 {
+  // remove properties callback
+  _tree->getValue().getSignalPropertyChanged().sigcslots().erase(
+    d->propslot );
+
+  string hsynt;
+  if( attributed()->getProperty( "graph_syntax", hsynt ) )
+  {
+    list<Hierarchy *> & lh = staticStruct()->nomBySyntax[ hsynt ];
+    list<Hierarchy *>::iterator i = find( lh.begin(), lh.end(), this );
+    if( i != lh.end() )
+    {
+      lh.erase( i );
+      if( lh.empty() )
+        staticStruct()->nomBySyntax.erase( hsynt );
+    }
+  }
   cleanup();
+  delete d;
 }
 
 
@@ -292,7 +345,7 @@ Hierarchy* Hierarchy::findMatchingNomenclature( const AObject* obj,
   string synt = si->getSyntax();
 
   // now find a nomenclature with syntax synt
-  set<AObject *>	objs = theAnatomist->getObjects();
+/*  set<AObject *>	objs = theAnatomist->getObjects();
   set<AObject *>::const_iterator	io, fo=objs.end();
   Hierarchy				*hie;
   GenericObject			        *hao;
@@ -307,8 +360,100 @@ Hierarchy* Hierarchy::findMatchingNomenclature( const AObject* obj,
       if( hao->getProperty( "graph_syntax", hsynt ) && hsynt == synt )
         return hie;
     }
-  }
+  }*/
+
+  map<string,list<Hierarchy *> >::const_iterator
+    ilh = staticStruct()->nomBySyntax.find( synt );
+  if( ilh != staticStruct()->nomBySyntax.end() && !ilh->second.empty() )
+    return ilh->second.front();
+
   return 0; // no matching nomenclature found
 }
 
+
+  Tree* Hierarchy::findNamedNode( const std::string & name,
+                                const list<Tree*> ** parents ) const
+{
+  if( d->nodesByName.empty() )
+  {
+    // fill nodes table
+    string tname;
+    list<pair<Tree::const_iterator, Tree::const_iterator> > lit;
+    list<Tree *> parentstack;
+    if( _tree->begin() != _tree->end() )
+      lit.push_back( make_pair( _tree->begin(), _tree->end() ) );
+    while( !lit.empty() )
+    {
+      pair<Tree::const_iterator, Tree::const_iterator> & pit = lit.back();
+      if( pit.first == pit.second )
+      {
+        if( !parentstack.empty() )
+          parentstack.pop_front();
+        lit.pop_back();
+      }
+      else
+      {
+        Tree *t = static_cast<Tree *>( *pit.first );
+        parentstack.push_front( t );
+        if( t->getProperty( "name", tname ) )
+          d->nodesByName[ tname ] = parentstack;
+        if( t->begin() != t->end() )
+          lit.push_back( make_pair( t->begin(), t->end() ) );
+        else
+          parentstack.pop_front();
+        ++pit.first;
+      }
+    }
+  }
+  map<string, list<Tree *> >::const_iterator it = d->nodesByName.find( name );
+  if( it == d->nodesByName.end() )
+  {
+    if( parents )
+      *parents = 0;
+    return 0;
+  }
+  if( parents )
+    *parents = &it->second;
+  return it->second.front();
+}
+
+
+void Hierarchy::slotPropertyChanged( const Object& sender,
+                                     const string& propertyName,
+                                     const Object& oldValue )
+{
+  if( propertyName == "graph_syntax" )
+  {
+    string oldsynt, newsynt;
+    try
+    {
+      oldsynt = oldValue->getString();
+      newsynt = attributed()->getProperty( propertyName )->getString();
+    }
+    catch( ... )
+    {
+      cout << "exception while getting syntax values\n";
+      return;
+    }
+    if( oldsynt != newsynt )
+    {
+      list<Hierarchy *> & lh = staticStruct()->nomBySyntax[ oldsynt ];
+      list<Hierarchy *>::iterator i = find( lh.begin(), lh.end(), this );
+      if( i != lh.end() )
+      {
+        lh.erase( i );
+        if( lh.empty() )
+          staticStruct()->nomBySyntax.erase( oldsynt );
+      }
+      staticStruct()->nomBySyntax[ newsynt ].push_back( this );
+    }
+  }
+}
+
+
+void Hierarchy::internalUpdate()
+{
+  d->nodesByName.clear();
+  AObject::internalUpdate();
+}
 

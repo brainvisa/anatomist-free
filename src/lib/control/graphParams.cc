@@ -157,7 +157,7 @@ bool GraphParams::nomenclatureColorForLabel( const string & label,
                                              Material & mat )
 {
   //	find matching element
-  vector<Tree *>	parents;
+  const list<Tree *>          *parents;
   Tree	*t = 0;
   string attval = label;
 
@@ -172,16 +172,16 @@ bool GraphParams::nomenclatureColorForLabel( const string & label,
       pos = attval.size();
     name = attval.substr( 0, pos );
     attval.erase( 0, pos+1 );
-    t = findTreeWith( const_cast<Hierarchy *>(hie)->tree().get(), "name", name,
-                      parents );
+    t = hie->findNamedNode( name, &parents );
   }
   if( !t )
     return false;
 
   vector<int>	col;
-  vector<Tree *>::const_iterator	it = parents.begin();
+  list<Tree *>::const_iterator        it = parents->begin();
+  ++it; // 1st is t
 
-  while( !t->getProperty( "color", col ) && it != parents.end() )
+  while( !t->getProperty( "color", col ) && it != parents->end() )
   {
     t = *it;
     ++it;

@@ -69,6 +69,10 @@ namespace anatomist
 
     virtual carto::GenericObject* attributed();
     virtual bool save( const std::string & filename );
+    virtual void internalUpdate();
+
+    Tree* findNamedNode( const std::string & name,
+                         const std::list<Tree*>** parents = 0 ) const;
 
     static void namesUnder( Tree* tr, std::set<std::string> & names );
     /** finds a Hierarchy matching for edition of the given object
@@ -83,6 +87,14 @@ namespace anatomist
     static Tree	*_optionTree;
 
   private:
+    struct Private;
+    struct PrivateStatic;
+    Private *d;
+    static PrivateStatic *staticStruct();
+    void slotPropertyChanged( const carto::Object& sender,
+                              const std::string& propertyName,
+                              const carto::Object& oldValue );
+
     ///	ensures the object class is registered in Anatomist
     static int registerClass();
     static int		_classType;
