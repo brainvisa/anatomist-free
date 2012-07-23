@@ -58,7 +58,7 @@ struct ATexture::Private
   ~Private();
 
   unsigned	dim;
-    /// Ugly pointeur void pas beau �cause du template
+    /// Ugly pointer because of the template
   void		*data;
   float		*texCoords;
   Object	header;

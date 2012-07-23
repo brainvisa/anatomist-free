@@ -216,6 +216,8 @@ namespace
             registerProcessType( "Texture", "U32", &loadTex1dInt<uint32_t> );
           if( !restr || types.find( "POINT2D" ) != eir )
             registerProcessType( "Texture", "POINT2D", &loadTex2dInt<short> );
+          if( !restr || types.find( "DOUBLE" ) != eir )
+            registerProcessType( "Texture", "DOUBLE", &loadTex1dInt<double> );
         }
 
       r2 = restr && !restricted->hasProperty( "Graph" );
