@@ -92,10 +92,18 @@ void FusionObjectsCommand::doit()
 
   if( fm )
     {
+      _method = fm->ID();
+      set<AObject *> so( _obj.begin(), _obj.end() );
+      if( !fm->canFusion( so ) )
+      {
+        _newobj = 0;
+        cout << "cannot make a fusion of type " << fm->ID()
+          << " on the given objects\n";
+          return;
+      }
       cout << "FusionObjectsCommand::doit, making fusion\n";
       _newobj = fm->fusion( _obj );
       cout << "FusionObjectsCommand, fusion done: " << _newobj << endl;
-      _method = fm->ID();
 
       if( _newobj )
 	{
