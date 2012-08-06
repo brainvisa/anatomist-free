@@ -290,7 +290,6 @@ AimsRGBA AObjectPalette::normColor( float x, float y ) const
                      int( ys * _colors->dimY() ) );
 }
 
-
 bool AObjectPalette::set( const GenericObject & obj )
 {
   Object		o;
@@ -302,7 +301,8 @@ bool AObjectPalette::set( const GenericObject & obj )
       o = obj.getProperty( "palette" );
       rc_ptr<APalette> p = pall.find( o->getString() );
       if( !p )
-	cerr << "AObjectPalette::set : warning: palette not found\n";
+        cerr << "AObjectPalette::set : warning: palette \"" << o->getString()
+          << "\" not found\n";
       else if( _refPal != p );
         {
           clearColors();
@@ -318,7 +318,8 @@ bool AObjectPalette::set( const GenericObject & obj )
       o = obj.getProperty( "palette2" );
       rc_ptr<APalette> p = pall.find( o->getString() );
       if( !p )
-	cerr << "AObjectPalette::set : warning: palette2 not found\n";
+        cerr << "AObjectPalette::set : warning: palette2 \"" << o->getString()
+          << "\" not found\n";
       else
         {
           _refPal2 = p;
