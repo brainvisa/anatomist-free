@@ -56,6 +56,7 @@ namespace anatomist
     static void fileReload( const std::set<AObject *> & obj );
     static void colorPalette( const std::set<AObject *> & obj );
     static void colorMaterial( const std::set<AObject *> & obj );
+    static void colorRendering( const std::set<AObject *> & obj );
     static void referentialLoad( const std::set<AObject *> & obj );
     static void fusion2DControl( const std::set<AObject *> & obj );
     static void fusion3DControl( const std::set<AObject *> & obj );

@@ -62,7 +62,7 @@ struct MaterialWindow::Private
 {
   Private( const set<AObject *> & o )
     : tab( 0 ), shinlabel( 0 ), responsive( true ), operating( false ), 
-      initial( o ), modified( false ), rendermode( 0 ), renderprop( 0 )
+      initial( o ), modified( false ) 
   {}
   unsigned		tab;
   vector<QWidget *>	tabs;
@@ -76,8 +76,6 @@ struct MaterialWindow::Private
   set<AObject *>	initial;
   ObjectParamSelect	*objsel;
   bool			modified;
-  QVButtonGroup		*rendermode;
-  QVButtonGroup		*renderprop;
 };
 
 
@@ -187,14 +185,11 @@ void MaterialWindow::drawContents()
 #if QT_VERSION >= 0x040000
   _privdata->tabnum[ tbar->addTab( tr( "Fast color selection" ) ) ] = 0;
   _privdata->tabnum[ tbar->addTab( tr( "Advanced settings" ) )    ] = 1;
-  _privdata->tabnum[ tbar->addTab( tr( "Rendering" ) )            ] = 2;
 #else
   _privdata->tabnum[ tbar->addTab
                      ( new QTab( tr( "Fast color selection" ) ) ) ] = 0;
   _privdata->tabnum[ tbar->addTab
                      ( new QTab( tr( "Advanced settings" ) ) )    ] = 1;
-  _privdata->tabnum[ tbar->addTab
-                     ( new QTab( tr( "Rendering" ) ) )            ] = 2;
 #endif
 
   // -- fast selection
@@ -240,40 +235,12 @@ void MaterialWindow::drawContents()
   connect( respbtn, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enableAutoUpdate( bool ) ) );
 
-  // -- rendering options
-
-  QVBox	*ropt = new QVBox( this );
-  ropt->hide();
-  ropt->setSpacing( 5 );
-  _privdata->tabs.push_back( ropt );
-  QVButtonGroup	*rmode = new QVButtonGroup( tr( "Rendering mode :" ), ropt );
-  _privdata->rendermode = rmode;
-  QRadioButton	*r = new QRadioButton( tr( "Default (view setting)" ), rmode );
-  r = new QRadioButton( tr( "Normal" ), rmode );
-  r = new QRadioButton( tr( "Wireframe" ), rmode );
-  r = new QRadioButton( tr( "Outlined (filled faces + wireframes)" ), rmode );
-  r = new QRadioButton( tr( "Wireframe with hidden faces" ), rmode );
-  QVButtonGroup	*rprop 
-    = new QVButtonGroup( tr( "Display properties :" ), ropt );
-  _privdata->renderprop = rprop;
-  QCheckBox	*cb = new QCheckBox( tr( "Enable lighting" ), rprop );
-  cb->setTristate( true );
-  cb = new QCheckBox( tr( "Smooth shading" ), rprop );
-  cb->setTristate( true );
-  cb = new QCheckBox( tr( "Smooth polygons / lines" ), rprop );
-  cb->setTristate( true );
-  cb = new QCheckBox( tr( "Write in depth buffer" ), rprop );
-  cb->setTristate( true );
-  cb = new QCheckBox( tr( "Cull polygon faces" ), rprop );
-  cb->setTristate( true );
-
   // --
 
   mainlay->addWidget( sel );
   mainlay->addWidget( tbar );
   mainlay->addWidget( bpan );
   mainlay->addWidget( epan );
-  mainlay->addWidget( ropt );
 
   connect( tbar, SIGNAL( selected( int ) ), this, SLOT( enableTab( int ) ) );
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
@@ -281,11 +248,6 @@ void MaterialWindow::drawContents()
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
            this, 
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
-
-  connect( rmode, SIGNAL( clicked( int ) ), this, 
-           SLOT( renderModeChanged( int ) ) );
-  connect( rprop, SIGNAL( clicked( int ) ), this, 
-           SLOT( renderPropertyChanged( int ) ) );
 
   enableAutoUpdate( _privdata->responsive );
   updateInterface();
@@ -495,21 +457,7 @@ void MaterialWindow::updateInterface()
       _privdata->shinsl->setValue( (int) ( _material.Shininess() * 10 ) );
       _privdata->shinlabel->setText
         ( QString::number( _material.Shininess() ) );
-      _privdata->rendermode->setButton
-        ( _material.renderProperty( Material::RenderMode ) + 1 );
 
-      setButtonState( _privdata->renderprop->find( 0 ), 
-                      _material.renderProperty( Material::RenderLighting ) );
-      setButtonState( _privdata->renderprop->find( 1 ), 
-                      _material.renderProperty
-                      ( Material::RenderSmoothShading ) );
-      setButtonState( _privdata->renderprop->find( 2 ), 
-                      _material.renderProperty( Material::RenderFiltering ) );
-      setButtonState( _privdata->renderprop->find( 3 ), 
-                      _material.renderProperty( Material::RenderZBuffer ) );
-      setButtonState( _privdata->renderprop->find( 4 ), 
-                      _material.renderProperty
-                      ( Material::RenderFaceCulling ) );
     }
 
   blockSignals( false );
@@ -627,60 +575,3 @@ void MaterialWindow::runCommand()
       _privdata->modified = false;
     }
 }
-
-
-void MaterialWindow::renderModeChanged( int x )
-{
-  if( _privdata->operating )
-    return;
-  _privdata->operating = true;
-
-  _material.setRenderProperty( Material::RenderMode, x - 1 );
-
-  _privdata->modified = true;
-  updateObjects();
-  _privdata->operating = false;
-}
-
-
-void MaterialWindow::renderPropertyChanged( int x )
-{
-  if( _privdata->operating )
-    return;
-  _privdata->operating = true;
-
-  int	y;
-#if QT_VERSION >= 0x040000
-  switch( ((QCheckBox *) _privdata->renderprop->find( x ))->checkState() )
-    {
-    case Qt::Checked:
-      y = 1;
-      break;
-    case Qt::Unchecked:
-      y = 0;
-      break;
-    default:
-      y = -1;
-    }
-#else
-  switch( _privdata->renderprop->find( x )->state() )
-    {
-    case QButton::On:
-      y = 1;
-      break;
-    case QButton::Off:
-      y = 0;
-      break;
-    default:
-      y = -1;
-    }
-#endif
-
-  _material.setRenderProperty( (Material::RenderProperty) x, y );
-
-  _privdata->modified = true;
-  updateObjects();
-  _privdata->operating = false;
-}
-
-

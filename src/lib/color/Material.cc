@@ -65,7 +65,7 @@ Material::Private::Private(): lineWidth( 0. )
 }
 
 
-Material::Private::Private( const Private & p )
+Material::Private::Private( const Private & p ) : lineWidth(p.lineWidth)
 {
   for( unsigned i = 0; i<NrenderProps; ++i )
     renderProps[ i ] = p.renderProps[ i ];
@@ -86,6 +86,7 @@ Material::Private & Material::Private::operator = ( const Private & p )
     unlitColor[1] = p.unlitColor[1];
     unlitColor[2] = p.unlitColor[2];
     unlitColor[3] = p.unlitColor[3];
+    lineWidth = p.lineWidth;
   }
   return *this;
 }

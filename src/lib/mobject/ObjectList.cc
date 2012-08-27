@@ -122,7 +122,9 @@ Tree* ObjectList::optionTree() const
       t2 = new Tree( true, "Material" );
       t2->setProperty( "callback", &ObjectActions::colorMaterial );
       t->insert( t2 );
-
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Rendering" ) );
+      t2->setProperty( "callback", &ObjectActions::colorRendering);
+      t->insert( t2 );
       t = new Tree( true, "Referential" );
       _optionTree->insert( t );
       t2 = new Tree( true, "Load" );

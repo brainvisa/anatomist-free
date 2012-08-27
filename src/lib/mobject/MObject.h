@@ -331,7 +331,6 @@ namespace anatomist
         this MObject is removed from a view. Useful for graphs. */
     virtual bool shouldRemoveChildrenWithMe() const;
 
-
   protected:
     /// must be called by all subclasses in their insert() implementation
     virtual void _insertObject( AObject* o );

@@ -497,6 +497,7 @@ Control::mousePressEvent ( QMouseEvent * event  )
   if( iter != myMousePressButtonActionMap.end() )
     iter->second->execute( event->x(), event->y(), 
 			   event->globalX(), event->globalY() ) ;  
+
 }
 
 void

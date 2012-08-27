@@ -32,11 +32,13 @@
  */
 
 
-#ifndef ANA_COLOR_WMATERIAL_H
-#define ANA_COLOR_WMATERIAL_H
+#ifndef ANA_COLOR_WRENDERING_H
+#define ANA_COLOR_WRENDERING_H
 
 #include <anatomist/observer/Observer.h>
 #include <anatomist/color/Material.h>
+#include <anatomist/surface/Shader.h>
+#include <anatomist/ui/ui_color_rendering.h>
 #include <qslider.h>
 #include <set>
 
@@ -47,75 +49,51 @@ namespace anatomist
 }
 
 
-/**	Material aspect (color / transparency) tuning window
+/**	Rendering aspect (shading/lighting model, effects) tuning window
  */
-class MaterialWindow : public QWidget, public anatomist::Observer
+class RenderingWindow : public QWidget, public Ui::RenderingWindow, public anatomist::Observer
 {
   Q_OBJECT
 
 public:
-  MaterialWindow( const std::set<anatomist::AObject *> &, QWidget* parent = 0, 
+  RenderingWindow( const std::set<anatomist::AObject *> &, QWidget* parent = 0, 
 		  const char *name = 0, Qt::WindowFlags f = 0 );
-  virtual ~MaterialWindow();
+  virtual ~RenderingWindow();
 
   const std::set<anatomist::AObject*>& objects() const { return _parents; }
   const anatomist::Material& getMaterial() const { return _material; }
+  const anatomist::Shader& getShader() const { return _shader; }
 
   void update( const anatomist::Observable* observable, void* arg );
-  void updateObjects();
+  void updateObjectsRendering();
   void updateInterface();
   void runCommand();
 
-public slots:
-  /// called by the QTabBar change
-  void enableTab( int );
-  void enableAutoUpdate( bool );
-
 protected slots:
-  void valueChanged( int panel, int color, int value );
-  void shininessChanged( int value );
   void chooseObject();
   void objectsChosen( const std::set<anatomist::AObject *> & );
 
+  void enableShadersClicked( int x );
+  void renderModeChanged( int x );
+  void renderPropertyChanged( int x );
+  void lightingModelChanged( int x );
+  void interpolationModelChanged( int x );
+  void coloringModelChanged( int x );
+
+  void reloadClicked(void);
+
 protected:
+  void updateObjectsShading();
+  void removeObjectsShading();
   virtual void unregisterObservable( anatomist::Observable* );
-  void drawContents();
-  ///	internal: draws a RGBA widgets group
-  QWidget* buildRgbaBox( QWidget* parent, int num );
-  ///	internal: updates the sliders / labels positions for one RGBA box
-  void updatePanel( unsigned panel );
 
   std::set<anatomist::AObject *>	_parents;
   anatomist::Material			_material;
+  anatomist::Shader			_shader;
 
 private:
   struct Private;
   Private	*_privdata;
-};
-
-
-/**	A private class: slider with specific data storage (for callbacks 
-	client data), no use for it anywhere else... 
-	It should be entirely in the .cc, but we need to improve the Makefile 
-	to compile MOCs in .cc */
-class QANumSlider : public QSlider
-{
-  Q_OBJECT
-
-public:
-  QANumSlider( int num1, int num2, int minValue, int maxValue, int pageStep, 
-               int value, Qt::Orientation, QWidget * parent, 
-               const char * name=0 );
-  virtual ~QANumSlider() {}
-
-  int		_num1;
-  int		_num2;
-
-signals:
-  void valueChanged( int num1, int num2, int value );
-
-protected slots:
-  void transformChange( int );
 };
 
 

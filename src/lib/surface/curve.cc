@@ -240,6 +240,10 @@ Tree* ACurve::optionTree() const
       t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ) );
       t2->setProperty( "callback", &ObjectActions::colorMaterial );
       t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Rendering" ) );
+      t2->setProperty( "callback", &ObjectActions::colorRendering);
+      t->insert( t2 );
+
       t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Referential" ) );
       _optionTree->insert( t );
       t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Load" ) );
@@ -346,4 +350,8 @@ void ACurve::notifyObservers( void * arg )
   glSetChanged( glGEOMETRY, false );
 }
 
-
+void ACurve::glBeforeBodyGLL( const ViewState &, 
+				   GLPrimitives & ) const
+{
+	std::cout << "ACurve::glBeforeBodyGLL" << std::endl;
+}

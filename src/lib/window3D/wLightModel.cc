@@ -404,6 +404,20 @@ void LightModelWindow::updateLights()
   _window->setChanged();
   _window->notifyObservers( _window );
   _window->Refresh();
+
+  /* FIXME
+  std::set<AObject*> objects = _window->Objects();
+  GLComponent *glc = NULL;
+
+  for (it = objects.begin(), et = objects.end(); it != et; ++it)
+  {
+    (*it)->setLight(*_window->light());
+    glc = (*it)->glAPI();
+    glc->glSetChanged(GLComponent::glBODY);
+    (*it)->notifyObservers( this );
+    (*it)->clearHasChangedFlags();
+  }
+  */
 }
 
 

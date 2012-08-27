@@ -39,6 +39,7 @@
 
 namespace anatomist
 {
+  class Shader;
 
   /** A Multi-object with OpenGL rendering capabilities.
       Contrarily to other list and vector variants of MObject, this one
@@ -127,6 +128,7 @@ namespace anatomist
     virtual const GLComponent* glGeometry() const;
     virtual const GLComponent* glTexture( unsigned n = 0 ) const;
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
+    virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
 
   protected:
     /** get to geometry object referential before drawing.

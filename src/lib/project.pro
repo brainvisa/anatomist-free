@@ -23,6 +23,7 @@ HEADERS = \
 	color/Material.h \
 	color/Light.h \
 	color/wMaterial.h \
+	color/wRendering.h \
 	commands/cAddObject.h \
 	commands/cApplyBuiltinReferential.h \
 	commands/cAskTexExtrema.h \
@@ -118,6 +119,7 @@ HEADERS = \
 	surface/texture.h \
 	surface/transformedobject.h \
 	surface/triangulated.h \
+	surface/Shader.h \
 	graph/AGraphIterator.h \
 	graph/attribAObject.h \
 	graph/pythonAObject.h \
@@ -255,6 +257,7 @@ SOURCES = \
 	color/Material.cc \
 	color/Light.cc \
 	color/wMaterial.cc \
+	color/wRendering.cc \
 	commands/cAddObject.cc \
 	commands/cAskTexExtrema.cc \
 	commands/cApplyBuiltinReferential.cc \
@@ -346,6 +349,7 @@ SOURCES = \
 	surface/texture.cc \
         surface/transformedobject.cc \
 	surface/triangulated.cc \
+	surface/Shader.cc \
 	graph/AGraphIterator.cc \
 	graph/attribAObject.cc \
 	graph/pythonAObject.cc \

@@ -40,6 +40,10 @@
 #include <aims/mesh/surface.h>
 #include <anatomist/graph/pythonAObject.h>
 
+/*
+class QGLShaderProgram;
+class QGLShader;*/
+
 
 namespace anatomist
 {
@@ -63,6 +67,11 @@ namespace anatomist
     virtual Tree* optionTree() const;
 
     virtual void UpdateMinAndMax();
+
+    virtual bool render( anatomist::PrimList& primitiveList,
+                                   const anatomist::ViewState& viewState );
+    virtual bool glMakeBodyGLL( const anatomist::ViewState& viewState,
+                                     const anatomist::GLList& glList ) const;
 
     const carto::rc_ptr<TimeSurfaceType> surface() const 
     { return( _surface ); }
@@ -117,7 +126,11 @@ namespace anatomist
   protected:
     carto::rc_ptr<TimeSurfaceType>	_surface;
     bool				_planar;
-
+/*
+    QGLShaderProgram			*_shader_program;
+    QGLShader				*_vertex_shader;
+    QGLShader				*_fragment_shader;
+*/
     void freeSurface();
   };
 

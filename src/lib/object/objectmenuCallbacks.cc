@@ -82,6 +82,8 @@ static ObjectMenu* volumeScalarTraitsOptionMenu()
                   &ObjectActions::colorPalette);
   om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Material"),
                   &ObjectActions::colorMaterial);
+  om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Rendering"),
+                  &ObjectActions::colorRendering);
   om->insertItem(vs,QT_TRANSLATE_NOOP("QSelectMenu", "Texturing"),
                   &ObjectActions::textureControl);
   vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Referential");
@@ -112,6 +114,8 @@ static ObjectMenu* volumeVectorTraitsOptionMenu()
                   &ObjectActions::colorPalette );
   om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ),
                   &ObjectActions::colorMaterial );
+  om->insertItem(vs, QT_TRANSLATE_NOOP("QSelectMenu", "Rendering"),
+                  &ObjectActions::colorRendering);
   om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Texturing" ),
                   &ObjectActions::textureControl );
   vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Referential" );
@@ -162,6 +166,9 @@ static ObjectMenu* agraphOptionMenu()
   t->insert(t2);
   t2 = new Tree(true, "Material");
   t2->setProperty("callback", &ObjectActions::colorMaterial);
+  t->insert(t2);
+  t2 = new Tree(true, "Rendering");
+  t2->setProperty("callback", &ObjectActions::colorRendering);
   t->insert(t2);
   t2 = new Tree(true, "Graph display properties");
   t2->setProperty("callback", &QGraphProperties::openProperties);
@@ -217,6 +224,9 @@ static ObjectMenu* agraphObjectOptionMenu()
   t2 = new Tree( true, "Material" );
   t2->setProperty( "callback", &ObjectActions::colorMaterial );
   t->insert( t2 );
+  t2 = new Tree(true, "Rendering");
+  t2->setProperty("callback", &ObjectActions::colorRendering);
+  t->insert(t2);
 
   t = new Tree(true, QT_TRANSLATE_NOOP("QSelectMenu",
                "Referential"));
@@ -228,8 +238,6 @@ static ObjectMenu* agraphObjectOptionMenu()
   om = new ObjectMenu(*optionTree);
   return om;
 }
-
-
 
 
 namespace anatomist

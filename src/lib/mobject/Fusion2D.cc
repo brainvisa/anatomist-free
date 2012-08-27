@@ -663,6 +663,9 @@ Tree* Fusion2D::optionTree() const
       t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ) );
       t2->setProperty( "callback", &ObjectActions::colorMaterial );
       t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Rendering" ) );
+      t2->setProperty( "callback", &ObjectActions::colorRendering);
+      t->insert( t2 );
       t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Texturing" ) );
       t2->setProperty( "callback", &ObjectActions::textureControl );
       t->insert( t2 );

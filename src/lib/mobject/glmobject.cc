@@ -812,3 +812,9 @@ const AObjectPalette* GLMObject::palette() const
 {
   return glPalette();
 }
+
+
+void GLMObject::setShaderParameters(const Shader &shader, const ViewState & state) const
+{
+  shader.setShaderParameters(*this, state);
+}

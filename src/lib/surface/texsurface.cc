@@ -312,6 +312,9 @@ Tree* ATexSurface::optionTree() const
       t2 = new Tree( true, "Texturing" );
       t2->setProperty( "callback", &ObjectActions::textureControl );
       t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Rendering" ) );
+      t2->setProperty( "callback", &ObjectActions::colorRendering);
+      t->insert( t2 );
     }
   return( _optionTree );
 }
@@ -340,4 +343,7 @@ bool ATexSurface::boundingBox( Point3df & bmin, Point3df & bmax ) const
   return( _surf->boundingBox( bmin, bmax ) );
 }
 
-
+void ATexSurface::setShaderParameters(const Shader &shader, const ViewState & state) const
+{
+  shader.setShaderParameters(*this, state);
+}

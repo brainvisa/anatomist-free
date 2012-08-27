@@ -74,6 +74,8 @@ public slots:
   void enableDisplayCursorPosition( bool x );
   void setMaxTextures( const QString & );
   void enableOpenGLSelection( bool x );
+  void enableOpenGLShader( bool x );
+  void shadersByDefault( bool x );
   void confirmBeforeQuitChanged( int x );
 
 protected:

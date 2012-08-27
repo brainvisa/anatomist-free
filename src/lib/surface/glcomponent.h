@@ -37,6 +37,7 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/surface/Shader.h>
 #include <cartobase/object/object.h>
 #include <vector>
 #include <set>
@@ -157,6 +158,12 @@ namespace anatomist
     virtual void glClearHasChangedFlags() const;
     virtual void glSetChanged( glPart, bool = true ) const;
     virtual bool glHasChanged( glPart ) const;
+
+    void SetShader(const Shader &shader);
+    void removeShader(void);
+    const Shader *getShader() const;
+    Shader *getShader();
+    virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
 
     virtual const Material *glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
@@ -299,10 +306,24 @@ namespace anatomist
   private:
     struct Private;
     Private	*d;
+    Shader      *_shader;
   };
 
 
+  inline void GLComponent::SetShader(const Shader &shader)
+  { 
+    if (_shader) delete _shader;
+    _shader = new Shader(shader);
+  }
+  inline void GLComponent::removeShader(void)
+  { 
+    if (_shader) delete _shader;
+    _shader = NULL;
+  }
   inline const Material *GLComponent::glMaterial() const          { return 0; }
+  inline const Shader *GLComponent::getShader() const { return _shader; }
+  inline Shader *GLComponent::getShader() { return _shader; }
+  inline void GLComponent::setShaderParameters(const Shader &shader, const ViewState & state) const { shader.setShaderParameters(*this, state); }
   inline const AObjectPalette* GLComponent::glPalette( unsigned ) const
   { return 0; }
   inline unsigned GLComponent::glNumVertex( const ViewState & ) const

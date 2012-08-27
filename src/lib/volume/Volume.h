@@ -49,10 +49,21 @@ namespace anatomist
   class Transformation;
   class Geometry;
 
+  /**   VolumeBase object :
+        use for generic dynamic_cast of all AVolume<T>, thus the visitor design pattern can be used */
+  class AVolumeBase
+    : public SliceableObject, public PythonAObject
+  {
+  public:
+    AVolumeBase();
+    virtual ~AVolumeBase();
+
+    virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
+  };
+
   /**	Volume object */
   template <typename T>
-  class AVolume 
-    : public SliceableObject, public PythonAObject
+  class AVolume : public AVolumeBase
   {
   public:
     AVolume( const std::string & filename = "" );

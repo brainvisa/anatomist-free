@@ -88,6 +88,8 @@ namespace anatomist
 
     virtual void notifyObservers( void * = 0 );
 
+    void glBeforeBodyGLL( const ViewState &, GLPrimitives & ) const;
+
   protected:
     void freeCurve();
 

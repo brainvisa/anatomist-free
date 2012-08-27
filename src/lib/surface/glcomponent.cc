@@ -39,10 +39,12 @@
 #include <anatomist/window/Window.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/application/globalConfig.h>
 #include <aims/data/data.h>
 #include <aims/rgb/rgb.h>
 #include <map>
 #include <vector>
+
 
 // uncomment this to allow lots of output messages about GL lists
 //#define ANA_DEBUG_GLLISTS
@@ -265,12 +267,20 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
   unsigned	i;
   for( i=0; i<glNOPART; ++i )
     d->changed[i] = true;
+  if (Shader::isUsedByDefault())
+  {
+    _shader = new Shader();
+    _shader->load_if_needed();
+  }
+  else
+    _shader = 0;
 }
 
 
 GLComponent::~GLComponent()
 {
   delete d;
+  if (_shader) delete _shader;
 }
 
 
@@ -1419,7 +1429,6 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
     }
 
     glNewList( gllist.item(), GL_COMPILE );
-
     for( tex=0; tex<m; ++tex )
     {
       GLCaps::glActiveTexture( GLCaps::textureID( tex ) );
@@ -1467,7 +1476,6 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
     }
 
     glPopAttrib();
-
     glEndList();
 
     return true;
@@ -1573,7 +1581,7 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   glDisableClientState( GL_COLOR_ARRAY );
 
   glNewList( gllist.item(), GL_COMPILE );
-
+  if (_shader) _shader->bind(*this, state);
   if( !vnormal )
   {
     glPushAttrib( GL_LIGHTING_BIT );
@@ -1583,6 +1591,7 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   if( !vnormal )
     glPopAttrib();
 
+  if (_shader) _shader->release();
   glEndList();
 
   return true;

@@ -614,4 +614,3 @@ bool MObject::shouldRemoveChildrenWithMe() const
 {
   return false;
 }
-

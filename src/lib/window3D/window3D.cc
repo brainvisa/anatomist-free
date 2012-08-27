@@ -748,6 +748,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   setViewType(t);
 
   d->tooltip = new QAViewToolTip(this, d->draw->qglWidget());
+
 }
 
 AWindow3D::~AWindow3D()

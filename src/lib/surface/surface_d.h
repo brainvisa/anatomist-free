@@ -65,6 +65,20 @@ namespace anatomist
     _type = AObject::TRIANG;
   }
 
+template<int D>
+bool ASurface<D>::render( anatomist::PrimList& primitiveList,
+                                   const anatomist::ViewState& viewState )
+{
+	return anatomist::AObject::render( primitiveList, viewState );
+}
+
+
+template<int D>
+bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
+                                     const anatomist::GLList& glList ) const
+{
+	AGLObject::glMakeBodyGLL(viewState, glList);
+}
 
   template<int D>
   ASurface<D>::~ASurface()
@@ -308,6 +322,9 @@ namespace anatomist
         _optionTree->insert( t );
         t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Material" ) );
         t2->setProperty( "callback", &ObjectActions::colorMaterial );
+        t->insert( t2 );
+        t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Rendering" ) );
+        t2->setProperty( "callback", &ObjectActions::colorRendering);
         t->insert( t2 );
         t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
                                                "Referential" ) );

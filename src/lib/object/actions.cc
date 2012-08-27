@@ -36,6 +36,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/object/objectmenu.h>
 #include <anatomist/color/wMaterial.h>
+#include <anatomist/color/wRendering.h>
 #include <anatomist/object/texturewin.h>
 #include <anatomist/mobject/wFusion2D.h>
 #include <anatomist/mobject/wFusion3D.h>
@@ -105,6 +106,19 @@ void ObjectActions::colorMaterial( const set<AObject *> & obj )
     ol.insert( *io );
 
   MaterialWindow* mw = new MaterialWindow( ol, theAnatomist->getQWidgetAncestor(), "Material Window", Qt::Window );
+  mw->show();
+}
+
+
+void ObjectActions::colorRendering( const set<AObject *> & obj )
+{
+  set<AObject *>			ol;
+  set<AObject *>::const_iterator	io, fo=obj.end();
+
+  for( io=obj.begin(); io!=fo; ++io )
+    ol.insert( *io );
+
+  RenderingWindow* mw = new RenderingWindow( ol, theAnatomist->getQWidgetAncestor(), "Rendering Window", Qt::Window );
   mw->show();
 }
 

@@ -201,9 +201,23 @@ AVolume<T>::PrivateData::~PrivateData()
 
 // ----
 
+AVolumeBase::AVolumeBase() : SliceableObject(), PythonAObject()
+{}
+
+AVolumeBase::~AVolumeBase()
+{}
+
+void AVolumeBase::setShaderParameters(const Shader &shader, const ViewState & state) const
+{
+  shader.setShaderParameters(*this, state);
+}
+
+
+// ----
+
 template <class T>
 AVolume<T>::AVolume( const string & fname )
-  : SliceableObject(), PythonAObject(), 
+  : AVolumeBase(), 
     d( new PrivateData( this ) ), 
     _volume( new AimsData<T> )
 {
@@ -222,7 +236,7 @@ AVolume<T>::AVolume( const string & fname )
 
 template <class T>
 AVolume<T>::AVolume( const AimsData<T> & aims )
-  : SliceableObject(), PythonAObject(), 
+  : AVolumeBase(), 
     d( new PrivateData( this ) ), 
     _volume( new AimsData<T>( aims ) )
 {
@@ -239,7 +253,7 @@ AVolume<T>::AVolume( const AimsData<T> & aims )
 
 template <class T>
 AVolume<T>::AVolume( rc_ptr<AimsData<T> > aims )
-  : SliceableObject(), PythonAObject(), 
+  : AVolumeBase(), 
     d( new PrivateData( this ) ), _volume( aims )
 {
   _type = AObject::VOLUME;
