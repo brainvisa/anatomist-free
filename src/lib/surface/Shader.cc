@@ -185,6 +185,7 @@ bool	Shader::_isSupported(void)
   shared_widget->makeCurrent();
 
   bool support_glshader = QGLShaderProgram::hasOpenGLShaderPrograms();
+#ifdef GL_SHADING_LANGUAGE_VERSION
   const GLubyte *glshader_version = glGetString(GL_SHADING_LANGUAGE_VERSION);
   if(support_glshader and glshader_version)
   {
@@ -199,6 +200,12 @@ bool	Shader::_isSupported(void)
         }
   }
   else support_glshader = false;
+#else
+  /* GL_SHADING_LANGUAGE_VERSION is not defined: shaders are not
+     available at compile time with the current OpenGL headers.
+  */
+  support_glshader = false;
+#endif
 
   return support_glshader;
 }
