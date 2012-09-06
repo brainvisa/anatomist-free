@@ -1076,6 +1076,8 @@ ObjectMenu* AObject::optionMenu() const
   rc_ptr<ObjectMenu> om( 0 );
   if( i != _objectmenu_map.end() )
     om = i->second;
+  if( om.isNull() )
+    return 0;
 
   // register callbacks that have not been yet on this type
   Private::MenuRegistrersMap & regmap = Private::objectMenuRegistrers();

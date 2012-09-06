@@ -41,6 +41,7 @@
 #include <graph/tree/tree.h>
 #include <fstream>
 #include <anatomist/mobject/MObject.h>
+#include <anatomist/object/selfsliceable.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/window/winFactory.h>
 #include <anatomist/window3D/window3D.h>
@@ -226,6 +227,25 @@ namespace
         selgroups.insert( is->first );
     if( !selgroups.empty() )
       ex->setProperty( "selected_in_groups", selgroups );
+
+    // slice params
+    SelfSliceable *ssl = dynamic_cast<SelfSliceable *>( ao );
+    if( ssl )
+    {
+      vector<float> sp(4);
+      Point4df spp = ssl->quaternion().vector();
+      sp[0] = spp[0];
+      sp[1] = spp[1];
+      sp[2] = spp[2];
+      sp[3] = spp[3];
+      ex->setProperty( "slice_quaternion", sp );
+      Point3df pp = ssl->offset();
+      sp.resize( 3 );
+      sp[0] = pp[0];
+      sp[1] = pp[1];
+      sp[2] = pp[2];
+      ex->setProperty( "slice_position", sp );
+    }
   }
 
 
