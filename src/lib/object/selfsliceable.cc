@@ -76,16 +76,27 @@ void SelfSliceable::setSliceSilent( const Point3df & pos,
 
 void SelfSliceable::setPlaneSilent( const Point4df & plane )
 {
-  Point3df				pos, v1, v2, v3;
+  Point3df				pos, v1, v2, v3, r;
   float					x, y, angle, nrm;
 
   v3 = Point3df( plane[0], plane[1], plane[2] );
   nrm = v3.norm();
   v3.normalize();
-  v1 = crossed( Point3df( 0, 0, 1 ), v3 );
-  v2 = crossed( v1, Point3df( 0, 0, 1 ) );
-  x = v3[2];
-  y = v2.dot( v3 );
+  r = Point3df( 0, 0, 1 );
+  v1 = crossed( r, v3 );
+  if( v1.norm2() < 0.0001 )
+  {
+    v1 = Point3df( 1, 0, 0 );
+    v2 = crossed( v1, r );
+  }
+  else
+  {
+    v1.normalize();
+    v2 = crossed( v1, r );
+  }
+  r = crossed( v1, v2 );
+  x = -r.dot( v3 );
+  y = -v2.dot( v3 );
   angle = acos( x );
   if( y < 0 )
     angle *= -1;

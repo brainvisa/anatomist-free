@@ -58,15 +58,16 @@ void OptionMatcher::commonOptions( const set<AObject *> & obj, Tree & tr )
   ot = (*io)->optionTree();
   if (!ot)
   {
-	  om.reset( (*io)->optionMenu() );
-	  if (!om) om = AObject::getObjectMenu("__default__");
-          ot = om->tree();
+    om.reset( (*io)->optionMenu() );
+    if (!om) om = AObject::getObjectMenu("__default__");
+    if( om )
+      ot = om->tree();
   }
 
   if( !ot )
-    {
-      return;	// no options
-    }
+  {
+    return;	// no options
+  }
   // copy first object tree
   copyTree( tr, *ot );
 
