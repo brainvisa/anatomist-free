@@ -82,13 +82,13 @@ void LinkedCursorCommand::doit()
   if( hastime )
     time = _pos[3];
 
-  cout << "linked cursor (mm): " << _pos[0] << ", " << _pos[1] << ", " 
-       << _pos[2] << ", " << time << endl;
+//   cout << "linked cursor (mm): " << _pos[0] << ", " << _pos[1] << ", " 
+//        << _pos[2] << ", " << time << endl;
 
   if( !theAnatomist->hasWindow( _win ) )
     return;
 
-  cout << "win : " << _win->Title() << endl;
+//   cout << "win : " << _win->Title() << endl;
 
   theAnatomist->setLastPosition( pos, _win->getReferential() );
 
@@ -101,12 +101,12 @@ void LinkedCursorCommand::doit()
       if( hastime )
 	(*i)->SetTime( time );
     }
-  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( _win );
+  /* AWindow3D	*w3 = dynamic_cast<AWindow3D *>( _win );
   if( w3 )
-    {
+  {
     w3->printPositionAndValue();
     w3->getInfos3D();
-    }
+  } */
   _win->displayTalairach();
   theAnatomist->Refresh();
 

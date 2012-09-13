@@ -1427,12 +1427,14 @@ int AWindow3D::computeNearestVertexFromPolygonPoint(const ViewState & vs, int po
 }
 
 void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
-    int *poly, AObject *objselect, string & objtype, float *texvalue, string & textype,
+    int *poly, AObject *objselect, string & objtype, vector<float> & texvalue,
+    string & textype,
     Point3df & positionNearestVertex, int* indexNearestVertex)
 {
   d->draw->positionFromCursor(x, y, position);
 
   *poly = polygonAtCursorPosition(x, y, objselect);
+  *indexNearestVertex = -1;
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
 
@@ -1479,11 +1481,12 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
                 unsigned dt = glc->glDimTex(*vs, tx), i;
                 if (dt > 0)
                 {
+                  texvalue.reserve( dt );
                   for (i = 0; i < dt; ++i)
                   {
                     float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i] - te.min[i]);
                     float off = te.minquant[i] - scl * te.min[i];
-                    *texvalue = scl * tc[*indexNearestVertex * dt + i] + off;
+                    texvalue.push_back( scl * tc[*indexNearestVertex * dt + i] + off );
                   }
                 }
               }
@@ -1503,11 +1506,39 @@ bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
   return (res);
 }
 
-void AWindow3D::getInfos3D(void)
+
+void AWindow3D::displayInfoAtClickPosition( int x, int y )
 {
-  // cout << "getInfos3DFromClickPoint " << d->mouseX << " " << d->mouseY << endl;
-  //getInfos3DFromClickPoint(d->mouseX, d->mouseY);
+  if( !d->objvallabel || d->objvallabel->text() != "" )
+    return;
+  AObject* obj = objectAtCursorPosition( x, y );
+  if( obj )
+  {
+    int poly = -1, vert = -1;
+    vector<float> texval;
+    Point3df pos, posvert;
+    string objtype, textype;
+    getInfos3DFromClickPoint( x, y, pos, &poly, obj, objtype, texval, textype,
+                              posvert, &vert );
+    stringstream txt;
+    if( vert >= 0 )
+    {
+      txt << "poly: " << poly << ", vert: " << vert << ", tex: ";
+      bool first = true;
+      vector<float>::const_iterator iv, ev = texval.end();
+      for( iv=texval.begin(); iv!=ev; ++iv )
+      {
+        if( first )
+          first = false;
+        else
+          txt << ", ";
+        txt << *iv;
+      }
+      d->objvallabel->setText( txt.str().c_str() );
+    }
+  }
 }
+
 
 View* AWindow3D::view()
 {

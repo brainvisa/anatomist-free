@@ -128,10 +128,11 @@ public:
   /// print all infos about vertex picked on a polygon selected
 
   int computeNearestVertexFromPolygonPoint(const ViewState & vs, int poly,const GLComponent* glc, const Point3df & position,Point3df & positionNearestVertex);
-  void getInfos3DFromClickPoint( int x, int y, Point3df & position, int *poly, anatomist::AObject *objselect, string & objtype,
-      float *texvalue, string & textype, Point3df & positionNearestVertex, int* indexNearestVertex);
+  void getInfos3DFromClickPoint( int x, int y, Point3df & position, int *poly,
+      anatomist::AObject *objselect, string & objtype,
+      std::vector<float> &texvalue, string & textype,
+      Point3df & positionNearestVertex, int* indexNearestVertex);
 
-  void getInfos3D(void);
   bool surfpaintIsVisible(void);
   void setVisibleSurfpaint(bool b);
   bool constraintEditorIsActive(void);
@@ -143,6 +144,7 @@ public:
   AObject* getConstraintTexture(void);
 
   void printPositionAndValue();
+  void displayInfoAtClickPosition( int x, int y );
   virtual void displayClickPoint();
   ///   set the view of the scene
   void setViewPoint( float *quaternion, 
