@@ -578,6 +578,9 @@ void LinkAction::execLink( int x, int y, int, int )
       LinkedCursorCommand	*c 
 	= new LinkedCursorCommand( v->window(), vp );
       theProcessor->execute( c );
+      AWindow3D *w3 = dynamic_cast<AWindow3D *>( win );
+      if( w3 )
+        w3->displayInfoAtClickPosition( x, y );
     }
 }
 

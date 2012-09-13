@@ -97,8 +97,11 @@ void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int gl
 
   objselect = win3D->objectAtCursorPosition(x, y);
 
+  vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+      tval, textype, positionNearestVertex, &indexNearestVertex);
+  if( tval.size() >= 1 )
+    texvalue = tval[0];
 
   activeControl = getTools()->getActiveControl();
   //cout << "active control = " << activeControl <<endl;
@@ -189,8 +192,13 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
   //cout << "win = " << win3D << " obj = " << objselect << endl;
 
   if (objselect)
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  {
+    vector<float> tval;
+    win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
+        tval, textype, positionNearestVertex, &indexNearestVertex);
+    if( tval.size() >= 1 )
+      texvalue = tval[0];
+  }
   else
   {
     texvalue = 0;
@@ -210,8 +218,13 @@ void SurfpaintToolsAction::magicselection(int x, int y, int globalX, int globalY
   objselect = win3D->objectAtCursorPosition(x, y);
 
   if (objselect)
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  {
+    vector<float> tval;
+    win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
+        tval, textype, positionNearestVertex, &indexNearestVertex);
+    if( tval.size() >= 1 )
+      texvalue = tval[0];
+  }
   else
   {
     poly = -1;
@@ -238,8 +251,13 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  {
+    vector<float> tval;
+    win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
+        tval, textype, positionNearestVertex, &indexNearestVertex);
+    if( tval.size() >= 1 )
+      texvalue = tval[0];
+  }
   else
   {
     poly = -1;
@@ -261,8 +279,13 @@ void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  {
+    vector<float> tval;
+    win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
+        tval, textype, positionNearestVertex, &indexNearestVertex);
+    if( tval.size() >= 1 )
+      texvalue = tval[0];
+  }
   else
   {
     poly = -1;
@@ -297,8 +320,13 @@ void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  {
+    vector<float> tval;
+    win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
+        tval, textype, positionNearestVertex, &indexNearestVertex);
+    if( tval.size() >= 1 )
+      texvalue = tval[0];
+  }
   else
   {
     poly = -1;
@@ -340,8 +368,11 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y, int globalX, int globalY
   if (!objselect)
     return;
 
+  vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-    &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+    tval, textype, positionNearestVertex, &indexNearestVertex);
+  if( tval.size() >= 1 )
+    texvalue = tval[0];
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -373,8 +404,13 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+  {
+    vector<float> tval;
+    win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
+        tval, textype, positionNearestVertex, &indexNearestVertex);
+    if( tval.size() >= 1 )
+      texvalue = tval[0];
+  }
   else
   {
     poly = -1;
@@ -401,8 +437,11 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y, int globalX, int glob
 {
   //cout << "shortestpathStart" << endl;
 
+  vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      &texvalue, textype, positionNearestVertex, &indexNearestVertex);
+      tval, textype, positionNearestVertex, &indexNearestVertex);
+  if( tval.size() >= 1 )
+    texvalue = tval[0];
 
   //cout << "index " << indexNearestVertex << endl;
 
