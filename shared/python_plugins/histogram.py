@@ -88,6 +88,7 @@ class AHistogram( ana.cpp.QAWindow ):
     self._histo4d = True
     self._localHisto = False
     self._localSize = 20
+    self._fixedScale = False
     # additional toolbar
     toolbar = QtGui.QToolBar( wid )
     ac = QtGui.QAction( '3D', toolbar )
@@ -100,6 +101,10 @@ class AHistogram( ana.cpp.QAWindow ):
     toolbar.addAction( ac )
     toolbar.addAction( 'Neighborhood...', self.setHistoNeighborhood )
     wid.addToolBar( toolbar )
+    ac = QtGui.QAction( 'Fixed scale', toolbar )
+    ac.setCheckable( True )
+    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.setFixedScale )
+    toolbar.addAction( ac )
     # close shortcut
     ac = QtGui.QAction( 'Close', self )
     ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
@@ -264,12 +269,18 @@ class AHistogram( ana.cpp.QAWindow ):
       if not self._localHisto:
         if self.GetTime() == self._oldpos[3] or self._histo4d:
           return # nothing changed
+    if len( self._histo.axes ) != 0:
+      if self._fixedScale:
+        self._histo.axes[0].set_autoscale_on( False )
+      else:
+        self._histo.axes[0].set_autoscale_on( True )
     for obj in self.Objects():
       self.plotObject( obj )
     if len( self._histo.axes ) != 0:
       ax = self._histo.axes[0]
-      ax.relim()
-      ax.autoscale_view()
+      if self._objectschanged or not self._fixedScale:
+        ax.relim()
+        ax.autoscale_view()
     self._objectschanged = False
     self._oldpos = list( self.GetPosition() ) + [ self.GetTime() ]
 
@@ -311,6 +322,12 @@ class AHistogram( ana.cpp.QAWindow ):
 
   def closeAction( self, dummy ):
     self.close()
+
+  def setFixedScale( self, state ):
+    self._fixedScale = state
+    self._objectschanged = True
+    if not state:
+      self.Refresh()
 
 
 class HistogramModule( ana.cpp.Module ):
