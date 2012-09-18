@@ -105,6 +105,8 @@ class AHistogram( ana.cpp.QAWindow ):
     ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
     self.connect( ac, QtGui.SIGNAL( 'triggered(bool)' ), self.closeAction )
     self.addAction( ac )
+    self._objectschanged = True
+    self._oldpos = None
 
   def releaseref( self ):
     '''WARNING:
@@ -151,13 +153,16 @@ class AHistogram( ana.cpp.QAWindow ):
       obj = obj.internalRep
     if not self.hasObject( obj ):
       ana.cpp.QAWindow.registerObject( self, obj, temporaryObject, position )
+      self._objectschanged = True
       self.plotObject( obj )
 
   def unregisterObject( self, obj ):
-    if hasattr( obj, 'internalRep' ):
-      obj = obj.internalRep
-    ana.cpp.QAWindow.unregisterObject( self, obj )
-    self.eraseObject( obj )
+    if self.hasObject( obj ):
+      if hasattr( obj, 'internalRep' ):
+        obj = obj.internalRep
+      ana.cpp.QAWindow.unregisterObject( self, obj )
+      self._objectschanged = True
+      self.eraseObject( obj )
 
   def eraseObject( self, obj ):
     if hasattr( obj, 'internalRep' ):
@@ -254,12 +259,19 @@ class AHistogram( ana.cpp.QAWindow ):
 
   def Refresh( self ):
     ana.cpp.QAWindow.Refresh( self )
+    if not self._objectschanged and \
+      list( self.GetPosition() ) + [ self.GetTime() ] != self._oldpos:
+      if not self._localHisto:
+        if self.GetTime() == self._oldpos[3] or self._histo4d:
+          return # nothing changed
     for obj in self.Objects():
       self.plotObject( obj )
     if len( self._histo.axes ) != 0:
       ax = self._histo.axes[0]
       ax.relim()
       ax.autoscale_view()
+    self._objectschanged = False
+    self._oldpos = list( self.GetPosition() ) + [ self.GetTime() ]
 
   def set3DHisto( self, is3d ):
     self._histo4d = not is3d
