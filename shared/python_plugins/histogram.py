@@ -88,6 +88,7 @@ class AHistogram( ana.cpp.QAWindow ):
     self._histo4d = True
     self._localHisto = False
     self._localSize = 20
+    self._fixedScale = False
     # additional toolbar
     toolbar = QtGui.QToolBar( wid )
     ac = QtGui.QAction( '3D', toolbar )
@@ -100,11 +101,17 @@ class AHistogram( ana.cpp.QAWindow ):
     toolbar.addAction( ac )
     toolbar.addAction( 'Neighborhood...', self.setHistoNeighborhood )
     wid.addToolBar( toolbar )
+    ac = QtGui.QAction( 'Fixed scale', toolbar )
+    ac.setCheckable( True )
+    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.setFixedScale )
+    toolbar.addAction( ac )
     # close shortcut
     ac = QtGui.QAction( 'Close', self )
     ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
     self.connect( ac, QtGui.SIGNAL( 'triggered(bool)' ), self.closeAction )
     self.addAction( ac )
+    self._objectschanged = True
+    self._oldpos = None
 
   def releaseref( self ):
     '''WARNING:
@@ -151,13 +158,16 @@ class AHistogram( ana.cpp.QAWindow ):
       obj = obj.internalRep
     if not self.hasObject( obj ):
       ana.cpp.QAWindow.registerObject( self, obj, temporaryObject, position )
+      self._objectschanged = True
       self.plotObject( obj )
 
   def unregisterObject( self, obj ):
-    if hasattr( obj, 'internalRep' ):
-      obj = obj.internalRep
-    ana.cpp.QAWindow.unregisterObject( self, obj )
-    self.eraseObject( obj )
+    if self.hasObject( obj ):
+      if hasattr( obj, 'internalRep' ):
+        obj = obj.internalRep
+      ana.cpp.QAWindow.unregisterObject( self, obj )
+      self._objectschanged = True
+      self.eraseObject( obj )
 
   def eraseObject( self, obj ):
     if hasattr( obj, 'internalRep' ):
@@ -214,7 +224,7 @@ class AHistogram( ana.cpp.QAWindow ):
           ipos1[2] = vol.getSizeZ() - 1
         ar = ar[ ipos0[0]:ipos1[0], ipos0[1]:ipos1[1], ipos0[2]:ipos1[2] ]
       h = None
-      if False: #use_aimsalgo:
+      if use_aimsalgo:
         typecode = aims.typeCode( str( ar.dtype ) )
         hisclass = getattr( aims, 'RegularBinnedHistogram_' + typecode, None )
         if hisclass is not None:
@@ -224,13 +234,20 @@ class AHistogram( ana.cpp.QAWindow ):
           if ( not self._histo4d and vol.getSizeT() != 1 ) or self._localHisto:
             # get a sub-volume
             vcl = getattr( aims, 'VolumeView_' + typecode )
-            varr = vcl( vol, vcl.Position4Di( *ipos0 ), vcl.Position4Di( *(ipos1 - ipos0 ) ) )
+            if self._histo4d:
+              ipos0t = numpy.hstack( ( ipos0, [ 0 ] ) )
+              ipos1t = numpy.hstack( ( ipos1, [ vol.getSizeT() ] ) )
+            else:
+              ipos0t = numpy.hstack( ( ipos0, [ self.GetTime() ] ) )
+              ipos1t = numpy.hstack( ( ipos1, [ self.GetTime() + 1 ] ) )
+            varr = vcl( vol, vcl.Position4Di( *ipos0t ),
+              vcl.Position4Di( *(ipos1t - ipos0t ) ) )
           ha.doit( varr )
           d = ha.data()
           har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
           step = float( ha.maxDataValue() - ha.minDataValue() ) /  ha.bins()
-          his = ( har, numpy.arange( ha.minDataValue(), ha.maxDataValue() + step,
-            step ) )
+          his = ( har, numpy.arange( ha.minDataValue(),
+            ha.maxDataValue() + step, step ) )
           # fix colors
           if 'facecolor' not in kw:
             cols = 'bgrcmykw'
@@ -254,12 +271,25 @@ class AHistogram( ana.cpp.QAWindow ):
 
   def Refresh( self ):
     ana.cpp.QAWindow.Refresh( self )
+    if not self._objectschanged and \
+      list( self.GetPosition() ) + [ self.GetTime() ] != self._oldpos:
+      if not self._localHisto:
+        if self.GetTime() == self._oldpos[3] or self._histo4d:
+          return # nothing changed
+    if len( self._histo.axes ) != 0:
+      if self._fixedScale:
+        self._histo.axes[0].set_autoscale_on( False )
+      else:
+        self._histo.axes[0].set_autoscale_on( True )
     for obj in self.Objects():
       self.plotObject( obj )
     if len( self._histo.axes ) != 0:
       ax = self._histo.axes[0]
-      ax.relim()
-      ax.autoscale_view()
+      if self._objectschanged or not self._fixedScale:
+        ax.relim()
+        ax.autoscale_view()
+    self._objectschanged = False
+    self._oldpos = list( self.GetPosition() ) + [ self.GetTime() ]
 
   def set3DHisto( self, is3d ):
     self._histo4d = not is3d
@@ -299,6 +329,12 @@ class AHistogram( ana.cpp.QAWindow ):
 
   def closeAction( self, dummy ):
     self.close()
+
+  def setFixedScale( self, state ):
+    self._fixedScale = state
+    self._objectschanged = True
+    if not state:
+      self.Refresh()
 
 
 class HistogramModule( ana.cpp.Module ):
