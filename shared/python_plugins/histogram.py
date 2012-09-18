@@ -224,7 +224,7 @@ class AHistogram( ana.cpp.QAWindow ):
           ipos1[2] = vol.getSizeZ() - 1
         ar = ar[ ipos0[0]:ipos1[0], ipos0[1]:ipos1[1], ipos0[2]:ipos1[2] ]
       h = None
-      if False: #use_aimsalgo:
+      if use_aimsalgo:
         typecode = aims.typeCode( str( ar.dtype ) )
         hisclass = getattr( aims, 'RegularBinnedHistogram_' + typecode, None )
         if hisclass is not None:
@@ -234,13 +234,20 @@ class AHistogram( ana.cpp.QAWindow ):
           if ( not self._histo4d and vol.getSizeT() != 1 ) or self._localHisto:
             # get a sub-volume
             vcl = getattr( aims, 'VolumeView_' + typecode )
-            varr = vcl( vol, vcl.Position4Di( *ipos0 ), vcl.Position4Di( *(ipos1 - ipos0 ) ) )
+            if self._histo4d:
+              ipos0t = numpy.hstack( ( ipos0, [ 0 ] ) )
+              ipos1t = numpy.hstack( ( ipos1, [ vol.getSizeT() ] ) )
+            else:
+              ipos0t = numpy.hstack( ( ipos0, [ self.GetTime() ] ) )
+              ipos1t = numpy.hstack( ( ipos1, [ self.GetTime() + 1 ] ) )
+            varr = vcl( vol, vcl.Position4Di( *ipos0t ),
+              vcl.Position4Di( *(ipos1t - ipos0t ) ) )
           ha.doit( varr )
           d = ha.data()
           har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
           step = float( ha.maxDataValue() - ha.minDataValue() ) /  ha.bins()
-          his = ( har, numpy.arange( ha.minDataValue(), ha.maxDataValue() + step,
-            step ) )
+          his = ( har, numpy.arange( ha.minDataValue(),
+            ha.maxDataValue() + step, step ) )
           # fix colors
           if 'facecolor' not in kw:
             cols = 'bgrcmykw'
