@@ -289,7 +289,7 @@ void Fusion3D::refreshVTexture( const ViewState & s ) const
   // deletion of texture values vectors
   vtexture.erase( vtexture.begin(), vtexture.end() );
 
-  cout << "texturing mesh of " << nver << " vertices\n";
+  // cout << "texturing mesh of " << nver << " vertices\n";
   unsigned i, n = glNumTextures();
   vtexture.reserve( n );
   for( i=0; i<n; ++i )
@@ -1100,10 +1100,26 @@ void Fusion3D::glSetTexEnvChanged( bool x, unsigned tex ) const
 
 std::string Fusion3D::viewStateID( glPart part, const ViewState & state ) const
 {
-  if( part == glTEXIMAGE )
+  // cout << "Fusion3D::viewStateID " << part << ", this: " << this << endl;
+  switch( part )
+  {
+  case glGENERAL:
+  case glBODY:
+    {
+      string s = GLMObject::viewStateID( part, state );
+      float t = state.time;
+      if( t < MinT() )
+        t = MinT();
+      if( t > MaxT() )
+        t = MaxT();
+      (float &) s[0] = t;
+      return s;
+    }
+  case glTEXIMAGE:
     return GLMObject::viewStateID( glBODY, state );
-  else
+  default:
     return GLMObject::viewStateID( part, state );
+  }
 }
 
 
