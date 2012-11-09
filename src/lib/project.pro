@@ -181,7 +181,8 @@ HEADERS = \
 	window/viewstate.h \
 	window/winFactory.h \
 	window/Window.h \
-        window3D/annotedgraph.h \
+    window3D/annotedgraph.h \
+    window3D/orientationAnnotation.h \
 	window3D/cursor.h \
 	window3D/glwidget3D.h \
 	window3D/control3D.h \
@@ -411,7 +412,8 @@ SOURCES = \
 	window/viewstate.cc \
 	window/winFactory.cc \
 	window/Window.cc \
-        window3D/annotedgraph.cc \
+    window3D/annotedgraph.cc \
+    window3D/orientationAnnotation.cc \
 	window3D/cursor.cc \
 	window3D/glwidget3D.cc \
 	window3D/control3D.cc \

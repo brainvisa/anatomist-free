@@ -341,7 +341,6 @@ PreferencesWindow::PreferencesWindow()
   QCheckBox	*flipDisplay 
     = new QCheckBox( tr( "Display L/R in corners" ), flip );
   flipDisplay->setChecked( AWindow::leftRightDisplay() );
-  flipDisplay->setEnabled( false );
   _pdat->disppos = new QCheckBox( tr( "Display cursor position by default" ),
                                   winbox );
   int dispposfg = 1;
@@ -712,8 +711,9 @@ void PreferencesWindow::choseCursorColor()
 
 void PreferencesWindow::enableLRDisplay( bool state )
 {
-  AWindow::setLeftRightDisplay( state );
-  updateWindows();
+	AWindow::setLeftRightDisplay( state );
+
+	updateWindows();
 }
 
 

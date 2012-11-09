@@ -199,7 +199,7 @@ void ControlConfiguration::update( GlobalConfiguration* cfg )
   //	L/R flipping
   att = "leftRightDisplayed";
   num = AWindow::leftRightDisplay();
-  if( !num )
+  if( num )
     cfg->setProperty( att, num );
   else if( cfg->hasProperty( att ) )
     cfg->removeProperty( att );

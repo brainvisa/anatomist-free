@@ -54,6 +54,7 @@ namespace anatomist
 {
   class Light;
   class GLWidgetManager;
+  class OrientationAnnotation;
 }
 
 class QGLWidget;
@@ -189,8 +190,8 @@ public:
   void setSliceQuaternion( const aims::Quaternion & q );
   /// Tries to resize the viewing area to given size
   void resizeView( int w, int h );
-  bool boundingBox( Point3df & bmin, Point3df & bmax, float & tmin, 
-        float & tmax ) const;
+  bool boundingBox( Point3df & bmin, Point3df & bmax,
+                    float & tmin, float & tmax ) const;
   ClipMode clipMode() const;
   void setClipMode( ClipMode m );
   float clipDistance() const;
@@ -274,6 +275,8 @@ public slots:
   void refreshLightViewNow();
   void setAutoRotationCenter();
   void askZoom();
+  // Gets the window zoom factor
+  float getZoom() const;
 
   // Necessary for the movie action
   int getSliceSliderPosition() ;
@@ -290,12 +293,18 @@ public slots:
   void toggleStatusBarVisibility();
   bool toopTipsEnabled() const;
   void enableToolTips( bool );
+  // Refreshs the window when resized
+  void resizeEvent ( QResizeEvent * ) ;
 
 protected slots:
   void freeResize();
 
 protected:
   void showReferential();
+
+  // Updates left/right annotations
+  void updateLeftRightAnnotations();
+
   /// Display the click point
   void displayClickPos( Point3df clickPos );
   void setupTimeSlider( float mint, float maxt );
@@ -329,6 +338,8 @@ private:
   struct Private;
 
   Private *d;
+
+  OrientationAnnotation * _orientAnnot;
 };
 
 

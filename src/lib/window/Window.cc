@@ -52,7 +52,7 @@ using namespace carto;
 using namespace std;
 
 
-bool AWindow::_leftRightDisplay = true;
+bool AWindow::_leftRightDisplay = false;
 bool AWindow::_hasCursor = true;
 int AWindow::_cursorSize = 20;
 bool AWindow::_useDefaultCursorColor = true;

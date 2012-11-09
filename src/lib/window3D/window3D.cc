@@ -75,6 +75,7 @@
 #include <anatomist/control/graphParams.h>
 #include <anatomist/reference/transformobserver.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/window3D/orientationAnnotation.h>
 #include <qslider.h>
 #include <qglobal.h>
 #include <qmessagebox.h>
@@ -478,8 +479,10 @@ namespace
 //	AWindow3D
 
 AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) :
-  ControlledWindow(parent, "window3D", options, f), Observable(), d(
-      new AWindow3D::Private)
+    ControlledWindow(parent, "window3D", options, f),
+    Observable(),
+    d(new AWindow3D::Private),
+    _orientAnnot(0)
 {
   bool nodeco = !toolBarsVisible();
 
@@ -749,10 +752,13 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
   d->tooltip = new QAViewToolTip(this, d->draw->qglWidget());
 
+  _orientAnnot = new OrientationAnnotation( this );
 }
 
 AWindow3D::~AWindow3D()
 {
+  delete _orientAnnot;
+
   if (d->lefteye)
   {
     AWindow3D *w = d->lefteye;
@@ -1010,6 +1016,8 @@ void AWindow3D::refreshNow()
 
   d->draw->qglWidget()->makeCurrent();
   d->deleteLists();
+
+  updateLeftRightAnnotations();
 
   // Denis: selection
   struct TmpCol
@@ -1379,6 +1387,16 @@ void AWindow3D::showReferential()
   paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 }
 
+void AWindow3D::updateLeftRightAnnotations()
+{
+    if ( !_orientAnnot )
+    {
+        return;
+    }
+
+    _orientAnnot->update();
+}
+
 void AWindow3D::displayClickPoint()
 {
   cout << "displayClickPoint\n";
@@ -1635,6 +1653,18 @@ void AWindow3D::askZoom()
       refreshLightViewNow();
     }
   }
+}
+
+float AWindow3D::getZoom() const
+{
+	return d->draw->zoom();
+}
+
+void AWindow3D::resizeEvent( QResizeEvent * event )
+{
+	refreshLightViewNow();
+
+	ControlledWindow::resizeEvent( event );
 }
 
 void AWindow3D::resizeView(int w, int h)
@@ -2618,8 +2648,8 @@ void AWindow3D::syncViews(bool keepextrema)
   }
 }
 
-bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax, float & tmin,
-    float & tmax) const
+bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
+                            float & tmin, float & tmax ) const
 {
   bool valid = false;
 
@@ -2646,6 +2676,11 @@ bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax, float & tmin,
     for (i = _objects.begin(); i != e; ++i)
     {
       obj = i->get();
+      if ( isTemporary( obj ) )
+      {
+          continue;
+      }
+
       if (obj->boundingBox(pmino, pmaxo))
       {
         if (wref && (oref = obj->getReferential()) && (tr
