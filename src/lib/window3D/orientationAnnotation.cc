@@ -97,6 +97,7 @@ void OrientationAnnotation::remove()
 	}
 	_annotMap.clear();
 	_textMap.clear();
+	_activedAnnot.clear();
 }
 
 //---------------------------------------------------------------
@@ -110,8 +111,8 @@ void OrientationAnnotation::update()
 	// View type changed: reset all annotations
     if ( _viewType != _win->viewType() )
     {
-    	initParams();
     	remove();
+    	initParams();
     }
 
     // Remove the annotations if display option is off or if the view is oblique
