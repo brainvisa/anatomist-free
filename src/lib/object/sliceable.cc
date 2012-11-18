@@ -459,7 +459,7 @@ bool Sliceable::glMakeTexImage( const ViewState & state,
 const GLfloat *Sliceable::glNormalArray( const ViewState & state ) const
 {
   if( !glVertexArray( state ) )
-    return false;
+    return 0;
 
   SliceInfo		& si = d->slices[ viewStateID( glGEOMETRY, state ) ];
   return (GLfloat *) si.normals;
@@ -485,7 +485,7 @@ const GLfloat *Sliceable::glTexCoordArray( const ViewState & state,
                                            unsigned ) const
 {
   if( !glVertexArray( state ) )
-    return false;
+    return 0;
 
   // cout << "Sliceable::glTexCoordArray\n";
   SliceInfo		& si = d->slices[ viewStateID( glGEOMETRY, state ) ];
