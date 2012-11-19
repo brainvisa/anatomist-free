@@ -117,7 +117,7 @@ void AObject::cleanStatic()
 
 AObject::Private::Private() 
   : cleanupdone( false ), texturemode( Replace ), texturefilter( F_Nearest ), 
-    oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( false )
+    oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( 0 )
 {
 }
 

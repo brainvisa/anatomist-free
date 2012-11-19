@@ -277,7 +277,13 @@ void QAHistogramWindow::refreshNow()
 #if QWT_VERSION >= 0x050000
       QwtPlotCurve	*crv = d->mcurve[ *it ];
       crv->setPen( QPen( QColor( d->pcol[ crv ] ) ) );
+#if QWT_VERSION >= 0x060000
+      QwtCPointerData *cp = new QwtCPointerData( x_curve, phisto[ *it ],
+                                                 qaHisto.getDim() );
+      crv->setData( cp );
+#else
       crv->setData( x_curve, phisto[ *it ], qaHisto.getDim() );
+#endif
 #else
       int index = d->mcurve[ *it ];
       graphic->setCurvePen( index, QPen( QColor( d->pcol[ index ] ) ) );

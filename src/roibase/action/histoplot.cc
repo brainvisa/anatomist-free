@@ -255,7 +255,7 @@ RoiHistoPlot::activate()
 
 void RoiHistoPlot::deactivate() 
 {
-  _private->myPlotArea->clear() ;
+  _private->myPlotArea->detachItems() ;
   myActivate = false ; 
 }
 
@@ -267,7 +267,7 @@ RoiHistoPlot::showImageHisto()
   if ( !myActivate )
     return ;
   
-  _private->myPlotArea->clear() ;
+  _private->myPlotArea->detachItems() ;
   float binSize ;
   vector<float> histo = getImageHisto( myImage, myNbOfPoints[myImage], binSize ) ;
   AObject * img = 
@@ -323,7 +323,11 @@ RoiHistoPlot::showImageHisto()
 #else
   imageHisto->setStyle( QwtPlotCurve::Spline );
 #endif
+#if QWT_VERSION >= 0x060000
+  imageHisto->setData( new QwtCPointerData( x, y, myNbOfBins ) );
+#else
   imageHisto->setData( x, y, myNbOfBins ) ;
+#endif
   imageHisto->setTitle( myImage.c_str() ) ;
 //   imageHisto->setAxis( 0, 1 ) ;
 
@@ -392,7 +396,7 @@ RoiHistoPlot::showGraphHisto()
     }
   
 //   QwtPlotCurve * imageHisto = _private->myPlotArea->curve( _private->myImageHistoKey ) ;
-  _private->myPlotArea->clear() ;
+  _private->myPlotArea->detachItems() ;
 //   if( imageHisto == 0 )
 //     showImageHisto() ;
 //    else 
@@ -439,7 +443,11 @@ RoiHistoPlot::showGraphHisto()
     }
     
     regionHisto->setStyle( QwtPlotCurve::Lines ) ;
-    regionHisto->setData( x, y, myNbOfBins ) ;
+#if QWT_VERSION >= 0x060000
+    regionHisto->setData( new QwtCPointerData( x, y, myNbOfBins ) );
+#else
+    regionHisto->setData( x, y, myNbOfBins );
+#endif
     regionHisto->setTitle( iter->first.c_str() ) ;
     
     set<Hierarchy*>::iterator hieIter( hierarchies.begin() ), hieLast( hierarchies.end() ) ;

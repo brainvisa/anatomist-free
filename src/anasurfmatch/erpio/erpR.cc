@@ -146,10 +146,11 @@ ErpReader & ErpReader::operator >> ( ATexture & tex )
   for( t=0; t<dimt; ++t )
     (*tx)[t].reserve( dimx );
 
+  size_t nr;
   for( i=0; i<dimx; ++i )
     for( t=0; t<dimt; ++t )
       {
-	fread( &value, sizeof( float ), 1, f );
+	nr = fread( &value, sizeof( float ), 1, f );
 	if( le != natle )
 	  value = byteswap( value );
 	(*tx)[t].push_back( value );

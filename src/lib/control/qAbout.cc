@@ -307,7 +307,7 @@ QAbout::QAbout( QWidget* parent, const char* name )
   if( !sres && f )
     {
       d->edit->text = new char[ buf.st_size + 1 ];
-      fread( d->edit->text, 1, buf.st_size, f );
+      size_t nr = fread( d->edit->text, 1, buf.st_size, f );
       d->edit->text[ buf.st_size - 1 ] = '\0';
       fclose( f );
       d->edit->current = d->edit->text;
