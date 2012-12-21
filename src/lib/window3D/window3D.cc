@@ -1980,7 +1980,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
     SetTime(0);
 
     // resize window if in 2D mode
-    if (o->Is2DObject())
+    if( o->Is2DObject() && isWindow() )
     {
       float wf = 1.5;
       theAnatomist->config()->getProperty("windowSizeFactor", wf);
