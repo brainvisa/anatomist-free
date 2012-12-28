@@ -90,6 +90,7 @@ namespace anatomist
       glMIN_CHANNEL,
       glMAX_ALPHA,
       glMIN_ALPHA,
+      glGEOMETRIC_SQRT,
     };
 
     enum glTextureFiltering

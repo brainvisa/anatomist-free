@@ -225,11 +225,11 @@ namespace
   template<int T> inline
   void _mix_item( unsigned char* src, unsigned char *dst, float rate );
 
-  // geometric
+  // geometric (square root)
   template<> inline
   void _mix_item<0>( unsigned char* src, unsigned char *dst, float )
   {
-    *dst = (unsigned char) sqrt( ((float) *src) * ((float) *dst) );
+    *dst = (unsigned char) rint( sqrt( ((float) *src) * ((float) *dst) ) );
     *(dst+1) = (unsigned char)
       rint( sqrt( ((float) *(src+1)) * ((float) *(dst+1)) ) );
     *(dst+2) = (unsigned char)
@@ -466,6 +466,20 @@ namespace
   }
 
 
+  // geometric (renormalized)
+  template<> inline
+  void _mix_item<19>( unsigned char* src, unsigned char *dst, float )
+  {
+    *dst = (unsigned char) rint( ((float) *src) * ((float) *dst) / 255. );
+    *(dst+1) = (unsigned char)
+      rint( ((float) *(src+1)) * ((float) *(dst+1)) / 255. );
+    *(dst+2) = (unsigned char)
+      rint( ((float) *(src+2)) * ((float) *(dst+2)) / 255. );
+    *(dst+3) = (unsigned char)
+      rint( ((float) *(src+3)) * ((float) *(dst+3)) / 255. );
+  }
+
+
   template<int T>
   void _mix2( unsigned char *dst, unsigned char *src, unsigned w,
               unsigned h, unsigned offset_xim, float rate )
@@ -544,8 +558,11 @@ namespace
       case GLComponent::glMIN_ALPHA:
         _mix2<18>( dst, src, w, h, offset_xim, rate );
         break;
-      default:
+      case GLComponent::glGEOMETRIC_SQRT:
         _mix2<0>( dst, src, w, h, offset_xim, rate );
+        break;
+      default:
+        _mix2<19>( dst, src, w, h, offset_xim, rate );
       }
   }
 
@@ -893,6 +910,7 @@ Fusion2D::glAllowedTexModes( unsigned tex ) const
   a.insert( glMIN_CHANNEL );
   a.insert( glMAX_ALPHA );
   a.insert( glMIN_ALPHA );
+  a.insert( glGEOMETRIC_SQRT );
   return a;
 }
 

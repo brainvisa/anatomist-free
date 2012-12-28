@@ -221,8 +221,9 @@ Command* TexturingParamsCommand::read( const Tree & com,
       modes[ "min_channel"               ] = GLComponent::glMIN_CHANNEL;
       modes[ "max_opacity"               ] = GLComponent::glMAX_ALPHA;
       modes[ "min_opacity"               ] = GLComponent::glMIN_ALPHA;
-      filters[ "nearest"        ] = GLComponent::glFILT_NEAREST;
-      filters[ "linear"         ] = GLComponent::glFILT_LINEAR;
+      modes[ "geometric_sqrt"            ] = GLComponent::glGEOMETRIC_SQRT;
+      filters[ "nearest"     ] = GLComponent::glFILT_NEAREST;
+      filters[ "linear"      ] = GLComponent::glFILT_LINEAR;
       gens[ "none"           ] = GLComponent::glTEX_MANUAL;
       gens[ "object_linear"  ] = GLComponent::glTEX_OBJECT_LINEAR;
       gens[ "eye_linear"     ] = GLComponent::glTEX_EYE_LINEAR;

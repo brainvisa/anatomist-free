@@ -95,7 +95,7 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
   partvisible[2] = true;
   partvisible[3] = true;
   partvisible[4] = true;
-  texModesStrings.reserve( GLComponent::glMIN_ALPHA + 1 );
+  texModesStrings.reserve( GLComponent::glGEOMETRIC_SQRT + 1 );
   texModesStrings.push_back( QTexturePanel::tr( "Geometric" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Replace" ) );
@@ -123,6 +123,7 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
   texModesStrings.push_back( QTexturePanel::tr( "Min channel" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Max opacity" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Min opacity" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Geometric (square root)" ) );
 }
 
 
