@@ -301,6 +301,7 @@ namespace
       }
     catch( ... )
       {
+        tex = 0;
       }
     try
       {
@@ -428,20 +429,30 @@ namespace
               else if( (*tex)[i]->type() == DataTypeCode<Texture2d>::name() )
                 at->setTexture( rc_ptr<Texture2d>( new Texture2d
                     ( (*tex)[i]->GenericObject::value<Texture2d>() ) ) );
-              // at->setFileName( "texture" );
-              at->setHeaderOptions();
-              at->setName( theAnatomist->makeObjectName( tname ) );
-              if( toapply )
-                {
-                  theAnatomist->registerObject( at, false );
-                  atex.push_back( at );
-                }
               else
-                theAnatomist->registerObject( at, true );
+              { // element not recognized as a texture: forget it.
+                delete at;
+                at = 0;
+              }
+              if( at )
+              {
+                // at->setFileName( "texture" );
+                at->setHeaderOptions();
+                at->setName( theAnatomist->makeObjectName( tname ) );
+                if( toapply )
+                  {
+                    theAnatomist->registerObject( at, false );
+                    atex.push_back( at );
+                  }
+                else
+                  theAnatomist->registerObject( at, true );
+              }
             }
           AObject		*tex = 0;
           FusionFactory	*ff = FusionFactory::factory();
           FusionMethod	*fm;
+          // eventually, fix n
+          n = atex.size();
           if( n > 1 )
             {
               if( n >= 3 )
@@ -496,22 +507,25 @@ namespace
                             ( string( "mtexture_" ) + name ) );
               theAnatomist->registerObject( tex, false );
             }
-          else
+          else if( n > 0 )
             tex = atex[0];
-          vector<AObject *>	ts(2);
-          ts[0] = ao;
-          ts[1] = tex;
-          fm = ff->method( "FusionTexSurfMethod" );
-          AObject	*tso = fm->fusion( ts );
-          ao->setName( theAnatomist->makeObjectName( name + "_mesh" ) );
-          ao->setHeaderOptions();
-          theAnatomist->registerObject( ao, false );
-          /* tso->setName( theAnatomist->makeObjectName
-             ( string( "texsurface_" ) + name ) ); */
-          surf->header().removeProperty( "textures" );
-          // copy material from mesh to texsurf.
-          tso->SetMaterial( ao->GetMaterial() );
-          ap.object = tso;
+          if( tex )
+          {
+            vector<AObject *>	ts(2);
+            ts[0] = ao;
+            ts[1] = tex;
+            fm = ff->method( "FusionTexSurfMethod" );
+            AObject	*tso = fm->fusion( ts );
+            ao->setName( theAnatomist->makeObjectName( name + "_mesh" ) );
+            ao->setHeaderOptions();
+            theAnatomist->registerObject( ao, false );
+            /* tso->setName( theAnatomist->makeObjectName
+              ( string( "texsurface_" ) + name ) ); */
+            surf->header().removeProperty( "textures" );
+            // copy material from mesh to texsurf.
+            tso->SetMaterial( ao->GetMaterial() );
+            ap.object = tso;
+          }
         }
       catch( ... )
         {
