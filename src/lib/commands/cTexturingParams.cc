@@ -121,7 +121,14 @@ void TexturingParamsCommand::doit()
         if( gc && gc->glNumTextures() > _tex )
           {
             if( _mode >= 0 )
-              gc->glSetTexMode( (GLComponent::glTextureMode) _mode, _tex );
+            {
+              /* check if texturing mode is compatible with the object /
+              texture */
+              set<GLComponent::glTextureMode> atm = gc->glAllowedTexModes(
+                _tex );
+              if( atm.find( (GLComponent::glTextureMode) _mode ) != atm.end() )
+                gc->glSetTexMode( (GLComponent::glTextureMode) _mode, _tex );
+            }
             if( _filter >= 0 )
               gc->glSetTexFiltering( (GLComponent::glTextureFiltering) 
                                      _filter, _tex );
@@ -222,6 +229,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
       modes[ "max_opacity"               ] = GLComponent::glMAX_ALPHA;
       modes[ "min_opacity"               ] = GLComponent::glMIN_ALPHA;
       modes[ "geometric_sqrt"            ] = GLComponent::glGEOMETRIC_SQRT;
+      modes[ "geometric_lighten"         ] = GLComponent::glGEOMETRIC_LIGHTEN;
       filters[ "nearest"     ] = GLComponent::glFILT_NEAREST;
       filters[ "linear"      ] = GLComponent::glFILT_LINEAR;
       gens[ "none"           ] = GLComponent::glTEX_MANUAL;
@@ -297,7 +305,7 @@ void TexturingParamsCommand::write( Tree & com, Serializer* ser ) const
     {
       static const string smode[] = 
         { "geometric", "linear", "replace", "decal", "blend", "add", "combine",
-          "linear_A_if_A_white", "linear_A_if_B_white", "linear_A_if_A_black", "linear_A_if_B_black", "linear_B_if_A_white", " linear_B_if_B_white", "linear_B_if_A_black", "linear_B_if_B_black", "linear_A_if_A_opaque", "linear_A_if_B_transparent", "linear_B_if_B_opaque", "linear_B_if_A_transparent", "max_channel", "min_channel", "max_opacity", "min_opacity"
+          "linear_A_if_A_white", "linear_A_if_B_white", "linear_A_if_A_black", "linear_A_if_B_black", "linear_B_if_A_white", " linear_B_if_B_white", "linear_B_if_A_black", "linear_B_if_B_black", "linear_A_if_A_opaque", "linear_A_if_B_transparent", "linear_B_if_B_opaque", "linear_B_if_A_transparent", "max_channel", "min_channel", "max_opacity", "min_opacity", "geometric_sqrt", "geometric_lighten",
         };
       t->setProperty( "mode", smode[_mode] );
     }

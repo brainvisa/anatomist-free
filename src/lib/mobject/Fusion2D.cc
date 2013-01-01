@@ -480,6 +480,20 @@ namespace
   }
 
 
+  // geometric inverted (lighten)
+  template<> inline
+  void _mix_item<20>( unsigned char* src, unsigned char *dst, float )
+  {
+    *dst = 255 - (unsigned char) rint( ((float) 255 - *src) * ((float) 255 - *dst) / 255. );
+    *(dst+1) = 255 - (unsigned char)
+      rint( ((float) 255 - *(src+1)) * ((float) 255 - *(dst+1)) / 255. );
+    *(dst+2) = 255 - (unsigned char)
+      rint( ((float) 255 - *(src+2)) * ((float) 255 - *(dst+2)) / 255. );
+    *(dst+3) = 255 - (unsigned char)
+      rint( ((float) 255 - *(src+3)) * ((float) 255 - *(dst+3)) / 255. );
+  }
+
+
   template<int T>
   void _mix2( unsigned char *dst, unsigned char *src, unsigned w,
               unsigned h, unsigned offset_xim, float rate )
@@ -560,6 +574,9 @@ namespace
         break;
       case GLComponent::glGEOMETRIC_SQRT:
         _mix2<0>( dst, src, w, h, offset_xim, rate );
+        break;
+      case GLComponent::glGEOMETRIC_LIGHTEN:
+        _mix2<20>( dst, src, w, h, offset_xim, rate );
         break;
       default:
         _mix2<19>( dst, src, w, h, offset_xim, rate );
@@ -911,6 +928,7 @@ Fusion2D::glAllowedTexModes( unsigned tex ) const
   a.insert( glMAX_ALPHA );
   a.insert( glMIN_ALPHA );
   a.insert( glGEOMETRIC_SQRT );
+  a.insert( glGEOMETRIC_LIGHTEN );
   return a;
 }
 

@@ -124,6 +124,7 @@ QTexturePanel::Private::Private( const set<AObject *> & obj )
   texModesStrings.push_back( QTexturePanel::tr( "Max opacity" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Min opacity" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Geometric (square root)" ) );
+  texModesStrings.push_back( QTexturePanel::tr( "Geometric lighten" ) );
 }
 
 
