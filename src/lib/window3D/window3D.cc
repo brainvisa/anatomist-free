@@ -3175,6 +3175,7 @@ void AWindow3D::setReferential(Referential* ref)
   }
 
   d->draw->setZDirection(ref ? !ref->isDirect() : false);
+  updateLeftRightAnnotations();
   // refocus view on objects in the new referential
   focusView();
 }

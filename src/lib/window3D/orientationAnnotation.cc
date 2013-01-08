@@ -65,6 +65,7 @@ OrientationAnnotation::OrientationAnnotation( const OrientationAnnotation & a )
 	  _nonObliqueSliceQuaternion( a._nonObliqueSliceQuaternion ),
 	  _fontSize( a._fontSize )
 {
+  setReferential( a.getReferential() );
 }
 
 //---------------------------------------------------------------
@@ -103,12 +104,15 @@ void OrientationAnnotation::remove()
 //---------------------------------------------------------------
 void OrientationAnnotation::update()
 {
-	if ( !_win )
-	{
-		return;
-	}
+    if ( !_win )
+    {
+            return;
+    }
 
-	// View type changed: reset all annotations
+    if( _win->getReferential() != getReferential() )
+      setReferential( _win->getReferential() );
+
+    // View type changed: reset all annotations
     if ( _viewType != _win->viewType() )
     {
     	remove();
@@ -186,6 +190,7 @@ void OrientationAnnotation::build()
         oss << getPositionLabel( (*it) );
         std::string text = oss.str();
         to->setText( text );
+        to->setReferentialInheritance( this );
         // Set the font color
         Material & mat = to->GetMaterial();
         mat.SetDiffuse( 1, 0, 0, 1 );
@@ -194,8 +199,10 @@ void OrientationAnnotation::build()
         vector<AObject *> vto;
         vto.push_back( to );
         // Create transformed object
-        _annotMap[ *it ] = new TransformedObject( vto, false, true, getPosition( *it ) );
-        _win->registerObject( _annotMap[ *it ], true );
+        TransformedObject *tro = new TransformedObject( vto, false, true, getPosition( *it ) );
+        _annotMap[ *it ] = tro;
+        tro->setReferentialInheritance( this );
+        _win->registerObject( tro, true );
     }
 }
 
@@ -467,6 +474,7 @@ void OrientationAnnotation::initParams()
 
 	// Get view type
 	_viewType = _win->viewType();
+        setReferential( _win->getReferential() );
 
 	// Get the initial slice quaternion to handle with oblique views
 	_nonObliqueSliceQuaternion = _win->sliceQuaternion();
@@ -520,6 +528,9 @@ void OrientationAnnotation::updateWindowCoordParams()
     Point3df bmin, bmax;
     float tmin, tmax;
     // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
+    if( _win->getReferential() != getReferential() )
+      setReferential( _win->getReferential() );
+
     _win->boundingBox( bmin, bmax, tmin, tmax );
     Point3df center = ( bmin + bmax ) * 0.5;
 
