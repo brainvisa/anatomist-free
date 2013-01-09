@@ -57,12 +57,14 @@ SetMaterialCommand::SetMaterialCommand( const set<AObject *> & obj,
                                         int polyfiltering, int zbuffer, 
                                         int faceculling, 
                                         const std::string & polymode,
-                                        int frontface )
+                                        int frontface, float linewidth,
+                                        const vector<float> & unlitcolor
+                                      )
   : RegularCommand(), _obj( obj ), _shininess( shininess ), 
     _refresh( refresh ), _lighting( lighting ), 
     _smoothshading( smoothshading ), _polygonfiltering( polyfiltering ), 
     _zbuffer( zbuffer), _faceculling( faceculling ), _polygonmode( polymode ),
-    _frontface( frontface )
+    _frontface( frontface ), _linewidth( linewidth ), _unlitcolor( unlitcolor )
 {
   if( ambient )
     {
@@ -147,6 +149,8 @@ bool SetMaterialCommand::initSyntax()
   s[ "face_culling"      ] = Semantic( "int" );
   s[ "polygon_mode"      ] = Semantic( "string" );
   s[ "front_face"        ] = Semantic( "string" );
+  s[ "line_width"        ] = Semantic( "float" );
+  s[ "unlit_color"       ] = Semantic( "float_vector" );
 
   Registry::instance()->add( "SetMaterial", &read, ss );
   return( true );
@@ -245,6 +249,21 @@ void SetMaterialCommand::doit()
           mat.setRenderProperty( Material::FrontFace, _frontface );
           changed = true;
         }
+        if( _linewidth >= 0 && mat.lineWidth() != _linewidth )
+        {
+          mat.setLineWidth( _linewidth );
+          changed = true;
+        }
+        if( _unlitcolor.size() >= 3 )
+        {
+          if( _unlitcolor.size() >= 4 )
+            mat.setUnlitColor( _unlitcolor[0], _unlitcolor[1], _unlitcolor[2],
+                               _unlitcolor[3] );
+          else
+            mat.setUnlitColor( _unlitcolor[0], _unlitcolor[1], _unlitcolor[2],
+                               1 );
+          changed = true;
+        }
 
         if( changed )
           o->SetMaterial( mat );
@@ -260,8 +279,8 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
 {
   vector<int>		obj;
   set<AObject *>	objL;
-  vector<float>		ambient, diffuse, emission, specular;
-  float			shininess = -1;
+  vector<float>		ambient, diffuse, emission, specular, unlitcolor;
+  float			shininess = -1, linewidth = -1;
   float			*amb = 0, *dif = 0, *emi = 0, *spe = 0;
   unsigned		i, n;
   void			*ptr;
@@ -301,6 +320,8 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "face_culling", facecull );
   com.getProperty( "polygon_mode", polymode );
   com.getProperty( "front_face", fface );
+  if( com.getProperty( "line_width", linewidth ) && linewidth < 0 )
+    linewidth = 0;
   if( !fface.empty() )
   {
     if( fface == "cw" || fface == "clockwise" )
@@ -311,10 +332,12 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
       cout << "warning: front_face value " << fface << " is not understood."
         << endl;
   }
+  com.getProperty( "unlit_color", unlitcolor );
 
   return( new SetMaterialCommand( objL, amb, dif, emi, spe, shininess, 
                                   (bool) refresh, lighting, smooth, filter, 
-                                  zbuffer, facecull, polymode, frontface ) );
+                                  zbuffer, facecull, polymode, frontface,
+                                  linewidth, unlitcolor ) );
 }
 
 
@@ -364,5 +387,9 @@ void SetMaterialCommand::write( Tree & com, Serializer* ser ) const
     else
       t->setProperty( "front_face", (int) 1 );
   }
+  if( _linewidth >= 0 )
+    t->setProperty( "line_width", _linewidth );
+  if( _unlitcolor.size() >= 3 )
+    t->setProperty( "unlit_color", _unlitcolor );
   com.insert( t );
 }

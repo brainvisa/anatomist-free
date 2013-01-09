@@ -38,6 +38,7 @@
 
 #include <anatomist/processor/Command.h>
 #include <set>
+#include <vector>
 
 
 namespace anatomist
@@ -57,7 +58,9 @@ namespace anatomist
                         int polyfiltering = -2, int zbuffer = -2, 
                         int faceculling = -2, 
                         const std::string & polymode = "",
-                        int frontface = -1 );
+                        int frontface = -1, float linewidth=-1,
+                        const std::vector<float> &
+                        unlitcolor=std::vector<float>() );
     virtual ~SetMaterialCommand();
 
     virtual std::string name() const { return( "SetMaterial" ); }
@@ -81,6 +84,8 @@ namespace anatomist
     int			_faceculling;
     std::string		_polygonmode;
     int                 _frontface;
+    float               _linewidth;
+    std::vector<float>  _unlitcolor;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );
