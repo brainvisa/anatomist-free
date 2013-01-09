@@ -304,9 +304,14 @@ void AWindow::SetTitleWindow()
   if( d->destroying )
     return;
   const unsigned MAXLEN = 40;
-  
+  set<AObject *> sobjects;
+  set<AObject *>::const_iterator io, eo = _sobjects.end();
+  // skip hidden and temporary objects
+  for( io=_sobjects.begin(); io!=eo; ++io )
+    if( theAnatomist->hasObject( *io ) && !isTemporary( *io ) )
+      sobjects.insert( *io );
   string newtitle = Title().substr( 0, Title().find( ':' ) ) + ": " 
-  		    + theAnatomist->catObjectNames( _sobjects );
+  		    + theAnatomist->catObjectNames( sobjects );
   if( newtitle.size() > MAXLEN )
     newtitle.replace( 37, newtitle.size(), "..." );
 
