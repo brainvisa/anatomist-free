@@ -156,10 +156,10 @@ struct AWindow3D::Private
     QPushButton *reflabel;
     QLabel *refdirmark;
     QLabel *timelabel;
-    QVBox *timepanel;
+    QWidget *timepanel;
     QSlider *slids;
     QLabel *slicelabel;
-    QVBox *slicepanel;
+    QWidget *slicepanel;
     QAViewToolTip *tooltip;
     AWindow3D::ViewType viewtype;
     QToolBar *mute;
@@ -503,8 +503,10 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   d->refbox->setFixedHeight(d->refbox->sizeHint().height());
   if (nodeco) d->refbox->hide();
 
-  QHBox *hb = new QHBox(vb);
-  hb->setSpacing(5);
+  QWidget *hb = new QWidget(vb);
+  QHBoxLayout *hbl = new QHBoxLayout( hb );
+  hbl->setSpacing(0);
+  hbl->setMargin(0);
 
   paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 
@@ -514,6 +516,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   else
     d->draw = new QAGLWidget3D(this, hb, "GL drawing area",
         GLWidgetManager::sharedWidget());
+  hbl->addWidget( d->draw->qglWidget() );
 
   float wf = 1.5;
   theAnatomist->config()->getProperty("windowSizeFactor", wf);
@@ -534,32 +537,41 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
       break;
   }
 
-  d->slicepanel = new QVBox(hb);
+  d->slicepanel = new QWidget(hb);
+  QVBoxLayout *vlay = new QVBoxLayout( d->slicepanel );
+  vlay->setSpacing(0);
+  vlay->setMargin(0);
+  hbl->addWidget( d->slicepanel );
   d->slicelabel = new QLabel(d->slicepanel, "slice");
   d->slicelabel->setFixedWidth(30);
+  vlay->addWidget( d->slicelabel );
   d->slids = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel,
                               "sliderS");
   d->slids->setFixedWidth(d->slids->sizeHint().width());
+  vlay->addWidget( d->slids );
   d->slicepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
       QSizePolicy::Expanding));
   d->slicepanel->hide();
 
-  d->timepanel = new QVBox(hb);
+  d->timepanel = new QWidget(hb);
+  vlay = new QVBoxLayout( d->timepanel );
+  vlay->setSpacing(0);
+  vlay->setMargin(0);
+  hbl->addWidget( d->timepanel );
   d->timelabel = new QLabel(d->timepanel, "time");
   d->timelabel->setFixedWidth(30);
+  vlay->addWidget( d->timelabel );
   d->slidt = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel,
                               "sliderT");
   d->slidt->setFixedWidth(d->slidt->sizeHint().width());
+  vlay->addWidget( d->slidt );
   d->timepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
       QSizePolicy::Expanding));
   d->timepanel->hide();
-#if QT_VERSION >= 0x040000
-  // behave like in Qt3: 0 at top
   d->slids->setInvertedAppearance( true );
   d->slids->setInvertedControls( true );
   d->slidt->setInvertedAppearance( true );
   d->slids->setInvertedControls( true );
-#endif
 
   d->objvallabel = new QLabel(statusBar());
   statusBar()->addWidget(d->objvallabel, 0, true);
