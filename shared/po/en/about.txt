@@ -74,8 +74,11 @@ Fabrice Poupon
 Cédric Clouchoux
 Matthieu Perrot
 Dominique Geffroy
+Nicolas Souedet
 Pauline Roca
 Thomas Vincent
+Arnaud Le Troter
+Jean-Baptiste Martini
 
 
 
