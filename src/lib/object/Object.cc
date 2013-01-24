@@ -539,6 +539,7 @@ string AObject::objectTypeName( int type )
 	  _objectTypeNames[ FASCICLEGRAPH ] = "FASCIC. GRAPH";
 	  _objectTypeNames[ TEXTURE       ] = "TEXTURE";
 	  _objectTypeNames[ TEXSURFACE    ] = "TEXTURED SURF.";
+	  _objectTypeNames[ FUSION2DMESH  ] = "FUSION2D MESH";
 	  _objectTypeNames[ OTHER         ] = "UNREGISTERED";
 	  return( _objectTypeNames[ type ] );
 	}

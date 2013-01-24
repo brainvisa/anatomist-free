@@ -118,7 +118,8 @@ namespace anatomist
       FASCICLE,
       FASCICLEGRAPH,
       TEXTURE,
-      TEXSURFACE, 
+      TEXSURFACE,
+      FUSION2DMESH,
       ///	External object type (unknown from the base anatomist library)
       OTHER
     };

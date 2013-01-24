@@ -37,6 +37,7 @@
 #include <anatomist/mobject/Fusion3D.h>
 #include <anatomist/surface/planarfusion3d.h>
 #include <anatomist/surface/cutmesh.h>
+#include <anatomist/surface/fusion2Dmesh.h>
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/surface/mtexture.h>
@@ -296,6 +297,32 @@ int FusionCutMeshMethod::canFusion( const set<AObject *> & obj )
 AObject* FusionCutMeshMethod::fusion( const vector<AObject *> & obj )
 {
   return new CutMesh( obj );
+}
+
+
+string Fusion2DMeshMethod::ID() const
+{
+    return( QT_TRANSLATE_NOOP( "FusionChooser", "Fusion2DMeshMethod" ) );
+}
+
+int Fusion2DMeshMethod::canFusion( const set<AObject *> & obj )
+{
+    set<AObject *>::const_iterator	io, fo = obj.end();
+    for( io=obj.begin(); io!=fo; ++io )
+    {
+    	ATriangulated * tr = dynamic_cast<ATriangulated *>( *io );
+    	if ( !tr )
+    	{
+    		return 0;
+    	}
+    }
+
+    return 200;
+}
+
+AObject * Fusion2DMeshMethod::fusion( const vector<AObject *> & obj )
+{
+    return new Fusion2DMesh( obj );
 }
 
 

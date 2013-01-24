@@ -105,6 +105,7 @@ HEADERS = \
 	reference/wReferential.h \
 	reference/wChooseReferential.h \
 	surface/cutmesh.h \
+	surface/fusion2Dmesh.h \
 	surface/fusiontexsurf.h \
 	surface/glcomponent.h \
         surface/glcomponent_internals.h \
@@ -339,6 +340,7 @@ SOURCES = \
 	reference/wReferential.cc \
 	reference/wChooseReferential.cc \
 	surface/cutmesh.cc \
+	surface/fusion2Dmesh.cc \
 	surface/fusiontexsurf.cc \
 	surface/glcomponent.cc \
 	surface/globject.cc \

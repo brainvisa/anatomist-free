@@ -82,6 +82,7 @@ FusionFactory::FusionFactory()
       registerMethod( new FusionRGBAVolumeMethod );
       registerMethod( new FusionClipMethod );
       registerMethod( new FusionTesselationMethod );
+      registerMethod( new Fusion2DMeshMethod );
     }
 }
 

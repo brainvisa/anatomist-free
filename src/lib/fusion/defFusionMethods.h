@@ -135,6 +135,15 @@ namespace anatomist
     virtual std::string ID() const;
   };
 
+  class Fusion2DMeshMethod : public FusionMethod
+  {
+  public:
+	  Fusion2DMeshMethod() {}
+	  virtual ~Fusion2DMeshMethod() {}
+	  virtual int canFusion( const std::set<AObject *> & );
+	  virtual AObject* fusion( const std::vector<AObject *> & );
+	  virtual std::string ID() const;
+  };
 
   class FusionSliceMethod : public FusionMethod
   {
