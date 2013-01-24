@@ -161,3 +161,17 @@ ControlDictionary::addControl( const string& name, ControlCreator control,
   addControl( name, new ControlCreatorFunc( control ), priority,
               allowreplace );
 }
+
+bool
+ControlDictionary::removeControl( const string & name )
+{
+    map<string, ControlDictionaryElement>::iterator found( myControls.find( name ) );
+    if ( found == myControls.end() )
+    {
+    	return false;
+    }
+
+    myControls.erase( found );
+
+    return true;
+}

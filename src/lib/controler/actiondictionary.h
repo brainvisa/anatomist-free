@@ -76,6 +76,7 @@ namespace anatomist
     ActionPtr getActionInstance( std::string name );
     void addAction( const std::string & name, ActionCreator creator );
     void addAction( const std::string & name, ActionCreatorBase * creator );
+    bool removeAction( const std::string & );
 
   private:
     static ActionDictionary* _instance ;

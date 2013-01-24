@@ -112,3 +112,17 @@ ActionDictionary::addAction( const string & name, ActionCreator creator )
 {
   addAction( name, new ActionCreatorFunc( creator ) );
 }
+
+bool
+ActionDictionary::removeAction( const string & name )
+{
+    map<string, rc_ptr<ActionCreatorBase> >::iterator found( actions.find( name ) );
+    if ( found == actions.end() )
+    {
+    	return false;
+    }
+
+    actions.erase( found );
+
+    return true;
+}

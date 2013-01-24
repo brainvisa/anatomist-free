@@ -80,6 +80,7 @@ namespace anatomist
                      int priority, bool allowreplace = false ) ;
     void addControl( const std::string& name, ControlCreatorBase * creator, 
                      int priority, bool allowreplace = false ) ;
+    bool removeControl( const std::string & );
     int testPriorityUnicity( int priority ) ;
     
   private:    
