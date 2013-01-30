@@ -50,10 +50,10 @@ using namespace std;
 
 
 FusionObjectsCommand::FusionObjectsCommand( const vector<AObject *> & obj, 
-					    const string & method, 
-					    int id, bool askorder, 
+                                            const string & method,
+                                            int id, bool askorder,
                                             CommandContext* context )
-  : RegularCommand(), SerializingCommand( context ), _obj( obj ), _id( id ), 
+  : RegularCommand(), SerializingCommand( context ), _obj( obj ), _id( id ),
     _newobj( 0 ), _method( method ), _askorder( askorder )
 {
 }
@@ -91,74 +91,72 @@ void FusionObjectsCommand::doit()
     fm = FusionFactory::factory()->method( _method );
 
   if( fm )
+  {
+    _method = fm->ID();
+    set<AObject *> so( _obj.begin(), _obj.end() );
+    if( !fm->canFusion( so ) )
     {
-      _method = fm->ID();
-      set<AObject *> so( _obj.begin(), _obj.end() );
-      if( !fm->canFusion( so ) )
+      _newobj = 0;
+      cout << "cannot make a fusion of type " << fm->ID()
+        << " on the given objects\n";
+        return;
+    }
+    _newobj = fm->fusion( _obj );
+
+    if( _newobj )
+    {
+      if( _newobj->name().empty() )
       {
-        _newobj = 0;
-        cout << "cannot make a fusion of type " << fm->ID()
-          << " on the given objects\n";
-          return;
+        string name = AObject::objectTypeName( _newobj->type() ) + ": ";
+        vector<AObject *>::const_iterator i, e = _obj.end();
+        bool first = true, trunc = false;
+        string::size_type maxlen = 30;
+        for( i=_obj.begin(); i!=e; ++i )
+        {
+          if( first )
+            first = false;
+          else
+            name += ", ";
+          name += (*i)->name();
+          if( name.length() > maxlen )
+          {
+            trunc = true;
+            break;
+          }
+        }
+        if( trunc )
+          name = name.substr( 0, maxlen ) + "...";
+        _newobj->setName( theAnatomist->makeObjectName( name ) );
       }
-      cout << "FusionObjectsCommand::doit, making fusion\n";
-      _newobj = fm->fusion( _obj );
-      cout << "FusionObjectsCommand, fusion done: " << _newobj << endl;
+      theAnatomist->registerObject( _newobj );
+      if( context() && context()->unserial && _id >= 0 )
+        context()->unserial->registerPointer( _newobj, _id, "AObject" );
 
-      if( _newobj )
-	{
-	  if( _newobj->name().empty() )
-	    {
-	      string name = AObject::objectTypeName( _newobj->type() ) + ": ";
-              vector<AObject *>::const_iterator i, e = _obj.end();
-              bool first = true, trunc = false;
-              string::size_type maxlen = 30;
-              for( i=_obj.begin(); i!=e; ++i )
-              {
-                if( first )
-                  first = false;
-                else
-                  name += ", ";
-                name += (*i)->name();
-                if( name.length() > maxlen )
-                {
-                  trunc = true;
-                  break;
-                }
-              }
-              if( trunc )
-                name = name.substr( 0, maxlen ) + "...";
-	      _newobj->setName( theAnatomist->makeObjectName( name ) );
-	    }
-	  theAnatomist->registerObject( _newobj );
-	  if( context() && context()->unserial && _id >= 0 )
-	    context()->unserial->registerPointer( _newobj, _id, "AObject" );
-
-	  // send event
-	  Object	ex( (GenericObject *) 
-			    new ValueObject<Dictionary> );
-	  ex->setProperty( "_object", Object::value( _newobj ) );
-	  ex->setProperty( "method", Object::value( _method ) );
-	  ex->setProperty( "type", 
-                           Object::value
-                           ( AObject::objectTypeName( _newobj->type() ) ) );
-	  // should we output the children ?
-	  // well, yes, just to test!
-	  ex->setProperty( "_children", Object::value( _obj ) );
-	  OutputEvent	ev( "FusionObjects", ex );
-	  ev.send();
-	}
+      // send event
+      Object	ex( (GenericObject *)
+                        new ValueObject<Dictionary> );
+      ex->setProperty( "_object", Object::value( _newobj ) );
+      ex->setProperty( "method", Object::value( _method ) );
+      ex->setProperty( "type",
+                        Object::value
+                        ( AObject::objectTypeName( _newobj->type() ) ) );
+      // should we output the children ?
+      // well, yes, just to test!
+      ex->setProperty( "_children", Object::value( _obj ) );
+      OutputEvent	ev( "FusionObjects", ex );
+      ev.send();
     }
+  }
   else
-    {
-      cerr << "No fusion method for objects ( ";
+  {
+    cerr << "No fusion method for objects ( ";
 
-      vector<AObject *>::const_iterator	io, fo=_obj.end();
+    vector<AObject *>::const_iterator	io, fo=_obj.end();
 
-      for( io=_obj.begin(); io!=fo; ++io )
-	cerr << (*io)->name() << " ";
-      cerr << ")\n";
-    }
+    for( io=_obj.begin(); io!=fo; ++io )
+      cerr << (*io)->name() << " ";
+    cerr << ")\n";
+  }
 }
 
 
@@ -179,15 +177,15 @@ Command* FusionObjectsCommand::read( const Tree & com,
 
   obj.reserve( ids.size() );
   for( i=0, n=ids.size(); i<n; ++i )
+  {
+    ptr = context->unserial->pointer( ids[i], "AObject" );
+    if( !ptr )
     {
-      ptr = context->unserial->pointer( ids[i], "AObject" );
-      if( !ptr )
-	{
-	  cerr << "object id " << ids[i] << " not found\n";
-	  return( 0 );
-	}
-      obj.push_back( (AObject *) ptr );
+      cerr << "object id " << ids[i] << " not found\n";
+      return( 0 );
     }
+    obj.push_back( (AObject *) ptr );
+  }
 
   return( new FusionObjectsCommand( obj, method, rid, (bool) ask, context ) );
 }
