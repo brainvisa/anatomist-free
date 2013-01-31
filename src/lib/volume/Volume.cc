@@ -1219,15 +1219,16 @@ void VolumeScalarTraits<T>::adjustPalette()
   for( i=0; i<256; ++i )
     histo[ i ] = 0;
 
+  double factor = 255. / (double) ( maxi - mini );
+
   for( iv=volume->volume()->begin(); iv!=fv; ++iv )
     {
-      ++histo[ (unsigned) ( (double) ( (double) (*iv) - mini ) * (double) 255 
-                            / (double) ( maxi - mini ) ) ];
+      ++histo[ (unsigned) ( ( (*iv) - mini ) * factor ) ];
       if( nval < maxval )
-        {
-          vals.insert( *iv );
-          nval = vals.size();
-        }
+      {
+        vals.insert( *iv );
+        nval = vals.size();
+      }
     }
 
   //	cummulated histogram
@@ -1270,19 +1271,29 @@ void VolumeScalarTraits<T>::setExtrema()
   mini = vol( 0, 0, 0, 0 );
   maxi = vol( 0, 0, 0, 0 );
 
-  ForEach4d( vol, x, y, z, t )
+  if( numeric_limits<T>::has_infinity )
+    ForEach4d( vol, x, y, z, t )
+      {
+        val = vol( x, y, z, t );
+        if( isnan( val ) )
+          {
+            vol( x, y, z, t ) = 0; // WARNING can't work on MMap/RO volumes !
+            val = 0;
+            if( x == 0 && y == 0 && z == 0 && t == 0 )
+              {
+                mini = 0;
+                maxi = 0;
+              }
+          }
+        if( val < mini )
+          mini = val;
+        if( val > maxi )
+          maxi = val;
+      }
+  else // no NaN, save the test time
+    ForEach4d( vol, x, y, z, t )
     {
       val = vol( x, y, z, t );
-      if( isnan( val ) )
-        {
-          vol( x, y, z, t ) = 0; // WARNING can't work on MMap/RO volumes !
-          val = 0;
-          if( x == 0 && y == 0 && z == 0 && t == 0 )
-            {
-              mini = 0;
-              maxi = 0;
-            }
-        }
       if( val < mini )
         mini = val;
       if( val > maxi )
