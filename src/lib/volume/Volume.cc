@@ -1273,23 +1273,23 @@ void VolumeScalarTraits<T>::setExtrema()
 
   if( numeric_limits<T>::has_infinity )
     ForEach4d( vol, x, y, z, t )
-      {
-        val = vol( x, y, z, t );
-        if( isnan( val ) )
-          {
-            vol( x, y, z, t ) = 0; // WARNING can't work on MMap/RO volumes !
-            val = 0;
-            if( x == 0 && y == 0 && z == 0 && t == 0 )
-              {
-                mini = 0;
-                maxi = 0;
-              }
-          }
-        if( val < mini )
-          mini = val;
-        if( val > maxi )
-          maxi = val;
-      }
+    {
+      val = vol( x, y, z, t );
+      if( isnan( val ) )
+        {
+          vol( x, y, z, t ) = 0; // WARNING can't work on MMap/RO volumes !
+          val = 0;
+          if( x == 0 && y == 0 && z == 0 && t == 0 )
+            {
+              mini = 0;
+              maxi = 0;
+            }
+        }
+      if( val < mini )
+        mini = val;
+      if( val > maxi )
+        maxi = val;
+    }
   else // no NaN, save the test time
     ForEach4d( vol, x, y, z, t )
     {
