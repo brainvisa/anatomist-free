@@ -32,43 +32,51 @@
  */
 
 
-#ifndef ANATOMIST_ERPIO_ERPR_H
-#define ANATOMIST_ERPIO_ERPR_H
-
+#ifndef ANA_OBJECT_LOADEVENT_H
+#define ANA_OBJECT_LOADEVENT_H
 
 #include <anatomist/object/oReader.h>
-
+#include <cartobase/object/object.h>
+#include <qevent.h>
 
 namespace anatomist
 {
 
-  class AObject;
-  class ATexture;
-
-
-  ///	.erp format reader
-  class ErpReader
+  class AObjectLoadEvent : public QEvent
   {
   public:
-    ErpReader( const std::string & filename );
-    ~ErpReader() {}
+    static Type eventType();
 
-    static AObject* readErp( const std::string & filename,
-                             ObjectReader::PostRegisterList &,
-                             carto::Object options );
-
-    ErpReader & operator >> ( ATexture & tex );
+    AObjectLoadEvent( AObject* newobject,
+                      const ObjectReader::PostRegisterList & subObjects,
+                      carto::Object options
+                    );
+    virtual ~AObjectLoadEvent();
+    AObject* newObject();
+    const ObjectReader::PostRegisterList & subObjects();
+    carto::Object loadOptions();
 
   private:
-    ErpReader() {}
+    AObject* _object;
+    ObjectReader::PostRegisterList _subObjects;
+    carto::Object _options;
+  };
 
-    static bool registerLoader();
-    static bool initialized;
 
-    std::string	_filename;
+  class ObjectReaderNotifier : public QObject
+  {
+    Q_OBJECT
+
+  public:
+    ObjectReaderNotifier( QObject* parent=0 );
+    virtual ~ObjectReaderNotifier();
+    virtual bool event( QEvent *e );
+    static ObjectReaderNotifier* notifier();
+  signals:
+    void objectLoaded( AObject* obj,
+                       const ObjectReader::PostRegisterList & subobjects );
   };
 
 }
-
 
 #endif

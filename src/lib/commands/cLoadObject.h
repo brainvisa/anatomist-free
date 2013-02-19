@@ -40,7 +40,7 @@
 
 #include <anatomist/processor/Command.h>
 #include <anatomist/processor/context.h>
-#include <cartobase/object/object.h>
+#include <anatomist/object/oReader.h>
 
 
 namespace anatomist
@@ -54,23 +54,33 @@ namespace anatomist
   /**	Command to load an object from a file
    */
 
-  class LoadObjectCommand : public WaitCommand, 
-			    public SerializingCommand
+  class LoadObjectCommand : public QObject,
+                            public WaitCommand,
+                            public SerializingCommand
   {
+    Q_OBJECT
+
   public:
     LoadObjectCommand( const std::string & filename, int id = -1, 
-		       const std::string & objname = "", bool ascursor = false,
-		       carto::Object options = carto::none(), 
-                       CommandContext* context 
-		       = &CommandContext::defaultContext() );
+                       const std::string & objname = "", bool ascursor = false,
+                       carto::Object options = carto::none(),
+                       CommandContext* context
+                       = &CommandContext::defaultContext() );
     virtual ~LoadObjectCommand();
 
     virtual std::string name() const { return( "LoadObject" ); }
     virtual void write( Tree & com, Serializer *ser ) const;
     AObject * loadedObject() { return _obj ; }
-    
+
   protected:
     virtual void doit();
+
+  signals:
+    void objectLoaded( anatomist::AObject* );
+
+  protected slots:
+    void objectLoadDone( AObject*, const ObjectReader::PostRegisterList & );
+    void doLoad();
 
   private:
     friend class StdModule;

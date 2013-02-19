@@ -208,11 +208,13 @@ int AObject::CanBeDestroyed()
 void AObject::setName( const string & n )
 {
   if( _name == n ) return;
+  theAnatomist->lockObjects( true );
   if( !_name.empty() )
     theAnatomist->unregisterObjectName( _name );
   _name = n;
 
   theAnatomist->registerObjectName( _name, this );
+  theAnatomist->lockObjects( false );
 }
 
 
@@ -461,7 +463,8 @@ AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol )
 
 AObject* AObject::load( const string & filename )
 {
-  return( ObjectReader::reader()->load( filename ) );
+  ObjectReader::PostRegisterList subobjects;
+  return( ObjectReader::reader()->load( filename, subobjects ) );
 }
 
 

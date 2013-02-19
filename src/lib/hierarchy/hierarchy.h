@@ -57,7 +57,8 @@ namespace anatomist
 
     carto::rc_ptr<Tree> tree() { return( _tree ); };
 
-    static AObject* loadHierarchy( const std::string & filename, 
+    static AObject* loadHierarchy( const std::string & filename,
+                                   std::vector<std::pair<AObject *, bool> > &,
                                    carto::Object options );
 
     ///	not a 2D object

@@ -41,16 +41,37 @@
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/context.h>
 #include <anatomist/processor/event.h>
-#include <anatomist/object/Object.h>
+#include <anatomist/object/oReader.h>
 #include <anatomist/window3D/cursor.h>
+#include <anatomist/object/loadevent.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
+#include <cartobase/thread/thread.h>
+#include <qthread.h>
 
 
 using namespace anatomist;
 using namespace carto;
 using namespace std;
+
+class LoadObjectCommandThread : public Thread
+{
+public:
+  LoadObjectCommandThread( LoadObjectCommand *cmd, const std::string & fn, carto::Object op ) : cmd( cmd ), _filename( fn ), _options( op )
+  {}
+  virtual ~LoadObjectCommandThread() {}
+
+protected:
+  virtual void doRun();
+
+private:
+  LoadObjectCommand *cmd;
+  std::string _filename;
+  carto::Object _options;
+
+};
+
 
 //-----------------------------------------------------------------------------
 
@@ -58,7 +79,8 @@ LoadObjectCommand::LoadObjectCommand( const string & filename, int id,
 				      const string & objname, bool ascursor, 
 				      Object options, 
                                       CommandContext* context ) 
-  : WaitCommand(), SerializingCommand( context ), _filename( filename ), 
+  : QObject(), WaitCommand(), SerializingCommand( context ),
+    _filename( filename ),
     _id( id ), _obj( 0 ), _objectname( objname ), _ascursor( ascursor ), 
     _options( options )
 {
@@ -92,34 +114,106 @@ void
 LoadObjectCommand::doit()
 {
   if( _ascursor )
-    {
-      _obj = AObject::load( _filename );
-      if( _obj )
-        {
-          string	name = _objectname;
-          if( name.empty() )
-            name = FileUtil::basename( _filename );
-          Cursor::addCursor( name, _obj );
-        }
-    }
+  {
+    // could also use the async mode, but is it worth it ?
+    _obj = AObject::load( _filename );
+    if( _obj )
+      {
+        string	name = _objectname;
+        if( name.empty() )
+          name = FileUtil::basename( _filename );
+        Cursor::addCursor( name, _obj );
+      }
+  }
   else
+  {
+    bool async = false;
+    if( _options )
+    {
+      try
+      {
+        Object x = _options->getProperty( "asynchronous" );
+        if( x && (bool) x->getScalar() )
+          async = true;
+      }
+      catch( ... )
+      {
+      }
+    }
+
+    QObject::connect( ObjectReaderNotifier::notifier(),
+      SIGNAL( objectLoaded( AObject*,
+                            const ObjectReader::PostRegisterList & ) ),
+      this, SLOT( objectLoadDone( AObject*,
+                                  const ObjectReader::PostRegisterList & ) ) );
+
+    if( async )
+    {
+      // asynchronous read: use a thread.
+      LoadObjectCommandThread *thread = new LoadObjectCommandThread( this,
+        _filename, _options );
+      thread->setSuicideSafe( true );
+      thread->launch();
+      // ObjectReader will emit the signal when done.
+    }
+    else
     {
       _obj = theAnatomist->loadObject( _filename, _objectname, _options );
       if( _obj )
-        {
-          if( context() && context()->unserial )
-            context()->unserial->registerPointer( _obj, _id, "AObject" );
-          // send event
-          Object	ex = Object::value( Dictionary() );
-          ex->setProperty( "_object", Object::value( _obj ) );
-          ex->setProperty( "filename", Object::value( _filename ) );
-          ex->setProperty( "type", 
-                           Object::value
-                           ( AObject::objectTypeName( _obj->type() ) ) );
-          OutputEvent	ev( "LoadObject", ex );
-          ev.send();
-        }
+      {
+        ObjectReader::PostRegisterList prl;
+        objectLoadDone( _obj, prl );
+      }
     }
+  }
+}
+
+
+void LoadObjectCommand::doLoad()
+{
+}
+
+
+void LoadObjectCommandThread::doRun()
+{
+  ObjectReader::PostRegisterList subObjectsToRegister;
+  AObject *object = ObjectReader::reader()->load( _filename,
+                                                  subObjectsToRegister, true,
+                                                  _options );
+//   if( !_objectname.empty() )
+//     object->setName( theAnatomist->makeObjectName( _objectname ) );
+  delete this; // suicide
+}
+
+
+void LoadObjectCommand::objectLoadDone( AObject* obj,
+                                      const ObjectReader::PostRegisterList & )
+{
+  /* slot called after loading is done in ObjectReader, either from a
+     different thread, or in the main thread */
+  // cleanup: we must disconnect the slot connected from doit()
+  QObject::disconnect( ObjectReaderNotifier::notifier(),
+    SIGNAL( objectLoaded( AObject*,
+                          const ObjectReader::PostRegisterList & ) ),
+    this, SLOT( objectLoadDone( AObject*,
+                              const ObjectReader::PostRegisterList & ) ) );
+  _obj = obj;
+  if( obj )
+  {
+    if( context() && context()->unserial )
+      context()->unserial->registerPointer( _obj, _id, "AObject" );
+    // send event
+    Object        ex = Object::value( Dictionary() );
+    ex->setProperty( "_object", Object::value( _obj ) );
+    ex->setProperty( "filename", Object::value( _filename ) );
+    ex->setProperty( "type",
+                      Object::value
+                      ( AObject::objectTypeName( _obj->type() ) ) );
+    OutputEvent   ev( "LoadObject", ex );
+    ev.send();
+  }
+  // emit even if _obj is null to notify the load failure.
+  emit objectLoaded( _obj );
 }
 
 

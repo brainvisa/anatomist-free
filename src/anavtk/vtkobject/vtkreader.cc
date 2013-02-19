@@ -96,7 +96,9 @@ vtkAReader::~vtkAReader()
 }
 
 
-AObject* vtkAReader::readVTK (const std::string& filename, Object options)
+AObject* vtkAReader::readVTK (const std::string& filename,
+                              ObjectReader::PostRegisterList &,
+                              Object options)
 {
 
 
@@ -179,7 +181,9 @@ AObject* vtkAReader::readVTK (const std::string& filename, Object options)
 
 
 
-AObject* vtkAReader::readVTKSequence (const std::string& filename, Object options)
+AObject* vtkAReader::readVTKSequence (const std::string& filename,
+                                      ObjectReader::PostRegisterList &,
+                                      Object options)
 {
 #ifndef ANATOMIST_NO_VTKINRIA3D
   std::ifstream buffer (filename.c_str());

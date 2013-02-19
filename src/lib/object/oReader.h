@@ -35,7 +35,8 @@
 #ifndef ANA_OBJECT_OREADER_H
 #define ANA_OBJECT_OREADER_H
 
-#include <cartobase/object/object.h>
+#include <anatomist/object/Object.h>
+#include <qobject.h>
 
 class AimsFinder;
 
@@ -55,13 +56,17 @@ namespace anatomist
   class ObjectReader
   {
   public:
+    typedef std::vector<std::pair<AObject*,bool> > PostRegisterList;
     typedef AObject* (*LoadFunction)( const std::string & filename, 
+                                      PostRegisterList & subObjectsToRegister,
                                       carto::Object options );
+
     class LoadFunctionClass
     {
     public:
       virtual ~LoadFunctionClass();
       virtual AObject* load( const std::string & filename,
+                             PostRegisterList & subObjectsToRegister,
                              carto::Object options ) = 0;
     };
 
@@ -82,13 +87,16 @@ namespace anatomist
                                 LoadFunctionClass *newFunc );
 
     virtual AObject* load( const std::string & filename, 
-			   bool notifyFail = true, 
+                           PostRegisterList & subObjectsToRegister,
+                           bool notifyFail = true,
                            carto::Object options = carto::none() ) const;
     virtual bool reload( AObject* object, bool notifyFail = true, 
                          bool onlyoutdated = false ) const;
-    virtual AObject* readAims( const std::string & filename, 
+    virtual AObject* readAims( const std::string & filename,
+                               PostRegisterList & subObjectsToRegister,
                                carto::Object options = carto::none() ) const;
-    static AObject* readGraph( const std::string & filename, 
+    static AObject* readGraph( const std::string & filename,
+                               PostRegisterList & subObjectsToRegister,
                                carto::Object options = carto::none() );
     static std::string allSupportedFileExtensions();
     static std::string anatomistSupportedFileExtensions();
@@ -102,6 +110,7 @@ namespace anatomist
 
   protected:
     AObject* load_internal( const std::string & filename,
+                            PostRegisterList & subObjectsToRegister,
                             carto::Object options ) const;
 
   private:

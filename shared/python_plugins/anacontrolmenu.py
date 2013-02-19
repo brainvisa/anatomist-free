@@ -306,7 +306,7 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
     a.theProcessor().allowExecWhileIdle( False )
     return None
   run = staticmethod( run )
-  def load( self, filename, options ):
+  def load( self, filename, subobjects, options ):
     print 'warning, running python script in an arbitrary thread'
     res = self.run( filename, options )
     return res

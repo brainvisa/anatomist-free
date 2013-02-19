@@ -129,6 +129,7 @@ HEADERS = \
 	graph/Graph.h \
 	object/actions.h \
 	object/clippedobject.h \
+        object/loadevent.h \
 	object/objectmenuCallbacks.h \
         object/objectmenu.h \
 	object/objectparamselect.h \
@@ -361,6 +362,7 @@ SOURCES = \
 	graph/Graph.cc \
 	object/actions.cc \
 	object/clippedobject.cc \
+        object/loadevent.cc \
         object/objectmenu.cc \
 	object/objectparamselect.cc \
 	object/optionMatcher.cc \

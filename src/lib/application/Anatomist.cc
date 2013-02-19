@@ -85,6 +85,7 @@
 #include <anatomist/config/version.h>
 #include <cartobase/config/paths.h>
 #include <cartobase/smart/rcptrtrick.h>
+#include <cartobase/thread/mutex.h>
 #include <string.h>
 #include <algorithm>
 #include <stdio.h>
@@ -231,6 +232,7 @@ struct Anatomist::Anatomist_privateData
   Point3df		lastpos;
   mutable Referential	*lastref;
   bool                  destroying;
+  Mutex                 objectsLock;
   // This QWidget is the parent of all windows in Anatomist. 
   // This enable to close all windows of Anatomist even when Anatomist is embedded in another Qt application, like Axon for example.
   QWidget* qWidgetAncestor;
@@ -244,7 +246,8 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
   : historyW( new CommandWriter ), paletteList( 0 ),
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 0, 0, 0 ),
-    lastref( 0 ), destroying( false ), qWidgetAncestor( new QWidget)
+    lastref( 0 ), destroying( false ), qWidgetAncestor( new QWidget),
+    objectsLock( Mutex::Recursive )
 {
 }
 
@@ -841,9 +844,11 @@ AObject* Anatomist::loadObject( const string & filename,
     name = objname;
 
   AObject* object = 0;
+  ObjectReader::PostRegisterList subObjectsToRegister;
   try
   {
-    object = ObjectReader::reader()->load( filename, true, options );
+    object = ObjectReader::reader()->load( filename, subObjectsToRegister,
+                                           true, options );
   }
   catch( assert_error& e )
   {
@@ -867,6 +872,11 @@ AObject* Anatomist::loadObject( const string & filename,
       }
     }
     registerObject( object, visible );
+    // register sub-objects also created (if any)
+    ObjectReader::PostRegisterList::const_iterator ipr,
+      epr = subObjectsToRegister.end();
+    for( ipr=subObjectsToRegister.begin(); ipr!=epr; ++ipr )
+      registerObject( ipr->first, ipr->second );
   }
 
   return( object );
@@ -896,7 +906,7 @@ int Anatomist::destroyObject( AObject *obj )
       {
 	return 0;
       }
-      
+
 #ifdef ANA_DEBUG
       cout << "done destroyObject: " << obj << endl;
 #endif
@@ -1408,5 +1418,14 @@ namespace anatomist
 
   }
 
+}
+
+
+void Anatomist::lockObjects( bool locked )
+{
+  if( locked )
+    _privData->objectsLock.lock();
+  else
+    _privData->objectsLock.unlock();
 }
 

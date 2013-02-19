@@ -167,7 +167,9 @@ ErpReader & ErpReader::operator >> ( ATexture & tex )
 }
 
 
-AObject* ErpReader::readErp( const string & filename, Object options )
+AObject* ErpReader::readErp( const string & filename,
+                             ObjectReader::PostRegisterList &,
+                             Object options )
 {
   if( !options.isNull() )
     try

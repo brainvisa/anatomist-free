@@ -197,6 +197,8 @@ namespace anatomist
     bool destroying() const;
     /// setup/update extensions list for readable files
     void updateFileDialogObjectsFilter();
+    /// lock / unlock the objects list mutex, used in threaded load operations
+    void lockObjects( bool locked=true );
 
   private:
     friend class anatomist::internal::AnatomistPrivate;

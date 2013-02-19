@@ -177,7 +177,9 @@ Hierarchy::~Hierarchy()
 }
 
 
-AObject* Hierarchy::loadHierarchy( const string & filename, Object options )
+AObject* Hierarchy::loadHierarchy( const string & filename,
+                                   ObjectReader::PostRegisterList &,
+                                   Object options )
 {
   if( !options.isNull() )
     try

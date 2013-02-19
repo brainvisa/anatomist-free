@@ -731,17 +731,20 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   set<AObject *>	loaded;
 
   for ( QStringList::Iterator it = filenames.begin(); it != filenames.end(); 
-	++it )
+        ++it )
     {
       QString	& s = *it;
       if( s.findRev( ".ana" ) == int( s.length() ) - 4 )
-	scenars.push_back( s );	// script file
+        scenars.push_back( s );	// script file
       else
-	{
-	  LoadObjectCommand *command = new LoadObjectCommand( (*it).utf8().data() );
-	  theProcessor->execute( command );
-          loaded.insert( command->loadedObject() );
-	}
+      {
+        Object options = Object::value( Dictionary() );
+        // options->setProperty( "asynchronous", true );
+        LoadObjectCommand *command = new LoadObjectCommand(
+          (*it).utf8().data(), -1, "", false, options );
+        theProcessor->execute( command );
+        loaded.insert( command->loadedObject() );
+      }
     }
 
   // set default ref on loaded objects

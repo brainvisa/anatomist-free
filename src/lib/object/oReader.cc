@@ -51,12 +51,14 @@
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/color/paletteList.h>
 #include <anatomist/object/actions.h>
+#include <anatomist/object/loadevent.h>
 #include <aims/data/pheader.h>
 #include <aims/utility/converter_texture.h>
 #include <aims/def/path.h>
 #include <aims/io/fileFormat.h>
 #include <aims/io/readerasobject.h>
 #include <cartobase/stream/fileutil.h>
+#include <qapplication.h>
 #include <time.h>
 #include <zlib.h>
 #include <unistd.h>
@@ -232,6 +234,7 @@ namespace
 
     AObject	*object;
     Object	options;
+    ObjectReader::PostRegisterList subObjectsToRegister;
   };
 
 
@@ -441,11 +444,12 @@ namespace
                 at->setName( theAnatomist->makeObjectName( tname ) );
                 if( toapply )
                   {
-                    theAnatomist->registerObject( at, false );
+                    ap.subObjectsToRegister.push_back( make_pair( at,
+                                                                  false ) );
                     atex.push_back( at );
                   }
                 else
-                  theAnatomist->registerObject( at, true );
+                  ap.subObjectsToRegister.push_back( make_pair( at, true ) );
               }
             }
           AObject		*tex = 0;
@@ -505,7 +509,7 @@ namespace
               tex = fm->fusion( atex );
               tex->setName( theAnatomist->makeObjectName
                             ( string( "mtexture_" ) + name ) );
-              theAnatomist->registerObject( tex, false );
+              ap.subObjectsToRegister.push_back( make_pair( tex, false ) );
             }
           else if( n > 0 )
             tex = atex[0];
@@ -518,9 +522,7 @@ namespace
             AObject	*tso = fm->fusion( ts );
             ao->setName( theAnatomist->makeObjectName( name + "_mesh" ) );
             ao->setHeaderOptions();
-            theAnatomist->registerObject( ao, false );
-            /* tso->setName( theAnatomist->makeObjectName
-              ( string( "texsurface_" ) + name ) ); */
+            ap.subObjectsToRegister.push_back( make_pair( ao, false ) );
             surf->header().removeProperty( "textures" );
             // copy material from mesh to texsurf.
             tso->SetMaterial( ao->GetMaterial() );
@@ -952,6 +954,7 @@ namespace
 }
 
 AObject* ObjectReader::load_internal( const string & filename, 
+                                      PostRegisterList & subObjectsToRegister,
                                       Object options ) const
 {
   AObject       *object = 0;
@@ -964,7 +967,7 @@ AObject* ObjectReader::load_internal( const string & filename,
     _storagetype::const_iterator im, em = il.second;
     for( im = il.first; im!=em; ++im )
     {
-      object = im->second->load( filename, options );
+      object = im->second->load( filename, subObjectsToRegister, options );
       if( object )
         return object;
     }
@@ -972,16 +975,21 @@ AObject* ObjectReader::load_internal( const string & filename,
 
   if( !object )
   //  extension not recognized : let's try the Aims finder
-    object = ObjectReader::readAims( filename, options );
+    object = ObjectReader::readAims( filename, subObjectsToRegister, options );
 
   return object;
 }
 
 
-AObject* ObjectReader::load( const string & filename, bool notifyFail, 
+AObject* ObjectReader::load( const string & filename,
+                             PostRegisterList & subObjectsToRegister,
+                             bool notifyFail,
                              Object options ) const
 {
-  AObject       *object = load_internal( filename, options );
+//   cout << "ObjectReader::load\n";
+  AObject       *object = load_internal( filename, subObjectsToRegister,
+                                         options );
+//   cout << "load_internal done\n";
   if( !object )
   {
     //	Tentative de lecture des .Z et .gz
@@ -991,8 +999,22 @@ AObject* ObjectReader::load( const string & filename, bool notifyFail,
 
     if( checkCompressedFiles( filename, newFilename, tempFiles ) )
     {
-      object = load_internal( newFilename, options );
+      object = load_internal( newFilename, subObjectsToRegister, options );
       delFiles( tempFiles );
+    }
+  }
+
+  bool async = false;
+  if( options )
+  {
+    try
+    {
+      Object x = options->getProperty( "asynchronous" );
+      if( x && (bool) x->getScalar() )
+        async = true;
+    }
+    catch( ... )
+    {
     }
   }
 
@@ -1023,7 +1045,10 @@ AObject* ObjectReader::load( const string & filename, bool notifyFail,
       ObjectActions::setAutomaticReferential( so );
     }
     object->setLoadDate( time( 0 ) );
-    object->notifyObservers( (void *) this );
+
+    if( !async )
+      // sync mode: immediately update
+      object->notifyObservers( (void *) this );
   }
   else
   {
@@ -1031,7 +1056,17 @@ AObject* ObjectReader::load( const string & filename, bool notifyFail,
     if( notifyFail )
     {
         // warn message box...
+        // in the MAIN thread...
     }
+  }
+
+  if( async )
+  {
+    // async mode: post an event
+    AObjectLoadEvent* ev = new AObjectLoadEvent( object,
+                                                  subObjectsToRegister,
+                                                  options );
+    qApp->postEvent( ObjectReaderNotifier::notifier(), ev );
   }
 
   return object;
@@ -1102,15 +1137,18 @@ bool ObjectReader::reload( AObject* object, bool notifyFail,
 }
 
 
-AObject* ObjectReader::readAims( const string & file, Object options ) const
+AObject* ObjectReader::readAims( const string & file,
+                                 PostRegisterList & subObjectsToRegister,
+                                 Object options ) const
 {
   AimsLoader		proc( options );
 
   try
     {
       if( !proc.execute( file ) )
-	return( 0 );
-      return( proc.object );
+        return 0;
+      subObjectsToRegister = proc.subObjectsToRegister;
+      return proc.object;
     }
   catch( exception & e )
     {
@@ -1120,7 +1158,9 @@ AObject* ObjectReader::readAims( const string & file, Object options ) const
 }
 
 
-AObject* ObjectReader::readGraph( const string & filename, Object /*options*/ )
+AObject* ObjectReader::readGraph( const string & filename,
+                                  PostRegisterList & subObjectsToRegister,
+                                  Object /*options*/ )
 {
   AObject	*graph = AGraph::LoadGraph( filename.c_str() );
   return graph;
@@ -1144,9 +1184,12 @@ namespace
     {
     }
 
-    virtual AObject * load( const string & filename, Object options )
+    virtual AObject * load( const string & filename,
+                            ObjectReader::PostRegisterList &
+                            subObjectsToRegister,
+                            Object options )
     {
-      return func( filename, options );
+      return func( filename, subObjectsToRegister, options );
     }
 
     private:
@@ -1330,4 +1373,5 @@ string ObjectReader::anatomistSupportedFileExtensions()
   formatsString( exts, sexts );
   return sexts;
 }
+
 
