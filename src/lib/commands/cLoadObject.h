@@ -76,10 +76,11 @@ namespace anatomist
     virtual void doit();
 
   signals:
-    void objectLoaded( anatomist::AObject* );
+    void objectLoaded( anatomist::AObject*, const std::string & );
 
   protected slots:
-    void objectLoadDone( AObject*, const ObjectReader::PostRegisterList & );
+    void objectLoadDone( AObject*, const ObjectReader::PostRegisterList &,
+      void* );
     void doLoad();
 
   private:

@@ -984,7 +984,7 @@ AObject* ObjectReader::load_internal( const string & filename,
 AObject* ObjectReader::load( const string & filename,
                              PostRegisterList & subObjectsToRegister,
                              bool notifyFail,
-                             Object options ) const
+                             Object options, void* clientid ) const
 {
 //   cout << "ObjectReader::load\n";
   AObject       *object = load_internal( filename, subObjectsToRegister,
@@ -1064,8 +1064,8 @@ AObject* ObjectReader::load( const string & filename,
   {
     // async mode: post an event
     AObjectLoadEvent* ev = new AObjectLoadEvent( object,
-                                                  subObjectsToRegister,
-                                                  options );
+                                                 subObjectsToRegister,
+                                                 options, clientid );
     qApp->postEvent( ObjectReaderNotifier::notifier(), ev );
   }
 

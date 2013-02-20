@@ -143,13 +143,16 @@ LoadObjectCommand::doit()
 
     QObject::connect( ObjectReaderNotifier::notifier(),
       SIGNAL( objectLoaded( AObject*,
-                            const ObjectReader::PostRegisterList & ) ),
+                            const ObjectReader::PostRegisterList & ,
+                            void * ) ),
       this, SLOT( objectLoadDone( AObject*,
-                                  const ObjectReader::PostRegisterList & ) ) );
+                                  const ObjectReader::PostRegisterList &,
+                                  void * ) ) );
 
     if( async )
     {
       // asynchronous read: use a thread.
+//       _options->setProperty( "_clientid", (long) (void *) this );
       LoadObjectCommandThread *thread = new LoadObjectCommandThread( this,
         _filename, _options );
       thread->setSuicideSafe( true );
@@ -162,7 +165,7 @@ LoadObjectCommand::doit()
       if( _obj )
       {
         ObjectReader::PostRegisterList prl;
-        objectLoadDone( _obj, prl );
+        objectLoadDone( _obj, prl, this );
       }
     }
   }
@@ -179,7 +182,7 @@ void LoadObjectCommandThread::doRun()
   ObjectReader::PostRegisterList subObjectsToRegister;
   AObject *object = ObjectReader::reader()->load( _filename,
                                                   subObjectsToRegister, true,
-                                                  _options );
+                                                  _options, cmd );
 //   if( !_objectname.empty() )
 //     object->setName( theAnatomist->makeObjectName( _objectname ) );
   delete this; // suicide
@@ -187,16 +190,19 @@ void LoadObjectCommandThread::doRun()
 
 
 void LoadObjectCommand::objectLoadDone( AObject* obj,
-                                      const ObjectReader::PostRegisterList & )
+  const ObjectReader::PostRegisterList &, void* clientid )
 {
   /* slot called after loading is done in ObjectReader, either from a
      different thread, or in the main thread */
+  // check if we are the right listener
+  if( clientid != this )
+    return; // it's not for me.
   // cleanup: we must disconnect the slot connected from doit()
   QObject::disconnect( ObjectReaderNotifier::notifier(),
     SIGNAL( objectLoaded( AObject*,
-                          const ObjectReader::PostRegisterList & ) ),
+                          const ObjectReader::PostRegisterList &, void* ) ),
     this, SLOT( objectLoadDone( AObject*,
-                              const ObjectReader::PostRegisterList & ) ) );
+                              const ObjectReader::PostRegisterList &, void* ) ) );
   _obj = obj;
   if( obj )
   {
@@ -213,7 +219,7 @@ void LoadObjectCommand::objectLoadDone( AObject* obj,
     ev.send();
   }
   // emit even if _obj is null to notify the load failure.
-  emit objectLoaded( _obj );
+  emit objectLoaded( obj, _filename );
 }
 
 

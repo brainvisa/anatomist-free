@@ -89,7 +89,8 @@ namespace anatomist
     virtual AObject* load( const std::string & filename, 
                            PostRegisterList & subObjectsToRegister,
                            bool notifyFail = true,
-                           carto::Object options = carto::none() ) const;
+                           carto::Object options = carto::none(),
+                           void* clientid=0 ) const;
     virtual bool reload( AObject* object, bool notifyFail = true, 
                          bool onlyoutdated = false ) const;
     virtual AObject* readAims( const std::string & filename,
