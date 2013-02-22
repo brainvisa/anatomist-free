@@ -2385,7 +2385,7 @@ Geometry AWindow3D::setupWindowGeometry(
   if (dimMax[0] - dimMin[0] >= dimmax)
   {
     cerr << "warning: window geometry too small (dimx : " << dimMax[0]
-        - dimMin[0] << ")\n";
+        - dimMin[0] << ", max: " << dimmax << ")\n";
     float scl = ((float) dimMax[0] - dimMin[0] + 1) / dimmax;
     size[0] *= scl;
     dimMin[0] = (short) (dimMin[0] / scl);
@@ -2394,7 +2394,7 @@ Geometry AWindow3D::setupWindowGeometry(
   if (dimMax[1] - dimMin[1] > dimmax)
   {
     cerr << "warning: window geometry too small (dimy : " << dimMax[1]
-        - dimMin[1] << ")\n";
+        - dimMin[1] << ", max: " << dimmax << ")\n";
     float scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
     size[1] *= scl;
     dimMin[1] = (short) (dimMin[1] / scl);
@@ -2403,7 +2403,7 @@ Geometry AWindow3D::setupWindowGeometry(
   if (dimMax[2] - dimMin[2] > dimmax)
   {
     cerr << "warning: window geometry too small (dimz : " << dimMax[2]
-        - dimMin[2] << ")\n";
+        - dimMin[2] << ", max: " << dimmax << ")\n";
     float scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
     size[2] *= scl;
     dimMin[2] = (short) (dimMin[2] / scl);

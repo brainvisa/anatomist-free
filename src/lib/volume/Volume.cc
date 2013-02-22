@@ -445,7 +445,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   float		dx = _volume->dimX() - 1, dy = _volume->dimY() - 1, dz = _volume->dimZ() - 1;
   int		t = (int) time;
 
-  //cout << "wingeom : " << gs[0] << ", " << gs[1] << ", " << gs[2] << endl;
+  // cout << "wingeom : " << gs[0] << ", " << gs[1] << ", " << gs[2] << endl;
   Point3df	pf = Transformation::transform( p0, tra, /*gs,*/ vs );
   Point3df	incd 
     = Transformation::transform( p0 + inc * gs[0], tra, /*gs,*/ vs ) - pf;
@@ -464,7 +464,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   long		dzxi = dzi + 1;
   long		dzyxi = dzyi + 1;
   long		offset_xim
-    = (image.effectiveWidth - image.width) * image.depth / 32;
+    = (image.effectiveWidth - image.width) * ( image.depth / 32 );
 
   if( ppv )	// no interpolation
     {
@@ -672,20 +672,22 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
     + _volume->oVolume() * (int)time 
     + dslice * zz ;
   AimsRGBA     *ptrpix = (AimsRGBA *) ximage->data;
-  int	   offset_xim = (ximage->effectiveWidth - dx) * ximage->depth / 32;
+  int	   offset_xim = (ximage->effectiveWidth - dx) * ( ximage->depth / 32 );
   if( p0[0] < 0 )
-    ptrpix -= ( (int) p0[0] ) * ximage->depth / 32;
+    ptrpix -= ( (int) p0[0] ) * ( ximage->depth / 32 );
   else if( p0[0] > 0 )
     ptrori += (int) p0[0];
   if( p0[1] < 0 )
-    ptrpix -= ( (int) p0[1] ) * ximage->effectiveWidth * ximage->depth / 32;
+    ptrpix -= ( (int) p0[1] ) * ximage->effectiveWidth
+      * ( ximage->depth / 32 );
   else if( p0[1] > 0 )
     ptrori += ( (int) p0[1] ) * _volume->dimX();
 
   //	remove garbage at beginning of image
   AimsRGBA	*p = (AimsRGBA *) ximage->data;
   AimsRGBA	*pend = ( (AimsRGBA *) ximage->data ) 
-    + ximage->effectiveWidth * ximage->height * ximage->depth / 32;
+    + ( (long long) ximage->effectiveWidth ) * ximage->height
+    * ( ximage->depth / 32 );
   while( p < ptrpix )
     *p++ = empty;
 
@@ -757,23 +759,24 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
     ptrori = _volume->begin() + _volume->oFirstPoint() 
     + _volume->oVolume() * (int)time;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
-  int	   offset_xim = (-ximage->effectiveWidth - dx) * ximage->depth / 32;
-  ptrpix += ximage->effectiveWidth * ( dz - 1 ) * ximage->depth / 32;
-  int		off_line = dx * ximage->depth / 32;
+  int	   offset_xim = (-ximage->effectiveWidth - dx) * ( ximage->depth / 32 );
+  ptrpix += ximage->effectiveWidth * ( dz - 1 ) * ( ximage->depth / 32 );
+  int		off_line = dx * ( ximage->depth / 32 );
   if( p0[0] < 0 )
-    ptrpix -= ( (int) p0[0] ) * ximage->depth / 32;
+    ptrpix -= ( (int) p0[0] ) * ( ximage->depth / 32 );
   else if( p0[0] > 0 )
     ptrori += (int) p0[0];
   if( p0[2] > _volume->dimZ() - 1 )
-    ptrpix += ( (int) ( p0[2] - _volume->dimZ() + 1 ) ) * ximage->effectiveWidth 
-      * ximage->depth / 32;
+    ptrpix += ( (int) ( p0[2] - _volume->dimZ() + 1 ) )
+      * ximage->effectiveWidth * ( ximage->depth / 32 );
   else if( p0[2] < _volume->dimZ() - 1 )
       ptrori += ( (int) ( _volume->dimZ() - p0[2] - 1 ) ) * _volume->oSlice();
 
   //	remove garbage at beginning of image
-  AimsRGBA	*p = ptrpix + dx * ximage->depth / 32;
+  AimsRGBA	*p = ptrpix + dx * ( ximage->depth / 32 );
   AimsRGBA	*p2 = ( (AimsRGBA *) ximage->data ) 
-    + ximage->height * ximage->effectiveWidth * ximage->depth / 32;
+    + ( (long long) ximage->height ) * ximage->effectiveWidth
+    * ( ximage->depth / 32 );
   while( p < p2 )
     *p++ = empty;
 
@@ -840,20 +843,21 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
     ptrori = _volume->begin() + _volume->oFirstPoint() 
     + _volume->oVolume() * (int)time;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
-  int	   offset_xim = (ximage->effectiveWidth - dy) * ximage->depth / 32;
+  int	   offset_xim = (ximage->effectiveWidth - dy) * ( ximage->depth / 32 );
   if( p0[1] < 0 )
-    ptrpix -= ( (int) p0[1] ) * ximage->depth / 32;
+    ptrpix -= ( (int) p0[1] ) * ( ximage->depth / 32 );
   else if( p0[1] > 0 )
     ptrori += (int) p0[1] * _volume->oLine();
   if( p0[2] < 0 )
-    ptrpix -= ( (int) p0[2] ) * ximage->effectiveWidth * ximage->depth / 32;
+    ptrpix -= ( (int) p0[2] ) * ximage->effectiveWidth
+      * ( ximage->depth / 32 );
   else if( p0[2] > 0 )
     ptrori += ( (int) p0[2] ) * _volume->oSlice();
 
   //	remove garbage at beginning of image
   AimsRGBA	*p = (AimsRGBA *) ximage->data;
   AimsRGBA	*pend = ( (AimsRGBA *) ximage->data ) 
-    + ximage->effectiveWidth * ximage->height * ximage->depth / 32;
+    + ximage->effectiveWidth * ximage->height * ( ximage->depth / 32 );
   while( p < ptrpix )
     *p++ = empty;
 
@@ -874,7 +878,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 
   // clear garbage at end of image
   AimsRGBA	*end_image = ( (AimsRGBA *) ximage->data ) 
-    + ximage->effectiveWidth * ximage->height * ximage->depth / 32;
+    + ximage->effectiveWidth * ximage->height * ( ximage->depth / 32 );
   while( ptrpix < end_image )
     *ptrpix++ = empty;
 }

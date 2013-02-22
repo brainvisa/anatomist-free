@@ -374,7 +374,7 @@ bool Sliceable::glMakeTexImage( const ViewState & state,
   string		id = viewStateID( glGEOMETRY, state );
   SliceInfo		& si = d->slices[ id ];
   AImage		& xim = si.xim;
-  /* cout << "texture dim: " << xim.effectiveWidth << " x " 
+  /* cout << "texture dim: " << xim.effectiveWidth << " x "
        << xim.effectiveHeight << "; " << xim.width 
        << " x " << xim.height << ", id: " << id << endl; */
 

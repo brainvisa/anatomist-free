@@ -1089,8 +1089,8 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
       }
     }
   }
-  /* cout << "texture : " << dimx << " x " << dimy << ", dim: "
-     << dimtex << endl; */
+  cout << "texture : " << dimx << " x " << dimy << ", dim: "
+     << dimtex << endl;
   for(int n = 0; n<35; ++n )
 
   if( dimtex == 1 )
