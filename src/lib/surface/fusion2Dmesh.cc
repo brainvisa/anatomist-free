@@ -32,6 +32,8 @@
  */
 
 #include <anatomist/surface/fusion2Dmesh.h>
+#include <anatomist/reference/Transformation.h>
+#include <anatomist/application/Anatomist.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/resampling/quaternion.h>
 
@@ -112,13 +114,15 @@ void Fusion2DMesh::updateMergedSurface( const ViewState & state )
 	}
 
 	// Update the merged surface polygons
-	const Point4df plane = getPlane( state );
+	Point4df plane = getPlane( state );
+        if( plane.norm2() == 0 )
+          return;
 	AimsTimeSurface<2,Void> * dstPol = new AimsTimeSurface<2, Void>;
 	datatype::const_iterator io;
 	for( io = _data.begin(); io != _data.end(); ++io )
 	{
 		const AimsSurfaceTriangle * mesh = dynamic_cast<const ATriangulated *>( (*io).get() )->surface().get();
-		AimsSurfaceTriangle * cut = new AimsSurfaceTriangle();
+		AimsSurfaceTriangle * cut = new AimsSurfaceTriangle;
 		AimsTimeSurface<2,Void> * pol = new AimsTimeSurface<2, Void>;
 		const SliceViewState* st = state.sliceVS();
 
@@ -126,6 +130,8 @@ void Fusion2DMesh::updateMergedSurface( const ViewState & state )
 		aims::SurfaceManip::cutMesh( *mesh, plane, *cut, *pol );
 		// Merge the mesh with the others
 		aims::SurfaceManip::meshMerge( *dstPol, *pol );
+                delete pol;
+                delete cut;
 	}
 
 	_mergedSurface->setSurface( dstPol );
@@ -204,9 +210,25 @@ Point4df Fusion2DMesh::getPlane( const ViewState & state ) const
     }
 
     const aims::Quaternion & quat = *st->orientation;
-    const Point3df n = quat.apply( Point3df( 0, 0, 1 ) );
+    Point3df n = quat.apply( Point3df( 0, 0, 1 ) );
+    float d = -n.dot( st->position );
 
-    return Point4df( n[0], n[1], n[2], -n.dot( st->position ) );
+    // transform coordinates for plane if needed
+    const Referential *wref = st->winref;
+    const Referential *oref = getReferential();
+    if( wref && oref )
+    {
+      const Transformation *tr
+        = theAnatomist->getTransformation( wref, oref );
+      if( tr )
+      {
+        n = tr->transform( n ) - tr->transform( Point3df( 0. ) );
+        n.normalize();
+        d = - n.dot( tr->transform( st->position ) );
+      }
+    }
+
+    return Point4df( n[0], n[1], n[2], d );
 }
 
 //--------------------------------------------------------------
