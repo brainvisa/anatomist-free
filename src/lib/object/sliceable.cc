@@ -541,7 +541,7 @@ string Sliceable::viewStateID( glPart part,
 
   string		s;
   static const int	nf = sizeof(float);
-  static const int	ns4 = 4*sizeof(short);
+  static const int	ns4 = 4*sizeof(int);
 
   switch( part )
     {
@@ -617,7 +617,7 @@ bool Sliceable::glAllowedTexRGBInterpolation( unsigned ) const
 VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
                                            int tex ) const
 {
-  Point3d dims;
+  Point3dl dims;
   Point3df vs, dmin;
 
   if( svs && svs->wingeom )
@@ -636,8 +636,8 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
     Point4df dmm = glMin2D();
     Point4df	max2d = glMax2D() - dmm + Point4df( 1.F );
     vs = glVoxelSize();
-    dims = Point3d( (short) rint( max2d[0] ), (short) rint( max2d[1] ),
-                    (short) rint( max2d[2] ) );
+    dims = Point3dl( (int) rint( max2d[0] ), (int) rint( max2d[1] ),
+                    (int) rint( max2d[2] ) );
     dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
 
@@ -693,7 +693,7 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
     // don't copy wingeom since the volume has his own
   }
 
-  Point4dl vmin( int( 0 ) );
+  Point4dl vmin( 0 );
 
   if( vol.header().hasProperty( "transformations" ) )
   {

@@ -520,9 +520,9 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
   pos2 = Point3df( 1, 0, 0 ) * ( d->xmax - d->xmin ) 
     + Point3df( 0, 1, 0 ) * ( d->ymax - d->ymin );
   Point4dl	dmin( 0, 0, 0, 0 ), dmax( 0, 0, 0, (int) vol->MaxT() );
-  /*dmin[0] = (short) ::ceil( pos[0] / s[0] );
-  dmin[1] = (short) ::ceil( pos[1] / s[1] );
-  dmin[2] = (short) ::ceil( pos[2] / s[2] );*/
+  /*dmin[0] = (int) ::ceil( pos[0] / s[0] );
+  dmin[1] = (int) ::ceil( pos[1] / s[1] );
+  dmin[2] = (int) ::ceil( pos[2] / s[2] );*/
   dmax[0] = (int) rint( pos2[0] / s[0] ) + dmin[0];
   dmax[1] = (int) rint( pos2[1] / s[1] ) + dmin[1];
   dmax[2] = (int) rint( pos2[2] / s[2] ) + dmin[2];

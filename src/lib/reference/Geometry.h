@@ -50,7 +50,7 @@ namespace anatomist
   { 
   public:
     Geometry();
-    Geometry(Point3df size, Point4dl dimMin, Point4dl dimMax);
+    Geometry(Point3df size,Point4dl dimMin,Point4dl dimMax);
     Geometry( const Geometry & g );
     virtual ~Geometry();
 

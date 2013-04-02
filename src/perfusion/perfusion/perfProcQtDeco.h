@@ -115,7 +115,7 @@ private:
 
   static std::map< int, pMethod > mMeth;
 
-  std::list< Point4d > _selList;
+  std::list< Point4dl > _selList;
 
   aims::PerfusionProcessingCenter *_ppBase;
 

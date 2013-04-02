@@ -387,9 +387,9 @@ namespace
   {
     glpixtype<AimsRGBA>( p );
     Point4df max = avol->glMax2D() + Point4df( 1.F );
-    p.dimx = (short) rint( max[0] );
-    p.dimy = (short) rint( max[1] );
-    p.dimz = (short) rint( max[2] );
+    p.dimx = (unsigned) rint( max[0] );
+    p.dimy = (unsigned) rint( max[1] );
+    p.dimz = (unsigned) rint( max[2] );
   }
 
 
@@ -408,7 +408,7 @@ namespace
   {
     Quaternion q( 0.F, 0.F, 0.F, 1.F );
     Point3df vox = avol->glVoxelSize();
-    Geometry geom( vox, Point4dl( int(0) ), Point4dl( d->texdimx, d->texdimy,
+    Geometry geom( vox, Point4dl( 0 ), Point4dl( d->texdimx, d->texdimy,
                    d->texdimz, 1 ) );
     SliceViewState vs( t, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
@@ -673,8 +673,8 @@ bool VolRender::checkObject() const
   d->xscalefac = 1;
   d->yscalefac = 1;
   d->zscalefac = 1;
-  /* cout << "vol dims: " << Point3d( d->dimx, d->dimy, d->dimz ) << endl;
-  cout << "tex dim : " << Point3d( d->texdimx, d->texdimy,  d->texdimz)
+  /* cout << "vol dims: " << Point3dl( d->dimx, d->dimy, d->dimz ) << endl;
+  cout << "tex dim : " << Point3dl( d->texdimx, d->texdimy,  d->texdimz)
       << endl; */
   return true;
 }

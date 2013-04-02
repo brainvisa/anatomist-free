@@ -227,12 +227,12 @@ void PerfusionProcessingQtDecorator::doAifPoints( int btn )
   if ( !_ppBase->aifPointList().empty() )
     {
       int skip = _ppBase->parameters().skip();
-      list< Point4d >::reverse_iterator it = _ppBase->aifPointList().rbegin();
+      list< Point4dl >::reverse_iterator it = _ppBase->aifPointList().rbegin();
       while( it != _ppBase->aifPointList().rend() )
         {
-	  Point4d pt = *it;
-	  Point4d pt2( pt[0], pt[1], pt[2], skip );
-	  int16_t delt = (int16_t)abs( (*volIn->volume())( pt2 ) 
+	  Point4dl pt = *it;
+	  Point4dl pt2( pt[0], pt[1], pt[2], skip );
+	  int16_t delt = (int)abs( (*volIn->volume())( pt2 )
                                        - (*volIn->volume())( pt ) );
 	  sprintf( delta, "%d", delt );
 	  sprintf( t, "%d", pt[3] );
@@ -249,7 +249,7 @@ void PerfusionProcessingQtDecorator::doAifPoints( int btn )
 void PerfusionProcessingQtDecorator::doInjection( int btn )
 {
   int delta, p1, p2, p3;
-  Point4d pt;
+  Point4dl pt;
   string pos;
 
   _selList.clear();
