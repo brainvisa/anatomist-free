@@ -58,7 +58,7 @@ Geometry::Geometry()
   _dimMax[3] = 0;
 }
 
-Geometry::Geometry(Point3df size,Point4d dimMin,Point4d dimMax)
+Geometry::Geometry(Point3df size,Point4dl dimMin,Point4dl dimMax)
 {
   _size[0] = size[0];
   _size[1] = size[1];
@@ -102,7 +102,7 @@ void Geometry::SetSize( Point3df size )
   _size[2] = size[2];
 }
 
-void Geometry::SetDimMin( Point4d dimMin )
+void Geometry::SetDimMin( Point4dl dimMin )
 {
   _dimMin[0] = dimMin[0];
   _dimMin[1] = dimMin[1];
@@ -110,7 +110,7 @@ void Geometry::SetDimMin( Point4d dimMin )
   _dimMin[3] = dimMin[3];
 }
 
-void Geometry::SetDimMax( Point4d dimMax )
+void Geometry::SetDimMax( Point4dl dimMax )
 {
   _dimMax[0] = dimMax[0];
   _dimMax[1] = dimMax[1];

@@ -1004,8 +1004,8 @@ void AWindow3D::refreshNow()
 
   Geometry *geom = windowGeometry();
 
-  Point4d dmin;
-  Point4d dmax;
+  Point4dl dmin;
+  Point4dl dmax;
 
   if (geom)
   {
@@ -1014,8 +1014,8 @@ void AWindow3D::refreshNow()
   }
   else
   {
-    dmin = Point4d(0, 0, 0, 0);
-    dmax = Point4d(1, 1, 1, 0);
+    dmin = Point4dl(0, 0, 0, 0);
+    dmax = Point4dl(1, 1, 1, 0);
   }
 
   setupSliceSlider();
@@ -1615,7 +1615,7 @@ void AWindow3D::askZoom()
   QSize sz = d->draw->qglWidget()->size();
   Geometry *g = windowGeometry();
   Point3df gs = Point3df(1, 1, 1);
-  Point4d dim = Point4d(sz.width(), sz.height(), 1, 1);
+  Point4dl dim = Point4dl(sz.width(), sz.height(), 1, 1);
 
   if (g && viewType() != ThreeD)
   {
@@ -2215,7 +2215,7 @@ Geometry AWindow3D::setupWindowGeometry(
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
   Point3df size, s2, vst, vs, p, pmin, pmax, dmin, dmax;
-  Point4d dimMin, dimMax;
+  Point4dl dimMin, dimMax;
   Referential *oref;
   AObject *o;
   anatomist::Transformation *tr;
@@ -2223,8 +2223,8 @@ Geometry AWindow3D::setupWindowGeometry(
 
   size = Point3df(1, 1, 1);
   vst = Point3df(1, 1, 1);
-  dimMin = Point4d(0, 0, 0, 0);
-  dimMax = Point4d(1, 1, 1, 0);
+  dimMin = Point4dl(0, 0, 0, 0);
+  dimMax = Point4dl(1, 1, 1, 0);
 
   // local macro
 #define check_extremum( p )				\
@@ -2351,8 +2351,8 @@ Geometry AWindow3D::setupWindowGeometry(
   if (first) // no object
   {
     //size = Point3df( 1, 1, 1 );
-    dimMin = Point4d(0, 0, 0, 0);
-    dimMax = Point4d(1, 1, 1, 0);
+    dimMin = Point4dl(0, 0, 0, 0);
+    dimMax = Point4dl(1, 1, 1, 0);
   }
   else
   {
@@ -2361,12 +2361,12 @@ Geometry AWindow3D::setupWindowGeometry(
     size[0] = vst[0];
     size[1] = vst[1];
 
-    dimMin[0] = (short) ::ceil(dmin[0] / size[0]);
-    dimMin[1] = (short) ::ceil(dmin[1] / size[1]);
-    dimMin[2] = (short) ::ceil(dmin[2] / size[2]);
-    dimMax[0] = (short) rint((dmax[0] - dmin[0]) / size[0]) + dimMin[0];
-    dimMax[1] = (short) rint((dmax[1] - dmin[1]) / size[1]) + dimMin[1];
-    dimMax[2] = (short) rint((dmax[2] - dmin[2]) / size[2]) + dimMin[2];
+    dimMin[0] = (int) ::ceil(dmin[0] / size[0]);
+    dimMin[1] = (int) ::ceil(dmin[1] / size[1]);
+    dimMin[2] = (int) ::ceil(dmin[2] / size[2]);
+    dimMax[0] = (int) rint((dmax[0] - dmin[0]) / size[0]) + dimMin[0];
+    dimMax[1] = (int) rint((dmax[1] - dmin[1]) / size[1]) + dimMin[1];
+    dimMax[2] = (int) rint((dmax[2] - dmin[2]) / size[2]) + dimMin[2];
   }
 
   /*cout << "new win geometry : vs : " << size << endl;
@@ -2388,7 +2388,7 @@ Geometry AWindow3D::setupWindowGeometry(
         - dimMin[0] << ", max: " << dimmax << ")\n";
     float scl = ((float) dimMax[0] - dimMin[0] + 1) / dimmax;
     size[0] *= scl;
-    dimMin[0] = (short) (dimMin[0] / scl);
+    dimMin[0] = (int) (dimMin[0] / scl);
     dimMax[0] = dimMin[0] + dimmax;
   }
   if (dimMax[1] - dimMin[1] > dimmax)
@@ -2397,7 +2397,7 @@ Geometry AWindow3D::setupWindowGeometry(
         - dimMin[1] << ", max: " << dimmax << ")\n";
     float scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
     size[1] *= scl;
-    dimMin[1] = (short) (dimMin[1] / scl);
+    dimMin[1] = (int) (dimMin[1] / scl);
     dimMax[1] = dimMin[1] + dimmax;
   }
   if (dimMax[2] - dimMin[2] > dimmax)
@@ -2406,7 +2406,7 @@ Geometry AWindow3D::setupWindowGeometry(
         - dimMin[2] << ", max: " << dimmax << ")\n";
     float scl = ((float) dimMax[1] - dimMin[1] + 1) / dimmax;
     size[2] *= scl;
-    dimMin[2] = (short) (dimMin[2] / scl);
+    dimMin[2] = (int) (dimMin[2] / scl);
     dimMax[2] = dimMin[2] + dimmax;
   }
 

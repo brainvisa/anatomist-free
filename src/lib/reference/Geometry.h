@@ -50,7 +50,7 @@ namespace anatomist
   { 
   public:
     Geometry();
-    Geometry(Point3df size,Point4d dimMin,Point4d dimMax);
+    Geometry(Point3df size, Point4dl dimMin, Point4dl dimMax);
     Geometry( const Geometry & g );
     virtual ~Geometry();
 
@@ -60,21 +60,21 @@ namespace anatomist
     /// Affecte la taille des voxels.
     void SetSize( Point3df size );
     /// Retourne la position minimale de la geometrie.
-    Point4d DimMin() const { return(_dimMin); }
+    Point4dl DimMin() const { return(_dimMin); }
     /// Affecte la position minimale de la geometrie.
-    void SetDimMin( Point4d dimMin );
+    void SetDimMin( Point4dl dimMin );
     /// Retourne la position maximale de la geometrie.
-    Point4d DimMax() const { return(_dimMax); }
+    Point4dl DimMax() const { return(_dimMax); }
     /// Affecte la position maximale de la geometrie.
-    void SetDimMax( Point4d dimMax );
+    void SetDimMax( Point4dl dimMax );
 
   protected:
     /// Taille des voxels.
     Point3df _size;
     /// Positions minimales de la geometry.
-    Point4d  _dimMin;
+    Point4dl  _dimMin;
     /// Positions maximales de la geometry.
-    Point4d  _dimMax;
+    Point4dl  _dimMax;
   };
 
 }

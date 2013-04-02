@@ -161,8 +161,8 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
     {
       gs = st->wingeom->Size();
 
-      Point4d	dm = st->wingeom->DimMin();
-      Point4d	dM = st->wingeom->DimMax();
+      Point4dl	dm = st->wingeom->DimMin();
+      Point4dl	dM = st->wingeom->DimMax();
       Point3df	dz = rot.apply( Point3df( 0, 0, 1 ) );
       float	z = dz.dot( pos );
       //cout << "z : " << z << endl;
@@ -623,8 +623,8 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
   if( svs && svs->wingeom )
   {
     vs = svs->wingeom->Size();
-    Point4d dmm = svs->wingeom->DimMin();
-    Point4d	dm = svs->wingeom->DimMax() - dmm;
+    Point4dl dmm = svs->wingeom->DimMin();
+    Point4dl	dm = svs->wingeom->DimMax() - dmm;
     dims[0] = dm[0];
     dims[1] = dm[1];
     dims[2] = dm[2];
@@ -693,7 +693,7 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
     // don't copy wingeom since the volume has his own
   }
 
-  Point4d vmin( int16_t( 0 ) );
+  Point4dl vmin( int( 0 ) );
 
   if( vol.header().hasProperty( "transformations" ) )
   {
@@ -721,8 +721,8 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
         at->registerTrans();
         svs.winref = nref;
         Point3df p0 = tr.transform( Point3df( 0, 0, 0 ) );
-        vmin = Point4d( int16_t( rint( p0[0] ) ), int16_t( rint( p0[1] ) ),
-                        int16_t( rint( p0[2] ) ), 0 );
+        vmin = Point4dl( int( rint( p0[0] ) ), int( rint( p0[1] ) ),
+                        int( rint( p0[2] ) ), 0 );
       }
     }
     catch( ... )
@@ -751,7 +751,7 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
       }
     }
   }
-  Geometry geom( vs, vmin, Point4d( vol.getSizeX() - 1,
+  Geometry geom( vs, vmin, Point4dl( vol.getSizeX() - 1,
                  vol.getSizeY() - 1, vol.getSizeZ() - 1, 0 ) );
   svs.wingeom = &geom;
 

@@ -452,7 +452,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   Point3df	offsd 
     = Transformation::transform( p0 + offset * gs[1], tra, /*gs,*/ vs ) - pf;
   Point3df	pxd;
-  Point3d	pfi;
+  Point3dl	pfi;
   float		wx, wy, wz, wx2, wy2;
   typename AimsData<T>::const_iterator 
     pim0 =  _volume->begin() + _volume->oFirstPoint() + _volume->oVolume() * t;
@@ -478,8 +478,8 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
 	  pxd = pf;
 	  for( x=0; x<image.width; ++x )
 	    {
-	      pfi = Point3d( (short) rint( pf[0] ), (short) rint( pf[1] ), 
-                             (short) rint( pf[2] ) );
+	      pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ), 
+                             (int) rint( pf[2] ) );
 	      if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy 
 		  || pfi[2] < 0 || pfi[2] > dz )
 		val = iempty;
@@ -510,7 +510,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
           for( x=0; x<image.width; ++x )
             {
               done = false;
-              pfi = Point3d( (short) pf[0], (short) pf[1], (short) pf[2] );
+              pfi = Point3dl( (int) pf[0], (int) pf[1], (int) pf[2] );
               if( pf[0] < 0 || pf[1] < 0 || pf[2] < 0 )
                 {
                   val = iempty;
