@@ -219,7 +219,7 @@ template <class T>
 AVolume<T>::AVolume( const string & fname )
   : AVolumeBase(), 
     d( new PrivateData( this ) ), 
-    _volume( new AimsData<T> )
+    _volume( new Volume<T> )
 {
   _type = AObject::VOLUME;
   setFileName( fname );
@@ -231,6 +231,7 @@ AVolume<T>::AVolume( const string & fname )
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 0 );
   te.scaled = false;
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
 }
 
 
@@ -238,7 +239,7 @@ template <class T>
 AVolume<T>::AVolume( const AimsData<T> & aims )
   : AVolumeBase(), 
     d( new PrivateData( this ) ), 
-    _volume( new AimsData<T>( aims ) )
+    _volume( aims.volume() )
 {
   _type = AObject::VOLUME;
   glAddTextures( 1 );
@@ -248,12 +249,30 @@ AVolume<T>::AVolume( const AimsData<T> & aims )
   te.max.push_back( 0 );
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 0 );
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
 }
 
 
 template <class T>
 AVolume<T>::AVolume( rc_ptr<AimsData<T> > aims )
   : AVolumeBase(), 
+    d( new PrivateData( this ) ), _volume( aims->volume() )
+{
+  _type = AObject::VOLUME;
+  glAddTextures( 1 );
+  glSetTexMode( glDECAL );
+  TexExtrema  & te = glTexExtrema( 0 );
+  te.min.push_back( 0 );
+  te.max.push_back( 0 );
+  te.minquant.push_back( 0 );
+  te.maxquant.push_back( 0 );
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
+}
+
+
+template <class T>
+AVolume<T>::AVolume( rc_ptr<Volume<T> > aims )
+  : AVolumeBase(),
     d( new PrivateData( this ) ), _volume( aims )
 {
   _type = AObject::VOLUME;
@@ -264,6 +283,7 @@ AVolume<T>::AVolume( rc_ptr<AimsData<T> > aims )
   te.max.push_back( 0 );
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 0 );
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
 }
 
 
@@ -274,7 +294,7 @@ AObject* AVolume<T>::clone( bool shallow )
   if( shallow )
     avol = new AVolume<T>( _volume );
   else
-    avol = new AVolume<T>( _volume->clone() );
+    avol = new AVolume<T>( rc_ptr<Volume<T> >( new Volume<T>( *_volume ) ) );
   avol->setFileName( fileName() );
   avol->SetExtrema();
   avol->adjustPalette();
@@ -330,60 +350,64 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
 
   if( time < 0 )
     time = 0;
-  else if( time > _volume->dimT() - 1 )
-    time = _volume->dimT() - 1;
+  else if( time > _volume->getSizeT() - 1 )
+    time = _volume->getSizeT() - 1;
 
   Point4df		vec = q.vector();
   Point3df		gs = wingeom->Size();
   // cout << "quaternion : " << vec << endl;
+  vector<float> vs;
+  _volume->header().getProperty( "voxel_size", vs );
+  while( vs.size() < 3 )
+    vs.push_back( 1. );
 
   if( ( vec - Point4df( 0, 0, 0, 1 ) ).norm2() < eps2 )	// ID : axial
+  {
+    // cout << "axial orientation\n";
+    if( fabs( gs[0] - vs[0] ) <= eps
+        && fabs( gs[1] - vs[1] ) <= eps )
     {
-      // cout << "axial orientation\n";
-      if( fabs( gs[0] - _volume->sizeX() ) <= eps
-          && fabs( gs[1] - _volume->sizeY() ) <= eps )
-	{
-	  Point3df	post( pos );
-	  if( tra )
-	    post = tra->transform( pos );
-	  //cout << "axial optimized\n";
-	  updateAxial( &ximage, post, time );
-	  return true;
-	}
+      Point3df	post( pos );
+      if( tra )
+        post = tra->transform( pos );
+      //cout << "axial optimized\n";
+      updateAxial( &ximage, post, time );
+      return true;
     }
+  }
   else if( ( vec - Point4df( c, 0, 0, c ) ).norm2() < eps2 )	// coronal
+  {
+    // cout << "coronal orientation\n";
+    if( fabs( gs[0] - vs[0] ) <= eps
+      && fabs( gs[1] - vs[2] ) <= eps )
     {
-      // cout << "coronal orientation\n";
-      if( fabs( gs[0] - _volume->sizeX() ) <= eps
-        && fabs( gs[1] - _volume->sizeZ() ) <= eps )
-	{
-	  Point3df	post( pos );
-	  if( tra )
-	    post = tra->transform( pos );
-	  // cout << "coronal optimized\n";
-	  updateCoronal( &ximage, post, time );
-	  return true;
-	}
+      Point3df	post( pos );
+      if( tra )
+        post = tra->transform( pos );
+      // cout << "coronal optimized\n";
+      updateCoronal( &ximage, post, time );
+      return true;
     }
+  }
   else if( ( vec - Point4df( -0.5, -0.5, -0.5, 0.5 ) ).norm2() < eps2 )	// sagittial
+  {
+    // cout << "sagittal orientation\n";
+    if( fabs( gs[0] - vs[1] ) <= eps && fabs( gs[1] - vs[2] ) <= eps )
     {
-      // cout << "sagittal orientation\n";
-      if( fabs( gs[0] - _volume->sizeY() ) <= eps && fabs( gs[1] - _volume->sizeZ() ) <= eps )
-	{
-	  Point3df	post( pos );
-	  if( tra )
-	    post = tra->transform( pos );
-	  // cout << "sagittal optimized\n";
-	  updateSagittal( &ximage, post, time );
-	  return true;
-	}
+      Point3df	post( pos );
+      if( tra )
+        post = tra->transform( pos );
+      // cout << "sagittal optimized\n";
+      updateSagittal( &ximage, post, time );
+      return true;
     }
+  }
 
   if( !tra )
-    {
-      tra = new Transformation( 0, 0 );
-      owntr = true;
-    }
+  {
+    tra = new Transformation( 0, 0 );
+    owntr = true;
+  }
   updateSlice( ximage, pos, time, tra, u, v, wingeom );
   if( owntr )
     delete tra;
@@ -442,7 +466,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   int		x, y;
   AimsRGBA	*pdat = (AimsRGBA *) image.data;
   T		val = 0;
-  float		dx = _volume->dimX() - 1, dy = _volume->dimY() - 1, dz = _volume->dimZ() - 1;
+  float		dx = _volume->getSizeX() - 1, dy = _volume->getSizeY() - 1, dz = _volume->getSizeZ() - 1;
   int		t = (int) time;
 
   // cout << "wingeom : " << gs[0] << ", " << gs[1] << ", " << gs[2] << endl;
@@ -454,11 +478,11 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   Point3df	pxd;
   Point3dl	pfi;
   float		wx, wy, wz, wx2, wy2;
-  typename AimsData<T>::const_iterator 
-    pim0 =  _volume->begin() + _volume->oFirstPoint() + _volume->oVolume() * t;
-  typename AimsData<T>::const_iterator	pim;
-  long		dyi = (int)_volume->dimX() + _volume->oPointBetweenLine();
-  long		dzi = _volume->oSlice();
+  const T *fp = &_volume->at( 0 );
+  const T *pim0 = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * t;
+  const T *pim;
+  long		dyi = &_volume->at( 0, 1 ) - fp;
+  long		dzi = &_volume->at( 0, 0, 1 ) - fp;
   long		dyxi = dyi + 1;
   long		dzyi = dzi + dyi;
   long		dzxi = dzi + 1;
@@ -635,9 +659,10 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   long	dx, dxx, dy;		// Dimensions du volume
   long	dslice;			// Taille d'une coupe
 
-  Point3df	p0 = Point3df( rint( pf0[0] / _volume->sizeX() ), 
-                               rint( pf0[1] / _volume->sizeY() ),
-                               rint( pf0[2] / _volume->sizeZ() ) );
+  Point3df vs = VoxelSize();
+  Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
+                               rint( pf0[1] / vs[1] ),
+                               rint( pf0[2] / vs[2] ) );
   // cout << "p0: " << p0 << endl;
 
   ColorTraits<T>	coltraits( getOrCreatePalette(),
@@ -645,31 +670,30 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
                                    d->traits.maxTypedTexValue() );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
-  if( _volume->sizeZ() == 0 )
-    {
-      fillBlack( ximage, empty );
-      return;
-    }
+  if( vs[2] == 0 )
+  {
+    fillBlack( ximage, empty );
+    return;
+  }
   int	zz = (int) p0[2];
-  if ( zz >= _volume->dimZ() || zz < 0 )
-    {
-      fillBlack( ximage, empty );
-      return;
-    }
+  if ( zz >= _volume->getSizeZ() || zz < 0 )
+  {
+    fillBlack( ximage, empty );
+    return;
+  }
 
-  dx = max( min( ximage->width, _volume->dimX() - int( p0[0] ) ), 0 ) 
+  dx = max( min( ximage->width, _volume->getSizeX() - int( p0[0] ) ), 0 )
     - min( max( 0, - int( p0[0] ) ), ximage->width );
-  dy = max( min( ximage->height, _volume->dimY() - int( p0[1] ) ), 0 ) 
+  dy = max( min( ximage->height, _volume->getSizeY() - int( p0[1] ) ), 0 )
     - min( max( 0, - int( p0[1] ) ), ximage->height );
-  dxx = (int) _volume->dimX() + _volume->oPointBetweenLine();
+  const T *fp = &_volume->at( 0 );
+  dxx = &_volume->at( 0, 1 ) - fp;
 
-  dslice = _volume->oSlice();
+  dslice = &_volume->at( 0, 0, 1 ) - fp;
 
   // Initialisation des pointeurs utilises
 
-  typename AimsData<T>::const_iterator 
-    ptrori = _volume->begin() + _volume->oFirstPoint() 
-    + _volume->oVolume() * (int)time 
+  const T *ptrori = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * (int)time
     + dslice * zz ;
   AimsRGBA     *ptrpix = (AimsRGBA *) ximage->data;
   int	   offset_xim = (ximage->effectiveWidth - dx) * ( ximage->depth / 32 );
@@ -681,7 +705,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
     ptrpix -= ( (int) p0[1] ) * ximage->effectiveWidth
       * ( ximage->depth / 32 );
   else if( p0[1] > 0 )
-    ptrori += ( (int) p0[1] ) * _volume->dimX();
+    ptrori += ( (int) p0[1] ) * _volume->getSizeX();
 
   //	remove garbage at beginning of image
   AimsRGBA	*p = (AimsRGBA *) ximage->data;
@@ -701,15 +725,15 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   // dump volume to image
 
   for( y=0; y<dy; ++y )
-    {
-      for( x=0; x<dx; ++x )
-	*ptrpix++ = coltraits.color( *( ptrori + dxx * y + x ) );
-      p = ptrpix + offset_xim;
-      if( p > pend )
-	p = pend;
-      while( ptrpix < p )
-	*ptrpix++ = empty;
-    }
+  {
+    for( x=0; x<dx; ++x )
+      *ptrpix++ = coltraits.color( *( ptrori + dxx * y + x ) );
+    p = ptrpix + offset_xim;
+    if( p > pend )
+      p = pend;
+    while( ptrpix < p )
+      *ptrpix++ = empty;
+  }
 
   // clear garbage at end of image
   while( ptrpix < pend )
@@ -723,9 +747,11 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   // cout << "UpdateCoronal simple, p0 : " << pf0 << "\n";
   long	dx, dxx, dz;		// Dimensions du volume
   long	dline;			// Taille d'une ligne
-  Point3df	p0 = Point3df( rint( pf0[0] / _volume->sizeX() ), 
-			       rint( pf0[1] / _volume->sizeY() ), 
-			       rint( pf0[2] / _volume->sizeZ() ) );
+
+  Point3df vs = VoxelSize();
+  Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
+			       rint( pf0[1] / vs[1] ),
+			       rint( pf0[2] / vs[2] ) );
   int	yy = (int) p0[1];
 
   ColorTraits<T>	coltraits( getOrCreatePalette(), 
@@ -733,21 +759,20 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 				   d->traits.maxTypedTexValue() );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
-  if( time >= _volume->dimT() || yy >= _volume->dimY() || yy < 0 )
-    {
-      fillBlack( ximage, empty );
-      return;
-    }
-
-  Point3df	vs = VoxelSize();
+  if( time >= _volume->getSizeT() || yy >= _volume->getSizeY() || yy < 0 )
+  {
+    fillBlack( ximage, empty );
+    return;
+  }
 
   int ze = int( p0[2] ) + 1 - ximage->height;
-  dx = max( min( ximage->width, _volume->dimX() - int( p0[0] ) ), 0 ) 
+  dx = max( min( ximage->width, _volume->getSizeX() - int( p0[0] ) ), 0 )
     - min( max( 0, - int( p0[0] ) ), ximage->width );
-  dz = max( min( ximage->height, _volume->dimZ() - ze ), 0 ) 
+  dz = max( min( ximage->height, _volume->getSizeZ() - ze ), 0 )
     - min( max( 0, - ze ), ximage->height );
-  dxx = _volume->oSlice();
-  dline = _volume->oLine();
+  const T* fp = &_volume->at( 0 );
+  dxx = &_volume->at( 0, 0, 1 ) - fp;
+  dline = &_volume->at( 0, 1 ) - fp;
 
   /* cout << "taille obj : " << dx << " x " << dz << endl;
   cout << "taille pix : " << ximage->width << " x " << ximage->height << endl;
@@ -755,9 +780,7 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 
   // Initialisation des pointeurs utilises
 
-  typename AimsData<T>::const_iterator 
-    ptrori = _volume->begin() + _volume->oFirstPoint() 
-    + _volume->oVolume() * (int)time;
+  const T *ptrori = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * (int)time;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
   int	   offset_xim = (-ximage->effectiveWidth - dx) * ( ximage->depth / 32 );
   ptrpix += ximage->effectiveWidth * ( dz - 1 ) * ( ximage->depth / 32 );
@@ -766,11 +789,12 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
     ptrpix -= ( (int) p0[0] ) * ( ximage->depth / 32 );
   else if( p0[0] > 0 )
     ptrori += (int) p0[0];
-  if( p0[2] > _volume->dimZ() - 1 )
-    ptrpix += ( (int) ( p0[2] - _volume->dimZ() + 1 ) )
+  if( p0[2] > _volume->getSizeZ() - 1 )
+    ptrpix += ( (int) ( p0[2] - _volume->getSizeZ() + 1 ) )
       * ximage->effectiveWidth * ( ximage->depth / 32 );
-  else if( p0[2] < _volume->dimZ() - 1 )
-      ptrori += ( (int) ( _volume->dimZ() - p0[2] - 1 ) ) * _volume->oSlice();
+  else if( p0[2] < _volume->getSizeZ() - 1 )
+    ptrori += ( (int) ( _volume->getSizeZ() - p0[2] - 1 ) )
+      * ( &_volume->at( 0, 0, 1 ) - fp );
 
   //	remove garbage at beginning of image
   AimsRGBA	*p = ptrpix + dx * ( ximage->depth / 32 );
@@ -785,17 +809,17 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   // Boucles de deplacement dans le volume
 
   for( z=0; z<dz; ++z )
-    {
-      p2 = ptrpix;
-      for( x=0; x<dx; ++x )
-	*ptrpix++ = coltraits.color( *( ptrori + dline * yy + dxx * z + x ) );
-      ptrpix += offset_xim;
-      p = ptrpix + off_line;
-      if( p < (AimsRGBA *) ximage->data )
-	p = (AimsRGBA *) ximage->data;
-      while( p < p2 )
-	*p++ = empty;
-    }
+  {
+    p2 = ptrpix;
+    for( x=0; x<dx; ++x )
+      *ptrpix++ = coltraits.color( *( ptrori + dline * yy + dxx * z + x ) );
+    ptrpix += offset_xim;
+    p = ptrpix + off_line;
+    if( p < (AimsRGBA *) ximage->data )
+      p = (AimsRGBA *) ximage->data;
+    while( p < p2 )
+      *p++ = empty;
+  }
   // clear garbage at end of image
   p = (AimsRGBA *) ximage->data;
   while( p < p2 )
@@ -808,10 +832,13 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 {
   // cout << "UpdateSagittal simple, pf0 : " << pf0 << "\n";
   long	dyy, dy, dz;		// Dimensions du volume
-  long	decY = _volume->oPointBetweenLine() + _volume->dimX();
-  Point3df	p0 = Point3df( rint( pf0[0] / _volume->sizeX() ), 
-			       rint( pf0[1] / _volume->sizeY() ), 
-			       rint( pf0[2] / _volume->sizeZ() ) );
+  const T *fp = &_volume->at( 0 );
+  long	decY = &_volume->at( 0, 1 ) - fp;
+
+  Point3df vs = VoxelSize();
+  Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
+			       rint( pf0[1] / vs[1] ),
+			       rint( pf0[2] / vs[2] ) );
 
   int	xx = (int) p0[0];
 
@@ -820,17 +847,18 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 				   d->traits.maxTypedTexValue() );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
-  if( xx >= _volume->dimX() || xx < 0 )
-    {
-      fillBlack( ximage, empty );
-      return;
-    }
+  if( xx >= _volume->getSizeX() || xx < 0 )
+  {
+    fillBlack( ximage, empty );
+    return;
+  }
 
-  dy = max( min( ximage->width, _volume->dimY() - int( p0[1] ) ), 0 ) 
+  dy = max( min( ximage->width, _volume->getSizeY() - int( p0[1] ) ), 0 )
     - min( max( 0, - int( p0[1] ) ), ximage->width );
-  dz = max( min( ximage->height, _volume->dimZ() - int( p0[2] ) ), 0 ) 
+  dz = max( min( ximage->height, _volume->getSizeZ() - int( p0[2] ) ), 0 )
     - min( max( 0, - int( p0[2] ) ), ximage->height );
-  dyy = (int) _volume->dimY() * decY + _volume->oLineBetweenSlice();
+//   dyy = (int) _volume->getSizeY() * decY + &_volume->at( 0, 0, 1 ) - fp;
+  dyy = &_volume->at( 0, 0, 1 ) - fp;
 
   /*
   cout << "taille obj : " << dy << " x " << dz << endl;
@@ -839,20 +867,18 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 
   // Initialisation des pointeurs utilises
 
-  typename AimsData<T>::const_iterator 
-    ptrori = _volume->begin() + _volume->oFirstPoint() 
-    + _volume->oVolume() * (int)time;
+  const T *ptrori = fp + ( &_volume->at( 0, 0, 1 ) - fp ) * (int)time;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
   int	   offset_xim = (ximage->effectiveWidth - dy) * ( ximage->depth / 32 );
   if( p0[1] < 0 )
     ptrpix -= ( (int) p0[1] ) * ( ximage->depth / 32 );
   else if( p0[1] > 0 )
-    ptrori += (int) p0[1] * _volume->oLine();
+    ptrori += (int) p0[1] * ( &_volume->at( 0, 1 ) - fp );
   if( p0[2] < 0 )
     ptrpix -= ( (int) p0[2] ) * ximage->effectiveWidth
       * ( ximage->depth / 32 );
   else if( p0[2] > 0 )
-    ptrori += ( (int) p0[2] ) * _volume->oSlice();
+    ptrori += ( (int) p0[2] ) * ( &_volume->at( 0, 0, 1 ) - fp );
 
   //	remove garbage at beginning of image
   AimsRGBA	*p = (AimsRGBA *) ximage->data;
@@ -901,27 +927,33 @@ template<class T> void AVolume<T>::SetExtrema()
   vec.push_back( 0 );
   vec.push_back( 0 );
   attrib->setProperty( "boundingbox_min", vec );
-  vec[0] = _volume->dimX();
-  vec[1] = _volume->dimY();
-  vec[2] = _volume->dimZ();
-  vec[3] = _volume->dimT();
+  vec[0] = _volume->getSizeX();
+  vec[1] = _volume->getSizeY();
+  vec[2] = _volume->getSizeZ();
+  vec[3] = _volume->getSizeT();
   attrib->setProperty( "boundingbox_max", vec );
-  vec[0] = _volume->sizeX();
-  vec[1] = _volume->sizeY();
-  vec[2] = _volume->sizeZ();
-  vec[3] = _volume->sizeT();
-  attrib->setProperty( "voxel_size", vec );
 }
 
 template <class T> Point3df AVolume<T>::VoxelSize() const
 {
-  return Point3df(_volume->sizeX(),_volume->sizeY(),_volume->sizeZ());
+  vector<float> vs( 3, 1. );
+  _volume->header().getProperty( "voxel_size", vs );
+  while( vs.size() < 3 )
+    vs.push_back( 1. );
+  return Point3df( vs[0], vs[1], vs[2] );
 }
 
 
 template <class T> void AVolume<T>::setVoxelSize( const Point3df & vs )
 {
-  _volume->setSizeXYZT( vs[0], vs[1], vs[2], _volume->sizeT() );
+  vector<float> vvs( 4 );
+  _volume->header().setProperty( "voxel_size", vvs );
+  while( vvs.size() < 4 )
+    vvs.push_back( 1. );
+  vvs[0] = vs[0];
+  vvs[1] = vs[1];
+  vvs[2] = vs[2];
+  _volume->header().setProperty( "voxel_size", vvs );
 }
 
 
@@ -1030,11 +1062,12 @@ template<> std::string	AVolume<AimsRGBA>::objectFullTypeName(void) const
 template<class T> 
 bool AVolume<T>::boundingBox( Point3df & bmin, Point3df & bmax ) const
 {
-  bmin = Point3df( -0.5 * _volume->sizeX(), -0.5 * _volume->sizeY(), 
-                   -0.5 * _volume->sizeZ() );
-  bmax = Point3df( (-0.5 + (float)_volume->dimX()) * _volume->sizeX(), 
-		   (-0.5 + (float)_volume->dimY()) * _volume->sizeY(), 
-		   (-0.5 + (float)_volume->dimZ()) * _volume->sizeZ() );
+  Point3df vs = VoxelSize();
+  bmin = Point3df( -0.5 * vs[0], -0.5 * vs[1],
+                   -0.5 * vs[2] );
+  bmax = Point3df( (-0.5 + (float)_volume->getSizeX()) * vs[0],
+		   (-0.5 + (float)_volume->getSizeY()) * vs[1],
+		   (-0.5 + (float)_volume->getSizeZ()) * vs[2] );
   return true;
 }
 
@@ -1042,10 +1075,12 @@ bool AVolume<T>::boundingBox( Point3df & bmin, Point3df & bmax ) const
 template<class T> 
 GenericObject *AVolume<T>::attributed()
 {
-  PythonHeader	*ah = dynamic_cast<PythonHeader *>( _volume->header() );
-  if( ah )
-    return ah;
-  if( !d->attrib )
+  if( _volume.get() )
+  {
+    if( !d->attrib )
+      d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
+  }
+  else if( !d->attrib )
     d->attrib = new ValueObject<Dictionary>;
   return d->attrib;
 }
@@ -1054,11 +1089,12 @@ GenericObject *AVolume<T>::attributed()
 template<class T> 
 const GenericObject *AVolume<T>::attributed() const
 {
-  const PythonHeader	*ah 
-    = dynamic_cast<const PythonHeader *>( _volume->header() );
-  if( ah )
-    return ah;
-  if( !d->attrib )
+  if( _volume.get() )
+  {
+    if( !d->attrib )
+      d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
+  }
+  else if( !d->attrib )
     d->attrib = new ValueObject<Dictionary>;
   return d->attrib;
 }
@@ -1067,12 +1103,14 @@ const GenericObject *AVolume<T>::attributed() const
 template<class T> 
 bool AVolume<T>::reload( const string & filename )
 {
-  Reader<AimsData<T> >	reader( filename );
-  rc_ptr<AimsData<T> >	obj( reader.read() );
+  Reader<Volume<T> >	reader( filename );
+  rc_ptr<Volume<T> > obj( reader.read() );
   if( !obj )
     return false;
 
   _volume = obj;
+  delete d->attrib;
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
   glSetTexImageChanged( true, 0 );
   glSetChanged( glBODY, true );
   SetExtrema();
@@ -1085,7 +1123,7 @@ template<class T>
 bool AVolume<T>::save( const string & filename )
 {
   storeHeaderOptions();
-  Writer<AimsData<T> >	w( filename );
+  Writer<Volume<T> >	w( filename );
   return w.write( *_volume );
 }
 
@@ -1099,41 +1137,35 @@ bool AVolume<T>::printTalairachCoord( const Point3df & pos,
     = Transformation::transform( pos, ref, getReferential(), 
 				 Point3df( 1, 1, 1 ), VoxelSize() );
 
-  const PythonHeader
-    *ph = dynamic_cast<const PythonHeader *>( _volume->header() );
-  if( ph )
+  const PropertySet & ph = _volume->header();
+  try
+  {
+    ph.getProperty( "origin", origin );
+    if( origin.size() >= 3 )
     {
+      bool	norm = false;
       try
-	{
-	  ph->getProperty( "origin", origin );
-	  if( origin.size() >= 3 )
-	    {
-              bool	norm = false;
-              try
-                {
-                  norm 
-                    = (bool) ph->getProperty( "spm_normalized" )->getScalar();
-                }
-              catch( ... )
-                {
-                }
-	      origin[0] = - ( rpos[0] - origin[0] ) * _volume->sizeX();
-	      origin[1] = - ( rpos[1] - origin[1] ) * _volume->sizeY();
-	      origin[2] = - ( rpos[2] - origin[2] ) * _volume->sizeZ();
-              if( norm )
-                cout << "SPM Talairach (mm): ";
-              else
-                cout << "SPM (mm): ";
-              cout << origin[0] << ", " << origin[1] 
-		   << ", " << origin[2] << endl;
-	      return true;
-	    }
-	}
-      catch( exception & )
-	{
-	}
-      return false;
+      {
+        norm = (bool) ph.getProperty( "spm_normalized" )->getScalar();
+      }
+      catch( ... )
+      {
+      }
+      origin[0] = - ( rpos[0] - origin[0] ) * _volume->getSizeX();
+      origin[1] = - ( rpos[1] - origin[1] ) * _volume->getSizeY();
+      origin[2] = - ( rpos[2] - origin[2] ) * _volume->getSizeZ();
+      if( norm )
+        cout << "SPM Talairach (mm): ";
+      else
+        cout << "SPM (mm): ";
+      cout << origin[0] << ", " << origin[1]
+        << ", " << origin[2] << endl;
+      return true;
     }
+  }
+  catch( exception & )
+  {
+  }
 
   return false;
 }
@@ -1157,7 +1189,18 @@ void AVolume<T>::setInternalsChanged()
 template <typename T>
 void AVolume<T>::setVolume( carto::rc_ptr<AimsData<T> > vol )
 {
+  _volume = vol->volume();
+  delete d->attrib;
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
+}
+
+
+template <typename T>
+void AVolume<T>::setVolume( carto::rc_ptr<Volume<T> > vol )
+{
   _volume = vol;
+  delete d->attrib;
+  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
 }
 
 
@@ -1213,10 +1256,10 @@ void VolumeScalarTraits<T>::adjustPalette()
   //	generate histogram
   unsigned		histo[ 256 ];
   unsigned		i, n = 0;
-  typename AimsData<T>::const_iterator	iv, fv=volume->volume()->end();
+  typename Volume<T>::const_iterator	iv, fv=volume->volume()->end();
   const float 
-    limit = 0.99 * volume->volume()->dimX() * volume->volume()->dimY() 
-    * volume->volume()->dimZ() * volume->volume()->dimT();
+    limit = 0.99 * volume->volume()->getSizeX() * volume->volume()->getSizeY()
+    * volume->volume()->getSizeZ() * volume->volume()->getSizeT();
   set<T>		vals;
   unsigned		nval = 0, maxval = 50;
 
@@ -1270,39 +1313,51 @@ void VolumeScalarTraits<T>::setExtrema()
   //	clear NaN values found in some SPM volumes
   int	x, y, z, t;
   T	val;
-  AimsData<T>	& vol = *volume->volume();
+  Volume<T>	& vol = *volume->volume();
 
   mini = vol( 0, 0, 0, 0 );
   maxi = vol( 0, 0, 0, 0 );
 
   if( numeric_limits<T>::has_infinity )
-    ForEach4d( vol, x, y, z, t )
-    {
-      val = vol( x, y, z, t );
-      if( isnan( val ) )
+    for( long t=0, nt=vol.getSizeT(); t!=nt; ++t )
+      for( long z=0, nz=vol.getSizeZ(); z!=nz; ++z )
+        for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
         {
-          vol( x, y, z, t ) = 0; // WARNING can't work on MMap/RO volumes !
-          val = 0;
-          if( x == 0 && y == 0 && z == 0 && t == 0 )
+          T* pvol = &vol( 0, y, z, t );
+          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
+          {
+            val = *pvol;
+            if( isnan( val ) )
             {
-              mini = 0;
-              maxi = 0;
+              *pvol = 0; // WARNING can't work on MMap/RO volumes !
+              val = 0;
+              if( x == 0 && y == 0 && z == 0 && t == 0 )
+              {
+                mini = 0;
+                maxi = 0;
+              }
             }
+            if( val < mini )
+              mini = val;
+            if( val > maxi )
+              maxi = val;
+          }
         }
-      if( val < mini )
-        mini = val;
-      if( val > maxi )
-        maxi = val;
-    }
   else // no NaN, save the test time
-    ForEach4d( vol, x, y, z, t )
-    {
-      val = vol( x, y, z, t );
-      if( val < mini )
-        mini = val;
-      if( val > maxi )
-        maxi = val;
-    }
+    for( long t=0, nt=vol.getSizeT(); t!=nt; ++t )
+      for( long z=0, nz=vol.getSizeZ(); z!=nz; ++z )
+        for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
+        {
+          T* pvol = &vol( 0, y, z, t );
+          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
+          {
+            val = *pvol;
+            if( val < mini )
+              mini = val;
+            if( val > maxi )
+              maxi = val;
+          }
+        }
 
   GenericObject	*attrib = volume->attributed();
 

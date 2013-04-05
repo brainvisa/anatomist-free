@@ -69,6 +69,7 @@ namespace anatomist
     AVolume( const std::string & filename = "" );
     AVolume( const AimsData<T> & );
     AVolume( carto::rc_ptr<AimsData<T> > );
+    AVolume( carto::rc_ptr<carto::Volume<T> > );
     virtual ~AVolume();
 
     virtual AObject* clone( bool shallow = true );
@@ -76,20 +77,25 @@ namespace anatomist
     float MinX2D() const { return 0.0; }
     float MinY2D() const { return 0.0; }
     float MinZ2D() const { return 0.0; }
-    float MaxX2D() const { return float(_volume->dimX()-1); }
-    float MaxY2D() const { return float(_volume->dimY()-1); }
-    float MaxZ2D() const { return float(_volume->dimZ()-1); }
+    float MaxX2D() const { return float(_volume->getSizeX()-1); }
+    float MaxY2D() const { return float(_volume->getSizeY()-1); }
+    float MaxZ2D() const { return float(_volume->getSizeZ()-1); }
     float MinT() const { return 0.0; }
-    float MaxT() const { return float(_volume->dimT()-1); }
+    float MaxT() const { return float(_volume->getSizeT()-1); }
 
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
 
     void SetExtrema();
     void adjustPalette();
 
-    carto::rc_ptr<AimsData<T> > volume() { return _volume; }
-    const carto::rc_ptr<AimsData<T> > volume() const { return _volume; }
+    carto::rc_ptr<carto::Volume<T> > volume() { return _volume; }
+    carto::rc_ptr<AimsData<T> > aimsvolume()
+    { return carto::rc_ptr<AimsData<T> >( new AimsData<T>(_volume) ); }
+    const carto::rc_ptr<carto::Volume<T> > volume() const { return _volume; }
+    const carto::rc_ptr<AimsData<T> > aimsvolume() const
+    { return carto::rc_ptr<AimsData<T> >( new AimsData<T>( _volume ) ); }
     void setVolume( carto::rc_ptr<AimsData<T> > vol );
+    void setVolume( carto::rc_ptr<carto::Volume<T> > vol );
     T & operator () ( size_t x=0, size_t y=0, size_t z=0, size_t t=0 )
     { return (*_volume)( x, y , z ,t ); }
     const T & operator () ( size_t x=0, size_t y=0, size_t z=0, 
@@ -152,7 +158,7 @@ namespace anatomist
   private:
     struct PrivateData;
     PrivateData			*d;
-    carto::rc_ptr<AimsData<T> >	_volume;
+    carto::rc_ptr<carto::Volume<T> >	_volume;
   };
 
 

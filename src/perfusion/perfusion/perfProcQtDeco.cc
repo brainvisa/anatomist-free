@@ -231,9 +231,10 @@ void PerfusionProcessingQtDecorator::doAifPoints( int btn )
       while( it != _ppBase->aifPointList().rend() )
         {
 	  Point4dl pt = *it;
-	  Point4dl pt2( pt[0], pt[1], pt[2], skip );
-	  int16_t delt = (int)abs( (*volIn->volume())( pt2 )
-                                       - (*volIn->volume())( pt ) );
+	  int16_t delt = (int)abs( (*volIn->volume())( pt[0], pt[1], pt[2],
+                                                       skip )
+                                    - (*volIn->volume())( pt[0], pt[1], pt[2],
+                                                          pt[3] ) );
 	  sprintf( delta, "%d", delt );
 	  sprintf( t, "%d", pt[3] );
 	  sprintf( point, "(%d,%d,%d)", pt[ 0 ], pt[ 1 ], pt[ 2 ] );
@@ -487,9 +488,10 @@ void PerfusionProcessingQtDecorator::linkedCursor( Q3ListViewItem *item )
   int p2 = pos.rfind( "," );
   int p3 = pos.find( ")" );
 
-  float sx = volIn->volume()->sizeX();
-  float sy = volIn->volume()->sizeY();
-  float sz = volIn->volume()->sizeZ();
+  Point3df vs = volIn->VoxelSize();
+  float sx = vs[0];
+  float sy = vs[1];
+  float sz = vs[2];
 
   pt.push_back( atof( pos.substr( 1, p1 - 1 ).c_str() ) * sx );
   pt.push_back( atof( pos.substr( p1 + 1, p2 - p1 - 1 ).c_str() ) * sy );

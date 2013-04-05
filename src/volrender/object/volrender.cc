@@ -396,11 +396,11 @@ namespace
   template <typename T> inline void setupVolumeParams( AVolume<T> * avol,
       VolRender::Private & p )
   {
-    rc_ptr<AimsData<T> >  vol = avol->volume();
+    rc_ptr<Volume<T> >  vol = avol->volume();
     glpixtype<T>( p );
-    p.dimx = vol->dimX();
-    p.dimy = vol->dimY();
-    p.dimz = vol->dimZ();
+    p.dimx = vol->getSizeX();
+    p.dimy = vol->getSizeY();
+    p.dimz = vol->getSizeZ();
   }
 
 
@@ -439,7 +439,7 @@ namespace
   template <typename T> void resamplevolNoScale( AVolume<T> * avol,
       VolRender::Private * d, int t0 )
   {
-    rc_ptr<Volume<T> > v0 = avol->volume()->volume();
+    rc_ptr<Volume<T> > v0 = avol->volume();
     VolumeRef<T>  vol;
     const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0,
                                                                 t0 ) );
@@ -499,7 +499,7 @@ namespace
   template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
       VolRender::Private * d, int t0 )
   {
-    rc_ptr<Volume<T> > v0 = avol->volume()->volume();
+    rc_ptr<Volume<T> > v0 = avol->volume();
     VolumeRef<U>  vol;
     const GLComponent::TexExtrema  & te = avol->glTexExtrema( 0 );
     double scl = ( d->maxval + .99 ) / ( te.max[0] - te.min[0] );
@@ -552,7 +552,7 @@ namespace
   template <> void resamplevol( AVolume<AimsRGB> * avol,
       VolRender::Private * d, int t0 )
   {
-    rc_ptr<Volume<AimsRGB> > v0 = avol->volume()->volume();
+    rc_ptr<Volume<AimsRGB> > v0 = avol->volume();
     VolumeRef<AimsRGBA>  vol = VolumeRef<AimsRGBA>( d->texdimx, d->texdimy,
         d->texdimz );
     long x, y, z, t = t0;

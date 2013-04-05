@@ -62,6 +62,7 @@
 
 using namespace anatomist ;
 using namespace aims;
+using namespace carto;
 using namespace std;
 
 
@@ -495,17 +496,21 @@ template <class T>
 void
 RoiLabelNamingAction::computeImageValueMap( const anatomist::AVolume<T>& avol, int timePos )
 {
-  AimsData<T>	& vol = *avol.volume();
+  Volume<T>	& vol = *avol.volume();
   if( myComputeCurrentImageValueMap.empty() )
-    myComputeCurrentImageValueMap = vector<bool>(vol.dimT(), true) ;
+    myComputeCurrentImageValueMap = vector<bool>(vol.getSizeT(), true) ;
   
   
-  if( myComputeCurrentImageValueMap[timePos] ){
+  if( myComputeCurrentImageValueMap[timePos] )
+  {
     int x, y, z ;
-    myCurrentImageValues = std::vector< std::map< int16_t, int32_t> >( vol.dimT() ) ;
-    
-    ForEach3d( vol, x, y, z )
-      ++myCurrentImageValues[timePos][vol( x, y, z, timePos )] ;
+    myCurrentImageValues = std::vector< std::map< int16_t, int32_t> >(
+      vol.getSizeT() ) ;
+
+    for( long z=0, nz=vol.getSizeZ(); z!=nz; ++z )
+      for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
+        for( long x=0, nx=vol.getSizeX(); x!=nx; ++x )
+          ++myCurrentImageValues[timePos][vol( x, y, z, timePos )] ;
   }
 }
 

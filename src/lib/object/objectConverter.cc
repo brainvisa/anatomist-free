@@ -252,7 +252,7 @@ ObjectConverter<AimsData<int8_t> >::ana2aims( AObject *x, Object )
   AVolume<int8_t>	*y = dynamic_cast<AVolume<int8_t> *>( x );
   if( !y )
     return rc_ptr<AimsData<int8_t> >( 0 );
-  return( y->volume() );
+  return( y->aimsvolume() );
 }
 
 
@@ -274,7 +274,7 @@ ObjectConverter<AimsData<uint8_t> >::ana2aims( AObject *x, Object )
   AVolume<uint8_t>	*y = dynamic_cast<AVolume<uint8_t> *>( x );
   if( !y )
     return rc_ptr<AimsData<uint8_t> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -296,7 +296,7 @@ ObjectConverter<AimsData<int16_t> >::ana2aims( AObject *x, Object )
   AVolume<int16_t>	*y = dynamic_cast<AVolume<int16_t> *>( x );
   if( !y )
     return rc_ptr<AimsData<int16_t> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -318,7 +318,7 @@ ObjectConverter<AimsData<uint16_t> >::ana2aims( AObject *x, Object )
   AVolume<uint16_t>	*y = dynamic_cast<AVolume<uint16_t> *>( x );
   if( !y )
     return rc_ptr<AimsData<uint16_t> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -340,7 +340,7 @@ ObjectConverter<AimsData<int32_t> >::ana2aims( AObject *x, Object )
   AVolume<int32_t>	*y = dynamic_cast<AVolume<int32_t> *>( x );
   if( !y )
     return rc_ptr<AimsData<int32_t> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -362,7 +362,7 @@ ObjectConverter<AimsData<uint32_t> >::ana2aims( AObject *x, Object )
   AVolume<uint32_t>	*y = dynamic_cast<AVolume<uint32_t> *>( x );
   if( !y )
     return rc_ptr<AimsData<uint32_t> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -384,7 +384,7 @@ ObjectConverter<AimsData<float> >::ana2aims( AObject *x, Object )
   AVolume<float>	*y = dynamic_cast<AVolume<float> *>( x );
   if( !y )
     return rc_ptr<AimsData<float> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -406,7 +406,7 @@ ObjectConverter<AimsData<double> >::ana2aims( AObject *x, Object )
   AVolume<double>	*y = dynamic_cast<AVolume<double> *>( x );
   if( !y )
     return rc_ptr<AimsData<double> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -428,7 +428,7 @@ ObjectConverter<AimsData<AimsRGB> >::ana2aims( AObject *x, Object )
   AVolume<AimsRGB>	*y = dynamic_cast<AVolume<AimsRGB> *>( x );
   if( !y )
     return rc_ptr<AimsData<AimsRGB> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -450,7 +450,7 @@ ObjectConverter<AimsData<AimsRGBA> >::ana2aims( AObject *x, Object )
   AVolume<AimsRGBA>	*y = dynamic_cast<AVolume<AimsRGBA> *>( x );
   if( !y )
     return rc_ptr<AimsData<AimsRGBA> >( 0 );
-  return y->volume();
+  return y->aimsvolume();
 }
 
 
@@ -465,6 +465,230 @@ ObjectConverter<AimsData<AimsRGBA> >::setAims
   return true;
 }
 
+
+// --- Volume
+
+template<> rc_ptr<Volume<int8_t> >
+ObjectConverter<Volume<int8_t> >::ana2aims( AObject *x, Object )
+{
+  AVolume<int8_t>       *y = dynamic_cast<AVolume<int8_t> *>( x );
+  if( !y )
+    return rc_ptr<Volume<int8_t> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<int8_t> >::setAims
+( AObject* x, rc_ptr<Volume<int8_t> > y )
+{
+  AVolume<int8_t> *ana = dynamic_cast<AVolume<int8_t> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<uint8_t> >
+ObjectConverter<Volume<uint8_t> >::ana2aims( AObject *x, Object )
+{
+  AVolume<uint8_t>       *y = dynamic_cast<AVolume<uint8_t> *>( x );
+  if( !y )
+    return rc_ptr<Volume<uint8_t> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<uint8_t> >::setAims
+( AObject* x, rc_ptr<Volume<uint8_t> > y )
+{
+  AVolume<uint8_t> *ana = dynamic_cast<AVolume<uint8_t> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<int16_t> >
+ObjectConverter<Volume<int16_t> >::ana2aims( AObject *x, Object )
+{
+  AVolume<int16_t>       *y = dynamic_cast<AVolume<int16_t> *>( x );
+  if( !y )
+    return rc_ptr<Volume<int16_t> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<int16_t> >::setAims
+( AObject* x, rc_ptr<Volume<int16_t> > y )
+{
+  AVolume<int16_t> *ana = dynamic_cast<AVolume<int16_t> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<uint16_t> >
+ObjectConverter<Volume<uint16_t> >::ana2aims( AObject *x, Object )
+{
+  AVolume<uint16_t>       *y = dynamic_cast<AVolume<uint16_t> *>( x );
+  if( !y )
+    return rc_ptr<Volume<uint16_t> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<uint16_t> >::setAims
+( AObject* x, rc_ptr<Volume<uint16_t> > y )
+{
+  AVolume<uint16_t> *ana = dynamic_cast<AVolume<uint16_t> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<int32_t> >
+ObjectConverter<Volume<int32_t> >::ana2aims( AObject *x, Object )
+{
+  AVolume<int32_t>       *y = dynamic_cast<AVolume<int32_t> *>( x );
+  if( !y )
+    return rc_ptr<Volume<int32_t> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<int32_t> >::setAims
+( AObject* x, rc_ptr<Volume<int32_t> > y )
+{
+  AVolume<int32_t> *ana = dynamic_cast<AVolume<int32_t> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<uint32_t> >
+ObjectConverter<Volume<uint32_t> >::ana2aims( AObject *x, Object )
+{
+  AVolume<uint32_t>       *y = dynamic_cast<AVolume<uint32_t> *>( x );
+  if( !y )
+    return rc_ptr<Volume<uint32_t> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<uint32_t> >::setAims
+( AObject* x, rc_ptr<Volume<uint32_t> > y )
+{
+  AVolume<uint32_t> *ana = dynamic_cast<AVolume<uint32_t> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<float> >
+ObjectConverter<Volume<float> >::ana2aims( AObject *x, Object )
+{
+  AVolume<float>       *y = dynamic_cast<AVolume<float> *>( x );
+  if( !y )
+    return rc_ptr<Volume<float> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<float> >::setAims
+( AObject* x, rc_ptr<Volume<float> > y )
+{
+  AVolume<float> *ana = dynamic_cast<AVolume<float> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<double> >
+ObjectConverter<Volume<double> >::ana2aims( AObject *x, Object )
+{
+  AVolume<double>       *y = dynamic_cast<AVolume<double> *>( x );
+  if( !y )
+    return rc_ptr<Volume<double> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<double> >::setAims
+( AObject* x, rc_ptr<Volume<double> > y )
+{
+  AVolume<double> *ana = dynamic_cast<AVolume<double> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<AimsRGB> >
+ObjectConverter<Volume<AimsRGB> >::ana2aims( AObject *x, Object )
+{
+  AVolume<AimsRGB>       *y = dynamic_cast<AVolume<AimsRGB> *>( x );
+  if( !y )
+    return rc_ptr<Volume<AimsRGB> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<AimsRGB> >::setAims
+( AObject* x, rc_ptr<Volume<AimsRGB> > y )
+{
+  AVolume<AimsRGB> *ana = dynamic_cast<AVolume<AimsRGB> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+template<> rc_ptr<Volume<AimsRGBA> >
+ObjectConverter<Volume<AimsRGBA> >::ana2aims( AObject *x, Object )
+{
+  AVolume<AimsRGBA>       *y = dynamic_cast<AVolume<AimsRGBA> *>( x );
+  if( !y )
+    return rc_ptr<Volume<AimsRGBA> >( 0 );
+  return( y->volume() );
+}
+
+
+template<> bool
+ObjectConverter<Volume<AimsRGBA> >::setAims
+( AObject* x, rc_ptr<Volume<AimsRGBA> > y )
+{
+  AVolume<AimsRGBA> *ana = dynamic_cast<AVolume<AimsRGBA> *>( x );
+  if( !ana )
+    return false;
+  ana->setVolume( y );
+  return true;
+}
+
+
+//
 
 template<> rc_ptr<TimeTexture<float> >
 ObjectConverter<TimeTexture<float> >::ana2aims( AObject *x, Object options )
@@ -705,6 +929,16 @@ template class ObjectConverter<AimsData<float> >;
 template class ObjectConverter<AimsData<double> >;
 template class ObjectConverter<AimsData<AimsRGB> >;
 template class ObjectConverter<AimsData<AimsRGBA> >;
+template class ObjectConverter<Volume<int8_t> >;
+template class ObjectConverter<Volume<uint8_t> >;
+template class ObjectConverter<Volume<int16_t> >;
+template class ObjectConverter<Volume<uint16_t> >;
+template class ObjectConverter<Volume<int32_t> >;
+template class ObjectConverter<Volume<uint32_t> >;
+template class ObjectConverter<Volume<float> >;
+template class ObjectConverter<Volume<double> >;
+template class ObjectConverter<Volume<AimsRGB> >;
+template class ObjectConverter<Volume<AimsRGBA> >;
 template class ObjectConverter<TimeTexture<float> >;
 template class ObjectConverter<TimeTexture<short> >;
 template class ObjectConverter<TimeTexture<int> >;

@@ -74,6 +74,7 @@
 
 using namespace anatomist;
 using namespace aims;
+using namespace carto;
 using namespace std;
 
 bool QAPerfusionWindow::_typePW = registerClass();
@@ -448,12 +449,12 @@ void QAPerfusionWindow::registerObject( AObject *object )
       setCaption( str );
 
       int dT = 1;
-      aims::Header *ahdr = 0;
+      PropertySet *aheader = 0;
       AVolume< byte > *volb = dynamic_cast< AVolume< byte > * >( object );
       if ( volb )
         {
-	  ahdr = volb->volume()->header();
-	  dT = volb->volume()->dimT();
+	  aheader = &volb->volume()->header();
+	  dT = volb->volume()->getSizeT();
 	}
       else
 	{
@@ -461,13 +462,10 @@ void QAPerfusionWindow::registerObject( AObject *object )
 	  vols = dynamic_cast< AVolume< short > * >( object );
 	  if ( vols )
 	    {
-	      ahdr = vols->volume()->header();
-	      dT = vols->volume()->dimT();
+	      aheader = &vols->volume()->header();
+	      dT = vols->volume()->getSizeT();
 	    }
 	}
-
-      aims::PythonHeader *aheader = 0;
-      if ( ahdr )  aheader = dynamic_cast< aims::PythonHeader * >( ahdr );
 
       float tmp;
       char val[50];
