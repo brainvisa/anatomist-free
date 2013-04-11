@@ -49,7 +49,8 @@ class SelectionActionView( qt.QWidget ):
     qt.QWidget.__init__( self, parent )
     self.setObjectName( name )
     self._action = action
-    window = self._action.view().window()
+    view = self._action.view()
+    window = anatomist.cpp.View.window( self._action.view() )
     objs = window.Objects()
     vertex_it = 0
     edge_it = 0
