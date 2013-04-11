@@ -59,7 +59,7 @@ Fusion2DMesh::Fusion2DMesh( const vector<AObject *> & obj )
     _mergedSurface = new ASurface<2>( "" );
     _mergedSurface->setSurface( new AimsTimeSurface<2,Void> );
     Material & polmat = _mergedSurface->GetMaterial();
-    polmat.SetDiffuse( 0., 0., 0., 1. );
+    polmat.SetDiffuse( 1., 0., 0., 1. );
     polmat.setLineWidth( 2. );
     polmat.setRenderProperty( Material::RenderFiltering, 1 );
     _mergedSurface->SetMaterial( polmat );
@@ -108,33 +108,31 @@ bool Fusion2DMesh::needMergedSurfaceUpdate() const
 //--------------------------------------------------------------
 void Fusion2DMesh::updateMergedSurface( const ViewState & state )
 {
-	if ( !needMergedSurfaceUpdate() )
-	{
-		return;
-	}
+  if ( !needMergedSurfaceUpdate() )
+  {
+    return;
+  }
 
-	// Update the merged surface polygons
-	Point4df plane = getPlane( state );
-        if( plane.norm2() == 0 )
-          return;
-	AimsTimeSurface<2,Void> * dstPol = new AimsTimeSurface<2, Void>;
-	datatype::const_iterator io;
-	for( io = _data.begin(); io != _data.end(); ++io )
-	{
-		const AimsSurfaceTriangle * mesh = dynamic_cast<const ATriangulated *>( (*io).get() )->surface().get();
-		AimsSurfaceTriangle * cut = new AimsSurfaceTriangle;
-		AimsTimeSurface<2,Void> * pol = new AimsTimeSurface<2, Void>;
-		const SliceViewState* st = state.sliceVS();
+  // Update the merged surface polygons
+  Point4df plane = getPlane( state );
+  if( plane.norm2() == 0 )
+    return;
+  AimsTimeSurface<2,Void> * dstPol = new AimsTimeSurface<2, Void>;
+  datatype::const_iterator io;
+  for( io = _data.begin(); io != _data.end(); ++io )
+  {
+    const AimsSurfaceTriangle * mesh = dynamic_cast<const ATriangulated *>( (*io).get() )->surface().get();
+    AimsTimeSurface<2,Void> pol;
+    const SliceViewState* st = state.sliceVS();
+    int timestep = int( rint( state.time / (*io)->TimeStep() ) );
 
-		// Cut the mesh with the current plane
-		aims::SurfaceManip::cutMesh( *mesh, plane, *cut, *pol );
-		// Merge the mesh with the others
-		aims::SurfaceManip::meshMerge( *dstPol, *pol );
-                delete pol;
-                delete cut;
-	}
+    // Cut the mesh with the current plane
+    aims::SurfaceManip::cutMesh( *mesh, plane, pol, timestep );
+    // Merge the mesh with the others
+    aims::SurfaceManip::meshMerge( *dstPol, pol );
+  }
 
-	_mergedSurface->setSurface( dstPol );
+  _mergedSurface->setSurface( dstPol );
 }
 
 //--------------------------------------------------------------
