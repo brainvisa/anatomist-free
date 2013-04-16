@@ -207,7 +207,7 @@ class SelectionAction( anatomist.cpp.Action ):
     return qWidget
 
   def updateNodesOpacity(self, value):
-    window = self.view().window()
+    window = self.view().aWindow()
     objs = window.Objects()
     for obj in objs:
       if isinstance(obj, anatomist.cpp.AGraph):
@@ -225,7 +225,7 @@ class SelectionAction( anatomist.cpp.Action ):
             v0.notifyObservers()
 
   def updateEdgesOpacity(self, value):
-    window = self.view().window()
+    window = self.view().aWindow()
     objs = window.Objects()
     import time
     t = time.time()
@@ -265,7 +265,7 @@ class SelectionAction( anatomist.cpp.Action ):
     if edge.has_key( 'ana_object' ):
       vertices = edge.vertices()
       sf = anatomist.cpp.SelectFactory.factory()
-      window = self.view().window()
+      window = self.view().aWindow()
       group = window.Group()
       for vertex in vertices:
         if vertex.has_key('ana_object') \
@@ -292,7 +292,7 @@ class SelectionAction( anatomist.cpp.Action ):
     # print 'edgeSelection'
     sf = anatomist.cpp.SelectFactory.factory()
     sel = sf.selected()
-    window = self.view().window()
+    window = self.view().aWindow()
     group = window.Group()
     gsel = sel.get( group )
     vertexlist = set()
@@ -392,7 +392,7 @@ class SelectionAction( anatomist.cpp.Action ):
     self._recursing = True
     a = anatomist.cpp.Anatomist()
     v = self.view()
-    w = v.window()
+    w = v.aWindow()
     if self.useBoxHighlight:
       sf = anatomist.cpp.SelectFactory.factory()
       sel = sf.selected().get( w.Group() )
@@ -506,7 +506,7 @@ class SelectionAction( anatomist.cpp.Action ):
       return
     if hasattr( self, '_tempedges' ):
       self._recursion = True
-      window = self.view().window()
+      window = self.view().aWindow()
       for obj in self._tempedges:
         window.unregisterObject(obj.get())
       del self._tempedges

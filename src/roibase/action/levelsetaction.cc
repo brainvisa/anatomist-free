@@ -484,7 +484,7 @@ RoiLevelSetAction::getCurrentImage()
     return _sharedData->myCurrentImage ;
   _sharedData->myGettingCurrentImage = true ;
   //cout << "RoiLevelSetAction::getCurrentImage" << endl ;
-  //   set<AObject*> objs = view()->window()->Objects() ;
+  //   set<AObject*> objs = view()->aWindow()->Objects() ;
   AObject * gotIt = RoiManagementActionSharedData::instance()->
     getObjectByName( AObject::VOLUME, 
 		     RoiManagementActionSharedData::instance()->
@@ -856,7 +856,7 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
 {
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -908,7 +908,7 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
     
   }
   
-  RoiChangeProcessor::instance()->getGraphObject( view()->window() )
+  RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() )
     ->attributed()->setProperty("modified", true) ;
 
   currentModifiedRegion->setBucketChanged() ;
@@ -920,7 +920,7 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -957,7 +957,7 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
   
   currentModifiedRegion->setBucketChanged() ;
 
-  RoiChangeProcessor::instance()->getGraphObject( view()->window() )
+  RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() )
     ->attributed()->setProperty("modified", true) ;
 }
 
@@ -966,7 +966,7 @@ RoiLevelSetAction::removeFromRegion( int x, int y, int, int )
 {
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -984,7 +984,7 @@ RoiLevelSetAction::removeFromRegion( int x, int y, int, int )
   
   
   currentModifiedRegion->setBucketChanged() ;
-  RoiChangeProcessor::instance()->getGraphObject( view()->window() )
+  RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() )
     ->attributed()->setProperty("modified", true) ;
 }
 
@@ -995,7 +995,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
 {
   if( !_sharedData->myCurrentImage )
     return ;
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";

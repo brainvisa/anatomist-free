@@ -79,7 +79,7 @@ Quaternion TrackOblique::beginQuaternion() const
 
 void TrackOblique::beginTrackball( int x, int y, int globalX, int globalY )
 {
-  AWindow3D	* w = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D	* w = dynamic_cast<AWindow3D *>( view()->aWindow() );
 
   /*const Point4df	q = ((QAGLWidget *) view())->quaternion().vector();
   cout << "quat : " << q[0] << ", " << q[1] << ", " << q[2] << ", " 
@@ -134,7 +134,7 @@ void TrackOblique::moveTrackball( int x, int y, int, int )
 
   q.norm();
 
-  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w3 )
     return;
 

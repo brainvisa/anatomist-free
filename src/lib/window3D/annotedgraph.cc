@@ -204,7 +204,7 @@ string AnnotationAction::name() const
 
 void AnnotationAction::annotationSelected()
 {
-  AWindow *win = view()->window();
+  AWindow *win = view()->aWindow();
   set<AObject *> objs = win->Objects();
   list<AGraph *> graphs;
   _temp.clear();
@@ -383,7 +383,7 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
   theAnatomist->registerObject( labels, false );
   theAnatomist->releaseObject( labels );
   labels->setReferentialInheritance( agraph );
-  AWindow *win = view()->window();
+  AWindow *win = view()->aWindow();
   win->registerObject( alines, true );
   for( io=objects.begin(); io!=eo; ++io )
     win->registerObject( io->get(), true );

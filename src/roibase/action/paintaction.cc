@@ -538,7 +538,7 @@ string PaintAction::name() const
 // void
 // PaintAction::refreshWindow( )
 // {
-//   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
+//   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
 //   if (g)
 //     g->updateAll() ;
 // }
@@ -631,7 +631,7 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
   hideCursor();
   // We've first to get the selected bucket.
   if( !( _sharedData->myCurrentModifiedRegion =
-        RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) )
+        RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ) )
     {
       _sharedData->myValidRegion = false ;
       return ;
@@ -654,7 +654,7 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
 
   setChanged() ;
 
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
@@ -671,7 +671,7 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
 						     - g->MinZ2D() ) + 1 ) ;
     }
 
-  RoiChangeProcessor::instance()->getGraphObject( view()->window() )
+  RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() )
     ->attributed()->setProperty("modified", true) ;
 
   myLinkedWindows.clear() ;
@@ -700,7 +700,7 @@ PaintAction::paint( int x, int y, int, int )
   // cerr << "PaintAction::paint : entering" << endl ;
 
   // Now, we've to find the roi graph itself, which is a parent of the bucket.
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";
@@ -716,12 +716,12 @@ PaintAction::paint( int x, int y, int, int )
   if( win->positionFromCursor( x, y, pos ) )
     {
       _sharedData->myCursorPos = pos;
-      AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
+      AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() );
 
       _sharedData->myPainter->paint( win,
 		        theAnatomist->getTransformation(winRef, buckRef),
 			pos,
-			(AGraphObject *)0, RoiChangeProcessor::instance()->getGraphObject( view()->window() ),
+			(AGraphObject *)0, RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() ),
 			_sharedData->myBrushSize, _sharedData->myLineMode,
 			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
 			&g->volumeOfLabels( 0 ),
@@ -776,7 +776,7 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
 
   // We got first to get the selected bucket.
   if ( ! ( _sharedData->myCurrentModifiedRegion =
-	   RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ) ) {
     _sharedData->myValidRegion = false ;
     return ;
   }
@@ -797,7 +797,7 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
 
   setChanged() ;
 
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
   if( !g ) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) ||
@@ -809,7 +809,7 @@ PaintAction::eraseStart( int x, int y, int globalX, int globalY )
 				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
   }
 
-  RoiChangeProcessor::instance()->getGraphObject( view()->window() )
+  RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() )
     ->attributed()->setProperty("modified", true) ;
 
   myLinkedWindows.clear() ;
@@ -837,7 +837,7 @@ PaintAction::erase( int x, int y, int, int )
 {
   //cerr << "PaintAction::erase : entering" << endl ;
 
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";
@@ -862,10 +862,10 @@ PaintAction::erase( int x, int y, int, int )
 
       //Bucket * temp = new Bucket() ;
       //temp->setVoxelSize( _sharedData->myCurrentModifiedRegion->VoxelSize() ) ;
-      AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
+      AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() );
       _sharedData->myPainter-> paint( win,
 			 theAnatomist->getTransformation(winRef, buckRef), pos,
-			 RoiChangeProcessor::instance()->getGraphObject( view()->window() ),
+			 RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() ),
 			 0, _sharedData->myBrushSize,
 			 _sharedData->myLineMode,
 			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
@@ -914,7 +914,7 @@ void
 PaintAction::clearRegion()
 {
   if ( ! ( _sharedData->myCurrentModifiedRegion =
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     _sharedData->myValidRegion = false ;
     return ;
   }
@@ -1230,7 +1230,7 @@ PaintAction::copyNextSliceCurrentRegion()
 void
 PaintAction::fill(int x, int y, int, int )
 {
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";
@@ -1243,7 +1243,7 @@ PaintAction::fill(int x, int y, int, int )
   if( normalVector[0] <= 0.99 && normalVector[1] <= 0.99 && normalVector[2] <= 0.99 )
     return ;
 
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
   if (!g) return ;
 
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> > ;
@@ -1262,7 +1262,7 @@ PaintAction::fill(int x, int y, int, int )
 						     - g->MinZ2D() ) + 1 ) ;
     }
 
-  AGraphObject * graphObject = RoiChangeProcessor::instance()->getGraphObject( view()->window()) ;
+  AGraphObject * graphObject = RoiChangeProcessor::instance()->getGraphObject( view()->aWindow()) ;
   graphObject->attributed()->setProperty("modified", true) ;
 
   myLinkedWindows.clear() ;
@@ -1285,7 +1285,7 @@ PaintAction::fill(int x, int y, int, int )
     {
       Point3df n( normalVector * normalVector.dot( pos - win->GetPosition() ) ) ;
       pos = pos - n ;
-      AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->window() );
+      AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() );
 
       Point3df voxelSize ( _sharedData->myCurrentModifiedRegion->VoxelSize() ) ;
       Transformation * transf = theAnatomist->getTransformation(winRef, buckRef) ;
@@ -2077,7 +2077,7 @@ PaintActionSharedData::~PaintActionSharedData()
 void
 PaintAction::changeCursor( bool cross )
 {
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if (win)
   {
     if ( cross )
@@ -2092,7 +2092,7 @@ void
 PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 {
   if ( ! ( _sharedData->myCurrentModifiedRegion =
-	   RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ) )
+	   RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ) )
     {
       _sharedData->myValidRegion = false ;
       return ;
@@ -2107,7 +2107,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 
   setChanged() ;
 
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
@@ -2125,7 +2125,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
     }
 
   AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
-  AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->window() ) ;
+  AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() ) ;
   grao->attributed()->setProperty("modified", true) ;
 
   myLinkedWindows.clear() ;
@@ -2139,7 +2139,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
     }
   }
 
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";
@@ -2260,11 +2260,11 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
 void PaintAction::updateCursor()
 {
   // cout << "PaintAction::updateCursor\n" << flush;
-  AWindow3D *win = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D *win = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !win )
     return;
   AObject *region = RoiChangeProcessor::instance()->getCurrentRegion(
-  view()->window() );
+  view()->aWindow() );
   if( !region )
     return;
 
@@ -2355,7 +2355,7 @@ void PaintAction::updateCursor()
 
 void PaintAction::moveCursor( int x, int y, int, int )
 {
-  AWindow3D *win = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D *win = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !win )
     return;
   Point3df pos;
@@ -2371,8 +2371,8 @@ void PaintAction::hideCursor()
 {
   if( _sharedData->myCursor )
   {
-    view()->window()->unregisterObject( _sharedData->myCursor );
-    ((AWindow3D *) view()->window())->refreshTemp();
+    view()->aWindow()->unregisterObject( _sharedData->myCursor );
+    ((AWindow3D *) view()->aWindow())->refreshTemp();
     _sharedData->myCursorShapeChanged = true;
   }
 }

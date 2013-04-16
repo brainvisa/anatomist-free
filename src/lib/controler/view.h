@@ -50,8 +50,8 @@ namespace anatomist
     virtual ~View( ) ;
     ControlSwitch * controlSwitch() ;
     virtual std::string name() const = 0 ;
-    virtual AWindow * window() ;
-    virtual const AWindow * window() const ;
+    virtual AWindow * aWindow() ;
+    virtual const AWindow * aWindow() const ;
 
   private:
     ControlSwitch * myControlSwitch ; 

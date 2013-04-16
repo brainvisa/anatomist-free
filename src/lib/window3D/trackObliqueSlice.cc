@@ -79,7 +79,7 @@ void TrackObliqueSlice::moveTrackball( int x, int y, int, int )
 
   q.norm();
 
-  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w3 )
     return;
 

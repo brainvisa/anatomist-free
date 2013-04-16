@@ -92,7 +92,7 @@ string RoiLabelNamingAction::name() const
 AObject* 
 RoiLabelNamingAction::getCurrentImage()
 {
-  //   set<AObject*> objs = view()->window()->Objects() ;
+  //   set<AObject*> objs = view()->aWindow()->Objects() ;
   AObject * gotIt = RoiManagementActionSharedData::instance()->
     getObjectByName( AObject::VOLUME, 
 		     RoiManagementActionSharedData::instance()->
@@ -112,7 +112,7 @@ RoiLabelNamingAction::addConnecCompToRegion( int x, int y, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -151,7 +151,7 @@ RoiLabelNamingAction::removeConnecCompFromRegion( int x, int y, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -199,7 +199,7 @@ RoiLabelNamingAction::addWholeLabelToRegion( int x, int y, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -237,7 +237,7 @@ RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -295,7 +295,7 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
   if( !myCurrentImage )
     return ;
   
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";

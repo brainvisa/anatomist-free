@@ -62,13 +62,13 @@ View::controlSwitch()
 }
 
 AWindow *
-View::window() 
+View::aWindow()
 {
   return myWindow ;
 }
 
 const AWindow *
-View::window() const 
+View::aWindow() const
 {
   return myWindow ;
 }

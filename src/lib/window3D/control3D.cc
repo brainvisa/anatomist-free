@@ -468,7 +468,7 @@ void Select3DControl::doAlsoOnSelect( ActionPool* pool )
     View  *v = a->view();
     if( !v )
       return;
-    QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
+    QAWindow  *aw = dynamic_cast<QAWindow *>( v->aWindow() );
     if( !aw )
       return;
     QToolBar *tb = dynamic_cast<QToolBar *>( aw->child( "select3D_toolbar" ) );
@@ -499,7 +499,7 @@ void Select3DControl::doAlsoOnDeselect( ActionPool* pool )
     View  *v = a->view();
     if( !v )
       return;
-    QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
+    QAWindow  *aw = dynamic_cast<QAWindow *>( v->aWindow() );
     if( !aw )
       return;
     QToolBar *tb = aw->removeToolBar( "select3D_toolbar" );
@@ -563,7 +563,7 @@ void LinkAction::execLink( int x, int y, int, int )
       return;
     }
 
-  AWindow	*win = v->window();
+  AWindow	*win = v->aWindow();
 
   Point3df	pos;
   if( win->positionFromCursor( x, y, pos ) )
@@ -576,7 +576,7 @@ void LinkAction::execLink( int x, int y, int, int )
       vp.push_back( pos[2] );
       vp.push_back( win->GetTime() );
       LinkedCursorCommand	*c 
-	= new LinkedCursorCommand( v->window(), vp );
+	= new LinkedCursorCommand( v->aWindow(), vp );
       theProcessor->execute( c );
       AWindow3D *w3 = dynamic_cast<AWindow3D *>( win );
       if( w3 )
@@ -634,7 +634,7 @@ bool MenuAction::viewableAction()
 
 void MenuAction::execMenu( int x, int y, int, int )
 {
-  view()->window()->button3clicked( x, y );
+  view()->aWindow()->button3clicked( x, y );
 }
 
 
@@ -707,7 +707,7 @@ void SelectAction::select( int x, int y, int modifier )
     }
 
   // new OpenGL-based selection (2010)
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( w3 )
   {
     GlobalConfiguration   *cfg = theAnatomist->config();
@@ -763,11 +763,11 @@ void SelectAction::select( int x, int y, int modifier )
     vp.push_back( pos[1] );
     vp.push_back( pos[2] );
     SelectionCommand	*c
-      = new SelectionCommand( w->window(), vp );
+      = new SelectionCommand( w->aWindow(), vp );
       theProcessor->execute( c );*/
 
-    view()->window()->selectObject( pos[0], pos[1], pos[2],
-                                    view()->window()->GetTime(),
+    view()->aWindow()->selectObject( pos[0], pos[1], pos[2],
+                                    view()->aWindow()->GetTime(),
                                     (SelectFactory::SelectMode) modifier );
   }
 }
@@ -775,7 +775,7 @@ void SelectAction::select( int x, int y, int modifier )
 
 void SelectAction::toggleSelectAll()
 {
-  AWindow		*w = view()->window();
+  AWindow		*w = view()->aWindow();
   set<AObject *>	obj = w->Objects();
   SelectFactory		*sf = SelectFactory::factory();
   bool			allsel = true;
@@ -794,13 +794,13 @@ void SelectAction::toggleSelectAll()
 
 void SelectAction::removeFromWindow()
 {
-  SelectFactory::factory()->removeFromThisWindow( view()->window() );
+  SelectFactory::factory()->removeFromThisWindow( view()->aWindow() );
 }
 
 
 void SelectAction::removeFromGroup()
 {
-  SelectFactory::factory()->remove( view()->window() );
+  SelectFactory::factory()->remove( view()->aWindow() );
 }
 
 
@@ -873,7 +873,7 @@ void Zoom3DAction::endZoomKey()
 {
   _beginpos = -1;
 
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
   if (w && w3 && w3->surfpaintIsVisible())
     w->copyBackBuffer2Texture();
@@ -912,7 +912,7 @@ void Zoom3DAction::moveZoom( int, int y, int, int )
     }
   else
     w->setZoom( zfac * _orgzoom );
-  ((AWindow3D *) w->window())->refreshLightViewNow();
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -952,7 +952,7 @@ void Zoom3DAction::zoom( int distance )
     }
   else
     w->setZoom( zfac * w->zoom() );
-  ((AWindow3D *) w->window())->refreshLightViewNow();
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -1027,7 +1027,7 @@ void Translate3DAction::endTranslate( int, int, int, int )
 {
   endTranslateKey();
 
-  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
   if (w && w3 && w3->surfpaintIsVisible() )
     w->copyBackBuffer2Texture();
@@ -1063,7 +1063,7 @@ void Translate3DAction::moveTranslate( int x, int y, int, int )
   _beginx = x;
   _beginy = y;
 
-  ((AWindow3D *) w->window())->refreshLightViewNow();
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -1099,7 +1099,7 @@ string Sync3DAction::name() const
 
 void Sync3DAction::execSync()
 {
-  AWindow3D	*win = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D	*win = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !win )
     {
       cerr << "Sync3DAction operating on wrong window type -- error\n";
@@ -1111,7 +1111,7 @@ void Sync3DAction::execSync()
 
 void Sync3DAction::execSyncOrientation()
 {
-  AWindow3D	*win = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D	*win = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !win )
     {
       cerr << "Sync3DAction operating on wrong window type -- error\n";
@@ -1867,7 +1867,7 @@ void
 MovieAction::timeout()
 {
   int sliderPosition, maxPosition;
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() ) ;
   if ( ! win )
     return ;
   
@@ -1977,7 +1977,7 @@ Action* SliceAction::creator()
 void SliceAction::previousSlice()
 {
   int sliderPosition ;
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->window() );
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
     return ;
   
@@ -1991,7 +1991,7 @@ void SliceAction::previousSlice()
 void SliceAction::nextSlice()
 {
   int sliderPosition ;
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->window() );
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
     return ;
   
@@ -2005,7 +2005,7 @@ void SliceAction::nextSlice()
 void SliceAction::previousTime()
 {
   int sliderPosition ;
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->window() );
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
     return ;
   
@@ -2019,7 +2019,7 @@ void SliceAction::previousTime()
 void SliceAction::nextTime()
 {
   int sliderPosition ;
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->window() );
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
     return ;
   
@@ -2032,7 +2032,7 @@ void SliceAction::nextTime()
 
 void SliceAction::toggleLinkedOnSlider()
 {
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->window() );
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
     return ;
   bool	onoff = !win->linkedCursorOnSliderChange();
@@ -2065,7 +2065,7 @@ namespace
 
   void dragObjectStart( DragObjectAction *ac, const set<AObject *> & so )
   {
-    QAWindow	*qw = dynamic_cast<QAWindow *>( ac->view()->window() );
+    QAWindow	*qw = dynamic_cast<QAWindow *>( ac->view()->aWindow() );
     if( qw && !so.empty() )
       {
         QDragObject *d = new QAObjectDrag( so, qw, "dragObject" );
@@ -2083,14 +2083,14 @@ namespace
 
 void DragObjectAction::dragAll( int, int, int, int )
 {
-  set<AObject *>	so = view()->window()->Objects();
+  set<AObject *>	so = view()->aWindow()->Objects();
   dragObjectStart( this, so );
 }
 
 
 void DragObjectAction::dragSelected( int, int, int, int )
 {
-  AWindow		*w = view()->window();
+  AWindow		*w = view()->aWindow();
   set<AObject *>	so = w->Objects();
   // filter selected objects
   SelectFactory	*sf = SelectFactory::factory();
@@ -2152,14 +2152,14 @@ bool WindowActions::viewableAction()
 
 void WindowActions::close()
 {
-  AWindow	*w = view()->window();
+  AWindow	*w = view()->aWindow();
   w->close();
 }
 
 
 void WindowActions::toggleShowTools()
 {
-  AWindow	*w = view()->window();
+  AWindow	*w = view()->aWindow();
   Object  p = Object::value( Dictionary() );
   set<AWindow *>  sw;
   sw.insert( w );
@@ -2171,7 +2171,7 @@ void WindowActions::toggleShowTools()
 
 void WindowActions::toggleFullScreen()
 {
-  AWindow	*w = view()->window();
+  AWindow	*w = view()->aWindow();
   Object  p = Object::value( Dictionary() );
   set<AWindow *>  sw;
   sw.insert( w );

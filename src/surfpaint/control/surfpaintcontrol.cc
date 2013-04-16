@@ -132,7 +132,7 @@ void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
 {
   if (myAction)
   {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
+    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->aWindow());
 
     if (w3)
     {
@@ -161,7 +161,7 @@ void SurfpaintToolsControl::doAlsoOnDeselect(ActionPool * /* pool */)
 {
   if (myAction)
   {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->window());
+    AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->aWindow());
     if (w3)
     {
       if (w3->surfpaintIsVisible())

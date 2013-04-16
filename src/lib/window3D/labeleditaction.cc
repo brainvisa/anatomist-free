@@ -104,7 +104,7 @@ bool LabelEditAction::viewableAction()
 void LabelEditAction::pick()
 {
   SelectFactory *fac = SelectFactory::factory();
-  ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->window() );
+  ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->aWindow() );
   if( !w )
     return;
   const map<unsigned, set< AObject *> > & sel = fac->selected();
@@ -150,7 +150,7 @@ void LabelEditAction::edit()
   if( _label.empty() )
     return;
   SelectFactory *fac = SelectFactory::factory();
-  AWindow *w = view()->window();
+  AWindow *w = view()->aWindow();
   if( !w )
     return;
   const map<unsigned, set< AObject *> > & sel = fac->selected();
@@ -219,7 +219,7 @@ void LabelEditAction::setLabel( const string & x, const AObject *obj )
 
   // propagate to all windows in the same group
   set<AWindow *> wins = theAnatomist->getWindowsInGroup(
-      view()->window()->Group() );
+      view()->aWindow()->Group() );
   set<AWindow *>::iterator iw, ew = wins.end();
   for( iw=wins.begin(); iw!=ew; ++iw )
   {
@@ -242,7 +242,7 @@ void LabelEditAction::setLabel( const std::string & l, const AimsRGB & color )
   _color = color;
 
   // set label to toolbar
-  ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->window() );
+  ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->aWindow() );
   if( !w )
     return;
   QLabel *ql = dynamic_cast<QLabel *>( w->child( "selectionLabel" ) );

@@ -73,7 +73,7 @@ namespace anatomist
     }
 
     /*
-    AWindow3D* window = dynamic_cast<AWindow3D*>( widget->window() );
+    AWindow3D* window = dynamic_cast<AWindow3D*>( widget->aWindow() );
 
     const aims::Quaternion & quaternion = window->sliceQuaternion();
     

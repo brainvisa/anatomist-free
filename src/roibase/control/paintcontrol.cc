@@ -381,7 +381,7 @@ PaintControl::doAlsoOnDeselect ( ActionPool * /*pool*/ )
       myPaintAction->hideCursor();
       //cout << "Cursor : Arrow" <<endl ;
       AWindow3D	*w3 
-        = dynamic_cast<AWindow3D *>( myPaintAction->view()->window() );
+        = dynamic_cast<AWindow3D *>( myPaintAction->view()->aWindow() );
       if( w3 )
         {
           w3->enableToolTips( true );
@@ -406,7 +406,7 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
       myPaintAction->changeCursor( true ) ;
 
       AWindow3D	*w3 
-        = dynamic_cast<AWindow3D *>( myPaintAction->view()->window() );
+        = dynamic_cast<AWindow3D *>( myPaintAction->view()->aWindow() );
       if( w3 )
       {
         d->modifiers()[ w3 ] = new GhostSelected( w3 );

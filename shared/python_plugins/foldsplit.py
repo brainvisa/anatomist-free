@@ -54,7 +54,7 @@ class SplitFoldAction( anatomist.Action ):
     self.cleanup()
     a = anatomist.Anatomist()
     v = self.view()
-    w = v.window()
+    w = v.aWindow()
     pos = aims.Point3df()
     ok = v.positionFromCursor( x, y, pos )
     if not ok:
@@ -106,7 +106,7 @@ class SplitFoldAction( anatomist.Action ):
     self.cleanup()
     a = anatomist.Anatomist()
     v = self.view()
-    w = v.window()
+    w = v.aWindow()
     pos = aims.Point3df()
     ok = v.positionFromCursor( x, y, pos )
     if not ok:
@@ -158,7 +158,7 @@ class SplitFoldAction( anatomist.Action ):
     self.cleanup()
     a = anatomist.Anatomist()
     v = self.view()
-    w = v.window()
+    w = v.aWindow()
     obj = w.Objects()
     graphs = []
     ag = None
@@ -303,7 +303,7 @@ class SplitFoldAction( anatomist.Action ):
   def splitDotted( self, x, y, globx, globy ):
     a = anatomist.Anatomist()
     v = self.view()
-    w = v.window()
+    w = v.aWindow()
     pos = aims.Point3df()
     ok = v.positionFromCursor( x, y, pos )
     if not ok:
@@ -403,7 +403,7 @@ class SplitFoldAction( anatomist.Action ):
         pass
       ag.updateAfterAimsChange()
       av = newvertex[ 'ana_object' ]
-      w = self.view().window()
+      w = self.view().aWindow()
       w.registerObject( av )
       sf = anatomist.SelectFactory.factory()
       sf.unselectAll( w.Group() )
@@ -432,7 +432,7 @@ class SplitFoldAction( anatomist.Action ):
         mat = asplit.GetMaterial()
         mat.set( { 'diffuse' : [ 0.6, 0., 0.8, 1. ] } )
         asplit.SetMaterial( mat )
-        w = self.view().window()
+        w = self.view().aWindow()
         w.registerObject( asplit, True )
         data[ 'tempobjects' ].append( asplit )
 

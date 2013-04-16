@@ -325,7 +325,7 @@ string RoiDynSegmentAction::name() const
 AObject* 
 RoiDynSegmentAction::getCurrentImage()
 {
-  //   set<AObject*> objs = view()->window()->Objects() ;
+  //   set<AObject*> objs = view()->aWindow()->Objects() ;
   
   //cout << "RoiDynSegmentAction::getCurrentImage" << endl ;
   AObject * gotIt = RoiManagementActionSharedData::instance()->
@@ -362,7 +362,7 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
   
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   
@@ -415,7 +415,7 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
 {
   //cout << "Entering RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse" << endl ;
   
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: PaintAction operating on wrong view type\n";
@@ -611,7 +611,7 @@ RoiDynSegmentAction::pcaRegionGrowth( )
   
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
-	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->window()*/ ) ) ) {
+	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
   

@@ -727,7 +727,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 
 void SurfpaintTools::removeToolBarControls(AWindow3D *w3)
 {
-  // QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
+  // QAWindow  *aw = dynamic_cast<QAWindow *>( v->aWindow() );
   if (!w3)
     return;
 
@@ -878,7 +878,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
 void SurfpaintTools::removeToolBarInfosTexture(AWindow3D *w3)
 {
-  // QAWindow  *aw = dynamic_cast<QAWindow *>( v->window() );
+  // QAWindow  *aw = dynamic_cast<QAWindow *>( v->aWindow() );
   if (!w3)
     return;
 

@@ -122,7 +122,7 @@ void Trackball::moveTrackball( int x, int y, int, int )
     {
       GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
       if( w )
-        ((AWindow3D *) w->window())->refreshLightViewNow();
+        ((AWindow3D *) w->aWindow())->refreshLightViewNow();
     }
 }
 
@@ -204,10 +204,10 @@ void Trackball::setCenter()
       return;
     }
 
-  AWindow	*win = view()->window();
+  AWindow	*win = view()->aWindow();
   Point3df	pos = win->GetPosition();
   w->setRotationCenter( pos );
-  ((AWindow3D *) w->window())->refreshLightViewNow();
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -227,7 +227,7 @@ void Trackball::showRotationCenter()
   vp.push_back( p[1] );
   vp.push_back( p[2] );
 
-  LinkedCursorCommand	*c = new LinkedCursorCommand( view()->window(), vp );
+  LinkedCursorCommand	*c = new LinkedCursorCommand( view()->aWindow(), vp );
   theProcessor->execute( c );
 }
 
@@ -351,7 +351,7 @@ void ContinuousTrackball::goOn()
     return;
 
   w->setQuaternion( d->lastrot * w->quaternion() );
-  ((AWindow3D *) w->window())->refreshLightViewNow();
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 
   d->timer->start( d->timestep, true );
 }
@@ -453,7 +453,7 @@ void KeyFlightAction::up()
   if( _auto )
     _angleChanged = true;
   else
-    ((AWindow3D *) w->window())->refreshLightViewNow();
+    ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -484,7 +484,7 @@ void KeyFlightAction::down()
   if( _auto )
     _angleChanged = true;
   else
-    ((AWindow3D *) w->window())->refreshLightViewNow();
+    ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -514,7 +514,7 @@ void KeyFlightAction::left()
   if( _auto )
     _angleChanged = true;
   else
-    ((AWindow3D *) w->window())->refreshLightViewNow();
+    ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -544,7 +544,7 @@ void KeyFlightAction::right()
   if( _auto )
     _angleChanged = true;
   else
-    ((AWindow3D *) w->window())->refreshLightViewNow();
+    ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -576,7 +576,7 @@ void KeyFlightAction::spinLeft()
   if( _auto )
     _angleChanged = true;
   else
-    ((AWindow3D *) w->window())->refreshLightViewNow();
+    ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -609,7 +609,7 @@ void KeyFlightAction::spinRight()
   if( _auto )
     _angleChanged = true;
   else
-    ((AWindow3D *) w->window())->refreshLightViewNow();
+    ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
 
 
@@ -669,7 +669,7 @@ void KeyFlightAction::runStep()
       p[2] = -p[2];	// invert Z axis
       //cout << "avance : " << p << endl;
       w->setRotationCenter( c + p );
-      ((AWindow3D *) w->window())->refreshLightViewNow();
+      ((AWindow3D *) w->aWindow())->refreshLightViewNow();
       _angleChanged = false;
     }
 }

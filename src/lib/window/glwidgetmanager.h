@@ -185,12 +185,8 @@ namespace anatomist
     void setRightEye( GLWidgetManager* );
     void setLeftEye( GLWidgetManager* );
 
-    /** force to use View::window() to avoid ambiguity with qt4
-        QWidget::window() */
-    AWindow * window();
-    /** force to use View::window() to avoid ambiguity with qt4
-	QWidget::window() */
-    const AWindow * window() const;
+    AWindow * aWindow();
+    const AWindow * aWindow() const;
 
     virtual int width() = 0;
     virtual int height() = 0;

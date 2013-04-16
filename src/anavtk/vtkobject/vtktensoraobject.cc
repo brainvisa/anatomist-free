@@ -74,12 +74,12 @@ namespace anatomist
     }
 
     anatomist::View* view = (anatomist::View*)widget; // needed to disambiguate between:
-    // AWindow* View::window()
+    // AWindow* View::aWindow()
     // and
     // QWidget* QWidget::window() inherited from vtkQAGLWidget
 
     
-    AWindow3D* window = dynamic_cast<AWindow3D*>( view->window() );
+    AWindow3D* window = dynamic_cast<AWindow3D*>( view->aWindow() );
     const aims::Quaternion & quaternion = window->sliceQuaternion();
     
     if( quaternion.axis()[0] > 0.99 ) {

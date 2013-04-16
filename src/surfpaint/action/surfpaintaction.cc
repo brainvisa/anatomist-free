@@ -93,7 +93,7 @@ void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globa
 
 void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int globalY)
 {
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
 
@@ -185,7 +185,7 @@ void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int glo
 
 void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
 {
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
 
@@ -213,7 +213,7 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
 
 void SurfpaintToolsAction::magicselection(int x, int y, int globalX, int globalY)
 {
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
 
@@ -247,7 +247,7 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
 {
   cout << "distanceStart" << endl;
 
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
@@ -275,7 +275,7 @@ void SurfpaintToolsAction::distanceStop(int x, int y, int globalX, int globalY)
 void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
@@ -316,7 +316,7 @@ void SurfpaintToolsAction::brushStop(int x, int y, int globalX, int globalY)
 void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)
@@ -362,7 +362,7 @@ void SurfpaintToolsAction::magicbrushStop(int x, int y, int globalX, int globalY
 void SurfpaintToolsAction::magicbrushMove(int x, int y, int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (!objselect)
@@ -400,7 +400,7 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
 {
   //cout << "eraseMove" << endl;
 
-  win3D = dynamic_cast<AWindow3D *> (view()->window());
+  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   objselect = win3D->objectAtCursorPosition(x, y);
   if (objselect)

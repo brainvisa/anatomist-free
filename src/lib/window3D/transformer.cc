@@ -80,7 +80,7 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   const std::map<unsigned, set<AObject *> > 
     & sel = SelectFactory::factory()->selected();
   map<unsigned, set<AObject *> >::const_iterator 
-    is = sel.find( view()->window()->Group() );
+    is = sel.find( view()->aWindow()->Group() );
   if( is == sel.end() )
     return;
 
@@ -258,7 +258,7 @@ void TranslaterAction::begin( int x, int y, int, int )
   const std::map<unsigned, set<AObject *> > 
     & sel = SelectFactory::factory()->selected();
   map<unsigned, set<AObject *> >::const_iterator 
-    is = sel.find( view()->window()->Group() );
+    is = sel.find( view()->aWindow()->Group() );
   if( is == sel.end() )
     return;
 
@@ -437,7 +437,7 @@ Quaternion PlanarTransformer::rotation( int x, int y )
       return( Quaternion( 0, 0, 0, 1 ) );
     }
 
-  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( view()->window() );
+  AWindow3D	*w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w3 )
     return Quaternion( 0, 0, 0, 1 );
 

@@ -127,7 +127,7 @@ void TrackCutAction::moveTrackball( int x, int y, int, int )
 
   q.norm();
 
-  AWindow				*w = view()->window();
+  AWindow				*w = view()->aWindow();
   set<AObject *>			obj = w->Objects();
   set<AObject *>::iterator		io, eo = obj.end();
   SelfSliceable				*sl;
@@ -219,7 +219,7 @@ void TrackCutAction::sagittalSlice()
 void TrackCutAction::setSlice( const Quaternion & q )
 {
   Point3df	plane = q.applyInverse( Point3df( 0, 0, 1 ) );
-  AWindow			*w = view()->window();
+  AWindow			*w = view()->aWindow();
   set<AObject *>		obj = w->Objects();
   set<AObject *>::iterator	io, eo = obj.end();
   SelfSliceable			*sl;
@@ -322,7 +322,7 @@ void CutSliceAction::moveTrack( int, int y, int, int )
   Point3df  dims = wid->windowBoundingMax() - wid->windowBoundingMin();
   float scl = max( max( dims[0], dims[1] ), dims[2] ) / dimy;
 
-  AWindow				*w = view()->window();
+  AWindow				*w = view()->aWindow();
   set<AObject *>			obj = w->Objects();
   set<AObject *>::iterator		io, eo = obj.end();
   SelfSliceable				*sl;

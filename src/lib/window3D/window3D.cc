@@ -1467,7 +1467,7 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
   *poly = polygonAtCursorPosition(x, y, objselect);
   *indexNearestVertex = -1;
 
-  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->window());
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   if (objselect)
   {

@@ -1811,7 +1811,7 @@ RoiManagementAction::getImageNames()
       && _sharedData->myImageNames.size() != 0 )
     {
       bool foundImage = false ;
-      std::set< AObject * > objs = view()->window()->Objects() ;
+      std::set< AObject * > objs = view()->aWindow()->Objects() ;
       std::set< AObject * >::iterator it = objs.begin() ;
       while( it != objs.end() && !foundImage ){
 	if( (*it)->type() == AObject::VOLUME ){
@@ -2470,7 +2470,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
   setChanged() ;
   notifyObservers() ;
 
-  objs = view()->window()->Objects() ;
+  objs = view()->aWindow()->Objects() ;
   iter = objs.begin(), last = objs.end() ;
   set<AObject*>::iterator foundGraph = last, foundVolume = last, obj2d = last;
 
@@ -2519,7 +2519,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
     objs.insert( graph ) ;
 
     set<AWindow*> wins ;
-    wins.insert( view()->window() ) ;
+    wins.insert( view()->aWindow() ) ;
 
     Command	*cmd2 = new AddObjectCommand( objs, wins ) ;
     theProcessor->execute( cmd2 ) ;
@@ -2739,7 +2739,7 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
   setChanged() ;
   notifyObservers() ;
 
-  objs = view()->window()->Objects() ;
+  objs = view()->aWindow()->Objects() ;
   iter = objs.begin(), last = objs.end() ;
   set<AObject*>::iterator foundGraph = last, foundVolume = last, obj2d = last ;
 
@@ -2795,7 +2795,7 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
   objs.insert( loadedObj ) ;
 
   set<AWindow*> wins ;
-  wins.insert( view()->window() ) ;
+  wins.insert( view()->aWindow() ) ;
 
   Command	*cmd2 = new AddObjectCommand( objs, wins, false, true );
   theProcessor->execute( cmd2 ) ;
@@ -3350,9 +3350,9 @@ RoiManagementAction::createWindow( const string& type )
   set<AWindow*> wins ;
   wins.insert( win ) ;
 
-  if( view()->window()->Group() != 0 )
+  if( view()->aWindow()->Group() != 0 )
   {
-    Command *cmd1 = new LinkWindowsCommand( wins, view()->window()->Group() );
+    Command *cmd1 = new LinkWindowsCommand( wins, view()->aWindow()->Group() );
     theProcessor->execute( cmd1 );
   }
 
@@ -3361,7 +3361,7 @@ RoiManagementAction::createWindow( const string& type )
   if( graph )
     objs.insert(graph) ;
   else {
-    set<AObject*> winObj = view()->window()->Objects() ;
+    set<AObject*> winObj = view()->aWindow()->Objects() ;
     for( set<AObject*>::iterator it = winObj.begin() ; it != winObj.end() ; ++it )
       if( (*it)->type() == AObject::GRAPH )
 	objs.insert( *it ) ;
@@ -3372,7 +3372,7 @@ RoiManagementAction::createWindow( const string& type )
     if( fusion2D )
       objs.insert( fusion2D ) ;
   } else {
-    set<AObject*> winObj = view()->window()->Objects() ;
+    set<AObject*> winObj = view()->aWindow()->Objects() ;
     for( set<AObject*>::iterator it = winObj.begin() ; it != winObj.end() ; ++it )
       if( (*it)->type() == AObject::VOLUME  || (*it)->type() == AObject::FUSION2D )
 	objs.insert( *it ) ;
@@ -3590,7 +3590,7 @@ void
 RoiManagementAction::cleanRegion( AGraphObject * grao )
 {
   if (grao == 0)
-    RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ;
+    RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ;
 
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   ChangesItem change ;
@@ -3605,7 +3605,7 @@ RoiManagementAction::cleanRegion( AGraphObject * grao )
       if( ( bk = dynamic_cast<Bucket *>( *ic ) ) )
 	break;
   } else {
-    bk = RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ;
+    bk = RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ;
   }
 
   if( !bk )

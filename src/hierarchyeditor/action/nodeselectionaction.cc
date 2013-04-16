@@ -197,7 +197,7 @@ void NodeSelectionAction::add( int x, int y, int , int  )
 
 	/*Selection*/
         GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
-        AWindow	    *aw = view()->View::window();
+        AWindow	    *aw = view()->aWindow();
 	if( !w )
 	{
 		cerr << "SelectAction operating on wrong view type -- error\n";
@@ -267,7 +267,7 @@ void NodeSelectionAction::remove( int x, int y, int , int  )
 
 	/*Selection*/
         GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
-        AWindow     *aw = w->View::window();
+        AWindow     *aw = w->aWindow();
 	if( !w )
 	{
 		cerr << "SelectAction operating on wrong view type -- error\n";
@@ -328,7 +328,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 	}
 		/*Selection*/
         GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
-        AWindow     *aw = w->View::window();
+        AWindow     *aw = w->aWindow();
 	if( !w )
 	{
 		cerr << "SelectAction operating on wrong view type -- error\n";
@@ -348,7 +348,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 	std::map<unsigned, std::set<AObject *> >  current_element = SelectFactory::factory()->selected() ;
 	std::set<AObject *>::iterator im ;
 
-	unsigned num = w->View::window()->Group();
+	unsigned num = w->aWindow()->Group();
 	std::set<AObject *> & temp_num = current_element[num];
 
 	im=temp_num.begin();

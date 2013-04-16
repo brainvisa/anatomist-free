@@ -704,7 +704,7 @@ void GLWidgetManager::record()
 void GLWidgetManager::saveContents( const QString & filename,
                                     const QString & format )
 {
-  window()->show();
+  aWindow()->show();
   qApp->processEvents();
 
   /* // renderPixmap seems not to work with shared contexts:
@@ -714,7 +714,7 @@ void GLWidgetManager::saveContents( const QString & filename,
   // within our routines (and we may have to find a way to disable them)
   int x, y;
   unsigned w, h;
-  window()->geometry( &x, &y, &w, &h );
+  aWindow()->geometry( &x, &y, &w, &h );
   QPixmap pix = qglWidget()->renderPixmap( w, h, false ); // doesn't work....
   if( pix.isNull() )
   {
@@ -1238,7 +1238,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 {
   setupView();
 
-  AWindow3D *w3 = dynamic_cast<AWindow3D *> (window());
+  AWindow3D *w3 = dynamic_cast<AWindow3D *> (aWindow());
 
   if (w3 && w3->surfpaintIsVisible())
   {
@@ -1663,14 +1663,14 @@ void GLWidgetManager::setLeftEye( GLWidgetManager* w )
 }
 
 
-const AWindow* GLWidgetManager::window() const
+const AWindow* GLWidgetManager::aWindow() const
 {
-  return View::window();
+  return View::aWindow();
 }
 
-AWindow* GLWidgetManager::window()
+AWindow* GLWidgetManager::aWindow()
 {
-  return View::window();
+  return View::aWindow();
 }
 
 

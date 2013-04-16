@@ -133,13 +133,13 @@ RoiBlobSegmentationAction::holeDetection()
 void
 RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int ) 
 {
-  Bucket * currentRegion = RoiChangeProcessor::instance()->getCurrentRegion(view()->window() ) ;
+  Bucket * currentRegion = RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ;
   if( !currentRegion )
     return ;
 
   list< pair< Point3d, ChangesItem> > * currentChanges = new list< pair< Point3d, ChangesItem> > ;
   RoiChangeProcessor::instance()->setRedoable( false ) ;
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->window() ) ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
@@ -153,11 +153,11 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
 				   static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
     }
   
-  AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->window() ) ;
+  AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() ) ;
   grao->attributed()->setProperty("modified", true) ;
 
   AimsData<AObject*> volOfLabels( g->volumeOfLabels( 0 ) ) ;
-  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->window() ) ;
+  AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
       cerr << "warning: RoiBlobSegmentationAction operating on wrong view type\n" ;
