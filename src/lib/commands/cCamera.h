@@ -52,7 +52,7 @@ namespace anatomist
 		   const aims::Quaternion* viewq = 0, float zoom = 0,
 		   const aims::Quaternion* sliceq = 0, bool forcedraw = false, 
 		   const Point4df *curpos = 0, const Point3df* bbmin = 0, 
-                   const Point3df* bbmax = 0 );
+                   const Point3df* bbmax = 0, const Point3df* sliceplane = 0 );
     virtual ~CameraCommand();
 
     virtual std::string name() const { return( "Camera" ); }
@@ -77,6 +77,8 @@ namespace anatomist
     bool		_bbminset;
     Point3df		_bbmax;
     bool		_bbmaxset;
+    bool                _hassliceplane;
+    Point3df            _sliceplane;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

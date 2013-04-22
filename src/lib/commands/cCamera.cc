@@ -54,7 +54,8 @@ CameraCommand::CameraCommand( const std::set<AWindow *> & win,
 			      const Quaternion* q, float zoom, 
 			      const Quaternion* sliceq, bool forcedraw, 
 			      const Point4df* curpos, const Point3df* bbmin, 
-                              const Point3df* bbmax ) 
+                              const Point3df* bbmax,
+                              const Point3df* sliceplane )
   : RegularCommand(), _win( win ), _zoom( zoom ), _forcedraw( forcedraw )
 {
   if( observerpos )
@@ -101,6 +102,13 @@ CameraCommand::CameraCommand( const std::set<AWindow *> & win,
     }
   else
     _bbmaxset = false;
+  if( sliceplane )
+  {
+    _sliceplane = *sliceplane;
+    _hassliceplane = true;
+  }
+  else
+    _hassliceplane = false;
 }
 
 
@@ -114,20 +122,16 @@ bool CameraCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "Camera" ];
   
-  s[ "windows"           ].type = "int_vector";
-  s[ "windows"           ].needed = true;
-  s[ "observer_position" ].type = "float_vector";
-  s[ "observer_position" ].needed = false;
-  s[ "view_quaternion"   ].type = "float_vector";
-  s[ "view_quaternion"   ].needed = false;
-  s[ "slice_quaternion"  ].type = "float_vector";
-  s[ "slice_quaternion"  ].needed = false;
+  s[ "windows"           ] = Semantic( "int_vector", true );
+  s[ "observer_position" ] = Semantic( "float_vector", false );
+  s[ "view_quaternion"   ] = Semantic( "float_vector", false );
+  s[ "slice_quaternion"  ] = Semantic( "float_vector", false );
   s[ "zoom"              ].type = "float";
-  s[ "zoom"              ].needed = false;
   s[ "force_redraw"      ].type = "int";
   s[ "cursor_position"   ].type = "float_vector";
   s[ "boundingbox_min"   ].type = "float_vector";
   s[ "boundingbox_max"   ].type = "float_vector";
+  s[ "slice_orientation" ] = Semantic( "float_vector", false );
   Registry::instance()->add( "Camera", &read, ss );
   return( true );
 }
@@ -150,6 +154,11 @@ CameraCommand::doit()
 	    w->setSliceQuaternion( _slicequat );
 	    fullrefresh = true;
 	  }
+        if( _hassliceplane )
+        {
+          w->setSliceOrientation( _sliceplane );
+          fullrefresh = true;
+        }
 	if( _curpos )
 	  {
 	    Point3df	oldpos = w->GetPosition();
@@ -201,7 +210,7 @@ Command* CameraCommand::read( const Tree & com, CommandContext* context )
 {
   vector<int>		win;
   float			zoom = 0;
-  vector<float>		pos, vq, sq, cpos, bbmin, bbmax;
+  vector<float>		pos, vq, sq, cpos, bbmin, bbmax, so;
   int			forcedraw = 0;
   bool			hasbbmin, hasbbmax;
 
@@ -212,6 +221,7 @@ Command* CameraCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "zoom", zoom );
   com.getProperty( "view_quaternion", vq );
   com.getProperty( "slice_quaternion", sq );
+  com.getProperty( "slice_orientation", so );
   com.getProperty( "force_redraw", forcedraw );
   hasbbmin = com.getProperty( "boundingbox_min", bbmin );
   hasbbmax = com.getProperty( "boundingbox_max", bbmax );
@@ -250,11 +260,15 @@ Command* CameraCommand::read( const Tree & com, CommandContext* context )
     bbminf = Point3df( bbmin[0], bbmin[1], bbmin[2] );
   if( hasbbmax )
     bbmaxf = Point3df( bbmax[0], bbmax[1], bbmax[2] );
+  Point3df sliceo;
+  if( so.size() >= 3 )
+    sliceo = Point3df( so[0], so[1], so[2] );
   return( new CameraCommand( wins, pos.size() >= 3 ? &p : 0, 
-			     vq.size() >=4  ? &viewq : 0, zoom, 
-			     sq.size() >= 4 ? &sliceq : 0, 
-			     (bool) forcedraw, cpos.size() >=3 ? &cp : 0, 
-                             hasbbmin ? &bbminf : 0, hasbbmax ? &bbmaxf : 0 ) );
+                             vq.size() >=4  ? &viewq : 0, zoom,
+                             sq.size() >= 4 ? &sliceq : 0,
+                             (bool) forcedraw, cpos.size() >=3 ? &cp : 0,
+                             hasbbmin ? &bbminf : 0, hasbbmax ? &bbmaxf : 0,
+                             so.size() >= 3 ? &sliceo : 0 ) );
 }
 
 
@@ -305,6 +319,14 @@ void CameraCommand::write( Tree & com, Serializer* ser ) const
       sq.push_back( v[3] );
       t->setProperty( "slice_quaternion", sq );
     }
+  if( _hassliceplane )
+  {
+    vector<float> so( 3 );
+    so[0] = _sliceplane[0];
+    so[1] = _sliceplane[1];
+    so[2] = _sliceplane[2];
+    t->setProperty( "slice_orientation", so );
+  }
   if( _forcedraw )
     t->setProperty( "force_redraw", (int) 1 );
   if( _bbminset )

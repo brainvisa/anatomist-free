@@ -238,81 +238,8 @@ Attribue (et crée au besoin) un référential à des objets et des fenêtres.
 </table>
 
 
-<h3>Camera</h3>
-Fixe le point de vue, le zoom etc de fen&ecirc;tres 3D
-
-<table border="1" width="100%" nosave="">
-<tbody>
-  <tr>
-    <td><tt>windows</tt></td>
-    <td><tt>int_vector</tt></td>
-    <td></td>
-  </tr>
-  <tr>
-  <td><tt>zoom</tt></td>
-    <td><tt>float</tt> (optionnel)</td>
-    <td id="txt">facteur de zoom (1=normal)</td>
-  </tr>
-  <tr>
-    <td><tt>observer_position</tt></td>
-    <td><tt>float_vector</tt> (optionnel)</td>
-    <td id="txt">position de la cam&eacute;ra (3&nbsp;coords)</td>
-  </tr>
-  <tr>
-    <td><tt>view_quaternion</tt></td>
-    <td><tt>float_vector</tt> (optionnel)</td>
-    <td id="txt">rotation (4&nbsp;composantes norm&eacute;es)</td>
-  </tr>
-  <tr>
-    <td><tt>slice_quaternion</tt></td>
-    <td><tt>float_vector</tt> (optionnel)</td>
-    <td id="txt">rotation du plan de coupe oblique (4&nbsp;composantes
-      norm&eacute;es)</td>
-  </tr>
-  <tr>
-    <td><tt>force_redraw</tt>
-    </td>
-    <td><tt>int</tt> (optionnel)
-    </td>
-    <td id="txt">force l'affichage effectif de la vue: par
-      d&eacute;faut  les vues sont r&eacute;affich&eacute;es apr&egrave;s un petit
-      d&eacute;lai  de mani&egrave;re &agrave; n'effectuer qu'un seul affichage
-      apr&egrave;s plusieurs modifications. En mode "film", on peut vouloir &ecirc;tre
-      sur que l'image a &eacute;t&eacute; remise &agrave; jour et enregistr&eacute;e.
-    </td>
-  </tr>
-  <tr>
-    <td><tt>cursor_position</tt>
-    </td>
-    <td><tt>float_vector</tt> (optionnel)
-    </td>
-    <td id="txt">fixe la position du curseur li&eacute;,
-      donc du plan de coupe (cf <tt>LinkedCursor</tt>)
-    </td>
-  </tr>
-  <tr>
-    <td><tt>boundingbox_min</tt>
-    </td>
-    <td><tt>float_vector</tt> (optionnel)
-    </td>
-    <td id="txt">
-      <b>Nouveau dans Anatomist 3.1</b><br>
-      fixe la boîte englobante du champ de vue (partie min) dans le système de coordonnées de la fenêtre
-    </td>
-  </tr>
-  <tr>
-    <td><tt>boundingbox_max</tt>
-    </td>
-    <td><tt>float_vector</tt> (optionnel)
-    </td>
-    <td id="txt">
-      <b>Nouveau dans Anatomist 3.1</b><br>
-      fixe la boîte englobante du champ de vue (partie max) dans le système de coordonnées de la fenêtre
-    </td>
-  </tr>
-
-</tbody>
-</table>
+<a name="Camera"></a>
+<h3><a href="../../en/programming/commands/camera.html">Camera</a></h3>
 
 
 <h3>ChangePalette</h3>

@@ -2788,6 +2788,35 @@ void AWindow3D::setSliceQuaternion(const Quaternion & q)
   d->slicequat = q;
 }
 
+void AWindow3D::setSliceOrientation( const Point3df & normal )
+{
+  Point3df pos, v1, v2, v3, r;
+  float    x, y, angle, nrm;
+
+  v3 = normal;
+  nrm = v3.norm();
+  v3.normalize();
+  r = Point3df( 0, 0, 1 );
+  v1 = crossed( r, v3 );
+  if( v1.norm2() < 0.0001 )
+  {
+    v1 = Point3df( 1, 0, 0 );
+    v2 = crossed( v1, r );
+  }
+  else
+  {
+    v1.normalize();
+    v2 = crossed( v1, r );
+  }
+  r = crossed( v1, v2 );
+  x = -r.dot( v3 );
+  y = -v2.dot( v3 );
+  angle = acos( x );
+  if( y < 0 )
+    angle *= -1;
+  d->slicequat.fromAxis( v1, angle );
+}
+
 AWindow3D::ClipMode AWindow3D::clipMode() const
 {
   return (d->clipmode);

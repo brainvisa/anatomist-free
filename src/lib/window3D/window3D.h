@@ -188,6 +188,7 @@ public:
 
   const aims::Quaternion & sliceQuaternion() const;
   void setSliceQuaternion( const aims::Quaternion & q );
+  void setSliceOrientation( const Point3df & normal );
   /// Tries to resize the viewing area to given size
   void resizeView( int w, int h );
   bool boundingBox( Point3df & bmin, Point3df & bmax,
