@@ -71,6 +71,8 @@ QFileDialog & anatomist::fileDialog()
       _fdialog->setDirectory( path );
     _fdialog->setGeometry( geom );
   }
+  else
+    _fdialog->setDirectory( "." );
 
   GlobalConfiguration       *cfg = theAnatomist->config();
   string            cpath;
