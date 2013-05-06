@@ -52,11 +52,13 @@
 #include <anatomist/color/paletteList.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/object/loadevent.h>
+#include <anatomist/sparsematrix/sparsematrix.h>
 #include <aims/data/pheader.h>
 #include <aims/utility/converter_texture.h>
 #include <aims/def/path.h>
 #include <aims/io/fileFormat.h>
 #include <aims/io/readerasobject.h>
+#include <aims/sparsematrix/sparseMatrix.h>
 #include <cartobase/stream/fileutil.h>
 #include <qapplication.h>
 #include <time.h>
@@ -111,6 +113,7 @@ namespace
   bool loadTex2dInt( Process & p, const string & fname, Finder & f );
   bool loadBucket( Process & p, const string & fname, Finder & f );
   bool loadGraph( Process & p, const string & fname, Finder & f );
+  bool loadSparseMatrix( Process & p, const string & fname, Finder & f );
 
 
   class AimsLoader : public Process
@@ -230,6 +233,10 @@ namespace
           if( !vols16 )
             registerProcessType( "Volume", "S16", &loadGraph );
         }
+
+      r2 = restr && !restricted->hasProperty( "SparseMatrix" );
+      if( !r2 )
+        registerProcessType( "SparseMatrix", "DOUBLE", &loadSparseMatrix );
     }
 
     AObject	*object;
@@ -642,6 +649,20 @@ namespace
         return( true );
       }
     return( false );
+  }
+
+
+  bool loadSparseMatrix( Process & p, const string & fname, 
+                         Finder & f )
+  {
+    AimsLoader  & ap = (AimsLoader &) p;
+    rc_ptr<SparseMatrix>   obj( new SparseMatrix );
+    if( !loadData( *obj, fname, f ) )
+      return false;
+    ASparseMatrix    *ao = new ASparseMatrix;
+    ao->setMatrix( obj );
+    ap.object = ao;
+    return true;
   }
 
 
@@ -1299,6 +1320,8 @@ string ObjectReader::allSupportedFileExtensions()
   aexts = supportedFileExtensionsSet( "Hierarchy" );
   exts.insert( aexts.begin(), aexts.end() );
   aexts = supportedFileExtensionsSet( "Bucket" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "SparseMatrix" );
   exts.insert( aexts.begin(), aexts.end() );
 
   string sexts;

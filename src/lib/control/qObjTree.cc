@@ -591,12 +591,12 @@ void QObjectTree::rightButtonPressed( Q3ListViewItem * item, const QPoint & p,
     emit rightButtonPressed( io->second, p );
 }
 
-void QObjectTree::setObjectTypeName(int type, std::string &name)
+void QObjectTree::setObjectTypeName(int type, const std::string &name)
 {
 	TypeNames[type] = name;
 }
 
-void QObjectTree::setObjectTypeIcon(int type, std::string &img)
+void QObjectTree::setObjectTypeIcon(int type, const std::string &img)
 {
   if (!TypeIcons[type].load(img.c_str()))
   {

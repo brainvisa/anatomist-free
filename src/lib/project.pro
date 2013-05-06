@@ -239,6 +239,7 @@ HEADERS = \
 	application/listDir.h \
 	application/anatomist_doc.h \
 	stdmod/stdmod.h \
+        sparsematrix/sparsematrix.h \
 	primitive/primitive.h \
 	constrainteditor/wConstraintEditor.h
 
@@ -469,6 +470,7 @@ SOURCES = \
 	application/fileDialog.cc \
 	application/syntax.cc \
 	application/listDir.cc \
+	sparsematrix/sparsematrix.cc \
 	stdmod/stdmod.cc \
 	primitive/primitive.cc \
 	constrainteditor/wConstraintEditor.cc

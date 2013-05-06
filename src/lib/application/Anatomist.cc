@@ -683,6 +683,8 @@ void Anatomist::updateFileDialogObjectsFilter()
     + ObjectReader::supportedFileExtensions( "Hierarchy" ) + ");;"
     + ControlWindow::tr( "Textures" ).utf8().data() + " ("
     + ObjectReader::supportedFileExtensions( "Texture" ) + ");;"
+    + ControlWindow::tr( "Sparse matrices" ).utf8().data() + " ("
+    + ObjectReader::supportedFileExtensions( "SparseMatrix" ) + ");;"
     + ControlWindow::tr( "Other object files" ).utf8().data() + " ("
     + ObjectReader::anatomistSupportedFileExtensions() + ");;"
     + ControlWindow::tr( "Scripts" ).utf8().data() + " (*.ana);;";

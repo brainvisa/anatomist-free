@@ -87,8 +87,8 @@ public:
   virtual void UndisplayRefColors();
 
 
-  static void setObjectTypeName(int type, std::string &name);
-  static void setObjectTypeIcon(int type, std::string &img);
+  static void setObjectTypeName(int type, const std::string &name);
+  static void setObjectTypeIcon(int type, const std::string &img);
 
   static unsigned 			RefPixSize;
   static std::map<int, QPixmap>		TypeIcons;
