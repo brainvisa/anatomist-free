@@ -219,6 +219,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->marker = new ATriangulated;
   d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
   d->marker->setName( "StartingPoint" );
+  d->marker->setReferentialInheritance( d->mesh );
 //   theAnatomist->registerObject( d->marker, false );
   insert( rc_ptr<AObject>( d->marker ) );
 
@@ -392,7 +393,6 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
 void AConnectivityMatrix::buildPatchIndices()
 {
-  cout << "buildPatchIndices\n";
   if( !d->patch )
   {
     // no patch texture: no indices
@@ -423,9 +423,7 @@ void AConnectivityMatrix::buildPatchIndices()
 
 void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 {
-  cout << "buildTexture\n";
   uint32_t vertex = startvertex;
-  cout << "patchindices: " << d->patchindices.size() << endl;
   if( !d->patchindices.empty() )
   {
     // find vertex in indices
@@ -444,7 +442,6 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
       return;
     }
   }
-  cout << "line: " << vertex << endl;
 
   d->vertex = startvertex;
   rc_ptr<SparseMatrix> mat = d->sparse->matrix();
@@ -470,7 +467,6 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 
 void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
 {
-  cout << "buildColumnTexture\n";
   d->vertex = startvertex;
   rc_ptr<SparseMatrix> mat = d->sparse->matrix();
   vector<double> col = mat->getColumn( startvertex );
@@ -530,7 +526,6 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
     timestep = it->first;
     const vector<int16_t> & tex = it->second.data();
     patchval = tex[ startvertex ];
-    cout << "patch at time " << timestep << ": " << patchval << endl;
     pvals.push_back( patchval );
     vector<uint32_t> patchindices;
     n = d->patchindices.size();
@@ -576,14 +571,11 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
       for( it=tx->begin(), i=0; it!=et; ++it, ++i )
       {
         timestep=it->first;
-        cout << "mesh timestep: " << timestep << endl;
         // get patch texture for meshExtract
         TimeTexture<int16_t> tex16;
         tex16[0] = it->second;
-        cout << "pval: " << pvals[i] << endl;
         AimsSurfaceTriangle *tmesh = SurfaceManip::meshExtract(
           *d->mesh->surface(), tex16, pvals[i] );
-        cout << "vertices: " << tmesh->vertex().size() << endl;
         if( !mesh )
           mesh = tmesh;
         else
