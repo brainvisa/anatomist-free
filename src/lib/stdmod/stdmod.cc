@@ -39,6 +39,7 @@
 #include <anatomist/window3D/trackcut.h>
 #include <anatomist/window3D/labeleditaction.h>
 #include <anatomist/window3D/annotedgraph.h>
+#include <anatomist/window3D/connmatrixcontrol.h>
 #include <anatomist/browser/browsercontrol.h>
 #include <anatomist/controler/controldictionary.h>
 #include <anatomist/controler/controlmanager.h>
@@ -207,6 +208,12 @@ void StdModule::actionsDeclaration()
   ActionDictionary::instance()->addAction( anac.name(),
                                            &AnnotationAction::creator );
 
+  /* FIXME: unplugged for now
+  ConnectivityMatrixAction cmac;
+  ActionDictionary::instance()->addAction( cmac.name(),
+    &ConnectivityMatrixAction::creator );
+  */
+
 
   //	Commands
   AddObjectCommand::initSyntax();
@@ -312,6 +319,14 @@ void StdModule::controlsDeclaration()
                                              sbc.priority() );
   ControlManager::instance()->addControl( "Browser", "", sbc.name() );
 
+  /* FIXME: unplugged for now
+  ConnectivityMatrixControl cmc;
+  ControlDictionary::instance()->addControl( cmc.name(),
+    &ConnectivityMatrixControl::creator, cmc.priority() );
+  ControlManager::instance()->addControl( "QAGLWidget3D", 
+    "ConnectivityMatrix", cmc.name() );
+  */
+
   //	Icons
   {
   QPixmap	p;
@@ -400,6 +415,13 @@ void StdModule::controlsDeclaration()
     if( p.load( Settings::findResourceFile(
       "icons/meshPaint/SurfpaintControl.png" ).c_str() ) )
       IconDictionary::instance()->addIcon( "SurfpaintToolsControl", p );
+  }
+
+  {
+    QPixmap       p;
+    if( p.load( Settings::findResourceFile(
+      "icons/connectivitymatrix_ctrl.png" ).c_str() ) )
+      IconDictionary::instance()->addIcon( "ConnectivityMatrixControl", p );
   }
 
 }

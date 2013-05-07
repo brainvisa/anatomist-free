@@ -45,6 +45,7 @@
 #include <anatomist/volume/slice.h>
 #include <anatomist/volume/Volume.h>
 #include <anatomist/object/clippedobject.h>
+#include <anatomist/sparsematrix/connectivitymatrix.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/mesh/texture.h>
@@ -453,6 +454,34 @@ int FusionTesselationMethod::canFusion( const set<AObject *> & obj )
 AObject* FusionTesselationMethod::fusion( const vector<AObject *> & obj )
 {
   return new TesselatedMesh( obj );
+}
+
+
+// ---------------
+
+string ConnectivityMatrixFusionMethod::ID() const
+{
+  return( QT_TRANSLATE_NOOP( "FusionChooser", 
+                             "ConnectivityMatrixFusionMethod" ) );
+}
+
+
+int ConnectivityMatrixFusionMethod::canFusion( const set<AObject *> & obj )
+{
+  list<AObject *> ordered;
+  AConnectivityMatrix::PatchMode pmode;
+  int patch;
+  bool ok = AConnectivityMatrix::checkObjects( obj, ordered, pmode, patch );
+  if( !ok )
+    return 0;
+  return 100;
+}
+
+
+AObject* ConnectivityMatrixFusionMethod::fusion( 
+  const vector<AObject *> & obj )
+{
+  return new AConnectivityMatrix( obj );
 }
 
 

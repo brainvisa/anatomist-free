@@ -188,6 +188,18 @@ namespace anatomist
     virtual std::string ID() const;
   };
 
+
+  class ConnectivityMatrixFusionMethod : public FusionMethod
+  {
+  public:
+    ConnectivityMatrixFusionMethod() {}
+    virtual ~ConnectivityMatrixFusionMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+    virtual bool orderingMatters() const { return false; }
+  };
+
 }
 
 

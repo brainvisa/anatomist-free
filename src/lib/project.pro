@@ -183,8 +183,9 @@ HEADERS = \
 	window/viewstate.h \
 	window/winFactory.h \
 	window/Window.h \
-    window3D/annotedgraph.h \
-    window3D/orientationAnnotation.h \
+        window3D/annotedgraph.h \
+        window3D/connmatrixcontrol.h \
+        window3D/orientationAnnotation.h \
 	window3D/cursor.h \
 	window3D/glwidget3D.h \
 	window3D/control3D.h \
@@ -239,6 +240,7 @@ HEADERS = \
 	application/listDir.h \
 	application/anatomist_doc.h \
 	stdmod/stdmod.h \
+        sparsematrix/connectivitymatrix.h \
         sparsematrix/sparsematrix.h \
 	primitive/primitive.h \
 	constrainteditor/wConstraintEditor.h
@@ -417,8 +419,9 @@ SOURCES = \
 	window/viewstate.cc \
 	window/winFactory.cc \
 	window/Window.cc \
-    window3D/annotedgraph.cc \
-    window3D/orientationAnnotation.cc \
+        window3D/annotedgraph.cc \
+        window3D/connmatrixcontrol.cc \
+        window3D/orientationAnnotation.cc \
 	window3D/cursor.cc \
 	window3D/glwidget3D.cc \
 	window3D/control3D.cc \
@@ -470,6 +473,7 @@ SOURCES = \
 	application/fileDialog.cc \
 	application/syntax.cc \
 	application/listDir.cc \
+        sparsematrix/connectivitymatrix.cc \
 	sparsematrix/sparsematrix.cc \
 	stdmod/stdmod.cc \
 	primitive/primitive.cc \
