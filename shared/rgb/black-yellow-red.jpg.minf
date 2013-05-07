@@ -1,0 +1,25 @@
+attributes = {
+    'boundingbox_max' : [ 512, 1, 1, 1 ],
+    'boundingbox_min' : [ 0, 0, 0, 0 ],
+    'file_type' : 'JPEG',
+    'filenames' : [ 'black-yellow-red2.jpg' ],
+    'material' : {
+        'ambient' : [ 0.100000001490116, 0.100000001490116, 0.100000001490116, 1 ],
+        'diffuse' : [ 0.800000011920929, 0.800000011920929, 0.800000011920929, 1 ],
+        'emission' : [ 0, 0, 0, 1 ],
+        'shininess' : 20,
+        'specular' : [ 0.200000002980232, 0.200000002980232, 0.200000002980232, 1 ],
+        'unlit_color' : [ 0, 0, 0, 1 ]
+      },
+    'palette_gradients' : '0;0;0.428205;1;0.769231;0.933333;1;0.333333#0;0;0.433333;0.888889;0.635897;0.511111;0.823077;0;1;0#0;0;1;0#0.5;1',
+    'palette_gradients_mode' : 'RGB',
+    'texture_properties' : [ {
+            'filtering' : 'nearest',
+            'generation' : 'none',
+            'interpolation' : 'palette',
+            'mode' : 'decal',
+            'rate' : 1
+          } ],
+    'volume_dimension' : [ 512, 1, 1, 1 ],
+    'voxel_size' : [ 1, 1, 1, 1 ]
+  }
