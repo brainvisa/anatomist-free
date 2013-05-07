@@ -208,12 +208,9 @@ void StdModule::actionsDeclaration()
   ActionDictionary::instance()->addAction( anac.name(),
                                            &AnnotationAction::creator );
 
-  /* FIXME: unplugged for now
   ConnectivityMatrixAction cmac;
   ActionDictionary::instance()->addAction( cmac.name(),
     &ConnectivityMatrixAction::creator );
-  */
-
 
   //	Commands
   AddObjectCommand::initSyntax();
@@ -319,13 +316,11 @@ void StdModule::controlsDeclaration()
                                              sbc.priority() );
   ControlManager::instance()->addControl( "Browser", "", sbc.name() );
 
-  /* FIXME: unplugged for now
   ConnectivityMatrixControl cmc;
   ControlDictionary::instance()->addControl( cmc.name(),
     &ConnectivityMatrixControl::creator, cmc.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", 
     "ConnectivityMatrix", cmc.name() );
-  */
 
   //	Icons
   {

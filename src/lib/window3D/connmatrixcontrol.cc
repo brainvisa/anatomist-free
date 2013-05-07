@@ -36,6 +36,7 @@
 #include <anatomist/sparsematrix/connectivitymatrix.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/controler/control_d.h>
+#include <anatomist/window3D/trackball.h>
 
 using namespace anatomist;
 using namespace carto;
@@ -68,6 +69,50 @@ ConnectivityMatrixAction::~ConnectivityMatrixAction()
 void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y, 
                                                         int, int )
 {
+  cout << "showConnectivityAtPoint\n";
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( !w )
+    return;
+  AObject *obj = w->objectAtCursorPosition( x, y );
+  cout << "object: " << obj << endl;
+  if( !obj )
+    return;
+  AObject::ParentList & parents = obj->parents();
+  AObject::ParentList::iterator ip, ep = parents.end();
+  AConnectivityMatrix *aconn = 0;
+  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
+    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  cout << "conn: " << aconn << endl;
+  if( !aconn )
+    return;
+  rc_ptr<AimsSurfaceTriangle> mesh = aconn->mesh()->surface();
+  int poly = w->polygonAtCursorPosition( x, y, aconn );
+  cout << "poly: " << poly << endl;
+  if( poly == 0xffffff || poly < 0 || poly >= mesh->polygon().size() )
+    return;
+  const AimsVector<uint,3> & ppoly = mesh->polygon()[ poly ];
+  const vector<Point3df> & vert = mesh->vertex();
+  Point3df pos;
+  if( !w->positionFromCursor( x, y, pos ) )
+    return;
+  cout << "pos: " << pos << endl;
+  Point3df d( ( vert[ppoly[0]]-pos ).norm2(), 
+              ( vert[ppoly[1]]-pos ).norm2(),
+              ( vert[ppoly[2]]-pos ).norm2() );
+  int imin = d[0] <= d[1] ? 0 : 1;
+  imin = d[imin] <= d[2] ? imin : 2;
+  uint v = ppoly[ imin ]; // nearest point
+  cout << "vertex: " << v << ", " << vert[v] << endl;
+  aconn->buildTexture( v );
+  aconn->texture()->notifyObservers();
+  aconn->marker()->notifyObservers();
+}
+
+
+void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y, 
+                                                         int, int )
+{
+  cout << "showConnectivityForPatch\n";
   AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w )
     return;
@@ -90,22 +135,16 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
-  Point3df d( ( vert[ppoly[0]]-pos ).norm2(), 
+  Point3df d( ( vert[ppoly[0]]-pos ).norm2(),
               ( vert[ppoly[1]]-pos ).norm2(),
               ( vert[ppoly[2]]-pos ).norm2() );
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
   cout << "vertex: " << v << ", " << vert[v] << endl;
-  aconn->buildTexture( v );
+  aconn->buildPatchTexture( v );
   aconn->texture()->notifyObservers();
   aconn->marker()->notifyObservers();
-}
-
-
-void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y, 
-                                                         int, int )
-{
 }
 
 
@@ -127,16 +166,145 @@ ConnectivityMatrixControl::~ConnectivityMatrixControl()
 
 
 
-void ConnectivityMatrixControl::eventAutoSubscription(  ActionPool * pool )
+void ConnectivityMatrixControl::eventAutoSubscription(
+  ActionPool * actionPool )
 {
   mousePressButtonEventSubscribe( Qt::LeftButton, Qt::NoModifier,
     MouseActionLinkOf<ConnectivityMatrixAction>( 
-      pool->action( "ConnectivityMatrixAction" ), 
+      actionPool->action( "ConnectivityMatrixAction" ), 
       &ConnectivityMatrixAction::showConnectivityAtPoint ) );
   mousePressButtonEventSubscribe( Qt::LeftButton, Qt::ControlModifier,
     MouseActionLinkOf<ConnectivityMatrixAction>( 
-      pool->action( "ConnectivityMatrixAction" ), 
+      actionPool->action( "ConnectivityMatrixAction" ), 
       &ConnectivityMatrixAction::showConnectivityForPatch ) );
+
+  // standard actions
+  mouseLongEventSubscribe
+    ( Qt::LeftButton, Qt::ShiftButton,
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+        &LinkAction::execLink ),
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+        &LinkAction::execLink ),
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+        &LinkAction::endLink ), true );
+
+  mousePressButtonEventSubscribe
+    ( Qt::RightButton, Qt::NoButton,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
+
+  // general window shortcuts
+
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ) );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ) );
+
+  //    rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlButton,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltButton,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ) );
+
+  //    sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoButton,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ) );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltButton,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ) );
+  // rotation
+
+  mouseLongEventSubscribe
+    ( Qt::MidButton, Qt::NoButton,
+      MouseActionLinkOf<ContinuousTrackball>
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::beginTrackball ),
+      MouseActionLinkOf<ContinuousTrackball>
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::moveTrackball ),
+      MouseActionLinkOf<ContinuousTrackball>
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::endTrackball ), true );
+
+  // selection shortcuts
+
+  keyPressEventSubscribe( Qt::Key_A, Qt::ControlButton,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::toggleSelectAll ) );
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoButton,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::removeFromWindow ) );
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlButton,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::removeFromGroup ) );
+
+  // zoom
+
+  mouseLongEventSubscribe
+    ( Qt::MidButton, Qt::ShiftButton,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::beginZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::moveZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::endZoom ), true );
+  wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
+                       ( actionPool->action( "Zoom3DAction" ),
+                         &Zoom3DAction::zoomWheel ) );
+
+  //    translation
+
+  mouseLongEventSubscribe
+    ( Qt::MidButton, Qt::ControlButton,
+      MouseActionLinkOf<Translate3DAction>
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::beginTranslate ),
+      MouseActionLinkOf<Translate3DAction>
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::moveTranslate ),
+      MouseActionLinkOf<Translate3DAction>
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::endTranslate ), true );
+
+  // Slice action
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoButton,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousSlice ) );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoButton,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextSlice ) );
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftButton,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousTime ) );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftButton,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextTime ) );
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlButton,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::toggleLinkedOnSlider ) );
 }
 
 

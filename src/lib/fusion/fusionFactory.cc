@@ -83,8 +83,7 @@ FusionFactory::FusionFactory()
       registerMethod( new FusionClipMethod );
       registerMethod( new FusionTesselationMethod );
       registerMethod( new Fusion2DMeshMethod );
-      // FIXME: unplugged for now
-//       registerMethod( new ConnectivityMatrixFusionMethod );
+      registerMethod( new ConnectivityMatrixFusionMethod );
     }
 }
 

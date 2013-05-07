@@ -44,7 +44,8 @@
 #include <anatomist/application/Anatomist.h>
 #include <aims/sparsematrix/sparseMatrix.h>
 #include <aims/mesh/surfacegen.h>
-#include <algorithm>
+#include <aims/mesh/surfaceOperation.h>
+#include <aims/utility/converter_texture.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -155,6 +156,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
       apal = "Blue-Red-fusion";
     pal->setRefPalette( theAnatomist->palettes().find( apal ) );
     d->patch->setPalette( *pal );
+    d->patch->glSetTexRGBInterpolation( true, 0 );
   }
   else
   {
@@ -170,7 +172,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->texture = new ATexture;
   d->texture->setTexture( tex );
   d->texture->setName( "ConnectivityTexture" );
-  theAnatomist->registerObject( d->texture, false );
+//   theAnatomist->registerObject( d->texture, false );
   d->texture->getOrCreatePalette();
   AObjectPalette *pal = d->texture->palette();
   pal->setRefPalette( theAnatomist->palettes().find( "yellow-red-fusion" ) );
@@ -188,7 +190,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     d->mtexture = static_cast<AMTexture *>( ff->method( 
       "FusionMultiTextureMethod" )->fusion( objf ) );
     d->mtexture->setName( "PatchAndConnectivity" );
-    theAnatomist->registerObject( d->mtexture, false );
+//     theAnatomist->registerObject( d->mtexture, false );
     texture = d->mtexture;
   }
   else // no patch: complete matrix
@@ -217,7 +219,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->marker = new ATriangulated;
   d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
   d->marker->setName( "StartingPoint" );
-  theAnatomist->registerObject( d->marker, false );
+//   theAnatomist->registerObject( d->marker, false );
   insert( rc_ptr<AObject>( d->marker ) );
 
   // build connectivity texture contents
@@ -227,6 +229,8 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
 AConnectivityMatrix::~AConnectivityMatrix()
 {
+  if( d->texsurface )
+    theAnatomist->unregisterObject( d->texsurface );
   delete d;
 }
 
@@ -243,10 +247,15 @@ bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
 
 void AConnectivityMatrix::update( const Observable *observable, void *arg )
 {
-  if( observable != d->texture )
+  if( observable == d->patch )
+  {
+    buildPatchIndices();
+    setChanged();
+    notifyObservers( this );
+  }
+  else if( observable != d->texture )
   {
     setChanged();
-    buildPatchIndices();
     notifyObservers( this );
   }
 }
@@ -383,6 +392,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
 void AConnectivityMatrix::buildPatchIndices()
 {
+  cout << "buildPatchIndices\n";
   if( !d->patch )
   {
     // no patch texture: no indices
@@ -395,6 +405,7 @@ void AConnectivityMatrix::buildPatchIndices()
   uint32_t i = 0, j = 0;
   d->patchindices.resize( min( d->sparse->matrix()->getSize1(), 
                                d->sparse->matrix()->getSize2() ) );
+  cout << "patch size: " << d->patchindices.size() << endl;
   if( d->patchmode == ONE )
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
@@ -414,20 +425,26 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 {
   cout << "buildTexture\n";
   uint32_t vertex = startvertex;
+  cout << "patchindices: " << d->patchindices.size() << endl;
   if( !d->patchindices.empty() )
   {
     // find vertex in indices
-    vector<uint32_t>::const_iterator ipi 
-      = std::find( d->patchindices.begin(), d->patchindices.end(), vertex );
-    if( ipi != d->patchindices.end() )
-      vertex = *ipi;
-    else
+    vector<uint32_t>::const_iterator ipi, epi = d->patchindices.end();
+    uint32_t i = 0;
+    for( ipi=d->patchindices.begin(); ipi!=epi; ++ipi, ++i )
+      if( *ipi == startvertex )
+      {
+        vertex = i;
+        break;
+      }
+    if( ipi == epi )
     {
       // clicked outside patch: show column connections, to the patch
       buildColumnTexture( startvertex );
       return;
     }
   }
+  cout << "line: " << vertex << endl;
 
   d->vertex = startvertex;
   rc_ptr<SparseMatrix> mat = d->sparse->matrix();
@@ -453,11 +470,138 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 
 void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
 {
+  cout << "buildColumnTexture\n";
+  d->vertex = startvertex;
+  rc_ptr<SparseMatrix> mat = d->sparse->matrix();
+  vector<double> col = mat->getColumn( startvertex );
+  rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
+  vector<float> & tex0 = (*tex)[0].data();
+  tex0.resize( d->mesh->surface()->vertex().size(), 0. );
+  vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
+  vector<double>::const_iterator iv, ev = col.end();
+  for( ip=d->patchindices.begin(), iv=col.begin(); ip!=ep; ++ip, ++iv )
+    tex0[*ip] = *iv;
+  d->texture->setTexture( tex );
+
+  // update sphere marker
+  if( d->marker )
+  {
+    AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron(
+      d->mesh->surface()->vertex()[ startvertex ], 1.5 );
+    d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
+    Material & mat = d->marker->GetMaterial();
+    mat.SetDiffuse( 0., .6, 1., 1. );
+    d->marker->SetMaterial( mat );
+    d->marker->glSetChanged( GLComponent::glMATERIAL );
+  }
 }
 
 
 void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
 {
+  if( !d->patch )
+    return;
+
+  // find vertex in patch
+  vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
+  uint32_t vertex = 0, n, texsize = d->mesh->surface()->vertex().size(), i;
+  for( ip=d->patchindices.begin(); ip!=ep; ++ip, ++vertex )
+    if( *ip == startvertex )
+      break;
+  if( ip == ep )
+  {
+    // outside patch
+    buildColumnPatchTexture( startvertex );
+    return;
+  }
+
+  d->vertex = startvertex;
+  rc_ptr<TimeTexture<int16_t> > tx = d->patch->texture<int16_t>( true, false );
+  rc_ptr<TimeTexture<float> > ptex( new TimeTexture<float> );
+  TimeTexture<int16_t>::const_iterator it, et = tx->end();
+  int timestep;
+  int16_t patchval, tval;
+  vector<int16_t> pvals;
+  pvals.reserve( tx->size() );
+  rc_ptr<SparseMatrix> mat = d->sparse->matrix();
+
+  for( it=tx->begin(); it!=et; ++it )
+  {
+    timestep = it->first;
+    const vector<int16_t> & tex = it->second.data();
+    patchval = tex[ startvertex ];
+    cout << "patch at time " << timestep << ": " << patchval << endl;
+    pvals.push_back( patchval );
+    vector<uint32_t> patchindices;
+    n = d->patchindices.size();
+    patchindices.reserve( n ); // sub-patch vertices
+    // get sub-patch
+    for( vertex=0; vertex<n; ++vertex )
+    {
+      tval = tex[ d->patchindices[vertex] ];
+      if( tval == patchval )
+        patchindices.push_back( vertex ); // indices in d->patchindices
+    }
+
+    // sum rows in sparse matrix
+    vector<float> & ptext = (*ptex)[timestep].data();
+    ptext.resize( texsize, 0. );
+    for( vertex=0, n=patchindices.size(); vertex<n; ++vertex )
+    {
+      vector<double> row = mat->getRow( patchindices[vertex] );
+      for( i=0; i<texsize; ++i )
+        ptext[i] += row[i];
+    }
+  }
+
+  // store texture with timesteps
+  d->texture->setTexture( ptex );
+
+  // mesh patch marker
+  if( d->marker )
+  {
+    // is the patch time-dependent ?
+    patchval = pvals[0];
+    for( i=1, n=pvals.size(); i<n; ++i )
+      if( pvals[i] != patchval )
+        break;
+    AimsSurfaceTriangle *mesh = 0;
+    if( i == n ) // only one patch value
+    {
+      mesh = SurfaceManip::meshExtract( *d->mesh->surface(), *tx, patchval );
+    }
+    else
+    {
+      // build sub-mesh for each timestep
+      for( it=tx->begin(), i=0; it!=et; ++it, ++i )
+      {
+        timestep=it->first;
+        cout << "mesh timestep: " << timestep << endl;
+        // get patch texture for meshExtract
+        TimeTexture<int16_t> tex16;
+        tex16[0] = it->second;
+        cout << "pval: " << pvals[i] << endl;
+        AimsSurfaceTriangle *tmesh = SurfaceManip::meshExtract(
+          *d->mesh->surface(), tex16, pvals[i] );
+        cout << "vertices: " << tmesh->vertex().size() << endl;
+        if( !mesh )
+          mesh = tmesh;
+        else
+        {
+          // merge meshes
+          (*mesh)[timestep] = (*tmesh)[0];
+          delete tmesh;
+        }
+      }
+    }
+
+    // set marker mesh
+    d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( mesh ) );
+    Material & mat = d->marker->GetMaterial();
+    mat.SetDiffuse( 1., 0.6, 0., 1. );
+    d->marker->SetMaterial( mat );
+    d->marker->glSetChanged( GLComponent::glMATERIAL );
+  }
 }
 
 
