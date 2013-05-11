@@ -45,9 +45,7 @@
 #include <aims/listview/qpython.h>
 #include <stdio.h>
 
-#if QT_VERSION >= 0x040000
 using namespace Qt;
-#endif
 using namespace anatomist;
 using namespace aims::gui;
 using namespace carto;

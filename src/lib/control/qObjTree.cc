@@ -204,6 +204,7 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   _lview->setAllColumnsShowFocus( true );
   _lview->setItemMargin( 2 );
   _lview->setSorting( 10 );	// disable sorting by default
+//   _lview->setEditTriggers( QAbstractItemView::DoubleClicked );
 
   installBackgroundPixmap( _lview );
 
@@ -218,19 +219,15 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   connect( _lview, SIGNAL( dragStart( Q3ListViewItem*, Qt::ButtonState ) ),
            this, 
 	   SLOT( startDragging( Q3ListViewItem*, Qt::ButtonState ) ) );
-#if QT_VERSION >= 0x040000
   connect( _lview,
            SIGNAL( rightButtonPressed( Q3ListViewItem*, const QPoint &,
                                        int ) ), this,
 	   SLOT( rightButtonPressed( Q3ListViewItem*, const QPoint &,
                                      int ) ) );
-#else
-  connect( _lview,
-           SIGNAL( rightButtonPressed( QListViewItem*, const QPoint &,
-                                       int ) ), this,
-           SLOT( rightButtonPressed( QListViewItem*, const QPoint &,
-                                     int ) ) );
-#endif
+  connect( _lview, 
+           SIGNAL( itemRenamed( Q3ListViewItem*, int, const QString & ) ),
+           this, 
+           SLOT( objectRenamed( Q3ListViewItem*, int, const QString & ) ) );
 }
 
 
@@ -275,7 +272,8 @@ void QObjectTree::registerSubObjects( Q3ListViewItem* li, MObject* mobj )
 
 Q3ListViewItem* QObjectTree::insertObject( Q3ListViewItem* item, AObject*obj )
 {
-  Q3ListViewItem	*ni = new Q3ListViewItem( item );//, "", obj->name() );
+  Q3ListViewItem	*ni = new Q3ListViewItem( item );
+  ni->setRenameEnabled( 2, true  );
 
   _objects.insert( pair<AObject *, Q3ListViewItem *>( obj, ni ) );
   _items[ ni ] = obj;
@@ -326,6 +324,7 @@ void QObjectTree::decorateItem( Q3ListViewItem* item, AObject*obj )
 Q3ListViewItem* QObjectTree::insertObject( Q3ListView* lview, AObject*obj )
 {
   Q3ListViewItem	*ni = new Q3ListViewItem( lview );
+  ni->setRenameEnabled( 2, true );
 
   _objects.insert( pair<AObject *, Q3ListViewItem *>( obj, ni ) );
   _items[ ni ] = obj;
@@ -653,4 +652,22 @@ void QObjectTree::dropEvent( QDropEvent* event )
     new APipeReader( is->latin1() );
   }
 }
+
+
+void QObjectTree::objectRenamed( Q3ListViewItem* item, int, 
+                                 const QString & newname )
+{
+  map<Q3ListViewItem *, AObject *>::const_iterator i = _items.find( item );
+  if( i == _items.end() )
+  {
+    cout << "warning: item does not correspond to an existing object\n";
+    return;
+  }
+  AObject * obj = i->second;
+  // rename obj
+  obj->setName( newname.utf8().data() );
+  theAnatomist->NotifyObjectChange( obj );
+}
+
+
 

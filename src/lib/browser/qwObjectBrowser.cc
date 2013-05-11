@@ -75,10 +75,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
-#if QT_VERSION >= 0x040000
 namespace Qt {}
 using namespace Qt;
-#endif
 
 
 using namespace anatomist;
@@ -299,7 +297,6 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
 
   connect( d->lview, SIGNAL( selectionChanged() ), this, 
 	   SLOT( leftSelectionChangedSlot() ) );
-#if QT_VERSION >= 0x040000
   connect( d->lview, 
 	   SIGNAL( rightButtonPressed( Q3ListViewItem *, 
 				       const QPoint &, int ) ), this, 
@@ -318,26 +315,6 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
            const QString & ) ), this, SLOT( leftItemRenamed( Q3ListViewItem *,
                                            int, const QString & ) ) );
 #endif
-#else // QT_VERSION
-  connect( d->lview, 
-	   SIGNAL( rightButtonPressed( QListViewItem *, 
-				       const QPoint &, int ) ), this, 
-	   SLOT( rightButtonClickedSlot( QListViewItem *, 
-					 const QPoint &, int ) ) );
-  connect( d->lview, SIGNAL( doubleClicked( QListViewItem * ) ), this, 
-	   SLOT( doubleClickedSlot( QListViewItem * ) ) );
-  connect( d->rview, SIGNAL( rightButtonPressed( QListViewItem *, 
-					       const QPoint &, int ) ), 
-	   this, SLOT( rightButtonRightPanel( QListViewItem *, 
-					      const QPoint &, int ) ) );
-  connect( d->rview, SIGNAL( doubleClicked( QListViewItem * ) ), this,
-           SLOT( rightPanelDoubleClicked( QListViewItem * ) ) );
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  connect( d->lview, SIGNAL( itemRenamed( QListViewItem *, int,
-           const QString & ) ), this, SLOT( leftItemRenamed( QListViewItem *,
-                                           int, const QString & ) ) );
-#endif
-#endif // QT_VERSION
   connect( d->rview, SIGNAL( selectionChanged() ), 
 	   this, SLOT( rightSelectionChangedSlot() ) );
   connect( d->lview, SIGNAL( dragStart( Q3ListViewItem *, Qt::ButtonState ) ), 

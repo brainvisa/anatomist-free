@@ -100,11 +100,8 @@ signals:
 
 public slots:
   virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
-#if QT_VERSION >= 0x040000
   void rightButtonPressed( Q3ListViewItem*, const QPoint &, int );
-#else
-  void rightButtonPressed( QListViewItem*, const QPoint &, int );
-#endif
+  void objectRenamed( Q3ListViewItem*, int, const QString & );
 
 protected slots:
   void unselectInvisibleItems();
