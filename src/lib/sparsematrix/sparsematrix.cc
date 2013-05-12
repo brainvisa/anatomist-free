@@ -34,7 +34,7 @@
 #include <anatomist/sparsematrix/sparsematrix.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
-#include <aims/sparsematrix/sparseMatrix.h>
+#include <aims/sparsematrix/sparseordensematrix.h>
 #include <aims/io/reader.h>
 #include <aims/io/writer.h>
 
@@ -46,7 +46,7 @@ using namespace std;
 
 struct ASparseMatrix::Private
 {
-  rc_ptr<SparseMatrix> matrix;
+  rc_ptr<SparseOrDenseMatrix> matrix;
 };
 
 
@@ -83,7 +83,7 @@ ASparseMatrix::~ASparseMatrix()
 GenericObject* ASparseMatrix::attributed()
 {
   if( d->matrix )
-    return &d->matrix->header();
+    return d->matrix->header().get();
   return 0;
 }
 
@@ -91,24 +91,24 @@ GenericObject* ASparseMatrix::attributed()
 const GenericObject* ASparseMatrix::attributed() const
 {
   if( d->matrix )
-    return &d->matrix->header();
+    return d->matrix->header().get();
   return 0;
 }
 
 
-const rc_ptr<SparseMatrix> ASparseMatrix::matrix() const
+const rc_ptr<SparseOrDenseMatrix> ASparseMatrix::matrix() const
 {
   return d->matrix;
 }
 
 
-rc_ptr<SparseMatrix> ASparseMatrix::matrix()
+rc_ptr<SparseOrDenseMatrix> ASparseMatrix::matrix()
 {
   return d->matrix;
 }
 
 
-void ASparseMatrix::setMatrix( rc_ptr<SparseMatrix> matrix )
+void ASparseMatrix::setMatrix( rc_ptr<SparseOrDenseMatrix> matrix )
 {
   d->matrix = matrix;
   setChanged();
@@ -119,8 +119,8 @@ bool ASparseMatrix::reload( const string & filename )
 {
   try
   {
-    Reader<SparseMatrix> r( filename );
-    rc_ptr<SparseMatrix> mat( r.read() );
+    Reader<SparseOrDenseMatrix> r( filename );
+    rc_ptr<SparseOrDenseMatrix> mat( r.read() );
     setMatrix( mat );
   }
   catch( exception & e )
@@ -136,7 +136,7 @@ bool ASparseMatrix::save( const string & filename )
 {
   if( !d->matrix )
     return false;
-  Writer<SparseMatrix> w( filename );
+  Writer<SparseOrDenseMatrix> w( filename );
   w.write( *d->matrix );
   return true;
 }
@@ -148,7 +148,8 @@ AObject* ASparseMatrix::clone( bool shallow )
   if( shallow )
     amat->setMatrix( d->matrix );
   else if( d->matrix )
-    amat->setMatrix( rc_ptr<SparseMatrix>( new SparseMatrix( *d->matrix ) ) );
+    amat->setMatrix( rc_ptr<SparseOrDenseMatrix>( 
+      new SparseOrDenseMatrix( *d->matrix ) ) );
   return amat;
 }
 

@@ -58,7 +58,7 @@
 #include <aims/def/path.h>
 #include <aims/io/fileFormat.h>
 #include <aims/io/readerasobject.h>
-#include <aims/sparsematrix/sparseMatrix.h>
+#include <aims/sparsematrix/sparseordensematrix.h>
 #include <cartobase/stream/fileutil.h>
 #include <qapplication.h>
 #include <time.h>
@@ -656,7 +656,7 @@ namespace
                          Finder & f )
   {
     AimsLoader  & ap = (AimsLoader &) p;
-    rc_ptr<SparseMatrix>   obj( new SparseMatrix );
+    rc_ptr<SparseOrDenseMatrix>   obj( new SparseOrDenseMatrix );
     if( !loadData( *obj, fname, f ) )
       return false;
     ASparseMatrix    *ao = new ASparseMatrix;

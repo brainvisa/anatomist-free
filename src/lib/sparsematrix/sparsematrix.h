@@ -42,7 +42,7 @@
 
 namespace aims
 {
-  class SparseMatrix;
+  class SparseOrDenseMatrix;
 }
 
 
@@ -80,9 +80,9 @@ namespace anatomist
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;
 
-    const carto::rc_ptr<aims::SparseMatrix> matrix() const;
-    carto::rc_ptr<aims::SparseMatrix> matrix();
-    void setMatrix( carto::rc_ptr<aims::SparseMatrix> );
+    const carto::rc_ptr<aims::SparseOrDenseMatrix> matrix() const;
+    carto::rc_ptr<aims::SparseOrDenseMatrix> matrix();
+    void setMatrix( carto::rc_ptr<aims::SparseOrDenseMatrix> );
 
   private:
     struct Private;

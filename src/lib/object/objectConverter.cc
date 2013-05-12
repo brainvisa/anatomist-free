@@ -42,7 +42,7 @@
 #include <anatomist/graph/Graph.h>
 #include <anatomist/hierarchy/hierarchy.h>
 #include <anatomist/sparsematrix/sparsematrix.h>
-#include <aims/sparsematrix/sparseMatrix.h>
+#include <aims/sparsematrix/sparseordensematrix.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -914,17 +914,17 @@ ObjectConverter<Tree>::aims2ana( Tree *x )
 
 
 template<> AObject* 
-ObjectConverter<SparseMatrix>::aims2ana( SparseMatrix *x )
+ObjectConverter<SparseOrDenseMatrix>::aims2ana( SparseOrDenseMatrix *x )
 {
   ASparseMatrix *y = new ASparseMatrix;
-  y->setMatrix( rc_ptr<SparseMatrix>( x ) );
+  y->setMatrix( rc_ptr<SparseOrDenseMatrix>( x ) );
 
   return y;
 }
 
 
 template<> AObject* 
-ObjectConverter<SparseMatrix>::aims2ana( rc_ptr<SparseMatrix> x )
+ObjectConverter<SparseOrDenseMatrix>::aims2ana( rc_ptr<SparseOrDenseMatrix> x )
 {
   ASparseMatrix *y = new ASparseMatrix;
   y->setMatrix( x );
@@ -933,19 +933,19 @@ ObjectConverter<SparseMatrix>::aims2ana( rc_ptr<SparseMatrix> x )
 }
 
 
-template<> rc_ptr<SparseMatrix>
-ObjectConverter<SparseMatrix>::ana2aims( AObject *x, Object )
+template<> rc_ptr<SparseOrDenseMatrix>
+ObjectConverter<SparseOrDenseMatrix>::ana2aims( AObject *x, Object )
 {
   ASparseMatrix *y = dynamic_cast<ASparseMatrix *>( x );
   if( !y )
-    return rc_ptr<SparseMatrix>( 0 );
+    return rc_ptr<SparseOrDenseMatrix>( 0 );
   return y->matrix();
 }
 
 
 template<> bool
-ObjectConverter<SparseMatrix>::setAims( AObject* x,
-                                        rc_ptr<SparseMatrix> y )
+ObjectConverter<SparseOrDenseMatrix>::setAims( AObject* x,
+                                        rc_ptr<SparseOrDenseMatrix> y )
 {
   ASparseMatrix *bk = dynamic_cast<ASparseMatrix *>( x );
   if( !bk )

@@ -42,7 +42,7 @@
 #include <anatomist/color/paletteList.h>
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/application/Anatomist.h>
-#include <aims/sparsematrix/sparseMatrix.h>
+#include <aims/sparsematrix/sparseordensematrix.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/utility/converter_texture.h>
@@ -299,7 +299,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
   unsigned nvert1 = mesh->surface()->vertex().size();
   unsigned nvert2 = nvert1;
-  rc_ptr<SparseMatrix> smat = sparse->matrix();
+  rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
   unsigned texsize = smat->getSize2();
   if( nvert1 != smat->getSize1() )
   {
@@ -444,7 +444,7 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
   }
 
   d->vertex = startvertex;
-  rc_ptr<SparseMatrix> mat = d->sparse->matrix();
+  rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   vector<double> row = mat->getRow( vertex );
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
@@ -468,7 +468,7 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
 {
   d->vertex = startvertex;
-  rc_ptr<SparseMatrix> mat = d->sparse->matrix();
+  rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   vector<double> col = mat->getColumn( startvertex );
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
@@ -519,7 +519,7 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
   int16_t patchval, tval;
   vector<int16_t> pvals;
   pvals.reserve( tx->size() );
-  rc_ptr<SparseMatrix> mat = d->sparse->matrix();
+  rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
 
   for( it=tx->begin(); it!=et; ++it )
   {
