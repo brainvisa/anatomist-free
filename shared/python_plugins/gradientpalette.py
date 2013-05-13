@@ -270,12 +270,20 @@ class GradientPaletteWidget( qtgui.QWidget ):
     l.addWidget( t )
     t.setWordWrapMode( qtgui.QTextOption.WrapAtWordBoundaryOrAnywhere )
     t.setText( self._gradw.getGradientString() )
-    d.connect( t, qt.SIGNAL( 'returnPressed()' ), d.accept )
+    hb = qtgui.QWidget( d )
+    l.addWidget( hb )
+    hl = qtgui.QHBoxLayout( hb )
+    ok = qtgui.QPushButton( self.tr( 'OK' ), hb )
+    cc = qtgui.QPushButton( self.tr( 'Cancel' ), hb )
+    hl.addWidget( ok )
+    hl.addWidget( cc )
+    ok.pressed.connect( d.accept )
+    cc.pressed.connect( d.reject )
     res = d.exec_()
     if res:
-      self._gradw.setGradient( t.text() )
+      self._gradw.setGradient( t.toPlainText() )
       self._gradw.update()
-      self.gradientChanged( t.text() )
+      self.gradientChanged( t.toPlainText() )
 
   def makeStaticPalette( self ):
     obj = self._objects[0]
