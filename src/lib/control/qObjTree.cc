@@ -33,12 +33,15 @@
 
 
 #include <anatomist/control/qObjTree.h>
-#include <aims/listview/qalistview.h>
+#include <aims/listview/qatreewidget.h>
+#include <QTreeWidgetItem>
+#include <QHeaderView>
 #include <qlayout.h>
 #include <qframe.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qpainter.h>
+#include <QDragEnterEvent>
 #include <anatomist/object/Object.h>
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/application/Anatomist.h>
@@ -193,18 +196,36 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
-  _lview = new QAListView( fr, "qObjList" );
-  _lview->addColumn( "" );
-  _lview->addColumn( tr( "Ref" ) );
-  _lview->addColumn( tr( "Objects" ) );
-  _lview->addColumn( tr( "Type" ) );
-  _lview->setMultiSelection( true );
-  _lview->setSelectionMode( Q3ListView::Extended );
+  _lview = new QATreeWidget( fr );
+  _lview->setObjectName( "qObjList" );
+  _lview->setColumnCount( 4 );
+  QTreeWidgetItem* hdr = new QTreeWidgetItem;
+  _lview->setHeaderItem( hdr );
+  hdr->setText( 0, tr( "" ) );
+  hdr->setText( 1, tr( "Ref" ) );
+  hdr->setText( 2, tr( "Objects" ) );
+  hdr->setText( 3, tr( "Type" ) );
+  _lview->setSelectionMode( QTreeWidget::ExtendedSelection );
+  _lview->setItemsExpandable( true );
   _lview->setRootIsDecorated( true );
   _lview->setAllColumnsShowFocus( true );
-  _lview->setItemMargin( 2 );
-  _lview->setSorting( 10 );	// disable sorting by default
-//   _lview->setEditTriggers( QAbstractItemView::DoubleClicked );
+  // _lview->setItemMargin( 2 );
+  // _lview->setSorting( 10 );	// disable sorting by default
+  _lview->setEditTriggers( QAbstractItemView::DoubleClicked 
+    | QAbstractItemView::SelectedClicked | QAbstractItemView::EditKeyPressed );
+  _lview->setSelectionBehavior( QAbstractItemView::SelectRows );
+  _lview->setDragEnabled( true );
+  _lview->setDragDropMode( QAbstractItemView::NoDragDrop );
+  _lview->setAlternatingRowColors( true );
+  _lview->setIconSize( QSize( 32, 32 ) );
+  _lview->header()->setResizeMode( 0, QHeaderView::ResizeToContents );
+  _lview->header()->setResizeMode( 1, QHeaderView::ResizeToContents );
+  _lview->header()->setResizeMode( 2, QHeaderView::Stretch );
+  _lview->header()->setStretchLastSection( false );
+  _lview->header()->setResizeMode( 3, QHeaderView::ResizeToContents );
+  _lview->header()->setSortIndicator( -1, Qt::Ascending );
+  _lview->header()->setSortIndicatorShown( -1 );
+  _lview->setSortingEnabled( true );
 
   installBackgroundPixmap( _lview );
 
@@ -214,20 +235,22 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   initIcons();
   setAcceptDrops(TRUE);
 
-  _lview->connect( _lview, SIGNAL( selectionChanged() ), this, 
+  _lview->connect( _lview, SIGNAL( itemSelectionChanged() ), this, 
                    SLOT( unselectInvisibleItems() ) );
-  connect( _lview, SIGNAL( dragStart( Q3ListViewItem*, Qt::ButtonState ) ),
+  connect( _lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::ButtonState ) ),
            this, 
-	   SLOT( startDragging( Q3ListViewItem*, Qt::ButtonState ) ) );
+           SLOT( startDragging( QTreeWidgetItem*, Qt::ButtonState ) ) );
   connect( _lview,
-           SIGNAL( rightButtonPressed( Q3ListViewItem*, const QPoint &,
-                                       int ) ), this,
-	   SLOT( rightButtonPressed( Q3ListViewItem*, const QPoint &,
-                                     int ) ) );
+           SIGNAL( itemRightPressed( QTreeWidgetItem*, const QPoint & ) ), 
+           this,
+           SLOT( rightButtonPressed( QTreeWidgetItem *, const QPoint & ) ) );
   connect( _lview, 
-           SIGNAL( itemRenamed( Q3ListViewItem*, int, const QString & ) ),
+           SIGNAL( itemChanged( QTreeWidgetItem*, int ) ),
            this, 
-           SLOT( objectRenamed( Q3ListViewItem*, int, const QString & ) ) );
+           SLOT( objectRenamed( QTreeWidgetItem*, int ) ) );
+  connect( _lview->header(), 
+           SIGNAL( sortIndicatorChanged( int, Qt::SortOrder  ) ),
+           this, SLOT( sortIndicatorChanged( int, Qt::SortOrder  ) ) );
 }
 
 
@@ -238,7 +261,7 @@ QObjectTree::~QObjectTree()
 
 void QObjectTree::RegisterObject( AObject* obj )
 {
-  multimap<AObject *, Q3ListViewItem *>::iterator	io 
+  multimap<AObject *, QTreeWidgetItem *>::iterator	io 
     = _objects.find( obj ), fo = _objects.end();
 
   if( io != fo )	// already there
@@ -248,18 +271,18 @@ void QObjectTree::RegisterObject( AObject* obj )
 	  return;	// top-level: no need to add it
     }
 
-  Q3ListViewItem*	li = insertObject( _lview, obj );
+  QTreeWidgetItem*	li = insertObject( _lview, obj );
 
   if( obj->isMultiObject() )
     registerSubObjects( li, (MObject *) obj );
-  _lview->triggerUpdate();
+//   _lview->triggerUpdate();
 }
 
 
-void QObjectTree::registerSubObjects( Q3ListViewItem* li, MObject* mobj )
+void QObjectTree::registerSubObjects( QTreeWidgetItem* li, MObject* mobj )
 {
   MObject::iterator	io, fo=mobj->end();
-  Q3ListViewItem		*ni;
+  QTreeWidgetItem *ni;
 
   for( io=mobj->begin(); io!=fo; ++io )
     {
@@ -270,12 +293,14 @@ void QObjectTree::registerSubObjects( Q3ListViewItem* li, MObject* mobj )
 }
 
 
-Q3ListViewItem* QObjectTree::insertObject( Q3ListViewItem* item, AObject*obj )
+QTreeWidgetItem* QObjectTree::insertObject( QTreeWidgetItem* item, AObject*obj )
 {
-  Q3ListViewItem	*ni = new Q3ListViewItem( item );
-  ni->setRenameEnabled( 2, true  );
+  QTreeWidgetItem	*ni = new QTreeWidgetItem;
+  item->addChild( ni );
+  ni->setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable 
+    | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled );
 
-  _objects.insert( pair<AObject *, Q3ListViewItem *>( obj, ni ) );
+  _objects.insert( pair<AObject *, QTreeWidgetItem *>( obj, ni ) );
   _items[ ni ] = obj;
   decorateItem( ni, obj );
 
@@ -283,7 +308,7 @@ Q3ListViewItem* QObjectTree::insertObject( Q3ListViewItem* item, AObject*obj )
 }
 
 
-void QObjectTree::decorateItem( Q3ListViewItem* item, AObject*obj )
+void QObjectTree::decorateItem( QTreeWidgetItem* item, AObject*obj )
 {
   map<int, QPixmap>::const_iterator	ip, fp = TypeIcons.end();
   const unsigned	iconCol = 0, nameCol = 2, refCol = 1, typeCol = 3;
@@ -291,7 +316,7 @@ void QObjectTree::decorateItem( Q3ListViewItem* item, AObject*obj )
   item->setText( nameCol, obj->name().c_str() );
   ip = TypeIcons.find( obj->type() );
   if( ip != fp )
-    item->setPixmap( iconCol, (*ip).second );
+    item->setIcon( iconCol, (*ip).second );
   else
     {
       static QPixmap	pix;
@@ -304,13 +329,13 @@ void QObjectTree::decorateItem( Q3ListViewItem* item, AObject*obj )
           bmp.fill( Qt::color0 );
           pix.setMask( bmp );
         }
-      item->setPixmap( iconCol, pix );
+      item->setIcon( iconCol, pix );
     }
 
-  item->setPixmap( refCol,
-                   ReferencePixmap::referencePixmap
-                   ( obj->getReferential(), obj->referentialInheritance() == 0,
-                     RefPixSize ) );
+  item->setIcon( refCol,
+                 ReferencePixmap::referencePixmap
+                 ( obj->getReferential(), obj->referentialInheritance() == 0,
+                   RefPixSize ) );
 
   map<int, string>::const_iterator	in = TypeNames.find( obj->type() );
 
@@ -321,12 +346,14 @@ void QObjectTree::decorateItem( Q3ListViewItem* item, AObject*obj )
 }
 
 
-Q3ListViewItem* QObjectTree::insertObject( Q3ListView* lview, AObject*obj )
+QTreeWidgetItem* QObjectTree::insertObject( QTreeWidget* lview, AObject*obj )
 {
-  Q3ListViewItem	*ni = new Q3ListViewItem( lview );
-  ni->setRenameEnabled( 2, true );
+  QTreeWidgetItem	*ni = new QTreeWidgetItem;
+  lview->insertTopLevelItem( 0, ni );
+  ni->setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable 
+    | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled );
 
-  _objects.insert( pair<AObject *, Q3ListViewItem *>( obj, ni ) );
+  _objects.insert( pair<AObject *, QTreeWidgetItem *>( obj, ni ) );
   _items[ ni ] = obj;
   decorateItem( ni, obj );
 
@@ -336,42 +363,42 @@ Q3ListViewItem* QObjectTree::insertObject( Q3ListView* lview, AObject*obj )
 
 void QObjectTree::UnregisterObject( AObject* obj )
 {
-  multimap<AObject *, Q3ListViewItem *>::iterator 
+  multimap<AObject *, QTreeWidgetItem *>::iterator 
     io = _objects.find( obj ), fo = _objects.end(), jo;
 
   while( io!=fo && (*io).first==obj )
-    {
-      unregisterSubObjects( (*io).second );
-      _items.erase( io->second );
-      delete (*io).second;
-      jo = io;
-      ++io;
-      _objects.erase( jo );
-    }
-  _lview->triggerUpdate();
+  {
+    unregisterSubObjects( (*io).second );
+    _items.erase( io->second );
+    delete (*io).second;
+    jo = io;
+    ++io;
+    _objects.erase( jo );
+  }
+  // _lview->triggerUpdate();
 }
 
 
 void QObjectTree::NotifyObjectChange( AObject* obj )
 {
-  multimap<AObject *, Q3ListViewItem *>::iterator 
+  multimap<AObject *, QTreeWidgetItem *>::iterator 
     io = _objects.find( obj ), fo = _objects.end();
 
   for( ; io!=fo && (*io).first==obj; ++io )
     {
       decorateItem( (*io).second, obj );
-      (*io).second->widthChanged( 0 );
+      // (*io).second->widthChanged( 0 );
     }
-  _lview->triggerUpdate();
+  // _lview->triggerUpdate();
 }
 
 
 void QObjectTree::RegisterSubObject( MObject *mobj, AObject *obj )
 {
-  list<Q3ListViewItem *>	lit;
-  multimap<AObject *, Q3ListViewItem *>::iterator 
+  list<QTreeWidgetItem *>	lit;
+  multimap<AObject *, QTreeWidgetItem *>::iterator 
     io = _objects.find( mobj ), fo = _objects.end();
-  Q3ListViewItem		*ni;
+  QTreeWidgetItem *ni;
 
   for( ; io!=fo && (*io).first==mobj; ++io )
     {
@@ -384,11 +411,11 @@ void QObjectTree::RegisterSubObject( MObject *mobj, AObject *obj )
 
 void QObjectTree::UnregisterSubObject( MObject *mobj, AObject *obj )
 {
-  multimap<AObject *, Q3ListViewItem *>::iterator	
+  multimap<AObject *, QTreeWidgetItem *>::iterator	
     io = _objects.find( obj ), fo = _objects.end(), io2;
-  map<Q3ListViewItem *, AObject *>::iterator	ii, fi=_items.end();
-  Q3ListViewItem				*par;
-  bool						incit;
+  map<QTreeWidgetItem *, AObject *>::iterator	ii, fi=_items.end();
+  QTreeWidgetItem *par;
+  bool		incit;
 
   while( io!=fo && (*io).first==obj )
     {
@@ -415,42 +442,43 @@ void QObjectTree::UnregisterSubObject( MObject *mobj, AObject *obj )
 }
 
 
-void QObjectTree::unregisterSubObjects( Q3ListViewItem* it )
+void QObjectTree::unregisterSubObjects( QTreeWidgetItem * it )
 {
-  multimap<AObject *, Q3ListViewItem *>::iterator	
+  multimap<AObject *, QTreeWidgetItem *>::iterator	
     io, fo = _objects.end();
   unsigned					i, n = it->childCount();
-  Q3ListViewItem				*ch = it->firstChild();
-  map<Q3ListViewItem *, AObject *>::iterator	ii, fi;
+  QTreeWidgetItem				*ch;
+  map<QTreeWidgetItem *, AObject *>::iterator	ii, fi;
   AObject					*obj;
 
-  for( i=0; i<n; ++i, ch = ch->nextSibling() )
+  for( i=0; i<n; ++i )
+  {
+    ch = it->child( i );
+    ii = _items.find( ch );
+    if( ii == fi )
     {
-      ii = _items.find( ch );
-      if( ii == fi )
-	{
-	  cerr << "QObjectTree::unregisterSubObjects : item not found\n";
-	}
-      else
-	{
-	  obj = (*ii).second;
-	  _items.erase( ii );
-	  for( io=_objects.find( obj ); io!=fo && (*io).first==obj; ++io )
-	    if( (*io).second == ch )
-	      {
-		_objects.erase( io );
-		break;
-	      }
-	  if( ch->childCount() > 0 )
-	    unregisterSubObjects( ch );
-	}
+      cerr << "QObjectTree::unregisterSubObjects : item not found\n";
     }
+    else
+    {
+      obj = (*ii).second;
+      _items.erase( ii );
+      for( io=_objects.find( obj ); io!=fo && (*io).first==obj; ++io )
+        if( (*io).second == ch )
+          {
+            _objects.erase( io );
+            break;
+          }
+      if( ch->childCount() > 0 )
+        unregisterSubObjects( ch );
+    }
+  }
 }
 
 
 set<AObject *> *QObjectTree::SelectedObjects() const
 {
-  multimap<AObject *, Q3ListViewItem *>::const_iterator	io, fo=_objects.end();
+  multimap<AObject *, QTreeWidgetItem*>::const_iterator	io, fo=_objects.end();
   set<AObject *>	*lo = new set<AObject *>;
 
   for( io=_objects.begin(); io!=fo; ++io )
@@ -464,8 +492,9 @@ set<AObject *> *QObjectTree::SelectedObjects() const
 
 AObject* QObjectTree::ObjectOfNumber( unsigned pos ) const
 {
-  multimap<AObject *, Q3ListViewItem *>::const_iterator	io, fo=_objects.end();
-  unsigned						n;
+  multimap<AObject *, QTreeWidgetItem *>::const_iterator
+    io, fo=_objects.end();
+  unsigned n;
 
   if( pos >= _objects.size() )
     return( 0 );	// not in list
@@ -478,7 +507,7 @@ AObject* QObjectTree::ObjectOfNumber( unsigned pos ) const
 
 void QObjectTree::SelectObject( AObject *obj )
 {
-  multimap<AObject *, Q3ListViewItem *>::iterator	io 
+  multimap<AObject *, QTreeWidgetItem *>::iterator	io 
     = _objects.find( obj ), fo = _objects.end();
 
   if( io == fo )
@@ -494,7 +523,7 @@ void QObjectTree::SelectObject( AObject *obj )
 
 bool QObjectTree::isObjectSelected( AObject* obj ) const
 {
-  multimap<AObject *, Q3ListViewItem *>::const_iterator	io 
+  multimap<AObject *, QTreeWidgetItem *>::const_iterator	io 
     = _objects.find( obj ), fo = _objects.end();
 
   if( io == fo )
@@ -513,7 +542,8 @@ bool QObjectTree::isObjectSelected( AObject* obj ) const
 
 void QObjectTree::UnselectAll()
 {
-  multimap<AObject *, Q3ListViewItem *>::const_iterator	io, fo=_objects.end();
+  multimap<AObject *, QTreeWidgetItem *>::const_iterator
+  io, fo=_objects.end();
 
   for( io=_objects.begin(); io!=fo; ++io )
     (*io).second->setSelected( false );
@@ -537,23 +567,20 @@ void QObjectTree::ToggleRefColorsView()
 
 void QObjectTree::DisplayRefColors()
 {
-  _lview->setColumnWidthMode( 1, Q3ListView::Maximum );
-  _lview->setColumnWidth( 1, RefPixSize + 20 );
+  _lview->header()->setResizeMode( 1, QHeaderView::ResizeToContents );
   _viewRefCol = true;
-  _lview->triggerUpdate();
 }
 
 
 void QObjectTree::UndisplayRefColors()
 {
-  _lview->setColumnWidthMode( 1, Q3ListView::Manual );
-  _lview->setColumnWidth( 1, 0 );
+  _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
+  _lview->header()->resizeSection( 1, 0 );
   _viewRefCol = false;
-  _lview->triggerUpdate();
 }
 
 
-void QObjectTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
+void QObjectTree::startDragging( QTreeWidgetItem* item, Qt::ButtonState )
 {
   //cout << "QObjectTree::startDragging\n";
   if( !item )
@@ -561,7 +588,7 @@ void QObjectTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
 
   if( !item->isSelected() )
     {
-      map<Q3ListViewItem *, AObject *>::iterator io = _items.find( item );
+      map<QTreeWidgetItem *, AObject *>::iterator io = _items.find( item );
       if( io != _items.end() )
         SelectObject( io->second );
     }
@@ -574,7 +601,7 @@ void QObjectTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
       map<int, QPixmap>::const_iterator	ip
         = TypeIcons.find( (*so->begin())->type() );
       if( ip != TypeIcons.end() )
-        d->setPixmap( (*ip).second );
+        d->setPixmap( (*ip).second ); // FIXME
       d->dragCopy();
       //cout << "dragCopy done\n";
     }
@@ -582,17 +609,17 @@ void QObjectTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
 }
 
 
-void QObjectTree::rightButtonPressed( Q3ListViewItem * item, const QPoint & p, 
-                                      int )
+void QObjectTree::rightButtonPressed( QTreeWidgetItem* item, const QPoint & p )
 {
-  map<Q3ListViewItem *, AObject *>::iterator	io = _items.find( item );
+  map<QTreeWidgetItem *, AObject *>::iterator
+    io = _items.find( item );
   if( io != _items.end() )
-    emit rightButtonPressed( io->second, p );
+    emit rightButtonPressed( io->second, mapToGlobal( p ) );
 }
 
 void QObjectTree::setObjectTypeName(int type, const std::string &name)
 {
-	TypeNames[type] = name;
+  TypeNames[type] = name;
 }
 
 void QObjectTree::setObjectTypeIcon(int type, const std::string &img)
@@ -607,7 +634,7 @@ void QObjectTree::setObjectTypeIcon(int type, const std::string &img)
 
 void QObjectTree::unselectInvisibleItems()
 {
-  _lview->unselectInvisibleItems();
+//   _lview->unselectInvisibleItems(); // FIXME
   emit selectionChanged();
 }
 
@@ -654,20 +681,32 @@ void QObjectTree::dropEvent( QDropEvent* event )
 }
 
 
-void QObjectTree::objectRenamed( Q3ListViewItem* item, int, 
-                                 const QString & newname )
+void QObjectTree::objectRenamed( QTreeWidgetItem* item, int col )
 {
-  map<Q3ListViewItem *, AObject *>::const_iterator i = _items.find( item );
+  int nameCol = 2;
+  if( col != nameCol )
+    return;
+
+  map<QTreeWidgetItem *, AObject *>::const_iterator i = _items.find( item );
   if( i == _items.end() )
   {
     cout << "warning: item does not correspond to an existing object\n";
     return;
   }
+  QString newname = item->text( nameCol );
   AObject * obj = i->second;
   // rename obj
-  obj->setName( newname.utf8().data() );
-  theAnatomist->NotifyObjectChange( obj );
+  if( obj->name() != newname.toUtf8().data() )
+  {
+    obj->setName( newname.toUtf8().data() );
+    theAnatomist->NotifyObjectChange( obj );
+  }
 }
 
 
+void QObjectTree::sortIndicatorChanged( int col, Qt::SortOrder )
+{
+  if( col == 0 && _lview->header()->sortIndicatorSection() != -1 )
+    _lview->header()->setSortIndicator( -1, Qt::Ascending );
+}
 

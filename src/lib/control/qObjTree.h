@@ -36,12 +36,14 @@
 #define ANAQT_CONTROL_QOBJTREE_H
 
 
-#include <aims/listview/qalistview.h>
+#include <qtreewidget.h>
 #include <map>
 #include <string>
 #include <set>
 
 class QPixmap;
+class QTreeWidget;
+class QTreeWidgetItem;
 
 namespace anatomist
 {
@@ -99,31 +101,32 @@ signals:
   void rightButtonPressed( anatomist::AObject*, const QPoint & );
 
 public slots:
-  virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
-  void rightButtonPressed( Q3ListViewItem*, const QPoint &, int );
-  void objectRenamed( Q3ListViewItem*, int, const QString & );
+  virtual void startDragging( QTreeWidgetItem*, Qt::ButtonState );
+  void rightButtonPressed( QTreeWidgetItem*, const QPoint & );
+  void objectRenamed( QTreeWidgetItem*, int );
+  void sortIndicatorChanged( int, Qt::SortOrder );
 
 protected slots:
   void unselectInvisibleItems();
 
 protected:
-  virtual void registerSubObjects( Q3ListViewItem* li, 
+  virtual void registerSubObjects( QTreeWidgetItem* li, 
 				   anatomist::MObject* mobj );
-  virtual void unregisterSubObjects( Q3ListViewItem* li );
-  virtual Q3ListViewItem* insertObject( Q3ListViewItem* item, 
+  virtual void unregisterSubObjects( QTreeWidgetItem* li );
+  virtual QTreeWidgetItem* insertObject( QTreeWidgetItem* item, 
 				        anatomist::AObject* obj );
-  virtual Q3ListViewItem* insertObject( Q3ListView* lview, 
+  virtual QTreeWidgetItem* insertObject( QTreeWidget* lview, 
 				        anatomist::AObject* obj );
-  virtual void decorateItem( Q3ListViewItem* item, anatomist::AObject* obj );
+  virtual void decorateItem( QTreeWidgetItem* item, anatomist::AObject* obj );
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
   virtual void dropEvent( QDropEvent* );
 
   static void initIcons();
 
-  std::multimap<anatomist::AObject *, Q3ListViewItem *>	_objects;
-  std::map<Q3ListViewItem *, anatomist::AObject *>	_items;
-  aims::gui::QAListView					*_lview;
+  std::multimap<anatomist::AObject *, QTreeWidgetItem *> _objects;
+  std::map<QTreeWidgetItem *, anatomist::AObject *>	_items;
+  QTreeWidget				                *_lview;
   bool							_viewRefCol;
 
 private:
