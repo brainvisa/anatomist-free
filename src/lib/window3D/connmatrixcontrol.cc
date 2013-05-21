@@ -37,6 +37,7 @@
 #include <anatomist/surface/texture.h>
 #include <anatomist/controler/control_d.h>
 #include <anatomist/window3D/trackball.h>
+#include <anatomist/controler/view.h>
 
 using namespace anatomist;
 using namespace carto;

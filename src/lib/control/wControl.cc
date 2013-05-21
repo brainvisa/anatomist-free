@@ -389,24 +389,11 @@ void ControlWindow::createIcons()
       "icons/reference.xpm" ).c_str() );
     QPixmap	p( Settings::findResourceFile(
       "icons/reference-active.xpm" ).c_str() );
-#if QT_VERSION >= 0x040000
     QIcon	is( refpix );
     if( !p.isNull() )
       is.addPixmap( p, QIcon::Active );
     iconbar->addAction( is, tr( "Assign referential" ), this,
                         SLOT( chooseReferential() ) );
-#else
-    QIconSet	is( refpix, QIconSet::Large );
-    is.setPixmap( refpix, QIconSet::Small, QIconSet::Active );
-    if( !p.isNull() )
-      is.setPixmap( p, QIconSet::Large, QIconSet::Active );
-    d->referencebtn
-      = new QToolButton( is, tr( "Assign referential" ),
-                          tr( "Choose a referential on objects or windows" ),
-                          this, SLOT( chooseReferential() ), iconbar,
-                          "referenceBtn" );
-    //openbtn->setUsesTextLabel( true );
-#endif
   }
 
   //ARN BEGIN

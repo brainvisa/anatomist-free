@@ -59,10 +59,6 @@
 #include <anatomist/application/globalConfig.h>
 #include <qtimer.h>
 #include <qtoolbar.h>
-#include <aims/qtcompat/qtoolbutton.h>
-#if QT_VERSION < 0x040000
-#include <qtooltip.h>
-#endif
 #include <stdlib.h>
 
 #include <anatomist/window/glwidget.h>

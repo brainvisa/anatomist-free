@@ -43,11 +43,6 @@
 #include <anatomist/graph/Graph.h>
 #include <anatomist/hierarchy/hierarchy.h>
 #include <graph/tree/tree.h>
-#include <qtoolbar.h>
-#include <aims/qtcompat/qtoolbutton.h>
-#if QT_VERSION < 0x040000
-#include <qtooltip.h>
-#endif
 
 using namespace anatomist;
 using namespace carto;
@@ -241,7 +236,6 @@ void LabelEditAction::setLabel( const std::string & l, const AimsRGB & color )
   _label = l;
   _color = color;
 
-  // set label to toolbar
   ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->aWindow() );
   if( !w )
     return;

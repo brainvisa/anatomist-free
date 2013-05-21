@@ -32,6 +32,8 @@
  */
 
 #include <anatomist/module/surfpainttools.h>
+#include <QToolBar>
+#include <QToolButton>
 
 
 SurfpaintTools::SurfpaintTools()/* : Observer()*/

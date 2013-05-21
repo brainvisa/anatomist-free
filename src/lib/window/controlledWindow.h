@@ -37,21 +37,8 @@
 
 
 #include <anatomist/window/qwindow.h>
-#include <aims/qtcompat/qtoolbutton.h>
-#include <anatomist/controler/icondictionary.h>
-#include <anatomist/controler/controldictionary.h>
-#include <anatomist/controler/view.h>
-#include <anatomist/object/Object.h>
-#include <anatomist/selection/selectFactory.h>
-#include <qtoolbar.h>
-#include <qtimer.h>
-#include <iostream>
 
-namespace anatomist
-{
-  struct ControlledWindow_PrivateData;
-}
-
+class QAction;
 
 /**	Anatomist Window using Qt and controler system, providing a toolbar 
 	for controls */
@@ -79,19 +66,17 @@ public:
   virtual const anatomist::View* view() const = 0;
 
   //ARN
-  std::map<std::string, QToolButton *> getControlButtonObjects( void );
+  std::map<std::string, QAction *> getControlButtonObjects( void );
 
 public slots:
-  /** just calls \updateActiveControl(). We cannot use directly 
-      \updateActiveControl() as a virtual slot, due to a \moc limitation 
-      (documented in Qt HTML documentation) */
-  virtual void activeControlChanged();
+  virtual void activeControlChanged( QAction* );
   virtual void updateControls();
 
 protected:
 
 private:
-  anatomist::ControlledWindow_PrivateData	*d;
+  struct Private;
+  Private *d;
 };
 
 

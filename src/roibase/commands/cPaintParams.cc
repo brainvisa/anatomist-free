@@ -39,6 +39,7 @@
 // #include <anatomist/processor/context.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/controlledWindow.h>
+#include <anatomist/controler/view.h>
 #include <anatomist/application/roibasemodule.h>
 #include <anatomist/controler/controlswitch.h>
 #include <anatomist/action/paintaction.h>

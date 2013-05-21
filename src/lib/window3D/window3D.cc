@@ -677,57 +677,57 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     p = icons->getIconInstance("axial");
     if (p)
     {
-      d->axialbt = new Q34ToolButton(*p, tr("Axial"),
+      d->axialbt = new QAToolButton(*p, tr("Axial"),
           tr("Mute into axial view"), this, SLOT(muteAxial()), d->mute);
     }
     else
     {
-      d->axialbt = new Q34ToolButton(d->mute);
+      d->axialbt = new QAToolButton(d->mute);
       d->axialbt->setTextLabel(tr("Axial"));
       connect(d->axialbt, SIGNAL(clicked()), this, SLOT(muteAxial()));
     }
 
     p = icons->getIconInstance("coronal");
     if (p)
-      d->coronalbt = new Q34ToolButton(*p, tr("Coronal"), tr(
+      d->coronalbt = new QAToolButton(*p, tr("Coronal"), tr(
           "Mute into coronal view"), this, SLOT(muteCoronal()), d->mute);
     else
     {
-      d->coronalbt = new Q34ToolButton(d->mute);
+      d->coronalbt = new QAToolButton(d->mute);
       d->coronalbt->setTextLabel(tr("Coronal"));
       connect(d->coronalbt, SIGNAL(clicked()), this, SLOT(muteCoronal()));
     }
 
     p = icons->getIconInstance("sagittal");
     if (p)
-      d->sagittalbt = new Q34ToolButton(*p, tr("Sagittal"), tr(
+      d->sagittalbt = new QAToolButton(*p, tr("Sagittal"), tr(
           "Mute into sagittal view"), this, SLOT(muteSagittal()), d->mute);
     else
     {
-      d->sagittalbt = new Q34ToolButton(d->mute);
+      d->sagittalbt = new QAToolButton(d->mute);
       d->sagittalbt->setTextLabel(tr("Sagittal"));
       connect(d->sagittalbt, SIGNAL(clicked()), this, SLOT(muteSagittal()));
     }
 
     p = icons->getIconInstance("oblique");
     if (p)
-      d->obliquebt = new Q34ToolButton(*p, tr("Oblique"), tr(
+      d->obliquebt = new QAToolButton(*p, tr("Oblique"), tr(
           "Mute into free orientation "
             "view"), this, SLOT(muteOblique()), d->mute);
     else
     {
-      d->obliquebt = new Q34ToolButton(d->mute);
+      d->obliquebt = new QAToolButton(d->mute);
       d->obliquebt->setTextLabel(tr("Oblique"));
       connect(d->obliquebt, SIGNAL(clicked()), this, SLOT(muteOblique()));
     }
 
     p = icons->getIconInstance("3D");
     if (p)
-      d->threedbt = new Q34ToolButton(*p, tr("3D"), tr("Mute into 3D view"),
+      d->threedbt = new QAToolButton(*p, tr("3D"), tr("Mute into 3D view"),
           this, SLOT(mute3D()), d->mute);
     else
     {
-      d->threedbt = new Q34ToolButton(d->mute);
+      d->threedbt = new QAToolButton(d->mute);
       d->threedbt->setTextLabel(tr("3D"));
       connect(d->threedbt, SIGNAL(clicked()), this, SLOT(mute3D()));
     }
@@ -740,13 +740,13 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
     d->mute->addSeparator();
     p = icons->getIconInstance("RoiControl");
-    Q34ToolButton *roibt;
+    QAToolButton *roibt;
     if (p)
-      roibt = new Q34ToolButton(*p, tr("ROI toolbox"), tr(
+      roibt = new QAToolButton(*p, tr("ROI toolbox"), tr(
           "Open the ROI toolbox"), this, SLOT(switchToolbox()), d->mute);
     else
     {
-      roibt = new Q34ToolButton(d->mute);
+      roibt = new QAToolButton(d->mute);
       roibt->setTextLabel(tr("3D"));
       connect(roibt, SIGNAL(clicked()), this, SLOT(switchToolbox()));
     }

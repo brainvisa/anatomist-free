@@ -31,9 +31,6 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//#include <anatomist/module/surfpainttools.h>
-//#include "../../surfpaint/action/surfpaintaction.h"
-
 #include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/surface/surface.h>
@@ -88,6 +85,7 @@
 #include <anatomist/application/settings.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/paths.h>
+#include <QToolButton>
 
 using namespace anatomist;
 using namespace aims;

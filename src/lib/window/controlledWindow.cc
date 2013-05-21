@@ -33,35 +33,40 @@
 
 
 #include <anatomist/window/controlledWindow.h>
+#include <QActionGroup>
+#include <anatomist/controler/icondictionary.h>
+#include <anatomist/controler/controldictionary.h>
+#include <anatomist/controler/view.h>
+#include <anatomist/object/Object.h>
+#include <anatomist/selection/selectFactory.h>
+#include <qtoolbar.h>
+#include <qtimer.h>
+#include <iostream>
 
 using namespace anatomist;
 using namespace carto;
 using namespace std;
 
 
-namespace anatomist
+struct ControlledWindow::Private
 {
+  Private();
+  ~Private();
 
-  struct ControlledWindow_PrivateData
-  {
-    ControlledWindow_PrivateData();
-    ~ControlledWindow_PrivateData();
-
-    QToolBar			*controls;
-    map<string, QToolButton *>	ctlbts;
-    QTimer			*trigger;
-  };
-
-}
+  QToolBar			*controls;
+  map<string, QAction *>	ctlbts;
+  QTimer			*trigger;
+  QActionGroup *actions;
+};
 
 
-ControlledWindow_PrivateData::ControlledWindow_PrivateData()
-  : controls( 0 ), trigger( 0 )
+ControlledWindow::Private::Private()
+  : controls( 0 ), trigger( 0 ), actions( 0 )
 {
 }
 
 
-ControlledWindow_PrivateData::~ControlledWindow_PrivateData()
+ControlledWindow::Private::~Private()
 {
 }
 
@@ -70,7 +75,7 @@ ControlledWindow_PrivateData::~ControlledWindow_PrivateData()
 
 ControlledWindow::ControlledWindow( QWidget* parent, const char* name, 
 				    Object options, Qt::WFlags f )
-  : QAWindow( parent, name, options, f ), d( new ControlledWindow_PrivateData )
+  : QAWindow( parent, name, options, f ), d( new Private )
 {
 }
 
@@ -81,7 +86,7 @@ ControlledWindow::~ControlledWindow()
 }
 
 //ARN
-map<string, QToolButton *> ControlledWindow::getControlButtonObjects( void )
+map<string, QAction *> ControlledWindow::getControlButtonObjects( void )
 {
   return d->ctlbts;
 }
@@ -145,7 +150,7 @@ void ControlledWindow::unregisterObject( AObject* o )
 
 void ControlledWindow::updateAvailableControls()
 {
-  //cout << "ControlledWindow::updateAvailableControls\n";
+  // cout << "ControlledWindow::updateAvailableControls\n";
 
   const map<int, string> & ctl = view()->controlSwitch()->availableControls();
   map<int, string>::const_iterator	ic, ec=ctl.end();
@@ -154,21 +159,18 @@ void ControlledWindow::updateAvailableControls()
   ControlDictionary *cd = ControlDictionary::instance();
 
   bool	deco = toolBarsVisible();
-#if QT_VERSION >= 0x040000
   if( !d->controls && deco )
   {
     d->controls = addToolBar( tr( "controls" ), "controls" );
     addToolBar( Qt::LeftToolBarArea, d->controls, "controls" );
     d->controls->setIconSize( QSize( 20, 20 ) );
+    d->actions = new QActionGroup( d->controls );
+    d->actions->setExclusive( true );
   }
-#else
-  if( !d->controls && deco )
-    d->controls = new QToolBar( this );
-#endif
 
   QToolBar					*tb = d->controls;
   const QPixmap					*p;
-  map<string, QToolButton *>::const_iterator	ib, eb=d->ctlbts.end();
+  map<string, QAction *>::const_iterator	ib, eb=d->ctlbts.end();
 
   //	delete unused controls buttons
   set<string>				ac, todel;
@@ -180,6 +182,8 @@ void ControlledWindow::updateAvailableControls()
     if( ac.find( (*ib).first ) == eac )
     {
       todel.insert( (*ib).first );
+      d->actions->removeAction( ib->second );
+      d->controls->removeAction( ib->second );
       delete (*ib).second;
     }
   for( id=todel.begin(); id!=ed; ++id )
@@ -188,7 +192,7 @@ void ControlledWindow::updateAvailableControls()
   if( deco )
   {
     //	create new buttons
-    QToolButton	*b;
+    QAction *ac;
 
     for( ic=ctl.begin(); ic!=ec; ++ic )
     {
@@ -199,44 +203,41 @@ void ControlledWindow::updateAvailableControls()
       {
         p = icons->getIconInstance( txt.c_str() );
         if( p )
-        {
-          b = new Q34ToolButton( *p, tr( txt.c_str() ), "", this,
-                                  SLOT( activeControlChanged() ), tb );
-        }
+          ac = d->actions->addAction( *p, tr( txt.c_str() ) );
         else	// no icon
         {
           cout << "No icon for control " << txt << endl;
-          b = new Q34ToolButton( tb );
-          b->setTextLabel( tr( txt.c_str() ) );
-          connect( b, SIGNAL( clicked() ), this,
-                    SLOT( activeControlChanged() ) );
+          ac = d->actions->addAction( tr( txt.c_str() ) );
         }
-        b->setToggleButton( true );
-        d->ctlbts[ txt ] = b;
+        ac->setCheckable( true );
+        d->controls->addAction( ac );
+        d->ctlbts[ txt ] = ac;
         if( ul <= userLevel )
-          b->show();
+          d->controls->widgetForAction( ac )->show();
         else
-          b->hide();
+          d->controls->widgetForAction( ac )->hide();
       }
       else
         if( ul <= userLevel )
-          ib->second->show();
+          d->controls->widgetForAction( ib->second )->show();
         else
-          ib->second->hide();
+          d->controls->widgetForAction( ib->second )->hide();
     }
+    connect( d->actions, SIGNAL( triggered( QAction* ) ),
+             this, SLOT( activeControlChanged( QAction* ) ) );
   }
 }
 
 
 void ControlledWindow::updateActivableControls()
 {
-  //cout << "ControlledWindow::updateActivableControls\n";
+  // cout << "ControlledWindow::updateActivableControls\n";
 
   const map<int, string> & ctl = view()->controlSwitch()->activableControls();
   map<int, string>::const_iterator	ic, ec=ctl.end();
   set<string>				ac;
   set<string>::iterator			eac = ac.end();
-  map<string, QToolButton *>::const_iterator	ib, eb=d->ctlbts.end();
+  map<string, QAction *>::const_iterator ib, eb=d->ctlbts.end();
 
   for( ic=ctl.begin(); ic!=ec; ++ic )
     {
@@ -249,67 +250,65 @@ void ControlledWindow::updateActivableControls()
 }
 
 
-void ControlledWindow::activeControlChanged()
+void ControlledWindow::activeControlChanged( QAction* act )
 {
   // cout << "ControlledWindow::activeControlChanged\n";
-  //updateActiveControl();
 
   const string		ac = view()->controlSwitch()->activeControl();
-  //cout << "(old) active : " << ac << endl;
-  map<string, QToolButton *>::const_iterator	ib, eb=d->ctlbts.end();
-  QToolButton					*b = 0;
+  // cout << "(old) active : " << ac << endl;
+  map<string, QAction *>::const_iterator	ib, eb=d->ctlbts.end();
+  QAction *b = 0;
 
   for( ib=d->ctlbts.begin(); ib!=eb; ++ib )
-    if( (*ib).second->isOn() )
-      {
-	if( (*ib).first != ac  )
-	  {
-	    b = (*ib).second;
-	    view()->controlSwitch()->setActiveControl( (*ib).first );
-	    //cout << "activating " << (*ib).first << endl;
-	  }
-	else
-	  {
-	    //cout << "de-activating " << (*ib).first << endl;
-	    (*ib).second->setOn( false );
-	  }
-      }
-  if( !b && !ac.empty() && toolBarsVisible() )	// none activated
+    if( ib->second == act )
     {
-      //cout << "re-activating " << ac << endl;
-      d->ctlbts[ ac ]->setOn( true );
+      if( ib->first != ac )
+      {
+        b = (*ib).second;
+        view()->controlSwitch()->setActiveControl( ib->first );
+        // cout << "activating " << (*ib).first << endl;
+      }
     }
+
+  if( !b && !ac.empty() && toolBarsVisible() )	// none activated
+  {
+    // cout << "re-activating " << ac << endl;
+    d->ctlbts[ ac ]->setChecked( true );
+  }
 }
 
 
 void ControlledWindow::updateActiveControl()
 {
-  //cout << "ControlledWindow::updateActiveControl\n";
+  // cout << "ControlledWindow::updateActiveControl\n";
   const string		ac = view()->controlSwitch()->activeControl();
   //cout << "active : " << ac << endl;
-  map<string, QToolButton *>::const_iterator	ib, eb=d->ctlbts.end();
+  map<string, QAction *>::const_iterator	ib, eb=d->ctlbts.end();
+  QAction *act = 0;
 
   for( ib=d->ctlbts.begin(); ib!=eb; ++ib )
     if( ib->first == ac )
       {
 	//cout << "setting ON " << ac << endl;
-	ib->second->setOn( true );
+        act = ib->second;
+        act->setChecked( true );
       }
     else
-      ib->second->setOn( false );
-  activeControlChanged();
+      ib->second->setChecked( false );
+  if( act )
+    activeControlChanged( act );
 }
 
 
 void ControlledWindow::updateActions()
 {
-  //cout << "ControlledWindow::updateActions\n";
-  const set<string>		& ac = view()->controlSwitch()->actions();
-  set<string>::const_iterator	ia, ea=ac.end();
-
-  //  cout << ac.size() << " actions\n";
-  for( ia=ac.begin(); ia!=ea; ++ia )
-    {
-      //cout << "action : " << (*ia) << endl;
-    }
+  // cout << "ControlledWindow::updateActions\n";
+//   const set<string>		& ac = view()->controlSwitch()->actions();
+//   set<string>::const_iterator	ia, ea=ac.end();
+// 
+//   //  cout << ac.size() << " actions\n";
+//   for( ia=ac.begin(); ia!=ea; ++ia )
+//     {
+//       //cout << "action : " << (*ia) << endl;
+//     }
 }
