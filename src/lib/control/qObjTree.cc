@@ -626,7 +626,11 @@ void QObjectTree::rightButtonPressed( QTreeWidgetItem* item, const QPoint & p )
   map<QTreeWidgetItem *, AObject *>::iterator
     io = _items.find( item );
   if( io != _items.end() )
+  {
+    if( !item->isSelected() )
+      item->setSelected( true );
     emit rightButtonPressed( io->second, mapToGlobal( p ) );
+  }
 }
 
 void QObjectTree::setObjectTypeName(int type, const std::string &name)

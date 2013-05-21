@@ -48,13 +48,10 @@
 #include <aims/qtcompat/qhgroupbox.h>
 #include <aims/qtcompat/qvgroupbox.h>
 #include <aims/qtcompat/qhbuttongroup.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qslider.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qlistbox.h>
+#include <qlistwidget.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qgrid.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
@@ -62,6 +59,7 @@
 #include <qpixmap.h>
 #include <qimage.h>
 #include <qcombobox.h>
+#include <qapplication.h>
 
 
 using namespace anatomist;
@@ -103,7 +101,7 @@ struct QAPaletteWin::Private
 {
   Private( const set<AObject *> & );
 
-  QListBox			*palettes;
+  QListWidget			*palettes;
   DimBox			*dimBox1;
   DimBox			*dimBox2;
   QLabel			*view;
@@ -117,7 +115,7 @@ struct QAPaletteWin::Private
   QSlider	                *mixSlid ;
   QLabel			*mixValueLabel;
   QComboBox			*palette1dMappingBox ;
-  QVBox				*pal2SetBox;
+  QWidget			*pal2SetBox;
   float				objMin;
   float				objMax;
   float				objMin2;
@@ -127,7 +125,7 @@ struct QAPaletteWin::Private
   bool                          updatingFlag;
   ObjectParamSelect		*objsel;
   set<AObject *>		initial;
-  QHBox				*main;
+  QWidget			*main;
   bool				modified;
 };
 
@@ -165,7 +163,8 @@ namespace
 
 
 QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
-  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), APaletteWin( obj ), d( new Private( obj ) )
+  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ),
+    APaletteWin( obj ), d( new Private( obj ) )
 {
   setCaption( tr( "Object palette composition" ) );
   QPixmap	anaicon( Settings::findResourceFile(
@@ -178,67 +177,106 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   mainLay->addWidget( d->objsel );
   d->objsel->addFilter( filterPalette );
 
-  d->main = new QHBox( this, "mainLay" );
+  d->main = new QWidget( this );
+  d->main->setObjectName( "mainLay" );
+  QHBoxLayout *mainl = new QHBoxLayout( d->main );
+  d->main->setLayout( mainl );
   mainLay->addWidget( d->main );
-  d->main->setSpacing( 10 );
+  mainl->setSpacing( 10 );
 
-  QVBox	*ltPanel = new QVBox( d->main, "ltPanel" );
-  ltPanel->setSpacing( 10 );
+  QWidget *ltPanel = new QWidget( d->main, "ltPanel" );
+  mainl->addWidget( ltPanel );
+  QVBoxLayout *ltPanell = new QVBoxLayout( ltPanel );
+  ltPanel->setLayout( ltPanell );
+  ltPanell->setSpacing( 10 );
 
-  new QLabel( tr( "Available palettes :" ), ltPanel );
+  ltPanell->addWidget( new QLabel( tr( "Available palettes :" ), ltPanel ) );
 
-  d->palettes = new QListBox( ltPanel, "palettes" );
+  d->palettes = new QListWidget( ltPanel );
+  ltPanell->addWidget( d->palettes );
+  d->palettes->setObjectName( "palettes" );
   d->palettes->setMinimumSize( 200, 200 );
   fillPalettes();
 
-  QFrame	*rtPanel = new QVBox( d->main, "rtPanel" );
+  QWidget *rtPanel = new QWidget( d->main, "rtPanel" );
+  mainl->addWidget( rtPanel );
+  QVBoxLayout *rtPanell = new QVBoxLayout( rtPanel );
+  rtPanel->setLayout( rtPanell );
 
   QHGroupBox	*updateGrp = new QHGroupBox( tr( "Update mode :" ), rtPanel );
+  rtPanell->addWidget( updateGrp );
   QCheckBox	*respBtn = new QCheckBox( tr( "Responsive" ), updateGrp );
   respBtn->setChecked( d->responsive );
   QPushButton	*updateBtn = new QPushButton( tr( "Update" ), updateGrp );
   updateGrp->setFixedHeight( updateGrp->sizeHint().height() );
 
   d->dimBgp = new QHButtonGroup( tr( "Dimension :" ), rtPanel );
+  rtPanell->addWidget( d->dimBgp );
   new QRadioButton( tr( "1D" ), d->dimBgp, "btn1D" );
   new QRadioButton( tr( "2D" ), d->dimBgp, "btn2D" );
   d->dimBgp->setFixedHeight( d->dimBgp->sizeHint().height() );
 
   d->dimBox1 = new DimBox;
   makeDimBox( tr( "1st dimension settings :" ), rtPanel, d->dimBox1 );
+  rtPanell->addWidget( d->dimBox1->topBox );
 
-  QVBox	*pal2Panel = new QVBox( d->main, "pal2Panel" );
+  QWidget *pal2Panel = new QWidget( d->main );
+  mainl->addWidget( pal2Panel );
+  pal2Panel->setObjectName( "pal2Panel" );
+  QVBoxLayout *pal2Panell = new QVBoxLayout( pal2Panel );
+  pal2Panel->setLayout( pal2Panell );
 
   d->dimBox2 = new DimBox;
   makeDimBox( tr( "2nd dimension settings :" ), pal2Panel, d->dimBox2 );
+  pal2Panell->addWidget( d->dimBox2->topBox );
 
   d->usepal2 = new QCheckBox( tr( "Use a second palette for 2D" ),
-					  d->dimBox2->topBox );
-  d->pal2SetBox = new QVBox( d->dimBox2->topBox );
-  d->pal2SetBox->setSpacing( 10 );
-  QGrid	*pal2box = new QGrid( 2, d->pal2SetBox );
-  pal2box->setSpacing( 5 );
-  new QLabel( tr( "Second palette :" ), pal2box );
-  d->palette2Box = new QComboBox( pal2box, "second_palette" );
-  new QLabel( tr( "Palettes mixing method :" ), pal2box );
-  d->mixBox = new QComboBox( pal2box, "2d_mixing_method" );
-  new QLabel( tr( "Palette 1D Mapping :" ), pal2box );
+                              d->dimBox2->topBox );
+  d->dimBox2->topBox->layout()->addWidget( d->usepal2 );
+  d->pal2SetBox = new QWidget( d->dimBox2->topBox );
+  d->dimBox2->topBox->layout()->addWidget( d->pal2SetBox );
+  QVBoxLayout *pal2SetBoxl = new QVBoxLayout( d->pal2SetBox );
+  d->pal2SetBox->setLayout( pal2SetBoxl );
+  pal2SetBoxl->setSpacing( 10 );
+  QWidget *pal2box = new QWidget( d->pal2SetBox );
+  pal2SetBoxl->addWidget( pal2box );
+  QGridLayout *pal2boxl = new QGridLayout( pal2box );
+  pal2box->setLayout( pal2boxl );
+  pal2boxl->setSpacing( 5 );
+  pal2boxl->addWidget( new QLabel( tr( "Second palette :" ), pal2box ), 0, 0 );
+  d->palette2Box = new QComboBox( pal2box );
+  pal2boxl->addWidget( d->palette2Box, 0, 1 );
+  d->palette2Box->setObjectName( "second_palette" );
+  pal2boxl->addWidget( new QLabel( tr( "Palettes mixing method :" ), pal2box ),
+                       1, 0 );
+  d->mixBox = new QComboBox( pal2box );
+  pal2boxl->addWidget( d->mixBox, 1, 1 );
+  d->mixBox->setObjectName( "2d_mixing_method" );
+  pal2boxl->addWidget( new QLabel( tr( "Palette 1D Mapping :" ), pal2box ),
+                       2, 0 );
   d->palette1dMappingBox = new QComboBox( pal2box,
                                           "palette_1d_mapping_method" );
+  pal2boxl->addWidget( d->palette1dMappingBox, 2, 1 );
 
   fillPalette2List();
   fillMixMethods();
   fillPalette1DMappingMethods() ;
 
-  QHBox		*mixFacBox = new QHBox( d->pal2SetBox );
-  mixFacBox->setSpacing( 10 );
-  new QLabel( tr( "Mixing factor :" ), mixFacBox );
+  QWidget *mixFacBox = new QWidget( d->pal2SetBox );
+  pal2SetBoxl->addWidget( mixFacBox );
+  QHBoxLayout *mixFacBoxl = new QHBoxLayout( mixFacBox );
+  mixFacBox->setLayout( mixFacBoxl );
+  mixFacBoxl->setSpacing( 10 );
+  mixFacBoxl->addWidget( new QLabel( tr( "Mixing factor :" ), mixFacBox ) );
   d->mixSlid = new QSlider( 0, 100, 1, 0, Qt::Horizontal,
 					mixFacBox, "mixSlid" );
+  mixFacBoxl->addWidget( d->mixSlid );
   d->mixValueLabel = new QLabel( "100", mixFacBox );
+  mixFacBoxl->addWidget( d->mixValueLabel );
   d->mixValueLabel->setMinimumWidth( 30 );
 
   QGroupBox	*dispGp = new QGroupBox( tr( "Palette view :" ), rtPanel );
+  rtPanell->addWidget( dispGp );
   QVBoxLayout	*dispGpLay = new QVBoxLayout( dispGp, 10, 10 );
   dispGpLay->addSpacing( 10 );
   d->view = new QLabel( dispGp );
@@ -249,13 +287,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   connect( d->dimBgp, SIGNAL( clicked( int ) ), this,
            SLOT( dimChanged( int ) ) );
-#if QT_VERSION >= 0x040000
-  connect( d->palettes, SIGNAL( selectionChanged( Q3ListBoxItem* ) ),
-           this, SLOT( palette1Changed( Q3ListBoxItem* ) ) );
-#else
-  connect( d->palettes, SIGNAL( selectionChanged( QListBoxItem* ) ),
-	   this, SLOT( palette1Changed( QListBoxItem* ) ) );
-#endif
+  connect( d->palettes, SIGNAL( itemSelectionChanged() ),
+           this, SLOT( palette1Changed() ) );
   connect( d->dimBox1->minSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( min1Changed( int ) ) );
   connect( d->dimBox1->maxSlider, SIGNAL( valueChanged( int ) ),
@@ -327,38 +360,55 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
 {
   dbox->topBox = new QVGroupBox( title, parent );
 
-  QGrid		*minmaxbox = new QGrid( 3, dbox->topBox );
-  minmaxbox->setSpacing( 10 );
-  new QLabel( tr( "Min:" ), minmaxbox );
+  QWidget *minmaxbox = new QWidget( dbox->topBox );
+  QGridLayout *minmaxboxl = new QGridLayout( dbox->topBox );
+  minmaxbox->setLayout( minmaxboxl );
+  minmaxboxl->setSpacing( 10 );
+  minmaxboxl->addWidget( new QLabel( tr( "Min:" ), minmaxbox ), 0, 0 );
   dbox->minSlider = new QSlider( 0, 1000, 1, 0, Qt::Horizontal,
-				 minmaxbox, "minSlider" );
+                                 minmaxbox, "minSlider" );
+  minmaxboxl->addWidget( dbox->minSlider, 0, 1 );
   dbox->minSlider->setLineStep( 1 );
   dbox->minLabel = new QLabel( "0", minmaxbox, "minLabel" );
+  minmaxboxl->addWidget( dbox->minLabel, 0, 2 );
   dbox->minLabel->setMinimumWidth( 50 );
 
-  new QLabel( tr( "Max:" ), minmaxbox );
+  minmaxboxl->addWidget( new QLabel( tr( "Max:" ), minmaxbox ), 1, 0 );
   dbox->maxSlider = new QSlider( 0, 1000, 1, 1000, Qt::Horizontal,
-				 minmaxbox, "maxSlider" );
+                                 minmaxbox, "maxSlider" );
+  minmaxboxl->addWidget( dbox->maxSlider, 1, 1 );
   dbox->maxSlider->setLineStep( 1 );
   dbox->maxLabel = new QLabel( "1", minmaxbox, "max1dlabel" );
+  minmaxboxl->addWidget( dbox->maxLabel, 1, 2 );
 
-  QHBox	*boundsbox = new QHBox( dbox->topBox );
-  boundsbox->setSpacing( 10 );
-  new QLabel( tr( "Bounds:" ), boundsbox );
+  QWidget *boundsbox = new QWidget( dbox->topBox );
+  QHBoxLayout *boundsboxl = new QHBoxLayout( boundsbox );
+  boundsbox->setLayout( boundsboxl );
+  boundsboxl->setSpacing( 10 );
+  boundsboxl->addWidget( new QLabel( tr( "Bounds:" ), boundsbox ) );
   dbox->minEd = new QScopeLineEdit( "0", boundsbox, "minEd" );
+  boundsboxl->addWidget( dbox->minEd );
   dbox->minEd->setMinimumWidth( 50 );
   dbox->maxEd = new QScopeLineEdit( "1", boundsbox, "maxEd" );
+  boundsboxl->addWidget( dbox->maxEd );
   dbox->maxEd->setMinimumWidth( 50 );
 
   dbox->symbox = new QCheckBox( tr( "Value 0 at center" ), dbox->topBox );
 
-  QHBox	*autobox = new QHBox( dbox->topBox );
-  autobox->setSpacing( 10 );
+  QWidget *autobox = new QWidget( dbox->topBox );
+  QHBoxLayout *autoboxl = new QHBoxLayout( autobox );
+  autobox->setLayout( autoboxl );
+  autoboxl->setSpacing( 10 );
   dbox->autoValBtn = new QPushButton( tr( "Reset values" ), autobox );
+  autoboxl->addWidget( dbox->autoValBtn );
   dbox->autoBoundsBtn = new QPushButton( tr( "Reset bounds" ), autobox );
+  autoboxl->addWidget( dbox->autoBoundsBtn );
 
   dbox->palView = new QLabel( dbox->topBox );
   dbox->palView->setFrameStyle( QFrame::Sunken | QFrame::Box );
+  dbox->palView->setSizePolicy( QSizePolicy(
+    QSizePolicy::Preferred, QSizePolicy::Fixed ) );
+  dbox->palView->setScaledContents( true );
 
   dbox->slrelmin = 0;
   dbox->slrelmax = 1;
@@ -387,10 +437,7 @@ void QAPaletteWin::fillPalettes()
   int				i = 0;
 
   for( i=0, ip=pal.begin(); ip!=fp; ++ip, ++i )
-    {
-      //cout << "insert palette " << (*ip)->name() << endl;
-      d->palettes->insertItem( (*ip)->name().c_str() );
-    }
+    d->palettes->addItem( (*ip)->name().c_str() );
 }
 
 
@@ -419,49 +466,49 @@ void QAPaletteWin::updateInterface()
   d->objpal = 0;
 
   for( io=_parents.begin(); io!=eo; ++io )
-    {
-      gl = (*io)->glAPI();
+  {
+    gl = (*io)->glAPI();
 
-      if( gl && gl->glNumTextures() > 0 )
-        {
-	  const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
-	  if( te.minquant.size() > 0 && te.maxquant.size() > 0 )
-	    {
-	      o = *io;
-	      break;
-	    }
-	}
-    }
-  if( o )
+    if( gl && gl->glNumTextures() > 0 )
     {
-      d->main->setEnabled( true );
       const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
-      AObject	*refobj = *_parents.begin();
-      refobj->getOrCreatePalette();
-      d->objpal = refobj->palette();
-      d->objMin = te.minquant[0];
-      d->objMax = te.maxquant[0];
-      d->dimBox1->slrelmin = 0;
-      d->dimBox1->slrelmax = 1;
-      d->dimBox2->slrelmin = 0;
-      d->dimBox2->slrelmax = 1;
-      if( d->objMin == d->objMax )
-	d->objMax = d->objMin + 1;	// avoid pbs of division by 0
+      if( te.minquant.size() > 0 && te.maxquant.size() > 0 )
+      {
+        o = *io;
+        break;
+      }
     }
+  }
+  if( o )
+  {
+    d->main->setEnabled( true );
+    const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
+    AObject	*refobj = *_parents.begin();
+    refobj->getOrCreatePalette();
+    d->objpal = refobj->palette();
+    d->objMin = te.minquant[0];
+    d->objMax = te.maxquant[0];
+    d->dimBox1->slrelmin = 0;
+    d->dimBox1->slrelmax = 1;
+    d->dimBox2->slrelmin = 0;
+    d->dimBox2->slrelmax = 1;
+    if( d->objMin == d->objMax )
+      d->objMax = d->objMin + 1;	// avoid pbs of division by 0
+  }
   else
     d->main->setEnabled( false );
 
   if( !d->objpal )
+  {
+    // cout << "creating new object palette\n";
+    const PaletteList	& pallist = theAnatomist->palettes();
+    if( !&pallist || pallist.size() == 0 )
     {
-      // cout << "creating new object palette\n";
-      const PaletteList	& pallist = theAnatomist->palettes();
-      if( !&pallist || pallist.size() == 0 )
-	{
-	  cerr << "Palettes list empty. Set your ANATOMIST_PATH variable\n";
-	  return;
-	}
-      d->objpal = new AObjectPalette( *pallist.palettes().begin() );
+      cerr << "Palettes list empty. Set your ANATOMIST_PATH variable\n";
+      return;
     }
+    d->objpal = new AObjectPalette( *pallist.palettes().begin() );
+  }
   else
     d->objpal = d->objpal->clone();
 
@@ -482,15 +529,21 @@ void QAPaletteWin::updateInterface()
   d->dimBgp->setButton( d->dim - 1 );
   int i, n = d->palettes->count();
   QString	name = d->objpal->refPalette()->name().c_str();
-  QListBoxItem *item = d->palettes->findItem( name, Qt::CaseSensitive );
+  QList<QListWidgetItem *> items = d->palettes->findItems(
+    name, Qt::MatchCaseSensitive | Qt::MatchExactly );
+  QListWidgetItem *item = 0;
+  if( items.count() != 0 )
+    item = items.front();
   if( item )
     d->palettes->setCurrentItem( item );
   else
   {
     d->palettes->setCurrentItem( 0 );
-    item = d->palettes->selectedItem();
+    items = d->palettes->selectedItems();
+    if( items.count() != 0 )
+      item = items.front();
     if( item )
-      d->palettes->setSelected( item, false );
+      item->setSelected( false );
   }
 
   fillPalette1();
@@ -573,8 +626,12 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
           else
             d->palette1dMappingBox->setCurrentItem( 0 ) ;
 
-          QListBoxItem *palitem = d->palettes->findItem
-              ( d->objpal->refPalette()->name().c_str(), Qt::CaseSensitive );
+          QList<QListWidgetItem *> palitems = d->palettes->findItems
+              ( d->objpal->refPalette()->name().c_str(),
+                Qt::MatchCaseSensitive | Qt::MatchExactly );
+          QListWidgetItem *palitem = 0;
+          if( palitems.count() != 0 )
+            palitem = palitems.front();
           if( !palitem )
             fillPalette1();
 
@@ -705,7 +762,6 @@ void QAPaletteWin::fillPalette1()
   fillPalette( pal, pm );
 
   d->dimBox1->palView->setPixmap( pm );
-  d->dimBox1->palView->setFixedSize( d->dimBox1->palView->sizeHint() );
 }
 
 
@@ -715,15 +771,14 @@ void QAPaletteWin::fillPalette2()
   QPixmap	pm;
 
   if( objpal )
+  {
+    const rc_ptr<APalette> pal = objpal->refPalette2();
+    if( pal )
     {
-      const rc_ptr<APalette> pal = objpal->refPalette2();
-      if( pal )
-	{
-	  fillPalette( pal, pm );
-	  d->dimBox2->palView->setPixmap( pm );
-	  d->dimBox2->palView->setFixedSize( d->dimBox2->palView->sizeHint() );
-	}
+      fillPalette( pal, pm );
+      d->dimBox2->palView->setPixmap( pm );
     }
+  }
   d->dimBox2->palView->setPixmap( pm );
 }
 
@@ -775,33 +830,41 @@ void QAPaletteWin::fillObjPal()
   QPixmap	pm( dimx, dimy );
 
   for( y=0; y<dimy; ++y )
+  {
+    yp = (int) ( facy * ( ((float) y) - dy ) );
+    if( yp < 0 )
+      yp = 0;
+    else if( yp >= (int) dimpy )
+      yp = dimpy - 1;
+    for( x=0; x<dimx; ++x )
     {
-      yp = (int) ( facy * ( ((float) y) - dy ) );
-      if( yp < 0 )
-	yp = 0;
-      else if( yp >= (int) dimpy )
-	yp = dimpy - 1;
-      for( x=0; x<dimx; ++x )
-	{
-	  xp = (int) ( facx * ( ((float) x) - dx ) );
-	  if( xp < 0 )
-	    xp = 0;
-	  else if( xp >= (int) dimpx )
-	    xp = dimpx - 1;
-	  rgb = (*col)( xp, yp );
-	  im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
-	}
+      xp = (int) ( facx * ( ((float) x) - dx ) );
+      if( xp < 0 )
+        xp = 0;
+      else if( xp >= (int) dimpx )
+        xp = dimpx - 1;
+      rgb = (*col)( xp, yp );
+      im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
     }
+  }
+
   pm.convertFromImage( im );
   d->view->setPixmap( pm );
-  d->view->setFixedSize( d->view->sizeHint() );
+  d->view->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+  d->view->setScaledContents( true );
 }
 
 
-void QAPaletteWin::palette1Changed( QListBoxItem* item )
+void QAPaletteWin::palette1Changed()
 {
   if( d->recursive )
     return;
+
+  QListWidgetItem* item = 0;
+  QList<QListWidgetItem *> selected = d->palettes->selectedItems();
+  if( selected.count() == 0 )
+    return;
+  item = selected.front();
 
   string		name = (const char *) item->text();
   PaletteList		& pallist = theAnatomist->palettes();

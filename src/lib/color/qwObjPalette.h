@@ -37,10 +37,10 @@
 
 
 #include <anatomist/color/wObjPalette.h>
-#include <aims/qtcompat/qlistbox.h>
 #include <cartobase/smart/rcptr.h>
 #include <qwidget.h>
 
+class QListWidgetItem;
 
 namespace anatomist
 {
@@ -63,11 +63,7 @@ public:
   createPalWin( const std::set<anatomist::AObject* > & obj );
 
 protected slots:
-#if QT_VERSION >= 0x040000
-  void palette1Changed( Q3ListBoxItem* );
-#else
-  void palette1Changed( QListBoxItem* );
-#endif
+  void palette1Changed();
   void palette2Changed( const QString & );
   void min1Changed( int value );
   void max1Changed( int value );
@@ -77,7 +73,7 @@ protected slots:
   void updateClicked();
   void dimChanged( int );
   void mixMethodChanged( const QString & );
-  void palette1DMappingMethodChanged( const QString & );  
+  void palette1DMappingMethodChanged( const QString & );
   void enablePalette2( bool );
   void mixFactorChanged( int );
   void min1EditChanged();
@@ -107,7 +103,7 @@ protected:
   void fillObjPal();
   anatomist::AObjectPalette* objPalette();
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
-			       DimBox* dbox );
+                               DimBox* dbox );
   virtual void setValues( DimBox* dimBox, float min, float max, 
                           float objMin, float objMax );
   virtual void setValues1();
