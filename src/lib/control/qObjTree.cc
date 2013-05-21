@@ -186,7 +186,7 @@ void QObjectTree::initIcons()
 
 
 QObjectTree::QObjectTree( QWidget *parent, const char *name )
-  : QWidget( parent ), _viewRefCol( true )
+  : QWidget( parent ), _viewRefCol( true ), _count( 0 )
 {
   setObjectName(name);
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 0, -1, "OTlayout1" );
@@ -198,31 +198,33 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
 
   _lview = new QATreeWidget( fr );
   _lview->setObjectName( "qObjList" );
-  _lview->setColumnCount( 4 );
+  _lview->setColumnCount( 5 );
   QTreeWidgetItem* hdr = new QTreeWidgetItem;
   _lview->setHeaderItem( hdr );
   hdr->setText( 0, tr( "" ) );
   hdr->setText( 1, tr( "Ref" ) );
   hdr->setText( 2, tr( "Objects" ) );
   hdr->setText( 3, tr( "Type" ) );
+  hdr->setText( 4, tr( "cnt" ) );
   _lview->setSelectionMode( QTreeWidget::ExtendedSelection );
   _lview->setItemsExpandable( true );
   _lview->setRootIsDecorated( true );
   _lview->setAllColumnsShowFocus( true );
-  // _lview->setItemMargin( 2 );
-  // _lview->setSorting( 10 );	// disable sorting by default
   _lview->setEditTriggers( QAbstractItemView::DoubleClicked 
     | QAbstractItemView::SelectedClicked | QAbstractItemView::EditKeyPressed );
   _lview->setSelectionBehavior( QAbstractItemView::SelectRows );
   _lview->setDragEnabled( true );
   _lview->setDragDropMode( QAbstractItemView::NoDragDrop );
-  _lview->setAlternatingRowColors( true );
+  // _lview->setAlternatingRowColors( true );
   _lview->setIconSize( QSize( 32, 32 ) );
   _lview->header()->setResizeMode( 0, QHeaderView::ResizeToContents );
-  _lview->header()->setResizeMode( 1, QHeaderView::ResizeToContents );
+  _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
+  _lview->header()->resizeSection( 1, 26 );
   _lview->header()->setResizeMode( 2, QHeaderView::Stretch );
   _lview->header()->setStretchLastSection( false );
-  _lview->header()->setResizeMode( 3, QHeaderView::ResizeToContents );
+  _lview->header()->setResizeMode( 3, QHeaderView::Interactive );
+  _lview->header()->resizeSection( 3, 60 );
+  _lview->header()->hideSection( 4 );
   _lview->header()->setSortIndicator( -1, Qt::Ascending );
   _lview->header()->setSortIndicatorShown( -1 );
   _lview->setSortingEnabled( true );
@@ -311,7 +313,8 @@ QTreeWidgetItem* QObjectTree::insertObject( QTreeWidgetItem* item, AObject*obj )
 void QObjectTree::decorateItem( QTreeWidgetItem* item, AObject*obj )
 {
   map<int, QPixmap>::const_iterator	ip, fp = TypeIcons.end();
-  const unsigned	iconCol = 0, nameCol = 2, refCol = 1, typeCol = 3;
+  const unsigned iconCol = 0, nameCol = 2, refCol = 1, typeCol = 3,
+    countCol = 4;
 
   item->setText( nameCol, obj->name().c_str() );
   ip = TypeIcons.find( obj->type() );
@@ -343,6 +346,12 @@ void QObjectTree::decorateItem( QTreeWidgetItem* item, AObject*obj )
     item->setText( typeCol, (*in).second.c_str() );
   else
     item->setText( typeCol, 0 );
+  stringstream s;
+  s.width( 5 );
+  s.fill( '0' );
+  s << _count;
+  item->setText( countCol, QString::fromStdString( s.str() ) );
+  ++_count;
 }
 
 
@@ -567,15 +576,18 @@ void QObjectTree::ToggleRefColorsView()
 
 void QObjectTree::DisplayRefColors()
 {
-  _lview->header()->setResizeMode( 1, QHeaderView::ResizeToContents );
+  _lview->header()->showSection( 1 );
+//   _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
+//   _lview->header()->resizeSection( 1, 26 );
   _viewRefCol = true;
 }
 
 
 void QObjectTree::UndisplayRefColors()
 {
-  _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
-  _lview->header()->resizeSection( 1, 0 );
+  _lview->header()->hideSection( 1 );
+//   _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
+//   _lview->header()->resizeSection( 1, 0 );
   _viewRefCol = false;
 }
 
@@ -707,6 +719,6 @@ void QObjectTree::objectRenamed( QTreeWidgetItem* item, int col )
 void QObjectTree::sortIndicatorChanged( int col, Qt::SortOrder )
 {
   if( col == 0 && _lview->header()->sortIndicatorSection() != -1 )
-    _lview->header()->setSortIndicator( -1, Qt::Ascending );
+    _lview->header()->setSortIndicator( 4, Qt::Descending );
 }
 

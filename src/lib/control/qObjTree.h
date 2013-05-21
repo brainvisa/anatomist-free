@@ -128,6 +128,7 @@ protected:
   std::map<QTreeWidgetItem *, anatomist::AObject *>	_items;
   QTreeWidget				                *_lview;
   bool							_viewRefCol;
+  unsigned _count;
 
 private:
 };
