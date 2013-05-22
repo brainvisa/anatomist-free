@@ -39,6 +39,7 @@
 #include <anatomist/color/wObjPalette.h>
 #include <cartobase/smart/rcptr.h>
 #include <qwidget.h>
+#include <qaction.h>
 
 class QListWidgetItem;
 
@@ -46,6 +47,7 @@ namespace anatomist
 {
   class AObjectPalette;
   class APalette;
+  class APaletteExtensionAction;
 }
 
 
@@ -61,6 +63,14 @@ public:
 
   static anatomist::APaletteWin* 
   createPalWin( const std::set<anatomist::AObject* > & obj );
+  /** Actions can be added here, they will show on a toolbar.
+      Actions will call their extensionTriggered() method when used.
+      Signals are not used due to difficulties of python bindings for custom 
+      template types (std::set<anatomist::AObject *>)
+  */
+  static void addExtensionAction( anatomist::APaletteExtensionAction* action );
+
+signals:
 
 protected slots:
   void palette1Changed();
@@ -86,6 +96,7 @@ protected slots:
   void resetBounds2();
   void chooseObject();
   void objectsChosen( const std::set<anatomist::AObject *> & );
+  void extensionActionTriggered( QAction* action );
 
 protected:
   struct DimBox;
@@ -114,11 +125,55 @@ protected:
   void fillPalette1DMappingMethods() ;
   void fillPalette2List();
   void runCommand();
+  void fillToolBar();
 
 private:
   struct Private;
   Private	*d;
 };
 
+
+namespace anatomist
+{
+
+  class APaletteExtensionAction : public QAction
+  {
+    Q_OBJECT
+
+  public:
+    friend class ::QAPaletteWin;
+
+    APaletteExtensionAction( QObject* parent );
+    APaletteExtensionAction( const QString & text, QObject * parent );
+    APaletteExtensionAction( const QIcon & icon, const QString & text, 
+                             QObject * parent );
+    virtual ~APaletteExtensionAction();
+
+    virtual void extensionTriggered( 
+      const std::set<anatomist::AObject *> & ) = 0;
+  };
+
+
+  namespace internal
+  {
+
+    // static class
+    class PaletteWinExtensionActions : public QObject
+    {
+      Q_OBJECT
+
+    public:
+      virtual ~PaletteWinExtensionActions() { _instance() = 0; }
+
+      static PaletteWinExtensionActions *instance();
+
+    private:
+      PaletteWinExtensionActions( QObject * parent ) : QObject( parent ) {}
+      static PaletteWinExtensionActions *& _instance();
+    };
+
+  }
+
+}
 
 #endif

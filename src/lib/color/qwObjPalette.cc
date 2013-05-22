@@ -57,6 +57,8 @@
 #include <qcombobox.h>
 #include <qgroupbox.h>
 #include <qapplication.h>
+#include <qaction.h>
+#include <qtoolbar.h>
 
 
 using namespace anatomist;
@@ -73,6 +75,7 @@ namespace
   }
 
   bool dummy = dummyfunc();
+
 }
 
 
@@ -124,13 +127,15 @@ struct QAPaletteWin::Private
   set<AObject *>		initial;
   QWidget			*main;
   bool				modified;
+  QToolBar                      *toolbar;
+  QActionGroup                  *toolactions;
 };
 
 
 QAPaletteWin::Private::Private( const set<AObject *> & o )
   : responsive( true ), objpal( 0 ), dim( 1 ), objMin( 0 ), objMax( 1 ),
     objMin2( 0 ), objMax2( 1 ), recursive( false ), updatingFlag( false ),
-    initial( o ), main( 0 ), modified( false )
+    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 )
 {
 }
 
@@ -176,6 +181,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->objsel = new ObjectParamSelect( obj, this );
   mainLay->addWidget( d->objsel );
   d->objsel->addFilter( filterPalette );
+  d->objsel->layout()->setMargin( 5 );
 
   d->main = new QWidget( this );
   d->main->setObjectName( "mainLay" );
@@ -191,6 +197,12 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   ltPanel->setLayout( ltPanell );
   ltPanell->setMargin( 0 );
   ltPanell->setSpacing( 5 );
+
+  d->toolbar = new QToolBar( ltPanel );
+  d->toolbar->setObjectName( "palette toolbar" );
+  ltPanell->addWidget( d->toolbar );
+  d->toolactions = new QActionGroup( d->toolbar );
+  fillToolBar();
 
   ltPanell->addWidget( new QLabel( tr( "Available palettes :" ), ltPanel ) );
 
@@ -376,6 +388,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
            this,
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
+  connect( d->toolactions, SIGNAL( triggered( QAction * ) ), this, 
+           SLOT( extensionActionTriggered( QAction * ) ) );
 
   if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL )
     d->dimBgp->button(1)->setChecked( true );
@@ -1595,4 +1609,96 @@ void QAPaletteWin::runCommand()
   d->modified = false;
 }
 
+
+void QAPaletteWin::fillToolBar()
+{
+  anatomist::internal::PaletteWinExtensionActions *ext 
+    = anatomist::internal::PaletteWinExtensionActions::instance();
+  QList<APaletteExtensionAction *> actions 
+    = ext->findChildren<APaletteExtensionAction *>();
+  if( actions.count() == 0 )
+    d->toolbar->hide();
+  else
+  {
+    QList<APaletteExtensionAction *>::iterator ia, ea = actions.end();
+    for( ia=actions.begin(); ia!=ea; ++ia )
+    {
+      d->toolactions->addAction( *ia );
+      d->toolbar->addAction( *ia );
+    }
+    d->toolbar->show();
+  }
+}
+
+
+void QAPaletteWin::addExtensionAction( APaletteExtensionAction* action )
+{
+  anatomist::internal::PaletteWinExtensionActions *ext = anatomist::internal::PaletteWinExtensionActions::instance();
+  action->setParent( ext );
+}
+
+
+void QAPaletteWin::extensionActionTriggered( QAction *action )
+{
+  APaletteExtensionAction* ac 
+    = dynamic_cast<APaletteExtensionAction *>( action );
+  if( ac )
+    ac->extensionTriggered( d->objsel->selectedObjects() );
+//     ac->emit extensionTriggered( d->objsel->selectedObjects() );
+}
+
+
+// ----
+
+APaletteExtensionAction::APaletteExtensionAction( QObject* parent )
+  : QAction( parent )
+{
+}
+
+
+APaletteExtensionAction::APaletteExtensionAction( const QString & text, 
+                                                  QObject * parent )
+  : QAction( text, parent )
+{
+}
+
+
+APaletteExtensionAction::APaletteExtensionAction( const QIcon & icon, 
+                                                  const QString & text, 
+                                                  QObject * parent )
+  : QAction( icon, text, parent )
+{
+}
+
+
+APaletteExtensionAction::~APaletteExtensionAction()
+{
+}
+
+// ----
+
+namespace anatomist
+{
+
+  namespace internal
+  {
+
+    PaletteWinExtensionActions *& PaletteWinExtensionActions::_instance()
+    {
+      static PaletteWinExtensionActions *ins = 0;
+      return ins;
+    }
+
+
+    PaletteWinExtensionActions * PaletteWinExtensionActions::instance()
+    {
+      PaletteWinExtensionActions *& ins = _instance();
+      if( !ins )
+        ins = new PaletteWinExtensionActions( qApp );
+      return ins;
+    }
+
+  }
+
+}
 

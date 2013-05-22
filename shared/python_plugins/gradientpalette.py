@@ -326,6 +326,19 @@ class GradientPaletteModule( anatomist.Module ):
   def description(self):
     return 'Gradient palette'
 
+
+class GradientPaletteExtensionAction( anatomist.APaletteExtensionAction ):
+  def __init__( self, icon, text, parent ):
+    anatomist.APaletteExtensionAction.__init__( self, icon, text, parent )
+
+  def extensionTriggered( self, objects ):
+    w = GradientPaletteWidget( 
+        objects, anatomist.Anatomist().getQWidgetAncestor(), None, 
+        qt.Qt.Window )
+    w.setAttribute( qt.Qt.WA_DeleteOnClose, True )
+    w.show()
+
+
 class GradientPaletteCallback( anatomist.ObjectMenuCallback ):
   def __init__( self ):
     anatomist.ObjectMenuCallback.__init__(self)
@@ -352,6 +365,15 @@ def init():
   r = GradientPaletteMenuRegistrer()
   callbacks_list.append( r )
   anatomist.AObject.addObjectMenuRegistration( r )
+  apath = anatomist.Anatomist().anatomistSharedPath()
+  import sip
+  if use_qstring:
+    apath = apath.toUtf8().data()
+  icon = qtgui.QIcon( os.path.join(
+    apath, 'icons', 'meshPaint', 'palette.png' ) )
+  ac = GradientPaletteExtensionAction( icon, 'gradient', None )
+  #ac.extensionTriggered.connect( openGradientPalette )
+  anatomist.QAPaletteWin.addExtensionAction( ac )
 
 
 if ok:
