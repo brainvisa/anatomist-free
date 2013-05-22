@@ -850,66 +850,10 @@ void QAPaletteWin::fillObjPal()
   if( !objpal )
     return;
 
-  AimsData<AimsRGBA>	*col = objpal->colors();
-
-  if( !col || col->dimX() == 0 || col->dimY() == 0 )
-    {
-      //cout << "no/empty colors in objpalette\n";
-      return;
-    }
-
-  unsigned	dimpx = col->dimX(), dimpy = col->dimY();
-  unsigned	dimx = 256, dimy = dimpy, x, y;
-  int		xp, yp;
-  float		m1 = objpal->min1(), M1 = objpal->max1();
-  float		m2 = objpal->min2(), M2 = objpal->max2();
-
-  if( dimy < 32 )
-    dimy = 32;
-  if( dimy > 256 )
-    dimy = 256;
-  if( dimx == 0 )
-    dimx = 1;
-  if( m1 == M1 )
-    {
-      m1 = 0;
-      M1 = 1;
-    }
-  if( m2 == M2 )
-    {
-      m2 = 0;
-      M2 = 1;
-    }
-
-  float		facx = ((float) dimpx) / ( (M1 - m1) * dimx );
-  float		facy = ((float) dimpy) / ( (M2 - m2) * dimy );
-  float		dx = m1 * dimx;
-  float		dy = m2 * dimy;
-  AimsRGBA	rgb;
-
-  QImage	im( dimx, dimy, 32 );
-  QPixmap	pm( dimx, dimy );
-
-  for( y=0; y<dimy; ++y )
-  {
-    yp = (int) ( facy * ( ((float) y) - dy ) );
-    if( yp < 0 )
-      yp = 0;
-    else if( yp >= (int) dimpy )
-      yp = dimpy - 1;
-    for( x=0; x<dimx; ++x )
-    {
-      xp = (int) ( facx * ( ((float) x) - dx ) );
-      if( xp < 0 )
-        xp = 0;
-      else if( xp >= (int) dimpx )
-        xp = dimpx - 1;
-      rgb = (*col)( xp, yp );
-      im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
-    }
-  }
-
-  pm.convertFromImage( im );
+  QImage *im = objpal->toQImage();
+  QPixmap pm;
+  pm.convertFromImage( *im );
+  delete im;
   d->view->setPixmap( pm );
   d->view->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
   d->view->setScaledContents( true );

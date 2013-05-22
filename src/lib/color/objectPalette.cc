@@ -37,6 +37,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
+#include <qimage.h>
 #include <iostream>
 
 using namespace anatomist;
@@ -488,4 +489,72 @@ void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
     return;
   fill();
 }
+
+
+QImage* AObjectPalette::toQImage( int w, int h ) const
+{
+  const AimsData<AimsRGBA>    *col = colors();
+
+  if( !col || col->dimX() == 0 || col->dimY() == 0 )
+    return 0;
+
+  unsigned      dimpx = col->dimX(), dimpy = col->dimY();
+  unsigned      dimx = 256, dimy = dimpy, x, y;
+  int           xp, yp;
+  float         m1 = min1(), M1 = max1();
+  float         m2 = min2(), M2 = max2();
+
+  if( dimy < 32 )
+    dimy = 32;
+  if( dimy > 256 )
+    dimy = 256;
+  if( dimx == 0 )
+    dimx = 1;
+  if( w > 0 )
+    dimx = w;
+  if( h > 0 )
+    dimy = h;
+  if( m1 == M1 )
+  {
+    m1 = 0;
+    M1 = 1;
+  }
+  if( m2 == M2 )
+  {
+    m2 = 0;
+    M2 = 1;
+  }
+
+  float         facx = ((float) dimpx) / ( (M1 - m1) * dimx );
+  float         facy = ((float) dimpy) / ( (M2 - m2) * dimy );
+  float         dx = m1 * dimx;
+  float         dy = m2 * dimy;
+  AimsRGBA      rgb;
+
+  QImage        *img = new QImage( dimx, dimy, QImage::Format_ARGB32 );
+  QImage        & im = *img;
+
+  for( y=0; y<dimy; ++y )
+  {
+    yp = (int) ( facy * ( ((float) y) - dy ) );
+    if( yp < 0 )
+      yp = 0;
+    else if( yp >= (int) dimpy )
+      yp = dimpy - 1;
+    for( x=0; x<dimx; ++x )
+    {
+      xp = (int) ( facx * ( ((float) x) - dx ) );
+      if( xp < 0 )
+        xp = 0;
+      else if( xp >= (int) dimpx )
+        xp = dimpx - 1;
+      rgb = (*col)( xp, yp );
+      im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
+    }
+  }
+
+  return img;
+}
+
+
 

@@ -40,6 +40,7 @@
 #include <cartobase/object/object.h>
 
 class AimsRGBA;
+class QImage;
 
 namespace anatomist
 {
@@ -141,6 +142,7 @@ namespace anatomist
     void copyOrFillColors( const AObjectPalette & pal );
 
     static std::map<std::string, MixMethod>	mixMethods;
+    QImage* toQImage( int w = 0, int h = 0 ) const;
 
   protected:
     static std::map<std::string, MixMethod> defaultMixMethods();
