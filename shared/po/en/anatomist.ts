@@ -771,6 +771,7 @@
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Colormap handling:&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+right button&amp;gt;&amp;nbsp;, and horizontal move:&lt;/td&gt;&lt;td&gt;change colormap(s) min value&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+right button&amp;gt;&amp;nbsp;, and vertical move:&lt;/td&gt;&lt;td&gt;change colormap(s) max value&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;Reset palette settings&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/html&gt;</translation>
     </message>
     <message>

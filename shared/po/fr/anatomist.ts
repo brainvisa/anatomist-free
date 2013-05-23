@@ -865,7 +865,7 @@ Défilement des coupes:
     </message>
     <message>
         <source>Default 3D control</source>
-        <translation>&lt;html&gt;Contrôle par défaut 3D / Curseur lié:
+        <translation>&lt;html&gt;&lt;b&gt;Contrôle par défaut 3D / Curseur lié:&lt;/b&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Bt gauche&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt milieu&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
@@ -898,6 +898,7 @@ Défilement des coupes:
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Couleurs:&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+bt droit&amp;gt; et déplacement horizontal&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur min de la palette&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+bt droit&amp;gt; et déplacement vertical&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur max de la palette&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;réglages de couleurs par défaut&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -1399,7 +1400,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Type :</source>
-        <translation type="unfinished">Type :</translation>
+        <translation>Type :</translation>
     </message>
     <message>
         <source>raw</source>
@@ -1666,7 +1667,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
+        <translation>Spot</translation>
     </message>
     <message>
         <source>Linear :</source>
@@ -1674,7 +1675,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Modèle</translation>
+        <translation>Modèle</translation>
     </message>
     <message>
         <source>Position :</source>
@@ -1686,11 +1687,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation>Source</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="unfinished">Atténuation</translation>
+        <translation>Atténuation</translation>
     </message>
     <message>
         <source>Exponent :</source>
@@ -1777,7 +1778,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="unfinished">Réglages avancés</translation>
+        <translation>Réglages avancés</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1785,7 +1786,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Fast color selection</source>
-        <translation type="unfinished">Sélection rapide</translation>
+        <translation>Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
@@ -1805,7 +1806,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Rendering</source>
-        <translation type="unfinished">Rendu</translation>
+        <translation>Rendu</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
@@ -2125,7 +2126,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Control window</source>
-        <translation type="unfinished">Fenêtre de contrôle</translation>
+        <translation>Fenêtre de contrôle</translation>
     </message>
     <message>
         <source>Anatomist global settings</source>
@@ -2145,7 +2146,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation type="unfinished">Curseur lié</translation>
+        <translation>Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2173,7 +2174,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
+        <translation>Volumes</translation>
     </message>
     <message>
         <source>Display linked cursor</source>
@@ -2189,7 +2190,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished">Application</translation>
+        <translation>Application</translation>
     </message>
     <message>
         <source>Unstable/in development features</source>
@@ -2229,7 +2230,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Fenêtres</translation>
+        <translation>Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2277,7 +2278,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>OpenGL</source>
-        <translation type="unfinished">OpenGL</translation>
+        <translation>OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
