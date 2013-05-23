@@ -209,7 +209,7 @@ protected slots:
   virtual void rightSelectionChangedSlot();
   virtual void refreshNow();
   void updateRightPanelNow();
-  void startDrag( Q3ListViewItem*, Qt::ButtonState );
+  void startDrag( Q3ListViewItem*, Qt::MouseButtons, Qt::KeyboardModifiers );
   virtual void leftItemStartsRename( Q3ListViewItem * item, int col );
   virtual void leftItemCancelsRename( Q3ListViewItem * item, int col );
 

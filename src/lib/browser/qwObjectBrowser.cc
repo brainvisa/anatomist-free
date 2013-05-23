@@ -317,10 +317,14 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
 #endif
   connect( d->rview, SIGNAL( selectionChanged() ), 
 	   this, SLOT( rightSelectionChangedSlot() ) );
-  connect( d->lview, SIGNAL( dragStart( Q3ListViewItem *, Qt::ButtonState ) ), 
-           this, SLOT( startDrag( Q3ListViewItem *, Qt::ButtonState ) ) );
-  connect( d->rview, SIGNAL( dragStart( Q3ListViewItem *, Qt::ButtonState ) ), 
-           this, SLOT( startDrag( Q3ListViewItem *, Qt::ButtonState ) ) );
+  connect( d->lview, SIGNAL( dragStart( Q3ListViewItem *, Qt::MouseButtons, 
+                                        Qt::KeyboardModifiers ) ), 
+           this, SLOT( startDrag( Q3ListViewItem *, Qt::MouseButtons, 
+                                  Qt::KeyboardModifiers ) ) );
+  connect( d->rview, SIGNAL( dragStart( Q3ListViewItem *, Qt::MouseButtons, 
+                                        Qt::KeyboardModifiers ) ), 
+           this, SLOT( startDrag( Q3ListViewItem *, Qt::MouseButtons, 
+                                  Qt::KeyboardModifiers ) ) );
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
   connect( d->lview, SIGNAL( itemStartsRename( Q3ListViewItem *, int ) ), this,
            SLOT( leftItemStartsRename( Q3ListViewItem *, int ) ) );
@@ -2727,10 +2731,11 @@ AttDescr & QObjectBrowser::attDescr()
 }
 
 
-void QObjectBrowser::startDrag( Q3ListViewItem*, ButtonState button )
+void QObjectBrowser::startDrag( Q3ListViewItem*, Qt::MouseButtons button, 
+                                Qt::KeyboardModifiers )
 {
   set<AObject *>	so = Objects();
-  if( button != Qt::MidButton )
+  if( !( button & Qt::MidButton ) )
     {
       // filter selected objects
       SelectFactory	*sf = SelectFactory::factory();

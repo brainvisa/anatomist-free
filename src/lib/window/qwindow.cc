@@ -63,7 +63,6 @@ struct QAWindow::Private
 
   QTimer		*refreshtimer;
   bool			refreshneeded;
-  Qt::ButtonState	button;
   set<QToolBar *>	toolbars;
   QAction               *detachmenuaction;
 };
@@ -415,7 +414,7 @@ void QAWindow::setDetachMenuAction( QAction* a )
 
 void QAWindow::mouseMoveEvent( QMouseEvent * ev )
 {
-  if( !(ev->state() & Qt::LeftButton) )
+  if( !(ev->buttons() & Qt::LeftButton) )
   {
     ev->ignore();
     return;
@@ -434,7 +433,7 @@ void QAWindow::mouseMoveEvent( QMouseEvent * ev )
     else
       ++i;
 
-  if( ev->state() & Qt::ControlButton )
+  if( ev->buttons() & Qt::ControlButton )
   {
     // filter selected objects
     SelectFactory	*sf = SelectFactory::factory();
