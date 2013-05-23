@@ -865,41 +865,43 @@ Défilement des coupes:
     </message>
     <message>
         <source>Default 3D control</source>
-        <translation>&lt;html&gt;&lt;b&gt;Contrôle par défaut 3D / Curseur lié:&lt;/b&gt;
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle par défaut 3D / Curseur lié:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
 &lt;table&gt;
-&lt;tr&gt;&lt;td&gt;Bt gauche&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;lt;shift&amp;gt; / molette&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;lt;ctrl&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt droit&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+W&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fermer la fenêtre&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;F9&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;F10&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues (orientation seulement)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;alt+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+A&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Défilement des coupes:&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;coupes&apos;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+T&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;temps&apos;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+L&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;&lt;/td&gt;mode curseur lié bougeant avec les coupes&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défilement / arrêt du défilement des coupes&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;mode &quot;apesanteur&quot;: rotation continue&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+M&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change le mode de défilement des coupes&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;+&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile plus vite&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;-&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile moins vite&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Couleurs:&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+bt droit&amp;gt; et déplacement horizontal&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur min de la palette&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+bt droit&amp;gt; et déplacement vertical&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur max de la palette&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fermer la fenêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues (orientation seulement)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Défilement des coupes:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;coupes&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+T&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;temps&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+L&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;&lt;/td&gt;mode curseur lié bougeant avec les coupes&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défilement / arrêt du défilement des coupes&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;mode &quot;apesanteur&quot;: rotation continue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+M&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change le mode de défilement des coupes&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile plus vite&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile moins vite&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Palettes et couleurs:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+bt droit&amp;&amp;gt; et déplacement horizontal&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur min de la palette&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+bt droit&amp;&amp;gt; et déplacement vertical&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur max de la palette&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;réglages de couleurs par défaut&lt;/td&gt;&lt;/tr&gt;
-&lt;/table&gt;&lt;/html&gt;</translation>
+&lt;/table&gt;&lt;/p&gt;
+&lt;/html&gt;</translation>
     </message>
     <message>
         <source>TransformControl</source>
