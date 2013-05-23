@@ -242,7 +242,8 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
                    SLOT( unselectInvisibleItems() ) );
   connect( _lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::ButtonState ) ),
            this, 
-           SLOT( startDragging( QTreeWidgetItem*, Qt::ButtonState ) ) );
+           SLOT( startDragging( QTreeWidgetItem*, Qt::MouseButtons, 
+                                Qt::KeyboardModifiers ) ) );
   connect( _lview,
            SIGNAL( itemRightPressed( QTreeWidgetItem*, const QPoint & ) ), 
            this,
@@ -596,7 +597,8 @@ void QObjectTree::UndisplayRefColors()
 }
 
 
-void QObjectTree::startDragging( QTreeWidgetItem* item, Qt::ButtonState )
+void QObjectTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons, 
+                                 Qt::KeyboardModifiers )
 {
   //cout << "QObjectTree::startDragging\n";
   if( !item )

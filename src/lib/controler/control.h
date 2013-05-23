@@ -40,11 +40,9 @@
 #include <qobject.h>
 #include <qtabwidget.h>
 #include <qwidget.h>
-#if QT_VERSION >= 0x040600
 class QGestureEvent;
 class QPinchGesture;
 class QPanGesture;
-#endif
 #include <list>
 #include <map>
 #include <string>
@@ -128,7 +126,7 @@ namespace anatomist {
   int userLevel() const { return myUserLevel; }
   void setUserLevel( int x ) { myUserLevel = x; }
 
-  typedef QDropEvent::Action DropAction ;
+  typedef Qt::DropAction DropAction ;
 
   struct KeyMapKey{
     KeyMapKey( int k, int s ) : key(k), state(s) {}

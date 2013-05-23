@@ -643,7 +643,8 @@ void
 Control::dropEvent ( QDropEvent * event  ) 
 {
   if( myDropAction )
-    myDropAction->execute( event->pos().x(), event->pos().y(), event->action() ) ;
+    myDropAction->execute( event->pos().x(), event->pos().y(), 
+                           event->dropAction() ) ;
 }
 
 void 

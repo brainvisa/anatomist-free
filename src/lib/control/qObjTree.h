@@ -101,7 +101,8 @@ signals:
   void rightButtonPressed( anatomist::AObject*, const QPoint & );
 
 public slots:
-  virtual void startDragging( QTreeWidgetItem*, Qt::ButtonState );
+  virtual void startDragging( QTreeWidgetItem*, Qt::MouseButtons, 
+                              Qt::KeyboardModifiers );
   void rightButtonPressed( QTreeWidgetItem*, const QPoint & );
   void objectRenamed( QTreeWidgetItem*, int );
   void sortIndicatorChanged( int, Qt::SortOrder );

@@ -101,7 +101,8 @@ protected:
   void clearWindowsHighlights();
 
 public slots:
-  virtual void startDragging( QTreeWidgetItem*, Qt::ButtonState );
+  virtual void startDragging( QTreeWidgetItem*, Qt::MouseButtons,
+                              Qt::KeyboardModifiers );
   void sortIndicatorChanged( int, Qt::SortOrder );
 
 protected slots:

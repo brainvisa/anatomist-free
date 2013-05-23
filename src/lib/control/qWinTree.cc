@@ -31,7 +31,9 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
+// #ifdef QT3_SUPPORT
+// #undef QT3_SUPPORT
+// #endif
 #include <anatomist/control/qWinTree.h>
 #include <aims/listview/qatreewidget.h>
 #include <qlayout.h>
@@ -178,9 +180,11 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   connect( d->lview, SIGNAL( itemDoubleClicked( QTreeWidgetItem *, int ) ), 
            this,
            SLOT( doubleClickedSlot( QTreeWidgetItem *, int ) ) );
-  connect( d->lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::ButtonState ) ),
+  connect( d->lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::MouseButtons,
+             Qt::KeyboardModifiers ) ),
            this,
-           SLOT( startDragging( QTreeWidgetItem*, Qt::ButtonState ) ) );
+           SLOT( startDragging( QTreeWidgetItem*, Qt::MouseButtons,
+             Qt::KeyboardModifiers ) ) );
   connect( d->lview, SIGNAL( cursorMoved( QTreeWidgetItem*, int ) ),
            this, SLOT( itemChanged( QTreeWidgetItem*, int ) ) );
   connect( d->lview->header(), 
@@ -598,7 +602,8 @@ void QWindowTree::dragLeaveEvent( QDragLeaveEvent* )
 }
 
 
-void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::ButtonState )
+void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons,
+  Qt::KeyboardModifiers )
 {
   //cout << "QWindowTree::startDragging\n";
   if( !item )
