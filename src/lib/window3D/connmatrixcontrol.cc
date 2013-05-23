@@ -181,7 +181,7 @@ void ConnectivityMatrixControl::eventAutoSubscription(
 
   // standard actions
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftButton,
+    ( Qt::LeftButton, Qt::ShiftModifier,
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
         &LinkAction::execLink ),
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
@@ -190,48 +190,48 @@ void ConnectivityMatrixControl::eventAutoSubscription(
         &LinkAction::endLink ), true );
 
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoButton,
+    ( Qt::RightButton, Qt::NoModifier,
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
                                      &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton,
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
                             &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton,
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
                             &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton,
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
                             &WindowActions::toggleShowTools ) );
 
   //    rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlButton,
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
                             &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltButton,
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
                             &Trackball::showRotationCenter ) );
 
   //    sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoButton,
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
                             &Sync3DAction::execSync ) );
-  keyPressEventSubscribe( Qt::Key_S, Qt::AltButton,
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
                             &Sync3DAction::execSyncOrientation ) );
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoButton,
+    ( Qt::MidButton, Qt::NoModifier,
       MouseActionLinkOf<ContinuousTrackball>
       ( actionPool->action( "ContinuousTrackball" ),
         &ContinuousTrackball::beginTrackball ),
@@ -244,15 +244,15 @@ void ConnectivityMatrixControl::eventAutoSubscription(
 
   // selection shortcuts
 
-  keyPressEventSubscribe( Qt::Key_A, Qt::ControlButton,
+  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier,
                           KeyActionLinkOf<SelectAction>
                           ( actionPool->action( "SelectAction" ),
                             &SelectAction::toggleSelectAll ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoButton,
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier,
                           KeyActionLinkOf<SelectAction>
                           ( actionPool->action( "SelectAction" ),
                             &SelectAction::removeFromWindow ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlButton,
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier,
                           KeyActionLinkOf<SelectAction>
                           ( actionPool->action( "SelectAction" ),
                             &SelectAction::removeFromGroup ) );
@@ -260,7 +260,7 @@ void ConnectivityMatrixControl::eventAutoSubscription(
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftButton,
+    ( Qt::MidButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                                        &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -274,7 +274,7 @@ void ConnectivityMatrixControl::eventAutoSubscription(
   //    translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlButton,
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),
@@ -286,23 +286,23 @@ void ConnectivityMatrixControl::eventAutoSubscription(
         &Translate3DAction::endTranslate ), true );
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoButton,
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoButton,
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftButton,
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftButton,
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextTime ) );
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlButton,
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
                             &SliceAction::toggleLinkedOnSlider ) );

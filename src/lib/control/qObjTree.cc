@@ -240,12 +240,13 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
 
   _lview->connect( _lview, SIGNAL( itemSelectionChanged() ), this, 
                    SLOT( unselectInvisibleItems() ) );
-  connect( _lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::ButtonState ) ),
+  connect( _lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::MouseButtons,
+                                      Qt::KeyboardModifiers ) ),
            this, 
-           SLOT( startDragging( QTreeWidgetItem*, Qt::MouseButtons, 
+           SLOT( startDragging( QTreeWidgetItem*, Qt::MouseButtons,
                                 Qt::KeyboardModifiers ) ) );
   connect( _lview,
-           SIGNAL( itemRightPressed( QTreeWidgetItem*, const QPoint & ) ), 
+           SIGNAL( itemRightPressed( QTreeWidgetItem*, const QPoint & ) ),
            this,
            SLOT( rightButtonPressed( QTreeWidgetItem *, const QPoint & ) ) );
   connect( _lview, 

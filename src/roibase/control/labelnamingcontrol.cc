@@ -84,15 +84,15 @@ RoiLabelNamingControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleShowTools ) );
@@ -100,7 +100,7 @@ RoiLabelNamingControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoButton, 
+    ( Qt::MidButton, Qt::NoModifier, 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
 				    &Trackball::beginTrackball ), 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
@@ -111,7 +111,7 @@ RoiLabelNamingControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
   
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftButton, 
+    ( Qt::MidButton, Qt::ShiftModifier, 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
 				       &Zoom3DAction::beginZoom ), 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
@@ -125,7 +125,7 @@ RoiLabelNamingControl::eventAutoSubscription( ActionPool * actionPool )
   //	translation
   
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlButton, 
+    ( Qt::MidButton, Qt::ControlModifier, 
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ), 
 	&Translate3DAction::beginTranslate ), 
@@ -137,71 +137,71 @@ RoiLabelNamingControl::eventAutoSubscription( ActionPool * actionPool )
 	&Translate3DAction::endTranslate ), true ) ;
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextTime ) );
 
   // Level Set
   
-  keyPressEventSubscribe( Qt::Key_U, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::undo ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_R, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::redo ) ) ;
   
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ControlButton, 
+    ( Qt::LeftButton, Qt::ControlModifier, 
       MouseActionLinkOf<RoiLabelNamingAction>( actionPool->action( "LabelNamingAction" ), 
 					       &RoiLabelNamingAction::removeConnecCompFromRegion ) );
   
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoButton, 
+    ( Qt::LeftButton, Qt::NoModifier, 
       MouseActionLinkOf<RoiLabelNamingAction>( actionPool->action( "LabelNamingAction" ), 
 					    &RoiLabelNamingAction::addConnecCompToRegion ) );
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::AltButton, 
+    ( Qt::LeftButton, Qt::AltModifier, 
       MouseActionLinkOf<RoiLabelNamingAction>( actionPool->action( "LabelNamingAction" ), 
 					       &RoiLabelNamingAction::removeWholeLabelFromRegion ) );
   
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftButton, 
+    ( Qt::LeftButton, Qt::ShiftModifier, 
       MouseActionLinkOf<RoiLabelNamingAction>( actionPool->action( "LabelNamingAction" ), 
 					    &RoiLabelNamingAction::addWholeLabelToRegion ) );
    
-  keyPressEventSubscribe( Qt::Key_2, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_2, Qt::NoModifier, 
 			  KeyActionLinkOf<RoiLabelNamingAction>
 			  ( actionPool->action( "LabelNamingAction" ), 
 			    &RoiLabelNamingAction::setModeTo2D ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_3, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_3, Qt::NoModifier, 
 			  KeyActionLinkOf<RoiLabelNamingAction>
 			  ( actionPool->action( "LabelNamingAction" ), 
 			    &RoiLabelNamingAction::setModeTo3D ) ) ;
 
   //   mousePressButtonEventSubscribe
-  //     ( Qt::LeftButton, Qt::ControlButton, 
+  //     ( Qt::LeftButton, Qt::ControlModifier, 
   //       MouseActionLinkOf<RoiLabelNamingAction>( actionPool->action( "LabelNamingAction" ), 
   // 					    &RoiLabelNamingAction::removeFromRegion ) );
 
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoButton, 
+    ( Qt::RightButton, Qt::NoModifier, 
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
 				     &MenuAction::execMenu ) );
 

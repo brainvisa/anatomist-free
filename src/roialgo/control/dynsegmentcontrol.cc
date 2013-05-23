@@ -85,15 +85,15 @@ RoiDynSegmentControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleShowTools ) );
@@ -101,7 +101,7 @@ RoiDynSegmentControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoButton, 
+    ( Qt::MidButton, Qt::NoModifier, 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
 				    &Trackball::beginTrackball ), 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
@@ -112,7 +112,7 @@ RoiDynSegmentControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
   
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftButton, 
+    ( Qt::MidButton, Qt::ShiftModifier, 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
 				       &Zoom3DAction::beginZoom ), 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
@@ -126,7 +126,7 @@ RoiDynSegmentControl::eventAutoSubscription( ActionPool * actionPool )
   //	translation
   
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlButton, 
+    ( Qt::MidButton, Qt::ControlModifier, 
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ), 
 	&Translate3DAction::beginTranslate ), 
@@ -138,112 +138,112 @@ RoiDynSegmentControl::eventAutoSubscription( ActionPool * actionPool )
 	&Translate3DAction::endTranslate ), true ) ;
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextTime ) );
 
   // Level Set
   
-  keyPressEventSubscribe( Qt::Key_2, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_2, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::dimensionModeTo2D ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_3, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_3, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::dimensionModeTo3D ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_O, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_O, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::increaseOrder ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_O, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_O, Qt::ControlModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::decreaseOrder ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_F, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_F, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::increaseFaithInterval ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_F, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_F, Qt::ControlModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::decreaseFaithInterval ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_R, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::refineModeOn ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_R, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::ControlModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::refineModeOff ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_M, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_M, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::findNearestMinimumModeOn ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_M, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_M, Qt::ControlModifier, 
 			  KeyActionLinkOf<RoiDynSegmentAction>
 			  ( actionPool->action( "DynSegmentAction" ), 
 			    &RoiDynSegmentAction::findNearestMinimumModeOff ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_U, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::undo ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_R, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::redo ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier, 
 			  KeyActionLinkOf<RoiMorphoMathAction>
 			  ( actionPool->action( "MorphoMathAction" ), 
 			    &RoiMorphoMathAction::setDistanceToMm ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_D, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier, 
 			  KeyActionLinkOf<RoiMorphoMathAction>
 			  ( actionPool->action( "MorphoMathAction" ), 
 			    &RoiMorphoMathAction::setDistanceToVoxel ) ) ;
   
   
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoButton, 
+    ( Qt::LeftButton, Qt::NoModifier, 
       MouseActionLinkOf<RoiDynSegmentAction>( actionPool->action( "DynSegmentAction" ), 
 					      &RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse ) ) ;
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ControlButton, 
+    ( Qt::LeftButton, Qt::ControlModifier, 
       MouseActionLinkOf<RoiDynSegmentAction>( actionPool->action( "DynSegmentAction" ), 
 					      &RoiDynSegmentAction::replaceRegion ) ) ;
   
   //   mousePressButtonEventSubscribe
-  //     ( Qt::LeftButton, Qt::ControlButton, 
+  //     ( Qt::LeftButton, Qt::ControlModifier, 
   //       MouseActionLinkOf<RoiDynSegmentAction>( actionPool->action( "DynSegmentAction" ), 
   // 					    &RoiDynSegmentAction::removeFromRegion ) );
   
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoButton, 
+    ( Qt::RightButton, Qt::NoModifier, 
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
 				     &MenuAction::execMenu ) );
   

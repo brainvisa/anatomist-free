@@ -73,12 +73,12 @@ SurfpaintToolsControl::~SurfpaintToolsControl()
 
 void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
 {
-  mousePressButtonEventSubscribe(Qt::RightButton, Qt::NoButton,
+  mousePressButtonEventSubscribe(Qt::RightButton, Qt::NoModifier,
           MouseActionLinkOf<SurfpaintToolsAction> (actionPool->action(
               "SurfpaintToolsAction"),
               &SurfpaintToolsAction::pressRightButton));
 
-  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoButton, MouseActionLinkOf<
+  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoModifier, MouseActionLinkOf<
       SurfpaintToolsAction> (actionPool->action("SurfpaintToolsAction"),
       &SurfpaintToolsAction::longLeftButtonStart), MouseActionLinkOf<
       SurfpaintToolsAction> (actionPool->action("SurfpaintToolsAction"),
@@ -86,7 +86,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<SurfpaintToolsAction> (actionPool->action(
           "SurfpaintToolsAction"), &SurfpaintToolsAction::longLeftButtonStop), true);
 
-  mouseLongEventSubscribe(Qt::MidButton, Qt::NoButton, MouseActionLinkOf<
+  mouseLongEventSubscribe(Qt::MidButton, Qt::NoModifier, MouseActionLinkOf<
       Trackball> (actionPool->action("Trackball"), &Trackball::beginTrackball),
       MouseActionLinkOf<Trackball> (actionPool->action("Trackball"),
           &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
@@ -94,7 +94,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
   //
   //  // zoom
   //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ShiftButton, MouseActionLinkOf<
+  mouseLongEventSubscribe(Qt::MidButton, Qt::ShiftModifier, MouseActionLinkOf<
       Zoom3DAction> (actionPool->action("Zoom3DAction"),
       &Zoom3DAction::beginZoom), MouseActionLinkOf<Zoom3DAction> (
       actionPool->action("Zoom3DAction"), &Zoom3DAction::moveZoom),
@@ -105,7 +105,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       "Zoom3DAction"), &Zoom3DAction::zoomWheel));
   //  //  translation
   //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ControlButton, MouseActionLinkOf<
+  mouseLongEventSubscribe(Qt::MidButton, Qt::ControlModifier, MouseActionLinkOf<
       Translate3DAction> (actionPool->action("Translate3DAction"),
       &Translate3DAction::beginTranslate),
       MouseActionLinkOf<Translate3DAction> (actionPool->action(

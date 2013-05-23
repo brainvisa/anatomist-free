@@ -73,22 +73,22 @@ void
 RoiManagementControl::eventAutoSubscription( ActionPool * actionPool )
 {
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoButton, 
+    ( Qt::RightButton, Qt::NoModifier, 
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
 				     &MenuAction::execMenu ) );
   
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleShowTools ) );

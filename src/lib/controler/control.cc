@@ -769,7 +769,7 @@ bool Control::panGesture( QPanGesture * gesture )
 
 bool 
 Control::keyPressEventSubscribe( int key, 
-                                 Qt::ButtonState buttonState,
+                                 Qt::KeyboardModifiers buttonState,
                                  const KeyActionLink& actionMethod)
 {
   KeyMapKey k(key, buttonState) ;  
@@ -785,7 +785,7 @@ Control::keyPressEventSubscribe( int key,
 
 bool 
 Control::keyReleaseEventSubscribe( int key, 
-                                   Qt::ButtonState buttonState,
+                                   Qt::KeyboardModifiers buttonState,
                                    const KeyActionLink& actionMethod)
 {
   KeyMapKey k(key, buttonState) ;  
@@ -801,8 +801,8 @@ Control::keyReleaseEventSubscribe( int key,
 
 
 bool 
-Control::mousePressButtonEventSubscribe( Qt::ButtonState button,
-                                         Qt::ButtonState state,
+Control::mousePressButtonEventSubscribe( Qt::MouseButtons button,
+                                         Qt::KeyboardModifiers state,
                                          const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state) ;  
@@ -817,8 +817,8 @@ Control::mousePressButtonEventSubscribe( Qt::ButtonState button,
 }
 
 bool 
-Control::mouseReleaseButtonEventSubscribe( Qt::ButtonState button,
-                                           Qt::ButtonState state,
+Control::mouseReleaseButtonEventSubscribe( Qt::MouseButtons button,
+                                           Qt::KeyboardModifiers state,
                                            const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state) ;  
@@ -833,8 +833,8 @@ Control::mouseReleaseButtonEventSubscribe( Qt::ButtonState button,
 }
 
 bool 
-Control::mouseDoubleClickEventSubscribe( Qt::ButtonState button,
-                                        Qt::ButtonState state,
+Control::mouseDoubleClickEventSubscribe( Qt::MouseButtons button,
+                                        Qt::KeyboardModifiers state,
                                         const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state) ;  
@@ -849,8 +849,8 @@ Control::mouseDoubleClickEventSubscribe( Qt::ButtonState button,
 }
 
 bool 
-Control::mouseMoveEventSubscribe( Qt::ButtonState button,
-                                  Qt::ButtonState state,
+Control::mouseMoveEventSubscribe( Qt::MouseButtons button,
+                                  Qt::KeyboardModifiers state,
                                   const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state) ;  
@@ -866,13 +866,13 @@ Control::mouseMoveEventSubscribe( Qt::ButtonState button,
 
 bool 
 Control::keyAndMouseLongEventSubscribe( int startingKey, 
-                                        Qt::ButtonState startingButtonState, 
+                                        Qt::KeyboardModifiers startingButtonState, 
                                         const KeyActionLink & startingActionMethod,
-                                        Qt::ButtonState longButton,
-                                        Qt::ButtonState longState,
+                                        Qt::MouseButtons longButton,
+                                        Qt::KeyboardModifiers longState,
                                         const MouseActionLink & longActionMethod,
                                         int endingKey, 
-                                        Qt::ButtonState endingButtonState, 
+                                        Qt::KeyboardModifiers endingButtonState, 
                                         const KeyActionLink & endingActionMethod,
                                         bool exclusiveAction ) 
 {
@@ -889,8 +889,8 @@ Control::keyAndMouseLongEventSubscribe( int startingKey,
 }
 
 bool
-Control::mouseLongEventSubscribe( Qt::ButtonState startingButton, 
-				  Qt::ButtonState startingButtonState, 
+Control::mouseLongEventSubscribe( Qt::MouseButtons startingButton, 
+				  Qt::KeyboardModifiers startingButtonState, 
 				  const MouseActionLink& startingActionMethod,
 				  const MouseActionLink& longActionMethod,
 				  const MouseActionLink& endingActionMethod,
@@ -907,11 +907,11 @@ Control::mouseLongEventSubscribe( Qt::ButtonState startingButton,
 
 bool 
 Control::keyRepetitiveEventSubscribe( int startingKey, 
-                                      Qt::ButtonState startingButtonState, 
+                                      Qt::KeyboardModifiers startingButtonState, 
                                       const KeyActionLink& startingActionMethod,
                                       
                                       int endingKey, 
-                                      Qt::ButtonState endingButtonState, 
+                                      Qt::KeyboardModifiers endingButtonState, 
                                       const KeyActionLink & endingActionMethod,
                                       bool exclusiveAction,
                                       float temporalStep ) 
@@ -1080,7 +1080,7 @@ bool Control::selectionChangedEventUnsubscribe
 
 bool
 Control::keyPressEventUnsubscribe( int key, 
-                                   Qt::ButtonState buttonState,
+                                   Qt::KeyboardModifiers buttonState,
                                    const KeyActionLink& actionMethod )
 {
   KeyMapKey k(key, buttonState ) ;
@@ -1098,7 +1098,7 @@ Control::keyPressEventUnsubscribe( int key,
 
 bool
 Control::keyReleaseEventUnsubscribe( int key, 
-                                     Qt::ButtonState buttonState,
+                                     Qt::KeyboardModifiers buttonState,
                                      const KeyActionLink& actionMethod )
 {
   KeyMapKey k(key, buttonState ) ;
@@ -1115,8 +1115,8 @@ Control::keyReleaseEventUnsubscribe( int key,
 }
   
 bool  
-Control::mousePressButtonEventUnsubscribe( Qt::ButtonState button,
-                                           Qt::ButtonState state,
+Control::mousePressButtonEventUnsubscribe( Qt::MouseButtons button,
+                                           Qt::KeyboardModifiers state,
                                            const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state ) ;
@@ -1133,8 +1133,8 @@ Control::mousePressButtonEventUnsubscribe( Qt::ButtonState button,
 }
 
 bool  
-Control::mouseReleaseButtonEventUnsubscribe( Qt::ButtonState button,
-                                             Qt::ButtonState state,
+Control::mouseReleaseButtonEventUnsubscribe( Qt::MouseButtons button,
+                                             Qt::KeyboardModifiers state,
                                              const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state ) ;
@@ -1151,8 +1151,8 @@ Control::mouseReleaseButtonEventUnsubscribe( Qt::ButtonState button,
 }
     
 bool  
-Control::mouseDoubleClickEventUnsubscribe( Qt::ButtonState button,
-                                           Qt::ButtonState state,
+Control::mouseDoubleClickEventUnsubscribe( Qt::MouseButtons button,
+                                           Qt::KeyboardModifiers state,
                                            const MouseActionLink
                                            & actionMethod )
 {
@@ -1170,8 +1170,8 @@ Control::mouseDoubleClickEventUnsubscribe( Qt::ButtonState button,
 }
 
 bool  
-Control::mouseMoveEventUnsubscribe( Qt::ButtonState button,
-                                    Qt::ButtonState state,
+Control::mouseMoveEventUnsubscribe( Qt::MouseButtons button,
+                                    Qt::KeyboardModifiers state,
                                     const MouseActionLink& actionMethod )
 {
   MouseButtonMapKey k(button, state ) ;
@@ -1189,11 +1189,11 @@ Control::mouseMoveEventUnsubscribe( Qt::ButtonState button,
  
 bool 
 Control::keyAndMouseLongEventUnsubscribe( int startingKey, 
-                                          Qt::ButtonState startingButtonState, 
-                                          Qt::ButtonState longButton,
-                                          Qt::ButtonState longState,
+                                          Qt::KeyboardModifiers startingButtonState, 
+                                          Qt::MouseButtons longButton,
+                                          Qt::KeyboardModifiers longState,
                                           int endingKey, 
-                                          Qt::ButtonState endingButtonState ) 
+                                          Qt::KeyboardModifiers endingButtonState ) 
 {
   return myLongActions->keyAndMouseLongEventUnsubscribe( startingKey, 
 							 startingButtonState, 
@@ -1204,8 +1204,8 @@ Control::keyAndMouseLongEventUnsubscribe( int startingKey,
 }
 
 bool 
-Control::mouseLongEventUnsubscribe( Qt::ButtonState startingButton, 
-				    Qt::ButtonState startingButtonState )
+Control::mouseLongEventUnsubscribe( Qt::MouseButtons startingButton, 
+				    Qt::KeyboardModifiers startingButtonState )
 {
   return myLongActions->mouseLongEventUnsubscribe( startingButton, 
 						   startingButtonState ) ;
@@ -1213,9 +1213,9 @@ Control::mouseLongEventUnsubscribe( Qt::ButtonState startingButton,
 
 bool 
 Control::keyRepetitiveEventUnsubscribe( int startingKey, 
-                                        Qt::ButtonState startingButtonState, 
+                                        Qt::KeyboardModifiers startingButtonState, 
                                         int endingKey, 
-                                        Qt::ButtonState endingButtonState ) 
+                                        Qt::KeyboardModifiers endingButtonState ) 
 {
   return myLongActions->keyRepetitiveEventUnsubscribe( startingKey, 
 						       startingButtonState, 
@@ -1455,13 +1455,13 @@ LongActions::setMouseTracking( bool t )
 
 bool 
 LongActions::keyAndMouseLongEventSubscribe( int startingKey, 
-					    Qt::ButtonState startingButtonState, 
+					    Qt::KeyboardModifiers startingButtonState, 
 					    const Control::KeyActionLink & startingActionMethod,
-					    Qt::ButtonState longButton,
-					    Qt::ButtonState longState,
+					    Qt::MouseButtons longButton,
+					    Qt::KeyboardModifiers longState,
 					    const Control::MouseActionLink & longActionMethod,
 					    int endingKey, 
-					    Qt::ButtonState endingButtonState, 
+					    Qt::KeyboardModifiers endingButtonState, 
 					    const Control::KeyActionLink & endingActionMethod,
 					    bool exclusiveAction ) 
 {
@@ -1487,8 +1487,8 @@ LongActions::keyAndMouseLongEventSubscribe( int startingKey,
 }
 
 bool
-LongActions::mouseLongEventSubscribe( Qt::ButtonState startingButton, 
-				     Qt::ButtonState startingButtonState, 
+LongActions::mouseLongEventSubscribe( Qt::MouseButtons startingButton, 
+				     Qt::KeyboardModifiers startingButtonState, 
 				     const Control::MouseActionLink& startingActionMethod,
 				     const Control::MouseActionLink& longActionMethod,
 				     const Control::MouseActionLink& endingActionMethod,
@@ -1517,11 +1517,11 @@ LongActions::mouseLongEventSubscribe( Qt::ButtonState startingButton,
 
 bool 
 LongActions::keyRepetitiveEventSubscribe( int startingKey, 
-                                      Qt::ButtonState startingButtonState, 
+                                      Qt::KeyboardModifiers startingButtonState, 
                                       const Control::KeyActionLink& startingActionMethod,
                                       
                                       int endingKey, 
-                                      Qt::ButtonState endingButtonState, 
+                                      Qt::KeyboardModifiers endingButtonState, 
                                       const Control::KeyActionLink& endingActionMethod,
                                       bool exclusiveAction,
                                       float temporalStep ) 
@@ -1547,11 +1547,11 @@ LongActions::keyRepetitiveEventSubscribe( int startingKey,
 
 bool 
 LongActions::keyAndMouseLongEventUnsubscribe( int startingKey, 
-                                          Qt::ButtonState startingButtonState, 
-                                          Qt::ButtonState longButton,
-                                          Qt::ButtonState longState,
+                                          Qt::KeyboardModifiers startingButtonState, 
+                                          Qt::MouseButtons longButton,
+                                          Qt::KeyboardModifiers longState,
                                           int endingKey, 
-                                          Qt::ButtonState endingButtonState ) 
+                                          Qt::KeyboardModifiers endingButtonState ) 
 {
   Control::KeyMapKey startKey( startingKey, startingButtonState ) ;
   Control::MouseButtonMapKey longKey( longButton,longState ) ;
@@ -1572,8 +1572,8 @@ LongActions::keyAndMouseLongEventUnsubscribe( int startingKey,
 }
 
 bool 
-LongActions::mouseLongEventUnsubscribe( Qt::ButtonState startingButton, 
-				    Qt::ButtonState startingButtonState )
+LongActions::mouseLongEventUnsubscribe( Qt::MouseButtons startingButton, 
+				    Qt::KeyboardModifiers startingButtonState )
 {
   Control::MouseButtonMapKey startKey( startingButton, startingButtonState ) ;
 
@@ -1594,9 +1594,9 @@ LongActions::mouseLongEventUnsubscribe( Qt::ButtonState startingButton,
 
 bool 
 LongActions::keyRepetitiveEventUnsubscribe( int startingKey, 
-					    Qt::ButtonState startingButtonState, 
+					    Qt::KeyboardModifiers startingButtonState, 
 					    int endingKey, 
-					    Qt::ButtonState endingButtonState ) 
+					    Qt::KeyboardModifiers endingButtonState ) 
 {
   Control::KeyMapKey startKey( startingKey, startingButtonState ) ;
   Control::KeyMapKey endKey( endingKey, endingButtonState ) ;

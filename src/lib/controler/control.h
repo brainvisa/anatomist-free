@@ -466,56 +466,52 @@ namespace anatomist {
 #endif
 
     bool keyPressEventSubscribe( int key, 
-				 Qt::ButtonState buttonState,
+				 Qt::KeyboardModifiers buttonState,
 				 const KeyActionLink& actionMethod) ;
   
     bool keyReleaseEventSubscribe( int key, 
-				   Qt::ButtonState buttonState,
+				   Qt::KeyboardModifiers buttonState,
 				   const KeyActionLink& actionMethod ) ;
 
-    bool mousePressButtonEventSubscribe( Qt::ButtonState button,
-					 Qt::ButtonState state,
+    bool mousePressButtonEventSubscribe( Qt::MouseButtons button,
+					 Qt::KeyboardModifiers state,
 					 const MouseActionLink& actionMethod ) ;
   
-    bool mouseReleaseButtonEventSubscribe( Qt::ButtonState button,
-					   Qt::ButtonState state,
+    bool mouseReleaseButtonEventSubscribe( Qt::MouseButtons button,
+					   Qt::KeyboardModifiers state,
 					   const MouseActionLink& actionMethod ) ;
 
     bool 
-    mouseDoubleClickEventSubscribe( Qt::ButtonState button,
-                                    Qt::ButtonState state,
+    mouseDoubleClickEventSubscribe( Qt::MouseButtons button,
+                                    Qt::KeyboardModifiers state,
                                     const MouseActionLink& actionMethod ) ;
 
-    bool mouseMoveEventSubscribe( Qt::ButtonState button,
-				  Qt::ButtonState state,
+    bool mouseMoveEventSubscribe( Qt::MouseButtons button,
+				  Qt::KeyboardModifiers state,
 				  const MouseActionLink& actionMethod ) ;
 
-    bool keyAndMouseLongEventSubscribe( int startingKey, 
-					Qt::ButtonState startingButtonState, 
-					const KeyActionLink& startingActionMethod,
+    bool keyAndMouseLongEventSubscribe( 
+      int startingKey, Qt::KeyboardModifiers startingButtonState, 
+      const KeyActionLink& startingActionMethod,
+      Qt::MouseButtons longButton, Qt::KeyboardModifiers longState,
+      const MouseActionLink& longActionMethod,
+      int endingKey, Qt::KeyboardModifiers endingButtonState, 
+      const KeyActionLink& endingActionMethod,
+      bool exclusiveAction ) ;
 
-					Qt::ButtonState longButton,
-					Qt::ButtonState longState,
-					const MouseActionLink& longActionMethod,
-
-					int endingKey, 
-					Qt::ButtonState endingButtonState, 
-					const KeyActionLink& endingActionMethod,
-					bool exclusiveAction ) ;
-
-    bool mouseLongEventSubscribe( Qt::ButtonState startingButton, 
-				  Qt::ButtonState startingButtonState, 
+    bool mouseLongEventSubscribe( Qt::MouseButtons startingButton, 
+				  Qt::KeyboardModifiers startingButtonState, 
 				  const MouseActionLink& startingActionMethod,
 				  const MouseActionLink& longActionMethod,
 				  const MouseActionLink& endingActionMethod,
 				  bool exclusiveAction ) ;
     
     bool keyRepetitiveEventSubscribe( int startingKey, 
-                                      Qt::ButtonState startingButtonState, 
+                                      Qt::KeyboardModifiers startingButtonState, 
                                       const KeyActionLink& startingActionMethod,
 
                                       int endingKey, 
-                                      Qt::ButtonState endingButtonState, 
+                                      Qt::KeyboardModifiers endingButtonState, 
                                       const KeyActionLink& endingActionMethod,
                                       bool exclusiveAction,
                                       float temporalStep ) ;
@@ -539,44 +535,44 @@ namespace anatomist {
         ( const SelectionChangedActionLink& actionMethod );
 
     bool keyPressEventUnsubscribe( int key, 
-				   Qt::ButtonState buttonState,
+				   Qt::KeyboardModifiers buttonState,
 				   const KeyActionLink& actionMethods) ;
   
     bool keyReleaseEventUnsubscribe( int key, 
-				     Qt::ButtonState buttonState,
+				     Qt::KeyboardModifiers buttonState,
 				     const KeyActionLink& actionMethods) ;
   
-    bool mousePressButtonEventUnsubscribe( Qt::ButtonState button,
-					   Qt::ButtonState state,
+    bool mousePressButtonEventUnsubscribe( Qt::MouseButtons button,
+					   Qt::KeyboardModifiers state,
 					   const MouseActionLink& actionMethods ) ;
   
-    bool mouseReleaseButtonEventUnsubscribe( Qt::ButtonState button,
-					     Qt::ButtonState state,
+    bool mouseReleaseButtonEventUnsubscribe( Qt::MouseButtons button,
+					     Qt::KeyboardModifiers state,
 					     const MouseActionLink& actionMethods ) ;
   
     bool 
-    mouseDoubleClickEventUnsubscribe( Qt::ButtonState button,
-                                      Qt::ButtonState state,
+    mouseDoubleClickEventUnsubscribe( Qt::MouseButtons button,
+                                      Qt::KeyboardModifiers state,
                                       const MouseActionLink& actionMethods ) ;
   
-    bool mouseMoveEventUnsubscribe( Qt::ButtonState button,
-				    Qt::ButtonState state,
+    bool mouseMoveEventUnsubscribe( Qt::MouseButtons button,
+				    Qt::KeyboardModifiers state,
 				    const MouseActionLink& actionMethods ) ;
 
     bool keyAndMouseLongEventUnsubscribe( int startingKey, 
-					  Qt::ButtonState startingButtonState, 
-					  Qt::ButtonState longButton,
-					  Qt::ButtonState longState,                                 
+					  Qt::KeyboardModifiers startingButtonState, 
+					  Qt::MouseButtons longButton,
+					  Qt::KeyboardModifiers longState,                                 
 					  int endingKey, 
-					  Qt::ButtonState endingButtonState ) ;
+					  Qt::KeyboardModifiers endingButtonState ) ;
 
-    bool mouseLongEventUnsubscribe( Qt::ButtonState startingButton, 
-				    Qt::ButtonState startingButtonState ) ;
+    bool mouseLongEventUnsubscribe( Qt::MouseButtons startingButton, 
+				    Qt::KeyboardModifiers startingButtonState ) ;
   
     bool keyRepetitiveEventUnsubscribe( int startingKey, 
-					Qt::ButtonState startingButtonState, 
+					Qt::KeyboardModifiers startingButtonState, 
 					int endingKey, 
-					Qt::ButtonState endingButtonState ) ;
+					Qt::KeyboardModifiers endingButtonState ) ;
 
     bool wheelEventUnsubscribe( const WheelActionLink& actionMethod ) ;
     bool focusInEventUnsubscribe( const FocusActionLink& actionMethod ) ;
@@ -726,47 +722,47 @@ namespace anatomist {
     bool submitMouseMoveEvent( QMouseEvent * event ) ;
     
     bool keyAndMouseLongEventSubscribe( int startingKey, 
-					Qt::ButtonState startingButtonState, 
+					Qt::KeyboardModifiers startingButtonState, 
 					const Control::KeyActionLink& startingActionMethod,
 					
-					Qt::ButtonState longButton,
-					Qt::ButtonState longState,
+					Qt::MouseButtons longButton,
+					Qt::KeyboardModifiers longState,
 					const Control::MouseActionLink& longActionMethod,
 					int endingKey, 
-					Qt::ButtonState endingButtonState, 
+					Qt::KeyboardModifiers endingButtonState, 
 					const Control::KeyActionLink& endingActionMethod,
 					bool exclusiveAction ) ;
 
-    bool mouseLongEventSubscribe( Qt::ButtonState startingButton, 
-				  Qt::ButtonState startingButtonState, 
+    bool mouseLongEventSubscribe( Qt::MouseButtons startingButton, 
+				  Qt::KeyboardModifiers startingButtonState, 
 				  const Control::MouseActionLink& startingActionMethod,
 				  const Control::MouseActionLink& longActionMethod,
 				  const Control::MouseActionLink& endingActionMethod,
 				  bool exclusiveAction ) ;
     
     bool keyRepetitiveEventSubscribe( int startingKey, 
-				      Qt::ButtonState startingButtonState, 
+				      Qt::KeyboardModifiers startingButtonState, 
 				      const Control::KeyActionLink& startingActionMethod,
 				      int endingKey, 
-				      Qt::ButtonState endingButtonState, 
+				      Qt::KeyboardModifiers endingButtonState, 
 				      const Control::KeyActionLink& endingActionMethod,
 				      bool exclusiveAction,
 				      float temporalStep ) ;
     
     bool keyAndMouseLongEventUnsubscribe( int startingKey, 
-					  Qt::ButtonState startingButtonState, 
-					  Qt::ButtonState longButton,
-					  Qt::ButtonState longState,
+					  Qt::KeyboardModifiers startingButtonState, 
+					  Qt::MouseButtons longButton,
+					  Qt::KeyboardModifiers longState,
 					  int endingKey, 
-					  Qt::ButtonState endingButtonState ) ;
+					  Qt::KeyboardModifiers endingButtonState ) ;
 
-    bool mouseLongEventUnsubscribe( Qt::ButtonState startingButton, 
-				    Qt::ButtonState startingButtonState ) ;
+    bool mouseLongEventUnsubscribe( Qt::MouseButtons startingButton, 
+				    Qt::KeyboardModifiers startingButtonState ) ;
     
     bool keyRepetitiveEventUnsubscribe( int startingKey, 
-					Qt::ButtonState startingButtonState, 
+					Qt::KeyboardModifiers startingButtonState, 
 					int endingKey, 
-					Qt::ButtonState endingButtonState ) ;
+					Qt::KeyboardModifiers endingButtonState ) ;
     void setMouseTracking( bool );
 
   private:

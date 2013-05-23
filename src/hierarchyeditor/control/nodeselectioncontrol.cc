@@ -85,25 +85,25 @@ NodeSelectionControl::eventAutoSubscription( ActionPool * actionPool )
 
 	//cout<<"EVENT SUSCRIPTION"<<endl;
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoButton,
+    ( Qt::RightButton, Qt::NoModifier,
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
 				     &MenuAction::execMenu ) );
 
 	mousePressButtonEventSubscribe
-    	( Qt::LeftButton, Qt::NoButton,
+    	( Qt::LeftButton, Qt::NoModifier,
       	MouseActionLinkOf<NodeSelectionAction>( actionPool->action( "NodeSelectionAction" ),
 						&NodeSelectionAction::select ) );
 						
 /*
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoButton,
+    ( Qt::LeftButton, Qt::NoModifier,
       MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ),
 				       &SelectAction::execSelect ) );
 */
 				       
 				       /*
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::NoButton,
+    ( Qt::LeftButton, Qt::NoModifier,
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
 	&LinkAction::execLink ),
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
@@ -113,7 +113,7 @@ NodeSelectionControl::eventAutoSubscription( ActionPool * actionPool )
 */
 
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftButton,
+    ( Qt::LeftButton, Qt::ShiftModifier,
       MouseActionLinkOf<NodeSelectionAction>( actionPool->action( "NodeSelectionAction" ),
 				      &NodeSelectionAction::add ) );
 				      /*
@@ -122,14 +122,14 @@ NodeSelectionControl::eventAutoSubscription( ActionPool * actionPool )
 
 			*/
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ControlButton,
+    ( Qt::LeftButton, Qt::ControlModifier,
       MouseActionLinkOf<NodeSelectionAction>( actionPool->action( "NodeSelectionAction" ),
 				      &NodeSelectionAction::remove ) );
 
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoButton,
+    ( Qt::MidButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
 				    &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -140,7 +140,7 @@ NodeSelectionControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftButton,
+    ( Qt::MidButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
 				       &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -151,7 +151,7 @@ NodeSelectionControl::eventAutoSubscription( ActionPool * actionPool )
   //	translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlButton,
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
 	&Translate3DAction::beginTranslate ),

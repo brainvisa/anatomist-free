@@ -101,151 +101,151 @@ void
 PaintControl::eventAutoSubscription( ActionPool * actionPool )
 {
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoButton, 
+    ( Qt::RightButton, Qt::NoModifier, 
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
 				     &MenuAction::execMenu ) );
   
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::ControlButton,  // WARNING
+  keyPressEventSubscribe( Qt::Key_F9, Qt::ControlModifier,  // WARNING
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
 			  KeyActionLinkOf<WindowActions>
 			  ( actionPool->action( "WindowActions" ), 
 			    &WindowActions::toggleShowTools ) );
 
 
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftButton, 
+    ( Qt::LeftButton, Qt::ShiftModifier, 
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
 				      &PaintAction::fill ) );
   
-  keyPressEventSubscribe( Qt::Key_S, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_S, Qt::ControlModifier, 
 			  KeyActionLinkOf<RoiManagementAction>
 			  ( actionPool->action( "RoiManagementAction" ), 
 			    &RoiManagementAction::saveGraph ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
 			  KeyActionLinkOf<RoiManagementAction>
 			  ( actionPool->action( "RoiManagementAction" ), 
 			    &RoiManagementAction::reloadGraph ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_P, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_P, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::brushToPoint ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_B, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_B, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::brushToBall ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_D, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::brushToDisk ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_Plus, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_Plus, Qt::ShiftModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::increaseBrushSize ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_Minus, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_Minus, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::decreaseBrushSize ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_U, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::undo ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::undo ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_R, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::redo ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_Z, (Qt::ButtonState ) 
-                          ( Qt::ShiftButton | Qt::ControlButton ), 
+  keyPressEventSubscribe( Qt::Key_Z, (Qt::KeyboardModifiers ) 
+                          ( Qt::ShiftModifier | Qt::ControlModifier ), 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::redo ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_E, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_E, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::clearRegion ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_L, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_L, Qt::ShiftModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::lineOn ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::lineOff ) ) ;
   
-  keyPressEventSubscribe( Qt::Key_C, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_C, Qt::ShiftModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::followingLinkedCursorOn ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::followingLinkedCursorOff ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_R, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::ShiftModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::replaceOn ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_R, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_R, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::replaceOff ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_M, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_M, Qt::NoModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::brushToMm ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_V, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_V, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::brushToVoxel ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::copyPreviousSliceCurrentRegion ) ) ;
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::copyPreviousSliceWholeSession ) ) ;
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ControlButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ControlModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::copyNextSliceCurrentRegion ) ) ;
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
 			  KeyActionLinkOf<PaintAction>
 			  ( actionPool->action( "PaintAction" ), 
 			    &PaintAction::copyNextSliceWholeSession ) ) ;
 
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::NoButton, 
+    ( Qt::LeftButton, Qt::NoModifier, 
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
 				      &PaintAction::paintStart ),
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
@@ -253,7 +253,7 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
 				      &PaintAction::validateChange ), true ) ;
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::ControlButton, 
+    ( Qt::LeftButton, Qt::ControlModifier, 
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
 				      &PaintAction::eraseStart ),
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
@@ -264,7 +264,7 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoButton, 
+    ( Qt::MidButton, Qt::NoModifier, 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
 				    &Trackball::beginTrackball ), 
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
@@ -275,7 +275,7 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
   
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftButton, 
+    ( Qt::MidButton, Qt::ShiftModifier, 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
 				       &Zoom3DAction::beginZoom ), 
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
@@ -289,7 +289,7 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
   //	translation
   
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlButton, 
+    ( Qt::MidButton, Qt::ControlModifier, 
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ), 
 	&Translate3DAction::beginTranslate ), 
@@ -301,26 +301,26 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
 	&Translate3DAction::endTranslate ), true ) ;
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftButton, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::nextTime ) );
 
   // paint cursor action
   mouseMoveEventSubscribe
-    ( Qt::NoButton, Qt::NoButton,
+    ( Qt::NoButton, Qt::NoModifier,
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
                                       &PaintAction::moveCursor ) );
   focusOutEventSubscribe(
