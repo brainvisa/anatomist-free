@@ -33,7 +33,7 @@
 
 
 #include <anatomist/control/qWinTree.h>
-#include <aims/listview/qalistview.h>
+#include <aims/listview/qatreewidget.h>
 #include <qlayout.h>
 #include <qframe.h>
 #include <qpixmap.h>
@@ -50,7 +50,7 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/control/backPixmap_P.h>
 #include <anatomist/commands/cLoadObject.h>
-#include <q3header.h>
+#include <QHeaderView>
 #include <qtimer.h>
 #include <stdio.h>
 
@@ -69,14 +69,24 @@ struct QWindowTree::Private
   ~Private();
 
   QTimer &timer();
+
   QTimer *_timer;
   QWindowTree* parent;
   set<QAWindow *> highlighted;
+  std::map<anatomist::AWindow *, QTreeWidgetItem *>      windows;
+  std::map<int, QTreeWidgetItem *>                      groups;
+  std::map<QTreeWidgetItem *, anatomist::AWindow *>     items;
+  std::map<QTreeWidgetItem *, int>                      groupItems;
+  aims::gui::QATreeWidget                               *lview;
+  bool                                                  viewRefCol;
+  anatomist::AWindow *highlightedWindow;
+  unsigned count;
 };
 
 
 QWindowTree::Private::Private( QWindowTree* parent ) : _timer( 0 ),
-  parent( parent )
+  parent( parent ), lview( 0 ), viewRefCol( true ), highlightedWindow( 0 ),
+  count( 0 )
 {
 }
 
@@ -101,8 +111,7 @@ QTimer & QWindowTree::Private::timer()
 
 
 QWindowTree::QWindowTree( QWidget *parent, const char *name )
-  : QWidget( parent ), _viewRefCol( true ), _highlightedWindow( 0 ),
-  d( new Private( this ) )
+  : QWidget( parent ), d( new Private( this ) )
 {
   setObjectName(name);
   if( !LinkIcon )
@@ -118,39 +127,65 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
-  _lview = new QAListView( fr, "qWinList" );
-  _lview->addColumn( "" );
-  _lview->addColumn( tr( "Ref" ) );
-  _lview->addColumn( tr( "Windows" ) );
-  _lview->addColumn( tr( "Type" ) );
-  _lview->addColumn( tr( "Nb. obj." ) );
-  _lview->setMultiSelection( true );
-  _lview->setSelectionMode( Q3ListView::Extended );
-  _lview->setRootIsDecorated( true );
-  _lview->setAllColumnsShowFocus( true );
-  _lview->setItemMargin( 2 );
-  _lview->setSorting( 10 );	// disable sorting by default
+  d->lview = new QATreeWidget( fr );
+  d->lview->setObjectName( "qWinList" );
+  d->lview->setColumnCount( 6 );
+  QTreeWidgetItem* hdri = new QTreeWidgetItem;
+  d->lview->setHeaderItem( hdri );
+  hdri->setText( 0, "" );
+  hdri->setText( 1, tr( "Ref" ) );
+  hdri->setText( 2, tr( "Windows" ) );
+  hdri->setText( 3, tr( "Type" ) );
+  hdri->setText( 4, tr( "Nb. obj." ) );
+  hdri->setText( 5, tr( "cnt" ) );
+  d->lview->setSelectionMode( QTreeWidget::ExtendedSelection );
+  d->lview->setItemsExpandable( true );
+  d->lview->setRootIsDecorated( true );
+  d->lview->setAllColumnsShowFocus( true );
+  d->lview->setSelectionBehavior( QAbstractItemView::SelectRows );
+  d->lview->setDragEnabled( true );
+  // disable "natural" treewidget drag&drop: we overload it.
+  d->lview->setDragDropMode( QAbstractItemView::NoDragDrop );
+  d->lview->setIconSize( QSize( 32, 32 ) );
+  QHeaderView *hdr = d->lview->header();
+  hdr->setResizeMode( 0, QHeaderView::ResizeToContents );
+  hdr->setResizeMode( 1, QHeaderView::Fixed );
+  hdr->resizeSection( 1, 26 );
+  hdr->setResizeMode( 2, QHeaderView::Stretch );
+  hdr->setStretchLastSection( false );
+  hdr->setResizeMode( 3, QHeaderView::Interactive );
+  hdr->resizeSection( 3, 60 );
+  hdr->setResizeMode( 4, QHeaderView::Interactive );
+  hdr->resizeSection( 4, 45 );
+  d->lview->header()->hideSection( 5 );
+  hdr->setSortIndicator( -1, Qt::Ascending );
+  hdr->setSortIndicatorShown( -1 );
+  d->lview->setSortingEnabled( true );
 
-  installBackgroundPixmap( _lview );
+  installBackgroundPixmap( d->lview );
 
   lay1->addWidget( fr );
-  lay2->addWidget( _lview );
+  lay2->addWidget( d->lview );
 
   fr->resize( 300, 300 );	// default size
   resize( 300, 300 );
 
   setAcceptDrops(TRUE);
-  _lview->setMouseTracking( true );
+  d->lview->setMouseTracking( true );
 
-  _lview->connect( _lview, SIGNAL( selectionChanged() ), this, 
+  d->lview->connect( d->lview, SIGNAL( itemSelectionChanged() ), this, 
                    SLOT( unselectInvisibleItems() ) );
-  connect( _lview, SIGNAL( doubleClicked( Q3ListViewItem * ) ), this,
-	   SLOT( doubleClickedSlot( Q3ListViewItem * ) ) );
-  connect( _lview, SIGNAL( dragStart( Q3ListViewItem*, Qt::ButtonState ) ),
+  connect( d->lview, SIGNAL( itemDoubleClicked( QTreeWidgetItem *, int ) ), 
            this,
-           SLOT( startDragging( Q3ListViewItem*, Qt::ButtonState ) ) );
-  connect( _lview, SIGNAL( cursorMoved( Q3ListViewItem*, int ) ),
-           this, SLOT( itemChanged( Q3ListViewItem*, int ) ) );
+           SLOT( doubleClickedSlot( QTreeWidgetItem *, int ) ) );
+  connect( d->lview, SIGNAL( dragStart( QTreeWidgetItem*, Qt::ButtonState ) ),
+           this,
+           SLOT( startDragging( QTreeWidgetItem*, Qt::ButtonState ) ) );
+  connect( d->lview, SIGNAL( cursorMoved( QTreeWidgetItem*, int ) ),
+           this, SLOT( itemChanged( QTreeWidgetItem*, int ) ) );
+  connect( d->lview->header(), 
+           SIGNAL( sortIndicatorChanged( int, Qt::SortOrder  ) ),
+           this, SLOT( sortIndicatorChanged( int, Qt::SortOrder  ) ) );
 }
 
 
@@ -162,57 +197,67 @@ QWindowTree::~QWindowTree()
 
 void QWindowTree::registerWindow( AWindow* win )
 {
-  map<AWindow *, Q3ListViewItem *>::iterator	iw 
-    = _windows.find( win );
+  map<AWindow *, QTreeWidgetItem *>::iterator	iw 
+    = d->windows.find( win );
 
-  if( iw == _windows.end() )	// not already there
+  if( iw == d->windows.end() )	// not already there
+  {
+    if( win->Group() == 0 )
     {
-      if( win->Group() == 0 )
-	{
-	  insertWindow( _lview, win );
-	}
-      else
-	{
-	  map<int, Q3ListViewItem *>::iterator 
-	    ig = _groups.find( win->Group() );
-	  Q3ListViewItem	*parent;
-
-	  if( ig == _groups.end() )
-	    {
-	      char	id[10];
-
-	      sprintf( id, "Group %d", win->Group() );
-	      parent = new Q3ListViewItem( _lview, "", "", id );
-	      if( !LinkIcon->isNull() )
-		parent->setPixmap( 0, *LinkIcon );
-	      _groups[ win->Group() ] = parent;
-	      _groupItems[ parent ] = win->Group();
-	    }
-	  else
-	    parent = (*ig).second;
-	  insertWindow( parent, win );
-	}
-      _lview->triggerUpdate();
+      insertWindow( d->lview, win );
     }
+    else
+    {
+      map<int, QTreeWidgetItem *>::iterator 
+        ig = d->groups.find( win->Group() );
+      QTreeWidgetItem	*parent;
+
+      if( ig == d->groups.end() )
+        {
+          char	id[10];
+
+          sprintf( id, "Group %d", win->Group() );
+          parent = new QTreeWidgetItem;
+          d->lview->insertTopLevelItem( 0, parent );
+          parent->setText( 2, id );
+          stringstream s;
+          s.width( 5 );
+          s.fill( '0' );
+          s << d->count;
+          parent->setText( 5, QString::fromStdString( s.str() ) );
+          ++d->count;
+
+          if( !LinkIcon->isNull() )
+            parent->setIcon( 0, *LinkIcon );
+          d->groups[ win->Group() ] = parent;
+          d->groupItems[ parent ] = win->Group();
+        }
+      else
+        parent = (*ig).second;
+      insertWindow( parent, win );
+    }
+  }
 }
 
 
-Q3ListViewItem* QWindowTree::insertWindow( Q3ListViewItem* item, AWindow*win )
+QTreeWidgetItem* QWindowTree::insertWindow( QTreeWidgetItem* item, 
+                                            AWindow*win )
 {
-  Q3ListViewItem	*ni = new Q3ListViewItem( item );
+  QTreeWidgetItem	*ni = new QTreeWidgetItem;
 
-  _windows[ win ] = ni;
-  _items[ ni ] = win;
+  item->addChild( ni );
+  d->windows[ win ] = ni;
+  d->items[ ni ] = win;
   decorateItem( ni, win );
 
   return( ni );
 }
 
 
-void QWindowTree::decorateItem( Q3ListViewItem* item, AWindow*win )
+void QWindowTree::decorateItem( QTreeWidgetItem* item, AWindow*win )
 {
   const unsigned	iconCol = 0, nameCol = 2, refCol = 1, 
-    typeCol = 3, szCol = 4;
+    typeCol = 3, szCol = 4, countCol = 5;
   int		type;
 
   item->setText( nameCol, win->Title().c_str() );
@@ -224,7 +269,7 @@ void QWindowTree::decorateItem( Q3ListViewItem* item, AWindow*win )
     = QAWindowFactory::pixmaps( type );
 
   if( !pixl.psmall.isNull() )
-    item->setPixmap( iconCol, pixl.psmall );
+    item->setIcon( iconCol, pixl.psmall );
   else
     {
       static QPixmap	pix;
@@ -238,12 +283,12 @@ void QWindowTree::decorateItem( Q3ListViewItem* item, AWindow*win )
           bmp.fill( Qt::color0 );
           pix.setMask( bmp );
         }
-      item->setPixmap( nameCol, pix );
+      item->setIcon( nameCol, pix );
     }
 
-  item->setPixmap( refCol,
-                   ReferencePixmap::referencePixmap
-                   ( win->getReferential(), true, RefPixSize ) );
+  item->setIcon( refCol,
+                 ReferencePixmap::referencePixmap
+                 ( win->getReferential(), true, RefPixSize ) );
 
   string	tname = AWindowFactory::typeString( type );
 
@@ -256,15 +301,26 @@ void QWindowTree::decorateItem( Q3ListViewItem* item, AWindow*win )
 
   sprintf( no, "%u", (unsigned) win->Objects().size() );
   item->setText( szCol, no );
+
+  if( item->text( countCol ) == "" )
+  {
+    stringstream s;
+    s.width( 5 );
+    s.fill( '0' );
+    s << d->count;
+    item->setText( countCol, QString::fromStdString( s.str() ) );
+    ++d->count;
+  }
 }
 
 
-Q3ListViewItem* QWindowTree::insertWindow( Q3ListView* lview, AWindow*win )
+QTreeWidgetItem* QWindowTree::insertWindow( QTreeWidget* lview, AWindow*win )
 {
-  Q3ListViewItem	*ni = new Q3ListViewItem( lview );
+  QTreeWidgetItem	*ni = new QTreeWidgetItem;
 
-  _windows[ win ] = ni;
-  _items[ ni ] = win;
+  lview->insertTopLevelItem( 0, ni );
+  d->windows[ win ] = ni;
+  d->items[ ni ] = win;
   decorateItem( ni, win );
 
   return( ni );
@@ -273,49 +329,45 @@ Q3ListViewItem* QWindowTree::insertWindow( Q3ListView* lview, AWindow*win )
 
 void QWindowTree::unregisterWindow( AWindow* win )
 {
-  map<AWindow *, Q3ListViewItem *>::iterator
-    iw = _windows.find( win );
+  map<AWindow *, QTreeWidgetItem *>::iterator
+    iw = d->windows.find( win );
 
-  if( iw != _windows.end() )
+  if( iw != d->windows.end() )
   {
-    Q3ListViewItem    *item = iw->second;
-    Q3ListViewItem	*parent = item->parent();
-    _items.erase( item );
-    _windows.erase( iw );
+    QTreeWidgetItem    *item = iw->second;
+    QTreeWidgetItem	*parent = item->parent();
+    d->items.erase( item );
+    d->windows.erase( iw );
     delete item;
     if( parent && parent->childCount() == 0 )
     {
-      _groups.erase( win->Group() );
-      _groupItems.erase( parent );
+      d->groups.erase( win->Group() );
+      d->groupItems.erase( parent );
       delete parent;
     }
-    _lview->triggerUpdate();
   }
 }
 
 
 void QWindowTree::NotifyWindowChange( AWindow* win )
 {
-  map<AWindow *, Q3ListViewItem *>::iterator
-    iw = _windows.find( win );
+  map<AWindow *, QTreeWidgetItem *>::iterator
+    iw = d->windows.find( win );
 
-  if( iw != _windows.end() )
-    {
-      decorateItem( (*iw).second, win );
-      (*iw).second->widthChanged( 0 );
-    }
-  _lview->triggerUpdate();
+  if( iw != d->windows.end() )
+    decorateItem( (*iw).second, win );
 }
 
 
 set<AWindow *> *QWindowTree::SelectedWindows() const
 {
-  map<AWindow *, Q3ListViewItem *>::const_iterator	iw, fw=_windows.end();
+  map<AWindow *, QTreeWidgetItem *>::const_iterator
+    iw, fw=d->windows.end();
   set<AWindow *>	*lo = new set<AWindow *>;
 
-  for( iw=_windows.begin(); iw!=fw; ++iw )
+  for( iw=d->windows.begin(); iw!=fw; ++iw )
     if( (*iw).second->isSelected() 
-	&& lo->find( (*iw).first ) == lo->end() )
+        && lo->find( (*iw).first ) == lo->end() )
       lo->insert( (*iw).first );
 
   return( lo );
@@ -324,10 +376,10 @@ set<AWindow *> *QWindowTree::SelectedWindows() const
 
 set<int> QWindowTree::SelectedGroups() const
 {
-  map<int, Q3ListViewItem *>::const_iterator	ig, fg=_groups.end();
+  map<int, QTreeWidgetItem *>::const_iterator	ig, fg=d->groups.end();
   set<int>					sg;
 
-  for( ig=_groups.begin(); ig!=fg; ++ig )
+  for( ig=d->groups.begin(); ig!=fg; ++ig )
     if( (*ig).second->isSelected() )
       sg.insert( (*ig).first );
 
@@ -337,9 +389,9 @@ set<int> QWindowTree::SelectedGroups() const
 
 void QWindowTree::SelectWindow( AWindow *win )
 {
-  map<AWindow *, Q3ListViewItem *>::iterator	iw = _windows.find( win );
+  map<AWindow *, QTreeWidgetItem *>::iterator	iw = d->windows.find( win );
 
-  if( iw == _windows.end() )
+  if( iw == d->windows.end() )
     {
       cerr << "QWindowTree::SelectWindow : " << win->Title() 
 	   << " was not in list\n";
@@ -351,9 +403,9 @@ void QWindowTree::SelectWindow( AWindow *win )
 
 void QWindowTree::SelectGroup( int group )
 {
-  map<int, Q3ListViewItem *>::iterator	ig = _groups.find( group );
+  map<int, QTreeWidgetItem *>::iterator	ig = d->groups.find( group );
 
-  if( ig == _groups.end() )
+  if( ig == d->groups.end() )
     {
       cerr << "QWindowTree::SelectGroup : " << group 
 	   << " was not in list\n";
@@ -365,10 +417,10 @@ void QWindowTree::SelectGroup( int group )
 
 bool QWindowTree::isWindowSelected( AWindow* win ) const
 {
-  map<AWindow *, Q3ListViewItem *>::const_iterator
-    iw = _windows.find( win );
+  map<AWindow *, QTreeWidgetItem *>::const_iterator
+    iw = d->windows.find( win );
 
-  if( iw == _windows.end() )
+  if( iw == d->windows.end() )
     {
       cerr << "QWindowTree::isWindowSelected : " << win->Title() 
 	   << " was not in list\n";
@@ -383,22 +435,22 @@ bool QWindowTree::isWindowSelected( AWindow* win ) const
 
 void QWindowTree::UnselectAll()
 {
-  map<AWindow *, Q3ListViewItem *>::const_iterator	iw, fw=_windows.end();
+  map<AWindow *, QTreeWidgetItem *>::const_iterator	iw, fw=d->windows.end();
 
-  for( iw=_windows.begin(); iw!=fw; ++iw )
+  for( iw=d->windows.begin(); iw!=fw; ++iw )
     (*iw).second->setSelected( false );
 }
 
 
 bool QWindowTree::ViewingRefColors() const
 {
-  return( _viewRefCol );
+  return( d->viewRefCol );
 }
 
 
 void QWindowTree::ToggleRefColorsView()
 {
-  if( _viewRefCol )
+  if( d->viewRefCol )
     UndisplayRefColors();
   else
     DisplayRefColors();
@@ -407,19 +459,15 @@ void QWindowTree::ToggleRefColorsView()
 
 void QWindowTree::DisplayRefColors()
 {
-  _lview->setColumnWidthMode( 1, Q3ListView::Maximum );
-  _lview->setColumnWidth( 1, RefPixSize + 20 );
-  _viewRefCol = true;
-  _lview->triggerUpdate();
+  d->lview->header()->showSection( 1 );
+  d->viewRefCol = true;
 }
 
 
 void QWindowTree::UndisplayRefColors()
 {
-  _lview->setColumnWidthMode( 1, Q3ListView::Manual );
-  _lview->setColumnWidth( 1, 0 );
-  _viewRefCol = false;
-  _lview->triggerUpdate();
+  d->lview->header()->hideSection( 1 );
+  d->viewRefCol = false;
 }
 
 
@@ -432,18 +480,18 @@ void QWindowTree::dragEnterEvent( QDragEnterEvent* event )
 
 void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
 {
-  Q3ListViewItem	*item
-    = _lview->itemAt( _lview->viewport()->mapFromParent( event->pos() ) );
+  QTreeWidgetItem	*item
+    = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
   if( item )
   {
     //cout << "QWindowTree::dragMoveEvent\n";
-    map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator	iw
-      = _items.find( item );
-    if( iw != _items.end() )
+    map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
+      = d->items.find( item );
+    if( iw != d->items.end() )
     {
-      if( iw->second != _highlightedWindow )
+      if( iw->second != d->highlightedWindow )
       {
-        highlightWindow( _highlightedWindow, false );
+        highlightWindow( d->highlightedWindow, false );
         highlightWindow( iw->second, true );
       }
       bool ok = ( QAObjectDrag::canDecode( event )
@@ -483,7 +531,7 @@ void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
       }
     }
   }
-  highlightWindow( _highlightedWindow, false );
+  highlightWindow( d->highlightedWindow, false );
   d->timer().stop();
   set<QAWindow *>::iterator iw, ew = d->highlighted.end();
   for( iw=d->highlighted.begin(); iw!=ew; ++iw )
@@ -498,13 +546,13 @@ void QWindowTree::dropEvent( QDropEvent* event )
   //cout << "QWindowTree::dropEvent\n";
   clearWindowsHighlights();
   d->timer().stop();
-  Q3ListViewItem	*item 
-    = _lview->itemAt( _lview->viewport()->mapFromParent( event->pos() ) );
+  QTreeWidgetItem	*item 
+    = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
   if( item )
   {
-    map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator	iw
-      = _items.find( item );
-    if( iw != _items.end() )
+    map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
+      = d->items.find( item );
+    if( iw != d->items.end() )
     {
       set<AObject *>	o;
       list<QString> objects;
@@ -550,7 +598,7 @@ void QWindowTree::dragLeaveEvent( QDragLeaveEvent* )
 }
 
 
-void QWindowTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
+void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::ButtonState )
 {
   //cout << "QWindowTree::startDragging\n";
   if( !item )
@@ -558,8 +606,8 @@ void QWindowTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
 
   if( !item->isSelected() )
     {
-      map<Q3ListViewItem *, AWindow *>::iterator	io = _items.find( item );
-      if( io != _items.end() )
+      map<QTreeWidgetItem *, AWindow *>::iterator	io = d->items.find( item );
+      if( io != d->items.end() )
         SelectWindow( io->second );
     }
 
@@ -581,42 +629,41 @@ void QWindowTree::startDragging( Q3ListViewItem* item, Qt::ButtonState )
 }
 
 
-void QWindowTree::doubleClickedSlot( Q3ListViewItem * item )
+void QWindowTree::doubleClickedSlot( QTreeWidgetItem * item, int )
 {
-  map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator
-    i = _items.find( item );
-  if( i != _items.end() )
+  map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator
+    i = d->items.find( item );
+  if( i != d->items.end() )
     emit doubleClicked( i->second );
 }
 
 
 void QWindowTree::unselectInvisibleItems()
 {
-  _lview->unselectInvisibleItems();
   emit selectionChanged();
 }
 
 
-void QWindowTree::itemChanged( Q3ListViewItem *item, int )
+void QWindowTree::itemChanged( QTreeWidgetItem *item, int )
 {
   if( item )
   {
-    AWindow *win = _items[ item ];
-    map<Q3ListViewItem *, anatomist::AWindow *>::const_iterator       iw
-      = _items.find( item );
-    if( iw != _items.end() )
+    AWindow *win = d->items[ item ];
+    map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator       iw
+      = d->items.find( item );
+    if( iw != d->items.end() )
     {
-      if( iw->second != _highlightedWindow )
+      if( iw->second != d->highlightedWindow )
       {
-        highlightWindow( _highlightedWindow, false );
+        highlightWindow( d->highlightedWindow, false );
         highlightWindow( iw->second, true );
       }
     }
     else
-    highlightWindow( _highlightedWindow, false );
+    highlightWindow( d->highlightedWindow, false );
   }
   else
-    highlightWindow( _highlightedWindow, false );
+    highlightWindow( d->highlightedWindow, false );
 }
 
 
@@ -660,7 +707,7 @@ void QWindowTree::highlightWindow( AWindow *win, bool state )
           qwin->setAutoFillBackground( true );
         qwin->setPalette( modifiedColor( QPalette().color(
           QPalette::Button ), modr, modg, modb ) );
-        _highlightedWindow = win;
+        d->highlightedWindow = win;
         return;
       }
       else
@@ -670,7 +717,7 @@ void QWindowTree::highlightWindow( AWindow *win, bool state )
       }
     }
   }
-  _highlightedWindow = 0;
+  d->highlightedWindow = 0;
 }
 
 
@@ -684,11 +731,18 @@ void QWindowTree::raiseDropWindows()
 
 void QWindowTree::clearWindowsHighlights()
 {
-  highlightWindow( _highlightedWindow, false );
+  highlightWindow( d->highlightedWindow, false );
   set<QAWindow *>::iterator iw, ew = d->highlighted.end();
   for( iw=d->highlighted.begin(); iw!=ew; ++iw )
     highlightWindow( *iw, false );
   d->highlighted.clear();
+}
+
+
+void QWindowTree::sortIndicatorChanged( int col, Qt::SortOrder )
+{
+  if( col == 0 && d->lview->header()->sortIndicatorSection() != -1 )
+    d->lview->header()->setSortIndicator( 5, Qt::Descending );
 }
 
 

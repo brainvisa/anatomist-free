@@ -37,14 +37,14 @@
 
 
 #include <qwidget.h>
-#include <aims/listview/qalistview.h>
 #include <map>
 #include <string>
 #include <set>
 #include <qglobal.h>
-#include <aims/qtcompat/qlistview.h>
 
 class QPixmap;
+class QTreeWidgetItem;
+class QTreeWidget;
 
 
 namespace anatomist
@@ -88,11 +88,11 @@ signals:
   void doubleClicked( anatomist::AWindow * );
 
 protected:
-  virtual Q3ListViewItem* insertWindow( Q3ListViewItem* item, 
-				        anatomist::AWindow* obj );
-  virtual Q3ListViewItem* insertWindow( Q3ListView* lview, 
-				        anatomist::AWindow* obj );
-  virtual void decorateItem( Q3ListViewItem* item, anatomist::AWindow* obj );
+  virtual QTreeWidgetItem* insertWindow( QTreeWidgetItem* item, 
+                                         anatomist::AWindow* obj );
+  virtual QTreeWidgetItem* insertWindow( QTreeWidget* lview, 
+                                         anatomist::AWindow* obj );
+  virtual void decorateItem( QTreeWidgetItem* item, anatomist::AWindow* obj );
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
   virtual void dragLeaveEvent( QDragLeaveEvent* );
@@ -100,21 +100,14 @@ protected:
   void highlightWindow( anatomist::AWindow *win, bool state );
   void clearWindowsHighlights();
 
-  std::map<anatomist::AWindow *, Q3ListViewItem *>	_windows;
-  std::map<int, Q3ListViewItem *>			_groups;
-  std::map<Q3ListViewItem *, anatomist::AWindow *>	_items;
-  std::map<Q3ListViewItem *, int>			_groupItems;
-  aims::gui::QAListView					*_lview;
-  bool							_viewRefCol;
-  anatomist::AWindow *_highlightedWindow;
-
 public slots:
-  virtual void startDragging( Q3ListViewItem*, Qt::ButtonState );
+  virtual void startDragging( QTreeWidgetItem*, Qt::ButtonState );
+  void sortIndicatorChanged( int, Qt::SortOrder );
 
 protected slots:
-  void doubleClickedSlot( Q3ListViewItem * );
+  void doubleClickedSlot( QTreeWidgetItem *, int );
   void unselectInvisibleItems();
-  void itemChanged( Q3ListViewItem *, int );
+  void itemChanged( QTreeWidgetItem *, int );
   void raiseDropWindows();
 
 private:

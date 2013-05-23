@@ -214,6 +214,7 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
     | QAbstractItemView::SelectedClicked | QAbstractItemView::EditKeyPressed );
   _lview->setSelectionBehavior( QAbstractItemView::SelectRows );
   _lview->setDragEnabled( true );
+  // disable "natural" treewidget drag&drop: we overload it.
   _lview->setDragDropMode( QAbstractItemView::NoDragDrop );
   // _lview->setAlternatingRowColors( true );
   _lview->setIconSize( QSize( 32, 32 ) );
@@ -346,12 +347,15 @@ void QObjectTree::decorateItem( QTreeWidgetItem* item, AObject*obj )
     item->setText( typeCol, (*in).second.c_str() );
   else
     item->setText( typeCol, 0 );
-  stringstream s;
-  s.width( 5 );
-  s.fill( '0' );
-  s << _count;
-  item->setText( countCol, QString::fromStdString( s.str() ) );
-  ++_count;
+  if( item->text( countCol ) == "" )
+  {
+    stringstream s;
+    s.width( 5 );
+    s.fill( '0' );
+    s << _count;
+    item->setText( countCol, QString::fromStdString( s.str() ) );
+    ++_count;
+  }
 }
 
 
