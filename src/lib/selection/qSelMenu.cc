@@ -33,7 +33,6 @@
 
 
 #include <anatomist/selection/qSelMenu.h>
-#include <aims/qtcompat/qpopupmenu.h>
 #include <qpixmap.h>
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/mobject/MObject.h>
@@ -91,8 +90,9 @@ void QAOptionMenuCallback::activated()
 // ----------------------------------
 
 QSelectMenu::QSelectMenu() 
-  : QPopupMenu( 0, "popupmenu" ), _win( 0 )
+  : QMenu( 0 ), _win( 0 )
 {
+  setObjectName( "popupmenu" );
   if( !_defPixmap )
     {
       _defPixmap = new QPixmap( Settings::findResourceFile(
@@ -113,13 +113,13 @@ void QSelectMenu::update( AWindow* win, const Tree* specific )
 
   clear();
 
-  insertItem( tr( "View / select objects" ), this, SLOT( viewSlot() ) );
-  insertItem( tr( "Unselect" ), this, SLOT( unselectSlot() ) );
-  insertItem( tr( "Select all" ), this, SLOT( selectAllSlot() ) );
-  insertItem( tr( "Remove from windows of this group" ), this, 
-	      SLOT( removeSlot() ) );
-  insertItem( tr( "Remove from this window" ), this, 
-	      SLOT( removeThisWinSlot() ) );
+  addAction( tr( "View / select objects" ), this, SLOT( viewSlot() ) );
+  addAction( tr( "Unselect" ), this, SLOT( unselectSlot() ) );
+  addAction( tr( "Select all" ), this, SLOT( selectAllSlot() ) );
+  addAction( tr( "Remove from windows of this group" ), this, 
+             SLOT( removeSlot() ) );
+  addAction( tr( "Remove from this window" ), this, 
+             SLOT( removeThisWinSlot() ) );
 
   eraseCallbacks();
 
@@ -169,18 +169,18 @@ void QSelectMenu::update( AWindow* win, const Tree* specific )
 
       if( hasgraph )
       {
-        insertSeparator();
-        insertItem( tr( "Select neighbours" ), this,
-                    SLOT( neighboursSlot() ) );
-        insertItem( tr( "Select nodes of attribute ..." ), this,
-                    SLOT( selAttribSlot() ) );
+        addSeparator();
+        addAction( tr( "Select neighbours" ), this,
+                   SLOT( neighboursSlot() ) );
+        addAction( tr( "Select nodes of attribute ..." ), this,
+                   SLOT( selAttribSlot() ) );
       }
     }
   }
 
   if( specific && specific->size() > 0 )
   {
-    insertSeparator();
+    addSeparator();
     Tree::const_iterator	it, ft=specific->end();
     for( it=specific->begin(); it!=ft; ++it )
       addMenus( this, (Tree *) *it );
@@ -240,36 +240,35 @@ void QSelectMenu::eraseCallbacks()
 }
 
 
-void QSelectMenu::addMenus( QMenuData* menu, const Tree* tree )
+void QSelectMenu::addMenus( QMenu* menu, const Tree* tree )
 {
   MenuCallback	*cbk;
   void		*clientdata;
   bool		def;
 
   if( tree->size() == 0 )	// leaf
+  {
+    void	(*func)( void * );
+    if( tree->getProperty( "callback", func ) )
     {
-      void	(*func)( void * );
-      if( tree->getProperty( "callback", func ) )
-	{
-	  clientdata = 0;
-	  tree->getProperty( "client_data", clientdata );
-	  cbk = new MenuCallback( func, clientdata );
-	  _callbacks.insert( cbk );
-	  if( tree->getProperty( "default", def ) && def )
-	    menu->insertItem( *_defPixmap, tr( tree->getSyntax().c_str() ), 
-			      cbk, SLOT( activated() ) );
-	  else
-	    menu->insertItem( tr( tree->getSyntax().c_str() ), cbk, 
-			      SLOT( activated() ) );
-	}
-      return;
+      clientdata = 0;
+      tree->getProperty( "client_data", clientdata );
+      cbk = new MenuCallback( func, clientdata );
+      _callbacks.insert( cbk );
+      if( tree->getProperty( "default", def ) && def )
+        menu->addAction( *_defPixmap, tr( tree->getSyntax().c_str() ), 
+                          cbk, SLOT( activated() ) );
+      else
+        menu->addAction( tr( tree->getSyntax().c_str() ), cbk, 
+                          SLOT( activated() ) );
     }
+    return;
+  }
 
   Tree::const_iterator	it, ft=tree->end();
-  QPopupMenu		*pop = new QPopupMenu( this );
-  Tree			*t2;
+  Tree		*t2;
 
-  menu->insertItem( tr( tree->getSyntax().c_str() ), pop );
+  QMenu *pop = menu->addMenu( tr( tree->getSyntax().c_str() ) );
 
   for( it=tree->begin(); it!=ft; ++it )
     {
@@ -279,7 +278,7 @@ void QSelectMenu::addMenus( QMenuData* menu, const Tree* tree )
 }
 
 
-void QSelectMenu::addOptionMenus( QMenuData* menu, const Tree* tree )
+void QSelectMenu::addOptionMenus( QMenu* menu, const Tree* tree )
 {
   QAOptionMenuCallback	*cbk = 0;
 
@@ -294,7 +293,7 @@ void QSelectMenu::addOptionMenus( QMenuData* menu, const Tree* tree )
       if( cbk )
       {
         _callbacks.insert( cbk );
-        /* int id = */ menu->insertItem( tr( tree->getSyntax().c_str() ),
+        /* int id = */ menu->addAction( tr( tree->getSyntax().c_str() ),
                           cbk, SLOT( activated() ) );
         /* can't set accel keys here because they are never removed.
            I cannot find in Qt where this is stored or how to clean them */
@@ -307,10 +306,9 @@ void QSelectMenu::addOptionMenus( QMenuData* menu, const Tree* tree )
     }
 
   Tree::const_iterator	it, ft=tree->end();
-  QPopupMenu		*pop = new QPopupMenu( this );
-  Tree			*t2;
+  Tree		*t2;
 
-  menu->insertItem( tr( tree->getSyntax().c_str() ), pop );
+  QMenu *pop = menu->addMenu( tr( tree->getSyntax().c_str() ) );
 
   for( it=tree->begin(); it!=ft; ++it )
     {

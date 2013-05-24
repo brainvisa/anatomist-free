@@ -36,7 +36,7 @@
 #define ANAQT_SELECTION_QSELMENU_H
 
 #include <anatomist/object/objectmenu.h>
-#include <aims/qtcompat/qpopupmenu.h>
+#include <QMenu>
 
 class Tree;
 class QPixmap;
@@ -93,7 +93,7 @@ private:
 
 
 ///	Selection menu widget
-class QSelectMenu : public QPopupMenu
+class QSelectMenu : public QMenu
 {
   Q_OBJECT
 
@@ -102,8 +102,8 @@ public:
   virtual ~QSelectMenu();
 
   virtual void update( anatomist::AWindow* win, const Tree* specific = 0 );
-  void addOptionMenus( QMenuData* menu, const Tree* tr );
-  void addMenus( QMenuData* menu, const Tree* tr );
+  void addOptionMenus( QMenu* menu, const Tree* tr );
+  void addMenus( QMenu* menu, const Tree* tr );
   void setObjects( const std::set<anatomist::AObject *> & obj )
   { _objects = obj; }
 
