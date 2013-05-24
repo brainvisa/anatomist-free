@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef QT3_SUPPORT
+#undef QT3_SUPPORT
+#endif
 
 #include <anatomist/browser/qwObjectBrowser.h>
 #include <anatomist/browser/stringEdit.h>
@@ -55,7 +58,6 @@
 #include <anatomist/selection/qSelMenu.h>
 #include <aims/def/path.h>
 #include <aims/graph/graphmanip.h>
-#include <aims/qtcompat/qvaluelist.h>
 #include <graph/graph/graph.h>
 #include <graph/tree/tree.h>
 #include <cartobase/exception/assert.h>
@@ -69,6 +71,7 @@
 #include <qstatusbar.h>
 #include <qlabel.h>
 #include <qapplication.h>
+#include <QList>
 #include <qtimer.h>
 #include <QHeaderView>
 #include <algorithm>
@@ -201,9 +204,9 @@ QObjectBrowser::Static::Static()
   : baseTitle( "Browser" ), initialized( false ), receivingBrowser( 0 )
 {
   Modes.reserve( 3 );
-  Modes.push_back( QObjectBrowser::tr( "Normal" ).utf8().data() );
-  Modes.push_back( QObjectBrowser::tr( "EDIT" ).utf8().data() );
-  Modes.push_back( QObjectBrowser::tr( "SEND edit" ).utf8().data() );
+  Modes.push_back( QObjectBrowser::tr( "Normal" ).toStdString() );
+  Modes.push_back( QObjectBrowser::tr( "EDIT" ).toStdString() );
+  Modes.push_back( QObjectBrowser::tr( "SEND edit" ).toStdString() );
 }
 
 QObjectBrowser::Static & QObjectBrowser::staticState()
@@ -250,7 +253,7 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   QSplitter	*fr = new QSplitter( this );
   fr->setObjectName( "OBrSplit" );
   int   margin = 3;
-  fr->setMargin( margin );
+  fr->setContentsMargins( margin, margin, margin, margin );
   setCentralWidget( fr );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -259,8 +262,6 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   d->rview = new QObjectBrowserWidget( fr, "RBrowser" );
   installBackgroundPixmap( d->lview );
   installBackgroundPixmap( d->rview );
-  d->lview->setBackgroundOrigin( ParentOrigin );
-  d->rview->setBackgroundOrigin( ParentOrigin );
 
   d->lview->setColumnCount( 6 );
   QTreeWidgetItem* hdr = new QTreeWidgetItem;
@@ -302,22 +303,18 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   d->modeWid->setObjectName( "modelabel" );
   d->modeWid->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   d->modeWid->setFixedHeight( d->modeWid->sizeHint().height() );
-  d->statbar->addWidget( d->modeWid, 0, true );
+  d->statbar->addPermanentWidget( d->modeWid, 0 );
   d->statbar->setFixedHeight( d->statbar->sizeHint().height() );
-  d->statbar->show();
-// #if QT_VERSION >= 0x040000
-//   // this is a bug in Qt4...
-//   d->statbar->hide();
-//   QTimer::singleShot( 0, d->statbar, SLOT( show() ) );
-// #endif
 
-  //elay->addWidget( fr );
-  //elay->addWidget( d->statbar );
+  // this is a bug in Qt4...
+  d->statbar->hide();
+  QTimer::singleShot( 0, d->statbar, SLOT( show() ) );
 
   d->rview->setMinimumWidth( 0 );
-  fr->setResizeMode( d->rview, QSplitter::KeepSize );
+  fr->setStretchFactor( 0, 1 );
+  fr->setStretchFactor( 1, 0 );
   d->rview->resize( 0, d->rview->sizeHint().height() );
-  QValueList<int>	vl;
+  QList<int>	vl;
   vl.append( fr->width() );
   vl.append( 0 );
   fr->setSizes( vl );
@@ -418,11 +415,7 @@ QObjectBrowser::~QObjectBrowser()
 AWindow* QObjectBrowser::createBrowser( void* dock, carto::Object options )
 {
   QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f 
-    = Qt::WType_TopLevel | Qt::WDestructiveClose;
-  if( dock )
-    f = 0;
-  QObjectBrowser* b = new QObjectBrowser( dk, "Browser", options, f );
+  QObjectBrowser* b = new QObjectBrowser( dk, "Browser", options );
 
   b->show();
   if( dk )
@@ -1083,7 +1076,7 @@ Tree* QObjectBrowser::buildSpecificMenuTree( QObjectBrowserWidget* br,
           + QSelectMenu::tr( " as \"" )
           + GraphParams::graphParams()->attribute.c_str()
           + QSelectMenu::tr( "\" property to any selected object" );
-      t2 = new Tree( true, msg.utf8().data() );
+      t2 = new Tree( true, msg.toStdString() );
       t2->setProperty( "callback", &setAttributeToAllSelected );
       t2->setProperty( "client_data", (void *) this );
       tr.insert( t2 );
@@ -1330,7 +1323,7 @@ void QObjectBrowser::addAttribute()
     snt = ao->type();
 
   AttributedChooser ach( *ao, sset, true, theAnatomist->getQWidgetAncestor(), 
-                         tr( "New attribute in " ) + snt.c_str(), 0 );
+    ( tr( "New attribute in " ) + snt.c_str() ).toStdString().c_str() );
   if( ach.exec() )
   {
     string			name = ach.attName(), type = ach.attType();
@@ -1376,7 +1369,7 @@ void QObjectBrowser::addAttribute()
       for( i=0; i<n; ++i )
       {
         newitem = item->child( i );
-        if( newitem->text( 0 ).utf8().data() == name )
+        if( newitem->text( 0 ).toStdString() == name )
           break;
       }
       if( n == 0 )	// not found
@@ -1527,7 +1520,7 @@ QObjectBrowser::attributeCaract( const QObjectBrowserWidget* br,
 				 const QTreeWidgetItem* item, 
 				 string & att )
 {
-  att = item->text( 0 ).utf8().data();
+  att = item->text( 0 ).toStdString();
 
   QTreeWidgetItem		*parent = item->parent();
   QObjectBrowserWidget::ItemType	t;
@@ -2240,7 +2233,7 @@ void QObjectBrowser::leftItemRenamed( QTreeWidgetItem * item, int,
                                       const QString & text )
 {
   cout << "leftItemRenamed\n";
-  string attval = text.utf8().data();
+  string attval = text.toStdString();
   QObjectBrowserWidget	*lview = d->lview;
   QObjectBrowserWidget::ItemDescr	descr;
 
@@ -2506,9 +2499,9 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
     alpha = attval[3];
     neutralpha = false;
   }
-  QColor	col = QAColorDialog::getColor( QColor( attval[0], attval[1],
-                                                       attval[2] ),
-                                               theAnatomist->getQWidgetAncestor(), name, &alpha, &neutralpha );
+  QColor col = QAColorDialog::getColor( 
+    QColor( attval[0], attval[1], attval[2] ),
+    theAnatomist->getQWidgetAncestor(), name.toStdString().c_str(), &alpha, &neutralpha );
   if( col.isValid() )
   {
     attval[0] = col.red();
