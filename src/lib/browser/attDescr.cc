@@ -36,7 +36,6 @@
 #include <anatomist/control/coloredpixmap.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/globalConfig.h>
-#include <aims/listview/editablelistviewitem.h>
 #include <cartobase/object/attributed.h>
 #include <cartobase/object/pythonwriter.h>
 #include <graph/tree/tree.h>
@@ -45,13 +44,18 @@
 #include <vector>
 #include <iostream>
 
+// define this to enabl editable listview items.
+// change it also in qwObjectBrowser.cc
+// #define ANA_USE_EDITABLE_LISTVIEWITEMS
+
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+#include <aims/listview/editablelistviewitem.h>
+#endif
+
 using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-// define this to enabl editable listview items.
-// change it also in qwObjectBrowser.cc
-// #define ANA_USE_EDITABLE_LISTVIEWITEMS
 
 AttDescr* AttDescr::_theAttDescr = 0;
 

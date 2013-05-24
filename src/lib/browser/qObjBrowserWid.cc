@@ -497,15 +497,16 @@ void QObjectBrowserWidget::describeGraph( QObjectBrowserWidget* br,
   float			sz;
   bool			newitem = false;
 
-  gratt = br->itemFor( parent, tr( "Global attributes" ).utf8().data() );
+  gratt = br->itemFor( parent, tr( "Global attributes" ).toStdString() );
   if( !gratt )
   {
     gratt = new QTreeWidgetItem( parent );
     gratt->setText( 0, tr( "Global attributes" ) );
   }
   if( !gr->getProperty( "name", name ) )
-    name = tr( "Graph nodes" ).utf8().data();
-  sprintf( id, "%d %s", (int) gr->order(), tr( "nodes" ).utf8().data() );
+    name = tr( "Graph nodes" ).toStdString();
+  sprintf( id, "%d %s", (int) gr->order(), 
+           tr( "nodes" ).toStdString().c_str() );
   nodes = br->itemFor( parent, name );
   if( !nodes )
     {
@@ -706,7 +707,7 @@ QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent,
   {
     item = parent->child( i );
     it = _itemTypes.find( item );
-    if( it != ft && ff == item->text( 0 ).utf8().data() )
+    if( it != ft && ff == item->text( 0 ).toStdString() )
       return( item );
   }
   return( 0 );
@@ -722,7 +723,7 @@ QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent,
   for( i=0; i<n; ++i )
   {
     item = parent->child( i );
-    if( ff == item->text( 0 ).utf8().data() )
+    if( ff == item->text( 0 ).toStdString() )
       return( item );
   }
   return( 0 );
@@ -765,7 +766,7 @@ void QObjectBrowserWidget::whatIs( QTreeWidgetItem* item,
       descr.att = "";
       break;
     case ATTRIBUTE:
-      descr.att = item->text( 0 ).utf8().data();
+      descr.att = item->text( 0 ).toStdString();
       descr.ao = 0;
       descr.obj = 0;
       // cout << "attribute: " << descr.att << endl;

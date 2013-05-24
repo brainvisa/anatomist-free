@@ -31,7 +31,6 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
 #include <anatomist/browser/labeledit.h>
 #include <anatomist/browser/stringEdit.h>
 #include <anatomist/browser/qwObjectBrowser.h>
@@ -104,9 +103,12 @@ void QLabelEdit::drawContents( const std::string & text, int x, int y,
                                unsigned w, unsigned h, const char* name )
 {
   if( name )
-    setCaption( name );
+    setWindowTitle( name );
   setFocusPolicy( StrongFocus );
-  QVBoxLayout	*lay = new QVBoxLayout( this, 0, 0, "lay" );
+  QVBoxLayout	*lay = new QVBoxLayout( this );
+  lay->setMargin( 0 );
+  lay->setSpacing( 0 );
+  lay->setObjectName( "lay" );
   _le = new QCancelLineEdit( this, "lineedit" );
   _le->setFrame( false );
   _le->setText( text.c_str() );
@@ -160,7 +162,7 @@ void QLabelEdit::reject()
       recurs = true;
 
       QDialog::reject();
-      close( true );
+      close();
 
       recurs = false;
     }
@@ -169,13 +171,13 @@ void QLabelEdit::reject()
 
 string QLabelEdit::text() const
 {
-  return( _le->text().utf8().data() );
+  return( _le->text().toStdString() );
 }
 
 
 void QLabelEdit::receiveValue( const string & val )
 {
-  string	txt = _le->text().utf8().data();
+  string	txt = _le->text().toStdString();
   if( txt[ txt.size() - 1 ] == '+' )
     _le->setText( (txt + val).c_str() );
   else

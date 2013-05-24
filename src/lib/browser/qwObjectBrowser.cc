@@ -55,7 +55,6 @@
 #include <anatomist/selection/qSelMenu.h>
 #include <aims/def/path.h>
 #include <aims/graph/graphmanip.h>
-// #include <aims/listview/editablelistviewitem.h>
 #include <aims/qtcompat/qvaluelist.h>
 #include <graph/graph/graph.h>
 #include <graph/tree/tree.h>
@@ -76,6 +75,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
+
+// define this to enabl editable listview items.
+// change it also in qwObjectBrowser.cc
+// #define ANA_USE_EDITABLE_LISTVIEWITEMS
+#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
+#include <aims/listview/editablelistviewitem.h>
+#endif
+
 namespace Qt {}
 using namespace Qt;
 
@@ -90,9 +97,6 @@ using namespace std;
 
 #define Event_BrowserUpdate	( QEvent::User + 1 )
 
-// define this to enabl editable listview items.
-// change it also in qwObjectBrowser.cc
-// #define ANA_USE_EDITABLE_LISTVIEWITEMS
 
 namespace
 {
@@ -222,6 +226,7 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
                                 Object options, WFlags f ) 
   : ControlledWindow( parent, name, options, f ), d( new Private( this ) )
 {
+  setAttribute( Qt::WA_DeleteOnClose );
   CreateTitle();
   //setCaption( tr( "AnaQt Objects Browser" ) );
   resize( 400, 400 );

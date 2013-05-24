@@ -51,7 +51,7 @@ public:
   QCancelLineEdit( QWidget* parent = 0, const char* name = 0 ) 
     : QLineEdit( parent ) { setObjectName(name); }
   QCancelLineEdit( const QString & txt, QWidget* parent = 0, 
-		   const char* name = 0 ) 
+                   const char* name = 0 ) 
     : QLineEdit( txt, parent ) { setObjectName(name); }
 
 signals:
@@ -68,25 +68,16 @@ class QStringEdit : public QDialog
   Q_OBJECT
 
 public:
-  ///
   QStringEdit( const std::string & text, int x, int y, int w, int h, 
-	       QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
-  ///
+               QWidget* parent = theAnatomist->getQWidgetAncestor(), 
+               const char* name = 0, Qt::WFlags f = 0 );
   ~QStringEdit();
 
-  ///
   std::string text() const
-    { return( _le->text().utf8().data() ); }
-  ///
+    { return( _le->text().toStdString() ); }
   QLineEdit	*lineEdit() { return( _le ); }
 
-signals:
-
-public slots:
-
 protected:
-
-  ///
   QCancelLineEdit	*_le;
 
 private:
