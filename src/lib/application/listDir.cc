@@ -49,32 +49,19 @@ anatomist::listDirectory( const std::string & dir, const std::string & filter,
     return( files );
 
   if( !filter.empty() )
-    d.setNameFilter( filter.c_str() );
+    d.setNameFilters( QStringList( filter.c_str() ) );
   d.setFilter( (FileFilterSpec) filtSpec );
   d.setSorting( (FileSortSpec) sortSpec );
 
-#if QT_VERSION >= 0x040000
-  QFileInfoList		flist = d.entryInfoList();
-  QFileInfoListIterator	it, et = flist.end();
+  QFileInfoList           flist = d.entryInfoList();
+  QFileInfoList::iterator it, et = flist.end();
 
   for( it=flist.begin(); it!=et; ++it )
-    {
-      QFileInfo	& fi = *it;
-      if( fi.fileName() != "." && fi.fileName() != ".." )
-	files.push_back( fi.fileName().utf8().data() );
-    }
-#else
-  const QFileInfoList	& flist = *d.entryInfoList();
-  QFileInfoListIterator	it( flist );
-  QFileInfo		*fi;
-
-  while( (fi=it.current()) )
-    {
-      if( fi->fileName() != "." && fi->fileName() != ".." )
-	files.push_back( fi->fileName().utf8().data() );
-      ++it;
-    }
-#endif
+  {
+    QFileInfo	& fi = *it;
+    if( fi.fileName() != "." && fi.fileName() != ".." )
+      files.push_back( fi.fileName().toStdString() );
+  }
 
   return( files );
 }

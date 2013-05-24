@@ -31,9 +31,6 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-// #ifdef QT3_SUPPORT
-// #undef QT3_SUPPORT
-// #endif
 #include <anatomist/control/qWinTree.h>
 #include <aims/listview/qatreewidget.h>
 #include <qlayout.h>
@@ -122,10 +119,15 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
     LinkIcon = new QPixmap( s.c_str() );
   }
 
-  QVBoxLayout	*lay1 = new QVBoxLayout( this, 0, -1, "OTlayout1" );
-  QFrame	*fr = new QFrame( this, "OTframe" );
+  QVBoxLayout	*lay1 = new QVBoxLayout( this );
+  lay1->setObjectName( "OTlayout1" );
+  lay1->setMargin( 0 );
+  QFrame	*fr = new QFrame( this );
+  fr->setObjectName( "OTframe" );
   int		margin = 0;
-  QVBoxLayout	*lay2 = new QVBoxLayout( fr, margin, -1, "OTlayout2" );
+  QVBoxLayout	*lay2 = new QVBoxLayout( fr );
+  lay2->setObjectName( "OTlayout2" );
+  lay2->setMargin( margin );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
@@ -160,7 +162,7 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   hdr->setResizeMode( 4, QHeaderView::Interactive );
   hdr->resizeSection( 4, 45 );
   d->lview->header()->hideSection( 5 );
-  hdr->setSortIndicator( -1, Qt::Ascending );
+  hdr->setSortIndicator( -1, Qt::AscendingOrder );
   hdr->setSortIndicatorShown( -1 );
   d->lview->setSortingEnabled( true );
 
@@ -280,11 +282,8 @@ void QWindowTree::decorateItem( QTreeWidgetItem* item, AWindow*win )
       if( pix.isNull() )
         {
           static QPixmap  pix;
-          QBitmap	bmp;
-          pix.resize( 1, 1 );
+          QBitmap	bmp( 1, 1 );
           pix.fill( Qt::color0 );
-          bmp.resize( 1, 1 );
-          bmp.fill( Qt::color0 );
           pix.setMask( bmp );
         }
       item->setIcon( nameCol, pix );
@@ -477,7 +476,7 @@ void QWindowTree::UndisplayRefColors()
 
 void QWindowTree::dragEnterEvent( QDragEnterEvent* event )
 {
-  event->accept( QAObjectDrag::canDecode( event )
+  event->setAccepted( QAObjectDrag::canDecode( event )
       || QAObjectDrag::canDecodeURI( event ) );
 }
 
@@ -530,7 +529,7 @@ void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
         }
         delete sw;
         d->timer().start( 800 );
-        event->accept( true );
+        event->accept();
         return;
       }
     }
@@ -541,7 +540,7 @@ void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
   for( iw=d->highlighted.begin(); iw!=ew; ++iw )
     highlightWindow( *iw, false );
   d->highlighted.clear();
-  event->accept( false );
+  event->ignore();
 }
 
 
@@ -568,7 +567,8 @@ void QWindowTree::dropEvent( QDropEvent* event )
         list<QString>::iterator       is, es = objects.end();
         for( is=objects.begin(); is!=es; ++is )
         {
-          LoadObjectCommand *command = new LoadObjectCommand( is->latin1() );
+          LoadObjectCommand *command 
+            = new LoadObjectCommand( is->toStdString() );
           theProcessor->execute( command );
           o.insert( command->loadedObject() );
         }
@@ -747,7 +747,7 @@ void QWindowTree::clearWindowsHighlights()
 void QWindowTree::sortIndicatorChanged( int col, Qt::SortOrder )
 {
   if( col == 0 && d->lview->header()->sortIndicatorSection() != -1 )
-    d->lview->header()->setSortIndicator( 5, Qt::Descending );
+    d->lview->header()->setSortIndicator( 5, Qt::DescendingOrder );
 }
 
 

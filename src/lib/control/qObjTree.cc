@@ -189,10 +189,15 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   : QWidget( parent ), _viewRefCol( true ), _count( 0 )
 {
   setObjectName(name);
-  QVBoxLayout	*lay1 = new QVBoxLayout( this, 0, -1, "OTlayout1" );
-  QFrame	*fr = new QFrame( this, "OTframe" );
+  QVBoxLayout	*lay1 = new QVBoxLayout( this );
+  lay1->setObjectName( "OTlayout1" );
+  lay1->setMargin( 0 );
+  QFrame	*fr = new QFrame( this );
+  fr->setObjectName( "OTframe" );
 
-  QVBoxLayout	*lay2 = new QVBoxLayout( fr, 0, -1, "OTlayout2" );
+  QVBoxLayout	*lay2 = new QVBoxLayout( fr );
+  lay2->setObjectName( "OTlayout2" );
+  lay2->setMargin( 0 );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
@@ -226,7 +231,7 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   _lview->header()->setResizeMode( 3, QHeaderView::Interactive );
   _lview->header()->resizeSection( 3, 60 );
   _lview->header()->hideSection( 4 );
-  _lview->header()->setSortIndicator( -1, Qt::Ascending );
+  _lview->header()->setSortIndicator( -1, Qt::AscendingOrder );
   _lview->header()->setSortIndicatorShown( -1 );
   _lview->setSortingEnabled( true );
 
@@ -328,10 +333,7 @@ void QObjectTree::decorateItem( QTreeWidgetItem* item, AObject*obj )
       static QPixmap	pix;
       if( pix.isNull() )
         {
-          QBitmap	bmp;
-          pix.resize( 1, 1 );
-          pix.fill( Qt::color0 );
-          bmp.resize( 1, 1 );
+          QBitmap	bmp( 1, 1 );
           bmp.fill( Qt::color0 );
           pix.setMask( bmp );
         }
@@ -665,14 +667,14 @@ void QObjectTree::unselectInvisibleItems()
 void QObjectTree::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QObjectTree::dragEnterEvent\n";
-  event->accept( !QAObjectDrag::canDecode( event )
+  event->setAccepted( !QAObjectDrag::canDecode( event )
       && QAObjectDrag::canDecodeURI( event ) );
 }
 
 
 void QObjectTree::dragMoveEvent( QDragMoveEvent* event )
 {
-  event->accept( true );
+  event->accept();
 }
 
 
@@ -693,13 +695,13 @@ void QObjectTree::dropEvent( QDropEvent* event )
   list<QString>::iterator	is, es = objects.end();
   for( is=objects.begin(); is!=es; ++is )
   {
-    LoadObjectCommand *command = new LoadObjectCommand( is->latin1() );
+    LoadObjectCommand *command = new LoadObjectCommand( is->toStdString() );
     theProcessor->execute( command );
   }
   // play scenarios (if any)
   for( is=scenars.begin(), es=scenars.end(); is!=es; ++is )
   {
-    new APipeReader( is->latin1() );
+    new APipeReader( is->toStdString() );
   }
 }
 
@@ -730,6 +732,6 @@ void QObjectTree::objectRenamed( QTreeWidgetItem* item, int col )
 void QObjectTree::sortIndicatorChanged( int col, Qt::SortOrder )
 {
   if( col == 0 && _lview->header()->sortIndicatorSection() != -1 )
-    _lview->header()->setSortIndicator( 4, Qt::Descending );
+    _lview->header()->setSortIndicator( 4, Qt::DescendingOrder );
 }
 

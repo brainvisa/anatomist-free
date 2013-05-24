@@ -42,13 +42,8 @@
 
 namespace anatomist
 {
-#if QT_VERSION >= 0x040000
   typedef enum QDir::Filter FileFilterSpec;
   typedef enum QDir::SortFlag FileSortSpec;
-#else
-  typedef enum QDir::FilterSpec FileFilterSpec;
-  typedef enum QDir::SortSpec FileSortSpec;
-#endif
   /**	A utility function to scan a directory for files or directories, 
 	which will hide non-portable things. Uses Qt's QDir - see the doc...
 	\param dir directory to scan
@@ -60,7 +55,7 @@ namespace anatomist
   std::list<std::string> 
   listDirectory( const std::string & dir, const std::string & filter = "", 
 		 int sortSpec = QDir::Name | QDir::IgnoreCase, 
-		 int filterSpec = QDir::All );
+		 int filterSpec = QDir::AllEntries );
 }
 
 

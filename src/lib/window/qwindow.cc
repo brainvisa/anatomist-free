@@ -79,28 +79,31 @@ QAWindow::Private::Private()
 
 QAWindow::QAWindow( QWidget* parent, const char* name, Object params, 
                     Qt::WFlags f )
-  : QMainWindow( parent, name, f ), AWindow(), ControlSwitchObserver(), 
+  : QMainWindow( parent ), AWindow(), ControlSwitchObserver(), 
     d( new Private )
 {
+  setObjectName( name );
+  setWindowFlags( f );
+
   bool nodeco = false;
   if( params.get() )
     try
-      {
-        nodeco = (bool) params->getProperty( "no_decoration" )->getScalar();
-        if( nodeco )
-          AWindow::showToolBars( false );
-      }
+    {
+      nodeco = (bool) params->getProperty( "no_decoration" )->getScalar();
+      if( nodeco )
+        AWindow::showToolBars( false );
+    }
     catch( ... )
-      {
-      }
+    {
+    }
 
   if( isWindow() )
-    {
-      QPixmap	anaicon( Settings::findResourceFile(
-			 "icons/icon.xpm" ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
+  {
+    QPixmap	anaicon( Settings::findResourceFile(
+                        "icons/icon.xpm" ).c_str() );
+    if( !anaicon.isNull() )
+      setWindowIcon( anaicon );
+  }
 
   setAcceptDrops(TRUE);
 }
@@ -302,7 +305,7 @@ void QAWindow::CreateTitle()
 void QAWindow::SetTitle( const string & title )
 {
   AWindow::SetTitle( title );
-  setCaption( title.c_str() );
+  setWindowTitle( title.c_str() );
 }
 
 
@@ -311,14 +314,16 @@ void QAWindow::Refresh()
   //cout << "QAWindow::Refresh\n";
   if( !d->refreshtimer )
     {
-      d->refreshtimer = new QTimer( this, "QAWindow_refreshtimer" );
+      d->refreshtimer = new QTimer( this );
+      d->refreshtimer->setObjectName( "QAWindow_refreshtimer" );
       connect( d->refreshtimer, SIGNAL( timeout() ), this, 
 	       SLOT( triggeredRefresh() ) );
     }
   if( !d->refreshneeded )
     {
       d->refreshneeded = true;
-      d->refreshtimer->start( 30, true );
+      d->refreshtimer->setSingleShot( true );
+      d->refreshtimer->start( 30 );
     }
 }
 
@@ -350,7 +355,7 @@ bool QAWindow::needsRedraw() const
 void QAWindow::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QAWindow::dragEnterEvent\n";
-  event->accept( QAObjectDrag::canDecode( event )
+  event->setAccepted( QAObjectDrag::canDecode( event )
       || QAObjectDrag::canDecodeURI( event ) );
 }
 
@@ -371,7 +376,7 @@ void QAWindow::dropEvent( QDropEvent* event )
     list<QString>::iterator       is, es = objects.end();
     for( is=objects.begin(); is!=es; ++is )
     {
-      LoadObjectCommand *command = new LoadObjectCommand( is->latin1() );
+      LoadObjectCommand *command = new LoadObjectCommand( is->toStdString() );
       theProcessor->execute( command );
       o.insert( command->loadedObject() );
     }
@@ -433,7 +438,7 @@ void QAWindow::mouseMoveEvent( QMouseEvent * ev )
     else
       ++i;
 
-  if( ev->buttons() & Qt::ControlButton )
+  if( ev->modifiers() & Qt::ControlModifier )
   {
     // filter selected objects
     SelectFactory	*sf = SelectFactory::factory();

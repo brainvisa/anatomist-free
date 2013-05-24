@@ -39,10 +39,10 @@
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/application/settings.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qspinbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
+#include <qgroupbox.h>
 #include <qpixmap.h>
+#include <qicon.h>
 
 using namespace anatomist;
 using namespace std;
@@ -52,7 +52,7 @@ struct QTextureWin::Private
 {
   Private( const set<AObject *> & obj );
   ObjectParamSelect	*objsel;
-  QHBox			*main;
+  QWidget		*main;
   QTexturePanel		*texpanel;
   set<AObject *>	initial;
   unsigned		currenttex;
@@ -81,9 +81,10 @@ namespace
 
 QTextureWin::QTextureWin( const set<AObject *> & obj, 
                           QWidget* parent, const char *name, Qt::WindowFlags f )
-  : QWidget( parent, f ), Observer(), d( new Private( obj ) )
+  : QWidget( parent ), Observer(), d( new Private( obj ) )
 {
-  setCaption( tr( "Texturing properties" ) );
+  setWindowTitle( tr( "Texturing properties" ) );
+  setWindowFlags( f );
   setObjectName(name);
   setAttribute( Qt::WA_DeleteOnClose );
   if( windowFlags() & Qt::Window )
@@ -91,22 +92,38 @@ QTextureWin::QTextureWin( const set<AObject *> & obj,
     QPixmap	anaicon( Settings::findResourceFile(
       "icons/icon.xpm" ).c_str() );
     if( !anaicon.isNull() )
-      setIcon( anaicon );
+      setWindowIcon( anaicon );
   }
 
-  QVBoxLayout	*mainlay = new QVBoxLayout( this, 5, 5, "mainlayout" );
+  QVBoxLayout	*mainlay = new QVBoxLayout( this );
+  mainlay->setObjectName( "mainlayout" );
+  mainlay->setMargin( 5 );
+  mainlay->setSpacing( 5 );
 
   d->objsel = new ObjectParamSelect( obj, this );
   mainlay->addWidget( d->objsel );
   d->objsel->addFilter( filterTextured );
 
-  d->main = new QHBox( this );
-  d->main->setSpacing( 5 );
+  d->main = new QWidget( this );
+  QHBoxLayout *hlay = new QHBoxLayout( d->main );
+  d->main->setLayout( hlay );
+  hlay->setSpacing( 5 );
+  hlay->setMargin( 0 );
   mainlay->addWidget( d->main );
-  QVGroupBox	*nb = new QVGroupBox( tr( "Texture number" ), d->main );
-  d->texbox = new QSpinBox( 0, 0, 1, nb );
+  QGroupBox	*nb = new QGroupBox( tr( "Texture number" ), d->main );
+  hlay->addWidget( nb );
+  QVBoxLayout *gblay = new QVBoxLayout( nb );
+  nb->setLayout( gblay );
+  gblay->setMargin( 5 );
+  gblay->setSpacing( 5 );
+  d->texbox = new QSpinBox( nb );
+  gblay->addWidget( d->texbox );
+  d->texbox->setSingleStep( 1 );
+  d->texbox->setMinimum( 0 );
+  gblay->addStretch( 1 );
 
   d->texpanel = new QTexturePanel( obj, d->main );
+  hlay->addWidget( d->texpanel );
 
   updateInterface();
 
@@ -171,7 +188,7 @@ void QTextureWin::updateInterface()
             d->texbox->setEnabled( true );
           else
             d->texbox->setEnabled( false );
-          d->texbox->setMaxValue( c->glNumTextures() - 1 );
+          d->texbox->setMaximum( c->glNumTextures() - 1 );
           if( d->currenttex >= c->glNumTextures() )
             d->currenttex = 0;
           d->texbox->blockSignals( true );

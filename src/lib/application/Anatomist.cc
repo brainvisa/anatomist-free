@@ -184,16 +184,16 @@ namespace
   {
     if( e->type() == QEvent::Show && watched->parent() == 0 
         && watched->inherits( "QWidget" ) )
+    {
+      QWidget	*w = (QWidget *) watched;
+      if( w->windowIcon().isNull() )
       {
-        QWidget	*w = (QWidget *) watched;
-        if( w->icon() == 0 )
-          {
-            static QPixmap icn( Settings::findResourceFile(
-              "icons/icon.xpm" ).c_str() );
-            if( !icn.isNull() )
-              w->setIcon( icn );
-          }
+        static QPixmap icn( Settings::findResourceFile(
+          "icons/icon.xpm" ).c_str() );
+        if( !icn.isNull() )
+          w->setWindowIcon( icn );
       }
+    }
     return false;
   }
 
@@ -539,7 +539,8 @@ void Anatomist::initialize()
   list<string>::iterator	it, et = translations.end();
   for( it=translations.begin(); it!=et; ++it )
   {
-    QTranslator	*tr = new QTranslator( qApp, "Translator" );
+    QTranslator	*tr = new QTranslator( qApp );
+    tr->setObjectName( "Translator" );
     if( tr->load( it->c_str(), langpath.c_str() ) )
       qApp->installTranslator( tr );
     else
@@ -663,34 +664,34 @@ void Anatomist::initialize()
 void Anatomist::updateFileDialogObjectsFilter()
 {
   _privData->allObjectsFilter
-    = string( ControlWindow::tr( "All Anatomist objects" ).utf8().data() )
+    = string( ControlWindow::tr( "All Anatomist objects" ).toStdString() )
     + " (" + ObjectReader::allSupportedFileExtensions() + ");;";
   set<string> meshtypes;
   meshtypes.insert( "Mesh" );
   meshtypes.insert( "Mesh4" );
   meshtypes.insert( "Segments" );
   _privData->specificFilters
-    = string( ControlWindow::tr( "Volumes" ).utf8().data() ) + " ("
+    = string( ControlWindow::tr( "Volumes" ).toStdString() ) + " ("
     + ObjectReader::supportedFileExtensions( "Volume" ) + ");;"
-    + ControlWindow::tr( "DICOM" ).utf8().data() + " (*);;"
-    + ControlWindow::tr( "Surfacic meshes" ).utf8().data() + " ("
+    + ControlWindow::tr( "DICOM" ).toStdString() + " (*);;"
+    + ControlWindow::tr( "Surfacic meshes" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( meshtypes ) + ");;"
-    + ControlWindow::tr( "Graphs/ROIs sets" ).utf8().data() + " ("
+    + ControlWindow::tr( "Graphs/ROIs sets" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Graph" ) + ");;"
-    + ControlWindow::tr( "Voxels lists" ).utf8().data() + " ("
+    + ControlWindow::tr( "Voxels lists" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Bucket" ) + ");;"
-    + ControlWindow::tr( "Nomenclatures" ).utf8().data() + " ("
+    + ControlWindow::tr( "Nomenclatures" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Hierarchy" ) + ");;"
-    + ControlWindow::tr( "Textures" ).utf8().data() + " ("
+    + ControlWindow::tr( "Textures" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Texture" ) + ");;"
-    + ControlWindow::tr( "Sparse matrices" ).utf8().data() + " ("
+    + ControlWindow::tr( "Sparse matrices" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "SparseMatrix" ) + ");;"
-    + ControlWindow::tr( "Other object files" ).utf8().data() + " ("
+    + ControlWindow::tr( "Other object files" ).toStdString() + " ("
     + ObjectReader::anatomistSupportedFileExtensions() + ");;"
-    + ControlWindow::tr( "Scripts" ).utf8().data() + " (*.ana);;";
+    + ControlWindow::tr( "Scripts" ).toStdString() + " (*.ana);;";
 
   _privData->allFilesFilter = string( ";;" )
-    + ControlWindow::tr( "All files" ).utf8().data() + " (*)";
+    + ControlWindow::tr( "All files" ).toStdString() + " (*)";
   _privData->objectsFileFilter = _privData->allObjectsFilter
     + _privData->specificFilters + _privData->allFilesFilter;
 }
@@ -1244,7 +1245,7 @@ void Anatomist::setCursor( Cursor c )
     case Working:
       _privData->cursorChanged = true;
       // and Qt mechanism for Qt widgets
-      QApplication::setOverrideCursor( Qt::waitCursor );
+      QApplication::setOverrideCursor( Qt::WaitCursor );
       break;
     }
 }
