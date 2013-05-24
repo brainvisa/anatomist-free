@@ -55,7 +55,7 @@
 #include <anatomist/selection/qSelMenu.h>
 #include <aims/def/path.h>
 #include <aims/graph/graphmanip.h>
-#include <aims/listview/editablelistviewitem.h>
+// #include <aims/listview/editablelistviewitem.h>
 #include <aims/qtcompat/qvaluelist.h>
 #include <graph/graph/graph.h>
 #include <graph/tree/tree.h>
@@ -71,6 +71,7 @@
 #include <qlabel.h>
 #include <qapplication.h>
 #include <qtimer.h>
+#include <QHeaderView>
 #include <algorithm>
 #include <stdio.h>
 #include <math.h>
@@ -83,7 +84,7 @@ using namespace anatomist;
 using namespace aims;
 using namespace carto;
 using namespace std;
-using aims::gui::QEditableListViewItem;
+// using aims::gui::QEditableListViewItem;
 
 // private class and def
 
@@ -138,18 +139,18 @@ struct QObjectBrowser::Private
 
   auto_ptr<View>	view;
 
-  Q3ListViewItem        *lastselectednode1;
-  Q3ListViewItem        *lastselectednode2;
+  QTreeWidgetItem        *lastselectednode1;
+  QTreeWidgetItem        *lastselectednode2;
 
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
   // edition mode variables
   string                editedAttribute;
-  set<Q3ListViewItem *> editedItems;
-  Q3ListViewItem *      editedMainItem;
+  set<QTreeWidgetItem *> editedItems;
+  QTreeWidgetItem *      editedMainItem;
 #endif
 
   // temporary elements for "add attribute" option
-  set<Q3ListViewItem *> tempAddedItems;
+  set<QTreeWidgetItem *> tempAddedItems;
   bool                  tempAddedNewSyntax;
   string                tempAddedSyntax;
   string                tempAddedName;
@@ -241,11 +242,10 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
       sstate.initialized = true;
     }
 
-  QSplitter	*fr = new QSplitter( this, "OBrSplit" );
-#if QT_VERSION < 0x040000
+  QSplitter	*fr = new QSplitter( this );
+  fr->setObjectName( "OBrSplit" );
   int   margin = 3;
   fr->setMargin( margin );
-#endif
   setCentralWidget( fr );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -257,30 +257,54 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   d->lview->setBackgroundOrigin( ParentOrigin );
   d->rview->setBackgroundOrigin( ParentOrigin );
 
-  d->lview->addColumn( tr( "Object" ) );
-  d->lview->addColumn( tr( "Type" ) );
-  d->lview->addColumn( tr( "Value" ) );
-  d->lview->addColumn( tr( "Label" ) );
-  d->lview->addColumn( tr( "Sel." ) );
-  d->lview->addColumn( tr( "Reg." ) );
+  d->lview->setColumnCount( 6 );
+  QTreeWidgetItem* hdr = new QTreeWidgetItem;
+  d->lview->setHeaderItem( hdr );
+  hdr->setText( 0, tr( "Object" ) );
+  hdr->setText( 1, tr( "Type" ) );
+  hdr->setText( 2, tr( "Value" ) );
+  hdr->setText( 3, tr( "Label" ) );
+  hdr->setText( 4, tr( "Sel." ) );
+  hdr->setText( 5, tr( "Reg." ) );
+  QHeaderView *hdri = d->lview->header();
+  hdri->setResizeMode( 1, QHeaderView::ResizeToContents );
+  hdri->setResizeMode( 2, QHeaderView::Stretch );
+  hdri->setResizeMode( 3, QHeaderView::ResizeToContents );
+  hdri->setResizeMode( 4, QHeaderView::Fixed );
+  hdri->resizeSection( 4, 26 );
+  hdri->setStretchLastSection( false );
+  hdri->setResizeMode( 5, QHeaderView::Fixed );
+  hdri->resizeSection( 5, 26 );
+  d->lview->setSortingEnabled( true );
 
-  d->rview->addColumn( tr( "Name" ) );
-  d->rview->addColumn( tr( "Type" ) );
-  d->rview->addColumn( tr( "Value" ) );
-  d->rview->addColumn( tr( "Label1" ) );
-  d->rview->addColumn( tr( "Label2" ) );
+  d->rview->setColumnCount( 5 );
+  hdr = new QTreeWidgetItem;
+  d->rview->setHeaderItem( hdr );
+  hdr->setText( 0, tr( "Name" ) );
+  hdr->setText( 1, tr( "Type" ) );
+  hdr->setText( 2, tr( "Value" ) );
+  hdr->setText( 3, tr( "Label1" ) );
+  hdr->setText( 4, tr( "Label2" ) );
+  hdri = d->rview->header();
+  hdri->setResizeMode( 2, QHeaderView::Stretch );
+  hdri->setStretchLastSection( false );
+  hdri->setResizeMode( 3, QHeaderView::ResizeToContents );
+  hdri->setResizeMode( 4, QHeaderView::ResizeToContents );
+  d->rview->setSortingEnabled( true );
 
   d->statbar = statusBar(); // new QStatusBar( this, "status" );
-  d->modeWid = new QLabel( modeString().c_str(), d->statbar, "modelabel" );
+  d->modeWid = new QLabel( modeString().c_str(), d->statbar );
+  d->modeWid->setObjectName( "modelabel" );
   d->modeWid->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   d->modeWid->setFixedHeight( d->modeWid->sizeHint().height() );
   d->statbar->addWidget( d->modeWid, 0, true );
   d->statbar->setFixedHeight( d->statbar->sizeHint().height() );
-#if QT_VERSION >= 0x040000
-  // this is a bug in Qt4...
-  d->statbar->hide();
-  QTimer::singleShot( 0, d->statbar, SLOT( show() ) );
-#endif
+  d->statbar->show();
+// #if QT_VERSION >= 0x040000
+//   // this is a bug in Qt4...
+//   d->statbar->hide();
+//   QTimer::singleShot( 0, d->statbar, SLOT( show() ) );
+// #endif
 
   //elay->addWidget( fr );
   //elay->addWidget( d->statbar );
@@ -295,41 +319,43 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
 
   showToolBars( 0 );
 
-  connect( d->lview, SIGNAL( selectionChanged() ), this, 
-	   SLOT( leftSelectionChangedSlot() ) );
+  connect( d->lview, SIGNAL( itemSelectionChanged() ), this, 
+            SLOT( leftSelectionChangedSlot() ) );
   connect( d->lview, 
-	   SIGNAL( rightButtonPressed( Q3ListViewItem *, 
-				       const QPoint &, int ) ), this, 
-	   SLOT( rightButtonClickedSlot( Q3ListViewItem *, 
-					 const QPoint &, int ) ) );
-  connect( d->lview, SIGNAL( doubleClicked( Q3ListViewItem * ) ), this, 
-	   SLOT( doubleClickedSlot( Q3ListViewItem * ) ) );
-  connect( d->rview, SIGNAL( rightButtonPressed( Q3ListViewItem *, 
-					       const QPoint &, int ) ), 
-	   this, SLOT( rightButtonRightPanel( Q3ListViewItem *, 
-					      const QPoint &, int ) ) );
-  connect( d->rview, SIGNAL( doubleClicked( Q3ListViewItem * ) ), this,
-           SLOT( rightPanelDoubleClicked( Q3ListViewItem * ) ) );
+            SIGNAL( itemRightPressed( QTreeWidgetItem *, const QPoint & ) ), 
+            this, 
+            SLOT( rightButtonClickedSlot( QTreeWidgetItem *, 
+                                          const QPoint & ) ) );
+  connect( d->lview, SIGNAL( itemDoubleClicked( QTreeWidgetItem *, int ) ), 
+            this, 
+            SLOT( doubleClickedSlot( QTreeWidgetItem *, int ) ) );
+  connect( d->rview, SIGNAL( itemRightPressed( QTreeWidgetItem *, 
+                                                const QPoint & ) ), 
+            this, SLOT( rightButtonRightPanel( QTreeWidgetItem *, 
+                                              const QPoint & ) ) );
+  connect( d->rview, SIGNAL( itemDoubleClicked( QTreeWidgetItem *, int ) ), 
+            this,
+            SLOT( rightPanelDoubleClicked( QTreeWidgetItem *, int ) ) );
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  connect( d->lview, SIGNAL( itemRenamed( Q3ListViewItem *, int,
-           const QString & ) ), this, SLOT( leftItemRenamed( Q3ListViewItem *,
+  connect( d->lview, SIGNAL( itemRenamed( QTreeWidgetItem *, int,
+           const QString & ) ), this, SLOT( leftItemRenamed( QTreeWidgetItem *,
                                            int, const QString & ) ) );
 #endif
-  connect( d->rview, SIGNAL( selectionChanged() ), 
-	   this, SLOT( rightSelectionChangedSlot() ) );
-  connect( d->lview, SIGNAL( dragStart( Q3ListViewItem *, Qt::MouseButtons, 
+  connect( d->rview, SIGNAL( itemSelectionChanged() ), 
+           this, SLOT( rightSelectionChangedSlot() ) );
+  connect( d->lview, SIGNAL( dragStart( QTreeWidgetItem *, Qt::MouseButtons, 
                                         Qt::KeyboardModifiers ) ), 
-           this, SLOT( startDrag( Q3ListViewItem *, Qt::MouseButtons, 
+           this, SLOT( startDrag( QTreeWidgetItem *, Qt::MouseButtons, 
                                   Qt::KeyboardModifiers ) ) );
-  connect( d->rview, SIGNAL( dragStart( Q3ListViewItem *, Qt::MouseButtons, 
+  connect( d->rview, SIGNAL( dragStart( QTreeWidgetItem *, Qt::MouseButtons, 
                                         Qt::KeyboardModifiers ) ), 
-           this, SLOT( startDrag( Q3ListViewItem *, Qt::MouseButtons, 
+           this, SLOT( startDrag( QTreeWidgetItem *, Qt::MouseButtons, 
                                   Qt::KeyboardModifiers ) ) );
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  connect( d->lview, SIGNAL( itemStartsRename( Q3ListViewItem *, int ) ), this,
-           SLOT( leftItemStartsRename( Q3ListViewItem *, int ) ) );
-  connect( d->lview, SIGNAL( itemCancelsRename( Q3ListViewItem *, int ) ),
-           this, SLOT( leftItemCancelsRename( Q3ListViewItem *, int ) ) );
+  connect( d->lview, SIGNAL( itemStartsRename( QTreeWidgetItem *, int ) ), this,
+           SLOT( leftItemStartsRename( QTreeWidgetItem *, int ) ) );
+  connect( d->lview, SIGNAL( itemCancelsRename( QTreeWidgetItem *, int ) ),
+           this, SLOT( leftItemCancelsRename( QTreeWidgetItem *, int ) ) );
 #endif
 
   //	Attribute editors
@@ -464,11 +490,11 @@ void QObjectBrowser::refreshNow()
 
   const unsigned	selColumn = 4;
 
-  map<Q3ListViewItem *, AObject *>::const_iterator 
+  map<QTreeWidgetItem *, AObject *>::const_iterator 
     ia, fa = d->lview->aObjects().end();
   SelectFactory 	*fac = SelectFactory::factory();
-  Q3ListViewItem		*cur = 0;
-  Q3ListViewItem		*it;
+  QTreeWidgetItem		*cur = 0;
+  QTreeWidgetItem		*it;
 
   d->recursive = true;
 
@@ -483,51 +509,51 @@ void QObjectBrowser::refreshNow()
 	      it->setSelected( true );
 	      if( !cur )
 	        cur = it;
-	      d->lview->repaintItem( it );
+// 	      d->lview->repaintItem( it );
 	    }
 	}
       else if( it->isSelected() )
 	{
 	  it->setText( selColumn, 0 );
 	  it->setSelected( false );
-	  d->lview->repaintItem( it );
+// 	  d->lview->repaintItem( it );
 	}
     }
 
   //	now check indirect objects (in graph objects)
 
-  map<Q3ListViewItem *, GenericObject *>::const_iterator 
+  map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg = d->lview->gObjects().end();
   shared_ptr<AObject>	ao;
 
   for( ig=d->lview->gObjects().begin(); ig!=fg; ++ig )
     if( (*ig).second->getProperty( "ana_object", ao ) )
+    {
+      it = (*ig).first;
+      if( fac->isSelected( Group(), ao.get() ) )
       {
-	it = (*ig).first;
-	if( fac->isSelected( Group(), ao.get() ) )
-	  {
-	    if( !it->isSelected() )
-	      {
-		it->setText( selColumn, "*" );
-		it->setSelected( true );
-		if( !cur )
-		  cur = it;
-		d->lview->repaintItem( it );
-	      }
-	  }
-	else if( it->isSelected() )
-	  {
-	    it->setText( selColumn, 0 );
-	    it->setSelected( false );
-	    d->lview->repaintItem( it );
-	  }
+        if( !it->isSelected() )
+        {
+          it->setText( selColumn, "*" );
+          it->setSelected( true );
+          if( !cur )
+            cur = it;
+//        d->lview->repaintItem( it );
+        }
       }
+      else if( it->isSelected() )
+      {
+        it->setText( selColumn, 0 );
+        it->setSelected( false );
+//      d->lview->repaintItem( it );
+      }
+    }
 
   if( cur )
-    {
-      d->lview->setCurrentItem( cur );
-      d->lview->ensureItemVisible( cur );
-    }
+  {
+    d->lview->setCurrentItem( cur );
+    d->lview->scrollToItem( cur, QTreeWidget::EnsureVisible );
+  }
   ResetRefreshFlag();
 
   d->recursive = false;
@@ -565,7 +591,7 @@ void QObjectBrowser::normalModeSelectionChanged()
 
   /* cout << "QObjectBrowser::normalModeSelectionChanged()\n";
   cout << "view: " << ( view == d->lview ? "left" : "right" ) << endl; */
-  map<Q3ListViewItem *, AObject *>::const_iterator 
+  map<QTreeWidgetItem *, AObject *>::const_iterator 
     io, fo = view->aObjects().end();
   set<AObject *>	tosel, tounsel;
   SelectFactory		*fac = SelectFactory::factory();
@@ -587,16 +613,16 @@ void QObjectBrowser::normalModeSelectionChanged()
 
   //	now check indirect objects (in graph objects)
 
-  map<Q3ListViewItem *, GenericObject *>::const_iterator 
+  map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg = view->gObjects().end();
   shared_ptr<AObject>	ao;
   unsigned	ngosel = 0;
-  Q3ListViewItem	*cur = 0;
+  QTreeWidgetItem	*cur = 0;
   map<Hierarchy *, list<QObjectBrowserWidget::ItemDescr> > hieelem;
 
   for( ig=view->gObjects().begin(); ig!=fg; ++ig )
     {
-      Q3ListViewItem* it = (*ig).first;
+      QTreeWidgetItem* it = (*ig).first;
       if( it->isSelected() )
 	{
 	  ++ngosel;
@@ -649,7 +675,7 @@ void QObjectBrowser::sendModeSelection( void* parent )
 {
   QObjectBrowser	*obr = (QObjectBrowser *) parent;
   QObjectBrowserWidget	*br = obr->d->lview;
-  Q3ListViewItem		*item = br->currentItem();
+  QTreeWidgetItem		*item = br->currentItem();
 
   if( !item )
     return;
@@ -665,7 +691,7 @@ void QObjectBrowser::setAttributeToAllSelected( void* parent )
 {
   QObjectBrowser	*obr = (QObjectBrowser *) parent;
   QObjectBrowserWidget	*br = obr->d->lview;
-  Q3ListViewItem	*item = br->currentItem();
+  QTreeWidgetItem	*item = br->currentItem();
 
   if( !item )
     return;
@@ -731,7 +757,7 @@ void QObjectBrowser::setAttributeToAllSelected( void* parent )
 
 
 string QObjectBrowser::canSend( QObjectBrowserWidget* br,
-                                Q3ListViewItem *item )
+                                QTreeWidgetItem *item )
 {
   if( !staticState().receivingBrowser )
     return "";
@@ -740,7 +766,7 @@ string QObjectBrowser::canSend( QObjectBrowserWidget* br,
 
 
 string QObjectBrowser::canSendToAny( QObjectBrowserWidget* br,
-                                     Q3ListViewItem *item )
+                                     QTreeWidgetItem *item )
 {
   QObjectBrowserWidget::ItemDescr	descr;
 
@@ -782,15 +808,17 @@ void QObjectBrowser::updateRightPanel()
 {
   if( !d->rviewrefreshtimer )
     {
-      d->rviewrefreshtimer = new QTimer( this,
-                                         "QObjectBrowser_rviewrefreshtimer" );
+      d->rviewrefreshtimer = new QTimer( this );
+      d->rviewrefreshtimer->setObjectName( 
+        "QObjectBrowser_rviewrefreshtimer" );
       connect( d->rviewrefreshtimer, SIGNAL( timeout() ), this, 
 	       SLOT( updateRightPanelNow() ) );
     }
   if( !d->rviewrefresh )
     {
       d->rviewrefresh = true;
-      d->rviewrefreshtimer->start( 30, true );
+      d->rviewrefreshtimer->setSingleShot( true );
+      d->rviewrefreshtimer->start( 30 );
     }
 }
 
@@ -801,12 +829,12 @@ void QObjectBrowser::updateRightPanelNow()
     return;
 
   // cout << "QObjectBrowser::updateRightPanel()\n";
-  map<Q3ListViewItem *, GenericObject *>::const_iterator 
+  map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg = d->lview->gObjects().end();
   unsigned	   ngosel = 0;
-  Q3ListViewItem	*cur = 0, *it, *other = 0;
+  QTreeWidgetItem	*cur = 0, *it, *other = 0;
   shared_ptr<AObject>   obj;
-  Q3ListViewItem  *item;
+  QTreeWidgetItem  *item;
 
   for( ig=d->lview->gObjects().begin(); ig!=fg; ++ig )
   {
@@ -850,7 +878,7 @@ void QObjectBrowser::updateRightPanelNow()
     d->lastselectednode1 = cur;
     d->lastselectednode2 = 0;
 
-    map<Q3ListViewItem *, GenericObject *>::const_iterator
+    map<QTreeWidgetItem *, GenericObject *>::const_iterator
       ig = d->lview->gObjects().find( cur );
     Vertex	*v;
 
@@ -876,7 +904,7 @@ void QObjectBrowser::updateRightPanelNow()
     d->lastselectednode1 = cur;
     d->lastselectednode2 = other;
 
-    map<Q3ListViewItem *, GenericObject *>::const_iterator
+    map<QTreeWidgetItem *, GenericObject *>::const_iterator
         ig = d->lview->gObjects().find( cur );
     Vertex        *v1, *v2;
     Vertex::iterator  iv, ev;
@@ -923,8 +951,8 @@ void QObjectBrowser::updateRightPanelNow()
 }
 
 
-void QObjectBrowser::rightButtonClickedSlot( Q3ListViewItem * item, 
-					     const QPoint & pos, int )
+void QObjectBrowser::rightButtonClickedSlot( QTreeWidgetItem * item, 
+					     const QPoint & pos )
 {
   if( !item )
     return;
@@ -940,8 +968,8 @@ void QObjectBrowser::rightButtonClickedSlot( Q3ListViewItem * item,
 }
 
 
-void QObjectBrowser::rightButtonRightPanel( Q3ListViewItem * item, 
-					    const QPoint & pos, int )
+void QObjectBrowser::rightButtonRightPanel( QTreeWidgetItem * item, 
+					    const QPoint & pos )
 {
   if( !item )
     return;
@@ -957,28 +985,28 @@ void QObjectBrowser::rightButtonRightPanel( Q3ListViewItem * item,
 }
 
 
-void QObjectBrowser::doubleClickedSlot( Q3ListViewItem* item )
+void QObjectBrowser::doubleClickedSlot( QTreeWidgetItem* item, int )
 {
   d->lastActivePanel = 0;	// left
   d->lview->setCurrentItem( item );
   Tree	tr( true, "menu" );
   Tree* def = buildSpecificMenuTree( d->lview, item, tr );
   if( def )
-    {
-      // avoid opening item on a double-click which causes another action
-      d->lview->setOpen( item, !d->lview->isOpen( item ) );
-      void	(*func)( void * ) = 0;
-      void	*clientdata = 0;
+  {
+    // avoid opening item on a double-click which causes another action
+    item->setExpanded( !item->isExpanded() );
+    void	(*func)( void * ) = 0;
+    void	*clientdata = 0;
 
-      def->getProperty( "callback", func );
-      def->getProperty( "client_data", clientdata );
-      func( clientdata );	// execute callback
-    }
+    def->getProperty( "callback", func );
+    def->getProperty( "client_data", clientdata );
+    func( clientdata );	// execute callback
+  }
 }
 
 
 Tree* QObjectBrowser::buildSpecificMenuTree( QObjectBrowserWidget* br, 
-					     Q3ListViewItem* item, Tree & tr )
+					     QTreeWidgetItem* item, Tree & tr )
 {
   QObjectBrowserWidget::ItemDescr	descr;
 
@@ -1086,16 +1114,16 @@ void QObjectBrowser::modifyAttribute()
   else
     lview = d->rview;
 
-  Q3ListViewItemIterator it( lview, Q3ListViewItemIterator::Selected );
-  set<Q3ListViewItem *> items;
+  QTreeWidgetItemIterator it( lview, QTreeWidgetItemIterator::Selected );
+  set<QTreeWidgetItem *> items;
   set<GenericObject *>  objs;
   GenericObject         *ao;
-  Q3ListViewItem        *item;
+  QTreeWidgetItem        *item;
   string                att, att2;
 
-  while( it.current() )
+  while( *it )
   {
-    item = it.current();
+    item = *it;
     ao = attributeCaract( lview, item, att );
     if( !ao )
     {
@@ -1133,7 +1161,7 @@ void QObjectBrowser::modifyAttribute()
   else if( edited )
   {
     //	find parent AObject
-    set<Q3ListViewItem *>::iterator ii, ei = items.end();
+    set<QTreeWidgetItem *>::iterator ii, ei = items.end();
     for( ii=items.begin(); ii!=ei; ++ii )
     {
       AObject		*paro = aObject( lview, *ii );
@@ -1180,15 +1208,15 @@ void QObjectBrowser::modifAttrib( const string & att )
   else
     lview = d->rview;
 
-  Q3ListViewItemIterator it( lview, Q3ListViewItemIterator::Selected );
-  set<Q3ListViewItem *> items;
+  QTreeWidgetItemIterator it( lview, QTreeWidgetItemIterator::Selected );
+  set<QTreeWidgetItem *> items;
   set<GenericObject *>  objs;
   GenericObject         *ao;
-  Q3ListViewItem        *item;
+  QTreeWidgetItem        *item;
 
-  while( it.current() )
+  while( *it )
   {
-    item = it.current();
+    item = *it;
     QObjectBrowserWidget::ItemDescr	descr;
 
     lview->whatIs( item, descr );
@@ -1229,7 +1257,7 @@ void QObjectBrowser::modifAttrib( const string & att )
   else if( edited )
     {
       //	find parent AObject
-      set<Q3ListViewItem *>::iterator ii, ei = items.end();
+      set<QTreeWidgetItem *>::iterator ii, ei = items.end();
       for( ii=items.begin(); ii!=ei; ++ii )
       {
         AObject		*paro = aObject( lview, *ii );
@@ -1255,36 +1283,35 @@ void QObjectBrowser::addAttributeStatic( void* parent )
 void QObjectBrowser::addAttribute()
 {
   if( staticState().receivingBrowser )
-    {
-      QMessageBox::warning( this, tr( "Add attribute" ), 
-			    tr( "An editor is already open. close it first." 
-				) );
-      return;
-    }
+  {
+    QMessageBox::warning( this, tr( "Add attribute" ), 
+                          tr( "An editor is already open. close it first." ) );
+    return;
+  }
 
   QObjectBrowserWidget	*lview;
   if( d->lastActivePanel == 0 )
     lview = d->lview;
   else
     lview = d->rview;
-  Q3ListViewItem		*item = lview->currentItem();
+  QTreeWidgetItem		*item = lview->currentItem();
 
   if( !item )
-    {
-      QMessageBox::warning( this, tr( "Add attribute" ), 
-			    tr( "Item not found" ) );
-      return;
-    }
+  {
+    QMessageBox::warning( this, tr( "Add attribute" ), 
+                          tr( "Item not found" ) );
+    return;
+  }
 
   int			t = lview->typeOf( item );
   GenericObject	*ao = gObject( lview, item, t );
 
   if( !ao )
-    {
-      QMessageBox::warning( this, tr( "Add attribute" ), 
-			    tr( "Cannot determine attributed object" ) );
-      return;
-    }
+  {
+    QMessageBox::warning( this, tr( "Add attribute" ), 
+                          tr( "Cannot determine attributed object" ) );
+    return;
+  }
 
   // ask new attrib name & type
 
@@ -1300,123 +1327,127 @@ void QObjectBrowser::addAttribute()
   AttributedChooser ach( *ao, sset, true, theAnatomist->getQWidgetAncestor(), 
                          tr( "New attribute in " ) + snt.c_str(), 0 );
   if( ach.exec() )
+  {
+    string			name = ach.attName(), type = ach.attType();
+    SyntaxSet::iterator	iss = sset.find( snt );
+    bool			newsynt = ( iss == sset.end() );
+
+    if( newsynt )
     {
-      string			name = ach.attName(), type = ach.attType();
-      SyntaxSet::iterator	iss = sset.find( snt );
-      bool			newsynt = ( iss == sset.end() );
+      sset[ snt ];
+      iss = sset.find( snt );
+    }
 
-      if( newsynt )
-	{
-	  sset[ snt ];
-	  iss = sset.find( snt );
-	}
+    SemanticSet::iterator	is = (*iss).second.find( name );
+    bool			newsem = ( is == (*iss).second.end() );
 
-      SemanticSet::iterator	is = (*iss).second.find( name );
-      bool			newsem = ( is == (*iss).second.end() );
+    if( newsem )
+    {
+      (*iss).second[ name ].type = type;
+      (*iss).second[ name ].needed = false;
+    }
+    else if( (*is).second.type != type )
+    {
+      QString	msg = tr( "Conflicting type for attribute " ) 
+        + name.c_str() + " : " + tr( "exists as " ) 
+        + (*is).second.type.c_str() + ", " 
+        + tr( "so cannot be edited as " ) + type.c_str();
+      QMessageBox::warning( this, tr( "Add attribute" ), msg );
+      return;
+    }
 
-      if( newsem )
+    if( newsynt || newsem )
+      AttDescr::descr()->setSyntax( sset );
+
+    bool	edited, registered;
+    QTreeWidgetItem	*newitem;
+
+    if( ao->hasProperty( name ) )	// already has got it
+    {
+      registered = true;
+
+      unsigned	i, n = item->childCount();
+
+      for( i=0; i<n; ++i )
       {
-	(*iss).second[ name ].type = type;
-        (*iss).second[ name ].needed = false;
-      }	 
-      else if( (*is).second.type != type )
-	{
-	  QString	msg = tr( "Conflicting type for attribute " ) 
-	    + name.c_str() + " : " + tr( "exists as " ) 
-	    + (*is).second.type.c_str() + ", " 
-	    + tr( "so cannot be edited as " ) + type.c_str();
-	  QMessageBox::warning( this, tr( "Add attribute" ), msg );
-	  return;
-	}
-
-      if( newsynt || newsem )
-	AttDescr::descr()->setSyntax( sset );
-
-      bool	edited, registered;
-      Q3ListViewItem	*newitem;
-
-      if( ao->hasProperty( name ) )	// already has got it
-	{
-	  registered = true;
-
-	  unsigned	n = item->childCount();
-
-	  for( newitem = item->firstChild(); n>0; 
-	       --n, newitem = newitem->nextSibling() )
-	    if( newitem->text( 0 ).utf8().data() == name )
-	      break;
-	  if( n == 0 )	// not found
-	    {
-	      QMessageBox::warning( this, tr( "Add attribute" ), 
-				    tr( "Attribute exists and I can't get it!" 
-					"\n(not direct child in tree ?)\n" 
-					"try clicking it and selecting " 
-					"'Modify'" ) );
-	      return;
-	    }
-	}
-      else
-	{
-	  registered = false;
-	  newitem = new Q3ListViewItem( item, name.c_str(), type.c_str() );
-	}
-
-      Q3ListViewItem	*parent = newitem->parent();
-
-      for( ; parent; parent = parent->parent() )
-        if( !parent->isOpen() )
-          parent->setOpen( true );
-      lview->ensureItemVisible( newitem );
-
-      if( !editAttribute( ao, name, lview, newitem, edited ) )
-        QMessageBox::warning( this, tr( "Add attribute" ),
-                              tr( "I cannot edit this attribute type" ) );
-      if( !edited )
+        newitem = item->child( i );
+        if( newitem->text( 0 ).utf8().data() == name )
+          break;
+      }
+      if( n == 0 )	// not found
       {
-        if( d->editor )
-        {
-          // this must be delayed when the editor is non-modal
-          if( !registered )
-            d->tempAddedItems.insert( newitem );
-          d->tempAddedNewSyntax = newsynt;
-          d->tempAddedSyntax = snt;
-          if( newsem )
-            d->tempAddedName = name;
-          else
-            d->tempAddedName.clear();
-        }
+        QMessageBox::warning( this, tr( "Add attribute" ), 
+                              tr( "Attribute exists and I can't get it!" 
+                                  "\n(not direct child in tree ?)\n" 
+                                  "try clicking it and selecting " 
+                                  "'Modify'" ) );
+        return;
+      }
+    }
+    else
+    {
+      registered = false;
+      newitem = new QTreeWidgetItem( item );
+      newitem->setText( 0, name.c_str() );
+      newitem->setText( 1, type.c_str() );
+    }
+
+    QTreeWidgetItem	*parent = newitem->parent();
+
+    for( ; parent; parent = parent->parent() )
+      if( !parent->isExpanded() )
+        parent->setExpanded( true );
+    lview->scrollToItem( newitem, QTreeWidget::EnsureVisible );
+
+    if( !editAttribute( ao, name, lview, newitem, edited ) )
+      QMessageBox::warning( this, tr( "Add attribute" ),
+                            tr( "I cannot edit this attribute type" ) );
+    if( !edited )
+    {
+      if( d->editor )
+      {
+        // this must be delayed when the editor is non-modal
+        if( !registered )
+          d->tempAddedItems.insert( newitem );
+        d->tempAddedNewSyntax = newsynt;
+        d->tempAddedSyntax = snt;
+        if( newsem )
+          d->tempAddedName = name;
         else
-        {
-          if( !registered )
-            delete newitem;
-          if( newsynt )
-          {
-            sset.erase( iss );
-            AttDescr::descr()->setSyntax( sset );
-          }
-          else if( newsem )
-          {
-            (*iss).second.erase( name );
-            AttDescr::descr()->setSyntax( sset );
-          }
-        }
+          d->tempAddedName.clear();
       }
       else
       {
         if( !registered )
-          lview->registerAttribute( newitem );
-
-        //	find parent AObject
-        AObject		*paro = aObject( lview, newitem );
-        if( paro )
+          delete newitem;
+        if( newsynt )
         {
-          paro->setChanged();
-          paro->notifyObservers( this );
+          sset.erase( iss );
+          AttDescr::descr()->setSyntax( sset );
         }
-        else
-          cerr << "Can't find parent AObject for attribute\n";
+        else if( newsem )
+        {
+          (*iss).second.erase( name );
+          AttDescr::descr()->setSyntax( sset );
+        }
       }
     }
+    else
+    {
+      if( !registered )
+        lview->registerAttribute( newitem );
+
+      //	find parent AObject
+      AObject		*paro = aObject( lview, newitem );
+      if( paro )
+      {
+        paro->setChanged();
+        paro->notifyObservers( this );
+      }
+      else
+        cerr << "Can't find parent AObject for attribute\n";
+    }
+  }
 }
 
 
@@ -1443,7 +1474,7 @@ void QObjectBrowser::removeProperty()
     lview = d->lview;
   else
     lview = d->rview;
-  Q3ListViewItem		*item = lview->currentItem();
+  QTreeWidgetItem		*item = lview->currentItem();
   string		att;
 
   if( !item )
@@ -1488,12 +1519,12 @@ void QObjectBrowser::removeProperty()
 
 GenericObject* 
 QObjectBrowser::attributeCaract( const QObjectBrowserWidget* br, 
-				 const Q3ListViewItem* item, 
+				 const QTreeWidgetItem* item, 
 				 string & att )
 {
   att = item->text( 0 ).utf8().data();
 
-  Q3ListViewItem		*parent = item->parent();
+  QTreeWidgetItem		*parent = item->parent();
   QObjectBrowserWidget::ItemType	t;
 
   while( parent 
@@ -1508,7 +1539,7 @@ QObjectBrowser::attributeCaract( const QObjectBrowserWidget* br,
 
 
 GenericObject* QObjectBrowser::gObject( const QObjectBrowserWidget* br, 
-					   const Q3ListViewItem* item, 
+					   const QTreeWidgetItem* item, 
 					   int t )
 {
   GenericObject	*ao = 0;
@@ -1516,32 +1547,32 @@ GenericObject* QObjectBrowser::gObject( const QObjectBrowserWidget* br,
   if( t == QObjectBrowserWidget::AOBJECT )
     {
       AObject 
-	*obj = (*br->aObjects().find( (Q3ListViewItem *) item )).second;
+	*obj = (*br->aObjects().find( (QTreeWidgetItem *) item )).second;
 
       AttributedAObject* ato = dynamic_cast<AttributedAObject *>( obj );
       if( ato )
 	ao = ato->attributed();
     }
   else
-    ao = (*br->gObjects().find( (Q3ListViewItem *) item )).second;
+    ao = (*br->gObjects().find( (QTreeWidgetItem *) item )).second;
 
   return( ao );
 }
 
 
 AObject* QObjectBrowser::aObject( const QObjectBrowserWidget* br, 
-				  const Q3ListViewItem* item )
+				  const QTreeWidgetItem* item )
 {
   int 			type;
   shared_ptr<AObject>	sobj;
   AObject               *obj = 0;
   GenericObject	*ao;
 
-  for( type = br->typeOf( (Q3ListViewItem *) item ); 
+  for( type = br->typeOf( (QTreeWidgetItem *) item ); 
        item && type!=QObjectBrowserWidget::AOBJECT; 
        item = item->parent(),
        type = item ?
-       br->typeOf( (Q3ListViewItem *) item ) : QObjectBrowserWidget::UNKNOWN )
+       br->typeOf( (QTreeWidgetItem *) item ) : QObjectBrowserWidget::UNKNOWN )
     if( type == QObjectBrowserWidget::GOBJECT )
     {
       ao = gObject( br, item, type );
@@ -1554,7 +1585,7 @@ AObject* QObjectBrowser::aObject( const QObjectBrowserWidget* br,
 
   if( type== QObjectBrowserWidget::AOBJECT )
     {
-      return( (AObject *) (*br->aObjects().find( (Q3ListViewItem *) 
+      return( (AObject *) (*br->aObjects().find( (QTreeWidgetItem *) 
 						 item )).second );
     }
 
@@ -1596,26 +1627,25 @@ void QObjectBrowser::registerAttributeEditor( const string & syntax,
 bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
                                    const string & att,
 				   QObjectBrowserWidget* br, 
-                                   const std::set<Q3ListViewItem*> & items )
+                                   const std::set<QTreeWidgetItem*> & items )
 {
   if( objs.empty() )
     return false;
   string	attval = "";
   (*objs.begin())->getProperty( att, attval );
-  Q3ListViewItem  *item = br->currentItem();
+  QTreeWidgetItem  *item = br->currentItem();
   if( !item || items.find( item ) == items.end() )
     item = *items.begin();
-  QRect		pos = br->itemRect( item );
+  QRect		pos = br->visualItemRect( item );
   if( !pos.isValid() )
-    pos = br->itemRect( item->parent() );
+    pos = br->visualItemRect( item->parent() );
   QPoint	xy = br->mapToGlobal( pos.topLeft() );
 
   if( pos.height() < 10 )
     pos.setHeight( 20 );
 
-  int	dx = br->header()->cellPos( br->header()->mapToActual( 2 ) ) 
-    - br->contentsX();
-  int	w = br->columnWidth( br->header()->mapToActual( 2 ) );
+  int	dx = br->columnViewportPosition( 2 );
+  int	w = br->columnWidth( 2 );
 
   if( dx < 0 )
     {
@@ -1651,7 +1681,7 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
     set<GenericObject *>::const_iterator  io, eo = objs.end();
     for( io=objs.begin(); io!=eo; ++io )
       (*io)->setProperty( att, ed.text() );
-    set<Q3ListViewItem *>::const_iterator il, el = items.end();
+    set<QTreeWidgetItem *>::const_iterator il, el = items.end();
     for( il=items.begin(); il!=el; ++il )
       (*il)->setText( 2, ed.text().c_str() );
     return true;
@@ -1665,28 +1695,27 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
 bool QObjectBrowser::intEditor( const std::set<GenericObject*> & objs,
                                 const string & att, 
 				QObjectBrowserWidget* br,
-                                const std::set<Q3ListViewItem*> & items )
+                                const std::set<QTreeWidgetItem*> & items )
 {
   if( objs.empty() )
     return false;
   int		attval = 0;
   char		str[30];
   (*objs.begin())->getProperty( att, attval );
-  Q3ListViewItem  *item = br->currentItem();
+  QTreeWidgetItem  *item = br->currentItem();
   if( !item || items.find( item ) == items.end() )
     item = *items.begin();
-  QRect		pos = br->itemRect( item );
+  QRect		pos = br->visualItemRect( item );
   if( !pos.isValid() )
-    pos = br->itemRect( item->parent() );
+    pos = br->visualItemRect( item->parent() );
   QPoint	xy = br->mapToGlobal( pos.topLeft() );
 
   sprintf( str, "%d", attval );
   if( pos.height() < 10 )
     pos.setHeight( 20 );
 
-  int	dx = br->header()->cellPos( br->header()->mapToActual( 2 ) ) 
-    - br->contentsX();
-  int	w = br->columnWidth( br->header()->mapToActual( 2 ) );
+  int	dx = br->columnViewportPosition( 2 );
+  int	w = br->columnWidth( 2 );
 
   if( dx < 0 )
     {
@@ -1699,7 +1728,8 @@ bool QObjectBrowser::intEditor( const std::set<GenericObject*> & objs,
   if( w < 30 )
     w = 30;
 
-  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), theAnatomist->getQWidgetAncestor(), att.c_str(), 
+  QStringEdit	ed( str, xy.x() + dx, xy.y(), w, pos.height(), 
+                    theAnatomist->getQWidgetAncestor(), att.c_str(), 
                     Qt::WindowStaysOnTopHint /*WStyle_Customize | WStyle_NoBorder
                         | WStyle_Tool*/ );
   ed.lineEdit()->setValidator( new QIntValidator( ed.lineEdit() ) );
@@ -1709,7 +1739,7 @@ bool QObjectBrowser::intEditor( const std::set<GenericObject*> & objs,
     set<GenericObject *>::const_iterator  io, eo = objs.end();
     for( io=objs.begin(); io!=eo; ++io )
       (*io)->setProperty( att, attval );
-    set<Q3ListViewItem *>::const_iterator il, el = items.end();
+    set<QTreeWidgetItem *>::const_iterator il, el = items.end();
     for( il=items.begin(); il!=el; ++il )
       (*il)->setText( 2, ed.text().c_str() );
     return true;
@@ -1722,28 +1752,27 @@ bool QObjectBrowser::intEditor( const std::set<GenericObject*> & objs,
 bool QObjectBrowser::floatEditor( const std::set<GenericObject*> & objs,
                                   const string & att,
 				  QObjectBrowserWidget* br, 
-                                  const std::set<Q3ListViewItem*> & items )
+                                  const std::set<QTreeWidgetItem*> & items )
 {
   if( objs.empty() )
     return false;
   float		attval = 0;
   char		str[30];
   (*objs.begin())->getProperty( att, attval );
-  Q3ListViewItem  *item = br->currentItem();
+  QTreeWidgetItem  *item = br->currentItem();
   if( !item || items.find( item ) == items.end() )
     item = *items.begin();
-  QRect		pos = br->itemRect( item );
+  QRect		pos = br->visualItemRect( item );
   if( !pos.isValid() )
-    pos = br->itemRect( item->parent() );
+    pos = br->visualItemRect( item->parent() );
   QPoint	xy = br->mapToGlobal( pos.topLeft() );
 
   sprintf( str, "%g", attval );
   if( pos.height() < 10 )
     pos.setHeight( 20 );
 
-  int	dx = br->header()->cellPos( br->header()->mapToActual( 2 ) ) 
-    - br->contentsX();
-  int	w = br->columnWidth( br->header()->mapToActual( 2 ) );
+  int	dx = br->columnViewportPosition( 2 );
+  int	w = br->columnWidth( 2 );
 
   if( dx < 0 )
     {
@@ -1767,7 +1796,7 @@ bool QObjectBrowser::floatEditor( const std::set<GenericObject*> & objs,
     set<GenericObject *>::const_iterator  io, eo = objs.end();
     for( io=objs.begin(); io!=eo; ++io )
       (*io)->setProperty( att, attval );
-    set<Q3ListViewItem *>::const_iterator il, el = items.end();
+    set<QTreeWidgetItem *>::const_iterator il, el = items.end();
     for( il=items.begin(); il!=el; ++il )
       (*il)->setText( 2, ed.text().c_str() );
     return true;
@@ -1780,7 +1809,7 @@ bool QObjectBrowser::floatEditor( const std::set<GenericObject*> & objs,
 bool QObjectBrowser::doubleEditor( const std::set<GenericObject*> & objs,
                                    const string & att,
 				   QObjectBrowserWidget* br, 
-                                   const std::set<Q3ListViewItem*> & items )
+                                   const std::set<QTreeWidgetItem*> & items )
 {
   if( objs.empty() )
     return false;
@@ -1788,21 +1817,20 @@ bool QObjectBrowser::doubleEditor( const std::set<GenericObject*> & objs,
   float		tmp;
   char		str[30];
   (*objs.begin())->getProperty( att, attval );
-  Q3ListViewItem  *item = br->currentItem();
+  QTreeWidgetItem  *item = br->currentItem();
   if( !item || items.find( item ) == items.end() )
     item = *items.begin();
-  QRect		pos = br->itemRect( item );
+  QRect		pos = br->visualItemRect( item );
   if( !pos.isValid() )
-    pos = br->itemRect( item->parent() );
+    pos = br->visualItemRect( item->parent() );
   QPoint	xy = br->mapToGlobal( pos.topLeft() );
 
   sprintf( str, "%g", attval );
   if( pos.height() < 10 )
     pos.setHeight( 20 );
 
-  int	dx = br->header()->cellPos( br->header()->mapToActual( 2 ) ) 
-    - br->contentsX();
-  int	w = br->columnWidth( br->header()->mapToActual( 2 ) );
+  int	dx = br->columnViewportPosition( 2 );
+  int	w = br->columnWidth( 2 );
 
   if( dx < 0 )
     {
@@ -1826,7 +1854,7 @@ bool QObjectBrowser::doubleEditor( const std::set<GenericObject*> & objs,
     set<GenericObject *>::const_iterator  io, eo = objs.end();
     for( io=objs.begin(); io!=eo; ++io )
       (*io)->setProperty( att, (double) tmp );
-    set<Q3ListViewItem *>::const_iterator il, el = items.end();
+    set<QTreeWidgetItem *>::const_iterator il, el = items.end();
     for( il=items.begin(); il!=el; ++il )
       (*il)->setText( 2, ed.text().c_str() );
     return true;
@@ -1838,11 +1866,11 @@ bool QObjectBrowser::doubleEditor( const std::set<GenericObject*> & objs,
 
 bool QObjectBrowser::editAttribute( GenericObject* ao, const string & att, 
                                     QObjectBrowserWidget* br,
-                                    Q3ListViewItem* item, bool & edited )
+                                    QTreeWidgetItem* item, bool & edited )
 {
   set<GenericObject *> objs;
   objs.insert( ao );
-  set<Q3ListViewItem *> items;
+  set<QTreeWidgetItem *> items;
   items.insert( item );
   return editAttribute( objs, att, br, items, edited );
 }
@@ -1851,7 +1879,7 @@ bool QObjectBrowser::editAttribute( GenericObject* ao, const string & att,
 bool QObjectBrowser::editAttribute( const set<GenericObject*> & objs,
                                     const string & att,
 				    QObjectBrowserWidget* br, 
-				    const set<Q3ListViewItem*> & items,
+				    const set<QTreeWidgetItem*> & items,
                                     bool & edited )
 {
   edited = false;
@@ -1941,7 +1969,7 @@ bool QObjectBrowser::editAttribute( const set<GenericObject*> & objs,
 bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
                                   const string & att,
 				  QObjectBrowserWidget* br, 
-				  const set<Q3ListViewItem*> & items )
+				  const set<QTreeWidgetItem*> & items )
 {
   QWidget		*pw = br->parentWidget();
   QObjectBrowser	*tbr;
@@ -1955,7 +1983,7 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
 
   // verify we are not in a hierarchy and get syntax of top-level AttObject
 
-  Q3ListViewItem	*par = (*items.begin())->parent(), *par2 = par;
+  QTreeWidgetItem	*par = (*items.begin())->parent(), *par2 = par;
 
   while( par )
     {
@@ -1966,8 +1994,8 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
   if( !par2 )	// parent AObject not recognized as GenericObject
     return( stringEditor( objs, att, br, items ) );
 
-  const map<Q3ListViewItem *, AObject *>	& aobj = br->aObjects();
-  map<Q3ListViewItem *, AObject *>::const_iterator	ia, fa = aobj.end();
+  const map<QTreeWidgetItem *, AObject *>	& aobj = br->aObjects();
+  map<QTreeWidgetItem *, AObject *>::const_iterator	ia, fa = aobj.end();
 
   ia = aobj.find( par2 );
   if( ia == fa )	// top parent not recognized as AObject
@@ -2022,20 +2050,19 @@ bool QObjectBrowser::labelEditor( const set<GenericObject*> & objs,
   //	same as other editors
   string	attval = "";
   (*objs.begin())->getProperty( att, attval );
-  Q3ListViewItem *item = br->currentItem();
+  QTreeWidgetItem *item = br->currentItem();
   if( !item || items.find( item ) == items.end() )
     item = *items.begin();
-  QRect		pos = br->itemRect( item );
+  QRect		pos = br->visualItemRect( item );
   if( !pos.isValid() )
-    pos = br->itemRect( item->parent() );
+    pos = br->visualItemRect( item->parent() );
   QPoint	xy = br->viewport()->mapToGlobal( pos.topLeft() );
 
   if( pos.height() < 10 )
     pos.setHeight( 20 );
 
-  int	dx = br->header()->cellPos( br->header()->mapToActual( 2 ) ) 
-    - br->contentsX();
-  int	w = br->columnWidth( br->header()->mapToActual( 2 ) );
+  int	dx = br->columnViewportPosition( 2 );
+  int	w = br->columnWidth( 2 );
 
   if( dx < 0 )
     {
@@ -2118,7 +2145,7 @@ string QObjectBrowser::modeString() const
 void QObjectBrowser::editCancel()
 {
   // delete temporary elements in case a property addition aborts
-  set<Q3ListViewItem *>::iterator i, e = d->tempAddedItems.end();
+  set<QTreeWidgetItem *>::iterator i, e = d->tempAddedItems.end();
   for( i=d->tempAddedItems.begin(); i!=e; ++i )
     delete *i;
   d->tempAddedItems.clear();
@@ -2147,7 +2174,7 @@ void QObjectBrowser::editCancel()
         = dynamic_cast<QEditableListViewItem *>( d->editedMainItem );
     if( ei )
     {
-      Q3ListView  *lv = d->editedMainItem->listView();
+      QTreeWidget  *lv = d->editedMainItem->listView();
       lv->blockSignals( true );
       ei->cancelRename( 2 );
       lv->blockSignals( false );
@@ -2171,21 +2198,21 @@ void QObjectBrowser::editCancel()
 
 
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-void QObjectBrowser::leftItemStartsRename( Q3ListViewItem* item, int )
+void QObjectBrowser::leftItemStartsRename( QTreeWidgetItem* item, int )
 {
   cout << "item starts rename: " << item << endl;
   d->editedMainItem = item;
   modifyAttribute();
 }
 #else
-void QObjectBrowser::leftItemStartsRename( Q3ListViewItem*, int )
+void QObjectBrowser::leftItemStartsRename( QTreeWidgetItem*, int )
 {
 }
 #endif
 
 
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-void QObjectBrowser::leftItemCancelsRename( Q3ListViewItem* item, int )
+void QObjectBrowser::leftItemCancelsRename( QTreeWidgetItem* item, int )
 {
   cout << "item cancels rename: " << item << endl;
   if( !d->editor )
@@ -2197,14 +2224,14 @@ void QObjectBrowser::leftItemCancelsRename( Q3ListViewItem* item, int )
   }
 }
 #else
-void QObjectBrowser::leftItemCancelsRename( Q3ListViewItem*, int )
+void QObjectBrowser::leftItemCancelsRename( QTreeWidgetItem*, int )
 {
 }
 #endif
 
 
 #ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-void QObjectBrowser::leftItemRenamed( Q3ListViewItem * item, int,
+void QObjectBrowser::leftItemRenamed( QTreeWidgetItem * item, int,
                                       const QString & text )
 {
   cout << "leftItemRenamed\n";
@@ -2263,12 +2290,12 @@ void QObjectBrowser::leftItemRenamed( Q3ListViewItem * item, int,
 /*  set<GenericObject *>::const_iterator  io, eo = objs.end();
   for( io=objs.begin(); io!=eo; ++io )
     (*io)->setProperty( att, ed.text() );
-  set<Q3ListViewItem *>::const_iterator il, el = items.end();
+  set<QTreeWidgetItem *>::const_iterator il, el = items.end();
   for( il=items.begin(); il!=el; ++il )
     (*il)->setText( 2, ed.text().c_str() );*/
 }
 #else
-void QObjectBrowser::leftItemRenamed( Q3ListViewItem *, int, const QString & )
+void QObjectBrowser::leftItemRenamed( QTreeWidgetItem *, int, const QString & )
 {
 }
 #endif
@@ -2279,10 +2306,10 @@ void QObjectBrowser::editValidate()
   QObjectBrowserWidget        *view;
 
   // take care of temporary elements in case a property addition
-  set<Q3ListViewItem *>::iterator i, e = d->tempAddedItems.end();
+  set<QTreeWidgetItem *>::iterator i, e = d->tempAddedItems.end();
   for( i=d->tempAddedItems.begin(); i!=e; ++i )
   {
-    view = (QObjectBrowserWidget *) (*i)->listView();
+    view = (QObjectBrowserWidget *) (*i)->treeWidget();
     view->registerAttribute( *i );
   }
   d->tempAddedItems.clear();
@@ -2294,14 +2321,14 @@ void QObjectBrowser::editValidate()
   set<GenericObject *>::iterator  ig, eg=objs.end();
   for( ig=objs.begin(); ig!=eg; ++ig )
     (*ig)->setProperty( d->editor->attrib(), d->editor->text() );
-  set<Q3ListViewItem *> items = d->editor->items();
-  set<Q3ListViewItem *>::iterator il, el=items.end();
+  set<QTreeWidgetItem *> items = d->editor->items();
+  set<QTreeWidgetItem *>::iterator il, el=items.end();
   set<AObject *>              aobj;
   /* cout << "editValidate, genobjects: " << objs.size() << ", listitems: "
       << items.size() << endl; */
   for( il=items.begin(); il!=el; ++il )
   {
-    view = (QObjectBrowserWidget *) (*il)->listView();
+    view = (QObjectBrowserWidget *) (*il)->treeWidget();
     //	find parent AObject
     AObject		*paro = aObject( view, *il );
 
@@ -2437,7 +2464,7 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
 bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
                                   const string & att,
 				  QObjectBrowserWidget* bw, 
-				  const set<Q3ListViewItem*> & )
+				  const set<QTreeWidgetItem*> & )
 {
   if( objs.empty() )
     return 0;
@@ -2549,18 +2576,18 @@ bool QObjectBrowser::event( QEvent* ev )
 void QObjectBrowser::updateRightSelectionChange( int modifier )
 {
   // cout << "QObjectBrowser::updateRightSelectionChange()\n";
-  Q3ListViewItem	*item, *cur = 0;
+  QTreeWidgetItem	*item, *cur = 0;
   unsigned              nsel = 0;
   set<AObject *>        so, unsel;
   QObjectBrowserWidget::ItemDescr       descr;
-  Q3ListViewItemIterator ilv( d->rview );
+  QTreeWidgetItemIterator ilv( d->rview );
   Edge  *edg = 0;
 
   SelectFactory *fac = SelectFactory::factory();
 
-  for( ; ilv.current(); ++ilv )
+  for( ; *ilv; ++ilv )
   {
-    item = ilv.current();
+    item = *ilv;
     if( item->isSelected() )
     {
       ++nsel;
@@ -2654,7 +2681,7 @@ void QObjectBrowser::updateRightSelectionChange( int modifier )
     fac->unselectAll( Group() );
   fac->select( Group(), so );
   fac->refresh();
-  /*Q3ListViewItem	*newitem = d->rview->itemFor( edg );
+  /*QTreeWidgetItem	*newitem = d->rview->itemFor( edg );
   if( newitem )
     {
       d->dontProcessNextEvents = 1;	// avoid recursion
@@ -2663,29 +2690,32 @@ void QObjectBrowser::updateRightSelectionChange( int modifier )
     }
   else
   cerr << "can't find new item for edge (BUG)\n";*/
-  d->lview->triggerUpdate();
+//   d->lview->triggerUpdate();
 }
 
 
-void QObjectBrowser::rightPanelDoubleClicked( Q3ListViewItem* )
+void QObjectBrowser::rightPanelDoubleClicked( QTreeWidgetItem*, int )
 {
   updateRightSelectionChange( 1 );
 }
 
 
-unsigned QObjectBrowser::countSelected( Q3ListViewItem* parent, 
-					Q3ListViewItem* & current )
+unsigned QObjectBrowser::countSelected( QTreeWidgetItem* parent, 
+                                        QTreeWidgetItem* & current )
 {
   unsigned	n = 0, i, c = parent->childCount();
-  Q3ListViewItem	*item;
+  QTreeWidgetItem	*item;
 
-  for( i=0, item=parent->firstChild(); i<c; ++i, item=item->nextSibling() )
+  for( i=0; i<c; ++i )
+  {
+    item = parent->child( i );
     if( item->isSelected() )
-      {
-	++n;
-	current = item;
-      }
-  return( n );
+    {
+      ++n;
+      current = item;
+    }
+  }
+  return n;
 }
 
 
@@ -2731,7 +2761,7 @@ AttDescr & QObjectBrowser::attDescr()
 }
 
 
-void QObjectBrowser::startDrag( Q3ListViewItem*, Qt::MouseButtons button, 
+void QObjectBrowser::startDrag( QTreeWidgetItem*, Qt::MouseButtons button, 
                                 Qt::KeyboardModifiers )
 {
   set<AObject *>	so = Objects();

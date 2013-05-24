@@ -36,10 +36,8 @@
 #include <anatomist/browser/stringEdit.h>
 #include <anatomist/browser/qwObjectBrowser.h>
 #include <qlayout.h>
-#if QT_VERSION >= 0x040000
 namespace Qt {}
 using namespace Qt;
-#endif
 
 
 using namespace anatomist;
@@ -50,14 +48,14 @@ using namespace std;
 struct QLabelEdit::Private
 {
   Private() {}
-  Private( const set<GenericObject *> &, const set<Q3ListViewItem *> & );
+  Private( const set<GenericObject *> &, const set<QTreeWidgetItem *> & );
   set<GenericObject *>  aobj;
-  set<Q3ListViewItem *> items;
+  set<QTreeWidgetItem *> items;
 };
 
 
 QLabelEdit::Private::Private( const set<GenericObject *> & ao,
-                              const set<Q3ListViewItem *> & item )
+                              const set<QTreeWidgetItem *> & item )
   : aobj( ao ), items( item )
 {
 }
@@ -65,7 +63,7 @@ QLabelEdit::Private::Private( const set<GenericObject *> & ao,
 
 QLabelEdit::QLabelEdit( const string & text, int x, int y, unsigned w, 
 			unsigned h, QObjectBrowser* br, GenericObject* ao, 
-			const string & att, Q3ListViewItem* item, 
+			const string & att, QTreeWidgetItem* item, 
 			QWidget* parent, const char* name, WFlags f )
   : QDialog( parent, f ), _browser( br ), 
     _att( att ), d( new Private )
@@ -83,7 +81,7 @@ QLabelEdit::QLabelEdit( const string & text, int x, int y, unsigned w,
 			unsigned h, QObjectBrowser* br,
                         const set<GenericObject*> & ao,
 			const string & att,
-                        const set<Q3ListViewItem*> & items, 
+                        const set<QTreeWidgetItem*> & items, 
 			QWidget* parent, const char* name, WFlags f )
   : QDialog( parent, f ), _browser( br ), 
     _att( att ), d( new Private( ao, items ) )
@@ -133,13 +131,13 @@ GenericObject* QLabelEdit::attributed() const
 }
 
 
-set<Q3ListViewItem*> QLabelEdit::items() const
+set<QTreeWidgetItem*> QLabelEdit::items() const
 {
   return d->items;
 }
 
 
-Q3ListViewItem* QLabelEdit::item() const
+QTreeWidgetItem* QLabelEdit::item() const
 {
   return *d->items.begin();
 }

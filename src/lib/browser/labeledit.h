@@ -37,11 +37,11 @@
 
 #include <cartobase/object/attributed.h>
 #include <anatomist/application/Anatomist.h>
-#include <aims/qtcompat/qlistview.h>
 #include <qdialog.h>
 
 class QCancelLineEdit;
 class QObjectBrowser;
+class QTreeWidgetItem;
 
 
 ///	Editor window for labels (interaction with hierarchies)
@@ -52,11 +52,11 @@ class QLabelEdit : public QDialog
 public:
   QLabelEdit( const std::string & text, int x, int y, unsigned w, unsigned h, 
 	      QObjectBrowser* br, carto::GenericObject* ao, 
-	      const std::string & att, Q3ListViewItem* item, 
+	      const std::string & att, QTreeWidgetItem* item, 
 	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   QLabelEdit( const std::string & text, int x, int y, unsigned w, unsigned h, 
 	      QObjectBrowser* br, const std::set<carto::GenericObject*> & ao,
-	      const std::string & att, const std::set<Q3ListViewItem*> & item, 
+	      const std::string & att, const std::set<QTreeWidgetItem*> & item, 
 	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   ~QLabelEdit();
 
@@ -64,8 +64,8 @@ public:
   carto::GenericObject* attributed() const;
   std::set<carto::GenericObject*> attributedObjects() const;
   std::string attrib() const { return( _att ); }
-  Q3ListViewItem* item() const;
-  std::set<Q3ListViewItem*> items() const;
+  QTreeWidgetItem* item() const;
+  std::set<QTreeWidgetItem*> items() const;
 
   ///	Receive input from a browser (click on a hierarchy)
   void receiveValue( const std::string & val );

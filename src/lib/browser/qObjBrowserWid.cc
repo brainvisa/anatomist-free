@@ -36,13 +36,13 @@
 #include <anatomist/browser/qObjBrowserWid.h>
 #include <anatomist/browser/attDescr.h>
 #include <anatomist/hierarchy/hierarchy.h>
-#include <qpixmap.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/graph/Graph.h>
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/control/graphParams.h>
 #include <aims/listview/qpython.h>
+#include <QKeyEvent>
 #include <stdio.h>
 
 using namespace Qt;
@@ -56,18 +56,26 @@ QObjectBrowserWidget::ObjectHelperSet	QObjectBrowserWidget::objectHelpers;
 
 
 QObjectBrowserWidget::QObjectBrowserWidget( QWidget* parent, const char* name )
-  : QAListView( parent, name ), _recursive( false )
+  : QATreeWidget( parent ), _recursive( false )
 {
+  setObjectName( name );
   // clearWFlags( WNorthWestGravity | WRepaintNoErase );
-  setMultiSelection( true );
-  setSelectionMode( Extended );
+  setSelectionMode( QTreeWidget::ExtendedSelection );
+  setItemsExpandable( true );
   setRootIsDecorated( true );
   setAllColumnsShowFocus( true );
+//   setEditTriggers( QAbstractItemView::DoubleClicked 
+//     | QAbstractItemView::SelectedClicked | QAbstractItemView::EditKeyPressed );
+  setSelectionBehavior( QAbstractItemView::SelectRows );
+  setDragEnabled( true );
+  // disable "natural" treewidget drag&drop: we overload it.
+  setDragDropMode( QAbstractItemView::NoDragDrop );
+  setIconSize( QSize( 32, 32 ) );
 
   objectHelpers[ AObject::GRAPH ] = describeGraph;
   objectHelpers[ Hierarchy::classType() ] = describeHierarchy;
-  connect( this, SIGNAL( selectionChanged() ), 
-           SLOT( unselectInvisibleItems() ) );
+//   connect( this, SIGNAL( itemSelectionChanged() ), 
+//            SLOT( unselectInvisibleItems() ) );
 }
 
 
@@ -83,7 +91,7 @@ void QObjectBrowserWidget::registerObject( AObject* object,
 {
   /* cout << "QObjectBrowserWidget::registerObject( AObject* object, bool ) "
   << object->name() << endl; */
-  map<Q3ListViewItem *, AObject *>::const_iterator	ia, fa=_aobjects.end();
+  map<QTreeWidgetItem *, AObject *>::const_iterator	ia, fa=_aobjects.end();
   unsigned const	regColumn = 5;
 
   AObject::ParentList parents = object->parents();
@@ -111,7 +119,7 @@ void QObjectBrowserWidget::registerObject( AObject* object,
       return; // already a parent graph displayed here
 
   //	mettre un truc plus rapide...
-  map<Q3ListViewItem *, GenericObject *>::const_iterator 
+  map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg=_gobjects.end();
   shared_ptr<AObject>	ao;
 
@@ -122,16 +130,16 @@ void QObjectBrowserWidget::registerObject( AObject* object,
       return;	// indirectly in list (generally graph object)
     }
 
-  Q3ListViewItem	*item = insertObject( object );
+  QTreeWidgetItem	*item = insertObject( object );
   item->setText( regColumn, "*" );
   if( showDetailsUponRegister )
-    item->setOpen( true );
+    item->setExpanded( true );
 }
 
 
 void QObjectBrowserWidget::unregisterObject( AObject* object )
 {
-  map<Q3ListViewItem *, AObject *>::iterator	ia, fa = _aobjects.end();
+  map<QTreeWidgetItem *, AObject *>::iterator	ia, fa = _aobjects.end();
   const unsigned	regColumn = 5;
 
   for( ia=_aobjects.begin(); ia!=fa; ++ia )
@@ -141,7 +149,7 @@ void QObjectBrowserWidget::unregisterObject( AObject* object )
 	break;
       }
 
-  map<Q3ListViewItem *, GenericObject *>::iterator 
+  map<QTreeWidgetItem *, GenericObject *>::iterator 
     ig, fg = _gobjects.end();
   shared_ptr<AObject>	ao;
 
@@ -153,8 +161,8 @@ void QObjectBrowserWidget::unregisterObject( AObject* object )
 
 void QObjectBrowserWidget::updateObject( AObject* obj )
 {
-  map<Q3ListViewItem *, AObject *>::iterator	io, fo=_aobjects.end();
-  Q3ListViewItem				*item;
+  map<QTreeWidgetItem *, AObject *>::iterator	io, fo=_aobjects.end();
+  QTreeWidgetItem				*item;
 
   for( io=_aobjects.begin(); io!=fo; ++io )
     if( (*io).second == obj )
@@ -181,7 +189,7 @@ void QObjectBrowserWidget::registerObject( GenericObject* object )
     return;
   } */
 
-  map<Q3ListViewItem *, GenericObject *>::const_iterator 
+  map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg=_gobjects.end();
 
   for( ig=_gobjects.begin(); ig!=fg; ++ig )
@@ -190,7 +198,7 @@ void QObjectBrowserWidget::registerObject( GenericObject* object )
 
 
   AttDescr	*attd = AttDescr::descr();
-  Q3ListViewItem	*item;
+  QTreeWidgetItem	*item;
   string 		name = attd->objectName( object ), lab1, lab2;
   char			id[20];
   float			sz;
@@ -216,7 +224,10 @@ void QObjectBrowserWidget::registerObject( GenericObject* object )
     snt = si->getSyntax();
   else
     snt = object->type();
-  item = new Q3ListViewItem( this, name.c_str(), snt.c_str() );
+  item = new QTreeWidgetItem;
+  addTopLevelItem( item );
+  item->setText( 0, name.c_str() );
+  item->setText( 1, snt.c_str() );
   if( object->getProperty( "size", sz ) )
     {
       sprintf( id, "%7.1f", sz );
@@ -247,7 +258,7 @@ void QObjectBrowserWidget::registerObject( GenericObject* object )
 
 void QObjectBrowserWidget::unregisterObject( GenericObject* object )
 {
-  map<Q3ListViewItem *, GenericObject *>::iterator  ig, fg = _gobjects.end();
+  map<QTreeWidgetItem *, GenericObject *>::iterator  ig, fg = _gobjects.end();
 
   for( ig=_gobjects.begin(); ig!=fg; ++ig )
     if( (*ig).second == object )
@@ -258,18 +269,19 @@ void QObjectBrowserWidget::unregisterObject( GenericObject* object )
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::insertObject( AObject* obj )
+QTreeWidgetItem* QObjectBrowserWidget::insertObject( AObject* obj )
 {
   // cout << "QObjectBrowserWidget::insertObject( AObject* obj )\n";
-  Q3ListViewItem	*item = itemFor( obj );
+  QTreeWidgetItem	*item = itemFor( obj );
 
   if( !item )
-    {
-      item = new Q3ListViewItem( this );
+  {
+    item = new QTreeWidgetItem;
+    addTopLevelItem( item );
 
-      _aobjects[ item ] = obj;
-      _itemTypes[ item ] = AOBJECT;
-    }
+    _aobjects[ item ] = obj;
+    _itemTypes[ item ] = AOBJECT;
+  }
 
   decorateItem( item, obj );
   describeAObject( obj, item );
@@ -277,14 +289,14 @@ Q3ListViewItem* QObjectBrowserWidget::insertObject( AObject* obj )
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::insertObject( Q3ListViewItem* parent, 
+QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent, 
 						   AObject* obj )
 {
-  Q3ListViewItem	*item = itemFor( obj );
+  QTreeWidgetItem	*item = itemFor( obj );
 
   if( !item )
     {
-      item = new Q3ListViewItem( parent );
+      item = new QTreeWidgetItem( parent );
 
       _aobjects[ item ] = obj;
       _itemTypes[ item ] = AOBJECT;
@@ -295,7 +307,7 @@ Q3ListViewItem* QObjectBrowserWidget::insertObject( Q3ListViewItem* parent,
 }
 
 
-void QObjectBrowserWidget::decorateItem( Q3ListViewItem* item, AObject* obj )
+void QObjectBrowserWidget::decorateItem( QTreeWidgetItem* item, AObject* obj )
 {
   enum { nameCol, typeCol, valueCol, labelCol };
   map<int, QPixmap>::const_iterator	ip, fp=QObjectTree::TypeIcons.end();
@@ -305,7 +317,7 @@ void QObjectBrowserWidget::decorateItem( Q3ListViewItem* item, AObject* obj )
 
   ip = QObjectTree::TypeIcons.find( obj->type() );
   if( ip != fp )
-    item->setPixmap( nameCol, (*ip).second );
+    item->setIcon( nameCol, (*ip).second );
   it = QObjectTree::TypeNames.find( obj->type() );
   string t;
   if( it != ft )
@@ -354,16 +366,16 @@ void QObjectBrowserWidget::decorateItem( Q3ListViewItem* item, AObject* obj )
 }
 
 
-void QObjectBrowserWidget::removeObject( Q3ListViewItem* item, AObject* )
+void QObjectBrowserWidget::removeObject( QTreeWidgetItem* item, AObject* )
 {
   removeItem( item );
   delete item;
 }
 
 
-void QObjectBrowserWidget::removeItem( Q3ListViewItem* item )
+void QObjectBrowserWidget::removeItem( QTreeWidgetItem* item )
 {
-  map<Q3ListViewItem *, ItemType>::iterator	it = _itemTypes.find( item );
+  map<QTreeWidgetItem *, ItemType>::iterator	it = _itemTypes.find( item );
 
   if( it != _itemTypes.end() )
     {
@@ -371,7 +383,7 @@ void QObjectBrowserWidget::removeItem( Q3ListViewItem* item )
 	{
 	case AOBJECT:
 	  {
-	    map<Q3ListViewItem *, AObject *>::iterator 
+	    map<QTreeWidgetItem *, AObject *>::iterator 
 	      ia = _aobjects.find( item );
 	    if( ia == _aobjects.end() )
 	      {
@@ -384,7 +396,7 @@ void QObjectBrowserWidget::removeItem( Q3ListViewItem* item )
 	  break;
 	case GOBJECT:
 	  {
-	    map<Q3ListViewItem *, GenericObject *>::iterator 
+	    map<QTreeWidgetItem *, GenericObject *>::iterator 
 	      ig = _gobjects.find( item );
 	    if( ig == _gobjects.end() )
 	      {
@@ -402,19 +414,20 @@ void QObjectBrowserWidget::removeItem( Q3ListViewItem* item )
     }
 
   unsigned	i, n = item->childCount();
+  QTreeWidgetItem *citem;
 
-  for( i=0, item = item->firstChild(); i<n; ++i )
-    {
-      removeItem( item );
-      item = item->nextSibling();
-    }
+  for( i=0; i<n; ++i )
+  {
+    citem = item->child( i );
+    removeItem( citem );
+  }
 }
 
 
 QObjectBrowserWidget::ItemType 
-QObjectBrowserWidget::typeOf( Q3ListViewItem * item ) const
+QObjectBrowserWidget::typeOf( QTreeWidgetItem * item ) const
 {
-  map<Q3ListViewItem *, ItemType>::const_iterator 
+  map<QTreeWidgetItem *, ItemType>::const_iterator 
     it = _itemTypes.find( item );
 
   if( it == _itemTypes.end() )
@@ -425,7 +438,7 @@ QObjectBrowserWidget::typeOf( Q3ListViewItem * item ) const
 
 
 void QObjectBrowserWidget::describeAObject( AObject* obj, 
-					    Q3ListViewItem* parent )
+					    QTreeWidgetItem* parent )
 {
   // cout << "describeAObject " << obj << ": " << obj->name() << endl;
   map<int, ObjectHelper>::const_iterator 
@@ -450,7 +463,7 @@ void QObjectBrowserWidget::describeAObject( AObject* obj,
           const GenericObject	*go = da->attributed();
           if( go )
           {
-            QPythonPrinter pp( parent, AttDescr::descr()->syntaxSet() );
+            QPythonPrinterT pp( parent, AttDescr::descr()->syntaxSet() );
             pp.write( *go, true );
           }
         }
@@ -472,29 +485,34 @@ void QObjectBrowserWidget::describeAObject( AObject* obj,
 
 void QObjectBrowserWidget::describeGraph( QObjectBrowserWidget* br, 
 					  AObject* obj,
-                                          Q3ListViewItem* parent )
+                                          QTreeWidgetItem* parent )
 {
   Graph			*gr = ((AGraph *) obj)->graph();
   AttDescr		*attd = AttDescr::descr();
   Graph::const_iterator	iv, fv=gr->end();
   Vertex		*v;
   string		name, synt;
-  Q3ListViewItem		*item, *gratt, *nodes;
+  QTreeWidgetItem		*item, *gratt, *nodes;
   char			id[20];
   float			sz;
   bool			newitem = false;
 
   gratt = br->itemFor( parent, tr( "Global attributes" ).utf8().data() );
   if( !gratt )
-    gratt = new Q3ListViewItem( parent, tr( "Global attributes" ) );
+  {
+    gratt = new QTreeWidgetItem( parent );
+    gratt->setText( 0, tr( "Global attributes" ) );
+  }
   if( !gr->getProperty( "name", name ) )
     name = tr( "Graph nodes" ).utf8().data();
   sprintf( id, "%d %s", (int) gr->order(), tr( "nodes" ).utf8().data() );
   nodes = br->itemFor( parent, name );
   if( !nodes )
     {
-      nodes = new Q3ListViewItem( parent, name.c_str(), 
-				 gr->getSyntax().c_str(), id );
+      nodes = new QTreeWidgetItem( parent );
+      nodes->setText( 0, name.c_str() );
+      nodes->setText( 1, gr->getSyntax().c_str() );
+      nodes->setText( 2, id );
       newitem = true;
     }
   else
@@ -520,7 +538,9 @@ void QObjectBrowserWidget::describeGraph( QObjectBrowserWidget* br,
       item = br->itemFor( nodes, v );
     if( newitem || !item )
     {
-      item = new Q3ListViewItem( nodes, name.c_str(), synt.c_str() );
+      item = new QTreeWidgetItem( nodes );
+      item->setText( 0, name.c_str() );
+      item->setText( 1, synt.c_str() );
       br->_itemTypes[ item ] = GOBJECT;
       br->_gobjects[ item ] = v;
 
@@ -555,10 +575,10 @@ void QObjectBrowserWidget::describeGraph( QObjectBrowserWidget* br,
           = AttDescr::rgbPixmap( QColor( int( mat.Diffuse(0) * 255 ),
                                   int( mat.Diffuse(1) * 255 ),
                                   int( mat.Diffuse(2) * 255 ) ) );
-      item->setPixmap( 0, cpix );
+      item->setIcon( 0, cpix );
     }
     else
-      item->setPixmap( 0, QPixmap() );
+      item->setIcon( 0, QPixmap() );
     attd->describeAttributes( br, item, v );
   }
 }
@@ -566,7 +586,7 @@ void QObjectBrowserWidget::describeGraph( QObjectBrowserWidget* br,
 
 void QObjectBrowserWidget::describeHierarchy( QObjectBrowserWidget* br,
 					      AObject* obj, 
-					      Q3ListViewItem* parent )
+					      QTreeWidgetItem* parent )
 {
   AttDescr::descr()->describeTreeInside( br, ((Hierarchy *)obj)->tree().get(),
                                          parent, true );
@@ -578,24 +598,24 @@ void QObjectBrowserWidget::clear()
   _aobjects.erase( _aobjects.begin(), _aobjects.end() );
   _gobjects.erase( _gobjects.begin(), _gobjects.end() );
   _itemTypes.erase( _itemTypes.begin(), _itemTypes.end() );
-  Q3ListView::clear();
+  QTreeWidget::clear();
 }
 
 
-void QObjectBrowserWidget::registerAttribute( Q3ListViewItem* item )
+void QObjectBrowserWidget::registerAttribute( QTreeWidgetItem* item )
 {
   _itemTypes[ item ] = ATTRIBUTE;
 }
 
 
-void QObjectBrowserWidget::registerAObject( Q3ListViewItem* item, AObject* obj )
+void QObjectBrowserWidget::registerAObject( QTreeWidgetItem* item, AObject* obj )
 {
   _itemTypes[ item ] = AOBJECT;
   _aobjects[ item ] = obj;
 }
 
 
-void QObjectBrowserWidget::registerGObject( Q3ListViewItem* item, 
+void QObjectBrowserWidget::registerGObject( QTreeWidgetItem* item, 
 					    GenericObject* obj )
 {
   _itemTypes[ item ] = GOBJECT;
@@ -603,9 +623,9 @@ void QObjectBrowserWidget::registerGObject( Q3ListViewItem* item,
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::itemFor( const AObject* obj )
+QTreeWidgetItem* QObjectBrowserWidget::itemFor( const AObject* obj )
 {
-  map<Q3ListViewItem *, AObject *>::iterator	io, fo=_aobjects.end();
+  map<QTreeWidgetItem *, AObject *>::iterator	io, fo=_aobjects.end();
 
   for( io=_aobjects.begin(); io!=fo && (*io).second!=obj; ++io ) {}
   if( io == fo )
@@ -615,24 +635,25 @@ Q3ListViewItem* QObjectBrowserWidget::itemFor( const AObject* obj )
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::itemFor( Q3ListViewItem* parent, 
+QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent, 
 					      const AObject* )
 {
   unsigned	n = parent->childCount(), i;
-  Q3ListViewItem	*item;
-  map<Q3ListViewItem *, AObject *>::iterator	io, fo=_aobjects.end();
+  QTreeWidgetItem	*item;
+  map<QTreeWidgetItem *, AObject *>::iterator	io, fo=_aobjects.end();
 
-  for( item = parent->firstChild(), i=0; i<n; ++i, item=item->nextSibling() )
-    {
-      io = _aobjects.find( item );
-      if( io != fo )
-	return( item );
-    }
+  for( i=0; i<n; ++i )
+  {
+    item = parent->child( i );
+    io = _aobjects.find( item );
+    if( io != fo )
+      return( item );
+  }
   return( 0 );
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::itemFor( Q3ListViewItem* parent, 
+QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent, 
 					      const GenericObject* ao, 
 					      bool regist )
 {
@@ -645,22 +666,23 @@ Q3ListViewItem* QObjectBrowserWidget::itemFor( Q3ListViewItem* parent,
         return itemFor( parent, ao->type() );
     }
   unsigned	n = parent->childCount(), i;
-  Q3ListViewItem	*item;
-  map<Q3ListViewItem *, GenericObject *>::iterator	ia, fa=_gobjects.end();
+  QTreeWidgetItem	*item;
+  map<QTreeWidgetItem *, GenericObject *>::iterator	ia, fa=_gobjects.end();
 
-  for( item = parent->firstChild(), i=0; i<n; ++i, item=item->nextSibling() )
-    {
-      ia = _gobjects.find( item );
-      if( ia != fa && (*ia).second == ao )
-	return( item );
-    }
+  for( i=0; i<n; ++i )
+  {
+    item = parent->child( i );
+    ia = _gobjects.find( item );
+    if( ia != fa && (*ia).second == ao )
+      return( item );
+  }
   return( 0 );
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::itemFor( const GenericObject* ao )
+QTreeWidgetItem* QObjectBrowserWidget::itemFor( const GenericObject* ao )
 {
-  map<Q3ListViewItem *, GenericObject *>::iterator	ia, fa=_gobjects.end();
+  map<QTreeWidgetItem *, GenericObject *>::iterator	ia, fa=_gobjects.end();
 
   for( ia=_gobjects.begin(); ia!=fa && (*ia).second!=ao; ++ia ) {}
   if( ia == fa )
@@ -670,46 +692,48 @@ Q3ListViewItem* QObjectBrowserWidget::itemFor( const GenericObject* ao )
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::itemFor( Q3ListViewItem* parent, 
+QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent, 
 					      ItemType, 
 					      const string & ff, bool regist )
 {
   if( !regist )
     return( itemFor( parent, ff ) );
   unsigned	n = parent->childCount(), i;
-  Q3ListViewItem	*item;
-  map<Q3ListViewItem *, ItemType>::iterator	it, ft=_itemTypes.end();
+  QTreeWidgetItem	*item;
+  map<QTreeWidgetItem *, ItemType>::iterator	it, ft=_itemTypes.end();
 
-  for( item = parent->firstChild(), i=0; i<n; ++i, item=item->nextSibling() )
-    {
-      it = _itemTypes.find( item );
-      if( it != ft && ff == item->text( 0 ).utf8().data() )
-	return( item );
-    }
+  for( i=0; i<n; ++i )
+  {
+    item = parent->child( i );
+    it = _itemTypes.find( item );
+    if( it != ft && ff == item->text( 0 ).utf8().data() )
+      return( item );
+  }
   return( 0 );
 }
 
 
-Q3ListViewItem* QObjectBrowserWidget::itemFor( Q3ListViewItem* parent, 
+QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent, 
 					      const string & ff )
 {
   unsigned	n = parent->childCount(), i;
-  Q3ListViewItem	*item;
+  QTreeWidgetItem	*item;
 
-  for( item = parent->firstChild(), i=0; i<n; ++i, item=item->nextSibling() )
-    {
-      if( ff == item->text( 0 ).utf8().data() )
-	return( item );
-    }
+  for( i=0; i<n; ++i )
+  {
+    item = parent->child( i );
+    if( ff == item->text( 0 ).utf8().data() )
+      return( item );
+  }
   return( 0 );
 }
 
 
-void QObjectBrowserWidget::whatIs( Q3ListViewItem* item, 
+void QObjectBrowserWidget::whatIs( QTreeWidgetItem* item, 
 				   ItemDescr & descr ) const
 {
-  map<Q3ListViewItem *, AObject *>::const_iterator	io, fo=_aobjects.end();
-  map<Q3ListViewItem *, GenericObject *>::const_iterator 
+  map<QTreeWidgetItem *, AObject *>::const_iterator	io, fo=_aobjects.end();
+  map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg=_gobjects.end();
   AttributedAObject	*aao;
   shared_ptr<AObject>	obj;
@@ -754,7 +778,7 @@ void QObjectBrowserWidget::whatIs( Q3ListViewItem* item,
       break;
     }
 
-  Q3ListViewItem	*par = item->parent();
+  QTreeWidgetItem	*par = item->parent();
   ItemType	t = par ? typeOf( par ) : UNKNOWN;
 
   while( par && ( t == UNKNOWN || t == OTHER ) )
@@ -812,7 +836,7 @@ void QObjectBrowserWidget::whatIs( Q3ListViewItem* item,
       break;
     }
 
-  Q3ListViewItem	*par2;
+  QTreeWidgetItem	*par2;
 
   // find top-level parent item
   // cout << "par: " << par << endl;
@@ -857,7 +881,7 @@ void QObjectBrowserWidget::keyPressEvent( QKeyEvent* ev )
       ev->ignore();
       return;
     }
-  QAListView::keyPressEvent( ev );
+  QATreeWidget::keyPressEvent( ev );
   /* if( ev->key() == Key_A && ev->state() == ControlButton )
      ev->accept(); */
 }

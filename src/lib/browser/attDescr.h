@@ -37,10 +37,11 @@
 
 
 #include <cartobase/object/attributed.h>
-#include <aims/qtcompat/qlistview.h>
+#include <QPixmap>
 
 class Tree;
 class QObjectBrowserWidget;
+class QTreeWidgetItem;
 
 
 namespace anatomist
@@ -57,7 +58,7 @@ namespace anatomist
 			    const std::string &, std::string & output );
     typedef void (*ListHelper)( QObjectBrowserWidget*, 
 				const carto::GenericObject &, 
-				const std::string &, Q3ListViewItem* parent, 
+				const std::string &, QTreeWidgetItem* parent, 
 				const AttDescr* ad, bool regist );
     typedef std::map<std::string, Helper>	HelperSet;
     typedef std::map<std::string, ListHelper>	ListHelperSet;
@@ -65,7 +66,7 @@ namespace anatomist
     AttDescr();
     virtual ~AttDescr();
 
-    void describeAttributes( QObjectBrowserWidget* br, Q3ListViewItem* parent, 
+    void describeAttributes( QObjectBrowserWidget* br, QTreeWidgetItem* parent, 
 			     const carto::GenericObject *ao, 
 			     bool regist = true, 
                              bool checkexisting = true ) const;
@@ -77,7 +78,7 @@ namespace anatomist
     void printAttribute( QObjectBrowserWidget* br, 
 			 const carto::GenericObject* ao, 
 			 const std::string & semantic, 
-			 const std::string & type, Q3ListViewItem* parent, 
+			 const std::string & type, QTreeWidgetItem* parent, 
 			 bool regist = true, bool checkexisting = true ) const;
     std::string objectName( const carto::GenericObject* ao ) const;
 
@@ -92,21 +93,21 @@ namespace anatomist
     const ListHelperSet & listHelperSet() const { return( listHelpers ); }
 
     void describeTree( QObjectBrowserWidget* br, const Tree* tr, 
-		       Q3ListViewItem* parent, bool regist = true ) const;
+		       QTreeWidgetItem* parent, bool regist = true ) const;
     ///	does not recreate the base tree
     void describeTreeInside( QObjectBrowserWidget* br, const Tree* tr, 
-			     Q3ListViewItem* parent, bool regist ) const;
+			     QTreeWidgetItem* parent, bool regist ) const;
     ///	does not recreate the base tree
     void describeUnregisteredTreeInside( QObjectBrowserWidget* br, 
 					 const Tree* tr, 
-					 Q3ListViewItem* parent ) const;
-    static void printError( Q3ListViewItem* parent, 
+					 QTreeWidgetItem* parent ) const;
+    static void printError( QTreeWidgetItem* parent, 
 			    const std::string & semantic );
 
     static void treeListHelper( QObjectBrowserWidget* br, 
 				const carto::GenericObject &, 
 				const std::string &, 
-				Q3ListViewItem* parent, const AttDescr* gvw, 
+				QTreeWidgetItem* parent, const AttDescr* gvw, 
 				bool regist = true );
     virtual void initHelpers();
 

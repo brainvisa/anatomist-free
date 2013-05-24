@@ -37,7 +37,7 @@
 
 
 #include <cartobase/object/attributed.h>
-#include <aims/listview/qalistview.h>
+#include <aims/listview/qatreewidget.h>
 
 class Graph;
 
@@ -49,17 +49,17 @@ namespace anatomist
 }
 
 
-/**	Specialized QListView class for AObjects / GenericObjects / 
+/**	Specialized QTreeWidget class for AObjects / GenericObjects / 
 	attributes visualization / selection / modification
 */
-class QObjectBrowserWidget : public aims::gui::QAListView
+class QObjectBrowserWidget : public aims::gui::QATreeWidget
 {
   Q_OBJECT
 
 public:
   typedef void (*ObjectHelper)( QObjectBrowserWidget*, 
 				anatomist::AObject* object, 
-				Q3ListViewItem* parent );
+				QTreeWidgetItem* parent );
   ///	map type to descriptor function
   typedef std::map<int, ObjectHelper>	ObjectHelperSet;
   enum ItemType
@@ -116,43 +116,43 @@ public:
   /// Updates an GenericObject contents (after a change)
   virtual void updateObject( carto::GenericObject* obj );
   /// Removes the given item and its children
-  virtual void unregisterItem( Q3ListViewItem* item )
+  virtual void unregisterItem( QTreeWidgetItem* item )
   { removeItem( item ); delete item; }
-  const std::map<Q3ListViewItem *, anatomist::AObject *> & aObjects() const 
+  const std::map<QTreeWidgetItem *, anatomist::AObject *> & aObjects() const 
   { return( _aobjects ); }
-  const std::map<Q3ListViewItem *, carto::GenericObject *> 
+  const std::map<QTreeWidgetItem *, carto::GenericObject *> 
   & gObjects() const 
   { return( _gobjects ); }
-  const std::map<Q3ListViewItem *, ItemType> & types() const
+  const std::map<QTreeWidgetItem *, ItemType> & types() const
   { return( _itemTypes ); }
-  ItemType typeOf( Q3ListViewItem * item ) const;
+  ItemType typeOf( QTreeWidgetItem * item ) const;
   virtual void describeAObject( anatomist::AObject* obj, 
-				Q3ListViewItem* parent );
-  virtual Q3ListViewItem* insertObject( Q3ListViewItem* parent, 
+				QTreeWidgetItem* parent );
+  virtual QTreeWidgetItem* insertObject( QTreeWidgetItem* parent, 
 				        anatomist::AObject* obj );
-  virtual void registerAttribute( Q3ListViewItem* item );
-  virtual void registerAObject( Q3ListViewItem* item, anatomist::AObject* obj );
-  virtual void registerGObject( Q3ListViewItem* item, 
+  virtual void registerAttribute( QTreeWidgetItem* item );
+  virtual void registerAObject( QTreeWidgetItem* item, anatomist::AObject* obj );
+  virtual void registerGObject( QTreeWidgetItem* item, 
 				carto::GenericObject* obj );
   ///	Query for list view items: global search for AObject
-  Q3ListViewItem* itemFor( const anatomist::AObject* obj );
+  QTreeWidgetItem* itemFor( const anatomist::AObject* obj );
   ///	Local search for AObject
-  Q3ListViewItem* itemFor( Q3ListViewItem* parent, 
+  QTreeWidgetItem* itemFor( QTreeWidgetItem* parent, 
 			   const anatomist::AObject* obj );
   ///	Global search for GenericObject
-  Q3ListViewItem* itemFor( const carto::GenericObject* ao );
+  QTreeWidgetItem* itemFor( const carto::GenericObject* ao );
   ///	Local search for GenericObject
-  Q3ListViewItem* itemFor( Q3ListViewItem* parent, 
+  QTreeWidgetItem* itemFor( QTreeWidgetItem* parent, 
 			   const carto::GenericObject* ao, 
 			   bool regist = true );
   ///	Local search for type/string
-  Q3ListViewItem* itemFor( Q3ListViewItem* parent, ItemType type, 
+  QTreeWidgetItem* itemFor( QTreeWidgetItem* parent, ItemType type, 
 			   const std::string & firstfield, bool regist = true );
   ///	Local search for string
-  Q3ListViewItem* itemFor( Q3ListViewItem* parent, 
+  QTreeWidgetItem* itemFor( QTreeWidgetItem* parent, 
 			   const std::string & firstfield );
   ///	Description of the given item
-  void whatIs( Q3ListViewItem* item, ItemDescr & descr ) const;
+  void whatIs( QTreeWidgetItem* item, ItemDescr & descr ) const;
 
   static ObjectHelperSet	objectHelpers;
 
@@ -161,23 +161,23 @@ public slots:
 signals:
 
 protected:
-  virtual Q3ListViewItem* insertObject( anatomist::AObject* obj );
-  virtual void removeObject( Q3ListViewItem* parent, anatomist::AObject* obj );
+  virtual QTreeWidgetItem* insertObject( anatomist::AObject* obj );
+  virtual void removeObject( QTreeWidgetItem* parent, anatomist::AObject* obj );
   /**	Only removes the item reference and its children in the internal list, 
-	does not destroy the QListViewItem itself */
-  virtual void removeItem( Q3ListViewItem* item );
-  virtual void decorateItem( Q3ListViewItem* item, anatomist::AObject* obj );
+	does not destroy the QTreeWidgetItem itself */
+  virtual void removeItem( QTreeWidgetItem* item );
+  virtual void decorateItem( QTreeWidgetItem* item, anatomist::AObject* obj );
   static void describeGraph( QObjectBrowserWidget* br, 
 			     anatomist::AObject* obj, 
-			     Q3ListViewItem* parent );
+			     QTreeWidgetItem* parent );
   static void describeHierarchy( QObjectBrowserWidget* br, 
 				 anatomist::AObject* obj, 
-				 Q3ListViewItem* parent );
+				 QTreeWidgetItem* parent );
   virtual void keyPressEvent( QKeyEvent* ev );
 
-  std::map<Q3ListViewItem *, ItemType>			_itemTypes;
-  std::map<Q3ListViewItem *, anatomist::AObject *>	_aobjects;
-  std::map<Q3ListViewItem *, carto::GenericObject *>	_gobjects;
+  std::map<QTreeWidgetItem *, ItemType>			_itemTypes;
+  std::map<QTreeWidgetItem *, anatomist::AObject *>	_aobjects;
+  std::map<QTreeWidgetItem *, carto::GenericObject *>	_gobjects;
   bool							_recursive;
 
 private:

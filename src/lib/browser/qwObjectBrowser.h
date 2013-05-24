@@ -39,11 +39,11 @@
 #include <anatomist/browser/qObjBrowserWid.h>
 #include <cartobase/object/attributed.h>
 #include <set>
-#include <aims/qtcompat/qlistview.h>
 
 class QStatusBar;
 class QLabel;
 class QLabelEdit;
+class QTreeWidgetItem;
 
 namespace anatomist
 {
@@ -72,7 +72,7 @@ public:
   typedef bool (*EditFunc)( const std::set<carto::GenericObject*> & ao, 
 			    const std::string & att, 
 			    QObjectBrowserWidget* br,
-                            const std::set<Q3ListViewItem*> & item );
+                            const std::set<QTreeWidgetItem*> & item );
 
   QObjectBrowser( QWidget * parent=0, const char * name=0, 
                   carto::Object options = carto::none(), 
@@ -113,27 +113,27 @@ public:
   static bool stringEditor( const std::set<carto::GenericObject*> & ao,
 			    const std::string & att, 
 			    QObjectBrowserWidget* br,
-                            const std::set<Q3ListViewItem*> & item );
+                            const std::set<QTreeWidgetItem*> & item );
   static bool intEditor( const std::set<carto::GenericObject*> & ao,
                          const std::string & att,
 			 QObjectBrowserWidget* br,
-                         const std::set<Q3ListViewItem*> & item );
+                         const std::set<QTreeWidgetItem*> & item );
   static bool floatEditor( const std::set<carto::GenericObject*> & ao,
 			   const std::string & att, 
 			   QObjectBrowserWidget* br,
-                           const std::set<Q3ListViewItem*> & item );
+                           const std::set<QTreeWidgetItem*> & item );
   static bool doubleEditor( const std::set<carto::GenericObject*> & ao,
 			    const std::string & att, 
 			    QObjectBrowserWidget* br,
-                            const std::set<Q3ListViewItem*> & item );
+                            const std::set<QTreeWidgetItem*> & item );
   static bool labelEditor( const std::set<carto::GenericObject*> & ao,
 			   const std::string & att, 
 			   QObjectBrowserWidget* br,
-                           const std::set<Q3ListViewItem*> & item );
+                           const std::set<QTreeWidgetItem*> & item );
   static bool colorEditor( const std::set<carto::GenericObject*> & ao,
 			   const std::string & att, 
 			   QObjectBrowserWidget* br,
-                           const std::set<Q3ListViewItem*> & item );
+                           const std::set<QTreeWidgetItem*> & item );
 
   static anatomist::AWindow* createBrowser( void *, carto::Object );
 
@@ -148,7 +148,7 @@ protected:
   void updateRightPanel();
   ///	returns a pointer to the default action item (if any, 0 if none)
   Tree* buildSpecificMenuTree( QObjectBrowserWidget* br, 
-			       Q3ListViewItem* item, 
+			       QTreeWidgetItem* item, 
 			       Tree & tr );
   static void modifyAttributeStatic( void* parent );
   virtual void modifyAttribute();
@@ -162,21 +162,21 @@ protected:
   /**	Finds the attribute pointed to by the list item, and returns 
 	its parent GenericObject. Returns 0 if not found */
   virtual carto::GenericObject* 
-  attributeCaract( const QObjectBrowserWidget* br, const Q3ListViewItem* item, 
+  attributeCaract( const QObjectBrowserWidget* br, const QTreeWidgetItem* item, 
 		   std::string & attrib );
   virtual carto::GenericObject* gObject( const QObjectBrowserWidget* br, 
-					    const Q3ListViewItem* item, 
+					    const QTreeWidgetItem* item, 
 					    int type );
   virtual anatomist::AObject* aObject( const QObjectBrowserWidget* br, 
-				       const Q3ListViewItem* item );
+				       const QTreeWidgetItem* item );
   ///	dispatcher function: chooses the right editor function
   bool editAttribute( carto::GenericObject* ao, const std::string & att, 
-		      QObjectBrowserWidget* br, Q3ListViewItem* item, 
+		      QObjectBrowserWidget* br, QTreeWidgetItem* item, 
 		      bool & edited );
   bool editAttribute( const std::set<carto::GenericObject*> & objs,
                       const std::string & att,
                       QObjectBrowserWidget* br,
-                      const std::set<Q3ListViewItem*> & items,
+                      const std::set<QTreeWidgetItem*> & items,
                       bool & edited );
   ///	called by leftSelectionChanged() in NORMAL mode
   void normalModeSelectionChanged();
@@ -184,15 +184,15 @@ protected:
   static void sendModeSelection( void *parent );
   static void setAttributeToAllSelected( void *parent );
   ///	tells if a nomenclature item can send its value (and if so, returns it)
-  std::string canSend( QObjectBrowserWidget* br, Q3ListViewItem* item );
+  std::string canSend( QObjectBrowserWidget* br, QTreeWidgetItem* item );
   /// same as canSend() but does not check if a browser is in edit mode
-  std::string canSendToAny( QObjectBrowserWidget* br, Q3ListViewItem* item );
+  std::string canSendToAny( QObjectBrowserWidget* br, QTreeWidgetItem* item );
   ///	special selection mode of Nomenclature nodes
   void nomenclatureClick( anatomist::Hierarchy* h, 
                           QObjectBrowserWidget::ItemDescr & descr, 
                           std::set<anatomist::AObject *> & tosel );
-  static unsigned countSelected( Q3ListViewItem* parent, 
-				 Q3ListViewItem* & current );
+  static unsigned countSelected( QTreeWidgetItem* parent, 
+				 QTreeWidgetItem* & current );
   /// modifier can be 0 (normal) or 1 (select edge ends)
   void updateRightSelectionChange( int modifier );
   virtual bool event( QEvent* ev );
@@ -200,18 +200,18 @@ protected:
 
 protected slots:
   virtual void leftSelectionChangedSlot();
-  virtual void rightButtonClickedSlot( Q3ListViewItem *, const QPoint &, int );
-  virtual void rightButtonRightPanel( Q3ListViewItem *, const QPoint &, int );
-  virtual void doubleClickedSlot( Q3ListViewItem* );
-  void rightPanelDoubleClicked( Q3ListViewItem* );
-  virtual void leftItemRenamed( Q3ListViewItem * item, int col,
+  virtual void rightButtonClickedSlot( QTreeWidgetItem *, const QPoint & );
+  virtual void rightButtonRightPanel( QTreeWidgetItem *, const QPoint & );
+  virtual void doubleClickedSlot( QTreeWidgetItem*, int );
+  void rightPanelDoubleClicked( QTreeWidgetItem*, int );
+  virtual void leftItemRenamed( QTreeWidgetItem * item, int col,
                                 const QString & text );
   virtual void rightSelectionChangedSlot();
   virtual void refreshNow();
   void updateRightPanelNow();
-  void startDrag( Q3ListViewItem*, Qt::MouseButtons, Qt::KeyboardModifiers );
-  virtual void leftItemStartsRename( Q3ListViewItem * item, int col );
-  virtual void leftItemCancelsRename( Q3ListViewItem * item, int col );
+  void startDrag( QTreeWidgetItem*, Qt::MouseButtons, Qt::KeyboardModifiers );
+  virtual void leftItemStartsRename( QTreeWidgetItem * item, int col );
+  virtual void leftItemCancelsRename( QTreeWidgetItem * item, int col );
 
 private:
   struct Private;

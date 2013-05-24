@@ -37,10 +37,10 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/globalConfig.h>
 #include <aims/listview/editablelistviewitem.h>
-#include <aims/qtcompat/qlistview.h>
 #include <cartobase/object/attributed.h>
 #include <cartobase/object/pythonwriter.h>
 #include <graph/tree/tree.h>
+#include <QTreeWidgetItem>
 #include <stdio.h>
 #include <vector>
 #include <iostream>
@@ -159,7 +159,7 @@ void AttDescr::addListHelpers( const ListHelperSet & help )
 
 
 void AttDescr::describeAttributes( QObjectBrowserWidget* br, 
-				   Q3ListViewItem* parent, 
+				   QTreeWidgetItem* parent, 
 				   const GenericObject *ao, 
 				   bool regist, bool checkexisting ) const
 {
@@ -168,7 +168,7 @@ void AttDescr::describeAttributes( QObjectBrowserWidget* br,
   string			sem, type, value;
   Object			ia;
   SyntaxSet::const_iterator	iss;
-  //Q3ListViewItem			*item;
+  //QTreeWidgetItem			*item;
 
   const SyntaxedInterface	*si = ao->getInterface<SyntaxedInterface>();
   if( si && si->hasSyntax() )
@@ -218,33 +218,35 @@ void AttDescr::describeAttributes( QObjectBrowserWidget* br,
 
 
 void AttDescr::treeListHelper( QObjectBrowserWidget* br, 
-			       const GenericObject & ao, 
-			       const string & semantic, 
-			       Q3ListViewItem* parent, const AttDescr* gvw, 
-			       bool regist )
+                               const GenericObject & ao, 
+                               const string & semantic, 
+                               QTreeWidgetItem* parent, const AttDescr* gvw, 
+                               bool regist )
 {
   Tree	*val;
 
   if( !ao.getProperty( semantic, val ) )
     printError( parent, semantic.c_str() );
   else
-    {
-      Q3ListViewItem	*item;
+  {
+    QTreeWidgetItem	*item;
 
-      item = br->itemFor( parent, &ao, regist );
-      if( !item )
-	{
-	  item = new Q3ListViewItem( parent, semantic.c_str(), "tree" );
-	  if( regist )
-	    br->registerGObject( item, (GenericObject *) &ao );
-	  gvw->describeTree( br, val, item, regist );
-	}
-      else
-	{
-	  item->setText( 0, semantic.c_str() );
-	  item->setText( 1, "tree" );
-	}
+    item = br->itemFor( parent, &ao, regist );
+    if( !item )
+    {
+      item = new QTreeWidgetItem( parent );
+      item->setText( 0, semantic.c_str() );
+      item->setText( 1, "tree" );
+      if( regist )
+        br->registerGObject( item, (GenericObject *) &ao );
+      gvw->describeTree( br, val, item, regist );
     }
+    else
+    {
+      item->setText( 0, semantic.c_str() );
+      item->setText( 1, "tree" );
+    }
+  }
 }
 
 
@@ -277,7 +279,7 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
 			       const GenericObject* ao, 
 			       const string & semantic, 
 			       const string & type, 
-			       Q3ListViewItem* parent, bool regist, 
+			       QTreeWidgetItem* parent, bool regist, 
                                bool checkexisting ) const
 {
   ListHelperSet::const_iterator	ilh;
@@ -298,7 +300,7 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
   else
     {
       string value = printAttribute( br, ao, semantic, type );
-      Q3ListViewItem	*item;
+      QTreeWidgetItem	*item;
 
       clipValueString( value, clip );
 
@@ -316,8 +318,10 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
             semantic.c_str(), type.c_str(), value.c_str() );
         item->setRenameEnabled( 2, true );
 #else
-        item = new Q3ListViewItem( parent, semantic.c_str(), type.c_str(),
-                                   value.c_str() );
+        item = new QTreeWidgetItem( parent );
+        item->setText( 0, semantic.c_str() );
+        item->setText( 1, type.c_str() );
+        item->setText( 2, value.c_str() );
 #endif
         if( regist )
           br->registerAttribute( item );
@@ -381,23 +385,28 @@ string AttDescr::printAttribute( QObjectBrowserWidget* br,
 }
 
 
-void AttDescr::printError( Q3ListViewItem* parent, 
+void AttDescr::printError( QTreeWidgetItem* parent, 
 			   const string & semantic )
 {
-  new Q3ListViewItem( parent, semantic.c_str(), "tree", "** error **" );
+  QTreeWidgetItem* item = new QTreeWidgetItem( parent );
+  item->setText( 0, semantic.c_str() );
+  item->setText( 1, "tree" );
+  item->setText( 2, "** error **" );
 }
 
 
 void AttDescr::describeTree( QObjectBrowserWidget* br, const Tree* tr, 
-			     Q3ListViewItem* parent, bool regist ) const
+			     QTreeWidgetItem* parent, bool regist ) const
 {
-  Q3ListViewItem	*item;
+  QTreeWidgetItem	*item;
   string	name;
 
   item = br->itemFor( parent, tr, regist );
   if( !item )
     {
-      item = new Q3ListViewItem( parent, tr->getSyntax().c_str(), "Tree" );
+      item = new QTreeWidgetItem( parent );
+      item->setText( 0, tr->getSyntax().c_str() );
+      item->setText( 1, "Tree" );
       if( regist )
 	br->registerGObject( item, (Tree *) tr );
     }
@@ -415,22 +424,22 @@ void AttDescr::describeTree( QObjectBrowserWidget* br, const Tree* tr,
   {
     QColor rgb( col[0], col[1], col[2] );
     QPixmap cpix = rgbPixmap( rgb );
-    item->setPixmap( 0, cpix );
+    item->setIcon( 0, cpix );
   }
   else if( parent->parent() )
   {
     // propagate parent pixmap (color) except for the
     // top-level (AObject level) TODO: use a better test than top-level
-    const QPixmap *cpix = parent->pixmap( 0 );
-    if( cpix )
-      item->setPixmap( 0, *cpix );
+    QIcon cpix = parent->icon( 0 );
+    if( !cpix.isNull() )
+      item->setIcon( 0, cpix );
   }
   describeTreeInside( br, tr, item, regist );
 }
 
 
 void AttDescr::describeTreeInside( QObjectBrowserWidget* br, const Tree* tr, 
-				   Q3ListViewItem* item, bool regist ) const
+				   QTreeWidgetItem* item, bool regist ) const
 {
   describeAttributes( br, item, tr, regist );
 
