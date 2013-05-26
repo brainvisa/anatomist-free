@@ -463,7 +463,7 @@ void QObjectBrowserWidget::describeAObject( AObject* obj,
           const GenericObject	*go = da->attributed();
           if( go )
           {
-            QPythonPrinterT pp( parent, AttDescr::descr()->syntaxSet() );
+            QPythonPrinter pp( parent, AttDescr::descr()->syntaxSet() );
             pp.write( *go, true );
           }
         }
