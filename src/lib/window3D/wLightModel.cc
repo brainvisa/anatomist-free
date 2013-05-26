@@ -113,119 +113,177 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   float		f;
 
   //	Source tab
-  QHBox	*source = new QHBox( this );
+  QWidget	*source = new QWidget( this );
+  QHBoxLayout *hlay = new QHBoxLayout( source );
+  source->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
   _pdat->tabs.push_back( source );
-  source->setSpacing( 5 );
   QVGroupBox	*vg = new QVGroupBox( tr( "Ambient :" ), source );
+  hlay->addWidget( vg );
   c = l->Ambient();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
-		(int) ( c[2] * 255.9 ) );
+                (int) ( c[2] * 255.9 ) );
   _pdat->sourceAmbient = new QAColorWidget( col, vg, 
-					    "lgtmodel_source_ambient" );
+                                            "lgtmodel_source_ambient" );
   vg = new QVGroupBox( tr( "Diffuse :" ), source );
+  hlay->addWidget( vg );
   c = l->Diffuse();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
-		(int) ( c[2] * 255.9 ) );
+                (int) ( c[2] * 255.9 ) );
   _pdat->sourceDiffuse = new QAColorWidget( col, vg, 
-					    "lgtmodel_source_diffuse" );
+                                            "lgtmodel_source_diffuse" );
   vg = new QVGroupBox( tr( "Specular :" ), source );
+  hlay->addWidget( vg );
   c = l->Specular();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
-		(int) ( c[2] * 255.9 ) );
+                (int) ( c[2] * 255.9 ) );
   _pdat->sourceSpecular = new QAColorWidget( col, vg, 
-					     "lgtmodel_source_specular" );
+                                              "lgtmodel_source_specular" );
 
   //	Model tab
-  QHBox	*model = new QHBox( this );
+  QWidget *model = new QWidget( this );
+  hlay = new QHBoxLayout( model );
+  model->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
   _pdat->tabs.push_back( model );
-  model->setSpacing( 5 );
   model->hide();
   vg = new QVGroupBox( tr( "Ambient :" ), model );
+  hlay->addWidget( vg );
   c = l->ModelAmbient();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
-		(int) ( c[2] * 255.9 ) );
+                (int) ( c[2] * 255.9 ) );
   _pdat->modelAmbient = new QAColorWidget( col, vg, 
-					   "lgtmodel_model_ambient" );
+                                            "lgtmodel_model_ambient" );
   vg = new QVGroupBox( tr( "Background :" ), model );
+  hlay->addWidget( vg );
   c = l->Background();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
-		(int) ( c[2] * 255.9 ) );
+                (int) ( c[2] * 255.9 ) );
   _pdat->modelBackground
     = new QAColorWidget( col, vg, "lgtmodel_model_backg", 0, true, false,
-                         c[3] * 255.9 );
+                          c[3] * 255.9 );
   vg = new QVGroupBox( tr( "Parameters :" ), model );
+  hlay->addWidget( vg );
   QCheckBox	*lv = new QCheckBox( tr( "Local viewer" ), vg );
   lv->setChecked( l->ModelLocalViewer() );
   QCheckBox	*ts = new QCheckBox( tr( "Two side" ), vg );
   ts->setChecked( l->ModelTwoSide() );
 
   //	Spot tab
-  QHBox	*spot = new QHBox( this );
+  QWidget *spot = new QWidget( this );
+  hlay = new QHBoxLayout( spot );
+  spot->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
   _pdat->tabs.push_back( spot );
-  spot->setSpacing( 5 );
   spot->hide();
 
   vg = new QVGroupBox( tr( "Position :" ), spot );
-  QHBox	*hb = new QHBox( vg );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "X :" ), hb );
+  hlay->addWidget( vg );
+  QWidget *hb = new QWidget( vg );
+  QHBoxLayout *hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
+  hlay2->addWidget( new QLabel( tr( "X :" ), hb ) );
   f = l->Position( 0 );
   _pdat->spotPos[0] 
     = new QSlider( -1000, 1000, 1, (int) ( 100*f ), Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotPos[0] );
   _pdat->spotPosLb[0] = new QLabel( QString::number( f ), hb );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "Y :" ), hb );
+  hlay2->addWidget( _pdat->spotPosLb[0] );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
+  hlay2->addWidget( new QLabel( tr( "Y :" ), hb ) );
   f = l->Position( 1 );
   _pdat->spotPos[1] 
     = new QSlider( -1000, 1000, 1, (int) ( 100*f ), Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotPos[1] );
   _pdat->spotPosLb[1] = new QLabel( QString::number( f ), hb );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "Z :" ), hb );
+  hlay2->addWidget( _pdat->spotPosLb[1] );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
+  hlay2->addWidget( new QLabel( tr( "Z :" ), hb ) );
   f = l->Position( 2 );
-  _pdat->spotPos[2] 
+  _pdat->spotPos[2]
     = new QSlider( -1000, 1000, 1, (int) ( 100*f ), Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotPos[2] );
   _pdat->spotPosLb[2] = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->spotPosLb[2] );
 
   vg = new QVGroupBox( tr( "Direction :" ), spot );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "X :" ), hb );
+  hlay->addWidget( vg );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
+  hlay2->addWidget( new QLabel( tr( "X :" ), hb ) );
   f = l->SpotDirection( 0 );
   _pdat->spotDir[0] 
     = new QSlider( -1000, 1000, 1, (int) ( 100*f ), Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotDir[0]  );
   _pdat->spotDirLb[0] = new QLabel( QString::number( f ), hb );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "Y :" ), hb );
+  hlay2->addWidget( _pdat->spotDirLb[0] );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
+  hlay2->addWidget( new QLabel( tr( "Y :" ), hb ) );
   f = l->SpotDirection( 1 );
   _pdat->spotDir[1] 
     = new QSlider( -1000, 1000, 1, (int) ( 100*f ), Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotDir[1] );
   _pdat->spotDirLb[1] = new QLabel( QString::number( f ), hb );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "Z :" ), hb );
+  hlay2->addWidget( _pdat->spotDirLb[1] );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
+  hlay2->addWidget( new QLabel( tr( "Z :" ), hb ) );
   f = l->SpotDirection( 2 );
-  _pdat->spotDir[2] 
+  _pdat->spotDir[2]
     = new QSlider( -1000, 1000, 1, (int) ( f*10 ), Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotDir[2] );
   _pdat->spotDirLb[2] = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->spotDirLb[2] );
 
   vg = new QVGroupBox( tr( "Parameters :" ), spot );
+  hlay->addWidget( vg );
   new QLabel( tr( "Exponent :" ), vg );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
   f = l->SpotExponent();
   _pdat->spotExpo = new QSlider( 0, 2550, 1, (int) ( 10*f ), 
-				 Qt::Horizontal, hb );
+                                  Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotExpo );
   _pdat->spotExpoLb = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->spotExpoLb );
   new QLabel( tr( "Cutoff :" ), vg );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
   f = l->SpotCutoff();
   _pdat->spotCutoff = new QSlider( 0, 1800, 1, (int) ( 10*f ), 
-				   Qt::Horizontal, hb );
+                                    Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->spotCutoff );
   _pdat->spotCutoffLb = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->spotCutoffLb );
 
   for( i=0; i<3; ++i )
     {
@@ -236,34 +294,53 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   _pdat->spotCutoffLb->setMinimumWidth( 30 );
 
   //	Attenuation tab
-  QHBox	*attenuation = new QHBox( this );
+  QWidget *attenuation = new QWidget( this );
   _pdat->tabs.push_back( attenuation );
-  attenuation->setSpacing( 5 );
+  hlay = new QHBoxLayout( attenuation );
+  attenuation->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
   attenuation->hide();
   vg = new QVGroupBox( tr( "Parameters :" ), attenuation );
+  hlay->addWidget( vg );
   new QLabel( tr( "Constant :" ), vg );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
   f = l->ConstantAttenuation();
   _pdat->attConst = new QSlider( 0, 1280, 1, (int) ( 10*f ), 
-				 Qt::Horizontal, hb );
+                                  Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->attConst );
   _pdat->attConstLb = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->attConstLb );
   _pdat->attConstLb->setMinimumWidth( 30 );
   new QLabel( tr( "Linear :" ), vg );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
   f = l->LinearAttenuation();
   _pdat->attLin = new QSlider( 0, 1280, 1, (int) ( 10*f ), 
-			       Qt::Horizontal, hb );
+                                Qt::Horizontal, hb );
+  hlay2->addWidget( _pdat->attLin );
   _pdat->attLinLb = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->attLinLb );
   _pdat->attLinLb->setMinimumWidth( 30 );
   new QLabel( tr( "Quadratic :" ), vg );
-  hb = new QHBox( vg );
-  hb->setSpacing( 5 );
+  hb = new QWidget( vg );
+  hlay2 = new QHBoxLayout( hb );
+  hb->setLayout( hlay2 );
+  hlay2->setMargin( 0 );
+  hlay2->setSpacing( 5 );
   f = l->QuadraticAttenuation();
   _pdat->attQuad = new QSlider( 0, 1280, 1, (int) ( 10*f ), Qt::Horizontal, 
                                 hb );
+  hlay2->addWidget( _pdat->attQuad );
   _pdat->attQuadLb = new QLabel( QString::number( f ), hb );
+  hlay2->addWidget( _pdat->attQuadLb );
   _pdat->attQuadLb->setMinimumWidth( 30 );
 
   // top-level widget

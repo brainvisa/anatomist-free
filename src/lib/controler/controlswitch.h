@@ -44,8 +44,6 @@
 
 #include <qobject.h>
 #include <qpushbutton.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #if QT_VERSION >= 0x040600

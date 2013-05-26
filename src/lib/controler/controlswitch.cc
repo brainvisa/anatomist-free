@@ -57,8 +57,8 @@ struct ToolBox::Private
 {
   Private() : tab( 0 ), controldata( 0 ) {}
 
-  QVBox	*tab;
-  QVBox	*controldata;
+  QWidget	*tab;
+  QWidget	*controldata;
   set<string> actions;
 };
 
@@ -76,17 +76,24 @@ ToolBox::ToolBox( const string& activeControlDescription = "" ):
   myLayout = new QVBoxLayout( this, 10, 10, "Layout") ;
   myLayout->setEnabled(true) ;
 
-  d->tab = new QVBox( this );
-  d->controldata = new QVBox( this );
+  d->tab = new QWidget( this );
+  QVBoxLayout *vlay = new QVBoxLayout( d->tab );
+  d->tab->setLayout( vlay );
+  vlay->setMargin( 0 );
+  d->controldata = new QWidget( this );
+  vlay = new QVBoxLayout( d->controldata );
+  d->controldata->setLayout( vlay );
   myLayout->addWidget( d->tab );
   myLayout->addWidget( d->controldata );
 
   myControlDescriptionActivation 
     = new QPushButton( tr("Show control description"),
-		       d->controldata ) ;
+                       d->controldata );
+  myControlDescriptionActivation->setSizePolicy( 
+    QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
   myControlDescriptionActivation->setToggleButton( true ) ;
   connect( myControlDescriptionActivation, SIGNAL( clicked() ), 
-	   this, SLOT( switchControlDescriptionActivation() ) ) ;
+           this, SLOT( switchControlDescriptionActivation() ) ) ;
 }
 
 ToolBox::~ToolBox( )
@@ -96,14 +103,16 @@ ToolBox::~ToolBox( )
 void 
 ToolBox::resetActions()
 {
-  if( myActionTab ){
+  if( myActionTab )
+  {
     delete myActionTab ;
     myActionTab = 0 ;
   }
   d->actions.clear();
   myActionTab = new QTabWidget( d->tab, "ActionTab") ;
+  d->tab->layout()->addWidget( myActionTab );
   myActionTab->show() ;
-  setCaption( tr("Tool Box") ) ;
+  setWindowTitle( tr("Tool Box") ) ;
 }
 
 void
@@ -114,20 +123,21 @@ ToolBox::updateActiveControl( const string& activeControlDescription )
 
   myControlDescription = activeControlDescription ;
   if ( myControlDescriptionWidget )
-    {
-      delete myControlDescriptionWidget ;
-      myControlDescriptionWidget = 0;
-    }
+  {
+    delete myControlDescriptionWidget ;
+    myControlDescriptionWidget = 0;
+  }
 
   if( myDescriptionActivated )
-    {
-      myControlDescriptionWidget 
-	= new QLabel( tr( myControlDescription.c_str() ), 
-		      d->controldata ) ;
-      myControlDescriptionWidget->
-	setMaximumSize( myControlDescriptionWidget->sizeHint() );
-      myControlDescriptionWidget->show() ;
-    }
+  {
+    myControlDescriptionWidget 
+      = new QLabel( tr( myControlDescription.c_str() ), 
+                    d->controldata ) ;
+    d->controldata->layout()->addWidget( myControlDescriptionWidget );
+    myControlDescriptionWidget->
+      setMaximumSize( myControlDescriptionWidget->sizeHint() );
+    myControlDescriptionWidget->show() ;
+  }
   resize( sizeHint() ) ;
 
   //cout << "ToolBox::updateActiveControl done\n";
