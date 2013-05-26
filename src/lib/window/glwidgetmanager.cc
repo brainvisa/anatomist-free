@@ -34,8 +34,6 @@
 
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window/glcaps.h>
-#include <aims/qtcompat/qfiledialog.h>
-#include <aims/qtcompat/qimageio.h>
 #include <anatomist/application/fileDialog.h>
 #include <qimage.h>
 #include <qstringlist.h>
@@ -48,22 +46,17 @@
 #include <cartobase/type/string_conversion.h>
 #include <cartobase/stream/fileutil.h>
 #include <qapplication.h>
+#include <QImageWriter>
+#include <qfiledialog.h>
 #include <iostream>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/viewstate.h>
 #include <qdesktopwidget.h>
 
-#if QT_VERSION >= 0x040000
 namespace Qt
 {
 }
 using namespace Qt;
-#else
-namespace
-{
-  const QWidget::FocusPolicy StrongFocus=QWidget::StrongFocus;
-}
-#endif
 using namespace anatomist;
 using namespace aims;
 using namespace carto;
@@ -917,12 +910,8 @@ QStringList fileAndFormat( const QString & caption )
 {
   QStringList	res;
 
-#if QT_VERSION >= 0x040000
   QList<QByteArray>	formats = QImageWriter::supportedImageFormats();
   QList<QByteArray>::iterator	fi, fe = formats.end();
-#else
-  QStrList	formats = QImageIO::outputFormats();
-#endif
   QStringList		filter;
   char		*c;
   bool		def = false;
@@ -930,14 +919,9 @@ QStringList fileAndFormat( const QString & caption )
   list<unsigned>	flist;
   QString genformat = "All image formats (";
 
-#if QT_VERSION >= 0x040000
   for( fi=formats.begin(); fi!=fe; ++fi, ++i )
   {
     c = fi->data();
-#else
-  for( c=formats.first(); c; c=formats.next(), ++i )
-  {
-#endif
     c = (char *)stringUpper(c).c_str();
     if( !strcmp( c, "JPEG" ) )
     {

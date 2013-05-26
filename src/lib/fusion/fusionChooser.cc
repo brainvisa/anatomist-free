@@ -36,12 +36,12 @@
 #include <qlayout.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
-#include <aims/qtcompat/qhbox.h>
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/object/Object.h>
 #include <aims/listview/orderinglist.h>
 #include <qtextedit.h>
-#include <aims/qtcompat/qlistbox.h>
+#include <QListWidget>
+#include <QListWidgetItem>
 
 
 using namespace anatomist;
@@ -56,9 +56,9 @@ struct FusionChooser::Private
   vector<FusionMethod *>		methods;
   FusionMethod				*selectedMethod;
   QTextEdit				*help;
-  QOrderingListBox			*order;
+  QOrderingListWidget			*order;
   vector<AObject *>			objects;
-  map<QListBoxItem *, AObject *>	objectsmap;
+  map<QListWidgetItem *, AObject *>	objectsmap;
 };
 
 
@@ -89,17 +89,25 @@ FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
   for( ims=methods.rbegin(); ims!=ems; ++ims )
     d->methods.push_back( ims->second );
 
-  setCaption( tr( "Which fusion ?" ) );
-  QVBoxLayout	*mainlay = new QVBoxLayout( this, 5, 5 );
-  QComboBox	*met = new QComboBox( false, this );
+  setWindowTitle( tr( "Select fusion type" ) );
+  QVBoxLayout	*mainlay = new QVBoxLayout( this );
+  setLayout( mainlay );
+  mainlay->setMargin( 5 );
+  mainlay->setSpacing( 5 );
+  QComboBox	*met = new QComboBox( this );
   d->help = new QTextEdit( this );
   d->help->setReadOnly( true );
   if( objects && objects->size() > 1 )
-    d->order = new QOrderingListBox( this );
-  QHBox		*butts = new QHBox( this );
-  butts->setSpacing( 10 );
+    d->order = new QOrderingListWidget( this );
+  QWidget *butts = new QWidget( this );
+  QHBoxLayout *hlay = new QHBoxLayout( butts );
+  butts->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 10 );
   QPushButton	*ok = new QPushButton( tr( "OK" ), butts );
+  hlay->addWidget( ok );
   QPushButton	*cancel = new QPushButton( tr( "Cancel" ), butts );
+  hlay->addWidget( cancel );
 
   mainlay->addWidget( met );
   mainlay->addWidget( d->help );
@@ -110,7 +118,7 @@ FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
 
   vector<FusionMethod *>::const_iterator	im, fm=d->methods.end();
   for( im=d->methods.begin(); im!=fm; ++im )
-    met->insertItem( (*im)->ID().c_str() );
+    met->addItem( (*im)->ID().c_str() );
   if( !d->methods.empty() )
     d->selectedMethod = d->methods[0];
 
@@ -122,8 +130,8 @@ FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
       int				x = 0;
       for( i=d->objects.begin(); i!=e; ++i, ++x )
         {
-          d->order->qListBox()->insertItem( (*i)->name().c_str() );
-          d->objectsmap[ d->order->qListBox()->item( x ) ] = *i;
+          d->order->qListWidget()->addItem( (*i)->name().c_str() );
+          d->objectsmap[ d->order->qListWidget()->item( x ) ] = *i;
         }
     }
 
@@ -158,11 +166,11 @@ vector<AObject *> FusionChooser::objects() const
   if( !d->order )
     return obj;
 
-  unsigned		i, n = d->order->qListBox()->count();
+  unsigned		i, n = d->order->qListWidget()->count();
 
   obj.reserve( n );
   for( i=0; i<n; ++i )
-    obj.push_back( d->objectsmap[ d->order->qListBox()->item( i ) ] );
+    obj.push_back( d->objectsmap[ d->order->qListWidget()->item( i ) ] );
   return obj;
 }
 
