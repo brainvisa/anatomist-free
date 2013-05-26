@@ -109,7 +109,7 @@ public:
 
   AWindow3D( ViewType t = Oblique, QWidget* parent = 0, 
              carto::Object params = carto::none(), 
-             Qt::WFlags f = Qt::WType_TopLevel | Qt::WDestructiveClose );
+             Qt::WFlags f = 0 );
   virtual ~AWindow3D();
 
   /// Get the window type (2D, 3D or control)

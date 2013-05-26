@@ -80,13 +80,7 @@
 #include <qglobal.h>
 #include <qmessagebox.h>
 #include <anatomist/object/objectConverter.h>
-
-#if QT_VERSION>0x040000
 #include <QtOpenGL/QGLWidget>
-#else
-#include <qgl.h>
-#endif
-
 #include <aims/resampling/quaternion.h>
 #include <aims/qtcompat/qvbox.h>
 #include <aims/qtcompat/qhbox.h>
@@ -100,9 +94,7 @@
 #include <qtoolbar.h>
 #include <qpushbutton.h>
 #include <qapplication.h>
-#if QT_VERSION >= 0x040000
 #include <qlist.h>
-#endif
 #include <qtimer.h>
 #include <qdesktopwidget.h>
 #include <qstatusbar.h>
@@ -485,6 +477,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     _orientAnnot(0)
 {
   bool nodeco = !toolBarsVisible();
+  setAttribute( Qt::WA_DeleteOnClose );
 
   QVBox *vb = new QVBox(this);
   vb->setMargin(2);
