@@ -67,6 +67,7 @@
 #include <vtkCornerAnnotation.h>
 #include <vtkTextProperty.h>
 #include <vtkIdentityTransform.h>
+#include <QGraphicsView>
 
 using namespace anatomist;
 using namespace std;
@@ -387,8 +388,17 @@ QSize vtkQAGLWidget::sizeHint() const
 
 void vtkQAGLWidget::updateGL()
 {
+  if( dynamic_cast<QGraphicsView *>( parent() ) )
+  {
+    // cout << "updateGL in a QGraphicsView\n";
+    QGraphicsView *gv
+      = dynamic_cast<QGraphicsView *>( parent() );
+    gv->repaint( 0, 0, gv->width(), gv->height() );
+    return;
+  }
+
   vtkGLWidget::updateGL();
-  
+
   if( recording() )
     record();
   if( rightEye() )
