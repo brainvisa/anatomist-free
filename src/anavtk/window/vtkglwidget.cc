@@ -393,7 +393,8 @@ void vtkQAGLWidget::updateGL()
     // cout << "updateGL in a QGraphicsView\n";
     QGraphicsView *gv
       = dynamic_cast<QGraphicsView *>( parent() );
-    gv->repaint( 0, 0, gv->width(), gv->height() );
+    if( gv->scene() )
+      gv->scene()->update();
     return;
   }
 

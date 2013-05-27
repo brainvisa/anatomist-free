@@ -427,6 +427,7 @@ void GLWidgetManager::updateZBuffer()
 
 void GLWidgetManager::paintGL( DrawMode m )
 {
+  cout << "paintGL\n";
 //   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -902,7 +903,8 @@ void GLWidgetManager::updateGL()
     // cout << "updateGL in a QGraphicsView\n";
     QGraphicsView *gv
       = dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() );
-    gv->repaint( 0, 0, gv->width(), gv->height() );
+    if( gv->scene() )
+      gv->scene()->update();
     return;
   }
 

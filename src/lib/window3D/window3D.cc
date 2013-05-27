@@ -108,6 +108,16 @@
 #include <anatomist/graph/attribAObject.h>
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/graph/Graph.h>
+
+/* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
+   QGraphicsView, in which the OpenGL widget is the background (viewport).
+*/
+#define ANA_USE_QGRAPHICSVIEW
+#ifdef ANA_USE_QGRAPHICSVIEW
+#include <anatomist/window3D/agraphicsview_p.h>
+using namespace anatomist::internal;
+#endif
+
 // uncomment this to enable debug output for update pattern
 //#define ANA_DEBUG_UPDATE
 
@@ -468,6 +478,7 @@ namespace
 
 }
 
+
 //	AWindow3D
 
 AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) :
@@ -503,13 +514,26 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
   paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 
+  QWidget *daparent = hb;
+#ifdef ANA_USE_QGRAPHICSVIEW
+  AGraphicsView *gv = new AGraphicsView( hb );
+  daparent = gv;
+  hbl->addWidget( daparent );
+#endif
   if (glWidgetCreator())
-    d->draw = glWidgetCreator()(this, hb, "GL drawing area",
+    d->draw = glWidgetCreator()(this, daparent, "GL drawing area",
         GLWidgetManager::sharedWidget(), 0);
   else
-    d->draw = new QAGLWidget3D(this, hb, "GL drawing area",
+    d->draw = new QAGLWidget3D(this, daparent, "GL drawing area",
         GLWidgetManager::sharedWidget());
+#ifdef ANA_USE_QGRAPHICSVIEW
+  gv->setViewport( d->draw->qglWidget() );
+  gv->setScene( new AGraphicsScene( gv ) );
+  gv->setFrameStyle( QFrame::NoFrame );
+  gv->setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
+#else
   hbl->addWidget( d->draw->qglWidget() );
+#endif
 
   float wf = 1.5;
   theAnatomist->config()->getProperty("windowSizeFactor", wf);

@@ -183,6 +183,7 @@ HEADERS = \
 	window/viewstate.h \
 	window/winFactory.h \
 	window/Window.h \
+        window3D/agraphicsview_p.h \
         window3D/annotedgraph.h \
         window3D/connmatrixcontrol.h \
         window3D/orientationAnnotation.h \
@@ -419,6 +420,7 @@ SOURCES = \
 	window/viewstate.cc \
 	window/winFactory.cc \
 	window/Window.cc \
+        window3D/agraphicsview.cc \
         window3D/annotedgraph.cc \
         window3D/connmatrixcontrol.cc \
         window3D/orientationAnnotation.cc \
