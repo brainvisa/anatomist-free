@@ -140,6 +140,14 @@ void vtkAnatomistCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
 
+  /* WARNING:
+     usize, vsize are always the same, fixed in my case to 482x512, whatever
+     the window/screen size. Setting the viewport according to these values
+     is wrong, so I commented out viewport commands below.
+     But other commands may be affected to. I don't know what difference it
+     makes, I don't see any visible change.
+  */
+
   // Copied from VTK-CVS (5.3) -> not compatible with vtk-5-0-3 as shipped with Mandriva.
   // Maybe later?
   
@@ -307,9 +315,13 @@ void vtkAnatomistCamera::Render(vtkRenderer *ren)
   // adjust the mode first
 
 
-  glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
+  /* WARNING:
+   * glViewport and glScissor disabled because the dimensions are wrong.
+     See above.
+  */
+//   glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
+//   glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
   
   
   

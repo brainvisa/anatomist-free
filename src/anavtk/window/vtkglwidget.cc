@@ -53,7 +53,7 @@
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 #include "anatomist/module/vtkAnatomistCamera.h"
-#include "anatomist/module/vtkAnatomistRenderer.h"
+// #include "anatomist/module/vtkAnatomistRenderer.h"
 #include "vtkTransform.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkCommand.h"
@@ -286,67 +286,22 @@ void vtkQAGLWidget::vtkRender()
 
 void vtkQAGLWidget::rotate()
 {
-  // Modelview matrix: we only apply rotation for now!
-  //glTranslatef( d->campos[0], d->campos[1], d->campos[2] );
-
-  
-  /*  if (_compassOn)
-    {
-      // Projection matrix: save before redefining locally for compass
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-
-      // Viewport to draw compass into
-      compassWinDim = (_dimx/4 < 70) ? _dimx/4 : 70;
-      glViewport(0, 0, compassWinDim, compassWinDim);
-      
-      // Projection matrix: compass needs this orthographic projection
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      orthoMinX = - 1.0;
-      orthoMinY = - 1.0;
-      orthoMinZ = - 1.0;
-      orthoMaxX =   1.0;
-      orthoMaxY =   1.0;
-      orthoMaxZ =   1.0;
-      glOrtho(orthoMinX, orthoMaxX, 
-	      orthoMinY, orthoMaxY, 
-	      orthoMinZ, orthoMaxZ);
-
-      // Draw compass
-      glClear(GL_DEPTH_BUFFER_BIT);
-      glCallList(_3DGuide->GetCompassGLList());
-
-      // Projection matrix: restore
-      glMatrixMode(GL_PROJECTION);
-      glPopMatrix();
-      }*/
-
-
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   glMultMatrixf( &rotation()[0] );
 
-  
   // Viewport to draw objects into
   glViewport( 0, 0, width(), height() );
   glEnable( GL_SCISSOR_TEST );
   glScissor( 0, 0, width(), height() );
-  
-  
+
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );
   glScalef( invertedX() ? -1 : 1, invertedY() ? -1 : 1, invertedZ() ? -1 : 1 );
   Point3df center = rotationCenter();
   glTranslatef( -center[0], -center[1], -center[2] );
-  
-  
-  // Draw frame
-  /*if (_frameOn)
-    glCallList(_3DGuide->GetFrameGLList());*/
 
   vtkRotate();
-  
 }
 
 
@@ -359,6 +314,10 @@ void vtkQAGLWidget::paintGL()
 void vtkQAGLWidget::paintGL( DrawMode m )
 {
   qglWidget()->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
 
   //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -392,6 +351,11 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   
 
   //this->SetDrawMode (m);
+
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
 }
 
 

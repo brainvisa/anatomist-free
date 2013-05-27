@@ -79,7 +79,7 @@ void vtkAnatomistRenderer::DeviceRender()
 
   
   glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+//   glPopMatrix();
   
 }
 
