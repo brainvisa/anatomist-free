@@ -550,7 +550,6 @@ bool LinkAction::viewableAction()
 
 void LinkAction::execLink( int x, int y, int, int )
 {
-  cout << "LinkAction::execLink\n";
   View		*v = view();
   GLWidgetManager	*w = dynamic_cast<GLWidgetManager *>( v );
 
@@ -561,7 +560,6 @@ void LinkAction::execLink( int x, int y, int, int )
     }
 
   AWindow	*win = v->aWindow();
-  cout << "win: " << win << endl;
 
   Point3df	pos;
   if( win->positionFromCursor( x, y, pos ) )
