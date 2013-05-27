@@ -670,7 +670,8 @@ namespace anatomist {
   };
   
   
-  class MouseLongEvent{
+  class MouseLongEvent
+  {
   public:
     MouseLongEvent( const Control::MouseButtonMapKey& startingEvent, 
 		    const Control::MouseActionLink& startingAction, 

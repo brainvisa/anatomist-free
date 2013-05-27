@@ -319,6 +319,18 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
+  glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT | GL_LIGHTING_BIT );
+  glEnable(GL_LIGHTING);
+  glDisable(GL_COLOR_MATERIAL);
+  glEnable(GL_LIGHT0);
+  glEnable(GL_DEPTH_TEST);
+  glFrontFace( GL_CW );
+  glCullFace( GL_BACK );
+  glEnable( GL_CULL_FACE );
+  glEnable( GL_NORMALIZE );
+  glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+  glClearColor( 1, 1, 1, 1 );
+
   //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   
@@ -352,6 +364,7 @@ void vtkQAGLWidget::paintGL( DrawMode m )
 
   //this->SetDrawMode (m);
 
+  glPopAttrib();
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );

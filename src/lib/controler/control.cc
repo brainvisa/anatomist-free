@@ -477,7 +477,7 @@ void
 Control::mousePressEvent ( QMouseEvent * event  ) 
 {
 //   cout << "MOUSEPRESSEVENT" << endl ;
-//   cout << "Control :" << this << endl ;
+//   cout << "Control :" << this << ", " << name() << endl ;
 
   if( _mouseTracking().first > 0 )
   {
@@ -489,14 +489,19 @@ Control::mousePressEvent ( QMouseEvent * event  )
 
   if ( myLongActions->submitMousePressEvent( event ) )
     return ;
-  
+
   MouseButtonMapKey k( event->button(), event->state() ) ;
-  
+
   map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator 
     iter( myMousePressButtonActionMap.find( k ) ) ;
   if( iter != myMousePressButtonActionMap.end() )
+  {
     iter->second->execute( event->x(), event->y(), 
-			   event->globalX(), event->globalY() ) ;  
+                           event->globalX(), event->globalY() );
+    event->accept();
+  }
+  else
+    event->ignore();
 
 }
 
@@ -1726,7 +1731,6 @@ bool
 LongActions::submitMousePressEvent( QMouseEvent * event ) 
 {
 //   cout << "LongActions : submitMousePressEvent" << endl ;
-
 //   cout << "Long Action :" << this << endl ;
 
   Control::MouseButtonMapKey k( event->button(), event->state() ) ;
@@ -1735,12 +1739,14 @@ LongActions::submitMousePressEvent( QMouseEvent * event )
   currentMouseGlobalX = event->globalX() ;
   currentMouseGlobalY = event->globalY() ;
 
-  if ( myActiveKeyAndMouseLongEvent != 0 ){
+  if ( myActiveKeyAndMouseLongEvent != 0 )
+  {
     myActiveKeyAndMouseLongEvent->executeEnd() ;
     myActiveKeyAndMouseLongEvent = 0 ;
   }
 
-  if ( myActiveMouseLongEvent != 0 ){
+  if ( myActiveMouseLongEvent != 0 )
+  {
 //     cout << "Desactivating Mouse Long Event" << endl ;
     myActiveMouseLongEvent->executeEnd( event->x(), event->y(), 
 					event->globalX(), event->globalY() ) ;
@@ -1749,14 +1755,19 @@ LongActions::submitMousePressEvent( QMouseEvent * event )
   }
 
   map<Control::MouseButtonMapKey, MouseLongEvent*, Control::LessMouseMap>::iterator found( myMouseLongEventMap.find( k ) ) ;
-  if ( found != myMouseLongEventMap.end() ) {
+  if ( found != myMouseLongEventMap.end() )
+  {
     myActiveMouseLongEvent = found->second ;
 //     cout << " Mouse Press : myActiveMouseLongEvent =" << myActiveMouseLongEvent << endl ;
     myActiveMouseLongEvent->executeStart( event->x(), event->y(), 
-					  event->globalX(), event->globalY() ) ;
+                                          event->globalX(), event->globalY() ) ;
+    event->accept();
     return true ;
-  }else{
+  }
+  else
+  {
 //     cout << "No such long mouse event in map" << endl ;
+    event->ignore();
   }
   return false ;
 }

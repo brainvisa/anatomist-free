@@ -550,6 +550,7 @@ bool LinkAction::viewableAction()
 
 void LinkAction::execLink( int x, int y, int, int )
 {
+  cout << "LinkAction::execLink\n";
   View		*v = view();
   GLWidgetManager	*w = dynamic_cast<GLWidgetManager *>( v );
 
@@ -560,24 +561,26 @@ void LinkAction::execLink( int x, int y, int, int )
     }
 
   AWindow	*win = v->aWindow();
+  cout << "win: " << win << endl;
 
   Point3df	pos;
   if( win->positionFromCursor( x, y, pos ) )
-    {
-      //cout << "Position : " << pos << endl;
+  {
+    cout << "Position : " << pos << endl;
 
-      vector<float>	vp;
-      vp.push_back( pos[0] );
-      vp.push_back( pos[1] );
-      vp.push_back( pos[2] );
-      vp.push_back( win->GetTime() );
-      LinkedCursorCommand	*c 
-	= new LinkedCursorCommand( v->aWindow(), vp );
-      theProcessor->execute( c );
-      AWindow3D *w3 = dynamic_cast<AWindow3D *>( win );
-      if( w3 )
-        w3->displayInfoAtClickPosition( x, y );
-    }
+    vector<float>	vp;
+    vp.push_back( pos[0] );
+    vp.push_back( pos[1] );
+    vp.push_back( pos[2] );
+    vp.push_back( win->GetTime() );
+    LinkedCursorCommand	*c
+      = new LinkedCursorCommand( v->aWindow(), vp );
+    theProcessor->execute( c );
+    AWindow3D *w3 = dynamic_cast<AWindow3D *>( win );
+    if( w3 )
+      w3->displayInfoAtClickPosition( x, y );
+  }
+  else cout << "no position could be read\n";
 }
 
 

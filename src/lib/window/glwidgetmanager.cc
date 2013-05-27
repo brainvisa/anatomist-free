@@ -52,6 +52,7 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/viewstate.h>
 #include <qdesktopwidget.h>
+#include <QGraphicsView>
 
 namespace Qt
 {
@@ -356,6 +357,11 @@ void GLWidgetManager::setTransparentObjects( bool x )
 }
 
 
+void GLWidgetManager::paintScene()
+{
+  paintGL();
+}
+
 void GLWidgetManager::paintGL()
 {
   _pd->zbufready = true;
@@ -427,6 +433,18 @@ void GLWidgetManager::paintGL( DrawMode m )
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
+  glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT | GL_LIGHTING_BIT );
+  glEnable(GL_LIGHTING);
+  glDisable(GL_COLOR_MATERIAL);
+  glEnable(GL_LIGHT0);
+  glEnable(GL_DEPTH_TEST);
+  glFrontFace( GL_CW );
+  glCullFace( GL_BACK );
+  glEnable( GL_CULL_FACE );
+  glEnable( GL_NORMALIZE );
+  glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+  glClearColor( 1, 1, 1, 1 );
+
   project();
 
   if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
@@ -454,7 +472,7 @@ void GLWidgetManager::paintGL( DrawMode m )
       // Viewport to draw compass into
       compassWinDim = (_dimx/4 < 70) ? _dimx/4 : 70;
       glViewport(0, 0, compassWinDim, compassWinDim);
-      
+
       // Projection matrix: compass needs this orthographic projection
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
@@ -494,6 +512,7 @@ void GLWidgetManager::paintGL( DrawMode m )
   else
     drawObjects( m );
 
+  glPopAttrib();
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
@@ -877,6 +896,16 @@ void GLWidgetManager::setBackgroundAlpha( float a )
 
 void GLWidgetManager::updateGL()
 {
+  if( _pd->glwidget
+    && dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() ) )
+  {
+    // cout << "updateGL in a QGraphicsView\n";
+    QGraphicsView *gv
+      = dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() );
+    gv->repaint( 0, 0, gv->width(), gv->height() );
+    return;
+  }
+
   if( dynamic_cast<QGLWidget *>( this ) == _pd->glwidget )
     _pd->glwidget->QGLWidget::updateGL();
   else
@@ -1202,7 +1231,6 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   GLfloat z = 2.;
   glReadPixels( (GLint)x, (GLint) y, 1, 1, 
                 GL_DEPTH_COMPONENT, GL_FLOAT, &z );
-  // cout << "read (x,y,z) = " << x << ", " << y << ", " << z << endl;
 
   // if this z-buffer pixel still has its initial value,
   // we interpret it as being `background'

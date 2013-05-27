@@ -69,19 +69,15 @@ namespace anatomist
   */
   class GLWidgetManager : public anatomist::View
   {
-    /** \name Qt-inherited functions, that the QGLWidget used *must*
-    reimplement to use these onese instead
-     */
-    //@{
   public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
-  // public slots:
-    /// to be reimplemented in "public slots"
     virtual void updateGL();
     void renderBackBuffer( ViewState::glSelectRenderMode selectmode );
     void copyBackBuffer2Texture(void);
+    /// basically calls paintGL()
+    virtual void paintScene();
 
   protected:
     virtual void initializeGL();
@@ -99,7 +95,6 @@ namespace anatomist
     virtual void focusInEvent( QFocusEvent * );
     virtual void focusOutEvent( QFocusEvent * );
     virtual void wheelEvent( QWheelEvent * );
-    //@}
 
   public:
     // this private structure is public because it's used by internal functions
