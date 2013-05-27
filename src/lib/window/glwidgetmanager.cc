@@ -421,6 +421,12 @@ void GLWidgetManager::updateZBuffer()
 
 void GLWidgetManager::paintGL( DrawMode m )
 {
+//   _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
   project();
 
   if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
@@ -487,6 +493,11 @@ void GLWidgetManager::paintGL( DrawMode m )
     depthPeelingRender( m );
   else
     drawObjects( m );
+
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
 }
 
 
@@ -1176,6 +1187,12 @@ void GLWidgetManager::setupView()
 
 bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 {
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
   updateZBuffer();
 
   setupView();
@@ -1192,34 +1209,49 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   // => take no action
   // not perfect, but should do the job...
   if (z >= 1.0) // initial value of the z-buffer
-    {
-      // hit background!
-      //cout << "background\n";
-      return( false );
-    }
+  {
+    // hit background!
+    //cout << "background\n";
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+    return( false );
+  }
   else
-    {
-      // from window coordinates to object coordinates
-      // see "OpenGL programming Guide, Second Edition", p. 149
-      GLint viewport[4];
-      GLdouble mmatrix[16];
-      GLdouble pmatrix[16];
-      GLdouble wx, wy, wz;
-      glGetIntegerv( GL_VIEWPORT, viewport );
-      glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
-      glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
-      gluUnProject( (GLdouble) x, (GLdouble) y, z,
-		    mmatrix, pmatrix, viewport,
-		    &wx, &wy, &wz);
+  {
+    // from window coordinates to object coordinates
+    // see "OpenGL programming Guide, Second Edition", p. 149
+    GLint viewport[4];
+    GLdouble mmatrix[16];
+    GLdouble pmatrix[16];
+    GLdouble wx, wy, wz;
+    glGetIntegerv( GL_VIEWPORT, viewport );
+    glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
+    glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
+    gluUnProject( (GLdouble) x, (GLdouble) y, z,
+                  mmatrix, pmatrix, viewport,
+                  &wx, &wy, &wz);
 
-      position = Point3df( wx, wy, wz );
-      //cout << "readpixel position : " << position << endl;
-      return( true );
-    }
+    position = Point3df( wx, wy, wz );
+    //cout << "readpixel position : " << position << endl;
+
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+    return( true );
+  }
 }
 
 void GLWidgetManager::copyBackBuffer2Texture(void)
 {
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
   setupView();
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (aWindow());
@@ -1301,11 +1333,22 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
   }
 
   _pd->resized = false;
+
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
 }
 
 void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
                                       GLubyte & green, GLubyte & blue )
 {
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
   setupView();
   glFlush(); // or glFinish() ?
   glReadBuffer( GL_BACK );
@@ -1314,6 +1357,11 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   red = rgba[0];
   green = rgba[1];
   blue = rgba[2];
+
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
 }
 
 GLubyte* GLWidgetManager::getTextureFromBackBuffer(void)
