@@ -107,6 +107,7 @@ protected slots:
 protected:
   virtual void CreateTitle();
   virtual void dragEnterEvent( QDragEnterEvent* );
+  virtual void dragMoveEvent( QDragMoveEvent* );
   virtual void dropEvent( QDropEvent* );
   virtual void mouseMoveEvent( QMouseEvent * e );
   /* in qt4 we have to find a way to catch close events and prevent deletion

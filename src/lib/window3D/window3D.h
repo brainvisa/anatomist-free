@@ -55,6 +55,12 @@ namespace anatomist
   class Light;
   class GLWidgetManager;
   class OrientationAnnotation;
+
+  namespace internal
+  {
+    class AGraphicsView;
+  }
+
 }
 
 class QGLWidget;
@@ -296,6 +302,8 @@ public slots:
   void enableToolTips( bool );
   // Refreshs the window when resized
   void resizeEvent ( QResizeEvent * ) ;
+
+  friend class anatomist::internal::AGraphicsView;
 
 protected slots:
   void freeResize();

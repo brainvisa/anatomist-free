@@ -531,6 +531,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   gv->setScene( new AGraphicsScene( gv ) );
   gv->setFrameStyle( QFrame::NoFrame );
   gv->setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
+  gv->setAcceptDrops( true );
 #else
   hbl->addWidget( d->draw->qglWidget() );
 #endif

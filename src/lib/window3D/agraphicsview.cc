@@ -33,6 +33,7 @@
 
 #include <anatomist/window3D/agraphicsview_p.h>
 #include <anatomist/window/glwidgetmanager.h>
+#include <anatomist/window3D/window3D.h>
 #include <anatomist/controler/controlswitch.h>
 #include <QPainter>
 #include <QPaintEngine>
@@ -186,6 +187,56 @@ void AGraphicsView::wheelEvent( QWheelEvent * event )
       cs->wheelEvent( event );
     }
   }
+}
+
+
+void AGraphicsView::dragEnterEvent( QDragEnterEvent* event )
+{
+  QGraphicsView::dragEnterEvent( event );
+  if( !event->isAccepted() )
+  {
+    GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+    if( glm )
+    {
+      AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
+      if( w )
+        w->dragEnterEvent( event );
+    }
+  }
+}
+
+
+void AGraphicsView::dragMoveEvent( QDragMoveEvent* event )
+{
+  QGraphicsView::dragMoveEvent( event );
+  if( !event->isAccepted() )
+  {
+    GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+    if( glm )
+    {
+      AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
+      if( w )
+        w->dragMoveEvent( event );
+    }
+  }
+}
+
+
+void AGraphicsView::dropEvent( QDropEvent* event )
+{
+  /* We should try the QGraphicsView first to enable dropping on graphics items
+     or widgets, but unfortunately, QGraphicsView:dropEvent always accepts the
+     event, so we don't know if drop has actually taken place.
+  */
+  GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+  if( glm )
+  {
+    AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
+    if( w )
+      w->dropEvent( event );
+  }
+  if( !event->isAccepted() )
+    QGraphicsView::dropEvent( event );
 }
 
 

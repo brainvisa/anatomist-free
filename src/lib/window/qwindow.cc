@@ -360,10 +360,23 @@ void QAWindow::dragEnterEvent( QDragEnterEvent* event )
 }
 
 
+void QAWindow::dragMoveEvent( QDragMoveEvent* event )
+{
+  //cout << "QAWindow::dragMoveEvent\n";
+  event->setAccepted( QAObjectDrag::canDecode( event )
+      || QAObjectDrag::canDecodeURI( event ) );
+}
+
+
 void QAWindow::dropEvent( QDropEvent* event )
 {
   // cout << "QAWindow::dropEvent\n";
   if( event->source() == this )
+    return;
+
+  event->setAccepted( QAObjectDrag::canDecode( event )
+      || QAObjectDrag::canDecodeURI( event ) );
+  if( !event->isAccepted() )
     return;
 
   set<AObject *>	o;
