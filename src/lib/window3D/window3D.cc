@@ -76,6 +76,7 @@
 #include <anatomist/reference/transformobserver.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/window3D/orientationAnnotation.h>
+#include <anatomist/window3D/agraphicsview_p.h>
 #include <qslider.h>
 #include <qglobal.h>
 #include <qmessagebox.h>
@@ -113,15 +114,12 @@
    QGraphicsView, in which the OpenGL widget is the background (viewport).
 */
 #define ANA_USE_QGRAPHICSVIEW
-#ifdef ANA_USE_QGRAPHICSVIEW
-#include <anatomist/window3D/agraphicsview_p.h>
-using namespace anatomist::internal;
-#endif
 
 // uncomment this to enable debug output for update pattern
 //#define ANA_DEBUG_UPDATE
 
 using namespace anatomist;
+using namespace anatomist::internal;
 using namespace aims;
 using namespace carto;
 using namespace std;
@@ -515,45 +513,66 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 
   QWidget *daparent = hb;
+  AGraphicsView *gv = 0;
 #ifdef ANA_USE_QGRAPHICSVIEW
-  AGraphicsView *gv = new AGraphicsView( hb );
-  daparent = gv;
-  hbl->addWidget( daparent );
+  gv = new AGraphicsView( hb );
 #endif
+  if( gv )
+  {
+    daparent = gv;
+    hbl->addWidget( daparent );
+  }
   if (glWidgetCreator())
     d->draw = glWidgetCreator()(this, daparent, "GL drawing area",
         GLWidgetManager::sharedWidget(), 0);
   else
     d->draw = new QAGLWidget3D(this, daparent, "GL drawing area",
         GLWidgetManager::sharedWidget());
-#ifdef ANA_USE_QGRAPHICSVIEW
-  gv->setViewport( d->draw->qglWidget() );
-  gv->setScene( new AGraphicsScene( gv ) );
-  gv->setFrameStyle( QFrame::NoFrame );
-  gv->setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
-  gv->setAcceptDrops( true );
-#else
-  hbl->addWidget( d->draw->qglWidget() );
-#endif
+  if( gv )
+  {
+    gv->setViewport( d->draw->qglWidget() );
+    gv->setScene( new AGraphicsScene( gv ) );
+    gv->setFrameStyle( QFrame::NoFrame );
+    gv->setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
+    gv->setAcceptDrops( true );
+  }
+  else
+    hbl->addWidget( d->draw->qglWidget() );
 
   float wf = 1.5;
   theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
-  //if( QWidget::parent() == 0 )
-  switch (t)
-  {
-    case Axial:
-      d->draw->setPreferredSize(int(256 * wf), int(256 * wf));
-      break;
-    case Coronal:
-      d->draw->setPreferredSize(int(256 * wf), int(124 * wf));
-      break;
-    case Sagittal:
-      d->draw->setPreferredSize(int(256 * wf), int(124 * wf));
-      break;
-    default:
-      break;
-  }
+//   if( parentWidget() == 0 )
+  if( gv )
+    switch (t)
+    {
+      case Axial:
+        gv->setSizeHint( QSize( int(256 * wf), int(256 * wf) ) );
+        break;
+      case Coronal:
+        gv->setSizeHint( QSize( int(256 * wf), int(124 * wf) ) );
+        break;
+      case Sagittal:
+        gv->setSizeHint( QSize( int(256 * wf), int(124 * wf) ) );
+        break;
+      default:
+        break;
+    }
+  else
+    switch (t)
+    {
+      case Axial:
+        d->draw->setPreferredSize(int(256 * wf), int(256 * wf));
+        break;
+      case Coronal:
+        d->draw->setPreferredSize(int(256 * wf), int(124 * wf));
+        break;
+      case Sagittal:
+        d->draw->setPreferredSize(int(256 * wf), int(124 * wf));
+        break;
+      default:
+        break;
+    }
 
   d->slicepanel = new QWidget(hb);
   QVBoxLayout *vlay = new QVBoxLayout( d->slicepanel );
@@ -626,7 +645,6 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
   if (!nodeco)
   {
-#if QT_VERSION >= 0x040000
     const QObjectList & ch = children();
     QObjectList::const_iterator ic, ec = ch.end();
     QToolBar *ntb = 0;
@@ -635,9 +653,6 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     if( !ntb )
     ntb = addToolBar( tr( "controls" ), "controls" );
     addToolBar( Qt::LeftToolBarArea, ntb, "controls" );
-#else
-    moveToolBar(toolBars(Qt::Top).take(), Qt::Left);
-#endif
 
     //	Menus
 
@@ -984,14 +999,10 @@ void AWindow3D::freeResize()
 {
   /*cout << "freeResize - DA size : " << d->draw->width() << " x "
    << d->draw->height() << endl;*/
-#ifdef ANA_USE_QGRAPHICSVIEW
   QGraphicsView *gv = dynamic_cast<QGraphicsView *>(
     d->draw->qglWidget()->parent() );
   if( gv )
-  {
     gv->setMinimumSize( QSize(0, 0) );
-  }
-#endif
   d->draw->qglWidget()->setMinimumSize(QSize(0, 0));
 }
 
@@ -1720,35 +1731,21 @@ void AWindow3D::resizeView(int w, int h)
   QSize s = QSize(w, h);
   if (d->draw->qglWidget()->size() != s)
   {
-#ifdef ANA_USE_QGRAPHICSVIEW
     QGraphicsView *gv = dynamic_cast<QGraphicsView *>(
       d->draw->qglWidget()->parent() );
     if( gv )
     {
+      AGraphicsView *agv = dynamic_cast<AGraphicsView *>( gv );
+      if( agv )
+        agv->setSizeHint( QSize( s.width(), s.height() ) );
       gv->setMinimumSize( s.width(), s.height() );
       gv->resize( s.width(), s.height() );
     }
-#endif
     d->draw->setPreferredSize( s.width(), s.height() );
-#ifndef ANA_USE_QGRAPHICSVIEW
     d->draw->qglWidget()->setMinimumSize(s);
     d->draw->setMinimumSizeHint( s );
-#endif
     d->draw->qglWidget()->updateGeometry();
-    //resize( sizeHint() );
-    // resize( minimumSize());
     QTimer::singleShot(500, this, SLOT(freeResize()));
-    /*cout << "slice sl : " << d->slids->width() << ", "
-     << d->slids->minimumWidth() << ", " << d->slids->sizeHint().width()
-     << ", " << d->slids->minimumSizeHint().width()
-     << ", " << d->slids->minimumSize().width() << endl;
-     cout << "slice pan : " << d->slicepanel->width() << ", "
-     << d->slicepanel->minimumWidth() << ", "
-     << d->slicepanel->sizeHint().width()
-     << ", " << d->slicepanel->minimumSizeHint().width()
-     << ", " << d->slicepanel->minimumSize().width() << endl;
-     cout << "new width: " << width() << ", hint: " << sizeHint().width()
-     << endl;*/
   }
 }
 

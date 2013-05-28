@@ -51,6 +51,9 @@ namespace anatomist
       AGraphicsView( QWidget* parent = 0 );
       virtual ~AGraphicsView();
 
+      void setSizeHint( const QSize & );
+      virtual QSize sizeHint() const;
+
     protected:
       virtual void resizeEvent( QResizeEvent* event );
       virtual void mousePressEvent( QMouseEvent* me );
@@ -65,6 +68,9 @@ namespace anatomist
       virtual void dragEnterEvent( QDragEnterEvent* );
       virtual void dragMoveEvent( QDragMoveEvent* );
       virtual void dropEvent( QDropEvent* );
+
+    private:
+      QSize _sizehint;
     };
 
 

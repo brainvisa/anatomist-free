@@ -51,13 +51,27 @@ using namespace std;
 // AGraphicsView
 
 AGraphicsView::AGraphicsView( QWidget* parent )
-  : QGraphicsView( parent )
+  : QGraphicsView( parent ), _sizehint( QSize( 0, 0 ) )
 {
 }
 
 
 AGraphicsView::~AGraphicsView()
 {
+}
+
+
+void AGraphicsView::setSizeHint( const QSize & sz )
+{
+  _sizehint = sz;
+}
+
+
+QSize AGraphicsView::sizeHint() const
+{
+  if( _sizehint != QSize( 0, 0 ) )
+    return _sizehint;
+  return QGraphicsView::sizeHint();
 }
 
 
