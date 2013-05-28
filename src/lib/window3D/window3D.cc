@@ -983,6 +983,14 @@ void AWindow3D::freeResize()
 {
   /*cout << "freeResize - DA size : " << d->draw->width() << " x "
    << d->draw->height() << endl;*/
+#ifdef ANA_USE_QGRAPHICSVIEW
+  QGraphicsView *gv = dynamic_cast<QGraphicsView *>(
+    d->draw->qglWidget()->parent() );
+  if( gv )
+  {
+    gv->setMinimumSize( QSize(0, 0) );
+  }
+#endif
   d->draw->qglWidget()->setMinimumSize(QSize(0, 0));
 }
 
@@ -1711,12 +1719,23 @@ void AWindow3D::resizeView(int w, int h)
   QSize s = QSize(w, h);
   if (d->draw->qglWidget()->size() != s)
   {
-    d->draw->setPreferredSize(s.width(), s.height());
+#ifdef ANA_USE_QGRAPHICSVIEW
+    QGraphicsView *gv = dynamic_cast<QGraphicsView *>(
+      d->draw->qglWidget()->parent() );
+    if( gv )
+    {
+      gv->setMinimumSize( s.width(), s.height() );
+      gv->resize( s.width(), s.height() );
+    }
+#endif
+    d->draw->setPreferredSize( s.width(), s.height() );
+#ifndef ANA_USE_QGRAPHICSVIEW
     d->draw->qglWidget()->setMinimumSize(s);
+#endif
     //d->draw->setMinimumSizeHint( s );
     d->draw->qglWidget()->updateGeometry();
     //resize( sizeHint() );
-    resize( minimumSize());
+    // resize( minimumSize());
     QTimer::singleShot(500, this, SLOT(freeResize()));
     /*cout << "slice sl : " << d->slids->width() << ", "
      << d->slids->minimumWidth() << ", " << d->slids->sizeHint().width()
