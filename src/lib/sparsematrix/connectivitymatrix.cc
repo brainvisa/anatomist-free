@@ -262,12 +262,106 @@ void AConnectivityMatrix::update( const Observable *observable, void *arg )
 }
 
 
+namespace
+{
+
+  bool checkTextureAsBasins( const Texture1d & tex, size_t nvert, size_t ncol )
+  {
+    bool canbebasins = false;
+    string dtype;
+    if( tex.header().getProperty( "data_type", dtype )
+        && tex.size() == 1
+        && ( dtype == "S32" || dtype == "S16" ) )
+    {
+      // check for basins labels
+      set<int> uniquevals;
+      const vector<float> & tex0 = tex.begin()->second.data();
+      if( tex0.size() != nvert )
+        return false; // doesn't match mesh size
+      vector<float>::const_iterator it, et = tex0.end();
+      for( it=tex0.begin(); it!=et; ++it )
+        uniquevals.insert( int( rint( *it ) ) );
+      if( uniquevals.size() == ncol ) // match matrix columns
+        canbebasins = true;
+    }
+    return canbebasins;
+  }
+
+
+  bool checkTextureAsConnectivity(
+    const Texture1d & tex, size_t nvert, size_t nlines,
+    AConnectivityMatrix::PatchMode & patchnummode, int & patchnum )
+  {
+    bool canbeconn = false;
+    patchnummode = AConnectivityMatrix::ALL_BUT_ONE;
+    patchnum = 0;
+
+    // texture histogram
+    map<int32_t, int32_t> histo;
+    vector<float>::const_iterator it,
+      et = tex.begin()->second.data().end();
+    int32_t t;
+    size_t nonzero = 0;
+    for( it=tex.begin()->second.data().begin(); it!=et; ++it )
+    {
+      t = int32_t( rint( *it ) );
+      ++histo[ t ];
+      if( t != 0 )
+        ++nonzero;
+    }
+    // try all but 0 (all non-null values) first
+    if( nonzero == nlines )
+      canbeconn = true;
+    else // doesn't work
+    {
+      // now try one patch value
+      map<int32_t, int32_t>::const_iterator ih, eh = histo.end();
+      list<int32_t> compatiblepatches;
+      cout << "compatible patches: ";
+      for( ih=histo.begin(); ih!=eh; ++ih )
+        if( ih->second == nlines )
+        {
+          compatiblepatches.push_back( ih->first );
+          cout << ih->first << ", ";
+        }
+      cout << endl;
+      if( !compatiblepatches.empty() )
+      {
+        patchnummode = AConnectivityMatrix::ONE;
+        patchnum = *compatiblepatches.begin();
+        canbeconn = true;
+      }
+      else //no patch has the good size
+      {
+        // check all values but one
+        cout << "compatible compl. patches: ";
+        for( ih=histo.begin(); ih!=eh; ++ih )
+          if( ih->second == nvert - nlines )
+          {
+            compatiblepatches.push_back( ih->first );
+            cout << ih->first << ", ";
+          }
+        cout << endl;
+        if( compatiblepatches.empty() )
+          return false; // no matching patch[es]
+        patchnummode = AConnectivityMatrix::ALL_BUT_ONE;
+        patchnum = *compatiblepatches.begin();
+        canbeconn = true;
+      }
+    }
+
+    return canbeconn;
+  }
+
+}
+
+
 bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects, 
   list<AObject *> & ordered, PatchMode & patchnummode, int & patchnum )
 {
   ASparseMatrix *sparse = 0;
   ATriangulated *mesh = 0;
-  ATexture *tex = 0;
+  ATexture *tex = 0, *tex2 = 0;
 
   set<AObject *>::const_iterator io, eo = objects.end();
   for( io=objects.begin(); io!=eo; ++io )
@@ -287,8 +381,13 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     else if( dynamic_cast<ATexture *>( *io ) )
     {
       if( tex )
-        return false;
-      tex = static_cast<ATexture *>( *io );
+      {
+        if( tex2 )
+          return false;
+        tex2 = static_cast<ATexture *>( *io );
+      }
+      else
+        tex = static_cast<ATexture *>( *io );
     }
     else
       return false;
@@ -297,95 +396,83 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   if( !sparse || !mesh )
     return false;
 
-  unsigned nvert1 = mesh->surface()->vertex().size();
-  unsigned nvert2 = nvert1;
+  unsigned nvert = mesh->surface()->vertex().size();
   rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
   unsigned texsize = smat->getSize2();
-  if( nvert1 != smat->getSize1() )
-  {
-    if( nvert1 != texsize )
-      return false;
-    texsize = smat->getSize1();
-  }
-  patchnummode = ALL_BUT_ONE;
-  patchnum = 0;
+  unsigned lines = smat->getSize1();
 
   if( tex )
   {
-    /* texture should have nvert1 elements, with texsize "useable" as a ROI
+    /* texture should have nvert elements, with texsize "useable" as a ROI
        patch, or combination of patches (all but one value) */
-    if( tex->glTexCoordSize( ViewState() ) != nvert1 )
+    if( tex->glTexCoordSize( ViewState() ) != nvert )
+      return false; // incompatible texture
+
+    if( tex2 && tex2->glTexCoordSize( ViewState() ) != nvert )
       return false; // incompatible texture
 
     rc_ptr<Texture1d> aimstex = tex->texture<float>( true, false );
     if( !aimstex || aimstex->size() == 0 )
       return false;
 
-    // texture histogram
-    map<int32_t, int32_t> histo;
-    vector<float>::const_iterator it, 
-      et = aimstex->begin()->second.data().end();
-    int32_t nonzero = 0, t;
-    for( it=aimstex->begin()->second.data().begin(); it!=et; ++it )
+    rc_ptr<Texture1d> aimstex2;
+    if( tex2 )
     {
-      t = int32_t( rint( *it ) );
-      ++histo[ t ];
-      if( t != 0 )
-        ++nonzero;
+      aimstex2 = tex2->texture<float>( true, false );
+      if( !aimstex2 || aimstex2->size() == 0 )
+        return false;
     }
-    // try all but 0 (all non-null values) first
-    if( nonzero == texsize )
-      nvert2 = nonzero;
-    else // doesn't work
+
+    bool t1asbasins = false;
+    bool t2asbasins = false;
+    if( tex2 )
     {
-      // now try one patch value
-      map<int32_t, int32_t>::const_iterator ih, eh = histo.end();
-      list<int32_t> compatiblepatches;
-      cout << "compatible patches: ";
-      for( ih=histo.begin(); ih!=eh; ++ih )
-        if( ih->second == texsize )
-        {
-          compatiblepatches.push_back( ih->first );
-          cout << ih->first << ", ";
-        }
-      cout << endl;
-      if( !compatiblepatches.empty() )
-      {
-        patchnummode = ONE;
-        patchnum = *compatiblepatches.begin();
-        nvert2 = texsize;
-      }
-      else //no patch has the good size
-      {
-        // check all values but one
-        cout << "compatible compl. patches: ";
-        for( ih=histo.begin(); ih!=eh; ++ih )
-          if( ih->second == nvert1 - texsize )
-          {
-            compatiblepatches.push_back( ih->first );
-            cout << ih->first << ", ";
-          }
-        cout << endl;
-        if( compatiblepatches.empty() )
-          return false; // no matching patch[es]
-        patchnummode = ALL_BUT_ONE;
-        patchnum = *compatiblepatches.begin();
-        nvert2 = texsize;
-      }
+      t1asbasins = checkTextureAsBasins( *aimstex, nvert, texsize );
+      t2asbasins = checkTextureAsBasins( *aimstex2, nvert, texsize );
     }
+    AConnectivityMatrix::PatchMode patchmode1, patchmode2;
+    int patchnum1, patchnum2;
+
+    bool t1asconn = checkTextureAsConnectivity( *aimstex, nvert, lines,
+                                                patchmode1, patchnum1 );
+    bool t2asconn = false;
+    if( tex2 )
+      t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, lines,
+                                             patchmode2, patchnum2 );
+    if( t1asconn && t2asbasins )
+    {
+      patchnummode = patchmode1;
+      patchnum = patchnum1;
+    }
+    else if( t1asbasins && t2asconn )
+    {
+      // swap textures
+      ATexture * ttmp = tex;
+      tex = tex2;
+      tex2 = tex;
+      patchnummode = patchmode2;
+      patchnum = patchnum2;
+    }
+    else
+      return false;
   }
   else
   {
-    if( smat->getSize1() != smat->getSize2() )
+    if( lines != texsize && nvert != lines )
       return false;
   }
 
-  cout << "matrix size: " << nvert1 << ", " << nvert2 << endl;
+  cout << "matrix size: " << lines << ", " << texsize << endl;
+  cout << "mesh vertices: " << nvert << endl;
+  if( tex2 )
+    cout << "using 2 textures\n";
 
   ordered.push_back( sparse );
   ordered.push_back( mesh );
   if( tex )
     ordered.push_back( tex );
+  if( tex2 )
+    ordered.push_back( tex2 );
 
   return true;
 }
