@@ -1731,8 +1731,8 @@ void AWindow3D::resizeView(int w, int h)
     d->draw->setPreferredSize( s.width(), s.height() );
 #ifndef ANA_USE_QGRAPHICSVIEW
     d->draw->qglWidget()->setMinimumSize(s);
+    d->draw->setMinimumSizeHint( s );
 #endif
-    //d->draw->setMinimumSizeHint( s );
     d->draw->qglWidget()->updateGeometry();
     //resize( sizeHint() );
     // resize( minimumSize());
