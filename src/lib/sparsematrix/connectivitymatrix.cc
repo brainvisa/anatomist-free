@@ -42,6 +42,7 @@
 #include <anatomist/color/paletteList.h>
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/volume/Volume.h>
 #include <aims/sparsematrix/sparseordensematrix.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
@@ -62,6 +63,7 @@ struct AConnectivityMatrix::Private
   ASparseMatrix *sparse;
   ATriangulated *mesh;
   ATexture *patch;
+  ATexture *basins;
   ATexture *texture;
   AMTexture *mtexture;
   ATexSurface *texsurface;
@@ -73,13 +75,14 @@ struct AConnectivityMatrix::Private
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ), patchnum( 0 ),
-  sparse( 0 ), mesh( 0 ), patch( 0 ), texture( 0 ), mtexture( 0 ),
+  sparse( 0 ), mesh( 0 ), patch( 0 ), basins( 0 ), texture( 0 ), mtexture( 0 ),
   texsurface( 0 ), marker( 0 ), vertex( 0 )
 {
 }
 
 namespace
 {
+
   int connectivityMatrixType()
   {
     static int type = 0;
@@ -93,6 +96,27 @@ namespace
     }
     return type;
   }
+
+
+  ASparseMatrix* matrixFromVolume( AVolume<float>* vol )
+  {
+    VolumeRef<float> aimsvol = vol->volume();
+    // transpose volume and
+    VolumeRef<double> dvol( new Volume<double>( aimsvol->getSizeY(),
+                                                aimsvol->getSizeX() ) );
+    unsigned i, j, nx = aimsvol->getSizeX(), ny = aimsvol->getSizeY();
+    for( j=0; j<ny; ++j )
+      for( i=0; i<nx; ++i )
+        dvol->at( j, i ) = aimsvol->at( i, j );
+    SparseOrDenseMatrix *sdmat = new SparseOrDenseMatrix;
+    sdmat->setMatrix( dvol );
+    ASparseMatrix *sparse = new ASparseMatrix;
+    sparse->setMatrix( rc_ptr<SparseOrDenseMatrix>( sdmat ) );
+    sparse->setName( "Matrix_" + vol->name() );
+    theAnatomist->registerObject( sparse, false );
+    return sparse;
+  }
+
 }
 
 
@@ -115,15 +139,25 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
   list<AObject *>::iterator io, eo = filteredobj.end();
   io=filteredobj.begin();
-  d->sparse = static_cast<ASparseMatrix *>( *io );
-  insert( rc_ptr<AObject>( *io ) );
+  if( dynamic_cast<ASparseMatrix *>( *io ) )
+  {
+    d->sparse = static_cast<ASparseMatrix *>( *io );
+    insert( rc_ptr<AObject>( *io ) );
+  }
+  else
+  {
+    AVolume<float> *vol = static_cast<AVolume<float> *>( *io );
+    d->sparse = matrixFromVolume( vol );
+    insert( rc_ptr<AObject>( d->sparse ) );
+    theAnatomist->releaseObject( d->sparse );
+  }
   ++io;
   d->mesh = static_cast<ATriangulated *>( *io );
   insert( rc_ptr<AObject>( *io ) );
   setReferentialInheritance( d->mesh );
   ++io;
   if( io != eo )
-  { 
+  {
     d->patch = static_cast<ATexture *>( *io );
     insert( rc_ptr<AObject>( *io ) );
     d->patch->getOrCreatePalette();
@@ -157,6 +191,14 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     pal->setRefPalette( theAnatomist->palettes().find( apal ) );
     d->patch->setPalette( *pal );
     d->patch->glSetTexRGBInterpolation( true, 0 );
+
+    ++io;
+    if( io != eo )
+    {
+      // 2nd texture for matrix reduction along basins
+      d->basins = static_cast<ATexture *>( *io );
+      insert( rc_ptr<AObject>( *io ) );
+    }
   }
   else
   {
@@ -172,12 +214,13 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->texture = new ATexture;
   d->texture->setTexture( tex );
   d->texture->setName( "ConnectivityTexture" );
-//   theAnatomist->registerObject( d->texture, false );
+  theAnatomist->registerObject( d->texture, false );
   d->texture->getOrCreatePalette();
   AObjectPalette *pal = d->texture->palette();
   pal->setRefPalette( theAnatomist->palettes().find( "yellow-red-fusion" ) );
   d->texture->setPalette( *pal );
   insert( rc_ptr<AObject>( d->texture ) );
+  theAnatomist->releaseObject( d->texture );
 
   // make a textured surface
   FusionFactory *ff = FusionFactory::factory();
@@ -190,7 +233,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     d->mtexture = static_cast<AMTexture *>( ff->method( 
       "FusionMultiTextureMethod" )->fusion( objf ) );
     d->mtexture->setName( "PatchAndConnectivity" );
-//     theAnatomist->registerObject( d->mtexture, false );
+    theAnatomist->registerObject( d->mtexture, false );
     texture = d->mtexture;
   }
   else // no patch: complete matrix
@@ -204,6 +247,9 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->texsurface->setName( "ConnectivityTextureMesh" );
   theAnatomist->registerObject( d->texsurface, false );
   insert( rc_ptr<AObject>( d->texsurface ) );
+  theAnatomist->releaseObject( d->texsurface );
+  if( d->mtexture )
+    theAnatomist->releaseObject( d->mtexture );
 
   // build vertices indices on patch
   buildPatchIndices();
@@ -220,8 +266,9 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
   d->marker->setName( "StartingPoint" );
   d->marker->setReferentialInheritance( d->mesh );
-//   theAnatomist->registerObject( d->marker, false );
+  theAnatomist->registerObject( d->marker, false );
   insert( rc_ptr<AObject>( d->marker ) );
+  theAnatomist->releaseObject( d->marker );
 
   // build connectivity texture contents
   buildTexture( vertex );
@@ -230,8 +277,8 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
 AConnectivityMatrix::~AConnectivityMatrix()
 {
-  if( d->texsurface )
-    theAnatomist->unregisterObject( d->texsurface );
+//   if( d->texsurface )
+//     theAnatomist->unregisterObject( d->texsurface );
   delete d;
 }
 
@@ -265,25 +312,29 @@ void AConnectivityMatrix::update( const Observable *observable, void *arg )
 namespace
 {
 
-  bool checkTextureAsBasins( const Texture1d & tex, size_t nvert, size_t ncol )
+  bool checkTextureAsBasins( const Texture1d & tex, GenericObject* header,
+                             size_t nvert, size_t ncol )
   {
     bool canbebasins = false;
     string dtype;
-    if( tex.header().getProperty( "data_type", dtype )
-        && tex.size() == 1
-        && ( dtype == "S32" || dtype == "S16" ) )
-    {
-      // check for basins labels
-      set<int> uniquevals;
-      const vector<float> & tex0 = tex.begin()->second.data();
-      if( tex0.size() != nvert )
-        return false; // doesn't match mesh size
-      vector<float>::const_iterator it, et = tex0.end();
-      for( it=tex0.begin(); it!=et; ++it )
-        uniquevals.insert( int( rint( *it ) ) );
-      if( uniquevals.size() == ncol ) // match matrix columns
-        canbebasins = true;
-    }
+    if( !header->getProperty( "data_type", dtype )
+        || ( dtype != "S32" && dtype != "S16" ) )
+      return false;
+    if( tex.size() != 1 )
+      return false;
+
+    // check for basins labels
+    set<int> uniquevals;
+    const vector<float> & tex0 = tex.begin()->second.data();
+    if( tex0.size() != nvert )
+      return false; // doesn't match mesh size
+    vector<float>::const_iterator it, et = tex0.end();
+    for( it=tex0.begin(); it!=et; ++it )
+      uniquevals.insert( int( rint( *it ) ) );
+    uniquevals.erase( 0 ); // remove background
+    if( uniquevals.size() == ncol ) // match matrix columns
+      canbebasins = true;
+
     return canbebasins;
   }
 
@@ -360,6 +411,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   list<AObject *> & ordered, PatchMode & patchnummode, int & patchnum )
 {
   ASparseMatrix *sparse = 0;
+  AVolume<float> *dense = 0;
   ATriangulated *mesh = 0;
   ATexture *tex = 0, *tex2 = 0;
 
@@ -368,9 +420,15 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   {
     if( dynamic_cast<ASparseMatrix *>( *io ) )
     {
-      if( sparse )
+      if( sparse || dense )
         return false;
       sparse = static_cast<ASparseMatrix *>( *io );
+    }
+    else if( dynamic_cast<AVolume<float> *>( *io ) )
+    {
+      if( sparse || dense )
+        return false;
+      dense = static_cast<AVolume<float> *>( *io );
     }
     else if( dynamic_cast<ATriangulated *>( *io ) )
     {
@@ -393,73 +451,22 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
       return false;
   }
 
-  if( !sparse || !mesh )
+  if( ( !sparse && !dense ) || !mesh )
     return false;
 
   unsigned nvert = mesh->surface()->vertex().size();
-  rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
-  unsigned texsize = smat->getSize2();
-  unsigned lines = smat->getSize1();
-
-  if( tex )
+  unsigned lines, texsize;
+  if( sparse )
   {
-    /* texture should have nvert elements, with texsize "useable" as a ROI
-       patch, or combination of patches (all but one value) */
-    if( tex->glTexCoordSize( ViewState() ) != nvert )
-      return false; // incompatible texture
-
-    if( tex2 && tex2->glTexCoordSize( ViewState() ) != nvert )
-      return false; // incompatible texture
-
-    rc_ptr<Texture1d> aimstex = tex->texture<float>( true, false );
-    if( !aimstex || aimstex->size() == 0 )
-      return false;
-
-    rc_ptr<Texture1d> aimstex2;
-    if( tex2 )
-    {
-      aimstex2 = tex2->texture<float>( true, false );
-      if( !aimstex2 || aimstex2->size() == 0 )
-        return false;
-    }
-
-    bool t1asbasins = false;
-    bool t2asbasins = false;
-    if( tex2 )
-    {
-      t1asbasins = checkTextureAsBasins( *aimstex, nvert, texsize );
-      t2asbasins = checkTextureAsBasins( *aimstex2, nvert, texsize );
-    }
-    AConnectivityMatrix::PatchMode patchmode1, patchmode2;
-    int patchnum1, patchnum2;
-
-    bool t1asconn = checkTextureAsConnectivity( *aimstex, nvert, lines,
-                                                patchmode1, patchnum1 );
-    bool t2asconn = false;
-    if( tex2 )
-      t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, lines,
-                                             patchmode2, patchnum2 );
-    if( t1asconn && t2asbasins )
-    {
-      patchnummode = patchmode1;
-      patchnum = patchnum1;
-    }
-    else if( t1asbasins && t2asconn )
-    {
-      // swap textures
-      ATexture * ttmp = tex;
-      tex = tex2;
-      tex2 = tex;
-      patchnummode = patchmode2;
-      patchnum = patchnum2;
-    }
-    else
-      return false;
+    rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
+    texsize = smat->getSize2();
+    lines = smat->getSize1();
   }
   else
   {
-    if( lines != texsize && nvert != lines )
-      return false;
+    // WARNING dense reduced matrices are transposed
+    texsize = dense->volume()->getSizeY();
+    lines = dense->volume()->getSizeX();
   }
 
   cout << "matrix size: " << lines << ", " << texsize << endl;
@@ -467,13 +474,93 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   if( tex2 )
     cout << "using 2 textures\n";
 
-  ordered.push_back( sparse );
+  if( tex )
+  {
+    /* texture should have nvert elements, with texsize "useable" as a ROI
+       patch, or combination of patches (all but one value) */
+    if( tex->glTexCoordSize( ViewState() ) != nvert )
+      return false; // incompatible texture
+    rc_ptr<Texture1d> aimstex = tex->texture<float>( true, false );
+    if( !aimstex || aimstex->size() == 0 )
+      return false;
+
+    if( !tex2 )
+    {
+      if( nvert != texsize )
+      {
+        cout << "matrix columns do not correspond to mesh vertices\n";
+        return false;
+      }
+      if( !checkTextureAsConnectivity( *aimstex, nvert, lines,
+                                       patchnummode, patchnum ) )
+      {
+        cout << "incompatible texture\n";
+        return false;
+      }
+    }
+    else
+    {
+      // 2nd texture for reduced matrix
+      cout << "reduced connectivity matrix\n";
+      if( tex2->glTexCoordSize( ViewState() ) != nvert )
+        return false; // incompatible texture
+      rc_ptr<Texture1d> aimstex2;
+      aimstex2 = tex2->texture<float>( true, false );
+      if( !aimstex2 || aimstex2->size() == 0 )
+        return false;
+
+      bool t1asbasins = checkTextureAsBasins( *aimstex, tex->attributed(),
+                                              nvert, texsize );
+      bool t2asbasins = checkTextureAsBasins( *aimstex2, tex2->attributed(),
+                                              nvert, texsize );
+      if( !t1asbasins && !t2asbasins )
+      {
+        cout << "no texture can be used for basins reduction\n";
+        return false;
+      }
+      AConnectivityMatrix::PatchMode patchmode1, patchmode2;
+      int patchnum1, patchnum2;
+
+      bool t1asconn = checkTextureAsConnectivity( *aimstex, nvert, lines,
+                                                  patchmode1, patchnum1 );
+      bool t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, lines,
+                                                  patchmode2, patchnum2 );
+      cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
+      if( t1asconn && t2asbasins )
+      {
+        patchnummode = patchmode1;
+        patchnum = patchnum1;
+      }
+      else if( t1asbasins && t2asconn )
+      {
+        // swap textures
+        ATexture * ttmp = tex;
+        tex = tex2;
+        tex2 = ttmp;
+        patchnummode = patchmode2;
+        patchnum = patchnum2;
+      }
+      else
+        return false;
+    }
+  }
+  else
+  {
+    if( lines != texsize && nvert != lines )
+      return false;
+  }
+
+  if( sparse )
+    ordered.push_back( sparse );
+  else
+    ordered.push_back( dense );
   ordered.push_back( mesh );
   if( tex )
     ordered.push_back( tex );
   if( tex2 )
     ordered.push_back( tex2 );
 
+  cout << "OK for connectivity matrix fusion.\n";
   return true;
 }
 
@@ -490,8 +577,7 @@ void AConnectivityMatrix::buildPatchIndices()
   const vector<float> & tex = (*tx)[0].data();
   vector<float>::const_iterator it, et = tex.end();
   uint32_t i = 0, j = 0;
-  d->patchindices.resize( min( d->sparse->matrix()->getSize1(), 
-                               d->sparse->matrix()->getSize2() ) );
+  d->patchindices.resize( d->sparse->matrix()->getSize1() );
   cout << "patch size: " << d->patchindices.size() << endl;
   if( d->patchmode == ONE )
   {
@@ -510,6 +596,7 @@ void AConnectivityMatrix::buildPatchIndices()
 
 void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 {
+  cout << "buildTexture\n";
   uint32_t vertex = startvertex;
   if( !d->patchindices.empty() )
   {
@@ -535,7 +622,26 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
   vector<double> row = mat->getRow( vertex );
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
-  tex0.insert( tex0.end(), row.begin(), row.end() );
+  if( !d->basins )
+    tex0.insert( tex0.end(), row.begin(), row.end() );
+  else
+  {
+    // expand matrix to basins
+    tex0.insert( tex0.end(), d->mesh->surface()->vertex().size(), 0 );
+    // FIXME needs to cache this int texture
+    rc_ptr<Texture1d> basintex = d->basins->texture<float>( true, false );
+    const vector<float> & basinv = basintex->begin()->second.data();
+    vector<float>::const_iterator ib, eb = basinv.end();
+    vector<float>::iterator ic = tex0.begin();
+    int basin;
+    for( ib=basinv.begin(); ib!=eb; ++ib, ++ic )
+    {
+      basin = int( rint( *ib ) );
+      if( *ib != 0 )
+        *ic = row[ *ib - 1 ];
+    }
+  }
+
   d->texture->setTexture( tex );
 
   // update sphere marker
@@ -554,16 +660,36 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 
 void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
 {
+  cout << "buildColumnTexture\n";
   d->vertex = startvertex;
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
-  vector<double> col = mat->getColumn( startvertex );
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
   tex0.resize( d->mesh->surface()->vertex().size(), 0. );
-  vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
-  vector<double>::const_iterator iv, ev = col.end();
-  for( ip=d->patchindices.begin(), iv=col.begin(); ip!=ep; ++ip, ++iv )
-    tex0[*ip] = *iv;
+  bool valid = true;
+  uint32_t column = startvertex;
+
+  if( d->basins )
+  {
+    // expand matrix to basins
+    // FIXME needs to cache this int texture
+    rc_ptr<Texture1d> basintex = d->basins->texture<float>( true, false );
+    const vector<float> & basinv = basintex->begin()->second.data();
+    int basin = int( rint( basinv[ startvertex ] ) );
+    if( basin == 0 )
+      valid = false;
+    else
+      column = basin - 1; // new index in matrix columns
+  }
+  if( valid )
+  {
+    vector<double> col = mat->getColumn( column );
+    vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
+    vector<double>::const_iterator iv, ev = col.end();
+    for( ip=d->patchindices.begin(), iv=col.begin(); ip!=ep; ++ip, ++iv )
+      tex0[*ip] = *iv;
+  }
+
   d->texture->setTexture( tex );
 
   // update sphere marker
@@ -582,6 +708,7 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
 
 void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
 {
+  cout << "buildPatchTexture\n";
   if( !d->patch )
     return;
 
@@ -625,14 +752,32 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
         patchindices.push_back( vertex ); // indices in d->patchindices
     }
 
+    // if using basins, prepare a translation table
+    rc_ptr<TimeTexture<int> > basinstex;
+    Texture<int> *basins = 0;
+    int b;
+    if( d->basins )
+    {
+      basinstex = d->basins->texture<int>( true, false );
+      basins = &basinstex->begin()->second;
+    }
+
     // sum rows in sparse matrix
     vector<float> & ptext = (*ptex)[timestep].data();
     ptext.resize( texsize, 0. );
     for( vertex=0, n=patchindices.size(); vertex<n; ++vertex )
     {
       vector<double> row = mat->getRow( patchindices[vertex] );
-      for( i=0; i<texsize; ++i )
-        ptext[i] += row[i];
+      if( !basins )
+        for( i=0; i<texsize; ++i )
+          ptext[i] += row[i];
+      else
+        for( i=0; i<texsize; ++i )
+        {
+          b = (*basins)[i];
+          if( b != 0 )
+            ptext[i] += row[ b - 1 ];
+        }
     }
   }
 
