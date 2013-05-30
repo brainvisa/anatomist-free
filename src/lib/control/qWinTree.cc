@@ -155,7 +155,8 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   hdr->setResizeMode( 0, QHeaderView::ResizeToContents );
   hdr->setResizeMode( 1, QHeaderView::Fixed );
   hdr->resizeSection( 1, 26 );
-  hdr->setResizeMode( 2, QHeaderView::Stretch );
+  hdr->setResizeMode( 2, QHeaderView::Interactive );
+  hdr->resizeSection( 2, 130 );
   hdr->setStretchLastSection( false );
   hdr->setResizeMode( 3, QHeaderView::Interactive );
   hdr->resizeSection( 3, 60 );

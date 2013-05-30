@@ -226,7 +226,8 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   _lview->header()->setResizeMode( 0, QHeaderView::ResizeToContents );
   _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
   _lview->header()->resizeSection( 1, 26 );
-  _lview->header()->setResizeMode( 2, QHeaderView::Stretch );
+  _lview->header()->setResizeMode( 2, QHeaderView::Interactive );
+  _lview->header()->resizeSection( 2, 160 );
   _lview->header()->setStretchLastSection( false );
   _lview->header()->setResizeMode( 3, QHeaderView::Interactive );
   _lview->header()->resizeSection( 3, 60 );
