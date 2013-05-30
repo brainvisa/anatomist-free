@@ -556,6 +556,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
         gv->setSizeHint( QSize( int(256 * wf), int(124 * wf) ) );
         break;
       default:
+        gv->setSizeHint( QSize( int(256 * wf), int(256 * wf) ) );
         break;
     }
   else
