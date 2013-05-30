@@ -427,7 +427,6 @@ void GLWidgetManager::updateZBuffer()
 
 void GLWidgetManager::paintGL( DrawMode m )
 {
-  cout << "paintGL\n";
 //   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();

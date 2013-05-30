@@ -329,7 +329,6 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   updateInterface();
 
-  cout << "before connect\n";
   connect( d->dimBgp, SIGNAL( buttonClicked( int ) ), this,
            SLOT( dimChanged( int ) ) );
   connect( d->palettes, SIGNAL( itemSelectionChanged() ),
@@ -399,7 +398,6 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->sizes[0][1] = 0;
   d->sizes[1][0] = 0;
   d->sizes[1][1] = 0;
-  cout << "constructor done\n";
 }
 
 
