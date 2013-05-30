@@ -637,7 +637,10 @@ void QObjectTree::rightButtonPressed( QTreeWidgetItem* item, const QPoint & p )
   if( io != _items.end() )
   {
     if( !item->isSelected() )
+    {
+      _lview->clearSelection();
       item->setSelected( true );
+    }
     emit rightButtonPressed( io->second, mapToGlobal( p ) );
   }
 }
