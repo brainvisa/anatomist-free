@@ -38,16 +38,14 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/object/qtextureparams.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <aims/qtcompat/qbuttongroup.h>
-#include <aims/qtcompat/qhgroupbox.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
+#include <qgroupbox.h>
+#include <qbuttongroup.h>
 
 using namespace anatomist;
 using namespace std;
@@ -57,12 +55,13 @@ struct QTexturePanel::Private
   Private( const set<AObject *> & obj );
 
   set<AObject *>		objects;
-  Q3ButtonGroup			*modebox;
-  Q3ButtonGroup			*filtbox;
-  QHGroupBox			*ratebox;
+  QGroupBox			*modebox;
+  QGroupBox			*filtbox;
+  QButtonGroup                  *filtg;
+  QGroupBox			*ratebox;
   QGroupBox                     *genbox;
   QButtonGroup                  *geng;
-  Q3ButtonGroup			*rgbintbox;
+  QGroupBox			*rgbintbox;
   QCheckBox			*rgbint;
   QSlider			*mixsl;
   QLabel			*mixlb;
@@ -132,81 +131,117 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
                               QWidget* parent, const char *name )
   : QWidget( parent ), Observer(), d( new Private( obj ) )
 {
-  setCaption( name );
+  setWindowTitle( name );
   setObjectName( name );
 
   QHBoxLayout	*mainlay = new QHBoxLayout( this );
-  QVBox		*vbox = new QVBox( this );
-  // mainlay->setMargin( 10 );
+  QWidget	*vbox = new QWidget( this );
+  mainlay->setMargin( 0 );
   mainlay->setSpacing( 10 );
-  vbox->setSpacing( 10 );
   mainlay->addWidget( vbox );
+  QVBoxLayout *vlay = new QVBoxLayout( vbox );
+  vbox->setLayout( vlay );
+  vlay->setMargin( 0 );
+  vlay->setSpacing( 10 );
 
-  d->modebox = new QVButtonGroup( tr( "Mapping mode" ), vbox );
+  d->modebox = new QGroupBox( tr( "Mapping mode" ), vbox );
+//   QButtonGroup *modeg = new QButtonGroup( d->modebox );
+  vlay->addWidget( d->modebox );
+  QVBoxLayout *vlay2 = new QVBoxLayout( d->modebox );
+  d->modebox->setLayout( vlay2 );
   d->modes = new QComboBox( d->modebox );
+  vlay2->addWidget( d->modes);
+  vlay2->addStretch( 1 );
 
-  d->ratebox = new QHGroupBox( tr( "Mixing rate" ), vbox );
+  d->ratebox = new QGroupBox( tr( "Mixing rate" ), vbox );
+  vlay->addWidget( d->ratebox );
+  QHBoxLayout * hlay = new QHBoxLayout( d->ratebox );
+  d->ratebox->setLayout( hlay );
   d->mixsl = new QSlider( Qt::Horizontal, d->ratebox );
-  d->mixsl->setMinValue( 0 );
-  d->mixsl->setMaxValue( 100 );
-  d->mixsl->setLineStep( 1 );
+  hlay->addWidget( d->mixsl );
+  d->mixsl->setMinimum( 0 );
+  d->mixsl->setMaximum( 100 );
+  d->mixsl->setSingleStep( 1 );
   d->mixsl->setPageStep( 1 );
   d->mixlb = new QLabel( "100", d->ratebox );
-  d->mixlb->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
-                                        QSizePolicy::Fixed ) );
+  hlay->addWidget( d->mixlb );
+  d->mixlb->setFixedSize( d->mixlb->sizeHint() );
 
   vbox = new QVBox( this );
+  vlay->addWidget( vbox );
+  vlay = new QVBoxLayout( vbox );
+  vbox->setLayout( vlay );
+  vlay->setSpacing( 10 );
+  vlay->setMargin( 0 );
+
   mainlay->addWidget( vbox );
-  vbox->setSpacing( 10 );
 
   d->genbox = new QGroupBox( tr( "Texture generation" ), vbox );
+  vlay->addWidget( d->genbox );
   QButtonGroup * geng = new QButtonGroup( d->genbox );
   d->geng = geng;
-  QVBoxLayout *vlay = new QVBoxLayout( d->genbox );
-  d->genbox->setLayout( vlay );
+  vlay2 = new QVBoxLayout( d->genbox );
+  d->genbox->setLayout( vlay2 );
   QRadioButton *btn = new QRadioButton( tr( "None" ), d->genbox );
-  vlay->addWidget( btn );
+  vlay2->addWidget( btn );
   geng->addButton( btn );
   geng->setId( btn, 0 );
   btn = new QRadioButton( tr( "Linear - object" ), d->genbox );
-  vlay->addWidget( btn );
+  vlay2->addWidget( btn );
   geng->addButton( btn );
   geng->setId( btn, 1 );
   btn = new QRadioButton( tr( "Linear - eye" ), d->genbox );
-  vlay->addWidget( btn );
+  vlay2->addWidget( btn );
   geng->addButton( btn );
   geng->setId( btn, 2 );
   btn = new QRadioButton( tr( "Sphere reflection" ), d->genbox );
-  vlay->addWidget( btn );
+  vlay2->addWidget( btn );
   geng->addButton( btn );
   geng->setId( btn, 3 );
   btn = new QRadioButton( tr( "Reflection" ), d->genbox );
-  vlay->addWidget( btn );
+  vlay2->addWidget( btn );
   geng->addButton( btn );
   geng->setId( btn, 4 );
   btn = new QRadioButton( tr( "Normal" ), d->genbox );
-  vlay->addWidget( btn );
+  vlay2->addWidget( btn );
   geng->addButton( btn );
   geng->setId( btn, 5 );
-  QPushButton	*gpb = new QPushButton( tr( "Parameters..." ), d->genbox, 
-                                        "genparams_button" );
-  vlay->addWidget( gpb );
+  QPushButton	*gpb = new QPushButton( tr( "Parameters..." ), d->genbox );
+  vlay2->addWidget( gpb );
   geng->setExclusive( true );
   d->genparambutton = gpb;
   gpb->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+  vlay2->addStretch( 1 );
 
-  d->filtbox = new QVButtonGroup( tr( "Texture filtering" ), vbox );
-  new QRadioButton( tr( "None" ), d->filtbox );
-  new QRadioButton( tr( "Linear filter" ), d->filtbox );
+  d->filtbox = new QGroupBox( tr( "Texture filtering" ), vbox );
+  vlay->addWidget( d->filtbox );
+  d->filtg = new QButtonGroup( d->filtbox );
+  d->filtg->setExclusive( true );
+  vlay2 = new QVBoxLayout( d->filtbox );
+  d->filtbox->setLayout( vlay2 );
+  btn = new QRadioButton( tr( "None" ), d->filtbox );
+  vlay2->addWidget( btn );
+  d->filtg->addButton( btn );
+  d->filtg->setId( btn, 0 );
+  btn = new QRadioButton( tr( "Linear filter" ), d->filtbox );
+  vlay2->addWidget( btn );
+  d->filtg->addButton( btn );
+  d->filtg->setId( btn, 1 );
+  vlay2->addStretch( 1 );
 
-  d->rgbintbox = new QVButtonGroup( tr( "Texture interpolation" ), vbox );
+  d->rgbintbox = new QGroupBox( tr( "Texture interpolation" ), vbox );
+  vlay->addWidget( d->rgbintbox );
+  vlay2 = new QVBoxLayout( d->rgbintbox );
+  d->rgbintbox->setLayout( vlay2 );
   d->rgbint = new QCheckBox( tr( "RGB space interpolation (label textures)" ), 
                              d->rgbintbox );
+  vlay2->addWidget( d->rgbint );
+  vlay2->addStretch( 1 );
 
   updateWindow();
 
   connect( d->modes, SIGNAL( activated( int ) ), SLOT( modeChanged( int ) ) );
-  connect( d->filtbox, SIGNAL( clicked( int ) ), 
+  connect( d->filtg, SIGNAL( buttonClicked( int ) ), 
            SLOT( filteringChanged( int ) ) );
   connect( d->geng, SIGNAL( buttonClicked( int ) ),
            SLOT( generationChanged( int ) ) );
@@ -370,7 +405,7 @@ void QTexturePanel::updateWindow()
       d->rgbinterpol = c->glTexRGBInterpolation( d->tex );
       d->genmode = c->glAutoTexMode( d->tex );
       d->rate = (int) rint( c->glTexRate( d->tex ) * 100 );
-      d->filtbox->setButton( d->filt );
+      d->filtg->button( d->filt )->setChecked( true );
       d->rgbint->setChecked( d->rgbinterpol );
       d->geng->button( d->genmode )->setChecked( true );
       d->mixsl->setValue( d->rate );
@@ -389,7 +424,7 @@ void QTexturePanel::updateWindow()
         if( *is == d->mode )
           mode = i;
       }
-      d->modes->setCurrentItem( mode );
+      d->modes->setCurrentIndex( mode );
 
       if( modes.size() > 1 )
         mv[ Mode ] = true;
