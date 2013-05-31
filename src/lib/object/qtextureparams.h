@@ -36,18 +36,15 @@
 #define ANA_OBJECT_QTEXTUREPARAMS_H
 
 #include <qdialog.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
 #include <vector>
 
 
-class QVectorCompEditor : public QHBox
+class QVectorCompEditor : public QWidget
 {
   Q_OBJECT
 
 public:
-  QVectorCompEditor( const QString & label, QWidget* parent = 0, 
-                     const char* name = 0 );
+  QVectorCompEditor( const QString & label, QWidget* parent = 0 );
   virtual ~QVectorCompEditor();
 
   void setValue( float x );
@@ -67,12 +64,12 @@ private:
 };
 
 
-class QTextureVectorEditor : public QVBox
+class QTextureVectorEditor : public QWidget
 {
   Q_OBJECT
 
 public:
-  QTextureVectorEditor( QWidget* parent = 0, const char* name = 0 );
+  QTextureVectorEditor( QWidget* parent = 0 );
   virtual ~QTextureVectorEditor();
 
   void setValues( const std::vector<float> & values );

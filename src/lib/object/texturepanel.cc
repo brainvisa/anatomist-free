@@ -167,7 +167,7 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   hlay->addWidget( d->mixlb );
   d->mixlb->setFixedSize( d->mixlb->sizeHint() );
 
-  vbox = new QVBox( this );
+  vbox = new QWidget( this );
   vlay->addWidget( vbox );
   vlay = new QVBoxLayout( vbox );
   vbox->setLayout( vlay );

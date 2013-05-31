@@ -60,14 +60,22 @@ QVectorCompEditor::Private::Private()
 }
 
 
-QVectorCompEditor::QVectorCompEditor( const QString & label, QWidget* parent, 
-                                      const char* name )
-  : QHBox( parent, name ), d( new Private )
+QVectorCompEditor::QVectorCompEditor( const QString & label, QWidget* parent )
+  : QWidget( parent ), d( new Private )
 {
-  setSpacing( 5 );
-  new QLabel( label, this );
+  QHBoxLayout *hlay = new QHBoxLayout( this );
+  setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
+  hlay->addWidget( new QLabel( label, this ) );
   d->lineedit = new QLineEdit( this );
-  d->slider = new QSlider( -100, 100, 1, 0, Qt::Horizontal, this );
+  hlay->addWidget( d->lineedit );
+  d->slider = new QSlider( Qt::Horizontal, this );
+  d->slider->setMinimum( -100 );
+  d->slider->setMaximum( 100 );
+  d->slider->setPageStep( 1 );
+  d->slider->setValue( 0 );
+  hlay->addWidget( d->slider );
   QValidator	*v = new QDoubleValidator( -1, 1, 6, d->lineedit );
   d->lineedit->setValidator( v );
 
@@ -142,13 +150,17 @@ QTextureVectorEditor::Private::Private()
 }
 
 
-QTextureVectorEditor::QTextureVectorEditor( QWidget* parent, const char* name )
-  : QVBox( parent, name ), d( new Private )
+QTextureVectorEditor::QTextureVectorEditor( QWidget* parent )
+  : QWidget( parent ), d( new Private )
 {
-  setSpacing( 5 );
-  setMargin( 5 );
+  QVBoxLayout *vlay = new QVBoxLayout( this );
+  setLayout( vlay );
+  vlay->setSpacing( 5 );
+  vlay->setMargin( 0 );
   QVGroupBox	*dirbox = new QVGroupBox( tr( "Direction:" ), this );
+  vlay->addWidget( dirbox );
   QVGroupBox	*scale = new QVGroupBox( tr( "Scale:" ), this );
+  vlay->addWidget( scale );
   d->edits[0] = new QVectorCompEditor( "x:", dirbox );
   d->edits[1] = new QVectorCompEditor( "y:", dirbox );
   d->edits[2] = new QVectorCompEditor( "z:", dirbox );
@@ -306,14 +318,21 @@ QTextureParams::Private::Private()
 
 QTextureParams::QTextureParams( QWidget *parent, const char *name, 
                                 bool modal, Qt::WFlags f )
-  : QDialog( parent, name, modal, f ), d( new Private )
+  : QDialog( parent, f ), d( new Private )
 {
-  setCaption( tr( "Texture generation parameters" ) );
+  setObjectName( name );
+  if( modal )
+    setModal( true );
+  setWindowTitle( tr( "Texture generation parameters" ) );
   QVBoxLayout	*layout = new QVBoxLayout( this );
   layout->setMargin( 5 );
   layout->setSpacing( 5 );
   QTabWidget	*comps = new QTabWidget( this );
-  QHBox	*buts = new QHBox( this );
+  QWidget *buts = new QWidget( this );
+  QHBoxLayout *hlay = new QHBoxLayout( buts );
+  buts->setLayout( hlay );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
   layout->addWidget( comps );
   layout->addWidget( buts );
   d->edits[0] = new QTextureVectorEditor( comps );
@@ -322,10 +341,10 @@ QTextureParams::QTextureParams( QWidget *parent, const char *name,
   comps->addTab( d->edits[1], tr( "2nd comp." ) );
   d->edits[2] = new QTextureVectorEditor( comps );
   comps->addTab( d->edits[2], tr( "3rd comp." ) );
-  buts->setSpacing( 10 );
-  QPushButton	*bok = new QPushButton( tr( "OK" ), buts, "ok_button" );
-  QPushButton	*bcc = new QPushButton( tr( "Cancel" ), buts, 
-                                        "cancel_button" );
+  QPushButton	*bok = new QPushButton( tr( "OK" ), buts );
+  hlay->addWidget( bok );
+  QPushButton	*bcc = new QPushButton( tr( "Cancel" ), buts );
+  hlay->addWidget( bcc );
   bok->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
   bcc->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
   bok->setDefault( false );
