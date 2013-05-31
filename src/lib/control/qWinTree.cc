@@ -243,6 +243,7 @@ void QWindowTree::registerWindow( AWindow* win )
         parent = (*ig).second;
       insertWindow( parent, win );
     }
+    d->lview->resizeColumnToContents( 2 );
   }
 }
 

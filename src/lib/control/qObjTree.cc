@@ -67,6 +67,7 @@ map<int, string>	QObjectTree::TypeNames;
 unsigned		QObjectTree::RefPixSize = 10;
 
 
+
 /*namespace anatomist
 {
   struct QObjectTree_Private
@@ -286,7 +287,8 @@ void QObjectTree::RegisterObject( AObject* obj )
 
   if( obj->isMultiObject() )
     registerSubObjects( li, (MObject *) obj );
-//   _lview->triggerUpdate();
+
+  _lview->resizeColumnToContents( 2 );
 }
 
 
