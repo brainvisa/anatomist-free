@@ -31,11 +31,8 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
 #include <anatomist/dialogs/colorDialog.h>
 #include <anatomist/dialogs/colorWidget.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlayout.h>
 #include <qpushbutton.h>
 
@@ -49,18 +46,25 @@ QAColorDialog::QAColorDialog( QColor init, QWidget * parent,
 			      bool neutral )
   : QDialog( parent )
 {
-  setCaption( name );
+  setWindowTitle( name );
   setObjectName(name);
   setModal(modal);
-  QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 5 );
+  QVBoxLayout	*mainlay = new QVBoxLayout( this );
+  mainlay->setMargin( 5 );
+  mainlay->setSpacing( 10 );
 
   _widget = new QAColorWidget( init, this, 0, 0, allowAlpha, 
-			       allowNeutralAlpha, initalpha, neutral );
+                               allowNeutralAlpha, initalpha, neutral );
 
-  QHBox	*butts = new QHBox( this );
-  butts->setSpacing( 5 );
-  QPushButton	*okb = new QPushButton( tr( "OK" ), butts, "okb" );
-  QPushButton	*ccb = new QPushButton( tr( "Cancel" ), butts, "ccb" );
+  QWidget *butts = new QWidget( this );
+  QHBoxLayout *hlay = new QHBoxLayout( butts );
+  butts->setLayout( hlay );
+  hlay->setSpacing( 5 );
+  hlay->setMargin( 0 );
+  QPushButton	*okb = new QPushButton( tr( "OK" ), butts );
+  hlay->addWidget( okb );
+  QPushButton	*ccb = new QPushButton( tr( "Cancel" ), butts );
+  hlay->addWidget( ccb );
   okb->setDefault( true );
   okb->setFixedHeight( okb->sizeHint().height() );
   ccb->setFixedHeight( okb->sizeHint().height() );
@@ -84,33 +88,34 @@ QAColorDialog::~QAColorDialog()
 
 
 QColor QAColorDialog::getColor( QColor init, QWidget* parent, 
-				const char* name, int* alpha, bool* neutralph )
+                                const char* name, int* alpha, bool* neutralph )
 {
-  if( !_dialog ){
+  if( !_dialog )
+  {
     _dialog = new QAColorDialog( init, parent, name, true, alpha, neutralph, 
-				 alpha ? *alpha : 255, 
-				 neutralph ? *neutralph : false );
+                                 alpha ? *alpha : 255, 
+                                 neutralph ? *neutralph : false );
   }
   else
-    {
-      _dialog->setCaption( name );
-      _dialog->relook( init, alpha ? *alpha : 255, alpha, 
-		       neutralph ? *neutralph : false, neutralph );
-    }
+  {
+    _dialog->setWindowTitle( name );
+    _dialog->relook( init, alpha ? *alpha : 255, alpha, 
+                      neutralph ? *neutralph : false, neutralph );
+  }
 
   if( _dialog->exec() )
-    {
-      if( alpha )
-	*alpha = _dialog->alpha();
-      if( neutralph )
-	*neutralph = _dialog->neutralAlpha();
-      return( _dialog->color() );
-    }
+  {
+    if( alpha )
+      *alpha = _dialog->alpha();
+    if( neutralph )
+      *neutralph = _dialog->neutralAlpha();
+    return( _dialog->color() );
+  }
   else
-    {
-      QColor	col;
-      return( col );
-    }
+  {
+    QColor	col;
+    return( col );
+  }
 }
 
 

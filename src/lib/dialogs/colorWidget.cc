@@ -34,8 +34,6 @@
 
 #include <anatomist/dialogs/colorWidget.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlayout.h>
 #include <qpixmap.h>
 #include <qslider.h>
@@ -57,7 +55,7 @@ struct QAColorWidget_PrivateData
   QLabel		*lbb;
   QLabel		*lba;
   QCheckBox		*nalpha;
-  QHBox			*alphbox;
+  QWidget		*alphbox;
 };
 
 
@@ -67,47 +65,93 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
 			      int initalpha, bool neutral )
   : QWidget( parent, flags ), _pdat( new QAColorWidget_PrivateData )
 {
-  setCaption( name );
+  setWindowTitle( name );
   setObjectName(name);
-  QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "lay1" );
-  _pdat->color = new QLabel( this, "color" );
+  QVBoxLayout	*lay1 = new QVBoxLayout( this );
+  lay1->setMargin( 0 );
+  lay1->setSpacing( 10 );
+  _pdat->color = new QLabel( this );
   QPixmap		pix( 80, 40 );
   pix.fill( init );
   _pdat->color->setPixmap( pix );
   _pdat->color->setFixedSize( _pdat->color->sizeHint() );
 
-  QVBox		*fr1 = new QVBox( this );
-  fr1->setSpacing( 5 );
-  QHBox		*hb = new QHBox( fr1 );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "R :" ), hb );
-  _pdat->slr = new QSlider( 0, 255, 1, init.red(), Qt::Horizontal, hb, 
-			    "slider_red" );
+  QWidget *fr1 = new QWidget( this );
+  QVBoxLayout *vlay = new QVBoxLayout( fr1 );
+  fr1->setLayout( vlay );
+  vlay->setMargin( 0 );
+  vlay->setSpacing( 5 );
+  QWidget *hb = new QWidget( fr1 );
+  vlay->addWidget( hb );
+  QHBoxLayout *hlay = new QHBoxLayout( hb );
+  hb->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
+  hlay->addWidget( new QLabel( tr( "R :" ), hb ) );
+  _pdat->slr = new QSlider( Qt::Horizontal, hb );
+  _pdat->slr->setMinimum( 0 );
+  _pdat->slr->setMaximum( 255 );
+  _pdat->slr->setSingleStep( 1 );
+  _pdat->slr->setValue( init.red() );
+  hlay->addWidget( _pdat->slr );
   _pdat->lbr = new QLabel( QString::number( init.red() ), hb );
-  hb = new QHBox( fr1 );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "G :" ), hb );
-  _pdat->slg = new QSlider( 0, 255, 1, init.green(), Qt::Horizontal, 
-			    hb, "slider_green" );
+  hlay->addWidget( _pdat->lbr );
+  hb = new QWidget( fr1 );
+  vlay->addWidget( hb );
+  hlay = new QHBoxLayout( hb );
+  hb->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
+  hlay->addWidget( new QLabel( tr( "G :" ), hb ) );
+  _pdat->slg = new QSlider( Qt::Horizontal, hb );
+  _pdat->slg->setMinimum( 0 );
+  _pdat->slg->setMaximum( 255 );
+  _pdat->slg->setSingleStep( 1 );
+  _pdat->slg->setValue( init.green() );
+  hlay->addWidget( _pdat->slg );
   _pdat->lbg = new QLabel( QString::number( init.green() ), hb );
-  hb = new QHBox( fr1 );
-  hb->setSpacing( 5 );
-  new QLabel( tr( "B :" ), hb );
-  _pdat->slb = new QSlider( 0, 255, 1, init.blue(), Qt::Horizontal, 
-			    hb, "slider_blue" );
+  hlay->addWidget( _pdat->lbg );
+  hb = new QWidget( fr1 );
+  vlay->addWidget( hb );
+  hlay = new QHBoxLayout( hb );
+  hb->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
+  hlay->addWidget( new QLabel( tr( "B :" ), hb ) );
+  _pdat->slb = new QSlider( Qt::Horizontal, hb );
+  _pdat->slb->setMinimum( 0 );
+  _pdat->slb->setMaximum( 255 );
+  _pdat->slb->setSingleStep( 1 );
+  _pdat->slb->setValue( init.blue() );
+  hlay->addWidget( _pdat->slb );
   _pdat->lbb = new QLabel( QString::number( init.blue() ), hb );
+  hlay->addWidget( _pdat->lbb );
 
-  _pdat->alphbox = new QVBox( fr1 );
-  hb = new QHBox( _pdat->alphbox );
+  _pdat->alphbox = new QWidget( fr1 );
+  vlay->addWidget( _pdat->alphbox );
+  vlay = new QVBoxLayout( _pdat->alphbox );
+  _pdat->alphbox->setLayout( vlay );
+  vlay->setMargin( 0 );
+  hb = new QWidget( _pdat->alphbox );
+  vlay->addWidget( hb );
+  hlay = new QHBoxLayout( hb );
+  hb->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
   if( !allowAlpha )
     hb->hide();
-  hb->setSpacing( 5 );
-  new QLabel( tr( "A :" ), hb );
-  _pdat->sla = new QSlider( 0, 255, 1, initalpha, Qt::Horizontal, 
-			    hb, "slider_alpha" );
+  hlay->addWidget( new QLabel( tr( "A :" ), hb ) );
+  _pdat->sla = new QSlider( Qt::Horizontal, hb );
+  _pdat->sla->setMinimum( 0 );
+  _pdat->sla->setMaximum( 255 );
+  _pdat->sla->setSingleStep( 1 );
+  _pdat->sla->setValue( init.alpha() );
+  hlay->addWidget( _pdat->sla );
   _pdat->lba = new QLabel( QString::number( initalpha ), hb );
+  hlay->addWidget( _pdat->lba );
   _pdat->nalpha = new QCheckBox( tr( "Neutral alpha channel" ), 
-				_pdat->alphbox );
+                                 _pdat->alphbox );
+  vlay->addWidget( _pdat->nalpha );
   if( !allowNeutralAlpha )
     _pdat->nalpha->hide();
   _pdat->nalpha->setChecked( neutral );
