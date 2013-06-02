@@ -86,33 +86,24 @@ ChooseReferentialWindow::~ChooseReferentialWindow()
 
 void ChooseReferentialWindow::drawContents( const char *name )
 {
-  setCaption( name );
+  setAttribute( Qt::WA_DeleteOnClose );
+  setModal( true );
+  setWindowTitle( name );
   QVBoxLayout	*lay = new QVBoxLayout( this, 10, 5 );
-#if QT_VERSION >= 0x040000
   QGroupBox *grp = new QGroupBox( tr( "Referential:" ), this,
                                   "buttonGroup" );
   QVBoxLayout *glay = new QVBoxLayout( grp );
-#else
-  QVButtonGroup	*grp = new QVButtonGroup( tr( "Referential:" ), this, 
-					  "buttonGroup" );
-#endif
   lay->addWidget( grp );
-#if QT_VERSION >= 0x040000
   QButtonGroup  *bg = new QButtonGroup( grp );
   int id = 0;
-#endif
 
   QPushButton	*but = new QPushButton( tr( "None" ), grp );
-#if QT_VERSION >= 0x040000
   glay->addWidget( but );
   bg->addButton( but, id++ );
-#endif
   setQtColorStyle( but );
   but = new QPushButton( tr( "New" ), grp );
-#if QT_VERSION >= 0x040000
   glay->addWidget( but );
   bg->addButton( but, id++ );
-#endif
   setQtColorStyle( but );
 
   set<Referential *>			refs = theAnatomist->getReferentials();
@@ -131,10 +122,8 @@ void ChooseReferentialWindow::drawContents( const char *name )
       else
         qrefname = tr( "Existing one" );
       but = new QPushButton( qrefname, grp );
-#if QT_VERSION >= 0x040000
       glay->addWidget( but );
       bg->addButton( but, id++ );
-#endif
       setQtColorStyle( but );
       but->setPalette( QPalette( QColor( (*ir)->Color().red(),
                                         (*ir)->Color().green(),
@@ -142,12 +131,8 @@ void ChooseReferentialWindow::drawContents( const char *name )
     }
   }
 
-#if QT_VERSION >= 0x040000
     connect( bg, SIGNAL( buttonClicked( int ) ), this,
              SLOT( chooseRef( int ) ) );
-#else
-    connect( grp, SIGNAL( clicked( int ) ), this, SLOT( chooseRef( int ) ) );
-#endif
 }
 
 

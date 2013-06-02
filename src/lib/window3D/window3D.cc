@@ -83,12 +83,9 @@
 #include <anatomist/object/objectConverter.h>
 #include <QtOpenGL/QGLWidget>
 #include <aims/resampling/quaternion.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qtoolbutton.h>
 #include <qlabel.h>
 #include <qmenubar.h>
-#include <aims/qtcompat/qpopupmenu.h>
+#include <qmenu.h>
 #include <qdialog.h>
 #include <qlineedit.h>
 #include <qlayout.h>
@@ -152,7 +149,7 @@ struct AWindow3D::Private
 
     GLWidgetManager *draw;
     QSlider *slidt;
-    QHBox *refbox;
+    QWidget *refbox;
     QPushButton *reflabel;
     QLabel *refdirmark;
     QLabel *timelabel;
@@ -163,11 +160,11 @@ struct AWindow3D::Private
     QAViewToolTip *tooltip;
     AWindow3D::ViewType viewtype;
     QToolBar *mute;
-    QToolButton *axialbt;
-    QToolButton *coronalbt;
-    QToolButton *sagittalbt;
-    QToolButton *obliquebt;
-    QToolButton *threedbt;
+    QAction *axialbt;
+    QAction *coronalbt;
+    QAction *sagittalbt;
+    QAction *obliquebt;
+    QAction *threedbt;
     PrimList primitives;
     bool orientationCube;
     bool boundingFrame;
@@ -411,8 +408,7 @@ namespace
     if (ref && ref->isDirect())
     {
       AimsRGB col = ref->Color();
-      QPixmap pix;
-      pix.resize(32, 7);
+      QPixmap pix(32, 7);
       pix.fill(QColor(col.red(), col.green(), col.blue()));
       QPainter p;
       int darken = 25;
@@ -423,15 +419,16 @@ namespace
           + darken), 5));
       p.drawLine(3, 10, 25, -3);
       p.end();
-      reflabel->unsetPalette();
-      reflabel->setPalette(QPalette(QColor(col.red(), col.green(), col.blue())));
-      reflabel->setPaletteBackgroundPixmap(pix);
-      if (refdirmark) refdirmark->show();
+      QPalette pal( QColor(col.red(), col.green(), col.blue()) );
+      pal.setBrush( QPalette::Window, pix );
+      reflabel->setPalette( pal );
+      if( refdirmark )
+        refdirmark->show();
     }
     else
     {
-      reflabel->unsetPalette();
-      reflabel->setBackgroundMode(Qt::PaletteButton);
+//       reflabel->unsetPalette();
+//       reflabel->setBackgroundMode(Qt::PaletteButton);
       if (refdirmark) refdirmark->hide();
       if (ref)
       {
@@ -461,9 +458,14 @@ namespace
     NoDragSlider( int minValue, int maxValue, int pageStep, int value,
                   Qt::Orientation orientation, QWidget * parent = 0,
                   const char * name = 0 )
-      : QSlider( minValue, maxValue, pageStep, value, orientation, parent,
-                 name )
-    {}
+      : QSlider( orientation, parent )
+    {
+      setObjectName( name );
+      setMinimum( minValue );
+      setMaximum( maxValue );
+      setPageStep( pageStep );
+      setValue( value );
+    }
 
     virtual ~NoDragSlider() {}
 
@@ -488,15 +490,24 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   bool nodeco = !toolBarsVisible();
   setAttribute( Qt::WA_DeleteOnClose );
 
-  QVBox *vb = new QVBox(this);
-  vb->setMargin(2);
-  vb->setSpacing(5);
-  d->refbox = new QHBox(vb);
+  QWidget *vb = new QWidget(this);
+  QVBoxLayout *vlay = new QVBoxLayout( vb );
+  vb->setLayout( vlay );
+  vlay->setMargin(2);
+  vlay->setSpacing(5);
+  d->refbox = new QWidget(vb);
+  QHBoxLayout *hlay = new QHBoxLayout( d->refbox );
+  d->refbox->setLayout( hlay );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
+  vlay->addWidget( d->refbox );
   d->reflabel = new QPushButton(d->refbox);
+  hlay->addWidget( d->reflabel );
   const QPixmap *directpix;
   IconDictionary *icons = IconDictionary::instance();
   directpix = icons->getIconInstance("direct_ref_mark");
   d->refdirmark = new QLabel(d->refbox);
+  hlay->addWidget( d->refdirmark );
   if (directpix) d->refdirmark->setPixmap(*directpix);
   d->refdirmark->setFixedSize(QSize(21, 7));
   d->refdirmark->hide();
@@ -506,6 +517,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   if (nodeco) d->refbox->hide();
 
   QWidget *hb = new QWidget(vb);
+  vlay->addWidget( hb );
   QHBoxLayout *hbl = new QHBoxLayout( hb );
   hbl->setSpacing(0);
   hbl->setMargin(0);
@@ -576,11 +588,11 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
     }
 
   d->slicepanel = new QWidget(hb);
-  QVBoxLayout *vlay = new QVBoxLayout( d->slicepanel );
+  vlay = new QVBoxLayout( d->slicepanel );
   vlay->setSpacing(0);
   vlay->setMargin(0);
   hbl->addWidget( d->slicepanel );
-  d->slicelabel = new QLabel(d->slicepanel, "slice");
+  d->slicelabel = new QLabel( d->slicepanel );
   d->slicelabel->setFixedWidth(30);
   vlay->addWidget( d->slicelabel );
   d->slids = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel,
@@ -596,7 +608,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   vlay->setSpacing(0);
   vlay->setMargin(0);
   hbl->addWidget( d->timepanel );
-  d->timelabel = new QLabel(d->timepanel, "time");
+  d->timelabel = new QLabel( d->timepanel );
   d->timelabel->setFixedWidth(30);
   vlay->addWidget( d->timelabel );
   d->slidt = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel,
@@ -612,7 +624,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   d->slids->setInvertedControls( true );
 
   d->objvallabel = new QLabel(statusBar());
-  statusBar()->addWidget(d->objvallabel, 0, true);
+  statusBar()->addPermanentWidget( d->objvallabel, 0 );
   bool showsbar = !nodeco;
   if( showsbar )
     try
@@ -657,50 +669,48 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
     //	Menus
 
-    QPopupMenu *win = new QPopupMenu(this);
-    menuBar()->insertItem(tr("Window"), win);
-    //cout << "before connect\n";
-    //cout << d->draw->qobject() << endl;
-    //cout << d->draw->qobject()->name() << endl;
-    win->insertItem(tr("Save..."), d->draw->qobject(), SLOT(saveContents()));
-    //cout << "after connect\n";
-    win->insertItem(tr("Start recording..."), d->draw->qobject(), SLOT(
-        recordStart()));
-    win->insertItem(tr("Stop recording"), d->draw->qobject(),
-        SLOT(recordStop()));
-    win->insertSeparator();
-    win->insertItem(tr("Resize..."), this, SLOT(resizeView()));
-    win->insertItem(tr("Zoom..."), this, SLOT(askZoom()));
-    win->insertSeparator();
-    win->insertItem(tr("Show/hide toolbox (ROI etc)"), this, SLOT(
-        switchToolbox()), Qt::Key_F1);
-    win->insertItem(tr("Show/hide menus and toolbars"), this, SLOT(
-        toggleToolBars()));
-    win->insertItem(tr("Show/hide cursor position"), this, SLOT(
-        toggleStatusBarVisibility()));
-    win->insertSeparator();
+    QMenu *win = new QMenu( tr("Window"), this );
+    menuBar()->addMenu(win);
+    win->addAction( tr("Save..."), d->draw->qobject(), SLOT(saveContents()) );
+    win->addAction( tr("Start recording..."), d->draw->qobject(), SLOT(
+        recordStart()) );
+    win->addAction( tr("Stop recording"), d->draw->qobject(),
+        SLOT(recordStop()) );
+    win->addSeparator();
+    win->addAction( tr("Resize..."), this, SLOT(resizeView()) );
+    win->addAction( tr("Zoom..."), this, SLOT(askZoom()) );
+    win->addSeparator();
+    win->addAction( tr("Show/hide toolbox (ROI etc)"), this, SLOT(
+        switchToolbox()), Qt::Key_F1 );
+    win->addAction( tr("Show/hide menus and toolbars"), this, SLOT(
+        toggleToolBars()) );
+    win->addAction( tr("Show/hide cursor position"), this, SLOT(
+        toggleStatusBarVisibility()) );
+    win->addSeparator();
     setDetachMenuAction( win->addAction( tr( "Detach view" ), this,
             SLOT( detach() ) ) );
-    if (!parent) enableDetachMenu(false);
-    if (theAnatomist->userLevel() >= 2) win->insertItem(tr(
-        "Open stereoscopic right eye view"), this, SLOT(openStereoView()));
-    win->insertSeparator();
-    win->insertItem(tr("Close"), this, SLOT(close()), Qt::CTRL + Qt::Key_W);
+    if( !parent )
+      enableDetachMenu( false );
+    if( theAnatomist->userLevel() >= 2 ) 
+      win->addAction( tr( "Open stereoscopic right eye view"), this, 
+                      SLOT(openStereoView()) );
+    win->addSeparator();
+    win->addAction( tr("Close"), this, SLOT(close()), Qt::CTRL + Qt::Key_W );
 
-    QPopupMenu *scene = new QPopupMenu(this);
-    menuBar()->insertItem(tr("Scene"), scene);
-    scene->insertItem(tr("Lighting"), this, SLOT(lightView()));
-    scene->insertSeparator();
-    scene->insertItem(tr("Fixed points of view"), this, SLOT(pointsOfView()));
-    scene->insertItem(tr("Tools"), this, SLOT(tools()));
-    scene->insertItem(tr("Sync 3D views in same group"), this,
-        SLOT(syncViews()));
-    scene->insertItem(tr("Focus view on objects"), this, SLOT(focusView()),
-        Qt::Key_Home);
-    scene->insertItem(tr("Auto-set rotation center in middle of scene"), this,
-        SLOT(setAutoRotationCenter()));
-    scene->insertItem(tr("Manually specify linked cursor position"), this,
-        SLOT(setLinkedCursorPos()), Qt::CTRL + Qt::Key_P);
+    QMenu *scene = new QMenu( tr("Scene"), this );
+    menuBar()->addMenu( scene );
+    scene->addAction( tr("Lighting"), this, SLOT(lightView()) );
+    scene->addSeparator();
+    scene->addAction( tr("Fixed points of view"), this, SLOT(pointsOfView()) );
+    scene->addAction( tr("Tools"), this, SLOT(tools()) );
+    scene->addAction( tr("Sync 3D views in same group"), this,
+        SLOT(syncViews()) );
+    scene->addAction( tr("Focus view on objects"), this, SLOT(focusView()),
+        Qt::Key_Home );
+    scene->addAction( tr("Auto-set rotation center in middle of scene"), this,
+        SLOT(setAutoRotationCenter()) );
+    scene->addAction( tr("Manually specify linked cursor position"), this,
+        SLOT(setLinkedCursorPos()), Qt::CTRL + Qt::Key_P );
 
     //	Mutation toolbar
 
@@ -710,80 +720,64 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
     p = icons->getIconInstance("axial");
     if (p)
-    {
-      d->axialbt = new QAToolButton(*p, tr("Axial"),
-          tr("Mute into axial view"), this, SLOT(muteAxial()), d->mute);
-    }
+      d->axialbt = d->mute->addAction( *p, tr("Axial"),
+        this, SLOT( muteAxial() ) );
     else
-    {
-      d->axialbt = new QAToolButton(d->mute);
-      d->axialbt->setTextLabel(tr("Axial"));
-      connect(d->axialbt, SIGNAL(clicked()), this, SLOT(muteAxial()));
-    }
+      d->axialbt = d->mute->addAction( tr("Axial"),
+        this, SLOT( muteAxial() ) );
+    d->axialbt->setToolTip( tr("Mute into axial view") );
 
     p = icons->getIconInstance("coronal");
     if (p)
-      d->coronalbt = new QAToolButton(*p, tr("Coronal"), tr(
-          "Mute into coronal view"), this, SLOT(muteCoronal()), d->mute);
+      d->coronalbt = d->mute->addAction( *p, tr("Coronal"), 
+        this, SLOT( muteCoronal() ) );
     else
-    {
-      d->coronalbt = new QAToolButton(d->mute);
-      d->coronalbt->setTextLabel(tr("Coronal"));
-      connect(d->coronalbt, SIGNAL(clicked()), this, SLOT(muteCoronal()));
-    }
+      d->coronalbt = d->mute->addAction( tr("Coronal"), 
+        this, SLOT( muteCoronal() ) );
+    d->coronalbt->setToolTip( tr( "Mute into coronal view") );
 
     p = icons->getIconInstance("sagittal");
     if (p)
-      d->sagittalbt = new QAToolButton(*p, tr("Sagittal"), tr(
-          "Mute into sagittal view"), this, SLOT(muteSagittal()), d->mute);
+      d->sagittalbt = d->mute->addAction( *p, tr("Sagittal"), 
+        this, SLOT( muteSagittal() ) );
     else
-    {
-      d->sagittalbt = new QAToolButton(d->mute);
-      d->sagittalbt->setTextLabel(tr("Sagittal"));
-      connect(d->sagittalbt, SIGNAL(clicked()), this, SLOT(muteSagittal()));
-    }
+      d->sagittalbt = d->mute->addAction( tr("Sagittal"), 
+        this, SLOT( muteSagittal() ) );
+    d->sagittalbt->setToolTip( tr( "Mute into sagittal view" ) );
 
     p = icons->getIconInstance("oblique");
     if (p)
-      d->obliquebt = new QAToolButton(*p, tr("Oblique"), tr(
-          "Mute into free orientation "
-            "view"), this, SLOT(muteOblique()), d->mute);
+      d->obliquebt = d->mute->addAction( *p, tr("Oblique"), 
+        this, SLOT( muteOblique() ) );
     else
-    {
-      d->obliquebt = new QAToolButton(d->mute);
-      d->obliquebt->setTextLabel(tr("Oblique"));
-      connect(d->obliquebt, SIGNAL(clicked()), this, SLOT(muteOblique()));
-    }
+      d->obliquebt = d->mute->addAction( tr("Oblique"), 
+        this, SLOT( muteOblique() ) );
+    d->obliquebt->setToolTip( tr( "Free orientation view" ) );
 
     p = icons->getIconInstance("3D");
     if (p)
-      d->threedbt = new QAToolButton(*p, tr("3D"), tr("Mute into 3D view"),
-          this, SLOT(mute3D()), d->mute);
+      d->threedbt = d->mute->addAction( *p, tr("3D"), this, SLOT( mute3D() ) );
     else
-    {
-      d->threedbt = new QAToolButton(d->mute);
-      d->threedbt->setTextLabel(tr("3D"));
-      connect(d->threedbt, SIGNAL(clicked()), this, SLOT(mute3D()));
-    }
+      d->threedbt = d->mute->addAction( tr("3D"), this, SLOT( mute3D() ) );
+    d->threedbt->setToolTip( tr("Mute into 3D view") );
 
-    d->axialbt->setToggleButton(true);
-    d->coronalbt->setToggleButton(true);
-    d->sagittalbt->setToggleButton(true);
-    d->obliquebt->setToggleButton(true);
-    d->threedbt->setToggleButton(true);
+    d->axialbt->setCheckable(true);
+    d->coronalbt->setCheckable(true);
+    d->sagittalbt->setCheckable(true);
+    d->obliquebt->setCheckable(true);
+    d->threedbt->setCheckable(true);
 
     d->mute->addSeparator();
     p = icons->getIconInstance("RoiControl");
-    QAToolButton *roibt;
+    QAction *roibt;
     if (p)
-      roibt = new QAToolButton(*p, tr("ROI toolbox"), tr(
-          "Open the ROI toolbox"), this, SLOT(switchToolbox()), d->mute);
+      roibt = d->mute->addAction( *p, tr("ROI toolbox"),
+        this, SLOT( switchToolbox() ) );
     else
-    {
-      roibt = new QAToolButton(d->mute);
-      roibt->setTextLabel(tr("3D"));
-      connect(roibt, SIGNAL(clicked()), this, SLOT(switchToolbox()));
-    }
+      roibt = d->mute->addAction( tr("ROI toolbox"),
+        this, SLOT( switchToolbox() ) );
+    roibt->setToolTip( tr( "Open the ROI toolbox" ) );
+    roibt->setCheckable( true );
 
   }
 
@@ -861,7 +855,7 @@ AWindow::SubType AWindow3D::subtype() const
 
 void AWindow3D::polish()
 {
-  QAWindow::polish();
+  QAWindow::ensurePolished();
   CreateTitle();
 }
 
@@ -1623,28 +1617,40 @@ void AWindow3D::resizeView()
 {
   //	piggy way quick-designed dialog...
 
-  QDialog rv(this, "resize dialog", true);
+  QDialog rv( this );
+  rv.setObjectName( "resize dialog" );
+  rv.setModal( true );
+  rv.setWindowTitle( tr( "Resize window" ) );
   QVBoxLayout *l = new QVBoxLayout(&rv);
-  QVBox *vb = new QVBox(&rv);
-  l->addWidget(vb);
-  vb->setMargin(5);
-  vb->setSpacing(5);
-  new QLabel(tr("New window size :"), vb);
-  QHBox *hb = new QHBox(vb);
-  hb->setSpacing(10);
+  l->setMargin( 5 );
+  l->setSpacing( 5 );
+  l->addWidget( new QLabel( tr("New window size :"), &rv ) );
+  QWidget *hb = new QWidget( &rv );
+  l->addWidget( hb );
+  QHBoxLayout *hlay = new QHBoxLayout( hb );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
   QSize sz = d->draw->qglWidget()->size();
   QLineEdit *xed = new QLineEdit(QString::number(sz.width()), hb);
-  new QLabel("x", hb);
+  hlay->addWidget( xed );
+  hlay->addWidget( new QLabel("x", hb) );
   QLineEdit *yed = new QLineEdit(QString::number(sz.height()), hb);
-  QHBox *hb2 = new QHBox(vb);
-  hb2->setSpacing(10);
-  QPushButton *ok = new QPushButton(tr("OK"), hb2);
+  hlay->addWidget( yed );
+  QWidget *hb2 = new QWidget( &rv );
+  l->addWidget( hb2 );
+  hlay = new QHBoxLayout( hb2 );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
+  QPushButton *ok = new QPushButton(tr("OK"), hb2 );
+  hlay->addWidget( ok );
+  QPushButton *cc = new QPushButton(tr("Cancel"), hb2 );
+  hlay->addWidget( cc );
   ok->setDefault(true);
-  connect(ok, SIGNAL(clicked()), &rv, SLOT(accept()));
-  connect(new QPushButton(tr("Cancel"), hb2), SIGNAL(clicked()), &rv, SLOT(
-      reject()));
+  connect( ok, SIGNAL( clicked() ), &rv, SLOT( accept() ) );
+  connect( cc, SIGNAL( clicked() ), &rv, SLOT( reject() ) );
 
-  if (rv.exec()) resizeView(xed->text().toInt(), yed->text().toInt());
+  if( rv.exec() )
+    resizeView( xed->text().toInt(), yed->text().toInt() );
 }
 
 void AWindow3D::askZoom()
@@ -1759,8 +1765,8 @@ void AWindow3D::setupTimeSlider(float mint, float maxt)
     //cout << "hide time, mint : " << mint << ", maxt : " << maxt << "\n";
     return;
   }
-  d->slidt->setMinValue((int) mint);
-  d->slidt->setMaxValue((int) maxt);
+  d->slidt->setMinimum( (int) mint );
+  d->slidt->setMaximum( (int) maxt );
   int t = (int) GetTime();
   if (d->slidt->value() != t)
   {
@@ -1776,11 +1782,11 @@ void AWindow3D::setupTimeSlider(float mint, float maxt)
 void AWindow3D::setupSliceSlider(float mins, float maxs)
 {
   //cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
-  if (d->slids->minValue() != (int) mins || d->slids->maxValue() != (int) maxs)
+  if( d->slids->minimum() != (int) mins || d->slids->maximum() != (int) maxs )
   {
     d->slids->blockSignals(true);
-    d->slids->setMinValue((int) mins);
-    d->slids->setMaxValue((int) maxs);
+    d->slids->setMinimum((int) mins);
+    d->slids->setMaximum((int) maxs);
     d->slids->blockSignals(false);
   }
 
@@ -2141,11 +2147,11 @@ void AWindow3D::updateViewTypeToolBar()
 {
   if (toolBarsVisible())
   {
-    d->axialbt->setOn(d->viewtype == Axial);
-    d->coronalbt->setOn(d->viewtype == Coronal);
-    d->sagittalbt->setOn(d->viewtype == Sagittal);
-    d->obliquebt->setOn(d->viewtype == Oblique);
-    d->threedbt->setOn(d->viewtype == ThreeD);
+    d->axialbt->setChecked(d->viewtype == Axial);
+    d->coronalbt->setChecked(d->viewtype == Coronal);
+    d->sagittalbt->setChecked(d->viewtype == Sagittal);
+    d->obliquebt->setChecked(d->viewtype == Oblique);
+    d->threedbt->setChecked(d->viewtype == ThreeD);
   }
 }
 
@@ -2514,9 +2520,10 @@ void AWindow3D::SetPosition(const Point3df& position, const Referential* orgref)
     updateSliceSlider();
     // status bar
     QStatusBar *sb = statusBar();
-    sb->message(tr("cursor position: ") + "( " + QString::number(_position[0])
-        + ", " + QString::number(_position[1]) + ", " + QString::number(
-        _position[2]) + ", " + QString::number(_time) + " )");
+    sb->showMessage( tr("cursor position: ") + "( " 
+      + QString::number(_position[0])
+      + ", " + QString::number(_position[1]) + ", " + QString::number(
+        _position[2]) + ", " + QString::number(_time) + " )" );
     // object value
     AObject *obj = objectToShow(this, _sobjects);
     if (obj)
@@ -3131,7 +3138,7 @@ int AWindow3D::getSliceSliderPosition()
 
 int AWindow3D::getSliceSliderMaxPosition()
 {
-  return (d->slids->maxValue());
+  return (d->slids->maximum());
 }
 
 int AWindow3D::getTimeSliderPosition()
@@ -3141,7 +3148,7 @@ int AWindow3D::getTimeSliderPosition()
 
 int AWindow3D::getTimeSliderMaxPosition()
 {
-  return (d->slidt->maxValue());
+  return (d->slidt->maximum());
 }
 
 void AWindow3D::setSliceSliderPosition(int position)
@@ -3268,8 +3275,10 @@ void AWindow3D::setLinkedCursorOnSliderChange(bool x)
 
 void AWindow3D::setLinkedCursorPos()
 {
-  QDialog dial(this, "set linked cursor position", true);
-  dial.setCaption("Set linked cursor position");
+  QDialog dial( this );
+  dial.setWindowTitle( "set linked cursor position" );
+  dial.setModal( true );
+  dial.setWindowTitle("Set linked cursor position");
   QVBoxLayout *l = new QVBoxLayout(&dial);
   l->setMargin(5);
   l->setSpacing(5);
@@ -3280,36 +3289,51 @@ void AWindow3D::setLinkedCursorPos()
   curpos << pos[0] << " " << pos[1] << " " << pos[2];
   le->setText(QString(curpos.str().c_str()));
   le->selectAll();
-  QHBox *hb = new QHBox(&dial);
+  QWidget *hb = new QWidget(&dial);
+  QHBoxLayout *hlay = new QHBoxLayout( hb );
   l->addWidget(hb);
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 5 );
   QPushButton *pb = new QPushButton(tr("OK"), hb);
+  hlay->addWidget( pb );
   pb->setAutoDefault(true);
   pb->setDefault(true);
   connect(pb, SIGNAL(clicked()), &dial, SLOT(accept()));
   pb = new QPushButton(tr("Cancel"), hb);
+  hlay->addWidget( pb );
   connect(pb, SIGNAL(clicked()), &dial, SLOT(reject()));
 
-  if (dial.exec())
+  if( dial.exec() )
   {
     QString txt = le->text();
     vector<float> nums;
     nums.reserve(4);
-    int i, l = 0, m = 0, n = txt.length();
+    int i, l = 0, m = 0, n = txt.length(), mm;
     bool ok = true;
     for (i = 0; i < 4 && l < n; ++i)
     {
       while (txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',')
         ++l;
-      m = txt.find(' ', l);
-      if (m == -1) m = txt.length();
+      if( l == n )
+        break; // reached the end
+      m = txt.indexOf( ' ', l );
+      mm = txt.indexOf( ',', l );
+      if( mm != -1 )
+      {
+        if( m == -1 || m > mm )
+          m = mm;
+      }
+      else if( m == -1 )
+        m = txt.length();
       QString s = txt;
       s.remove(0, l);
       s.remove(m - l, txt.length() - m);
+      cout << "read: " << s.toStdString().c_str() << endl;
       nums.push_back(s.toFloat(&ok));
       if (!ok)
       {
-        cerr << "unable to parse coords in string \"" << txt.utf8().data()
-            << "\"" << endl;
+        cerr << "unable to parse coords in string \"" 
+          << txt.toStdString().data() << "\"" << endl;
       }
       l = m;
     }
