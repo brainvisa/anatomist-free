@@ -80,16 +80,11 @@
 #include <cartobase/stream/directory.h>
 
 #include <aims/qtcompat/qtoolbutton.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qfiledialog.h>
+#include <qfiledialog.h>
 #include <cartobase/config/info.h>
 #include <qtoolbar.h>
 #include <qlabel.h>
-#if QT_VERSION >= 0x040000
 #include <qlist.h>
-#else
-#include <qvaluelist.h>
-#endif
 #include <qmenubar.h>
 #include <qtranslator.h>
 #include <qapplication.h>
@@ -126,14 +121,13 @@ ControlWindow	*ControlWindow::_theControlWindow = 0;
 struct ControlWindow::Private
 {
   Private() 
-    : fusionbtn(0), referencebtn(0), constrainteditorbtn(0), displayLogo( true ), winList( 0 ),
+    : fusionbtn(0), referencebtn(0), displayLogo( true ), winList( 0 ),
       objList( 0 ), defobjref( 0 ), defwinref( 0 ), updatemenutimer( 0 ),
       closeEnabled( true ), addAction( 0 )
       {}
 
-  QToolButton		*fusionbtn;
-  QToolButton		*referencebtn;
-  QToolButton    *constrainteditorbtn;
+  QAction		*fusionbtn;
+  QAction		*referencebtn;
   bool			displayLogo;
   QImageLabel		*logo;
   QWindowTree		*winList;
@@ -141,9 +135,7 @@ struct ControlWindow::Private
   mutable Referential	*defobjref;
   mutable Referential	*defwinref;
   QTimer		*updatemenutimer;
-#if QT_VERSION >= 0x040000
   QToolBar		*toolbar;
-#endif
   bool                  closeEnabled;
   QAction               *addAction;
 };
@@ -158,37 +150,26 @@ ControlWindow::ControlWindow()
   setObjectName("Control Window");
   setAttribute(Qt::WA_DeleteOnClose);
   if( _theControlWindow )
-    {
-      cerr << "Error: ControlWindow instantiated several times\n";
-    }
+    cerr << "Error: ControlWindow instantiated several times\n";
   _theControlWindow = this;
 
   if( parent() == 0 )
-    {
-      QPixmap	anaicon( Settings::findResourceFile(
-                         "icons/icon.xpm" ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
+  {
+    QPixmap	anaicon( Settings::findResourceFile(
+                        "icons/icon.xpm" ).c_str() );
+    if( !anaicon.isNull() )
+      setWindowIcon( anaicon );
+  }
 
   _menu = new AControlMenuHandler( menuBar(), this );
   
   drawContents();
 
-#if QT_VERSION >= 0x040000
   QToolBar	*tb = d->toolbar;
-#else
-  QToolBar	*tb = toolBars( Qt::Left ).take();
-#endif
   int	w = tb->sizeHint().height();
-#if QT_VERSION >= 300
   if( w < 450 )
     w = 450;
-#endif
 
-  //cout << "toolbar height : " << tb->sizeHint().height() << endl;
-  //cout << "toolbar width : " << tb->sizeHint().width() << endl;
-  //cout << "menubar height : " << menuBar()->height() << endl;
   // enlarge the window so the additional menus "object-specific" and "python" 
   // can fit
   resize( sizeHint().width() + 100, w + menuBar()->height() + 2 );
@@ -226,19 +207,24 @@ void ControlWindow::createMenu()
 
 void ControlWindow::drawContents()
 {
-  setCaption( ( string( "Anatomist " ) + theAnatomist->versionString() 
-                + " - CEA/NeuroSpin/SHFJ" ).c_str() );
+  setWindowTitle( ( string( "Anatomist " ) + theAnatomist->versionString() 
+                  + " - CEA/NeuroSpin/SHFJ" ).c_str() );
   QPixmap anaicon( Settings::findResourceFile( "icons/anaIcon.xpm" ).c_str() );
   if( !anaicon.isNull() )
-    setIcon( anaicon );
+    setWindowIcon( anaicon );
 
   createMenu();
   createIcons();
 
-  QVBox	*main = new QVBox( this );
+  QWidget *main = new QWidget( this );
   setCentralWidget( main );
+  QVBoxLayout *vlay = new QVBoxLayout( main );
+  main->setLayout( vlay );
+  vlay->setMargin( 0 );
+  vlay->setSpacing( 5 );
 
   d->logo = new QImageLabel( main );
+  vlay->addWidget( d->logo );
 
   int	dl = 1;
   theAnatomist->config()->getProperty( "controlWindowLogo", dl );
@@ -246,11 +232,8 @@ void ControlWindow::drawContents()
   if( !d->displayLogo )
     d->logo->hide();
 
-  QSplitter	*panels = new QSplitter( main, "CW_panels" );
-  // panels->setSpacing( 5 );
-#if QT_VERSION < 0x040000
-  panels->setMargin( 5 );
-#endif
+  QSplitter	*panels = new QSplitter( main );
+  vlay->addWidget( panels );
   panels->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
                                       QSizePolicy::Expanding ) );
 
@@ -260,20 +243,16 @@ void ControlWindow::drawContents()
   //	Windows list
   d->winList = new QWindowTree( panels, "windowList" );
 
-  panels->setResizeMode( d->objList, QSplitter::Stretch );
-  panels->setResizeMode( d->winList, QSplitter::Stretch );
-#if QT_VERSION >= 0x040000
-  QList<int>		szs;
-#else
-  QValueList<int>	szs;
-#endif
+  panels->setStretchFactor( 0, 1 );
+  panels->setStretchFactor( 1, 1 );
+  QList<int> szs;
   szs.push_back( 1 );
   szs.push_back( 1 );
   panels->setSizes( szs );
 
   // Objects selection
   connect( d->objList, SIGNAL( selectionChanged() ), this, 
-	   SLOT( objectTreeClick() ) );
+           SLOT( objectTreeClick() ) );
   connect( d->objList, SIGNAL( rightButtonPressed( anatomist::AObject*, 
                                                    const QPoint & ) ), 
            this, SLOT( objectTreeRightClick( anatomist::AObject*, 
@@ -380,8 +359,8 @@ void ControlWindow::createIcons()
     QIcon	is( fusionpix );
     if( !p.isNull() )
       is.addPixmap( p, QIcon::Active );
-    iconbar->addAction( is, tr( "Fusion objects" ), this,
-                        SLOT( fusionObjects() ) );
+    d->fusionbtn = iconbar->addAction( is, tr( "Fusion objects" ), this,
+      SLOT( fusionObjects() ) );
   }
 
   {
@@ -392,11 +371,10 @@ void ControlWindow::createIcons()
     QIcon	is( refpix );
     if( !p.isNull() )
       is.addPixmap( p, QIcon::Active );
-    iconbar->addAction( is, tr( "Assign referential" ), this,
-                        SLOT( chooseReferential() ) );
+    d->referencebtn = iconbar->addAction( is, tr( "Assign referential" ), this,
+      SLOT( chooseReferential() ) );
   }
 
-  //ARN BEGIN
   {
     QPixmap conEdpix( Settings::findResourceFile(
       "icons/meshPaint/sulci.png" ).c_str() );
@@ -405,10 +383,9 @@ void ControlWindow::createIcons()
     QIcon is( conEdpix );
     if( !p.isNull() )
       is.addPixmap( p, QIcon::Active );
-    iconbar->addAction( is, tr( "ConstraintEditor" ), this,
+    iconbar->addAction( is, tr( "ConstraintEditor" ), this, 
                         SLOT( openConstraintEditor() ) );
   }
-  //ARN END
 }
 
 
@@ -453,7 +430,8 @@ void ControlWindow::unregisterObject( AObject *obj )
       connect( d->updatemenutimer, SIGNAL( timeout() ), this, 
                SLOT( UpdateMenus() ) );
     }
-  d->updatemenutimer->start( 1, true );
+  d->updatemenutimer->setSingleShot( true );
+  d->updatemenutimer->start( 1 );
 }
 
 
@@ -517,7 +495,7 @@ void ControlWindow::UpdateObjectMenu()
   if( objL.size() > 1 )
     {
       // grouping possible
-      _menu->setGroupMenuText( tr( "Group objects" ).utf8().data() );
+      _menu->setGroupMenuText( tr( "Group objects" ).toStdString() );
       enableGroupMenu( true );
     }
   else	// 1 object
@@ -529,7 +507,7 @@ void ControlWindow::UpdateObjectMenu()
 	  return;
 	}
       // ungrouping possible
-      _menu->setGroupMenuText( tr( "Ungroup objects" ).utf8().data() );
+      _menu->setGroupMenuText( tr( "Ungroup objects" ).toStdString() );
       enableGroupMenu( true );
     }
 
@@ -552,7 +530,7 @@ void ControlWindow::UpdateWindowMenu()
 
   if( sgr.size() != 0 && winL.empty() )
     {	// link group(s) selected alone
-      _menu->setLinkMenuText( tr( "Unlink windows" ).utf8().data() );
+      _menu->setLinkMenuText( tr( "Unlink windows" ).toStdString() );
       _menu->enableLinkMenu( true );
     }
   else if( sgr.size() == 0 && !winL.empty() )
@@ -569,7 +547,7 @@ void ControlWindow::UpdateWindowMenu()
 
       if( linkable )	//	Windows not already linked
 	{
-	  _menu->setLinkMenuText( tr( "Link windows" ).utf8().data() );
+	  _menu->setLinkMenuText( tr( "Link windows" ).toStdString() );
 	  _menu->enableLinkMenu( true );
 	}
       else
@@ -705,7 +683,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   
   QFileDialog	& fd = fileDialog();
   fd.setNameFilter( filt );
-  fd.setCaption( capt );
+  fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )
   {
@@ -721,14 +699,14 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
         ++it )
     {
       QString	& s = *it;
-      if( s.findRev( ".ana" ) == int( s.length() ) - 4 )
+      if( s.lastIndexOf( ".ana" ) == int( s.length() ) - 4 )
         scenars.push_back( s );	// script file
       else
       {
         Object options = Object::value( Dictionary() );
         // options->setProperty( "asynchronous", true );
         LoadObjectCommand *command = new LoadObjectCommand(
-          (*it).utf8().data(), -1, "", false, options );
+          (*it).toStdString(), -1, "", false, options );
         theProcessor->execute( command );
         loaded.insert( command->loadedObject() );
       }
@@ -748,7 +726,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   // play scenarios (if any)
   list<QString>::iterator	is, es = scenars.end();
   for( is=scenars.begin(); is!=es; ++is )
-    new APipeReader( (*is).utf8().data() );
+    new APipeReader( (*is).toStdString() );
 }
 
 
@@ -760,15 +738,15 @@ void ControlWindow::replayScenario()
   /*QString filename = QFileDialog::getOpenFileName( QString::null,
     filter, 0, 0, caption );*/
   fd.setNameFilter( filter );
-  fd.setCaption( caption );
+  fd.setWindowTitle( caption );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;
 
-  QString	filename = fd.selectedFile();
+  QStringList filenames = fd.selectedFiles();
 
-  if ( !filename.isEmpty() )
-    new APipeReader( filename.utf8().data() );
+  if( !filenames.isEmpty() )
+    new APipeReader( filenames[0].toStdString() );
 }
 
 
@@ -791,19 +769,20 @@ void ControlWindow::openWindow( int type )
 
 void ControlWindow::dragEnterOnWindowIcon( int, QDragEnterEvent* event )
 {
-  event->accept( QAObjectDrag::canDecode( event )
+  event->setAccepted( QAObjectDrag::canDecode( event )
       || QAObjectDrag::canDecodeURI( event ) );
 }
 
 
 void ControlWindow::dragMoveOnWindowIcon( int, QDragMoveEvent* event )
 {
-  event->accept( true );
+  event->accept();
 }
 
 
 void ControlWindow::dropOnWindowIcon( int type, QDropEvent* event )
 {
+  event->accept();
   set<AObject *>	o;
   list<QString> objects;
   list<QString> scenars;
@@ -814,7 +793,7 @@ void ControlWindow::dropOnWindowIcon( int type, QDropEvent* event )
     list<QString>::iterator       is, es = objects.end();
     for( is=objects.begin(); is!=es; ++is )
     {
-      LoadObjectCommand *command = new LoadObjectCommand( is->latin1() );
+      LoadObjectCommand *command = new LoadObjectCommand( is->toStdString() );
       theProcessor->execute( command );
       o.insert( command->loadedObject() );
     }
@@ -1088,8 +1067,8 @@ void ControlWindow::openPreferencesWin()
 
 void ControlWindow::openConstraintEditor()
 {
-  string title = string(tr( "ConstraintEditor" ));
-  (new ConstraintEditorWindow( selectedObjects(),title.c_str()))->show();
+  string title = tr( "ConstraintEditor" ).toStdString();
+  ( new ConstraintEditorWindow( selectedObjects(),title.c_str() ) )->show();
 }
 
 void ControlWindow::viewRefColors()
@@ -1133,13 +1112,13 @@ void ControlWindow::saveWindowsConfig()
 {
   QString filter = tr( "Anatomist scripts" ) + " (*.ana)";
   QString caption = tr( "Save windows configuration" );
-  QString filename = QFileDialog::getSaveFileName( QString::null,
-    filter, 0, 0, caption );
+  QString filename = QFileDialog::getSaveFileName( this, caption, 
+    QString::null, filter, 0, 0 );
   if ( !filename.isEmpty() )
-    {
-      AWinConfigIO cio;
-      cio.saveConfig( filename.utf8().data() );
-    }
+  {
+    AWinConfigIO cio;
+    cio.saveConfig( filename.toStdString() );
+  }
 }
 
 
@@ -1387,16 +1366,16 @@ void ControlWindow::languageFrench()
 void ControlWindow::setLanguage( const string & filename )
 {
   string path = Settings::findResourceFile( "po" );
-  QTranslator	*tr = new QTranslator( qApp, "Translator" );
+  QTranslator	*tr = new QTranslator( qApp );
 
   if( tr->load( filename.c_str(), path.c_str() ) )
     qApp->installTranslator( tr );
   else
-    {
-      cerr << "warning: translation file not found\npath: "
-           << path << "\nfile: " << filename << endl;
-      delete tr;
-    }
+  {
+    cerr << "warning: translation file not found\npath: "
+          << path << "\nfile: " << filename << endl;
+    delete tr;
+  }
 }
 
 
@@ -1445,7 +1424,7 @@ void ControlWindow::modulesList()
   labels << tr( "Index :" ) << tr( "Name :" )<< tr( "Description :" );
   lv->setHeaderLabels(labels);
   layout->addWidget(lv);
-  mv->setCaption( tr( "Modules list" ) );
+  mv->setWindowTitle( tr( "Modules list" ) );
 
   cout << "Modules list :\n";
   QTreeWidgetItem *item;
@@ -1476,12 +1455,12 @@ void ControlWindow::aimsInfo()
   w->setAttribute(Qt::WA_DeleteOnClose);
   QVBoxLayout *layout = new QVBoxLayout;
   w->setLayout(layout);
+  layout->setMargin( 5 );
   QTextEdit     *info = new QTextEdit( w );
   layout->addWidget(info);
-  w->setCaption( tr( "Anatomist / AIMS libraries information" ) );
+  w->setWindowTitle( tr( "Anatomist / AIMS libraries information" ) );
   w->resize( 600, 400 );
   info->setReadOnly( true );
-  info->setTextFormat( Qt::LogText );
   info->setPlainText( txt.str().c_str() );
   w->show();
 }

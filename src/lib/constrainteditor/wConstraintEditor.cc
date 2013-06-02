@@ -242,7 +242,9 @@ ConstraintEditorWindow::~ConstraintEditorWindow()
 void ConstraintEditorWindow::drawContents( const char *name,
                                            const set<AObject *> & obj )
 {
-  setCaption( name );
+  setAttribute( Qt::WA_DeleteOnClose );
+  setModal( true );
+  setWindowTitle( name );
   this->setFixedWidth(350);
 
   QVBoxLayout *mainlay = new QVBoxLayout( this, 5, 5 );
