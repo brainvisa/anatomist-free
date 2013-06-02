@@ -1671,14 +1671,15 @@ void AWindow3D::askZoom()
     if (zy > z) z = zy;
   }
 
-  ZoomDialog zd(z, true, theAnatomist->getQWidgetAncestor(), "zoom dialog", true);
+  ZoomDialog zd( z, true, theAnatomist->getQWidgetAncestor(), "zoom dialog", 
+                 true);
 
   if (zd.exec())
   {
     float z2 = zd.zoomText().toFloat();
     if (zd.mustResize())
     {
-      if (g && viewType() != ThreeD)
+      if( g && viewType() != ThreeD )
       {
         float w = gs[0] * dim[0] * z2, h = gs[1] * dim[1] * z2;
         int scrw = QApplication::desktop()->width(), scrh =
@@ -1744,15 +1745,16 @@ void AWindow3D::resizeView(int w, int h)
     {
       AGraphicsView *agv = dynamic_cast<AGraphicsView *>( gv );
       if( agv )
-        agv->setSizeHint( QSize( s.width(), s.height() ) );
-      gv->setMinimumSize( s.width(), s.height() );
-      gv->resize( s.width(), s.height() );
+        agv->setSizeHint( s );
+      gv->setMinimumSize( s );
+      resize( s );
+      gv->resize( s );
     }
     d->draw->setPreferredSize( s.width(), s.height() );
-    d->draw->qglWidget()->setMinimumSize(s);
+    d->draw->qglWidget()->setMinimumSize( s );
     d->draw->setMinimumSizeHint( s );
     d->draw->qglWidget()->updateGeometry();
-    QTimer::singleShot(500, this, SLOT(freeResize()));
+    QTimer::singleShot( 500, this, SLOT(freeResize()) );
   }
 }
 

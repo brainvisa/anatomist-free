@@ -35,8 +35,6 @@
 #include <anatomist/window3D/zoomDialog.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlineedit.h>
 #include <qlayout.h>
 #include <qlabel.h>
@@ -63,48 +61,56 @@ ZoomDialog::ZoomDialog( float zoom, bool forceResize, QWidget* parent,
 			const char* name, bool modal, Qt::WFlags f )
   : QDialog( parent, f ), d( new ZoomDialog_Private )
 {
-  setCaption( tr( "Zoom selection" ) );
+  setWindowTitle( tr( "Zoom selection" ) );
   setObjectName(name);
   setModal(modal);
 
   QVBoxLayout	*l = new QVBoxLayout( this );
-  QVBox	*vb = new QVBox( this );
-  l->addWidget( vb );
-  vb->setMargin( 5 );
-  vb->setSpacing( 5 );
-  new QLabel( tr( "Zoom :" ), vb );
-  QHBox	*hb = new QHBox( vb );
-  hb->setSpacing( 10 );
+  setLayout( l );
+  l->setMargin( 5 );
+  l->setSpacing( 5 );
+  l->addWidget( new QLabel( tr( "Zoom :" ), this ) );
+  QWidget *hb = new QWidget( this );
+  l->addWidget( hb );
+  QHBoxLayout *hlay = new QHBoxLayout( hb );
+  hb->setLayout( hlay );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
 
   float		z = zoom;
   d->zoom = new QLineEdit( QString::number( z ), hb );
+  hlay->addWidget( d->zoom );
   QComboBox	*fz = d->fixzoom = new QComboBox( hb );
+  hlay->addWidget( fz );
 
   unsigned	i;
   for( i=10; i>1; --i )
-    fz->insertItem( QString( "1:" ) + QString::number( i ) );
-  fz->insertItem( "2:3" );
-  fz->insertItem( "1" );
-  fz->insertItem( "3:2" );
+    fz->addItem( QString( "1:" ) + QString::number( i ) );
+  fz->addItem( "2:3" );
+  fz->addItem( "1" );
+  fz->addItem( "3:2" );
   for( i=2; i<=10; ++i )
-    fz->insertItem( QString::number( i ) );
-#if QT_VERSION >= 0x040000
+    fz->addItem( QString::number( i ) );
   fz->setMaxVisibleItems( fz->count() );
-#else
-  fz->setSizeLimit( fz->count() );
-#endif
-  fz->setCurrentItem( 10 );
+  fz->setCurrentIndex( 10 );
 
-  d->resize = new QCheckBox( tr( "Resize window to fit objects" ), vb );
+  d->resize = new QCheckBox( tr( "Resize window to fit objects" ), this );
+  l->addWidget( d->resize );
   d->resize->setChecked( forceResize );
 
-  QHBox		*hb2 = new QHBox( vb );
-  hb2->setSpacing( 10 );
+  QWidget *hb2 = new QWidget( this );
+  l->addWidget( hb2 );
+  hlay = new QHBoxLayout( hb2 );
+  hb2->setLayout( hlay );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
   QPushButton	*ok = new QPushButton( tr( "OK" ), hb2 );
+  hlay->addWidget( ok );
   ok->setDefault( true );
+  QPushButton *cc = new QPushButton( tr( "Cancel" ), hb2 );
+  hlay->addWidget( cc );
   connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
-  connect( new QPushButton( tr( "Cancel" ), hb2 ), SIGNAL( clicked() ), this, 
-	   SLOT( reject() ) );
+  connect( cc, SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( d->fixzoom, SIGNAL( activated( int ) ), this, 
 	   SLOT( fixedZoomChanged( int ) ) );
 }
