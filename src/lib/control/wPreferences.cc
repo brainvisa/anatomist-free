@@ -50,25 +50,20 @@
 #include <anatomist/surface/Shader.h>
 #include <qtabbar.h>
 #include <QGLShaderProgram>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <aims/qtcompat/qhbuttongroup.h>
+#include <qgroupbox.h>
+#include <qbuttongroup.h>
 #include <qlayout.h>
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlineedit.h>
 #include <qcolordialog.h>
 #include <qcombobox.h>
 #include <qtooltip.h>
 #include <qradiobutton.h>
-#include <aims/qtcompat/qhgroupbox.h>
 #include <qvalidator.h>
-#include <aims/qtcompat/qgrid.h>
-#include <aims/qtcompat/qfiledialog.h>
+#include <qfiledialog.h>
 #include <cartobase/config/paths.h>
 #include <vector>
 #include <map>
@@ -108,18 +103,13 @@ namespace
 
   void setRefColor( Referential* ref, QPushButton* pb )
   {
-    QPixmap	pix;
+    QPixmap	pix( 30, 20 );
     if( ref )
-      {
-        pix.resize( 30, 20 );
-        AimsRGB	col = ref->Color();
-        pix.fill( QColor( col.red(), col.green(), col.blue() ) );
-      }
-#if QT_VERSION >= 0x040000
-    pb->setIconSet( QIcon( pix ) );
-#else
-    pb->setIconSet( QIconSet( pix, pix ) );
-#endif
+    {
+      AimsRGB	col = ref->Color();
+      pix.fill( QColor( col.red(), col.green(), col.blue() ) );
+    }
+    pb->setIcon( pix );
   }
 
 
@@ -132,11 +122,11 @@ namespace
     cb->clear();
     for( ic=cs.begin(); ic!=ec; ++ic, ++ci )
       {
-        cb->insertItem( PreferencesWindow::tr( ic->c_str() ) );
+        cb->addItem( PreferencesWindow::tr( ic->c_str() ) );
         if( ic->c_str() == Cursor::currentCursorName() )
           cur = ci;
       }
-    cb->setCurrentItem( cur );
+    cb->setCurrentIndex( cur );
   }
 
 }
@@ -146,11 +136,13 @@ PreferencesWindow::PreferencesWindow()
   : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), 
     _pdat( new Private )
 {
-  setCaption( tr( "Anatomist global settings" ) );
-  setAttribute(Qt::WA_DeleteOnClose);
-  setObjectName("prefWin");
+  setWindowTitle( tr( "Anatomist global settings" ) );
+  setAttribute( Qt::WA_DeleteOnClose );
+  setObjectName( "prefWin" );
 
-  QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 10 );
+  QVBoxLayout	*mainlay = new QVBoxLayout( this );
+  mainlay->setMargin( 5 );
+  mainlay->setSpacing( 10 );
   QTabBar	*tbar = new QTabBar( this );
 
   _pdat->tabnum[ tbar->addTab( tr( "Application" ) )    ] = 0;
@@ -164,17 +156,23 @@ PreferencesWindow::PreferencesWindow()
 
   //	Application tab
 
-  QVGroupBox	*app = new QVGroupBox( this );
+  QGroupBox *app = new QGroupBox( this );
+  QVBoxLayout *vlay = new QVBoxLayout( app );
   _pdat->tabs.push_back( app );
-  QHBox	*applang = new QHBox( app );
-  applang->setSpacing( 5 );
+  QWidget *applang = new QWidget( app );
+  vlay->addWidget( applang );
+  QHBoxLayout *hlay = new QHBoxLayout( applang );
+  hlay->setSpacing( 5 );
+  hlay->setMargin( 0 );
   QLabel	*l = new QLabel( tr( "Language :" ), applang );
-  QToolTip::add( l, tr( "Language options will apply the next time you start " 
-			"Anatomist (save preferences !)" ) );
+  hlay->addWidget( l );
+  l->setToolTip( tr( "Language options will apply the next time you start " 
+                     "Anatomist (save preferences !)" ) );
   QComboBox	*langbox = new QComboBox( applang );
+  hlay->addWidget( langbox );
   string	lang;
   cfg->getProperty( "language", lang );
-  langbox->insertItem( tr( "default" ) );
+  langbox->addItem( tr( "default" ) );
 
   list<string>  langdl = Paths::findResourceFiles( "po", "anatomist",
     theAnatomist->libraryVersionString() );
@@ -191,41 +189,48 @@ PreferencesWindow::PreferencesWindow()
 
   for( id=langdirs.begin(); id!=ed; ++id, ++i )
     {
-      langbox->insertItem( (*id).c_str() );
+      langbox->addItem( (*id).c_str() );
       if( lang == *id )
 	langind = i+1;
     }
-  langbox->setCurrentItem( langind );
+  langbox->setCurrentIndex( langind );
 
-  QHBox	*appbrow = new QHBox( app );
-  appbrow->setSpacing( 5 );
-  new QLabel( tr( "HTML browser command line :" ), appbrow );
-  QComboBox	*htmlbox = new QComboBox( true, appbrow );
+  QWidget *appbrow = new QWidget( app );
+  vlay->addWidget( appbrow );
+  hlay = new QHBoxLayout( appbrow );
+  hlay->setSpacing( 5 );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "HTML browser command line :" ), 
+                               appbrow ) );
+  QComboBox	*htmlbox = new QComboBox( appbrow );
+  hlay->addWidget( htmlbox );
+  htmlbox->setEditable( true );
   htmlbox->setDuplicatesEnabled( false );
   htmlbox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
                                        QSizePolicy::Fixed ) );
   // htmlbox->setMaximumWidth( 400 );
   string	htmltxt;
   if( cfg->getProperty( "html_browser", htmltxt ) )
-    htmlbox->insertItem( htmltxt.c_str() );
+    htmlbox->addItem( htmltxt.c_str() );
 #ifdef __APPLE__
-  htmlbox->insertItem( "/Applications/Safari.app/Contents/MacOS/Safari %1" );
-  htmlbox->insertItem( "/Applications/Internet\\ Explorer.app/Contents/" 
-                       "MacOS/Internet\\ Explorer %1" );
+  htmlbox->addItem( "/Applications/Safari.app/Contents/MacOS/Safari %1" );
+  htmlbox->addItem( "/Applications/Internet\\ Explorer.app/Contents/" 
+                    "MacOS/Internet\\ Explorer %1" );
 #else
 #ifdef _WIN32
-  htmlbox->insertItem( "explorer.exe %1" );
+  htmlbox->addItem( "explorer.exe %1" );
 #endif
 #endif
-  htmlbox->insertItem( "konqueror %1 &" );
-  htmlbox->insertItem( "firefox %1 &" );
-  htmlbox->insertItem( "mozilla %1 &" );
-  htmlbox->insertItem( "netscape -noraise -remote openBrowser\\(file:%1\\) "
+  htmlbox->addItem( "konqueror %1 &" );
+  htmlbox->addItem( "firefox %1 &" );
+  htmlbox->addItem( "mozilla %1 &" );
+  htmlbox->addItem( "netscape -noraise -remote openBrowser\\(file:%1\\) "
       "2> /dev/null || netscape -no-about-splash file:%1 &" );
-  htmlbox->insertItem( "kfmclient openURL=%1" );
-  htmlbox->setCurrentItem( 0 );
+  htmlbox->addItem( "kfmclient openURL=%1" );
+  htmlbox->setCurrentIndex( 0 );
 
   QWidget *ulev = new QWidget( app );
+  vlay->addWidget( ulev );
   QHBoxLayout *ulevl = new QHBoxLayout( ulev );
   ulevl->setSpacing( 5 );
   ulevl->setContentsMargins( 0, 0, 0, 0 );
@@ -233,21 +238,23 @@ PreferencesWindow::PreferencesWindow()
   QLabel *ull = new QLabel( tr( "User level :" ), ulev );
   ull->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
   ulevl->addWidget( ull );
-  QComboBox *au = new QComboBox( true, ulev );
+  QComboBox *au = new QComboBox( ulev );
   ulevl->addWidget( au );
-  _pdat->userLevel = au;
-  au->insertItem( "Basic" );
-  au->insertItem( "Advanced" );
-  au->insertItem( "Expert" );
   au->setEditable( true );
-  au->setInsertionPolicy( QComboBox::NoInsertion );
+  _pdat->userLevel = au;
+  au->addItem( "Basic" );
+  au->addItem( "Advanced" );
+  au->addItem( "Expert" );
+  au->setEditable( true );
+  au->setInsertPolicy( QComboBox::NoInsert );
   au->setValidator( new QRegExpValidator( QRegExp(
-    "\\d*|Basic|Advanced|Expert|Debugger", false ), au ) );
+    "\\d*|Basic|Advanced|Expert|Debugger", Qt::CaseInsensitive ), au ) );
   resetUserLevel();
   connect( au, SIGNAL( activated( const QString & ) ), this,
     SLOT( setUserLevel( const QString & ) ) );
 
   QWidget *confirm = new QWidget( app );
+  vlay->addWidget( confirm );
   QHBoxLayout *confl = new QHBoxLayout( confirm );
   confl->setSpacing( 5 );
   confl->setContentsMargins( 0, 0, 0, 0 );
@@ -269,16 +276,26 @@ PreferencesWindow::PreferencesWindow()
   connect( confla, SIGNAL( stateChanged( int ) ), this,
            SLOT( confirmBeforeQuitChanged( int ) ) );
 
-  QVGroupBox	*refs = new QVGroupBox( tr( "Default referentials" ), app );
-  QGrid		*refg = new QGrid( 2, refs );
-  new QLabel( tr( "Default referential for loaded objects" ), refg );
+  QGroupBox	*refs = new QGroupBox( tr( "Default referentials" ), app );
+  vlay->addWidget( refs );
+  vlay->addStretch( 1 );
+  vlay = new QVBoxLayout( refs );
+  QWidget *refg = new QWidget( refs );
+  vlay->addWidget( refg );
+  QGridLayout *glay = new QGridLayout( refg );
+  glay->setMargin( 0 );
+  glay->addWidget(
+    new QLabel( tr( "Default referential for loaded objects" ), refg ), 0, 0 );
   _pdat->defobjref = new QPushButton( refg );
+  glay->addWidget( _pdat->defobjref, 0, 1 );
   setRefColor( theAnatomist->getControlWindow()->defaultObjectsReferential(), 
                _pdat->defobjref );
   _pdat->defobjref->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
                                                 QSizePolicy::Fixed ) );
-  new QLabel( tr( "Default referential for new windows" ), refg );
+  glay->addWidget(
+    new QLabel( tr( "Default referential for new windows" ), refg ), 1, 0 );
   _pdat->defwinref = new QPushButton( refg );
+  glay->addWidget( _pdat->defwinref, 1, 1 );
   setRefColor( theAnatomist->getControlWindow()->defaultWindowsReferential(), 
                _pdat->defwinref );
   _pdat->defwinref->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
@@ -290,59 +307,109 @@ PreferencesWindow::PreferencesWindow()
 
   //	Linked cursor tab
 
-  QVBox	*lkcur = new QVBox( this );
+  QWidget *lkcur = new QWidget( this );
+  vlay = new QVBoxLayout( lkcur );
+  vlay->setMargin( 0 );
+  vlay->setSpacing( 5 );
   lkcur->hide();
-  lkcur->setSpacing( 5 );
   _pdat->tabs.push_back( lkcur );
   QCheckBox	*cursEnable 
     = new QCheckBox( tr( "Display linked cursor" ), lkcur );
+  vlay->addWidget( cursEnable );
   cursEnable->setChecked( AWindow::hasGlobalCursor() );
-  QHGroupBox	*cursShape = 
-    new QHGroupBox( tr( "Cursor shape :" ), lkcur );
+  QGroupBox	*cursShape = 
+    new QGroupBox( tr( "Cursor shape :" ), lkcur );
+  vlay->addWidget( cursShape );
+  hlay = new QHBoxLayout( cursShape );
+  cursShape->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+                                         QSizePolicy::Fixed ) );
   _pdat->cursShape = new QComboBox( cursShape );
+  hlay->addWidget( _pdat->cursShape );
   QPushButton	*cursShapeBtn = new QPushButton( tr( "Load..." ), cursShape );
+  hlay->addWidget( cursShapeBtn );
   cursShapeBtn->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
                                             QSizePolicy::Fixed ) );
   updateCursorsCombo( _pdat->cursShape );
 
-  QHBox	*cursSzBox = new QHBox( lkcur );
-  cursSzBox->setSpacing( 10 );
-  new QLabel( tr( "Size :" ), cursSzBox );
+  QWidget *cursSzBox = new QWidget( lkcur );
+  hlay = new QHBoxLayout( cursSzBox );
+  vlay->addWidget( cursSzBox );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "Size :" ), cursSzBox ) );
   _pdat->cursEdit 
     = new QLineEdit( QString::number( AWindow::cursorSize() ), cursSzBox );
-  _pdat->cursSlider = new QSlider( 0, 256, 1, AWindow::cursorSize(), 
-				   Qt::Horizontal, lkcur );
-  QVButtonGroup	*cursCol = new QVButtonGroup( tr( "Cursor color :" ), lkcur );
-  new QRadioButton( tr( "Use default color" ), cursCol );
-  new QRadioButton( tr( "Custom color :" ), cursCol );
-  cursCol->setButton( 1 - AWindow::useDefaultCursorColor() );
+  hlay->addWidget( _pdat->cursEdit );
+  _pdat->cursEdit->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, 
+                                               QSizePolicy::Fixed ) );
+  _pdat->cursSlider = new QSlider( Qt::Horizontal, lkcur );
+  vlay->addWidget( _pdat->cursSlider );
+  _pdat->cursSlider->setMinimum( 0 );
+  _pdat->cursSlider->setMaximumWidth( 256 );
+  _pdat->cursSlider->setPageStep( 1 );
+  _pdat->cursSlider->setValue( AWindow::cursorSize() );
+  QGroupBox *cursCol = new QGroupBox( tr( "Cursor color :" ), lkcur );
+  vlay->addWidget( cursCol );
+  QVBoxLayout *vlay2 = new QVBoxLayout( cursCol );
+  QButtonGroup *bgp = new QButtonGroup( cursCol );
+  bgp->setExclusive( true );
+  QRadioButton *rb = new QRadioButton( tr( "Use default color" ), cursCol );
+  vlay2->addWidget( rb );
+  rb->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+                                  QSizePolicy::Fixed ) );
+  bgp->addButton( rb, 0 );
+  rb = new QRadioButton( tr( "Custom color :" ), cursCol );
+  vlay2->addWidget( rb );
+  rb->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+                                  QSizePolicy::Fixed ) );
+  bgp->addButton( rb, 1 );
+  bgp->button( 1 - AWindow::useDefaultCursorColor() )->setChecked( true );
   _pdat->cursColBtn = new QPushButton( cursCol );
+  vlay2->addWidget( _pdat->cursColBtn );
   AimsRGB	col = AWindow::cursorColor();
   _pdat->cursColBtn->setPalette( QPalette( QColor( col.red(), col.green(), 
-						   col.blue() ) ) );
+                                                   col.blue() ) ) );
+  _pdat->cursColBtn->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, 
+                                                 QSizePolicy::Fixed ) );
+  vlay->addStretch( 1 );
 
   //	windows tab
 
-  QVBox		*winbox = new QVBox( this );
+  QWidget *winbox = new QWidget( this );
   _pdat->tabs.push_back( winbox );
+  vlay = new QVBoxLayout( winbox );
+  vlay->setMargin( 0 );
   winbox->hide();
-  QVGroupBox	*flip 
-    = new QVGroupBox( tr( "Axial/coronal slices orientation" ), winbox );
-  QVButtonGroup  *flipbx = new QVButtonGroup( flip );
-  new QRadioButton( tr( "Radioligical convention (seen from bottom, " 
-			"L/R flipped)" ), flipbx );
-  new QRadioButton( tr( "Neurological convention (seen from top)" ), flipbx );
+  QGroupBox	*flip 
+    = new QGroupBox( tr( "Axial/coronal slices orientation" ), winbox );
+  vlay->addWidget( flip );
+  vlay2 = new QVBoxLayout( flip );
+  QGroupBox  *flipbx = new QGroupBox( flip );
+  vlay2->addWidget( flipbx );
+  QVBoxLayout *vlay3 = new QVBoxLayout( flipbx );
+  QButtonGroup *flipg = new QButtonGroup( flipbx );
+  flipg->setExclusive( true );
+  rb = new QRadioButton( tr( "Radioligical convention (seen from bottom, " 
+                             "L/R flipped)" ), flipbx );
+  vlay3->addWidget( rb );
+  flipg->addButton( rb, 0 );
+  rb = new QRadioButton( tr( "Neurological convention (seen from top)" ), 
+                         flipbx );
+  vlay3->addWidget( rb );
+  flipg->addButton( rb, 1 );
   int     btn = 0;
   string  axconv;
   cfg->getProperty( "axialConvention", axconv );
   if( axconv == "neuro" )
     btn = 1;
-  flipbx->setButton( btn );
+  flipg->button( btn )->setChecked( true );
   QCheckBox	*flipDisplay 
     = new QCheckBox( tr( "Display L/R in corners" ), flip );
+  vlay2->addWidget( flipDisplay );
   flipDisplay->setChecked( AWindow::leftRightDisplay() );
   _pdat->disppos = new QCheckBox( tr( "Display cursor position by default" ),
                                   winbox );
+  vlay->addWidget( _pdat->disppos );
   int dispposfg = 1;
   try
   {
@@ -354,20 +421,32 @@ PreferencesWindow::PreferencesWindow()
   {
   }
   _pdat->disppos->setChecked( dispposfg );
-  QHGroupBox	*winsz 
-    = new QHGroupBox( tr( "Default windows size" ), winbox );
+  QGroupBox	*winsz 
+    = new QGroupBox( tr( "Default windows size" ), winbox );
+  vlay->addWidget( winsz );
+  hlay = new QHBoxLayout( winsz );
   _pdat->winszed = new QLineEdit( winsz );
-  new QLabel( tr( "pixel / mm" ), winsz );
+  hlay->addWidget( _pdat->winszed );
+  _pdat->winszed->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, 
+                                              QSizePolicy::Fixed ) );
+  hlay->addWidget( new QLabel( tr( "pixel / mm" ), winsz ) );
   float	wf = 1.5;
   theAnatomist->config()->getProperty( "windowSizeFactor", wf );
   _pdat->winszed->setText( QString::number( wf ) );
   _pdat->winszed->setValidator( new QDoubleValidator( 0.001, 1e6, 3, 
                                                       _pdat->winszed ) );
-  QVGroupBox *brows = new QVGroupBox( tr( "Browsers" ), winbox );
-  QHBox *brattlen = new QHBox( brows );
-  new QLabel( tr( "limit browsers attribute values to: " ), brattlen );
+  QGroupBox *brows = new QGroupBox( tr( "Browsers" ), winbox );
+  vlay->addWidget( brows );
+  vlay2 = new QVBoxLayout( brows );
+  QWidget *brattlen = new QWidget( brows );
+  vlay2->addWidget( brattlen );
+  hlay = new QHBoxLayout( brattlen );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "limit browsers attribute values to: " ), 
+                               brattlen ) );
   _pdat->browsattlen = new QLineEdit( brattlen );
-  new QLabel( tr( " characters" ), brattlen );
+  hlay->addWidget( _pdat->browsattlen );
+  hlay->addWidget( new QLabel( tr( " characters" ), brattlen ) );
   _pdat->browsattlen->setValidator( new QIntValidator( 0, 1000000,
     _pdat->browsattlen ) );
   int bal = 0;
@@ -382,28 +461,36 @@ PreferencesWindow::PreferencesWindow()
   }
   _pdat->browsattlen->setText( QString::number( bal ) );
 
+  vlay->addStretch( 1 );
+
   //	control window tab
 
-  QVGroupBox	*cwin = new QVGroupBox( this );
+  QGroupBox	*cwin = new QGroupBox( this );
+  vlay2 = new QVBoxLayout( cwin );
   cwin->hide();
   _pdat->tabs.push_back( cwin );
   QCheckBox	*cwlogo = new QCheckBox( tr( "Display nice logo" ), cwin );
+  vlay2->addWidget( cwlogo );
   ControlWindow	*cw = theAnatomist->getControlWindow();
   cwlogo->setChecked( cw->logoEnabled() );
+  vlay2->addStretch( 1 );
 
   //	Volumes tab
 
-  QVGroupBox	*tvol = new QVGroupBox( this );
+  QGroupBox	*tvol = new QGroupBox( this );
+  vlay = new QVBoxLayout( tvol );
   tvol->hide();
   _pdat->tabs.push_back( tvol );
   QCheckBox	*tvint = new QCheckBox( tr( "Interpolation on volumes when "
                                             "changing referential" ), tvol );
+  vlay->addWidget( tvint );
   int	tvich = 1;
   cfg->getProperty( "volumeInterpolation", tvich );
   tvint->setChecked( tvich );
   QCheckBox	*tvspm 
     = new QCheckBox( tr( "Use referential / transformations "
       "information found in objects headers (SPM, NIFTI...)" ), tvol );
+  vlay->addWidget( tvspm );
   int	tvuspm = 0;
   try
   {
@@ -419,6 +506,7 @@ PreferencesWindow::PreferencesWindow()
   QCheckBox     *refscan
     = new QCheckBox( tr(
       "Assume all 'scanner-based' referentials are the same " ), tvol );
+  vlay->addWidget( refscan );
   int   refscanu = 0;
   try
   {
@@ -430,33 +518,40 @@ PreferencesWindow::PreferencesWindow()
   {
   }
   refscan->setChecked( refscanu );
-  
+
+  vlay->addStretch( 1 );
+
   //    OpenGL tab
 
-  QVGroupBox    *tgl = new QVGroupBox( this );
+  QGroupBox    *tgl = new QGroupBox( this );
+  vlay = new QVBoxLayout( tgl );
   tgl->hide();
   _pdat->tabs.push_back( tgl );
 
-  QHBox *btexmax = new QHBox( tgl );
-  new QLabel( tr( "limit number of textures: " ), btexmax );
+  QWidget *btexmax = new QWidget( tgl );
+  vlay->addWidget( btexmax );
+  hlay = new QHBoxLayout( btexmax );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "limit number of textures: " ), btexmax ) );
   QComboBox *texmax = new QComboBox( btexmax );
+  hlay->addWidget( texmax );
   _pdat->texmax = texmax;
   texmax->setDuplicatesEnabled( false );
   texmax->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
                                       QSizePolicy::Fixed ) );
-  texmax->insertItem( tr( "Unlimited" ) );
-  texmax->insertItem( "0" );
-  texmax->insertItem( "1" );
-  texmax->insertItem( "2" );
-  texmax->insertItem( "3" );
-  texmax->insertItem( "4" );
-  texmax->insertItem( "5" );
-  texmax->insertItem( "6" );
-  texmax->insertItem( "7" );
-  texmax->insertItem( "8" );
+  texmax->addItem( tr( "Unlimited" ) );
+  texmax->addItem( "0" );
+  texmax->addItem( "1" );
+  texmax->addItem( "2" );
+  texmax->addItem( "3" );
+  texmax->addItem( "4" );
+  texmax->addItem( "5" );
+  texmax->addItem( "6" );
+  texmax->addItem( "7" );
+  texmax->addItem( "8" );
   texmax->setEditable( true );
   texmax->setValidator( new QRegExpValidator( QRegExp(
-    "\\d*|" + tr( "Unlimited" ) + "|-1", false ), texmax ) );
+    "\\d*|" + tr( "Unlimited" ) + "|-1", Qt::CaseInsensitive ), texmax ) );
   #ifdef _WIN32
   /* On Windows for an unknown reason (probably a bug well hidden somewhere in
      anatomist), allowing more than 3 textures results to nothing being 
@@ -476,7 +571,7 @@ PreferencesWindow::PreferencesWindow()
   catch( ... )
   {
   }
-  texmax->setCurrentItem( ntexmax + 1 );
+  texmax->setCurrentIndex( ntexmax + 1 );
   btexmax->setToolTip( tr( "Try this option if you encounter OpenGL rendering "
   "problems.\n"
   "Such problems have been seen on Windows machines, where rendering was not "
@@ -486,6 +581,7 @@ PreferencesWindow::PreferencesWindow()
   ) );
 
   QCheckBox *glselect = new QCheckBox( tr( "Use OpenGL selection" ), tgl );
+  vlay->addWidget( glselect );
   int   useglsel = 1;
   try
   {
@@ -506,7 +602,9 @@ PreferencesWindow::PreferencesWindow()
   "might still crash with such an OpenGL implementation." ) );
 
   // shaders
-  QCheckBox *glshader = new QCheckBox( tr( "Enable OpenGL shaders (GLSL 1.2 support needed)" ), tgl );
+  QCheckBox *glshader = new QCheckBox( 
+    tr( "Enable OpenGL shaders (GLSL 1.2 support needed)" ), tgl );
+  vlay->addWidget( glshader );
   bool	support_glshader = Shader::isSupported();
   bool	useglshader;
 
@@ -520,11 +618,15 @@ PreferencesWindow::PreferencesWindow()
   glshader->setChecked( useglshader);
   glshader->setToolTip( tr( "Enable OpenGL shaders." ) );
 
-  QCheckBox *glshaderbydefault = new QCheckBox( tr( "Use shader-based OpenGL pipeline (lighting/shading model) by default" ), tgl );
+  QCheckBox *glshaderbydefault = new QCheckBox( 
+    tr( "Use shader-based OpenGL pipeline (lighting/shading model) by default" 
+      ), tgl );
+  vlay->addWidget( glshaderbydefault );
   if (not support_glshader)
     glshaderbydefault->setEnabled(false);
   glshaderbydefault->setChecked(Shader::isUsedByDefault());
 
+  vlay->addStretch( 1 );
 
   //	top-level widget setting
 
@@ -546,7 +648,7 @@ PreferencesWindow::PreferencesWindow()
   connect( _pdat->cursShape, SIGNAL( activated( const QString & ) ), this, 
 	   SLOT( setCursorShape( const QString & ) ) );
   connect( cursShapeBtn, SIGNAL( clicked() ), this, SLOT( loadCursor() ) );
-  connect( cursCol, SIGNAL( clicked( int ) ), this, 
+  connect( bgp, SIGNAL( buttonClicked( int ) ), this, 
 	   SLOT( setCursorColorMode( int ) ) );
   connect( _pdat->cursEdit, SIGNAL( returnPressed() ), this, 
 	   SLOT( cursorEditChanged() ) );
@@ -557,7 +659,7 @@ PreferencesWindow::PreferencesWindow()
 
   connect( flipDisplay, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enableLRDisplay( bool ) ) );
-  connect( flipbx, SIGNAL( clicked( int ) ), this, 
+  connect( flipg, SIGNAL( buttonClicked( int ) ), this, 
 	   SLOT( setAxialConvention( int ) ) );
   connect( _pdat->winszed, SIGNAL( returnPressed() ), this, 
            SLOT( defaultWinSizeChanged() ) );
@@ -644,7 +746,7 @@ void PreferencesWindow::loadCursor()
   
   QFileDialog	& fd = fileDialog();
   fd.setNameFilter( filt );
-  fd.setCaption( capt );
+  fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )
     return;
@@ -656,8 +758,8 @@ void PreferencesWindow::loadCursor()
   for ( QStringList::Iterator it = filenames.begin(); it != filenames.end(); 
 	++it )
     {
-      LoadObjectCommand *command = new LoadObjectCommand( (*it).utf8().data(), -1, 
-                                                          "", true );
+      LoadObjectCommand *command = new LoadObjectCommand( (*it).toStdString(), 
+                                                          -1, "", true );
       theProcessor->execute( command );
     }
 
@@ -755,7 +857,7 @@ void PreferencesWindow::enableAutomaticReferential( bool x )
 void PreferencesWindow::languageChanged( const QString & lang )
 {
   if( lang != tr( "default" ) )
-    theAnatomist->config()->setProperty( "language", string( lang.utf8().data() ) );
+    theAnatomist->config()->setProperty( "language", string( lang.toStdString() ) );
   else
     theAnatomist->config()->removeProperty( "language" );
 }
@@ -764,7 +866,7 @@ void PreferencesWindow::languageChanged( const QString & lang )
 void PreferencesWindow::htmlBrowserChanged( const QString & brows )
 {
   theAnatomist->config()->setProperty( "html_browser", 
-					string( brows.utf8().data() ) );
+					string( brows.toStdString() ) );
 }
 
 
@@ -774,7 +876,7 @@ void PreferencesWindow::setUserLevel( const QString & x )
   unsigned y = x.toUInt( &ok );
   if( !ok )
   {
-    QString s = x.lower();
+    QString s = x.toLower();
     if( s == "basic" )
       y = 0;
     else if( s == "advanced" )
@@ -793,14 +895,14 @@ void PreferencesWindow::setUserLevel( const QString & x )
   if( y <= 2 )
   {
     theAnatomist->setUserLevel( y );
-    au->setCurrentItem( y );
+    au->setCurrentIndex( y );
   }
   else if( y == 3 )
   {
     theAnatomist->setUserLevel( 3 );
-    if( au->count() <= 3 || au->text( 3 ) != "Debugger" )
-      au->insertItem( "Debugger", 3 );
-    au->setCurrentItem( 3 );
+    if( au->count() <= 3 || au->itemText( 3 ) != "Debugger" )
+      au->insertItem( 3, "Debugger" );
+    au->setCurrentIndex( 3 );
   }
   else
   {
@@ -834,30 +936,32 @@ void PreferencesWindow::defaultWinSizeChanged()
 void PreferencesWindow::changeDefObjectsRef()
 {
   set<AObject *>	glub;
-  ChooseReferentialWindow	crw( glub, 
-                                     tr( "Default objects referential" ), 
-                                     Qt::WType_Modal );
+  ChooseReferentialWindow
+    crw( glub,
+         tr( "Default objects referential" ).toStdString().c_str() );
+  crw.setModal( true );
   if( crw.exec() )
-    {
-      setRefColor( crw.selectedReferential(), _pdat->defobjref );
-      theAnatomist->getControlWindow()
-        ->setDefaultObjectsReferential( crw.selectedReferential() );
-    }
+  {
+    setRefColor( crw.selectedReferential(), _pdat->defobjref );
+    theAnatomist->getControlWindow()
+      ->setDefaultObjectsReferential( crw.selectedReferential() );
+  }
 }
 
 
 void PreferencesWindow::changeDefWindowsRef()
 {
   set<AObject *>		glub;
-  ChooseReferentialWindow	crw( glub, 
-                                     tr( "Default windows referential" ), 
-                                     Qt::WType_Modal );
+  ChooseReferentialWindow
+    crw( glub,
+         tr( "Default windows referential" ).toStdString().c_str() );
+  crw.setModal( true );
   if( crw.exec() )
-    {
-      setRefColor( crw.selectedReferential(), _pdat->defwinref );
-      theAnatomist->getControlWindow()
-        ->setDefaultWindowsReferential( crw.selectedReferential() );
-    }
+  {
+    setRefColor( crw.selectedReferential(), _pdat->defwinref );
+    theAnatomist->getControlWindow()
+      ->setDefaultWindowsReferential( crw.selectedReferential() );
+  }
 }
 
 
@@ -905,8 +1009,7 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
   catch( ... )
   {
   }
-  cout << "setMaxTextures: " << mt.lower().utf8().data() << " / " << tr( "Unlimited" ).utf8().data() << endl;
-  if( mt.lower() == tr( "Unlimited" ).lower() )
+  if( mt.toLower() == tr( "Unlimited" ).toLower() )
     imt = -1;
   else
   {
@@ -933,7 +1036,7 @@ void PreferencesWindow::setMaxTextures( const QString & mt )
   else
     mt2 = QString::number( imt );
   if( mt2 != mt )
-    _pdat->texmax->setCurrentItem( imt + 1 );
+    _pdat->texmax->setCurrentIndex( imt + 1 );
 }
 
 
