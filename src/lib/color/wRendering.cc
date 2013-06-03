@@ -31,20 +31,13 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
 #include <anatomist/color/wRendering.h>
 
 #include <qlayout.h>
-#include <aims/qtcompat/qvgroupbox.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qtabbar.h>
 #include <qradiobutton.h>
-#include <aims/qtcompat/qbutton.h>
-#include <aims/qtcompat/qgrid.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qpixmap.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/Object.h>
@@ -53,9 +46,8 @@
 #include <anatomist/object/objectparamselect.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/application/globalConfig.h>
-#include <anatomist/surface/globject.h>
+#include <anatomist/surface/glcomponent.h>
 #include <cartobase/object/object.h>
-#include <QDebug>
 
 using namespace anatomist;
 using namespace std;
@@ -81,12 +73,9 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
     _privdata( new Private( objL ) )
 {
 
-
-
   setObjectName(name);
   setAttribute(Qt::WA_DeleteOnClose);
   setupUi(this);
-
 
   if( _parents.size() > 0 )
     _material = (*_parents.begin())->GetMaterial();
@@ -95,15 +84,14 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
        it!=_parents.end();++it)
     (*it)->addObserver( (Observer*)this );
 
-  setCaption( name );
+  setWindowTitle( name );
   if( windowFlags() & Qt::Window )
-    {
-      QPixmap anaicon( Settings::findResourceFile( "icons/icon.xpm"
-        ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
-
+  {
+    QPixmap anaicon( Settings::findResourceFile( "icons/icon.xpm"
+      ).c_str() );
+    if( !anaicon.isNull() )
+      setWindowIcon( anaicon );
+  }
 
 
   ObjectParamSelect *sel = new ObjectParamSelect( _parents, select_container_widget);
@@ -156,6 +144,8 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   directions_coloring_model_radioButton->hide();
 
   updateInterface();
+  static_cast<QBoxLayout *>( layout() )->addStretch( 1 );
+
 }
 
 
@@ -249,7 +239,7 @@ namespace
   {
   }
 
-  void setButtonState( QButton* b, int x )
+  void setButtonState( QAbstractButton* b, int x )
   {
     QCheckBox	*cb = dynamic_cast<QCheckBox *>( b );
     if( !cb )
