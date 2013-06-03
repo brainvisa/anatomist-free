@@ -35,11 +35,9 @@
 #include <anatomist/mobject/wFusion3D.h>
 
 #include <qlayout.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qpushbutton.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <aims/qtcompat/qvgroupbox.h>
+#include <qbuttongroup.h>
+#include <qgroupbox.h>
 #include <qradiobutton.h>
 #include <qlabel.h>
 #include <qslider.h>
@@ -61,9 +59,9 @@ using namespace std;
 struct Fusion3DWindow::Private
 {
   Private() {}
-  QVButtonGroup			*modegrp;
-  QVButtonGroup			*methgrp;
-  QVButtonGroup			*submethgrp;
+  QButtonGroup			*modegrp;
+  QButtonGroup			*methgrp;
+  QButtonGroup			*submethgrp;
   QSlider			*linratesl;
   QLabel			*linratelab;
   QSlider			*depthsl;
@@ -85,7 +83,7 @@ struct Fusion3DWindow::Private
   float				step;
   bool				stepHasChanged;
   ObjectParamSelect		*objsel;
-  QVBox				*main;
+  QWidget			*main;
 };
 
 
@@ -126,13 +124,13 @@ Fusion3DWindow::Fusion3DWindow( const set<AObject *> &objL, QWidget* parent,
   d->depthHasChanged = false;
   d->stepHasChanged = false;
 
-  setCaption( name );
+  setWindowTitle( name );
   if( parent == 0 )
   {
     QPixmap	anaicon( Settings::findResourceFile(
       "icons/icon.xpm" ).c_str() );
     if( !anaicon.isNull() )
-      setIcon( anaicon );
+      setWindowIcon( anaicon );
   }
 
   drawContents();
@@ -169,92 +167,156 @@ void Fusion3DWindow::drawContents()
   d->objsel->addFilter( filterFusion3D );
   mainlay->addWidget( d->objsel );
 
-  d->main = new QVBox( this );
-  d->main->setSpacing( 10 );
+  d->main = new QWidget( this );
+  QVBoxLayout *vlay = new QVBoxLayout( d->main );
+  vlay->setSpacing( 10 );
+  vlay->setMargin( 0 );
   mainlay->addWidget( d->main );
 
-  QHBox		*hbox = new QHBox( d->main );
+  QWidget *hbox = new QWidget( d->main );
+  vlay->addWidget( hbox );
+  QHBoxLayout *hlay = new QHBoxLayout( hbox );
+  hlay->setMargin( 0 );
   QPushButton	*applybtn = new QPushButton( tr( "Apply" ), d->main );
+  vlay->addWidget( applybtn );
 
   applybtn->setFixedSize( applybtn->sizeHint() );
-  hbox->setSpacing( 10 );
+  hlay->setSpacing( 10 );
 
-  QVButtonGroup	*modebox = d->modegrp 
-    = new QVButtonGroup( tr( "Fusion mode :" ), hbox );
-  modebox->setExclusive( true );
+  QGroupBox	*modebox = new QGroupBox( tr( "Fusion mode :" ), hbox );
+  hlay->addWidget( modebox );
+  vlay = new QVBoxLayout( modebox );
+  QButtonGroup *modeg = new QButtonGroup( modebox );
+  d->modegrp = modeg;
+  modeg->setExclusive( true );
   QRadioButton	*geombtn = new QRadioButton( tr( "Geometrical" ), modebox );
+  vlay->addWidget( geombtn );
+  modeg->addButton( geombtn, 0 );
   QRadioButton	*linbtn = new QRadioButton( tr( "Linear" ), modebox );
+  vlay->addWidget( linbtn );
+  modeg->addButton( linbtn, 0 );
   d->linratelab = new QLabel( "50", modebox );
-  d->linratesl = new QSlider( 0, 100, 1, 50, Qt::Horizontal, 
-                              modebox );
-  d->linratesl->setLineStep( 1 );
-  new QLabel( tr( "Rate" ), modebox );
+  vlay->addWidget( d->linratelab );
+  d->linratesl = new QSlider( Qt::Horizontal, modebox );
+  d->linratesl->setMinimum( 0 );
+  d->linratesl->setMaximum( 100 );
+  d->linratesl->setPageStep( 1 );
+  d->linratesl->setValue( 50 );
+  vlay->addWidget( d->linratesl );
+  vlay->addWidget( new QLabel( tr( "Rate" ), modebox ) );
+  vlay->addStretch( 1 );
 
-  QVButtonGroup	*methbox = d->methgrp
-    = new QVButtonGroup( tr( "Methods :" ), hbox );
-  methbox->setExclusive( true );
-  new QRadioButton( tr( "Point to point" ), methbox );
-  new QRadioButton( tr( "Point to point with depth offset (inside)" ), 
+  QGroupBox	*methbox = new QGroupBox( tr( "Methods :" ), hbox );
+  hlay->addWidget( methbox );
+  vlay = new QVBoxLayout( methbox );
+  QButtonGroup *methg = new QButtonGroup( methbox );
+  d->methgrp = methg;
+  methg->setExclusive( true );
+  QRadioButton *rb = new QRadioButton( tr( "Point to point" ), methbox );
+  vlay->addWidget( rb );
+  methg->addButton( rb, 0 );
+  rb = new QRadioButton( tr( "Point to point with depth offset (inside)" ), 
                     methbox );
-  new QRadioButton( tr( "Point to point with depth offset (outside)" ), 
+  vlay->addWidget( rb );
+  methg->addButton( rb, 1 );
+  rb = new QRadioButton( tr( "Point to point with depth offset (outside)" ), 
                     methbox );
-  new QRadioButton( tr( "Line to point" ), methbox );
-  new QRadioButton( tr( "Inside line to point" ), methbox );
-  new QRadioButton( tr( "Outside line to point" ), methbox );
-  new QRadioButton( tr( "Sphere to point" ), methbox );
+  vlay->addWidget( rb );
+  methg->addButton( rb, 2 );
+  rb = new QRadioButton( tr( "Line to point" ), methbox );
+  vlay->addWidget( rb );
+  methg->addButton( rb, 3 );
+  rb = new QRadioButton( tr( "Inside line to point" ), methbox );
+  vlay->addWidget( rb );
+  methg->addButton( rb, 4 );
+  rb = new QRadioButton( tr( "Outside line to point" ), methbox );
+  vlay->addWidget( rb );
+  methg->addButton( rb, 5 );
+  rb = new QRadioButton( tr( "Sphere to point" ), methbox );
+  vlay->addWidget( rb );
+  methg->addButton( rb, 6 );
+  vlay->addStretch( 1 );
 
-  QVButtonGroup	*submbox = d->submethgrp 
-    = new QVButtonGroup( tr( "Submethods :" ), hbox );
-  submbox->setExclusive( true );
+  QGroupBox	*submbox = new QGroupBox( tr( "Submethods :" ), hbox );
+  hlay->addWidget( submbox );
+  vlay = new QVBoxLayout( submbox );
+  QButtonGroup *subg = new QButtonGroup( submbox );
+  d->submethgrp = subg;
+  subg->setExclusive( true );
   QRadioButton	*maxbtn = new QRadioButton( tr( "Max" ), submbox );
+  vlay->addWidget( maxbtn );
+  subg->addButton( maxbtn, 0 );
   QRadioButton	*minbtn = new QRadioButton( tr( "Min" ), submbox );
+  vlay->addWidget( minbtn );
+  subg->addButton( minbtn, 1 );
   QRadioButton	*meanbtn = new QRadioButton( tr( "Mean" ), submbox );
+  vlay->addWidget( meanbtn );
+  subg->addButton( meanbtn, 2 );
   QRadioButton	*cmeanbtn = new QRadioButton( tr( "Corrected mean" ), 
-					      submbox );
+                                              submbox );
+  vlay->addWidget( cmeanbtn );
+  subg->addButton( cmeanbtn, 3 );
   QRadioButton	*emeanbtn = new QRadioButton( tr( "Enhanced mean" ), submbox );
+  vlay->addWidget( emeanbtn );
+  subg->addButton( emeanbtn, 4 );
   QRadioButton  *absmaxbtn = new QRadioButton( tr( "Abs. Max" ), submbox );
+  vlay->addWidget( absmaxbtn );
+  subg->addButton( absmaxbtn, 5 );
+  vlay->addStretch( 1 );
 
-  QVGroupBox	*parambox = new QVGroupBox( tr( "Parameters :" ), hbox );
+  QGroupBox	*parambox = new QGroupBox( tr( "Parameters :" ), hbox );
+  hlay->addWidget( parambox );
+  vlay = new QVBoxLayout( parambox );
   d->depthlab = new QLineEdit( "5", parambox );
+  vlay->addWidget( d->depthlab );
   QDoubleValidator *dv = new QDoubleValidator( d->depthlab );
   dv->setBottom( 0 );
   d->depthlab->setValidator( dv );
-  d->depthsl = new QSlider( 0, 600, 1, 50, Qt::Horizontal,
-				    parambox );
-  d->depthsl->setLineStep( 1 );
-  new QLabel( tr( "Depth (mm)" ), parambox );
+  d->depthsl = new QSlider( Qt::Horizontal, parambox );
+  d->depthsl->setMinimum( 0 );
+  d->depthsl->setMaximum( 600 );
+  d->depthsl->setPageStep( 1 );
+  d->depthsl->setValue( 50 );
+  vlay->addWidget( d->depthsl );
+  vlay->addWidget( new QLabel( tr( "Depth (mm)" ), parambox ) );
   d->steplab = new QLineEdit( "2.5", parambox );
+  vlay->addWidget( d->steplab );
   dv = new QDoubleValidator( d->steplab );
   dv->setBottom( 0 );
   d->steplab->setValidator( dv );
-  d->stepsl = new QSlider( 0, 200, 1, 25, Qt::Horizontal,
-				   parambox );
-  d->stepsl->setLineStep( 1 );
-  new QLabel( tr( "Step (mm)" ), parambox );
+  d->stepsl = new QSlider( Qt::Horizontal, parambox );
+  d->stepsl->setMinimum( 0 );
+  d->stepsl->setMaximum( 200 );
+  d->stepsl->setPageStep( 1 );
+  d->stepsl->setValue( 25 );
+  vlay->addWidget( d->stepsl );
+  vlay->addWidget( new QLabel( tr( "Step (mm)" ), parambox ) );
+  vlay->addStretch( 1 );
 
   updateWindow();
 
-  connect( geombtn, SIGNAL( clicked() ), this, SLOT( geometricalMode() ) );
+  connect( geombtn, SIGNAL( clicked() ), 
+           this, SLOT( geometricalMode() ) );
   connect( linbtn, SIGNAL( clicked() ), this, SLOT( linearMode() ) );
-  connect( d->linratesl, SIGNAL( valueChanged( int ) ), this, 
-	   SLOT( linRateChanged( int ) ) );
-  connect( methbox, SIGNAL( clicked( int ) ), this, 
-           SLOT( changeMethod( int ) ) );
+  connect( d->linratesl, SIGNAL( valueChanged( int ) ), 
+           this, SLOT( linRateChanged( int ) ) );
+  connect( methg, SIGNAL( buttonClicked( int ) ), 
+           this, SLOT( changeMethod( int ) ) );
   connect( maxbtn, SIGNAL( clicked() ), this, SLOT( maxSubMethod() ) );
   connect( minbtn, SIGNAL( clicked() ), this, SLOT( minSubMethod() ) );
   connect( meanbtn, SIGNAL( clicked() ), this, SLOT( meanSubMethod() ) );
-  connect( cmeanbtn, SIGNAL( clicked() ), this, 
-	   SLOT( correctedMeanSubMethod() ) );
-  connect( emeanbtn, SIGNAL( clicked() ), this, 
-	   SLOT( enhancedMeanSubMethod() ) );
+  connect( cmeanbtn, SIGNAL( clicked() ), 
+           this, SLOT( correctedMeanSubMethod() ) );
+  connect( emeanbtn, SIGNAL( clicked() ), 
+           this, SLOT( enhancedMeanSubMethod() ) );
   connect( absmaxbtn, SIGNAL( clicked() ), this, SLOT( absmaxSubMethod() ) );
-  connect( d->depthsl, SIGNAL( valueChanged( int ) ), this,
-	   SLOT( depthChanged( int ) ) );
-  connect( d->stepsl, SIGNAL( valueChanged( int ) ), this, 
-	   SLOT( stepChanged( int ) ) );
+  connect( d->depthsl, SIGNAL( valueChanged( int ) ), 
+           this, SLOT( depthChanged( int ) ) );
+  connect( d->stepsl, SIGNAL( valueChanged( int ) ), 
+           this, SLOT( stepChanged( int ) ) );
   connect( applybtn, SIGNAL( clicked() ), this, SLOT( updateObjects() ) );
-  connect( d->objsel, SIGNAL( selectionStarts() ), this, 
-           SLOT( chooseObject() ) );
+  connect( d->objsel, SIGNAL( selectionStarts() ), 
+           this, SLOT( chooseObject() ) );
   connect( d->objsel, 
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
            this, 
@@ -349,9 +411,9 @@ void Fusion3DWindow::updateWindow()
       mode = 0;
       break;
     }
-  d->modegrp->setButton( mode );
+  d->modegrp->button( mode )->setChecked( true );
 
-  d->methgrp->setButton( (int) fus->method() );
+  d->methgrp->button( (int) fus->method() )->setChecked( true );
 
   switch( fus->subMethod() )
     {
@@ -374,7 +436,7 @@ void Fusion3DWindow::updateWindow()
       submeth = 0;
       break;
     }
-  d->submethgrp->setButton( submeth );
+  d->submethgrp->button( submeth )->setChecked( true );
 
   d->linratelab->setText( QString::number( 100 * fus->glTexRate() ) );
   d->linratesl->setValue( (int) ( 100 * fus->glTexRate() ) );
