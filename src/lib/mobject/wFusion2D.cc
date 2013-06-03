@@ -31,13 +31,14 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#ifdef QT3_SUPPORT
+#undef QT3_SUPPORT
+#endif
+
 
 #include <anatomist/mobject/wFusion2D.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <aims/qtcompat/qvbuttongroup.h>
+#include <qgroupbox.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlabel.h>
@@ -46,7 +47,6 @@
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qlistwidget.h>
-#include <aims/qtcompat/qvbox.h>
 #include <qpixmap.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/processor/Processor.h>
@@ -68,7 +68,7 @@ struct Fusion2DWindow::Private
   QTexturePanel		*texpanel;
   ObjectParamSelect	*objsel;
   bool			recurs;
-  QVGroupBox		*objbox;
+  QGroupBox		*objbox;
   QListWidget		*orderbx;
   int			currentsub;
   set<AObject *>	initial;
@@ -87,18 +87,18 @@ Fusion2DWindow::Fusion2DWindow( const set<AObject *> &objL,
 
   for( io=objL.begin(); io!=fo; ++io )
     if ( (*io)->type() == AObject::FUSION2D )
-      {
-	_obj.insert( *io );
-	(*io)->addObserver( this );
-      }
+    {
+      _obj.insert( *io );
+      (*io)->addObserver( this );
+    }
 
-  setCaption( tr( "Fusion 2D control" ) );
+  setWindowTitle( tr( "Fusion 2D control" ) );
   if( parent == 0 )
   {
     QPixmap	anaicon( Settings::findResourceFile(
                         "icons/icon.xpm" ).c_str() );
     if( !anaicon.isNull() )
-      setIcon( anaicon );
+      setWindowIcon( anaicon );
   }
 
   drawContents();
@@ -193,27 +193,40 @@ namespace
 
 void Fusion2DWindow::drawContents()
 {
-  QVBoxLayout	*mainlay = new QVBoxLayout( this, 5 );
+  QVBoxLayout	*mainlay = new QVBoxLayout( this );
+  mainlay->setMargin( 5 );
+  mainlay->setSpacing( 5 );
 
   ObjectParamSelect	*hbtl = new ObjectParamSelect( _obj, this );
   pdat->objsel = hbtl;
   hbtl->addFilter( &filterFusion2D );
   mainlay->addWidget( hbtl );
 
-  QHBox		*hb0 = new QHBox( this );
+  QWidget *hb0 = new QWidget( this );
   mainlay->addWidget( hb0 );
-  hb0->setSpacing( 5 );
+  QHBoxLayout *hlay = new QHBoxLayout( hb0 );
+  hlay->setSpacing( 5 );
+  hlay->setMargin( 0 );
 
-  pdat->objbox = new QVGroupBox( tr( "Objects :" ), hb0 );
+  pdat->objbox = new QGroupBox( tr( "Objects :" ), hb0 );
+  hlay->addWidget( pdat->objbox );
+  QVBoxLayout *vlay = new QVBoxLayout( pdat->objbox );
   pdat->orderbx = new QListWidget( pdat->objbox );
-  QHBox	*hb1 = new QHBox( pdat->objbox );
-  hb1->setSpacing( 5 );
+  vlay->addWidget( pdat->orderbx );
+  QWidget *hb1 = new QWidget( pdat->objbox );
+  vlay->addWidget( hb1 );
+  QHBoxLayout *hlay2 = new QHBoxLayout( hb1 );
+  hlay2->setSpacing( 5 );
+  hlay2->setMargin( 0 );
   QPushButton	*up = new QPushButton( tr( "Up" ), hb1 );
+  hlay2->addWidget( up );
   QPushButton	*dn = new QPushButton( tr( "Down" ), hb1 );
+  hlay2->addWidget( dn );
   if( _obj.size() != 1 )
     hb1->setEnabled( false );
 
   pdat->texpanel = new QTexturePanel( _obj, hb0 );
+  hlay->addWidget( pdat->texpanel );
   pdat->texpanel->setVisibility( QTexturePanel::Generation, false );
   pdat->texpanel->setVisibility( QTexturePanel::Filtering, false );
   pdat->texpanel->setVisibility( QTexturePanel::Interpolation, false );
