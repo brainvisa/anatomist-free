@@ -43,16 +43,14 @@
 #include <anatomist/dialogs/colorDialog.h>
 
 #include <qlayout.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <aims/qtcompat/qvgroupbox.h>
+#include <qbuttongroup.h>
+#include <qgroupbox.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
 #include <qpixmap.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 
 
 using namespace anatomist;
@@ -242,12 +240,12 @@ struct QGraphParam::Private
 {
   QCheckBox	*savemodif;
   QCheckBox	*autodir;
-  QVButtonGroup	*dispmode;
+  QButtonGroup	*dispmode;
   QCheckBox	*usenomen;
   QComboBox	*attribs;
   QCheckBox	*ttips;
   QCheckBox	*invcol;
-  QVButtonGroup	*iobox;
+  QButtonGroup	*iobox;
   QCheckBox     *loadrelations;
   QComboBox     *selectmode;
 };
@@ -275,92 +273,134 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   _qGraphParam() = this;
   GraphParams	*gp = GraphParams::graphParams();
 
-  setCaption( tr( "Graph parameters" ) );
+  setWindowTitle( tr( "Graph parameters" ) );
   setObjectName(name);
   setAttribute(Qt::WA_DeleteOnClose);
 
-  QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "GraphParamLay1" );
-  QVButtonGroup	*bgr 
-    = new QVButtonGroup( tr( "Graph 3D display mode" ), this, "btngroup" );
-  d->dispmode = bgr;
-  new QRadioButton( tr( "Display trangulations" ), bgr, "displtri" );
-  new QRadioButton( tr( "Display facets" ), bgr, "displbck" );
-  new QRadioButton( tr( "Display all" ), bgr, "displall" );
-  new QRadioButton( tr( "Display first object" ), bgr, "displfst" );
+  QVBoxLayout	*lay1 = new QVBoxLayout( this );
+  lay1->setMargin( 5 );
+  lay1->setSpacing( 5 );
+  QGroupBox	*bgr 
+    = new QGroupBox( tr( "Graph 3D display mode" ), this );
+  QVBoxLayout *vlay = new QVBoxLayout( bgr );
+  QButtonGroup *grb = new QButtonGroup( bgr );
+  d->dispmode = grb;
+  grb->setExclusive( true );
+  QRadioButton *rb = new QRadioButton( tr( "Display trangulations" ), bgr );
+  vlay->addWidget( rb );
+  grb->addButton( rb, 0 );
+  rb = new QRadioButton( tr( "Display facets" ), bgr );
+  vlay->addWidget( rb );
+  grb->addButton( rb, 1 );
+  rb = new QRadioButton( tr( "Display all" ), bgr );
+  vlay->addWidget( rb );
+  grb->addButton( rb, 2 );
+  rb = new QRadioButton( tr( "Display first object" ), bgr );
+  vlay->addWidget( rb );
+  grb->addButton( rb, 3 );
+  vlay->addStretch( 1 );
 
-  bgr->setButton( (int) AGraphObject::showType() );
+  grb->button( (int) AGraphObject::showType() )->setChecked( true );
 
-  QVGroupBox	*cgr = new QVGroupBox( tr( "Colors (2D / 3D)" ), this, 
-				       "colgroup" );
+  QGroupBox	*cgr = new QGroupBox( tr( "Colors (2D / 3D)" ), this );
+  vlay = new QVBoxLayout( cgr );
   QCheckBox	*col = 
-    new QCheckBox( tr( "Use Nomenclature/color bindings (if any)" ), 
-		   cgr, "colorbind" );
+    new QCheckBox( tr( "Use Nomenclature/color bindings (if any)" ), cgr );
+  vlay->addWidget( col );
   d->usenomen = col;
-  QHBox		*fr1 = new QHBox( cgr );
-  fr1->setSpacing( 10 );
-  QLabel	*lab1 = new QLabel( tr( "Use attribute :" ), fr1, "lab1" );
-  QComboBox	*attribs = new QComboBox( fr1, "attribCombo" );
+  QWidget *fr1 = new QWidget( cgr );
+  vlay->addWidget( fr1 );
+  QHBoxLayout *hlay = new QHBoxLayout( fr1 );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 10 );
+  QLabel	*lab1 = new QLabel( tr( "Use attribute :" ), fr1 );
+  hlay->addWidget( lab1 );
+  QComboBox	*attribs = new QComboBox( fr1 );
+  hlay->addWidget( attribs );
   d->attribs = attribs;
 
   col->setChecked( gp->colorsActive );
   lab1->setFixedSize( lab1->sizeHint() );
-  attribs->insertItem( "name" );
-  attribs->insertItem( "label" );
+  attribs->addItem( "name" );
+  attribs->addItem( "label" );
   attribs->setFixedHeight( attribs->sizeHint().height() );
   if( gp->attribute == "label" )
-    attribs->setCurrentItem( 1 );
+    attribs->setCurrentIndex( 1 );
 
-  QCheckBox	*tip = new QCheckBox( tr( "Display ToolTips" ), 
-				      cgr, "tooltips" );
+  QCheckBox	*tip = new QCheckBox( tr( "Display ToolTips" ), cgr );
+  vlay->addWidget( tip );
   d->ttips = tip;
   tip->setChecked( gp->toolTips );
+  vlay->addStretch( 1 );
 
-  QVGroupBox	*sel = new QVGroupBox( tr( "Selection color" ), this,
-                                       "selgroup" );
-  QHBox *selhbox = new QHBox( sel );
+  QGroupBox	*sel = new QGroupBox( tr( "Selection color" ), this );
+  vlay = new QVBoxLayout( sel );
+  QWidget *selhbox = new QWidget( sel );
+  vlay->addWidget( selhbox );
+  hlay = new QHBoxLayout( selhbox );
+  hlay->setMargin( 0 );
   lab1 = new QLabel( tr( "Selection highlight type :" ), selhbox );
+  hlay->addWidget( lab1 );
   lab1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
   QComboBox *seltype = new QComboBox( selhbox );
+  hlay->addWidget( seltype );
   int i, n = GraphParams::graphParams()->selectRenderModes.size();
   for( i=0; i<n; ++i )
-    seltype->insertItem(
+    seltype->addItem(
       tr( GraphParams::graphParams()->selectRenderModes[i].c_str() ) );
   d->selectmode = seltype;
-  d->selectmode->setCurrentItem( GraphParams::graphParams()->selectRenderMode );
-  QCheckBox	*inv = new QCheckBox( tr( "Use inverse color" ), 
-				      sel, "inverse" );
+  d->selectmode->setCurrentIndex( GraphParams::graphParams()->selectRenderMode );
+  QCheckBox	*inv = new QCheckBox( tr( "Use inverse color" ), sel );
+  vlay->addWidget( inv );
   d->invcol = inv;
 
-  QHBox		*fr2 = new QHBox( sel, "frame2" );
-  fr2->setSpacing( 10 );
-  new QLabel( tr( "Constant color :" ), fr2, "lab2" );
-  _selcol = new QPushButton( fr2, "selcol" );
-  new QLabel( fr2 );
+  QWidget *fr2 = new QWidget( sel );
+  vlay->addWidget( fr2 );
+  hlay = new QHBoxLayout( fr2 );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 10 );
+  hlay->addWidget( new QLabel( tr( "Constant color :" ), fr2 ) );
+  _selcol = new QPushButton( fr2 );
+  hlay->addWidget( _selcol );
+  hlay->addWidget( new QLabel( fr2 ) );
+  vlay->addStretch( 1 );
 
   inv->setChecked( SelectFactory::selectColorInverse() );
   _selcol->setFixedSize( 32, 16 );
   QPixmap	pix( 32, 16 );
   pix.fill( QColor( (int) ( SelectFactory::selectColor().r * 255 ), 
-		    (int) ( SelectFactory::selectColor().g * 255 ), 
-		    (int) ( SelectFactory::selectColor().b * 255 ) ) );
-  _selcol->setPixmap( pix );
+                    (int) ( SelectFactory::selectColor().g * 255 ), 
+                    (int) ( SelectFactory::selectColor().b * 255 ) ) );
+  _selcol->setIcon( pix );
 
-  QVButtonGroup	*iobox = new QVButtonGroup( tr( "IO settings" ), this,
-					    "iosettings" );
-  d->iobox = iobox;
+  QGroupBox *iobox = new QGroupBox( tr( "IO settings" ), this );
+  vlay = new QVBoxLayout( iobox );
+  QButtonGroup *iog = new QButtonGroup( iobox );
+  d->iobox = iog;
   d->loadrelations = new QCheckBox( tr( "Load sub-objects in relations" ),
                                     iobox );
+  vlay->addWidget( d->loadrelations );
   d->loadrelations->setChecked( gp->loadRelations );
-  new QRadioButton( tr( "Default (as loaded)" ), iobox );
-  new QRadioButton( tr( "Use one file per sub-object type" ), iobox );
-  new QRadioButton( tr( "Use one file per individual sub-object" ), iobox );
-  iobox->setButton( gp->saveMode );
+  rb = new QRadioButton( tr( "Default (as loaded)" ), iobox );
+  vlay->addWidget( rb );
+  iog->addButton( rb, 0 );
+  rb = new QRadioButton( tr( "Use one file per sub-object type" ), iobox );
+  vlay->addWidget( rb );
+  iog->addButton( rb, 1 );
+  rb = new QRadioButton( tr( "Use one file per individual sub-object" ), 
+                         iobox );
+  vlay->addWidget( rb );
+  iog->addButton( rb, 1 );
+  iog->button( gp->saveMode )->setChecked( true );
   d->savemodif = new QCheckBox( tr( "Save only modified sub-objects" ), 
-				iobox );
+                                iobox );
+  vlay->addWidget( d->savemodif );
   d->savemodif->setChecked( gp->saveOnlyModified );
   d->autodir = new QCheckBox( tr( "Set sub-objects dir. from graph filename" ),
-			      iobox );
+                              iobox );
+  vlay->addWidget( d->autodir );
   d->autodir->setChecked( gp->autoSaveDir );
+  vlay->addStretch( 1 );
 
   lay1->addWidget( bgr );
   lay1->addWidget( cgr );
@@ -368,7 +408,8 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   lay1->addWidget( iobox );
   setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 
-  connect( bgr, SIGNAL( clicked( int ) ), this, SLOT( btnClicked( int ) ) );
+  connect( grb, SIGNAL( buttonClicked( int ) ), 
+           this, SLOT( btnClicked( int ) ) );
   connect( col, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( colorClicked( bool ) ) );
   connect( attribs, SIGNAL( activated( const QString & ) ), this, 
@@ -386,7 +427,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
 	   SLOT( saveModifChanged( bool ) ) );
   connect( d->autodir, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( autoDirChanged( bool ) ) );
-  connect( iobox, SIGNAL( clicked( int ) ), this, 
+  connect( iog, SIGNAL( buttonClicked( int ) ), this, 
 	   SLOT( saveModeSelected( int ) ) );
   connect( seltype, SIGNAL( activated(int) ), this,
            SLOT( setSelectionRenderingMode( int ) ) );
@@ -419,7 +460,7 @@ void QGraphParam::colorClicked( bool onoff )
 
 void QGraphParam::attribActivated( const QString & str )
 {
-  GraphParams::graphParams()->attribute = str .utf8().data();
+  GraphParams::graphParams()->attribute = str.toStdString();
   refreshGraphs();
 }
 
@@ -449,10 +490,11 @@ void QGraphParam::selColorClicked()
   bool	nalpha = SelectFactory::selectColor().na;
   QColor	col 
     = QAColorDialog::getColor
-    ( QColor( (int) ( SelectFactory::selectColor().r * 255 ), 
-	      (int) ( SelectFactory::selectColor().g * 255 ), 
-	      (int) ( SelectFactory::selectColor().b * 255 ) ), theAnatomist->getQWidgetAncestor(), 
-      tr( "Selection color" ), &alpha, &nalpha );
+    ( QColor( (int) ( SelectFactory::selectColor().r * 255 ),
+              (int) ( SelectFactory::selectColor().g * 255 ),
+              (int) ( SelectFactory::selectColor().b * 255 ) ),
+      theAnatomist->getQWidgetAncestor(),
+      tr( "Selection color" ).toStdString().c_str(), &alpha, &nalpha );
   if( col.isValid() )
     {
       SelectFactory::HColor	hcol( ((float) col.red()) / 255, 
@@ -460,13 +502,9 @@ void QGraphParam::selColorClicked()
                                       ((float) col.blue()) / 255, 
                                       ((float) alpha) / 255, nalpha );
 
-#if QT_VERSION >= 0x040000
       QPixmap pix( 32, 16 );
-#else
-      QPixmap	pix = *_selcol->pixmap();
-#endif
       pix.fill( col );
-      _selcol->setPixmap( pix );
+      _selcol->setIcon( pix );
       SelectFactory::setSelectColor( hcol );
     }
 }
@@ -557,32 +595,33 @@ void QGraphParam::update()
 
   GraphParams	*gp = GraphParams::graphParams();
 
-  d->dispmode->setButton( (int) AGraphObject::showType() );
+  d->dispmode->button( (int) AGraphObject::showType() )->setChecked( true );
   d->usenomen->setChecked( gp->colorsActive );
   int		i, n = d->attribs->count();
   for( i=0; i<n; ++i )
-    if( d->attribs->text( i ) == gp->attribute.c_str() )
-      {
-	d->attribs->setCurrentItem( i );
-	break;
-      }
-  if( i == n )
+    if( d->attribs->itemText( i ) == gp->attribute.c_str() )
     {
-      d->attribs->insertItem( gp->attribute.c_str() );
-      d->attribs->setCurrentItem( i );
+      d->attribs->setCurrentIndex( i );
+      break;
     }
+  if( i == n )
+  {
+    d->attribs->addItem( gp->attribute.c_str() );
+    d->attribs->setCurrentIndex( i );
+  }
   d->ttips->setChecked( gp->toolTips );
   d->invcol->setChecked( SelectFactory::selectColorInverse() );
 
   QPixmap	pix( 32, 16 );
   pix.fill( QColor( (int) ( SelectFactory::selectColor().r * 255 ), 
-		    (int) ( SelectFactory::selectColor().g * 255 ), 
-		    (int) ( SelectFactory::selectColor().b * 255 ) ) );
-  _selcol->setPixmap( pix );
+                    (int) ( SelectFactory::selectColor().g * 255 ), 
+                    (int) ( SelectFactory::selectColor().b * 255 ) ) );
+  _selcol->setIcon( pix );
 
-  d->selectmode->setCurrentItem( GraphParams::graphParams()->selectRenderMode );
+  d->selectmode->setCurrentIndex( 
+    GraphParams::graphParams()->selectRenderMode );
 
-  d->iobox->setButton( gp->saveMode );
+  d->iobox->button( gp->saveMode )->setChecked( true );
   d->savemodif->setChecked( gp->saveOnlyModified );
   d->autodir->setChecked( gp->autoSaveDir );
 

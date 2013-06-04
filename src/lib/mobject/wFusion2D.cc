@@ -31,10 +31,6 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifdef QT3_SUPPORT
-#undef QT3_SUPPORT
-#endif
-
 
 #include <anatomist/mobject/wFusion2D.h>
 #include <qlayout.h>
