@@ -58,13 +58,15 @@ SetMaterialCommand::SetMaterialCommand( const set<AObject *> & obj,
                                         int faceculling, 
                                         const std::string & polymode,
                                         int frontface, float linewidth,
-                                        const vector<float> & unlitcolor
+                                        const vector<float> & unlitcolor,
+                                        int ghost
                                       )
   : RegularCommand(), _obj( obj ), _shininess( shininess ), 
     _refresh( refresh ), _lighting( lighting ), 
     _smoothshading( smoothshading ), _polygonfiltering( polyfiltering ), 
     _zbuffer( zbuffer), _faceculling( faceculling ), _polygonmode( polymode ),
-    _frontface( frontface ), _linewidth( linewidth ), _unlitcolor( unlitcolor )
+    _frontface( frontface ), _linewidth( linewidth ),
+    _unlitcolor( unlitcolor ), _ghost( ghost )
 {
   if( ambient )
     {
@@ -151,6 +153,7 @@ bool SetMaterialCommand::initSyntax()
   s[ "front_face"        ] = Semantic( "string" );
   s[ "line_width"        ] = Semantic( "float" );
   s[ "unlit_color"       ] = Semantic( "float_vector" );
+  s[ "ghost"             ] = Semantic( "int" );
 
   Registry::instance()->add( "SetMaterial", &read, ss );
   return( true );
@@ -264,6 +267,8 @@ void SetMaterialCommand::doit()
                                1 );
           changed = true;
         }
+        if( _ghost >= 0 )
+          mat.setRenderProperty( Material::Ghost, _ghost );
 
         if( changed )
           o->SetMaterial( mat );
@@ -287,6 +292,7 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   int			refresh = true, lighting = -2, smooth = -2, 
     filter = -2, zbuffer = -2, facecull = -2, frontface = -1;
   string		polymode, fface;
+  int                   ghost = -1;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -320,6 +326,7 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "face_culling", facecull );
   com.getProperty( "polygon_mode", polymode );
   com.getProperty( "front_face", fface );
+  com.getProperty( "ghost", ghost );
   if( com.getProperty( "line_width", linewidth ) && linewidth < 0 )
     linewidth = 0;
   if( !fface.empty() )
@@ -337,7 +344,7 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   return( new SetMaterialCommand( objL, amb, dif, emi, spe, shininess, 
                                   (bool) refresh, lighting, smooth, filter, 
                                   zbuffer, facecull, polymode, frontface,
-                                  linewidth, unlitcolor ) );
+                                  linewidth, unlitcolor, ghost ) );
 }
 
 
@@ -391,5 +398,7 @@ void SetMaterialCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "line_width", _linewidth );
   if( _unlitcolor.size() >= 3 )
     t->setProperty( "unlit_color", _unlitcolor );
+  if( _ghost >= 0 )
+    t->setProperty( "ghost", _ghost );
   com.insert( t );
 }

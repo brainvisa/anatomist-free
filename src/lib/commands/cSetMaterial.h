@@ -60,7 +60,7 @@ namespace anatomist
                         const std::string & polymode = "",
                         int frontface = -1, float linewidth=-1,
                         const std::vector<float> &
-                        unlitcolor=std::vector<float>() );
+                        unlitcolor=std::vector<float>(), int ghost=-1 );
     virtual ~SetMaterialCommand();
 
     virtual std::string name() const { return( "SetMaterial" ); }
@@ -86,6 +86,7 @@ namespace anatomist
     int                 _frontface;
     float               _linewidth;
     std::vector<float>  _unlitcolor;
+    int                 _ghost;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );
