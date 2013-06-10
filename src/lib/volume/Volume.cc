@@ -867,7 +867,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 
   // Initialisation des pointeurs utilises
 
-  const T *ptrori = fp + ( &_volume->at( 0, 0, 1 ) - fp ) * (int)time;
+  const T *ptrori = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * (int)time;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
   int	   offset_xim = (ximage->effectiveWidth - dy) * ( ximage->depth / 32 );
   if( p0[1] < 0 )
