@@ -80,7 +80,7 @@ since Anatomist 1.29.</p>
   </tr>
   
   <tr>
-    <td><tt></tt>anatomist_version</tt></td>
+    <td><tt>anatomist_version</tt></td>
 	<td><tt>string</tt></td>
 	<td></td>
 	<td></td>
@@ -310,7 +310,7 @@ since Anatomist 1.29.</p>
 	<td><tt>int</tt></td>
 	<td></td>
 	<td></td>
-	<td>unused yet</td>
+	<td>used only since Anatomist 4.3</td>
 	<td>all</td>
   </tr>
   
@@ -411,15 +411,26 @@ since Anatomist 1.29.</p>
 
   <tr>
     <td><tt>windowSizeFactor</tt></td>
-	<td><tt>float</tt></td>
-	<td><tt>1.5</tt></td>
-	<td><tt>> 0</tt></td>
-	<td>Default windows size factor. 1.0 corresponds to 1 pixel for 1mm in data space, 
-	  larger values means larger windows. Depending on the size and resolution of 
-	  your screen, you may want to change this default value.
-	</td>
-	<td>3.0 (default changed from 1. to 1.5 in Anatomist 4.1)</td>
-  </tr>  
+        <td><tt>float</tt></td>
+        <td><tt>1.5</tt></td>
+        <td><tt>&gt; 0</tt></td>
+        <td>Default windows size factor. 1.0 corresponds to 1 pixel for 1mm in data space,
+          larger values means larger windows. Depending on the size and resolution of
+          your screen, you may want to change this default value.
+        </td>
+        <td>3.0 (default changed from 1. to 1.5 in Anatomist 4.1)</td>
+  </tr>
+
+  <tr>
+    <td><tt>windowsUseGraphicsView</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt> on MacOS, <tt>1</tt> on other systems</td>
+        <td><tt>0</tt>, <tt>1</tt></td>
+        <td>When enabled, use a Qt Graphics View as foreground layer in 3D windows: it allows to draw various things on top of the OpenGL renderings, and will be used for visual feedback during interactions, or to display information. It is used for instance for palette contol feedback.
+        </td>
+        <td>4.4</td>
+  </tr>
+
 </table>
 
 

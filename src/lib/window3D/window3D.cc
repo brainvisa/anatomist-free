@@ -535,7 +535,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   try
   {
     Object o = theAnatomist->config()->getProperty(
-      "windows_use_graphicsview" );
+      "windowsUseGraphicsView" );
     use_graphicsview = (bool) o->getScalar();
   }
   catch( ... )
