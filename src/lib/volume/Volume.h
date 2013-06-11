@@ -37,9 +37,7 @@
 #include <anatomist/object/sliceable.h>
 #include <anatomist/graph/pythonAObject.h>
 #include <aims/data/data.h>
-
-
-class AimsRGBA;
+#include <aims/rgb/rgb.h>
 
 
 namespace anatomist

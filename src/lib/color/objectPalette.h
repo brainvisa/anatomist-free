@@ -37,9 +37,9 @@
 
 #include <anatomist/color/palette.h>
 #include <aims/data/data.h>
+#include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
 
-class AimsRGBA;
 class QImage;
 
 namespace anatomist

@@ -37,14 +37,13 @@
 
 #include <anatomist/surface/globject.h>
 #include <aims/vector/vector.h>
+#include <aims/rgb/rgb.h>
 
 namespace carto
 {
   template <typename T> class Volume;
   template <typename T> class VolumeRef;
 }
-
-class AimsRGBA;
 
 namespace anatomist
 {
