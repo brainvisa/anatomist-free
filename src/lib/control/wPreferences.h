@@ -59,6 +59,7 @@ public slots:
   void cursorEditChanged();
   void choseCursorColor();
   void enableLRDisplay( bool );
+  void enableGraphicsView( bool );
   void setAxialConvention( int );
   void enableVolInterpolation( bool );
   void enableAutomaticReferential( bool );

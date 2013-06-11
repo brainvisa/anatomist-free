@@ -79,7 +79,8 @@ struct PreferencesWindow::Private
 {
   Private()
     : tab( 0 ), cursEdit( 0 ), cursSlider( 0 ), cursColBtn( 0 ), 
-      defobjref( 0 ), defwinref( 0 ), browsattlen( 0 ), texmax( 0 ) {}
+      defobjref( 0 ), defwinref( 0 ), browsattlen( 0 ), texmax( 0 ),
+      graphicsview( 0 ) {}
 
   unsigned		tab;
   vector<QWidget *>	tabs;
@@ -95,6 +96,7 @@ struct PreferencesWindow::Private
   QPushButton		*defwinref;
   QLineEdit             *browsattlen;
   QComboBox             *texmax;
+  QCheckBox             *graphicsview;
 };
 
 
@@ -381,10 +383,11 @@ PreferencesWindow::PreferencesWindow()
   vlay->setMargin( 0 );
   winbox->hide();
   QGroupBox	*flip 
-    = new QGroupBox( tr( "Axial/coronal slices orientation" ), winbox );
+    = new QGroupBox( tr( "3D views" ), winbox );
   vlay->addWidget( flip );
   vlay2 = new QVBoxLayout( flip );
-  QGroupBox  *flipbx = new QGroupBox( flip );
+  QGroupBox  *flipbx = new QGroupBox( tr( "Axial/coronal slices orientation" ),
+                                      flip );
   vlay2->addWidget( flipbx );
   QVBoxLayout *vlay3 = new QVBoxLayout( flipbx );
   QButtonGroup *flipg = new QButtonGroup( flipbx );
@@ -408,8 +411,8 @@ PreferencesWindow::PreferencesWindow()
   vlay2->addWidget( flipDisplay );
   flipDisplay->setChecked( AWindow::leftRightDisplay() );
   _pdat->disppos = new QCheckBox( tr( "Display cursor position by default" ),
-                                  winbox );
-  vlay->addWidget( _pdat->disppos );
+                                  flip );
+  vlay2->addWidget( _pdat->disppos );
   int dispposfg = 1;
   try
   {
@@ -421,6 +424,25 @@ PreferencesWindow::PreferencesWindow()
   {
   }
   _pdat->disppos->setChecked( dispposfg );
+  _pdat->graphicsview = new QCheckBox(
+    tr( "Use graphics overlay on OpenGL rendering" ), flip );
+  vlay2->addWidget( _pdat->graphicsview );
+#ifdef __APPLE__
+  int use_graphicsview = 0;
+#else
+  int use_graphicsview = 1;
+#endif
+  try
+  {
+    Object  x = cfg->getProperty( "windowsUseGraphicsView" );
+    if( !x.isNull() )
+      use_graphicsview = (int) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  _pdat->graphicsview->setChecked( use_graphicsview );
+
   QGroupBox	*winsz 
     = new QGroupBox( tr( "Default windows size" ), winbox );
   vlay->addWidget( winsz );
@@ -665,6 +687,8 @@ PreferencesWindow::PreferencesWindow()
            SLOT( defaultWinSizeChanged() ) );
   connect( _pdat->disppos, SIGNAL( toggled( bool ) ), this,
            SLOT( enableDisplayCursorPosition( bool ) ) );
+  connect( _pdat->graphicsview, SIGNAL( toggled( bool ) ), this,
+           SLOT( enableGraphicsView( bool ) ) );
   connect( _pdat->browsattlen, SIGNAL( returnPressed() ), this,
            SLOT( browserAttributeLenChanged() ) );
 
@@ -992,6 +1016,12 @@ void PreferencesWindow::enableDisplayCursorPosition( bool x )
   {
     theAnatomist->config()->setProperty( "displayCursorPosition", int(0) );
   }
+}
+
+
+void PreferencesWindow::enableGraphicsView( bool x )
+{
+  theAnatomist->config()->setProperty( "windowsUseGraphicsView", int(x) );
 }
 
 
