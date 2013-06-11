@@ -527,7 +527,22 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   QWidget *daparent = hb;
   AGraphicsView *gv = 0;
 #ifdef ANA_USE_QGRAPHICSVIEW
-  gv = new AGraphicsView( hb );
+#ifdef __APPLE__ // does not work well on Mac with Qt 4.6
+  bool use_graphicsview = false;
+#else
+  bool use_graphicsview = true;
+#endif
+  try
+  {
+    Object o = theAnatomist->config()->getProperty(
+      "windows_use_graphicsview" );
+    use_graphicsview = (bool) o->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  if( use_graphicsview )
+    gv = new AGraphicsView( hb );
 #endif
   if( gv )
   {
