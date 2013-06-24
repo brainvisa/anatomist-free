@@ -31,7 +31,6 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
 #include <anatomist/graph/qgraphproperties.h>
 #include <anatomist/graph/Graph.h>
 #include <anatomist/object/objectparamselect.h>
@@ -42,11 +41,9 @@
 #include <anatomist/color/objectPalette.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qgrid.h>
 #include <qlayout.h>
 #include <qcombobox.h>
-#include <aims/qtcompat/qvbuttongroup.h>
+#include <qgroupbox.h>
 
 using namespace anatomist;
 using namespace std;
@@ -72,15 +69,15 @@ struct QGraphProperties::Private
   ObjectParamSelect	*objsel;
   QComboBox		*modecombo;
   QComboBox		*propcombo;
-  QVBox			*main;
+  QWidget		*main;
   bool			modified;
   bool			updating;
   QCheckBox             *vertexmask;
   QCheckBox             *edgemask;
   QComboBox		*labelpropcombo;
   QLabel                *proplabel;
-  QVButtonGroup         *maskgroup;
-  QVButtonGroup         *labelpropgroup;
+  QGroupBox             *maskgroup;
+  QGroupBox             *labelpropgroup;
   QCheckBox             *keeppalette;
 };
 
@@ -90,50 +87,69 @@ QGraphProperties::QGraphProperties( const set<AObject *> & obj,
   : QWidget( parent ),
     d( new Private( obj ) )
 {
-  setCaption( "Graph display properties" );
+  setWindowTitle( "Graph display properties" );
   setObjectName("graphProperties");
   setAttribute(Qt::WA_DeleteOnClose);
   QPixmap	anaicon( Settings::findResourceFile(
                          "icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
-    setIcon( anaicon );
+    setWindowIcon( anaicon );
 
-  QVBoxLayout	*mainLay = new QVBoxLayout( this, 10, 10, "mainLay" );
+  QVBoxLayout	*mainLay = new QVBoxLayout( this );
+  mainLay->setMargin( 10 );
+  mainLay->setSpacing( 10 );
   d->objsel = new ObjectParamSelect( obj, this );
   mainLay->addWidget( d->objsel );
   d->objsel->addFilter( filterGraphs );
 
-  d->main = new QVBox( this, "mainLay" );
+  d->main = new QWidget( this );
   mainLay->addWidget( d->main );
-  d->main->setSpacing( 10 );
+  QVBoxLayout *vlay = new QVBoxLayout( d->main );
+  vlay->setSpacing( 10 );
+  vlay->setMargin( 0 );
 
-  QGrid	*modeb = new QGrid( 2, d->main, "modebox" );
-  modeb->setSpacing( 10 );
+  QWidget *modeb = new QWidget( d->main );
+  vlay->addWidget( modeb );
+  QGridLayout *glay = new QGridLayout( modeb );
+  glay->setSpacing( 10 );
+  glay->setMargin( 0 );
 
-  new QLabel( tr( "Display mode : " ), modeb );
+  glay->addWidget( new QLabel( tr( "Display mode : " ), modeb ), 0, 0 );
   d->modecombo = new QComboBox( modeb );
-  d->modecombo->insertItem( tr( "Normal" ) );
-  d->modecombo->insertItem( tr( "Property map" ) );
+  glay->addWidget( d->modecombo, 0, 1 );
+  d->modecombo->addItem( tr( "Normal" ) );
+  d->modecombo->addItem( tr( "Property map" ) );
 
   d->proplabel = new QLabel( tr( "Property to be mapped : " ), modeb );
+  glay->addWidget( d->proplabel, 1, 0 );
   d->propcombo = new QComboBox( modeb );
+  glay->addWidget( d->propcombo, 1, 1 );
   d->propcombo->setEditable( true );
 
   d->keeppalette = new QCheckBox( tr( "Keep palette absolute values" ),
     modeb );
-  new QWidget( modeb );
+  glay->addWidget( d->keeppalette, 2, 0 );
+  glay->addWidget( new QWidget( modeb ), 2, 1 );
 
-  d->maskgroup = new QVButtonGroup( tr( "Map property on :" ),
-                                             modeb );
+  d->maskgroup = new QGroupBox( tr( "Map property on :" ), modeb );
+  glay->addWidget( d->maskgroup, 3, 0 );
+  vlay = new QVBoxLayout( d->maskgroup );
   d->vertexmask = new QCheckBox( tr( "nodes" ), d->maskgroup );
+  vlay->addWidget( d->vertexmask );
   d->edgemask = new QCheckBox( tr( "relations" ), d->maskgroup );
+  vlay->addWidget( d->edgemask );
+  vlay->addStretch( 1 );
 
   d->labelpropgroup
-      = new QVButtonGroup( tr( "label / nomenclature property :" ), modeb );
+      = new QGroupBox( tr( "label / nomenclature property :" ), modeb );
+  glay->addWidget( d->labelpropgroup, 3, 1 );
+  vlay = new QVBoxLayout( d->labelpropgroup );
   d->labelpropcombo = new QComboBox( d->labelpropgroup );
-  d->labelpropcombo->insertItem( tr( "default (as in settings)" ) );
-  d->labelpropcombo->insertItem( tr( "name (manual)" ) );
-  d->labelpropcombo->insertItem( tr( "label (automatic)" ) );
+  vlay->addWidget( d->labelpropcombo );
+  d->labelpropcombo->addItem( tr( "default (as in settings)" ) );
+  d->labelpropcombo->addItem( tr( "name (manual)" ) );
+  d->labelpropcombo->addItem( tr( "label (automatic)" ) );
+  vlay->addStretch( 1 );
 
   for( set<AObject *>::iterator it=obj.begin(); it!=obj.end(); ++it )
     (*it)->addObserver( this );
@@ -175,7 +191,7 @@ void QGraphProperties::update( const Observable*, void* arg )
 {
   if( arg == 0 )
     {
-      close( true );
+      close();
       return;
     }
   if( arg != this && !d->updating )
@@ -261,15 +277,15 @@ void QGraphProperties::updateInterface()
   d->propcombo->blockSignals( true );
   d->labelpropcombo->blockSignals( true );
 
-  d->modecombo->setCurrentItem( (int) g->colorMode() );
+  d->modecombo->setCurrentIndex( (int) g->colorMode() );
   string prop;
   g->graph()->getProperty( "label_property", prop );
   if( prop.empty() )
-    d->labelpropcombo->setCurrentItem( 0 );
+    d->labelpropcombo->setCurrentIndex( 0 );
   else if( prop == "name" )
-    d->labelpropcombo->setCurrentItem( 1 );
+    d->labelpropcombo->setCurrentIndex( 1 );
   else if( prop == "label" )
-    d->labelpropcombo->setCurrentItem( 2 );
+    d->labelpropcombo->setCurrentIndex( 2 );
 
   // update properties list
   set<string> props;
@@ -300,9 +316,10 @@ void QGraphProperties::updateInterface()
   d->propcombo->clear();
   set<string>::iterator	si, es = props.end();
   for( si=props.begin(); si!=es; ++si )
-    d->propcombo->insertItem( si->c_str() );
+    d->propcombo->addItem( si->c_str() );
 
-  d->propcombo->setCurrentText( g->colorProperty().c_str() );
+  d->propcombo->setItemText( d->propcombo->currentIndex(), 
+                             g->colorProperty().c_str() );
   d->vertexmask->setChecked( g->colorPropertyMask() & 1 );
   d->edgemask->setChecked( g->colorPropertyMask() & 2 );
 
@@ -372,13 +389,13 @@ void QGraphProperties::updateObjects()
         minp = pal->min1() * tspan + minp;
       }
       g->setColorMode( cm, false );
-      g->setColorProperty( d->propcombo->currentText().utf8().data(), false );
+      g->setColorProperty( d->propcombo->currentText().toStdString(), false );
       g->setColorPropertyMask( ( d->vertexmask->isChecked() & 1 )
           + 2 * ( d->edgemask->isChecked() & 1 ), false );
       Graph *gg = g->graph();
       string  prop;
       gg->getProperty( "label_property", prop );
-      switch( d->labelpropcombo->currentItem() )
+      switch( d->labelpropcombo->currentIndex() )
       {
       case 1:
         if( prop != "name" )
