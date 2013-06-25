@@ -31,60 +31,35 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
-#include <anatomist/surface/surface.h>
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/glcomponent.h>
-
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/constrainteditor/wConstraintEditor.h>
 #include <anatomist/application/Anatomist.h>
-#include <anatomist/window/colorstyle.h>
 #include <anatomist/commands/cSetControl.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qcombobox.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
-#include <qlineedit.h>
-#include <aims/qtcompat/qlistbox.h>
-
-#include <anatomist/object/Object.h>
-#include <qlabel.h>
-#include <qapplication.h>
-
 #include <anatomist/fusion/fusionFactory.h>
-#include <anatomist/fusion/fusionChooser.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/winFactory.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cCreateWindow.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/commands/cCloseWindow.h>
-#include <anatomist/commands/cDeleteObject.h>
-#include <anatomist/commands/cReloadObject.h>
-#include <anatomist/commands/cAddObject.h>
-#include <anatomist/commands/cRemoveObject.h>
-#include <anatomist/commands/cGroupObjects.h>
-#include <anatomist/commands/cFusionObjects.h>
 #include <anatomist/color/objectPalette.h>
-
-#include <aims/io/finder.h>
-#include <aims/io/reader.h>
-#include <aims/data/header.h>
-#include <aims/io/finderFormats.h>
-#include <aims/data/pheader.h>
-
-#include <anatomist/surface/texture.h>
-#include <aims/mesh/texture.h>
-#include <aims/utility/converter_texture.h>
-
-#include <qfiledialog.h>
+#include <anatomist/mobject/MObject.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/control/wControl.h>
+
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/paths.h>
+
+#include <qpushbutton.h>
+#include <qlayout.h>
+#include <qcombobox.h>
+#include <qlineedit.h>
+#include <qlabel.h>
+#include <qapplication.h>
+#include <qfiledialog.h>
 #include <QToolButton>
 
 using namespace anatomist;
@@ -122,19 +97,20 @@ ConstraintEditorWindow::Private::Private()
 
 void ConstraintEditorWindow::constraintTexOpen()
 {
-  QString filt = ControlledWindow::tr( "Texture" ) + " (*.tex)" ;
+  QString filt = ControlWindow::tr( "Textures" ) + " ("
+    + ObjectReader::supportedFileExtensions( "Texture" ).c_str() + ");;";
   QString capt = "Open Texture" ;
 
   QString filename;
 
-  filename = QFileDialog::getOpenFileName( QString::null, filt, 0, 0, capt );
+  filename = QFileDialog::getOpenFileName( 0, capt, QString::null, filt );
 
   if( d->meshSelect )
   {
     if( !filename.isNull() )
     {
       LoadObjectCommand *cmd = 0 ;
-      cmd = new LoadObjectCommand( filename.latin1() /*, -1, "", false, NULL*/ ) ;
+      cmd = new LoadObjectCommand( filename.toStdString() ) ;
       theProcessor->execute( cmd ) ;
 
       ATexture *atex = dynamic_cast<ATexture *>( cmd->loadedObject() );
@@ -162,18 +138,18 @@ void ConstraintEditorWindow::constraintTexOpen()
 
 void ConstraintEditorWindow::constraintListOpen()
 {
-  QString filt = "(*.txt)" ;
+  QString filt = "Text files (*.txt)" ;
   QString capt = "Open constraints file" ;
 
   QString filename;
 
-  filename = QFileDialog::getOpenFileName( QString::null, filt, 0, 0, capt );
+  filename = QFileDialog::getOpenFileName( 0, capt, QString::null, filt );
 
   d->constraintListValues->clear();
   d->constraintList.clear();
 
   string line;
-  ifstream myfile(filename.latin1());
+  ifstream myfile( filename.toStdString().c_str() );
 
   if (myfile.is_open())
   {
@@ -182,7 +158,7 @@ void ConstraintEditorWindow::constraintListOpen()
       getline(myfile, line);
       if (line.length() != 0)
         {
-        d->constraintListValues->insertItem(line.c_str()) ;
+        d->constraintListValues->addItem(line.c_str()) ;
         d->constraintListValues->setEditable( false );
         d->constraintList.push_back(line.c_str());
         }
@@ -213,7 +189,7 @@ void ConstraintEditorWindow::constraintListInit()
       getline(myfile, line);
       if (line.length() != 0)
         {
-        d->constraintListValues->insertItem(line.c_str()) ;
+        d->constraintListValues->addItem(line.c_str()) ;
         d->constraintListValues->setEditable( false );
         d->constraintList.push_back(line.c_str());
         }
@@ -227,9 +203,10 @@ void ConstraintEditorWindow::constraintListInit()
 }
 
 ConstraintEditorWindow::ConstraintEditorWindow( const set<AObject*> &objects,
-                                                const char *name, Qt::WFlags f ) : QDialog( 0, name, true, f ), d( new Private )
+                                                const char *name, Qt::WFlags f ) 
+  : QDialog( 0, f ), d( new Private )
 {
-
+  setModal( true );
   drawContents( name, objects );
 }
 
@@ -247,7 +224,9 @@ void ConstraintEditorWindow::drawContents( const char *name,
   setWindowTitle( name );
   this->setFixedWidth(350);
 
-  QVBoxLayout *mainlay = new QVBoxLayout( this, 5, 5 );
+  QVBoxLayout *mainlay = new QVBoxLayout( this );
+  mainlay->setMargin( 5 );
+  mainlay->setSpacing( 5 );
 
   /* convert objects list to a real list because we may append sub-objects to
      the list to check
@@ -320,15 +299,22 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   }
 
-  QHBox *hbm = new QHBox();
+  QWidget *hbm = new QWidget;
+  QHBoxLayout *hlay = new QHBoxLayout( hbm );
+  hlay->setMargin( 0 );
   QLabel  *meshLabel = new QLabel( tr( "Mesh : " ),hbm);
+  hlay->addWidget( meshLabel );
   QLabel  *meshName;
 
   if (d->meshSelect)
+  {
     meshName = new QLabel( d->meshSelect->name().c_str(),hbm);
+    hlay->addWidget( meshName );
+  }
   else
   {
     meshName = new QLabel( tr( "no mesh selected" ),hbm);
+    hlay->addWidget( meshName );
     QPushButton *cancel = new QPushButton( tr( "Cancel" ), this );
     mainlay->addWidget( meshName );
     mainlay->addWidget( cancel );
@@ -338,60 +324,82 @@ void ConstraintEditorWindow::drawContents( const char *name,
   }
   meshName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
-  QHBox *hbt = new QHBox();
+  QWidget *hbt = new QWidget;
+  hlay = new QHBoxLayout( hbt );
+  hlay->setMargin( 0 );
   QLabel  *textureLabel = new QLabel( tr( "Texture : " ),hbt);
+  hlay->addWidget( textureLabel );
 
   if ( d->texSelect )
-    {
+  {
     d->newTextureName = new QLineEdit(  d->texSelect->name().c_str(),hbt);
+    hlay->addWidget( d->newTextureName );
     d->newTextureName->setReadOnly (true);
 
-    }
+  }
   else
+  {
     d->newTextureName = new QLineEdit( tr( "TexConstraint" ),hbt);
+    hlay->addWidget( d->newTextureName );
+  }
 
   d->newTextureName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
-  QHBox *hblatlon = new QHBox();
-  new QLabel( tr( "Type : " ),hblatlon);
+  QWidget *hblatlon = new QWidget;
+  hlay = new QHBoxLayout( hblatlon );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "Type : " ),hblatlon) );
   d->latlon = new QComboBox( hblatlon );
+  hlay->addWidget( d->latlon );
   //d->latlon->insertItem("lat");
   //d->latlon->insertItem("lon");
-  d->latlon->insertItem( tr( "predefined constraints" ) );
-  d->latlon->insertItem( tr( "user defined" ));
+  d->latlon->addItem( tr( "predefined constraints" ) );
+  d->latlon->addItem( tr( "user defined" ));
 
   d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 
-  QHBox   *butts = new QHBox( this );
-  butts->setSpacing( 10 );
+  QWidget *butts = new QWidget( this );
+  hlay = new QHBoxLayout( butts );
+  hlay->setMargin( 0 );
+  hlay->setSpacing( 10 );
   QPushButton *ok = new QPushButton( tr( "OK" ), butts );
+  hlay->addWidget( ok );
   QPushButton *cancel = new QPushButton( tr( "Cancel" ), butts );
+  hlay->addWidget( cancel );
 
   string iconname;
 
-  QHBox *hbtc = new QHBox();
-  new QLabel( tr( "weight map : " ),hbtc);
+  QWidget *hbtc = new QWidget;
+  hlay = new QHBoxLayout( hbtc );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "weight map : " ),hbtc) );
 
   iconname = Settings::findResourceFile( "icons/meshPaint/constraint_map.png" );
   d->constraintTextureButton = new QToolButton(hbtc);
+  hlay->addWidget( d->constraintTextureButton );
   d->constraintTextureButton->setIcon(QIcon(iconname.c_str()));
   d->constraintTextureButton->setToolTip( tr("Open map of constrained path"));
   d->constraintTextureButton->setIconSize(QSize(20, 20));
   connect(d->constraintTextureButton, SIGNAL(clicked()), this, SLOT(constraintTexOpen()));
 
   d->constraintTextureLabel = new QLabel( tr( "curvature (default)" ),hbtc);
+  hlay->addWidget( d->constraintTextureLabel );
   d->constraintTextureLabel->setFixedWidth(180);
 
-  QHBox *hbcv = new QHBox();
-  new QLabel( tr( "constraint list : " ),hbcv);
+  QWidget *hbcv = new QWidget;
+  hlay = new QHBoxLayout( hbcv );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "constraint list : " ),hbcv) );
 
   iconname = Settings::findResourceFile( "icons/meshPaint/list_constraint.png" );
   d->constraintListButton = new QToolButton(hbcv);
+  hlay->addWidget( d->constraintListButton );
   d->constraintListButton->setIcon(QIcon(iconname.c_str()));
   d->constraintListButton->setToolTip( tr("Open list of constrained value") );
   d->constraintListButton->setIconSize(QSize(20, 20));
 
   d->constraintListValues = new QComboBox(hbcv );
+  hlay->addWidget( d->constraintListValues );
   d->constraintListValues->setFixedWidth(180);
   constraintListInit();
 
@@ -440,7 +448,7 @@ void ConstraintEditorWindow::accept()
     rc_ptr<Texture1d> tex( new Texture1d(1, nnodes) );
     aTex->setTexture(tex);
 
-    string  texName = d->newTextureName->text().latin1();
+    string  texName = d->newTextureName->text().toStdString();
 
     if ( d->constraintValuesType == 0) {min = 0.0; max = 0.0;}
     if ( d->constraintValuesType == 1) {min = 0.0; max = 1.0;}
