@@ -35,16 +35,11 @@
 #include <anatomist/color/wMaterial.h>
 
 #include <qlayout.h>
-#include <aims/qtcompat/qvgroupbox.h>
+#include <qgroupbox.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qtabbar.h>
 #include <qradiobutton.h>
-#include <aims/qtcompat/qbutton.h>
-#include <aims/qtcompat/qgrid.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qpixmap.h>
 
 #include <anatomist/application/Anatomist.h>
@@ -80,13 +75,18 @@ struct MaterialWindow::Private
 
 
 QANumSlider::QANumSlider( int num1, int num2, int minValue, int maxValue, 
-			  int pageStep, int value, Qt::Orientation ori, 
-			  QWidget * parent, const char * name )
-  : QSlider( minValue, maxValue, pageStep, value, ori, parent, name ), 
+                          int pageStep, int value, Qt::Orientation ori, 
+                          QWidget * parent, const char * name )
+  : QSlider( parent ), 
   _num1( num1 ), _num2( num2 )
 {
+  setObjectName( name );
+  setOrientation( ori );
+  setRange( minValue, maxValue );
+  setPageStep( pageStep );
+  setValue( value );
   connect( this, SIGNAL( valueChanged( int ) ), this, 
-	   SLOT( transformChange( int ) ) );
+           SLOT( transformChange( int ) ) );
 }
 
 
@@ -113,14 +113,14 @@ MaterialWindow::MaterialWindow( const set<AObject *> &objL, QWidget* parent,
        it!=_parents.end();++it)
     (*it)->addObserver( (Observer*)this );
 
-  setCaption( name );
+  setWindowTitle( name );
   if( windowFlags() & Qt::Window )
-    {
-      QPixmap anaicon( Settings::findResourceFile( "icons/icon.xpm"
-        ).c_str() );
-      if( !anaicon.isNull() )
-        setIcon( anaicon );
-    }
+  {
+    QPixmap anaicon( Settings::findResourceFile( "icons/icon.xpm"
+      ).c_str() );
+    if( !anaicon.isNull() )
+      setWindowIcon( anaicon );
+  }
 
   drawContents();
 }
@@ -174,7 +174,9 @@ void MaterialWindow::updateObjects()
 
 void MaterialWindow::drawContents()
 {
-  QVBoxLayout	*mainlay = new QVBoxLayout( this, 10, 10 );
+  QVBoxLayout	*mainlay = new QVBoxLayout( this );
+  mainlay->setMargin( 10 );
+  mainlay->setSpacing( 10 );
 
   ObjectParamSelect	*sel = new ObjectParamSelect( _parents, this );
   _privdata->objsel = sel;
@@ -182,58 +184,82 @@ void MaterialWindow::drawContents()
 
   QTabBar	*tbar = new QTabBar( this );
 
-#if QT_VERSION >= 0x040000
   _privdata->tabnum[ tbar->addTab( tr( "Fast color selection" ) ) ] = 0;
   _privdata->tabnum[ tbar->addTab( tr( "Advanced settings" ) )    ] = 1;
-#else
-  _privdata->tabnum[ tbar->addTab
-                     ( new QTab( tr( "Fast color selection" ) ) ) ] = 0;
-  _privdata->tabnum[ tbar->addTab
-                     ( new QTab( tr( "Advanced settings" ) ) )    ] = 1;
-#endif
 
   // -- fast selection
 
-  QVGroupBox	*bpan = new QVGroupBox( this );
+  QWidget *bpan = new QWidget( this );
+  QVBoxLayout *vlay = new QVBoxLayout( bpan );
   _privdata->tabs.push_back( bpan );
-  buildRgbaBox( bpan, 4 );	// group 4: diffuse
+  vlay->addWidget( buildRgbaBox( bpan, 4 ) ); 	// group 4: diffuse
+  vlay->addStretch( 1 );
 
   // -- advanced
 
-  QGrid	*epan = new QGrid( 2, this );
+  QWidget *epan = new QWidget( this );
+  QGridLayout *glay = new QGridLayout( epan );
   epan->hide();
-  epan->setSpacing( 5 );
+  glay->setSpacing( 5 );
+  glay->setMargin( 0 );
   _privdata->tabs.push_back( epan );
 
-  QVGroupBox	*ebox = new QVGroupBox( tr( "Ambient :" ), epan );
-  buildRgbaBox( ebox, 0 );	// group 0: ambient
+  QGroupBox	*ebox = new QGroupBox( tr( "Ambient :" ), epan );
+  vlay = new QVBoxLayout( ebox );
+  glay->addWidget( ebox, 0, 0 );
+  vlay->addWidget( buildRgbaBox( ebox, 0 ) );	// group 0: ambient
+  vlay->addStretch( 1 );
 
-  ebox = new QVGroupBox( tr( "Diffuse :" ), epan );
-  buildRgbaBox( ebox, 1 );	// group 1: diffuse
+  ebox = new QGroupBox( tr( "Diffuse :" ), epan );
+  vlay = new QVBoxLayout( ebox );
+  glay->addWidget( ebox, 0, 1 );
+  vlay->addWidget( buildRgbaBox( ebox, 1 ) );	// group 1: diffuse
+  vlay->addStretch( 1 );
 
-  ebox = new QVGroupBox( tr( "Emission :" ), epan );
-  buildRgbaBox( ebox, 2 );	// group 2: emission
+  ebox = new QGroupBox( tr( "Emission :" ), epan );
+  vlay = new QVBoxLayout( ebox );
+  glay->addWidget( ebox, 1, 0 );
+  vlay->addWidget( buildRgbaBox( ebox, 2 ) );	// group 2: emission
+  vlay->addStretch( 1 );
 
-  ebox = new QVGroupBox( tr( "Specular :" ), epan );
-  buildRgbaBox( ebox, 3 );	// group 3: specular
+  ebox = new QGroupBox( tr( "Specular :" ), epan );
+  vlay = new QVBoxLayout( ebox );
+  glay->addWidget( ebox, 1, 1 );
+  vlay->addWidget( buildRgbaBox( ebox, 3 ) );	// group 3: specular
+  vlay->addStretch( 1 );
 
-  ebox = new QVGroupBox( tr( "Shininess :" ), epan );
-  QHBox	*grd = new QHBox( ebox );
-  grd->setSpacing( 10 );
-  new QLabel( tr( "Value:" ), grd );
+  ebox = new QGroupBox( tr( "Shininess :" ), epan );
+  vlay = new QVBoxLayout( ebox );
+  glay->addWidget( ebox, 2, 0 );
+  QWidget *grd = new QWidget( ebox );
+  vlay->addWidget( grd );
+  vlay->addStretch( 1 );
+  QHBoxLayout *hlay = new QHBoxLayout( grd );
+  hlay->setSpacing( 10 );
+  hlay->setMargin( 0 );
+  hlay->addWidget( new QLabel( tr( "Value:" ), grd ) );
   QSlider	*sl = _privdata->shinsl
-    = new QSlider( 0, 1280, 1, 0, Qt::Horizontal, grd );
+    = new QSlider( grd );
+  sl->setOrientation( Qt::Horizontal );
+  sl->setRange( 0, 1280 );
+  sl->setValue( 0 );
+  hlay->addWidget( sl );
   sl->setMinimumSize( 50, sl->sizeHint().height() );
   QLabel	*lab = _privdata->shinlabel = new QLabel( "0", grd );
+  hlay->addWidget( lab );
   lab->setMinimumSize( 30, lab->sizeHint().height() );
   connect( _privdata->shinsl, SIGNAL( valueChanged( int ) ), this, 
-	   SLOT( shininessChanged( int ) ) );
+           SLOT( shininessChanged( int ) ) );
 
-  ebox = new QVGroupBox( tr( "Update mode :" ), epan );
+  ebox = new QGroupBox( tr( "Update mode :" ), epan );
+  vlay = new QVBoxLayout( ebox );
+  glay->addWidget( ebox, 2, 1 );
   QCheckBox	*respbtn = new QCheckBox( tr( "Responsive" ), ebox );
+  vlay->addWidget( respbtn );
+  vlay->addStretch( 1 );
   respbtn->setChecked( _privdata->responsive );
   connect( respbtn, SIGNAL( toggled( bool ) ), this, 
-	   SLOT( enableAutoUpdate( bool ) ) );
+           SLOT( enableAutoUpdate( bool ) ) );
 
   // --
 
@@ -259,45 +285,55 @@ QWidget* MaterialWindow::buildRgbaBox( QWidget* parent, int num )
   QLabel	*lab;
   QANumSlider	*sl;
 
-  QGrid	*grd = new QGrid( 3, parent );
-  grd->setSpacing( 10 );
-  new QLabel( tr( "Red:" ), grd );
+  QWidget *grd = new QWidget( parent );
+  QGridLayout *glay = new QGridLayout( grd );
+  glay->setSpacing( 10 );
+  glay->setMargin( 0 );
+  glay->addWidget( new QLabel( tr( "Red:" ), grd ), 0, 0 );
   sl = _privdata->sliders[num][0]
     = new QANumSlider( num, 0, 0, 100, 1, 0, Qt::Horizontal, grd );
+  glay->addWidget( sl, 0, 1 );
   sl->setMinimumSize( 100, sl->sizeHint().height() );
   lab = _privdata->labels[num][0] = new QLabel( "0", grd );
+  glay->addWidget( lab, 0, 2 );
   lab->setMinimumSize( 25, lab->sizeHint().height() );
   connect( sl, SIGNAL( valueChanged( int, int, int ) ), 
-	   this, SLOT( valueChanged( int, int, int ) ) );
+           this, SLOT( valueChanged( int, int, int ) ) );
 
-  new QLabel( tr( "Green:" ), grd );
+  glay->addWidget( new QLabel( tr( "Green:" ), grd ), 1, 0 );
   sl = _privdata->sliders[num][1]
     = new QANumSlider( num, 1, 0, 100, 1, 0, Qt::Horizontal, grd );
+  glay->addWidget( sl, 1, 1 );
   sl->setMinimumSize( 50, sl->sizeHint().height() );
   lab = _privdata->labels[num][1] = new QLabel( "0", grd );
+  glay->addWidget( lab, 1, 2 );
   lab->setMinimumSize( 25, lab->sizeHint().height() );
   connect( sl, SIGNAL( valueChanged( int, int, int ) ), 
-	   this, SLOT( valueChanged( int, int, int ) ) );
+           this, SLOT( valueChanged( int, int, int ) ) );
 
-  new QLabel( tr( "Blue:" ), grd );
+  glay->addWidget( new QLabel( tr( "Blue:" ), grd ), 2, 0 );
   sl = _privdata->sliders[num][2]
     = new QANumSlider( num, 2, 0, 100, 1, 0, Qt::Horizontal, grd );
+  glay->addWidget( sl, 2, 1 );
   sl->setMinimumSize( 50, sl->sizeHint().height() );
   lab = _privdata->labels[num][2] = new QLabel( "0", grd );
+  glay->addWidget( lab, 2, 2 );
   lab->setMinimumSize( 25, lab->sizeHint().height() );
   connect( sl, SIGNAL( valueChanged( int, int, int ) ), 
-	   this, SLOT( valueChanged( int, int, int ) ) );
+           this, SLOT( valueChanged( int, int, int ) ) );
 
-  new QLabel( tr( "Opacity:" ), grd );
+  glay->addWidget( new QLabel( tr( "Opacity:" ), grd ), 3, 0 );
   sl = _privdata->sliders[num][3]
     = new QANumSlider( num, 3, 0, 100, 1, 0, Qt::Horizontal, grd );
+  glay->addWidget( sl, 3, 1 );
   sl->setMinimumSize( 50, sl->sizeHint().height() );
   lab = _privdata->labels[num][3] = new QLabel( "0", grd );
+  glay->addWidget( lab, 3, 2 );
   lab->setMinimumSize( 25, lab->sizeHint().height() );
   connect( sl, SIGNAL( valueChanged( int, int, int ) ), 
-	   this, SLOT( valueChanged( int, int, int ) ) );
+           this, SLOT( valueChanged( int, int, int ) ) );
 
-  return( grd );
+  return grd;
 }
 
 
@@ -396,36 +432,22 @@ namespace
   {
   }
 
-  void setButtonState( QButton* b, int x )
+  void setButtonState( QAbstractButton* b, int x )
   {
     QCheckBox	*cb = dynamic_cast<QCheckBox *>( b );
     if( !cb )
       return;
-#if QT_VERSION >= 0x040000
     switch( x )
-      {
-      case 0:
-        cb->setCheckState( Qt::Unchecked );
-        break;
-      case 1:
-        cb->setCheckState( Qt::Checked );
-        break;
-      default:
-        cb->setCheckState( Qt::PartiallyChecked );
-      }
-#else
-    switch( x )
-      {
-      case 0:
-        cb->setChecked( false );
-        break;
-      case 1:
-        cb->setChecked( true );
-        break;
-      default:
-        cb->setNoChange();
-      }
-#endif
+    {
+    case 0:
+      cb->setCheckState( Qt::Unchecked );
+      break;
+    case 1:
+      cb->setCheckState( Qt::Checked );
+      break;
+    default:
+      cb->setCheckState( Qt::PartiallyChecked );
+    }
   }
 
 }
