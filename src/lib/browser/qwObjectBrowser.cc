@@ -30,9 +30,6 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef QT3_SUPPORT
-#undef QT3_SUPPORT
-#endif
 
 #include <anatomist/browser/qwObjectBrowser.h>
 #include <anatomist/browser/stringEdit.h>
@@ -272,9 +269,10 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   hdr->setText( 4, tr( "Sel." ) );
   hdr->setText( 5, tr( "Reg." ) );
   QHeaderView *hdri = d->lview->header();
-  hdri->setResizeMode( 1, QHeaderView::ResizeToContents );
-  hdri->setResizeMode( 2, QHeaderView::Stretch );
-  hdri->setResizeMode( 3, QHeaderView::ResizeToContents );
+  hdri->setResizeMode( 0, QHeaderView::Interactive );
+  hdri->setResizeMode( 1, QHeaderView::Interactive );
+  hdri->setResizeMode( 2, QHeaderView::Interactive );
+  hdri->setResizeMode( 3, QHeaderView::Interactive );
   hdri->setResizeMode( 4, QHeaderView::Fixed );
   hdri->resizeSection( 4, 26 );
   hdri->setStretchLastSection( false );
@@ -291,10 +289,10 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   hdr->setText( 3, tr( "Label1" ) );
   hdr->setText( 4, tr( "Label2" ) );
   hdri = d->rview->header();
-  hdri->setResizeMode( 2, QHeaderView::Stretch );
+  hdri->setResizeMode( 2, QHeaderView::Interactive );
   hdri->setStretchLastSection( false );
-  hdri->setResizeMode( 3, QHeaderView::ResizeToContents );
-  hdri->setResizeMode( 4, QHeaderView::ResizeToContents );
+  hdri->setResizeMode( 3, QHeaderView::Interactive );
+  hdri->setResizeMode( 4, QHeaderView::Interactive );
   d->rview->setSortingEnabled( true );
 
   d->statbar = statusBar(); // new QStatusBar( this, "status" );

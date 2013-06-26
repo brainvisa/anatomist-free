@@ -134,6 +134,11 @@ void QObjectBrowserWidget::registerObject( AObject* object,
   item->setText( regColumn, "*" );
   if( showDetailsUponRegister )
     item->setExpanded( true );
+
+  resizeColumnToContents( 0 );
+  resizeColumnToContents( 1 );
+  resizeColumnToContents( 2 );
+  resizeColumnToContents( 3 );
 }
 
 
@@ -253,6 +258,11 @@ void QObjectBrowserWidget::registerObject( GenericObject* object )
     for( io=mo->begin(); io!=fo; ++io )
       insertObject( item, *io );
   }
+
+  resizeColumnToContents( 0 );
+  resizeColumnToContents( 1 );
+  resizeColumnToContents( 2 );
+  resizeColumnToContents( 3 );
 }
 
 
@@ -285,12 +295,12 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( AObject* obj )
 
   decorateItem( item, obj );
   describeAObject( obj, item );
-  return( item );
+  return item;
 }
 
 
 QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent, 
-						   AObject* obj )
+                                                     AObject* obj )
 {
   QTreeWidgetItem	*item = itemFor( obj );
 
@@ -303,7 +313,7 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent,
     }
 
   decorateItem( item, obj );
-  return( item );
+  return item;
 }
 
 
