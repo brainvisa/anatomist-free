@@ -46,7 +46,7 @@
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/misc/error.h>
 #include <aims/def/general.h>
-#include <aims/qtcompat/qmouseevent.h>
+#include <QMouseEvent>
 #include <cartobase/object/pythonwriter.h>
 #include <cartobase/stream/fileutil.h>
 #include <qpainter.h>
@@ -72,16 +72,9 @@ namespace
 {
 
   class RefToolTip
-#if QT_VERSION < 0x040000
-  : public QToolTip
-#endif
   {
   public:
-#if QT_VERSION >= 0x040000
     RefToolTip( ReferentialWindow* parent );
-#else
-    RefToolTip( ReferentialWindow* parent, QToolTipGroup* group = 0 );
-#endif
     virtual ~RefToolTip();
 
     virtual void maybeTip( const QPoint & p );
@@ -90,13 +83,8 @@ namespace
     ReferentialWindow *_refwin;
   };
 
-#if QT_VERSION >= 0x040000
   RefToolTip::RefToolTip( ReferentialWindow* parent )
   : _refwin( parent )
-#else
-  RefToolTip::RefToolTip( ReferentialWindow* parent, QToolTipGroup* group )
-  : QToolTip( parent, group ), _refwin( parent )
-#endif
   {
   }
 
@@ -190,11 +178,7 @@ namespace
       exclude.insert( "name" );
       exclude.insert( "uuid" );
       text += headerPrint( ph, exclude );
-#if QT_VERSION >= 0x040000
       QToolTip::showText( _refwin->mapToGlobal( p ), text );
-#else
-      tip( QRect( p, p + QPoint( 20, 20 ) ), text );
-#endif
       ::close( fd );
       unlink( pixfname.c_str() );
     }
@@ -244,11 +228,7 @@ namespace
         PythonHeader  *ph = t->motion().header();
         if( ph )
           text += headerPrint( *ph );
-#if QT_VERSION >= 0x040000
         QToolTip::showText( _refwin->mapToGlobal( p ), text );
-#else
-        tip( QRect( p, p + QPoint( 20, 20 ) ), text );
-#endif
         ::close( fd );
         unlink( pixfname.c_str() );
       }
@@ -288,14 +268,12 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
   : QLabel( parent, f ), 
   pdat( new ReferentialWindow_PrivateData )
 {
-  setCaption( tr( "Referentials" ) );
+  setWindowTitle( tr( "Referentials" ) );
   setObjectName(name);
   resize( 256, 256 );
   setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
-#if QT_VERSION >= 0x040000
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
-#endif
 }
 
 ReferentialWindow::~ReferentialWindow()
@@ -329,7 +307,7 @@ void ReferentialWindow::openSelectBox()
   filter += " (*)";
   QFileDialog	& fd = fileDialog();
   fd.setNameFilter( filter );
-  fd.setCaption( tr( "Open transformation" ) );
+  fd.setWindowTitle( tr( "Open transformation" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;
@@ -349,7 +327,7 @@ void ReferentialWindow::saveTransformation( anatomist::Transformation* trans )
   filter += " (*)";
   QFileDialog	& fd = fileDialog();
   fd.setNameFilter( filter );
-  fd.setCaption( tr( "Save transformation" ) );
+  fd.setWindowTitle( tr( "Save transformation" ) );
   fd.setFileMode( QFileDialog::AnyFile );
   if( !fd.exec() )
     return;
@@ -1023,7 +1001,7 @@ void ReferentialWindow::loadReferential()
   filter += " (*)";
   QFileDialog   & fd = fileDialog();
   fd.setNameFilter( filter );
-  fd.setCaption( tr( "Load referential information" ) );
+  fd.setWindowTitle( tr( "Load referential information" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;
@@ -1045,7 +1023,7 @@ void ReferentialWindow::loadNewTransformation()
   filter += " (*)";
   QFileDialog   & fd = fileDialog();
   fd.setNameFilter( filter );
-  fd.setCaption( tr( "Open transformation" ) );
+  fd.setWindowTitle( tr( "Open transformation" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;

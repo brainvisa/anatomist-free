@@ -3,7 +3,7 @@ find_package( brainvisa-cmake REQUIRED )
 BRAINVISA_PROJECT()
 
 BRAINVISA_FIND_PACKAGE( aims-free REQUIRED )
-find_package( Qt4 COMPONENTS QtCore QtGui Qt3Support QtOpenGL REQUIRED )
+find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED ) # Qt3Support
 find_package( QtVersion REQUIRED )
 find_package( OpenGL REQUIRED )
 
@@ -13,8 +13,8 @@ BRAINVISA_DEPENDENCY( RUN DEPENDS libqtcore4 RUN ">= ${QT_VERSION}" )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libqtcore4 DEV )
 BRAINVISA_DEPENDENCY( RUN DEPENDS libqtgui4 RUN ">= ${QT_VERSION}" )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libqtgui4 DEV )
-BRAINVISA_DEPENDENCY( RUN DEPENDS libqt4-qt3support RUN ">= ${QT_VERSION}" )
-BRAINVISA_DEPENDENCY( DEV DEPENDS libqt4-qt3support DEV )
+# BRAINVISA_DEPENDENCY( RUN DEPENDS libqt4-qt3support RUN ">= ${QT_VERSION}" )
+# BRAINVISA_DEPENDENCY( DEV DEPENDS libqt4-qt3support DEV )
 BRAINVISA_DEPENDENCY( RUN DEPENDS libqt4-opengl RUN ">= ${QT_VERSION}" )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libqt4-opengl DEV )
 # those seem to be loaded indirectly, I don't really know how

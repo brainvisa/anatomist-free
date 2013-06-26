@@ -83,97 +83,81 @@ DeleteElementCommand::doit()
   vector<int>::iterator i;
   void			*ptr;
   string		type;
-  
+
   for( i=_elem.begin(); i!=_elem.end(); ++i )
+  {
+    ptr = context()->unserial->pointer( *i );
+    if( !ptr )
+      cerr << "DeleteElementCommand : Element ID " << *i 
+            << " not registered\n";
+    else
     {
-      ptr = context()->unserial->pointer( *i );
-      if( !ptr )
-	cerr << "DeleteElementCommand : Element ID " << *i 
-	     << " not registered\n";
+      type = context()->unserial->type( ptr );
+      if( type == "AObject" )
+      {
+        AObject	*o = (AObject *) ptr;
+        if( theAnatomist->hasObject( o ) )
+          theAnatomist->destroyObject( o );
+      }
+      else if( type == "AWindow" )
+      {
+        AWindow	*w = (AWindow *) ptr;
+        if( theAnatomist->hasWindow( w ) )
+          w->tryDelete();
+      }
+      else if( type == "Referential" )
+      {
+        Referential	*r = (Referential *) ptr;
+        if( r != theAnatomist->centralReferential() )
+        {
+          set<Referential *> refs = theAnatomist->getReferentials();
+          if( refs.find( r ) != refs.end() )
+            delete r;
+        }
+      }
+      else if( type == "Transformation" )
+      {
+        Transformation	*t = (Transformation *) ptr;
+        if( ATransformSet::instance()->hasTransformation( t ) )
+          {
+            delete t;
+
+            set<AWindow *> 
+              win = theAnatomist->getWindows();
+            set<AWindow*>::iterator	iw, fw = win.end();
+
+            for( iw=win.begin(); iw!=fw; ++iw )
+              (*iw)->SetRefreshFlag();
+          }
+      }
+      else if( type == "Widget" )
+      {
+        QWidget		*w =  (QWidget *) ptr;
+        QWidgetList	wl4 = qApp->topLevelWidgets();
+        QWidget		*w2 = 0;
+        int		i, n = wl4.size();
+        for( i=0; i < n && (w2=wl4.at(i)) != w; ++i );
+        if( w != w2 )
+        {
+          wl4 = qApp->allWidgets();
+          for( i=0, n=wl4.size(); i < n && (w2=wl4.at(i)) != w; ++i );
+        }
+        if( w == w2 )
+        {
+          // Call the close method of the widget because it could be impossible to close it if there are still references on it
+          bool closeOk=w->close();
+          // if the close method deletes the widget, we mustn't call the destructor again
+          bool destructiveClose = (w->windowFlags() & Qt::WA_DeleteOnClose);
+          bool deleteOnClose = w->testAttribute( Qt::WA_DeleteOnClose);
+          if ((closeOk) && (!destructiveClose) && (!deleteOnClose))
+            delete w;
+        }
+      }
       else
-	{
-	  type = context()->unserial->type( ptr );
-	  if( type == "AObject" )
-	    {
-	      AObject	*o = (AObject *) ptr;
-	      if( theAnatomist->hasObject( o ) )
-		theAnatomist->destroyObject( o );
-	    }
-	  else if( type == "AWindow" )
-	    {
-	      AWindow	*w = (AWindow *) ptr;
-	      if( theAnatomist->hasWindow( w ) )
-		w->tryDelete();
-	    }
-	  else if( type == "Referential" )
-	    {
-	      Referential	*r = (Referential *) ptr;
-              if( r != theAnatomist->centralReferential() )
-                {
-                  set<Referential *> refs = theAnatomist->getReferentials();
-                  if( refs.find( r ) != refs.end() )
-                    delete r;
-                }
-            }
-	  else if( type == "Transformation" )
-	    {
-	      Transformation	*t = (Transformation *) ptr;
-              if( ATransformSet::instance()->hasTransformation( t ) )
-                {
-                  delete t;
-
-                  set<AWindow *> 
-                    win = theAnatomist->getWindows();
-                  set<AWindow*>::iterator	iw, fw = win.end();
-
-                  for( iw=win.begin(); iw!=fw; ++iw )
-                    (*iw)->SetRefreshFlag();
-                }
-	    }
-          else if( type == "Widget" )
-            {
-              QWidget		*w =  (QWidget *) ptr;
-#if QT_VERSION >= 0x040000
-              QWidgetList	wl4 = qApp->topLevelWidgets();
-              QWidget		*w2 = 0;
-              int		i, n = wl4.size();
-              for( i=0; i < n && (w2=wl4.at(i)) != w; ++i );
-              if( w != w2 )
-                {
-                  wl4 = qApp->allWidgets();
-                  for( i=0, n=wl4.size(); i < n && (w2=wl4.at(i)) != w; ++i );
-                }
-#else
-              QWidgetList	*wl = qApp->topLevelWidgets();
-              QWidgetListIt it( *wl );
-              QWidget		*w2;
-              while( (w2=it.current()) != 0 && w2 != w )
-                ++it;
-              delete wl;
-              if( w != w2 )
-                {
-                  wl = qApp->allWidgets();
-                  it = *wl;
-                  while( (w2=it.current()) != 0 && w2 != w )
-                    ++it;
-                  delete wl;
-                }
-#endif
-              if( w == w2 ){
-                // Call the close method of the widget because it could be impossible to close it if there are still references on it
-                bool closeOk=w->close();
-                // if the close method deletes the widget, we mustn't call the destructor again
-                bool destructiveClose = (w->windowFlags() & Qt::WDestructiveClose);
-                bool deleteOnClose = w->testAttribute( Qt::WA_DeleteOnClose);
-                if ((closeOk) && (!destructiveClose) && (!deleteOnClose))
-                  delete w;
-              }
-            }
-	  else
-	    cerr << "DeleteElementCommand: Unrecognized element type " << type 
-		 << endl;
-	}
+        cerr << "DeleteElementCommand: Unrecognized element type " << type 
+              << endl;
     }
+  }
 
   theAnatomist->UpdateInterface();
   theAnatomist->Refresh();

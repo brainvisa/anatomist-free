@@ -35,10 +35,11 @@
 #ifndef ANA_OBJECT_OBJECTPARAMSELECT_H
 #define ANA_OBJECT_OBJECTPARAMSELECT_H
 
-#include <aims/qtcompat/qlistbox.h>
 #include <qdialog.h>
 #include <qwidget.h>
 #include <set>
+
+class QListWidget;
 
 namespace anatomist
 {
@@ -103,7 +104,7 @@ public:
                       ObjectParamSelect* s, QWidget* parent = 0 );
   virtual ~ObjectChooseDialog();
 
-  const QListBox* list() const;
+  const QListWidget* list() const;
   int objectsViewMode() const;
 
 public slots:

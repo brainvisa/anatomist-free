@@ -50,17 +50,23 @@ string		QSelAttrib::_lastValue;
 QSelAttrib::QSelAttrib( QWidget* parent, const char* name ) 
   : QDialog( parent )
 {
-  setCaption( tr( "AnaQt attribute criterion" ) );
+  setWindowTitle( tr( "AnaQt attribute criterion" ) );
   setObjectName(name);
   setModal(true);
 
-  QGridLayout	*lay = new QGridLayout( this, 3, 2, 5, 5, "QSAttLay" );
-  QLabel	*lab1 = new QLabel( tr( "Attribute :" ), this, "attr" );
-  QLabel	*lab2 = new QLabel( tr( "Value :" ), this, "value" );
-  QPushButton	*okb = new QPushButton( tr( "OK" ), this, "OKbt" );
-  QPushButton	*ccb = new QPushButton( tr( "Cancel" ), this, "Cancelbt" );
-  _attrib = new QComboBox( true, this, "comboAtt" );
-  _value = new QComboBox( true, this, "combVal" );
+  QGridLayout	*lay = new QGridLayout( this );
+  lay->setMargin( 5 );
+  lay->setSpacing( 5 );
+  QLabel	*lab1 = new QLabel( tr( "Attribute :" ), this );
+  lab1->setObjectName( "attr" );
+  QLabel	*lab2 = new QLabel( tr( "Value :" ), this );
+  lab2->setObjectName( "value" );
+  QPushButton	*okb = new QPushButton( tr( "OK" ), this );
+  QPushButton	*ccb = new QPushButton( tr( "Cancel" ), this );
+  _attrib = new QComboBox( true, this );
+  _attrib->setObjectName( "comboAtt" );
+  _value = new QComboBox( true, this );
+  _value->setObjectName( "combVal" );
 
   okb->setDefault( true );
 
@@ -68,9 +74,9 @@ QSelAttrib::QSelAttrib( QWidget* parent, const char* name )
   set<string>::const_iterator	iv, fv=_valueList.end();
 
   for( ia=_attribList.begin(); ia!=fa; ++ia )
-      _attrib->insertItem( (*ia).c_str() );
+      _attrib->addItem( (*ia).c_str() );
   for( iv=_valueList.begin(); iv!=fv; ++iv )
-    _value->insertItem( (*iv).c_str() );
+    _value->addItem( (*iv).c_str() );
   _attrib->setEditText( _lastAttrib.c_str() );
   _value->setEditText( _lastValue.c_str() );
 

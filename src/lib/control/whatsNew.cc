@@ -50,7 +50,7 @@ WhatsNew::WhatsNew( QWidget* parent, const char * name, bool modal,
                     Qt::WFlags f )
   : QDialog( parent, f )
 {
-  setCaption( tr( "Anatomist News" ) );
+  setWindowTitle( tr( "Anatomist News" ) );
   setObjectName(name);
   setModal(modal);
 
@@ -70,11 +70,7 @@ WhatsNew::WhatsNew( QWidget* parent, const char * name, bool modal,
   if( FileUtil::fileStat( fname ).find( '+' ) == string::npos
       && lang != "en" )
     fname = Settings::findResourceFile( "po/en/new.html" );
-#if QT_VERSION >= 0x040000
   txt->setSource( QUrl( fname.c_str() ) );
-#else
-  txt->setSource( fname.c_str() );
-#endif
   ok->setDefault( true );
 
   mainlay->addWidget( txt );

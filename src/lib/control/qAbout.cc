@@ -269,7 +269,7 @@ QAbout::QAbout( QWidget* parent, const char* name )
 {
   setObjectName(name);
   setModal(true);
-  setCaption( tr( "About Anatomist" ) );
+  setWindowTitle( tr( "About Anatomist" ) );
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "lay1" );
   d->edit = new QScrollingLabel( this, "edit" );

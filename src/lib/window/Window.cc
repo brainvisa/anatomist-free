@@ -43,7 +43,7 @@
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/processor/event.h>
 #include <anatomist/reference/Transformation.h>
-#include <aims/qtcompat/qfiledialog.h>
+#include <qfiledialog.h>
 #include <algorithm>
 #include <assert.h>
 
@@ -397,7 +397,7 @@ void AWindow::startRecord()
 
   QFileDialog	& fd = fileDialog();
   fd.setNameFilter( filter );
-  fd.setCaption( caption );
+  fd.setWindowTitle( caption );
   fd.setFileMode( QFileDialog::AnyFile );
   if( !fd.exec() )
     return;

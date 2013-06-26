@@ -40,10 +40,8 @@
 
 using namespace carto;
 using namespace std;
-#if QT_VERSION >= 0x040000
 namespace Qt {}
 using namespace Qt;
-#endif
 
 AttributedChooser::AttributedChooser( const GenericObject & ao, 
                                       const SyntaxSet & ss, bool newonly, 
@@ -52,16 +50,21 @@ AttributedChooser::AttributedChooser( const GenericObject & ao,
   : QDialog( parent, f ), _newonly( newonly ), _ao( &ao ), 
     _syntax( &ss )
 {
-  setCaption( name );
+  setWindowTitle( name );
   setObjectName(name);
   setModal(true);
-  QGridLayout	*lay1 = new QGridLayout( this, 3, 2, 10, -1, "lay1" );
-  _nameBox = new QComboBox( true, this, "name" );
-  _typeBox = new QComboBox( true, this, "type" );
+  QGridLayout	*lay1 = new QGridLayout( this );
+  lay1->setMargin( 10 );
+  _nameBox = new QComboBox( this );
+  _nameBox->setEditable( true );
+  _nameBox->setObjectName( "name" );
+  _typeBox = new QComboBox( this );
+  _typeBox->setEditable( true );
+  _typeBox->setObjectName( "type" );
   QLabel	*l1 = new QLabel( tr( "Name :" ), this );
   QLabel	*l2 = new QLabel( tr( "Type :" ), this );
-  QPushButton	*okb = new QPushButton( tr( "OK" ), this, "okb" );
-  QPushButton	*ccb = new QPushButton( tr( "Cancel" ), this, "ccb" );
+  QPushButton	*okb = new QPushButton( tr( "OK" ), this );
+  QPushButton	*ccb = new QPushButton( tr( "Cancel" ), this );
 
   _nameBox->setMinimumWidth( 150 );
   _nameBox->setFixedHeight( _nameBox->sizeHint().height() );
@@ -115,10 +118,10 @@ void AttributedChooser::fillNames()
 
   for( is=(*iss).second.begin(); is!=fs; ++is )
     if( !_newonly || !_ao->hasProperty( (*is).first.c_str() ) )
-      _nameBox->insertItem( (*is).first.c_str() );
+      _nameBox->addItem( (*is).first.c_str() );
 
   if( _nameBox->count() > 0 )
-    _nameBox->setCurrentItem( 0 );
+    _nameBox->setCurrentIndex( 0 );
 
   fillTypes();
 }
@@ -143,11 +146,11 @@ void AttributedChooser::fillTypes()
     return;
 
   SemanticSet::const_iterator 
-    is = (*iss).second.find( _nameBox->currentText().utf8().data() );
+    is = (*iss).second.find( _nameBox->currentText().toStdString() );
 
   if( is != (*iss).second.end() )
     {
-      _typeBox->insertItem( (*is).second.type.c_str() );
+      _typeBox->addItem( (*is).second.type.c_str() );
       return;
     }
 
@@ -163,7 +166,7 @@ void AttributedChooser::fillTypes()
       sstr.insert( (*is).second.type );
 
   for( ist = sstr.begin(), fst=sstr.end(); ist!=fst; ++ist )
-    _typeBox->insertItem( (*ist).c_str() );
+    _typeBox->addItem( (*ist).c_str() );
 }
 
 
@@ -189,11 +192,11 @@ void AttributedChooser::accept()
 
 string AttributedChooser::attName() const
 {
-  return( _nameBox->currentText().utf8().data() );
+  return( _nameBox->currentText().toStdString() );
 }
 
 
 string AttributedChooser::attType() const
 {
-  return( _typeBox->currentText().utf8().data() );
+  return( _typeBox->currentText().toStdString() );
 }

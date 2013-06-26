@@ -66,7 +66,6 @@
 #include <qsplitter.h>
 #include <qpixmap.h>
 #include <qmessagebox.h>
-#include <aims/qtcompat/qheader.h>
 #include <qvalidator.h>
 #include <qstatusbar.h>
 #include <qlabel.h>
@@ -231,7 +230,7 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
 {
   setAttribute( Qt::WA_DeleteOnClose );
   CreateTitle();
-  //setCaption( tr( "AnaQt Objects Browser" ) );
+  //setWindowTitle( tr( "AnaQt Objects Browser" ) );
   resize( 400, 400 );
 
   //	controls

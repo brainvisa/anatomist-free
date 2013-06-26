@@ -168,11 +168,11 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ),
     APaletteWin( obj ), d( new Private( obj ) )
 {
-  setCaption( tr( "Object palette composition" ) );
+  setWindowTitle( tr( "Object palette composition" ) );
   QPixmap	anaicon( Settings::findResourceFile(
     "icons/icon.xpm" ).c_str() );
   if( !anaicon.isNull() )
-    setIcon( anaicon );
+    setWindowIcon( anaicon );
 
   QVBoxLayout	*mainLay = new QVBoxLayout( this );
   mainLay->setObjectName( "mainLay" );
@@ -191,8 +191,9 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   mainl->setMargin( 5 );
   mainl->setSpacing( 5 );
 
-  QWidget *ltPanel = new QWidget( d->main, "ltPanel" );
+  QWidget *ltPanel = new QWidget( d->main );
   mainl->addWidget( ltPanel );
+  ltPanel->setObjectName( "ltPanel" );
   QVBoxLayout *ltPanell = new QVBoxLayout( ltPanel );
   ltPanel->setLayout( ltPanell );
   ltPanell->setMargin( 0 );
@@ -212,7 +213,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->palettes->setMinimumSize( 200, 200 );
   fillPalettes();
 
-  QWidget *rtPanel = new QWidget( d->main, "rtPanel" );
+  QWidget *rtPanel = new QWidget( d->main );
+  rtPanel->setObjectName( "rtPanel" );
   mainl->addWidget( rtPanel );
   QVBoxLayout *rtPanell = new QVBoxLayout( rtPanel );
   rtPanel->setLayout( rtPanell );
@@ -295,8 +297,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->mixBox->setObjectName( "2d_mixing_method" );
   pal2boxl->addWidget( new QLabel( tr( "Palette 1D Mapping :" ), pal2box ),
                        2, 0 );
-  d->palette1dMappingBox = new QComboBox( pal2box,
-                                          "palette_1d_mapping_method" );
+  d->palette1dMappingBox = new QComboBox( pal2box );
+  d->palette1dMappingBox->setObjectName( "palette_1d_mapping_method" );
   pal2boxl->addWidget( d->palette1dMappingBox, 2, 1 );
 
   fillPalette2List();
@@ -310,8 +312,11 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   mixFacBoxl->setMargin( 0 );
   mixFacBoxl->setSpacing( 5 );
   mixFacBoxl->addWidget( new QLabel( tr( "Mixing factor :" ), mixFacBox ) );
-  d->mixSlid = new QSlider( 0, 100, 1, 0, Qt::Horizontal,
-					mixFacBox, "mixSlid" );
+  d->mixSlid = new QSlider( mixFacBox );
+  d->mixSlid->setRange( 0, 100 );
+  d->mixSlid->setValue( 0 );
+  d->mixSlid->setOrientation( Qt::Horizontal );
+  d->mixSlid->setObjectName( "mixSlid" );
   mixFacBoxl->addWidget( d->mixSlid );
   d->mixValueLabel = new QLabel( "100", mixFacBox );
   mixFacBoxl->addWidget( d->mixValueLabel );
@@ -320,7 +325,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   QGroupBox	*dispGp = new QGroupBox( tr( "Palette view :" ), rtPanel );
   rtPanell->addWidget( dispGp );
-  QVBoxLayout	*dispGpLay = new QVBoxLayout( dispGp, 10, 10 );
+  QVBoxLayout	*dispGpLay = new QVBoxLayout( dispGp );
   dispGpLay->setMargin( 5 );
   dispGpLay->setSpacing( 5 );
   d->view = new QLabel( dispGp );
@@ -417,20 +422,28 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   minmaxboxl->setMargin( 0 );
   minmaxboxl->setSpacing( 5 );
   minmaxboxl->addWidget( new QLabel( tr( "Min:" ), minmaxbox ), 0, 0 );
-  dbox->minSlider = new QSlider( 0, 1000, 1, 0, Qt::Horizontal,
-                                 minmaxbox, "minSlider" );
+  dbox->minSlider = new QSlider( minmaxbox );
   minmaxboxl->addWidget( dbox->minSlider, 0, 1 );
-  dbox->minSlider->setLineStep( 1 );
-  dbox->minLabel = new QLabel( "0", minmaxbox, "minLabel" );
+  dbox->minSlider->setRange( 0, 1000 );
+  dbox->minSlider->setValue( 0 );
+  dbox->minSlider->setOrientation( Qt::Horizontal );
+  dbox->minSlider->setObjectName( "minSlider" );
+  dbox->minSlider->setSingleStep( 1 );
+  dbox->minLabel = new QLabel( "0", minmaxbox );
   minmaxboxl->addWidget( dbox->minLabel, 0, 2 );
+  dbox->minLabel->setObjectName( "minLabel" );
   dbox->minLabel->setMinimumWidth( 50 );
 
   minmaxboxl->addWidget( new QLabel( tr( "Max:" ), minmaxbox ), 1, 0 );
-  dbox->maxSlider = new QSlider( 0, 1000, 1, 1000, Qt::Horizontal,
-                                 minmaxbox, "maxSlider" );
+  dbox->maxSlider = new QSlider( minmaxbox );
+  dbox->maxSlider->setRange( 0, 1000 );
+  dbox->maxSlider->setValue( 1000 );
+  dbox->maxSlider->setObjectName( "maxSlider" );
+  dbox->maxSlider->setOrientation( Qt::Horizontal );
   minmaxboxl->addWidget( dbox->maxSlider, 1, 1 );
-  dbox->maxSlider->setLineStep( 1 );
-  dbox->maxLabel = new QLabel( "1", minmaxbox, "max1dlabel" );
+  dbox->maxSlider->setSingleStep( 1 );
+  dbox->maxLabel = new QLabel( "1", minmaxbox );
+  dbox->maxLabel->setObjectName( "max1dlabel" );
   minmaxboxl->addWidget( dbox->maxLabel, 1, 2 );
 
   QWidget *boundsbox = new QWidget( dbox->topBox );
@@ -506,12 +519,12 @@ void QAPaletteWin::fillPalette2List()
   int				i = 0;
 
   int w = d->palette2Box->width();
-  d->palette2Box->insertItem( tr( "None" ) );
+  d->palette2Box->addItem( tr( "None" ) );
 
-  d->palette2Box->setCurrentItem( 0 );
+  d->palette2Box->setCurrentIndex( 0 );
 
   for( i=0, ip=pal.begin(); ip!=fp; ++ip, ++i )
-    d->palette2Box->insertItem( (*ip)->name().c_str() );
+    d->palette2Box->addItem( (*ip)->name().c_str() );
 }
 
 
@@ -625,10 +638,10 @@ void QAPaletteWin::updateInterface()
       d->usepal2->setChecked( true );
       n = d->palette2Box->count();
       for( i=0; i<n; ++i )
-        if( d->palette2Box->text( i )
+        if( d->palette2Box->itemText( i )
             == d->objpal->refPalette2()->name().c_str() )
           {
-            d->palette2Box->setCurrentItem( i );
+            d->palette2Box->setCurrentIndex( i );
             break;
           }
     }
@@ -638,9 +651,9 @@ void QAPaletteWin::updateInterface()
 
   n = d->mixBox->count();
   for( i=0; i<n; ++i )
-    if( d->mixBox->text( i ) == d->objpal->mixMethodName().c_str() )
+    if( d->mixBox->itemText( i ) == d->objpal->mixMethodName().c_str() )
     {
-      d->mixBox->setCurrentItem( i );
+      d->mixBox->setCurrentIndex( i );
       break;
     }
 
@@ -667,81 +680,81 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
     obj = *objects().begin();
 
   if( obj && theAnatomist->hasObject( obj ) && obj->hasChanged() )
+  {
+    const AObjectPalette	*pal = obj->getOrCreatePalette();
+    if( pal )
     {
-      const AObjectPalette	*pal = obj->getOrCreatePalette();
-      if( pal )
+      if( d->objpal )
+        *d->objpal = *pal ;
+      else
+        d->objpal = new AObjectPalette( *pal ) ;
+
+      if( d->objpal->palette1DMapping() == AObjectPalette::DIAGONAL )
         {
-          if( d->objpal )
-            *d->objpal = *pal ;
-          else
-            d->objpal = new AObjectPalette( *pal ) ;
-
-          if( d->objpal->palette1DMapping() == AObjectPalette::DIAGONAL )
-            {
-              d->dimBgp->button(1)->setChecked( true );
-              d->palette1dMappingBox->setCurrentItem( 1 ) ;
-              dimChanged(1) ;
-            }
-          else
-            d->palette1dMappingBox->setCurrentItem( 0 ) ;
-
-          QList<QListWidgetItem *> palitems = d->palettes->findItems
-              ( d->objpal->refPalette()->name().c_str(),
-                Qt::MatchCaseSensitive | Qt::MatchExactly );
-          QListWidgetItem *palitem = 0;
-          if( palitems.count() != 0 )
-            palitem = palitems.front();
-          if( !palitem )
-            fillPalette1();
-
-          d->palettes->setCurrentItem( palitem );
-
-          if ( d->objpal->refPalette2() )
-            {
-              d->usepal2->setChecked( true );
-              int i, n=d->palette2Box->count();
-              for( i=0; i<n; ++i )
-                if( d->palette2Box->text( i )
-                    == d->objpal->refPalette2()->name().c_str() )
-                  {
-                    d->palette2Box->setCurrentItem( i );
-                    break;
-                  }
-            }
+          d->dimBgp->button(1)->setChecked( true );
+          d->palette1dMappingBox->setCurrentIndex( 1 ) ;
+          dimChanged(1) ;
         }
+      else
+        d->palette1dMappingBox->setCurrentIndex( 0 ) ;
 
-      const GLComponent	*gl = obj->glAPI();
-      if( gl )
-        {
-	  if( gl->glNumTextures() > 0 )
-	    {
-	      const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
-	      if( !te.minquant.empty() )
-	        d->objMin = te.minquant[0];
-	      if( !te.maxquant.empty() )
-	        d->objMax = te.maxquant[0];
-              if( d->objMin == d->objMax )
-                d->objMax = d->objMin + 1;	// avoid pbs of division by 0
-              setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(),
-                         d->objMin, d->objMax );
-              setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(),
-                         d->objMin2, d->objMax2 );
-	    }
-	}
+      QList<QListWidgetItem *> palitems = d->palettes->findItems
+          ( d->objpal->refPalette()->name().c_str(),
+            Qt::MatchCaseSensitive | Qt::MatchExactly );
+      QListWidgetItem *palitem = 0;
+      if( palitems.count() != 0 )
+        palitem = palitems.front();
+      if( !palitem )
+        fillPalette1();
 
-      int i, n=d->mixBox->count();
-      for( i=0; i<n; ++i )
-	if( d->mixBox->text( i )
-	    == d->objpal->mixMethodName().c_str() )
-	  {
-	    d->mixBox->setCurrentItem( i );
-	    break;
-	  }
-      d->mixSlid->setValue( (int) ( 100 * d->objpal->linearMixFactor() ) );
-      d->mixValueLabel->setText( QString::number
-                                 ( 100 * d->objpal->linearMixFactor() ) );
+      d->palettes->setCurrentItem( palitem );
 
+      if ( d->objpal->refPalette2() )
+      {
+        d->usepal2->setChecked( true );
+        int i, n=d->palette2Box->count();
+        for( i=0; i<n; ++i )
+          if( d->palette2Box->itemText( i )
+              == d->objpal->refPalette2()->name().c_str() )
+          {
+            d->palette2Box->setCurrentIndex( i );
+            break;
+          }
+      }
     }
+
+    const GLComponent	*gl = obj->glAPI();
+    if( gl )
+    {
+      if( gl->glNumTextures() > 0 )
+      {
+        const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
+        if( !te.minquant.empty() )
+          d->objMin = te.minquant[0];
+        if( !te.maxquant.empty() )
+          d->objMax = te.maxquant[0];
+        if( d->objMin == d->objMax )
+          d->objMax = d->objMin + 1;	// avoid pbs of division by 0
+        setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(),
+                    d->objMin, d->objMax );
+        setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(),
+                    d->objMin2, d->objMax2 );
+      }
+    }
+
+    int i, n=d->mixBox->count();
+    for( i=0; i<n; ++i )
+      if( d->mixBox->itemText( i )
+          == d->objpal->mixMethodName().c_str() )
+      {
+        d->mixBox->setCurrentIndex( i );
+        break;
+      }
+    d->mixSlid->setValue( (int) ( 100 * d->objpal->linearMixFactor() ) );
+    d->mixValueLabel->setText( QString::number
+                                ( 100 * d->objpal->linearMixFactor() ) );
+
+  }
 
   updateObjPal();
   fillObjPal();
@@ -787,7 +800,7 @@ void QAPaletteWin::fillPalette( const rc_ptr<APalette> pal, QPixmap & pm )
   float		facy = ((float) dimpy) / dimy;
   AimsRGBA	rgb;
 
-  QImage	im( dimx, dimy, 32 );
+  QImage	im( dimx, dimy, QImage::Format_ARGB32 );
 
   for( y=0; y<dimy; ++y )
     for( x=0; x<dimx; ++x )
@@ -869,7 +882,7 @@ void QAPaletteWin::palette1Changed()
     return;
   item = selected.front();
 
-  string		name = (const char *) item->text();
+  string		name = item->text().toStdString();
   PaletteList		& pallist = theAnatomist->palettes();
   const rc_ptr<APalette> pal = pallist.find( name );
 
@@ -906,7 +919,7 @@ void QAPaletteWin::palette2Changed( const QString & palname )
     {
       PaletteList	& pallist = theAnatomist->palettes();
       const rc_ptr<APalette>
-        pal = pallist.find( string( palname.utf8().data() ) );
+        pal = pallist.find( string( palname.toStdString() ) );
 
       if( !pal )
 	{
@@ -1281,7 +1294,7 @@ void QAPaletteWin::fillMixMethods()
     fm = AObjectPalette::mixMethods.end();
 
   for( im=AObjectPalette::mixMethods.begin(); im!=fm; ++im )
-    d->mixBox->insertItem( (*im).first.c_str() );
+    d->mixBox->addItem( (*im).first.c_str() );
 }
 
 
@@ -1292,7 +1305,7 @@ void QAPaletteWin::mixMethodChanged( const QString & methname )
 
   AObjectPalette	*objpal = objPalette();
 
-  objpal->setMixMethod( string( methname.utf8().data() ) );
+  objpal->setMixMethod( string( methname.toStdString() ) );
   updateObjPal();
   fillObjPal();
   d->modified = true;
@@ -1303,8 +1316,8 @@ void QAPaletteWin::mixMethodChanged( const QString & methname )
 void
 QAPaletteWin::fillPalette1DMappingMethods()
 {
-  d->palette1dMappingBox->insertItem("FirstLine") ;
-  d->palette1dMappingBox->insertItem("Diagonal") ;
+  d->palette1dMappingBox->addItem("FirstLine") ;
+  d->palette1dMappingBox->addItem("Diagonal") ;
 }
 
 void
@@ -1338,7 +1351,7 @@ void QAPaletteWin::enablePalette2( bool f )
 	return;
 
       objpal->setRefPalette2( rc_ptr<APalette>() );
-      d->palette2Box->setCurrentItem( 0 );
+      d->palette2Box->setCurrentIndex( 0 );
       fillPalette2();
       updateObjPal();
       fillObjPal();

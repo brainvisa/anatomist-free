@@ -36,7 +36,6 @@
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/application/Anatomist.h>
-#include <aims/qtcompat/qlistview.h>
 #include <qlayout.h>
 #include <qframe.h>
 #include <qpushbutton.h>
@@ -68,7 +67,7 @@ QSelectWidget::QSelectWidget( unsigned gr, const set<AObject *> & objects )
 
 void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
 {
-  setCaption( tr( "Select object(s)" ) );
+  setWindowTitle( tr( "Select object(s)" ) );
 
   QVBoxLayout	*lay = new QVBoxLayout( this, 5, 5 );
   Q3ListView	*l = new Q3ListView( this, "listview" );
@@ -108,9 +107,9 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
 
   l->setMinimumSize( 150, 100 );
 
-  QFrame	*fr = new QFrame( this, "frame" );
-  QPushButton	*bok = new QPushButton( tr( "Select" ), fr, "okbtn" );
-  QPushButton	*bcc = new QPushButton( tr( "Cancel" ), fr, "ccbtn" );
+  QFrame	*fr = new QFrame( this );
+  QPushButton	*bok = new QPushButton( tr( "Select" ), fr );
+  QPushButton	*bcc = new QPushButton( tr( "Cancel" ), fr );
   QHBoxLayout	*lay2 = new QHBoxLayout( fr, 5 );
 
   bok->setFixedSize( bok->sizeHint() );
@@ -123,11 +122,7 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
   lay2->addStretch( 1 );
 
   //cout << fr->height() << "  " << fr->sizeHint().height() << endl;
-#if QT_VERSION >= 200
   fr->setFixedHeight( fr->sizeHint().height() );
-#else
-  fr->setFixedHeight( fr->height() );
-#endif
 
   lay->addWidget( fr );
 

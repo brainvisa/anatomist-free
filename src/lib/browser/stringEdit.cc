@@ -37,10 +37,8 @@
 #include <qlayout.h>
 
 using namespace std;
-#if QT_VERSION >= 0x040000
 namespace Qt {}
 using namespace Qt;
-#endif
 
 void QCancelLineEdit:: keyPressEvent( QKeyEvent* kev )
 {
@@ -63,12 +61,14 @@ QStringEdit::QStringEdit( const string & text, int x, int y, int w, int h,
   : QDialog( parent, f )
 {
   if( name ){
-    setCaption( name );
+    setWindowTitle( name );
     setObjectName( name );
   }
   setModal(true);
   setFocusPolicy( StrongFocus );
-  QVBoxLayout	*lay = new QVBoxLayout( this, 0, 0, "lay" );
+  QVBoxLayout	*lay = new QVBoxLayout( this );
+  lay->setMargin( 0 );
+  lay->setSpacing( 0 );
   _le = new QCancelLineEdit( this, "lineedit" );
   _le->setFrame( false );
   _le->setText( text.c_str() );

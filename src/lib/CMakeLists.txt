@@ -1,3 +1,7 @@
+# do disable Qt3 support: uncomment the following 2 lines
+# remove_definitions( -DQT3_SUPPORT -DQT_3SUPPORT_LIB )
+# list( REMOVE_ITEM QT_LIBRARIES Qt3Support )
+
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/anatomist/config/version.h" @ONLY )
 BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/anatomist/config/version.h" 
                    DESTINATION "include/anatomist/config" 

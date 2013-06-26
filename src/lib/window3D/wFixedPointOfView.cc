@@ -198,11 +198,10 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
     _pdat( new FixedPointOfViewWindow_PrivateData )
 {
   //_window->addObserver( this );
-  setCaption( tr( "Standard point of view" ) );
+  setWindowTitle( tr( "Standard point of view" ) );
   setObjectName(name);
   QHBoxLayout	*lay = new QHBoxLayout( this, 10, 10 );
 
-#if QT_VERSION >= 0x040000
   QGroupBox *straight = new QGroupBox( tr( "Straight view :" ), this );
   QVBoxLayout *vlay = new QVBoxLayout( straight );
   straight->setLayout( vlay );
@@ -338,47 +337,6 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
 
   connect( bg, SIGNAL( buttonClicked( int ) ), this,
            SLOT( cornerPOV( int ) ) );
-
-#else // Qt 3
-  QVButtonGroup *straight = new QVButtonGroup( tr( "Straight view :" ),
-                                               this );
-  QPushButton *but = new QPushButton( tr( "Front" ), straight );
-  but = new QPushButton( tr( "Back" ), straight );
-  but = new QPushButton( tr( "Left" ), straight );
-  but = new QPushButton( tr( "Right" ), straight );
-  but = new QPushButton( tr( "Top" ), straight );
-  but = new QPushButton( tr( "Bottom" ), straight );
-
-  QVButtonGroup	*edge = new QVButtonGroup( tr( "Edge view :" ), this );
-  but = new QPushButton( tr( "Front top" ), edge );
-  but = new QPushButton( tr( "Front bottom" ), edge );
-  but = new QPushButton( tr( "Front left" ), edge );
-  but = new QPushButton( tr( "Front right" ), edge );
-  but = new QPushButton( tr( "Back top" ), edge );
-  but = new QPushButton( tr( "Back bottom" ), edge );
-  but = new QPushButton( tr( "Back left" ), edge );
-  but = new QPushButton( tr( "Back right" ), edge );
-  but = new QPushButton( tr( "Left top" ), edge );
-  but = new QPushButton( tr( "Left bottom" ), edge );
-  but = new QPushButton( tr( "Right top" ), edge );
-  but = new QPushButton( tr( "Right bottom" ), edge );
-
-  QVButtonGroup	*corner = new QVButtonGroup( tr( "Corner view :" ), this );
-  but = new QPushButton( tr( "Front top left" ), corner );
-  but = new QPushButton( tr( "Front top right" ), corner );
-  but = new QPushButton( tr( "Front bottom left" ), corner );
-  but = new QPushButton( tr( "Front bottom right" ), corner );
-  but = new QPushButton( tr( "Back top left" ), corner );
-  but = new QPushButton( tr( "Back top right" ), corner );
-  but = new QPushButton( tr( "Back bottom left" ), corner );
-  but = new QPushButton( tr( "Back bottom right" ), corner );
-
-  connect( straight, SIGNAL( clicked( int ) ), this,
-           SLOT( straightPOV( int ) ) );
-  connect( edge, SIGNAL( clicked( int ) ), this, SLOT( edgePOV( int ) ) );
-  connect( corner, SIGNAL( clicked( int ) ), this, SLOT( cornerPOV( int ) ) );
-
-#endif
 
   lay->addWidget( straight );
   lay->addWidget( edge );

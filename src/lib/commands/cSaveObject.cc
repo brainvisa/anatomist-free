@@ -87,11 +87,11 @@ SaveObjectCommand::doit()
       if( !res )
         ErrorMessage::message( string( qApp->translate
                                        ( "ErrorMessage", 
-                                         "Save failed: object " ).utf8().data() ) 
+                                         "Save failed: object " ).toStdString() ) 
                                + _object->name() 
                                + qApp->translate
                                ( "ErrorMessage", 
-                                 " could not be saved to " ).utf8().data() + fname, 
+                                 " could not be saved to " ).toStdString() + fname, 
                                ErrorMessage::Error );
       else
         {

@@ -37,10 +37,11 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qdialog.h>
-#include <aims/qtcompat/qlistbox.h>
+#include <qlistwidget.h>
 #include <qlayout.h>
 #include <qcombobox.h>
 #include <qvalidator.h>
+#include <qlistwidget.h>
 
 using namespace anatomist;
 using namespace std;
@@ -139,7 +140,8 @@ void ObjectParamSelect::selectObjects( const set<AObject *> & obj,
 {
   //cout << "selectObjects init: " << obj.size() << ", sel: " << sel.size() 
   //     << endl;
-  ObjectChooseDialog	dial( obj, sel, this, theAnatomist->getQWidgetAncestor() );
+  ObjectChooseDialog	dial( obj, sel, this, 
+                              theAnatomist->getQWidgetAncestor() );
   dial.setObjectsViewMode( d->viewmode );
 
   int	res = dial.exec();
@@ -150,20 +152,20 @@ void ObjectParamSelect::selectObjects( const set<AObject *> & obj,
       set<AObject *>			obj2;
       set<AObject *>::const_iterator	io, eo = sel.end(), eo2 = obj.end(), 
         eo3;
-      const QListBox			*lb = dial.list();
+      const QListWidget			*lb = dial.list();
       int				i, n = lb->count();
 
       for( io=sel.begin(), i=0; i<n && io!=eo; ++io )
         if( filter( *io ) )
           {
-            if( lb->isSelected( i ) )
+            if( lb->item( i )->isSelected() )
               obj2.insert( *io );
             ++i;
           }
       for( io=obj.begin(); i<n && io!=eo2; ++io )
         if( filter( *io ) && sel.find( *io ) == eo )
           {
-            if( lb->isSelected( i ) )
+            if( lb->item( i )->isSelected() )
               obj2.insert( *io );
             ++i;
           }
@@ -176,7 +178,7 @@ void ObjectParamSelect::selectObjects( const set<AObject *> & obj,
               if( filter( *io ) && sel.find( *io ) == eo 
                   && obj.find( *io ) == eo2 )
                 {
-                  if( lb->isSelected( i ) )
+                  if( lb->item( i )->isSelected() )
                     obj2.insert( *io );
                   ++i;
                 }
@@ -190,7 +192,7 @@ void ObjectParamSelect::selectObjects( const set<AObject *> & obj,
                   && obj.find( *io ) == eo2 
                   && ( (*io)->Visible() || (*io)->Parents().empty() ) )
                 {
-                  if( lb->isSelected( i ) )
+                  if( lb->item( i )->isSelected() )
                     obj2.insert( *io );
                   ++i;
                 }
@@ -241,7 +243,7 @@ struct ObjectChooseDialog::Private
   Private( const set<AObject *> & o, const set<AObject *> & sl, 
            ObjectParamSelect* s );
 
-  QListBox		*list;
+  QListWidget		*list;
   QComboBox		*viewbox;
   const set<AObject *>	& obj;
   const set<AObject *>	& sel;
@@ -264,22 +266,22 @@ ObjectChooseDialog::ObjectChooseDialog( const set<AObject *> & obj,
                                         ObjectParamSelect* s, QWidget* parent )
   : QDialog( parent ), d( new Private( obj, sel, s ) )
 {
-  setCaption( ObjectParamSelect::tr( "Set parameters on these objects:" ) );
+  setWindowTitle( ObjectParamSelect::tr( "Set parameters on these objects:" ) );
   setObjectName("selectobject");
   setModal(true);
   QVBoxLayout	*l = new QVBoxLayout( this );
   l->setMargin( 5 );
   l->setSpacing( 5 );
-  QListBox	*lb = new QListBox( this );
+  QListWidget	*lb = new QListWidget( this );
   d->list = lb;
   l->addWidget( lb );
-  lb->setSelectionMode( QListBox::Extended );
+  lb->setSelectionMode( QListWidget::ExtendedSelection );
 
   QComboBox	*all 
     = new QComboBox( this );
-  all->insertItem( ObjectParamSelect::tr( "Show initial objects" ) );
-  all->insertItem( ObjectParamSelect::tr( "Show all objects" ) );
-  all->insertItem( ObjectParamSelect::tr( "Show top-level objects" ) );
+  all->addItem( ObjectParamSelect::tr( "Show initial objects" ) );
+  all->addItem( ObjectParamSelect::tr( "Show all objects" ) );
+  all->addItem( ObjectParamSelect::tr( "Show top-level objects" ) );
   l->addWidget( all );
   d->viewbox = all;
 
@@ -320,13 +322,13 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
   for( io=d->sel.begin(); io!=no; ++io )
     if( d->psel->filter( *io ) )
       {
-        d->list->insertItem( (*io)->name().c_str() );
-        d->list->setSelected( i, true );
+        d->list->addItem( (*io)->name().c_str() );
+        d->list->item( i )->setSelected( true );
         ++i;
       }
   for( io=d->obj.begin(); io!=eo; ++io )
     if( d->psel->filter( *io ) && d->sel.find( *io ) == no )
-      d->list->insertItem( (*io)->name().c_str() );
+      d->list->addItem( (*io)->name().c_str() );
 
   switch( x )
     {
@@ -339,7 +341,7 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
         for( io=o.begin(); io!=eo; ++io )
           if( d->psel->filter( *io ) && d->obj.find( *io ) == no 
               && d->sel.find( *io ) == no2 )
-            d->list->insertItem( (*io)->name().c_str() );
+            d->list->addItem( (*io)->name().c_str() );
       }
       break;
     case ObjectParamSelect::TopLevel:
@@ -352,7 +354,7 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
           if( d->psel->filter( *io ) && d->obj.find( *io ) == no 
               && d->sel.find( *io ) == no2 
               && ( (*io)->Visible() || (*io)->Parents().empty() ) )
-            d->list->insertItem( (*io)->name().c_str() );
+            d->list->addItem( (*io)->name().c_str() );
       }
       break;
     default:
@@ -361,7 +363,7 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
 }
 
 
-const QListBox *ObjectChooseDialog::list() const
+const QListWidget *ObjectChooseDialog::list() const
 {
   return d->list;
 }

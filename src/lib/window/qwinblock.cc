@@ -65,7 +65,7 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
       QPixmap	anaicon( Settings::findResourceFile(
                          "icons/icon.xpm" ).c_str() );
       if( !anaicon.isNull() )
-        setIcon( anaicon );
+        setWindowIcon( anaicon );
     }
 
   setAcceptDrops( true );
