@@ -169,7 +169,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
     tr( "<p align=\"justify\">Well, this mode doesn't exist in fact... "
         "Maybe one day it will perform real-time polygon " 
         "pruning to speed-up huge mesh rendering, " 
-        "but up to now..." ) );
+        "but up to now...</p>" ) );
   renderbg->button( _window->renderingMode() )->setChecked( true );
   rb->setEnabled( false );
 

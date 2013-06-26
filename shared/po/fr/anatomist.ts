@@ -96,7 +96,7 @@
     </message>
     <message>
         <source>Mute into free orientation view</source>
-        <translation>Changer en vue d&apos;orientation libre</translation>
+        <translation type="obsolete">Changer en vue d&apos;orientation libre</translation>
     </message>
     <message>
         <source>Start recording...</source>
@@ -173,6 +173,14 @@
     <message>
         <source>surfPaint</source>
         <translation type="obsolete">outils de dessin</translation>
+    </message>
+    <message>
+        <source>Free orientation view</source>
+        <translation>Vue d&apos;orientation libre</translation>
+    </message>
+    <message>
+        <source>Resize window</source>
+        <translation>Redimensionner la fenêtre</translation>
     </message>
 </context>
 <context>
@@ -359,7 +367,7 @@
     </message>
     <message>
         <source>Choose a referential on objects or windows</source>
-        <translation>Choisir un référentiel pour les objets ou fenêtres</translation>
+        <translation type="obsolete">Choisir un référentiel pour les objets ou fenêtres</translation>
     </message>
     <message>
         <source>Save global settings</source>
@@ -752,6 +760,10 @@
     <message>
         <source>All objects, windows, referentials and transformations will be closed</source>
         <translation>Tous les objets, fenêtres, référentiels et transformations vont être détruits</translation>
+    </message>
+    <message>
+        <source>Sparse matrices</source>
+        <translation>Matrices lacunaires</translation>
     </message>
 </context>
 <context>
@@ -1563,7 +1575,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Which fusion ?</source>
-        <translation>Quelle fusion ?</translation>
+        <translation type="obsolete">Quelle fusion ?</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1633,6 +1645,18 @@ Bt droit   :  menu
         <source>TesselationMethod</source>
         <translation>Tesselation de polygône</translation>
     </message>
+    <message>
+        <source>Fusion2DMeshMethod</source>
+        <translation>Intersection maillage/plan</translation>
+    </message>
+    <message>
+        <source>ConnectivityMatrixFusionMethod</source>
+        <translation>Martice de connectivité</translation>
+    </message>
+    <message>
+        <source>Select fusion type</source>
+        <translation>Choix d&apos;un type de fusion</translation>
+    </message>
 </context>
 <context>
     <name>GraphLandmarkPicker</name>
@@ -1669,7 +1693,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Spot</source>
-        <translation>Spot</translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <source>Linear :</source>
@@ -1677,7 +1701,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Model</source>
-        <translation>Modèle</translation>
+        <translation type="obsolete">Modèle</translation>
     </message>
     <message>
         <source>Position :</source>
@@ -1689,11 +1713,11 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation>Source</translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation>Atténuation</translation>
+        <translation type="obsolete">Atténuation</translation>
     </message>
     <message>
         <source>Exponent :</source>
@@ -1780,7 +1804,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation>Réglages avancés</translation>
+        <translation type="obsolete">Réglages avancés</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1788,7 +1812,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Fast color selection</source>
-        <translation>Sélection rapide</translation>
+        <translation type="obsolete">Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
@@ -1808,55 +1832,55 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Rendering</source>
-        <translation>Rendu</translation>
+        <translation type="obsolete">Rendu</translation>
     </message>
     <message>
         <source>Rendering mode :</source>
-        <translation>Mode d&apos;affichage :</translation>
+        <translation type="obsolete">Mode d&apos;affichage :</translation>
     </message>
     <message>
         <source>Default (view setting)</source>
-        <translation>Défaut (réglages de la vue)</translation>
+        <translation type="obsolete">Défaut (réglages de la vue)</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation>Normal</translation>
+        <translation type="obsolete">Normal</translation>
     </message>
     <message>
         <source>Wireframe</source>
-        <translation>Fil de fer</translation>
+        <translation type="obsolete">Fil de fer</translation>
     </message>
     <message>
         <source>Outlined (filled faces + wireframes)</source>
-        <translation>Entourés (faces pleines + fils de fer)</translation>
+        <translation type="obsolete">Entourés (faces pleines + fils de fer)</translation>
     </message>
     <message>
         <source>Wireframe with hidden faces</source>
-        <translation>Fil de fer avec faces cachées</translation>
+        <translation type="obsolete">Fil de fer avec faces cachées</translation>
     </message>
     <message>
         <source>Display properties :</source>
-        <translation>Propriétés d&apos;affichage :</translation>
+        <translation type="obsolete">Propriétés d&apos;affichage :</translation>
     </message>
     <message>
         <source>Enable lighting</source>
-        <translation>Activer l&apos;éclairage</translation>
+        <translation type="obsolete">Activer l&apos;éclairage</translation>
     </message>
     <message>
         <source>Smooth shading</source>
-        <translation>Couleurs lissées</translation>
+        <translation type="obsolete">Couleurs lissées</translation>
     </message>
     <message>
         <source>Smooth polygons / lines</source>
-        <translation>Polygônes / lignes filtrés</translation>
+        <translation type="obsolete">Polygônes / lignes filtrés</translation>
     </message>
     <message>
         <source>Write in depth buffer</source>
-        <translation>Écrire dans le buffer de profondeur</translation>
+        <translation type="obsolete">Écrire dans le buffer de profondeur</translation>
     </message>
     <message>
         <source>Cull polygon faces</source>
-        <translation>Eliminer les faces vues de dos</translation>
+        <translation type="obsolete">Eliminer les faces vues de dos</translation>
     </message>
     <message>
         <source>Blue:</source>
@@ -2128,7 +2152,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Control window</source>
-        <translation>Fenêtre de contrôle</translation>
+        <translation type="obsolete">Fenêtre de contrôle</translation>
     </message>
     <message>
         <source>Anatomist global settings</source>
@@ -2148,7 +2172,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation>Curseur lié</translation>
+        <translation type="obsolete">Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2176,7 +2200,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Volumes</source>
-        <translation>Volumes</translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <source>Display linked cursor</source>
@@ -2192,7 +2216,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation>Application</translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <source>Unstable/in development features</source>
@@ -2232,7 +2256,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation>Fenêtres</translation>
+        <translation type="obsolete">Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2280,7 +2304,7 @@ Bt droit   :  menu
     </message>
     <message>
         <source>OpenGL</source>
-        <translation>OpenGL</translation>
+        <translation type="obsolete">OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
@@ -2341,6 +2365,26 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <message>
         <source>Confirm before quitting</source>
         <translation>Confirmer avant de quitter</translation>
+    </message>
+    <message>
+        <source>3D views</source>
+        <translation>Vues 3D</translation>
+    </message>
+    <message>
+        <source>Use graphics overlay on OpenGL rendering</source>
+        <translation>Utiliser des surimpressions graphiques sur les rendus OpenGL</translation>
+    </message>
+    <message>
+        <source>Enable OpenGL shaders (GLSL 1.2 support needed)</source>
+        <translation>Activer les &quot;shaders&quot; OpenGL (support GLSL 1.2 nécessaire)</translation>
+    </message>
+    <message>
+        <source>Enable OpenGL shaders.</source>
+        <translation>Activer les &quot;shaders&quot; OpenGL </translation>
+    </message>
+    <message>
+        <source>Use shader-based OpenGL pipeline (lighting/shading model) by default</source>
+        <translation>Utiliser le pipeline OpenGL basé sur des &quot;shaders&quot; (modèles de lumière/ombrage) par défaut</translation>
     </message>
 </context>
 <context>
@@ -2878,6 +2922,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Objects</source>
         <translation>Objets</translation>
     </message>
+    <message>
+        <source>cnt</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QSelAttrib</name>
@@ -3156,6 +3204,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Add without nodes</source>
         <translation>Ajouter sans les noeuds</translation>
     </message>
+    <message>
+        <source>Rendering</source>
+        <translation>Rendu</translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3343,67 +3395,75 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Linear / A if A is white</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / A si A est blanc</translation>
     </message>
     <message>
         <source>Linear / A if B is white</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / A si B est blanc</translation>
     </message>
     <message>
         <source>Linear / A if A is black</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / A si A est noir</translation>
     </message>
     <message>
         <source>Linear / A if B is black</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / A si B est noir</translation>
     </message>
     <message>
         <source>Linear / B if A is white</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / B si A est blanc</translation>
     </message>
     <message>
         <source>Linear / B if B is white</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / B si B est blanc</translation>
     </message>
     <message>
         <source>Linear / B if A is black</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / B si A est noir</translation>
     </message>
     <message>
         <source>Linear / B if B is black</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / B si B est noir</translation>
     </message>
     <message>
         <source>Linear / A if A is opaque</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / A si A est opaque</translation>
     </message>
     <message>
         <source>Linear / A if B is not opaque</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / A si B n&apos;est pas opaque</translation>
     </message>
     <message>
         <source>Linear / B if B is opaque</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / B si B est opaque</translation>
     </message>
     <message>
         <source>Linear / B if A is not opaque</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire / B si A n&apos;est pas opaque</translation>
     </message>
     <message>
         <source>Max channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Max canal</translation>
     </message>
     <message>
         <source>Min channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Min canal</translation>
     </message>
     <message>
         <source>Max opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Max opacité</translation>
     </message>
     <message>
         <source>Min opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Min opacité</translation>
+    </message>
+    <message>
+        <source>Geometric (square root)</source>
+        <translation>Géométrique &apos;racine carrée)</translation>
+    </message>
+    <message>
+        <source>Geometric lighten</source>
+        <translation>Géométrique éclaircissant</translation>
     </message>
 </context>
 <context>
@@ -3472,6 +3532,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Windows</source>
         <translation>Fenêtres</translation>
+    </message>
+    <message>
+        <source>cnt</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3554,6 +3618,145 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Cancel</source>
         <translation>Annuler</translation>
+    </message>
+</context>
+<context>
+    <name>RenderingWindow</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rendering</source>
+        <translation>Rendu</translation>
+    </message>
+    <message>
+        <source>Rendering mode :</source>
+        <translation>Mode d&apos;affichage :</translation>
+    </message>
+    <message>
+        <source>Default (view setting)</source>
+        <translation>Défaut (réglages de la vue)</translation>
+    </message>
+    <message>
+        <source>rendering_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>Normal</translation>
+    </message>
+    <message>
+        <source>Wireframe</source>
+        <translation>Fil de fer</translation>
+    </message>
+    <message>
+        <source>Outlined (filled faces + wireframes)</source>
+        <translation>Entourés (faces pleines + fils de fer)</translation>
+    </message>
+    <message>
+        <source>Wireframe with hidden faces</source>
+        <translation>Fil de fer avec faces cachées</translation>
+    </message>
+    <message>
+        <source>Display properties</source>
+        <translation>Propriétés d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Enable lighting</source>
+        <translation>Activer l&apos;éclairage</translation>
+    </message>
+    <message>
+        <source>display_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smooth shading</source>
+        <translation>Couleurs lissées</translation>
+    </message>
+    <message>
+        <source>Smooth polygons / lines</source>
+        <translation>Polygônes / lignes filtrés</translation>
+    </message>
+    <message>
+        <source>Write in depth buffer</source>
+        <translation>Écrire dans le buffer de profondeur</translation>
+    </message>
+    <message>
+        <source>Cull polygon faces</source>
+        <translation>Eliminer les faces vues de dos</translation>
+    </message>
+    <message>
+        <source>Advanced (shaders)</source>
+        <translation>Avancés (shaders)</translation>
+    </message>
+    <message>
+        <source>enable shaders</source>
+        <translation>activer les shaders</translation>
+    </message>
+    <message>
+        <source>Lighting model :</source>
+        <translation>Modèle de lumière :</translation>
+    </message>
+    <message>
+        <source>lighting_model_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Aucun</translation>
+    </message>
+    <message>
+        <source>Phong (faster)</source>
+        <translation>Phong (rapide)</translation>
+    </message>
+    <message>
+        <source>Blinn-Phong (better)</source>
+        <translation>Blinn-Phong (meilleur)</translation>
+    </message>
+    <message>
+        <source>Interpolation Model :</source>
+        <translation>Modèle d&apos;interpolation :</translation>
+    </message>
+    <message>
+        <source>interpolation_model_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None (flat rendering)</source>
+        <translation>Aucun (polygones plats)</translation>
+    </message>
+    <message>
+        <source>Gouraud (faster)</source>
+        <translation>Gouraud (rapide)</translation>
+    </message>
+    <message>
+        <source>Phong (better)</source>
+        <translation>Phong (meilleur)</translation>
+    </message>
+    <message>
+        <source>Coloring Model :</source>
+        <translation>Modèle de couleurs :</translation>
+    </message>
+    <message>
+        <source>coloring_model_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation>Matériau</translation>
+    </message>
+    <message>
+        <source>Normals</source>
+        <translation>Normales</translation>
+    </message>
+    <message>
+        <source>Directions</source>
+        <translation>Directions</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>Recharger</translation>
     </message>
 </context>
 <context>
@@ -4157,7 +4360,7 @@ Voulez-vous continuer ?</translation>
         <source>Only polygon edges are drawn. Hidden faces are also
 drawn, except for polygons facing back if culling
 is enabled</source>
-        <translation>Seules les arêtes des polygônes sont dessinées.
+        <translation type="obsolete">Seules les arêtes des polygônes sont dessinées.
 Les faces cachées sont dessinées également, sauf les
 polygônes vus de dos si l&apos;élimination des polygônes
 de dos est activée</translation>
@@ -4171,7 +4374,7 @@ de dos est activée</translation>
 mode, you can get a distance effect between the
 observer and objects. It is useful for the
 &apos;flight simulator&apos; control.</source>
-        <translation>Le mode normal de projection est orthogonal. En
+        <translation type="obsolete">Le mode normal de projection est orthogonal. En
 perspective, vous pouvez avoir un effet de distance
 entre l&apos;observateur et les objets. C&apos;est utile pour
 le contrôle &apos;simulateur de vol&apos;.</translation>
@@ -4182,7 +4385,7 @@ don&apos;t see polygon boundaries. It&apos;s nicer but if you
 are looking at exact details of where polygons are,
 you&apos;ll have to use either flat-shading, or a rendering
 mode showing polygon edges (wireframe, outline, ...)</source>
-        <translation>Le rendu normal utilise des polygônes lisses, vous
+        <translation type="obsolete">Le rendu normal utilise des polygônes lisses, vous
 ne voyez donc pas les bords des polygônes. C&apos;est plus
 joli mais si vous regardez les limites exactes des
 polygônes, vous devrez utiliser soit des polygônes plats
@@ -4194,7 +4397,7 @@ soit un mode de rendu montrant les arêtes des polygônes
 and polygons edges, but doesn&apos;t work well in all
 cases (polygons should be sorted by depth), and it can
 be very slow</source>
-        <translation>Cette option active le filtrage (anti-aliasing)
+        <translation type="obsolete">Cette option active le filtrage (anti-aliasing)
 des lignes et arêtes de polygônes, mais ne fonctionne
 pas bien dans tous les cas (les polygônes devraient
 être triés par profondeur), et cela peut être très lent</translation>
@@ -4214,7 +4417,7 @@ pas bien dans tous les cas (les polygônes devraient
     <message>
         <source>You can clip the whole scene to cut meshes on one or
 both sides of the current plane of the 2D window mode</source>
-        <translation>Il est possible de tronquer la scène entière pour
+        <translation type="obsolete">Il est possible de tronquer la scène entière pour
 couper les maillages d&apos;un côté ou des deux côtés du
 plan de coupe courant de la fenêtre en mode 2D</translation>
     </message>
@@ -4230,7 +4433,7 @@ plan de coupe courant de la fenêtre en mode 2D</translation>
         <source>Polygons are filled and polygon edges are re-drawn
 using a different color (black). This mode is quite
 slow as two renderings are performed</source>
-        <translation>Les polygônes sont pleins et les arêtes sont
+        <translation type="obsolete">Les polygônes sont pleins et les arêtes sont
 re-dessinées avec une couleur différente (noir).
 Ce mode est assez lent puisque deux rendus
 doivent être effectués</translation>
@@ -4239,7 +4442,7 @@ doivent être effectués</translation>
         <source>Only polygon edges are drawn, and hidden faces are
 actually hidden. To do so two renderings must be
 performed like in outline mode (slow)</source>
-        <translation>Seules les arêtes des polygônes sont dessinées
+        <translation type="obsolete">Seules les arêtes des polygônes sont dessinées
 et les faces cachées sont effectivement cachées.
 Pour se faire, deux rendus doivent être effectués
 comme dans le mode contour (lent, donc)</translation>
@@ -4247,7 +4450,7 @@ comme dans le mode contour (lent, donc)</translation>
     <message>
         <source>Normal rendering mode - you should almost always
 use this one. It uses filled polygons</source>
-        <translation>Mode de rendu normal - vous devriez presque toujours
+        <translation type="obsolete">Mode de rendu normal - vous devriez presque toujours
 utiliser celui-ci. Il utilise des polygônes pleins</translation>
     </message>
     <message>
@@ -4256,7 +4459,7 @@ Without this options, transparent objects will look
 bad, but only the external side of open (or clipped)
 meshes will be seen, so it depends on what you&apos;re
 looking at</source>
-        <translation>Ne dessine pas les polygônes vus de dos.
+        <translation type="obsolete">Ne dessine pas les polygônes vus de dos.
 Sans cette option, les objets transparents ne seront
 pas beaux, mais seule la face externe des maillages
 ouverts (ou tronqués) sera visible, donc ça dépend de
@@ -4295,7 +4498,7 @@ ce que vous regardez</translation>
 through transparent ones, or if some superimposed
 transparent objects can&apos;t be seen. As a counterpart
 objects superimposition will not be handled correctly</source>
-        <translation>Mettez cette option si vous voulez cliquer
+        <translation type="obsolete">Mettez cette option si vous voulez cliquer
 sur des objets opaques à travers des objets transparents,
 ou si certains objets transparents superposés ne
 s&apos;affichent pas. En contrepartie, la superposition des
@@ -4307,7 +4510,7 @@ objets ne sera pas correcte</translation>
 using a volume (slice), don&apos;t set the distance to zero
 because the slice will be just on the clipping plane,
 and you don&apos;t know what will be drawn and what won&apos;t be</source>
-        <translation>Épaisseur de la tranche entre le plan courant de
+        <translation type="obsolete">Épaisseur de la tranche entre le plan courant de
 la fenêtre en mode 2D et le(s) plan(s) de troncature.
 Si vous visualisez un volume (coupe), me mettez pas cette
 distance à zéro, car la coupe sera alors juste dans le
@@ -4331,14 +4534,14 @@ sera dessiné et ce qui ne le sera pas</translation>
 Maybe one day it will perform real-time polygon
 pruning to speed-up huge mesh rendering,
 but up to now...</source>
-        <translation>Bon, ce mode n&apos;existe pas en fait...
+        <translation type="obsolete">Bon, ce mode n&apos;existe pas en fait...
 Peut-être qu&apos;un jour il effectuera une décimation
 en temps réel des polygônes pour accélérer le
 rendu des très gros maillages, mais pour l&apos;instant...</translation>
     </message>
     <message>
         <source>Distance to current plane (mm) :</source>
-        <translation>Distance au plan courant (mm) :</translation>
+        <translation type="obsolete">Distance au plan courant (mm) :</translation>
     </message>
     <message>
         <source>Transparency improvement:</source>
@@ -4382,7 +4585,64 @@ rendu des très gros maillages, mais pour l&apos;instant...</translation>
     </message>
     <message>
         <source>Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)</source>
-        <translation>Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)</translation>
+        <translation type="obsolete">Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Normal rendering mode - you should almost always use this one. It uses filled polygons&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Mode de rendu normal - vous devriez presque toujours utiliser celui-ci. Il utilise des polygônes pleins&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Only polygon edges are drawn. Hidden faces are also drawn, except for polygons facing back if culling is enabled&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Seules les arêtes des polygônes sont dessinées. Les faces cachées sont dessinées également, sauf les polygônes vus de dos si l&apos;élimination des polygônes de dos est activée&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Polygons are filled and polygon edges are re-drawn using a different color (black). This mode is quite slow as two renderings are performed&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Les polygônes sont pleins et les arêtes sont re-dessinées avec une couleur différente (noir). Ce mode est assez lent puisque deux rendus doivent être effectués&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Only polygon edges are drawn, and hidden faces are actually hidden. To do so two renderings must be performed like in outline mode (slow)&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Seules les arêtes des polygônes sont dessinées et les faces cachées sont effectivement cachées. Pour se faire, deux rendus doivent être effectués
+comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Normal projection mode is orthogonal. In perspective mode, you can get a distance effect between the observer and objects. It is useful for the &apos;flight simulator&apos; control.&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Le mode normal de projection est orthogonal. En perspective, vous pouvez avoir un effet de distance entre l&apos;observateur et les objets. C&apos;est utile pour le contrôle &apos;simulateur de vol&apos;.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Enable this if you want to click on opaque objects through transparent ones, or if some superimposed transparent objects can&apos;t be seen. As a counterpart objects superimposition will not be handled correctly&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Mettez cette option si vous voulez cliquer sur des objets opaques à travers des objets transparents, ou si certains objets transparents superposés ne s&apos;affichent pas. En contrepartie, la superposition des objets ne sera pas correcte.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Culling avoids drawing polygons facing back. Without this options, transparent objects will look bad, but only the external side of open (or clipped) meshes will be seen, so it depends on what you&apos;re looking at&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Ne dessine pas les polygônes vus de dos. Sans cette option, les objets transparents ne seront pas beaux, mais seule la face externe des maillages ouverts (ou tronqués) sera visible, donc ça dépend de ce que vous regardez.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Normal rendering uses smoothed colors polygons, so you don&apos;t see polygon boundaries. It&apos;s nicer but if you are looking at exact details of where polygons are, you&apos;ll have to use either flat-shading, or a rendering mode showing polygon edges (wireframe, outline, ...)&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Le rendu normal utilise des polygônes lisses, vous ne voyez donc pas les bords des polygônes. C&apos;est plus joli mais si vous regardez les limites exactes des polygônes, vous devrez utiliser soit des polygônes plats soit un mode de rendu montrant les arêtes des polygônes (fil de fer, faces entourées, ...)&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;This enables smooth filtering (anti-aliasing) of lines and polygons edges, but doesn&apos;t work well in all cases (polygons should be sorted by depth), and it can be very slow&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Cette option active le filtrage (anti-aliasing) des lignes et arêtes de polygônes, mais ne fonctionne pas bien dans tous les cas (les polygônes devraient être triés par profondeur), et cela peut être très lent&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;You can clip the whole scene to cut meshes on one or both sides of the current plane of the 2D window mode&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Il est possible de tronquer la scène entière pour couper les maillages d&apos;un côté ou des deux côtés du plan de coupe courant de la fenêtre en mode 2D&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Distance to current plane (mm/100) :</source>
+        <translation>Distance au plan courant (mm/100) :</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;This is the thickness of the slice between the current 2D window plane and the clipping plane(s). If you are using a volume (slice), don&apos;t set the distance to zero because the slice will be just on the clipping plane, and you don&apos;t know what will be drawn and what won&apos;t be&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Épaisseur de la tranche entre le plan courant de la fenêtre en mode 2D et le(s) plan(s) de troncature. Si vous visualisez un volume (coupe), me mettez pas cette distance à zéro, car la coupe sera alors juste dans le plan de troncature, et on ne peut alors pas savoir ce qui sera dessiné et ce qui ne le sera pas.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Well, this mode doesn&apos;t exist in fact... Maybe one day it will perform real-time polygon pruning to speed-up huge mesh rendering, but up to now...&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Bon, ce mode n&apos;existe pas en fait... Peut-être qu&apos;un jour il effectuera une décimation en temps réel des polygônes pour accélérer le rendu des très gros maillages, mais pour l&apos;instant...&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
