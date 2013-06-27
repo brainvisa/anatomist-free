@@ -497,22 +497,20 @@ void QObjectBrowser::refreshNow()
     {
       it = (*ia).first;
       if( fac->isSelected( Group(), (*ia).second ) )
-	{
-	  if( !it->isSelected() )
-	    {
-	      it->setText( selColumn, "*" );
-	      it->setSelected( true );
-	      if( !cur )
-	        cur = it;
-// 	      d->lview->repaintItem( it );
-	    }
-	}
+      {
+        if( !it->isSelected() )
+        {
+          it->setText( selColumn, "*" );
+          it->setSelected( true );
+          if( !cur )
+            cur = it;
+        }
+      }
       else if( it->isSelected() )
-	{
-	  it->setText( selColumn, 0 );
-	  it->setSelected( false );
-// 	  d->lview->repaintItem( it );
-	}
+      {
+        it->setText( selColumn, 0 );
+        it->setSelected( false );
+      }
     }
 
   //	now check indirect objects (in graph objects)
@@ -533,14 +531,12 @@ void QObjectBrowser::refreshNow()
           it->setSelected( true );
           if( !cur )
             cur = it;
-//        d->lview->repaintItem( it );
         }
       }
       else if( it->isSelected() )
       {
         it->setText( selColumn, 0 );
         it->setSelected( false );
-//      d->lview->repaintItem( it );
       }
     }
 
@@ -548,12 +544,14 @@ void QObjectBrowser::refreshNow()
   {
     d->lview->setCurrentItem( cur );
     d->lview->scrollToItem( cur, QTreeWidget::EnsureVisible );
+    /* apparently setting the current item sometimes deselects it. 
+       So force it again. */
+    cur->setSelected( true );
   }
   ResetRefreshFlag();
 
   d->recursive = false;
   updateRightPanel();
-  //triggerUpdate();
   QWidget::update();
 }
 
@@ -592,19 +590,19 @@ void QObjectBrowser::normalModeSelectionChanged()
   SelectFactory		*fac = SelectFactory::factory();
 
   for( io=view->aObjects().begin(); io!=fo; ++io )
+  {
+    if( (*io).first->isSelected() )
     {
-      if( (*io).first->isSelected() )
-	{
-	  if( !fac->isSelected( Group(), (*io).second ) )
-	    tosel.insert( (*io).second );
-	  (*io).first->setText( selColumn, "*" );
-	}
-      else if( fac->isSelected( Group(), (*io).second ) )
-	{
-	  tounsel.insert( (*io).second );
-	  (*io).first->setText( selColumn, 0 );
-	}
+      if( !fac->isSelected( Group(), (*io).second ) )
+        tosel.insert( (*io).second );
+      (*io).first->setText( selColumn, "*" );
     }
+    else if( fac->isSelected( Group(), (*io).second ) )
+    {
+      tounsel.insert( (*io).second );
+      (*io).first->setText( selColumn, 0 );
+    }
+  }
 
   //	now check indirect objects (in graph objects)
 
@@ -616,38 +614,38 @@ void QObjectBrowser::normalModeSelectionChanged()
   map<Hierarchy *, list<QObjectBrowserWidget::ItemDescr> > hieelem;
 
   for( ig=view->gObjects().begin(); ig!=fg; ++ig )
+  {
+    QTreeWidgetItem* it = (*ig).first;
+    if( it->isSelected() )
     {
-      QTreeWidgetItem* it = (*ig).first;
-      if( it->isSelected() )
-	{
-	  ++ngosel;
-	  cur = it;
-          QObjectBrowserWidget::ItemDescr   descr;
-          view->whatIs( cur, descr );
-          if( descr.tobj )
-          {
-            Hierarchy   *h = dynamic_cast<Hierarchy *>( descr.tobj );
-            if( h && mode() == NORMAL )
-              hieelem[h].push_back( descr );
-          }
-	}
-      if( (*ig).second->getProperty( "ana_object", ao ) )
-	{
-	  if( it->isSelected() )
-	    {
-	      if( !fac->isSelected( Group(), ao.get() ) )
-		{
-		  tosel.insert( ao.get() );
-		  it->setText( selColumn, "*" );
-		}
-	    }
-	  else if( fac->isSelected( Group(), ao.get() ) )
-	    {
-	      tounsel.insert( ao.get() );
-	      it->setText( selColumn, 0 );
-	    }
-	}
+      ++ngosel;
+      cur = it;
+      QObjectBrowserWidget::ItemDescr   descr;
+      view->whatIs( cur, descr );
+      if( descr.tobj )
+      {
+        Hierarchy   *h = dynamic_cast<Hierarchy *>( descr.tobj );
+        if( h && mode() == NORMAL )
+          hieelem[h].push_back( descr );
+      }
     }
+    if( (*ig).second->getProperty( "ana_object", ao ) )
+    {
+      if( it->isSelected() )
+      {
+        if( !fac->isSelected( Group(), ao.get() ) )
+        {
+          tosel.insert( ao.get() );
+          it->setText( selColumn, "*" );
+        }
+      }
+      else if( fac->isSelected( Group(), ao.get() ) )
+      {
+        tounsel.insert( ao.get() );
+        it->setText( selColumn, 0 );
+      }
+    }
+  }
 
   // process nomenclature selections
   map<Hierarchy *, list<QObjectBrowserWidget::ItemDescr> >::iterator
