@@ -1962,7 +1962,10 @@ void AWindow3D::changeReferential()
 {
   set<AWindow *> sw;
   sw.insert(this);
-  (new ChooseReferentialWindow(sw, "Choose Referential Window"))->show();
+  ChooseReferentialWindow *w 
+    = new ChooseReferentialWindow(sw, "Choose Referential Window");
+  w->setAttribute( Qt::WA_DeleteOnClose );
+  w->show();
 }
 
 void AWindow3D::unregisterObject(AObject* o)

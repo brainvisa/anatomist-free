@@ -125,7 +125,10 @@ void ObjectActions::colorRendering( const set<AObject *> & obj )
 
 void ObjectActions::referentialLoad( const set<AObject *> & obj )
 {
-  (new ChooseReferentialWindow( obj, "Choose Referential Window" ))->show();
+  ChooseReferentialWindow *w 
+    = new ChooseReferentialWindow( obj, "Choose Referential Window" );
+  w->setAttribute( Qt::WA_DeleteOnClose );
+  w->show();
 }
 
 

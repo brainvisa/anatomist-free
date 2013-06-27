@@ -105,13 +105,15 @@ namespace
 
   void setRefColor( Referential* ref, QPushButton* pb )
   {
-    QPixmap	pix( 30, 20 );
     if( ref )
     {
+      QPixmap     pix( 30, 20 );
       AimsRGB	col = ref->Color();
       pix.fill( QColor( col.red(), col.green(), col.blue() ) );
+      pb->setIcon( pix );
     }
-    pb->setIcon( pix );
+    else
+      pb->setIcon( QPixmap() );
   }
 
 
@@ -966,6 +968,8 @@ void PreferencesWindow::changeDefObjectsRef()
   crw.setModal( true );
   if( crw.exec() )
   {
+    cout << "OK\n";
+    cout << crw.selectedReferential() << ", " << _pdat->defobjref << endl;
     setRefColor( crw.selectedReferential(), _pdat->defobjref );
     theAnatomist->getControlWindow()
       ->setDefaultObjectsReferential( crw.selectedReferential() );

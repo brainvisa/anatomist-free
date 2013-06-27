@@ -86,7 +86,6 @@ ChooseReferentialWindow::~ChooseReferentialWindow()
 
 void ChooseReferentialWindow::drawContents( const char *name )
 {
-  setAttribute( Qt::WA_DeleteOnClose );
   setModal( true );
   setWindowTitle( name );
   QVBoxLayout	*lay = new QVBoxLayout( this, 10, 5 );

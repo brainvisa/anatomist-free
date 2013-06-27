@@ -1048,14 +1048,20 @@ void ControlWindow::fusionObjects()
 
 void ControlWindow::chooseWinReferential()
 {
-  (new ChooseReferentialWindow( selectedWindows(), 
-				"Choose Referential Window" ))->show();
+  ChooseReferentialWindow *w 
+    = new ChooseReferentialWindow( selectedWindows(), 
+                                   "Choose Referential Window" );
+  w->setAttribute( Qt::WA_DeleteOnClose );
+  w->show();
 }
 
 void ControlWindow::chooseReferential()
 {
-  (new ChooseReferentialWindow( selectedWindows(), selectedObjects(), 
-				"Choose Referential Window" ))->show();
+  ChooseReferentialWindow *w 
+    = new ChooseReferentialWindow( selectedWindows(), selectedObjects(),
+                                   "Choose Referential Window" );
+  w->setAttribute( Qt::WA_DeleteOnClose );
+  w->show();
 }
 
 void ControlWindow::openPreferencesWin()
