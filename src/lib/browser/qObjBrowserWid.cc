@@ -313,6 +313,7 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent,
     }
 
   decorateItem( item, obj );
+  describeAObject( obj, item );
   return item;
 }
 
