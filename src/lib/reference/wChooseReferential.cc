@@ -185,7 +185,7 @@ void ChooseReferentialWindow::chooseRef( int num )
 
   if( !_objL.empty() || !_winL.empty() || id < 0 )
   {
-    if( !ref )
+    if( !ref && id >= 0 )
       ref = theAnatomist->centralReferential();
     AssignReferentialCommand	*com 
       = new AssignReferentialCommand( ref, _objL, _winL, id );
