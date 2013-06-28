@@ -41,6 +41,7 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/winFactory.h>
 #include <anatomist/misc/error.h>
+#include <anatomist/controler/control_d.h>
 #include <qlabel.h>
 #include <qobject.h>
 #include <qcursor.h>
@@ -58,12 +59,13 @@ SurfpaintToolsControl::creator()
 }
 
 SurfpaintToolsControl::SurfpaintToolsControl() :
-  Control(518, QT_TRANSLATE_NOOP("ControlledWindow", "SurfpaintToolsControl"))
+  Control(518, QT_TRANSLATE_NOOP("ControlledWindow", "SurfpaintToolsControl")),
+  myAction( 0 )
 {
 }
 
 SurfpaintToolsControl::SurfpaintToolsControl(const SurfpaintToolsControl & c) :
-  Control(c)
+  Control(c), myAction( 0 )
 {
 }
 
@@ -113,31 +115,26 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<Translate3DAction> (actionPool->action(
           "Translate3DAction"), &Translate3DAction::endTranslate), true);
 
-
   /*Creation of action*/
 
-  myAction = static_cast<SurfpaintToolsAction *> (actionPool->action("SurfpaintToolsAction"));
-  myTools = new SurfpaintTools;
-
-  if (myAction && myTools)
-  {
-    QWidget* pw = dynamic_cast<QWidget *>( myAction->view() );
-    if( pw )
-      myTools->setParent( pw );
-    myAction->setTools(myTools);
-  }
+  myAction = static_cast<SurfpaintToolsAction *>(
+    actionPool->action( "SurfpaintToolsAction" ) );
 }
 
 void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
 {
+
   if (myAction)
   {
+    myAction->setupTools();
+
     AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->aWindow());
 
     if (w3)
     {
       if (!w3->surfpaintIsVisible())
       {
+        SurfpaintTools *myTools = myAction->getTools();
         myTools->addToolBarInfosTexture(w3);
 
         if (myTools->initSurfPaintModule(w3))
@@ -167,6 +164,7 @@ void SurfpaintToolsControl::doAlsoOnDeselect(ActionPool * /* pool */)
       if (w3->surfpaintIsVisible())
       {
       w3->setVisibleSurfpaint(false);
+      SurfpaintTools *myTools = myAction->getTools();
       myTools->removeToolBarInfosTexture(w3);
       myTools->removeToolBarControls(w3);
       }

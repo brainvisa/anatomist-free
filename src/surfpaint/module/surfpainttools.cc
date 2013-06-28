@@ -568,7 +568,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
 void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 {
-  //cout << "addToolBar InfosTexture\n";
+  // cout << "addToolBarControls\n";
 
   if (w3)
   {
@@ -577,15 +577,9 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     tbControls = new QToolBar(w3, ControlledWindow::tr(
         "surfpainttoolbarControls"));
 
-#if QT_VERSION >= 0x040000
     w3->addToolBar( Qt::TopToolBarArea,tbControls, ControlledWindow::tr( "surfpainttoolbarControls") );
     tbControls->setLabel( ControlledWindow::tr( "surfpainttoolbarControls") );
     tbControls->setIconSize( QSize( 20, 20 ) );
-#else
-    tbControls = new QToolBar(w3, ControlledWindow::tr(
-        "surfpainttoolbarControls"));
-    tbControls->setLabel(ControlledWindow::tr("surfpainttoolbarControls"));
-#endif
 
     string iconname;
 
@@ -733,18 +727,8 @@ void SurfpaintTools::removeToolBarControls(AWindow3D *w3)
   if (!w3)
     return;
 
-#if QT_VERSION >= 0x040000
   tbControls = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbarControls") );
   delete tbControls;
-#else
-  tbControls = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr(
-      "surfpainttoolbarControls")));
-  if (tbControls)
-  {
-    delete tbControls;
-    return;
-  }
-#endif
 }
 
 void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
@@ -758,15 +742,9 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     tbTextureValue = new QToolBar(w3, ControlledWindow::tr(
         "surfpainttoolbarTex"));
 
-    #if QT_VERSION >= 0x040000
         w3->addToolBar( Qt::BottomToolBarArea,tbTextureValue, ControlledWindow::tr( "surfpainttoolbarTex" ) );
         tbTextureValue->setLabel( ControlledWindow::tr( "surfpainttoolbarTex" ) );
         tbTextureValue->setIconSize( QSize( 20, 20 ) );
-    #else
-        tbTextureValue = new QToolBar(w3, ControlledWindow::tr(
-            "surfpainttoolbarTex"));
-        tbTextureValue->setLabel(ControlledWindow::tr("surfpainttoolbarTex"));
-    #endif
 
     QHBox *infosTextureValue = new QHBox();
 
@@ -825,14 +803,9 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     tbTextureValue->show();
 
     tbInfos3D = new QToolBar( w3,ControlledWindow::tr( "surfpainttoolbar3D") );
-    #if QT_VERSION >= 0x040000
       w3->addToolBar( Qt::BottomToolBarArea,tbInfos3D, ControlledWindow::tr( "surfpainttoolbar3D" ) );
       tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
       tbInfos3D->setIconSize( QSize( 20, 20 ) );
-    #else
-      tbInfos3D = new QToolBar( w3, ControlledWindow::tr( "surfpainttoolbar3D" ) );
-      tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
-    #endif
 
     QHBox *infos3D = new QHBox();
 
@@ -884,27 +857,10 @@ void SurfpaintTools::removeToolBarInfosTexture(AWindow3D *w3)
   if (!w3)
     return;
 
-  #if QT_VERSION >= 0x040000
     tbTextureValue = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbarTex") );
     tbInfos3D = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbar3D") );
     delete tbTextureValue;
     delete tbInfos3D;
-  #else
-    tbTextureValue
-        = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbarTex")));
-    tbInfos3D = dynamic_cast<QToolBar *> (w3->child(ControlledWindow::tr("surfpainttoolbar3D")));
-    if (tbTextureValue)
-    {
-      delete tbTextureValue;
-      return;
-    }
-    if (tbInfos3D)
-    {
-      delete tbInfos3D;
-      return;
-    }
-
-  #endif
 }
 
 void SurfpaintTools::restoreTextureValue(int indexVertex)

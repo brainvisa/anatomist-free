@@ -66,12 +66,14 @@ string SurfpaintToolsAction::name() const
 }
 
 SurfpaintToolsAction::SurfpaintToolsAction()
+  : win3D( 0 ), objselect( 0 ), myTools( new SurfpaintTools )
 {
   //cout << "SurfpaintToolsAction\n";
 }
 
 SurfpaintToolsAction::~SurfpaintToolsAction()
 {
+  delete myTools;
 }
 
 void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globalY)
@@ -91,6 +93,15 @@ void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globa
   }
 }
 
+
+void SurfpaintToolsAction::setupTools()
+{
+  QWidget* pw = dynamic_cast<QWidget *>( view() );
+  if( pw )
+    myTools->setParent( pw );
+}
+
+
 void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int globalY)
 {
   win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
@@ -104,7 +115,7 @@ void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int gl
     texvalue = tval[0];
 
   activeControl = getTools()->getActiveControl();
-  //cout << "active control = " << activeControl <<endl;
+  // cout << "active control = " << activeControl <<endl;
 
   getTools()->setClosePath(false);
 

@@ -34,11 +34,11 @@
 #ifndef SURFPAINT_CONTROL_H
 #define SURFPAINT_CONTROL_H
 
-#include <anatomist/controler/control_d.h>
+#include <anatomist/controler/control.h>
 #include <anatomist/action/surfpaintaction.h>
-#include <anatomist/module/surfpainttools.h>
 
-namespace anatomist{
+namespace anatomist
+{
 
   class SurfpaintTools;
   class SurfpaintToolsAction;
@@ -57,11 +57,8 @@ namespace anatomist{
     virtual void doAlsoOnDeselect ( ActionPool * pool ) ;
     virtual void doAlsoOnSelect( ActionPool * pool ) ;
 
-    SurfpaintTools* getTools(void){return myTools;};
-
     private:
     SurfpaintToolsAction * myAction;
-    SurfpaintTools* myTools ;
 
   };
 
