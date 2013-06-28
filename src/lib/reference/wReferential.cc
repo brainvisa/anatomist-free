@@ -311,11 +311,12 @@ void ReferentialWindow::openSelectBox()
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;
-  QString filename = fd.selectedFile();
-  if ( !filename.isEmpty() )
-    {
-      loadTransformation( filename.utf8().data() );
-    }
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    loadTransformation( filename.toStdString() );
+  }
 }
 
 
@@ -331,12 +332,13 @@ void ReferentialWindow::saveTransformation( anatomist::Transformation* trans )
   fd.setFileMode( QFileDialog::AnyFile );
   if( !fd.exec() )
     return;
-  QString filename = fd.selectedFile();
-  if ( !filename.isEmpty() )
-    {
-      pdat->trans = trans;
-      saveTransformation( filename.utf8().data() );
-    }
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    pdat->trans = trans;
+    saveTransformation( filename.toStdString() );
+  }
 }
 
 
@@ -385,8 +387,6 @@ void ReferentialWindow::refresh()
   unsigned		x, y, sz = 20;
   int			w = width(), h = height(), R = w, Rmin = 50;
   QPixmap		pix( w, h );
-
-  pix.resize( w, h );
 
   QPainter		p( &pix );
 
@@ -539,35 +539,35 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
       pdat->dstref = refAt( ev->pos(), dummy );
 
       if( pdat->dstref && pdat->srcref != pdat->dstref 
-	  && !ATransformSet::instance()->transformation( pdat->srcref, 
-							 pdat->dstref ) )
-	{
-	  if( ev->state() & Qt::ControlButton )
-	    {
-	      float	matrix[4][3];
-	      matrix[0][0] = 0;
-	      matrix[0][1] = 0;
-	      matrix[0][2] = 0;
-	      matrix[1][0] = 1;
-	      matrix[1][1] = 0;
-	      matrix[1][2] = 0;
-	      matrix[2][0] = 0;
-	      matrix[2][1] = 1;
-	      matrix[2][2] = 0;
-	      matrix[3][0] = 0;
-	      matrix[3][1] = 0;
-	      matrix[3][2] = 1;
+          && !ATransformSet::instance()->transformation( pdat->srcref, 
+                                                         pdat->dstref ) )
+      {
+        if( ev->modifiers() & Qt::ControlModifier )
+        {
+          float	matrix[4][3];
+          matrix[0][0] = 0;
+          matrix[0][1] = 0;
+          matrix[0][2] = 0;
+          matrix[1][0] = 1;
+          matrix[1][1] = 0;
+          matrix[1][2] = 0;
+          matrix[2][0] = 0;
+          matrix[2][1] = 1;
+          matrix[2][2] = 0;
+          matrix[3][0] = 0;
+          matrix[3][1] = 0;
+          matrix[3][2] = 1;
 
-	      LoadTransformationCommand	*com 
-		= new LoadTransformationCommand( matrix, pdat->srcref, 
-						 pdat->dstref );
-	      theProcessor->execute( com );
-	      refresh();
-	    }
-	  else
-	    openSelectBox();
-	}
-    }
+          LoadTransformationCommand	*com 
+            = new LoadTransformationCommand( matrix, pdat->srcref, 
+                                              pdat->dstref );
+          theProcessor->execute( com );
+          refresh();
+        }
+        else
+          openSelectBox();
+      }
+  }
 }
 
 
@@ -709,7 +709,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
   AimsRGB	col = pdat->srcref->Color();
 
   p.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-  p.fillRect( 0, 0, 16, 16, pop->backgroundColor() );
+  p.fillRect( 0, 0, 16, 16, pop->palette().color( QPalette::Window ) );
   p.drawEllipse( 0, 0, 16, 16 );
   p.end();
   pix.setMask( pix.createHeuristicMask() );
@@ -745,7 +745,7 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
     //cout << "source: " << t->source() << ": " << col << endl;
 
     p.setBackgroundMode( Qt::OpaqueMode );
-    p.fillRect( 0, 0, 64, 16, pop.backgroundColor() );
+    p.fillRect( 0, 0, 64, 16, pop.palette().color( QPalette::Window ) );
     p.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
     p.drawEllipse( 0, 0, 16, 16 );
     col = t->destination()->Color();
@@ -1005,13 +1005,17 @@ void ReferentialWindow::loadReferential()
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;
-  QString filename = fd.selectedFile();
-  set<AObject *> o;
-  set<AWindow *> w;
-  AssignReferentialCommand  *com
-      = new AssignReferentialCommand( pdat->srcref, o, w, -1, 0,
-                                      filename.utf8().data() );
-  theProcessor->execute( com );
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    set<AObject *> o;
+    set<AWindow *> w;
+    AssignReferentialCommand  *com
+        = new AssignReferentialCommand( pdat->srcref, o, w, -1, 0,
+                                        filename.toStdString() );
+    theProcessor->execute( com );
+  }
 }
 
 
@@ -1027,10 +1031,14 @@ void ReferentialWindow::loadNewTransformation()
   fd.setFileMode( QFileDialog::ExistingFile );
   if( !fd.exec() )
     return;
-  QString filename = fd.selectedFile();
-  pdat->srcref = 0;
-  pdat->dstref = 0;
-  loadTransformation( filename.utf8().data() );
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    pdat->srcref = 0;
+    pdat->dstref = 0;
+    loadTransformation( filename.toStdString() );
+  }
 }
 
 

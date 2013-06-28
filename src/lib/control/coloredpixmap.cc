@@ -84,17 +84,11 @@ QPixmap ColoredPixmapCache::coloredPixmap( const QColor & rgb, unsigned size,
   {
     if( fg1->isNull() )
       cout << "problem: " << fgfilename << " is null\n";
-#if QT_VERSION >= 0x040000
     QImage bg = bg1->scaled( size, size, Qt::KeepAspectRatio,
                              Qt::SmoothTransformation );
     QImage fg = fg1->scaled( size, size, Qt::KeepAspectRatio,
                              Qt::SmoothTransformation );
-#else
-    QImage bg = bg1->scale( size, size, QImage::ScaleMin );
-    QImage fg = fg1->scale( size, size, QImage::ScaleMin );
-#endif
-    QImage  cim( bg.width(), bg.height(), 32 );
-    cim.setAlphaBuffer( true );
+    QImage  cim( bg.width(), bg.height(), QImage::Format_ARGB32 );
     float red = rgb.red() / 255., green = rgb.green() / 255.,
                         blue = rgb.blue() / 255.;
     int x, y, w = cim.width(), h = cim.height();
@@ -109,7 +103,7 @@ QPixmap ColoredPixmapCache::coloredPixmap( const QColor & rgb, unsigned size,
         QRgb e = qRgba( r, g, b, max( int(al * 255), qAlpha( d ) ) );
         cim.setPixel( x, y, e );
       }
-    cpix = cim;
+    cpix.convertFromImage( cim );
   }
   QPixmapCache::insert( key, cpix );
   return cpix;

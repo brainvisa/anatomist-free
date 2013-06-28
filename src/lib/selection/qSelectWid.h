@@ -37,10 +37,11 @@
 
 
 #include <anatomist/selection/wSelChooser.h>
-#include <aims/qtcompat/qlistview.h>
 #include <qdialog.h>
 #include <map>
 
+class QTreeWidget;
+class QTreeWidgetItem;
 
 namespace anatomist
 {
@@ -75,9 +76,9 @@ namespace anatomist
     void init( unsigned group, 
 	       const std::set<anatomist::AObject *> & objects );
 
-    std::map<Q3ListViewItem *, anatomist::AObject *>	_objects;
+    std::map<QTreeWidgetItem *, anatomist::AObject *>	_objects;
     std::map<anatomist::AObject *, int>			_select;
-    Q3ListView						*_listW;
+    QTreeWidget						*_listW;
   };
 
 }

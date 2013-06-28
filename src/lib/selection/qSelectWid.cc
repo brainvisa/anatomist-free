@@ -39,6 +39,7 @@
 #include <qlayout.h>
 #include <qframe.h>
 #include <qpushbutton.h>
+#include <qtreewidget.h>
 
 
 using namespace anatomist;
@@ -69,16 +70,21 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
 {
   setWindowTitle( tr( "Select object(s)" ) );
 
-  QVBoxLayout	*lay = new QVBoxLayout( this, 5, 5 );
-  Q3ListView	*l = new Q3ListView( this, "listview" );
+  QVBoxLayout	*lay = new QVBoxLayout( this );
+  lay->setMargin( 5 );
+  lay->setSpacing( 5 );
+  QTreeWidget	*l = new QTreeWidget( this );
+  l->setObjectName( "listview" );
 
   _listW = l;
   setGroup( gr );
   lay->addWidget( l );
-  l->addColumn( tr( "Selectable objects" ) );
-  l->setMultiSelection( true );
+  QTreeWidgetItem* hdr = new QTreeWidgetItem;
+  l->setHeaderItem( hdr );
+  hdr->setText( 0, tr( "Selectable Objects" ) );
+  l->setSelectionMode( QTreeWidget::ExtendedSelection );
 
-  Q3ListViewItem				*li;
+  QTreeWidgetItem				*li;
   set<AObject *>::const_iterator	io, fo=objects.end();
   SelectFactory				*fac = SelectFactory::factory();
   bool					sel; //, sh;
@@ -89,19 +95,20 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
     set<AWindow *>::const_iterator	iw, fw=win.end();*/
 
   for( io=objects.begin(); io!=fo; ++io )
+  {
+    li = new QTreeWidgetItem( l );
+    li->setText( 0, (*io)->name().c_str() );
+    _objects[li] = *io;
+    sel = fac->isSelected( group(), *io );
+    if( sel )
     {
-      li = new Q3ListViewItem( l, (*io)->name().c_str() );
-      _objects[li] = *io;
-      sel = fac->isSelected( group(), *io );
-      if( sel )
-	{
-	  _select[ *io ] = 2;	// 1 for displayed but not selected
-	  l->setSelected( li, true );
-	  tosel.insert( *io );
-	  //cout << "selected : " << (*io)->name() << endl;
-	}
-      else _select[ *io ] = 0;
+      _select[ *io ] = 2;	// 1 for displayed but not selected
+      li->setSelected( true );
+      tosel.insert( *io );
+      //cout << "selected : " << (*io)->name() << endl;
     }
+    else _select[ *io ] = 0;
+  }
   fac->select( group(), tosel, &col );
   fac->refresh();
 
@@ -110,7 +117,8 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
   QFrame	*fr = new QFrame( this );
   QPushButton	*bok = new QPushButton( tr( "Select" ), fr );
   QPushButton	*bcc = new QPushButton( tr( "Cancel" ), fr );
-  QHBoxLayout	*lay2 = new QHBoxLayout( fr, 5 );
+  QHBoxLayout	*lay2 = new QHBoxLayout( fr );
+  lay2->setMargin( 5 );
 
   bok->setFixedSize( bok->sizeHint() );
   bok->setDefault( true );
@@ -139,11 +147,11 @@ QSelectWidget::~QSelectWidget()
 
 set<AObject *> QSelectWidget::selectedItems() const
 {
-  map<Q3ListViewItem *, AObject *>::const_iterator	io, fo=_objects.end();
+  map<QTreeWidgetItem *, AObject *>::const_iterator	io, fo=_objects.end();
   set<AObject *>	li;
 
   for( io=_objects.begin(); io!=fo; ++io )
-    if( _listW->isSelected( (*io).first ) )
+    if( io->first->isSelected() )
       li.insert( (*io).second );
 
   return( li );
@@ -154,15 +162,15 @@ void QSelectWidget::updateSelection()
 {
   set<AObject *>	sel, unsel;
   SelectFactory		*fac = SelectFactory::factory();
-  map<Q3ListViewItem *, AObject *>::const_iterator	io, fo=_objects.end();
+  map<QTreeWidgetItem *, AObject *>::const_iterator	io, fo=_objects.end();
   SelectFactory::HColor	col( 1., 0., 0., 1., true );
 
   for( io=_objects.begin(); io!=fo; ++io )
-    if( _listW->isSelected( (*io).first ) )
-      {
-	if( !fac->isSelected( group(), (*io).second ) )
-	  sel.insert( (*io).second );
-      }
+    if( io->first->isSelected() )
+    {
+      if( !fac->isSelected( group(), (*io).second ) )
+        sel.insert( (*io).second );
+    }
     else if( fac->isSelected( group(), (*io).second ) )
       unsel.insert( (*io).second );
 

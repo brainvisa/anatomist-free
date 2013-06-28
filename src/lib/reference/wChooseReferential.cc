@@ -50,9 +50,9 @@ using namespace std;
 
 
 ChooseReferentialWindow::ChooseReferentialWindow( const set<AObject*> &objL,
-						  const char *name, 
+                                                  const char *name, 
                                                   Qt::WFlags f )
-  : QDialog( 0, name, true, f ), _objL(objL), 
+  : QDialog( 0, f ), _objL(objL), 
     _chosenref( 0 )
 {
   drawContents( name );
@@ -60,19 +60,19 @@ ChooseReferentialWindow::ChooseReferentialWindow( const set<AObject*> &objL,
 
 
 ChooseReferentialWindow::ChooseReferentialWindow( const set<AWindow *> &winL,
-						  const char *name, 
+                                                  const char *name, 
                                                   Qt::WFlags f  )
-  : QDialog( 0, name, true, f ), _winL(winL)
+  : QDialog( 0, f ), _winL(winL)
 { 
   drawContents( name );
 }
 
 
 ChooseReferentialWindow::ChooseReferentialWindow( const set<AWindow *> &winL, 
-						  const set<AObject*> &objL, 
-						  const char *name, 
+                                                  const set<AObject*> &objL, 
+                                                  const char *name, 
                                                   Qt::WFlags f  )
-  : QDialog( 0, name, true, f ), 
+  : QDialog( 0, f ), 
     _winL(winL), _objL(objL)
 {
   drawContents( name );
@@ -88,9 +88,11 @@ void ChooseReferentialWindow::drawContents( const char *name )
 {
   setModal( true );
   setWindowTitle( name );
-  QVBoxLayout	*lay = new QVBoxLayout( this, 10, 5 );
-  QGroupBox *grp = new QGroupBox( tr( "Referential:" ), this,
-                                  "buttonGroup" );
+  setObjectName( name );
+  QVBoxLayout	*lay = new QVBoxLayout( this );
+  lay->setMargin( 10 );
+  lay->setSpacing( 5 );
+  QGroupBox *grp = new QGroupBox( tr( "Referential:" ), this );
   QVBoxLayout *glay = new QVBoxLayout( grp );
   lay->addWidget( grp );
   QButtonGroup  *bg = new QButtonGroup( grp );
@@ -130,8 +132,8 @@ void ChooseReferentialWindow::drawContents( const char *name )
     }
   }
 
-    connect( bg, SIGNAL( buttonClicked( int ) ), this,
-             SLOT( chooseRef( int ) ) );
+  connect( bg, SIGNAL( buttonClicked( int ) ), this,
+            SLOT( chooseRef( int ) ) );
 }
 
 
@@ -158,36 +160,38 @@ void ChooseReferentialWindow::chooseRef( int num )
   int		id = 0;
 
   if( num == 1 )	// new
-    {
-      id = -1;
-    }
+  {
+    id = -1;
+  }
   else if( num > 1 )	// old
-    {
-      set<Referential *>		refs = theAnatomist->getReferentials();
-      set<Referential *>::const_iterator	ir, er = refs.end();
-      int				i;
-      bool hidden;
+  {
+    set<Referential *>		refs = theAnatomist->getReferentials();
+    set<Referential *>::const_iterator	ir, er = refs.end();
+    int				i;
+    bool hidden;
 
-      for( i=1, ir=refs.begin(); ir!=er; ++ir )
+    for( i=1, ir=refs.begin(); ir!=er; ++ir )
+    {
+      if( !(*ir)->header().getProperty( "hidden", hidden )
+          || !hidden )
       {
-        if( !(*ir)->header().getProperty( "hidden", hidden )
-            || !hidden )
-        {
-          ++i;
-          if( i == num )
-            break;
-        }
+        ++i;
+        if( i == num )
+          break;
       }
-      ref = *ir;
-    }	// else: none
+    }
+    ref = *ir;
+  }	// else: none
 
   if( !_objL.empty() || !_winL.empty() || id < 0 )
-    {
-      AssignReferentialCommand	*com 
-        = new AssignReferentialCommand( ref, _objL, _winL, id );
-      theProcessor->execute( com );
-      ref = com->ref();
-    }
+  {
+    if( !ref )
+      ref = theAnatomist->centralReferential();
+    AssignReferentialCommand	*com 
+      = new AssignReferentialCommand( ref, _objL, _winL, id );
+    theProcessor->execute( com );
+    ref = com->ref();
+  }
   _chosenref = ref;
 
   accept();

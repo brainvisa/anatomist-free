@@ -64,6 +64,7 @@
 #    include <sys/audioio.h>
 #  endif
 #  if defined( _WS_X11_ ) || defined( Q_WS_X11 )
+#    include <QX11Info>
 #    include <X11/Xlib.h>
 #  endif
 #endif
@@ -105,9 +106,10 @@ namespace
 
 
   QScrollingLabel::QScrollingLabel( QWidget* parent, const char* name )
-  : QLabel( parent, name ), nextline( false ), text( 0 ), current( 0 ),
-  offset( 0 ), speed( 1 ), mustfill( true )
+  : QLabel( parent ), nextline( false ), text( 0 ), current( 0 ),
+    offset( 0 ), speed( 1 ), mustfill( true )
   {
+    setObjectName( name );
   }
 
 
@@ -122,7 +124,8 @@ namespace
     {
       QPainter	paint( this );
       paint.setClipRect( 0, 0, width(), height() );
-      paint.fillRect( 0, 0, width(), height(), QBrush( backgroundColor() ) );
+      paint.fillRect( 0, 0, width(), height(), 
+                      QBrush( palette().color( QPalette::Window ) ) );
       mustfill = false;
     }
     else if( text && nextline )
@@ -178,7 +181,7 @@ namespace
       }
       paint.setFont( fnt );
       QFontInfo	finf( fnt );	// I can't retreive the exact font height in
-      h = int( fnt.pointSizeFloat() ) + 7;	// pixels !!
+      h = int( fnt.pointSizeF() ) + 7;	// pixels !!
       //cout << "font size: " << h << endl;
       y = height()-h;
 
@@ -192,7 +195,7 @@ namespace
 
       paint.setClipRect( x, y, w, h );
       paint.fillRect( x, height()-n, w, n,
-                      QBrush( backgroundColor() ) );
+                      QBrush( palette().color( QPalette::Window ) ) );
       paint.drawText( x, height()+offset, w, h,
                       Qt::AlignHCenter | Qt::AlignBottom, line );
       delete[] line;
@@ -271,19 +274,20 @@ QAbout::QAbout( QWidget* parent, const char* name )
   setModal(true);
   setWindowTitle( tr( "About Anatomist" ) );
 
-  QVBoxLayout	*lay1 = new QVBoxLayout( this, 10, -1, "lay1" );
+  QVBoxLayout	*lay1 = new QVBoxLayout( this );
+  lay1->setMargin( 10 );
   d->edit = new QScrollingLabel( this, "edit" );
   d->edit->setLineWidth( 2 );
   d->edit->setMidLineWidth( 2 );
   d->edit->setFrameStyle( QFrame::Sunken | QFrame::Panel );
   d->edit->setMinimumSize( 350, 250 );
-  d->edit->setBackgroundColor( Qt::white );
-#if QT_VERSION >= 0x040000
+  QPalette pal = d->edit->palette();
+  pal.setColor( QPalette::Window, Qt::white );
+  d->edit->setPalette( pal );
   d->edit->setAutoFillBackground( false );
   d->edit->setAttribute( Qt::WA_OpaquePaintEvent );
-#endif
 
-  QPushButton	*bok = new QPushButton( tr( "OK" ), this, "okbtn" );
+  QPushButton	*bok = new QPushButton( tr( "OK" ), this );
 
   bok->setDefault( true );
   connect( bok, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -297,7 +301,7 @@ QAbout::QAbout( QWidget* parent, const char* name )
   resize( 400, 400 );
 
   struct stat	buf;
-  string tname = scrollingMessageFileName().utf8().data();
+  string tname = scrollingMessageFileName().toStdString();
   int		sres = stat( tname.c_str(), &buf );
   FILE	*	f = 0;
 
@@ -312,7 +316,8 @@ QAbout::QAbout( QWidget* parent, const char* name )
       fclose( f );
       d->edit->current = d->edit->text;
 
-      QTimer	*tim = new QTimer( this, "timer" );
+      QTimer	*tim = new QTimer( this );
+      tim->setObjectName( "about_timer" );
       connect( tim, SIGNAL( timeout() ), this, SLOT( nextLine() ) );
       tim->start( 25 );
     }
@@ -322,10 +327,10 @@ QAbout::QAbout( QWidget* parent, const char* name )
       d->edit->setText( text );
     }
 
-  d->musicfile = musicFileName().utf8().data();
+  d->musicfile = musicFileName().toStdString();
   if( d->musicfile.substr( d->musicfile.length() - 4, 4 ) == ".adc" )
     d->diffcoded = true;
-  d->tempfile = temporaryMusicFileName().utf8().data();
+  d->tempfile = temporaryMusicFileName().toStdString();
   cout << "musicFile:" << d->musicfile << endl;
 
 #if defined( linux ) || defined( ABOUT_NO_SOUND )
@@ -698,7 +703,7 @@ void QAbout::music()
   /*    ensure program and display are on the same machine
         (to avoid sound being heard on a remote machine)
   */
-  char	*display = DisplayString( x11Display() );
+  char	*display = DisplayString( QX11Info::display() );
   if( !display )
     return;	// can't get display name: no sound
 
@@ -838,12 +843,12 @@ void QAbout::music()
 
 void QAbout::keyPressEvent( QKeyEvent* kev )
 {
-  if( kev->ascii() == '+' )
+  if( kev->text() == "+" )
     {
       ++d->edit->speed;
       kev->accept();
     }
-  else if( kev->ascii() == '-' )
+  else if( kev->text() == "-" )
     {
       if( d->edit->speed > 1 )
         --d->edit->speed;
@@ -851,7 +856,7 @@ void QAbout::keyPressEvent( QKeyEvent* kev )
     }
   else if( kev->key() == Qt::Key_Enter || kev->key() == Qt::Key_Return )
     accept();
-  else if( kev->ascii() == ' ' )
+  else if( kev->text() == " " )
     {
       if( d->threadRunning )
 	{

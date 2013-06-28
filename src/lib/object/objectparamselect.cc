@@ -311,7 +311,7 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
 {
   d->viewmode = x;
   d->viewbox->blockSignals( true );
-  d->viewbox->setCurrentItem( x );
+  d->viewbox->setCurrentIndex( x );
   d->viewbox->blockSignals( false );
 
   d->list->clear();

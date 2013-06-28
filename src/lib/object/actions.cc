@@ -189,13 +189,13 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
   else if( !object->name().empty() )
     initial = object->name().c_str();
   /* cout << "specificSaveStatic filename: "
-     << ( initial.isNull() ? "<Null>" : initial.utf8().data() ) << endl; */
+     << ( initial.isNull() ? "<Null>" : initial.toStdString() ) << endl; */
 
   QString filename = QFileDialog::getSaveFileName( 0, "Save object file",
     initial, filt );
   if ( filename != QString::null )
     {
-      if( FileUtil::fileStat( filename.utf8().data() ).find( '+' ) != string::npos 
+      if( FileUtil::fileStat( filename.toStdString() ).find( '+' ) != string::npos 
           && QMessageBox::information
           ( 0, ControlWindow::tr( "Overwrite File ?" ),
             ControlWindow::tr( "A file called %1 already exists."
@@ -204,11 +204,11 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
             QString::null, 0, 1 ) )
         return "";
       SaveObjectCommand	*c 
-	= new SaveObjectCommand( object, filename.utf8().data() );
+	= new SaveObjectCommand( object, filename.toStdString() );
       theProcessor->execute( c );
-      //if( !object->save( filename.utf8().data() ) )
+      //if( !object->save( filename.toStdString() ) )
       //cerr << "Save object failed!" << endl;
-      return filename.utf8().data() ;
+      return filename.toStdString() ;
     }
   return "" ;
 }
@@ -275,14 +275,14 @@ ObjectActions::specificSaveTexture( const set<AObject *> & obj,
   QString filt = filter.c_str() ;
   QString capt = caption.c_str() ;
   
-  QString filename = QFileDialog::getSaveFileName( QString::null,
-                                                   filt, 0, 0, capt );
+  QString filename = QFileDialog::getSaveFileName( 0, capt, QString::null,
+                                                   filt );
   if ( filename != QString::null )
     {
       ExportTextureCommand	*c 
-        = new ExportTextureCommand( object, filename.utf8().data() );
+        = new ExportTextureCommand( object, filename.toStdString() );
       theProcessor->execute( c );
-      return filename.utf8().data() ;
+      return filename.toStdString() ;
     }
   return "" ;
 }

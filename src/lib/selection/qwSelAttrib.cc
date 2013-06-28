@@ -63,10 +63,12 @@ QSelAttrib::QSelAttrib( QWidget* parent, const char* name )
   lab2->setObjectName( "value" );
   QPushButton	*okb = new QPushButton( tr( "OK" ), this );
   QPushButton	*ccb = new QPushButton( tr( "Cancel" ), this );
-  _attrib = new QComboBox( true, this );
+  _attrib = new QComboBox( this );
   _attrib->setObjectName( "comboAtt" );
-  _value = new QComboBox( true, this );
+  _attrib->setEditable( true );
+  _value = new QComboBox( this );
   _value->setObjectName( "combVal" );
+  _value->setEditable( true );
 
   okb->setDefault( true );
 
@@ -111,28 +113,20 @@ QSelAttrib::~QSelAttrib()
 
 string QSelAttrib::attribute() const
 {
-#if QT_VERSION >= 200
-  return( _attrib->currentText().utf8().data() );
-#else
-  return( _attrib->currentText() );
-#endif
+  return( _attrib->currentText().toStdString() );
 }
 
 
 string QSelAttrib::value() const
 {
-#if QT_VERSION >= 200
-  return( _value->currentText().utf8().data() );
-#else
-  return( _value->currentText() );
-#endif
+  return( _value->currentText().toStdString() );
 }
 
 
 void QSelAttrib::accept()
 {
-  _lastAttrib = _attrib->currentText().utf8().data();
-  _lastValue = _value->currentText().utf8().data();
+  _lastAttrib = _attrib->currentText().toStdString();
+  _lastValue = _value->currentText().toStdString();
   _attribList.insert( _lastAttrib );
   _valueList.insert( _lastValue );
   QDialog::accept();

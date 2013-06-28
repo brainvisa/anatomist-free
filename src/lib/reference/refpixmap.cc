@@ -57,18 +57,17 @@ QPixmap ReferencePixmap::referencePixmap( const Referential* ref,
   static QPixmap    noref;
 
   if( !ref )
-    {
-      if( noref.isNull() )
-        {
-          QBitmap       bmp;
-          noref.resize( 1, 1 );
-          noref.fill( Qt::color0 );
-          bmp.resize( 1, 1 );
-          bmp.fill( Qt::color0 );
-          noref.setMask( bmp );
-        }
-      return noref;
-    }
+  {
+//     if( noref.isNull() )
+//     {
+//       QBitmap       bmp( 1, 1 );
+//       noref = QPixmap( 1, 1 );
+//       noref.fill( Qt::color0 );
+//       bmp.fill( Qt::color0 );
+//       noref.setMask( bmp );
+//     }
+    return noref;
+  }
 
   AimsRGB   col = ref->Color();
   QColor    qcol( col.red(), col.green(), col.blue() );
