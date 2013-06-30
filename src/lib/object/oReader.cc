@@ -249,12 +249,13 @@ namespace
   bool loadVolume( Process & p, const string & fname, Finder & f )
   {
     AimsLoader	& ap = (AimsLoader &) p;
-    AVolume<T>	*vol = new AVolume<T>( fname.c_str() /*, type*/ );
-    if( !loadData( *vol->volume(), fname, f ) )
-      {
-        delete vol;
-        return( false );
-      }
+    VolumeRef<T> vref;
+    if( !loadData( vref, fname, f ) )
+    {
+      return( false );
+    }
+    AVolume<T>  *vol = new AVolume<T>( fname.c_str() /*, type*/ );
+    vol->setVolume( vref );
     ap.object = vol;
     vol->setFileName( fname );
     vol->SetExtrema();
@@ -271,14 +272,14 @@ namespace
                                   DataSource::none(), false, 0.5 ) );
     string	format = f.format();
     try
-      {
-        reader.read( obj, 0, &format );
-      }
+    {
+      reader.read( obj, 0, &format );
+    }
     catch( exception & e )
-      {
-        cerr << e.what() << endl;
-        return false;
-      }
+    {
+      cerr << e.what() << endl;
+      return false;
+    }
     return( true );
   }
 
