@@ -427,9 +427,9 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
   if( !objselect )
   {
-  QMessageBox::warning(this, ControlledWindow::tr("No object selected"),
-      ControlledWindow::tr("Cannot open surfpaint Toolbox"));
-  return false;
+    QMessageBox::warning(this, ControlledWindow::tr("No object selected"),
+        ControlledWindow::tr("Cannot open surfpaint Toolbox"));
+    return false;
   }
 
   GLComponent *glc = objselect->glAPI();

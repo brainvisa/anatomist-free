@@ -174,6 +174,7 @@ void vtkQAGLWidget::initializeGL()
 void vtkQAGLWidget::resizeGL( int w, int h )
 {
   vtkGLWidget::resizeGL (w, h);
+  GLWidgetManager::resizeGL( w, h );
 }
 
 

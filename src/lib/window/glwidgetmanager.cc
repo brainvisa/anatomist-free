@@ -1275,6 +1275,7 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
 void GLWidgetManager::copyBackBuffer2Texture(void)
 {
+  cout << "copyBackBuffer2Texture\n";
   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -1339,6 +1340,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
       cout << "mouseX " << _pd->mouseX << " mouseY " << _pd->mouseY << endl;
     }
 
+    cout << "renderSelectionBuffer\n";
     w3->renderSelectionBuffer(ViewState::glSELECTRENDER_POLYGON, obj);
 
     //glFlush(); // or glFinish() ?

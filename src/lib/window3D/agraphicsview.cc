@@ -77,6 +77,11 @@ QSize AGraphicsView::sizeHint() const
 
 void AGraphicsView::resizeEvent( QResizeEvent* event )
 {
+  GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+  // non-visible widgets (like viewport()) don't receive resize events...
+  if( glm )
+    glm->resizeGL( event->size().width(), event->size().height() );
+
   if( scene() )
     scene()->setSceneRect(
       0, 0, event->size().width(), event->size().height() );
@@ -91,10 +96,7 @@ void AGraphicsView::mousePressEvent( QMouseEvent* event )
   {
     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
     if( glm )
-    {
-      ControlSwitch *cs = glm->controlSwitch();
-      cs->mousePressEvent( event );
-    }
+      glm->mousePressEvent( event );
   }
 }
 
@@ -104,10 +106,7 @@ void AGraphicsView::mouseReleaseEvent( QMouseEvent* event )
   QGraphicsView::mouseReleaseEvent( event );
   GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
   if( glm )
-  {
-    ControlSwitch *cs = glm->controlSwitch();
-    cs->mouseReleaseEvent( event );
-  }
+    glm->mouseReleaseEvent( event );
 }
 
 
@@ -116,10 +115,7 @@ void AGraphicsView::mouseMoveEvent( QMouseEvent* event )
   QGraphicsView::mouseMoveEvent( event );
   GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
   if( glm )
-  {
-    ControlSwitch *cs = glm->controlSwitch();
-    cs->mouseMoveEvent( event );
-  }
+    glm->mouseMoveEvent( event );
 }
 
 
@@ -130,10 +126,7 @@ void AGraphicsView::mouseDoubleClickEvent( QMouseEvent * event )
   {
     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
     if( glm )
-    {
-      ControlSwitch *cs = glm->controlSwitch();
-      cs->mouseDoubleClickEvent( event );
-    }
+      glm->mouseDoubleClickEvent( event );
   }
 }
 
@@ -145,10 +138,7 @@ void AGraphicsView::keyPressEvent( QKeyEvent* event )
   {
     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
     if( glm )
-    {
-      ControlSwitch *cs = glm->controlSwitch();
-      cs->keyPressEvent( event );
-    }
+      glm->keyPressEvent( event );
   }
 }
 
@@ -158,10 +148,7 @@ void AGraphicsView::keyReleaseEvent( QKeyEvent* event )
   QGraphicsView::keyReleaseEvent( event );
   GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
   if( glm )
-  {
-    ControlSwitch *cs = glm->controlSwitch();
-    cs->keyReleaseEvent( event );
-  }
+    glm->keyReleaseEvent( event );
 }
 
 
@@ -170,10 +157,7 @@ void AGraphicsView::focusInEvent( QFocusEvent * event )
   QGraphicsView::focusInEvent( event );
   GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
   if( glm )
-  {
-    ControlSwitch *cs = glm->controlSwitch();
-    cs->focusInEvent( event );
-  }
+    glm->focusInEvent( event );
 }
 
 
@@ -182,10 +166,7 @@ void AGraphicsView::focusOutEvent( QFocusEvent * event )
   QGraphicsView::focusOutEvent( event );
   GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
   if( glm )
-  {
-    ControlSwitch *cs = glm->controlSwitch();
-    cs->focusOutEvent( event );
-  }
+    glm->focusOutEvent( event );
 }
 
 
@@ -196,10 +177,7 @@ void AGraphicsView::wheelEvent( QWheelEvent * event )
   {
     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
     if( glm )
-    {
-      ControlSwitch *cs = glm->controlSwitch();
-      cs->wheelEvent( event );
-    }
+      glm->wheelEvent( event );
   }
 }
 

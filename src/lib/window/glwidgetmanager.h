@@ -62,6 +62,11 @@ namespace anatomist
 {
   class AWindow;
 
+  namespace internal
+  {
+    class AGraphicsView;
+  }
+
 
   /** Base class for OpenGL-rendering widget. Actually this is *not* a
   QWidget (or a QGLWidget) since in some cases we need to separate this
@@ -190,6 +195,9 @@ namespace anatomist
     virtual void saveContents();
     virtual void recordStart();
     virtual void recordStop();
+
+    /// QGraphicsView needs to call event methods
+    friend class anatomist::internal::AGraphicsView;
 
   protected:
     enum DrawMode
