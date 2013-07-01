@@ -48,19 +48,15 @@ QAWindowDrag::QAWindowDrag( const set<AWindow *> & o, QWidget * dragSource,
   QByteArray	ba;
 
   ba.resize( sizeof( AWindow * ) * o.size() + sizeof( unsigned ) );
-#if QT_VERSION >= 0x040000
-  QDataStream	ds( &ba, IO_ReadWrite );
-#else
-  QDataStream	ds( ba, IO_ReadWrite );
-#endif
+  QDataStream	ds( &ba, QIODevice::ReadWrite );
   ds << (unsigned) o.size();
 
   set<AWindow *>::const_iterator	io, eo=o.end();
   for( io=o.begin(); io!=eo; ++io )
-    {
-      // cout << "obj " << *io << endl;
-      ds.writeRawBytes( (const char *) &*io, sizeof( AWindow * ) );
-    }
+  {
+    // cout << "obj " << *io << endl;
+    ds.writeRawData( (const char *) &*io, sizeof( AWindow * ) );
+  }
   setEncodedData( ba );
 }
 
@@ -89,20 +85,16 @@ bool QAWindowDrag::decode( const QMimeSource * e, set<AWindow*> & o )
       return false;
     }
   QByteArray	ba = e->encodedData( e->format() );
-#if QT_VERSION >= 0x040000
-  QDataStream	s( &ba, IO_ReadOnly );
-#else
-  QDataStream	s( ba, IO_ReadOnly );
-#endif
+  QDataStream	s( &ba, QIODevice::ReadOnly );
   unsigned	i, n;
   AWindow	*ao;
   s >> n;
   for( i=0; i<n; ++i )
-    {
-      s.readRawBytes( (char *) &ao, sizeof( AWindow * ) );
-      // cout << ao << endl;
-      o.insert( ao );
-    }
+  {
+    s.readRawData( (char *) &ao, sizeof( AWindow * ) );
+    // cout << ao << endl;
+    o.insert( ao );
+  }
   return( true );
 }
 

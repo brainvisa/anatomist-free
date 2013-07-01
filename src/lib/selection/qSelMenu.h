@@ -98,7 +98,8 @@ class QSelectMenu : public QMenu
   Q_OBJECT
 
 public:
-  QSelectMenu();
+  QSelectMenu( QWidget* parent = 0 );
+  QSelectMenu( const QString & title, QWidget* parent = 0 );
   virtual ~QSelectMenu();
 
   virtual void update( anatomist::AWindow* win, const Tree* specific = 0 );

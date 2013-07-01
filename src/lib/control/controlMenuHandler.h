@@ -74,7 +74,6 @@ namespace anatomist
     QSelectMenu* getPopup( const std::string & popname );
 
   protected:
-    QSelectMenu *makePopup( const Tree & tr );
     void appendModulesOptions();
 
   private:

@@ -116,6 +116,7 @@ public slots:
   void replayScenario();
   /// opens a window of type ID type
   void openWindow( int type );
+  void openWindow( QAction* ac );
   /// drop event on windows buttons
   void dropOnWindowIcon( int type, QDropEvent* ev );
   void dragEnterOnWindowIcon( int type, QDragEnterEvent* ev );

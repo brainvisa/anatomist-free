@@ -750,6 +750,14 @@ void ControlWindow::replayScenario()
 }
 
 
+void ControlWindow::openWindow( QAction *ac )
+{
+  // callback for menus
+  int wtype = ac->data().toInt();
+  openWindow( wtype );
+}
+
+
 void ControlWindow::openWindow( int type )
 {
   string	typestr = AWindowFactory::typeString( type );

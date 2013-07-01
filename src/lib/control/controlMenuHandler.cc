@@ -40,9 +40,7 @@
 #include <qmenubar.h>
 #include <aims/qtcompat/qaccel.h>
 #include <graph/tree/tree.h>
-#if QT_VERSION >= 0x040000
 #include <QMenuItem>
-#endif
 
 
 using namespace anatomist;
@@ -55,12 +53,19 @@ namespace anatomist
   struct ControlMenuHandler_Private
   {
     map<string, QSelectMenu *>	popups;
+    QAction *fusion;
+    QAction *group;
+    QAction *link;
+    QAction *loadRef;
+//     QAction *unloadRef;
+    QAction *refWin;
+    QAction *prefs;
   };
 }
 
 
 AControlMenuHandler::AControlMenuHandler( QMenuBar* menubar, 
-					  QObject* receiver )
+                                          QObject* receiver )
   : AbstractMenuHandler(), d( new ControlMenuHandler_Private ), 
     _menubar( menubar ), _receiver( receiver )
 {
@@ -83,125 +88,126 @@ void AControlMenuHandler::create( const Tree & tr )
   const Tree		*subt;
 
   for( it=tr.begin(); it!=ft; ++it )
+  {
+    subt = (const Tree *) *it;
+    pop = getPopup( subt->getSyntax() );
+    if( !pop )
     {
-      subt = (const Tree *) *it;
-      pop = getPopup( subt->getSyntax() );
-      if( !pop )
-	{
-	  pop = new QSelectMenu;
-          _menubar->insertItem( QString::fromUtf8( subt->getSyntax().c_str() ),
-                                pop );
-	}
-      for( it2=subt->begin(), et2=subt->end(); it2!=et2; ++it2 )
-	pop->addOptionMenus( pop, (const Tree *) *it2 );
+      pop = new QSelectMenu( QString::fromUtf8( subt->getSyntax().c_str() ) );
+      _menubar->addMenu( pop );
     }
+    for( it2=subt->begin(), et2=subt->end(); it2!=et2; ++it2 )
+      pop->addOptionMenus( pop, (const Tree *) *it2 );
+  }
 }
 
 
 void AControlMenuHandler::create()
 {
+  QAction *ac;
+
   //	File
-  QSelectMenu	*file = new QSelectMenu;
-  _menubar->insertItem( ControlWindow::tr( "File" ), file, 0 );
-  file->insertItem( ControlWindow::tr( "Open" ), _receiver, 
-		    SLOT( loadObject() ), Qt::CTRL+Qt::Key_O, 1 );
-  file->insertSeparator();
-  file->insertItem( ControlWindow::tr( "Save global settings" ), 
-		    _receiver, SLOT( saveSettings() ), 0, 5 );
-  file->insertItem( ControlWindow::tr( "Save windows configuration" ), 
-		    _receiver, SLOT( saveWindowsConfig() ), 0, 2 );
-  file->insertItem( ControlWindow::tr( "Replay scenario" ), _receiver, 
-		    SLOT( replayScenario() ), 0, 3 );
-  file->insertSeparator();
-  file->insertItem( ControlWindow::tr( "Clear everything" ), _receiver,
-                    SLOT( clearAll() ), 0, 6 );
-  file->insertSeparator();
-  file->insertItem( ControlWindow::tr( "Quit" ), _receiver, SLOT( close() ), 
-		    Qt::CTRL+Qt::Key_Q, 4 );
+  QSelectMenu	*file = new QSelectMenu( ControlWindow::tr( "File" ) );
+  _menubar->addMenu( file );
+  file->addAction( ControlWindow::tr( "Open" ), _receiver, 
+                   SLOT( loadObject() ), Qt::CTRL+Qt::Key_O );
+  file->addSeparator();
+//   file->addAction( ControlWindow::tr( "Save global settings" ), 
+//                    _receiver, SLOT( saveSettings() ), 0 );
+  file->addAction( ControlWindow::tr( "Save windows configuration" ), 
+                   _receiver, SLOT( saveWindowsConfig() ), 0 );
+  file->addAction( ControlWindow::tr( "Replay scenario" ), _receiver, 
+                   SLOT( replayScenario() ), 0 );
+  file->addSeparator();
+  file->addAction( ControlWindow::tr( "Clear everything" ), _receiver,
+                   SLOT( clearAll() ), 0 );
+  file->addSeparator();
+  file->addAction( ControlWindow::tr( "Quit" ), _receiver, SLOT( close() ), 
+                   Qt::CTRL+Qt::Key_Q );
 
   //	Objects
-  QSelectMenu	*object = new QSelectMenu;
-  _menubar->insertItem( ControlWindow::tr( "Objects" ), object, 1 );
-  object->insertItem( ControlWindow::tr( "Add objects in windows" ), 
-		      _receiver, SLOT( addObjectsInWindows() ), 
-                      Qt::Key_Plus, 101 );
-  object->insertItem( ControlWindow::tr( "Remove objects from windows" ), 
-		      _receiver, SLOT( removeObjects() ), 
-                      Qt::Key_Minus, 102 );
-  object->insertSeparator();
-  object->insertItem( ControlWindow::tr( "Delete objects" ), _receiver, 
-		      SLOT( deleteObjects() ), Qt::CTRL+Qt::Key_Delete, 103 );
-  object->insertItem( ControlWindow::tr( "Reload objects" ), _receiver, 
-		      SLOT( reload() ), Qt::CTRL+Qt::Key_R, 104 );
-  object->insertSeparator();
-  object->insertItem( ControlWindow::tr( "Group objects" ), _receiver, 
-		      SLOT( groupObjects() ), 0, 105 );
-  object->insertItem( ControlWindow::tr( "Fusion objects" ), _receiver, 
-		      SLOT( fusionObjects() ), Qt::CTRL+Qt::Key_F, 106 );
+  QSelectMenu	*object = new QSelectMenu( ControlWindow::tr( "Objects" ) );
+  _menubar->addMenu( object );
+  object->addAction( ControlWindow::tr( "Add objects in windows" ), 
+                     _receiver, SLOT( addObjectsInWindows() ),  Qt::Key_Plus );
+  object->addAction( ControlWindow::tr( "Remove objects from windows" ), 
+                     _receiver, SLOT( removeObjects() ), Qt::Key_Minus );
+  object->addSeparator();
+  object->addAction( ControlWindow::tr( "Delete objects" ), _receiver, 
+                     SLOT( deleteObjects() ), Qt::CTRL+Qt::Key_Delete );
+  object->addAction( ControlWindow::tr( "Reload objects" ), _receiver, 
+                     SLOT( reload() ), Qt::CTRL+Qt::Key_R );
+  object->addSeparator();
+  d->group = object->addAction( ControlWindow::tr( "Group objects" ), 
+                                _receiver, SLOT( groupObjects() ), 0 );
+  d->fusion = object->addAction( ControlWindow::tr( "Fusion objects" ), 
+                                 _receiver, SLOT( fusionObjects() ), 
+                                 Qt::CTRL+Qt::Key_F );
 
   //	Windows
-  QSelectMenu	*window = new QSelectMenu;
-  _menubar->insertItem( ControlWindow::tr( "Windows" ), window, 2 );
+  QSelectMenu	*window = new QSelectMenu( ControlWindow::tr( "Windows" ) );
+  _menubar->addMenu( window );
 
   map<int, string>		wtypes = AWindowFactory::typeNames();
   map<int, string>::iterator	it, ft=wtypes.end();
 
+  QActionGroup *ag = new QActionGroup( _menubar );
   for( it=wtypes.begin(); it!=ft; ++it )
-    {
-      window->insertItem( ControlWindow::tr( (*it).second.c_str() ), 
-			  _receiver, SLOT( openWindow( int ) ), 0, 
-			  1000+(*it).first );
-      window->setItemParameter( 1000+(*it).first, (*it).first );
-    }
-  window->insertItem( ControlWindow::tr( "Open 3 standard views" ), _receiver, 
-		      SLOT( openThreeViews() ), Qt::CTRL + Qt::Key_T, 205 );
-  window->insertItem( ControlWindow::tr( "Open a 4 views block" ), _receiver, 
-		      SLOT( openBlockView() ), Qt::CTRL + Qt::Key_B );
+  {
+    ac = window->addAction( ControlWindow::tr( (*it).second.c_str() ) );
+    ac->setData( it->first );
+    ag->addAction( ac );
+  }
+  ag->connect( ag, SIGNAL( triggered( QAction* ) ), 
+               _receiver, SLOT( openWindow( QAction* ) ) );
+  window->addAction( ControlWindow::tr( "Open 3 standard views" ), _receiver, 
+                     SLOT( openThreeViews() ), Qt::CTRL + Qt::Key_T );
+  window->addAction( ControlWindow::tr( "Open a 4 views block" ), _receiver, 
+                     SLOT( openBlockView() ), Qt::CTRL + Qt::Key_B );
 
-  window->insertSeparator();
-  window->insertItem( ControlWindow::tr( "Iconify windows" ), _receiver, 
-		      SLOT( iconifyWindows() ), 0, 207 );
-  window->insertItem( ControlWindow::tr( "Restore windows" ), _receiver, 
-		      SLOT( restoreWindows() ), 0, 208 );
-  window->insertItem( ControlWindow::tr( "Close windows" ), _receiver, 
-		      SLOT( closeWindows() ), Qt::CTRL+Qt::Key_W, 209 );
-  window->insertItem( ControlWindow::tr( "Link windows" ), _receiver, 
-		      SLOT( linkWindows() ), 0, 210 );
-  window->insertSeparator();
-  window->insertItem( ControlWindow::tr( "Referential" ), _receiver, 
-		      SLOT( chooseWinReferential() ), 0, 211 );
+  window->addSeparator();
+  window->addAction( ControlWindow::tr( "Iconify windows" ), _receiver, 
+                     SLOT( iconifyWindows() ), 0 );
+  window->addAction( ControlWindow::tr( "Restore windows" ), _receiver, 
+                     SLOT( restoreWindows() ), 0 );
+  window->addAction( ControlWindow::tr( "Close windows" ), _receiver, 
+                     SLOT( closeWindows() ), Qt::CTRL+Qt::Key_W );
+  d->link = window->addAction( ControlWindow::tr( "Link windows" ), _receiver, 
+                     SLOT( linkWindows() ), 0 );
+  window->addSeparator();
+  d->loadRef = window->addAction( ControlWindow::tr( "Referential" ), 
+                     _receiver, SLOT( chooseWinReferential() ), 0 );
 
   //	Settings
-  QSelectMenu	*view = new QSelectMenu;
-  _menubar->insertItem( ControlWindow::tr( "Settings" ), view, 3 );
-  view->insertItem( ControlWindow::tr( "Referential window" ), _receiver, 
-		    SLOT( openRefWin() ), 0, 301 );
-  view->insertItem( ControlWindow::tr( "View Reference colors" ), _receiver, 
-		    SLOT( viewRefColors() ), 0, 302 );
-  view->insertSeparator();
-  view->insertItem( ControlWindow::tr( "Preferences" ), _receiver, 
-		    SLOT( openPreferencesWin() ), 0, 305 );
-  view->insertItem( ControlWindow::tr( "Graph parameters" ), _receiver, 
-		    SLOT( graphParams() ), 0, 303 );
-  view->insertItem( ControlWindow::tr( "Save preferences" ), _receiver, 
-		    SLOT( saveSettings() ), 0, 306 );
-  view->insertSeparator();
-  view->insertItem( ControlWindow::tr( "Reload palettes" ), _receiver, 
-		    SLOT( reloadPalettes() ), 0, 307 );
+  QSelectMenu	*view = new QSelectMenu( ControlWindow::tr( "Settings" ) );
+  _menubar->addMenu( view );
+  d->refWin = view->addAction( ControlWindow::tr( "Referential window" ), 
+                   _receiver, SLOT( openRefWin() ), 0 );
+  view->addAction( ControlWindow::tr( "View Reference colors" ), _receiver, 
+                   SLOT( viewRefColors() ), 0 );
+  view->addSeparator();
+  d->prefs = view->addAction( ControlWindow::tr( "Preferences" ), _receiver, 
+                   SLOT( openPreferencesWin() ), 0 );
+  view->addAction( ControlWindow::tr( "Graph parameters" ), _receiver, 
+                   SLOT( graphParams() ), 0 );
+  view->addAction( ControlWindow::tr( "Save preferences" ), _receiver, 
+                   SLOT( saveSettings() ), 0 );
+  view->addSeparator();
+  view->addAction( ControlWindow::tr( "Reload palettes" ), _receiver, 
+                   SLOT( reloadPalettes() ), 0 );
 
   //	Help
-  QSelectMenu	*help = new QSelectMenu;
-  _menubar->insertItem( ControlWindow::tr( "Help" ), help, 5 );
-  help->insertItem( ControlWindow::tr( "Help" ), _receiver, SLOT( help() ), 0, 
-		    501 );
-  help->insertSeparator();
-  help->insertItem( ControlWindow::tr( "About Anatomist" ), _receiver, 
-		    SLOT( about() ), 0, 502 );
-  help->insertSeparator();
-  help->insertItem( ControlWindow::tr( "Modules..." ), _receiver, 
-		    SLOT( modulesList() ), 0, 503 );
-  help->insertItem( ControlWindow::tr( "Anatomist/AIMS information" ), 
-                    _receiver, SLOT( aimsInfo() ), 0, 504 );
+  QSelectMenu	*help = new QSelectMenu( ControlWindow::tr( "Help" ) );
+  _menubar->addMenu( help );
+  help->addAction( ControlWindow::tr( "Help" ), _receiver, SLOT( help() ), 0 );
+  help->addSeparator();
+  help->addAction( ControlWindow::tr( "About Anatomist" ), _receiver, 
+                   SLOT( about() ), 0 );
+  help->addSeparator();
+  help->addAction( ControlWindow::tr( "Modules..." ), _receiver, 
+                   SLOT( modulesList() ), 0 );
+  help->addAction( ControlWindow::tr( "Anatomist/AIMS information" ), 
+                   _receiver, SLOT( aimsInfo() ), 0 );
 
   d->popups[ "File" ] = file;
   d->popups[ "Objects" ] = object;
@@ -215,113 +221,79 @@ void AControlMenuHandler::create()
 
 void AControlMenuHandler::enableFusionMenu( bool state )
 {
-  _menubar->setItemEnabled( 106, state );
+  d->fusion->setEnabled( state );
 }
 
 
 void AControlMenuHandler::enableGroupMenu( bool state )
 {
-  _menubar->setItemEnabled( 105, state );
+  d->group->setEnabled( state );
 }
 
 
 void AControlMenuHandler::enableLinkMenu( bool state )
 {
-  _menubar->setItemEnabled( 210, state );
+  d->link->setEnabled( state );
 }
 
 
 void AControlMenuHandler::enableLoadRefMenu( bool state )
 {
-  _menubar->setItemEnabled( 211, state );
+  d->loadRef->setEnabled( state );
 }
 
 
 void AControlMenuHandler::enableUnloadRefMenu( bool state )
 {
-  _menubar->setItemEnabled( 212, state );
+//   d->unloadRef->setEnabled( state );
 }
 
 
 void AControlMenuHandler::enableRefWinMenu( bool state )
 {
-  _menubar->setItemEnabled( 301, state );
+  d->refWin->setEnabled( state );
 }
 
 
 void AControlMenuHandler::enablePreferencesMenu( bool state )
 {
-  _menubar->setItemEnabled( 305, state );
+  d->prefs->setEnabled( state );
 }
 
 
 void AControlMenuHandler::setGroupMenuText( const string & text )
 {
-  _menubar->changeItem( 105, QString::fromUtf8( text.c_str() ) );
+  d->group->setText( QString::fromUtf8( text.c_str() ) );
 }
 
 
 void AControlMenuHandler::setLinkMenuText( const string & text )
 {
-  _menubar->changeItem( 210, QString::fromUtf8( text.c_str() ) );
-}
-
-
-//	obsolete function ? never used (no callback)
-QSelectMenu* AControlMenuHandler::makePopup( const Tree & tr )
-{
-  QSelectMenu			*pop = new QSelectMenu;
-  Tree::const_iterator		it, ft = tr.end();
-  const Tree			*subt;
-
-  for( it=tr.begin(); it!=ft; ++it )
-    {
-      subt = (const Tree *) *it;
-      if( subt->size() == 0 )	// terminal item
-	{
-          pop->insertItem( QString::fromUtf8( subt->getSyntax().c_str() ) );
-	}
-      else			// sub tree: new submenu popup
-	{
-	  QSelectMenu	*subp = makePopup( *subt );
-          pop->insertItem( QString::fromUtf8( subt->getSyntax().c_str() ),
-                           subp );
-	}
-    }
-
-  return( pop );
+  d->link->setText( QString::fromUtf8( text.c_str() ) );
 }
 
 
 void AControlMenuHandler::makeObjectManipMenus( const set<AObject *> & obj, 
-						const Tree & tr )
+                                                const Tree & tr )
 {
-  QSelectMenu		*pop = new QSelectMenu;
+  QSelectMenu *pop = new QSelectMenu( ControlWindow::tr( "Object-specific" ) );
   Tree::const_iterator	it, ft = tr.end();
   const Tree		*t;
 
   pop->setObjects( obj );
 
   for( it=tr.begin(); it!=ft; ++it )
-    {
-      t = (const Tree *) *it;
-      pop->addOptionMenus( pop, t );
-    }
+  {
+    t = (const Tree *) *it;
+    pop->addOptionMenus( pop, t );
+  }
 
-  QMenuItem	*item = 0;
-#if QT_VERSION >= 0x040000
-  QObject	*parent;
-  item = _menubar->findItem( 4 );
-  if( item )
-    delete item;
-#else
-  QMenuData	*parent;
-  item = _menubar->findItem( 4, &parent );
-  if( item && parent == _menubar )
-    _menubar->removeItem( 4 );
-#endif
-  if( pop->count() > 0 )
-    _menubar->insertItem( ControlWindow::tr( "Object-specific" ), pop, 4, 4 );
+  map<string, QSelectMenu *>::iterator 
+    item = d->popups.find( "object-specific" );
+  if( item != d->popups.end() )
+    delete item->second;
+  d->popups[ "object-specific" ] = pop;
+  _menubar->insertMenu( d->popups[ "Help" ]->menuAction(), pop );
 }
 
 
@@ -341,12 +313,12 @@ void AControlMenuHandler::appendModulesOptions()
   Tree				*opt;
 
   for( im=mm->begin(); im!=em; ++im )
+  {
+    opt = (*im)->controlWinOptions();
+    if( opt )
     {
-      opt = (*im)->controlWinOptions();
-      if( opt )
-	{
-	  create( *opt );
-	  delete opt;
-	}
+      create( *opt );
+      delete opt;
     }
+  }
 }

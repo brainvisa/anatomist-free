@@ -89,15 +89,27 @@ void QAOptionMenuCallback::activated()
 
 // ----------------------------------
 
-QSelectMenu::QSelectMenu() 
-  : QMenu( 0 ), _win( 0 )
+QSelectMenu::QSelectMenu( QWidget* parent ) 
+  : QMenu( parent ), _win( 0 )
 {
   setObjectName( "popupmenu" );
   if( !_defPixmap )
-    {
-      _defPixmap = new QPixmap( Settings::findResourceFile(
-                                "icons/menu_default.xpm" ).c_str() );
-    }
+  {
+    _defPixmap = new QPixmap( Settings::findResourceFile(
+                              "icons/menu_default.xpm" ).c_str() );
+  }
+}
+
+
+QSelectMenu::QSelectMenu( const QString & title, QWidget* parent ) 
+  : QMenu( title, parent ), _win( 0 )
+{
+  setObjectName( "popupmenu" );
+  if( !_defPixmap )
+  {
+    _defPixmap = new QPixmap( Settings::findResourceFile(
+                              "icons/menu_default.xpm" ).c_str() );
+  }
 }
 
 

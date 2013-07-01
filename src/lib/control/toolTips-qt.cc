@@ -362,10 +362,12 @@ bool QAViewToolTip::eventFilter( QObject *, QEvent *e )
         break;
       if( !d->waket )
         {
-          d->waket = new QTimer( 0, "wakeUp" );
+          d->waket = new QTimer( 0 );
+          d->waket->setObjectName( "waket" );
           connect( d->waket, SIGNAL( timeout() ), this, SLOT( wakeUp() ) );
         }
-      d->waket->start( 500, true );
+      d->waket->setSingleShot( true );
+      d->waket->start( 500 );
       break;
     case QEvent::MouseButtonPress:
       //cout << "mouse press\n";
@@ -409,24 +411,19 @@ void QAViewToolTip::tip( const QRect & pos, const QString & text )
     return;
 
   if( !s.currenttip )
-    {
-      s.currenttip = new QLabel( 0, "toolTipTip", Qt::WStyle_StaysOnTop 
-                                 | Qt::WStyle_Customize 
-                                 | Qt::WStyle_NoBorder | Qt::WStyle_Tool 
-                                 | Qt::WX11BypassWM );
+  {
+    s.currenttip = new QLabel( 0, Qt::WindowStaysOnTopHint
+                                | Qt::FramelessWindowHint | Qt::Tool 
+                                | Qt::X11BypassWindowManagerHint );
 
-#if QT_VERSION >= 0x040000
+    s.currenttip->setFocusPolicy( Qt::NoFocus );
 
-      s.currenttip->setFocusPolicy( Qt::NoFocus );
-
-#else
-      s.currenttip->setFocusPolicy( QWidget::NoFocus );
-
-#endif
-      s.currenttip->setBackgroundColor( QColor( 255, 255, 168 ) );
-      s.currenttip->setFrameStyle( QFrame::Raised | QFrame::Panel );
-      s.currenttip->setMargin( 3 );
-    }
+    QPalette pal =  s.currenttip->palette();
+    pal.setColor( QPalette::Window, QColor( 255, 255, 168 ) );
+    s.currenttip->setPalette( pal );
+    s.currenttip->setFrameStyle( QFrame::Raised | QFrame::Panel );
+    s.currenttip->setMargin( 3 );
+  }
 
   s.currenttip->setText( text );
   s.currenttip->resize( s.currenttip->sizeHint() );
@@ -445,13 +442,15 @@ void QAViewToolTip::wakeUp()
 {
   if( !d->sleept )
     {
-      d->sleept = new QTimer( 0, "fallAsleep" );
+      d->sleept = new QTimer( 0 );
+      d->sleept->setObjectName( "fallAsleep" );
       connect( d->sleept, SIGNAL( timeout() ), SLOT( hideTip() ) );
     }
 
   maybeTip( d->widget->mapFromGlobal( QCursor::pos() ) );
 
-  d->sleept->start( 3000, true );
+  d->sleept->setSingleShot( true );
+  d->sleept->start( 3000 );
 }
 
 
