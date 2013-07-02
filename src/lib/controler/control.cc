@@ -74,7 +74,7 @@ namespace
     if( track.second )
     {
       QWidgetList wl = qApp->allWidgets();
-      if( wl.find( track.second ) != wl.end() )
+      if( wl.contains( track.second ) )
         track.second->setMouseTracking( false );
       track.first = 0;
       track.second = 0;
@@ -204,10 +204,9 @@ KeyRepetitiveEvent::KeyRepetitiveEvent(  const Control::KeyMapKey& startingEvent
   myStartingAction = startingAction.clone( ) ;
   myEndingAction = endingAction.clone( ) ;
   myTimer = new QTimer( 0 ) ;
-  //Q_ASSERT ( myTimer != 0 ) ;
-  myTimer->changeInterval( (int) temporalStep ) ;
+  myTimer->setInterval( (int) temporalStep ) ;
   myTimer->stop();	// don't start right now...
-  
+
   QObject::connect( myTimer, SIGNAL(timeout()), this, SLOT(timeout()) ) ;
 }
 
@@ -222,14 +221,16 @@ void
 KeyRepetitiveEvent::timeout()
 {
   myStartingAction->execute() ;
-  myTimer->start( (int) myTemporalStep, true ) ;
+  myTimer->setSingleShot( true );
+  myTimer->start( (int) myTemporalStep ) ;
 }
 
 void 
 KeyRepetitiveEvent::executeStart()
 {
   myStartingAction->execute() ;
-  myTimer->start( (int) myTemporalStep, true ) ;
+  myTimer->setSingleShot( true );
+  myTimer->start( (int) myTemporalStep ) ;
 }
 
 void 
@@ -431,7 +432,7 @@ Control::keyPressEvent( QKeyEvent * event )
       return ;
     }
 
-  KeyMapKey key( event->key(), event->state() ) ;
+  KeyMapKey key( event->key(), event->modifiers() ) ;
   
   map<KeyMapKey, KeyActionLink*, LessKeyMap>::iterator 
     iter( myKeyPressActionMap.find( key ) ) ;
@@ -459,7 +460,7 @@ Control::keyReleaseEvent( QKeyEvent * event )
       return ;
     }
   
-  KeyMapKey key( event->key(), event->state() ) ;
+  KeyMapKey key( event->key(), event->modifiers() ) ;
     
   map<KeyMapKey, KeyActionLink*, LessKeyMap>::iterator 
     iter2( myKeyReleaseActionMap.find( key ) ) ;
@@ -490,7 +491,7 @@ Control::mousePressEvent ( QMouseEvent * event  )
   if ( myLongActions->submitMousePressEvent( event ) )
     return ;
 
-  MouseButtonMapKey k( event->button(), event->state() ) ;
+  MouseButtonMapKey k( event->button(), event->modifiers() ) ;
 
   map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator 
     iter( myMousePressButtonActionMap.find( k ) ) ;
@@ -517,8 +518,8 @@ Control::mouseReleaseEvent ( QMouseEvent * event  )
   if( myLongActions->submitMouseReleaseEvent( event ) )
     return ;
 
-  MouseButtonMapKey k( event->button(), event->state() ) ;
-  
+  MouseButtonMapKey k( event->button(), event->modifiers() ) ;
+
   map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator 
     iter( myMouseReleaseButtonActionMap.find( k ) ) ;
   if( iter != myMouseReleaseButtonActionMap.end() )
@@ -530,7 +531,7 @@ void
 Control::mouseDoubleClickEvent ( QMouseEvent * event  ) 
 {
 //   cout << "MOUSEDOUBLE CLICK" << endl ;
-  MouseButtonMapKey k( event->button(), event->state() ) ;
+  MouseButtonMapKey k( event->button(), event->modifiers() ) ;
 
   map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator 
     iter( myMouseDoubleClickButtonActionMap.find( k ) ) ;
@@ -552,8 +553,8 @@ Control::mouseMoveEvent ( QMouseEvent * event  )
   if( myLongActions->submitMouseMoveEvent( event ) ) 
     return ;
 
-  MouseButtonMapKey k( event->button(), event->state() ) ;
-  
+  MouseButtonMapKey k( event->button(), event->modifiers() ) ;
+
   map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator 
     iter( myMouseMoveActionMap.find( k ) ) ;
   if( iter != myMouseMoveActionMap.end() )
@@ -697,7 +698,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
     QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
                     QPoint( (int) gesture->hotSpot().rx(),
                             (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton,
+                    Qt::MidButton, Qt::MidButton,
                     Qt::ShiftModifier );
     mousePressEvent( &ev );
   }
@@ -709,7 +710,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
     QMouseEvent ev( QEvent::MouseMove, p,
                     QPoint( (int) gesture->hotSpot().rx(),
                             (int) gesture->hotSpot().rx() ) + p,
-                    Qt::MidButton,
+                    Qt::MidButton, Qt::MidButton,
                     Qt::ShiftModifier );
     mouseMoveEvent( &ev );
   }
@@ -722,7 +723,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
     QMouseEvent ev( QEvent::MouseButtonRelease, p,
                     QPoint( (int) gesture->hotSpot().rx(),
                             (int) gesture->hotSpot().rx() ) + p,
-                    Qt::MidButton,
+                    Qt::MidButton, Qt::MidButton,
                     Qt::ShiftModifier );
     mouseReleaseEvent( &ev );
   }
@@ -738,7 +739,7 @@ bool Control::panGesture( QPanGesture * gesture )
     QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
                     QPoint( (int) gesture->hotSpot().rx(),
                             (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton,
+                    Qt::MidButton, Qt::MidButton,
                     0 /*TODO: get actual current modifiers */ );
     mousePressEvent( &ev );
   }
@@ -750,7 +751,7 @@ bool Control::panGesture( QPanGesture * gesture )
                             (int) gesture->offset().ry() ),
                     QPoint( (int) gesture->hotSpot().rx(),
                             (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton,
+                    Qt::MidButton, Qt::MidButton,
                     0 /*TODO: get actual current modifiers */ );
     mouseMoveEvent( &ev );
   }
@@ -763,7 +764,7 @@ bool Control::panGesture( QPanGesture * gesture )
                             (int) gesture->offset().ry() ),
                     QPoint( (int) gesture->hotSpot().rx(),
                             (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton,
+                    Qt::MidButton, Qt::MidButton,
                     0 /*TODO: get actual current modifiers */ );
     mouseReleaseEvent( &ev );
   }
@@ -1625,49 +1626,55 @@ bool
 LongActions::submitKeyPressEvent( QKeyEvent * event ) 
 {
 //   cout << "LongActions : submitKeyPressEvent" << endl ;
-  if( event->state() != Qt::NoButton ){
-    if( myActiveKeyAndMouseLongEvent != 0 ){
+  if( event->modifiers() != Qt::NoModifier )
+  {
+    if( myActiveKeyAndMouseLongEvent != 0 )
+    {
       myActiveKeyAndMouseLongEvent->executeEnd() ;
       myActiveKeyAndMouseLongEvent = 0 ;
     }
-    if( myActiveMouseLongEvent != 0 ){
+    if( myActiveMouseLongEvent != 0 )
+    {
       myActiveMouseLongEvent->executeEnd( currentMouseX, currentMouseY, currentMouseGlobalX, currentMouseGlobalY ) ;
       myActiveMouseLongEvent = 0 ;
 //       cout << "myActiveMouseLongEvent set to 0 : key press event" << endl ;
     }
-    
+
     map<Control::KeyMapKey, KeyRepetitiveEvent*, Control::LessKeyMap>::iterator
       iter;
 
     while( !myActiveKeyRepetitiveEvents.empty() )
-      {
+    {
 // 	cout << "keyRep size : " << myActiveKeyRepetitiveEvents.size() << endl;
-        iter = myActiveKeyRepetitiveEvents.begin();
-        iter->second->executeEnd() ;
-        myActiveKeyRepetitiveEvents.erase( iter ) ;
-      }
+      iter = myActiveKeyRepetitiveEvents.begin();
+      iter->second->executeEnd() ;
+      myActiveKeyRepetitiveEvents.erase( iter ) ;
+    }
   }
-  
-  Control::KeyMapKey key( event->key(), event->state() ) ;
-  
+
+  Control::KeyMapKey key( event->key(), event->modifiers() ) ;
+
   map<Control::KeyMapKey, KeyAndMouseLongEvent*, Control::LessKeyMap>::iterator 
     foundLongKeyAndMouseEvent( myKeyAndMouseLongEventMap.find( key ) ) ;
-  if ( foundLongKeyAndMouseEvent != myKeyAndMouseLongEventMap.end( ) ){ 
-    if( myActiveKeyAndMouseLongEvent == 0 ){
+  if ( foundLongKeyAndMouseEvent != myKeyAndMouseLongEventMap.end( ) )
+  {
+    if( myActiveKeyAndMouseLongEvent == 0 )
+    {
       myActiveKeyAndMouseLongEvent = foundLongKeyAndMouseEvent->second ;
       myActiveKeyAndMouseLongEvent->executeStart() ;
     }
 
     return true ;
-  }  
-  
+  }
+
   map<Control::KeyMapKey, KeyRepetitiveEvent*, Control::LessKeyMap>::iterator found = myKeyRepetitiveEventMap.find( key ) ;
-  if ( found != myKeyRepetitiveEventMap.end() ){
+  if ( found != myKeyRepetitiveEventMap.end() )
+  {
     myActiveKeyRepetitiveEvents[key] = found->second ;
     found->second->executeStart() ;
     return true ;
   }
-  
+
   return false ;
 }
 
@@ -1675,55 +1682,59 @@ bool
 LongActions::submitKeyReleaseEvent( QKeyEvent * event ) 
 {
   // cout << "LongActions : submitKeyReleaseEvent" << event->key() << endl ;
-  if( event->state() != Qt::NoButton ){
-    if( myActiveKeyAndMouseLongEvent != 0 ){
+  if( event->modifiers() != Qt::NoModifier )
+  {
+    if( myActiveKeyAndMouseLongEvent != 0 )
+    {
       myActiveKeyAndMouseLongEvent->executeEnd() ;
       myActiveKeyAndMouseLongEvent = 0 ;
     }
 
-    if( myActiveMouseLongEvent != 0 ){
+    if( myActiveMouseLongEvent != 0 )
+    {
       myActiveMouseLongEvent->executeEnd( currentMouseX, currentMouseY, 
                                           currentMouseGlobalX, 
                                           currentMouseGlobalY ) ;
       myActiveMouseLongEvent = 0 ;
       // cout << "myActiveMouseLongEvent set to 0 : key release" << endl ;
-	  
     }
   
     map<Control::KeyMapKey, KeyRepetitiveEvent*, Control::LessKeyMap>::iterator
       iter;
 
     while( !myActiveKeyRepetitiveEvents.empty() )
-      {
-        iter = myActiveKeyRepetitiveEvents.begin();
-        iter->second->executeEnd() ;
-        myActiveKeyRepetitiveEvents.erase( iter ) ;
-      }
+    {
+      iter = myActiveKeyRepetitiveEvents.begin();
+      iter->second->executeEnd() ;
+      myActiveKeyRepetitiveEvents.erase( iter ) ;
+    }
   }
 
-  Control::KeyMapKey key( event->key(), event->state() ) ;
+  Control::KeyMapKey key( event->key(), event->modifiers() ) ;
 
   map<Control::KeyMapKey, KeyRepetitiveEvent*, Control::LessKeyMap>::iterator 
     iter2( myActiveKeyRepetitiveEvents.begin() ), 
     last2( myActiveKeyRepetitiveEvents.end() ) ;
-  
-  while( iter2 != last2 && iter2->second->endingEvent() != key ){
+
+  while( iter2 != last2 && iter2->second->endingEvent() != key )
+  {
     ++iter2 ;
   }
-  
+
   if (  iter2 != last2 )
-    {
-      iter2->second->executeEnd() ;
-      myActiveKeyRepetitiveEvents.erase( iter2 ) ;
-    }
+  {
+    iter2->second->executeEnd() ;
+    myActiveKeyRepetitiveEvents.erase( iter2 ) ;
+  }
 
   if( myActiveKeyAndMouseLongEvent != 0 )
-    if( myActiveKeyAndMouseLongEvent->endingEvent() == key ){
+    if( myActiveKeyAndMouseLongEvent->endingEvent() == key )
+    {
       myActiveKeyAndMouseLongEvent->executeEnd() ;
       myActiveKeyAndMouseLongEvent = 0 ;
       return true ;
-    } 
-  
+    }
+
   return false ;
 }
 
@@ -1733,7 +1744,7 @@ LongActions::submitMousePressEvent( QMouseEvent * event )
 //   cout << "LongActions : submitMousePressEvent" << endl ;
 //   cout << "Long Action :" << this << endl ;
 
-  Control::MouseButtonMapKey k( event->button(), event->state() ) ;
+  Control::MouseButtonMapKey k( event->button(), event->modifiers() ) ;
   currentMouseX = event->x() ;
   currentMouseY = event->y() ;
   currentMouseGlobalX = event->globalX() ;

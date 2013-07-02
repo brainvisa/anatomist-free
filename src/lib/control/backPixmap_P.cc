@@ -50,40 +50,40 @@ void anatomist::installBackgroundPixmap( QWidget* w )
   const QPixmap	*back 
     = IconDictionary::instance()->getIconInstance( "listview_background" );
   if( !back )
+  {
+    string	backname;
+    if( theAnatomist->config()->getProperty( "listview_background", 
+                                              backname ) )
     {
-      string	backname;
-      if( theAnatomist->config()->getProperty( "listview_background", 
-						backname ) )
-	{
-	  backname = Settings::localPath() + "/icons/" + backname;
-	  // cout << "loading background pixmap " << backname << endl;
-	  back = new QPixmap( backname.c_str() );
-	  if( !back->isNull() )
-	    {
-	      IconDictionary::instance()->addIcon( "listview_background", 
-						   *back );
-	      delete back;
-	      back = IconDictionary::instance()->
-		getIconInstance( "listview_background" );
-	    }
-	  else
-	    {
-	      //cerr << "couldn't load pixmap\n";
-	      delete back;
-	      back = 0;
-	    }
-	}
+      backname = Settings::localPath() + "/icons/" + backname;
+      // cout << "loading background pixmap " << backname << endl;
+      back = new QPixmap( backname.c_str() );
+      if( !back->isNull() )
+      {
+        IconDictionary::instance()->addIcon( "listview_background", 
+                                              *back );
+        delete back;
+        back = IconDictionary::instance()->
+          getIconInstance( "listview_background" );
+      }
+      else
+      {
+        //cerr << "couldn't load pixmap\n";
+        delete back;
+        back = 0;
+      }
     }
+  }
   if( back && !back->isNull() )
-    {
-      QPalette	pal = w->palette();
-      pal.setBrush( QPalette::Active, QColorGroup::Base, 
-		    QBrush( QColor( 255, 255, 255 ), *back ) );
-      pal.setBrush( QPalette::Inactive, QColorGroup::Base, 
-		    QBrush( QColor( 255, 255, 255 ), *back ) );
-      pal.setBrush( QPalette::Disabled, QColorGroup::Base, 
-		    QBrush( QColor( 255, 255, 255 ), *back ) );
-      w->setPalette( pal );
-      //w->setBackgroundMode( QWidget::PaletteBase );
-    }
+  {
+    QPalette	pal = w->palette();
+    pal.setBrush( QPalette::Active, QPalette::Base, 
+                  QBrush( QColor( 255, 255, 255 ), *back ) );
+    pal.setBrush( QPalette::Inactive, QPalette::Base, 
+                  QBrush( QColor( 255, 255, 255 ), *back ) );
+    pal.setBrush( QPalette::Disabled, QPalette::Base, 
+                  QBrush( QColor( 255, 255, 255 ), *back ) );
+    w->setPalette( pal );
+    //w->setBackgroundMode( QWidget::PaletteBase );
+  }
 }

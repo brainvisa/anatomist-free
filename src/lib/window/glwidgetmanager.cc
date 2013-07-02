@@ -53,6 +53,7 @@
 #include <anatomist/window/viewstate.h>
 #include <qdesktopwidget.h>
 #include <QGraphicsView>
+#include <QSysInfo>
 
 namespace Qt
 {
@@ -380,7 +381,8 @@ void GLWidgetManager::paintGL()
       _pd->qobject->connect( _pd->zbuftimer, SIGNAL( timeout() ), _pd->qobject,
                            SLOT( updateZBuffer() ) );
     }
-    _pd->zbuftimer->start( 300, true );
+    _pd->zbuftimer->setSingleShot( true );
+    _pd->zbuftimer->start( 300 );
   }
 }
 
@@ -718,7 +720,7 @@ void GLWidgetManager::record()
     num.insert( 0, '0' );
   QString	filename = _pd->recordBaseName + num + _pd->recordSuffix;
 
-  cout << "writing " << filename.utf8().data() << endl;
+  cout << "writing " << filename.toStdString() << endl;
   saveContents( filename, _pd->recordFormat );
   ++_pd->recIndex;
 }
@@ -753,7 +755,7 @@ void GLWidgetManager::saveContents( const QString & filename,
   QString	f;
   if( format.isNull() )
     {
-      f = stringUpper( FileUtil::extension( filename.utf8().data() ) ).c_str();
+      f = stringUpper( FileUtil::extension( filename.toStdString() ) ).c_str();
       if( f == "JPG" )
         f = "JPEG";
     }
@@ -761,16 +763,16 @@ void GLWidgetManager::saveContents( const QString & filename,
     f = format;
 
   if( _pd->otherbuffers )
+  {
+    unsigned	i;
+    int	mode;
+    for( i=0; i<31; ++i )
     {
-      unsigned	i;
-      int	mode;
-      for( i=0; i<31; ++i )
-	{
-	  mode = _pd->otherbuffers & (1<<i);
-	  if( mode )
-	    saveOtherBuffer( filename, f, mode );
-	}
+      mode = _pd->otherbuffers & (1<<i);
+      if( mode )
+        saveOtherBuffer( filename, f, mode );
     }
+  }
 }
 
 
@@ -784,11 +786,11 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       _pd->rgbbufready = true;
     }
 
-  QImage	pix;
   int		depth;
   GLenum	mode;
   QString	ext;
   bool		alpha;
+  QImage::Format iformat;
 
   switch( bufmode )
     {
@@ -797,67 +799,72 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       mode = GL_ALPHA;
       alpha = false;
       ext = "-alpha";
+      iformat = QImage::Format_Indexed8;
       break;
     case 4:	// RGBA
       depth = 32;
       mode = GL_BGRA;
       alpha = true;
       ext = "-rgba";
+      iformat = QImage::Format_ARGB32;
       break;
     case 8:	// depth
       depth = 8;
       mode = GL_DEPTH_COMPONENT;
       alpha = false;
       ext = "-depth";
+      iformat = QImage::Format_Indexed8;
       break;
     case 16:	// luminance
       depth = 8;
       mode = GL_LUMINANCE;
       alpha = false;
       ext = "-luminance";
+      iformat = QImage::Format_Indexed8;
       break;
     default:	// RGB buffer
       depth = 32;
       mode = GL_BGRA;
       alpha = false;
+      iformat = QImage::Format_RGB32;
       break;
     }
 
   int	ncol = 0;
   if( depth == 8 )
     ncol = 256;
-  pix.create( _pd->glwidget->width(), _pd->glwidget->height(), depth, ncol,
-              QImage::LittleEndian );
-  pix.setAlphaBuffer( alpha );
+  QImage pix( _pd->glwidget->width(), _pd->glwidget->height(), iformat );
   int	i;
   for( i=0; i<ncol; ++i )
     pix.setColor( i, qRgb(i,i,i) );
   // read the GL buffer
   _pd->glwidget->makeCurrent();
+//   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+//   glPixelStorei( GL_UNPACK_SKIP_PIXELS, 0 );
   glReadBuffer( GL_FRONT );
   glReadPixels( 0, 0, (GLint) _pd->glwidget->width(), (GLint)
       _pd->glwidget->height(), mode, GL_UNSIGNED_BYTE, pix.bits() );
 
-  pix = pix.mirror( false, true );
-  if( depth ==32 && QImage::systemByteOrder() != QImage::LittleEndian )
+  pix = pix.mirrored( false, true );
+  if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
+  {
+    cout << "change bit order\n";
+    int n = _pd->glwidget->width()*_pd->glwidget->height();
+    unsigned char *buf = pix.bits(), c;
+    for( i=0; i<n; ++i )
     {
-      cout << "change bit order\n";
-      int n = _pd->glwidget->width()*_pd->glwidget->height();
-      unsigned char *buf = pix.bits(), c;
-      for( i=0; i<n; ++i )
-      {
-        c = *buf;
-        *buf = *(buf+3);
-        ++buf;
-        *(buf+2) = c;
-        c = *buf;
-        *buf = *(buf+1);
-        ++buf;
-        *buf = c;
-        ++buf;
-        ++buf;
-      }
+      c = *buf;
+      *buf = *(buf+3);
+      ++buf;
+      *(buf+2) = c;
+      c = *buf;
+      *buf = *(buf+1);
+      ++buf;
+      *buf = c;
+      ++buf;
+      ++buf;
     }
+  }
   if( alpha && _pd->transparentBackground && bufmode == 4
       && _pd->backgroundAlpha != 255 && depth == 32 )
   {
@@ -879,12 +886,12 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       }
   }
   QString	alphaname = filename;
-  int pos = alphaname.findRev( '.' );
+  int pos = alphaname.lastIndexOf( '.' );
   if( pos == -1 )
     pos = alphaname.length();
   alphaname = alphaname.insert( pos, ext );
-  cout << "saving " << alphaname.utf8().data() << endl;
-  pix.save( alphaname, format, 100 );
+  cout << "saving " << alphaname.toStdString() << endl;
+  pix.save( alphaname, format.toStdString().c_str(), 100 );
 }
 
 
@@ -923,7 +930,7 @@ namespace
 
   QString formatFromName( const QString & name )
   {
-    int x = name.findRev( '.' );
+    int x = name.lastIndexOf( '.' );
     if( x < 0 )
       return QString();
     QString suf = name.right( name.length() - x );
@@ -1041,15 +1048,15 @@ QStringList fileAndFormat( const QString & caption )
 
   QFileDialog	& fdiag = fileDialog();
   fdiag.setNameFilter( filter.join( ";;" ) );
-  fdiag.setCaption( caption );
+  fdiag.setWindowTitle( caption );
   fdiag.setFileMode( QFileDialog::AnyFile );
   if( fdiag.exec() )
   {
-    QString	filename = fdiag.selectedFile();
-    QString	format = fdiag.selectedFilter();
-
-    if ( filename != QString::null )
+    QStringList	filenames = fdiag.selectedFiles();
+    if( !filenames.isEmpty() )
     {
+      QString filename = filenames[0];
+      QString format = fdiag.selectedFilter();
       QString format2 = formatFromName( filename );
       if( format2.isEmpty() )
       {
@@ -1097,7 +1104,7 @@ void GLWidgetManager::recordStart( const QString & basename,
 {
   _pd->recordBaseName = basename;
   _pd->recordFormat = format;
-  int	p = _pd->recordBaseName.findRev( '.' );
+  int	p = _pd->recordBaseName.lastIndexOf( '.' );
   if( p >= 0 )
   {
     _pd->recordSuffix
@@ -1453,7 +1460,8 @@ void GLWidgetManager::mouseReleaseEvent( QMouseEvent* ev )
 //  cout << "button : " << (int) ev->button() << endl;
 //  cout << "state  : " << (int) ev->state() << endl;
 
-  if ((ev->button() == 4) && (ev->state() == 4))
+  // WARNING what is that button 4 / modifiers 4 ??
+  if ((ev->button() == 4) && (ev->modifiers() == 4))
     copyBackBuffer2Texture();
 
   controlSwitch()->mouseReleaseEvent( ev );
@@ -1497,12 +1505,12 @@ void GLWidgetManager::keyReleaseEvent( QKeyEvent* ev )
   cout << "key   : " << ev->key() << endl;
   cout << "state : " << (int) ev->state() << endl; */
   if( ev->key() == 0 )
-    {
-      // cout << "qtbug. taking " << _pd->lastkeypress_for_qt_bug << endl;
-      QKeyEvent	e( ev->type(), _pd->lastkeypress_for_qt_bug, ev->ascii(),
-                   ev->state(), ev->text(), ev->isAutoRepeat(), ev->count() );
-      controlSwitch()->keyReleaseEvent( &e );
-    }
+  {
+    // cout << "qtbug. taking " << _pd->lastkeypress_for_qt_bug << endl;
+    QKeyEvent	e( ev->type(), _pd->lastkeypress_for_qt_bug, ev->modifiers(),
+                  ev->text(), ev->isAutoRepeat(), ev->count() );
+    controlSwitch()->keyReleaseEvent( &e );
+  }
   else
     controlSwitch()->keyReleaseEvent( ev );
 }

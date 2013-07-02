@@ -33,35 +33,31 @@
 
 #include <anatomist/window/colorstyle.h>
 #include <qglobal.h>
-#if QT_VERSION >= 300
 #include <qstylefactory.h>
 #include <qwidget.h>
-#endif
+#include <algorithm>
+
+using namespace std;
 
 namespace anatomist
 {
-  void setQtColorStyle( QWidget *
-#if QT_VERSION >= 300
-			w
-#endif
-			)
+  void setQtColorStyle( QWidget *w )
   {
-#if QT_VERSION >= 300
     // some buggy KDE-3 styles don't allow changing their color
     static QStyle	*s = 0;
     if( !s )
       {
         QStringList styles = QStyleFactory::keys();
         QStringList::const_iterator	ist, est = styles.end();
-        if( (ist = styles.find( "HighColor" ) ) == est 
-            && (ist = styles.find( "Default" ) ) == est 
-            && (ist = styles.find( "Windows" ) ) == est )
+        if( (ist = find( styles.begin(), styles.end(), "HighColor" ) ) == est 
+            && (ist = find( styles.begin(), styles.end(), "Default" ) ) == est 
+            && (ist = find( styles.begin(), styles.end(), "Windows" ) ) == est 
+          )
           ist = styles.begin();
-    
+
         s = QStyleFactory::create( *ist );
       }
     w->setStyle( s );
-#endif
   }
 }
 

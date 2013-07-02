@@ -73,7 +73,10 @@ ToolBox::ToolBox( const string& activeControlDescription = "" ):
   setObjectName("ToolBox");
   setAttribute(Qt::WA_DeleteOnClose);
   //cout << "ToolBox::ToolBox, this=" << this << endl;
-  myLayout = new QVBoxLayout( this, 10, 10, "Layout") ;
+  myLayout = new QVBoxLayout( this );
+  myLayout->setMargin( 10 );
+  myLayout->setSpacing( 10 );
+  myLayout->setObjectName( "Layout" );
   myLayout->setEnabled(true) ;
 
   d->tab = new QWidget( this );
@@ -91,7 +94,7 @@ ToolBox::ToolBox( const string& activeControlDescription = "" ):
                        d->controldata );
   myControlDescriptionActivation->setSizePolicy( 
     QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-  myControlDescriptionActivation->setToggleButton( true ) ;
+  myControlDescriptionActivation->setCheckable( true ) ;
   connect( myControlDescriptionActivation, SIGNAL( clicked() ), 
            this, SLOT( switchControlDescriptionActivation() ) ) ;
 }
@@ -109,7 +112,8 @@ ToolBox::resetActions()
     myActionTab = 0 ;
   }
   d->actions.clear();
-  myActionTab = new QTabWidget( d->tab, "ActionTab") ;
+  myActionTab = new QTabWidget( d->tab );
+  myActionTab->setObjectName( "ActionTab" );
   d->tab->layout()->addWidget( myActionTab );
   myActionTab->show() ;
   setWindowTitle( tr("Tool Box") ) ;
@@ -148,7 +152,7 @@ ToolBox::addTab( QWidget * child, const QString & label,
                  const string & actionid )
 {
   QString lab(label) ;
-  int index  = lab.find("Action", 0) ;
+  int index  = lab.indexOf("Action", 0) ;
 
   //cout << "Index = " << index << endl ; 
 //   cout << "DEBUG : lab = " << lab << "\tindex = " << index << "\tSize = " << lab.length() 
@@ -158,7 +162,7 @@ ToolBox::addTab( QWidget * child, const QString & label,
     lab.remove( index, 6 ) ;
   myActionTab->addTab( child, lab ) ;
   if( actionid.empty() )
-    d->actions.insert( (const char *) label.utf8() );
+    d->actions.insert( label.toStdString() );
   else
     d->actions.insert( actionid );
 }
@@ -173,7 +177,7 @@ const set<string> & ToolBox::actions() const
 void 
 ToolBox::showPage ( QWidget * w )
 {
-   myActionTab->showPage ( w ) ;
+   myActionTab->setCurrentIndex( myActionTab->indexOf( w ) ) ;
 }
 
 void ToolBox::showPage( const string & label )
@@ -181,9 +185,9 @@ void ToolBox::showPage( const string & label )
   int	i, n = myActionTab->count();
   QString	l = ControlSwitch::tr( label.c_str() );
   for( i=0; i<n; ++i )
-    if( myActionTab->label( i ) == l )
+    if( myActionTab->tabText( i ) == l )
       {
-        myActionTab->setCurrentPage( i );
+        myActionTab->setCurrentIndex( i );
         break;
       }
 }

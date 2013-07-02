@@ -37,11 +37,7 @@
 #define protected public
 #endif
 #include <qglobal.h>
-#if QT_VERSION>0x040000
 #include <QtOpenGL/QGLWidget>
-#else
-#include <qgl.h>
-#endif
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #undef protected
 #undef private
@@ -144,12 +140,13 @@ void *GLContext::tryVisual( const QGLFormat& f, int bufDepth )
 
 GLWidget::GLWidget( QWidget* parent, const char* name,
 		    const QGLWidget* shareWidget, Qt::WFlags f )
-  : QGLWidget( parent, name, shareWidget, f )
+  : QGLWidget( parent, shareWidget, f )
 {
+    setObjectName( name );
     QGLFormat format = QGLFormat::defaultFormat();
     if ( shareWidget )
     {
-#if _WIN32 && QT_VERSION >= 0x040000
+#if _WIN32
       /* apparently on Windows/Qt4, reallocating a QGLContext makes rendering fail
       (even if allocating a new Qt builting QGLContext!) */
       const_cast<QGLContext *>( context() )->create( shareWidget->context() );
@@ -159,27 +156,31 @@ GLWidget::GLWidget( QWidget* parent, const char* name,
     }
     else
     {
-#if _WIN32 && QT_VERSION >= 0x040000
+#if _WIN32
       // do nothing on Windows...
 #else
       setContext( new GLContext( format, this ) );
 #endif
     }
-    setBackgroundMode( Qt::NoBackground );
+    setAttribute( Qt::WA_NoSystemBackground );
+//     setBackgroundMode( Qt::NoBackground );
 }
 
 
 GLWidget::GLWidget( const QGLFormat& format, QWidget* parent, 
 		    const char* name, 
 		    const QGLWidget* shareWidget, Qt::WFlags f )
-  : QGLWidget( format, parent, name, shareWidget, f )
+  : QGLWidget( format, parent, shareWidget, f )
 {
+  setObjectName( name );
 /*    if ( shareWidget )
  	setContext( new GLContext( format, this ), 
 		    shareWidget->context() );
     else
       setContext( new GLContext( format, this ) );
- */    setBackgroundMode( Qt::NoBackground );
+ */
+    setAttribute( Qt::WA_NoSystemBackground );
+//     setBackgroundMode( Qt::NoBackground );
 }
 
 

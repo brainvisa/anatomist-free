@@ -103,11 +103,13 @@ void ControlledWindow::registerObject( AObject* o, bool temporaryObject,
       view()->controlSwitch()->selectionChangedEvent();
     if( !d->trigger )
     {
-      d->trigger = new QTimer( this, "ControlledWindow_timer" );
+      d->trigger = new QTimer( this );
+      d->trigger->setObjectName( "ControlledWindow_timer" );
       connect( d->trigger, SIGNAL( timeout() ), this,
                 SLOT( updateControls() ) );
     }
-    d->trigger->start( 10, true );
+    d->trigger->setSingleShot( true );
+    d->trigger->start( 10 );
   }
 }
 
@@ -133,18 +135,20 @@ void ControlledWindow::unregisterObject( AObject* o )
   QAWindow::unregisterObject( o );
 
   if(!temporaryObject )
-    {
+  {
 /*      SelectFactory *sf = SelectFactory::factory();
-      if( sf->isSelected( Group(), o ) )*/
-      view()->controlSwitch()->selectionChangedEvent();
-      if( !d->trigger )
-	{
-	  d->trigger = new QTimer( this, "ControlledWindow_timer" );
-	  connect( d->trigger, SIGNAL( timeout() ), this, 
-		   SLOT( updateControls() ) );
-	}
-      d->trigger->start( 10, true );
+    if( sf->isSelected( Group(), o ) )*/
+    view()->controlSwitch()->selectionChangedEvent();
+    if( !d->trigger )
+    {
+      d->trigger = new QTimer( this );
+      d->trigger->setObjectName( "ControlledWindow_timer" );
+      connect( d->trigger, SIGNAL( timeout() ), this, 
+                SLOT( updateControls() ) );
     }
+    d->trigger->setSingleShot( true );
+    d->trigger->start( 10 );
+  }
 }
 
 
