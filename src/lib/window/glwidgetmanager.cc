@@ -1461,8 +1461,8 @@ void GLWidgetManager::mouseReleaseEvent( QMouseEvent* ev )
 //  cout << "state  : " << (int) ev->state() << endl;
 
   // WARNING what is that button 4 / modifiers 4 ??
-  if ((ev->button() == 4) && (ev->modifiers() == 4))
-    copyBackBuffer2Texture();
+//   if ((ev->button() == 4) && (ev->modifiers() == 4))
+  copyBackBuffer2Texture();
 
   controlSwitch()->mouseReleaseEvent( ev );
 }
