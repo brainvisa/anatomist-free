@@ -556,8 +556,10 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
     scale = 1;
   else
     scale = 1. / ( max - min );
-  
+
   float  qmin = FLT_MAX, qmax = -FLT_MAX;
+  map<float, unsigned> histo;
+  map<float, unsigned>::iterator ih, eh=histo.end();
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
@@ -566,74 +568,88 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
       xvalue = 0.;
 
       switch( _submethod )
-	{
-	case MIN:
-	  value = 1.0;
-	  break;
-	default:
-	  value = 0.0;
-	  break;
-	}
+      {
+      case MIN:
+        value = 1.0;
+        break;
+      case MEDIAN:
+        histo.clear();
+        break;
+      default:
+        value = 0.0;
+        break;
+      }
       nvalue = 0;
 
       for (j=minIter;j<=maxIter;++j)
-	{
-	  cver = ver + (j*estep) * nor;
+      {
+        cver = ver + (j*estep) * nor;
 
-	  if( trans )
-	    cver = Transformation::transform( cver, trans, vs );
-	  else
-	    cver = Transformation::transformDG( cver, vs );
-          cxvalue = functional->mixedTexValue( cver, s.time );
-	  cvalue = ( cxvalue - min ) * scale;
+        if( trans )
+          cver = Transformation::transform( cver, trans, vs );
+        else
+          cver = Transformation::transformDG( cver, vs );
+        cxvalue = functional->mixedTexValue( cver, s.time );
+        cvalue = ( cxvalue - min ) * scale;
 
-	  switch( _submethod )
-	    {
-	    case MAX:
-	      if (value < cvalue)
-		value = cvalue;
-	      break;
-	    case MIN:
-	      if (value > cvalue)
-		value = cvalue;
-	      break;
-	    case MEAN:
-	      value += cvalue;
-	      break;
-	    case CORRECTED_MEAN:
-	    case ENHANCED_MEAN:
-	      if( cvalue != 0.0 )
-		{
-		  value += cvalue;
-		  ++nvalue;
-		}
-	      break;
-            case ABSMAX:
-              if( fabs( xvalue ) <= fabs( cxvalue ) )
-              {
-                value = cvalue;
-                xvalue = cxvalue;
-              }
-              break;
-	    }
-	}
+        switch( _submethod )
+        {
+        case MAX:
+          if (value < cvalue)
+            value = cvalue;
+          break;
+        case MIN:
+          if (value > cvalue)
+            value = cvalue;
+          break;
+        case MEAN:
+          value += cvalue;
+          break;
+        case CORRECTED_MEAN:
+        case ENHANCED_MEAN:
+          if( cvalue != 0.0 )
+          {
+            value += cvalue;
+            ++nvalue;
+          }
+          break;
+        case ABSMAX:
+          if( fabs( xvalue ) <= fabs( cxvalue ) )
+          {
+            value = cvalue;
+            xvalue = cxvalue;
+          }
+          break;
+        case MEDIAN:
+          ++histo[ cvalue ];
+          break;
+        }
+      }
 
       switch( _submethod )
-	{
-	case MEAN:
-	  value /= (float) nbElem;
-	  break;
-	case CORRECTED_MEAN:
-	  if( nvalue > 0 )
-	    value /= (float) nvalue;
-	  break;
-	case ENHANCED_MEAN:
-	  if( nvalue > 0 )
-	    value = enhancedMean( value, nvalue, nbElem );
-	  break;
-	default:
-	  break;
-	}
+      {
+      case MEAN:
+        value /= (float) nbElem;
+        break;
+      case CORRECTED_MEAN:
+        if( nvalue > 0 )
+          value /= (float) nvalue;
+        break;
+      case ENHANCED_MEAN:
+        if( nvalue > 0 )
+          value = enhancedMean( value, nvalue, nbElem );
+        break;
+      case MEDIAN:
+        nvalue = 0;
+        for( ih=histo.begin(); ih!=eh; ++ih )
+          if( ih->second > nvalue )
+          {
+            nvalue = ih->second;
+            value = ih->first;
+          }
+      default:
+        break;
+      }
       if( value < qmin )
         qmin = value;
       if( value > qmax )
@@ -744,6 +760,8 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
     scale = 1. / ( max - min );
 
   float  qmin = FLT_MAX, qmax = -FLT_MAX;
+  map<float, unsigned> histo;
+  map<float, unsigned>::iterator ih, eh=histo.end();
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
@@ -752,75 +770,89 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
       xvalue = 0.;
 
       switch( _submethod )
-	{
-	case MIN:
-	  value = 1.0;
-	  break;
-	default:
-	  value = 0.0;
-	  break;
-	}
+      {
+      case MIN:
+        value = 1.0;
+        break;
+      case MEDIAN:
+        histo.clear();
+        break;
+      default:
+        value = 0.0;
+        break;
+      }
       nvalue = 0;
 
       for( itelem=lelem.begin(); itelem!=lelem.end(); ++itelem )
-	{
-	  cver = ver + *itelem;
+      {
+        cver = ver + *itelem;
 
-	  if( trans )
-	    cver = Transformation::transform( cver, trans, vs );
-	  else
-	    cver = Transformation::transformDG( cver, vs );
-          cxvalue = functional->mixedTexValue( cver, s.time );
-	  cvalue = ( cxvalue - min ) * scale;
+        if( trans )
+          cver = Transformation::transform( cver, trans, vs );
+        else
+          cver = Transformation::transformDG( cver, vs );
+        cxvalue = functional->mixedTexValue( cver, s.time );
+        cvalue = ( cxvalue - min ) * scale;
 
-	  switch( _submethod )
-	    {
-	    case MAX:
-	      if (value < cvalue)
-		value = cvalue;
-	      break;
-	    case MIN:
-	      if (value > cvalue)
-		value = cvalue;
-	      break;
-	    case MEAN:
-	      value += cvalue;
-	      break;
-	    case CORRECTED_MEAN:
-	    case ENHANCED_MEAN:
-	      if (cvalue != 0.0)
-		{
-		  value += cvalue;
-		  ++nvalue;
-		}
-	      break;
-            case ABSMAX:
-              if( fabs( xvalue ) <= fabs( cxvalue ) )
-              {
-                value = cvalue;
-                xvalue = cxvalue;
-              }
-              break;
-	    }
-	}
+        switch( _submethod )
+        {
+        case MAX:
+          if (value < cvalue)
+            value = cvalue;
+          break;
+        case MIN:
+          if (value > cvalue)
+            value = cvalue;
+          break;
+        case MEAN:
+          value += cvalue;
+          break;
+        case CORRECTED_MEAN:
+        case ENHANCED_MEAN:
+          if (cvalue != 0.0)
+          {
+            value += cvalue;
+            ++nvalue;
+          }
+          break;
+        case ABSMAX:
+          if( fabs( xvalue ) <= fabs( cxvalue ) )
+          {
+            value = cvalue;
+            xvalue = cxvalue;
+          }
+          break;
+        case MEDIAN:
+          ++histo[ cvalue ];
+          break;
+        }
+      }
 
       switch( _submethod )
-	{
-	case MEAN:
-	  value /= (float) nbElem;
-	  break;
-	case CORRECTED_MEAN:
-	  if( nvalue > 0 )
-	    value /= (float) nvalue;
-	  break;
-	case ENHANCED_MEAN:
-	  if( nvalue > 0 )
-	    value = enhancedMean( value, nvalue, nbElem );
-	  break;
-	default:
-	  break;
-	}
-      
+      {
+      case MEAN:
+        value /= (float) nbElem;
+        break;
+      case CORRECTED_MEAN:
+        if( nvalue > 0 )
+          value /= (float) nvalue;
+        break;
+      case ENHANCED_MEAN:
+        if( nvalue > 0 )
+          value = enhancedMean( value, nvalue, nbElem );
+        break;
+      case MEDIAN:
+        nvalue = 0;
+        for( ih=histo.begin(); ih!=eh; ++ih )
+          if( ih->second > nvalue )
+          {
+            nvalue = ih->second;
+            value = ih->first;
+          }
+      default:
+        break;
+      }
+
       if( value < qmin )
         qmin = value;
       if( value > qmax )

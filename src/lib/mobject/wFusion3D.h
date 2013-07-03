@@ -72,6 +72,7 @@ protected slots:
   void correctedMeanSubMethod();
   void enhancedMeanSubMethod();
   void absmaxSubMethod();
+  void medianSubMethod();
   void depthChanged( int value );
   void stepChanged( int value );
   void depthLineChanged();

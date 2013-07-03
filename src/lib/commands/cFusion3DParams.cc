@@ -161,6 +161,8 @@ Command* Fusion3DParamsCommand::read( const Tree & com,
           submethods[ "mean" ] = Fusion3D::MEAN;
           submethods[ "mean_corrected" ] = Fusion3D::CORRECTED_MEAN;
           submethods[ "mean_enhanced" ] = Fusion3D::ENHANCED_MEAN;
+          submethods[ "abs_max" ] = Fusion3D::ABSMAX;
+          submethods[ "median" ] = Fusion3D::MEDIAN;
         };
       map<string, Fusion3D::SubMethod>::const_iterator 
         i = submethods.find( ssubmethod );
@@ -193,7 +195,8 @@ void Fusion3DParamsCommand::write( Tree & com, Serializer* ser ) const
     {
       static const string ssubmethod[] = 
         {
-          "max", "min", "mean", "mean_corrected", "mean_enhanced", 
+          "max", "min", "mean", "mean_corrected", "mean_enhanced", "absmax",
+          "median"
         };
       t->setProperty( "submethod", ssubmethod[ _submethod ] );
     }

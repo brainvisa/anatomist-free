@@ -56,26 +56,27 @@ namespace anatomist
   public:
     /// 3D mapping methods
     enum Method
-      {
-	POINT_TO_POINT,
-        INSIDE_POINT_TO_POINT, 
-        OUTSIDE_POINT_TO_POINT, 
-	LINE_TO_POINT,
-	INSIDE_LINE_TO_POINT,
-	OUTSIDE_LINE_TO_POINT,
-	SPHERE_TO_POINT, 
-      };
+    {
+      POINT_TO_POINT,
+      INSIDE_POINT_TO_POINT,
+      OUTSIDE_POINT_TO_POINT,
+      LINE_TO_POINT,
+      INSIDE_LINE_TO_POINT,
+      OUTSIDE_LINE_TO_POINT,
+      SPHERE_TO_POINT,
+    };
 
     /// 3D mapping sub-methods
     enum SubMethod
-      {
-	MAX,
-	MIN,
-	MEAN,
-	CORRECTED_MEAN,
-	ENHANCED_MEAN,
-        ABSMAX,
-      };
+    {
+      MAX,
+      MIN,
+      MEAN,
+      CORRECTED_MEAN,
+      ENHANCED_MEAN,
+      ABSMAX,
+      MEDIAN,
+    };
 
     Fusion3D( const std::vector<AObject *> & obj );
     virtual ~Fusion3D();

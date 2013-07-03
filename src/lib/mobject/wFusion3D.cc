@@ -262,6 +262,9 @@ void Fusion3DWindow::drawContents()
   QRadioButton  *absmaxbtn = new QRadioButton( tr( "Abs. Max" ), submbox );
   vlay->addWidget( absmaxbtn );
   subg->addButton( absmaxbtn, 5 );
+  QRadioButton  *medianbtn = new QRadioButton( tr( "Median" ), submbox );
+  vlay->addWidget( medianbtn );
+  subg->addButton( medianbtn, 6 );
   vlay->addStretch( 1 );
 
   QGroupBox	*parambox = new QGroupBox( tr( "Parameters :" ), hbox );
@@ -310,6 +313,7 @@ void Fusion3DWindow::drawContents()
   connect( emeanbtn, SIGNAL( clicked() ), 
            this, SLOT( enhancedMeanSubMethod() ) );
   connect( absmaxbtn, SIGNAL( clicked() ), this, SLOT( absmaxSubMethod() ) );
+  connect( medianbtn, SIGNAL( clicked() ), this, SLOT( medianSubMethod() ) );
   connect( d->depthsl, SIGNAL( valueChanged( int ) ), 
            this, SLOT( depthChanged( int ) ) );
   connect( d->stepsl, SIGNAL( valueChanged( int ) ), 
@@ -432,6 +436,9 @@ void Fusion3DWindow::updateWindow()
     case Fusion3D::ABSMAX:
       submeth = 5;
       break;
+    case Fusion3D::MEDIAN:
+      submeth = 6;
+      break;
     default:
       submeth = 0;
       break;
@@ -543,6 +550,12 @@ void Fusion3DWindow::enhancedMeanSubMethod()
 void Fusion3DWindow::absmaxSubMethod()
 {
   d->submethod = Fusion3D::ABSMAX;
+  d->submethodHasChanged = true;
+}
+
+void Fusion3DWindow::medianSubMethod()
+{
+  d->submethod = Fusion3D::MEDIAN;
   d->submethodHasChanged = true;
 }
 

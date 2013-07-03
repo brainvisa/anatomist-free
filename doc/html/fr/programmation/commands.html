@@ -1475,61 +1475,8 @@ sont plus spécifiques aux fusions 2D).<br>
 </tbody>
 </table>
 
-<h3>Fusion3DParams</h3>
-<b>Nouveau dans Anatomist 3.0</b><br>
-Règlage des paramètres d'une fusion 3D<br>
-
-<table border="1">
-<tbody>
-  <tr>
-          <td>object</td>
-          <td><tt>int</tt></td>
-          <td>objet concerné</td>
-        </tr>
-        <tr>
-          <td><tt>method</tt></td>
-          <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">Méthode de calcul: <tt>point</tt> (défaut): valeur du voxel
-		    sous chaque noeud du maillage, <tt>point_offset_internal</tt>: valeur
-			d'un voxel décalé vers l'intérieur de <tt>depth</tt> le long de la
-			normale au maillage, <tt>point_offset_external</tt>: voxel décalé vers
-			l'extérieur, <tt>line</tt>: intégration le long de la normale selon la
-			sous-méthode <tt>submethod</tt>, <tt>line_internal</tt>: comme
-			<tt>line</tt> mais seulement vers l'intérieur du maillage,
-			<tt>line_external</tt>: idem vers l'extérieur, <tt>sphere</tt>:
-			intégration dans une sphère de rayon <tt>depth</tt> autour de chaque
-			noeud du maillage
-          </td>
-        </tr>
-        <tr>
-          <td><tt>submethod</tt></td>
-          <td><tt>string</tt> (optionnel)</td>
-          <td id="txt">Sous-méthode du calcul. En fait ce paramètre indique la
-		  manière d'intégrer les valeurs de plusieurs voxels (elle n'est donc
-		  pas utilisée pour les méthodes <tt>point*</tt>): <tt>max</tt> (défaut),
-		  <tt>min</tt>, <tt>mean</tt>, <tt>mean_corrected</tt>: moyenne seulement les
-		  valeurs non-nulles, <tt>mean_enhanced</tt>: plus personne ne se souvient
-		  ce qu'est sensé faire ce mode...
-          </td>
-        </tr>
-        <tr>
-          <td><tt>depth</tt></td>
-          <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">Profondeur d'intégration pour les méthodes <tt>line*</tt>,
-		    ou décalage pour les méthodes <tt>point_offset_*</tt>, ou
-		    rayon de la sphère d'intégration pour la méthode <tt>sphere</tt>.
-		  </td>
-        </tr>
-        <tr>
-          <td><tt>step</tt></td>
-          <td><tt>float</tt> (optionnel)</td>
-          <td id="txt">Pas d'échantillonnage pour les méthodes d'intégration à
-		    plusieurs points.
-          </td>
-        </tr>
-</tbody>
-</table>
-
+<a name="Fusion3DParams">
+<h3><a href="../../en/programming/commands/fusion3dparams.html">Fusion3DParams</a></h3>
 
 
 <h2> Commandes des modules:</h2>
