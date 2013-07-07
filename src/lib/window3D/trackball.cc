@@ -337,7 +337,8 @@ void ContinuousTrackball::endTrackball( int x, int y, int globalX,
   d->timer->stop();
   //d->timer->changeInterval( d->timestep );
   d->frozen = false;
-  d->timer->start( d->timestep, true );
+  d->timer->setSingleShot( true );
+  d->timer->start( d->timestep );
 }
 
 
@@ -353,7 +354,8 @@ void ContinuousTrackball::goOn()
   w->setQuaternion( d->lastrot * w->quaternion() );
   ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 
-  d->timer->start( d->timestep, true );
+  d->timer->setSingleShot( true );
+  d->timer->start( d->timestep );
 }
 
 

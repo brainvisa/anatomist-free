@@ -239,7 +239,7 @@ void LabelEditAction::setLabel( const std::string & l, const AimsRGB & color )
   ControlledWindow *w = dynamic_cast<ControlledWindow *>( view()->aWindow() );
   if( !w )
     return;
-  QLabel *ql = dynamic_cast<QLabel *>( w->child( "selectionLabel" ) );
+  QLabel *ql = w->findChild<QLabel *>( "selectionLabel" );
   if( !ql )
     return; // no QLabel found
 
@@ -257,11 +257,7 @@ void LabelEditAction::setLabel( const std::string & l, const AimsRGB & color )
   text += ControlledWindow::tr( "Label picker: <space> to pick the label "
       "from currently selected objects\n  <ctrl>+<return> to change the label "
       "of currently selected objects to this label" );
-#if QT_VERSION >= 0x040000
   ql->setToolTip( text );
-#else
-  QToolTip::add( ql, text );
-#endif
 }
 
 
