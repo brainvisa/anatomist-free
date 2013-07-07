@@ -56,11 +56,12 @@ using namespace std;
 
 namespace
 {
-  class CommandExecutorEvent : public QCustomEvent
+  class CommandExecutorEvent : public QEvent
   {
   public:
     CommandExecutorEvent( Tree* cmd, MutexRcPtr<CommandContext> contxt ) 
-      : QCustomEvent( QEvent::User + 1111 ), command( cmd ), context( contxt )
+      : QEvent( QEvent::Type( QEvent::User + 1111 ) ), command( cmd ), 
+        context( contxt )
     {}
     virtual ~CommandExecutorEvent() {}
 
@@ -70,8 +71,8 @@ namespace
 
 
 }
-  
-  
+
+
 anatomist::internal::CommandReader_Bridge::~CommandReader_Bridge()
 {
 }

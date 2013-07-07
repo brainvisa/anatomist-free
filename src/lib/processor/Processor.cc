@@ -108,7 +108,7 @@ Processor::execute(Command* c)
       {
         ErrorMessage::message
           ( string( qApp->translate
-                    ( "ErrorMessage", e.what() ).utf8().data() ),
+                    ( "ErrorMessage", e.what() ).toStdString() ),
             ErrorMessage::Error );
       }
       this->setChanged();
