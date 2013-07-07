@@ -197,7 +197,7 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QAWindow::dragEnterEvent\n";
-  event->accept( QAWindowDrag::canDecode( event ) );
+  event->setAccepted( QAWindowDrag::canDecode( event ) );
 }
 
 
@@ -425,7 +425,8 @@ void QAWindowBlock::setColumnsNumber()
   QVBoxLayout *lay = new QVBoxLayout( &dial );
   QSpinBox *sb = new QSpinBox( &dial );
   lay->addWidget( sb );
-  QHBoxLayout *lay2 = new QHBoxLayout( lay );
+  QHBoxLayout *lay2 = new QHBoxLayout( &dial );
+  lay->addLayout( lay2 );
   QPushButton *ok = new QPushButton( tr( "OK" ), &dial );
   lay2->addWidget( ok );
   ok->setDefault( true );
@@ -450,7 +451,8 @@ void QAWindowBlock::setRowsNumber()
   QVBoxLayout *lay = new QVBoxLayout( &dial );
   QSpinBox *sb = new QSpinBox( &dial );
   lay->addWidget( sb );
-  QHBoxLayout *lay2 = new QHBoxLayout( lay );
+  QHBoxLayout *lay2 = new QHBoxLayout( &dial );
+  lay->addLayout( lay2 );
   QPushButton *ok = new QPushButton( tr( "OK" ), &dial );
   lay2->addWidget( ok );
   ok->setDefault( true );
@@ -475,7 +477,8 @@ void QAWindowBlock::setRectangularRatio()
   QVBoxLayout *lay = new QVBoxLayout( &dial );
   QLineEdit *sb = new QLineEdit( &dial );
   lay->addWidget( sb );
-  QHBoxLayout *lay2 = new QHBoxLayout( lay );
+  QHBoxLayout *lay2 = new QHBoxLayout( &dial );
+  lay->addLayout( lay2 );
   QPushButton *ok = new QPushButton( tr( "OK" ), &dial );
   lay2->addWidget( ok );
   ok->setDefault( true );

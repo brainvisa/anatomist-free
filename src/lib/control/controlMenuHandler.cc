@@ -152,6 +152,7 @@ void AControlMenuHandler::create()
   map<int, string>::iterator	it, ft=wtypes.end();
 
   QActionGroup *ag = new QActionGroup( _menubar );
+  ag->setObjectName( "windows_types" );
   for( it=wtypes.begin(); it!=ft; ++it )
   {
     ac = window->addAction( ControlWindow::tr( (*it).second.c_str() ) );
@@ -216,6 +217,16 @@ void AControlMenuHandler::create()
   d->popups[ "Help" ] = help;
 
   appendModulesOptions();
+}
+
+
+void AControlMenuHandler::addWindowType( const string & type, int id )
+{
+  QMenu *window = d->popups[ "Windows" ];
+  QAction *ac = window->addAction( ControlWindow::tr( type.c_str() ) );
+  ac->setData( id );
+  QActionGroup * ag = _menubar->findChild<QActionGroup *>( "windows_types" );
+  ag->addAction( ac );
 }
 
 

@@ -69,7 +69,8 @@ namespace anatomist
     void setGroupMenuText( const std::string & text );
     void setLinkMenuText( const std::string & text );
     void makeObjectManipMenus( const std::set<AObject *> & obj, 
-			       const Tree & tr );
+                               const Tree & tr );
+    void addWindowType( const std::string & type, int id );
 
     QSelectMenu* getPopup( const std::string & popname );
 

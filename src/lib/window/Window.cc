@@ -402,11 +402,12 @@ void AWindow::startRecord()
   if( !fd.exec() )
     return;
 
-  QString filename = fd.selectedFile();
-  if ( !filename.isEmpty() )
-    {
-      startRecord( filename.utf8().data() );
-    }
+  QStringList filenames = fd.selectedFiles();
+  if ( !filenames.isEmpty() )
+  {
+    QString filename = filenames[0];
+    startRecord( filename.toStdString() );
+  }
 }
 
 
