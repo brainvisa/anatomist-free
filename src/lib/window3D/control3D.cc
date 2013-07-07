@@ -467,15 +467,15 @@ void Select3DControl::doAlsoOnSelect( ActionPool* pool )
     QAWindow  *aw = dynamic_cast<QAWindow *>( v->aWindow() );
     if( !aw )
       return;
-    QToolBar *tb = dynamic_cast<QToolBar *>( aw->child( "select3D_toolbar" ) );
+    QToolBar *tb = aw->findChild<QToolBar *>( "select3D_toolbar" );
     if( tb )
       return; // toolbar found: it already exists.
     tb = aw->addToolBar( ControlledWindow::tr( "Selection tools" ),
                         "select3D_toolbar" );
     //d->toolbars.push_back( d->mute );
     tb->setIconSize( QSize( 20, 20 ) );
-    new QLabel( ControlledWindow::tr( "Selection label" ), tb,
-                "selectionLabel" );
+    QLabel *l = new QLabel( ControlledWindow::tr( "Selection label" ), tb );
+    l->setObjectName( "selectionLabel" );
     LabelEditAction *la = static_cast<LabelEditAction *>( a );
     la->setLabel( la->label() );
     tb->show();
@@ -1782,9 +1782,9 @@ MovieAction::MovieAction()
     myRunMode( Forward ), myForward( true ), myTimeInterval( 100 )
 {
   myTimer = new QTimer( this ) ;
-  myTimer->changeInterval( 100 ) ;
+  myTimer->setInterval( 100 ) ;
   myTimer->stop();	// don't start right now...
-  
+
   QObject::connect( myTimer, SIGNAL(timeout()), this, SLOT(timeout()) ) ;  
 } 
 
@@ -1846,17 +1846,18 @@ MovieAction::startOrStop()
 {
   //cerr << "Start or Stop" << endl ;
   if( ! myIsRunning )
-    {
-      //cerr << "Start" << endl ;
-      myIsRunning = true ;
-      myTimer->start( myTimeInterval, true ) ;
-    }
+  {
+    //cerr << "Start" << endl ;
+    myIsRunning = true;
+    myTimer->setSingleShot( true );
+    myTimer->start( myTimeInterval );
+  }
   else
-    {
-      myIsRunning = false ;
-      myTimer->stop( ) ;    
-      //cerr << "Stop" << endl ;      
-    }
+  {
+    myIsRunning = false;
+    myTimer->stop( );
+    //cerr << "Stop" << endl ;
+  }
 }
 
 
@@ -1920,36 +1921,38 @@ MovieAction::timeout()
       stop = true;
     else
       switch( myRunMode )
-        {
-        case LoopForward:
-          sliderPosition = 0;
-          break;
-        case LoopBothWays:
-          sliderPosition = maxPosition - 1;
-          myForward = false;
-          break;
-        default:
-          stop = true;
-        }
+      {
+      case LoopForward:
+        sliderPosition = 0;
+        break;
+      case LoopBothWays:
+        sliderPosition = maxPosition - 1;
+        myForward = false;
+        break;
+      default:
+        stop = true;
+      }
   }
 
   if( stop )
-    {
-      myIsRunning = false ;
-      myTimer->stop( ) ;
-      return;
-    }
+  {
+    myIsRunning = false ;
+    myTimer->stop( ) ;
+    return;
+  }
 
   if( mySliceAndNotTime || win->getTimeSliderMaxPosition() == 0 )
-    {
-      win->setSliceSliderPosition( sliderPosition ) ;
-      myTimer->start( myTimeInterval, true ) ;
-    }
+  {
+    win->setSliceSliderPosition( sliderPosition ) ;
+    myTimer->setSingleShot( true );
+    myTimer->start( myTimeInterval );
+  }
   else
-    {
-      win->setTimeSliderPosition( sliderPosition ) ;
-      myTimer->start( myTimeInterval, true ) ;
-    }
+  {
+    win->setTimeSliderPosition( sliderPosition );
+    myTimer->setSingleShot( true );
+    myTimer->start( myTimeInterval );
+  }
 }
 
 
