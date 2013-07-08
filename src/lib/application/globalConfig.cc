@@ -175,7 +175,7 @@ void GlobalConfiguration::apply()
   {
     if( !uls.empty() )
     {
-      QString qs = QString( uls.c_str() ).lower();
+      QString qs = QString( uls.c_str() ).toLower();
       bool ok = true;
       unsigned x = qs.toUInt( &ok );
       if( ok )
