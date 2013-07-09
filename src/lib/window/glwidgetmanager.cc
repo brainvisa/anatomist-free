@@ -1282,7 +1282,7 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
 void GLWidgetManager::copyBackBuffer2Texture(void)
 {
-  cout << "copyBackBuffer2Texture\n";
+  // cout << "copyBackBuffer2Texture\n";
   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();

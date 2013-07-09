@@ -91,7 +91,7 @@ namespace anatomist
   {
   public:
     static Control * creator();
-    ObliqueControl();
+    ObliqueControl( const std::string & name = "ObliqueControl" );
     ObliqueControl( const ObliqueControl & c );
     virtual ~ObliqueControl();
 

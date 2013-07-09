@@ -1360,8 +1360,8 @@ Control * ObliqueControl::creator()
   return new ObliqueControl;
 }
 
-ObliqueControl::ObliqueControl() 
-  : Control( 3, QT_TRANSLATE_NOOP( "ControlledWindow", "ObliqueControl" ) )
+ObliqueControl::ObliqueControl( const string & name ) 
+  : Control( 3, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
 }
 
