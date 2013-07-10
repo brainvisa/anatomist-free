@@ -3,7 +3,7 @@ find_package( brainvisa-cmake REQUIRED )
 BRAINVISA_PROJECT()
 
 BRAINVISA_FIND_PACKAGE( aims-free REQUIRED )
-find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED ) # Qt3Support
+find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL QtNetwork REQUIRED ) # Qt3Support
 find_package( QtVersion REQUIRED )
 find_package( OpenGL REQUIRED )
 
