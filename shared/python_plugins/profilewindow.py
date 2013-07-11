@@ -183,10 +183,12 @@ class AProfile( ana.cpp.QAWindow ):
   def eraseObject( self, obj ):
     if hasattr( obj, 'internalRep' ):
       obj = obj.internalRep
+      
     p =  self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
     if p:
       for x in p:
         x.remove()
+      
       del self._plots[ ana.cpp.weak_ptr_AObject( obj ) ]
       if len( self._plots ) >= 0:
         pylab.legend()
@@ -201,6 +203,7 @@ class AProfile( ana.cpp.QAWindow ):
       ar = numpy.array( vol, copy=False )
       pos = self.GetPosition()
       tpos = self.GetTime()
+      
       if len( vol.header()[ 'voxel_size' ] ) >= 4:
         tpos /= vol.header()[ 'voxel_size' ][3]
       if tpos < 0:
@@ -213,29 +216,36 @@ class AProfile( ana.cpp.QAWindow ):
       a = ana.Anatomist()
       trans = a.getTransformation( wref, oref )
       uvect = self._orientation.transform( aims.Point3df( 1, 0, 0 ) )
+      
       if trans is not None:
         # get in object space
         uvect = trans.transform( uvect ) - trans.transform( [ 0, 0, 0 ] )
         uvect.normalize()
         opos = trans.transform( pos )
       vs = vol.header()[ 'voxel_size' ][:3]
-      dims = aims.Point3df( ( vol.getSizeX()-1 ) * vs[0],
-        ( vol.getSizeY()-1 ) * vs[1], ( vol.getSizeZ()-1 ) * vs[2] )
+      dims = aims.Point3df( ( vol.getSizeX() - 1 ) * vs[0],
+                            ( vol.getSizeY() - 1 ) * vs[1], 
+                            ( vol.getSizeZ() - 1 ) * vs[2] )
+      
       # get intersects of opos + x * uvect with bounding planes
       # (in object space)
       bounds = []
       # x plane, v=(1,0,0)
+      bmin = aims.Point3df( -0.5 * vs[0], -0.5 * vs[1], -0.5 * vs[2] )
+      bmax = aims.Point3df( dims[0] + vs[0] * 0.5, 
+                            dims[1] + vs[1] * 0.5, 
+                            dims[2] + vs[2] * 0.5 )
       v = aims.Point3df( 1, 0, 0 )
       uv = uvect.dot( v )
       if uv != 0:
-        t0 = (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) / uv
+        t0 = (aims.Point3df(0, 0, 0) - opos).dot( v ) / uv
         t1 = (dims - opos).dot( v ) / uv
         if t1 < t0:
           t0, t1 = t1, t0 # ensure t0 is the min
         bounds = [ t0, t1 ]
       else:
         # parallel to x plane: ensure opos is between both planes
-        if (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) * (dims - opos).dot( v ) > 0:
+        if (bmin - opos).dot( v ) * (bmax - opos).dot( v ) > 0:
           self.eraseObject( obj )
           return
       # y plane, v=(0,1,0)
@@ -258,7 +268,7 @@ class AProfile( ana.cpp.QAWindow ):
             bounds[1] = t1
       else:
         # parallel to y plane: ensure opos is between both planes
-        if (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) * (dims - opos).dot( v ) > 0:
+        if (bmin - opos).dot( v ) * (bmax - opos).dot( v ) > 0:
           self.eraseObject( obj )
           return
       # z plane, v=(0,0,1)
@@ -281,13 +291,15 @@ class AProfile( ana.cpp.QAWindow ):
             bounds[1] = t1
       else:
         # parallel to z plane: ensure opos is between both planes
-        if (aims.Point3df( 0, 0, 0 ) - opos).dot( v ) * (dims - opos).dot( v ) > 0:
+        if (bmin - opos).dot( v ) * (bmax - opos).dot( v ) > 0:
           self.eraseObject( obj )
           return
+          
       t0, t1 = bounds
       step = min( vs ) # not optimal.
       indices = [ opos+uvect*(t0+x*step) for x in \
-        xrange( 0, int( (t1-t0)/step ) ) ]
+        xrange( 0, int( (t1 - t0 + 1)/step ) ) ]
+        
       besti = numpy.argmax( numpy.abs( self._orientation.transform( [ 1, 0, 0 ] ) ) )
       self._coordindex = besti
       avs = numpy.array(vs)
@@ -359,11 +371,13 @@ class AProfile( ana.cpp.QAWindow ):
     for obj in self.Objects():
       self.plotObject( obj )
     self.drawCursor()
+
     # pick events
     if not self._picker_installed and len( self._fig.axes ) > 0:
       self._fig.axes[0].set_picker( True )
       self._fig.canvas.mpl_connect( 'pick_event', self.onPick )
       self._picker_installed = True
+      
     self.paintRefLabel()
 
   def drawCursor( self ):
