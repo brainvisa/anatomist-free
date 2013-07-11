@@ -86,8 +86,8 @@ ObjectVector::~ObjectVector()
     {
       (*it)->UnregisterParent( this );
       (*it)->deleteObserver((Observer*)this);
-      if( !(*it)->Visible() ) 
-	theAnatomist->mapObject( it->get() );
+      if( !(*it)->Visible() )
+        theAnatomist->mapObject( it->get() );
     }
   _data.erase( _data.begin(), _data.end() );
 }
@@ -150,7 +150,7 @@ void ObjectVector::erase( MObject::iterator & i )
 
 void ObjectVector::insert( AObject* x, int pos )
 {
-  insert( shared_ptr<AObject>( shared_ptr<AObject>::Weak, x ), pos );
+  insert( shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, x ), pos );
 }
 
 

@@ -38,6 +38,7 @@
 
 using namespace anatomist;
 using namespace aims;
+using namespace carto;
 using namespace std;
 
 struct TransformedObject::Private
@@ -52,6 +53,7 @@ struct TransformedObject::Private
   Point3df pos;
   bool dynamicoffset;
   Point3df offsetfrom;
+  float scale;
 };
 
 
@@ -60,7 +62,7 @@ TransformedObject::Private::Private( bool followorientation,
                                      const Point3df & pos )
   : followorientation( followorientation ), followposition( followposition ),
     posoffset( 0, 0, 0 ), pos( pos ), dynamicoffset( false ),
-    offsetfrom( 0, 0, 0 )
+    offsetfrom( 0, 0, 0 ), scale( 1. )
 {
 }
 
@@ -68,10 +70,25 @@ TransformedObject::Private::Private( bool followorientation,
 TransformedObject::TransformedObject( const vector<AObject *> & obj,
                                       bool followorientation,
                                       bool followposition,
-                                      const Point3df & pos )
+                                      const Point3df & pos, bool strongref )
   : d( new Private( followorientation, followposition, pos ) )
 {
   vector<AObject *>::const_iterator io, eo = obj.end();
+  shared_ptr<AObject>::ReferenceType rtype = shared_ptr<AObject>::WeakShared;
+  if( strongref )
+    rtype = shared_ptr<AObject>::Strong;
+  for( io=obj.begin(); io!=eo; ++io )
+    insert( shared_ptr<AObject>( rtype, *io ) );
+}
+
+
+TransformedObject::TransformedObject( const vector<shared_ptr<AObject> > & obj,
+                                      bool followorientation,
+                                      bool followposition,
+                                      const Point3df & pos )
+  : d( new Private( followorientation, followposition, pos ) )
+{
+  vector<shared_ptr<AObject> >::const_iterator io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
     insert( *io );
 }
@@ -215,7 +232,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     r = r *p;
     glTranslatef( -r.translation()[0], -r.translation()[1],
       -r.translation()[2] );
-    glScalef( 1., -1., 1. );
+    glScalef( d->scale, -d->scale, d->scale );
   }
   else
   {
@@ -224,9 +241,22 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
       translation part */
     Point3df trans = view->rotationCenter();
     glTranslatef( trans[0], trans[1], trans[2] );
+    glScalef( d->scale, d->scale, d->scale );
   }
 
   glEndList();
+}
+
+
+void TransformedObject::setScale( float scale )
+{
+  d->scale = scale;
+}
+
+
+float TransformedObject::scale() const
+{
+  return d->scale;
 }
 
 

@@ -56,6 +56,11 @@ namespace anatomist
     TransformedObject( const std::vector<AObject *> &,
                        bool followorientation=true,
                        bool followposition=false,
+                       const Point3df & pos=Point3df( 1, 1, 0 ),
+                       bool strongrefs=false );
+    TransformedObject( const std::vector<carto::shared_ptr<AObject> > &,
+                       bool followorientation=true,
+                       bool followposition=false,
                        const Point3df & pos=Point3df( 1, 1, 0 ) );
     virtual ~TransformedObject();
 
@@ -71,6 +76,8 @@ namespace anatomist
     void removeDynamicOffset();
     bool usesDynamicOffset() const;
     Point3df dynamicOffsetFromPoint() const;
+    void setScale( float scale );
+    float scale() const;
 
   protected:
     void setupTransforms( GLPrimitives &, const ViewState & );

@@ -52,7 +52,7 @@ using namespace std;
 
 MObject::~MObject()
 {
-  /*	Children objects cannot been removed in MObject destructor 
+  /*	Children objects cannot be removed in MObject destructor
 	because they have to be destroyed in the specific destructors of 
 	derivated classes, which is called *before* ~MObject, 
 	so no objects (and even no list) exist any longer now.
