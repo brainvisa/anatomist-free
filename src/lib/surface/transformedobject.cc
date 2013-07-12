@@ -240,7 +240,8 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     /* keep the rotation part of the view orientation, removing the
       translation part */
     Point3df trans = view->rotationCenter();
-    glTranslatef( trans[0], trans[1], trans[2] );
+    // TODO: find a better center than this -0.5
+    glTranslatef( trans[0] - 0.5, trans[1] - 0.5, trans[2] + 0.5 );
     glScalef( d->scale, d->scale, d->scale );
   }
 
