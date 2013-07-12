@@ -34,8 +34,13 @@
 #ifndef ANATOMIST_PROCESSOR_SERVER_H
 #define ANATOMIST_PROCESSOR_SERVER_H
 
+#include <qobject.h>
+
 namespace anatomist
 {
+
+#ifdef QT3_SUPPORT
+
   namespace internal
   {
     class CommandServerSocket;
@@ -60,8 +65,37 @@ namespace anatomist
     void run();
     void newConnection( int sock );
 
+    Private     *d;
+  };
+
+#else
+
+  class CommandServer : QObject
+  {
+    Q_OBJECT
+
+  public:
+    CommandServer( int portnum );
+    ~CommandServer();
+    int port() const;
+    void setPort( int p );
+    bool ok() const;
+
+    /// singleton
+    static CommandServer* server();
+
+  private slots:
+    virtual void newConnection();
+
+  private:
+    struct Private;
+
+    void run();
+
     Private	*d;
   };
+
+#endif
 
 }
 
