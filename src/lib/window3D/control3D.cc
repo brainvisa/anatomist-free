@@ -1453,6 +1453,10 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SliceAction" ), 
                             &SliceAction::toggleLinkedOnSlider ) );
 
+  // wheel zoom
+  wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
+                       ( actionPool->action( "Zoom3DAction" ), 
+                         &Zoom3DAction::zoomWheel ) );
   // oblique trackball
 
   mouseLongEventSubscribe
