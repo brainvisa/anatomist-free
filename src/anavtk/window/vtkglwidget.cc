@@ -389,6 +389,7 @@ QSize vtkQAGLWidget::sizeHint() const
 
 void vtkQAGLWidget::updateGL()
 {
+  bool done = false;
   if( dynamic_cast<QGraphicsView *>( parent() ) )
   {
     // cout << "updateGL in a QGraphicsView\n";
@@ -396,10 +397,11 @@ void vtkQAGLWidget::updateGL()
       = dynamic_cast<QGraphicsView *>( parent() );
     if( gv->scene() )
       gv->scene()->update();
-    return;
+    done = true;
   }
 
-  vtkGLWidget::updateGL();
+  if( !done )
+    vtkGLWidget::updateGL();
 
   if( recording() )
     record();

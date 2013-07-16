@@ -903,6 +903,7 @@ void GLWidgetManager::setBackgroundAlpha( float a )
 
 void GLWidgetManager::updateGL()
 {
+  bool done = false;
   if( _pd->glwidget
     && dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() ) )
   {
@@ -911,13 +912,17 @@ void GLWidgetManager::updateGL()
       = dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() );
     if( gv->scene() )
       gv->scene()->update();
-    return;
+    done = true;
   }
 
-  if( dynamic_cast<QGLWidget *>( this ) == _pd->glwidget )
-    _pd->glwidget->QGLWidget::updateGL();
-  else
-    _pd->glwidget->updateGL();
+  if( !done )
+  {
+    if( dynamic_cast<QGLWidget *>( this ) == _pd->glwidget )
+      _pd->glwidget->QGLWidget::updateGL();
+    else
+      _pd->glwidget->updateGL();
+  }
+
   if( _pd->record )
     record();
   if( _pd->righteye )
@@ -1115,6 +1120,7 @@ void GLWidgetManager::recordStart( const QString & basename,
   }
   else
     _pd->recordSuffix = "";
+  cout << "record ON\n";
   _pd->record = true;
   _pd->recIndex = 0;
 }

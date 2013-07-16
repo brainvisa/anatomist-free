@@ -74,8 +74,6 @@ string TrackObliqueSlice::name() const
 
 void TrackObliqueSlice::moveTrackball( int x, int y, int, int )
 {
-  Trackball::moveTrackballInternal( x, y );
-
   Quaternion	q = rotation( x, y ).inverse() * _beginslice;
 
   q.norm();
@@ -85,7 +83,6 @@ void TrackObliqueSlice::moveTrackball( int x, int y, int, int )
     return;
 
   w3->setSliceQuaternion( q );
-  w3->Refresh();
 
   // send event
   Object	ex = Object::value( Dictionary() );
@@ -107,5 +104,7 @@ void TrackObliqueSlice::moveTrackball( int x, int y, int, int )
   ev.send();
 
   _boxviewslice->moveTrackball( x, y );
+  Trackball::moveTrackballInternal( x, y );
+  w3->Refresh();
 }
 
