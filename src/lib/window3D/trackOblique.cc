@@ -36,6 +36,7 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glwidget.h>
 #include <anatomist/processor/event.h>
+#include <anatomist/window3D/boxviewslice.h>
 #include <iostream>
 
 using namespace anatomist;
@@ -44,18 +45,21 @@ using namespace carto;
 using namespace std;
 
 
-TrackOblique::TrackOblique() : Trackball()
+TrackOblique::TrackOblique() 
+  : Trackball(), _boxviewslice( new BoxViewSlice( this ) )
 {
 }
 
 
-TrackOblique::TrackOblique( const TrackOblique & a ) : Trackball( a )
+TrackOblique::TrackOblique( const TrackOblique & a )
+  : Trackball( a ), _boxviewslice( new BoxViewSlice( this ) )
 {
 }
 
 
 TrackOblique::~TrackOblique()
 {
+  delete _boxviewslice;
 }
 
 
@@ -87,9 +91,9 @@ void TrackOblique::beginTrackball( int x, int y, int globalX, int globalY )
   Trackball::beginTrackball( x, y, globalX, globalY );
 
   if( w )
-    {
-      _beginslice = w->sliceQuaternion();
-    }
+    _beginslice = w->sliceQuaternion();
+
+  _boxviewslice->beginTrackball( x, y );
 }
 
 
@@ -159,4 +163,15 @@ void TrackOblique::moveTrackball( int x, int y, int, int )
   ex->setProperty( "position", Object::value( vf ) );
   OutputEvent	ev( "Slice", ex );
   ev.send();
+
+  _boxviewslice->moveTrackball( x, y );
 }
+
+
+void TrackOblique::endTrackball( int x, int y, int globalX, int globalY )
+{
+  _boxviewslice->endTrackball( x, y );
+
+  Trackball::endTrackball( x, y, globalX, globalY );
+}
+

@@ -185,6 +185,7 @@ HEADERS = \
 	window/Window.h \
         window3D/agraphicsview_p.h \
         window3D/annotedgraph.h \
+        window3D/boxviewslice.h \
         window3D/connmatrixcontrol.h \
         window3D/orientationAnnotation.h \
 	window3D/cursor.h \
@@ -422,6 +423,7 @@ SOURCES = \
 	window/Window.cc \
         window3D/agraphicsview.cc \
         window3D/annotedgraph.cc \
+        window3D/boxviewslice.cc \
         window3D/connmatrixcontrol.cc \
         window3D/orientationAnnotation.cc \
 	window3D/cursor.cc \

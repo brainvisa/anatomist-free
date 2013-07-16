@@ -36,6 +36,7 @@
 #include <anatomist/controler/view.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/processor/event.h>
+#include <anatomist/window3D/boxviewslice.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -104,5 +105,7 @@ void TrackObliqueSlice::moveTrackball( int x, int y, int, int )
   ex->setProperty( "position", Object::value( vf ) );
   OutputEvent	ev( "Slice", ex );
   ev.send();
+
+  _boxviewslice->moveTrackball( x, y );
 }
 

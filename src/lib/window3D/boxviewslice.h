@@ -32,38 +32,58 @@
  */
 
 
-#ifndef ANATOMIST_WINDOW3D_TRACKOBLIQUE
-#define ANATOMIST_WINDOW3D_TRACKOBLIQUE
+#ifndef ANATOMIST_WINDOW3D_BOXVIEWSLICE_H
+#define ANATOMIST_WINDOW3D_BOXVIEWSLICE_H
 
-#include <anatomist/window3D/trackball.h>
 
+#include <aims/vector/vector.h>
+
+class QGraphicsView;
+class QString;
 
 namespace anatomist
 {
-  class BoxViewSlice;
+  class Action;
+  class AObject;
 
-  class TrackOblique : public Trackball
+  class BoxViewSlice
   {
   public:
-    static Action * creator() ;
+    BoxViewSlice( Action* action );
+    virtual ~BoxViewSlice();
 
-    TrackOblique();
-    TrackOblique( const TrackOblique & a );
-    virtual ~TrackOblique();
+    virtual void beginTrackball( int x, int y );
+    virtual void moveTrackball( int x, int y );
+    virtual void endTrackball( int x, int y );
 
-    virtual std::string name() const;
+    void initOjects();
+    void buildSmallBox();
+    void buildCube();
+    void buildPlane();
+    void removeObjects();
+    QGraphicsView* graphicsView();
+    void updateText( const QString & );
 
-    virtual void beginTrackball( int x, int y, int globalX, int globalY );
-    virtual void moveTrackball( int x, int y, int globalX, int globalY );
-    virtual void endTrackball( int x, int y, int globalX, int globalY );
-    aims::Quaternion rotation( int x, int y );
-    aims::Quaternion beginQuaternion() const;
+    void drawText( float posx, float posy, const QString & text );
+    float objectsSize();
+    void updateRect();
+    /** Intersect plane (pnorm, d) with line (linedir, x0)
+    pnorm: normal vector to plane
+    d: plane equation offset
+    linedir: line vector
+    x0: point in the line
+    returns: pair( valid, lambda coef ) (pos=x0+lambda*linedir)
+    */
+    std::pair<bool, float> lineIntersect( const Point3df & pnorm, float d,
+      const Point3df & linedir, const Point3df & x0 );
+    void clearTmpItems();
 
-  protected:
-    aims::Quaternion	_beginslice;
-    BoxViewSlice        *_boxviewslice;
+  private:
+    struct Private;
+    Private *d;
   };
 
 }
 
 #endif
+
