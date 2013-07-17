@@ -105,6 +105,6 @@ void TrackObliqueSlice::moveTrackball( int x, int y, int, int )
 
   _boxviewslice->moveTrackball( x, y );
   Trackball::moveTrackballInternal( x, y );
-  w3->Refresh();
+  w3->refreshNow();
 }
 

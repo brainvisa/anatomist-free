@@ -143,7 +143,6 @@ void TrackOblique::moveTrackball( int x, int y, int, int )
     return;
 
   w3->setSliceQuaternion( q );
-  w3->Refresh();
 
   // send event
   Object	ex = Object::value( Dictionary() );
@@ -165,6 +164,7 @@ void TrackOblique::moveTrackball( int x, int y, int, int )
   ev.send();
 
   _boxviewslice->moveTrackball( x, y );
+  w3->refreshNow();
 }
 
 

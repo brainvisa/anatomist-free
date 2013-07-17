@@ -2848,6 +2848,7 @@ const Quaternion & AWindow3D::sliceQuaternion() const
 void AWindow3D::setSliceQuaternion(const Quaternion & q)
 {
   d->slicequat = q;
+  d->refreshneeded = Private::FullRefresh;
 }
 
 void AWindow3D::setSliceOrientation( const Point3df & normal )
