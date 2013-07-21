@@ -56,12 +56,35 @@ using namespace std;
 
 struct BoxViewSlice::Private
 {
+  Private();
+
   Action* action;
   rc_ptr<AObject> cube;
   rc_ptr<AObject> rect;
   rc_ptr<AObject> smallobj;
   list<QGraphicsItem *> tmpitems;
+  float cubecol[4];
+  float planecol[4];
+  int textcol[3];
+  Referential *ref;
 };
+
+
+BoxViewSlice::Private::Private()
+  : ref( 0 )
+{
+  cubecol[0] = 0.6;
+  cubecol[1] = 0.6;
+  cubecol[2] = 0.;
+  cubecol[3] = 1.;
+  planecol[0] = 1.;
+  planecol[1] = 0.5;
+  planecol[2] = 0.;
+  planecol[3] = 1.;
+  textcol[0] = 160;
+  textcol[1] = 100;
+  textcol[2] = 40;
+}
 
 
 BoxViewSlice::BoxViewSlice( Action* action )
@@ -162,8 +185,13 @@ void BoxViewSlice::buildCube()
     acube->setSurface( mesh );
     acube->setName( theAnatomist->makeObjectName( "cube" ) );
     theAnatomist->registerObject( acube, false );
+    if( d->ref )
+      acube->setReferential( d->ref );
+    else
+      acube->setReferential( d->action->view()->aWindow()->getReferential() );
     Material mat = acube->GetMaterial();
-    mat.SetDiffuse( 0.6, 0.6, 0, 1 );
+    mat.SetDiffuse( d->cubecol[0], d->cubecol[1], d->cubecol[2], 
+                    d->cubecol[3] );
     mat.setRenderProperty( Material::Ghost, 1 );
     mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
     acube->SetMaterial( mat );
@@ -186,8 +214,13 @@ void BoxViewSlice::buildPlane()
   arect->setSurface( mesh );
   arect->setName( theAnatomist->makeObjectName( "plane" ) );
   theAnatomist->registerObject( arect, false );
+  if( d->ref )
+    arect->setReferential( d->ref );
+  else
+    arect->setReferential( d->action->view()->aWindow()->getReferential() );
   Material mat = arect->GetMaterial();
-  mat.SetDiffuse( 1., 0.5, 0, 1 );
+  mat.SetDiffuse( d->planecol[0], d->planecol[1], d->planecol[2], 
+                  d->planecol[3] );
   mat.setRenderProperty( Material::Ghost, 1 );
   mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
   mat.setLineWidth( 2. );
@@ -200,9 +233,12 @@ void BoxViewSlice::buildPlane()
 void BoxViewSlice::removeObjects()
 {
   AWindow *win = d->action->view()->aWindow();
-  win->unregisterObject( d->smallobj.get() );
-  win->unregisterObject( d->rect.get() );
-  win->unregisterObject( d->cube.get() );
+  if( !d->smallobj.isNull() )
+    win->unregisterObject( d->smallobj.get() );
+  if( !d->rect.isNull() )
+    win->unregisterObject( d->rect.get() );
+  if( !d->cube.isNull() )
+    win->unregisterObject( d->cube.get() );
   QGraphicsView *gview = graphicsView();
   if( !gview )
     return;
@@ -398,7 +434,8 @@ void BoxViewSlice::drawText( float posx, float posy, const QString & text )
 {
   QGraphicsView *gview = graphicsView();
   QGraphicsTextItem *gtext = new QGraphicsTextItem;
-  gtext->setDefaultTextColor( QColor( 160, 100, 40 ) );
+  gtext->setDefaultTextColor( QColor( d->textcol[0], d->textcol[1], 
+                                      d->textcol[2] ) );
   QFont font = gtext->font();
   font.setPointSize( 8 );
   gtext->setFont( font );
@@ -424,6 +461,58 @@ void BoxViewSlice::clearTmpItems()
     delete *it;
   }
   d->tmpitems.clear();
+}
+
+
+void BoxViewSlice::setCubeColor( float r, float g, float b, float a )
+{
+  d->cubecol[0] = r;
+  d->cubecol[1] = g;
+  d->cubecol[2] = b;
+  d->cubecol[3] = a;
+  if( !d->cube.isNull() )
+  {
+    Material & mat = d->cube->GetMaterial();
+    mat.SetDiffuse( r, g, b, a );
+    d->cube->SetMaterial( mat );
+  }
+}
+
+
+void BoxViewSlice::setPlaneColor( float r, float g, float b, float a )
+{
+  d->planecol[0] = r;
+  d->planecol[1] = g;
+  d->planecol[2] = b;
+  d->planecol[3] = a;
+  if( !d->rect.isNull() )
+  {
+    Material & mat = d->rect->GetMaterial();
+    mat.SetDiffuse( r, g, b, a );
+    d->rect->SetMaterial( mat );
+  }
+}
+
+
+void BoxViewSlice::setTextColor( float r, float g, float b )
+{
+  d->textcol[0] = int( r * 255.99 );
+  d->textcol[1] = int( g * 255.99 );
+  d->textcol[2] = int( b * 255.99 );
+}
+
+
+void BoxViewSlice::setObjectsReferential( Referential* ref )
+{
+  if( d->ref == ref )
+    return;
+  d->ref = ref;
+  if( !ref )
+    ref = d->action->view()->aWindow()->getReferential();
+  if( !d->cube.isNull() )
+    d->cube->setReferential( ref );
+  if( !d->rect.isNull() )
+    d->rect->setReferential( ref );
 }
 
 

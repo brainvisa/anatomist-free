@@ -45,6 +45,7 @@ namespace anatomist
 {
   class Action;
   class AObject;
+  class Referential;
 
   class BoxViewSlice
   {
@@ -55,6 +56,11 @@ namespace anatomist
     virtual void beginTrackball( int x, int y );
     virtual void moveTrackball( int x, int y );
     virtual void endTrackball( int x, int y );
+
+    void setCubeColor( float r, float g, float b, float a );
+    void setPlaneColor( float r, float g, float b, float a );
+    void setTextColor( float r, float g, float b );
+    void setObjectsReferential( Referential* ref );
 
     void initOjects();
     void buildSmallBox();

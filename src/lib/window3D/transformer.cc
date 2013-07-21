@@ -40,15 +40,35 @@
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cLoadTransformation.h>
 #include <anatomist/processor/Processor.h>
+#include <anatomist/window3D/boxviewslice.h>
 #include <iostream>
 
 using namespace anatomist;
 using namespace aims;
+using namespace carto;
 using namespace std;
 
 
-Transformer::Transformer() : Trackball()
+struct Transformer::Private
 {
+  rc_ptr<BoxViewSlice> box1;
+  rc_ptr<BoxViewSlice> box2;
+};
+
+
+struct TranslaterAction::Private
+{
+  rc_ptr<BoxViewSlice> box1;
+  rc_ptr<BoxViewSlice> box2;
+};
+
+
+Transformer::Transformer() : Trackball(), d( new Private )
+{
+  d->box1.reset( new BoxViewSlice( this ) );
+  d->box2.reset( new BoxViewSlice( this ) );
+  d->box2->setCubeColor( 0., 1., 0.5, 1. );
+  d->box2->setPlaneColor( 0.2, 0.6, 0.2, 1. );
 }
 
 
@@ -59,6 +79,7 @@ Transformer::Transformer( const Transformer & a ) : Trackball( a )
 
 Transformer::~Transformer()
 {
+  delete d;
 }
 
 
@@ -94,53 +115,58 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   _itrans.clear();
 
   for( io=obj.begin(); io!=eo; ++io )
+  {
+    ref = (*io)->getReferential();
+    t = theAnatomist->getTransformation( ref, cref );
+    if( t && !t->isGenerated() )
     {
-      ref = (*io)->getReferential();
-      t = theAnatomist->getTransformation( ref, cref );
-      if( t && !t->isGenerated() )
-	{
-	  cobj.insert( *io );
-	  _trans[ t ] = *t;
-	}
-      else
-	{
-	  t = theAnatomist->getTransformation( cref, ref );
-	  if( t && !t->isGenerated() )
-	    {
-	      iobj.insert( *io );
-	      _itrans[ t ] = *t;
-	    }
-	  else
-	    nobj.insert( *io );
-	}
+      cobj.insert( *io );
+      _trans[ t ] = *t;
     }
+    else
+    {
+      t = theAnatomist->getTransformation( cref, ref );
+      if( t && !t->isGenerated() )
+      {
+        iobj.insert( *io );
+        _itrans[ t ] = *t;
+      }
+      else
+        nobj.insert( *io );
+    }
+  }
 
   if( !nobj.empty() )
-    {
-      set<AWindow *> wins;
-      AssignReferentialCommand	*com = new AssignReferentialCommand( 0, nobj, 
-								     wins );
-      theProcessor->execute( com );
-      ref = com->ref();
-      cobj.insert( nobj.begin(), nobj.end() );
-      float		matvec[4][3];
-      matvec[0][0] = 0;
-      matvec[0][1] = 0;
-      matvec[0][2] = 0;
-      matvec[1][0] = 1;
-      matvec[1][1] = 0;
-      matvec[1][2] = 0;
-      matvec[2][0] = 0;
-      matvec[2][1] = 1;
-      matvec[2][2] = 0;
-      matvec[3][0] = 0;
-      matvec[3][1] = 0;
-      matvec[3][2] = 1;
-      LoadTransformationCommand	*tc 
-	= new LoadTransformationCommand( matvec, ref, cref );
-      theProcessor->execute( tc );
-      _trans[ tc->trans() ] = *tc->trans();
-    }
+  {
+    set<AWindow *> wins;
+    AssignReferentialCommand	*com = new AssignReferentialCommand( 0, nobj, 
+                                                                    wins );
+    theProcessor->execute( com );
+    ref = com->ref();
+    cobj.insert( nobj.begin(), nobj.end() );
+    float		matvec[4][3];
+    matvec[0][0] = 0;
+    matvec[0][1] = 0;
+    matvec[0][2] = 0;
+    matvec[1][0] = 1;
+    matvec[1][1] = 0;
+    matvec[1][2] = 0;
+    matvec[2][0] = 0;
+    matvec[2][1] = 1;
+    matvec[2][2] = 0;
+    matvec[3][0] = 0;
+    matvec[3][1] = 0;
+    matvec[3][2] = 1;
+    LoadTransformationCommand	*tc 
+      = new LoadTransformationCommand( matvec, ref, cref );
+    theProcessor->execute( tc );
+    _trans[ tc->trans() ] = *tc->trans();
+  }
+
+  d->box1->setObjectsReferential( ref );
+  d->box2->setObjectsReferential( cref );
+  d->box1->beginTrackball( x, y );
+  d->box2->beginTrackball( x, y );
 }
 
 
@@ -183,10 +209,10 @@ void Transformer::moveTrackball( int x, int y, int, int )
 {
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
-    {
-      cerr << "Tranformer operating on wrong view type -- error\n";
-      return;
-    }
+  {
+    cerr << "Tranformer operating on wrong view type -- error\n";
+    return;
+  }
 
   Quaternion	q = rotation( x, y );
   q.norm();
@@ -201,37 +227,54 @@ void Transformer::moveTrackball( int x, int y, int, int )
 
   map<Transformation*, Transformation>::iterator	it, et = _trans.end();
   for( it=_trans.begin(); it!=et; ++it )
+  {
+    it->first->unregisterTrans();
+    *it->first = t;
+    *it->first *= it->second;
+    it->first->registerTrans();
+  }
+
+  if( !_itrans.empty() )
+  {
+    t.invert();
+    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
     {
       it->first->unregisterTrans();
       *it->first = t;
       *it->first *= it->second;
       it->first->registerTrans();
     }
-
-  if( !_itrans.empty() )
-    {
-      t.invert();
-      for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
-	{
-	  it->first->unregisterTrans();
-	  *it->first = t;
-	  *it->first *= it->second;
-	  it->first->registerTrans();
-	}
-    }
+  }
+//   d->box1->moveTrackball( x, y );
+//   d->box2->moveTrackball( x, y );
+  AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w3 )
+    w3->refreshNow();
 }
 
+
+void Transformer::endTrackball( int x, int y, int globx, int globy )
+{
+  d->box1->endTrackball( x, y );
+  d->box2->endTrackball( x, y );
+  Trackball::endTrackball( x, y, globx, globy );
+}
 
 // ------------------
 
 
-TranslaterAction::TranslaterAction() : Action()
+TranslaterAction::TranslaterAction() : Action(), d( new Private )
 {
+  d->box1.reset( new BoxViewSlice( this ) );
+  d->box2.reset( new BoxViewSlice( this ) );
+  d->box2->setCubeColor( 0., 1., 0.5, 1. );
+  d->box2->setPlaneColor( 0.2, 0.6, 0.2, 1. );
 }
 
 
 TranslaterAction::~TranslaterAction()
 {
+  delete d;
 }
 
 
@@ -275,70 +318,75 @@ void TranslaterAction::begin( int x, int y, int, int )
   _beginy = y;
 
   for( io=obj.begin(); io!=eo; ++io )
+  {
+    ref = (*io)->getReferential();
+    t = theAnatomist->getTransformation( ref, cref );
+    if( t && !t->isGenerated() )
     {
-      ref = (*io)->getReferential();
-      t = theAnatomist->getTransformation( ref, cref );
-      if( t && !t->isGenerated() )
-	{
-	  cobj.insert( *io );
-	  _trans[ t ] = *t;
-	}
-      else
-	{
-	  t = theAnatomist->getTransformation( cref, ref );
-	  if( t && !t->isGenerated() )
-	    {
-	      iobj.insert( *io );
-	      _itrans[ t ] = *t;
-	    }
-	  else
-	    nobj.insert( *io );
-	}
+      cobj.insert( *io );
+      _trans[ t ] = *t;
     }
+    else
+    {
+      t = theAnatomist->getTransformation( cref, ref );
+      if( t && !t->isGenerated() )
+      {
+        iobj.insert( *io );
+        _itrans[ t ] = *t;
+      }
+      else
+        nobj.insert( *io );
+    }
+  }
 
   if( !nobj.empty() )
-    {
-      set<AWindow *> wins;
-      AssignReferentialCommand	*com = new AssignReferentialCommand( 0, nobj, 
-								     wins );
-      theProcessor->execute( com );
-      ref = com->ref();
-      cobj.insert( nobj.begin(), nobj.end() );
-      float		matvec[4][3];
-      matvec[0][0] = 0;
-      matvec[0][1] = 0;
-      matvec[0][2] = 0;
-      matvec[1][0] = 1;
-      matvec[1][1] = 0;
-      matvec[1][2] = 0;
-      matvec[2][0] = 0;
-      matvec[2][1] = 1;
-      matvec[2][2] = 0;
-      matvec[3][0] = 0;
-      matvec[3][1] = 0;
-      matvec[3][2] = 1;
-      LoadTransformationCommand	*tc 
-	= new LoadTransformationCommand( matvec, ref, cref );
-      theProcessor->execute( tc );
-      _trans[ tc->trans() ] = *tc->trans();
-    }
+  {
+    set<AWindow *> wins;
+    AssignReferentialCommand	*com = new AssignReferentialCommand( 0, nobj, 
+                                                                    wins );
+    theProcessor->execute( com );
+    ref = com->ref();
+    cobj.insert( nobj.begin(), nobj.end() );
+    float		matvec[4][3];
+    matvec[0][0] = 0;
+    matvec[0][1] = 0;
+    matvec[0][2] = 0;
+    matvec[1][0] = 1;
+    matvec[1][1] = 0;
+    matvec[1][2] = 0;
+    matvec[2][0] = 0;
+    matvec[2][1] = 1;
+    matvec[2][2] = 0;
+    matvec[3][0] = 0;
+    matvec[3][1] = 0;
+    matvec[3][2] = 1;
+    LoadTransformationCommand	*tc 
+      = new LoadTransformationCommand( matvec, ref, cref );
+    theProcessor->execute( tc );
+    _trans[ tc->trans() ] = *tc->trans();
+  }
+
+  d->box1->setObjectsReferential( ref );
+  d->box2->setObjectsReferential( cref );
+  d->box1->beginTrackball( x, y );
+  d->box2->beginTrackball( x, y );
 }
 
 
 void TranslaterAction::move( int x, int y, int, int )
 {
   if( !_started )
-    {
-      cerr << "error: translation not started (BUG)\n";
-      return;
-    }
+  {
+    cerr << "error: translation not started (BUG)\n";
+    return;
+  }
 
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
-    {
-      cerr << "Translate3DAction operating on wrong view type -- error\n";
-      return;
-    }
+  {
+    cerr << "Translate3DAction operating on wrong view type -- error\n";
+    return;
+  }
 
   // cout << "translater move\n";
   float	mx = _beginx - x;
@@ -346,15 +394,15 @@ void TranslaterAction::move( int x, int y, int, int )
   Point3df	sz = w->windowBoundingMax() - w->windowBoundingMin();
   float oratio = float(w->width()) / w->height() / sz[0] * sz[1];
   if( oratio <= 1 )
-    {
-      mx *= sz[0] / w->width();
-      my *= sz[1] / w->height() / oratio;
-    }
+  {
+    mx *= sz[0] / w->width();
+    my *= sz[1] / w->height() / oratio;
+  }
   else
-    {
-      mx *= sz[0] / w->width() * oratio;
-      my *= sz[1] / w->height();
-    }
+  {
+    mx *= sz[0] / w->width() * oratio;
+    my *= sz[1] / w->height();
+  }
   mx /= w->zoom();
   my /= w->zoom();
   Point3df	p = w->quaternion().inverse().apply( Point3df( mx, my, 0 ) );
@@ -366,32 +414,39 @@ void TranslaterAction::move( int x, int y, int, int )
 
   map<Transformation*, Transformation>::iterator	it, et = _trans.end();
   for( it=_trans.begin(); it!=et; ++it )
+  {
+    it->first->unregisterTrans();
+    *it->first = t;
+    *it->first *= it->second;
+    it->first->registerTrans();
+  }
+
+  if( !_itrans.empty() )
+  {
+    t.invert();
+    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
     {
       it->first->unregisterTrans();
+      it->first->setGenerated( true );
       *it->first = t;
       *it->first *= it->second;
       it->first->registerTrans();
     }
+  }
 
-  if( !_itrans.empty() )
-    {
-      t.invert();
-      for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
-	{
-	  it->first->unregisterTrans();
-	  it->first->setGenerated( true );
-	  *it->first = t;
-	  *it->first *= it->second;
-	  it->first->registerTrans();
-	}
-    }
-
+//   d->box1->moveTrackball( x, y );
+//   d->box2->moveTrackball( x, y );
+  AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w3 )
+    w3->refreshNow();
   // cout << "translation done\n";
 }
 
 
-void TranslaterAction::end( int, int, int, int )
+void TranslaterAction::end( int x, int y, int, int )
 {
+  d->box1->endTrackball( x, y );
+  d->box2->endTrackball( x, y );
   _started = false;
 }
 
