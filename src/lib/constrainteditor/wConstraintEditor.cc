@@ -90,7 +90,7 @@ struct ConstraintEditorWindow::Private
 
 ConstraintEditorWindow::Private::Private()
 : latlon(0), newTextureName(0), constraintTextureButton(0), meshSelect(0),
-  texSelect(0), texConstraint(NULL), nnodes(0), constraintTextureLabel(0), constraintListValues(0), constraintListButton(0)
+  texSelect(0), texConstraint(0), nnodes(0), constraintTextureLabel(0), constraintListValues(0), constraintListButton(0)
   ,constraintValuesType(0),constraintList(0)
 {
 }
@@ -174,7 +174,7 @@ void ConstraintEditorWindow::constraintListInit()
   char sep = carto::FileUtil::separator();
 
  string consfile = Paths::findResourceFile( string( "nomenclature" ) + sep
-   + "surfaceanalysis" + sep + "constraint_correspondance_2011.txt" );
+   + "surfaceanalysis" + sep + "constraint_correspondance_2012.txt" );
 
   cout << "Loading constraints file : " << consfile << endl;
 
@@ -238,10 +238,10 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   for( i=objects.begin(); i!=e; ++i )
   {
-    cout << (*i)->fileName() << "\n" << (*i)->type() << "\n";
+    cout << (*i)->fileName() << "\n";
 
     // mesh+texture type
-    if ((*i)->type()== 19)
+    if( (*i)->type()== AObject::TEXSURFACE )
     {
       MObject *mo = dynamic_cast<MObject *>( *i );
 
@@ -254,7 +254,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
     }
 
     // mesh type
-    if ((*i)->type()== 3)
+    if( (*i)->type()== AObject::TRIANG )
     {
       ATriangulated *surf = dynamic_cast<ATriangulated *>( *i );
 
@@ -267,10 +267,10 @@ void ConstraintEditorWindow::drawContents( const char *name,
         size_t nnodesm = aimss->vertex().size();
 
         if( d->texSelect && d->nnodes != nnodesm )
-          {
+        {
           cout << "texture is incompatible\n";
           d->texSelect = 0; // texture is incompatible: don't keep it'
-          }
+        }
 
         d->nnodes = nnodesm;
         d->meshSelect = surf;
@@ -279,7 +279,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
     }
 
     // texture type
-    if ((*i)->type()== 18)
+    if( (*i)->type()== AObject::TEXTURE )
     {
       ATexture *atex = dynamic_cast<ATexture *>( *i );
 
@@ -322,7 +322,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
     return;
   }
-  meshName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+  meshName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
+                                        QSizePolicy::Fixed ) );
 
   QWidget *hbt = new QWidget;
   hlay = new QHBoxLayout( hbt );
@@ -343,7 +344,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
     hlay->addWidget( d->newTextureName );
   }
 
-  d->newTextureName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+  d->newTextureName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
+                                                 QSizePolicy::Fixed ) );
 
   QWidget *hblatlon = new QWidget;
   hlay = new QHBoxLayout( hblatlon );
@@ -356,7 +358,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
   d->latlon->addItem( tr( "predefined constraints" ) );
   d->latlon->addItem( tr( "user defined" ));
 
-  d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+  d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
+                                         QSizePolicy::Fixed ) );
 
   QWidget *butts = new QWidget( this );
   hlay = new QHBoxLayout( butts );
@@ -380,7 +383,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
   d->constraintTextureButton->setIcon(QIcon(iconname.c_str()));
   d->constraintTextureButton->setToolTip( tr("Open map of constrained path"));
   d->constraintTextureButton->setIconSize(QSize(20, 20));
-  connect(d->constraintTextureButton, SIGNAL(clicked()), this, SLOT(constraintTexOpen()));
+  connect(d->constraintTextureButton, SIGNAL(clicked()),
+          this, SLOT(constraintTexOpen()));
 
   d->constraintTextureLabel = new QLabel( tr( "curvature (default)" ),hbtc);
   hlay->addWidget( d->constraintTextureLabel );
@@ -404,7 +408,8 @@ void ConstraintEditorWindow::drawContents( const char *name,
   constraintListInit();
 
 
-  connect(d->constraintListButton, SIGNAL(clicked()), this, SLOT(constraintListOpen()));
+  connect(d->constraintListButton, SIGNAL(clicked()),
+          this, SLOT(constraintListOpen()));
 
   mainlay->addWidget(hbm);
   mainlay->addWidget(hbt);
