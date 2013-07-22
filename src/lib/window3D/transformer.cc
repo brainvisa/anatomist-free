@@ -69,6 +69,10 @@ Transformer::Transformer() : Trackball(), d( new Private )
   d->box2.reset( new BoxViewSlice( this ) );
   d->box2->setCubeColor( 0., 1., 0.5, 1. );
   d->box2->setPlaneColor( 0.2, 0.6, 0.2, 1. );
+  d->box1->enablePlane( false );
+  d->box2->enablePlane( false );
+  d->box1->enableText( false );
+  d->box2->enableText( false );
 }
 
 
@@ -269,6 +273,10 @@ TranslaterAction::TranslaterAction() : Action(), d( new Private )
   d->box2.reset( new BoxViewSlice( this ) );
   d->box2->setCubeColor( 0., 1., 0.5, 1. );
   d->box2->setPlaneColor( 0.2, 0.6, 0.2, 1. );
+  d->box1->enablePlane( false );
+  d->box2->enablePlane( false );
+  d->box1->enableText( false );
+  d->box2->enableText( false );
 }
 
 

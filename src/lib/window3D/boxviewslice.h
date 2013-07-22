@@ -37,6 +37,7 @@
 
 
 #include <aims/vector/vector.h>
+#include <cartobase/smart/rcptr.h>
 
 class QGraphicsView;
 class QString;
@@ -61,6 +62,8 @@ namespace anatomist
     void setPlaneColor( float r, float g, float b, float a );
     void setTextColor( float r, float g, float b );
     void setObjectsReferential( Referential* ref );
+    void enablePlane( bool );
+    void enableText( bool );
 
     void initOjects();
     void buildSmallBox();
@@ -69,6 +72,7 @@ namespace anatomist
     void removeObjects();
     QGraphicsView* graphicsView();
     void updateText( const QString & );
+    void addObject( carto::rc_ptr<AObject> obj );
 
     void drawText( float posx, float posy, const QString & text );
     float objectsSize();

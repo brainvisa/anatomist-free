@@ -67,11 +67,14 @@ struct BoxViewSlice::Private
   float planecol[4];
   int textcol[3];
   Referential *ref;
+  bool planeEnabled;
+  bool textEnabled;
+  list<rc_ptr<AObject> > otherobjects;
 };
 
 
 BoxViewSlice::Private::Private()
-  : ref( 0 )
+  : ref( 0 ), planeEnabled( true ), textEnabled( true )
 {
   cubecol[0] = 0.6;
   cubecol[1] = 0.6;
@@ -110,7 +113,7 @@ void BoxViewSlice::moveTrackball( int x, int y )
 {
   updateRect();
   QGraphicsView *gview = graphicsView();
-  if( !gview )
+  if( !gview || !d->textEnabled )
     return;
   AWindow3D *win = static_cast<AWindow3D *>( d->action->view()->aWindow() );
   const Quaternion & sliceq = win->sliceQuaternion();
@@ -144,7 +147,8 @@ void BoxViewSlice::initOjects()
   buildSmallBox();
   AWindow* window = d->action->view()->aWindow();
   window->registerObject( d->cube.get(), true );
-  window->registerObject( d->rect.get(), true );
+  if( !d->rect.isNull() )
+    window->registerObject( d->rect.get(), true );
   window->registerObject( d->smallobj.get(), true );
 }
 
@@ -153,9 +157,15 @@ void BoxViewSlice::buildSmallBox()
 {
   if( !d->smallobj.isNull() )
     return; // already done
-  vector<AObject *> objs( 2 );
-  objs[0] = d->cube.get();
-  objs[1] = d->rect.get();
+
+  vector<AObject *> objs;
+  objs.reserve( 2 + d->otherobjects.size() );
+  objs.push_back( d->cube.get() );
+  if( !d->rect.isNull() )
+    objs.push_back( d->rect.get() );
+  list<rc_ptr<AObject> >::const_iterator io, eo = d->otherobjects.end();
+  for( io=d->otherobjects.begin(); io!=eo; ++io )
+    objs.push_back( io->get() );
   TransformedObject *smallobj 
     = new TransformedObject( objs, true, false, Point3df( 0, 0, 0 ), true );
   smallobj->setName( theAnatomist->makeObjectName( "smallbox" ) );
@@ -203,8 +213,9 @@ void BoxViewSlice::buildCube()
 
 void BoxViewSlice::buildPlane()
 {
-  if( !d->rect.isNull() )
+  if( !d->planeEnabled || !d->rect.isNull() )
     return;
+
   GLWidgetManager *view = static_cast<GLWidgetManager *>( d->action->view() );
   Point3df bbmin = view->boundingMin();
   Point3df bbmax = view->boundingMax();
@@ -275,6 +286,9 @@ namespace
 
 void BoxViewSlice::updateRect()
 {
+  if( d->rect.isNull() )
+    return;
+
   ASurface<2> *arect = static_cast<ASurface<2> *>( d->rect.get() );
   rc_ptr<AimsTimeSurface<2, Void> > rect = arect->surface();
   vector<Point3df> & vert = (*rect)[0].vertex();
@@ -418,6 +432,9 @@ QGraphicsView* BoxViewSlice::graphicsView()
 
 void BoxViewSlice::updateText( const QString & text )
 {
+  if( !d->textEnabled )
+    return;
+
   QGraphicsView *gview = graphicsView();
   QGraphicsScene *scene = gview->scene();
   if( !scene )
@@ -513,6 +530,38 @@ void BoxViewSlice::setObjectsReferential( Referential* ref )
     d->cube->setReferential( ref );
   if( !d->rect.isNull() )
     d->rect->setReferential( ref );
+}
+
+
+void BoxViewSlice::enablePlane( bool x )
+{
+  d->planeEnabled = x;
+  if( d->rect )
+  {
+    d->rect.reset();
+    if( d->smallobj )
+    {
+      d->smallobj.reset();
+      buildSmallBox();
+    }
+  }
+}
+
+
+void BoxViewSlice::enableText( bool x )
+{
+  d->textEnabled = x;
+}
+
+
+void BoxViewSlice::addObject( rc_ptr<AObject> obj )
+{
+  d->otherobjects.push_back( obj );
+  if( !d->smallobj.isNull() )
+  {
+    d->smallobj.reset();
+    buildSmallBox();
+  }
 }
 
 
