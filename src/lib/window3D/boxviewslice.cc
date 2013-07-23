@@ -150,6 +150,9 @@ void BoxViewSlice::initOjects()
   if( !d->rect.isNull() )
     window->registerObject( d->rect.get(), true );
   window->registerObject( d->smallobj.get(), true );
+  list<rc_ptr<AObject> >::iterator io, eo=d->otherobjects.end();
+  for( io=d->otherobjects.begin(); io!=eo; ++io )
+    window->registerObject( io->get(), true );
 }
 
 
@@ -246,6 +249,9 @@ void BoxViewSlice::removeObjects()
   AWindow *win = d->action->view()->aWindow();
   if( !d->smallobj.isNull() )
     win->unregisterObject( d->smallobj.get() );
+  list<rc_ptr<AObject> >::iterator io, eo=d->otherobjects.end();
+  for( io=d->otherobjects.begin(); io!=eo; ++io )
+    win->unregisterObject( io->get() );
   if( !d->rect.isNull() )
     win->unregisterObject( d->rect.get() );
   if( !d->cube.isNull() )
@@ -530,6 +536,9 @@ void BoxViewSlice::setObjectsReferential( Referential* ref )
     d->cube->setReferential( ref );
   if( !d->rect.isNull() )
     d->rect->setReferential( ref );
+  list<rc_ptr<AObject> >::iterator io, eo=d->otherobjects.end();
+  for( io=d->otherobjects.begin(); io!=eo; ++io )
+    (*io)->setReferential( ref );
 }
 
 
@@ -589,6 +598,12 @@ void BoxViewSlice::clearAdditionalObjects()
     d->smallobj.reset();
     buildSmallBox();
   }
+}
+
+
+list<rc_ptr<AObject> > & BoxViewSlice::additionalObjects()
+{
+  return d->otherobjects;
 }
 
 

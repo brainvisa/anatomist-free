@@ -38,6 +38,7 @@
 
 #include <aims/vector/vector.h>
 #include <cartobase/smart/rcptr.h>
+#include <list>
 
 class QGraphicsView;
 class QString;
@@ -75,6 +76,7 @@ namespace anatomist
     void addObject( carto::rc_ptr<AObject> obj );
     void removeObject( carto::rc_ptr<AObject> obj );
     void clearAdditionalObjects();
+    std::list<carto::rc_ptr<AObject> > & additionalObjects();
 
     void drawText( float posx, float posy, const QString & text );
     float objectsSize();

@@ -41,6 +41,9 @@
 #include <anatomist/commands/cLoadTransformation.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/window3D/boxviewslice.h>
+#include <anatomist/surface/surface.h>
+#include <aims/mesh/surfacegen.h>
+#include <aims/mesh/surfaceOperation.h>
 #include <iostream>
 
 using namespace anatomist;
@@ -63,16 +66,117 @@ struct TranslaterAction::Private
 };
 
 
+namespace
+{
+
+  rc_ptr<AObject> trieder( float colr, float colg, float colb, float cola )
+  {
+    AimsTimeSurface<2,Void> *cross = new AimsTimeSurface<2,Void>;
+    vector<Point3df> & vert = (*cross)[0].vertex();
+    vector<AimsVector<uint32_t,2> > & poly = (*cross)[0].polygon();
+    vert.reserve(4);
+    poly.reserve(3);
+    vert.push_back( Point3df( 0, 0, 0 ) );
+    vert.push_back( Point3df( 100, 0, 0 ) );
+    vert.push_back( Point3df( 0, 100, 0 ) );
+    vert.push_back( Point3df( 0, 0, 100 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 0, 1 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 0, 2 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 0, 3 ) );
+    ASurface<2>* amesh = new ASurface<2>;
+    rc_ptr<AObject> rmesh( amesh );
+    amesh->setSurface( cross );
+    Material & mat = amesh->GetMaterial();
+    mat.SetDiffuse( colr, colg, colb, cola );
+    mat.setRenderProperty( Material::Ghost, 1 );
+    mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
+    mat.setLineWidth( 2. );
+    amesh->SetMaterial( mat );
+    amesh->setName( theAnatomist->makeObjectName( "trieder" ) );
+    theAnatomist->registerObject( amesh, false );
+    theAnatomist->releaseObject( amesh );
+    return rmesh;
+  }
+
+  void initBoxes( BoxViewSlice & box1, BoxViewSlice & box2 )
+  {
+    box2.setCubeColor( 0., 1., 0.5, 1. );
+    box2.setPlaneColor( 0.2, 0.6, 0.2, 1. );
+    box1.enablePlane( false );
+    box2.enablePlane( false );
+    box1.enableText( false );
+    box2.enableText( false );
+    box1.addObject( trieder( 1., 0.5, 0., 1. ) );
+    box2.addObject( trieder( 0.2, 0.6, 0.2, 1. ) );
+  }
+
+
+  void updateAxisWithCircles( AimsTimeSurface<2,Void> &mesh,
+                              const Point3df & p0, const Quaternion & rotation,
+                              float radius, float circlespacing )
+  {
+    Point3df axis = rotation.axis();
+//     float angle = rotation.angle();
+    mesh[0].vertex().clear();
+    mesh[0].polygon().clear();
+    mesh[0].normal().clear();
+    Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
+    AimsTimeSurface<2,Void> *mesh2
+      = SurfaceGenerator::circle_wireframe( p0, radius, 20, axis, startdir );
+    SurfaceManip::meshMerge( mesh, *mesh2 );
+    delete mesh2;
+    mesh2 = SurfaceGenerator::circle_wireframe( p0 + axis * circlespacing,
+                                                radius, 20, axis, startdir );
+    SurfaceManip::meshMerge( mesh, *mesh2 );
+    delete mesh2;
+    mesh2 = SurfaceGenerator::circle_wireframe( p0 - axis * circlespacing,
+                                                radius, 20, axis, startdir );
+    SurfaceManip::meshMerge( mesh, *mesh2 );
+    delete mesh2;
+    // add axis
+    vector<Point3df> & vert = mesh[0].vertex();
+    vector<AimsVector<uint32_t,2> > & poly = mesh[0].polygon();
+    poly.push_back( AimsVector<uint32_t,2>( vert.size(), vert.size()+1 ) );
+    vert.push_back( p0 - axis * circlespacing * 2 );
+    vert.push_back( p0 + axis * circlespacing * 2 );
+  }
+
+
+  rc_ptr<AObject> axisWithCircles( const Point3df & p0,
+                                   const Quaternion & rotation,
+                                   float radius, float circlespacing,
+                                   float colr, float colg,
+                                   float colb, float cola )
+  {
+    Point3df axis = rotation.axis();
+    float angle = rotation.angle();
+    Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
+    AimsTimeSurface<2,Void> *mesh = new AimsTimeSurface<2,Void>;
+    updateAxisWithCircles( *mesh, p0, rotation, radius, circlespacing );
+
+    ASurface<2>* amesh = new ASurface<2>;
+    rc_ptr<AObject> rmesh( amesh );
+    amesh->setSurface( mesh );
+    Material & mat = amesh->GetMaterial();
+    mat.SetDiffuse( colr, colg, colb, cola );
+    mat.setRenderProperty( Material::Ghost, 1 );
+    mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
+    mat.setLineWidth( 2. );
+    amesh->SetMaterial( mat );
+    amesh->setName( theAnatomist->makeObjectName( "trieder" ) );
+    theAnatomist->registerObject( amesh, false );
+    theAnatomist->releaseObject( amesh );
+    return rmesh;
+  }
+
+}
+
+
 Transformer::Transformer() : Trackball(), d( new Private )
 {
   d->box1.reset( new BoxViewSlice( this ) );
   d->box2.reset( new BoxViewSlice( this ) );
-  d->box2->setCubeColor( 0., 1., 0.5, 1. );
-  d->box2->setPlaneColor( 0.2, 0.6, 0.2, 1. );
-  d->box1->enablePlane( false );
-  d->box2->enablePlane( false );
-  d->box1->enableText( false );
-  d->box2->enableText( false );
+  initBoxes( *d->box1, *d->box2 );
 }
 
 
@@ -167,6 +271,15 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     _trans[ tc->trans() ] = *tc->trans();
   }
 
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  if( w && d->box1->additionalObjects().size() <= 1 )
+  {
+    rc_ptr<AObject> axis = axisWithCircles( w->rotationCenter(), Quaternion(),
+                                            70, 100,
+                                            0.8, 0.3, 0.2, 1. );
+    d->box1->addObject( axis );
+  }
+
   d->box1->setObjectsReferential( ref );
   d->box2->setObjectsReferential( cref );
   d->box1->beginTrackball( x, y );
@@ -249,6 +362,15 @@ void Transformer::moveTrackball( int x, int y, int, int )
       it->first->registerTrans();
     }
   }
+
+
+  list<rc_ptr<AObject> > & addobj = d->box1->additionalObjects();
+  ASurface<2> *axis = dynamic_cast<ASurface<2> *>( addobj.rbegin()->get() );
+  if( axis )
+  {
+    updateAxisWithCircles( *axis->surface(), w->rotationCenter(), q, 70, 100 );
+    axis->glSetChanged( GLComponent::glGEOMETRY );
+  }
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -271,12 +393,7 @@ TranslaterAction::TranslaterAction() : Action(), d( new Private )
 {
   d->box1.reset( new BoxViewSlice( this ) );
   d->box2.reset( new BoxViewSlice( this ) );
-  d->box2->setCubeColor( 0., 1., 0.5, 1. );
-  d->box2->setPlaneColor( 0.2, 0.6, 0.2, 1. );
-  d->box1->enablePlane( false );
-  d->box2->enablePlane( false );
-  d->box1->enableText( false );
-  d->box2->enableText( false );
+  initBoxes( *d->box1, *d->box2 );
 }
 
 
