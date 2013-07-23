@@ -565,3 +565,30 @@ void BoxViewSlice::addObject( rc_ptr<AObject> obj )
 }
 
 
+void BoxViewSlice::removeObject( rc_ptr<AObject> obj )
+{
+  list<rc_ptr<AObject> >::iterator i, e = d->otherobjects.end();
+  for( i=d->otherobjects.begin(); i!=e && *i!=obj; ++i );
+  if( i != e )
+    d->otherobjects.erase( i );
+  if( !d->smallobj.isNull() )
+  {
+    d->smallobj.reset();
+    buildSmallBox();
+  }
+}
+
+
+void BoxViewSlice::clearAdditionalObjects()
+{
+  if( d->otherobjects.empty() )
+    return;
+  d->otherobjects.clear();
+  if( !d->smallobj.isNull() )
+  {
+    d->smallobj.reset();
+    buildSmallBox();
+  }
+}
+
+

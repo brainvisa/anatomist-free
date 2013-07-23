@@ -73,6 +73,8 @@ namespace anatomist
     QGraphicsView* graphicsView();
     void updateText( const QString & );
     void addObject( carto::rc_ptr<AObject> obj );
+    void removeObject( carto::rc_ptr<AObject> obj );
+    void clearAdditionalObjects();
 
     void drawText( float posx, float posy, const QString & text );
     float objectsSize();
