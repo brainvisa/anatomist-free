@@ -116,20 +116,24 @@ namespace
                               float radius, float circlespacing )
   {
     Point3df axis = rotation.axis();
+    float angle = rotation.angle();
     mesh[0].vertex().clear();
     mesh[0].polygon().clear();
     mesh[0].normal().clear();
     Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
     AimsTimeSurface<2,Void> *mesh2
-      = SurfaceGenerator::circle_wireframe( p0, radius, 20, axis, startdir );
+      = SurfaceGenerator::circle_wireframe( p0, radius, 20, axis, startdir,
+                                            angle, M_PI*2 );
     SurfaceManip::meshMerge( mesh, *mesh2 );
     delete mesh2;
     mesh2 = SurfaceGenerator::circle_wireframe( p0 + axis * circlespacing,
-                                                radius, 20, axis, startdir );
+                                                radius, 20, axis, startdir,
+                                                angle, M_PI*2 );
     SurfaceManip::meshMerge( mesh, *mesh2 );
     delete mesh2;
     mesh2 = SurfaceGenerator::circle_wireframe( p0 - axis * circlespacing,
-                                                radius, 20, axis, startdir );
+                                                radius, 20, axis, startdir,
+                                                angle, M_PI*2 );
     SurfaceManip::meshMerge( mesh, *mesh2 );
     delete mesh2;
     // add axis
@@ -147,25 +151,73 @@ namespace
   {
     Point3df axis = rotation.axis();
     float angle = rotation.angle();
-    mesh[0].vertex().clear();
-    mesh[0].polygon().clear();
+    vector<Point3df> & vert = mesh[0].vertex();
+    vector<AimsVector<uint32_t,2> > & poly = mesh[0].polygon();
+    vert.clear();
+    poly.clear();
     mesh[0].normal().clear();
     Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
+    Point3df arrowdir = crossed( axis, startdir );
+    Point3df raydir;
+    float arrowlen = 15;
+    float arrowthick = arrowlen * 0.3;
+    size_t nvert = 0;
+    bool doarrow = true;
+    if( arrowdir.norm2() < 1e-5 )
+      doarrow = false;
+    else
+    {
+      raydir = crossed( arrowdir, axis );
+      arrowdir = crossed( axis, raydir );
+      arrowdir.normalize();
+      raydir.normalize();
+      if( angle >= 0 )
+        arrowdir *= -1;
+    }
     AimsTimeSurface<2,Void> *mesh2
       = SurfaceGenerator::circle_wireframe( p0, radius, 20, axis, startdir,
                                             0, angle );
     SurfaceManip::meshMerge( mesh, *mesh2 );
     delete mesh2;
+    if( doarrow )
+    {
+      // add arrows
+      Point3df lastp = vert[ nvert ];
+      poly.push_back( AimsVector<uint32_t,2>( nvert, vert.size() ) );
+      poly.push_back( AimsVector<uint32_t,2>( nvert, vert.size()+1 ) );
+      vert.push_back( lastp - arrowdir * arrowlen + raydir * arrowthick );
+      vert.push_back( lastp - arrowdir * arrowlen - raydir * arrowthick );
+    }
+    nvert = vert.size();
     mesh2 = SurfaceGenerator::circle_wireframe( p0 + axis * circlespacing,
                                                 radius, 20, axis, startdir,
                                                 0, angle );
     SurfaceManip::meshMerge( mesh, *mesh2 );
     delete mesh2;
+    if( doarrow )
+    {
+      // add arrows
+      Point3df lastp = vert[ nvert ];
+      poly.push_back( AimsVector<uint32_t,2>( nvert, vert.size() ) );
+      poly.push_back( AimsVector<uint32_t,2>( nvert, vert.size()+1 ) );
+      vert.push_back( lastp - arrowdir * arrowlen + raydir * arrowthick );
+      vert.push_back( lastp - arrowdir * arrowlen - raydir * arrowthick );
+    }
+    nvert = vert.size();
     mesh2 = SurfaceGenerator::circle_wireframe( p0 - axis * circlespacing,
                                                 radius, 20, axis, startdir,
                                                 0, angle );
     SurfaceManip::meshMerge( mesh, *mesh2 );
     delete mesh2;
+    if( doarrow )
+    {
+      // add arrows
+      Point3df lastp = vert[ nvert ];
+      poly.push_back( AimsVector<uint32_t,2>( nvert, vert.size() ) );
+      poly.push_back( AimsVector<uint32_t,2>( nvert, vert.size()+1 ) );
+      vert.push_back( lastp - arrowdir * arrowlen + raydir * arrowthick );
+      vert.push_back( lastp - arrowdir * arrowlen - raydir * arrowthick );
+    }
   }
 
 
