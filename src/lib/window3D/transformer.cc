@@ -272,12 +272,11 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   }
 
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
-  if( w && d->box1->additionalObjects().size() <= 1 )
+  if( w && d->box2->additionalObjects().size() <= 1 )
   {
     rc_ptr<AObject> axis = axisWithCircles( w->rotationCenter(), Quaternion(),
-                                            70, 100,
-                                            0.8, 0.3, 0.2, 1. );
-    d->box1->addObject( axis );
+                                            70, 100, 0.8, 0.3, 0.2, 1. );
+    d->box2->addObject( axis );
   }
 
   d->box1->setObjectsReferential( ref );
@@ -327,7 +326,7 @@ void Transformer::moveTrackball( int x, int y, int, int )
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
   {
-    cerr << "Tranformer operating on wrong view type -- error\n";
+    cerr << "Transformer operating on wrong view type -- error\n";
     return;
   }
 
@@ -364,7 +363,7 @@ void Transformer::moveTrackball( int x, int y, int, int )
   }
 
 
-  list<rc_ptr<AObject> > & addobj = d->box1->additionalObjects();
+  list<rc_ptr<AObject> > & addobj = d->box2->additionalObjects();
   ASurface<2> *axis = dynamic_cast<ASurface<2> *>( addobj.rbegin()->get() );
   if( axis )
   {
