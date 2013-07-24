@@ -116,7 +116,6 @@ namespace
                               float radius, float circlespacing )
   {
     Point3df axis = rotation.axis();
-//     float angle = rotation.angle();
     mesh[0].vertex().clear();
     mesh[0].polygon().clear();
     mesh[0].normal().clear();
@@ -142,6 +141,54 @@ namespace
   }
 
 
+  void updateCirclesAngles( AimsTimeSurface<2,Void> &mesh,
+                            const Point3df & p0, const Quaternion & rotation,
+                            float radius, float circlespacing )
+  {
+    Point3df axis = rotation.axis();
+    float angle = rotation.angle();
+    mesh[0].vertex().clear();
+    mesh[0].polygon().clear();
+    mesh[0].normal().clear();
+    Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
+    AimsTimeSurface<2,Void> *mesh2
+      = SurfaceGenerator::circle_wireframe( p0, radius, 20, axis, startdir,
+                                            0, angle );
+    SurfaceManip::meshMerge( mesh, *mesh2 );
+    delete mesh2;
+    mesh2 = SurfaceGenerator::circle_wireframe( p0 + axis * circlespacing,
+                                                radius, 20, axis, startdir,
+                                                0, angle );
+    SurfaceManip::meshMerge( mesh, *mesh2 );
+    delete mesh2;
+    mesh2 = SurfaceGenerator::circle_wireframe( p0 - axis * circlespacing,
+                                                radius, 20, axis, startdir,
+                                                0, angle );
+    SurfaceManip::meshMerge( mesh, *mesh2 );
+    delete mesh2;
+  }
+
+
+  rc_ptr<AObject> ameshFromMesh( AimsTimeSurface<2,Void>* mesh,
+                                 const string & name, float colr, float colg,
+                                 float colb, float cola, float linewidth )
+  {
+    ASurface<2>* amesh = new ASurface<2>;
+    rc_ptr<AObject> rmesh( amesh );
+    amesh->setSurface( mesh );
+    Material & mat = amesh->GetMaterial();
+    mat.SetDiffuse( colr, colg, colb, cola );
+    mat.setRenderProperty( Material::Ghost, 1 );
+    mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
+    mat.setLineWidth( linewidth );
+    amesh->SetMaterial( mat );
+    amesh->setName( theAnatomist->makeObjectName( name ) );
+    theAnatomist->registerObject( amesh, false );
+    theAnatomist->releaseObject( amesh );
+    return rmesh;
+  }
+
+
   rc_ptr<AObject> axisWithCircles( const Point3df & p0,
                                    const Quaternion & rotation,
                                    float radius, float circlespacing,
@@ -154,18 +201,26 @@ namespace
     AimsTimeSurface<2,Void> *mesh = new AimsTimeSurface<2,Void>;
     updateAxisWithCircles( *mesh, p0, rotation, radius, circlespacing );
 
-    ASurface<2>* amesh = new ASurface<2>;
-    rc_ptr<AObject> rmesh( amesh );
-    amesh->setSurface( mesh );
-    Material & mat = amesh->GetMaterial();
-    mat.SetDiffuse( colr, colg, colb, cola );
-    mat.setRenderProperty( Material::Ghost, 1 );
-    mat.setRenderProperty( Material::RenderMode, Material::Wireframe );
-    mat.setLineWidth( 2. );
-    amesh->SetMaterial( mat );
-    amesh->setName( theAnatomist->makeObjectName( "trieder" ) );
-    theAnatomist->registerObject( amesh, false );
-    theAnatomist->releaseObject( amesh );
+    rc_ptr<AObject> rmesh = ameshFromMesh( mesh, "trieder", colr, colg, colb,
+                                           cola, 2. );
+    return rmesh;
+  }
+
+
+  rc_ptr<AObject> circlesWithAngle( const Point3df & p0,
+                                    const Quaternion & rotation,
+                                    float radius, float circlespacing,
+                                    float colr, float colg,
+                                    float colb, float cola )
+  {
+    Point3df axis = rotation.axis();
+    float angle = rotation.angle();
+    Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
+    AimsTimeSurface<2,Void> *mesh = new AimsTimeSurface<2,Void>;
+    updateCirclesAngles( *mesh, p0, rotation, radius, circlespacing );
+
+    rc_ptr<AObject> rmesh = ameshFromMesh( mesh, "rotationangle", colr, colg,
+                                           colb, cola, 3. );
     return rmesh;
   }
 
@@ -277,6 +332,10 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     rc_ptr<AObject> axis = axisWithCircles( w->rotationCenter(), Quaternion(),
                                             70, 100, 0.8, 0.3, 0.2, 1. );
     d->box2->addObject( axis );
+    rc_ptr<AObject> circles = circlesWithAngle( w->rotationCenter(),
+                                                Quaternion(), 70, 100,
+                                                0.3, 0., 0.8, 1. );
+    d->box2->addObject( circles );
   }
 
   d->box1->setObjectsReferential( ref );
@@ -364,7 +423,16 @@ void Transformer::moveTrackball( int x, int y, int, int )
 
 
   list<rc_ptr<AObject> > & addobj = d->box2->additionalObjects();
-  ASurface<2> *axis = dynamic_cast<ASurface<2> *>( addobj.rbegin()->get() );
+  list<rc_ptr<AObject> >::reverse_iterator io = addobj.rbegin();
+  ASurface<2> *circles = dynamic_cast<ASurface<2> *>( io->get() );
+  if( circles )
+  {
+    updateCirclesAngles( *circles->surface(), w->rotationCenter(), q,
+                         70, 100 );
+    circles->glSetChanged( GLComponent::glGEOMETRY );
+  }
+  ++io;
+  ASurface<2> *axis = dynamic_cast<ASurface<2> *>( io->get() );
   if( axis )
   {
     updateAxisWithCircles( *axis->surface(), w->rotationCenter(), q, 70, 100 );
