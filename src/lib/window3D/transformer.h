@@ -124,7 +124,11 @@ namespace anatomist
 
     virtual std::string name() const;
 
-    void move( int x, int y, int globalX, int globalY );
+    virtual void begin( int x, int y, int globalX, int globalY );
+    virtual void move( int x, int y, int globalX, int globalY );
+
+  protected:
+    virtual void updateTemporaryObjects( float zoom );
   };
 
 }

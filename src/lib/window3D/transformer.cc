@@ -276,6 +276,157 @@ namespace
     return rmesh;
   }
 
+
+  rc_ptr<AObject> zoomMarkers( const Point3df & p0, float radius,
+                               float colr, float colg, float colb, float cola )
+  {
+    AimsTimeSurface<2, Void> *mesh = new AimsTimeSurface<2, Void>;
+    vector<Point3df> & vert = (*mesh)[0].vertex();
+    vector<AimsVector<uint32_t,2> > & poly = (*mesh)[0].polygon();
+
+    vert.reserve( 16 );
+    poly.reserve( 8 );
+    vert.push_back( Point3df( p0 + Point3df( 1, 1, 1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, 1, 1 ) * radius * 0.7071 ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, -1, -1 ) * radius * 0.3535
+      ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, -1, -1 ) * radius * 0.7071
+      ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, 1, 1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, 1, 1 ) * radius * 0.7071 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, -1, -1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, -1, -1 ) * radius * 0.7071 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, -1, 1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, -1, 1 ) * radius * 0.7071 ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, 1, -1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, 1, -1 ) * radius * 0.7071 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, 1, -1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( 1, 1, -1 ) * radius * 0.7071 ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, -1, 1 ) * radius * 0.3535 ) );
+    vert.push_back( Point3df( p0 + Point3df( -1, -1, 1 ) * radius * 0.7071 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 0, 1 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 2, 3 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 4, 5 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 6, 7 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 8, 9 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 10, 11 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 12, 13 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 14, 15 ) );
+
+    rc_ptr<AObject> rmesh = ameshFromMesh( mesh, "zoomMarkers", colr, colg,
+                                           colb, cola, 2. );
+    return rmesh;
+  }
+
+
+  void updateZoomStateMarkers( AimsTimeSurface<2,Void> &mesh,
+                               const Point3df & p0, float radius, float zoom )
+  {
+    vector<Point3df> & vert = mesh[0].vertex();
+    vector<AimsVector<uint32_t,2> > & poly = mesh[0].polygon();
+    vert.clear();
+    poly.clear();
+    float startfac = 1., endfac;
+
+//     if( zoom >= 1 )
+//       startfac = radius * 0.3535;
+//     else
+      startfac = radius * 0.7071;
+    endfac = startfac * zoom;
+
+    vert.reserve( 32 );
+    poly.reserve( 24 );
+    vert.push_back( p0 + Point3df( 1, 1, 1 ) * startfac );
+    vert.push_back( p0 + Point3df( 1, 1, 1 ) * endfac );
+    vert.push_back( p0 + Point3df( -1, -1, -1 ) * startfac );
+    vert.push_back( p0 + Point3df( -1, -1, -1 ) * endfac );
+    vert.push_back( p0 + Point3df( -1, 1, 1 ) * startfac );
+    vert.push_back( p0 + Point3df( -1, 1, 1 ) * endfac );
+    vert.push_back( p0 + Point3df( 1, -1, -1 ) * startfac );
+    vert.push_back( p0 + Point3df( 1, -1, -1 ) * endfac );
+    vert.push_back( p0 + Point3df( 1, -1, 1 ) * startfac );
+    vert.push_back( p0 + Point3df( 1, -1, 1 ) * endfac );
+    vert.push_back( p0 + Point3df( -1, 1, -1 ) * startfac );
+    vert.push_back( p0 + Point3df( -1, 1, -1 ) * endfac );
+    vert.push_back( p0 + Point3df( 1, 1, -1 ) * startfac );
+    vert.push_back( p0 + Point3df( 1, 1, -1 ) * endfac );
+    vert.push_back( p0 + Point3df( -1, -1, 1 ) * startfac );
+    vert.push_back( p0 + Point3df( -1, -1, 1 ) * endfac );
+    poly.push_back( AimsVector<uint32_t,2>( 0, 1 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 2, 3 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 4, 5 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 6, 7 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 8, 9 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 10, 11 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 12, 13 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 14, 15 ) );
+    // arrows
+    float arrowlen = 15 * 0.7071;
+    float arrowthick = arrowlen * 0.3;
+    float sign = zoom >= 1 ? 1. : -1;
+    vert.push_back( p0 + Point3df( 1, 1, 1 ) * ( endfac - arrowlen * sign )
+      + Point3df( -1, -1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, 1, 1 ) * ( endfac - arrowlen * sign )
+      - Point3df( -1, -1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, -1, -1 ) * ( endfac - arrowlen * sign )
+      + Point3df( 1, 1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, -1, -1 ) * ( endfac - arrowlen * sign )
+      - Point3df( 1, 1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, 1, 1 ) * ( endfac - arrowlen * sign )
+      + Point3df( 1, -1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, 1, 1 ) * ( endfac - arrowlen * sign )
+      - Point3df( 1, -1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, -1, -1 ) * ( endfac - arrowlen * sign )
+      + Point3df( -1, 1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, -1, -1 ) * ( endfac - arrowlen * sign )
+      - Point3df( -1, 1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, -1, 1 ) * ( endfac - arrowlen * sign )
+      + Point3df( -1, 1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, -1, 1 ) * ( endfac - arrowlen * sign )
+      - Point3df( -1, 1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, 1, -1 ) * ( endfac - arrowlen * sign )
+      + Point3df( 1, -1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, 1, -1 ) * ( endfac - arrowlen * sign )
+      - Point3df( 1, -1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, 1, -1 ) * ( endfac - arrowlen * sign )
+      + Point3df( -1, -1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( 1, 1, -1 ) * ( endfac - arrowlen * sign )
+      - Point3df( -1, -1, -1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, -1, 1 ) * ( endfac - arrowlen * sign )
+      + Point3df( 1, 1, 1 ) * arrowthick );
+    vert.push_back( p0 + Point3df( -1, -1, 1 ) * ( endfac - arrowlen * sign )
+      - Point3df( 1, 1, 1 ) * arrowthick );
+    poly.push_back( AimsVector<uint32_t,2>( 1, 16 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 1, 17 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 3, 18 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 3, 19 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 5, 20 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 5, 21 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 7, 22 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 7, 23 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 9, 24 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 9, 25 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 11, 26 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 11, 27 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 13, 28 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 13, 29 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 15, 30 ) );
+    poly.push_back( AimsVector<uint32_t,2>( 15, 31 ) );
+  }
+
+
+  rc_ptr<AObject> zoomStateMarkers( const Point3df & p0, float radius,
+                                    float zoom, float colr, float colg,
+                                    float colb, float cola )
+  {
+    AimsTimeSurface<2, Void> *mesh = new AimsTimeSurface<2, Void>;
+    updateZoomStateMarkers( *mesh, p0, radius, zoom );
+
+    rc_ptr<AObject> rmesh = ameshFromMesh( mesh, "zoomStateMarkers", colr,
+                                           colg, colb, cola, 3. );
+    return rmesh;
+  }
+
 }
 
 
@@ -840,6 +991,27 @@ string ResizerAction::name() const
 }
 
 
+void ResizerAction::begin( int x, int y, int globalX, int globalY )
+{
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  if( w && d->box2->additionalObjects().size() <= 1 )
+  {
+    AWindow* w3 = w->aWindow();
+    rc_ptr<AObject> zoomm = zoomMarkers( w->rotationCenter(),
+                                         130, 0.8, 0.3, 0.2, 1. );
+    zoomm->setReferential( w3->getReferential() );
+    d->box2->addObject( zoomm );
+    rc_ptr<AObject> zooms = zoomStateMarkers( w->rotationCenter(),
+                                              130, 1., 0.3, 0., 0.8, 1. );
+    zooms->setReferential( w3->getReferential() );
+    d->box2->addObject( zooms );
+  }
+  else
+    updateTemporaryObjects( 1. );
+  TranslaterAction::begin( x, y, globalX, globalY );
+}
+
+
 void ResizerAction::move( int /* x */, int y, int, int )
 {
   if( !_started )
@@ -869,27 +1041,51 @@ void ResizerAction::move( int /* x */, int y, int, int )
 
   map<Transformation*, Transformation>::iterator	it, et = _trans.end();
   for( it=_trans.begin(); it!=et; ++it )
+  {
+    it->first->unregisterTrans();
+    *it->first = t;
+    *it->first *= it->second;
+    it->first->registerTrans();
+  }
+
+  if( !_itrans.empty() )
+  {
+    t.invert();
+    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
     {
       it->first->unregisterTrans();
+      it->first->setGenerated( true );
       *it->first = t;
       *it->first *= it->second;
       it->first->registerTrans();
     }
+  }
 
-  if( !_itrans.empty() )
-    {
-      t.invert();
-      for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
-	{
-	  it->first->unregisterTrans();
-	  it->first->setGenerated( true );
-	  *it->first = t;
-	  *it->first *= it->second;
-	  it->first->registerTrans();
-	}
-    }
-
+  updateTemporaryObjects( zfac );
+//   d->box1->moveTrackball( x, y );
+//   d->box2->moveTrackball( x, y );
+  AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w3 )
+    w3->refreshNow();
   // cout << "scaling done\n";
+}
+
+
+void ResizerAction::updateTemporaryObjects( float zoom )
+{
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  if( !w )
+    return;
+  list<rc_ptr<AObject> > & addobj = d->box2->additionalObjects();
+  list<rc_ptr<AObject> >::reverse_iterator io = addobj.rbegin();
+  ASurface<2> *zooms = dynamic_cast<ASurface<2> *>( io->get() );
+  if( zooms )
+  {
+    updateZoomStateMarkers( *zooms->surface(), w->rotationCenter(), 130,
+                            zoom );
+    zooms->setReferential( w->aWindow()->getReferential() );
+    zooms->glSetChanged( GLComponent::glGEOMETRY );
+  }
 }
 
 
