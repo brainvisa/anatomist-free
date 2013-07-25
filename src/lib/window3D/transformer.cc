@@ -323,7 +323,7 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   const set<AObject *>			& obj = is->second;
   set<AObject *>			nobj, iobj, cobj;
   set<AObject *>::const_iterator	io, eo = obj.end();
-  Referential	*ref, *cref = theAnatomist->centralReferential();
+  Referential	*ref = 0, *cref = theAnatomist->centralReferential();
   Transformation			*t;
 
   _trans.clear();
@@ -552,7 +552,7 @@ void TranslaterAction::begin( int x, int y, int, int )
   const set<AObject *>			& obj = is->second;
   set<AObject *>			nobj, iobj, cobj;
   set<AObject *>::const_iterator	io, eo = obj.end();
-  Referential	*ref, *cref = theAnatomist->centralReferential();
+  Referential	*ref = 0, *cref = theAnatomist->centralReferential();
   Transformation			*t;
 
   _trans.clear();
