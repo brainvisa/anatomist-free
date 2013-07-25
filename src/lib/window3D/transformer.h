@@ -59,12 +59,15 @@ namespace anatomist
     virtual void moveTrackball( int x, int y, int globalX, int globalY );
     virtual void endTrackball( int x, int y, int globalX, int globalY );
     virtual aims::Quaternion rotation( int x, int y );
+    virtual aims::Quaternion initialQuaternion();
 
   protected:
     struct Private;
     Private *d;
     std::map<Transformation*, Transformation>	_trans;
     std::map<Transformation*, Transformation>	_itrans;
+
+    virtual void updateTemporaryObjects( const aims::Quaternion & rotation );
   };
 
 
@@ -105,7 +108,8 @@ namespace anatomist
 
     virtual std::string name() const;
 
-    aims::Quaternion rotation( int x, int y );
+    virtual aims::Quaternion rotation( int x, int y );
+    virtual aims::Quaternion initialQuaternion();
   };
 
 

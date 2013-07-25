@@ -310,6 +310,12 @@ string Transformer::name() const
 }
 
 
+Quaternion Transformer::initialQuaternion()
+{
+  return Quaternion();
+}
+
+
 void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
 {
   Trackball::beginTrackball( x, y, globalX, globalY );
@@ -378,20 +384,27 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     _trans[ tc->trans() ] = *tc->trans();
   }
 
+  d->box1->setObjectsReferential( ref );
+  d->box2->setObjectsReferential( cref );
+
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( w && d->box2->additionalObjects().size() <= 1 )
   {
-    rc_ptr<AObject> axis = axisWithCircles( w->rotationCenter(), Quaternion(),
+    AWindow* w3 = w->aWindow();
+    rc_ptr<AObject> axis = axisWithCircles( w->rotationCenter(),
+                                            initialQuaternion(),
                                             70, 100, 0.8, 0.3, 0.2, 1. );
+    axis->setReferential( w3->getReferential() );
     d->box2->addObject( axis );
     rc_ptr<AObject> circles = circlesWithAngle( w->rotationCenter(),
-                                                Quaternion(), 70, 100,
+                                                initialQuaternion(), 70, 100,
                                                 0.3, 0., 0.8, 1. );
+    circles->setReferential( w3->getReferential() );
     d->box2->addObject( circles );
   }
+  else
+    updateTemporaryObjects( initialQuaternion() );
 
-  d->box1->setObjectsReferential( ref );
-  d->box2->setObjectsReferential( cref );
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
 }
@@ -429,6 +442,33 @@ Quaternion Transformer::rotation( int x, int y )
   //cout << "rotation axis : " << q.axis() << ", angle : " 
   //     << q.angle() * 180. / M_PI << endl;
   return q;
+}
+
+
+void Transformer::updateTemporaryObjects( const Quaternion & rotation )
+{
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  if( !w )
+    return;
+  list<rc_ptr<AObject> > & addobj = d->box2->additionalObjects();
+  list<rc_ptr<AObject> >::reverse_iterator io = addobj.rbegin();
+  ASurface<2> *circles = dynamic_cast<ASurface<2> *>( io->get() );
+  if( circles )
+  {
+    updateCirclesAngles( *circles->surface(), w->rotationCenter(), rotation,
+                         70, 100 );
+    circles->setReferential( w->aWindow()->getReferential() );
+    circles->glSetChanged( GLComponent::glGEOMETRY );
+  }
+  ++io;
+  ASurface<2> *axis = dynamic_cast<ASurface<2> *>( io->get() );
+  if( axis )
+  {
+    updateAxisWithCircles( *axis->surface(), w->rotationCenter(), rotation,
+                           70, 100 );
+    axis->setReferential( w->aWindow()->getReferential() );
+    axis->glSetChanged( GLComponent::glGEOMETRY );
+  }
 }
 
 
@@ -473,23 +513,7 @@ void Transformer::moveTrackball( int x, int y, int, int )
     }
   }
 
-
-  list<rc_ptr<AObject> > & addobj = d->box2->additionalObjects();
-  list<rc_ptr<AObject> >::reverse_iterator io = addobj.rbegin();
-  ASurface<2> *circles = dynamic_cast<ASurface<2> *>( io->get() );
-  if( circles )
-  {
-    updateCirclesAngles( *circles->surface(), w->rotationCenter(), q,
-                         70, 100 );
-    circles->glSetChanged( GLComponent::glGEOMETRY );
-  }
-  ++io;
-  ASurface<2> *axis = dynamic_cast<ASurface<2> *>( io->get() );
-  if( axis )
-  {
-    updateAxisWithCircles( *axis->surface(), w->rotationCenter(), q, 70, 100 );
-    axis->glSetChanged( GLComponent::glGEOMETRY );
-  }
+  updateTemporaryObjects( q );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -723,6 +747,17 @@ Action* PlanarTransformer::creator()
 string PlanarTransformer::name() const
 {
   return( "PlanarTransformer" );
+}
+
+
+Quaternion PlanarTransformer::initialQuaternion()
+{
+  AWindow3D     *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( !w3 )
+    return Quaternion( 0, 0, 0, 1 );
+  Point3df      axis = w3->sliceQuaternion().apply( Point3df( 0, 0, -1 ) );
+  Quaternion q( axis[0], axis[1], axis[2], 1. );
+  return q;
 }
 
 
