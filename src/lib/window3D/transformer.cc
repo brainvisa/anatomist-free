@@ -42,8 +42,12 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/window3D/boxviewslice.h>
 #include <anatomist/surface/surface.h>
+#include <anatomist/ui/ui_transform_control.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsProxyWidget>
 #include <iostream>
 
 using namespace anatomist;
@@ -54,15 +58,20 @@ using namespace std;
 
 struct Transformer::Private
 {
+  Private() : trans_ui( 0 ) {}
+
   rc_ptr<BoxViewSlice> box1;
   rc_ptr<BoxViewSlice> box2;
+  list<QGraphicsItem *> gvitems;
+  Ui::transform_feedback* trans_ui;
 };
 
 
-struct TranslaterAction::Private
+struct TranslaterAction::Private : public Transformer::Private
 {
-  rc_ptr<BoxViewSlice> box1;
-  rc_ptr<BoxViewSlice> box2;
+//   rc_ptr<BoxViewSlice> box1;
+//   rc_ptr<BoxViewSlice> box2;
+//   list<QGraphicsItem *> gvitems;
 };
 
 
@@ -427,6 +436,51 @@ namespace
     return rmesh;
   }
 
+
+  void initGVItems( QGraphicsView* gv, Action* action,
+                    Transformer::Private *d )
+  {
+    if( !gv )
+      return;
+    Action *trac = action->view()->controlSwitch()->getAction( "Transformer" );
+    if( ( trac && trac != action ) || !d->gvitems.empty() )
+      return;
+    Ui::transform_feedback* tui = new Ui::transform_feedback;
+    QWidget *wid = new QWidget( 0 );
+    tui->setupUi( wid );
+    QGraphicsScene *scene = gv->scene();
+    if( !scene )
+    {
+      scene = new QGraphicsScene( gv );
+      gv->setScene( scene );
+    }
+    QGraphicsProxyWidget *item = scene->addWidget(
+      wid, Qt::Window | Qt::FramelessWindowHint );
+    QTransform tr = item->transform();
+    tr.translate( 10, 10 );
+    item->setTransform( tr );
+    d->gvitems.push_back( item );
+    d->trans_ui = tui;
+  }
+
+
+  void removeGVItems( QGraphicsView* gv, Transformer::Private *d )
+  {
+    cout << "removeGVItems\n";
+    if( !gv )
+      return;
+    QGraphicsScene *scene = gv->scene();
+    if( !scene )
+      return;
+    list<QGraphicsItem *>::iterator i, e = d->gvitems.end();
+    for( i=d->gvitems.begin(); i!=e; ++i )
+    {
+      scene->removeItem( *i );
+      delete *i;
+    }
+    d->gvitems.clear();
+  }
+
 }
 
 
@@ -556,6 +610,8 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   else
     updateTemporaryObjects( initialQuaternion() );
 
+  // initGVItems( d->box1->graphicsView(), this, d );
+
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
 }
@@ -679,6 +735,13 @@ void Transformer::endTrackball( int x, int y, int globx, int globy )
   d->box2->endTrackball( x, y );
   Trackball::endTrackball( x, y, globx, globy );
 }
+
+
+void Transformer::clearGraphicsView()
+{
+  removeGVItems( d->box1->graphicsView(), d );
+}
+
 
 // ------------------
 

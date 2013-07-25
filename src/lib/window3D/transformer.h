@@ -60,9 +60,11 @@ namespace anatomist
     virtual void endTrackball( int x, int y, int globalX, int globalY );
     virtual aims::Quaternion rotation( int x, int y );
     virtual aims::Quaternion initialQuaternion();
+    virtual void clearGraphicsView();
+
+    struct Private; // not private since it is used by TranslaterAction
 
   protected:
-    struct Private;
     Private *d;
     std::map<Transformation*, Transformation>	_trans;
     std::map<Transformation*, Transformation>	_itrans;

@@ -11,9 +11,11 @@ BRAINVISA_GET_FILE_LIST_FROM_PRO( project.pro "HEADERS" _headers "SOURCES" _sour
 
 set(_ui "${CMAKE_CURRENT_SOURCE_DIR}/ui/color_rendering.ui")
 BRAINVISA_QT4_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_CURRENT_BINARY_DIR}/anatomist/ui")
+BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_CURRENT_BINARY_DIR}/anatomist/ui")
+set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_custom_target(run_uic  DEPENDS "${UI_HDRS}")
-set(${_headers} ${${_headers}} "${UI_HDRS}" )
+add_custom_target(run_uic  DEPENDS ${UI_HDRS})
+set(${_headers} ${${_headers}} ${UI_HDRS} )
 
 
 set(LIB_HEADERS ${_headers} PARENT_SCOPE)

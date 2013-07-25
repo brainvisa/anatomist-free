@@ -1562,6 +1562,10 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
 				    &Trackball::endTrackball ), true );
 
+  // wheel zoom
+  wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
+                       ( actionPool->action( "Zoom3DAction" ),
+                         &Zoom3DAction::zoomWheel ) );
   // Slice action
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
                           KeyActionLinkOf<SliceAction>
@@ -1623,6 +1627,21 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<ResizerAction>
       ( actionPool->action( "ResizerAction" ), &ResizerAction::end ), 
       true );
+}
+
+
+void TransformControl::doAlsoOnDeselect( ActionPool * actionPool )
+{
+  cout << " TransformControl::doAlsoOnDeselect\n";
+  Action *ac = actionPool->action( "Transformer" );
+  if( ac )
+  {
+    Transformer *tac = dynamic_cast<Transformer *>( ac );
+    if( tac )
+    { cout << "do clearGraphicsView\n";
+      tac->clearGraphicsView();
+    }
+  }
 }
 
 
