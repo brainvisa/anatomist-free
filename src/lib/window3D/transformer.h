@@ -38,6 +38,7 @@
 #include <anatomist/window3D/trackball.h>
 #include <map>
 
+class QGraphicsItem;
 
 namespace anatomist
 {
@@ -65,6 +66,7 @@ namespace anatomist
     void toggleDisplayInfo();
 
     struct Private; // not private since it is used by TranslaterAction
+    Private* data();
 
   protected:
     Private *d;

@@ -500,8 +500,16 @@ namespace
   }
 
 
-  void updateGVInfo( Transformer::Private *d, anatomist::Transformation * tr )
+  void updateGVInfo( Transformer::Private *d, anatomist::Transformation * tr,
+                     Action* action )
   {
+    Action * ac = action->view()->controlSwitch()->getAction( "Transformer" );
+    if( !ac )
+      return;
+    Transformer *trac = dynamic_cast<Transformer *>( ac );
+    if( !trac )
+      return;
+    d = trac->data();
     if( d->gvitems.empty() )
       return;
     QGraphicsProxyWidget* gw
@@ -529,13 +537,13 @@ namespace
     for( i=0; i<3; ++i )
       for( j=0; j<3; ++j )
       d->trans_ui->matrix_tableWidget->setItem( i, j,
-        new QTableWidgetItem( QString::number( rot( i, j ) ) ) );
+        new QTableWidgetItem( QString::number( rot( i, j ), 'f', 2 ) ) );
     d->trans_ui->matrix_tableWidget->setItem( 0, 3,
-         new QTableWidgetItem( QString::number( tra[0] ) ) );
+         new QTableWidgetItem( QString::number( tra[0], 'f', 2 ) ) );
     d->trans_ui->matrix_tableWidget->setItem( 1, 3,
-         new QTableWidgetItem( QString::number( tra[1] ) ) );
+         new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
     d->trans_ui->matrix_tableWidget->setItem( 2, 3,
-         new QTableWidgetItem( QString::number( tra[2] ) ) );
+         new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
   }
 
 }
@@ -668,7 +676,7 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     updateTemporaryObjects( initialQuaternion() );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  updateGVInfo( d, t );
+  updateGVInfo( d, t, this );
 
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
@@ -780,7 +788,7 @@ void Transformer::moveTrackball( int x, int y, int, int )
 
   updateTemporaryObjects( q );
   if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first );
+    updateGVInfo( d, _trans.begin()->first, this );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -812,6 +820,12 @@ void Transformer::clearGraphicsView()
 void Transformer::toggleDisplayInfo()
 {
   showGvItems( d, !d->show_info );
+}
+
+
+Transformer::Private *Transformer::data()
+{
+  return d;
 }
 
 
@@ -924,6 +938,9 @@ void TranslaterAction::begin( int x, int y, int, int )
   d->box2->setObjectsReferential( cref );
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
+
+  initGVItems( d->box1->graphicsView(), this, d );
+  updateGVInfo( d, t, this );
 }
 
 
@@ -988,6 +1005,8 @@ void TranslaterAction::move( int x, int y, int, int )
     }
   }
 
+  if( !_trans.empty() )
+    updateGVInfo( d, _trans.begin()->first, this );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -1197,6 +1216,8 @@ void ResizerAction::move( int /* x */, int y, int, int )
   }
 
   updateTemporaryObjects( zfac );
+  if( !_trans.empty() )
+    updateGVInfo( d, _trans.begin()->first, this );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
