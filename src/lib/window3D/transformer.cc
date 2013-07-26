@@ -450,6 +450,9 @@ namespace
     Ui::transform_feedback* tui = new Ui::transform_feedback;
     QWidget *wid = new QWidget( 0 );
     tui->setupUi( wid );
+    tui->matrix_tab->setLayout( tui->matrix_layout );
+    tui->euler_tab->setLayout( tui->euler_layout );
+    tui->rotation_tab->setLayout( tui->rotation_layout );
     QGraphicsScene *scene = gv->scene();
     if( !scene )
     {
@@ -524,12 +527,12 @@ namespace
     }
     // tr is not null
     AimsRGB col = tr->source()->Color();
-    QPixmap pix( 16, 16 );
+    QPixmap pix( d->trans_ui->from_ref_button->size() );
     pix.fill( QColor( col[0], col[1], col[2] ) );
-    d->trans_ui->from_ref_label->setPixmap( pix );
+    d->trans_ui->from_ref_button->setIcon( pix );
     col = tr->destination()->Color();
     pix.fill( QColor( col[0], col[1], col[2] ) );
-    d->trans_ui->to_ref_label->setPixmap( pix );
+    d->trans_ui->to_ref_button->setIcon( pix );
     const AffineTransformation3d & atr = tr->motion();
     const AimsData<float> & rot = atr.rotation();
     const Point3df & tra = atr.translation();
@@ -544,6 +547,26 @@ namespace
          new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
     d->trans_ui->matrix_tableWidget->setItem( 2, 3,
          new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
+
+    d->trans_ui->euler_translation_tableWidget->setItem( 0, 0,
+        new QTableWidgetItem( QString::number( tra[0], 'f', 2 ) ) );
+    d->trans_ui->euler_translation_tableWidget->setItem( 0, 1,
+        new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
+    d->trans_ui->euler_translation_tableWidget->setItem( 0, 2,
+        new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
+
+    d->trans_ui->rotation_pos_tableWidget->setItem( 0, 0,
+        new QTableWidgetItem( QString::number( tra[0], 'f', 2 ) ) );
+    d->trans_ui->rotation_pos_tableWidget->setItem( 0, 1,
+        new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
+    d->trans_ui->rotation_pos_tableWidget->setItem( 0, 2,
+        new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
+
+//     GLWidgetManager *glw = dynamic_cast<GLWidgetManager *>( action->view() );
+//     if( glw )
+//     {
+//       Point3df center = glw->rotationCenter();
+//     }
   }
 
 }
