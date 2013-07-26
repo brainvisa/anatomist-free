@@ -108,6 +108,7 @@ namespace anatomist
     virtual ~TransformControl();
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
+    virtual void doAlsoOnSelect( ActionPool * actionPool );
     virtual void doAlsoOnDeselect( ActionPool * actionPool );
   };
 

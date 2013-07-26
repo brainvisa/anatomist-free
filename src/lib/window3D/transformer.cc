@@ -42,6 +42,7 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/window3D/boxviewslice.h>
 #include <anatomist/surface/surface.h>
+#include <anatomist/reference/Referential.h>
 #include <anatomist/ui/ui_transform_control.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
@@ -58,12 +59,13 @@ using namespace std;
 
 struct Transformer::Private
 {
-  Private() : trans_ui( 0 ) {}
+  Private() : trans_ui( 0 ), show_info( true ) {}
 
   rc_ptr<BoxViewSlice> box1;
   rc_ptr<BoxViewSlice> box2;
   list<QGraphicsItem *> gvitems;
   Ui::transform_feedback* trans_ui;
+  bool show_info;
 };
 
 
@@ -456,6 +458,8 @@ namespace
     }
     QGraphicsProxyWidget *item = scene->addWidget(
       wid, Qt::Window | Qt::FramelessWindowHint );
+    if( !d->show_info )
+      item->hide();
     QTransform tr = item->transform();
     tr.translate( 10, 10 );
     item->setTransform( tr );
@@ -479,6 +483,59 @@ namespace
       delete *i;
     }
     d->gvitems.clear();
+  }
+
+
+  void showGvItems( Transformer::Private *d, bool x )
+  {
+    if( x == d->show_info )
+      return;
+    d->show_info = x;
+    list<QGraphicsItem *>::iterator i, e = d->gvitems.end();
+    for( i=d->gvitems.begin(); i!=e; ++i )
+      if( x )
+        (*i)->show();
+      else
+        (*i)->hide();
+  }
+
+
+  void updateGVInfo( Transformer::Private *d, anatomist::Transformation * tr )
+  {
+    if( d->gvitems.empty() )
+      return;
+    QGraphicsProxyWidget* gw
+      = dynamic_cast<QGraphicsProxyWidget *>( *d->gvitems.begin() );
+    if( !gw )
+      return; // not normal...
+    QWidget *wid = gw->widget();
+    if( !tr )
+    {
+      // clear all
+      return;
+    }
+    // tr is not null
+    AimsRGB col = tr->source()->Color();
+    QPixmap pix( 16, 16 );
+    pix.fill( QColor( col[0], col[1], col[2] ) );
+    d->trans_ui->from_ref_label->setPixmap( pix );
+    col = tr->destination()->Color();
+    pix.fill( QColor( col[0], col[1], col[2] ) );
+    d->trans_ui->to_ref_label->setPixmap( pix );
+    const AffineTransformation3d & atr = tr->motion();
+    const AimsData<float> & rot = atr.rotation();
+    const Point3df & tra = atr.translation();
+    int i, j;
+    for( i=0; i<3; ++i )
+      for( j=0; j<3; ++j )
+      d->trans_ui->matrix_tableWidget->setItem( i, j,
+        new QTableWidgetItem( QString::number( rot( i, j ) ) ) );
+    d->trans_ui->matrix_tableWidget->setItem( 0, 3,
+         new QTableWidgetItem( QString::number( tra[0] ) ) );
+    d->trans_ui->matrix_tableWidget->setItem( 1, 3,
+         new QTableWidgetItem( QString::number( tra[1] ) ) );
+    d->trans_ui->matrix_tableWidget->setItem( 2, 3,
+         new QTableWidgetItem( QString::number( tra[2] ) ) );
   }
 
 }
@@ -610,7 +667,8 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   else
     updateTemporaryObjects( initialQuaternion() );
 
-  // initGVItems( d->box1->graphicsView(), this, d );
+  initGVItems( d->box1->graphicsView(), this, d );
+  updateGVInfo( d, t );
 
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
@@ -721,6 +779,8 @@ void Transformer::moveTrackball( int x, int y, int, int )
   }
 
   updateTemporaryObjects( q );
+  if( !_trans.empty() )
+    updateGVInfo( d, _trans.begin()->first );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -737,9 +797,21 @@ void Transformer::endTrackball( int x, int y, int globx, int globy )
 }
 
 
+void Transformer::showGraphicsView()
+{
+  initGVItems( d->box1->graphicsView(), this, d );
+}
+
+
 void Transformer::clearGraphicsView()
 {
   removeGVItems( d->box1->graphicsView(), d );
+}
+
+
+void Transformer::toggleDisplayInfo()
+{
+  showGvItems( d, !d->show_info );
 }
 
 

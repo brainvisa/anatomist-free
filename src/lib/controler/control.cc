@@ -408,7 +408,7 @@ Control::doOnDeselect( ActionPool * pool )
 {
   myLongActions->reset() ;
 
-//   cout << "--------> Control Deselected" << endl ;
+  // cout << "--------> Control Deselected: " << name() << endl ;
   doAlsoOnDeselect( pool ) ;
 }
 

@@ -327,7 +327,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="to_ref_label_2">
+      <widget class="QLabel" name="to_ref_label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -435,7 +435,7 @@
       <attribute name="title">
        <string>Matrix</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>

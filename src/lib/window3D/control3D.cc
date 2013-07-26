@@ -1593,11 +1593,15 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
   mouseLongEventSubscribe
     ( Qt::MidButton, Qt::ShiftModifier, 
       MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ), 
-				      &Transformer::beginTrackball ), 
+                                      &Transformer::beginTrackball ), 
       MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ), 
-				      &Transformer::moveTrackball ), 
+                                      &Transformer::moveTrackball ), 
       MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ), 
-				      &Transformer::endTrackball ), true );
+                                      &Transformer::endTrackball ), true );
+  keyPressEventSubscribe( Qt::Key_I, Qt::NoModifier,
+                          KeyActionLinkOf<Transformer>(
+                            actionPool->action( "Transformer" ),
+                            &Transformer::toggleDisplayInfo ) );
   mouseLongEventSubscribe
     ( Qt::MidButton, Qt::ControlModifier, 
       MouseActionLinkOf<TranslaterAction>
@@ -1627,6 +1631,20 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<ResizerAction>
       ( actionPool->action( "ResizerAction" ), &ResizerAction::end ), 
       true );
+}
+
+
+void TransformControl::doAlsoOnSelect( ActionPool * actionPool )
+{
+  Action *ac = actionPool->action( "Transformer" );
+  if( ac )
+  {
+    Transformer *tac = dynamic_cast<Transformer *>( ac );
+    if( tac )
+    { cout << "do showGraphicsView\n";
+      tac->showGraphicsView();
+    }
+  }
 }
 
 
