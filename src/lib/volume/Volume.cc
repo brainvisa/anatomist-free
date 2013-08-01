@@ -53,10 +53,12 @@
 #include <aims/resampling/quaternion.h>
 #include <aims/rgb/rgb.h>
 #include <aims/data/pheader.h>
+#include <aims/io/finder.h>
 #include <aims/io/reader.h>
 #include <aims/io/writer.h>
 #include <cartobase/object/object.h>
 #include <qapplication.h>
+#include <qmessagebox.h>
 
 //#define USE_TEXTURE_3D
 
@@ -1103,10 +1105,31 @@ const GenericObject *AVolume<T>::attributed() const
 template<class T> 
 bool AVolume<T>::reload( const string & filename )
 {
+  Finder f;
+  if( !f.check( filename ) )
+    return false;
+
+  string dtype;
+  const PythonHeader *h = dynamic_cast<const PythonHeader *>( f.header() );
+  if( h )
+    h->getProperty( "data_type", dtype );
+
   Reader<Volume<T> >	reader( filename );
   rc_ptr<Volume<T> > obj( reader.read() );
   if( !obj )
     return false;
+
+  if( !dtype.empty() && dtype != DataTypeCode<T>::dataType() )
+    QMessageBox::warning( 0,
+      QObject::tr( "Voxel type was changed", "ControlWindow" ),
+      QObject::tr( "The voxel type in file was changed since it was loaded "
+        "the first time. It was ", "ControlWindow" )
+      + DataTypeCode<T>::dataType().c_str()
+      + QObject::tr( " and is now ", "ControlWindow" ) + dtype.c_str()
+      + QObject::tr( ". The voxel type cannot change dynamically, so values "
+        "may be truncated. You had probably better load the file as a new "
+        "object.", "ControlWindow" ),
+      QMessageBox::Ok, QMessageBox::Ok );
 
   _volume = obj;
   delete d->attrib;
