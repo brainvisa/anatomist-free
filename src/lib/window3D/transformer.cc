@@ -52,10 +52,148 @@
 #include <iostream>
 
 using namespace anatomist;
+using namespace anatomist::internal;
 using namespace aims;
 using namespace carto;
 using namespace std;
 
+
+TransformerActionData::TransformerActionData()
+  : _maintrans( 0 )
+{
+}
+
+
+anatomist::Transformation* TransformerActionData::mainTransformation() const
+{
+  return _maintrans;
+}
+
+
+void TransformerActionData::selectTransformations( AWindow * win )
+{
+  const std::map<unsigned, set<AObject *> >
+    & sel = SelectFactory::factory()->selected();
+  map<unsigned, set<AObject *> >::const_iterator is = sel.find( win->Group() );
+  if( is == sel.end() )
+    return;
+
+  const set<AObject *>                  & obj = is->second;
+  set<AObject *>                        nobj, iobj, cobj;
+  set<AObject *>::const_iterator        io, eo = obj.end();
+  Referential   *ref = 0, *cref = theAnatomist->centralReferential();
+  Transformation                        *t;
+
+  _trans.clear();
+  _itrans.clear();
+
+  for( io=obj.begin(); io!=eo; ++io )
+  {
+    ref = (*io)->getReferential();
+    t = theAnatomist->getTransformation( ref, cref );
+    if( t && !t->isGenerated() )
+    {
+      cobj.insert( *io );
+      _trans[ t ] = *t;
+    }
+    else
+    {
+      t = theAnatomist->getTransformation( cref, ref );
+      if( t && !t->isGenerated() )
+      {
+        iobj.insert( *io );
+        _itrans[ t ] = *t;
+      }
+      else
+        nobj.insert( *io );
+    }
+  }
+
+  if( !nobj.empty() )
+  {
+    set<AWindow *> wins;
+    AssignReferentialCommand    *com = new AssignReferentialCommand( 0, nobj,
+                                                                     wins );
+    theProcessor->execute( com );
+    ref = com->ref();
+    cobj.insert( nobj.begin(), nobj.end() );
+    float               matvec[4][3];
+    matvec[0][0] = 0;
+    matvec[0][1] = 0;
+    matvec[0][2] = 0;
+    matvec[1][0] = 1;
+    matvec[1][1] = 0;
+    matvec[1][2] = 0;
+    matvec[2][0] = 0;
+    matvec[2][1] = 1;
+    matvec[2][2] = 0;
+    matvec[3][0] = 0;
+    matvec[3][1] = 0;
+    matvec[3][2] = 1;
+    LoadTransformationCommand   *tc
+      = new LoadTransformationCommand( matvec, ref, cref );
+    theProcessor->execute( tc );
+    Transformation *tr = tc->trans();
+    _trans[ tc->trans() ] = *tr;
+    if( !_maintrans )
+      _maintrans = tr;
+  }
+
+  if( _maintrans )
+  {
+    if( _trans.find( _maintrans ) == _trans.end()
+      && _itrans.find( _maintrans ) == _itrans.end() )
+      _maintrans = 0;
+  }
+  if( !_maintrans )
+  {
+    if( !_trans.empty() )
+      _maintrans = _trans.begin()->first;
+    else if( !_itrans.empty() )
+      _maintrans = _itrans.begin()->first;
+  }
+}
+
+
+void TransformerActionData::setMainTransformation( Transformation* t )
+{
+  _maintrans = t;
+}
+
+
+bool TransformerActionData::isMainTransDirect() const
+{
+  if( !_maintrans )
+    return true;
+  if( _trans.find( _maintrans ) == _trans.end() )
+    return false;
+  return true;
+}
+
+
+Referential* TransformerActionData::mainSourceRef() const
+{
+  if( !_maintrans )
+    return 0;
+  if( isMainTransDirect() )
+    return _maintrans->source();
+  else
+    return _maintrans->destination();
+}
+
+
+Referential* TransformerActionData::mainDestRef() const
+{
+  if( !_maintrans )
+    return 0;
+  if( isMainTransDirect() )
+    return _maintrans->destination();
+  else
+    return _maintrans->source();
+}
+
+
+// ---
 
 struct Transformer::Private
 {
@@ -504,7 +642,7 @@ namespace
 
 
   void updateGVInfo( Transformer::Private *d, anatomist::Transformation * tr,
-                     Action* action )
+                     Action* action, const Quaternion & q, float scale=1. )
   {
     Action * ac = action->view()->controlSwitch()->getAction( "Transformer" );
     if( !ac )
@@ -548,19 +686,40 @@ namespace
     d->trans_ui->matrix_tableWidget->setItem( 2, 3,
          new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
 
-    d->trans_ui->euler_translation_tableWidget->setItem( 0, 0,
-        new QTableWidgetItem( QString::number( tra[0], 'f', 2 ) ) );
-    d->trans_ui->euler_translation_tableWidget->setItem( 0, 1,
-        new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
-    d->trans_ui->euler_translation_tableWidget->setItem( 0, 2,
-        new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
+    GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( action->view() );
+    Point3df cent( 0, 0, 0 );
+    if( w )
+      cent = w->rotationCenter();
 
-    d->trans_ui->rotation_pos_tableWidget->setItem( 0, 0,
-        new QTableWidgetItem( QString::number( tra[0], 'f', 2 ) ) );
-    d->trans_ui->rotation_pos_tableWidget->setItem( 0, 1,
-        new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
-    d->trans_ui->rotation_pos_tableWidget->setItem( 0, 2,
-        new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
+    d->trans_ui->euler_center_tableWidget->setItem( 0, 0,
+        new QTableWidgetItem( QString::number( cent[0], 'f', 2 ) ) );
+    d->trans_ui->euler_center_tableWidget->setItem( 0, 1,
+        new QTableWidgetItem( QString::number( cent[1], 'f', 2 ) ) );
+    d->trans_ui->euler_center_tableWidget->setItem( 0, 2,
+        new QTableWidgetItem( QString::number( cent[2], 'f', 2 ) ) );
+
+    d->trans_ui->rotation_center_tableWidget->setItem( 0, 0,
+        new QTableWidgetItem( QString::number( cent[0], 'f', 2 ) ) );
+    d->trans_ui->rotation_center_tableWidget->setItem( 0, 1,
+        new QTableWidgetItem( QString::number( cent[1], 'f', 2 ) ) );
+    d->trans_ui->rotation_center_tableWidget->setItem( 0, 2,
+        new QTableWidgetItem( QString::number( cent[2], 'f', 2 ) ) );
+
+    d->trans_ui->euler_scaling_lineEdit->setText(
+      QString::number( scale, 'f', 3 ) );
+
+    Point3df axis = q.axis();
+    d->trans_ui->rotation_axis_tableWidget->setItem( 0, 0,
+       new QTableWidgetItem( QString::number( axis[0], 'f', 2 ) ) );
+    d->trans_ui->rotation_axis_tableWidget->setItem( 0, 1,
+       new QTableWidgetItem( QString::number( axis[1], 'f', 2 ) ) );
+    d->trans_ui->rotation_axis_tableWidget->setItem( 0, 2,
+       new QTableWidgetItem( QString::number( axis[2], 'f', 2 ) ) );
+
+    d->trans_ui->rotation_angle_lineEdit->setText(
+      QString::number( q.angle(), 'f', 2 ) );
+    d->trans_ui->rotation_scaling_lineEdit->setText(
+      QString::number( scale, 'f', 3 ) );
 
 //     GLWidgetManager *glw = dynamic_cast<GLWidgetManager *>( action->view() );
 //     if( glw )
@@ -572,7 +731,8 @@ namespace
 }
 
 
-Transformer::Transformer() : Trackball(), d( new Private )
+Transformer::Transformer()
+  : Trackball(), TransformerActionData(), d( new Private )
 {
   d->box1.reset( new BoxViewSlice( this ) );
   d->box2.reset( new BoxViewSlice( this ) );
@@ -580,7 +740,8 @@ Transformer::Transformer() : Trackball(), d( new Private )
 }
 
 
-Transformer::Transformer( const Transformer & a ) : Trackball( a )
+Transformer::Transformer( const Transformer & a )
+  : Trackball( a ), TransformerActionData( a )
 {
 }
 
@@ -612,69 +773,21 @@ Quaternion Transformer::initialQuaternion()
 void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
 {
   Trackball::beginTrackball( x, y, globalX, globalY );
-  const std::map<unsigned, set<AObject *> > 
-    & sel = SelectFactory::factory()->selected();
-  map<unsigned, set<AObject *> >::const_iterator 
-    is = sel.find( view()->aWindow()->Group() );
-  if( is == sel.end() )
+
+  selectTransformations( view()->aWindow() );
+  if( !_maintrans )
     return;
 
-  const set<AObject *>			& obj = is->second;
-  set<AObject *>			nobj, iobj, cobj;
-  set<AObject *>::const_iterator	io, eo = obj.end();
-  Referential	*ref = 0, *cref = theAnatomist->centralReferential();
-  Transformation			*t;
-
-  _trans.clear();
-  _itrans.clear();
-
-  for( io=obj.begin(); io!=eo; ++io )
+  Referential *ref, *cref;
+  if( isMainTransDirect() )
   {
-    ref = (*io)->getReferential();
-    t = theAnatomist->getTransformation( ref, cref );
-    if( t && !t->isGenerated() )
-    {
-      cobj.insert( *io );
-      _trans[ t ] = *t;
-    }
-    else
-    {
-      t = theAnatomist->getTransformation( cref, ref );
-      if( t && !t->isGenerated() )
-      {
-        iobj.insert( *io );
-        _itrans[ t ] = *t;
-      }
-      else
-        nobj.insert( *io );
-    }
+    ref = _maintrans->source();
+    cref = _maintrans->destination();
   }
-
-  if( !nobj.empty() )
+  else
   {
-    set<AWindow *> wins;
-    AssignReferentialCommand	*com = new AssignReferentialCommand( 0, nobj, 
-                                                                    wins );
-    theProcessor->execute( com );
-    ref = com->ref();
-    cobj.insert( nobj.begin(), nobj.end() );
-    float		matvec[4][3];
-    matvec[0][0] = 0;
-    matvec[0][1] = 0;
-    matvec[0][2] = 0;
-    matvec[1][0] = 1;
-    matvec[1][1] = 0;
-    matvec[1][2] = 0;
-    matvec[2][0] = 0;
-    matvec[2][1] = 1;
-    matvec[2][2] = 0;
-    matvec[3][0] = 0;
-    matvec[3][1] = 0;
-    matvec[3][2] = 1;
-    LoadTransformationCommand	*tc 
-      = new LoadTransformationCommand( matvec, ref, cref );
-    theProcessor->execute( tc );
-    _trans[ tc->trans() ] = *tc->trans();
+    ref = _maintrans->destination();
+    cref = _maintrans->source();
   }
 
   d->box1->setObjectsReferential( ref );
@@ -699,7 +812,7 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     updateTemporaryObjects( initialQuaternion() );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  updateGVInfo( d, t, this );
+  updateGVInfo( d, _maintrans, this, initialQuaternion() );
 
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
@@ -770,6 +883,8 @@ void Transformer::updateTemporaryObjects( const Quaternion & rotation )
 
 void Transformer::moveTrackball( int x, int y, int, int )
 {
+  if( !_maintrans )
+    return;
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
   if( !w )
   {
@@ -811,7 +926,7 @@ void Transformer::moveTrackball( int x, int y, int, int )
 
   updateTemporaryObjects( q );
   if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first, this );
+    updateGVInfo( d, _trans.begin()->first, this, q );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -855,7 +970,8 @@ Transformer::Private *Transformer::data()
 // ------------------
 
 
-TranslaterAction::TranslaterAction() : Action(), d( new Private )
+TranslaterAction::TranslaterAction()
+  : Action(), TransformerActionData(), d( new Private )
 {
   d->box1.reset( new BoxViewSlice( this ) );
   d->box2.reset( new BoxViewSlice( this ) );
@@ -870,7 +986,7 @@ TranslaterAction::~TranslaterAction()
 
 
 TranslaterAction::TranslaterAction( const TranslaterAction & a ) 
-  : Action( a )
+  : Action( a ), TransformerActionData( a )
 {
 }
 
@@ -889,73 +1005,25 @@ string TranslaterAction::name() const
 
 void TranslaterAction::begin( int x, int y, int, int )
 {
-  const std::map<unsigned, set<AObject *> > 
-    & sel = SelectFactory::factory()->selected();
-  map<unsigned, set<AObject *> >::const_iterator 
-    is = sel.find( view()->aWindow()->Group() );
-  if( is == sel.end() )
+  selectTransformations( view()->aWindow() );
+  if( !_maintrans )
     return;
 
-  const set<AObject *>			& obj = is->second;
-  set<AObject *>			nobj, iobj, cobj;
-  set<AObject *>::const_iterator	io, eo = obj.end();
-  Referential	*ref = 0, *cref = theAnatomist->centralReferential();
-  Transformation			*t;
+  Referential *ref, *cref;
+  if( isMainTransDirect() )
+  {
+    ref = _maintrans->source();
+    cref = _maintrans->destination();
+  }
+  else
+  {
+    ref = _maintrans->destination();
+    cref = _maintrans->source();
+  }
 
-  _trans.clear();
-  _itrans.clear();
   _started = true;
   _beginx = x;
   _beginy = y;
-
-  for( io=obj.begin(); io!=eo; ++io )
-  {
-    ref = (*io)->getReferential();
-    t = theAnatomist->getTransformation( ref, cref );
-    if( t && !t->isGenerated() )
-    {
-      cobj.insert( *io );
-      _trans[ t ] = *t;
-    }
-    else
-    {
-      t = theAnatomist->getTransformation( cref, ref );
-      if( t && !t->isGenerated() )
-      {
-        iobj.insert( *io );
-        _itrans[ t ] = *t;
-      }
-      else
-        nobj.insert( *io );
-    }
-  }
-
-  if( !nobj.empty() )
-  {
-    set<AWindow *> wins;
-    AssignReferentialCommand	*com = new AssignReferentialCommand( 0, nobj, 
-                                                                    wins );
-    theProcessor->execute( com );
-    ref = com->ref();
-    cobj.insert( nobj.begin(), nobj.end() );
-    float		matvec[4][3];
-    matvec[0][0] = 0;
-    matvec[0][1] = 0;
-    matvec[0][2] = 0;
-    matvec[1][0] = 1;
-    matvec[1][1] = 0;
-    matvec[1][2] = 0;
-    matvec[2][0] = 0;
-    matvec[2][1] = 1;
-    matvec[2][2] = 0;
-    matvec[3][0] = 0;
-    matvec[3][1] = 0;
-    matvec[3][2] = 1;
-    LoadTransformationCommand	*tc 
-      = new LoadTransformationCommand( matvec, ref, cref );
-    theProcessor->execute( tc );
-    _trans[ tc->trans() ] = *tc->trans();
-  }
 
   d->box1->setObjectsReferential( ref );
   d->box2->setObjectsReferential( cref );
@@ -963,12 +1031,14 @@ void TranslaterAction::begin( int x, int y, int, int )
   d->box2->beginTrackball( x, y );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  updateGVInfo( d, t, this );
+  updateGVInfo( d, _maintrans, this, Quaternion() );
 }
 
 
 void TranslaterAction::move( int x, int y, int, int )
 {
+  if( !_maintrans )
+    return;
   if( !_started )
   {
     cerr << "error: translation not started (BUG)\n";
@@ -1029,7 +1099,7 @@ void TranslaterAction::move( int x, int y, int, int )
   }
 
   if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first, this );
+    updateGVInfo( d, _trans.begin()->first, this, Quaternion() );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -1191,6 +1261,8 @@ void ResizerAction::begin( int x, int y, int globalX, int globalY )
 
 void ResizerAction::move( int /* x */, int y, int, int )
 {
+  if( !_maintrans )
+    return;
   if( !_started )
     {
       cerr << "error: resize not started (BUG)\n";
@@ -1240,7 +1312,7 @@ void ResizerAction::move( int /* x */, int y, int, int )
 
   updateTemporaryObjects( zfac );
   if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first, this );
+    updateGVInfo( d, _trans.begin()->first, this, Quaternion(), zfac );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );

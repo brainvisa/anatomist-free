@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>281</width>
+    <width>287</width>
     <height>239</height>
    </rect>
   </property>
@@ -435,7 +435,7 @@
          <x>0</x>
          <y>10</y>
          <width>252</width>
-         <height>106</height>
+         <height>146</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="matrix_layout">
@@ -650,6 +650,36 @@
          </widget>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="matrix_reset_pushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Reset (Id)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="matrix_resetR_pushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Reset rotation/scale</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <spacer name="matrix_spacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -664,6 +694,11 @@
         </item>
        </layout>
       </widget>
+      <zorder>layoutWidget</zorder>
+      <zorder>matrix_resetR_pushButton</zorder>
+      <zorder>matrix_reset_pushButton</zorder>
+      <zorder>matrix_reset_pushButton</zorder>
+      <zorder>matrix_resetR_pushButton</zorder>
      </widget>
      <widget class="QWidget" name="euler_tab">
       <attribute name="title">
@@ -674,8 +709,8 @@
         <rect>
          <x>0</x>
          <y>10</y>
-         <width>226</width>
-         <height>139</height>
+         <width>221</width>
+         <height>140</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="euler_layout">
@@ -686,7 +721,7 @@
          <number>10</number>
         </property>
         <item>
-         <widget class="QLabel" name="euler_tanslation_label">
+         <widget class="QLabel" name="euler_center_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -694,12 +729,12 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Center</string>
+           <string>Instant center</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="euler_translation_tableWidget">
+         <widget class="QTableWidget" name="euler_center_tableWidget">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -775,7 +810,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Angles:</string>
+           <string>Instant angles:</string>
           </property>
          </widget>
         </item>
@@ -895,6 +930,19 @@
           </item>
          </layout>
         </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -907,8 +955,8 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>276</width>
-         <height>164</height>
+         <width>211</width>
+         <height>168</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="rotation_layout">
@@ -924,7 +972,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Axis orientation:</string>
+           <string>Instant axis orientation:</string>
           </property>
          </widget>
         </item>
@@ -997,7 +1045,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="rotation_pos_label">
+         <widget class="QLabel" name="rotation_center_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1005,12 +1053,12 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Center</string>
+           <string>Instant center</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="rotation_pos_tableWidget">
+         <widget class="QTableWidget" name="rotation_center_tableWidget">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1154,6 +1202,19 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>

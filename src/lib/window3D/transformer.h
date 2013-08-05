@@ -43,9 +43,32 @@ class QGraphicsItem;
 namespace anatomist
 {
   class Transformation;
+  class AWindow;
+  class Referential;
 
+  namespace internal
+  {
 
-  class Transformer : public Trackball
+    class TransformerActionData
+    {
+    public:
+      TransformerActionData();
+      Transformation* mainTransformation() const;
+      void selectTransformations( AWindow * );
+      void setMainTransformation( Transformation* t );
+      bool isMainTransDirect() const;
+      Referential* mainSourceRef() const;
+      Referential* mainDestRef() const;
+
+    protected:
+      Transformation *_maintrans;
+      std::map<Transformation*, Transformation>   _trans;
+      std::map<Transformation*, Transformation>   _itrans;
+    };
+
+  }
+
+  class Transformer : public Trackball, public internal::TransformerActionData
   {
   public:
     static Action * creator() ;
@@ -70,14 +93,13 @@ namespace anatomist
 
   protected:
     Private *d;
-    std::map<Transformation*, Transformation>	_trans;
-    std::map<Transformation*, Transformation>	_itrans;
 
     virtual void updateTemporaryObjects( const aims::Quaternion & rotation );
   };
 
 
-  class TranslaterAction : public Action
+  class TranslaterAction : public Action,
+    public internal::TransformerActionData
   {
   public:
     static Action * creator() ;
@@ -95,8 +117,6 @@ namespace anatomist
   protected:
     struct Private;
     Private *d;
-    std::map<Transformation*, Transformation>	_trans;
-    std::map<Transformation*, Transformation>	_itrans;
     bool	_started;
     int		_beginx;
     int		_beginy;
