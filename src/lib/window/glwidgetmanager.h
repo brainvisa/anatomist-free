@@ -133,6 +133,7 @@ namespace anatomist
     void setPreferredSize( int, int );
     void setMinimumSizeHint( const QSize & );
     virtual bool positionFromCursor( int x, int y, Point3df & position );
+    virtual bool cursorFromPosition( const Point3df & position, Point3df & cursor );
     virtual void readBackBuffer( int x, int y, GLubyte & red, GLubyte & green,
                                  GLubyte & blue );
     GLubyte* getTextureFromBackBuffer (void);

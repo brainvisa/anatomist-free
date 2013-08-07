@@ -1240,7 +1240,6 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
-
   // get z coordinate in the depth buffer
   GLfloat z = 2.;
   glReadPixels( (GLint)x, (GLint) y, 1, 1, 
@@ -1284,6 +1283,41 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
     glPopMatrix();
     return( true );
   }
+}
+
+bool GLWidgetManager::cursorFromPosition( const Point3df & position, Point3df & cursor )
+{
+	_pd->glwidget->makeCurrent();
+	glMatrixMode( GL_MODELVIEW );
+	glPushMatrix();
+	glMatrixMode( GL_PROJECTION );
+	glPushMatrix();
+
+	updateZBuffer();
+	setupView();
+
+	GLint viewport[4];
+	GLdouble mmatrix[16];
+	GLdouble pmatrix[16];
+	GLdouble ox, oy, oz;
+	glGetIntegerv( GL_VIEWPORT, viewport );
+	glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
+	glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
+	gluProject( (GLdouble) position[0], (GLdouble) position[1], (GLdouble) position[2],
+				  mmatrix, pmatrix, viewport,
+				  &ox, &oy, &oz);
+
+	oy = _pd->glwidget->height() - 1 - oy;
+
+	cursor[0] = ox;
+	cursor[1] = oy;
+
+	glMatrixMode( GL_PROJECTION );
+	glPopMatrix();
+	glMatrixMode( GL_MODELVIEW );
+	glPopMatrix();
+
+	return true;
 }
 
 void GLWidgetManager::copyBackBuffer2Texture(void)
@@ -1467,8 +1501,8 @@ void GLWidgetManager::mouseReleaseEvent( QMouseEvent* ev )
 //  cout << "state  : " << (int) ev->state() << endl;
 
   // WARNING what is that button 4 / modifiers 4 ??
-//   if ((ev->button() == 4) && (ev->modifiers() == 4))
-  copyBackBuffer2Texture();
+  if ((ev->button() == 4) && (ev->modifiers() == 4))
+    copyBackBuffer2Texture();
 
   controlSwitch()->mouseReleaseEvent( ev );
 }
