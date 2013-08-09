@@ -1236,6 +1236,13 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
+  if( qglWidget()->parentWidget()
+    && dynamic_cast<QGraphicsView *>( qglWidget()->parentWidget() ) )
+    /* FIXME: temporary fix, I don't know wky the Z buffer sometimes changes
+       when the GL widget is in a graphics view, and just redrawing it is
+       not enough. */
+    paintGL( Normal );
+
   updateZBuffer();
 
   setupView();
