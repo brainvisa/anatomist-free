@@ -315,6 +315,7 @@ void vtkQAGLWidget::paintGL()
 
 void vtkQAGLWidget::paintGL( DrawMode m )
 {
+  // cout << "vtkQAGLWidget::paintGL " << m << endl;
   qglWidget()->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -333,36 +334,27 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
   glClearColor( 1, 1, 1, 1 );
 
-  //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-  
-  //rotate();  
   project();
 
 
+  if( m != ObjectSelect && m != ObjectsSelect && m != PolygonSelect )
+  {
     // Lighting is described in the viewport coordinate
-  
-  if( glIsList( lightGLList() ) )
-    glCallList( lightGLList() );
-  
+
+    if( glIsList( lightGLList() ) )
+      glCallList( lightGLList() );
+  }
 
   rotate();
-  
-  
-
   vtkUpdateCamera();
-
 
   // Clear the viewport // -> do it here otherwise flickering may occur
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-  
-  
   if( hasTransparentObjects() && depthPeelingEnabled() )
     depthPeelingRender( m );
   else
     drawObjects( m );
-  
 
   //this->SetDrawMode (m);
 
@@ -371,6 +363,23 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
+}
+
+
+bool vtkQAGLWidget::positionFromCursor( int x, int y, Point3df & position )
+{
+  if( qglWidget()->parentWidget()
+    && dynamic_cast<QGraphicsView *>( qglWidget()->parentWidget() ) )
+    /* FIXME: temporary fix, I don't know wky the Z buffer sometimes changes
+       when the GL widget is in a graphics view, and just redrawing it is
+       not enough. */
+  {
+    paintGL( ZSelect );
+    paintGL( ZSelect );
+    setZBufferUpdated( true );
+    setRGBBufferUpdated( false );
+  }
+  return GLWidgetManager::positionFromCursor( x, y, position );
 }
 
 

@@ -415,15 +415,44 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
 
 void GLWidgetManager::updateZBuffer()
 {
-  if( _pd->zbuftimer )
-    _pd->zbuftimer->stop();
-  if( _pd->zbufready )
+  stopZBufferTimer();
+  if( isZBufferUpToDate() )
     return;
   // render the Z buffer without ghost objects
   _pd->glwidget->makeCurrent();
   paintGL( ZSelect );
-  _pd->zbufready = true;
-  _pd->rgbbufready = false;
+  setZBufferUpdated( true );
+  setRGBBufferUpdated( false );
+}
+
+
+bool GLWidgetManager::isZBufferUpToDate() const
+{
+  return _pd->zbufready;
+}
+
+
+void GLWidgetManager::setZBufferUpdated( bool x )
+{
+  _pd->zbufready = x;
+}
+
+
+void GLWidgetManager::stopZBufferTimer()
+{
+  if( _pd->zbuftimer )
+    _pd->zbuftimer->stop();
+}
+
+bool GLWidgetManager::isRGBBufferUpToDate() const
+{
+  return _pd->rgbbufready;
+}
+
+
+void GLWidgetManager::setRGBBufferUpdated( bool x )
+{
+  _pd->rgbbufready = x;
 }
 
 
@@ -449,9 +478,7 @@ void GLWidgetManager::paintGL( DrawMode m )
 
   project();
 
-  if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
-    glClearColor( 1., 1., 1., 1. );
-  else
+  if( m != ObjectSelect && m != ObjectsSelect && m != PolygonSelect )
   {
     // Lighting is described in the viewport coordinate system
     if( glIsList( _pd->light ) )
@@ -536,22 +563,22 @@ void GLWidgetManager::drawObjects( DrawMode m )
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
   for( ; il!=el; ++il )
-    {
-      if( (*il)->ghost() )
-        switch( m )
-          {
-          case Normal:
-            _pd->zbufready = false;
-            (*il)->callList();
-            break;
-          case ZSelect:
-            break;
-          default:
-            break;
-          }
-      else
+  {
+    if( (*il)->ghost() )
+      switch( m )
+      {
+      case Normal:
+        _pd->zbufready = false;
         (*il)->callList();
-    }
+        break;
+      case ZSelect:
+        break;
+      default:
+        break;
+      }
+    else
+      (*il)->callList();
+  }
 }
 
 
@@ -1235,13 +1262,6 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
-
-  if( qglWidget()->parentWidget()
-    && dynamic_cast<QGraphicsView *>( qglWidget()->parentWidget() ) )
-    /* FIXME: temporary fix, I don't know wky the Z buffer sometimes changes
-       when the GL widget is in a graphics view, and just redrawing it is
-       not enough. */
-    paintGL( Normal );
 
   updateZBuffer();
 

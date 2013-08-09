@@ -58,6 +58,7 @@ public:
   virtual QSize sizeHint() const;
   virtual QSize minimumSizeHint() const;
   virtual std::string name() const;
+  virtual bool positionFromCursor( int x, int y, Point3df & position );
 
   int width()
   {

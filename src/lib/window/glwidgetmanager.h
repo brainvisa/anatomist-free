@@ -220,8 +220,12 @@ namespace anatomist
     anatomist::GLPrimitives _primitives;
     anatomist::GLPrimitives _selectprimitives;
 
-  // protected slots:
-    void updateZBuffer();
+    virtual void updateZBuffer();
+    bool isZBufferUpToDate() const;
+    void setZBufferUpdated( bool );
+    void stopZBufferTimer();
+    bool isRGBBufferUpToDate() const;
+    void setRGBBufferUpdated( bool );
 
   private:
     Private *_pd;
