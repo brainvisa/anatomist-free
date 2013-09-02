@@ -59,7 +59,20 @@ using namespace std;
 
 
 TransformerActionData::TransformerActionData()
-  : _maintrans( 0 )
+  : QObject(), _maintrans( 0 )
+{
+}
+
+
+TransformerActionData::TransformerActionData(
+  const TransformerActionData & other )
+  : QObject(), _maintrans( other._maintrans ), _trans( other._trans ),
+    _itrans( other._itrans )
+{
+}
+
+
+TransformerActionData::~TransformerActionData()
 {
 }
 
@@ -190,6 +203,166 @@ Referential* TransformerActionData::mainDestRef() const
     return _maintrans->destination();
   else
     return _maintrans->source();
+}
+
+
+void TransformerActionData::setTransformData( const Transformation & t,
+  bool absolute )
+{
+  map<Transformation*, Transformation>::iterator        it, et = _trans.end();
+  for( it=_trans.begin(); it!=et; ++it )
+  {
+    it->first->unregisterTrans();
+    *it->first = t;
+    if( !absolute )
+      *it->first *= it->second;
+    it->first->registerTrans();
+  }
+
+  if( !_itrans.empty() )
+  {
+    Transformation t2( 0, 0, t );
+    t2.invert();
+    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
+    {
+      it->first->unregisterTrans();
+      *it->first = t2;
+      if( !absolute )
+        *it->first *= it->second;
+      it->first->registerTrans();
+    }
+  }
+}
+
+
+void TransformerActionData::resetTransform()
+{
+  if( !mainTransformation() )
+    return;
+  Transformation t( 0, 0 );
+  setTransformData( t, true );
+  Quaternion q( initialQuaternion() );
+  updateTemporaryObjects( q );
+  updateGVInfo( q );
+  AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
+  if( w3 )
+    w3->refreshNow();
+}
+
+
+void TransformerActionData::resetRotation()
+{
+  if( !mainTransformation() )
+    return;
+  Transformation t( 0, 0 );
+  t.setTranslation( &mainTransformation()->translation()[0] );
+  setTransformData( t, true );
+  Quaternion q( initialQuaternion() );
+  updateTemporaryObjects( q );
+  updateGVInfo( q );
+  AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
+  if( w3 )
+    w3->refreshNow();
+}
+
+
+void TransformerActionData::matrixCellChanged( int row, int col,
+                                               QTableWidget* twid )
+{
+  Transformation *t = mainTransformation();
+  if( !t )
+    return;
+  twid->blockSignals( true );
+  QTableWidgetItem *item = twid->item( row, col );
+  QString text = item->text();
+  bool ok = false;
+  double value = text.toDouble( &ok );
+  AffineTransformation3d & atr = t->motion();
+  if( !ok )
+  {
+    if( col < 3 )
+      item->setText( QString::number( atr.rotation()( row, col ), 'f', 2 ) );
+    else
+      item->setText( QString::number( atr.translation()[ row ], 'f', 2 ) );
+  }
+  else
+  {
+    if( col < 3 )
+      atr.rotation()( row, col ) = value;
+    else
+      atr.translation()[ row ] = value;
+
+    Quaternion q( initialQuaternion() );
+    updateTemporaryObjects( q );
+    updateGVInfo( q );
+    AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
+    if( w3 )
+      w3->refreshNow();
+  }
+  twid->blockSignals( false );
+}
+
+
+void TransformerActionData::axisCellChanged( int row, int col,
+                                             QTableWidget* twid )
+{
+  Transformation *t = mainTransformation();
+  if( !t )
+    return;
+  QTableWidgetItem *item = twid->item( row, col );
+  QString text = item->text();
+  bool ok = false;
+  double value = text.toDouble( &ok );
+  AffineTransformation3d & atr = t->motion();
+  if( !ok )
+  {
+    twid->blockSignals( true );
+    item->setText( QString::number( rotationAxis[ col ], 'f', 2 ) );
+    twid->blockSignals( false );
+  }
+  else
+  {
+    rotationAxis[ col ] = value;
+  }
+}
+
+
+void TransformerActionData::rotationAngleChanged( QLineEdit* ledit )
+{
+  Transformation *t = mainTransformation();
+  if( !t )
+    return;
+  ledit->blockSignals( true );
+  QString text = ledit->text();
+  bool ok = false;
+  double value = text.toDouble( &ok );
+  AffineTransformation3d & atr = t->motion();
+  if( !ok )
+  {
+    ledit->setText( QString::number( 0., 'f', 2 ) );
+  }
+  else
+  {
+    Quaternion q;
+    q.fromAxis( rotationAxis, value );
+    Transformation        t2( 0, 0 );
+    t2.setQuaternion( q.inverse() );
+    AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
+    if( !w3 )
+      return;
+    Point3df t0
+      = static_cast<GLWidgetManager *>( tadView() )->rotationCenter();
+    t0 -= t2.transform( t0 ); // (I-R) t0
+    t2.SetTranslation( 0, t0[0] );
+    t2.SetTranslation( 1, t0[1] );
+    t2.SetTranslation( 2, t0[2] );
+
+    setTransformData( t2 );
+    updateTemporaryObjects( q );
+    updateGVInfo( q );
+    w3->refreshNow();
+  }
+  ledit->blockSignals( false );
 }
 
 
@@ -587,10 +760,26 @@ namespace
       return;
     Ui::transform_feedback* tui = new Ui::transform_feedback;
     QWidget *wid = new QWidget( 0 );
+    QObject *ob = dynamic_cast<QObject *>( action );
     tui->setupUi( wid );
     tui->matrix_tab->setLayout( tui->matrix_layout );
     tui->euler_tab->setLayout( tui->euler_layout );
     tui->rotation_tab->setLayout( tui->rotation_layout );
+    if( ob )
+    {
+      ob->connect( tui->matrix_reset_pushButton, SIGNAL( pressed() ),
+                   ob, SLOT( resetTransform() ) );
+      ob->connect( tui->matrix_resetR_pushButton, SIGNAL( pressed() ),
+                   ob, SLOT( resetRotation() ) );
+      ob->connect( tui->matrix_tableWidget, SIGNAL( cellChanged( int, int ) ),
+                   ob, SLOT( matrixCellChanged( int, int ) ) );
+      ob->connect( tui->rotation_axis_tableWidget,
+                   SIGNAL( cellChanged( int, int ) ),
+                   ob, SLOT( axisCellChanged( int, int ) ) );
+      ob->connect( tui->rotation_angle_lineEdit, SIGNAL( editingFinished() ),
+                   ob, SLOT( rotationAngleChanged() ) );
+    }
+
     QGraphicsScene *scene = gv->scene();
     if( !scene )
     {
@@ -732,7 +921,7 @@ namespace
 
 
 Transformer::Transformer()
-  : Trackball(), TransformerActionData(), d( new Private )
+  : TransformerActionData(), Trackball(), d( new Private )
 {
   d->box1.reset( new BoxViewSlice( this ) );
   d->box2.reset( new BoxViewSlice( this ) );
@@ -741,7 +930,7 @@ Transformer::Transformer()
 
 
 Transformer::Transformer( const Transformer & a )
-  : Trackball( a ), TransformerActionData( a )
+  : TransformerActionData( a ), Trackball( a )
 {
 }
 
@@ -812,7 +1001,7 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     updateTemporaryObjects( initialQuaternion() );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  updateGVInfo( d, _maintrans, this, initialQuaternion() );
+  ::updateGVInfo( d, _maintrans, this, initialQuaternion() );
 
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
@@ -903,30 +1092,9 @@ void Transformer::moveTrackball( int x, int y, int, int )
   t.SetTranslation( 1, t0[1] );
   t.SetTranslation( 2, t0[2] );
 
-  map<Transformation*, Transformation>::iterator	it, et = _trans.end();
-  for( it=_trans.begin(); it!=et; ++it )
-  {
-    it->first->unregisterTrans();
-    *it->first = t;
-    *it->first *= it->second;
-    it->first->registerTrans();
-  }
-
-  if( !_itrans.empty() )
-  {
-    t.invert();
-    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
-    {
-      it->first->unregisterTrans();
-      *it->first = t;
-      *it->first *= it->second;
-      it->first->registerTrans();
-    }
-  }
-
+  setTransformData( t );
   updateTemporaryObjects( q );
-  if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first, this, q );
+  ::updateGVInfo( d, _trans.begin()->first, this, q );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -964,6 +1132,33 @@ void Transformer::toggleDisplayInfo()
 Transformer::Private *Transformer::data()
 {
   return d;
+}
+
+
+void Transformer::matrixCellChanged( int row, int col )
+{
+  TransformerActionData::matrixCellChanged( row, col,
+                                            d->trans_ui->matrix_tableWidget );
+}
+
+
+void Transformer::axisCellChanged( int row, int col )
+{
+  TransformerActionData::axisCellChanged( row, col,
+                                          d->trans_ui->matrix_tableWidget );
+}
+
+
+void Transformer::rotationAngleChanged()
+{
+  TransformerActionData::rotationAngleChanged(
+    d->trans_ui->rotation_angle_lineEdit );
+}
+
+
+void Transformer::updateGVInfo( const Quaternion & q )
+{
+  ::updateGVInfo( d, _maintrans, this, q );
 }
 
 
@@ -1031,7 +1226,7 @@ void TranslaterAction::begin( int x, int y, int, int )
   d->box2->beginTrackball( x, y );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  updateGVInfo( d, _maintrans, this, Quaternion() );
+  ::updateGVInfo( d, _maintrans, this, Quaternion() );
 }
 
 
@@ -1076,30 +1271,10 @@ void TranslaterAction::move( int x, int y, int, int )
   t.SetTranslation( 1, zfac * p[1] );
   t.SetTranslation( 2, p[2] );
 
-  map<Transformation*, Transformation>::iterator	it, et = _trans.end();
-  for( it=_trans.begin(); it!=et; ++it )
-  {
-    it->first->unregisterTrans();
-    *it->first = t;
-    *it->first *= it->second;
-    it->first->registerTrans();
-  }
-
-  if( !_itrans.empty() )
-  {
-    t.invert();
-    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
-    {
-      it->first->unregisterTrans();
-      it->first->setGenerated( true );
-      *it->first = t;
-      *it->first *= it->second;
-      it->first->registerTrans();
-    }
-  }
+  setTransformData( t );
 
   if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first, this, Quaternion() );
+    ::updateGVInfo( d, _trans.begin()->first, this, Quaternion() );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -1114,6 +1289,23 @@ void TranslaterAction::end( int x, int y, int, int )
   d->box1->endTrackball( x, y );
   d->box2->endTrackball( x, y );
   _started = false;
+}
+
+
+Quaternion TranslaterAction::initialQuaternion()
+{
+  return Quaternion();
+}
+
+
+void TranslaterAction::updateTemporaryObjects( const aims::Quaternion & )
+{
+}
+
+
+void TranslaterAction::updateGVInfo( const Quaternion & q )
+{
+  ::updateGVInfo( d, _maintrans, this, q );
 }
 
 
@@ -1288,31 +1480,10 @@ void ResizerAction::move( int /* x */, int y, int, int )
   t.SetTranslation( 1, t0[1] * ( 1 - zfac ) );
   t.SetTranslation( 2, t0[2] * ( 1 - zfac ) );
 
-  map<Transformation*, Transformation>::iterator	it, et = _trans.end();
-  for( it=_trans.begin(); it!=et; ++it )
-  {
-    it->first->unregisterTrans();
-    *it->first = t;
-    *it->first *= it->second;
-    it->first->registerTrans();
-  }
-
-  if( !_itrans.empty() )
-  {
-    t.invert();
-    for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
-    {
-      it->first->unregisterTrans();
-      it->first->setGenerated( true );
-      *it->first = t;
-      *it->first *= it->second;
-      it->first->registerTrans();
-    }
-  }
-
+  setTransformData( t );
   updateTemporaryObjects( zfac );
   if( !_trans.empty() )
-    updateGVInfo( d, _trans.begin()->first, this, Quaternion(), zfac );
+    ::updateGVInfo( d, _trans.begin()->first, this, Quaternion(), zfac );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );

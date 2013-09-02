@@ -450,7 +450,7 @@
           <property name="maximumSize">
            <size>
             <width>246</width>
-            <height>86</height>
+            <height>87</height>
            </size>
           </property>
           <attribute name="horizontalHeaderVisible">
@@ -694,11 +694,6 @@
         </item>
        </layout>
       </widget>
-      <zorder>layoutWidget</zorder>
-      <zorder>matrix_resetR_pushButton</zorder>
-      <zorder>matrix_reset_pushButton</zorder>
-      <zorder>matrix_reset_pushButton</zorder>
-      <zorder>matrix_resetR_pushButton</zorder>
      </widget>
      <widget class="QWidget" name="euler_tab">
       <attribute name="title">
@@ -710,7 +705,7 @@
          <x>0</x>
          <y>10</y>
          <width>221</width>
-         <height>140</height>
+         <height>143</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="euler_layout">
@@ -956,7 +951,7 @@
          <x>10</x>
          <y>10</y>
          <width>211</width>
-         <height>168</height>
+         <height>200</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="rotation_layout">
@@ -1160,6 +1155,23 @@
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="rotation_angle_unit_comboBox">
+            <property name="insertPolicy">
+             <enum>QComboBox::NoInsert</enum>
+            </property>
+            <item>
+             <property name="text">
+              <string>rad</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>deg</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

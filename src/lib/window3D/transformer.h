@@ -36,9 +36,12 @@
 #define ANATOMIST_WINDOW3D_TRANSFORMER_H
 
 #include <anatomist/window3D/trackball.h>
+#include <qobject.h>
 #include <map>
 
 class QGraphicsItem;
+class QTableWidget;
+class QLineEdit;
 
 namespace anatomist
 {
@@ -49,27 +52,51 @@ namespace anatomist
   namespace internal
   {
 
-    class TransformerActionData
+    class TransformerActionData : public QObject
     {
+    Q_OBJECT
+
     public:
       TransformerActionData();
+      TransformerActionData( const TransformerActionData & );
+      virtual ~TransformerActionData();
+
       Transformation* mainTransformation() const;
       void selectTransformations( AWindow * );
       void setMainTransformation( Transformation* t );
       bool isMainTransDirect() const;
       Referential* mainSourceRef() const;
       Referential* mainDestRef() const;
+      void setTransformData( const Transformation & t, bool absolute=false );
+      virtual aims::Quaternion initialQuaternion() = 0;
+      virtual View* tadView() = 0;
+
+    public slots:
+      virtual void resetTransform();
+      virtual void resetRotation();
 
     protected:
       Transformation *_maintrans;
       std::map<Transformation*, Transformation>   _trans;
       std::map<Transformation*, Transformation>   _itrans;
+      Point3df rotationAxis;
+
+      virtual void updateTemporaryObjects(
+        const aims::Quaternion & rotation ) = 0;
+      virtual void updateGVInfo( const aims::Quaternion & q ) = 0;
+      virtual void matrixCellChanged( int row, int col, QTableWidget* twid );
+      virtual void axisCellChanged( int row, int col, QTableWidget* twid );
+      virtual void rotationAngleChanged( QLineEdit* ledit );
     };
 
   }
 
-  class Transformer : public Trackball, public internal::TransformerActionData
+
+  class Transformer
+    : public internal::TransformerActionData, public Trackball
   {
+    Q_OBJECT
+
   public:
     static Action * creator() ;
 
@@ -87,19 +114,26 @@ namespace anatomist
     virtual void showGraphicsView();
     virtual void clearGraphicsView();
     void toggleDisplayInfo();
+    virtual View* tadView() { return view(); }
 
     struct Private; // not private since it is used by TranslaterAction
     Private* data();
+
+  public slots:
+    virtual void matrixCellChanged( int row, int col );
+    virtual void axisCellChanged( int row, int col );
+    virtual void rotationAngleChanged();
 
   protected:
     Private *d;
 
     virtual void updateTemporaryObjects( const aims::Quaternion & rotation );
+    virtual void updateGVInfo( const aims::Quaternion & q );
   };
 
 
-  class TranslaterAction : public Action,
-    public internal::TransformerActionData
+  class TranslaterAction
+    : public internal::TransformerActionData, public Action
   {
   public:
     static Action * creator() ;
@@ -113,6 +147,8 @@ namespace anatomist
     virtual void begin( int x, int y, int globalX, int globalY );
     virtual void move( int x, int y, int globalX, int globalY );
     virtual void end( int x, int y, int globalX, int globalY );
+    virtual View* tadView() { return view(); }
+    virtual aims::Quaternion initialQuaternion();
 
   protected:
     struct Private;
@@ -120,6 +156,9 @@ namespace anatomist
     bool	_started;
     int		_beginx;
     int		_beginy;
+
+    virtual void updateTemporaryObjects( const aims::Quaternion & rotation );
+    virtual void updateGVInfo( const aims::Quaternion & q );
   };
 
 
