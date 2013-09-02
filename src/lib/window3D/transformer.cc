@@ -864,6 +864,7 @@ namespace
     const AimsData<float> & rot = atr.rotation();
     const Point3df & tra = atr.translation();
     int i, j;
+    d->trans_ui->matrix_tableWidget->blockSignals( true );
     for( i=0; i<3; ++i )
       for( j=0; j<3; ++j )
       d->trans_ui->matrix_tableWidget->setItem( i, j,
@@ -874,41 +875,54 @@ namespace
          new QTableWidgetItem( QString::number( tra[1], 'f', 2 ) ) );
     d->trans_ui->matrix_tableWidget->setItem( 2, 3,
          new QTableWidgetItem( QString::number( tra[2], 'f', 2 ) ) );
+    d->trans_ui->matrix_tableWidget->blockSignals( false );
 
     GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( action->view() );
     Point3df cent( 0, 0, 0 );
     if( w )
       cent = w->rotationCenter();
 
+    d->trans_ui->euler_center_tableWidget->blockSignals( true );
     d->trans_ui->euler_center_tableWidget->setItem( 0, 0,
         new QTableWidgetItem( QString::number( cent[0], 'f', 2 ) ) );
     d->trans_ui->euler_center_tableWidget->setItem( 0, 1,
         new QTableWidgetItem( QString::number( cent[1], 'f', 2 ) ) );
     d->trans_ui->euler_center_tableWidget->setItem( 0, 2,
         new QTableWidgetItem( QString::number( cent[2], 'f', 2 ) ) );
+    d->trans_ui->euler_center_tableWidget->blockSignals( false );
 
+    d->trans_ui->rotation_center_tableWidget->blockSignals( true );
     d->trans_ui->rotation_center_tableWidget->setItem( 0, 0,
         new QTableWidgetItem( QString::number( cent[0], 'f', 2 ) ) );
     d->trans_ui->rotation_center_tableWidget->setItem( 0, 1,
         new QTableWidgetItem( QString::number( cent[1], 'f', 2 ) ) );
     d->trans_ui->rotation_center_tableWidget->setItem( 0, 2,
         new QTableWidgetItem( QString::number( cent[2], 'f', 2 ) ) );
+    d->trans_ui->rotation_center_tableWidget->blockSignals( false );
 
+    d->trans_ui->euler_scaling_lineEdit->blockSignals( true );
     d->trans_ui->euler_scaling_lineEdit->setText(
       QString::number( scale, 'f', 3 ) );
+    d->trans_ui->euler_scaling_lineEdit->blockSignals( false );
 
     Point3df axis = q.axis();
+    d->trans_ui->rotation_axis_tableWidget->blockSignals( true );
     d->trans_ui->rotation_axis_tableWidget->setItem( 0, 0,
        new QTableWidgetItem( QString::number( axis[0], 'f', 2 ) ) );
     d->trans_ui->rotation_axis_tableWidget->setItem( 0, 1,
        new QTableWidgetItem( QString::number( axis[1], 'f', 2 ) ) );
     d->trans_ui->rotation_axis_tableWidget->setItem( 0, 2,
        new QTableWidgetItem( QString::number( axis[2], 'f', 2 ) ) );
+    d->trans_ui->rotation_axis_tableWidget->blockSignals( false );
 
+    d->trans_ui->rotation_angle_lineEdit->blockSignals( true );
     d->trans_ui->rotation_angle_lineEdit->setText(
       QString::number( q.angle(), 'f', 2 ) );
+    d->trans_ui->rotation_angle_lineEdit->blockSignals( false );
+    d->trans_ui->rotation_scaling_lineEdit->blockSignals( true );
     d->trans_ui->rotation_scaling_lineEdit->setText(
       QString::number( scale, 'f', 3 ) );
+    d->trans_ui->rotation_scaling_lineEdit->blockSignals( false );
 
 //     GLWidgetManager *glw = dynamic_cast<GLWidgetManager *>( action->view() );
 //     if( glw )
