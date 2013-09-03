@@ -133,7 +133,21 @@ void AGraphicsView::mouseDoubleClickEvent( QMouseEvent * event )
 
 void AGraphicsView::keyPressEvent( QKeyEvent* event )
 {
-  QGraphicsView::keyPressEvent( event );
+  /* process via QGraphicsView first, but with a few exceptions:
+     Key_Up and Key_Down seem to be systematically "eaten" by the
+     QGraphicsView, and we still need them for the controls system.
+  */
+  set<int> reservedKeys;
+  reservedKeys.insert( Qt::Key_PageUp );
+  reservedKeys.insert( Qt::Key_PageDown );
+  reservedKeys.insert( Qt::Key_Up );
+  reservedKeys.insert( Qt::Key_Down );
+  reservedKeys.insert( Qt::Key_Left );
+  reservedKeys.insert( Qt::Key_Right );
+  if( reservedKeys.find( event->key() ) == reservedKeys.end() )
+    QGraphicsView::keyPressEvent( event );
+  else
+    event->setAccepted( false );
   if( !event->isAccepted() )
   {
     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
