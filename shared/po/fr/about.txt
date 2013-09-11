@@ -76,6 +76,8 @@ Matthieu Perrot
 Dominique Geffroy
 Pauline Roca
 Thomas Vincent
+Arnaud Le Troter
+Jean-Baptiste Martini
 
 
 
