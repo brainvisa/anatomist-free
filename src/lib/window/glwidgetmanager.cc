@@ -1587,7 +1587,6 @@ void GLWidgetManager::wheelEvent( QWheelEvent* ev )
 {
 //  cout << "wheelEvent glwidget \n" ;
   controlSwitch()->wheelEvent( ev );
-  _pd->resized = true;
 }
 
 
@@ -1600,6 +1599,7 @@ string GLWidgetManager::name() const
 void GLWidgetManager::setZoom( float z )
 {
   _pd->zoom = z;
+  _pd->resized = true;
   if( _pd->righteye )
     _pd->righteye->setZoom( z );
 }
@@ -1627,6 +1627,7 @@ void GLWidgetManager::setQuaternion( const Point4df & q )
   }
   _pd->quaternion = q;
   _pd->buildRotationMatrix();
+  _pd->resized = true;
 }
 
 
@@ -1639,6 +1640,7 @@ void GLWidgetManager::setQuaternion( const Quaternion & q )
   }
   _pd->quaternion = q;
   _pd->buildRotationMatrix();
+  _pd->resized = true;
 }
 
 
@@ -1669,18 +1671,21 @@ bool GLWidgetManager::invertedZ() const
 void GLWidgetManager::setXDirection( bool inv )
 {
   _pd->invertX = inv;
+  _pd->resized = true;
 }
 
 
 void GLWidgetManager::setYDirection( bool inv )
 {
   _pd->invertY = inv;
+  _pd->resized = true;
 }
 
 
 void GLWidgetManager::setZDirection( bool inv )
 {
   _pd->invertZ = inv;
+  _pd->resized = true;
 }
 
 
@@ -1695,6 +1700,7 @@ void GLWidgetManager::setRotationCenter( const Point3df & c )
   }
   else
     _pd->center = c;
+  _pd->resized = true;
 }
 
 
@@ -1713,6 +1719,7 @@ bool GLWidgetManager::perspectiveEnabled() const
 void GLWidgetManager::enablePerspective( bool p )
 {
   _pd->perspective = p;
+  _pd->resized = true;
 }
 
 
