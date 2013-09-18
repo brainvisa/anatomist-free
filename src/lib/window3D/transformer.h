@@ -42,6 +42,7 @@
 class QGraphicsItem;
 class QTableWidget;
 class QLineEdit;
+class QComboBox;
 
 namespace anatomist
 {
@@ -86,7 +87,9 @@ namespace anatomist
       virtual void updateGVInfo( const aims::Quaternion & q ) = 0;
       virtual void matrixCellChanged( int row, int col, QTableWidget* twid );
       virtual void axisCellChanged( int row, int col, QTableWidget* twid );
-      virtual void rotationAngleChanged( QLineEdit* ledit );
+      virtual void centerCellChanged( int row, int col, QTableWidget* twid );
+      virtual void rotationAngleChanged( QLineEdit* ledit, QComboBox* unit );
+      virtual void rotationScaleChanged( QLineEdit* ledit );
     };
 
   }
@@ -122,7 +125,9 @@ namespace anatomist
   public slots:
     virtual void matrixCellChanged( int row, int col );
     virtual void axisCellChanged( int row, int col );
+    virtual void centerCellChanged( int row, int col );
     virtual void rotationAngleChanged();
+    virtual void rotationScaleChanged();
 
   protected:
     Private *d;

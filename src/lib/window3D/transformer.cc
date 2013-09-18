@@ -59,7 +59,7 @@ using namespace std;
 
 
 TransformerActionData::TransformerActionData()
-  : QObject(), _maintrans( 0 )
+  : QObject(), _maintrans( 0 ), rotationAxis( 0, 0, 1 )
 {
 }
 
@@ -165,6 +165,7 @@ void TransformerActionData::selectTransformations( AWindow * win )
     else if( !_itrans.empty() )
       _maintrans = _itrans.begin()->first;
   }
+  cout << "mainTransformation: " << _maintrans << endl;
 }
 
 
@@ -327,8 +328,34 @@ void TransformerActionData::axisCellChanged( int row, int col,
 }
 
 
-void TransformerActionData::rotationAngleChanged( QLineEdit* ledit )
+void TransformerActionData::centerCellChanged( int row, int col,
+                                               QTableWidget* twid )
 {
+  cout << "centerCellChanged\n";
+  AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
+  if( !w3 )
+    return;
+  QTableWidgetItem *item = twid->item( row, col );
+  QString text = item->text();
+  bool ok = false;
+  double value = text.toDouble( &ok );
+  GLWidgetManager *w = static_cast<GLWidgetManager *>( tadView() );
+  Point3df cent = w->rotationCenter();
+  if( !ok )
+  {
+    item->setText( QString::number( cent[ col ], 'f', 2 ) );
+    return;
+  }
+  cout << "set value: " << value << endl;
+  cent[ col ] = value;
+  w->setRotationCenter( cent );
+}
+
+
+void TransformerActionData::rotationAngleChanged( QLineEdit* ledit,
+                                                  QComboBox* unitbox )
+{
+  selectTransformations( tadView()->aWindow() );
   Transformation *t = mainTransformation();
   if( !t )
     return;
@@ -338,11 +365,11 @@ void TransformerActionData::rotationAngleChanged( QLineEdit* ledit )
   double value = text.toDouble( &ok );
   AffineTransformation3d & atr = t->motion();
   if( !ok )
-  {
     ledit->setText( QString::number( 0., 'f', 2 ) );
-  }
   else
   {
+    if( unitbox->currentIndex() == 1 ) // degrees
+      value *= M_PI / 180.;
     Quaternion q;
     q.fromAxis( rotationAxis, value );
     Transformation        t2( 0, 0 );
@@ -356,6 +383,44 @@ void TransformerActionData::rotationAngleChanged( QLineEdit* ledit )
     t2.SetTranslation( 0, t0[0] );
     t2.SetTranslation( 1, t0[1] );
     t2.SetTranslation( 2, t0[2] );
+
+    setTransformData( t2 );
+    updateTemporaryObjects( q );
+    updateGVInfo( q );
+    w3->refreshNow();
+  }
+  ledit->blockSignals( false );
+}
+
+
+void TransformerActionData::rotationScaleChanged( QLineEdit* ledit )
+{
+  selectTransformations( tadView()->aWindow() );
+  Transformation *t = mainTransformation();
+  if( !t )
+    return;
+  ledit->blockSignals( true );
+  QString text = ledit->text();
+  bool ok = false;
+  double value = text.toDouble( &ok );
+  if( !ok )
+    ledit->setText( QString::number( 1., 'f', 2 ) );
+  else
+  {
+    Quaternion q;
+    Transformation        t2( 0, 0 );
+    AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
+    if( !w3 )
+      return;
+    Point3df t0
+      = static_cast<GLWidgetManager *>( tadView() )->rotationCenter();
+    t2.SetTranslation( 0, t0[0] * ( 1 - value ) );
+    t2.SetTranslation( 1, t0[1] * ( 1 - value ) );
+    t2.SetTranslation( 2, t0[2] * ( 1 - value ) );
+    AffineTransformation3d & atr = t2.motion();
+    atr.rotation()( 0, 0 ) = value;
+    atr.rotation()( 1, 1 ) = value;
+    atr.rotation()( 2, 2 ) = value;
 
     setTransformData( t2 );
     updateTemporaryObjects( q );
@@ -764,20 +829,26 @@ namespace
     tui->setupUi( wid );
     tui->matrix_tab->setLayout( tui->matrix_layout );
     tui->euler_tab->setLayout( tui->euler_layout );
+    tui->transform_tabWidget->removeTab( 1 ); // disable euler for now.
     tui->rotation_tab->setLayout( tui->rotation_layout );
     if( ob )
     {
-      ob->connect( tui->matrix_reset_pushButton, SIGNAL( pressed() ),
+      ob->connect( tui->reset_pushButton, SIGNAL( pressed() ),
                    ob, SLOT( resetTransform() ) );
-      ob->connect( tui->matrix_resetR_pushButton, SIGNAL( pressed() ),
+      ob->connect( tui->resetR_pushButton, SIGNAL( pressed() ),
                    ob, SLOT( resetRotation() ) );
       ob->connect( tui->matrix_tableWidget, SIGNAL( cellChanged( int, int ) ),
                    ob, SLOT( matrixCellChanged( int, int ) ) );
       ob->connect( tui->rotation_axis_tableWidget,
                    SIGNAL( cellChanged( int, int ) ),
                    ob, SLOT( axisCellChanged( int, int ) ) );
+      ob->connect( tui->rotation_center_tableWidget,
+                   SIGNAL( cellChanged( int, int ) ),
+                   ob, SLOT( centerCellChanged( int, int ) ) );
       ob->connect( tui->rotation_angle_lineEdit, SIGNAL( editingFinished() ),
                    ob, SLOT( rotationAngleChanged() ) );
+      ob->connect( tui->rotation_scaling_lineEdit, SIGNAL( editingFinished() ),
+                   ob, SLOT( rotationScaleChanged() ) );
     }
 
     QGraphicsScene *scene = gv->scene();
@@ -916,8 +987,11 @@ namespace
     d->trans_ui->rotation_axis_tableWidget->blockSignals( false );
 
     d->trans_ui->rotation_angle_lineEdit->blockSignals( true );
+    float angle = q.angle();
+    if( d->trans_ui->rotation_angle_unit_comboBox->currentIndex() == 1 )
+      angle *= 180. / M_PI;
     d->trans_ui->rotation_angle_lineEdit->setText(
-      QString::number( q.angle(), 'f', 2 ) );
+      QString::number( angle, 'f', 2 ) );
     d->trans_ui->rotation_angle_lineEdit->blockSignals( false );
     d->trans_ui->rotation_scaling_lineEdit->blockSignals( true );
     d->trans_ui->rotation_scaling_lineEdit->setText(
@@ -1064,22 +1138,28 @@ void Transformer::updateTemporaryObjects( const Quaternion & rotation )
     return;
   list<rc_ptr<AObject> > & addobj = d->box2->additionalObjects();
   list<rc_ptr<AObject> >::reverse_iterator io = addobj.rbegin();
-  ASurface<2> *circles = dynamic_cast<ASurface<2> *>( io->get() );
-  if( circles )
+  if( io != addobj.rend() )
   {
-    updateCirclesAngles( *circles->surface(), w->rotationCenter(), rotation,
-                         70, 100 );
-    circles->setReferential( w->aWindow()->getReferential() );
-    circles->glSetChanged( GLComponent::glGEOMETRY );
-  }
-  ++io;
-  ASurface<2> *axis = dynamic_cast<ASurface<2> *>( io->get() );
-  if( axis )
-  {
-    updateAxisWithCircles( *axis->surface(), w->rotationCenter(), rotation,
-                           70, 100 );
-    axis->setReferential( w->aWindow()->getReferential() );
-    axis->glSetChanged( GLComponent::glGEOMETRY );
+    ASurface<2> *circles = dynamic_cast<ASurface<2> *>( io->get() );
+    if( circles )
+    {
+      updateCirclesAngles( *circles->surface(), w->rotationCenter(), rotation,
+                          70, 100 );
+      circles->setReferential( w->aWindow()->getReferential() );
+      circles->glSetChanged( GLComponent::glGEOMETRY );
+    }
+    ++io;
+    if( io != addobj.rend() )
+    {
+      ASurface<2> *axis = dynamic_cast<ASurface<2> *>( io->get() );
+      if( axis )
+      {
+        updateAxisWithCircles( *axis->surface(), w->rotationCenter(), rotation,
+                              70, 100 );
+        axis->setReferential( w->aWindow()->getReferential() );
+        axis->glSetChanged( GLComponent::glGEOMETRY );
+      }
+    }
   }
 }
 
@@ -1105,6 +1185,8 @@ void Transformer::moveTrackball( int x, int y, int, int )
   t.SetTranslation( 0, t0[0] );
   t.SetTranslation( 1, t0[1] );
   t.SetTranslation( 2, t0[2] );
+
+  rotationAxis = q.axis();
 
   setTransformData( t );
   updateTemporaryObjects( q );
@@ -1163,10 +1245,25 @@ void Transformer::axisCellChanged( int row, int col )
 }
 
 
+void Transformer::centerCellChanged( int row, int col )
+{
+  TransformerActionData::centerCellChanged(
+    row, col, d->trans_ui->rotation_center_tableWidget );
+}
+
+
 void Transformer::rotationAngleChanged()
 {
   TransformerActionData::rotationAngleChanged(
-    d->trans_ui->rotation_angle_lineEdit );
+    d->trans_ui->rotation_angle_lineEdit,
+    d->trans_ui->rotation_angle_unit_comboBox );
+}
+
+
+void Transformer::rotationScaleChanged()
+{
+  TransformerActionData::rotationScaleChanged(
+    d->trans_ui->rotation_scaling_lineEdit );
 }
 
 
