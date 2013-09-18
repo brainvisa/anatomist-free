@@ -59,7 +59,8 @@ using namespace std;
 
 
 TransformerActionData::TransformerActionData()
-  : QObject(), _maintrans( 0 ), rotationAxis( 0, 0, 1 )
+  : QObject(), _maintrans( 0 ), rotationAxis( 0, 0, 1 ),
+    _rotationAngleEdited( false ), _rotationScaleEdited( false )
 {
 }
 
@@ -67,7 +68,8 @@ TransformerActionData::TransformerActionData()
 TransformerActionData::TransformerActionData(
   const TransformerActionData & other )
   : QObject(), _maintrans( other._maintrans ), _trans( other._trans ),
-    _itrans( other._itrans )
+    _itrans( other._itrans ),
+    _rotationAngleEdited( false ), _rotationScaleEdited( false )
 {
 }
 
@@ -165,7 +167,6 @@ void TransformerActionData::selectTransformations( AWindow * win )
     else if( !_itrans.empty() )
       _maintrans = _itrans.begin()->first;
   }
-  cout << "mainTransformation: " << _maintrans << endl;
 }
 
 
@@ -331,7 +332,6 @@ void TransformerActionData::axisCellChanged( int row, int col,
 void TransformerActionData::centerCellChanged( int row, int col,
                                                QTableWidget* twid )
 {
-  cout << "centerCellChanged\n";
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( tadView()->aWindow() );
   if( !w3 )
     return;
@@ -346,7 +346,6 @@ void TransformerActionData::centerCellChanged( int row, int col,
     item->setText( QString::number( cent[ col ], 'f', 2 ) );
     return;
   }
-  cout << "set value: " << value << endl;
   cent[ col ] = value;
   w->setRotationCenter( cent );
 }
@@ -355,6 +354,9 @@ void TransformerActionData::centerCellChanged( int row, int col,
 void TransformerActionData::rotationAngleChanged( QLineEdit* ledit,
                                                   QComboBox* unitbox )
 {
+  if( !_rotationAngleEdited )
+    return;
+  _rotationAngleEdited = false;
   selectTransformations( tadView()->aWindow() );
   Transformation *t = mainTransformation();
   if( !t )
@@ -395,6 +397,9 @@ void TransformerActionData::rotationAngleChanged( QLineEdit* ledit,
 
 void TransformerActionData::rotationScaleChanged( QLineEdit* ledit )
 {
+  if( !_rotationScaleEdited )
+    return;
+  _rotationScaleEdited = false;
   selectTransformations( tadView()->aWindow() );
   Transformation *t = mainTransformation();
   if( !t )
@@ -430,6 +435,24 @@ void TransformerActionData::rotationScaleChanged( QLineEdit* ledit )
   ledit->blockSignals( false );
 }
 
+
+void TransformerActionData::rotationAngleEdited( const QString & )
+{
+  _rotationAngleEdited = true;
+}
+
+
+void TransformerActionData::rotationScaleEdited( const QString & )
+{
+  _rotationScaleEdited = true;
+}
+
+
+void TransformerActionData::clearEditionFlags()
+{
+    _rotationAngleEdited = false;
+    _rotationScaleEdited = false;
+}
 
 // ---
 
@@ -845,8 +868,14 @@ namespace
       ob->connect( tui->rotation_center_tableWidget,
                    SIGNAL( cellChanged( int, int ) ),
                    ob, SLOT( centerCellChanged( int, int ) ) );
+      ob->connect( tui->rotation_angle_lineEdit,
+                   SIGNAL( textEdited( const QString &) ),
+                   ob, SLOT( rotationAngleEdited( const QString & ) ) );
       ob->connect( tui->rotation_angle_lineEdit, SIGNAL( editingFinished() ),
                    ob, SLOT( rotationAngleChanged() ) );
+      ob->connect( tui->rotation_scaling_lineEdit,
+                   SIGNAL( textEdited( const QString & ) ),
+                   ob, SLOT( rotationScaleEdited( const QString & ) ) );
       ob->connect( tui->rotation_scaling_lineEdit, SIGNAL( editingFinished() ),
                    ob, SLOT( rotationScaleChanged() ) );
     }
@@ -871,7 +900,6 @@ namespace
 
   void removeGVItems( QGraphicsView* gv, Transformer::Private *d )
   {
-    cout << "removeGVItems\n";
     if( !gv )
       return;
     QGraphicsScene *scene = gv->scene();
@@ -924,6 +952,7 @@ namespace
       return;
     }
     // tr is not null
+    trac->clearEditionFlags();
     AimsRGB col = tr->source()->Color();
     QPixmap pix( d->trans_ui->from_ref_button->size() );
     pix.fill( QColor( col[0], col[1], col[2] ) );

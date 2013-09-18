@@ -71,16 +71,23 @@ namespace anatomist
       void setTransformData( const Transformation & t, bool absolute=false );
       virtual aims::Quaternion initialQuaternion() = 0;
       virtual View* tadView() = 0;
+      void clearEditionFlags();
 
     public slots:
       virtual void resetTransform();
       virtual void resetRotation();
+
+    protected slots:
+      virtual void rotationAngleEdited( const QString & );
+      virtual void rotationScaleEdited( const QString & );
 
     protected:
       Transformation *_maintrans;
       std::map<Transformation*, Transformation>   _trans;
       std::map<Transformation*, Transformation>   _itrans;
       Point3df rotationAxis;
+      bool _rotationAngleEdited;
+      bool _rotationScaleEdited;
 
       virtual void updateTemporaryObjects(
         const aims::Quaternion & rotation ) = 0;
