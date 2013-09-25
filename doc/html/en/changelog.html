@@ -80,17 +80,33 @@
 <h5>Visible changes (users):</h5>
 
 <ul>
-<li>Possibility to display orientation markers ("L", "R" etc) in 2D views</li>
+<li>Possibility to display orientation markers ("L", "R" etc) in 2D views, still a bit experimental...</li>
 <li>Fusion2D: geometric blend mode has been modified, and a new mode has been added for the former behavior</li>
 <li>New Fusion2D blend mode: geometric lightening, "geometric_lighten"</li>
 <li>New object type: <b>Fusion2DMesh</b>. It displays the intersection between a mesh and a slice plane, a bit like in CutMesh, but the slice follows the window slice orientation, thus can be displayed with a volume in a 2D view. To activate it, use the fusion button with one or several meshes selected.</li>
 <li>Fixed handling of very large images ( &gt; 32767 voxels in a dimension)</li>
+<li>Visual feedback for interactive palette bounds settings in windows (ctrl+right mouse button + mouse move). As this feedback relies on an important change in 3D windows widgets, and which seems not to work correctly on Mac, this feature is disabled by default on Mac: see in the internal changes.</li>
+<li>Clearer visual feedback when using the oblique slice control: 3D bounds and plane intersection is displayed during the interactions, and slice plane information is also displayed on the window (using the graphics view system).</li>
+<li>Clearer visual feedback when using the transformation control: when manually playing with transformations, 3D information is displayed (bounding boxes of objects moving, instant rotation axis and angle, relative scaling... Information about the transformation matrix, axis, center, angle, and scaling are also displayed when the graphics view is enabled, and can be edited. The way all this looks may change in the future because I'm not sure is is really comprehensive...</li>
+<li>A few user interface changes, mainly due to the replacement of the Qt3 compatibility lib by pure Qt4 code. Objects/windows lists behave a bit differently, and browser windows too.</li>
+<li>New Fusion3D fusion mode: median.</li>
+<li>Minor reworking of a few icons</li>
+<li>Some optimizations in volmume loading time and memory management</li>
+<li>fixed bug in offset calculation in 4D images (time) in sagittal display</li>
+<li>Many other fixes...</li>
 </ul>
 
 <h5>Internal changes (programmers):</h5>
 
 <ul>
 <li>Volumes in Anatomist are now stored as carto::Volume rather than in AimsData classes</li>
+<li>New object types: sparse matrix, and connectivity matrix mapping on a cortex mesh. Well for now only a in-house toolbox which is still under construction may make use of it, so it is still completely hidden for most users.
+</li>
+<li>The palette settings window now allows some extensions, and allows to open the gradient editor as an example</li>
+<li>A few improvements in Python/C++ bindings</li>
+<li>Fixed some memory leaks</li>
+<li>Most of the uses of the Qt3 compatibility lib have been removed, except for one or two classes of the main Anatomist lib. (it will also prepare things for Qt5 compatibility in the future)</li>
+<li>Use of Qt QGraphicsView in 3D windows: this change allow to display all kinds of overlays (text/graphics information, widgets...) on top of the 3D rendering. In this mode, the Qt OpenGL widget is the background of the graphics view, which implies some behaviour changes in the 3D interactions. We tried to minimize changes for users, but there might still be a few gitches. This graphics view system can be disabled in the settings. Moreover it seems not to work properly on Mac, so it is disabled by default on Mac. This new feature allows to display various information as feedback for controls, like in palette bounds settings, or slice orientation, or manual transformation control.</li>
 </ul>
 
 
