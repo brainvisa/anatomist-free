@@ -306,10 +306,11 @@ class AProfile( ana.cpp.QAWindow ):
       aind = numpy.hstack( [ numpy.round( numpy.hstack( ( \
         ( numpy.array(x)/avs ), tpos ) ) ).astype( int ).reshape(4,1) \
         for x in indices ] )
-      # remove any index which may be out of bounds after rounding
-      aind = aind[ :, numpy.all( aind>=0, axis=0 ) ]
-      aind = aind[ :,
-        numpy.all( aind<numpy.reshape( ar.shape, (4,1) ), axis=0 ) ]
+      # clamp any index which may be out of bounds after rounding
+      aind[ aind<0 ] = 0
+      sz = numpy.reshape( ar.shape, (4,1) )
+      clamped = numpy.where( aind >= sz )
+      aind[ clamped ] = (sz-1)[clamped[0]].ravel()
       data = ar[ tuple( aind ) ]
       if trans is None:
         xdata = [ x[self._coordindex] for x in indices ]
