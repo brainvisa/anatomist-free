@@ -294,18 +294,22 @@ class AProfile( ana.cpp.QAWindow ):
         if (bmin - opos).dot( v ) * (bmax - opos).dot( v ) > 0:
           self.eraseObject( obj )
           return
-          
+
       t0, t1 = bounds
       step = min( vs ) # not optimal.
       indices = [ opos+uvect*(t0+x*step) for x in \
         xrange( 0, int( (t1 - t0 + 1)/step ) ) ]
-        
+
       besti = numpy.argmax( numpy.abs( self._orientation.transform( [ 1, 0, 0 ] ) ) )
       self._coordindex = besti
       avs = numpy.array(vs)
       aind = numpy.hstack( [ numpy.round( numpy.hstack( ( \
         ( numpy.array(x)/avs ), tpos ) ) ).astype( int ).reshape(4,1) \
         for x in indices ] )
+      # remove any index which may be out of bounds after rounding
+      aind = aind[ :, numpy.all( aind>=0, axis=0 ) ]
+      aind = aind[ :,
+        numpy.all( aind<numpy.reshape( ar.shape, (4,1) ), axis=0 ) ]
       data = ar[ tuple( aind ) ]
       if trans is None:
         xdata = [ x[self._coordindex] for x in indices ]
@@ -371,13 +375,14 @@ class AProfile( ana.cpp.QAWindow ):
     for obj in self.Objects():
       self.plotObject( obj )
     self.drawCursor()
+    self._fig.canvas.draw() # refresh plot with updated cursor
 
     # pick events
     if not self._picker_installed and len( self._fig.axes ) > 0:
       self._fig.axes[0].set_picker( True )
       self._fig.canvas.mpl_connect( 'pick_event', self.onPick )
       self._picker_installed = True
-      
+
     self.paintRefLabel()
 
   def drawCursor( self ):
