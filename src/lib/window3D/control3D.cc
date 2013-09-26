@@ -299,7 +299,6 @@ Select3DControl::Select3DControl( const string & name )
 {
   // just for Qt translator parsing
   QT_TRANSLATE_NOOP( "ControlledWindow", "Selection 3D" );
-  QT_TRANSLATE_NOOP( "ControlledWindow", "SelectionControl" );
 }
 
 

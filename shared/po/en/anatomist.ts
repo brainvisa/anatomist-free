@@ -842,8 +842,8 @@ Right btn:  menu
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;           &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate slice plane&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;           &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+w&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -851,7 +851,7 @@ Right btn:  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td span=&quot;2&quot;&gt;Slice movie:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Slice movie:&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
@@ -876,40 +876,41 @@ In addition:
     </message>
     <message>
         <source>PaintControl</source>
-        <translation type="unfinished">Hand-drawing of Regions of Interest (ROI)
-Other functionalities will be added in the future
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;Hand-drawing of Regions of Interest (ROI)&lt;/div&gt;
+&lt;p&gt;Other functionalities will be added in the future&lt;br/&gt;
 Use of several brush types is allowed, linked cursor tracking mode, 
 undo, redo...
-Left btn       : draw
-        &lt;ctrl&gt;  : erase
-        &lt;shift&gt; : fill
-Mid btn       :  rotate
-        &lt;shift&gt;: zoom/distance
-        &lt;ctrl&gt;  : translation
-Right btn     :  menu
-
-BRUSH
-  &lt;p&gt;       :  point
-  &lt;d&gt;       :  disk
-  &lt;b&gt;       :  ball
-  &lt;+&gt;       :  increase brush radius
-  &lt;-&gt;   :  decrease brush radius
-  &lt;shift+l&gt;:  activate &apos;line&apos; mode
-  &lt;ctrl +l&gt; :  disable &apos;line&apos; mode
-  &lt;shift+c&gt;:  activate &apos;linked cursor tracking&apos; mode
-  &lt;ctrl +c&gt;:  disable &apos;linked cursor tracking&apos; mode
-  &lt;shift+r&gt;:  activate replace mode
-  &lt;ctrl +r&gt;:  disable replace mode
-  &lt;ctrl +e&gt;:  clears the current region
-  &lt;m&gt;      :  set brush unit to mm
-  &lt;v&gt;       :  set brush unit to voxel
-  &lt;ctrl+PageUp&gt; : copy on this slice same region previous slice
-  &lt;shift+PageUp&gt; : copy on this slice whole session previous slice
-  &lt;ctrl+PageDown&gt; : copy on this slice same region next slice
-  &lt;shift+PageDown&gt; : copy on this slice whole session next slice
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo last modification
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo last modification</translation>
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;draw&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;erase&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; : fill&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn       :&lt;/td&gt;&lt;td&gt;rotat&lt;/td&gt;&lt;/tr&gt;e
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;  :&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn     :&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;u
+&lt;tr&gt;&lt;td colspan=&quot;2&quot; align=&quot;center&quot;&gt;BRUSH&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;p&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;point&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;d&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disk&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;b&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;ball&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;increase brush radius&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;decrease brush radius&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+l&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;activate &apos;line&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +l&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disable &apos;line&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+c&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;activate &apos;linked cursor tracking&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +c&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disable &apos;linked cursor tracking&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+r&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;activate replace mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +r&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disable replace mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +e&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;clears the current region&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;m&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set brush unit to mm&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;v&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set brush unit to voxel&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice same region previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice whole session previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice same region next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice whole session next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot; align=&quot;center&quot;&gt;Undo / Redo&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo last modification&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo last modification&lt;/td&gt;&lt;/tr&gt;
+&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>LevelSetControl</source>
