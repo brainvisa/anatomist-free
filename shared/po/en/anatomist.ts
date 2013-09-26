@@ -816,24 +816,26 @@ Slice movie:
     </message>
     <message>
         <source>Flight control</source>
-        <translation type="unfinished">Flight simulator control
-This control is not fully operational yet...
-It allows to change the view point with the keyboard
-Left btn: linked cursor
-Mid btn: rotation
-           &lt;shift&gt;: zoom/distance
-           &lt;ctrl&gt; : translation
-Right btn:  menu
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;s&gt;     :  synchro views
-&lt;ctrl+c&gt;:  set center of view
-&lt;alt+c&gt; :  show position of the center of view
-&lt;arrows&gt;:  broomstick
-&lt;ctrl+left&gt;, &lt;ctrl+right&gt;:  flat turn (rudder bar)
-&lt;q&gt;      :  thrust
-&lt;a&gt;      :  brake</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Flight simulator control&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;This control is not fully operational yet...
+It allows to change the view point with the keyboard. It works better in non-isometric perspective (but this mode is broken when the VTK plugin is active).
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;arrows&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;broomstick&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+left&amp;&amp;gt;, &amp;&amp;lt;ctrl+right&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;flat turn (rudder bar)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;Q&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;thrust&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;brake&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ObliqueControl</source>
@@ -851,7 +853,7 @@ Right btn:  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Slice movie:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Slice movie:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
@@ -860,23 +862,23 @@ Right btn:  menu
     </message>
     <message>
         <source>TransformControl</source>
-        <translation>&lt;html&gt;&lt;h4&gt;Transformation control:&lt;/h4&gt;
-changes the transformation between the selected objects and
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Transformation control:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;changes the transformation between the selected objects and
 the view.&lt;br/&gt;
 It works like the oblique control but operates on the transformation
 rather than on the slice plane: object coordinates actually change
 In addition:
 &lt;table&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift&amp;gt; + mid btn: rotate&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl&amp;gt; + mid btn: translate&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift&amp;gt; + left btn: scale&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl&amp;gt; + left btn: rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;I&amp;gt; : display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
-&lt;/html&gt;</translation>
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + mid btn:&lt;/td&gt;&lt;td&gt;rotate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + mid btn:&lt;/td&gt;&lt;td&gt;translate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;scale&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>PaintControl</source>
-        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;Hand-drawing of Regions of Interest (ROI)&lt;/div&gt;
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Hand-drawing of Regions of Interest (ROI)&lt;/b&gt;&lt;/div&gt;
 &lt;p&gt;Other functionalities will be added in the future&lt;br/&gt;
 Use of several brush types is allowed, linked cursor tracking mode, 
 undo, redo...
@@ -888,7 +890,7 @@ undo, redo...
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;  :&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn     :&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;u
-&lt;tr&gt;&lt;td colspan=&quot;2&quot; align=&quot;center&quot;&gt;BRUSH&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Brush controls:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;p&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;point&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;d&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disk&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;b&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;ball&lt;/td&gt;&lt;/tr&gt;
@@ -907,7 +909,7 @@ undo, redo...
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice whole session previous slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice same region next slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice whole session next slice&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan=&quot;2&quot; align=&quot;center&quot;&gt;Undo / Redo&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Undo / Redo&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo last modification&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo last modification&lt;/td&gt;&lt;/tr&gt;
 &lt;/p&gt;&lt;/html&gt;</translation>
@@ -968,26 +970,28 @@ Right Button   :  menu
     </message>
     <message>
         <source>CutControl</source>
-        <translation type="unfinished">Mesh cutting
-Moves the cutting plane on cut meshes
-Left btn: linked cursor
-Mid btn: rotation
-           &lt;shift&gt; : slice plane rotation on selected objects
-           &lt;ctrl&gt;   : slice plane translation on selected objects
-Right btn:  menu
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;s&gt;         :  synchro views
-&lt;alt+s&gt; :  sync views orientation
-&lt;ctrl+c&gt;   :  set center of view
-&lt;alt+c&gt;    :  show position of the center of view
-&lt;ctrl+a&gt;   :  select/unselect all objects
-&lt;del&gt;       :  remove selected object from this view
-&lt;ctrl+del&gt; :  remove selected objects from group
-&lt;shift+a&gt; :  axial plane
-&lt;shift+c&gt; :  coronal plane
-&lt;shift+s&gt; :  sagittal plane</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Mesh cutting slice&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Moves the cutting plane on cut meshes
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn: rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;slice plane rotation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;slice plane translation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sync views orientation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;axial plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coronal plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sagittal plane&lt;/td&gt;&lt;/tr&gt;
+&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>LabelNamingControl</source>
@@ -1028,13 +1032,16 @@ Right Button   :  menu
     </message>
     <message>
         <source>Browser Selection</source>
-        <translation type="unfinished">Browser control
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;ctrl+a&gt;   :  select/unselect all objects
-&lt;del&gt;       :  remove selected object from this view
-&lt;ctrl+del&gt; :  remove selected objects from group</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Browser control&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ThresholdControl</source>
@@ -1218,10 +1225,6 @@ Right Button   :  menu
     </message>
     <message>
         <source>center: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SelectionControl</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
