@@ -297,6 +297,8 @@ Select3DControl::creator( )
 Select3DControl::Select3DControl( const string & name ) 
   : Control( 2, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
+  // just for Qt translator parsing
+  QT_TRANSLATE_NOOP( "ControlledWindow", "Selection 3D" );
 }
 
 
@@ -1363,6 +1365,8 @@ Control * ObliqueControl::creator()
 ObliqueControl::ObliqueControl( const string & name ) 
   : Control( 3, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
+  // just for Qt translation parsing
+  QT_TRANSLATE_NOOP( "ControlledWindow", "ObliqueControl" );
 }
 
 

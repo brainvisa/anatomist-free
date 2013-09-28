@@ -104,175 +104,177 @@ void OrientationAnnotation::remove()
 //---------------------------------------------------------------
 void OrientationAnnotation::update()
 {
-    if ( !_win )
-    {
-            return;
-    }
+  if ( !_win )
+  {
+    return;
+  }
 
-    if( _win->getReferential() != getReferential() )
-      setReferential( _win->getReferential() );
+  if( _win->getReferential() != getReferential() )
+    setReferential( _win->getReferential() );
 
-    // View type changed: reset all annotations
-    if ( _viewType != _win->viewType() )
-    {
-    	remove();
-    	initParams();
-    }
+  // View type changed: reset all annotations
+  if ( _viewType != _win->viewType() )
+  {
+    remove();
+    initParams();
+  }
 
-    // Remove the annotations if display option is off or if the view is oblique
-    if ( !_win->leftRightDisplay() ||
-         _nonObliqueSliceQuaternion.vector() != _win->sliceQuaternion().vector() )
-    {
-        remove();
-        return;
-    }
+  // Remove the annotations if display option is off or if the view is oblique
+  if ( !_win->leftRightDisplay() ||
+        _nonObliqueSliceQuaternion.vector()
+          != _win->sliceQuaternion().vector() )
+  {
+    remove();
+    return;
+  }
 
-    // Update the window coordinate parameters
-    updateWindowCoordParams();
+  // Update the window coordinate parameters
+  updateWindowCoordParams();
 
-    // Annotation map is empty: need to build it
-    if ( _annotMap.empty() )
-    {
-        build();
-    }
+  // Annotation map is empty: need to build it
+  if ( _annotMap.empty() )
+  {
+    build();
+  }
 
-    // Update the annotation positions
-    std::vector< Position >::iterator it;
-    for ( it = _activedAnnot.begin() ; it != _activedAnnot.end() ; it++ )
-    {
-    	_annotMap[ *it ]->setPosition( getPosition( *it ) );
-    	_textMap[ *it ]->setScale( _fontSize/_win->getZoom() );
-    }
+  // Update the annotation positions
+  std::vector< Position >::iterator it;
+  for ( it = _activedAnnot.begin() ; it != _activedAnnot.end() ; it++ )
+  {
+    _annotMap[ *it ]->setPosition( getPosition( *it ) );
+    _textMap[ *it ]->setScale( _fontSize/_win->getZoom() );
+  }
 }
 
 //---------------------------------------------------------------
 string OrientationAnnotation::getPositionLabel( OrientationAnnotation::Position pos )
 {
-    // Get the label according to an annotation position
-    switch ( pos )
-    {
-    case OrientationAnnotation::RIGHT:
-        return "R";
-    case OrientationAnnotation::LEFT:
-        return "L";
-    case OrientationAnnotation::ANT:
-        return "A";
-    case OrientationAnnotation::POST:
-        return "P";
-    case OrientationAnnotation::UP:
-        return "U";
-    case OrientationAnnotation::DOWN:
-        return "D";
-    default:
-        return "";
-    }
+  // Get the label according to an annotation position
+  switch ( pos )
+  {
+  case OrientationAnnotation::RIGHT:
+      return "R";
+  case OrientationAnnotation::LEFT:
+      return "L";
+  case OrientationAnnotation::ANT:
+      return "A";
+  case OrientationAnnotation::POST:
+      return "P";
+  case OrientationAnnotation::UP:
+      return "U";
+  case OrientationAnnotation::DOWN:
+      return "D";
+  default:
+      return "";
+  }
 
-    return "";
+  return "";
 }
 
 //---------------------------------------------------------------
 void OrientationAnnotation::build()
 {
-    if ( !_win )
-    {
-        return;
-    }
+  if ( !_win )
+  {
+    return;
+  }
 
-    vector< Position >::iterator it;
-    for ( it = _activedAnnot.begin() ; it != _activedAnnot.end() ; it++ )
-    {
-        // Create text object
-        TextObject * to = new TextObject( "" );
-        // Set the font size
-        to->setScale( _fontSize );
-        // Set the label
-        std::ostringstream oss;
-        oss << getPositionLabel( (*it) );
-        std::string text = oss.str();
-        to->setText( text );
-        to->setReferentialInheritance( this );
-        // Set the font color
-        Material & mat = to->GetMaterial();
-        mat.SetDiffuse( 1, 0, 0, 1 );
-        to->SetMaterial( mat );
-        _textMap[ *it ] = to ;
-        vector<AObject *> vto;
-        vto.push_back( to );
-        // Create transformed object
-        TransformedObject *tro = new TransformedObject( vto, false, true, getPosition( *it ) );
-        _annotMap[ *it ] = tro;
-        tro->setReferentialInheritance( this );
-        _win->registerObject( tro, true );
-    }
+  vector< Position >::iterator it;
+  for ( it = _activedAnnot.begin() ; it != _activedAnnot.end() ; it++ )
+  {
+    // Create text object
+    TextObject * to = new TextObject( "" );
+    // Set the font size
+    to->setScale( _fontSize );
+    // Set the label
+    std::ostringstream oss;
+    oss << getPositionLabel( (*it) );
+    std::string text = oss.str();
+    to->setText( text );
+    to->setReferentialInheritance( this );
+    // Set the font color
+    Material & mat = to->GetMaterial();
+    mat.SetDiffuse( 1, 0, 0, 1 );
+    to->SetMaterial( mat );
+    _textMap[ *it ] = to ;
+    vector<AObject *> vto;
+    vto.push_back( to );
+    // Create transformed object
+    TransformedObject *tro = new TransformedObject( vto, false, true, getPosition( *it ) );
+    _annotMap[ *it ] = tro;
+    tro->setReferentialInheritance( this );
+    _win->registerObject( tro, true );
+  }
 }
 
 //---------------------------------------------------------------
-Point3df OrientationAnnotation::getPosition( OrientationAnnotation::Position pos )
+Point3df OrientationAnnotation::getPosition(
+  OrientationAnnotation::Position pos )
 {
-    if ( !_win )
+  if ( !_win )
+  {
+    return Point3df( FLT_MAX, FLT_MAX, FLT_MAX );
+  }
+
+  Point3df bmin, bmax;
+  float tmin, tmax;
+  // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
+  _win->boundingBox( bmin, bmax, tmin, tmax );
+  Point3df center = ( bmin + bmax ) * 0.5;
+  // Get the zoom factor of the view
+  const float zoom = _win->getZoom();
+
+  // Get the view quaternion and init coordinates
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( _win->view() );
+  const Quaternion & q = w->quaternion();
+  Point3df coords = q.transform( Point3df( 0, 0, 0 ) );
+
+  // Compute the coordinates (without shift adjustment)
+  for ( int i = 0 ; i < _winCoordParamIndexes[ pos ].size() ; i++ )
+  {
+    coords[ i ] += _winCoordParams [ _winCoordParamIndexes[ pos ][ i ] ][ i ];
+    if ( _winCoordParamIndexes[ pos ][ i ] == 3 )
     {
-        return Point3df( FLT_MAX, FLT_MAX, FLT_MAX );
+      coords[ i ] += 2*getZFactor();
     }
+  }
 
-    Point3df bmin, bmax;
-    float tmin, tmax;
-    // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
-    _win->boundingBox( bmin, bmax, tmin, tmax );
-    Point3df center = ( bmin + bmax ) * 0.5;
-    // Get the zoom factor of the view
-    const float zoom = _win->getZoom();
+  // Compute the shift adjustment according to the window dimensions
+  float wf = 1.5;
+  theAnatomist->config()->getProperty( "windowSizeFactor", wf );
 
-    // Get the view quaternion and init coordinates
-    GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( _win->view() );
-    const Quaternion & q = w->quaternion();
-    Point3df coords = q.transform( Point3df( 0, 0, 0 ) );
+  float sizeImgAlongAxis = 0.;
+  float sizeImgAlongNormAxis = 0.;
+  float sizeWinAlongAxis = 0.;
+  float sizeWinAlongNormAxis = 0.;
+  getImageAndWinDimensions( pos,
+                            sizeImgAlongAxis, sizeImgAlongNormAxis,
+                            sizeWinAlongAxis, sizeWinAlongNormAxis );
 
-    // Compute the coordinates (without shift adjustment)
-    for ( int i = 0 ; i < _winCoordParamIndexes[ pos ].size() ; i++ )
-    {
-        coords[ i ] += _winCoordParams [ _winCoordParamIndexes[ pos ][ i ] ][ i ];
-        if ( _winCoordParamIndexes[ pos ][ i ] == 3 )
-        {
-            coords[ i ] += 2*getZFactor();
-        }
-    }
+  coords -= center - w->rotationCenter();
+  float ratioImg = sizeImgAlongAxis / sizeImgAlongNormAxis;
+  float ratioWin = sizeWinAlongAxis / sizeWinAlongNormAxis;
+  sizeImgAlongAxis *= wf;
+  sizeImgAlongNormAxis *= wf;
+  float currImgSizeAlongAxis = 0.;
+  if ( ratioImg <= ratioWin )
+  {
+    currImgSizeAlongAxis = ratioImg * sizeWinAlongNormAxis;
+  }
+  else
+  {
+    currImgSizeAlongAxis = sizeWinAlongAxis;
+  }
+  currImgSizeAlongAxis *= zoom;
+  float delta = ( sizeImgAlongAxis / currImgSizeAlongAxis ) * ( sizeWinAlongAxis - currImgSizeAlongAxis ) / ( 2*wf );
+  int directionFac = 1;
+  int shiftIndex = 0;
+  int shiftDirection = 0;
+  float shiftValue = 0.;
+  getShiftParams( pos, shiftIndex, shiftDirection, shiftValue );
+  coords[shiftIndex] += ( delta + shiftValue / zoom ) * shiftDirection;
 
-    // Compute the shift adjustment according to the window dimensions
-    float wf = 1.5;
-    theAnatomist->config()->getProperty( "windowSizeFactor", wf );
-
-    float sizeImgAlongAxis = 0.;
-    float sizeImgAlongNormAxis = 0.;
-    float sizeWinAlongAxis = 0.;
-    float sizeWinAlongNormAxis = 0.;
-    getImageAndWinDimensions( pos,
-                              sizeImgAlongAxis, sizeImgAlongNormAxis,
-                              sizeWinAlongAxis, sizeWinAlongNormAxis );
-
-    coords -= center - w->rotationCenter();
-    float ratioImg = sizeImgAlongAxis / sizeImgAlongNormAxis;
-    float ratioWin = sizeWinAlongAxis / sizeWinAlongNormAxis;
-    sizeImgAlongAxis *= wf;
-    sizeImgAlongNormAxis *= wf;
-    float currImgSizeAlongAxis = 0.;
-    if ( ratioImg <= ratioWin )
-    {
-        currImgSizeAlongAxis = ratioImg * sizeWinAlongNormAxis;
-    }
-    else
-    {
-        currImgSizeAlongAxis = sizeWinAlongAxis;
-    }
-    currImgSizeAlongAxis *= zoom;
-    float delta = ( sizeImgAlongAxis / currImgSizeAlongAxis ) * ( sizeWinAlongAxis - currImgSizeAlongAxis ) / ( 2*wf );
-    int directionFac = 1;
-    int shiftIndex = 0;
-    int shiftDirection = 0;
-    float shiftValue = 0.;
-    getShiftParams( pos, shiftIndex, shiftDirection, shiftValue );
-    coords[shiftIndex] += ( delta + shiftValue / zoom ) * shiftDirection;
-
-    return coords;
+  return coords;
 }
 
 //---------------------------------------------------------------
@@ -467,77 +469,77 @@ void OrientationAnnotation::getShiftParams( OrientationAnnotation::Position pos,
 //---------------------------------------------------------------
 void OrientationAnnotation::initParams()
 {
-	if ( !_win )
-	{
-		return;
-	}
+  if ( !_win )
+  {
+    return;
+  }
 
-	// Get view type
-	_viewType = _win->viewType();
-        setReferential( _win->getReferential() );
+  // Get view type
+  _viewType = _win->viewType();
+  setReferential( _win->getReferential() );
 
-	// Get the initial slice quaternion to handle with oblique views
-	_nonObliqueSliceQuaternion = _win->sliceQuaternion();
+  // Get the initial slice quaternion to handle with oblique views
+  _nonObliqueSliceQuaternion = _win->sliceQuaternion();
 
-	_winCoordParamIndexes.clear();
-	// Define the displayed annotations according to the view type
-	if ( _viewType == AWindow3D::Axial )
-	{
-		_activedAnnot = boost::assign::list_of( OrientationAnnotation::RIGHT )
-											  ( OrientationAnnotation::LEFT )
-											  ( OrientationAnnotation::ANT )
-											  ( OrientationAnnotation::POST );
+  _winCoordParamIndexes.clear();
+  // Define the displayed annotations according to the view type
+  if ( _viewType == AWindow3D::Axial )
+  {
+    _activedAnnot = boost::assign::list_of( OrientationAnnotation::RIGHT )
+      ( OrientationAnnotation::LEFT )
+      ( OrientationAnnotation::ANT )
+      ( OrientationAnnotation::POST );
 
-		_winCoordParamIndexes[ RIGHT ] = boost::assign::list_of( 0 )( 2 )( 3 );
-		_winCoordParamIndexes[ LEFT ] = boost::assign::list_of( 1 )( 2 )( 3 );
-		_winCoordParamIndexes[ ANT ] = boost::assign::list_of( 2 )( 0 )( 3 );
-		_winCoordParamIndexes[ POST ] = boost::assign::list_of( 2 )( 1 )( 3 );
-	}
-	else if ( _viewType == AWindow3D::Coronal )
-	{
-		_activedAnnot = boost::assign::list_of( OrientationAnnotation::RIGHT )
-											  ( OrientationAnnotation::LEFT )
-											  ( OrientationAnnotation::UP )
-											  ( OrientationAnnotation::DOWN );
-		_winCoordParamIndexes[ RIGHT ] = boost::assign::list_of( 0 )( 3 )( 2 );
-        _winCoordParamIndexes[ LEFT ] = boost::assign::list_of( 1 )( 3 )( 2 );
-        _winCoordParamIndexes[ UP ] = boost::assign::list_of( 2 )( 3 )( 0 );
-        _winCoordParamIndexes[ DOWN ] = boost::assign::list_of( 2 )( 3 )( 1 );
-	}
-	else if ( _viewType == AWindow3D::Sagittal )
-	{
-		_activedAnnot = boost::assign::list_of( OrientationAnnotation::ANT )
-											  ( OrientationAnnotation::POST )
-											  ( OrientationAnnotation::UP )
-											  ( OrientationAnnotation::DOWN );
-		_winCoordParamIndexes[ UP ] = boost::assign::list_of( 3 )( 2 )( 0 );
-        _winCoordParamIndexes[ DOWN ] = boost::assign::list_of( 3 )( 2 )( 1 );
-        _winCoordParamIndexes[ ANT ] = boost::assign::list_of( 3 )( 0 )( 2 );
-        _winCoordParamIndexes[ POST ] = boost::assign::list_of( 3 )( 1 )( 2 );
-	}
+    _winCoordParamIndexes[ RIGHT ] = boost::assign::list_of( 0 )( 2 )( 3 );
+    _winCoordParamIndexes[ LEFT ] = boost::assign::list_of( 1 )( 2 )( 3 );
+    _winCoordParamIndexes[ ANT ] = boost::assign::list_of( 2 )( 0 )( 3 );
+    _winCoordParamIndexes[ POST ] = boost::assign::list_of( 2 )( 1 )( 3 );
+  }
+  else if ( _viewType == AWindow3D::Coronal )
+  {
+    _activedAnnot = boost::assign::list_of( OrientationAnnotation::RIGHT )
+      ( OrientationAnnotation::LEFT )
+      ( OrientationAnnotation::UP )
+      ( OrientationAnnotation::DOWN );
+    _winCoordParamIndexes[ RIGHT ] = boost::assign::list_of( 0 )( 3 )( 2 );
+    _winCoordParamIndexes[ LEFT ] = boost::assign::list_of( 1 )( 3 )( 2 );
+    _winCoordParamIndexes[ UP ] = boost::assign::list_of( 2 )( 3 )( 0 );
+    _winCoordParamIndexes[ DOWN ] = boost::assign::list_of( 2 )( 3 )( 1 );
+  }
+  else if ( _viewType == AWindow3D::Sagittal )
+  {
+    _activedAnnot = boost::assign::list_of( OrientationAnnotation::ANT )
+      ( OrientationAnnotation::POST )
+      ( OrientationAnnotation::UP )
+      ( OrientationAnnotation::DOWN );
+    _winCoordParamIndexes[ UP ] = boost::assign::list_of( 3 )( 2 )( 0 );
+    _winCoordParamIndexes[ DOWN ] = boost::assign::list_of( 3 )( 2 )( 1 );
+    _winCoordParamIndexes[ ANT ] = boost::assign::list_of( 3 )( 0 )( 2 );
+    _winCoordParamIndexes[ POST ] = boost::assign::list_of( 3 )( 1 )( 2 );
+  }
 }
 
 //---------------------------------------------------------------
 void OrientationAnnotation::updateWindowCoordParams()
 {
-    if ( !_win )
-    {
-        return;
-    }
+  if ( !_win )
+  {
+    return;
+  }
 
-    Point3df bmin, bmax;
-    float tmin, tmax;
-    // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
-    if( _win->getReferential() != getReferential() )
-      setReferential( _win->getReferential() );
+  Point3df bmin, bmax;
+  float tmin, tmax;
+  // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
+  if( _win->getReferential() != getReferential() )
+    setReferential( _win->getReferential() );
 
-    _win->boundingBox( bmin, bmax, tmin, tmax );
-    Point3df center = ( bmin + bmax ) * 0.5;
+  _win->boundingBox( bmin, bmax, tmin, tmax );
+  Point3df center = ( bmin + bmax ) * 0.5;
 
-    // Add bounding box min, max, center and current position
-    _winCoordParams.clear();
-    _winCoordParams = boost::assign::list_of( bmin )
-                                            ( bmax )
-                                            ( center )
-                                            ( _win->GetPosition() );
+  // Add bounding box min, max, center and current position
+  _winCoordParams.clear();
+  _winCoordParams = boost::assign::list_of( bmin )
+                                          ( bmax )
+                                          ( center )
+                                          ( _win->GetPosition() );
 }

@@ -104,7 +104,7 @@
     </message>
     <message>
         <source>Mute into free orientation view</source>
-        <translation type="unfinished">Mute into free orientation view</translation>
+        <translation type="obsolete">Mute into free orientation view</translation>
     </message>
     <message>
         <source>3D</source>
@@ -168,6 +168,14 @@
     </message>
     <message>
         <source>cursor position: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Free orientation view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize window</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -415,7 +423,7 @@
     </message>
     <message>
         <source>Choose a referential on objects or windows</source>
-        <translation type="unfinished">Choose a referential on objects or windows</translation>
+        <translation type="obsolete">Choose a referential on objects or windows</translation>
     </message>
     <message>
         <source>Group objects</source>
@@ -479,7 +487,7 @@
     </message>
     <message>
         <source>Save global settings</source>
-        <translation type="unfinished">Save global settings</translation>
+        <translation type="obsolete">Save global settings</translation>
     </message>
     <message>
         <source>Replay scenario</source>
@@ -733,50 +741,55 @@
         <source>All objects, windows, referentials and transformations will be closed</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Sparse matrices</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ControlledWindow</name>
     <message>
         <source>Default 3D control</source>
-        <translation>&lt;html&gt;Default 3D / Linked Cursor control:
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Default 3D / Linked Cursor control:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
 &lt;table&gt;
-&lt;tr&gt;&lt;td&gt;Left btn&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;lt;shift&amp;gt; / wheel&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;lt;ctrl&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Right btn&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+W&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;F9&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;F10&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sync views orientation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;alt+C&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+A&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+DEL&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sync views orientation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Slice movie:&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgUp&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;shift+PgDown&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+S&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;slice&apos; mode&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+T&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;time&apos; mode&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+L&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;moving linked cursor mode&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;start / stop slice slider movie&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+SPACE&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;weightlessness mode: continuous rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+M&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change slice movie mode&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;+&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;increase movie speed&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;-&amp;gt;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;decrease movie speed&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;slice&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+T&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;time&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+L&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;moving linked cursor mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;start / stop slice slider movie&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;weightlessness mode: continuous rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+M&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change slice movie mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;increase movie speed&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;decrease movie speed&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Colormap handling:&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+right button&amp;gt;&amp;nbsp;, and horizontal move:&lt;/td&gt;&lt;td&gt;change colormap(s) min value&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;lt;ctrl+right button&amp;gt;&amp;nbsp;, and vertical move:&lt;/td&gt;&lt;td&gt;change colormap(s) max value&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and horizontal move:&lt;/td&gt;&lt;td&gt;change colormap(s) min value&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and vertical move:&lt;/td&gt;&lt;td&gt;change colormap(s) max value&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;Reset palette settings&lt;/td&gt;&lt;/tr&gt;
-&lt;/table&gt;&lt;/html&gt;</translation>
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Selection 3D</source>
-        <translation type="obsolete">Selection
+        <translation type="unfinished">Selection
 Left btn: selection
            &lt;shift&gt;: additive selection
            &lt;ctrl&gt; : toggle selection
@@ -803,92 +816,103 @@ Slice movie:
     </message>
     <message>
         <source>Flight control</source>
-        <translation type="unfinished">Flight simulator control
-This control is not fully operational yet...
-It allows to change the view point with the keyboard
-Left btn: linked cursor
-Mid btn: rotation
-           &lt;shift&gt;: zoom/distance
-           &lt;ctrl&gt; : translation
-Right btn:  menu
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;s&gt;     :  synchro views
-&lt;ctrl+c&gt;:  set center of view
-&lt;alt+c&gt; :  show position of the center of view
-&lt;arrows&gt;:  broomstick
-&lt;ctrl+left&gt;, &lt;ctrl+right&gt;:  flat turn (rudder bar)
-&lt;q&gt;      :  thrust
-&lt;a&gt;      :  brake</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Flight simulator control&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;This control is not fully operational yet...
+It allows to change the view point with the keyboard. It works better in non-isometric perspective (but this mode is broken when the VTK plugin is active).
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;arrows&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;broomstick&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+left&amp;&amp;gt;, &amp;&amp;lt;ctrl+right&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;flat turn (rudder bar)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;Q&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;thrust&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;brake&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ObliqueControl</source>
-        <translation type="unfinished">Oblique view control
-Left btn: linked cursor
-Mid btn: rotation
-           &lt;shift&gt;: rotate slice plane
-           &lt;ctrl&gt; : rotate objects with still slice plane
-Right btn:  menu
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;s&gt;     :  synchro views
-&lt;ctrl+c&gt;:  set center of view
-&lt;alt+c&gt; :  show position of the center of view
-Slice movie:
-&lt;PgUp&gt;              :  previous slice
-&lt;PgDown&gt;         : next slice
-&lt;shift+PgUp&gt;     : previous time
-&lt;shift+PgDown&gt;: next time</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Oblique view control&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+w&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Slice movie:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>TransformControl</source>
-        <translation type="unfinished">Transformation control:
-changes the transformation between the selected objects and
-the view
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Transformation control:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;changes the transformation between the selected objects and
+the view.&lt;br/&gt;
 It works like the oblique control but operates on the transformation
 rather than on the slice plane: object coordinates actually change
 In addition:
-&lt;shift&gt; + left btn: scale
-&lt;ctrl&gt; + left btn: rotate in the view slice plane</translation>
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + mid btn:&lt;/td&gt;&lt;td&gt;rotate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + mid btn:&lt;/td&gt;&lt;td&gt;translate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;scale&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>PaintControl</source>
-        <translation type="unfinished">Hand-drawing of Regions of Interest (ROI)
-Other functionalities will be added in the future
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Hand-drawing of Regions of Interest (ROI)&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Other functionalities will be added in the future&lt;br/&gt;
 Use of several brush types is allowed, linked cursor tracking mode, 
 undo, redo...
-Left btn       : draw
-        &lt;ctrl&gt;  : erase
-        &lt;shift&gt; : fill
-Mid btn       :  rotate
-        &lt;shift&gt;: zoom/distance
-        &lt;ctrl&gt;  : translation
-Right btn     :  menu
-
-BRUSH
-  &lt;p&gt;       :  point
-  &lt;d&gt;       :  disk
-  &lt;b&gt;       :  ball
-  &lt;+&gt;       :  increase brush radius
-  &lt;-&gt;   :  decrease brush radius
-  &lt;shift+l&gt;:  activate &apos;line&apos; mode
-  &lt;ctrl +l&gt; :  disable &apos;line&apos; mode
-  &lt;shift+c&gt;:  activate &apos;linked cursor tracking&apos; mode
-  &lt;ctrl +c&gt;:  disable &apos;linked cursor tracking&apos; mode
-  &lt;shift+r&gt;:  activate replace mode
-  &lt;ctrl +r&gt;:  disable replace mode
-  &lt;ctrl +e&gt;:  clears the current region
-  &lt;m&gt;      :  set brush unit to mm
-  &lt;v&gt;       :  set brush unit to voxel
-  &lt;ctrl+PageUp&gt; : copy on this slice same region previous slice
-  &lt;shift+PageUp&gt; : copy on this slice whole session previous slice
-  &lt;ctrl+PageDown&gt; : copy on this slice same region next slice
-  &lt;shift+PageDown&gt; : copy on this slice whole session next slice
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo last modification
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo last modification</translation>
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;draw&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;erase&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; : fill&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn       :&lt;/td&gt;&lt;td&gt;rotat&lt;/td&gt;&lt;/tr&gt;e
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;  :&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn     :&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;u
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Brush controls:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;p&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;point&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;d&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disk&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;b&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;ball&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;increase brush radius&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;decrease brush radius&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+l&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;activate &apos;line&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +l&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disable &apos;line&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+c&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;activate &apos;linked cursor tracking&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +c&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disable &apos;linked cursor tracking&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+r&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;activate replace mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +r&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disable replace mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +e&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;clears the current region&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;m&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set brush unit to mm&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;v&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set brush unit to voxel&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice same region previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice whole session previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice same region next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copy on this slice whole session next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Undo / Redo&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo last modification&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo last modification&lt;/td&gt;&lt;/tr&gt;
+&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>LevelSetControl</source>
@@ -946,26 +970,28 @@ Right Button   :  menu
     </message>
     <message>
         <source>CutControl</source>
-        <translation type="unfinished">Mesh cutting
-Moves the cutting plane on cut meshes
-Left btn: linked cursor
-Mid btn: rotation
-           &lt;shift&gt; : slice plane rotation on selected objects
-           &lt;ctrl&gt;   : slice plane translation on selected objects
-Right btn:  menu
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;s&gt;         :  synchro views
-&lt;alt+s&gt; :  sync views orientation
-&lt;ctrl+c&gt;   :  set center of view
-&lt;alt+c&gt;    :  show position of the center of view
-&lt;ctrl+a&gt;   :  select/unselect all objects
-&lt;del&gt;       :  remove selected object from this view
-&lt;ctrl+del&gt; :  remove selected objects from group
-&lt;shift+a&gt; :  axial plane
-&lt;shift+c&gt; :  coronal plane
-&lt;shift+s&gt; :  sagittal plane</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Mesh cutting slice&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Moves the cutting plane on cut meshes
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn: rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;slice plane rotation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;slice plane translation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sync views orientation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;axial plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coronal plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sagittal plane&lt;/td&gt;&lt;/tr&gt;
+&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>LabelNamingControl</source>
@@ -1006,13 +1032,16 @@ Right Button   :  menu
     </message>
     <message>
         <source>Browser Selection</source>
-        <translation type="unfinished">Browser control
-&lt;ctrl+w&gt;  :  close window
-&lt;F9&gt;       :  full screen
-&lt;F10&gt;     :  show/hide menus/buttons
-&lt;ctrl+a&gt;   :  select/unselect all objects
-&lt;del&gt;       :  remove selected object from this view
-&lt;ctrl+del&gt; :  remove selected objects from group</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Browser control&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ThresholdControl</source>
@@ -1184,6 +1213,18 @@ Right Button   :  menu
     </message>
     <message>
         <source>No object selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>slice plane:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>center: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1516,12 +1557,16 @@ Right Button   :  menu
         <source>Abs. Max</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Median</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FusionChooser</name>
     <message>
         <source>Which fusion ?</source>
-        <translation type="unfinished">Which fusion ?</translation>
+        <translation type="obsolete">Which fusion ?</translation>
     </message>
     <message>
         <source>OK</source>
@@ -1595,6 +1640,18 @@ Right Button   :  menu
         <source>VolumeRenderingFusionMethod</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Fusion2DMeshMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ConnectivityMatrixFusionMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select fusion type</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GraphLandmarkPicker</name>
@@ -1623,19 +1680,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation type="obsolete">Source</translation>
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Model</translation>
+        <translation type="obsolete">Model</translation>
     </message>
     <message>
         <source>Spot</source>
-        <translation type="unfinished">Spot</translation>
+        <translation type="obsolete">Spot</translation>
     </message>
     <message>
         <source>Attenuation</source>
-        <translation type="unfinished">Attenuation</translation>
+        <translation type="obsolete">Attenuation</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1710,11 +1767,11 @@ Right Button   :  menu
     <name>MaterialWindow</name>
     <message>
         <source>Fast color selection</source>
-        <translation type="unfinished">Fast color selection</translation>
+        <translation type="obsolete">Fast color selection</translation>
     </message>
     <message>
         <source>Advanced settings</source>
-        <translation type="unfinished">Advanced settings</translation>
+        <translation type="obsolete">Advanced settings</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1766,58 +1823,34 @@ Right Button   :  menu
     </message>
     <message>
         <source>Rendering mode :</source>
-        <translation type="unfinished">Rendering mode :</translation>
-    </message>
-    <message>
-        <source>Default (view setting)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Rendering mode :</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation type="obsolete">Normal</translation>
     </message>
     <message>
         <source>Wireframe</source>
-        <translation type="unfinished">Wireframe</translation>
+        <translation type="obsolete">Wireframe</translation>
     </message>
     <message>
         <source>Outlined (filled faces + wireframes)</source>
-        <translation type="unfinished">Outlined (filled faces + wireframes)</translation>
+        <translation type="obsolete">Outlined (filled faces + wireframes)</translation>
     </message>
     <message>
         <source>Wireframe with hidden faces</source>
-        <translation type="unfinished">Wireframe with hidden faces</translation>
-    </message>
-    <message>
-        <source>Display properties :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable lighting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Smooth shading</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Wireframe with hidden faces</translation>
     </message>
     <message>
         <source>Smooth polygons / lines</source>
-        <translation type="unfinished">Smooth polygons / lines</translation>
-    </message>
-    <message>
-        <source>Write in depth buffer</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Smooth polygons / lines</translation>
     </message>
     <message>
         <source>Cull polygon faces</source>
-        <translation type="unfinished">Cull polygon faces</translation>
+        <translation type="obsolete">Cull polygon faces</translation>
     </message>
     <message>
         <source>Blue:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rendering</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2086,19 +2119,19 @@ Right Button   :  menu
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished">Application</translation>
+        <translation type="obsolete">Application</translation>
     </message>
     <message>
         <source>Linked cursor</source>
-        <translation type="unfinished">Linked cursor</translation>
+        <translation type="obsolete">Linked cursor</translation>
     </message>
     <message>
         <source>Control window</source>
-        <translation type="unfinished">Control window</translation>
+        <translation type="obsolete">Control window</translation>
     </message>
     <message>
         <source>Volumes</source>
-        <translation type="unfinished">Volumes</translation>
+        <translation type="obsolete">Volumes</translation>
     </message>
     <message>
         <source>Language :</source>
@@ -2154,7 +2187,7 @@ Right Button   :  menu
     </message>
     <message>
         <source>Windows</source>
-        <translation type="unfinished">Windows</translation>
+        <translation type="obsolete">Windows</translation>
     </message>
     <message>
         <source>Default referentials</source>
@@ -2263,7 +2296,23 @@ might still crash with such an OpenGL implementation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OpenGL</source>
+        <source>3D views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use graphics overlay on OpenGL rendering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OpenGL shaders (GLSL 1.2 support needed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OpenGL shaders.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use shader-based OpenGL pipeline (lighting/shading model) by default</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2627,6 +2676,29 @@ might still crash with such an OpenGL implementation.</source>
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <source>Voxel type was changed</source>
+        <comment>ControlWindow</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The voxel type in file was changed since it was loaded the first time. It was </source>
+        <comment>ControlWindow</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> and is now </source>
+        <comment>ControlWindow</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>. The voxel type cannot change dynamically, so values may be truncated. You had probably better load the file as a new object.</source>
+        <comment>ControlWindow</comment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QObjectBrowser</name>
     <message>
         <source>Browser</source>
@@ -2795,6 +2867,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <message>
         <source>Type</source>
         <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>cnt</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3066,6 +3142,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <source>Add without nodes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Rendering</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3075,7 +3155,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Selectable objects</source>
-        <translation type="unfinished">Selectable objects</translation>
+        <translation type="obsolete">Selectable objects</translation>
     </message>
     <message>
         <source>Select</source>
@@ -3084,6 +3164,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <source>Selectable Objects</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3311,6 +3395,14 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <source>Min opacity</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Geometric (square root)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Geometric lighten</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QTextureParams</name>
@@ -3378,6 +3470,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <message>
         <source>Nb. obj.</source>
         <translation type="unfinished">Nb. obj.</translation>
+    </message>
+    <message>
+        <source>cnt</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3460,6 +3556,145 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
+    </message>
+</context>
+<context>
+    <name>RenderingWindow</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rendering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rendering mode :</source>
+        <translation type="unfinished">Rendering mode :</translation>
+    </message>
+    <message>
+        <source>Default (view setting)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rendering_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation type="unfinished">Normal</translation>
+    </message>
+    <message>
+        <source>Wireframe</source>
+        <translation type="unfinished">Wireframe</translation>
+    </message>
+    <message>
+        <source>Outlined (filled faces + wireframes)</source>
+        <translation type="unfinished">Outlined (filled faces + wireframes)</translation>
+    </message>
+    <message>
+        <source>Wireframe with hidden faces</source>
+        <translation type="unfinished">Wireframe with hidden faces</translation>
+    </message>
+    <message>
+        <source>Display properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable lighting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>display_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smooth shading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smooth polygons / lines</source>
+        <translation type="unfinished">Smooth polygons / lines</translation>
+    </message>
+    <message>
+        <source>Write in depth buffer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cull polygon faces</source>
+        <translation type="unfinished">Cull polygon faces</translation>
+    </message>
+    <message>
+        <source>Advanced (shaders)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>enable shaders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lighting model :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lighting_model_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">None</translation>
+    </message>
+    <message>
+        <source>Phong (faster)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blinn-Phong (better)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interpolation Model :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>interpolation_model_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None (flat rendering)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gouraud (faster)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phong (better)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring Model :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>coloring_model_buttonGroup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation type="unfinished">Material</translation>
+    </message>
+    <message>
+        <source>Normals</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation type="unfinished">Reload</translation>
     </message>
 </context>
 <context>
@@ -4027,7 +4262,7 @@ Do you want to save it ?</source>
     <message>
         <source>Normal rendering mode - you should almost always
 use this one. It uses filled polygons</source>
-        <translation type="unfinished">Normal rendering mode - you should almost always
+        <translation type="obsolete">Normal rendering mode - you should almost always
 use this one. It uses filled polygons</translation>
     </message>
     <message>
@@ -4038,7 +4273,7 @@ use this one. It uses filled polygons</translation>
         <source>Only polygon edges are drawn. Hidden faces are also
 drawn, except for polygons facing back if culling
 is enabled</source>
-        <translation type="unfinished">Only polygon edges are drawn. Hidden faces are also
+        <translation type="obsolete">Only polygon edges are drawn. Hidden faces are also
 drawn, except for polygons facing back if culling
 is enabled</translation>
     </message>
@@ -4050,7 +4285,7 @@ is enabled</translation>
         <source>Polygons are filled and polygon edges are re-drawn
 using a different color (black). This mode is quite
 slow as two renderings are performed</source>
-        <translation type="unfinished">Polygons are filled and polygon edges are re-drawn
+        <translation type="obsolete">Polygons are filled and polygon edges are re-drawn
 using a different color (black). This mode is quite
 slow as two renderings are performed</translation>
     </message>
@@ -4062,7 +4297,7 @@ slow as two renderings are performed</translation>
         <source>Only polygon edges are drawn, and hidden faces are
 actually hidden. To do so two renderings must be
 performed like in outline mode (slow)</source>
-        <translation type="unfinished">Only polygon edges are drawn, and hidden faces are
+        <translation type="obsolete">Only polygon edges are drawn, and hidden faces are
 actually hidden. To do so two renderings must be
 performed like in outline mode (slow)</translation>
     </message>
@@ -4075,7 +4310,7 @@ performed like in outline mode (slow)</translation>
 Maybe one day it will perform real-time polygon
 pruning to speed-up huge mesh rendering,
 but up to now...</source>
-        <translation type="unfinished">Well, this mode doesn&apos;t exist in fact...
+        <translation type="obsolete">Well, this mode doesn&apos;t exist in fact...
 Maybe one day it will perform real-time polygon
 pruning to speed-up huge mesh rendering,
 but up to now...</translation>
@@ -4089,7 +4324,7 @@ but up to now...</translation>
 mode, you can get a distance effect between the
 observer and objects. It is useful for the
 &apos;flight simulator&apos; control.</source>
-        <translation type="unfinished">Normal projection mode is orthogonal. In perspective
+        <translation type="obsolete">Normal projection mode is orthogonal. In perspective
 mode, you can get a distance effect between the
 observer and objects. It is useful for the
 &apos;flight simulator&apos; control.</translation>
@@ -4103,7 +4338,7 @@ observer and objects. It is useful for the
 through transparent ones, or if some superimposed
 transparent objects can&apos;t be seen. As a counterpart
 objects superimposition will not be handled correctly</source>
-        <translation type="unfinished">Enable this if you want to click on opaque objects
+        <translation type="obsolete">Enable this if you want to click on opaque objects
 through transparent ones, or if some superimposed
 transparent objects can&apos;t be seen. As a counterpart
 objects superimposition will not be handled correctly</translation>
@@ -4118,7 +4353,7 @@ Without this options, transparent objects will look
 bad, but only the external side of open (or clipped)
 meshes will be seen, so it depends on what you&apos;re
 looking at</source>
-        <translation type="unfinished">Culling avoids drawing polygons facing back.
+        <translation type="obsolete">Culling avoids drawing polygons facing back.
 Without this options, transparent objects will look
 bad, but only the external side of open (or clipped)
 meshes will be seen, so it depends on what you&apos;re
@@ -4134,7 +4369,7 @@ don&apos;t see polygon boundaries. It&apos;s nicer but if you
 are looking at exact details of where polygons are,
 you&apos;ll have to use either flat-shading, or a rendering
 mode showing polygon edges (wireframe, outline, ...)</source>
-        <translation type="unfinished">Normal rendering uses smoothed colors polygons, so you
+        <translation type="obsolete">Normal rendering uses smoothed colors polygons, so you
 don&apos;t see polygon boundaries. It&apos;s nicer but if you
 are looking at exact details of where polygons are,
 you&apos;ll have to use either flat-shading, or a rendering
@@ -4149,7 +4384,7 @@ mode showing polygon edges (wireframe, outline, ...)</translation>
 and polygons edges, but doesn&apos;t work well in all
 cases (polygons should be sorted by depth), and it can
 be very slow</source>
-        <translation type="unfinished">This enables smooth filtering (anti-aliasing) of lines
+        <translation type="obsolete">This enables smooth filtering (anti-aliasing) of lines
 and polygons edges, but doesn&apos;t work well in all
 cases (polygons should be sorted by depth), and it can
 be very slow</translation>
@@ -4177,7 +4412,7 @@ be very slow</translation>
     <message>
         <source>You can clip the whole scene to cut meshes on one or
 both sides of the current plane of the 2D window mode</source>
-        <translation type="unfinished">You can clip the whole scene to cut meshes on one or
+        <translation type="obsolete">You can clip the whole scene to cut meshes on one or
 both sides of the current plane of the 2D window mode</translation>
     </message>
     <message>
@@ -4186,7 +4421,7 @@ both sides of the current plane of the 2D window mode</translation>
     </message>
     <message>
         <source>Distance to current plane (mm) :</source>
-        <translation type="unfinished">Distance to current plane (mm) :</translation>
+        <translation type="obsolete">Distance to current plane (mm) :</translation>
     </message>
     <message>
         <source>This is the thickness of the slice between the current
@@ -4194,7 +4429,7 @@ both sides of the current plane of the 2D window mode</translation>
 using a volume (slice), don&apos;t set the distance to zero
 because the slice will be just on the clipping plane,
 and you don&apos;t know what will be drawn and what won&apos;t be</source>
-        <translation type="unfinished">This is the thickness of the slice between the current
+        <translation type="obsolete">This is the thickness of the slice between the current
 2D window plane and the clipping plane(s). If you are
 using a volume (slice), don&apos;t set the distance to zero
 because the slice will be just on the clipping plane,
@@ -4202,10 +4437,6 @@ and you don&apos;t know what will be drawn and what won&apos;t be</translation>
     </message>
     <message>
         <source>Display cursor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4242,6 +4473,62 @@ and you don&apos;t know what will be drawn and what won&apos;t be</translation>
     </message>
     <message>
         <source>Luminance buffer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Normal rendering mode - you should almost always use this one. It uses filled polygons&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Only polygon edges are drawn. Hidden faces are also drawn, except for polygons facing back if culling is enabled&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Polygons are filled and polygon edges are re-drawn using a different color (black). This mode is quite slow as two renderings are performed&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Only polygon edges are drawn, and hidden faces are actually hidden. To do so two renderings must be performed like in outline mode (slow)&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Well, this mode doesn&apos;t exist in fact... Maybe one day it will perform real-time polygon pruning to speed-up huge mesh rendering, but up to now...&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Normal projection mode is orthogonal. In perspective mode, you can get a distance effect between the observer and objects. It is useful for the &apos;flight simulator&apos; control.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Enable this if you want to click on opaque objects through transparent ones, or if some superimposed transparent objects can&apos;t be seen. As a counterpart objects superimposition will not be handled correctly&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Culling avoids drawing polygons facing back. Without this options, transparent objects will look bad, but only the external side of open (or clipped) meshes will be seen, so it depends on what you&apos;re looking at&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Normal rendering uses smoothed colors polygons, so you don&apos;t see polygon boundaries. It&apos;s nicer but if you are looking at exact details of where polygons are, you&apos;ll have to use either flat-shading, or a rendering mode showing polygon edges (wireframe, outline, ...)&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;This enables smooth filtering (anti-aliasing) of lines and polygons edges, but doesn&apos;t work well in all cases (polygons should be sorted by depth), and it can be very slow&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;You can clip the whole scene to cut meshes on one or both sides of the current plane of the 2D window mode&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distance to current plane (mm/100) :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;This is the thickness of the slice between the current 2D window plane and the clipping plane(s). If you are using a volume (slice), don&apos;t set the distance to zero because the slice will be just on the clipping plane, and you don&apos;t know what will be drawn and what won&apos;t be&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4300,6 +4587,109 @@ and you don&apos;t know what will be drawn and what won&apos;t be</translation>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
+    </message>
+</context>
+<context>
+    <name>transform_feedback</name>
+    <message>
+        <source>Transformation</source>
+        <translation type="unfinished">Transformation</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;From:&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;to:&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Matrix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>row1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>row2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>row3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Matrix:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Translation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Euler angles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instant center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instant angles:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Precess.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nut.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scaling:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instant axis orientation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angle:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rad</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>deg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset (Id)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset rotation/scale</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

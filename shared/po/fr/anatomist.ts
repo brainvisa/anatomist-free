@@ -371,7 +371,7 @@
     </message>
     <message>
         <source>Save global settings</source>
-        <translation>Sauver les préférences</translation>
+        <translation type="obsolete">Sauver les préférences</translation>
     </message>
     <message>
         <source>Add objects in windows</source>
@@ -770,110 +770,117 @@
     <name>ControlledWindow</name>
     <message>
         <source>ObliqueControl</source>
-        <translation>Contrôle des vues obliques
-Bt gauche: curseur lié
-Bt milieu: rotation
-           &lt;shift&gt;: rotation du plan de coupe
-           &lt;ctrl&gt; : rotation des objets avec plan de coupe fixe
-Bt droit:  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;     :  synchro vues
-&lt;ctrl+c&gt;:  fixe le centre de vue
-&lt;alt+c&gt; :  affiche la position du centre de vue
-Défilement des coupes:
-&lt;PgUp&gt;              :  coupe précédente
-&lt;PgDown&gt;         :  coupe suivante
-&lt;shift+PgUp&gt;     :  temps précédent
-&lt;shift+PgDown&gt;:  temps suivant</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle des vues obliques&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation des objets avec plan de coupe fixe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Défilement des coupes:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Flight control</source>
-        <translation>Simulateur de vol
-Ce contrôle n&apos;est pas encore complètement opérationnel...
-Il permet de changer le point de vue avec les touches du clavier
-Bt gauche: curseur lié
-Bt milieu: rotation
-           &lt;shift&gt;: zoom/distance
-           &lt;ctrl&gt; : translation
-Bt droit :  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;     :  synchro vues
-&lt;ctrl+c&gt;:  fixe le centre de vue
-&lt;alt+c&gt; :  affiche la position du centre de vue
-&lt;flèches&gt;:  manche à balai
-&lt;ctrl+gauche&gt;, &lt;ctrl+droite&gt;:  tourne à plat (palonnier)
-&lt;q&gt;      :  accélère
-&lt;a&gt;      :  freine
-&lt;f&gt;      :  mode vol continu
-&lt;g&gt;      :  arrête le vol continu
-&lt;r&gt;      :  marche avant / arrière</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Simulateur de vol&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Ce contrôle n&apos;est pas encore complètement opérationnel...
+Il permet de changer le point de vue avec les touches du clavier. Noter que ce contrôle fonctionne normalement en mode perspective non-isométrique, et que le plugin VTK est incompatible avec lui...
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;flèches&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;manche à balai&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+gauche&amp;&amp;gt;, &lt;ctrl+droite&gt;:&lt;/td&gt;&lt;td&gt;tourne à plat (palonnier)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;Q&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;accélère&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;freine&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;mode vol continu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;G&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;arrête le vol continu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;marche avant / arrière&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>PaintControl</source>
-        <translation>Tracé au pinceau de régions d&apos;intérêt
-D&apos;autres fonctionnalités seront rajoutées ultérieurement
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Tracé au pinceau de régions d&apos;intérêt&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;D&apos;autres fonctionnalités seront rajoutées ultérieurement
 Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
-Bt gauche  :  Dessin
-        &lt;ctrl&gt;  : Gomme
-                   &lt;shift&gt; : Pot de peinture (remplisage de la région)
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-PINCEAU
-  &lt;p&gt;      :  point
-  &lt;d&gt;      :  disque
-  &lt;b&gt;      :  boule
-  &lt;+&gt;      :  agrandit le rayon du pinceau
-  &lt;-&gt;       :  diminue le rayon du pinceau
-  &lt;shift+l&gt;:  active le mode &apos;ligne&apos;
-  &lt;ctrl +l&gt; :  désactive le mode &apos;ligne&apos;
-  &lt;shift+c&gt;:  active le mode &apos;suivi par curseur lié&apos;
-  &lt;ctrl +c&gt;:  désactive le mode &apos;suivi par curseur lié&apos;
-  &lt;shift+r&gt;:  active le mode de remplacement par la région dessinée
-  &lt;ctrl +r&gt; :  désactive le mode de remplacement par la région dessinée
-  &lt;ctrl +e&gt;:  efface la region dessinée
-  &lt;m&gt;      :  l&apos;unité de la brosse est le mm
-  &lt;v&gt;       :  l&apos;unité de la brosse est le voxel
-  &lt;ctrl+PageUp&gt; : copie sur cette coupe la coupe précédente de la même région
-  &lt;shift+PageUp&gt; : copie sur cette coupe la coupe précédente de la session entière
-  &lt;ctrl+PageDown&gt; : copie sur cette coupe la coupe suivante de la même région
-  &lt;shift+PageDown&gt; : copie sur cette coupe la coupe suivante de la session entière
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo (efface la dernière modification)
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo (ré-applique la dernière modification)</translation>
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;Dessin&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Gomme&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Pot de peinture (remplisage de la région)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu :&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Pinceau:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;P&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;point&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;D&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;disque&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;B&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;boule&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;agrandit le rayon du pinceau&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;diminue le rayon du pinceau&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+L&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;active le mode &apos;ligne&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +L&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;désactive le mode &apos;ligne&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;active le mode &apos;suivi par curseur lié&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;désactive le mode &apos;suivi par curseur lié&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;active le mode de remplacement par la région dessinée&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;désactive le mode de remplacement par la région dessinée&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl +E&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;efface la region dessinée&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;M&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;l&apos;unité de la brosse est le mm&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;V&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;l&apos;unité de la brosse est le voxel&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copie sur cette coupe la coupe précédente de la même région&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copie sur cette coupe la coupe précédente de la session entière&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copie sur cette coupe la coupe suivante de la même région&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PageDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;copie sur cette coupe la coupe suivante de la session entière&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Annuler / refaire:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo (efface la dernière modification)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo (ré-applique la dernière modification)&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Selection 3D</source>
-        <translation type="obsolete">Sélection
-Bt gauche: sélection
-           &lt;shift&gt;: sélection additive
-           &lt;ctrl&gt; : modif. sélection
-Bt milieu: rotation
-           &lt;shift&gt;/ molette : zoom/distance
-           &lt;ctrl&gt; : translation
-Bt droit:  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;     :  synchro vues
-&lt;ctrl+c&gt;:  fixe le centre de vue
-&lt;alt+c&gt; :  affiche la position du centre de vue
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe
-Défilement des coupes:
-&lt;PgUp&gt;              :  coupe précédente
-&lt;PgDown&gt;         :  coupe suivante
-&lt;shift+PgUp&gt;     :  temps précédent
-&lt;shift+PgDown&gt;:  temps suivant
-&lt;espace&gt;         : &quot;pipette&quot;, mémorise le label des objets sélectionnés
-&lt;ctrl&gt;+&lt;entrée&gt;: applique le label courant aux objets sélectionnés</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Sélection&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;sélection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélection additive&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;modif. sélection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette :&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Défilement des coupes:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&gt;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;espace&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;&quot;pipette&quot;, mémorise le label des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+&amp;&amp;lt;ENTRÉE&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;applique le label courant aux objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Default 3D control</source>
@@ -917,15 +924,18 @@ Défilement des coupes:
     </message>
     <message>
         <source>TransformControl</source>
-        <translation>Contrôle de transformation:
-joue sur la transformation entre les objets sélectionnés et
-la vue
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle de transformation:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;joue sur la transformation entre les objets sélectionnés et
+la vue.&lt;br/&gt;
 Il s&apos;utilise comme le contrôle des vues obliques, sauf qu&apos;il
 opère sur la transformation au lieu du plan de coupe:
 les coordonnées des objets changent par raport aux autres.
 De plus:
-&lt;shift&gt; + btn gauche : change l&apos;échelle
-&lt;ctrl&gt;   + btn gauche : rotation dans le plan de coupe</translation>
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + btn gauche :&lt;/td&gt;&lt;td&gt;change l&apos;échelle&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + btn gauche :&lt;/td&gt;&lt;td&gt;rotation dans le plan de coupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche / cache les infos sur la transformation&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>LevelSetControl</source>
@@ -980,44 +990,47 @@ Bt droit   :  menu
     </message>
     <message>
         <source>CutControl</source>
-        <translation>Coupe sur maillage
-Bouge le plan de coupe des maillages coupés
-Bt gauche: curseur lié
-Bt milieu: rotation
-     &lt;shift&gt; : rotation du plan de coupe des objets sélectionnés
-     &lt;ctrl&gt;   : translation du plan de coupe des objets sélectionnés
-Bt droit    :  menu
-&lt;ctrl+w&gt;  :  fermer la frnêtre
-&lt;F9&gt;       :  plein écran
-&lt;F10&gt;     :  montre/cache les menus/boutons
-&lt;s&gt;         :  synchro vues
-&lt;alt+s&gt;    :  synchro vues (orientation seulement)
-&lt;ctrl+c&gt;   :  fixe le centre de vue
-&lt;alt+c&gt;    :  affiche la position du centre de vue
-&lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
-&lt;del&gt;       :  enlève les objets sélectionnés de la vue
-&lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe
-&lt;shift+a&gt; :  plan axial
-&lt;shift+c&gt; :  plan coronal
-&lt;shift+s&gt; :  plan sagittal</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Coupe sur maillage&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Bouge le plan de coupe des maillages coupés
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues (orientation seulement)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan axial&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan coronal&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan sagittal&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>LabelNamingControl</source>
-        <translation>Mode de dessin de ROI par selection de label
-Définissez une ROI sur une image de labels et clicked sur un label de l&apos;image
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Mode de dessin de ROI par selection de label&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Définissez une ROI sur une image de labels et clicked sur un label de l&apos;image
 pour dessiner votre région
-
-Bouton Gauche : ajouter à la région la composante connexe au point sélectionné
-              &lt;ctrl&gt; : enlever de la région la composante connexe au point sélectionné
-            &lt;shift&gt; : ajouter à la région tout les points de l&apos;image du label selectionné
-
-Middle Button  :  rotation
-              &lt;shift&gt;: zoom
-              &lt;ctrl&gt; : translation
-Right Button   :  menu
-
-&lt;u&gt;               :  undo (efface la dernière modification)
-&lt;r&gt;                :  redo (ré-applique la dernière modification)</translation>
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bouton Gauche :&lt;/td&gt;&lt;td&gt;ajouter à la région la composante connexe au point sélectionné&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlever de la région la composante connexe au point sélectionné&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;ajouter à la région tout les points de l&apos;image du label selectionné&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bouton milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;&lt;/tr&gt;zoom&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bouton droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo (efface la dernière modification)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo (ré-applique la dernière modification)&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>RoiControl</source>
@@ -1236,6 +1249,18 @@ Bt droit   :  menu
         <source>No object selected</source>
         <translation>Aucun objet sélecionné</translation>
     </message>
+    <message>
+        <source>slice plane:</source>
+        <translation>Plan de coupe:</translation>
+    </message>
+    <message>
+        <source>normal: </source>
+        <translation>normale:</translation>
+    </message>
+    <message>
+        <source>center: </source>
+        <translation>centre:</translation>
+    </message>
 </context>
 <context>
     <name>ErpWraper</name>
@@ -1402,7 +1427,7 @@ Bt droit   :  menu
     <name>Form</name>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuration</translation>
     </message>
     <message>
         <source>Affichage</source>
@@ -1565,6 +1590,10 @@ Bt droit   :  menu
     <message>
         <source>Abs. Max</source>
         <translation>Max. abs</translation>
+    </message>
+    <message>
+        <source>Median</source>
+        <translation>Médian</translation>
     </message>
 </context>
 <context>
@@ -2753,6 +2782,29 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <source>Voxel type was changed</source>
+        <comment>ControlWindow</comment>
+        <translation>Le type de voxel a changé</translation>
+    </message>
+    <message>
+        <source>The voxel type in file was changed since it was loaded the first time. It was </source>
+        <comment>ControlWindow</comment>
+        <translation>Le type de voxel a changé dans le fichier depuis qu&apos;il a été chargé la première fois. C&apos;était </translation>
+    </message>
+    <message>
+        <source> and is now </source>
+        <comment>ControlWindow</comment>
+        <translation> et c&apos;est maintenant </translation>
+    </message>
+    <message>
+        <source>. The voxel type cannot change dynamically, so values may be truncated. You had probably better load the file as a new object.</source>
+        <comment>ControlWindow</comment>
+        <translation>. Le type de voxel ne peut pas changer dynamiquement, les valeurs peuvent donc être tronquées. Vous feriez sans doute mieux de charger le fichier comme un nouvel objet.</translation>
+    </message>
+</context>
+<context>
     <name>QObjectBrowser</name>
     <message>
         <source>OK</source>
@@ -2924,7 +2976,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>cnt</source>
-        <translation type="unfinished"></translation>
+        <translation>nb</translation>
     </message>
 </context>
 <context>
@@ -3221,11 +3273,15 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Selectable objects</source>
-        <translation>Objets sélectionnables</translation>
+        <translation type="obsolete">Objets sélectionnables</translation>
     </message>
     <message>
         <source>Select object(s)</source>
         <translation>Sélection d&apos;objet(s)</translation>
+    </message>
+    <message>
+        <source>Selectable Objects</source>
+        <translation>Objets sélectionnables</translation>
     </message>
 </context>
 <context>
@@ -3535,7 +3591,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>cnt</source>
-        <translation type="unfinished"></translation>
+        <translation>nb</translation>
     </message>
 </context>
 <context>
@@ -4725,6 +4781,109 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
         <translation type="obsolete">pipette à texture :
         clic gauche : choisir un vertex
         </translation>
+    </message>
+</context>
+<context>
+    <name>transform_feedback</name>
+    <message>
+        <source>Transformation</source>
+        <translation>Transformation</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;From:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;De:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;to:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;vers:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Matrix</source>
+        <translation>Matrice</translation>
+    </message>
+    <message>
+        <source>row1</source>
+        <translation>ligne1</translation>
+    </message>
+    <message>
+        <source>row2</source>
+        <translation>ligne2</translation>
+    </message>
+    <message>
+        <source>row3</source>
+        <translation>ligne3</translation>
+    </message>
+    <message>
+        <source>Matrix:</source>
+        <translation>Matrice:</translation>
+    </message>
+    <message>
+        <source>Translation:</source>
+        <translation>Translation:</translation>
+    </message>
+    <message>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation>0</translation>
+    </message>
+    <message>
+        <source>Euler angles</source>
+        <translation>Angles d&apos;Euler</translation>
+    </message>
+    <message>
+        <source>Instant center</source>
+        <translation>Centre instantané</translation>
+    </message>
+    <message>
+        <source>Instant angles:</source>
+        <translation>Angles instantanés</translation>
+    </message>
+    <message>
+        <source>Precess.</source>
+        <translation>Précess.</translation>
+    </message>
+    <message>
+        <source>Nut.</source>
+        <translation>Nut.</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Angle</translation>
+    </message>
+    <message>
+        <source>Scaling:</source>
+        <translation>Échelle:</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotation</translation>
+    </message>
+    <message>
+        <source>Instant axis orientation:</source>
+        <translation>Orientation instantanée de l&apos;axe:</translation>
+    </message>
+    <message>
+        <source>Angle:</source>
+        <translation>Angle:</translation>
+    </message>
+    <message>
+        <source>rad</source>
+        <translation>rad</translation>
+    </message>
+    <message>
+        <source>deg</source>
+        <translation>deg</translation>
+    </message>
+    <message>
+        <source>Reset (Id)</source>
+        <translation>RAZ (Id)</translation>
+    </message>
+    <message>
+        <source>Reset rotation/scale</source>
+        <translation>RAZ rotation/échelle</translation>
     </message>
 </context>
 </TS>
