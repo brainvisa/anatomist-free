@@ -46,7 +46,7 @@
 #include <anatomist/application/settings.h>
 #include <qslider.h>
 #include <qlayout.h>
-#include <qlistwidget.h>
+#include <qtablewidget.h>
 #include <qlabel.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
@@ -59,9 +59,11 @@
 #include <qapplication.h>
 #include <qaction.h>
 #include <qtoolbar.h>
+#include <qheaderview.h>
 
 
 using namespace anatomist;
+using namespace aims;
 using namespace carto;
 using namespace std;
 
@@ -101,7 +103,7 @@ struct QAPaletteWin::Private
 {
   Private( const set<AObject *> & );
 
-  QListWidget			*palettes;
+  QTableWidget			*palettes;
   DimBox			*dimBox1;
   DimBox			*dimBox2;
   QLabel			*view;
@@ -207,10 +209,18 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   ltPanell->addWidget( new QLabel( tr( "Available palettes :" ), ltPanel ) );
 
-  d->palettes = new QListWidget( ltPanel );
+  d->palettes = new QTableWidget( ltPanel );
   ltPanell->addWidget( d->palettes );
   d->palettes->setObjectName( "palettes" );
   d->palettes->setMinimumSize( 200, 200 );
+  d->palettes->setSortingEnabled( true );
+  d->palettes->setCornerButtonEnabled( false );
+  d->palettes->setAlternatingRowColors( true );
+  d->palettes->setSelectionBehavior( QTableWidget::SelectRows );
+  d->palettes->setSelectionMode( QTableWidget::SingleSelection );
+  d->palettes->setEditTriggers( QTableWidget::NoEditTriggers );
+  d->palettes->verticalHeader()->setVisible( false );
+  d->palettes->setIconSize( QSize( 64, 20 ) );
   fillPalettes();
 
   QWidget *rtPanel = new QWidget( d->main );
@@ -507,8 +517,70 @@ void QAPaletteWin::fillPalettes()
   list<rc_ptr<APalette> >::const_iterator	ip, fp=pal.end();
   int				i = 0;
 
+  d->palettes->setRowCount( pal.size() );
+  d->palettes->setColumnCount( 2 );
+  d->palettes->setHorizontalHeaderItem( 
+    0, new QTableWidgetItem( tr( "name" ) ) );
+  d->palettes->setHorizontalHeaderItem( 
+    1, new QTableWidgetItem( tr( "look" ) ) );
+  map<string, int> cols;
   for( i=0, ip=pal.begin(); ip!=fp; ++ip, ++i )
-    d->palettes->addItem( (*ip)->name().c_str() );
+  {
+    QTableWidgetItem *item = new QTableWidgetItem( (*ip)->name().c_str() );
+    d->palettes->setItem( i, 0, item );
+    // icon
+    QPixmap pix;
+    fillPalette( *ip, pix );
+    QTableWidgetItem *iconitem = new QTableWidgetItem;
+    iconitem->setIcon( QIcon( pix ) );
+    d->palettes->setItem( i, 1, iconitem );
+    const PythonHeader *ph 
+      = dynamic_cast<const PythonHeader *>( (*ip)->header() );
+    if( ph && ph->hasProperty( "display_properties" ) )
+    {
+      // fill columns
+      Object props = ph->getProperty( "display_properties" );
+      Object piter = props->objectIterator();
+      while( piter->isValid() )
+      {
+        string pname = piter->key();
+        string pval;
+        try
+        {
+          pval = piter->currentValue()->getString();
+        }
+        catch( ... )
+        {
+          piter->next();
+          continue;
+        }
+        map<string, int>::iterator ic = cols.find( pname );
+        int col;
+        if( ic == cols.end() )
+        {
+          col = d->palettes->columnCount();
+          cols[ pname ] = col;
+          d->palettes->setColumnCount( col + 1 );
+          d->palettes->setHorizontalHeaderItem( 
+            col, new QTableWidgetItem( tr( pname.c_str() ) ) );
+        }
+        else
+          col = ic->second;
+        d->palettes->setItem( i, col, new QTableWidgetItem( pval.c_str() ) );
+        piter->next();
+      }
+    }
+  }
+  d->palettes->resizeColumnToContents( 0 );
+  d->palettes->resizeColumnToContents( 1 );
+  int ncol = d->palettes->columnCount();
+  for( i=2; i<ncol; ++i )
+    d->palettes->setColumnWidth( i, 20 );
+  d->palettes->resizeRowsToContents();
+  if( d->palettes->columnWidth( 0 ) 
+      > d->palettes->width() - d->palettes->columnWidth( 1 ) )
+    d->palettes->setColumnWidth( 
+      0, d->palettes->width() - d->palettes->columnWidth( 1 ) );
 }
 
 
@@ -599,11 +671,11 @@ void QAPaletteWin::updateInterface()
 
   d->objsel->updateLabel( _parents );
   d->dimBgp->button( d->dim - 1 )->setChecked( true );
-  int i, n = d->palettes->count();
+  int i, n = d->palettes->rowCount();
   QString	name = d->objpal->refPalette()->name().c_str();
-  QList<QListWidgetItem *> items = d->palettes->findItems(
+  QList<QTableWidgetItem *> items = d->palettes->findItems(
     name, Qt::MatchCaseSensitive | Qt::MatchExactly );
-  QListWidgetItem *item = 0;
+  QTableWidgetItem *item = 0;
   if( items.count() != 0 )
     item = items.front();
   if( item )
@@ -698,10 +770,10 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
       else
         d->palette1dMappingBox->setCurrentIndex( 0 ) ;
 
-      QList<QListWidgetItem *> palitems = d->palettes->findItems
+      QList<QTableWidgetItem *> palitems = d->palettes->findItems
           ( d->objpal->refPalette()->name().c_str(),
             Qt::MatchCaseSensitive | Qt::MatchExactly );
-      QListWidgetItem *palitem = 0;
+      QTableWidgetItem *palitem = 0;
       if( palitems.count() != 0 )
         palitem = palitems.front();
       if( !palitem )
@@ -876,8 +948,8 @@ void QAPaletteWin::palette1Changed()
   if( d->recursive )
     return;
 
-  QListWidgetItem* item = 0;
-  QList<QListWidgetItem *> selected = d->palettes->selectedItems();
+  QTableWidgetItem* item = 0;
+  QList<QTableWidgetItem *> selected = d->palettes->selectedItems();
   if( selected.count() == 0 )
     return;
   item = selected.front();

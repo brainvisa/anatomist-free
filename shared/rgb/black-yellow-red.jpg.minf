@@ -20,6 +20,4 @@ attributes = {
             'mode' : 'decal',
             'rate' : 1
           } ],
-    'volume_dimension' : [ 512, 1, 1, 1 ],
-    'voxel_size' : [ 1, 1, 1, 1 ]
   }
