@@ -23,4 +23,8 @@ attributes = {
           } ],
     'volume_dimension' : [ 512, 1, 1, 1 ],
     'voxel_size' : [ 1, 1, 1, 1 ]
+    'display_properties' : {
+      'fusion' : 'B',
+      'centered' : 1,
+    },
   }

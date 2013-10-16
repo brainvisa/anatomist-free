@@ -1,0 +1,6 @@
+attributes = {
+  'display_properties' : {
+    'fusion' : 'B',
+    'discrete' : 1,
+  },
+}
