@@ -22,4 +22,5 @@ attributes = {
           } ],
     'display_properties' : {
       'fusion' : 'W',
+    }
   }
