@@ -571,16 +571,18 @@ void QAPaletteWin::fillPalettes()
       }
     }
   }
-  d->palettes->resizeColumnToContents( 0 );
+  d->palettes->setColumnWidth( 0, 160 );
   d->palettes->resizeColumnToContents( 1 );
   int ncol = d->palettes->columnCount();
   for( i=2; i<ncol; ++i )
     d->palettes->setColumnWidth( i, 20 );
-  d->palettes->resizeRowsToContents();
-  if( d->palettes->columnWidth( 0 ) 
-      > d->palettes->width() - d->palettes->columnWidth( 1 ) )
-    d->palettes->setColumnWidth( 
-      0, d->palettes->width() - d->palettes->columnWidth( 1 ) );
+//   cout << "pal width: " << d->palettes->width() << endl;
+//   cout << "sizehint: " << d->palettes->sizeHint().width() << endl;
+//   d->palettes->resizeRowsToContents();
+//   if( d->palettes->columnWidth( 0 )
+//       > d->palettes->sizeHint().width() - d->palettes->columnWidth( 1 ) )
+//     d->palettes->setColumnWidth(
+//       0, d->palettes->sizeHint().width() - d->palettes->columnWidth( 1 ) );
 }
 
 
