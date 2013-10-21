@@ -538,13 +538,13 @@ string LinkAction::name() const
 }
 
 
-QWidget* LinkAction::actionView()
+QWidget* LinkAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool LinkAction::viewableAction()
+bool LinkAction::viewableAction() const
 {
   return( false );
 }
@@ -619,13 +619,13 @@ string MenuAction::name() const
 }
 
 
-QWidget* MenuAction::actionView()
+QWidget* MenuAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool MenuAction::viewableAction()
+bool MenuAction::viewableAction() const
 {
   return( false );
 }
@@ -665,13 +665,13 @@ string SelectAction::name() const
 }
 
 
-QWidget* SelectAction::actionView()
+QWidget* SelectAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool SelectAction::viewableAction()
+bool SelectAction::viewableAction() const
 {
   return( false );
 }
@@ -833,13 +833,13 @@ string Zoom3DAction::name() const
 }
 
 
-QWidget* Zoom3DAction::actionView()
+QWidget* Zoom3DAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool Zoom3DAction::viewableAction()
+bool Zoom3DAction::viewableAction() const
 {
   return( false );
 }
@@ -988,13 +988,13 @@ string Translate3DAction::name() const
 }
 
 
-QWidget* Translate3DAction::actionView()
+QWidget* Translate3DAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool Translate3DAction::viewableAction()
+bool Translate3DAction::viewableAction() const
 {
   return( false );
 }
@@ -1120,13 +1120,13 @@ void Sync3DAction::execSyncOrientation()
 }
 
 
-QWidget* Sync3DAction::actionView()
+QWidget* Sync3DAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool Sync3DAction::viewableAction()
+bool Sync3DAction::viewableAction() const
 {
   return( false );
 }
@@ -2183,13 +2183,13 @@ string WindowActions::name() const
 }
 
 
-QWidget* WindowActions::actionView()
+QWidget* WindowActions::actionView( QWidget* )
 {
   return 0;
 }
 
 
-bool WindowActions::viewableAction()
+bool WindowActions::viewableAction() const
 {
   return false;
 }

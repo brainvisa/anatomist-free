@@ -84,13 +84,13 @@ string LabelEditAction::name() const
 }
 
 
-QWidget* LabelEditAction::actionView()
+QWidget* LabelEditAction::actionView( QWidget* )
 {
   return( 0 );
 }
 
 
-bool LabelEditAction::viewableAction()
+bool LabelEditAction::viewableAction() const
 {
   return( false );
 }

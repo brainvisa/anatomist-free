@@ -139,8 +139,8 @@ namespace anatomist
     void toggleShowTools();
     void toggleFullScreen();
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
   };
 
 
@@ -157,8 +157,8 @@ namespace anatomist
     void execLink( int x, int y, int globalX, int globalY );
     void endLink( int x, int y, int globalX, int globalY );
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
 
   protected:
   private:
@@ -178,8 +178,8 @@ namespace anatomist
 
     void execMenu( int x, int y, int globalX, int globalY );
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
   };
 
 
@@ -204,8 +204,8 @@ namespace anatomist
     void removeFromWindow();
     void removeFromGroup();
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
   };
 
 
@@ -232,8 +232,8 @@ namespace anatomist
     void zoomWheel( int, int, int, int, int );
     void zoom( int distance );
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
 
   private:
     int		_beginpos;
@@ -257,8 +257,8 @@ namespace anatomist
     void endTranslate( int x, int y, int globalX, int globalY );
     void endTranslateKey();
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
 
   private:
     bool	_started;
@@ -281,8 +281,8 @@ namespace anatomist
     void execSync();
     void execSyncOrientation();
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* parent );
+    bool viewableAction() const;
   };
 
 

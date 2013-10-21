@@ -263,7 +263,7 @@ namespace anatomist
     virtual void insert( AObject * ) = 0;
     virtual const_iterator find( const AObject * ) const = 0;
     virtual void erase( iterator & ) = 0;
-    void erase( AObject *obj );
+    void eraseObject( AObject *obj );
     //@}
 
     virtual float MinT() const;
@@ -352,7 +352,7 @@ namespace anatomist
   }
 
 
-  inline void MObject::erase( AObject * obj )
+  inline void MObject::eraseObject( AObject * obj )
   {
     iterator	i = find( obj );
     if( i != end() )
