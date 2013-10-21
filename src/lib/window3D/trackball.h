@@ -59,8 +59,8 @@ namespace anatomist
     virtual ~Trackball();
 
     virtual std::string name() const;
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* );
+    bool viewableAction() const;
 
     virtual void beginTrackball( int x, int y, int globalX, int globalY );
     virtual void moveTrackball( int x, int y, int globalX, int globalY );
@@ -120,8 +120,8 @@ namespace anatomist
     virtual ~KeyFlightAction();
 
     virtual std::string name() const;
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* );
+    bool viewableAction() const;
     
     void up();
     void down();

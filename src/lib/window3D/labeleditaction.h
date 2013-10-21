@@ -65,8 +65,8 @@ namespace anatomist
     void setLabel( const std::string & l, const AObject* obj = 0 );
     void setLabel( const std::string & l, const AimsRGB & color );
 
-    QWidget* actionView();
-    bool viewableAction();
+    QWidget* actionView( QWidget* );
+    bool viewableAction() const;
 
   private:
     std::string _label;

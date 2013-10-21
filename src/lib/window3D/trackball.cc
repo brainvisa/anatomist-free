@@ -77,13 +77,13 @@ string Trackball::name() const
 }
 
 
-QWidget* Trackball::actionView()
+QWidget* Trackball::actionView( QWidget* )
 {
   return 0;
 }
 
 
-bool Trackball::viewableAction()
+bool Trackball::viewableAction() const
 {
   return false;
 }
@@ -416,13 +416,13 @@ string KeyFlightAction::name() const
 }
 
 
-QWidget* KeyFlightAction::actionView()
+QWidget* KeyFlightAction::actionView( QWidget* )
 {
   return 0;
 }
 
 
-bool KeyFlightAction::viewableAction()
+bool KeyFlightAction::viewableAction() const
 {
   return false;
 }
