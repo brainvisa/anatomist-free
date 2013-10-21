@@ -681,7 +681,7 @@ void AObject::cleanup()
     {
       current = par ;
       ++par ;
-      (*current)->erase(this) ;
+      (*current)->eraseObject(this) ;
     }
 
     // TEMPORARY until SelectFactory is an observer of this

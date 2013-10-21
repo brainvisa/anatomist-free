@@ -446,7 +446,7 @@ namespace
           {
             cout << "remove obsolete graph sub-object " << obj->name()
                 << " (" << obj->objectFullTypeName() << ")" << endl;
-            mo->erase( obj );
+            mo->eraseObject( obj );
             if( mo->size() == 0 )
             {
               cout << "remove empty AGraphObject.\n";
