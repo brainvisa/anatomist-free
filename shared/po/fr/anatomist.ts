@@ -2544,6 +2544,14 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
         <source>Value 0 at center</source>
         <translation>Valeur 0 au centre</translation>
     </message>
+    <message>
+        <source>name</source>
+        <translation>nom</translation>
+    </message>
+    <message>
+        <source>look</source>
+        <translation>image</translation>
+    </message>
 </context>
 <context>
     <name>QAWindowBlock</name>
@@ -4839,7 +4847,7 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Instant angles:</source>
-        <translation>Angles instantanés</translation>
+        <translation>Angles instantanés:</translation>
     </message>
     <message>
         <source>Precess.</source>
