@@ -57,6 +57,7 @@ namespace anatomist
       ReleaseWeakSharedRef,
       ReleaseWeakRef,
       ReleaseApplication,
+      TakeApplication,
     };
 
     ExternalReferenceCommand( const std::vector<int> & elements,

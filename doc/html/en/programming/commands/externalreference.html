@@ -77,6 +77,8 @@ Manages reference counting inside Anatomist for objects, windows etc., allowing 
         </li>
         <li><tt><b>ReleaseApplication</b></tt>: releases the Anatomist application reference on the object. By default all objects are referenced once in the application to keep them alive. If you wish to use reference counting from another application, you should first remove this Anatomist reference.
         </li>
+        <li><tt><b>TakeApplication</b></tt>, <b>New in Anatomist 4.4</b>: tell the Anatomist application to take back a reference on the object. It is the contrary of <tt>ReleaseApplication</tt>, and is only useful to revert this latest action.
+        </li>
       </ul>
     </td>
   </tr>
