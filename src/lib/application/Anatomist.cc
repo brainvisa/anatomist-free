@@ -747,6 +747,21 @@ void Anatomist::releaseWindow( AWindow* win )
 }
 
 
+void Anatomist::takeWindowRef( AWindow* win )
+{
+  map<const AWindow *, shared_ptr<AWindow> >::iterator
+      i = _privData->anaWin.find( win );
+  // change the smart pointer type to Weak
+  if( i != _privData->anaWin.end() )
+  {
+    // reset() doesn't work. I don't know why.
+//     i->second.reset( shared_ptr<AWindow>::WeakShared, win );
+    _privData->anaWin.erase( i );
+    _privData->anaWin[ win ] = weak_shared_ptr<AWindow>( win );
+  }
+}
+
+
 void Anatomist::registerObject( AObject* obj, int inctrl )
 {
 #ifdef ANA_DEBUG
@@ -789,6 +804,22 @@ void Anatomist::releaseObject( AObject* obj )
   // change the smart pointer type to Weak
   if( i != _privData->anaObj.end() )
     i->second.reset( shared_ptr<AObject>::Weak, obj );
+}
+
+
+void Anatomist::takeObjectRef( AObject* obj )
+{
+  map<const AObject *, shared_ptr<AObject> >::iterator
+      i = _privData->anaObj.find( obj );
+  // change the smart pointer type to Weak
+  if( i != _privData->anaObj.end() )
+  {
+    // reset() doesn't work. I don't know why.
+//     i->second.reset( shared_ptr<AObject>::WeakShared, obj );
+    _privData->anaObj.erase( i );
+    _privData->anaObj[ obj ]
+      = shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, obj );
+  }
 }
 
 

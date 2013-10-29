@@ -141,6 +141,8 @@ void ExternalReferenceCommand::doit()
         {
           if( _actiontype == ReleaseApplication )
             theAnatomist->releaseObject( o );
+          else if( _actiontype == TakeApplication )
+            theAnatomist->takeObjectRef( o );
           else
             manageRef( o, _actiontype );
         }
@@ -152,6 +154,8 @@ void ExternalReferenceCommand::doit()
         {
           if( _actiontype == ReleaseApplication )
             theAnatomist->releaseWindow( w );
+          else if( _actiontype == TakeApplication )
+            theAnatomist->takeWindowRef( w );
           else
             manageRef( w, _actiontype );
         }
@@ -166,6 +170,8 @@ void ExternalReferenceCommand::doit()
             if( refs.find( r ) != refs.end() )
               if( _actiontype == ReleaseApplication )
                 theAnatomist->releaseReferential( r );
+              else if( _actiontype == TakeApplication )
+                theAnatomist->takeReferentialRef( r );
               else
                 manageRef( r, _actiontype );
           }
@@ -177,6 +183,8 @@ void ExternalReferenceCommand::doit()
         {
           if( _actiontype == ReleaseApplication )
             theAnatomist->releaseTransformation( t );
+          else if( _actiontype == TakeApplication )
+            theAnatomist->takeOTransformationRef( t );
           else
             manageRef( t, _actiontype );
 
@@ -214,6 +222,7 @@ Command * ExternalReferenceCommand::read( const Tree & com,
   actypes[ "ReleaseWeakSharedRef" ] = ReleaseWeakSharedRef;
   actypes[ "ReleaseWeakRef" ] = ReleaseWeakRef;
   actypes[ "ReleaseApplication" ] = ReleaseApplication;
+  actypes[ "TakeApplication" ] = TakeApplication;
   map<string, ActionType>::const_iterator i = actypes.find( sactype );
   if( i == actypes.end() )
   {
@@ -239,6 +248,7 @@ void ExternalReferenceCommand::write( Tree & com, Serializer* ) const
     "ReleaseWeakSharedRef",
     "ReleaseWeakRef",
     "ReleaseApplication",
+    "TakeApplication",
   };
   t->setProperty( "elements", _elem );
   t->setProperty( "action_type", actypes[ _actiontype ] );

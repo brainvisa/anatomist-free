@@ -152,6 +152,8 @@ namespace anatomist
         be immediately deleted.
      */
     void releaseObject( AObject* obj );
+    /// change object reference type to WeakShared (standard in anatomist)
+    void takeObjectRef( AObject* obj );
     void NotifyObjectChange( AObject* obj );
     void registerSubObject( MObject* parent, AObject* obj );
     void registerReferential( Referential* ref );
@@ -164,6 +166,8 @@ namespace anatomist
         be immediately deleted.
     */
     void releaseWindow( AWindow* win );
+    /// change window reference type to WeakShared (standard in anatomist)
+    void takeWindowRef( AWindow* obj );
     void registerObjectName( const std::string& name, AObject* obj );
     void unregisterObjectName( const std::string& name );
 
