@@ -1277,14 +1277,14 @@ void VolumeScalarTraits<T>::adjustPalette()
   }
 
   //	generate histogram
-  unsigned		histo[ 256 ];
-  unsigned		i, n = 0;
+  unsigned long	histo[ 256 ];
+  unsigned long	i, n = 0;
   typename Volume<T>::const_iterator	iv, fv=volume->volume()->end();
   const float 
     limit = 0.99 * volume->volume()->getSizeX() * volume->volume()->getSizeY()
     * volume->volume()->getSizeZ() * volume->volume()->getSizeT();
   set<T>		vals;
-  unsigned		nval = 0, maxval = 50;
+  unsigned long 	nval = 0, maxval = 50, value;
 
   for( i=0; i<256; ++i )
     histo[ i ] = 0;
@@ -1293,7 +1293,12 @@ void VolumeScalarTraits<T>::adjustPalette()
 
   for( iv=volume->volume()->begin(); iv!=fv; ++iv )
     {
-      ++histo[ (unsigned) ( ( (*iv) - mini ) * factor ) ];
+      value = (unsigned long) ( ( (*iv) - mini ) * factor );
+      if( value < 0 )
+        value = 0;
+      else if( value >= 256 )
+        value = 255;
+      ++histo[ value ];
       if( nval < maxval )
       {
         vals.insert( *iv );
