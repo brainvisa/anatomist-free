@@ -1266,6 +1266,7 @@ VolumeVectorTraits<T>::VolumeVectorTraits( AVolume<T> *vol )
 template<typename T> 
 void VolumeScalarTraits<T>::adjustPalette()
 {
+//   cout << "adjustPalette, mini: " << mini << ", maxi: " << maxi << endl;
   if( mini == maxi )
   {
     volume->getOrCreatePalette();
@@ -1279,7 +1280,7 @@ void VolumeScalarTraits<T>::adjustPalette()
   //	generate histogram
   unsigned long	histo[ 256 ];
   unsigned long	i, n = 0;
-  typename Volume<T>::const_iterator	iv, fv=volume->volume()->end();
+//   typename Volume<T>::const_iterator	iv, fv=volume->volume()->end();
   const float 
     limit = 0.99 * volume->volume()->getSizeX() * volume->volume()->getSizeY()
     * volume->volume()->getSizeZ() * volume->volume()->getSizeT();
@@ -1291,20 +1292,53 @@ void VolumeScalarTraits<T>::adjustPalette()
 
   double factor = 255. / (double) ( maxi - mini );
 
+  /*
+//   unsigned long nn = 0;
   for( iv=volume->volume()->begin(); iv!=fv; ++iv )
+  {
+//     if( nn % 10000000 == 0 )
+//       cout << "n: " << nn << endl;
+//     ++nn;
+    const T & v = *iv;
+    value = (unsigned long) ( ( v - mini ) * factor );
+    if( value < 0 )
+      value = 0;
+    else if( value >= 256 )
+      value = 255;
+    ++histo[ value ];
+    if( nval < maxval )
     {
-      value = (unsigned long) ( ( (*iv) - mini ) * factor );
-      if( value < 0 )
-        value = 0;
-      else if( value >= 256 )
-        value = 255;
-      ++histo[ value ];
-      if( nval < maxval )
-      {
-        vals.insert( *iv );
-        nval = vals.size();
-      }
+      vals.insert( v );
+      nval = vals.size();
     }
+  }
+  */
+
+  unsigned long x, y, z, t, nx = volume->volume()->getSizeX(), ny = volume->volume()->getSizeY(), nz = volume->volume()->getSizeZ(), nt = volume->volume()->getSizeT();
+  T *buf;
+  for( t=0; t<nt; ++t )
+    for( z=0; z<nz; ++z )
+      for( y=0; y<ny; ++y )
+  {
+    buf = &volume->volume()->at( 0, y, z, t );
+//     cout << "t: " << t << ", z: " << z << ", y: " << y << endl;
+    for( x=0; x<nx; ++x, ++buf )
+    {
+    value = (unsigned long) ( ( (*buf) - mini ) * factor );
+    if( value < 0 )
+      value = 0;
+    else if( value >= 256 )
+      value = 255;
+    ++histo[ value ];
+    if( nval < maxval )
+    {
+      vals.insert( *buf );
+      nval = vals.size();
+    }
+    }
+  }
+
+//   cout << "histo done\n";
 
   //	cummulated histogram
   for( i=0; i<256 && n<limit; ++i )
