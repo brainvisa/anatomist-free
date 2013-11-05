@@ -274,5 +274,7 @@ template class ColorScalarPaletteTraits<int16_t>;
 template class ColorScalarPaletteTraits<uint16_t>;
 template class ColorScalarPaletteTraits<int32_t>;
 template class ColorScalarPaletteTraits<uint32_t>;
+template class ColorScalarPaletteTraits<int64_t>;
+template class ColorScalarPaletteTraits<uint64_t>;
 template class ColorScalarPaletteTraits<float>;
 template class ColorScalarPaletteTraits<double>;
