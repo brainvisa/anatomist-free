@@ -1578,6 +1578,8 @@ template class AVolume<int16_t>;
 template class AVolume<uint16_t>;
 template class AVolume<int32_t>;
 template class AVolume<uint32_t>;
+template class AVolume<int64_t>;
+template class AVolume<uint64_t>;
 template class AVolume<float>;
 template class AVolume<double>;
 template class AVolume<AimsRGB>;
