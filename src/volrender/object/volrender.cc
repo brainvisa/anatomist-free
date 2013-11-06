@@ -421,7 +421,7 @@ namespace
       for( i=0; i<n; ++i, ++buf )
       {
         AimsRGBA & rgb = *buf;
-        rgb.alpha() = sqrt( float( rgb.red() * rgb.red()
+        rgb.alpha() = (uint8_t) sqrt( float( rgb.red() * rgb.red()
             + rgb.green() * rgb.green()
             + rgb.blue() * rgb.blue() ) );
       }
@@ -760,7 +760,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   if( d->ownextrema )
   {
     A = minquant;
-    dimx = next2pow( maxquant - minquant );
+    dimx = next2pow( (unsigned) ( maxquant - minquant ) );
     B = dimx - A;
     if( B == A )
       B = A + 1;
@@ -769,7 +769,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   {
     minquant = A; // map to full scale of the type
     maxquant = B;
-    dimx = next2pow( B-A );
+    dimx = next2pow( (unsigned) ( B-A ) );
   }
   /* cout << "optimal dimx: " << dimx << endl;
   cout << "A: " << A << ", B: " << B << endl; */
@@ -777,9 +777,9 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   for( ; (int) dimx > mt; dimx>>=1 )
     --shift;
   if( shift > 0 )
-    glbias = -A * (1 << shift);
+    glbias = (int) ( -A * (1 << shift) );
   else if( shift < 0 )
-    glbias = -A / (1 << -shift );
+    glbias = (int) ( -A / (1 << -shift ) );
   /* cout << "shift: " << shift << ", bias: " << glbias << endl;
   cout << "cmap: " << dimx << endl; */
 
