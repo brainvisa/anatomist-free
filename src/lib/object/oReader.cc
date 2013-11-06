@@ -699,12 +699,14 @@ namespace
     //	look for other files going together with the 1st compressed one
     set<string>	others;
 
-    checkFormats<AimsData<char> >( ext, others );
-    checkFormats<AimsData<byte> >( ext, others );
-    checkFormats<AimsData<short> >( ext, others );
-    checkFormats<AimsData<ushort> >( ext, others );
-    checkFormats<AimsData<long> >( ext, others );
-    checkFormats<AimsData<ulong> >( ext, others );
+    checkFormats<AimsData<int8_t> >( ext, others );
+    checkFormats<AimsData<uint8_t> >( ext, others );
+    checkFormats<AimsData<int16_t> >( ext, others );
+    checkFormats<AimsData<uint16_t> >( ext, others );
+    checkFormats<AimsData<int32_t> >( ext, others );
+    checkFormats<AimsData<uint32_t> >( ext, others );
+    checkFormats<AimsData<int64_t> >( ext, others );
+    checkFormats<AimsData<uint64_t> >( ext, others );
     checkFormats<AimsData<float> >( ext, others );
     checkFormats<AimsData<double> >( ext, others );
     checkFormats<AimsData<AimsRGB> >( ext, others );
