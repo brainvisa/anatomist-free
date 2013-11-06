@@ -1,6 +1,5 @@
 add_subdirectory(lib)
 add_subdirectory(anatomist)
-add_subdirectory(ameshpaint)
 
 add_subdirectory(mkhierarchy)
 add_subdirectory(hierarchyeditor)
