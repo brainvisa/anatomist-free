@@ -46,8 +46,8 @@ namespace anatomist
   template<typename T> class ColorScalarPaletteTraits
   {
   public:
-    ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini, 
-			      const T & maxi );
+    ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
+                              const T & maxi );
     AimsRGBA color( const T & ) const;
     void setup( const T & mini, const T & maxi );
     T neutralColor() const;
@@ -73,8 +73,8 @@ namespace anatomist
   template<typename T> class ColorNoPaletteTraits
   {
   public:
-    ColorNoPaletteTraits( const AObjectPalette*, const T & mini, 
-			  const T & maxi );
+    ColorNoPaletteTraits( const AObjectPalette*, const T & mini,
+                          const T & maxi );
     AimsRGBA color( const T & ) const;
     T neutralColor() const;
   };
@@ -122,20 +122,20 @@ namespace anatomist
 
   }
 
-  template<typename T> inline 
-  ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini, 
-			       const T & maxi )
+  template<typename T> inline
+  ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
+                               const T & maxi )
     : _traitstype( pal, mini, maxi )
   {
   }
 
-  template <typename T> inline 
+  template <typename T> inline
   AimsRGBA ColorTraits<T>::color( const T & in ) const
   {
     return _traitstype.color( in );
   }
 
-  template <typename T> inline 
+  template <typename T> inline
   T ColorTraits<T>::neutralColor() const
   {
     return _traitstype.neutralColor();
@@ -143,26 +143,26 @@ namespace anatomist
 
   // ---
 
-  template<typename T> inline 
-  ColorNoPaletteTraits<T>::ColorNoPaletteTraits( const AObjectPalette*, 
-						 const T &, const T & )
+  template<typename T> inline
+  ColorNoPaletteTraits<T>::ColorNoPaletteTraits( const AObjectPalette*,
+                                                 const T &, const T & )
   {
   }
 
-  template <typename T> inline 
+  template <typename T> inline
   AimsRGBA ColorNoPaletteTraits<T>::color( const T & in ) const
   {
     // this assumes AimsRGBA::AimsRGBA(const T&) is defined on T
     return in;
   }
 
-  template <typename T> inline 
+  template <typename T> inline
   T ColorNoPaletteTraits<T>::neutralColor() const
   {
     return 0;
   }
 
-  template <> inline 
+  template <> inline
   AimsRGBA ColorNoPaletteTraits<AimsRGBA>::neutralColor() const
   {
     // transparent color
@@ -171,46 +171,51 @@ namespace anatomist
 
   // ---
 
-  template <typename T> inline 
-  ColorScalarPaletteTraits<T>::ColorScalarPaletteTraits( const AObjectPalette 
-							 * pal, 
-							 const T & mini, 
-							 const T & maxi )
+  template <typename T> inline
+  ColorScalarPaletteTraits<T>::ColorScalarPaletteTraits( const AObjectPalette
+                                                         * pal,
+                                                         const T & mini,
+                                                         const T & maxi )
     : palette( pal )
   {
     setup( mini, maxi );
   }
 
-  template <typename T> inline 
+  template <typename T> inline
   AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
   {
-    int		ival0, ival1;
-    float	val = (float) in;
+    int ival0, ival1;
+    float val = static_cast<float>( in );
 
-    if( val <= minv0 )
+    // Comparisons are written this way to accommodate NaN and Inf
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * in + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-	colors->dimY() == 1 )
+        colors->dimY() == 1 )
       ival1 = 0 ;
     else
       {
-	if( val <= minv1 )
-	  ival1 = cmin1;
-	else if( val >= maxv1 )
-	  ival1 = cmax1;
-	else
-	  ival1 = (int)( scale1 * in + decal1 );
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
       }
 
     return (*colors)( ival0, ival1 );
   }
 
-  template <typename T> inline 
+  template <typename T> inline
   T ColorScalarPaletteTraits<T>::neutralColor() const
   {
     return 0;
@@ -221,101 +226,118 @@ namespace anatomist
   {
     AimsRGBA col;
 
-    int		ival0, ival1;
-    float	val = (float) in.red();
+    int ival0, ival1;
+    float val = static_cast<float>( in.red() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[0] = (*colors)( ival0, ival1 )[0];
 
-    val = (float) in.green();
+    val = static_cast<float>( in.green() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[1] = (*colors)( ival0, ival1 )[1];
 
-    val = (float) in.blue();
+    val = static_cast<float>( in.blue() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[2] = (*colors)( ival0, ival1 )[2];
 
-    val = (float) ::sqrt( in.red() * in.red() + in.green() * in.green()
-        + in.blue() * in.blue() );
+    val = static_cast<float>( std::sqrt( in.red() * in.red()
+                                         + in.green() * in.green()
+                                         + in.blue() * in.blue() ) );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[3] = (*colors)( ival0, ival1 )[3];
 
@@ -329,100 +351,116 @@ namespace anatomist
   {
     AimsRGBA col;
 
-    int		ival0, ival1;
-    float	val = (float) in.red();
+    int ival0, ival1;
+    float val = static_cast<float>( in.red() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[0] = (*colors)( ival0, ival1 )[0];
 
-    val = (float) in.green();
+    val = static_cast<float>( in.green() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[1] = (*colors)( ival0, ival1 )[1];
 
-    val = (float) in.blue();
+    val = static_cast<float>( in.blue() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[2] = (*colors)( ival0, ival1 )[2];
 
-    val = (float) in.alpha();
+    val = static_cast<float>( in.alpha() );
 
-    if( val <= minv0 )
+    if( val >= minv0 && val <= maxv0 )
+      ival0 = static_cast<int>( scale0 * val + decal0 );
+    else if( val <= minv0 )
       ival0 = cmin0;
     else if( val >= maxv0 )
       ival0 = cmax0;
     else
-      ival0 = (int)( scale0 * val + decal0 );
+      return neutralColor();
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
       ival1 = 0 ;
     else
-    {
-      if( val <= minv1 )
-        ival1 = cmin1;
-      else if( val >= maxv1 )
-        ival1 = cmax1;
-      else
-        ival1 = (int)( scale1 * val + decal1 );
-    }
+      {
+        if( val >= minv1 && val <= maxv1 )
+          ival1 = static_cast<int>( scale1 * val + decal1 );
+        else if( val <= minv1 )
+          ival1 = cmin1;
+        else if( val >= maxv1 )
+          ival1 = cmax1;
+        else
+          return neutralColor();
+      }
 
     col[3] = (*colors)( ival0, ival1 )[3];
 
@@ -432,4 +470,3 @@ namespace anatomist
 }
 
 #endif
-
