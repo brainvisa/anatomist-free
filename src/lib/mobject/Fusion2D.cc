@@ -43,6 +43,7 @@
 #include <anatomist/color/objectPalette.h>
 #include <graph/tree/tree.h>
 #include <cartobase/object/pythonwriter.h>
+#include <cartobase/config/verbose.h>
 #include <qtranslator.h>
 #include <math.h>
 
@@ -612,8 +613,8 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
     {
     }
   */
-
-  int size = ximage.width * ximage.height * ximage.depth / 8;
+  
+  size_t size = (size_t)ximage.width * ximage.height * ximage.depth / 8;
 
   //cout << "im size : " << ximage.width << " x " << ximage.height << endl;
   if( (winref == NULL) && ( (mri()->getReferential() != NULL)
