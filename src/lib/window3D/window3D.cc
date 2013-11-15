@@ -527,7 +527,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   QWidget *daparent = hb;
   AGraphicsView *gv = 0;
 #ifdef ANA_USE_QGRAPHICSVIEW
-#ifdef __APPLE__ // does not work well on Mac with Qt 4.6
+#if defined( __APPLE__ ) || defined( _WIN32 ) // does not work well on Mac with Qt 4.6
   bool use_graphicsview = false;
 #else
   bool use_graphicsview = true;

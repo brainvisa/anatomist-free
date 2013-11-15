@@ -429,7 +429,7 @@ PreferencesWindow::PreferencesWindow()
   _pdat->graphicsview = new QCheckBox(
     tr( "Use graphics overlay on OpenGL rendering" ), flip );
   vlay2->addWidget( _pdat->graphicsview );
-#ifdef __APPLE__
+#if defined( __APPLE__ ) || defined( _WIN32 )
   int use_graphicsview = 0;
 #else
   int use_graphicsview = 1;
