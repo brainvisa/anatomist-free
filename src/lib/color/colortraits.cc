@@ -33,16 +33,20 @@
 
 #include <anatomist/color/colortraits.h>
 
-using namespace anatomist;
+#include <algorithm>
 
-template <typename T> 
+using namespace anatomist;
+using std::swap;
+
+template <typename T>
 void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
 {
   colors = palette->colors();
 
   unsigned	ncol0, ncol1;
   float		minc0, minc1, maxc0, maxc1;
-  float		mini = (float) minit, maxi = (float) maxit;
+  float		mini = static_cast<float>( minit ),
+    maxi = static_cast<float>( maxit );
 
   ncol0 = colors->dimX();
   ncol1 = colors->dimY();
@@ -79,30 +83,22 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
       minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
       maxv0 = mini + maxc0 * (maxi - mini);
       if( minv0 > maxv0 )
-	{
-	  float tmp = minv0;
-	  minv0 = maxv0;
-	  maxv0 = tmp;
-	}
+        swap(minv0, maxv0);
       minv1 = mini + minc1 * (maxi - mini);	// thresholds in image values
       maxv1 = mini + maxc1 * (maxi - mini);
       if( minv1 > maxv1 )
-	{
-	  float tmp = minv1;
-	  minv1 = maxv1;
-	  maxv1 = tmp;
-	}
+        swap(minv1, maxv1);
     }
 
-  scale0 = ( (float) ncol0 ) / ( (maxi - mini) * (maxc0 - minc0) );
-  scale1 = ( (float) ncol1 ) / ( (maxi - mini) * (maxc1 - minc1) );
+  scale0 = ( static_cast<float>( ncol0 ) ) / ( (maxi - mini) * (maxc0 - minc0) );
+  scale1 = ( static_cast<float>( ncol1 ) ) / ( (maxi - mini) * (maxc1 - minc1) );
   decal0 = - ( mini / (maxi - mini) + minc0 ) * ncol0 / (maxc0 - minc0);
   decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
   cmin0 = 0;
   cmin1 = 0;
   cmax0 = colors->dimX() - 1;
   cmax1 = colors->dimY() - 1;
-  
+
   if( scale0 < 0 )
     {
       cmin0 = cmax0;
@@ -113,16 +109,17 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
       cmin1 = cmax1;
       cmax1 = 0;
     }
-  /*cout << "cmin0: " << cmin0 << ", cmax0: " << cmax0 << ", cmin1: " << cmin1 
-       << ", cmax1: " << cmax1 << ", scale0: " << scale0 << ", scale1: " 
-       << scale1 << endl;*/
+  /*
+  std::cout << "cmin0: " << cmin0 << ", cmax0: " << cmax0 << ", cmin1: " << cmin1
+            << ", cmax1: " << cmax1 << ", scale0: " << scale0 << ", scale1: "
+            << scale1 << std::endl;*/
 }
 
 
 namespace anatomist
 {
 
-template <> 
+template <>
 void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
                                                const AimsRGB & )
 {
@@ -157,22 +154,14 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
   minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
   maxv0 = mini + maxc0 * (maxi - mini);
   if( minv0 > maxv0 )
-  {
-    float tmp = minv0;
-    minv0 = maxv0;
-    maxv0 = tmp;
-  }
+    swap(minv0, maxv0);
   minv1 = mini + minc1 * (maxi - mini);	// thresholds in image values
   maxv1 = mini + maxc1 * (maxi - mini);
   if( minv1 > maxv1 )
-  {
-    float tmp = minv1;
-    minv1 = maxv1;
-    maxv1 = tmp;
-  }
+    swap(minv1, maxv1);
 
-  scale0 = ( (float) ncol0 ) / ( (maxi - mini) * (maxc0 - minc0) );
-  scale1 = ( (float) ncol1 ) / ( (maxi - mini) * (maxc1 - minc1) );
+  scale0 = ( static_cast<float>( ncol0 ) ) / ( (maxi - mini) * (maxc0 - minc0) );
+  scale1 = ( static_cast<float>( ncol1 ) ) / ( (maxi - mini) * (maxc1 - minc1) );
   decal0 = - ( mini / (maxi - mini) + minc0 ) * ncol0 / (maxc0 - minc0);
   decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
   cmin0 = 0;
@@ -194,7 +183,7 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
 }
 
 
-template <> 
+template <>
 void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
     const AimsRGBA & )
 {
@@ -229,22 +218,14 @@ void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
   minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
   maxv0 = mini + maxc0 * (maxi - mini);
   if( minv0 > maxv0 )
-  {
-    float tmp = minv0;
-    minv0 = maxv0;
-    maxv0 = tmp;
-  }
+    swap(minv0, maxv0);
   minv1 = mini + minc1 * (maxi - mini);	// thresholds in image values
   maxv1 = mini + maxc1 * (maxi - mini);
   if( minv1 > maxv1 )
-  {
-    float tmp = minv1;
-    minv1 = maxv1;
-    maxv1 = tmp;
-  }
+    swap(minv1, maxv1);
 
-  scale0 = ( (float) ncol0 ) / ( (maxi - mini) * (maxc0 - minc0) );
-  scale1 = ( (float) ncol1 ) / ( (maxi - mini) * (maxc1 - minc1) );
+  scale0 = ( static_cast<float>( ncol0 ) ) / ( (maxi - mini) * (maxc0 - minc0) );
+  scale1 = ( static_cast<float>( ncol1 ) ) / ( (maxi - mini) * (maxc1 - minc1) );
   decal0 = - ( mini / (maxi - mini) + minc0 ) * ncol0 / (maxc0 - minc0);
   decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
   cmin0 = 0;
