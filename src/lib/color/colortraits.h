@@ -188,7 +188,7 @@ namespace anatomist
     float val = static_cast<float>( in );
 
     // Comparisons are written this way to accommodate NaN and Inf
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -202,7 +202,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -229,7 +229,7 @@ namespace anatomist
     int ival0, ival1;
     float val = static_cast<float>( in.red() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -243,7 +243,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -257,7 +257,7 @@ namespace anatomist
 
     val = static_cast<float>( in.green() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -271,7 +271,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -285,7 +285,7 @@ namespace anatomist
 
     val = static_cast<float>( in.blue() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -299,7 +299,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -315,7 +315,7 @@ namespace anatomist
                                          + in.green() * in.green()
                                          + in.blue() * in.blue() ) );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -329,7 +329,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -354,7 +354,7 @@ namespace anatomist
     int ival0, ival1;
     float val = static_cast<float>( in.red() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -368,7 +368,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -382,7 +382,7 @@ namespace anatomist
 
     val = static_cast<float>( in.green() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -396,7 +396,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -410,7 +410,7 @@ namespace anatomist
 
     val = static_cast<float>( in.blue() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -424,7 +424,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
@@ -438,7 +438,7 @@ namespace anatomist
 
     val = static_cast<float>( in.alpha() );
 
-    if( val >= minv0 && val <= maxv0 )
+    if( val >= minv0 && val < maxv0 )
       ival0 = static_cast<int>( scale0 * val + decal0 );
     else if( val <= minv0 )
       ival0 = cmin0;
@@ -452,7 +452,7 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val <= maxv1 )
+        if( val >= minv1 && val < maxv1 )
           ival1 = static_cast<int>( scale1 * val + decal1 );
         else if( val <= minv1 )
           ival1 = cmin1;
