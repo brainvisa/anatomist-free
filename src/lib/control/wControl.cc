@@ -669,7 +669,7 @@ void ControlWindow::loadObject()
   loadObject( "", "" );
 }
 
-
+#include <QTextCodec> // FIXME; DEBUG
 void ControlWindow::loadObject( const string& filter, const string& caption )
 {
   QString filt = filter.c_str() ;
@@ -706,7 +706,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
         Object options = Object::value( Dictionary() );
         // options->setProperty( "asynchronous", true );
         LoadObjectCommand *command = new LoadObjectCommand(
-          (*it).toStdString(), -1, "", false, options );
+          (*it).toLocal8Bit().data(), -1, "", false, options );
         theProcessor->execute( command );
         loaded.insert( command->loadedObject() );
       }
@@ -726,7 +726,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   // play scenarios (if any)
   list<QString>::iterator	is, es = scenars.end();
   for( is=scenars.begin(); is!=es; ++is )
-    new APipeReader( (*is).toStdString() );
+    new APipeReader( is->toLocal8Bit().data() );
 }
 
 
@@ -746,7 +746,7 @@ void ControlWindow::replayScenario()
   QStringList filenames = fd.selectedFiles();
 
   if( !filenames.isEmpty() )
-    new APipeReader( filenames[0].toStdString() );
+    new APipeReader( filenames[0].toLocal8Bit().data() );
 }
 
 
@@ -801,7 +801,8 @@ void ControlWindow::dropOnWindowIcon( int type, QDropEvent* event )
     list<QString>::iterator       is, es = objects.end();
     for( is=objects.begin(); is!=es; ++is )
     {
-      LoadObjectCommand *command = new LoadObjectCommand( is->toStdString() );
+      LoadObjectCommand *command = new LoadObjectCommand( 
+        is->toLocal8Bit().data() );
       theProcessor->execute( command );
       o.insert( command->loadedObject() );
     }
@@ -1131,7 +1132,7 @@ void ControlWindow::saveWindowsConfig()
   if ( !filename.isEmpty() )
   {
     AWinConfigIO cio;
-    cio.saveConfig( filename.toStdString() );
+    cio.saveConfig( filename.toLocal8Bit().data() );
   }
 }
 
