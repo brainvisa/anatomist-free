@@ -2,12 +2,14 @@ cmake_minimum_required( VERSION 2.6 )
 find_package( brainvisa-cmake REQUIRED )
 BRAINVISA_PROJECT()
 
+BRAINVISA_DEPENDENCY( DEV DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVISA_PACKAGE_NAME}_VERSION}" )
 BRAINVISA_FIND_PACKAGE( aims-free REQUIRED )
 find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL QtNetwork REQUIRED ) # Qt3Support
 find_package( QtVersion REQUIRED )
 find_package( OpenGL REQUIRED )
 
 BRAINVISA_DEPENDENCY( RUN DEPENDS aims-free RUN "= ${aims-free_VERSION}" )
+BRAINVISA_DEPENDENCY( DEV DEPENDS aims-free DEV "= ${aims-free_VERSION}" )
 
 BRAINVISA_DEPENDENCY( RUN DEPENDS libqtcore4 RUN ">= ${QT_VERSION}" )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libqtcore4 DEV )
