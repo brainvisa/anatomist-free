@@ -61,6 +61,8 @@ namespace anatomist
 
     virtual std::string name() const { return( "ReloadObject" ); }
     virtual void write( Tree & com, Serializer *ser ) const;
+    /// available only after execution
+    const std::set<AObject *> & failedReloads() const { return _failedReloads; }
 
   protected:
     virtual void doit();
@@ -72,6 +74,7 @@ namespace anatomist
 
     std::set<AObject *>		_objL;
     bool			_onlyoutdated;
+    std::set<AObject *>         _failedReloads;
   };
 
 }

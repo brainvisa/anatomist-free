@@ -1024,10 +1024,7 @@ void ControlWindow::reload()
 {
   set<AObject*> objL = selectedObjects();
   if( !objL.empty() )
-    {
-      Command	*cmd = new ReloadObjectCommand( objL );
-      theProcessor->execute( cmd );
-    }
+    ObjectActions::fileReload( objL );
 }
 
 
