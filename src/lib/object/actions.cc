@@ -82,8 +82,19 @@ void ObjectActions::fileReload( const set<AObject *> & obj )
   for( io=obj.begin(); io!=fo; ++io )
     ol.insert( *io );
 
-  Command	*cmd = new ReloadObjectCommand( ol );
+  ReloadObjectCommand *cmd = new ReloadObjectCommand( ol );
   theProcessor->execute( cmd );
+  if( !cmd->failedReloads().empty() )
+  {
+    QString names;
+    set<AObject *>::const_iterator ifl, efl = cmd->failedReloads().end();
+    for( ifl=cmd->failedReloads().begin(); ifl!=efl; ++ifl )
+      names += QString( "<br/>" ) + (*ifl)->fileName().c_str();
+    QMessageBox::warning( 0, ControlWindow::tr( "Reload failed" ),
+      QString( "<html>" ) +
+      ControlWindow::tr( "Could not reload the following objects:" )
+      + names + "</html>", QMessageBox::Ok, QMessageBox::Ok );
+  }
 }
 
 

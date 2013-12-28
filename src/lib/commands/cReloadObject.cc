@@ -78,16 +78,20 @@ void
 ReloadObjectCommand::doit()
 {
   set<AObject*>::iterator obj;
+  _failedReloads.clear();
 
   for( obj=_objL.begin(); obj!=_objL.end(); ++obj )
+  {
+    if( theAnatomist->hasObject( *obj ) )
     {
-      if( theAnatomist->hasObject( *obj ) )
-	{
-	  cout << "Reload object " << *obj << "\n";
-	  AObject::reload( *obj, _onlyoutdated );
-	  cout << "Reload object finished" << endl;
-	}
+      cout << "Reload object " << *obj << "\n";
+      bool res = AObject::reload( *obj, _onlyoutdated );
+      if( res )
+        cout << "Reload object finished" << endl;
+      else
+        _failedReloads.insert( *obj );
     }
+  }
 }
 
 
