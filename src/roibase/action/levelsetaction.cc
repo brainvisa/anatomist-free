@@ -451,7 +451,7 @@ RoiLevelSetActionSharedData::RoiLevelSetActionSharedData() :
   Observer(), Observable(), myLevelSetActivation(false), myLevelSetDeactivation(false), 
   myCurrentImage(0), myDimensionMode(TWOD),
   myLowLevel(0.), myHighLevel(0.), myImageMax(0.), myImageMin(0.),
-  myMaxSize( 1. ), myPercentageOfMaximum( 1. ),
+  myMaxSize( 0. ), myPercentageOfMaximum( 1. ),
   myMixMethod("GEOMETRIC"), myMixFactor(0.5),
   myGettingCurrentImage(false), myActivatingLevelSet(false), myUpdating(false)
 {
@@ -917,25 +917,26 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
 
 void 
 RoiLevelSetAction::addToRegion( int x, int y, int, int )
-{ 
-  Bucket * currentModifiedRegion ; 
-  if ( ! ( currentModifiedRegion = 
+{
+  Bucket * currentModifiedRegion ;
+  if ( ! ( currentModifiedRegion =
 	   RoiChangeProcessor::instance()->getCurrentRegion( 0/*view()->aWindow()*/ ) ) ) {
     return ;
   }
-  
-  
+
+
   if (!_sharedData->myLevelSetActivation)
     return ;
-  
-  
+
+
   AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
   AGraphObject * go = RoiChangeProcessor::instance()->getGraphObject( 0 ) ;
-  
-  list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
-  
+
+  list< pair< Point3d, ChangesItem> >* changes
+    = new list< pair< Point3d, ChangesItem> > ;
+
   if (!g) return ;
-  
+
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
       labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
@@ -943,18 +944,18 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
     {
       g->clearLabelsVolume() ;
       g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
-						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
-						     - g->MinZ2D() ) + 1 ) ;
+                                                     - g->MinX2D() ) + 1,
+                                   static_cast<int>( g->MaxY2D()
+                                                     - g->MinY2D() ) + 1,
+                                   static_cast<int>( g->MaxZ2D()
+                                                     - g->MinZ2D() ) + 1 ) ;
     }
 
   fillRegion( x, y, go, *changes, true ) ;
-  
+
   if ( ! (*changes).empty() )
     RoiChangeProcessor::instance()->applyChange( changes ) ;
-  
+
   currentModifiedRegion->setBucketChanged() ;
 
   RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() )
@@ -989,164 +990,185 @@ RoiLevelSetAction::removeFromRegion( int x, int y, int, int )
 }
 
 void 
-RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region, 
-			       list< pair< Point3d, ChangesItem> >& changes,
-			       bool add )
+RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
+                               list< pair< Point3d, ChangesItem> >& changes,
+                               bool add )
 {
   if( !_sharedData->myCurrentImage )
     return ;
   AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
-    {
-      cerr << "warning: PaintAction operating on wrong view type\n";
-      return;
-    }
-  
+  {
+    cerr << "warning: PaintAction operating on wrong view type\n";
+    return;
+  }
+
   //cout << "\tx = " << x << "\ty = " << y << endl ;
-  
+
   Referential* winRef = win->getReferential() ;
-  
+
   Referential* buckRef = region->getReferential() ;
   //bool		newbck = _sharedData->myDeltaModifications->empty();
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
+  {
+    int timePos = win->getTimeSliderPosition() ;
+
+    //cout << "Pos : " << pos << endl ;
+
+    // cout << "Position from cursor : (" << x << " , "<< y << ") = "
+    //   << pos << endl ;
+
+    Point3df voxelSize = region->VoxelSize() ;
+
+    Point3df normalVector( win->sliceQuaternion().
+                            apply(Point3df(0., 0., 1.) ) ) ;
+    Point3df xAx( win->sliceQuaternion().
+                            apply(Point3df(1., 0., 0.) ) ) ;
+    Point3df yAx( win->sliceQuaternion().
+                            apply(Point3df(0., 1., 0.) ) ) ;
+
+    Point3d xAxis( (int)rint(xAx[0]), (int)rint(xAx[1]), (int)rint(xAx[2]) ) ;
+    Point3d yAxis( (int)rint(yAx[0]), (int)rint(yAx[1]), (int)rint(yAx[2]) ) ;
+    Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
+
+    //cout << "Normal Vector before 1 : " << normalVector << endl ;
+    Point3df nVec = normalVector * normalVector.dot( pos - win->GetPosition() ) ;
+    pos = pos - nVec ;
+    //cout << "Normal Vector before 2 : " << nVec << endl ;
+
+    Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;
+    AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
+
+    Point3df p ;
+    if ( transf )
+      p = Transformation::transform( pos, transf, voxelSize ) ;
+    else
     {
-      int timePos = win->getTimeSliderPosition() ;
-      
-      //cout << "Pos : " << pos << endl ;
-      
-      // cout << "Position from cursor : (" << x << " , "<< y << ") = " 
-      //   << pos << endl ;
-      
-      Point3df voxelSize = region->VoxelSize() ;
+      p = pos ;
+      p[0] /= voxelSize[0] ;
+      p[1] /= voxelSize[1] ;
+      p[2] /= voxelSize[2] ;
+    }
 
-      Point3df normalVector( win->sliceQuaternion().
-			     apply(Point3df(0., 0., 1.) ) ) ;
-      Point3df xAx( win->sliceQuaternion().
-			     apply(Point3df(1., 0., 0.) ) ) ;
-      Point3df yAx( win->sliceQuaternion().
-			     apply(Point3df(0., 1., 0.) ) ) ;
-      
-      Point3d xAxis( (int)rint(xAx[0]), (int)rint(xAx[1]), (int)rint(xAx[2]) ) ;
-      Point3d yAxis( (int)rint(yAx[0]), (int)rint(yAx[1]), (int)rint(yAx[2]) ) ;
-      Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
-      
-      //cout << "Normal Vector before 1 : " << normalVector << endl ;
-      Point3df nVec = normalVector * normalVector.dot( pos - win->GetPosition() ) ;
-      pos = pos - nVec ;
-      //cout << "Normal Vector before 2 : " << nVec << endl ;
-      
-      Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;
-      AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
+    //cout << "P : " << p << endl ;
 
-      Point3df p ;
-      if ( transf )
-	p = Transformation::transform( pos, transf, voxelSize ) ;
+
+    Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
+    AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+    int maxNbOfPoints ;
+    if( _sharedData->myMaxSize > 0 )
+      maxNbOfPoints
+        = int( _sharedData->myMaxSize /
+          (volumeOfLabels.sizeX()*volumeOfLabels.sizeY()
+            *volumeOfLabels.sizeZ() ) ) ;
+    else
+      maxNbOfPoints
+        = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ();
+    Point3d pToInt( static_cast<int> ( p[0] +.5 ),
+                    static_cast<int> ( p[1] +.5 ),
+                    static_cast<int> ( p[2] +.5 ) ) ;
+    Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ),
+                  static_cast<int> ( p[1] - vlOffset[1] +.5 ),
+                  static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
+
+    float realLowLevel = realMin() ;
+    float realHighLevel = realMax() ;
+
+    //cout << "\tpVL = " << pVL << endl ;
+
+    std::queue<Point3d> trialPoints ;
+    ChangesItem change ;
+    AObject** toChange ;
+    if( add )
+    {
+      change.after = region ;
+      toChange = &change.before ;
+    }
+    else
+    {
+      change.before = region ;
+      toChange = &change.after ;
+    }
+    Point3d neighbor ;
+    bool replace = PaintActionSharedData::instance()->replaceMode() ;
+    Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ() ) ;
+    if( in( dims, pVL ) )
+    {
+      float val
+        = _sharedData->myCurrentImage->mixedTexValue(
+          Point3df( pVL[0], pVL[1], pVL[2] ), timePos);
+      if ( val < realLowLevel || val > realHighLevel )
+        return ;
       else
-	{
-	  p = pos ;
-	  p[0] /= voxelSize[0] ; 
-	  p[1] /= voxelSize[1] ;
-	  p[2] /= voxelSize[2] ;
-	}
-      
-      //cout << "P : " << p << endl ;
+        trialPoints.push(pVL) ;
+      int regionSize = 0 ;
+      Point3d pc ;
+      Connectivity  * connec = 0 ;
+      //cout << "_sharedData->myDimensionMode == " << (TWOD ? "TWOD" : "ThreeD") << endl ;
+      if( _sharedData->myDimensionMode == RoiLevelSetActionSharedData::TWOD )
+      {
+        //cout << "inside " << "TWOD" << "Normal Vect = " << normalVector << endl ;
 
-      
-      Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
-      AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
-      int maxNbOfPoints ;
-      if( _sharedData->myMaxSize > 0 )
-	maxNbOfPoints = int( _sharedData->myMaxSize / (volumeOfLabels.sizeX()*volumeOfLabels.sizeY()*volumeOfLabels.sizeZ() ) ) ;
+        if( normalVector[2] > 0.9 )
+        {
+          //cout << "CONNECTIVITY_4_XY" << endl ;
+          connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XY );
+        }
+        else if( normalVector[1] > 0.9 )
+        {
+          //cout << "CONNECTIVITY_4_XZ" << endl ;
+          connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XZ );
+        }
+        else if( normalVector[0] > 0.9 )
+        {
+          connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_YZ );
+          //cout << "CONNECTIVITY_4_YZ" << endl ;
+        }
+        else
+        {
+          AWarning(
+            "Level set should not be used in 2d mode on oblique views" );
+          return;
+        }
+      }
       else
-	maxNbOfPoints = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ() ;
-      Point3d pToInt( static_cast<int> ( p[0] +.5 ), 
-		      static_cast<int> ( p[1] +.5 ), 
-		      static_cast<int> ( p[2] +.5 ) ) ;
-      Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ), 
-		   static_cast<int> ( p[1] - vlOffset[1] +.5 ), 
-		   static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
-      
-      float realLowLevel = realMin() ;
-      float realHighLevel = realMax() ;
-      
-      //cout << "\tpVL = " << pVL << endl ;
-      
-      std::queue<Point3d> trialPoints ;
-      ChangesItem change ;
-      AObject** toChange ;
-      if( add ){
-	change.after = region ;
-	toChange = &change.before ;
-      }
-      else{
-	change.before = region ;
-	toChange = &change.after ;
-      }
-      Point3d neighbor ;
-      bool replace = PaintActionSharedData::instance()->replaceMode() ;
-      Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ() ) ;
-      if( in( dims, pVL ) ){
-	float val = _sharedData->myCurrentImage->mixedTexValue( Point3df( pVL[0], 
-							     pVL[1], 
-							     pVL[2] ), timePos) ;
-	if ( val < realLowLevel || val > realHighLevel )
-	  return ;
-	else
-	  trialPoints.push(pVL) ;
-	int regionSize = 0 ;
-	Point3d pc ;
-	Connectivity  * connec = 0 ; 
-	//cout << "_sharedData->myDimensionMode == " << (TWOD ? "TWOD" : "ThreeD") << endl ;
-	if( _sharedData->myDimensionMode == RoiLevelSetActionSharedData::TWOD ){
-	  //cout << "inside " << "TWOD" << "Normal Vect = " << normalVector << endl ;
-	  
-	  if( normalVector[2] > 0.9 ){
-	    //cout << "CONNECTIVITY_4_XY" << endl ;
-	    connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XY ) ;
-	  }else if( normalVector[1] > 0.9 ){
-	    //cout << "CONNECTIVITY_4_XZ" << endl ;	    
-	    connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XZ ) ;
-	  }else if( normalVector[0] > 0.9 ){
-	    connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_YZ ) ;
-	    //cout << "CONNECTIVITY_4_YZ" << endl ;
-	  }else{
-	    AWarning( "Level set should not be used in 2d mode on oblique views" ) ;
-	    return ;
-	  }
-	} else
-	  connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_6_XYZ ) ;
-	
-	while( !trialPoints.empty() /*&& regionSize < maxNbOfPoints*/ ){
-	  //cout << "Queue size : " <<  trialPoints.size() << "\tCurrent Point = " << pc << endl ;
-	  
-	  pc = trialPoints.front() ;
-	  trialPoints.pop() ;
-	  	  
-	  for( int n = 0 ; n < connec->nbNeighbors() ; ++n ){
-	    neighbor = pc + connec->xyzOffset(n) ;
-	    if( in(dims, neighbor) )
-  	      if( fillPoint( neighbor, timePos, volumeOfLabels, 
-		 	   region, realLowLevel, realHighLevel, 
-			   toChange, trialPoints, replace ) ){
-	        changes.push_back(pair<Point3d, ChangesItem>( neighbor, change ) ) ;
-	        ++regionSize ;
-	      }
-	  }
-	}
+        connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_6_XYZ );
+
+      while( !trialPoints.empty() && regionSize < maxNbOfPoints )
+      {
+        //cout << "Queue size : " <<  trialPoints.size() << "\tCurrent Point = " << pc << endl ;
+
+        pc = trialPoints.front() ;
+        trialPoints.pop() ;
+
+        for( int n = 0 ; n < connec->nbNeighbors() ; ++n )
+        {
+          neighbor = pc + connec->xyzOffset(n) ;
+          if( in(dims, neighbor) )
+            if( fillPoint( neighbor, timePos, volumeOfLabels,
+                           region, realLowLevel, realHighLevel,
+                           toChange, trialPoints, replace ) )
+            {
+              changes.push_back(pair<Point3d, ChangesItem>(
+                neighbor, change ) );
+              ++regionSize ;
+            }
+        }
       }
     }
+  }
 }
 
 
 bool 
 RoiLevelSetAction::in( const Point3d& dims, Point3d p )
 {
-  if ( p[0] < 0 || p[0] > dims[0] - 1 ||  
+  if ( p[0] < 0 || p[0] > dims[0] - 1 ||
        p[1] < 0 || p[1] > dims[1] - 1 ||
        p[2] < 0 || p[2] > dims[2] - 1 )
     return false ;
-  
+
   return true ;
 }
 
