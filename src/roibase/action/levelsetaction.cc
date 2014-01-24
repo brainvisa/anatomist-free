@@ -1156,6 +1156,9 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
             }
         }
       }
+      if( regionSize >= maxNbOfPoints && !trialPoints.empty() )
+        cout << "Warning: region has been truncated due to size limitation "
+          "- it could grow bigger if limit is increaded or removed.\n";
     }
   }
 }
