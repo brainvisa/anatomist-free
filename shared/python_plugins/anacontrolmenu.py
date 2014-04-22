@@ -118,15 +118,24 @@ class _ProcDeleter( object ):
 
 
 def runIPConsoleKernel():
+  import IPython
   from IPython.lib import guisupport
+  qtapp = QApplication.instance()
+  qtapp._in_event_loop = True
   guisupport.in_event_loop  = True
-  from IPython.zmq.ipkernel import IPKernelApp
+  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
+  if ipversion >= [ 1, 0 ]:
+    from IPython.kernel.zmq.kernelapp import IPKernelApp
+  else:
+    from IPython.zmq.ipkernel import IPKernelApp
   app = IPKernelApp.instance()
   if not app.initialized() or not app.kernel:
     print 'runing IP console kernel'
     app.hb_port = 50042 # don't know why this is not set automatically
     app.initialize( [ 'qtconsole', '--pylab=qt',
       "--KernelApp.parent_appname='ipython-qtconsole'" ] )
+    # in ipython 1.2, this call blocks until a ctrl-c is issued in the 
+    # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
     app.start()
   return app
 
@@ -136,7 +145,8 @@ def ipythonQtConsoleShell():
     fixMatplotlib()
   except:
     return 0
-  if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
+  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
+  if ipversion < [ 0, 11 ]:
     return 0 # Qt console does not exist in ipython <= 0.10
   global _ipsubprocs
   ipConsole = runIPConsoleKernel()
@@ -144,9 +154,12 @@ def ipythonQtConsoleShell():
   exe = sys.executable
   if sys.platform == 'darwin':
     exe = 'python'
+  if ipversion >= [ 1, 0 ]:
+    ipmodule = 'IPython.terminal.ipapp'
+  else:
+    ipmodule = 'IPython.frontend.terminal.ipapp'
   sp = subprocess.Popen( [ exe, '-c',
-    'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
-    'launch_new_instance()', 'qtconsole', '--existing',
+    'from %s import launch_new_instance; launch_new_instance()' % ipmodule, 'qtconsole', '--existing',
     '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
     '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
   _ipsubprocs.append( _ProcDeleter( sp ) )
@@ -161,16 +174,21 @@ def ipythonShell():
   fixMatplotlib()
   # run interpreter
   consoleShellRunning = True
-  if [ int(x) for x in IPython.__version__.split('.') ] >= [ 0, 11 ]:
+  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
+  if ipversion >= [ 0, 11 ]:
     # new Ipython API
     ipConsole = runIPConsoleKernel()
     import subprocess
     exe = sys.executable
     if sys.platform == 'darwin':
       exe = 'python'
+    if ipversion >= [ 1, 0 ]:
+      ipmodule = 'IPython.terminal.ipapp'
+    else:
+      ipmodule = 'IPython.frontend.terminal.ipapp'
     sp = subprocess.Popen( [ exe, '-c',
-      'from IPython.frontend.terminal.ipapp import launch_new_instance; ' \
-      'launch_new_instance()', 'console', '--existing',
+      'from %s import launch_new_instance; launch_new_instance()' % ipmodule, 
+      'console', '--existing',
       '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
       '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
     _ipsubprocs.append( sp )
