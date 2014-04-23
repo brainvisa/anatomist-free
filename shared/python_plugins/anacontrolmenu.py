@@ -102,9 +102,12 @@ def fixMatplotlib():
       from soma.gui.api import chooseMatplotlibBackend
       chooseMatplotlibBackend()
       import matplotlib.backends
-      matplotlib.backends.new_figure_manager, \
-      matplotlib.backends.draw_if_interactive, \
-      matplotlib.backends.show = matplotlib.backends.pylab_setup()
+      backend_conf = matplotlib.backends.pylab_setup()
+      if len(backend_conf) <= 3:
+        # seems not to exist any longer in mpl 1.3
+        matplotlib.backends.new_figure_manager = backend_conf[0]
+        matplotlib.backends.draw_if_interactive = backend_conf[1]
+        matplotlib.backends.show = backend_conf[2]
     except Exception, e:
       print 'exception:', e
       pass
@@ -126,17 +129,26 @@ def runIPConsoleKernel():
   ipversion = [ int(x) for x in IPython.__version__.split('.') ]
   if ipversion >= [ 1, 0 ]:
     from IPython.kernel.zmq.kernelapp import IPKernelApp
+    app = IPKernelApp.instance()
+    if not app.initialized() or not app.kernel:
+      print 'runing IP console kernel'
+      app.hb_port = 50042 # don't know why this is not set automatically
+      app.initialize( [ 'qtconsole', '--pylab=qt',
+        "--KernelApp.parent_appname='ipython-qtconsole'" ] )
+      # in ipython 1.2, this call blocks until a ctrl-c is issued in the 
+      # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
+      app.start()
   else:
     from IPython.zmq.ipkernel import IPKernelApp
-  app = IPKernelApp.instance()
-  if not app.initialized() or not app.kernel:
-    print 'runing IP console kernel'
-    app.hb_port = 50042 # don't know why this is not set automatically
-    app.initialize( [ 'qtconsole', '--pylab=qt',
-      "--KernelApp.parent_appname='ipython-qtconsole'" ] )
-    # in ipython 1.2, this call blocks until a ctrl-c is issued in the 
-    # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
-    app.start()
+    app = IPKernelApp.instance()
+    if not app.initialized() or not app.kernel:
+      print 'runing IP console kernel'
+      app.hb_port = 50042 # don't know why this is not set automatically
+      app.initialize( [ 'qtconsole', '--pylab=qt',
+        "--KernelApp.parent_appname='ipython-qtconsole'" ] )
+      # in ipython 1.2, this call blocks until a ctrl-c is issued in the 
+      # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
+      app.start()
   return app
 
 def ipythonQtConsoleShell():
