@@ -76,8 +76,8 @@ Control3D::creator( )
 }
 
 
-Control3D::Control3D() 
-  : Control( 1, QT_TRANSLATE_NOOP( "ControlledWindow", "Default 3D control" ) )
+Control3D::Control3D( int priority, const string & name ) 
+  : Control( priority, name )
 {
 }
 

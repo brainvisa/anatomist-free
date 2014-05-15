@@ -38,6 +38,7 @@
 
 #include <anatomist/controler/control.h>
 #include <anatomist/controler/action.h>
+#include <qglobal.h>
 
 
 namespace anatomist
@@ -48,7 +49,9 @@ namespace anatomist
   public:
     static Control * creator( ) ;
     
-    Control3D();
+    Control3D( int priority = 1, 
+      const std::string & name = QT_TRANSLATE_NOOP( "ControlledWindow", 
+        "Default 3D control" ) );
     Control3D( const Control3D & c );
     virtual ~Control3D();
 
