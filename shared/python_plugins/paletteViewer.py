@@ -44,8 +44,8 @@ from soma import aims
 an = anatomist.Anatomist()
 processor = an.theProcessor()
 
-from soma.qt_gui.qt_backend import choose_matplotlib_backend
-choose_matplotlib_backend()
+from soma.qt_gui.qt_backend import init_matplotlib_backend
+init_matplotlib_backend()
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui as qt

@@ -99,8 +99,8 @@ def fixMatplotlib():
   if 'matplotlib' in sys.modules:
     # print 'fixing matplotlib'
     try:
-      from soma.qt_gui.qt_backend import choose_matplotlib_backend
-      choose_matplotlib_backend()
+      from soma.qt_gui.qt_backend import init_matplotlib_backend
+      init_matplotlib_backend()
       import matplotlib.backends
       backend_conf = matplotlib.backends.pylab_setup()
       if len(backend_conf) <= 3:

@@ -33,8 +33,8 @@
 import sys, os
 try:
   try:
-    from soma.qt_gui.qt_backend import choose_matplotlib_backend
-    choose_matplotlib_backend()
+    from soma.qt_gui.qt_backend import init_matplotlib_backend
+    init_matplotlib_backend()
   except:
     pass
   from soma.qtgui import gradwidget
