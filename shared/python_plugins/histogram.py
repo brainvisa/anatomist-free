@@ -46,8 +46,8 @@ except:
   use_aimsalgo = False
   print 'warning: aimsalgo cannot be used - histograms will be slow.'
 
-from soma.gui.api import chooseMatplotlibBackend
-chooseMatplotlibBackend()
+from soma.qt_gui.qt_backend import choose_matplotlib_backend
+choose_matplotlib_backend()
 
 from matplotlib import pyplot
 import pylab, sip, matplotlib
