@@ -53,11 +53,12 @@ View::~View( )
 ControlSwitch * 
 View::controlSwitch() 
 { 
-  if( myControlSwitch == 0 ){
+  if( myControlSwitch == 0 )
+  {
     myControlSwitch = new ControlSwitch( this ) ;
     myControlSwitch->init() ;
   }
-  
+
   return myControlSwitch ; 
 }
 
@@ -72,3 +73,4 @@ View::aWindow() const
 {
   return myWindow ;
 }
+

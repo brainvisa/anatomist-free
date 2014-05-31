@@ -32,52 +32,41 @@
  */
 
 
-#ifndef ANATOMIST_WINDOW_CONTROLLEDWINDOW_H
-#define ANATOMIST_WINDOW_CONTROLLEDWINDOW_H
+#ifndef ANATOMIST_COMMANDS_CACTIVATEACTION_H
+#define ANATOMIST_COMMANDS_CACTIVATEACTION_H
 
+#include <anatomist/processor/Command.h>
 
-#include <anatomist/window/qwindow.h>
-
-class QAction;
-
-/** Anatomist Window using Qt and controler system, providing a toolbar 
-    for controls */
-class ControlledWindow : public QAWindow
+namespace anatomist
 {
-  Q_OBJECT
+  class AWindow;
 
-public:
-  ControlledWindow( QWidget* parent = 0, const char* name = 0, 
-                    carto::Object options = carto::none(), 
-                    Qt::WFlags f = 0 );
-  virtual ~ControlledWindow();
+  class ActivateActionCommand : public RegularCommand
+  {
+  public:
+    ActivateActionCommand( AWindow * win, const std::string & actiontype,
+      const std::string & method, int x = 0, int y = 0 );
+    virtual ~ActivateActionCommand();
 
-  virtual void registerObject( anatomist::AObject* object,
-                               bool temporaryObject = false,
-                               int position = -1 );
-  virtual void unregisterObject( anatomist::AObject* object );
+    virtual std::string name() const { return( "ActivateAction" ); }
+    virtual void write( Tree & com, Serializer* ser ) const;
 
-  virtual void updateAvailableControls();
-  virtual void updateActivableControls();
-  virtual void updateActions();
-  virtual void updateActiveControl();
+  protected:
+    virtual void doit();
 
-  virtual anatomist::View* view() = 0;
-  virtual const anatomist::View* view() const = 0;
+  private:
+    AWindow     *_win;
+    std::string _actiontype;
+    std::string _method;
+    int         _x;
+    int         _y;
 
-  //ARN
-  std::map<std::string, QAction *> getControlButtonObjects( void );
+    friend class StdModule;
+    static Command* read( const Tree & com, CommandContext* context );
+    static bool initSyntax();
+  };
 
-public slots:
-  virtual void activeControlChanged( QAction* );
-  virtual void updateControls();
-
-protected:
-
-private:
-  struct Private;
-  Private *d;
-};
-
+}
 
 #endif
+

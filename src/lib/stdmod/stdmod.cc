@@ -49,6 +49,7 @@
 #include <anatomist/application/settings.h>
 
 // commands
+#include <anatomist/commands/cActivateAction.h>
 #include <anatomist/commands/cAddObject.h>
 #include <anatomist/commands/cApplyBuiltinReferential.h>
 #include <anatomist/commands/cAskTexExtrema.h>
@@ -128,75 +129,75 @@ string StdModule::name() const
 string StdModule::description() const
 {
   return( QT_TRANSLATE_NOOP( "ControlWindow", 
-			     "Internal to the core Anatomist distribution - "
-			     "always present" ) );
+                             "Internal to the core Anatomist distribution - "
+                             "always present" ) );
 }
 
 
 void StdModule::actionsDeclaration()
 {
-  //	actions
+  //        actions
 
-  LinkAction		la;
+  LinkAction                la;
   ActionDictionary::instance()->addAction( la.name(), &LinkAction::creator );
-  MenuAction		ma;
+  MenuAction                ma;
   ActionDictionary::instance()->addAction( ma.name(), &MenuAction::creator );
-  SelectAction		sa;
+  SelectAction                sa;
   ActionDictionary::instance()->addAction( sa.name(), &SelectAction::creator );
-  Zoom3DAction		za;
+  Zoom3DAction                za;
   ActionDictionary::instance()->addAction( za.name(), &Zoom3DAction::creator );
-  Translate3DAction	ta;
+  Translate3DAction        ta;
   ActionDictionary::instance()->addAction( ta.name(), 
-					   &Translate3DAction::creator );
-  Trackball		tb;
+                                           &Translate3DAction::creator );
+  Trackball                tb;
   ActionDictionary::instance()->addAction( tb.name(), &Trackball::creator );
-  ContinuousTrackball	ctb;
+  ContinuousTrackball        ctb;
   ActionDictionary::instance()->addAction( ctb.name(), 
                                            &ContinuousTrackball::creator );
-  TrackOblique		to;
+  TrackOblique                to;
   ActionDictionary::instance()->addAction( to.name(), &TrackOblique::creator );
-  TrackObliqueSlice	ts;
+  TrackObliqueSlice        ts;
   ActionDictionary::instance()->addAction( ts.name(), 
-					   &TrackObliqueSlice::creator );
-  Sync3DAction		sca;
+                                           &TrackObliqueSlice::creator );
+  Sync3DAction                sca;
   ActionDictionary::instance()->addAction( sca.name(), 
-					   &Sync3DAction::creator );
+                                           &Sync3DAction::creator );
 
-  KeyFlightAction	fa;
+  KeyFlightAction        fa;
   ActionDictionary::instance()->addAction( fa.name(), 
-					   &KeyFlightAction::creator );
+                                           &KeyFlightAction::creator );
 
-  Transformer		ta2;
+  Transformer                ta2;
   ActionDictionary::instance()->addAction( ta2.name(), 
-					   &Transformer::creator );
-  TranslaterAction	ta3;
+                                           &Transformer::creator );
+  TranslaterAction        ta3;
   ActionDictionary::instance()->addAction( ta3.name(), 
-					   &TranslaterAction::creator );
-  PlanarTransformer		ta4;
+                                           &TranslaterAction::creator );
+  PlanarTransformer                ta4;
   ActionDictionary::instance()->addAction( ta4.name(), 
-					   &PlanarTransformer::creator );
-  ResizerAction	ta5;
+                                           &PlanarTransformer::creator );
+  ResizerAction        ta5;
   ActionDictionary::instance()->addAction( ta5.name(), 
-					   &ResizerAction::creator );
-  TrackCutAction	tc;
+                                           &ResizerAction::creator );
+  TrackCutAction        tc;
   ActionDictionary::instance()->addAction( tc.name(), 
-					   &TrackCutAction::creator );
-  CutSliceAction	cs;
+                                           &TrackCutAction::creator );
+  CutSliceAction        cs;
   ActionDictionary::instance()->addAction( cs.name(), 
-					   &CutSliceAction::creator );
+                                           &CutSliceAction::creator );
 
-  MovieAction		mova;
+  MovieAction                mova;
   ActionDictionary::instance()->addAction( mova.name(), 
-					   &MovieAction::creator );
+                                           &MovieAction::creator );
 
-  SliceAction		sla;
+  SliceAction                sla;
   ActionDictionary::instance()->addAction( sla.name(), &SliceAction::creator );
 
-  DragObjectAction		doa;
+  DragObjectAction                doa;
   ActionDictionary::instance()->addAction( doa.name(), 
                                            &DragObjectAction::creator );
 
-  WindowActions		wsa;
+  WindowActions                wsa;
   ActionDictionary::instance()->addAction( wsa.name(), 
                                            &WindowActions::creator );
 
@@ -212,7 +213,8 @@ void StdModule::actionsDeclaration()
   ActionDictionary::instance()->addAction( cmac.name(),
     &ConnectivityMatrixAction::creator );
 
-  //	Commands
+  //        Commands
+  ActivateActionCommand::initSyntax();
   AddObjectCommand::initSyntax();
   ApplyBuiltinReferentialCommand::initSyntax();
   AskTexExtremaCommand::initSyntax();
@@ -273,44 +275,44 @@ void StdModule::actionsDeclaration()
 
 void StdModule::controlsDeclaration()
 {
-  //	controls
+  //        controls
 
-  Control3D		c3;
+  Control3D                c3;
   ControlDictionary::instance()->addControl( c3.name(), &Control3D::creator, 
-					     c3.priority() );
+                                             c3.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "", c3.name() );
-  Select3DControl	c3s;
+  Select3DControl        c3s;
   ControlDictionary::instance()->addControl( c3s.name(), 
-					     &Select3DControl::creator, 
-					     c3s.priority() );
+                                             &Select3DControl::creator, 
+                                             c3s.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "", c3s.name() );
-  FlightControl		fc;
+  FlightControl                fc;
   ControlDictionary::instance()->addControl( fc.name(), 
-					     &FlightControl::creator, 
-					     fc.priority() );
+                                             &FlightControl::creator, 
+                                             fc.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "", fc.name() );
-  ObliqueControl	co;
+  ObliqueControl        co;
   ControlDictionary::instance()->addControl( co.name(), 
-					     &ObliqueControl::creator, 
-					     co.priority() );
+                                             &ObliqueControl::creator, 
+                                             co.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "", co.name() );
-  TransformControl	tc;
+  TransformControl        tc;
   ControlDictionary::instance()->addControl( tc.name(), 
-					     &TransformControl::creator, 
-					     tc.priority() );
+                                             &TransformControl::creator, 
+                                             tc.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "", tc.name() );
-  CutControl	cc;
+  CutControl        cc;
   ControlDictionary::instance()->addControl( cc.name(), 
-					     &CutControl::creator, 
-					     cc.priority() );
+                                             &CutControl::creator, 
+                                             cc.priority() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "CutMesh", 
-					  cc.name() );
+                                          cc.name() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "Slice", 
-					  cc.name() );
+                                          cc.name() );
   ControlManager::instance()->addControl( "QAGLWidget3D", "ClippedObject",
                                           cc.name() );
 
-  SelectBrowserControl	sbc;
+  SelectBrowserControl        sbc;
   ControlDictionary::instance()->addControl( sbc.name(), 
                                              &SelectBrowserControl::creator,
                                              sbc.priority() );
@@ -322,9 +324,9 @@ void StdModule::controlsDeclaration()
   ControlManager::instance()->addControl( "QAGLWidget3D", 
     "ConnectivityMatrix", cmc.name() );
 
-  //	Icons
+  //        Icons
   {
-  QPixmap	p;
+  QPixmap        p;
   if( p.load( Settings::findResourceFile(
               "icons/trackball.xpm" ).c_str() ) )
     IconDictionary::instance()->addIcon( c3.name(), p );

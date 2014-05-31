@@ -54,7 +54,7 @@
 #include <list>
 
   
-class ControlSwitch ;
+class ControlSwitch;
 
 
 namespace anatomist
@@ -63,7 +63,7 @@ namespace anatomist
   class ControlSwitchObserver
   {
   public:
-    ControlSwitchObserver( ) ;
+    ControlSwitchObserver( );
     virtual ~ControlSwitchObserver( ) {}
 
     virtual void updateAvailableControls( ) {}
@@ -72,7 +72,7 @@ namespace anatomist
     virtual void updateActions( ) {}
 
   protected:
-  } ;
+  };
 
 }
 
@@ -82,31 +82,31 @@ class ToolBox : public QWidget
   Q_OBJECT
 
 public:
-  ToolBox( const std::string& activeControlDescription ) ;
-  virtual ~ToolBox() ;
+  ToolBox( const std::string& activeControlDescription );
+  virtual ~ToolBox();
 
-  void resetActions( ) ;
-  void updateActiveControl( const std::string& activeControlDescription ) ;
+  void resetActions( );
+  void updateActiveControl( const std::string& activeControlDescription );
 
   void addTab( QWidget * child, const QString & label,
                const std::string & actionid = "" );
-  void showPage ( QWidget * w ) ;
+  void showPage ( QWidget * w );
   void showPage( const std::string & label );
   const std::set<std::string> & actions() const;
 
 private slots :
-  void switchControlDescriptionActivation() ;
+  void switchControlDescriptionActivation();
 
 private:
   struct Private;
 
-  QVBoxLayout * myLayout ;
-  QTabWidget * myActionTab ;
-  QPushButton * myControlDescriptionActivation ;
-  std::string myControlDescription ;
-  QLabel * myControlDescriptionWidget, *l1, *l2, *l3, *l4 ;
+  QVBoxLayout * myLayout;
+  QTabWidget * myActionTab;
+  QPushButton * myControlDescriptionActivation;
+  std::string myControlDescription;
+  QLabel * myControlDescriptionWidget, *l1, *l2, *l3, *l4;
 
-  bool myDescriptionActivated ;
+  bool myDescriptionActivated;
   Private	*d;
 };
 
@@ -117,106 +117,121 @@ class ControlSwitch : public QObject
   Q_OBJECT
 
 public:
-  virtual ~ControlSwitch() ;
+  virtual ~ControlSwitch();
 
-  friend class anatomist::View ; 
+  friend class anatomist::View; 
 
-  bool attach( anatomist::ControlSwitchObserver * window ) ;
-  bool detach( anatomist::ControlSwitchObserver * window ) ;
+  bool attach( anatomist::ControlSwitchObserver * window );
+  bool detach( anatomist::ControlSwitchObserver * window );
 
-  void notifyActivableControlChange() ;
-  void notifyAvailableControlChange() ;
-  void notifyActiveControlChange() ;
-  void notifyActionChange() ;
+  void notifyActivableControlChange();
+  void notifyAvailableControlChange();
+  void notifyActiveControlChange();
+  void notifyActionChange();
 
-  const std::map<int, std::string>& activableControls( ) const ;
-  const std::map<int, std::string>& availableControls( ) const ;
-  const std::set<std::string>& activableControlGroups( ) const ;
-  const std::set<std::string>& availableControlGroups( ) const ;  
-  const std::set<std::string>& actions() const ;
+  const std::map<int, std::string>& activableControls( ) const;
+  const std::map<int, std::string>& availableControls( ) const;
+  const std::set<std::string>& activableControlGroups( ) const;
+  const std::set<std::string>& availableControlGroups( ) const;  
+  const std::set<std::string>& actions() const;
 
-  //vector<ControlPtr>::iterator iterator ;
+  //vector<ControlPtr>::iterator iterator;
   typedef std::map<std::string, anatomist::ControlPtr>::const_iterator 
-  const_iterator ;
+  const_iterator;
   typedef std::map<std::string, anatomist::ControlPtr>::iterator 
-  iterator ;
+  iterator;
 
-  //iterator begin() ;
-  const_iterator begin() const ;
-  //iterator end() ;
-  const_iterator end() const ;
-  void setActiveControl( const std::string& ) ;
-  const std::string& activeControl() const ;
+  //iterator begin();
+  const_iterator begin() const;
+  //iterator end();
+  const_iterator end() const;
+  void setActiveControl( const std::string& );
+  const std::string& activeControl() const;
 
-  void keyPressEvent( QKeyEvent *) ;
-  void keyReleaseEvent( QKeyEvent *) ;
-  void mousePressEvent ( QMouseEvent * ) ;
-  void mouseReleaseEvent ( QMouseEvent * ) ;
-  void mouseDoubleClickEvent ( QMouseEvent * ) ;
-  void mouseMoveEvent ( QMouseEvent * ) ;
-  void wheelEvent ( QWheelEvent * ) ;
-  void focusInEvent ( QFocusEvent * ) ;
-  void focusOutEvent ( QFocusEvent * ) ;
-  void enterEvent ( QEvent * ) ;
-  void leaveEvent ( QEvent * ) ;
-  void paintEvent ( QPaintEvent * ) ;
-  void moveEvent ( QMoveEvent * ) ;
-  void resizeEvent ( QResizeEvent * ) ;
-  void dragEnterEvent ( QDragEnterEvent * ) ;
-  void dragMoveEvent ( QDragMoveEvent * ) ;
-  void dragLeaveEvent ( QDragLeaveEvent * ) ;
-  void dropEvent ( QDropEvent * ) ;
-  void showEvent ( QShowEvent * ) ;
-  void hideEvent ( QHideEvent * ) ;
+  void keyPressEvent( QKeyEvent *);
+  void keyReleaseEvent( QKeyEvent *);
+  void mousePressEvent ( QMouseEvent * );
+  void mouseReleaseEvent ( QMouseEvent * );
+  void mouseDoubleClickEvent ( QMouseEvent * );
+  void mouseMoveEvent ( QMouseEvent * );
+  void wheelEvent ( QWheelEvent * );
+  void focusInEvent ( QFocusEvent * );
+  void focusOutEvent ( QFocusEvent * );
+  void enterEvent ( QEvent * );
+  void leaveEvent ( QEvent * );
+  void paintEvent ( QPaintEvent * );
+  void moveEvent ( QMoveEvent * );
+  void resizeEvent ( QResizeEvent * );
+  void dragEnterEvent ( QDragEnterEvent * );
+  void dragMoveEvent ( QDragMoveEvent * );
+  void dragLeaveEvent ( QDragLeaveEvent * );
+  void dropEvent ( QDropEvent * );
+  void showEvent ( QShowEvent * );
+  void hideEvent ( QHideEvent * );
   void selectionChangedEvent();
-  //void customEvent ( QCustomEvent * ) ;
+  //void customEvent ( QCustomEvent * );
 #if QT_VERSION >= 0x040600
   void gestureEvent( QGestureEvent * );
 #endif
 
-  void setAvailableControls( const std::list<std::string>& objects ) ;
-  void setActivableControls( bool init = false) ;
+  void setAvailableControls( const std::list<std::string>& objects );
+  void setActivableControls( bool init = false);
 
-  //   void setControlBarButtons() ;
+  //   void setControlBarButtons();
 
-  void printControls() ;
+  void printControls();
   // private slots:
-  //   void clicked( int id ) ;
+  //   void clicked( int id );
 
-  void updateToolBox() ;
-  void updateControlDescription() ;
+  void updateToolBox();
+  void updateControlDescription();
 
   bool isToolBoxVisible() const;
-  void switchToolBoxVisible() ;
+  void switchToolBoxVisible();
   ToolBox* toolBox();
 
-  anatomist::Action* getAction( const std::string& actionName ) ;
+  anatomist::Action* getAction( const std::string& actionName );
+
+  void activateKeyPressAction( const std::string & methodname ) const;
+  void activateKeyReleaseAction( const std::string & methodname ) const;
+  void activateMousePressAction(
+    const std::string & methodname,
+    int x, int y ) const;
+  void activateMouseReleaseAction(
+    const std::string & methodname,
+    int x, int y ) const;
+  void activateMouseDoubleClickAction(
+    const std::string & methodname,
+    int x, int y ) const;
+  void activateMouseMoveAction(
+    const std::string & methodname,
+    int x, int y ) const;
 
 protected:
-  ControlSwitch( anatomist::View * view ) ;
+  ControlSwitch( anatomist::View * view );
 
 private:
-  void init( ) ;
-  void getSelectedObjectNames() ;
+  void init( );
+  void getSelectedObjectNames();
 
-  anatomist::ActionPool * myActionPool ;
-  //   QHButtonGroup * myControlBar ;
-  std::string myViewType ;
-  std::map<std::string, anatomist::ControlPtr> myControls ;
+  anatomist::ActionPool * myActionPool;
+  //   QHButtonGroup * myControlBar;
+  std::string myViewType;
+  std::map<std::string, anatomist::ControlPtr> myControls;
 
-  std::map<int, std::string> myAvailableControls ;
-  std::map<int, std::string> myActivableControls ;
+  std::map<int, std::string> myAvailableControls;
+  std::map<int, std::string> myActivableControls;
 
-  std::set<std::string> myAvailableControlGroups ;
-  std::set<std::string> myActivableControlGroups ;
-  std::list<std::string> mySelectedObjects ;
+  std::set<std::string> myAvailableControlGroups;
+  std::set<std::string> myActivableControlGroups;
+  std::list<std::string> mySelectedObjects;
 
-  std::list<anatomist::ControlSwitchObserver *> myObservers ;
+  std::list<anatomist::ControlSwitchObserver *> myObservers;
 
-  bool myControlEnabled ;
-  std::string myActiveControl ;
+  bool myControlEnabled;
+  std::string myActiveControl;
 
-  ToolBox * myToolBox ;
+  ToolBox * myToolBox;
 
 private slots:
   void toolBoxDestroyed();

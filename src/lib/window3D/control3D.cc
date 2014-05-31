@@ -69,14 +69,14 @@ using namespace carto;
 using namespace std;
 
 
-Control * 
-Control3D::creator( ) 
+Control *
+Control3D::creator( )
 {
-  return new Control3D ;
+  return new Control3D;
 }
 
 
-Control3D::Control3D( int priority, const string & name ) 
+Control3D::Control3D( int priority, const string & name )
   : Control( priority, name )
 {
 }
@@ -96,205 +96,212 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
 {
   //cout << "Control3D::eventAutoSubscription\n";
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-	&LinkAction::execLink ), 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-	&LinkAction::execLink ), 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-	&LinkAction::endLink ), true );
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+        &LinkAction::execLink ),
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+        &LinkAction::execLink ),
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+        &LinkAction::endLink ), true );
 
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ) );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ) );
 
-  //	rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::showRotationCenter ) );
+  //        rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ) );
 
-  //	sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSync ) );
-  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSyncOrientation ) );
+  //        sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ) );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ) );
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
+    ( Qt::MidButton, Qt::NoModifier,
       MouseActionLinkOf<ContinuousTrackball>
-      ( actionPool->action( "ContinuousTrackball" ), 
-        &ContinuousTrackball::beginTrackball ), 
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::beginTrackball ),
       MouseActionLinkOf<ContinuousTrackball>
-      ( actionPool->action( "ContinuousTrackball" ), 
-        &ContinuousTrackball::moveTrackball ), 
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::moveTrackball ),
       MouseActionLinkOf<ContinuousTrackball>
-      ( actionPool->action( "ContinuousTrackball" ), 
+      ( actionPool->action( "ContinuousTrackball" ),
         &ContinuousTrackball::endTrackball ), true );
 
-  keyPressEventSubscribe( Qt::Key_Space, Qt::ControlModifier, 
-			  KeyActionLinkOf<ContinuousTrackball>
-			  ( actionPool->action( "ContinuousTrackball" ), 
-			    &ContinuousTrackball::startOrStop ) ) ;
+  keyPressEventSubscribe( Qt::Key_Space, Qt::ControlModifier,
+                          KeyActionLinkOf<ContinuousTrackball>
+                          ( actionPool->action( "ContinuousTrackball" ),
+                            &ContinuousTrackball::startOrStop ) );
 
   // selection shortcuts
 
-  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::toggleSelectAll ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::removeFromWindow ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::removeFromGroup ) );
+  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::toggleSelectAll ) );
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::removeFromWindow ) );
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::removeFromGroup ) );
 
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::beginZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::moveZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::endZoom ), true );
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::beginZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::moveZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::endZoom ), true );
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
-  //	translation
+  //        translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::beginTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::beginTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::moveTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::moveTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::endTranslate ), true );
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::endTranslate ), true );
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextTime ) );
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::toggleLinkedOnSlider ) );
 
   // Movie action
-  keyPressEventSubscribe( Qt::Key_Space, Qt::NoModifier, 
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::startOrStop ) ) ;
+  keyPressEventSubscribe( Qt::Key_Space, Qt::NoModifier,
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::startOrStop ),
+                          "movie_start_stop" );
 
-  keyPressEventSubscribe( Qt::Key_S, Qt::ControlModifier, 
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::sliceOn ) ) ;
+  keyPressEventSubscribe( Qt::Key_S, Qt::ControlModifier,
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::sliceOn ),
+                          "movie_slice_on" );
 
   keyPressEventSubscribe( Qt::Key_T, Qt::ControlModifier,
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::timeOn ) ) ;
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::timeOn ),
+                          "movie_time_on" );
 
   keyPressEventSubscribe( Qt::Key_M, Qt::ControlModifier,
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::nextMode ) ) ;
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::nextMode ),
+                          "movie_next_mode" );
 
   keyPressEventSubscribe( Qt::Key_Plus, Qt::NoModifier,
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::increaseSpeed ) ) ;
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::increaseSpeed ),
+                          "movie_inc_speed" );
   keyPressEventSubscribe( Qt::Key_Plus, Qt::ShiftModifier,
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::increaseSpeed ) ) ;
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::increaseSpeed ),
+                          "movie_inc_speed2" );
 
   keyPressEventSubscribe( Qt::Key_Minus, Qt::NoModifier,
-			  KeyActionLinkOf<MovieAction>
-			  ( actionPool->action( "MovieAction" ), 
-			    &MovieAction::decreaseSpeed ) ) ;
+                          KeyActionLinkOf<MovieAction>
+                          ( actionPool->action( "MovieAction" ),
+                            &MovieAction::decreaseSpeed ),
+                          "movie_dec_speed" );
 
   // Is it MY job to maintain this map ???
   myActions[ "MovieAction" ] = actionPool->action( "MovieAction" );
-  myActions[ "ContinuousTrackball" ] 
+  myActions[ "ContinuousTrackball" ]
     = actionPool->action( "ContinuousTrackball" );
 }
 
 
 void Control3D::doAlsoOnDeselect( ActionPool * )
 {
-  map<string, ActionPtr>::const_iterator	ia, ea=myActions.end();
-  MovieAction					*a;
-  ContinuousTrackball				*a2;
+  map<string, ActionPtr>::const_iterator        ia, ea=myActions.end();
+  MovieAction                                        *a;
+  ContinuousTrackball                                *a2;
 
   for( ia=myActions.begin(); ia!=ea; ++ia )
     {
       a = dynamic_cast<MovieAction *>( ia->second );
       if( a && a->isRunning() )
-	a->startOrStop();
+        a->startOrStop();
       a2 = dynamic_cast<ContinuousTrackball *>( ia->second );
       if( a2 )
-	a2->stop();
+        a2->stop();
     }
 }
 
 // ----
 
-Control * 
-Select3DControl::creator( ) 
+Control *
+Select3DControl::creator( )
 {
-  return new Select3DControl ;
+  return new Select3DControl;
 }
 
-Select3DControl::Select3DControl( const string & name ) 
+Select3DControl::Select3DControl( const string & name )
   : Control( 2, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
   // just for Qt translator parsing
@@ -316,64 +323,64 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
 {
   //cout << "Select3DControl::eventAutoSubscription\n";
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ), 
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ),
                &SelectAction::execSelect ) );
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ), 
+    ( Qt::LeftButton, Qt::ShiftModifier,
+      MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ),
                &SelectAction::execSelectAdding ) );
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ControlModifier, 
-      MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ), 
+    ( Qt::LeftButton, Qt::ControlModifier,
+      MouseActionLinkOf<SelectAction>( actionPool->action( "SelectAction" ),
                &SelectAction::execSelectToggling ) );
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
              &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
         KeyActionLinkOf<WindowActions>
         ( actionPool->action( "WindowActions" ),
           &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
         KeyActionLinkOf<WindowActions>
         ( actionPool->action( "WindowActions" ),
           &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
         KeyActionLinkOf<WindowActions>
         ( actionPool->action( "WindowActions" ),
           &WindowActions::toggleShowTools ) );
 
   // selection shortcuts
 
-  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier,
         KeyActionLinkOf<SelectAction>
         ( actionPool->action( "SelectAction" ),
           &SelectAction::toggleSelectAll ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier,
         KeyActionLinkOf<SelectAction>
         ( actionPool->action( "SelectAction" ),
           &SelectAction::removeFromWindow ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier,
         KeyActionLinkOf<SelectAction>
         ( actionPool->action( "SelectAction" ),
           &SelectAction::removeFromGroup ) );
 
   //  rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
         KeyActionLinkOf<Trackball>
         ( actionPool->action( "Trackball" ),
           &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier, 
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
         KeyActionLinkOf<Trackball>
         ( actionPool->action( "Trackball" ),
           &Trackball::showRotationCenter ) );
 
   //  sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
         KeyActionLinkOf<Sync3DAction>
         ( actionPool->action( "Sync3DAction" ),
           &Sync3DAction::execSync ) );
@@ -381,63 +388,63 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
             &Trackball::beginTrackball ),
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
             &Trackball::moveTrackball ),
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
             &Trackball::endTrackball ), true );
 
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                &Zoom3DAction::beginZoom ),
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                &Zoom3DAction::moveZoom ),
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                &Zoom3DAction::endZoom ), true );
 
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
   //  translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
+      ( actionPool->action( "Translate3DAction" ),
   &Translate3DAction::beginTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
+      ( actionPool->action( "Translate3DAction" ),
   &Translate3DAction::moveTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
+      ( actionPool->action( "Translate3DAction" ),
   &Translate3DAction::endTranslate ), true );
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextTime ) );
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::toggleLinkedOnSlider ) );
 
   // label picker / edition
@@ -511,10 +518,10 @@ void Select3DControl::doAlsoOnDeselect( ActionPool* pool )
 
 // ----
 
-Action * 
-LinkAction::creator() 
+Action *
+LinkAction::creator()
 {
-  return new LinkAction ;
+  return new LinkAction;
 }
 
 LinkAction::LinkAction() : Action()
@@ -552,8 +559,8 @@ bool LinkAction::viewableAction() const
 
 void LinkAction::execLink( int x, int y, int, int )
 {
-  View		*v = view();
-  GLWidgetManager	*w = dynamic_cast<GLWidgetManager *>( v );
+  View                *v = view();
+  GLWidgetManager        *w = dynamic_cast<GLWidgetManager *>( v );
 
   if( !w )
     {
@@ -561,19 +568,19 @@ void LinkAction::execLink( int x, int y, int, int )
       return;
     }
 
-  AWindow	*win = v->aWindow();
+  AWindow        *win = v->aWindow();
 
-  Point3df	pos;
+  Point3df        pos;
   if( win->positionFromCursor( x, y, pos ) )
   {
     cout << "Position : " << pos << endl;
 
-    vector<float>	vp;
+    vector<float>        vp;
     vp.push_back( pos[0] );
     vp.push_back( pos[1] );
     vp.push_back( pos[2] );
     vp.push_back( win->GetTime() );
-    LinkedCursorCommand	*c
+    LinkedCursorCommand        *c
       = new LinkedCursorCommand( v->aWindow(), vp );
     theProcessor->execute( c );
     AWindow3D *w3 = dynamic_cast<AWindow3D *>( win );
@@ -591,10 +598,10 @@ void LinkAction::endLink( int, int, int, int )
 
 // --------
 
-Action * 
-MenuAction::creator() 
+Action *
+MenuAction::creator()
 {
-  return new MenuAction ;
+  return new MenuAction;
 }
 
 
@@ -639,10 +646,10 @@ void MenuAction::execMenu( int x, int y, int, int )
 
 // -------------------
 
-Action * 
+Action *
 SelectAction::creator()
 {
-  return new SelectAction ;
+  return new SelectAction;
 }
 
 SelectAction::SelectAction() : Action()
@@ -757,11 +764,11 @@ void SelectAction::select( int x, int y, int modifier )
   Point3df      pos;
   if( w->positionFromCursor( x, y, pos ) )
   {
-    /*vector<float>	vp;
+    /*vector<float>        vp;
     vp.push_back( pos[0] );
     vp.push_back( pos[1] );
     vp.push_back( pos[2] );
-    SelectionCommand	*c
+    SelectionCommand        *c
       = new SelectionCommand( w->aWindow(), vp );
       theProcessor->execute( c );*/
 
@@ -774,11 +781,11 @@ void SelectAction::select( int x, int y, int modifier )
 
 void SelectAction::toggleSelectAll()
 {
-  AWindow		*w = view()->aWindow();
-  set<AObject *>	obj = w->Objects();
-  SelectFactory		*sf = SelectFactory::factory();
-  bool			allsel = true;
-  set<AObject *>::iterator	io, eo = obj.end();
+  AWindow                *w = view()->aWindow();
+  set<AObject *>        obj = w->Objects();
+  SelectFactory                *sf = SelectFactory::factory();
+  bool                        allsel = true;
+  set<AObject *>::iterator        io, eo = obj.end();
   for( io=obj.begin(); allsel && io!=eo; ++io )
     if( !sf->isSelected( w->Group(), *io ) )
       allsel = false;
@@ -805,10 +812,10 @@ void SelectAction::removeFromGroup()
 
 // --------
 
-Action * 
+Action *
 Zoom3DAction::creator ()
 {
-  return new Zoom3DAction ;
+  return new Zoom3DAction;
 }
 
 Zoom3DAction::Zoom3DAction() : Action(), _beginpos( -1 ), _orgzoom( 1 )
@@ -816,7 +823,7 @@ Zoom3DAction::Zoom3DAction() : Action(), _beginpos( -1 ), _orgzoom( 1 )
 }
 
 
-Zoom3DAction::Zoom3DAction( const Zoom3DAction & a ) 
+Zoom3DAction::Zoom3DAction( const Zoom3DAction & a )
   : Action( a ), _beginpos( a._beginpos ), _orgzoom( a._orgzoom )
 {
 }
@@ -885,8 +892,8 @@ void Zoom3DAction::moveZoom( int, int y, int, int )
   if( _beginpos < 0 )
     return;
 
-  int	m = _beginpos - y;
-  float	zfac = exp( 0.01 * m );
+  int        m = _beginpos - y;
+  float        zfac = exp( 0.01 * m );
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
 
   /*if( zfac < 1e-6 )
@@ -901,13 +908,13 @@ void Zoom3DAction::moveZoom( int, int y, int, int )
 
   if( w->perspectiveEnabled() )
     {
-      const Quaternion	& q = w->quaternion().inverse();
-      Point3df		p = q.apply( Point3df( 0, 0, -m ) );
+      const Quaternion        & q = w->quaternion().inverse();
+      Point3df                p = q.apply( Point3df( 0, 0, -m ) );
       float zfac = w->invertedZ() ? -1 : 1;
-      p[2] = zfac * p[2];	// invert Z axis
+      p[2] = zfac * p[2];        // invert Z axis
       //cout << "avance : " << p << endl;
       w->setRotationCenter( w->rotationCenter() + p );
-      _beginpos = y;	// no memory of begin position in this mode
+      _beginpos = y;        // no memory of begin position in this mode
     }
   else
     w->setZoom( zfac * _orgzoom );
@@ -935,7 +942,7 @@ void Zoom3DAction::zoomWheel( int delta, int, int, int, int )
 
 void Zoom3DAction::zoom( int distance )
 {
-  float	zfac = exp( 0.01 * distance );
+  float        zfac = exp( 0.01 * distance );
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
 
   if( !w )
@@ -943,9 +950,9 @@ void Zoom3DAction::zoom( int distance )
 
   if( w->perspectiveEnabled() )
     {
-      const Quaternion	& q = w->quaternion().inverse();
-      Point3df		p = q.apply( Point3df( 0, 0, -distance ) );
-      p[2] = -p[2];	// invert Z axis
+      const Quaternion        & q = w->quaternion().inverse();
+      Point3df                p = q.apply( Point3df( 0, 0, -distance ) );
+      p[2] = -p[2];        // invert Z axis
       //cout << "avance : " << p << endl;
       w->setRotationCenter( w->rotationCenter() + p );
     }
@@ -957,21 +964,21 @@ void Zoom3DAction::zoom( int distance )
 
 // --------
 
-Action * 
+Action *
 Translate3DAction::creator()
 {
-  return new Translate3DAction ;
+  return new Translate3DAction;
 }
 
 Translate3DAction::Translate3DAction()
   : Action(), _started( false ), _beginx( 0 ), _beginy( 0 )
-    
+
 {
 }
 
 
-Translate3DAction::Translate3DAction( const Translate3DAction & a ) 
-  : Action( a ), _started( a._started ), _beginx( a._beginx ), 
+Translate3DAction::Translate3DAction( const Translate3DAction & a )
+  : Action( a ), _started( a._started ), _beginx( a._beginx ),
     _beginy( a._beginy )
 {
 }
@@ -1013,9 +1020,9 @@ void Translate3DAction::beginTranslate( int x, int y, int, int )
       cerr << "Translate3DAction operating on wrong view type -- error\n";
       return;
       /*_orgx = 0;
-	_orgy = 0;*/
+        _orgy = 0;*/
     }
-  /*Point2df	t = w->translation();
+  /*Point2df        t = w->translation();
   _orgx = t[0];
   _orgy = t[1];*/
   _started = true;
@@ -1041,8 +1048,8 @@ void Translate3DAction::endTranslateKey()
 
 void Translate3DAction::moveTranslate( int x, int y, int, int )
 {
-  Point3df	t;
-  
+  Point3df        t;
+
   //cout << "Translate3DAction::moveTranslate\n";
   if( !_started )
     return;
@@ -1056,7 +1063,7 @@ void Translate3DAction::moveTranslate( int x, int y, int, int )
     }
 
   w->translateCursorPosition( _beginx - x, y - _beginy, t );
-  
+
   //cout << "transl : " << t << endl;
   w->setRotationCenter( w->rotationCenter() + t );
   _beginx = x;
@@ -1068,10 +1075,10 @@ void Translate3DAction::moveTranslate( int x, int y, int, int )
 
 // ----------
 
-Action * 
-Sync3DAction::creator() 
+Action *
+Sync3DAction::creator()
 {
-  return new Sync3DAction ;
+  return new Sync3DAction;
 }
 
 
@@ -1098,7 +1105,7 @@ string Sync3DAction::name() const
 
 void Sync3DAction::execSync()
 {
-  AWindow3D	*win = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  AWindow3D        *win = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !win )
     {
       cerr << "Sync3DAction operating on wrong window type -- error\n";
@@ -1110,7 +1117,7 @@ void Sync3DAction::execSync()
 
 void Sync3DAction::execSyncOrientation()
 {
-  AWindow3D	*win = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  AWindow3D        *win = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !win )
     {
       cerr << "Sync3DAction operating on wrong window type -- error\n";
@@ -1134,13 +1141,13 @@ bool Sync3DAction::viewableAction() const
 
 // --------
 
-Control * 
-FlightControl::creator( ) 
+Control *
+FlightControl::creator( )
 {
-  return new FlightControl ;
+  return new FlightControl;
 }
 
-FlightControl::FlightControl() 
+FlightControl::FlightControl()
   : Control( 4, QT_TRANSLATE_NOOP( "ControlledWindow", "Flight control" ) )
 {
   setUserLevel( 2 );
@@ -1162,179 +1169,179 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // standard linked cursor / menu
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-				     &LinkAction::execLink ) );
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+                                     &LinkAction::execLink ) );
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ) );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ) );
 
-  //	rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::showRotationCenter ) );
+  //        rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ) );
 
-  //	sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSync ) );
+  //        sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ) );
 
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::beginTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::moveTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::endTrackball ), true );
 
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::beginZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::moveZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::endZoom ), true );
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::beginZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::moveZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::endZoom ), true );
 
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
-  //	translation
+  //        translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::beginTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::beginTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::moveTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::moveTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::endTranslate ), true );
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::endTranslate ), true );
 
-  //	Flight simulator
+  //        Flight simulator
 
-  keyRepetitiveEventSubscribe( Qt::Key_Up, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::up ), 
-			       Qt::Key_Up, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Up, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::up ), 
-			       Qt::Key_Up, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Down, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::down ), 
-			       Qt::Key_Down, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Down, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::down ), 
-			       Qt::Key_Down, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Left, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::left ), 
-			       Qt::Key_Left, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Right, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::right ), 
-			       Qt::Key_Right, Qt::ControlModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Left, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::spinLeft ), 
-			       Qt::Key_Left, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Right, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::spinRight ), 
-			       Qt::Key_Right, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_Q, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::boost ), 
-			       Qt::Key_Q, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_A, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::brake ), 
-			       Qt::Key_A, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::release ), false, 1 );
-  keyRepetitiveEventSubscribe( Qt::Key_F, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::runStep ), 
-			       Qt::Key_G, Qt::NoModifier, 
-			       KeyActionLinkOf<KeyFlightAction>
-			       ( actionPool->action( "KeyFlightAction" ), 
-				 &KeyFlightAction::stop ), false, 1 );
-  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier, 
-			  KeyActionLinkOf<KeyFlightAction>
-			  ( actionPool->action( "KeyFlightAction" ), 
-			    &KeyFlightAction::reverse ) );
+  keyRepetitiveEventSubscribe( Qt::Key_Up, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::up ),
+                               Qt::Key_Up, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Up, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::up ),
+                               Qt::Key_Up, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Down, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::down ),
+                               Qt::Key_Down, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Down, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::down ),
+                               Qt::Key_Down, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Left, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::left ),
+                               Qt::Key_Left, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Right, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::right ),
+                               Qt::Key_Right, Qt::ControlModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Left, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::spinLeft ),
+                               Qt::Key_Left, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Right, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::spinRight ),
+                               Qt::Key_Right, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_Q, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::boost ),
+                               Qt::Key_Q, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_A, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::brake ),
+                               Qt::Key_A, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::release ), false, 1 );
+  keyRepetitiveEventSubscribe( Qt::Key_F, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::runStep ),
+                               Qt::Key_G, Qt::NoModifier,
+                               KeyActionLinkOf<KeyFlightAction>
+                               ( actionPool->action( "KeyFlightAction" ),
+                                 &KeyFlightAction::stop ), false, 1 );
+  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier,
+                          KeyActionLinkOf<KeyFlightAction>
+                          ( actionPool->action( "KeyFlightAction" ),
+                            &KeyFlightAction::reverse ) );
 
   // Is it MY job to maintain this map ???
   myActions[ "KeyFlightAction" ] = actionPool->action( "KeyFlightAction" );
@@ -1343,14 +1350,14 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
 
 void FlightControl::doAlsoOnDeselect( ActionPool * )
 {
-  map<string, ActionPtr>::const_iterator	ia, ea=myActions.end();
-  KeyFlightAction				*kf;
+  map<string, ActionPtr>::const_iterator        ia, ea=myActions.end();
+  KeyFlightAction                                *kf;
 
   for( ia=myActions.begin(); ia!=ea; ++ia )
     {
       kf = dynamic_cast<KeyFlightAction *>( (*ia).second );
       if( kf )
-	kf->stop();
+        kf->stop();
     }
 }
 
@@ -1362,7 +1369,7 @@ Control * ObliqueControl::creator()
   return new ObliqueControl;
 }
 
-ObliqueControl::ObliqueControl( const string & name ) 
+ObliqueControl::ObliqueControl( const string & name )
   : Control( 3, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
   // just for Qt translation parsing
@@ -1385,106 +1392,106 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // standard linked cursor / menu
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-				     &LinkAction::execLink ) );
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+                                     &LinkAction::execLink ) );
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ) );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ) );
 
-  //	rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::showRotationCenter ) );
+  //        rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ) );
 
-  //	sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSync ) );
+  //        sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ) );
 
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::beginTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::moveTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::endTrackball ), true );
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextTime ) );
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::toggleLinkedOnSlider ) );
 
   // wheel zoom
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
   // oblique trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ), 
-				       &TrackOblique::beginTrackball ), 
-      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ), 
-				       &TrackOblique::moveTrackball ), 
-      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ), 
-				       &TrackOblique::endTrackball ), true );
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
+                                       &TrackOblique::beginTrackball ),
+      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
+                                       &TrackOblique::moveTrackball ),
+      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
+                                       &TrackOblique::endTrackball ), true );
 
   // oblique slice trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<TrackObliqueSlice>
-      ( actionPool->action( "TrackObliqueSlice" ), 
-	&TrackObliqueSlice::beginTrackball ), 
+      ( actionPool->action( "TrackObliqueSlice" ),
+        &TrackObliqueSlice::beginTrackball ),
       MouseActionLinkOf<TrackObliqueSlice>
-      ( actionPool->action( "TrackObliqueSlice" ), 
-	&TrackObliqueSlice::moveTrackball ), 
+      ( actionPool->action( "TrackObliqueSlice" ),
+        &TrackObliqueSlice::moveTrackball ),
       MouseActionLinkOf<TrackObliqueSlice>
-      ( actionPool->action( "TrackObliqueSlice" ), 
-	&TrackObliqueSlice::endTrackball ), true );
+      ( actionPool->action( "TrackObliqueSlice" ),
+        &TrackObliqueSlice::endTrackball ), true );
 }
 
 
@@ -1495,7 +1502,7 @@ Control * TransformControl::creator()
   return new TransformControl;
 }
 
-TransformControl::TransformControl() 
+TransformControl::TransformControl()
   : Control( 10, QT_TRANSLATE_NOOP( "ControlledWindow", "TransformControl" ) )
 {
 }
@@ -1516,124 +1523,124 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // standard linked cursor / menu
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-				     &LinkAction::execLink ) );
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+                                     &LinkAction::execLink ) );
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ) );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ) );
 
-  //	rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::showRotationCenter ) );
+  //        rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ) );
 
-  //	sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSync ) );
+  //        sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ) );
 
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::beginTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::moveTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::endTrackball ), true );
 
   // wheel zoom
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
                        ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::nextTime ) );
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier, 
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
+                          ( actionPool->action( "SliceAction" ),
                             &SliceAction::toggleLinkedOnSlider ) );
 
   // Transformer trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ), 
-                                      &Transformer::beginTrackball ), 
-      MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ), 
-                                      &Transformer::moveTrackball ), 
-      MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ), 
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ),
+                                      &Transformer::beginTrackball ),
+      MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ),
+                                      &Transformer::moveTrackball ),
+      MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ),
                                       &Transformer::endTrackball ), true );
   keyPressEventSubscribe( Qt::Key_I, Qt::NoModifier,
                           KeyActionLinkOf<Transformer>(
                             actionPool->action( "Transformer" ),
                             &Transformer::toggleDisplayInfo ) );
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<TranslaterAction>
-      ( actionPool->action( "TranslaterAction" ), &TranslaterAction::begin ), 
+      ( actionPool->action( "TranslaterAction" ), &TranslaterAction::begin ),
       MouseActionLinkOf<TranslaterAction>
-      ( actionPool->action( "TranslaterAction" ), &TranslaterAction::move ), 
+      ( actionPool->action( "TranslaterAction" ), &TranslaterAction::move ),
       MouseActionLinkOf<TranslaterAction>
-      ( actionPool->action( "TranslaterAction" ), &TranslaterAction::end ), 
+      ( actionPool->action( "TranslaterAction" ), &TranslaterAction::end ),
       true );
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::ControlModifier, 
+    ( Qt::LeftButton, Qt::ControlModifier,
       MouseActionLinkOf<PlanarTransformer>
-      ( actionPool->action( "PlanarTransformer" ), 
-        &PlanarTransformer::beginTrackball ), 
+      ( actionPool->action( "PlanarTransformer" ),
+        &PlanarTransformer::beginTrackball ),
       MouseActionLinkOf<PlanarTransformer>
-      ( actionPool->action( "PlanarTransformer" ), 
-        &PlanarTransformer::moveTrackball ), 
+      ( actionPool->action( "PlanarTransformer" ),
+        &PlanarTransformer::moveTrackball ),
       MouseActionLinkOf<PlanarTransformer>
-      ( actionPool->action( "PlanarTransformer" ), 
+      ( actionPool->action( "PlanarTransformer" ),
         &PlanarTransformer::endTrackball ), true );
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftModifier, 
+    ( Qt::LeftButton, Qt::ShiftModifier,
       MouseActionLinkOf<ResizerAction>
-      ( actionPool->action( "ResizerAction" ), &ResizerAction::begin ), 
+      ( actionPool->action( "ResizerAction" ), &ResizerAction::begin ),
       MouseActionLinkOf<ResizerAction>
-      ( actionPool->action( "ResizerAction" ), &ResizerAction::move ), 
+      ( actionPool->action( "ResizerAction" ), &ResizerAction::move ),
       MouseActionLinkOf<ResizerAction>
-      ( actionPool->action( "ResizerAction" ), &ResizerAction::end ), 
+      ( actionPool->action( "ResizerAction" ), &ResizerAction::end ),
       true );
 }
 
@@ -1674,7 +1681,7 @@ Control * CutControl::creator()
   return new CutControl;
 }
 
-CutControl::CutControl() 
+CutControl::CutControl()
   : Control( 30, QT_TRANSLATE_NOOP( "ControlledWindow", "CutControl" ) )
 {
 }
@@ -1695,174 +1702,174 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // standard linked cursor / menu
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ), 
-				     &LinkAction::execLink ) );
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
+                                     &LinkAction::execLink ) );
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ) );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ) );
 
   // selection shortcuts
 
-  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::toggleSelectAll ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::removeFromWindow ) );
-  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier, 
-			  KeyActionLinkOf<SelectAction>
-			  ( actionPool->action( "SelectAction" ), 
-			    &SelectAction::removeFromGroup ) );
+  keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::toggleSelectAll ) );
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::removeFromWindow ) );
+  keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier,
+                          KeyActionLinkOf<SelectAction>
+                          ( actionPool->action( "SelectAction" ),
+                            &SelectAction::removeFromGroup ) );
 
-  //	rotation center
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::setCenter ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier, 
-			  KeyActionLinkOf<Trackball>
-			  ( actionPool->action( "Trackball" ), 
-			    &Trackball::showRotationCenter ) );
+  //        rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ) );
 
-  //	sync
-  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSync ) );
-  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier, 
-			  KeyActionLinkOf<Sync3DAction>
-			  ( actionPool->action( "Sync3DAction" ), 
-			    &Sync3DAction::execSyncOrientation ) );
+  //        sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ) );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ) );
 
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::beginTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::moveTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::endTrackball ), true );
 
   // zoom
 
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
   // oblique trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
+    ( Qt::MidButton, Qt::ShiftModifier,
       MouseActionLinkOf<TrackCutAction>
-      ( actionPool->action( "TrackCutAction" ), 
-	&TrackCutAction::beginTrackball ), 
+      ( actionPool->action( "TrackCutAction" ),
+        &TrackCutAction::beginTrackball ),
       MouseActionLinkOf<TrackCutAction>
-      ( actionPool->action( "TrackCutAction" ), 
-	&TrackCutAction::moveTrackball ), 
+      ( actionPool->action( "TrackCutAction" ),
+        &TrackCutAction::moveTrackball ),
       MouseActionLinkOf<TrackCutAction>
-      ( actionPool->action( "TrackCutAction" ), 
-	&TrackCutAction::endTrackball ), 
+      ( actionPool->action( "TrackCutAction" ),
+        &TrackCutAction::endTrackball ),
       true );
-  keyPressEventSubscribe( Qt::Key_A, Qt::ShiftModifier, 
-			  KeyActionLinkOf<TrackCutAction>
-			  ( actionPool->action( "TrackCutAction" ), 
-			    &TrackCutAction::axialSlice ) );
-  keyPressEventSubscribe( Qt::Key_C, Qt::ShiftModifier, 
-			  KeyActionLinkOf<TrackCutAction>
-			  ( actionPool->action( "TrackCutAction" ), 
-			    &TrackCutAction::coronalSlice ) );
-  keyPressEventSubscribe( Qt::Key_S, Qt::ShiftModifier, 
-			  KeyActionLinkOf<TrackCutAction>
-			  ( actionPool->action( "TrackCutAction" ), 
-			    &TrackCutAction::sagittalSlice ) );
+  keyPressEventSubscribe( Qt::Key_A, Qt::ShiftModifier,
+                          KeyActionLinkOf<TrackCutAction>
+                          ( actionPool->action( "TrackCutAction" ),
+                            &TrackCutAction::axialSlice ) );
+  keyPressEventSubscribe( Qt::Key_C, Qt::ShiftModifier,
+                          KeyActionLinkOf<TrackCutAction>
+                          ( actionPool->action( "TrackCutAction" ),
+                            &TrackCutAction::coronalSlice ) );
+  keyPressEventSubscribe( Qt::Key_S, Qt::ShiftModifier,
+                          KeyActionLinkOf<TrackCutAction>
+                          ( actionPool->action( "TrackCutAction" ),
+                            &TrackCutAction::sagittalSlice ) );
 
   // oblique slice trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<CutSliceAction>
-      ( actionPool->action( "CutSliceAction" ), 
-	&CutSliceAction::beginTrack ), 
+      ( actionPool->action( "CutSliceAction" ),
+        &CutSliceAction::beginTrack ),
       MouseActionLinkOf<CutSliceAction>
-      ( actionPool->action( "CutSliceAction" ), 
-	&CutSliceAction::moveTrack ), 
+      ( actionPool->action( "CutSliceAction" ),
+        &CutSliceAction::moveTrack ),
       MouseActionLinkOf<CutSliceAction>
-      ( actionPool->action( "CutSliceAction" ), 
-	&CutSliceAction::endTrack ), true );
+      ( actionPool->action( "CutSliceAction" ),
+        &CutSliceAction::endTrack ), true );
 }
 
 //------------------
 
-Action* 
+Action*
 MovieAction::creator()
 {
-  MovieAction * pa = new MovieAction( ) ;
+  MovieAction * pa = new MovieAction( );
 
   return( pa );
 }
 
 MovieAction::MovieAction()
-  : QObject(), Action(), mySliceAndNotTime(false), myIsRunning(false), 
+  : QObject(), Action(), mySliceAndNotTime(false), myIsRunning(false),
     myRunMode( Forward ), myForward( true ), myTimeInterval( 100 )
 {
-  myTimer = new QTimer( this ) ;
-  myTimer->setInterval( 100 ) ;
-  myTimer->stop();	// don't start right now...
+  myTimer = new QTimer( this );
+  myTimer->setInterval( 100 );
+  myTimer->stop();        // don't start right now...
 
-  QObject::connect( myTimer, SIGNAL(timeout()), this, SLOT(timeout()) ) ;  
-} 
-
-MovieAction::~MovieAction() 
-{
-  delete myTimer ;
+  QObject::connect( myTimer, SIGNAL(timeout()), this, SLOT(timeout()) );
 }
 
-void 
+MovieAction::~MovieAction()
+{
+  delete myTimer;
+}
+
+void
 MovieAction::sliceOn()
 {
-  //cerr << "Slice On " << endl ;
-  mySliceAndNotTime = true ;
+  //cerr << "Slice On " << endl;
+  mySliceAndNotTime = true;
 }
 
-void 
+void
 MovieAction::timeOn()
 {
-  //cerr << "Time On " << endl ;
-  mySliceAndNotTime = false ;
+  //cerr << "Time On " << endl;
+  mySliceAndNotTime = false;
 }
 
 
 void
 MovieAction::nextMode()
 {
-  int		rm = (int) myRunMode + 1;
+  int                rm = (int) myRunMode + 1;
   if( rm > LoopBothWays )
     myRunMode = Forward;
   else
     myRunMode = (RunMode) rm;
-  static const string	modes[] = { "Forward", "Backward", 
-                                    "Loop forward", "Loop backward", 
+  static const string        modes[] = { "Forward", "Backward",
+                                    "Loop forward", "Loop backward",
                                     "Loop both ways" };
   cout << "Movie mode: " << modes[ myRunMode ] << endl << std::flush;
 }
@@ -1886,13 +1893,13 @@ MovieAction::decreaseSpeed()
 }
 
 
-void 
+void
 MovieAction::startOrStop()
 {
-  //cerr << "Start or Stop" << endl ;
+  //cerr << "Start or Stop" << endl;
   if( ! myIsRunning )
   {
-    //cerr << "Start" << endl ;
+    //cerr << "Start" << endl;
     myIsRunning = true;
     myTimer->setSingleShot( true );
     myTimer->start( myTimeInterval );
@@ -1901,27 +1908,27 @@ MovieAction::startOrStop()
   {
     myIsRunning = false;
     myTimer->stop( );
-    //cerr << "Stop" << endl ;
+    //cerr << "Stop" << endl;
   }
 }
 
 
-void 
+void
 MovieAction::timeout()
 {
   int sliderPosition, maxPosition;
-  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() ) ;
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
-    return ;
-  
+    return;
+
   if( mySliceAndNotTime || win->getTimeSliderMaxPosition() == 0 )
     {
-      sliderPosition = win->getSliceSliderPosition() ;
+      sliderPosition = win->getSliceSliderPosition();
       maxPosition = win->getSliceSliderMaxPosition();
     }
   else
     {
-      sliderPosition = win->getTimeSliderPosition() ;
+      sliderPosition = win->getTimeSliderPosition();
       maxPosition = win->getTimeSliderMaxPosition();
     }
 
@@ -1942,7 +1949,7 @@ MovieAction::timeout()
         --sliderPosition;
     }
 
-  bool	stop = false;
+  bool        stop = false;
 
   if( sliderPosition < 0 )
     if( maxPosition == 0 )
@@ -1981,14 +1988,14 @@ MovieAction::timeout()
 
   if( stop )
   {
-    myIsRunning = false ;
-    myTimer->stop( ) ;
+    myIsRunning = false;
+    myTimer->stop( );
     return;
   }
 
   if( mySliceAndNotTime || win->getTimeSliderMaxPosition() == 0 )
   {
-    win->setSliceSliderPosition( sliderPosition ) ;
+    win->setSliceSliderPosition( sliderPosition );
     myTimer->setSingleShot( true );
     myTimer->start( myTimeInterval );
   }
@@ -2021,11 +2028,11 @@ Action* SliceAction::creator()
 
 void SliceAction::previousSlice()
 {
-  int sliderPosition ;
+  int sliderPosition;
   AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
-    return ;
-  
+    return;
+
   sliderPosition = win->getSliceSliderPosition();
 
   if( sliderPosition > 0 )
@@ -2035,11 +2042,11 @@ void SliceAction::previousSlice()
 
 void SliceAction::nextSlice()
 {
-  int sliderPosition ;
+  int sliderPosition;
   AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
-    return ;
-  
+    return;
+
   sliderPosition = win->getSliceSliderPosition();
 
   if( sliderPosition < win->getSliceSliderMaxPosition() )
@@ -2049,11 +2056,11 @@ void SliceAction::nextSlice()
 
 void SliceAction::previousTime()
 {
-  int sliderPosition ;
+  int sliderPosition;
   AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
-    return ;
-  
+    return;
+
   sliderPosition = win->getTimeSliderPosition();
 
   if( sliderPosition > 0 )
@@ -2063,11 +2070,11 @@ void SliceAction::previousTime()
 
 void SliceAction::nextTime()
 {
-  int sliderPosition ;
+  int sliderPosition;
   AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
-    return ;
-  
+    return;
+
   sliderPosition = win->getTimeSliderPosition();
 
   if( sliderPosition < win->getTimeSliderMaxPosition() )
@@ -2079,8 +2086,8 @@ void SliceAction::toggleLinkedOnSlider()
 {
   AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
   if ( ! win )
-    return ;
-  bool	onoff = !win->linkedCursorOnSliderChange();
+    return;
+  bool        onoff = !win->linkedCursorOnSliderChange();
   cout << "toggleLinkedOnSlider: " << onoff << endl;
   win->setLinkedCursorOnSliderChange( onoff );
 }
@@ -2110,12 +2117,12 @@ namespace
 
   void dragObjectStart( DragObjectAction *ac, const set<AObject *> & so )
   {
-    QAWindow	*qw = dynamic_cast<QAWindow *>( ac->view()->aWindow() );
+    QAWindow        *qw = dynamic_cast<QAWindow *>( ac->view()->aWindow() );
     if( qw && !so.empty() )
       {
         QDragObject *d = new QAObjectDrag( so, qw, "dragObject" );
 
-        map<int, QPixmap>::const_iterator	ip
+        map<int, QPixmap>::const_iterator        ip
           = QObjectTree::TypeIcons.find( (*so.begin())->type() );
         if( ip != QObjectTree::TypeIcons.end() )
           d->setPixmap( (*ip).second );
@@ -2128,18 +2135,18 @@ namespace
 
 void DragObjectAction::dragAll( int, int, int, int )
 {
-  set<AObject *>	so = view()->aWindow()->Objects();
+  set<AObject *>        so = view()->aWindow()->Objects();
   dragObjectStart( this, so );
 }
 
 
 void DragObjectAction::dragSelected( int, int, int, int )
 {
-  AWindow		*w = view()->aWindow();
-  set<AObject *>	so = w->Objects();
+  AWindow                *w = view()->aWindow();
+  set<AObject *>        so = w->Objects();
   // filter selected objects
-  SelectFactory	*sf = SelectFactory::factory();
-  set<AObject *>::iterator	i = so.begin(), e = so.end(), j;
+  SelectFactory        *sf = SelectFactory::factory();
+  set<AObject *>::iterator        i = so.begin(), e = so.end(), j;
   while( i != e )
     if( !sf->isSelected( w->Group(), *i ) )
       {
@@ -2155,10 +2162,10 @@ void DragObjectAction::dragSelected( int, int, int, int )
 
 // ---------------
 
-Action * 
-WindowActions::creator() 
+Action *
+WindowActions::creator()
 {
-  return new WindowActions ;
+  return new WindowActions;
 }
 
 WindowActions::WindowActions() : Action()
@@ -2166,7 +2173,7 @@ WindowActions::WindowActions() : Action()
 }
 
 
-WindowActions::WindowActions( const WindowActions & a ) 
+WindowActions::WindowActions( const WindowActions & a )
   : Action( a )
 {
 }
@@ -2197,14 +2204,14 @@ bool WindowActions::viewableAction() const
 
 void WindowActions::close()
 {
-  AWindow	*w = view()->aWindow();
+  AWindow        *w = view()->aWindow();
   w->close();
 }
 
 
 void WindowActions::toggleShowTools()
 {
-  AWindow	*w = view()->aWindow();
+  AWindow        *w = view()->aWindow();
   Object  p = Object::value( Dictionary() );
   set<AWindow *>  sw;
   sw.insert( w );
@@ -2216,7 +2223,7 @@ void WindowActions::toggleShowTools()
 
 void WindowActions::toggleFullScreen()
 {
-  AWindow	*w = view()->aWindow();
+  AWindow        *w = view()->aWindow();
   Object  p = Object::value( Dictionary() );
   set<AWindow *>  sw;
   sw.insert( w );

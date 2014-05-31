@@ -1094,3 +1094,93 @@ void ControlSwitch::toolBoxDestroyed()
   myToolBox = 0;
 }
 
+
+void ControlSwitch::activateKeyPressAction(
+  const string & methodname ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( myActiveControl );
+  if( ic == myControls.end() )
+    return;
+  Control *control = ic->second;
+  Control::KeyActionLink*
+    actionlink = control->keyPressActionLinkByName( methodname );
+  if( actionlink )
+    actionlink->execute();
+}
+
+
+void ControlSwitch::activateKeyReleaseAction(
+  const string & methodname ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( myActiveControl );
+  if( ic == myControls.end() )
+    return;
+  Control *control = ic->second;
+  Control::KeyActionLink*
+    actionlink = control->keyReleaseActionLinkByName( methodname );
+  if( actionlink )
+    actionlink->execute();
+}
+
+
+void ControlSwitch::activateMousePressAction(
+  const string & methodname, int x, int y ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( myActiveControl );
+  if( ic == myControls.end() )
+    return;
+  Control *control = ic->second;
+  Control::MouseActionLink*
+    actionlink = control->mousePressActionLinkByName( methodname );
+  if( actionlink )
+    actionlink->execute( x, y, x, y );
+}
+
+
+void ControlSwitch::activateMouseReleaseAction(
+  const string & methodname, int x, int y ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( myActiveControl );
+  if( ic == myControls.end() )
+    return;
+  Control *control = ic->second;
+  Control::MouseActionLink*
+    actionlink = control->mouseReleaseActionLinkByName( methodname );
+  if( actionlink )
+    actionlink->execute( x, y, x, y );
+}
+
+
+void ControlSwitch::activateMouseDoubleClickAction(
+  const string & methodname, int x, int y ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( myActiveControl );
+  if( ic == myControls.end() )
+    return;
+  Control *control = ic->second;
+  Control::MouseActionLink*
+    actionlink = control->mouseDoubleClickActionLinkByName( methodname );
+  if( actionlink )
+    actionlink->execute( x, y, x, y );
+}
+
+
+void ControlSwitch::activateMouseMoveAction(
+  const string & methodname, int x, int y ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( myActiveControl );
+  if( ic == myControls.end() )
+    return;
+  Control *control = ic->second;
+  Control::MouseActionLink*
+    actionlink = control->mouseMoveActionLinkByName( methodname );
+  if( actionlink )
+    actionlink->execute( x, y, x, y );
+}
+

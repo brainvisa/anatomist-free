@@ -48,70 +48,70 @@ namespace anatomist
   struct ControlMapEntry
   {
     ControlMapEntry(std::string v, std::string o) : view(v), object(o) {}
-    std::string view ;
-    std::string object ;
+    std::string view;
+    std::string object;
   };
-  
+
   struct LessControlMap
   {
     bool operator()( ControlMapEntry entry1, ControlMapEntry entry2 ) const
     {
       if ( entry1.view == entry2.view )
-	return entry1.object < entry2.object ;
-      return entry1.view < entry2.view ;
+        return entry1.object < entry2.object;
+      return entry1.view < entry2.view;
     }
-  } ;
-  
-  typedef std::map< std::string, std::set< std::string > > ViewControls ;
-  typedef std::map< std::string, std::set< std::string > > ObjectControls ;
-  
+  };
+
+  typedef std::map< std::string, std::set< std::string > > ViewControls;
+  typedef std::map< std::string, std::set< std::string > > ObjectControls;
+
   class ControlManager
   {
   public:
     ~ControlManager();
-    
-    static ControlManager* instance() ;
-    
-    typedef std::map< ControlMapEntry, std::set<std::string>, 
-		      LessControlMap >::iterator iterator ;
-    typedef std::map< ControlMapEntry, std::set<std::string>, 
-		      LessControlMap >::const_iterator const_iterator ;
-    
-    std::set< std::string > 
-    availableControlList( const std::string& view, 
-			  const std::list<std::string>& objects ) const ;
-    std::set< std::string > 
-    availableControlList( const std::string& view, 
-			  const std::string& object ) const ;
-    std::set< std::string > 
-    activableControlList( const std::string& view, 
-			  const std::list<std::string>& selectedObjects ) 
-      const ;
-        
-    bool insertView( const std::string& view, 
-		     const ViewControls& viewControls ) ;
-    bool removeView( const std::string& view ) ;
-    
-    bool insertObject( const std::string& object, 
-		       const ObjectControls& objectControls ) ;
-    bool removeObject( const std::string& object ) ;
-    
-    void addControl( const std::string& view, const std::string& object, 
-		     const std::set< std::string > & controls ) ;
-    void addControl( const std::string& view, const std::string& object, 
-		     const std::string& control ) ;
-    
-    bool removeControl( const std::string& view, const std::string& object, 
-			const std::string& control ) ;
-    
-    bool removeControlList( const std::string& view, 
-			    const std::string& object ) ;
-    void print() const  ;
+
+    static ControlManager* instance();
+
+    typedef std::map< ControlMapEntry, std::set<std::string>,
+                      LessControlMap >::iterator iterator;
+    typedef std::map< ControlMapEntry, std::set<std::string>,
+                      LessControlMap >::const_iterator const_iterator;
+
+    std::set< std::string >
+    availableControlList( const std::string& view,
+                          const std::list<std::string>& objects ) const;
+    std::set< std::string >
+    availableControlList( const std::string& view,
+                          const std::string& object ) const;
+    std::set< std::string >
+    activableControlList( const std::string& view,
+                          const std::list<std::string>& selectedObjects )
+      const;
+
+    bool insertView( const std::string& view,
+                     const ViewControls& viewControls );
+    bool removeView( const std::string& view );
+
+    bool insertObject( const std::string& object,
+                       const ObjectControls& objectControls );
+    bool removeObject( const std::string& object );
+
+    void addControl( const std::string& view, const std::string& object,
+                     const std::set< std::string > & controls );
+    void addControl( const std::string& view, const std::string& object,
+                     const std::string& control );
+
+    bool removeControl( const std::string& view, const std::string& object,
+                        const std::string& control );
+
+    bool removeControlList( const std::string& view,
+                            const std::string& object );
+    void print() const ;
   private:
-    static ControlManager* _instance ;
-    std::map< ControlMapEntry, std::set<std::string>, 
-	      LessControlMap > myControlTable ;
+    static ControlManager* _instance;
+    std::map< ControlMapEntry, std::set<std::string>,
+              LessControlMap > myControlTable;
   };
 }
-  
+
 #endif

@@ -55,45 +55,45 @@ namespace anatomist
   /** Abstract base class Anatomist window
    */
   class ANATOMIST_API AWindow : public carto::SharedObject, public Observer
-  { 
+  {
   public:
     enum Type
       {
-	CTRL_WINDOW = 100,
-	WINDOW_2D = 101,
-	WINDOW_3D = 102,
+        CTRL_WINDOW = 100,
+        WINDOW_2D = 101,
+        WINDOW_3D = 102,
       };
 
     enum SubType
       {
-	AXIAL_WINDOW = 200,
-	SAGITTAL_WINDOW = 201,
-	CORONAL_WINDOW = 202,
-	OBLIQUE_WINDOW = 203,
-	OTHER = 299
+        AXIAL_WINDOW = 200,
+        SAGITTAL_WINDOW = 201,
+        CORONAL_WINDOW = 202,
+        OBLIQUE_WINDOW = 203,
+        OTHER = 299
       };
 
     enum ClickMode
       {
-	CLICK_LINKED,
-	CLICK_SELECT,
-	CLICK_VALUE,
+        CLICK_LINKED,
+        CLICK_SELECT,
+        CLICK_VALUE,
       };
 
     enum ZoomMode
       {
-	FIX_ZOOM,
-	FIX_FOV_ZOOM,
-	FIX_WIN_ZOOM,
-	DEPLACEMENT,
-	ROTATION,
+        FIX_ZOOM,
+        FIX_FOV_ZOOM,
+        FIX_WIN_ZOOM,
+        DEPLACEMENT,
+        ROTATION,
       };
 
     enum RecordingState
       {
-	OFF, 
-	ON, 
-	DISABLED
+        OFF,
+        ON,
+        DISABLED
       };
 
     /// Unregisters from the application and other objects
@@ -101,8 +101,8 @@ namespace anatomist
 
     /**@name Usual window operations*/
     //@{
-    /** Affiche les coordonnees de Talairach qui correspondent a la position du 
-	curseur lie (window 2D) */
+    /** Affiche les coordonnees de Talairach qui correspondent a la position du
+        curseur lie (window 2D) */
     void displayTalairach();
     virtual void iconify();
     virtual void unIconify();
@@ -120,13 +120,13 @@ namespace anatomist
     virtual void geometry( int *x, int *y, unsigned *w, unsigned *h ) = 0;
     virtual void Refresh();
     virtual void showReferential();
-    ///	Sets correct size and lookup of the window
+    ///        Sets correct size and lookup of the window
     virtual void setupWindow() {}
     //@}
 
     virtual std::string Title() const;
     //virtual const char* Title_c() const;
-    virtual void registerObject( AObject* object, 
+    virtual void registerObject( AObject* object,
                                  bool temporaryObject = false,
                                  int position = -1 );
     virtual void unregisterObject( AObject* object );
@@ -155,8 +155,8 @@ namespace anatomist
     /// Get time position of cursor
     float GetTime() const;
     /// Set position of cursor
-    virtual void SetPosition( const Point3df& position , 
-			      const Referential *refdep );
+    virtual void SetPosition( const Point3df& position ,
+                              const Referential *refdep );
     /// Set time position of cursor
     virtual void SetTime( float time );
     virtual void SetTitle( const std::string & title );
@@ -197,21 +197,21 @@ namespace anatomist
     /// Set the selection tolerence distance
     static void setSelectTolerence( float tol ) { _selectTolerence = tol; }
     virtual void displayClickPoint() {}
-    /**	Translates mouse position to Anatomist geometry position
-	@return	false if posision cannot be computed (out of viewport)
+    /**        Translates mouse position to Anatomist geometry position
+        @return        false if posision cannot be computed (out of viewport)
     */
     virtual bool positionFromCursor( int x, int y, Point3df & pos );
     virtual AObject* objectAt( float x, float y, float z, float t );
 
-    ///	Selects (highlights) object at a given 4D space position
-    virtual void selectObject( float x, float y, float z, float t, 
-			       int modifier );
-    ///	handles button3 click (menu)
+    ///        Selects (highlights) object at a given 4D space position
+    virtual void selectObject( float x, float y, float z, float t,
+                               int modifier );
+    ///        handles button3 click (menu)
     virtual void button3clicked( int x, int y );
-    ///	finds objects at given position (internal)
-    virtual void findObjectsAt( float x, float y, float z, float t, 
-				std::set<AObject *> & shown, 
-				std::set<AObject *> & hidden );
+    ///        finds objects at given position (internal)
+    virtual void findObjectsAt( float x, float y, float z, float t,
+                                std::set<AObject *> & shown,
+                                std::set<AObject *> & hidden );
 
     virtual void update( const Observable* observable, void* arg );
 
@@ -228,7 +228,7 @@ namespace anatomist
     virtual std::set<unsigned> & typeCount();
     virtual const std::string & baseTitle() const;
     /** returns true if a refresh has been triggered and not performed yet
-	(in subclasses: AWindow always returns false) */
+        (in subclasses: AWindow always returns false) */
     virtual bool needsRedraw() const { return( false ); }
     bool isTemporary( AObject* o ) const;
     const std::set<AObject *> & temporaryObjects() const
@@ -251,8 +251,8 @@ namespace anatomist
     /// List of the objects contained in the window
     std::list<carto::shared_ptr<AObject> > _objects;
     /// Same but as a set (for fast search)
-    std::set<AObject *>	_sobjects;
-    std::set<AObject *>	_tempObjects;
+    std::set<AObject *>        _sobjects;
+    std::set<AObject *>        _tempObjects;
     /// Cursor time
     float _time;
     /// Click mode.
@@ -265,12 +265,12 @@ namespace anatomist
     Geometry *_geometry;
     /// Title of the window
     std::string _title;
-    /**	Number of instance of the window class. \\
-	This counter is used by child non-virtual classes to count instances 
-	of each specific class.
+    /**        Number of instance of the window class. \\
+        This counter is used by child non-virtual classes to count instances
+        of each specific class.
     **/
     int _instNumber;
-    ///	Group number, for linked windows
+    ///        Group number, for linked windows
     int _group;
     /// Click position.
     Point3df _position;
@@ -278,7 +278,7 @@ namespace anatomist
   private:
     struct Private;
 
-    Private	*d;
+    Private        *d;
     /// Copy constructor
     AWindow(const AWindow& x);
     /// Assignment operator

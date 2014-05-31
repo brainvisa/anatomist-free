@@ -316,3 +316,4 @@ void ControlledWindow::updateActions()
 //       //cout << "action : " << (*ia) << endl;
 //     }
 }
+
