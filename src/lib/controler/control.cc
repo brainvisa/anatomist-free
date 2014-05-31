@@ -1602,6 +1602,86 @@ Control::FocusActionLink* Control::focusOutActionLink() const
 }
 
 
+set<string> Control::keyPressActionLinkNames() const
+{
+  cout << "Control::keyPressActionLinkNames\n";
+  set<string> names;
+  map<string, KeyActionLink*>::const_iterator
+    in, en = _keyPressActionsByName.end();
+
+  for( in=_keyPressActionsByName.begin(); in!=en; ++in )
+    names.insert( in->first );
+
+  cout << "num: " << names.size() << endl;
+  return names;
+}
+
+
+set<string> Control::keyReleaseActionLinkNames() const
+{
+  set<string> names;
+  map<string, KeyActionLink*>::const_iterator
+    in, en = _keyReleaseActionsByName.end();
+
+  for( in=_keyReleaseActionsByName.begin(); in!=en; ++in )
+    names.insert( in->first );
+
+  return names;
+}
+
+
+set<string> Control::mousePressActionLinkNames() const
+{
+  set<string> names;
+  map<string, MouseActionLink*>::const_iterator
+    in, en = _mousePressActionsByName.end();
+
+  for( in=_mousePressActionsByName.begin(); in!=en; ++in )
+    names.insert( in->first );
+
+  return names;
+}
+
+
+set<string> Control::mouseReleaseActionLinkNames() const
+{
+  set<string> names;
+  map<string, MouseActionLink*>::const_iterator
+    in, en = _mouseReleaseActionsByName.end();
+
+  for( in=_mouseReleaseActionsByName.begin(); in!=en; ++in )
+    names.insert( in->first );
+
+  return names;
+}
+
+
+set<string> Control::mouseDoubleClickActionLinkNames() const
+{
+  set<string> names;
+  map<string, MouseActionLink*>::const_iterator
+    in, en = _mouseDoubleClickActionsByName.end();
+
+  for( in=_mouseDoubleClickActionsByName.begin(); in!=en; ++in )
+    names.insert( in->first );
+
+  return names;
+}
+
+
+set<string> Control::mouseMoveActionLinkNames() const
+{
+  set<string> names;
+  map<string, MouseActionLink*>::const_iterator
+    in, en = _mouseMoveActionsByName.end();
+
+  for( in=_mouseMoveActionsByName.begin(); in!=en; ++in )
+    names.insert( in->first );
+
+  return names;
+}
+
+
 // ---
 
 LongActions::LongActions() : myActiveKeyAndMouseLongEvent(0), myActiveMouseLongEvent(0)

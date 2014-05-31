@@ -1184,3 +1184,9 @@ void ControlSwitch::activateMouseMoveAction(
     actionlink->execute( x, y, x, y );
 }
 
+
+ControlPtr ControlSwitch::activeControlInstance() const
+{
+  return myControls.find( myActiveControl )->second;
+}
+

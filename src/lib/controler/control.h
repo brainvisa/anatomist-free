@@ -45,6 +45,7 @@ class QPinchGesture;
 class QPanGesture;
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 
 
@@ -638,6 +639,13 @@ namespace anatomist {
     WheelActionLink* wheelActionLink() const;
     FocusActionLink* focusInActionLink() const;
     FocusActionLink* focusOutActionLink() const;
+
+    std::set<std::string> keyPressActionLinkNames() const;
+    std::set<std::string> keyReleaseActionLinkNames() const;
+    std::set<std::string> mousePressActionLinkNames() const;
+    std::set<std::string> mouseReleaseActionLinkNames() const;
+    std::set<std::string> mouseDoubleClickActionLinkNames() const;
+    std::set<std::string> mouseMoveActionLinkNames() const;
 
   protected :
     std::map<std::string, anatomist::ActionPtr> myActions;

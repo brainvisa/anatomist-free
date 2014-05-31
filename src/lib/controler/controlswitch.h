@@ -147,6 +147,7 @@ public:
   const_iterator end() const;
   void setActiveControl( const std::string& );
   const std::string& activeControl() const;
+  anatomist::ControlPtr activeControlInstance() const;
 
   void keyPressEvent( QKeyEvent *);
   void keyReleaseEvent( QKeyEvent *);
