@@ -42,56 +42,61 @@
 #include <qlabel.h>
 #include <qobject.h>
 
-using namespace anatomist ;
+using namespace anatomist;
 
 
 Control *
-RoiManagementControl::creator( ) 
+RoiManagementControl::creator( )
 {
-  RoiManagementControl * pc = new RoiManagementControl() ;
-  
-  return ( pc ) ;
+  RoiManagementControl * pc = new RoiManagementControl();
+
+  return ( pc );
 }
 
 
-RoiManagementControl::RoiManagementControl( ) : Control( 101, "RoiManagementControl" )
-{
-  
-}
-
-RoiManagementControl::RoiManagementControl( const RoiManagementControl& c) : Control(c)
-{
-  
-}
-
-RoiManagementControl::~RoiManagementControl() 
+RoiManagementControl::RoiManagementControl( )
+  : Control( 101, "RoiManagementControl" )
 {
 
 }
 
-void 
+RoiManagementControl::RoiManagementControl( const RoiManagementControl& c)
+  : Control(c)
+{
+
+}
+
+RoiManagementControl::~RoiManagementControl()
+{
+
+}
+
+void
 RoiManagementControl::eventAutoSubscription( ActionPool * actionPool )
 {
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
-  
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ) );
+
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ),
+                          "close_window" );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
 }
 

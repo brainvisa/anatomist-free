@@ -1214,42 +1214,55 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::NoModifier,
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
-                                     &LinkAction::execLink ) );
+                                     &LinkAction::execLink ),
+    "linked_cursor" );
   mousePressButtonEventSubscribe
     ( Qt::RightButton, Qt::NoModifier,
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
-                                     &MenuAction::execMenu ) );
+                                     &MenuAction::execMenu ),
+    "menu" );
 
   // general window shortcuts
 
   keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::close ) );
+                            &WindowActions::close ),
+                          "close_window" );
   keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleFullScreen ) );
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
   keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleShowTools ) );
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
   //        rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::setCenter ) );
+                            &Trackball::setCenter ),
+                          "set_rotation_center" );
   keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::showRotationCenter ) );
+                            &Trackball::showRotationCenter ),
+                          "set_rotation_center" );
 
   //        sync
   keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
-                            &Sync3DAction::execSync ) );
+                            &Sync3DAction::execSync ),
+                          "sync_views" );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ),
+                          "sync_views_orientation" );
 
   // rotation
 
@@ -1384,7 +1397,8 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
   keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier,
                           KeyActionLinkOf<KeyFlightAction>
                           ( actionPool->action( "KeyFlightAction" ),
-                            &KeyFlightAction::reverse ) );
+                            &KeyFlightAction::reverse ),
+                          "flight_reverse" );
 
   // Is it MY job to maintain this map ???
   myActions[ "KeyFlightAction" ] = actionPool->action( "KeyFlightAction" );
@@ -1437,42 +1451,55 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::NoModifier,
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
-                                     &LinkAction::execLink ) );
+                                     &LinkAction::execLink ),
+    "linked_cursor" );
   mousePressButtonEventSubscribe
     ( Qt::RightButton, Qt::NoModifier,
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
-                                     &MenuAction::execMenu ) );
+                                     &MenuAction::execMenu ),
+    "menu" );
 
   // general window shortcuts
 
   keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::close ) );
+                            &WindowActions::close ),
+                          "close_window" );
   keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleFullScreen ) );
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
   keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleShowTools ) );
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
   //        rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::setCenter ) );
+                            &Trackball::setCenter ),
+                          "set_rotation_center" );
   keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::showRotationCenter ) );
+                            &Trackball::showRotationCenter ),
+                          "show_rotation_center" );
 
   //        sync
   keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
-                            &Sync3DAction::execSync ) );
+                            &Sync3DAction::execSync ),
+                          "sync_views" );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ),
+                          "sync_views_orientation" );
 
   // rotation
 
@@ -1489,23 +1516,28 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::previousSlice ) );
+                            &SliceAction::previousSlice ),
+                          "previous_slice" );
   keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::nextSlice ) );
+                            &SliceAction::nextSlice ),
+                          "next_slice" );
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::previousTime ) );
+                            &SliceAction::previousTime ),
+                          "previous_time" );
   keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::nextTime ) );
+                            &SliceAction::nextTime ),
+                          "next_time" );
   keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::toggleLinkedOnSlider ) );
+                            &SliceAction::toggleLinkedOnSlider ),
+                          "linked_cursor_on_slider_change_toggle" );
 
   // wheel zoom
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
@@ -1568,42 +1600,55 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::NoModifier,
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
-                                     &LinkAction::execLink ) );
+                                     &LinkAction::execLink ),
+    "linked_cursor" );
   mousePressButtonEventSubscribe
     ( Qt::RightButton, Qt::NoModifier,
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
-                                     &MenuAction::execMenu ) );
+                                     &MenuAction::execMenu ),
+    "menu" );
 
   // general window shortcuts
 
   keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::close ) );
+                            &WindowActions::close ),
+                          "close_window" );
   keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleFullScreen ) );
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
   keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleShowTools ) );
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
   //        rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::setCenter ) );
+                            &Trackball::setCenter ),
+                          "set_rotation_center" );
   keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::showRotationCenter ) );
+                            &Trackball::showRotationCenter ),
+                          "show_rotation_center" );
 
   //        sync
   keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
-                            &Sync3DAction::execSync ) );
+                            &Sync3DAction::execSync ),
+                          "sync_views" );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ),
+                          "sync_views_orientation" );
 
   // rotation
 
@@ -1624,23 +1669,28 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::previousSlice ) );
+                            &SliceAction::previousSlice ),
+                          "previous_slice" );
   keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::nextSlice ) );
+                            &SliceAction::nextSlice ),
+                          "next_slice" );
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::previousTime ) );
+                            &SliceAction::previousTime ),
+                          "previous_time" );
   keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::nextTime ) );
+                            &SliceAction::nextTime ),
+                          "next_time" );
   keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
                           KeyActionLinkOf<SliceAction>
                           ( actionPool->action( "SliceAction" ),
-                            &SliceAction::toggleLinkedOnSlider ) );
+                            &SliceAction::toggleLinkedOnSlider ),
+                          "linked_cursor_on_slider_change_toggle" );
 
   // Transformer trackball
 
@@ -1655,7 +1705,8 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
   keyPressEventSubscribe( Qt::Key_I, Qt::NoModifier,
                           KeyActionLinkOf<Transformer>(
                             actionPool->action( "Transformer" ),
-                            &Transformer::toggleDisplayInfo ) );
+                            &Transformer::toggleDisplayInfo ),
+                          "display_transform_info_toggle" );
   mouseLongEventSubscribe
     ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<TranslaterAction>
@@ -1747,61 +1798,73 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::NoModifier,
       MouseActionLinkOf<LinkAction>( actionPool->action( "LinkAction" ),
-                                     &LinkAction::execLink ) );
+                                     &LinkAction::execLink ),
+    "linked_cursor" );
   mousePressButtonEventSubscribe
     ( Qt::RightButton, Qt::NoModifier,
       MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
-                                     &MenuAction::execMenu ) );
+                                     &MenuAction::execMenu ),
+    "menu" );
 
   // general window shortcuts
 
   keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::close ) );
+                            &WindowActions::close ),
+                          "close_window" );
   keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleFullScreen ) );
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
   keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
                           KeyActionLinkOf<WindowActions>
                           ( actionPool->action( "WindowActions" ),
-                            &WindowActions::toggleShowTools ) );
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
   // selection shortcuts
 
   keyPressEventSubscribe( Qt::Key_A, Qt::ControlModifier,
                           KeyActionLinkOf<SelectAction>
                           ( actionPool->action( "SelectAction" ),
-                            &SelectAction::toggleSelectAll ) );
+                            &SelectAction::toggleSelectAll ),
+                          "select_all_toggle" );
   keyPressEventSubscribe( Qt::Key_Delete, Qt::NoModifier,
                           KeyActionLinkOf<SelectAction>
                           ( actionPool->action( "SelectAction" ),
-                            &SelectAction::removeFromWindow ) );
+                            &SelectAction::removeFromWindow ),
+                          "remove_from_window" );
   keyPressEventSubscribe( Qt::Key_Delete, Qt::ControlModifier,
                           KeyActionLinkOf<SelectAction>
                           ( actionPool->action( "SelectAction" ),
-                            &SelectAction::removeFromGroup ) );
+                            &SelectAction::removeFromGroup ),
+                          "remove_from_group" );
 
   //        rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::setCenter ) );
+                            &Trackball::setCenter ),
+                          "set_rotation_center" );
   keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
                           KeyActionLinkOf<Trackball>
                           ( actionPool->action( "Trackball" ),
-                            &Trackball::showRotationCenter ) );
+                            &Trackball::showRotationCenter ),
+                          "show_rotation_center" );
 
   //        sync
   keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
-                            &Sync3DAction::execSync ) );
+                            &Sync3DAction::execSync ),
+                          "sync_views" );
   keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
-                            &Sync3DAction::execSyncOrientation ) );
+                            &Sync3DAction::execSyncOrientation ),
+                          "sync_views_orientation" );
 
   // rotation
 
@@ -1837,15 +1900,18 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
   keyPressEventSubscribe( Qt::Key_A, Qt::ShiftModifier,
                           KeyActionLinkOf<TrackCutAction>
                           ( actionPool->action( "TrackCutAction" ),
-                            &TrackCutAction::axialSlice ) );
+                            &TrackCutAction::axialSlice ),
+                          "axial_slice_cut" );
   keyPressEventSubscribe( Qt::Key_C, Qt::ShiftModifier,
                           KeyActionLinkOf<TrackCutAction>
                           ( actionPool->action( "TrackCutAction" ),
-                            &TrackCutAction::coronalSlice ) );
+                            &TrackCutAction::coronalSlice ),
+                          "coronal_slice_cut" );
   keyPressEventSubscribe( Qt::Key_S, Qt::ShiftModifier,
                           KeyActionLinkOf<TrackCutAction>
                           ( actionPool->action( "TrackCutAction" ),
-                            &TrackCutAction::sagittalSlice ) );
+                            &TrackCutAction::sagittalSlice ),
+                          "sagittal_slice_cut" );
 
   // oblique slice trackball
 

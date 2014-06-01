@@ -47,199 +47,241 @@
 #include <qlabel.h>
 #include <qobject.h>
 
-using namespace anatomist ;
-using namespace std ;
+using namespace anatomist;
+using namespace std;
 
 Control *
-RoiLevelSetControl::creator( ) 
+RoiLevelSetControl::creator( )
 {
-  RoiLevelSetControl * pc = new RoiLevelSetControl() ;
-  
-  return ( pc ) ;
+  RoiLevelSetControl * pc = new RoiLevelSetControl();
+
+  return ( pc );
 }
 
 
-RoiLevelSetControl::RoiLevelSetControl( ) : Control( 103, "ConnectivityThresholdControl" )
+RoiLevelSetControl::RoiLevelSetControl()
+  : Control( 103, "ConnectivityThresholdControl" )
 {
-  
+
 }
 
 RoiLevelSetControl::RoiLevelSetControl( const RoiLevelSetControl& c) : Control(c)
 {
-  
+
 }
 
-RoiLevelSetControl::~RoiLevelSetControl() 
+RoiLevelSetControl::~RoiLevelSetControl()
 {
 
 }
 
-std::string 
-RoiLevelSetControl::name() const 
-{ 
-  return QT_TRANSLATE_NOOP( "ControlledWindow", "ConnectivityThresholdControl" ) ; 
+std::string
+RoiLevelSetControl::name() const
+{
+  return QT_TRANSLATE_NOOP( "ControlledWindow", 
+                            "ConnectivityThresholdControl" );
 }
 
-void 
+void
 RoiLevelSetControl::eventAutoSubscription( ActionPool * actionPool )
 {
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::beginTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::moveTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::endTrackball ), true );
 
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ),
+                          "close_window" );
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
   // zoom
-  
+
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::beginZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::moveZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::endZoom ), true );
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::beginZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::moveZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::endZoom ), true );
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
-  
-  //	translation
-  
+
+  //        translation
+
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::beginTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::beginTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::moveTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::moveTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::endTranslate ), true ) ;
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::endTranslate ), true );
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousSlice ),
+                          "previous_slice" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextSlice ),
+                          "next_slice" );
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousTime ),
+                          "previous_time" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::nextTime ) );
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextTime ),
+                          "next_time" );
 
   // Level Set
-  
-  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::undo ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::redo ) ) ;
 
-  keyPressEventSubscribe( Qt::Key_A, Qt::NoModifier, 
-			  KeyActionLinkOf<RoiLevelSetAction>
-			  ( actionPool->action( "ConnectivityThresholdAction" ), 
-			    &RoiLevelSetAction::activateLevelSet ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_B, Qt::ShiftModifier, 
-			  KeyActionLinkOf<RoiBlobSegmentationAction>
-			  ( actionPool->action( "BlobSegmentationAction" ), 
-			    &RoiBlobSegmentationAction::blobDetection ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_B, Qt::ControlModifier, 
-			  KeyActionLinkOf<RoiBlobSegmentationAction>
-			  ( actionPool->action( "BlobSegmentationAction" ), 
-			    &RoiBlobSegmentationAction::holeDetection ) ) ;
-  
-  
-  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier, 
-			  KeyActionLinkOf<RoiLevelSetAction>
-			  ( actionPool->action( "ConnectivityThresholdAction" ), 
-			    &RoiLevelSetAction::deactivateLevelSet ) ) ;
+  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::undo ),
+                          "undo" );
 
-  keyPressEventSubscribe( Qt::Key_2, Qt::ShiftModifier, 
-			  KeyActionLinkOf<RoiLevelSetAction>
-			  ( actionPool->action( "ConnectivityThresholdAction" ), 
-			    &RoiLevelSetAction::setDimensionModeTo2D ) ) ;
+  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::undo ),
+                          "undo" );
 
-  keyPressEventSubscribe( Qt::Key_3, Qt::ShiftModifier, 
-			  KeyActionLinkOf<RoiLevelSetAction>
-			  ( actionPool->action( "ConnectivityThresholdAction" ), 
-			    &RoiLevelSetAction::setDimensionModeTo3D ) ) ;
+  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::redo ),
+                          "redo" );
+
+  keyPressEventSubscribe( Qt::Key_Z, (Qt::KeyboardModifiers )
+                          ( Qt::ShiftModifier | Qt::ControlModifier ),
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::redo ),
+                          "redo" );
+
+  keyPressEventSubscribe( Qt::Key_A, Qt::NoModifier,
+                          KeyActionLinkOf<RoiLevelSetAction>
+                          ( actionPool->action(
+                            "ConnectivityThresholdAction" ),
+                            &RoiLevelSetAction::activateLevelSet ),
+                          "activate_threshold_roi" );
+
+  keyPressEventSubscribe( Qt::Key_B, Qt::ShiftModifier,
+                          KeyActionLinkOf<RoiBlobSegmentationAction>
+                          ( actionPool->action( "BlobSegmentationAction" ),
+                            &RoiBlobSegmentationAction::blobDetection ),
+                          "blob_detection" );
+
+  keyPressEventSubscribe( Qt::Key_B, Qt::ControlModifier,
+                          KeyActionLinkOf<RoiBlobSegmentationAction>
+                          ( actionPool->action( "BlobSegmentationAction" ),
+                            &RoiBlobSegmentationAction::holeDetection ),
+                          "hole_detection" );
+
+
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<RoiLevelSetAction>
+                          ( actionPool->action(
+                            "ConnectivityThresholdAction" ),
+                            &RoiLevelSetAction::deactivateLevelSet ),
+                          "deactiavte_threshold_roi" );
+
+  keyPressEventSubscribe( Qt::Key_2, Qt::ShiftModifier,
+                          KeyActionLinkOf<RoiLevelSetAction>
+                          ( actionPool->action(
+                            "ConnectivityThresholdAction" ),
+                            &RoiLevelSetAction::setDimensionModeTo2D ),
+                          "2d_mode" );
+
+  keyPressEventSubscribe( Qt::Key_3, Qt::ShiftModifier,
+                          KeyActionLinkOf<RoiLevelSetAction>
+                          ( actionPool->action(
+                            "ConnectivityThresholdAction" ),
+                            &RoiLevelSetAction::setDimensionModeTo3D ),
+                          "3d_mode" );
 
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ControlModifier, 
-      MouseActionLinkOf<RoiLevelSetAction>( actionPool->action( "ConnectivityThresholdAction" ), 
-					    &RoiLevelSetAction::replaceRegion ) );
-  
+    ( Qt::LeftButton, Qt::ControlModifier,
+      MouseActionLinkOf<RoiLevelSetAction>(
+        actionPool->action( "ConnectivityThresholdAction" ),
+        &RoiLevelSetAction::replaceRegion ),
+      "connect_threshold_replace_roi" );
+
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<RoiLevelSetAction>( actionPool->action( "ConnectivityThresholdAction" ), 
-					    &RoiLevelSetAction::addToRegion ) );
-  
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<RoiLevelSetAction>( 
+        actionPool->action( "ConnectivityThresholdAction" ),
+        &RoiLevelSetAction::addToRegion ),
+      "connect_threshold_add_roi" );
+
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<RoiBlobSegmentationAction>( actionPool->action( "BlobSegmentationAction" ), 
-						    &RoiBlobSegmentationAction::segmentBlob ) );
+    ( Qt::LeftButton, Qt::ShiftModifier,
+      MouseActionLinkOf<RoiBlobSegmentationAction>(
+        actionPool->action( "BlobSegmentationAction" ),
+        &RoiBlobSegmentationAction::segmentBlob ),
+      "segment_rel_threshold_blob" );
   //   mousePressButtonEventSubscribe
-  //     ( Qt::LeftButton, Qt::ControlModifier, 
-  //       MouseActionLinkOf<RoiLevelSetAction>( actionPool->action( "LevelSetAction" ), 
-  // 					    &RoiLevelSetAction::removeFromRegion ) );
+  //     ( Qt::LeftButton, Qt::ControlModifier,
+  //       MouseActionLinkOf<RoiLevelSetAction>( actionPool->action( "LevelSetAction" ),
+  //                                             &RoiLevelSetAction::removeFromRegion ) );
 
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>(
+        actionPool->action( "MenuAction" ),
+        &MenuAction::execMenu ),
+      "menu" );
 
   // Renaud : Pas top, mais en attendant mieux...
-  myAction = actionPool->action( "ConnectivityThresholdAction" ) ;
+  myAction = actionPool->action( "ConnectivityThresholdAction" );
 }
 
 
-void 
+void
 RoiLevelSetControl::doAlsoOnSelect( ActionPool * /*pool*/ )
 {
   if(myAction)
     {
-      ControlSwitch	*cs = myAction->view()->controlSwitch();
+      ControlSwitch        *cs = myAction->view()->controlSwitch();
       if( !cs->isToolBoxVisible() )
         {
           // this is not a very elegant way of doing it...
-          set<AWindow *>		w = theAnatomist->getWindows();
-          set<AWindow *>::iterator	iw, ew = w.end();
-          AWindow3D			*w3;
-          bool				visible = false;
+          set<AWindow *>                w = theAnatomist->getWindows();
+          set<AWindow *>::iterator        iw, ew = w.end();
+          AWindow3D                        *w3;
+          bool                                visible = false;
           for( iw=w.begin(); iw!=ew; ++iw )
             {
               w3 = dynamic_cast<AWindow3D *>( *iw );

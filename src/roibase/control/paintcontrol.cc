@@ -49,12 +49,12 @@
 #include <iostream>
 
 
-using namespace anatomist ;
+using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-// PaintControlObserver::PaintControlObserver( QWidget * parent, 
-// 					    Control * subject )
+// PaintControlObserver::PaintControlObserver( QWidget * parent,
+//                                             Control * subject )
 //   : ControlObserver( parent, subject )
 // {}
 
@@ -63,272 +63,307 @@ struct PaintControl::Private
 {
   static map<AWindow3D*, AWindow3D::ObjectModifier *> & modifiers()
   {
-    static map<AWindow3D*, AWindow3D::ObjectModifier *>	m;
+    static map<AWindow3D*, AWindow3D::ObjectModifier *>        m;
     return m;
   }
 };
 
 
 Control *
-PaintControl::creator( ) 
+PaintControl::creator( )
 {
-  PaintControl * pc = new PaintControl() ;
-  
-  return ( pc ) ;
+  PaintControl * pc = new PaintControl();
+
+  return ( pc );
 }
 
 
-PaintControl::PaintControl( ) 
-  : Control( 101, QT_TRANSLATE_NOOP( "ControlledWindow", "PaintControl" ) ), 
+PaintControl::PaintControl( )
+  : Control( 101, QT_TRANSLATE_NOOP( "ControlledWindow", "PaintControl" ) ),
     d( new Private ), myPaintAction(0)
 {
-  
+
 }
 
-PaintControl::PaintControl( const PaintControl& c) 
+PaintControl::PaintControl( const PaintControl& c)
   : Control(c), d( new Private ), myPaintAction( 0 )
 {
-  
+
 }
 
-PaintControl::~PaintControl() 
+PaintControl::~PaintControl()
 {
   if(d)
     delete d;
 }
 
-void 
+void
 PaintControl::eventAutoSubscription( ActionPool * actionPool )
 {
   mousePressButtonEventSubscribe
-    ( Qt::RightButton, Qt::NoModifier, 
-      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ), 
-				     &MenuAction::execMenu ) );
-  
+    ( Qt::RightButton, Qt::NoModifier,
+      MouseActionLinkOf<MenuAction>( actionPool->action( "MenuAction" ),
+                                     &MenuAction::execMenu ),
+    "menu" );
+
   // general window shortcuts
 
-  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::close ) );
+  keyPressEventSubscribe( Qt::Key_W, Qt::ControlModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::close ),
+                          "close_window" );
   keyPressEventSubscribe( Qt::Key_F9, Qt::ControlModifier,  // WARNING
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleFullScreen ) );
-  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier, 
-			  KeyActionLinkOf<WindowActions>
-			  ( actionPool->action( "WindowActions" ), 
-			    &WindowActions::toggleShowTools ) );
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleFullScreen ),
+                          "full_screen_toggle" );
+  keyPressEventSubscribe( Qt::Key_F10, Qt::NoModifier,
+                          KeyActionLinkOf<WindowActions>
+                          ( actionPool->action( "WindowActions" ),
+                            &WindowActions::toggleShowTools ),
+                          "show_tools_toggle" );
 
 
   mousePressButtonEventSubscribe
-    ( Qt::LeftButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				      &PaintAction::fill ) );
-  
-  keyPressEventSubscribe( Qt::Key_S, Qt::ControlModifier, 
-			  KeyActionLinkOf<RoiManagementAction>
-			  ( actionPool->action( "RoiManagementAction" ), 
-			    &RoiManagementAction::saveGraph ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier, 
-			  KeyActionLinkOf<RoiManagementAction>
-			  ( actionPool->action( "RoiManagementAction" ), 
-			    &RoiManagementAction::reloadGraph ) ) ;
+    ( Qt::LeftButton, Qt::ShiftModifier,
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::fill ),
+    "fill_paint" );
 
-  keyPressEventSubscribe( Qt::Key_P, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::brushToPoint ) ) ;
+  keyPressEventSubscribe( Qt::Key_S, Qt::ControlModifier,
+                          KeyActionLinkOf<RoiManagementAction>
+                          ( actionPool->action( "RoiManagementAction" ),
+                            &RoiManagementAction::saveGraph ),
+                          "save_graph" );
 
-  keyPressEventSubscribe( Qt::Key_B, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::brushToBall ) ) ;
+  keyPressEventSubscribe( Qt::Key_F9, Qt::NoModifier,
+                          KeyActionLinkOf<RoiManagementAction>
+                          ( actionPool->action( "RoiManagementAction" ),
+                            &RoiManagementAction::reloadGraph ),
+                          "reload_graph" );
 
-  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::brushToDisk ) ) ;
+  keyPressEventSubscribe( Qt::Key_P, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::brushToPoint ),
+                          "set_point_brush" );
 
-  keyPressEventSubscribe( Qt::Key_Plus, Qt::ShiftModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::increaseBrushSize ) ) ;
+  keyPressEventSubscribe( Qt::Key_B, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::brushToBall ),
+                          "set_sphere_brush" );
 
-  keyPressEventSubscribe( Qt::Key_Minus, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::decreaseBrushSize ) ) ;
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::brushToDisk ),
+                          "set_disk_brush" );
 
-  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::undo ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::undo ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::redo ) ) ;
+  keyPressEventSubscribe( Qt::Key_Plus, Qt::ShiftModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::increaseBrushSize ),
+                          "increase_brush_size" );
 
-  keyPressEventSubscribe( Qt::Key_Z, (Qt::KeyboardModifiers ) 
-                          ( Qt::ShiftModifier | Qt::ControlModifier ), 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::redo ) ) ;
+  keyPressEventSubscribe( Qt::Key_Minus, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::decreaseBrushSize ),
+                          "decrease_brush_size" );
 
-  keyPressEventSubscribe( Qt::Key_E, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::clearRegion ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_L, Qt::ShiftModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::lineOn ) ) ;
+  keyPressEventSubscribe( Qt::Key_U, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::undo ),
+                          "undo" );
 
-  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::lineOff ) ) ;
-  
-  keyPressEventSubscribe( Qt::Key_C, Qt::ShiftModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::followingLinkedCursorOn ) ) ;
+  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::undo ),
+                          "undo" );
 
-  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::followingLinkedCursorOff ) ) ;
+  keyPressEventSubscribe( Qt::Key_R, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::redo ),
+                          "redo" );
 
-  keyPressEventSubscribe( Qt::Key_R, Qt::ShiftModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::replaceOn ) ) ;
+  keyPressEventSubscribe( Qt::Key_Z, (Qt::KeyboardModifiers )
+                          ( Qt::ShiftModifier | Qt::ControlModifier ),
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::redo ),
+                          "redo" );
 
-  keyPressEventSubscribe( Qt::Key_R, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::replaceOff ) ) ;
+  keyPressEventSubscribe( Qt::Key_E, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::clearRegion ),
+                          "clear_region" );
 
-  keyPressEventSubscribe( Qt::Key_M, Qt::NoModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::brushToMm ) ) ;
+  keyPressEventSubscribe( Qt::Key_L, Qt::ShiftModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::lineOn ),
+                          "set_line_paint_mode" );
 
-  keyPressEventSubscribe( Qt::Key_V, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::brushToVoxel ) ) ;
+  keyPressEventSubscribe( Qt::Key_L, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::lineOff ),
+                          "unset_line_paint_mode" );
 
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::copyPreviousSliceCurrentRegion ) ) ;
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::copyPreviousSliceWholeSession ) ) ;
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ControlModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::copyNextSliceCurrentRegion ) ) ;
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
-			  KeyActionLinkOf<PaintAction>
-			  ( actionPool->action( "PaintAction" ), 
-			    &PaintAction::copyNextSliceWholeSession ) ) ;
+  keyPressEventSubscribe( Qt::Key_C, Qt::ShiftModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::followingLinkedCursorOn ),
+                          "set_paint_follow_linked_cursor" );
+
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::followingLinkedCursorOff ),
+                          "unset_paint_follow_linked_cursor" );
+
+  keyPressEventSubscribe( Qt::Key_R, Qt::ShiftModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::replaceOn ),
+                          "set_paint_replace" );
+
+  keyPressEventSubscribe( Qt::Key_R, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::replaceOff ),
+                          "unset_paint_replace" );
+
+  keyPressEventSubscribe( Qt::Key_M, Qt::NoModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::brushToMm ),
+                          "brush_millimeter_mode" );
+
+  keyPressEventSubscribe( Qt::Key_V, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::brushToVoxel ),
+                          "brush_voxel_mode" );
+
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::copyPreviousSliceCurrentRegion ),
+                          "copy_previous_single_roi_slice" );
+
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::copyPreviousSliceWholeSession ),
+                          "copy_previous_all_roi_slice" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ControlModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::copyNextSliceCurrentRegion ),
+                          "copy_next_single_roi_slice" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
+                          KeyActionLinkOf<PaintAction>
+                          ( actionPool->action( "PaintAction" ),
+                            &PaintAction::copyNextSliceWholeSession ),
+                          "copy_next_all_roi_slice" );
 
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::NoModifier, 
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				      &PaintAction::paintStart ),
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				      &PaintAction::paint ),
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				      &PaintAction::validateChange ), true ) ;
+    ( Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::paintStart ),
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::paint ),
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::validateChange ), true );
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::ControlModifier, 
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				      &PaintAction::eraseStart ),
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				     &PaintAction::erase ),
-      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ), 
-				      &PaintAction::validateChange ), true ) ;
+    ( Qt::LeftButton, Qt::ControlModifier,
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::eraseStart ),
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                     &PaintAction::erase ),
+      MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
+                                      &PaintAction::validateChange ), true );
 
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier, 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::beginTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::moveTrackball ), 
-      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ), 
-				    &Trackball::endTrackball ), true );
+    ( Qt::MidButton, Qt::NoModifier,
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::beginTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::moveTrackball ),
+      MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
+                                    &Trackball::endTrackball ), true );
 
   // zoom
-  
+
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier, 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::beginZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::moveZoom ), 
-      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ), 
-				       &Zoom3DAction::endZoom ), true );
+    ( Qt::MidButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::beginZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::moveZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::endZoom ), true );
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
-                       ( actionPool->action( "Zoom3DAction" ), 
+                       ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
-  //	translation
-  
+  //        translation
+
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier, 
+    ( Qt::MidButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::beginTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::beginTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::moveTranslate ), 
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::moveTranslate ),
       MouseActionLinkOf<Translate3DAction>
-      ( actionPool->action( "Translate3DAction" ), 
-	&Translate3DAction::endTranslate ), true ) ;
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::endTranslate ), true );
 
   // Slice action
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier, 
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::previousSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier, 
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousSlice ),
+                          "previous_slice" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::nextSlice ) );
-  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier, 
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextSlice ),
+                          "next_slice" );
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::previousTime ) );
-  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier, 
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousTime ),
+                          "previous_time" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::ShiftModifier,
                           KeyActionLinkOf<SliceAction>
-                          ( actionPool->action( "SliceAction" ), 
-                            &SliceAction::nextTime ) );
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextTime ),
+                          "next_time" );
 
   // paint cursor action
   mouseMoveEventSubscribe
     ( Qt::NoButton, Qt::NoModifier,
       MouseActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
-                                      &PaintAction::moveCursor ) );
+                                      &PaintAction::moveCursor ),
+    "paint_move_cursor" );
   focusOutEventSubscribe(
     FocusActionLinkOf<PaintAction>( actionPool->action( "PaintAction" ),
                                     &PaintAction::hideCursor ) );
 
   // Renaud : Pas top, mais en attendant mieux...
-  myPaintAction = dynamic_cast<PaintAction*>( actionPool->action( "PaintAction" ) ) ;
+  myPaintAction = dynamic_cast<PaintAction*>( actionPool->action( "PaintAction" ) );
 }
 
 
@@ -349,19 +384,19 @@ namespace
 
   void GhostSelected::modify( AObject* o, GLPrimitives & p )
   {
-    bool	ghost = false;
+    bool        ghost = false;
     if( window()->isTemporary( o ) )
       ghost = true;
     else
       {
-        AObject::ParentList	& pl = o->Parents();
-        AGraph	*g = RoiChangeProcessor::instance()->getGraph( window() );
+        AObject::ParentList        & pl = o->Parents();
+        AGraph        *g = RoiChangeProcessor::instance()->getGraph( window() );
         if( g && pl.find( g ) != pl.end() )
           ghost = true;
       }
     if( ghost )
       {
-        GLItemList	*gil = new GLItemList;
+        GLItemList        *gil = new GLItemList;
         gil->items.insert( gil->items.end(), p.begin(), p.end() );
         gil->setGhost( true );
         p.clear();
@@ -372,20 +407,20 @@ namespace
 }
 
 
-void 
+void
 PaintControl::doAlsoOnDeselect ( ActionPool * /*pool*/ )
 {
   if(myPaintAction)
     {
-      myPaintAction->changeCursor( false ) ;
+      myPaintAction->changeCursor( false );
       myPaintAction->hideCursor();
-      //cout << "Cursor : Arrow" <<endl ;
-      AWindow3D	*w3 
+      //cout << "Cursor : Arrow" <<endl;
+      AWindow3D        *w3
         = dynamic_cast<AWindow3D *>( myPaintAction->view()->aWindow() );
       if( w3 )
         {
           w3->enableToolTips( true );
-          map<AWindow3D *,AWindow3D::ObjectModifier *>::iterator 
+          map<AWindow3D *,AWindow3D::ObjectModifier *>::iterator
             m = d->modifiers().find( w3 );
           if( m != d->modifiers().end() )
             {
@@ -398,14 +433,14 @@ PaintControl::doAlsoOnDeselect ( ActionPool * /*pool*/ )
 
 
 
-void 
+void
 PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
 {
   if(myPaintAction)
     {
-      myPaintAction->changeCursor( true ) ;
+      myPaintAction->changeCursor( true );
 
-      AWindow3D	*w3 
+      AWindow3D        *w3
         = dynamic_cast<AWindow3D *>( myPaintAction->view()->aWindow() );
       if( w3 )
       {
@@ -413,14 +448,14 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
         w3->enableToolTips( false );
       }
 
-      ControlSwitch	*cs = myPaintAction->view()->controlSwitch();
+      ControlSwitch        *cs = myPaintAction->view()->controlSwitch();
       if( !cs->isToolBoxVisible() )
         {
           // this is not a very elegant way of doing it...
-          set<AWindow *>		w = theAnatomist->getWindows();
-          set<AWindow *>::iterator	iw, ew = w.end();
-          AWindow3D			*w3;
-          bool				visible = false;
+          set<AWindow *>                w = theAnatomist->getWindows();
+          set<AWindow *>::iterator        iw, ew = w.end();
+          AWindow3D                        *w3;
+          bool                                visible = false;
           for( iw=w.begin(); iw!=ew; ++iw )
             {
               w3 = dynamic_cast<AWindow3D *>( *iw );
@@ -433,7 +468,7 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
           if( !visible )
             cs->switchToolBoxVisible();
         }
-      RoiManagementAction	rma;
+      RoiManagementAction        rma;
       if( cs->toolBox() )
         cs->toolBox()->showPage( rma.name() );
     }
