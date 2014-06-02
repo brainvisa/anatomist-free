@@ -2728,7 +2728,7 @@ bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
   bool valid = false;
 
   //	determine objects extrema
-  if (_objects.empty())
+  if( _objects.empty() )
   {
     bmin = Point3df(0, 0, 0);
     bmax = Point3df(1, 1, 1);
@@ -2747,18 +2747,16 @@ bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
     tmin = FLT_MAX;
     tmax = -FLT_MAX;
 
-    for (i = _objects.begin(); i != e; ++i)
+    for( i=_objects.begin(); i != e; ++i )
     {
       obj = i->get();
-      if ( isTemporary( obj ) )
-      {
-          continue;
-      }
+      if( isTemporary( obj ) )
+        continue;
 
-      if (obj->boundingBox(pmino, pmaxo))
+      if( obj->boundingBox( pmino, pmaxo ) )
       {
-        if (wref && (oref = obj->getReferential()) && (tr
-            = theAnatomist->getTransformation(oref, wref)))
+        if( wref && (oref = obj->getReferential() )
+          && ( tr = theAnatomist->getTransformation( oref, wref ) ) )
           tr->transformBoundingBox(pmino, pmaxo, pmin, pmax);
         else
         {
@@ -2790,7 +2788,7 @@ bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
   }
 
   // d->needsboundingbox = false;
-  return (valid);
+  return valid;
 }
 
 void AWindow3D::focusView()
