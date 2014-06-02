@@ -759,6 +759,9 @@ void GLWidgetManager::saveContents( const QString & filename,
   aWindow()->show();
   qApp->processEvents();
 
+  /* TODO: try using FrameBuffer objects
+     See Matthieu's trials: /home/mp210984/fbo in NS
+  */
   /* // renderPixmap seems not to work with shared contexts:
   // when using the existing context, the rendering is just crap.
   // When using its own context, OpenGL fails with errors, either because

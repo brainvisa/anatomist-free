@@ -421,6 +421,10 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
 
     bmin = _surface->minimum();
     bmax = _surface->maximum();
+    if( bmin == Point3df( 1e38, 1e38, 1e38 )
+        && bmax == Point3df( -1e38, -1e38, -1e38) )
+      // emty meshes return a crappy bounding box...
+      return false;
     return( true );
   }
 
