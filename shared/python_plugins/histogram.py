@@ -233,15 +233,14 @@ class AHistogram( ana.cpp.QAWindow ):
           varr = vol
           if ( not self._histo4d and vol.getSizeT() != 1 ) or self._localHisto:
             # get a sub-volume
-            vcl = getattr( aims, 'VolumeView_' + typecode )
             if self._histo4d:
               ipos0t = numpy.hstack( ( ipos0, [ 0 ] ) )
               ipos1t = numpy.hstack( ( ipos1, [ vol.getSizeT() ] ) )
             else:
               ipos0t = numpy.hstack( ( ipos0, [ self.GetTime() ] ) )
               ipos1t = numpy.hstack( ( ipos1, [ self.GetTime() + 1 ] ) )
-            varr = vcl( vol, vcl.Position4Di( *ipos0t ),
-              vcl.Position4Di( *(ipos1t - ipos0t ) ) )
+            varr = aims.VolumeView( vol, vol.Position4Di( *ipos0t ),
+              vol.Position4Di( *(ipos1t - ipos0t ) ) )
           ha.doit( varr )
           d = ha.data()
           har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
