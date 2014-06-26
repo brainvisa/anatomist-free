@@ -59,6 +59,8 @@
 #include <aims/io/fileFormat.h>
 #include <aims/io/readerasobject.h>
 #include <aims/sparsematrix/sparseordensematrix.h>
+#include <soma-io/io/formatdictionary.h>
+#include <soma-io/datasourceinfo/datasourceinfoloader.h>
 #include <cartobase/stream/fileutil.h>
 #include <qapplication.h>
 #include <time.h>
@@ -1333,22 +1335,76 @@ string ObjectReader::allSupportedFileExtensions()
 }
 
 
-set<string> ObjectReader::supportedFileExtensionsSet
-    ( const std::string & objtype )
+namespace
+{
+  set<string> somaObjectTypesFor( const string & aimstype )
+  {
+    set<string> sotypes;
+    if( aimstype == "Volume" )
+    {
+      sotypes.insert( "carto_volume of S8" );
+      sotypes.insert( "carto_volume of U8" );
+      sotypes.insert( "carto_volume of S16" );
+      sotypes.insert( "carto_volume of U16" );
+      sotypes.insert( "carto_volume of S32" );
+      sotypes.insert( "carto_volume of U32" );
+      sotypes.insert( "carto_volume of S64" );
+      sotypes.insert( "carto_volume of U64" );
+      sotypes.insert( "carto_volume of FLOAT" );
+      sotypes.insert( "carto_volume of DOUBLE" );
+      sotypes.insert( "carto_volume of RGB" );
+      sotypes.insert( "carto_volume of RGBA" );
+    }
+    else
+      sotypes.insert( aimstype );
+    return sotypes;
+  }
+
+}
+
+
+set<string> ObjectReader::supportedFileExtensionsSet(
+  const std::string & objtype )
 {
   set<string> exts;
-  const map<string, map<string, IOObjectTypesDictionary::FormatInfo> >
-      & types = IOObjectTypesDictionary::types();
-  if( types.empty() )
-    return exts;
-  map<string, map<string,
-    IOObjectTypesDictionary::FormatInfo> >::const_iterator
-      it, et = types.end();
-  map<string, IOObjectTypesDictionary::FormatInfo>::const_iterator
-    ifo, efo;
-  set<string>::iterator ifm, efm;
-  for( it=types.begin(); it!=et; ++it )
-    if( it->first == objtype )
+
+  // Soma IO extensions
+  set<string> sotypes = somaObjectTypesFor( objtype );
+  set<string>::const_iterator esot = sotypes.end();
+  vector<map<string, soma::IOObjectTypesDictionary::FormatInfo> *> io;
+  io.push_back( &soma::IOObjectTypesDictionary::readTypes() );
+  io.push_back( &soma::IOObjectTypesDictionary::writeTypes() );
+  vector<map<string, soma::IOObjectTypesDictionary::FormatInfo> *>
+    ::const_iterator iio, eio = io.end();
+  for( iio=io.begin(); iio!=eio; ++iio )
+  {
+    map<string, soma::IOObjectTypesDictionary::FormatInfo>::const_iterator
+      isf, esf = (*iio)->end();
+    for( isf=(*iio)->begin(); isf!=esf; ++isf )
+      if( sotypes.find( isf->first ) != esot )
+      {
+        set<string> formats = isf->second();
+        set<string>::const_iterator ifo, efo = formats.end();
+        for( ifo=formats.begin(); ifo!=efo; ++ifo )
+        {
+          set<string> e = DataSourceInfoLoader::extensions( *ifo );
+          exts.insert( e.begin(), e.end() );
+        }
+      }
+  }
+
+  // AIMS IO extensions
+  const map<string, map<string, aims::IOObjectTypesDictionary::FormatInfo> >
+      & types = aims::IOObjectTypesDictionary::types();
+  if( !types.empty() )
+  {
+    map<string, map<string,
+      aims::IOObjectTypesDictionary::FormatInfo> >::const_iterator
+        it = types.find( objtype );
+    map<string, aims::IOObjectTypesDictionary::FormatInfo>::const_iterator
+      ifo, efo;
+    set<string>::iterator ifm, efm;
+    if( it != types.end() )
     {
       for( ifo=it->second.begin(), efo=it->second.end(); ifo!=efo; ++ifo )
       {
@@ -1359,8 +1415,8 @@ set<string> ObjectReader::supportedFileExtensionsSet
           exts.insert( e.begin(), e.end() );
         }
       }
-      break;
     }
+  }
 
   addZippedFormats( exts );
 
