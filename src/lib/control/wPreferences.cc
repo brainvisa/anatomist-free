@@ -762,6 +762,7 @@ void PreferencesWindow::setCursorShape( const QString & shape )
       Cursor::setCurrentCursor( *ic );
       updateWindows();
     }
+  theAnatomist->config()->update();
 }
 
 
@@ -769,7 +770,7 @@ void PreferencesWindow::loadCursor()
 {
   QString filt = theAnatomist->objectsFileFilter().c_str();
   QString capt = tr( "Load Anatomist objects" );
-  
+
   QFileDialog	& fd = fileDialog();
   fd.setNameFilter( filt );
   fd.setWindowTitle( capt );
@@ -781,13 +782,13 @@ void PreferencesWindow::loadCursor()
   list<QString>		scenars;
   set<AObject *>	loaded;
 
-  for ( QStringList::Iterator it = filenames.begin(); it != filenames.end(); 
-	++it )
-    {
-      LoadObjectCommand *command = new LoadObjectCommand( (*it).toStdString(), 
-                                                          -1, "", true );
-      theProcessor->execute( command );
-    }
+  for ( QStringList::Iterator it = filenames.begin(); it != filenames.end();
+        ++it )
+  {
+    LoadObjectCommand *command = new LoadObjectCommand( (*it).toStdString(),
+                                                        -1, "", true );
+    theProcessor->execute( command );
+  }
 
   updateCursorsCombo( _pdat->cursShape );
 }
@@ -796,10 +797,11 @@ void PreferencesWindow::loadCursor()
 void PreferencesWindow::setCursorColorMode( int state )
 {
   if( state < 2 )
-    {
-      AWindow::setUseDefaultCursorColor( 1 - state );
-      updateWindows();
-    }
+  {
+    AWindow::setUseDefaultCursorColor( 1 - state );
+    updateWindows();
+    theAnatomist->config()->update();
+  }
 }
 
 
@@ -808,6 +810,7 @@ void PreferencesWindow::cursorSliderChanged( int val )
   _pdat->cursEdit->setText( QString::number( val ) );
   AWindow::setCursorSize( val );
   updateWindows();
+  theAnatomist->config()->update();
 }
 
 
@@ -817,6 +820,7 @@ void PreferencesWindow::cursorEditChanged()
   _pdat->cursSlider->setValue( val );
   AWindow::setCursorSize( val );
   updateWindows();
+  theAnatomist->config()->update();
 }
 
 
@@ -826,22 +830,24 @@ void PreferencesWindow::choseCursorColor()
   QColor	col = QColor( rc.red(), rc.green(), rc.blue() );
   col = QColorDialog::getColor( col );
   if( col.isValid() )
-    {
-      rc.red() = col.red();
-      rc.green() = col.green();
-      rc.blue() = col.blue();
-      AWindow::setCursorColor( rc );
-      _pdat->cursColBtn->setPalette( QPalette( col ) );
-      updateWindows();
-    }
+  {
+    rc.red() = col.red();
+    rc.green() = col.green();
+    rc.blue() = col.blue();
+    AWindow::setCursorColor( rc );
+    _pdat->cursColBtn->setPalette( QPalette( col ) );
+    updateWindows();
+    theAnatomist->config()->update();
+  }
 }
 
 
 void PreferencesWindow::enableLRDisplay( bool state )
 {
-	AWindow::setLeftRightDisplay( state );
+  AWindow::setLeftRightDisplay( state );
 
-	updateWindows();
+  updateWindows();
+  theAnatomist->config()->update();
 }
 
 
@@ -934,6 +940,7 @@ void PreferencesWindow::setUserLevel( const QString & x )
   {
     theAnatomist->setUserLevel( y );
   }
+  theAnatomist->config()->update();
 }
 
 
