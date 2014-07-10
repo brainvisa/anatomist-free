@@ -33,6 +33,7 @@
 
 #include <anatomist/module/volrenderfusionmethod.h>
 #include <anatomist/object/volrender.h>
+#include <anatomist/object/volrendershader.h>
 #include <anatomist/object/sliceable.h>
 #include <qtranslator.h>
 
@@ -70,5 +71,42 @@ AObject* VolRenderFusionMethod::fusion( const std::vector<AObject *> & obj )
 string VolRenderFusionMethod::ID() const
 {
   return QT_TRANSLATE_NOOP( "FusionChooser", "VolumeRenderingFusionMethod" );
+}
+
+
+// VolRenderShader
+
+
+VolRenderShaderFusionMethod::VolRenderShaderFusionMethod()
+{
+}
+
+
+VolRenderShaderFusionMethod::~VolRenderShaderFusionMethod()
+{
+}
+
+
+int VolRenderShaderFusionMethod::canFusion( const std::set<AObject *> & obj )
+{
+  if( obj.size() != 1 )
+    return 0;
+
+  //if( (*obj.begin())->type() == AObject::VOLUME )
+  if( dynamic_cast<Sliceable *>( *obj.begin() ) )
+    return 120;
+  return 0;
+}
+
+
+AObject* VolRenderShaderFusionMethod::fusion( const std::vector<AObject *> & obj )
+{
+  return new VolRenderShader( *obj.begin() );
+}
+
+
+string VolRenderShaderFusionMethod::ID() const
+{
+  return QT_TRANSLATE_NOOP( "FusionChooser", "VolumeRenderingShaderFusionMethod" );
 }
 

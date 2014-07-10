@@ -108,7 +108,7 @@ bool Shader::Private::init_shader_programs_p(void)
   for (int i = 0; i < 3; ++i)
   for (int j = 0; j < 3; ++j)
   for (int k = 0; k < 3; ++k)
-  for (int l = 0; l < 3; ++l)
+  for (int l = 0; l < 2; ++l)
     _shader_programs_p[i][j][k][l] = null_p;
 
   return true;

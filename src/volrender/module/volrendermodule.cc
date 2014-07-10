@@ -81,6 +81,7 @@ string VolRenderModule::description() const
 void VolRenderModule::objectsDeclaration()
 {
   FusionFactory::registerMethod( new VolRenderFusionMethod );
+  FusionFactory::registerMethod( new VolRenderShaderFusionMethod );
 }
 
 

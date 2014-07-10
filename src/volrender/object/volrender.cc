@@ -124,7 +124,7 @@ VolRender::Private::Private()
     dimx( 0 ), dimy( 0 ), dimz( 0 ), texdimx( 0 ), texdimy( 0 ), texdimz( 0 ),
     xscalefac( 1 ), yscalefac( 1 ), zscalefac( 1 ),
     shader( 0 ), slabSize( 1 ), maxslices( 0 ), sign( false ),
-    minval( 0 ), maxval( 0 ), sourcepixtype( GL_RGBA )
+    ownextrema( false ), minval( 0 ), maxval( 0 ), sourcepixtype( GL_RGBA )
 {
 }
 

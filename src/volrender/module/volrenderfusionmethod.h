@@ -50,6 +50,17 @@ namespace anatomist
     virtual std::string ID() const;
   };
 
+  class VolRenderShaderFusionMethod : public FusionMethod
+  {
+  public:
+    VolRenderShaderFusionMethod();
+    virtual ~VolRenderShaderFusionMethod();
+
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+  };
+
 }
 
 #endif
