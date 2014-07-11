@@ -103,6 +103,8 @@ struct VolRenderShader::Private
   unsigned dimx;
   unsigned dimy;
   unsigned dimz;
+  unsigned buffer_width;
+  unsigned buffer_height;
   unsigned xscalefac;
   unsigned yscalefac;
   unsigned zscalefac;
@@ -152,6 +154,8 @@ VolRenderShader::Private::Private()
     dimx( 0 ), 
     dimy( 0 ), 
     dimz( 0 ),
+    buffer_width( 0 ),
+    buffer_height( 0 ),
     xscalefac( 1 ), 
     yscalefac( 1 ), 
     zscalefac( 1 ),
@@ -875,6 +879,10 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
                                const GLList &gllist ) const
 {
   // cout << "VolRenderShader::glMakeBodyGLL\n";
+  GLenum status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : start with error: "
+        << gluErrorString(status) << endl;
 
   AWindow3D* win3d = dynamic_cast< AWindow3D* >( state.window );
 
@@ -890,29 +898,53 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
     return false;
   }
 
-  glNewList( gllist.item(), GL_COMPILE );
+  unsigned tex, m = GLCaps::numTextureUnits();
+
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 2 error: "
+        << gluErrorString(status) << endl;
+
+//   glNewList( gllist.item(), GL_COMPILE );
+  glNewList( gllist.item(), GL_COMPILE_AND_EXECUTE );
+  for( tex=0; tex<m; ++tex )
+  {
+    GLCaps::glActiveTexture( GLCaps::textureID( tex ) );
+    glDisable( GL_TEXTURE_1D );
+    glDisable( GL_TEXTURE_2D );
+    glDisable( GL_TEXTURE_3D );
+  }
+  GLCaps::glActiveTexture( GLCaps::textureID( 0 ) );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 3 error: "
+        << gluErrorString(status) << endl;
+
 
   if ( !d->m_vertexShader || !d->m_fragmentShader )
   {
     const_cast< VolRenderShader* >( this )->initializeShader();
   }
 
-cout << "genTextures" << endl;
   if ( !d->m_texture[1] || !d->m_texture[2] || !d->m_texture[3] )
   {
     const_cast< VolRenderShader* >( this )->genTextures();
   }
 
-cout << "loadTF" << endl;
   const_cast< VolRenderShader* >( this )->loadTransferFunction();
 
-cout << "createRenderTex" << endl;
-  const_cast< VolRenderShader* >( this )->createRenderTextures( view->width(), view->height() );
+  cout << "w: " << view->width() << ", h: " << view->height() << endl;
+  const_cast< VolRenderShader* >( this )->createRenderTextures( view->width(),
+                                                                view->height()
+                                                              );
+
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 4 error: "
+        << gluErrorString(status) << endl;
 
   Point3df vs = VoxelSize();
   const SliceViewState  *svs = state.sliceVS();
-
-  float sV = 1.; //data.volume().ratio();
 
   float tx = (float) d->dimx;
   float ty = (float) d->dimy;
@@ -999,18 +1031,20 @@ cout << "createRenderTex" << endl;
   float lightDiffuse[] = { d->m_diffuse, d->m_diffuse, d->m_diffuse, 1.0f };
   float lightSpecular[] = { d->m_specular, d->m_specular, d->m_specular, 1.0f };
 
-  //GLCaps::glActiveTexture( GLCaps::textureID( 0 ) );
+  glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
+  glBindRenderbuffer( GL_RENDERBUFFER, d->m_renderBuffer );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 5 error: "
+        << gluErrorString(status) << endl;
 
-  glClearColor( 0.0, 0.0, 0.0, 0.0 );
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
   glViewport( 0, 0, view->width(), view->height() );
   glMatrixMode( GL_PROJECTION );
   glLoadIdentity();
-  gluPerspective( 60.0, (GLfloat)view->width()/(GLfloat)view->height(), 0.01, 400.0 );
+//   gluPerspective( 60.0, (GLfloat)view->width()/(GLfloat)view->height(), 0.01, 400.0 );
+  glOrtho( -1, 1, -1, 1 , -3, 3 );
 
-cout << "1" << endl;
-//  glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
-//  glBindRenderbuffer( GL_RENDERBUFFER, d->m_renderBuffer );
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -1037,29 +1071,40 @@ cout << "1" << endl;
   mat[14] = mot.translation()[ 2 ];
   mat[15] = 1;
 
-//  glMultTransposeMatrixf( mat );
+  glMultTransposeMatrixf( mat );
   glTranslatef( -0.5f, -0.5f, -0.5f );
-
-glDisable( GL_TEXTURE_1D );
-glDisable( GL_TEXTURE_2D );
-glDisable( GL_TEXTURE_3D );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 5.1 error: "
+        << gluErrorString(status) << endl;
 
   // render back face
-//  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
-//                          GL_TEXTURE_2D, d->m_texture[ 2 ], 0 );
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                          GL_TEXTURE_2D, d->m_texture[ 2 ], 0 );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 6 error: "
+        << gluErrorString(status) << endl;
+
+  glClearColor( 0.0, 0.0, 1.0, 0.0 );
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glEnable( GL_CULL_FACE );
+  glFrontFace( GL_CCW );
   glCullFace( GL_FRONT );
   drawQuads( 1.0, 1.0, 1.0 );
   glDisable( GL_CULL_FACE );
+  glClearColor( 1.0, 1.0, 1.0, 1.0 );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : step 7 error: "
+        << gluErrorString(status) << endl;
 
   // raycast pass
-#if 0
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
                           GL_TEXTURE_2D, d->m_texture[ 3 ], 0 );
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   glUseProgram( d->m_shaderProgram );
-cout << "3" << endl;
 
   glUniform1f( d->m_stepsizeIndex, d->m_stepSize );
   glUniform4fv( d->m_eyePosIndex, 1, eyePos );
@@ -1087,7 +1132,6 @@ cout << "3" << endl;
   glEnable( GL_TEXTURE_1D );
   glBindTexture( GL_TEXTURE_1D, d->m_texture[ 1 ] );
   glUniform1i( d->m_tfTexIndex, 2 );
-cout << "4" << endl;
 
   glEnable( GL_CULL_FACE );
   glCullFace( GL_BACK );
@@ -1100,25 +1144,27 @@ cout << "4" << endl;
   glDisable( GL_TEXTURE_1D );
   glActiveTexture( GL_TEXTURE1 );
   glDisable( GL_TEXTURE_3D );
+
   glActiveTexture( GL_TEXTURE0 );
 
   // render buffer to screen
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
   glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+//   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glLoadIdentity();
   glEnable( GL_TEXTURE_2D );
   glBindTexture( GL_TEXTURE_2D, d->m_texture[ 3 ] );
+//   glBindTexture( GL_TEXTURE_2D, d->m_texture[ 2 ] );
 
   glMatrixMode( GL_PROJECTION );
   glLoadIdentity();
   gluOrtho2D( 0, 1, 0, 1 );
   glMatrixMode( GL_MODELVIEW );
-cout << "5" << endl;
 
   glDisable( GL_DEPTH_TEST );
 
   glBegin( GL_QUADS );
-  
+
   glTexCoord2f( 0.0f, 0.0f );
   glVertex2f( 0.0f, 0.0f );
 
@@ -1133,13 +1179,21 @@ cout << "5" << endl;
 
   glEnd();
 
+  glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
   glEnable( GL_DEPTH_TEST );
   glDisable( GL_TEXTURE_2D );
-#endif
+  glFrontFace( GL_CW );
+
   glPopMatrix();
 
   glEndList();
-cout << "6" << endl;
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLComponent::glMakeBodyGLL : end error: "
+        << gluErrorString(status) << endl;
+
   // cout << "glMakeBodyGLL done\n";
   return true;
 }
@@ -1505,7 +1559,7 @@ std::string VolRenderShader::loadShaderFile( const std::string& filename )
       {
 
         char c = ifs.get();
-        
+
         if ( !ifs.eof() )
         {
 
@@ -1551,21 +1605,33 @@ void VolRenderShader::loadTransferFunction()
     return;
 
   const AimsData<AimsRGBA>	*cols = objpal->colors();
+  GLenum status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "VolRenderShader::loadTransferFunction : start with error : "
+        << gluErrorString(status) << endl;
 
 cout << "Palette size : " << cols->dimX() << endl;
   glBindTexture( GL_TEXTURE_1D, d->m_texture[ 1 ] );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "VolRenderShader::loadTransferFunction : glBindTexture error : "
+        << gluErrorString(status) << endl;
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
   glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
   glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP );
   glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
   glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "VolRenderShader::loadTransferFunction : glTexParameteri error : "
+        << gluErrorString(status) << endl;
   glTexImage1D( GL_TEXTURE_1D, 0, GL_RGBA, 
                 cols->dimX(), 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, 
                 &(*cols)(0) );
-  GLenum status = glGetError();
+  status = glGetError();
   if( status != GL_NO_ERROR )
-    cerr << "VolRenderShader::loadTransferFunction : OpenGL error : "
+    cerr << "VolRenderShader::loadTransferFunction : glTexImage2D error : "
         << gluErrorString(status) << endl;
 
 }
@@ -1581,22 +1647,24 @@ void VolRenderShader::createRenderTextures( int width, int height )
 
   GLint texWidth, texHeight;
 
-  glBindTexture( GL_TEXTURE_2D, d->m_texture[ 2 ] );
+//   glBindTexture( GL_TEXTURE_2D, d->m_texture[ 2 ] );
 
-  glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth );
-  glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight );
+//   glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth );
+//   glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight );
 
-  if ( ( width == texWidth ) && ( height == texHeight ) )
+  if ( ( width == d->buffer_width ) && ( height == d->buffer_height ) )
   {
     return;
   }
 
+  cout << "createRenderTextures w: " << width << ", h: " << height << endl;
+  glBindTexture( GL_TEXTURE_2D, d->m_texture[ 2 ] );
   glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glTexImage2D( GL_TEXTURE_2D, 0,GL_RGBA16F, 
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA16F, 
                 width, height, 0, GL_RGBA, GL_FLOAT, NULL );
 
   glBindTexture( GL_TEXTURE_2D, d->m_texture[ 3 ] );
@@ -1605,7 +1673,7 @@ void VolRenderShader::createRenderTextures( int width, int height )
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glTexImage2D( GL_TEXTURE_2D, 0,GL_RGBA16F, 
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA16F, 
                 width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 
   glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
@@ -1615,6 +1683,9 @@ void VolRenderShader::createRenderTextures( int width, int height )
   glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                              GL_RENDERBUFFER, d->m_renderBuffer );
   glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+  d->buffer_width = width;
+  d->buffer_height = height;
   GLenum status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "VolRenderShader::createRenderTextures : OpenGL error : "
@@ -1625,7 +1696,7 @@ void VolRenderShader::vertex( float x, float y, float z ) const
 {
 
   glColor3f( x, y, z );
-  glMultiTexCoord3f( GL_TEXTURE1, x, y, z );
+//   glMultiTexCoord3f( GL_TEXTURE1, x, y, z );
   glVertex3f( x, y, z );
 
 }
