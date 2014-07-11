@@ -61,8 +61,10 @@
 #if !defined( GL_FRAMEBUFFER )
 // Framebuffer is available as an extension
 #define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#define GL_RENDERBUFFER GL_RENDERBUFFER_EXT
 #define glBindFramebuffer glBindFramebufferEXT
 #define glBindRenderbuffer glBindRenderbufferEXT
+#define glRenderbufferStorage glRenderbufferStorageEXT
 #define glFramebufferTexture2D glFramebufferTexture2DEXT
 #define glGenFramebuffers glGenFramebuffersEXT
 #define glGenRenderbuffers glGenRenderbuffersEXT
