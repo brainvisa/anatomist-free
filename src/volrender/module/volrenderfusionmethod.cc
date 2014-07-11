@@ -77,7 +77,6 @@ string VolRenderFusionMethod::ID() const
 // VolRenderShader
 
 #if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
-
 VolRenderShaderFusionMethod::VolRenderShaderFusionMethod()
 {
 }

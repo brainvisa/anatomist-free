@@ -34,6 +34,7 @@
 #ifndef ANA_MODULE_VOLRENDERFUSIONMETHOD_H
 #define ANA_MODULE_VOLRENDERFUSIONMETHOD_H
 
+#include <anatomist/window/glcaps.h> // GL_FRAMEBUFFER and GL_FRAMEBUFFER_EXT definitions
 #include <anatomist/fusion/fusionFactory.h>
 
 namespace anatomist
@@ -51,7 +52,6 @@ namespace anatomist
   };
 
 #if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
-
   class VolRenderShaderFusionMethod : public FusionMethod
   {
   public:
