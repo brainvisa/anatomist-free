@@ -1056,8 +1056,8 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
   float lightDiffuse[] = { d->m_diffuse, d->m_diffuse, d->m_diffuse, 1.0f };
   float lightSpecular[] = { d->m_specular, d->m_specular, d->m_specular, 1.0f };
 
-  glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
-  glBindRenderbuffer( GL_RENDERBUFFER, d->m_renderBuffer );
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
+  GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, d->m_renderBuffer );
   status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "GLComponent::glMakeBodyGLL : step 5 error: "
@@ -1104,8 +1104,8 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
         << gluErrorString(status) << endl;
 
   // render back face
-  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
-                          GL_TEXTURE_2D, d->m_texture[ 2 ], 0 );
+  GLCaps::glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                                  GL_TEXTURE_2D, d->m_texture[ 2 ], 0 );
   status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "GLComponent::glMakeBodyGLL : step 6 error: "
@@ -1125,8 +1125,8 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
         << gluErrorString(status) << endl;
 
   // raycast pass
-  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
-                          GL_TEXTURE_2D, d->m_texture[ 3 ], 0 );
+  GLCaps::glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                                  GL_TEXTURE_2D, d->m_texture[ 3 ], 0 );
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   glUseProgram( d->m_shaderProgram );
@@ -1173,8 +1173,8 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
   glActiveTexture( GL_TEXTURE0 );
 
   // render buffer to screen
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-  glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 //   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glLoadIdentity();
   glEnable( GL_TEXTURE_2D );
@@ -1204,8 +1204,8 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
 
   glEnd();
 
-  glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 
   glEnable( GL_DEPTH_TEST );
   glDisable( GL_TEXTURE_2D );
@@ -1609,8 +1609,8 @@ void VolRenderShader::genTextures()
   glGenTextures( 1, &d->m_texture[ 1 ] ); // transfer function
   glGenTextures( 1, &d->m_texture[ 2 ] ); // front depth
   glGenTextures( 1, &d->m_texture[ 3 ] ); // back depth
-  glGenFramebuffers( 1, &d->m_frameBuffer );
-  glGenRenderbuffers( 1, &d->m_renderBuffer );
+  GLCaps::glGenFramebuffers( 1, &d->m_frameBuffer );
+  GLCaps::glGenRenderbuffers( 1, &d->m_renderBuffer );
   GLenum status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "VolRenderShader::genTextures : OpenGL error : "
@@ -1701,14 +1701,14 @@ void VolRenderShader::createRenderTextures( int width, int height )
   glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA16F, 
                 width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 
-  glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
-  glBindRenderbuffer( GL_RENDERBUFFER, d->m_renderBuffer );
-  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 
-                         width, height );
-  glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
-                             GL_RENDERBUFFER, d->m_renderBuffer );
-  glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, d->m_frameBuffer );
+  GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, d->m_renderBuffer );
+  GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 
+                                 width, height );
+  GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
+                                     GL_RENDERBUFFER, d->m_renderBuffer );
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, 0 );
   d->buffer_width = width;
   d->buffer_height = height;
   GLenum status = glGetError();

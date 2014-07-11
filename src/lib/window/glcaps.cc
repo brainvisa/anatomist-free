@@ -58,12 +58,33 @@ namespace
   typedef PFNGLACTIVETEXTUREARBPROC glActiveTextureFunc;
   typedef PFNGLBLENDEQUATIONEXTPROC glBlendEquationFunc;
   typedef PFNGLTEXIMAGE3DEXTPROC glTexImage3DFunc;
+  typedef PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferFunc;
+  typedef PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferFunc;
+  typedef PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2D;
+  typedef PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersFunc;
+  typedef PFNGLGENRENDERBUFFEREXTPROC glGenRenderbuffersFunc;
+  typedef PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferFunc;
+  typedef PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageFunc;
 #else
   typedef void (*glActiveTextureFunc)( GLenum );
   typedef void (*glBlendEquationFunc)( GLenum );
   typedef void (*glTexImage3DFunc)( GLenum, GLint, GLenum, GLsizei, GLsizei,
                                     GLsizei, GLint, GLenum, GLenum,
                                     const void* );
+  typedef void (*glBindFramebufferFunc)( GLenum target, GLuint framebuffer );
+  typedef void (*glBindRenderbufferFunc)( GLenum target, GLuint renderbuffer );
+  typedef void (*glFramebufferTexture2DFunc)( GLenum target, GLenum attachment,
+                                              GLenum textarget, GLuint texture,
+                                              GLint level );
+  typedef void (*glGenFramebuffersFunc)( GLsizei n, GLuint *ids );
+  typedef void (*glGenRenderbuffersFunc)( GLsizei n, GLuint *renderbuffers );
+  typedef void (*glFramebufferRenderbufferFunc)( GLenum target, 
+                                                 GLenum attachment,
+                                                 GLenum renderbuffertarget,
+                                                 GLuint renderbuffer );
+  typedef void (*glRenderbufferStorageFunc)( GLenum target, 
+                                             GLenum internalformat,
+                                             GLsizei width, GLsizei height );
 #endif
 
   /* the APIENTRY macro here seems to be very important on Windows: it caused
@@ -81,6 +102,41 @@ namespace
                            GLsizei, GLint, GLenum, GLenum, const void* )
   {
   }
+
+  void APIENTRY _void_glBindFramebuffer( GLenum target, GLuint framebuffer )
+  {
+  }
+
+  void APIENTRY _void_glBindRenderbuffer( GLenum target, GLuint renderbuffer )
+  {
+  }
+
+  void APIENTRY _void_glFramebufferTexture2D( GLenum target, GLenum attachment,
+                                              GLenum textarget, GLuint texture,
+                                              GLint level )
+  {
+  }
+
+  void APIENTRY _void_glGenFramebuffers( GLsizei n, GLuint *ids )
+  {
+  }
+
+  void APIENTRY _void_glGenRenderbuffers( GLsizei n, GLuint *renderbuffers )
+  {
+  }
+
+  void APIENTRY _void_glFramebufferRenderbuffer(
+    GLenum target, GLenum attachment, GLenum renderbuffertarget,
+    GLuint renderbuffer )
+  {
+  }
+
+
+  void APIENTRY _void_glRenderbufferStorage(
+    GLenum target, GLenum internalformat, GLsizei width, GLsizei height )
+  {
+  }
+
 
   struct GLCapsPrivate
   {
@@ -100,6 +156,13 @@ namespace
     bool	depthpeeling;
     glBlendEquationFunc glBlendEquation;
     glTexImage3DFunc glTexImage3D;
+    glBindFramebufferFunc glBindFramebuffer;
+    glBindRenderbufferFunc glBindRenderbuffer;
+    glFramebufferTexture2DFunc glFramebufferTexture2D;
+    glGenFramebuffersFunc glGenFramebuffers;
+    glGenRenderbuffersFunc glGenRenderbuffers;
+    glFramebufferRenderbufferFunc glFramebufferRenderbuffer;
+    glRenderbufferStorageFunc glRenderbufferStorage;
   };
 
 
@@ -126,12 +189,15 @@ namespace
 
 
   GLCapsPrivate::GLCapsPrivate()
-    : ext_ARB_multitexture( false ), ext_ARB_shadow( false ), 
-      ext_SGIX_shadow( false ), ext_ARB_depth_texture( false ), 
-      ext_SGIX_depth_texture( false ), 
-      glActiveTexture( _void_glActiveTexture ), 
-      glClientActiveTexture( _void_glActiveTexture ), numTextureUnits( 0 ), 
-      depthpeeling( false )
+    : ext_ARB_multitexture( false ), ext_ARB_shadow( false ),
+      ext_SGIX_shadow( false ), ext_ARB_depth_texture( false ),
+      ext_SGIX_depth_texture( false ),
+      glActiveTexture( _void_glActiveTexture ),
+      glClientActiveTexture( _void_glActiveTexture ), numTextureUnits( 0 ),
+      depthpeeling( false ), glBlendEquation( 0 ), glTexImage3D( 0 ),
+      glBindFramebuffer( 0 ), glBindRenderbuffer( 0 ),
+      glFramebufferTexture2D( 0 ), glGenFramebuffers( 0 ),
+      glGenRenderbuffers( 0 ), glFramebufferRenderbuffer( 0 )
   {
   const GLubyte	*p = glGetString( GL_EXTENSIONS );
   if( !p )
@@ -192,19 +258,20 @@ namespace
             && !(
               glActiveTexture 
                 = (glActiveTextureFunc) dlsym( handle, "_glActiveTexture" ) ) )
-	    {
-              glActiveTexture 
-                = (glActiveTextureFunc) dlsym( handle, "glActiveTextureARB" );
-              if( !glActiveTexture 
-            && !(
-              glActiveTexture 
-                = (glActiveTextureFunc) dlsym( handle, "_glActiveTextureARB" ) ) )
-                {
-                  cerr << "coud not find function glActiveTexture: " 
-                       << dlerror() << endl;
-                  glActiveTexture = _void_glActiveTexture;
-                }
+          {
+            glActiveTexture 
+              = (glActiveTextureFunc) dlsym( handle, "glActiveTextureARB" );
+            if( !glActiveTexture 
+          && !(
+            glActiveTexture 
+              = (glActiveTextureFunc) dlsym( handle, 
+                                             "_glActiveTextureARB" ) ) )
+            {
+              cerr << "coud not find function glActiveTexture: " 
+                    << dlerror() << endl;
+              glActiveTexture = _void_glActiveTexture;
             }
+          }
           /* cout << "glActiveTexture address: " << (int) glActiveTexture 
              << endl;
           cout << (int) &::glActiveTexture << endl;
@@ -240,6 +307,69 @@ namespace
             cerr << "coud not find function glTexImage3D: " 
                  << dlerror() << endl;
             glTexImage3D = _void_glTexImage3D;
+          }
+
+          glBindFramebuffer = (glBindFramebufferFunc) dlsym( handle, 
+            "glBindFramebuffer" );
+          if( !glBindFramebuffer )
+          {
+            cerr << "coud not find function glBindFramebuffer: " 
+                 << dlerror() << endl;
+            glBindFramebuffer = _void_glBindFramebuffer;
+          }
+
+          glBindRenderbuffer = (glBindRenderbufferFunc) dlsym( handle, 
+            "glBindRenderbuffer" );
+          if( !glBindRenderbuffer )
+          {
+            cerr << "coud not find function glBindRenderbuffer: " 
+                 << dlerror() << endl;
+            glBindRenderbuffer = _void_glBindRenderbuffer;
+          }
+
+          glFramebufferTexture2D = (glFramebufferTexture2DFunc) dlsym( handle, 
+            "glFramebufferTexture2D" );
+          if( !glFramebufferTexture2D )
+          {
+            cerr << "coud not find function glFramebufferTexture2D: " 
+                 << dlerror() << endl;
+            glFramebufferTexture2D = _void_glFramebufferTexture2D;
+          }
+
+          glGenFramebuffers = (glGenFramebuffersFunc) dlsym( handle, 
+            "glGenFramebuffers" );
+          if( !glGenFramebuffers )
+          {
+            cerr << "coud not find function glGenFramebuffers: " 
+                 << dlerror() << endl;
+            glGenFramebuffers = _void_glGenFramebuffers;
+          }
+
+          glGenRenderbuffers = (glGenRenderbuffersFunc) dlsym( handle, 
+            "glGenRenderbuffers" );
+          if( !glGenRenderbuffers )
+          {
+            cerr << "coud not find function glGenRenderbuffers: " 
+                 << dlerror() << endl;
+            glGenRenderbuffers = _void_glGenRenderbuffers;
+          }
+
+          glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
+            dlsym( handle, "glFramebufferRenderbuffer" );
+          if( !glFramebufferRenderbuffer )
+          {
+            cerr << "coud not find function glFramebufferRenderbuffer: " 
+                 << dlerror() << endl;
+            glFramebufferRenderbuffer = _void_glFramebufferRenderbuffer;
+          }
+
+          glRenderbufferStorage = (glRenderbufferStorageFunc)
+            dlsym( handle, "glRenderbufferStorage" );
+          if( !glRenderbufferStorage )
+          {
+            cerr << "coud not find function glRenderbufferStorage: " 
+                 << dlerror() << endl;
+            glRenderbufferStorage = _void_glRenderbufferStorage;
           }
 
         }
@@ -282,7 +412,7 @@ namespace
               else cout << "glClientActiveTextureARB found\n";
             }
           else cout << "standard glClientActiveTexture found\n";
-          
+
           glBlendEquation = (glBlendEquationFunc)
             wglGetProcAddress( "glBlendEquation" );
           if( !glBlendEquation )
@@ -300,6 +430,71 @@ namespace
             glTexImage3D = _void_glTexImage3D;
           }
           else cout << "glTexImage3D found \n";
+
+          glBindFramebuffer = (glBindFramebufferFunc)
+            wglGetProcAddress( "glBindFramebuffer" );
+          if( !glBindFramebuffer )
+          {
+            cerr << "coud not find function glBindFramebuffer: " << endl;
+            glBindFramebuffer = _void_glBindFramebuffer;
+          }
+          else cout << "glBindFramebuffer found \n";
+
+          glBindRenderbuffer = (glBindRenderbufferFunc)
+            wglGetProcAddress( "glBindRenderbuffer" );
+          if( !glBindRenderbuffer )
+          {
+            cerr << "coud not find function glBindRenderbuffer: " << endl;
+            glBindRenderbuffer = _void_glBindRenderbuffer;
+          }
+          else cout << "glBindRenderbuffer found \n";
+
+          glFramebufferTexture2D = (glFramebufferTexture2DFunc)
+            wglGetProcAddress( "glFramebufferTexture2D" );
+          if( !glFramebufferTexture2D )
+          {
+            cerr << "coud not find function glFramebufferTexture2D: " << endl;
+            glFramebufferTexture2D = _void_glFramebufferTexture2D;
+          }
+          else cout << "glFramebufferTexture2D found \n";
+
+          glGenFramebuffers = (glGenFramebuffersFunc)
+            wglGetProcAddress( "glGenFramebuffers" );
+          if( !glGenFramebuffers )
+          {
+            cerr << "coud not find function glGenFramebuffers: " << endl;
+            glGenFramebuffers = _void_glGenFramebuffers;
+          }
+          else cout << "glGenFramebuffers found \n";
+
+          glGenRenderbuffers = (glGenRenderbuffersFunc)
+            wglGetProcAddress( "glGenRenderbuffers" );
+          if( !glGenRenderbuffers )
+          {
+            cerr << "coud not find function glGenRenderbuffers: " << endl;
+            glGenRenderbuffers = _void_glGenRenderbuffers;
+          }
+          else cout << "glGenRenderbuffers found \n";
+
+          glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
+            wglGetProcAddress( "glFramebufferRenderbuffer" );
+          if( !glFramebufferRenderbuffer )
+          {
+            cerr << "coud not find function glFramebufferRenderbuffer: "
+              << endl;
+            glFramebufferRenderbuffer = _void_glFramebufferRenderbuffer;
+          }
+          else cout << "glFramebufferRenderbuffer found \n";
+
+          glRenderbufferStorage = (glRenderbufferStorageFunc)
+            wglGetProcAddress( "glRenderbufferStorage" );
+          if( !glRenderbufferStorage )
+          {
+            cerr << "coud not find function glRenderbufferStorage: "
+              << endl;
+            glRenderbufferStorage = _void_glRenderbufferStorage;
+          }
+          else cout << "glRenderbufferStorage found \n";
 
 #endif
 
@@ -561,4 +756,60 @@ void GLCaps::updateTextureUnits()
   _glcapsPrivate().updateTextureUnits();
 }
 
+
+bool GLCaps::hasFramebuffer()
+{
+  return _glcapsPrivate().glBindFramebuffer;
+}
+
+
+void GLCaps::glBindFramebuffer( GLenum target, GLuint framebuffer )
+{
+  _glcapsPrivate().glBindFramebuffer( target, framebuffer );
+}
+
+
+void GLCaps::glBindRenderbuffer( GLenum target, GLuint renderbuffer )
+{
+  _glcapsPrivate().glBindRenderbuffer( target, renderbuffer );
+}
+
+
+void GLCaps::glFramebufferTexture2D( GLenum target, GLenum attachment,
+                                     GLenum textarget, GLuint texture,
+                                     GLint level )
+{
+  _glcapsPrivate().glFramebufferTexture2D( target, attachment, textarget,
+                                           texture, level );
+}
+
+
+void GLCaps::glGenFramebuffers( GLsizei n, GLuint *ids )
+{
+  _glcapsPrivate().glGenFramebuffers( n, ids );
+}
+
+
+void GLCaps::glGenRenderbuffers( GLsizei n, GLuint *renderbuffers )
+{
+  _glcapsPrivate().glGenRenderbuffers( n, renderbuffers );
+}
+
+
+void GLCaps::glFramebufferRenderbuffer( GLenum target, GLenum attachment,
+                                        GLenum renderbuffertarget,
+                                        GLuint renderbuffer )
+{
+  _glcapsPrivate().glFramebufferRenderbuffer( target, attachment,
+                                              renderbuffertarget,
+                                              renderbuffer );
+}
+
+
+void GLCaps::glRenderbufferStorage( GLenum target, GLenum internalformat,
+                                    GLsizei width, GLsizei height )
+{
+  _glcapsPrivate().glRenderbufferStorage( target, internalformat, width,
+                                          height );
+}
 
