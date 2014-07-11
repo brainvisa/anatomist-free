@@ -81,7 +81,9 @@ string VolRenderModule::description() const
 void VolRenderModule::objectsDeclaration()
 {
   FusionFactory::registerMethod( new VolRenderFusionMethod );
+#if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
   FusionFactory::registerMethod( new VolRenderShaderFusionMethod );
+#endif
 }
 
 

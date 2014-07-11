@@ -50,6 +50,8 @@ namespace anatomist
     virtual std::string ID() const;
   };
 
+#if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
+
   class VolRenderShaderFusionMethod : public FusionMethod
   {
   public:
@@ -60,6 +62,7 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
   };
+#endif
 
 }
 

@@ -38,6 +38,7 @@
 #include <anatomist/mobject/objectVector.h>
 #include <anatomist/surface/glcomponent.h>
 
+#if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
 
 namespace anatomist
 {
@@ -111,6 +112,7 @@ namespace anatomist
 }
 
 
+#endif
 #endif
 
 

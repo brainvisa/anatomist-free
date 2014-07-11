@@ -32,6 +32,9 @@
  */
 
 #include <anatomist/object/volrendershader.h>
+
+#if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
+
 #include <anatomist/volume/Volume.h>
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/window/viewstate.h>
@@ -54,6 +57,26 @@
 #include <qpixmap.h>
 #include <iostream>
 #include <fstream>
+
+#if !defined( GL_FRAMEBUFFER )
+// Framebuffer is available as an extension
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#define glBindFramebuffer glBindFramebufferEXT
+#define glBindRenderbuffer glBindRenderbufferEXT
+#define glFramebufferTexture2D glFramebufferTexture2DEXT
+#define glGenFramebuffers glGenFramebuffersEXT
+#define glGenRenderbuffers glGenRenderbuffersEXT
+#define glFramebufferRenderbuffer glFramebufferRenderbufferEXT
+#endif
+#if !defined( GL_COLOR_ATTACHMENT0 )
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
+#endif
+#if !defined( GL_DEPTH_ATTACHMENT )
+#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_EXT
+#endif
+#if !defined( GL_RGBA16F )
+#define GL_RGBA16F GL_RGBA16F_ARB
+#endif
 
 using namespace anatomist;
 using namespace aims;
@@ -1696,7 +1719,7 @@ void VolRenderShader::vertex( float x, float y, float z ) const
 {
 
   glColor3f( x, y, z );
-//   glMultiTexCoord3f( GL_TEXTURE1, x, y, z );
+  glMultiTexCoord3f( GL_TEXTURE1, x, y, z );
   glVertex3f( x, y, z );
 
 }
@@ -1752,3 +1775,6 @@ void VolRenderShader::drawQuads( float x, float y, float z ) const
   glEnd();
 
 }
+
+#endif
+
