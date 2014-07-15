@@ -313,63 +313,99 @@ namespace
             "glBindFramebuffer" );
           if( !glBindFramebuffer )
           {
-            cerr << "coud not find function glBindFramebuffer: " 
-                 << dlerror() << endl;
-            glBindFramebuffer = _void_glBindFramebuffer;
+            glBindFramebuffer = (glBindFramebufferFunc) dlsym( handle, 
+              "glBindFramebufferEXT" );
+            if( !glBindFramebuffer )
+            {
+              cerr << "coud not find function glBindFramebuffer: " 
+                  << dlerror() << endl;
+              glBindFramebuffer = _void_glBindFramebuffer;
+            }
           }
 
           glBindRenderbuffer = (glBindRenderbufferFunc) dlsym( handle, 
             "glBindRenderbuffer" );
           if( !glBindRenderbuffer )
           {
-            cerr << "coud not find function glBindRenderbuffer: " 
-                 << dlerror() << endl;
-            glBindRenderbuffer = _void_glBindRenderbuffer;
+            glBindRenderbuffer = (glBindRenderbufferFunc) dlsym( handle, 
+              "glBindRenderbufferEXT" );
+            if( !glBindRenderbuffer )
+            {
+              cerr << "coud not find function glBindRenderbuffer: " 
+                  << dlerror() << endl;
+              glBindRenderbuffer = _void_glBindRenderbuffer;
+            }
           }
 
           glFramebufferTexture2D = (glFramebufferTexture2DFunc) dlsym( handle, 
             "glFramebufferTexture2D" );
           if( !glFramebufferTexture2D )
           {
-            cerr << "coud not find function glFramebufferTexture2D: " 
-                 << dlerror() << endl;
-            glFramebufferTexture2D = _void_glFramebufferTexture2D;
+            glFramebufferTexture2D = 
+              (glFramebufferTexture2DFunc) dlsym( handle, 
+                "glFramebufferTexture2DEXT" );
+            if( !glFramebufferTexture2D )
+            {
+              cerr << "coud not find function glFramebufferTexture2D: " 
+                  << dlerror() << endl;
+              glFramebufferTexture2D = _void_glFramebufferTexture2D;
+            }
           }
 
           glGenFramebuffers = (glGenFramebuffersFunc) dlsym( handle, 
             "glGenFramebuffers" );
           if( !glGenFramebuffers )
           {
-            cerr << "coud not find function glGenFramebuffers: " 
-                 << dlerror() << endl;
-            glGenFramebuffers = _void_glGenFramebuffers;
+            glGenFramebuffers = (glGenFramebuffersFunc) dlsym( handle, 
+              "glGenFramebuffersEXT" );
+            if( !glGenFramebuffers )
+            {
+              cerr << "coud not find function glGenFramebuffers: " 
+                  << dlerror() << endl;
+              glGenFramebuffers = _void_glGenFramebuffers;
+            }
           }
 
           glGenRenderbuffers = (glGenRenderbuffersFunc) dlsym( handle, 
             "glGenRenderbuffers" );
           if( !glGenRenderbuffers )
           {
-            cerr << "coud not find function glGenRenderbuffers: " 
-                 << dlerror() << endl;
-            glGenRenderbuffers = _void_glGenRenderbuffers;
+            glGenRenderbuffers = (glGenRenderbuffersFunc) dlsym( handle, 
+              "glGenRenderbuffersEXT" );
+            if( !glGenRenderbuffers )
+            {
+              cerr << "coud not find function glGenRenderbuffers: " 
+                  << dlerror() << endl;
+              glGenRenderbuffers = _void_glGenRenderbuffers;
+            }
           }
 
           glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
             dlsym( handle, "glFramebufferRenderbuffer" );
           if( !glFramebufferRenderbuffer )
           {
-            cerr << "coud not find function glFramebufferRenderbuffer: " 
-                 << dlerror() << endl;
-            glFramebufferRenderbuffer = _void_glFramebufferRenderbuffer;
+            glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
+              dlsym( handle, "glFramebufferRenderbufferEXT" );
+            if( !glFramebufferRenderbuffer )
+            {
+              cerr << "coud not find function glFramebufferRenderbuffer: " 
+                  << dlerror() << endl;
+              glFramebufferRenderbuffer = _void_glFramebufferRenderbuffer;
+            }
           }
 
           glRenderbufferStorage = (glRenderbufferStorageFunc)
             dlsym( handle, "glRenderbufferStorage" );
           if( !glRenderbufferStorage )
           {
-            cerr << "coud not find function glRenderbufferStorage: " 
-                 << dlerror() << endl;
-            glRenderbufferStorage = _void_glRenderbufferStorage;
+            glRenderbufferStorage = (glRenderbufferStorageFunc)
+              dlsym( handle, "glRenderbufferStorageEXT" );
+            if( !glRenderbufferStorage )
+            {
+              cerr << "coud not find function glRenderbufferStorage: " 
+                  << dlerror() << endl;
+              glRenderbufferStorage = _void_glRenderbufferStorage;
+            }
           }
 
         }
