@@ -62,7 +62,7 @@ namespace
   typedef PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferFunc;
   typedef PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2D;
   typedef PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersFunc;
-  typedef PFNGLGENRENDERBUFFEREXTPROC glGenRenderbuffersFunc;
+  typedef PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersFunc;
   typedef PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferFunc;
   typedef PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageFunc;
 #else
