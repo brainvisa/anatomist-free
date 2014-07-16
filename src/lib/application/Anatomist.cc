@@ -1059,13 +1059,13 @@ int Anatomist::groupWindows( set<AWindow*> & winL, int g )
   //	now set it on each given window
 
   for( iw=winL.begin(), fw=winL.end(); iw!=fw; ++iw )
-    {
-      if( getControlWindow() != 0)
-        getControlWindow()->unregisterWindow( *iw );
-      (*iw)->SetGroup( g );
-      if( getControlWindow() != 0)
-        getControlWindow()->registerWindow( *iw );
-    }
+  {
+    if( getControlWindow() != 0)
+      getControlWindow()->unregisterWindow( *iw );
+    (*iw)->setGroup( g );
+    if( getControlWindow() != 0)
+      getControlWindow()->registerWindow( *iw );
+  }
 
   return g;
 }
@@ -1086,13 +1086,13 @@ void Anatomist::ungroupWindows( int group )
   {
     AWindow *w = iw->second.get();
     if( w->Group() == group )
-      {
-	if( getControlWindow() != 0)
-	  getControlWindow()->unregisterWindow( w );
-	w->SetGroup( 0 );
-	if( getControlWindow() != 0)
-	  getControlWindow()->registerWindow( w );
-      }
+    {
+      if( getControlWindow() != 0)
+        getControlWindow()->unregisterWindow( w );
+      w->setGroup( 0 );
+      if( getControlWindow() != 0)
+        getControlWindow()->registerWindow( w );
+    }
   }
 }
 

@@ -190,7 +190,7 @@ void AWindow::Refresh()
     return;
   if( lookupChanged() )
     {
-      setTitleWindow();
+      setWindowTitle();
       setupWindow();
       setLookupChanged( false );
     }
@@ -297,7 +297,7 @@ void AWindow::setWindowGeometry(Geometry *geom )
   //Refresh();	// ?? should not be done here
 }
 
-void AWindow::setTitleWindow()
+void AWindow::setWindowTitle()
 {
   if( d->destroying )
     return;

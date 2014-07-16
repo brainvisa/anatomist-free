@@ -151,7 +151,7 @@ namespace anatomist
     /// adapts geometry to the current contents and referential
     virtual void updateWindowGeometry() {}
     int Group() const { return _group; }
-    void SetGroup( int group ) { _group = group; }
+    void setGroup( int group ) { _group = group; }
     void setHasCursor( int hasCursor );
     /// takes both the global and own flags into account
     bool hasCursor() const;
@@ -221,7 +221,7 @@ namespace anatomist
     AWindow();
 
     /// Set the title of the window.
-    void setTitleWindow();
+    void setWindowTitle();
     virtual void unregisterObservable( Observable* obs );
 
     /// Window identificator

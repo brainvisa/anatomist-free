@@ -305,7 +305,7 @@ void QAWindow::createTitle()
 void QAWindow::setTitle( const string & title )
 {
   AWindow::setTitle( title );
-  setWindowTitle( title.c_str() );
+  QMainWindow::setWindowTitle( title.c_str() );
 }
 
 

@@ -106,7 +106,7 @@ void QSelectFactory::view( AWindow* win )
   theProcessor->execute( cc );
   AWindow *br = cc->createdWindow();
 
-  br->SetGroup( win->Group() );
+  br->setGroup( win->Group() );
   br->show();
 
   set<AWindow *> wl;
