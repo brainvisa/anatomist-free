@@ -202,9 +202,9 @@ class AHistogram( ana.cpp.QAWindow ):
       vol = ana.cpp.AObjectConverter.aims( obj ).volume()
       ar = numpy.array( vol, copy=False )
       if not self._histo4d:
-        ar = ar[ :, :, :, self.GetTime() ]
+        ar = ar[ :, :, :, self.getTime() ]
       if self._localHisto:
-        pos = self.GetPosition()
+        pos = self.getPosition()
         oref = obj.getReferential()
         wref = self.getReferential()
         a = ana.Anatomist()
@@ -237,8 +237,8 @@ class AHistogram( ana.cpp.QAWindow ):
               ipos0t = numpy.hstack( ( ipos0, [ 0 ] ) )
               ipos1t = numpy.hstack( ( ipos1, [ vol.getSizeT() ] ) )
             else:
-              ipos0t = numpy.hstack( ( ipos0, [ self.GetTime() ] ) )
-              ipos1t = numpy.hstack( ( ipos1, [ self.GetTime() + 1 ] ) )
+              ipos0t = numpy.hstack( ( ipos0, [ self.getTime() ] ) )
+              ipos1t = numpy.hstack( ( ipos1, [ self.getTime() + 1 ] ) )
             varr = aims.VolumeView( vol, vol.Position4Di( *ipos0t ),
               vol.Position4Di( *(ipos1t - ipos0t ) ) )
           ha.doit( varr )
@@ -271,9 +271,9 @@ class AHistogram( ana.cpp.QAWindow ):
   def Refresh( self ):
     ana.cpp.QAWindow.Refresh( self )
     if not self._objectschanged and \
-      list( self.GetPosition() ) + [ self.GetTime() ] != self._oldpos:
+      list( self.getPosition() ) + [ self.getTime() ] != self._oldpos:
       if not self._localHisto:
-        if self.GetTime() == self._oldpos[3] or self._histo4d:
+        if self.getTime() == self._oldpos[3] or self._histo4d:
           return # nothing changed
     if len( self._histo.axes ) != 0:
       if self._fixedScale:
@@ -288,7 +288,7 @@ class AHistogram( ana.cpp.QAWindow ):
         ax.relim()
         ax.autoscale_view()
     self._objectschanged = False
-    self._oldpos = list( self.GetPosition() ) + [ self.GetTime() ]
+    self._oldpos = list( self.getPosition() ) + [ self.getTime() ]
 
   def set3DHisto( self, is3d ):
     self._histo4d = not is3d

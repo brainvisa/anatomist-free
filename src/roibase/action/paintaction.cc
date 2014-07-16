@@ -857,7 +857,7 @@ PaintAction::erase( int x, int y, int, int )
       Point3df normalVector( win->sliceQuaternion().
 			     apply(Point3df(0., 0., 1.) ) ) ;
 
-      normalVector *= normalVector.dot( pos - win->GetPosition() ) ;
+      normalVector *= normalVector.dot( pos - win->getPosition() ) ;
       pos = pos - normalVector ;
 
       //Bucket * temp = new Bucket() ;
@@ -1283,7 +1283,7 @@ PaintAction::fill(int x, int y, int, int )
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
     {
-      Point3df n( normalVector * normalVector.dot( pos - win->GetPosition() ) ) ;
+      Point3df n( normalVector * normalVector.dot( pos - win->getPosition() ) ) ;
       pos = pos - n ;
       AGraph	*g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() );
 
@@ -2155,7 +2155,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
   Point3df normalVector( win->sliceQuaternion().
 			 apply(Point3df(0., 0., 1.) ) ) ;
 
-  Point3df cursorPosition( win->GetPosition() ) ;
+  Point3df cursorPosition( win->getPosition() ) ;
 
   Transformation * transf = theAnatomist->getTransformation(winRef, buckRef) ;
 

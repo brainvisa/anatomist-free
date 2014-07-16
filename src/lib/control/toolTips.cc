@@ -208,7 +208,7 @@ bool QAToolTips::drawTip()
   //cout << "point 3D : " << pos3 << endl;
 
   AObject	*obj = _window->objectAt( pos3[0], pos3[1], pos3[2], 
-					  _window->GetTime() );
+					  _window->getTime() );
 
   if( !obj )
     return( false );	// no object there

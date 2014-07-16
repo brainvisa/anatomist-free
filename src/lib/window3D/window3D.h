@@ -171,7 +171,7 @@ public:
   virtual const std::set<unsigned> & typeCount() const;
   virtual std::set<unsigned> & typeCount();
   virtual const std::string & baseTitle() const;
-  virtual void SetPosition( const Point3df& position, 
+  virtual void setPosition( const Point3df& position,
           const anatomist::Referential* orgref );
   virtual void updateWindowGeometry();
 

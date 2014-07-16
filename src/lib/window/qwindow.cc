@@ -281,7 +281,7 @@ void QAWindow::geometry( int *px, int *py, unsigned *w, unsigned *h )
 }
 
 
-void QAWindow::CreateTitle()
+void QAWindow::createTitle()
 {
   if( _instNumber >= 0 ) return;	// already done
 
@@ -296,15 +296,15 @@ void QAWindow::CreateTitle()
   typeCount().insert( n );
   sprintf( nstr, "%d", n+1 );
   if ( n == 0 )
-    SetTitle( baseTitle() );
+    setTitle( baseTitle() );
   else
-    SetTitle( baseTitle() + " (" + nstr + ")" );
+    setTitle( baseTitle() + " (" + nstr + ")" );
 }
 
 
-void QAWindow::SetTitle( const string & title )
+void QAWindow::setTitle( const string & title )
 {
-  AWindow::SetTitle( title );
+  AWindow::setTitle( title );
   setWindowTitle( title.c_str() );
 }
 

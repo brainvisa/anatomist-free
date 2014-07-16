@@ -96,11 +96,11 @@ void LinkedCursorCommand::doit()
   set<AWindow*>::iterator gbegin = group.begin();
   set<AWindow*>::iterator gend = group.end();
   for( set<AWindow*>::iterator i = gbegin; i != gend; ++i )
-    {
-      (*i)->SetPosition( pos, _win->getReferential() );
-      if( hastime )
-	(*i)->SetTime( time );
-    }
+  {
+    (*i)->setPosition( pos, _win->getReferential() );
+    if( hastime )
+      (*i)->setTime( time );
+  }
   /* AWindow3D	*w3 = dynamic_cast<AWindow3D *>( _win );
   if( w3 )
   {

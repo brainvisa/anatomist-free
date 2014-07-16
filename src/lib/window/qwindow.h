@@ -69,7 +69,7 @@ public:
   virtual void showToolBars( int state = 2 );
   void setFullScreen( int state = 2 );
   bool isFullScreen() const;
-  virtual void SetTitle( const std::string & name );
+  virtual void setTitle( const std::string & name );
   virtual void enableDetachMenu( bool x );
 
   /**	In QAWindows, Refresh() doesn't redraw right now. Instead, it triggers 
@@ -105,7 +105,7 @@ protected slots:
   void triggeredRefresh();
 
 protected:
-  virtual void CreateTitle();
+  virtual void createTitle();
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
   virtual void dropEvent( QDropEvent* );

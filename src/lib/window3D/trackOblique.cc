@@ -154,7 +154,7 @@ void TrackOblique::moveTrackball( int x, int y, int, int )
   vf[2] = qv[2];
   vf[3] = qv[3];
   ex->setProperty( "slice_quaternion", Object::value( vf ) );
-  Point3df	pos = w3->GetPosition();
+  Point3df	pos = w3->getPosition();
   vf.erase( vf.begin() + 3 );
   vf[0] = pos[0];
   vf[1] = pos[1];

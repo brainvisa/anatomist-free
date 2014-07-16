@@ -622,7 +622,7 @@ void LinkAction::execLink( int x, int y, int, int )
     vp.push_back( pos[0] );
     vp.push_back( pos[1] );
     vp.push_back( pos[2] );
-    vp.push_back( win->GetTime() );
+    vp.push_back( win->getTime() );
     LinkedCursorCommand        *c
       = new LinkedCursorCommand( v->aWindow(), vp );
     theProcessor->execute( c );
@@ -816,7 +816,7 @@ void SelectAction::select( int x, int y, int modifier )
       theProcessor->execute( c );*/
 
     view()->aWindow()->selectObject( pos[0], pos[1], pos[2],
-                                    view()->aWindow()->GetTime(),
+                                    view()->aWindow()->getTime(),
                                     (SelectFactory::SelectMode) modifier );
   }
 }

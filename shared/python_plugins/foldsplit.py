@@ -267,7 +267,7 @@ class SplitFoldAction( anatomist.Action ):
       dmin, pmin = self.distanceToVertex( opos, existingvertex )
       if dmin < tolerance:
         return existingvertex
-    obj = win.objectAt( pos[0], pos[1], pos[2], win.GetTime() )
+    obj = win.objectAt( pos[0], pos[1], pos[2], win.getTime() )
     if not obj:
       print 'No object at that position'
       return

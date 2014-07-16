@@ -1033,7 +1033,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
 
     //cout << "Normal Vector before 1 : " << normalVector << endl ;
-    Point3df nVec = normalVector * normalVector.dot( pos - win->GetPosition() ) ;
+    Point3df nVec = normalVector * normalVector.dot( pos - win->getPosition() ) ;
     pos = pos - nVec ;
     //cout << "Normal Vector before 2 : " << nVec << endl ;
 

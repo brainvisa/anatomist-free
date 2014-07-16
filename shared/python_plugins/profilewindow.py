@@ -201,8 +201,8 @@ class AProfile( ana.cpp.QAWindow ):
       figure = pyplot.figure( self._fig.number )
       vol = ana.cpp.AObjectConverter.aims( obj ).volume()
       ar = numpy.array( vol, copy=False )
-      pos = self.GetPosition()
-      tpos = self.GetTime()
+      pos = self.getPosition()
+      tpos = self.getTime()
       
       if len( vol.header()[ 'voxel_size' ] ) >= 4:
         tpos /= vol.header()[ 'voxel_size' ][3]
@@ -335,8 +335,8 @@ class AProfile( ana.cpp.QAWindow ):
     figure = pyplot.figure( self._fig.number )
     vol = ana.cpp.AObjectConverter.aims( obj ).volume()
     ar = numpy.array( vol, copy=False )
-    pos = self.GetPosition()
-    tpos = self.GetTime()
+    pos = self.getPosition()
+    tpos = self.getTime()
     opos = pos
     oref = obj.getReferential()
     wref = self.getReferential()
@@ -387,7 +387,7 @@ class AProfile( ana.cpp.QAWindow ):
     self.paintRefLabel()
 
   def drawCursor( self ):
-    pos = self.GetPosition()[:3] + [ self.GetTime() ]
+    pos = self.getPosition()[:3] + [ self.getTime() ]
     if self._cursorplot:
       for x in self._cursorplot:
         x.remove()
@@ -428,8 +428,8 @@ class AProfile( ana.cpp.QAWindow ):
 
   def onPick( self, event ):
     a = ana.Anatomist()
-    pos = list( self.GetPosition() )
-    pos.append( self.GetTime() )
+    pos = list( self.getPosition() )
+    pos.append( self.getTime() )
     if pos[ self._coordindex ] == event.mouseevent.xdata:
       return
     pos[ self._coordindex ] = event.mouseevent.xdata

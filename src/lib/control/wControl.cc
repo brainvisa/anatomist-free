@@ -394,7 +394,7 @@ void ControlWindow::createIcons()
 void ControlWindow::registerWindow( AWindow* win )
 {
   // make a valid title for the window
-  win->CreateTitle();
+  win->createTitle();
   d->winList->registerWindow( win );
 }
 
@@ -652,11 +652,11 @@ void ControlWindow::UnselectAllWindows()
 }
 
 
-void ControlWindow::CreateTitle()
+void ControlWindow::createTitle()
 {
   /*----- sauf exception, le titre d'une fenetre est positionne dans les 
     ressources X
-  SetTitle( _baseTitle );
+  setTitle( _baseTitle );
   -----*/
 }
 

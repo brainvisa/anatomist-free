@@ -237,7 +237,7 @@ void GraphLandmarkPicker::pickLandmark()
       return;
     }
 
-  Point3df	pt = (*w.begin())->GetPosition();
+  Point3df	pt = (*w.begin())->getPosition();
   cout << "Point : " << pt << endl;
 
   createLandmark( pt );

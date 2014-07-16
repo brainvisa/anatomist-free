@@ -269,12 +269,12 @@ namespace
       sel = selw.find( w ) != selw.end();
     }
     ex->setProperty( "selected", (int) sel );
-    Point3df	pos = w->GetPosition();
+    Point3df	pos = w->getPosition();
     vector<float>	posv( 4 );
     posv[0] = pos[0];
     posv[1] = pos[1];
     posv[2] = pos[2];
-    posv[3] = w->GetTime();
+    posv[3] = w->getTime();
     ex->setProperty( "position", posv );
 
     map<void *, int>::const_iterator	ipt, ept = ptrs.end();

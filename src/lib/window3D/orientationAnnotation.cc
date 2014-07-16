@@ -200,7 +200,8 @@ void OrientationAnnotation::build()
     vector<AObject *> vto;
     vto.push_back( to );
     // Create transformed object
-    TransformedObject *tro = new TransformedObject( vto, false, true, getPosition( *it ) );
+    TransformedObject *tro = new TransformedObject( vto, false, true,
+                                                    getPosition( *it ) );
     _annotMap[ *it ] = tro;
     tro->setReferentialInheritance( this );
     _win->registerObject( tro, true );
@@ -541,5 +542,5 @@ void OrientationAnnotation::updateWindowCoordParams()
   _winCoordParams = boost::assign::list_of( bmin )
                                           ( bmax )
                                           ( center )
-                                          ( _win->GetPosition() );
+                                          ( _win->getPosition() );
 }

@@ -285,7 +285,7 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
 
     // cout << "point 3D : " << pos3 << endl;
 
-    d->window->findObjectsAt( pos3[0], pos3[1], pos3[2], d->window->GetTime(),
+    d->window->findObjectsAt( pos3[0], pos3[1], pos3[2], d->window->getTime(),
                               shown, hidden );
   }
 

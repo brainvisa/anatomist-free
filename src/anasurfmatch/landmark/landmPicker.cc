@@ -190,7 +190,7 @@ void ALandmarkPicker::pickPoint()
       return;
     }
 
-  Point3df	pt = (*w.begin())->GetPosition();
+  Point3df	pt = (*w.begin())->getPosition();
   cout << "Point : " << pt << endl;
 
   createLandmark( pt );

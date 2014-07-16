@@ -146,63 +146,63 @@ CameraCommand::doit()
   bool					fullrefresh = false;
   for( iw=_win.begin(); iw!=ew; ++iw )
     if( (w = dynamic_cast<AWindow3D *>( *iw ) ) )
+    {
+      if( w->needsRedraw() )
+        fullrefresh = true;
+      if( _sliceq )
       {
-        if( w->needsRedraw() )
-          fullrefresh = true;
-	if( _sliceq )
-	  {
-	    w->setSliceQuaternion( _slicequat );
-	    fullrefresh = true;
-	  }
-        if( _hassliceplane )
+        w->setSliceQuaternion( _slicequat );
+        fullrefresh = true;
+      }
+      if( _hassliceplane )
+      {
+        w->setSliceOrientation( _sliceplane );
+        fullrefresh = true;
+      }
+      if( _curpos )
+      {
+        Point3df	oldpos = w->getPosition();
+        Point3df	pos( _cursorpos[0], _cursorpos[1], _cursorpos[2] );
+        if( oldpos != pos || _cursorpos[3] != w->getTime() )
         {
-          w->setSliceOrientation( _sliceplane );
+          w->setPosition( pos, 0 );
+          w->setTime( _cursorpos[3] );
           fullrefresh = true;
-        }
-	if( _curpos )
-	  {
-	    Point3df	oldpos = w->GetPosition();
-	    Point3df	pos( _cursorpos[0], _cursorpos[1], _cursorpos[2] );
-	    if( oldpos != pos || _cursorpos[3] != w->GetTime() )
-	      {
-		w->SetPosition( pos, 0 );
-		w->SetTime( _cursorpos[3] );
-		fullrefresh = true;
-	      }
-	  }
-	GLWidgetManager	*v = dynamic_cast<GLWidgetManager *>( w->view() );
-	if( v )
-	  {
-	    if( _obspos )
-	      v->setRotationCenter( _observerpos );
-	    if( _viewq )
-	      v->setQuaternion( _viewquat );
-	    if( _zoom > 0 )
-	      v->setZoom( _zoom );
-            if( _bbminset || _bbmaxset )
-              {
-                Point3df	bbmin, bbmax;
-                if( _bbminset )
-                  bbmin = _bbmin;
-                else
-                  bbmin = v->windowBoundingMin();
-                if( _bbmaxset )
-                  bbmax = _bbmax;
-                else
-                  bbmax = v->windowBoundingMax();
-                v->setWindowExtrema( bbmin, bbmax );
-              }
-            if( !fullrefresh )
-              w->refreshLightViewNow();
-          }
-        if( fullrefresh )
-        {
-          if( _forcedraw )
-            w->refreshNow();
-          else
-            w->Refresh();
         }
       }
+      GLWidgetManager	*v = dynamic_cast<GLWidgetManager *>( w->view() );
+      if( v )
+      {
+        if( _obspos )
+          v->setRotationCenter( _observerpos );
+        if( _viewq )
+          v->setQuaternion( _viewquat );
+        if( _zoom > 0 )
+          v->setZoom( _zoom );
+        if( _bbminset || _bbmaxset )
+        {
+          Point3df	bbmin, bbmax;
+          if( _bbminset )
+            bbmin = _bbmin;
+          else
+            bbmin = v->windowBoundingMin();
+          if( _bbmaxset )
+            bbmax = _bbmax;
+          else
+            bbmax = v->windowBoundingMax();
+          v->setWindowExtrema( bbmin, bbmax );
+        }
+        if( !fullrefresh )
+          w->refreshLightViewNow();
+      }
+      if( fullrefresh )
+      {
+        if( _forcedraw )
+          w->refreshNow();
+        else
+          w->Refresh();
+      }
+    }
 }
 
 

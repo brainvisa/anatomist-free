@@ -117,7 +117,7 @@ void BoxViewSlice::moveTrackball( int x, int y )
     return;
   AWindow3D *win = static_cast<AWindow3D *>( d->action->view()->aWindow() );
   const Quaternion & sliceq = win->sliceQuaternion();
-  Point3df pos = win->GetPosition();
+  Point3df pos = win->getPosition();
   Point3df normal = sliceq.transformInverse( Point3df( 0, 0, 1 ) );
   normal.normalize();
   QString text = QString( "<h4>" ) + ControlledWindow::tr( "slice plane:" )
@@ -304,7 +304,7 @@ void BoxViewSlice::updateRect()
   Point3df bbmin = view->boundingMin();
   Point3df bbmax = view->boundingMax();
   const Quaternion & sliceq = win->sliceQuaternion();
-  Point3df pos = win->GetPosition();
+  Point3df pos = win->getPosition();
   Point3df normal = sliceq.transformInverse( Point3df( 0, 0, 1 ) );
   float dplane = -normal.dot( pos );
   // intersect with 12 edge lines

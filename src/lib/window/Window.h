@@ -73,22 +73,6 @@ namespace anatomist
         OTHER = 299
       };
 
-    enum ClickMode
-      {
-        CLICK_LINKED,
-        CLICK_SELECT,
-        CLICK_VALUE,
-      };
-
-    enum ZoomMode
-      {
-        FIX_ZOOM,
-        FIX_FOV_ZOOM,
-        FIX_WIN_ZOOM,
-        DEPLACEMENT,
-        ROTATION,
-      };
-
     enum RecordingState
       {
         OFF,
@@ -151,17 +135,15 @@ namespace anatomist
     std::set<AObject*> Objects() const;
     bool hasObject( AObject * obj ) const;
     /// Get position of cursor
-    virtual Point3df GetPosition() const;
+    virtual Point3df getPosition() const;
     /// Get time position of cursor
-    float GetTime() const;
+    float getTime() const;
     /// Set position of cursor
-    virtual void SetPosition( const Point3df& position ,
+    virtual void setPosition( const Point3df& position ,
                               const Referential *refdep );
     /// Set time position of cursor
-    virtual void SetTime( float time );
-    virtual void SetTitle( const std::string & title );
-    void SetClickMode(ClickMode mode) { _clickmode = mode; }
-    void SetZoomMode(ZoomMode mode) { _zoommode = mode; }
+    virtual void setTime( float time );
+    virtual void setTitle( const std::string & title );
     Referential* getReferential() const { return _referential; }
     virtual void setReferential( Referential* ref );
     Geometry* windowGeometry() const { return _geometry; }
@@ -222,7 +204,7 @@ namespace anatomist
     virtual void startRecord( const std::string & filename );
     virtual void stopRecord() {}
     /// Creates a new title for the window
-    virtual void CreateTitle() {}
+    virtual void createTitle() {}
 
     virtual const std::set<unsigned> & typeCount() const;
     virtual std::set<unsigned> & typeCount();
@@ -239,7 +221,7 @@ namespace anatomist
     AWindow();
 
     /// Set the title of the window.
-    void SetTitleWindow();
+    void setTitleWindow();
     virtual void unregisterObservable( Observable* obs );
 
     /// Window identificator
@@ -255,10 +237,6 @@ namespace anatomist
     std::set<AObject *>        _tempObjects;
     /// Cursor time
     float _time;
-    /// Click mode.
-    ClickMode _clickmode;
-    /// Zoom mode.
-    ZoomMode _zoommode;
     /// Referentiel.
     Referential *_referential;
     /// Geometry.
@@ -338,7 +316,7 @@ namespace anatomist
   }
 
   inline
-  float AWindow::GetTime() const
+  float AWindow::getTime() const
   {
     return _time;
   }

@@ -209,7 +209,7 @@ void NodeSelectionAction::add( int x, int y, int , int  )
 	{
 		cout << "Position : " << pos << endl;
 		aw->selectObject( pos[0], pos[1], pos[2],
-                aw->GetTime(),
+                aw->getTime(),
 		SelectFactory::Normal );
 	}
 
@@ -279,7 +279,7 @@ void NodeSelectionAction::remove( int x, int y, int , int  )
 	{
 		cout << "Position : " << pos << endl;
 		aw->selectObject( pos[0], pos[1], pos[2],
-		aw->GetTime(),
+		aw->getTime(),
 		SelectFactory::Normal );
 	}
 
@@ -339,7 +339,7 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 	{
 		cout << "Position : " << pos << endl;
 		aw->selectObject( pos[0], pos[1], pos[2],
-		aw->GetTime(),
+		aw->getTime(),
 		SelectFactory::Normal );
 	}
 	

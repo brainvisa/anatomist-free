@@ -475,7 +475,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         std::cerr <<  objselect << " is not a Atexture" << std::endl;
       }
 
-      //int t = (int) w3->GetTime();
+      //int t = (int) w3->getTime();
 
       mesh = as->surface();
 

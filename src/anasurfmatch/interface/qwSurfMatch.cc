@@ -347,7 +347,7 @@ void QSurfMatchWin::notifyUpdate()
         set<AWindow *>::const_iterator	iw, fw=wins.end();
 
         for( iw=wins.begin(); iw!=fw; ++iw )
-          (*iw)->SetTime( time );
+          (*iw)->setTime( time );
       }
 
       (*io)->notifyObservers( this );
@@ -524,7 +524,7 @@ void QSurfMatchWin::addPointByClickOrg()
       return;
     }
 
-  Point3df			pt = (*w.begin())->GetPosition();
+  Point3df			pt = (*w.begin())->getPosition();
   float				d, dmin = 1e38;
   ATriangulated			*ms = _obj->movingSurface();
   rc_ptr<AimsSurfaceTriangle>	s = ms->surface();
@@ -567,7 +567,7 @@ void QSurfMatchWin::addPointByClickDst()
       return;
     }
 
-  Point3df	pt = (*w.begin())->GetPosition();
+  Point3df	pt = (*w.begin())->getPosition();
   _widgets->dstPtsVec.push_back( pt );
   _widgets->dstPtsBox->insertItem( QString( "( " )
 				   + QString::number( pt[0] ) + ", "

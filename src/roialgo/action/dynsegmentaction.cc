@@ -456,7 +456,7 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
       myZAxis = Point3d( (int)normalVector[0], (int)normalVector[1], (int)normalVector[2] ) ;
       
       //       cout << "Normal Vector : " << normalVector << endl ;
-      normalVector *= normalVector.dot( pos - win->GetPosition() ) ;
+      normalVector *= normalVector.dot( pos - win->getPosition() ) ;
       pos = pos - normalVector ;
       
       Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;

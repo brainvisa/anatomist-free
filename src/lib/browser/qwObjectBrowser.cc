@@ -226,7 +226,7 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   : ControlledWindow( parent, name, options, f ), d( new Private( this ) )
 {
   setAttribute( Qt::WA_DeleteOnClose );
-  CreateTitle();
+  createTitle();
   //setWindowTitle( tr( "AnaQt Objects Browser" ) );
   resize( 400, 400 );
 

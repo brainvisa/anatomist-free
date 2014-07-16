@@ -871,7 +871,7 @@ AWindow::SubType AWindow3D::subtype() const
 void AWindow3D::polish()
 {
   QAWindow::ensurePolished();
-  CreateTitle();
+  createTitle();
 }
 
 const set<unsigned> & AWindow3D::typeCount() const
@@ -1526,8 +1526,8 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
       GLComponent *glc = objselect->glAPI();
       if (glc)
       {
-        ViewState vs3(GetTime(), this);
-        SliceViewState vs2(GetTime(), true, position, &d->slicequat,
+        ViewState vs3(getTime(), this);
+        SliceViewState vs2(getTime(), true, position, &d->slicequat,
             getReferential(), windowGeometry(), &d->draw->quaternion(), this);
         ViewState *vs = &vs2;
 
@@ -1784,7 +1784,7 @@ void AWindow3D::setupTimeSlider(float mint, float maxt)
   }
   d->slidt->setMinimum( (int) mint );
   d->slidt->setMaximum( (int) maxt );
-  int t = (int) GetTime();
+  int t = (int) getTime();
   if (d->slidt->value() != t)
   {
     cout << "T slider change : " << d->slidt->value() << " -> " << t << endl;
@@ -1843,13 +1843,13 @@ void AWindow3D::setupSliceSlider()
 
 void AWindow3D::changeTime(int t)
 {
-  if (t != (int) GetTime())
+  if (t != (int) getTime())
   {
     d->timelabel->setText(QString::number(t));
     if (d->linkonslider)
     {
       vector<float> p(4);
-      Point3df pos = GetPosition();
+      Point3df pos = getPosition();
       p[0] = pos[0];
       p[1] = pos[1];
       p[2] = pos[2];
@@ -1859,7 +1859,7 @@ void AWindow3D::changeTime(int t)
     }
     else
     {
-      SetTime(t);
+      setTime(t);
       Refresh();
     }
   }
@@ -1867,7 +1867,7 @@ void AWindow3D::changeTime(int t)
 
 int AWindow3D::updateSliceSlider()
 {
-  Point3df pos = GetPosition();
+  Point3df pos = getPosition();
   int sl;
   Geometry *geom = windowGeometry();
   Point3df vs;
@@ -1914,7 +1914,7 @@ int AWindow3D::updateSliceSlider()
 void AWindow3D::changeSlice(int s)
 {
   // cout << "changeSlice " << s << endl;
-  Point3df pos = GetPosition();
+  Point3df pos = getPosition();
   Geometry *geom = windowGeometry();
   Point3df vs;
   float minsl = 0;
@@ -1945,7 +1945,7 @@ void AWindow3D::changeSlice(int s)
       p[0] = pos[0];
       p[1] = pos[1];
       p[2] = pos[2];
-      p[3] = GetTime();
+      p[3] = getTime();
       LinkedCursorCommand *c = new LinkedCursorCommand(this, p);
       theProcessor->execute(c);
     }
@@ -2042,15 +2042,15 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
       for (iw = wg.begin(); iw != ew; ++iw)
         if (*iw != this && dynamic_cast<const AWindow3D *> (*iw))
         {
-          SetPosition((*iw)->GetPosition(), (*iw)->getReferential());
+          setPosition((*iw)->getPosition(), (*iw)->getReferential());
           setpos = false;
           break;
         }
     }
     if (setpos)
       // set cursor in middle of object
-      SetPosition((bmin + bmax) * 0.5f, getReferential() );
-    SetTime(0);
+      setPosition((bmin + bmax) * 0.5f, getReferential() );
+    setTime(0);
 
     // resize window if in 2D mode
     if( o->Is2DObject() && isWindow() )
@@ -2203,7 +2203,7 @@ GLPrimitives AWindow3D::cursorGLL() const
         if (!curspl.empty())
         {
           bool dr = getReferential() && getReferential()->isDirect();
-          Point3df pos = GetPosition();
+          Point3df pos = getPosition();
           GLList *posl = new GLList;
           posl->generate();
           glNewList(posl->item(), GL_COMPILE);
@@ -2502,7 +2502,8 @@ namespace
 
 }
 
-void AWindow3D::SetPosition(const Point3df& position, const Referential* orgref)
+void AWindow3D::setPosition( const Point3df& position,
+                             const Referential* orgref )
 {
   anatomist::Transformation *tra = theAnatomist->getTransformation(orgref,
       getReferential());
@@ -3304,7 +3305,7 @@ void AWindow3D::setLinkedCursorPos()
   QLineEdit *le = new QLineEdit(&dial);
   l->addWidget(le);
   stringstream curpos;
-  Point3df pos = GetPosition();
+  Point3df pos = getPosition();
   curpos << pos[0] << " " << pos[1] << " " << pos[2];
   le->setText(QString(curpos.str().c_str()));
   le->selectAll();

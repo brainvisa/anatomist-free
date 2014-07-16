@@ -332,7 +332,7 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
       Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
       
       //       cout << "Normal Vector : " << normalVector << endl ;
-      normalVector *= normalVector.dot( pos - win->GetPosition() ) ;
+      normalVector *= normalVector.dot( pos - win->getPosition() ) ;
       pos = pos - normalVector ;
       
       Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;

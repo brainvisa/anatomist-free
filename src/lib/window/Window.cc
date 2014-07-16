@@ -90,8 +90,6 @@ AWindow::AWindow() :
   _refresh(false),
   _lookupChanged( true ), 
   _time( 0 ), 
-  _clickmode( CLICK_LINKED ), 
-  _zoommode( FIX_WIN_ZOOM ), 
   _referential( theAnatomist->centralReferential() ), 
   _geometry( 0 ), 
   _title( "Window" ), 
@@ -192,7 +190,7 @@ void AWindow::Refresh()
     return;
   if( lookupChanged() )
     {
-      SetTitleWindow();
+      setTitleWindow();
       setupWindow();
       setLookupChanged( false );
     }
@@ -269,7 +267,7 @@ void AWindow::unregisterObject( AObject* object )
 }
 
 
-void AWindow::SetTitle( const string & title )
+void AWindow::setTitle( const string & title )
 {
   _title = title;
 }
@@ -299,7 +297,7 @@ void AWindow::setWindowGeometry(Geometry *geom )
   //Refresh();	// ?? should not be done here
 }
 
-void AWindow::SetTitleWindow()
+void AWindow::setTitleWindow()
 {
   if( d->destroying )
     return;
@@ -315,7 +313,7 @@ void AWindow::SetTitleWindow()
   if( newtitle.size() > MAXLEN )
     newtitle.replace( 37, newtitle.size(), "..." );
 
-  SetTitle( newtitle );
+  setTitle( newtitle );
 
   if( theAnatomist->getControlWindow() )
     theAnatomist->getControlWindow()->NotifyWindowChange(this);
@@ -411,14 +409,14 @@ void AWindow::startRecord()
 }
 
 
-Point3df AWindow::GetPosition() const
+Point3df AWindow::getPosition() const
 {
   return( _position );
 }
 
 
-void AWindow::SetPosition( const Point3df& position , 
-			   const Referential * orgref )
+void AWindow::setPosition( const Point3df& position ,
+                           const Referential * orgref )
 {
   anatomist::Transformation *tra = theAnatomist->getTransformation(orgref,
       getReferential());
@@ -436,7 +434,7 @@ void AWindow::SetPosition( const Point3df& position ,
 }
 
 
-void AWindow::SetTime( float time )
+void AWindow::setTime( float time )
 {
   if( time != _time )
   {

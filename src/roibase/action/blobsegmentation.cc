@@ -167,14 +167,14 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
   Referential* winRef = win->getReferential() ;
   Referential* buckRef = currentRegion->getReferential() ;
   Point3df pos ;
-  int time = int( rint( win->GetTime() ) ) ;
+  int time = int( rint( win->getTime() ) ) ;
   //cout << "Time = " << time << endl ;
   if( win->positionFromCursor( x, y, pos ) )
     {
       Point3df normalVector( win->sliceQuaternion().apply(Point3df(0., 0., 1.) ) ) ;
     
       //     cout << "Normal Vector : " << normalVector << endl ;
-      normalVector *= normalVector.dot( pos - win->GetPosition() ) ;
+      normalVector *= normalVector.dot( pos - win->getPosition() ) ;
       pos = pos - normalVector ;
 
       AObject * image = RoiManagementActionSharedData::instance()->

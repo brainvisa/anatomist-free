@@ -168,7 +168,7 @@ protected:
   virtual void createMenu();
   virtual void createIcons();
   virtual void drawContents();
-  virtual void CreateTitle();
+  virtual void createTitle();
   void setLanguage( const std::string & poFilename );
 
   anatomist::AControlMenuHandler	*_menu;

@@ -205,7 +205,7 @@ void Trackball::setCenter()
     }
 
   AWindow	*win = view()->aWindow();
-  Point3df	pos = win->GetPosition();
+  Point3df	pos = win->getPosition();
   w->setRotationCenter( pos );
   ((AWindow3D *) w->aWindow())->refreshLightViewNow();
 }
