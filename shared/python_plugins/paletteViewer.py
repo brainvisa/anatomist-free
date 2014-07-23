@@ -422,7 +422,7 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
     for w in windows:
       if w.type() in [anatomist.AWindow.WINDOW_2D,
                       anatomist.AWindow.WINDOW_3D]:
-        owin = [o for o in objects if w.hasObject(o)]
+        owin = [o for o in objects if self._winDisplaysObj(w, o)]
         if owin != []: self._togglePalettes(w, owin)
 
   def _togglePalettes(self, window, objects):
@@ -448,6 +448,15 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
       return topwidget
     else:
       return window.parent()
+
+  @staticmethod
+  def _winDisplaysObj(win, obj):
+    if win.hasObject(obj):
+      return True
+    for parent in obj.parents():
+      if parent.palette() == obj.palette() and win.hasObject(parent):
+        return True
+    return False
 
 
 class PaletteViewerModule(anatomist.Module):

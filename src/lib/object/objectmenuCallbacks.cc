@@ -240,6 +240,31 @@ static ObjectMenu* agraphObjectOptionMenu()
 }
 
 
+static ObjectMenu* textureObjectMenu()
+{
+  ObjectMenu    *om;
+
+  om = new ObjectMenu();
+  vector<string>  vs;
+  vs.reserve(1);
+  vs.push_back( QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Reload" ),
+                  &ObjectActions::fileReload);
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
+                  &ObjectActions::saveStatic);
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                                         "Rename object" ),
+                  &ObjectActions::renameObject );
+  vs[0] = QT_TRANSLATE_NOOP("QSelectMenu", "Color" );
+  om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Palette" ),
+                  &ObjectActions::colorPalette );
+  om->insertItem( vs,QT_TRANSLATE_NOOP( "QSelectMenu", "Texturing" ),
+                  &ObjectActions::textureControl );
+
+  return om;
+}
+
+
 namespace anatomist
 {
   void	initMenuObjects(void)
@@ -278,5 +303,9 @@ namespace anatomist
     AObject::setObjectMenu("GRAPH", om);
     om.reset( agraphObjectOptionMenu() );
     AObject::setObjectMenu("GRAPHOBJECT", om);
+
+    // Texture
+    om.reset( textureObjectMenu() );
+    AObject::setObjectMenu("TEXTURE", om);
   }
 }
