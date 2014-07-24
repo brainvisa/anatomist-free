@@ -675,7 +675,7 @@ void AConnectivityMatrix::buildPatchIndices()
 }
 
 
-void AConnectivityMatrix::buildTexture( uint32_t startvertex )
+void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
 {
   cout << "buildTexture\n";
   uint32_t vertex = startvertex;
@@ -693,7 +693,7 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
     if( ipi == epi )
     {
       // clicked outside patch: show column connections, to the patch
-      buildColumnTexture( startvertex );
+      buildColumnTexture( startvertex, time_pos );
       return;
     }
   }
@@ -703,12 +703,13 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
   vector<double> row = mat->getRow( vertex );
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
+  const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
   if( !d->basins )
     tex0.insert( tex0.end(), row.begin(), row.end() );
   else
   {
     // expand matrix to basins
-    tex0.insert( tex0.end(), d->mesh->surface()->vertex().size(), 0 );
+    tex0.insert( tex0.end(), surf->vertex().size(), 0 );
     // FIXME needs to cache this int texture
     rc_ptr<Texture1d> basintex = d->basins->texture<float>( true, false );
     const vector<float> & basinv = basintex->begin()->second.data();
@@ -729,7 +730,7 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
   if( d->marker )
   {
     AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron( 
-      d->mesh->surface()->vertex()[ startvertex ], 1.5 );
+      surf->vertex()[ startvertex ], 1.5 );
     d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
     Material & mat = d->marker->GetMaterial();
     mat.SetDiffuse( 0.6, 1., 0., 1. );
@@ -739,14 +740,16 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex )
 }
 
 
-void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
+void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
+                                              float time_pos )
 {
   cout << "buildColumnTexture\n";
   d->vertex = startvertex;
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
-  tex0.resize( d->mesh->surface()->vertex().size(), 0. );
+  const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
+  tex0.resize( surf->vertex().size(), 0. );
   bool valid = true;
   uint32_t column = startvertex;
 
@@ -777,7 +780,7 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
   if( d->marker )
   {
     AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron(
-      d->mesh->surface()->vertex()[ startvertex ], 1.5 );
+      surf->vertex()[ startvertex ], 1.5 );
     d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
     Material & mat = d->marker->GetMaterial();
     mat.SetDiffuse( 0., .6, 1., 1. );
@@ -787,7 +790,8 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex )
 }
 
 
-void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
+void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
+                                             float time_pos )
 {
   cout << "buildPatchTexture\n";
   if( !d->patch )
@@ -795,14 +799,15 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
 
   // find vertex in patch
   vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
-  uint32_t vertex = 0, n, texsize = d->mesh->surface()->vertex().size(), i;
+  const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
+  uint32_t vertex = 0, n, texsize = surf->vertex().size(), i;
   for( ip=d->patchindices.begin(); ip!=ep; ++ip, ++vertex )
     if( *ip == startvertex )
       break;
   if( ip == ep )
   {
     // outside patch
-    buildColumnPatchTexture( startvertex );
+    buildColumnPatchTexture( startvertex, time_pos );
     return;
   }
 
@@ -910,7 +915,8 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex )
 }
 
 
-void AConnectivityMatrix::buildColumnPatchTexture( uint32_t startvertex )
+void AConnectivityMatrix::buildColumnPatchTexture( uint32_t /*startvertex*/,
+                                                   float /*time_pos*/ )
 {
 }
 

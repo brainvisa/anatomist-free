@@ -72,10 +72,10 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     virtual void update( const Observable *observable, void *arg );
 
-    void buildTexture( uint32_t vertex );
-    void buildColumnTexture( uint32_t vertex );
-    void buildPatchTexture( uint32_t vertex );
-    void buildColumnPatchTexture( uint32_t vertex );
+    void buildTexture( uint32_t vertex, float time_pos = 0 );
+    void buildColumnTexture( uint32_t vertex, float time_pos = 0 );
+    void buildPatchTexture( uint32_t vertex, float time_pos = 0 );
+    void buildColumnPatchTexture( uint32_t vertex, float time_pos = 0 );
 
     const carto::rc_ptr<ATriangulated> mesh() const;
     const carto::rc_ptr<ATexture> texture() const;

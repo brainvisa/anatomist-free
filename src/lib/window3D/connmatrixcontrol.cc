@@ -86,13 +86,14 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   cout << "conn: " << aconn << endl;
   if( !aconn )
     return;
-  rc_ptr<AimsSurfaceTriangle> mesh = aconn->mesh()->surface();
+  const AimsSurface<3, Void> *surf
+    = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
   cout << "poly: " << poly << endl;
-  if( poly == 0xffffff || poly < 0 || poly >= mesh->polygon().size() )
+  if( poly == 0xffffff || poly < 0 || poly >= surf->polygon().size() )
     return;
-  const AimsVector<uint,3> & ppoly = mesh->polygon()[ poly ];
-  const vector<Point3df> & vert = mesh->vertex();
+  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
+  const vector<Point3df> & vert = surf->vertex();
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
@@ -104,7 +105,7 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
   cout << "vertex: " << v << ", " << vert[v] << endl;
-  aconn->buildTexture( v );
+  aconn->buildTexture( v, w->getTime() );
   aconn->texture()->notifyObservers();
   aconn->marker()->notifyObservers();
 }
@@ -127,12 +128,13 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
     aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
   if( !aconn )
     return;
-  rc_ptr<AimsSurfaceTriangle> mesh = aconn->mesh()->surface();
+  const AimsSurface<3, Void> *surf
+    = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0 || poly >= mesh->polygon().size() )
+  if( poly == 0xffffff || poly < 0 || poly >= surf->polygon().size() )
     return;
-  const AimsVector<uint,3> & ppoly = mesh->polygon()[ poly ];
-  const vector<Point3df> & vert = mesh->vertex();
+  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
+  const vector<Point3df> & vert = surf->vertex();
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
@@ -143,7 +145,7 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
   cout << "vertex: " << v << ", " << vert[v] << endl;
-  aconn->buildPatchTexture( v );
+  aconn->buildPatchTexture( v, w->getTime() );
   aconn->texture()->notifyObservers();
   aconn->marker()->notifyObservers();
 }
