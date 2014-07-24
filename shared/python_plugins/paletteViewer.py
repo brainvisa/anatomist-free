@@ -453,8 +453,16 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
   def _winDisplaysObj(win, obj):
     if win.hasObject(obj):
       return True
-    for parent in obj.parents():
-      if parent.palette() == obj.palette() and win.hasObject(parent):
+    parents = obj.parents().list()
+    done = set()
+    while parents:
+      parent = parents.pop(0)
+      if parent in done:
+        continue
+      done.add(parent)
+      parents += [p for p in parent.parents() \
+        if p not in parents and p not in done]
+      if win.hasObject(parent): # and parent.palette() == obj.palette():
         return True
     return False
 
