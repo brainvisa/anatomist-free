@@ -257,23 +257,6 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     builtnewmatrix = true;
   }
 
-  // insert in MObject
-  insert( rc_ptr<AObject>( d->sparse ) );
-  insert( rc_ptr<AObject>( d->mesh ) );
-  if( d->patch )
-  {
-    insert( rc_ptr<AObject>( d->patch ) );
-    if( d->basins )
-      insert( rc_ptr<AObject>( d->basins ) );
-  }
-
-  /* if the matrix object has been created here, release it (remove from
-     the main GUI) now, after it is inserted in the MObject.
-  */
-  if( builtnewmatrix )
-    theAnatomist->releaseObject( d->sparse );
-
-
   // make a texture to store connectivity data
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   size_t nvert = d->mesh->surface()->vertex().size();
@@ -287,8 +270,6 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   AObjectPalette *pal = d->texture->palette();
   pal->setRefPalette( theAnatomist->palettes().find( "yellow-red-fusion" ) );
   d->texture->setPalette( *pal );
-  insert( rc_ptr<AObject>( d->texture ) );
-  theAnatomist->releaseObject( d->texture );
 
   // make a textured surface
   FusionFactory *ff = FusionFactory::factory();
@@ -314,8 +295,6 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     ff->method( "FusionTexSurfMethod" )->fusion( objf ) );
   d->texsurface->setName( "ConnectivityTextureMesh" );
   theAnatomist->registerObject( d->texsurface, false );
-  insert( rc_ptr<AObject>( d->texsurface ) );
-  theAnatomist->releaseObject( d->texsurface );
   if( d->mtexture )
     theAnatomist->releaseObject( d->mtexture );
 
@@ -335,6 +314,25 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   d->marker->setName( "StartingPoint" );
   d->marker->setReferentialInheritance( d->mesh );
   theAnatomist->registerObject( d->marker, false );
+
+  // insert in MObject
+  insert( rc_ptr<AObject>( d->sparse ) );
+  insert( rc_ptr<AObject>( d->mesh ) );
+  if( d->patch )
+  {
+    insert( rc_ptr<AObject>( d->patch ) );
+    if( d->basins )
+      insert( rc_ptr<AObject>( d->basins ) );
+  }
+  /* if the matrix object has been created here, release it (remove from
+     the main GUI) now, after it is inserted in the MObject.
+  */
+  if( builtnewmatrix )
+    theAnatomist->releaseObject( d->sparse );
+  insert( rc_ptr<AObject>( d->texture ) );
+  theAnatomist->releaseObject( d->texture );
+  insert( rc_ptr<AObject>( d->texsurface ) );
+  theAnatomist->releaseObject( d->texsurface );
   insert( rc_ptr<AObject>( d->marker ) );
   theAnatomist->releaseObject( d->marker );
 
@@ -353,10 +351,10 @@ AConnectivityMatrix::~AConnectivityMatrix()
 
 bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
 {
-  if( d->texsurface )
-    d->texsurface->render( plist, vs );
   if( d->marker )
     d->marker->render( plist, vs );
+  if( d->texsurface )
+    d->texsurface->render( plist, vs );
   return true;
 }
 
