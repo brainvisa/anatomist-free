@@ -98,16 +98,54 @@ namespace
   }
 
 
-  ASparseMatrix* matrixFromVolume( AVolume<float>* vol )
+  ASparseMatrix* matrixFromVolume( AVolume<float>* vol,
+                                   bool transpose = false )
   {
     VolumeRef<float> aimsvol = vol->volume();
+    VolumeRef<double> dvol;
     // transpose volume and
-    VolumeRef<double> dvol( new Volume<double>( aimsvol->getSizeY(),
-                                                aimsvol->getSizeX() ) );
-    unsigned i, j, nx = aimsvol->getSizeX(), ny = aimsvol->getSizeY();
-    for( j=0; j<ny; ++j )
-      for( i=0; i<nx; ++i )
-        dvol->at( j, i ) = aimsvol->at( i, j );
+    if( transpose )
+    {
+      dvol = new Volume<double>( aimsvol->getSizeY(), aimsvol->getSizeX() );
+      unsigned i, j, nx = aimsvol->getSizeX(), ny = aimsvol->getSizeY();
+      for( j=0; j<ny; ++j )
+        for( i=0; i<nx; ++i )
+          dvol->at( j, i ) = aimsvol->at( i, j );
+    }
+    else
+    {
+      dvol = new Volume<double>( aimsvol->getSizeX(), aimsvol->getSizeY() );
+      unsigned i, j, nx = aimsvol->getSizeX(), ny = aimsvol->getSizeY();
+      for( j=0; j<ny; ++j )
+        for( i=0; i<nx; ++i )
+          dvol->at( i, j ) = aimsvol->at( i, j );
+    }
+    SparseOrDenseMatrix *sdmat = new SparseOrDenseMatrix;
+    sdmat->setMatrix( dvol );
+    ASparseMatrix *sparse = new ASparseMatrix;
+    sparse->setMatrix( rc_ptr<SparseOrDenseMatrix>( sdmat ) );
+    sparse->setName( "Matrix_" + vol->name() );
+    theAnatomist->registerObject( sparse, false );
+    return sparse;
+  }
+
+
+  ASparseMatrix* matrixFromVolume( AVolume<double>* vol,
+                                   bool transpose = false )
+  {
+    VolumeRef<double> aimsvol = vol->volume();
+    VolumeRef<double> dvol;
+    // transpose volume and
+    if( transpose )
+    {
+      dvol = new Volume<double>( aimsvol->getSizeY(), aimsvol->getSizeX() );
+      unsigned i, j, nx = aimsvol->getSizeX(), ny = aimsvol->getSizeY();
+      for( j=0; j<ny; ++j )
+        for( i=0; i<nx; ++i )
+          dvol->at( j, i ) = aimsvol->at( i, j );
+    }
+    else
+      dvol = aimsvol;
     SparseOrDenseMatrix *sdmat = new SparseOrDenseMatrix;
     sdmat->setMatrix( dvol );
     ASparseMatrix *sparse = new ASparseMatrix;
@@ -139,37 +177,25 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
   list<AObject *>::iterator io, eo = filteredobj.end();
   io=filteredobj.begin();
-  if( dynamic_cast<ASparseMatrix *>( *io ) )
-  {
-    d->sparse = static_cast<ASparseMatrix *>( *io );
-    insert( rc_ptr<AObject>( *io ) );
-  }
-  else
-  {
-    AVolume<float> *vol = static_cast<AVolume<float> *>( *io );
-    d->sparse = matrixFromVolume( vol );
-    insert( rc_ptr<AObject>( d->sparse ) );
-    theAnatomist->releaseObject( d->sparse );
-  }
+  AObject *matrix = *io;
+  // matrix transformation / transposition delayed after textures analysis
   ++io;
   d->mesh = static_cast<ATriangulated *>( *io );
-  insert( rc_ptr<AObject>( *io ) );
   setReferentialInheritance( d->mesh );
   ++io;
   if( io != eo )
   {
     d->patch = static_cast<ATexture *>( *io );
-    insert( rc_ptr<AObject>( *io ) );
     d->patch->getOrCreatePalette();
     AObjectPalette *pal = d->patch->palette();
     rc_ptr<Texture1d> aimstex = d->patch->texture<float>( false, false );
     string apal = "BLUE-ufusion";
     // check if texture has only one patch (2 values max)
     vector<float> t( 2, 0 );
-    vector<int32_t> n(3, 0);
-    vector<float>::const_iterator it, 
+    vector<int32_t> n( 3, 0 );
+    vector<float>::const_iterator it,
       et = aimstex->begin()->second.data().end();
-    for( it=aimstex->begin()->second.data().begin(); it!=et && n[2] == 0; 
+    for( it=aimstex->begin()->second.data().begin(); it!=et && n[2] == 0;
       ++it )
     {
       if( n[0] == 0 || t[0] == *it )
@@ -197,7 +223,6 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     {
       // 2nd texture for matrix reduction along basins
       d->basins = static_cast<ATexture *>( *io );
-      insert( rc_ptr<AObject>( *io ) );
     }
   }
   else
@@ -205,6 +230,49 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     d->patch = 0;
     d->patchnum = 0;
   }
+
+  // matrix handling / transformation
+  bool builtnewmatrix = false;
+  if( dynamic_cast<ASparseMatrix *>( matrix ) )
+  {
+    d->sparse = static_cast<ASparseMatrix *>( matrix );
+  }
+  else if( dynamic_cast<AVolume<float> *>( matrix ) )
+  {
+    AVolume<float> *vol = static_cast<AVolume<float> *>( matrix );
+    bool transpose = false;
+    /* TODO: check matrix size for transposition
+    if( d->basins )
+    {
+    }
+    */
+    d->sparse = matrixFromVolume( vol, transpose );
+    builtnewmatrix = true;
+  }
+  else
+  {
+    AVolume<double> *vol = static_cast<AVolume<double> *>( matrix );
+    // TODO: check matrix size for transposition
+    d->sparse = matrixFromVolume( vol );
+    builtnewmatrix = true;
+  }
+
+  // insert in MObject
+  insert( rc_ptr<AObject>( d->sparse ) );
+  insert( rc_ptr<AObject>( d->mesh ) );
+  if( d->patch )
+  {
+    insert( rc_ptr<AObject>( d->patch ) );
+    if( d->basins )
+      insert( rc_ptr<AObject>( d->basins ) );
+  }
+
+  /* if the matrix object has been created here, release it (remove from
+     the main GUI) now, after it is inserted in the MObject.
+  */
+  if( builtnewmatrix )
+    theAnatomist->releaseObject( d->sparse );
+
 
   // make a texture to store connectivity data
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
@@ -412,6 +480,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 {
   ASparseMatrix *sparse = 0;
   AVolume<float> *dense = 0;
+  AVolume<double> *ddense = 0;
   ATriangulated *mesh = 0;
   ATexture *tex = 0, *tex2 = 0;
 
@@ -420,15 +489,21 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   {
     if( dynamic_cast<ASparseMatrix *>( *io ) )
     {
-      if( sparse || dense )
+      if( sparse || dense || ddense )
         return false;
       sparse = static_cast<ASparseMatrix *>( *io );
     }
     else if( dynamic_cast<AVolume<float> *>( *io ) )
     {
-      if( sparse || dense )
+      if( sparse || dense || ddense )
         return false;
       dense = static_cast<AVolume<float> *>( *io );
+    }
+    else if( dynamic_cast<AVolume<double> *>( *io ) )
+    {
+      if( sparse || dense || ddense )
+        return false;
+      ddense = static_cast<AVolume<double> *>( *io );
     }
     else if( dynamic_cast<ATriangulated *>( *io ) )
     {
@@ -451,7 +526,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
       return false;
   }
 
-  if( ( !sparse && !dense ) || !mesh )
+  if( ( !sparse && !dense && !ddense ) || !mesh )
     return false;
 
   unsigned nvert = mesh->surface()->vertex().size();
@@ -462,11 +537,15 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     texsize = smat->getSize2();
     lines = smat->getSize1();
   }
+  else if( dense )
+  {
+    texsize = dense->volume()->getSizeX();
+    lines = dense->volume()->getSizeY();
+  }
   else
   {
-    // WARNING dense reduced matrices are transposed
-    texsize = dense->volume()->getSizeY();
-    lines = dense->volume()->getSizeX();
+    texsize = ddense->volume()->getSizeX();
+    lines = ddense->volume()->getSizeY();
   }
 
   cout << "matrix size: " << lines << ", " << texsize << endl;
@@ -525,7 +604,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
                                                   patchmode1, patchnum1 );
       bool t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, lines,
                                                   patchmode2, patchnum2 );
-      cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
+      //cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
       if( t1asconn && t2asbasins )
       {
         patchnummode = patchmode1;
@@ -552,8 +631,10 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
   if( sparse )
     ordered.push_back( sparse );
-  else
+  else if( dense )
     ordered.push_back( dense );
+  else
+    ordered.push_back( ddense );
   ordered.push_back( mesh );
   if( tex )
     ordered.push_back( tex );
