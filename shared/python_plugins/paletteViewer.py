@@ -194,7 +194,7 @@ class PaletteWidget(MplCanvas):
     def scaleComponent(colors, id):
       l = [(x, c, c) for x, c in zip(crange, colors[:, id])]
       a = numpy.array(l, dtype = 'f')
-      a[:, 1:3] /= self._size
+      a[:, 1:3] /= 255.
       return a
 
     colors = convertVolumeToArray(img).tolist()
