@@ -70,12 +70,10 @@ ConnectivityMatrixAction::~ConnectivityMatrixAction()
 void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y, 
                                                         int, int )
 {
-  cout << "showConnectivityAtPoint\n";
   AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w )
     return;
   AObject *obj = w->objectAtCursorPosition( x, y );
-  cout << "object: " << obj << endl;
   if( !obj )
     return;
   AObject::ParentList & parents = obj->parents();
@@ -83,13 +81,11 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   AConnectivityMatrix *aconn = 0;
   for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
     aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
-  cout << "conn: " << aconn << endl;
   if( !aconn )
     return;
   const AimsSurface<3, Void> *surf
     = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  cout << "poly: " << poly << endl;
   if( poly == 0xffffff || poly < 0 || poly >= surf->polygon().size() )
     return;
   const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
@@ -97,14 +93,12 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
-  cout << "pos: " << pos << endl;
   Point3df d( ( vert[ppoly[0]]-pos ).norm2(), 
               ( vert[ppoly[1]]-pos ).norm2(),
               ( vert[ppoly[2]]-pos ).norm2() );
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
-  cout << "vertex: " << v << ", " << vert[v] << endl;
   aconn->buildTexture( v, w->getTime() );
   aconn->texture()->notifyObservers();
   aconn->marker()->notifyObservers();
@@ -114,7 +108,6 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
 void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y, 
                                                          int, int )
 {
-  cout << "showConnectivityForPatch\n";
   AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w )
     return;
@@ -144,7 +137,6 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
-  cout << "vertex: " << v << ", " << vert[v] << endl;
   aconn->buildPatchTexture( v, w->getTime() );
   aconn->texture()->notifyObservers();
   aconn->marker()->notifyObservers();

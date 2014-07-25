@@ -43,7 +43,7 @@
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/volume/Volume.h>
-#include <aims/sparsematrix/sparseordensematrix.h>
+#include <aims/sparsematrix/sparsematrixutil.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/utility/converter_texture.h>
@@ -70,13 +70,14 @@ struct AConnectivityMatrix::Private
   ATriangulated *marker;
   vector<uint32_t> patchindices;
   uint32_t vertex;
+  double connectivity_max;
 };
 
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ), patchnum( 0 ),
   sparse( 0 ), mesh( 0 ), patch( 0 ), basins( 0 ), texture( 0 ), mtexture( 0 ),
-  texsurface( 0 ), marker( 0 ), vertex( 0 )
+  texsurface( 0 ), marker( 0 ), vertex( 0 ), connectivity_max( 0 )
 {
 }
 
@@ -335,6 +336,8 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   theAnatomist->releaseObject( d->texsurface );
   insert( rc_ptr<AObject>( d->marker ) );
   theAnatomist->releaseObject( d->marker );
+
+  d->connectivity_max = SparseMatrixUtil::max( *d->sparse->matrix() );
 
   // build connectivity texture contents
   buildTexture( vertex );
@@ -657,7 +660,7 @@ void AConnectivityMatrix::buildPatchIndices()
   vector<float>::const_iterator it, et = tex.end();
   uint32_t i = 0, j = 0;
   d->patchindices.resize( d->sparse->matrix()->getSize1() );
-  cout << "patch size: " << d->patchindices.size() << endl;
+  // cout << "patch size: " << d->patchindices.size() << endl;
   if( d->patchmode == ONE )
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
@@ -675,7 +678,6 @@ void AConnectivityMatrix::buildPatchIndices()
 
 void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
 {
-  cout << "buildTexture\n";
   uint32_t vertex = startvertex;
   if( !d->patchindices.empty() )
   {
@@ -702,8 +704,15 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
   const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
+  float texmax = -numeric_limits<float>::max();
+  float colscale = 0.F;
+
   if( !d->basins )
+  {
     tex0.insert( tex0.end(), row.begin(), row.end() );
+    texmax = 1.F;
+    colscale = 1.F;
+  }
   else
   {
     // expand matrix to basins
@@ -714,15 +723,26 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
     vector<float>::const_iterator ib, eb = basinv.end();
     vector<float>::iterator ic = tex0.begin();
     int basin;
+
     for( ib=basinv.begin(); ib!=eb; ++ib, ++ic )
     {
       basin = int( rint( *ib ) );
       if( *ib != 0 )
+      {
         *ic = row[ *ib - 1 ];
+        if( *ic > texmax )
+          texmax = *ic;
+      }
     }
   }
 
+  if( texmax == -numeric_limits<float>::max() )
+    colscale = 1.F;
+  else if( colscale == 0.F )
+    colscale = d->connectivity_max / texmax;
+
   d->texture->setTexture( tex );
+  d->texture->palette()->setMax1( colscale );
 
   // update sphere marker
   if( d->marker )
@@ -741,7 +761,6 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
 void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
                                               float time_pos )
 {
-  cout << "buildColumnTexture\n";
   d->vertex = startvertex;
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
@@ -750,6 +769,8 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
   tex0.resize( surf->vertex().size(), 0. );
   bool valid = true;
   uint32_t column = startvertex;
+  float texmax = -numeric_limits<float>::max();
+  float colscale = 0.F;
 
   if( d->basins )
   {
@@ -759,7 +780,10 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
     const vector<float> & basinv = basintex->begin()->second.data();
     int basin = int( rint( basinv[ startvertex ] ) );
     if( basin == 0 )
+    {
       valid = false;
+      colscale = 1.F;
+    }
     else
       column = basin - 1; // new index in matrix columns
   }
@@ -769,10 +793,20 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
     vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
     vector<double>::const_iterator iv, ev = col.end();
     for( ip=d->patchindices.begin(), iv=col.begin(); ip!=ep; ++ip, ++iv )
+    {
       tex0[*ip] = *iv;
+      if( *iv > texmax )
+        texmax = *iv;
+    }
   }
 
+  if( texmax == -numeric_limits<float>::max() )
+    colscale = 1.F;
+  else if( colscale == 0.F )
+    colscale = d->connectivity_max / texmax;
+
   d->texture->setTexture( tex );
+  d->texture->palette()->setMax1( colscale );
 
   // update sphere marker
   if( d->marker )
@@ -791,7 +825,6 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
 void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
                                              float time_pos )
 {
-  cout << "buildPatchTexture\n";
   if( !d->patch )
     return;
 
@@ -867,6 +900,7 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
 
   // store texture with timesteps
   d->texture->setTexture( ptex );
+  d->texture->palette()->setMax1( 1. );
 
   // mesh patch marker
   if( d->marker )
