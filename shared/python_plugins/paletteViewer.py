@@ -439,15 +439,45 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
     topwidget.show()
 
   def _getOrCreateTopWidget(self, window):
-    if window.parent() == None:
-      topwidget = topWidgetWindow()
-      window.setParent( topwidget )
-      topwidget.setWindowTitle(window.Title())
-      groupwidget = GroupPaletteWidget(topwidget)
-      groupwidget.setObjectName( 'paletteviewer_group' )
-      return topwidget
-    else:
-      return window.parent()
+    parent = window.parent()
+    layout = None
+    lay_pos = None
+    if parent is not None:
+      if parent.objectName() == 'paletteviewer_top':
+        return parent
+      layout = parent.layout()
+      if layout:
+        if isinstance(layout, qt.QGridLayout):
+          nc = layout.columnCount()
+          nr = layout.rowCount()
+          for r in xrange(nr):
+            for c in xrange(nc):
+              if layout.itemAtPosition(r, c).widget() == window:
+                lay_pos = (r, c)
+                break
+            if lay_pos is not None:
+              break
+        else: # std layout
+          nitem = layout.count()
+          for c in xrange(nitem):
+            if layout.itemAt(c).widget() == window:
+              lay_pos = (c, )
+              break
+    topwidget = topWidgetWindow(parent)
+    topwidget.setObjectName('paletteviewer_top')
+    window.setParent( topwidget )
+    if parent and lay_pos is not None:
+      if len(lay_pos) == 2:
+        layout.addWidget(topwidget, lay_pos[0], lay_pos[1])
+      else:
+        if lay_pos[0] == 0:
+          layout.addWidget(topwidget)
+        else:
+          layout.insertWidget(lay_pos[0], topwidget)
+    topwidget.setWindowTitle(window.Title())
+    groupwidget = GroupPaletteWidget(topwidget)
+    groupwidget.setObjectName( 'paletteviewer_group' )
+    return topwidget
 
   @staticmethod
   def _winDisplaysObj(win, obj):
