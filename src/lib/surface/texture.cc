@@ -233,6 +233,7 @@ void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex )
   delete d;
   d = new Private_<T>( tex );
   normalize();
+  d->header = Object::value( tex->header() );
 }
 
 
@@ -347,6 +348,7 @@ rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool )
           = static_cast<Private_<float> *>( d )->texture;
       if( rescaled )
       {
+        ftex->header().copyProperties( d->header );
         TexExtrema	& te = glTexExtrema();
         typename TimeTexture<float>::iterator i, e = tex->end();
         typename vector<float>::iterator it, et;
