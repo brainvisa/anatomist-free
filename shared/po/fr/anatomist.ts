@@ -765,6 +765,14 @@
         <source>Sparse matrices</source>
         <translation>Matrices lacunaires</translation>
     </message>
+    <message>
+        <source>Reload failed</source>
+        <translation>Rechargement échoué</translation>
+    </message>
+    <message>
+        <source>Could not reload the following objects:</source>
+        <translation>Les objets suivants n&apos;ont pas pu être rechargés:</translation>
+    </message>
 </context>
 <context>
     <name>ControlledWindow</name>
@@ -1686,6 +1694,10 @@ Bt droit   :  menu
         <source>Select fusion type</source>
         <translation>Choix d&apos;un type de fusion</translation>
     </message>
+    <message>
+        <source>VolumeRenderingShaderFusionMethod</source>
+        <translation>Rendu volumique (shaders OpenGL)</translation>
+    </message>
 </context>
 <context>
     <name>GraphLandmarkPicker</name>
@@ -1920,139 +1932,139 @@ Bt droit   :  menu
     <name>MeshPaint</name>
     <message>
         <source>&amp;trackball</source>
-        <translation>&amp;trackball</translation>
+        <translation type="obsolete">&amp;trackball</translation>
     </message>
     <message>
         <source>trackball</source>
-        <translation>trackball</translation>
+        <translation type="obsolete">trackball</translation>
     </message>
     <message>
         <source>&amp;ColorPicker</source>
-        <translation>Sélection de &amp;Couleur</translation>
+        <translation type="obsolete">Sélection de &amp;Couleur</translation>
     </message>
     <message>
         <source>ColorPicker</source>
-        <translation>Sélection de couleur</translation>
+        <translation type="obsolete">Sélection de couleur</translation>
     </message>
     <message>
         <source>&amp;GeodesicDistance</source>
-        <translation>Distance &amp;Géodésique</translation>
+        <translation type="obsolete">Distance &amp;Géodésique</translation>
     </message>
     <message>
         <source>GeodesicDistance</source>
-        <translation>Distance géodésique</translation>
+        <translation type="obsolete">Distance géodésique</translation>
     </message>
     <message>
         <source>distance : </source>
-        <translation>distance :</translation>
+        <translation type="obsolete">distance :</translation>
     </message>
     <message>
         <source>&amp;magic_selection</source>
-        <translation>sélection &amp;magique</translation>
+        <translation type="obsolete">sélection &amp;magique</translation>
     </message>
     <message>
         <source>magic_selection</source>
-        <translation>sélection magique</translation>
+        <translation type="obsolete">sélection magique</translation>
     </message>
     <message>
         <source>tolerance : </source>
-        <translation>tolérence :</translation>
+        <translation type="obsolete">tolérence :</translation>
     </message>
     <message>
         <source>Shortest Path</source>
-        <translation>Plus court chemin</translation>
+        <translation type="obsolete">Plus court chemin</translation>
     </message>
     <message>
         <source>&amp;Unconstrained</source>
-        <translation>Non-contraint (&amp;U)</translation>
+        <translation type="obsolete">Non-contraint (&amp;U)</translation>
     </message>
     <message>
         <source>Unconstrained</source>
-        <translation>Non-contraint</translation>
+        <translation type="obsolete">Non-contraint</translation>
     </message>
     <message>
         <source>&amp;sulci</source>
-        <translation>&amp;sillons</translation>
+        <translation type="obsolete">&amp;sillons</translation>
     </message>
     <message>
         <source>sulci</source>
-        <translation>sillons</translation>
+        <translation type="obsolete">sillons</translation>
     </message>
     <message>
         <source>&amp;gyri</source>
-        <translation>&amp;gyri</translation>
+        <translation type="obsolete">&amp;gyri</translation>
     </message>
     <message>
         <source>gyri</source>
-        <translation>gyri</translation>
+        <translation type="obsolete">gyri</translation>
     </message>
     <message>
         <source>constraint : </source>
-        <translation>contrainte :</translation>
+        <translation type="obsolete">contrainte :</translation>
     </message>
     <message>
         <source>sigmo : </source>
-        <translation>sigmo :</translation>
+        <translation type="obsolete">sigmo :</translation>
     </message>
     <message>
         <source>Brush</source>
-        <translation>Pinceau</translation>
+        <translation type="obsolete">Pinceau</translation>
     </message>
     <message>
         <source>&amp;paintBrush</source>
-        <translation>brosse &amp;pinceau</translation>
+        <translation type="obsolete">brosse &amp;pinceau</translation>
     </message>
     <message>
         <source>paintBrush</source>
-        <translation>brosse peinceau</translation>
+        <translation type="obsolete">brosse peinceau</translation>
     </message>
     <message>
         <source>&amp;magicBrush</source>
-        <translation>brosse &amp;magique</translation>
+        <translation type="obsolete">brosse &amp;magique</translation>
     </message>
     <message>
         <source>magicBrush</source>
-        <translation>brosse magique</translation>
+        <translation type="obsolete">brosse magique</translation>
     </message>
     <message>
         <source>&amp;erase</source>
-        <translation>gomme (&amp;e)</translation>
+        <translation type="obsolete">gomme (&amp;e)</translation>
     </message>
     <message>
         <source>erase</source>
-        <translation>gomme</translation>
+        <translation type="obsolete">gomme</translation>
     </message>
     <message>
         <source>&amp;filling</source>
-        <translation>remplissage (&amp;f)</translation>
+        <translation type="obsolete">remplissage (&amp;f)</translation>
     </message>
     <message>
         <source>fill</source>
-        <translation>remplissage</translation>
+        <translation type="obsolete">remplissage</translation>
     </message>
     <message>
         <source>&amp;clear</source>
-        <translation>effacer (&amp;e)</translation>
+        <translation type="obsolete">effacer (&amp;e)</translation>
     </message>
     <message>
         <source>clear</source>
-        <translation>effacer</translation>
+        <translation type="obsolete">effacer</translation>
     </message>
     <message>
         <source>&amp;Save Texture</source>
-        <translation>&amp;Sauver la textuire</translation>
+        <translation type="obsolete">&amp;Sauver la textuire</translation>
     </message>
     <message>
         <source>save</source>
-        <translation>sauver</translation>
+        <translation type="obsolete">sauver</translation>
     </message>
     <message>
         <source>PaintToolBar</source>
-        <translation>Barre d&apos;outils de dessin</translation>
+        <translation type="obsolete">Barre d&apos;outils de dessin</translation>
     </message>
     <message>
         <source>InfosToolBar</source>
-        <translation>Barre d&apos;outils d&apos;infos</translation>
+        <translation type="obsolete">Barre d&apos;outils d&apos;infos</translation>
     </message>
 </context>
 <context>
@@ -3688,7 +3700,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <name>RenderingWindow</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <source>Rendering</source>
@@ -3704,7 +3716,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>rendering_buttonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>rendering_buttonGroup</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -3732,7 +3744,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>display_buttonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>display_buttonGroup</translation>
     </message>
     <message>
         <source>Smooth shading</source>
@@ -3764,7 +3776,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>lighting_model_buttonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>lighting_model_buttonGroup</translation>
     </message>
     <message>
         <source>None</source>
@@ -3784,7 +3796,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>interpolation_model_buttonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>interpolation_model_buttonGroup</translation>
     </message>
     <message>
         <source>None (flat rendering)</source>
@@ -3804,7 +3816,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>coloring_model_buttonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>coloring_model_buttonGroup</translation>
     </message>
     <message>
         <source>Material</source>
