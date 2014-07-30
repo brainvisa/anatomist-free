@@ -49,34 +49,43 @@ namespace anatomist
   public:
     /// Rendering properties flags
     enum RenderProperty
-      {
-        /// lighting effect according to vertices normals
-        RenderLighting, 
-        /// polygons color interpolation
-        RenderSmoothShading, 
-        /// line/polygon filtering
-        RenderFiltering, 
-        /// print in Z-buffer
-        RenderZBuffer, 
-        /// filter back side polygons
-        RenderFaceCulling, 
-        /// wireframe rendering
-        RenderMode,
-        /// ghost mode (invisible to clicks)
-        Ghost,
-        /** specify which is the front face
-        (normally CW in our indirect referentials) */
-        FrontFace,
-      };
-
-  enum RenderingMode
     {
-      Normal, 
-      Wireframe, 
-      Outlined, 
-      HiddenWireframe, 
+      /// lighting effect according to vertices normals
+      RenderLighting,
+      /// polygons color interpolation
+      RenderSmoothShading,
+      /// line/polygon filtering
+      RenderFiltering,
+      /// print in Z-buffer
+      RenderZBuffer,
+      /// filter back side polygons
+      RenderFaceCulling,
+      /// wireframe rendering
+      RenderMode,
+      /// ghost mode (invisible to clicks)
+      Ghost,
+      SelectableMode = Ghost,
+      /** specify which is the front face
+      (normally CW in our indirect referentials) */
+      FrontFace,
+    };
+
+    enum RenderingMode
+    {
+      Normal,
+      Wireframe,
+      Outlined,
+      HiddenWireframe,
       Fast,
       ExtOutlined,
+    };
+
+    enum SelectableMode
+    {
+      AlwaysSelectable,
+      GhostSelection,
+      SelectableWhenOpaque,
+      SelectableWhenNotTotallyTransparent,
     };
 
     Material();

@@ -363,7 +363,7 @@ AWindow3D::Private::Private() :
       boundingFrame(false), renderingMode(AWindow3D::Normal), tools(0),
       poview(0), lightview(0), light(new Light), slicequat(0, 0,
           0, 1), askedsize(0, 0), clipmode(AWindow3D::NoClip), clipdist(1),
-      transpz(true), culling(true), flatshading(false), smooth(false), fog(
+      transpz(false), culling(true), flatshading(false), smooth(false), fog(
           false), refreshneeded(FullRefresh), linkonslider(false), lefteye(0),
       righteye(0), objvallabel(0), statusbarvisible(false),needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
@@ -3738,13 +3738,14 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   primitives.push_back(RefGLItem(renderpr));
 
   //	Draw opaque objects
-  for (al = renderobj.begin(); al != transparent; ++al)
-    if (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) updateObject(
-        *al, &primitives, mode);
+  for( al = renderobj.begin(); al != transparent; ++al )
+    if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
+      updateObject( *al, &primitives, mode );
   //	Draw transparent objects
-  if (!transparentZEnabled()) for (al = transparent; al != el; ++al)
-    if (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) updateObject(
-        *al, &primitives, mode);
+  if( !transparentZEnabled() )
+    for( al = transparent; al != el; ++al )
+      if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
+        updateObject( *al, &primitives, mode );
 
   renderpr = new GLList;
   renderpr->generate();

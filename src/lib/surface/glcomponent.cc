@@ -515,8 +515,28 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
       const Material	*mat = glMaterial();
       if( mat )
         {
-          if( mat->renderProperty( Material::Ghost ) > 0 )
+          switch( mat->renderProperty( Material::SelectableMode ) )
+          {
+          case Material::AlwaysSelectable:
+            break;
+          case Material::GhostSelection:
             ml->setGhost( true );
+            break;
+          case Material::SelectableWhenOpaque:
+            if( mat->Diffuse(3) < 1. )
+              ml->setGhost( true );
+            break;
+          case Material::SelectableWhenNotTotallyTransparent:
+            if( mat->Diffuse(3) == 0. )
+              ml->setGhost( true );
+            break;
+          default: // as SelectableWhenOpaque
+            if( mat->Diffuse(3) < 1. )
+              ml->setGhost( true );
+             break;
+          }
+//           if( mat->renderProperty( Material::Ghost ) > 0 )
+//             ml->setGhost( true );
           bool	rendertwice = false;
 
           switch( mat->renderProperty( Material::RenderMode ) )

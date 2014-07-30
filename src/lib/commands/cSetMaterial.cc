@@ -50,23 +50,23 @@ using namespace std;
 
 
 SetMaterialCommand::SetMaterialCommand( const set<AObject *> & obj, 
-					float* ambient, float* diffuse, 
-					float* emission, float* specular, 
-					float shininess, bool refresh, 
+                                        float* ambient, float* diffuse,
+                                        float* emission, float* specular,
+                                        float shininess, bool refresh,
                                         int lighting, int smoothshading, 
                                         int polyfiltering, int zbuffer, 
                                         int faceculling, 
-                                        const std::string & polymode,
+                                        const string & polymode,
                                         int frontface, float linewidth,
                                         const vector<float> & unlitcolor,
-                                        int ghost
+                                        const string & selectablemode
                                       )
   : RegularCommand(), _obj( obj ), _shininess( shininess ), 
     _refresh( refresh ), _lighting( lighting ), 
     _smoothshading( smoothshading ), _polygonfiltering( polyfiltering ), 
     _zbuffer( zbuffer), _faceculling( faceculling ), _polygonmode( polymode ),
     _frontface( frontface ), _linewidth( linewidth ),
-    _unlitcolor( unlitcolor ), _ghost( ghost )
+    _unlitcolor( unlitcolor ), _selectablemode( selectablemode )
 {
   if( ambient )
     {
@@ -154,6 +154,7 @@ bool SetMaterialCommand::initSyntax()
   s[ "line_width"        ] = Semantic( "float" );
   s[ "unlit_color"       ] = Semantic( "float_vector" );
   s[ "ghost"             ] = Semantic( "int" );
+  s[ "selectable_mode"   ] = Semantic( "string" );
 
   Registry::instance()->add( "SetMaterial", &read, ss );
   return( true );
@@ -267,15 +268,35 @@ void SetMaterialCommand::doit()
                                1 );
           changed = true;
         }
-        if( _ghost >= 0 )
-          mat.setRenderProperty( Material::Ghost, _ghost );
+        if( _selectablemode != "" )
+        {
+          if( _selectablemode == "always_selectable" )
+          {
+            mat.setRenderProperty( Material::SelectableMode,
+                                   Material::AlwaysSelectable );
+          }
+          else if( _selectablemode == "ghost" )
+            mat.setRenderProperty( Material::SelectableMode,
+                                   Material::GhostSelection );
+          else if( _selectablemode == "selectable_when_opaque" )
+            mat.setRenderProperty( Material::SelectableMode,
+                                   Material::SelectableWhenOpaque );
+          else if( _selectablemode
+              == "selectable_when_not_totally_transparent" )
+            mat.setRenderProperty( Material::SelectableMode,
+              Material::SelectableWhenNotTotallyTransparent );
+          else // default
+            mat.setRenderProperty( Material::SelectableMode,
+                                   Material::SelectableWhenOpaque );
+          changed = true;
+        }
 
         if( changed )
           o->SetMaterial( mat );
         if( o->glAPI() )
-	  o->glAPI()->glSetChanged( GLComponent::glMATERIAL );
-	if( _refresh && changed )
-	  o->notifyObservers( this );
+          o->glAPI()->glSetChanged( GLComponent::glMATERIAL );
+        if( _refresh && changed )
+          o->notifyObservers( this );
       }
 }
 
@@ -291,23 +312,23 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   void			*ptr;
   int			refresh = true, lighting = -2, smooth = -2, 
     filter = -2, zbuffer = -2, facecull = -2, frontface = -1;
-  string		polymode, fface;
+  string		polymode, fface, selmode;
   int                   ghost = -1;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
 
   for( i=0, n=obj.size(); i<n; ++i )
+  {
+    ptr = context->unserial->pointer( obj[i], "AObject" );
+    if( ptr )
+      objL.insert( (AObject *) ptr );
+    else
     {
-      ptr = context->unserial->pointer( obj[i], "AObject" );
-      if( ptr )
-	objL.insert( (AObject *) ptr );
-      else
-	{
-	  cerr << "object id " << obj[i] << " not found\n";
-	  return( 0 );
-	}
+      cerr << "object id " << obj[i] << " not found\n";
+      return( 0 );
     }
+  }
 
   if( com.getProperty( "ambient", ambient ) )
     amb = &ambient[0];
@@ -327,6 +348,12 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "polygon_mode", polymode );
   com.getProperty( "front_face", fface );
   com.getProperty( "ghost", ghost );
+  com.getProperty( "selectable_mode", selmode );
+  if( selmode.empty() && ghost >= 0 )
+    if( ghost )
+      selmode = "ghost";
+    else
+      selmode = "selectable_when_opaque";
   if( com.getProperty( "line_width", linewidth ) && linewidth < 0 )
     linewidth = 0;
   if( !fface.empty() )
@@ -344,7 +371,7 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   return( new SetMaterialCommand( objL, amb, dif, emi, spe, shininess, 
                                   (bool) refresh, lighting, smooth, filter, 
                                   zbuffer, facecull, polymode, frontface,
-                                  linewidth, unlitcolor, ghost ) );
+                                  linewidth, unlitcolor, selmode ) );
 }
 
 
@@ -398,7 +425,7 @@ void SetMaterialCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "line_width", _linewidth );
   if( _unlitcolor.size() >= 3 )
     t->setProperty( "unlit_color", _unlitcolor );
-  if( _ghost >= 0 )
-    t->setProperty( "ghost", _ghost );
+  if( !_selectablemode.empty() )
+    t->setProperty( "selectable_mode", _selectablemode );
   com.insert( t );
 }

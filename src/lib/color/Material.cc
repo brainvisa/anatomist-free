@@ -453,24 +453,24 @@ void Material::popGLState() const
 Material &Material::operator = (const Material &theMaterial)
 {
   if (this != &theMaterial)
+  {
+    _shininess = theMaterial.Shininess();
+    int	i;
+    for (i=0; i<4; i++)
     {
-      _shininess = theMaterial.Shininess();
-      int	i;
-      for (i=0; i<4; i++)
-	{
-	  _ambient[i] = theMaterial.Ambient(i);
-	  _diffuse[i] = theMaterial.Diffuse(i);
-	  _specular[i] = theMaterial.Specular(i);
-	  _emission[i] = theMaterial.Emission(i);
-	}
-      *d = *theMaterial.d;
+      _ambient[i] = theMaterial.Ambient(i);
+      _diffuse[i] = theMaterial.Diffuse(i);
+      _specular[i] = theMaterial.Specular(i);
+      _emission[i] = theMaterial.Emission(i);
     }
+    *d = *theMaterial.d;
+  }
 
   return(*this);
 }
 
-std::istream & anatomist::operator >> (std::istream &in, 
-				       anatomist::Material &material)
+std::istream & anatomist::operator >> ( std::istream &in,
+                                        anatomist::Material &material )
 {
   in >> material._shininess;
 
@@ -505,18 +505,18 @@ std::ostream & anatomist::operator << (std::ostream &out,
 bool Material::operator != ( const Material & mat ) const
 {
   return( _ambient[0] != mat._ambient[0] || _ambient[1] != mat._ambient[1] 
-	  || _ambient[2] != mat._ambient[2] || _ambient[3] != mat._ambient[3] 
-	  || _diffuse[0] != mat._diffuse[0] || _diffuse[1] != mat._diffuse[1] 
-	  || _diffuse[2] != mat._diffuse[2] || _diffuse[3] != mat._diffuse[3] 
-	  || _specular[0] != mat._specular[0] 
-	  || _specular[1] != mat._specular[1] 
-	  || _specular[2] != mat._specular[2] 
-	  || _specular[3] != mat._specular[3] 
-	  || _shininess != mat._shininess || _emission[0] != mat._emission[0] 
-	  || _emission[1] != mat._emission[1] 
-	  || _emission[2] != mat._emission[2] 
-	  || _emission[3] != mat._emission[3] 
-          || d->renderProps[ RenderLighting ] 
+          || _ambient[2] != mat._ambient[2] || _ambient[3] != mat._ambient[3]
+          || _diffuse[0] != mat._diffuse[0] || _diffuse[1] != mat._diffuse[1]
+          || _diffuse[2] != mat._diffuse[2] || _diffuse[3] != mat._diffuse[3]
+          || _specular[0] != mat._specular[0]
+          || _specular[1] != mat._specular[1]
+          || _specular[2] != mat._specular[2]
+          || _specular[3] != mat._specular[3]
+          || _shininess != mat._shininess || _emission[0] != mat._emission[0]
+          || _emission[1] != mat._emission[1]
+          || _emission[2] != mat._emission[2]
+          || _emission[3] != mat._emission[3]
+          || d->renderProps[ RenderLighting ]
           != mat.d->renderProps[ RenderLighting ]
           || d->renderProps[ RenderSmoothShading ] 
           != mat.d->renderProps[ RenderSmoothShading ]
@@ -528,7 +528,8 @@ bool Material::operator != ( const Material & mat ) const
           != mat.d->renderProps[ RenderFaceCulling ]
           || d->renderProps[ RenderMode ] 
           != mat.d->renderProps[ RenderMode ]
-          || d->renderProps[ Ghost ] != mat.d->renderProps[ Ghost ]
+          || d->renderProps[ SelectableMode ]
+          != mat.d->renderProps[ SelectableMode ]
           || d->renderProps[ FrontFace ] != mat.d->renderProps[ FrontFace ]
           || d->unlitColor[0] != mat.d->unlitColor[0]
           || d->unlitColor[1] != mat.d->unlitColor[1]
@@ -773,11 +774,36 @@ void Material::set( const GenericObject & obj )
   try
   {
     vec = obj.getProperty( "ghost" );
-    d->renderProps[ Ghost ] = (int) vec->getScalar();
+    d->renderProps[ SelectableMode ] = (int) vec->getScalar() == 0 ?
+      SelectableWhenOpaque : GhostSelection;
   }
   catch( ... )
   {
   }
+  try
+  {
+    vec = obj.getProperty( "selectable_mode" );
+    try
+    {
+      string        m = vec->getString();
+      if( m == "always_selectable" )
+        d->renderProps[ SelectableMode ] = AlwaysSelectable;
+      else if( m ==  "ghost" )
+        d->renderProps[ SelectableMode ] = GhostSelection;
+      else if( m ==  "selectable_when_opaque" )
+        d->renderProps[ SelectableMode ] = SelectableWhenOpaque;
+      else if( m ==  "selectable_when_not_totally_transparent" )
+        d->renderProps[ SelectableMode ] = SelectableWhenNotTotallyTransparent;
+      else // default
+        d->renderProps[ SelectableMode ] = -1;
+    }
+    catch( ... )
+    {
+    }
+  }
+  catch( ... )
+    {
+    }
   try
   {
     vec = obj.getProperty( "front_face" );
@@ -866,12 +892,18 @@ Object Material::genericDescription() const
   if( d->renderProps[ RenderMode ] >= 0 )
     {
       static string mode[] = { "normal", "wireframe", "outlined", 
-                                "hiddenface_wireframe", "fast", "ext_outlined"
+                               "hiddenface_wireframe", "fast", "ext_outlined"
       };
       o->setProperty( "polygon_mode", mode[ d->renderProps[ RenderMode ] ] );
     }
-  if( d->renderProps[ Ghost ] >= 0 )
-    o->setProperty( "ghost", d->renderProps[ Ghost ] );
+  if( d->renderProps[ SelectableMode ] >= 0 )
+  {
+    static string mode[] = { "always_selectable", "ghost",
+                             "selectable_when_opaque",
+                              "selectable_when_not_totally_transparent" };
+    o->setProperty( "selectable_mode",
+                    mode[ d->renderProps[ SelectableMode ] ] );
+  }
   if( d->renderProps[ FrontFace ] >= 0 )
   {
     if( d->renderProps[ FrontFace ] == 0 )
