@@ -60,14 +60,14 @@ namespace anatomist
       RenderZBuffer,
       /// filter back side polygons
       RenderFaceCulling,
+      /** specify which is the front face
+      (normally CW in our indirect referentials) */
+      FrontFace,
       /// wireframe rendering
       RenderMode,
       /// ghost mode (invisible to clicks)
       Ghost,
       SelectableMode = Ghost,
-      /** specify which is the front face
-      (normally CW in our indirect referentials) */
-      FrontFace,
     };
 
     enum RenderingMode

@@ -40,7 +40,7 @@ using namespace std;
 
 namespace
 {
-  const size_t NrenderProps = Material::FrontFace + 1;
+  const size_t NrenderProps = Material::SelectableMode + 1;
 }
 
 struct Material::Private
@@ -58,6 +58,7 @@ Material::Private::Private(): lineWidth( 0. )
 {
   for( unsigned i = 0; i<NrenderProps; ++i )
     renderProps[ i ] = -1;
+  renderProps[ SelectableMode ] = SelectableWhenOpaque;
   unlitColor[0] = 0.;
   unlitColor[1] = 0.;
   unlitColor[2] = 0.;
@@ -926,7 +927,7 @@ int Material::renderProperty( RenderProperty p ) const
 
 void Material::setRenderProperty( RenderProperty p, int x )
 {
-  if( p != RenderMode )
+  if( p != RenderMode && p != SelectableMode )
   {
     if( x < 0 )
       x = -1;

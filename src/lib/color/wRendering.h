@@ -79,6 +79,9 @@ protected slots:
   void lightingModelChanged( int x );
   void interpolationModelChanged( int x );
   void coloringModelChanged( int x );
+  void selectionModeChanged( int x );
+  void lineWidthChanged();
+  void unlitColorClicked();
 
   void reloadClicked(void);
 

@@ -103,7 +103,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>rendering_buttonGroup</string>
+               <string notr="true">rendering_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -119,7 +119,7 @@
                <string>Normal</string>
               </property>
               <attribute name="buttonGroup">
-               <string>rendering_buttonGroup</string>
+               <string notr="true">rendering_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -135,7 +135,7 @@
                <string>Wireframe</string>
               </property>
               <attribute name="buttonGroup">
-               <string>rendering_buttonGroup</string>
+               <string notr="true">rendering_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -151,7 +151,7 @@
                <string>Outlined (filled faces + wireframes)</string>
               </property>
               <attribute name="buttonGroup">
-               <string>rendering_buttonGroup</string>
+               <string notr="true">rendering_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -167,7 +167,7 @@
                <string>Wireframe with hidden faces</string>
               </property>
               <attribute name="buttonGroup">
-               <string>rendering_buttonGroup</string>
+               <string notr="true">rendering_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -198,7 +198,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>display_buttonGroup</string>
+               <string notr="true">display_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -217,7 +217,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>display_buttonGroup</string>
+               <string notr="true">display_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -236,7 +236,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>display_buttonGroup</string>
+               <string notr="true">display_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -255,7 +255,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>display_buttonGroup</string>
+               <string notr="true">display_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -274,12 +274,118 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>display_buttonGroup</string>
+               <string notr="true">display_buttonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="frontface_checkBox">
+              <property name="text">
+               <string>Poygons front face is ClockWise</string>
+              </property>
+              <property name="tristate">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">display_buttonGroup</string>
               </attribute>
              </widget>
             </item>
            </layout>
           </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="lineWidth_label">
+             <property name="text">
+              <string>Line width: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineWidth_lineEdit"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="selection_groupBox">
+           <property name="title">
+            <string>Selection conditions</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QRadioButton" name="always_select_radioButton">
+              <property name="text">
+               <string>Always selectable</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">selection_buttonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="ghost_radioButton">
+              <property name="text">
+               <string>Ghost (never selectable)</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">selection_buttonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="selectable_when_opaque_radioButton">
+              <property name="text">
+               <string>Selectable when opaque</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">selection_buttonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="selectable_when_not_totally_transparent_radioButton">
+              <property name="text">
+               <string>Selectable when not totally transparant</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">selection_buttonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="unlitcolor_label">
+             <property name="text">
+              <string>Unlit color: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="unlitColor_pushButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>32</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <spacer name="verticalSpacer_2">
@@ -344,7 +450,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>lighting_model_buttonGroup</string>
+               <string notr="true">lighting_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -360,7 +466,7 @@
                <string>None</string>
               </property>
               <attribute name="buttonGroup">
-               <string>lighting_model_buttonGroup</string>
+               <string notr="true">lighting_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -376,7 +482,7 @@
                <string>Phong (faster)</string>
               </property>
               <attribute name="buttonGroup">
-               <string>lighting_model_buttonGroup</string>
+               <string notr="true">lighting_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -392,7 +498,7 @@
                <string>Blinn-Phong (better)</string>
               </property>
               <attribute name="buttonGroup">
-               <string>lighting_model_buttonGroup</string>
+               <string notr="true">lighting_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -423,7 +529,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>interpolation_model_buttonGroup</string>
+               <string notr="true">interpolation_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -436,7 +542,7 @@
                <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>interpolation_model_buttonGroup</string>
+               <string notr="true">interpolation_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -452,7 +558,7 @@
                <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>interpolation_model_buttonGroup</string>
+               <string notr="true">interpolation_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -468,7 +574,7 @@
                <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>interpolation_model_buttonGroup</string>
+               <string notr="true">interpolation_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -499,7 +605,7 @@
                <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>coloring_model_buttonGroup</string>
+               <string notr="true">coloring_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -515,7 +621,7 @@
                <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>coloring_model_buttonGroup</string>
+               <string notr="true">coloring_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -531,7 +637,7 @@
                <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>coloring_model_buttonGroup</string>
+               <string notr="true">coloring_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -547,7 +653,7 @@
                <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
-               <string>coloring_model_buttonGroup</string>
+               <string notr="true">coloring_model_buttonGroup</string>
               </attribute>
              </widget>
             </item>
@@ -618,6 +724,37 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>radioButton_5</tabstop>
+  <tabstop>radioButton_4</tabstop>
+  <tabstop>lighting_checkBox</tabstop>
+  <tabstop>smooth_shading_checkBox</tabstop>
+  <tabstop>smooth_polygons_checkBox</tabstop>
+  <tabstop>depth_buffer_checkBox</tabstop>
+  <tabstop>cull_polygon_faces_checkBox</tabstop>
+  <tabstop>always_select_radioButton</tabstop>
+  <tabstop>ghost_radioButton</tabstop>
+  <tabstop>selectable_when_opaque_radioButton</tabstop>
+  <tabstop>selectable_when_not_totally_transparent_radioButton</tabstop>
+  <tabstop>enable_shaders_checkBox</tabstop>
+  <tabstop>default_lighting_model_radioButton</tabstop>
+  <tabstop>radioButton_7</tabstop>
+  <tabstop>radioButton_8</tabstop>
+  <tabstop>radioButton_9</tabstop>
+  <tabstop>default_interpolation_model_radioButton</tabstop>
+  <tabstop>radioButton_10</tabstop>
+  <tabstop>radioButton_11</tabstop>
+  <tabstop>radioButton_12</tabstop>
+  <tabstop>default_coloring_model_radioButton</tabstop>
+  <tabstop>radioButton_14</tabstop>
+  <tabstop>radioButton_15</tabstop>
+  <tabstop>directions_coloring_model_radioButton</tabstop>
+  <tabstop>reload_pushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <buttongroups>
@@ -630,5 +767,6 @@
   <buttongroup name="interpolation_model_buttonGroup"/>
   <buttongroup name="lighting_model_buttonGroup"/>
   <buttongroup name="coloring_model_buttonGroup"/>
+  <buttongroup name="selection_buttonGroup"/>
  </buttongroups>
 </ui>

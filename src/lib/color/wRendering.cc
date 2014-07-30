@@ -47,6 +47,7 @@
 #include <anatomist/application/settings.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/surface/glcomponent.h>
+#include <anatomist/dialogs/colorDialog.h>
 #include <cartobase/object/object.h>
 
 using namespace anatomist;
@@ -68,7 +69,7 @@ struct RenderingWindow::Private
 
 
 RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent, 
-				const char *name, Qt::WindowFlags f ) 
+                                  const char *name, Qt::WindowFlags f )
   : QWidget( parent, f ), _parents( objL ), 
     _privdata( new Private( objL ) )
 {
@@ -94,7 +95,8 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   }
 
 
-  ObjectParamSelect *sel = new ObjectParamSelect( _parents, select_container_widget);
+  ObjectParamSelect *sel
+    = new ObjectParamSelect( _parents, select_container_widget);
   _privdata->objsel = sel;
   QVBoxLayout	*vboxlayout = new QVBoxLayout(select_container_widget);
   vboxlayout->addWidget(sel);
@@ -106,6 +108,8 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   if (!use_glshader) shader_tab->setEnabled(false);
   if (theAnatomist->userLevel() < 3) reload_pushButton->hide();
 
+  lineWidth_lineEdit->setValidator( new QDoubleValidator( 0, 100., 2 ) );
+
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
   connect( sel, 
@@ -113,15 +117,19 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
            this, 
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
 
-  connect( enable_shaders_checkBox, SIGNAL( stateChanged( int ) ), this, 
-           SLOT( enableShadersClicked( int ) ) );
   connect( rendering_buttonGroup, SIGNAL( buttonClicked( int ) ), this, 
            SLOT( renderModeChanged( int ) ) );
-  connect( rendering_buttonGroup, SIGNAL( buttonClicked( int ) ), this, 
-           SLOT( renderModeChanged( int ) ) );
-  connect( display_buttonGroup, SIGNAL( buttonClicked( int) ), this, 
+  connect( selection_buttonGroup, SIGNAL( buttonClicked( int ) ), this,
+           SLOT( selectionModeChanged( int ) ) );
+  connect( lineWidth_lineEdit, SIGNAL( editingFinished() ), this,
+           SLOT( lineWidthChanged() ) );
+  connect( display_buttonGroup, SIGNAL( buttonClicked( int) ), this,
            SLOT( renderPropertyChanged( int ) ) );
-  connect( lighting_model_buttonGroup, SIGNAL( buttonClicked( int) ), this, 
+  connect( unlitColor_pushButton, SIGNAL( clicked() ), this,
+           SLOT( unlitColorClicked() ) );
+  connect( enable_shaders_checkBox, SIGNAL( stateChanged( int ) ), this,
+           SLOT( enableShadersClicked( int ) ) );
+  connect( lighting_model_buttonGroup, SIGNAL( buttonClicked( int) ), this,
            SLOT( lightingModelChanged( int ) ) );
   connect( interpolation_model_buttonGroup, SIGNAL( buttonClicked( int)), this, 
            SLOT( interpolationModelChanged( int ) ) );
@@ -137,7 +145,6 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   Qt::CheckState  check_state = (state ? Qt::Checked : Qt::Unchecked);
   enable_shaders_checkBox->setCheckState(check_state);
 
-
   default_lighting_model_radioButton->hide();
   default_interpolation_model_radioButton->hide();
   default_coloring_model_radioButton->hide();
@@ -151,7 +158,9 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
 
 RenderingWindow::~RenderingWindow()
 {
-  /* sending SetMaterial command only when window is closed, to avoid sending 
+  _privdata->operating = true;
+
+  /* sending SetMaterial command only when window is closed, to avoid sending
      thousands of commands while tuning the colors */
   runCommand();
 
@@ -261,47 +270,55 @@ namespace
 
 void RenderingWindow::updateInterface()
 {
-	if( _privdata->operating )
-		return;
+  if( _privdata->operating )
+          return;
 
-	_privdata->operating = true;
+  _privdata->operating = true;
 
-	blockSignals( true );
+  blockSignals( true );
 
-	unsigned	panel, i, n = tabWidget->count();
+  unsigned	panel, i, n = tabWidget->count();
 
-	if( _parents.empty() )
-	{
-		tabWidget->setEnabled( false );
-	}
-	else
-	{
-		tabWidget->setEnabled( true );
+  if( _parents.empty() )
+  {
+          tabWidget->setEnabled( false );
+  }
+  else
+  {
+    tabWidget->setEnabled( true );
 
-		//material
-		_material = (*_parents.begin())->GetMaterial();
-		rendering_buttonGroup->button(-_material.renderProperty(Material::RenderMode) - 3)->setChecked(true);
-		setButtonState(lighting_checkBox, _material.renderProperty(Material::RenderLighting));
-		setButtonState(smooth_shading_checkBox, _material.renderProperty(Material::RenderSmoothShading));
-		setButtonState(smooth_polygons_checkBox, _material.renderProperty(Material::RenderFiltering));
-		setButtonState(depth_buffer_checkBox, _material.renderProperty(Material::RenderZBuffer));
-		setButtonState(cull_polygon_faces_checkBox, _material.renderProperty(Material::RenderFaceCulling));
+    //material
+    _material = (*_parents.begin())->GetMaterial();
+    rendering_buttonGroup->button(-_material.renderProperty(Material::RenderMode) - 3)->setChecked(true);
+    int selmode = _material.renderProperty( Material::SelectableMode );
+    if( selmode < 0 )
+      selmode = Material::SelectableWhenOpaque;
+    selection_buttonGroup->button( -selmode - 2 )->setChecked(true);
+    setButtonState(lighting_checkBox, _material.renderProperty(Material::RenderLighting));
+    setButtonState(smooth_shading_checkBox, _material.renderProperty(Material::RenderSmoothShading));
+    setButtonState(smooth_polygons_checkBox, _material.renderProperty(Material::RenderFiltering));
+    setButtonState(depth_buffer_checkBox, _material.renderProperty(Material::RenderZBuffer));
+    setButtonState(cull_polygon_faces_checkBox, _material.renderProperty(Material::RenderFaceCulling));
+    lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
+    QPixmap pix( 32, 16 );
+    pix.fill( QColor( (int) ( _material.unlitColor(0) * 255.9 ),
+                      (int) ( _material.unlitColor(1) * 255.9 ),
+                      (int) ( _material.unlitColor(2) * 255.9 ) ) );
+    unlitColor_pushButton->setIcon( pix );
 
-		//shader
-  		GLComponent *glc = (*_parents.begin())->glAPI();
-		const Shader *shader = glc->getShader();
-		if (shader) _shader = *shader;
-		else _shader = Shader();
-		lighting_model_buttonGroup->button(-_shader.getLightingModel() - 3)->setChecked(true);
-		interpolation_model_buttonGroup->button(-_shader.getInterpolationModel() - 3)->setChecked(true);
-		coloring_model_buttonGroup->button(-_shader.getColoringModel() - 3)->setChecked(true);
-	}
+    //shader
+    GLComponent *glc = (*_parents.begin())->glAPI();
+    const Shader *shader = glc->getShader();
+    if (shader) _shader = *shader;
+    else _shader = Shader();
+    lighting_model_buttonGroup->button(-_shader.getLightingModel() - 3)->setChecked(true);
+    interpolation_model_buttonGroup->button(-_shader.getInterpolationModel() - 3)->setChecked(true);
+    coloring_model_buttonGroup->button(-_shader.getColoringModel() - 3)->setChecked(true);
+  }
 
-	blockSignals( false );
-	_privdata->operating = false;
+  blockSignals( false );
+  _privdata->operating = false;
 }
-
-
 
 
 void RenderingWindow::chooseObject()
@@ -494,3 +511,71 @@ void RenderingWindow::reloadClicked(void)
       (*io)->clearHasChangedFlags();
     }
 }
+
+
+void RenderingWindow::selectionModeChanged( int x )
+{
+  if( _privdata->operating )
+    return;
+  _privdata->operating = true;
+
+  _material.setRenderProperty( Material::SelectableMode, -x - 2 );
+
+  _privdata->modified = true;
+  updateObjectsRendering();
+  _privdata->operating = false;
+}
+
+
+void RenderingWindow::lineWidthChanged()
+{
+  if( _privdata->operating )
+    return;
+  _privdata->operating = true;
+
+  bool ok = false;
+  float value = lineWidth_lineEdit->text().toFloat( &ok );
+  if( ok )
+    _material.setLineWidth( value );
+  else
+    lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
+
+  _privdata->modified = true;
+  updateObjectsRendering();
+  _privdata->operating = false;
+}
+
+
+void RenderingWindow::unlitColorClicked()
+{
+  if( _privdata->operating )
+    return;
+  _privdata->operating = true;
+
+  const GLfloat* mcol = _material.unlitColor();
+  int   alpha = (int) ( mcol[3] * 255.9 );
+
+  QColor col
+    = QAColorDialog::getColor(
+      QColor( (int) ( mcol[0] * 255.9 ),
+              (int) ( mcol[1] * 255.9 ),
+              (int) ( mcol[2] * 255.9 ) ),
+      this,
+      tr( "Unlit color" ).toStdString().c_str(), &alpha, 0 );
+  if( col.isValid() )
+  {
+    _material.setUnlitColor( ((float) col.red()) / 255,
+                             ((float) col.green()) / 255,
+                             ((float) col.blue()) / 255,
+                             ((float) alpha) / 255 );
+
+    QPixmap pix( 32, 16 );
+    pix.fill( col );
+    unlitColor_pushButton->setIcon( pix );
+  }
+
+  _privdata->modified = true;
+  updateObjectsRendering();
+  _privdata->operating = false;
+}
+
