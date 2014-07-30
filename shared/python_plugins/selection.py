@@ -34,7 +34,6 @@ import sys
 from PyQt4 import QtCore, QtGui
 qt = QtGui
 from PyQt4.uic import loadUiType
-UIFormClass = None
 findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
 
 import anatomist.direct.api as anatomist
@@ -45,7 +44,11 @@ import os, sip
 #disable_me
 
 class SelectionActionView( qt.QWidget ):
+  UIFormClass = None
+  _instances = set()
+
   def __init__( self, action, parent, name=None, flags=0 ):
+    print 'SelectionActionView:', self
     qt.QWidget.__init__( self, parent )
     self.setObjectName( name )
     self._action = action
@@ -77,11 +80,10 @@ class SelectionActionView( qt.QWidget ):
       name = name[:-1]
     name = os.path.join(os.path.dirname(os.path.realpath(name)),
     'selection-qt4.ui')
-    global UIFormClass
-    if UIFormClass is None:
-      UIFormClass, baseclass = loadUiType( name )
+    if SelectionActionView.UIFormClass is None:
+      SelectionActionView.UIFormClass, baseclass = loadUiType( name )
     qWidget = self
-    UIFormClass().setupUi( qWidget )
+    SelectionActionView.UIFormClass().setupUi( qWidget )
     #layout.addWidget( qWidget )
     findChild( qWidget, 'nodesSlider' ).setValue(nodes_opacity)
     findChild( qWidget, 'nodesLabel' ).setText(str(nodes_opacity))
@@ -107,16 +109,24 @@ class SelectionActionView( qt.QWidget ):
       qt.SIGNAL( 'valueChanged(int)' ), self.nodesOpacityChanged )
     self.connect( findChild( qWidget, 'edgesSlider' ),
       qt.SIGNAL( 'valueChanged(int)' ), self.edgesOpacityChanged )
-    self.connect( smc, qt.SIGNAL( 'activated(int)' ),
-      self.selectionModeChanged )
+    smc.activated.connect(self.selectionModeChanged)
     self.connect( boxHighlight, qt.SIGNAL( 'stateChanged(int)' ),
       self.switchBoxHighligting )
+    smc.activated.emit(1)
     self.connect( boxHighlightIndividual, qt.SIGNAL( 'stateChanged(int)' ),
       self.switchBoxHighligtingIndividual )
     self.connect( boxColorMode, qt.SIGNAL( 'activated(int)' ),
       self.switchBoxColorMode )
     self.connect( boxCustomColor, qt.SIGNAL( 'clicked(bool)' ),
       self.selectCustomBoxColor )
+    # prevent python instance to be deleted right now
+    SelectionActionView._instances.add(self)
+    if parent is not None:
+      # this slot will actually delete the python object (self) when the parent
+      # widget is deleted
+      parent.destroyed.connect(self.destroyMe)
+    else:
+      self.destroyed.connect(self.destroyMe)
 
   def nodesOpacityChanged( self, value ):
     findChild( self, 'nodesLabel' ).setText(str(value))
@@ -126,6 +136,7 @@ class SelectionActionView( qt.QWidget ):
     findChild( self, 'edgesLabel' ).setText(str(value))
     self._action.updateEdgesOpacity(value)
 
+  @QtCore.pyqtSlot(int)
   def selectionModeChanged( self, value ):
     self._action.setMode(value)
 
@@ -144,6 +155,9 @@ class SelectionActionView( qt.QWidget ):
       self._action.boxSelectionCustomColor.g * 255.99,
       self._action.boxSelectionCustomColor.b * 255.99 )
     findChild( self, 'boxCustomColor' ).setPalette( QtGui.QPalette( col ) )
+
+  def destroyMe(self, parent):
+    SelectionActionView._instances.remove(self)
 
 
 class SelectionAction( anatomist.cpp.Action ):
