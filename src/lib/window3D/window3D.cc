@@ -3737,15 +3737,10 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   glEndList();
   primitives.push_back(RefGLItem(renderpr));
 
-  //	Draw opaque objects
-  for( al = renderobj.begin(); al != transparent; ++al )
+  //	Draw objects
+  for( al = renderobj.begin(); al != el; ++al )
     if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
       updateObject( *al, &primitives, mode );
-  //	Draw transparent objects
-  if( !transparentZEnabled() )
-    for( al = transparent; al != el; ++al )
-      if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
-        updateObject( *al, &primitives, mode );
 
   renderpr = new GLList;
   renderpr->generate();
