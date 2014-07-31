@@ -34,6 +34,7 @@
 </center>
 <hr width="100%">
 <p>
+<b><a href="#version-4.5.0">Version 4.5.0</a></b><br>
 <b><a href="#version-4.4.0">Version 4.4.0</a></b><br>
 <b><a href="#version-4.3.1">Version 4.3.1</a></b><br>
 <b><a href="#version-4.3.0">Version 4.3.0</a></b><br>
@@ -73,6 +74,34 @@
 <b><a href="#version-1.17">Version 1.17</a></b> <br>
 <b><a href="#version-1.16">Version 1.16</a></b> <br>
 &nbsp; </p>
+
+<!-- -->
+<h4> <a name="version-4.5.0"></a>2014/07/31 - Version 4.5.0</h4>
+
+<h5>Visible changes (users):</h5>
+
+<ul>
+<li>Material rendering properties have been completed in the GUI (color/rendering) to include line width, unlit color, and new selection conditions properties.
+</li>
+<li>Material rendering properties have been improved for selection conditions: now a mesh can choose to be selectable when it is transparent, semi-transparent, always...
+</li>
+<li>Fixed broken GUI panel for selection action.</li>
+<li>Palette views in windows support a larger set of objects.</li>
+<li>Fixed wrong scaling of palette views.</li>
+<li>Connectivity matrix view has now a colormap correctly scaled.</li>
+<li>Various fixes in connectivity matrix view.</li>
+<li>Fixed windows display being blank when involving an empty mesh with a transformation (mesh bounding box problem).</li>
+</ul>
+
+<h5>Internal changes (programmers):</h5>
+
+<ul>
+<li>Slight API changes in methods names of AWindow (start with lowercase).
+</li>
+<li>Fixes in texture header properties when extracting a texture from an Anatomist object.</li>
+<li>Complements in python bindings.</li>
+</ul>
+
 
 <!-- -->
 <h4> <a name="version-4.4.0"></a>2013/04/07 - Version 4.4.0</h4>

@@ -95,10 +95,6 @@
         <translation>Changer en vue sagittale</translation>
     </message>
     <message>
-        <source>Mute into free orientation view</source>
-        <translation type="obsolete">Changer en vue d&apos;orientation libre</translation>
-    </message>
-    <message>
         <source>Start recording...</source>
         <translation>Enregistrer un film...</translation>
     </message>
@@ -169,10 +165,6 @@
     <message>
         <source>Open the ROI toolbox</source>
         <translation>Ouvrir la boîte à outils de ROI</translation>
-    </message>
-    <message>
-        <source>surfPaint</source>
-        <translation type="obsolete">outils de dessin</translation>
     </message>
     <message>
         <source>Free orientation view</source>
@@ -291,10 +283,6 @@
         <translation>Contrôle ROI</translation>
     </message>
     <message>
-        <source>LevelSetAction</source>
-        <translation type="obsolete">LevelSet</translation>
-    </message>
-    <message>
         <source>DynSegmentAction</source>
         <translation>Segmentation Dynamique</translation>
     </message>
@@ -334,10 +322,6 @@
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <source>ROIs</source>
-        <translation type="obsolete">Régions d&apos;intétêt</translation>
-    </message>
-    <message>
         <source>Quit</source>
         <translation>Quitter</translation>
     </message>
@@ -362,18 +346,6 @@
         <translation>Charger des objets Anatomist</translation>
     </message>
     <message>
-        <source>Removes selected objects from selected windows</source>
-        <translation type="obsolete">Enlève les objets sélectionnés des fenêtres sélectionnées</translation>
-    </message>
-    <message>
-        <source>Choose a referential on objects or windows</source>
-        <translation type="obsolete">Choisir un référentiel pour les objets ou fenêtres</translation>
-    </message>
-    <message>
-        <source>Save global settings</source>
-        <translation type="obsolete">Sauver les préférences</translation>
-    </message>
-    <message>
         <source>Add objects in windows</source>
         <translation>Mettre les objets dans les fenêtres</translation>
     </message>
@@ -384,10 +356,6 @@
     <message>
         <source>Perfusion processing</source>
         <translation>Traitements pour la perfusion</translation>
-    </message>
-    <message>
-        <source>Triangular meshes</source>
-        <translation type="obsolete">Maillages triangulés</translation>
     </message>
     <message>
         <source>Surface matching, texture interpolation, landmarks, ERPs reader</source>
@@ -418,10 +386,6 @@
         <translation>Objets</translation>
     </message>
     <message>
-        <source>Puts selected objects in selected windows</source>
-        <translation type="obsolete">Met les objets sélectionnés dans les fenêtres sélectionnées</translation>
-    </message>
-    <message>
         <source>Object-specific</source>
         <translation>Objet-spécifique</translation>
     </message>
@@ -432,10 +396,6 @@
     <message>
         <source>View Reference colors</source>
         <translation>Afficher les couleurs des référentiels</translation>
-    </message>
-    <message>
-        <source>Reads a new object from a file</source>
-        <translation type="obsolete">Lit un nouvel objet depuis un fichier disque</translation>
     </message>
     <message>
         <source>Load object</source>
@@ -460,10 +420,6 @@
     <message>
         <source>Sagittal</source>
         <translation>Sagittale</translation>
-    </message>
-    <message>
-        <source>Creates a new object combining the selected ones</source>
-        <translation type="obsolete">Crée un nouvel objet en combinant ceux sélectionnés</translation>
     </message>
     <message>
         <source>Referential window</source>
@@ -698,14 +654,6 @@
         <translation>Fenêtre Histogramme</translation>
     </message>
     <message>
-        <source>Closing forbidden</source>
-        <translation type="obsolete">Fermeture interdite</translation>
-    </message>
-    <message>
-        <source>Anatomist is controlled by another application which does not allow closing the main window</source>
-        <translation type="obsolete">Anatomist est contrôlé par une autre application qui n&apos;autorise pas à fermer sa fenêtre principale</translation>
-    </message>
-    <message>
         <source>VtkModule</source>
         <translation>Module VTK</translation>
     </message>
@@ -732,14 +680,6 @@
     <message>
         <source>Clear everything</source>
         <translation>Tout effacer</translation>
-    </message>
-    <message>
-        <source>Delete all objects / windows /referentials ?</source>
-        <translation type="obsolete">Effacer tous les objets / fenêtres / référentiels ?</translation>
-    </message>
-    <message>
-        <source>All objects, windows, referentials and transformations will be deleted</source>
-        <translation type="obsolete">Tous les objets, fenêtres, référentiels et transformations vont être effacés</translation>
     </message>
     <message>
         <source>Surfpaint</source>
@@ -946,31 +886,6 @@ De plus:
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>LevelSetControl</source>
-        <translation type="obsolete">Obtention de régions d&apos;intérêt par iso-contours
-Définissez une ROI, activez le LevelSet dans la boite à outil, choisissez vos bornes inférieure et supérieure,
-puis cliquez dans l&apos;image sur la région colorée à segmenter.
-
-Bouton de gauche : Ajout à la région courante
-              &lt;ctrl&gt; : Remplace la région courante
-              &lt;shift&gt;: segmentation d&apos;un blob autour de l&apos;extremum local le plus proche 
-                          (sélectionnez sa taille dans la Boite à Outil : LevelSet)
-
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-&lt;a&gt;               : active les iso-contours
-&lt;d&gt;               : désactive les iso-contourss
-&lt;Shift&gt; + &lt;B&gt; : Mode &quot;bosse&quot; pour la segmentation de blob
-&lt;Cntrl&gt; + &lt;B&gt; : Mode &quot;creux&quot; pour la segmentation de blob
-&lt;Shift&gt; + &lt;2&gt;  : mode 2D
-&lt;Shift&gt; + &lt;3&gt;  : mode 3D
-&lt;u&gt;      :  undo (efface la dernière modification)
-&lt;r&gt;      :  redo (ré-applique la dernière modification)</translation>
-    </message>
-    <message>
         <source>DynSegmentControl</source>
         <translation>Obtention de régions d&apos;intérêt par analyse discriminante (séries dynamiques seulement)
 Définissez une ROI sur l&apos;image dynamique, puis cliquez sur la série dynamique au sein de l&apos;organe à segmenter.
@@ -1041,26 +956,6 @@ pour dessiner votre région
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>RoiControl</source>
-        <translation type="obsolete">Ouvre la boite à outil de ROI</translation>
-    </message>
-    <message>
-        <source>SurfpaintControl</source>
-        <translation type="obsolete">Outils dessin maillages</translation>
-    </message>
-    <message>
-        <source>SurfpaintColorPickerControl</source>
-        <translation type="obsolete">pipette à texture :
-        clic gauche : choisir un vertex
-        </translation>
-    </message>
-    <message>
-        <source>SurfpaintBrushControl</source>
-        <translation type="obsolete">pinceau :
-        clic gauche : attribue la valeur de texture sélectionnée au vertex le plus proche
-        </translation>
-    </message>
-    <message>
         <source>Browser Selection</source>
         <translation>Contrôle du browser
 &lt;ctrl+w&gt;  :  fermer la fenêtre
@@ -1069,34 +964,6 @@ pour dessiner votre région
 &lt;ctrl+a&gt;   :  sélectionne/désélectionne tous les objets
 &lt;del&gt;       :  enlève les objets sélectionnés de la vue
 &lt;ctrl+del&gt; :  enlève les objets sélectionnés du groupe</translation>
-    </message>
-    <message>
-        <source>ThresholdControl</source>
-        <translation type="obsolete">Tracé semi-automatique de ROI avec une contraite de connectivité.
-Bt Gauche : ajoute à la région courante la zone bleue de l&apos;image connexe au point cliqué
-        &lt;ctrl&gt;  : remplace la région courante par la zone bleue de l&apos;image connexe au point cliqué
-        &lt;shift&gt; : segmente le blob ou le trou le plus proche du point cliqué (pensez à sélectionner les valeurs correctes des paramètres &quot;taille de région&quot; et &quot;pourcentage de l&apos;extremum&quot;)
-
-Bt milieu  :  rotation
-              &lt;shift&gt;: zoom/distance
-              &lt;ctrl&gt; : translation
-Bt droit   :  menu
-
-
-BRUSH
-  &lt;a&gt; :  activation de la pré-visualisation du seuillage
-  &lt;d&gt; :  désactivation de la pré-visualisation du seuillage
-  &lt;shift+b&gt; :  mode Blob pour la détection de blob
-  &lt;control+b&gt;       :  mode Trou pour la détection de blob
-  &lt;shift+2&gt;       :  seuillage de la coupe courante
-  &lt;shift+3&gt;       :  seuillage du volume
-  &lt;ctrl+PageUp&gt; : copie sur cette coupe la coupe précédente de la même région
-  &lt;shift+PageUp&gt; : copie sur cette coupe la coupe précédente de la session entière
-  &lt;ctrl+PageDown&gt; : copie sur cette coupe la coupe suivante de la même région
-  &lt;shift+PageDown&gt; : copie sur cette coupe la coupe suivante de la session entière
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo (efface la dernière modification)
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo (ré-applique la dernière modification)</translation>
     </message>
     <message>
         <source>ConnectivityThresholdControl</source>
@@ -1160,10 +1027,6 @@ Bt droit   :  menu
     <message>
         <source>Texture</source>
         <translation>Texture</translation>
-    </message>
-    <message>
-        <source>not object selected</source>
-        <translation type="obsolete">Pas d&apos;objet sélectionné</translation>
     </message>
     <message>
         <source>Cannot open surfpaint Toolbox</source>
@@ -1240,14 +1103,6 @@ Bt droit   :  menu
     <message>
         <source>constraint</source>
         <translation>Tension :</translation>
-    </message>
-    <message>
-        <source>Open map of constrained path</source>
-        <translation type="obsolete">Charger une carte de contraintes pour les chemins</translation>
-    </message>
-    <message>
-        <source>Open list of constrained value</source>
-        <translation type="obsolete">Charger une liste de valeurs de contraintes</translation>
     </message>
     <message>
         <source>MagicBrush</source>
@@ -1438,52 +1293,52 @@ Bt droit   :  menu
         <translation>Configuration</translation>
     </message>
     <message>
-        <source>Affichage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <source>Données :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Type :</source>
         <translation>Type :</translation>
     </message>
     <message>
         <source>raw</source>
-        <translation type="unfinished"></translation>
+        <translation>brut</translation>
     </message>
     <message>
         <source>mean</source>
-        <translation type="unfinished"></translation>
+        <translation>moyenne</translation>
     </message>
     <message>
         <source>bad</source>
-        <translation type="unfinished"></translation>
+        <translation>mauvais</translation>
     </message>
     <message>
         <source>good</source>
-        <translation type="unfinished"></translation>
+        <translation>bons</translation>
     </message>
     <message>
-        <source>sillons seulements</source>
-        <translation type="unfinished"></translation>
+        <source>Display</source>
+        <translation>Afficher</translation>
     </message>
     <message>
-        <source>sillons + relations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <source>Différences absolues</source>
-        <translation type="unfinished"></translation>
+        <source>Data:</source>
+        <translation>Données:</translation>
     </message>
     <message>
-        <source>Fermer</source>
-        <translation type="unfinished"></translation>
+        <source>sulci only</source>
+        <translation>sillons seulement</translation>
     </message>
     <message>
-        <source>Appliquer</source>
-        <translation type="unfinished"></translation>
+        <source>sulci + relations</source>
+        <translation>sillons + relations</translation>
+    </message>
+    <message>
+        <source>Absolute differences</source>
+        <translation>Différences absolues</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
     </message>
 </context>
 <context>
@@ -1611,10 +1466,6 @@ Bt droit   :  menu
         <translation>OK</translation>
     </message>
     <message>
-        <source>Which fusion ?</source>
-        <translation type="obsolete">Quelle fusion ?</translation>
-    </message>
-    <message>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
@@ -1733,16 +1584,8 @@ Bt droit   :  menu
         <translation>Z :</translation>
     </message>
     <message>
-        <source>Spot</source>
-        <translation type="obsolete">Spot</translation>
-    </message>
-    <message>
         <source>Linear :</source>
         <translation>Linéaire :</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Modèle</translation>
     </message>
     <message>
         <source>Position :</source>
@@ -1751,14 +1594,6 @@ Bt droit   :  menu
     <message>
         <source>Local viewer</source>
         <translation>Observateur local</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation type="obsolete">Source</translation>
-    </message>
-    <message>
-        <source>Attenuation</source>
-        <translation type="obsolete">Atténuation</translation>
     </message>
     <message>
         <source>Exponent :</source>
@@ -1775,10 +1610,6 @@ Bt droit   :  menu
     <message>
         <source>Parameters :</source>
         <translation>Paramètres :</translation>
-    </message>
-    <message>
-        <source>Controlers :</source>
-        <translation type="obsolete">Contrôleurs :</translation>
     </message>
     <message>
         <source>Light model : </source>
@@ -1816,10 +1647,6 @@ Bt droit   :  menu
 <context>
     <name>MaterialWindow</name>
     <message>
-        <source>Blue</source>
-        <translation type="obsolete">Bleu</translation>
-    </message>
-    <message>
         <source>Red:</source>
         <translation>Rouge :</translation>
     </message>
@@ -1844,16 +1671,8 @@ Bt droit   :  menu
         <translation>Temps-réel</translation>
     </message>
     <message>
-        <source>Advanced settings</source>
-        <translation type="obsolete">Réglages avancés</translation>
-    </message>
-    <message>
         <source>Ambient :</source>
         <translation>Ambiante :</translation>
-    </message>
-    <message>
-        <source>Fast color selection</source>
-        <translation type="obsolete">Sélection rapide</translation>
     </message>
     <message>
         <source>Emission :</source>
@@ -1872,199 +1691,8 @@ Bt droit   :  menu
         <translation>Diffuse :</translation>
     </message>
     <message>
-        <source>Rendering</source>
-        <translation type="obsolete">Rendu</translation>
-    </message>
-    <message>
-        <source>Rendering mode :</source>
-        <translation type="obsolete">Mode d&apos;affichage :</translation>
-    </message>
-    <message>
-        <source>Default (view setting)</source>
-        <translation type="obsolete">Défaut (réglages de la vue)</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation type="obsolete">Normal</translation>
-    </message>
-    <message>
-        <source>Wireframe</source>
-        <translation type="obsolete">Fil de fer</translation>
-    </message>
-    <message>
-        <source>Outlined (filled faces + wireframes)</source>
-        <translation type="obsolete">Entourés (faces pleines + fils de fer)</translation>
-    </message>
-    <message>
-        <source>Wireframe with hidden faces</source>
-        <translation type="obsolete">Fil de fer avec faces cachées</translation>
-    </message>
-    <message>
-        <source>Display properties :</source>
-        <translation type="obsolete">Propriétés d&apos;affichage :</translation>
-    </message>
-    <message>
-        <source>Enable lighting</source>
-        <translation type="obsolete">Activer l&apos;éclairage</translation>
-    </message>
-    <message>
-        <source>Smooth shading</source>
-        <translation type="obsolete">Couleurs lissées</translation>
-    </message>
-    <message>
-        <source>Smooth polygons / lines</source>
-        <translation type="obsolete">Polygônes / lignes filtrés</translation>
-    </message>
-    <message>
-        <source>Write in depth buffer</source>
-        <translation type="obsolete">Écrire dans le buffer de profondeur</translation>
-    </message>
-    <message>
-        <source>Cull polygon faces</source>
-        <translation type="obsolete">Eliminer les faces vues de dos</translation>
-    </message>
-    <message>
         <source>Blue:</source>
         <translation>Bleu :</translation>
-    </message>
-</context>
-<context>
-    <name>MeshPaint</name>
-    <message>
-        <source>&amp;trackball</source>
-        <translation type="obsolete">&amp;trackball</translation>
-    </message>
-    <message>
-        <source>trackball</source>
-        <translation type="obsolete">trackball</translation>
-    </message>
-    <message>
-        <source>&amp;ColorPicker</source>
-        <translation type="obsolete">Sélection de &amp;Couleur</translation>
-    </message>
-    <message>
-        <source>ColorPicker</source>
-        <translation type="obsolete">Sélection de couleur</translation>
-    </message>
-    <message>
-        <source>&amp;GeodesicDistance</source>
-        <translation type="obsolete">Distance &amp;Géodésique</translation>
-    </message>
-    <message>
-        <source>GeodesicDistance</source>
-        <translation type="obsolete">Distance géodésique</translation>
-    </message>
-    <message>
-        <source>distance : </source>
-        <translation type="obsolete">distance :</translation>
-    </message>
-    <message>
-        <source>&amp;magic_selection</source>
-        <translation type="obsolete">sélection &amp;magique</translation>
-    </message>
-    <message>
-        <source>magic_selection</source>
-        <translation type="obsolete">sélection magique</translation>
-    </message>
-    <message>
-        <source>tolerance : </source>
-        <translation type="obsolete">tolérence :</translation>
-    </message>
-    <message>
-        <source>Shortest Path</source>
-        <translation type="obsolete">Plus court chemin</translation>
-    </message>
-    <message>
-        <source>&amp;Unconstrained</source>
-        <translation type="obsolete">Non-contraint (&amp;U)</translation>
-    </message>
-    <message>
-        <source>Unconstrained</source>
-        <translation type="obsolete">Non-contraint</translation>
-    </message>
-    <message>
-        <source>&amp;sulci</source>
-        <translation type="obsolete">&amp;sillons</translation>
-    </message>
-    <message>
-        <source>sulci</source>
-        <translation type="obsolete">sillons</translation>
-    </message>
-    <message>
-        <source>&amp;gyri</source>
-        <translation type="obsolete">&amp;gyri</translation>
-    </message>
-    <message>
-        <source>gyri</source>
-        <translation type="obsolete">gyri</translation>
-    </message>
-    <message>
-        <source>constraint : </source>
-        <translation type="obsolete">contrainte :</translation>
-    </message>
-    <message>
-        <source>sigmo : </source>
-        <translation type="obsolete">sigmo :</translation>
-    </message>
-    <message>
-        <source>Brush</source>
-        <translation type="obsolete">Pinceau</translation>
-    </message>
-    <message>
-        <source>&amp;paintBrush</source>
-        <translation type="obsolete">brosse &amp;pinceau</translation>
-    </message>
-    <message>
-        <source>paintBrush</source>
-        <translation type="obsolete">brosse peinceau</translation>
-    </message>
-    <message>
-        <source>&amp;magicBrush</source>
-        <translation type="obsolete">brosse &amp;magique</translation>
-    </message>
-    <message>
-        <source>magicBrush</source>
-        <translation type="obsolete">brosse magique</translation>
-    </message>
-    <message>
-        <source>&amp;erase</source>
-        <translation type="obsolete">gomme (&amp;e)</translation>
-    </message>
-    <message>
-        <source>erase</source>
-        <translation type="obsolete">gomme</translation>
-    </message>
-    <message>
-        <source>&amp;filling</source>
-        <translation type="obsolete">remplissage (&amp;f)</translation>
-    </message>
-    <message>
-        <source>fill</source>
-        <translation type="obsolete">remplissage</translation>
-    </message>
-    <message>
-        <source>&amp;clear</source>
-        <translation type="obsolete">effacer (&amp;e)</translation>
-    </message>
-    <message>
-        <source>clear</source>
-        <translation type="obsolete">effacer</translation>
-    </message>
-    <message>
-        <source>&amp;Save Texture</source>
-        <translation type="obsolete">&amp;Sauver la textuire</translation>
-    </message>
-    <message>
-        <source>save</source>
-        <translation type="obsolete">sauver</translation>
-    </message>
-    <message>
-        <source>PaintToolBar</source>
-        <translation type="obsolete">Barre d&apos;outils de dessin</translation>
-    </message>
-    <message>
-        <source>InfosToolBar</source>
-        <translation type="obsolete">Barre d&apos;outils d&apos;infos</translation>
     </message>
 </context>
 <context>
@@ -2192,10 +1820,6 @@ Bt droit   :  menu
         <translation>La nouvelle langue s&apos;appliquera au prochain lancement d&apos;Anatomist (sauvez les préférences !)</translation>
     </message>
     <message>
-        <source>Control window</source>
-        <translation type="obsolete">Fenêtre de contrôle</translation>
-    </message>
-    <message>
         <source>Anatomist global settings</source>
         <translation>Anatomist : réglages globaux</translation>
     </message>
@@ -2210,10 +1834,6 @@ Bt droit   :  menu
     <message>
         <source>Size :</source>
         <translation>Taille :</translation>
-    </message>
-    <message>
-        <source>Linked cursor</source>
-        <translation type="obsolete">Curseur lié</translation>
     </message>
     <message>
         <source>Cursor color :</source>
@@ -2240,10 +1860,6 @@ Bt droit   :  menu
         <translation>Couleur automatique</translation>
     </message>
     <message>
-        <source>Volumes</source>
-        <translation type="obsolete">Volumes</translation>
-    </message>
-    <message>
         <source>Display linked cursor</source>
         <translation>Afficher le curseur lié</translation>
     </message>
@@ -2256,30 +1872,6 @@ Bt droit   :  menu
         <translation>Langue :</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation type="obsolete">Application</translation>
-    </message>
-    <message>
-        <source>Unstable/in development features</source>
-        <translation type="obsolete">Fonctionnalités instables / en développement</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Attention</translation>
-    </message>
-    <message>
-        <source>Unstable features may cause anatomist to crash</source>
-        <translation type="obsolete">Les fonctionnalités instables peuvent faire &quot;planter&quot; Anatomist</translation>
-    </message>
-    <message>
-        <source>Enable unstable features in this session</source>
-        <translation type="obsolete">Activer les fonctionnalités instables pour cette session</translation>
-    </message>
-    <message>
-        <source>Enable unstable features in all sessions</source>
-        <translation type="obsolete">Activer les fonctionnalités instables pour troutes les sessions</translation>
-    </message>
-    <message>
         <source>Radioligical convention (seen from bottom, L/R flipped)</source>
         <translation>Convention radiologique (vue par dessous, G/D inversées)</translation>
     </message>
@@ -2288,16 +1880,8 @@ Bt droit   :  menu
         <translation>Convention neurologique (vue de dessus)</translation>
     </message>
     <message>
-        <source>By default, build a transformation to the origin of SPM volumes</source>
-        <translation type="obsolete">Par défaut, utiliser une transformation vers l&apos;origine des volumes SPM</translation>
-    </message>
-    <message>
         <source>Axial/coronal slices orientation</source>
         <translation>Orientation des vues axiales / coronales</translation>
-    </message>
-    <message>
-        <source>Windows</source>
-        <translation type="obsolete">Fenêtres</translation>
     </message>
     <message>
         <source>Default windows size</source>
@@ -2338,14 +1922,6 @@ Bt droit   :  menu
     <message>
         <source>Use referential / transformations information found in objects headers (SPM, NIFTI...)</source>
         <translation>Utiliser les information de référentiel / transformations trouvés dans les en-têtes des objets (SPM, NIFTI...)</translation>
-    </message>
-    <message>
-        <source>User level</source>
-        <translation type="obsolete">Niveau d&apos;utilisateur</translation>
-    </message>
-    <message>
-        <source>OpenGL</source>
-        <translation type="obsolete">OpenGL</translation>
     </message>
     <message>
         <source>Display cursor position by default</source>
@@ -2622,24 +2198,12 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
         <translation>OK</translation>
     </message>
     <message>
-        <source>Cannot find text file</source>
-        <translation type="obsolete">Impossible de trouver le fichier texte de ce message</translation>
-    </message>
-    <message>
-        <source>check config and ANATOMIST_PATH environment variable</source>
-        <translation type="obsolete">Vérifiez la config et la variable d&apos;environnement ANATOMIST_PATH</translation>
-    </message>
-    <message>
         <source>About Anatomist</source>
         <translation>À propos d&apos;Anatomist</translation>
     </message>
     <message>
         <source>Cannot find about.txt file</source>
         <translation>Impossible de trouver le fichier texte de ce message &quot;about.txt&quot;</translation>
-    </message>
-    <message>
-        <source>check config and BRAINVISA_SHARE or ANATOMIST_PATH environment variable</source>
-        <translation type="obsolete">Vérifiez la config et la variable d&apos;environnement BRAINVISA_SHARE ou ANATOMIST_PATH</translation>
     </message>
     <message>
         <source>check config and BRAINVISA_SHARE environment variable</source>
@@ -2683,10 +2247,6 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <message>
         <source>Use one file per sub-object type</source>
         <translation>Sauver un fichier par type de sous-objet</translation>
-    </message>
-    <message>
-        <source>IO saving settings</source>
-        <translation type="obsolete">Paramètres de sauvegarde</translation>
     </message>
     <message>
         <source>Constant color :</source>
@@ -3185,10 +2745,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Exporter la texture</translation>
     </message>
     <message>
-        <source>Translate origin (SPM)</source>
-        <translation type="obsolete">Translation de l&apos;origine (SPM)</translation>
-    </message>
-    <message>
         <source>Texturing</source>
         <translation>Texture</translation>
     </message>
@@ -3207,10 +2763,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Display</source>
         <translation>Afficher</translation>
-    </message>
-    <message>
-        <source>Apply builtin referential (SPM/NIFTI)</source>
-        <translation type="obsolete">Appliquer le changement de référentiel (SPM/NIFTI)</translation>
     </message>
     <message>
         <source>Default Menu</source>
@@ -3290,10 +2842,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Select</source>
         <translation>Sélectionner</translation>
-    </message>
-    <message>
-        <source>Selectable objects</source>
-        <translation type="obsolete">Objets sélectionnables</translation>
     </message>
     <message>
         <source>Select object(s)</source>
@@ -3452,10 +3000,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Mixing rate</source>
         <translation>Taux de mélange</translation>
-    </message>
-    <message>
-        <source>Linear on non-nul</source>
-        <translation type="obsolete">Linéaire sur valeurs non-nulles</translation>
     </message>
     <message>
         <source>Texture interpolation</source>
@@ -3715,10 +3259,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Défaut (réglages de la vue)</translation>
     </message>
     <message>
-        <source>rendering_buttonGroup</source>
-        <translation>rendering_buttonGroup</translation>
-    </message>
-    <message>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
@@ -3741,10 +3281,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Enable lighting</source>
         <translation>Activer l&apos;éclairage</translation>
-    </message>
-    <message>
-        <source>display_buttonGroup</source>
-        <translation>display_buttonGroup</translation>
     </message>
     <message>
         <source>Smooth shading</source>
@@ -3775,10 +3311,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Modèle de lumière :</translation>
     </message>
     <message>
-        <source>lighting_model_buttonGroup</source>
-        <translation>lighting_model_buttonGroup</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
@@ -3793,10 +3325,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Interpolation Model :</source>
         <translation>Modèle d&apos;interpolation :</translation>
-    </message>
-    <message>
-        <source>interpolation_model_buttonGroup</source>
-        <translation>interpolation_model_buttonGroup</translation>
     </message>
     <message>
         <source>None (flat rendering)</source>
@@ -3815,10 +3343,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Modèle de couleurs :</translation>
     </message>
     <message>
-        <source>coloring_model_buttonGroup</source>
-        <translation>coloring_model_buttonGroup</translation>
-    </message>
-    <message>
         <source>Material</source>
         <translation>Matériau</translation>
     </message>
@@ -3833,6 +3357,42 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Reload</source>
         <translation>Recharger</translation>
+    </message>
+    <message>
+        <source>Poygons front face is ClockWise</source>
+        <translation>La face avant des polygones est Horaire (CW)</translation>
+    </message>
+    <message>
+        <source>Line width: </source>
+        <translation>Épaisseur de trait:</translation>
+    </message>
+    <message>
+        <source>Selection conditions</source>
+        <translation>Conditions de sélection</translation>
+    </message>
+    <message>
+        <source>Always selectable</source>
+        <translation>Toujours sélectionnable</translation>
+    </message>
+    <message>
+        <source>Ghost (never selectable)</source>
+        <translation>Fantôme (jamais sélectionnable)</translation>
+    </message>
+    <message>
+        <source>Selectable when opaque</source>
+        <translation>Sélectionnable quand opaque</translation>
+    </message>
+    <message>
+        <source>Selectable when not totally transparant</source>
+        <translation>Sélectionnable quand pas totalement transparent</translation>
+    </message>
+    <message>
+        <source>Unlit color: </source>
+        <translation>Couleur non-éclairé:</translation>
+    </message>
+    <message>
+        <source>Unlit color</source>
+        <translation>Couleur non-éclairé</translation>
     </message>
 </context>
 <context>
@@ -3944,18 +3504,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
 <context>
     <name>RoiLevelSetActionView</name>
     <message>
-        <source>Levelset Activation</source>
-        <translation type="obsolete">Activation du Levelset</translation>
-    </message>
-    <message>
-        <source>Activate Levelset</source>
-        <translation type="obsolete">Activer</translation>
-    </message>
-    <message>
-        <source>Deactivate Levelset</source>
-        <translation type="obsolete">Désactiver</translation>
-    </message>
-    <message>
         <source>Low Level</source>
         <translation>Niveau bas</translation>
     </message>
@@ -3994,10 +3542,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Percentage of extremum</source>
         <translation>Pourcentage de l&apos;extrêmum</translation>
-    </message>
-    <message>
-        <source>Region Max Size</source>
-        <translation type="obsolete">Taille max de la région</translation>
     </message>
     <message>
         <source>Threshold Preview Activation</source>
@@ -4292,10 +3836,6 @@ Voulez-vous continuer ?</translation>
         <translation>Relations</translation>
     </message>
     <message>
-        <source>Opacity: </source>
-        <translation type="obsolete">Opacité :</translation>
-    </message>
-    <message>
         <source>Edge selection:</source>
         <translation>Sélection des relationos :</translation>
     </message>
@@ -4314,10 +3854,6 @@ Voulez-vous continuer ?</translation>
     <message>
         <source>Box color: </source>
         <translation>Couleur des boîtes :</translation>
-    </message>
-    <message>
-        <source>Grey</source>
-        <translation type="obsolete">Gris</translation>
     </message>
     <message>
         <source>As selection</source>
@@ -4343,40 +3879,8 @@ Voulez-vous continuer ?</translation>
 <context>
     <name>SurfpaintTools</name>
     <message>
-        <source>ConstraintEditor</source>
-        <translation type="obsolete">Editeur de contraintes</translation>
-    </message>
-    <message>
-        <source>TextureValue</source>
-        <translation type="obsolete">Texture :</translation>
-    </message>
-    <message>
-        <source>IDPolygon</source>
-        <translation type="obsolete">Triangle :</translation>
-    </message>
-    <message>
-        <source>IDVertex</source>
-        <translation type="obsolete">Sommet :</translation>
-    </message>
-    <message>
         <source>tolerance</source>
         <translation>Tolérance :</translation>
-    </message>
-    <message>
-        <source>constraint</source>
-        <translation type="obsolete">Tension :</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbarTex</source>
-        <translation type="obsolete">Infos texture (surfpaint)</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbar3D</source>
-        <translation type="obsolete">Infos 3D (surfpaint)</translation>
-    </message>
-    <message>
-        <source>surfpainttoolbarControls</source>
-        <translation type="obsolete">Actions (surfpaint)</translation>
     </message>
     <message>
         <source>Texture value selection</source>
@@ -4433,50 +3937,8 @@ Voulez-vous continuer ?</translation>
         <translation>Plan simple</translation>
     </message>
     <message>
-        <source>Only polygon edges are drawn. Hidden faces are also
-drawn, except for polygons facing back if culling
-is enabled</source>
-        <translation type="obsolete">Seules les arêtes des polygônes sont dessinées.
-Les faces cachées sont dessinées également, sauf les
-polygônes vus de dos si l&apos;élimination des polygônes
-de dos est activée</translation>
-    </message>
-    <message>
         <source>No clipping</source>
         <translation>Pas de clipping</translation>
-    </message>
-    <message>
-        <source>Normal projection mode is orthogonal. In perspective
-mode, you can get a distance effect between the
-observer and objects. It is useful for the
-&apos;flight simulator&apos; control.</source>
-        <translation type="obsolete">Le mode normal de projection est orthogonal. En
-perspective, vous pouvez avoir un effet de distance
-entre l&apos;observateur et les objets. C&apos;est utile pour
-le contrôle &apos;simulateur de vol&apos;.</translation>
-    </message>
-    <message>
-        <source>Normal rendering uses smoothed colors polygons, so you
-don&apos;t see polygon boundaries. It&apos;s nicer but if you
-are looking at exact details of where polygons are,
-you&apos;ll have to use either flat-shading, or a rendering
-mode showing polygon edges (wireframe, outline, ...)</source>
-        <translation type="obsolete">Le rendu normal utilise des polygônes lisses, vous
-ne voyez donc pas les bords des polygônes. C&apos;est plus
-joli mais si vous regardez les limites exactes des
-polygônes, vous devrez utiliser soit des polygônes plats
-soit un mode de rendu montrant les arêtes des polygônes
-(fil de fer, faces entourées, ...)</translation>
-    </message>
-    <message>
-        <source>This enables smooth filtering (anti-aliasing) of lines
-and polygons edges, but doesn&apos;t work well in all
-cases (polygons should be sorted by depth), and it can
-be very slow</source>
-        <translation type="obsolete">Cette option active le filtrage (anti-aliasing)
-des lignes et arêtes de polygônes, mais ne fonctionne
-pas bien dans tous les cas (les polygônes devraient
-être triés par profondeur), et cela peut être très lent</translation>
     </message>
     <message>
         <source>Cull polygon faces</source>
@@ -4491,55 +3953,12 @@ pas bien dans tous les cas (les polygônes devraient
         <translation>La profondeur des objets transparents s&apos;imprime</translation>
     </message>
     <message>
-        <source>You can clip the whole scene to cut meshes on one or
-both sides of the current plane of the 2D window mode</source>
-        <translation type="obsolete">Il est possible de tronquer la scène entière pour
-couper les maillages d&apos;un côté ou des deux côtés du
-plan de coupe courant de la fenêtre en mode 2D</translation>
-    </message>
-    <message>
         <source>Use fog (useful only in perspective mode</source>
         <translation>Ajouter du brouillard (utile seulement en mode perspecive)</translation>
     </message>
     <message>
         <source>Normal</source>
         <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Polygons are filled and polygon edges are re-drawn
-using a different color (black). This mode is quite
-slow as two renderings are performed</source>
-        <translation type="obsolete">Les polygônes sont pleins et les arêtes sont
-re-dessinées avec une couleur différente (noir).
-Ce mode est assez lent puisque deux rendus
-doivent être effectués</translation>
-    </message>
-    <message>
-        <source>Only polygon edges are drawn, and hidden faces are
-actually hidden. To do so two renderings must be
-performed like in outline mode (slow)</source>
-        <translation type="obsolete">Seules les arêtes des polygônes sont dessinées
-et les faces cachées sont effectivement cachées.
-Pour se faire, deux rendus doivent être effectués
-comme dans le mode contour (lent, donc)</translation>
-    </message>
-    <message>
-        <source>Normal rendering mode - you should almost always
-use this one. It uses filled polygons</source>
-        <translation type="obsolete">Mode de rendu normal - vous devriez presque toujours
-utiliser celui-ci. Il utilise des polygônes pleins</translation>
-    </message>
-    <message>
-        <source>Culling avoids drawing polygons facing back.
-Without this options, transparent objects will look
-bad, but only the external side of open (or clipped)
-meshes will be seen, so it depends on what you&apos;re
-looking at</source>
-        <translation type="obsolete">Ne dessine pas les polygônes vus de dos.
-Sans cette option, les objets transparents ne seront
-pas beaux, mais seule la face externe des maillages
-ouverts (ou tronqués) sera visible, donc ça dépend de
-ce que vous regardez</translation>
     </message>
     <message>
         <source>Wireframe</source>
@@ -4570,30 +3989,6 @@ ce que vous regardez</translation>
         <translation>Gadgets d&apos;aide :</translation>
     </message>
     <message>
-        <source>Enable this if you want to click on opaque objects
-through transparent ones, or if some superimposed
-transparent objects can&apos;t be seen. As a counterpart
-objects superimposition will not be handled correctly</source>
-        <translation type="obsolete">Mettez cette option si vous voulez cliquer
-sur des objets opaques à travers des objets transparents,
-ou si certains objets transparents superposés ne
-s&apos;affichent pas. En contrepartie, la superposition des
-objets ne sera pas correcte</translation>
-    </message>
-    <message>
-        <source>This is the thickness of the slice between the current
-2D window plane and the clipping plane(s). If you are
-using a volume (slice), don&apos;t set the distance to zero
-because the slice will be just on the clipping plane,
-and you don&apos;t know what will be drawn and what won&apos;t be</source>
-        <translation type="obsolete">Épaisseur de la tranche entre le plan courant de
-la fenêtre en mode 2D et le(s) plan(s) de troncature.
-Si vous visualisez un volume (coupe), me mettez pas cette
-distance à zéro, car la coupe sera alors juste dans le
-plan de troncature, et on ne peut alors pas savoir ce qui
-sera dessiné et ce qui ne le sera pas</translation>
-    </message>
-    <message>
         <source>Outlined (filled faces + wireframes)</source>
         <translation>Entourés (faces pleines + fils de fer)</translation>
     </message>
@@ -4604,20 +3999,6 @@ sera dessiné et ce qui ne le sera pas</translation>
     <message>
         <source>Display orientation cube</source>
         <translation>Afficher le cube d&apos;orientation</translation>
-    </message>
-    <message>
-        <source>Well, this mode doesn&apos;t exist in fact...
-Maybe one day it will perform real-time polygon
-pruning to speed-up huge mesh rendering,
-but up to now...</source>
-        <translation type="obsolete">Bon, ce mode n&apos;existe pas en fait...
-Peut-être qu&apos;un jour il effectuera une décimation
-en temps réel des polygônes pour accélérer le
-rendu des très gros maillages, mais pour l&apos;instant...</translation>
-    </message>
-    <message>
-        <source>Distance to current plane (mm) :</source>
-        <translation type="obsolete">Distance au plan courant (mm) :</translation>
     </message>
     <message>
         <source>Transparency improvement:</source>
@@ -4658,10 +4039,6 @@ rendu des très gros maillages, mais pour l&apos;instant...</translation>
     <message>
         <source>Display cursor</source>
         <translation>Afficher le curseur</translation>
-    </message>
-    <message>
-        <source>Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)</source>
-        <translation type="obsolete">Afficher/cacher le curseur lié sur la fenêtre associée. Il est possible de remplacer le défaut global (dans les préférences)</translation>
     </message>
     <message>
         <source>&lt;p align=&quot;justify&quot;&gt;Show/hide the linked cursor on the individual associated window. You can override the global default (in the settings)&lt;/p&gt;</source>
@@ -4732,22 +4109,6 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
         <translation>Mode de rendu volumique</translation>
     </message>
     <message>
-        <source>VRShader</source>
-        <translation type="obsolete">Rendu Volumique</translation>
-    </message>
-    <message>
-        <source>MIPShader</source>
-        <translation type="obsolete">MIP (Projection du Maximum d&apos;Intensité)</translation>
-    </message>
-    <message>
-        <source>SumShader</source>
-        <translation type="obsolete">Somme</translation>
-    </message>
-    <message>
-        <source>MPVRShader</source>
-        <translation type="obsolete">MPVR (coupes épaisses)</translation>
-    </message>
-    <message>
         <source>Limit number of slices :</source>
         <translation>Limiter le nombre de coupes :</translation>
     </message>
@@ -4792,15 +4153,6 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     <message>
         <source>Zoom :</source>
         <translation>Zoom :</translation>
-    </message>
-</context>
-<context>
-    <name>paintingToolBox</name>
-    <message>
-        <source>SurfpaintColorPickerControl</source>
-        <translation type="obsolete">pipette à texture :
-        clic gauche : choisir un vertex
-        </translation>
     </message>
 </context>
 <context>
