@@ -108,7 +108,7 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   if (!use_glshader) shader_tab->setEnabled(false);
   if (theAnatomist->userLevel() < 3) reload_pushButton->hide();
 
-  lineWidth_lineEdit->setValidator( new QDoubleValidator( 0, 100., 2 ) );
+  lineWidth_lineEdit->setValidator( new QDoubleValidator( 0., 100., 2, 0 ) );
 
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
