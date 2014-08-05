@@ -1,0 +1,33 @@
+attributes = {
+    'sizeX' : 512,
+    'sizeY' : 1,
+    'sizeZ' : 1,
+    'sizeT' : 1,
+    'palette_gradients' : '0;1;0.00512821;1;0.00512821;1;0.00769231;0;0.353846;0.933333;0.728205;0.977778;1;0.466667#0;1;0.00769231;1;0.428205;1;0.792308;0.155556;1;0#0;1;0.0102564;1;0.0435897;0.622222;0.34359;0;1;0#0.5;1',
+    'palette_gradients_mode' : 'RGB',
+    'boundingbox_min' : [ 0, 0, 0, 0 ],
+    'boundingbox_max' : [ 512, 1, 1, 1 ],
+    'material' : {
+        'ambient' : [ 0.100000001490116, 0.100000001490116, 0.100000001490116, 1 ],
+        'diffuse' : [ 0.800000011920929, 0.800000011920929, 0.800000011920929, 1 ],
+        'emission' : [ 0, 0, 0, 1 ],
+        'selectable_mode' : 'selectable_when_opaque',
+        'shininess' : 20,
+        'specular' : [ 0.200000002980232, 0.200000002980232, 0.200000002980232, 1 ],
+        'unlit_color' : [ 0, 0, 0, 1 ]
+      },
+    'texture_properties' : [ {
+            'filtering' : 'nearest',
+            'generation' : 'none',
+            'interpolation' : 'palette',
+            'mode' : 'decal',
+            'rate' : 1
+          } ],
+    'voxel_size' : [ 1, 1, 1, 1 ],
+    'byte_swapping' : 0,
+    'ascii' : 0,
+    'file_type' : 'GIS',
+    'data_type' : 'RGBA',
+    'object_type' : 'Volume',
+    'volume_dimension' : [ 512, 1, 1, 1 ]
+  }
