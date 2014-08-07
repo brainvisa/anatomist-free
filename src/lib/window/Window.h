@@ -223,6 +223,11 @@ namespace anatomist
     /// Set the title of the window.
     void setWindowTitle();
     virtual void unregisterObservable( Observable* obs );
+    /** automatically set the contained objects referential to the
+        window if it has not been set manually, and if all objetcs share the
+        same referential.
+    */
+    void manageAutoReferential();
 
     /// Window identificator
     int _id;

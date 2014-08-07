@@ -66,6 +66,8 @@ struct AWindow::Private
   bool	destroying;
   bool	toolsvisible;
   int	hascursor;
+  bool  autoreferential;
+
   static map<AWindow::Type, set<unsigned> > & typecounts()
   {
     static map<AWindow::Type, set<unsigned> > tc;
@@ -78,8 +80,8 @@ struct AWindow::Private
 
 
 AWindow::Private::Private()
-  : destroying( false ), toolsvisible( true ), hascursor( -1 )
-
+  : destroying( false ), toolsvisible( true ), hascursor( -1 ),
+    autoreferential( true )
 {
 }
 
@@ -198,7 +200,7 @@ void AWindow::Refresh()
 
 void AWindow::registerObject( AObject* object, bool temporaryObject, int pos )
 {
-  if( _sobjects.find( object ) == _sobjects.end() )  
+  if( _sobjects.find( object ) == _sobjects.end() )
   {
     if( pos < 0 || (unsigned) pos >= _sobjects.size() )
       _objects.push_back( shared_ptr<AObject>(
@@ -217,6 +219,8 @@ void AWindow::registerObject( AObject* object, bool temporaryObject, int pos )
     setLookupChanged( true );
     if( !temporaryObject )
       {
+        manageAutoReferential();
+
         // send event
         Object	ex( (GenericObject *)
                           new ValueObject<Dictionary> );
@@ -252,9 +256,11 @@ void AWindow::unregisterObject( AObject* object )
     _tempObjects.erase( is );
   else
     {
+      manageAutoReferential();
+
       // send event
       Object	ex( (GenericObject *) 
-		    new ValueObject<Dictionary> );
+                    new ValueObject<Dictionary> );
       ex->setProperty( "_window", this );
       ex->setProperty( "_object", object );
       static set<string>	discr;
@@ -274,8 +280,10 @@ void AWindow::setTitle( const string & title )
 
 
 
-void AWindow::setReferential(Referential *ref )
+void AWindow::setReferential( Referential *ref )
 {
+  d->autoreferential = false; // now it has been set manually.
+
   if( _referential ) _referential->RemoveWindow(this);
   _referential = ref;
   if( _referential ) _referential->AddWindow(this);
@@ -526,6 +534,38 @@ set<unsigned> & AWindow::typeCount()
 {
   return d->typecounts()[type()];
 }
+
+
+void AWindow::manageAutoReferential()
+{
+  // automatically set a referential if possible
+  if( !d->autoreferential || d->destroying )
+    return; // set manually: don't touch it anymore
+  set<AObject *>::const_iterator io, eo = _sobjects.end(),
+    eto = _tempObjects.end();
+  Referential *ref = 0;
+  for( io=_sobjects.begin(); io!=eo; ++io )
+  {
+    if( _tempObjects.find( *io ) != eto )
+      continue; // temporary object: doesn't count.
+    if( ref == 0 )
+      ref = (*io)->getReferential();
+    else if( ref != (*io)->getReferential() )
+    {
+      ref = theAnatomist->centralReferential();
+      break;
+    }
+  }
+  if( !ref )
+    ref = theAnatomist->centralReferential();
+  if( ref != _referential )
+  {
+    setReferential( ref );
+    // force auto ref flag, normally erased by setReferential()
+    d->autoreferential = true;
+  }
+}
+
 
 
 #include <cartobase/object/object_d.h>
