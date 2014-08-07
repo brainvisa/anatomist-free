@@ -54,7 +54,10 @@
 #include <anatomist/object/loadevent.h>
 #include <anatomist/sparsematrix/sparsematrix.h>
 #include <aims/data/pheader.h>
+#include <aims/utility/converter_hsv.h>
+#include <aims/utility/converter_rgb.h>
 #include <aims/utility/converter_texture.h>
+#include <aims/utility/converter_volume.h>
 #include <aims/def/path.h>
 #include <aims/io/fileFormat.h>
 #include <aims/io/readerasobject.h>
@@ -103,7 +106,9 @@ namespace
 
   template<class T> 
   bool loadVolume( Process & p, const string & fname, Finder & f );
-  template<class T> 
+  template<>
+  bool loadVolume<AimsHSV>( Process & p, const string & fname, Finder & f );
+  template<class T>
   bool loadData( T & obj, const string & fname, Finder & f );
   template<long D>
   bool loadMesh( Process & p, const string & fname, Finder & f );
@@ -179,6 +184,8 @@ namespace
             registerProcessType( "Volume", "RGB", &loadVolume<AimsRGB> );
           if( !restr || types.find( "RGBA" ) != eir )
             registerProcessType( "Volume", "RGBA", &loadVolume<AimsRGBA> );
+          if( !restr || types.find( "HSV" ) != eir )
+            registerProcessType( "Volume", "HSV", &loadVolume<AimsHSV> );
         }
       r2 = restr && !restricted->hasProperty( "Segments" );
       if( !r2 )
@@ -265,7 +272,29 @@ namespace
     return true;
   }
 
-  template<class T> 
+  template<>
+  bool loadVolume<AimsHSV>( Process & p, const string & fname, Finder & f )
+  {
+    AimsLoader  & ap = (AimsLoader &) p;
+    VolumeRef<AimsHSV> vref;
+    if( !loadData( vref, fname, f ) )
+    {
+      return false;
+    }
+    Converter<VolumeRef<AimsHSV>, VolumeRef<AimsRGB> > conv;
+    VolumeRef<AimsRGB> *vref_tmp = conv( vref );
+    VolumeRef<AimsRGB> vref2 = *vref_tmp;
+    delete vref_tmp;
+    AVolume<AimsRGB>  *vol = new AVolume<AimsRGB>( fname.c_str() /*, type*/ );
+    vol->setVolume( vref2 );
+    ap.object = vol;
+    vol->setFileName( fname );
+    vol->SetExtrema();
+    vol->adjustPalette();
+    return true;
+  }
+
+  template<class T>
   bool loadData( T & obj, const string & fname, Finder & f )
   {
     Reader<T>	reader( fname );
