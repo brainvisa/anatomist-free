@@ -424,8 +424,7 @@ namespace
   bool _hasInterpolation( const PythonAObject *volume )
   {
     int       intp = true;
-    const PythonHeader *ph
-      = dynamic_cast<const PythonHeader *>( volume->attributed() );
+    const GenericObject *ph = volume->attributed();
     if( ph )
       try
       {
