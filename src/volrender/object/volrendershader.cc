@@ -1089,7 +1089,7 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
   mat[14] = mot.translation()[ 2 ];
   mat[15] = 1;
 
-  glMultTransposeMatrixf( mat );
+  GLCaps::glMultTransposeMatrixf( mat );
   glTranslatef( -0.5f, -0.5f, -0.5f );
   status = glGetError();
   if( status != GL_NO_ERROR )
@@ -1124,32 +1124,32 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
 
   glUseProgram( d->m_shaderProgram );
 
-  glUniform1f( d->m_stepsizeIndex, d->m_stepSize );
-  glUniform4fv( d->m_eyePosIndex, 1, eyePos );
-  glUniform4fv( d->m_lightPosIndex, 1, lightPos );
-  glUniform1f( d->m_deltaGradIndex, deltaGrad );
-  glUniform4fv( d->m_ambientIndex, 1, lightAmbient );
-  glUniform4fv( d->m_diffuseIndex, 1, lightDiffuse );
-  glUniform4fv( d->m_specularIndex, 1, lightSpecular );
-  glUniform1f( d->m_shininessIndex, d->m_shininess );
-  glUniform1i( d->m_methodIndex, (int32_t)0 );
-  glUniform1f( d->m_tex2tfIndex, /*d->m_tex2tf*/16.0 );
-  glUniform1f( d->m_aFactorIndex, d->m_aFactor );
+  GLCaps::glUniform1f( d->m_stepsizeIndex, d->m_stepSize );
+  GLCaps::glUniform4fv( d->m_eyePosIndex, 1, eyePos );
+  GLCaps::glUniform4fv( d->m_lightPosIndex, 1, lightPos );
+  GLCaps::glUniform1f( d->m_deltaGradIndex, deltaGrad );
+  GLCaps::glUniform4fv( d->m_ambientIndex, 1, lightAmbient );
+  GLCaps::glUniform4fv( d->m_diffuseIndex, 1, lightDiffuse );
+  GLCaps::glUniform4fv( d->m_specularIndex, 1, lightSpecular );
+  GLCaps::glUniform1f( d->m_shininessIndex, d->m_shininess );
+  GLCaps::glUniform1i( d->m_methodIndex, (int32_t)0 );
+  GLCaps::glUniform1f( d->m_tex2tfIndex, /*d->m_tex2tf*/16.0 );
+  GLCaps::glUniform1f( d->m_aFactorIndex, d->m_aFactor );
 
-  glActiveTexture( GL_TEXTURE1 );
+  GLCaps::glActiveTexture( GL_TEXTURE1 );
   glEnable( GL_TEXTURE_3D );
   glBindTexture( GL_TEXTURE_3D, d->m_texture[ 0 ] );
-  glUniform1i( d->m_dataTexIndex, 1 );
+  GLCaps::glUniform1i( d->m_dataTexIndex, 1 );
 
-  glActiveTexture( GL_TEXTURE0 );
+  GLCaps::glActiveTexture( GL_TEXTURE0 );
   glEnable( GL_TEXTURE_2D );
   glBindTexture( GL_TEXTURE_2D, d->m_texture[ 2 ] );
-  glUniform1i( d->m_backTexIndex, 0 );
+  GLCaps::glUniform1i( d->m_backTexIndex, 0 );
 
-  glActiveTexture( GL_TEXTURE2 );
+  GLCaps::glActiveTexture( GL_TEXTURE2 );
   glEnable( GL_TEXTURE_1D );
   glBindTexture( GL_TEXTURE_1D, d->m_texture[ 1 ] );
-  glUniform1i( d->m_tfTexIndex, 2 );
+  GLCaps::glUniform1i( d->m_tfTexIndex, 2 );
 
   glEnable( GL_CULL_FACE );
   glCullFace( GL_BACK );
@@ -1158,12 +1158,12 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
 
   glUseProgram( 0 );
 
-  glActiveTexture( GL_TEXTURE2 );
+  GLCaps::glActiveTexture( GL_TEXTURE2 );
   glDisable( GL_TEXTURE_1D );
-  glActiveTexture( GL_TEXTURE1 );
+  GLCaps::glActiveTexture( GL_TEXTURE1 );
   glDisable( GL_TEXTURE_3D );
 
-  glActiveTexture( GL_TEXTURE0 );
+  GLCaps::glActiveTexture( GL_TEXTURE0 );
 
   // render buffer to screen
   GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, 0 );
@@ -1540,20 +1540,33 @@ void VolRenderShader::initializeShader()
 
   }
 
-  d->m_stepsizeIndex = glGetUniformLocation( d->m_shaderProgram, "stepsize" );
-  d->m_dataTexIndex = glGetUniformLocation( d->m_shaderProgram, "volume_tex" );
-  d->m_backTexIndex = glGetUniformLocation( d->m_shaderProgram, "tex" );
-  d->m_tfTexIndex = glGetUniformLocation( d->m_shaderProgram, "tf_tex" );
-  d->m_eyePosIndex = glGetUniformLocation( d->m_shaderProgram, "eyepos" );
-  d->m_lightPosIndex = glGetUniformLocation( d->m_shaderProgram, "lightpos" );
-  d->m_deltaGradIndex = glGetUniformLocation( d->m_shaderProgram, "deltag" );
-  d->m_ambientIndex = glGetUniformLocation( d->m_shaderProgram, "ambient" );
-  d->m_diffuseIndex = glGetUniformLocation( d->m_shaderProgram, "diffuse" );
-  d->m_specularIndex = glGetUniformLocation( d->m_shaderProgram, "specular" );
-  d->m_shininessIndex = glGetUniformLocation( d->m_shaderProgram, "shininess" );
-  d->m_methodIndex = glGetUniformLocation( d->m_shaderProgram, "method" );
-  d->m_tex2tfIndex = glGetUniformLocation( d->m_shaderProgram, "tex2tf" );
-  d->m_aFactorIndex = glGetUniformLocation( d->m_shaderProgram, "aFact" );
+  d->m_stepsizeIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                     "stepsize" );
+  d->m_dataTexIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                    "volume_tex" );
+  d->m_backTexIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram, "tex" );
+  d->m_tfTexIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                  "tf_tex" );
+  d->m_eyePosIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                   "eyepos" );
+  d->m_lightPosIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                     "lightpos" );
+  d->m_deltaGradIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                      "deltag" );
+  d->m_ambientIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                    "ambient" );
+  d->m_diffuseIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                    "diffuse" );
+  d->m_specularIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                     "specular" );
+  d->m_shininessIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                      "shininess" );
+  d->m_methodIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                   "method" );
+  d->m_tex2tfIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                   "tex2tf" );
+  d->m_aFactorIndex = GLCaps::glGetUniformLocation( d->m_shaderProgram,
+                                                    "aFact" );
 
 }
 
@@ -1714,7 +1727,7 @@ void VolRenderShader::vertex( float x, float y, float z ) const
 {
 
   glColor3f( x, y, z );
-  glMultiTexCoord3f( GL_TEXTURE1, x, y, z );
+  GLCaps::glMultiTexCoord3f( GL_TEXTURE1, x, y, z );
   glVertex3f( x, y, z );
 
 }

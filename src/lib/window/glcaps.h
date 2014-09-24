@@ -93,6 +93,9 @@ namespace anatomist
     static bool hasGlTexImage3D();
     static void glTexImage3D( GLenum, GLint, GLenum, GLsizei, GLsizei, 
                               GLsizei, GLint, GLenum, GLenum, const void* );
+    static void glMultiTexCoord3f( GLenum target, GLfloat s, GLfloat t,
+                                   GLfloat r );
+
     static bool hasFramebuffer();
     static void glBindFramebuffer( GLenum target, GLuint framebuffer );
     static void glBindRenderbuffer( GLenum target, GLuint renderbuffer );
@@ -106,6 +109,13 @@ namespace anatomist
                                            GLuint renderbuffer );
     static void glRenderbufferStorage( GLenum target, GLenum internalformat, 
                                        GLsizei width, GLsizei height );
+    static void glUniform1f( GLint location, GLfloat v0 );
+    static void glUniform1i( GLint location, GLint v0 );
+    static void glUniform4fv( GLint location, GLsizei count,
+                                  const GLfloat *value );
+    static GLint glGetUniformLocation( GLuint program,
+                                           const GLchar *name );
+    static void glMultTransposeMatrixf( const GLfloat m[16] );
     /// re-calculate number of texture units
     static void updateTextureUnits();
   };

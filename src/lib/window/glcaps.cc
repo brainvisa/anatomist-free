@@ -37,6 +37,7 @@
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/application/Anatomist.h>
 #include <iostream>
+#include <stdarg.h>
 #ifdef _WIN32
 #  include <wingdi.h>
 #else
@@ -58,6 +59,7 @@ namespace
   typedef PFNGLACTIVETEXTUREARBPROC glActiveTextureFunc;
   typedef PFNGLBLENDEQUATIONEXTPROC glBlendEquationFunc;
   typedef PFNGLTEXIMAGE3DEXTPROC glTexImage3DFunc;
+  typedef PFNGLMULTITEXCOORD3FARBPROC glMultiTexCoord3fFunc;
   typedef PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferFunc;
   typedef PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferFunc;
   typedef PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DFunc;
@@ -65,12 +67,18 @@ namespace
   typedef PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersFunc;
   typedef PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferFunc;
   typedef PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageFunc;
+  typedef PFNGLUNIFORM1FARBPROC glUniform1fFunc;
+  typedef PFNGLUNIFORM1IARBPROC glUniform1iFunc;
+  typedef PFNGLUNIFORM4FVARBPROC glUniform4fvFunc;
+  typedef PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocationFunc;
 #else
   typedef void (*glActiveTextureFunc)( GLenum );
   typedef void (*glBlendEquationFunc)( GLenum );
   typedef void (*glTexImage3DFunc)( GLenum, GLint, GLenum, GLsizei, GLsizei,
                                     GLsizei, GLint, GLenum, GLenum,
                                     const void* );
+  typedef void (*glMultiTexCoord3fFunc)( GLenum target, GLfloat s, GLfloat t,
+                                         GLfloat r );
   typedef void (*glBindFramebufferFunc)( GLenum target, GLuint framebuffer );
   typedef void (*glBindRenderbufferFunc)( GLenum target, GLuint renderbuffer );
   typedef void (*glFramebufferTexture2DFunc)( GLenum target, GLenum attachment,
@@ -85,7 +93,14 @@ namespace
   typedef void (*glRenderbufferStorageFunc)( GLenum target, 
                                              GLenum internalformat,
                                              GLsizei width, GLsizei height );
+  typedef void (*glUniform1fFunc)( GLint location, GLfloat v0 );
+  typedef void (*glUniform1iFunc)( GLint location, GLint v0 );
+  typedef void (*glUniform4fvFunc)( GLint location, GLsizei count,
+                                    const GLfloat *value );
+  typedef GLint (*glGetUniformLocationFunc)( GLuint program,
+                                             const GLchar *name );
 #endif
+  typedef void (*glMultTransposeMatrixfFunc)( const GLfloat m[16] );
 
   /* the APIENTRY macro here seems to be very important on Windows: it caused
      display bugs and crashed for one year without it. */
@@ -99,7 +114,13 @@ namespace
   }
 
   void APIENTRY _void_glTexImage3D( GLenum, GLint, GLenum, GLsizei, GLsizei,
-                           GLsizei, GLint, GLenum, GLenum, const void* )
+                                    GLsizei, GLint, GLenum, GLenum,
+                                    const void* )
+  {
+  }
+
+  void APIENTRY _void_glMultiTexCoord3f( GLenum target, GLfloat s, GLfloat t,
+                                         GLfloat r )
   {
   }
 
@@ -138,6 +159,34 @@ namespace
   }
 
 
+  void APIENTRY _void_glMultTransposeMatrix( const GLfloat m[16] )
+  {
+  }
+
+
+  void APIENTRY _void_glUniform1f( GLint location, GLfloat v0 )
+  {
+  }
+
+
+  void APIENTRY _void_glUniform1i( GLint location, GLint v0 )
+  {
+  }
+
+
+  void APIENTRY _void_glUniform4fvf( GLint location, GLsizei count,
+                            const GLfloat *value )
+  {
+  }
+
+
+  GLint APIENTRY _void_glGetUniformLocation( GLuint program,
+                                             const GLchar *name )
+  {
+    return 0;
+  }
+
+
   struct GLCapsPrivate
   {
     GLCapsPrivate();
@@ -156,6 +205,7 @@ namespace
     bool	depthpeeling;
     glBlendEquationFunc glBlendEquation;
     glTexImage3DFunc glTexImage3D;
+    glMultiTexCoord3fFunc glMultiTexCoord3f;
     glBindFramebufferFunc glBindFramebuffer;
     glBindRenderbufferFunc glBindRenderbuffer;
     glFramebufferTexture2DFunc glFramebufferTexture2D;
@@ -163,6 +213,11 @@ namespace
     glGenRenderbuffersFunc glGenRenderbuffers;
     glFramebufferRenderbufferFunc glFramebufferRenderbuffer;
     glRenderbufferStorageFunc glRenderbufferStorage;
+    glUniform1fFunc glUniform1f;
+    glUniform1iFunc glUniform1i;
+    glUniform4fvFunc glUniform4fv;
+    glGetUniformLocationFunc glGetUniformLocation;
+    glMultTransposeMatrixfFunc glMultTransposeMatrixf;
   };
 
 
@@ -188,6 +243,55 @@ namespace
 #endif
 
 
+#ifndef _WIN32
+  template <typename funcType>
+  funcType find_symbol( void* handle, funcType fallback, ... )
+  {
+    va_list ap;
+    va_start(ap, fallback);
+    const char *i = 0, *first = 0;
+    funcType procAddress = 0;
+    for(first=i=va_arg( ap, const char * ); !procAddress && i!=0;
+        i = va_arg( ap, const char * ))
+      procAddress = (funcType) dlsym( handle, i );
+    va_end(ap);
+
+    if( !procAddress )
+    {
+      cerr << "coud not find function " << first << ": "
+            << dlerror() << endl;
+      procAddress = fallback;
+    }
+    else
+      cout << "function " << first << " found." << endl;
+
+    return procAddress;
+  }
+#else
+  template <typename funcType>
+  funcType find_symbol( void*, funcType fallback, ... )
+  {
+    va_list ap;
+    va_start(ap, fallback);
+    const char *i = 0, *first = 0;
+    funcType procAddress = 0;
+    for(first=i=va_arg( ap, const char * ); !procAddress && i!=0;
+        i = va_arg( ap, const char * ))
+      procAddress = (funcType) wglGetProcAddress( i->c_str() );
+
+    if( !procAddress )
+    {
+      cerr << "coud not find function " << first << endl;
+      procAddress = fallback;
+    }
+    else
+      cout << "function " << first << " found." << endl;
+
+    return procAddress;
+  }
+#endif
+
+
   GLCapsPrivate::GLCapsPrivate()
     : ext_ARB_multitexture( false ), ext_ARB_shadow( false ),
       ext_SGIX_shadow( false ), ext_ARB_depth_texture( false ),
@@ -195,9 +299,12 @@ namespace
       glActiveTexture( _void_glActiveTexture ),
       glClientActiveTexture( _void_glActiveTexture ), numTextureUnits( 0 ),
       depthpeeling( false ), glBlendEquation( 0 ), glTexImage3D( 0 ),
+      glMultiTexCoord3f( 0 ),
       glBindFramebuffer( 0 ), glBindRenderbuffer( 0 ),
       glFramebufferTexture2D( 0 ), glGenFramebuffers( 0 ),
-      glGenRenderbuffers( 0 ), glFramebufferRenderbuffer( 0 )
+      glGenRenderbuffers( 0 ), glFramebufferRenderbuffer( 0 ), glUniform1f( 0 ),
+      glUniform1i( 0 ), glUniform4fv( 0 ), glGetUniformLocation( 0 ),
+      glMultTransposeMatrixf( 0 )
   {
   const GLubyte	*p = glGetString( GL_EXTENSIONS );
   if( !p )
@@ -238,6 +345,7 @@ namespace
     cerr << "could not dlopen myself" << endl;
 */
 
+  void *handle = 0; // just to have same API as unix
 #endif
 
 #ifndef GL_ARB_multitexture
@@ -251,287 +359,65 @@ namespace
 #ifndef _WIN32
 
       if( handle )
-        {
-          glActiveTexture 
-            = (glActiveTextureFunc) dlsym( handle, "glActiveTexture" );
-          if( !glActiveTexture 
-            && !(
-              glActiveTexture 
-                = (glActiveTextureFunc) dlsym( handle, "_glActiveTexture" ) ) )
-          {
-            glActiveTexture 
-              = (glActiveTextureFunc) dlsym( handle, "glActiveTextureARB" );
-            if( !glActiveTexture 
-          && !(
-            glActiveTexture 
-              = (glActiveTextureFunc) dlsym( handle, 
-                                             "_glActiveTextureARB" ) ) )
-            {
-              cerr << "coud not find function glActiveTexture: " 
-                    << dlerror() << endl;
-              glActiveTexture = _void_glActiveTexture;
-            }
-          }
-          /* cout << "glActiveTexture address: " << (int) glActiveTexture 
-             << endl;
-          cout << (int) &::glActiveTexture << endl;
-          cout << (int) &::glClientActiveTextureARB << endl; */
+      {
+#endif
+        glActiveTexture = find_symbol(
+          handle, _void_glActiveTexture,
+          "glActiveTexture", "_glActiveTexture", "glActiveTextureARB",
+          "_glActiveTextureARB", NULL );
+        /* cout << "glActiveTexture address: " << (void *) glActiveTexture
+            << endl;
+        cout << (void *) &::glActiveTexture << endl;
+        cout << (void *) &::glClientActiveTextureARB << endl; */
 
-          glClientActiveTexture	= (glActiveTextureFunc) 
-            dlsym( handle, "glClientActiveTexture" );
-          if( !glClientActiveTexture )
-            {
-              glClientActiveTexture	= (glActiveTextureFunc) 
-                dlsym( handle, "glClientActiveTextureARB" );
-              if( !glClientActiveTexture )
-                {
-                  cerr << "coud not find function glClientActiveTexture: " 
-                       << dlerror() << endl;
-                  glClientActiveTexture = _void_glActiveTexture;
-                }
-            }
+        glClientActiveTexture	= find_symbol(
+          handle, _void_glActiveTexture, "glClientActiveTexture",
+          "_glClientActiveTexture", "glClientActiveTextureARB",
+          "_glClientActiveTextureARB", NULL );
+        glBlendEquation = find_symbol(
+          handle, _void_glBlendEquation,
+          "glBlendEquation", "_glBlendEquation",
+          "glBlendEquationEXT", "_glBlendEquationEXT", NULL );
+        glTexImage3D = find_symbol(
+          handle, _void_glTexImage3D,
+          "glTexImage3D", "_glTexImage3D",
+          "glTexImage3DEXT", "_glTexImage3DEXT", NULL );
+        glMultiTexCoord3f = find_symbol(
+          handle, _void_glMultiTexCoord3f,
+          "glMultiTexCoord3f", "_glMultiTexCoord3f", "glMultiTexCoord3fARB",
+          "_glMultiTexCoord3fARB", NULL );
+        glBindFramebuffer = find_symbol(
+          handle, _void_glBindFramebuffer,
+          "glBindFramebuffer", "_glBindFramebuffer", "glBindFramebufferEXT",
+          "_glBindFramebufferEXT", NULL );
+        glBindRenderbuffer = find_symbol(
+          handle, _void_glBindRenderbuffer,
+          "glBindRenderbuffer", "_glBindRenderbuffer",
+          "glBindRenderbufferEXT", "_glBindRenderbufferEXT", NULL );
+        glFramebufferTexture2D = find_symbol(
+          handle, _void_glFramebufferTexture2D,
+          "glFramebufferTexture2D", "_glFramebufferTexture2D",
+          "glFramebufferTexture2DEXT", "_glFramebufferTexture2DEXT", NULL );
+        glGenFramebuffers = find_symbol(
+          handle, _void_glGenFramebuffers,
+          "glGenFramebuffers", "_glGenFramebuffers",
+          "glGenFramebuffersEXT", "_glGenFramebuffersEXT", NULL );
+        glGenRenderbuffers = find_symbol(
+          handle, _void_glGenRenderbuffers,
+          "glGenRenderbuffers", "_glGenRenderbuffers",
+          "glGenRenderbuffersEXT", "_glGenRenderbuffersEXT", NULL );
+        glFramebufferRenderbuffer = find_symbol(
+          handle, _void_glFramebufferRenderbuffer,
+          "glFramebufferRenderbuffer", "_glFramebufferRenderbuffer",
+          "glFramebufferRenderbufferEXT", "_glFramebufferRenderbufferEXT",
+          NULL );
+        glRenderbufferStorage = find_symbol(
+          handle, _void_glRenderbufferStorage,
+          "glRenderbufferStorage", "_glRenderbufferStorage",
+          "glRenderbufferStorageEXT", "_glRenderbufferStorageEXT", NULL );
 
-          glBlendEquation = (glBlendEquationFunc) dlsym( handle, 
-            "glBlendEquation" );
-          if( !glBlendEquation )
-          {
-            cerr << "coud not find function glBlendEquation: " 
-                 << dlerror() << endl;
-            glBlendEquation = _void_glBlendEquation;
-          }
-
-          glTexImage3D = (glTexImage3DFunc) dlsym( handle, 
-            "glTexImage3D" );
-          if( !glTexImage3D )
-          {
-            cerr << "coud not find function glTexImage3D: " 
-                 << dlerror() << endl;
-            glTexImage3D = _void_glTexImage3D;
-          }
-
-          glBindFramebuffer = (glBindFramebufferFunc) dlsym( handle, 
-            "glBindFramebuffer" );
-          if( !glBindFramebuffer )
-          {
-            glBindFramebuffer = (glBindFramebufferFunc) dlsym( handle, 
-              "glBindFramebufferEXT" );
-            if( !glBindFramebuffer )
-            {
-              cerr << "coud not find function glBindFramebuffer: " 
-                  << dlerror() << endl;
-              glBindFramebuffer = _void_glBindFramebuffer;
-            }
-          }
-
-          glBindRenderbuffer = (glBindRenderbufferFunc) dlsym( handle, 
-            "glBindRenderbuffer" );
-          if( !glBindRenderbuffer )
-          {
-            glBindRenderbuffer = (glBindRenderbufferFunc) dlsym( handle, 
-              "glBindRenderbufferEXT" );
-            if( !glBindRenderbuffer )
-            {
-              cerr << "coud not find function glBindRenderbuffer: " 
-                  << dlerror() << endl;
-              glBindRenderbuffer = _void_glBindRenderbuffer;
-            }
-          }
-
-          glFramebufferTexture2D = (glFramebufferTexture2DFunc) dlsym( handle, 
-            "glFramebufferTexture2D" );
-          if( !glFramebufferTexture2D )
-          {
-            glFramebufferTexture2D = 
-              (glFramebufferTexture2DFunc) dlsym( handle, 
-                "glFramebufferTexture2DEXT" );
-            if( !glFramebufferTexture2D )
-            {
-              cerr << "coud not find function glFramebufferTexture2D: " 
-                  << dlerror() << endl;
-              glFramebufferTexture2D = _void_glFramebufferTexture2D;
-            }
-          }
-
-          glGenFramebuffers = (glGenFramebuffersFunc) dlsym( handle, 
-            "glGenFramebuffers" );
-          if( !glGenFramebuffers )
-          {
-            glGenFramebuffers = (glGenFramebuffersFunc) dlsym( handle, 
-              "glGenFramebuffersEXT" );
-            if( !glGenFramebuffers )
-            {
-              cerr << "coud not find function glGenFramebuffers: " 
-                  << dlerror() << endl;
-              glGenFramebuffers = _void_glGenFramebuffers;
-            }
-          }
-
-          glGenRenderbuffers = (glGenRenderbuffersFunc) dlsym( handle, 
-            "glGenRenderbuffers" );
-          if( !glGenRenderbuffers )
-          {
-            glGenRenderbuffers = (glGenRenderbuffersFunc) dlsym( handle, 
-              "glGenRenderbuffersEXT" );
-            if( !glGenRenderbuffers )
-            {
-              cerr << "coud not find function glGenRenderbuffers: " 
-                  << dlerror() << endl;
-              glGenRenderbuffers = _void_glGenRenderbuffers;
-            }
-          }
-
-          glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
-            dlsym( handle, "glFramebufferRenderbuffer" );
-          if( !glFramebufferRenderbuffer )
-          {
-            glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
-              dlsym( handle, "glFramebufferRenderbufferEXT" );
-            if( !glFramebufferRenderbuffer )
-            {
-              cerr << "coud not find function glFramebufferRenderbuffer: " 
-                  << dlerror() << endl;
-              glFramebufferRenderbuffer = _void_glFramebufferRenderbuffer;
-            }
-          }
-
-          glRenderbufferStorage = (glRenderbufferStorageFunc)
-            dlsym( handle, "glRenderbufferStorage" );
-          if( !glRenderbufferStorage )
-          {
-            glRenderbufferStorage = (glRenderbufferStorageFunc)
-              dlsym( handle, "glRenderbufferStorageEXT" );
-            if( !glRenderbufferStorage )
-            {
-              cerr << "coud not find function glRenderbufferStorage: " 
-                  << dlerror() << endl;
-              glRenderbufferStorage = _void_glRenderbufferStorage;
-            }
-          }
-
-        }
-
-#else // WIN32
-
-          glActiveTexture 
-            = (glActiveTextureFunc) 
-            wglGetProcAddress( "glActiveTexture" );
-          if( !glActiveTexture )
-            {
-              glActiveTexture 
-                = (glActiveTextureFunc) 
-                wglGetProcAddress( "glActiveTextureARB" );
-              if( !glActiveTexture )
-                {
-                  cerr << "coud not find function glActiveTexture: " 
-                       << GetLastError() << endl;
-                  glActiveTexture = _void_glActiveTexture;
-                }
-              else cout << "glActiveTextureARB found\n";
-            }
-          else cout << "standard glActiveTexture found\n";
-          cout << "glActiveTexture address: " << (int) glActiveTexture << endl;
-          // cout << (int) &::glActiveTexture << endl;
-          // cout << (int) &::glClientActiveTextureARB << endl;
-
-          glClientActiveTexture	= (glActiveTextureFunc) 
-            wglGetProcAddress( "glClientActiveTexture" );
-          if( !glClientActiveTexture )
-            {
-              glClientActiveTexture	= (glActiveTextureFunc) 
-                wglGetProcAddress( "glClientActiveTextureARB" );
-              if( !glClientActiveTexture )
-                {
-                  cerr << "coud not find function glClientActiveTexture" 
-                       << endl;
-                  glClientActiveTexture = _void_glActiveTexture;
-                }
-              else cout << "glClientActiveTextureARB found\n";
-            }
-          else cout << "standard glClientActiveTexture found\n";
-
-          glBlendEquation = (glBlendEquationFunc)
-            wglGetProcAddress( "glBlendEquation" );
-          if( !glBlendEquation )
-          {
-            cerr << "coud not find function glBlendEquation: " << endl;
-            glBlendEquation = _void_glBlendEquation;
-          }
-          else cout << "glBlendEquation found \n";
-
-          glTexImage3D = (glTexImage3DFunc)
-            wglGetProcAddress( "glTexImage3D" );
-          if( !glBlendEquation )
-          {
-            cerr << "coud not find function glTexImage3D: " << endl;
-            glTexImage3D = _void_glTexImage3D;
-          }
-          else cout << "glTexImage3D found \n";
-
-          glBindFramebuffer = (glBindFramebufferFunc)
-            wglGetProcAddress( "glBindFramebuffer" );
-          if( !glBindFramebuffer )
-          {
-            cerr << "coud not find function glBindFramebuffer: " << endl;
-            glBindFramebuffer = _void_glBindFramebuffer;
-          }
-          else cout << "glBindFramebuffer found \n";
-
-          glBindRenderbuffer = (glBindRenderbufferFunc)
-            wglGetProcAddress( "glBindRenderbuffer" );
-          if( !glBindRenderbuffer )
-          {
-            cerr << "coud not find function glBindRenderbuffer: " << endl;
-            glBindRenderbuffer = _void_glBindRenderbuffer;
-          }
-          else cout << "glBindRenderbuffer found \n";
-
-          glFramebufferTexture2D = (glFramebufferTexture2DFunc)
-            wglGetProcAddress( "glFramebufferTexture2D" );
-          if( !glFramebufferTexture2D )
-          {
-            cerr << "coud not find function glFramebufferTexture2D: " << endl;
-            glFramebufferTexture2D = _void_glFramebufferTexture2D;
-          }
-          else cout << "glFramebufferTexture2D found \n";
-
-          glGenFramebuffers = (glGenFramebuffersFunc)
-            wglGetProcAddress( "glGenFramebuffers" );
-          if( !glGenFramebuffers )
-          {
-            cerr << "coud not find function glGenFramebuffers: " << endl;
-            glGenFramebuffers = _void_glGenFramebuffers;
-          }
-          else cout << "glGenFramebuffers found \n";
-
-          glGenRenderbuffers = (glGenRenderbuffersFunc)
-            wglGetProcAddress( "glGenRenderbuffers" );
-          if( !glGenRenderbuffers )
-          {
-            cerr << "coud not find function glGenRenderbuffers: " << endl;
-            glGenRenderbuffers = _void_glGenRenderbuffers;
-          }
-          else cout << "glGenRenderbuffers found \n";
-
-          glFramebufferRenderbuffer = (glFramebufferRenderbufferFunc)
-            wglGetProcAddress( "glFramebufferRenderbuffer" );
-          if( !glFramebufferRenderbuffer )
-          {
-            cerr << "coud not find function glFramebufferRenderbuffer: "
-              << endl;
-            glFramebufferRenderbuffer = _void_glFramebufferRenderbuffer;
-          }
-          else cout << "glFramebufferRenderbuffer found \n";
-
-          glRenderbufferStorage = (glRenderbufferStorageFunc)
-            wglGetProcAddress( "glRenderbufferStorage" );
-          if( !glRenderbufferStorage )
-          {
-            cerr << "coud not find function glRenderbufferStorage: "
-              << endl;
-            glRenderbufferStorage = _void_glRenderbufferStorage;
-          }
-          else cout << "glRenderbufferStorage found \n";
-
+#ifndef _WIN32
+      }
 #endif
 
       updateTextureUnits();
@@ -547,6 +433,31 @@ namespace
     }
   else
     cout << "No multitexturing available\n";
+#endif
+
+#ifndef _WIN32
+  if( handle )
+  {
+#endif
+    glUniform1f = find_symbol(
+      handle, _void_glUniform1f, "glUniform1f", "_glUniform1f",
+      "glUniform1fARB", "_glUniform1fARB", NULL );
+    glUniform1i = find_symbol(
+      handle, _void_glUniform1i, "glUniform1i", "_glUniform1i",
+      "glUniform1iARB", "_glUniform1iARB", NULL );
+    glUniform4fv = find_symbol(
+      handle, _void_glUniform4fvf, "glUniform4fv", "_glUniform4fv",
+      "glUniform4fvARB", "_glUniform4fvARB", NULL );
+    glGetUniformLocation = find_symbol(
+      handle, _void_glGetUniformLocation,
+      "glGetUniformLocation", "_glGetUniformLocation",
+      "glGetUniformLocationARB", "_glGetUniformLocationARB", NULL );
+    glMultTransposeMatrixf = find_symbol(
+      handle, _void_glMultTransposeMatrix,
+      "glMultTransposeMatrixf", "_glMultTransposeMatrixf",
+      "glMultTransposeMatrixfARB", "_glMultTransposeMatrixfARB", NULL );
+#ifndef _WIN32
+  }
 #endif
 
 #ifndef GL_ARB_shadow
@@ -849,3 +760,31 @@ void GLCaps::glRenderbufferStorage( GLenum target, GLenum internalformat,
                                           height );
 }
 
+void GLCaps::glUniform1f( GLint location, GLfloat v0 )
+{
+  _glcapsPrivate().glUniform1f( location, v0 );
+}
+
+
+void GLCaps::glUniform1i( GLint location, GLint v0 )
+{
+  _glcapsPrivate().glUniform1i( location, v0 );
+}
+
+
+void GLCaps::glUniform4fv( GLint location, GLsizei count, const GLfloat *value )
+{
+  _glcapsPrivate().glUniform4fv( location, count, value );
+}
+
+
+GLint GLCaps::glGetUniformLocation( GLuint program, const GLchar *name )
+{
+  _glcapsPrivate().glGetUniformLocation(program, name );
+}
+
+
+void GLCaps::glMultTransposeMatrixf( const GLfloat m[16] )
+{
+  _glcapsPrivate().glMultTransposeMatrixf( m );
+}
