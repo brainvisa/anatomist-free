@@ -228,11 +228,11 @@ VolRenderShader::Private::~Private()
   if ( m_shaderProgram )
   {
 
-    glDetachShader( m_shaderProgram, m_vertexShader );
-    glDetachShader( m_shaderProgram, m_fragmentShader );
-    glDeleteShader( m_vertexShader );
-    glDeleteShader( m_fragmentShader );
-    glDeleteProgram( m_shaderProgram );
+    GLCaps::glDetachShader( m_shaderProgram, m_vertexShader );
+    GLCaps::glDetachShader( m_shaderProgram, m_fragmentShader );
+    GLCaps::glDeleteShader( m_vertexShader );
+    GLCaps::glDeleteShader( m_fragmentShader );
+    GLCaps::glDeleteProgram( m_shaderProgram );
 
   }
 
@@ -1122,7 +1122,7 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
                                   GL_TEXTURE_2D, d->m_texture[ 3 ], 0 );
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-  glUseProgram( d->m_shaderProgram );
+  GLCaps::glUseProgram( d->m_shaderProgram );
 
   GLCaps::glUniform1f( d->m_stepsizeIndex, d->m_stepSize );
   GLCaps::glUniform4fv( d->m_eyePosIndex, 1, eyePos );
@@ -1156,7 +1156,7 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
   drawQuads( 1.0,1.0, 1.0 );
   glDisable( GL_CULL_FACE );
 
-  glUseProgram( 0 );
+  GLCaps::glUseProgram( 0 );
 
   GLCaps::glActiveTexture( GL_TEXTURE2 );
   glDisable( GL_TEXTURE_1D );
@@ -1452,7 +1452,7 @@ void VolRenderShader::update( const Observable* observable, void* arg )
 void VolRenderShader::initializeShader()
 {
 
-  d->m_vertexShader = glCreateShader( GL_VERTEX_SHADER );
+  d->m_vertexShader = GLCaps::glCreateShader( GL_VERTEX_SHADER );
 
   if ( !d->m_vertexShader )
   {
@@ -1469,73 +1469,73 @@ void VolRenderShader::initializeShader()
 
   std::string vCode = loadShaderFile( shader_basename + ".vert" );
   const char* vertexCode = vCode.c_str();
-  glShaderSource( d->m_vertexShader, 1, &vertexCode, NULL );
-  glCompileShader( d->m_vertexShader );
-  glGetShaderiv( d->m_vertexShader, GL_COMPILE_STATUS, &err );
+  GLCaps::glShaderSource( d->m_vertexShader, 1, &vertexCode, NULL );
+  GLCaps::glCompileShader( d->m_vertexShader );
+  GLCaps::glGetShaderiv( d->m_vertexShader, GL_COMPILE_STATUS, &err );
 
   if ( err == GL_FALSE )
   {
 
     std::cout << "Vertex shader compilation failed" << std::endl;
-    glDeleteShader( d->m_vertexShader );
+    GLCaps::glDeleteShader( d->m_vertexShader );
     d->m_vertexShader = 0;
     return;
 
   }
 
-  d->m_fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+  d->m_fragmentShader = GLCaps::glCreateShader( GL_FRAGMENT_SHADER );
 
   if ( !d->m_fragmentShader )
   {
-    glDeleteShader( d->m_vertexShader );
+    GLCaps::glDeleteShader( d->m_vertexShader );
     d->m_vertexShader = 0;
     return;
   }
 
   std::string fCode = loadShaderFile( shader_basename + ".frag" );
   const char* fragmentCode = fCode.c_str();
-  glShaderSource( d->m_fragmentShader, 1, &fragmentCode, NULL );
-  glCompileShader( d->m_fragmentShader );
-  glGetShaderiv( d->m_fragmentShader, GL_COMPILE_STATUS, &err );
+  GLCaps::glShaderSource( d->m_fragmentShader, 1, &fragmentCode, NULL );
+  GLCaps::glCompileShader( d->m_fragmentShader );
+  GLCaps::glGetShaderiv( d->m_fragmentShader, GL_COMPILE_STATUS, &err );
 
   if ( err == GL_FALSE )
   {
 
     std::cout << "Fragment shader compilation failed" << std::endl;
-    glDeleteShader( d->m_vertexShader );
+    GLCaps::glDeleteShader( d->m_vertexShader );
     d->m_vertexShader = 0;
-    glDeleteShader( d->m_fragmentShader );
+    GLCaps::glDeleteShader( d->m_fragmentShader );
     d->m_fragmentShader = 0;
     return;
 
   }
 
-  d->m_shaderProgram = glCreateProgram();
+  d->m_shaderProgram = GLCaps::glCreateProgram();
 
   if ( !d->m_shaderProgram )
   {
-    glDeleteShader( d->m_vertexShader );
+    GLCaps::glDeleteShader( d->m_vertexShader );
     d->m_vertexShader = 0;
-    glDeleteShader( d->m_fragmentShader );
+    GLCaps::glDeleteShader( d->m_fragmentShader );
     d->m_fragmentShader = 0;
     return;
   }
 
 
-  glAttachShader( d->m_shaderProgram, d->m_vertexShader );
-  glAttachShader( d->m_shaderProgram, d->m_fragmentShader );
-  glLinkProgram( d->m_shaderProgram );
-  glGetProgramiv( d->m_shaderProgram, GL_LINK_STATUS, &err );
+  GLCaps::glAttachShader( d->m_shaderProgram, d->m_vertexShader );
+  GLCaps::glAttachShader( d->m_shaderProgram, d->m_fragmentShader );
+  GLCaps::glLinkProgram( d->m_shaderProgram );
+  GLCaps::glGetProgramiv( d->m_shaderProgram, GL_LINK_STATUS, &err );
 
   if ( err == GL_FALSE )
   {
 
     std::cout << "Shader link failed" << std::endl;
-    glDeleteShader( d->m_vertexShader );
+    GLCaps::glDeleteShader( d->m_vertexShader );
     d->m_vertexShader = 0;
-    glDeleteShader( d->m_fragmentShader );
+    GLCaps::glDeleteShader( d->m_fragmentShader );
     d->m_fragmentShader = 0;
-    glDeleteProgram( d->m_shaderProgram );
+    GLCaps::glDeleteProgram( d->m_shaderProgram );
     return;
 
   }

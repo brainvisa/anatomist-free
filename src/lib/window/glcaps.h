@@ -116,6 +116,21 @@ namespace anatomist
     static GLint glGetUniformLocation( GLuint program,
                                            const GLchar *name );
     static void glMultTransposeMatrixf( const GLfloat m[16] );
+    static void glAttachShader( GLuint program, GLuint shader );
+    static void glDetachShader( GLuint program, GLuint shader );
+    static void glCompileShader( GLuint shader );
+    static GLuint glCreateProgram();
+    static GLuint glCreateShader( GLenum type );
+    static void glDeleteProgram( GLuint program );
+    static void glDeleteShader( GLuint shader );
+    static void glGetProgramiv( GLuint program, GLenum pname, GLint *params );
+    static void glGetShaderiv( GLuint shader, GLenum pname, GLint *params );
+    static void glLinkProgram( GLuint program );
+    static void glShaderSource( GLuint shader, GLsizei count,
+                                const GLchar *const*string,
+                                const GLint *length );
+    static void glUseProgram( GLuint program );
+
     /// re-calculate number of texture units
     static void updateTextureUnits();
   };

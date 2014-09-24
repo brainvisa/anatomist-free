@@ -100,7 +100,24 @@ namespace
   typedef GLint (*glGetUniformLocationFunc)( GLuint program,
                                              const GLchar *name );
 #endif
-  typedef void (*glMultTransposeMatrixfFunc)( const GLfloat m[16] );
+  typedef void (APIENTRYP glMultTransposeMatrixfFunc)( const GLfloat m[16] );
+  // sharders API
+  typedef void (APIENTRYP glAttachShaderFunc)( GLuint program, GLuint shader );
+  typedef void (APIENTRYP glDetachShaderFunc)( GLuint program, GLuint shader );
+  typedef void (APIENTRYP glCompileShaderFunc)( GLuint shader );
+  typedef GLuint (APIENTRYP glCreateProgramFunc)( void );
+  typedef GLuint (APIENTRYP glCreateShaderFunc)( GLenum type );
+  typedef void (APIENTRYP glDeleteProgramFunc)( GLuint program );
+  typedef void (APIENTRYP glDeleteShaderFunc)( GLuint shader );
+  typedef void (APIENTRYP glGetProgramivFunc)( GLuint program, GLenum pname,
+                                               GLint *params );
+  typedef void (APIENTRYP glGetShaderivFunc)( GLuint shader, GLenum pname,
+                                              GLint *params );
+  typedef void (APIENTRYP glLinkProgramFunc)( GLuint program );
+  typedef void (APIENTRYP glShaderSourceFunc)( GLuint shader, GLsizei count,
+                                               const GLchar *const*string,
+                                               const GLint *length );
+  typedef void (APIENTRYP glUseProgramFunc)( GLuint program );
 
   /* the APIENTRY macro here seems to be very important on Windows: it caused
      display bugs and crashed for one year without it. */
@@ -152,38 +169,84 @@ namespace
   {
   }
 
-
   void APIENTRY _void_glRenderbufferStorage(
     GLenum target, GLenum internalformat, GLsizei width, GLsizei height )
   {
   }
 
-
   void APIENTRY _void_glMultTransposeMatrix( const GLfloat m[16] )
   {
   }
-
 
   void APIENTRY _void_glUniform1f( GLint location, GLfloat v0 )
   {
   }
 
-
   void APIENTRY _void_glUniform1i( GLint location, GLint v0 )
   {
   }
-
 
   void APIENTRY _void_glUniform4fvf( GLint location, GLsizei count,
                             const GLfloat *value )
   {
   }
 
-
   GLint APIENTRY _void_glGetUniformLocation( GLuint program,
                                              const GLchar *name )
   {
     return 0;
+  }
+
+  void APIENTRY _void_glAttachShader( GLuint program, GLuint shader )
+  {
+  }
+
+  void APIENTRY _void_glDetachShader( GLuint program, GLuint shader )
+  {
+  }
+
+  void APIENTRY _void_glCompileShader( GLuint shader )
+  {
+  }
+
+  GLuint APIENTRY _void_glCreateProgram( void )
+  {
+  }
+
+  GLuint APIENTRY _void_glCreateShader( GLenum type )
+  {
+  }
+
+  void APIENTRY _void_glDeleteProgram( GLuint program )
+  {
+  }
+
+  void APIENTRY _void_glDeleteShader( GLuint shader )
+  {
+  }
+
+  void APIENTRY _void_glGetProgramiv( GLuint program, GLenum pname,
+                                      GLint *params )
+  {
+  }
+
+  void APIENTRY _void_glGetShaderiv( GLuint shader, GLenum pname,
+                                     GLint *params )
+  {
+  }
+
+  void APIENTRY _void_glLinkProgram( GLuint program )
+  {
+  }
+
+  void APIENTRY _void_glShaderSource( GLuint shader, GLsizei count,
+                                      const GLchar *const*string,
+                                      const GLint *length )
+  {
+  }
+
+  void APIENTRY _void_glUseProgram( GLuint program )
+  {
   }
 
 
@@ -218,6 +281,18 @@ namespace
     glUniform4fvFunc glUniform4fv;
     glGetUniformLocationFunc glGetUniformLocation;
     glMultTransposeMatrixfFunc glMultTransposeMatrixf;
+    glAttachShaderFunc glAttachShader;
+    glDetachShaderFunc glDetachShader;
+    glCompileShaderFunc glCompileShader;
+    glCreateProgramFunc glCreateProgram;
+    glCreateShaderFunc glCreateShader;
+    glDeleteProgramFunc glDeleteProgram;
+    glDeleteShaderFunc glDeleteShader;
+    glGetProgramivFunc glGetProgramiv;
+    glGetShaderivFunc glGetShaderiv;
+    glLinkProgramFunc glLinkProgram;
+    glShaderSourceFunc glShaderSource;
+    glUseProgramFunc glUseProgram;
   };
 
 
@@ -304,7 +379,11 @@ namespace
       glFramebufferTexture2D( 0 ), glGenFramebuffers( 0 ),
       glGenRenderbuffers( 0 ), glFramebufferRenderbuffer( 0 ), glUniform1f( 0 ),
       glUniform1i( 0 ), glUniform4fv( 0 ), glGetUniformLocation( 0 ),
-      glMultTransposeMatrixf( 0 )
+      glMultTransposeMatrixf( 0 ), glAttachShader( 0 ), glDetachShader( 0 ),
+      glCompileShader( 0 ), glCreateProgram( 0 ), glCreateShader( 0 ),
+      glDeleteProgram( 0 ), glDeleteShader( 0 ), glGetProgramiv( 0 ),
+      glGetShaderiv( 0 ), glLinkProgram( 0 ), glShaderSource( 0 ),
+      glUseProgram( 0 )
   {
   const GLubyte	*p = glGetString( GL_EXTENSIONS );
   if( !p )
@@ -456,6 +535,42 @@ namespace
       handle, _void_glMultTransposeMatrix,
       "glMultTransposeMatrixf", "_glMultTransposeMatrixf",
       "glMultTransposeMatrixfARB", "_glMultTransposeMatrixfARB", NULL );
+    glAttachShader = find_symbol(
+      handle, _void_glAttachShader,
+      "glAttachShader", "_glAttachShader", NULL );
+    glDetachShader = find_symbol(
+      handle, _void_glDetachShader,
+      "glDetachShader", "_glDetachShader", NULL );
+    glCompileShader = find_symbol(
+      handle, _void_glCompileShader,
+      "glCompileShader", "_glCompileShader", NULL );
+    glCreateProgram = find_symbol(
+      handle, _void_glCreateProgram,
+      "glCreateProgram", "_glCreateProgram", NULL );
+    glCreateShader = find_symbol(
+      handle, _void_glCreateShader,
+      "glCreateShader", "_glCreateShader", NULL );
+    glDeleteProgram = find_symbol(
+      handle, _void_glDeleteProgram,
+      "glDeleteProgram", "_glDeleteProgram", NULL );
+    glDeleteShader = find_symbol(
+      handle, _void_glDeleteShader,
+      "glDeleteShader", "_glDeleteShader", NULL );
+    glGetProgramiv = find_symbol(
+      handle, _void_glGetProgramiv,
+      "glGetProgramiv", "_glGetProgramiv", NULL );
+    glGetShaderiv = find_symbol(
+      handle, _void_glGetShaderiv,
+      "glGetShaderiv", "_glGetShaderiv", NULL );
+    glLinkProgram = find_symbol(
+      handle, _void_glLinkProgram,
+      "glLinkProgram", "_glLinkProgram", NULL );
+    glShaderSource = find_symbol(
+      handle, _void_glShaderSource,
+      "glShaderSource", "_glShaderSource", NULL );
+    glUseProgram = find_symbol(
+      handle, _void_glUseProgram,
+      "glUseProgram", "_glUseProgram", NULL );
 #ifndef _WIN32
   }
 #endif
@@ -698,6 +813,13 @@ void GLCaps::glTexImage3D( GLenum target, GLint level, GLenum internalformat,
 }
 
 
+void GLCaps::glMultiTexCoord3f( GLenum target, GLfloat s, GLfloat t,
+                                   GLfloat r )
+{
+  _glcapsPrivate().glMultiTexCoord3f( target, s, t, r );
+}
+
+
 void GLCaps::updateTextureUnits()
 {
   _glcapsPrivate().updateTextureUnits();
@@ -780,7 +902,7 @@ void GLCaps::glUniform4fv( GLint location, GLsizei count, const GLfloat *value )
 
 GLint GLCaps::glGetUniformLocation( GLuint program, const GLchar *name )
 {
-  _glcapsPrivate().glGetUniformLocation(program, name );
+  return _glcapsPrivate().glGetUniformLocation( program, name );
 }
 
 
@@ -788,3 +910,79 @@ void GLCaps::glMultTransposeMatrixf( const GLfloat m[16] )
 {
   _glcapsPrivate().glMultTransposeMatrixf( m );
 }
+
+
+void GLCaps::glAttachShader( GLuint program, GLuint shader )
+{
+  _glcapsPrivate().glAttachShader( program, shader );
+}
+
+
+void GLCaps::glDetachShader( GLuint program, GLuint shader )
+{
+  _glcapsPrivate().glDetachShader( program, shader );
+}
+
+
+void GLCaps::glCompileShader( GLuint shader )
+{
+  _glcapsPrivate().glCompileShader( shader );
+}
+
+
+GLuint GLCaps::glCreateProgram()
+{
+  return _glcapsPrivate().glCreateProgram();
+}
+
+
+GLuint GLCaps::glCreateShader( GLenum type )
+{
+  return _glcapsPrivate().glCreateShader( type );
+}
+
+
+void GLCaps::glDeleteProgram( GLuint program )
+{
+  _glcapsPrivate().glDeleteProgram( program );
+}
+
+
+void GLCaps::glDeleteShader( GLuint shader )
+{
+  _glcapsPrivate().glDeleteShader( shader );
+}
+
+
+void GLCaps::glGetProgramiv( GLuint program, GLenum pname, GLint *params )
+{
+  _glcapsPrivate().glGetProgramiv( program, pname, params );
+}
+
+
+void GLCaps::glGetShaderiv( GLuint shader, GLenum pname, GLint *params )
+{
+  _glcapsPrivate().glGetShaderiv( shader, pname, params );
+}
+
+
+void GLCaps::glLinkProgram( GLuint program )
+{
+  _glcapsPrivate().glLinkProgram( program );
+}
+
+
+void GLCaps::glShaderSource( GLuint shader, GLsizei count,
+                             const GLchar *const*string,
+                             const GLint *length )
+{
+  _glcapsPrivate().glShaderSource( shader, count, string, length );
+}
+
+
+void GLCaps::glUseProgram( GLuint program )
+{
+  _glcapsPrivate().glUseProgram( program );
+}
+
+
