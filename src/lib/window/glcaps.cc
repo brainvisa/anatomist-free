@@ -100,6 +100,10 @@ namespace
   typedef GLint (*glGetUniformLocationFunc)( GLuint program,
                                              const GLchar *name );
 #endif
+#ifndef APIENTRYP
+  // APIENTRYP seems not defined on Mac
+#define APIENTRYP *
+#endif
   typedef void (APIENTRYP glMultTransposeMatrixfFunc)( const GLfloat m[16] );
   // sharders API
   typedef void (APIENTRYP glAttachShaderFunc)( GLuint program, GLuint shader );
