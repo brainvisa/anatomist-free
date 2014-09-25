@@ -352,7 +352,7 @@ namespace
     funcType procAddress = 0;
     for(first=i=va_arg( ap, const char * ); !procAddress && i!=0;
         i = va_arg( ap, const char * ))
-      procAddress = (funcType) wglGetProcAddress( i->c_str() );
+      procAddress = (funcType) wglGetProcAddress( i );
 
     if( !procAddress )
     {
