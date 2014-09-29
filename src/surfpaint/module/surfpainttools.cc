@@ -32,6 +32,8 @@
  */
 
 #include <anatomist/module/surfpainttools.h>
+#include <anatomist/object/oReader.h>
+#include <anatomist/control/wControl.h>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -365,7 +367,9 @@ void SurfpaintTools::save()
 //
 //  cout << "fileName " << fileName << endl;
 
-  QString filt = ControlledWindow::tr( "Texture" ) + " (*.tex)" ;
+  QString filt = ( ControlWindow::tr( "Textures" ).toStdString() + " ("
+    + ObjectReader::supportedFileExtensions( "Texture" ) + ");;"
+    + ControlWindow::tr( "All files" ).toStdString() + " (*)" ).c_str();
   QString capt = "Save Texture" ;
 
   QString filename = QFileDialog::getSaveFileName( QString::null, filt, 0, 0, capt );
