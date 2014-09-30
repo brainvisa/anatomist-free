@@ -317,7 +317,10 @@ def loadpython():
   print 'load python file'
   file = QFileDialog.getOpenFileName( None, '*.py', options=QFileDialog.DontUseNativeDialog )
   if file is not None:
-    execfile( file.toLocal8Bit().data() )
+    import sip
+    if sip.getapi('QString') == 1:
+        file = file.toLocal8Bit().data()
+    execfile( file )
 
 
 class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
