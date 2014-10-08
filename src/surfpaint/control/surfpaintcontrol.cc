@@ -37,7 +37,7 @@
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window3D/control3D.h>
 #include <anatomist/controler/view.h>
-#include <anatomist/window3D/trackball.h>
+#include <anatomist/window3D/trackOblique.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/winFactory.h>
 #include <anatomist/misc/error.h>
@@ -93,6 +93,31 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<Trackball> (actionPool->action("Trackball"),
           &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
           actionPool->action("Trackball"), &Trackball::endTrackball), true);
+
+  //        rotation center
+  keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::setCenter ),
+                          "set_rotation_center" );
+  keyPressEventSubscribe( Qt::Key_C, Qt::AltModifier,
+                          KeyActionLinkOf<Trackball>
+                          ( actionPool->action( "Trackball" ),
+                            &Trackball::showRotationCenter ),
+                          "show_rotation_center" );
+
+  //        sync
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSync ),
+                          "sync_views" );
+  keyPressEventSubscribe( Qt::Key_S, Qt::AltModifier,
+                          KeyActionLinkOf<Sync3DAction>
+                          ( actionPool->action( "Sync3DAction" ),
+                            &Sync3DAction::execSyncOrientation ),
+                          "sync_views_orientation" );
+
   //
   //  // zoom
   //
@@ -115,6 +140,27 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<Translate3DAction> (actionPool->action(
           "Translate3DAction"), &Translate3DAction::endTranslate), true);
 
+  // Slice action
+  keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::previousSlice ),
+                          "previous_slice" );
+  keyPressEventSubscribe( Qt::Key_PageDown, Qt::NoModifier,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::nextSlice ),
+                          "next_slice" );
+  // oblique trackball
+
+  mouseLongEventSubscribe
+    ( Qt::MidButton, Qt::AltModifier,
+      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
+                                       &TrackOblique::beginTrackball ),
+      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
+                                       &TrackOblique::moveTrackball ),
+      MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
+                                       &TrackOblique::endTrackball ), true );
   /*Creation of action*/
 
   myAction = static_cast<SurfpaintToolsAction *>(
