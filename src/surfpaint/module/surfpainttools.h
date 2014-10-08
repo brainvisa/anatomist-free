@@ -164,7 +164,7 @@ namespace anatomist
       void sulciPath();
       void gyriPath();
       void brush();
-      void magicbrush();
+      void magicBrush();
       void fill();
       void distance();
       void clearPath();

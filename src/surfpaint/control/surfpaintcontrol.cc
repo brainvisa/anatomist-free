@@ -130,26 +130,23 @@ void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
 
     AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->aWindow());
 
-    if (w3)
+    if (w3 && !w3->surfpaintIsVisible())
     {
-      if (!w3->surfpaintIsVisible())
+      SurfpaintTools *myTools = myAction->getTools();
+      myTools->addToolBarInfosTexture(w3);
+
+      if (myTools->initSurfPaintModule(w3))
       {
-        SurfpaintTools *myTools = myAction->getTools();
-        myTools->addToolBarInfosTexture(w3);
+        w3->setVisibleSurfpaint(true);
+        myTools->addToolBarControls(w3);
+        myTools->setTextureValueFloat( myAction->textureValue() );
 
-        if (myTools->initSurfPaintModule(w3))
-        {
-          w3->setVisibleSurfpaint(true);
-          myTools->addToolBarControls(w3);
-
-          GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
-          if (glw)
-            glw->copyBackBuffer2Texture();
-
-        }
-        else
-          myTools->removeToolBarInfosTexture(w3);
+        GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
+        if (glw)
+          glw->copyBackBuffer2Texture();
       }
+      else
+        myTools->removeToolBarInfosTexture(w3);
     }
   }
 }
@@ -159,15 +156,12 @@ void SurfpaintToolsControl::doAlsoOnDeselect(ActionPool * /* pool */)
   if (myAction)
   {
     AWindow3D *w3 = dynamic_cast<AWindow3D *> (myAction->view()->aWindow());
-    if (w3)
+    if( w3 && w3->surfpaintIsVisible() )
     {
-      if (w3->surfpaintIsVisible())
-      {
       w3->setVisibleSurfpaint(false);
       SurfpaintTools *myTools = myAction->getTools();
       myTools->removeToolBarInfosTexture(w3);
       myTools->removeToolBarControls(w3);
-      }
     }
   }
 }

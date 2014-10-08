@@ -92,6 +92,8 @@ namespace anatomist
       void shortestpathStop( int x, int y, int globalX, int globalY  );
       void shortestpathClose( int x, int y, int globalX, int globalY  );
 
+      float textureValue() const { return texvalue; }
+
 //       void setTools(SurfpaintTools *t){ myTools = t; } ;
       SurfpaintTools* getTools(){ return myTools; } ;
       void setupTools();
