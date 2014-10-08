@@ -768,6 +768,19 @@ void SurfpaintTools::removeToolBarControls(AWindow3D *w3)
 
   tbControls = w3->removeToolBar( ControlledWindow::tr("surfpainttoolbarControls") );
   delete tbControls;
+  tbControls = 0;
+  paintBrushAction = 0;
+  colorPickerAction = 0;
+  eraseAction = 0;
+  selectionAction = 0;
+  pathAction = 0;
+  sulciPathAction = 0;
+  gyriPathAction = 0;
+  magicBrushAction = 0;
+  fillAction = 0;
+  clearPathAction = 0;
+  distanceAction = 0;
+  saveAction = 0;
 }
 
 void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
@@ -916,83 +929,99 @@ void SurfpaintTools::restoreTextureValue(int indexVertex)
 
 void SurfpaintTools::updateTextureValue(int indexVertex, float value)
 {
-  if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect))
+  if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect)
+      && objtype == "TEXTURED SURF.")
   {
-    if (objtype == "TEXTURED SURF.")
+    Object options = Object::value(Dictionary());
+    options->setProperty("scale", 0);
+
+    float it = at->TimeStep();
+    int tn = 0; // 1st texture
+    GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+    int tx = 0; // 1st tex coord
+
+    ViewState vs;
+    GLfloat* texbuf = const_cast<GLfloat *>( at->glTexCoordArray( vs, tn ) );
+    // hum, don't look at this const_cast...
+
+    float scl = (te.maxquant[tx] - te.minquant[tx]);
+    if( scl == 0 )
+      scl = 1.;
+
+    if( value < te.minquant[tx] || value > te.maxquant[tx] )
     {
-      Object options = Object::value(Dictionary());
-      options->setProperty("scale", 0);
+      // extrema will need to change
+      // value in internally rescaled texture
+      float rval = ( value - te.minquant[tx] ) / scl;
+      /* the whole tex needs rescaling because they need to fit in [0-1]
+          for OpenGL */
+      float offs = 0.;
+      float nscl = 1. / ( std::max( rval, te.max[tx] )
+        - std::min( rval, te.min[tx] ) );
+      if( rval < 0 )
+        offs = - rval * nscl;
+      unsigned i, n = at->glTexCoordSize( vs, tn );
+      GLfloat *tb = texbuf;
+      for( unsigned i=0; i<n; ++i, ++tb )
+        *tb = *tb * nscl + offs;
+      // update internal extrema
+      te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
+      te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
 
-      float it = at->TimeStep();
-      int tn = 0; // 1st texture
-      GLComponent::TexExtrema & te = at->glTexExtrema(tn);
-      int tx = 0; // 1st tex coord
-
-      ViewState vs;
-      GLfloat* texbuf = const_cast<GLfloat *>( at->glTexCoordArray( vs, tn ) );
-      // hum, don't look at this const_cast...
-
-      float scl = (te.maxquant[tx] - te.minquant[tx]);
-      if( scl == 0 )
-        scl = 1.;
-
-      if( value < te.minquant[tx] || value > te.maxquant[tx] )
+      // update scaled extrema
+      if( value < te.minquant[tx] )
+        te.minquant[tx] = value;
+      else
       {
-        // extrema will need to change
-        // value in internally rescaled texture
-        float rval = ( value - te.minquant[tx] ) / scl;
-        /* the whole tex needs rescaling because they need to fit in [0-1]
-            for OpenGL */
-        float offs = 0.;
-        float nscl = 1. / ( std::max( rval, te.max[tx] )
-          - std::min( rval, te.min[tx] ) );
-        if( rval < 0 )
-          offs = - rval * nscl;
-        unsigned i, n = at->glTexCoordSize( vs, tn );
-        GLfloat *tb = texbuf;
-        for( unsigned i=0; i<n; ++i, ++tb )
-          *tb = *tb * nscl + offs;
-        // update internal extrema
-        te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
-        te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
-
-        // update scaled extrema
-        if( value < te.minquant[tx] )
-          te.minquant[tx] = value;
+        // update colormap bounds
+        tex->getOrCreatePalette();
+        AObjectPalette *pal = tex->palette();
+        float cscale = 1.;
+        if( textureValueMaxSpinBox )
+          cscale = ( textureValueMaxSpinBox->value() - te.minquant[tx] )
+            / ( value - te.minquant[tx] );
         else
         {
-          // update colormap bounds
-          tex->getOrCreatePalette();
-          AObjectPalette *pal = tex->palette();
-          pal->setMax1( scl * pal->max1() / ( value - te.minquant[tx] ) );
-          tex->setPalette( *pal );
-
-          te.maxquant[tx] = value;
+          cscale = scl * pal->max1() / ( value - te.minquant[tx] );
+          string constraintLabel = string(constraintList
+            ->itemText(constraintList->count() - 1));
+          int position = constraintLabel.find_last_of(' ');
+          if( position != string::npos )
+          {
+            std::istringstream strin(constraintLabel.substr(position + 1));
+            int mvalue;
+            strin >> mvalue;
+            cscale = ( mvalue - te.minquant[tx] ) / ( value - te.minquant[tx] );
+          }
         }
-        scl = te.maxquant[tx] - te.minquant[tx];
+        pal->setMax1( cscale );
+        tex->setPalette( *pal );
+
+        te.maxquant[tx] = value;
       }
-
-      float svalue;
-
-      svalue = ( value - te.minquant[tx] ) / scl;
-
-      if( svalue < te.min[tx] )
-        te.min[tx] = svalue;
-      else if( svalue > te.max[tx] )
-        te.max[tx] = svalue;
-
-      texbuf[ indexVertex ] = svalue;
-      listVertexChanged[indexVertex] = value;
-
-      at->glSetChanged( GLComponent::glBODY );
-      tex->setChanged();
-      tex->setInternalsChanged();
-      tex->notifyObservers(this);
-
-
-      if (IDActiveControl == 3 || IDActiveControl == 6)
-        listIndexVertexBrushPath.push_back(indexVertex);
+      scl = te.maxquant[tx] - te.minquant[tx];
     }
+
+    float svalue;
+
+    svalue = ( value - te.minquant[tx] ) / scl;
+
+    if( svalue < te.min[tx] )
+      te.min[tx] = svalue;
+    else if( svalue > te.max[tx] )
+      te.max[tx] = svalue;
+
+    texbuf[ indexVertex ] = svalue;
+    listVertexChanged[indexVertex] = value;
+
+    at->glSetChanged( GLComponent::glBODY );
+    tex->setChanged();
+    tex->setInternalsChanged();
+    tex->notifyObservers(this);
+
+
+    if (IDActiveControl == 3 || IDActiveControl == 6)
+      listIndexVertexBrushPath.push_back(indexVertex);
   }
 }
 
@@ -1397,6 +1426,20 @@ void SurfpaintTools::changeMaxValueSpinBox(double v)
   setMinMaxTexture((float) textureValueMinSpinBox->value(), (float) v);
 
   textureValueMaxSpinBox->setValue(v);
+
+  if( tex )
+  {
+    AObjectPalette *pal = tex->palette();
+    int tn = 0; // 1st texture
+    GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+    int tx = 0; // 1st tex coord
+    float cscale = 1.;
+    if( te.minquant[tx] != te.maxquant[tx] )
+      cscale = ( v - te.minquant[tx] ) / ( te.maxquant[tx] - te.minquant[tx] );
+    pal->setMax1( cscale );
+    tex->setPalette( *pal );
+    tex->notifyObservers( this );
+  }
 
 }
 

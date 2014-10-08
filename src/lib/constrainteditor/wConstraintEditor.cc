@@ -357,6 +357,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
   //d->latlon->insertItem("lon");
   d->latlon->addItem( tr( "predefined constraints" ) );
   d->latlon->addItem( tr( "user defined" ));
+  d->latlon->setCurrentIndex( 1 );
 
   d->latlon->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
                                          QSizePolicy::Fixed ) );
@@ -478,9 +479,11 @@ void ConstraintEditorWindow::accept()
   }
 
   if ( d->texSelect )
-    {
-    //d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
-    d->texSelect->createDefaultPalette( "Graph-Label" );
+  {
+    if( d->latlon->currentIndex() == 1 )
+      d->texSelect->createDefaultPalette( "Blue-Red-fusion" );
+    else
+      d->texSelect->createDefaultPalette( "Graph-Label" );
 
     GLComponent *glc = d->texSelect->glAPI();
 
