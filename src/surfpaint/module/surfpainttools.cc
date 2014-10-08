@@ -982,17 +982,23 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
             / ( value - te.minquant[tx] );
         else
         {
-          cscale = scl * pal->max1() / ( value - te.minquant[tx] );
-          string constraintLabel = string(constraintList
-            ->itemText(constraintList->count() - 1));
-          int position = constraintLabel.find_last_of(' ');
-          if( position != string::npos )
+          cscale = 1.;
+          float cmax = 0;
+          for( int i=0; i<constraintList->count(); ++i )
           {
-            std::istringstream strin(constraintLabel.substr(position + 1));
-            int mvalue;
-            strin >> mvalue;
-            cscale = ( mvalue - te.minquant[tx] ) / ( value - te.minquant[tx] );
+            string constraintLabel = string(constraintList->itemText(i));
+            size_t position = constraintLabel.find_last_of(' ');
+            if( position != string::npos )
+            {
+              std::istringstream strin(constraintLabel.substr(position + 1));
+              int mvalue;
+              strin >> mvalue;
+              if( mvalue >= cmax )
+                cmax = mvalue;
+            }
           }
+          if( cmax > 0 )
+            cscale = ( cmax - te.minquant[tx] ) / ( value - te.minquant[tx] );
         }
         pal->setMax1( cscale );
         tex->setPalette( *pal );
