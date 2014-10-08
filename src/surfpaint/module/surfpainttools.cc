@@ -894,46 +894,38 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       // hum, don't look at this const_cast...
 
       float scl = (te.maxquant[tx] - te.minquant[tx]);
-
+      if( scl == 0 )
+        scl = 1.;
 
       if( value < te.minquant[tx] || value > te.maxquant[tx] )
       {
         // extrema will need to change
         // value in internally rescaled texture
-        float rval = value - te.minquant[tx];
-        if( scl == 0 )
-          scl = 1.;
-        else
-          rval /= scl;
-        if( rval < 0 || rval > 1. )
-        {
-          /* the whole tex needs rescaling because they need to fit in [0-1]
-             for OpenGL */
-          float offs = 0.;
-          float nscl = 1. / ( std::max( rval, te.max[tx] )
-            - std::min( rval, te.min[tx] ) );
-          if( rval < 0 )
-            offs = - rval * nscl;
-          unsigned i, n = at->glTexCoordSize( vs, tn );
-          GLfloat *tb = texbuf;
-          for( unsigned i=0; i<n; ++i )
-            *tb++ = *tb * nscl + offs;
-          // update internal extrema
-          te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
-          te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
-        }
+        float rval = ( value - te.minquant[tx] ) / scl;
+        /* the whole tex needs rescaling because they need to fit in [0-1]
+            for OpenGL */
+        float offs = 0.;
+        float nscl = 1. / ( std::max( rval, te.max[tx] )
+          - std::min( rval, te.min[tx] ) );
+        if( rval < 0 )
+          offs = - rval * nscl;
+        unsigned i, n = at->glTexCoordSize( vs, tn );
+        GLfloat *tb = texbuf;
+        for( unsigned i=0; i<n; ++i, ++tb )
+          *tb = *tb * nscl + offs;
+        // update internal extrema
+        te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
+        te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
 
         // update scaled extrema
         if( value < te.minquant[tx] )
           te.minquant[tx] = value;
-        else if( value > te.maxquant[tx] )
-          te.maxquant[tx] = value;
         else
         {
           // update colormap bounds
           tex->getOrCreatePalette();
           AObjectPalette *pal = tex->palette();
-          pal->setMax1( scl * pal->max1() / ( value - te.minquant[tx] ) );
+          pal->setMax1( 1. );
           tex->setPalette( *pal );
 
           te.maxquant[tx] = value;
