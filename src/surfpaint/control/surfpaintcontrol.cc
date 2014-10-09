@@ -167,7 +167,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
   // oblique trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::AltModifier,
+    ( Qt::MidButton, Qt::ShiftModifier | Qt::ControlModifier,
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
                                        &TrackOblique::beginTrackball ),
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
