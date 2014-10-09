@@ -524,7 +524,11 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
       {
         setMinMaxTexture((float) (te.minquant[0]), (float) (te.maxquant[0]));
         textureValueMinSpinBox->setValue(te.minquant[0]);
-        textureValueMaxSpinBox->setValue(te.maxquant[0]);
+        float cmax = 100;
+        if( te.maxquant[0] != te.minquant[0] )
+          cmax = te.maxquant[0];
+        textureValueMaxSpinBox->setValue( cmax );
+        setMinMaxTexture( te.minquant[0], cmax );
       }
 
       if (constraintTex == NULL)
@@ -824,7 +828,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       textureValueMinSpinBox->setMinimum(-FLT_MAX);
       textureValueMinSpinBox->setMaximum(FLT_MAX);
 
-      connect( textureValueMinSpinBox, SIGNAL( valueChanged( double ) ), this, SLOT( changeMinValueSpinBox(double) ) );
+      connect( textureValueMinSpinBox, SIGNAL( valueChanged( double ) ),
+               this, SLOT( changeMinValueSpinBox(double) ) );
 
       textureValueMaxSpinBox = new QDoubleSpinBox(infosTextureValue);
       textureValueMaxSpinBox->setSingleStep(0.1);
@@ -833,11 +838,26 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       textureValueMaxSpinBox->setFixedWidth(100);
       textureValueMaxSpinBox->setMinimum(-FLT_MAX);
       textureValueMaxSpinBox->setMaximum(FLT_MAX);
+      textureValueMaxSpinBox->setValue( 100 ); // arbitrary
 
-      connect( textureValueMaxSpinBox, SIGNAL( valueChanged( double ) ), this, SLOT( changeMaxValueSpinBox(double) ) );
+      connect( textureValueMaxSpinBox, SIGNAL( valueChanged( double ) ),
+               this, SLOT( changeMaxValueSpinBox(double) ) );
+
+      if( tex )
+      {
+        int tn = 0; // 1st texture
+        GLComponent::TexExtrema & te = at->glTexExtrema(tn);
+        int tx = 0; // 1st tex coord
+        if( te.maxquant[tx] != te.minquant[tx] )
+        {
+          textureValueMinSpinBox->setValue( te.minquant[tx] );
+          textureValueMaxSpinBox->setValue( te.maxquant[tx] );
+        }
+      }
     }
 
-    // ARN on affiche la liste des contraintes seulement si le module ConstraintEditor a été lancé en mode lat/lon?
+    // ARN on affiche la liste des contraintes seulement si le module
+    // ConstraintEditor a été lancé en mode lat/lon?
     if (w3->constraintEditorIsActive() &&  w3->getConstraintType()==0)
     {
       //textureFloatSpinBox->setReadOnly(true);
@@ -846,7 +866,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       if (!w3->getConstraintList().empty())
         loadConstraintsList(w3->getConstraintList());
 
-      connect( constraintList, SIGNAL( activated( int ) ), this, SLOT( updateConstraintList() ) );
+      connect( constraintList, SIGNAL( activated( int ) ),
+               this, SLOT( updateConstraintList() ) );
 
       updateConstraintList();
     }
@@ -855,13 +876,15 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     tbTextureValue->show();
 
     tbInfos3D = new QToolBar( w3,ControlledWindow::tr( "surfpainttoolbar3D") );
-      w3->addToolBar( Qt::BottomToolBarArea,tbInfos3D, ControlledWindow::tr( "surfpainttoolbar3D" ) );
+      w3->addToolBar( Qt::BottomToolBarArea,tbInfos3D,
+                      ControlledWindow::tr( "surfpainttoolbar3D" ) );
       tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
       tbInfos3D->setIconSize( QSize( 20, 20 ) );
 
     QHBox *infos3D = new QHBox();
 
-    QLabel *IDPolygonSpinBoxLabel = new QLabel(ControlledWindow::tr("IDPolygon"),infos3D);
+    QLabel *IDPolygonSpinBoxLabel
+      = new QLabel(ControlledWindow::tr("IDPolygon"),infos3D);
 
     IDPolygonSpinBox = new QSpinBox(infos3D);
     IDPolygonSpinBox->setSingleStep(1);
@@ -869,7 +892,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     IDPolygonSpinBox->setFixedWidth(75);
     IDPolygonSpinBox->setValue(0);
 
-    QLabel *IDVertexSpinBoxLabel = new QLabel(ControlledWindow::tr("IDVertex"),infos3D);
+    QLabel *IDVertexSpinBoxLabel
+      = new QLabel(ControlledWindow::tr("IDVertex"),infos3D);
 
     IDVertexSpinBox = new QSpinBox(infos3D);
     IDVertexSpinBox->setSingleStep(1);
@@ -1210,9 +1234,6 @@ void SurfpaintTools::floodFillStop(void)
   ncol1 = col->dimY();
   min1 = pal->min1();
   max1 = pal->max1();
-
-  cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
-  cout << "min1 = " << min1 << " max1 = " << max1 << endl;
 
   AimsRGBA empty;
 
