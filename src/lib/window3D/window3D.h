@@ -180,7 +180,7 @@ public:
                        & objects,
                        const aims::Quaternion & slicequat,
                        const anatomist::Referential *wref = 0, 
-                       QGLWidget* glw = 0 );
+                       QGLWidget* glw = 0, bool with3d = false );
 
   virtual anatomist::View* view();
   virtual const anatomist::View* view() const;

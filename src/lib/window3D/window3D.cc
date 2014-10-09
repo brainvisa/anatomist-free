@@ -1827,7 +1827,7 @@ void AWindow3D::setupSliceSlider()
   float mins, maxs;
   Geometry *geom = windowGeometry();
 
-  if (geom)
+  if( geom )
   {
     mins = 0;
     maxs = geom->DimMax()[2] - geom->DimMin()[2] - 1;
@@ -2265,13 +2265,13 @@ GLPrimitives AWindow3D::cursorGLL() const
 void AWindow3D::updateWindowGeometry()
 {
   Geometry *g = new Geometry(setupWindowGeometry(_objects, d->slicequat,
-      getReferential(), d->draw->qglWidget()));
+      getReferential(), d->draw->qglWidget(), clipMode() != NoClip ) );
   setWindowGeometry(g);
 }
 
 Geometry AWindow3D::setupWindowGeometry(
     const list<shared_ptr<AObject> > & objects, const Quaternion & slicequat,
-    const Referential *wref, QGLWidget* glw)
+    const Referential *wref, QGLWidget* glw, bool with3d )
 {
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
@@ -2306,11 +2306,11 @@ Geometry AWindow3D::setupWindowGeometry(
 	    dmax[2] = p[2];
   // end macro
 
-  for (obj = objects.begin(); obj != objects.end(); ++obj)
+  for( obj = objects.begin(); obj != objects.end(); ++obj )
   {
     o = obj->get();
 
-    if (o->Is2DObject())
+    if( with3d || o->Is2DObject() )
     {
       vs = s2 = o->VoxelSize();
       //cout << "Object " << o->name() << ", vs : " << vs << endl;
