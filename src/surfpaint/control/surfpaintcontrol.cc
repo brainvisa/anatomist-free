@@ -94,6 +94,19 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
           &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
           actionPool->action("Trackball"), &Trackball::endTrackball), true);
 
+  // validate
+  keyPressEventSubscribe( Qt::Key_Return, Qt::NoModifier,
+                          KeyActionLinkOf<SurfpaintToolsAction>
+                          ( actionPool->action( "SurfpaintToolsAction" ),
+                            &SurfpaintToolsAction::editValidate ),
+                          "validate edit" );
+  // cancel
+  keyPressEventSubscribe( Qt::Key_Escape, Qt::NoModifier,
+                          KeyActionLinkOf<SurfpaintToolsAction>
+                          ( actionPool->action( "SurfpaintToolsAction" ),
+                            &SurfpaintToolsAction::editCancel ),
+                          "cancel edit" );
+
   //        rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
                           KeyActionLinkOf<Trackball>

@@ -478,7 +478,16 @@ void SurfpaintToolsAction::shortestpathStop(int x, int y, int globalX,
   //cout << "shortestpathStop" << endl;
 }
 
-//void SurfpaintToolsAction::shortestpathMove(int x, int y, int, int)
-//{
-//  cout << "shortestpathMove" << endl;
-//}
+
+void SurfpaintToolsAction::editValidate()
+{
+  getTools()->fill();
+}
+
+
+void SurfpaintToolsAction::editCancel()
+{
+  getTools()->clearAll();
+}
+
+
