@@ -346,6 +346,7 @@ namespace anatomist
     void nextTime();
     void previousTime();
     void toggleLinkedOnSlider();
+    void invertSlice();
   };
 
 

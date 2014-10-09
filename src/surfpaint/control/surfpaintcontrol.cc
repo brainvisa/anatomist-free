@@ -174,6 +174,14 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
                                        &TrackOblique::moveTrackball ),
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
                                        &TrackOblique::endTrackball ), true );
+  // plane inversion
+  keyPressEventSubscribe( Qt::Key_I, Qt::ControlModifier,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::invertSlice ),
+                          "invert_slice" );
+
+
   /*Creation of action*/
 
   myAction = static_cast<SurfpaintToolsAction *>(

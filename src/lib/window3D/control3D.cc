@@ -1554,6 +1554,13 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
                                        &TrackOblique::endTrackball ), true );
 
+  // plane inversion
+  keyPressEventSubscribe( Qt::Key_I, Qt::ControlModifier,
+                          KeyActionLinkOf<SliceAction>
+                          ( actionPool->action( "SliceAction" ),
+                            &SliceAction::invertSlice ),
+                          "invert_slice" );
+
   // oblique slice trackball
 
   mouseLongEventSubscribe
@@ -2199,6 +2206,19 @@ void SliceAction::toggleLinkedOnSlider()
   bool        onoff = !win->linkedCursorOnSliderChange();
   cout << "toggleLinkedOnSlider: " << onoff << endl;
   win->setLinkedCursorOnSliderChange( onoff );
+}
+
+
+void SliceAction::invertSlice()
+{
+  AWindow3D * win = dynamic_cast <AWindow3D *>( view()->aWindow() );
+  if ( ! win )
+    return;
+  Quaternion q = win->sliceQuaternion();
+  Quaternion r = Quaternion();
+  r.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+  win->setSliceQuaternion( q * r );
+  win->refreshNow();
 }
 
 
