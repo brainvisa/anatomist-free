@@ -94,6 +94,8 @@ namespace anatomist
 
       void editValidate();
       void editCancel();
+      void undo();
+      void redo();
 
       float textureValue() const { return texvalue; }
 

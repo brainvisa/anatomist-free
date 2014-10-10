@@ -37,9 +37,33 @@
 #include <QToolBar>
 #include <QToolButton>
 
+using namespace anatomist;
+using namespace aims;
+using namespace carto;
+using namespace std;
+
+struct SurfpaintTools::Private
+{
+  Private() {}
+
+  list<unsigned> undone_listIndexVertexPathSP;
+  list<unsigned> undone_listIndexVertexSelectSP;
+  list<unsigned> numVerticesInPathElements;
+  list<unsigned> undone_numVerticesInPathElements;
+
+  list<unsigned> undone_listIndexVertexBrushPath;
+  list<unsigned> undone_listIndexVertexHolesPath;
+  list<unsigned> undone_listIndexVertexSelectFill;
+
+  list<rc_ptr<ATriangulated> > undone_pathObject;
+  list<rc_ptr<ATriangulated> > undone_fillObject;
+  list<rc_ptr<ATriangulated> > undone_holesObject;
+};
+
 
 SurfpaintTools::SurfpaintTools()/* : Observer()*/
     : QWidget(theAnatomist->getQWidgetAncestor(), Qt::Window),
+  d( new Private ),
   surfpaintTexInit( 0 ),
   win3D( 0 ),
   objselect( 0 ),
@@ -93,6 +117,7 @@ SurfpaintTools::~SurfpaintTools()
   delete sp;
   delete sp_sulci;
   delete sp_gyri;
+  delete d;
 }
 
 void SurfpaintTools::popAllButtonPaintToolBar()
@@ -245,6 +270,7 @@ void SurfpaintTools::erase()
 
 void SurfpaintTools::clearAll()
 {
+  clearUndoneGeodesicPath();
   clearPath();
   clearRegion();
   clearHoles();
@@ -255,16 +281,15 @@ void SurfpaintTools::clearPath()
   listIndexVertexSelectSP.clear();
   listIndexVertexBrushPath.clear();
   listIndexVertexPathSP.clear();
-  listIndexVertexPathSPLast.clear();
-  pathSP.clear();
+//   pathSP.clear();
 
-  std::vector<ATriangulated*>::iterator ite;
+  vector<rc_ptr<ATriangulated> >::iterator ite;
   ite = pathObject.begin();
 
   for (; ite != pathObject.end(); ++ite)
   {
-    win3D->unregisterObject((*ite));
-    theAnatomist->unregisterObject((*ite));
+    win3D->unregisterObject( ite->get() );
+    theAnatomist->unregisterObject( ite->get() );
   }
 
   pathObject.clear();
@@ -275,13 +300,13 @@ void SurfpaintTools::clearHoles()
   listIndexVertexBrushPath.clear();
   listIndexVertexHolesPath.clear();
 
-  std::vector<ATriangulated*>::iterator ite;
+  vector<rc_ptr<ATriangulated> >::iterator ite;
   ite = holesObject.begin();
 
   for (; ite != holesObject.end(); ++ite)
   {
-    win3D->unregisterObject((*ite));
-    theAnatomist->unregisterObject((*ite));
+    win3D->unregisterObject( ite->get() );
+    theAnatomist->unregisterObject( ite->get() );
   }
 
   holesObject.clear();
@@ -291,15 +316,15 @@ void SurfpaintTools::clearRegion()
 {
   listIndexVertexSelectFill.clear();
 
-  std::vector<ATriangulated*>::iterator ite;
+  vector<rc_ptr<ATriangulated> >::iterator ite;
 
   ite = fillObject.begin();
 
   for (; ite != fillObject.end(); ++ite)
     {
       //cout <<  (*ite) << endl;
-      win3D->unregisterObject((*ite));
-      theAnatomist->unregisterObject((*ite));
+      win3D->unregisterObject( ite->get() );
+      theAnatomist->unregisterObject( ite->get() );
     }
 
   fillObject.clear();
@@ -1258,11 +1283,10 @@ void SurfpaintTools::floodFillStop(void)
   fillObjectTemp->setSurface(MeshOut);
   fillObjectTemp->SetMaterial(mat2);
   fillObjectTemp->setReferentialInheritance( objselect );
-  //win3D->registerObject(fillObject, true, 0);
   win3D->registerObject(fillObjectTemp, true, 1);
   theAnatomist->registerObject(fillObjectTemp, 0);
-  //theAnatomist->registerObject(fillObject, 1);
-  fillObject.push_back(fillObjectTemp);
+  fillObject.push_back(rc_ptr<ATriangulated>( fillObjectTemp ));
+  theAnatomist->releaseObject( fillObjectTemp );
 }
 
 
@@ -1497,6 +1521,14 @@ void SurfpaintTools::fillHolesOnPath (void)
 void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     Point3df positionNearestVertex)
 {
+  /*
+    Adds 1-2 AObject in pathObject: 1 if last (pathIsClosed() true)
+    Adds 1 item in listIndexVertexSelectSP
+    Adds a list: n in listIndexVertexPathSP if not 1st point
+    Adds 1 item in numVerticesInPathElements: n if not 1st point
+  */
+  clearUndoneGeodesicPath();
+
   int i;
 
   AimsSurfaceTriangle *tmpMeshOut;
@@ -1518,10 +1550,9 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   if (!pathIsClosed())
   {
     win3D->registerObject(sp, true, 1);
-    //win3D->registerObject(sp, true, 0);
-    //theAnatomist->registerObject(sp, 1);
     theAnatomist->registerObject(sp, 0);
-    pathObject.push_back(sp);
+    pathObject.push_back(rc_ptr<ATriangulated>( sp ) );
+    theAnatomist->releaseObject( sp );
   }
 
   std::vector<unsigned>::iterator ite;
@@ -1555,12 +1586,15 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     unsigned target_vertex_index = (*(--ite));
     unsigned source_vertex_index = (*(--ite));
 
-    listIndexVertexPathSPLast.clear();
+    std::vector<unsigned> listIndexVertexPathSPLast;
 
-    sptemp->shortestPath_1_1_ind_xyz(source_vertex_index,target_vertex_index,listIndexVertexPathSPLast,vertexList);
+    sptemp->shortestPath_1_1_ind_xyz(
+      source_vertex_index,target_vertex_index,
+      listIndexVertexPathSPLast,vertexList );
 
     listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
         listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
+    d->numVerticesInPathElements.push_back( listIndexVertexPathSPLast.size() );
 
     AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
 
@@ -1611,8 +1645,9 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     Material mat2;
     mat2.setRenderProperty(Material::Ghost, 1);
     mat2.setRenderProperty(Material::RenderLighting, 1);
-    mat2.SetDiffuse((float) (empty.red() / 255.), (float) (empty.green() / 255.),
-        (float) (empty.blue() / 255.), 1.);
+    mat2.SetDiffuse((float) (empty.red() / 255.),
+                    (float) (empty.green() / 255.),
+                    (float) (empty.blue() / 255.), 1.);
 
     ATriangulated *s3 = new ATriangulated();
     s3->setName(theAnatomist->makeObjectName("path"));
@@ -1622,14 +1657,114 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     s3->setPalette( *pal );
 
-    //win3D->registerObject(s3, true, 0);
     win3D->registerObject(s3, true, 1);
     theAnatomist->registerObject(s3, 0);
-    //theAnatomist->registerObject(s3, 1);
-    pathObject.push_back(s3);
+    pathObject.push_back( rc_ptr<ATriangulated>( s3 ) );
+    theAnatomist->releaseObject( s3 );
   }
 
 }
+
+
+void SurfpaintTools::clearUndoneGeodesicPath()
+{
+  d->undone_listIndexVertexPathSP.clear();
+  d->undone_listIndexVertexSelectSP.clear();
+  d->undone_numVerticesInPathElements.clear();
+  d->undone_pathObject.clear();
+}
+
+
+void SurfpaintTools::undoGeodesicPath()
+{
+  /*
+    Removes 1-2 AObject in pathObject: 1 if last (pathIsClosed() true)
+    Removes 1 item in listIndexVertexSelectSP
+    Removes 1 item in numVerticesInPathElements: n if not 1st point
+    Removes a list: n in listIndexVertexPathSP if not 1st point
+
+    all trasfered to undone_* correspondig lists
+  */
+
+  if( pathObject.empty() )
+    return; // nothing tio undo
+  rc_ptr<ATriangulated> obj = pathObject.back();
+  d->undone_pathObject.push_front( obj );
+  getWindow3D()->unregisterObject( obj.get() );
+  pathObject.pop_back();
+  if( pathIsClosed() )
+    setClosePath( false );
+  else if( !pathObject.empty() )
+  {
+    obj = pathObject.back();
+    d->undone_pathObject.push_front( obj );
+    getWindow3D()->unregisterObject( obj.get() );
+    pathObject.pop_back();
+  }
+  d->undone_listIndexVertexSelectSP.push_front(
+    listIndexVertexSelectSP.back() );
+  listIndexVertexSelectSP.pop_back();
+  if( !d->numVerticesInPathElements.empty() )
+  {
+    unsigned i, n = d->numVerticesInPathElements.back();
+    d->numVerticesInPathElements.pop_back();
+    d->undone_numVerticesInPathElements.push_front( n );
+    for( i=0; i!=n; ++i )
+    {
+      d->undone_listIndexVertexPathSP.push_front(
+        listIndexVertexPathSP.back() );
+      listIndexVertexPathSP.pop_back();
+    }
+  }
+
+  getWindow3D()->refreshNow();
+}
+
+
+void SurfpaintTools::redoGeodesicPath()
+{
+  /*
+    Adds 1-2 AObject in pathObject
+    Adds 1 item in listIndexVertexSelectSP
+    Adds a list: n in listIndexVertexPathSP if not 1st point
+    Adds 1 item in numVerticesInPathElements: n if not 1st point
+    all removed from undone_* correspondig lists
+  */
+
+  if( d->undone_pathObject.empty() )
+    return; // nothing to redo
+  rc_ptr<ATriangulated> obj = d->undone_pathObject.front();
+  pathObject.push_back( obj );
+  getWindow3D()->registerObject( obj.get(), true, 1 );
+  d->undone_pathObject.pop_front();
+  if( d->undone_pathObject.empty() && pathObject.size() > 1 )
+    setClosePath( true );
+  else if( pathObject.size() > 1 )
+  {
+    obj = d->undone_pathObject.front();
+    pathObject.push_back( obj );
+    getWindow3D()->registerObject( obj.get(), true, 1 );
+    d->undone_pathObject.pop_front();
+  }
+  listIndexVertexSelectSP.push_back(
+    d->undone_listIndexVertexSelectSP.front() );
+  d->undone_listIndexVertexSelectSP.pop_front();
+  if( !d->undone_numVerticesInPathElements.empty() )
+  {
+    unsigned i, n = d->undone_numVerticesInPathElements.front();
+    d->undone_numVerticesInPathElements.pop_front();
+    d->numVerticesInPathElements.push_back( n );
+    for( i=0; i!=n; ++i )
+    {
+      listIndexVertexPathSP.push_back(
+        d->undone_listIndexVertexPathSP.front() );
+      d->undone_listIndexVertexPathSP.pop_front();
+    }
+  }
+
+  getWindow3D()->refreshNow();
+}
+
 
 void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 {
@@ -1710,11 +1845,10 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   s3->setPalette( *pal );
   s3->setReferentialInheritance( objselect );
 
-  //win3D->registerObject(s3, true, 0);
   win3D->registerObject(s3, true, 1);
   theAnatomist->registerObject(s3, 0);
-  //theAnatomist->registerObject(s3, 1);
-  holesObject.push_back(s3);
+  holesObject.push_back( rc_ptr<ATriangulated>( s3 ) );
+  theAnatomist->releaseObject( s3 );
 }
 
 void SurfpaintTools::computeDistanceMap(int indexNearestVertex)

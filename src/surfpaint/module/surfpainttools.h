@@ -96,12 +96,6 @@
 #include <float.h>
 
 
-using namespace aims;
-using namespace std;
-using namespace geodesic;
-using namespace anatomist;
-using namespace carto;
-
 namespace anatomist
 {
   class SurfpaintTools: public QWidget
@@ -119,21 +113,25 @@ namespace anatomist
       void addToolBarInfosTexture(AWindow3D *w3);
       void removeToolBarInfosTexture(AWindow3D *w3);
 
-      void setPolygon(int p){IDPolygonSpinBox->setValue(p);}
-      void setMaxPoly(int max){IDPolygonSpinBox->setRange(-1,max);}
-      void setVertex(int v){IDVertexSpinBox->setValue(v);}
-      void setMaxVertex(int max){IDVertexSpinBox->setRange(-1,max);}
+      void setPolygon(int p) { IDPolygonSpinBox->setValue(p); }
+      void setMaxPoly(int max) { IDPolygonSpinBox->setRange(-1,max); }
+      void setVertex(int v) { IDVertexSpinBox->setValue(v); }
+      void setMaxVertex(int max) { IDVertexSpinBox->setRange(-1,max); }
 
-      void setMinMaxTexture(float min, float max){textureFloatSpinBox->setRange(min,max);}
-      float getTextureValueFloat(void){return textureFloatSpinBox->value();}
-      void setTextureValueFloat(double v){textureFloatSpinBox->setValue(v);}
+      void setMinMaxTexture(float min, float max)
+      { textureFloatSpinBox->setRange(min,max); }
+      float getTextureValueFloat(void) const
+      { return textureFloatSpinBox->value(); }
+      void setTextureValueFloat(double v) { textureFloatSpinBox->setValue(v); }
       void updateTextureValue(int indexVertex, float value);
       void updateTexture (vector<float> values);
       void restoreTextureValue(int indexVertex);
       void floodFillStart(int indexVertex);
       void floodFillStop(void);
-      void floodFillMove(int indexVertex, float newTextureValue, float oldTextureValue);
-      void fastFillMove(int indexVertex, float newTextureValue, float oldTextureValue);
+      void floodFillMove(int indexVertex, float newTextureValue,
+                         float oldTextureValue);
+      void fastFillMove(int indexVertex, float newTextureValue,
+                        float oldTextureValue);
 
       void fillHolesOnPath (void);
 
@@ -146,7 +144,11 @@ namespace anatomist
       GeodesicPath* getMeshStructSulciP() {return sp_sulci;}
       GeodesicPath* getMeshStructGyriP() {return sp_gyri;}
 
-      void addGeodesicPath(int indexNearestVertex,Point3df positionNearestVertex);
+      void addGeodesicPath( int indexNearestVertex,
+                            Point3df positionNearestVertex);
+      void clearUndoneGeodesicPath();
+      void undoGeodesicPath();
+      void redoGeodesicPath();
       void addSimpleShortPath(int indexSource,int indexDest);
 
       void computeDistanceMap(int indexNearestVertex);
@@ -186,16 +188,17 @@ namespace anatomist
     private :
       void popAllButtonPaintToolBar();
 
-    private:
+      struct Private;
+      Private *d;
 
       ATexSurface *go;
       ATriangulated *as;
-      rc_ptr<AimsSurfaceTriangle> mesh;
+      carto::rc_ptr<AimsSurfaceTriangle> mesh;
       AObject *tex;
       ATexture *at;
       TimeTexture<float> texCurv;
 
-      Object options;
+      carto::Object options;
 
       Texture1d *surfpaintTexInit;
       AWindow3D *win3D;
@@ -254,9 +257,7 @@ namespace anatomist
       std::vector<std::set<uint> >  neighbours;
       bool pathClosed;
 
-      std::vector<geodesic::SurfacePoint> pathSP;
       std::vector<unsigned> listIndexVertexPathSP;
-      std::vector<unsigned> listIndexVertexPathSPLast;
       std::vector<unsigned> listIndexVertexSelectSP;
       map<int,float> listVertexChanged;
 
@@ -266,9 +267,9 @@ namespace anatomist
       std::vector<unsigned> listIndexVertexSelectFill;
       std::set<int> listIndexVertexFill;
 
-      std::vector<ATriangulated*> pathObject;
-      std::vector<ATriangulated*> fillObject;
-      std::vector<ATriangulated*> holesObject;
+      std::vector<carto::rc_ptr<ATriangulated> > pathObject;
+      std::vector<carto::rc_ptr<ATriangulated> > fillObject;
+      std::vector<carto::rc_ptr<ATriangulated> > holesObject;
   };
 }
 #endif

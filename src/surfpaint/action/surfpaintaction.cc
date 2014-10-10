@@ -491,3 +491,17 @@ void SurfpaintToolsAction::editCancel()
 }
 
 
+void SurfpaintToolsAction::undo()
+{
+  getTools()->undoGeodesicPath();
+}
+
+
+void SurfpaintToolsAction::redo()
+{
+  getTools()->redoGeodesicPath();
+}
+
+
+
+

@@ -106,6 +106,18 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
                           ( actionPool->action( "SurfpaintToolsAction" ),
                             &SurfpaintToolsAction::editCancel ),
                           "cancel edit" );
+  // undo
+  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlModifier,
+                          KeyActionLinkOf<SurfpaintToolsAction>
+                          ( actionPool->action( "SurfpaintToolsAction" ),
+                            &SurfpaintToolsAction::undo ),
+                          "undo edit" );
+  // redo
+  keyPressEventSubscribe( Qt::Key_Z, Qt::ControlModifier | Qt::ShiftModifier,
+                          KeyActionLinkOf<SurfpaintToolsAction>
+                          ( actionPool->action( "SurfpaintToolsAction" ),
+                            &SurfpaintToolsAction::redo ),
+                          "redo edit" );
 
   //        rotation center
   keyPressEventSubscribe( Qt::Key_C, Qt::ControlModifier,
