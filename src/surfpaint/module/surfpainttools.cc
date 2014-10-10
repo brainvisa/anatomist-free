@@ -288,7 +288,6 @@ void SurfpaintTools::clearPath()
   listIndexVertexSelectSP.clear();
   listIndexVertexBrushPath.clear();
   listIndexVertexPathSP.clear();
-//   pathSP.clear();
 
   vector<rc_ptr<ATriangulated> >::iterator ite;
   ite = pathObject.begin();
@@ -379,8 +378,7 @@ void SurfpaintTools::save()
 
   if( !filename.isNull() )
   {
-    Writer<TimeTexture<float> > wt(filename.latin1());
-    wt.write((*out));
+    at->save( filename.utf8().data() );
   }
 
   clearAll();
@@ -956,9 +954,6 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
   if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect)
       && objtype == "TEXTURED SURF.")
   {
-    Object options = Object::value(Dictionary());
-    options->setProperty("scale", 0);
-
     float it = at->TimeStep();
     int tn = 0; // 1st texture
     GLComponent::TexExtrema & te = at->glTexExtrema(tn);
@@ -1061,9 +1056,6 @@ void SurfpaintTools::updateTexture (vector<float> values)
   {
     if (objtype == "TEXTURED SURF.")
     {
-      Object options = Object::value(Dictionary());
-      options->setProperty("scale", 0);
-
       float it = at->TimeStep();
       int tn = 0; // 1st texture
       GLComponent::TexExtrema & te = at->glTexExtrema(tn);
@@ -1296,7 +1288,6 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
         continue;
 
       std::map<int, float>::iterator itemap;
-      itemap = listVertexChanged.begin();
       itemap = listVertexChanged.find(indexCurr);
 
       if (itemap != listVertexChanged.end())
@@ -1343,7 +1334,6 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
 
   std::map<int, float>::iterator itemap;
 
-  itemap = listVertexChanged.begin();
   itemap = listVertexChanged.find(indexVertex);
 
   go = false;

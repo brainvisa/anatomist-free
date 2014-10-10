@@ -1052,37 +1052,21 @@ bool ATexture::save( const string & filename )
       {
         Texture1d	*tex = (Texture1d *) d->data;
         try
-          {
-            string dt;
-            if( tex->header().getProperty( "data_type", dt ) )
-            {
-              string ft;
-              if( tex->header().getProperty( "file_type", ft ) && (ft == "GIFTI") )
-              {
-              std::cout << "save GIFTI texture type : " << dt << std::endl;
-              Writer<Texture1d>	w( filename );
-              w.write( *tex );
-              }
-              else
-              {
-              TexSaver ts( filename, this );
-              Finder f;
-              f.setObjectType( "Texture" );
-              f.setDataType( dt );
-              ts.execute( f, filename );
-              }
-            }
-            else
-            {
-              Writer<Texture1d>	w( filename );
-              w.write( *tex );
-            }
-          }
+        {
+          string dt;
+          if( !tex->header().getProperty( "data_type", dt ) )
+            dt = "FLOAT";
+          TexSaver ts( filename, this );
+          Finder f;
+          f.setObjectType( "Texture" );
+          f.setDataType( dt );
+          ts.execute( f, filename );
+        }
         catch( exception & e )
-          {
-            cerr << e.what() << "\nsave aborted\n";
-            return false;
-          }
+        {
+          cerr << e.what() << "\nsave aborted\n";
+          return false;
+        }
       }
       break;
     case 2:
