@@ -128,8 +128,6 @@ namespace anatomist
       void restoreTextureValue(int indexVertex);
       void floodFillStart(int indexVertex);
       void floodFillStop(void);
-      void floodFillMove(int indexVertex, float newTextureValue,
-                         float oldTextureValue);
       void fastFillMove(int indexVertex, float newTextureValue,
                         float oldTextureValue);
 

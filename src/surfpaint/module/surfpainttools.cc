@@ -1160,11 +1160,6 @@ void SurfpaintTools::floodFillStart(int indexVertex)
 
   float texvalue = getTextureValueFloat();
 
-//  if (itef != listVertexChanged.end())
-//    floodFillMove (indexVertex, texvalue,itef->second);
-//  else
-//    floodFillMove (indexVertex, texvalue,surfpaintTexInit[0].item(indexVertex));
-//
   if (itef != listVertexChanged.end())
     fastFillMove (indexVertex, texvalue,itef->second);
   else
@@ -1292,60 +1287,6 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
     }
   }
 }
-
-void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
-    float oldTextureValue)
-{
-  bool go;
-  bool stop;
-  bool pip;
-
-
-  std::set<uint> voisins = neighbours[indexVertex];
-  std::set<uint>::iterator voisIt = voisins.begin();
-
-  std::vector<unsigned>::iterator s1 = listIndexVertexPathSP.begin();
-  std::vector<unsigned>::iterator s2 = listIndexVertexPathSP.end();
-  std::vector<unsigned>::iterator ite = std::find(s1, s2, indexVertex);
-
-  std::vector<unsigned>::iterator f1 = listIndexVertexSelectFill.begin();
-  std::vector<unsigned>::iterator f2 = listIndexVertexSelectFill.end();
-  std::vector<unsigned>::iterator itef = std::find(f1, f2, indexVertex);
-
-  std::map<int, float>::iterator itemap;
-
-  itemap = listVertexChanged.find(indexVertex);
-
-  go = false;
-  stop = false;
-  pip = false;
-
-  if (itemap != listVertexChanged.end())
-  {
-    if ((*itemap).second > (oldTextureValue + stepToleranceValue)
-        || (*itemap).second < (oldTextureValue - stepToleranceValue))
-      stop = true;
-
-    if ((*itemap).second <= (oldTextureValue + stepToleranceValue)
-        && (*itemap).second >= (oldTextureValue - stepToleranceValue))
-      go = true;
-  }
-
-  if ((surfpaintTexInit[0].item(indexVertex) <= (oldTextureValue + stepToleranceValue))
-      && (surfpaintTexInit[0].item(indexVertex) >= (oldTextureValue - stepToleranceValue)))
-    pip = true;
-
-  if ((go || (pip && !stop)) && (ite == listIndexVertexPathSP.end()) && (itef
-      == listIndexVertexSelectFill.end()))
-  {
-    listIndexVertexSelectFill.push_back(indexVertex);
-    voisIt= voisins.begin();
-    for (; voisIt != voisins.end(); voisIt++)
-      floodFillMove(*voisIt, newTextureValue, oldTextureValue);
-  }
-
-}
-
 
 
 void SurfpaintTools::updateConstraintList(void)
