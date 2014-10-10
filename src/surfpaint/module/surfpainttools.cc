@@ -341,27 +341,7 @@ void SurfpaintTools::clearRegion()
 
 void SurfpaintTools::save()
 {
-  std::map<int, float>::const_iterator mit(listVertexChanged.begin()),mend(listVertexChanged.end());
-
-  rc_ptr<TimeTexture<float> > out( new TimeTexture<float>(1, at->size()) );
-
-  float it = at->TimeStep();
-
-  int tn = 0; // 1st texture
-  GLComponent::TexExtrema & te = at->glTexExtrema(tn);
-  int tx = 0; // 1st tex coord
-  float scl = (te.maxquant[tx] - te.minquant[tx]);
-
-  for (uint i = 0; i < at->size(); i++)
-  {
-    (*out).item(i) = surfpaintTexInit[0].item(i);
-  }
-
-  for (; mit != mend; ++mit)
-  {
-    (*out).item(mit->first) = mit->second;
-  }
-
+  rc_ptr<TimeTexture<float> > out = at->texture<float>( true );
   for (uint i = 0; i < at->size(); i++)
   {
     surfpaintTexInit[0].item(i) = (*out).item(i);
@@ -1355,14 +1335,9 @@ void SurfpaintTools::floodFillMove(int indexVertex, float newTextureValue,
       && (surfpaintTexInit[0].item(indexVertex) >= (oldTextureValue - stepToleranceValue)))
     pip = true;
 
-  //  cout << "i " << indexVertex << " oldTextureValue " << _tex[0].item(indexVertex) << endl <<  " max " <<
-  //      oldTextureValue + _stepToleranceValue << "min " << oldTextureValue - _stepToleranceValue<< " stop " << stop << " go " << go << " pip " << pip << endl;
-
   if ((go || (pip && !stop)) && (ite == listIndexVertexPathSP.end()) && (itef
       == listIndexVertexSelectFill.end()))
   {
-    //cout << indexVertex << " " ;
-
     listIndexVertexSelectFill.push_back(indexVertex);
     voisIt= voisins.begin();
     for (; voisIt != voisins.end(); voisIt++)
