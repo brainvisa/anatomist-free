@@ -53,6 +53,13 @@ struct SurfpaintTools::Private
 
   list<unsigned> undone_listIndexVertexBrushPath;
   list<unsigned> undone_listIndexVertexHolesPath;
+  list<unsigned> numIndexVertexHolesPath;
+  list<unsigned> undone_numIndexVertexHolesPath;
+  list<unsigned> holeVertexIndices;
+  list<unsigned> undone_holeVertexIndices;
+  list<unsigned> holeCount;
+  list<unsigned> undone_holeCount;
+
   list<unsigned> undone_listIndexVertexSelectFill;
 
   list<rc_ptr<ATriangulated> > undone_pathObject;
@@ -270,7 +277,6 @@ void SurfpaintTools::erase()
 
 void SurfpaintTools::clearAll()
 {
-  clearUndoneGeodesicPath();
   clearPath();
   clearRegion();
   clearHoles();
@@ -278,6 +284,7 @@ void SurfpaintTools::clearAll()
 
 void SurfpaintTools::clearPath()
 {
+  clearUndoneGeodesicPath();
   listIndexVertexSelectSP.clear();
   listIndexVertexBrushPath.clear();
   listIndexVertexPathSP.clear();
@@ -297,8 +304,12 @@ void SurfpaintTools::clearPath()
 
 void SurfpaintTools::clearHoles()
 {
+  clearUndoneHolesPaths();
+
   listIndexVertexBrushPath.clear();
   listIndexVertexHolesPath.clear();
+  d->holeVertexIndices.clear();
+  d->holeCount.clear();
 
   vector<rc_ptr<ATriangulated> >::iterator ite;
   ite = holesObject.begin();
@@ -322,7 +333,6 @@ void SurfpaintTools::clearRegion()
 
   for (; ite != fillObject.end(); ++ite)
     {
-      //cout <<  (*ite) << endl;
       win3D->unregisterObject( ite->get() );
       theAnatomist->unregisterObject( ite->get() );
     }
@@ -332,14 +342,9 @@ void SurfpaintTools::clearRegion()
 
 void SurfpaintTools::save()
 {
-  cout << "save Texture on disk " << endl;
-
   std::map<int, float>::const_iterator mit(listVertexChanged.begin()),mend(listVertexChanged.end());
 
   rc_ptr<TimeTexture<float> > out( new TimeTexture<float>(1, at->size()) );
-
-//  rc_ptr<TimeTexture<float> > text ;
-//  text = ObjectConverter<TimeTexture<float> >::ana2aims(at, options);
 
   float it = at->TimeStep();
 
@@ -349,48 +354,21 @@ void SurfpaintTools::save()
   float scl = (te.maxquant[tx] - te.minquant[tx]);
 
   for (uint i = 0; i < at->size(); i++)
-    {
+  {
     (*out).item(i) = surfpaintTexInit[0].item(i);
-//    if ((*out).item(i)>0)
-//      cout << (*out).item(i) << " " ;
-    }
-//
-//  for (uint i = 0; i < at->size(); i++)
-//    {
-//    (*out).item(i) = (*text).item(i)*scl;
-//    if ((*text).item(i) > 0)
-//      cout << (*out).item(i) << " ";
-//    }
+  }
 
   for (; mit != mend; ++mit)
-    {
+  {
     (*out).item(mit->first) = mit->second;
-//    if ((*out).item(mit->first) > 0)
-//      cout << (*out).item(mit->first) << " ";
-    }
+  }
 
   for (uint i = 0; i < at->size(); i++)
-    {
+  {
     surfpaintTexInit[0].item(i) = (*out).item(i);
-    }
-
-//  cout << "scale = " <<  scl << endl;
-//  rc_ptr<Texture1d> textemp(new Texture1d);
-//  Converter<TimeTexture<float> , Texture1d> c;
-//  c.convert(*out, *textemp);
-//  at->setTexture(textemp);
+  }
 
   listVertexChanged.clear();
-
-//  set<AObject*> toSave ;
-//  toSave.insert( at ) ;
-
-//  string fileName =
-//      ObjectActions::specificSaveStatic( ana,
-//                 string( ( const char * )(ControlledWindow::tr( "Texture" )+ " (*.tex)" ) ),
-//                 string( "Save Texture" ) ) ;
-//
-//  cout << "fileName " << fileName << endl;
 
   QString filt = ( ControlWindow::tr( "Textures" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Texture" ) + ");;"
@@ -415,9 +393,6 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
   stepToleranceValue = 0;
 
   //sélectionne l'objet positionné au milieu de la fenêtre (bof !)
-  //QSize s = glw->qglWidget()->size();
-  //objselect = w3->objectAtCursorPosition(s.width() / 2, s.height() / 2);
-  //cout << objselect << " " << objselect->name() << endl;
 
   //récupère parmi tous les objets sélectionnés le dernier objet de type ATexSurface
   map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
@@ -1245,8 +1220,6 @@ void SurfpaintTools::floodFillStop(void)
     delete tmpMeshOut;
   }
 
-  cout << "vertex number = " << listIndexVertexFill.size() << endl;
-
   const AObjectPalette *pal = at->getOrCreatePalette();
 
   const AimsData<AimsRGBA> *col = pal->colors();
@@ -1269,9 +1242,6 @@ void SurfpaintTools::floodFillStop(void)
     ind = ncol0 - 1;
   empty = (*col)( ind );
 
-  cout << "texture value RGB " << (int) empty.red() << " "
-      << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
-
   Material mat2;
   mat2.setRenderProperty(Material::Ghost, 1);
   mat2.setRenderProperty(Material::RenderLighting, 1);
@@ -1293,8 +1263,6 @@ void SurfpaintTools::floodFillStop(void)
 void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
     float oldTextureValue)
 {
-  cout << indexVertex << " " << newTextureValue << endl;
-
   std::queue<int> stack;
   stack.push(indexVertex);
 
@@ -1339,7 +1307,6 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
         else
           {
           listIndexVertexFill.insert(indexCurr);
-          cout << indexCurr << endl;
           stack.push(indexCurr);
           continue;
           }
@@ -1505,17 +1472,35 @@ void SurfpaintTools::changeConstraintPathSpinBox(int v)
 
 void SurfpaintTools::fillHolesOnPath (void)
 {
-  vector<unsigned>::iterator it = listIndexVertexBrushPath.begin();
+  /*
+    Adds 1 item in holeVertexIndices
+    calls addSimpleShortPath n times
+    Adds 1 item in holeCount (n)
+  */
+  clearUndoneHolesPaths();
 
-  for (; it < listIndexVertexBrushPath.end()-1; ++it)
+  unsigned last = 0, nholes = 0;
+  if( !d->holeVertexIndices.empty() )
+    last = d->holeVertexIndices.back();
+  if( last > 0 )
+    --last;
+  vector<unsigned>::iterator it = listIndexVertexBrushPath.begin() + last;
+
+  for (; it < listIndexVertexBrushPath.end()-1; ++it, ++last)
   {
     std::set<uint> voisins = neighbours[*it];
 
-    std::set<uint>::iterator ite = std::find(voisins.begin(),voisins.end(), *(it+1) );
+    std::set<uint>::iterator ite = std::find( voisins.begin(), voisins.end(),
+                                              *(it+1) );
 
-    if (ite == voisins.end() && ((*it)!=*(it+1)) )
-      addSimpleShortPath(*it,*(it+1));
+    if( ite == voisins.end() && ( (*it) != *(it+1) ) )
+    {
+      addSimpleShortPath( *it, *(it+1) );
+      ++nholes;
+    }
   }
+  d->holeVertexIndices.push_back( listIndexVertexBrushPath.size() );
+  d->holeCount.push_back( nholes ); // nholes paths added this step
 }
 
 void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
@@ -1628,9 +1613,6 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     min1 = pal->min1();
     max1 = pal->max1();
 
-    cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
-    cout << "min1 = " << min1 << " max1 = " << max1 << endl;
-
     AimsRGBA empty;
 
     int ind = int( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.) );
@@ -1640,8 +1622,6 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
       ind = ncol0 - 1;
     empty = (*col)( ind );
 
-    cout << "texture value RGB " << (int) empty.red() << " "
-        << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
     Material mat2;
     mat2.setRenderProperty(Material::Ghost, 1);
     mat2.setRenderProperty(Material::RenderLighting, 1);
@@ -1768,6 +1748,10 @@ void SurfpaintTools::redoGeodesicPath()
 
 void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 {
+  /* adds n in listIndexVertexHolesPath
+     adds 1 item (n) in numIndexVertexHolesPath
+     adds 1 item in holesObject
+  */
   int i;
 
   AimsSurfaceTriangle *tmpMeshOut;
@@ -1783,9 +1767,11 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   vector<Point3df> vertexList;
   vector<unsigned> indexList;
 
-  //vertexList = sp->shortestPath_1_1_xyz(source_vertex_index,target_vertex_index);
-  sp->shortestPath_1_1_ind_xyz(source_vertex_index,target_vertex_index, indexList,vertexList);
-  copy(indexList.begin(), indexList.end(), std::back_inserter(listIndexVertexHolesPath));
+  sp->shortestPath_1_1_ind_xyz (source_vertex_index, target_vertex_index,
+                                indexList, vertexList );
+  copy( indexList.begin(), indexList.end(),
+        std::back_inserter(listIndexVertexHolesPath) );
+  d->numIndexVertexHolesPath.push_back( indexList.size() );
 
   AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
 
@@ -1818,9 +1804,6 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   min1 = pal->min1();
   max1 = pal->max1();
 
-  cout << "ncol0 = " << ncol0 << " ncol1 = " << ncol1 << endl;
-  cout << "min1 = " << min1 << " max1 = " << max1 << endl;
-
   AimsRGBA empty;
 
   int ind = int( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.) );
@@ -1830,8 +1813,6 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
     ind = ncol0 - 1;
   empty = (*col)( ind );
 
-  cout << "texture value RGB " << (int) empty.red() << " "
-      << (int) empty.green() << " " << (int) empty.blue() << " " << endl;
   Material mat2;
   mat2.setRenderProperty(Material::Ghost, 1);
   mat2.setRenderProperty(Material::RenderLighting, 1);
@@ -1850,6 +1831,108 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
   holesObject.push_back( rc_ptr<ATriangulated>( s3 ) );
   theAnatomist->releaseObject( s3 );
 }
+
+
+void SurfpaintTools::clearUndoneHolesPaths()
+{
+  d->undone_listIndexVertexHolesPath.clear();
+  d->undone_numIndexVertexHolesPath.clear();
+  d->undone_holesObject.clear();
+  d->undone_holeVertexIndices.clear();
+  d->undone_holeCount.clear();
+}
+
+
+void SurfpaintTools::undoSimpleShortPath()
+{
+  if( holesObject.empty() )
+    return;
+  rc_ptr<ATriangulated> obj = holesObject.back();
+  getWindow3D()->unregisterObject( obj.get() );
+  d->undone_holesObject.push_front( obj );
+  holesObject.pop_back();
+  unsigned i, n = d->numIndexVertexHolesPath.back();
+  d->undone_numIndexVertexHolesPath.push_front( n );
+  d->numIndexVertexHolesPath.pop_back();
+  for( i=0; i<n; ++i )
+  {
+    d->undone_listIndexVertexHolesPath.push_front(
+      listIndexVertexHolesPath.back() );
+    listIndexVertexHolesPath.pop_back();
+  }
+}
+
+
+void SurfpaintTools::redoSimpleShortPath()
+{
+  if( d->undone_holesObject.empty() )
+    return;
+  rc_ptr<ATriangulated> obj = d->undone_holesObject.front();
+  getWindow3D()->registerObject( obj.get(), true, 1 );
+  holesObject.push_back( obj );
+  d->undone_holesObject.pop_front();
+  unsigned i, n = d->undone_numIndexVertexHolesPath.front();
+  d->numIndexVertexHolesPath.push_back( n );
+  d->undone_numIndexVertexHolesPath.pop_front();
+  for( i=0; i<n; ++i )
+  {
+    listIndexVertexHolesPath.push_back(
+      d->undone_listIndexVertexHolesPath.front() );
+    d->undone_listIndexVertexHolesPath.pop_front();
+  }
+}
+
+
+void SurfpaintTools::undoHolesPaths()
+{
+  if( d->holeCount.empty() )
+    return;
+  unsigned i, n = d->holeCount.back();
+  d->undone_holeCount.push_front( n );
+  d->holeCount.pop_back();
+  for( i=0; i<n; ++i )
+    undoSimpleShortPath();
+  n = d->holeVertexIndices.back();
+  d->undone_holeVertexIndices.push_front( n );
+  d->holeVertexIndices.pop_back();
+  if( !d->holeVertexIndices.empty() )
+    n -= d->holeVertexIndices.back();
+  for( i=0; i<n; ++i )
+  {
+    d->undone_listIndexVertexBrushPath.push_front(
+      listIndexVertexBrushPath.back() );
+    listIndexVertexBrushPath.pop_back();
+  }
+
+  getWindow3D()->refreshNow();
+}
+
+
+void SurfpaintTools::redoHolesPaths()
+{
+  if( d->undone_holeCount.empty() )
+    return;
+  unsigned i, n = d->undone_holeCount.front(), m = 0;
+  d->holeCount.push_back( n );
+  d->undone_holeCount.pop_front();
+  for( i=0; i<n; ++i )
+    redoSimpleShortPath();
+  n = d->undone_holeVertexIndices.front();
+  if( !d->holeVertexIndices.empty() )
+    m = d->holeVertexIndices.back();
+  d->holeVertexIndices.push_back( n );
+  d->undone_holeVertexIndices.pop_front();
+  n -= m;
+  for( i=0; i<n; ++i )
+  {
+    listIndexVertexBrushPath.push_back(
+      d->undone_listIndexVertexBrushPath.front() );
+    d->undone_listIndexVertexBrushPath.pop_front();
+  }
+
+  getWindow3D()->refreshNow();
+}
+
 
 void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
 {

@@ -493,13 +493,49 @@ void SurfpaintToolsAction::editCancel()
 
 void SurfpaintToolsAction::undo()
 {
-  getTools()->undoGeodesicPath();
+  switch (activeControl)
+  {
+  case 1 :
+    break;
+  case 2 :
+    break;
+  case 3 :
+    getTools()->undoGeodesicPath();
+    break;
+  case 4 :
+    break;
+  case 5 :
+    break;
+  case 6 :
+    getTools()->undoHolesPaths();
+    break;
+  case 7 :
+    break;
+  }
 }
 
 
 void SurfpaintToolsAction::redo()
 {
-  getTools()->redoGeodesicPath();
+  switch (activeControl)
+  {
+  case 1 :
+    break;
+  case 2 :
+    break;
+  case 3 :
+    getTools()->redoGeodesicPath();
+    break;
+  case 4 :
+    break;
+  case 5 :
+    break;
+  case 6 :
+    getTools()->redoHolesPaths();
+    break;
+  case 7 :
+    break;
+  }
 }
 
 

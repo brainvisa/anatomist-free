@@ -146,10 +146,10 @@ namespace anatomist
 
       void addGeodesicPath( int indexNearestVertex,
                             Point3df positionNearestVertex);
-      void clearUndoneGeodesicPath();
       void undoGeodesicPath();
       void redoGeodesicPath();
-      void addSimpleShortPath(int indexSource,int indexDest);
+      void undoHolesPaths();
+      void redoHolesPaths();
 
       void computeDistanceMap(int indexNearestVertex);
 
@@ -187,6 +187,11 @@ namespace anatomist
 
     private :
       void popAllButtonPaintToolBar();
+      void clearUndoneGeodesicPath();
+      void addSimpleShortPath(int indexSource,int indexDest);
+      void undoSimpleShortPath();
+      void redoSimpleShortPath();
+      void clearUndoneHolesPaths();
 
       struct Private;
       Private *d;
