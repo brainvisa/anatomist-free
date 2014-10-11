@@ -190,6 +190,7 @@ namespace anatomist
       void undoSimpleShortPath();
       void redoSimpleShortPath();
       void clearUndoneHolesPaths();
+      float currentTextureValue( unsigned vertexIndex ) const;
 
       struct Private;
       Private *d;
@@ -261,7 +262,6 @@ namespace anatomist
 
       std::vector<unsigned> listIndexVertexPathSP;
       std::vector<unsigned> listIndexVertexSelectSP;
-      map<int,float> listVertexChanged;
 
       std::vector<unsigned> listIndexVertexBrushPath;
       std::vector<unsigned> listIndexVertexHolesPath;

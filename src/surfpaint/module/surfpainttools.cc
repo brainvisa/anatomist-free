@@ -234,7 +234,6 @@ void SurfpaintTools::fill()
     for (; ite != listIndexVertexFill.end(); ite++)
     {
       updateTextureValue(*ite, texvalue);
-      listVertexChanged[*ite] = texvalue;
     }
 
     clearRegion();
@@ -246,7 +245,6 @@ void SurfpaintTools::fill()
     for (unsigned i = 0; i < listIndexVertexPathSP.size(); i++)
     {
       updateTextureValue(listIndexVertexPathSP[i], texvalue);
-      listVertexChanged[listIndexVertexPathSP[i]] = texvalue;
     }
 
     clearPath();
@@ -258,7 +256,6 @@ void SurfpaintTools::fill()
     for (unsigned i = 0; i < listIndexVertexHolesPath.size(); i++)
     {
       updateTextureValue(listIndexVertexHolesPath[i], texvalue);
-      listVertexChanged[listIndexVertexHolesPath[i]] = texvalue;
     }
 
     clearHoles();
@@ -345,8 +342,6 @@ void SurfpaintTools::save()
   {
     surfpaintTexInit[0].item(i) = (*out).item(i);
   }
-
-  listVertexChanged.clear();
 
   QString filt = ( ControlWindow::tr( "Textures" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Texture" ) + ");;"
@@ -1014,7 +1009,6 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       te.max[tx] = svalue;
 
     texbuf[ indexVertex ] = svalue;
-    listVertexChanged[indexVertex] = value;
 
     at->glSetChanged( GLComponent::glBODY );
     at->setChanged();
@@ -1073,7 +1067,6 @@ void SurfpaintTools::updateTexture (vector<float> values)
         svalue = ( *ite - te.minquant[tx] ) / scl;
 
         texbuf[ i ] = svalue;
-        listVertexChanged[i++] = *ite;
       }
 
       at->glSetChanged( GLComponent::glBODY );
@@ -1084,20 +1077,25 @@ void SurfpaintTools::updateTexture (vector<float> values)
   }
 }
 
+
+float SurfpaintTools::currentTextureValue( unsigned vertexIndex ) const
+{
+  GLComponent::TexExtrema & te = at->glTexExtrema(0);
+  float value = at->textureCoords()[ vertexIndex ] + te.minquant[0];
+  if( te.minquant[0] != te.maxquant[0] )
+    value *= te.maxquant[0] - te.minquant[0];
+  return value;
+}
+
+
 void SurfpaintTools::floodFillStart(int indexVertex)
 {
   listIndexVertexSelectFill.clear();
   listIndexVertexFill.clear();
 
-  std::map<int, float>::iterator itef;
-  itef = listVertexChanged.find(indexVertex);
-
   float texvalue = getTextureValueFloat();
 
-  if (itef != listVertexChanged.end())
-    fastFillMove (indexVertex, texvalue,itef->second);
-  else
-    fastFillMove (indexVertex, texvalue,surfpaintTexInit[0].item(indexVertex));
+  fastFillMove( indexVertex, texvalue, currentTextureValue( indexVertex ) );
 }
 
 void SurfpaintTools::floodFillStop(void)
@@ -1168,6 +1166,12 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
   stack.push(indexVertex);
 
   int indexCurr;
+  GLComponent::TexExtrema & te = at->glTexExtrema(0);
+  float maxq = te.maxquant[0], minq = te.minquant[0], scl = 1.;
+  if( maxq != minq )
+    scl = maxq - minq;
+  float currentValue;
+  const float* texdata = at->textureCoords();
 
   while (!stack.empty())
   {
@@ -1196,27 +1200,15 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
       if (ite != listIndexVertexPathSP.end())
         continue;
 
-      std::map<int, float>::iterator itemap;
-      itemap = listVertexChanged.find(indexCurr);
+      currentValue = minq + texdata[ indexCurr ] * scl;
 
-      if (itemap != listVertexChanged.end())
+      if( currentValue > (oldTextureValue + stepToleranceValue + 0.001 )
+          || currentValue < (oldTextureValue - stepToleranceValue - 0.001 ) )
+        continue;
+      else
       {
-        if ((*itemap).second > (oldTextureValue + stepToleranceValue)
-            || (*itemap).second < (oldTextureValue - stepToleranceValue))
-          continue;
-        else
-          {
-          listIndexVertexFill.insert(indexCurr);
-          stack.push(indexCurr);
-          continue;
-          }
-      }
-
-      if ((surfpaintTexInit[0].item(indexCurr) <= (oldTextureValue + 0.001 + stepToleranceValue))
-          && (surfpaintTexInit[0].item(indexCurr) >= (oldTextureValue - 0.001 - stepToleranceValue)))
-      {
-      listIndexVertexFill.insert(indexCurr);
-      stack.push(indexCurr);
+        listIndexVertexFill.insert(indexCurr);
+        stack.push(indexCurr);
       }
     }
   }
