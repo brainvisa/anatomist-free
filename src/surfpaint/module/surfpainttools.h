@@ -89,7 +89,6 @@
 #include <anatomist/object/actions.h>
 
 #include <aims/geodesicpath/geodesicPath.h>
-//#include <cortical_surface/mesh/geodesicPath.h>
 
 #include <queue>
 
@@ -107,11 +106,11 @@ namespace anatomist
       SurfpaintTools();
       virtual ~SurfpaintTools() ;
 
-      bool initSurfPaintModule(AWindow3D *w3);
-      void addToolBarControls(AWindow3D *w3);
-      void removeToolBarControls(AWindow3D *w3);
-      void addToolBarInfosTexture(AWindow3D *w3);
-      void removeToolBarInfosTexture(AWindow3D *w3);
+      bool initSurfPaintModule( AWindow3D *w3 );
+      void addToolBarControls( AWindow3D *w3 );
+      void removeToolBarControls( AWindow3D *w3 );
+      void addToolBarInfosTexture( AWindow3D *w3 );
+      void removeToolBarInfosTexture( AWindow3D *w3 );
       AObject* workingObject() const { return objselect; }
 
       void setPolygon(int p) { IDPolygonSpinBox->setValue(p); }
@@ -119,29 +118,34 @@ namespace anatomist
       void setVertex(int v) { IDVertexSpinBox->setValue(v); }
       void setMaxVertex(int max) { IDVertexSpinBox->setRange(-1,max); }
 
-      void setMinMaxTexture(float min, float max)
-      { textureFloatSpinBox->setRange(min,max); }
-      float getTextureValueFloat(void) const
+      void setMinMaxTexture( float min, float max )
+      { textureFloatSpinBox->setRange( min, max ); }
+      float getTextureValueFloat() const
       { return textureFloatSpinBox->value(); }
-      void setTextureValueFloat(double v) { textureFloatSpinBox->setValue(v); }
-      void updateTextureValue(int indexVertex, float value);
-      void updateTexture (vector<float> values);
-      void restoreTextureValue(int indexVertex);
-      void floodFillStart(int indexVertex);
-      void floodFillStop(void);
-      void fastFillMove(int indexVertex, float newTextureValue,
-                        float oldTextureValue);
+      void setTextureValueFloat( double v )
+      { textureFloatSpinBox->setValue(v); }
+      void updateTextureValue( int indexVertex, float value );
+      void updateTexture ( std::vector<float> values );
+      void restoreTextureValue( int indexVertex );
+      void floodFillStart( int indexVertex );
+      void floodFillStop();
+      void fastFillMove( int indexVertex, float newTextureValue,
+                         float oldTextureValue );
+      bool magicBrushStarted() const
+      {
+        return !listIndexVertexBrushPath.empty() || !listIndexVertexHolesPath.empty() || !holesObject.empty();
+      }
 
-      void fillHolesOnPath (void);
+      void fillHolesOnPath();
 
-      string getPathType(void){return shortestPathSelectedType;}
+      string getPathType() { return shortestPathSelectedType; }
 
-      void setClosePath(bool c){pathClosed = c;}
-      bool pathIsClosed(void){return pathClosed;}
+      void setClosePath( bool c ) { pathClosed = c; }
+      bool pathIsClosed() { return pathClosed; }
 
-      GeodesicPath* getMeshStructSP() {return sp;}
-      GeodesicPath* getMeshStructSulciP() {return sp_sulci;}
-      GeodesicPath* getMeshStructGyriP() {return sp_gyri;}
+      GeodesicPath* getMeshStructSP() { return sp; }
+      GeodesicPath* getMeshStructSulciP() { return sp_sulci; }
+      GeodesicPath* getMeshStructGyriP() { return sp_gyri; }
 
       void addGeodesicPath( int indexNearestVertex,
                             Point3df positionNearestVertex);
@@ -150,9 +154,9 @@ namespace anatomist
       void undoHolesPaths();
       void redoHolesPaths();
 
-      void computeDistanceMap(int indexNearestVertex);
+      void computeDistanceMap( int indexNearestVertex );
 
-      void changeControl(int control) { IDActiveControl = control; }
+      void changeControl( int control ) { IDActiveControl = control; }
       int getActiveControl() { return IDActiveControl; }
       AWindow3D* getWindow3D() { return win3D; }
 
@@ -188,18 +192,18 @@ namespace anatomist
       void redo();
 
       void updateConstraintList();
-      void loadConstraintsList(vector<string> clist);
+      void loadConstraintsList( std::vector<std::string> clist );
 
-      void changeToleranceSpinBox(int v);
-      void changeConstraintPathSpinBox(int v);
+      void changeToleranceSpinBox( int v );
+      void changeConstraintPathSpinBox( int v );
 
-      void changeMinValueSpinBox(double v);
-      void changeMaxValueSpinBox(double v);
+      void changeMinValueSpinBox( double v );
+      void changeMaxValueSpinBox( double v );
 
     private :
       void popAllButtonPaintToolBar();
       void clearUndoneGeodesicPath();
-      void addSimpleShortPath(int indexSource,int indexDest);
+      void addSimpleShortPath( int indexSource, int indexDest );
       void undoSimpleShortPath();
       void redoSimpleShortPath();
       void clearUndoneHolesPaths();

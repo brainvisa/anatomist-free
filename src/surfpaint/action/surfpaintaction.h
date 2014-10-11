@@ -37,10 +37,6 @@
 
 #include <anatomist/controler/action.h>
 
-using namespace anatomist;
-using namespace aims;
-using namespace std;
-
 class AWindow3D ;
 
 namespace anatomist
@@ -57,9 +53,8 @@ namespace anatomist
       SurfpaintToolsAction() ;
       virtual ~SurfpaintToolsAction() ;
 
-    // Action inputs
+      // Action inputs
       virtual std::string name() const;
-      AObject * get_o();
       static Action* creator();
 
       void pressRightButton( int x, int y, int globalX, int globalY  );
@@ -87,7 +82,6 @@ namespace anatomist
       void eraseStart( int x, int y, int globalX, int globalY );
       void eraseStop( int x, int y, int globalX, int globalY );
 
-      //void shortestpathMove ( int x, int y, int globalX, int globalY  );
       void shortestpathStart( int x, int y, bool newedit );
       void shortestpathStop( int x, int y, int globalX, int globalY  );
       void shortestpathClose( int x, int y, int globalX, int globalY  );
@@ -99,22 +93,13 @@ namespace anatomist
 
       float textureValue() const { return texvalue; }
 
-//       void setTools(SurfpaintTools *t){ myTools = t; } ;
       SurfpaintTools* getTools(){ return myTools; } ;
       void setupTools();
 
     private:
 
       AWindow3D *win3D;
-      Point3df pos;
-      int poly;
-      string objtype;
       float texvalue;
-      string textype;
-      int indexVertex;
-      Point3df positionNearestVertex;
-      int indexNearestVertex;
-
       SurfpaintTools *myTools;
   };
 

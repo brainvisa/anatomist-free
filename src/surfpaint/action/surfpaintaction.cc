@@ -43,10 +43,6 @@
 #include <anatomist/controler/view.h>
 #include <anatomist/application/Anatomist.h>
 
-//#include <cartobase/stream/fileutil.h>
-//#include <aims/utility/converter_texture.h>
-//#include <anatomist/color/colortraits.h>
-
 
 using namespace std;
 using namespace anatomist;
@@ -168,6 +164,7 @@ void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int glo
   //cout << "longLeftButtonStop\n" ;
 
   int activeControl = getTools()->getActiveControl();
+  texvalue = getTools()->getTextureValueFloat();
 
   switch (activeControl)
   {
@@ -197,11 +194,17 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
   if( objselect != getTools()->workingObject() )
     return;
 
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
   if( tval.size() >= 1 )
     texvalue = tval[0];
+  else
+    return;
 
   getTools()->setTextureValueFloat(texvalue);
   getTools()->setPolygon(poly);
@@ -217,11 +220,13 @@ void SurfpaintToolsAction::magicselection(int x, int y,
   if( objselect != getTools()->workingObject() )
     return;
 
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
 
   getTools()->clearRegion();
   getTools()->newEditOperation();
@@ -245,11 +250,14 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
     return;
+
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
 
   distanceMove(x, y, globalX, globalY);
 }
@@ -267,11 +275,14 @@ void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
     return;
+
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
 
   if( indexNearestVertex >= 0 )
     getTools()->computeDistanceMap(indexNearestVertex);
@@ -299,16 +310,19 @@ void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
     return;
+
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
 
-  texvalue = (float)(getTools()->getTextureValueFloat());
+  float texvalue = (float)(getTools()->getTextureValueFloat());
 
   if( indexNearestVertex>=0 )
     getTools()->updateTextureValue( indexNearestVertex, texvalue );
@@ -322,7 +336,8 @@ void SurfpaintToolsAction::magicbrushStart(int x, int y,
 {
   //cout << "brushStart" << endl;
 
-  getTools()->newEditOperation();
+  if( !getTools()->magicBrushStarted() )
+    getTools()->newEditOperation();
   magicbrushMove(x, y, globalX, globalY);
 }
 
@@ -344,16 +359,18 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y,
   if( objselect != getTools()->workingObject() )
     return;
 
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
     tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
 
-  texvalue = (float)(getTools()->getTextureValueFloat());
+  float texvalue = (float)(getTools()->getTextureValueFloat());
 
   if( indexNearestVertex >= 0 )
     getTools()->updateTextureValue(indexNearestVertex, texvalue);
@@ -382,11 +399,14 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
     return;
+
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -412,18 +432,19 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y, bool newedit )
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
     return;
+
+  int indexNearestVertex = -1;
+  Point3df positionNearestVertex, pos;
+  int poly;
+  string objtype, textype;
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-  if( tval.size() >= 1 )
-    texvalue = tval[0];
-  else
-    return;
 
   if( newedit )
     getTools()->newEditOperation();
 
-  texvalue = (float)(getTools()->getTextureValueFloat());
+  float texvalue = (float)(getTools()->getTextureValueFloat());
 
   if (!getTools()->pathIsClosed())
   {
@@ -433,11 +454,12 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y, bool newedit )
 
   if (indexNearestVertex>= 0 )
   {
-    getTools()->addGeodesicPath (indexNearestVertex,positionNearestVertex);
+    getTools()->addGeodesicPath( indexNearestVertex, positionNearestVertex );
   }
 
   win3D->refreshNow();
 }
+
 
 void SurfpaintToolsAction::shortestpathStop(int x, int y, int globalX,
     int globalY)
