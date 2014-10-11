@@ -197,7 +197,6 @@ namespace anatomist
       ATexSurface *go;
       ATriangulated *as;
       carto::rc_ptr<AimsSurfaceTriangle> mesh;
-      AObject *tex;
       ATexture *at;
       TimeTexture<float> texCurv;
 

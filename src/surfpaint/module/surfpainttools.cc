@@ -111,7 +111,6 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   go(0),
   as(0),
   mesh(0),
-  tex(0),
   at(0),
   options(0)
 {
@@ -445,19 +444,17 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       as = static_cast<ATriangulated *> (go->surface());
 
-      tex = go->texture();
-
       try
       {
-        at=dynamic_cast<ATexture *> (go->texture());
+        at = dynamic_cast<ATexture *>( go->texture() );
       }
       catch (const std::bad_cast& e)
       {
         std::cerr << e.what() << std::endl;
         std::cerr <<  objselect << " is not a Atexture" << std::endl;
       }
-
-      //int t = (int) w3->getTime();
+      if( !at )
+        throw std::bad_cast();
 
       mesh = as->surface();
 
@@ -821,7 +818,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       connect( textureValueMaxSpinBox, SIGNAL( valueChanged( double ) ),
                this, SLOT( changeMaxValueSpinBox(double) ) );
 
-      if( tex )
+      if( at )
       {
         int tn = 0; // 1st texture
         GLComponent::TexExtrema & te = at->glTexExtrema(tn);
@@ -973,8 +970,8 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
       else
       {
         // update colormap bounds
-        tex->getOrCreatePalette();
-        AObjectPalette *pal = tex->palette();
+        at->getOrCreatePalette();
+        AObjectPalette *pal = at->palette();
         float cscale = 1.;
         if( textureValueMaxSpinBox )
           cscale = ( textureValueMaxSpinBox->value() - te.minquant[tx] )
@@ -1000,7 +997,7 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
             cscale = ( cmax - te.minquant[tx] ) / ( value - te.minquant[tx] );
         }
         pal->setMax1( cscale );
-        tex->setPalette( *pal );
+        at->setPalette( *pal );
 
         te.maxquant[tx] = value;
       }
@@ -1020,9 +1017,9 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
     listVertexChanged[indexVertex] = value;
 
     at->glSetChanged( GLComponent::glBODY );
-    tex->setChanged();
-    tex->setInternalsChanged();
-    tex->notifyObservers(this);
+    at->setChanged();
+    at->setInternalsChanged();
+    at->notifyObservers(this);
 
 
     if (IDActiveControl == 3 || IDActiveControl == 6)
@@ -1057,68 +1054,16 @@ void SurfpaintTools::updateTexture (vector<float> values)
 
       if (maxv > te.maxquant[tx] )
       {
-      tex->getOrCreatePalette();
-      AObjectPalette *pal = tex->palette();
-      //pal->setMax1( maxv );
-      tex->setPalette( *pal );
-      te.maxquant[tx] = maxv;
+        at->getOrCreatePalette();
+        AObjectPalette *pal = at->palette();
+        //pal->setMax1( maxv );
+        at->setPalette( *pal );
+        te.maxquant[tx] = maxv;
       }
 
       scl = (te.maxquant[tx] - te.minquant[tx]);
 
-      //
-
-
-//      if( minv < te.minquant[tx])
-//        value = minv;
-//      if (maxv > te.maxquant[tx] )
-//        value = maxv;
-//
-//        // extrema will need to change
-//        // value in internally rescaled texture
-//        float rval = value - te.minquant[tx];
-//        if( scl == 0 )
-//          scl = 1.;
-//        else
-//          rval /= scl;
-//        if( rval < 0 || rval > 1. )
-//        {
-//          /* the whole tex needs rescaling because they need to fit in [0-1]
-//             for OpenGL */
-//          float offs = 0.;
-//          float nscl = 1. / ( std::max( rval, te.max[tx] )
-//            - std::min( rval, te.min[tx] ) );
-//          if( rval < 0 )
-//            offs = - rval * nscl;
-//          unsigned i, n = at->glTexCoordSize( vs, tn );
-//          GLfloat *tb = texbuf;
-//          for( unsigned i=0; i<n; ++i )
-//            *tb++ = *tb * nscl + offs;
-//          // update internal extrema
-//          te.min[tx] = std::min( rval, te.min[tx] ) * nscl + offs;
-//          te.max[tx] = std::max( rval, te.max[tx] ) * nscl + offs;
-//        }
-//
-//        // update scaled extrema
-//        if( value < te.minquant[tx] )
-//          te.minquant[tx] = value;
-//        else if( value > te.maxquant[tx] )
-//          te.maxquant[tx] = value;
-//        else
-//        {
-//          // update colormap bounds
-//          tex->getOrCreatePalette();
-//          AObjectPalette *pal = tex->palette();
-//          pal->setMax1( scl * pal->max1() / ( value - te.minquant[tx] ) );
-//          tex->setPalette( *pal );
-//
-//          te.maxquant[tx] = value;
-//        }
-//        scl = te.maxquant[tx] - te.minquant[tx];
-
       float svalue;
-
-//
 
       vector<float>::iterator ite = values.begin();
       int i = 0;
@@ -1126,26 +1071,15 @@ void SurfpaintTools::updateTexture (vector<float> values)
       for (; ite != values.end(); ite++)
       {
         svalue = ( *ite - te.minquant[tx] ) / scl;
-//        if( svalue < te.min[tx] )
-//          te.min[tx] = svalue;
-//        else if( svalue > te.max[tx] )
-//          te.max[tx] = svalue;
 
         texbuf[ i ] = svalue;
         listVertexChanged[i++] = *ite;
       }
 
       at->glSetChanged( GLComponent::glBODY );
-      tex->setChanged();
-      tex->setInternalsChanged();
-      tex->notifyObservers(this);
-
-      //win3D->Refresh();
-      //win3D->refreshNow();
-      //
-
-//      if (IDActiveControl == 3 || IDActiveControl == 6)
-//        listIndexVertexBrushPath.push_back(indexVertex);
+      at->setChanged();
+      at->setInternalsChanged();
+      at->notifyObservers(this);
     }
   }
 }
@@ -1351,9 +1285,9 @@ void SurfpaintTools::changeMaxValueSpinBox(double v)
 
   textureValueMaxSpinBox->setValue(v);
 
-  if( tex )
+  if( at )
   {
-    AObjectPalette *pal = tex->palette();
+    AObjectPalette *pal = at->palette();
     int tn = 0; // 1st texture
     GLComponent::TexExtrema & te = at->glTexExtrema(tn);
     int tx = 0; // 1st tex coord
@@ -1361,8 +1295,8 @@ void SurfpaintTools::changeMaxValueSpinBox(double v)
     if( te.minquant[tx] != te.maxquant[tx] )
       cscale = ( v - te.minquant[tx] ) / ( te.maxquant[tx] - te.minquant[tx] );
     pal->setMax1( cscale );
-    tex->setPalette( *pal );
-    tex->notifyObservers( this );
+    at->setPalette( *pal );
+    at->notifyObservers( this );
   }
 
 }
