@@ -1024,7 +1024,9 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
     if (IDActiveControl == 3 || IDActiveControl == 6)
       listIndexVertexBrushPath.push_back(indexVertex);
 
-    d->recorded_modifs.back()[indexVertex] = oldTextureValue;
+    if( d->recorded_modifs.back().find( indexVertex )
+        == d->recorded_modifs.back().end() )
+      d->recorded_modifs.back()[ indexVertex ] = oldTextureValue;
   }
 }
 
@@ -1807,7 +1809,6 @@ void SurfpaintTools::newEditOperation()
 
 void SurfpaintTools::undoTextureOperation()
 {
-  cout << "undo, buffer items: " << d->recorded_modifs.size() << endl;
   if( d->recorded_modifs.empty() )
     return;
   d->undone_modifs.push_front( map<unsigned, float>() );
@@ -1839,7 +1840,6 @@ void SurfpaintTools::undoTextureOperation()
 
 void SurfpaintTools::redoTextureOperation()
 {
-  cout << "redo, buffer items: " << d->undone_modifs.size() << endl;
   if( d->undone_modifs.empty() )
     return;
   d->recorded_modifs.push_back( map<unsigned, float>() );
@@ -1877,7 +1877,6 @@ void SurfpaintTools::clearRedoBuffer()
 
 void SurfpaintTools::undo()
 {
-  cout << "UNDO!\n";
   switch( IDActiveControl )
   {
   case 3 :
@@ -1901,7 +1900,6 @@ void SurfpaintTools::undo()
 
 void SurfpaintTools::redo()
 {
-  cout << "REDO!\n";
   switch( IDActiveControl )
   {
   case 3:

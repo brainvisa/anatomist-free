@@ -88,7 +88,7 @@ namespace anatomist
       void eraseStop( int x, int y, int globalX, int globalY );
 
       //void shortestpathMove ( int x, int y, int globalX, int globalY  );
-      void shortestpathStart( int x, int y, int globalX, int globalY  );
+      void shortestpathStart( int x, int y, bool newedit );
       void shortestpathStop( int x, int y, int globalX, int globalY  );
       void shortestpathClose( int x, int y, int globalX, int globalY  );
 
@@ -106,7 +106,6 @@ namespace anatomist
     private:
 
       AWindow3D *win3D;
-      AObject *objselect;
       Point3df pos;
       int poly;
       string objtype;
@@ -115,7 +114,6 @@ namespace anatomist
       int indexVertex;
       Point3df positionNearestVertex;
       int indexNearestVertex;
-      int activeControl;
 
       SurfpaintTools *myTools;
   };

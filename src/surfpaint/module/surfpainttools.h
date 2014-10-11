@@ -112,6 +112,7 @@ namespace anatomist
       void removeToolBarControls(AWindow3D *w3);
       void addToolBarInfosTexture(AWindow3D *w3);
       void removeToolBarInfosTexture(AWindow3D *w3);
+      AObject* workingObject() const { return objselect; }
 
       void setPolygon(int p) { IDPolygonSpinBox->setValue(p); }
       void setMaxPoly(int max) { IDPolygonSpinBox->setRange(-1,max); }
