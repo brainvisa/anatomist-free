@@ -65,6 +65,9 @@ struct SurfpaintTools::Private
   list<rc_ptr<ATriangulated> > undone_pathObject;
   list<rc_ptr<ATriangulated> > undone_fillObject;
   list<rc_ptr<ATriangulated> > undone_holesObject;
+
+  list<map<unsigned, float> > recorded_modifs;
+  list<map<unsigned, float> > undone_modifs;
 };
 
 
@@ -88,7 +91,7 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   gyriPathAction( 0 ),
   paintBrushAction( 0 ),
   magicBrushAction( 0 ),
-  fillAction( 0 ),
+  validateEditAction( 0 ),
   eraseAction( 0 ),
   clearPathAction( 0 ),
   saveAction( 0 ),
@@ -221,13 +224,13 @@ void SurfpaintTools::magicBrush()
   changeControl(6);
 }
 
-void SurfpaintTools::fill()
+void SurfpaintTools::validateEdit()
 {
   int i;
 
   float texvalue = getTextureValueFloat();
 
-  //remplissage de région fermée
+  // fill closed region
   if (IDActiveControl == 2)
   {
     std::set<int>::iterator ite = listIndexVertexFill.begin();
@@ -239,7 +242,7 @@ void SurfpaintTools::fill()
     clearRegion();
   }
 
-  //remplissage path
+  // path fill
   if (IDActiveControl == 3)
   {
     for (unsigned i = 0; i < listIndexVertexPathSP.size(); i++)
@@ -250,7 +253,7 @@ void SurfpaintTools::fill()
     clearPath();
   }
 
-  //remplissage trous
+  // holes fill
   if (IDActiveControl == 6)
   {
     for (unsigned i = 0; i < listIndexVertexHolesPath.size(); i++)
@@ -651,11 +654,11 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 
     //validate
     iconname = Settings::findResourceFile( "icons/meshPaint/valide.png" );
-    fillAction = new QToolButton();
-    fillAction->setIcon(QIcon(iconname.c_str()));
-    fillAction->setToolTip(ControlledWindow::tr("Fill area or path selected"));
-    fillAction->setIconSize(QSize(32, 32));
-    connect(fillAction, SIGNAL(clicked()), this, SLOT(fill()));
+    validateEditAction = new QToolButton();
+    validateEditAction->setIcon(QIcon(iconname.c_str()));
+    validateEditAction->setToolTip(ControlledWindow::tr("Fill area or path selected"));
+    validateEditAction->setIconSize(QSize(32, 32));
+    connect(validateEditAction, SIGNAL(clicked()), this, SLOT(validateEdit()));
 
     //cancel
     iconname = Settings::findResourceFile( "icons/meshPaint/clear.png" );
@@ -691,7 +694,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     tbControls->addWidget(selectionAction);
     tbControls->addWidget(pathAction);
     tbControls->addWidget(magicBrushAction);
-    tbControls->addWidget(fillAction);
+    tbControls->addWidget(validateEditAction);
     tbControls->addWidget(clearPathAction);
     tbControls->addWidget(distanceAction);
     tbControls->addWidget(saveAction);
@@ -751,7 +754,7 @@ void SurfpaintTools::removeToolBarControls(AWindow3D *w3)
   sulciPathAction = 0;
   gyriPathAction = 0;
   magicBrushAction = 0;
-  fillAction = 0;
+  validateEditAction = 0;
   clearPathAction = 0;
   distanceAction = 0;
   saveAction = 0;
@@ -915,8 +918,8 @@ void SurfpaintTools::restoreTextureValue(int indexVertex)
 
   if (surfpaintTexInit)
   {
-  value = surfpaintTexInit[0].item(indexVertex);
-  updateTextureValue (indexVertex,value);
+    value = surfpaintTexInit[0].item(indexVertex);
+    updateTextureValue (indexVertex,value);
   }
 }
 
@@ -1000,6 +1003,7 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
     }
 
     float svalue;
+    float oldTextureValue;
 
     svalue = ( value - te.minquant[tx] ) / scl;
 
@@ -1008,6 +1012,7 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
     else if( svalue > te.max[tx] )
       te.max[tx] = svalue;
 
+    oldTextureValue = texbuf[ indexVertex ] * scl + te.minquant[0];
     texbuf[ indexVertex ] = svalue;
 
     at->glSetChanged( GLComponent::glBODY );
@@ -1018,6 +1023,8 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
 
     if (IDActiveControl == 3 || IDActiveControl == 6)
       listIndexVertexBrushPath.push_back(indexVertex);
+
+    d->recorded_modifs.back()[indexVertex] = oldTextureValue;
   }
 }
 
@@ -1786,13 +1793,131 @@ void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
 
  sptemp->distanceMap_1_N_ind(indexNearestVertex, distanceMap,&length, 0);
 
-//  vector<float>::iterator it = distanceMap.begin();
-//  int i = 0;
-//  for (; it != distanceMap.end(); ++it)
-//    {
-//    //cout << *it << " ";
-//    //updateTextureValue(i++, *it);
-//    }
-
   updateTexture(distanceMap);
 }
+
+
+void SurfpaintTools::newEditOperation()
+{
+  clearRedoBuffer();
+  if( d->recorded_modifs.empty() || !d->recorded_modifs.back().empty() )
+    d->recorded_modifs.push_back( map<unsigned, float>() );
+}
+
+
+void SurfpaintTools::undoTextureOperation()
+{
+  cout << "undo, buffer items: " << d->recorded_modifs.size() << endl;
+  if( d->recorded_modifs.empty() )
+    return;
+  d->undone_modifs.push_front( map<unsigned, float>() );
+  map<unsigned, float> & redobuf = d->undone_modifs.front();
+  map<unsigned, float>::iterator ip, ep = d->recorded_modifs.back().end();
+  GLComponent::TexExtrema & te = at->glTexExtrema(0);
+  float *buffer = const_cast<float *>( at->textureCoords() );
+  float minq = te.minquant[0], maxq = te.maxquant[0];
+  float scl = 1., uscl = 1.;
+  if( minq != maxq )
+  {
+    uscl = maxq - minq;
+    scl = 1. / uscl;
+  }
+
+  for( ip=d->recorded_modifs.back().begin(); ip!=ep; ++ip )
+  {
+    redobuf[ ip->first ] = buffer[ ip->first ] * uscl + minq;
+    buffer[ ip->first ] = ( ip->second - minq ) * scl;
+  }
+
+  d->recorded_modifs.pop_back();
+  at->glSetChanged( GLComponent::glBODY );
+  at->setChanged();
+  at->setInternalsChanged();
+  at->notifyObservers(this);
+}
+
+
+void SurfpaintTools::redoTextureOperation()
+{
+  cout << "redo, buffer items: " << d->undone_modifs.size() << endl;
+  if( d->undone_modifs.empty() )
+    return;
+  d->recorded_modifs.push_back( map<unsigned, float>() );
+  map<unsigned, float> & undobuf = d->recorded_modifs.back();
+  map<unsigned, float>::iterator ip, ep = d->undone_modifs.front().end();
+  GLComponent::TexExtrema & te = at->glTexExtrema(0);
+  float *buffer = const_cast<float *>( at->textureCoords() );
+  float minq = te.minquant[0], maxq = te.maxquant[0];
+  float scl = 1., uscl = 1.;
+  if( minq != maxq )
+  {
+    uscl = maxq - minq;
+    scl = 1. / uscl;
+  }
+
+  for( ip=d->undone_modifs.front().begin(); ip!=ep; ++ip )
+  {
+    undobuf[ ip->first ] = buffer[ ip->first ] * uscl + minq;
+    buffer[ ip->first ] = ( ip->second - minq ) * scl;
+  }
+
+  d->undone_modifs.pop_front();
+  at->glSetChanged( GLComponent::glBODY );
+  at->setChanged();
+  at->setInternalsChanged();
+  at->notifyObservers(this);
+}
+
+
+void SurfpaintTools::clearRedoBuffer()
+{
+  d->undone_modifs.clear();
+}
+
+
+void SurfpaintTools::undo()
+{
+  cout << "UNDO!\n";
+  switch( IDActiveControl )
+  {
+  case 3 :
+    undoGeodesicPath();
+    break;
+  case 4 :
+    undoTextureOperation();
+    break;
+  case 5 :
+    undoTextureOperation();
+    break;
+  case 6 :
+    undoHolesPaths();
+    break;
+
+  default:
+    cout << "not in compatible mode\n";
+  }
+}
+
+
+void SurfpaintTools::redo()
+{
+  cout << "REDO!\n";
+  switch( IDActiveControl )
+  {
+  case 3:
+    redoGeodesicPath();
+    break;
+  case 4:
+    redoTextureOperation();
+    break;
+  case 5:
+    redoTextureOperation();
+    break;
+  case 6:
+    redoHolesPaths();
+    break;
+  default:
+    break;
+  }
+}
+

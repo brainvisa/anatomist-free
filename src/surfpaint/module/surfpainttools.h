@@ -151,9 +151,17 @@ namespace anatomist
 
       void computeDistanceMap(int indexNearestVertex);
 
-      void changeControl(int control){IDActiveControl = control;}
-      int getActiveControl(void){return IDActiveControl;}
-      AWindow3D* getWindow3D(void){return win3D;}
+      void changeControl(int control) { IDActiveControl = control; }
+      int getActiveControl() { return IDActiveControl; }
+      AWindow3D* getWindow3D() { return win3D; }
+
+      /** start a new buffer to store texture modifications.
+          This is called when starting a new brush stroke (button press) etc,
+          and should always be ended with endEditOperation().
+      */
+      void newEditOperation();
+      void undoTextureOperation();
+      void redoTextureOperation();
 
     public slots:
 
@@ -165,7 +173,7 @@ namespace anatomist
       void gyriPath();
       void brush();
       void magicBrush();
-      void fill();
+      void validateEdit();
       void distance();
       void clearPath();
       void clearRegion();
@@ -173,6 +181,10 @@ namespace anatomist
       void clearAll();
       void erase();
       void save();
+      /// undo the last texture modification
+      void undo();
+      /// redo the last texture modification
+      void redo();
 
       void updateConstraintList();
       void loadConstraintsList(vector<string> clist);
@@ -191,6 +203,7 @@ namespace anatomist
       void redoSimpleShortPath();
       void clearUndoneHolesPaths();
       float currentTextureValue( unsigned vertexIndex ) const;
+      void clearRedoBuffer();
 
       struct Private;
       Private *d;
@@ -231,7 +244,7 @@ namespace anatomist
 
       QToolButton *distanceAction;
 
-      QToolButton *fillAction;
+      QToolButton *validateEditAction;
       QToolButton *eraseAction;
       QToolButton *clearPathAction;
       QToolButton *saveAction;

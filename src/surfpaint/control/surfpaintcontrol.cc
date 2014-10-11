@@ -80,8 +80,9 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
               "SurfpaintToolsAction"),
               &SurfpaintToolsAction::pressRightButton));
 
-  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoModifier, MouseActionLinkOf<
-      SurfpaintToolsAction> (actionPool->action("SurfpaintToolsAction"),
+  mouseLongEventSubscribe(Qt::LeftButton, Qt::NoModifier,
+      MouseActionLinkOf<SurfpaintToolsAction> (
+        actionPool->action("SurfpaintToolsAction"),
       &SurfpaintToolsAction::longLeftButtonStart), MouseActionLinkOf<
       SurfpaintToolsAction> (actionPool->action("SurfpaintToolsAction"),
       &SurfpaintToolsAction::longLeftButtonMove),

@@ -222,7 +222,8 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
   getTools()->setVertex(indexNearestVertex);
 }
 
-void SurfpaintToolsAction::magicselection(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::magicselection(int x, int y,
+                                          int globalX, int globalY)
 {
   win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
@@ -316,6 +317,7 @@ void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
 void SurfpaintToolsAction::brushStart(int x, int y, int globalX, int globalY)
 {
   //cout << "brushStart" << endl;
+  getTools()->newEditOperation();
   brushMove(x, y, globalX, globalY);
 }
 
@@ -356,21 +358,25 @@ void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
 }
 
 
-void SurfpaintToolsAction::magicbrushStart(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::magicbrushStart(int x, int y,
+                                           int globalX, int globalY)
 {
   //cout << "brushStart" << endl;
 
+  getTools()->newEditOperation();
   magicbrushMove(x, y, globalX, globalY);
 }
 
-void SurfpaintToolsAction::magicbrushStop(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::magicbrushStop(int x, int y,
+                                          int globalX, int globalY)
 {
   // cout << "magicbrushStop" << endl;
 
   getTools()->fillHolesOnPath();
 }
 
-void SurfpaintToolsAction::magicbrushMove(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::magicbrushMove(int x, int y,
+                                          int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
   win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
@@ -399,6 +405,7 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y, int globalX, int globalY
 void SurfpaintToolsAction::eraseStart(int x, int y, int globalX, int globalY)
 {
   //cout << "eraseStart" << endl;
+  getTools()->newEditOperation();
   eraseMove(x, y, 0, 0);
 }
 
@@ -437,14 +444,16 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
   win3D->refreshNow();
 }
 
-void SurfpaintToolsAction::shortestpathClose(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::shortestpathClose(int x, int y,
+                                             int globalX, int globalY)
 {
   //cout << "shortestpathClose" << endl;
 
   shortestpathStart(x, y, globalX, globalY);
 }
 
-void SurfpaintToolsAction::shortestpathStart(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::shortestpathStart(int x, int y,
+                                             int globalX, int globalY)
 {
   //cout << "shortestpathStart" << endl;
 
@@ -459,12 +468,12 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y, int globalX, int glob
   texvalue = (float)(getTools()->getTextureValueFloat());
 
   if (!getTools()->pathIsClosed())
-    {
+  {
     getTools()->setPolygon(poly);
     getTools()->setVertex(indexNearestVertex);
-    }
+  }
 
-  if (indexNearestVertex>= 0)
+  if (indexNearestVertex>= 0 )
   {
     getTools()->addGeodesicPath (indexNearestVertex,positionNearestVertex);
   }
@@ -481,7 +490,7 @@ void SurfpaintToolsAction::shortestpathStop(int x, int y, int globalX,
 
 void SurfpaintToolsAction::editValidate()
 {
-  getTools()->fill();
+  getTools()->validateEdit();
 }
 
 
@@ -493,49 +502,13 @@ void SurfpaintToolsAction::editCancel()
 
 void SurfpaintToolsAction::undo()
 {
-  switch (activeControl)
-  {
-  case 1 :
-    break;
-  case 2 :
-    break;
-  case 3 :
-    getTools()->undoGeodesicPath();
-    break;
-  case 4 :
-    break;
-  case 5 :
-    break;
-  case 6 :
-    getTools()->undoHolesPaths();
-    break;
-  case 7 :
-    break;
-  }
+  getTools()->undo();
 }
 
 
 void SurfpaintToolsAction::redo()
 {
-  switch (activeControl)
-  {
-  case 1 :
-    break;
-  case 2 :
-    break;
-  case 3 :
-    getTools()->redoGeodesicPath();
-    break;
-  case 4 :
-    break;
-  case 5 :
-    break;
-  case 6 :
-    getTools()->redoHolesPaths();
-    break;
-  case 7 :
-    break;
-  }
+  getTools()->redo();
 }
 
 
