@@ -34,8 +34,17 @@
 #include <anatomist/module/surfpainttools.h>
 #include <anatomist/object/oReader.h>
 #include <anatomist/control/wControl.h>
+#include <anatomist/color/objectPalette.h>
+#include <anatomist/application/settings.h>
+#include <anatomist/window3D/window3D.h>
+#include <aims/mesh/surfaceOperation.h>
+#include <aims/mesh/surfacegen.h>
+#include <aims/geodesicpath/geodesicPath.h>
+#include <cartobase/stream/fileutil.h>
 #include <QToolBar>
 #include <QToolButton>
+#include <queue>
+#include <float.h>
 
 using namespace anatomist;
 using namespace aims;

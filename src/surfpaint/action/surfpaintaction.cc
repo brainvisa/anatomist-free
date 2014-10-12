@@ -48,7 +48,6 @@ using namespace std;
 using namespace anatomist;
 using namespace aims;
 
-using namespace geodesic;
 
 Action*
 SurfpaintToolsAction::creator()
@@ -62,7 +61,7 @@ string SurfpaintToolsAction::name() const
 }
 
 SurfpaintToolsAction::SurfpaintToolsAction()
-  : win3D( 0 ), myTools( new SurfpaintTools )
+  : texvalue( 100 ), myTools( new SurfpaintTools )
 {
   //cout << "SurfpaintToolsAction\n";
 }
@@ -100,7 +99,7 @@ void SurfpaintToolsAction::setupTools()
 
 void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int globalY)
 {
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   int activeControl = getTools()->getActiveControl();
 
@@ -188,7 +187,7 @@ void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int glo
 
 void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
 {
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -214,7 +213,7 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
 void SurfpaintToolsAction::magicselection(int x, int y,
                                           int globalX, int globalY)
 {
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -245,7 +244,7 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
 {
   cout << "distanceStart" << endl;
 
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -270,7 +269,7 @@ void SurfpaintToolsAction::distanceStop(int x, int y, int globalX, int globalY)
 void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -305,7 +304,7 @@ void SurfpaintToolsAction::brushStop(int x, int y, int globalX, int globalY)
 void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -353,7 +352,7 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y,
                                           int globalX, int globalY)
 {
   //cout << "brushMove" << endl;
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -394,7 +393,7 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
 {
   //cout << "eraseMove" << endl;
 
-  win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )
@@ -428,6 +427,8 @@ void SurfpaintToolsAction::shortestpathClose(int x, int y,
 void SurfpaintToolsAction::shortestpathStart(int x, int y, bool newedit )
 {
   //cout << "shortestpathStart" << endl;
+
+  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
   if( objselect != getTools()->workingObject() )

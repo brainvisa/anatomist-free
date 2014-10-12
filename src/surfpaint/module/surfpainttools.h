@@ -31,30 +31,20 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef ANATOMIST_WINDOW3D_WSURFPAINTTOOLS_H
-#define ANATOMIST_WINDOW3D_WSURFPAINTTOOLS_H
+#ifndef ANATOMIST_MODULE_SURFPAINTTOOLS_H
+#define ANATOMIST_MODULE_SURFPAINTTOOLS_H
 
-#include <anatomist/selection/selectFactory.h>
 #include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/surface/surface.h>
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/glcomponent.h>
-#include <anatomist/color/objectPalette.h>
-#include <aims/rgb/rgb.h>
 #include <aims/utility/converter_texture.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/objectConverter.h>
 #include <anatomist/control/surfpaintcontrol.h>
-#include <anatomist/observer/Observer.h>
-#include <anatomist/controler/icondictionary.h>
-#include <anatomist/controler/controlmanager.h>
 #include <qwidget.h>
 #include <qspinbox.h>
-#include <anatomist/application/globalConfig.h>
-#include <anatomist/application/settings.h>
-#include <anatomist/window3D/window3D.h>
-#include <anatomist/window/glwidget.h>
 #include <aims/qtcompat/qhgroupbox.h>
 #include <aims/qtcompat/qvgroupbox.h>
 #include <qcheckbox.h>
@@ -73,27 +63,15 @@
 #include <qcombobox.h>
 #include <qfiledialog.h>
 #include <qaction.h>
-#include <iostream>
 #include <qmenubar.h>
-#include <aims/def/path.h>
-#include <cartobase/config/version.h>
-#include <cartobase/config/paths.h>
-#include <cartobase/stream/fileutil.h>
-#include <iostream>
-#include <string.h>
-#include <fstream>
-#include <aims/mesh/curv.h>
-#include <aims/mesh/surfaceOperation.h>
-#include <aims/mesh/surfacegen.h>
-#include <aims/mesh/geometric.h>
-#include <anatomist/object/actions.h>
 
-#include <aims/geodesicpath/geodesicPath.h>
 
-#include <queue>
+class AWindow3D;
 
-#include <float.h>
-
+namespace aims
+{
+  class GeodesicPath;
+}
 
 namespace anatomist
 {
@@ -138,14 +116,14 @@ namespace anatomist
 
       void fillHolesOnPath();
 
-      string getPathType() { return shortestPathSelectedType; }
+      std::string getPathType() { return shortestPathSelectedType; }
 
       void setClosePath( bool c ) { pathClosed = c; }
       bool pathIsClosed() { return pathClosed; }
 
-      GeodesicPath* getMeshStructSP() { return sp; }
-      GeodesicPath* getMeshStructSulciP() { return sp_sulci; }
-      GeodesicPath* getMeshStructGyriP() { return sp_gyri; }
+      aims::GeodesicPath* getMeshStructSP() { return sp; }
+      aims::GeodesicPath* getMeshStructSulciP() { return sp_sulci; }
+      aims::GeodesicPath* getMeshStructGyriP() { return sp_gyri; }
 
       void addGeodesicPath( int indexNearestVertex,
                             Point3df positionNearestVertex);
@@ -228,8 +206,8 @@ namespace anatomist
       QToolBar  *tbTextureValue;
       QDoubleSpinBox *textureFloatSpinBox;
 
-      string textype;
-      string objtype;
+      std::string textype;
+      std::string objtype;
 
       QToolBar  *tbInfos3D;
       QSpinBox *IDPolygonSpinBox;
@@ -269,11 +247,11 @@ namespace anatomist
       float stepToleranceValue;
 
       int IDActiveControl;
-      string shortestPathSelectedType;
+      std::string shortestPathSelectedType;
 
-      GeodesicPath *sp;
-      GeodesicPath *sp_sulci;
-      GeodesicPath *sp_gyri;
+      aims::GeodesicPath *sp;
+      aims::GeodesicPath *sp_sulci;
+      aims::GeodesicPath *sp_gyri;
 
       std::vector<std::set<uint> >  neighbours;
       bool pathClosed;

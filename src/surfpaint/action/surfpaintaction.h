@@ -32,19 +32,14 @@
  */
 
 
-#ifndef SURFPAINT_ACTION_H
-#define SURFPAINT_ACTION_H
+#ifndef ANATOMIST_SURFPAINT_ACTION_H
+#define ANATOMIST_SURFPAINT_ACTION_H
 
 #include <anatomist/controler/action.h>
 
-class AWindow3D ;
 
 namespace anatomist
 {
-  class AWindow ;
-  class AGraph ;
-  class AGraphObject ;
-  class AObject ;
   class SurfpaintTools;
 
   class SurfpaintToolsAction : public Action
@@ -98,7 +93,6 @@ namespace anatomist
 
     private:
 
-      AWindow3D *win3D;
       float texvalue;
       SurfpaintTools *myTools;
   };

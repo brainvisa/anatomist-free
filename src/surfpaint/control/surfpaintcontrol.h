@@ -31,8 +31,8 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SURFPAINT_CONTROL_H
-#define SURFPAINT_CONTROL_H
+#ifndef ANATOMIST_SURFPAINT_CONTROL_H
+#define ANATOMIST_SURFPAINT_CONTROL_H
 
 #include <anatomist/controler/control.h>
 #include <anatomist/action/surfpaintaction.h>
