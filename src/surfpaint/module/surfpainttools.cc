@@ -37,14 +37,25 @@
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/object/objectConverter.h>
+#include <anatomist/surface/texsurface.h>
+#include <anatomist/surface/texture.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/geodesicpath/geodesicPath.h>
 #include <cartobase/stream/fileutil.h>
 #include <QToolBar>
 #include <QToolButton>
+#include <qmessagebox.h>
+#include <qlabel.h>
+#include <qtooltip.h>
+#include <qcombobox.h>
+#include <qfiledialog.h>
+#include <qaction.h>
+#include <qmenubar.h>
 #include <queue>
 #include <float.h>
+
 
 using namespace anatomist;
 using namespace aims;
@@ -120,8 +131,6 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   sp_sulci( 0 ),
   sp_gyri( 0 ),
   pathClosed( false ),
-  go(0),
-  as(0),
   mesh(0),
   at(0),
   options(0)
@@ -441,7 +450,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
     if (objtype == "TEXTURED SURF.")
     {
-      go = dynamic_cast<ATexSurface *> (objselect);
+      ATexSurface *go = dynamic_cast<ATexSurface *> (objselect);
 
       if( !go )
       {
@@ -449,7 +458,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
         return false;
       }
 
-      as = static_cast<ATriangulated *> (go->surface());
+      ATriangulated *as = static_cast<ATriangulated *> (go->surface());
 
       try
       {
@@ -784,12 +793,12 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
         tbTextureValue->setLabel( ControlledWindow::tr( "surfpainttoolbarTex" ) );
         tbTextureValue->setIconSize( QSize( 20, 20 ) );
 
-    QHBox *infosTextureValue = new QHBox();
-
     QLabel *SpinBoxLabel = new QLabel(ControlledWindow::tr("TextureValue"),
-        infosTextureValue, "TextureValue");
+        tbTextureValue, "TextureValue");
+    tbTextureValue->addWidget( SpinBoxLabel );
 
-    textureFloatSpinBox = new QDoubleSpinBox(infosTextureValue);
+    textureFloatSpinBox = new QDoubleSpinBox(tbTextureValue);
+    tbTextureValue->addWidget( textureFloatSpinBox );
     textureFloatSpinBox->setSingleStep(0.1);
     textureFloatSpinBox->setDecimals(2);
     //textureFloatSpinBox->setFixedHeight(30);
@@ -802,7 +811,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
     if (!w3->constraintEditorIsActive() || w3->getConstraintType()==1 )
     {
-      textureValueMinSpinBox = new QDoubleSpinBox(infosTextureValue);
+      textureValueMinSpinBox = new QDoubleSpinBox(tbTextureValue);
+      tbTextureValue->addWidget( textureValueMinSpinBox );
       textureValueMinSpinBox->setSingleStep(0.1);
       textureValueMinSpinBox->setDecimals(2);
       //textureValueMinSpinBox->setFixedHeight(30);
@@ -813,7 +823,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       connect( textureValueMinSpinBox, SIGNAL( valueChanged( double ) ),
                this, SLOT( changeMinValueSpinBox(double) ) );
 
-      textureValueMaxSpinBox = new QDoubleSpinBox(infosTextureValue);
+      textureValueMaxSpinBox = new QDoubleSpinBox(tbTextureValue);
+      tbTextureValue->addWidget( textureValueMaxSpinBox );
       textureValueMaxSpinBox->setSingleStep(0.1);
       textureValueMaxSpinBox->setDecimals(2);
       //textureValueMaxSpinBox->setFixedHeight(30);
@@ -843,7 +854,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     if (w3->constraintEditorIsActive() &&  w3->getConstraintType()==0)
     {
       //textureFloatSpinBox->setReadOnly(true);
-      constraintList = new QComboBox(infosTextureValue);
+      constraintList = new QComboBox(tbTextureValue);
+      tbTextureValue->addWidget( constraintList );
 
       if (!w3->getConstraintList().empty())
         loadConstraintsList(w3->getConstraintList());
@@ -854,7 +866,6 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       updateConstraintList();
     }
 
-    tbTextureValue->addWidget(infosTextureValue);
     tbTextureValue->show();
 
     tbInfos3D = new QToolBar( w3,ControlledWindow::tr( "surfpainttoolbar3D") );
@@ -863,28 +874,32 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
       tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
       tbInfos3D->setIconSize( QSize( 20, 20 ) );
 
-    QHBox *infos3D = new QHBox();
-
     QLabel *IDPolygonSpinBoxLabel
-      = new QLabel(ControlledWindow::tr("IDPolygon"),infos3D);
+      = new QLabel(ControlledWindow::tr("IDPolygon"), tbInfos3D);
+    tbInfos3D->addWidget( IDPolygonSpinBoxLabel );
 
-    IDPolygonSpinBox = new QSpinBox(infos3D);
+    IDPolygonSpinBox = new QSpinBox(tbInfos3D);
+    tbInfos3D->addWidget( IDPolygonSpinBox );
     IDPolygonSpinBox->setSingleStep(1);
     //IDPolygonSpinBox->setFixedHeight(30);
     IDPolygonSpinBox->setFixedWidth(75);
     IDPolygonSpinBox->setValue(0);
 
     QLabel *IDVertexSpinBoxLabel
-      = new QLabel(ControlledWindow::tr("IDVertex"),infos3D);
+      = new QLabel(ControlledWindow::tr("IDVertex"),tbInfos3D);
+    tbInfos3D->addWidget( IDVertexSpinBoxLabel );
 
-    IDVertexSpinBox = new QSpinBox(infos3D);
+    IDVertexSpinBox = new QSpinBox(tbInfos3D);
+    tbInfos3D->addWidget( IDVertexSpinBox );
     IDVertexSpinBox->setSingleStep(1);
     //IDVertexSpinBox->setFixedHeight(30);
     IDVertexSpinBox->setFixedWidth(75);
     IDVertexSpinBox->setValue(0);
 
-    toleranceSpinBoxLabel = new QLabel(tr("tolerance"),infos3D);
-    toleranceSpinBox = new QSpinBox (infos3D);
+    toleranceSpinBoxLabel = new QLabel(tr("tolerance"),tbInfos3D);
+    tbInfos3D->addWidget( toleranceSpinBoxLabel );
+    toleranceSpinBox = new QSpinBox (tbInfos3D);
+    tbInfos3D->addWidget( toleranceSpinBox );
     toleranceSpinBox->setSingleStep(1);
     //toleranceSpinBox->setFixedHeight(30);
     toleranceSpinBox->setFixedWidth(55);
@@ -893,8 +908,11 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
     connect( toleranceSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeToleranceSpinBox(int) ) );
 
-    constraintPathSpinBoxLabel = new QLabel(ControlledWindow::tr("constraint"),infos3D);
-    constraintPathSpinBox = new QSpinBox(infos3D);
+    constraintPathSpinBoxLabel
+      = new QLabel(ControlledWindow::tr("constraint"), tbInfos3D);
+    tbInfos3D->addWidget( constraintPathSpinBoxLabel );
+    constraintPathSpinBox = new QSpinBox(tbInfos3D);
+    tbInfos3D->addWidget( constraintPathSpinBox );
     constraintPathSpinBox->setSingleStep(1);
     //constraintPathSpinBox->setFixedHeight(30);
     constraintPathSpinBox->setFixedWidth(55);
@@ -902,8 +920,6 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     constraintPathSpinBox->setRange(0,100);
 
     connect( constraintPathSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeConstraintPathSpinBox(int) ) );
-
-    tbInfos3D->addWidget(infos3D);
 
     tbInfos3D->show();
   }

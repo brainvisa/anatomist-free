@@ -34,39 +34,21 @@
 #ifndef ANATOMIST_MODULE_SURFPAINTTOOLS_H
 #define ANATOMIST_MODULE_SURFPAINTTOOLS_H
 
-#include <anatomist/surface/texsurface.h>
-#include <anatomist/surface/texture.h>
-#include <anatomist/surface/surface.h>
-#include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/glcomponent.h>
-#include <aims/utility/converter_texture.h>
-#include <anatomist/application/Anatomist.h>
-#include <anatomist/object/objectConverter.h>
-#include <anatomist/control/surfpaintcontrol.h>
+#include <anatomist/surface/triangulated.h>
+#include <aims/mesh/surface.h>
+#include <aims/mesh/texture.h>
+#include <cartobase/object/object.h>
 #include <qwidget.h>
 #include <qspinbox.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <qcheckbox.h>
-#include <qlayout.h>
-#include <qradiobutton.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qbuttongroup.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <aims/qtcompat/qtoolbutton.h>
-#include <aims/qtcompat/qbutton.h>
-#include <qmessagebox.h>
-#include <qlabel.h>
-#include <qspinbox.h>
-#include <qtooltip.h>
-#include <qcombobox.h>
-#include <qfiledialog.h>
-#include <qaction.h>
-#include <qmenubar.h>
 
 
 class AWindow3D;
+class QToolBar;
+class QToolButton;
+class QAction;
+class QComboBox;
+class QLabel;
 
 namespace aims
 {
@@ -75,6 +57,9 @@ namespace aims
 
 namespace anatomist
 {
+  class AObject;
+  class ATexture;
+
   class SurfpaintTools: public QWidget
   {
     Q_OBJECT
@@ -191,8 +176,6 @@ namespace anatomist
       struct Private;
       Private *d;
 
-      ATexSurface *go;
-      ATriangulated *as;
       carto::rc_ptr<AimsSurfaceTriangle> mesh;
       ATexture *at;
       TimeTexture<float> texCurv;
