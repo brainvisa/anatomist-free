@@ -52,7 +52,7 @@
 #include <qcombobox.h>
 #include <qfiledialog.h>
 #include <qaction.h>
-#include <qmenubar.h>
+#include <QMenu>
 #include <queue>
 #include <float.h>
 
