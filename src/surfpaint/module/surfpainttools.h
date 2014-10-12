@@ -116,6 +116,8 @@ namespace anatomist
       void redoGeodesicPath();
       void undoHolesPaths();
       void redoHolesPaths();
+      void undoSelectFill();
+      void redoSelectFill();
 
       void computeDistanceMap( int indexNearestVertex );
 
@@ -170,6 +172,7 @@ namespace anatomist
       void undoSimpleShortPath();
       void redoSimpleShortPath();
       void clearUndoneHolesPaths();
+      void clearUndoneSelectFill();
       float currentTextureValue( unsigned vertexIndex ) const;
       void clearRedoBuffer();
 
@@ -245,7 +248,6 @@ namespace anatomist
       std::vector<unsigned> listIndexVertexBrushPath;
       std::vector<unsigned> listIndexVertexHolesPath;
 
-      std::vector<unsigned> listIndexVertexSelectFill;
       std::set<int> listIndexVertexFill;
 
       std::vector<carto::rc_ptr<ATriangulated> > pathObject;

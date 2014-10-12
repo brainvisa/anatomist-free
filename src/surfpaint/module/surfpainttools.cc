@@ -80,7 +80,7 @@ struct SurfpaintTools::Private
   list<unsigned> holeCount;
   list<unsigned> undone_holeCount;
 
-  list<unsigned> undone_listIndexVertexSelectFill;
+  set<int> undone_listIndexVertexFill;
 
   list<rc_ptr<ATriangulated> > undone_pathObject;
   list<rc_ptr<ATriangulated> > undone_fillObject;
@@ -339,22 +339,33 @@ void SurfpaintTools::clearHoles()
   holesObject.clear();
 }
 
+
+void SurfpaintTools::clearUndoneSelectFill()
+{
+  d->undone_listIndexVertexFill.clear();
+  d->undone_fillObject.clear();
+}
+
+
 void SurfpaintTools::clearRegion()
 {
-  listIndexVertexSelectFill.clear();
+  clearUndoneSelectFill();
+
+  listIndexVertexFill.clear();
 
   vector<rc_ptr<ATriangulated> >::iterator ite;
 
   ite = fillObject.begin();
 
   for (; ite != fillObject.end(); ++ite)
-    {
-      win3D->unregisterObject( ite->get() );
-      theAnatomist->unregisterObject( ite->get() );
-    }
+  {
+    win3D->unregisterObject( ite->get() );
+    theAnatomist->unregisterObject( ite->get() );
+  }
 
   fillObject.clear();
 }
+
 
 void SurfpaintTools::save()
 {
@@ -628,7 +639,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     selectionAction->setAutoRaise(true);
     connect(selectionAction, SIGNAL(clicked()), this, SLOT(magicSelection()));
 
-    //plus court chemin
+    // shortest path
     iconname = Settings::findResourceFile( "icons/meshPaint/shortest.png" );
     pathAction = new QToolButton();
     pathAction->setIcon(QIcon(iconname.c_str()));
@@ -698,6 +709,26 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     distanceAction->setAutoRaise(true);
     connect(distanceAction, SIGNAL(clicked()), this, SLOT(distance()));
 
+    // undo
+    iconname = Settings::findResourceFile( "icons/undo.png" );
+    QToolButton *undoAction = new QToolButton();
+    undoAction->setIcon(QIcon(iconname.c_str()));
+    undoAction->setToolTip(tr("undo"));
+    undoAction->setCheckable(false);
+    undoAction->setIconSize(QSize(32, 32));
+    undoAction->setAutoRaise(true);
+    connect(undoAction, SIGNAL(clicked()), this, SLOT(undo()));
+
+    // redo
+    iconname = Settings::findResourceFile( "icons/redo.png" );
+    QToolButton *redoAction = new QToolButton();
+    redoAction->setIcon(QIcon(iconname.c_str()));
+    redoAction->setToolTip(tr("redo"));
+    redoAction->setCheckable(false);
+    redoAction->setIconSize(QSize(32, 32));
+    redoAction->setAutoRaise(true);
+    connect(redoAction, SIGNAL(clicked()), this, SLOT(redo()));
+
     //save
     iconname = Settings::findResourceFile( "icons/meshPaint/sauver.png" );
     saveAction = new QToolButton();
@@ -715,6 +746,8 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     tbControls->addWidget(validateEditAction);
     tbControls->addWidget(clearPathAction);
     tbControls->addWidget(distanceAction);
+    tbControls->addWidget(undoAction);
+    tbControls->addWidget(redoAction);
     tbControls->addWidget(saveAction);
 
     switch( IDActiveControl )
@@ -1124,7 +1157,6 @@ float SurfpaintTools::currentTextureValue( unsigned vertexIndex ) const
 
 void SurfpaintTools::floodFillStart(int indexVertex)
 {
-  listIndexVertexSelectFill.clear();
   listIndexVertexFill.clear();
 
   float texvalue = getTextureValueFloat();
@@ -1143,8 +1175,6 @@ void SurfpaintTools::floodFillStop(void)
   std::set<int>::iterator ite = listIndexVertexFill.begin();
 
   for (; ite != listIndexVertexFill.end(); ite++)
-  //for (unsigned i = 0; i < listIndexVertexSelectFill.size(); i++)
-  //for (unsigned i = 0; i < listIndexVertexFill.size(); i++)
   {
     //Point3df pt;
     tmpMeshOut = SurfaceGenerator::sphere(vert[*ite], 0.25, 50);
@@ -1196,6 +1226,9 @@ void SurfpaintTools::floodFillStop(void)
 void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
     float oldTextureValue)
 {
+  /* Adds n items in listIndexVertexFill
+  */
+
   std::queue<int> stack;
   stack.push(indexVertex);
 
@@ -1800,6 +1833,42 @@ void SurfpaintTools::redoHolesPaths()
 }
 
 
+void SurfpaintTools::undoSelectFill()
+{
+  if( listIndexVertexFill.empty() )
+    return;
+  d->undone_listIndexVertexFill = listIndexVertexFill;
+  listIndexVertexFill.clear();
+  rc_ptr<ATriangulated> obj;
+
+  while( !fillObject.empty() )
+  {
+    obj = fillObject.back();
+    getWindow3D()->unregisterObject( obj.get() );
+    d->undone_fillObject.push_front( obj );
+    fillObject.pop_back();
+  }
+}
+
+
+void SurfpaintTools::redoSelectFill()
+{
+  if( d->undone_listIndexVertexFill.empty() )
+    return;
+  listIndexVertexFill = d->undone_listIndexVertexFill;
+  d->undone_listIndexVertexFill.clear();
+  rc_ptr<ATriangulated> obj;
+
+  while( !d->undone_fillObject.empty() )
+  {
+    obj = d->undone_fillObject.front();
+    getWindow3D()->registerObject( obj.get(), true, 1 );
+    fillObject.push_back( obj );
+    d->undone_fillObject.pop_front();
+  }
+}
+
+
 void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
 {
   vector<float> distanceMap;
@@ -1902,45 +1971,30 @@ void SurfpaintTools::clearRedoBuffer()
 
 void SurfpaintTools::undo()
 {
-  switch( IDActiveControl )
-  {
-  case 3 :
+  if( !listIndexVertexSelectSP.empty() )
     undoGeodesicPath();
-    break;
-  case 4 :
-    undoTextureOperation();
-    break;
-  case 5 :
-    undoTextureOperation();
-    break;
-  case 6 :
+  else if( !listIndexVertexFill.empty() )
+    undoSelectFill();
+  else if( magicBrushStarted() )
     undoHolesPaths();
-    break;
-
-  default:
-    cout << "not in compatible mode\n";
-  }
+  else
+    undoTextureOperation();
 }
 
 
 void SurfpaintTools::redo()
 {
-  switch( IDActiveControl )
-  {
-  case 3:
-    redoGeodesicPath();
-    break;
-  case 4:
+  if( !d->undone_modifs.empty() )
     redoTextureOperation();
-    break;
-  case 5:
-    redoTextureOperation();
-    break;
-  case 6:
+  else if( !d->undone_listIndexVertexBrushPath.empty()
+      || !d->undone_listIndexVertexHolesPath.empty()
+      || !d->undone_holesObject.empty() )
     redoHolesPaths();
-    break;
-  default:
-    break;
-  }
+  else if( !d->undone_listIndexVertexFill.empty() )
+    redoSelectFill();
+  else // if( !d->undone_listIndexVertexSelectSP.empty() )
+    redoGeodesicPath();
 }
+
+
 
