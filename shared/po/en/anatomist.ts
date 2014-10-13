@@ -103,10 +103,6 @@
         <translation type="unfinished">Oblique</translation>
     </message>
     <message>
-        <source>Mute into free orientation view</source>
-        <translation type="obsolete">Mute into free orientation view</translation>
-    </message>
-    <message>
         <source>3D</source>
         <translation type="unfinished">3D</translation>
     </message>
@@ -287,10 +283,6 @@
         <translation type="unfinished">RoiManagementAction</translation>
     </message>
     <message>
-        <source>LevelSetAction</source>
-        <translation type="obsolete">LevelSetAction</translation>
-    </message>
-    <message>
         <source>ConnectivityThresholdAction</source>
         <translation type="unfinished">ConnectivityThresholdAction</translation>
     </message>
@@ -338,16 +330,8 @@
         <translation type="unfinished">DICOM</translation>
     </message>
     <message>
-        <source>Triangular meshes</source>
-        <translation type="obsolete">Triangular meshes</translation>
-    </message>
-    <message>
         <source>Graphs</source>
         <translation type="unfinished">Graphs</translation>
-    </message>
-    <message>
-        <source>ROIs</source>
-        <translation type="obsolete">ROIs</translation>
     </message>
     <message>
         <source>Hierarchies</source>
@@ -390,40 +374,20 @@
         <translation type="unfinished">Load object</translation>
     </message>
     <message>
-        <source>Reads a new object from a file</source>
-        <translation type="obsolete">Reads a new object from a file</translation>
-    </message>
-    <message>
         <source>Add objects in windows</source>
         <translation type="unfinished">Add objects in windows</translation>
-    </message>
-    <message>
-        <source>Puts selected objects in selected windows</source>
-        <translation type="obsolete">Puts selected objects in selected windows</translation>
     </message>
     <message>
         <source>Removes objects from windows</source>
         <translation type="unfinished">Removes objects from windows</translation>
     </message>
     <message>
-        <source>Removes selected objects from selected windows</source>
-        <translation type="obsolete">Removes selected objects from selected windows</translation>
-    </message>
-    <message>
         <source>Fusion objects</source>
         <translation type="unfinished">Fusion objects</translation>
     </message>
     <message>
-        <source>Creates a new object combining the selected ones</source>
-        <translation type="obsolete">Creates a new object combining the selected ones</translation>
-    </message>
-    <message>
         <source>Assign referential</source>
         <translation type="unfinished">Assign referential</translation>
-    </message>
-    <message>
-        <source>Choose a referential on objects or windows</source>
-        <translation type="obsolete">Choose a referential on objects or windows</translation>
     </message>
     <message>
         <source>Group objects</source>
@@ -484,10 +448,6 @@
     <message>
         <source>Open</source>
         <translation type="unfinished">Open</translation>
-    </message>
-    <message>
-        <source>Save global settings</source>
-        <translation type="obsolete">Save global settings</translation>
     </message>
     <message>
         <source>Replay scenario</source>
@@ -745,6 +705,14 @@
         <source>Sparse matrices</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Reload failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not reload the following objects:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ControlledWindow</name>
@@ -915,31 +883,6 @@ undo, redo...
 &lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>LevelSetControl</source>
-        <translation type="obsolete">Iso-value ROI drawing mode
-Define a ROI, activate LevelSet in ToolBox, set min and max bounds then click on the colored image zone to segment
-Left button : add to current region
-              &lt;ctrl&gt; : replace current region
-              &lt;shift&gt;: blob segmentation around nearest extremum (choose first its size in toolbox : levelset)
-
-Middle Button  :  rotation
-              &lt;shift&gt;: zoom
-              &lt;ctrl&gt; : translation
-Right Button   :  menu
-              &lt;shift&gt;: Discriminating analysis (DA) segmentation of dynamic datas
-
-&lt;a&gt;                : iso-value activation
-&lt;d&gt;                : iso-value deactivation
-&lt;Shift&gt; + &lt;B&gt; : Bump détection mode for blob segmentation
-&lt;Cntrl&gt; + &lt;B&gt; : Hole détection mode for blob segmentation
-
-&lt;Shift&gt; + &lt;2&gt;  : 2D mode
-&lt;Shift&gt; + &lt;3&gt;  : 3D mode
-
-&lt;u&gt;      :  undo last modification
-&lt;r&gt;      :  redo last modification</translation>
-    </message>
-    <message>
         <source>DynSegmentControl</source>
         <translation type="unfinished">ROI design by discriminating analysis (only on dynamic datas)
 Define a ROI on your dynamic data, then select a point inside the organ to segment
@@ -1011,26 +954,6 @@ Right Button   :  menu
 &lt;r&gt;      :  redo last modification</translation>
     </message>
     <message>
-        <source>RoiControl</source>
-        <translation type="obsolete">Open ROI Tool Box</translation>
-    </message>
-    <message>
-        <source>SurfpaintControl</source>
-        <translation type="obsolete">Open painting Tool Box</translation>
-    </message>
-    <message>
-        <source>SurfpaintColorPickerControl</source>
-        <translation type="obsolete">texture value picking:
-        left clic : choose a vertex
-        </translation>
-    </message>
-    <message>
-        <source>SurfpaintBrushControl</source>
-        <translation type="obsolete">brush :
-        left clic : change texture value 
-        </translation>
-    </message>
-    <message>
         <source>Browser Selection</source>
         <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Browser control&lt;/b&gt;&lt;/div&gt;
 &lt;p&gt;
@@ -1042,32 +965,6 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>ThresholdControl</source>
-        <translation type="obsolete">Roi definition by semi automatic threshold, under connectivity constraint  (ROI)
-Left btn       : add blue part of image connected to clicked point to current region
-        &lt;ctrl&gt;  : replace current region by blue part of image connected to clicked point
-        &lt;shift&gt; : segment nearest blob or hole (remember to set size of region and percentage of extremum parameters)
-Mid btn       :  rotate
-        &lt;shift&gt;: zoom/distance
-        &lt;ctrl&gt;  : translation
-Right btn     :  menu
-
-BRUSH
-  &lt;a&gt;       :  activate threshold preview
-  &lt;d&gt;       :  deactivate threshold preview
-  &lt;shift+b&gt;       :  blob detection mode set to Blob
-  &lt;control+b&gt;       :  blob detection mode set to Hole
-  &lt;shift+2&gt;       :  threshold will be performed on slice
-  &lt;shift+3&gt;       :  threshold will be performed on volume
-  &lt;ctrl+PageUp&gt; : copy on this slice same region previous slice
-  &lt;shift+PageUp&gt; : copy on this slice whole session previous slice
-  &lt;ctrl+PageDown&gt; : copy on this slice same region next slice
-  &lt;shift+PageDown&gt; : copy on this slice whole session next slice
-
-&lt;u&gt; / &lt;ctrl + z&gt;          :  undo last modification
-&lt;r&gt; / &lt;shift + ctrl + z&gt; :  redo last modification</translation>
     </message>
     <message>
         <source>ConnectivityThresholdControl</source>
@@ -1125,18 +1022,25 @@ Right Button   :  menu
     </message>
     <message>
         <source>SurfpaintToolsControl</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;SurfPaint tools control:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;depends on the tool selected in the SurfPaint toolbar&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation of the slice/clipping plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;close a path (in geodesic path mode)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; I:&lt;/td&gt;&lt;td&gt;invert the clipping plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;undo&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;redo&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;échap&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Cancel the current started action&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;entrée&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;validate the current started action&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Cannot open surfpaint Toolbox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>not texture associated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1225,6 +1129,10 @@ Right Button   :  menu
     </message>
     <message>
         <source>center: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no associated texture</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1396,14 +1304,6 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Affichage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <source>Données :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Type :</source>
         <translation type="unfinished">Type :</translation>
     </message>
@@ -1424,24 +1324,32 @@ Right Button   :  menu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>sillons seulements</source>
+        <source>Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>sillons + relations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <source>Différences absolues</source>
+        <source>Data:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fermer</source>
+        <source>sulci only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Appliquer</source>
+        <source>sulci + relations</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Absolute differences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Close</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished">Apply</translation>
     </message>
 </context>
 <context>
@@ -1565,10 +1473,6 @@ Right Button   :  menu
 <context>
     <name>FusionChooser</name>
     <message>
-        <source>Which fusion ?</source>
-        <translation type="obsolete">Which fusion ?</translation>
-    </message>
-    <message>
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
@@ -1652,6 +1556,10 @@ Right Button   :  menu
         <source>Select fusion type</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>VolumeRenderingShaderFusionMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GraphLandmarkPicker</name>
@@ -1677,22 +1585,6 @@ Right Button   :  menu
     <message>
         <source>Light model : </source>
         <translation type="unfinished">Light model : </translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation type="obsolete">Source</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Model</translation>
-    </message>
-    <message>
-        <source>Spot</source>
-        <translation type="obsolete">Spot</translation>
-    </message>
-    <message>
-        <source>Attenuation</source>
-        <translation type="obsolete">Attenuation</translation>
     </message>
     <message>
         <source>Ambient :</source>
@@ -1766,14 +1658,6 @@ Right Button   :  menu
 <context>
     <name>MaterialWindow</name>
     <message>
-        <source>Fast color selection</source>
-        <translation type="obsolete">Fast color selection</translation>
-    </message>
-    <message>
-        <source>Advanced settings</source>
-        <translation type="obsolete">Advanced settings</translation>
-    </message>
-    <message>
         <source>Ambient :</source>
         <translation type="unfinished">Ambient :</translation>
     </message>
@@ -1814,182 +1698,11 @@ Right Button   :  menu
         <translation type="unfinished">Green:</translation>
     </message>
     <message>
-        <source>Blue</source>
-        <translation type="obsolete">Blue</translation>
-    </message>
-    <message>
         <source>Opacity:</source>
         <translation type="unfinished">Opacity:</translation>
     </message>
     <message>
-        <source>Rendering mode :</source>
-        <translation type="obsolete">Rendering mode :</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation type="obsolete">Normal</translation>
-    </message>
-    <message>
-        <source>Wireframe</source>
-        <translation type="obsolete">Wireframe</translation>
-    </message>
-    <message>
-        <source>Outlined (filled faces + wireframes)</source>
-        <translation type="obsolete">Outlined (filled faces + wireframes)</translation>
-    </message>
-    <message>
-        <source>Wireframe with hidden faces</source>
-        <translation type="obsolete">Wireframe with hidden faces</translation>
-    </message>
-    <message>
-        <source>Smooth polygons / lines</source>
-        <translation type="obsolete">Smooth polygons / lines</translation>
-    </message>
-    <message>
-        <source>Cull polygon faces</source>
-        <translation type="obsolete">Cull polygon faces</translation>
-    </message>
-    <message>
         <source>Blue:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MeshPaint</name>
-    <message>
-        <source>&amp;trackball</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>trackball</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ColorPicker</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ColorPicker</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;GeodesicDistance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GeodesicDistance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>distance : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;magic_selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>magic_selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>tolerance : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Shortest Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Unconstrained</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unconstrained</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;sulci</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sulci</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;gyri</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>gyri</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>constraint : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sigmo : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Brush</source>
-        <translation type="unfinished">Brush</translation>
-    </message>
-    <message>
-        <source>&amp;paintBrush</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>paintBrush</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;magicBrush</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>magicBrush</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;erase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>erase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;filling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>fill</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;clear</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>clear</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Save Texture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>save</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>PaintToolBar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>InfosToolBar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2118,22 +1831,6 @@ Right Button   :  menu
         <translation type="unfinished">Anatomist global settings</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation type="obsolete">Application</translation>
-    </message>
-    <message>
-        <source>Linked cursor</source>
-        <translation type="obsolete">Linked cursor</translation>
-    </message>
-    <message>
-        <source>Control window</source>
-        <translation type="obsolete">Control window</translation>
-    </message>
-    <message>
-        <source>Volumes</source>
-        <translation type="obsolete">Volumes</translation>
-    </message>
-    <message>
         <source>Language :</source>
         <translation type="unfinished">Language :</translation>
     </message>
@@ -2184,10 +1881,6 @@ Right Button   :  menu
     <message>
         <source>Interpolation on volumes when changing referential</source>
         <translation type="unfinished">Interpolation on volumes when changing referential</translation>
-    </message>
-    <message>
-        <source>Windows</source>
-        <translation type="obsolete">Windows</translation>
     </message>
     <message>
         <source>Default referentials</source>
@@ -2444,6 +2137,14 @@ might still crash with such an OpenGL implementation.</source>
         <source>Value 0 at center</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>look</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QAWindowBlock</name>
@@ -2506,14 +2207,6 @@ might still crash with such an OpenGL implementation.</source>
         <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <source>Cannot find text file</source>
-        <translation type="obsolete">Cannot find text file</translation>
-    </message>
-    <message>
-        <source>check config and ANATOMIST_PATH environment variable</source>
-        <translation type="obsolete">check config and ANATOMIST_PATH environment variable</translation>
-    </message>
-    <message>
         <source>Cannot find about.txt file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2571,10 +2264,6 @@ might still crash with such an OpenGL implementation.</source>
     <message>
         <source>Constant color :</source>
         <translation type="unfinished">Constant color :</translation>
-    </message>
-    <message>
-        <source>IO saving settings</source>
-        <translation type="obsolete">IO saving settings</translation>
     </message>
     <message>
         <source>Default (as loaded)</source>
@@ -3154,10 +2843,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished">Select object(s)</translation>
     </message>
     <message>
-        <source>Selectable objects</source>
-        <translation type="obsolete">Selectable objects</translation>
-    </message>
-    <message>
         <source>Select</source>
         <translation type="unfinished">Select</translation>
     </message>
@@ -3577,10 +3262,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>rendering_buttonGroup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Normal</source>
         <translation type="unfinished">Normal</translation>
     </message>
@@ -3602,10 +3283,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Enable lighting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>display_buttonGroup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3637,10 +3314,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>lighting_model_buttonGroup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>None</source>
         <translation type="unfinished">None</translation>
     </message>
@@ -3654,10 +3327,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Interpolation Model :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>interpolation_model_buttonGroup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3677,10 +3346,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>coloring_model_buttonGroup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Material</source>
         <translation type="unfinished">Material</translation>
     </message>
@@ -3695,6 +3360,42 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     <message>
         <source>Reload</source>
         <translation type="unfinished">Reload</translation>
+    </message>
+    <message>
+        <source>Poygons front face is ClockWise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line width: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection conditions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always selectable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ghost (never selectable)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selectable when opaque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selectable when not totally transparant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlit color: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlit color</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3805,18 +3506,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
 </context>
 <context>
     <name>RoiLevelSetActionView</name>
-    <message>
-        <source>Levelset Activation</source>
-        <translation type="obsolete">Levelset Activation</translation>
-    </message>
-    <message>
-        <source>Activate Levelset</source>
-        <translation type="obsolete">Activate Levelset</translation>
-    </message>
-    <message>
-        <source>Deactivate Levelset</source>
-        <translation type="obsolete">Deactivate Levelset</translation>
-    </message>
     <message>
         <source>Low Level</source>
         <translation type="unfinished">Low Level</translation>
@@ -4210,16 +3899,13 @@ Do you want to save it ?</source>
         <source>distance map</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SurfpaintToolsWindow</name>
     <message>
-        <source>ConstraintEditor</source>
-        <translation type="obsolete">Constraint editor</translation>
+        <source>undo</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TextureValue</source>
-        <translation type="obsolete">Texture value</translation>
+        <source>redo</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4260,134 +3946,40 @@ Do you want to save it ?</source>
         <translation type="unfinished">Normal</translation>
     </message>
     <message>
-        <source>Normal rendering mode - you should almost always
-use this one. It uses filled polygons</source>
-        <translation type="obsolete">Normal rendering mode - you should almost always
-use this one. It uses filled polygons</translation>
-    </message>
-    <message>
         <source>Wireframe</source>
         <translation type="unfinished">Wireframe</translation>
-    </message>
-    <message>
-        <source>Only polygon edges are drawn. Hidden faces are also
-drawn, except for polygons facing back if culling
-is enabled</source>
-        <translation type="obsolete">Only polygon edges are drawn. Hidden faces are also
-drawn, except for polygons facing back if culling
-is enabled</translation>
     </message>
     <message>
         <source>Outlined (filled faces + wireframes)</source>
         <translation type="unfinished">Outlined (filled faces + wireframes)</translation>
     </message>
     <message>
-        <source>Polygons are filled and polygon edges are re-drawn
-using a different color (black). This mode is quite
-slow as two renderings are performed</source>
-        <translation type="obsolete">Polygons are filled and polygon edges are re-drawn
-using a different color (black). This mode is quite
-slow as two renderings are performed</translation>
-    </message>
-    <message>
         <source>Wireframe with hidden faces</source>
         <translation type="unfinished">Wireframe with hidden faces</translation>
-    </message>
-    <message>
-        <source>Only polygon edges are drawn, and hidden faces are
-actually hidden. To do so two renderings must be
-performed like in outline mode (slow)</source>
-        <translation type="obsolete">Only polygon edges are drawn, and hidden faces are
-actually hidden. To do so two renderings must be
-performed like in outline mode (slow)</translation>
     </message>
     <message>
         <source>Fast rendering</source>
         <translation type="unfinished">Fast rendering</translation>
     </message>
     <message>
-        <source>Well, this mode doesn&apos;t exist in fact...
-Maybe one day it will perform real-time polygon
-pruning to speed-up huge mesh rendering,
-but up to now...</source>
-        <translation type="obsolete">Well, this mode doesn&apos;t exist in fact...
-Maybe one day it will perform real-time polygon
-pruning to speed-up huge mesh rendering,
-but up to now...</translation>
-    </message>
-    <message>
         <source>Use perspective</source>
         <translation type="unfinished">Use perspective</translation>
-    </message>
-    <message>
-        <source>Normal projection mode is orthogonal. In perspective
-mode, you can get a distance effect between the
-observer and objects. It is useful for the
-&apos;flight simulator&apos; control.</source>
-        <translation type="obsolete">Normal projection mode is orthogonal. In perspective
-mode, you can get a distance effect between the
-observer and objects. It is useful for the
-&apos;flight simulator&apos; control.</translation>
     </message>
     <message>
         <source>Transparent objects are drawn in depth buffer</source>
         <translation type="unfinished">Transparent objects are drawn in depth buffer</translation>
     </message>
     <message>
-        <source>Enable this if you want to click on opaque objects
-through transparent ones, or if some superimposed
-transparent objects can&apos;t be seen. As a counterpart
-objects superimposition will not be handled correctly</source>
-        <translation type="obsolete">Enable this if you want to click on opaque objects
-through transparent ones, or if some superimposed
-transparent objects can&apos;t be seen. As a counterpart
-objects superimposition will not be handled correctly</translation>
-    </message>
-    <message>
         <source>Cull polygon faces</source>
         <translation type="unfinished">Cull polygon faces</translation>
-    </message>
-    <message>
-        <source>Culling avoids drawing polygons facing back.
-Without this options, transparent objects will look
-bad, but only the external side of open (or clipped)
-meshes will be seen, so it depends on what you&apos;re
-looking at</source>
-        <translation type="obsolete">Culling avoids drawing polygons facing back.
-Without this options, transparent objects will look
-bad, but only the external side of open (or clipped)
-meshes will be seen, so it depends on what you&apos;re
-looking at</translation>
     </message>
     <message>
         <source>Flat-shaded polygons</source>
         <translation type="unfinished">Flat-shaded polygons</translation>
     </message>
     <message>
-        <source>Normal rendering uses smoothed colors polygons, so you
-don&apos;t see polygon boundaries. It&apos;s nicer but if you
-are looking at exact details of where polygons are,
-you&apos;ll have to use either flat-shading, or a rendering
-mode showing polygon edges (wireframe, outline, ...)</source>
-        <translation type="obsolete">Normal rendering uses smoothed colors polygons, so you
-don&apos;t see polygon boundaries. It&apos;s nicer but if you
-are looking at exact details of where polygons are,
-you&apos;ll have to use either flat-shading, or a rendering
-mode showing polygon edges (wireframe, outline, ...)</translation>
-    </message>
-    <message>
         <source>Smooth polygons / lines</source>
         <translation type="unfinished">Smooth polygons / lines</translation>
-    </message>
-    <message>
-        <source>This enables smooth filtering (anti-aliasing) of lines
-and polygons edges, but doesn&apos;t work well in all
-cases (polygons should be sorted by depth), and it can
-be very slow</source>
-        <translation type="obsolete">This enables smooth filtering (anti-aliasing) of lines
-and polygons edges, but doesn&apos;t work well in all
-cases (polygons should be sorted by depth), and it can
-be very slow</translation>
     </message>
     <message>
         <source>Fog</source>
@@ -4410,30 +4002,8 @@ be very slow</translation>
         <translation type="unfinished">Single plane</translation>
     </message>
     <message>
-        <source>You can clip the whole scene to cut meshes on one or
-both sides of the current plane of the 2D window mode</source>
-        <translation type="obsolete">You can clip the whole scene to cut meshes on one or
-both sides of the current plane of the 2D window mode</translation>
-    </message>
-    <message>
         <source>Clip both sides</source>
         <translation type="unfinished">Clip both sides</translation>
-    </message>
-    <message>
-        <source>Distance to current plane (mm) :</source>
-        <translation type="obsolete">Distance to current plane (mm) :</translation>
-    </message>
-    <message>
-        <source>This is the thickness of the slice between the current
-2D window plane and the clipping plane(s). If you are
-using a volume (slice), don&apos;t set the distance to zero
-because the slice will be just on the clipping plane,
-and you don&apos;t know what will be drawn and what won&apos;t be</source>
-        <translation type="obsolete">This is the thickness of the slice between the current
-2D window plane and the clipping plane(s). If you are
-using a volume (slice), don&apos;t set the distance to zero
-because the slice will be just on the clipping plane,
-and you don&apos;t know what will be drawn and what won&apos;t be</translation>
     </message>
     <message>
         <source>Display cursor</source>

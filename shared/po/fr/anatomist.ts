@@ -1022,19 +1022,26 @@ Bt droit   :  menu
     </message>
     <message>
         <source>SurfpaintToolsControl</source>
-        <translation>Contrôle des outils SurfPaint</translation>
-    </message>
-    <message>
-        <source>Texture</source>
-        <translation>Texture</translation>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle des outils SurfPaint:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;dépend de l&apos;outil sélectionné dans la barre d&apos;outils SurfPaint&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe/clipping&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;fermer un chemin (mode chemin géodésique)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; I:&lt;/td&gt;&lt;td&gt;inverser le plan de clipping&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;défaire (undo)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;refaire&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;échap&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;annuler l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;entrée&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;valider l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Cannot open surfpaint Toolbox</source>
         <translation>La boîte à outils SurfPaint ne peut pas être ouverte</translation>
-    </message>
-    <message>
-        <source>not texture associated</source>
-        <translation>Pas de texture associée</translation>
     </message>
     <message>
         <source>surfpainttoolbarControls</source>
@@ -1123,6 +1130,30 @@ Bt droit   :  menu
     <message>
         <source>center: </source>
         <translation>centre:</translation>
+    </message>
+    <message>
+        <source>no associated texture</source>
+        <translation>pas de texture associée</translation>
+    </message>
+    <message>
+        <source>Texture value selection</source>
+        <translation>Sélection de la valeur de texture</translation>
+    </message>
+    <message>
+        <source>distance map</source>
+        <translation>carte de distance</translation>
+    </message>
+    <message>
+        <source>undo</source>
+        <translation>Défaire</translation>
+    </message>
+    <message>
+        <source>redo</source>
+        <translation>Refaire</translation>
+    </message>
+    <message>
+        <source>tolerance</source>
+        <translation>Tolérance :</translation>
     </message>
 </context>
 <context>
@@ -1997,7 +2028,7 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     </message>
     <message>
         <source>Enable OpenGL shaders.</source>
-        <translation>Activer les &quot;shaders&quot; OpenGL </translation>
+        <translation>Activer les &quot;shaders&quot; OpenGL.</translation>
     </message>
     <message>
         <source>Use shader-based OpenGL pipeline (lighting/shading model) by default</source>
@@ -3879,14 +3910,6 @@ Voulez-vous continuer ?</translation>
 <context>
     <name>SurfpaintTools</name>
     <message>
-        <source>tolerance</source>
-        <translation>Tolérance :</translation>
-    </message>
-    <message>
-        <source>Texture value selection</source>
-        <translation>Sélection de la valeur de texture</translation>
-    </message>
-    <message>
         <source>Unconstrained</source>
         <translation>Non-contraint</translation>
     </message>
@@ -3897,10 +3920,6 @@ Voulez-vous continuer ?</translation>
     <message>
         <source>gyri</source>
         <translation>gyri</translation>
-    </message>
-    <message>
-        <source>distance map</source>
-        <translation>carte de distance</translation>
     </message>
 </context>
 <context>

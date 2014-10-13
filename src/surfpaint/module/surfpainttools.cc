@@ -609,7 +609,8 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     colorPickerAction = new QToolButton();
     colorPickerAction->setIcon(QIcon(iconname.c_str()));
     //colorPickerAction->setStatusTip(tr("Texture value selection"));
-    colorPickerAction->setToolTip(tr("Texture value selection"));
+    colorPickerAction->setToolTip(
+      ControlledWindow::tr("Texture value selection"));
     colorPickerAction->setCheckable(true);
     colorPickerAction->setChecked(false);
     colorPickerAction->setIconSize(QSize(32, 32));
@@ -702,7 +703,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     iconname = Settings::findResourceFile( "icons/meshPaint/geodesic_distance.png" );
     distanceAction = new QToolButton();
     distanceAction->setIcon(QIcon(iconname.c_str()));
-    distanceAction->setToolTip(tr("distance map"));
+    distanceAction->setToolTip(ControlledWindow::tr("distance map"));
     distanceAction->setCheckable(true);
     distanceAction->setChecked(false);
     distanceAction->setIconSize(QSize(32, 32));
@@ -713,7 +714,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     iconname = Settings::findResourceFile( "icons/undo.png" );
     QToolButton *undoAction = new QToolButton();
     undoAction->setIcon(QIcon(iconname.c_str()));
-    undoAction->setToolTip(tr("undo"));
+    undoAction->setToolTip(ControlledWindow::tr("undo"));
     undoAction->setCheckable(false);
     undoAction->setIconSize(QSize(32, 32));
     undoAction->setAutoRaise(true);
@@ -723,7 +724,7 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
     iconname = Settings::findResourceFile( "icons/redo.png" );
     QToolButton *redoAction = new QToolButton();
     redoAction->setIcon(QIcon(iconname.c_str()));
-    redoAction->setToolTip(tr("redo"));
+    redoAction->setToolTip(ControlledWindow::tr("redo"));
     redoAction->setCheckable(false);
     redoAction->setIconSize(QSize(32, 32));
     redoAction->setAutoRaise(true);
@@ -919,7 +920,7 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     IDPolygonSpinBox->setValue(0);
 
     QLabel *IDVertexSpinBoxLabel
-      = new QLabel(ControlledWindow::tr("IDVertex"),tbInfos3D);
+      = new QLabel(ControlledWindow::tr("IDVertex"), tbInfos3D);
     tbInfos3D->addWidget( IDVertexSpinBoxLabel );
 
     IDVertexSpinBox = new QSpinBox(tbInfos3D);
@@ -929,7 +930,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     IDVertexSpinBox->setFixedWidth(75);
     IDVertexSpinBox->setValue(0);
 
-    toleranceSpinBoxLabel = new QLabel(tr("tolerance"),tbInfos3D);
+    toleranceSpinBoxLabel = new QLabel(
+      ControlledWindow::tr("tolerance"), tbInfos3D);
     tbInfos3D->addWidget( toleranceSpinBoxLabel );
     toleranceSpinBox = new QSpinBox (tbInfos3D);
     tbInfos3D->addWidget( toleranceSpinBox );
@@ -939,7 +941,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     toleranceSpinBox->setValue(0);
     toleranceSpinBox->setRange(0,100);
 
-    connect( toleranceSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeToleranceSpinBox(int) ) );
+    connect( toleranceSpinBox, SIGNAL( valueChanged( int ) ),
+             this, SLOT( changeToleranceSpinBox(int) ) );
 
     constraintPathSpinBoxLabel
       = new QLabel(ControlledWindow::tr("constraint"), tbInfos3D);
@@ -952,7 +955,8 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
     constraintPathSpinBox->setValue(3);
     constraintPathSpinBox->setRange(0,100);
 
-    connect( constraintPathSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( changeConstraintPathSpinBox(int) ) );
+    connect( constraintPathSpinBox, SIGNAL( valueChanged( int ) ),
+             this, SLOT( changeConstraintPathSpinBox(int) ) );
 
     tbInfos3D->show();
   }
