@@ -251,6 +251,8 @@ void SurfpaintTools::validateEdit()
   // fill closed region
   if (IDActiveControl == 2)
   {
+    newEditOperation();
+
     std::set<int>::iterator ite = listIndexVertexFill.begin();
     for (; ite != listIndexVertexFill.end(); ite++)
     {
@@ -263,6 +265,8 @@ void SurfpaintTools::validateEdit()
   // path fill
   if (IDActiveControl == 3)
   {
+    newEditOperation();
+
     for (unsigned i = 0; i < listIndexVertexPathSP.size(); i++)
     {
       updateTextureValue(listIndexVertexPathSP[i], texvalue);
@@ -1162,6 +1166,7 @@ float SurfpaintTools::currentTextureValue( unsigned vertexIndex ) const
 void SurfpaintTools::floodFillStart(int indexVertex)
 {
   listIndexVertexFill.clear();
+  clearRedoBuffer();
 
   float texvalue = getTextureValueFloat();
 
@@ -1410,12 +1415,16 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     Point3df positionNearestVertex)
 {
   /*
-    Adds 1-2 AObject in pathObject: 1 if last (pathIsClosed() true)
+    Adds 1-2 AObject in pathObject: 1 if first
     Adds 1 item in listIndexVertexSelectSP
     Adds a list: n in listIndexVertexPathSP if not 1st point
     Adds 1 item in numVerticesInPathElements: n if not 1st point
   */
+  if( pathIsClosed() && listIndexVertexSelectSP.size() < 3 )
+    return; // not enough points to close path
+
   clearUndoneGeodesicPath();
+  clearRedoBuffer();
 
   int i;
 
@@ -1427,7 +1436,15 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   //mat.setRenderProperty(Material::RenderLighting, 1);
   mat.SetDiffuse(1., 1.0, 1.0, 0.5);
 
-  tmpMeshOut = SurfaceGenerator::sphere(positionNearestVertex, 0.50, 50);
+  Point3df posVertex = positionNearestVertex;
+  int indexVertex = indexNearestVertex;
+  if( pathIsClosed() )
+  {
+    indexVertex = *listIndexVertexSelectSP.begin();
+    posVertex = mesh->vertex()[ indexVertex ];
+  }
+
+  tmpMeshOut = SurfaceGenerator::sphere( posVertex, 0.50, 50 );
 
   ATriangulated *sp = new ATriangulated();
   sp->setName(theAnatomist->makeObjectName("select"));
@@ -1435,25 +1452,15 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   sp->SetMaterial(mat);
   sp->setReferentialInheritance( objselect );
 
-  if (!pathIsClosed())
-  {
-    win3D->registerObject(sp, true, 1);
-    theAnatomist->registerObject(sp, 0);
-    pathObject.push_back(rc_ptr<ATriangulated>( sp ) );
-    theAnatomist->releaseObject( sp );
-  }
+  win3D->registerObject(sp, true, 1);
+  theAnatomist->registerObject(sp, 0);
+  pathObject.push_back(rc_ptr<ATriangulated>( sp ) );
+  theAnatomist->releaseObject( sp );
 
   std::vector<unsigned>::iterator ite;
 
-  if (!pathIsClosed())
-    listIndexVertexSelectSP.push_back(indexNearestVertex);
-  else
-    listIndexVertexSelectSP.push_back(*listIndexVertexSelectSP.begin());
-
+  listIndexVertexSelectSP.push_back( indexVertex );
   ite = listIndexVertexSelectSP.end();
-
-  int nb_vertex;
-  printf("nb vertex path = %lu\n", listIndexVertexSelectSP.size());
 
   const string ac = getPathType();
 
@@ -1466,6 +1473,8 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   else if (ac.compare("GyriPath") == 0)
     sptemp = getMeshStructGyriP();
 
+  unsigned npoints = 0;
+
   if (listIndexVertexSelectSP.size() >= 2)
   {
 
@@ -1477,12 +1486,12 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     std::vector<unsigned> listIndexVertexPathSPLast;
 
     sptemp->shortestPath_1_1_ind_xyz(
-      source_vertex_index,target_vertex_index,
-      listIndexVertexPathSPLast,vertexList );
+      source_vertex_index, target_vertex_index,
+      listIndexVertexPathSPLast, vertexList );
 
     listIndexVertexPathSP.insert(listIndexVertexPathSP.end(),
         listIndexVertexPathSPLast.begin(), listIndexVertexPathSPLast.end());
-    d->numVerticesInPathElements.push_back( listIndexVertexPathSPLast.size() );
+    npoints = listIndexVertexPathSPLast.size();
 
     AimsSurfaceTriangle *MeshOut = new AimsSurfaceTriangle;
 
@@ -1546,6 +1555,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     theAnatomist->releaseObject( s3 );
   }
 
+  d->numVerticesInPathElements.push_back( npoints );
 }
 
 
@@ -1561,7 +1571,7 @@ void SurfpaintTools::clearUndoneGeodesicPath()
 void SurfpaintTools::undoGeodesicPath()
 {
   /*
-    Removes 1-2 AObject in pathObject: 1 if last (pathIsClosed() true)
+    Removes 1-2 AObject in pathObject: 1 if first
     Removes 1 item in listIndexVertexSelectSP
     Removes 1 item in numVerticesInPathElements: n if not 1st point
     Removes a list: n in listIndexVertexPathSP if not 1st point
@@ -1570,14 +1580,13 @@ void SurfpaintTools::undoGeodesicPath()
   */
 
   if( pathObject.empty() )
-    return; // nothing tio undo
+    return; // nothing to undo
   rc_ptr<ATriangulated> obj = pathObject.back();
   d->undone_pathObject.push_front( obj );
   getWindow3D()->unregisterObject( obj.get() );
   pathObject.pop_back();
-  if( pathIsClosed() )
-    setClosePath( false );
-  else if( !pathObject.empty() )
+  setClosePath( false );
+  if( !pathObject.empty() )
   {
     obj = pathObject.back();
     d->undone_pathObject.push_front( obj );
@@ -1620,9 +1629,7 @@ void SurfpaintTools::redoGeodesicPath()
   pathObject.push_back( obj );
   getWindow3D()->registerObject( obj.get(), true, 1 );
   d->undone_pathObject.pop_front();
-  if( d->undone_pathObject.empty() && pathObject.size() > 1 )
-    setClosePath( true );
-  else if( pathObject.size() > 1 )
+  if( pathObject.size() > 1 )
   {
     obj = d->undone_pathObject.front();
     pathObject.push_back( obj );
@@ -1826,7 +1833,7 @@ void SurfpaintTools::redoHolesPaths()
   d->holeVertexIndices.push_back( n );
   d->undone_holeVertexIndices.pop_front();
   n -= m;
-  for( i=0; i<n; ++i )
+  for( i=0; i<n && !d->undone_listIndexVertexBrushPath.empty(); ++i )
   {
     listIndexVertexBrushPath.push_back(
       d->undone_listIndexVertexBrushPath.front() );
@@ -1975,10 +1982,10 @@ void SurfpaintTools::clearRedoBuffer()
 
 void SurfpaintTools::undo()
 {
-  if( !listIndexVertexSelectSP.empty() )
-    undoGeodesicPath();
-  else if( !listIndexVertexFill.empty() )
+  if( !listIndexVertexFill.empty() )
     undoSelectFill();
+  else if( !listIndexVertexSelectSP.empty() )
+    undoGeodesicPath();
   else if( magicBrushStarted() )
     undoHolesPaths();
   else
@@ -1994,10 +2001,10 @@ void SurfpaintTools::redo()
       || !d->undone_listIndexVertexHolesPath.empty()
       || !d->undone_holesObject.empty() )
     redoHolesPaths();
-  else if( !d->undone_listIndexVertexFill.empty() )
-    redoSelectFill();
-  else // if( !d->undone_listIndexVertexSelectSP.empty() )
+  else if( !d->undone_listIndexVertexSelectSP.empty() )
     redoGeodesicPath();
+  else // if( !d->undone_listIndexVertexFill.empty() )
+    redoSelectFill();
 }
 
 

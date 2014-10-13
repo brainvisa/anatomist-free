@@ -78,8 +78,6 @@ void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globa
   int activeControl = getTools()->getActiveControl();
   //cout << "active control = " << activeControl <<endl;
 
-  getTools()->setClosePath(true);
-
   switch (activeControl)
   {
   case 3 :
@@ -114,7 +112,7 @@ void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int gl
     magicselection(x,y,globalX,globalY);
     break;
   case 3 :
-    shortestpathStart( x, y, true );
+    shortestpathStart( x, y );
     break;
   case 4 :
     brushStart(x,y,globalX,globalY);
@@ -228,7 +226,6 @@ void SurfpaintToolsAction::magicselection(int x, int y,
       tval, textype, positionNearestVertex, &indexNearestVertex);
 
   getTools()->clearRegion();
-  getTools()->newEditOperation();
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -242,8 +239,6 @@ void SurfpaintToolsAction::magicselection(int x, int y,
 
 void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
 {
-  cout << "distanceStart" << endl;
-
   AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
   AObject *objselect = win3D->objectAtCursorPosition(x, y);
@@ -421,10 +416,11 @@ void SurfpaintToolsAction::shortestpathClose(int x, int y,
 {
   //cout << "shortestpathClose" << endl;
 
-  shortestpathStart( x, y, false );
+  getTools()->setClosePath(true);
+  shortestpathStart( x, y );
 }
 
-void SurfpaintToolsAction::shortestpathStart(int x, int y, bool newedit )
+void SurfpaintToolsAction::shortestpathStart(int x, int y )
 {
   //cout << "shortestpathStart" << endl;
 
@@ -441,9 +437,6 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y, bool newedit )
   vector<float> tval;
   win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
       tval, textype, positionNearestVertex, &indexNearestVertex);
-
-  if( newedit )
-    getTools()->newEditOperation();
 
   float texvalue = (float)(getTools()->getTextureValueFloat());
 

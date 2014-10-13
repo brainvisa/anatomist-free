@@ -77,7 +77,7 @@ namespace anatomist
       void eraseStart( int x, int y, int globalX, int globalY );
       void eraseStop( int x, int y, int globalX, int globalY );
 
-      void shortestpathStart( int x, int y, bool newedit );
+      void shortestpathStart( int x, int y );
       void shortestpathStop( int x, int y, int globalX, int globalY  );
       void shortestpathClose( int x, int y, int globalX, int globalY  );
 
