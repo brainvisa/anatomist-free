@@ -365,7 +365,8 @@ AWindow3D::Private::Private() :
           0, 1), askedsize(0, 0), clipmode(AWindow3D::NoClip), clipdist(1),
       transpz(true), culling(true), flatshading(false), smooth(false), fog(
           false), refreshneeded(FullRefresh), linkonslider(false), lefteye(0),
-      righteye(0), objvallabel(0), statusbarvisible(false),needsextrema(false),
+      righteye(0), objvallabel(0), statusbarvisible(false),
+      needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
       constraintList(),constraintType(0),texConstraint(0)
 {
@@ -1846,7 +1847,7 @@ void AWindow3D::changeTime(int t)
   if (t != (int) getTime())
   {
     d->timelabel->setText(QString::number(t));
-    if (d->linkonslider)
+    if( d->linkonslider )
     {
       vector<float> p(4);
       Point3df pos = getPosition();
@@ -1913,7 +1914,7 @@ int AWindow3D::updateSliceSlider()
 
 void AWindow3D::changeSlice(int s)
 {
-  // cout << "changeSlice " << s << endl;
+  // cout << "changeSlice " << this << ": " << s << endl;
   Point3df pos = getPosition();
   Geometry *geom = windowGeometry();
   Point3df vs;
@@ -1937,9 +1938,11 @@ void AWindow3D::changeSlice(int s)
 
   if (pos != _position)
   {
-    //cout << "rechange pos\n";
+    // cout << "rechange pos\n";
     //d->slicelabel->setText( QString::number( updateSliceSlider() ) );
-    if (d->linkonslider)
+    int olds = int( rint( ( norm.dot( _position ) - minsl ) / vs[2] ) );
+
+    if( d->linkonslider && olds != s )
     {
       vector<float> p(4);
       p[0] = pos[0];
