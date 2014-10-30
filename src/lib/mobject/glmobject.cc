@@ -388,6 +388,15 @@ GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
 }
 
 
+GLComponent::TexInfo & GLMObject::glTexInfo( unsigned tex ) const
+{
+  const GLComponent     *t = glTexture();
+  if( t && t != this )
+    return t->glTexInfo( tex );
+  return GLComponent::glTexInfo( tex );
+}
+
+
 unsigned GLMObject::glDimTex( const ViewState & s, unsigned tex ) const
 {
   const GLComponent	*t = glTexture();
