@@ -417,7 +417,7 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
     scale = 1;
   else
     scale = 1. / ( max - min );
-  /* cout << "Fusion3D min: " << min << ", max: " << max << ", scale: " 
+  /* cout << "Fusion3D min: " << min << ", max: " << max << ", scale: "
      << scale << endl; */
   float	depth = _depth;
   if( _method == POINT_TO_POINT )
@@ -428,24 +428,28 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   // float  qmin = FLT_MAX, qmax = -FLT_MAX;
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
+  {
+    ver = Point3df( *itver, *(itver+1), *(itver+2) );
+    if( vnor )
     {
-      ver = Point3df( *itver, *(itver+1), *(itver+2) );
       nor = Point3df( *itnor, *(itnor+1), *(itnor+2) );
-
       pos = ver + depth*nor;
-
-      if( trans )
-	pos = Transformation::transform( pos, trans, vs );
-      else
-	pos = Transformation::transformDG( pos, vs );
-      value = functional->mixedTexValue( pos, s.time );
-      /* if( value < qmin )
-        qmin = value;
-      if( value > qmax )
-      qmax = value; */
-
-      vtexture.push_back( (value - min) * scale );
     }
+    else
+      pos = ver;
+
+    if( trans )
+      pos = Transformation::transform( pos, trans, vs );
+    else
+      pos = Transformation::transformDG( pos, vs );
+    value = functional->mixedTexValue( pos, s.time );
+    /* if( value < qmin )
+      qmin = value;
+    if( value > qmax )
+    qmax = value; */
+
+    vtexture.push_back( (value - min) * scale );
+  }
 
   TexExtrema  & te 
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
@@ -564,7 +568,10 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
       ver = Point3df( *itver, *(itver+1), *(itver+2) );
-      nor = Point3df( *itnor, *(itnor+1), *(itnor+2) );
+      if( vnor )
+        nor = Point3df( *itnor, *(itnor+1), *(itnor+2) );
+      else
+        nor = Point3df( 0, 0, 1 ); // FIXME
       xvalue = 0.;
 
       switch( _submethod )
@@ -766,7 +773,6 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
       ver = Point3df( *itver, *(itver+1), *(itver+2) );
-      nor = Point3df( *itnor, *(itnor+1), *(itnor+2) );
       xvalue = 0.;
 
       switch( _submethod )
