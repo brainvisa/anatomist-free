@@ -1440,6 +1440,8 @@ void AWindow3D::refreshNow()
   // fin de modif
 
   showReferential();
+
+  emit refreshed();
 }
 
 void AWindow3D::showReferential()
@@ -2976,7 +2978,10 @@ void AWindow3D::refreshLightViewNow()
   {
   }
   if (i == e)
+  {
     d->draw->updateGL();
+    emit refreshed();
+  }
   else
     // could be optimized on a by-object basis
     refreshNow();

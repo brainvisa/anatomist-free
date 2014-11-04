@@ -249,6 +249,9 @@ public:
   std::list<anatomist::AObject *>::iterator processRenderingOrder(
     std::list<anatomist::AObject *> & opaque ) const;
 
+signals:
+	void refreshed();
+
 public slots:
   virtual void polish();
   void resizeView();
