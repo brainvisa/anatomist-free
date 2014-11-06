@@ -48,7 +48,6 @@ void main()
 	// normal
 	vec3 transformedNormal = gl_NormalMatrix * gl_Normal;
 	transformedNormal = normalize(transformedNormal);
-        vec3 realNormal = transformedNormal;
 
 	// ambient
 	vec4 ambientColor = (gl_LightSource[0].ambient + gl_LightModel.ambient) * gl_FrontMaterial.ambient;

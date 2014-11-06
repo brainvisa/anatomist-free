@@ -34,9 +34,11 @@ uniform int is2dtexture;
 uniform int coloringModel;
 
 varying vec4 eyeVertexPosition;
+varying vec4 vertexPosition;
 
 vec3 eyeDirection;
 vec4 diffuseMaterial;
+uniform bool normalIsDirection;
 
 void main()
 {
@@ -49,13 +51,30 @@ void main()
 
 	// diffuse
 	vec3 directionLight = normalize(gl_LightSource[0].position.xyz);
+        if( normalIsDirection )
+        {
+          // get a normal in the (light direction, direction) plane
+          normal = normalize(dFdx(eyeVertexPosition.xyz) + dFdy(eyeVertexPosition.xyz));
+        }
 	float cos_theta = max(dot(normal, directionLight), 0.0);
 	if (gl_TexCoord[0].s == 0. && gl_TexCoord[0].t == 0.)
 	{
 		if (coloringModel == 0)
 			diffuseMaterial = gl_FrontMaterial.diffuse;
 		else if (coloringModel == 1)
-			diffuseMaterial = vec4(normal, 1);
+		{
+                  vec3 modelNormal;
+                  if( normalIsDirection )
+                  {
+                    // get a normal in the (light direction, direction) plane
+                    modelNormal = normalize(dFdx(vertexPosition.xyz) + dFdy(vertexPosition.xyz));
+                  }
+                  else
+                    modelNormal =
+                      normalize(cross(dFdx(vertexPosition.xyz),
+                                dFdy(vertexPosition.xyz)));
+                  diffuseMaterial = abs(vec4(modelNormal, 1));
+                }
 		// should not happend
 		else diffuseMaterial = vec4(1, 0, 1, 1);
 	}
