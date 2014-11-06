@@ -68,6 +68,8 @@ namespace anatomist
       /// ghost mode (invisible to clicks)
       Ghost,
       SelectableMode = Ghost,
+      UseShader,
+      ShaderColorNormals,
       /** if set, the normal in a mesh is actually its wireframe direction,
           and interpreted as if the wireframes were cylindric tubes for lighting
           when shaders are activated.
@@ -91,6 +93,20 @@ namespace anatomist
       GhostSelection,
       SelectableWhenOpaque,
       SelectableWhenNotTotallyTransparent,
+    };
+
+    enum LightingModel
+    {
+      NoLighting,
+      PhongLighting,
+      BlinnPhongLighting,
+    };
+
+    enum ShadingModel
+    {
+      FlatShading,
+      GouraudShading,
+      PhongShading,
     };
 
     Material();

@@ -119,10 +119,10 @@ namespace anatomist
     inline void setModels(LightingModel lm, InterpolationModel im,
 			ColoringModel cm, MaterialModel mm);
 
-    inline LightingModel getLightingModel(void);
-    inline InterpolationModel getInterpolationModel(void);
-    inline ColoringModel getColoringModel(void);
-    inline MaterialModel getMaterialModel(void);
+    inline LightingModel getLightingModel() const;
+    inline InterpolationModel getInterpolationModel() const;
+    inline ColoringModel getColoringModel() const;
+    inline MaterialModel getMaterialModel() const;
 
 
     // is shader supported by the system ?
@@ -212,22 +212,22 @@ namespace anatomist
     _material_model = mm;
   }
 
-  inline Shader::LightingModel Shader::getLightingModel(void)
+  inline Shader::LightingModel Shader::getLightingModel() const
   {
     return _lighting_model;
   }
 
-  inline Shader::InterpolationModel Shader::getInterpolationModel(void)
+  inline Shader::InterpolationModel Shader::getInterpolationModel() const
   {
     return _interpolation_model;
   }
 
-  inline Shader::ColoringModel Shader::getColoringModel(void)
+  inline Shader::ColoringModel Shader::getColoringModel() const
   {
     return _coloring_model;
   }
 
-  inline Shader::MaterialModel Shader::getMaterialModel(void)
+  inline Shader::MaterialModel Shader::getMaterialModel() const
   {
     return _material_model;
   }

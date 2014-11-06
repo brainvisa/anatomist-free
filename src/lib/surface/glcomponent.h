@@ -161,11 +161,12 @@ namespace anatomist
     virtual void glSetChanged( glPart, bool = true ) const;
     virtual bool glHasChanged( glPart ) const;
 
-    void SetShader(const Shader &shader);
+    void setShader(const Shader &shader);
     void removeShader(void);
     const Shader *getShader() const;
     Shader *getShader();
-    virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
+    virtual void setShaderParameters(const Shader &shader,
+                                     const ViewState & state) const;
 
     virtual const Material *glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
@@ -312,7 +313,7 @@ namespace anatomist
   };
 
 
-  inline void GLComponent::SetShader(const Shader &shader)
+  inline void GLComponent::setShader(const Shader &shader)
   { 
     if (_shader) delete _shader;
     _shader = new Shader(shader);

@@ -537,6 +537,12 @@ bool Material::operator != ( const Material & mat ) const
           || d->unlitColor[2] != mat.d->unlitColor[2]
           || d->unlitColor[3] != mat.d->unlitColor[3]
           || d->lineWidth != mat.d->lineWidth
+          || d->renderProps[ UseShader ]
+          != mat.d->renderProps[ UseShader ]
+          || d->renderProps[ ShaderColorNormals ]
+          != mat.d->renderProps[ ShaderColorNormals ]
+          || d->renderProps[ NormalIsDirection ]
+          != mat.d->renderProps[ NormalIsDirection ]
           );
 }
 
@@ -680,12 +686,27 @@ void Material::set( const GenericObject & obj )
     {
       vec = obj.getProperty( "lighting" );
       try
-        {
-          d->renderProps[ RenderLighting ] = (int) vec->getScalar();
-        }
+      {
+        d->renderProps[ RenderLighting ] = (int) vec->getScalar();
+      }
       catch( ... )
+      {
+        try
+        {
+          string lighting = vec->getString();
+          if( lighting == "no_lighting" )
+            d->renderProps[ RenderLighting ] = NoLighting;
+          else if( lighting == "phong" )
+            d->renderProps[ RenderLighting ] = PhongLighting;
+          else if( lighting == "blinn-phong" )
+            d->renderProps[ RenderLighting ] = BlinnPhongLighting;
+          else
+            d->renderProps[ RenderLighting ] = -1;
+        }
+        catch( ... )
         {
         }
+      }
     }
   catch( ... )
     {
@@ -694,12 +715,27 @@ void Material::set( const GenericObject & obj )
     {
       vec = obj.getProperty( "smooth_shading" );
       try
-        {
-          d->renderProps[ RenderSmoothShading ] = (int) vec->getScalar();
-        }
+      {
+        d->renderProps[ RenderSmoothShading ] = (int) vec->getScalar();
+      }
       catch( ... )
+      {
+        try
+        {
+          string shading = vec->getString();
+          if( shading == "flat_shading" )
+            d->renderProps[ RenderSmoothShading ] = FlatShading;
+          else if( shading == "gouraud" )
+            d->renderProps[ RenderSmoothShading ] = GouraudShading;
+          else if( shading == "phong" )
+            d->renderProps[ RenderSmoothShading ] = PhongShading;
+          else
+            d->renderProps[ RenderSmoothShading ] = -1;
+        }
+        catch( ... )
         {
         }
+      }
     }
   catch( ... )
     {
@@ -837,6 +873,48 @@ void Material::set( const GenericObject & obj )
   catch( ... )
   {
   }
+  try
+  {
+    vec = obj.getProperty( "use_shader" );
+    try
+    {
+      d->renderProps[ UseShader ] = (int) vec->getScalar();
+    }
+    catch( ... )
+    {
+    }
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+    vec = obj.getProperty( "shader_color_normals" );
+    try
+    {
+      d->renderProps[ ShaderColorNormals ] = (int) vec->getScalar();
+    }
+    catch( ... )
+    {
+    }
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+    vec = obj.getProperty( "normal_is_direction" );
+    try
+    {
+      d->renderProps[ NormalIsDirection ] = (int) vec->getScalar();
+    }
+    catch( ... )
+    {
+    }
+  }
+  catch( ... )
+  {
+  }
 }
 
 
@@ -881,9 +959,21 @@ Object Material::genericDescription() const
 
   o->setProperty( "shininess", _shininess );
   if( d->renderProps[ RenderLighting ] >= 0 )
-    o->setProperty( "lighting", d->renderProps[ RenderLighting ] );
+  {
+    static string lighting_models[] = {
+      "no_lighting", "phong", "blinn-phong"
+    };
+    o->setProperty( "lighting",
+                    lighting_models[ d->renderProps[ RenderLighting ] ] );
+  }
   if( d->renderProps[ RenderSmoothShading ] >= 0 )
-    o->setProperty( "smooth_shading", d->renderProps[ RenderSmoothShading ] );
+  {
+      static string shading_models[] = {
+      "flat_shading", "gouraud", "phong"
+    };
+    o->setProperty( "smooth_shading",
+                    shading_models[ d->renderProps[ RenderSmoothShading ] ] );
+  }
   if( d->renderProps[ RenderFiltering ] >= 0 )
     o->setProperty( "polygon_filtering", d->renderProps[ RenderFiltering ] );
   if( d->renderProps[ RenderZBuffer ] >= 0 )
@@ -914,6 +1004,14 @@ Object Material::genericDescription() const
   }
   if( d->lineWidth > 0 )
     o->setProperty( "line_width", d->lineWidth );
+  if( d->renderProps[ UseShader ] >= 0 )
+    o->setProperty( "use_shader", d->renderProps[ UseShader ] );
+  if( d->renderProps[ ShaderColorNormals ] >= 0 )
+    o->setProperty( "shader_color_normals",
+                    d->renderProps[ ShaderColorNormals ] );
+  if( d->renderProps[ NormalIsDirection ] >= 0 )
+    o->setProperty( "normal_is_direction",
+                    d->renderProps[ NormalIsDirection ] );
 
   return o;
 }

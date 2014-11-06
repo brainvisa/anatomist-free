@@ -347,8 +347,10 @@ void Shader::setShaderParameters( const GLComponent &obj,
 {
   bool normalIsDirection = false;
   if( obj.glMaterial() )
+  {
     normalIsDirection = obj.glMaterial()->renderProperty(
       Material::NormalIsDirection ) > 0;
+  }
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
   int id = shader_program->uniformLocation( "normalIsDirection" );
   shader_program->setUniformValue( id, normalIsDirection );
