@@ -338,16 +338,26 @@ void Shader::disable(void)
 
 void Shader::setShaderParameters(const GLMObject &obj, const ViewState & state) const
 {
+  setShaderParameters( static_cast<const GLComponent &>( obj ), state );
 }
 
 
-void Shader::setShaderParameters(const GLComponent &obj, const ViewState & state) const
+void Shader::setShaderParameters( const GLComponent &obj,
+                                  const ViewState & state ) const
 {
+  bool normalIsDirection = false;
+  if( obj.glMaterial() )
+    normalIsDirection = obj.glMaterial()->renderProperty(
+      Material::NormalIsDirection ) > 0;
+  QGLShaderProgram *shader_program = (*(d->_shader_program_p));
+  int id = shader_program->uniformLocation( "normalIsDirection" );
+  shader_program->setUniformValue( id, normalIsDirection );
 }
 
 
 void Shader::setShaderParameters(const ATexSurface &obj, const ViewState & state) const
 {
+  setShaderParameters( static_cast<const GLComponent &>( obj ), state );
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
 
   int id = shader_program->uniformLocation("is2dtexture");	
@@ -363,6 +373,7 @@ void Shader::setShaderParameters(const ATexSurface &obj, const ViewState & state
 
 void Shader::setShaderParameters(const AVolumeBase &obj, const ViewState & state) const
 {
+  setShaderParameters( static_cast<const GLComponent &>( obj ), state );
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
 
   int id = shader_program->uniformLocation("is2dtexture");	

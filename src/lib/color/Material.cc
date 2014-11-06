@@ -40,7 +40,7 @@ using namespace std;
 
 namespace
 {
-  const size_t NrenderProps = Material::SelectableMode + 1;
+  const size_t NrenderProps = Material::NormalIsDirection + 1;
 }
 
 struct Material::Private

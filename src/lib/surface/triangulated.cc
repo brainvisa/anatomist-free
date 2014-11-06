@@ -47,6 +47,7 @@ ASurface<2>::ASurface( const char * )
   _type = AObject::TRIANG;
   GetMaterial().setRenderProperty( Material::RenderLighting, 0 );
   GetMaterial().setRenderProperty( Material::RenderFaceCulling, 0 );
+  GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
   glAPI()->glSetChanged( GLComponent::glMATERIAL );
 }
 

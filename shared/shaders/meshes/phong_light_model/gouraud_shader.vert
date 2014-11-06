@@ -34,6 +34,7 @@ varying vec4 diffuseFactor;
 varying vec4 interpolatedDiffuseMaterial;
 
 vec3 eyeDirection;
+uniform bool normalIsDirection;
 
 void main()
 {
@@ -45,20 +46,28 @@ void main()
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
 	// normal
-	vec3 transformedNormal = gl_NormalMatrix * gl_Normal;	
+	vec3 transformedNormal = gl_NormalMatrix * gl_Normal;
 	transformedNormal = normalize(transformedNormal);
+        vec3 realNormal = transformedNormal;
 
 	// ambient
 	vec4 ambientColor = (gl_LightSource[0].ambient + gl_LightModel.ambient) * gl_FrontMaterial.ambient;
 
 	// diffuse
 	vec3 directionLight = normalize(gl_LightSource[0].position.xyz);
-	float cos_theta = max(dot(transformedNormal, directionLight), 0.0);
+        if( normalIsDirection )
+        {
+          // get a normal in the (light direction, direction) plane
+          vec3 realNormal = normalize(cross(transformedNormal, directionLight));
+          transformedNormal = normalize(cross(realNormal, transformedNormal));
+        }
+	float cos_theta;
+        cos_theta = max(dot(transformedNormal, directionLight), 0.0);
 	diffuseFactor = gl_LightSource[0].diffuse * cos_theta;
 	if (coloringModel == 0)
 		interpolatedDiffuseMaterial = gl_FrontMaterial.diffuse;
 	else if (coloringModel == 1)
-		interpolatedDiffuseMaterial = vec4(transformedNormal, 1);
+                interpolatedDiffuseMaterial = abs(vec4(gl_Normal, 1));
 	else	interpolatedDiffuseMaterial = vec4(1, 0, 1, 1); // should not happend
 
 	// specular
