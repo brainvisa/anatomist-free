@@ -269,6 +269,7 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
     d->changed[i] = true;
   if (Shader::isUsedByDefault())
   {
+    cout << "Shader::isUsedByDefault ON\n";
     _shader = new Shader();
     _shader->load_if_needed();
   }
