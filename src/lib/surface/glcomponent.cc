@@ -2109,3 +2109,28 @@ GLComponent::TexInfo & GLComponent::glTexInfo( unsigned tex ) const
 }
 
 
+void GLComponent::setupShader()
+{
+  int mstate = glMaterial()->renderProperty( Material::UseShader );
+  bool state = (mstate > 0 || (mstate < 0 && Shader::isUsedByDefault() ) );
+  if( state )
+  {
+    if( !_shader )
+      _shader = new Shader;
+    _shader->load_if_needed();
+    _shader->setLightingModel(
+      (Shader::LightingModel) glMaterial()->renderProperty(
+        Material::RenderLighting ) );
+    _shader->setInterpolationModel(
+      (Shader::InterpolationModel) glMaterial()->renderProperty(
+        Material::RenderSmoothShading ) );
+    _shader->setColoringModel(
+      (Shader::ColoringModel) glMaterial()->renderProperty(
+        Material::ShaderColorNormals ) );
+  }
+  else
+    removeShader();
+}
+
+
+

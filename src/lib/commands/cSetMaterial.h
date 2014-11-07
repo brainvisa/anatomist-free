@@ -52,8 +52,8 @@ namespace anatomist
   {
   public:
     SetMaterialCommand( const std::set<AObject *> & obj, float* ambient, 
-			float* diffuse, float* emission, float* specular, 
-			float shininess = -1, bool refresh = true, 
+                        float* diffuse, float* emission, float* specular,
+                        float shininess = -1, bool refresh = true,
                         int lighting = -2, int smoothshading = -2, 
                         int polyfiltering = -2, int zbuffer = -2, 
                         int faceculling = -2, 
@@ -61,7 +61,11 @@ namespace anatomist
                         int frontface = -1, float linewidth=-1,
                         const std::vector<float> &
                         unlitcolor=std::vector<float>(),
-                        const std::string & selectabemode="" );
+                        const std::string & selectabemode="",
+                        int useshader = -2,
+                        int shadercolornormals = -2,
+                        int normalisdirection = -2
+                      );
     virtual ~SetMaterialCommand();
 
     virtual std::string name() const { return( "SetMaterial" ); }
@@ -88,6 +92,9 @@ namespace anatomist
     float               _linewidth;
     std::vector<float>  _unlitcolor;
     std::string         _selectablemode;
+    int                 _useshader;
+    int                 _shadercolornormals;
+    int                 _normalisdirection;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

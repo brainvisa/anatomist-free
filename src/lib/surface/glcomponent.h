@@ -162,7 +162,9 @@ namespace anatomist
     virtual bool glHasChanged( glPart ) const;
 
     void setShader(const Shader &shader);
-    void removeShader(void);
+    void removeShader();
+    /// create, setup, or remove the shader
+    void setupShader();
     const Shader *getShader() const;
     Shader *getShader();
     virtual void setShaderParameters(const Shader &shader,

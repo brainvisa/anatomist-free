@@ -59,14 +59,19 @@ SetMaterialCommand::SetMaterialCommand( const set<AObject *> & obj,
                                         const string & polymode,
                                         int frontface, float linewidth,
                                         const vector<float> & unlitcolor,
-                                        const string & selectablemode
+                                        const string & selectablemode,
+                                        int useshader,
+                                        int shadercolornormals,
+                                        int normalisdirection
                                       )
   : RegularCommand(), _obj( obj ), _shininess( shininess ), 
     _refresh( refresh ), _lighting( lighting ), 
     _smoothshading( smoothshading ), _polygonfiltering( polyfiltering ), 
     _zbuffer( zbuffer), _faceculling( faceculling ), _polygonmode( polymode ),
     _frontface( frontface ), _linewidth( linewidth ),
-    _unlitcolor( unlitcolor ), _selectablemode( selectablemode )
+    _unlitcolor( unlitcolor ), _selectablemode( selectablemode ),
+    _useshader( useshader ), _shadercolornormals( shadercolornormals ),
+    _normalisdirection( normalisdirection )
 {
   if( ambient )
     {
@@ -137,24 +142,27 @@ bool SetMaterialCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "SetMaterial" ];
   
-  s[ "objects"           ] = Semantic( "int_vector", true );
-  s[ "ambient"           ] = Semantic( "float_vector" );
-  s[ "diffuse"           ] = Semantic( "float_vector" );
-  s[ "emission"          ] = Semantic( "float_vector" );
-  s[ "specular"          ] = Semantic( "float_vector" );
-  s[ "shininess"         ] = Semantic( "float" );
-  s[ "refresh"           ] = Semantic( "int" );
-  s[ "lighting"          ] = Semantic( "int" );
-  s[ "smooth_shading"    ] = Semantic( "int" );
-  s[ "polygon_filtering" ] = Semantic( "int" );
-  s[ "depth_buffer"      ] = Semantic( "int" );
-  s[ "face_culling"      ] = Semantic( "int" );
-  s[ "polygon_mode"      ] = Semantic( "string" );
-  s[ "front_face"        ] = Semantic( "string" );
-  s[ "line_width"        ] = Semantic( "float" );
-  s[ "unlit_color"       ] = Semantic( "float_vector" );
-  s[ "ghost"             ] = Semantic( "int" );
-  s[ "selectable_mode"   ] = Semantic( "string" );
+  s[ "objects"              ] = Semantic( "int_vector", true );
+  s[ "ambient"              ] = Semantic( "float_vector" );
+  s[ "diffuse"              ] = Semantic( "float_vector" );
+  s[ "emission"             ] = Semantic( "float_vector" );
+  s[ "specular"             ] = Semantic( "float_vector" );
+  s[ "shininess"            ] = Semantic( "float" );
+  s[ "refresh"              ] = Semantic( "int" );
+  s[ "lighting"             ] = Semantic( "int" );
+  s[ "smooth_shading"       ] = Semantic( "int" );
+  s[ "polygon_filtering"    ] = Semantic( "int" );
+  s[ "depth_buffer"         ] = Semantic( "int" );
+  s[ "face_culling"         ] = Semantic( "int" );
+  s[ "polygon_mode"         ] = Semantic( "string" );
+  s[ "front_face"           ] = Semantic( "string" );
+  s[ "line_width"           ] = Semantic( "float" );
+  s[ "unlit_color"          ] = Semantic( "float_vector" );
+  s[ "ghost"                ] = Semantic( "int" );
+  s[ "selectable_mode"      ] = Semantic( "string" );
+  s[ "use_shader"           ] = Semantic( "int" );
+  s[ "shader_color_normals" ] = Semantic( "int" );
+  s[ "normal_is_direction"  ] = Semantic( "int" );
 
   Registry::instance()->add( "SetMaterial", &read, ss );
   return( true );
@@ -169,135 +177,165 @@ void SetMaterialCommand::doit()
 
   for( io=_obj.begin(); io!=fo; ++io )
     if( theAnatomist->hasObject( *io ) )
+    {
+      o = *io;
+
+      Material	&mat = o->GetMaterial();
+      GLComponent *glc = o->glAPI();
+      bool		changed = false;
+
+      for( i=0; i<4; ++i )
       {
-	o = *io;
-
-	Material	&mat = o->GetMaterial();
-	bool		changed = false;
-
-	for( i=0; i<4; ++i )
-	  {
-	    if( _ambient[i] >= 0 && mat.Ambient()[i] != _ambient[i] )
-	      {
-		mat.Ambient()[i] = _ambient[i];
-		changed = true;
-	      }
-	    if( _diffuse[i] >= 0 && mat.Diffuse()[i] != _diffuse[i] )
-	      {
-		mat.Diffuse()[i] = _diffuse[i];
-		changed = true;
-	      }
-	    if( _emission[i] >= 0 && mat.Emission()[i] != _emission[i] )
-	      {
-		mat.Emission()[i] = _emission[i];
-		changed = true;
-	      }
-	    if( _specular[i] >= 0 && mat.Specular()[i] != _specular[i] )
-	      {
-		mat.Specular()[i] = _specular[i];
-		changed = true;
-	      }
-	  }
-	if( _shininess >= 0 && mat.Shininess() != _shininess )
-	  {
-	    mat.SetShininess( _shininess );
-	    changed = true;
-	  }
-        if( _lighting != -2 )
-          {
-            mat.setRenderProperty( Material::RenderLighting, _lighting );
-            changed = true;
-          }
-        if( _smoothshading != -2 )
-          {
-            mat.setRenderProperty( Material::RenderSmoothShading, 
-                                   _smoothshading );
-            changed = true;
-          }
-        if( _polygonfiltering != -2 )
-          {
-            mat.setRenderProperty( Material::RenderFiltering, 
-                                   _polygonfiltering );
-            changed = true;
-          }
-        if( _zbuffer != -2 )
-          {
-            mat.setRenderProperty( Material::RenderZBuffer, _zbuffer );
-            changed = true;
-          }
-        if( _faceculling != -2 )
-          {
-            mat.setRenderProperty( Material::RenderFaceCulling, _faceculling );
-            changed = true;
-          }
-        if( !_polygonmode.empty() )
-          {
-            if( _polygonmode == "normal" )
-              mat.setRenderProperty( Material::RenderMode, Material::Normal );
-            else if( _polygonmode ==  "wireframe" )
-              mat.setRenderProperty( Material::RenderMode, 
-                                     Material::Wireframe );
-            else if( _polygonmode ==  "outline"
-                     || _polygonmode ==  "outlined" )
-              mat.setRenderProperty( Material::RenderMode, 
-                                     Material::Outlined );
-            else if( _polygonmode ==  "hiddenface_wireframe" )
-              mat.setRenderProperty( Material::RenderMode, 
-                                     Material::HiddenWireframe );
-            else // default
-              mat.setRenderProperty( Material::RenderMode, -1 );
-            changed = true;
-          }
-        if( _frontface != -1 )
+        if( _ambient[i] >= 0 && mat.Ambient()[i] != _ambient[i] )
         {
-          mat.setRenderProperty( Material::FrontFace, _frontface );
+          mat.Ambient()[i] = _ambient[i];
           changed = true;
         }
-        if( _linewidth >= 0 && mat.lineWidth() != _linewidth )
+        if( _diffuse[i] >= 0 && mat.Diffuse()[i] != _diffuse[i] )
         {
-          mat.setLineWidth( _linewidth );
+          mat.Diffuse()[i] = _diffuse[i];
           changed = true;
         }
-        if( _unlitcolor.size() >= 3 )
+        if( _emission[i] >= 0 && mat.Emission()[i] != _emission[i] )
         {
-          if( _unlitcolor.size() >= 4 )
-            mat.setUnlitColor( _unlitcolor[0], _unlitcolor[1], _unlitcolor[2],
-                               _unlitcolor[3] );
-          else
-            mat.setUnlitColor( _unlitcolor[0], _unlitcolor[1], _unlitcolor[2],
-                               1 );
+          mat.Emission()[i] = _emission[i];
           changed = true;
         }
-        if( _selectablemode != "" )
+        if( _specular[i] >= 0 && mat.Specular()[i] != _specular[i] )
         {
-          if( _selectablemode == "always_selectable" )
-          {
-            mat.setRenderProperty( Material::SelectableMode,
-                                   Material::AlwaysSelectable );
-          }
-          else if( _selectablemode == "ghost" )
-            mat.setRenderProperty( Material::SelectableMode,
-                                   Material::GhostSelection );
-          else if( _selectablemode == "selectable_when_opaque" )
-            mat.setRenderProperty( Material::SelectableMode,
-                                   Material::SelectableWhenOpaque );
-          else if( _selectablemode
-              == "selectable_when_not_totally_transparent" )
-            mat.setRenderProperty( Material::SelectableMode,
-              Material::SelectableWhenNotTotallyTransparent );
-          else // default
-            mat.setRenderProperty( Material::SelectableMode,
-                                   Material::SelectableWhenOpaque );
+          mat.Specular()[i] = _specular[i];
           changed = true;
         }
-
-        if( changed )
-          o->SetMaterial( mat );
-        if( o->glAPI() )
-          o->glAPI()->glSetChanged( GLComponent::glMATERIAL );
-        if( _refresh && changed )
-          o->notifyObservers( this );
       }
+      if( _shininess >= 0 && mat.Shininess() != _shininess )
+      {
+        mat.SetShininess( _shininess );
+        changed = true;
+      }
+      if( _lighting != -2 )
+      {
+        mat.setRenderProperty( Material::RenderLighting, _lighting );
+        changed = true;
+      }
+      if( _smoothshading != -2 )
+      {
+        mat.setRenderProperty( Material::RenderSmoothShading,
+                                _smoothshading );
+        changed = true;
+      }
+      if( _polygonfiltering != -2 )
+      {
+        mat.setRenderProperty( Material::RenderFiltering,
+                                _polygonfiltering );
+        changed = true;
+      }
+      if( _zbuffer != -2 )
+      {
+        mat.setRenderProperty( Material::RenderZBuffer, _zbuffer );
+        changed = true;
+      }
+      if( _faceculling != -2 )
+      {
+        mat.setRenderProperty( Material::RenderFaceCulling, _faceculling );
+        changed = true;
+      }
+      if( !_polygonmode.empty() )
+      {
+        if( _polygonmode == "normal" )
+          mat.setRenderProperty( Material::RenderMode, Material::Normal );
+        else if( _polygonmode ==  "wireframe" )
+          mat.setRenderProperty( Material::RenderMode,
+                                  Material::Wireframe );
+        else if( _polygonmode ==  "outline"
+                  || _polygonmode ==  "outlined" )
+          mat.setRenderProperty( Material::RenderMode,
+                                  Material::Outlined );
+        else if( _polygonmode ==  "hiddenface_wireframe" )
+          mat.setRenderProperty( Material::RenderMode,
+                                  Material::HiddenWireframe );
+        else // default
+          mat.setRenderProperty( Material::RenderMode, -1 );
+        changed = true;
+      }
+      if( _frontface != -1 )
+      {
+        mat.setRenderProperty( Material::FrontFace, _frontface );
+        changed = true;
+      }
+      if( _linewidth >= 0 && mat.lineWidth() != _linewidth )
+      {
+        mat.setLineWidth( _linewidth );
+        changed = true;
+      }
+      if( _unlitcolor.size() >= 3 )
+      {
+        if( _unlitcolor.size() >= 4 )
+          mat.setUnlitColor( _unlitcolor[0], _unlitcolor[1], _unlitcolor[2],
+                              _unlitcolor[3] );
+        else
+          mat.setUnlitColor( _unlitcolor[0], _unlitcolor[1], _unlitcolor[2],
+                              1 );
+        changed = true;
+      }
+      if( _selectablemode != "" )
+      {
+        if( _selectablemode == "always_selectable" )
+        {
+          mat.setRenderProperty( Material::SelectableMode,
+                                  Material::AlwaysSelectable );
+        }
+        else if( _selectablemode == "ghost" )
+          mat.setRenderProperty( Material::SelectableMode,
+                                  Material::GhostSelection );
+        else if( _selectablemode == "selectable_when_opaque" )
+          mat.setRenderProperty( Material::SelectableMode,
+                                  Material::SelectableWhenOpaque );
+        else if( _selectablemode
+            == "selectable_when_not_totally_transparent" )
+          mat.setRenderProperty( Material::SelectableMode,
+            Material::SelectableWhenNotTotallyTransparent );
+        else // default
+          mat.setRenderProperty( Material::SelectableMode,
+                                  Material::SelectableWhenOpaque );
+        changed = true;
+      }
+      if( _useshader != -2 )
+      {
+        mat.setRenderProperty( Material::UseShader, _useshader );
+        if( glc )
+        {
+          glc->setupShader();
+          glc->glSetChanged( GLComponent::glBODY );
+        }
+        changed = true;
+      }
+      if( _shadercolornormals != -2 )
+      {
+        mat.setRenderProperty( Material::ShaderColorNormals,
+                               _shadercolornormals );
+        if( glc )
+        {
+          glc->setupShader();
+          glc->glSetChanged( GLComponent::glBODY );
+        }
+        changed = true;
+      }
+      if( _normalisdirection != -2 )
+      {
+        mat.setRenderProperty( Material::NormalIsDirection,
+                               _normalisdirection );
+        if( glc )
+          glc->glSetChanged( GLComponent::glBODY );
+        changed = true;
+      }
+
+      if( changed )
+        o->SetMaterial( mat );
+      if( glc )
+        glc->glSetChanged( GLComponent::glMATERIAL );
+      if( _refresh && changed )
+        o->notifyObservers( this );
+    }
 }
 
 
@@ -314,6 +352,8 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
     filter = -2, zbuffer = -2, facecull = -2, frontface = -1;
   string		polymode, fface, selmode;
   int                   ghost = -1;
+  int                   useshader = -2, shadercolornormals = -2;
+  int                   normalisdirection = -2;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -367,11 +407,15 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
         << endl;
   }
   com.getProperty( "unlit_color", unlitcolor );
+  com.getProperty( "use_shader", useshader );
+  com.getProperty( "shader_color_normals", shadercolornormals );
+  com.getProperty( "normal_is_direction", normalisdirection );
 
-  return( new SetMaterialCommand( objL, amb, dif, emi, spe, shininess, 
-                                  (bool) refresh, lighting, smooth, filter, 
+  return new SetMaterialCommand( objL, amb, dif, emi, spe, shininess,
+                                  (bool) refresh, lighting, smooth, filter,
                                   zbuffer, facecull, polymode, frontface,
-                                  linewidth, unlitcolor, selmode ) );
+                                  linewidth, unlitcolor, selmode, useshader,
+                                  shadercolornormals, normalisdirection );
 }
 
 
@@ -427,5 +471,11 @@ void SetMaterialCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "unlit_color", _unlitcolor );
   if( !_selectablemode.empty() )
     t->setProperty( "selectable_mode", _selectablemode );
+  if( _useshader !=-2 )
+    t->setProperty( "use_shader", _useshader );
+  if( _shadercolornormals !=-2 )
+    t->setProperty( "shader_color_normals", _shadercolornormals );
+  if( _normalisdirection !=-2 )
+    t->setProperty( "normal_is_direction", _normalisdirection );
   com.insert( t );
 }

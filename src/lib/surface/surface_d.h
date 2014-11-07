@@ -196,6 +196,13 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     freeSurface();
     _surface = surf;
     UpdateMinAndMax();
+    if( D == 2 && !_surface->normal().empty() )
+    {
+      GetMaterial().setRenderProperty( Material::UseShader, 1 );
+      GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
+      // GetMaterial().setRenderProperty( Material::ShaderColorNormals, 1 );
+      setupShader();
+    }
     glSetChanged( glGEOMETRY );
     setChanged();
     if( !hasold )
@@ -210,6 +217,13 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     freeSurface();
     _surface.reset( surf );
     UpdateMinAndMax();
+    if( D == 2 && !_surface->normal().empty() )
+    {
+      GetMaterial().setRenderProperty( Material::UseShader, 1 );
+      GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
+      // GetMaterial().setRenderProperty( Material::ShaderColorNormals, 1 );
+      setupShader();
+    }
     glSetChanged( glGEOMETRY );
     setChanged();
     if( !hasold )
