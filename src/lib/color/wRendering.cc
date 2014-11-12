@@ -203,10 +203,10 @@ void RenderingWindow::updateObjectsRendering()
 
   for( io=objects().begin(); io!=fo; ++io )
   {
-    (*io)->SetMaterial( getMaterial() );
     GLComponent *glc = (*io)->glAPI();
     if( state )
       glc->setShader( getShader() );
+    (*io)->SetMaterial( getMaterial() );
     glc->glSetChanged(GLComponent::glBODY);
   }
   for( io=objects().begin(); io!=fo; ++io )
@@ -336,15 +336,23 @@ void RenderingWindow::updateInterface()
       coloring_model = 0;
     coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
     if (shader)
+    {
       _shader = *shader;
+      cout << "existing shader " << shader << ", col model: " << shader->getColoringModel() << endl;
+    }
     else
     {
+      cout << "new shader\n";
       _shader = Shader();
       _shader.setModels( (Shader::LightingModel) lighting_model,
                          (Shader::InterpolationModel) interpolation,
                          (Shader::ColoringModel) coloring_model,
                          Shader::DefaultMaterialModel );
     }
+    cout << "material. ShaderColorNormals: " << _material.renderProperty(
+      Material::ShaderColorNormals ) << endl;
+    cout << "shader. ColoringModel: " << _shader.getColoringModel() << " / " << (shader ? shader->getColoringModel() : -1 ) << endl;
+    cout << "shader: " << shader << endl;
   }
 
   blockSignals( false );
@@ -390,27 +398,52 @@ void RenderingWindow::objectsChosen( const set<AObject *> & o )
 
 void RenderingWindow::runCommand()
 {
+  cout << "RenderingWindow::runCommand\n";
   if( _privdata->modified && !_parents.empty() )
     {
-      string	rmode;
+      cout << "really run.\n";
+      string	rmode, smode;
 
       switch( _material.renderProperty( Material::RenderMode ) )
-        {
-        case Material::Normal:
-          rmode = "normal";
-          break;
-        case Material::Wireframe:
-          rmode = "wireframe";
-          break;
-        case Material::Outlined:
-          rmode = "outlined";
-          break;
-        case Material::HiddenWireframe:
-          rmode = "hiddenface_wireframe";
-          break;
-        default:
-          rmode = "default";
-        }
+      {
+      case Material::Normal:
+        rmode = "normal";
+        break;
+      case Material::Wireframe:
+        rmode = "wireframe";
+        break;
+      case Material::Outlined:
+        rmode = "outlined";
+        break;
+      case Material::HiddenWireframe:
+        rmode = "hiddenface_wireframe";
+        break;
+      default:
+        rmode = "default";
+      }
+      vector<float> unlit(4);
+      unlit[0] = _material.unlitColor(0);
+      unlit[1] = _material.unlitColor(1);
+      unlit[2] = _material.unlitColor(2);
+      unlit[3] = _material.unlitColor(3);
+      switch( _material.renderProperty( Material::SelectableMode ) )
+      {
+      case Material::AlwaysSelectable:
+        smode = "always_selectable";
+        break;
+      case Material::GhostSelection:
+        smode = "ghost";
+        break;
+      case Material::SelectableWhenOpaque:
+        smode = "selectable_when_opaque";
+        break;
+      case Material::SelectableWhenNotTotallyTransparent:
+        smode = "selectable_when_not_totally_transparent";
+        break;
+      default:
+        smode = "default";
+        break;
+      }
 
       SetMaterialCommand	*com 
         = new SetMaterialCommand
@@ -421,7 +454,15 @@ void RenderingWindow::runCommand()
           _material.renderProperty( Material::RenderFiltering ), 
           _material.renderProperty( Material::RenderZBuffer ), 
           _material.renderProperty( Material::RenderFaceCulling ), 
-          rmode );
+          rmode,
+          _material.renderProperty( Material::FrontFace ),
+          _material.lineWidth(),
+          unlit,
+          smode,
+          _material.renderProperty( Material::UseShader ),
+          _material.renderProperty( Material::ShaderColorNormals ) //,
+          // _material.renderProperty( Material::NormalIsDirection )
+        );
       theProcessor->execute( com );
       _privdata->modified = false;
     }
@@ -497,6 +538,7 @@ void RenderingWindow::enableShadersClicked( int x )
   coloring_model_groupBox->setEnabled(state);
 
   updateObjectsRendering();
+  _privdata->modified = true;
 }
 
 
@@ -515,6 +557,7 @@ void RenderingWindow::lightingModelChanged( int x )
     _shader.setLightingModel((Shader::LightingModel) (-x - 3));
     updateObjectsShading();
   }
+  _privdata->modified = true;
 }
 
 void RenderingWindow::interpolationModelChanged( int x )
@@ -531,16 +574,20 @@ void RenderingWindow::interpolationModelChanged( int x )
     _shader.load_if_needed();
     updateObjectsShading();
   }
+  _privdata->modified = true;
 }
 
 void RenderingWindow::coloringModelChanged( int x )
 {
   _material.setRenderProperty( Material::ShaderColorNormals, -x - 3 );
+  cout << "coloringModelChanged: " << x << " -> " << -x - 3 << endl;
   //XXX : skip default (window default)
   if (x == -2)
   {
     std::cout << "Default not implemented yet" << std::endl;
-  } else {
+  }
+  else
+  {
     _shader.setColoringModel((Shader::ColoringModel) (-x - 3));
     _shader.load_if_needed();
     updateObjectsShading();

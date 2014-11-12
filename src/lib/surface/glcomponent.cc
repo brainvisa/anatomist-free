@@ -1602,7 +1602,11 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   glDisableClientState( GL_COLOR_ARRAY );
 
   glNewList( gllist.item(), GL_COMPILE );
-  if (_shader) _shader->bind(*this, state);
+  if (_shader)
+  {
+    _shader->bind(*this, state);
+    cout << "bind shader: " << _shader << ", col: " << _shader->getColoringModel() << endl;
+  }
   if( !vnormal )
   {
     glPushAttrib( GL_LIGHTING_BIT );
@@ -2124,6 +2128,8 @@ void GLComponent::setupShader()
     _shader->setInterpolationModel(
       (Shader::InterpolationModel) glMaterial()->renderProperty(
         Material::RenderSmoothShading ) );
+    cout << "setupShader. ShaderColorNormals: " << glMaterial()->renderProperty(
+        Material::ShaderColorNormals ) << endl;
     _shader->setColoringModel(
       (Shader::ColoringModel) glMaterial()->renderProperty(
         Material::ShaderColorNormals ) );

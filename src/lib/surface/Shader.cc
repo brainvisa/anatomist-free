@@ -141,6 +141,7 @@ Shader::Private::~Private()
 Shader::Private & Shader::Private::operator = ( const Private & p )
 {
   _shader_program_p = p._shader_program_p;
+  enable = p.enable;
   return *this;
 }
 
@@ -422,6 +423,7 @@ Shader &Shader::operator = (const Shader &theShader)
       _lighting_model = theShader._lighting_model;
       _interpolation_model = theShader._interpolation_model;
       _coloring_model = theShader._coloring_model;
+      _material_model = theShader._material_model;
       *d = *theShader.d;
     }
 

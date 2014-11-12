@@ -413,13 +413,41 @@ bool AObject::hasReferenceChanged() const
 void AObject::SetMaterial( const Material & mat )
 {
   if( mat != _material )
+  {
+    bool changeshader = false;
+    GLComponent* glc = glAPI();
+    if( glc )
     {
-      _material = mat;
-      if( glAPI() )
-        glAPI()->glSetChanged( GLComponent::glMATERIAL );
-      else
-        setChanged();
+      if( _material.renderProperty( Material::UseShader )
+          != mat.renderProperty( Material::UseShader ) )
+        changeshader = true;
+      if( !changeshader && mat.renderProperty( Material::UseShader ) )
+      {
+        Material::RenderProperty props[] = { Material::RenderLighting,
+          Material::RenderSmoothShading,
+          Material::ShaderColorNormals,
+          Material::NormalIsDirection };
+        for( int p=0; p<4; ++p )
+          if( _material.renderProperty( props[p] )
+            != mat.renderProperty( props[p] ) )
+          {
+            changeshader = true;
+            break;
+          }
+      }
+      if( changeshader )
+        glc->glSetChanged( GLComponent::glMATERIAL );
     }
+    _material = mat;
+    if( changeshader )
+    {
+      cout << "shader changed\n";
+      glc->setupShader();
+      glc->glSetChanged( GLComponent::glMATERIAL );
+    }
+    else
+      setChanged();
+  }
 }
 
 
@@ -750,7 +778,10 @@ void AObject::setHeaderOptions()
               m = o->getProperty( "material" );
               GetMaterial().set( *m );
               if( g )
+              {
+                g->setupShader();
                 g->glSetChanged( GLComponent::glMATERIAL );
+              }
               else
                 setChanged();
             }
