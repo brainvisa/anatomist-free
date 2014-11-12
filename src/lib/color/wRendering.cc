@@ -535,7 +535,7 @@ void RenderingWindow::interpolationModelChanged( int x )
 
 void RenderingWindow::coloringModelChanged( int x )
 {
-  _material.setRenderProperty( Material::NormalIsDirection, -x - 3 );
+  _material.setRenderProperty( Material::ShaderColorNormals, -x - 3 );
   //XXX : skip default (window default)
   if (x == -2)
   {

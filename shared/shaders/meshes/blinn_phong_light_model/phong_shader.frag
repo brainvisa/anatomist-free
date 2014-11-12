@@ -15,7 +15,7 @@
 //    float linearAttenuation;   // K1
 //    float quadraticAttenuation;// K2
 // };
-// 
+//
 // struct gl_MaterialParameters
 // {
 //    vec4 emission;    // Ecm
@@ -24,7 +24,7 @@
 //    vec4 specular;    // Scm
 //    float shininess;  // Srm
 // };
-// 
+//
 // uniform gl_MaterialParameters gl_FrontMaterial;
 // uniform gl_MaterialParameters gl_BackMaterial;
 // uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
