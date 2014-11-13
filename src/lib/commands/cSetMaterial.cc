@@ -175,7 +175,6 @@ void SetMaterialCommand::doit()
   unsigned				i;
   AObject				*o;
 
-  cout << "SetMaterialCommand::doit " << _shadercolornormals << endl;
   for( io=_obj.begin(); io!=fo; ++io )
     if( theAnatomist->hasObject( *io ) )
     {
@@ -304,46 +303,25 @@ void SetMaterialCommand::doit()
       if( _useshader != -2 )
       {
         mat.setRenderProperty( Material::UseShader, _useshader );
-//         if( glc )
-//         {
-//           glc->setupShader();
-//           glc->glSetChanged( GLComponent::glBODY );
-//         }
         changed = true;
       }
-      cout << "set material, ShaderColorNormals: " << _shadercolornormals << endl;
       if( _shadercolornormals != -2 )
       {
         mat.setRenderProperty( Material::ShaderColorNormals,
                                _shadercolornormals );
-//         if( glc )
-//         {
-//           glc->setupShader();
-//           glc->glSetChanged( GLComponent::glBODY );
-//         }
         changed = true;
       }
       if( _normalisdirection != -2 )
       {
         mat.setRenderProperty( Material::NormalIsDirection,
                                _normalisdirection );
-//         if( glc )
-//         {
-//           glc->setupShader();
-//           glc->glSetChanged( GLComponent::glBODY );
-//         }
         changed = true;
       }
 
       if( changed )
         o->SetMaterial( mat );
       if( glc )
-      {
         glc->glSetChanged( GLComponent::glMATERIAL );
-        cout << "setmat, shader: " << glc->getShader() << endl;
-        if( glc->getShader() )
-          cout << "col model: " << glc->getShader()->getColoringModel() << endl;
-      }
       if( _refresh && changed )
         o->notifyObservers( this );
     }

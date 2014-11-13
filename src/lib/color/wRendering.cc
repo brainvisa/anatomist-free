@@ -68,7 +68,7 @@ struct RenderingWindow::Private
 //	Real RenderingWindow class
 
 
-RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent, 
+RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
                                   const char *name, Qt::WindowFlags f )
   : QWidget( parent, f ), _parents( objL ), 
     _privdata( new Private( objL ) )
@@ -110,6 +110,19 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
 
   lineWidth_lineEdit->setValidator( new QDoubleValidator( 0., 100., 2, 0 ) );
 
+  int mstate = _material.renderProperty( Material::UseShader );
+  bool state = ( ( Shader::isUsedByDefault() && mstate != 0 ) || mstate > 0 );
+  lighting_model_groupBox->setEnabled(state);
+  interpolation_model_groupBox->setEnabled(state);
+  coloring_model_groupBox->setEnabled(state);
+  Qt::CheckState  check_state = (state ? Qt::Checked : Qt::Unchecked);
+  enable_shaders_checkBox->setCheckState(check_state);
+
+  default_lighting_model_radioButton->hide();
+  default_interpolation_model_radioButton->hide();
+  default_coloring_model_radioButton->hide();
+  directions_coloring_model_radioButton->hide();
+
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
   connect( sel, 
@@ -137,19 +150,6 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
            SLOT( coloringModelChanged( int ) ) );
   connect( reload_pushButton, SIGNAL( clicked( ) ), this, 
            SLOT( reloadClicked( ) ) );
-
-  int mstate = _material.renderProperty( Material::UseShader );
-  bool state = ( ( Shader::isUsedByDefault() && mstate != 0 ) || mstate > 0 );
-  lighting_model_groupBox->setEnabled(state);
-  interpolation_model_groupBox->setEnabled(state);
-  coloring_model_groupBox->setEnabled(state);
-  Qt::CheckState  check_state = (state ? Qt::Checked : Qt::Unchecked);
-  enable_shaders_checkBox->setCheckState(check_state);
-
-  default_lighting_model_radioButton->hide();
-  default_interpolation_model_radioButton->hide();
-  default_coloring_model_radioButton->hide();
-  directions_coloring_model_radioButton->hide();
 
   updateInterface();
   static_cast<QBoxLayout *>( layout() )->addStretch( 1 );
@@ -336,23 +336,15 @@ void RenderingWindow::updateInterface()
       coloring_model = 0;
     coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
     if (shader)
-    {
       _shader = *shader;
-      cout << "existing shader " << shader << ", col model: " << shader->getColoringModel() << endl;
-    }
     else
     {
-      cout << "new shader\n";
       _shader = Shader();
       _shader.setModels( (Shader::LightingModel) lighting_model,
                          (Shader::InterpolationModel) interpolation,
                          (Shader::ColoringModel) coloring_model,
                          Shader::DefaultMaterialModel );
     }
-    cout << "material. ShaderColorNormals: " << _material.renderProperty(
-      Material::ShaderColorNormals ) << endl;
-    cout << "shader. ColoringModel: " << _shader.getColoringModel() << " / " << (shader ? shader->getColoringModel() : -1 ) << endl;
-    cout << "shader: " << shader << endl;
   }
 
   blockSignals( false );
@@ -398,10 +390,8 @@ void RenderingWindow::objectsChosen( const set<AObject *> & o )
 
 void RenderingWindow::runCommand()
 {
-  cout << "RenderingWindow::runCommand\n";
   if( _privdata->modified && !_parents.empty() )
     {
-      cout << "really run.\n";
       string	rmode, smode;
 
       switch( _material.renderProperty( Material::RenderMode ) )
@@ -580,7 +570,6 @@ void RenderingWindow::interpolationModelChanged( int x )
 void RenderingWindow::coloringModelChanged( int x )
 {
   _material.setRenderProperty( Material::ShaderColorNormals, -x - 3 );
-  cout << "coloringModelChanged: " << x << " -> " << -x - 3 << endl;
   //XXX : skip default (window default)
   if (x == -2)
   {

@@ -441,7 +441,6 @@ void AObject::SetMaterial( const Material & mat )
     _material = mat;
     if( changeshader )
     {
-      cout << "shader changed\n";
       glc->setupShader();
       glc->glSetChanged( GLComponent::glMATERIAL );
     }

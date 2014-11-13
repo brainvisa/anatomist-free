@@ -257,7 +257,6 @@ bool Shader::isUsedByDefault(void)
 
 void Shader::load_if_needed(void)
 {
-  cout << "shader: " << this << ": _coloring_model: " << _coloring_model << ", _material_model: " << _material_model << endl;
   int lighting_model
     = _lighting_model >= 0 ? _lighting_model : DefaultLightingModel;
   int interpolation_model
@@ -278,9 +277,7 @@ void Shader::load_if_needed(void)
 
   if (not shader_program_w.data())
   {
-    cout << "  load data\n";
     QGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
-    cout << "shared_widget: " << shared_widget << endl;
     shared_widget->makeCurrent();
     QGLShaderProgram *pgm = new QGLShaderProgram(shared_widget->context());
     QGLShaderProgram **pgm_p = new QGLShaderProgram *[1];

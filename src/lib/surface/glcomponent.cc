@@ -269,7 +269,6 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
     d->changed[i] = true;
   if (Shader::isUsedByDefault())
   {
-    cout << "Shader::isUsedByDefault ON\n";
     _shader = new Shader();
     _shader->load_if_needed();
   }
@@ -1603,10 +1602,7 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
 
   glNewList( gllist.item(), GL_COMPILE );
   if (_shader)
-  {
     _shader->bind(*this, state);
-    cout << "bind shader: " << _shader << ", col: " << _shader->getColoringModel() << endl;
-  }
   if( !vnormal )
   {
     glPushAttrib( GL_LIGHTING_BIT );
@@ -2132,8 +2128,6 @@ void GLComponent::setupShader()
     value = glMaterial()->renderProperty( Material::ShaderColorNormals );
     if( value < 0 )
       value = Shader::DefaultColoringModel;
-    cout << "setupShader. ShaderColorNormals: " << glMaterial()->renderProperty(
-        Material::ShaderColorNormals ) << endl;
     _shader->setColoringModel( (Shader::ColoringModel) value );
     _shader->load_if_needed();
   }
