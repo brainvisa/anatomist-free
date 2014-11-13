@@ -163,6 +163,14 @@ void AGraph::initialize( const string & filename, bool init,
   else
     setFileName( filename );
   _material.SetDiffuse( 0., 0.5, 1., 1. );
+  try
+  {
+    Object mat = d->graph->getProperty( "material" );
+    _material.set( *mat );
+  }
+  catch( ... )
+  {
+  }
 
   glAddTextures( 1 );
   GLComponent::TexExtrema & ex = glTexExtrema();

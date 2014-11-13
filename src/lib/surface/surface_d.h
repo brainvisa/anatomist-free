@@ -52,6 +52,43 @@ namespace
 {
   void generateTexture1D( const std::set<anatomist::AObject *> & obj );
   void generateTexture2D( const std::set<anatomist::AObject *> & obj );
+
+  template <int D> inline
+  void _completeMeshDirections( AimsTimeSurface<D, Void> & )
+  {
+  }
+
+
+  template <> inline
+  void _completeMeshDirections( AimsTimeSurface<2, Void> & surf )
+  {
+    if( surf.normal().empty() )
+    {
+      try
+      {
+        carto::Object mat = surf.header().getProperty( "material" );
+        carto::Object cnorm = mat->getProperty( "shader_color_normals" );
+        if( cnorm->getScalar() )
+        {
+          carto::Object nisd = mat->getProperty( "normal_is_direction" );
+          if( nisd->getScalar() )
+          {
+            std::cout << "normal_is_direction ON\n";
+            std::vector<AimsVector<float, 3> > *dirs
+              = aims::SurfaceManip::lineDirections( surf );
+            std::cout << "generate dirs: " << dirs->size() << std::endl;
+            surf.normal() = *dirs;
+            delete dirs;
+          }
+        }
+      }
+      catch( ... )
+      {
+      }
+    }
+  }
+
+
 }
 
 
@@ -196,12 +233,22 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     freeSurface();
     _surface = surf;
     UpdateMinAndMax();
+    _completeMeshDirections( *surf );
     if( D == 2 && !_surface->normal().empty() )
     {
       GetMaterial().setRenderProperty( Material::UseShader, 1 );
       GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
-      // GetMaterial().setRenderProperty( Material::ShaderColorNormals, 1 );
       setupShader();
+    }
+    try
+    {
+      carto::Object omat = _surface->header().getProperty( "material" );
+      Material & mat = GetMaterial();
+      mat.set( *omat );
+      SetMaterial( mat );
+    }
+    catch( ... )
+    {
     }
     glSetChanged( glGEOMETRY );
     setChanged();
@@ -217,12 +264,22 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     freeSurface();
     _surface.reset( surf );
     UpdateMinAndMax();
+    _completeMeshDirections( *surf );
     if( D == 2 && !_surface->normal().empty() )
     {
       GetMaterial().setRenderProperty( Material::UseShader, 1 );
       GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
-      // GetMaterial().setRenderProperty( Material::ShaderColorNormals, 1 );
       setupShader();
+    }
+    try
+    {
+      carto::Object omat = _surface->header().getProperty( "material" );
+      Material & mat = GetMaterial();
+      mat.set( *omat );
+      SetMaterial( mat );
+    }
+    catch( ... )
+    {
     }
     glSetChanged( glGEOMETRY );
     setChanged();

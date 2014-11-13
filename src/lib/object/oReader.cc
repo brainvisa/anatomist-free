@@ -314,16 +314,17 @@ namespace
     return( true );
   }
 
+
   template<long D>
   bool loadMesh( Process & p, const string & fname, Finder & f )
   {
     AimsLoader	& ap = (AimsLoader &) p;
     AimsTimeSurface<D, Void>	*surf = new AimsTimeSurface<D, Void>;
     if( !loadData( *surf, fname, f ) )
-      {
-        delete surf;
-        return( false );
-      }
+    {
+      delete surf;
+      return( false );
+    }
     ASurface<D>	*ao = new ASurface<D>( fname.c_str() );
     ao->setSurface( surf );
     ap.object = ao;
@@ -336,15 +337,15 @@ namespace
 
     // cout << "check textures\n";
     try
-      {
-        otex = surf->header().getProperty( "textures" );
-        tex = &otex->GenericObject::value<carto::ObjectVector>();
-        // cout << "existing textures: " << tex->size() << endl;
-      }
+    {
+      otex = surf->header().getProperty( "textures" );
+      tex = &otex->GenericObject::value<carto::ObjectVector>();
+      // cout << "existing textures: " << tex->size() << endl;
+    }
     catch( ... )
-      {
-        tex = 0;
-      }
+    {
+      tex = 0;
+    }
     try
       {
         Object	tfiles = surf->header().getProperty( "texture_filenames" );

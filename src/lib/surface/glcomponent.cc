@@ -2111,6 +2111,8 @@ GLComponent::TexInfo & GLComponent::glTexInfo( unsigned tex ) const
 
 void GLComponent::setupShader()
 {
+  if( !glMaterial() )
+    return;
   int mstate = glMaterial()->renderProperty( Material::UseShader );
   bool state = (mstate > 0 || (mstate < 0 && Shader::isUsedByDefault() ) );
   if( state )
