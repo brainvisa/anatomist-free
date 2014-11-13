@@ -319,11 +319,16 @@ namespace anatomist
   { 
     if (_shader) delete _shader;
     _shader = new Shader(shader);
+    glSetChanged( GLComponent::glBODY );
   }
   inline void GLComponent::removeShader(void)
   { 
-    if (_shader) delete _shader;
-    _shader = NULL;
+    if (_shader)
+    {
+      delete _shader;
+      _shader = NULL;
+      glSetChanged( GLComponent::glBODY );
+    }
   }
   inline const Material *GLComponent::glMaterial() const          { return 0; }
   inline const Shader *GLComponent::getShader() const { return _shader; }

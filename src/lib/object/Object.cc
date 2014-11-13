@@ -435,15 +435,15 @@ void AObject::SetMaterial( const Material & mat )
             break;
           }
       }
-      if( changeshader )
-        glc->glSetChanged( GLComponent::glMATERIAL );
     }
     _material = mat;
     if( changeshader )
     {
       glc->setupShader();
-      glc->glSetChanged( GLComponent::glMATERIAL );
+      glc->glSetChanged( GLComponent::glBODY );
     }
+    if( glc )
+      glc->glSetChanged( GLComponent::glMATERIAL );
     else
       setChanged();
   }

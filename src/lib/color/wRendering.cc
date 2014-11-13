@@ -207,7 +207,6 @@ void RenderingWindow::updateObjectsRendering()
     if( state )
       glc->setShader( getShader() );
     (*io)->SetMaterial( getMaterial() );
-    glc->glSetChanged(GLComponent::glBODY);
   }
   for( io=objects().begin(); io!=fo; ++io )
   {
@@ -233,7 +232,6 @@ void RenderingWindow::removeObjectsShading()
     glc = (*io)->glAPI();
     (*io)->GetMaterial().setRenderProperty( Material::UseShader, 0 );
     glc->removeShader();
-    glc->glSetChanged(GLComponent::glBODY);
   }
   for( io=objects().begin(); io!=fo; ++io )
   {
