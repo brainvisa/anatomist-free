@@ -237,7 +237,7 @@ bool	Shader::isActivated(void)
 }
 
 
-bool	Shader::isUsedByDefault(void)
+bool Shader::isUsedByDefault(void)
 {
   GlobalConfiguration   *cfg = theAnatomist->config();
   int useglshaderbydefault = 0;
@@ -256,8 +256,21 @@ bool	Shader::isUsedByDefault(void)
 
 
 void Shader::load_if_needed(void)
-{  
-  QWeakPointer<QGLShaderProgram *> &shader_program_w = d->_shader_programs_p[_lighting_model][_interpolation_model][_coloring_model][_material_model];
+{
+  cout << "shader: " << this << ": _coloring_model: " << _coloring_model << ", _material_model: " << _material_model << endl;
+  int lighting_model
+    = _lighting_model >= 0 ? _lighting_model : DefaultLightingModel;
+  int interpolation_model
+    = _interpolation_model >= 0 ?
+      _interpolation_model : DefaultInterpolationModel;
+  int coloring_model
+    = _coloring_model >= 0 ? _coloring_model : DefaultColoringModel;
+  int material_model
+    = _material_model >= 0 ? _material_model : DefaultMaterialModel;
+
+  QWeakPointer<QGLShaderProgram *> &shader_program_w
+    = d->_shader_programs_p[lighting_model][interpolation_model]
+      [coloring_model][material_model];
 
 
   if (not d->_shader_program_p.isNull())
@@ -265,7 +278,9 @@ void Shader::load_if_needed(void)
 
   if (not shader_program_w.data())
   {
+    cout << "  load data\n";
     QGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
+    cout << "shared_widget: " << shared_widget << endl;
     shared_widget->makeCurrent();
     QGLShaderProgram *pgm = new QGLShaderProgram(shared_widget->context());
     QGLShaderProgram **pgm_p = new QGLShaderProgram *[1];
@@ -283,7 +298,20 @@ void Shader::reload(void)
 {
 
   if (d->_shader_program_p.isNull()) return;
-  QWeakPointer<QGLShaderProgram *> &shader_program_w = d->_shader_programs_p[_lighting_model][_interpolation_model][_coloring_model][_material_model];
+
+  int lighting_model
+    = _lighting_model >= 0 ? _lighting_model : DefaultLightingModel;
+  int interpolation_model
+    = _interpolation_model >= 0 ?
+      _interpolation_model : DefaultInterpolationModel;
+  int coloring_model
+    = _coloring_model >= 0 ? _coloring_model : DefaultColoringModel;
+  int material_model
+    = _material_model >= 0 ? _material_model : DefaultMaterialModel;
+
+  QWeakPointer<QGLShaderProgram *> &shader_program_w
+    = d->_shader_programs_p[lighting_model][interpolation_model]
+      [coloring_model][material_model];
 
   QGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
   shared_widget->makeCurrent();

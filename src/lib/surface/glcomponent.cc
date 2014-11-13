@@ -2121,18 +2121,21 @@ void GLComponent::setupShader()
   {
     if( !_shader )
       _shader = new Shader;
-    _shader->load_if_needed();
-    _shader->setLightingModel(
-      (Shader::LightingModel) glMaterial()->renderProperty(
-        Material::RenderLighting ) );
-    _shader->setInterpolationModel(
-      (Shader::InterpolationModel) glMaterial()->renderProperty(
-        Material::RenderSmoothShading ) );
+    int value = glMaterial()->renderProperty( Material::RenderLighting );
+    if( value < 0 )
+      value = Shader::DefaultLightingModel;
+    _shader->setLightingModel( (Shader::LightingModel) value );
+    value = glMaterial()->renderProperty( Material::RenderSmoothShading );
+    if( value < 0 )
+      value = Shader::DefaultInterpolationModel;
+    _shader->setInterpolationModel( (Shader::InterpolationModel) value );
+    value = glMaterial()->renderProperty( Material::ShaderColorNormals );
+    if( value < 0 )
+      value = Shader::DefaultColoringModel;
     cout << "setupShader. ShaderColorNormals: " << glMaterial()->renderProperty(
         Material::ShaderColorNormals ) << endl;
-    _shader->setColoringModel(
-      (Shader::ColoringModel) glMaterial()->renderProperty(
-        Material::ShaderColorNormals ) );
+    _shader->setColoringModel( (Shader::ColoringModel) value );
+    _shader->load_if_needed();
   }
   else
     removeShader();
