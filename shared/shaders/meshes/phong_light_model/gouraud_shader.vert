@@ -35,6 +35,7 @@ varying vec4 interpolatedDiffuseMaterial;
 
 vec3 eyeDirection;
 uniform bool normalIsDirection;
+varying float gl_ClipDistance[gl_MaxClipPlanes];
 
 void main()
 {
@@ -87,4 +88,8 @@ void main()
   vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specularFactor;
 
   gl_FrontColor = ambientColor + specularColor;
+
+  int i;
+  for( i=0; i<gl_MaxClipPlanes; ++i )
+    gl_ClipDistance[i] = dot( gl_ClipPlane[i], eyeVertexPosition );
 }
