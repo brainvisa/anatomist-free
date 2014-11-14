@@ -1,5 +1,5 @@
 varying vec4 vertexPosition;
-varying float gl_ClipDistance[gl_MaxClipPlanes];
+// varying float gl_ClipDistance[gl_MaxClipPlanes];
 
 
 void main(void)
@@ -15,8 +15,9 @@ void main(void)
   //color
   gl_FrontColor = gl_Color;
 
-  int i;
-  for( i=0; i<gl_MaxClipPlanes; ++i )
-    gl_ClipDistance[i] = dot( gl_ClipPlane[i], eyeVertexPosition );
+  gl_ClipVertex = eyeVertexPosition;
+//   int i;
+//   for( i=0; i<gl_MaxClipPlanes; ++i )
+//     gl_ClipDistance[i] = dot( gl_ClipPlane[i], eyeVertexPosition );
 }
 

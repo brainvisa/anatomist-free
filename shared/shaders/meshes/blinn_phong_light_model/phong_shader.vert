@@ -3,7 +3,7 @@ varying vec4 eyeVertexPosition;
 varying vec3 modelNormal;
 uniform bool normalIsDirection;
 //#if __VERSION__ >= 130
-varying float gl_ClipDistance[gl_MaxClipPlanes];
+// varying float gl_ClipDistance[gl_MaxClipPlanes];
 //#endif
 
 void main(void)
@@ -28,11 +28,11 @@ void main(void)
   modelNormal = normalize(gl_Normal);
 
 //#if __VERSION__ < 130
-//   gl_ClipVertex = eyeVertexPosition;
+  gl_ClipVertex = eyeVertexPosition;
 // #else
-  int i;
-  for( i=0; i<gl_MaxClipPlanes; ++i )
-    gl_ClipDistance[i] = dot( gl_ClipPlane[i], eyeVertexPosition );
+//   int i;
+//   for( i=0; i<gl_MaxClipPlanes; ++i )
+//     gl_ClipDistance[i] = dot( gl_ClipPlane[i], eyeVertexPosition );
 // #endif
 
   //color
