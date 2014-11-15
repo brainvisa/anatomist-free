@@ -41,6 +41,7 @@
 
 using namespace anatomist;
 using namespace carto;
+using namespace std;
 
 
 Action * ConnectivityMatrixAction::creator()

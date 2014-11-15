@@ -201,6 +201,7 @@ struct AWindow3D::Private
     std::vector<string> constraintList;
     int constraintType;
     AObject *texConstraint;
+    OrientationAnnotation * orientAnnot;
 };
 
 namespace
@@ -368,7 +369,7 @@ AWindow3D::Private::Private() :
       righteye(0), objvallabel(0), statusbarvisible(false),
       needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(),constraintType(0),texConstraint(0)
+      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 )
 {
 }
 
@@ -380,6 +381,7 @@ AWindow3D::Private::~Private()
   delete poview;
   delete lightview;
   delete light;
+  delete orientAnnot;
 }
 
 void AWindow3D::Private::deleteLists()
@@ -485,8 +487,7 @@ namespace
 AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) :
     ControlledWindow(parent, "window3D", options, f),
     Observable(),
-    d(new AWindow3D::Private),
-    _orientAnnot(0)
+    d(new AWindow3D::Private)
 {
   bool nodeco = !toolBarsVisible();
   setAttribute( Qt::WA_DeleteOnClose );
@@ -808,13 +809,11 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
 
   d->tooltip = new QAViewToolTip(this, d->draw->qglWidget());
 
-  _orientAnnot = new OrientationAnnotation( this );
+  d->orientAnnot = new OrientationAnnotation( this );
 }
 
 AWindow3D::~AWindow3D()
 {
-  delete _orientAnnot;
-
   if (d->lefteye)
   {
     AWindow3D *w = d->lefteye;
@@ -1451,12 +1450,12 @@ void AWindow3D::showReferential()
 
 void AWindow3D::updateLeftRightAnnotations()
 {
-    if ( !_orientAnnot )
+    if ( !d->orientAnnot )
     {
         return;
     }
 
-    _orientAnnot->update();
+    d->orientAnnot->update();
 }
 
 void AWindow3D::displayClickPoint()
@@ -2641,7 +2640,7 @@ void AWindow3D::tools()
   d->tools->raise();
 }
 
-bool AWindow3D::surfpaintIsVisible(void)
+bool AWindow3D::surfpaintIsVisible()
 {
   return d->surfpaintState;
 }
@@ -2651,7 +2650,7 @@ void AWindow3D::setVisibleSurfpaint(bool b)
   d->surfpaintState = b;
 }
 
-bool AWindow3D::constraintEditorIsActive(void)
+bool AWindow3D::constraintEditorIsActive()
 {
   return d->constraintEditorState;
 }
@@ -2661,22 +2660,23 @@ void AWindow3D::setActiveConstraintEditor(bool b)
   d->constraintEditorState = b;
 }
 
-std::vector<string> AWindow3D::getConstraintList(void)
+std::vector<string> AWindow3D::getConstraintList()
 {
   return d->constraintList;
 }
 
-int AWindow3D::getConstraintType(void)
+int AWindow3D::getConstraintType() const
 {
   return d->constraintType;
 }
 
-AObject* AWindow3D::getConstraintTexture(void)
+AObject* AWindow3D::getConstraintTexture()
 {
   return d->texConstraint;
 }
 
-void AWindow3D::loadConstraintData(std::vector<string> constraintList, int constraintType, AObject *texConstraint)
+void AWindow3D::loadConstraintData( const std::vector<string> & constraintList,
+                                    int constraintType, AObject *texConstraint )
 {
   d->constraintList = constraintList;
   d->constraintType = constraintType;

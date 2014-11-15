@@ -533,7 +533,7 @@ void ConstraintEditorWindow::accept()
 
     AWindow3D *w3 = static_cast<AWindow3D *> (w);
     w3->setActiveConstraintEditor(true);
-    w3->loadConstraintData( d->constraintList, d->constraintValuesType, d->texConstraint);
+    w3->loadConstraintData( d->constraintList, d->constraintValuesType, d->texConstraint );
 
     map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
     map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),

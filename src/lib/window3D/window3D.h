@@ -42,9 +42,6 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 
-using namespace std;
-using namespace anatomist;
-
 namespace aims
 {
   class Quaternion;
@@ -132,23 +129,28 @@ public:
   virtual std::list<anatomist::AObject*> *objectsAtCursorPosition( int x, int y, int tolerenceRadius );
   /// pick a polygon on a selected object at the cursor 2D position
   virtual int polygonAtCursorPosition( int x, int y,const anatomist::AObject* obj );
-  /// print all infos about vertex picked on a polygon selected
 
-  int computeNearestVertexFromPolygonPoint(const ViewState & vs, int poly,const GLComponent* glc, const Point3df & position,Point3df & positionNearestVertex);
+  /// print all infos about vertex picked on a polygon selected
+  int computeNearestVertexFromPolygonPoint(
+    const anatomist::ViewState & vs, int poly,
+    const anatomist::GLComponent* glc,
+    const Point3df & position, Point3df & positionNearestVertex );
   void getInfos3DFromClickPoint( int x, int y, Point3df & position, int *poly,
-      anatomist::AObject *objselect, string & objtype,
-      std::vector<float> &texvalue, string & textype,
+      anatomist::AObject *objselect, std::string & objtype,
+      std::vector<float> &texvalue, std::string & textype,
       Point3df & positionNearestVertex, int* indexNearestVertex);
 
-  bool surfpaintIsVisible(void);
+  bool surfpaintIsVisible();
   void setVisibleSurfpaint(bool b);
-  bool constraintEditorIsActive(void);
+  bool constraintEditorIsActive();
   void setActiveConstraintEditor(bool b);
 
-  void loadConstraintData(std::vector<string> constraintList, int constraintType, AObject *texConstraint);
-  std::vector<string> getConstraintList(void);
-  int getConstraintType(void);
-  AObject* getConstraintTexture(void);
+  void loadConstraintData(
+    const std::vector<std::string> & constraintList, int constraintType,
+    anatomist::AObject *texConstraint );
+  std::vector<std::string> getConstraintList();
+  int getConstraintType() const;
+  anatomist::AObject* getConstraintTexture();
 
   void printPositionAndValue();
   void displayInfoAtClickPosition( int x, int y );
@@ -350,8 +352,6 @@ private:
   struct Private;
 
   Private *d;
-
-  OrientationAnnotation * _orientAnnot;
 };
 
 
