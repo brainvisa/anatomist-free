@@ -1,0 +1,45 @@
+
+@import url("default.css");
+
+/* -- page layout ----------------------------------------------------------- */
+
+body {
+    background-color: #205040;
+    color: #000;
+}
+
+div.document {
+    background-color: #407060;
+}
+
+div.related {
+    background-color: #306050;
+}
+
+div.sphinxsidebar input {
+    border: #98ccdb;
+}
+
+/* -- hyperlink styles ------------------------------------------------------ */
+
+a {
+    color: #357c5f;
+}
+
+a:visited {
+    color: #357c5f;
+}
+
+/* -- body styles ----------------------------------------------------------- */
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    background-color: #f2f6f0;
+    color: #205c43;
+}
+
+

@@ -123,6 +123,8 @@ html_logo = 'images/anaicon.png'
 # pixels large.
 #html_favicon = '../../../../communication/web/trunk/gas/favicon.ico'
 
+html_style = 'custom.css'
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
