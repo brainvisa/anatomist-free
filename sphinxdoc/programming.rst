@@ -25,19 +25,22 @@ Other programming tips (C++)
 
 Mainly for C++, but some things are language-independent or also appy to the low-level Python layer.
 
+
 General structure
 +++++++++++++++++
 
-* Objects : AObject base class
-* Windows: AWindow base class
-* Application and global registry : Anatomist class
-* Main control window: ControlWindow class
-* There are also a set of static `global variables, registry systems and customizable factories <../html/fr/programmation/globals.html>`_
+* Objects : :anadox:`AObject <classanatomist_1_1AObject.html>` base class
+* Windows: :anadox:`AWindow <classanatomist_1_1AWindow.html>` base class
+* Application and global registry : :anadox:`Anatomist <classanatomist_1_1Anatomist.html>` class
+* Main control window: :anadox:`ControlWindow <classControlWindow.html>` class
+* There are also a set of static :ref:`global variables, registry systems and customizable factories <dev_static_global>`
+
 
 Configuration options
 +++++++++++++++++++++
 
-`Configuration options <../html/en/programming/config.html>`_
+:ref:`Configuration options <config_options>`
+
 
 Commands system
 +++++++++++++++
