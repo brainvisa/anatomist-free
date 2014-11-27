@@ -1239,7 +1239,8 @@ void ControlWindow::help()
   theAnatomist->config()->getProperty( "html_browser", cmd );
 
   char	s = FileUtil::separator();
-  string url = Settings::docPath() + s + "html";
+  string url = Settings::docPath() + s + "sphinx" + s + "index.html";
+  /*
   string	lang;
   theAnatomist->config()->getProperty( "language", lang );
   if( !lang.empty() )
@@ -1251,6 +1252,7 @@ void ControlWindow::help()
   else
     url = url + s + "en";
   url = url + s + "index.html";
+  */
 
   string::size_type i = cmd.find( "%1" );
   if( i != string::npos )
