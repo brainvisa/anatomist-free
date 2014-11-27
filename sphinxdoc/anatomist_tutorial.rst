@@ -707,6 +707,8 @@ After an automatic recognition of sulci, it is possible to switch between automa
 * Click on *graph => Labelling => Move automatic labelling ('label') to manual ('name')*.
 
 
+.. _surfPaint:
+
 Surface paint module
 ====================
 
