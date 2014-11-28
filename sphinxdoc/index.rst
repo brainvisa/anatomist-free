@@ -3,6 +3,7 @@
 
 
 .. image:: images/anatomist.png
+  :align: center
 
 .. _anatomist_index:
 

@@ -1,6 +1,6 @@
 
-Anatomist programming doc
-=========================
+Anatomist developers documentation
+==================================
 
 Anatomist is written in C++ language, and has Python bindings.
 
