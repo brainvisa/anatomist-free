@@ -25,6 +25,7 @@ Have you tried :ref:`AnaSimpleViewer <anaSimpleViewer>` ? This simplified versio
 .. image:: images/anasimpleviewer.png
   :width: 400px
   :align: center
+  :target: anatomist_tutorial.html#anasimpleviewer
 
 .. |overview| image:: ../html/images/overview.png
   :height: 48pt
