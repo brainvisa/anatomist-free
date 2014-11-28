@@ -26,23 +26,29 @@ Have you tried :ref:`AnaSimpleViewer <anaSimpleViewer>` ? This simplified versio
   :align: center
 
 .. |overview| image:: ../html/images/overview.png
-  :height: 64pt
+  :height: 48pt
   :target: overview.html
+.. |overview_slides| image:: ../html/images/overview.png
+  :height: 48pt
+  :target: ../anatomist_overview.pdf
 
-|overview| :doc:`overview`
+To start in good conditions, the reader may:
+
+* |overview| :doc:`Have a look at some overview images <overview>`
+* |overview_slides| :anatomist:`Have a look at an overview presentation <anatomist_overview.pdf>`
 
 
 More complete docs
 ------------------
 
 .. |man| image:: ../html/images/manual.png
-  :height: 64pt
+  :height: 48pt
   :target: ana_man/en/html/index.html
 .. |tuto| image:: ../html/images/manual.png
-  :height: 64pt
+  :height: 48pt
   :target: anatomist_tutorial.html
 .. |pyana| image:: ../html/images/program.png
-  :height: 64pt
+  :height: 48pt
   :target: programming.html
 
 |man|  :anatomist:`Manual <ana_man/en/html/index.html>`
@@ -56,20 +62,25 @@ Quick help elements
 -------------------
 
 .. |surfmatch| image:: ../html/images/texture.jpg
-  :height: 64pt
+  :height: 48pt
   :target: surfmatch.html
 .. |roi| image:: ../html/images/roi.png
-  :height: 64pt
+  :height: 48pt
   :target: ../ana_man/en/html/ch09.html
 .. |surfpaint| image:: ../ana_man/en/html/images/geodesic_distance.png
-  :height: 64pt
+  :height: 48pt
   :target: ../ana_man/en/html/ch10.html
+.. |referentials| image:: images/referentials.png
+  :height: 48pt
+  :target: ../anatomist_referentials.pdf
 
 `Which data formats are currently supported ? <../ana_man/en/html/ch05.html#N103BF>`_
 
 |roi| `Regions of interest drawing <../ana_man/en/html/ch09.html>`_
 
 |surfpaint| `SurfPaint: drawing on a surface <../ana_man/en/html/ch10.html>`_ (:ref:`tutorial <surfPaint>`)
+
+|referentials| :anatomist:`Slides on the referentials system <anatomist_referentials.pdf>`
 
 |surfmatch| The :doc:`Surface matching module <surfmatch>`, which is not documented in the manual.
 
