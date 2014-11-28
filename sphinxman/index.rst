@@ -51,13 +51,13 @@ More complete docs
   :target: anatomist_tutorial.html
 .. |pyana| image:: ../html/images/program.png
   :height: 48pt
-  :target: programming.html
+  :target: ../dev_doc/index.html
 
 |man|  :anatomist:`Manual <ana_man/en/html/index.html>`
 
 |tuto| :doc:`anatomist_tutorial`
 
-|pyana| :doc:`programming`
+|pyana| :anadev:`Developers documentation <index.html>`
 
 
 Quick help elements
