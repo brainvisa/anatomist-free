@@ -1239,7 +1239,7 @@ void ControlWindow::help()
   theAnatomist->config()->getProperty( "html_browser", cmd );
 
   char	s = FileUtil::separator();
-  string url = Settings::docPath() + s + "sphinx" + s + "index.html";
+  string url = Settings::docPath() + s + "user_doc" + s + "index.html";
   /*
   string	lang;
   theAnatomist->config()->getProperty( "language", lang );
