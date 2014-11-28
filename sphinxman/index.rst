@@ -55,6 +55,8 @@ More complete docs
 
 |man|  :anatomist:`Manual <ana_man/en/html/index.html>`
 
+**in development, work in progress**: :doc:`anatomist_manual1`
+
 |tuto| :doc:`anatomist_tutorial`
 
 |pyana| :anadev:`Developers documentation <index.html>`
