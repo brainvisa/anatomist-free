@@ -1,3 +1,9 @@
+.. toctree::
+   :maxdepth: 3
+
+.. image:: ../sphinxman/images/anatomist.png
+  :align: center
+
 
 Anatomist developers documentation
 ==================================
