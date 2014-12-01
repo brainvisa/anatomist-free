@@ -48,35 +48,42 @@ using namespace std;
 int main( int argc, char** argv )
 {
   try
-    {
-  // QApplication::setColorSpec( QApplication::ManyColor );
+  {
+    // QApplication::setColorSpec( QApplication::ManyColor );
 #if defined( __sun )
-  // (motif style is ugly)
-  QApplication::setStyle( new QWindowsStyle );
-#elif defined( __APPLE__ )
-  initQtPlugins();
+    // (motif style is ugly)
+    QApplication::setStyle( new QWindowsStyle );
 #endif
 
-  QApplication	app( argc, argv );
-  //app.setFont( QFont( "helvetica", 10 ) );
+    Processor processor;
+    Anatomist      anato( argc, (const char **) argv, "Anatomist GUI" );
 
-  Processor processor;
-  Anatomist	 anato( argc, (const char **) argv, "Anatomist GUI" );
+    anato.initialize();
 
-  anato.initialize();
+#if defined( __APPLE__ )
+    initQtPlugins();
+#endif
 
-  new QSelectFactory;
-  return( app.exec() );
-    }
+    /* QApplication is instantiated by Anatomist, after options parsing,
+       and before creating global widgets. This new behaviour (2014/12) is
+       here to allow options parsing before connecting to a graphical server.
+       This prevents hangs when running "anatomist -h" on a Mac on a non-
+       graphical session (ssh or crontab)
+    */
+    //qApp->setFont( QFont( "helvetica", 10 ) );
+
+    new QSelectFactory;
+    return qApp->exec();
+  }
   catch( user_interruption & )
-    {
-      return EXIT_FAILURE;
-    }
+  {
+    return EXIT_FAILURE;
+  }
   catch( exception & e )
-    {
-      cerr << e.what() << endl;
-      return EXIT_FAILURE;
-    }
+  {
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

@@ -236,6 +236,8 @@ struct Anatomist::Anatomist_privateData
   // This QWidget is the parent of all windows in Anatomist. 
   // This enable to close all windows of Anatomist even when Anatomist is embedded in another Qt application, like Axon for example.
   QWidget* qWidgetAncestor;
+  int argc;
+  const char **argv;
 };
 
 
@@ -246,8 +248,8 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
   : historyW( new CommandWriter ), paletteList( 0 ),
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 0, 0, 0 ),
-    lastref( 0 ), destroying( false ), qWidgetAncestor( new QWidget),
-    objectsLock( Mutex::Recursive )
+    lastref( 0 ), destroying( false ), qWidgetAncestor( 0 ),
+    objectsLock( Mutex::Recursive ), argc( 0 ), argv( 0 )
 {
 }
 
@@ -274,6 +276,8 @@ Anatomist::Anatomist( int argc, const char **argv,
   : AimsApplication( argc, argv, documentation ), 
     _privData( new Anatomist::Anatomist_privateData )
 {
+  _privData->argc = argc;
+  _privData->argv = argv;
   // parse command line options to see standartd output redirection is 
   // required. This is done first because plugins loaders display messages.
   CommandLineArguments::const_iterator arg = cla.begin();
@@ -488,6 +492,18 @@ void Anatomist::initialize()
 
   Args	args;
   ::parseArgs( *this, args );
+
+  if( QApplication::instance()
+    && !dynamic_cast<QApplication *>( QApplication::instance() ) )
+  {
+    /* there is a QCoreApplication, which is not a QApplication: delete it
+       and recreate a full QApplication. */
+    delete QApplication::instance();
+  }
+  if( !QApplication::instance() )
+    new QApplication( _privData->argc,
+                      const_cast<char **>( _privData->argv ) );
+  _privData->qWidgetAncestor = new QWidget;
 
   // palettes
   /* palettes should be read before the config because they might be used by 
