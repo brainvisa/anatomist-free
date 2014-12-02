@@ -1125,7 +1125,7 @@ With this control, you can select regions according to a label. For example, if 
 * **NB:** in advanced use, you can substract sub-regions using the control options.
 
 
-.. _surfpaint:
+.. _surfpaint_man:
 
 Surface paint module
 ====================
@@ -1227,14 +1227,131 @@ The following table shows the meaning of the buttons and actions in this tool:
 |                  | path tools (with constraints).                           |
 +------------------+----------------------------------------------------------+
 
+See also the :ref:`Surface paint module tutorial <surfpaint>`
+
+
+.. _handling_graph:
+
+Handling a graph
+================
+
+As we saw before, graphs enable to represent structured data with nodes and associated attributes. Graphs also have global attributes defining characteristics shared by all nodes, as for example voxels size. Nodes also can be linked by relations. This is used in sulci graphs to represent several units extracted from a sulcus. You can see these relations by selecting the neighbours of a node.
+
+Graph nodes contain structures labels (for sulci and ROI graphs), which may be stored in two possible attributes, *name* and *label*. These two attributes have the same role : naming a node. Then, it is possible to make a link with a nomenclature file in order to associate a color to each value of attributes *name* or *label*.
+
+*So, what's the use of having two different attributes with the same role ?* In some cases, we need a double identification. For example, in a automatic sulci recognition, nodes are renamed by *computer experts*. When consulting the results, you might want to rename a sulcus and keep the original identification, which is highly recommended.
+
+Browsing a graph through its nodes
+----------------------------------
+
+Follow these steps:
+
+* Put the graph in a 3D window.
+* Right click on the window and select the menu *View / select objects*. A browser window opens.
+* Then, you can select a node in the browser window, it will be highlighted in the 3D window.
+* Conversely, when the selection control is active in a 3D window, clicking on a node in the 3D view will select it, both in 3D views and in browser windows. See next section for details.
+
+If you do not want to see all the nodes of the graph because it is a big graph and you want to see only chosen nodes, you can use the object menu *Display => Add without nodes* available by right clicking on the graph. Select a window and use this feature, the graph will be loaded in the window but its nodes will not be visible. If there is no open window, Anatomist will open a new 3D window and load the graph in it. If there are several windows and none is selected, Anatomist will load the graph in each window. Then, you can use the menu *View / select objects* to select the nodes you want to see.
+
+
+Selecting nodes
+---------------
+
+.. |fb_select| image:: ../ana_man/en/html/images/fb_select.png
+.. |list_nomenclature| image:: ../ana_man/en/html/images/list_nomenclature.png
+
+* Move to selection mode by clicking on the selection control |fb_select| of the 3D window containing the graph.
+* Then you can **select visible nodes clicking on them**. The selected node change color in the 3D window and become selected also in the corresponding browser window. You can select several nodes keeping *ctrl* key pressed.
+* You can also **select neighbours** of a node by choosing *select neighbours* in right-click menu. A node has neighbours when there are relations between the nodes. So you can select neighbours in a sulci graph where such relations exist, but generally not in ROI graph because there's no link between different regions.
+* You can **undo selection** by choosing *unselect* in right-click menu. This feature undo selection for all nodes currently selected. These nodes retrieve their original color.
+* Finally, it is possible to remove nodes from the window by selecting them and choosing *remove from this window* in the right-click menu.
+
+
+Graph parameters
+----------------
+
+The graph parameters configuration window is available through: *Settings* => *Graph parameters*
+
+.. figure:: ../ana_man/en/html/images/window_paramgraphe.png
+
+  Graph parameters window
+
+
+Graph 3D display mode
++++++++++++++++++++++
+
+* Display triangulations: object surface is smoothed.
+* Display facets: display "voxels".
+* Display: display both smoothed surface and voxels.
+* Display first object: nodes in a graph can be made up of several objects that can be displayed by Anatomist. For example, in a sulci graph, nodes are made up of 4 displayable objects: 3 buckets (voxels lists) and 1 mesh. By choosing this option, only the first of these objects is displayed for each node. In a sulci graph, the first object is the mesh representing the sulcus.
+
+
+Colors (2D / 3D)
+++++++++++++++++
+
+* Use Nomenclature/color bindings (if any): enables to link attributes of the loaded nomenclature and of the loaded graphs.
+* Use attribute Label/name: nomenclatures and graphs are linked through *Label* or *Name* attribute.
+* Display Tooltips: display information tooltips when the mouse passes on objects. Afficher les bulles: affiche les bulles d'informations lorsque la souris est déplacée sur les objets.
+
+Selection color
++++++++++++++++
+
+* Use inverse color: the color of the object is inverted when it is selected.
+* Constant color: the color of selected objects is always the same. You can change it by clicking on the colored square.
+
+IO saving settings
+++++++++++++++++++
+
+* Default (as loaded)
+* Use one file per sub-object type
+* Use one file per individual sub-object
+* Save only modified sub-objects
+* Set sub-objects dir. from graph filename
+
+
+Using nomenclatures
+-------------------
+
+Using a nomenclature file (icon: |list_nomenclature|) offers another way to browse a graph. For example, you load 2 labelled sulci graphs and the nomenclature of sulci recognition. Then you can select a sulcus by choosing its name in the nomenclature. So the choosen sulcus is displayed in each graph window.
+
+Using a nomenclature also enables to associate a color to a *label* and/or a *name*. Thus you can standardize the display of graphs. A specific label or name will be displayed with the same color in every graph.
+
+A nomenclature file has the ``.hie`` extension and is a simple text file.
+<para>Handle a nomenclature:
+
+* Put the nomenclature in a browser window.
+* You can now select nodes in graphs by clicking on the nomenclature's nodes. It is organized hierarchically. This means that you can select all the graph nodes that are under a nomenclature name by clicking on this name. For example, if you click on the name of a lobe, all sulci in this lobe become selected. And when you click on "brain" in a sulci nomenclature, all identified sulci become selected (but not thosewith the label "unknown"). It makes it easy to visualize and select things by region.
+
+.. note::
+
+  Simple nomenclature files for ROIs can be created using *Nomenclature => Personal* menu in the ROIs module in Anatomist.
+
+.. note::
+
+  The nomenclature must match the graph type: value of *graph_syntax* attribute in the nomenclature must match the *Value* column displayed for the graph in a browser window (eg: *"CorticalFoldArg"* for a sulci graph).
+
+
+Modifying the value of graph attributes and saving a new graph
+--------------------------------------------------------------
+
+You may need to modify some attributes values in a graph. For example, when you check sulci automatic recognition in a sulci graph obtained through a BrainVISA process. Indeed, during this process, each recognized sulcus is labelled using *label* attribute. Then, when you check the recognition, you can use the *name* attribute as a validation. Using the two attributes *label* and *name* enables to keep the automatic labelling and your manual labelling.
+
+Modifying the name attribute in a node and recording a new graph:
+
+* Load the graph.
+* Put the graph in a browser window.
+* Unroll the node you want to modify.
+* Go to the *name* attribute.
+* Right click on it to display a menu.
+* Choose *Modify attribute*.
+* Type a new value for the attribute.
+* When all modifications are done, go to the graph in Anatomist list of objets in the main window (left panel).
+* Right click on the graph and choose *File => Save* in order to save the graph with the modifications. You can choose a new name or to keep the same but in this case the original graph will be erased.
+
 
 ---
 
 .. _a_add_palette:
-
-.. _surfpaint_man:
-
-:ref:`Surface paint module tutorial <surfpaint>`
 
 .. _a_aimsrc:
 
