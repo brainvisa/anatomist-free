@@ -1125,6 +1125,109 @@ With this control, you can select regions according to a label. For example, if 
 * **NB:** in advanced use, you can substract sub-regions using the control options.
 
 
+.. _surfpaint:
+
+Surface paint module
+====================
+
+A surface painting module is present in Anatomist. This tool allows to draw textures on a mesh, using several drawing tools. This module has been primarily developed in the specific aim of drawing sulcal constraints to build a 2D coordinates system on the brain (see the Cortical Surface toolbox in BrainVisa), but can be used in a general way to draw any texture values.
+
+..
+  A demonstration video is available here: `Surface Paint movie <http://pages-perso.esil.univmed.fr/~le-troter/movies/files/page4-1006-pop.html>`_.
+
+To use this module:
+
+.. |palette| image:: ../ana_man/en/html/images/palette.png
+  :width: 24pt
+.. |sulci| image:: ../ana_man/en/html/images/sulci.png
+  :width: 24pt
+.. |stylo| image:: ../ana_man/en/html/images/stylo.png
+  :width: 24pt
+.. |erase| image:: ../ana_man/en/html/images/erase.png
+  :width: 24pt
+.. |magic| image:: ../ana_man/en/html/images/magic_selection.png
+  :width: 24pt
+.. |valide| image:: ../ana_man/en/html/images/valide.png
+  :width: 24pt
+.. |surfpaint_save| image:: ../ana_man/en/html/images/sauver.png
+  :width: 24pt
+.. |shortest| image:: ../ana_man/en/html/images/shortest.png
+  :width: 24pt
+.. |gyri| image:: ../ana_man/en/html/images/gyri.png
+  :width: 24pt
+.. |clear| image:: ../ana_man/en/html/images/clear.png
+  :width: 24pt
+.. |colorpicker| image:: ../ana_man/en/html/images/pipette.png
+  :width: 24pt
+.. |magicbrush| image:: ../ana_man/en/html/images/magic_pencil.png
+  :width: 24pt
+.. |distmap| image:: ../ana_man/en/html/images/geodesic_distance.png
+  :width: 24pt
+
+* Load a mesh.
+* Select it and click on |sulci| in Anatomist main window.
+* Click on the *Ok* button on the new popup window. The options in this window are useful only to build a 2D coordinates system on the cortical surface.
+* A new 3D window containing the mesh opens.
+* A new control |palette| should be available in the 3D window. Select it.
+* Several new icons and parameters are now available in the 3D window to allow drawing on the surface.
+
+The following table shows the meaning of the buttons and actions in this tool:
+
+**Surface paint module actions:**
+
++------------------+----------------------------------------------------------+
+| Action           | Description                                              |
++==================+==========================================================+
+| |stylo|          | Manual drawing on the mesh (unconstrained).              |
++------------------+----------------------------------------------------------+
+| |colorpicker|    | Texture value picking tool. Click on the mesh to select  |
+|                  | the texture value at the selected position. This value   |
+|                  | will be used in later drawing operations.                |
++------------------+----------------------------------------------------------+
+| |erase|          | Erase a drawing. Restores the initial texture values at  |
+|                  | erased positions.                                        |
++------------------+----------------------------------------------------------+
+| |magic|          | Fill a closed region. The points included in the region  |
+|                  | are computed and shown to the user who must validate the |
+|                  | drawing. A tolerance may be set to adjust the selected   |
+|                  | region boundaries on continuous floating point textures. |
++------------------+----------------------------------------------------------+
+| |shortest|       | Draw the shortest path between 2 points. The tool        |
+|                  | suggests a path that must be validated with |valide|.    |
++------------------+----------------------------------------------------------+
+| |sulci|          | Draw with anatomical constraints. The drawing path is    |
+|                  | computed trying to follow the depth of the sulci.        |
++------------------+----------------------------------------------------------+
+| |gyri|           | Draw with anatomical constraints. The drawing path is    |
+|                  | computed trying to follow the top of the gyri.           |
++------------------+----------------------------------------------------------+
+| |magicbrush|     | Magic brush. Draws on the mesh, in the same way as the   |
+|                  | draw tool, but draws continuous lines by adding junction |
+|                  | segments as needed.                                      |
++------------------+----------------------------------------------------------+
+| |valide|         | Validate a drawing suggested by an automatic tool like   |
+|                  | the magic wand or the constrained paths.                 |
++------------------+----------------------------------------------------------+
+| |clear|          | Cancel a drawing suggested by an automatic tool like the |
+|                  | magic wand or the constrained paths.                     |
++------------------+----------------------------------------------------------+
+| |distmap|        | Distance maps tool. Click on the mesh: it will fills the |
+|                  | texture with the geodesic distance to the click point    |
+|                  | position.                                                |
++------------------+----------------------------------------------------------+
+| |surfpaint_save| | Save the drawing in a texture file.                      |
++------------------+----------------------------------------------------------+
+| Texture value    | Change the current texture value used to draw on the     |
+|                  | mesh.                                                    |
++------------------+----------------------------------------------------------+
+| Tolerance        | Determines the tolerance of the magic wand tool          |
+|                  | selection values.                                        |
++------------------+----------------------------------------------------------+
+| Tension          | Changes the smoothness of curves drawn by the geodesic   |
+|                  | path tools (with constraints).                           |
++------------------+----------------------------------------------------------+
+
+
 ---
 
 .. _a_add_palette:
