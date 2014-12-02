@@ -146,7 +146,7 @@ The following table shows the available types of fusion according to the type of
         <td>Mesh + (Volume or 2D fusion)</td>
         <td>FusionCutMeshMethod</td>
         <td>
-          Mesh cut by a plane: the cutting plane will have the texture of the volume slice. When you put this object in a 3D window, the "cut mesh" control is available. It enables to control the orientation of the slice (<emphasis>shift</emphasis>) and its position (<emphasis>ctrl</emphasis>) against the mesh.
+          Mesh cut by a plane: the cutting plane will have the texture of the volume slice. When you put this object in a 3D window, the "cut mesh" control is available. It enables to control the orientation of the slice (<em>shift</em>) and its position (<em>ctrl</em>) against the mesh.
         </td>
       </tr>
       <tr class="row-even">
@@ -685,14 +685,456 @@ If you set the user level to *Expert*, you can see another transformation when u
 See also :ref:`the tutorial <load_referential_info>`
 
 
-.. _a_add_palette:
-
 .. _roi_toolbox:
+
+ROI drawing toolbox
+===================
+
+Practical questions
+-------------------
+
+What is the file format for ROI ?
++++++++++++++++++++++++++++++++++
+
+Regions of interest are stored in a graph where each node is a ROI. Some attributes are associated to the graph and its nodes: the voxels size, name of each region... The file format is a couple ``.arg``/``.data``. The ``.data`` is a directory and contains data of each region. The ``.arg`` is a file and contains the graph's structure, that is to say nodes organisation.
+
+It is also possible to export a ROI as a mask (a binary volume) using the option *Region => Export as mask* in ROI toolbox menu.
+
+Accepted file formats to draw ROIs
+++++++++++++++++++++++++++++++++++
+
+You can draw ROI on 2D, 3D and 4D volumes.
+
+How to open ROI toolbox ?
++++++++++++++++++++++++++
+
+.. |fb_roi| image:: images/roi.png
+
+You can either click on the icon |fb_roi| in a window containing a volume, or press F1 key (obviously it will work only if there is a window containing a volume).
+
+Some rules ...
+++++++++++++++
+
+* A voxel cannot be in more than one region.
+* You shouldn't draw on a volume whose voxels size is different from the one of the graph. If it occurs, Anatomist will show a warning message.
+
+.. figure:: ../ana_man/en/html/images/roi1.png
+
+  Warning message when volume and graph voxels size are different.
+
+* Be careful to draw in a window which is in the same referential than the volume. Indeed, the voxels are drawn in the referential of the view, so if it is not the referential of the volume, the voxels of the ROI and the voxels of the volume won't be in the same orientation.
+
+
+ROI management interface
+------------------------
+
+Here is the graphical user interface to manage ROIs:
+
+
+.. figure:: ../ana_man/en/html/images/roi4_control.png
+
+  *ROI management* interface
+
+
+*Session* menu
+++++++++++++++
+
+A session is actually a ROI graph. This menu enables to create a new graph, open an existing one, closing current graph...
+
+**Session menu:**
+
++---------+-------------------------------------------------------------------+
+| Option  | Description                                                       |
++=========+===================================================================+
+| New     | Creates a new ROI graph. The default name is created according to |
+|         | the name of the selected volume in the *Image* panel. You can     |
+|         | change the name of the graph using the *Save as* option.          |
++---------+-------------------------------------------------------------------+
+| Open    | Loads a graph.                                                    |
++---------+-------------------------------------------------------------------+
+| Close   | Closes the selected graph.                                        |
++---------+-------------------------------------------------------------------+
+| Save    | Saves the selected graph.                                         |
++---------+-------------------------------------------------------------------+
+| Save as | Saves and eventually renames the selected graph.                  |
++---------+-------------------------------------------------------------------+
+| Clean   | Deletes all isolated voxels. If you have drawn voxels by mistake, |
+|         | you can delete them using this option.                            |
++---------+-------------------------------------------------------------------+
+
+
+*Region* menu
++++++++++++++
+
+This menu enables to manage the regions of the selected graph.
+
+**Region menu:**
+
+.. raw:: html
+
+  <table class="docutils">
+    <thead>
+      <tr class="row-odd">
+        <th>Option</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="row-even">
+        <td>
+          New
+        </td>
+        <td>
+          Creates a new region in the graph. The set of allowed names depends on the selected framework in the <em>FrameWork</em> option. If you want to choose your own names, use the <em>Free</em> framework (default). You can also load your own framework using the <em>FrameWork => Personal => Load</em> menu.
+        </td>
+      </tr>
+      <tr class="row-odd">
+        <td>
+          Delete
+        </td>
+        <td>
+          Deletes selected region.
+        </td>
+      </tr>
+      <tr class="row-even">
+        <td>
+          Fusion
+        </td>
+        <td>
+          Merges several regions. The following window opens and you can select the regions that have to be merged and the name of the final region among selected regions names. <br/>
+          <img src="../ana_man/en/html/images/roi2.png" align="center" />
+        </td>
+      </tr>
+      <tr class="row-odd">
+        <td>
+          Export as a mask
+        </td>
+        <td>
+          Saves selected region as a binary mask (label volume).
+        </td>
+      </tr>
+      <tr class="row-even">
+        <td>
+          Morphos Stats
+        </td>
+        <td>
+          Displays the volume in mm3 of the selected region in the console used to run Anatomist.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+*Framework* menu
+++++++++++++++++
+
+This menu manages nomenclatures used to name the regions.
+
+**Framework menu:**
+
++-----------------------+-----------------------------------------------------+
+| Option                | Description                                         |
++=======================+=====================================================+
+| Neuro, Lateral Neuro, | Pre-defined frameworks.                             |
+| Sulci, Rat_wb         |                                                     |
++-----------------------+-----------------------------------------------------+
+| Personal              | Enables to create and load custom nomenclatures.    |
++-----------------------+-----------------------------------------------------+
+| Free                  | No selected nomencalture, each region name is given |
+|                       | by the user.                                        |
++-----------------------+-----------------------------------------------------+
+
+
+*Personal* sub-menu
++++++++++++++++++++
+
+This menu manages custom nomenclatures.
+
++---------------+-------------------------------------------------------------+
+| Option        | Description                                                 |
++===============+=============================================================+
+| New           | Creates a new nomenclature for ROI graphs. First enter a    |
+|               | name for the new nomenclature in a pop-up window. Then, a   |
+|               | new object is created and shown in Anatomist main window.   |
+|               | New sub-menus are available in the *Personal* menu:         |
+|               | *Define new region*, *Modify region name* and               |
+|               | *Modify region color*. One cannot define two nomenclatures  |
+|               | at the same time. If you define a second nomenclature, you  |
+|               | should save the first one, otherwise it will be deleted.    |
++---------------+-------------------------------------------------------------+
+| Load          | Loads an existing nomenclature.                             |
++---------------+-------------------------------------------------------------+
+| Save          | The nomenclature is saved in the Anatomist config directory |
+|               | of the current user:                                        |
+|               | ``<user_home_directory>/.anatomist/frameworks``. You cannot |
+|               | choose the place to save the nomenclature.                  |
++---------------+-------------------------------------------------------------+
+| Define new    | Sub-menu available on creating a new nomenclature. Enables  |
+| region        | to define a new region by giving its name and color.        |
++---------------+-------------------------------------------------------------+
+| Modify region | Sub-menu available on creating a new nomenclature. Enables  |
+| name          | to modify the name of the current region.                   |
++---------------+-------------------------------------------------------------+
+| Modify region | Sub-menu available on creating a new nomenclature. Enables  |
+| color         | to modify the color of the current region.                  |
++---------------+-------------------------------------------------------------+
+| Delete region | This option enables to remove the current region from the   |
+| name          | nomenclature.                                               |
++---------------+-------------------------------------------------------------+
+
+
+*Windows* menu
+++++++++++++++
+
+**Windows menu:**
+
++----------+------------------------------------------------------------------+
+| Option   | Description                                                      |
++==========+==================================================================+
+| Axial    | Opens an axial window containing the volume and the ROI graph    |
+|          | selected in image and session panels of the ROI toolbox window.  |
++----------+------------------------------------------------------------------+
+| Sagittal | Opens a sagittal window containing the volume and the ROI graph  |
+|          | selected in image and session panels of the ROI toolbox window.  |
++----------+------------------------------------------------------------------+
+| Coronal  | Opens a coronal window containing the volume and the ROI graph   |
+|          | selected in image and session panels of the ROI toolbox window.  |
++----------+------------------------------------------------------------------+
+| 3D       | Opens an 3D window containing the volume and the ROI graph       |
+|          | selected in image and session panels of the ROI toolbox window.  |
++----------+------------------------------------------------------------------+
+
+
+ROI painting
+------------
+
+.. figure:: ../ana_man/en/html/images/roi5_dessin.png
+
+  *Paint* tab
+
+
+*Brush* panel
++++++++++++++
+
+**Brush panel:**
+
++---------+-------------------------------------------------------------------+
+| Action  | Description                                                       |
++=========+===================================================================+
+| Brush   | * *Point*: draw one voxel at a time.                              |
+|         | * *Disk*: draw a "disk" within a radius of the "brush radius"     |
+|         |   size on one slice at a time.                                    |
+|         | * *Ball*: draw a sphere within a radius of the "brush radius"     |
+|         |   size on several slices.                                         |
++---------+-------------------------------------------------------------------+
+| Brush   | Brush size in voxel or mm according to the chosen option in the   |
+| radius  | *Modes* panel                                                     |
++---------+-------------------------------------------------------------------+
+| Opacity | Sets the opacity of drawn ROIs. Decrease it to increase           |
+|         | transparency.                                                     |
++---------+-------------------------------------------------------------------+
+
+
+*Modes* panel
++++++++++++++
+
+**Modes panel:**
+
++--------------+--------------------------------------------------------------+
+| Action       | Description                                                  |
++==============+==============================================================+
+| Line         | * *On*: outlines that you draw will be continuous even if    |
+|              |   you draw rapidly.                                          |
+|              | * *Off*: if you draw rapidly, lines will not be continuous.  |
++--------------+--------------------------------------------------------------+
+| Replace      | * *On*: Each voxel on which you draw will be added to the    |
+|              |   current region, even if it was already in another region.  |
+|              |   For examle, if a voxel V is in a region A and you are      |
+|              |   drawing a region B passing on voxel V, this voxel will     |
+|              |   move to region B.                                          |
+|              | * *Off*: a voxel which is already in a region cannot be put  |
+|              |   in another one.                                            |
++--------------+--------------------------------------------------------------+
+| LinkedCursor | * *On*: you can see your ROI in several views simultaneously |
+|              |   while drawing.                                             |
+|              | * *Off*: you cannot see your ROI in several views            |
+|              |   simultaneously while drawing.                              |
++--------------+--------------------------------------------------------------+
+| BrushUnit    | * *Voxel*: the unit for the brush radius size is the voxel.  |
+|              | * *mm*: the unit for the brush radius size is the mm.        |
++--------------+--------------------------------------------------------------+
+
+
+Mathematical morphology
+-----------------------
+
+This tab offers basic tools for mathematical morphology: operations (dilation, erosion...) realized on selected ROIs. You can choose the structuring element radius in voxels or in mm and realize 4 types of actions: erosion, dilatation, opening, closure.
+
+.. figure:: ../ana_man/en/html/images/roi6_morpho.png
+
+  *Mathematical morphology* tab
+
+**Structuring element radius:**
+
++---------------------+-------------------------------------------------------+
+| Action              | Description                                           |
++=====================+=======================================================+
+| Structuring element | The structuring element is a shape composed of a set  |
+| radius              | of points. The center of the element is applied in    |
+|                     | each voxel of the ROI. Here, the structuring element  |
+|                     | is a neighbourhood with a 6-connectivity.             |
++---------------------+-------------------------------------------------------+
+
+**Distance mode:**
+
++--------+----------------------------------------------+
+| Action | Description                                  |
++========+==============================================+
+| *mm*   | The structuring element radius is in mm.     |
++--------+----------------------------------------------+
+|*voxel* | The structuring element radius is in voxels. |
++--------+----------------------------------------------+
+
+**Mathematical morphology actions:**
+
++------------+----------------------------------------------------------------+
+| Action     | Description                                                    |
++============+================================================================+
+| *Dilation* | Outline erosion: if the structuring element placed in a point  |
+|            | of the ROI has an intersection with the volume outside the     |
+|            | ROI, these intersection points are added to the ROI.           |
++------------+----------------------------------------------------------------+
+| *Erosion*  | Outline dilatation: if the structuring element placed in a     |
+|            | point of the ROI has an intersection with the volume outside   |
+|            | the ROI, this point is removed from the ROI.                   |
++------------+----------------------------------------------------------------+
+| *Opening*  | Erosion then dilatation. This action enables to remove some    |
+|            | little isolated regions, to smooth outline and to separate     |
+|            | objects weakly linked.                                         |
++------------+----------------------------------------------------------------+
+| *Closing*  | Dilatation then erosion. This action enables to remove some    |
+|            | little holes and to connect objects.                           |
++------------+----------------------------------------------------------------+
+
+
+Connectivity threshold
+----------------------
+
+This module enables to make a semi-automatic segmentation of a volume. You define a band of gray levels by selecting a low level threshold and high level threshold. Corresponding regions are highlighted  and added to current region when you click on them. You can also export this region as a mask.
+
+.. figure:: ../ana_man/en/html/images/roi7_seuilcnx.png
+
+  *Connectivity threshold* tab
+
+At the the histogram of the volume is displayed: the y coordinate is the frequency of a gray level and the x coordinate is its value.
+
+**Connectivity threshold panel:**
+
++----------------+------------------------------------------------------------+
+| Field name     | Description                                                |
++================+============================================================+
+| *Bins*         | Number of bins splitting the gray levels scale.            |
++----------------+------------------------------------------------------------+
+| *Ingnore under | This option enables to update the frequencies of gray      |
+| low*           | levels in the histogram according to the values of *high   |
+|                | level* and *low level*.                                    |
++----------------+------------------------------------------------------------+
+| *Histo Image / | * *Histo Image*: show the histogram of the volume for      |
+| Histo ROI*     |   which connectivity threshold is activated.               |
+|                | * *Histo ROI*: show the histogram of each ROI of the       |
+|                |   selected graph.                                          |
++----------------+------------------------------------------------------------+
+| *Save Histos*  | Save all histograms (volume and ROIs histograms) in a      |
+|                | text file. The format of this file is ``.anahis``.         |
+|                | The extension is optional and the file is readable with    |
+|                | any text editor. See appendix                              |
+|                | :ref:`anahis format <a_fanahis>`                           |
++----------------+------------------------------------------------------------+
+| *Activate      | * *Activate threshold preview*: enable this option. If     |
+| threshold      |   this button is not on, none of the other action is       |
+| preview*       |   available.                                               |
+|                | * *Deactivate threshold preview*: disable this option.     |
++----------------+------------------------------------------------------------+
+| *Low level*    | Move the cursor to set the low threshold of gray levels.   |
++----------------+------------------------------------------------------------+
+| *High level*   | Move the cursor to set the high threshold of gray levels.  |
++----------------+------------------------------------------------------------+
+| *Dimension*    | * *2D*: the region will be a 2D volume, it will be only in |
+|                |   the selected slice.                                      |
+|                | * *3D*: the region will be a 3D volume.                    |
++----------------+------------------------------------------------------------+
+| *Mix method*   | * *Geometric*: geometric fusion between the volume and the |
+|                |   region defined by the threshold.                         |
+|                | * *Linear*: linear fusion between the volume and the       |
+|                |   region defined by the threshold.                         |
++----------------+------------------------------------------------------------+
+| *Mixing        | Mixing factor used for the *linear* fusion.                |
+| factor*        |                                                            |
++----------------+------------------------------------------------------------+
+
+
+Blob segmentation
+-----------------
+
+In a PET exam, you can use this module in order to isolate a region according to a local maximum. A *blob* is a region around a minimum or a maximum. Here is the steps of this segmentation:
+
+* Click on a point with *Shift + left button* near an extremum.
+* The algorithm searches for the closest maximum.
+* From this maximum, the region grows under 2 conditions:
+  * the region size must not exceed the maximum size given by the field *region max size* (in mm3).
+  * the values must not be lower than the threshold given in the field *percentage of extremum*.
+* When the segmentation is over, the region is displayed.
+* **NB:** it can occur that the region does not contain the original voxel; in this case a warning message indicates that you have to click closer.
+
+**Blob segmentation:**
+
++----------------+------------------------------------------------------------+
+| Field name     | Description                                                |
++================+============================================================+
+| *Region max    | Maximum volume for the blob in mm3. For example, if the    |
+| size*          | voxel resolution is 4x4x4 mm (the volume of a voxel is     |
+|                | 64mm3) and you set 1280 mm3, the region size is 20 voxels. |
++----------------+------------------------------------------------------------+
+| *Percentage of | Percentage of the maximum value. It is possible to change  |
+| extremum       | between a maximum and a minimum using keys *Shift+B* (to a |
+|                | maximum) and *Control+B* (to a minimun).                   |
++----------------+------------------------------------------------------------+
+
+
+ROI drawing mode by label selection
+-----------------------------------
+
+Some volumes are called *image of labels*, that is to say each part/structure of the volume is identified by a voxel value: a numerical label. For example, in the following image, the volume contains the background, the left and right hemispheres and the cerebellum. And each part is associated to a label: voxels have value 1 in the left hemisphere, 2 in the right hemisphere, and 3 in the cerebellum.
+
+.. figure:: ../ana_man/en/html/images/image_label.png
+
+  Image of labels (displayed in radiological convention)
+
+With this control, you can select regions according to a label. For example, if a volume *V* has the labels: 1, 2 and 3:
+
+.. |fb_name| image:: ../html/imagesAna/fb_name.png
+
+* Load the volume *V* in Anatomist.
+* Put it in a window and click on the ROI control.
+* Create a ROI graph *G* and a region *R* to store your selection.
+* In the window containing the volume *V* and the graph *G*, click on the label selection control |fb_name|.
+* Click on a voxel which value is the required label.
+* A warning message appears if the data is huge, click on *yes* to go on.
+* You will see better your region in a 3D window.
+* The region *R* of the graph *G* now contains the selected region. You can store this ROI graph or export this region as a mask to get a volume.
+* **NB:** in advanced use, you can substract sub-regions using the control options.
+
+
+---
+
+.. _a_add_palette:
 
 .. _surfpaint_man:
 
 :ref:`Surface paint module tutorial <surfpaint>`
 
 .. _a_aimsrc:
+
+.. _a_fanahis:
 
 
