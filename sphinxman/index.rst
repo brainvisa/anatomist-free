@@ -68,19 +68,19 @@ Quick help elements
   :target: surfmatch.html
 .. |roi| image:: ../html/images/roi.png
   :height: 48pt
-  :target: ../ana_man/en/html/ch09.html
-.. |surfpaint| image:: ../ana_man/en/html/images/geodesic_distance.png
+  :target: anatomist_manual2.html#roi-drawing-toolbox
+.. |surfpaint| image:: images/geodesic_distance.png
   :height: 48pt
-  :target: ../ana_man/en/html/ch10.html
+  :target: anatomist_manual2.html#surface-paint-module
 .. |referentials| image:: images/referentials.png
   :height: 48pt
   :target: ../anatomist_referentials.pdf
 
-`Which data formats are currently supported ? <../ana_man/en/html/ch05.html#N103BF>`_
+`Which data formats are currently supported ? :ref:<objects_formats>`
 
-|roi| `Regions of interest drawing <../ana_man/en/html/ch09.html>`_
+|roi| :ref:`Regions of interest drawing <roi_toolbox>`
 
-|surfpaint| `SurfPaint: drawing on a surface <../ana_man/en/html/ch10.html>`_ (:ref:`tutorial <surfPaint>`)
+|surfpaint| :ref:`SurfPaint: drawing on a surface <surfpaint_man>` (:ref:`tutorial <surfPaint>`)
 
 |referentials| :anatomist:`Slides on the referentials system <anatomist_referentials.pdf>`
 

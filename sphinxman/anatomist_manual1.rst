@@ -1,4 +1,6 @@
 
+.. _ana_user_manual:
+
 =====================
 Anatomist user manual
 =====================
