@@ -164,6 +164,7 @@ struct GLWidgetManager::Private
   int mouseX;
   int mouseY;
   bool resized;
+  bool saveInProgress;
 };
 
 
@@ -182,7 +183,7 @@ GLWidgetManager::Private::Private()
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
-    mouseX( 0 ), mouseY( 0 ), resized(false)
+    mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false )
 {
   buildRotationMatrix();
 }
@@ -742,6 +743,14 @@ QSize GLWidgetManager::sizeHint() const
 
 void GLWidgetManager::record()
 {
+  if( _pd->saveInProgress )
+    return;
+  // flush buffered events, without saving pictures
+  _pd->saveInProgress = true;
+  aWindow()->show();
+  qApp->processEvents();
+  _pd->saveInProgress = false;
+
   QString	num = QString::number( _pd->recIndex );
   while( num.length() < 4 )
     num.insert( 0, '0' );
@@ -756,6 +765,9 @@ void GLWidgetManager::record()
 void GLWidgetManager::saveContents( const QString & filename,
                                     const QString & format )
 {
+  if( _pd->saveInProgress )
+    return;
+  _pd->saveInProgress = true;
   aWindow()->show();
   qApp->processEvents();
 
@@ -803,6 +815,7 @@ void GLWidgetManager::saveContents( const QString & filename,
         saveOtherBuffer( filename, f, mode );
     }
   }
+  _pd->saveInProgress = false;
 }
 
 
