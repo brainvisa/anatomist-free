@@ -45,7 +45,7 @@ More complete docs
 
 .. |man| image:: ../html/images/manual.png
   :height: 48pt
-  :target: ana_man/en/html/index.html
+  :target: anatomist_manual1.html
 .. |tuto| image:: ../html/images/manual.png
   :height: 48pt
   :target: anatomist_tutorial.html
@@ -53,9 +53,7 @@ More complete docs
   :height: 48pt
   :target: ../dev_doc/index.html
 
-|man|  :anatomist:`Manual <ana_man/en/html/index.html>`
-
-**in development, work in progress**: :doc:`anatomist_manual1`
+|man|  :doc:`anatomist_manual1`
 
 |tuto| :doc:`anatomist_tutorial`
 

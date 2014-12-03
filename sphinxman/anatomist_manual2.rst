@@ -1237,7 +1237,7 @@ Handling a graph
 
 As we saw before, graphs enable to represent structured data with nodes and associated attributes. Graphs also have global attributes defining characteristics shared by all nodes, as for example voxels size. Nodes also can be linked by relations. This is used in sulci graphs to represent several units extracted from a sulcus. You can see these relations by selecting the neighbours of a node.
 
-Graph nodes contain structures labels (for sulci and ROI graphs), which may be stored in two possible attributes, *name* and *label*. These two attributes have the same role : naming a node. Then, it is possible to make a link with a nomenclature file in order to associate a color to each value of attributes *name* or *label*.
+Graph nodes contain structures labels (for sulci and ROI graphs), which may be stored in two possible attributes, *name* and *label*. These two attributes have the same role: naming a node. Then, it is possible to make a link with a nomenclature file in order to associate a color to each value of attributes *name* or *label*.
 
 *So, what's the use of having two different attributes with the same role ?* In some cases, we need a double identification. For example, in a automatic sulci recognition, nodes are renamed by *computer experts*. When consulting the results, you might want to rename a sulcus and keep the original identification, which is highly recommended.
 
@@ -1419,20 +1419,134 @@ The interpolation is a linear one (fast and simple).
 Interpolation takes place on the fly, time slider actions may be slower than on a regular texture.
 
 
-==========================================
+.. _a_options:
+
+Appendix: *anatomist* command options
+=====================================
+
+::
+
+      [ -i | --input <vector of string>]  loads these files (conataining either Anatomist/AIMS objects, or .ana commands files)
+      [ -p | --pipe <vector of string>]   open named pipe to read commands from (differs from normal .ana files loading in that the pipe is not closed once read,
+        the pipe is reopened once flushed - using -p for a regular file results in infinite rereading of the same commands file)
+      [ -b | --batch <boolean>]  batch mode: no control window (for remote control only, normally used with -p or a .ana input)
+      [ -s | --server <S32>]  server mode: anatomist will listen on the given TCP port for command stream connections
+      [ -u | --userprofile <string>]  user profile: all personal data will use the directory<home_dir>/.anatomist-<userprofile> rather than
+        the default<home_dir>/.anatomist
+      [ --enable-unstable <boolean>]  Enables unstable features which may make Anatomist badly crash (experts only) (and nobody could tell you which features this incudes)
+      [ --cout <string>]        redirect outpout messages to a file
+      [ --cerr <string>]        redirect error messages to a file
+      [ --verbose [ <S32>]]     Set verbosity level (default = 0, without value = 1)
+      [ -h | --help <boolean>]  show help message
+      [ --version <boolean>]    show Cartograph version
+      [ --info <boolean>]       show libraries information (install, plugins, paths, etc.)
+
+
+.. _a_aims:
+
+Appendix: Loading convention according to Aims version
+======================================================
+
+Guesses for Analyze format images
+
+Aims version older than 2.13
+----------------------------
+
+Non-normalized images were read in radiological convention and displayed according to Anatomist configuration.
+
+Normalized images were read in neurological convention because of SPM 99. Indeed, SPM 99 always write normalized images in neurological convention.
+
+Aims version >= 2.13
+--------------------
+
+Since this version, normalized images are managed differently by Anatomist because of SPM 2. Indeed, images normalized with SPM2 can be in radiological or neurological convention, it depends on the source image. The output image keep the convention of the input image.
+
+So by default, Anatomist loads and displays images in radiological convention.
+
+A configuration file enables to modify theses loading and displaying parameter for a site or a user. For more details, see :aimsdata:`AIMS Configuration file <html/en/config.html>`.
+
+
+.. _a_fscriptana:
+
+Anatomist script files (``.ana``)
+=================================
+
+All actions done in Anatomist interface are stored in a file ``history.ana`` in your ``.anatomist`` directory (in C:\Documents and Settings\user_name under windows and /home/user_name under linux). You can save and reload this script to retrieve rapidly a session. When your session is ready (objects loaded, windows opened...), you have to save the ``history.ana`` by changing its name or copying it in another place else it will be erased the next time you start Anatomist. When you want to reload the session, start Anatomist using the anatomist command with the script filename as a parameter. For example:
+
+::
+
+  anatomist /tmp/history.ana
+
+You can also load a script file by using the menu *File => Replay scenario*.
+
+
+.. _a_add_palette:
+
+Adding a new palette
+====================
+
+* Go into your ``.anatomist`` directory. It is ``C:\Documents and Settings\user_name\.anatomist`` under windows and ``/home/user_name/.anatomist`` under Unix.
+* Create a directory ``rgb`` if it doesn't exist yet.
+* Put the palette files in it. It can be for example in GIS or JPG format, or any image/volume format readable by *Anatomist*.
+* This new palette will be available in the list of palettes in *Anatomist* when *Anatomist* is restarted. If it is aleady running, use the menu *Settings => Reload palettes*.
+
+
+Sulci nomenclature
+==================
+
+.. note::
+
+  **TODO:** link to the Morphologist / BSA doc.
+
+
+.. _a_fanahis:
+
+``.anahis`` format: histogram data obtained via the connexity threshold tool
+============================================================================
+
+Data obtained from a T1 volume and a ROI (region1) drawn with the ROI drawing module. Bin = 10
+
+::
+
+      lesson1.ima histogram :
+      Bin|          Color|         Number| Percentage (%)
+      0|              0|    3.47895e+06|        48.9364
+      1|        36.7755|         633689|        8.91373
+      2|        73.5509|         448951|        6.31513
+      3|        110.326|         608268|        8.55614
+      4|        147.102|         906758|        12.7548
+      5|        183.877|         632822|        8.90153
+      6|        220.653|         369769|        5.20132
+      7|        257.428|          24945|       0.350886
+      8|        294.204|           4518|       0.063552
+      9|        330.979|            457|     0.00642835
+      10|        367.755|              7|    9.84648e-05
+
+      lesson1_ROI histogram :  region1 Mean Value = 1915.45 Sdt Deviation = 443.36 Histogram :
+      Bin|          Color|         Number| Percentage (%)
+       0|              0|            229|      0.0877408
+       1|          409.5|           3140|        1.20308
+       2|            819|          10576|        4.05217
+       3|         1228.5|          17805|        6.82194
+       4|           1638|          72446|        27.7575
+       5|         2047.5|          81685|        31.2974
+       6|           2457|          75089|        28.7702
+       7|         2866.5|             26|     0.00996184
+       8|           3276|              0|              0
+       9|         3685.5|              0|              0
+
+
+=======================
+Complementary resources
+=======================
+
 Anatomist Frequently Asked Questions (FAQ)
 ==========================================
 
 :doc:`faq`
 
+Glossary
+========
+
 :doc:`glossary`
-
----
-
-.. _a_add_palette:
-
-.. _a_aimsrc:
-
-.. _a_fanahis:
-
 
