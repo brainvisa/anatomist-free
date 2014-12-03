@@ -10,7 +10,7 @@
 Anatomist
 =========
 
-Official web site: http://anatomist.info or http://brainvisa.info
+Official web site: http://brainvisa.info
 
 .. |news| image:: ../html/images/new.gif
 
