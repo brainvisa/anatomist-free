@@ -86,8 +86,6 @@ Quick help elements
 
 |referentials| :anatomist:`Slides on the referentials system <anatomist_referentials.pdf>`
 
-|surfmatch| The :doc:`Surface matching module <surfmatch>`, which is not documented in the manual.
-
 
 Old illustrations...
 --------------------

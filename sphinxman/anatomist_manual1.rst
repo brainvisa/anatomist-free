@@ -1126,4 +1126,9 @@ This document is continued here:
 
 :doc:`anatomist_manual2`
 
+==========================================
+Anatomist Frequently Asked Questions (FAQ)
+==========================================
+
+:doc:`faq`
 
