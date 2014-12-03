@@ -10,7 +10,7 @@
 Anatomist
 =========
 
-Official web site: http://anatomist.info or http://brainvisa.info
+Official web site: http://brainvisa.info
 
 .. |news| image:: ../html/images/new.gif
 
@@ -45,7 +45,7 @@ More complete docs
 
 .. |man| image:: ../html/images/manual.png
   :height: 48pt
-  :target: ana_man/en/html/index.html
+  :target: anatomist_manual1.html
 .. |tuto| image:: ../html/images/manual.png
   :height: 48pt
   :target: anatomist_tutorial.html
@@ -53,9 +53,7 @@ More complete docs
   :height: 48pt
   :target: ../dev_doc/index.html
 
-|man|  :anatomist:`Manual <ana_man/en/html/index.html>`
-
-**in development, work in progress**: :doc:`anatomist_manual1`
+|man|  :doc:`anatomist_manual1`
 
 |tuto| :doc:`anatomist_tutorial`
 
@@ -85,8 +83,6 @@ Quick help elements
 |surfpaint| `SurfPaint: drawing on a surface <../ana_man/en/html/ch10.html>`_ (:ref:`tutorial <surfPaint>`)
 
 |referentials| :anatomist:`Slides on the referentials system <anatomist_referentials.pdf>`
-
-|surfmatch| The :doc:`Surface matching module <surfmatch>`, which is not documented in the manual.
 
 
 Old illustrations...

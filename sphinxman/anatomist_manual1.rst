@@ -117,7 +117,7 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
   *Volumes* tab
 
 * *Interpolation on volumes when changing referential*: on loading a referential for an image (applying a transformation) or during a fusion, the volume is resampled by a trilinear interpolation or by the closest sibling value.
-* *Use referential / transformations information found in objects headers (SPM, NIFTI...)*: if a loaded image has *spm_origin, transformations, or referentials* attributes in its header, it is possible to automatically load the corresponding referentials and transformations in Anatomist. See :ref:`load_referential_info` to know more about this feature.
+* *Use referential / transformations information found in objects headers (SPM, NIFTI...)*: if a loaded image has *spm_origin, transformations, or referentials* attributes in its header, it is possible to automatically load the corresponding referentials and transformations in Anatomist. See :ref:`Loading referential information <load_referential_info_man>` to know more about this feature.
 * *Assume all "scanner-based" referentials are the same*: by default they are considered all different.
 
 *OpenGL* menu
@@ -196,7 +196,7 @@ When using Anatomist intensively, users often get entangled in several dozens of
 Windows types
 -------------
 
-Windows enable to visualize objects after their loading. Note that visualization is different from loading. Indeed, loading gives raw data that can be visualized in various way. For example, you can change the display convention without modifying the data. See :ref:`load_and_display_objects` for more details.
+Windows enable to visualize objects after their loading. Note that visualization is different from loading. Indeed, loading gives raw data that can be visualized in various way. For example, you can change the display convention without modifying the data. See :ref:`Load and display objects <load_and_display_objects>` for more details.
 
 The table below shows the different window types.
 
@@ -566,7 +566,7 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
       </tr>
       <tr class="row-even">
         <td><img src="../html/imagesAna/list_graph.png" /></td>
-        <td><a name="tracts_bundles">Tracts bundles</a></td>
+        <td><a name="tracts_bundles" />Tracts bundles</td>
         <td>
           Bundles are sets of fibers obtained from diffusion MRI imageng by a fiber tracking algorithm. They are loaded in Anatomist as graphs.<br/> Supported formats:
           <ul>
@@ -641,7 +641,7 @@ Some actions on objects are available through a right click menu. These actions 
 
 For volumes:
 
-* ROI: create an associated ROI graph. See :ref:`roi_toolbox` to read how to draw Regions of Interest.
+* ROI: create an associated ROI graph. See :ref:`the ROI toolbox <roi_toolbox>` to read how to draw Regions of Interest.
 * Volume rendering: use transparency to render the whole volume in a 3D window. Different tissues (or grey levels) may be assigned different opacities and colors to make them appear in 3D or disapear.
 
 For meshes:
@@ -784,7 +784,7 @@ This menu enables to display the object's palette near the window which contains
 
 The palette menu only permits to select an already defined palette and to change its bounds. This new menu enables to create your own palette. The gradient palette edition window show the palette as gradients on RGB + opacity channels. For each channel, you can change the curve. By default each channel function is linear and the result is a gray gradation palette.
 
-It is possible to save the palettes created with this tools. If you save the palette as described <link linkend="ana_man%a_add_palette">here</link>, the palette will appear in Anatomist's list of palettes the next time you will start it.
+It is possible to save the palettes created with this tools. If you save the palette as described :ref:`here <a_add_palette>`, the palette will appear in Anatomist's list of palettes the next time you will start it.
 
 *Material* sub-menu
 +++++++++++++++++++
@@ -877,4 +877,266 @@ This menu applies to the texture part of objects. Choose *Color => Texturing* in
 | Texture filtering | Enable/disable filtering.                               |
 +-------------------+---------------------------------------------------------+
 
+
+Controls
+========
+
+.. _d_ctr:
+
+What is a control ?
+-------------------
+
+A control defines the way mouse and keyboard act on a window or an object. It can also be associated to a toolbox (regions of interest drawing for example). According to the type of objects contained in the window, some action modes can be disabled. For example, the selection mode has no effect on a volume because there are no areas to select on a volume. But you can select areas in a ROI graph (graph nodes).
+
+.. note::
+
+  Some controls are available only on *selected* objects. You can select objects in a window via the right click menu *view / select objects*.
+
+
+.. _d_ctr_def:
+
+Default control
+---------------
+
+.. |fb_trackball| image:: ../html/imagesAna/fb_trackball.png
+
+*Icon* : |fb_trackball|
+
+*Description* : Default control enables to use the linked cursor, to zoom in, to rotate...
+
+.. figure:: ../ana_man/en/html/images/fb_mtrackball.png
+
+  *Default control* keyboard shortcuts
+
+Linked cursor
++++++++++++++
+
+Camera: rotation, zoom, translation
++++++++++++++++++++++++++++++++++++
+
+View setup
+++++++++++
+
+Fullscreen, hiding tools and menu...
+
+Objects
++++++++
+
+removing objects: *DEL key*
+
+Slices and time handling
+++++++++++++++++++++++++
+
+Colormaps handling
+++++++++++++++++++
+
+
+Selection control
+-----------------
+
+.. |fb_select| image:: ../html/imagesAna/fb_select.png
+
+*Icon* : |fb_select|
+
+*Description* : Select graph nodes, rotate...
+
+.. figure:: ../ana_man/en/html/images/fb_mselect.png
+
+  *Selection control* keyboard shortcuts
+
+Selection
++++++++++
+
+The selection control allows to "select" objects in Anatomist windows by clicking on them in 3D views. Selected objects become highlighted, and can then be used for specific operations.
+
+The default highlighting of selected object changes their color in 3D visualizations, using a red color (by default), and displays a bounding box wireframe around selected objects. Alternative selection highlighting can be chosen, either in the "graph parameters" windows (accessed via the menus of the main window), or via extension modules, in a specific tools panel in the controls parameters box (accessed via the F1 key in 3D views), in the "selection" tab. Highlighting can then be displayed by outlining selected objects, an/or by drawing a parallelepipedic box around seleced objects.
+
+When selecting graph nodes, specific options can decide whether to also show graph relations attached to selected nodes. These are controlled in the selection tab of the controls tools window. In "Basic" mode, relations are not handled by the selection control. In "Intersection" mode, relations linking selected nodes are displayed. In "Union" mode, relations attached to any of the selected nodes are displayed. This graph relations display mode can be useful for complex graphs carrying multimodal structural relational data, such as fibers connecting cortical regions.
+
+Labels copy/paste tool
+++++++++++++++++++++++
+
+The selection control also brings access to a ROI and sulci renaming tool: labels can be picked on a selected "graph" node (using the space key), and pasted onto other selected nodes (from the same graph or another one), using the ctrl+return key combination. The current which has been copied is visible on the top toolbar button.
+
+Graph labels display as text
+++++++++++++++++++++++++++++
+
+The A key activates (or desactivates) a "graph annotation" mode, which displays the labels of the regins in a graph as text in 3D.
+
+.. figure:: images/graphannote.jpg
+
+  Graph "annotation" mode
+
+
+Oblique view control
+--------------------
+
+*Icon* : &fb_oblique;
+
+*Description* : Creates oblique view by rotating the slice plan.
+
+.. figure:: ../ana_man/en/html/images/fb_moblique.png
+
+  *Oblique view control* keyboard shortcuts
+
+
+Flight simulator control
+------------------------
+
+.. |fb_flight| image:: ../html/imagesAna/fb_flight.png
+
+*Icon* : |fb_flight|
+
+*Description* : Available in expert mode only. It enables to change the point of vue with the keyboard.
+
+.. figure:: ../ana_man/en/html/images/fb_mflight.png
+
+  *Flight simulator control* keyboard shortcut.
+
+
+.. _d_ctr_transformation:
+
+Transformation control
+----------------------
+
+.. |fb_control_transfo| image:: ../html/imagesAna/fb_control_transfo.png
+
+*Icon* : |fb_control_transfo|
+
+*Description : *Enables to move an object in a view in order to make manual registration. It can be useful to initialize a registration method with translation parameters. You can get theses parameters in the .trm file obtained from this registration. See the part :ref:`manual registration <manual_registration>` for more details.
+
+
+.. figure:: ../ana_man/en/html/images/fb_mcontrol_transfo.png
+
+  *Transformation control* keyboard shortcuts
+
+
+Hand-drawing of Regions of Interest (ROI)
+-----------------------------------------
+
+.. |fb_draw| image:: ../html/imagesAna/fb_draw.png
+
+*Icon* : |fb_draw|
+
+*Description* : See the part :ref:`ROI drawing toolbox <roi_toolbox>` for more details.
+
+
+.. figure:: ../ana_man/en/html/images/fb_mdraw.png
+
+  *ROI drawing control* keyboard shortcut
+
+
+Threshold ROI drawing mode under connectivity to clicked point constraint
+-------------------------------------------------------------------------
+
+.. |fb_level| image:: ../html/imagesAna/fb_level.png
+
+*Icon* : |fb_level|
+
+*Description* : Opens the ROI toolbox. Use the Connectivity threshold tab to define min and max bounds for the voxels to select.
+
+.. figure:: ../ana_man/en/html/images/fb_mlevel.png
+
+  *Threshold ROI drawing keyboard shortcuts*
+
+
+ROI design by discriminating analysis
+-------------------------------------
+
+.. |fb_dynsegment| image:: ../html/imagesAna/fb_dynsegment.png
+
+*Icon* : |fb_dynsegment|
+
+*Description* : Opens the ROI toolbox. Use the DynSegment tab to fix parameters. This is usable on dynamic data only.
+
+.. figure:: ../ana_man/en/html/images/fb_mdynsegment.png
+
+  *ROI design by discriminating analysis* keyboard shortcuts
+
+
+ROI drawing mode by label selection
+-----------------------------------
+
+.. |fb_name| image:: ../html/imagesAna/fb_name.png
+
+*Icon* : |fb_name|
+
+*Description* : selects region according to their labels.
+
+.. figure:: ../ana_man/en/html/images/fb_mname.png
+
+  *ROI drawing mode by label selection* keyboard shortcuts
+
+
+Surface paint module
+--------------------
+
+.. |palette| image:: ../ana_man/en/html/images/palette.png
+.. |sulci| image:: ../ana_man/en/html/images/sulci.png
+  :height: 28
+
+*Icon* : |palette|
+
+*Description* : This control appears when a mesh is opened in a 3D window using the |sulci| button in Anatomist main window. It is available when the mesh object is selected. See the part about the :ref:`Surface paint module <surfpaint_man>` for more details.
+
+
+.. _d_ctr_meshcutting:
+
+Mesh cutting control
+--------------------
+
+.. |control-cut| image:: ../ana_man/en/html/images/control-cut.png
+
+*Icon* : |control-cut|
+
+*Description* : available only if a cut mesh is selected (cut mesh is obtained by fusion between a mesh and a volume). It controls the slice on a cut mesh.
+
+.. figure:: ../ana_man/en/html/images/mcontrol-cut.png
+
+  *Mesh cutting control* keyborad shortcut
+
+
+.. _d_ctr_foldsplit:
+
+Fold split control
+------------------
+
+.. |control-foldsplit| image:: ../ana_man/en/html/images/control-foldsplit.png
+
+*Icon* : |control-foldsplit|
+
+.. figure:: ../ana_man/en/html/images/mcontrol-foldsplit.png
+
+  *Fold split control* keyborad shortcuts
+
+This specialized control allows to manually cut a sulci graph node into several parts. It can be done by selecting a single point (by clicking on a sulcus node at the desired position), or by selected several points which will be linked to form a cut line: Ctrl + left click sets points (the order is important), then the S key proposes a split line joining the selected points. When a split line (purple voxels line) is proposed, the user can validate and actually split by hitting (or re-hitting) the S key. Actions can be aborted before the split is actually done, by hitting the ESC key.
+
+A more automatic mode allows to automatically subdivize large nodes: clicking on a node with Ctrl + right click will subdivize a single node.
+
+Shift + right click on any node of a graph will apply the automatic subdivizion of all large nodes of a graph.
+
+Note that after splitting, nodes are not automatically remeshed, graph relations have been altered, and all morphometric measurements on altered nodes are out of date. To be usable for sulci recognition and morphometry, the graph should go through an update process, which is available in BrainVISA.
+
+
+=========================
+Anatomist user manual (2)
+=========================
+
+This document is continued here:
+
+:doc:`anatomist_manual2`
+
+=======================
+Complementary resources
+=======================
+
+Anatomist Frequently Asked Questions (FAQ)
+==========================================
+
+:doc:`faq`
+
+Glossary
+========
+
+:doc:`glossary`
 
