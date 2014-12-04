@@ -28,7 +28,7 @@ In the following example, 3 objects are loaded in Anatomist:
 
 These 2 objects are in the same coordinates system, so they will be placed in the same referential, that is to say they will have the same color circle (red by default).
 
-.. figure:: ../ana_man/en/html/images/superpo1.png
+.. figure:: images/superpo1.png
 
   Superimposing an anatomy and regions of interest
 
@@ -44,7 +44,7 @@ In the following example, 3 objects are loaded in Anatomist:
 
 These three objects are in the same coordinates system, so they will be placed in the same referential, that is to say they will have the same color circle (red by default).
 
-.. figure:: ../ana_man/en/html/images/superpo2.png
+.. figure:: images/superpo2.png
 
   Superimposing hemispheres meshes and head mesh
 
@@ -57,7 +57,7 @@ Objects fusion
 General definition
 ++++++++++++++++++
 
-.. |fusion| image:: ../ana_man/en/html/images/fusion.png
+.. |fusion| image:: images/fusion_icon.png
 
 Objects fusion enables to create a new object from 2 or more other objects. Indeed, if you only put two volumes in the same window, you will see only one. To see the two volumes, you need to mix voxels from the two volumes in order to obtain a new volume. Note that fusionning more than 2 objects is only possible since 1.30 version. Besides, several new features have been added for fusion management. Several fusion combinations between objects are available,but for the moment, let's see a fusion between two 3D volumes for example:
 
@@ -66,7 +66,7 @@ Objects fusion enables to create a new object from 2 or more other objects. Inde
 * **STEP 3:** Then click on fusion button  |fusion|.
 * **STEP 4:** A new window pop up to select objects order and fusion type (fusion types offered differs according to selected objects, this will be detailled later, in advanced part of the manual).
 
-.. figure:: ../ana_man/en/html/images/fusion1.png
+.. figure:: images/fusion1.png
 
   Fusion type
 
@@ -74,14 +74,14 @@ Objects fusion enables to create a new object from 2 or more other objects. Inde
 * **STEP 6:** Put the **Fusion2D** object in a window.
 * **STEP 7:** If the **Fusion2D** object is all in black, you must change fusion mode. So right click on **Fusion2D** object to get its menu. Choose **Fusion => Control 2D fusion**. This window opens:
 
-.. figure:: ../ana_man/en/html/images/fusion2.png
+.. figure:: images/fusion2.png
 
   Fusion control
 
 * **STEP 8:** You can change the mapping mode. The default is **Linear**: it does a linear combination of the two volumes. The **Geometric** mode does RGB channels multiplication. For linear fusions, you can set objects transparency with the cursor **Mixing rate**.
 * **STEP 9:** By default, the 2 volumes will have the same palette. To change at least one, do **Right clik menu on a volume => Color => Palette**.
 
-.. figure:: ../ana_man/en/html/images/fusion_volumes.png
+.. figure:: images/fusion_volumes.png
 
   Example of a linear fusion between two 3D volumes
 
@@ -115,7 +115,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-even">
         <td>
           Only one volume or 2D fusion <br/>
-          <img src="../ana_man/en/html/images/fusion_slice_method_little.png" />
+          <img src="_images/fusion_slice_method_little.png" />
         </td>
         <td>FusionSliceMethod</td>
         <td>
@@ -125,7 +125,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-odd">
         <td>
           2 or more volumes <br/>
-          <img src="../ana_man/en/html/images/fusion_map_anat_little.png" />
+          <img src="_static/images/fusion_map_anat_little.png" />
         </td>
         <td>Fusion2DMethod</td>
         <td>
@@ -135,7 +135,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-even">
         <td>
           Volume + Mesh <br/>
-          <img src="../ana_man/en/html/images/fusion_map_iwhitemesh_little.png" />
+          <img src="_images/fusion_map_iwhitemesh_little.png" />
         </td>
         <td>Fusion3DMethod</td>
         <td>
@@ -384,7 +384,7 @@ For volumes in ANALYZE format, reading and displaying data depends on the follow
 
   If *spm_radio_convention* attribute value is 1, data in ANALYZE format is in radiological convention on disk. Else, if *spm_radio_convention* value is 0, data is in neurological convention.
 
-  See `.aimsrc file configuration <a_aimsrc_>`_
+  See :aimsdata:`AIMS Configuration file .aimsrc <html/en/config.html>`.
 
 
 .. _mSPM99:
@@ -468,7 +468,7 @@ When you click on an object in a window, the position of the cursor appears in t
 
 If the window contains several objects, the coordinates of each objects are displayed.
 
-.. figure:: ../ana_man/en/html/images/coord_leg.png
+.. figure:: images/coord_leg.png
 
   Coordinates in mm / coordinates in voxel
 
@@ -510,7 +510,7 @@ Transformation format
 
 Anatomist manages affine transformations: translation, rotation, zoom. It uses its own ``.trm`` format. It is an ASCII file, so it can be opened and modified with any text editor. It contains a 3x3 matrix and a translation vector.
 
-.. figure:: ../ana_man/en/html/images/fichier_trm.png
+.. figure:: images/fichier_trm.png
 
   Example of a transformation ``.trm`` file
 
@@ -570,13 +570,13 @@ Why changing the referential of a window, and how ?
 
 * Click on the colored bar indicating the referential. See the figure below:
 
-  .. figure:: ../ana_man/en/html/images/ref_fen1.png
+  .. figure:: images/ref_fen1.png
 
     Modifying the referential of a window (1)
 
 * A new window opens and you can create a new referential or choose an existing one:
 
-  .. figure:: ../ana_man/en/html/images/ref_fen2.png
+  .. figure:: images/ref_fen2.png
 
     Modifying the referential of a window (2)
 
@@ -618,8 +618,8 @@ For example, we want to visualize an antomical image (``anat.nii``) and a functi
 
   <div class="figure" align="center">
     <div class="mediaobject">
-      <object type="application/x-shockwave-flash" data="../ana_man/en/html/images/registration.swf" width="900" height="700">
-        <param name="movie" value="../ana_man/en/html/images/registration.swf"><param name="loop" value="true">
+      <object type="application/x-shockwave-flash" data="_static/images/registration.swf" width="900" height="700">
+        <param name="movie" value="_static/images/registration.swf"><param name="loop" value="true">
       </object>
     </div>
     Loading a transformation between an anatomical volume and a functional volume.
@@ -705,8 +705,8 @@ Accepted file formats to draw ROIs
 
 You can draw ROI on 2D, 3D and 4D volumes.
 
-How to open ROI toolbox ?
-+++++++++++++++++++++++++
+How to open the ROI toolbox ?
++++++++++++++++++++++++++++++
 
 .. |fb_roi| image:: images/roi.png
 
@@ -718,7 +718,7 @@ Some rules ...
 * A voxel cannot be in more than one region.
 * You shouldn't draw on a volume whose voxels size is different from the one of the graph. If it occurs, Anatomist will show a warning message.
 
-.. figure:: ../ana_man/en/html/images/roi1.png
+.. figure:: images/roi1.png
 
   Warning message when volume and graph voxels size are different.
 
@@ -731,7 +731,7 @@ ROI management interface
 Here is the graphical user interface to manage ROIs:
 
 
-.. figure:: ../ana_man/en/html/images/roi4_control.png
+.. figure:: images/roi4_control.png
 
   *ROI management* interface
 
@@ -802,7 +802,7 @@ This menu enables to manage the regions of the selected graph.
         </td>
         <td>
           Merges several regions. The following window opens and you can select the regions that have to be merged and the name of the final region among selected regions names. <br/>
-          <img src="../ana_man/en/html/images/roi2.png" align="center" />
+          <img src="_static/images/roi2.png" align="center" />
         </td>
       </tr>
       <tr class="row-odd">
@@ -908,7 +908,7 @@ This menu manages custom nomenclatures.
 ROI painting
 ------------
 
-.. figure:: ../ana_man/en/html/images/roi5_dessin.png
+.. figure:: images/roi5_dessin.png
 
   *Paint* tab
 
@@ -970,7 +970,7 @@ Mathematical morphology
 
 This tab offers basic tools for mathematical morphology: operations (dilation, erosion...) realized on selected ROIs. You can choose the structuring element radius in voxels or in mm and realize 4 types of actions: erosion, dilatation, opening, closure.
 
-.. figure:: ../ana_man/en/html/images/roi6_morpho.png
+.. figure:: images/roi6_morpho.png
 
   *Mathematical morphology* tab
 
@@ -1022,7 +1022,7 @@ Connectivity threshold
 
 This module enables to make a semi-automatic segmentation of a volume. You define a band of gray levels by selecting a low level threshold and high level threshold. Corresponding regions are highlighted  and added to current region when you click on them. You can also export this region as a mask.
 
-.. figure:: ../ana_man/en/html/images/roi7_seuilcnx.png
+.. figure:: images/roi7_seuilcnx.png
 
   *Connectivity threshold* tab
 
@@ -1106,13 +1106,13 @@ ROI drawing mode by label selection
 
 Some volumes are called *image of labels*, that is to say each part/structure of the volume is identified by a voxel value: a numerical label. For example, in the following image, the volume contains the background, the left and right hemispheres and the cerebellum. And each part is associated to a label: voxels have value 1 in the left hemisphere, 2 in the right hemisphere, and 3 in the cerebellum.
 
-.. figure:: ../ana_man/en/html/images/image_label.png
+.. figure:: images/image_label.png
 
   Image of labels (displayed in radiological convention)
 
 With this control, you can select regions according to a label. For example, if a volume *V* has the labels: 1, 2 and 3:
 
-.. |fb_name| image:: ../html/imagesAna/fb_name.png
+.. |fb_name| image:: images/fb_name.png
 
 * Load the volume *V* in Anatomist.
 * Put it in a window and click on the ROI control.
@@ -1137,31 +1137,31 @@ A surface painting module is present in Anatomist. This tool allows to draw text
 
 To use this module:
 
-.. |palette| image:: ../ana_man/en/html/images/palette.png
+.. |palette| image:: images/palette.png
   :width: 24pt
-.. |sulci| image:: ../ana_man/en/html/images/sulci.png
+.. |sulci| image:: images/sulci.png
   :width: 24pt
-.. |stylo| image:: ../ana_man/en/html/images/stylo.png
+.. |stylo| image:: images/stylo.png
   :width: 24pt
-.. |erase| image:: ../ana_man/en/html/images/erase.png
+.. |erase| image:: images/erase.png
   :width: 24pt
-.. |magic| image:: ../ana_man/en/html/images/magic_selection.png
+.. |magic| image:: images/magic_selection.png
   :width: 24pt
-.. |valide| image:: ../ana_man/en/html/images/valide.png
+.. |valide| image:: images/valide.png
   :width: 24pt
-.. |surfpaint_save| image:: ../ana_man/en/html/images/sauver.png
+.. |surfpaint_save| image:: images/sauver.png
   :width: 24pt
-.. |shortest| image:: ../ana_man/en/html/images/shortest.png
+.. |shortest| image:: images/shortest.png
   :width: 24pt
-.. |gyri| image:: ../ana_man/en/html/images/gyri.png
+.. |gyri| image:: images/gyri.png
   :width: 24pt
-.. |clear| image:: ../ana_man/en/html/images/clear.png
+.. |clear| image:: images/clear.png
   :width: 24pt
-.. |colorpicker| image:: ../ana_man/en/html/images/pipette.png
+.. |colorpicker| image:: images/pipette.png
   :width: 24pt
-.. |magicbrush| image:: ../ana_man/en/html/images/magic_pencil.png
+.. |magicbrush| image:: images/magic_pencil.png
   :width: 24pt
-.. |distmap| image:: ../ana_man/en/html/images/geodesic_distance.png
+.. |distmap| image:: images/geodesic_distance.png
   :width: 24pt
 
 * Load a mesh.
@@ -1257,8 +1257,8 @@ If you do not want to see all the nodes of the graph because it is a big graph a
 Selecting nodes
 ---------------
 
-.. |fb_select| image:: ../ana_man/en/html/images/fb_select.png
-.. |list_nomenclature| image:: ../ana_man/en/html/images/list_nomenclature.png
+.. |fb_select| image:: images/fb_select.png
+.. |list_nomenclature| image:: _static/images/list_nomenclature.png
 
 * Move to selection mode by clicking on the selection control |fb_select| of the 3D window containing the graph.
 * Then you can **select visible nodes clicking on them**. The selected node change color in the 3D window and become selected also in the corresponding browser window. You can select several nodes keeping *ctrl* key pressed.
@@ -1272,7 +1272,7 @@ Graph parameters
 
 The graph parameters configuration window is available through: *Settings* => *Graph parameters*
 
-.. figure:: ../ana_man/en/html/images/window_paramgraphe.png
+.. figure:: images/window_paramgraphe.png
 
   Graph parameters window
 
@@ -1368,9 +1368,9 @@ This module allows to drive the deformation of a mesh towards another. It was wr
 * Open a 3D window
 * Put the target surface and the *matchsurf.mesh* mesh in the window. At the beginning, the deforming surface os not visible (it is uninitialized, and empty).
 
-.. image:: ../html/images/texture/ctrl_matcher.gif
+.. image:: images/ctrl_matcher.gif
   :align: center
-.. figure:: ../html/images/texture/surfmatcher_win.gif
+.. figure:: images/surfmatcher_win.gif
   :align: center
 
   Surface matcher control window. Note the antique anatomist 1.17 graphical interface... The module has not changed a lot since this age...
@@ -1385,13 +1385,13 @@ This module allows to drive the deformation of a mesh towards another. It was wr
 * It is possible to interactively change matching parameters, and to add or remove control points while the deformation is still processing: changes will be taken into account at the next processing step.
 * When the user is OK with the result, processing can be stopped with the *Stop* button. **Note** that the processing will **not stop on its own**: there is no convergence criterion.
 
-.. image:: ../html/images/texture/surfmatch_3Dinit.jpg
-.. image:: ../html/images/texture/surfmatch_3Dfinal.jpg
+.. image:: images/surfmatch_3Dinit.jpg
+.. image:: images/surfmatch_3Dfinal.jpg
 
 A deformed mesh has the same topology as the source mesh: same number of vertices and polygons, in the same order. Just the position of vertices have changed (to fit the destination mesh). Thus one can map textures suitable for the source mesh on the deformed one:
 
-.. image:: ../html/images/texture/surfmatch_texture.jpg
-.. image:: ../html/images/texture/surfmatch_texture_head.jpg
+.. image:: images/surfmatch_texture.jpg
+.. image:: images/surfmatch_texture_head.jpg
 
 
 Intepolation of functional data from one surface to another
@@ -1409,9 +1409,9 @@ If the matching has not been done, the interpolation will probably produce errat
 * Make a second fusion between the textured surface (1st fusion) and the target mesh (ie head mesh). Select *Interpoler* mode.
 * Put this *Interpoler* object in a 3D window, and change its palette
 
-.. image:: ../html/images/texture/ctrl_interpoler.gif
+.. image:: images/ctrl_interpoler.gif
   :align: center
-.. image:: ../html/images/texture/interpoler.jpg
+.. image:: images/interpoler.jpg
   :align: center
 
 The interpolation is a linear one (fast and simple).
