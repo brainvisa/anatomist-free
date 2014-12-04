@@ -64,5 +64,5 @@ and in french...
 * `Adding a new property on an object <../html/fr/programmation/new_optionTree.html>`_ (right-click and *Object specific* menus)
 * `Making a new module <../html/fr/programmation/new_module.html>`_
 
-* `Vew / controler model in Anatomist <html/fr/programmation/controls.html>`_
+* `Vew / controler model in Anatomist <../html/fr/programmation/controls.html>`_
 

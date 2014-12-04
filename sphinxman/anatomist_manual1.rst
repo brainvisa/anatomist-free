@@ -1,4 +1,6 @@
 
+.. _ana_user_manual:
+
 =====================
 Anatomist user manual
 =====================
@@ -29,7 +31,7 @@ So, here are some base principles for using Anatomist:
 * Load **objects** that represent volumes, meshes ...
 * These **objects** are put in **windows**  for visualization. At a more advanced level of use, it is possible to put several objects in the same windows, for example to superimpose a mesh and a volume.
 * It is also possible to handle **objects** characteristics as **referential** (coordinate system) or **colors**, for example by modifying a volume's palette.
-* A window offers different **control* modes according to the type of its contained objects. For example, if a window contains a ROI graph, the *selection control* will be available and will enable to select regions in the graph.
+* A window offers different **control** modes according to the type of its contained objects. For example, if a window contains a ROI graph, the *selection control* will be available and will enable to select regions in the graph.
 
 Here are some examples about typical actions in Anatomist, for example to look at a volume:
 
@@ -37,8 +39,8 @@ Here are some examples about typical actions in Anatomist, for example to look a
 
   <div class="figure" align="center">
     <div class="mediaobject">
-      <object type="application/x-shockwave-flash" data="../ana_man/en/html/images/intro.swf" width="563" height="541">
-        <param name="movie" value="../ana_man/en/html/images/intro.swf"><param name="loop" value="true">
+      <object type="application/x-shockwave-flash" data="_static/images/intro.swf" width="563" height="541">
+        <param name="movie" value="_static/images/intro.swf"><param name="loop" value="true">
       </object>
     </div>
     Visualize and handle a volume with Anatomist
@@ -49,7 +51,7 @@ Install and start Anatomist software
 ====================================
 
 * Download: see the `BrainVISA web site download page <http://brainvisa.info/download.html>`_
-* See also the :ref:`anatomist_tutorial`
+* See also the :doc:`anatomist_tutorial`
 * And the :axonman:`BrainVISA installation section <ch02.html>`
 
 
@@ -67,7 +69,7 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
 *Application* tab
 +++++++++++++++++
 
-.. figure:: ../ana_man/en/html/images/settings0.png
+.. figure:: images/settings0.png
 
   *Application* tab
 
@@ -76,14 +78,14 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
 * *User level*: basic, advanced or expert. Some features are available only in advanced or expert mode, for example flight simulator control and storage to memory transformation automatic loading.
 * *Default referentials*: this advanced option enables to choose a default referential for loaded object and for new windows independently. By clicking on the grey button, you can choose them with:
 
-.. figure:: ../ana_man/en/html/images/settings1.png
+.. figure:: images/settings1.png
 
   Default referentials configuration
 
 *Linked cursor* tab
 +++++++++++++++++++
 
-.. figure:: ../ana_man/en/html/images/settings2.png
+.. figure:: images/settings2.png
 
 * *Display linked cursor*: if enabled, a symbol is displayed to represent the linked cursor position when you click on a window.
 * *Cursor shape*: several shapes are available (arrow, cross, multicross ...). It is also possible to load a cursor (regular Anatomist object).
@@ -93,7 +95,7 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
 *Windows* tab
 +++++++++++++
 
-.. figure:: ../ana_man/en/html/images/settings3.png
+.. figure:: images/settings3.png
 
   *Windows* tab
 
@@ -103,7 +105,7 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
 *Control window* tab
 ++++++++++++++++++++
 
-.. figure:: ../ana_man/en/html/images/settings4.png
+.. figure:: images/settings4.png
 
   *Control window* tab
 
@@ -112,7 +114,7 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
 *Volumes* tab
 +++++++++++++
 
-.. figure:: ../ana_man/en/html/images/settings5.png
+.. figure:: images/settings5.png
 
   *Volumes* tab
 
@@ -123,7 +125,7 @@ To go to preferences pannel, click on *Settings* and on *Preferences*. Let's see
 *OpenGL* menu
 +++++++++++++
 
-.. figure:: ../ana_man/en/html/images/settings5_opengl.png
+.. figure:: images/settings5_opengl.png
 
   *OpenGL* tab
 
@@ -135,7 +137,7 @@ Preferences validation
 
 To keep these preferences for further sessions, you must save them:
 
-.. figure:: ../ana_man/en/html/images/settings6.png
+.. figure:: images/settings6.png
 
   *Preferences* validation
 
@@ -200,13 +202,13 @@ Windows enable to visualize objects after their loading. Note that visualization
 
 The table below shows the different window types.
 
-.. |axial| image:: ../ana_man/en/html/images/window-axial-small.png
-.. |coronal| image:: ../ana_man/en/html/images/window-coronal-small.png
-.. |sagittal| image:: ../ana_man/en/html/images/window-sagittal-small.png
-.. |oblique| image:: ../ana_man/en/html/images/window-oblique-small.png
-.. |win3d| image:: ../ana_man/en/html/images/window-3d-small.png
-.. |browser| image:: ../ana_man/en/html/images/window-browser-small.png
-.. |profile| image:: ../ana_man/en/html/images/window-profile-small.png
+.. |axial| image:: images/window-axial-small.png
+.. |coronal| image:: images/window-coronal-small.png
+.. |sagittal| image:: images/window-sagittal-small.png
+.. |oblique| image:: images/window-oblique-small.png
+.. |win3d| image:: images/window-3d-small.png
+.. |browser| image:: images/window-browser-small.png
+.. |profile| image:: images/window-profile-small.png
 .. |histo| image:: images/window-histogram-small.png
 .. |mpprofile| image:: images/window-matplotlib-profile-small.png
 .. |mphisto| image:: images/window-matplotlib-histogram-small.png
@@ -250,15 +252,15 @@ This type of window enables to see an oblique slice and *buckets* (set of voxels
 
 The following images show the difference between 3D, 2D and oblique windows for MRI and ROI visualization:
 
-.. figure:: ../ana_man/en/html/images/win-oblique1.png
+.. figure:: images/win-oblique1.png
 
   3D window
 
-.. figure:: ../ana_man/en/html/images/win-oblique2.png
+.. figure:: images/win-oblique2.png
 
   Oblique window
 
-.. figure:: ../ana_man/en/html/images/win-oblique3.png
+.. figure:: images/win-oblique3.png
 
   Axial window (2D)
 
@@ -297,7 +299,7 @@ A windows block is a window that can contain several views.
 
 Select the image you want to visualize. Open a 4 views block using the *Windows => Open a 4 views block* menu.
 
-.. figure:: ../ana_man/en/html/images/windows_block.png
+.. figure:: images/windows_block.png
 
   4 views block
 
@@ -415,7 +417,7 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
     </thead>
     <tbody>
       <tr class="row-even">
-        <td><img src="../html/imagesAna/list_volume.png" /></td>
+        <td><img src="_static/images/list_volume.png" /></td>
         <td>
           2D, 3D and 4D volume.
         </td>
@@ -470,7 +472,7 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
         </td>
       </tr>
       <tr class="row-even">
-        <td><img src="../html/imagesAna/list_bucket.png" /></td>
+        <td><img src="_static/images/list_bucket.png" /></td>
         <td>Bucket</td>
         <td>
           A bucket is a set of points coprresponding for example to a region of interest, ie a voxels list (it is not possible to see the coordinates, only display is managed).<br/>
@@ -481,7 +483,7 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
         </td>
       </tr>
       <tr class="row-odd">
-        <td><img src="../html/imagesAna/list_surface.png" /></td>
+        <td><img src="_static/images/list_surface.png" /></td>
         <td>Mesh</td>
         <td>
           Surfacic meshes ( 3D mesh of hemispheres, brain, cortex...). Polygons may be triangles, or segments (wireframe) but all formats do not support them.<br/>
@@ -498,12 +500,12 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
         </td>
       </tr>
       <tr class="row-even">
-        <td><img src="../html/imagesAna/list_fusion2d.png" /></td>
+        <td><img src="_static/images/list_fusion2d.png" /></td>
         <td>FUSION2D Object</td>
         <td>Object created by merging objects with Fusion2D method (for example: merging two volumes).</td>
       </tr>
       <tr class="row-odd">
-        <td><img src="../html/imagesAna/list_fusion3d.png" /></td>
+        <td><img src="_static/images/list_fusion3d.png" /></td>
         <td>Texture</td>
         <td>
           A texture is a list of values mapping on a mesh. Or a time-series of values.<br/>
@@ -517,31 +519,31 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
         </td>
       </tr>
       <tr class="row-even">
-        <td><img src="../html/imagesAna/list_fusion3d.png" /></td>
+        <td><img src="_static/images/list_fusion3d.png" /></td>
         <td>FUSION3D Object</td>
         <td>Object created by merging objects with Fusion3D method (for example: merging a volume and a mesh). Texture file<!-- faire lien -->, containing data to stick on meshes.
         </td>
       </tr>
       <tr class="row-odd">
-        <td><img src="../ana_man/en/html/images/list_cutmesh.png" /></td>
+        <td><img src="_static/images/list_cutmesh.png" /></td>
         <td>CutMesh object</td>
         <td>Object created by merging objects with CutMesh method (for example: merging a volume and a mesh).
         </td>
       </tr>
       <tr class="row-even">
-        <td><img src="../ana_man/en/html/images/list_volrender.png" /></td>
+        <td><img src="_static/images/list_volrender.png" /></td>
         <td>Volume Rendering Fusion</td>
         <td>See <a href="#volumerendering">Volume rendering</a>.</td>
       </tr>
       <tr class="row-odd">
-        <td><img src="../ana_man/en/html/images/list_planarfusion.png" /></td>
+        <td><img src="_static/images/list_planarfusion.png" /></td>
         <td>PlanarFusion3D object</td>
         <td>Object (textured plane) obtained by merging a mesh slice plan (Planar mesh) and a volume. For example, in a FusionCutMeshMethod fusion between a volume and a mesh, PlanarFusion3D object will be the textured plan of the volume according to the slice plan of the mesh.
         </td>
       </tr>
       <tr class="row-even">
-        <td><img src="../html/imagesAna/list_graph.png" /></td>
-        <td>Graph: .arg et .data</td>
+        <td><img src="_static/images/list_graph.png" /></td>
+        <td>Graph</td>
         <td>
           Structured container objects<br/>
           Supported formats:
@@ -554,7 +556,7 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
         </td>
       </tr>
       <tr class="row-odd">
-        <td><img src="../ana_man/en/html/images/list_nomenclature.png" /></td>
+        <td><img src="_static/images/list_nomenclature.png" /></td>
         <td>Nomenclature</td>
         <td>
           Format:
@@ -565,8 +567,8 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
         </td>
       </tr>
       <tr class="row-even">
-        <td><img src="../html/imagesAna/list_graph.png" /></td>
-        <td><a name="tracts_bundles" />Tracts bundles</td>
+        <td><img src="_static/images/list_graph.png" /></td>
+        <td>Tracts bundles</td>
         <td>
           Bundles are sets of fibers obtained from diffusion MRI imageng by a fiber tracking algorithm. They are loaded in Anatomist as graphs.<br/> Supported formats:
           <ul>
@@ -637,7 +639,7 @@ Some actions on objects are available through a right click menu. These actions 
 
 * File: enables to reload, save and rename an object.
 * Color: enables to change the object color. Sub menus can be palette, material and texture. See `Objects colors`_.
-* Referential: enables to change the object referential. See :ref:`referentials`.
+* Referential: enables to change the object referential. See :ref:`referential`.
 
 For volumes:
 
@@ -664,7 +666,7 @@ Colors can be changed for several objects types, including: volume, texture, mes
 
 * Mesh: *Material* modification.
 
-* Texture: *Texturing* and *Palette* modification.</para>
+* Texture: *Texturing* and *Palette* modification.
 
 * Volume: *Palette*, *Texturing* and *Material* modification.
   *Palette* is the most commonly used. But a volume is also considered as a geometric object (a mesh representing a rectangle) with values (texture) associated to each point. So by extension, volumes have acces to mesh  (*Material*) and texture (*Texturing*) menus.
@@ -695,7 +697,7 @@ For RGB and RGBA volumes, the palette is applied to each R, G, B, A chanel.
 
 Some textures are 2D: each mesh vertex has 2 different texture values, which may be interpreted as a 2D coordinate on a palette image. For this it is possible to use a 2D image as a palette, or to mix two 1D palettes.
 
-.. figure:: ../ana_man/en/html/images/window_palette.png
+.. figure:: images/window_palette.png
 
   Palette window
 
@@ -748,8 +750,8 @@ Some textures are 2D: each mesh vertex has 2 different texture values, which may
 +--------------------+--------------------------------------------------------+
 | Second palette     | List of available palettes.                            |
 +--------------------+--------------------------------------------------------+
-| Palettes mixing    | Choose the palettes mixing method: geometric or linear |
-| method             |                                                        |
+| Palettes mixing    | Choose the palettes mixing method:                     |
+| method             | :term:`geometric fusion` or :term:`linear fusion`      |
 +--------------------+--------------------------------------------------------+
 | Palette 1D mapping | If the palette has actually 2 dimensions, that is to   |
 |                    | say it contains 2 or more lines, but the object        |
@@ -898,13 +900,13 @@ A control defines the way mouse and keyboard act on a window or an object. It ca
 Default control
 ---------------
 
-.. |fb_trackball| image:: ../html/imagesAna/fb_trackball.png
+.. |fb_trackball| image:: images/fb_trackball.png
 
 *Icon* : |fb_trackball|
 
 *Description* : Default control enables to use the linked cursor, to zoom in, to rotate...
 
-.. figure:: ../ana_man/en/html/images/fb_mtrackball.png
+.. figure:: images/fb_mtrackball.png
 
   *Default control* keyboard shortcuts
 
@@ -934,13 +936,13 @@ Colormaps handling
 Selection control
 -----------------
 
-.. |fb_select| image:: ../html/imagesAna/fb_select.png
+.. |fb_select| image:: images/fb_select.png
 
 *Icon* : |fb_select|
 
 *Description* : Select graph nodes, rotate...
 
-.. figure:: ../ana_man/en/html/images/fb_mselect.png
+.. figure:: images/fb_mselect.png
 
   *Selection control* keyboard shortcuts
 
@@ -971,11 +973,13 @@ The A key activates (or desactivates) a "graph annotation" mode, which displays 
 Oblique view control
 --------------------
 
-*Icon* : &fb_oblique;
+.. |fb_oblique| image:: images/fb_oblique.png
+
+*Icon* : |fb_oblique|
 
 *Description* : Creates oblique view by rotating the slice plan.
 
-.. figure:: ../ana_man/en/html/images/fb_moblique.png
+.. figure:: images/fb_moblique.png
 
   *Oblique view control* keyboard shortcuts
 
@@ -983,13 +987,13 @@ Oblique view control
 Flight simulator control
 ------------------------
 
-.. |fb_flight| image:: ../html/imagesAna/fb_flight.png
+.. |fb_flight| image:: images/fb_flight.png
 
 *Icon* : |fb_flight|
 
 *Description* : Available in expert mode only. It enables to change the point of vue with the keyboard.
 
-.. figure:: ../ana_man/en/html/images/fb_mflight.png
+.. figure:: images/fb_mflight.png
 
   *Flight simulator control* keyboard shortcut.
 
@@ -999,14 +1003,14 @@ Flight simulator control
 Transformation control
 ----------------------
 
-.. |fb_control_transfo| image:: ../html/imagesAna/fb_control_transfo.png
+.. |fb_control_transfo| image:: images/fb_control_transfo.png
 
 *Icon* : |fb_control_transfo|
 
 *Description : *Enables to move an object in a view in order to make manual registration. It can be useful to initialize a registration method with translation parameters. You can get theses parameters in the .trm file obtained from this registration. See the part :ref:`manual registration <manual_registration>` for more details.
 
 
-.. figure:: ../ana_man/en/html/images/fb_mcontrol_transfo.png
+.. figure:: images/fb_mcontrol_transfo.png
 
   *Transformation control* keyboard shortcuts
 
@@ -1014,14 +1018,14 @@ Transformation control
 Hand-drawing of Regions of Interest (ROI)
 -----------------------------------------
 
-.. |fb_draw| image:: ../html/imagesAna/fb_draw.png
+.. |fb_draw| image:: images/fb_draw.png
 
 *Icon* : |fb_draw|
 
 *Description* : See the part :ref:`ROI drawing toolbox <roi_toolbox>` for more details.
 
 
-.. figure:: ../ana_man/en/html/images/fb_mdraw.png
+.. figure:: images/fb_mdraw.png
 
   *ROI drawing control* keyboard shortcut
 
@@ -1029,13 +1033,13 @@ Hand-drawing of Regions of Interest (ROI)
 Threshold ROI drawing mode under connectivity to clicked point constraint
 -------------------------------------------------------------------------
 
-.. |fb_level| image:: ../html/imagesAna/fb_level.png
+.. |fb_level| image:: images/fb_level.png
 
 *Icon* : |fb_level|
 
 *Description* : Opens the ROI toolbox. Use the Connectivity threshold tab to define min and max bounds for the voxels to select.
 
-.. figure:: ../ana_man/en/html/images/fb_mlevel.png
+.. figure:: images/fb_mlevel.png
 
   *Threshold ROI drawing keyboard shortcuts*
 
@@ -1043,13 +1047,13 @@ Threshold ROI drawing mode under connectivity to clicked point constraint
 ROI design by discriminating analysis
 -------------------------------------
 
-.. |fb_dynsegment| image:: ../html/imagesAna/fb_dynsegment.png
+.. |fb_dynsegment| image:: images/fb_dynsegment.png
 
 *Icon* : |fb_dynsegment|
 
 *Description* : Opens the ROI toolbox. Use the DynSegment tab to fix parameters. This is usable on dynamic data only.
 
-.. figure:: ../ana_man/en/html/images/fb_mdynsegment.png
+.. figure:: images/fb_mdynsegment.png
 
   *ROI design by discriminating analysis* keyboard shortcuts
 
@@ -1057,13 +1061,13 @@ ROI design by discriminating analysis
 ROI drawing mode by label selection
 -----------------------------------
 
-.. |fb_name| image:: ../html/imagesAna/fb_name.png
+.. |fb_name| image:: images/fb_name.png
 
 *Icon* : |fb_name|
 
 *Description* : selects region according to their labels.
 
-.. figure:: ../ana_man/en/html/images/fb_mname.png
+.. figure:: images/fb_mname.png
 
   *ROI drawing mode by label selection* keyboard shortcuts
 
@@ -1071,8 +1075,8 @@ ROI drawing mode by label selection
 Surface paint module
 --------------------
 
-.. |palette| image:: ../ana_man/en/html/images/palette.png
-.. |sulci| image:: ../ana_man/en/html/images/sulci.png
+.. |palette| image:: images/palette.png
+.. |sulci| image:: images/sulci.png
   :height: 28
 
 *Icon* : |palette|
@@ -1085,13 +1089,13 @@ Surface paint module
 Mesh cutting control
 --------------------
 
-.. |control-cut| image:: ../ana_man/en/html/images/control-cut.png
+.. |control-cut| image:: images/control-cut.png
 
 *Icon* : |control-cut|
 
 *Description* : available only if a cut mesh is selected (cut mesh is obtained by fusion between a mesh and a volume). It controls the slice on a cut mesh.
 
-.. figure:: ../ana_man/en/html/images/mcontrol-cut.png
+.. figure:: images/mcontrol-cut.png
 
   *Mesh cutting control* keyborad shortcut
 
@@ -1101,11 +1105,11 @@ Mesh cutting control
 Fold split control
 ------------------
 
-.. |control-foldsplit| image:: ../ana_man/en/html/images/control-foldsplit.png
+.. |control-foldsplit| image:: images/control-foldsplit.png
 
 *Icon* : |control-foldsplit|
 
-.. figure:: ../ana_man/en/html/images/mcontrol-foldsplit.png
+.. figure:: images/mcontrol-foldsplit.png
 
   *Fold split control* keyborad shortcuts
 

@@ -30,7 +30,7 @@ Description of Anatomist features:
 
   Anatomist control window
 
-See :anaman:`the manual<index.html>`.
+See :ref:`the manual <ana_user_manual>`.
 
 
 Basic level
@@ -70,7 +70,7 @@ View an object
 * Open an axial window by clicking on |window-axial-small|.
 * Put the object (the volume) into this window: drag and drop this object into the window.
 
-.. |window-axial-small| image:: ../ana_man/en/html/images/window-axial-small.png
+.. |window-axial-small| image:: images/window-axial-small.png
 .. |window-add| image:: images/window-add.png
 
 .. figure:: images/ana_training_exo_handle-1.png
@@ -82,7 +82,7 @@ View an object
 * Click in one window. Notice that the cursor moves also in the other windows.
 * It is possible to open several views using the menu *Windows -> Open 3D standard views* or *Open a 4 views block*. A block is a window that can contain several views. To add a window in a block, drag and drop the window item from Anatomist's list of windows to the block. To remove it, use the window menu *Window => Detach window*
 
-.. figure:: ../ana_man/en/html/images/windows_block.png
+.. figure:: images/windows_block.png
 
   4 views block
 
@@ -99,7 +99,7 @@ Zoom, translation and rotation of a volume
 * Place your cursor on |fb_trackball| to get information about shorcuts for zoom, rotations, etc.
 * For example, try to do a rotation: click on the middle button and move simultaneously on the mouse.
 
-.. |fb_trackball| image:: ../ana_man/en/html/images/fb_trackball.png
+.. |fb_trackball| image:: images/fb_trackball.png
 
 See :pyanatomist:`corresponding python script <pyanatomist_tutorial.html#camera>`.
 
@@ -109,7 +109,7 @@ See :pyanatomist:`corresponding python script <pyanatomist_tutorial.html#camera>
 Read header information (voxel_size, dimension image ...)
 ---------------------------------------------------------
 
-.. |window-browser-small| image:: ../ana_man/en/html/images/window-browser-small.png
+.. |window-browser-small| image:: images/window-browser-small.png
 
 * Load ``data_for_anatomist/subject01/subject01.nii``
 * Drag and drop on |window-browser-small|.
@@ -170,7 +170,7 @@ View meshes
 * Open a 3D window by clicking on |window-3d-small|.
 * Put the objects into this window: drag and drop them into the 3d window.
 
-.. |window-3d-small| image:: ../ana_man/en/html/images/window-3d-small.png
+.. |window-3d-small| image:: images/window-3d-small.png
 
 .. figure:: images/ana_training_exo_handle-2.png
 
@@ -244,9 +244,9 @@ Fusion between 2 volumes
 * Clik on the fusion button |fusion|.
 * A new window is diplayed which allows to select some fusion parameters. Click just on *Ok* to create the fusion object:
 
-.. |fusion| image:: ../ana_man/en/html/images/fusion.png
+.. |fusion| image:: images/fusion_icon.png
 
-.. figure:: ../ana_man/en/html/images/fusion1.png
+.. figure:: images/fusion1.png
 
   Fusion window.
 
@@ -268,7 +268,7 @@ See :pyanatomist:`corresponding python script <pyanatomist_tutorial.html#fusion-
 Handling referentials and transformations
 =========================================
 
-In the previous examples, data came from one subject and one modality, so all images were in the same referential. With data from different subjects and modalities, it is more complicated, we have to take care about the different referentials. See :anaman:`Anatomist manual <ch08.html#ana_man%load_and_display_objects>` and `a presentation <../anatomist_referentials.pdf>`_ for details about referentials management.
+In the previous examples, data came from one subject and one modality, so all images were in the same referential. With data from different subjects and modalities, it is more complicated, we have to take care about the different referentials. See :ref:`Anatomist manual <load_and_display_objects>` and `a presentation <../anatomist_referentials.pdf>`_ for details about referentials management.
 
 
 .. _load_transformation:
@@ -346,7 +346,7 @@ The option *Referential => Load information from file header* extracts informati
 * Look at the fusion, the 2 images are now well superimposed.
 * Change the point of view by changing the referential of the window: click on the colored bar at the top of the window and choose *Talairach-MNI Template-SPM*. Notice the change of orientation.
 
-.. figure:: ../ana_man/en/html/images/fusion_map_anat_1.png
+.. figure:: images/fusion_map_anat_1.png
 
   Fusion between an activation map and a T1 MRI
 
@@ -362,7 +362,7 @@ The option *Referential => Load information from file header* extracts informati
 Manual registration with the transformation control
 ---------------------------------------------------
 
-.. |fb_control_transfo| image:: ../ana_man/en/html/images/fb_control_transfo.png
+.. |fb_control_transfo| image:: images/fb_control_transfo.png
 
 * Load:
 
@@ -548,7 +548,7 @@ Handling regions of interest and sulci graphs
 Draw regions of interest (graph of ROIs)
 ----------------------------------------
 
-.. |fb_roi| image:: ../ana_man/en/html/images/fb_roi.png
+.. |fb_roi| image:: images/roi.png
 
 * Load any volume.
 * Place it into a window.
@@ -565,7 +565,7 @@ Draw regions of interest (graph of ROIs)
 
   Be careful to draw in a window which is in the same referential than the volume. Indeed, the voxels are drawn in the referential of the view, so, if it is not the referential of the volume, the voxels of the ROI and the voxels of the volume won't be in the same orientation.
 
-See the :anaman:`ROI drawing toolbox chapter <ch09#ana_man%roi_toolbox>` in Anatomist manual for more details about the ROI drawing toolbox.
+See the :ref:`ROI drawing toolbox chapter <roi_toolbox>` in Anatomist manual for more details about the ROI drawing toolbox.
 
 
 .. _view_roi:
@@ -645,7 +645,7 @@ Nomenclature and graph
 Load and use a nomenclature
 +++++++++++++++++++++++++++
 
-.. |fb_select| image:: ../ana_man/en/html/images/fb_select.png
+.. |fb_select| image:: images/fb_select.png
 
 * Load ``data_for_anatomist/roi/basal_ganglia.hie``.
 * Place the nomenclature into a browser |window-browser-small|.
@@ -658,7 +658,7 @@ Load and use a nomenclature
 
 .. warning::
 
-  If the specific colors are not displayed, see *Settings => Graph parameters  => Colors 2D/3D* and activate/deactivate the <emphasis>Use nomenclature / Colors binding</emphasis> option.
+  If the specific colors are not displayed, see *Settings => Graph parameters  => Colors 2D/3D* and activate/deactivate the *Use nomenclature / Colors binding* option.
 
 .. _write_nomenclature:
 
@@ -718,24 +718,24 @@ A surface painting module is present in Anatomist. This tool allows to draw text
 Basic drawing
 -------------
 
-.. |sulci| image:: ../ana_man/en/html/images/sulci.png
+.. |sulci| image:: images/sulci.png
   :width: 24pt
-.. |palette| image:: ../ana_man/en/html/images/palette.png
+.. |palette| image:: images/palette.png
   :width: 24pt
-.. |stylo| image:: ../ana_man/en/html/images/stylo.png
+.. |stylo| image:: images/stylo.png
   :width: 24pt
-.. |erase| image:: ../ana_man/en/html/images/erase.png
+.. |erase| image:: images/erase.png
   :width: 24pt
-.. |magic| image:: ../ana_man/en/html/images/magic_selection.png
+.. |magic| image:: images/magic_selection.png
   :width: 24pt
-.. |valide| image:: ../ana_man/en/html/images/valide.png
+.. |valide| image:: images/valide.png
   :width: 24pt
-.. |surfpaint_save| image:: ../ana_man/en/html/images/sauver.png
+.. |surfpaint_save| image:: images/sauver.png
   :width: 24pt
 
 * Load a mesh: ``data_for_anatomist/subject01/subject01_Lwhite.mesh``.
 * Select it and click on |sulci|.
-* Click on the <emphasis>Ok</emphasis> button on the new popup window. The options in this window are useful only to build a 2D coordinates system on the cortical surface.
+* Click on the *Ok* button on the new popup window. The options in this window are useful only to build a 2D coordinates system on the cortical surface.
 * A new 3D window containing the mesh opens.
 * A new control |palette| should be available in the 3D window. Select it.
 * Several new icons and parameters are now available in the 3D window to allow drawing on the surface.
@@ -753,11 +753,11 @@ Basic drawing
 Constrained drawing
 -------------------
 
-.. |shortest| image:: ../ana_man/en/html/images/shortest.png
+.. |shortest| image:: images/shortest.png
   :width: 24pt
-.. |gyri| image:: ../ana_man/en/html/images/gyri.png
+.. |gyri| image:: images/gyri.png
   :width: 24pt
-.. |clear| image:: ../ana_man/en/html/images/clear.png
+.. |clear| image:: images/clear.png
   :width: 24pt
 
 It is also possible to draw according anatomical constraints. For example, following the depth of the sulci or the top of the gyri.
@@ -783,7 +783,7 @@ Reload a drawing
 
   When visualizing such a texture on a mesh, it is better to check the option *RGB space interpolation (label textures)* in the texturing params of the texture object (*Contextual menu -> Color -> Texturing*). This way, the interpolation is done on the RGB colors of the palette, not on the value of the texture.
 
-More functionalities are available in the SurfPaint module but will not be discussed here in the tutorial. Please refer to :anaman:`the complete manual <index.html>` to get more information.
+More functionalities are available in the SurfPaint module but will not be discussed here in the tutorial. Please refer to :ref:`the complete manual <ana_user_manual>` to get more information.
 
 
 Extraction and merging of sulci meshed (from sulci graph) and fusion between them
@@ -816,13 +816,13 @@ This command has other options, but here we need:
 Combining objects
 =================
 
-.. |fusionslice| image:: ../ana_man/en/html/images/fusion_slice_method_little.png
+.. |fusionslice| image:: images/fusion_slice_method_little.png
   :width: 48pt
-.. |control-cut| image:: ../ana_man/en/html/images/control-cut.png
+.. |control-cut| image:: images/control-cut.png
   :width: 30pt
 .. |fusion_map_whitemesh| image:: images/fusion_map_whitemesh_little.png
   :width: 48pt
-.. |fusion_map_iwhitemesh| image:: ../ana_man/en/html/images/fusion_map_iwhitemesh_little.png
+.. |fusion_map_iwhitemesh| image:: images/fusion_map_iwhitemesh_little.png
   :width: 48pt
 .. |fusion_mesh_tex| image:: images/fusion_mesh_tex_little.png
   :width: 48pt
@@ -1009,7 +1009,7 @@ Extract a texture
   * Right-click on 3d window and select *View / Select object*.
   * Activate the CutMesh object via this browser by selecting with the mouse (the line becomes highlighted).
   * Click on |control-cut| of the 3d window.
-  * Move the cutting plane on the cut mesh as you like. Please refer to the mesh cutting control section of :anaman:`Manual of Anatomist <ch06s13.html>` to know the shortcuts.
+  * Move the cutting plane on the cut mesh as you like. Please refer to the mesh cutting control section of :ref:`Manual of Anatomist <d_ctr_meshcutting>` to know the shortcuts.
 
 .. image:: images/fusion_cutmesh_planar4.png
 

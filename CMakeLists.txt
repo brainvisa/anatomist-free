@@ -101,7 +101,7 @@ BRAINVISA_COPY_DIRECTORY( ${CMAKE_CURRENT_SOURCE_DIR}/shared
                           ${PROJECT_NAME} )
 
 # docbook documentation
-BRAINVISA_GENERATE_DOCBOOK_DOC()
+# BRAINVISA_GENERATE_DOCBOOK_DOC()
 
 find_package( Sphinx )
 BRAINVISA_GENERATE_SPHINX_DOC( "sphinxman"

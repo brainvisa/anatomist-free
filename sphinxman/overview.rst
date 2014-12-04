@@ -4,7 +4,7 @@ Anatomist overview
 
 **A quick overview of other undocummented features**
 
-.. figure:: ../html/images/overview/block.png
+.. figure:: images/block.png
 
   Since Anatomist 3.0: several views in the same window
 
@@ -13,10 +13,10 @@ Anatomist overview
   <table>
     <tr>
       <td>
-        <img src="../html/images/overview/multitexture.png" />
+        <img src="_static/images/multitexture.png" />
       </td>
       <td>
-        <img src="../html/images/overview/cut.png" />
+        <img src="_static/images/cut.png" />
       </td>
     </tr>
     <tr>
@@ -29,10 +29,10 @@ Anatomist overview
     </tr>
     <tr>
       <td>
-        <img src="../html/images/overview/multislices.png" />
+        <img src="_static/images/multislices.png" />
       </td>
       <td>
-        <img src="../html/images/overview/multislices2.png" />
+        <img src="_static/images/multislices2.png" />
       </td>
     </tr>
     <tr>
