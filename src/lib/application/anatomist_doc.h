@@ -55,10 +55,10 @@ Anatomist/BrainVISA official web site:
 
 French helps from Anatomist help menu:
 
-- <a href="../sphinx/index.html">
+- <a href="../user_doc/index.html">
   Main Anatomist help pages</a> (what you get when you go to the Help menu in 
   Anatomist)
-- <a href="../sphinx/programming.html">
+- <a href="../dev_doc/index.html">
   Programming help</a>
 
 */
