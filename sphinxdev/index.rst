@@ -23,7 +23,7 @@ Links to API docs
 
 |anadox| `C++ API <../doxygen/index.html>`_
 
-|anadox| :pyanatomist:`PyAnatomist: Anatomist in Python <index.html>`
+|pyana| :pyanatomist:`PyAnatomist: Anatomist in Python <index.html>`
 
 
 Other programming tips (C++)
