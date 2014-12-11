@@ -42,4 +42,21 @@ div.body h6 {
     color: #205c43;
 }
 
+dl.class dt {
+    background-color: #e8fff0;
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+
+dl.method dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.docutils dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
 

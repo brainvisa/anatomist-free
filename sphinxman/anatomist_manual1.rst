@@ -173,6 +173,12 @@ To start Anatomist with this profile:
   anatomist -u toto
 
 
+Configuration file and options
+------------------------------
+
+The configuration file format and options :doc:`is decribed in this document <config_file>`
+
+
 Windows
 =======
 
