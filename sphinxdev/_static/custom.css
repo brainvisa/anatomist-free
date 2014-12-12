@@ -43,3 +43,64 @@ div.body h6 {
 }
 
 
+dl.class dt {
+    background-color: #e0ffec;
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+
+dl.method dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.docutils dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.staticmethod dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.data dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.attribute dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.class dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.method dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.docutils dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.staticmethod dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.data dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.attribute dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+
