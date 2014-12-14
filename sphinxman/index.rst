@@ -111,6 +111,7 @@ Old illustrations...
   :hidden:
 
   overview
+  changelog
   anatomist_manual1
   anatomist_manual2
   anatomist_tutorial
