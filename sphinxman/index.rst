@@ -14,7 +14,7 @@ Official web site: http://brainvisa.info
 
 .. |news| image:: ../html/images/new.gif
 
-|news| `Changelog and news <../html/en/changelog.html>`_
+|news| :doc:`Changelog and news <changelog>`
 
 
 Getting started
@@ -105,4 +105,18 @@ Old illustrations...
   :target: museum.html#surfacic
 
 :doc:`museum`
+
+
+.. toctree::
+  :hidden:
+
+  overview
+  changelog
+  anatomist_manual1
+  anatomist_manual2
+  anatomist_tutorial
+  config_file
+  museum
+  faq
+  glossary
 

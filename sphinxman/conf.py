@@ -226,6 +226,8 @@ extlinks = {
   'cartoddox '),
   'graphdox' : ('../../graph-' + version + '/doxygen/%s',
   'graphdox '),
+  'axonusr': ('../axon-' + version + '/user_doc/%s', 'axon '),
+  'axondev': ('../axon-' + version + '/dev_doc/%s', 'axon '),
   'axonman' : ('../../axon-' + version + '/bv_man/en/html/%s',
   'axonman '),
   'axontuto' : ('../../axon-' + version + '/bv_training/en/html/%s',
