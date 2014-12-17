@@ -1078,6 +1078,8 @@ ROI drawing mode by label selection
   *ROI drawing mode by label selection* keyboard shortcuts
 
 
+.. _surfpaint_control:
+
 Surface paint module
 --------------------
 
@@ -1088,6 +1090,18 @@ Surface paint module
 *Icon* : |palette|
 
 *Description* : This control appears when a mesh is opened in a 3D window using the |sulci| button in Anatomist main window. It is available when the mesh object is selected. See the part about the :ref:`Surface paint module <surfpaint_man>` for more details.
+
+.. figure:: images/mcontrol-surfpaint.jpg
+
+  *Surface paint* keyboard shortcuts
+
+In addition to the standard rotation, zoom and translation actions, a few specitic actions are found:
+
+* the left mouse button is linked to the current selected :ref:`SurfPaint tool <surfpaint_man>`
+* The right mouse button closes a started path (instead of the usual popup menu)
+* Undo and redo actions
+* Validate (*return*) or cancel (*esc*) the currently started compound action (path, fill etc)
+* Possibility to quiclky interact with the slice and clipping plane, using *Ctrl-I* to invert the plane, and *Shift/Ctrl + right mouse button* to rotate the plane. This functionality is especially useful when dealing with very convoluted surfaces.
 
 
 .. _d_ctr_meshcutting:

@@ -1163,6 +1163,10 @@ To use this module:
   :width: 24pt
 .. |distmap| image:: images/geodesic_distance.png
   :width: 24pt
+.. |undo| image:: images/undo.png
+  :width: 24pt
+.. |redo| image:: images/redo.png
+  :width: 24pt
 
 * Load a mesh.
 * Select it and click on |sulci| in Anatomist main window.
@@ -1215,6 +1219,14 @@ The following table shows the meaning of the buttons and actions in this tool:
 |                  | texture with the geodesic distance to the click point    |
 |                  | position.                                                |
 +------------------+----------------------------------------------------------+
+| |undo|           | Undo the last action, which may be either a fully        |
+|                  | validated action (complete path, fill, brush stroke), or |
+|                  | the last unvalidated action in a compound action (last   |
+|                  | control point in a curve...)                             |
++------------------+----------------------------------------------------------+
+| |redo|           | Redo the last undone action (or sub-action, see undo     |
+|                  | above).                                                  |
++------------------+----------------------------------------------------------+
 | |surfpaint_save| | Save the drawing in a texture file.                      |
 +------------------+----------------------------------------------------------+
 | Texture value    | Change the current texture value used to draw on the     |
@@ -1226,6 +1238,8 @@ The following table shows the meaning of the buttons and actions in this tool:
 | Tension          | Changes the smoothness of curves drawn by the geodesic   |
 |                  | path tools (with constraints).                           |
 +------------------+----------------------------------------------------------+
+
+In addition to these tool buttons, and as in other Anatomist controls, several keyboard and mouse shortcuts are available in the surface paint mode: see the :ref:`SurfPaint control description <surfpaint_control>`
 
 See also the :ref:`Surface paint module tutorial <surfpaint>`
 

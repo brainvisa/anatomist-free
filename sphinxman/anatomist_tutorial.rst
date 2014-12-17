@@ -745,6 +745,10 @@ Basic drawing
 * It is possible to fill a closed region using the magic wand icon |magic|, then clicking on the region to fill and validate the selection with |valide| icon.
 * When the drawing is finished, save it in a texture file using the |surfpaint_save| icon. Select the location, type a file name. It is possible to save in tex (``*.tex``) or gifti (``*.gii``) formats.
 
+.. note::
+
+  At any moment it is possible to undo / redo previous operations using *Ctrl-Z* and *Shift-Ctrl-Z* keys combinations, respectively.
+
 .. figure:: images/surfpaint.png
 
   Surface paint window

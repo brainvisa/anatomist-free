@@ -1034,8 +1034,8 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; I:&lt;/td&gt;&lt;td&gt;invert the clipping plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;undo&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;redo&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;échap&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Cancel the current started action&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;entrée&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;validate the current started action&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;esc&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Cancel the current started action&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;return&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;validate the current started action&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/html&gt;</translation>
     </message>
