@@ -1080,8 +1080,8 @@ ROI drawing mode by label selection
 
 .. _surfpaint_control:
 
-Surface paint module
---------------------
+Surface paint control
+---------------------
 
 .. |palette| image:: images/palette.png
 .. |sulci| image:: images/sulci.png
