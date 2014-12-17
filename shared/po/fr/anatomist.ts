@@ -1035,7 +1035,7 @@ Bt droit   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;défaire (undo)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;refaire&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;échap&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;annuler l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;entrée&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;valider l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;entrée&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;valider l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/html&gt;</translation>
     </message>
