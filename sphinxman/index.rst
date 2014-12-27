@@ -76,7 +76,7 @@ Quick help elements
   :height: 48pt
   :target: ../anatomist_referentials.pdf
 
-`Which data formats are currently supported ? :ref:<objects_formats>`
+:ref:`Which data formats are currently supported ? <objects_formats>`
 
 |roi| :ref:`Regions of interest drawing <roi_toolbox>`
 
