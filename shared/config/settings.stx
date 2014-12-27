@@ -27,6 +27,7 @@ axialConvention			string
 leftRightDisplayed		int
 spmFlip				int
 windowSizeFactor                float
+windowBackground                float_vector
 
 # control window look
 controlWindowLogo		int

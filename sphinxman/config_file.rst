@@ -358,6 +358,15 @@ Here is a complete (I hope) list of the possible options:
         <td>all</td>
       </tr>
       <tr>
+        <td><tt>windowBackground</tt></td>
+        <td><tt>float_vector</tt></td>
+        <td><tt>1, 1, 1, 1</tt></td>
+        <td>RGB (3 float between 0 and 1), or RGBA</td>
+        <td>Default 3D windows background color. The default in Anatomist is white (1, 1, 1). The opacity parameter (4th color component) has no effect.
+        </td>
+        <td>4.5</td>
+      </tr>
+      <tr>
         <td><tt>windowSizeFactor</tt></td>
         <td><tt>float</tt></td>
         <td><tt>1.5</tt></td>

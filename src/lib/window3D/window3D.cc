@@ -371,6 +371,34 @@ AWindow3D::Private::Private() :
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
       constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 )
 {
+  try
+  {
+    Object oc = theAnatomist->config()->getProperty( "windowBackground" );
+    if( !oc.isNull() )
+    {
+      Object oi = oc->objectIterator();
+      if( oi->isValid() )
+      {
+        light->Background()[0] = oi->currentValue()->getScalar();
+        oi->next();
+        if( oi->isValid() )
+        {
+          light->Background()[1] = oi->currentValue()->getScalar();
+          oi->next();
+          if( oi->isValid() )
+          {
+            light->Background()[2] = oi->currentValue()->getScalar();
+            oi->next();
+            if( oi->isValid() )
+              light->Background()[3] = oi->currentValue()->getScalar();
+          }
+        }
+      }
+    }
+  }
+  catch( ... )
+  {
+  }
 }
 
 AWindow3D::Private::~Private()
