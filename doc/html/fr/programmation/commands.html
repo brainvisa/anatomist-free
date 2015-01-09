@@ -4,7 +4,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Anatomist commands reference</title>
-  <style type="text/css">
+  <!-- link rel="stylesheet" href="../../../dev_doc/_static/custom.css" type="text/css" / -->
+  <link rel="stylesheet" href="../../anatomist.css" type="text/css" />
+<!--  <style type="text/css">
     BODY {
 	  text-align: justify;
 	  margin: 0.5cm;
@@ -13,9 +15,14 @@
 	}
     h3 { font-family: monospace; }
     #txt { text-align: justify; }
-  </style>
+  </style>-->
 </head>
 <body>
+
+<div class="document">
+ <div class="documentwrapper">
+    <div class="bodywrapper">
+      <div class="body">
 
 <center>
 <table id="title">
@@ -66,29 +73,35 @@ La syntaxe des commandes est celle des arbres de la librairie
               Les types de base pour les attributs sont: <br>
               &nbsp; <br>
 
-<table border="1">
+<table border="1" class="docutils">
+<thead>
+  <tr class="row-odd">
+    <th>Type</th>
+    <th>Example</th>
+  </tr>
+</thead>
 <tbody>
-  <tr>
+  <tr class="row-even">
     <td><tt>int</tt></td>
     <td><tt>12</tt></td>
   </tr>
-  <tr>
+  <tr class="row-odd">
     <td><tt>float</tt></td>
     <td><tt>-134.654</tt></td>
   </tr>
-  <tr>
+  <tr class="row-even">
     <td><tt>string</tt></td>
     <td><tt>toto et tutu</tt></td>
   </tr>
-  <tr>
+  <tr class="row-odd">
     <td><tt>int_vector</tt></td>
     <td><tt>1 20 -2 4 87</tt></td>
   </tr>
-  <tr>
+  <tr class="row-even">
     <td><tt>float_vector</tt></td>
     <td><tt>1.2 -3.4 0.123 -12.</tt></td>
   </tr>
-  <tr>
+  <tr class="row-odd">
     <td><tt><a href="../../en/programming/dicttype.html">dictionary</a></tt></td>
     <td><tt>{ '__syntax__' : 'dictionary', 'an_attribute' : [ 1, 5.3, 'value' ] }</tt></td>
   </tr>
@@ -182,7 +195,7 @@ Ajoute un objet dans une fen&ecirc;tre
 Provoque l'affichage dans la sortie standard d'Anatomist des valeurs
 extr&ecirc;mes  de la texture de l'objet<br>
 
-<table border="1" width="100%" nosave="">
+<table border="1" width="100%" nosave="" class="docutils">
 <tbody>
   <tr>
     <td><tt>object</tt></td>
@@ -197,7 +210,7 @@ extr&ecirc;mes  de la texture de l'objet<br>
 <h3>AssignReferential</h3>
 Attribue (et crée au besoin) un référential à des objets et des fenêtres.
 
-<table border="1" width="100%" nosave="">
+<table border="1" width="100%" nosave="" class="docutils">
 <tbody>
   <tr>
     <td><tt>ref_id</tt></td>
@@ -252,7 +265,7 @@ Attribue (et crée au besoin) un référential à des objets et des fenêtres.
 Modifie une palette de la liste (panneau de gauche de la fen&ecirc;tre
 de palettes)
 
-<table border="1" width="100%" nosave="">
+<table border="1" width="100%" nosave="" class="docutils">
 <tbody>
   <tr>
     <td><tt>name</tt></td>
@@ -1584,6 +1597,10 @@ Crée un graphe associé à un objet 2D (par ex. un volume). L'objet de départ 
 <a name="PaintParams"></a>
 <h3><a href="../../en/programming/commands/paintparams.html">PaintParams</a></h3>
 
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
