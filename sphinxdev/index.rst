@@ -1,5 +1,10 @@
 .. toctree::
-   :maxdepth: 3
+  :maxdepth: 3
+  :hidden:
+
+  developer_details
+  commands
+  commands_definition
 
 .. image:: ../sphinxman/images/anatomist.png
   :align: center
@@ -52,6 +57,8 @@ Commands system
 +++++++++++++++
 
 `Commands system and commands list <../html/fr/programmation/commands.html>`_ (mainly in french...)
+
+:doc:`Commands system and commands list (future) <commands>`
 
 
 More or less obsolete docs
