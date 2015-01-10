@@ -2614,6 +2614,14 @@ SetMaterial
       </td>
     </tr>
     <tr>
+      <td valign="top"><tt>ghost</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td id="txt"><b>New in Anatomist 4.4</b><br/>
+        A ghost object is not selectable.<br/>
+        <b>obsoleted in version 4.5, replaced by the <a href="#selectable_mode"><em>selectable_mode</em></a> property.</b>
+      </td>
+    </tr>
+    <tr>
       <td valign="top"><tt>lighting</tt></td>
       <td valign="top"><tt>int</tt> (optional)</td>
       <td id="txt"><b>New in Anatomist 3.0</b><br>
@@ -2679,6 +2687,17 @@ SetMaterial
         <b>New in Anatomist 3.1.5</b>:<br>
         "<tt>ext_outlined</tt>" (thickened external boundaries + normal rendering).
 
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>selectable_mode</tt></td>
+      <td valign="top"><tt>string</tt> (optional)</td>
+      <td id="txt"><b>New in Anatomist 4.5</b><br/>
+        Replaces the <em>ghost</em> property.<br/>
+        <b>always_selectable</b>: object is selecatble whatever its opacity.<br/>
+        <b>ghost</b>: object is not selectable.<br/>
+        <b>selectable_when_opaque</b>: object is selectable when totally opaque (this is the default in Anatomist).<br/>
+        <b>selectable_when_not_totally_transparent</b>: object is selectable unless opacity is zero.
       </td>
     </tr>
     <tr>
