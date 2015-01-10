@@ -4,7 +4,6 @@
 
   developer_details
   commands
-  commands_definition
 
 .. image:: ../sphinxman/images/anatomist.png
   :align: center
@@ -56,9 +55,7 @@ Configuration options
 Commands system
 +++++++++++++++
 
-`Commands system and commands list <../html/fr/programmation/commands.html>`_ (mainly in french...)
-
-:doc:`Commands system and commands list (future) <commands>`
+:doc:`Commands system and commands list <commands>` (mainly in french...)
 
 
 More or less obsolete docs
