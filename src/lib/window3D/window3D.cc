@@ -838,6 +838,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) 
   d->tooltip = new QAViewToolTip(this, d->draw->qglWidget());
 
   d->orientAnnot = new OrientationAnnotation( this );
+  setChanged();
+  Refresh();
 }
 
 AWindow3D::~AWindow3D()

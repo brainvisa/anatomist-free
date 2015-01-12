@@ -71,6 +71,7 @@ public slots:
   void defaultWinSizeChanged();
   void changeDefObjectsRef();
   void changeDefWindowsRef();
+  void changeWindowBackground();
   void browserAttributeLenChanged();
   void enableDisplayCursorPosition( bool x );
   void setMaxTextures( const QString & );

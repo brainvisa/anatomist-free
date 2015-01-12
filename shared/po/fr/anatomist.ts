@@ -2034,6 +2034,10 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
         <source>Use shader-based OpenGL pipeline (lighting/shading model) by default</source>
         <translation>Utiliser le pipeline OpenGL basé sur des &quot;shaders&quot; (modèles de lumière/ombrage) par défaut</translation>
     </message>
+    <message>
+        <source>Default background color</source>
+        <translation>Couleur de fond par défaut</translation>
+    </message>
 </context>
 <context>
     <name>QAColorDialog</name>

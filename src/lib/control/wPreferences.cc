@@ -97,6 +97,7 @@ struct PreferencesWindow::Private
   QLineEdit             *browsattlen;
   QComboBox             *texmax;
   QCheckBox             *graphicsview;
+  QPushButton           *winbackgroundbt;
 };
 
 
@@ -445,6 +446,40 @@ PreferencesWindow::PreferencesWindow()
   }
   _pdat->graphicsview->setChecked( use_graphicsview );
 
+  hlay = new QHBoxLayout( winbox );
+  vlay2->addLayout( hlay );
+  _pdat->winbackgroundbt = new QPushButton( "...", winbox );
+  col = AimsRGB( 255, 255, 255 );
+  try
+  {
+    Object oc = theAnatomist->config()->getProperty( "windowBackground" );
+    if( !oc.isNull() )
+    {
+      Object oi = oc->objectIterator();
+      if( oi->isValid() )
+      {
+        col[0] = oi->currentValue()->getScalar() * 255.99;
+        oi->next();
+        if( oi->isValid() )
+        {
+          col[1] = oi->currentValue()->getScalar() * 255.99;
+          oi->next();
+          if( oi->isValid() )
+            col[2] = oi->currentValue()->getScalar() * 255.99;
+        }
+      }
+    }
+  }
+  catch( ... )
+  {
+  }
+  _pdat->winbackgroundbt->setPalette( QPalette( QColor( col.red(), col.green(),
+                                                        col.blue() ) ) );
+  _pdat->winbackgroundbt->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                                      QSizePolicy::Fixed ) );
+  hlay->addWidget( _pdat->winbackgroundbt );
+  hlay->addWidget( new QLabel( tr( "Default background color" ) ) );
+
   QGroupBox	*winsz 
     = new QGroupBox( tr( "Default windows size" ), winbox );
   vlay->addWidget( winsz );
@@ -691,6 +726,8 @@ PreferencesWindow::PreferencesWindow()
            SLOT( enableDisplayCursorPosition( bool ) ) );
   connect( _pdat->graphicsview, SIGNAL( toggled( bool ) ), this,
            SLOT( enableGraphicsView( bool ) ) );
+  connect( _pdat->winbackgroundbt, SIGNAL( clicked() ),
+           this, SLOT( changeWindowBackground() ) );
   connect( _pdat->browsattlen, SIGNAL( returnPressed() ), this,
            SLOT( browserAttributeLenChanged() ) );
 
@@ -1152,6 +1189,45 @@ void PreferencesWindow::confirmBeforeQuitChanged( int x )
   }
   else
     theAnatomist->config()->setProperty( "confirmBeforeQuit", int(0) );
+}
+
+
+void PreferencesWindow::changeWindowBackground()
+{
+  QColor        col = QColor( 255, 255, 255 );
+  try
+  {
+    Object oc = theAnatomist->config()->getProperty( "windowBackground" );
+    if( !oc.isNull() )
+    {
+      Object oi = oc->objectIterator();
+      if( oi->isValid() )
+      {
+        col.setRed( oi->currentValue()->getScalar() * 255.99 );
+        oi->next();
+        if( oi->isValid() )
+        {
+          col.setGreen( oi->currentValue()->getScalar() * 255.99 );
+          oi->next();
+          if( oi->isValid() )
+            col.setBlue( oi->currentValue()->getScalar() * 255.99 );
+        }
+      }
+    }
+  }
+  catch( ... )
+  {
+  }
+  col = QColorDialog::getColor( col );
+  if( col.isValid() )
+  {
+    vector<float> bgcol( 4, 1. );
+    bgcol[0] = col.red() / 255.;
+    bgcol[1] = col.green() / 255.;
+    bgcol[2] = col.blue() / 255.;
+    _pdat->winbackgroundbt->setPalette( QPalette( col ) );
+    theAnatomist->config()->setProperty( "windowBackground", bgcol );
+  }
 }
 
 
