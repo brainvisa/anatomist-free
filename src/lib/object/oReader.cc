@@ -1199,9 +1199,15 @@ AObject* ObjectReader::readAims( const string & file,
 {
   AimsLoader		proc( options );
 
+  proc.setReadOptions( options );
+
+  string url_options;
+  if( options && options->hasProperty( "url_options" ) )
+    options->getProperty( "url_options", url_options );
+
   try
     {
-      if( !proc.execute( file ) )
+      if( !proc.execute( file + url_options ) )
         return 0;
       subObjectsToRegister = proc.subObjectsToRegister;
       return proc.object;

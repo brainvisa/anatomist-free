@@ -6,6 +6,17 @@ TARGET                = anatomist${BUILDMODEEXT}
 DEFINES        += ANATOMIST_EXPORTS
 
 HEADERS = \
+        application/anatomistinfo.h \
+        application/Anatomist.h \
+        application/globalConfig.h \
+        application/localConfig.h \
+        application/settings.h \
+        application/module.h \
+        application/fileDialog.h \
+        application/filedialogextension.h \
+        application/syntax.h \
+        application/listDir.h \
+        application/anatomist_doc.h \
         browser/browsercontrol.h \
         browser/labeledit.h \
         browser/attributedchooser.h \
@@ -232,16 +243,6 @@ HEADERS = \
         fusion/defFusionMethods.h \
         fusion/fusionFactory.h \
         fusion/fusionChooser.h \
-        application/anatomistinfo.h \
-        application/Anatomist.h \
-        application/globalConfig.h \
-        application/localConfig.h \
-        application/settings.h \
-        application/module.h \
-        application/fileDialog.h \
-        application/syntax.h \
-        application/listDir.h \
-        application/anatomist_doc.h \
         stdmod/stdmod.h \
         sparsematrix/connectivitymatrix.h \
         sparsematrix/sparsematrix.h \

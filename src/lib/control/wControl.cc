@@ -75,6 +75,7 @@
 #include <anatomist/control/objectDrag.h>
 #include <anatomist/selection/qSelMenu.h>
 #include <anatomist/object/actions.h>
+#include <anatomist/application/filedialogextension.h>
 #include <graph/tree/tree.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
@@ -695,6 +696,22 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   list<QString>		scenars;
   set<AObject *>	loaded;
 
+  AimsFileDialog *afd = dynamic_cast<AimsFileDialog *>( &fd );
+  string data_type;
+  Object options;
+  if( afd && afd->optionsValid() )
+  {
+    data_type = afd->selectedType().second;
+    options = afd->selectedOptions();
+    if( !options )
+      options = Object::value( carto::Dictionary() );
+    string url_opt = afd->selectedUrlOptions();
+    if( !url_opt.empty() )
+      options->setProperty( "url_options", url_opt );
+    if( !data_type.empty() )
+      options->setProperty( "preferred_data_type", data_type );
+  }
+
   for ( QStringList::Iterator it = filenames.begin(); it != filenames.end(); 
         ++it )
     {
@@ -703,7 +720,6 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
         scenars.push_back( s );	// script file
       else
       {
-        Object options = Object::value( Dictionary() );
         // options->setProperty( "asynchronous", true );
         LoadObjectCommand *command = new LoadObjectCommand(
           (*it).toLocal8Bit().data(), -1, "", false, options );
