@@ -1204,7 +1204,12 @@ AObject* ObjectReader::readAims( const string & file,
 
   string url_options;
   if( options && options->hasProperty( "url_options" ) )
+  {
     options->getProperty( "url_options", url_options );
+    // in case options are "sx=12&sy=15" instead of "?sx=12&sy=15"
+    if( !url_options.empty() && url_options[0] != '?' )
+      url_options = "?" + url_options;
+  }
 
   try
     {
