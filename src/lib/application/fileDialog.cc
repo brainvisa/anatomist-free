@@ -184,6 +184,8 @@ void AimsFileDialogExtension::currentFileChanged( const QString & in_path )
     string ot = fi.objectType();
     string dt = fi.dataType();
     vector<string> pt = fi.possibleDataTypes();
+    if( std::find( pt.begin(), pt.end(), dt ) == pt.end() )
+      pt.insert( pt.begin(), dt );
     vector<string>::iterator is, es = pt.end(), it, et;
     for( is=pt.begin(); is!=es; ++is )
     {
