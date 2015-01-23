@@ -341,7 +341,7 @@ void AimsFileDialog::setupCustom()
   layout->addWidget( editoptbt, layout->rowCount(), 2 );
   editoptbt->setSizePolicy( QSizePolicy::Preferred,
                             QSizePolicy::Fixed );
-  editoptbt->setFixedHeight( 15 );
+  editoptbt->setFixedHeight( 20 );
   layout->addWidget( d->aims_ext, layout->rowCount(), 0, 1, 3 );
 
   connect( editoptbt, SIGNAL( clicked() ), this, SLOT( showHideOptions() ) );
