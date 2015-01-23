@@ -109,7 +109,7 @@ namespace
   template<>
   bool loadVolume<AimsHSV>( Process & p, const string & fname, Finder & f );
   template<class T>
-  bool loadData( T & obj, const string & fname, Finder & f );
+  bool loadData( T & obj, const string & fname, Finder & f, Object options );
   template<long D>
   bool loadMesh( Process & p, const string & fname, Finder & f );
   bool loadTex1d( Process & p, const string & fname, Finder & f );
@@ -259,7 +259,7 @@ namespace
   {
     AimsLoader	& ap = (AimsLoader &) p;
     VolumeRef<T> vref;
-    if( !loadData( vref, fname, f ) )
+    if( !loadData( vref, fname, f, ap.options ) )
     {
       return( false );
     }
@@ -277,7 +277,7 @@ namespace
   {
     AimsLoader  & ap = (AimsLoader &) p;
     VolumeRef<AimsHSV> vref;
-    if( !loadData( vref, fname, f ) )
+    if( !loadData( vref, fname, f, ap.options ) )
     {
       return false;
     }
@@ -295,12 +295,13 @@ namespace
   }
 
   template<class T>
-  bool loadData( T & obj, const string & fname, Finder & f )
+  bool loadData( T & obj, const string & fname, Finder & f, Object options )
   {
     Reader<T>	reader( fname );
     reader.setAllocatorContext( AllocatorContext
                                 ( AllocatorStrategy::ReadOnly, 
                                   DataSource::none(), false, 0.5 ) );
+    reader.setOptions( options );
     string	format = f.format();
     try
     {
@@ -320,7 +321,7 @@ namespace
   {
     AimsLoader	& ap = (AimsLoader &) p;
     AimsTimeSurface<D, Void>	*surf = new AimsTimeSurface<D, Void>;
-    if( !loadData( *surf, fname, f ) )
+    if( !loadData( *surf, fname, f, ap.options ) )
     {
       delete surf;
       return( false );
@@ -580,7 +581,7 @@ namespace
   {
     AimsLoader	& ap = (AimsLoader &) p;
     rc_ptr<Texture1d>	tex( new Texture1d );
-    if( !loadData( *tex, fname, f ) )
+    if( !loadData( *tex, fname, f, ap.options ) )
       return false;
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
@@ -596,7 +597,7 @@ namespace
     AimsLoader		& ap = (AimsLoader &) p;
     TimeTexture<T>	ts;
 
-    if( !loadData( ts, fname, f ) )
+    if( !loadData( ts, fname, f, ap.options ) )
       return false;
     rc_ptr<Texture1d>	tex( new Texture1d );
 
@@ -615,7 +616,7 @@ namespace
   {
     AimsLoader	& ap = (AimsLoader &) p;
     rc_ptr<Texture2d>	tex( new Texture2d );
-    if( !loadData( *tex, fname, f ) )
+    if( !loadData( *tex, fname, f, ap.options ) )
       return false;
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
@@ -631,7 +632,7 @@ namespace
     AimsLoader	& ap = (AimsLoader &) p;
     TimeTexture<AimsVector<T, 2> > ts;
 
-    if( !loadData( ts, fname, f ) )
+    if( !loadData( ts, fname, f, ap.options ) )
       return( false );
     rc_ptr<Texture2d> tex( new Texture2d );
     typename TimeTexture<AimsVector<T, 2> >::const_iterator 
@@ -660,7 +661,7 @@ namespace
   {
     AimsLoader	& ap = (AimsLoader &) p;
     Bucket		*ao = new Bucket( fname.c_str() );
-    if( !loadData( ao->bucket(), fname, f ) )
+    if( !loadData( ao->bucket(), fname, f, ap.options ) )
       {
         delete ao;
         return( false );
@@ -690,7 +691,7 @@ namespace
   {
     AimsLoader  & ap = (AimsLoader &) p;
     rc_ptr<SparseOrDenseMatrix>   obj( new SparseOrDenseMatrix );
-    if( !loadData( *obj, fname, f ) )
+    if( !loadData( *obj, fname, f, ap.options ) )
       return false;
     ASparseMatrix    *ao = new ASparseMatrix;
     ao->setMatrix( obj );
