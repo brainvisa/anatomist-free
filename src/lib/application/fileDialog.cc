@@ -41,6 +41,7 @@
 #include <aims/io/finder.h>
 #include <cartobase/stream/fileutil.h>
 #include <soma-io/writer/pythonwriter.h>
+#include <soma-io/reader/pythonreader.h>
 #include <QGridLayout>
 #include <QLabel>
 #include <QTextBrowser>
@@ -48,6 +49,8 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 #include <QLineEdit>
+#include <QTextEdit>
+#include <QDialogButtonBox>
 
 using namespace anatomist;
 using namespace aims;
@@ -62,6 +65,7 @@ struct AimsFileDialogExtension::Private
   QTextBrowser* browser;
   QComboBox* type_combo;
   QString current_path;
+  QTextEdit* dict_line;
   bool current_item_recognized;
   string options_url;
   Object options;
@@ -71,7 +75,8 @@ struct AimsFileDialogExtension::Private
 
 
 AimsFileDialogExtension::Private::Private()
-  : browser( 0 ), type_combo( 0 ), current_item_recognized( false )
+  : browser( 0 ), type_combo( 0 ), current_item_recognized( false ),
+    options( Object::value( Dictionary() ) )
 {
 }
 
@@ -194,11 +199,42 @@ void AimsFileDialogExtension::optionsClicked()
   QLineEdit *opt_line = new QLineEdit;
   opt_line->setText( d->options_url.c_str() );
   layout->addWidget( opt_line );
-  connect( opt_line, SIGNAL( returnPressed() ), &opt_box, SLOT( accept() ) );
+  layout->addWidget( new QLabel( tr( "Options dictionary:" ) ) );
+  QTextEdit *dict_line = new QTextEdit;
+
+  PythonWriter pw;
+  stringstream ssd;
+  pw.attach( ssd );
+  pw.setSingleLineMode( false );
+  pw.write( d->options, false, false );
+
+  dict_line->setAcceptRichText( false );
+  dict_line->setPlainText( ssd.str().c_str() );
+  layout->addWidget( dict_line );
+
+  QDialogButtonBox* buttons = new QDialogButtonBox(
+    QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+  layout->addWidget( buttons );
+
+  connect( buttons, SIGNAL( accepted() ), &opt_box, SLOT( accept() ) );
+  connect( buttons, SIGNAL( rejected() ), &opt_box, SLOT( reject() ) );
   bool res = opt_box.exec();
   if( res )
   {
     d->options_url = opt_line->text().toStdString();
+    stringstream ssd2( dict_line->toPlainText().toStdString() );
+    PythonReader pr;
+    pr.attach( ssd2 );
+    Object options = Object::value( Dictionary() );
+    try
+    {
+      pr.readDictionary( *options );
+      d->options = options;
+    }
+    catch( exception & e )
+    {
+      cerr << e.what() << endl;
+    }
   }
 }
 
