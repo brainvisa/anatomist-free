@@ -41,69 +41,67 @@
 #include <cartobase/object/object.h>
 
 
-namespace anatomist
+class AimsFileDialog : public QFileDialog
 {
+  Q_OBJECT
 
-  class AimsFileDialog : public QFileDialog
-  {
-    Q_OBJECT
+public:
+  typedef std::map<std::pair<std::string, std::string>, std::vector<std::string> > TypesMap;
 
-  public:
-    typedef std::map<std::pair<std::string, std::string>, std::vector<std::string> > TypesMap;
+  AimsFileDialog( QWidget* parent, Qt::WindowFlags flags );
+  virtual ~AimsFileDialog();
 
-    AimsFileDialog( QWidget* parent, Qt::WindowFlags flags );
-    virtual ~AimsFileDialog();
+  void setPossibleTypesMap( const TypesMap & );
+  bool optionsValid() const;
+  std::string selectedTypeId() const;
+  std::pair<std::string, std::string> selectedType() const;
+  std::string selectedUrlOptions() const;
+  carto::Object selectedOptions() const;
+  bool isExtensionVisible() const;
+  void setExtensionVisible( bool );
 
-    void setPossibleTypesMap( const TypesMap & );
-    bool optionsValid() const;
-    std::string selectedTypeId() const;
-    std::pair<std::string, std::string> selectedType() const;
-    std::string selectedUrlOptions() const;
-    carto::Object selectedOptions() const;
+protected:
+  void setupCustom();
 
-  protected:
-    void setupCustom();
+protected slots:
+  void showHideOptions();
 
-  protected slots:
-    void showHideOptions();
-
-  private:
-    struct Private;
-    Private *d;
-  };
+private:
+  struct Private;
+  Private *d;
+};
 
 
-  class AimsFileDialogExtension : public QWidget
-  {
-    Q_OBJECT
+class AimsFileDialogExtension : public QWidget
+{
+  Q_OBJECT
 
-  public:
-    AimsFileDialogExtension( QWidget* parent = 0 );
-    virtual ~AimsFileDialogExtension();
+public:
+  AimsFileDialogExtension( QWidget* parent = 0 );
+  virtual ~AimsFileDialogExtension();
 
-    void setPossibleTypesMap( const AimsFileDialog::TypesMap & );
-    bool optionsValid() const;
-    std::string selectedTypeId() const;
-    std::pair<std::string, std::string> selectedType() const;
-    std::string selectedUrlOptions() const;
-    carto::Object selectedOptions() const;
+  void setPossibleTypesMap( const AimsFileDialog::TypesMap & );
+  bool optionsValid() const;
+  std::string selectedTypeId() const;
+  std::pair<std::string, std::string> selectedType() const;
+  std::string selectedUrlOptions() const;
+  carto::Object selectedOptions() const;
 
-  protected:
-    void setupCustom( QWidget* filedialog );
-    std::string typeId( const std::string & ot, const std::string & dt ) const;
-    std::vector<std::string> typeIds( const std::string & ot,
-                                      const std::string & dt ) const;
+protected:
+  void setupCustom( QWidget* filedialog );
+  std::string typeId( const std::string & ot, const std::string & dt ) const;
+  std::vector<std::string> typeIds( const std::string & ot,
+                                    const std::string & dt ) const;
 
-  protected slots:
-    void currentFileChanged( const QString & );
-    void optionsClicked();
+protected slots:
+  void currentFileChanged( const QString & );
+  void optionsClicked();
 
-  private:
-    struct Private;
-    Private *d;
-  };
-
-}
+private:
+  friend class AimsFileDialog;
+  struct Private;
+  Private *d;
+};
 
 
 #endif

@@ -51,6 +51,7 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QDialogButtonBox>
+#include <QApplication>
 
 using namespace anatomist;
 using namespace aims;
@@ -67,6 +68,7 @@ struct AimsFileDialogExtension::Private
   QString current_path;
   QTextEdit* dict_line;
   bool current_item_recognized;
+  bool up_to_date;
   string options_url;
   Object options;
   map<pair<string, string>, vector<string> > possible_types_map;
@@ -76,7 +78,7 @@ struct AimsFileDialogExtension::Private
 
 AimsFileDialogExtension::Private::Private()
   : browser( 0 ), type_combo( 0 ), current_item_recognized( false ),
-    options( Object::value( Dictionary() ) )
+    up_to_date( false ), options( Object::value( Dictionary() ) )
 {
 }
 
@@ -123,20 +125,34 @@ void AimsFileDialogExtension::setupCustom( QWidget* filedialog )
 }
 
 
-void AimsFileDialogExtension::currentFileChanged( const QString & path )
+void AimsFileDialogExtension::currentFileChanged( const QString & in_path )
 {
-  if( path == d->current_path )
+  QString path = in_path;
+  if( path == "<rescan>" )
+    path = d->current_path;
+  if( path == d->current_path && d->up_to_date )
     return;
+  d->up_to_date = false;
   d->current_path = path;
   d->type_combo->clear();
   d->selected_types.clear();
-  if( path == "" )
+  if( path == ""
+    || FileUtil::fileStat( path.toStdString() ).find( 'd' ) != string::npos )
   {
     d->browser->setText( "" );
     return;
   }
 
   QString text = "<p><h4>" + path + "</h4></p>";
+
+  if( !isVisible() )
+  {
+    d->browser->setText( text );
+    return;
+  }
+
+  QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
+
   Finder fi;
   bool ok = fi.check( path.toStdString() );
   d->current_item_recognized = ok;
@@ -185,6 +201,8 @@ void AimsFileDialogExtension::currentFileChanged( const QString & path )
     text += "<p>" + tr( "Unrecognized file." ) + "</p>";
   }
   d->browser->setText( text );
+  d->up_to_date = true;
+  QApplication::restoreOverrideCursor();
 }
 
 
@@ -350,16 +368,7 @@ void AimsFileDialog::setupCustom()
 
 void AimsFileDialog::showHideOptions()
 {
-  if( d->aims_ext->isVisible() )
-  {
-    d->aims_ext->hide();
-    d->expand_button->setText( "... v" );
-  }
-  else
-  {
-    d->aims_ext->show();
-    d->expand_button->setText( "... ^" );
-  }
+  setExtensionVisible( !isExtensionVisible() );
 }
 
 
@@ -398,20 +407,44 @@ Object AimsFileDialog::selectedOptions() const
   return d->aims_ext->selectedOptions();
 }
 
+bool AimsFileDialog::isExtensionVisible() const
+{
+  return d->aims_ext->isVisible();
+}
+
+
+void AimsFileDialog::setExtensionVisible( bool visible )
+{
+  if( !visible )
+  {
+    d->aims_ext->hide();
+    d->expand_button->setText( "... v" );
+  }
+  else
+  {
+    d->aims_ext->show();
+    d->expand_button->setText( "... ^" );
+    d->aims_ext->currentFileChanged( "<rescan>" );
+  }
+}
+
+
 
 // ---
 
 QFileDialog & anatomist::fileDialog()
 {
-  static QFileDialog *_fdialog = 0;
+  static AimsFileDialog *_fdialog = 0;
   QString path;
   QRect geom;
   bool oldone = false;
+  bool extvisible = false;
 
   if( _fdialog )
   {
     oldone = true;
     QStringList filenames = _fdialog->selectedFiles();
+    extvisible = _fdialog->isExtensionVisible();
     if( !filenames.empty() )
     {
       path = FileUtil::dirname( filenames.begin()->toUtf8().data() ).c_str();
@@ -424,6 +457,7 @@ QFileDialog & anatomist::fileDialog()
   _fdialog->setWindowModality( Qt::ApplicationModal );
   if( oldone )
   {
+    _fdialog->setExtensionVisible( extvisible );
     if( !path.isEmpty() )
       _fdialog->setDirectory( path );
     _fdialog->setGeometry( geom );

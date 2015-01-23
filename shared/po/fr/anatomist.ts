@@ -176,6 +176,45 @@
     </message>
 </context>
 <context>
+    <name>AimsFileDialogExtension</name>
+    <message>
+        <source>selected:</source>
+        <translation>sélectionné:</translation>
+    </message>
+    <message>
+        <source>options...</source>
+        <translation>options...</translation>
+    </message>
+    <message>
+        <source>Load as:</source>
+        <translation>Charger en tant que:</translation>
+    </message>
+    <message>
+        <source>Header information:</source>
+        <translation>Information d&apos;en-tête:</translation>
+    </message>
+    <message>
+        <source>Attribute:</source>
+        <translation>Attribut:</translation>
+    </message>
+    <message>
+        <source>Value:</source>
+        <translation>Valeur:</translation>
+    </message>
+    <message>
+        <source>Unrecognized file.</source>
+        <translation>Fichier non-reconnu.</translation>
+    </message>
+    <message>
+        <source>Load options (appended to URL):</source>
+        <translation>Options de lecture (ajouté à l&apos;URL):</translation>
+    </message>
+    <message>
+        <source>Options dictionary:</source>
+        <translation>Dictionnaire d&apos;options:</translation>
+    </message>
+</context>
+<context>
     <name>AttributedChooser</name>
     <message>
         <source>Name :</source>
