@@ -676,12 +676,12 @@ namespace
   bool loadGraph( Process & p, const string & fname, Finder & )
   {
     AimsLoader	& ap = (AimsLoader &) p;
-    AObject	*ao = AGraph::LoadGraph( fname.c_str() );
+    AObject	*ao = AGraph::LoadGraph( fname.c_str(), ap.options );
     if( ao )
-      {
-        ap.object = ao;
-        return( true );
-      }
+    {
+      ap.object = ao;
+      return( true );
+    }
     return( false );
   }
 
@@ -1223,15 +1223,6 @@ AObject* ObjectReader::readAims( const string & file,
       cerr << e.what() << endl;
     }
   return 0;
-}
-
-
-AObject* ObjectReader::readGraph( const string & filename,
-                                  PostRegisterList & subObjectsToRegister,
-                                  Object /*options*/ )
-{
-  AObject	*graph = AGraph::LoadGraph( filename.c_str() );
-  return graph;
 }
 
 

@@ -96,9 +96,6 @@ namespace anatomist
     virtual AObject* readAims( const std::string & filename,
                                PostRegisterList & subObjectsToRegister,
                                carto::Object options = carto::none() ) const;
-    static AObject* readGraph( const std::string & filename,
-                               PostRegisterList & subObjectsToRegister,
-                               carto::Object options = carto::none() );
     static std::string allSupportedFileExtensions();
     static std::string anatomistSupportedFileExtensions();
     static std::string supportedFileExtensions( const std::string & objtype );

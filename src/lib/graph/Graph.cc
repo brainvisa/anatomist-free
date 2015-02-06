@@ -780,7 +780,7 @@ AObject* AGraph::ObjectAt( float x, float y, float z, float t, float tol )
 
 //
 
-AObject* AGraph::LoadGraph( const char* filename )
+AObject* AGraph::LoadGraph( const string & filename, Object options )
 {
   AGraph  *ag = 0;
   Graph   *gr = 0;
@@ -791,6 +791,7 @@ AObject* AGraph::LoadGraph( const char* filename )
       if( GraphParams::graphParams()->loadRelations )
         mask = -1;
       Reader<Graph>	grd( filename );
+      grd.setOptions( options );
       gr = grd.read( 0, 0, mask );
 
       // cout << "read graph OK\n";

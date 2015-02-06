@@ -110,7 +110,8 @@ namespace anatomist
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;
 
-    static AObject* LoadGraph( const char* filename );
+    static AObject* LoadGraph( const std::string & filename,
+                               carto::Object options=carto::none() );
     virtual bool save( const std::string & filename );
     void loadSubObjects( int mask );
     ColorMode colorMode() const;
