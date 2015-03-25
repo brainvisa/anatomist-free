@@ -2104,7 +2104,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
         case Coronal:
           o->boundingBox2D( mo, Mo );
           d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
-              (int) ( wf * ( Mo[2] - mo[1] + vs[2] ) ) );
+              (int) ( wf * ( Mo[2] - mo[2] + vs[2] ) ) );
           break;
         case Sagittal:
           o->boundingBox2D( mo, Mo );
