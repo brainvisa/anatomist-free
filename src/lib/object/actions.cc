@@ -640,6 +640,11 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               sref = "Scanner-based anatomical coordinates";
               ref = Referential::referentialOfUUID( sref );
             }
+            else if( sref == "Talairach" )
+            {
+              // GIFTI Talairach
+              ref = Referential::giftiTalairachReferential();
+            }
             else if( uid.toString() != sref )
             {
                 // sref doesn't correspond to an UUID, so it is not unique

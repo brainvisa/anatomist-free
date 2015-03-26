@@ -94,6 +94,7 @@ namespace anatomist
     static Referential* referentialOfUUID( const std::string & uuid );
     static Referential* acPcReferential();
     static Referential* mniTemplateReferential();
+    static Referential* giftiTalairachReferential();
     /// tries to find a ref in the referentials property list
     static Referential* referentialOfNameOrUUID( const AObject* obj,
                                                  const std::string & refname );

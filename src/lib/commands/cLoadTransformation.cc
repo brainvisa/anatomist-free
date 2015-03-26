@@ -86,10 +86,15 @@ LoadTransformationCommand::LoadTransformationCommand( const vector<float> &
   : RegularCommand(), SerializingCommand( context ), _org( org ), _dst( dst ),
                    _id( id )
 {
-  unsigned	i, j, k = 0;
+  unsigned	i, j, k = 0, n = matrix.size();
   for( i=0; i<4; ++i )
     for( j=0; j<3; ++j )
-      _matrix[i][j] = matrix[k++];
+    {
+      if( k >= n )
+        _matrix[i][j] = 0;
+      else
+        _matrix[i][j] = matrix[k++];
+    }
 }
 
 
@@ -286,6 +291,7 @@ void LoadTransformationCommand::doit()
     }
   else	// hard-coded matrix
     {
+      cout << "set matrix\n";
       _tra->setMatrixT( _matrix );
       _tra->setGenerated( false );
     }
