@@ -819,7 +819,6 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           {
             ownref = new Referential;
             ownref->header().setProperty( "name", (*io)->name() );
-            ownref->header().setProperty( "direct_referential", false );
           }
           if( !uid.empty() )
             ownref->header().setProperty( "uuid", uid );
