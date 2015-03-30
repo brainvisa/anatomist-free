@@ -958,7 +958,7 @@ namespace
       vector<float> vals;
       unsigned i, n;
 
-      vals = obj->texValues(wpos, t, wref, Point3df(1, 1, 1));
+      vals = obj->texValues(wpos, t, wref);
       for (i = 0; i < indent; ++i)
         cout << ' ';
       cout << obj->name() << " : ";
@@ -2558,8 +2558,9 @@ void AWindow3D::setPosition( const Point3df& position,
     /* compare to current position, and avoid changing if it is just half way
        between slices */
     Point3df curpos = _position;
-    if (tra)
-      curpos = tra->transform( curpos );
+    // _position is already in our referential
+//     if (tra)
+//       curpos = tra->transform( curpos );
     float cz = dir.dot( curpos ) / geom->Size()[2];
     cz = rint( cz );
     if( abs( z - cz ) <= 0.6 ) // snap to current slice
@@ -2583,8 +2584,9 @@ void AWindow3D::setPosition( const Point3df& position,
     AObject *obj = objectToShow(this, _sobjects);
     if (obj)
     {
-      vector<float> vals = obj->texValues(_position, _time, getReferential(),
-          Point3df(1, 1, 1));
+      cout << "setPosition: " << _position << " on " << obj->name() << endl;
+      vector<float> vals = obj->texValues(
+        _position, _time, getReferential() );
       QString txt;
       unsigned i, n = vals.size();
       for (i = 0; i < n; ++i)

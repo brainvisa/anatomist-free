@@ -764,6 +764,7 @@ Point4df Fusion2D::glMax2D() const
 
 vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
 {
+  cout << "Fusion2D::texValues without ref: " << name() << ": " << pos << endl;
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io=_data.begin(), fo=_data.end();
   unsigned			i = 1;
@@ -772,11 +773,10 @@ vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
   tv[0] = (*io)->mixedTexValue( pos, time );
 
   Referential	*ref = (*io)->getReferential();
-  Point3df	vs = (*io)->VoxelSize();
 
   if( ref )
     for( ++io; io!=fo; ++io, ++i )
-      tv[i] = (*io)->mixedTexValue( pos, time, ref, vs );
+      tv[i] = (*io)->mixedTexValue( pos, time, ref );
   else
     for( ++io; io!=fo; ++io, ++i )
       tv[i] = (*io)->mixedTexValue( pos, time );
@@ -786,15 +786,15 @@ vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
 
 
 vector<float> Fusion2D::texValues( const Point3df & pos, float time,
-				   const Referential* orgRef,
-				   const Point3df & orgVoxSz ) const
+                                   const Referential* orgRef ) const
 {
+  cout << "Fusion2D::texValues with ref: " << name() << ": " << pos << endl;
   unsigned			i;
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io, fo=_data.end();
 
   for( i = 0, io=_data.begin(); io!=fo; ++io, ++i )
-    tv[i] = (*io)->mixedTexValue( pos, time, orgRef, orgVoxSz );
+    tv[i] = (*io)->mixedTexValue( pos, time, orgRef );
 
   return( tv );
 }
@@ -807,10 +807,9 @@ float Fusion2D::mixedTexValue( const Point3df & pos, float time ) const
 
 
 float Fusion2D::mixedTexValue( const Point3df & pos, float time,
-			       const Referential* orgRef,
-			       const Point3df & orgVoxSz ) const
+                               const Referential* orgRef ) const
 {
-  return( mixedValue( texValues( pos, time, orgRef, orgVoxSz ) ) );
+  return( mixedValue( texValues( pos, time, orgRef ) ) );
 }
 
 

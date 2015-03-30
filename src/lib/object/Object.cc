@@ -641,33 +641,31 @@ void AObject::createDefaultPalette( const string & name )
 
 
 float AObject::mixedTexValue( const Point3df & pos, float time, 
-			      const Referential* orgRef, 
-			      const Point3df & orgVoxSz ) const
+                              const Referential* orgRef ) const
 {
-  Transformation	*trans 
+  Transformation *trans
     = theAnatomist->getTransformation( orgRef, getReferential() );
-  Point3df		pt;
+  Point3df pt;
 
   if( trans )
-    pt = Transformation::transform( pos, trans, orgVoxSz, VoxelSize() );
+    pt = trans->transform( pos );
   else
-    pt = Transformation::transform( pos, orgVoxSz, VoxelSize() );
+    pt = pos;
   return( mixedTexValue( pt, time ) );
 }
 
 
-vector<float> AObject::texValues( const Point3df & pos, float time, 
-				  const Referential* orgRef, 
-				  const Point3df & orgVoxSz ) const
+vector<float> AObject::texValues( const Point3df & pos, float time,
+                                  const Referential* orgRef ) const
 {
   Transformation	*trans 
     = theAnatomist->getTransformation( orgRef, getReferential() );
   Point3df		pt;
 
   if( trans )
-    pt = Transformation::transform( pos, trans, orgVoxSz, VoxelSize() );
+    pt = trans->transform( pos );
   else
-    pt = Transformation::transform( pos, orgVoxSz, VoxelSize() );
+    pt = pos;
   //cout << "AObject::texValues, point org: " << pos << ", dst: " << pt 
   //     << endl;
   return( texValues( pt, time ) );

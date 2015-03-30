@@ -947,10 +947,7 @@ template <class T> Point3df AVolume<T>::VoxelSize() const
 
 template <class T> void AVolume<T>::setVoxelSize( const Point3df & vs )
 {
-  vector<float> vvs( 4 );
-  _volume->header().setProperty( "voxel_size", vvs );
-  while( vvs.size() < 4 )
-    vvs.push_back( 1. );
+  vector<float> vvs( 4, 1. );
   vvs[0] = vs[0];
   vvs[1] = vs[1];
   vvs[2] = vs[2];
@@ -961,19 +958,20 @@ template <class T> void AVolume<T>::setVoxelSize( const Point3df & vs )
 template<class T> 
 float AVolume<T>::mixedTexValue( const Point3df & pos, float time ) const
 {
-  unsigned	x = (unsigned) rint( pos[0] );
-  unsigned	y = (unsigned) rint( pos[1] );
-  unsigned	z = (unsigned) rint( pos[2] );
+  int x = (int) rint( pos[0] / VoxelSize()[0] );
+  int y = (int) rint( pos[1] / VoxelSize()[1] );
+  int z = (int) rint( pos[2] / VoxelSize()[2] );
 
   if( x >= MinX2D() && x <= MaxX2D() && y >= MinY2D() && 
       y <= MaxY2D() && z >= MinZ2D() && z <= MaxZ2D() )
-    {
-      if( time < MinT() )
-	time = MinT();
-      else if( time > MaxT() )
-	time = MaxT();
-      return d->traits.mixedTexValue( x, y, z, (unsigned) time );
-    }
+  {
+    if( time < MinT() )
+      time = MinT();
+    else if( time > MaxT() )
+      time = MaxT();
+    return d->traits.mixedTexValue( (unsigned) x, (unsigned) y,
+                                    (unsigned) z, (unsigned) time );
+  }
   else
     return 0;
 }
@@ -982,9 +980,9 @@ float AVolume<T>::mixedTexValue( const Point3df & pos, float time ) const
 template<class T> 
 vector<float> AVolume<T>::texValues( const Point3df & pos, float time ) const
 {
-  unsigned	x = (unsigned) rint( pos[0] );
-  unsigned	y = (unsigned) rint( pos[1] );
-  unsigned	z = (unsigned) rint( pos[2] );
+  int x = (int) rint( pos[0] / VoxelSize()[0] );
+  int y = (int) rint( pos[1] / VoxelSize()[1] );
+  int z = (int) rint( pos[2] / VoxelSize()[2] );
 
   if( x >= MinX2D() && x <= MaxX2D() && y >= MinY2D() &&
       y <= MaxY2D() && z >= MinZ2D() && z <= MaxZ2D() )
@@ -993,7 +991,8 @@ vector<float> AVolume<T>::texValues( const Point3df & pos, float time ) const
       time = MinT();
     else if( time > MaxT() )
       time = MaxT();
-    return d->traits.texValue( x, y, z, (unsigned) time );
+    return d->traits.texValue( (unsigned) x, (unsigned) y,
+                               (unsigned) z, (unsigned) time );
   }
   else
     return vector<float>();

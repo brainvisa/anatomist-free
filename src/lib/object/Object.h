@@ -298,22 +298,34 @@ namespace anatomist
     virtual bool hasTexture() const { return( false ); }
     ///	Number of texture values for a point
     virtual unsigned dimTexture() const { return( 1 ); }
-    /**	Gets a "mixed" texture value at a given space / time location.
-	The value is mixed, for multi-dimensional textures, according to 
-	an internal method (each object can use its own). Space coordinates 
-	are transformed from the incoming referential to the object's one. */
-    virtual float mixedTexValue( const Point3df & pos, float time, 
-				 const Referential* orgRef, 
-				 const Point3df & orgVoxSz ) const;
-    /**	Same as above except that coordinates are not transformed but taken 
-	in object coordinates system */
+    /** Gets a "mixed" texture value at a given space / time location.
+        The value is mixed, for multi-dimensional textures, according to
+        an internal method (each object can use its own). Space coordinates
+        are transformed from the incoming referential to the object's one.
+
+        Note: in Anatomist 4.4 and earlier, this method was taking an
+        additional argument, org_voxel_size. This was kind of pointless
+        since it more or less supposed that coordinates were passed in
+        voxels rather in mm, which is wrong. In Anatomist 4.5 coords are
+        officially always in mm.
+    */
+    virtual float mixedTexValue( const Point3df & pos, float time,
+                                 const Referential* orgRef ) const;
+    /** Same as above except that coordinates are not transformed but taken
+        in object coordinates system */
     virtual float mixedTexValue( const Point3df & pos, float time ) const;
-    ///	Gets the array of texture values at a given location
-    virtual std::vector<float> texValues( const Point3df & pos, float time, 
-					  const Referential* orgRef, 
-					  const Point3df & orgVoxSz ) const;
+    /** Gets the array of texture values at a given location
+
+        Note: in Anatomist 4.4 and earlier, this method was taking an
+        additional argument, org_voxel_size. This was kind of pointless
+        since it more or less supposed that coordinates were passed in
+        voxels rather in mm, which is wrong. In Anatomist 4.5 coords are
+        officially always in mm.
+    */
+    virtual std::vector<float> texValues( const Point3df & pos, float time,
+                                          const Referential* orgRef ) const;
     virtual std::vector<float> texValues( const Point3df & pos, 
-					  float time ) const;
+                                          float time ) const;
 
     virtual bool loadable() const { return( false ); }
     virtual bool savable() const { return( false ); }
