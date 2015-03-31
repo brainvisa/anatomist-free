@@ -764,7 +764,6 @@ Point4df Fusion2D::glMax2D() const
 
 vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
 {
-  cout << "Fusion2D::texValues without ref: " << name() << ": " << pos << endl;
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io=_data.begin(), fo=_data.end();
   unsigned			i = 1;
@@ -788,7 +787,6 @@ vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
 vector<float> Fusion2D::texValues( const Point3df & pos, float time,
                                    const Referential* orgRef ) const
 {
-  cout << "Fusion2D::texValues with ref: " << name() << ": " << pos << endl;
   unsigned			i;
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io, fo=_data.end();

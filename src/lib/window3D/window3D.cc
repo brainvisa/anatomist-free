@@ -2584,7 +2584,6 @@ void AWindow3D::setPosition( const Point3df& position,
     AObject *obj = objectToShow(this, _sobjects);
     if (obj)
     {
-      cout << "setPosition: " << _position << " on " << obj->name() << endl;
       vector<float> vals = obj->texValues(
         _position, _time, getReferential() );
       QString txt;
