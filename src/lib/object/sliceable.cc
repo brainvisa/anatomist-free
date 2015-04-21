@@ -551,35 +551,41 @@ string Sliceable::viewStateID( glPart part,
     case glBODY:
       {
         if( st->wingeom )
-          s.resize( 8*nf + 2*ns4 );
+          s.resize( 6*nf + 2*ns4 );
         else
-          s.resize( 8*nf );
+          s.resize( 6*nf );
         Point4df	o = st->orientation->vector();
+        // level in plane: position .dot. plane normal
+        Point3df normal = st->orientation->transform( Point3df( 0, 0, 1 ) );
+        float level = normal.dot( st->position );
         memcpy( &s[0], &o[0], 4*nf );
-        memcpy( &s[4*nf], &st->position[0], 3*nf );
-        memcpy( &s[7*nf], &state.selectRenderMode, nf );
+        memcpy( &s[4*nf], &level, nf );
+        memcpy( &s[5*nf], &state.selectRenderMode, nf );
         if( st->wingeom )
           {
-            memcpy( &s[8*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[8*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+            memcpy( &s[6*nf], &st->wingeom->DimMin()[0], ns4 );
+            memcpy( &s[6*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
           }
       }
       break;
     case glGENERAL:
       {
         if( st->wingeom )
-          s.resize( 9*nf + 2*ns4 );
+          s.resize( 7*nf + 2*ns4 );
         else
-          s.resize( 9*nf );
+          s.resize( 7*nf );
         (float &) s[0] = t;
         Point4df        o = st->orientation->vector();
+        // level in plane: position .dot. plane normal
+        Point3df normal = st->orientation->transform( Point3df( 0, 0, 1 ) );
+        float level = normal.dot( st->position );
         memcpy( &s[nf], &o[0], 4*nf );
-        memcpy( &s[5*nf], &st->position[0], 3*nf );
-        memcpy( &s[8*nf], &state.selectRenderMode, nf );
+        memcpy( &s[5*nf], &level, nf );
+        memcpy( &s[6*nf], &state.selectRenderMode, nf );
         if( st->wingeom )
           {
-            memcpy( &s[9*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[9*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+            memcpy( &s[7*nf], &st->wingeom->DimMin()[0], ns4 );
+            memcpy( &s[7*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
           }
       }
       break;
@@ -587,17 +593,20 @@ string Sliceable::viewStateID( glPart part,
     case glTEXENV:
       {
         if( st->wingeom )
-          s.resize( 8*nf + 2*ns4 );
+          s.resize( 6*nf + 2*ns4 );
         else
-          s.resize( 8*nf );
+          s.resize( 6*nf );
         (float &) s[0] = t;
         Point4df	o = st->orientation->vector();
+        // level in plane: position .dot. plane normal
+        Point3df normal = st->orientation->transform( Point3df( 0, 0, 1 ) );
+        float level = normal.dot( st->position );
         memcpy( &s[nf], &o[0], 4*nf );
-        memcpy( &s[5*nf], &st->position[0], 3*nf );
+        memcpy( &s[5*nf], &level, nf );
         if( st->wingeom )
           {
-            memcpy( &s[8*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[8*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+            memcpy( &s[6*nf], &st->wingeom->DimMin()[0], ns4 );
+            memcpy( &s[6*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
           }
       }
       break;
