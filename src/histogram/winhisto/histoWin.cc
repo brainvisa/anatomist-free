@@ -49,6 +49,9 @@
 #if QWT_VERSION >= 0x050000
 #include <qwt_plot_curve.h>
 #include <qwt_plot_marker.h>
+#if QWT_VERSION >= 0x060000
+#include <qwt_point_data.h>
+#endif
 #endif
 #include <iostream>
 

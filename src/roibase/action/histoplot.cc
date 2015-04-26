@@ -54,6 +54,9 @@
 #include <qwt_plot_marker.h>
 #include <qwt_legend.h>
 #include <qwt_curve_fitter.h>
+#if QWT_VERSION >= 0x060000
+#include <qwt_point_data.h>
+#endif
 #endif
 
 using namespace std ;
