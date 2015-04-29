@@ -527,7 +527,7 @@ bool Sliceable::update2DTexture( AImage &, const Point3df &,
 string Sliceable::viewStateID( glPart part,
                                const ViewState & state ) const
 {
-  //cout << "SliceableObject::viewStateID\n";
+  // cout << "SliceableObject::viewStateID\n";
   const SliceViewState	*st = state.sliceVS();
   if( !st || !st->wantslice )
     return GLComponent::viewStateID( part, state );
@@ -556,7 +556,9 @@ string Sliceable::viewStateID( glPart part,
           s.resize( 6*nf );
         Point4df	o = st->orientation->vector();
         // level in plane: position .dot. plane normal
-        Point3df normal = st->orientation->transform( Point3df( 0, 0, 1 ) );
+        // (inverse since the quaternion transforms to the texture space)
+        Point3df normal = st->orientation->transformInverse(
+          Point3df( 0, 0, 1 ) );
         float level = normal.dot( st->position );
         memcpy( &s[0], &o[0], 4*nf );
         memcpy( &s[4*nf], &level, nf );
@@ -577,7 +579,8 @@ string Sliceable::viewStateID( glPart part,
         (float &) s[0] = t;
         Point4df        o = st->orientation->vector();
         // level in plane: position .dot. plane normal
-        Point3df normal = st->orientation->transform( Point3df( 0, 0, 1 ) );
+        Point3df normal = st->orientation->transformInverse(
+          Point3df( 0, 0, 1 ) );
         float level = normal.dot( st->position );
         memcpy( &s[nf], &o[0], 4*nf );
         memcpy( &s[5*nf], &level, nf );
@@ -599,7 +602,8 @@ string Sliceable::viewStateID( glPart part,
         (float &) s[0] = t;
         Point4df	o = st->orientation->vector();
         // level in plane: position .dot. plane normal
-        Point3df normal = st->orientation->transform( Point3df( 0, 0, 1 ) );
+        Point3df normal = st->orientation->transformInverse(
+          Point3df( 0, 0, 1 ) );
         float level = normal.dot( st->position );
         memcpy( &s[nf], &o[0], 4*nf );
         memcpy( &s[5*nf], &level, nf );
