@@ -50,6 +50,9 @@
 #include <qwt_plot_curve.h>
 #include <qwt_plot_marker.h>
 #endif
+#if QWT_VERSION >= 0x060100
+#include <qwt_point_data.h>
+#endif
 #include <iostream>
 
 #include <stdio.h>

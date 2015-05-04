@@ -55,6 +55,9 @@
 #include <qwt_legend.h>
 #include <qwt_curve_fitter.h>
 #endif
+#if QWT_VERSION >= 0x060100
+#include <qwt_point_data.h>
+#endif
 
 using namespace std ;
 using namespace aims ;
