@@ -2602,7 +2602,7 @@ void AWindow3D::setPosition( const Point3df& position,
 void AWindow3D::setViewPoint(float *quaternion, const float zoom)
 {
   d->draw->setZoom(zoom);
-  d->draw->setQuaternion(quaternion);
+  d->draw->setQuaternion( Point4df( *quaternion ) );
   refreshLightViewNow();
 }
 
