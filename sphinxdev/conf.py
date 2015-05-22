@@ -23,6 +23,12 @@ try:
 except Exception, e:
   print 'warning:', e
 from soma import aims
+try:
+    import soma.info
+    somabase_version = '%d.%d' % (soma.info.version_major,
+                                  soma.info.version_minor)
+except:
+    somabase_version = '4.6'
 
 # -- General configuration -----------------------------------------------------
 
@@ -44,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Anatomist'
-copyright = u'2014, CEA'
+copyright = u'2015, CEA'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -243,7 +249,7 @@ except:
   pass
 
 intersphinx_mapping = {
-  'somabase': (os.path.join(docpath, 'soma-base-' + version + '/sphinx'), None),
+  'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version + '/sphinx'), None),
   'somaqtgui': (os.path.join(docpath, 'soma-qtgui-' + version + '/sphinx'), None),
   'pyaims': (os.path.join(docpath, 'pyaims-' + version + '/sphinx'), None),
   'pyana': (os.path.join(docpath, 'pyanatomist-' + version + '/sphinx'), None),
