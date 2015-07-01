@@ -239,6 +239,7 @@ void TransformerActionData::setTransformData( const Transformation & t,
 
 void TransformerActionData::resetTransform()
 {
+  selectTransformations( tadView()->aWindow() );
   if( !mainTransformation() )
     return;
   Transformation t( 0, 0 );
@@ -254,6 +255,7 @@ void TransformerActionData::resetTransform()
 
 void TransformerActionData::resetRotation()
 {
+  selectTransformations( tadView()->aWindow() );
   if( !mainTransformation() )
     return;
   Transformation t( 0, 0 );
@@ -271,6 +273,7 @@ void TransformerActionData::resetRotation()
 void TransformerActionData::matrixCellChanged( int row, int col,
                                                QTableWidget* twid )
 {
+  selectTransformations( tadView()->aWindow() );
   Transformation *t = mainTransformation();
   if( !t )
     return;
@@ -294,6 +297,7 @@ void TransformerActionData::matrixCellChanged( int row, int col,
     else
       atr.translation()[ row ] = value;
 
+    setTransformData( *t, true );
     Quaternion q( initialQuaternion() );
     updateTemporaryObjects( q );
     updateGVInfo( q );
@@ -308,6 +312,7 @@ void TransformerActionData::matrixCellChanged( int row, int col,
 void TransformerActionData::axisCellChanged( int row, int col,
                                              QTableWidget* twid )
 {
+  selectTransformations( tadView()->aWindow() );
   Transformation *t = mainTransformation();
   if( !t )
     return;
