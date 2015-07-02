@@ -440,6 +440,9 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
               NIFTI-1: <tt>.nii</tt> or <tt>.nii.gz</tt> (only one file).
             </li>
             <li>
+              NIFTI-2: <tt>.nii</tt> or <tt>.nii.gz</tt> (only one file).
+            </li>
+            <li>
               Genesis (old GE scanners): <tt>.adv</tt>
             </li>
             <li>
@@ -464,7 +467,8 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
               TIFF: <tt>.tiff</tt> or <tt>.tif</tt>
             </li>
             <li>
-              OpenSlide
+              OpenSlide library, which supports many image formats, including
+              multiscale microscopy formats.
             </li>
           </ul>
         </td>
@@ -502,6 +506,7 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
             <li>AIMS tri: <tt>.tri</tt> (old)</li>
             <li>VRML1 writing (reading not supported): <tt>.vrml</tt></li>
             <li>POV-Ray writing (reading not supported): <tt>.pov</tt></li>
+            <li>WAVEFRONT obj: <tt>.obj</tt></li>
           </ul>
         </td>
       </tr>
