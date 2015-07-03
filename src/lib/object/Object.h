@@ -393,6 +393,9 @@ namespace anatomist
     /// cleanup static global variables (called when quitting anatomist)
     static void cleanStatic();
 
+    ///
+    carto::Object aimsMeshFromGLComponent();
+
   protected:
     const PrimList & primitives() const;
     PrimList & primitives();
@@ -458,12 +461,6 @@ anatomist::AObject::texValues( const Point3df &, float ) const
 {
   std::vector<float> t;
   return( t );
-}
-
-
-inline bool anatomist::AObject::save( const std::string & )
-{
-  return( true );
 }
 
 

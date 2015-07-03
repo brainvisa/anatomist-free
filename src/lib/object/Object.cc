@@ -1140,6 +1140,166 @@ void AObject::addObjectMenuRegistration( ObjectMenuRegistrerClass * f )
   Private::objectMenuRegistrers()[ rc_ptr<ObjectMenuRegistrerClass>( f ) ];
 }
 
+
+namespace
+{
+
+  template <int D, typename T>
+  Object makeMesh( const AObject* ao, const GLComponent *gl )
+  {
+    AimsTimeSurface<D, T>* surf = new AimsTimeSurface<D, T>;
+    Object meshobj = Object::value( rc_ptr<AimsTimeSurface<D, T> >( surf ) );
+
+    int timestep = 0;
+    ViewState state( timestep );
+
+    AimsSurface<D, T> & s0 = (*surf)[timestep];
+
+    vector<Point3df> & vert = s0.vertex();
+    vector<Point3df> & norm = s0.normal();
+    vector<AimsVector<uint, D> > & poly = s0.polygon();
+
+    unsigned i, nv = gl->glNumVertex( state );
+    const GLfloat* glvert = gl->glVertexArray( state );
+    vert.resize( nv );
+
+    for( i=0; i<nv; ++i )
+      vert[i] = Point3df( *glvert++, *glvert++, *glvert++ );
+
+    const GLfloat* glnorm = gl->glNormalArray( state );
+    norm.resize( nv );
+
+    for( i=0; i<nv; ++i )
+      norm[i] = Point3df( *glnorm++, *glnorm++, *glnorm++ );
+
+    unsigned j, np = gl->glNumPolygon( state );
+    const GLuint* glpoly = gl->glPolygonArray( state );
+    poly.resize( np );
+
+    for( i=0; i<np; ++i )
+    {
+      AimsVector<uint, D> & pol = poly[i];
+      for( j=0; j<D; ++j )
+        pol[j] = *glpoly++;
+    }
+
+    unsigned tex = 0;
+    unsigned nt = gl->glTexCoordSize( state, tex );
+    if( nt != 0 )
+    {
+      const GLfloat* gltex = gl->glTexCoordArray( state, tex );
+      vector<T> & texture = s0.texture();
+      texture.resize( nt );
+
+      for( i=0; i<nt; ++i )
+        texture[i] = (T) *gltex++; // FIXME: use scaling
+    }
+
+    PythonHeader & ph = surf->header();
+    const PythonAObject *pao = dynamic_cast<const PythonAObject *>( ao );
+    if( pao )
+      ph.copyProperties( Object::reference( *pao->attributed() ) );
+
+    ph.setProperty( "object_type",
+                    DataTypeCode< AimsTimeSurface<D, T> >::objectType() );
+    ph.setProperty( "data_type",
+                    DataTypeCode< AimsTimeSurface<D, T> >::dataType() );
+    ph.setProperty( "material", gl->glMaterial()->genericDescription() );
+
+    return meshobj;
+  }
+
+
+  template <int D, typename T>
+  void _write_mesh( Object meshobj, const string & filename )
+  {
+    rc_ptr< AimsTimeSurface<D, T> > mesh
+      = meshobj->value< rc_ptr< AimsTimeSurface<D, T> > >();
+    string dt;
+    mesh->header().getProperty( "data_type", dt );
+    Writer<AimsTimeSurface<D, T> > w( filename );
+    w.write( *mesh );
+  }
+
+
+  void saveMesh( Object meshobj, const string & filename )
+  {
+    string mtype = meshobj->type();
+
+    if( mtype == "rc_ptr of Mesh of VOID" )
+      _write_mesh<3, Void>( meshobj, filename );
+    else if( mtype == "rc_ptr of Mesh of FLOAT" )
+      _write_mesh<3, float>( meshobj, filename );
+  }
+
+}
+
+
+carto::Object AObject::aimsMeshFromGLComponent()
+{
+  Object meshobj;
+
+  const GLComponent *gl = glAPI();
+  if( gl )
+  {
+    ViewState state( 0 );
+
+    if( gl->glNumVertex( state ) != 0 )
+    {
+      int poly_size = gl->glPolygonSize( state );
+
+      if( gl->glNumTextures( state ) == 0 )
+      {
+        // mesh only
+        switch( poly_size )
+        {
+          case 2:
+            meshobj = makeMesh<2, Void>( this, gl );
+            break;
+          case 3:
+            meshobj = makeMesh<3, Void>( this, gl );
+            break;
+          case 4:
+            meshobj = makeMesh<4, Void>( this, gl );
+            break;
+          default:
+            break;
+        }
+      }
+      else
+      {
+        // textured mesh
+        switch( poly_size )
+        {
+          case 2:
+            meshobj = makeMesh<2, float>( this, gl );
+            break;
+          case 3:
+            meshobj = makeMesh<3, float>( this, gl );
+            break;
+          case 4:
+            meshobj = makeMesh<4, float>( this, gl );
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  return meshobj;
+}
+
+bool AObject::save( const std::string & filename )
+{
+  Object meshobj = aimsMeshFromGLComponent();
+  if( !meshobj )
+    return true;
+  saveMesh( meshobj, filename );
+  return true;
+}
+
+
 // ----
 
 AObject::Private::MenuRegistrersMap &

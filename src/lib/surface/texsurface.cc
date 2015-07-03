@@ -300,6 +300,9 @@ Tree* ATexSurface::optionTree() const
       t2 = new Tree( true, "Rename object" );
       t2->setProperty( "callback", &ObjectActions::renameObject );
       t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
+      t2->setProperty( "callback", &ObjectActions::saveStatic );
+      t->insert( t2 );
       t2 = new Tree( true, "Export texture" );
       t2->setProperty( "callback", &ObjectActions::saveTexture );
       t->insert( t2 );
