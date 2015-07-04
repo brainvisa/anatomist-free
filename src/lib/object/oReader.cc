@@ -112,6 +112,8 @@ namespace
   bool loadData( T & obj, const string & fname, Finder & f, Object options );
   template<long D>
   bool loadMesh( Process & p, const string & fname, Finder & f );
+  template<long D, typename T>
+  bool loadTexturedMesh( Process & p, const string & fname, Finder & f );
   bool loadTex1d( Process & p, const string & fname, Finder & f );
   bool loadTex2d( Process & p, const string & fname, Finder & f );
   template<typename T>
@@ -187,15 +189,68 @@ namespace
           if( !restr || types.find( "HSV" ) != eir )
             registerProcessType( "Volume", "HSV", &loadVolume<AimsHSV> );
         }
+
       r2 = restr && !restricted->hasProperty( "Segments" );
       if( !r2 )
-        registerProcessType( "Segments", "VOID", &loadMesh<2> );
+      {
+        if( restr )
+          try
+            {
+              types.clear();
+              rtypes = restricted->getProperty( "Segments" );
+              Object	i = rtypes->objectIterator();
+              for( ; i->isValid(); i->next() )
+                types.insert( i->getString() );
+            }
+          catch( ... )
+            {
+            }
+        if( !restr || types.find( "VOID" ) != eir )
+          registerProcessType( "Segments", "VOID", &loadMesh<2> );
+        if( !restr || types.find( "FLOAT" ) != eir )
+          registerProcessType( "Segments", "FLOAT",
+                               &loadTexturedMesh<2, float> );
+      }
       r2 = restr && !restricted->hasProperty( "Mesh" );
       if( !r2 )
-        registerProcessType( "Mesh", "VOID", &loadMesh<3> );
+      {
+        if( restr )
+          try
+            {
+              types.clear();
+              rtypes = restricted->getProperty( "Mesh" );
+              Object	i = rtypes->objectIterator();
+              for( ; i->isValid(); i->next() )
+                types.insert( i->getString() );
+            }
+          catch( ... )
+            {
+            }
+        if( !restr || types.find( "VOID" ) != eir )
+          registerProcessType( "Mesh", "VOID", &loadMesh<3> );
+        if( !restr || types.find( "FLOAT" ) != eir )
+          registerProcessType( "Mesh", "FLOAT", &loadTexturedMesh<3, float> );
+      }
       r2 = restr && !restricted->hasProperty( "Mesh4" );
       if( !r2 )
-        registerProcessType( "Mesh4", "VOID", &loadMesh<4> );
+      {
+        if( restr )
+          try
+            {
+              types.clear();
+              rtypes = restricted->getProperty( "Mesh4" );
+              Object	i = rtypes->objectIterator();
+              for( ; i->isValid(); i->next() )
+                types.insert( i->getString() );
+            }
+          catch( ... )
+            {
+            }
+        if( !restr || types.find( "VOID" ) != eir )
+          registerProcessType( "Mesh4", "VOID", &loadMesh<4> );
+        if( !restr || types.find( "FLOAT" ) != eir )
+          registerProcessType( "Mesh4", "FLOAT", &loadTexturedMesh<4, float> );
+      }
       r2 = restr && !restricted->hasProperty( "Bucket" );
       if( !r2 )
         registerProcessType( "Bucket", "VOID", &loadBucket );
@@ -576,8 +631,72 @@ namespace
     return true;
   }
 
-  bool loadTex1d( Process & p, const string & fname, 
-                  Finder & f )
+
+  template <long D, typename T>
+  bool loadTexturedMesh( Process & p, const string & fname, Finder & f )
+  {
+    // load textured mesh
+    AimsLoader	& ap = (AimsLoader &) p;
+    AimsTimeSurface<D, T>	*surf = new AimsTimeSurface<D, T>;
+    if( !loadData( *surf, fname, f, ap.options ) )
+    {
+      delete surf;
+      return false;
+    }
+
+    // split mesh / texture
+    AimsTimeSurface<D, Void> *mesh = new AimsTimeSurface<D, Void>;
+    TimeTexture<T> *tex = new TimeTexture<T>;
+    typename AimsTimeSurface<D, T>::iterator im, em = surf->end();
+
+    for( im=surf->begin(); im!=em; ++im )
+    {
+      cout << "1st pt: " << im->second.vertex()[0] << endl;
+      AimsSurface<D, Void> & s0 = (*mesh)[im->first];
+      s0.vertex() = im->second.vertex();
+      s0.normal() = im->second.normal();
+      s0.polygon() = im->second.polygon();
+      Texture<T> & t0 = (*tex)[im->first];
+      t0.data() = im->second.texture();
+    }
+    mesh->header().copy( surf->header() );
+    tex->header().copy( surf->header() );
+    delete surf; // no need for it any longer
+
+    // build AObjects
+
+    ASurface<D>	*ao = new ASurface<D>( fname.c_str() );
+    ao->setSurface( mesh );
+    ap.object = ao;
+    string name = FileUtil::removeExtension( FileUtil::basename( fname ) );
+    ao->setFileName( name + "_mesh.gii" );
+    ap.subObjectsToRegister.push_back( make_pair( ao, false ) );
+
+    ATexture *to = new ATexture;
+    to->setTexture( rc_ptr<Texture1d>( tex ) );
+    ap.subObjectsToRegister.push_back( make_pair( to, false ) );
+
+    vector<AObject *>	ts(2);
+    ts[0] = ao;
+    ts[1] = to;
+    FusionFactory	*ff = FusionFactory::factory();
+    FusionMethod	*fm = ff->method( "FusionTexSurfMethod" );
+    AObject	*tso = fm->fusion( ts );
+
+    ao->setName( theAnatomist->makeObjectName( name + "_mesh" ) );
+    ao->setHeaderOptions();
+    to->setName( theAnatomist->makeObjectName( name + "_texture" ) );
+    to->setHeaderOptions();
+//     surf->header().removeProperty( "textures" );
+    // copy material from mesh to texsurf.
+    tso->SetMaterial( ao->GetMaterial() );
+    ap.object = tso;
+
+    return true;
+  }
+
+
+  bool loadTex1d( Process & p, const string & fname, Finder & f )
   {
     AimsLoader	& ap = (AimsLoader &) p;
     rc_ptr<Texture1d>	tex( new Texture1d );
@@ -726,8 +845,8 @@ namespace
     ::close( fd );
 
     if( !readCompressed( filename, newFilename ) )
-      return( 0 );	// pas r�ssi �d�ompresser
-    tempFiles.insert( newFilename );  // retenir d'effacer le fichier �la fin
+      return( 0 );	// cound not uncompress
+    tempFiles.insert( newFilename );  // remember to remove the file at the end
 
     //	look for other files going together with the 1st compressed one
     set<string>	others;
@@ -755,6 +874,9 @@ namespace
     checkFormats<AimsSurfaceTriangle>( ext, others );
     checkFormats<AimsTimeSurface<2,Void> >( ext, others );
     checkFormats<AimsTimeSurface<4,Void> >( ext, others );
+    checkFormats<AimsTimeSurface<2, float> >( ext, others );
+    checkFormats<AimsTimeSurface<3, float> >( ext, others );
+    checkFormats<AimsTimeSurface<4, float> >( ext, others );
     checkFormats<Graph>( ext, others );
 
     //	check extensions

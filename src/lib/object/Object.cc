@@ -1164,7 +1164,11 @@ namespace
     vert.resize( nv );
 
     for( i=0; i<nv; ++i )
-      vert[i] = Point3df( *glvert++, *glvert++, *glvert++ );
+    {
+      vert[i][0] = *glvert++;
+      vert[i][1] = *glvert++;
+      vert[i][2] = *glvert++;
+    }
 
     const GLfloat* glnorm = gl->glNormalArray( state );
     norm.resize( nv );
@@ -1230,6 +1234,14 @@ namespace
       _write_mesh<3, Void>( meshobj, filename );
     else if( mtype == "rc_ptr of Mesh of FLOAT" )
       _write_mesh<3, float>( meshobj, filename );
+    else if( mtype == "rc_ptr of Segments of VOID" )
+      _write_mesh<2, Void>( meshobj, filename );
+    else if( mtype == "rc_ptr of Segments of FLOAT" )
+      _write_mesh<2, float>( meshobj, filename );
+    else if( mtype == "rc_ptr of Mesh4 of VOID" )
+      _write_mesh<4, Void>( meshobj, filename );
+    else if( mtype == "rc_ptr of Mesh4 of FLOAT" )
+      _write_mesh<4, float>( meshobj, filename );
   }
 
 }
