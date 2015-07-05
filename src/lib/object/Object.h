@@ -357,9 +357,16 @@ namespace anatomist
     /** Set some object properties according to the header (.minf), such as 
         material, palette etc */
     virtual void setHeaderOptions();
-    /** Store some object properties into the header (.minf), such as 
-        material, palette etc before saving the object */
+    /** Store some object properties into the header (.minf), such as
+        material, palette etc before saving the object.
+
+        basically calls makeHeaderOptions() and stored them in the object
+        header.
+    */
     virtual void storeHeaderOptions();
+    /** get object properties into a generic object, such as
+        material, palette etc before saving the object */
+    virtual carto::Object makeHeaderOptions() const;
     /// Time the object was created, loaded or reloaded
     long loadDate() const;
     void setLoadDate( long t );

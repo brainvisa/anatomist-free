@@ -889,7 +889,11 @@ Tree* Fusion3D::optionTree() const
                                               "Rename object" ) );
       t2->setProperty( "callback", &ObjectActions::renameObject );
       t->insert( t2 );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
+                                              "Save as textured mesh" ) );
+      t2->setProperty( "callback", &ObjectActions::saveStatic );
+      t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
                                               "Export texture" ) );
       t2->setProperty( "callback", &ObjectActions::saveTexture );
       t->insert( t2 );

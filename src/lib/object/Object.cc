@@ -944,82 +944,91 @@ void AObject::storeHeaderOptions()
 {
   PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );
   if( pao )
+  {
+    GenericObject	*o = pao->attributed();
+
+    if( o )
     {
-      GenericObject	*o = pao->attributed();
-      Object	m;
-
-      if( o )
-        {
-          // material
-          o->setProperty( "material", GetMaterial().genericDescription() );
-          // palette
-          AObjectPalette	*pal = palette();
-          if( pal )
-            o->setProperty( "palette", pal->genericDescription() );
-
-          // texture params
-          GLComponent	*g = glAPI();
-          if( g && g->glNumTextures() > 0 )
-            {
-              Object	tp = Object::value( carto::ObjectVector() );
-
-              unsigned	i, n = g->glNumTextures();
-              for( i=0; i<n; ++i )
-                {
-                  Object	tpx = Object::value( Dictionary() );
-                  static string	mode[] = { "geometric", "linear", "replace", 
-                                           "decal", "blend", "add", 
-                                           "combine" };
-                  static string filt[] = { "nearest", "linear" };
-                  static string gene[] = { "none", "object_linear", 
-                                           "eye_linear", "sphere_map", 
-                                           "reflection_map", "normal_map" };
-                  static string inter[] = { "palette", "rgb" };
-                  tpx->setProperty( "mode", mode[ g->glTexMode( i ) ] );
-                  tpx->setProperty( "filtering", 
-                                    filt[ g->glTexFiltering( i ) ] );
-                  tpx->setProperty( "generation", 
-                                    gene[ g->glAutoTexMode( i ) ] );
-                  tpx->setProperty( "rate", g->glTexRate( i ) );
-                  tpx->setProperty( "interpolation", 
-                                    inter[ g->glTexRGBInterpolation( i ) ] );
-                  const float	*x = g->glAutoTexParams( 0, i );
-                  vector<float>	y(4);
-                  if( x )
-                    {
-                      y[0] = x[0];
-                      y[1] = x[1];
-                      y[2] = x[2];
-                      y[3] = x[3];
-                      tpx->setProperty( "generation_params_1", y );
-                    }
-                  x = g->glAutoTexParams( 1, i );
-                  if( x )
-                    {
-                      y[0] = x[0];
-                      y[1] = x[1];
-                      y[2] = x[2];
-                      y[3] = x[3];
-                      tpx->setProperty( "generation_params_2", y );
-                    }
-                  x = g->glAutoTexParams( 2, i );
-                  if( x )
-                    {
-                      y[0] = x[0];
-                      y[1] = x[1];
-                      y[2] = x[2];
-                      y[3] = x[3];
-                      tpx->setProperty( "generation_params_3", y );
-                    }
-                  tp->insertArrayItem( -1, tpx );
-                }
-
-              o->setProperty( "texture_properties", tp );
-            }
-
-          setChanged();
-        }
+      Object options = makeHeaderOptions();
+      o->copyProperties( options );
+      setChanged();
     }
+  }
+}
+
+
+Object AObject::makeHeaderOptions() const
+{
+  Object o = Object::value( Dictionary() );
+
+  // material
+  o->setProperty( "material", material().genericDescription() );
+  // palette
+  const AObjectPalette	*pal = palette();
+  if( pal )
+    o->setProperty( "palette", pal->genericDescription() );
+
+  // texture params
+  const GLComponent	*g = glAPI();
+  if( g && g->glNumTextures() > 0 )
+  {
+    Object	tp = Object::value( carto::ObjectVector() );
+
+    unsigned	i, n = g->glNumTextures();
+    for( i=0; i<n; ++i )
+    {
+      Object	tpx = Object::value( Dictionary() );
+      static string	mode[] = { "geometric", "linear", "replace",
+                                "decal", "blend", "add",
+                                "combine" };
+      static string filt[] = { "nearest", "linear" };
+      static string gene[] = { "none", "object_linear",
+                                "eye_linear", "sphere_map",
+                                "reflection_map", "normal_map" };
+      static string inter[] = { "palette", "rgb" };
+      tpx->setProperty( "mode", mode[ g->glTexMode( i ) ] );
+      tpx->setProperty( "filtering",
+                        filt[ g->glTexFiltering( i ) ] );
+      tpx->setProperty( "generation",
+                        gene[ g->glAutoTexMode( i ) ] );
+      tpx->setProperty( "rate", g->glTexRate( i ) );
+      tpx->setProperty( "interpolation",
+                        inter[ g->glTexRGBInterpolation( i ) ] );
+      const float	*x = g->glAutoTexParams( 0, i );
+      vector<float>	y(4);
+      if( x )
+      {
+        y[0] = x[0];
+        y[1] = x[1];
+        y[2] = x[2];
+        y[3] = x[3];
+        tpx->setProperty( "generation_params_1", y );
+      }
+      x = g->glAutoTexParams( 1, i );
+      if( x )
+      {
+        y[0] = x[0];
+        y[1] = x[1];
+        y[2] = x[2];
+        y[3] = x[3];
+        tpx->setProperty( "generation_params_2", y );
+      }
+      x = g->glAutoTexParams( 2, i );
+      if( x )
+      {
+        y[0] = x[0];
+        y[1] = x[1];
+        y[2] = x[2];
+        y[3] = x[3];
+        tpx->setProperty( "generation_params_3", y );
+      }
+      tp->insertArrayItem( -1, tpx );
+    }
+
+    o->setProperty( "texture_properties", tp );
+  }
+
+  return o;
 }
 
 
@@ -1212,10 +1221,12 @@ namespace
                     DataTypeCode< AimsTimeSurface<D, T> >::objectType() );
     ph.setProperty( "data_type",
                     DataTypeCode< AimsTimeSurface<D, T> >::dataType() );
-    ph.setProperty( "material", gl->glMaterial()->genericDescription() );
-    const AObjectPalette *pal = gl->glPalette();
-    if( pal )
-      ph.setProperty( "palette", pal->genericDescription() );
+    Object opts = ao->makeHeaderOptions();
+    ph.copyProperties( opts );
+//     ph.setProperty( "material", gl->glMaterial()->genericDescription() );
+//     const AObjectPalette *pal = gl->glPalette();
+//     if( pal )
+//       ph.setProperty( "palette", pal->genericDescription() );
 
     return meshobj;
   }
