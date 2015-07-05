@@ -1174,7 +1174,11 @@ namespace
     norm.resize( nv );
 
     for( i=0; i<nv; ++i )
-      norm[i] = Point3df( *glnorm++, *glnorm++, *glnorm++ );
+    {
+      norm[i][0] = *glnorm++;
+      norm[i][1] = *glnorm++;
+      norm[i][2] = *glnorm++;
+    }
 
     unsigned j, np = gl->glNumPolygon( state );
     const GLuint* glpoly = gl->glPolygonArray( state );
@@ -1209,6 +1213,9 @@ namespace
     ph.setProperty( "data_type",
                     DataTypeCode< AimsTimeSurface<D, T> >::dataType() );
     ph.setProperty( "material", gl->glMaterial()->genericDescription() );
+    const AObjectPalette *pal = gl->glPalette();
+    if( pal )
+      ph.setProperty( "palette", pal->genericDescription() );
 
     return meshobj;
   }
