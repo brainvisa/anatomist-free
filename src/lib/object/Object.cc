@@ -1168,6 +1168,8 @@ namespace
     vector<Point3df> & norm = s0.normal();
     vector<AimsVector<uint, D> > & poly = s0.polygon();
 
+    PythonHeader & ph = surf->header();
+
     unsigned i, nv = gl->glNumVertex( state );
     const GLfloat* glvert = gl->glVertexArray( state );
     vert.resize( nv );
@@ -1210,9 +1212,20 @@ namespace
 
       for( i=0; i<nt; ++i )
         texture[i] = (T) *gltex++; // FIXME: use scaling
+
+      // palette
+      if( ao->palette() )
+      {
+        cout << "storing palette.\n";
+        const rc_ptr<Volume<AimsRGBA> > cols
+          = ao->palette()->colors()->volume();
+        std::map<int, Object> pal_list;
+        ph.getProperty( "_texture_palettes", pal_list );
+        pal_list[timestep] = Object::value( cols );
+        ph.setProperty( "_texture_palettes", pal_list );
+      }
     }
 
-    PythonHeader & ph = surf->header();
     const PythonAObject *pao = dynamic_cast<const PythonAObject *>( ao );
     if( pao )
       ph.copyProperties( Object::reference( *pao->attributed() ) );
