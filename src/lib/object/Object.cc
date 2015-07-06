@@ -1216,7 +1216,6 @@ namespace
       // palette
       if( ao->palette() )
       {
-        cout << "storing palette.\n";
         const rc_ptr<Volume<AimsRGBA> > cols
           = ao->palette()->colors()->volume();
         std::map<int, Object> pal_list;
