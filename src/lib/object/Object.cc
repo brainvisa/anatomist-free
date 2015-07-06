@@ -752,6 +752,37 @@ const Referential* AObject::previousReferential() const
 }
 
 
+namespace
+{
+
+  // flip y in texture image
+  void _flipTexImage( VolumeRef<AimsRGBA> teximage )
+  {
+    int i, j, z, t,
+      nx = teximage->getSizeX(), ny = teximage->getSizeY(), my = ny / 2,
+      nz = teximage->getSizeZ(), nt = teximage->getSizeT();
+    std::vector<AimsRGBA> line( nx );
+    AimsRGBA *ptr1, *ptr2, *ptr3;
+
+    for( t=0; t<nt; ++t )
+      for( z=0; z<nz; ++z )
+        for( i=0; i<my; ++i )
+        {
+          ptr1 = &teximage->at( 0, i, z, t );
+          line.assign( ptr1, ptr1 + nx );
+          ptr2 = &teximage->at( 0, ny - i - 1, z, t );
+          ptr3 = &line[0];
+          for( j=0; j<nx; ++j )
+          {
+            *ptr1++ = *ptr2;
+            *ptr2++ = *ptr3++;
+          }
+        }
+  }
+
+}
+
+
 void AObject::setHeaderOptions()
 {
   /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": " 
@@ -804,6 +835,7 @@ void AObject::setHeaderOptions()
 
           // texture properties
           if( g && g->glNumTextures() > 0 )
+          {
             try
               {
                 m = o->getProperty( "texture_properties" );
@@ -936,6 +968,59 @@ void AObject::setHeaderOptions()
             catch( ... )
               {
               }
+
+            try
+            {
+              map<int, Object> palettes;
+              if( o->getProperty( "_texture_palettes", palettes ) )
+              {
+                map<int, Object>::const_iterator ip/*, ep = palettes.end()*/;
+                ip=palettes.begin();
+                rc_ptr<Volume<AimsRGBA> > teximage
+                  = ip->second->value<rc_ptr<Volume<AimsRGBA> > >();
+
+                /* We apply custom palettes only if
+                   * it is a 2D texture palette
+                   * we don't already have palette indications in the minf
+                     header.
+
+                  The thing is that applying these palettes will break
+                  anatomist fancy palette dynamics settings since the saved
+                  texture image is a static version of the palette system,
+                  and is only suitable with range (min/max) settings of [0,1].
+
+                  So if we can detect that the object has been saved by
+                  anatomist with reliable 1D palette indications, we use
+                  them, and not the texture image.
+                */
+                if( teximage->getSizeY() > 1 || !o->hasProperty( "palette" ) )
+                {
+                  _flipTexImage( teximage );
+
+                  string palname = name();
+                  rc_ptr<APalette>      pal( new APalette( palname ) );
+
+                  unsigned      i, n;
+                  AimsData<AimsRGBA>    dat( teximage );
+
+                  pal->AimsData<AimsRGBA>::operator = ( dat );
+
+                  theAnatomist->palettes().push_back( pal );
+
+                  AObjectPalette  *opal = palette();
+                  opal->setRefPalette( pal );
+                  opal->setMin1( 0. );
+                  opal->setMax1( 1. );
+                  opal->setMin2( 0. );
+                  opal->setMax2( 1. );
+                  setPalette( *opal );
+                }
+              }
+            }
+            catch( ... )
+            {
+            }
+          }
         }
     }
 }
@@ -1153,29 +1238,6 @@ void AObject::addObjectMenuRegistration( ObjectMenuRegistrerClass * f )
 
 namespace
 {
-
-  // flip y in texture image
-  void _flipTexImage( VolumeRef<AimsRGBA> teximage )
-  {
-    int i, j,
-      nx = teximage->getSizeX(), ny = teximage->getSizeY(), my = ny / 2;
-    std::vector<AimsRGBA> line( nx );
-    AimsRGBA *ptr1, *ptr2, *ptr3;
-
-    for( i=0; i<my; ++i )
-    {
-      ptr1 = &teximage->at( 0, i );
-      line.assign( ptr1, ptr1 + nx );
-      ptr2 = &teximage->at( 0, ny - i - 1 );
-      ptr3 = &line[0];
-      for( j=0; j<nx; ++j )
-      {
-        *ptr1++ = *ptr2;
-        *ptr2++ = *ptr3++;
-      }
-    }
-  }
-
 
   template <int D, typename T>
   Object makeMesh( const AObject* ao, const GLComponent *gl )
