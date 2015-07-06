@@ -77,7 +77,10 @@ namespace anatomist
     virtual const GLfloat* glTexCoordArray( const ViewState &, 
                                             unsigned tex = 0 ) const;
 
-    virtual bool glMakeTexImage( const ViewState & state, 
+    virtual carto::VolumeRef<AimsRGBA> glBuildTexImage(
+      const ViewState & state, unsigned tex, int dimx = -1,
+      int dimy = -1, bool useTexScale = true ) const;
+    virtual bool glMakeTexImage( const ViewState & state,
                                  const GLTexture & gltex, unsigned tex ) const;
 
     /// this function must be overloaded to actually fill the slice image

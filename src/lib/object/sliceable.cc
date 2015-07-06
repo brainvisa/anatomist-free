@@ -364,6 +364,44 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
 }
 
 
+VolumeRef<AimsRGBA> Sliceable::glBuildTexImage(
+  const ViewState & state, unsigned tex, int dimx, int dimy, bool ) const
+{
+  if( !glVertexArray( state ) )
+    return VolumeRef<AimsRGBA>();
+
+  string                id = viewStateID( glGEOMETRY, state );
+  SliceInfo             & si = d->slices[ id ];
+  AImage                xim = si.xim;
+  /* cout << "texture dim: " << xim.effectiveWidth << " x "
+       << xim.effectiveHeight << "; " << xim.width
+       << " x " << xim.height << ", id: " << id << endl; */
+  if( dimx > 0 )
+  {
+    xim.effectiveWidth = dimx;
+    xim.width = dimx;
+  }
+  if( dimy > 0 )
+  {
+    xim.effectiveHeight = dimy;
+    xim.height = dimy;
+  }
+
+  unsigned              w = xim.effectiveWidth, h = xim.effectiveHeight;
+  const SliceViewState  *st = state.sliceVS();
+
+  VolumeRef<AimsRGBA> teximage( w, h );
+
+  xim.data = (char *) &teximage( 0 );
+
+  bool  retcode = update2DTexture( xim, si.posbase, *st, tex );
+  if( retcode )
+    return teximage;
+
+  return VolumeRef<AimsRGBA>();
+}
+
+
 bool Sliceable::glMakeTexImage( const ViewState & state, 
                                 const GLTexture & gltex, unsigned tex ) const
 {

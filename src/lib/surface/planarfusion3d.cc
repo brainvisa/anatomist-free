@@ -176,6 +176,12 @@ GLComponent* PlanarFusion3D::glTexture( unsigned )
 }
 
 
+const AObjectPalette* PlanarFusion3D::glPalette( unsigned ) const
+{
+  return volume()->palette();
+}
+
+
 const GLComponent* PlanarFusion3D::glTexture( unsigned ) const
 {
   return this;
@@ -288,7 +294,11 @@ Tree* PlanarFusion3D::optionTree() const
                                               "Rename object" ) );
       t2->setProperty( "callback", &ObjectActions::renameObject );
       t->insert( t2 );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
+                                              "Save as textured mesh" ) );
+      t2->setProperty( "callback", &ObjectActions::saveStatic );
+      t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
                                               "Export texture" ) );
       t2->setProperty( "callback", &ObjectActions::saveTexture );
       t->insert( t2 );
@@ -552,6 +562,56 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 
   //cout << "refreshTexCoords done\n";
   return true;
+}
+
+
+VolumeRef<AimsRGBA> PlanarFusion3D::glBuildTexImage(
+  const ViewState & state, unsigned tex, int dimx, int dimy,
+  bool /*useTexScale*/ ) const
+{
+  refreshTexCoords( state );
+
+  const GLComponent     *surf = mesh()->glAPI();
+  if( surf->glNumVertex( state ) == 0 )
+    return VolumeRef<AimsRGBA>();
+
+  const Sliceable       *vol = volume()->glAPI()->sliceableAPI();
+
+  AImage        image;
+  int           xdim = d->geometry.DimMax()[0]+1;
+  int           ydim = d->geometry.DimMax()[1]+1;
+  if( dimx > 0 )
+    xdim = dimx;
+  if( dimy > 0 )
+    ydim = dimy;
+  image.width = xdim;
+  image.height = ydim;
+//   if( !useTexScale )
+//   {
+//     image.effectiveWidth = xdim;
+//     image.effectiveHeight = ydim;
+//   }
+//   else
+//   {
+    image.effectiveWidth = 0x1 << (unsigned) ::ceil( ::log( image.width )
+                                                  / ::log(2) );
+    image.effectiveHeight = 0x1 << (unsigned) ::ceil( ::log( image.height )
+                                                    / ::log(2) );
+//   }
+  image.depth = 32;
+
+  VolumeRef<AimsRGBA> teximage( image.effectiveWidth, image.effectiveHeight );
+
+  image.data = (char *) &teximage( 0 );
+
+  SliceViewState        sst( state.time, true, d->origin, &d->quat,
+                             getReferential(), &d->geometry );
+  bool  retcode = vol->update2DTexture( image, d->origin, sst );
+
+  if( retcode )
+    return teximage;
+
+  return VolumeRef<AimsRGBA>();
 }
 
 

@@ -210,6 +210,9 @@ namespace
         if( !restr || types.find( "FLOAT" ) != eir )
           registerProcessType( "Segments", "FLOAT",
                                &loadTexturedMesh<2, float> );
+        if( !restr || types.find( "POINT2DF" ) != eir )
+          registerProcessType( "Segments", "POINT2DF",
+                               &loadTexturedMesh<2, Point2df> );
       }
       r2 = restr && !restricted->hasProperty( "Mesh" );
       if( !r2 )
@@ -230,6 +233,9 @@ namespace
           registerProcessType( "Mesh", "VOID", &loadMesh<3> );
         if( !restr || types.find( "FLOAT" ) != eir )
           registerProcessType( "Mesh", "FLOAT", &loadTexturedMesh<3, float> );
+        if( !restr || types.find( "POINT2DF" ) != eir )
+          registerProcessType( "Mesh", "POINT2DF", &loadTexturedMesh<3,
+                               Point2df> );
       }
       r2 = restr && !restricted->hasProperty( "Mesh4" );
       if( !r2 )
@@ -250,6 +256,9 @@ namespace
           registerProcessType( "Mesh4", "VOID", &loadMesh<4> );
         if( !restr || types.find( "FLOAT" ) != eir )
           registerProcessType( "Mesh4", "FLOAT", &loadTexturedMesh<4, float> );
+        if( !restr || types.find( "POINT2DF" ) != eir )
+          registerProcessType( "Mesh4", "POINT2DF", &loadTexturedMesh<4,
+                               Point2df> );
       }
       r2 = restr && !restricted->hasProperty( "Bucket" );
       if( !r2 )
@@ -651,7 +660,6 @@ namespace
 
     for( im=surf->begin(); im!=em; ++im )
     {
-      cout << "1st pt: " << im->second.vertex()[0] << endl;
       AimsSurface<D, Void> & s0 = (*mesh)[im->first];
       s0.vertex() = im->second.vertex();
       s0.normal() = im->second.normal();
@@ -673,7 +681,7 @@ namespace
     ap.subObjectsToRegister.push_back( make_pair( ao, false ) );
 
     ATexture *to = new ATexture;
-    to->setTexture( rc_ptr<Texture1d>( tex ) );
+    to->setTexture( rc_ptr<TimeTexture<T> >( tex ) );
     ap.subObjectsToRegister.push_back( make_pair( to, false ) );
 
     vector<AObject *>	ts(2);

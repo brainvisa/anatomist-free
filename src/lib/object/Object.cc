@@ -51,6 +51,7 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/surface/glcomponent.h>
+#include <anatomist/surface/glcomponent_internals.h> // for TexInfo struct
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/resampling/quaternion.h>
@@ -1153,6 +1154,29 @@ void AObject::addObjectMenuRegistration( ObjectMenuRegistrerClass * f )
 namespace
 {
 
+  // flip y in texture image
+  void _flipTexImage( VolumeRef<AimsRGBA> teximage )
+  {
+    int i, j,
+      nx = teximage->getSizeX(), ny = teximage->getSizeY(), my = ny / 2;
+    std::vector<AimsRGBA> line( nx );
+    AimsRGBA *ptr1, *ptr2, *ptr3;
+
+    for( i=0; i<my; ++i )
+    {
+      ptr1 = &teximage->at( 0, i );
+      line.assign( ptr1, ptr1 + nx );
+      ptr2 = &teximage->at( 0, ny - i - 1 );
+      ptr3 = &line[0];
+      for( j=0; j<nx; ++j )
+      {
+        *ptr1++ = *ptr2;
+        *ptr2++ = *ptr3++;
+      }
+    }
+  }
+
+
   template <int D, typename T>
   Object makeMesh( const AObject* ao, const GLComponent *gl )
   {
@@ -1206,23 +1230,35 @@ namespace
     unsigned nt = gl->glTexCoordSize( state, tex );
     if( nt != 0 )
     {
+      // palette
+      int nsteps = 256;
+      if( ao->palette() )
+      {
+        const rc_ptr<Volume<AimsRGBA> > teximage
+          = gl->glBuildTexImage( state, tex, -1, -1, false );
+        _flipTexImage( teximage );
+        std::map<int, Object> pal_list;
+        ph.getProperty( "_texture_palettes", pal_list );
+        pal_list[timestep] = Object::value( teximage );
+        ph.setProperty( "_texture_palettes", pal_list );
+        nsteps = teximage->getSizeX();
+      }
+
       const GLfloat* gltex = gl->glTexCoordArray( state, tex );
+      const T* ttex = reinterpret_cast<const T *>( gltex );
       vector<T> & texture = s0.texture();
       texture.resize( nt );
 
-      for( i=0; i<nt; ++i )
-        texture[i] = (T) *gltex++; // FIXME: use scaling
+      // rescale texture
+//       const GLComponent::TexInfo & t = gl->glTexInfo( tex );
 
-      // palette
-      if( ao->palette() )
+      float m = 1. / ( nsteps * 2 );
+      for( i=0; i<nt; ++i )
       {
-        const rc_ptr<Volume<AimsRGBA> > cols
-          = ao->palette()->colors()->volume();
-        std::map<int, Object> pal_list;
-        ph.getProperty( "_texture_palettes", pal_list );
-        pal_list[timestep] = Object::value( cols );
-        ph.setProperty( "_texture_palettes", pal_list );
+        texture[i] = *ttex++;
+//         texture[i] = (T) ( ( *gltex++ + t.texoffset[0] ) * t.texscale[0] ); // FIXME: use object-space scaling
       }
+
     }
 
     const PythonAObject *pao = dynamic_cast<const PythonAObject *>( ao );
@@ -1264,14 +1300,22 @@ namespace
       _write_mesh<3, Void>( meshobj, filename );
     else if( mtype == "rc_ptr of Mesh of FLOAT" )
       _write_mesh<3, float>( meshobj, filename );
+    else if( mtype == "rc_ptr of Mesh of POINT2DF" )
+      _write_mesh<3, Point2df>( meshobj, filename );
     else if( mtype == "rc_ptr of Segments of VOID" )
       _write_mesh<2, Void>( meshobj, filename );
     else if( mtype == "rc_ptr of Segments of FLOAT" )
       _write_mesh<2, float>( meshobj, filename );
+    else if( mtype == "rc_ptr of Segments of POINT2DF" )
+      _write_mesh<2, Point2df>( meshobj, filename );
     else if( mtype == "rc_ptr of Mesh4 of VOID" )
       _write_mesh<4, Void>( meshobj, filename );
     else if( mtype == "rc_ptr of Mesh4 of FLOAT" )
       _write_mesh<4, float>( meshobj, filename );
+    else if( mtype == "rc_ptr of Mesh4 of POINT2DF" )
+      _write_mesh<4, Point2df>( meshobj, filename );
+    else
+      cerr << "Cannot save mesh of type " << mtype << endl;
   }
 
 }
@@ -1311,19 +1355,41 @@ carto::Object AObject::aimsMeshFromGLComponent()
       else
       {
         // textured mesh
-        switch( poly_size )
+        int texdim = gl->glDimTex( state, 0 );
+
+        if( texdim == 2 )
         {
-          case 2:
-            meshobj = makeMesh<2, float>( this, gl );
-            break;
-          case 3:
-            meshobj = makeMesh<3, float>( this, gl );
-            break;
-          case 4:
-            meshobj = makeMesh<4, float>( this, gl );
-            break;
-          default:
-            break;
+          switch( poly_size )
+          {
+            case 2:
+              meshobj = makeMesh<2, Point2df>( this, gl );
+              break;
+            case 3:
+              meshobj = makeMesh<3, Point2df>( this, gl );
+              break;
+            case 4:
+              meshobj = makeMesh<4, Point2df>( this, gl );
+              break;
+            default:
+              break;
+          }
+        }
+        else
+        {
+          switch( poly_size )
+          {
+            case 2:
+              meshobj = makeMesh<2, float>( this, gl );
+              break;
+            case 3:
+              meshobj = makeMesh<3, float>( this, gl );
+              break;
+            case 4:
+              meshobj = makeMesh<4, float>( this, gl );
+              break;
+            default:
+              break;
+          }
         }
       }
     }

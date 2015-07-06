@@ -93,10 +93,14 @@ namespace anatomist
     AObject* volume();
     const AObject* mesh() const;
     AObject* mesh();
+    virtual const AObjectPalette* glPalette( unsigned ) const;
     virtual const GLComponent* glTexture( unsigned ) const;
     virtual GLComponent* glTexture( unsigned );
 
-    virtual bool glMakeTexImage( const ViewState & state, 
+    virtual carto::VolumeRef<AimsRGBA> glBuildTexImage(
+      const ViewState & state, unsigned tex, int dimx = -1,
+      int dimy = -1, bool useTexScale = true ) const;
+    virtual bool glMakeTexImage( const ViewState & state,
                                  const GLTexture & gltex, unsigned tex ) const;
     virtual AObject* fallbackReferentialInheritance() const;
 

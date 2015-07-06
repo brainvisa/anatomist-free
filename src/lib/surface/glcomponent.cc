@@ -906,7 +906,157 @@ void GLComponent::glAddTextures( unsigned ntex )
 }
 
 
-bool GLComponent::glMakeTexImage( const ViewState & state, 
+VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
+  const ViewState & state, unsigned tex, int dimx, int dimy,
+  bool useTexScale ) const
+{
+  // cout << "GLComponent::glBuildTexImage tex " << tex << " for " << this << endl;
+  unsigned      nt = glNumTextures( state );
+  if( tex >= nt )
+    tex = nt - 1;
+
+  const AObjectPalette          *objpal = glPalette( tex );
+  if( !objpal )
+    return VolumeRef<AimsRGBA>();
+
+  const AimsData<AimsRGBA>      *cols = objpal->colors();
+  if( !cols )
+    return VolumeRef<AimsRGBA>();
+  float         min = objpal->min1(), max = objpal->max1();
+  float         min2 = objpal->min2(), max2 = objpal->max2();
+  unsigned      x, y;
+  unsigned      dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
+  int           xs, ys;
+  const TexInfo & t = glTexInfo( tex );
+  TexInfo & ti = d->textures[ tex ];
+
+  if( dimx < 0 )
+  {
+    dimx = dimpx;
+    if( objpal->glMaxSizeX() > 0 )
+      dimx = objpal->glMaxSizeX();
+  }
+
+  if( dimy < 0 )
+  {
+    dimy = dimpy;
+    if( objpal->glMaxSizeY() > 0 )
+      dimy = objpal->glMaxSizeY();
+  }
+
+  // texture dims must be a power of 2
+  for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
+    utmp = utmp << 1;
+  dimx = utmp;
+  for( x=0, utmp=1; x<32 && utmp<dimy; ++x )
+    utmp = utmp << 1;
+  dimy = utmp;
+  if( dimx == 0 )
+    dimx = 1;
+  if( dimy == 0 )
+    dimy = 1;
+
+  if( min == max )
+  {
+    min = 0;
+    max = 1;
+  }
+  if( min2 == max2 )
+  {
+    min2 = 0;
+    max2 = 1;
+  }
+  float facx = ( (float) dimpx ) / ( ( max - min ) * dimx );
+  float facy = ( (float) dimpy ) / ( ( max2 - min2 ) * dimy );
+  float dx = min * cols->dimX() / ( max - min );
+  float dy = min2 * cols->dimY() / ( max2 - min2 );
+
+  // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
+  /* if the texture image can contain the whole colormap, then use it unscaled,
+     and use the OpenGL texture matrix to zoom into it.
+     TODO: in that case we could avoid re-making the teximage if it's already
+     done.
+  */
+  float fxbis = facx;
+  float fybis = facy;
+  float dxbis = 0., dybis = 0.;
+  if( !useTexScale || dimx < dimpx )
+    fxbis = 1.;
+  else
+  {
+    facx = 1.;
+    dxbis = - dx / dimx;
+    dx = 0.;
+  }
+  if( !useTexScale || dimy < dimpy )
+    fybis = 1.;
+  else
+  {
+    facy = 1.;
+    dybis = -dy / dimy;
+    dy = 0.;
+  }
+  if( useTexScale )
+  {
+    ti.texscale[0] = fxbis;
+    ti.texscale[1] = fybis;
+    ti.texscale[2] = 1.;
+    ti.texoffset[0] = dxbis;
+    ti.texoffset[1] = dybis;
+    ti.texoffset[2] = 0.;
+  }
+
+  // allocate colormap
+  VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
+  GLubyte       *texImage = reinterpret_cast<GLubyte *>(
+    &volTexImage.at( 0 ) );
+  GLubyte       *ptr = texImage;
+  AimsRGBA      rgb;
+  bool          rgbi = glTexRGBInterpolation( tex );
+  float         r = t.rate;
+  if( rgbi )
+    r = 1.;
+  GLubyte         ir = 255 - (GLubyte) ( r * 255.9 );
+
+  for( y=0; y<dimy; ++y )
+  {
+    ys = (int) ( facy * y - dy );
+    if( ys < 0 )
+      ys = 0;
+    else if( ys >= (int) dimpy )
+      ys = dimpy - 1;
+    for( x=0; x<dimx; ++x )
+    {
+      xs = (int) ( facx * x - dx );
+      if( xs < 0 )
+        xs = 0;
+      else if( xs >= (int) dimpx )
+        xs = dimpx - 1;
+
+      rgb = (*cols)( xs, ys );
+      if( t.mode == glLINEAR )
+      {
+        *ptr++ = rgb.red();
+        *ptr++ = rgb.green();
+        *ptr++ = rgb.blue();
+        *ptr++ = (GLubyte) ( (float) rgb.alpha() * r );
+      }
+      else
+      {
+        *ptr++ = (GLubyte) ( (float) rgb.red()   ) * r + ir;
+        *ptr++ = (GLubyte) ( (float) rgb.green() ) * r + ir;
+        *ptr++ = (GLubyte) ( (float) rgb.blue()  ) * r + ir;
+        *ptr++ = (GLubyte) rgb.alpha();
+      }
+    }
+  }
+//   cout << "texture : " << dimx << " x " << dimy << endl;
+
+  return volTexImage;
+}
+
+
+bool GLComponent::glMakeTexImage( const ViewState & state,
                                   const GLTexture & gltex, unsigned tex ) const
 {
   // cout << "GLComponent::glMakeTexImage tex " << tex << " for " << this << endl;
@@ -992,13 +1142,13 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
     if( dimtex == 1 )
     {
       glTexImage1D( GL_PROXY_TEXTURE_1D, 0, 4, dimx, 0, GL_RGBA,
-                    GL_FLOAT, 0 );
+                    GL_UNSIGNED_BYTE, 0 );
       glGetTexLevelParameteriv( GL_PROXY_TEXTURE_1D, 0, GL_TEXTURE_WIDTH, &w );
     }
     else if( dimtex == 2 )
     {
       glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA,
-                    GL_FLOAT, 0 );
+                    GL_UNSIGNED_BYTE, 0 );
       glGetTexLevelParameteriv( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w );
     }
     if( w == 0 || status != GL_NO_ERROR )
@@ -1020,113 +1170,21 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
     return false;
   }
 
-  if( min == max )
-    {
-      min = 0;
-      max = 1;
-    }
-  if( min2 == max2 )
-    {
-      min2 = 0;
-      max2 = 1;
-    }
-  float	facx = ( (float) dimpx ) / ( ( max - min ) * dimx );
-  float	facy = ( (float) dimpy ) / ( ( max2 - min2 ) * dimy );
-  float	dx = min * cols->dimX() / ( max - min );
-  float	dy = min2 * cols->dimY() / ( max2 - min2 );
+  VolumeRef<AimsRGBA> texImageVol = glBuildTexImage( state, tex, dimx, dimy );
 
-  // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
-  /* if the texture image can contain the whole colormap, then use it unscaled,
-     and use the OpenGL texture matrix to zoom into it.
-     TODO: in that case we could avoid re-making the teximage if it's already
-     done.
-  */
-  float fxbis = facx;
-  float fybis = facy;
-  float dxbis = 0., dybis = 0.;
-  if( dimx < dimpx )
-    fxbis = 1.;
-  else
-  {
-    facx = 1.;
-    dxbis = - dx / dimx;
-    dx = 0.;
-  }
-  if( dimy < dimpy )
-    fybis = 1.;
-  else
-  {
-    facy = 1.;
-    dybis = -dy / dimy;
-    dy = 0.;
-  }
-  ti.texscale[0] = fxbis;
-  ti.texscale[1] = fybis;
-  ti.texscale[2] = 1.;
-  ti.texoffset[0] = dxbis;
-  ti.texoffset[1] = dybis;
-  ti.texoffset[2] = 0.;
-
-  // allocate colormap
-  GLfloat	*texImage = new GLfloat[ dimx*dimy*4 ];
-  GLfloat	*ptr = texImage;
-  AimsRGBA	rgb;
-  bool		rgbi = glTexRGBInterpolation( tex );
-  float		r = t.rate;
-  if( rgbi )
-    r = 1.;
-  float		ir = 1. - r;
-
-  for( y=0; y<dimy; ++y )
-  {
-    ys = (int) ( facy * y - dy );
-    if( ys < 0 )
-      ys = 0;
-    else if( ys >= (int) dimpy )
-      ys = dimpy - 1;
-    for( x=0; x<dimx; ++x )
-    {
-      xs = (int) ( facx * x - dx );
-      if( xs < 0 )
-        xs = 0;
-      else if( xs >= (int) dimpx )
-        xs = dimpx - 1;
-
-      rgb = (*cols)( xs, ys );
-      if( t.mode == glLINEAR )
-      {
-        *ptr++ = (GLfloat) rgb.red()   / 255;
-        *ptr++ = (GLfloat) rgb.green() / 255;
-        *ptr++ = (GLfloat) rgb.blue()  / 255;
-        *ptr++ = ( (GLfloat) rgb.alpha() / 255 ) * r;
-      }
-      else
-      {
-        *ptr++ = ( (GLfloat) rgb.red()   / 255 ) * r + ir;
-        *ptr++ = ( (GLfloat) rgb.green() / 255 ) * r + ir;
-        *ptr++ = ( (GLfloat) rgb.blue()  / 255 ) * r + ir;
-        *ptr++ = (GLfloat) rgb.alpha() / 255;
-      }
-    }
-  }
-  cout << "texture : " << dimx << " x " << dimy << ", dim: "
-     << dimtex << endl;
-  for(int n = 0; n<35; ++n )
+  GLvoid *texImage = (GLvoid *) &texImageVol.at( 0 );
 
   if( dimtex == 1 )
     glTexImage1D( GL_TEXTURE_1D, 0, 4, dimx, 0, GL_RGBA,
-                  GL_FLOAT, (GLvoid*) texImage );
+                  GL_UNSIGNED_BYTE, texImage );
   else if( dimtex == 2 )
     glTexImage2D( GL_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_RGBA,
-                  GL_FLOAT, (GLvoid*) texImage );
+                  GL_UNSIGNED_BYTE, texImage );
 
   status = glGetError();
   if( status != GL_NO_ERROR )
-    cerr << "GLComponent::glMakeTexImage : OpenGL error 4: " 
+    cerr << "GLComponent::glMakeTexImage : OpenGL error: "
          << gluErrorString(status) << endl;
-
-  //	cleanup temporary texture image
-  delete[] texImage;
 
   return true;
 }

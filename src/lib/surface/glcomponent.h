@@ -38,7 +38,9 @@
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/surface/Shader.h>
+#include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
+#include <cartodata/volume/volume.h>
 #include <vector>
 #include <set>
 
@@ -251,9 +253,29 @@ namespace anatomist
 				  GLPrimitives & pl ) const;
     /// GL list to execute after the body is rendered
     virtual void glAfterBodyGLL( const ViewState & state, 
-				 GLPrimitives & pl ) const;
-    /** If you make non-standard textures (ie not from a palette), overload 
+                                 GLPrimitives & pl ) const;
+    /**  If you make non-standard textures (ie not from a palette), overload
+         this function.
+
+         New in Anatomist 4.5, it is used by glMakeTexImage, and may also be
+         used to save the texture data of an arbitrary object.
+
+         \param dimx and dimy are target texture sizes. If left to -1 (default), the
+         size is calculated internally.
+
+         \param useTexScale if true (default), allow using OpenGL scaling in
+         texture space. Otherwise the palette image will be adapted to
+         fit the scale.
+    */
+    virtual carto::VolumeRef<AimsRGBA> glBuildTexImage(
+      const ViewState & state, unsigned tex, int dimx = -1,
+      int dimy = -1, bool useTexScale = true ) const;
+    /** If you make non-standard textures (ie not from a palette), overload
         this function to fill \c gltex 
+
+        Since Anatomist 4.5, glMakeTexImage calls glBuildTexImage, which is
+        actually the method to be overloaded by subclasses.
+
         \return true on success, false if a texture could not be created
     */
     virtual bool glMakeTexImage( const ViewState & state, 
