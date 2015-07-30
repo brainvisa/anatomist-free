@@ -250,7 +250,6 @@ except:
 
 intersphinx_mapping = {
   'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version + '/sphinx'), None),
-  'somaqtgui': (os.path.join(docpath, 'soma-qtgui-' + version + '/sphinx'), None),
   'pyaims': (os.path.join(docpath, 'pyaims-' + version + '/sphinx'), None),
   'pyana': (os.path.join(docpath, 'pyanatomist-' + version + '/sphinx'), None),
   'aims': (os.path.join(docpath, 'aimsdata-' + version), None),
