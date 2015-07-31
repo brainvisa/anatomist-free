@@ -727,9 +727,9 @@ void QObjectTree::objectRenamed( QTreeWidgetItem* item, int col )
   QString newname = item->text( nameCol );
   AObject * obj = i->second;
   // rename obj
-  if( obj->name() != newname.toUtf8().data() )
+  if( QString( obj->name().c_str() ) != newname )
   {
-    obj->setName( newname.toUtf8().data() );
+    obj->setName( newname.toStdString() );
     theAnatomist->NotifyObjectChange( obj );
   }
 }
