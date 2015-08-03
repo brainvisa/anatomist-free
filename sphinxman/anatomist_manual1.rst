@@ -510,11 +510,6 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
           </ul>
         </td>
       </tr>
-      <tr class="row-even">
-        <td><img src="_static/images/list_fusion2d.png" /></td>
-        <td>FUSION2D Object</td>
-        <td>Object created by merging objects with Fusion2D method (for example: merging two volumes).</td>
-      </tr>
       <tr class="row-odd">
         <td><img src="_static/images/list_fusion3d.png" /></td>
         <td>Texture</td>
@@ -528,6 +523,24 @@ Main objects handled by Anatomist are listed below (the list is not exhaustive b
             <li><tt>.val</tt></li>
           </ul>
         </td>
+      </tr>
+      <tr class="row-odd">
+        <td><img src="_static/images/list_fusion3d.png" /></td>
+        <td>Textured Mesh ("TEXTURED SURF.")</td>
+        <td>
+          Textured surfaces can be saved since Anatomist 4.5. Actually several types of textured meshes (fusion 3D for instane) may be savec this way, but reloading them will load a "standard" textured surface, so dynamical aspects of the object will be lost.
+          <ul>
+            <li>AIMS mesh: <tt>.mesh</tt></li>
+            <li>WAVEFRONT obj: <tt>.obj</tt>.
+              Textured surfaces will be saved with their palette (saved as an image), but palette settings (min/max ranges, absolute values) will be lost since texture values have to be scaled and the palette image is fixed with the current scaling. However this format enables to exchange data with other software (like Blender).
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="row-even">
+        <td><img src="_static/images/list_fusion2d.png" /></td>
+        <td>FUSION2D Object</td>
+        <td>Object created by merging objects with Fusion2D method (for example: merging two volumes).</td>
       </tr>
       <tr class="row-even">
         <td><img src="_static/images/list_fusion3d.png" /></td>
@@ -617,6 +630,8 @@ Most objects are described by common attributes that give information about them
 .. note::
 
   Putting an object in a browser does not always enable to see its attributes, it depends on the type of the object. Indeed, a browser also enables to see the structure of complex objects, like graph nodes.
+
+Some attributes may be loaded with the object, and induce specific interpretation by Anatomist, like colors. See :ref:`obj_minf_properties` for a description of it.
 
 
 Objects visualization

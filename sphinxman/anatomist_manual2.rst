@@ -1505,6 +1505,89 @@ Adding a new palette
 * This new palette will be available in the list of palettes in *Anatomist* when *Anatomist* is restarted. If it is aleady running, use the menu *Settings => Reload palettes*.
 
 
+.. _obj_minf_properties:
+
+Objects properties used at load time
+====================================
+
+When loading objects, the reading system loads any supported format file, then tries to read an additional ``.minf`` file, which is specific to the Anatomist/Aims/BrainVISA framework. This additional file is text-based and may contain a set of properties to be added to the loaded object. Some properties may carry information which does not fit in all file formats (like image properties, diffusion information), coordinates systems specification, or any additional property.
+
+The .minf format may be "python dictionary" (similar to json), or XML.
+
+Some of these properties are interpreted by Anatomist, and may bring information with objects.
+
+.. |referential_prop_doc| replace::
+  referential identifier. The referential property is the one used directly for the object coordinates system. It may be a string identifier for a known referential, or an UUID (unique identifier), with the shape "9a839283-7642-d21a-f67a-836a205be5e3" for instance. Referential identifiers may be used in transformations to handle coordinates systems. String identifiers refer to "standard" referentials, and are mostly derived from the NIFTI referentials identifiers: "Scanner-based anatomical coordinates", "Talairach-MNI template-SPM", "Talairach-AC/PC-Anatomist", "Talairach", "Coordinates aligned to another file or to anatomical truth".
+
+.. |referentials_prop_doc| replace::
+  This is a list of referentials, used as destinations for transformations. The "transformations" property should be the same size as referentials: there is a one-to-one mapping between them. The values are interpreted the same way as for referential.
+
+.. |transformations_prop_doc| replace::
+  A list of affine transformation matrices. Each of them transforms from the object referential (see the "referential" property) to another referential listed in the "referentials" property. Each transformation is given as a list of affine matrix (4x4) coefficients: 16 numbers, the matrix is written as lines.
+
+.. |palette_prop_doc| replace::
+  A dictionary of palette properties. These properties have the same syntax as the :anadev:`SetPalette command <commands.html#setobjectpalette>`
+
+.. |material_prop_doc| replace::
+  A dictionary of material properties. These properties have the same syntax as the :anadev:`SetMaterial command <commands.html#setmaterial>`
+
+.. |texture_properties_prop_doc| replace::
+  List of texture properties. Each element in the list applies to one texture (for multi-textured objects), and is a dictionary of properties. Properties are:
+
+.. |tex_mode_prop| replace::
+  **mode**: mapping mode: "geometric", "linear", "replace", "decal", "blend", "add", "combine", or "linear_on_nonnul".
+
+.. |tex_filtering_prop| replace::
+  **filtering**: texture filtering: "nearest", "linear".
+
+.. |tex_generation_prop| replace::
+  **generation**: texture generation mode: "none", "object_linear", "eye_linear", "sphere_map", "reflection_map", "normal_map".
+
+.. |tex_rate_prop| replace::
+  **rate**: mixing rate (0. - 1.)
+
+.. |tex_interpolation_prop| replace::
+  **interpolation**: color interpolation mode: "palette" (standard), or "rgb".
+
+.. |tex_gen_params_1_prop| replace::
+  **generation_params_1**:
+
+.. |texture_filenames_prop_doc| replace::
+  A mesh file may include textures specification for meshes, making it a textured mesh. The property is a list, each being a one texture filename, thus multitexturiong is allowed this way.
+
+.. |texture_names_prop_doc| replace::
+  list of names assigned to each texture read from the "texture_names" property. Texture names values "red", "green" and "blue" are used as the special case of RGB textures: in this case each is assigned to the red, green and blue channel, respectively.
+
++--------------------+---------------------+-------------------------------+
+| Property:          | Applies to:         | Description:                  |
++====================+=====================+===============================+
+| referential        | all geometrical     | |referential_prop_doc|        |
+|                    | objects             |                               |
++--------------------+---------------------+-------------------------------+
+| referentials       | all geometrical     | |referentials_prop_doc|       |
+|                    | objects             |                               |
++--------------------+---------------------+-------------------------------+
+| transformations    | all geometrical     | |transformations_prop_doc|    |
+|                    | objects             |                               |
++--------------------+---------------------+-------------------------------+
+| palette            | textured objects    | |palette_prop_doc|            |
++--------------------+---------------------+-------------------------------+
+| material           | geometrical objects | |material_prop_doc|           |
++--------------------+---------------------+-------------------------------+
+| texture_properties | textured objects    | |texture_properties_prop_doc| |
+|                    |                     |                               |
+|                    |                     | * |tex_mode_prop|             |
+|                    |                     | * |tex_filtering_prop|        |
+|                    |                     | * |tex_generation_prop|       |
+|                    |                     | * |tex_rate_prop|             |
+|                    |                     | * |tex_interpolation_prop|    |
++--------------------+---------------------+-------------------------------+
+| texture_filenames  | meshes              | |texture_filenames_prop_doc|  |
++--------------------+---------------------+-------------------------------+
+| texture_names      | meshes              | |texture_names_prop_doc|      |
++--------------------+---------------------+-------------------------------+
+
+
 Sulci nomenclature
 ==================
 
