@@ -114,31 +114,250 @@ def fixMatplotlib():
 
 
 class _ProcDeleter( object ):
-  def __init__( self, o ):
-    self.o = o
-  def __del__( self ):
-    self.o.kill()
+    def __init__( self, o ):
+        self.o = o
+    def __del__( self ):
+        self.o.kill()
+
+from zmq.eventloop import ioloop
+from zmq.eventloop.ioloop import IOLoop
+import signal
+import thread
+import logging
+import heapq
+
+def _my_ioloop_start(self):
+        # this is a hacked version of tornado.ioloop.PollIOLoop.start()
+        # with smaller timeout (2 instead of 3600 s)
+        # and breaks when idle with this max timeout
+        if not logging.getLogger().handlers:
+            # The IOLoop catches and logs exceptions, so it's
+            # important that log output be visible.  However, python's
+            # default behavior for non-root loggers (prior to python
+            # 3.2) is to print an unhelpful "no handlers could be
+            # found" message rather than the actual log entry, so we
+            # must explicitly configure logging if we've made it this
+            # far without anything.
+            logging.basicConfig()
+        if self._stopped:
+            self._stopped = False
+            return
+        old_current = getattr(IOLoop._current, "instance", None)
+        IOLoop._current.instance = self
+        self._thread_ident = thread.get_ident()
+        self._running = True
+
+        # signal.set_wakeup_fd closes a race condition in event loops:
+        # a signal may arrive at the beginning of select/poll/etc
+        # before it goes into its interruptible sleep, so the signal
+        # will be consumed without waking the select.  The solution is
+        # for the (C, synchronous) signal handler to write to a pipe,
+        # which will then be seen by select.
+        #
+        # In python's signal handling semantics, this only matters on the
+        # main thread (fortunately, set_wakeup_fd only works on the main
+        # thread and will raise a ValueError otherwise).
+        #
+        # If someone has already set a wakeup fd, we don't want to
+        # disturb it.  This is an issue for twisted, which does its
+        # SIGCHILD processing in response to its own wakeup fd being
+        # written to.  As long as the wakeup fd is registered on the IOLoop,
+        # the loop will still wake up and everything should work.
+        old_wakeup_fd = None
+        if hasattr(signal, 'set_wakeup_fd') and os.name == 'posix':
+            # requires python 2.6+, unix.  set_wakeup_fd exists but crashes
+            # the python process on windows.
+            try:
+                old_wakeup_fd = signal.set_wakeup_fd(self._waker.write_fileno())
+                if old_wakeup_fd != -1:
+                    # Already set, restore previous value.  This is a little racy,
+                    # but there's no clean get_wakeup_fd and in real use the
+                    # IOLoop is just started once at the beginning.
+                    signal.set_wakeup_fd(old_wakeup_fd)
+                    old_wakeup_fd = None
+            except ValueError:  # non-main thread
+                pass
+
+        iter = 0
+        while True:
+            do_break = True
+            poll_timeout = 2.0
+
+            # Prevent IO event starvation by delaying new callbacks
+            # to the next iteration of the event loop.
+            with self._callback_lock:
+                callbacks = self._callbacks
+                self._callbacks = []
+            for callback in callbacks:
+                do_berak = False
+                self._run_callback(callback)
+
+            if self._timeouts:
+                now = self.time()
+                while self._timeouts:
+                    if self._timeouts[0].callback is None:
+                        # the timeout was cancelled
+                        do_break = False
+                        heapq.heappop(self._timeouts)
+                        self._cancellations -= 1
+                    elif self._timeouts[0].deadline <= now:
+                        do_break = False
+                        timeout = heapq.heappop(self._timeouts)
+                        self._run_callback(timeout.callback)
+                    else:
+                        seconds = self._timeouts[0].deadline - now
+                        poll_timeout = min(seconds, poll_timeout)
+                        if poll_timeout < 2.:
+                            do_break = False
+                        break
+                if (self._cancellations > 512
+                        and self._cancellations > (len(self._timeouts) >> 1)):
+                    # Clean up the timeout queue when it gets large and it's
+                    # more than half cancellations.
+                    self._cancellations = 0
+                    self._timeouts = [x for x in self._timeouts
+                                      if x.callback is not None]
+                    heapq.heapify(self._timeouts)
+
+            if self._callbacks:
+                do_break = False
+                # If any callbacks or timeouts called add_callback,
+                # we don't want to wait in poll() before we run them.
+                poll_timeout = 0.0
+
+            if not self._running:
+                break
+
+            if self._blocking_signal_threshold is not None:
+                # clear alarm so it doesn't fire while poll is waiting for
+                # events.
+                signal.setitimer(signal.ITIMER_REAL, 0, 0)
+
+            if do_break:
+                break ## END LOOP NOW.
+
+            try:
+                event_pairs = self._impl.poll(poll_timeout)
+            except Exception as e:
+                # Depending on python version and IOLoop implementation,
+                # different exception types may be thrown and there are
+                # two ways EINTR might be signaled:
+                # * e.errno == errno.EINTR
+                # * e.args is like (errno.EINTR, 'Interrupted system call')
+                if (getattr(e, 'errno', None) == errno.EINTR or
+                    (isinstance(getattr(e, 'args', None), tuple) and
+                     len(e.args) == 2 and e.args[0] == errno.EINTR)):
+                    continue
+                else:
+                    raise
+
+            if self._blocking_signal_threshold is not None:
+                signal.setitimer(signal.ITIMER_REAL,
+                                 self._blocking_signal_threshold, 0)
+
+            # Pop one fd at a time from the set of pending fds and run
+            # its handler. Since that handler may perform actions on
+            # other file descriptors, there may be reentrant calls to
+            # this IOLoop that update self._events
+            self._events.update(event_pairs)
+            while self._events:
+                fd, events = self._events.popitem()
+                try:
+                    self._handlers[fd](fd, events)
+                except (OSError, IOError) as e:
+                    if e.args[0] == errno.EPIPE:
+                        # Happens when the client closes the connection
+                        pass
+                    else:
+                        app_log.error("Exception in I/O handler for fd %s",
+                                      fd, exc_info=True)
+                except Exception:
+                    app_log.error("Exception in I/O handler for fd %s",
+                                  fd, exc_info=True)
+
+        # reset the stopped flag so another start/stop pair can be issued
+        self._stopped = False
+        if self._blocking_signal_threshold is not None:
+            signal.setitimer(signal.ITIMER_REAL, 0, 0)
+        IOLoop._current.instance = old_current
+        if old_wakeup_fd is not None:
+            signal.set_wakeup_fd(old_wakeup_fd)
 
 
-def runIPConsoleKernel():
+def runIPConsoleKernel(mode='qtconsole'):
   import IPython
   from IPython.lib import guisupport
   qtapp = QApplication.instance()
   qtapp._in_event_loop = True
   guisupport.in_event_loop  = True
   ipversion = [ int(x) for x in IPython.__version__.split('.') ]
-  if ipversion >= [ 1, 0 ]:
+
+  if False: # ipversion >= [3, 0]:
+    # embedded ipython engine + qt loop in the same process.
+    # works for ipython >= 3 but forbids connection from outside
+    # so it is not so interesting after all.
+    os.environ['QT_API'] = 'pyqt'
+    from IPython.qt.inprocess import QtInProcessKernelManager
+    kernel_manager = QtInProcessKernelManager()
+    kernel_manager.start_kernel()
+    kernel = kernel_manager.kernel
+    kernel.gui = 'qt4'
+    #kernel.shell.push({'foo': 43, 'print_process_id': print_process_id})
+
+    kernel_client = kernel_manager.client()
+    kernel_client.start_channels()
+
+    def stop():
+        kernel_client.stop_channels()
+        kernel_manager.shutdown_kernel()
+
+    from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+    control = RichIPythonWidget()
+    control.kernel_manager = kernel_manager
+    control.kernel_client = kernel_client
+    control.exit_requested.connect(stop)
+    control.show()
+    return None
+
+  elif ipversion >= [1, 0]:
     from IPython.kernel.zmq.kernelapp import IPKernelApp
     app = IPKernelApp.instance()
     if not app.initialized() or not app.kernel:
       print 'runing IP console kernel'
       app.hb_port = 50042 # don't know why this is not set automatically
-      app.initialize( [ 'qtconsole', '--pylab=qt',
-        "--KernelApp.parent_appname='ipython-qtconsole'" ] )
-      # in ipython 1.2, this call blocks until a ctrl-c is issued in the 
+      app.initialize([mode, '--pylab=qt',
+        "--KernelApp.parent_appname='ipython-%s'" % mode])
+      # in ipython >= 1.2, app.start() blocks until a ctrl-c is issued in the
       # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
-      app.start()
+      #
+      # So, don't call app.start because it would begin a zmq/tornado loop
+      # instead we must just initialize its callback.
+      #if app.poller is not None:
+          #app.poller.start()
+      app.kernel.start()
+
+      from zmq.eventloop import ioloop
+      if ipversion >= [3, 0]:
+        # IP 3 allows just calling the current callbacks.
+        # For IP 1 it is not sufficient. Use the hacked copy of the start()
+        def my_start_ioloop_callbacks(self):
+            with self._callback_lock:
+                callbacks = self._callbacks
+                self._callbacks = []
+            for callback in callbacks:
+                self._run_callback(callback)
+
+        my_start_ioloop_callbacks(ioloop.IOLoop.instance())
+      else:
+        # For IP 1, use the hacked copy of the start() method
+        try:
+            _my_ioloop_start(ioloop.IOLoop.instance())
+        except KeyboardInterrupt:
+            pass
+      return app
+
   else:
+    # ipython 0.x API
     from IPython.zmq.ipkernel import IPKernelApp
     app = IPKernelApp.instance()
     if not app.initialized() or not app.kernel:
@@ -146,8 +365,6 @@ def runIPConsoleKernel():
       app.hb_port = 50042 # don't know why this is not set automatically
       app.initialize( [ 'qtconsole', '--pylab=qt',
         "--KernelApp.parent_appname='ipython-qtconsole'" ] )
-      # in ipython 1.2, this call blocks until a ctrl-c is issued in the 
-      # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
       app.start()
   return app
 
@@ -170,12 +387,27 @@ def ipythonQtConsoleShell():
     ipmodule = 'IPython.terminal.ipapp'
   else:
     ipmodule = 'IPython.frontend.terminal.ipapp'
-  sp = subprocess.Popen( [ exe, '-c',
-    'from %s import launch_new_instance; launch_new_instance()' % ipmodule, 'qtconsole', '--existing',
-    '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
-    '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
-  _ipsubprocs.append( _ProcDeleter( sp ) )
+  if ipConsole:
+    sp = subprocess.Popen( [ exe, '-c',
+      'from %s import launch_new_instance; launch_new_instance()' % ipmodule, 'qtconsole', '--existing',
+      '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
+      '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
+    _ipsubprocs.append( _ProcDeleter( sp ) )
   return 1
+
+
+def ipythonNotebook():
+  try:
+    import IPython
+    fixMatplotlib()
+  except:
+    return 0
+  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
+  if ipversion < [ 0, 11 ]:
+    return 0 # Qt console does not exist in ipython <= 0.10
+  global _ipsubprocs
+  ipConsole = runIPConsoleKernel('notebook')
+
 
 def ipythonShell():
   global consoleShellRunning
@@ -378,6 +610,7 @@ if cw is not None:
   pcshell = pop.addAction( 'Pycute shell', pyCuteShell )
   pshell = pop.addAction( 'Console standard python shell', pythonShell )
   pyshell = pop.addAction( 'PyShell', pyShell )
+  #ipnotebook = pop.addAction( 'IPython Notebook server', ipythonNotebook )
   p.addSeparator()
   p.addAction( 'list loaded python modules', listmods )
   p.addAction( 'run python script file...', loadpython )
@@ -390,9 +623,11 @@ if cw is not None:
     fixMatplotlib()
     if [ int(x) for x in IPython.__version__.split('.') ] < [ 0, 11 ]:
       ipcshell.setEnabled( False )
+      #ipnotebook.setEnabled(False)
   except:
     ipcshell.setEnabled( False )
     ipshell.setEnabled( False )
+    #ipnotebook.setEnabled(False)
   try:
     import Tkinter
     try:
