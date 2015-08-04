@@ -285,128 +285,132 @@ def _my_ioloop_start(self):
 
 
 def runIPConsoleKernel(mode='qtconsole'):
-  import IPython
-  from IPython.lib import guisupport
-  qtapp = QApplication.instance()
-  qtapp._in_event_loop = True
-  guisupport.in_event_loop  = True
-  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
+    import IPython
+    from IPython.lib import guisupport
+    qtapp = QApplication.instance()
+    qtapp._in_event_loop = True
+    guisupport.in_event_loop  = True
+    ipversion = [int(x) for x in IPython.__version__.split('.')]
 
-  if False: # ipversion >= [3, 0]:
-    # embedded ipython engine + qt loop in the same process.
-    # works for ipython >= 3 but forbids connection from outside
-    # so it is not so interesting after all.
-    os.environ['QT_API'] = 'pyqt'
-    from IPython.qt.inprocess import QtInProcessKernelManager
-    kernel_manager = QtInProcessKernelManager()
-    kernel_manager.start_kernel()
-    kernel = kernel_manager.kernel
-    kernel.gui = 'qt4'
-    #kernel.shell.push({'foo': 43, 'print_process_id': print_process_id})
+    if False: # ipversion >= [3, 0]:
+        # embedded ipython engine + qt loop in the same process.
+        # works for ipython >= 3 but forbids connection from outside
+        # so it is not so interesting after all.
+        os.environ['QT_API'] = 'pyqt'
+        from IPython.qt.inprocess import QtInProcessKernelManager
+        kernel_manager = QtInProcessKernelManager()
+        kernel_manager.start_kernel()
+        kernel = kernel_manager.kernel
+        kernel.gui = 'qt4'
+        #kernel.shell.push({'foo': 43, 'print_process_id': print_process_id})
 
-    kernel_client = kernel_manager.client()
-    kernel_client.start_channels()
+        kernel_client = kernel_manager.client()
+        kernel_client.start_channels()
 
-    def stop():
-        kernel_client.stop_channels()
-        kernel_manager.shutdown_kernel()
+        def stop():
+            kernel_client.stop_channels()
+            kernel_manager.shutdown_kernel()
 
-    from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-    control = RichIPythonWidget()
-    control.kernel_manager = kernel_manager
-    control.kernel_client = kernel_client
-    control.exit_requested.connect(stop)
-    control.show()
-    return None
+        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+        control = RichIPythonWidget()
+        control.kernel_manager = kernel_manager
+        control.kernel_client = kernel_client
+        control.exit_requested.connect(stop)
+        control.show()
+        return None
 
-  elif ipversion >= [1, 0]:
-    from IPython.kernel.zmq.kernelapp import IPKernelApp
-    app = IPKernelApp.instance()
-    if not app.initialized() or not app.kernel:
-      print 'runing IP console kernel'
-      app.hb_port = 50042 # don't know why this is not set automatically
-      app.initialize([mode, '--pylab=qt',
-        "--KernelApp.parent_appname='ipython-%s'" % mode])
-      # in ipython >= 1.2, app.start() blocks until a ctrl-c is issued in the
-      # terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
-      #
-      # So, don't call app.start because it would begin a zmq/tornado loop
-      # instead we must just initialize its callback.
-      #if app.poller is not None:
-          #app.poller.start()
-      app.kernel.start()
+    elif ipversion >= [1, 0]:
+        from IPython.kernel.zmq.kernelapp import IPKernelApp
+        app = IPKernelApp.instance()
+        if not app.initialized() or not app.kernel:
+          print 'runing IP console kernel'
+          app.hb_port = 50042 # don't know why this is not set automatically
+          app.initialize([mode, '--pylab=qt',
+              "--KernelApp.parent_appname='ipython-%s'" % mode])
+          # in ipython >= 1.2, app.start() blocks until a ctrl-c is issued in
+          # the terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
+          #
+          # So, don't call app.start because it would begin a zmq/tornado loop
+          # instead we must just initialize its callback.
+          #if app.poller is not None:
+              #app.poller.start()
+          app.kernel.start()
 
-      from zmq.eventloop import ioloop
-      if ipversion >= [3, 0]:
-        # IP 3 allows just calling the current callbacks.
-        # For IP 1 it is not sufficient. Use the hacked copy of the start()
-        def my_start_ioloop_callbacks(self):
-            with self._callback_lock:
-                callbacks = self._callbacks
-                self._callbacks = []
-            for callback in callbacks:
-                self._run_callback(callback)
+          from zmq.eventloop import ioloop
+          if ipversion >= [3, 0]:
+              # IP 3 allows just calling the current callbacks.
+              # For IP 1 it is not sufficient.
+              def my_start_ioloop_callbacks(self):
+                  with self._callback_lock:
+                      callbacks = self._callbacks
+                      self._callbacks = []
+                  for callback in callbacks:
+                      self._run_callback(callback)
 
-        my_start_ioloop_callbacks(ioloop.IOLoop.instance())
-      else:
-        # For IP 1, use the hacked copy of the start() method
-        try:
-            _my_ioloop_start(ioloop.IOLoop.instance())
-        except KeyboardInterrupt:
-            pass
-      return app
+              my_start_ioloop_callbacks(ioloop.IOLoop.instance())
+          else:
+              # For IP 1, use the hacked copy of the start() method
+              try:
+                  _my_ioloop_start(ioloop.IOLoop.instance())
+              except KeyboardInterrupt:
+                  pass
+          return app
 
-  else:
-    # ipython 0.x API
-    from IPython.zmq.ipkernel import IPKernelApp
-    app = IPKernelApp.instance()
-    if not app.initialized() or not app.kernel:
-      print 'runing IP console kernel'
-      app.hb_port = 50042 # don't know why this is not set automatically
-      app.initialize( [ 'qtconsole', '--pylab=qt',
-        "--KernelApp.parent_appname='ipython-qtconsole'" ] )
-      app.start()
-  return app
+    else:
+        # ipython 0.x API
+        from IPython.zmq.ipkernel import IPKernelApp
+        app = IPKernelApp.instance()
+        if not app.initialized() or not app.kernel:
+            print 'runing IP console kernel'
+            app.hb_port = 50042 # don't know why this is not set automatically
+            app.initialize( [ 'qtconsole', '--pylab=qt',
+                "--KernelApp.parent_appname='ipython-qtconsole'" ] )
+            app.start()
+        return app
+
 
 def ipythonQtConsoleShell():
-  try:
-    import IPython
-    fixMatplotlib()
-  except:
-    return 0
-  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
-  if ipversion < [ 0, 11 ]:
-    return 0 # Qt console does not exist in ipython <= 0.10
-  global _ipsubprocs
-  ipConsole = runIPConsoleKernel()
-  import subprocess
-  exe = sys.executable
-  if sys.platform == 'darwin':
-    exe = 'python'
-  if ipversion >= [ 1, 0 ]:
-    ipmodule = 'IPython.terminal.ipapp'
-  else:
-    ipmodule = 'IPython.frontend.terminal.ipapp'
-  if ipConsole:
-    sp = subprocess.Popen( [ exe, '-c',
-      'from %s import launch_new_instance; launch_new_instance()' % ipmodule, 'qtconsole', '--existing',
-      '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
-      '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port ] )
-    _ipsubprocs.append( _ProcDeleter( sp ) )
-  return 1
+    try:
+        import IPython
+        fixMatplotlib()
+    except:
+        return 0
+    ipversion = [int(x) for x in IPython.__version__.split('.')]
+    if ipversion < [0, 11]:
+        return 0 # Qt console does not exist in ipython <= 0.10
+    global _ipsubprocs
+    ipConsole = runIPConsoleKernel()
+    import subprocess
+    exe = sys.executable
+    if sys.platform == 'darwin':
+        exe = 'python'
+    if ipversion >= [ 1, 0 ]:
+        ipmodule = 'IPython.terminal.ipapp'
+    else:
+        ipmodule = 'IPython.frontend.terminal.ipapp'
+    if ipConsole:
+        sp = subprocess.Popen([exe, '-c',
+            'from %s import launch_new_instance; launch_new_instance()' \
+                % ipmodule,
+            'qtconsole', '--existing',
+            '--shell=%d' % ipConsole.shell_port,
+            '--iopub=%d' % ipConsole.iopub_port,
+            '--stdin=%d' % ipConsole.stdin_port,
+            '--hb=%d' % ipConsole.hb_port ] )
+        _ipsubprocs.append( _ProcDeleter( sp ) )
+    return 1
 
 
 def ipythonNotebook():
-  try:
-    import IPython
-    fixMatplotlib()
-  except:
-    return 0
-  ipversion = [ int(x) for x in IPython.__version__.split('.') ]
-  if ipversion < [ 0, 11 ]:
-    return 0 # Qt console does not exist in ipython <= 0.10
-  global _ipsubprocs
-  ipConsole = runIPConsoleKernel('notebook')
+    try:
+        import IPython
+        fixMatplotlib()
+    except:
+        return 0
+    ipversion = [ int(x) for x in IPython.__version__.split('.') ]
+    if ipversion < [ 0, 11 ]:
+        return 0 # Qt console does not exist in ipython <= 0.10
+    ipConsole = runIPConsoleKernel('notebook')
 
 
 def ipythonShell():
