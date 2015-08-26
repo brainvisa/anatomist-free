@@ -45,14 +45,18 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/reference/Transformation.h>
-#include <qpushbutton.h>
+
 #include <aims/qtcompat/qhbuttongroup.h>
 #include <aims/qtcompat/qvbuttongroup.h>
+#include <aims/qtcompat/qhgroupbox.h>
+#include <aims/qtcompat/qvgroupbox.h>
+#include <aims/qtcompat/qhbox.h>
+#include <aims/qtcompat/qvbox.h>
+
+#include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
 #include <qcombobox.h>
 #include <queue>
 #include <aims/resampling/quaternion.h>

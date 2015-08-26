@@ -38,7 +38,6 @@
 #include <anatomist/window/winFactory.h>
 #include <anatomist/application/module.h>
 #include <qmenubar.h>
-#include <aims/qtcompat/qaccel.h>
 #include <graph/tree/tree.h>
 #include <QMenuItem>
 

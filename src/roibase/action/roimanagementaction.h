@@ -35,21 +35,20 @@
 #define ROI_MANAGEMENT_ACTION_H
 
 #include <anatomist/controler/action.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <anatomist/observer/Observer.h>
 #include <anatomist/observer/Observable.h>
 #include <anatomist/object/Object.h>
 #include <string>
 #include <qstringlist.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qlistbox.h>
 #include <qdialog.h>
-#include <qcombobox.h>
 #include <map>
 
-class AStringList ;
-class AWindow3D ;
+class AStringList;
+class AWindow3D;
+class QListWidget;
+class QListWidgetItem;
+class QComboBox;
 
 namespace anatomist
 {
@@ -80,16 +79,11 @@ public slots:
 private:
   QStringList mySelectedRegions ;
   QString myNewRegionName ;
-  QVBoxLayout * l ;
-  QVBox * frame ;
-  QListBox * selectRegions ;
+  QListWidget * selectRegions ;
   QComboBox * selectRegionName ;
-  QHBox * buttons ;
-  QPushButton * okButton ;
-  QPushButton * cancelButton ;
 } ;
 
-class RoiManagementActionView : public QVBox, public anatomist::Observer
+class RoiManagementActionView : public QWidget, public anatomist::Observer
 {
   
   Q_OBJECT
@@ -107,20 +101,12 @@ public:
   static void objectLoaded( anatomist::Observable* );
   
 private slots :
-#if QT_VERSION >= 0x040000
-  void selectGraph( Q3ListBoxItem * ) ;
-  void renameGraph( Q3ListBoxItem * ) ;
-  void selectRegion( Q3ListBoxItem * ) ;
-  void renameRegion( Q3ListBoxItem * ) ;
-  void selectImage( Q3ListBoxItem * ) ;
-  void contextMenu( Q3ListBoxItem *, const QPoint & );
-#else
-  void selectGraph( QListBoxItem * ) ;
-  void renameGraph( QListBoxItem * ) ;
-  void selectRegion( QListBoxItem * ) ;
-  void renameRegion( QListBoxItem * ) ;
-  void selectImage( QListBoxItem * ) ;
-#endif
+  void selectGraph( int );
+  void renameGraph( QListWidgetItem * ) ;
+  void selectRegion( int ) ;
+  void renameRegion( QListWidgetItem * ) ;
+  void selectImage( int ) ;
+  void contextMenu( const QPoint & );
   void newGraph( ) ;
   void deleteGraph( ) ;
   void loadGraph( ) ;

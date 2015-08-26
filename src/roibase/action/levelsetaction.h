@@ -41,9 +41,8 @@
 #include <anatomist/object/Object.h>
 
 #include <aims/bucket/bucketMap.h>
+#include <QWidget>
 #include <queue>
-
-#include <aims/qtcompat/qvbox.h>
 
 
 namespace anatomist
@@ -176,7 +175,7 @@ namespace anatomist
 
 
 
-class RoiLevelSetActionView : public QVBox, public anatomist::Observer
+class RoiLevelSetActionView : public QWidget, public anatomist::Observer
 {
   Q_OBJECT
   

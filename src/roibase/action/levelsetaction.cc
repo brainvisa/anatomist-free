@@ -49,14 +49,16 @@
 #include <anatomist/misc/error.h>
 #include <qpushbutton.h>
 #include <aims/resampling/quaternion.h>
-#include <aims/qtcompat/qhbuttongroup.h>
 #include <aims/qtcompat/qvbuttongroup.h>
+#include <aims/qtcompat/qhbuttongroup.h>
+#include <aims/qtcompat/qvbox.h>
+#include <aims/qtcompat/qhbox.h>
+#include <aims/qtcompat/qvgroupbox.h>
+#include <aims/qtcompat/qhgroupbox.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlineedit.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
 #include <qcombobox.h>
 #include <queue>
 
@@ -107,23 +109,31 @@ namespace anatomist
   } ;
 };
 
-RoiLevelSetActionView::RoiLevelSetActionView( anatomist::RoiLevelSetAction *  action,
-					      QWidget * parent ) :
-  QVBox(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
+RoiLevelSetActionView::RoiLevelSetActionView(
+  anatomist::RoiLevelSetAction *  action,
+  QWidget * parent ) :
+  QWidget(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
 {
   //cout << "RoiLevelSetActionView::RoiLevelSetActionView" << endl ;
   _private = new RoiLevelSetActionView_Private ;
   _private->myLevelSetAction = action ;
   RoiLevelSetActionSharedData::instance()->addObserver(this) ;
 
+  QVBoxLayout *lay = new QVBoxLayout( this );
+
   _private->myHistoPlot = new RoiHistoPlot(this, 100) ;
-  _private->myActivateButtonGroup = new QHButtonGroup(tr("Threshold Preview Activation"), this ) ;
-  _private->myActivateButton = new QPushButton( tr("Activate Threshold Preview"), 
-						_private->myActivateButtonGroup ) ;
+  lay->addWidget( _private->myHistoPlot );
+  _private->myActivateButtonGroup = new QHButtonGroup(
+      tr("Threshold Preview Activation"), this );
+  lay->addWidget( _private->myActivateButtonGroup );
+  _private->myActivateButton = new QPushButton(
+    tr("Activate Threshold Preview"),
+    _private->myActivateButtonGroup );
   _private->myActivateButton->setToggleButton(true) ;
 
-  _private->myDeactivateButton = new QPushButton( tr("Deactivate Threshold Preview"),
-						  _private->myActivateButtonGroup ) ;
+  _private->myDeactivateButton = new QPushButton(
+    tr("Deactivate Threshold Preview"),
+    _private->myActivateButtonGroup );
   _private->myDeactivateButton->setToggleButton(true) ;
   
   _private->myActivateButtonGroup->insert( _private->myActivateButton, 0 ) ;
@@ -131,7 +141,8 @@ RoiLevelSetActionView::RoiLevelSetActionView( anatomist::RoiLevelSetAction *  ac
   _private->myActivateButtonGroup->setExclusive(true) ;
   _private->myActivateButtonGroup->setButton( 1 ) ;
 
-  _private->myLowLevelGroupBox =  new QHGroupBox( tr("Low Level"), this ) ;
+  _private->myLowLevelGroupBox =  new QHGroupBox( tr("Low Level"), this );
+  lay->addWidget( _private->myLowLevelGroupBox );
   _private->myLowLevelSlider = 
     new QSlider( -10, 1010, 1, int(_private->myLevelSetAction->lowLevel() * 1000. ),
 		 Qt::Horizontal, _private->myLowLevelGroupBox ) ;
@@ -140,17 +151,21 @@ RoiLevelSetActionView::RoiLevelSetActionView( anatomist::RoiLevelSetAction *  ac
   _private->myLowLevelValueLabel->setFixedWidth(80) ;
   _private->myLowLevelSlider->setEnabled(false) ;
   _private->myHistoPlot->lowChanged( _private->myLevelSetAction->realMin() ) ;
-  _private->myHighLevelGroupBox =  new QHGroupBox( tr("High Level"), this ) ;
-  _private->myHighLevelSlider = new QSlider( -10, 1010, 1, int(_private->myLevelSetAction->highLevel()*1000.),
-					     Qt::Horizontal, 
-					     _private->myHighLevelGroupBox );
-  _private->myHighLevelValueLabel =  new QLabel( QString::number( _private->myLevelSetAction->realMax() ), 
-						 _private->myHighLevelGroupBox ) ;
+  _private->myHighLevelGroupBox = new QHGroupBox( tr("High Level"), this );
+  lay->addWidget( _private->myHighLevelGroupBox );
+  _private->myHighLevelSlider = new QSlider(
+    -10, 1010, 1, int(_private->myLevelSetAction->highLevel()*1000.),
+    Qt::Horizontal,
+    _private->myHighLevelGroupBox );
+  _private->myHighLevelValueLabel =  new QLabel(
+    QString::number( _private->myLevelSetAction->realMax() ),
+    _private->myHighLevelGroupBox ) ;
   _private->myHighLevelValueLabel->setFixedWidth(80) ;
   _private->myHighLevelSlider->setEnabled(false) ;
   _private->myHistoPlot->highChanged( _private->myLevelSetAction->realMax() ) ;
 
-  _private->myModes = new QHBox( this ) ;
+  _private->myModes = new QHBox( this );
+  lay->addWidget( _private->myModes );
   _private->myDimensionMode = new QVBox( _private->myModes ) ;
   //_private->myDimensionBox = new QVGroupBox(tr("Dimension"), _private->myModes )  ;
   _private->myDimensions = new QVButtonGroup( tr("Dimension"), _private->myDimensionMode ) ;

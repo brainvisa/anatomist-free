@@ -355,16 +355,16 @@ bool QAWindow::needsRedraw() const
 void QAWindow::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QAWindow::dragEnterEvent\n";
-  event->setAccepted( QAObjectDrag::canDecode( event )
-      || QAObjectDrag::canDecodeURI( event ) );
+  event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
+      || QAObjectDrag::canDecodeURI( event->mimeData() ) );
 }
 
 
 void QAWindow::dragMoveEvent( QDragMoveEvent* event )
 {
   //cout << "QAWindow::dragMoveEvent\n";
-  event->setAccepted( QAObjectDrag::canDecode( event )
-      || QAObjectDrag::canDecodeURI( event ) );
+  event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
+      || QAObjectDrag::canDecodeURI( event->mimeData() ) );
 }
 
 
@@ -374,8 +374,8 @@ void QAWindow::dropEvent( QDropEvent* event )
   if( event->source() == this )
     return;
 
-  event->setAccepted( QAObjectDrag::canDecode( event )
-      || QAObjectDrag::canDecodeURI( event ) );
+  event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
+      || QAObjectDrag::canDecodeURI( event->mimeData() ) );
   if( !event->isAccepted() )
     return;
 
@@ -383,8 +383,8 @@ void QAWindow::dropEvent( QDropEvent* event )
   list<QString> objects;
   list<QString> scenars;
 
-  if( !QAObjectDrag::decode( event, o )
-       && QAObjectDrag::decodeURI( event, objects, scenars ) )
+  if( !QAObjectDrag::decode( event->mimeData(), o )
+       && QAObjectDrag::decodeURI( event->mimeData(), objects, scenars ) )
   {
     list<QString>::iterator       is, es = objects.end();
     for( is=objects.begin(); is!=es; ++is )
@@ -468,13 +468,15 @@ void QAWindow::mouseMoveEvent( QMouseEvent * ev )
   }
   if( !so.empty() )
   {
-    QDragObject *d = new QAObjectDrag( so, this, "dragObject" );
+    QAObjectDrag *d = new QAObjectDrag( so );
+    QDrag *drag = new QDrag( this );
+    drag->setMimeData( d );
 
     map<int, QPixmap>::const_iterator	ip
       = QObjectTree::TypeIcons.find( (*so.begin())->type() );
     if( ip != QObjectTree::TypeIcons.end() )
-      d->setPixmap( (*ip).second );
-    d->dragCopy();
+      drag->setPixmap( (*ip).second );
+    drag->exec( Qt::CopyAction );
     ev->accept();
   }
   else

@@ -48,6 +48,7 @@ namespace anatomist
   class Bucket;
 }
 
+class Q3ListViewItem;
 
 class PerfusionProcessingQtDecorator : public QObject
 {
@@ -97,11 +98,7 @@ public slots:
   void setDose( const QString& );
   void setPhiGd( const QString& );
 
-#if QT_VERSION >= 0x040000
   void linkedCursor( Q3ListViewItem * );
-#else
-   void linkedCursor( QListViewItem * );
-#endif
 
   void mapClicked( int );
   void saveMaps();

@@ -39,7 +39,8 @@
 #include <iostream>
 
 #ifdef QT3_SUPPORT
-#include <aims/qtcompat/qserversocket.h>
+#undef QT3_SUPPORT
+// #include <aims/qtcompat/qserversocket.h>
 #endif
 
 using namespace anatomist;

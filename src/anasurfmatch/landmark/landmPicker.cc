@@ -45,7 +45,6 @@
 #include <anatomist/object/actions.h>
 #include <graph/tree/tree.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qvbox.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
 
@@ -126,36 +125,44 @@ namespace anatomist
 //	class
 
 ALandmarkPicker::ALandmarkPicker( const set<AObject *> & obj ) 
-  : QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), _obj( obj ),
+  : QWidget( theAnatomist->getQWidgetAncestor() ), _obj( obj ),
     _privdata( new ALandmarkPicker_privateData )
 {
   QString				title = tr( "Landmark picker : " );
   set<AObject *>::const_iterator	io, fo = obj.end();
-   setObjectName("LandmarkPicker");
-   setAttribute(Qt::WA_DeleteOnClose);
+  setObjectName("LandmarkPicker");
+  setAttribute(Qt::WA_DeleteOnClose);
   for( io=obj.begin(); io!=fo; ++io )
-    {
-      (*io)->addObserver( this );
-      title += (*io)->name().c_str();
-      title + " ";
-    }
-  
-  setCaption( title );
+  {
+    (*io)->addObserver( this );
+    title += (*io)->name().c_str();
+    title + " ";
+  }
+
+  setWindowTitle( title );
 
   QHBoxLayout	*mainlay = new QHBoxLayout( this );
   mainlay->setSpacing( 10 );
   mainlay->setMargin( 5 );
 
-  QVBox		*leftpan = new QVBox( this );
-  QVBox		*rightpan = new QVBox( this );
+  QWidget *leftpan = new QWidget( this );
+  QWidget *rightpan = new QWidget( this );
   mainlay->addWidget( leftpan );
   mainlay->addWidget( rightpan );
+  QVBoxLayout *llay = new QVBoxLayout;
+  leftpan->setLayout( llay );
+  llay->setMargin( 5 );
+  llay->setSpacing( 5 );
+  QVBoxLayout *rlay = new QVBoxLayout;
+  rightpan->setLayout( rlay );
+  rlay->setMargin( 5 );
+  rlay->setSpacing( 5 );
 
   _privdata->modebox = new QComboBox( leftpan );
-  _privdata->modebox->insertItem( tr( "Nearest" ) );
+  _privdata->modebox->addItem( tr( "Nearest" ) );
 
-  QPushButton	*gobtn = new QPushButton( tr( "Pick landmark" ), rightpan, 
-					  "pick" );
+  QPushButton	*gobtn = new QPushButton( tr( "Pick landmark" ), rightpan);
+  gobtn->setObjectName( "pick" );
   connect( gobtn, SIGNAL( clicked() ), this, SLOT( pickPoint() ) );
 }
 

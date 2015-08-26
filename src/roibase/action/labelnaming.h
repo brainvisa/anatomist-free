@@ -40,7 +40,6 @@
 #include <aims/bucket/bucketMap.h>
 
 #include <queue>
-#include <aims/qtcompat/qvbox.h>
 
 
 namespace anatomist
@@ -106,34 +105,6 @@ namespace anatomist
     };
   };
 }
-
-
-
-/* class RoiLabelNamingActionView : public QVBox, public anatomist::Observer */
-/* { */
-/*   Q_OBJECT */
-  
-/* public: */
-/*   RoiLabelNamingActionView( anatomist::RoiLabelNamingAction *  myAction, */
-/* 			 QWidget * parent ) ; */
-/*   virtual ~RoiLabelNamingActionView() ; */
-  
-/*   virtual void update( const anatomist::Observable *, void * ) ; */
-
-/* public slots: */
-/*   void levelSetActivationChanged( int button ) ; */
-/*   void lowLevelChanged( int newLowLevel ) ; */
-/*   void highLevelChanged( int newHighLevel ) ; */
-/*   void dimensionModeChanged( int newDimensionMode ) ; */
-/*   void maxSizeChanged( int newMaxSize ) ; */
-/*   void mixFactorChanged( int newMixFactor ) ; */
-/*   void mixMethodChanged( const QString& newMixMethod ) ; */
-  
-/* private: */
-/*   float myChangingFlag ; */
-/*   float myUpdatingFlag ; */
-/*   anatomist::RoiLabelNamingActionView_Private * _private ; */
-/* }; */
 
 
 inline bool 

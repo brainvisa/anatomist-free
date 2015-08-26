@@ -36,7 +36,7 @@
 #define ANATOMIST_CONTROL_OBJECTDRAG_H
 
 
-#include <aims/qtcompat/qdragobject.h>
+#include <QMimeData>
 #include <set>
 #include <list>
 
@@ -45,34 +45,17 @@ namespace anatomist
 {
   class AObject;
 
-  class QAObjectDrag : public QUriDrag
+  class QAObjectDrag : public QMimeData
   {
   public:
-    QAObjectDrag( const std::set<AObject *> &, QWidget * dragSource = 0, 
-                  const char * name = 0 );
+    QAObjectDrag( const std::set<AObject *> & );
     virtual ~QAObjectDrag();
 
-    virtual const char* format( int n = 0 ) const;
-    virtual QByteArray encodedData( const char* ) const;
-    virtual bool provides( const char *mimeType ) const;
-
-/*#if QT_VERSION >= 0x040000
-    static bool canDecode( const QDropEvent * e );
-    static bool canDecodeURI( const QDropEvent * e );
-    static bool decode( const QDropEvent * e, std::set<AObject *> & o );
-    static bool decodeURI( const QDropEvent * e, std::list<QString> & obj,
+    static bool canDecode( const QMimeData * e );
+    static bool canDecodeURI( const QMimeData * e );
+    static bool decode( const QMimeData * e, std::set<AObject *> & o );
+    static bool decodeURI( const QMimeData * e, std::list<QString> & obj,
                            std::list<QString> & scenars );
-#else*/
-    static bool canDecode( const QMimeSource * e );
-    static bool canDecodeURI( const QMimeSource * e );
-    static bool decode( const QMimeSource * e, std::set<AObject *> & o );
-    static bool decodeURI( const QMimeSource * e, std::list<QString> & obj,
-                           std::list<QString> & scenars );
-// #endif
-
-  private:
-    struct Private;
-    Private *d;
   };
 
 }

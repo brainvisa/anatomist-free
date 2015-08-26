@@ -36,7 +36,7 @@
 #define ANATOMIST_CONTROL_WINDOWDRAG_H
 
 
-#include <aims/qtcompat/qdragobject.h>
+#include <QMimeData>
 #include <set>
 
 
@@ -44,15 +44,14 @@ namespace anatomist
 {
   class AWindow;
 
-  class QAWindowDrag : public QStoredDrag
+  class QAWindowDrag : public QMimeData
   {
   public:
-    QAWindowDrag( const std::set<AWindow *> &, QWidget * dragSource = 0, 
-		  const char * name = 0 );
+    QAWindowDrag( const std::set<AWindow *> & );
     virtual ~QAWindowDrag();
 
-    static bool canDecode( const QMimeSource * e );
-    static bool decode( const QMimeSource * e, std::set<AWindow *> & o );
+    static bool canDecode( const QMimeData * e );
+    static bool decode( const QMimeData * e, std::set<AWindow *> & o );
   };
 
 }

@@ -57,6 +57,7 @@
 #include <aims/qtcompat/qfiledialog.h>
 #include <qapplication.h>
 #include <aims/qtcompat/qbutton.h>
+#include <aims/qtcompat/qlistview.h>
 #include <qcheckbox.h>
 
 #include <stdio.h>

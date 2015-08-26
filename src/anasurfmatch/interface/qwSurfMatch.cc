@@ -41,20 +41,16 @@
 #include <cartobase/thread/thread.h>
 #include <cartobase/thread/semaphore.h>
 #include <graph/tree/tree.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <aims/qtcompat/qgrid.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qcheckbox.h>
 #include <qlineedit.h>
-#include <aims/qtcompat/qlistbox.h>
 #include <qcursor.h>
 #include <qevent.h>
+#include <QListWidget>
 #include <qapplication.h>
+#include <QGroupBox>
 #include <iostream>
 
 
@@ -91,8 +87,8 @@ struct QSurfMatchWin::Widgets
   Semaphore		interfaceSem;
   bool			beingDestroyed;
   bool			needsNotifyUpdate;
-  QListBox		*orgPtsBox;
-  QListBox		*dstPtsBox;
+  QListWidget		*orgPtsBox;
+  QListWidget	        *dstPtsBox;
   vector<unsigned>	orgPtsVec;
   vector<Point3df>	dstPtsVec;
   bool			grabView;
@@ -100,43 +96,68 @@ struct QSurfMatchWin::Widgets
 
 
 QSurfMatchWin::QSurfMatchWin( QWidget* parent, ASurfMatcher* obj )
-  : QWidget( parent, "QSurfMatchWin", Qt::WDestructiveClose ), _obj( obj ),
+  : QWidget( parent ), _obj( obj ),
     _widgets( new QSurfMatchWin::Widgets( this ) )
 {
+  setObjectName( "QSurfMatchWin" );
+  setAttribute( Qt::WA_DeleteOnClose );
   obj->addObserver( this );
 
   QString	str = tr( "Surface matching control: " );
   str += obj->name().c_str();
-  setCaption( str );
+  setWindowTitle( str );
 
-  QHBoxLayout	*mainLay = new QHBoxLayout( this, 5 );
-  QVBox		*leftPanel = new QVBox( this );
+  QHBoxLayout	*mainLay = new QHBoxLayout( this );
+  mainLay->setMargin( 5 );
+  QWidget	*leftPanel = new QWidget( this );
   mainLay->addWidget( leftPanel );
-  QHGroupBox	*direction = new QHGroupBox( tr( "Direction :" ), leftPanel );
-  new QLabel( tr( "From:" ), direction );
+  QVBoxLayout *llay = new QVBoxLayout;
+  leftPanel->setLayout( llay );
+
+  QGroupBox	*direction = new QGroupBox( tr( "Direction :" ), leftPanel );
+  llay->addWidget( direction );
+  QHBoxLayout *dirlay = new QHBoxLayout;
+  direction->setLayout( dirlay );
+  dirlay->addWidget( new QLabel( tr( "From:" ), direction ) );
   _widgets->orgLabel = new QLabel( direction );
-  new QLabel( tr( "to:" ), direction );
+  dirlay->addWidget( _widgets->orgLabel );
+  dirlay->addWidget( new QLabel( tr( "to:" ), direction ) );
   _widgets->dstLabel = new QLabel( direction );
+  dirlay->addWidget( _widgets->dstLabel );
   _widgets->orgLabel->setFrameStyle( QFrame::Sunken | QFrame::Panel );
   _widgets->dstLabel->setFrameStyle( QFrame::Sunken | QFrame::Panel );
-  _widgets->orgLabel->setBackgroundColor( QColor( 255, 255, 255 ) );
-  _widgets->dstLabel->setBackgroundColor( QColor( 255, 255, 255 ) );
+  QPalette palette;
+  palette.setColor(_widgets->orgLabel->backgroundRole(),
+                   QColor( 255, 255, 255 ) );
+  _widgets->orgLabel->setPalette( palette );
+  _widgets->dstLabel->setPalette( palette );
   fillDirectionLabel();
   QPushButton	*chgDirBtn = new QPushButton( tr( "Change" ), direction );
+  dirlay->addWidget( chgDirBtn );
   chgDirBtn->setFixedSize( chgDirBtn->sizeHint() );
 
-  QHGroupBox	*recBox = new QHGroupBox( tr( "Record over time:" ),
-					  leftPanel );
+  QGroupBox	*recBox = new QGroupBox( tr( "Record over time:" ),
+                                         leftPanel );
+  llay->addWidget( recBox );
+  QHBoxLayout *reclay = new QHBoxLayout;
+  recBox->setLayout( reclay );
   QCheckBox	*rec = new QCheckBox( tr( "On / Off" ), recBox );
+  reclay->addWidget( rec );
   rec->setChecked( _obj->record() );
 
-  QHGroupBox	*proc = new QHGroupBox( tr( "Processing:" ), leftPanel );
+  QGroupBox	*proc = new QGroupBox( tr( "Processing:" ), leftPanel );
+  llay->addWidget( proc );
+  QHBoxLayout *proclay = new QHBoxLayout;
+  proc->setLayout( proclay );
   _widgets->startBtn = new QPushButton( tr( "Start" ), proc );
+  proclay->addWidget( _widgets->startBtn );
   _widgets->startBtn->setFixedSize( _widgets->startBtn->sizeHint() );
   _widgets->stopBtn = new QPushButton( tr( "Stop" ), proc );
+  proclay->addWidget( _widgets->stopBtn );
   _widgets->stopBtn->setFixedSize( _widgets->stopBtn->sizeHint() );
   _widgets->stopBtn->setEnabled( false );
   _widgets->resetBtn = new QPushButton( tr( "Reset" ), proc );
+  proclay->addWidget( _widgets->resetBtn );
   _widgets->resetBtn->setFixedSize( _widgets->resetBtn->sizeHint() );
 
   mainLay->addWidget( paramWidget( this ) );
@@ -289,6 +310,19 @@ bool QSurfMatchWin::event( QEvent *e )
 }
 
 
+namespace
+{
+
+  class ThreadBridgeEvent : public QEvent
+  {
+  public:
+    ThreadBridgeEvent() : QEvent( QEvent::Type( QEvent::User + 103 ) ) {}
+    virtual ~ThreadBridgeEvent() {}
+  };
+
+}
+
+
 void QSurfMatchWin::processThread()
 {
   // cout << "QSurfMatchWin::processThread\n";
@@ -299,7 +333,7 @@ void QSurfMatchWin::processThread()
 
       // cout << "process step finished\n";
       // envoie le signal au thread de l'interface pour faire un refresh
-      QApplication::postEvent( this, new QCustomEvent( QEvent::User + 103 ) );
+      QApplication::postEvent( this, new ThreadBridgeEvent );
       // attendre que ce soit fait pour continuer
       if( !_widgets->beingDestroyed )
         _widgets->interfaceSem.wait();
@@ -311,7 +345,7 @@ void QSurfMatchWin::processThread()
   _widgets->processRunning = false;
   /* déclencher un dernier signal pour arrêter tout du côté du thread
      interface */
-  QApplication::postEvent( this, new QCustomEvent( QEvent::User + 103 ) );
+  QApplication::postEvent( this, new ThreadBridgeEvent );
   // cout << "thread stopped\n";
 }
 
@@ -368,27 +402,32 @@ QWidget* QSurfMatchWin::paramWidget( QWidget* parent )
   SyntaxSet	ss( _obj->paramSyntax() );
   Tree		par( _obj->parameters() );
 
-  QWidget		*pw = new QVGroupBox( tr( "Matching parameters:" ),
-					      parent );
+  QWidget		*pw = new QGroupBox( tr( "Matching parameters:" ),
+                                             parent );
   Object		is;
-  QGrid			*gd = new QGrid( 2, pw );
+  QGridLayout           *gdlay = new QGridLayout;
   QLabel		*lab;
   QLineEdit		*ed;
   string		str;
+  int                   row = 0;
 
-  gd->setSpacing( 5 );
+  pw->setLayout( gdlay );
+  gdlay->setMargin( 5 );
+  gdlay->setSpacing( 5 );
 
-  for( is=par.objectIterator(); is->isValid(); is->next() )
+  for( is=par.objectIterator(); is->isValid(); is->next(), ++row )
     {
       str = is->key();
-      lab = new QLabel( str.c_str(), gd );
-      ed = new QSurfMatchWin_AttEdit( str, strAttribute( str, par, ss ), gd );
+      lab = new QLabel( str.c_str(), pw );
+      gdlay->addWidget( lab, row, 0 );
+      ed = new QSurfMatchWin_AttEdit( str, strAttribute( str, par, ss ), pw );
+      gdlay->addWidget( ed, row, 1 );
       lab->setMinimumSize( lab->sizeHint() );
       ed->setMinimumSize( ed->sizeHint() );
       connect( ed, SIGNAL( textChanged( const std::string &,
-					const QString & ) ),
-	       this,
-	       SLOT( paramChanged( const std::string &, const QString & ) ) );
+                                        const QString & ) ),
+               this,
+               SLOT( paramChanged( const std::string &, const QString & ) ) );
     }
 
   return( pw );
@@ -461,23 +500,28 @@ void QSurfMatchWin::paramChanged( const string & attrib, const QString & val )
 
 QWidget* QSurfMatchWin::ctrlPointsWidget( QWidget* parent )
 {
-  QVGroupBox	*box = new QVGroupBox( tr( "Control points:" ), parent );
-  QGrid		*listsBox = new QGrid( 2, box );
-  listsBox->setSpacing( 10 );
-  new QLabel( tr( "Origin surface:" ), listsBox );
-  new QLabel( tr( "Destination surface:" ), listsBox );
-  _widgets->orgPtsBox = new QListBox( listsBox );
-  _widgets->dstPtsBox = new QListBox( listsBox );
-  QPushButton	*addc1 = new QPushButton( tr( "Add point (click)" ),
-					  listsBox );
-  QPushButton	*addc2 = new QPushButton( tr( "Add point (click)" ),
-					  listsBox );
-  QPushButton	*addn1 = new QPushButton( tr( "Add point (number)" ),
-					  listsBox );
-  QPushButton	*addn2 = new QPushButton( tr( "Add point (number)" ),
-					  listsBox );
-  QPushButton	*del1 = new QPushButton( tr( "Delete point" ), listsBox );
-  QPushButton	*del2 = new QPushButton( tr( "Delete point" ), listsBox );
+  QGroupBox	*box = new QGroupBox( tr( "Control points:" ), parent );
+
+  QGridLayout	*listlay = new QGridLayout( box );
+  listlay->setSpacing( 10 );
+  listlay->addWidget( new QLabel( tr( "Origin surface:" ), box ), 0, 0 );
+  listlay->addWidget( new QLabel( tr( "Destination surface:" ), box ), 0, 1 );
+  _widgets->orgPtsBox = new QListWidget( box );
+  listlay->addWidget( _widgets->orgPtsBox, 1, 0 );
+  _widgets->dstPtsBox = new QListWidget( box );
+  listlay->addWidget( _widgets->dstPtsBox, 1, 1 );
+  QPushButton	*addc1 = new QPushButton( tr( "Add point (click)" ), box );
+  listlay->addWidget( addc1, 2, 0 );
+  QPushButton	*addc2 = new QPushButton( tr( "Add point (click)" ), box );
+  listlay->addWidget( addc2, 2, 1 );
+  QPushButton	*addn1 = new QPushButton( tr( "Add point (number)" ), box );
+  listlay->addWidget( addn1, 3, 0 );
+  QPushButton	*addn2 = new QPushButton( tr( "Add point (number)" ), box );
+  listlay->addWidget( addn2, 3, 1 );
+  QPushButton	*del1 = new QPushButton( tr( "Delete point" ), box );
+  listlay->addWidget( del1, 4, 0 );
+  QPushButton	*del2 = new QPushButton( tr( "Delete point" ), box );
+  listlay->addWidget( del2, 4, 1 );
   fillCtrlPoints();
 
   connect( addc1, SIGNAL( clicked() ), this, SLOT( addPointByClickOrg() ) );
@@ -487,7 +531,7 @@ QWidget* QSurfMatchWin::ctrlPointsWidget( QWidget* parent )
   connect( del1, SIGNAL( clicked() ), this, SLOT( deletePointOrg() ) );
   connect( del2, SIGNAL( clicked() ), this, SLOT( deletePointDst() ) );
 
-  return( box );
+  return box;
 }
 
 
@@ -496,8 +540,8 @@ void QSurfMatchWin::fillCtrlPoints()
   _widgets->orgPtsVec = _obj->orgControlPoints();
   _widgets->dstPtsVec = _obj->destControlPoints();
 
-  QListBox			*org = _widgets->orgPtsBox;
-  QListBox			*dst = _widgets->dstPtsBox;
+  QListWidget			*org = _widgets->orgPtsBox;
+  QListWidget			*dst = _widgets->dstPtsBox;
   const vector<unsigned>	& ov = _widgets->orgPtsVec;
   const vector<Point3df>	& dv = _widgets->dstPtsVec;
   unsigned			i, n;
@@ -506,11 +550,11 @@ void QSurfMatchWin::fillCtrlPoints()
   dst->clear();
 
   for( i=0, n=ov.size(); i<n; ++i )
-    org->insertItem( QString::number( ov[i] ) );
+    org->addItem( QString::number( ov[i] ) );
   for( i=0, n=dv.size(); i<n; ++i )
-    dst->insertItem( QString( "( " ) + QString::number( dv[i][0] )
-		     + ", " + QString::number( dv[i][1] )
-		     + ", " + QString::number( dv[i][2] ) + " )" );
+    dst->addItem( QString( "( " ) + QString::number( dv[i][0] )
+                  + ", " + QString::number( dv[i][1] )
+                  + ", " + QString::number( dv[i][2] ) + " )" );
 }
 
 
@@ -552,7 +596,7 @@ void QSurfMatchWin::addPointByClickOrg()
     }
 
   _widgets->orgPtsVec.push_back( index );
-  _widgets->orgPtsBox->insertItem( QString::number( index ) );
+  _widgets->orgPtsBox->addItem( QString::number( index ) );
   _obj->setOrgControlPoints( _widgets->orgPtsVec );
 }
 
@@ -569,10 +613,10 @@ void QSurfMatchWin::addPointByClickDst()
 
   Point3df	pt = (*w.begin())->getPosition();
   _widgets->dstPtsVec.push_back( pt );
-  _widgets->dstPtsBox->insertItem( QString( "( " )
-				   + QString::number( pt[0] ) + ", "
-				   + QString::number( pt[1] ) + ", "
-				   + QString::number( pt[2] ) + " )" );
+  _widgets->dstPtsBox->addItem( QString( "( " )
+                                + QString::number( pt[0] ) + ", "
+                                + QString::number( pt[1] ) + ", "
+                                + QString::number( pt[2] ) + " )" );
   _obj->setDestControlPoints( _widgets->dstPtsVec );
 
   /*if( theAnatomist->viewControl() )
@@ -599,7 +643,7 @@ void QSurfMatchWin::addPointByNumOrg()
       unsigned	num = QString( sed->text().c_str() ).toUInt( &valid );
       if( valid )
 	{
-	  _widgets->orgPtsBox->insertItem( QString::number( num ) );
+	  _widgets->orgPtsBox->addItem( QString::number( num ) );
 	  _widgets->orgPtsVec.push_back( num );
 	  _obj->setOrgControlPoints( _widgets->orgPtsVec );
 	}
@@ -625,13 +669,13 @@ void QSurfMatchWin::addPointByNumDst()
 	    {
 	      const Point3df	& pt = surf->surface()->vertex()[num];
 
-	      _widgets->dstPtsBox->insertItem( QString( "( " )
-					       + QString::number( pt[0] )
-					       + ", "
-					       + QString::number( pt[1] )
-					       + ", "
-					       + QString::number( pt[2] )
-					       + " )" );
+	      _widgets->dstPtsBox->addItem( QString( "( " )
+                                            + QString::number( pt[0] )
+                                            + ", "
+                                            + QString::number( pt[1] )
+                                            + ", "
+                                            + QString::number( pt[2] )
+                                            + " )" );
 	      _widgets->dstPtsVec.push_back( pt );
 	      _obj->setDestControlPoints( _widgets->dstPtsVec );
 	    }
@@ -644,9 +688,9 @@ void QSurfMatchWin::addPointByNumDst()
 
 void QSurfMatchWin::deletePointOrg()
 {
-  int	item = _widgets->orgPtsBox->currentItem();
+  int	item = _widgets->orgPtsBox->currentRow();
 
-  if( item >= 0 && _widgets->orgPtsBox->isSelected( item ) )
+  if( item >= 0 && _widgets->orgPtsBox->item( item )->isSelected() )
     {
       delete _widgets->orgPtsBox->item( item );
       _widgets->orgPtsVec.erase( _widgets->orgPtsVec.begin() + item );
@@ -657,9 +701,9 @@ void QSurfMatchWin::deletePointOrg()
 
 void QSurfMatchWin::deletePointDst()
 {
-  int	item = _widgets->dstPtsBox->currentItem();
+  int	item = _widgets->dstPtsBox->currentRow();
 
-  if( item >= 0 && _widgets->dstPtsBox->isSelected( item ) )
+  if( item >= 0 && _widgets->dstPtsBox->item( item )->isSelected() )
     {
       delete _widgets->dstPtsBox->item( item );
       _widgets->dstPtsVec.erase( _widgets->dstPtsVec.begin() + item );

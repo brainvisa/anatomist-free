@@ -49,13 +49,9 @@
 #include <anatomist/misc/error.h>
 #include <qpushbutton.h>
 #include <aims/resampling/quaternion.h>
-#include <aims/qtcompat/qhbuttongroup.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
 #include <qcombobox.h>
 #include <queue>
 #include <qmessagebox.h>

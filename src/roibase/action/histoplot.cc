@@ -46,7 +46,6 @@
 #include <qstring.h>
 #include <qfiledialog.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qpushbutton.h>
 #include <iomanip>
 #if QWT_VERSION >= 0x050000
@@ -69,13 +68,11 @@ struct RoiHistoPlot::Private
 public:
   Private();
 
-  QHBox * myLabels ;
   QLabel * myImageLabel ;
   QLabel * myGraphLabel ;
     
   QwtPlot * myPlotArea ;
 
-  QHBox * myData ;
   QPushButton * myIgnoreUnderLowButton ;
   QSpinBox * myBinBox ;
   QPushButton * myComputeSessionHisto ;
@@ -103,7 +100,7 @@ RoiHistoPlot::Private::Private() :
 
 
 RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
-  QVBox(parent), Observer(), myImage(""), myGraph(""), myIgnoreForMax(0),
+  QWidget(parent), Observer(), myImage(""), myGraph(""), myIgnoreForMax(0),
   myNbOfBins(nbOfBins), myHistoMax(0.), myHighLevel(100.), myLowLevel(0.), 
   myActivate(false), myShowImageHisto(true)
 {
@@ -114,16 +111,26 @@ RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
   
   _private = new Private ;
   
-  _private->myLabels = new QHBox( this ) ;
-  new QLabel(tr("Image"), _private->myLabels ) ;
+  QVBoxLayout *lay = new QVBoxLayout( this );
+
+  QWidget *myLabels = new QWidget( this ) ;
+  lay->addWidget( myLabels );
+  QHBoxLayout *lablay = new QHBoxLayout( myLabels );
+  lablay->addWidget( new QLabel(tr("Image"), myLabels ) );
   
-  _private->myImageLabel = new QLabel( RoiManagementActionSharedData::instance()->currentImage().c_str(), 
-				    _private->myLabels ) ;
-  new QLabel(tr("ROI Session"), _private->myLabels ) ;
-  _private->myGraphLabel = new QLabel( RoiManagementActionSharedData::instance()->currentGraph().c_str(), 
-				    _private->myLabels ) ;
+  _private->myImageLabel = new QLabel(
+    RoiManagementActionSharedData::instance()->currentImage().c_str(),
+    myLabels );
+  lablay->addWidget( _private->myImageLabel );
+  lablay->addWidget( new QLabel(tr("ROI Session"), myLabels ) );
+  _private->myGraphLabel = new QLabel(
+    RoiManagementActionSharedData::instance()->currentGraph().c_str(),
+    myLabels );
+  lablay->addWidget( _private->myGraphLabel );
   
-  _private->myPlotArea = new QwtPlot( this ) ;
+  _private->myPlotArea = new QwtPlot( this );
+  lay->addWidget( _private->myPlotArea );
+
 #if QWT_VERSION >= 0x050000
 //   _private->myMarkerMin = new QwtPlotMarker;
 //   _private->myMarkerMin->attach( _private->myPlotArea );
@@ -133,15 +140,26 @@ RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
   _private->myPlotArea->insertLegend( new QwtLegend( _private->myPlotArea ) );
 #endif
   
-  _private->myData = new QHBox( this ) ;
-  new QLabel(tr("Bins"), _private->myData ) ;
-  _private->myBinBox = new QSpinBox(10, 1000, 1, _private->myData ) ;
+  QWidget *myData = new QWidget( this );
+  lay->addWidget( myData );
+  QHBoxLayout *datalay = new QHBoxLayout( myData );
+
+  datalay->addWidget( new QLabel(tr("Bins"), myData ) );
+  _private->myBinBox = new QSpinBox( myData );
+  _private->myBinBox->setRange( 10, 1000 );
+  _private->myBinBox->setSingleStep( 1 );
+  datalay->addWidget( _private->myBinBox );
   _private->myBinBox->setValue( myNbOfBins ) ;
-  _private->myIgnoreUnderLowButton = new QPushButton( tr("Ignore Under Low"), _private->myData ) ;
+  _private->myIgnoreUnderLowButton = new QPushButton( tr("Ignore Under Low"),
+                                                      myData );
+  datalay->addWidget( _private->myIgnoreUnderLowButton );
   
-  _private->myComputeSessionHisto = new QPushButton( ( myShowImageHisto ? tr("Roi Histos") :
-						       tr("Image Histo") ), _private->myData ) ;
-  _private->mySaveHistos = new QPushButton( tr("Save Histos"), _private->myData ) ;
+  _private->myComputeSessionHisto = new QPushButton(
+    ( myShowImageHisto ? tr("Roi Histos") : tr("Image Histo") ), myData );
+  datalay->addWidget( _private->myComputeSessionHisto );
+  _private->mySaveHistos = new QPushButton(
+    tr("Save Histos"), myData );
+  datalay->addWidget( _private->mySaveHistos );
 
   connect( _private->myBinBox, SIGNAL( valueChanged ( int ) ), 
 	   this, SLOT( nbOfBinsChanged( int ) ) ) ;
@@ -522,10 +540,10 @@ RoiHistoPlot::saveHistos()
   QString filt = ControlWindow::tr( "Anatomist Histograms" ) + " (*.anahis)" ;
   QString capt = "Save histos" ;
   
-  QString filename = QFileDialog::getSaveFileName( QString::null,
-    filt, 0, 0, capt );
+  QString filename = QFileDialog::getSaveFileName( 0, capt, QString::null,
+    filt, 0 );
   if( !filename.isNull() )
-    printHistos( filename.utf8().data() ) ;
+    printHistos( filename.toStdString() ) ;
 }
 
 void 

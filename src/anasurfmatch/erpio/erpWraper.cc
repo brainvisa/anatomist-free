@@ -41,8 +41,6 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/actions.h>
 #include <graph/tree/tree.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qlineedit.h>
@@ -84,37 +82,51 @@ ErpWraper::ErpWraper( ATexture* obj, const string & dirname, QWidget* parent )
   : QWidget( parent ),
     _dirname( dirname ), _texture( obj ), _data( new ErpWraper_data )
 {
-   setObjectName("ErpWraper");
-   setAttribute(Qt::WA_DeleteOnClose);
-  setCaption( tr( "ERP loader : " ) + dirname.c_str() );
+  setObjectName("ErpWraper");
+  setAttribute(Qt::WA_DeleteOnClose);
+  setWindowTitle( tr( "ERP loader : " ) + dirname.c_str() );
   obj->addObserver( this );
   scanDir();
 
   QHBoxLayout	*mainLay = new QHBoxLayout( this );
-  QVBox	*leftPanel = new QVBox( this );
-  leftPanel->setSpacing( 5 );
-  leftPanel->setMargin( 10 );
+  QWidget	*leftPanel = new QWidget( this );
+  QVBoxLayout *llay = new QVBoxLayout;
+  leftPanel->setLayout( llay );
+  llay->setSpacing( 5 );
+  llay->setMargin( 10 );
   mainLay->addWidget( leftPanel );
 
-  QHBox	*cellbox = new QHBox( leftPanel );
-  cellbox->setSpacing( 10 );
+  QWidget	*cellbox = new QWidget( leftPanel );
+  llay->addWidget( cellbox );
+  QHBoxLayout *celllay = new QHBoxLayout;
+  cellbox->setLayout( celllay );
+  celllay->setSpacing( 10 );
   QLabel	*l1 = new QLabel( tr( "Cell:" ), cellbox );
+  celllay->addWidget( l1 );
   _data->celledit = new QLineEdit( cellbox );
+  celllay->addWidget( _data->celledit );
   _data->celledit->setFixedWidth( 50 );
   _data->cellsl = new QSlider( Qt::Horizontal, leftPanel );
-  _data->cellsl->setLineStep( 1 );
+  llay->addWidget( _data->cellsl );
+  _data->cellsl->setSingleStep( 1 );
   _data->cellsl->setPageStep( 1 );
   _data->cellsl->setTracking( false );
 
-  QHBox	*obsbox = new QHBox( leftPanel );
-  obsbox->setSpacing( 10 );
+  QWidget	*obsbox = new QWidget( leftPanel );
+  llay->addWidget( obsbox );
+  QHBoxLayout *obslay = new QHBoxLayout;
+  obsbox->setLayout( obslay );
+  obslay->setSpacing( 10 );
   QLabel	*l2 = new QLabel( tr( "Observation:" ), obsbox );
+  obslay->addWidget( l2 );
   l1->setFixedSize( l2->sizeHint() );
   l2->setFixedSize( l2->sizeHint() );
   _data->obsedit = new QLineEdit( obsbox );
+  obslay->addWidget( _data->obsedit );
   _data->obsedit->setFixedWidth( 50 );
   _data->obssl = new QSlider( Qt::Horizontal, leftPanel );
-  _data->obssl->setLineStep( 1 );
+  llay->addWidget( _data->obssl );
+  _data->obssl->setSingleStep( 1 );
   _data->obssl->setPageStep( 1 );
   _data->obssl->setTracking( false );
 
@@ -302,8 +314,8 @@ void ErpWraper::fillEdits()
   else if( _data->cell > Mc )
     _data->cell = Mc;
 
-  _data->cellsl->setMinValue( mc );
-  _data->cellsl->setMaxValue( Mc );
+  _data->cellsl->setMinimum( mc );
+  _data->cellsl->setMaximum( Mc );
   _data->cellsl->setValue( _data->cell );
 
   if( ic == fc )
@@ -336,8 +348,8 @@ void ErpWraper::fillEdits()
   else if( _data->obs > Mo )
     _data->obs = Mo;
 
-  _data->obssl->setMinValue( mo );
-  _data->obssl->setMaxValue( Mo );
+  _data->obssl->setMinimum( mo );
+  _data->obssl->setMaximum( Mo );
   _data->obssl->setValue( _data->obs );
 }
 
