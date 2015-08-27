@@ -49,13 +49,14 @@
 #include <anatomist/misc/error.h>
 #include <qpushbutton.h>
 #include <aims/resampling/quaternion.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <QCheckBox>
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <queue>
 
 using namespace anatomist ;
