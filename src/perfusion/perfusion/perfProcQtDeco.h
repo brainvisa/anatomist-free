@@ -37,7 +37,7 @@
 
 #include <aims/perfusion/perfProcCenter.h>
 #include <anatomist/volume/Volume.h>
-#include <aims/qtcompat/qlistview.h>
+#include <QObject>
 #include <list>
 
 
@@ -48,7 +48,7 @@ namespace anatomist
   class Bucket;
 }
 
-class Q3ListViewItem;
+class QTreeWidgetItem;
 
 class PerfusionProcessingQtDecorator : public QObject
 {
@@ -98,7 +98,7 @@ public slots:
   void setDose( const QString& );
   void setPhiGd( const QString& );
 
-  void linkedCursor( Q3ListViewItem * );
+  void linkedCursor( QTreeWidgetItem *, int );
 
   void mapClicked( int );
   void saveMaps();
@@ -118,7 +118,8 @@ private:
 
   QAPerfusionWindow *_parent;
   
-  anatomist::AVolume< short > *volIn;
+  carto::rc_ptr<carto::Volume< short > > volIn;
+  anatomist::AObject *initial;
   
   anatomist::Bucket *bckMask;
   anatomist::AVolume< float > *volQuant;

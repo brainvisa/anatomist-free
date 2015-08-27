@@ -54,11 +54,11 @@
 #include <aims/perfusion/perfMaps.h>
 
 #include <qmessagebox.h>
-#include <aims/qtcompat/qfiledialog.h>
+#include <qfiledialog.h>
 #include <qapplication.h>
-#include <aims/qtcompat/qbutton.h>
-#include <aims/qtcompat/qlistview.h>
 #include <qcheckbox.h>
+#include <QButtonGroup>
+#include <QTreeWidget>
 
 #include <stdio.h>
 #include <string>
@@ -81,7 +81,8 @@ PerfusionProcessingQtDecorator::PerfusionProcessingQtDecorator(
   _ppBase = pBase;
   _parent = pwin;
 
-  volIn = (AVolume< int16_t > *)0;
+  volIn.reset( 0 );
+  initial = 0;
 
   bckMask = new anatomist::Bucket;
   volQuant = new AVolume< float >;
@@ -142,10 +143,10 @@ void PerfusionProcessingQtDecorator::apply( int btn )
 
       // Look for the first processing to apply
       while( itd != itb && ((*itd).second)->isDone() ) 
-	{
-	  ++itm;
-	  ++itd;
-	}
+      {
+        ++itm;
+        ++itd;
+      }
 
       // Set all the following processing to be as if they weren't be performed
       for ( ; itb != its; ++itb )  (*itb).second->setDone( false );
@@ -178,26 +179,31 @@ void PerfusionProcessingQtDecorator::apply( int btn )
 
 void PerfusionProcessingQtDecorator::doSkip( int btn )
 {
-  AObject *aobj = *(_parent->objects().begin());
+  AObject *aobj = _parent->objects().empty() ?
+    0 : *(_parent->objects().begin());
 
-  AVolume< byte > *volb = dynamic_cast< AVolume< byte > * >( aobj );
+  AVolume< uint8_t > *volb = aobj ?
+    dynamic_cast< AVolume< uint8_t > * >( aobj ) : 0;
+
   if ( volb )
     {
-      AimsData< uint8_t > *db = (AimsData< uint8_t > *)volb;
-      Converter< AimsData<byte>, AimsData<int16_t> > conv;
-      AimsData< int16_t > *adout = conv( *db );
-      *((AimsData< int16_t > *)volIn) = *adout;
+      rc_ptr<Volume< uint8_t > > db = volb->volume();
+      Converter< VolumeRef<uint8_t>, VolumeRef<int16_t> > conv;
+      rc_ptr< Volume< int16_t > > *adout = conv( db );
+      volIn = *adout;
       delete adout;
     }
-  else volIn = dynamic_cast< AVolume< int16_t > * >( aobj );
+  else
+    volIn = dynamic_cast< AVolume< int16_t > * >( aobj )->volume();
 
   if ( volIn )
-    {
-      _ppBase->registerData( (AimsData< int16_t > *)volIn );
-      _ppBase->doSkip( btn );
-  
-      emit skipChanged( _ppBase->parameters().skip() );
-    }
+  {
+    initial = aobj;
+    _ppBase->registerData( volIn );
+    _ppBase->doSkip( btn );
+
+    emit skipChanged( _ppBase->parameters().skip() );
+  }
 }
 
 
@@ -220,29 +226,32 @@ void PerfusionProcessingQtDecorator::doMask( int btn )
 void PerfusionProcessingQtDecorator::doAifPoints( int btn )
 {
   _ppBase->doAifPoints( btn );
-  
+
   char t[6], delta[10], point[20];
-  
+
   _parent->listAIF()->clear();
-  
+
   if ( !_ppBase->aifPointList().empty() )
+  {
+    int skip = _ppBase->parameters().skip();
+    list< Point4dl >::reverse_iterator it = _ppBase->aifPointList().rbegin();
+    while( it != _ppBase->aifPointList().rend() )
     {
-      int skip = _ppBase->parameters().skip();
-      list< Point4dl >::reverse_iterator it = _ppBase->aifPointList().rbegin();
-      while( it != _ppBase->aifPointList().rend() )
-        {
-	  Point4dl pt = *it;
-	  int16_t delt = (int)abs( (*volIn->volume())( pt[0], pt[1], pt[2],
-                                                       skip )
-                                    - (*volIn->volume())( pt[0], pt[1], pt[2],
-                                                          pt[3] ) );
-	  sprintf( delta, "%d", delt );
-	  sprintf( t, "%d", pt[3] );
-	  sprintf( point, "(%d,%d,%d)", pt[ 0 ], pt[ 1 ], pt[ 2 ] );
-	  new Q3ListViewItem( _parent->listAIF(), delta, t, point );
-	  ++it;
-	}
+      Point4dl pt = *it;
+      int16_t delt = (int)abs( volIn->at( pt[0], pt[1], pt[2], skip )
+                               - volIn->at( pt[0], pt[1], pt[2], pt[3] ) );
+      stringstream delta, t, point;
+      delta << delt;
+      t << pt[3];
+      point << "'" << pt[0] << "," << pt[1] << "," << pt[2] << ")";
+      QStringList texts;
+      texts.push_back( delta.str().c_str() );
+      texts.push_back( t.str().c_str() );
+      texts.push_back( point.str().c_str() );
+      _parent->listAIF()->addTopLevelItem( new QTreeWidgetItem( texts ) );
+      ++it;
     }
+  }
   else
     cerr << "No Aif points found\n";
 }
@@ -255,35 +264,35 @@ void PerfusionProcessingQtDecorator::doInjection( int btn )
   string pos;
 
   _selList.clear();
-  Q3ListViewItemIterator it( _parent->listAIF() );
+  QTreeWidgetItemIterator it( _parent->listAIF() );
 
-  for ( ; it.current(); ++it )
-    if ( it.current()->isSelected() )
-      {
-	delta = atoi( it.current()->text( 0 ).utf8().data() );
+  for( ; *it; ++it )
+    if( (*it)->isSelected() )
+    {
+      delta = atoi( (*it)->text( 0 ).toStdString().c_str() );
 
-	pos = it.current()->text( 2 ).utf8().data();
-	p1 = pos.find( "," );
-	p2 = pos.rfind( "," );
-	p3 = pos.find( ")" );
+      pos = (*it)->text( 2 ).toStdString();
+      p1 = pos.find( "," );
+      p2 = pos.rfind( "," );
+      p3 = pos.find( ")" );
 
-	pt[0] = atoi( pos.substr( 1, p1 - 1 ).c_str() );
-	pt[1] = atoi( pos.substr( p1 + 1, p2 - p1 - 1 ).c_str() );
-	pt[2] = atoi( pos.substr( p2 + 1, p3 - p2 - 1 ).c_str() );
-	pt[3] = atoi( it.current()->text( 1 ).utf8().data() );
+      pt[0] = atoi( pos.substr( 1, p1 - 1 ).c_str() );
+      pt[1] = atoi( pos.substr( p1 + 1, p2 - p1 - 1 ).c_str() );
+      pt[2] = atoi( pos.substr( p2 + 1, p3 - p2 - 1 ).c_str() );
+      pt[3] = atoi( (*it)->text( 1 ).toStdString().c_str() );
 
-	_selList.push_back( pt );
-      }
+      _selList.push_back( pt );
+    }
 
   if ( !_selList.empty() )
-    {
-      _ppBase->setSelection( _selList );
-      _ppBase->doInjection( btn );
-      emit preInjChanged( _ppBase->parameters().preInj() );
-    }
+  {
+    _ppBase->setSelection( _selList );
+    _ppBase->doInjection( btn );
+    emit preInjChanged( _ppBase->parameters().preInj() );
+  }
   else
     QMessageBox::warning( NULL, "Warning", "No AIF(s) selected", 
-			  QMessageBox::Ok, 0 );
+                          QMessageBox::Ok, 0 );
 }
 
 
@@ -479,17 +488,17 @@ void PerfusionProcessingQtDecorator::doMaps( int btn )
 
 // Linked cursor ( ListView <-> windows )
 
-void PerfusionProcessingQtDecorator::linkedCursor( Q3ListViewItem *item )
+void PerfusionProcessingQtDecorator::linkedCursor( QTreeWidgetItem *item, int )
 {
   vector< float > pt;
 
-  string pos = item->text( 2 ).utf8().data();
+  string pos = item->text( 2 ).toStdString();
 
   int p1 = pos.find( "," );
   int p2 = pos.rfind( "," );
   int p3 = pos.find( ")" );
 
-  Point3df vs = volIn->VoxelSize();
+  vector<float> vs = volIn->getVoxelSize();
   float sx = vs[0];
   float sy = vs[1];
   float sz = vs[2];
@@ -497,9 +506,9 @@ void PerfusionProcessingQtDecorator::linkedCursor( Q3ListViewItem *item )
   pt.push_back( atof( pos.substr( 1, p1 - 1 ).c_str() ) * sx );
   pt.push_back( atof( pos.substr( p1 + 1, p2 - p1 - 1 ).c_str() ) * sy );
   pt.push_back( atof( pos.substr( p2 + 1, p3 - p2 - 1 ).c_str() ) * sz );
-  pt.push_back( atof( item->text( 1 ).utf8().data() ) );
+  pt.push_back( atof( item->text( 1 ).toStdString().c_str() ) );
 
-  const set< AWindow * > winlist = volIn->WinList();
+  const set< AWindow * > winlist = initial->WinList();
   if ( !winlist.empty() )
     {
       Command *cmd = new LinkedCursorCommand( *winlist.begin(), pt );
@@ -512,13 +521,13 @@ void PerfusionProcessingQtDecorator::linkedCursor( Q3ListViewItem *item )
 
 void PerfusionProcessingQtDecorator::setTr( const QString& str )
 {
-  _ppBase->parameters().setTr( atof( str.utf8().data() ) );
+  _ppBase->parameters().setTr( atof( str.toStdString().c_str() ) );
 }
 
 
 void PerfusionProcessingQtDecorator::setTe( const QString& str )
 {
-  _ppBase->parameters().setTe( atof( str.utf8().data() ) );
+  _ppBase->parameters().setTe( atof( str.toStdString().c_str() ) );
 }
 
 
@@ -622,20 +631,21 @@ void PerfusionProcessingQtDecorator::setSVDThreshold( float val )
 
 void PerfusionProcessingQtDecorator::setDose( const QString& str )
 {
-  _ppBase->parameters().setDose( atof( str.utf8().data() ) );
+  _ppBase->parameters().setDose( atof( str.toStdString().c_str() ) );
 }
 
 
 void PerfusionProcessingQtDecorator::setPhiGd( const QString& str )
 {
-  _ppBase->parameters().setPhiGd( atof( str.utf8().data() ) );
+  _ppBase->parameters().setPhiGd( atof( str.toStdString().c_str() ) );
 }
 
 
 void PerfusionProcessingQtDecorator::mapClicked( int btn )
 {
+  cout << "mapClicked " << btn << endl;
   PerfusionMaps *pmap = _ppBase->perfMaps();
-  bool bState = _parent->mapGroup()->find( btn )->isOn();
+  bool bState = _parent->mapGroup()->button( btn )->isChecked();
   pmap->setState( btn, bState );
 
   list< int > ldep = pmap->mapBase( btn )->dependencies();
@@ -644,7 +654,7 @@ void PerfusionProcessingQtDecorator::mapClicked( int btn )
       list< int >::const_iterator it = ldep.begin();
       while ( it != ldep.end() )
 	{
-	  _parent->mapGroup()->setButton( *it );
+	  _parent->mapGroup()->button( *it )->setChecked( true );
 	  pmap->setState( (int)*it, bState );
 	  ++it;
 	}
@@ -657,7 +667,7 @@ void PerfusionProcessingQtDecorator::mapClicked( int btn )
       while ( it != bdep.end() )
 	{
 	  QCheckBox *qcb = 
-	    dynamic_cast< QCheckBox * >( _parent->mapGroup()->find( *it ) );
+	    dynamic_cast< QCheckBox * >( _parent->mapGroup()->button( *it ) );
 	  if ( qcb )
 	    {
 	      qcb->setChecked( false );
@@ -677,15 +687,16 @@ void PerfusionProcessingQtDecorator::saveMaps()
 
   QFileDialog   & fdia = fileDialog();
 
-  fdia.setCaption( "Save maps" );
+  fdia.setWindowTitle( "Save maps" );
   fdia.setNameFilter( filt );
   fdia.setFileMode( QFileDialog::AnyFile );
 
-  if ( fdia.exec() == QDialog::Accepted )  fname = fdia.selectedFile();
+  if ( fdia.exec() == QDialog::Accepted )
+    fname = fdia.selectedFiles()[0];
 
   if ( !fname.isEmpty() )
     {
-      string filename = fname.utf8().data();
+      string filename = fname.toStdString();
       _ppBase->saveMaps( filename );
     }
 }
