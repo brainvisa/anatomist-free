@@ -64,8 +64,8 @@ class RoiHistoPlot : public QWidget, public anatomist::Observer
   void showGraphHisto() ;
   void saveHistos() ;
   void showImageHisto() ;
-  void showHistoChange( ) ;
-  void ignoreUnderLowChicked( ) ;
+  void showHistoChange( int ) ;
+  void ignoreUnderLowChicked( int ) ;
  private:
   struct Private;
 
@@ -93,6 +93,7 @@ class RoiHistoPlot : public QWidget, public anatomist::Observer
   std::string myImage ;
   std::string myGraph ;
   float myIgnoreForMax ;
+  bool myUseExtrema;
   int myNbOfBins ;
   double myHistoMax ;
   double myHighLevel ;

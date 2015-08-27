@@ -47,6 +47,7 @@
 #include <qfiledialog.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
+#include <QCheckBox>
 #include <iomanip>
 #if QWT_VERSION >= 0x050000
 #include <qwt_plot_curve.h>
@@ -73,9 +74,7 @@ public:
     
   QwtPlot * myPlotArea ;
 
-  QPushButton * myIgnoreUnderLowButton ;
   QSpinBox * myBinBox ;
-  QPushButton * myComputeSessionHisto ;
   QPushButton * mySaveHistos ;
 
 #if QWT_VERSION >= 0x050000
@@ -101,11 +100,13 @@ RoiHistoPlot::Private::Private() :
 
 RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
   QWidget(parent), Observer(), myImage(""), myGraph(""), myIgnoreForMax(0),
+  myUseExtrema( false ),
   myNbOfBins(nbOfBins), myHistoMax(0.), myHighLevel(100.), myLowLevel(0.), 
   myActivate(false), myShowImageHisto(true)
 {
   RoiChangeProcessor * proc = RoiChangeProcessor::instance() ;
-  RoiManagementActionSharedData * man = RoiManagementActionSharedData::instance() ;
+  RoiManagementActionSharedData * man
+    = RoiManagementActionSharedData::instance() ;
   proc->addObserver(this) ;
   man->addObserver(this) ;
   
@@ -150,25 +151,24 @@ RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
   _private->myBinBox->setSingleStep( 1 );
   datalay->addWidget( _private->myBinBox );
   _private->myBinBox->setValue( myNbOfBins ) ;
-  _private->myIgnoreUnderLowButton = new QPushButton( tr("Ignore Under Low"),
-                                                      myData );
-  datalay->addWidget( _private->myIgnoreUnderLowButton );
-  
-  _private->myComputeSessionHisto = new QPushButton(
-    ( myShowImageHisto ? tr("Roi Histos") : tr("Image Histo") ), myData );
-  datalay->addWidget( _private->myComputeSessionHisto );
+  QCheckBox *myIgnoreUnderLowButton = new QCheckBox( tr("Ignore Under Low"),
+                                                     myData );
+  datalay->addWidget( myIgnoreUnderLowButton );
+
+  QCheckBox *myComputeSessionHisto = new QCheckBox( tr("Roi Histos"), myData );
+  datalay->addWidget( myComputeSessionHisto );
   _private->mySaveHistos = new QPushButton(
     tr("Save Histos"), myData );
   datalay->addWidget( _private->mySaveHistos );
 
   connect( _private->myBinBox, SIGNAL( valueChanged ( int ) ), 
 	   this, SLOT( nbOfBinsChanged( int ) ) ) ;
-  connect( _private->myComputeSessionHisto, SIGNAL( clicked ( ) ), 
-	   this, SLOT( showHistoChange( ) ) ) ;
+  connect( myComputeSessionHisto, SIGNAL( stateChanged( int ) ),
+	   this, SLOT( showHistoChange( int ) ) ) ;
   connect( _private->mySaveHistos, SIGNAL( clicked ( ) ), 
 	   this, SLOT( saveHistos( ) ) ) ;
-  connect( _private->myIgnoreUnderLowButton, SIGNAL( clicked ( ) ), 
-	   this, SLOT( ignoreUnderLowChicked( ) ) ) ;
+  connect( myIgnoreUnderLowButton, SIGNAL( stateChanged( int ) ),
+	   this, SLOT( ignoreUnderLowChicked( int ) ) ) ;
 }
 
 RoiHistoPlot::~RoiHistoPlot()
@@ -183,17 +183,16 @@ RoiHistoPlot::~RoiHistoPlot()
 }
 
 void 
-RoiHistoPlot::showHistoChange( )
+RoiHistoPlot::showHistoChange( int state )
 {
-  if( myShowImageHisto ){
-    _private->myComputeSessionHisto->setText( tr("Image Histo") ) ;
-    myShowImageHisto = false ;
+  myShowImageHisto = (state != Qt::Checked);
+  if( !myShowImageHisto )
+  {
     if( myActivate )
       showGraphHisto() ;
   }
-  else {
-    _private->myComputeSessionHisto->setText( tr("Graph Histos") ) ;    
-    myShowImageHisto = true ;
+  else
+  {
     if( myActivate )
       showImageHisto() ;
   }
@@ -222,28 +221,37 @@ RoiHistoPlot::nbOfBinsChanged( int bins )
 }
 
 void 
-RoiHistoPlot::ignoreUnderLowChicked( )
+RoiHistoPlot::ignoreUnderLowChicked( int state )
 {
-  myIgnoreForMax = myLowLevel ;
+  if( state == Qt::Checked )
+  {
+    myIgnoreForMax = myLowLevel ;
+    myUseExtrema = true;
+  }
+  else
+  {
+    myIgnoreForMax = 0;
+    myUseExtrema = false;
+  }
+
   if( myShowImageHisto )
-    showImageHisto() ;
+    showImageHisto();
 }
 
 void
 RoiHistoPlot::lowChanged( float low )
 {
-  myLowLevel = low ;
-#if QWT_VERSION >= 0x050000
-//   cerr << "_private : " << _private << endl ;
-//   cerr << "_private->myMarkerMin : " << _private->myMarkerMin << endl ;
-//   cerr << "_private->myMarkerMin->xValue() : " << _private->myMarkerMin->xValue() << endl ;
-
-//   _private->myMarkerMin->setXValue( myLowLevel );
-#else
-  _private->myPlotArea->setMarkerPos( _private->myMinMarkerKey, myLowLevel, 0.0 ) ;
-#endif
-  _private->myPlotArea->replot() ;
+  if( myLowLevel == low )
+    return;
+  myLowLevel = low;
+  if( myUseExtrema )
+  {
+    myIgnoreForMax = myLowLevel;
+    if( myShowImageHisto )
+      showImageHisto();
+  }
 }
+
 
 void
 RoiHistoPlot::highChanged( float high )
@@ -258,7 +266,7 @@ RoiHistoPlot::highChanged( float high )
 }
 
 
-void 
+void
 RoiHistoPlot::activate() 
 { 
   myImage = RoiManagementActionSharedData::instance()->currentImage() ;
