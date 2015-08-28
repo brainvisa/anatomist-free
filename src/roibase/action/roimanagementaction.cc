@@ -496,6 +496,10 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   if( selectHie == "" && (!found) )
     freeFrameWork() ;
 
+  _private->mySelectGraph->setContextMenuPolicy( Qt::CustomContextMenu );
+  _private->mySelectRegion->setContextMenuPolicy( Qt::CustomContextMenu );
+  _private->mySelectImage->setContextMenuPolicy( Qt::CustomContextMenu );
+
   connect( _private->mySelectGraph, SIGNAL( currentRowChanged( int ) ),
            this, SLOT( selectGraph( int ) ) );
   connect( _private->mySelectGraph,
@@ -512,13 +516,13 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
            this, SLOT( renameRegion( QListWidgetItem * ) ) ) ;
   connect( _private->mySelectGraph,
            SIGNAL( customContextMenuRequested( const QPoint & ) ),
-           this, SLOT( contextMenu( const QPoint & ) ) ) ;
+           this, SLOT( selectGraphContextMenu( const QPoint & ) ) ) ;
   connect( _private->mySelectRegion,
            SIGNAL( customContextMenuRequested( const QPoint & ) ),
-           this, SLOT( contextMenu( const QPoint & ) ) ) ;
+           this, SLOT( selectRegionContextMenu( const QPoint & ) ) ) ;
   connect( _private->mySelectImage,
            SIGNAL( customContextMenuRequested( const QPoint & ) ),
-           this, SLOT( contextMenu( const QPoint & ) ) ) ;
+           this, SLOT( selectImageContextMenu( const QPoint & ) ) ) ;
 
   connect( _private->myAxial, SIGNAL( clicked( ) ),
 	   this, SLOT(createAxialWindow( ) ) ) ;
@@ -940,9 +944,9 @@ RoiManagementActionView::selectRegion( int row )
 void
 RoiManagementActionView::newRegion( )
 {
-  string regionName = askName("region", "", "Please enter new region's name",
-                         _private->myFrameWorkMenu->
-			isItemChecked(RoiManagementActionView_Private::FREE) ) ;
+  string regionName = askName(
+    "region", "", "Please enter new region's name",
+    _private->myFreeFrameworkAction->isChecked() );
   if( regionName != "" )
     _private->myRoiManagementAction->newRegion( regionName ) ;
 
@@ -960,8 +964,7 @@ RoiManagementActionView::renameRegion( QListWidgetItem * region )
       "region",
       (const char*)region->text(),
       "Please enter selected region's new name",
-      _private->myFrameWorkMenu->
-      isItemChecked(RoiManagementActionView_Private::FREE) ),
+      _private->myFreeFrameworkAction->isChecked() ),
     _private->mySelectRegion->currentRow() ) ;
 }
 
@@ -1123,7 +1126,7 @@ RoiManagementActionView::newUserDefinedFrameWork()
   _private->myDeleteRegionAction->setVisible( false );
   string newFName ;
   newFName = askName( "FrameWork", "",
-		      tr("Please enter new framework's name").utf8().data(),
+		      tr("Please enter new framework's name").toStdString(),
 		      true ) ;
   if( newFName != "" )
     _private->myRoiManagementAction->newUDHierarchy( newFName ) ;
@@ -1133,7 +1136,7 @@ RoiManagementActionView::newUserDefinedFrameWork()
 void
 RoiManagementActionView::loadUserDefinedFrameWork()
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "Load Personal Framework" << endl ;
 #endif
 
@@ -1158,7 +1161,9 @@ RoiManagementActionView::loadUserDefinedFrameWork()
     return;
 
   QStringList filenames = fd.selectedFiles();
-  string udhiename =  _private->myRoiManagementAction->loadUDHierarchy(filenames[0].utf8().data()) ;
+  string udhiename
+    = _private->myRoiManagementAction->loadUDHierarchy(
+      filenames[0].toStdString());
   _private->myUserDefinedFrameWorkMenu->setTitle( QString(udhiename.c_str()) );
 
   if( udhiename != "" )
@@ -1277,7 +1282,7 @@ void
 RoiManagementActionView::modifyFWRegionColor()
 {
   string name = askName("region", "", tr("Choose the name of the region\n"
-			"whose color you want to change").utf8().data(), false ) ;
+			"whose color you want to change").toStdString(), false ) ;
   QColor col = QColorDialog::getColor() ;
   if( col.isValid() )
     _private->myRoiManagementAction->modifyUDFWRegionColor( name, col.red(), col.green(),
@@ -1479,14 +1484,31 @@ RoiManagementActionView::graphTransparencyChange( int alpha )
 
 void RoiManagementActionView::contextMenu( const QPoint & pos )
 {
-  cout << "contextMenu !\n";
   QMenu pop;
   pop.addMenu( _private->mySessionMenu );
   pop.addMenu( _private->myRegionMenu );
   pop.addMenu( _private->myFrameWorkMenu );
-  pop.addMenu( _private->myUserDefinedFrameWorkMenu );
+  // pop.addMenu( _private->myUserDefinedFrameWorkMenu );
   pop.addMenu( _private->myWindowMenu );
   pop.exec( pos );
+}
+
+
+void RoiManagementActionView::selectGraphContextMenu( const QPoint & pos )
+{
+  contextMenu( _private->mySelectGraph->mapToGlobal( pos ) );
+}
+
+
+void RoiManagementActionView::selectRegionContextMenu( const QPoint & pos )
+{
+  contextMenu( _private->mySelectRegion->mapToGlobal( pos ) );
+}
+
+
+void RoiManagementActionView::selectImageContextMenu( const QPoint & pos )
+{
+  contextMenu( _private->mySelectImage->mapToGlobal( pos ) );
 }
 
 
@@ -2598,11 +2620,11 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 
   for ( QStringList::ConstIterator it = filenames.begin();
         it != filenames.end(); ++it ) {
-    command = new LoadObjectCommand( (*it).utf8().data(), -1, "", false, options );
+    command = new LoadObjectCommand( (*it).toStdString(), -1, "", false, options );
     theProcessor->execute( command );
     loadedObj = command->loadedObject() ;
     if( loadedObj )
-      loadedObj->setFileName( (*it).utf8().data() ) ;
+      loadedObj->setFileName( (*it).toStdString() ) ;
   }
   if( !command )
     return ;
