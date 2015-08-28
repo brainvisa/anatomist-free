@@ -92,6 +92,7 @@ ToolBox::ToolBox( const string& activeControlDescription = "" ):
   myControlDescriptionActivation 
     = new QPushButton( tr("Show control description"),
                        d->controldata );
+  vlay->addWidget( myControlDescriptionActivation );
   myControlDescriptionActivation->setSizePolicy( 
     QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
   myControlDescriptionActivation->setCheckable( true ) ;
