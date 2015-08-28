@@ -397,7 +397,7 @@ RoiChangeProcessor::getCurrentRegion( AWindow * win )
 bool 
 RoiChangeProcessor::updateCurrentRegion( AWindow * win )
 {
-  //cerr << "PaintAction::getCurrentRegion : entering" << endl ;
+  // cerr << "PaintAction::getCurrentRegion : entering" << endl ;
   myCurrentRegion = 0 ;
   
   unsigned bucketCount = 0, graphObjectCount = 0 ;

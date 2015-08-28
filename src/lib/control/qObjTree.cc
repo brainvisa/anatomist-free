@@ -620,14 +620,15 @@ void QObjectTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons,
   set<AObject *>	*so = SelectedObjects();
   if( !so->empty() )
     {
-      QDragObject *d = new QAObjectDrag( *so, this, "dragObject" );
+      QAObjectDrag *d = new QAObjectDrag( *so );
+      QDrag *drag = new QDrag( this );
+      drag->setMimeData( d );
 
       map<int, QPixmap>::const_iterator	ip
         = TypeIcons.find( (*so->begin())->type() );
       if( ip != TypeIcons.end() )
-        d->setPixmap( (*ip).second ); // FIXME
-      d->dragCopy();
-      //cout << "dragCopy done\n";
+        drag->setPixmap( (*ip).second );
+      drag->exec( Qt::CopyAction );
     }
   delete so;
 }
@@ -672,9 +673,9 @@ void QObjectTree::unselectInvisibleItems()
 
 void QObjectTree::dragEnterEvent( QDragEnterEvent* event )
 {
-  //cout << "QObjectTree::dragEnterEvent\n";
-  event->setAccepted( !QAObjectDrag::canDecode( event )
-      && QAObjectDrag::canDecodeURI( event ) );
+  // cout << "QObjectTree::dragEnterEvent\n";
+  event->setAccepted( !QAObjectDrag::canDecode( event->mimeData() )
+      && QAObjectDrag::canDecodeURI( event->mimeData() ) );
 }
 
 
@@ -689,14 +690,14 @@ void QObjectTree::dropEvent( QDropEvent* event )
   // cout << "QObjectTree::dropEvent\n";
   list<QString> objects;
   list<QString>	scenars;
-  if( QAObjectDrag::canDecode( event ) )
+  if( QAObjectDrag::canDecode( event->mimeData() ) )
   {
     set<AObject *> objs;
     // check more precisely
-    if( QAObjectDrag::decode( event, objs ) )
+    if( QAObjectDrag::decode( event->mimeData(), objs ) )
       return;
   }
-  QAObjectDrag::decodeURI( event, objects, scenars );
+  QAObjectDrag::decodeURI( event->mimeData(), objects, scenars );
 
   list<QString>::iterator	is, es = objects.end();
   for( is=objects.begin(); is!=es; ++is )

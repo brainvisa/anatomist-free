@@ -61,7 +61,8 @@ namespace anatomist
     virtual void controlsDeclaration() ;
 
   private:
-    static const char * askName( const std::string& type, const std::string& originalName = "" ) ;
+    static std::string askName( const std::string& type,
+                                const std::string& originalName = "" ) ;
 
 
   };

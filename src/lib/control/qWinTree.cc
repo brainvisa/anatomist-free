@@ -478,8 +478,8 @@ void QWindowTree::UndisplayRefColors()
 
 void QWindowTree::dragEnterEvent( QDragEnterEvent* event )
 {
-  event->setAccepted( QAObjectDrag::canDecode( event )
-      || QAObjectDrag::canDecodeURI( event ) );
+  event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
+      || QAObjectDrag::canDecodeURI( event->mimeData() ) );
 }
 
 
@@ -499,8 +499,8 @@ void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
         highlightWindow( d->highlightedWindow, false );
         highlightWindow( iw->second, true );
       }
-      bool ok = ( QAObjectDrag::canDecode( event )
-            || QAObjectDrag::canDecodeURI( event ) );
+      bool ok = ( QAObjectDrag::canDecode( event->mimeData() )
+            || QAObjectDrag::canDecodeURI( event->mimeData() ) );
       if( ok )
       {
         set<AWindow *>    *sw;
@@ -563,8 +563,8 @@ void QWindowTree::dropEvent( QDropEvent* event )
       list<QString> objects;
       list<QString> scenars;
 
-      if( !QAObjectDrag::decode( event, o )
-           && QAObjectDrag::decodeURI( event, objects, scenars ) )
+      if( !QAObjectDrag::decode( event->mimeData(), o )
+           && QAObjectDrag::decodeURI( event->mimeData(), objects, scenars ) )
       {
         list<QString>::iterator       is, es = objects.end();
         for( is=objects.begin(); is!=es; ++is )
@@ -621,15 +621,17 @@ void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons,
   set<AWindow *>	*so = SelectedWindows();
   if( !so->empty() )
     {
-      QDragObject *d = new QAWindowDrag( *so, this, "dragObject" );
+      QAWindowDrag *d = new QAWindowDrag( *so );
+      QDrag *drag = new QDrag( this );
+      drag->setMimeData( d );
 
       const QAWindowFactory::PixList	& pixl 
         = QAWindowFactory::pixmaps( (*so->begin())->type() );
 
       if( !pixl.psmall.isNull() )
-        d->setPixmap( pixl.psmall );
+        drag->setPixmap( pixl.psmall );
 
-      d->dragCopy();
+      drag->exec( Qt::CopyAction );
       //cout << "dragCopy done\n";
     }
   delete so;

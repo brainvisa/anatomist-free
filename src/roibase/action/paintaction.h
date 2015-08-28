@@ -44,12 +44,11 @@
 #include <anatomist/observer/Observable.h>
 #include <anatomist/action/roichangeprocessor.h>
 #include <qobject.h>
-#include <aims/qtcompat/qvbox.h>
+#include <QWidget>
 #include <string>
 #include <vector>
 #include <stack>
 
-class QWidget ;
 class AWindow3D ;
 class QANumSlider ;
 
@@ -65,35 +64,18 @@ namespace anatomist
   class PaintActionSharedData ;
   struct PaintActionView_Private ;
 }
-  //   class Bucket ;
-  //   class Void ;
-  //   class AimsBucketItem< Void > ;
-  
-  //   class PaintBrushSize : public QWidget
-  //   {
-  //     Q_OBJECT
-    
-  //   public:
-    
-  //     PaintBrushSize( QWidget *par=NULL, const char *name=NULL );
-    
-  //   private slots:
-  //     void setSize( int );
-
-//   private:
-//   } ;
 
 
-class PaintActionView : public QVBox, public anatomist::Observer
+class PaintActionView : public QWidget, public anatomist::Observer
 {
-  
+
   Q_OBJECT 
-  
+
 public:
   PaintActionView( anatomist::PaintAction *, QWidget * ) ;
   ~PaintActionView() ;
-  
-  virtual void update ( const anatomist::Observable * observable, void * arg ) ;
+
+  virtual void update( const anatomist::Observable * observable, void * arg ) ;
 
 private slots :
   void brushSelection( int id ) ;

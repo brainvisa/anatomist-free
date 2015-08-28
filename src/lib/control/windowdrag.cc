@@ -39,9 +39,8 @@ using namespace anatomist;
 using namespace std;
 
 
-QAWindowDrag::QAWindowDrag( const set<AWindow *> & o, QWidget * dragSource, 
-			    const char * name )
-  : QStoredDrag( "AWindow", dragSource, name ) //, _objects( o )
+QAWindowDrag::QAWindowDrag( const set<AWindow *> & o )
+  : QMimeData()
 {
   // cout << "QAWindowDrag::QAWindowDrag\n";
 
@@ -57,7 +56,7 @@ QAWindowDrag::QAWindowDrag( const set<AWindow *> & o, QWidget * dragSource,
     // cout << "obj " << *io << endl;
     ds.writeRawData( (const char *) &*io, sizeof( AWindow * ) );
   }
-  setEncodedData( ba );
+  setData( "AWindow", ba );
 }
 
 
@@ -67,24 +66,21 @@ QAWindowDrag::~QAWindowDrag()
 }
 
 
-bool QAWindowDrag::canDecode( const QMimeSource * e )
+bool QAWindowDrag::canDecode( const QMimeData * e )
 {
   // cout << "QAWindowDrag::canDecode\n";
-  if( string( e->format() ) == "AWindow" )
-    return( true );
-  return( false );
+  if( e->hasFormat( "AWindow" ) )
+    return true;
+  return false;
 }
 
 
-bool QAWindowDrag::decode( const QMimeSource * e, set<AWindow*> & o )
+bool QAWindowDrag::decode( const QMimeData * md, set<AWindow*> & o )
 {
   // cout << "QAWindowDrag::decode\n";
-  if( string( e->format() ) != "AWindow" )
-    {
-      // cout << "Wrong format: " << e->format() << endl;
-      return false;
-    }
-  QByteArray	ba = e->encodedData( e->format() );
+  if( !md->hasFormat( "AWindow" ) )
+    return false;
+  QByteArray	ba = md->data( "AWindow" );
   QDataStream	s( &ba, QIODevice::ReadOnly );
   unsigned	i, n;
   AWindow	*ao;

@@ -44,18 +44,15 @@
 
 #include <anatomist/observer/Observer.h>
 #include <anatomist/object/Object.h>
-#include <aims/qtcompat/qgroupbox.h>
-#include <qvariant.h>
 #include <qwidget.h>
 
 class QVBoxLayout;
 class QHBoxLayout;
-class QGridLayout;
-class QSpacerItem;
 class QComboBox;
 class QCheckBox;
 class QSpinBox;
 class QLabel;
+class QGroupBox;
 
 class VolRenderPanel : public QWidget, public anatomist::Observer
 {
@@ -73,7 +70,7 @@ class VolRenderPanel : public QWidget, public anatomist::Observer
     void updateWindow();
     void updateObjects();
 
-    Q3GroupBox* groupBox1;
+    QGroupBox* groupBox1;
     QComboBox* renderingMode;
     QCheckBox* limitSlices;
     QSpinBox* maxSlices;

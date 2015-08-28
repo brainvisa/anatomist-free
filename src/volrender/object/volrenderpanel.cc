@@ -51,6 +51,7 @@
 #include <qlayout.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+#include <QGroupBox>
 
 using namespace anatomist;
 using namespace std;
@@ -90,49 +91,58 @@ VolRenderPanel::VolRenderPanel( const std::set<anatomist::AObject *> & obj,
     (*io)->addObserver( this );
 
   if ( !name )
-    setName( "VolRenderPanel" );
-  VolRenderPanelLayout = new QVBoxLayout( this, 11, 6, "VolRenderPanelLayout");
+    setObjectName( "VolRenderPanel" );
+  VolRenderPanelLayout = new QVBoxLayout( this );
+  VolRenderPanelLayout->setMargin( 11 );
+  VolRenderPanelLayout->setSpacing( 6 );
 
-  groupBox1 = new Q3GroupBox( this, "groupBox1" );
-  groupBox1->setColumnLayout(0, Qt::Vertical );
+  groupBox1 = new QGroupBox( this );
+  groupBox1->setObjectName( "groupBox1" );
+  groupBox1Layout = new QVBoxLayout( groupBox1 );
   groupBox1->layout()->setSpacing( 6 );
   groupBox1->layout()->setMargin( 11 );
-  groupBox1Layout = new QVBoxLayout( groupBox1->layout() );
   groupBox1Layout->setAlignment( Qt::AlignTop );
 
-  renderingMode = new QComboBox( FALSE, groupBox1, "renderingMode" );
+  renderingMode = new QComboBox( groupBox1 );
+  renderingMode->setObjectName( "renderingMode" );
   groupBox1Layout->addWidget( renderingMode );
 
-  layout2 = new QHBoxLayout( 0, 0, 6, "layout2");
+  layout2 = new QHBoxLayout;
+  layout2->setMargin( 0 );
+  layout2->setSpacing( 6 );
 
-  limitSlices = new QCheckBox( groupBox1, "limitSlices" );
+  limitSlices = new QCheckBox( groupBox1 );
+  limitSlices->setObjectName( "limitSlices" );
   layout2->addWidget( limitSlices );
 
-  maxSlices = new QSpinBox( groupBox1, "maxSlices" );
-  maxSlices->setMaxValue( 10000 );
+  maxSlices = new QSpinBox( groupBox1 );
+  maxSlices->setObjectName( "maxSlices" );
+  maxSlices->setMaximum( 10000 );
   maxSlices->setValue( 500 );
   layout2->addWidget( maxSlices );
 
-  textLabel1 = new QLabel( groupBox1, "textLabel1" );
+  textLabel1 = new QLabel( groupBox1 );
+  textLabel1->setObjectName( "textLabel1" );
   layout2->addWidget( textLabel1 );
   groupBox1Layout->addLayout( layout2 );
 
-  layout3 = new QHBoxLayout( 0, 0, 6, "layout3");
+  layout3 = new QHBoxLayout;
+  layout3->setMargin( 0 );
+  layout3->setSpacing( 6 );
 
-  slabSize = new QSpinBox( groupBox1, "slabSize" );
-  slabSize->setMaxValue( 10000 );
+  slabSize = new QSpinBox( groupBox1 );
+  slabSize->setObjectName( "slabSize" );
+  slabSize->setMaximum( 10000 );
   slabSize->setValue( 5 );
   layout3->addWidget( slabSize );
 
-  textLabel2 = new QLabel( groupBox1, "textLabel2" );
+  textLabel2 = new QLabel( groupBox1 );
+  textLabel2->setObjectName( "textLabel2" );
   layout3->addWidget( textLabel2 );
   groupBox1Layout->addLayout( layout3 );
   VolRenderPanelLayout->addWidget( groupBox1 );
   languageChange();
   resize( QSize(306, 136).expandedTo(minimumSizeHint()) );
-#if QT_VERSION < 0x040000
-  clearWState( WState_Polished );
-#endif
 
   updateWindow();
 
@@ -173,13 +183,13 @@ namespace
  */
 void VolRenderPanel::languageChange()
 {
-  setCaption( tr( "Volume Rendering Properties" ) );
+  setWindowTitle( tr( "Volume Rendering Properties" ) );
   groupBox1->setTitle( tr( "Volume rendering mode" ) );
   renderingMode->clear();
-  renderingMode->insertItem( tr( renderingModeNames[0].c_str() ) );
-  renderingMode->insertItem( tr( renderingModeNames[1].c_str() ) );
-  renderingMode->insertItem( tr( renderingModeNames[2].c_str() ) );
-  renderingMode->insertItem( tr( renderingModeNames[3].c_str() ) );
+  renderingMode->addItem( tr( renderingModeNames[0].c_str() ) );
+  renderingMode->addItem( tr( renderingModeNames[1].c_str() ) );
+  renderingMode->addItem( tr( renderingModeNames[2].c_str() ) );
+  renderingMode->addItem( tr( renderingModeNames[3].c_str() ) );
   limitSlices->setText( tr( "Limit number of slices :" ) );
   textLabel1->setText( tr( "Max." ) );
   textLabel2->setText( tr( "MPVR slab thickness" ) );
@@ -267,7 +277,8 @@ void VolRenderPanel::updateWindow()
   setEnabled( true );
   blockSignals( true );
   VolRender *vr = static_cast<VolRender *>( *d->objects.begin() );
-  renderingMode->setCurrentText( tr( vr->shaderType().c_str() ) );
+  renderingMode->setItemText( renderingMode->currentIndex(),
+                              tr( vr->shaderType().c_str() ) );
   limitSlices->setChecked( vr->maxSlices() != 0 );
   maxSlices->setValue( vr->maxSlices() );
   slabSize->setValue( vr->slabSize() );
@@ -285,7 +296,7 @@ void VolRenderPanel::updateObjects()
   {
     vr = static_cast<VolRender *>( *i );
     if( d->modehaschanged )
-      vr->setShaderType( renderingModeNames[ renderingMode->currentItem() ] );
+      vr->setShaderType( renderingModeNames[ renderingMode->currentIndex() ] );
     if( d->maxslicehaschanged )
       vr->setMaxSlices( maxSlices->value() );
     if( d->slabsizehaschanged )

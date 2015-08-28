@@ -164,10 +164,10 @@ Hierarchy* HierarchyEditor::newHierarchy( const string & /*selectName*/,
 
   Tree	*tr = new Tree( true, syntax );
   Hierarchy	*hie = new Hierarchy( tr) ;
-  const char* ty = "hierarchy";
+  string ty = "hierarchy";
   //hie->setFileName( selectName ) ;
-  const char* nm = askName( (const char*)ty);
-  hie->setName( (string)nm );
+  string nm = askName( ty);
+  hie->setName( nm );
   //hie->setName( theAnatomist->makeObjectName( selectName ) );
   theAnatomist->registerObject( hie );
 
@@ -176,14 +176,15 @@ Hierarchy* HierarchyEditor::newHierarchy( const string & /*selectName*/,
   return( hie );
 }
 
-const char *
+string
 HierarchyEditor::askName( const string & type, const string& originalName )
 {
   string message("Enter ") ;
   message += type ;
   message += string(" name") ;
-  QDialog * nameSetter = new QDialog( 0, "", true ) ;
-  nameSetter->setCaption( message.c_str() ) ;
+  QDialog * nameSetter = new QDialog;
+  nameSetter->setModal( true );
+  nameSetter->setWindowTitle( message.c_str() ) ;
   nameSetter->setMinimumSize( 400, 30 ) ;
   QLineEdit * lineEdition= new QLineEdit( QString( originalName.c_str() ),
 					  nameSetter/*, message.c_str()*/ ) ;
@@ -191,12 +192,14 @@ HierarchyEditor::askName( const string & type, const string& originalName )
   lineEdition->setMinimumHeight(50) ;
   QObject::connect( lineEdition , SIGNAL(  returnPressed( ) ), nameSetter,
 		    SLOT( accept ( ) ) ) ;
-  if( nameSetter->exec() )
-    {
-      if( string( "" ) == lineEdition->text().utf8().data() )
-	return "Unknown" ;
-      return lineEdition->text() ;
-    }
+  int res = nameSetter->exec();
+  delete nameSetter;
+  if( res )
+  {
+    if( string( "" ) == lineEdition->text().toStdString() )
+      return "Unknown" ;
+    return lineEdition->text().toStdString();
+  }
   return "Unknown" ;
 }
 

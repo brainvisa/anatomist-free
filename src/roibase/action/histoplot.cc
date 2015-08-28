@@ -46,8 +46,8 @@
 #include <qstring.h>
 #include <qfiledialog.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qpushbutton.h>
+#include <QCheckBox>
 #include <iomanip>
 #if QWT_VERSION >= 0x050000
 #include <qwt_plot_curve.h>
@@ -69,16 +69,12 @@ struct RoiHistoPlot::Private
 public:
   Private();
 
-  QHBox * myLabels ;
   QLabel * myImageLabel ;
   QLabel * myGraphLabel ;
     
   QwtPlot * myPlotArea ;
 
-  QHBox * myData ;
-  QPushButton * myIgnoreUnderLowButton ;
   QSpinBox * myBinBox ;
-  QPushButton * myComputeSessionHisto ;
   QPushButton * mySaveHistos ;
 
 #if QWT_VERSION >= 0x050000
@@ -103,27 +99,39 @@ RoiHistoPlot::Private::Private() :
 
 
 RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
-  QVBox(parent), Observer(), myImage(""), myGraph(""), myIgnoreForMax(0),
+  QWidget(parent), Observer(), myImage(""), myGraph(""), myIgnoreForMax(0),
+  myUseExtrema( false ),
   myNbOfBins(nbOfBins), myHistoMax(0.), myHighLevel(100.), myLowLevel(0.), 
   myActivate(false), myShowImageHisto(true)
 {
   RoiChangeProcessor * proc = RoiChangeProcessor::instance() ;
-  RoiManagementActionSharedData * man = RoiManagementActionSharedData::instance() ;
+  RoiManagementActionSharedData * man
+    = RoiManagementActionSharedData::instance() ;
   proc->addObserver(this) ;
   man->addObserver(this) ;
   
   _private = new Private ;
   
-  _private->myLabels = new QHBox( this ) ;
-  new QLabel(tr("Image"), _private->myLabels ) ;
+  QVBoxLayout *lay = new QVBoxLayout( this );
+
+  QWidget *myLabels = new QWidget( this ) ;
+  lay->addWidget( myLabels );
+  QHBoxLayout *lablay = new QHBoxLayout( myLabels );
+  lablay->addWidget( new QLabel(tr("Image"), myLabels ) );
   
-  _private->myImageLabel = new QLabel( RoiManagementActionSharedData::instance()->currentImage().c_str(), 
-				    _private->myLabels ) ;
-  new QLabel(tr("ROI Session"), _private->myLabels ) ;
-  _private->myGraphLabel = new QLabel( RoiManagementActionSharedData::instance()->currentGraph().c_str(), 
-				    _private->myLabels ) ;
+  _private->myImageLabel = new QLabel(
+    RoiManagementActionSharedData::instance()->currentImage().c_str(),
+    myLabels );
+  lablay->addWidget( _private->myImageLabel );
+  lablay->addWidget( new QLabel(tr("ROI Session"), myLabels ) );
+  _private->myGraphLabel = new QLabel(
+    RoiManagementActionSharedData::instance()->currentGraph().c_str(),
+    myLabels );
+  lablay->addWidget( _private->myGraphLabel );
   
-  _private->myPlotArea = new QwtPlot( this ) ;
+  _private->myPlotArea = new QwtPlot( this );
+  lay->addWidget( _private->myPlotArea );
+
 #if QWT_VERSION >= 0x050000
 //   _private->myMarkerMin = new QwtPlotMarker;
 //   _private->myMarkerMin->attach( _private->myPlotArea );
@@ -133,24 +141,34 @@ RoiHistoPlot::RoiHistoPlot( QWidget * parent, int nbOfBins ) :
   _private->myPlotArea->insertLegend( new QwtLegend( _private->myPlotArea ) );
 #endif
   
-  _private->myData = new QHBox( this ) ;
-  new QLabel(tr("Bins"), _private->myData ) ;
-  _private->myBinBox = new QSpinBox(10, 1000, 1, _private->myData ) ;
+  QWidget *myData = new QWidget( this );
+  lay->addWidget( myData );
+  QHBoxLayout *datalay = new QHBoxLayout( myData );
+
+  datalay->addWidget( new QLabel(tr("Bins"), myData ) );
+  _private->myBinBox = new QSpinBox( myData );
+  _private->myBinBox->setRange( 10, 1000 );
+  _private->myBinBox->setSingleStep( 1 );
+  datalay->addWidget( _private->myBinBox );
   _private->myBinBox->setValue( myNbOfBins ) ;
-  _private->myIgnoreUnderLowButton = new QPushButton( tr("Ignore Under Low"), _private->myData ) ;
-  
-  _private->myComputeSessionHisto = new QPushButton( ( myShowImageHisto ? tr("Roi Histos") :
-						       tr("Image Histo") ), _private->myData ) ;
-  _private->mySaveHistos = new QPushButton( tr("Save Histos"), _private->myData ) ;
+  QCheckBox *myIgnoreUnderLowButton = new QCheckBox( tr("Ignore Under Low"),
+                                                     myData );
+  datalay->addWidget( myIgnoreUnderLowButton );
+
+  QCheckBox *myComputeSessionHisto = new QCheckBox( tr("Roi Histos"), myData );
+  datalay->addWidget( myComputeSessionHisto );
+  _private->mySaveHistos = new QPushButton(
+    tr("Save Histos"), myData );
+  datalay->addWidget( _private->mySaveHistos );
 
   connect( _private->myBinBox, SIGNAL( valueChanged ( int ) ), 
 	   this, SLOT( nbOfBinsChanged( int ) ) ) ;
-  connect( _private->myComputeSessionHisto, SIGNAL( clicked ( ) ), 
-	   this, SLOT( showHistoChange( ) ) ) ;
+  connect( myComputeSessionHisto, SIGNAL( stateChanged( int ) ),
+	   this, SLOT( showHistoChange( int ) ) ) ;
   connect( _private->mySaveHistos, SIGNAL( clicked ( ) ), 
 	   this, SLOT( saveHistos( ) ) ) ;
-  connect( _private->myIgnoreUnderLowButton, SIGNAL( clicked ( ) ), 
-	   this, SLOT( ignoreUnderLowChicked( ) ) ) ;
+  connect( myIgnoreUnderLowButton, SIGNAL( stateChanged( int ) ),
+	   this, SLOT( ignoreUnderLowChicked( int ) ) ) ;
 }
 
 RoiHistoPlot::~RoiHistoPlot()
@@ -165,17 +183,16 @@ RoiHistoPlot::~RoiHistoPlot()
 }
 
 void 
-RoiHistoPlot::showHistoChange( )
+RoiHistoPlot::showHistoChange( int state )
 {
-  if( myShowImageHisto ){
-    _private->myComputeSessionHisto->setText( tr("Image Histo") ) ;
-    myShowImageHisto = false ;
+  myShowImageHisto = (state != Qt::Checked);
+  if( !myShowImageHisto )
+  {
     if( myActivate )
       showGraphHisto() ;
   }
-  else {
-    _private->myComputeSessionHisto->setText( tr("Graph Histos") ) ;    
-    myShowImageHisto = true ;
+  else
+  {
     if( myActivate )
       showImageHisto() ;
   }
@@ -204,28 +221,37 @@ RoiHistoPlot::nbOfBinsChanged( int bins )
 }
 
 void 
-RoiHistoPlot::ignoreUnderLowChicked( )
+RoiHistoPlot::ignoreUnderLowChicked( int state )
 {
-  myIgnoreForMax = myLowLevel ;
+  if( state == Qt::Checked )
+  {
+    myIgnoreForMax = myLowLevel ;
+    myUseExtrema = true;
+  }
+  else
+  {
+    myIgnoreForMax = 0;
+    myUseExtrema = false;
+  }
+
   if( myShowImageHisto )
-    showImageHisto() ;
+    showImageHisto();
 }
 
 void
 RoiHistoPlot::lowChanged( float low )
 {
-  myLowLevel = low ;
-#if QWT_VERSION >= 0x050000
-//   cerr << "_private : " << _private << endl ;
-//   cerr << "_private->myMarkerMin : " << _private->myMarkerMin << endl ;
-//   cerr << "_private->myMarkerMin->xValue() : " << _private->myMarkerMin->xValue() << endl ;
-
-//   _private->myMarkerMin->setXValue( myLowLevel );
-#else
-  _private->myPlotArea->setMarkerPos( _private->myMinMarkerKey, myLowLevel, 0.0 ) ;
-#endif
-  _private->myPlotArea->replot() ;
+  if( myLowLevel == low )
+    return;
+  myLowLevel = low;
+  if( myUseExtrema )
+  {
+    myIgnoreForMax = myLowLevel;
+    if( myShowImageHisto )
+      showImageHisto();
+  }
 }
+
 
 void
 RoiHistoPlot::highChanged( float high )
@@ -240,7 +266,7 @@ RoiHistoPlot::highChanged( float high )
 }
 
 
-void 
+void
 RoiHistoPlot::activate() 
 { 
   myImage = RoiManagementActionSharedData::instance()->currentImage() ;
@@ -522,10 +548,10 @@ RoiHistoPlot::saveHistos()
   QString filt = ControlWindow::tr( "Anatomist Histograms" ) + " (*.anahis)" ;
   QString capt = "Save histos" ;
   
-  QString filename = QFileDialog::getSaveFileName( QString::null,
-    filt, 0, 0, capt );
+  QString filename = QFileDialog::getSaveFileName( 0, capt, QString::null,
+    filt, 0 );
   if( !filename.isNull() )
-    printHistos( filename.utf8().data() ) ;
+    printHistos( filename.toStdString() ) ;
 }
 
 void 

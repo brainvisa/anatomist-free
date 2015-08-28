@@ -2249,13 +2249,15 @@ namespace
     QAWindow        *qw = dynamic_cast<QAWindow *>( ac->view()->aWindow() );
     if( qw && !so.empty() )
       {
-        QDragObject *d = new QAObjectDrag( so, qw, "dragObject" );
+        QAObjectDrag *d = new QAObjectDrag( so );
+        QDrag *drag = new QDrag( qw );
+        drag->setMimeData( d );
 
         map<int, QPixmap>::const_iterator        ip
           = QObjectTree::TypeIcons.find( (*so.begin())->type() );
         if( ip != QObjectTree::TypeIcons.end() )
-          d->setPixmap( (*ip).second );
-        d->dragCopy();
+          drag->setPixmap( (*ip).second );
+        drag->exec( Qt::CopyAction );
       }
   }
 

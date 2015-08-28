@@ -40,7 +40,8 @@
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/window/colorstyle.h>
 
-#include <aims/qtcompat/qvbuttongroup.h>
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <qpushbutton.h>
 #include <qlayout.h>
 

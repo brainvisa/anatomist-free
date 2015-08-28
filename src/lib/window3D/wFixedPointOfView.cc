@@ -35,7 +35,8 @@
 #include <anatomist/window3D/wFixedPointOfView.h>
 #include <anatomist/window3D/window3D.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qvbuttongroup.h>
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <qpushbutton.h>
 #include <iostream>
 

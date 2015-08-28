@@ -377,10 +377,10 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 	/*hierarchy temporaire pour s�lectionner les noeuds dans tous les graphs du m�me groupe*/
 	Tree	*trt = new Tree( true, "hierarchy" );
 	Hierarchy	*hiera = new Hierarchy( trt) ;
-	const char* tyt = "hierarchy";
+	string tyt = "hierarchy";
 	//hie->setFileName( selectName ) ;
-	//const char* nm = askName( (const char*)ty);
-	hiera->setName( (string)tyt);
+	//string nm = askName( ty );
+	hiera->setName( tyt);
 	hiera->attributed()->setProperty( "graph_syntax",(string("CorticalFoldArg") ) );
 	//hie->setName( theAnatomist->makeObjectName( selectName ) );
 	theAnatomist->registerObject( hiera );

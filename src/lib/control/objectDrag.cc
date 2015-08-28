@@ -43,22 +43,14 @@ using namespace anatomist;
 using namespace std;
 
 
-struct QAObjectDrag::Private
-{
-  int nformats;
-  QByteArray  aobjectdata;
-};
-
-
-QAObjectDrag::QAObjectDrag( const set<AObject *> & o, QWidget * dragSource, 
-			    const char * name )
-  : QUriDrag( dragSource, name ), d( new Private )
+QAObjectDrag::QAObjectDrag( const set<AObject *> & o )
+  : QMimeData()
 {
   // cout << "QAObjectDrag::QAObjectDrag\n";
 
-  QStringList fnames;
+  QList<QUrl> fnames;
 
-  QByteArray	&ba = d->aobjectdata;
+  QByteArray	ba;
   ba.resize( sizeof( AObject * ) * o.size()
       + sizeof( set<AObject*>::size_type ) );
 
@@ -75,37 +67,35 @@ QAObjectDrag::QAObjectDrag( const set<AObject *> & o, QWidget * dragSource,
     // cout << "obj " << *io << endl;
     ds.writeRawData( (const char *) &*io, sizeof( AObject * ) );
     if( !(*io)->fileName().empty() )
-      fnames.push_back( QString( (*io)->fileName().c_str() ) );
+      fnames.push_back( QUrl( QString( (*io)->fileName().c_str() ) ) );
   }
 
   if( !fnames.empty() )
-    setFileNames( fnames );
+    setUrls( fnames );
 
-  for( d->nformats=0; QUriDrag::format( d->nformats ); ++d->nformats ) {}
+  setData( "AObject", ba );
 }
 
 
 QAObjectDrag::~QAObjectDrag()
 {
   //cout << "QAObjectDrag::~QAObjectDrag\n";
-  delete d;
+//   delete d;
 }
 
 
-bool QAObjectDrag::canDecode( const QMimeSource * e )
+bool QAObjectDrag::canDecode( const QMimeData * md )
 {
   //cout << "QAObjectDrag::canDecode\n";
-  const QMimeData *md = static_cast<const QDropEvent *>( e )->mimeData();
   if( md->hasFormat( "AObject" ) )
     return true;
   return false;
 }
 
 
-bool QAObjectDrag::decode( const QMimeSource * e, set<AObject*> & o )
+bool QAObjectDrag::decode( const QMimeData * md, set<AObject*> & o )
 {
   //cout << "QAObjectDrag::decode\n";
-  const QMimeData *md = static_cast<const QDropEvent *>( e )->mimeData();
   if( !md->hasFormat( "AObject" ) )
     return false;
   QByteArray	ba = md->data( "AObject" );
@@ -137,9 +127,8 @@ bool QAObjectDrag::decode( const QMimeSource * e, set<AObject*> & o )
 }
 
 
-bool QAObjectDrag::canDecodeURI( const QMimeSource * e )
+bool QAObjectDrag::canDecodeURI( const QMimeData * md )
 {
-  const QMimeData *md = static_cast<const QDropEvent *>( e )->mimeData();
   bool ok = false;
   if( md->hasUrls() )
   {
@@ -180,11 +169,10 @@ bool QAObjectDrag::canDecodeURI( const QMimeSource * e )
 }
 
 
-bool QAObjectDrag::decodeURI( const QMimeSource * e,
+bool QAObjectDrag::decodeURI( const QMimeData * md,
                               std::list<QString> & objects,
                               std::list<QString> & scenars )
 {
-  const QMimeData *md = static_cast<const QDropEvent *>( e )->mimeData();
   if( md->hasUrls() )
   {
     QList<QUrl> uris = md->urls();
@@ -221,31 +209,6 @@ bool QAObjectDrag::decodeURI( const QMimeSource * e,
   }
   else return false;
   return !objects.empty() || !scenars.empty();
-}
-
-
-const char* QAObjectDrag::format( int n ) const
-{
-  if( n < d->nformats )
-    return QUriDrag::format( n );
-  else if( n > d->nformats )
-    return 0;
-  static char aobjformat[] = "AObject";
-  return aobjformat;
-}
-
-
-QByteArray QAObjectDrag::encodedData( const char* format ) const
-{
-  if( string( format ) == "AObject" )
-    return d->aobjectdata;
-  return QUriDrag::encodedData( format );
-}
-
-
-bool QAObjectDrag::provides( const char *mimeType ) const
-{
-  return string( mimeType ) == "AObject" || QUriDrag::provides( mimeType );
 }
 
 

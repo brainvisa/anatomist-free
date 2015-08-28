@@ -382,13 +382,14 @@ void SurfpaintTools::save()
   QString filt = ( ControlWindow::tr( "Textures" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( "Texture" ) + ");;"
     + ControlWindow::tr( "All files" ).toStdString() + " (*)" ).c_str();
-  QString capt = "Save Texture" ;
+  QString capt = tr( "Save Texture" );
 
-  QString filename = QFileDialog::getSaveFileName( QString::null, filt, 0, 0, capt );
+  QString filename = QFileDialog::getSaveFileName(
+    0, capt, QString::null, filt, 0, 0 );
 
   if( !filename.isNull() )
   {
-    at->save( filename.utf8().data() );
+    at->save( filename.toStdString() );
   }
 
   clearAll();
@@ -588,11 +589,12 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
   {
     const QPixmap *p;
 
-    tbControls = new QToolBar(w3, ControlledWindow::tr(
-        "surfpainttoolbarControls"));
+    tbControls = new QToolBar( w3 );
+    tbControls->setObjectName( "surfpainttoolbarControls" );
 
-    w3->addToolBar( Qt::TopToolBarArea,tbControls, ControlledWindow::tr( "surfpainttoolbarControls") );
-    tbControls->setLabel( ControlledWindow::tr( "surfpainttoolbarControls") );
+    w3->addToolBar( Qt::TopToolBarArea, tbControls, ControlledWindow::tr( "surfpainttoolbarControls") );
+    tbControls->setWindowTitle( ControlledWindow::tr(
+      "surfpainttoolbarControls") );
     tbControls->setIconSize( QSize( 20, 20 ) );
 
     string iconname;
@@ -824,15 +826,18 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
   {
     const QPixmap *p;
 
-    tbTextureValue = new QToolBar(w3, ControlledWindow::tr(
-        "surfpainttoolbarTex"));
+    tbTextureValue = new QToolBar( w3 );
+    tbTextureValue->setObjectName( "surfpainttoolbarTex" );
 
-        w3->addToolBar( Qt::BottomToolBarArea,tbTextureValue, ControlledWindow::tr( "surfpainttoolbarTex" ) );
-        tbTextureValue->setLabel( ControlledWindow::tr( "surfpainttoolbarTex" ) );
-        tbTextureValue->setIconSize( QSize( 20, 20 ) );
+    w3->addToolBar( Qt::BottomToolBarArea, tbTextureValue,
+                    ControlledWindow::tr( "surfpainttoolbarTex" ) );
+    tbTextureValue->setWindowTitle(
+      ControlledWindow::tr( "surfpainttoolbarTex" ) );
+    tbTextureValue->setIconSize( QSize( 20, 20 ) );
 
     QLabel *SpinBoxLabel = new QLabel(ControlledWindow::tr("TextureValue"),
-        tbTextureValue, "TextureValue");
+      tbTextureValue );
+    SpinBoxLabel->setObjectName( "TextureValue");
     tbTextureValue->addWidget( SpinBoxLabel );
 
     textureFloatSpinBox = new QDoubleSpinBox(tbTextureValue);
@@ -906,11 +911,12 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
     tbTextureValue->show();
 
-    tbInfos3D = new QToolBar( w3,ControlledWindow::tr( "surfpainttoolbar3D") );
-      w3->addToolBar( Qt::BottomToolBarArea,tbInfos3D,
-                      ControlledWindow::tr( "surfpainttoolbar3D" ) );
-      tbInfos3D->setLabel( ControlledWindow::tr( "surfpainttoolbar3D" ) );
-      tbInfos3D->setIconSize( QSize( 20, 20 ) );
+    tbInfos3D = new QToolBar( w3 );
+    tbInfos3D->setObjectName( "surfpainttoolbar3D" );
+    w3->addToolBar( Qt::BottomToolBarArea, tbInfos3D,
+                    ControlledWindow::tr( "surfpainttoolbar3D" ) );
+    tbInfos3D->setWindowTitle( ControlledWindow::tr( "surfpainttoolbar3D" ) );
+    tbInfos3D->setIconSize( QSize( 20, 20 ) );
 
     QLabel *IDPolygonSpinBoxLabel
       = new QLabel(ControlledWindow::tr("IDPolygon"), tbInfos3D);
@@ -1046,7 +1052,7 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
           float cmax = 0;
           for( int i=0; i<constraintList->count(); ++i )
           {
-            string constraintLabel = string(constraintList->itemText(i));
+            string constraintLabel = constraintList->itemText(i).toStdString();
             size_t position = constraintLabel.find_last_of(' ');
             if( position != string::npos )
             {
@@ -1293,11 +1299,11 @@ void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
 
 void SurfpaintTools::updateConstraintList(void)
 {
-  int item = constraintList->currentItem();
+  int item = constraintList->currentIndex();
   int value = 1;
   if( item >= 0 )
   {
-    string constraintLabel = string(constraintList->currentText());
+    string constraintLabel = constraintList->currentText().toStdString();
 
     // cout << constraintLabel << " value " << item << endl;
     int position = constraintLabel.find_last_of(' ');

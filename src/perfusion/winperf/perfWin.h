@@ -35,13 +35,12 @@
 #ifndef PERF_WIN_H
 #define PERF_WIN_H
 
-
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qlistview.h>
-#include <aims/qtcompat/qbuttongroup.h>
+#include <QWidget>
 #include <set>
 
 class QLineEdit;
+class QButtonGroup;
+class QTreeWidget;
 
 namespace aims
 {
@@ -55,7 +54,7 @@ namespace anatomist
   class AObject;
 }
 
-class QAPerfusionWindow : public QHBox
+class QAPerfusionWindow : public QWidget
 {
   Q_OBJECT
 
@@ -69,10 +68,10 @@ public:
   virtual void registerObject( anatomist::AObject* object );
   virtual void unregisterObject( anatomist::AObject* object );
 
-  Q3ButtonGroup *mapGroup() { return qgbm; }
+  QButtonGroup *mapGroup() { return qgbm; }
   std::set< anatomist::AObject * > objects() const { return _sobjects; }
 
-  Q3ListView *listAIF() { return lview; }
+  QTreeWidget *listAIF() { return lview; }
 
 private:
 
@@ -81,9 +80,9 @@ private:
   QLineEdit *trle;
   QLineEdit *tele;
 
-  Q3ListView *lview;
+  QTreeWidget *lview;
 
-  Q3ButtonGroup *qgbm;
+  QButtonGroup *qgbm;
 
   aims::PerfusionProcessingCenter *procC;
   PerfusionProcessingQtDecorator *ppc;

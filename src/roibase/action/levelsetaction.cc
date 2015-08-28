@@ -49,15 +49,14 @@
 #include <anatomist/misc/error.h>
 #include <qpushbutton.h>
 #include <aims/resampling/quaternion.h>
-#include <aims/qtcompat/qhbuttongroup.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qlineedit.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
 #include <qcombobox.h>
+#include <QCheckBox>
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <queue>
 
 using namespace anatomist ;
@@ -71,147 +70,165 @@ namespace anatomist
   class RoiLevelSetActionView_Private {
   public:
     RoiLevelSetAction * myLevelSetAction ;
-    
+
     RoiHistoPlot * myHistoPlot ;
-    QHButtonGroup * myActivateButtonGroup ;
-    QPushButton * myActivateButton ;
-    QPushButton * myDeactivateButton ;
-    
-    QHGroupBox * myLowLevelGroupBox ;
+    QCheckBox * myActivateButton ;
+
     QSlider * myLowLevelSlider ;
     QLabel * myLowLevelValueLabel ;
-    
-    QHGroupBox * myHighLevelGroupBox ;
+
     QSlider * myHighLevelSlider ;
     QLabel * myHighLevelValueLabel ;
 
-    QHBox * myModes ;
-    QVBox * myDimensionMode ;
-    QVGroupBox * myDimensionBox ;
-    QVButtonGroup * myDimensions ;
-    QHGroupBox * myMaxSizeBox ;
+    QButtonGroup * myDimensions ;
     QSlider * myMaxSizeSlider ;
     QLabel * myMaxSizeLabel ;
-    
-    QVGroupBox * myBlobBox ;
+
     QLineEdit * myMaxSizeLineEdit ;
-    QHGroupBox * myPercentMaxBox ;
     QLineEdit * myPercentMaxLineEdit ;
-    
-    QVBox * myMixBox ;
-    QVGroupBox * myMixMethodBox ;
+
     QComboBox * myMixMethods ;
-    QHGroupBox * myMixFactorBox ;
     QSlider * myMixFactor ;
     QLabel * myMixFactorLabel ;
   } ;
 };
 
-RoiLevelSetActionView::RoiLevelSetActionView( anatomist::RoiLevelSetAction *  action,
-					      QWidget * parent ) :
-  QVBox(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
+RoiLevelSetActionView::RoiLevelSetActionView(
+  anatomist::RoiLevelSetAction *  action,
+  QWidget * parent ) :
+  QWidget(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
 {
   //cout << "RoiLevelSetActionView::RoiLevelSetActionView" << endl ;
   _private = new RoiLevelSetActionView_Private ;
   _private->myLevelSetAction = action ;
   RoiLevelSetActionSharedData::instance()->addObserver(this) ;
 
+  QVBoxLayout *lay = new QVBoxLayout( this );
+
   _private->myHistoPlot = new RoiHistoPlot(this, 100) ;
-  _private->myActivateButtonGroup = new QHButtonGroup(tr("Threshold Preview Activation"), this ) ;
-  _private->myActivateButton = new QPushButton( tr("Activate Threshold Preview"), 
-						_private->myActivateButtonGroup ) ;
-  _private->myActivateButton->setToggleButton(true) ;
+  lay->addWidget( _private->myHistoPlot );
+  QGroupBox *myActivateButtonGroup = new QGroupBox(
+      tr("Threshold Preview Activation"), this );
+  lay->addWidget( myActivateButtonGroup );
+  QHBoxLayout *abglay = new QHBoxLayout( myActivateButtonGroup );
+  _private->myActivateButton = new QCheckBox(
+    tr("Activate Threshold Preview"), myActivateButtonGroup );
+  abglay->addWidget( _private->myActivateButton );
 
-  _private->myDeactivateButton = new QPushButton( tr("Deactivate Threshold Preview"),
-						  _private->myActivateButtonGroup ) ;
-  _private->myDeactivateButton->setToggleButton(true) ;
-  
-  _private->myActivateButtonGroup->insert( _private->myActivateButton, 0 ) ;
-  _private->myActivateButtonGroup->insert( _private->myDeactivateButton, 1 ) ;
-  _private->myActivateButtonGroup->setExclusive(true) ;
-  _private->myActivateButtonGroup->setButton( 1 ) ;
-
-  _private->myLowLevelGroupBox =  new QHGroupBox( tr("Low Level"), this ) ;
+  QGroupBox *myLowLevelGroupBox = new QGroupBox( tr("Low Level"), this );
+  lay->addWidget( myLowLevelGroupBox );
+  QHBoxLayout *llglay = new QHBoxLayout( myLowLevelGroupBox );
   _private->myLowLevelSlider = 
-    new QSlider( -10, 1010, 1, int(_private->myLevelSetAction->lowLevel() * 1000. ),
-		 Qt::Horizontal, _private->myLowLevelGroupBox ) ;
-  _private->myLowLevelValueLabel =  new QLabel( QString::number( _private->myLevelSetAction->realMin() ), 
-						_private->myLowLevelGroupBox ) ;
+    new QSlider( -10, 1010, 1,
+                 int(_private->myLevelSetAction->lowLevel() * 1000. ),
+                  Qt::Horizontal, myLowLevelGroupBox );
+  llglay->addWidget( _private->myLowLevelSlider );
+  _private->myLowLevelValueLabel =  new QLabel(
+    QString::number( _private->myLevelSetAction->realMin() ),
+    myLowLevelGroupBox ) ;
+  llglay->addWidget( _private->myLowLevelValueLabel );
   _private->myLowLevelValueLabel->setFixedWidth(80) ;
   _private->myLowLevelSlider->setEnabled(false) ;
   _private->myHistoPlot->lowChanged( _private->myLevelSetAction->realMin() ) ;
-  _private->myHighLevelGroupBox =  new QHGroupBox( tr("High Level"), this ) ;
-  _private->myHighLevelSlider = new QSlider( -10, 1010, 1, int(_private->myLevelSetAction->highLevel()*1000.),
-					     Qt::Horizontal, 
-					     _private->myHighLevelGroupBox );
-  _private->myHighLevelValueLabel =  new QLabel( QString::number( _private->myLevelSetAction->realMax() ), 
-						 _private->myHighLevelGroupBox ) ;
+  QGroupBox *myHighLevelGroupBox = new QGroupBox( tr("High Level"), this );
+  lay->addWidget( myHighLevelGroupBox );
+  QHBoxLayout *hlglay = new QHBoxLayout( myHighLevelGroupBox );
+  _private->myHighLevelSlider = new QSlider(
+    -10, 1010, 1, int(_private->myLevelSetAction->highLevel()*1000.),
+    Qt::Horizontal, myHighLevelGroupBox );
+  hlglay->addWidget( _private->myHighLevelSlider );
+  _private->myHighLevelValueLabel =  new QLabel(
+    QString::number( _private->myLevelSetAction->realMax() ),
+    myHighLevelGroupBox );
+  hlglay->addWidget( _private->myHighLevelValueLabel );
   _private->myHighLevelValueLabel->setFixedWidth(80) ;
   _private->myHighLevelSlider->setEnabled(false) ;
   _private->myHistoPlot->highChanged( _private->myLevelSetAction->realMax() ) ;
 
-  _private->myModes = new QHBox( this ) ;
-  _private->myDimensionMode = new QVBox( _private->myModes ) ;
-  //_private->myDimensionBox = new QVGroupBox(tr("Dimension"), _private->myModes )  ;
-  _private->myDimensions = new QVButtonGroup( tr("Dimension"), _private->myDimensionMode ) ;
-  new QRadioButton(tr("2D"), _private->myDimensions) ;
-  new QRadioButton(tr("3D"), _private->myDimensions) ;
+  QWidget *myModes = new QWidget( this );
+  lay->addWidget( myModes );
+  QHBoxLayout *modelay = new QHBoxLayout( myModes );
+  QWidget *myDimensionMode = new QWidget( myModes );
+  modelay->addWidget( myDimensionMode );
+  QVBoxLayout *dimmlay = new QVBoxLayout( myDimensionMode );
+  QGroupBox *dimb = new QGroupBox( tr("Dimension"), myDimensionMode );
+  dimmlay->addWidget( dimb );
+  QVBoxLayout *dimblay = new QVBoxLayout( dimb );
+  _private->myDimensions = new QButtonGroup( dimb );
+  QRadioButton *r = new QRadioButton(tr("2D") );
+  dimblay->addWidget( r );
+  _private->myDimensions->addButton( r, 0 );
+  r =  new QRadioButton(tr("3D") );
+  dimblay->addWidget( r );
+  _private->myDimensions->addButton( r, 1 );
   _private->myDimensions->setExclusive(true) ;
-  _private->myDimensions->setButton(0) ;
-  
-//   _private->myMaxSizeSlider = new QSlider( 0, 100, 10, 30, Qt::Horizontal, _private->myMaxSizeBox ) ;
-//   _private->myMaxSizeSlider->setEnabled(true) ;
+  _private->myDimensions->button(0)->setChecked( true );
 
-//   _private->myMaxSizeLabel = new QLabel( "30 %", _private->myMaxSizeBox ) ;
-//   _private->myMaxSizeLabel->setFixedWidth(80) ;
-
-  _private->myBlobBox = new QVGroupBox(tr("Blob segmentation"), _private->myModes ) ;
-  _private->myMaxSizeBox = new QHGroupBox(tr("Region max size"), _private->myDimensionMode ) ;
-  _private->myMaxSizeLineEdit = new QLineEdit( QString::number( _private->myLevelSetAction->maxSize() ), 
-					       _private->myMaxSizeBox ) ;
+  QGroupBox *myMaxSizeBox = new QGroupBox(
+    tr("Region max size"), myDimensionMode );
+  dimmlay->addWidget( myMaxSizeBox );
+  QHBoxLayout *msblay = new QHBoxLayout( myMaxSizeBox );
+  _private->myMaxSizeLineEdit = new QLineEdit(
+    QString::number( _private->myLevelSetAction->maxSize() ),
+    myMaxSizeBox );
+  msblay->addWidget( _private->myMaxSizeLineEdit );
   _private->myMaxSizeLineEdit->setFixedWidth(60) ;
-  new QLabel( "mm3", _private->myMaxSizeBox ) ;
+  msblay->addWidget( new QLabel( "mm3", myMaxSizeBox ) );
 
-  _private->myPercentMaxBox = new QHGroupBox(tr("Percentage of extremum"), _private->myDimensionMode ) ;
-  _private->myPercentMaxLineEdit = new QLineEdit( 
-			  QString::number( _private->myLevelSetAction->percentageOfMaximum() ), 
-			  _private->myPercentMaxBox ) ;
-  _private->myPercentMaxLineEdit->setFixedWidth(60) ;
-  new QLabel( " %", _private->myPercentMaxBox ) ;
+  QGroupBox *myPercentMaxBox = new QGroupBox( tr("Percentage of extremum"),
+                                              myDimensionMode );
+  dimmlay->addWidget( myPercentMaxBox );
+  QHBoxLayout *pmblay = new QHBoxLayout( myPercentMaxBox );
+  _private->myPercentMaxLineEdit = new QLineEdit(
+    QString::number( _private->myLevelSetAction->percentageOfMaximum() ),
+    myPercentMaxBox );
+  pmblay->addWidget( _private->myPercentMaxLineEdit );
+  _private->myPercentMaxLineEdit->setFixedWidth(60);
+  pmblay->addWidget( new QLabel( " %", myPercentMaxBox ) );
 
-  _private->myMixBox = new QVBox( _private->myModes ) ;
-  
-  _private->myMixMethodBox = new QVGroupBox( tr("MixMethod"), _private->myMixBox ) ;
-  _private->myMixMethods = new QComboBox( _private->myMixMethodBox ) ;
+  QWidget *myMixBox = new QWidget( myModes );
+  modelay->addWidget( myMixBox );
+  QVBoxLayout *minblay = new QVBoxLayout( myMixBox );
+
+  QGroupBox *myMixMethodBox = new QGroupBox( tr("MixMethod"), myMixBox );
+  minblay->addWidget( myMixMethodBox );
+  QVBoxLayout *mmblay = new QVBoxLayout( myMixMethodBox );
+  _private->myMixMethods = new QComboBox( myMixMethodBox );
+  mmblay->addWidget( _private->myMixMethods );
   _private->myMixMethods->insertItem( "GEOMETRIC" ) ;
   _private->myMixMethods->insertItem( "LINEAR" ) ;
   _private->myMixMethods->setCurrentItem( 0 ) ;
-  
-  _private->myMixFactorBox = new QHGroupBox(tr("Mixing Factor"), _private->myMixBox ) ;
-  _private->myMixFactor = new QSlider( 0, 100, 10, 50, Qt::Horizontal, _private->myMixFactorBox ) ;
+
+  QGroupBox *myMixFactorBox = new QGroupBox(tr("Mixing Factor"), myMixBox );
+  minblay->addWidget( myMixFactorBox );
+  QHBoxLayout *mfblay = new QHBoxLayout( myMixFactorBox );
+  _private->myMixFactor = new QSlider( 0, 100, 10, 50, Qt::Horizontal,
+                                       myMixFactorBox );
+  mfblay->addWidget( _private->myMixFactor );
   _private->myMixFactor->setEnabled(false) ;
 
-  _private->myMixFactorLabel = new QLabel( "10 %", _private->myMixFactorBox ) ;
+  _private->myMixFactorLabel = new QLabel( "10 %", myMixFactorBox );
+  mfblay->addWidget( _private->myMixFactorLabel );
   _private->myMixFactorLabel->setFixedWidth(80) ;
-  
-  connect( _private->myActivateButtonGroup, SIGNAL(clicked(int)),
-	   this, SLOT(levelSetActivationChanged(int) ) ) ;
-  connect( _private->myLowLevelSlider, SIGNAL(valueChanged(int)), 
-	   this, SLOT(lowLevelChanged(int) ) ) ;
-  connect( _private->myHighLevelSlider, SIGNAL(valueChanged(int)), 
-	   this, SLOT(highLevelChanged(int) ) ) ;
-  connect( _private->myDimensions, SIGNAL(clicked(int)), 
-	   this, SLOT(dimensionModeChanged(int) ) ) ;
 
-  connect( _private->myMaxSizeLineEdit, SIGNAL(textChanged(const QString&)), 
-	   this, SLOT(maxSizeChanged(const QString&) ) ) ;
-  connect( _private->myPercentMaxLineEdit, SIGNAL(textChanged(const QString&)), 
-	   this, SLOT(percentageOfMaxChanged(const QString&) ) ) ;
-  
-  connect( _private->myMixMethods, SIGNAL(activated(const QString&)), 
-	   this, SLOT(mixMethodChanged(const QString&) ) ) ;
-  connect( _private->myMixFactor, SIGNAL(valueChanged(int)), 
-	   this, SLOT(mixFactorChanged(int) ) ) ;
+  connect( _private->myActivateButton, SIGNAL(stateChanged(int)),
+            this, SLOT(levelSetActivationChanged(int) ) ) ;
+  connect( _private->myLowLevelSlider, SIGNAL(valueChanged(int)),
+            this, SLOT(lowLevelChanged(int) ) ) ;
+  connect( _private->myHighLevelSlider, SIGNAL(valueChanged(int)),
+            this, SLOT(highLevelChanged(int) ) ) ;
+  connect( _private->myDimensions, SIGNAL(buttonClicked(int)),
+            this, SLOT(dimensionModeChanged(int) ) ) ;
+
+  connect( _private->myMaxSizeLineEdit, SIGNAL(textChanged(const QString&)),
+            this, SLOT(maxSizeChanged(const QString&) ) ) ;
+  connect( _private->myPercentMaxLineEdit, SIGNAL(textChanged(const QString&)),
+            this, SLOT(percentageOfMaxChanged(const QString&) ) ) ;
+
+  connect( _private->myMixMethods, SIGNAL(activated(const QString&)),
+            this, SLOT(mixMethodChanged(const QString&) ) ) ;
+  connect( _private->myMixFactor, SIGNAL(valueChanged(int)),
+            this, SLOT(mixFactorChanged(int) ) ) ;
 }
 
 RoiLevelSetActionView::~RoiLevelSetActionView()
@@ -223,34 +240,33 @@ RoiLevelSetActionView::~RoiLevelSetActionView()
 }
 
 void
-RoiLevelSetActionView::levelSetActivationChanged( int button )
+RoiLevelSetActionView::levelSetActivationChanged( int state )
 {
-  //cout << "RoiLevelSetActionView::levelSetActivationChanged" << endl ;
   myChangingFlag = true ;
-  if( button == 0 )
-    {
-      _private->myLevelSetAction->activateLevelSet() ;
-      _private->myHistoPlot->activate() ;
-      _private->myLowLevelSlider->setEnabled(true) ;
-      _private->myHighLevelSlider->setEnabled(true) ;
-    
-      _private->myLowLevelSlider->setValue( int( _private->myLevelSetAction->
-						 lowLevel() * 1000. ) ) ;
-      _private->myLowLevelValueLabel->
-	setText( QString::number( _private->myLevelSetAction->realMin() ) ) ;
-    
-      _private->myHighLevelSlider->setValue( int( _private->myLevelSetAction->
-						  highLevel() * 1000. ) ) ;
-      _private->myHighLevelValueLabel->
-	setText( QString::number( _private->myLevelSetAction->realMax() ) ) ;
-    }
-  else if( button == 1 )
-    {
-      _private->myLevelSetAction->deactivateLevelSet() ;
-      _private->myHistoPlot->deactivate() ;
-      _private->myLowLevelSlider->setEnabled(false) ;
-      _private->myHighLevelSlider->setEnabled(false) ;
-    }
+  if( state == Qt::Checked )
+  {
+    _private->myLevelSetAction->activateLevelSet() ;
+    _private->myHistoPlot->activate() ;
+    _private->myLowLevelSlider->setEnabled(true) ;
+    _private->myHighLevelSlider->setEnabled(true) ;
+
+    _private->myLowLevelSlider->setValue( int( _private->myLevelSetAction->
+                                                lowLevel() * 1000. ) ) ;
+    _private->myLowLevelValueLabel->
+      setText( QString::number( _private->myLevelSetAction->realMin() ) ) ;
+
+    _private->myHighLevelSlider->setValue( int( _private->myLevelSetAction->
+                                                highLevel() * 1000. ) ) ;
+    _private->myHighLevelValueLabel->
+      setText( QString::number( _private->myLevelSetAction->realMax() ) ) ;
+  }
+  else
+  {
+    _private->myLevelSetAction->deactivateLevelSet() ;
+    _private->myHistoPlot->deactivate() ;
+    _private->myLowLevelSlider->setEnabled(false) ;
+    _private->myHighLevelSlider->setEnabled(false) ;
+  }
   myChangingFlag = false ;
 }
 
@@ -356,17 +372,17 @@ RoiLevelSetActionView::update( const anatomist::Observable *, void * )
   
   if( _private->myLevelSetAction->levelSetActivation() )
     {
-      _private->myActivateButtonGroup->setButton(0) ;
-      _private->myHistoPlot->activate() ;
-      _private->myLowLevelSlider->setEnabled(true) ;
-      _private->myHighLevelSlider->setEnabled(true) ;
+      _private->myActivateButton->setChecked( false );
+      _private->myHistoPlot->activate();
+      _private->myLowLevelSlider->setEnabled( true );
+      _private->myHighLevelSlider->setEnabled( true );
     }
   else
     {
-      _private->myActivateButtonGroup->setButton(1) ;
-      _private->myHistoPlot->deactivate() ;
-      _private->myLowLevelSlider->setEnabled(false) ;
-      _private->myHighLevelSlider->setEnabled(false) ;
+      _private->myActivateButton->setChecked( true );
+      _private->myHistoPlot->deactivate();
+      _private->myLowLevelSlider->setEnabled( false );
+      _private->myHighLevelSlider->setEnabled( false );
       myUpdatingFlag = false ;
       return ;
     }
@@ -386,9 +402,9 @@ RoiLevelSetActionView::update( const anatomist::Observable *, void * )
   }
   
   if( _private->myLevelSetAction->dimensionMode() != 
-      _private->myDimensions->id(_private->myDimensions->selected() ) )
-    _private->myDimensions->
-      setButton(_private->myLevelSetAction->dimensionMode() ) ;
+      _private->myDimensions->id(_private->myDimensions->checkedButton() ) )
+    _private->myDimensions->button(
+      _private->myLevelSetAction->dimensionMode() )->setChecked( true );
 
   if( _private->myLevelSetAction->maxSize() != _private->myMaxSizeLineEdit->
       text().toFloat() )
@@ -1014,7 +1030,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
   {
     int timePos = win->getTimeSliderPosition() ;
 
-    //cout << "Pos : " << pos << endl ;
+    // cout << "Pos : " << pos << endl ;
 
     // cout << "Position from cursor : (" << x << " , "<< y << ") = "
     //   << pos << endl ;
@@ -1023,19 +1039,13 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
 
     Point3df normalVector( win->sliceQuaternion().
                             apply(Point3df(0., 0., 1.) ) ) ;
-    Point3df xAx( win->sliceQuaternion().
-                            apply(Point3df(1., 0., 0.) ) ) ;
-    Point3df yAx( win->sliceQuaternion().
-                            apply(Point3df(0., 1., 0.) ) ) ;
-
-    Point3d xAxis( (int)rint(xAx[0]), (int)rint(xAx[1]), (int)rint(xAx[2]) ) ;
-    Point3d yAxis( (int)rint(yAx[0]), (int)rint(yAx[1]), (int)rint(yAx[2]) ) ;
-    Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
 
     //cout << "Normal Vector before 1 : " << normalVector << endl ;
+    // snap to slice position
     Point3df nVec = normalVector * normalVector.dot( pos - win->getPosition() ) ;
     pos = pos - nVec ;
     //cout << "Normal Vector before 2 : " << nVec << endl ;
+    // cout << "snapped pos: " << pos << endl;
 
     Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;
     AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
@@ -1051,7 +1061,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
       p[2] /= voxelSize[2] ;
     }
 
-    //cout << "P : " << p << endl ;
+    // cout << "P : " << p << endl ;
 
 
     Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
@@ -1065,9 +1075,6 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     else
       maxNbOfPoints
         = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ();
-    Point3d pToInt( static_cast<int> ( p[0] +.5 ),
-                    static_cast<int> ( p[1] +.5 ),
-                    static_cast<int> ( p[2] +.5 ) ) ;
     Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ),
                   static_cast<int> ( p[1] - vlOffset[1] +.5 ),
                   static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
@@ -1075,7 +1082,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     float realLowLevel = realMin() ;
     float realHighLevel = realMax() ;
 
-    //cout << "\tpVL = " << pVL << endl ;
+    // cout << "\tpVL = " << pVL << endl ;
 
     std::queue<Point3d> trialPoints ;
     ChangesItem change ;
@@ -1091,13 +1098,16 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
       toChange = &change.after ;
     }
     Point3d neighbor ;
-    bool replace = PaintActionSharedData::instance()->replaceMode() ;
-    Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ() ) ;
+    bool replace = PaintActionSharedData::instance()->replaceMode();
+    Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(),
+                  volumeOfLabels.dimZ() );
     if( in( dims, pVL ) )
     {
+      Point3df vs = _sharedData->myCurrentImage->VoxelSize();
+      // mixedTexValue is in mm, not in voxels.
       float val
         = _sharedData->myCurrentImage->mixedTexValue(
-          Point3df( pVL[0], pVL[1], pVL[2] ), timePos);
+          Point3df( pVL[0] * vs[0], pVL[1] * vs[1], pVL[2] * vs[2] ), timePos);
       if ( val < realLowLevel || val > realHighLevel )
         return ;
       else
@@ -1160,6 +1170,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
         cout << "Warning: region has been truncated due to size limitation "
           "- it could grow bigger if limit is increaded or removed.\n";
     }
+    else cout << "outside dims.\n";
   }
 }
 
@@ -1178,23 +1189,27 @@ RoiLevelSetAction::in( const Point3d& dims, Point3d p )
 
 
 bool 
-anatomist::RoiLevelSetAction::fillPoint( const Point3d& pc, int t,
-					 AimsData<anatomist::AObject*>& volumeOfLabels, 
-					 anatomist::AGraphObject * region, float realLowLevel, 
-					 float realHighLevel,
-					 anatomist::AObject** toChange,
-					 std::queue<Point3d>& trialPoints, bool replace )
+anatomist::RoiLevelSetAction::fillPoint(
+  const Point3d& pc, int t, AimsData<anatomist::AObject*>& volumeOfLabels,
+  anatomist::AGraphObject * region, float realLowLevel, float realHighLevel,
+  anatomist::AObject** toChange, std::queue<Point3d>& trialPoints,
+  bool replace )
 {
-  Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ()) ;
-  if( in( dims, pc ) ){
-    float val = _sharedData->myCurrentImage->mixedTexValue( Point3df( pc[0], pc[1], pc[2] ), t ) ;
-    if( (volumeOfLabels( pc ) != region) &&  
-	(val >= realLowLevel) && (val <= realHighLevel)  &&
-	( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) ) {
+  Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(),
+                volumeOfLabels.dimZ()) ;
+  if( in( dims, pc ) )
+  {
+    Point3df vs = _sharedData->myCurrentImage->VoxelSize();
+    float val = _sharedData->myCurrentImage->mixedTexValue(
+      Point3df( pc[0] * vs[0], pc[1] * vs[1], pc[2] * vs[2] ), t );
+    if( (volumeOfLabels( pc ) != region) &&
+        (val >= realLowLevel) && (val <= realHighLevel)  &&
+        ( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) )
+    {
 /*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
       trialPoints.push(pc) ;
       *toChange = volumeOfLabels( pc ) ;
-      
+
       volumeOfLabels( pc ) = region ;
       return true ;
     }

@@ -34,7 +34,7 @@
 #ifndef ANAQT_BROWSER_TYPEEDIT_H
 #define ANAQT_BROWSER_TYPEEDIT_H
 
-#include <aims/qtcompat/qlistbox.h>
+#include <QListWidget>
 #include <qcombobox.h>
 
 /*
@@ -71,12 +71,12 @@ private:
 
 #include <cartobase/object/object.h>
 #include <qdialog.h>
-#include <aims/qtcompat/qlistview.h>
 #include <anatomist/application/Anatomist.h>
 
 //class QCancelLineEdit;
 class QObjectBrowser;
 class QCancelLineEdit;
+class QTreeWidgetItem;
 
 
 ///	Editor window for labels (interaction with hierarchies)
@@ -87,13 +87,13 @@ class listboxeditor : public QDialog
 public:
   listboxeditor( const std::string & text, int x, int y, unsigned w, 
                  unsigned h, QObjectBrowser* br, carto::GenericObject* ao,
-                 const std::string & att, Q3ListViewItem* item,
+                 const std::string & att, QTreeWidgetItem* item,
                  QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
   ~listboxeditor();
 
 //  std::string text() const;
   //carto::GenericObject* attributed() const { return( _ao ); }
-  std::string attrib() const { return( _att.utf8().data() ); }
+  std::string attrib() const { return( _att.toStdString() ); }
   //Q3ListViewItem* item() const { return( _item ); }
   ///	Receive input from a browser (click on a hierarchy)
   //void receiveValue( const std::string & val );
@@ -109,7 +109,7 @@ protected:
   QCancelLineEdit		*_te;
   carto::GenericObject		*_ao;
   QString			_att;
-  Q3ListViewItem		*_item;
+  QTreeWidgetItem		*_item;
 
 private:
 };

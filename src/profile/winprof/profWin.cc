@@ -39,14 +39,13 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/winFactory.h>
 #include <anatomist/reference/Transformation.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qcolor.h>
 #include <qpen.h>
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <qwt_plot.h>
 #if QWT_VERSION >= 0x050000
 #include <qwt_plot_curve.h>
@@ -92,29 +91,43 @@ QAProfileWindow::QAProfileWindow( QWidget *p, const char *name,
   x_curve = 0;
   pdim = 0;
 
-  QHBox	*hb = new QHBox( this );
-  hb->setSpacing( 5 );
+  QWidget *hb = new QWidget( this );
+  QHBoxLayout *hblay = new QHBoxLayout( hb );
+  hblay->setSpacing( 5 );
+  hblay->setMargin( 5 );
   setCentralWidget( hb );
-  QVBox *vb = new QVBox( hb );
 
-  QVButtonGroup *bg = new QVButtonGroup( "Direction", vb );
+  QGroupBox *bg = new QGroupBox( "Direction", hb );
+  QVBoxLayout *bglay = new QVBoxLayout( bg );
+  QButtonGroup *bgbg = new QButtonGroup( bg );
+  hblay->addWidget( bg );
   bt1 = new QRadioButton( "Along X", bg );
   bt2 = new QRadioButton( "Along Y", bg );
   bt3 = new QRadioButton( "Along Z", bg );
   bt4 = new QRadioButton( "Along T", bg );
+  bglay->addWidget( bt1 );
+  bglay->addWidget( bt2 );
+  bglay->addWidget( bt3 );
+  bglay->addWidget( bt4 );
+  bgbg->addButton( bt1, 0 );
+  bgbg->addButton( bt2, 1 );
+  bgbg->addButton( bt3, 2 );
+  bgbg->addButton( bt4, 3 );
   bt1->setChecked( true );
   bt1->setEnabled( false );
   bt2->setEnabled( false );
   bt3->setEnabled( false );
   bt4->setEnabled( false );
   bg->setFixedSize( bg->sizeHint() );
-  connect( bg, SIGNAL( pressed( int ) ), this, SLOT( dirChange( int ) ) );
+  connect( bgbg, SIGNAL( buttonClicked( int ) ),
+           this, SLOT( dirChange( int ) ) );
 
 #if QWT_VERSION >= 0x050000
   graphic = new QwtPlot( hb );
 #else
   graphic = new QwtPlot( hb, "profile" );
 #endif
+  hblay->addWidget( graphic );
   graphic->setAutoReplot( true );
   graphic->setFixedSize( (int)profileWidth, (int)profileHeight );
   graphic->setAxisTitle( QwtPlot::yLeft, "Amplitude" );

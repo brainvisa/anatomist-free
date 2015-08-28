@@ -70,6 +70,7 @@
 #include <QList>
 #include <qtimer.h>
 #include <QHeaderView>
+#include <QDrag>
 #include <algorithm>
 #include <stdio.h>
 #include <math.h>
@@ -2774,15 +2775,22 @@ void QObjectBrowser::startDrag( QTreeWidgetItem*, Qt::MouseButtons button,
           ++i;
     }
   if( !so.empty() )
-    {
-      QAObjectDrag *d = new QAObjectDrag( so, this, "dragObject" );
+  {
+    QAObjectDrag *d = new QAObjectDrag( so );
+    QDrag *drag = new QDrag( this );
+    drag->setMimeData( d );
 
-      map<int, QPixmap>::const_iterator	ip
-        = QObjectTree::TypeIcons.find( (*so.begin())->type() );
-      if( ip != QObjectTree::TypeIcons.end() )
-        d->setPixmap( (*ip).second );
-      d->dragCopy();
-    }
+    map<int, QPixmap>::const_iterator	ip
+      = QObjectTree::TypeIcons.find( (*so.begin())->type() );
+    if( ip != QObjectTree::TypeIcons.end() )
+      drag->setPixmap( (*ip).second );
+
+//         d->setPixmap( (*ip).second );
+//       d->dragCopy();
+
+    Qt::DropAction dropaction = drag->exec( Qt::CopyAction );
+    // we should not delete drag.
+  }
 }
 
 

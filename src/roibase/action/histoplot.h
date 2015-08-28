@@ -35,12 +35,12 @@
 #define HISTO_PLOT_H
 
 #include <anatomist/observer/Observer.h>
-#include <aims/qtcompat/qvbox.h>
+#include <QWidget>
 #include <vector>
 #include <map>
 #include <string>
 
-class RoiHistoPlot : public QVBox, public anatomist::Observer 
+class RoiHistoPlot : public QWidget, public anatomist::Observer
 {
   Q_OBJECT
   
@@ -64,8 +64,8 @@ class RoiHistoPlot : public QVBox, public anatomist::Observer
   void showGraphHisto() ;
   void saveHistos() ;
   void showImageHisto() ;
-  void showHistoChange( ) ;
-  void ignoreUnderLowChicked( ) ;
+  void showHistoChange( int ) ;
+  void ignoreUnderLowChicked( int ) ;
  private:
   struct Private;
 
@@ -93,6 +93,7 @@ class RoiHistoPlot : public QVBox, public anatomist::Observer
   std::string myImage ;
   std::string myGraph ;
   float myIgnoreForMax ;
+  bool myUseExtrema;
   int myNbOfBins ;
   double myHistoMax ;
   double myHighLevel ;

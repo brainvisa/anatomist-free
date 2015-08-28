@@ -45,45 +45,45 @@ using namespace std;
 
 listboxeditor::listboxeditor( const string & /*text*/, int x, int y, unsigned w,
 			unsigned h, QObjectBrowser* br, GenericObject* ao, 
-			const string & att, Q3ListViewItem* item, 
+			const string & att, QTreeWidgetItem* item,
                               QWidget* parent, const char* name, Qt::WFlags f )
   : QDialog( parent, f ), _browser( br ),
     _ao( ao ), _att( att.c_str() ), 
     _item( item )
 {
-    if( name ){
-        setObjectName(name);
-    	setCaption( name );
-    }
-    setModal(false);
-    setAttribute(Qt::WA_DeleteOnClose);
+  if( name )
+  {
+    setObjectName(name);
+    setWindowTitle( name );
+  }
+  setModal(false);
+  setAttribute(Qt::WA_DeleteOnClose);
 
-#if QT_VERSION >= 0x040000
-  	setFocusPolicy( Qt::StrongFocus );
-#else
-  	setFocusPolicy( StrongFocus );
-#endif
+  setFocusPolicy( Qt::StrongFocus );
 
-	QComboBox *boxchoice = new QComboBox( parent, name );
-	//boxchoice->isPopup = true;
-	//boxchoice->isModal = true
+  QComboBox *boxchoice = new QComboBox( parent );
+  boxchoice->setObjectName( name );
+  //boxchoice->isPopup = true;
+  //boxchoice->isModal = true
 
-	boxchoice->insertItem( "Both meridian and parallel" );
-        boxchoice->insertItem( "meridian" );
-        boxchoice->insertItem( "parallel" );
+  boxchoice->addItem( "Both meridian and parallel" );
+  boxchoice->addItem( "meridian" );
+  boxchoice->addItem( "parallel" );
 
-	QVBoxLayout	*lay = new QVBoxLayout( this, 0, 0, "lay" );
-  	_te = new QCancelLineEdit( this, "typeedit" );
-  	_te->setFrame( false );
+  QVBoxLayout	*lay = new QVBoxLayout( this );
+  lay->setMargin( 0 );
+  lay->setSpacing( 0 );
+  _te = new QCancelLineEdit( this, "typeedit" );
+  _te->setFrame( false );
 //  	_te->setText( text.c_str() );
-  	lay->addWidget( _te );
-  	_te->setFocus();
-  	setGeometry( x, y, w, h );
+  lay->addWidget( _te );
+  _te->setFocus();
+  setGeometry( x, y, w, h );
 
-	connect( _te, SIGNAL( clicked() ), this, SLOT( change(boxchoice ) ) );
-  	//connect( _te, SIGNAL( returnPressed() ), this, SLOT( accept() ) );
-  	//connect( (QCancelLineEdit *) _te, SIGNAL( cancel() ), this,
-	//   	SLOT( reject() ) );
+  connect( _te, SIGNAL( clicked() ), this, SLOT( change(boxchoice ) ) );
+  //connect( _te, SIGNAL( returnPressed() ), this, SLOT( accept() ) );
+  //connect( (QCancelLineEdit *) _te, SIGNAL( cancel() ), this,
+  //   	SLOT( reject() ) );
 }
 
 
@@ -99,7 +99,7 @@ void listboxeditor::change(QComboBox *boxchoice )
   _att = boxchoice->currentText();
   _browser->editValidate();
   //QDialog::accept();
-  close(true);
+  close();
 }
 
 QString listboxeditor::get_result()
@@ -115,7 +115,7 @@ void listboxeditor::reject()
       recurs = true;
 
       QDialog::reject();
-      close( true );
+      close();
 
       recurs = false;
     }

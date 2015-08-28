@@ -33,7 +33,7 @@
 
 #include <anatomist/object/qtextureparams.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qvgroupbox.h>
+#include <QGroupBox>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qslider.h>
@@ -157,9 +157,9 @@ QTextureVectorEditor::QTextureVectorEditor( QWidget* parent )
   setLayout( vlay );
   vlay->setSpacing( 5 );
   vlay->setMargin( 0 );
-  QVGroupBox	*dirbox = new QVGroupBox( tr( "Direction:" ), this );
+  QGroupBox	*dirbox = new QGroupBox( tr( "Direction:" ), this );
   vlay->addWidget( dirbox );
-  QVGroupBox	*scale = new QVGroupBox( tr( "Scale:" ), this );
+  QGroupBox	*scale = new QGroupBox( tr( "Scale:" ), this );
   vlay->addWidget( scale );
   d->edits[0] = new QVectorCompEditor( "x:", dirbox );
   d->edits[1] = new QVectorCompEditor( "y:", dirbox );

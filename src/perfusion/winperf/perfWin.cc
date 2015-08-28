@@ -33,7 +33,6 @@
 
 
 #include <assert.h>
-#include <aims/qtcompat/qgroupbox.h> // needs to be 1st for now
 #include <anatomist/winperf/perfWin.h>
 #include <anatomist/winperf/qfloatspinbox.h>
 #include <anatomist/perfusion/perfProcQtDeco.h>
@@ -65,10 +64,13 @@
 #include <qlayout.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qvbox.h>
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
+#include <QButtonGroup>
+#include <QGroupBox>
+#include <QTreeWidget>
+#include <QHeaderView>
 
 #include <stdio.h>
 
@@ -81,22 +83,25 @@ bool QAPerfusionWindow::_typePW = registerClass();
 
 
 QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name ) 
-  : QHBox( p )
+  : QWidget( p )
 {
+  QHBoxLayout *lay = new QHBoxLayout( this );
   assert( theAnatomist );
-  setCaption( "Perfusion" );
+  setWindowTitle( "Perfusion" );
   setObjectName(name);
   setAttribute(Qt::WA_DeleteOnClose);
-  setSpacing( 5 );
+  lay->setSpacing( 5 );
+  lay->setMargin( 4 );
 
   procC = new PerfusionProcessingCenter();
   ppc = new PerfusionProcessingQtDecorator( procC, this );
 
-  Q3GroupBox *gbox = new Q3GroupBox( 2, Qt::Horizontal, "Processing", this );
-  QWidget *lpan = new QWidget( gbox, "lpan" );
+  QGroupBox *lpan = new QGroupBox( "Processing", this );
+  lay->addWidget( lpan );
+  lpan->setObjectName( "lpan" );
 
   // Processing graph
-  QGridLayout *gridLay = new QGridLayout( lpan, 21, 2 );
+  QGridLayout *gridLay = new QGridLayout( lpan );
   gridLay->setSpacing( 5 );
   QLabel *img = new QLabel( "Image", lpan, "image" );
   img->setFrameStyle( QFrame::Panel | QFrame::Raised );
@@ -111,37 +116,36 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   QPushButton *fit = new QPushButton( "Fit", lpan, "fit" );
   QPushButton *deconv = new QPushButton( "SVD deconvolution", lpan, "deconv" );
   QPushButton *perfm = new QPushButton( "Perfusion maps", lpan, "perfm" );
-  Q3ButtonGroup *pbg = new Q3ButtonGroup( lpan );
-  pbg->hide();
+  QButtonGroup *pbg = new QButtonGroup( lpan );
 
   PerfusionSkip pskip;
-  pbg->insert( skipVal, pskip.id() );
+  pbg->addButton( skipVal, pskip.id() );
 
   PerfusionMask pmask;
-  pbg->insert( brainMask, pmask.id() );
+  pbg->addButton( brainMask, pmask.id() );
 
   PerfusionAifPoints paifp;
-  pbg->insert( listaif, paifp.id() );
+  pbg->addButton( listaif, paifp.id() );
   
   PerfusionPreInjection pinj;
-  pbg->insert( preinj, pinj.id() );
+  pbg->addButton( preinj, pinj.id() );
 
   PerfusionQuantification pquant;
-  pbg->insert( quant, pquant.id() );
+  pbg->addButton( quant, pquant.id() );
 
   PerfusionAif paif;  
-  pbg->insert( aifw, paif.id() );
+  pbg->addButton( aifw, paif.id() );
 
   PerfusionFit pfit;
-  pbg->insert( fit, pfit.id() );
+  pbg->addButton( fit, pfit.id() );
   
   PerfusionDeconvolution pdeconv;
-  pbg->insert( deconv, pdeconv.id() );
+  pbg->addButton( deconv, pdeconv.id() );
 
   PerfusionMaps pmap;
-  pbg->insert( perfm, pmap.id() );
+  pbg->addButton( perfm, pmap.id() );
 
-  connect( pbg, SIGNAL( clicked( int ) ), ppc, SLOT( apply( int ) ) );
+  connect( pbg, SIGNAL( buttonClicked( int ) ), ppc, SLOT( apply( int ) ) );
 
   QLabel *lien1 = new QLabel( "|", lpan, "lien1" );
   QLabel *lien2 = new QLabel( "|", lpan, "lien2" );
@@ -173,14 +177,21 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   gridLay->addWidget( perfm, 18, 0, Qt::AlignHCenter );
 
   // Image parameters
-  QHBox *ipar = new QHBox( lpan, "ipar" );
-  ipar->setSpacing( 5 );
-  new QLabel( "Tr (ms):", ipar );
-  trle = new QLineEdit( "0", ipar, "trle" );
+  QWidget *ipar = new QWidget( lpan );
+  ipar->setObjectName( "ipar" );
+  QHBoxLayout *iparlay = new QHBoxLayout( ipar );
+  iparlay->setSpacing( 5 );
+  iparlay->setMargin( 5 );
+  iparlay->addWidget( new QLabel( "Tr (ms):", ipar ) );
+  trle = new QLineEdit( "0", ipar );
+  iparlay->addWidget( trle );
+  trle->setObjectName( "trle" );
   trle->setMaxLength( 7 );
   trle->setFixedWidth( trle->width() * 2 / 3 );
-  new QLabel( "Te (ms):", ipar );
-  tele = new QLineEdit( "0", ipar, "tele" );
+  iparlay->addWidget( new QLabel( "Te (ms):", ipar ) );
+  tele = new QLineEdit( "0", ipar );
+  iparlay->addWidget( tele );
+  tele->setObjectName( "tele" );
   tele->setMaxLength( 7 );
   tele->setFixedWidth( tele->width() * 2 / 3 );
   gridLay->addWidget( ipar, 0, 1 );
@@ -191,14 +202,18 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
 	   ppc, SLOT( setTe( const QString& ) ) );
 
   // Signal stabilization parameters
-  QHBox *vbss = new QHBox( lpan );
-  vbss->setSpacing( 5 );
-  new QLabel( "Threshold (%):", vbss );
+  QWidget *vbss = new QWidget( lpan );
+  QHBoxLayout *vbsslay = new QHBoxLayout( vbss );
+  vbsslay->setSpacing( 5 );
+  vbsslay->setMargin( 3 );
+  vbsslay->addWidget( new QLabel( "Threshold (%):", vbss ) );
   QFloatSpinBox *flsb = new QFloatSpinBox( 0, 1000, 1, 1, vbss );
+  vbsslay->addWidget( flsb );
   flsb->setFixedWidth( flsb->width() * 2 / 3 );
   flsb->setValue( (int)( procC->parameters().skipThres() * 1000.0f + 0.5f ) );
-  new QLabel( "Skip:", vbss );
+  vbsslay->addWidget( new QLabel( "Skip:", vbss ) );
   QSpinBox *sssb = new QSpinBox( 1, 20, 1, vbss );
+  vbsslay->addWidget( sssb );
   sssb->setFixedWidth( sssb->width() / 2 );
   sssb->setValue( procC->parameters().skip() );
   gridLay->addWidget( vbss, 2, 1 );
@@ -210,17 +225,26 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   connect( ppc, SIGNAL( skipChanged( int ) ), sssb, SLOT( setValue( int ) ) );
 
   // Brain mask parameters
-  QVBox *bmpar = new QVBox( lpan, "bmpar" );
+  QWidget *bmpar = new QWidget( lpan, "bmpar" );
+  QVBoxLayout *bmparlay = new QVBoxLayout( bmpar );
+  bmparlay->setSpacing( 0 );
+  bmparlay->setMargin( 3 );
   QCheckBox *mcb = new QCheckBox( "Apply V-Filter", bmpar );
+  bmparlay->addWidget( mcb );
   mcb->setChecked( true );
-  QHBox *bmlay = new QHBox( bmpar );
-  bmlay->setSpacing( 5 );
-  new QLabel( "Threshold (%):", bmlay );
-  new QLabel( "Brain", bmlay );
+  QWidget *bmlay = new QWidget( bmpar );
+  bmparlay->addWidget( bmlay );
+  QHBoxLayout *bmlaylay = new QHBoxLayout( bmlay );
+  bmlaylay->setSpacing( 5 );
+  bmlaylay->setMargin( 5 );
+  bmlaylay->addWidget( new QLabel( "Threshold (%):", bmlay ) );
+  bmlaylay->addWidget( new QLabel( "Brain", bmlay ) );
   QSpinBox *bthsb = new QSpinBox( 1, 100, 1, bmlay );
+  bmlaylay->addWidget( bthsb );
   bthsb->setValue( (int)( procC->parameters().bThres() * 100.0f ) );
-  new QLabel( "CSF", bmlay );
+  bmlaylay->addWidget( new QLabel( "CSF", bmlay ) );
   QSpinBox *thsb = new QSpinBox( 1, 100, 1, bmlay );
+  bmlaylay->addWidget( thsb );
   thsb->setValue( (int)( procC->parameters().lvThres() * 100.0f ) );
   gridLay->addWidget( bmpar, 4, 1 );
 
@@ -231,13 +255,17 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
            ppc, SLOT( setLVThreshold( int ) ) );
 
   // Possible AIF(s) parameters
-  QHBox *pahb = new QHBox( lpan );
-  pahb->setSpacing( 5 );
-  new QLabel( "Threshold (%):", pahb );
+  QWidget *pahb = new QWidget( lpan );
+  QHBoxLayout *pahblay = new QHBoxLayout( pahb );
+  pahblay->setSpacing( 5 );
+  pahblay->setMargin( 3 );
+  pahblay->addWidget( new QLabel( "Threshold (%):", pahb ) );
   QSpinBox *patsb = new QSpinBox( 0, 100, 1, pahb );
+  pahblay->addWidget( patsb );
   patsb->setValue( (int)( procC->parameters().aifThreshold() * 100.0f ) );
-  new QLabel( "List size:", pahb );
+  pahblay->addWidget( new QLabel( "List size:", pahb ) );
   QSpinBox *pasb = new QSpinBox( 0, 500, 1, pahb );
+  pahblay->addWidget( pasb );
   pasb->setValue( procC->parameters().nAif() );
   gridLay->addWidget( pahb, 6, 1 );
 
@@ -246,10 +274,13 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   connect( pasb, SIGNAL( valueChanged( int ) ), ppc, SLOT( setNAif( int ) ) );
 
   // Signal baseline parameters
-  QHBox *pipar = new QHBox( lpan );
-  pipar->setSpacing( 5 );
-  new QLabel( "Bolus arrival time:", pipar );
+  QWidget *pipar = new QWidget( lpan );
+  QHBoxLayout *piparlay = new QHBoxLayout( pipar );
+  piparlay->setSpacing( 5 );
+  piparlay->setMargin( 3 );
+  piparlay->addWidget( new QLabel( "Bolus arrival time:", pipar ) );
   QSpinBox *pisb = new QSpinBox( 2, 20, 1, pipar );
+  piparlay->addWidget( pisb );
   pisb->setValue( procC->parameters().preInj() );
   gridLay->addWidget( pipar, 8, 1 );
 
@@ -268,18 +299,27 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   connect( cbf, SIGNAL( activated( int ) ), ppc, SLOT( setFitType( int ) ) );
 
   // Deconvolution parameters
-  QVBox *dvb = new QVBox( lpan );
+  QWidget *dvb = new QWidget( lpan );
+  QVBoxLayout *dvblay = new QVBoxLayout( dvb );
+  dvblay->setSpacing( 0 );
+  dvblay->setMargin( 3 );
   QCheckBox *dcb = new QCheckBox( "Linearity correction", dvb );
+  dvblay->addWidget( dcb );
   dcb->setChecked( true );
-  QHBox *dhb = new QHBox( dvb );
-  dhb->setSpacing( 5 );
+  QWidget *dhb = new QWidget( dvb );
+  dvblay->addWidget( dhb );
+  QHBoxLayout *dhblay = new QHBoxLayout( dhb );
+  dhblay->setSpacing( 5 );
+  dhblay->setMargin( 3 );
   QComboBox *cbd = new QComboBox( dhb );
+  dhblay->addWidget( cbd );
   cbd->insertItem( "Truncated", (int)PerfusionSVDInversion::Truncated );
   cbd->insertItem( "Tikhonov I",(int)PerfusionSVDInversion::Tikhonov );
   cbd->insertItem( "Tikhonov G",(int)PerfusionSVDInversion::TikhonovGradient );
   cbd->setCurrentItem( (int)PerfusionSVDInversion::Truncated );
-  new QLabel( "Threshold (%):", dhb );
+  dhblay->addWidget( new QLabel( "Threshold (%):", dhb ) );
   QFloatSpinBox *dsb = new QFloatSpinBox( 0, 1000, 1, 1, dhb );
+  dhblay->addWidget( dsb );
   dsb->setValue( (int)( procC->parameters().svdThreshold() * 1000.0f + .5f ) );
   gridLay->addWidget( dvb, 16, 1 );
 
@@ -290,17 +330,23 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
            ppc, SLOT( setSVDThreshold( float ) ) );
 
   // Maps parameters
-  QHBox *mphb = new QHBox( lpan );
-  mphb->setSpacing( 5 );
-  new QLabel( "Dose (?):", mphb );
+  QWidget *mphb = new QWidget( lpan );
+  QHBoxLayout *mphblay = new QHBoxLayout( mphb );
+  mphblay->setSpacing( 5 );
+  mphblay->setMargin( 3 );
+  mphblay->addWidget( new QLabel( "Dose (?):", mphb ) );
   char tmpTxt[20];
   sprintf( tmpTxt, "%f", procC->parameters().dose() );
-  QLineEdit *dle = new QLineEdit( tmpTxt, mphb, "dle" );
+  QLineEdit *dle = new QLineEdit( tmpTxt, mphb );
+  mphblay->addWidget( dle );
+  dle->setObjectName( "dle" );
   dle->setMaxLength( 7 );
   dle->setFixedWidth( dle->width() * 2 / 3 );
-  new QLabel( "PhiGd:", mphb );
+  mphblay->addWidget( new QLabel( "PhiGd:", mphb ) );
   sprintf( tmpTxt, "%f", procC->parameters().phiGd() );
-  QLineEdit *ple = new QLineEdit( tmpTxt, mphb, "ple" );
+  QLineEdit *ple = new QLineEdit( tmpTxt, mphb );
+  mphblay->addWidget( ple );
+  ple->setObjectName( "ple" );
   ple->setMaxLength( 7 );
   ple->setFixedWidth( ple->width() * 2 / 3 );
   gridLay->addWidget( mphb, 18, 1 );
@@ -311,27 +357,34 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
            ppc, SLOT( setPhiGd( const QString& ) ) );
 
   // List of possible AIF(s)
-  QVBox *rpan = new QVBox( this );
-  rpan->setSpacing( 5 );
-  new QLabel( "Possible AIF(s):", rpan );
-  lview = new Q3ListView( rpan, "lview" );
+  QWidget *rpan = new QWidget( this );
+  lay->addWidget( rpan );
+  QVBoxLayout *rpanlay = new QVBoxLayout( rpan );
+  rpanlay->setSpacing( 0 );
+  rpanlay->setMargin( 3 );
+  rpanlay->addWidget( new QLabel( "Possible AIF(s):", rpan ) );
+  lview = new QTreeWidget( rpan );
+  lview->setObjectName( "lview" );
+  rpanlay->addWidget( lview );
   lview->setAllColumnsShowFocus( true );
-  lview->setSelectionMode( Q3ListView::Extended );
-  lview->setSorting( -1, true );
-  lview->addColumn( "Delta", 56 );
-  lview->addColumn( "t", 32 );
-  lview->addColumn( "Point", 96 );
+  lview->setSelectionMode( QTreeWidget::ExtendedSelection );
+  lview->setSortingEnabled( true );
+  QStringList labels;
+  labels.push_back( "Delta" );
+  labels.push_back( "t" );
+  labels.push_back( "Point" );
+  lview->setHeaderLabels( labels );
+  lview->header()->resizeSection( 0, 56 );
+  lview->header()->resizeSection( 1, 32 );
+  lview->header()->resizeSection( 2, 96 );
 
-#if QT_VERSION >= 0x040000
-  connect( lview, SIGNAL( clicked( Q3ListViewItem * ) ), 
-	   ppc, SLOT( linkedCursor( Q3ListViewItem * ) ) );
-#else
-  connect( lview, SIGNAL( clicked( QListViewItem * ) ), 
-	   ppc, SLOT( linkedCursor( QListViewItem * ) ) );
-#endif
+  connect( lview, SIGNAL( itemClicked( QTreeWidgetItem *, int ) ),
+           ppc, SLOT( linkedCursor( QTreeWidgetItem *, int ) ) );
 
   // The various maps for choice
-  Q3GroupBox *gb = new Q3GroupBox( 4, Qt::Vertical, "Maps", rpan );
+  QGroupBox *gb = new QGroupBox( "Maps", rpan );
+  rpanlay->addWidget( gb );
+  QGridLayout *gblay = new QGridLayout( gb );
   QCheckBox *mcbv = new QCheckBox( "CBV", gb );
   QCheckBox *mcbf = new QCheckBox( "CBF", gb );
   QCheckBox *mmtt = new QCheckBox( "MTT", gb );
@@ -339,20 +392,28 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   QCheckBox *mdelay = new QCheckBox( "Delay", gb );
   QCheckBox *mh = new QCheckBox( "h(t)", gb );
   QCheckBox *mbbb = new QCheckBox( "BBB", gb );
-  qgbm = new Q3ButtonGroup( rpan );
-  qgbm->hide();
-  qgbm->insert( mcbv, (int)PerfusionMapBase::cbv );
-  qgbm->insert( mcbf, (int)PerfusionMapBase::cbf );
-  qgbm->insert( mmtt, (int)PerfusionMapBase::mtt );
-  qgbm->insert( mttp, (int)PerfusionMapBase::ttp );
-  qgbm->insert( mdelay, (int)PerfusionMapBase::delay );
-  qgbm->insert( mh, (int)PerfusionMapBase::h );
-  qgbm->insert( mbbb, (int)PerfusionMapBase::bbb );
+  gblay->addWidget( mcbv, 0, 0 );
+  gblay->addWidget( mcbf, 1, 0 );
+  gblay->addWidget( mmtt, 2, 0 );
+  gblay->addWidget( mttp, 3, 0 );
+  gblay->addWidget( mdelay, 0, 1 );
+  gblay->addWidget( mh, 1, 1 );
+  gblay->addWidget( mbbb, 2, 1 );
+  qgbm = new QButtonGroup( rpan );
+  qgbm->addButton( mcbv, (int)PerfusionMapBase::cbv );
+  qgbm->addButton( mcbf, (int)PerfusionMapBase::cbf );
+  qgbm->addButton( mmtt, (int)PerfusionMapBase::mtt );
+  qgbm->addButton( mttp, (int)PerfusionMapBase::ttp );
+  qgbm->addButton( mdelay, (int)PerfusionMapBase::delay );
+  qgbm->addButton( mh, (int)PerfusionMapBase::h );
+  qgbm->addButton( mbbb, (int)PerfusionMapBase::bbb );
 
-  connect( qgbm, SIGNAL( clicked( int ) ), ppc, SLOT( mapClicked( int ) ) );
+  connect( qgbm, SIGNAL( buttonClicked( int ) ),
+           ppc, SLOT( mapClicked( int ) ) );
 
   // Maps saving button
   QPushButton *qsm = new QPushButton( "Save Maps", rpan );
+  rpanlay->addWidget( qsm );
   qsm->setFixedSize( qsm->sizeHint() );
 
   connect( qsm, SIGNAL( clicked() ), ppc, SLOT( saveMaps() ) );

@@ -55,15 +55,12 @@
 #include <anatomist/processor/Processor.h>
 
 #include <aims/resampling/quaternion.h>
-#include <aims/qtcompat/qvbox.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qhbuttongroup.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qslider.h>
 #include <qcursor.h>
+#include <QGroupBox>
+#include <QButtonGroup>
 
 #include <algorithm>
 
@@ -76,45 +73,35 @@ namespace anatomist
   struct PaintActionView_Private {
     PaintAction * myPaintAction ;
 
-    QHBox * myUpperPart ;
+    QButtonGroup * myBrushes ;
+    QRadioButton * myPointBrush ;
+    QRadioButton * myDiskBrush ;
+    QRadioButton * myBallBrush ;
 
-    QVGroupBox * myBrushParameters ;
-    QHButtonGroup * myBrushes ;
-    QPushButton * myPointBrush ;
-    QPushButton * myDiskBrush ;
-    QPushButton * myBallBrush ;
-
-    QHGroupBox * myBrushSizeBox ;
     QSlider * myBrushSize ;
     QLabel * myBrushSizeLabel ;
 
-    QHGroupBox * myRegionTransparencyBox ;
     QSlider * myRegionTransparency ;
     QLabel * myRegionTransparencyLabel ;
 
-    QVGroupBox * myModes ;
-
-    QHButtonGroup * myLineMode ;
+    QButtonGroup * myLineMode ;
     QRadioButton * myLineModeOn ;
     QRadioButton * myLineModeOff ;
-    QHButtonGroup * myReplaceMode ;
+    QButtonGroup * myReplaceMode ;
     QRadioButton * myReplaceModeOn ;
     QRadioButton * myReplaceModeOff ;
 
-    QHButtonGroup * myLinkedCursorMode ;
+    QButtonGroup * myLinkedCursorMode ;
     QRadioButton * myLinkedCursorModeOn ;
     QRadioButton * myLinkedCursorModeOff ;
-    QHButtonGroup * myMmMode ;
+    QButtonGroup * myMmMode ;
     QRadioButton * myMmModeOn ;
     QRadioButton * myVoxelModeOn ;
 
 
-    QVGroupBox * myDirectActions ;
-    QHBox * myLeftDirectActions ;
     QPushButton * myUndoButton ;
     QPushButton * myRedoButton ;
 
-    QHBox * myRightDirectActions ;
     QPushButton * myFillButton ;
     QPushButton * myClearRegionButton ;
   } ;
@@ -125,127 +112,174 @@ using namespace aims;
 
 
 PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
-  : QVBox(parent), Observer(), myUpdatingFlag(false)
+  : QWidget(parent), Observer(), myUpdatingFlag(false)
 {
   _private = new PaintActionView_Private ;
 
   _private->myPaintAction = paintAction ;
+
+  QVBoxLayout *lay = new QVBoxLayout( this );
+
   paintAction->addObserver(this) ;
   RoiChangeProcessor::instance()->addObserver(this) ;
 
-  _private->myUpperPart = new QHBox( this ) ;
+  QWidget *myUpperPart = new QWidget( this ) ;
+  lay->addWidget( myUpperPart );
+  QHBoxLayout *uplay = new QHBoxLayout( myUpperPart );
 
-  _private->myBrushParameters = new QVGroupBox( tr("Brush"),
-						_private->myUpperPart ) ;
-  _private->myBrushes = new QHButtonGroup( tr("Brushes"),
-					   _private->myBrushParameters ) ;
+  QGroupBox *myBrushParameters = new QGroupBox( tr("Brush"), myUpperPart );
+  uplay->addWidget( myBrushParameters );
+  QVBoxLayout *bplay = new QVBoxLayout( myBrushParameters );
+  QGroupBox *brushes = new QGroupBox( tr("Brushes"), myBrushParameters );
+  bplay->addWidget( brushes );
+  QHBoxLayout *brushlay = new QHBoxLayout( brushes );
+  _private->myBrushes = new QButtonGroup( brushes );
   _private->myBrushes->setExclusive(true) ;
-  _private->myPointBrush = new QPushButton(tr("Point"), _private->myBrushes) ;
-  _private->myPointBrush->setToggleButton(true) ;
-  _private->myDiskBrush = new QPushButton(tr("Disk"), _private->myBrushes) ;
-  _private->myDiskBrush->setToggleButton(true) ;
-  _private->myBallBrush = new QPushButton(tr("Ball"), _private->myBrushes) ;
-  _private->myBallBrush->setToggleButton(true) ;
+  _private->myPointBrush = new QRadioButton(tr("Point"), brushes);
+  brushlay->addWidget( _private->myPointBrush );
+  _private->myBrushes->addButton( _private->myPointBrush, 0 );
+  _private->myDiskBrush = new QRadioButton(tr("Disk"), brushes);
+  brushlay->addWidget( _private->myDiskBrush );
+  _private->myBrushes->addButton( _private->myDiskBrush, 1 );
+  _private->myBallBrush = new QRadioButton(tr("Ball"), brushes);
+  brushlay->addWidget( _private->myBallBrush );
+  _private->myBrushes->addButton( _private->myBallBrush, 2 );
 
   if( _private->myPaintAction->paintType() == PaintStrategy::POINT)
-    _private->myBrushes->setButton(0) ;
+    _private->myBrushes->button(0)->setChecked( true );
   else if( _private->myPaintAction->paintType() == PaintStrategy::DISK)
-    _private->myBrushes->setButton(1) ;
+    _private->myBrushes->button(1)->setChecked( true );
   else if( _private->myPaintAction->paintType() == PaintStrategy::BALL)
-    _private->myBrushes->setButton(2) ;
+    _private->myBrushes->button(2)->setChecked( true );
 
-  _private->myBrushSizeBox = new QHGroupBox( tr("Brush Size"),
-						_private->myBrushParameters ) ;
-  _private->myBrushSize = new QSlider( 1, 500, 10, int(rint(_private->myPaintAction->brushSize()*10.)),
-		     Qt::Horizontal, _private->myBrushSizeBox ) ;
+  QGroupBox *myBrushSizeBox = new QGroupBox( tr("Brush Size"),
+                                             myBrushParameters );
+  bplay->addWidget( myBrushSizeBox );
+  QHBoxLayout *bslay = new QHBoxLayout( myBrushSizeBox );
+  _private->myBrushSize = new QSlider( 1, 500, 10, int(rint(_private->myPaintAction->brushSize()*10.)), Qt::Horizontal, myBrushSizeBox );
+  bslay->addWidget( _private->myBrushSize );
   _private->myBrushSize->setMinimumSize( 50,
 					 _private->myBrushSize->sizeHint().height() );
   _private->myBrushSizeLabel =
     new QLabel( QString::number(_private->myPaintAction->brushSize()),
-		_private->myBrushSizeBox ) ;
+                myBrushSizeBox );
+  bslay->addWidget( _private->myBrushSizeLabel );
   _private->myBrushSizeLabel
     ->setMinimumSize( 25, _private->myBrushSizeLabel->sizeHint().height() );
 
 
-  _private->myRegionTransparencyBox = new QHGroupBox( tr("Transparency"),
-						      _private->myBrushParameters ) ;
+  QGroupBox *myRegionTransparencyBox = new QGroupBox( tr("Transparency"),
+                                                      myBrushParameters );
+  bplay->addWidget( myRegionTransparencyBox );
+  QHBoxLayout *rtlay = new QHBoxLayout( myRegionTransparencyBox );
   if( SelectFactory::selectColor().a == 1 )
     SelectFactory::selectColor().a = 0.99 ;
 
   _private->myRegionTransparency =
     new QSlider( 0, 100, 20,
-		 int(SelectFactory::selectColor().a * 100),
-		 Qt::Horizontal, _private->myRegionTransparencyBox ) ;
+                 int(SelectFactory::selectColor().a * 100),
+                 Qt::Horizontal, myRegionTransparencyBox ) ;
+  rtlay->addWidget( _private->myRegionTransparency );
   _private->myRegionTransparency
     ->setMinimumSize( 50, _private->myBrushSize->sizeHint().height() );
   _private->myRegionTransparency->setTracking(true) ;
 
   _private->myRegionTransparencyLabel =
     new QLabel( QString::number(int(SelectFactory::selectColor().a * 100)),
-		_private->myRegionTransparencyBox ) ;
+                myRegionTransparencyBox );
+  rtlay->addWidget( _private->myRegionTransparencyLabel );
   _private->myBrushSizeLabel
     ->setMinimumSize( 25, _private->myBrushSizeLabel->sizeHint().height() );
 
 
-  _private->myModes = new QVGroupBox( tr("Modes"), _private->myUpperPart ) ;
+  QGroupBox *myModes = new QGroupBox( tr("Modes"), myUpperPart );
+  QVBoxLayout *mlay = new QVBoxLayout( myModes );
+  uplay->addWidget( myModes );
 
-  _private->myLineMode = new QHButtonGroup( tr("Line"), _private->myModes ) ;
+  QGroupBox *linemode = new QGroupBox( tr("Line"), myModes );
+  mlay->addWidget( linemode );
+  QHBoxLayout *linelay = new QHBoxLayout( linemode );
+  _private->myLineMode = new QButtonGroup( linemode );
   _private->myLineMode->setExclusive(true) ;
-  _private->myLineModeOn = new QRadioButton(tr("On"), _private->myLineMode ) ;
-  _private->myLineModeOff = new QRadioButton( tr("Off"),
-					      _private->myLineMode ) ;
-  _private->myLineMode->setButton( 0 ) ;
+  _private->myLineModeOn = new QRadioButton(tr("On"), linemode );
+  linelay->addWidget( _private->myLineModeOn );
+  _private->myLineMode->addButton( _private->myLineModeOn, 0 );
+  _private->myLineModeOff = new QRadioButton( tr("Off"), linemode );
+  linelay->addWidget( _private->myLineModeOff );
+  _private->myLineMode->addButton( _private->myLineModeOff, 1 );
+  _private->myLineMode->button( 0 )->setChecked( true );
 
-  _private->myReplaceMode = new QHButtonGroup( tr("Replace"),
-					       _private->myModes ) ;
+  QGroupBox *replmode = new QGroupBox( tr("Replace"), myModes );
+  mlay->addWidget( replmode );
+  QHBoxLayout *repllay = new QHBoxLayout( replmode );
+  _private->myReplaceMode = new QButtonGroup( replmode );
   _private->myReplaceMode->setExclusive(true) ;
-  _private->myReplaceModeOn = new QRadioButton( tr("On"),
-						_private->myReplaceMode ) ;
-  _private->myReplaceModeOff = new QRadioButton( tr("Off"),
-						 _private->myReplaceMode ) ;
-  _private->myReplaceMode->setButton( 1 ) ;
+  _private->myReplaceModeOn = new QRadioButton( tr("On"), replmode );
+  repllay->addWidget( _private->myReplaceModeOn );
+  _private->myReplaceMode->addButton( _private->myReplaceModeOn, 0 );
+  _private->myReplaceModeOff = new QRadioButton( tr("Off"), replmode );
+  repllay->addWidget( _private->myReplaceModeOff );
+  _private->myReplaceMode->addButton( _private->myReplaceModeOff, 1 );
+  _private->myReplaceMode->button( 1 )->setChecked( true );
 
-  _private->myLinkedCursorMode =
-    new QHButtonGroup( tr("LinkedCursor"), _private->myModes ) ;
+  QGroupBox *linkc = new QGroupBox( tr("LinkedCursor"), myModes );
+  mlay->addWidget( linkc );
+  QHBoxLayout *linklay = new QHBoxLayout( linkc );
+  _private->myLinkedCursorMode = new QButtonGroup( linkc );
   _private->myLinkedCursorMode->setExclusive(true) ;
-  _private->myLinkedCursorModeOn =
-    new QRadioButton(tr("On"), _private->myLinkedCursorMode ) ;
-  _private->myLinkedCursorModeOff =
-    new QRadioButton(tr("Off"), _private->myLinkedCursorMode ) ;
-  _private->myLinkedCursorMode->setButton( 1 ) ;
+  _private->myLinkedCursorModeOn = new QRadioButton(tr("On"), linkc );
+  linklay->addWidget( _private->myLinkedCursorModeOn );
+  _private->myLinkedCursorMode->addButton( _private->myLinkedCursorModeOn, 0 );
+  _private->myLinkedCursorModeOff = new QRadioButton(tr("Off"), linkc );
+  linklay->addWidget( _private->myLinkedCursorModeOff );
+  _private->myLinkedCursorMode->addButton( _private->myLinkedCursorModeOff,
+                                           1 );
+  _private->myLinkedCursorMode->button( 1 )->setChecked( true );
 
-  _private->myMmMode =
-    new QHButtonGroup( tr("BrushUnit"), _private->myModes ) ;
+  QGroupBox *mmmode = new QGroupBox( tr("BrushUnit"), myModes );
+  mlay->addWidget( mmmode );
+  QHBoxLayout *mmlay = new QHBoxLayout( mmmode );
+  _private->myMmMode = new QButtonGroup( mmmode );
   _private->myMmMode->setExclusive(true) ;
-  _private->myVoxelModeOn =
-    new QRadioButton(tr("Voxel"), _private->myMmMode ) ;
-  _private->myMmModeOn =
-    new QRadioButton(tr("Mm"), _private->myMmMode ) ;
-  _private->myMmMode->setButton( ( _private->myPaintAction->mmMode() ? 1 : 0 ) ) ;
+  _private->myVoxelModeOn = new QRadioButton(tr("Voxel"), mmmode );
+  mmlay->addWidget( _private->myVoxelModeOn );
+  _private->myMmMode->addButton( _private->myVoxelModeOn, 0 );
+  _private->myMmModeOn = new QRadioButton(tr("Mm"), mmmode );
+  mmlay->addWidget( _private->myMmModeOn );
+  _private->myMmMode->addButton( _private->myMmModeOn, 1 );
+  _private->myMmMode->button(
+    _private->myPaintAction->mmMode() ? 1 : 0 )->setChecked( true );
 
-  _private->myDirectActions =
-    new QVGroupBox( tr("Actions"), this ) ;
-  _private->myLeftDirectActions = new QHBox( _private->myDirectActions ) ;
+  QGroupBox *myDirectActions = new QGroupBox( tr("Actions"), this );
+  lay->addWidget( myDirectActions );
+  QVBoxLayout *dalay = new QVBoxLayout( myDirectActions );
+  QWidget *myLeftDirectActions = new QWidget( myDirectActions ) ;
+  dalay->addWidget( myLeftDirectActions );
+  QHBoxLayout *ldlay = new QHBoxLayout( myLeftDirectActions );
 
-  _private->myUndoButton = new QPushButton(tr("Undo"),
-					   _private->myLeftDirectActions ) ;
+  _private->myUndoButton = new QPushButton(tr("Undo"), myLeftDirectActions );
+  ldlay->addWidget( _private->myUndoButton );
   if( !_private->myPaintAction->undoable() )
     _private->myUndoButton->setEnabled( false ) ;
 
-  _private->myRedoButton = new QPushButton( tr("Redo"),
-					    _private->myLeftDirectActions ) ;
+  _private->myRedoButton = new QPushButton( tr("Redo"), myLeftDirectActions );
+  ldlay->addWidget( _private->myRedoButton );
   if( !_private->myPaintAction->redoable() )
     _private->myRedoButton->setEnabled( false ) ;
 
-  _private->myRightDirectActions = new QHBox( _private->myDirectActions ) ;
-  _private->myFillButton =
-    new QPushButton(tr("Fill Region"), _private->myRightDirectActions ) ;
+  QWidget *myRightDirectActions = new QWidget( myDirectActions );
+  dalay->addWidget( myRightDirectActions );
+  QHBoxLayout *rdlay = new QHBoxLayout( myRightDirectActions );
+  _private->myFillButton = new QPushButton(tr("Fill Region"),
+                                           myRightDirectActions );
+  rdlay->addWidget( _private->myFillButton );
   _private->myFillButton->setEnabled(false) ;
 
-  _private->myClearRegionButton =
-    new QPushButton(tr("Clear Region"), _private->myRightDirectActions ) ;
+  _private->myClearRegionButton = new QPushButton(tr("Clear Region"),
+                                                  myRightDirectActions );
+  rdlay->addWidget( _private->myClearRegionButton );
 
-  connect( _private->myBrushes, SIGNAL(clicked(int)),
+  connect( _private->myBrushes, SIGNAL(buttonClicked(int)),
 	  this, SLOT(brushSelection(int) ) ) ;
 
   connect( _private->myBrushSize, SIGNAL(valueChanged(int)),
@@ -451,32 +485,32 @@ PaintActionView::update( const Observable *, void * )
 
   // Updating mode parameters
   if ( _private->myPaintAction->lineMode() )
-    _private->myLineMode->setButton(0) ;
+    _private->myLineMode->button(0)->setChecked( true );
   else
-    _private->myLineMode->setButton(1) ;
+    _private->myLineMode->button(1)->setChecked( true );
 
   if ( _private->myPaintAction->replaceMode() )
-    _private->myReplaceMode->setButton(0) ;
+    _private->myReplaceMode->button(0)->setChecked( true );
   else
-    _private->myReplaceMode->setButton(1) ;
+    _private->myReplaceMode->button(1)->setChecked( true );
 
   if ( _private->myPaintAction->followingLinkedCursorMode() )
-    _private->myLinkedCursorMode->setButton(0) ;
+    _private->myLinkedCursorMode->button(0)->setChecked( true );
   else
-    _private->myLinkedCursorMode->setButton(1) ;
+    _private->myLinkedCursorMode->button(1)->setChecked( true );
 
   if( _private->myPaintAction->mmMode() )
-    _private->myMmMode->setButton( 1 );
+    _private->myMmMode->button( 1 )->setChecked( true );
   else
-    _private->myMmMode->setButton( 0 );
+    _private->myMmMode->button( 0 )->setChecked( true );
 
   // Updating BrushParameters
   if( _private->myPaintAction->paintType() == PaintStrategy::POINT)
-    _private->myBrushes->setButton(0) ;
+    _private->myBrushes->button(0)->setChecked( true );
   else if( _private->myPaintAction->paintType() == PaintStrategy::DISK)
-    _private->myBrushes->setButton(1) ;
+    _private->myBrushes->button(1)->setChecked( true );
   else if( _private->myPaintAction->paintType() == PaintStrategy::BALL)
-    _private->myBrushes->setButton(2) ;
+    _private->myBrushes->button(2)->setChecked( true );
 
 
   float size = _private->myPaintAction->brushSize() ;
@@ -629,10 +663,13 @@ void
 PaintAction::paintStart( int x, int y, int globalX, int globalY )
 {
   hideCursor();
+
   // We've first to get the selected bucket.
   if( !( _sharedData->myCurrentModifiedRegion =
         RoiChangeProcessor::instance()->getCurrentRegion(view()->aWindow() ) ) )
     {
+      cout << "no valid paint region: check if the ROI graph is actually in the target window; if it has a selected region....";
+
       _sharedData->myValidRegion = false ;
       return ;
     }
@@ -654,7 +691,7 @@ PaintAction::paintStart( int x, int y, int globalX, int globalY )
 
   setChanged() ;
 
-  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
+  AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() );
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;

@@ -793,8 +793,8 @@ void ControlWindow::openWindow( int type )
 
 void ControlWindow::dragEnterOnWindowIcon( int, QDragEnterEvent* event )
 {
-  event->setAccepted( QAObjectDrag::canDecode( event )
-      || QAObjectDrag::canDecodeURI( event ) );
+  event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
+      || QAObjectDrag::canDecodeURI( event->mimeData() ) );
 }
 
 
@@ -811,8 +811,8 @@ void ControlWindow::dropOnWindowIcon( int type, QDropEvent* event )
   list<QString> objects;
   list<QString> scenars;
 
-  if( !QAObjectDrag::decode( event, o )
-       && QAObjectDrag::decodeURI( event, objects, scenars ) )
+  if( !QAObjectDrag::decode( event->mimeData(), o )
+       && QAObjectDrag::decodeURI( event->mimeData(), objects, scenars ) )
   {
     list<QString>::iterator       is, es = objects.end();
     for( is=objects.begin(); is!=es; ++is )

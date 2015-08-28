@@ -39,7 +39,6 @@
 #include <qlayout.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
-#include <aims/qtcompat/qhbox.h>
 #include <qlabel.h>
 //#include <anatomist/wincontrol/pointCollectorTrigger.h>
 #include <anatomist/graph/GraphObject.h>
@@ -123,14 +122,19 @@ GraphLandmarkPicker::GraphLandmarkPicker( AGraph* ag, QWidget* parent,
   _graph->addObserver( this );
     setObjectName(name);
     setAttribute(Qt::WA_DeleteOnClose);
-  setCaption( tr( "Landmarks picker on " ) + _graph->name().c_str() );
-  QVBoxLayout	*l = new QVBoxLayout( this, 5, 5 );
-  QHBox		*ltbox = new QHBox( this );
-  ltbox->setSpacing( 15 );
+  setWindowTitle( tr( "Landmarks picker on " ) + _graph->name().c_str() );
+  QVBoxLayout	*l = new QVBoxLayout( this );
+  l->setMargin( 5 );
+  l->setSpacing( 5 );
+  QWidget	*ltbox = new QWidget( this );
+  QHBoxLayout *ltboxlay = new QHBoxLayout;
+  ltbox->setLayout( ltboxlay );
+  ltboxlay->setSpacing( 15 );
 
-  new QLabel( tr( "Landmark type :" ), ltbox );
+  ltboxlay->addWidget( new QLabel( tr( "Landmark type :" ), ltbox ) );
   pdat->landmType = new QComboBox( ltbox );
-  pdat->landmType->insertItem( tr( "Point bucket" ) );
+  ltboxlay->addWidget( pdat->landmType );
+  pdat->landmType->addItem( tr( "Point bucket" ) );
 
   QPushButton	*b = new QPushButton( tr( "Pick landmark" ), this );
   b->setFixedSize( b->sizeHint() );

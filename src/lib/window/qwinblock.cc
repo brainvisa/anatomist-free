@@ -197,7 +197,7 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QAWindow::dragEnterEvent\n";
-  event->setAccepted( QAWindowDrag::canDecode( event ) );
+  event->setAccepted( QAWindowDrag::canDecode( event->mimeData() ) );
 }
 
 
@@ -206,7 +206,7 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
   //cout << "QAWindow::dropEvent\n";
   set<AWindow *>	w;
 
-  if( QAWindowDrag::decode( event, w ) )
+  if( QAWindowDrag::decode( event->mimeData(), w ) )
     {
       //cout << "window decoded, " << w.size() << " windows\n";
       set<AWindow *>::iterator	iw, ew = w.end();
