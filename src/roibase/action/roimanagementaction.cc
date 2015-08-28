@@ -72,8 +72,6 @@
 #include <anatomist/application/settings.h>
 #include <graph/tree/tfactory.h>
 
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
 #include <aims/qtcompat/qhgroupbox.h>
 #include <aims/qtcompat/qvgroupbox.h>
 #include <aims/qtcompat/qgrid.h>
@@ -97,107 +95,40 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-// class NewUDRegion : public QDialog
-// {
-//   Q_OBJECT
-// public:
-//   NewUDRegion() ;
-//   ~NewUDRegion() {}
-
-//   QString name() { return _nameLineEdit->text() ; }
-// //   int red() { return _redSlider->value() ; }
-// //   int green() { return _greenSlider->value() ; }
-// //   int blue() { return _blueSlider->value() ; }
-
-// //   QColor color() { return _colDial->color() ;}
-
-// public slots:
-// //   void redSliderChange( int value ) ;
-// //   void greenSliderChange( int value ) ;
-// //   void blueSliderChange( int value ) ;
-// //   void textChanged(const QString &) ;
-// private:
-//   int _red ;
-//   int _green ;
-//   int _blue ;
-
-//   QLineEdit * _nameLineEdit ;
-// //   QColorDialog * _colDial ;
-
-// //   QLabel * _redLabel ;
-// //   QLabel * _greenLabel ;
-// //   QLabel * _blueLabel ;
-
-// //   QSlider * _redSlider ;
-// //   QSlider * _greenSlider ;
-// //   QSlider * _blueSlider ;
-// }
-
-
-// NewUDRegion::NewUDRegion()
-// {
-//   QVBoxLayout * l = new QVBoxLayout( this ) ;
-//   new QLabel(tr("Enter region name"), l ) ;
-//   _nameLineEdit = new QLineEdit(l) ;
-
-//  //  QHBox * redBox = new QVBox(this) ;
-// //   _redSlider = new QSlider(0, 255, 1, 128, Qt::Horizontal, redBox ) ;
-// //   _redLabel = new QLabel( QString::number(128), redBox ) ;
-
-// //   QHBox * greenBox = new QVBox(this) ;
-// //   _greenSlider = new QSlider(0, 255, 1, 128, Qt::Horizontal, greenBox ) ;
-// //   _greenLabel = new QLabel( QString::number(128), greenBox ) ;
-
-// //   QHBox * blueBox = new QVBox(this) ;
-// //   _blueSlider = new QSlider(0, 255, 1, 128, Qt::Horizontal, blueBox ) ;
-// //   _blueLabel = new QLabel( QString::number(128), blueBox ) ;
-
-//   QHBox * buttons = new QHBox( frame ) ;
-
-//   QPushButton * okButton = new QPushButton( "Ok", buttons ) ;
-//   okButton->setMaximumWidth(100) ;
-//   okButton->setDefault( true );
-//   QPushButton * cancelButton = new QPushButton( "Cancel", buttons ) ;
-//   cancelButton->setMaximumWidth(100) ;
-
-//   QObject::connect( okButton , SIGNAL( clicked() ), this, SLOT( accept () ) ) ;
-//   QObject::connect( cancelButton , SIGNAL( clicked( ) ), this, SLOT( reject () ) ) ;
-
-// //   QObject::connect( _nameLineEdit , SIGNAL( textChanged ( const QString & ) ),
-// // 		    this, SLOT( textChanged(const QString &) ) ) ;
-// }
-
-
 
 RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
 					  const QStringList& regions ) :
   QDialog( parent, "", true, Qt::WStyle_Title ), myNewRegionName("")
 {
   setCaption( tr( "Regions Fusion" ) );
-  setMinimumSize( 400, 60 ) ;
 
   QVBoxLayout *l = new QVBoxLayout( this ) ;
-  QVBox *frame = new QVBox( this ) ;
-  frame->setMargin( 5 );
-  frame->setSpacing( 5 );
-  l->addWidget(frame) ;
 
-  selectRegions = new QListWidget( frame ) ;
-  selectRegions->setMinimumHeight( 100 ) ;
-  selectRegions->setMaximumHeight( 100 ) ;
+  selectRegions = new QListWidget( this ) ;
+  l->addWidget( selectRegions );
+  selectRegions->setMinimumHeight( 100 );
+  selectRegions->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
+                                             QSizePolicy::Expanding ) );
   selectRegions->addItems( regions ) ;
   selectRegions->setSelectionMode( QListWidget::ExtendedSelection ) ;
 
-  selectRegionName = new QComboBox( false, frame ) ;
+  selectRegionName = new QComboBox( false, this ) ;
+  l->addWidget( selectRegionName );
   selectRegionName->setCurrentItem(0) ;
 
-  QHBox *buttons = new QHBox( frame ) ;
+  QWidget *buttons = new QWidget( this );
+  l->addWidget( buttons );
+  QHBoxLayout *blay = new QHBoxLayout( buttons );
 
-  QPushButton *okButton = new QPushButton( tr( "Ok" ), buttons ) ;
-  okButton->setMaximumWidth(100) ;
+  QPushButton *okButton = new QPushButton( tr( "Ok" ), buttons );
+  blay->addWidget( okButton );
   okButton->setDefault( true );
-  QPushButton *cancelButton = new QPushButton( tr( "Cancel" ), buttons ) ;
-  cancelButton->setMaximumWidth(100) ;
+  okButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                        QSizePolicy::Fixed ) );
+  QPushButton *cancelButton = new QPushButton( tr( "Cancel" ), buttons );
+  blay->addWidget( cancelButton );
+  cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                            QSizePolicy::Fixed ) );
 
   QObject::connect( okButton , SIGNAL( clicked() ), this, SLOT( accept () ) ) ;
   QObject::connect( cancelButton , SIGNAL( clicked( ) ), this, SLOT( reject () ) ) ;
@@ -285,14 +216,10 @@ namespace anatomist
     QPopupMenu 	* myUserDefinedFrameWorkMenu ;
     QPopupMenu 	* myWindowMenu ;
 
-    QVGroupBox 	* myGraphSelectBox ;
     QListWidget	* mySelectGraph ;
 
-    QVGroupBox 	* myImageBox ;
-    QHBox 	* myImage ;
     QListWidget	* mySelectImage ;
 
-    QVGroupBox 	* myRegionSelectBox ;
     QListWidget	* mySelectRegion ;
     QVGroupBox 	* myRegionNameBox ;
 
@@ -482,23 +409,32 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
 
   QGridLayout *lay = new QGridLayout;
   lay1->addLayout( lay );
-  _private->myGraphSelectBox = new QVGroupBox( tr("Session"), this ) ;
-  lay->addWidget( _private->myGraphSelectBox, 0, 0 );
-  _private->mySelectGraph = new QListWidget( _private->myGraphSelectBox ) ;
-  _private->mySelectGraph->setMinimumHeight( 100 ) ;
-  _private->mySelectGraph->setMaximumHeight( 300 ) ;
+  QGroupBox *myGraphSelectBox = new QGroupBox( tr("Session"), this ) ;
+  lay->addWidget( myGraphSelectBox, 0, 0 );
+  QVBoxLayout *gsblay = new QVBoxLayout( myGraphSelectBox );
+  _private->mySelectGraph = new QListWidget( myGraphSelectBox );
+  gsblay->addWidget( _private->mySelectGraph );
+  _private->mySelectGraph->setMinimumHeight( 100 );
+  _private->mySelectGraph->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-  _private->myRegionSelectBox = new QVGroupBox( tr("Region"), this ) ;
-  lay->addWidget( _private->myRegionSelectBox, 0, 1 );
-  _private->mySelectRegion = new QListWidget( _private->myRegionSelectBox ) ;
+  QGroupBox *myRegionSelectBox = new QGroupBox( tr("Region"), this ) ;
+  lay->addWidget( myRegionSelectBox, 0, 1 );
+  QVBoxLayout *rsblay = new QVBoxLayout( myRegionSelectBox );
+  _private->mySelectRegion = new QListWidget( myRegionSelectBox );
+  rsblay->addWidget( _private->mySelectRegion );
   _private->mySelectRegion->setMinimumHeight( 100 ) ;
-  _private->mySelectRegion->setMaximumHeight( 300 ) ;
+  _private->mySelectRegion->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-  _private->myImageBox = new QVGroupBox( tr("Image"), this );
-  lay->addWidget( _private->myImageBox, 1, 0 );
-  _private->mySelectImage = new QListWidget( _private->myImageBox ) ;
+  QGroupBox *myImageBox = new QGroupBox( tr("Image"), this );
+  lay->addWidget( myImageBox, 1, 0 );
+  QVBoxLayout *iblay = new QVBoxLayout( myImageBox );
+  _private->mySelectImage = new QListWidget( myImageBox );
+  iblay->addWidget( _private->mySelectImage );
   _private->mySelectImage->setMinimumHeight( 100 ) ;
-  _private->mySelectImage->setMaximumHeight( 300 ) ;
+  _private->mySelectImage->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 
   const QPixmap		*p;
@@ -791,47 +727,54 @@ RoiManagementActionView::selectImage( int row )
 
 
 string
-RoiManagementActionView::askName (const string& type, const string& originalName,
-				  const string& message, bool noHierarchy )
+RoiManagementActionView::askName (const string& type,
+                                  const string& originalName,
+                                  const string& message, bool noHierarchy )
 {
   QDialog * nameSetter = new QDialog( this, "", true, Qt::WStyle_Title ) ;
   nameSetter->setCaption( message.c_str() ) ;
-  nameSetter->setMinimumSize( 400, 60 ) ;
 
   QVBoxLayout * l = new QVBoxLayout( nameSetter ) ;
-  QVBox * frame = new QVBox( nameSetter ) ;
-  frame->setMargin( 5 );
-  frame->setSpacing( 5 );
-  l->addWidget(frame) ;
   QLineEdit * lineEdition = 0 ;
   QComboBox * selectRegionName = 0 ;
 
-  if( type == "FrameWork" ){
+  if( type == "FrameWork" )
+  {
     //cout<< "No Hierarchy" << endl ;
-    lineEdition = new QLineEdit( QString( originalName.c_str() ),
-				 frame ) ;
+    lineEdition = new QLineEdit( QString( originalName.c_str() ), this );
+    l->addWidget( lineEdition );
     lineEdition->setMinimumWidth(250) ;
-  }else if( type == "session" || noHierarchy){
+  }
+  else if( type == "session" || noHierarchy)
+  {
     //cout<< "No Hierarchy" << endl ;
-    lineEdition = new QLineEdit( QString( originalName.c_str() ),
-				 frame ) ;
+    lineEdition = new QLineEdit( QString( originalName.c_str() ), this );
+    l->addWidget( lineEdition );
     lineEdition->setMinimumWidth(250) ;
-  } else if( type == "region" && (!noHierarchy) ){
+  } else if( type == "region" && (!noHierarchy) )
+  {
     //cout<< "Hierarchy" << endl ;
-    selectRegionName = new QComboBox( false, frame ) ;
+    selectRegionName = new QComboBox( false, this );
+    l->addWidget( selectRegionName );
     selectRegionName->insertStringList( getCurrentHierarchyRoiNames() ) ;
     selectRegionName->setCurrentItem(0) ;
 //     selectRegionName->setAutoCompletion(true) ;
 //     lineEdition = selectRegionName->lineEdit() ;
   }
 
-  QHBox * buttons = new QHBox( frame ) ;
+  QWidget * buttons = new QWidget( this );
+  l->addWidget( buttons );
+  QHBoxLayout *blay = new QHBoxLayout( buttons );
 
-  QPushButton * okButton = new QPushButton( "Ok", buttons ) ;
-  okButton->setMaximumWidth(100) ;
+  QPushButton * okButton = new QPushButton( "Ok", buttons );
+  blay->addWidget( okButton );
   okButton->setDefault( true );
-  QPushButton * cancelButton = new QPushButton( "Cancel", buttons ) ;
-  cancelButton->setMaximumWidth(100) ;
+  okButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                        QSizePolicy::Fixed ) );
+  QPushButton * cancelButton = new QPushButton( "Cancel", buttons );
+  blay->addWidget( cancelButton );
+  cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                            QSizePolicy::Fixed ) );
 
   QObject::connect( okButton , SIGNAL( clicked() ), nameSetter, SLOT( accept () ) ) ;
   QObject::connect( cancelButton , SIGNAL( clicked( ) ), nameSetter, SLOT( reject () ) ) ;
@@ -883,22 +826,25 @@ void
 RoiManagementActionView::deleteGraph( )
 {
   QDialog * warning = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-  warning->setFixedSize( 400, 60 ) ;
+//   warning->setFixedSize( 400, 60 ) ;
 
   QVBoxLayout * l = new QVBoxLayout( warning ) ;
-  QVBox * frame = new QVBox( warning ) ;
-  frame->setMargin( 5 );
-  frame->setSpacing( 5 );
-  l->addWidget(frame) ;
 
-  new QLabel( "If you close this session, all modifications since your last save will be lost. \nDo you still want to proceed ?", frame ) ;
-  QHBox * buttons = new QHBox( warning ) ;
-  l->addWidget(buttons) ;
-  QPushButton * okButton = new QPushButton( "Ok", buttons ) ;
-  okButton->setMaximumWidth(100) ;
+  l->addWidget( new QLabel(
+    tr( "If you close this session, all modifications since your last save will be lost. \nDo you still want to proceed ?" ),
+    warning ) );
+  QWidget *buttons = new QWidget( warning );
+  l->addWidget(buttons);
+  QHBoxLayout *blay = new QHBoxLayout( buttons );
+  QPushButton * okButton = new QPushButton( "Ok", buttons );
+  blay->addWidget( okButton );
   okButton->setDefault( true );
-  QPushButton * cancelButton = new QPushButton( "Cancel", buttons ) ;
-  cancelButton->setMaximumWidth(100) ;
+  okButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                        QSizePolicy::Fixed ) );
+  QPushButton * cancelButton = new QPushButton( "Cancel", buttons );
+  blay->addWidget( cancelButton );
+  cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                            QSizePolicy::Fixed ) );
 
   QObject::connect( okButton , SIGNAL( clicked() ), warning, SLOT( accept () ) ) ;
   QObject::connect( cancelButton , SIGNAL( clicked( ) ), warning, SLOT( reject () ) ) ;
@@ -1274,37 +1220,45 @@ RoiManagementActionView::modifyFWRegionName()
 {
   QDialog * nameSetter = new QDialog( this, "", true, Qt::WStyle_Title ) ;
   nameSetter->setCaption( tr("Modify Frame Work Region Name") ) ;
-  nameSetter->setMinimumSize( 400, 60 ) ;
 
   QVBoxLayout * l = new QVBoxLayout( nameSetter ) ;
-  QVBox * frame = new QVBox( nameSetter ) ;
-  frame->setMargin( 5 );
-  frame->setSpacing( 5 );
-  l->addWidget(frame) ;
+  l->setMargin( 5 );
+  l->setSpacing( 5 );
   QLineEdit * lineEdition = 0 ;
   QComboBox * selectRegionName = 0 ;
 
-  selectRegionName = new QComboBox( false, frame ) ;
+  selectRegionName = new QComboBox( false, nameSetter );
+  l->addWidget( selectRegionName );
   selectRegionName->insertStringList( getCurrentHierarchyRoiNames() ) ;
   selectRegionName->setCurrentItem(0) ;
 
-  lineEdition = new QLineEdit( selectRegionName->currentText(),
-			       frame ) ;
-  lineEdition->setMinimumWidth(250) ;
+  lineEdition = new QLineEdit( selectRegionName->currentText(), nameSetter );
+  l->addWidget( lineEdition );
+//   lineEdition->setMinimumWidth(250);
+  lineEdition->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
+                                           QSizePolicy::Fixed ) );
 
   connect( selectRegionName, SIGNAL( textChanged( const QString & ) ),
 	   lineEdition, SLOT(setText(const QString&) ) ) ;
 
-  QHBox * buttons = new QHBox( frame ) ;
+  QWidget * buttons = new QWidget( nameSetter );
+  l->addWidget( buttons );
+  QHBoxLayout *blay = new QHBoxLayout( buttons );
 
-  QPushButton * okButton = new QPushButton( "Ok", buttons ) ;
-  okButton->setMaximumWidth(100) ;
+  QPushButton * okButton = new QPushButton( "Ok", buttons );
+  blay->addWidget( okButton );
   okButton->setDefault( true );
-  QPushButton * cancelButton = new QPushButton( "Cancel", buttons ) ;
-  cancelButton->setMaximumWidth(100) ;
+  okButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                        QSizePolicy::Fixed ) );
+  QPushButton * cancelButton = new QPushButton( "Cancel", buttons );
+  blay->addWidget( cancelButton );
+  cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                            QSizePolicy::Fixed ) );
 
-  QObject::connect( okButton , SIGNAL( clicked() ), nameSetter, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), nameSetter, SLOT( reject () ) ) ;
+  QObject::connect( okButton , SIGNAL( clicked() ),
+                    nameSetter, SLOT( accept() ) );
+  QObject::connect( cancelButton , SIGNAL( clicked() ),
+                    nameSetter, SLOT( reject() ) );
 
   string newName, oldName ;
   if( nameSetter->exec() )
@@ -2837,34 +2791,9 @@ RoiManagementAction::saveGraph( )
     }
 
   if(  graph->fileName() == "" )
-    {
-      saveGraphAs();
-      return;
-
-      /*
-    QDialog * warning = new QDialog( 0, "", true, Qt::WStyle_Title ) ;
-    warning->setFixedSize( 400, 60 ) ;
-
-    QVBoxLayout * l = new QVBoxLayout( warning ) ;
-    QVBox * frame = new QVBox( warning ) ;
-    frame->setMargin( 5 );
-    frame->setSpacing( 5 );
-    l->addWidget(frame) ;
-
-    new QLabel( "You must select the Save As menu item the first time you save a session. Beware, nothing is saved yet !!", frame ) ;
-    QHBox * buttons = new QHBox( warning ) ;
-    l->addWidget(buttons) ;
-    QPushButton * okButton = new QPushButton( "Ok", buttons ) ;
-    okButton->setMaximumWidth(100) ;
-    okButton->setDefault( true );
-
-    QObject::connect( okButton , SIGNAL( clicked() ), warning, SLOT( accept () ) ) ;
-
-    string result ;
-    warning->exec() ;
-    delete warning ;
-    return ;
-      */
+  {
+    saveGraphAs();
+    return;
   }
 
   cout << "save graph filename: " << graph->fileName() << endl;
