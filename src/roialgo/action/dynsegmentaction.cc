@@ -103,27 +103,36 @@ namespace anatomist
 RoiDynSegmentActionView::RoiDynSegmentActionView( 
           anatomist::RoiDynSegmentAction *  action,
 	  QWidget * parent ) :
-  QVBox(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
+  QWidget(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
 {
   _private = new RoiDynSegmentActionView_Private ;
   _private->myDynSegmentAction = action ;
-  _private->myDynSegmentAction->addObserver(this) ;
+  _private->myDynSegmentAction->addObserver(this);
 
-  _private->myFaithBox = new QHGroupBox( tr("Faith Interval"), this ) ;
+  QVBoxLayout *lay = new QVBoxLayout( this );
+  lay->setMargin( 0 );
+  lay->setSpacing( 5 );
+
+  _private->myFaithBox = new QHGroupBox( tr("Faith Interval"), this );
+  lay->addWidget( _private->myFaithBox );
   _private->myFaithSlider = new QSlider( 2, 6, 1, 3, Qt::Horizontal, _private->myFaithBox ) ;
   _private->myFaithLabel = new QLabel( "3 sigmas" , _private->myFaithBox ) ;
 
-  _private->myOrderBox = new QHGroupBox( tr("Order Interval"), this ) ;
+  _private->myOrderBox = new QHGroupBox( tr("Order Interval"), this );
+  lay->addWidget( _private->myOrderBox );
   _private->myOrderSlider = new QSlider( 1, 6, 1, 1, Qt::Horizontal, _private->myOrderBox ) ;
   _private->myOrderLabel = new QLabel( "1" , _private->myOrderBox ) ;
 
-  _private->myResultsBox = new QHGroupBox( tr("Confidence Measurements"), this ) ;
+  _private->myResultsBox = new QHGroupBox(
+    tr("Confidence Measurements"), this );
+  lay->addWidget( _private->myResultsBox );
   new QLabel( tr("Mean Error : "), _private->myResultsBox ) ;
   _private->myMeanValueLabel = new QLabel( "", _private->myResultsBox ) ;
   new QLabel( tr("Error Deviation : "), _private->myResultsBox ) ;
   _private->mySigmaValueLabel = new QLabel( "", _private->myResultsBox ) ;
 
-  _private->myModes = new QHBox( this ) ;
+  _private->myModes = new QHBox( this );
+  lay->addWidget( _private->myModes );
   _private->myLeftMode = new QVBox( _private->myModes ) ;
   _private->myDimensions = new QHButtonGroup( tr("Dimension"), _private->myLeftMode ) ;
   new QRadioButton(tr("2D"), _private->myDimensions) ;
@@ -155,6 +164,7 @@ RoiDynSegmentActionView::RoiDynSegmentActionView(
 //   _private->myMaskBox = new QHGroupBox( tr("Mask"), _private->myRightMode ) ;
 //   _private->myMask = new QComboBox( _private->myMaskBox ) ;
   
+  lay->addStretch();
   
   connect( _private->myFaithSlider, SIGNAL(valueChanged(int)), 
 	   this, SLOT(faithIntervalChanged(int) ) ) ;

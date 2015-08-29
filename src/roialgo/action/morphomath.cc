@@ -38,13 +38,11 @@
 #include <aims/morphology/morphology_g.h>
 #include <anatomist/misc/error.h>
 
-#include <aims/qtcompat/qhgroupbox.h>
+#include <QGroupBox>
 #include <qslider.h>
 #include <qlabel.h>
 #include <aims/qtcompat/qhbuttongroup.h>
-#include <aims/qtcompat/qvgroupbox.h>
 #include <qpushbutton.h>
-#include <aims/qtcompat/qgrid.h>
 #include <qradiobutton.h>
 
 
@@ -60,18 +58,14 @@ namespace anatomist
   public:
     RoiMorphoMathAction * myRoiMorphoMathAction ;
 
-    QHGroupBox * myStructElRadiusBox ;
     QSlider * myStructElRadiusSlider ;
     QLabel * myStructElRadiusLabel ;
-    
-    QHButtonGroup * myDistanceMode ;
-    QHButtonGroup * myRegionMode ;
-    
-    QVGroupBox * myMorphoButtons ;
+
+    QButtonGroup * myDistanceMode ;
+    QButtonGroup * myRegionMode ;
+
     QPushButton * myDefaultButton ;
 
-    QGrid * myMorphoGrid ;
-    
     QPushButton * myErosionButton ;
     QPushButton * myDilationButton ;
     QPushButton * myOpeningButton ;
@@ -81,64 +75,96 @@ namespace anatomist
 
 RoiMorphoMathActionView::RoiMorphoMathActionView( anatomist::RoiMorphoMathAction * action,
 						  QWidget * parent ) :
-  QVBox(parent), Observer(), myChangingFlag(false), myUpdatingFlag(false)
+  QWidget(parent), Observer(), myChangingFlag(false), myUpdatingFlag(false)
 {
   _private = new RoiMorphoMathActionView_Private ;
   _private->myRoiMorphoMathAction = action ;
   _private->myRoiMorphoMathAction->addObserver(this) ;
 
-  _private->myStructElRadiusBox = new QHGroupBox( tr("Structuring Element Radius"), this ) ;
-  _private->myStructElRadiusSlider = new QSlider( 1, 1000, 4, 20, Qt::Horizontal, 
-						_private->myStructElRadiusBox ) ;
-  _private->myStructElRadiusLabel = new QLabel( "1 mm" , _private->myStructElRadiusBox ) ;
+  QVBoxLayout *lay = new QVBoxLayout( this );
+  QGroupBox *myStructElRadiusBox = new QGroupBox(
+    tr("Structuring Element Radius"), this );
+  lay->addWidget( myStructElRadiusBox );
+  QHBoxLayout *serlay = new QHBoxLayout( myStructElRadiusBox );
+  _private->myStructElRadiusSlider = new QSlider( Qt::Horizontal,
+                                                  myStructElRadiusBox );
+  serlay->addWidget( _private->myStructElRadiusSlider );
+  _private->myStructElRadiusSlider->setRange( 1, 1000 );
+  _private->myStructElRadiusSlider->setPageStep( 4 );
+  _private->myStructElRadiusSlider->setValue( 20 );
+  _private->myStructElRadiusLabel = new QLabel( "1 mm" , myStructElRadiusBox );
+  serlay->addWidget( _private->myStructElRadiusLabel );
   _private->myStructElRadiusLabel->setFixedWidth( 50 ) ;
   
-  _private->myDistanceMode = new QHButtonGroup( tr("Distance Mode"), this ) ;
-  new QRadioButton(tr("mm"), _private->myDistanceMode) ;
-  new QRadioButton(tr("voxel"), _private->myDistanceMode) ;
-  _private->myDistanceMode->setExclusive(true) ;
-  _private->myDistanceMode->setButton(0) ;
+  QGroupBox *distmode = new QGroupBox( tr("Distance Mode"), this );
+  lay->addWidget( distmode );
+  QHBoxLayout *dmlay = new QHBoxLayout( distmode );
+  _private->myDistanceMode = new QButtonGroup( distmode );
+
+  QRadioButton *b = new QRadioButton( tr("mm"), distmode );
+  dmlay->addWidget( b );
+  _private->myDistanceMode->addButton( b, 0 );
+  b = new QRadioButton( tr("voxel"), distmode );
+  dmlay->addWidget( b );
+  _private->myDistanceMode->addButton( b, 1 );
+  _private->myDistanceMode->setExclusive( true );
+  _private->myDistanceMode->button( 0 )->setChecked( true );
   // myDistanceMode is NEVER used !
-  _private->myDistanceMode->hide();
-  
-  _private->myMorphoButtons =  new QVGroupBox( tr("Mathematic Morphology Actions"), this ) ;
-  _private->myMorphoGrid = new QGrid( 2, _private->myMorphoButtons ) ;
-  _private->myErosionButton = new QPushButton( tr("Erosion"), _private->myMorphoGrid ) ;
-  _private->myDilationButton = new QPushButton( tr("Dilation"), _private->myMorphoGrid ) ;
-  _private->myOpeningButton = new QPushButton( tr("Opening"), _private->myMorphoGrid ) ;
-  _private->myClosureButton = new QPushButton( tr("Closure"), _private->myMorphoGrid ) ;
+  distmode->hide();
 
-  _private->myRegionMode = new QHButtonGroup( tr("Apply on ROI region or session"), this ) ;
-  new QRadioButton(tr("Region"), _private->myRegionMode) ;
-  new QRadioButton(tr("Session"), _private->myRegionMode) ;
+  QGroupBox *myMorphoButtons = new QGroupBox(
+    tr("Mathematic Morphology Actions"), this );
+  lay->addWidget( myMorphoButtons );
+  QGridLayout *mblay = new QGridLayout( myMorphoButtons );
+  _private->myErosionButton = new QPushButton(
+    tr("Erosion"), myMorphoButtons );
+  mblay->addWidget( _private->myErosionButton, 0, 0 );
+  _private->myDilationButton = new QPushButton(
+    tr("Dilation"), myMorphoButtons );
+  mblay->addWidget( _private->myDilationButton, 0, 1 );
+  _private->myOpeningButton = new QPushButton(
+    tr("Opening"), myMorphoButtons );
+  mblay->addWidget( _private->myOpeningButton, 1, 0 );
+  _private->myClosureButton = new QPushButton(
+    tr("Closure"), myMorphoButtons );
+  mblay->addWidget( _private->myClosureButton, 1, 1 );
+
+  QGroupBox *regionmode = new QGroupBox(
+    tr("Apply on ROI region or session"), this );
+  lay->addWidget( regionmode );
+  QHBoxLayout *rmlay = new QHBoxLayout( regionmode );
+  _private->myRegionMode = new QButtonGroup( regionmode );
+  b = new QRadioButton( tr("Region"), regionmode );
+  rmlay->addWidget( b );
+  _private->myRegionMode->addButton( b, 0 );
+  b = new QRadioButton( tr("Session"), regionmode );
+  rmlay->addWidget( b );
+  _private->myRegionMode->addButton( b, 1 );
   _private->myRegionMode->setExclusive(true) ;
-  _private->myRegionMode->setButton(0) ;
+  _private->myRegionMode->button(0)->setChecked( true );
 
-  _private->myStructElRadiusBox->setSizePolicy( QSizePolicy::Expanding,
-                                                QSizePolicy::Fixed );
-  _private->myDistanceMode->setSizePolicy( QSizePolicy::Expanding,
-                                           QSizePolicy::Fixed );
-  _private->myMorphoButtons->setSizePolicy( QSizePolicy::Expanding,
-                                            QSizePolicy::Fixed );
-  _private->myRegionMode->setSizePolicy( QSizePolicy::Expanding,
-                                         QSizePolicy::Fixed );
-  QWidget *w = new QWidget( this ); // act as stretch
-  w->setMinimumHeight( 0 );
+  myStructElRadiusBox->setSizePolicy( QSizePolicy::Expanding,
+                                      QSizePolicy::Fixed );
+  distmode->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+  myMorphoButtons->setSizePolicy( QSizePolicy::Expanding,
+                                  QSizePolicy::Fixed );
+  regionmode->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+  lay->addStretch();
 
-  connect( _private->myStructElRadiusSlider, SIGNAL(valueChanged(int)), 
-	   this, SLOT(structuringElementRadiusChanged(int) ) ) ;
-  connect( _private->myDistanceMode, SIGNAL(clicked(int)), 
-	   this, SLOT(distanceModeChanged(int) ) ) ;
-  connect( _private->myErosionButton, SIGNAL(clicked()), 
-	   this, SLOT(erosion() ) ) ;
-  connect( _private->myDilationButton, SIGNAL(clicked()), 
-	   this, SLOT(dilation() ) ) ;
-  connect( _private->myOpeningButton, SIGNAL(clicked()), 
-	   this, SLOT(opening() ) ) ;
-  connect( _private->myClosureButton, SIGNAL(clicked()), 
-	   this, SLOT(closure() ) ) ;
-  connect( _private->myRegionMode, SIGNAL(clicked(int)), 
-	   this, SLOT(regionModeChanged(int) ) ) ;
+  connect( _private->myStructElRadiusSlider, SIGNAL( valueChanged(int) ),
+          this, SLOT( structuringElementRadiusChanged(int) ) ) ;
+  connect( _private->myDistanceMode, SIGNAL( buttonClicked(int) ),
+           this, SLOT( distanceModeChanged(int) ) ) ;
+  connect( _private->myErosionButton, SIGNAL( clicked() ),
+           this, SLOT( erosion() ) ) ;
+  connect( _private->myDilationButton, SIGNAL( clicked() ),
+           this, SLOT( dilation() ) ) ;
+  connect( _private->myOpeningButton, SIGNAL( clicked() ),
+           this, SLOT( opening() ) ) ;
+  connect( _private->myClosureButton, SIGNAL( clicked() ),
+           this, SLOT( closure() ) ) ;
+  connect( _private->myRegionMode, SIGNAL( buttonClicked(int) ),
+	   this, SLOT( regionModeChanged(int) ) ) ;
 }
 
 
@@ -236,13 +262,15 @@ void RoiMorphoMathActionView::update( const anatomist::Observable *, void * )
 // 	 QString(" mm") : QString(" voxels") ) ) ;
   } 
     
-  if( _private->myDistanceMode->id( _private->myDistanceMode->selected() ) !=
+  if( _private->myDistanceMode->checkedId() !=
       _private->myRoiMorphoMathAction->distanceMode() )
-    _private->myDistanceMode->setButton( _private->myRoiMorphoMathAction->distanceMode() ) ;
+    _private->myDistanceMode->button(
+      _private->myRoiMorphoMathAction->distanceMode() )->setChecked( true );
   
-  if( _private->myRegionMode->id( _private->myRegionMode->selected() ) !=
+  if( _private->myRegionMode->checkedId() !=
       _private->myRoiMorphoMathAction->regionMode() )
-    _private->myRegionMode->setButton( _private->myRoiMorphoMathAction->regionMode() ) ;
+    _private->myRegionMode->button(
+      _private->myRoiMorphoMathAction->regionMode() )->setChecked( true );
 
   myUpdatingFlag = false ;
 }

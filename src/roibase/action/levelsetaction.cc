@@ -115,13 +115,23 @@ RoiLevelSetActionView::RoiLevelSetActionView(
     tr("Activate Threshold Preview"), myActivateButtonGroup );
   abglay->addWidget( _private->myActivateButton );
 
-  QGroupBox *myLowLevelGroupBox = new QGroupBox( tr("Low Level"), this );
-  lay->addWidget( myLowLevelGroupBox );
+  QWidget *myLevels = new QWidget( this );
+  lay->addWidget( myLevels );
+  QHBoxLayout *levellay = new QHBoxLayout( myLevels );
+  levellay->setMargin( 0 );
+  levellay->setSpacing( 5 );
+
+  QGroupBox *myLowLevelGroupBox = new QGroupBox( tr("Low Level"), myLevels );
+  levellay->addWidget( myLowLevelGroupBox );
   QHBoxLayout *llglay = new QHBoxLayout( myLowLevelGroupBox );
-  _private->myLowLevelSlider = 
-    new QSlider( -10, 1010, 1,
-                 int(_private->myLevelSetAction->lowLevel() * 1000. ),
-                  Qt::Horizontal, myLowLevelGroupBox );
+  llglay->setMargin( 5 );
+  llglay->setSpacing( 5 );
+  _private->myLowLevelSlider = new QSlider( Qt::Horizontal,
+                                            myLowLevelGroupBox );
+  _private->myLowLevelSlider->setRange( -10, 1010 );
+  _private->myLowLevelSlider->setPageStep( 1 );
+  _private->myLowLevelSlider->setValue(
+    int( _private->myLevelSetAction->lowLevel() * 1000. ) );
   llglay->addWidget( _private->myLowLevelSlider );
   _private->myLowLevelValueLabel =  new QLabel(
     QString::number( _private->myLevelSetAction->realMin() ),
@@ -130,12 +140,15 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   _private->myLowLevelValueLabel->setFixedWidth(80) ;
   _private->myLowLevelSlider->setEnabled(false) ;
   _private->myHistoPlot->lowChanged( _private->myLevelSetAction->realMin() ) ;
-  QGroupBox *myHighLevelGroupBox = new QGroupBox( tr("High Level"), this );
-  lay->addWidget( myHighLevelGroupBox );
+  QGroupBox *myHighLevelGroupBox = new QGroupBox( tr("High Level"), myLevels );
+  levellay->addWidget( myHighLevelGroupBox );
   QHBoxLayout *hlglay = new QHBoxLayout( myHighLevelGroupBox );
-  _private->myHighLevelSlider = new QSlider(
-    -10, 1010, 1, int(_private->myLevelSetAction->highLevel()*1000.),
-    Qt::Horizontal, myHighLevelGroupBox );
+  _private->myHighLevelSlider = new QSlider( Qt::Horizontal,
+                                             myHighLevelGroupBox );
+  _private->myHighLevelSlider->setRange( -10, 1010 );
+  _private->myHighLevelSlider->setPageStep( 1 );
+  _private->myHighLevelSlider->setValue(
+    int( _private->myLevelSetAction->highLevel() * 1000. ) );
   hlglay->addWidget( _private->myHighLevelSlider );
   _private->myHighLevelValueLabel =  new QLabel(
     QString::number( _private->myLevelSetAction->realMax() ),
@@ -148,12 +161,17 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myModes = new QWidget( this );
   lay->addWidget( myModes );
   QHBoxLayout *modelay = new QHBoxLayout( myModes );
+  modelay->setMargin( 0 );
+  modelay->setSpacing( 5 );
+
   QWidget *myDimensionMode = new QWidget( myModes );
   modelay->addWidget( myDimensionMode );
   QVBoxLayout *dimmlay = new QVBoxLayout( myDimensionMode );
+  dimmlay->setMargin( 0 );
+  dimmlay->setSpacing( 5 );
   QGroupBox *dimb = new QGroupBox( tr("Dimension"), myDimensionMode );
   dimmlay->addWidget( dimb );
-  QVBoxLayout *dimblay = new QVBoxLayout( dimb );
+  QHBoxLayout *dimblay = new QHBoxLayout( dimb );
   _private->myDimensions = new QButtonGroup( dimb );
   QRadioButton *r = new QRadioButton(tr("2D") );
   dimblay->addWidget( r );
@@ -189,6 +207,8 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myMixBox = new QWidget( myModes );
   modelay->addWidget( myMixBox );
   QVBoxLayout *minblay = new QVBoxLayout( myMixBox );
+  minblay->setMargin( 0 );
+  minblay->setSpacing( 5 );
 
   QGroupBox *myMixMethodBox = new QGroupBox( tr("MixMethod"), myMixBox );
   minblay->addWidget( myMixMethodBox );

@@ -279,6 +279,8 @@ PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
                                                   myRightDirectActions );
   rdlay->addWidget( _private->myClearRegionButton );
 
+  lay->addStretch();
+
   connect( _private->myBrushes, SIGNAL(buttonClicked(int)),
 	  this, SLOT(brushSelection(int) ) ) ;
 

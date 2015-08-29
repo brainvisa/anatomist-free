@@ -44,7 +44,7 @@
 #include <anatomist/graph/GraphObject.h>
 #include <aims/bucket/bucketMap.h>
 
-#include <aims/qtcompat/qvbox.h>
+#include <QWidget>
 
 
 namespace anatomist
@@ -101,7 +101,7 @@ namespace anatomist
   } ;
 }
 
-class RoiMorphoMathActionView : public QVBox, public anatomist::Observer 
+class RoiMorphoMathActionView : public QWidget, public anatomist::Observer
 {
   Q_OBJECT
     
