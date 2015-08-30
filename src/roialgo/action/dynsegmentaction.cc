@@ -106,7 +106,9 @@ RoiDynSegmentActionView::RoiDynSegmentActionView(
   QGroupBox *myFaithBox = new QGroupBox( tr("Faith Interval"), this );
   sllay->addWidget( myFaithBox );
   QHBoxLayout *fblay = new QHBoxLayout( myFaithBox );
-  _private->myFaithSlider = new QSlider( 2, 6, 1, 3, Qt::Horizontal, myFaithBox );
+  _private->myFaithSlider = new QSlider( Qt::Horizontal, myFaithBox );
+  _private->myFaithSlider->setRange( 2, 6 );
+  _private->myFaithSlider->setValue( 3 );
   fblay->addWidget( _private->myFaithSlider );
   _private->myFaithLabel = new QLabel( "3 sigmas" , myFaithBox );
   fblay->addWidget( _private->myFaithLabel );
@@ -114,7 +116,9 @@ RoiDynSegmentActionView::RoiDynSegmentActionView(
   QGroupBox *myOrderBox = new QGroupBox( tr("Order Interval"), this );
   sllay->addWidget( myOrderBox );
   QHBoxLayout *oblay = new QHBoxLayout( myOrderBox );
-  _private->myOrderSlider = new QSlider( 1, 6, 1, 1, Qt::Horizontal, myOrderBox );
+  _private->myOrderSlider = new QSlider( Qt::Horizontal, myOrderBox );
+  _private->myOrderSlider->setRange( 1, 6 );
+  _private->myOrderSlider->setValue( 1 );
   oblay->addWidget( _private->myOrderSlider );
   _private->myOrderLabel = new QLabel( "1" , myOrderBox );
   oblay->addWidget( _private->myOrderLabel );

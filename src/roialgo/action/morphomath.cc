@@ -41,7 +41,7 @@
 #include <QGroupBox>
 #include <qslider.h>
 #include <qlabel.h>
-#include <aims/qtcompat/qhbuttongroup.h>
+#include <QButtonGroup>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 
