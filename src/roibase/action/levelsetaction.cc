@@ -215,15 +215,17 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QVBoxLayout *mmblay = new QVBoxLayout( myMixMethodBox );
   _private->myMixMethods = new QComboBox( myMixMethodBox );
   mmblay->addWidget( _private->myMixMethods );
-  _private->myMixMethods->insertItem( "GEOMETRIC" ) ;
-  _private->myMixMethods->insertItem( "LINEAR" ) ;
-  _private->myMixMethods->setCurrentItem( 0 ) ;
+  _private->myMixMethods->addItem( "GEOMETRIC" ) ;
+  _private->myMixMethods->addItem( "LINEAR" ) ;
+  _private->myMixMethods->setCurrentIndex( 0 ) ;
 
   QGroupBox *myMixFactorBox = new QGroupBox(tr("Mixing Factor"), myMixBox );
   minblay->addWidget( myMixFactorBox );
   QHBoxLayout *mfblay = new QHBoxLayout( myMixFactorBox );
-  _private->myMixFactor = new QSlider( 0, 100, 10, 50, Qt::Horizontal,
-                                       myMixFactorBox );
+  _private->myMixFactor = new QSlider( Qt::Horizontal, myMixFactorBox );
+  _private->myMixFactor->setRange( 0, 100 );
+  _private->myMixFactor->setPageStep( 10 );
+  _private->myMixFactor->setValue( 50 );
   mfblay->addWidget( _private->myMixFactor );
   _private->myMixFactor->setEnabled(false) ;
 
@@ -370,7 +372,7 @@ void
 RoiLevelSetActionView::mixMethodChanged(const QString& method ) 
 {
   myChangingFlag = true ;
-  _private->myLevelSetAction->setMixMethod( (const char *) method ) ;
+  _private->myLevelSetAction->setMixMethod( method.toStdString() );
   
   if( method == "GEOMETRIC")
     _private->myMixFactor->setEnabled(false) ;
@@ -442,12 +444,12 @@ RoiLevelSetActionView::update( const anatomist::Observable *, void * )
     {
       if( _private->myLevelSetAction->mixMethod() == "GEOMETRIC" )
 	{
-	  _private->myMixMethods->setCurrentItem( 0 ) ;
+	  _private->myMixMethods->setCurrentIndex( 0 ) ;
 	  _private->myMixFactor->setEnabled(false) ;
 	}
       else
 	{
-	  _private->myMixMethods->setCurrentItem( 1 ) ;
+	  _private->myMixMethods->setCurrentIndex( 1 ) ;
 	  _private->myMixFactor->setEnabled(true) ;
 	}
     }

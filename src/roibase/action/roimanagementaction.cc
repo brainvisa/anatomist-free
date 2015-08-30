@@ -94,9 +94,10 @@ using namespace std;
 
 RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
 					  const QStringList& regions ) :
-  QDialog( parent, "", true, Qt::WStyle_Title ), myNewRegionName("")
+  QDialog( parent, Qt::WindowTitleHint ), myNewRegionName("")
 {
-  setCaption( tr( "Regions Fusion" ) );
+  setModal( true );
+  setWindowTitle( tr( "Regions Fusion" ) );
 
   QVBoxLayout *l = new QVBoxLayout( this ) ;
 
@@ -108,9 +109,9 @@ RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
   selectRegions->addItems( regions ) ;
   selectRegions->setSelectionMode( QListWidget::ExtendedSelection ) ;
 
-  selectRegionName = new QComboBox( false, this ) ;
+  selectRegionName = new QComboBox( this );
   l->addWidget( selectRegionName );
-  selectRegionName->setCurrentItem(0) ;
+  selectRegionName->setCurrentIndex(0);
 
   QWidget *buttons = new QWidget( this );
   l->addWidget( buttons );
@@ -126,10 +127,11 @@ RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
   cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
                                             QSizePolicy::Fixed ) );
 
-  QObject::connect( okButton , SIGNAL( clicked() ), this, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), this, SLOT( reject () ) ) ;
+  QObject::connect( okButton , SIGNAL( clicked() ), this, SLOT( accept () ) );
+  QObject::connect( cancelButton , SIGNAL( clicked() ),
+                    this, SLOT( reject() ) );
   QObject::connect( selectRegions , SIGNAL( itemSelectionChanged() ),
-		    this, SLOT( selectedRegionsChanged() ) ) ;
+                    this, SLOT( selectedRegionsChanged() ) );
 }
 
 // void
@@ -159,9 +161,9 @@ RegionsFusionWindow::regionsToBeFusioned()
     last( mySelectedRegions.end() ) ;
 
 
-  while ( iter != last )
+  while( iter != last )
     {
-      result.insert( string( ( const char *)( *iter ) ) ) ;
+      result.insert( iter->toStdString() );
       ++iter ;
     }
   return result ;
@@ -170,21 +172,21 @@ RegionsFusionWindow::regionsToBeFusioned()
 string
 RegionsFusionWindow::newRegionName()
 {
-  return string( (const char *) selectRegionName->currentText() ) ;
+  return selectRegionName->currentText().toStdString();
 }
 
 void
 RegionsFusionWindow::selectedRegionsChanged()
 {
-  mySelectedRegions.clear() ;
+  mySelectedRegions.clear();
   for( unsigned int i = 0 ; i < selectRegions->count() ; ++i )
   {
     if( selectRegions->item( i )->isSelected() )
-      mySelectedRegions.append( selectRegions->item(i)->text() ) ;
+      mySelectedRegions.append( selectRegions->item(i)->text() );
   }
-  selectRegionName->clear() ;
-  selectRegionName->insertStringList(mySelectedRegions) ;
-  selectRegionName->setCurrentItem(0) ;
+  selectRegionName->clear();
+  selectRegionName->addItems( mySelectedRegions );
+  selectRegionName->setCurrentIndex( 0 );
 }
 
 
@@ -324,7 +326,7 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
 
   _private->myFrameWorkMenu
     = _private->myMainMenu->addMenu( tr( "FrameWork" ) );
-  _private->myFrameWorkMenu->setCheckable(true) ; // ??
+//   _private->myFrameWorkMenu->setCheckable(true) ; // ??
   _private->myNeuroAction = _private->myFrameWorkMenu->addAction(
     tr("Neuro"), this, SLOT( neuroFrameWork() ) );
   _private->myNeuroAction->setCheckable( true );
@@ -448,9 +450,11 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   QHBoxLayout *rtlay = new QHBoxLayout( myRegionTransparencyBox );
 
   _private->myRegionTransparency =
-    new QSlider( 0, 100, 20,
-		 int(SelectFactory::selectColor().a * 100),
-		 Qt::Horizontal, myRegionTransparencyBox );
+    new QSlider( Qt::Horizontal, myRegionTransparencyBox );
+  _private->myRegionTransparency->setRange( 0, 100 );
+  _private->myRegionTransparency->setPageStep( 20 );
+  _private->myRegionTransparency->setValue(
+    int( SelectFactory::selectColor().a * 100 ) );
   rtlay->addWidget( _private->myRegionTransparency );
   _private->myRegionTransparency
     ->setMinimumSize( 50, _private->myRegionTransparency->sizeHint().height() );
@@ -466,9 +470,11 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   wplay->addWidget( myGraphTransparencyBox );
   QHBoxLayout *gtblay = new QHBoxLayout( myGraphTransparencyBox );
   _private->myGraphTransparency =
-    new QSlider( 0, 100, 20,
-		 int(SelectFactory::selectColor().a * 100),
-		 Qt::Horizontal, myGraphTransparencyBox );
+    new QSlider( Qt::Horizontal, myGraphTransparencyBox );
+  _private->myGraphTransparency->setRange( 0, 100 );
+  _private->myGraphTransparency->setPageStep( 20 );
+  _private->myGraphTransparency->setValue(
+    int( SelectFactory::selectColor().a * 100 ) );
   gtblay->addWidget( _private->myGraphTransparency );
   _private->myGraphTransparency
     ->setMinimumSize( 50, _private->myGraphTransparency->sizeHint().height() );
@@ -655,7 +661,7 @@ RoiManagementActionView::getSelectedGraphName( )
 }
 
 QStringList
-RoiManagementActionView::getCurrentHierarchyRoiNames( )
+RoiManagementActionView::getCurrentHierarchyRoiNames()
 {
   myGettingHierarchyNames = true ;
   #ifdef ANA_DEBUG
@@ -731,12 +737,13 @@ RoiManagementActionView::askName (const string& type,
                                   const string& originalName,
                                   const string& message, bool noHierarchy )
 {
-  QDialog * nameSetter = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-  nameSetter->setCaption( message.c_str() ) ;
+  QDialog * nameSetter = new QDialog( this );
+  nameSetter->setModal( true );
+  nameSetter->setWindowTitle( message.c_str() );
 
-  QVBoxLayout * l = new QVBoxLayout( nameSetter ) ;
-  QLineEdit * lineEdition = 0 ;
-  QComboBox * selectRegionName = 0 ;
+  QVBoxLayout * l = new QVBoxLayout( nameSetter );
+  QLineEdit * lineEdition = 0;
+  QComboBox * selectRegionName = 0;
 
   if( type == "FrameWork" )
   {
@@ -754,12 +761,10 @@ RoiManagementActionView::askName (const string& type,
   } else if( type == "region" && (!noHierarchy) )
   {
     //cout<< "Hierarchy" << endl ;
-    selectRegionName = new QComboBox( false, this );
+    selectRegionName = new QComboBox( this );
     l->addWidget( selectRegionName );
-    selectRegionName->insertStringList( getCurrentHierarchyRoiNames() ) ;
-    selectRegionName->setCurrentItem(0) ;
-//     selectRegionName->setAutoCompletion(true) ;
-//     lineEdition = selectRegionName->lineEdit() ;
+    selectRegionName->addItems( getCurrentHierarchyRoiNames() );
+    selectRegionName->setCurrentIndex(0) ;
   }
 
   QWidget * buttons = new QWidget( this );
@@ -776,19 +781,21 @@ RoiManagementActionView::askName (const string& type,
   cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
                                             QSizePolicy::Fixed ) );
 
-  QObject::connect( okButton , SIGNAL( clicked() ), nameSetter, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), nameSetter, SLOT( reject () ) ) ;
+  QObject::connect( okButton , SIGNAL( clicked() ),
+                    nameSetter, SLOT( accept() ) );
+  QObject::connect( cancelButton , SIGNAL( clicked() ),
+                    nameSetter, SLOT( reject() ) );
 
   string result = "" ;
   if( nameSetter->exec() )
-    {
-      if( type == "session" || noHierarchy)
-	result = (const char *) lineEdition->text()  ;
-      else
-	result = (const char *) selectRegionName->currentText() ;
-      if( result == "" )
-	result = "Unknown" ;
-    }
+  {
+    if( type == "session" || noHierarchy)
+      result = lineEdition->text().toStdString();
+    else
+      result = selectRegionName->currentText().toStdString();
+    if( result == "" )
+      result = "Unknown";
+  }
 
   #ifdef ANA_DEBUG
   cout << "Result : " << result << endl ;
@@ -799,14 +806,14 @@ RoiManagementActionView::askName (const string& type,
 }
 
 void
-RoiManagementActionView::newGraph( )
+RoiManagementActionView::newGraph()
 {
-  string name = "" ; //string ( askName("session", "", "Please enter new session's name") ) ;
-  _private->myRoiManagementAction->newGraph( name ) ;
+  string name = "" ;
+  _private->myRoiManagementAction->newGraph( name );
 }
 
 void
-RoiManagementActionView::regionStats( )
+RoiManagementActionView::regionStats()
 {
   _private->myRoiManagementAction->regionStats( ) ;
 }
@@ -814,55 +821,23 @@ RoiManagementActionView::regionStats( )
 void
 RoiManagementActionView::renameGraph( QListWidgetItem * graph )
 {
-  _private->myRoiManagementAction
-    ->renameGraph(
-      askName("session",
-              (const char *)graph->text(),
-              "Please enter new name for selected session"),
-      _private->mySelectGraph->currentRow() );
+  _private->myRoiManagementAction->renameGraph(
+    askName( "session", graph->text().toStdString(),
+              "Please enter new name for selected session" ),
+    _private->mySelectGraph->currentRow() );
 }
 
 void
-RoiManagementActionView::deleteGraph( )
+RoiManagementActionView::deleteGraph()
 {
-  QDialog * warning = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-//   warning->setFixedSize( 400, 60 ) ;
-
-  QVBoxLayout * l = new QVBoxLayout( warning ) ;
-
-  l->addWidget( new QLabel(
+  QMessageBox::StandardButton result = QMessageBox::warning(
+    this, tr( "Delete ROI session" ),
     tr( "If you close this session, all modifications since your last save will be lost. \nDo you still want to proceed ?" ),
-    warning ) );
-  QWidget *buttons = new QWidget( warning );
-  l->addWidget(buttons);
-  QHBoxLayout *blay = new QHBoxLayout( buttons );
-  QPushButton * okButton = new QPushButton( "Ok", buttons );
-  blay->addWidget( okButton );
-  okButton->setDefault( true );
-  okButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-                                        QSizePolicy::Fixed ) );
-  QPushButton * cancelButton = new QPushButton( "Cancel", buttons );
-  blay->addWidget( cancelButton );
-  cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-                                            QSizePolicy::Fixed ) );
-
-  QObject::connect( okButton , SIGNAL( clicked() ), warning, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), warning, SLOT( reject () ) ) ;
-
-  string result ;
-  if( !warning->exec() )
-    {
-      delete warning ;
-      return ;
-    }
-  delete warning ;
+    QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel );
+  if( result != QMessageBox::Ok )
+    return;
 
   _private->myRoiManagementAction->deleteGraph( ) ;
-
-//   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySaveGraphAction->setEnabled( true ) ;
-//   else
-//     _private->mySaveGraphAction->setEnabled( false ) ;
 }
 
 void
@@ -885,7 +860,7 @@ RoiManagementActionView::loadGraph( )
 
   QFileDialog	& fd = anatomist::fileDialog();
   fd.setNameFilter( filt );
-  fd.setCaption( capt );
+  fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )
     return;
@@ -962,7 +937,7 @@ RoiManagementActionView::renameRegion( QListWidgetItem * region )
   _private->myRoiManagementAction->renameRegion(
     askName(
       "region",
-      (const char*)region->text(),
+      region->text().toStdString(),
       "Please enter selected region's new name",
       _private->myFreeFrameworkAction->isChecked() ),
     _private->mySelectRegion->currentRow() ) ;
@@ -1152,11 +1127,11 @@ RoiManagementActionView::loadUserDefinedFrameWork()
 
   QFileDialog	& fd = anatomist::fileDialog();
   fd.setNameFilter( filt );
-  fd.setCaption( capt );
+  fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
-  fd.setDir(QDir( (Settings::localPath() + FileUtil::separator()
-                   + "frameworks/").c_str(),
-                  QString("*.hie") ) ) ;
+  fd.setDirectory(QDir( (Settings::localPath() + FileUtil::separator()
+                        + "frameworks/").c_str(),
+                        QString("*.hie") ) );
   if( !fd.exec() )
     return;
 
@@ -1225,19 +1200,20 @@ RoiManagementActionView::deleteFWRegionName()
 void
 RoiManagementActionView::modifyFWRegionName()
 {
-  QDialog * nameSetter = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-  nameSetter->setCaption( tr("Modify Frame Work Region Name") ) ;
+  QDialog * nameSetter = new QDialog( this );
+  nameSetter->setModal( true );
+  nameSetter->setWindowTitle( tr( "Modify Frame Work Region Name" ) );
 
-  QVBoxLayout * l = new QVBoxLayout( nameSetter ) ;
+  QVBoxLayout * l = new QVBoxLayout( nameSetter );
   l->setMargin( 5 );
   l->setSpacing( 5 );
   QLineEdit * lineEdition = 0 ;
-  QComboBox * selectRegionName = 0 ;
+  QComboBox * selectRegionName = 0;
 
-  selectRegionName = new QComboBox( false, nameSetter );
+  selectRegionName = new QComboBox( nameSetter );
   l->addWidget( selectRegionName );
-  selectRegionName->insertStringList( getCurrentHierarchyRoiNames() ) ;
-  selectRegionName->setCurrentItem(0) ;
+  selectRegionName->addItems( getCurrentHierarchyRoiNames() );
+  selectRegionName->setCurrentIndex(0);
 
   lineEdition = new QLineEdit( selectRegionName->currentText(), nameSetter );
   l->addWidget( lineEdition );
@@ -1269,12 +1245,13 @@ RoiManagementActionView::modifyFWRegionName()
 
   string newName, oldName ;
   if( nameSetter->exec() )
-    {
-      newName = (const char *) lineEdition->text()  ;
-      oldName = (const char *) selectRegionName->currentText() ;
-      if( newName != oldName && newName != "" )
-	_private->myRoiManagementAction->modifyUDFWRegionName(oldName, newName) ;
-    }
+  {
+    newName = lineEdition->text().toStdString();
+    oldName = selectRegionName->currentText().toStdString();
+    if( newName != oldName && newName != "" )
+      _private->myRoiManagementAction->modifyUDFWRegionName(
+        oldName, newName );
+  }
   delete nameSetter ;
 }
 
@@ -1879,7 +1856,7 @@ RoiManagementAction::getCurrentGraphRegions()
 }
 
 set<string>
-RoiManagementAction::getCurrentHierarchyRoiNames( )
+RoiManagementAction::getCurrentHierarchyRoiNames()
 {
   #ifdef ANA_DEBUG
   cout << "RoiManagementAction::getCurrentHierarchyRoiNames()" << endl ;
@@ -2028,8 +2005,10 @@ RoiManagementAction::loadHierarchy( )
   cout << "RoiManagementAction::loadHierarchy()" << endl ;
 #endif
 
-  string filter = (const char *) (ControlWindow::tr( "Hierarchies" ) + " (*.hie)" ) ;
-  string caption = (const char *) RoiManagementActionView::tr( "Load Hierarchy" ) ;
+  string filter = ControlWindow::tr( "Hierarchies" ).toStdString()
+    + " (*.hie)";
+  string caption = RoiManagementActionView::tr(
+    "Load Hierarchy" ).toStdString();
 
   ControlWindow::theControlWindow()->loadObject( filter, caption ) ;
 
@@ -2116,10 +2095,12 @@ RoiManagementAction::loadUDHierarchy( const string& hierarchyName )
   theProcessor->execute( cmd4 ) ;
 
   AObject * loadedObj = cmd4->loadedObject() ;
-  loadedObj->setFileName( (const char*)(QFileInfo(hierarchyName.c_str()).fileName()) ) ;
+  loadedObj->setFileName(
+    QFileInfo( hierarchyName.c_str() ).fileName().toStdString() );
 
   string newUserDefHie =
-    theAnatomist->makeObjectName( (const char*)(QFileInfo(hierarchyName.c_str()).fileName()) ) ; ;
+    theAnatomist->makeObjectName(
+      QFileInfo( hierarchyName.c_str() ).fileName().toStdString() );
   loadedObj->setName(newUserDefHie) ;
   theAnatomist->registerObject(loadedObj) ;
   //theAnatomist->registerObjectName(name, hie) ;
@@ -2189,8 +2170,9 @@ RoiManagementAction::saveUDHierarchy( )
               + "frameworks" ).c_str() );
   // std::cerr << "3" << std::endl ;
   if( !dir.exists() )
-    if( ! dir.mkdir(string(Settings::localPath() + FileUtil::separator()
-			   + "frameworks").c_str(), true) )
+    if( ! dir.mkdir(
+        string( Settings::localPath() + FileUtil::separator()
+        + "frameworks" ).c_str() ) )
       return false ;
 
   // std::cerr << "4" << std::endl ;
@@ -2804,11 +2786,9 @@ RoiManagementAction::saveGraphAs( )
   set<AObject*> toSave ;
   toSave.insert( graph ) ;
   string fileName =
-    ObjectActions::specificSaveStatic( toSave,
-				       string( ( const char * )
-                                               (ControlWindow::tr( "Graphs" )
-                                                + " (*.arg)" ) ),
-				       string( "Save ROI Graph" ) ) ;
+    ObjectActions::specificSaveStatic(
+      toSave, ControlWindow::tr( "Graphs" ).toStdString() + " (*.arg)",
+      ControlWindow::tr( "Save ROI Graph" ).toStdString() );
 }
 
 void

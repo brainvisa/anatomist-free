@@ -48,40 +48,40 @@ namespace anatomist
   class RoiBaseModule : public anatomist::Module
   {
   public:
-    RoiBaseModule() ;
-    virtual ~RoiBaseModule() ;
-    
-    virtual std::string name() const ;
-    virtual std::string description() const ;
+    RoiBaseModule();
+    virtual ~RoiBaseModule();
 
-    static AGraph *newGraph( AObject* source, const std::string & name, 
-			     const std::string & syntax );
+    virtual std::string name() const ;
+    virtual std::string description() const;
+
+    static AGraph *newGraph( AObject* source, const std::string & name,
+                              const std::string & syntax );
     /**	\par nodup if true, doesn't duplicate a node with same name */
-    static AGraphObject* newRegion( AGraph* o, const std::string & roiName, 
-				    const std::string & syntax, bool withbck, 
-				    AObject*& bck, bool nodup = false );
+    static AGraphObject* newRegion( AGraph* o, const std::string & roiName,
+                                    const std::string & syntax, bool withbck,
+                                    AObject*& bck, bool nodup = false );
     static bool noop();
 
   protected:
-    virtual void objectsDeclaration() ;
-    virtual void objectPropertiesDeclaration() ;
-    virtual void viewsDeclaration() ;
-    virtual void actionsDeclaration() ;
-    virtual void controlsDeclaration() ;
-    virtual void controlGroupsDeclaration() ;   
+    virtual void objectsDeclaration();
+    virtual void objectPropertiesDeclaration();
+    virtual void viewsDeclaration();
+    virtual void actionsDeclaration();
+    virtual void controlsDeclaration();
+    virtual void controlGroupsDeclaration();
 
   private:
-    static void addVolumeRoiOptions( Tree* tr ) ;
-    static void addGraphRoiOptions( Tree* tr ) ;  
-    static void addGraphObjectRoiOptions( Tree* tr ) ;      
-    static void createGraph( const std::set<AObject *> & obj ) ;
-    static void setGraphName( const std::set<AObject *> & obj ) ;
-    static void setGraphObjectName( const std::set<AObject *> & obj ) ;
-    static void addRegion( const std::set<AObject *> & obj ) ;
-    static void exportRegion( const std::set<AObject *> & obj ) ;
-    
-    static const char * askName( const std::string& type, 
-				 const std::string& originalName = "" ) ;
+    static void addVolumeRoiOptions( Tree* tr );
+    static void addGraphRoiOptions( Tree* tr );
+    static void addGraphObjectRoiOptions( Tree* tr );
+    static void createGraph( const std::set<AObject *> & obj );
+    static void setGraphName( const std::set<AObject *> & obj );
+    static void setGraphObjectName( const std::set<AObject *> & obj );
+    static void addRegion( const std::set<AObject *> & obj );
+    static void exportRegion( const std::set<AObject *> & obj );
+
+    static std::string askName( const std::string& type,
+                                const std::string& originalName = "" );
   };  
 }
 

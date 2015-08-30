@@ -156,10 +156,14 @@ PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
                                              myBrushParameters );
   bplay->addWidget( myBrushSizeBox );
   QHBoxLayout *bslay = new QHBoxLayout( myBrushSizeBox );
-  _private->myBrushSize = new QSlider( 1, 500, 10, int(rint(_private->myPaintAction->brushSize()*10.)), Qt::Horizontal, myBrushSizeBox );
+  _private->myBrushSize = new QSlider( Qt::Horizontal, myBrushSizeBox );
+  _private->myBrushSize->setRange( 1, 500 );
+  _private->myBrushSize->setPageStep( 10 );
+  _private->myBrushSize->setValue(
+    int( rint( _private->myPaintAction->brushSize() * 10. ) ) );
   bslay->addWidget( _private->myBrushSize );
-  _private->myBrushSize->setMinimumSize( 50,
-					 _private->myBrushSize->sizeHint().height() );
+  _private->myBrushSize->setMinimumSize(
+    50, _private->myBrushSize->sizeHint().height() );
   _private->myBrushSizeLabel =
     new QLabel( QString::number(_private->myPaintAction->brushSize()),
                 myBrushSizeBox );
@@ -175,10 +179,12 @@ PaintActionView::PaintActionView( PaintAction * paintAction, QWidget * parent)
   if( SelectFactory::selectColor().a == 1 )
     SelectFactory::selectColor().a = 0.99 ;
 
-  _private->myRegionTransparency =
-    new QSlider( 0, 100, 20,
-                 int(SelectFactory::selectColor().a * 100),
-                 Qt::Horizontal, myRegionTransparencyBox ) ;
+  _private->myRegionTransparency = new QSlider(
+    Qt::Horizontal, myRegionTransparencyBox );
+  _private->myRegionTransparency->setRange( 0, 100 );
+  _private->myRegionTransparency->setPageStep( 20 );
+  _private->myRegionTransparency->setValue(
+    int( SelectFactory::selectColor().a * 100 ) );
   rtlay->addWidget( _private->myRegionTransparency );
   _private->myRegionTransparency
     ->setMinimumSize( 50, _private->myBrushSize->sizeHint().height() );
@@ -2120,9 +2126,9 @@ PaintAction::changeCursor( bool cross )
   if (win)
   {
     if ( cross )
-      win->setCursor(Qt::crossCursor) ;
+      win->setCursor(Qt::CrossCursor) ;
     else
-      win->setCursor(Qt::arrowCursor) ;
+      win->setCursor(Qt::ArrowCursor) ;
   }
 }
 
