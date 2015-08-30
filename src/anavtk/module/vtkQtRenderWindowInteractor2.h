@@ -122,9 +122,9 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
   virtual void focusOutEvent(QFocusEvent*){};
 
 #ifdef Q_WS_X11
-  int GetDesiredDepth() { return QPaintDevice::x11Depth(); }
-  Colormap GetDesiredColormap() { return QPaintDevice::x11Colormap(); }
-  Visual *GetDesiredVisual() { return (Visual*) QPaintDevice::x11Visual(); }
+  int GetDesiredDepth();
+  Colormap GetDesiredColormap();
+  Visual *GetDesiredVisual();
 #endif
 
 

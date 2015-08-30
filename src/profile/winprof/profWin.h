@@ -67,7 +67,7 @@ public:
 
   QAProfileWindow( QWidget *parent=0, const char *name=0, 
                    carto::Object options = carto::none(), 
-                   Qt::WFlags f = Qt::WType_TopLevel | Qt::WDestructiveClose );
+                   Qt::WFlags f = Qt::Window );
   virtual ~QAProfileWindow();
 
   static AWindow *createProfileWindow( void *, carto::Object );

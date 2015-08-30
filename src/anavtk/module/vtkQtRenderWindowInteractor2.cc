@@ -588,3 +588,26 @@ void vtkQtRenderWindowInteractor2::macFixRect()
 }
 
 #endif
+
+
+#ifdef Q_WS_X11
+#include <QX11Info>
+
+int vtkQtRenderWindowInteractor2::GetDesiredDepth()
+{
+  return QX11Info::appDepth();
+}
+
+
+Colormap vtkQtRenderWindowInteractor2::GetDesiredColormap()
+{
+  return (Colormap) QX11Info::appColormap();
+}
+
+
+Visual *vtkQtRenderWindowInteractor2::GetDesiredVisual()
+{
+  return (Visual*) QX11Info::appVisual();
+}
+
+#endif
