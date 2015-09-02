@@ -72,11 +72,6 @@
 #include <anatomist/application/settings.h>
 #include <graph/tree/tfactory.h>
 
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <aims/qtcompat/qgrid.h>
-#include <aims/qtcompat/qpopupmenu.h>
-
 #include <QListWidget>
 #include <qcombobox.h>
 #include <qcolordialog.h>
@@ -89,6 +84,7 @@
 #include <qdialog.h>
 #include <qmenubar.h>
 #include <qstringlist.h>
+#include <QGroupBox>
 #include <anatomist/application/fileDialog.h>
 
 using namespace anatomist;
@@ -98,9 +94,10 @@ using namespace std;
 
 RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
 					  const QStringList& regions ) :
-  QDialog( parent, "", true, Qt::WStyle_Title ), myNewRegionName("")
+  QDialog( parent, Qt::WindowTitleHint ), myNewRegionName("")
 {
-  setCaption( tr( "Regions Fusion" ) );
+  setModal( true );
+  setWindowTitle( tr( "Regions Fusion" ) );
 
   QVBoxLayout *l = new QVBoxLayout( this ) ;
 
@@ -112,9 +109,9 @@ RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
   selectRegions->addItems( regions ) ;
   selectRegions->setSelectionMode( QListWidget::ExtendedSelection ) ;
 
-  selectRegionName = new QComboBox( false, this ) ;
+  selectRegionName = new QComboBox( this );
   l->addWidget( selectRegionName );
-  selectRegionName->setCurrentItem(0) ;
+  selectRegionName->setCurrentIndex(0);
 
   QWidget *buttons = new QWidget( this );
   l->addWidget( buttons );
@@ -130,10 +127,11 @@ RegionsFusionWindow::RegionsFusionWindow( QWidget * parent,
   cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
                                             QSizePolicy::Fixed ) );
 
-  QObject::connect( okButton , SIGNAL( clicked() ), this, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), this, SLOT( reject () ) ) ;
+  QObject::connect( okButton , SIGNAL( clicked() ), this, SLOT( accept () ) );
+  QObject::connect( cancelButton , SIGNAL( clicked() ),
+                    this, SLOT( reject() ) );
   QObject::connect( selectRegions , SIGNAL( itemSelectionChanged() ),
-		    this, SLOT( selectedRegionsChanged() ) ) ;
+                    this, SLOT( selectedRegionsChanged() ) );
 }
 
 // void
@@ -163,9 +161,9 @@ RegionsFusionWindow::regionsToBeFusioned()
     last( mySelectedRegions.end() ) ;
 
 
-  while ( iter != last )
+  while( iter != last )
     {
-      result.insert( string( ( const char *)( *iter ) ) ) ;
+      result.insert( iter->toStdString() );
       ++iter ;
     }
   return result ;
@@ -174,21 +172,21 @@ RegionsFusionWindow::regionsToBeFusioned()
 string
 RegionsFusionWindow::newRegionName()
 {
-  return string( (const char *) selectRegionName->currentText() ) ;
+  return selectRegionName->currentText().toStdString();
 }
 
 void
 RegionsFusionWindow::selectedRegionsChanged()
 {
-  mySelectedRegions.clear() ;
+  mySelectedRegions.clear();
   for( unsigned int i = 0 ; i < selectRegions->count() ; ++i )
   {
     if( selectRegions->item( i )->isSelected() )
-      mySelectedRegions.append( selectRegions->item(i)->text() ) ;
+      mySelectedRegions.append( selectRegions->item(i)->text() );
   }
-  selectRegionName->clear() ;
-  selectRegionName->insertStringList(mySelectedRegions) ;
-  selectRegionName->setCurrentItem(0) ;
+  selectRegionName->clear();
+  selectRegionName->addItems( mySelectedRegions );
+  selectRegionName->setCurrentIndex( 0 );
 }
 
 
@@ -210,21 +208,28 @@ namespace anatomist
     RoiManagementAction * myRoiManagementAction ;
 
     QMenuBar 	* myMainMenu ;
-    QPopupMenu 	* mySessionMenu ;
-    QPopupMenu 	* myRegionMenu ;
-    QPopupMenu 	* myFrameWorkMenu ;
-    QPopupMenu 	* myUserDefinedFrameWorkMenu ;
-    QPopupMenu 	* myWindowMenu ;
+    QMenu 	* mySessionMenu ;
+    QMenu 	* myRegionMenu ;
+    QMenu 	* myFrameWorkMenu ;
+    QMenu 	* myUserDefinedFrameWorkMenu; // 305
+    QMenu 	* myWindowMenu ;
+    QAction *mySaveGraphAction;
+    QAction *myNeuroAction; // 301
+    QAction *myLateralNeuroAction; // 302
+    QAction *mySulciAction; // 303
+    QAction *myRatWbAction; // 304
+    QAction *myNewRegionAction; // 314
+    QAction *myModifyRegionNameAction; // 315
+    QAction *myModifyRegionColorAction; // 316
+    QAction *myDeleteRegionAction; // 317
+    QAction *myFreeFrameworkAction; // 306
 
     QListWidget	* mySelectGraph ;
 
     QListWidget	* mySelectImage ;
 
     QListWidget	* mySelectRegion ;
-    QVGroupBox 	* myRegionNameBox ;
 
-    QVGroupBox 	* myWindowPart ;
-    QGrid	* myWindowGrid ;
     QPushButton * myAxial ;
     QPushButton * myCoronal ;
     QPushButton * mySagittal ;
@@ -232,14 +237,12 @@ namespace anatomist
     QPushButton * my3D ;
     // QPushButton	* myRefresh ;
 
-    QHGroupBox * myRegionTransparencyBox ;
     QSlider * myRegionTransparency ;
     QLabel * myRegionTransparencyLabel ;
 
-    QHGroupBox * myGraphTransparencyBox ;
     QSlider * myGraphTransparency ;
-    QLabel * myGraphTransparencyLabel ;
-  } ;
+    QLabel * myGraphTransparencyLabel;
+  };
 }
 
 using namespace anatomist ;
@@ -276,135 +279,116 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   QVBoxLayout *lay1 = new QVBoxLayout( this );
 
   _private->myMainMenu = new QMenuBar(this) ;
-  _private->mySessionMenu = new QPopupMenu( this );
+  _private->mySessionMenu = _private->myMainMenu->addMenu( tr( "Session" ) );
   lay1->addWidget( _private->myMainMenu );
 
-  _private->mySessionMenu->insertItem( tr("New"), this,
-                    SLOT( newGraph() ),
-                    Qt::CTRL + Qt::ALT + Qt::Key_N, 101 ) ;
+  _private->mySessionMenu->addAction(
+    tr("New"), this, SLOT( newGraph() ), Qt::CTRL + Qt::ALT + Qt::Key_N );
 
-  _private->mySessionMenu->insertItem( tr("Open"), this,
-                    SLOT( loadGraph() ),
-                    Qt::CTRL + Qt::Key_O,
-                    102 ) ;
+  _private->mySessionMenu->addAction(
+    tr("Open"), this, SLOT( loadGraph() ), Qt::CTRL + Qt::Key_O );
 
-//   _private->mySessionMenu->insertItem( tr("Reload"), this,
-//                                     SLOT( reloadGraph() ), 0, 103 ) ;
+//   _private->mySessionMenu->addAction( tr("Reload"), this,
+//                                     SLOT( reloadGraph() ) ) ;
 
-  _private->mySessionMenu->insertItem( tr("Close"), this,
-                    SLOT( deleteGraph() ), 0, 104 ) ;
+  _private->mySessionMenu->addAction(
+    tr("Close"), this, SLOT( deleteGraph() ) );
 
-  _private->mySessionMenu->insertSeparator() ;
-  _private->mySessionMenu->insertItem( tr("Save"), this,
-                    SLOT( saveGraph() ),
-                    Qt::CTRL + Qt::Key_S,
-                    105 );
+  _private->mySessionMenu->addSeparator() ;
+  _private->mySaveGraphAction = _private->mySessionMenu->addAction(
+    tr("Save"), this, SLOT( saveGraph() ), Qt::CTRL + Qt::Key_S );
 
-  _private->mySessionMenu->insertItem( tr("Save As"), this,
-                    SLOT( saveGraphAs() ),
-                    Qt::CTRL + Qt::SHIFT + Qt::Key_S,
-                    106 ) ;
+  _private->mySessionMenu->addAction(
+    tr("Save As"), this, SLOT( saveGraphAs() ),
+    Qt::CTRL + Qt::SHIFT + Qt::Key_S );
 
-  _private->mySessionMenu->insertItem( tr("Clean"), this,
-                    SLOT( cleanSession() ),
-                    Qt::CTRL + Qt::SHIFT + Qt::Key_C,
-                    107 ) ;
+  _private->mySessionMenu->addAction(
+    tr("Clean"), this, SLOT( cleanSession() ),
+    Qt::CTRL + Qt::SHIFT + Qt::Key_C );
 
-  _private->mySessionMenu->setItemEnabled( 105,
-    _private->myRoiManagementAction->savableGraph() ) ;
+  _private->mySaveGraphAction->setEnabled(
+    _private->myRoiManagementAction->savableGraph() );
 
-  _private->myMainMenu->insertItem( tr( "Session" ),
-				    _private->mySessionMenu ) ;
+  _private->myRegionMenu = _private->myMainMenu->addMenu( tr( "Region" ) );
+  _private->myRegionMenu->addAction(
+    tr("New"), this, SLOT( newRegion() ), Qt::CTRL + Qt::Key_N );
 
-  _private->myRegionMenu = new QPopupMenu ;
-  _private->myRegionMenu->insertItem( tr("New"), this,
-				      SLOT( newRegion() ),
-                                      Qt::CTRL + Qt::Key_N, 201 );
+  _private->myRegionMenu->addAction(
+    tr("Delete"), this, SLOT( deleteRegion() ), Qt::CTRL + Qt::Key_D );
+  _private->myRegionMenu->addAction(
+    tr("Fusion"), this, SLOT( regionsFusion() ) );
 
-  _private->myRegionMenu->insertItem( tr("Delete"), this,
-				      SLOT( deleteRegion() ),
-                                      Qt::CTRL + Qt::Key_D,
-				      202 ) ;
-  _private->myRegionMenu->insertItem( tr("Fusion"), this,
-				      SLOT( regionsFusion() ), 0, 203 ) ;
+  _private->myRegionMenu->addSeparator() ;
+  _private->myRegionMenu->addAction(
+    tr("Export as mask"), this, SLOT( exportAsMask() ) );
+  _private->myRegionMenu->addAction(
+    tr("Morpho Stats"), this, SLOT( regionStats() ), Qt::CTRL + Qt::Key_M );
 
-  _private->myRegionMenu->insertSeparator() ;
-  _private->myRegionMenu->insertItem( tr("Export as mask"), this,
-				      SLOT( exportAsMask() ), 0, 204 ) ;
-  _private->myRegionMenu->insertItem( tr("Morpho Stats"), this,
-				      SLOT( regionStats() ),
-                                      Qt::CTRL + Qt::Key_M, 206 ) ;
+  _private->myFrameWorkMenu
+    = _private->myMainMenu->addMenu( tr( "FrameWork" ) );
+//   _private->myFrameWorkMenu->setCheckable(true) ; // ??
+  _private->myNeuroAction = _private->myFrameWorkMenu->addAction(
+    tr("Neuro"), this, SLOT( neuroFrameWork() ) );
+  _private->myNeuroAction->setCheckable( true );
+  _private->myLateralNeuroAction = _private->myFrameWorkMenu->addAction(
+    tr("Lateral Neuro"), this, SLOT( lateralNeuroFrameWork() ) );
+  _private->myLateralNeuroAction->setCheckable( true );
+  _private->mySulciAction = _private->myFrameWorkMenu->addAction(
+    tr("Sulci"), this, SLOT( sulciFrameWork() ) );
+  _private->mySulciAction->setCheckable( true );
+  _private->myRatWbAction = _private->myFrameWorkMenu->addAction(
+    tr("Rat_wb"), this, SLOT( ratFrameWork() ) );
+  _private->myRatWbAction->setCheckable( true );
 
-  _private->myMainMenu->insertItem( tr( "Region" ), _private->myRegionMenu ) ;
+  _private->myUserDefinedFrameWorkMenu = _private->myFrameWorkMenu->addMenu(
+    tr("Personal") );
+  _private->myUserDefinedFrameWorkMenu->addAction(
+    tr("New"), this, SLOT(newUserDefinedFrameWork()) );
+  _private->myUserDefinedFrameWorkMenu->addAction(
+    tr("Load"), this, SLOT(loadUserDefinedFrameWork()) );
+  _private->myUserDefinedFrameWorkMenu->addAction(
+    tr("Save"), this, SLOT(saveUserDefinedFrameWork()) );
+  _private->myUserDefinedFrameWorkMenu->addSeparator();
+  _private->myNewRegionAction
+    = _private->myUserDefinedFrameWorkMenu->addAction(
+      tr("Define new region"), this, SLOT(defineNewFWRegionName()) );
+  _private->myNewRegionAction->setVisible(
+    _private->myRoiManagementAction->selectedHierarchy()
+      == _private->myRoiManagementAction->userDefinedHierarchy() );
+  _private->myModifyRegionNameAction
+    = _private->myUserDefinedFrameWorkMenu->addAction(
+      tr("Modify region name"), this, SLOT(modifyFWRegionName()) );
+  _private->myModifyRegionNameAction->setVisible(
+    _private->myRoiManagementAction->selectedHierarchy()
+      == _private->myRoiManagementAction->userDefinedHierarchy() );
+  _private->myModifyRegionColorAction
+    = _private->myUserDefinedFrameWorkMenu->addAction(
+      tr("Modify region color"), this, SLOT(modifyFWRegionColor()) );
+  _private->myModifyRegionColorAction->setVisible(
+    _private->myRoiManagementAction->selectedHierarchy()
+        == _private->myRoiManagementAction->userDefinedHierarchy() );
+  _private->myDeleteRegionAction =
+    _private->myUserDefinedFrameWorkMenu->addAction(
+      tr("Delete region name"), this, SLOT(deleteFWRegionName()) );
+  _private->myDeleteRegionAction->setVisible(
+    _private->myRoiManagementAction->selectedHierarchy()
+      == _private->myRoiManagementAction->userDefinedHierarchy() );
+//   _private->myUserDefinedFrameWorkMenu->addAction( tr("SaveAs"), this,
+//      SLOT(saveUserDefinedFrameWorkAs()) );
 
+  _private->myFreeFrameworkAction = _private->myFrameWorkMenu->addAction(
+    tr("Free"), this, SLOT(freeFrameWork()) );
+  _private->myFreeFrameworkAction->setCheckable( true );
 
-  _private->myFrameWorkMenu = new QPopupMenu ;
-  _private->myFrameWorkMenu->setCheckable(true) ;
-  _private->myFrameWorkMenu->insertItem( tr("Neuro"), this,
-					 SLOT( neuroFrameWork() ), 0, 301 );
-  _private->myFrameWorkMenu->insertItem( tr("Lateral Neuro"), this,
-					 SLOT( lateralNeuroFrameWork() ), 0,
-                                         302 );
-  _private->myFrameWorkMenu->insertItem( tr("Sulci"), this,
-					 SLOT( sulciFrameWork() ), 0, 303 );
-  _private->myFrameWorkMenu->insertItem( tr("Rat_wb"), this,
-					 SLOT( ratFrameWork() ), 0, 304 );
-
-  _private->myUserDefinedFrameWorkMenu = new QPopupMenu ;
-  _private->myUserDefinedFrameWorkMenu->insertItem( tr("New"), this,
-					  SLOT(newUserDefinedFrameWork()), 0, 311 ) ;
-  _private->myUserDefinedFrameWorkMenu->insertItem( tr("Load"), this,
-					  SLOT(loadUserDefinedFrameWork()), 0, 312 ) ;
-  _private->myUserDefinedFrameWorkMenu->insertItem( tr("Save"), this,
-					  SLOT(saveUserDefinedFrameWork()), 0, 313 ) ;
-  _private->myUserDefinedFrameWorkMenu->insertSeparator() ;
-  _private->myUserDefinedFrameWorkMenu->insertItem(tr("Define new region"), this,
-						   SLOT(defineNewFWRegionName()), 0, 314 ) ;
-//   cout << _private->myRoiManagementAction->selectedHierarchy() << " == (?) "
-//        <<_private->myRoiManagementAction->userDefinedHierarchy() << endl ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible( 314,
-							_private->myRoiManagementAction->selectedHierarchy()
-							== _private->myRoiManagementAction->userDefinedHierarchy() ) ;
-  _private->myUserDefinedFrameWorkMenu->insertItem(tr("Modify region name"), this,
-						   SLOT(modifyFWRegionName()), 0, 315 ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible( 315,
-							_private->myRoiManagementAction->selectedHierarchy()
-							== _private->myRoiManagementAction->userDefinedHierarchy() ) ;
-  _private->myUserDefinedFrameWorkMenu->insertItem(tr("Modify region color"), this,
-						   SLOT(modifyFWRegionColor()), 0, 316 ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible( 316,
-							_private->myRoiManagementAction->selectedHierarchy()
-							== _private->myRoiManagementAction->userDefinedHierarchy() ) ;
-  _private->myUserDefinedFrameWorkMenu->insertItem(tr("Delete region name"), this,
-						   SLOT(deleteFWRegionName()), 0, 317 ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible( 317,
-							_private->myRoiManagementAction->selectedHierarchy()
-							== _private->myRoiManagementAction->userDefinedHierarchy() ) ;
-//   _private->myUserDefinedFrameWorkMenu->insertItem( tr("SaveAs"), this,
-// 					  SLOT(saveUserDefinedFrameWorkAs()), 0, 314 ) ;
-
-  //updateRecentFrameWorksMenu( "" ) ;
-
-  _private->myFrameWorkMenu->insertItem( tr("Personnal"),
-					 _private->myUserDefinedFrameWorkMenu, 0, 305 ) ;
-
-  _private->myFrameWorkMenu->insertItem( tr("Free"), this,
-					 SLOT(freeFrameWork()), 0, 306 ) ;
-  _private->myMainMenu->insertItem( tr( "FrameWork" ),
-				    _private->myFrameWorkMenu ) ;
-
-
-  _private->myWindowMenu = new QPopupMenu ;
-  _private->myWindowMenu->insertItem( tr("Axial"), this,
-				      SLOT( createAxialWindow() ) );
-  _private->myWindowMenu->insertItem( tr("Sagittal"), this,
-				      SLOT( createSagittalWindow() ) ) ;
-  _private->myWindowMenu->insertItem( tr("Coronal"), this,
-				      SLOT( createCoronalWindow() ) ) ;
-  _private->myWindowMenu->insertItem( tr("3D"), this,
-				      SLOT( create3DWindow() ) ) ;
-
-  _private->myMainMenu->insertItem( tr( "Windows" ), _private->myWindowMenu) ;
+  _private->myWindowMenu = _private->myMainMenu->addMenu( tr( "Windows" ) );
+  _private->myWindowMenu->addAction(
+    tr("Axial"), this, SLOT( createAxialWindow() ) );
+  _private->myWindowMenu->addAction(
+    tr("Sagittal"), this, SLOT( createSagittalWindow() ) );
+  _private->myWindowMenu->addAction(
+    tr("Coronal"), this, SLOT( createCoronalWindow() ) );
+  _private->myWindowMenu->addAction(
+    tr("3D"), this, SLOT( create3DWindow() ) );
 
 
   QGridLayout *lay = new QGridLayout;
@@ -438,49 +422,69 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
 
 
   const QPixmap		*p;
-  _private->myWindowPart = new QVGroupBox( tr("Painting Views"), this );
-  lay->addWidget( _private->myWindowPart, 1, 1 );
-  _private->myWindowGrid = new QGrid(2, _private->myWindowPart) ;
+  QGroupBox *myWindowPart = new QGroupBox( tr("Painting Views"), this );
+  lay->addWidget( myWindowPart, 1, 1 );
+  QVBoxLayout *wplay = new QVBoxLayout( myWindowPart );
+  QWidget *myWindowGrid = new QWidget( myWindowPart );
+  wplay->addWidget( myWindowGrid );
+  QGridLayout *wglay = new QGridLayout( myWindowGrid );
   p = IconDictionary::instance()->getIconInstance( "axial" );
-  _private->myAxial = new QPushButton( *p, tr("Axial"), _private->myWindowGrid ) ;
+  _private->myAxial = new QPushButton( *p, tr("Axial"), myWindowGrid );
+  wglay->addWidget( _private->myAxial, 0, 0 );
 
   p = IconDictionary::instance()->getIconInstance( "sagittal" );
-  _private->mySagittal = new QPushButton( *p, tr("Sagittal"), _private->myWindowGrid ) ;
+  _private->mySagittal = new QPushButton( *p, tr("Sagittal"), myWindowGrid );
+  wglay->addWidget( _private->mySagittal, 0, 1 );
 
   p = IconDictionary::instance()->getIconInstance( "coronal" );
-  _private->myCoronal = new QPushButton( *p, tr("Coronal"), _private->myWindowGrid ) ;
+  _private->myCoronal = new QPushButton( *p, tr("Coronal"), myWindowGrid );
+  wglay->addWidget( _private->myCoronal, 1, 0 );
 
   p = IconDictionary::instance()->getIconInstance( "3D" );
-  _private->my3D = new QPushButton( *p, tr("3D"), _private->myWindowGrid ) ;
+  _private->my3D = new QPushButton( *p, tr("3D"), myWindowGrid );
+  wglay->addWidget( _private->my3D );
 
-  _private->myRegionTransparencyBox = new QHGroupBox( tr("Region Transparency"),
-						      _private->myWindowPart ) ;
+  QGroupBox *myRegionTransparencyBox = new QGroupBox(
+    tr("Region Transparency"),myWindowPart );
+  wplay->addWidget( myRegionTransparencyBox );
+  QHBoxLayout *rtlay = new QHBoxLayout( myRegionTransparencyBox );
 
   _private->myRegionTransparency =
-    new QSlider( 0, 100, 20,
-		 int(SelectFactory::selectColor().a * 100),
-		 Qt::Horizontal, _private->myRegionTransparencyBox ) ;
+    new QSlider( Qt::Horizontal, myRegionTransparencyBox );
+  _private->myRegionTransparency->setRange( 0, 100 );
+  _private->myRegionTransparency->setPageStep( 20 );
+  _private->myRegionTransparency->setValue(
+    int( SelectFactory::selectColor().a * 100 ) );
+  rtlay->addWidget( _private->myRegionTransparency );
   _private->myRegionTransparency
     ->setMinimumSize( 50, _private->myRegionTransparency->sizeHint().height() );
   _private->myRegionTransparency->setTracking(true) ;
 
   _private->myRegionTransparencyLabel =
     new QLabel( QString::number(int(SelectFactory::selectColor().a * 100)),
-		_private->myRegionTransparencyBox ) ;
+                myRegionTransparencyBox );
+  rtlay->addWidget( _private->myRegionTransparencyLabel );
 
-  _private->myGraphTransparencyBox = new QHGroupBox( tr("Graph Transparency"),
-						      _private->myWindowPart ) ;
+  QGroupBox *myGraphTransparencyBox = new QGroupBox(
+    tr("Graph Transparency"), myWindowPart );
+  wplay->addWidget( myGraphTransparencyBox );
+  QHBoxLayout *gtblay = new QHBoxLayout( myGraphTransparencyBox );
   _private->myGraphTransparency =
-    new QSlider( 0, 100, 20,
-		 int(SelectFactory::selectColor().a * 100),
-		 Qt::Horizontal, _private->myGraphTransparencyBox ) ;
+    new QSlider( Qt::Horizontal, myGraphTransparencyBox );
+  _private->myGraphTransparency->setRange( 0, 100 );
+  _private->myGraphTransparency->setPageStep( 20 );
+  _private->myGraphTransparency->setValue(
+    int( SelectFactory::selectColor().a * 100 ) );
+  gtblay->addWidget( _private->myGraphTransparency );
   _private->myGraphTransparency
     ->setMinimumSize( 50, _private->myGraphTransparency->sizeHint().height() );
   _private->myGraphTransparency->setTracking(true) ;
 
   _private->myGraphTransparencyLabel =
-    new QLabel( QString::number(int(_private->myRoiManagementAction->graphTransparency() * 100)),
-		_private->myGraphTransparencyBox ) ;
+    new QLabel( QString::number(int(
+        _private->myRoiManagementAction->graphTransparency() * 100)),
+      myGraphTransparencyBox );
+  gtblay->addWidget( _private->myGraphTransparencyLabel );
 
   set<AObject*> objs = theAnatomist->getObjects() ;
 
@@ -498,7 +502,9 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   if( selectHie == "" && (!found) )
     freeFrameWork() ;
 
-  //_private->myRefresh = new QPushButton( tr("Refresh"),  _private->myWindowPart ) ;
+  _private->mySelectGraph->setContextMenuPolicy( Qt::CustomContextMenu );
+  _private->mySelectRegion->setContextMenuPolicy( Qt::CustomContextMenu );
+  _private->mySelectImage->setContextMenuPolicy( Qt::CustomContextMenu );
 
   connect( _private->mySelectGraph, SIGNAL( currentRowChanged( int ) ),
            this, SLOT( selectGraph( int ) ) );
@@ -516,13 +522,13 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
            this, SLOT( renameRegion( QListWidgetItem * ) ) ) ;
   connect( _private->mySelectGraph,
            SIGNAL( customContextMenuRequested( const QPoint & ) ),
-           this, SLOT( contextMenu( const QPoint & ) ) ) ;
+           this, SLOT( selectGraphContextMenu( const QPoint & ) ) ) ;
   connect( _private->mySelectRegion,
            SIGNAL( customContextMenuRequested( const QPoint & ) ),
-           this, SLOT( contextMenu( const QPoint & ) ) ) ;
+           this, SLOT( selectRegionContextMenu( const QPoint & ) ) ) ;
   connect( _private->mySelectImage,
            SIGNAL( customContextMenuRequested( const QPoint & ) ),
-           this, SLOT( contextMenu( const QPoint & ) ) ) ;
+           this, SLOT( selectImageContextMenu( const QPoint & ) ) ) ;
 
   connect( _private->myAxial, SIGNAL( clicked( ) ),
 	   this, SLOT(createAxialWindow( ) ) ) ;
@@ -655,7 +661,7 @@ RoiManagementActionView::getSelectedGraphName( )
 }
 
 QStringList
-RoiManagementActionView::getCurrentHierarchyRoiNames( )
+RoiManagementActionView::getCurrentHierarchyRoiNames()
 {
   myGettingHierarchyNames = true ;
   #ifdef ANA_DEBUG
@@ -694,9 +700,9 @@ RoiManagementActionView::selectGraph( int row )
     _private->mySelectGraph->currentRow() );
 
 //   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySessionMenu->setItemEnabled( 105, true ) ;
+//     _private->mySaveGraphAction->setEnabled( true ) ;
 //   else
-//     _private->mySessionMenu->setItemEnabled( 105, false ) ;
+//     _private->mySaveGraphAction->setEnabled( false ) ;
 
   mySelectingGraph = false ;
 }
@@ -731,12 +737,13 @@ RoiManagementActionView::askName (const string& type,
                                   const string& originalName,
                                   const string& message, bool noHierarchy )
 {
-  QDialog * nameSetter = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-  nameSetter->setCaption( message.c_str() ) ;
+  QDialog * nameSetter = new QDialog( this );
+  nameSetter->setModal( true );
+  nameSetter->setWindowTitle( message.c_str() );
 
-  QVBoxLayout * l = new QVBoxLayout( nameSetter ) ;
-  QLineEdit * lineEdition = 0 ;
-  QComboBox * selectRegionName = 0 ;
+  QVBoxLayout * l = new QVBoxLayout( nameSetter );
+  QLineEdit * lineEdition = 0;
+  QComboBox * selectRegionName = 0;
 
   if( type == "FrameWork" )
   {
@@ -754,12 +761,10 @@ RoiManagementActionView::askName (const string& type,
   } else if( type == "region" && (!noHierarchy) )
   {
     //cout<< "Hierarchy" << endl ;
-    selectRegionName = new QComboBox( false, this );
+    selectRegionName = new QComboBox( this );
     l->addWidget( selectRegionName );
-    selectRegionName->insertStringList( getCurrentHierarchyRoiNames() ) ;
-    selectRegionName->setCurrentItem(0) ;
-//     selectRegionName->setAutoCompletion(true) ;
-//     lineEdition = selectRegionName->lineEdit() ;
+    selectRegionName->addItems( getCurrentHierarchyRoiNames() );
+    selectRegionName->setCurrentIndex(0) ;
   }
 
   QWidget * buttons = new QWidget( this );
@@ -776,19 +781,21 @@ RoiManagementActionView::askName (const string& type,
   cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
                                             QSizePolicy::Fixed ) );
 
-  QObject::connect( okButton , SIGNAL( clicked() ), nameSetter, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), nameSetter, SLOT( reject () ) ) ;
+  QObject::connect( okButton , SIGNAL( clicked() ),
+                    nameSetter, SLOT( accept() ) );
+  QObject::connect( cancelButton , SIGNAL( clicked() ),
+                    nameSetter, SLOT( reject() ) );
 
   string result = "" ;
   if( nameSetter->exec() )
-    {
-      if( type == "session" || noHierarchy)
-	result = (const char *) lineEdition->text()  ;
-      else
-	result = (const char *) selectRegionName->currentText() ;
-      if( result == "" )
-	result = "Unknown" ;
-    }
+  {
+    if( type == "session" || noHierarchy)
+      result = lineEdition->text().toStdString();
+    else
+      result = selectRegionName->currentText().toStdString();
+    if( result == "" )
+      result = "Unknown";
+  }
 
   #ifdef ANA_DEBUG
   cout << "Result : " << result << endl ;
@@ -799,14 +806,14 @@ RoiManagementActionView::askName (const string& type,
 }
 
 void
-RoiManagementActionView::newGraph( )
+RoiManagementActionView::newGraph()
 {
-  string name = "" ; //string ( askName("session", "", "Please enter new session's name") ) ;
-  _private->myRoiManagementAction->newGraph( name ) ;
+  string name = "" ;
+  _private->myRoiManagementAction->newGraph( name );
 }
 
 void
-RoiManagementActionView::regionStats( )
+RoiManagementActionView::regionStats()
 {
   _private->myRoiManagementAction->regionStats( ) ;
 }
@@ -814,55 +821,23 @@ RoiManagementActionView::regionStats( )
 void
 RoiManagementActionView::renameGraph( QListWidgetItem * graph )
 {
-  _private->myRoiManagementAction
-    ->renameGraph(
-      askName("session",
-              (const char *)graph->text(),
-              "Please enter new name for selected session"),
-      _private->mySelectGraph->currentRow() );
+  _private->myRoiManagementAction->renameGraph(
+    askName( "session", graph->text().toStdString(),
+              "Please enter new name for selected session" ),
+    _private->mySelectGraph->currentRow() );
 }
 
 void
-RoiManagementActionView::deleteGraph( )
+RoiManagementActionView::deleteGraph()
 {
-  QDialog * warning = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-//   warning->setFixedSize( 400, 60 ) ;
-
-  QVBoxLayout * l = new QVBoxLayout( warning ) ;
-
-  l->addWidget( new QLabel(
+  QMessageBox::StandardButton result = QMessageBox::warning(
+    this, tr( "Delete ROI session" ),
     tr( "If you close this session, all modifications since your last save will be lost. \nDo you still want to proceed ?" ),
-    warning ) );
-  QWidget *buttons = new QWidget( warning );
-  l->addWidget(buttons);
-  QHBoxLayout *blay = new QHBoxLayout( buttons );
-  QPushButton * okButton = new QPushButton( "Ok", buttons );
-  blay->addWidget( okButton );
-  okButton->setDefault( true );
-  okButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-                                        QSizePolicy::Fixed ) );
-  QPushButton * cancelButton = new QPushButton( "Cancel", buttons );
-  blay->addWidget( cancelButton );
-  cancelButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-                                            QSizePolicy::Fixed ) );
-
-  QObject::connect( okButton , SIGNAL( clicked() ), warning, SLOT( accept () ) ) ;
-  QObject::connect( cancelButton , SIGNAL( clicked( ) ), warning, SLOT( reject () ) ) ;
-
-  string result ;
-  if( !warning->exec() )
-    {
-      delete warning ;
-      return ;
-    }
-  delete warning ;
+    QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel );
+  if( result != QMessageBox::Ok )
+    return;
 
   _private->myRoiManagementAction->deleteGraph( ) ;
-
-//   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySessionMenu->setItemEnabled( 105, true ) ;
-//   else
-//     _private->mySessionMenu->setItemEnabled( 105, false ) ;
 }
 
 void
@@ -885,7 +860,7 @@ RoiManagementActionView::loadGraph( )
 
   QFileDialog	& fd = anatomist::fileDialog();
   fd.setNameFilter( filt );
-  fd.setCaption( capt );
+  fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
   if( !fd.exec() )
     return;
@@ -894,9 +869,9 @@ RoiManagementActionView::loadGraph( )
   _private->myRoiManagementAction->loadGraph( filenames ) ;
 
 //   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySessionMenu->setItemEnabled( 105, true ) ;
+//     _private->mySaveGraphAction->setEnabled( true ) ;
 //   else
-//     _private->mySessionMenu->setItemEnabled( 105, false ) ;
+//     _private->mySaveGraphAction->setEnabled( false ) ;
 
 //   selectGraph( graph ) ;
 //   selectRegion( region ) ;
@@ -908,9 +883,9 @@ RoiManagementActionView::saveGraphAs( )
   _private->myRoiManagementAction->saveGraphAs( ) ;
 
   if( _private->myRoiManagementAction->savableGraph() )
-    _private->mySessionMenu->setItemEnabled( 105, true ) ;
+    _private->mySaveGraphAction->setEnabled( true );
   else
-    _private->mySessionMenu->setItemEnabled( 105, false ) ;
+    _private->mySaveGraphAction->setEnabled( false );
 }
 
 void
@@ -944,16 +919,16 @@ RoiManagementActionView::selectRegion( int row )
 void
 RoiManagementActionView::newRegion( )
 {
-  string regionName = askName("region", "", "Please enter new region's name",
-                         _private->myFrameWorkMenu->
-			isItemChecked(RoiManagementActionView_Private::FREE) ) ;
+  string regionName = askName(
+    "region", "", "Please enter new region's name",
+    _private->myFreeFrameworkAction->isChecked() );
   if( regionName != "" )
     _private->myRoiManagementAction->newRegion( regionName ) ;
 
 //   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySessionMenu->setItemEnabled( 105, true ) ;
+//     _private->mySaveGraphAction->setEnabled( true );
 //   else
-//     _private->mySessionMenu->setItemEnabled( 105, false ) ;
+//     _private->mySaveGraphAction->setEnabled( false );
 }
 
 void
@@ -962,10 +937,9 @@ RoiManagementActionView::renameRegion( QListWidgetItem * region )
   _private->myRoiManagementAction->renameRegion(
     askName(
       "region",
-      (const char*)region->text(),
+      region->text().toStdString(),
       "Please enter selected region's new name",
-      _private->myFrameWorkMenu->
-      isItemChecked(RoiManagementActionView_Private::FREE) ),
+      _private->myFreeFrameworkAction->isChecked() ),
     _private->mySelectRegion->currentRow() ) ;
 }
 
@@ -1012,98 +986,100 @@ void
 RoiManagementActionView::neuroFrameWork()
 {
   cout << "Neuro Framework" << endl ;
-  _private->myFrameWorkMenu->setItemChecked ( 301, true ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 302, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 303, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 304, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 305, false ) ;
-  _private->myFrameWorkMenu->changeItem(305, "User Defined") ;
-  _private->myFrameWorkMenu->setItemChecked ( 306, false ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(314, false) ;
-#ifdef ANA_DEBUG
-  cout << ( _private->myUserDefinedFrameWorkMenu->isItemEnabled(314) ? "enabled" : "disabled" )
-       << endl ;
-#endif
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(315, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(316, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
-  _private->myRoiManagementAction->selectHierarchy( "neuronames.hie", 301 ) ;
+  _private->myNeuroAction->setChecked( true );
+  _private->myLateralNeuroAction->setChecked( false );
+  _private->mySulciAction->setChecked( false );
+  _private->myRatWbAction->setChecked( false );
+//   _private->myUserDefinedFrameWorkMenu->setChecked( false );
+  _private->myUserDefinedFrameWorkMenu->setTitle( tr( "User Defined" ) );
+  _private->myFreeFrameworkAction->setChecked( false );
+  _private->myNewRegionAction->setVisible( false );
+  _private->myModifyRegionNameAction->setVisible( false );
+  _private->myModifyRegionColorAction->setVisible( false );
+  _private->myDeleteRegionAction->setVisible( false );
+  // FIXME: remove this hieId 301
+  _private->myRoiManagementAction->selectHierarchy(
+    "neuronames.hie", RoiManagementActionView_Private::NEURO ) ;
 }
 
 void
 RoiManagementActionView::lateralNeuroFrameWork()
 {
   cout << "Lateral Neuro Framework" << endl ;
-  _private->myFrameWorkMenu->setItemChecked ( 301, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 302, true ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 303, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 304, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 305, false ) ;
-  _private->myFrameWorkMenu->changeItem(305, "User Defined") ;
-  _private->myFrameWorkMenu->setItemChecked ( 306, false ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(314, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(315, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(316, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
+  _private->myNeuroAction->setChecked( false );
+  _private->myLateralNeuroAction->setChecked( true );
+  _private->mySulciAction->setChecked( false );
+  _private->myRatWbAction->setChecked( false );
+//   _private->myUserDefinedFrameWorkMenu->setChecked( false );
+  _private->myUserDefinedFrameWorkMenu->setTitle( tr( "User Defined" ) );
+  _private->myFreeFrameworkAction->setChecked( false );
+  _private->myNewRegionAction->setVisible( false );
+  _private->myModifyRegionNameAction->setVisible( false );
+  _private->myModifyRegionColorAction->setVisible( false );
+  _private->myDeleteRegionAction->setVisible( false );
 
-  _private->myRoiManagementAction->selectHierarchy( "lateral_neuronames.hie", 302 ) ;
+  _private->myRoiManagementAction->selectHierarchy(
+    "lateral_neuronames.hie", RoiManagementActionView_Private::LATERALNEURO );
 }
 
 void
 RoiManagementActionView::sulciFrameWork()
 {
-  cout << "Sulci Framework" << endl ;
-  _private->myFrameWorkMenu->setItemChecked ( 301, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 302, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 303, true ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 304, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 305, false ) ;
-  _private->myFrameWorkMenu->changeItem(305, "User Defined") ;
-  _private->myFrameWorkMenu->setItemChecked ( 306, false ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(314, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(315, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(316, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
+  cout << "Sulci Framework" << endl;
+  _private->myNeuroAction->setChecked( false );
+  _private->myLateralNeuroAction->setChecked( false );
+  _private->mySulciAction->setChecked( true );
+  _private->myRatWbAction->setChecked( false );
+//   _private->myUserDefinedFrameWorkMenu->setChecked( false ) ;
+  _private->myUserDefinedFrameWorkMenu->setTitle( tr( "User Defined" ) );
+  _private->myFreeFrameworkAction->setChecked( false );
+  _private->myNewRegionAction->setVisible( false );
+  _private->myModifyRegionNameAction->setVisible( false );
+  _private->myModifyRegionColorAction->setVisible( false );
+  _private->myDeleteRegionAction->setVisible( false );
 
-  _private->myRoiManagementAction->selectHierarchy( "sulcal_root_colors.hie", 303 ) ;
+  _private->myRoiManagementAction->selectHierarchy(
+    "sulcal_root_colors.hie", RoiManagementActionView_Private::SULCI );
 }
 
 void
 RoiManagementActionView::ratFrameWork()
 {
   cout << "Rat Framework" << endl ;
-  _private->myFrameWorkMenu->setItemChecked ( 301, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 302, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 303, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 304, true ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 305, false ) ;
-  _private->myFrameWorkMenu->changeItem(305, "User Defined") ;
-  _private->myFrameWorkMenu->setItemChecked ( 306, false ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(314, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(315, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(316, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
+  _private->myNeuroAction->setChecked( false );
+  _private->myLateralNeuroAction->setChecked( false );
+  _private->mySulciAction->setChecked( false );
+  _private->myRatWbAction->setChecked( true );
+//   _private->myUserDefinedFrameWorkMenu->setChecked( false );
+  _private->myUserDefinedFrameWorkMenu->setTitle( tr( "User Defined" ) );
+  _private->myFreeFrameworkAction->setChecked( false );
+  _private->myNewRegionAction->setVisible( false );
+  _private->myModifyRegionNameAction->setVisible( false );
+  _private->myModifyRegionColorAction->setVisible( false );
+  _private->myDeleteRegionAction->setVisible( false );
 
-  _private->myRoiManagementAction->selectHierarchy( "rat_wb.hie", 304 ) ;
+  _private->myRoiManagementAction->selectHierarchy(
+    "rat_wb.hie", RoiManagementActionView_Private::RAT_WB ) ;
 }
 
 void
 RoiManagementActionView::freeFrameWork()
 {
   cout << "Free Framework" << endl ;
-  _private->myFrameWorkMenu->setItemChecked ( 301, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 302, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 303, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 304, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 305, false ) ;
-  _private->myFrameWorkMenu->changeItem(305, "User Defined") ;
-  _private->myFrameWorkMenu->setItemChecked ( 306, true ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(314, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(315, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(316, false) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
+  _private->myNeuroAction->setChecked( false );
+  _private->myLateralNeuroAction->setChecked( false );
+  _private->mySulciAction->setChecked( false );
+  _private->myRatWbAction->setChecked( false );
+//   _private->myUserDefinedFrameWorkMenu->setChecked( false );
+  _private->myUserDefinedFrameWorkMenu->setTitle( tr( "User Defined" ) );
+  _private->myFreeFrameworkAction->setChecked( true );
+  _private->myNewRegionAction->setVisible( false );
+  _private->myModifyRegionNameAction->setVisible( false );
+  _private->myModifyRegionColorAction->setVisible( false );
+  _private->myDeleteRegionAction->setVisible( false );
 
-  _private->myRoiManagementAction->selectHierarchy( "Free", 306 ) ;
+  _private->myRoiManagementAction->selectHierarchy(
+    "Free", RoiManagementActionView_Private::FREE ) ;
 
 }
 
@@ -1111,19 +1087,21 @@ void
 RoiManagementActionView::newUserDefinedFrameWork()
 {
   cout << "New Personal Framework" << endl ;
-  _private->myFrameWorkMenu->setItemChecked ( 301, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 302, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 303, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 304, false ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 305, true ) ;
-  _private->myFrameWorkMenu->setItemChecked ( 306, false ) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(314, true) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(315, true) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(316, true) ;
-  _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
+  _private->myNeuroAction->setChecked( false );
+  _private->myLateralNeuroAction->setChecked( false );
+  _private->mySulciAction->setChecked( false );
+  _private->myRatWbAction->setChecked( false );
+//   _private->myUserDefinedFrameWorkMenu->setChecked( true );
+  _private->myUserDefinedFrameWorkMenu->setTitle(
+    QString::fromUtf8( "\xe2\x9c\x93  " ) + tr( "User Defined" ) );
+  _private->myFreeFrameworkAction->setChecked( false ) ;
+  _private->myNewRegionAction->setVisible( true );
+  _private->myModifyRegionNameAction->setVisible( true );
+  _private->myModifyRegionColorAction->setVisible( true );
+  _private->myDeleteRegionAction->setVisible( false );
   string newFName ;
   newFName = askName( "FrameWork", "",
-		      tr("Please enter new framework's name").utf8().data(),
+		      tr("Please enter new framework's name").toStdString(),
 		      true ) ;
   if( newFName != "" )
     _private->myRoiManagementAction->newUDHierarchy( newFName ) ;
@@ -1133,7 +1111,7 @@ RoiManagementActionView::newUserDefinedFrameWork()
 void
 RoiManagementActionView::loadUserDefinedFrameWork()
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "Load Personal Framework" << endl ;
 #endif
 
@@ -1149,30 +1127,35 @@ RoiManagementActionView::loadUserDefinedFrameWork()
 
   QFileDialog	& fd = anatomist::fileDialog();
   fd.setNameFilter( filt );
-  fd.setCaption( capt );
+  fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
-  fd.setDir(QDir( (Settings::localPath() + FileUtil::separator()
-                   + "frameworks/").c_str(),
-                  QString("*.hie") ) ) ;
+  fd.setDirectory(QDir( (Settings::localPath() + FileUtil::separator()
+                        + "frameworks/").c_str(),
+                        QString("*.hie") ) );
   if( !fd.exec() )
     return;
 
   QStringList filenames = fd.selectedFiles();
-  string udhiename =  _private->myRoiManagementAction->loadUDHierarchy(filenames[0].utf8().data()) ;
-  _private->myFrameWorkMenu->changeItem( 305, QString(udhiename.c_str()) ) ;
+  string udhiename
+    = _private->myRoiManagementAction->loadUDHierarchy(
+      filenames[0].toStdString());
+  _private->myUserDefinedFrameWorkMenu->setTitle( QString(udhiename.c_str()) );
 
-  if( udhiename != "" ){
-    _private->myFrameWorkMenu->setItemChecked ( 301, false ) ;
-    _private->myFrameWorkMenu->setItemChecked ( 302, false ) ;
-    _private->myFrameWorkMenu->setItemChecked ( 303, false ) ;
-    _private->myFrameWorkMenu->setItemChecked ( 304, false ) ;
-    _private->myFrameWorkMenu->setItemChecked ( 305, true ) ;
-    _private->myFrameWorkMenu->setItemChecked ( 306, false ) ;
-    _private->myUserDefinedFrameWorkMenu->setItemVisible(314, true) ;
-    _private->myUserDefinedFrameWorkMenu->setItemVisible(315, true) ;
-    _private->myUserDefinedFrameWorkMenu->setItemVisible(316, true) ;
-    _private->myUserDefinedFrameWorkMenu->setItemVisible(317,
-                 !_private->myRoiManagementAction->getHierarchyNames().empty()  ) ;
+  if( udhiename != "" )
+  {
+    _private->myNeuroAction->setChecked( false );
+    _private->myLateralNeuroAction->setChecked( false );
+    _private->mySulciAction->setChecked( false );
+    _private->myRatWbAction->setChecked( false );
+//     _private->myUserDefinedFrameWorkMenu->setChecked( true );
+    _private->myUserDefinedFrameWorkMenu->setTitle(
+      QString::fromUtf8( "\xe2\x9c\x93  " ) + tr( "User defined" ) );
+    _private->myFreeFrameworkAction->setChecked( false ) ;
+    _private->myNewRegionAction->setVisible( true );
+    _private->myModifyRegionNameAction->setVisible( true );
+    _private->myModifyRegionColorAction->setVisible( true );
+    _private->myDeleteRegionAction->setVisible(
+      !_private->myRoiManagementAction->getHierarchyNames().empty() );
   }
 }
 
@@ -1193,10 +1176,9 @@ RoiManagementActionView::defineNewFWRegionName()
     QColor col = QColorDialog::getColor() ;
 
     if( col.isValid() ){
-      _private->myRoiManagementAction->defineNewFWRegionName( name,
-							      col.red(),
-							      col.green(), col.blue() ) ;
-      _private->myUserDefinedFrameWorkMenu->setItemVisible(317, true) ;
+      _private->myRoiManagementAction->defineNewFWRegionName(
+        name, col.red(), col.green(), col.blue() );
+      _private->myDeleteRegionAction->setVisible( true );
     }
   }
 }
@@ -1212,25 +1194,26 @@ RoiManagementActionView::deleteFWRegionName()
       _private->myRoiManagementAction->deleteFWRegionName( name ) ;
 
   if( _private->myRoiManagementAction->getHierarchyNames().empty() )
-    _private->myUserDefinedFrameWorkMenu->setItemVisible(317, false) ;
+    _private->myDeleteRegionAction->setVisible( false );
 }
 
 void
 RoiManagementActionView::modifyFWRegionName()
 {
-  QDialog * nameSetter = new QDialog( this, "", true, Qt::WStyle_Title ) ;
-  nameSetter->setCaption( tr("Modify Frame Work Region Name") ) ;
+  QDialog * nameSetter = new QDialog( this );
+  nameSetter->setModal( true );
+  nameSetter->setWindowTitle( tr( "Modify Frame Work Region Name" ) );
 
-  QVBoxLayout * l = new QVBoxLayout( nameSetter ) ;
+  QVBoxLayout * l = new QVBoxLayout( nameSetter );
   l->setMargin( 5 );
   l->setSpacing( 5 );
   QLineEdit * lineEdition = 0 ;
-  QComboBox * selectRegionName = 0 ;
+  QComboBox * selectRegionName = 0;
 
-  selectRegionName = new QComboBox( false, nameSetter );
+  selectRegionName = new QComboBox( nameSetter );
   l->addWidget( selectRegionName );
-  selectRegionName->insertStringList( getCurrentHierarchyRoiNames() ) ;
-  selectRegionName->setCurrentItem(0) ;
+  selectRegionName->addItems( getCurrentHierarchyRoiNames() );
+  selectRegionName->setCurrentIndex(0);
 
   lineEdition = new QLineEdit( selectRegionName->currentText(), nameSetter );
   l->addWidget( lineEdition );
@@ -1262,12 +1245,13 @@ RoiManagementActionView::modifyFWRegionName()
 
   string newName, oldName ;
   if( nameSetter->exec() )
-    {
-      newName = (const char *) lineEdition->text()  ;
-      oldName = (const char *) selectRegionName->currentText() ;
-      if( newName != oldName && newName != "" )
-	_private->myRoiManagementAction->modifyUDFWRegionName(oldName, newName) ;
-    }
+  {
+    newName = lineEdition->text().toStdString();
+    oldName = selectRegionName->currentText().toStdString();
+    if( newName != oldName && newName != "" )
+      _private->myRoiManagementAction->modifyUDFWRegionName(
+        oldName, newName );
+  }
   delete nameSetter ;
 }
 
@@ -1275,7 +1259,7 @@ void
 RoiManagementActionView::modifyFWRegionColor()
 {
   string name = askName("region", "", tr("Choose the name of the region\n"
-			"whose color you want to change").utf8().data(), false ) ;
+			"whose color you want to change").toStdString(), false ) ;
   QColor col = QColorDialog::getColor() ;
   if( col.isValid() )
     _private->myRoiManagementAction->modifyUDFWRegionColor( name, col.red(), col.green(),
@@ -1355,18 +1339,30 @@ RoiManagementActionView::update( const anatomist::Observable *,
   int id = _private->myRoiManagementAction->selectedHierarchyId() ;
 
   if (!(myUpdatingFlag || mySelectingGraph || mySelectingImage || mySelectingRegion )  ){
-    _private->myFrameWorkMenu->setItemChecked( 301, id == 301 ? true : false ) ;
-    _private->myFrameWorkMenu->setItemChecked( 303, id == 303 ? true : false ) ;
-    _private->myFrameWorkMenu->setItemChecked( 304, id == 304 ? true : false ) ;
-    _private->myFrameWorkMenu->setItemChecked( 305, id == 305 ? true : false ) ;
-    _private->myFrameWorkMenu->setItemChecked( 306, id == 306 ? true : false ) ;
+    _private->myNeuroAction->setChecked(
+      id == RoiManagementActionView_Private::NEURO ? true : false );
+    _private->myLateralNeuroAction->setChecked(
+      id == RoiManagementActionView_Private::LATERALNEURO ? true : false );
+    _private->mySulciAction->setChecked(
+      id == RoiManagementActionView_Private::SULCI ? true : false );
+    _private->myRatWbAction->setChecked(
+      id == RoiManagementActionView_Private::RAT_WB ? true : false );
+//     _private->myUserDefinedFrameWorkMenu->setChecked(
+//       id == RoiManagementActionView_Private::USERDEFINED ? true : false ) ;
+    _private->myUserDefinedFrameWorkMenu->setTitle(
+      ( id == RoiManagementActionView_Private::USERDEFINED ?
+          QString::fromUtf8( "\xe2\x9c\x93  " ) : QString() )
+      + tr( "User defined" ) );
+    _private->myFreeFrameworkAction->setChecked(
+      id == RoiManagementActionView_Private::FREE ? true : false );
   }
   if( _private->myRoiManagementAction->savableGraph() )
-    _private->mySessionMenu->setItemEnabled( 105, true ) ;
+    _private->mySaveGraphAction->setEnabled( true );
   else
-    _private->mySessionMenu->setItemEnabled( 105, false ) ;
+    _private->mySaveGraphAction->setEnabled( false );
 
-  if( !mySelectingGraph && !myGettingGraphNames ){
+  if( !mySelectingGraph && !myGettingGraphNames )
+  {
     QStringList graphNames = getGraphNames() ;
     if ( graphNames != myGraphNames ){
       myGraphNames = graphNames ;
@@ -1465,14 +1461,31 @@ RoiManagementActionView::graphTransparencyChange( int alpha )
 
 void RoiManagementActionView::contextMenu( const QPoint & pos )
 {
-  cout << "contextMenu !\n";
   QMenu pop;
   pop.addMenu( _private->mySessionMenu );
   pop.addMenu( _private->myRegionMenu );
   pop.addMenu( _private->myFrameWorkMenu );
-  pop.addMenu( _private->myUserDefinedFrameWorkMenu );
+  // pop.addMenu( _private->myUserDefinedFrameWorkMenu );
   pop.addMenu( _private->myWindowMenu );
   pop.exec( pos );
+}
+
+
+void RoiManagementActionView::selectGraphContextMenu( const QPoint & pos )
+{
+  contextMenu( _private->mySelectGraph->mapToGlobal( pos ) );
+}
+
+
+void RoiManagementActionView::selectRegionContextMenu( const QPoint & pos )
+{
+  contextMenu( _private->mySelectRegion->mapToGlobal( pos ) );
+}
+
+
+void RoiManagementActionView::selectImageContextMenu( const QPoint & pos )
+{
+  contextMenu( _private->mySelectImage->mapToGlobal( pos ) );
 }
 
 
@@ -1491,7 +1504,8 @@ RoiManagementActionSharedData::RoiManagementActionSharedData()
     myHierarchyNamesChanged(true), myGraphNamesChanged(true),
     myImageNamesChanged(true), myCurrentGraphRegionsChanged(true),
     myCurrentHierarchyRoiNamesChanged(true), mySelectedHierarchy(""),
-    mySelectedHierarchyId(301), myGraphName(""), myCurrentGraph(""),
+    mySelectedHierarchyId( RoiManagementActionView_Private::NEURO ),
+    myGraphName(""), myCurrentGraph(""),
     myCurrentGraphId(-1), myCurrentImage(""), myCurrentImageId(-1),
     myRegionName(""), myPartialRegionName(""), myCurrentRegionId(-1)
 {
@@ -1842,7 +1856,7 @@ RoiManagementAction::getCurrentGraphRegions()
 }
 
 set<string>
-RoiManagementAction::getCurrentHierarchyRoiNames( )
+RoiManagementAction::getCurrentHierarchyRoiNames()
 {
   #ifdef ANA_DEBUG
   cout << "RoiManagementAction::getCurrentHierarchyRoiNames()" << endl ;
@@ -1991,8 +2005,10 @@ RoiManagementAction::loadHierarchy( )
   cout << "RoiManagementAction::loadHierarchy()" << endl ;
 #endif
 
-  string filter = (const char *) (ControlWindow::tr( "Hierarchies" ) + " (*.hie)" ) ;
-  string caption = (const char *) RoiManagementActionView::tr( "Load Hierarchy" ) ;
+  string filter = ControlWindow::tr( "Hierarchies" ).toStdString()
+    + " (*.hie)";
+  string caption = RoiManagementActionView::tr(
+    "Load Hierarchy" ).toStdString();
 
   ControlWindow::theControlWindow()->loadObject( filter, caption ) ;
 
@@ -2054,7 +2070,8 @@ RoiManagementAction::newUDHierarchy( const string& name )
 
   _sharedData->myUserDefinedHierarchy = newUserDefHie ;
   _sharedData->mySelectedHierarchy = newUserDefHie ;
-  _sharedData->mySelectedHierarchyId = 305 ;
+  _sharedData->mySelectedHierarchyId
+    = RoiManagementActionView_Private::USERDEFINED;
 
   _sharedData->myCurrentHierarchyRoiNamesChanged = true ;
 
@@ -2078,10 +2095,12 @@ RoiManagementAction::loadUDHierarchy( const string& hierarchyName )
   theProcessor->execute( cmd4 ) ;
 
   AObject * loadedObj = cmd4->loadedObject() ;
-  loadedObj->setFileName( (const char*)(QFileInfo(hierarchyName.c_str()).fileName()) ) ;
+  loadedObj->setFileName(
+    QFileInfo( hierarchyName.c_str() ).fileName().toStdString() );
 
   string newUserDefHie =
-    theAnatomist->makeObjectName( (const char*)(QFileInfo(hierarchyName.c_str()).fileName()) ) ; ;
+    theAnatomist->makeObjectName(
+      QFileInfo( hierarchyName.c_str() ).fileName().toStdString() );
   loadedObj->setName(newUserDefHie) ;
   theAnatomist->registerObject(loadedObj) ;
   //theAnatomist->registerObjectName(name, hie) ;
@@ -2119,7 +2138,8 @@ RoiManagementAction::loadUDHierarchy( const string& hierarchyName )
   }
   _sharedData->myUserDefinedHierarchy = newUserDefHie ;
   _sharedData->mySelectedHierarchy = _sharedData->myUserDefinedHierarchy ;
-  _sharedData->mySelectedHierarchyId = 305 ;
+  _sharedData->mySelectedHierarchyId
+    = RoiManagementActionView_Private::USERDEFINED;
 
   _sharedData->myCurrentHierarchyRoiNamesChanged = true ;
 
@@ -2150,8 +2170,9 @@ RoiManagementAction::saveUDHierarchy( )
               + "frameworks" ).c_str() );
   // std::cerr << "3" << std::endl ;
   if( !dir.exists() )
-    if( ! dir.mkdir(string(Settings::localPath() + FileUtil::separator()
-			   + "frameworks").c_str(), true) )
+    if( ! dir.mkdir(
+        string( Settings::localPath() + FileUtil::separator()
+        + "frameworks" ).c_str() ) )
       return false ;
 
   // std::cerr << "4" << std::endl ;
@@ -2581,11 +2602,11 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 
   for ( QStringList::ConstIterator it = filenames.begin();
         it != filenames.end(); ++it ) {
-    command = new LoadObjectCommand( (*it).utf8().data(), -1, "", false, options );
+    command = new LoadObjectCommand( (*it).toStdString(), -1, "", false, options );
     theProcessor->execute( command );
     loadedObj = command->loadedObject() ;
     if( loadedObj )
-      loadedObj->setFileName( (*it).utf8().data() ) ;
+      loadedObj->setFileName( (*it).toStdString() ) ;
   }
   if( !command )
     return ;
@@ -2765,11 +2786,9 @@ RoiManagementAction::saveGraphAs( )
   set<AObject*> toSave ;
   toSave.insert( graph ) ;
   string fileName =
-    ObjectActions::specificSaveStatic( toSave,
-				       string( ( const char * )
-                                               (ControlWindow::tr( "Graphs" )
-                                                + " (*.arg)" ) ),
-				       string( "Save ROI Graph" ) ) ;
+    ObjectActions::specificSaveStatic(
+      toSave, ControlWindow::tr( "Graphs" ).toStdString() + " (*.arg)",
+      ControlWindow::tr( "Save ROI Graph" ).toStdString() );
 }
 
 void

@@ -297,14 +297,14 @@ RoiBaseModule::setGraphName( const set<AObject *> & obj )
     AWarning("Please choose only one roi graph to rename.") ;
     return ;
   }
-  
-  const char * roiName ( RoiBaseModule::askName("graph", (*found)->name()  ) ) ;
-  
-  theAnatomist->unregisterObjectName( (*found)->name() ) ;
-  // (*found)->setFileName( roiName ) ;
+
+  string roiName ( RoiBaseModule::askName( "graph", (*found)->name() ) );
+
+  theAnatomist->unregisterObjectName( (*found)->name() );
+  // (*found)->setFileName( roiName );
   (*found)->setFileName( "" );
-  (*found)->setName( theAnatomist->makeObjectName( string(roiName) ) ) ;
-  theAnatomist->registerObjectName( (*found)->name(), (*found) ) ;
+  (*found)->setName( theAnatomist->makeObjectName( roiName ) );
+  theAnatomist->registerObjectName( (*found)->name(), (*found) );
   
   theAnatomist->NotifyObjectChange( *found ) ;
 }
@@ -333,40 +333,40 @@ RoiBaseModule::setGraphObjectName( const set<AObject *> & obj )
     AWarning("Please choose only one roi region to rename.") ;
     return ;
   }
+
+  string roiName ( RoiBaseModule::askName("graph node", (*found)->name() ) );
+
+  theAnatomist->unregisterObjectName( (*found)->name() );
+  (*found)->setFileName( roiName );
+  (*found)->setName( theAnatomist->makeObjectName( roiName ) );
+  theAnatomist->registerObjectName( (*found)->name(), (*found) );
   
-  const char * roiName ( RoiBaseModule::askName("graph node", (*found)->name() ) );
-  
-  theAnatomist->unregisterObjectName( (*found)->name() ) ;
-  (*found)->setFileName( roiName ) ;
-  (*found)->setName( theAnatomist->makeObjectName( string(roiName) ) ) ;
-  theAnatomist->registerObjectName( (*found)->name(), (*found) ) ;
-  
-  theAnatomist->NotifyObjectChange( *found ) ;
+  theAnatomist->NotifyObjectChange( *found );
 }
 
 
-const char *
+string
 RoiBaseModule::askName( const string & type, const string& originalName )
 {
-  string message("Enter ") ;
-  message += type ;
-  message += string(" name") ;
-  QDialog * nameSetter = new QDialog( 0, "", true ) ;
-  nameSetter->setCaption( message.c_str() ) ;
+  string message( "Enter ");
+  message += type;
+  message += string( " name");
+  QDialog * nameSetter = new QDialog( 0 );
+  nameSetter->setModal( true );
+  nameSetter->setWindowTitle( message.c_str() );
   nameSetter->setMinimumSize( 250, 30 ) ;
-  QLineEdit * lineEdition= new QLineEdit( QString( originalName.c_str() ), 
-					  nameSetter/*, message.c_str()*/ ) ;
+  QLineEdit * lineEdition= new QLineEdit( QString( originalName.c_str() ),
+                                          nameSetter/*, message.c_str()*/ );
   lineEdition->setMinimumWidth(250) ;
-  QObject::connect( lineEdition , SIGNAL(  returnPressed( ) ), nameSetter, 
-		    SLOT( accept ( ) ) ) ;
+  QObject::connect( lineEdition, SIGNAL( returnPressed() ),
+                    nameSetter, SLOT( accept () ) );
   if( nameSetter->exec() )
-    {
-      (const char *) lineEdition->text()  ;
-      if( string( "" ) == lineEdition->text().utf8().data() )
-	return "Unknown" ;
-      return lineEdition->text() ;
-    }
-  return "Unknown" ;
+  {
+    if( string( "" ) == lineEdition->text().toStdString() )
+      return "Unknown";
+    return lineEdition->text().toStdString();
+  }
+  return "Unknown";
 }
 
 void

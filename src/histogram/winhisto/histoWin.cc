@@ -37,10 +37,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/window/winFactory.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
 #include <qlayout.h>
-#include <aims/qtcompat/qvbuttongroup.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qcolor.h>
@@ -88,12 +85,14 @@ QAHistogramWindow::QAHistogramWindow( QWidget *p, const char *name,
   : QAWindow( p, name, options, f ), d( new Private )
 {
   assert( theAnatomist );
-  setCaption( "Histogram" );
+  QWidget::setWindowTitle( tr( "Histogram" ) );
+  setAttribute( Qt::WA_DeleteOnClose );
 
   x_curve = 0;
 
-  QHBox	*hb = new QHBox( this );
-  hb->setSpacing( 5 );
+  QWidget *hb = new QWidget( this );
+  QHBoxLayout *hlay = new QHBoxLayout( hb );
+  hlay->setSpacing( 5 );
   setCentralWidget( hb );
 
 #if QWT_VERSION >= 0x050000
@@ -101,6 +100,7 @@ QAHistogramWindow::QAHistogramWindow( QWidget *p, const char *name,
 #else
   graphic = new QwtPlot( hb, "histogram" );
 #endif
+  hlay->addWidget( graphic );
   graphic->setAutoReplot( true );
   graphic->setFixedSize( (int)histogramWidth, (int)histogramHeight );
   graphic->setAxisTitle( QwtPlot::yLeft, "Opportunities" );
@@ -165,10 +165,7 @@ int QAHistogramWindow::registerClass()
 AWindow *QAHistogramWindow::createHistogramWindow( void* dock, Object options )
 {
   QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f  = Qt::WType_TopLevel | Qt::WDestructiveClose;
-  if( dock )
-    f = 0;
-  QAHistogramWindow *qapw = new QAHistogramWindow( dk, "Histogram", options, f );
+  QAHistogramWindow *qapw = new QAHistogramWindow( dk, "Histogram", options );
   qapw->show();
   if( dk )
     dk->resize( dk->sizeHint() );

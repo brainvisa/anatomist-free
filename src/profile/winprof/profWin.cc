@@ -86,7 +86,8 @@ QAProfileWindow::QAProfileWindow( QWidget *p, const char *name,
   : QAWindow( p, name, options, f ), d( new Private )
 {
   assert( theAnatomist );
-  setCaption( "Profile" );
+  QWidget::setWindowTitle( "Profile" );
+  setAttribute( Qt::WA_DeleteOnClose );
 
   x_curve = 0;
   pdim = 0;
@@ -197,10 +198,7 @@ int QAProfileWindow::registerClass()
 AWindow *QAProfileWindow::createProfileWindow( void* dock, Object options )
 {
   QWidget	*dk = (QWidget *) dock;
-  Qt::WFlags	f  = Qt::WType_TopLevel | Qt::WDestructiveClose;
-  if( dock )
-    f = 0;
-  QAProfileWindow *qapw = new QAProfileWindow( dk, "Profile", options, f );
+  QAProfileWindow *qapw = new QAProfileWindow( dk, "Profile", options );
   qapw->show();
   if( dk )
     dk->resize( dk->sizeHint() );

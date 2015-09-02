@@ -107,6 +107,9 @@ private slots :
   void renameRegion( QListWidgetItem * ) ;
   void selectImage( int ) ;
   void contextMenu( const QPoint & );
+  void selectGraphContextMenu( const QPoint & );
+  void selectRegionContextMenu( const QPoint & );
+  void selectImageContextMenu( const QPoint & );
   void newGraph( ) ;
   void deleteGraph( ) ;
   void loadGraph( ) ;

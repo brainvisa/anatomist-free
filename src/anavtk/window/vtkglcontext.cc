@@ -144,9 +144,9 @@ void *vtkGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     QGLFormat format = QGLFormat::defaultFormat();
     if ( shareWidget )
       setContext( new vtkGLContext( format, this ), shareWidget->context() );
-  else
-    setContext( new vtkGLContext( format, this ) );
-    setBackgroundMode( Qt::NoBackground );
+    else
+      setContext( new vtkGLContext( format, this ) );
+    setAttribute( Qt::WA_OpaquePaintEvent );
 
     vtkQtRenderWindow2* rwin = vtkQtRenderWindow2::New();
     this->SetRenderWindow( rwin );
@@ -168,7 +168,7 @@ void *vtkGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		  shareWidget->context() );
     else
       setContext( new vtkGLContext( format, this ) );
-    setBackgroundMode( Qt::NoBackground );
+    setAttribute( Qt::WA_OpaquePaintEvent );
 
     vtkQtRenderWindow2* rwin = vtkQtRenderWindow2::New();
     this->SetRenderWindow( rwin );

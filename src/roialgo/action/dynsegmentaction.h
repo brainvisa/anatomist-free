@@ -43,7 +43,7 @@
 #include <aims/bucket/bucketMap.h>
 #include <queue>
 
-#include <aims/qtcompat/qvbox.h>
+#include <QWidget>
 
 namespace anatomist
 {
@@ -197,7 +197,7 @@ anatomist::RoiDynSegmentAction::error( const anatomist::AObject* data,
 }
 
 
-class RoiDynSegmentActionView : public QVBox, public anatomist::Observer
+class RoiDynSegmentActionView : public QWidget, public anatomist::Observer
 {
   Q_OBJECT
   

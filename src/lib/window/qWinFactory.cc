@@ -37,6 +37,7 @@
 #include <anatomist/application/settings.h>
 #include <cartobase/type/string_conversion.h>
 
+#include <QApplication>
 
 using namespace anatomist;
 using namespace carto;
@@ -53,7 +54,7 @@ void QAWindowFactory::loadDefaultPixmaps( int type )
 
   Descrip & des = _description[ type ];
   if( des.brief.isEmpty() )
-    des.brief = tr( "Open window of type " ) + tr( tstr.c_str() );
+    des.brief = tr( "Open window of type " ) + qApp->translate( "ControlWindow", tstr.c_str() );
 
   tstr = stringLower( tstr );
 

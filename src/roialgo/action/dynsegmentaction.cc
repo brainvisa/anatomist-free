@@ -46,13 +46,8 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/reference/Transformation.h>
 
-#include <aims/qtcompat/qhbuttongroup.h>
-#include <aims/qtcompat/qvbuttongroup.h>
-#include <aims/qtcompat/qhgroupbox.h>
-#include <aims/qtcompat/qvgroupbox.h>
-#include <aims/qtcompat/qhbox.h>
-#include <aims/qtcompat/qvbox.h>
-
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qslider.h>
@@ -69,105 +64,147 @@ using namespace std;
 
 namespace anatomist
 {
-  class RoiDynSegmentActionView_Private {
+
+  class RoiDynSegmentActionView_Private
+  {
   public:
     RoiDynSegmentAction * myDynSegmentAction ;
-    
-    QHGroupBox * myFaithBox ;
+
     QSlider * myFaithSlider ;
     QLabel * myFaithLabel ;
 
-    QHGroupBox * myOrderBox ;
     QSlider * myOrderSlider ;
     QLabel * myOrderLabel ;
-    
-    QHGroupBox * myResultsBox ;    
+
     QLabel * myMeanValueLabel ;
     QLabel * mySigmaValueLabel ;
-    
-    QHBox * myModes ;
-    QVBox * myLeftMode ;
 
-    QHButtonGroup * myDimensions ;
-    QHButtonGroup * myFindNearestMinimum ;
+    QButtonGroup * myDimensions ;
+    QButtonGroup * myFindNearestMinimum ;
 
-    QVBox * myRightMode ;
-    QHButtonGroup * myComputeMode ;
-    QHButtonGroup * myRefineMode ;
-    
-    QHGroupBox * myMaskBox ;
-    QComboBox * myMask ;
-  } ;
-};
+    QButtonGroup * myComputeMode ;
+    QButtonGroup * myRefineMode ;
+  };
+
+}
 
 RoiDynSegmentActionView::RoiDynSegmentActionView( 
           anatomist::RoiDynSegmentAction *  action,
 	  QWidget * parent ) :
-  QVBox(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
+  QWidget(parent), Observer(), myChangingFlag(false),  myUpdatingFlag(false)
 {
   _private = new RoiDynSegmentActionView_Private ;
   _private->myDynSegmentAction = action ;
-  _private->myDynSegmentAction->addObserver(this) ;
+  _private->myDynSegmentAction->addObserver(this);
 
-  _private->myFaithBox = new QHGroupBox( tr("Faith Interval"), this ) ;
-  _private->myFaithSlider = new QSlider( 2, 6, 1, 3, Qt::Horizontal, _private->myFaithBox ) ;
-  _private->myFaithLabel = new QLabel( "3 sigmas" , _private->myFaithBox ) ;
+  QVBoxLayout *lay = new QVBoxLayout( this );
+  lay->setMargin( 0 );
+  lay->setSpacing( 5 );
 
-  _private->myOrderBox = new QHGroupBox( tr("Order Interval"), this ) ;
-  _private->myOrderSlider = new QSlider( 1, 6, 1, 1, Qt::Horizontal, _private->myOrderBox ) ;
-  _private->myOrderLabel = new QLabel( "1" , _private->myOrderBox ) ;
+  QHBoxLayout *sllay = new QHBoxLayout;
+  lay->addLayout( sllay );
+  QGroupBox *myFaithBox = new QGroupBox( tr("Faith Interval"), this );
+  sllay->addWidget( myFaithBox );
+  QHBoxLayout *fblay = new QHBoxLayout( myFaithBox );
+  _private->myFaithSlider = new QSlider( Qt::Horizontal, myFaithBox );
+  _private->myFaithSlider->setRange( 2, 6 );
+  _private->myFaithSlider->setValue( 3 );
+  fblay->addWidget( _private->myFaithSlider );
+  _private->myFaithLabel = new QLabel( "3 sigmas" , myFaithBox );
+  fblay->addWidget( _private->myFaithLabel );
 
-  _private->myResultsBox = new QHGroupBox( tr("Confidence Measurements"), this ) ;
-  new QLabel( tr("Mean Error : "), _private->myResultsBox ) ;
-  _private->myMeanValueLabel = new QLabel( "", _private->myResultsBox ) ;
-  new QLabel( tr("Error Deviation : "), _private->myResultsBox ) ;
-  _private->mySigmaValueLabel = new QLabel( "", _private->myResultsBox ) ;
+  QGroupBox *myOrderBox = new QGroupBox( tr("Order Interval"), this );
+  sllay->addWidget( myOrderBox );
+  QHBoxLayout *oblay = new QHBoxLayout( myOrderBox );
+  _private->myOrderSlider = new QSlider( Qt::Horizontal, myOrderBox );
+  _private->myOrderSlider->setRange( 1, 6 );
+  _private->myOrderSlider->setValue( 1 );
+  oblay->addWidget( _private->myOrderSlider );
+  _private->myOrderLabel = new QLabel( "1" , myOrderBox );
+  oblay->addWidget( _private->myOrderLabel );
 
-  _private->myModes = new QHBox( this ) ;
-  _private->myLeftMode = new QVBox( _private->myModes ) ;
-  _private->myDimensions = new QHButtonGroup( tr("Dimension"), _private->myLeftMode ) ;
-  new QRadioButton(tr("2D"), _private->myDimensions) ;
-  new QRadioButton(tr("3D"), _private->myDimensions) ;
-  _private->myDimensions->setExclusive(true) ;
-  _private->myDimensions->setButton(0) ;
+  QGroupBox *myResultsBox = new QGroupBox(
+    tr("Confidence Measurements"), this );
+  lay->addWidget( myResultsBox );
+  QHBoxLayout *rblay = new QHBoxLayout( myResultsBox );
+  rblay->addWidget( new QLabel( tr("Mean Error : "), myResultsBox ) );
+  _private->myMeanValueLabel = new QLabel( "", myResultsBox );
+  rblay->addWidget( _private->myMeanValueLabel );
+  rblay->addWidget( new QLabel( tr("Error Deviation : "), myResultsBox ) );
+  _private->mySigmaValueLabel = new QLabel( "", myResultsBox );
+  rblay->addWidget( _private->mySigmaValueLabel );
 
-  _private->myFindNearestMinimum = new QHButtonGroup( tr("Find Nearest Minimum"), _private->myLeftMode ) ;
-  new QRadioButton(tr("Yes"), _private->myFindNearestMinimum) ;
-  new QRadioButton(tr("No"), _private->myFindNearestMinimum) ;
-  _private->myFindNearestMinimum->setExclusive(true) ;
-  _private->myFindNearestMinimum->setButton(0) ;
+  QWidget *myModes = new QWidget( this );
+  lay->addWidget( myModes );
+  QGridLayout *mlay = new QGridLayout( myModes );
+  mlay->setMargin( 0 );
+  QGroupBox *dimbox = new QGroupBox( tr("Dimension"), myModes );
+  mlay->addWidget( dimbox, 0, 0 );
+  QHBoxLayout *dblay = new QHBoxLayout( dimbox );
+  _private->myDimensions = new QButtonGroup( dimbox );
+  QRadioButton *b = new QRadioButton( tr("2D"), dimbox );
+  dblay->addWidget( b );
+  _private->myDimensions->addButton( b, 0 );
+  b =  new QRadioButton( tr("3D"), dimbox );
+  dblay->addWidget( b );
+  _private->myDimensions->addButton( b, 1 );
+  _private->myDimensions->setExclusive( true );
+  _private->myDimensions->button( 0 )->setChecked( true );
 
-  _private->myRightMode = new QVBox( _private->myModes ) ;
-  _private->myComputeMode = new QHButtonGroup( tr("Compute Mode"), _private->myRightMode ) ;
-  new QRadioButton(tr("Region"), _private->myComputeMode) ;
-  new QRadioButton(tr("Whole Image"), _private->myComputeMode) ;
-  _private->myComputeMode->setExclusive(true) ;
-  _private->myComputeMode->setButton(0) ;
-  _private->myComputeMode->setEnabled(false) ;
-  
+  QGroupBox *findnearmin = new QGroupBox( tr("Find Nearest Minimum"), myModes );
+  mlay->addWidget( findnearmin, 1, 0 );
+  QHBoxLayout *fnmlay = new QHBoxLayout( findnearmin );
+  _private->myFindNearestMinimum = new QButtonGroup( findnearmin );
+  b = new QRadioButton( tr("Yes"), findnearmin );
+  fnmlay->addWidget( b );
+  _private->myFindNearestMinimum->addButton( b, 0 );
+  b = new QRadioButton( tr("No"), findnearmin );
+  fnmlay->addWidget( b );
+  _private->myFindNearestMinimum->addButton( b, 1 );
+  _private->myFindNearestMinimum->setExclusive( true );
+  _private->myFindNearestMinimum->button( 0 )->setChecked( true );
 
-  _private->myRefineMode = new QHButtonGroup( tr("Refine Mode"), _private->myRightMode ) ;
-  new QRadioButton(tr("Yes"), _private->myRefineMode) ;
-  new QRadioButton(tr("No"), _private->myRefineMode) ;
-  _private->myRefineMode->setExclusive(true) ;
-  _private->myRefineMode->setButton(0) ;
+  QGroupBox *compmode = new QGroupBox( tr("Compute Mode"), myModes );
+  mlay->addWidget( compmode, 0, 1 );
+  QHBoxLayout *cmlay = new QHBoxLayout( compmode );
+  _private->myComputeMode = new QButtonGroup( compmode );
+  b = new QRadioButton( tr("Region"), compmode );
+  cmlay->addWidget( b );
+  _private->myComputeMode->addButton( b, 0 );
+  b = new QRadioButton( tr("Whole Image"), compmode );
+  cmlay->addWidget( b );
+  _private->myComputeMode->addButton( b, 1 );
+  _private->myComputeMode->setExclusive( true );
+  _private->myComputeMode->button( 0 )->setChecked( true );
+  compmode->setEnabled( false );
 
-//   _private->myMaskBox = new QHGroupBox( tr("Mask"), _private->myRightMode ) ;
-//   _private->myMask = new QComboBox( _private->myMaskBox ) ;
-  
-  
-  connect( _private->myFaithSlider, SIGNAL(valueChanged(int)), 
-	   this, SLOT(faithIntervalChanged(int) ) ) ;
-  connect( _private->myOrderSlider, SIGNAL(valueChanged(int)), 
-	   this, SLOT(orderChanged(int) ) ) ;
-  connect( _private->myDimensions, SIGNAL(clicked(int)), 
-	   this, SLOT(dimensionModeChanged(int) ) ) ;
-  connect( _private->myComputeMode, SIGNAL(clicked(int)), 
-	   this, SLOT(computeModeChanged(int) ) ) ;
-  connect( _private->myRefineMode, SIGNAL(clicked(int)), 
-	   this, SLOT(refineModeChanged(int) ) ) ;
-  connect( _private->myFindNearestMinimum, SIGNAL(clicked(int)), 
-	   this, SLOT(findNearestMinimumModeChanged(int) ) ) ;
+  QGroupBox *refmode = new QGroupBox( tr("Refine Mode"), myModes );
+  mlay->addWidget( refmode, 1, 1 );
+  QHBoxLayout *rmlay = new QHBoxLayout( refmode );
+  _private->myRefineMode = new QButtonGroup( refmode );
+  b = new QRadioButton( tr("Yes"), refmode );
+  rmlay->addWidget( b );
+  _private->myRefineMode->addButton( b, 0 );
+  b = new QRadioButton( tr("No"), refmode );
+  rmlay->addWidget( b );
+  _private->myRefineMode->addButton( b, 1 );
+  _private->myRefineMode->setExclusive( true );
+  _private->myRefineMode->button( 0 )->setChecked( true );
+
+  lay->addStretch();
+
+  connect( _private->myFaithSlider, SIGNAL( valueChanged(int) ),
+            this, SLOT( faithIntervalChanged(int) ) ) ;
+  connect( _private->myOrderSlider, SIGNAL( valueChanged(int) ),
+            this, SLOT( orderChanged(int) ) ) ;
+  connect( _private->myDimensions, SIGNAL( buttonClicked(int) ),
+            this, SLOT( dimensionModeChanged(int) ) ) ;
+  connect( _private->myComputeMode, SIGNAL( buttonClicked(int) ),
+            this, SLOT( computeModeChanged(int) ) ) ;
+  connect( _private->myRefineMode, SIGNAL( buttonClicked(int) ),
+            this, SLOT( refineModeChanged(int) ) ) ;
+  connect( _private->myFindNearestMinimum, SIGNAL( buttonClicked(int) ),
+            this, SLOT( findNearestMinimumModeChanged(int) ) ) ;
 }
 
 RoiDynSegmentActionView::~RoiDynSegmentActionView()
@@ -254,20 +291,24 @@ RoiDynSegmentActionView::update( const anatomist::Observable *, void * )
   _private->myOrderLabel->setText( QString::number( _private->myDynSegmentAction->order() ) ) ;
   
   if( _private->myDynSegmentAction->dimensionMode() != 
-      _private->myDimensions->id(_private->myDimensions->selected() ) )
-    _private->myDimensions->setButton(_private->myDynSegmentAction->dimensionMode() ) ;
+      _private->myDimensions->checkedId() )
+    _private->myDimensions->button(
+      _private->myDynSegmentAction->dimensionMode() )->setChecked( true );
 
 //   if( _private->myDynSegmentAction->computeMode() != 
-//       _private->myComputeMode->id(_private->myComputeMode->selected() ) )
-//     _private->myComputeMode->setButton(_private->myDynSegmentAction->computeMode() ) ;
+//       _private->myComputeMode->checkedId() )
+//     _private->myComputeMode->button(_private->myDynSegmentAction->computeMode() )->setChecked( true );
 
   if( _private->myDynSegmentAction->refineMode() != 
-      _private->myRefineMode->id(_private->myRefineMode->selected() ) )
-    _private->myRefineMode->setButton( 1 - _private->myDynSegmentAction->refineMode() ) ;
+      _private->myRefineMode->checkedId() )
+    _private->myRefineMode->button(
+      1 - _private->myDynSegmentAction->refineMode() )->setChecked( true );
 
   if( _private->myDynSegmentAction->findNearestMinimum() != 
-      _private->myFindNearestMinimum->id(_private->myFindNearestMinimum->selected() ) )
-    _private->myFindNearestMinimum->setButton( 1 - _private->myDynSegmentAction->findNearestMinimum() ) ;
+      _private->myFindNearestMinimum->checkedId() )
+    _private->myFindNearestMinimum->button(
+      1 - _private->myDynSegmentAction->findNearestMinimum() )->setChecked(
+        true );
   
   if( _private->myDynSegmentAction->displayResults() ){
     //cout << "DisplayResults" << endl ;

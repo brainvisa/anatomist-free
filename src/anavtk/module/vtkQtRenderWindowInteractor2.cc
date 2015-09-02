@@ -33,6 +33,7 @@
 #include <qapplication.h>
 #include <qcursor.h>
 #include "qevent.h"
+#include <QX11Info>
 
 #include "anatomist/module/vtkQtRenderWindowInteractor2.h"
 
@@ -46,7 +47,7 @@
 
 
 vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2() :
-  vtkRenderWindowInteractor(), QGLWidget ( (QWidget*)NULL, 0, 0, 0)
+  vtkRenderWindowInteractor(), QGLWidget()
 {
   this->InitRenderWindowInteractor();
 }
@@ -59,19 +60,23 @@ vtkQtRenderWindowInteractor2 * vtkQtRenderWindowInteractor2::New()
 
 
 
-vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(QWidget* parent, const char* name,
-							   const QGLWidget* shareWidget, Qt::WFlags f) :
-  vtkRenderWindowInteractor(), QGLWidget ( parent, name, shareWidget, f)
+vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(
+  QWidget* parent, const char* name, const QGLWidget* shareWidget,
+  Qt::WFlags f) :
+  vtkRenderWindowInteractor(), QGLWidget ( parent, shareWidget, f )
 {
+  setObjectName( name );
   this->InitRenderWindowInteractor();
 }
 
 
 
-vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(const QGLFormat& format, QWidget* parent, const char* name,
-							   const QGLWidget* shareWidget, Qt::WFlags f) :
-  vtkRenderWindowInteractor(), QGLWidget ( format, parent, name, shareWidget, f)
+vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(
+  const QGLFormat& format, QWidget* parent, const char* name,
+  const QGLWidget* shareWidget, Qt::WFlags f) :
+  vtkRenderWindowInteractor(), QGLWidget( format, parent, shareWidget, f )
 {
+  setObjectName( name );
   this->InitRenderWindowInteractor();
 }
 
@@ -305,15 +310,16 @@ void vtkQtRenderWindowInteractor2::mousePressEvent(QMouseEvent *me) {
   this->SetSize ( this->RenderWindow->GetSize() );
   
   int ctrl = 0, shift = 0;
-  if (me->state() & Qt::ControlButton)
+  if (me->modifiers() & Qt::ControlModifier)
     ctrl = 1;
-  if (me->state() & Qt::ShiftButton)
+  if (me->modifiers() & Qt::ShiftModifier)
     shift = 1;
   int xp = me->x();
   int yp = me->y();
   SetEventInformationFlipY(xp, yp, ctrl, shift);
-  
-  switch (me->button()) {
+
+  switch (me->button())
+  {
       case Qt::LeftButton:
         InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
         break;
@@ -335,15 +341,16 @@ void vtkQtRenderWindowInteractor2::mouseReleaseEvent(QMouseEvent *me) {
     this->SetSize ( this->RenderWindow->GetSize() );
 
     int ctrl = 0, shift = 0;
-    if (me->state() & Qt::ControlButton)
+    if (me->modifiers() & Qt::ControlModifier)
         ctrl = 1;
-    if (me->state() & Qt::ShiftButton)
+    if (me->modifiers() & Qt::ShiftModifier)
         shift = 1;
     int xp = me->x();
     int yp = me->y();
     SetEventInformationFlipY(xp, yp, ctrl, shift);
 
-    switch (me->button()) {
+    switch (me->button())
+    {
     case Qt::LeftButton:
         InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
         break;
@@ -372,7 +379,7 @@ void vtkQtRenderWindowInteractor2::timer()
 void vtkQtRenderWindowInteractor2::SetTimerDuration (unsigned long duration)
 {
   vtkRenderWindowInteractor::SetTimerDuration (duration);
-  qTimer.changeInterval (duration);
+  qTimer.setInterval (duration);
 }
 
 int vtkQtRenderWindowInteractor2::CreateTimer(int timertype)
@@ -409,7 +416,7 @@ void vtkQtRenderWindowInteractor2::paintGL()
     
 #ifdef Q_WS_X11
     this->Handle = this->winId(); // QPaintDevice::handle();
-    this->RenderWindow->SetDisplayId ( this->x11Display() ); // buggy?
+    this->RenderWindow->SetDisplayId ( QX11Info::display() ); // buggy?
     this->RenderWindow->SetWindowId  ( reinterpret_cast<void*>( this->Handle ) );
 #endif
 
@@ -462,9 +469,9 @@ void vtkQtRenderWindowInteractor2::mouseMoveEvent(QMouseEvent *me) {
     this->SetSize ( this->RenderWindow->GetSize() );
 
     int ctrl = 0, shift = 0;
-    if (me->state() & Qt::ControlButton)
+    if (me->modifiers() & Qt::ControlModifier)
         ctrl = 1;
-    if (me->state() & Qt::ShiftButton)
+    if (me->modifiers() & Qt::ShiftModifier)
         shift = 1;
     int xp = me->x();
     int yp = me->y();
@@ -483,14 +490,16 @@ void vtkQtRenderWindowInteractor2::keyPressEvent(QKeyEvent *ke)
   
   this->SetSize ( this->RenderWindow->GetSize() );
   int ctrl = 0, shift = 0;
-  if (ke->state() & Qt::ControlButton)
+  if (ke->modifiers() & Qt::ControlModifier)
     ctrl = 1;
-  if (ke->state() & Qt::ShiftButton)
+  if (ke->modifiers() & Qt::ShiftModifier)
     shift = 1;
   QPoint cp = this->mapFromGlobal(QCursor::pos());
   int xp = cp.x();
   int yp = cp.y();
-  SetEventInformationFlipY(xp, yp, ctrl, shift, (char) tolower(ke->ascii()), 1, (const char *) ke->text());
+  SetEventInformationFlipY(xp, yp, ctrl, shift,
+                           tolower(ke->text().toStdString().c_str()[0]), 1,
+                           ke->text().toStdString().c_str());
   InvokeEvent(vtkCommand::KeyPressEvent, NULL);
   InvokeEvent(vtkCommand::CharEvent, NULL);
  
@@ -503,22 +512,16 @@ void vtkQtRenderWindowInteractor2::wheelEvent(QWheelEvent *e)
 {
   if (!Enabled)
     return;
-  
-#if QT_VERSION < 0x040000
-  this->SetEventInformationFlipY(e->x(), e->y(), 
-				 (e->state() & Qt::ControlButton) > 0 ? 1 : 0, 
-				 (e->state() & Qt::ShiftButton ) > 0 ? 1 : 0);
-#else
-  this->SetEventInformationFlipY(e->x(), e->y(), 
-				 (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
-				 (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
-#endif
 
- if(e->delta() > 0)
- {
-    this->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e);
- }
- else
+  this->SetEventInformationFlipY(
+    e->x(), e->y(), (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
+    (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
+
+  if(e->delta() > 0)
+  {
+      this->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e);
+  }
+  else
   {
     this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e);
   }
@@ -585,6 +588,29 @@ void vtkQtRenderWindowInteractor2::macFixRect()
   
   // update the context
   aglUpdateContext(context);
+}
+
+#endif
+
+
+#ifdef Q_WS_X11
+#include <QX11Info>
+
+int vtkQtRenderWindowInteractor2::GetDesiredDepth()
+{
+  return QX11Info::appDepth();
+}
+
+
+Colormap vtkQtRenderWindowInteractor2::GetDesiredColormap()
+{
+  return (Colormap) QX11Info::appColormap();
+}
+
+
+Visual *vtkQtRenderWindowInteractor2::GetDesiredVisual()
+{
+  return (Visual*) QX11Info::appVisual();
 }
 
 #endif
