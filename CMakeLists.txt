@@ -4,7 +4,7 @@ BRAINVISA_PROJECT()
 
 BRAINVISA_DEPENDENCY( DEV DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVISA_PACKAGE_NAME}_VERSION}" )
 BRAINVISA_FIND_PACKAGE( aims-free REQUIRED )
-find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL QtNetwork Qt3Support REQUIRED ) # Qt3Support
+find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL QtNetwork REQUIRED ) # Qt3Support
 find_package( QtVersion REQUIRED )
 find_package( OpenGL REQUIRED )
 
