@@ -103,19 +103,28 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   // Processing graph
   QGridLayout *gridLay = new QGridLayout( lpan );
   gridLay->setSpacing( 5 );
-  QLabel *img = new QLabel( "Image", lpan, "image" );
+  QLabel *img = new QLabel( "Image", lpan );
+  img->setObjectName( "image" );
   img->setFrameStyle( QFrame::Panel | QFrame::Raised );
   img->setFixedSize( img->sizeHint() );
-  QPushButton *skipVal = new QPushButton( "Signal stabilization", lpan, 
-  					  "skip" );
-  QPushButton *brainMask = new QPushButton( "Brain mask", lpan, "brainMask" );
-  QPushButton *listaif = new QPushButton( "Possible AIF(s)", lpan, "listaif" );
-  QPushButton *preinj = new QPushButton( "Signal baseline", lpan, "preinj" );
-  QPushButton *quant = new QPushButton( "Quantification", lpan, "quantif" );
-  QPushButton *aifw = new QPushButton( "AIF", lpan, "aif" );
-  QPushButton *fit = new QPushButton( "Fit", lpan, "fit" );
-  QPushButton *deconv = new QPushButton( "SVD deconvolution", lpan, "deconv" );
-  QPushButton *perfm = new QPushButton( "Perfusion maps", lpan, "perfm" );
+  QPushButton *skipVal = new QPushButton( "Signal stabilization", lpan );
+  skipVal->setObjectName( "skip" );
+  QPushButton *brainMask = new QPushButton( "Brain mask", lpan);
+  brainMask->setObjectName( "brainMask" );
+  QPushButton *listaif = new QPushButton( "Possible AIF(s)", lpan );
+  listaif->setObjectName( "listaif" );
+  QPushButton *preinj = new QPushButton( "Signal baseline", lpan );
+  preinj->setObjectName( "preinj" );
+  QPushButton *quant = new QPushButton( "Quantification", lpan );
+  quant->setObjectName( "quantif" );
+  QPushButton *aifw = new QPushButton( "AIF", lpan );
+  aifw->setObjectName( "aif" );
+  QPushButton *fit = new QPushButton( "Fit", lpan );
+  fit->setObjectName( "fit" );
+  QPushButton *deconv = new QPushButton( "SVD deconvolution", lpan );
+  deconv->setObjectName( "deconv" );
+  QPushButton *perfm = new QPushButton( "Perfusion maps", lpan );
+  perfm->setObjectName( "perfm" );
   QButtonGroup *pbg = new QButtonGroup( lpan );
 
   PerfusionSkip pskip;
@@ -147,15 +156,15 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
 
   connect( pbg, SIGNAL( buttonClicked( int ) ), ppc, SLOT( apply( int ) ) );
 
-  QLabel *lien1 = new QLabel( "|", lpan, "lien1" );
-  QLabel *lien2 = new QLabel( "|", lpan, "lien2" );
-  QLabel *lien3 = new QLabel( "|", lpan, "lien3" );
-  QLabel *lien4 = new QLabel( "|", lpan, "lien4" );
-  QLabel *lien5 = new QLabel( "|", lpan, "lien5" );
-  QLabel *lien6 = new QLabel( "|", lpan, "lien6" );
-  QLabel *lien7 = new QLabel( "|", lpan, "lien7" );
-  QLabel *lien8 = new QLabel( "|", lpan, "lien8" );
-  QLabel *lien9 = new QLabel( "|", lpan, "lien9" );
+  QLabel *lien1 = new QLabel( "|", lpan );
+  QLabel *lien2 = new QLabel( "|", lpan );
+  QLabel *lien3 = new QLabel( "|", lpan );
+  QLabel *lien4 = new QLabel( "|", lpan );
+  QLabel *lien5 = new QLabel( "|", lpan );
+  QLabel *lien6 = new QLabel( "|", lpan );
+  QLabel *lien7 = new QLabel( "|", lpan );
+  QLabel *lien8 = new QLabel( "|", lpan );
+  QLabel *lien9 = new QLabel( "|", lpan );
   gridLay->addWidget( img, 0, 0, Qt::AlignHCenter );
   gridLay->addWidget( lien1, 1, 0, Qt::AlignHCenter );
   gridLay->addWidget( skipVal, 2, 0, Qt::AlignHCenter );
@@ -212,7 +221,8 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   flsb->setFixedWidth( flsb->width() * 2 / 3 );
   flsb->setValue( (int)( procC->parameters().skipThres() * 1000.0f + 0.5f ) );
   vbsslay->addWidget( new QLabel( "Skip:", vbss ) );
-  QSpinBox *sssb = new QSpinBox( 1, 20, 1, vbss );
+  QSpinBox *sssb = new QSpinBox( vbss );
+  sssb->setRange( 1, 20 );
   vbsslay->addWidget( sssb );
   sssb->setFixedWidth( sssb->width() / 2 );
   sssb->setValue( procC->parameters().skip() );
@@ -225,7 +235,8 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   connect( ppc, SIGNAL( skipChanged( int ) ), sssb, SLOT( setValue( int ) ) );
 
   // Brain mask parameters
-  QWidget *bmpar = new QWidget( lpan, "bmpar" );
+  QWidget *bmpar = new QWidget( lpan );
+  bmpar->setObjectName( "bmpar" );
   QVBoxLayout *bmparlay = new QVBoxLayout( bmpar );
   bmparlay->setSpacing( 0 );
   bmparlay->setMargin( 3 );
@@ -239,11 +250,13 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   bmlaylay->setMargin( 5 );
   bmlaylay->addWidget( new QLabel( "Threshold (%):", bmlay ) );
   bmlaylay->addWidget( new QLabel( "Brain", bmlay ) );
-  QSpinBox *bthsb = new QSpinBox( 1, 100, 1, bmlay );
+  QSpinBox *bthsb = new QSpinBox( bmlay );
+  bthsb->setRange( 1, 100 );
   bmlaylay->addWidget( bthsb );
   bthsb->setValue( (int)( procC->parameters().bThres() * 100.0f ) );
   bmlaylay->addWidget( new QLabel( "CSF", bmlay ) );
-  QSpinBox *thsb = new QSpinBox( 1, 100, 1, bmlay );
+  QSpinBox *thsb = new QSpinBox( bmlay );
+  thsb->setRange( 1, 100 );
   bmlaylay->addWidget( thsb );
   thsb->setValue( (int)( procC->parameters().lvThres() * 100.0f ) );
   gridLay->addWidget( bmpar, 4, 1 );
@@ -260,11 +273,13 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   pahblay->setSpacing( 5 );
   pahblay->setMargin( 3 );
   pahblay->addWidget( new QLabel( "Threshold (%):", pahb ) );
-  QSpinBox *patsb = new QSpinBox( 0, 100, 1, pahb );
+  QSpinBox *patsb = new QSpinBox( pahb );
+  patsb->setRange( 0, 100 );
   pahblay->addWidget( patsb );
   patsb->setValue( (int)( procC->parameters().aifThreshold() * 100.0f ) );
   pahblay->addWidget( new QLabel( "List size:", pahb ) );
-  QSpinBox *pasb = new QSpinBox( 0, 500, 1, pahb );
+  QSpinBox *pasb = new QSpinBox( pahb );
+  pasb->setRange( 0, 500 );
   pahblay->addWidget( pasb );
   pasb->setValue( procC->parameters().nAif() );
   gridLay->addWidget( pahb, 6, 1 );
@@ -279,7 +294,8 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   piparlay->setSpacing( 5 );
   piparlay->setMargin( 3 );
   piparlay->addWidget( new QLabel( "Bolus arrival time:", pipar ) );
-  QSpinBox *pisb = new QSpinBox( 2, 20, 1, pipar );
+  QSpinBox *pisb = new QSpinBox( pipar );
+  pisb->setRange( 2, 20 );
   piparlay->addWidget( pisb );
   pisb->setValue( procC->parameters().preInj() );
   gridLay->addWidget( pipar, 8, 1 );
@@ -289,11 +305,11 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
 
   // Fit parameters
   QComboBox *cbf = new QComboBox( lpan );
-  cbf->insertItem( "Non-linear gamma variate", 
-                   (int)PerfusionFit::GammaVariate );
-  cbf->insertItem( "Linearized gamma variate (faster)",
-                   (int)PerfusionFit::LinearGammaVariate );
-  cbf->setCurrentItem( (int)PerfusionFit::GammaVariate );
+  cbf->insertItem( (int)PerfusionFit::GammaVariate,
+                   "Non-linear gamma variate" );
+  cbf->insertItem( (int)PerfusionFit::LinearGammaVariate,
+                   "Linearized gamma variate (faster)" );
+  cbf->setCurrentIndex( (int)PerfusionFit::GammaVariate );
   gridLay->addWidget( cbf, 14, 1 );
 
   connect( cbf, SIGNAL( activated( int ) ), ppc, SLOT( setFitType( int ) ) );
@@ -313,10 +329,11 @@ QAPerfusionWindow::QAPerfusionWindow( QWidget *p, const char *name )
   dhblay->setMargin( 3 );
   QComboBox *cbd = new QComboBox( dhb );
   dhblay->addWidget( cbd );
-  cbd->insertItem( "Truncated", (int)PerfusionSVDInversion::Truncated );
-  cbd->insertItem( "Tikhonov I",(int)PerfusionSVDInversion::Tikhonov );
-  cbd->insertItem( "Tikhonov G",(int)PerfusionSVDInversion::TikhonovGradient );
-  cbd->setCurrentItem( (int)PerfusionSVDInversion::Truncated );
+  cbd->insertItem( (int)PerfusionSVDInversion::Truncated, "Truncated" );
+  cbd->insertItem( (int)PerfusionSVDInversion::Tikhonov, "Tikhonov I" );
+  cbd->insertItem( (int)PerfusionSVDInversion::TikhonovGradient,
+                   "Tikhonov G" );
+  cbd->setCurrentIndex( (int)PerfusionSVDInversion::Truncated );
   dhblay->addWidget( new QLabel( "Threshold (%):", dhb ) );
   QFloatSpinBox *dsb = new QFloatSpinBox( 0, 1000, 1, 1, dhb );
   dhblay->addWidget( dsb );
@@ -507,7 +524,7 @@ void QAPerfusionWindow::registerObject( AObject *object )
 
       QString str = "Perfusion: ";
       str += object->name().c_str();
-      setCaption( str );
+      setWindowTitle( str );
 
       int dT = 1;
       PropertySet *aheader = 0;

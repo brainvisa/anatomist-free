@@ -152,7 +152,7 @@ void PerfusionProcessingQtDecorator::apply( int btn )
       for ( ; itb != its; ++itb )  (*itb).second->setDone( false );
 
       // Perform all the processing up to the selected one
-      QApplication::setOverrideCursor( Qt::waitCursor );
+      QApplication::setOverrideCursor( Qt::WaitCursor );
       itf++;
       while ( itm != itf )
 	{

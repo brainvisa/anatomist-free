@@ -90,7 +90,7 @@ QFloatSpinBox::~QFloatSpinBox()
 QString QFloatSpinBox::mapValueToText( int value )
 {
   QString tmp = QString( "%1" ).arg( value % prec );
-  QString dgt = tmp.rightJustify( nDigit, '0' );
+  QString dgt = tmp.rightJustified( nDigit, '0' );
 
   return QString( "%1.%2" ).arg( value / prec ).arg( dgt );
 }
