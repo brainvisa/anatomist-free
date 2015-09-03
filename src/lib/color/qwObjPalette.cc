@@ -884,7 +884,7 @@ void QAPaletteWin::fillPalette( const rc_ptr<APalette> pal, QPixmap & pm )
     }
 #if QT_VERSION < 0x040700
   // convertFromImage is in Qt3Support before officialized in Qt 4.7
-  pm = QPixmap::fromImage( *im, Qt::AutoColor );
+  pm = QPixmap::fromImage( im, Qt::AutoColor );
 #else
   pm.convertFromImage( im );
 #endif
