@@ -878,11 +878,16 @@ void QAPaletteWin::fillPalette( const rc_ptr<APalette> pal, QPixmap & pm )
 
   for( y=0; y<dimy; ++y )
     for( x=0; x<dimx; ++x )
-      {
-	rgb = (*pal)( (unsigned) ( facx * x), (unsigned) ( facy * y ) );
-	im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
-      }
+    {
+      rgb = (*pal)( (unsigned) ( facx * x), (unsigned) ( facy * y ) );
+      im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
+    }
+#if QT_VERSION < 0x040700
+  // convertFromImage is in Qt3Support before officialized in Qt 4.7
+  pm = QPixmap::fromImage( im );
+#else
   pm.convertFromImage( im );
+#endif
 }
 
 
@@ -937,7 +942,12 @@ void QAPaletteWin::fillObjPal()
 
   QImage *im = objpal->toQImage();
   QPixmap pm;
+#if QT_VERSION < 0x040700
+  // convertFromImage is in Qt3Support before officialized in Qt 4.7
+  pm = QPixmap::fromImage( im );
+#else
   pm.convertFromImage( *im );
+#endif
   delete im;
   d->view->setPixmap( pm );
   d->view->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
