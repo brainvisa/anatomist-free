@@ -26,7 +26,6 @@
 
 <p>
 <b><a href="#version-4.5.0">Version 4.5.0</a></b><br/>
-<b><a href="#version-4.4.1">Version 4.4.1</a></b><br/>
 <b><a href="#version-4.4.0">Version 4.4.0</a></b><br/>
 <b><a href="#version-4.3.1">Version 4.3.1</a></b><br/>
 <b><a href="#version-4.3.0">Version 4.3.0</a></b><br/>
@@ -68,7 +67,7 @@
 </p>
 
 <!-- -->
-<h4> <a name="version-4.5.0"></a>2015/07/07 - Version 4.5.0</h4>
+<h4> <a name="version-4.5.0"></a>2015/09/03 - Version 4.5.0</h4>
 <h5>Visible changes (users):</h5>
 
 <ul>
@@ -93,6 +92,14 @@
 <li>The file dialog when loading objects allows to see objects header information, and to select loading options, as well as choosing between several possible data types.</li>
 <li>Possibility to save a number of objects types as textured meshes (textured surfaces, fusions 3D, planar fusions 3D...)</li>
 <li>Partial support for Wavefront .obj mesh format, allowing to export (or partially import) complete objects / scenes to blender or other software</li>
+<li>Docs have been converted to sphinx format, and integrated in a cleaner, simpler, and more structured shape: the old "help pages", the user manual, and the tutorial are now part of one user documentation set. The developer docs show C++ and python docs. As a consequence, all these docs are now available from the "Help" menu.
+</li>
+<li>Fixed snapshot recording in 3D windows, which were more or less broken (did not shoot at the right time) since introduction of graphics views.
+</li>
+<li>Fixed Anatomist crash when a volume contains Not-a-Number or infinite values.
+</li>
+<li>Several fixes in SurfPaint module, which could cause crashes, incorrect displays, or unpractical manipulation.
+</li>
 </ul>
 
 <h5>Internal changes (programmers):</h5>
@@ -102,24 +109,7 @@
 </li>
 <li>Fixes in texture header properties when extracting a texture from an Anatomist object.</li>
 <li>Complements in python bindings.</li>
-</ul>
-
-
-<!-- -->
-<h4> <a name="version-4.4.1"></a>2014/12/03 - Version 4.4.1</h4>
-
-<h5>Visible changes (users):</h5>
-
-<ul>
-<li>Docs have been converted to sphinx format, and integrated in a cleaner, simpler, and more structured shape: the old "help pages", the user manual, and the tutorial are now part of one user documentation set. The developer docs show C++ and python docs. As a consequence, all these docs are now available from the "Help" menu.
-</li>
-<li>Fixed snapshot recording in 3D windows, which were more or less broken (did not shot at the right time) since introduction of graphics views.
-</li>
-<li>Fixed Anatomist crash when a volume contains Not-a-Number or infinite values.
-</li>
-<li>Several fixes in SurfPaint module, which could cause crashes, incorrect displays, or unpractical manipulation.
-</li>
-<li>Several other fixes.</li>
+<li>Source code has been adapted to avoid using Qt3Support compatibility library. (this will ease future porting to Qt5)</li>
 </ul>
 
 
