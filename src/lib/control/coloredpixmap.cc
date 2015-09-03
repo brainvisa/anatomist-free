@@ -103,7 +103,12 @@ QPixmap ColoredPixmapCache::coloredPixmap( const QColor & rgb, unsigned size,
         QRgb e = qRgba( r, g, b, max( int(al * 255), qAlpha( d ) ) );
         cim.setPixel( x, y, e );
       }
+#if QT_VERSION < 0x040700
+  // convertFromImage is in Qt3Support before officialized in Qt 4.7
+    cpix = QPixmap::fromImage( cim );
+#else
     cpix.convertFromImage( cim );
+#endif
   }
   QPixmapCache::insert( key, cpix );
   return cpix;
