@@ -12,6 +12,7 @@ language			string
 enableUnstable                  int
 # userLevel                       string
 userLevel                       int
+maxPolygonsPerObject            int
 
 # selection
 selectionColorInverse		int

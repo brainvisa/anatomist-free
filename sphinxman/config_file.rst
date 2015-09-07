@@ -291,11 +291,21 @@ Here is a complete (I hope) list of the possible options:
         <td>all</td>
       </tr>
       <tr>
+        <td><tt>maxPolygonsPerObject</tt></td>
+        <td><tt>int</tt></td>
+        <td>0 (unlimited)</td>
+        <td>&gt;= 0</td>
+        <td>Limit the number of displayed polygons in a single object (mesh).
+          By default (0) there is no limit, but depending on the 3D hardware, displaying very large meshes (like fibers tracts sets) may flood the graphics display and even crash or hang the complete system. Limiting the number of displayed polygons will avoid such problems, but will display only a portion of the complete object. For fibers typically this is not a real problem, provided fibers are randomized before display.
+        </td>
+        <td>4.5</td>
+      </tr>
+      <tr>
         <td><tt>maxTextureUnitsUsed</tt></td>
         <td><tt>int</tt></td>
         <td>-1</td>
         <td>&gt;= -1</td>
-        <td>Limit the number of OpenGL texture units used. The default is -1, unlimited. Try this option if you encounter OpenGL rendering problems. Such problems have been seen on Windows machines, where rendering was not performed at all if more than 3 texture units were enabled (even on non-tetured objects).
+        <td>Limit the number of OpenGL texture units used. The default is -1, unlimited. Try this option if you encounter OpenGL rendering problems. Such problems have been seen on Windows machines, where rendering was not performed at all if more than 3 texture units were enabled (even on non-textured objects).
         </td>
         <td>4.1</td>
       </tr>
