@@ -36,6 +36,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/control/graphParams.h>
+#include <anatomist/surface/glcomponent.h>
 #include <aims/def/path.h>
 #include <graph/tree/treader.h>
 #include <graph/tree/twriter.h>
@@ -208,6 +209,11 @@ void GlobalConfiguration::apply()
     if( rmi >= 0 )
       GraphParams::graphParams()->selectRenderMode = rmi;
   }
+  int maxpoly = 0;
+  if( getProperty( "maxPolygonsPerObject", maxpoly ) )
+  {
+    GLComponent::glSetGlobalMaxNumDisplayedPolygons( (unsigned long) maxpoly );
+  }
 
   for( ic=_configs.begin(); ic!=fc; ++ic )
     (*ic)->apply( this );
@@ -260,6 +266,12 @@ void GlobalConfiguration::update()
                  [ GraphParams::graphParams()->selectRenderMode ] );
   else if( hasProperty( "selectionRenderingMode" ) )
     removeProperty( "selectionRenderingMode" );
+
+  if( GLComponent::glGlobalMaxNumDisplayedPolygons() != 0 )
+  {
+    setProperty( "maxPolygonsPerObject",
+                 (int) GLComponent::glGlobalMaxNumDisplayedPolygons() );
+  }
 
   // remove obsolete flags
   /* let it live for one more version for compatibility

@@ -183,6 +183,12 @@ namespace anatomist
     virtual unsigned glPolygonSize( const ViewState & ) const;
     virtual unsigned glNumPolygon( const ViewState & ) const;
     virtual const GLuint* glPolygonArray( const ViewState & ) const;
+    /** Limit to the number of displayed polygons (default: 0, unlimited or )
+        global default value) */
+    virtual unsigned long glMaxNumDisplayedPolygons() const;
+    virtual void glSetMaxNumDisplayedPolygons( unsigned long n );
+    static unsigned long glGlobalMaxNumDisplayedPolygons();
+    static void glSetGlobalMaxNumDisplayedPolygons( unsigned long n );
 
     // Texturing functions
     virtual void glSetTexImageChanged( bool x = true, 

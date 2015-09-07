@@ -48,6 +48,7 @@
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/surface/Shader.h>
+#include <anatomist/surface/glcomponent.h>
 #include <qtabbar.h>
 #include <QGLShaderProgram>
 #include <qgroupbox.h>
@@ -98,6 +99,7 @@ struct PreferencesWindow::Private
   QComboBox             *texmax;
   QCheckBox             *graphicsview;
   QPushButton           *winbackgroundbt;
+  QLineEdit             *limitpoly;
 };
 
 
@@ -669,11 +671,11 @@ PreferencesWindow::PreferencesWindow()
 
   if (not support_glshader)
   {
-	glshader->setEnabled(false);
-	useglshader = false;
+    glshader->setEnabled(false);
+    useglshader = false;
   }
   else useglshader = Shader::isActivated();
-  
+
   glshader->setChecked( useglshader);
   glshader->setToolTip( tr( "Enable OpenGL shaders." ) );
 
@@ -684,6 +686,32 @@ PreferencesWindow::PreferencesWindow()
   if (not support_glshader)
     glshaderbydefault->setEnabled(false);
   glshaderbydefault->setChecked(Shader::isUsedByDefault());
+
+  QHBoxLayout *polylay = new QHBoxLayout;
+  vlay->addLayout( polylay );
+  QLabel *lpl = new QLabel( tr( "Limit polygons / object:" ) );
+  polylay->addWidget( lpl );
+  lpl->setToolTip( tr( "Setting such a limit allows to work around "
+  "performance problems with very large meshes and limited 3D hardware. "
+  "Rendering will be incomplete in such a case, but this may avoid complete "
+  "computer hangups.\nIt is especially useful when displaying large fiber "
+  "tracts sets, where cutting off a part of fibers will, in most cases, not "
+  "really affect the golbal sight of fibers.\n0 here means no limitation." ) );
+  _pdat->limitpoly = new QLineEdit( tgl );
+  _pdat->limitpoly->setValidator(
+    new QIntValidator( 0, 2000000000, _pdat->limitpoly ) );
+  polylay->addWidget( _pdat->limitpoly );
+  unsigned long mpoly = 0;
+  try
+  {
+    Object x = cfg->getProperty( "maxPolygonsPerObject" );
+    if( !x.isNull() )
+      mpoly = (unsigned long) x->getScalar();
+  }
+  catch( ... )
+  {
+  }
+  _pdat->limitpoly->setText( QString::number( mpoly ) );
 
   vlay->addStretch( 1 );
 
@@ -749,6 +777,8 @@ PreferencesWindow::PreferencesWindow()
            SLOT( enableOpenGLShader( bool ) ) );
   connect( glshaderbydefault, SIGNAL( toggled( bool ) ), this,
            SLOT( shadersByDefault( bool ) ) );
+  connect( _pdat->limitpoly, SIGNAL( editingFinished() ),
+           this, SLOT( maxPolygonsPerObjectChanged() ) );
 }
 
 
@@ -1231,4 +1261,14 @@ void PreferencesWindow::changeWindowBackground()
 }
 
 
+void PreferencesWindow::maxPolygonsPerObjectChanged()
+{
+  bool ok = false;
+  int npoly = _pdat->limitpoly->text().toInt( &ok );
+  if( ok )
+  {
+    theAnatomist->config()->setProperty( "maxPolygonsPerObject", npoly );
+    GLComponent::glSetGlobalMaxNumDisplayedPolygons( npoly );
+  }
+}
 

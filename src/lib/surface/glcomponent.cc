@@ -40,6 +40,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/globalConfig.h>
+#include <anatomist/object/Object.h>
 #include <aims/data/data.h>
 #include <aims/rgb/rgb.h>
 #include <map>
@@ -69,6 +70,10 @@ struct GLComponent::Private
 
   void makeRGBTex();
 
+  static unsigned long globalMaxNumPolygons();
+  static void setGlobalMaxNumPolygons( unsigned long n );
+  static unsigned long & _globalMaxNumPolygons();
+
   mutable vector<bool>		changed;
   vector<TexInfo>		textures;
 
@@ -83,11 +88,13 @@ struct GLComponent::Private
   static GLTexture		& batex();
   mutable int                   globjectid;
   static set<int> & usedIDs();
+  unsigned long   maxNumPolygons;
 };
 
 
 GLComponent::Private::Private()
-  : changed( GLComponent::glNOPART ), memory( 4 ), ntex( 0 ), globjectid( -1 )
+  : changed( GLComponent::glNOPART ), memory( 4 ), ntex( 0 ), globjectid( -1 ),
+  maxNumPolygons( 0 )
 {
 }
 
@@ -213,6 +220,26 @@ GLTexture &  GLComponent::Private::batex()
     }
   return *bt;
 }
+
+
+unsigned long & GLComponent::Private::_globalMaxNumPolygons()
+{
+  static unsigned long globalMaxPoly = 0;
+  return globalMaxPoly;
+}
+
+
+unsigned long GLComponent::Private::globalMaxNumPolygons()
+{
+  return _globalMaxNumPolygons();
+}
+
+
+void GLComponent::Private::setGlobalMaxNumPolygons( unsigned long n )
+{
+  _globalMaxNumPolygons() = n;
+}
+
 
 
 GLComponent::TexInfo::TexInfo()
@@ -1461,6 +1488,10 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
 
   //selectmode = ViewState::glSELECTRENDER_OBJECT; // FIXME
 
+  long max_poly = glMaxNumDisplayedPolygons();
+  if( max_poly > 0 && max_poly < npoly )
+    npoly = max_poly; // skip end of polygons.
+
   if( !vpoly || !npoly || !ppoly || !vvertex || !nvert )
     return false;
     /*{
@@ -2196,4 +2227,47 @@ void GLComponent::setupShader()
 }
 
 
+unsigned long GLComponent::glMaxNumDisplayedPolygons() const
+{
+  if( d->maxNumPolygons != 0 )
+    return d->maxNumPolygons;
+  return d->globalMaxNumPolygons();
+}
+
+
+void GLComponent::glSetMaxNumDisplayedPolygons( unsigned long n )
+{
+  d->maxNumPolygons = n;
+  glSetChanged( glBODY );
+}
+
+
+unsigned long GLComponent::glGlobalMaxNumDisplayedPolygons()
+{
+  return GLComponent::Private::globalMaxNumPolygons();
+}
+
+
+namespace
+{
+  void setAllObjectsChanged()
+  {
+    set<AObject *> objs = theAnatomist->getObjects();
+    set<AObject *>::iterator i, e = objs.end();
+    for( i=objs.begin(); i!=e; ++i )
+      if( (*i)->glAPI() )
+      {
+        (*i)->glAPI()->glSetChanged( GLComponent::glBODY );
+        (*i)->notifyObservers( *i );
+      }
+//     theAnatomist->Refresh();
+  }
+}
+
+
+void GLComponent::glSetGlobalMaxNumDisplayedPolygons( unsigned long n )
+{
+  GLComponent::Private::setGlobalMaxNumPolygons( n );
+  setAllObjectsChanged();
+}
 
