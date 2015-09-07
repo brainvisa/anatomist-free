@@ -752,6 +752,10 @@
         <source>Could not reload the following objects:</source>
         <translation>Les objets suivants n&apos;ont pas pu être rechargés:</translation>
     </message>
+    <message>
+        <source>Save ROI Graph</source>
+        <translation>Sauver graphe de ROI</translation>
+    </message>
 </context>
 <context>
     <name>ControlledWindow</name>
@@ -2077,6 +2081,18 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
         <source>Default background color</source>
         <translation>Couleur de fond par défaut</translation>
     </message>
+    <message>
+        <source>Limit polygons / object:</source>
+        <translation>Limiter nb de polygones / objet:</translation>
+    </message>
+    <message>
+        <source>Setting such a limit allows to work around performance problems with very large meshes and limited 3D hardware. Rendering will be incomplete in such a case, but this may avoid complete computer hangups.
+It is especially useful when displaying large fiber tracts sets, where cutting off a part of fibers will, in most cases, not really affect the golbal sight of fibers.
+0 here means no limitation.</source>
+        <translation>Mettre une limite ici permet de pallier à certains problèmes de performance pour de très gros maillages et un matériel 3D limité. Dans ce cas le rendu sera incomplet, mais cela peut parfois éviter des blocages complets de l&apos;ordinateur.
+Cela est particulièrement utile pour l&apos;affichage de gros jeux de faisceaux de fibres, où le masquage d&apos;une partie des fibres ne sera, la plupart du temps, pas dommageable pour l&apos;appréciation des fibres.
+0 signifie: pas de limitation.</translation>
+    </message>
 </context>
 <context>
     <name>QAColorDialog</name>
@@ -2110,6 +2126,13 @@ peut toujours planter sur de telles implémentations d&apos;OpenGL.</translation
     <message>
         <source>Neutral alpha channel</source>
         <translation>Transparence indifférente</translation>
+    </message>
+</context>
+<context>
+    <name>QAHistogramWindow</name>
+    <message>
+        <source>Histogram</source>
+        <translation>Histogramme</translation>
     </message>
 </context>
 <context>
@@ -2906,6 +2929,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Rendering</source>
         <translation>Rendu</translation>
     </message>
+    <message>
+        <source>Save as textured mesh</source>
+        <translation>Sauver comme maillage texturé</translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3555,16 +3582,8 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Histo ROI</translation>
     </message>
     <message>
-        <source>Image Histo</source>
-        <translation>Histo image</translation>
-    </message>
-    <message>
         <source>Save Histos</source>
         <translation>Sauver histos</translation>
-    </message>
-    <message>
-        <source>Graph Histos</source>
-        <translation>Histo graphe</translation>
     </message>
     <message>
         <source>High</source>
@@ -3606,10 +3625,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Facteur de mélange</translation>
     </message>
     <message>
-        <source>Blob segmentation</source>
-        <translation>Segmentation de blobs</translation>
-    </message>
-    <message>
         <source>Region max size</source>
         <translation>Taille max de région</translation>
     </message>
@@ -3624,10 +3639,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Activate Threshold Preview</source>
         <translation>Activation de la prévisualisation du seuillage</translation>
-    </message>
-    <message>
-        <source>Deactivate Threshold Preview</source>
-        <translation>Désactivation de la prévisualisation du seuillage</translation>
     </message>
 </context>
 <context>
@@ -3761,10 +3772,6 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Modifier une couleur de région</translation>
     </message>
     <message>
-        <source>Personnal</source>
-        <translation>Personnelle</translation>
-    </message>
-    <message>
         <source>Free</source>
         <translation>Libre</translation>
     </message>
@@ -3830,6 +3837,28 @@ Do you still want to proceed ?</source>
         <translation>Vous pouvez continuer, mais cela peut
 prendre quelques minutes
 Voulez-vous continuer ?</translation>
+    </message>
+    <message>
+        <source>Personal</source>
+        <translation>Personnel</translation>
+    </message>
+    <message>
+        <source>Delete ROI session</source>
+        <translation>Effacer la session de ROI</translation>
+    </message>
+    <message>
+        <source>If you close this session, all modifications since your last save will be lost. 
+Do you still want to proceed ?</source>
+        <translation>Si vous fermez cette session, toutes les modifications depuis votre dernière sauvegarde seront perdues.
+Voulez-vous fermer ?</translation>
+    </message>
+    <message>
+        <source>User Defined</source>
+        <translation>Défini par l&apos;utilisateur</translation>
+    </message>
+    <message>
+        <source>User defined</source>
+        <translation>Défini par l&apos;utilisateur</translation>
     </message>
 </context>
 <context>
@@ -3963,6 +3992,10 @@ Voulez-vous continuer ?</translation>
     <message>
         <source>gyri</source>
         <translation>gyri</translation>
+    </message>
+    <message>
+        <source>Save Texture</source>
+        <translation>Sauver la texture</translation>
     </message>
 </context>
 <context>

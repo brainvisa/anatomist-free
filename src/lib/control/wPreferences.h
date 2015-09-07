@@ -79,6 +79,7 @@ public slots:
   void enableOpenGLShader( bool x );
   void shadersByDefault( bool x );
   void confirmBeforeQuitChanged( int x );
+  void maxPolygonsPerObjectChanged();
 
 protected:
   void updateWindows();

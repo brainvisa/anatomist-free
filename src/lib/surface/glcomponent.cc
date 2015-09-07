@@ -40,6 +40,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/globalConfig.h>
+#include <anatomist/object/Object.h>
 #include <aims/data/data.h>
 #include <aims/rgb/rgb.h>
 #include <map>
@@ -2237,6 +2238,7 @@ unsigned long GLComponent::glMaxNumDisplayedPolygons() const
 void GLComponent::glSetMaxNumDisplayedPolygons( unsigned long n )
 {
   d->maxNumPolygons = n;
+  glSetChanged( glBODY );
 }
 
 
@@ -2246,8 +2248,26 @@ unsigned long GLComponent::glGlobalMaxNumDisplayedPolygons()
 }
 
 
+namespace
+{
+  void setAllObjectsChanged()
+  {
+    set<AObject *> objs = theAnatomist->getObjects();
+    set<AObject *>::iterator i, e = objs.end();
+    for( i=objs.begin(); i!=e; ++i )
+      if( (*i)->glAPI() )
+      {
+        (*i)->glAPI()->glSetChanged( GLComponent::glBODY );
+        (*i)->notifyObservers( *i );
+      }
+//     theAnatomist->Refresh();
+  }
+}
+
+
 void GLComponent::glSetGlobalMaxNumDisplayedPolygons( unsigned long n )
 {
   GLComponent::Private::setGlobalMaxNumPolygons( n );
+  setAllObjectsChanged();
 }
 
