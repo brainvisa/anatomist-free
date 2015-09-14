@@ -100,7 +100,7 @@ namespace anatomist
     void invert();
     /// Inverts source and destination referentials
     void invertReferentials();
-    /// true if the transformation is direct, fals if it changes orientation
+    /// true if the transformation is direct, false if it changes orientation
     bool isDirect() const;
 
     /// Transforms a point
@@ -115,6 +115,23 @@ namespace anatomist
     void unregisterTrans();
     bool isGenerated() const { return( _generated ); }
     void setGenerated( bool x ) { _generated = x; }
+
+    /// Adds a new motion to motion history
+    void addMotionToHistory(const Motion &);
+    /// Undoes last motion
+    void undo();
+    /// Redoes last motion
+    void redo();
+    /// Returns the motion history size
+    int motionHistorySize() const
+    {
+    	return _motionHistory.size();
+    }
+    /// Returns the current motion history index
+    int motionHistoryIndex() const
+    {
+    	return _motionHistoryIndex;
+    }
 
     /** Static transform function: with transformation, org and dest 
 	geometries.
@@ -154,6 +171,8 @@ namespace anatomist
     Referential *_source;
     Referential	*_dest;
     bool	_generated;
+    std::vector <Motion> _motionHistory;
+    int _motionHistoryIndex;
   };
 
 
