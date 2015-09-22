@@ -156,7 +156,10 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     typename TimeSurfaceType::const_iterator is = _surface->lower_bound( t );
 
     if( is == _surface->end() )
-      is = _surface->begin();
+    {
+      if( is != _surface->begin() )
+        --is;
+    }
     return( &(*is).second );
   }
 
@@ -175,7 +178,10 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     typename TimeSurfaceType::iterator	is = _surface->lower_bound( t );
 
     if( is == _surface->end() )
-      is = _surface->begin();
+    {
+      if( is != _surface->begin() )
+        --is;
+    }
     return( &(*is).second );
   }
 
