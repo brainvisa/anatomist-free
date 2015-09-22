@@ -44,7 +44,7 @@
 #include <graph/tree/tree.h>
 #include <qwidget.h>
 #include <qapplication.h>
-#include <aims/qtcompat/qwidgetlist.h>
+#include <QWidgetList>
 #include <vector>
 
 using namespace anatomist;

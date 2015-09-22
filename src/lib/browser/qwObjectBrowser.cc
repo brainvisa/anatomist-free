@@ -76,13 +76,6 @@
 #include <math.h>
 #include <float.h>
 
-// define this to enabl editable listview items.
-// change it also in qwObjectBrowser.cc
-// #define ANA_USE_EDITABLE_LISTVIEWITEMS
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-#include <aims/listview/editablelistviewitem.h>
-#endif
-
 namespace Qt {}
 using namespace Qt;
 
@@ -91,7 +84,6 @@ using namespace anatomist;
 using namespace aims;
 using namespace carto;
 using namespace std;
-// using aims::gui::QEditableListViewItem;
 
 // private class and def
 
@@ -146,13 +138,6 @@ struct QObjectBrowser::Private
   QTreeWidgetItem        *lastselectednode1;
   QTreeWidgetItem        *lastselectednode2;
 
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  // edition mode variables
-  string                editedAttribute;
-  set<QTreeWidgetItem *> editedItems;
-  QTreeWidgetItem *      editedMainItem;
-#endif
-
   // temporary elements for "add attribute" option
   set<QTreeWidgetItem *> tempAddedItems;
   bool                  tempAddedNewSyntax;
@@ -190,9 +175,6 @@ QObjectBrowser::Private::Private( QObjectBrowser* br )
     rviewrefreshtimer( 0 ), rviewrefresh( false ),
     view( new BrowserView( br ) ),
     lastselectednode1( 0 ), lastselectednode2( 0 ),
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-    editedMainItem( 0 ),
-#endif
     showDetailsUponRegister( false )
 {
 }
@@ -336,11 +318,6 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   connect( d->rview, SIGNAL( itemDoubleClicked( QTreeWidgetItem *, int ) ), 
             this,
             SLOT( rightPanelDoubleClicked( QTreeWidgetItem *, int ) ) );
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  connect( d->lview, SIGNAL( itemRenamed( QTreeWidgetItem *, int,
-           const QString & ) ), this, SLOT( leftItemRenamed( QTreeWidgetItem *,
-                                           int, const QString & ) ) );
-#endif
   connect( d->rview, SIGNAL( itemSelectionChanged() ), 
            this, SLOT( rightSelectionChangedSlot() ) );
   connect( d->lview, SIGNAL( dragStart( QTreeWidgetItem *, Qt::MouseButtons, 
@@ -351,12 +328,6 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
                                         Qt::KeyboardModifiers ) ), 
            this, SLOT( startDrag( QTreeWidgetItem *, Qt::MouseButtons, 
                                   Qt::KeyboardModifiers ) ) );
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  connect( d->lview, SIGNAL( itemStartsRename( QTreeWidgetItem *, int ) ), this,
-           SLOT( leftItemStartsRename( QTreeWidgetItem *, int ) ) );
-  connect( d->lview, SIGNAL( itemCancelsRename( QTreeWidgetItem *, int ) ),
-           this, SLOT( leftItemCancelsRename( QTreeWidgetItem *, int ) ) );
-#endif
 
   //	Attribute editors
   if( sstate.typeEditors.size() == 0 )
@@ -1652,22 +1623,6 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
   if( w < 30 )
     w = 30;
 
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  QObjectBrowser	*tbr;
-  QWidget		*pw = br->parentWidget();
-
-  for( tbr=dynamic_cast<QObjectBrowser *>( pw ); pw && !tbr;
-       pw=pw->parentWidget(), tbr=dynamic_cast<QObjectBrowser *>( pw ) ) {}
-
-  tbr->d->editedAttribute = att;
-  tbr->d->editedMainItem = item;
-  tbr->d->editedItems = items;
-  item->setRenameEnabled( 2, true );
-  if( !tbr->d->editedMainItem )
-    item->startRename( 2 );
-  //tbr->setMode( EDIT );
-  return false;
-#else
   QStringEdit	ed( attval, xy.x() + dx, xy.y(), w, pos.height(), theAnatomist->getQWidgetAncestor(),
                     att.c_str(), Qt::WindowStaysOnTopHint );
   if( ed.exec() )
@@ -1682,7 +1637,6 @@ bool QObjectBrowser::stringEditor( const std::set<GenericObject*> & objs,
   }
   else
     return false;
-#endif
 }
 
 
@@ -2161,21 +2115,6 @@ void QObjectBrowser::editCancel()
     d->tempAddedNewSyntax = false;
   }
 
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-  if( d->editedMainItem )
-  {
-    QEditableListViewItem *ei
-        = dynamic_cast<QEditableListViewItem *>( d->editedMainItem );
-    if( ei )
-    {
-      QTreeWidget  *lv = d->editedMainItem->listView();
-      lv->blockSignals( true );
-      ei->cancelRename( 2 );
-      lv->blockSignals( false );
-    }
-  }
-  d->editedMainItem = 0;
-#endif
   d->editor = 0;
 
   set<AWindow *>			win = theAnatomist->getWindows();
@@ -2191,108 +2130,19 @@ void QObjectBrowser::editCancel()
 }
 
 
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-void QObjectBrowser::leftItemStartsRename( QTreeWidgetItem* item, int )
-{
-  cout << "item starts rename: " << item << endl;
-  d->editedMainItem = item;
-  modifyAttribute();
-}
-#else
 void QObjectBrowser::leftItemStartsRename( QTreeWidgetItem*, int )
 {
 }
-#endif
 
 
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-void QObjectBrowser::leftItemCancelsRename( QTreeWidgetItem* item, int )
-{
-  cout << "item cancels rename: " << item << endl;
-  if( !d->editor )
-    editCancel();
-  else
-  {
-    cout << "editor still open\n";
-    item->startRename( 2 );
-  }
-}
-#else
 void QObjectBrowser::leftItemCancelsRename( QTreeWidgetItem*, int )
 {
 }
-#endif
 
 
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-void QObjectBrowser::leftItemRenamed( QTreeWidgetItem * item, int,
-                                      const QString & text )
-{
-  cout << "leftItemRenamed\n";
-  string attval = text.toStdString();
-  QObjectBrowserWidget	*lview = d->lview;
-  QObjectBrowserWidget::ItemDescr	descr;
-
-  lview->whatIs( item, descr );
-  GenericObject         *ao = descr.pao;
-  if( !ao )
-  {
-    QString		msg = tr( "Modify attribute " ) + descr.att.c_str();
-    QMessageBox::warning( this, msg,
-                          tr( "Cannot determine attribute characteristics"
-                            ) );
-    return;
-  }
-
-  /* item = lview->itemFor( item, QObjectBrowserWidget::ATTRIBUTE, att );
-  if( !item )
-  {
-    QMessageBox::warning( this, msg,
-                          tr( "Can't find attribute in tree.\nTry using "
-                              "\"add attribute (?)\"" ) );
-    return;
-  } */
-
-  if( descr.type == QObjectBrowserWidget::ATTRIBUTE )
-  {
-    cout << descr.att << " = " << attval << endl;
-    ao->setProperty( descr.att, attval );
-    AObject		*paro = aObject( lview, item );
-    if( paro != descr.pobj )
-      cout << "paro: " << paro << " != obj: " << descr.pobj << endl
-          << paro->name() << " / " << descr.obj->name() << endl;
-    set<AObject *>              aobj;
-
-    if( paro )
-    {
-      aobj.insert( paro );
-      paro->setChanged();
-    }
-    else
-      cerr << "can't find parent AObject for attribute (BUG !)\n";
-
-    set<AObject *>::iterator ia, ea = aobj.end();
-    for( ia=aobj.begin(); ia!=ea; ++ia )
-      (*ia)->internalUpdate();
-    // use a different loop because now the graph changed flags will be reset
-    // only once
-    for( ia=aobj.begin(); ia!=ea; ++ia )
-      (*ia)->notifyObservers( this );
-  }
-
-
-/*  set<GenericObject *>::const_iterator  io, eo = objs.end();
-  for( io=objs.begin(); io!=eo; ++io )
-    (*io)->setProperty( att, ed.text() );
-  set<QTreeWidgetItem *>::const_iterator il, el = items.end();
-  for( il=items.begin(); il!=el; ++il )
-    (*il)->setText( 2, ed.text().c_str() );*/
-}
-#else
 void QObjectBrowser::leftItemRenamed( QTreeWidgetItem *, int, const QString & )
 {
 }
-#endif
 
 
 void QObjectBrowser::editValidate()

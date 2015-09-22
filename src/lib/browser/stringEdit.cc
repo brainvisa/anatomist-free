@@ -33,7 +33,7 @@
 
 
 #include <anatomist/browser/stringEdit.h>
-#include <aims/qtcompat/qkeyevent.h>
+#include <QKeyEvent>
 #include <qlayout.h>
 
 using namespace std;

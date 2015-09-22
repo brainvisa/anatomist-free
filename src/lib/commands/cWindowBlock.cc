@@ -41,7 +41,7 @@
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <qapplication.h>
-#include <aims/qtcompat/qwidgetlist.h>
+#include <QWidgetList>
 #include <qwidget.h>
 #include <anatomist/application/Anatomist.h>
 
