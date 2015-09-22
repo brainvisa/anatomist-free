@@ -80,7 +80,7 @@
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
 
-#include <aims/qtcompat/qtoolbutton.h>
+#include <aims/qtmisc/qtoolbutton.h>
 #include <qfiledialog.h>
 #include <cartobase/config/info.h>
 #include <qtoolbar.h>
