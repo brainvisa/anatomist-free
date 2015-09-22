@@ -38,17 +38,38 @@
 #include <QNetworkProxy>
 #include <iostream>
 
-#ifdef QT3_SUPPORT
-#undef QT3_SUPPORT
-// #include <aims/qtcompat/qserversocket.h>
-#endif
-
 using namespace anatomist;
 using namespace std;
 
-
 namespace anatomist
 {
+
+  class AnaTcpServer : public QTcpServer
+  {
+  public:
+    AnaTcpServer();
+    virtual ~AnaTcpServer();
+
+  protected:
+    virtual void incomingConnection( int fd );
+  };
+
+  AnaTcpServer::AnaTcpServer() : QTcpServer()
+  {
+  }
+
+  AnaTcpServer::~AnaTcpServer()
+  {
+  }
+
+  void AnaTcpServer::incomingConnection( int fd )
+  {
+    // The default incomingConnection implementation is not thread-safe.
+    // see Qt QTcpServer doc.
+    cout << "incoming connection: " << fd << endl;
+    new APipeReader( fd, true );
+  }
+
 
   struct CommandServer::Private
   {
@@ -57,53 +78,13 @@ namespace anatomist
     ~Private();
 
     int		port;
-#ifdef QT3_SUPPORT
-    QServerSocket       *qsock;
-#else
-    QTcpServer       *qsock;
-#endif
+    AnaTcpServer       *qsock;
   };
 
   CommandServer::Private::~Private()
   {
     delete qsock;
   }
-
-#ifdef QT3_SUPPORT
-  namespace internal
-  {
-
-    class CommandServerSocket : public QServerSocket
-    {
-    public:
-      CommandServerSocket( CommandServer* cs, Q_UINT16 port, int backlog = 1, 
-                           QObject *parent = 0, const char *name = 0 );
-      virtual ~CommandServerSocket();
-      virtual void newConnection ( int socket );
-
-    private:
-      CommandServer     *server;
-    };
-
-    CommandServerSocket::CommandServerSocket( CommandServer* cs, 
-                                              Q_UINT16 port, int backlog, 
-                                              QObject *parent, 
-                                              const char *name )
-      : QServerSocket( port, backlog, parent, name ), server( cs )
-    {
-    }
-
-    CommandServerSocket::~CommandServerSocket()
-    {
-    }
-
-    void CommandServerSocket::newConnection ( int sock )
-    {
-      server->newConnection( sock );
-    }
-
-  }
-#endif
 
 }
 
@@ -139,12 +120,7 @@ void CommandServer::run()
 {
   delete d->qsock;
 
-#ifdef QT3_SUPPORT
-  d->qsock = new internal::CommandServerSocket( this, (short) d->port, 32 );
-
-#else
-//   QNetworkProxy::setApplicationProxy( QNetworkProxy::NoProxy );
-  d->qsock = new QTcpServer;
+  d->qsock = new AnaTcpServer;
   d->qsock->setMaxPendingConnections( 32 );
   if( !d->qsock->listen( QHostAddress::Any, (short) d->port ) )
   {
@@ -153,9 +129,6 @@ void CommandServer::run()
     d->qsock = 0;
     return;
   }
-  d->qsock->connect( d->qsock, SIGNAL( newConnection() ), 
-                     this, SLOT( newConnection() ) );
-#endif
 }
 
 
@@ -169,11 +142,7 @@ bool CommandServer::ok() const
 {
   if( !d->qsock )
     return false;
-#ifdef QT3_SUPPORT
-  return d->qsock->ok();
-#else
   return d->qsock->isListening();
-#endif
 }
 
 
@@ -182,30 +151,4 @@ void CommandServer::setPort( int p )
   d->port = p;
   run();
 }
-
-
-#ifdef QT3_SUPPORT
-void CommandServer::newConnection( int sock )
-{
-  cout << "new connection\n" << flush;
-  new APipeReader( sock, true );
-}
-
-#else
-void CommandServer::newConnection()
-{
-  cout << "new connection\n" << flush;
-
-  while( d->qsock->hasPendingConnections() )
-  {
-    cout << "getting pending connection\n";
-    QTcpSocket *tcpsock = d->qsock->nextPendingConnection();
-    tcpsock->setProxy( QNetworkProxy::NoProxy );
-    cout << "proxy: " << tcpsock->proxy().type() << endl;
-    cout << "state: " << tcpsock->state() << endl;
-    new APipeReader( tcpsock->socketDescriptor(), true );
-    cout << "pending connection done\n";
-  }
-}
-#endif
 

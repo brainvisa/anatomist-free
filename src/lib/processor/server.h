@@ -39,37 +39,6 @@
 namespace anatomist
 {
 
-// #ifdef QT3_SUPPORT
-//
-//   namespace internal
-//   {
-//     class CommandServerSocket;
-//   }
-//
-//   class CommandServer
-//   {
-//   public:
-//     CommandServer( int portnum );
-//     ~CommandServer();
-//     int port() const;
-//     void setPort( int p );
-//     bool ok() const;
-//
-//     /// singleton
-//     static CommandServer* server();
-//
-//   private:
-//     struct Private;
-//     friend class internal::CommandServerSocket;
-//
-//     void run();
-//     void newConnection( int sock );
-//
-//     Private     *d;
-//   };
-//
-// #else
-
   class CommandServer : QObject
   {
     Q_OBJECT
@@ -84,9 +53,6 @@ namespace anatomist
     /// singleton
     static CommandServer* server();
 
-  private slots:
-    virtual void newConnection();
-
   private:
     struct Private;
 
@@ -94,8 +60,6 @@ namespace anatomist
 
     Private	*d;
   };
-
-// #endif
 
 }
 
