@@ -341,14 +341,6 @@ void APipeReader::readSocket()
 
   //cout << "ReadSocket\n" << flush;
 
-#ifdef QT3_SUPPORT
-  // I hope his is not useful with Qt4 but cannot find any documentation.
-
-  //cout << "loopLevel : " << qApp->loopLevel() << endl;
-  if( qApp->loopLevel() > 1 )	// sub-loop, don't read
-    return;
-#endif
-
   istream	*&istr = d->context->istr;
   do
     {
