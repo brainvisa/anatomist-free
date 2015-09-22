@@ -44,14 +44,6 @@
 #include <vector>
 #include <iostream>
 
-// define this to enabl editable listview items.
-// change it also in qwObjectBrowser.cc
-// #define ANA_USE_EDITABLE_LISTVIEWITEMS
-
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-#include <aims/listview/editablelistviewitem.h>
-#endif
-
 using namespace anatomist;
 using namespace carto;
 using namespace std;
@@ -317,16 +309,10 @@ void AttDescr::printAttribute( QObjectBrowserWidget* br,
         item = 0;
       if( !item )
       {
-#ifdef ANA_USE_EDITABLE_LISTVIEWITEMS
-        item = new aims::gui::QEditableListViewItem( parent,
-            semantic.c_str(), type.c_str(), value.c_str() );
-        item->setRenameEnabled( 2, true );
-#else
         item = new QTreeWidgetItem( parent );
         item->setText( 0, semantic.c_str() );
         item->setText( 1, type.c_str() );
         item->setText( 2, value.c_str() );
-#endif
         if( regist )
           br->registerAttribute( item );
       }
