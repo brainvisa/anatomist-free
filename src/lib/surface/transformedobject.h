@@ -78,6 +78,9 @@ namespace anatomist
     Point3df dynamicOffsetFromPoint() const;
     void setScale( float scale );
     float scale() const;
+    virtual const GLComponent* glAPI() const { return ObjectVector::glAPI(); }
+    virtual GLComponent* glAPI() { return ObjectVector::glAPI(); }
+
 
   protected:
     void setupTransforms( GLPrimitives &, const ViewState & );
