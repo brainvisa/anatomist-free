@@ -128,6 +128,13 @@ RoiLevelSetControl::eventAutoSubscription( ActionPool * actionPool )
                        ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
   //        translation
 
   mouseLongEventSubscribe

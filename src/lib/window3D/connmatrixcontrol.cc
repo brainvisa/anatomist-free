@@ -223,6 +223,13 @@ void ConnectivityMatrixControl::eventAutoSubscription(
                           KeyActionLinkOf<Sync3DAction>
                           ( actionPool->action( "Sync3DAction" ),
                             &Sync3DAction::execSyncOrientation ) );
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
   // rotation
 
   mouseLongEventSubscribe

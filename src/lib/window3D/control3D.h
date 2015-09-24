@@ -363,6 +363,19 @@ namespace anatomist
     void dragSelected( int x, int y, int globalX, int globalY );
   };
 
+
+  class SortMeshesPolygonsAction : public Action
+  {
+  public:
+    SortMeshesPolygonsAction();
+    virtual ~SortMeshesPolygonsAction();
+
+    virtual std::string name() const { return "SortMeshesPolygonsAction"; }
+    static Action * creator();
+
+    void sort();
+  };
+
 }
 
 

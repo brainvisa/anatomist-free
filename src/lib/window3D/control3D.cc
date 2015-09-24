@@ -57,6 +57,8 @@
 #include <anatomist/window3D/annotedgraph.h>
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/application/globalConfig.h>
+#include <anatomist/reference/Transformation.h>
+#include <aims/mesh/surfaceOperation.h>
 #include <qtimer.h>
 #include <qtoolbar.h>
 #include <stdlib.h>
@@ -286,6 +288,14 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
                             &MovieAction::decreaseSpeed ),
                           "movie_dec_speed" );
 
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
+
   // Is it MY job to maintain this map ???
   myActions[ "MovieAction" ] = actionPool->action( "MovieAction" );
   myActions[ "ContinuousTrackball" ]
@@ -419,6 +429,13 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
         ( actionPool->action( "Sync3DAction" ),
           &Sync3DAction::execSyncOrientation ),
         "sync_views_orientation" );
+
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
 
   // rotation
 
@@ -1304,6 +1321,13 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::endTranslate ), true );
 
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
   //        Flight simulator
 
   keyRepetitiveEventSubscribe( Qt::Key_Up, Qt::NoModifier,
@@ -1543,6 +1567,14 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
                        ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
+
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
   // oblique trackball
 
   mouseLongEventSubscribe
@@ -1656,6 +1688,13 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "Sync3DAction" ),
                             &Sync3DAction::execSyncOrientation ),
                           "sync_views_orientation" );
+
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
 
   // rotation
 
@@ -1872,6 +1911,13 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "Sync3DAction" ),
                             &Sync3DAction::execSyncOrientation ),
                           "sync_views_orientation" );
+
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
 
   // rotation
 
@@ -2361,6 +2407,92 @@ void WindowActions::toggleFullScreen()
   p->value<Dictionary>()[ "fullscreen" ] = Object::value( 2 );
   WindowConfigCommand *c = new WindowConfigCommand( sw, *p );
   theProcessor->execute( c );
+}
+
+
+SortMeshesPolygonsAction::SortMeshesPolygonsAction()
+  : Action()
+{
+}
+
+
+SortMeshesPolygonsAction::~SortMeshesPolygonsAction()
+{
+}
+
+
+Action * SortMeshesPolygonsAction::creator()
+{
+  return new SortMeshesPolygonsAction;
+}
+
+
+void SortMeshesPolygonsAction::sort()
+{
+  GLWidgetManager *wm = dynamic_cast<GLWidgetManager *>( view() );
+  if( !wm )
+    return;
+  AWindow        *w = view()->aWindow();
+  set<AObject *> objs = w->Objects();
+  set<MObject *> mobjs;
+  set<ASurface<3> *> meshes;
+  set<AObject *>::iterator io, eo = objs.end();
+  MObject::iterator im, em;
+  set<ASurface<3> *>::iterator is, es = meshes.end();
+  float timestep = w->getTime(), timemesh;
+
+  for( io=objs.begin(); io!=eo; ++io )
+  {
+    ASurface<3> *mesh = dynamic_cast<ASurface<3> *>( *io );
+    if( mesh && mesh->isTransparent() )
+      meshes.insert( mesh );
+    else
+    {
+      MObject *mobj = dynamic_cast<MObject *>( *io );
+      if( mobj )
+        mobjs.insert( mobj );
+    }
+  }
+
+  while( !mobjs.empty() )
+  {
+    MObject *obj = *mobjs.begin();
+    mobjs.erase( mobjs.begin() );
+    for( im=obj->begin(), em=obj->end(); im!=em; ++im )
+    {
+      ASurface<3> *mesh = dynamic_cast<ASurface<3> *>( *im );
+      if( mesh && mesh->isTransparent() )
+        meshes.insert( mesh );
+      else
+      {
+        MObject *mobj = dynamic_cast<MObject *>( *im );
+        if( mobj )
+          mobjs.insert( mobj );
+      }
+    }
+  }
+
+  Transformation *t;
+  Quaternion q = wm->quaternion();
+  Point3df direction = q.transform( Point3df( 0, 0, 1 ) );
+  if( wm->invertedZ() )
+    direction[2] *= -1;
+  Point3df transDir;
+
+  for( is=meshes.begin(); is!=es; ++is )
+  {
+    timemesh = (*is)->actualTime( timestep );
+    t = theAnatomist->getTransformation( w->getReferential(),
+                                         (*is)->getReferential() );
+    if( t )
+      transDir = t->transform( direction );
+    else
+      transDir = direction;
+    SurfaceManip::sortPolygonsAlongDirection(
+      *(*is)->surface(), timemesh, transDir );
+    (*is)->glSetChanged( GLComponent::glGEOMETRY );
+    (*is)->notifyObservers( this );
+  }
 }
 
 

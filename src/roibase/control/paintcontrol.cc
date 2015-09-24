@@ -124,6 +124,13 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
                             &WindowActions::toggleShowTools ),
                           "show_tools_toggle" );
 
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
 
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::ShiftModifier,

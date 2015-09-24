@@ -144,6 +144,8 @@ namespace anatomist
     virtual std::string name() const;
     void setZoom( float z );
     float zoom() const;
+    /** The quaternion rotates the initial eye direction (0, 0, 1) into the
+        view coordinates, before Z axis inversion. */
     const aims::Quaternion & quaternion() const;
     void setQuaternion( const Point4df & q );
     void setQuaternion( const  aims::Quaternion & q );

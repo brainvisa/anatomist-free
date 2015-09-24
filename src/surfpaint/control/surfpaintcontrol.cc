@@ -95,6 +95,13 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
           &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
           actionPool->action("Trackball"), &Trackball::endTrackball), true);
 
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
   // validate
   keyPressEventSubscribe( Qt::Key_Return, Qt::NoModifier,
                           KeyActionLinkOf<SurfpaintToolsAction>
