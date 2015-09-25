@@ -407,8 +407,10 @@ Anatomist::~Anatomist()
   delete FusionFactory::factory();
   AObject::cleanStatic();
   delete SelectFactory::factory();
-  
+
   StaticInitializers::cleanup();
+
+  ModuleManager::shutdown();
 
   delete _privData;
   _privData = 0;
