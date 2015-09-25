@@ -90,9 +90,31 @@ Tree* Module::controlWinOptions() const
 }
 
 
+ModuleManager::ModuleManager()
+{
+}
+
+
+ModuleManager::~ModuleManager()
+{
+  iterator i, e = my_modules.end();
+  while( !my_modules.empty() )
+    delete my_modules.back();
+  my_manager = 0;
+}
+
+
 ModuleManager* ModuleManager::instance()
 {
   if( !my_manager )
     my_manager = new ModuleManager;
   return my_manager;
 }
+
+
+void ModuleManager::shutdown()
+{
+  delete my_manager;
+}
+
+

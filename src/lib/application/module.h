@@ -77,6 +77,7 @@ namespace anatomist
     typedef std::list<Module*>::reverse_iterator reverse_iterator;
     typedef std::list<Module*>::const_reverse_iterator const_reverse_iterator;
     typedef std::list<Module*>::size_type size_type;
+    ~ModuleManager();
     iterator begin() { return my_modules.begin(); }
     iterator end() { return my_modules.end(); }
     reverse_iterator rbegin() { return my_modules.rbegin(); } 
@@ -84,12 +85,16 @@ namespace anatomist
     bool empty() const { return my_modules.empty(); }
     size_type size() const { return my_modules.size(); }
     static ModuleManager* instance();
+    /// delete the module manager
+    static void shutdown();
 
   protected:
     void insert( Module* m ) { my_modules.push_back( m ); }
     void remove( Module* m ) { my_modules.remove( m ); }
 
   private:
+    ModuleManager();
+
     std::list<Module*> my_modules;
     static ModuleManager* my_manager;
   };
