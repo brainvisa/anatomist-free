@@ -2343,7 +2343,7 @@ SaveObject
 .. _SaveTransformation:
 
 SaveTransformation
------------------
+------------------
 
 .. raw:: html
 
@@ -3191,6 +3191,12 @@ WindowConfig
       <td valign="top">polygons rendering mode: "<tt>normal</tt>",
         "<tt>wireframe</tt>", "<tt>outline</tt>" (normal + wireframe),
         "<tt>hiddenface_wireframe</tt>" (wireframe with hidden faces)
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>polygons_depth_sorting</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.5</b>. enables (1) or disables (0) polygons sortig along depth on transparent objects to allow a better rendering. This mode has a large impact on performances, so use it with care.
       </td>
     </tr>
     <tr>
