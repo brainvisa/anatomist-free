@@ -251,6 +251,11 @@ public:
   std::list<anatomist::AObject *>::iterator processRenderingOrder(
     std::list<anatomist::AObject *> & opaque ) const;
 
+  bool polygonsSortingEnabled() const;
+  void setPolygonsSortingEnabled( bool );
+  virtual void sortPolygons( bool force = false );
+
+
 signals:
 	void refreshed();
 

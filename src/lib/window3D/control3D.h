@@ -40,6 +40,7 @@
 #include <anatomist/controler/action.h>
 #include <qglobal.h>
 
+class AWindow3D;
 
 namespace anatomist
 {
@@ -374,6 +375,7 @@ namespace anatomist
     static Action * creator();
 
     void sort();
+    void toggleAutoSort();
   };
 
 }

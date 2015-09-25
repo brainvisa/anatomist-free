@@ -199,6 +199,8 @@ namespace anatomist
     virtual void recordStart();
     virtual void recordStop();
 
+    bool hasCameraChanged() const;
+
     /// QGraphicsView needs to call event methods
     friend class anatomist::internal::AGraphicsView;
 

@@ -797,6 +797,7 @@
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and vertical move:&lt;/td&gt;&lt;td&gt;change colormap(s) max value&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;Reset palette settings&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -848,6 +849,7 @@ It allows to change the view point with the keyboard. It works better in non-iso
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;Q&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;thrust&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;brake&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -872,6 +874,7 @@ It allows to change the view point with the keyboard. It works better in non-iso
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -888,6 +891,7 @@ In addition:
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;scale&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -927,6 +931,7 @@ undo, redo...
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo last modification&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo last modification&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/p&gt;&lt;/html&gt;</translation>
     </message>
@@ -983,6 +988,7 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coronal plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sagittal plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/p&gt;&lt;/html&gt;</translation>
     </message>
@@ -1086,6 +1092,8 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;redo&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;esc&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Cancel the current started action&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;return&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;validate the current started action&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/html&gt;</translation>
     </message>

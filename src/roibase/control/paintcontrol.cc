@@ -131,6 +131,12 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
                             &SortMeshesPolygonsAction::sort ),
                           "sort_polygons_by_depth" );
 
+  keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleAutoSort ),
+                          "auto_sort_polygons_by_depth" );
+
 
   mousePressButtonEventSubscribe
     ( Qt::LeftButton, Qt::ShiftModifier,
