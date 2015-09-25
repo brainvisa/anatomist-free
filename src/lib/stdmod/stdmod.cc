@@ -213,6 +213,10 @@ void StdModule::actionsDeclaration()
   ActionDictionary::instance()->addAction( cmac.name(),
     &ConnectivityMatrixAction::creator );
 
+  SortMeshesPolygonsAction smpa;
+  ActionDictionary::instance()->addAction( smpa.name(),
+    &SortMeshesPolygonsAction::creator );
+
   //        Commands
   ActivateActionCommand::initSyntax();
   AddObjectCommand::initSyntax();

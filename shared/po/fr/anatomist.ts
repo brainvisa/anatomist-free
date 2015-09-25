@@ -779,6 +779,8 @@
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -805,6 +807,8 @@ Il permet de changer le point de vue avec les touches du clavier. Noter que ce c
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;mode vol continu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;G&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;arrête le vol continu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;marche avant / arrière&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -842,6 +846,8 @@ Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Annuler / refaire:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo (efface la dernière modification)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo (ré-applique la dernière modification)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -871,6 +877,8 @@ Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&gt;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;espace&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;&quot;pipette&quot;, mémorise le label des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+&amp;&amp;lt;ENTRÉE&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;applique le label courant aux objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -910,6 +918,8 @@ Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+bt droit&amp;&amp;gt; et déplacement horizontal&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur min de la palette&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+bt droit&amp;&amp;gt; et déplacement vertical&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur max de la palette&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;réglages de couleurs par défaut&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;
 &lt;/html&gt;</translation>
     </message>
@@ -926,6 +936,8 @@ De plus:
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + btn gauche :&lt;/td&gt;&lt;td&gt;change l&apos;échelle&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + btn gauche :&lt;/td&gt;&lt;td&gt;rotation dans le plan de coupe&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche / cache les infos sur la transformation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -977,6 +989,8 @@ Bt droit   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan axial&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan coronal&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan sagittal&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -996,6 +1010,8 @@ pour dessiner votre région
 &lt;tr&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo (efface la dernière modification)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo (ré-applique la dernière modification)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -1079,6 +1095,8 @@ Bt droit   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;refaire&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;échap&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;annuler l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;entrée&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;valider l&apos;action en cours&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/html&gt;</translation>
     </message>

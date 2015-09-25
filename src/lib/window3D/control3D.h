@@ -40,6 +40,7 @@
 #include <anatomist/controler/action.h>
 #include <qglobal.h>
 
+class AWindow3D;
 
 namespace anatomist
 {
@@ -361,6 +362,20 @@ namespace anatomist
 
     void dragAll( int x, int y, int globalX, int globalY );
     void dragSelected( int x, int y, int globalX, int globalY );
+  };
+
+
+  class SortMeshesPolygonsAction : public Action
+  {
+  public:
+    SortMeshesPolygonsAction();
+    virtual ~SortMeshesPolygonsAction();
+
+    virtual std::string name() const { return "SortMeshesPolygonsAction"; }
+    static Action * creator();
+
+    void sort();
+    void toggleAutoSort();
   };
 
 }

@@ -176,6 +176,45 @@
     </message>
 </context>
 <context>
+    <name>AimsFileDialogExtension</name>
+    <message>
+        <source>selected:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>options...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Header information:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribute:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value:</source>
+        <translation type="unfinished">Value:</translation>
+    </message>
+    <message>
+        <source>Unrecognized file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load options (appended to URL):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options dictionary:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AttributedChooser</name>
     <message>
         <source>Name :</source>
@@ -713,6 +752,10 @@
         <source>Could not reload the following objects:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save ROI Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ControlledWindow</name>
@@ -753,6 +796,8 @@
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and horizontal move:&lt;/td&gt;&lt;td&gt;change colormap(s) min value&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and vertical move:&lt;/td&gt;&lt;td&gt;change colormap(s) max value&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;Reset palette settings&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -803,6 +848,8 @@ It allows to change the view point with the keyboard. It works better in non-iso
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+left&amp;&amp;gt;, &amp;&amp;lt;ctrl+right&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;flat turn (rudder bar)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;Q&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;thrust&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;brake&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -826,6 +873,8 @@ It allows to change the view point with the keyboard. It works better in non-iso
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -842,6 +891,7 @@ In addition:
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;scale&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -880,6 +930,9 @@ undo, redo...
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Undo / Redo&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;U&amp;&amp;gt; / &amp;&amp;lt;ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;undo last modification&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt; / &amp;&amp;lt;shift + ctrl + Z&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;redo last modification&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
 &lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -934,6 +987,9 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;axial plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coronal plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sagittal plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
 &lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -1036,6 +1092,8 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + &amp;&amp;lt;ctrl&amp;&amp;gt; Z:&lt;/td&gt;&lt;td&gt;redo&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;esc&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Cancel the current started action&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;return&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;validate the current started action&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;/html&gt;</translation>
     </message>
@@ -1133,6 +1191,26 @@ Right Button   :  menu
     </message>
     <message>
         <source>no associated texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texture value selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>distance map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tolerance</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2008,6 +2086,20 @@ might still crash with such an OpenGL implementation.</source>
         <source>Use shader-based OpenGL pipeline (lighting/shading model) by default</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Default background color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit polygons / object:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setting such a limit allows to work around performance problems with very large meshes and limited 3D hardware. Rendering will be incomplete in such a case, but this may avoid complete computer hangups.
+It is especially useful when displaying large fiber tracts sets, where cutting off a part of fibers will, in most cases, not really affect the golbal sight of fibers.
+0 here means no limitation.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QAColorDialog</name>
@@ -2041,6 +2133,13 @@ might still crash with such an OpenGL implementation.</source>
     <message>
         <source>Neutral alpha channel</source>
         <translation type="unfinished">Neutral alpha channel</translation>
+    </message>
+</context>
+<context>
+    <name>QAHistogramWindow</name>
+    <message>
+        <source>Histogram</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2835,6 +2934,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <source>Rendering</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save as textured mesh</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3484,15 +3587,7 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Image Histo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save Histos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Graph Histos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3540,14 +3635,6 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Activate Threshold Preview</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deactivate Threshold Preview</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Blob segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3716,10 +3803,6 @@ Do you still want to proceed ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Personnal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Free</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3752,6 +3835,27 @@ whose color you want to change</source>
         <source>If you change of framework, your 
 user defined one will be deleted.
 Do you want to save it ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete ROI session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If you close this session, all modifications since your last save will be lost. 
+Do you still want to proceed ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Defined</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User defined</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3876,10 +3980,6 @@ Do you want to save it ?</source>
 <context>
     <name>SurfpaintTools</name>
     <message>
-        <source>Texture value selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unconstrained</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3892,19 +3992,7 @@ Do you want to save it ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>tolerance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>distance map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>undo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>redo</source>
+        <source>Save Texture</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -165,6 +165,7 @@ struct GLWidgetManager::Private
   int mouseY;
   bool resized;
   bool saveInProgress;
+  bool cameraChanged;
 };
 
 
@@ -183,7 +184,8 @@ GLWidgetManager::Private::Private()
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
-    mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false )
+    mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
+    cameraChanged( true )
 {
   buildRotationMatrix();
 }
@@ -459,7 +461,8 @@ void GLWidgetManager::setRGBBufferUpdated( bool x )
 
 void GLWidgetManager::paintGL( DrawMode m )
 {
-//   _pd->glwidget->makeCurrent();
+  _pd->cameraChanged = false;
+  //   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
@@ -1641,9 +1644,13 @@ void GLWidgetManager::setQuaternion( const Point4df & q )
     qr *= _pd->quaternion.inverse();
     _pd->righteye->setQuaternion( qr * _pd->righteye->quaternion() );
   }
-  _pd->quaternion = q;
-  _pd->buildRotationMatrix();
-  _pd->resized = true;
+  if( _pd->quaternion.vector() != q )
+  {
+    _pd->quaternion = q;
+    _pd->buildRotationMatrix();
+    _pd->resized = true;
+    _pd->cameraChanged = true;
+  }
 }
 
 
@@ -1654,9 +1661,13 @@ void GLWidgetManager::setQuaternion( const Quaternion & q )
     _pd->righteye->setQuaternion( q * _pd->quaternion.inverse()
                                 * _pd->righteye->quaternion() );
   }
-  _pd->quaternion = q;
-  _pd->buildRotationMatrix();
-  _pd->resized = true;
+  if( _pd->quaternion.vector() != q.vector() )
+  {
+    _pd->quaternion = q;
+    _pd->buildRotationMatrix();
+    _pd->resized = true;
+    _pd->cameraChanged = true;
+  }
 }
 
 
@@ -1838,6 +1849,12 @@ AWindow* GLWidgetManager::aWindow()
 bool GLWidgetManager::recording() const
 {
   return _pd->record;
+}
+
+
+bool GLWidgetManager::hasCameraChanged() const
+{
+  return _pd->cameraChanged;
 }
 
 

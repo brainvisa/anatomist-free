@@ -77,12 +77,13 @@
 #include <anatomist/application/settings.h>
 #include <anatomist/window3D/orientationAnnotation.h>
 #include <anatomist/window3D/agraphicsview_p.h>
+#include <anatomist/object/objectConverter.h>
+#include <aims/mesh/surfaceOperation.h>
+#include <aims/resampling/quaternion.h>
 #include <qslider.h>
 #include <qglobal.h>
 #include <qmessagebox.h>
-#include <anatomist/object/objectConverter.h>
 #include <QtOpenGL/QGLWidget>
-#include <aims/resampling/quaternion.h>
 #include <qlabel.h>
 #include <qmenubar.h>
 #include <qmenu.h>
@@ -202,6 +203,7 @@ struct AWindow3D::Private
     int constraintType;
     AObject *texConstraint;
     OrientationAnnotation * orientAnnot;
+    bool sortPolygons;
 };
 
 namespace
@@ -369,7 +371,7 @@ AWindow3D::Private::Private() :
       righteye(0), objvallabel(0), statusbarvisible(false),
       needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 )
+      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false )
 {
   try
   {
@@ -1048,6 +1050,8 @@ void AWindow3D::freeResize()
 
 void AWindow3D::refreshNow()
 {
+  sortPolygons();
+
   switch (d->refreshneeded)
   {
     case Private::LightRefresh:
@@ -3005,7 +3009,15 @@ void AWindow3D::refreshLightViewNow()
 {
   d->refreshneeded = Private::FullRefresh;
   list<shared_ptr<AObject> >::iterator i, e = _objects.end();
-  for (i = _objects.begin(); i != e && !(*i)->renderingIsObserverDependent(); ++i)
+  GLWidgetManager *wm = dynamic_cast<GLWidgetManager *>( view() );
+  bool dontsortpoly = true;
+  if( wm && wm->hasCameraChanged() && d->sortPolygons )
+    dontsortpoly = false;
+
+  for( i = _objects.begin();
+      i != e && !(*i)->renderingIsObserverDependent()
+        && ( dontsortpoly || !(*i)->isTransparent() );
+      ++i )
   {
   }
   if (i == e)
@@ -3820,4 +3832,86 @@ void AWindow3D::enableToolTips( bool x )
     d->tooltip = 0;
   }
 }
+
+
+bool AWindow3D::polygonsSortingEnabled() const
+{
+  return d->sortPolygons;
+}
+
+
+void AWindow3D::setPolygonsSortingEnabled( bool enabled )
+{
+  d->sortPolygons = enabled;
+  if( enabled )
+    Refresh();
+}
+
+
+void AWindow3D::sortPolygons( bool force )
+{
+  GLWidgetManager *wm = dynamic_cast<GLWidgetManager *>( view() );
+  if( !wm || ( !force && ( !wm->hasCameraChanged() || !d->sortPolygons ) ) )
+    return;
+
+  set<MObject *> mobjs;
+  set<ASurface<3> *> meshes;
+  set<AObject *>::iterator io, eo = _sobjects.end();
+  MObject::iterator im, em;
+  set<ASurface<3> *>::iterator is, es = meshes.end();
+  float timestep = getTime(), timemesh;
+
+  for( io=_sobjects.begin(); io!=eo; ++io )
+  {
+    ASurface<3> *mesh = dynamic_cast<ASurface<3> *>( *io );
+    if( mesh && mesh->isTransparent() )
+      meshes.insert( mesh );
+    else
+    {
+      MObject *mobj = dynamic_cast<MObject *>( *io );
+      if( mobj )
+        mobjs.insert( mobj );
+    }
+  }
+
+  while( !mobjs.empty() )
+  {
+    MObject *obj = *mobjs.begin();
+    mobjs.erase( mobjs.begin() );
+    for( im=obj->begin(), em=obj->end(); im!=em; ++im )
+    {
+      ASurface<3> *mesh = dynamic_cast<ASurface<3> *>( *im );
+      if( mesh && mesh->isTransparent() )
+        meshes.insert( mesh );
+      else
+      {
+        MObject *mobj = dynamic_cast<MObject *>( *im );
+        if( mobj )
+          mobjs.insert( mobj );
+      }
+    }
+  }
+
+  anatomist::Transformation *t;
+  Quaternion q = wm->quaternion();
+  Point3df direction = q.transform( Point3df( 0, 0, 1 ) );
+  if( wm->invertedZ() )
+    direction[2] *= -1;
+  Point3df transDir;
+
+  for( is=meshes.begin(); is!=es; ++is )
+  {
+    timemesh = (*is)->actualTime( timestep );
+    t = theAnatomist->getTransformation( getReferential(),
+                                         (*is)->getReferential() );
+    if( t )
+      transDir = t->transform( direction );
+    else
+      transDir = direction;
+    SurfaceManip::sortPolygonsAlongDirection(
+      *(*is)->surface(), timemesh, transDir );
+    (*is)->glSetChanged( GLComponent::glGEOMETRY );
+  }
+}
+
 

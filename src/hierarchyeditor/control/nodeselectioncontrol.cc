@@ -126,6 +126,19 @@ NodeSelectionControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<NodeSelectionAction>( actionPool->action( "NodeSelectionAction" ),
 				      &NodeSelectionAction::remove ) );
 
+  // sort triangles by depth
+  keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::sort ),
+                          "sort_polygons_by_depth" );
+
+  keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleAutoSort ),
+                          "auto_sort_polygons_by_depth" );
+
   // rotation
 
   mouseLongEventSubscribe
