@@ -65,6 +65,7 @@ public slots:
   void setFlatShading( bool );
   void setSmoothing( bool );
   void setFog( bool );
+  void setPolygonsSorting( bool );
   void setCursorVisibility( int );
 
 protected:

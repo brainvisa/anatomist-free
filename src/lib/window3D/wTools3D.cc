@@ -60,6 +60,7 @@ struct Tools3DWindow::Private
   QCheckBox	*flatpoly;
   QCheckBox	*smooth;
   QCheckBox	*fog;
+  QCheckBox     *poly_zsort;
   QGroupBox	*clip;
   QButtonGroup  *clipbg;
   QSpinBox	*cld;
@@ -226,6 +227,13 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   d->fog = fog;
   fog->setToolTip( tr( "Use fog (useful only in perspective mode" ) );
   d->fog->setChecked( _window->fog() );
+  QCheckBox     *poly_zsort = new QCheckBox( tr( "Depth sorting of polygons" ),
+                                             this );
+  d->poly_zsort = poly_zsort;
+  poly_zsort->setToolTip( tr( "Sort polygons by depth for transparent "
+    "objects. This makes transparency look far better, but has a large impact "
+    "on rendering performance." ) );
+  d->poly_zsort->setChecked( _window->polygonsSortingEnabled() );
 
   QGroupBox *clip = new QGroupBox( tr( "Clipping plane :" ), this );
   vlay = new QVBoxLayout( clip );
@@ -332,6 +340,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   mainlay->addWidget( flatpoly );
   mainlay->addWidget( smooth );
   mainlay->addWidget( fog );
+  mainlay->addWidget( poly_zsort );
   mainlay->addWidget( clip );
   mainlay->addWidget( dpg );
   mainlay->addWidget( wsg );
@@ -358,7 +367,9 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   connect( smooth, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( setSmoothing( bool ) ) );
   connect( fog, SIGNAL( toggled( bool ) ), this, SLOT( setFog( bool ) ) );
-  connect( dpeel, SIGNAL( toggled( bool ) ), this, 
+  connect( poly_zsort, SIGNAL( toggled( bool ) ),
+           this, SLOT( setPolygonsSorting( bool ) ) );
+  connect( dpeel, SIGNAL( toggled( bool ) ), this,
 	   SLOT( enableDepthPeeling( bool ) ) );
   connect( dppass, SIGNAL( valueChanged( int ) ), this, 
 	   SLOT( setDepthPeelingPasses( int ) ) );
@@ -397,6 +408,7 @@ void Tools3DWindow::update( const Observable*, void* arg )
   d->cull->setChecked( _window->cullingEnabled() );
   d->flatpoly->setChecked( _window->flatShading() );
   d->smooth->setChecked( _window->smoothing() );
+  d->poly_zsort->setChecked( _window->polygonsSortingEnabled() );
   d->clipbg->button( (int) _window->clipMode() )->setChecked( true );
   d->cld->setValue( (int) ( _window->clipDistance() * 100 ) );
   d->smooth->setChecked( _window->smoothing() );
@@ -496,6 +508,12 @@ void Tools3DWindow::setFog( bool x )
 {
   _window->setFog( x );
   _window->Refresh();
+}
+
+
+void Tools3DWindow::setPolygonsSorting( bool x )
+{
+  _window->setPolygonsSortingEnabled( x );
 }
 
 

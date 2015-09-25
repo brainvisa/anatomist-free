@@ -109,10 +109,10 @@ void WindowConfigCommand::doit()
   GLWidgetManager	*v;
   string	polymode;
   AWindow3D::RenderingMode	ipolmode = AWindow3D::Normal;
-  int		persp, zbuf, cull, flat, filt, fog, clip;
+  int		persp, zbuf, cull, flat, filt, fog, polysort, clip;
   bool		bpolmode = false, bpersp = false, bzbuf = false, 
     bcull = false, bflat = false, bfilt = false, bfog = false, bclip = false, 
-    bclipd = false, bcurs;
+    bclipd = false, bcurs, bpolysort = false;
   float		clipd;
   int		raise = 0, icon = 0, hascursor = -1;
   string	snap;
@@ -141,6 +141,7 @@ void WindowConfigCommand::doit()
   bflat = _config->getProperty( "flat_shading", flat );
   bfilt = _config->getProperty( "polygon_filtering", filt );
   bfog = _config->getProperty( "fog", fog );
+  bpolysort = _config->getProperty( "polygons_depth_sorting", polysort );
   bclip = _config->getProperty( "clipping", clip );
   if( clip > 2 )
     clip = 2;
@@ -216,6 +217,8 @@ void WindowConfigCommand::doit()
             w3->setSmoothing( (bool) filt );
           if( bfog )
             w3->setFog( (bool) fog );
+          if( bpolysort )
+            w3->setPolygonsSortingEnabled( (bool) polysort );
           if( bclip )
             w3->setClipMode( (AWindow3D::ClipMode) clip );
           if( bclipd )
@@ -246,7 +249,7 @@ void WindowConfigCommand::doit()
             }
 
           if( bpolmode || bpersp || bzbuf || bcull || bflat || bfilt || bfog
-              || bclip || bclipd || bcurs || !light.isNull() )
+              || bpolysort || bclip || bclipd || bcurs || !light.isNull() )
             {
               w3->setChanged();
               w3->notifyObservers( w3 );
@@ -282,9 +285,9 @@ Command* WindowConfigCommand::read( const Tree & com, CommandContext* context )
     {
       ptr = context->unserial->pointer( winId[i], "AWindow" );
       if( ptr )
-	win.insert( (AWindow *) ptr );
+        win.insert( (AWindow *) ptr );
       else
-	cerr << "window id " << winId[i] << " not found\n";
+        cerr << "window id " << winId[i] << " not found\n";
     }
 
   return( new WindowConfigCommand( win, com ) );
@@ -308,6 +311,7 @@ bool WindowConfigCommand::initSyntax()
   s[ "flat_shading"                  ].type = "int";
   s[ "polygon_filtering"             ].type = "int";
   s[ "fog"                           ].type = "int";
+  s[ "polygons_depth_sorting"        ].type = "int";
   s[ "clipping"                      ].type = "int";
   s[ "clip_distance"                 ].type = "float";
   s[ "raise"                         ].type = "int";

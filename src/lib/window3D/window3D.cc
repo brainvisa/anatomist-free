@@ -3842,9 +3842,14 @@ bool AWindow3D::polygonsSortingEnabled() const
 
 void AWindow3D::setPolygonsSortingEnabled( bool enabled )
 {
-  d->sortPolygons = enabled;
-  if( enabled )
-    Refresh();
+  if( enabled != d->sortPolygons )
+  {
+    d->sortPolygons = enabled;
+    if( enabled )
+      Refresh();
+    setChanged();
+    notifyObservers( this );
+  }
 }
 
 
