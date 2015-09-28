@@ -401,7 +401,7 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   // computation of texture values
   const GLfloat	*itver, *verend = vver + 3*nver, *itnor;
   float		value;
-  Point3df	pos, ver, nor, vs = functional->VoxelSize();
+  Point3df	pos, ver, nor;
 
   min = 0;
   max = 0;
@@ -425,8 +425,6 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   else if( _method == INSIDE_POINT_TO_POINT )
     depth = -depth;
 
-  // float  qmin = FLT_MAX, qmax = -FLT_MAX;
-
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
   {
     ver = Point3df( *itver, *(itver+1), *(itver+2) );
@@ -439,14 +437,8 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
       pos = ver;
 
     if( trans )
-      pos = Transformation::transform( pos, trans, vs );
-    else
-      pos = Transformation::transformDG( pos, vs );
+      pos = trans->transform( pos );
     value = functional->mixedTexValue( pos, s.time );
-    /* if( value < qmin )
-      qmin = value;
-    if( value > qmax )
-    qmax = value; */
 
     vtexture.push_back( (value - min) * scale );
   }
@@ -540,7 +532,7 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
   const GLfloat	*itver, *verend = vver + 3*nver;
   const GLfloat	*itnor;
   Point3df	ver, cver;
-  Point3df	nor, vs = functional->VoxelSize();
+  Point3df	nor;
   float		cvalue, xvalue, cxvalue;
   float 	value;
   unsigned	nvalue;
@@ -593,9 +585,7 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
         cver = ver + (j*estep) * nor;
 
         if( trans )
-          cver = Transformation::transform( cver, trans, vs );
-        else
-          cver = Transformation::transformDG( cver, vs );
+          cver = trans->transform( cver );
         cxvalue = functional->mixedTexValue( cver, s.time );
         cvalue = ( cxvalue - min ) * scale;
 
@@ -794,9 +784,7 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
         cver = ver + *itelem;
 
         if( trans )
-          cver = Transformation::transform( cver, trans, vs );
-        else
-          cver = Transformation::transformDG( cver, vs );
+          cver = trans->transform( cver );
         cxvalue = functional->mixedTexValue( cver, s.time );
         cvalue = ( cxvalue - min ) * scale;
 
