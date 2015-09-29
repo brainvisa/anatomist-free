@@ -77,8 +77,6 @@ Observable::addObserver(Observer* observer)
 #endif
   if( _updating )
     {
-      if( !d )
-        d = new Private;
       d->toinsert.insert( observer );
       d->todel.erase( observer );
     }
@@ -101,8 +99,6 @@ Observable::deleteObserver(Observer* observer)
 #endif
   if( _updating )
     {
-      if( !d )
-        d = new Private;
       d->todel.insert( observer );
       d->toinsert.erase( observer );
     }
@@ -170,7 +166,7 @@ Observable::notifyObservers(void* arg)
           cout << "Observer " << n << ": " << *o << " (" 
                << typeid( **o ).name() << ")";
 #endif
-          if ( !d || d->todel.find( *o ) == d->todel.end() )
+          if ( d->todel.find( *o ) == d->todel.end() )
             {
 #ifdef ANA_DEBUG
               cout << " (updating)" << endl;
@@ -185,16 +181,13 @@ Observable::notifyObservers(void* arg)
         }
 
       // handle delayed insertions/deletions
-      if( d )
-        {
-          set<Observer *>::iterator	i, e = d->toinsert.end();
-          for( i=d->toinsert.begin(); i!=e; ++i )
-            _observers.insert( *i );
-          d->toinsert.clear();
-          for( i=d->todel.begin(), e=d->todel.end(); i!=e; ++i )
-            _observers.erase( *i );
-          d->todel.clear();
-        }
+      set<Observer *>::iterator	i, e = d->toinsert.end();
+      for( i=d->toinsert.begin(); i!=e; ++i )
+        _observers.insert( *i );
+      d->toinsert.clear();
+      for( i=d->todel.begin(), e=d->todel.end(); i!=e; ++i )
+        _observers.erase( *i );
+      d->todel.clear();
 
       clearChanged();
 
@@ -246,12 +239,10 @@ Observable::obsSetChanged( const string & f, bool x ) const
 void
 Observable::notifyUnregisterObservers()
 {
-  unsigned	s;
   set<Observer*>::iterator o = _observers.begin(), e = _observers.end();
 
   while( !_observers.empty() )
     {
-      s = _observers.size();
       o = _observers.begin();
       (*o)->unregisterObservable( this );
       if( _observers.find( *o ) != e )
