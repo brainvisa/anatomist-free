@@ -430,7 +430,7 @@ Referential* Referential::giftiTalairachReferential()
     set<AObject *> so;
     set<AWindow *> sw;
     char           sep = FileUtil::separator();
-    UUID uuid;
+    carto::UUID uuid;
     uuid.generate();
     AssignReferentialCommand  *c
         = new AssignReferentialCommand( 0, so, sw, -1, 0, "",
