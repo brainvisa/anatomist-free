@@ -312,7 +312,7 @@ void ASurfMatcher::processStep()
 
   //	neighbourhoods in target surface
 
-  Point3df		neigh[nneigh];
+  vector<Point3df>		neigh(nneigh);
   float			sqd[nneigh];
   unsigned		ind[nneigh];
   unsigned      ver, vf, i;

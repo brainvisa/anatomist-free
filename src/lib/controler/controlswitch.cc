@@ -63,7 +63,7 @@ struct ToolBox::Private
 };
 
 
-ToolBox::ToolBox( const string& activeControlDescription = "" ):
+ToolBox::ToolBox( const string& activeControlDescription ):
   QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), myActionTab(0), 
   myControlDescriptionActivation(0), 
   myControlDescription(activeControlDescription),
