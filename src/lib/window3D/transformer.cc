@@ -1432,7 +1432,7 @@ void Transformer::updateGVInfo( const Quaternion & q )
 
 
 TranslaterAction::TranslaterAction()
-  : Action(), TransformerActionData(), d( new Private )
+  : TransformerActionData(), Action(), d( new Private )
 {
   d->box1.reset( new BoxViewSlice( this ) );
   d->box2.reset( new BoxViewSlice( this ) );
@@ -1447,7 +1447,7 @@ TranslaterAction::~TranslaterAction()
 
 
 TranslaterAction::TranslaterAction( const TranslaterAction & a ) 
-  : Action( a ), TransformerActionData( a )
+  : TransformerActionData( a ), Action( a )
 {
 }
 

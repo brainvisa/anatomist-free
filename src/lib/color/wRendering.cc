@@ -244,10 +244,6 @@ void RenderingWindow::removeObjectsShading()
 namespace
 {
 
-  void toto()
-  {
-  }
-
   void setButtonState( QAbstractButton* b, int x )
   {
     QCheckBox	*cb = dynamic_cast<QCheckBox *>( b );

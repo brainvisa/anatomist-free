@@ -355,7 +355,7 @@ namespace
   template<> inline
   void _mix_item<10>( unsigned char* src, unsigned char *dst, float rate )
   {
-    if( *(src+3) = 0 && ( *src != 0 || *(src+1) != 0 || *(src+2) != 0 ) )
+    if( *(src+3) != 0 && ( *src != 0 || *(src+1) != 0 || *(src+2) != 0 ) )
       _mix_item<1>( src, dst, rate );
     else
     {

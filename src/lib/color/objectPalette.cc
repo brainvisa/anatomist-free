@@ -304,7 +304,7 @@ bool AObjectPalette::set( const GenericObject & obj )
       if( !p )
         cerr << "AObjectPalette::set : warning: palette \"" << o->getString()
           << "\" not found\n";
-      else if( _refPal != p );
+      else if( _refPal != p )
         {
           clearColors();
           _refPal = p;

@@ -2402,6 +2402,9 @@ void QObjectBrowser::rightSelectionChangedSlot()
 }
 
 
+// This warning is triggered by -Wall even though the code is correct
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
 bool QObjectBrowser::event( QEvent* ev )
 {
   switch( ev->type() )
@@ -2415,6 +2418,7 @@ bool QObjectBrowser::event( QEvent* ev )
     }
   return( QWidget::event( ev ) );
 }
+#pragma GCC diagnostic pop
 
 
 void QObjectBrowser::updateRightSelectionChange( int modifier )

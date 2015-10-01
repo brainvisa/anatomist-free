@@ -215,10 +215,12 @@ namespace
 
   GLuint APIENTRY _void_glCreateProgram( void )
   {
+    return 0; // error code
   }
 
   GLuint APIENTRY _void_glCreateShader( GLenum type )
   {
+    return 0; // error code
   }
 
   void APIENTRY _void_glDeleteProgram( GLuint program )

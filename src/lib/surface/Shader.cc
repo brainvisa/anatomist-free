@@ -147,21 +147,21 @@ Shader::Private & Shader::Private::operator = ( const Private & p )
 
 
 Shader::Shader()
-  : d( new Private ),
-    _lighting_model(DefaultLightingModel),
+  : _lighting_model(DefaultLightingModel),
     _interpolation_model(DefaultInterpolationModel),
     _coloring_model(DefaultColoringModel),
-    _material_model(DefaultMaterialModel)
+    _material_model(DefaultMaterialModel),
+    d( new Private )
 {
 }
 
 
 Shader::Shader(const Shader &shader)
-  : d( new Private( *shader.d ) ),
-  _lighting_model(shader._lighting_model),
+  : _lighting_model(shader._lighting_model),
   _interpolation_model(shader._interpolation_model),
   _coloring_model(shader._coloring_model),
-  _material_model(shader._material_model)
+  _material_model(shader._material_model),
+  d( new Private( *shader.d ) )
 {
 }
 

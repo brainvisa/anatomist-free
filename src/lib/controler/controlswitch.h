@@ -82,7 +82,7 @@ class ToolBox : public QWidget
   Q_OBJECT
 
 public:
-  ToolBox( const std::string& activeControlDescription );
+  ToolBox( const std::string& activeControlDescription = "" );
   virtual ~ToolBox();
 
   void resetActions( );

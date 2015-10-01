@@ -48,7 +48,7 @@ namespace anatomist
   class Referential;
   class Geometry;
   class Transformation;
-  class SliceViewState;
+  struct SliceViewState;
 
   /**	Bucket class
    */

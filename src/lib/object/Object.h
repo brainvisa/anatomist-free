@@ -69,7 +69,7 @@ namespace anatomist
   class MObject;
   class GLItem;
   class GLComponent;
-  class ViewState;
+  struct ViewState;
   typedef std::list<carto::rc_ptr<GLItem> > PrimList;
   class ObjectMenuRegistrerClass;
 
@@ -214,8 +214,8 @@ namespace anatomist
 
     virtual void SetMaterial( const Material & mat );
     virtual Material & GetMaterial() { return _material; }
-    virtual const Material & material() const 
-    { return ((AObject *) this)->GetMaterial(); /* hum not clean, I know */ }
+    virtual const Material & material() const
+    { return const_cast<AObject *>(this)->GetMaterial(); }
 
     Referential* getReferential() const;
     /// if not null, the object referential is inherited from this object

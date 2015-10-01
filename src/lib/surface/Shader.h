@@ -39,7 +39,7 @@
 
 namespace anatomist
 {
-  class ViewState;
+  struct ViewState;
   class GLComponent;
   class AObject;
   class GLMObject;

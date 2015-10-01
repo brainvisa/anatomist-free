@@ -87,7 +87,8 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   const AimsSurface<3, Void> *surf
     = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0 || poly >= surf->polygon().size() )
+  if( poly == 0xffffff || poly < 0
+      || static_cast<size_t>(poly) >= surf->polygon().size() )
     return;
   const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
   const vector<Point3df> & vert = surf->vertex();
@@ -125,7 +126,8 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   const AimsSurface<3, Void> *surf
     = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0 || poly >= surf->polygon().size() )
+  if( poly == 0xffffff || poly < 0
+      || static_cast<size_t>(poly) >= surf->polygon().size() )
     return;
   const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
   const vector<Point3df> & vert = surf->vertex();

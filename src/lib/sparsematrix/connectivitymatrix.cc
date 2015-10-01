@@ -417,7 +417,7 @@ namespace
     patchnum = 0;
 
     // texture histogram
-    map<int32_t, int32_t> histo;
+    map<int32_t, size_t> histo;
     vector<float>::const_iterator it,
       et = tex.begin()->second.data().end();
     int32_t t;
@@ -435,7 +435,7 @@ namespace
     else // doesn't work
     {
       // now try one patch value
-      map<int32_t, int32_t>::const_iterator ih, eh = histo.end();
+      map<int32_t, size_t>::const_iterator ih, eh = histo.end();
       list<int32_t> compatiblepatches;
       cout << "compatible patches: ";
       for( ih=histo.begin(); ih!=eh; ++ih )

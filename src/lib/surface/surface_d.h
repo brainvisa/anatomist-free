@@ -114,7 +114,7 @@ template<int D>
 bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
                                      const anatomist::GLList& glList ) const
 {
-	AGLObject::glMakeBodyGLL(viewState, glList);
+	return AGLObject::glMakeBodyGLL(viewState, glList);
 }
 
   template<int D>

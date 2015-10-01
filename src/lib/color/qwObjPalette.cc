@@ -648,7 +648,7 @@ void QAPaletteWin::updateInterface()
   {
     // cout << "creating new object palette\n";
     const PaletteList	& pallist = theAnatomist->palettes();
-    if( !&pallist || pallist.size() == 0 )
+    if( pallist.size() == 0 )
     {
       cerr << "Palettes list empty. Set your ANATOMIST_PATH variable\n";
       return;

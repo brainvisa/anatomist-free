@@ -89,9 +89,12 @@ struct ConstraintEditorWindow::Private
 
 
 ConstraintEditorWindow::Private::Private()
-: latlon(0), newTextureName(0), constraintTextureButton(0), meshSelect(0),
-  texSelect(0), texConstraint(0), nnodes(0), constraintTextureLabel(0), constraintListValues(0), constraintListButton(0)
-  ,constraintValuesType(0),constraintList(0)
+: latlon(0), newTextureName(0),
+  constraintTextureButton(0), constraintTextureLabel(0),
+  constraintListButton(0), constraintListValues(0),
+  meshSelect(0), texSelect(0), texConstraint(0),
+  constraintList(0), constraintValuesType(0),
+  nnodes(0)
 {
 }
 
