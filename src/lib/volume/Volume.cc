@@ -1283,7 +1283,8 @@ void VolumeScalarTraits<T>::adjustPalette()
     limit = 0.99 * volume->volume()->getSizeX() * volume->volume()->getSizeY()
     * volume->volume()->getSizeZ() * volume->volume()->getSizeT();
   set<T>		vals;
-  unsigned long 	nval = 0, maxval = 50, value;
+  unsigned long 	nval = 0, maxval = 50;
+  int value;
 
   for( i=0; i<256; ++i )
     histo[ i ] = 0;
@@ -1322,7 +1323,7 @@ void VolumeScalarTraits<T>::adjustPalette()
 //     cout << "t: " << t << ", z: " << z << ", y: " << y << endl;
     for( x=0; x<nx; ++x, ++buf )
     {
-    value = (unsigned long) ( ( (*buf) - mini ) * factor );
+    value = static_cast<int> ( ( (*buf) - mini ) * factor );
     if( value < 0 )
       value = 0;
     else if( value >= 256 )

@@ -248,8 +248,8 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
   : historyW( new CommandWriter ), paletteList( 0 ),
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 0, 0, 0 ),
-    lastref( 0 ), destroying( false ), qWidgetAncestor( 0 ),
-    objectsLock( Mutex::Recursive ), argc( 0 ), argv( 0 )
+    lastref( 0 ), destroying( false ), objectsLock( Mutex::Recursive ),
+    qWidgetAncestor( 0 ), argc( 0 ), argv( 0 )
 {
 }
 

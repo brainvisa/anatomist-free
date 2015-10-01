@@ -94,8 +94,8 @@ int Hierarchy::registerClass()
 
 
 Hierarchy::Hierarchy( Tree* tr )
-  : AObject(), AttributedAObject(), d( new Private ),
-  _tree( rc_ptr<Tree>( tr ) )
+  : AObject(), AttributedAObject(),
+    _tree( rc_ptr<Tree>( tr ) ), d( new Private )
 {
   _type = _classType;
   //_objMenu    = new ObjectMenu( "Nomenclature", 1 );
@@ -125,7 +125,7 @@ Hierarchy::Hierarchy( Tree* tr )
 
 
 Hierarchy::Hierarchy( rc_ptr<Tree> tr )
-  : AObject(), AttributedAObject(), d( new Private ), _tree( tr )
+  : AObject(), AttributedAObject(), _tree( tr ), d( new Private )
 {
   _type = _classType;
   //_objMenu    = new ObjectMenu( "Nomenclature", 1 );

@@ -57,8 +57,8 @@ WindowBlockCommand::WindowBlockCommand( int id,
                                         bool makerect, float rectratio,
                                         const vector<int> & geom )
   : RegularCommand(), SerializingCommand( context ), _id( id ),
-    _block( block ), _cols(cols), _rows( rows ), _rect( makerect ),
-    _rectratio( rectratio ), _geom( geom )
+    _geom( geom ), _block( block ), _cols(cols), _rows( rows ),
+    _rect( makerect ), _rectratio( rectratio )
 {
 }
 

@@ -972,10 +972,10 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   }
 
   // texture dims must be a power of 2
-  for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
+  for( x=0, utmp=1; x<32 && utmp < static_cast<unsigned>(dimx); ++x )
     utmp = utmp << 1;
   dimx = utmp;
-  for( x=0, utmp=1; x<32 && utmp<dimy; ++x )
+  for( x=0, utmp=1; x<32 && utmp < static_cast<unsigned>(dimy); ++x )
     utmp = utmp << 1;
   dimy = utmp;
   if( dimx == 0 )
@@ -1007,7 +1007,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   float fxbis = facx;
   float fybis = facy;
   float dxbis = 0., dybis = 0.;
-  if( !useTexScale || dimx < dimpx )
+  if( !useTexScale || static_cast<unsigned>(dimx) < dimpx )
     fxbis = 1.;
   else
   {
@@ -1015,7 +1015,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     dxbis = - dx / dimx;
     dx = 0.;
   }
-  if( !useTexScale || dimy < dimpy )
+  if( !useTexScale || static_cast<unsigned>(dimy) < dimpy )
     fybis = 1.;
   else
   {
@@ -1045,14 +1045,14 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     r = 1.;
   GLubyte         ir = 255 - (GLubyte) ( r * 255.9 );
 
-  for( y=0; y<dimy; ++y )
+  for( y=0; y<static_cast<unsigned>(dimy); ++y )
   {
     ys = (int) ( facy * y - dy );
     if( ys < 0 )
       ys = 0;
     else if( ys >= (int) dimpy )
       ys = dimpy - 1;
-    for( x=0; x<dimx; ++x )
+    for( x=0; x<static_cast<unsigned>(dimx); ++x )
     {
       xs = (int) ( facx * x - dx );
       if( xs < 0 )
@@ -1104,6 +1104,13 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   unsigned	dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
   int		xs, ys;
   unsigned	dimtex = glDimTex( state, tex );
+  if(dimtex > 2)
+  {
+    cerr << "GLComponent::glMakeTexImage : dimtex value " << dimtex
+         << " not implemented" << endl;
+    return false;
+  }
+
   const TexInfo	& t = glTexInfo( tex );
   TexInfo & ti = d->textures[ tex ];
 
@@ -1162,6 +1169,7 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
     }
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
   }
+  else abort();
   bool ok = true;
   do
   {
@@ -1178,6 +1186,7 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
                     GL_UNSIGNED_BYTE, 0 );
       glGetTexLevelParameteriv( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w );
     }
+    else abort();
     if( w == 0 || status != GL_NO_ERROR )
     {
       cout << "texture too large. Reducing\n";

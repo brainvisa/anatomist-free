@@ -49,7 +49,7 @@ namespace anatomist
 {
 
   struct AImage;
-  class SliceViewState;
+  struct SliceViewState;
 
 
   /** Sliceable objects can draw themselves in a 2D texture. The slice 

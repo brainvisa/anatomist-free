@@ -476,36 +476,32 @@ void SelectFactory::setHighlightColor( AObject* obj, const HColor* col ) const
   if( obj->Is3DObject() )
     {
       Material & mat = obj->GetMaterial();
-      if( &mat )	// ensure there is actually one
-	{
-	  HColor	& hc = _highlightColors()[obj];
+      HColor	& hc = _highlightColors()[obj];
 
-	  if( col )
-	    hc = *col;
-	  else
-	    {
-	      GLfloat	*dif = mat.Diffuse();
+      if( col )
+        hc = *col;
+      else
+      {
+        GLfloat	*dif = mat.Diffuse();
 
-	      if( selectColorInverse() )
-	        {
-	          hc.r = 1. - dif[0];
-	          hc.g = 1. - dif[1];
-	          hc.b = 1. - dif[2];
-		  hc.a = dif[3];
-		  hc.na = true;
-		}
-	      else
-	        {
-                  const HColor & sc = selectColor();
-	          hc.r = sc.r;
-	          hc.g = sc.g;
-		  hc.b = sc.b;
-		  hc.a = sc.a;
-		  hc.na = sc.na;
-		}
-	    }
-	}
-      else cout << "no material\n";
+        if( selectColorInverse() )
+        {
+          hc.r = 1. - dif[0];
+          hc.g = 1. - dif[1];
+          hc.b = 1. - dif[2];
+          hc.a = dif[3];
+          hc.na = true;
+        }
+        else
+        {
+          const HColor & sc = selectColor();
+          hc.r = sc.r;
+          hc.g = sc.g;
+          hc.b = sc.b;
+          hc.a = sc.a;
+          hc.na = sc.na;
+        }
+      }
     }
 }
 

@@ -231,7 +231,7 @@ Point3df OrientationAnnotation::getPosition(
   Point3df coords = q.transform( Point3df( 0, 0, 0 ) );
 
   // Compute the coordinates (without shift adjustment)
-  for ( int i = 0 ; i < _winCoordParamIndexes[ pos ].size() ; i++ )
+  for ( size_t i = 0 ; i < _winCoordParamIndexes[ pos ].size() ; i++ )
   {
     coords[ i ] += _winCoordParams [ _winCoordParamIndexes[ pos ][ i ] ][ i ];
     if ( _winCoordParamIndexes[ pos ][ i ] == 3 )

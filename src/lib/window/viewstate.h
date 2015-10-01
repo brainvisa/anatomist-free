@@ -46,7 +46,7 @@ namespace anatomist
 {
   class Referential;
   class Geometry;
-  class SliceViewState;
+  struct SliceViewState;
   class AWindow;
 
 

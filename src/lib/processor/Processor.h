@@ -48,7 +48,7 @@
 namespace anatomist
 {
   class Command;
-  class CommandContext;
+  struct CommandContext;
 
 
   //--- class declarations ----------------------------------------------------

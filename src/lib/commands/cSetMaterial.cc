@@ -379,10 +379,12 @@ Command* SetMaterialCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "ghost", ghost );
   com.getProperty( "selectable_mode", selmode );
   if( selmode.empty() && ghost >= 0 )
+  {
     if( ghost )
       selmode = "ghost";
     else
       selmode = "selectable_when_opaque";
+  }
   if( com.getProperty( "line_width", linewidth ) && linewidth < 0 )
     linewidth = 0;
   if( !fface.empty() )
