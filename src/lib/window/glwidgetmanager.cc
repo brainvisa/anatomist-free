@@ -949,7 +949,6 @@ void GLWidgetManager::setBackgroundAlpha( float a )
 
 void GLWidgetManager::updateGL()
 {
-  bool done = false;
   if( _pd->glwidget
     && dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() ) )
   {
@@ -958,10 +957,8 @@ void GLWidgetManager::updateGL()
       = dynamic_cast<QGraphicsView *>( _pd->glwidget->parent() );
     if( gv->scene() )
       gv->scene()->update();
-    done = true;
   }
-
-  if( !done )
+  else if( _pd->glwidget )
   {
     if( dynamic_cast<QGLWidget *>( this ) == _pd->glwidget )
       _pd->glwidget->QGLWidget::updateGL();

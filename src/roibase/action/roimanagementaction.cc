@@ -765,6 +765,8 @@ RoiManagementActionView::askName (const string& type,
     l->addWidget( selectRegionName );
     selectRegionName->addItems( getCurrentHierarchyRoiNames() );
     selectRegionName->setCurrentIndex(0) ;
+  } else {
+    ASSERT(false);  // wrong value for type argument
   }
 
   QWidget * buttons = new QWidget( this );
