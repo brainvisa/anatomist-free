@@ -1375,6 +1375,7 @@ void AWindow3D::refreshNow()
       {
         cerr << "AWindow3D: not enough OGL memory.\n";
         delete renderoffpr;
+        renderoffpr = 0;
       }
       else
       {
@@ -1397,6 +1398,7 @@ void AWindow3D::refreshNow()
       {
         cerr << "AWindow3D: not enough OGL memory.\n";
         delete renderoffpr;
+        renderoffpr = 0;
       }
       else
       {

@@ -793,7 +793,7 @@ RoiManagementActionView::askName (const string& type,
   {
     if( type == "session" || noHierarchy)
       result = lineEdition->text().toStdString();
-    else
+    else if(selectRegionName)
       result = selectRegionName->currentText().toStdString();
     if( result == "" )
       result = "Unknown";
