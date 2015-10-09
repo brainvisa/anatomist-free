@@ -134,3 +134,45 @@ Is it possible to draw a ROI on a mesh with Anatomist ?
 Yes, it is possible since *version 4.1*. Please, see the :ref:`Surface paint module <surfpaint>`.
 
 
+Two volumes are registered in SPM but do not appear matched in Anatomist
+------------------------------------------------------------------------
+
+They probably contain an internal transformation that is not used by default by Anatomist.
+
+* load both volumes in Anatomist
+* select both in the main control window
+* in the right-click popup menu, select "referential / load info from file header"
+
+Each volume should be assigned a new referential, and linked to another one by a transformation (there may be several).
+
+In some cases, this will be enough to make it right, but not in all cases.
+
+When performing a registration or normalization, the information telling that the destination referential for both images transformations is the same.
+
+* open the referentials window (main window menu "settings / referentials and transformations)
+* identify the referentials attached to both volumes, and the ones they are linked to through outgoing transformations. These latter may be named "Scanner-based anatomical coordinates for ...". They should be the same, but are not recognized as such.
+* Draw an identity transformation linking these scanner-based referentials: ctrl+mouse draw between referentials
+
+To fully understand all this, you may make use of the :anatomist:`Slides on the referentials system <anatomist_referentials.pdf>`, and the :ref:`chapter on coordinates systems handling in Anatomist <about-referentials>`.
+
+* make sure you are viewing all images in windows in compatible coordinates systems: the windows referentials must have a links path to the image ones in the transformations graph.
+
+Now this is OK for my volumes, but I have the same problem with meshes, or ROI graphs
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+It depends somewhat whether the meshes/ROIs contain the same kind of information or not (this depends on the tools which have generated them).
+
+If the transformations information is present, the same solution as for volumes may apply.
+
+If not, you will have to load the corresponding volumes.
+
+In neuroimaging, each mesh or ROI set is built from (on on top of) a volume. The mesh/ROI should thus be in the same referential as the volume. So the procedure is:
+
+* load the volumes and apply the above procedure
+* select each mesh/ROI and assign it the same referential as the volume it corresponds
+
+How to script that ?
+++++++++++++++++++++
+
+See :pyanatomist:`this topic in PyAnatomist hints <pyanatomist_howto.html#apply_transformations>`.
+

@@ -63,10 +63,10 @@ namespace anatomist
 
     AGraph( Graph *dataGraph, const std::string & filename,
             bool init = true,
-            const Point3d& labelDimension = Point3d(64, 64, 64) );
+            const Point3dl& labelDimension = Point3dl(64, 64, 64) );
     AGraph( carto::rc_ptr<Graph> dataGraph, const std::string & filename,
             bool init = true,
-            const Point3d& labelDimension = Point3d(64, 64, 64) );
+            const Point3dl& labelDimension = Point3dl(64, 64, 64) );
     virtual ~AGraph();
 
     virtual AObject* clone( bool shallow = true );
@@ -151,8 +151,8 @@ namespace anatomist
     virtual void setVoxelSize( const Point3df & vs );
     void clearLabelsVolume();
     void setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz );
-    void setLabelsVolumeDimension( const Point3d & vd );
-    Point3d labelsVolumeDimension() const;
+    void setLabelsVolumeDimension( const Point3dl & vd );
+    Point3dl labelsVolumeDimension() const;
     AimsData<AObject *>& volumeOfLabels( int t = 0 ) ;
     virtual void createDefaultPalette( const std::string & name  );
     virtual void setPalette( const AObjectPalette & pal );
@@ -181,7 +181,7 @@ namespace anatomist
     friend class ::QGraphProperties;
 
     void initialize( const std::string & filename, bool init,
-                     const Point3d& labelDimension );
+                     const Point3dl& labelDimension );
 
     struct Private;
     Private *d;

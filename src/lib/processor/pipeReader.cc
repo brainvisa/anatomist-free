@@ -105,7 +105,7 @@ APipeReader::Private::~Private()
 {
 #ifdef ANA_THREADED_PIPEREADER
   // cout << "APipeReader::Private::~Private()\n";
-  if( thread->isCurrent() )
+  if( thread && thread->isCurrent() )
     thread->detach();
   delete thread;
 #else

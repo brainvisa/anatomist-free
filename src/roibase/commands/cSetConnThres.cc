@@ -118,8 +118,10 @@ void SetConnThresholdCommand::doit()
   ToolBox * tb = cs->toolBox() ;
   
   anatomist::Action* action = cs->getAction( QT_TRANSLATE_NOOP( "ControlSwitch", "ConnectivityThresholdAction" ) ) ;
-  if(!action)
+  if(!action) {
     cerr << "null action ptr" << endl ;
+    return;
+  }
   else
     cerr << "got action : " << action->name() << endl ;
   

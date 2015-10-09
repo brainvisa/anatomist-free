@@ -342,6 +342,8 @@ You can change:
   Be aware that all this is only a visualization toy and is not very robust: no real interpolation of the volume values is performed to get a continuous intersection along the mesh: especially the methods taking points along normals can produce inaccurate results on high curvature regions (produce discontinuities, map the same voxel value on several vertices etc). The sphere mode is more robust but involves an averaging (blurring) effet, and can take values outside the brain or grey matter...
 
 
+.. _about-referentials:
+
 About referentials
 ==================
 

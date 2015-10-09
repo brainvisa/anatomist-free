@@ -33,7 +33,8 @@
 import sys
 from PyQt4 import QtCore, QtGui
 qt = QtGui
-from PyQt4.uic import loadUiType
+#from PyQt4.uic import loadUiType
+from soma.qt_gui.qt_backend.uic import loadUiType
 findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
 
 import anatomist.direct.api as anatomist

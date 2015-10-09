@@ -765,6 +765,8 @@ RoiManagementActionView::askName (const string& type,
     l->addWidget( selectRegionName );
     selectRegionName->addItems( getCurrentHierarchyRoiNames() );
     selectRegionName->setCurrentIndex(0) ;
+  } else {
+    ASSERT(false);  // wrong value for type argument
   }
 
   QWidget * buttons = new QWidget( this );
@@ -791,7 +793,7 @@ RoiManagementActionView::askName (const string& type,
   {
     if( type == "session" || noHierarchy)
       result = lineEdition->text().toStdString();
-    else
+    else if(selectRegionName)
       result = selectRegionName->currentText().toStdString();
     if( result == "" )
       result = "Unknown";

@@ -97,7 +97,7 @@ struct AGraph::Private
   float					maxY;
   float					maxZ;
   Point3df				voxelSize;
-  Point3d				labelDim;
+  Point3dl				labelDim;
   AGraph::ColorMode			colormode;
   bool					recolorrecurs;
   string				colorproperty;
@@ -127,7 +127,7 @@ namespace
 
 
 AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
-                const Point3d& labelDimension )
+                const Point3dl& labelDimension )
   : MObject(), AttributedAObject(), d( new Private )
 {
   d->graph.reset( dataGraph );
@@ -136,7 +136,7 @@ AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
 
 
 AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
-                const Point3d& labelDimension )
+                const Point3dl& labelDimension )
   : MObject(), AttributedAObject(), d( new Private )
 {
   d->graph = dataGraph;
@@ -145,7 +145,7 @@ AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
 
 
 void AGraph::initialize( const string & filename, bool init,
-                         const Point3d& labelDimension )
+                         const Point3dl& labelDimension )
 {
 #ifdef ANA_DEBUG
   cout << "AGraph: create " << this << ", current objects number: "
@@ -844,7 +844,7 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
        << vol.borderWidth() << endl;
   cout << "volume vid�. " << flush; */
 
-  Point3d	l;
+  Point3dl	l;
 
   for( io = begin(); io!=fo; ++io )
     {
@@ -1176,11 +1176,11 @@ void AGraph::clearLabelsVolume()
 
 void AGraph::setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz )
 {
-  setLabelsVolumeDimension( Point3d( dx, dy, dz ) );
+  setLabelsVolumeDimension( Point3dl( dx, dy, dz ) );
 }
 
 
-void AGraph::setLabelsVolumeDimension( const Point3d & vd )
+void AGraph::setLabelsVolumeDimension( const Point3dl & vd )
 {
   if ( vd == d->labelDim )
     return ;
@@ -1192,7 +1192,7 @@ void AGraph::setLabelsVolumeDimension( const Point3d & vd )
 }
 
 
-Point3d AGraph::labelsVolumeDimension() const
+Point3dl AGraph::labelsVolumeDimension() const
 {
   return( d->labelDim );
 }
