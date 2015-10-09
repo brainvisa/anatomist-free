@@ -62,6 +62,7 @@ TransformerActionData::TransformerActionData()
   : QObject(), _maintrans( 0 ), rotationAxis( 0, 0, 1 ),
     _rotationAngleEdited( false ), _rotationScaleEdited( false )
 {
+
 }
 
 
@@ -69,8 +70,10 @@ TransformerActionData::TransformerActionData(
   const TransformerActionData & other )
   : QObject(), _maintrans( other._maintrans ), _trans( other._trans ),
     _itrans( other._itrans ),
-    _rotationAngleEdited( false ), _rotationScaleEdited( false )
+    _rotationAngleEdited( false ), _rotationScaleEdited( false ),
+    _pendingMotion(other._pendingMotion)
 {
+
 }
 
 
@@ -106,6 +109,7 @@ void TransformerActionData::selectTransformations( AWindow * win )
   {
     ref = (*io)->getReferential();
     t = theAnatomist->getTransformation( ref, cref );
+
     if( t && !t->isGenerated() )
     {
       cobj.insert( *io );
@@ -208,8 +212,9 @@ Referential* TransformerActionData::mainDestRef() const
 }
 
 
-void TransformerActionData::setTransformData( const Transformation & t,
-  bool absolute )
+void TransformerActionData::setTransformData(const Transformation & t,
+                                             bool absolute,
+                                             bool addToHistory)
 {
   map<Transformation*, Transformation>::iterator        it, et = _trans.end();
   for( it=_trans.begin(); it!=et; ++it )
@@ -217,8 +222,15 @@ void TransformerActionData::setTransformData( const Transformation & t,
     it->first->unregisterTrans();
     *it->first = t;
     if( !absolute )
-      *it->first *= it->second;
+    	*it->first *= it->second;
+
     it->first->registerTrans();
+
+    if (addToHistory)
+    {
+    	Motion mot = t.motion();
+    	transmitValidatedMotion(mot);
+    }
   }
 
   if( !_itrans.empty() )
@@ -234,14 +246,82 @@ void TransformerActionData::setTransformData( const Transformation & t,
       it->first->registerTrans();
     }
   }
+
+  emitTransformationChanged();
 }
 
+void TransformerActionData::emitTransformationChanged()
+{
+	emit transformationChanged();
+}
+
+void TransformerActionData::undo()
+{
+    selectTransformations(tadView()->aWindow());
+    if (!mainTransformation())
+    {
+        return;
+    }
+
+    mainTransformation()->undo();
+    emitTransformationChanged();
+
+    AWindow3D * w = dynamic_cast<AWindow3D *>(tadView()->aWindow());
+    if (w)
+    {
+        w->refreshNow();
+    }
+}
+
+void TransformerActionData::redo()
+{
+    selectTransformations(tadView()->aWindow());
+    if (!mainTransformation())
+    {
+        return;
+    }
+
+    mainTransformation()->redo();
+    emitTransformationChanged();
+
+    AWindow3D * w = dynamic_cast<AWindow3D *>(tadView()->aWindow());
+    if (w)
+    {
+        w->refreshNow();
+    }
+}
+
+bool TransformerActionData::undoable()
+{
+    selectTransformations(tadView()->aWindow());
+    if (!_maintrans)
+    {
+        return false;
+    }
+
+    return (_maintrans->motionHistorySize() > 0 &&
+            _maintrans->motionHistoryIndex() >= 0);
+}
+
+bool TransformerActionData::redoable()
+{
+    selectTransformations(tadView()->aWindow());
+    if (!_maintrans)
+    {
+        return false;
+    }
+
+    return (_maintrans->motionHistorySize() > 0 &&
+            _maintrans->motionHistoryIndex() < _maintrans->motionHistorySize() - 1);
+}
 
 void TransformerActionData::resetTransform()
 {
   selectTransformations( tadView()->aWindow() );
   if( !mainTransformation() )
     return;
+
+  transmitValidatedMotion(mainTransformation()->motion().inverse());
   Transformation t( 0, 0 );
   setTransformData( t, true );
   Quaternion q( initialQuaternion() );
@@ -457,6 +537,40 @@ void TransformerActionData::clearEditionFlags()
 {
     _rotationAngleEdited = false;
     _rotationScaleEdited = false;
+}
+
+bool TransformerActionData::getCurrentMotion(Motion& motion)
+{
+    selectTransformations(tadView()->aWindow());
+    Transformation* t = mainTransformation();
+    if (!t)
+    {
+        return false;
+    }
+
+    motion = t->motion();
+
+    return true;
+}
+
+void TransformerActionData::updatePendingMotion(const Motion & motion)
+{
+    _pendingMotion = motion;
+}
+
+void TransformerActionData::transmitValidatedMotion(Motion motion, bool notify)
+{
+    if (!_maintrans)
+    {
+        return;
+    }
+
+    _maintrans->addMotionToHistory(motion);
+
+    if (notify)
+    {
+    	emitTransformationChanged();
+    }
 }
 
 // ---
@@ -922,8 +1036,10 @@ namespace
 
   void showGvItems( Transformer::Private *d, bool x )
   {
+
     if( x == d->show_info )
       return;
+
     d->show_info = x;
     list<QGraphicsItem *>::iterator i, e = d->gvitems.end();
     for( i=d->gvitems.begin(); i!=e; ++i )
@@ -969,6 +1085,7 @@ namespace
     const AimsData<float> & rot = atr.rotation();
     const Point3df & tra = atr.translation();
     int i, j;
+
     d->trans_ui->matrix_tableWidget->blockSignals( true );
     for( i=0; i<3; ++i )
       for( j=0; j<3; ++j )
@@ -1037,6 +1154,7 @@ namespace
 //     {
 //       Point3df center = glw->rotationCenter();
 //     }
+
   }
 
 }
@@ -1127,6 +1245,8 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
 
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
+
+
 }
 
 
@@ -1221,7 +1341,7 @@ void Transformer::moveTrackball( int x, int y, int, int )
   t.SetTranslation( 2, t0[2] );
 
   rotationAxis = q.axis();
-
+  updatePendingMotion(t.motion());
   setTransformData( t );
   updateTemporaryObjects( q );
   ::updateGVInfo( d, _trans.begin()->first, this, q );
@@ -1238,6 +1358,8 @@ void Transformer::endTrackball( int x, int y, int globx, int globy )
   d->box1->endTrackball( x, y );
   d->box2->endTrackball( x, y );
   Trackball::endTrackball( x, y, globx, globy );
+
+  transmitValidatedMotion(pendingMotion(), true);
 }
 
 
@@ -1305,7 +1427,6 @@ void Transformer::updateGVInfo( const Quaternion & q )
 {
   ::updateGVInfo( d, _maintrans, this, q );
 }
-
 
 // ------------------
 
@@ -1416,6 +1537,7 @@ void TranslaterAction::move( int x, int y, int, int )
   t.SetTranslation( 1, zfac * p[1] );
   t.SetTranslation( 2, p[2] );
 
+  updatePendingMotion(t.motion());
   setTransformData( t );
 
   if( !_trans.empty() )
@@ -1434,6 +1556,8 @@ void TranslaterAction::end( int x, int y, int, int )
   d->box1->endTrackball( x, y );
   d->box2->endTrackball( x, y );
   _started = false;
+
+  transmitValidatedMotion(pendingMotion(), true);
 }
 
 
@@ -1495,9 +1619,10 @@ Quaternion PlanarTransformer::initialQuaternion()
   return q;
 }
 
-
 Quaternion PlanarTransformer::rotation( int x, int y )
 {
+
+
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
 
   if( !w )
@@ -1511,6 +1636,9 @@ Quaternion PlanarTransformer::rotation( int x, int y )
     return Quaternion( 0, 0, 0, 1 );
 
   Point3df	axis = w3->sliceQuaternion().apply( Point3df( 0, 0, -1 ) );
+
+
+
   float	dimx = w->width();
   float	dimy = w->height();
 
@@ -1542,7 +1670,6 @@ Quaternion PlanarTransformer::rotation( int x, int y )
 
   return q;
 }
-
 
 // -------------------
 
@@ -1625,6 +1752,7 @@ void ResizerAction::move( int /* x */, int y, int, int )
   t.SetTranslation( 1, t0[1] * ( 1 - zfac ) );
   t.SetTranslation( 2, t0[2] * ( 1 - zfac ) );
 
+  updatePendingMotion(t.motion());
   setTransformData( t );
   updateTemporaryObjects( zfac );
   if( !_trans.empty() )

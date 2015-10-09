@@ -576,7 +576,9 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
     return None
   run = staticmethod( run )
   def load( self, filename, subobjects, options ):
-    print 'warning, running python script in an arbitrary thread'
+    import threading
+    if not isinstance(threading.current_thread(), threading._MainThread):
+      print 'warning, running python script in an arbitrary thread'
     res = self.run( filename, options )
     return res
 

@@ -36,6 +36,7 @@
 #define ANATOMIST_WINDOW3D_TRANSFORMER_H
 
 #include <anatomist/window3D/trackball.h>
+#include <aims/resampling/motion.h>
 #include <qobject.h>
 #include <map>
 
@@ -68,10 +69,27 @@ namespace anatomist
       bool isMainTransDirect() const;
       Referential* mainSourceRef() const;
       Referential* mainDestRef() const;
-      void setTransformData( const Transformation & t, bool absolute=false );
+      void setTransformData(const Transformation & t,
+                            bool absolute=false,
+                            bool addToHistory = false);
       virtual aims::Quaternion initialQuaternion() = 0;
       virtual View* tadView() = 0;
       void clearEditionFlags();
+      /// Gets the current motion
+      bool getCurrentMotion(Motion&);
+      /// Emits the transformationChanged Qt signal
+      void emitTransformationChanged();
+      /// Undoes last motion
+      void undo();
+      /// Redoes last motion
+      void redo();
+      /// Returns true if the transformation is undoable and false otherwise
+      bool undoable();
+      /// Returns true if the transformation is redoable and false otherwise
+      bool redoable();
+
+    signals:
+    	void transformationChanged();
 
     public slots:
       virtual void resetTransform();
@@ -88,6 +106,7 @@ namespace anatomist
       Point3df rotationAxis;
       bool _rotationAngleEdited;
       bool _rotationScaleEdited;
+      Motion _pendingMotion;
 
       virtual void updateTemporaryObjects(
         const aims::Quaternion & rotation ) = 0;
@@ -97,6 +116,15 @@ namespace anatomist
       virtual void centerCellChanged( int row, int col, QTableWidget* twid );
       virtual void rotationAngleChanged( QLineEdit* ledit, QComboBox* unit );
       virtual void rotationScaleChanged( QLineEdit* ledit );
+      /// Updates the pending motion
+      void updatePendingMotion(const Motion &);
+      /// Returns the pending motion
+      const Motion & pendingMotion() const
+      {
+    	  return _pendingMotion;
+      }
+      /// Transmits a validated motion to the history
+      void transmitValidatedMotion(Motion motion, bool notify=false);
     };
 
   }
@@ -147,6 +175,7 @@ namespace anatomist
   class TranslaterAction
     : public internal::TransformerActionData, public Action
   {
+      Q_OBJECT
   public:
     static Action * creator() ;
 

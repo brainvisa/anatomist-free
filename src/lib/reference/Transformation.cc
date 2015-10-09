@@ -50,14 +50,16 @@ using aims::Quaternion;
 //--- methods -----------------------------------------------------------------
 
 Transformation::Transformation() 
-  : _motion(), _source( 0 ), _dest( 0 ), _generated( false )
+  : _motion(), _source( 0 ), _dest( 0 ), _generated( false ),
+    _motionHistoryIndex(-1)
 {
 }
 
 
 Transformation::Transformation( Referential* src, Referential* dst, 
 				bool regist, bool generated )
-  : _motion(), _source( src ), _dest( dst ), _generated( generated )
+  : _motion(), _source( src ), _dest( dst ), _generated( generated ),
+    _motionHistoryIndex(-1)
 {
   if( regist )
     registerTrans();
@@ -66,7 +68,8 @@ Transformation::Transformation( Referential* src, Referential* dst,
 
 Transformation::Transformation( Referential* src, Referential* dst, 
 				const Transformation& trans )
-  : _motion( trans._motion ), _source( src ), _dest( dst ), _generated( false )
+  : _motion( trans._motion ), _source( src ), _dest( dst ), _generated( false ),
+    _motionHistoryIndex(trans._motionHistoryIndex)
 {
   *this = trans;
   //ATransformSet::instance()->registerTransformation( this );
@@ -272,6 +275,50 @@ void Transformation::setMatrixT( float m[4][3] )
   translation[2] = m[0][2];
 }
 
+void Transformation::addMotionToHistory(const Motion & motion)
+{
+	if (_motionHistoryIndex == -1)
+	{
+		_motionHistory.clear();
+	}
+	else if (_motionHistoryIndex >= 0 &&
+		_motionHistoryIndex < (_motionHistory.size() - 1))
+	{
+		_motionHistory.erase(_motionHistory.begin() + _motionHistoryIndex + 1,
+							 _motionHistory.end());
+	}
+
+	_motionHistory.push_back(motion);
+	_motionHistoryIndex = _motionHistory.size() - 1;
+}
+
+void Transformation::undo()
+{
+	if (_motionHistoryIndex < 0 ||
+		_motionHistory.empty())
+	{
+		return;
+	}
+
+	unregisterTrans();
+	_motion = _motionHistory[_motionHistoryIndex].inverse() * _motion;
+	_motionHistoryIndex -= 1;
+	registerTrans();
+}
+
+void Transformation::redo()
+{
+	if (_motionHistoryIndex == (_motionHistory.size() - 1) ||
+		_motionHistory.empty())
+	{
+		return;
+	}
+
+	unregisterTrans();
+	_motionHistoryIndex += 1;
+	_motion = _motionHistory[_motionHistoryIndex] * _motion;
+	registerTrans();
+}
 
 Transformation & Transformation::operator *= ( const Transformation & t )
 {
