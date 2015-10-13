@@ -97,7 +97,7 @@ struct AGraph::Private
   float					maxY;
   float					maxZ;
   Point3df				voxelSize;
-  Point3d				labelDim;
+  Point3dl				labelDim;
   AGraph::ColorMode			colormode;
   bool					recolorrecurs;
   string				colorproperty;
@@ -131,12 +131,33 @@ AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
   : MObject(), AttributedAObject(), d( new Private )
 {
   d->graph.reset( dataGraph );
+  initialize( filename, init, Point3dl(
+                                labelDimension[0],
+                                labelDimension[1],
+                                labelDimension[2] ) );
+}
+
+AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
+                const Point3dl& labelDimension )
+  : MObject(), AttributedAObject(), d( new Private )
+{
+  d->graph.reset( dataGraph );
   initialize( filename, init, labelDimension );
 }
 
-
 AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
                 const Point3d& labelDimension )
+  : MObject(), AttributedAObject(), d( new Private )
+{
+  d->graph = dataGraph;
+  initialize( filename, init, Point3dl(
+                                labelDimension[0],
+                                labelDimension[1],
+                                labelDimension[2] ) );
+}
+
+AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
+                const Point3dl& labelDimension )
   : MObject(), AttributedAObject(), d( new Private )
 {
   d->graph = dataGraph;
@@ -145,7 +166,7 @@ AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
 
 
 void AGraph::initialize( const string & filename, bool init,
-                         const Point3d& labelDimension )
+                         const Point3dl& labelDimension )
 {
 #ifdef ANA_DEBUG
   cout << "AGraph: create " << this << ", current objects number: "
@@ -844,7 +865,7 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
        << vol.borderWidth() << endl;
   cout << "volume vid�. " << flush; */
 
-  Point3d	l;
+  Point3dl	l;
 
   for( io = begin(); io!=fo; ++io )
     {
@@ -1176,11 +1197,16 @@ void AGraph::clearLabelsVolume()
 
 void AGraph::setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz )
 {
-  setLabelsVolumeDimension( Point3d( dx, dy, dz ) );
+  setLabelsVolumeDimension( Point3dl( dx, dy, dz ) );
 }
 
 
 void AGraph::setLabelsVolumeDimension( const Point3d & vd )
+{
+  setLabelsVolumeDimension( Point3dl( vd[0], vd[1], vd[2] ) );
+}
+
+void AGraph::setLabelsVolumeDimension( const Point3dl & vd )
 {
   if ( vd == d->labelDim )
     return ;
@@ -1191,8 +1217,7 @@ void AGraph::setLabelsVolumeDimension( const Point3d & vd )
     clearLabelsVolume() ;
 }
 
-
-Point3d AGraph::labelsVolumeDimension() const
+Point3dl AGraph::labelsVolumeDimension() const
 {
   return( d->labelDim );
 }
