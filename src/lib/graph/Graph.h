@@ -60,13 +60,19 @@ namespace anatomist
       {
         Normal, PropertyMap,
       };
-
+    AGraph( Graph *dataGraph, const std::string & filename,
+            bool init,
+            const Point3d& labelDimension );
     AGraph( Graph *dataGraph, const std::string & filename,
             bool init = true,
             const Point3dl& labelDimension = Point3dl(64, 64, 64) );
     AGraph( carto::rc_ptr<Graph> dataGraph, const std::string & filename,
+            bool init,
+            const Point3d& labelDimension );
+    AGraph( carto::rc_ptr<Graph> dataGraph, const std::string & filename,
             bool init = true,
             const Point3dl& labelDimension = Point3dl(64, 64, 64) );
+    
     virtual ~AGraph();
 
     virtual AObject* clone( bool shallow = true );
@@ -151,6 +157,7 @@ namespace anatomist
     virtual void setVoxelSize( const Point3df & vs );
     void clearLabelsVolume();
     void setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz );
+    void setLabelsVolumeDimension( const Point3d & vd );
     void setLabelsVolumeDimension( const Point3dl & vd );
     Point3dl labelsVolumeDimension() const;
     AimsData<AObject *>& volumeOfLabels( int t = 0 ) ;

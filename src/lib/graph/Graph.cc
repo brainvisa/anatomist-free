@@ -127,6 +127,17 @@ namespace
 
 
 AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
+                const Point3d& labelDimension )
+  : MObject(), AttributedAObject(), d( new Private )
+{
+  d->graph.reset( dataGraph );
+  initialize( filename, init, Point3dl(
+                                labelDimension[0],
+                                labelDimension[1],
+                                labelDimension[2] ) );
+}
+
+AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
                 const Point3dl& labelDimension )
   : MObject(), AttributedAObject(), d( new Private )
 {
@@ -134,6 +145,16 @@ AGraph::AGraph( Graph *dataGraph, const string & filename, bool init,
   initialize( filename, init, labelDimension );
 }
 
+AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
+                const Point3d& labelDimension )
+  : MObject(), AttributedAObject(), d( new Private )
+{
+  d->graph = dataGraph;
+  initialize( filename, init, Point3dl(
+                                labelDimension[0],
+                                labelDimension[1],
+                                labelDimension[2] ) );
+}
 
 AGraph::AGraph( rc_ptr<Graph> dataGraph, const string & filename, bool init,
                 const Point3dl& labelDimension )
@@ -1180,6 +1201,11 @@ void AGraph::setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz )
 }
 
 
+void AGraph::setLabelsVolumeDimension( const Point3d & vd )
+{
+  setLabelsVolumeDimension( Point3dl( vd[0], vd[1], vd[2] ) );
+}
+
 void AGraph::setLabelsVolumeDimension( const Point3dl & vd )
 {
   if ( vd == d->labelDim )
@@ -1190,7 +1216,6 @@ void AGraph::setLabelsVolumeDimension( const Point3dl & vd )
   if( d->labelsVol )
     clearLabelsVolume() ;
 }
-
 
 Point3dl AGraph::labelsVolumeDimension() const
 {
