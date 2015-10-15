@@ -376,7 +376,7 @@ RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
     return 0 ;
   
   AGraphObject::iterator	ic, ec =  go->end() ;
-  Bucket * bk ;
+  Bucket * bk = 0 ;
   for( ic = go->begin() ; ic!=ec; ++ic )
     if( ( bk = dynamic_cast<Bucket *>( *ic ) ) )
       break;
