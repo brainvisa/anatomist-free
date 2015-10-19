@@ -38,6 +38,7 @@
 using namespace anatomist;
 using std::swap;
 
+
 template <typename T>
 void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
 {
@@ -80,20 +81,26 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
     }
   else
     {
-      minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
-      maxv0 = mini + maxc0 * (maxi - mini);
+      // thresholds in image values
+      minv0 = float( mini + minc0 * (double(maxi) - mini) );
+      maxv0 = float( mini + maxc0 * (double(maxi) - mini) );
       if( minv0 > maxv0 )
         swap(minv0, maxv0);
-      minv1 = mini + minc1 * (maxi - mini);	// thresholds in image values
-      maxv1 = mini + maxc1 * (maxi - mini);
+      // thresholds in image values
+      minv1 = float( mini + minc1 * (double(maxi) - mini) );
+      maxv1 = float( mini + maxc1 * (double(maxi) - mini) );
       if( minv1 > maxv1 )
         swap(minv1, maxv1);
     }
 
-  scale0 = ( static_cast<float>( ncol0 ) ) / ( (maxi - mini) * (maxc0 - minc0) );
-  scale1 = ( static_cast<float>( ncol1 ) ) / ( (maxi - mini) * (maxc1 - minc1) );
-  decal0 = - ( mini / (maxi - mini) + minc0 ) * ncol0 / (maxc0 - minc0);
-  decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
+  scale0 = float( ( static_cast<double>( ncol0 ) )
+    / ( (double(maxi) - mini) * (maxc0 - minc0) ) );
+  scale1 = float( ( static_cast<double>( ncol1 ) )
+    / ( (double(maxi) - mini) * (maxc1 - minc1) ) );
+  decal0 = float( - ( mini / (double(maxi) - mini) + minc0 ) * ncol0
+    / (maxc0 - minc0) );
+  decal1 = float( - ( mini / (double(maxi) - mini) + minc1 ) * ncol1
+    / (maxc1 - minc1) );
   cmin0 = 0;
   cmin1 = 0;
   cmax0 = colors->dimX() - 1;
@@ -109,10 +116,11 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
       cmin1 = cmax1;
       cmax1 = 0;
     }
+
   /*
   std::cout << "cmin0: " << cmin0 << ", cmax0: " << cmax0 << ", cmin1: " << cmin1
             << ", cmax1: " << cmax1 << ", scale0: " << scale0 << ", scale1: "
-            << scale1 << std::endl;*/
+            << scale1 << std::endl; */
 }
 
 

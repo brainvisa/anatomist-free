@@ -185,7 +185,7 @@ namespace anatomist
   AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
   {
     int ival0, ival1;
-    float val = static_cast<float>( in );
+    double val = static_cast<double>( in );
 
     // Comparisons are written this way to accommodate NaN and Inf
     if( val >= minv0 && val < maxv0 )
