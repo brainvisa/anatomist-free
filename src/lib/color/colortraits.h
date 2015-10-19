@@ -185,14 +185,15 @@ namespace anatomist
   AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
   {
     int ival0, ival1;
-    float val = static_cast<float>( in );
+    float fval0, fval1, val = static_cast<float>( in );
 
     // Comparisons are written this way to accommodate NaN and Inf
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -202,11 +203,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -227,13 +229,14 @@ namespace anatomist
     AimsRGBA col;
 
     int ival0, ival1;
-    float val = static_cast<float>( in.red() );
+    float fval0, fval1, val = static_cast<float>( in.red() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -243,11 +246,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -257,11 +261,12 @@ namespace anatomist
 
     val = static_cast<float>( in.green() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -271,11 +276,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -285,11 +291,12 @@ namespace anatomist
 
     val = static_cast<float>( in.blue() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -299,11 +306,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -315,11 +323,12 @@ namespace anatomist
                                          + in.green() * in.green()
                                          + in.blue() * in.blue() ) );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -329,11 +338,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -352,13 +362,14 @@ namespace anatomist
     AimsRGBA col;
 
     int ival0, ival1;
-    float val = static_cast<float>( in.red() );
+    float fval0, fval1, val = static_cast<float>( in.red() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -368,11 +379,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -382,11 +394,12 @@ namespace anatomist
 
     val = static_cast<float>( in.green() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -396,11 +409,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -410,11 +424,12 @@ namespace anatomist
 
     val = static_cast<float>( in.blue() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -424,11 +439,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
@@ -438,11 +454,12 @@ namespace anatomist
 
     val = static_cast<float>( in.alpha() );
 
-    if( val >= minv0 && val < maxv0 )
-      ival0 = static_cast<int>( scale0 * val + decal0 );
-    else if( val <= minv0 )
+    fval0 = scale0 * val + decal0;
+    if( fval0 > cmin0 && fval0 < cmax0 ) {
+      ival0 = static_cast<int>( fval0 );
+    } else if( fval0 <= cmin0 )
       ival0 = cmin0;
-    else if( val >= maxv0 )
+    else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
       return neutralColor();
@@ -452,11 +469,12 @@ namespace anatomist
       ival1 = 0 ;
     else
       {
-        if( val >= minv1 && val < maxv1 )
-          ival1 = static_cast<int>( scale1 * val + decal1 );
-        else if( val <= minv1 )
+        fval1 = scale1 * val + decal1;
+        if( fval1 > cmin1 && fval1 < cmax1 ) {
+          ival1 = static_cast<int>( fval1 );
+        } else if( fval1 <= cmin1 )
           ival1 = cmin1;
-        else if( val >= maxv1 )
+        else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
           return neutralColor();
