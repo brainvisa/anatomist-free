@@ -185,7 +185,7 @@ namespace anatomist
   AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
   {
     int ival0, ival1;
-    float fval0, fval1, val = static_cast<float>( in );
+    double fval0, fval1, val = static_cast<double>( in );
 
     // Comparisons are written this way to accommodate NaN and Inf
     fval0 = scale0 * val + decal0;

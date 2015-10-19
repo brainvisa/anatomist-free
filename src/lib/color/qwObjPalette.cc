@@ -747,7 +747,7 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
     return ;
   d->updatingFlag = true ;
 
-  //cout << "QAPaletteWin::update\n";
+  // cout << "QAPaletteWin::update\n";
 
   const AObject * obj = dynamic_cast<const AObject*>( obs );
   if( ( !obj || !theAnatomist->hasObject( obj ) ) && objects().size() == 1 )
@@ -804,7 +804,9 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
       {
         const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
         if( !te.minquant.empty() )
+        {
           d->objMin = te.minquant[0];
+        }
         if( !te.maxquant.empty() )
           d->objMax = te.maxquant[0];
         if( d->objMin == d->objMax )
@@ -1034,7 +1036,7 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
   dimBox->minSlider->blockSignals( true );
   dimBox->maxSlider->blockSignals( true );
 
-  float	min, max;
+  double	min, max;
 
   if( m < M )
     {
@@ -1052,12 +1054,12 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
   dimBox->maxSlider->setValue( (int) ( ( M - dimBox->slrelmin ) * 1000
                                        / ( dimBox->slrelmax
                                            - dimBox->slrelmin ) ) );
-  min = objMin + ( objMax - objMin ) * m;
-  max = objMin + ( objMax - objMin ) * M;
+  min = double(objMin) + ( double(objMax) - objMin ) * m;
+  max = double(objMin) + ( double(objMax) - objMin ) * M;
   dimBox->minLabel->setText( QString::number( min ) );
   dimBox->maxLabel->setText( QString::number( max ) );
-  min = objMin + ( objMax - objMin ) * dimBox->slrelmin;
-  max = objMin + ( objMax - objMin ) * dimBox->slrelmax;
+  min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
+  max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
   dimBox->minEd->setText( QString::number( min ) );
   dimBox->maxEd->setText( QString::number( max ) );
 
@@ -1098,18 +1100,18 @@ void QAPaletteWin::min1Changed( int value )
     return;
 
   // d->recursive = true;
-  float	relval = d->dimBox1->slrelmin + 0.001 * value
+  double relval = d->dimBox1->slrelmin + 0.001 * value
     * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin );
 
-  float	min = d->objMin + ( d->objMax - d->objMin ) * relval;
+  double min = double(d->objMin) + ( double(d->objMax) - d->objMin ) * relval;
 
   d->dimBox1->minLabel->setText( QString::number( min ) );
 
   bool sym = d->dimBox1->symbox->isChecked();
-  float relval2 = 0;
+  double relval2 = 0;
   if( sym )
   {
-    relval2 = ( -min - d->objMin ) / ( d->objMax - d->objMin );
+    relval2 = ( -min - d->objMin ) / ( double(d->objMax) - d->objMin );
     int val2 = (int) rint( ( relval2 - d->dimBox1->slrelmin ) * 1000
       / ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) );
     d->dimBox1->maxSlider->setValue( val2 );
@@ -1120,9 +1122,9 @@ void QAPaletteWin::min1Changed( int value )
 
   if( objpal )
     {
-      objpal->setMin1( relval );
+      objpal->setMin1( float(relval) );
       if( sym )
-        objpal->setMax1( relval2 );
+        objpal->setMax1( float(relval2) );
       fillObjPal();
     }
   d->modified = true;
@@ -1137,18 +1139,18 @@ void QAPaletteWin::max1Changed( int value )
   if( d->recursive )
     return;
 
-  float	relval = d->dimBox1->slrelmin + 0.001 * value
+  double relval = d->dimBox1->slrelmin + 0.001 * value
     * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin );
 
-  float	max = d->objMin + ( d->objMax - d->objMin ) * relval;
+  double max = double(d->objMin) + ( double(d->objMax) - d->objMin ) * relval;
 
   d->dimBox1->maxLabel->setText( QString::number( max ) );
 
   bool sym = d->dimBox1->symbox->isChecked();
-  float relval2 = 0;
+  double relval2 = 0;
   if( sym )
   {
-    relval2 = ( -max - d->objMin ) / ( d->objMax - d->objMin );
+    relval2 = ( -max - d->objMin ) / ( double(d->objMax) - d->objMin );
     int val2 = (int) rint( ( relval2 - d->dimBox1->slrelmin ) * 1000
       / ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) );
     d->dimBox1->minSlider->setValue( val2 );
@@ -1159,9 +1161,9 @@ void QAPaletteWin::max1Changed( int value )
 
   if( objpal )
     {
-      objpal->setMax1( relval );
+      objpal->setMax1( float(relval) );
       if( sym )
-        objpal->setMin1( relval2 );
+        objpal->setMin1( float(relval2) );
       fillObjPal();
     }
   d->modified = true;
@@ -1175,13 +1177,13 @@ void QAPaletteWin::min2Changed( int value )
   if( d->recursive )
     return;
 
-  float	relval = d->dimBox2->slrelmin + 0.001 * value
+  double relval = d->dimBox2->slrelmin + 0.001 * value
     * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin );
 
   d->dimBox2->minLabel->setText( QString::number( relval ) );
 
   bool sym = d->dimBox2->symbox->isChecked();
-  float relval2 = 0;
+  double relval2 = 0;
   if( sym )
   {
     relval2 = 1. - relval;
@@ -1195,9 +1197,9 @@ void QAPaletteWin::min2Changed( int value )
 
   if( objpal )
     {
-      objpal->setMin2( relval );
+      objpal->setMin2( float(relval) );
       if( sym )
-        objpal->setMax2( relval2 );
+        objpal->setMax2( float(relval2) );
       fillObjPal();
     }
   d->modified = true;
@@ -1211,13 +1213,13 @@ void QAPaletteWin::max2Changed( int value )
   if( d->recursive )
     return;
 
-  float	relval = d->dimBox2->slrelmin + 0.001 * value
+  double relval = d->dimBox2->slrelmin + 0.001 * value
     * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin );
 
   d->dimBox2->maxLabel->setText( QString::number( relval ) );
 
   bool sym = d->dimBox2->symbox->isChecked();
-  float relval2 = 0;
+  double relval2 = 0;
   if( sym )
   {
     relval2 = 1. - relval;
@@ -1231,9 +1233,9 @@ void QAPaletteWin::max2Changed( int value )
 
   if( objpal )
     {
-      objpal->setMax2( relval );
+      objpal->setMax2( float(relval) );
       if( sym )
-        objpal->setMin2( relval2 );
+        objpal->setMin2( float(relval2) );
       fillObjPal();
     }
   d->modified = true;
@@ -1255,14 +1257,14 @@ void QAPaletteWin::updateObjects()
       return;
     }
 
-  set<AObject *>::const_iterator	io, fo = obj.end();
-  AObjectPalette			*pal = objPalette();
-  float					mi, ma, omi, oma;
-  AObject				*o;
+  set<AObject *>::const_iterator io, fo = obj.end();
+  AObjectPalette *pal = objPalette();
+  double mi, ma, omi, oma;
+  AObject *o;
 
   // convert to absolute values
-  omi = pal->min1() * ( d->objMax - d->objMin ) + d->objMin;
-  oma = pal->max1() * ( d->objMax - d->objMin ) + d->objMin;
+  omi = pal->min1() * ( double(d->objMax) - d->objMin ) + double(d->objMin);
+  oma = pal->max1() * ( double(d->objMax) - d->objMin ) + double(d->objMin);
 
   for( io=obj.begin(); io!=fo; ++io )
     {
@@ -1279,8 +1281,8 @@ void QAPaletteWin::updateObjects()
               ma = mi + 1;
             // convert to object scale
             AObjectPalette op = *pal;
-            op.setMin1( ( omi - mi ) / ( ma - mi ) );
-            op.setMax1( ( oma - mi ) / ( ma - mi ) );
+            op.setMin1( float( ( omi - mi ) / ( ma - mi ) ) );
+            op.setMax1( float( ( oma - mi ) / ( ma - mi ) ) );
             o->setPalette( op );
             gl->glSetTexImageChanged();
           }
@@ -1473,13 +1475,15 @@ void QAPaletteWin::min1EditChanged()
   if( d->recursive )
     return;
 
-  float	val = d->dimBox1->minEd->text().toFloat();
-  float curval = float( d->dimBox1->minSlider->value() ) * 0.001
-    * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin )
+  double val = d->dimBox1->minEd->text().toDouble();
+  double curval = double( d->dimBox1->minSlider->value() ) * 0.001
+    * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
-  d->dimBox1->slrelmin = (val - d->objMin ) / ( d->objMax - d->objMin );
+  d->dimBox1->slrelmin = (val - d->objMin )
+    / ( double(d->objMax) - d->objMin );
   int	ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-                           / ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) );
+                           / ( double(d->dimBox1->slrelmax)
+                               - d->dimBox1->slrelmin ) );
   d->dimBox1->minSlider->setValue( ival );
 }
 
@@ -1489,13 +1493,15 @@ void QAPaletteWin::max1EditChanged()
   if( d->recursive )
     return;
 
-  float	val = d->dimBox1->maxEd->text().toFloat();
-  float curval = float( d->dimBox1->maxSlider->value() ) * 0.001
-    * ( d->dimBox1->slrelmax - d->dimBox1->slrelmin )
+  double val = d->dimBox1->maxEd->text().toDouble();
+  double curval = double( d->dimBox1->maxSlider->value() ) * 0.001
+    * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
-  d->dimBox1->slrelmax = (val - d->objMin ) / ( d->objMax - d->objMin );
+  d->dimBox1->slrelmax = float( (val - d->objMin )
+    / ( double(d->objMax) - d->objMin ) );
   int	ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-                           / ( d->dimBox1->slrelmax - d->dimBox1->slrelmin ) );
+                           / ( double(d->dimBox1->slrelmax)
+                               - d->dimBox1->slrelmin ) );
   d->dimBox1->maxSlider->setValue( ival );
 }
 
@@ -1505,13 +1511,14 @@ void QAPaletteWin::min2EditChanged()
   if( d->recursive )
     return;
 
-  float	val = d->dimBox2->minEd->text().toFloat();
-  float curval = float( d->dimBox2->minSlider->value() ) * 0.001
-    * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin )
+  double val = d->dimBox2->minEd->text().toDouble();
+  double curval = double( d->dimBox2->minSlider->value() ) * 0.001
+    * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
   d->dimBox2->slrelmin = val;
   int	ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-                           / ( d->dimBox2->slrelmax - d->dimBox2->slrelmin ) );
+                           / ( double(d->dimBox2->slrelmax)
+                               - d->dimBox2->slrelmin ) );
   d->dimBox2->minSlider->setValue( ival );
 }
 
@@ -1521,13 +1528,14 @@ void QAPaletteWin::max2EditChanged()
   if( d->recursive )
     return;
 
-  float	val = d->dimBox2->maxEd->text().toFloat();
-  float curval = float( d->dimBox2->maxSlider->value() ) * 0.001
-    * ( d->dimBox2->slrelmax - d->dimBox2->slrelmin )
+  double val = d->dimBox2->maxEd->text().toDouble();
+  double curval = double( d->dimBox2->maxSlider->value() ) * 0.001
+    * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
   d->dimBox2->slrelmax = val;
   int	ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-                           / ( d->dimBox2->slrelmax - d->dimBox2->slrelmin ) );
+                           / ( double(d->dimBox2->slrelmax)
+                               - d->dimBox2->slrelmin ) );
   d->dimBox2->maxSlider->setValue( ival );
 }
 
@@ -1618,28 +1626,30 @@ void QAPaletteWin::runCommand()
       SetObjectPaletteCommand	*com;
       // convert to absolute values
       AObjectPalette *pal = objPalette();
-      float omi = pal->min1() * ( d->objMax - d->objMin ) + d->objMin;
-      float oma = pal->max1() * ( d->objMax - d->objMin ) + d->objMin;
-      float omi2 = pal->min2() * ( d->objMax2 - d->objMin2 ) + d->objMin2;
-      float oma2 = pal->max2() * ( d->objMax2 - d->objMin2 ) + d->objMin2;
+      double omi = pal->min1() * ( double(d->objMax) - d->objMin ) + d->objMin;
+      double oma = pal->max1() * ( double(d->objMax) - d->objMin ) + d->objMin;
+      double omi2 = pal->min2() * ( double(d->objMax2) - d->objMin2 )
+        + d->objMin2;
+      double oma2 = pal->max2() * ( double(d->objMax2) - d->objMin2 )
+        + d->objMin2;
 
       if( d->objpal->refPalette2() )
       {
-        com = new SetObjectPaletteCommand( _parents,
-					   d->objpal->refPalette()->name(),
-					   true, omi, true, oma,
-					   d->objpal->refPalette2()->name(),
-					   true, omi2, true, oma2,
-					   d->objpal->mixMethodName(), true,
-                                           d->objpal->linearMixFactor(), "",
-                                           true );
+        com = new SetObjectPaletteCommand(
+          _parents, d->objpal->refPalette()->name(),
+          true, float(omi), true, float(oma),
+          d->objpal->refPalette2()->name(),
+          true, float(omi2), true, float(oma2),
+          d->objpal->mixMethodName(), true,
+          d->objpal->linearMixFactor(), "",
+          true );
       }
       else
-	com = new SetObjectPaletteCommand( _parents,
-					   d->objpal->refPalette()->name(),
-					   true, omi, true, oma,
-					   "", true, omi2,  true, oma2, "",
-                                           false, 0.5, "", true );
+        com = new SetObjectPaletteCommand(
+          _parents, d->objpal->refPalette()->name(),
+          true, float(omi), true, float(oma),
+          "", true, omi2,  true, oma2, "",
+          false, 0.5, "", true );
 
       // pb: unnecessary command execution: should be only writen, not executed
       // because it has already been done before.
