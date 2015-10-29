@@ -104,7 +104,7 @@ namespace anatomist
 
     virtual void update( const Observable* observable, void* arg );
 
-    virtual void glClearHasChangedFlags();
+    virtual void glClearHasChangedFlags() const;
 
     virtual Tree* optionTree() const;
 

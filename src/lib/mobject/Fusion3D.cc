@@ -358,7 +358,7 @@ bool Fusion3D::render( PrimList & prim, const ViewState & state )
 }
 
 
-void Fusion3D::glClearHasChangedFlags()
+void Fusion3D::glClearHasChangedFlags() const
 {
   GLObjectVector::glClearHasChangedFlags();
   d->refreshVTexture = false;

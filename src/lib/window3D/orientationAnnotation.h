@@ -66,6 +66,7 @@ namespace anatomist
         virtual std::string name() const;
         // Removes annotations
         void remove();
+        using AObject::update; // restore visibility of virtual method
         // Updates annotations
         void update();
         virtual bool Is2DObject()

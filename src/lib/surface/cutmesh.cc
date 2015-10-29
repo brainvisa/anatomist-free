@@ -605,7 +605,7 @@ bool CutMesh::boundingBox( Point3df & bmin, Point3df & bmax ) const
 }
 
 
-void CutMesh::clearHasChangedFlags()
+void CutMesh::clearHasChangedFlags() const
 {
   d->meshchanged = false;
   MObject::clearHasChangedFlags();

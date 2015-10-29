@@ -77,6 +77,9 @@ public:
 				const Graph* gr, const std::string & attr, 
 				const std::string & val );
 
+  // Restore the visibility of these virtual overloads
+  using anatomist::SelectFactory::unselect;
+  using anatomist::SelectFactory::selectAll;
 public slots:
   virtual void view( anatomist::AWindow* win );
   virtual void unselect( anatomist::AWindow* win );
