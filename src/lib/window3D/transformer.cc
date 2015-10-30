@@ -312,7 +312,7 @@ bool TransformerActionData::redoable()
     }
 
     return (_maintrans->motionHistorySize() > 0 &&
-            _maintrans->motionHistoryIndex() < _maintrans->motionHistorySize() - 1);
+            static_cast<size_t>(_maintrans->motionHistoryIndex()) < _maintrans->motionHistorySize() - 1);
 }
 
 void TransformerActionData::resetTransform()

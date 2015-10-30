@@ -94,6 +94,9 @@ struct SurfpaintTools::Private
 SurfpaintTools::SurfpaintTools()/* : Observer()*/
     : QWidget(theAnatomist->getQWidgetAncestor(), Qt::Window),
   d( new Private ),
+  mesh(0),
+  at(0),
+  options(0),
   surfpaintTexInit( 0 ),
   win3D( 0 ),
   objselect( 0 ),
@@ -111,18 +114,18 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   gyriPathAction( 0 ),
   paintBrushAction( 0 ),
   magicBrushAction( 0 ),
+  distanceAction( 0 ),
   validateEditAction( 0 ),
   eraseAction( 0 ),
   clearPathAction( 0 ),
   saveAction( 0 ),
-  distanceAction( 0 ),
   constraintList( 0 ),
   toleranceSpinBox( 0 ),
   toleranceSpinBoxLabel( 0 ),
-  textureValueMinSpinBox( 0 ),
-  textureValueMaxSpinBox( 0 ),
   constraintPathSpinBox( 0 ),
   constraintPathSpinBoxLabel( 0 ),
+  textureValueMinSpinBox( 0 ),
+  textureValueMaxSpinBox( 0 ),
   constraintPathValue( 0 ),
   toleranceValue( 0 ),
   stepToleranceValue( 0 ),
@@ -130,10 +133,7 @@ SurfpaintTools::SurfpaintTools()/* : Observer()*/
   sp( 0 ),
   sp_sulci( 0 ),
   sp_gyri( 0 ),
-  pathClosed( false ),
-  mesh(0),
-  at(0),
-  options(0)
+  pathClosed( false )
 {
   changeControl(0);
   shortestPathSelectedType = "ShortestPath";
@@ -1903,6 +1903,7 @@ void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
   sptemp = getMeshStructSulciP();
   else if (ac.compare("GyriPath") == 0)
   sptemp = getMeshStructGyriP();
+  else assert(false);
 
  sptemp->distanceMap_1_N_ind(indexNearestVertex, distanceMap,&length, 0);
 

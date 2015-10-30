@@ -58,7 +58,7 @@ class MPVRShader : public Shader,
 
   protected:
 
-    friend class Creator< MPVRShader, Shader >;
+    friend struct Creator< MPVRShader, Shader >;
 
     MPVRShader();
 

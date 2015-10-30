@@ -1122,11 +1122,12 @@ void AObject::update( const Observable* obs, void* )
 {
   if( obs == d->inheritref )
   {
-    AObject  *o = const_cast<AObject *>( (const AObject *) obs );
+    const AObject  *o = dynamic_cast<const AObject *>( obs );
+    assert( o != NULL );
     if( o->hasReferenceChanged() )
     {
       clearReferentialInheritance();
-      setReferentialInheritance( o );
+      setReferentialInheritance( const_cast<AObject*>( o ) );
     }
   }
 }
