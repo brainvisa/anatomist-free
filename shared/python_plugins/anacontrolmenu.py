@@ -263,17 +263,25 @@ def _my_ioloop_start(self):
             while self._events:
                 fd, events = self._events.popitem()
                 try:
-                    self._handlers[fd](fd, events)
+                    open('/tmp/analog.txt', 'w').write('handlers[fd]: %s, fd: %d\n' % (repr(self._handlers[fd]), fd))
+                    handler = self._handlers[fd]
+                    if isinstance(handler, tuple):
+                        # tornado >= 4
+                        handler[1](fd, events)
+                    else:
+                        # older tornado <= 3
+                        handler(fd, events)
                 except (OSError, IOError) as e:
                     if e.args[0] == errno.EPIPE:
                         # Happens when the client closes the connection
                         pass
                     else:
-                        app_log.error("Exception in I/O handler for fd %s",
-                                      fd, exc_info=True)
-                except Exception:
-                    app_log.error("Exception in I/O handler for fd %s",
-                                  fd, exc_info=True)
+                        raise
+                        #app_log.error("Exception in I/O handler for fd %s",
+                                      #fd, exc_info=True)
+                #except Exception:
+                    #app_log.error("Exception in I/O handler for fd %s",
+                                  #fd, exc_info=True)
 
         # reset the stopped flag so another start/stop pair can be issued
         self._stopped = False
