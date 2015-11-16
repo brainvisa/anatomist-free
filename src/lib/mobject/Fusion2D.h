@@ -124,10 +124,10 @@ namespace anatomist
   protected:
     ///	Disable public edition
     virtual void insert( AObject* o ) { ObjectVector::insert( o ); }
-    virtual void insert( AObject* o, unsigned pos )
+    virtual void insert( AObject* o, int pos )
     { ObjectVector::insert( o, pos ); }
     virtual void insert( const carto::shared_ptr<AObject> & o,
-                         unsigned pos = -1 )
+                         int pos = -1 )
     { ObjectVector::insert( o, pos  ); }
     virtual void erase( iterator & i ) { ObjectVector::erase( i ); }
   };

@@ -64,7 +64,7 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
-    virtual void clearHasChangedFlags();
+    virtual void clearHasChangedFlags() const;
 
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
     virtual void SetMaterial( const Material & );

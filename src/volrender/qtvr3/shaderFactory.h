@@ -31,7 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 #ifndef _shaderFactory_h_
-#define _shaferFactory_h_
+#define _shaderFactory_h_
 
 
 #include <anatomist/qtvr3/vrsingleton.h>

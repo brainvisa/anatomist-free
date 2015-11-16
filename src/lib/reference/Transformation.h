@@ -123,7 +123,7 @@ namespace anatomist
     /// Redoes last motion
     void redo();
     /// Returns the motion history size
-    int motionHistorySize() const
+    std::size_t motionHistorySize() const
     {
     	return _motionHistory.size();
     }

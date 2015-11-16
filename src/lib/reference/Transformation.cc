@@ -282,7 +282,7 @@ void Transformation::addMotionToHistory(const Motion & motion)
 		_motionHistory.clear();
 	}
 	else if (_motionHistoryIndex >= 0 &&
-		_motionHistoryIndex < (_motionHistory.size() - 1))
+                 static_cast<size_t>(_motionHistoryIndex) < (_motionHistory.size() - 1))
 	{
 		_motionHistory.erase(_motionHistory.begin() + _motionHistoryIndex + 1,
 							 _motionHistory.end());
@@ -308,7 +308,7 @@ void Transformation::undo()
 
 void Transformation::redo()
 {
-	if (_motionHistoryIndex == (_motionHistory.size() - 1) ||
+  if (static_cast<size_t>(_motionHistoryIndex) == (_motionHistory.size() - 1) ||
 		_motionHistory.empty())
 	{
 		return;

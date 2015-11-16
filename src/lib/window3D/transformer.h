@@ -164,6 +164,14 @@ namespace anatomist
     virtual void rotationAngleChanged();
     virtual void rotationScaleChanged();
 
+  private:
+    // Restore the visibility of these overloaded virtuals to prevent warning
+    using internal::TransformerActionData::matrixCellChanged;
+    using internal::TransformerActionData::axisCellChanged;
+    using internal::TransformerActionData::centerCellChanged;
+    using internal::TransformerActionData::rotationAngleChanged;
+    using internal::TransformerActionData::rotationScaleChanged;
+
   protected:
     Private *d;
 
@@ -234,6 +242,8 @@ namespace anatomist
     virtual void move( int x, int y, int globalX, int globalY );
 
   protected:
+    // Restore visibility of overloaded virtual to prevent warning
+    using TranslaterAction::updateTemporaryObjects;
     virtual void updateTemporaryObjects( float zoom );
   };
 
