@@ -346,7 +346,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
 
   Quaternion	q;
   if( tra )
-    q = tra->quaternion() * quat;
+    q = tra->quaternion().inverse() * quat;
   else
     q = quat;
 
