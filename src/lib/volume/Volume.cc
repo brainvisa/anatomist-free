@@ -340,9 +340,9 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
          << ", tr : " << tra << endl; */
     }
 
-  Point3df	u = quat.apply( Point3df( 1, 0, 0 ) ),
-    v = quat.apply( Point3df( 0, 1, 0 ) ), 
-    w = quat.apply( Point3df( 0, 0, 1 ) );
+  Point3df	u = quat.transformInverse( Point3df( 1, 0, 0 ) ),
+    v = quat.transformInverse( Point3df( 0, 1, 0 ) ),
+    w = quat.transformInverse( Point3df( 0, 0, 1 ) );
 
   Quaternion	q;
   if( tra )

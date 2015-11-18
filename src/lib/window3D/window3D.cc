@@ -1244,7 +1244,7 @@ void AWindow3D::refreshNow()
   glDisable( GL_BLEND);
 
   GLdouble plane[4];
-  Point3df dir = d->slicequat.apply(Point3df(0, 0, -1));
+  Point3df dir = d->slicequat.transformInverse( Point3df(0, 0, -1) );
   plane[0] = dir[0];
   plane[1] = dir[1];
   plane[2] = dir[2];
@@ -1920,7 +1920,7 @@ int AWindow3D::updateSliceSlider()
     vs = Point3df(1, 1, 1);
 
   // get slice plane
-  Point3df norm = d->slicequat.apply(Point3df(0, 0, 1));
+  Point3df norm = d->slicequat.transformInverse(Point3df(0, 0, 1));
   float ds = norm.dot(pos);
 
   sl = (int) rint(ds / vs[2] - minsl);
@@ -1966,7 +1966,7 @@ void AWindow3D::changeSlice(int s)
     vs = Point3df(1, 1, 1);
 
   // get slice plane
-  Point3df norm = d->slicequat.apply(Point3df(0, 0, 1));
+  Point3df norm = d->slicequat.transformInverse( Point3df(0, 0, 1) );
   // project
   float ds = -norm.dot(pos);
   pos = pos + (vs[2] * s + minsl + ds) * norm;
@@ -2331,7 +2331,7 @@ Geometry AWindow3D::setupWindowGeometry(
 #define check_extremum( p )				\
 	  if( tr )					\
 	    p = tr->transform( p );			\
-	  p = slicequat.applyInverse( p );		\
+	  p = slicequat.transform( p );  		\
 	  if( p[0] < dmin[0] )				\
 	    dmin[0] = p[0];				\
 	  if( p[1] < dmin[1] )				\
@@ -2371,9 +2371,9 @@ Geometry AWindow3D::setupWindowGeometry(
         v = tr->transform(v) - tr->transform(Point3df(0, 0, 0));
         w = tr->transform(w) - tr->transform(Point3df(0, 0, 0));
       }
-      u = slicequat.apply(u);
-      v = slicequat.apply(v);
-      w = slicequat.apply(w);
+      u = slicequat.transformInverse(u);
+      v = slicequat.transformInverse(v);
+      w = slicequat.transformInverse(w);
       //cout << "base : " << u << endl << v << endl << w << endl;
 
       s2 = Point3df(1. / max(max(fabs(u[0] / s2[0]), fabs(u[1] / s2[1])), fabs(
@@ -2388,7 +2388,7 @@ Geometry AWindow3D::setupWindowGeometry(
         //cout << "boundingbox : " << pmin << " / " << pmax << endl;
         p = pmin;
         if (tr) p = tr->transform(p);
-        p = slicequat.applyInverse(p);
+        p = slicequat.transform(p);
 
         if (o->textured2D())
         { // keep voxel resolution of only textured objects
@@ -2558,7 +2558,7 @@ void AWindow3D::setPosition( const Point3df& position,
 
   if (geom && viewType() != ThreeD)
   { // snap to nearest slice
-    Point3df dir = d->slicequat.apply(Point3df(0, 0, 1));
+    Point3df dir = d->slicequat.transformInverse(Point3df(0, 0, 1));
     float z = dir.dot(pos) / geom->Size()[2];
 
     /* compare to current position, and avoid changing if it is just half way
@@ -3757,7 +3757,7 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   glDisable( GL_BLEND);
   // clipping planes
   GLdouble plane[4];
-  Point3df dir = d->slicequat.apply(Point3df(0, 0, -1));
+  Point3df dir = d->slicequat.transformInverse(Point3df(0, 0, -1));
   plane[0] = dir[0];
   plane[1] = dir[1];
   plane[2] = dir[2];

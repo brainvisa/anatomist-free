@@ -1238,7 +1238,8 @@ Bucket::meshPlane( const SliceViewState & state ) const
   BucketMap<Void>::Bucket::const_iterator	it,ite;
   float		dis;
   Point3df	vs = VoxelSize(), p;
-  Point3df	direction = state.orientation->apply( Point3df( 0, 0, 1 ) );
+  Point3df      direction = state.orientation->transformInverse(
+    Point3df( 0, 0, 1 ) );
   Point3df	posr;
   float	dmin;
   Point3df	pos = state.position;

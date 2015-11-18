@@ -156,7 +156,7 @@ void QSelectMenu::update( AWindow* win, const Tree* specific )
       _objects = so;	// remember calling objects
       OptionMatcher::commonOptions( _objects, otr );
 
-      if( otr.size() != 0 )
+      if( otr.childrenSize() != 0 )
       {
         otr.setSyntax( QT_TRANSLATE_NOOP( "QSelectMenu",
                                           "Objects manipulations" ) );
@@ -190,7 +190,7 @@ void QSelectMenu::update( AWindow* win, const Tree* specific )
     }
   }
 
-  if( specific && specific->size() > 0 )
+  if( specific && specific->childrenSize() > 0 )
   {
     addSeparator();
     Tree::const_iterator	it, ft=specific->end();
@@ -258,7 +258,7 @@ void QSelectMenu::addMenus( QMenu* menu, const Tree* tree )
   void		*clientdata;
   bool		def;
 
-  if( tree->size() == 0 )	// leaf
+  if( tree->childrenSize() == 0 )	// leaf
   {
     void	(*func)( void * );
     if( tree->getProperty( "callback", func ) )
@@ -294,7 +294,7 @@ void QSelectMenu::addOptionMenus( QMenu* menu, const Tree* tree )
 {
   QAOptionMenuCallback	*cbk = 0;
 
-  if( tree->size() == 0 )	// leaf
+  if( tree->childrenSize() == 0 )	// leaf
     {
       void	(*func)( const set<AObject *> & ) = 0;
       rc_ptr<ObjectMenuCallback>  c;

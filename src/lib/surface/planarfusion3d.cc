@@ -446,9 +446,9 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
   quat.fromAxis( u, alpha );
   d->quat = quat;
 
-  u = quat.apply( Point3df( 1, 0, 0 ) );
-  v = quat.apply( Point3df( 0, 1, 0 ) );
-  n = quat.apply( Point3df( 0, 0, 1 ) );
+  u = quat.transformInverse( Point3df( 1, 0, 0 ) );
+  v = quat.transformInverse( Point3df( 0, 1, 0 ) );
+  n = quat.transformInverse( Point3df( 0, 0, 1 ) );
 
   /* cout << "u: " << u << endl;
   cout << "v: " << v << endl;
@@ -517,9 +517,9 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 	  wv = tr->transform( wv ) - tr->transform( Point3df( 0, 0, 0 ) );
 	}
     }
-  uv = quat.apply( uv );
-  vv = quat.apply( vv );
-  wv = quat.apply( wv );
+  uv = quat.transformInverse( uv );
+  vv = quat.transformInverse( vv );
+  wv = quat.transformInverse( wv );
   s = Point3df( 1. / max( max( fabs( uv[0] / vs[0] ), fabs( uv[1] / vs[1] ) ), 
 			  fabs( uv[2] / vs[2] ) ), 
 		1. / max( max( fabs( vv[0] / vs[0] ), fabs( vv[1] / vs[1] ) ), 

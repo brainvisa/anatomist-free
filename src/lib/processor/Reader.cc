@@ -100,8 +100,8 @@ anatomist::internal::CommandReader_Bridge* anatomist::internal::CommandReader_Br
 
     if( cee->command->getSyntax() == "EXECUTE" )
       {
-        if( ctype->size() != 1 )
-          cerr << "invalid number of command: " << ctype->size() 
+        if( ctype->childrenSize() != 1 )
+          cerr << "invalid number of command: " << ctype->childrenSize()
                << ", should be 1\n";
         else
           {
@@ -193,7 +193,7 @@ void CommandReader::readOne()
     {
       // cout << "not in main thread\n" << flush;
       // _context.lock(); // should not be needed: ctype is only local for now
-      if( synt == "EXECUTE" && ctype->size() == 1 )
+      if( synt == "EXECUTE" && ctype->childrenSize() == 1 )
         {
           com = (Tree *) *ctype->begin();
           if( com->getSyntax() == "ClosePipe" )
@@ -215,8 +215,8 @@ void CommandReader::readOne()
     {
       if( synt == "EXECUTE" )
         {
-          if( ctype->size() != 1 )
-            cerr << "invalid number of command: " << ctype->size() 
+          if( ctype->childrenSize() != 1 )
+            cerr << "invalid number of command: " << ctype->childrenSize()
                  << ", should be 1\n";
           else
             {
