@@ -443,7 +443,7 @@ void KeyFlightAction::up()
 
   Quaternion	q = w->quaternion();
   float		s = -sin( _angle );
-  //Point3df	ax = q.apply( Point3df( 1, 0, 0 ) ) * s;
+  //Point3df	ax = q.transformInverse( Point3df( 1, 0, 0 ) ) * s;
 
   //Quaternion	r = Quaternion( ax[0], ax[1],  ax[2], cos( _angle ) );
   Quaternion	r = Quaternion( s, 0, 0, cos( _angle ) );
@@ -474,7 +474,7 @@ void KeyFlightAction::down()
 
   Quaternion	q = w->quaternion();
   float		s = sin( _angle );
-  //  Point3df	ax = q.apply( Point3df( 1, 0, 0 ) ) * s;
+  //  Point3df	ax = q.transformInverse( Point3df( 1, 0, 0 ) ) * s;
 
   //Quaternion	r = Quaternion( ax[0], ax[1],  ax[2], cos( _angle ) );
   Quaternion	r = Quaternion( s, 0, 0, cos( _angle ) );
@@ -505,7 +505,7 @@ void KeyFlightAction::left()
 
   Quaternion	q; // = w->quaternion();
   float		s = sin( _angle );
-  //  Point3df	ax = q.apply( Point3df( 0, 1, 0 ) ) * s;
+  //  Point3df	ax = q.transformInverse( Point3df( 0, 1, 0 ) ) * s;
 
   //  q += Quaternion( ax[0], ax[1],  ax[2], cos( _angle ) );
   q = Quaternion( 0, s, 0, cos( _angle ) ) * w->quaternion();
@@ -535,7 +535,7 @@ void KeyFlightAction::right()
 
   Quaternion	q; // = w->quaternion();
   float		s = -sin( _angle );
-  //Point3df	ax = q.apply( Point3df( 0, 1, 0 ) ) * s;
+  //Point3df	ax = q.transformInverse( Point3df( 0, 1, 0 ) ) * s;
 
   //q += Quaternion( ax[0], ax[1],  ax[2], cos( _angle ) );
   q = Quaternion( 0, s, 0, cos( _angle ) ) * w->quaternion();
@@ -565,7 +565,7 @@ void KeyFlightAction::spinLeft()
 
   /*Quaternion	q = w->quaternion();
   float		s = sin( _angle );
-  Point3df	ax = q.apply( Point3df( 0, 0, 1 ) ) * s;
+  Point3df	ax = q.transformInverse( Point3df( 0, 0, 1 ) ) * s;
 
   q += Quaternion( ax[0], ax[1],  ax[2], cos( _angle ) );*/
 
@@ -597,7 +597,7 @@ void KeyFlightAction::spinRight()
 
   /*Quaternion	q = w->quaternion();
   float		s = -sin( _angle );
-  Point3df	ax = q.apply( Point3df( 0, 0, 1 ) ) * s;
+  Point3df	ax = q.transformInverse( Point3df( 0, 0, 1 ) ) * s;
 
   q += Quaternion( ax[0], ax[1],  ax[2], cos( _angle ) );
   */
@@ -666,8 +666,8 @@ void KeyFlightAction::runStep()
 	}
 
       Point3df		c = w->rotationCenter();
-      const Quaternion	& q = w->quaternion().inverse();
-      Point3df		p = q.apply( Point3df( 0, 0, -_speed ) );
+      const Quaternion	& q = w->quaternion();
+      Point3df		p = q.transform( Point3df( 0, 0, -_speed ) );
       p[2] = -p[2];	// invert Z axis
       //cout << "avance : " << p << endl;
       w->setRotationCenter( c + p );

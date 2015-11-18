@@ -1508,7 +1508,7 @@ bool GLWidgetManager::translateCursorPosition( float x, float y,
     }
   x /= zoom();
   y /= zoom();
-  position = quaternion().inverse().apply( Point3df( x, y, 0 ) );
+  position = quaternion().transform( Point3df( x, y, 0 ) );
   if( invertedZ() )
     position[2] *= -1;	// indirect referential
 

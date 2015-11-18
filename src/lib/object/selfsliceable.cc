@@ -108,7 +108,7 @@ void SelfSliceable::setPlaneSilent( const Point4df & plane )
 Point4df SelfSliceable::plane() const
 {
   Point4df	plane;
-  Point3df	n = _quaternion.apply( Point3df( 0, 0, 1 ) );
+  Point3df	n = _quaternion.transformInverse( Point3df( 0, 0, 1 ) );
   plane[0] = n[0];
   plane[1] = n[1];
   plane[2] = n[2];

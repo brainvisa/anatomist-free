@@ -1060,7 +1060,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     Point3df voxelSize = region->VoxelSize() ;
 
     Point3df normalVector( win->sliceQuaternion().
-                            apply(Point3df(0., 0., 1.) ) ) ;
+                           transformInverse(Point3df(0., 0., 1.) ) );
 
     //cout << "Normal Vector before 1 : " << normalVector << endl ;
     // snap to slice position

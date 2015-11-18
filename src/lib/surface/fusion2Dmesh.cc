@@ -208,7 +208,7 @@ Point4df Fusion2DMesh::getPlane( const ViewState & state ) const
     }
 
     const aims::Quaternion & quat = *st->orientation;
-    Point3df n = quat.apply( Point3df( 0, 0, 1 ) );
+    Point3df n = quat.transformInverse( Point3df( 0, 0, 1 ) );
     float d = -n.dot( st->position );
 
     // transform coordinates for plane if needed

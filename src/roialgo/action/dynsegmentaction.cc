@@ -489,13 +489,13 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
       
       Point3df voxelSize = region->VoxelSize() ;
 
-      Point3df normalVector( win->sliceQuaternion().
-			     apply(Point3df(0., 0., 1.1) ) ) ;
-      Point3df xAx( win->sliceQuaternion().
-			     apply(Point3df(1.1, 0., 0.) ) ) ;
-      Point3df yAx( win->sliceQuaternion().
-			     apply(Point3df(0., 1.1, 0.) ) ) ;
-      
+      Point3df normalVector( win->sliceQuaternion().transformInverse(
+        Point3df(0., 0., 1.1) ) );
+      Point3df xAx( win->sliceQuaternion().transformInverse(
+        Point3df(1.1, 0., 0.) ) );
+      Point3df yAx( win->sliceQuaternion().transformInverse(
+        Point3df(0., 1.1, 0.) ) );
+
       myXAxis = Point3d( (int)xAx[0], (int)xAx[1], (int)xAx[2] ) ;
       myYAxis = Point3d( (int)yAx[0], (int)yAx[1], (int)yAx[2] ) ;
       myZAxis = Point3d( (int)normalVector[0], (int)normalVector[1], (int)normalVector[2] ) ;

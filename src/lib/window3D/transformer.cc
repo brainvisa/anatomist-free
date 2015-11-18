@@ -1530,7 +1530,7 @@ void TranslaterAction::move( int x, int y, int, int )
   }
   mx /= w->zoom();
   my /= w->zoom();
-  Point3df	p = w->quaternion().inverse().apply( Point3df( mx, my, 0 ) );
+  Point3df	p = w->quaternion().transform( Point3df( mx, my, 0 ) );
   Transformation	t( 0, 0 );
   float zfac = w->invertedZ() ? -1 : 1;
   t.SetTranslation( 0, zfac * p[0] );
@@ -1614,7 +1614,8 @@ Quaternion PlanarTransformer::initialQuaternion()
   AWindow3D     *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( !w3 )
     return Quaternion( 0, 0, 0, 1 );
-  Point3df      axis = w3->sliceQuaternion().apply( Point3df( 0, 0, -1 ) );
+  Point3df      axis = w3->sliceQuaternion().transformInverse(
+    Point3df( 0, 0, -1 ) );
   Quaternion q( axis[0], axis[1], axis[2], 1. );
   return q;
 }
@@ -1635,9 +1636,8 @@ Quaternion PlanarTransformer::rotation( int x, int y )
   if( !w3 )
     return Quaternion( 0, 0, 0, 1 );
 
-  Point3df	axis = w3->sliceQuaternion().apply( Point3df( 0, 0, -1 ) );
-
-
+  Point3df	axis = w3->sliceQuaternion().transformInverse(
+    Point3df( 0, 0, -1 ) );
 
   float	dimx = w->width();
   float	dimy = w->height();
@@ -1645,7 +1645,7 @@ Quaternion PlanarTransformer::rotation( int x, int y )
   // compute an intuitive trackball-compatible rotation angle
   Point3df	axis2 = axis;
   axis2[2] *= -1;
-  axis2 = w->quaternion().apply( axis2 ).normalize();
+  axis2 = w->quaternion().transformInverse( axis2 ).normalize();
   float x1 = ( 2. * _beginx - dimx ) / dimx;
   float y1 = ( dimy - 2. * _beginy ) / dimy;
   float x2 = ( 2. * x - dimx ) / dimx;

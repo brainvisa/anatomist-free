@@ -83,7 +83,7 @@ void OptionMatcher::intersect( Tree & tr, const Tree *ot )
 {
   if( !ot )
     {
-      while( tr.size() > 0 )
+      while( tr.childrenSize() > 0 )
 	tr.remove( *tr.begin() );
       return;
     }
@@ -105,7 +105,7 @@ void OptionMatcher::intersect( Tree & tr, const Tree *ot )
 	  sot = (Tree *) *io;
 	  if( st->getSyntax() == sot->getSyntax() )
 	    {
-	      if( st->size() == 0 )
+	      if( st->childrenSize() == 0 )
               {
                 if( !st->getProperty( "objectmenucallback", ocb1 ) )
                 {
@@ -127,7 +127,7 @@ void OptionMatcher::intersect( Tree & tr, const Tree *ot )
                 break;
               }
 	      intersect( *st, sot );
-	      if( st->size() == 0 )	// no matching sub-menus
+	      if( st->childrenSize() == 0 )	// no matching sub-menus
 		erase = true;
 	      break;
 	    }

@@ -150,9 +150,9 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
   if( ref && wref )
     otrans = theAnatomist->getTransformation( wref, ref );
 
-  Point3df		dirx = rot.apply( Point3df( 1, 0, 0 ) );
-  Point3df		diry = rot.apply( Point3df( 0, 1, 0 ) );
-  Point3df		direction = rot.apply( Point3df( 0, 0, -1 ) );
+  Point3df		dirx = rot.transformInverse( Point3df( 1, 0, 0 ) );
+  Point3df		diry = rot.transformInverse( Point3df( 0, 1, 0 ) );
+  Point3df		direction = rot.transformInverse( Point3df( 0, 0, -1 ) );
   const Point3df	& pos = st->position;
   AImage		& xim = si.xim;
 
@@ -163,18 +163,18 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
 
       Point4dl	dm = st->wingeom->DimMin();
       Point4dl	dM = st->wingeom->DimMax();
-      Point3df	dz = rot.apply( Point3df( 0, 0, 1 ) );
+      Point3df	dz = rot.transformInverse( Point3df( 0, 0, 1 ) );
       float	z = dz.dot( pos );
       //cout << "z : " << z << endl;
 
-      si.vertices[0] = rot.apply( Point3df( gs[0] * ( -0.5F + dm[0] ), 
-                                            gs[1] * ( -0.5F + dm[1] ), z ) );
-      si.vertices[1] = rot.apply( Point3df( gs[0] * ( -0.5F + dm[0] ), 
-                                            gs[1] * ( -0.5F + dM[1] ), z ) );
-      si.vertices[2] = rot.apply( Point3df( gs[0] *  ( -0.5F + dM[0] ), 
-                                            gs[1] *  ( -0.5F + dM[1] ), z ) );
-      si.vertices[3] = rot.apply( Point3df( gs[0] *  ( -0.5F + dM[0] ), 
-                                            gs[1] *  ( -0.5F + dm[1] ), z ) );
+      si.vertices[0] = rot.transformInverse(
+        Point3df( gs[0] * ( -0.5F + dm[0] ), gs[1] * ( -0.5F + dm[1] ), z ) );
+      si.vertices[1] = rot.transformInverse(
+        Point3df( gs[0] * ( -0.5F + dm[0] ), gs[1] * ( -0.5F + dM[1] ), z ) );
+      si.vertices[2] = rot.transformInverse(
+        Point3df( gs[0] *  ( -0.5F + dM[0] ), gs[1] * ( -0.5F + dM[1] ), z ) );
+      si.vertices[3] = rot.transformInverse(
+        Point3df( gs[0] *  ( -0.5F + dM[0] ), gs[1] * ( -0.5F + dm[1] ), z ) );
 
       xim.width = dM[0] - dm[0]; // + 1;
       xim.height = dM[1] - dm[1]; // + 1;

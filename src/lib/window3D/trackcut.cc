@@ -218,7 +218,7 @@ void TrackCutAction::sagittalSlice()
 
 void TrackCutAction::setSlice( const Quaternion & q )
 {
-  Point3df	plane = q.applyInverse( Point3df( 0, 0, 1 ) );
+  Point3df	plane = q.transform( Point3df( 0, 0, 1 ) );
   AWindow			*w = view()->aWindow();
   set<AObject *>		obj = w->Objects();
   set<AObject *>::iterator	io, eo = obj.end();
@@ -351,7 +351,7 @@ void CutSliceAction::moveTrack( int, int y, int, int )
   {
     sl = isls->first;
     q = sl->quaternion();
-    p = q.apply( Point3df( 0, 0, scl * ( y - _y ) ) );
+    p = q.transformInverse( Point3df( 0, 0, scl * ( y - _y ) ) );
     sl->setOffset( sl->offset() + p );
     isls->second->notifyObservers( this );
 

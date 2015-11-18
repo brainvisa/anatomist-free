@@ -978,8 +978,8 @@ void Zoom3DAction::moveZoom( int, int y, int, int )
 
   if( w->perspectiveEnabled() )
     {
-      const Quaternion        & q = w->quaternion().inverse();
-      Point3df                p = q.apply( Point3df( 0, 0, -m ) );
+      const Quaternion        & q = w->quaternion();
+      Point3df                p = q.transform( Point3df( 0, 0, -m ) );
       float zfac = w->invertedZ() ? -1 : 1;
       p[2] = zfac * p[2];        // invert Z axis
       //cout << "avance : " << p << endl;
@@ -1020,8 +1020,8 @@ void Zoom3DAction::zoom( int distance )
 
   if( w->perspectiveEnabled() )
     {
-      const Quaternion        & q = w->quaternion().inverse();
-      Point3df                p = q.apply( Point3df( 0, 0, -distance ) );
+      const Quaternion        & q = w->quaternion();
+      Point3df                p = q.transform( Point3df( 0, 0, -distance ) );
       p[2] = -p[2];        // invert Z axis
       //cout << "avance : " << p << endl;
       w->setRotationCenter( w->rotationCenter() + p );
