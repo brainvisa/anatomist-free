@@ -171,8 +171,9 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
   //cout << "Time = " << time << endl ;
   if( win->positionFromCursor( x, y, pos ) )
     {
-      Point3df normalVector( win->sliceQuaternion().apply(Point3df(0., 0., 1.) ) ) ;
-    
+      Point3df normalVector( win->sliceQuaternion().transformInverse(
+        Point3df(0., 0., 1.) ) );
+
       //     cout << "Normal Vector : " << normalVector << endl ;
       normalVector *= normalVector.dot( pos - win->getPosition() ) ;
       pos = pos - normalVector ;

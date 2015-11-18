@@ -317,11 +317,11 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
       Point3df voxelSize = region->VoxelSize() ;
 
       Point3df normalVector( win->sliceQuaternion().
-			     apply(Point3df(0., 0., 1.) ) ) ;
+                            transformInverse(Point3df(0., 0., 1.) ) ) ;
       Point3df xAx( win->sliceQuaternion().
-			     apply(Point3df(1., 0., 0.) ) ) ;
+                    transformInverse(Point3df(1., 0., 0.) ) ) ;
       Point3df yAx( win->sliceQuaternion().
-			     apply(Point3df(0., 1., 0.) ) ) ;
+                    transformInverse(Point3df(0., 1., 0.) ) ) ;
       
       Point3d xAxis( (int)rint(xAx[0]), (int)rint(xAx[1]), (int)rint(xAx[2]) ) ;
       Point3d yAxis( (int)rint(yAx[0]), (int)rint(yAx[1]), (int)rint(yAx[2]) ) ;

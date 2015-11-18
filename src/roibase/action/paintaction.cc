@@ -900,7 +900,7 @@ PaintAction::erase( int x, int y, int, int )
     {
       _sharedData->myCursorPos = pos;
       Point3df normalVector( win->sliceQuaternion().
-			     apply(Point3df(0., 0., 1.) ) ) ;
+                             transformInverse(Point3df(0., 0., 1.) ) ) ;
 
       normalVector *= normalVector.dot( pos - win->getPosition() ) ;
       pos = pos - normalVector ;
@@ -1283,7 +1283,7 @@ PaintAction::fill(int x, int y, int, int )
     }
 
   Point3df normalVector( win->sliceQuaternion().
-			 apply(Point3df(0., 0., 1.) ) ) ;
+                         transformInverse(Point3df(0., 0., 1.) ) ) ;
 
   if( normalVector[0] <= 0.99 && normalVector[1] <= 0.99 && normalVector[2] <= 0.99 )
     return ;
@@ -1839,7 +1839,8 @@ DiskPaintStrategy::paint( AWindow3D * win,
     p[2] /= voxelSize[2] ;
   }
 
-  Point3df normal(win->sliceQuaternion().apply(Point3df(0., 0., 1.) ) ) ;
+  Point3df normal(win->sliceQuaternion().transformInverse(
+    Point3df(0., 0., 1.) ) ) ;
 
   if( lineMode && myPreviousPointExists )
   {
@@ -2198,7 +2199,7 @@ PaintAction::copySlice( bool wholeSession, int sliceIncrement )
   Referential* buckRef = _sharedData->myCurrentModifiedRegion->getReferential() ;
 
   Point3df normalVector( win->sliceQuaternion().
-			 apply(Point3df(0., 0., 1.) ) ) ;
+                         transformInverse(Point3df(0., 0., 1.) ) );
 
   Point3df cursorPosition( win->getPosition() ) ;
 
