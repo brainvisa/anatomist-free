@@ -38,6 +38,7 @@
 """
 
 import sys, os, weakref
+import anatomist.direct.api as ana
 import anatomist.cpp as anatomist
 from soma import aims
 
@@ -520,7 +521,7 @@ def addMenuEntryToOptionTree(object):
   addMenuEntryToOptionMenu(m)
   t = m.releaseTree()
   sip.transferto(t, None)
-	
+
 def init():
   import sip
   '''Add here entry to optionTree for ShowHidePaletteCallback'''
@@ -531,6 +532,28 @@ def init():
   # Add palette menu to all menus but only once
   for k, v in menumap.items(): menus[v] = k
   for m in menus.keys(): addMenuEntryToOptionMenu(m)
+
+
+def toggleShowPaletteForObject(aobject):
+  # show/hide palette
+  if hasattr(aobject, 'getInternalRep'):
+    aobject = aobject.getInternalRep()
+  ShowHidePaletteCallback().doit(ana.cpp.set_AObjectPtr([aobject]))
+
+def savePaletteImage(aobject, filename):
+  # save palette figure
+  if hasattr(aobject, 'getInternalRep'):
+    aobject = aobject.getInternalRep()
+  a = ana.Anatomist()
+  wins = a.getWindows()
+  for w in wins:
+    gw = w.parent().findChild(GroupPaletteWidget)
+    if gw:
+      break
+  else:
+    return
+  fig = gw.get(getObjectId(aobject)).findChild(PaletteWidget).figure
+  fig.savefig(filename)
 
 
 pm = PaletteViewerModule()
