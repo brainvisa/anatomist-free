@@ -398,7 +398,7 @@ def ipythonQtConsoleShell():
         ipmodule = 'IPython.frontend.terminal.ipapp'
     if ipConsole:
         sp = subprocess.Popen([exe, '-c',
-            'from %s import launch_new_instance; launch_new_instance()' \
+            'import os; os.environ["QT_API"] = "pyqt"; from %s import launch_new_instance; launch_new_instance()' \
                 % ipmodule,
             'qtconsole', '--existing',
             '--shell=%d' % ipConsole.shell_port,
