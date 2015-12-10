@@ -32,515 +32,253 @@
  */
 
 #include <boost/assign.hpp>
-#include <cfloat>
 #include <anatomist/window3D/orientationAnnotation.h>
-#include <anatomist/surface/transformedobject.h>
-#include <anatomist/surface/textobject.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/window/glwidgetmanager.h>
+#include <QGraphicsView>
+#include <QGraphicsItem>
 
 using namespace anatomist;
-using namespace aims;
 using namespace std;
 
-//---------------------------------------------------------------
-OrientationAnnotation::OrientationAnnotation( AWindow3D * win )
-    : AObject(),
-      _win( win ),
-      _viewType( AWindow3D::Oblique ),
-      _fontSize( 0.3 )
+OrientationAnnotation::OrientationAnnotation(AWindow3D* win)
+    : QObject(),
+      win_(win)
 {
-	initParams();
+    InitParameters();
+    connect(win_, SIGNAL(refreshed()), this, SLOT(update()), Qt::UniqueConnection);
 }
 
-//---------------------------------------------------------------
-OrientationAnnotation::OrientationAnnotation( const OrientationAnnotation & a )
-    : _win( a._win ),
-      _winCoordParams( a._winCoordParams ),
-      _winCoordParamIndexes( a._winCoordParamIndexes ),
-      _annotMap( a._annotMap ),
-	  _textMap( a._textMap ),
-	  _activedAnnot( a._activedAnnot ),
-	  _viewType( a._viewType ),
-	  _nonObliqueSliceQuaternion( a._nonObliqueSliceQuaternion ),
-	  _fontSize( a._fontSize )
+OrientationAnnotation::OrientationAnnotation(const OrientationAnnotation& a)
+    : QObject(),
+      win_(a.win_)
 {
-  setReferential( a.getReferential() );
 }
 
-//---------------------------------------------------------------
 OrientationAnnotation::~OrientationAnnotation()
 {
-    // Destroy all annotations
-    remove();
 }
 
-//---------------------------------------------------------------
-string OrientationAnnotation::name() const
-{
-    return "OrientationAnnotation";
-}
-
-//---------------------------------------------------------------
-void OrientationAnnotation::remove()
-{
-    if ( !_win )
-    {
-        return;
-    }
-
-    // Remove and destroy all annotations
-	std::map< Position, TransformedObject * >::iterator it;
-	for ( it = _annotMap.begin() ; it != _annotMap.end() ; it++ )
-	{
-	    _win->unregisterObject( (*it).second );
-		delete (*it).second;
-	}
-	_annotMap.clear();
-	_textMap.clear();
-	_activedAnnot.clear();
-}
-
-//---------------------------------------------------------------
 void OrientationAnnotation::update()
 {
-  if ( !_win )
-  {
-    return;
-  }
-
-  if( _win->getReferential() != getReferential() )
-    setReferential( _win->getReferential() );
-
-  // View type changed: reset all annotations
-  if ( _viewType != _win->viewType() )
-  {
-    remove();
-    initParams();
-  }
-
-  // Remove the annotations if display option is off or if the view is oblique
-  if ( !_win->leftRightDisplay() ||
-        _nonObliqueSliceQuaternion.vector()
-          != _win->sliceQuaternion().vector() )
-  {
-    remove();
-    return;
-  }
-
-  // Update the window coordinate parameters
-  updateWindowCoordParams();
-
-  // Annotation map is empty: need to build it
-  if ( _annotMap.empty() )
-  {
-    build();
-  }
-
-  // Update the annotation positions
-  std::vector< Position >::iterator it;
-  for ( it = _activedAnnot.begin() ; it != _activedAnnot.end() ; it++ )
-  {
-    _annotMap[ *it ]->setPosition( getPosition( *it ) );
-    _textMap[ *it ]->setScale( _fontSize/_win->getZoom() );
-  }
+    InitParameters();
+    UpdateText();
 }
 
-//---------------------------------------------------------------
-string OrientationAnnotation::getPositionLabel( OrientationAnnotation::Position pos )
+QGraphicsView* OrientationAnnotation::GraphicsViewOnWindow()
 {
-  // Get the label according to an annotation position
-  switch ( pos )
-  {
-  case OrientationAnnotation::RIGHT:
-      return "R";
-  case OrientationAnnotation::LEFT:
-      return "L";
-  case OrientationAnnotation::ANT:
-      return "A";
-  case OrientationAnnotation::POST:
-      return "P";
-  case OrientationAnnotation::UP:
-      return "U";
-  case OrientationAnnotation::DOWN:
-      return "D";
-  default:
-      return "";
-  }
-
-  return "";
-}
-
-//---------------------------------------------------------------
-void OrientationAnnotation::build()
-{
-  if ( !_win )
-  {
-    return;
-  }
-
-  vector< Position >::iterator it;
-  for ( it = _activedAnnot.begin() ; it != _activedAnnot.end() ; it++ )
-  {
-    // Create text object
-    TextObject * to = new TextObject( "" );
-    // Set the font size
-    to->setScale( _fontSize );
-    // Set the label
-    std::ostringstream oss;
-    oss << getPositionLabel( (*it) );
-    std::string text = oss.str();
-    to->setText( text );
-    to->setReferentialInheritance( this );
-    // Set the font color
-    Material & mat = to->GetMaterial();
-    mat.SetDiffuse( 1, 0, 0, 1 );
-    to->SetMaterial( mat );
-    _textMap[ *it ] = to ;
-    vector<AObject *> vto;
-    vto.push_back( to );
-    // Create transformed object
-    TransformedObject *tro = new TransformedObject( vto, false, true,
-                                                    getPosition( *it ) );
-    _annotMap[ *it ] = tro;
-    tro->setReferentialInheritance( this );
-    _win->registerObject( tro, true );
-  }
-}
-
-//---------------------------------------------------------------
-Point3df OrientationAnnotation::getPosition(
-  OrientationAnnotation::Position pos )
-{
-  if ( !_win )
-  {
-    return Point3df( FLT_MAX, FLT_MAX, FLT_MAX );
-  }
-
-  Point3df bmin, bmax;
-  float tmin, tmax;
-  // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
-  _win->boundingBox( bmin, bmax, tmin, tmax );
-  Point3df center = ( bmin + bmax ) * 0.5;
-  // Get the zoom factor of the view
-  const float zoom = _win->getZoom();
-
-  // Get the view quaternion and init coordinates
-  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( _win->view() );
-  const Quaternion & q = w->quaternion();
-  Point3df coords = q.transform( Point3df( 0, 0, 0 ) );
-
-  // Compute the coordinates (without shift adjustment)
-  for ( size_t i = 0 ; i < _winCoordParamIndexes[ pos ].size() ; i++ )
-  {
-    coords[ i ] += _winCoordParams [ _winCoordParamIndexes[ pos ][ i ] ][ i ];
-    if ( _winCoordParamIndexes[ pos ][ i ] == 3 )
-    {
-      coords[ i ] += 2*getZFactor();
-    }
-  }
-
-  // Compute the shift adjustment according to the window dimensions
-  float wf = 1.5;
-  theAnatomist->config()->getProperty( "windowSizeFactor", wf );
-
-  float sizeImgAlongAxis = 0.;
-  float sizeImgAlongNormAxis = 0.;
-  float sizeWinAlongAxis = 0.;
-  float sizeWinAlongNormAxis = 0.;
-  getImageAndWinDimensions( pos,
-                            sizeImgAlongAxis, sizeImgAlongNormAxis,
-                            sizeWinAlongAxis, sizeWinAlongNormAxis );
-
-  coords -= center - w->rotationCenter();
-  float ratioImg = sizeImgAlongAxis / sizeImgAlongNormAxis;
-  float ratioWin = sizeWinAlongAxis / sizeWinAlongNormAxis;
-  sizeImgAlongAxis *= wf;
-  sizeImgAlongNormAxis *= wf;
-  float currImgSizeAlongAxis = 0.;
-  if ( ratioImg <= ratioWin )
-  {
-    currImgSizeAlongAxis = ratioImg * sizeWinAlongNormAxis;
-  }
-  else
-  {
-    currImgSizeAlongAxis = sizeWinAlongAxis;
-  }
-  currImgSizeAlongAxis *= zoom;
-  float delta = ( sizeImgAlongAxis / currImgSizeAlongAxis ) * ( sizeWinAlongAxis - currImgSizeAlongAxis ) / ( 2*wf );
-  int directionFac = 1;
-  int shiftIndex = 0;
-  int shiftDirection = 0;
-  float shiftValue = 0.;
-  getShiftParams( pos, shiftIndex, shiftDirection, shiftValue );
-  coords[shiftIndex] += ( delta + shiftValue / zoom ) * shiftDirection;
-
-  return coords;
-}
-
-//---------------------------------------------------------------
-int OrientationAnnotation::getZFactor() const
-{
-    if ( !_win )
+    if (!win_)
     {
         return 0;
     }
 
-    // Set the factor to display the annotations in front of the image
-    string axConv;
-    theAnatomist->config()->getProperty( "axialConvention", axConv );
-    const bool isAxConvRadio = ( axConv != "neuro" );
-
-    if ( _viewType == AWindow3D::Axial )
+    GLWidgetManager* gl_manager = dynamic_cast<GLWidgetManager*>(win_->view());
+    QWidget* parent = gl_manager->qglWidget()->parentWidget();
+    QGraphicsView* g_view = dynamic_cast<QGraphicsView*>(parent);
+    if (g_view)
     {
-        return ( isAxConvRadio ? 1 : -1 );
+        return g_view;
     }
-    else if ( _viewType == AWindow3D::Coronal )
-    {
-        return ( isAxConvRadio ? -1 : 1 );
-    }
-    else if ( _viewType == AWindow3D::Sagittal )
-    {
-        return 1;
-    }
-
-    return 1;
+    return 0;
 }
 
-//---------------------------------------------------------------
-void OrientationAnnotation::getImageAndWinDimensions( OrientationAnnotation::Position pos,
-                                                      float & sizeImgAlongAxis, float & sizeImgAlongNormAxis,
-                                                      float & sizeWinAlongAxis, float & sizeWinAlongNormAxis ) const
+
+void OrientationAnnotation::UpdateText()
 {
-    // Get the dimensions in the direction of the annotation axis and in the direction of its perpendicular axis
-    GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( _win->view() );
-    switch ( pos )
+    ClearTemporaryItems();
+    if (!win_->leftRightDisplay() ||
+        win_->isViewOblique())
     {
-        case OrientationAnnotation::RIGHT:
-        case OrientationAnnotation::LEFT:
-        {
-            sizeImgAlongAxis = _winCoordParams[1][0] - _winCoordParams[0][0];
-            if ( _viewType == AWindow3D::Axial )
-            {
-                sizeImgAlongNormAxis = _winCoordParams[1][1] - _winCoordParams[0][1];
-            }
-            else if ( _viewType == AWindow3D::Coronal )
-            {
-                sizeImgAlongNormAxis = _winCoordParams[1][2] - _winCoordParams[0][2];
-            }
-            sizeWinAlongAxis = w->width();
-            sizeWinAlongNormAxis = w->height();
+        return;
+    }
 
-            break;
-        }
-        case OrientationAnnotation::ANT:
-        case OrientationAnnotation::POST:
-        {
-            sizeImgAlongAxis = _winCoordParams[1][1] - _winCoordParams[0][1];
-            if ( _viewType == AWindow3D::Axial )
-            {
-                sizeImgAlongNormAxis = _winCoordParams[1][0] - _winCoordParams[0][0];
-                sizeWinAlongAxis = w->height();
-                sizeWinAlongNormAxis = w->width();
-            }
-            else if ( _viewType == AWindow3D::Sagittal )
-            {
-                sizeImgAlongNormAxis = _winCoordParams[1][2] - _winCoordParams[0][2];
-                sizeWinAlongAxis = w->width();
-                sizeWinAlongNormAxis = w->height();
-            }
+    QGraphicsView* g_view = GraphicsViewOnWindow();
+    QGraphicsScene* scene = g_view->scene();
+    if (!scene)
+    {
+        scene = new QGraphicsScene(g_view);
+        g_view->setScene(scene);
+    }
 
-            break;
-        }
-        case OrientationAnnotation::UP:
-        case OrientationAnnotation::DOWN:
-        {
-            sizeImgAlongAxis = _winCoordParams[1][2] - _winCoordParams[0][2];
-            if ( _viewType == AWindow3D::Sagittal )
-            {
-                sizeImgAlongNormAxis = _winCoordParams[1][1] - _winCoordParams[0][1];
-            }
-            else if ( _viewType == AWindow3D::Coronal )
-            {
-                sizeImgAlongNormAxis = _winCoordParams[1][2] - _winCoordParams[0][2];
-            }
-            sizeWinAlongAxis = w->height();
-            sizeWinAlongNormAxis = w->width();
-
-            break;
-        }
+    for (map<Position, std::vector<int> >::iterator it=annotation_coord_params_.begin(); it!=annotation_coord_params_.end(); ++it)
+    {
+        DrawText(it->first);
     }
 }
 
-//---------------------------------------------------------------
-void OrientationAnnotation::getShiftParams( OrientationAnnotation::Position pos,
-                                            int & shiftIndex, int & shiftDirection, float & shiftValue )
+void OrientationAnnotation::DrawText(OrientationAnnotation::Position position)
 {
-    // Compute the shift to put the annotation at a window border
-    string axConv;
-    theAnatomist->config()->getProperty( "axialConvention", axConv );
-    const bool isAxConvRadio = ( axConv != "neuro" );
-    switch ( pos )
+    const vector<string> displayed_annotations = win_->displayedAnnotations();
+    if (std::find(displayed_annotations.begin(), displayed_annotations.end(),
+                  PositionFullLabel(position).toStdString()) == displayed_annotations.end())
     {
-        case OrientationAnnotation::RIGHT:
-        {
-            shiftDirection = -1;
-            if ( _viewType == AWindow3D::Axial || _viewType == AWindow3D::Coronal )
-            {
-                shiftIndex = 0;
-            }
-            if ( ( _viewType == AWindow3D::Axial || _viewType == AWindow3D::Coronal ) &&
-                 !isAxConvRadio )
-            {
-                shiftValue = -10;
-            }
-
-            break;
-        }
-        case OrientationAnnotation::LEFT:
-        {
-            shiftDirection = 1;
-            if ( _viewType == AWindow3D::Axial || _viewType == AWindow3D::Coronal )
-            {
-                shiftIndex = 0;
-            }
-            if ( ( _viewType == AWindow3D::Axial || _viewType == AWindow3D::Coronal ) &&
-                 isAxConvRadio )
-            {
-                shiftValue = -10;
-            }
-
-            break;
-        }
-        case OrientationAnnotation::ANT:
-        {
-            shiftDirection = -1;
-            if ( _viewType == AWindow3D::Axial || _viewType == AWindow3D::Sagittal )
-            {
-                shiftIndex = 1;
-            }
-            if ( _viewType == AWindow3D::Axial )
-            {
-                shiftValue = -14;
-            }
-
-            break;
-        }
-        case OrientationAnnotation::POST:
-        {
-            shiftDirection = 1;
-            if ( _viewType == AWindow3D::Axial || _viewType == AWindow3D::Sagittal )
-            {
-                shiftIndex = 1;
-            }
-            if ( _viewType == AWindow3D::Sagittal )
-            {
-                shiftValue = -10;
-            }
-
-            break;
-        }
-        case OrientationAnnotation::UP:
-        {
-            shiftDirection = -1;
-            if ( _viewType == AWindow3D::Coronal || _viewType == AWindow3D::Sagittal )
-            {
-                shiftIndex = 2;
-            }
-            if ( _viewType == AWindow3D::Coronal || _viewType == AWindow3D::Sagittal )
-            {
-                shiftValue = -14;
-            }
-
-            break;
-        }
-        case OrientationAnnotation::DOWN:
-        {
-            shiftDirection = 1;
-            if ( _viewType == AWindow3D::Coronal || _viewType == AWindow3D::Sagittal )
-            {
-                shiftIndex = 2;
-            }
-
-            break;
-        }
+        return;
     }
+
+    QGraphicsView* g_view = GraphicsViewOnWindow();
+    QGraphicsSimpleTextItem* g_text = new QGraphicsSimpleTextItem(PositionLabel(position));
+    QGraphicsScene* scene = g_view->scene();
+    QFont font = g_text->font();
+    font.setPointSize(win_->leftRightDisplaySize());
+    g_text->setFont(font);
+    g_text->setScale(1.);
+    QPen pen = QPen(QColor(255, 0, 0));
+    pen.setWidth(1);
+    g_text->setPen(pen);
+    g_text->setBrush(QBrush(QColor(255, 0, 0)));
+    QTransform tr = g_text->transform();
+    const QPointF center = scene->sceneRect().center();
+    float posx, posy;
+    posx = center.x()*annotation_coord_params_[position][0];
+    posy = center.y()*annotation_coord_params_[position][1];
+    tr.translate(posx, posy);
+    g_text->setTransform(tr);
+    ConstrainCoordinates(g_text, scene);
+    g_view->scene()->addItem(g_text);
+    temporary_items_.push_back(g_text);
 }
 
-//---------------------------------------------------------------
-void OrientationAnnotation::initParams()
+void OrientationAnnotation::ClearTemporaryItems()
 {
-  if ( !_win )
-  {
-    return;
-  }
-
-  // Get view type
-  _viewType = _win->viewType();
-  setReferential( _win->getReferential() );
-
-  // Get the initial slice quaternion to handle with oblique views
-  _nonObliqueSliceQuaternion = _win->sliceQuaternion();
-
-  _winCoordParamIndexes.clear();
-  // Define the displayed annotations according to the view type
-  if ( _viewType == AWindow3D::Axial )
-  {
-    _activedAnnot = boost::assign::list_of( OrientationAnnotation::RIGHT )
-      ( OrientationAnnotation::LEFT )
-      ( OrientationAnnotation::ANT )
-      ( OrientationAnnotation::POST );
-
-    _winCoordParamIndexes[ RIGHT ] = boost::assign::list_of( 0 )( 2 )( 3 );
-    _winCoordParamIndexes[ LEFT ] = boost::assign::list_of( 1 )( 2 )( 3 );
-    _winCoordParamIndexes[ ANT ] = boost::assign::list_of( 2 )( 0 )( 3 );
-    _winCoordParamIndexes[ POST ] = boost::assign::list_of( 2 )( 1 )( 3 );
-  }
-  else if ( _viewType == AWindow3D::Coronal )
-  {
-    _activedAnnot = boost::assign::list_of( OrientationAnnotation::RIGHT )
-      ( OrientationAnnotation::LEFT )
-      ( OrientationAnnotation::UP )
-      ( OrientationAnnotation::DOWN );
-    _winCoordParamIndexes[ RIGHT ] = boost::assign::list_of( 0 )( 3 )( 2 );
-    _winCoordParamIndexes[ LEFT ] = boost::assign::list_of( 1 )( 3 )( 2 );
-    _winCoordParamIndexes[ UP ] = boost::assign::list_of( 2 )( 3 )( 0 );
-    _winCoordParamIndexes[ DOWN ] = boost::assign::list_of( 2 )( 3 )( 1 );
-  }
-  else if ( _viewType == AWindow3D::Sagittal )
-  {
-    _activedAnnot = boost::assign::list_of( OrientationAnnotation::ANT )
-      ( OrientationAnnotation::POST )
-      ( OrientationAnnotation::UP )
-      ( OrientationAnnotation::DOWN );
-    _winCoordParamIndexes[ UP ] = boost::assign::list_of( 3 )( 2 )( 0 );
-    _winCoordParamIndexes[ DOWN ] = boost::assign::list_of( 3 )( 2 )( 1 );
-    _winCoordParamIndexes[ ANT ] = boost::assign::list_of( 3 )( 0 )( 2 );
-    _winCoordParamIndexes[ POST ] = boost::assign::list_of( 3 )( 1 )( 2 );
-  }
+    QGraphicsView* g_view = GraphicsViewOnWindow();
+    if (!g_view)
+    {
+        return;
+    }
+    QGraphicsScene* scene = g_view->scene();
+    list<QGraphicsItem *>::iterator it, et = temporary_items_.end();
+    for (it=temporary_items_.begin(); it!=et; ++it)
+    {
+        scene->removeItem(*it);
+        delete *it;
+    }
+    temporary_items_.clear();
 }
 
-//---------------------------------------------------------------
-void OrientationAnnotation::updateWindowCoordParams()
+QString OrientationAnnotation::PositionLabel(OrientationAnnotation::Position position)
 {
-  if ( !_win )
-  {
-    return;
-  }
+    switch (position)
+    {
+    case OrientationAnnotation::RIGHT:
+        return "R";
+    case OrientationAnnotation::LEFT:
+        return "L";
+    case OrientationAnnotation::ANT:
+        return "A";
+    case OrientationAnnotation::POST:
+        return "P";
+    case OrientationAnnotation::SUP:
+        return "S";
+    case OrientationAnnotation::INF:
+        return "I";
+    default:
+        return "";
+    }
 
-  Point3df bmin, bmax;
-  float tmin, tmax;
-  // Get the view bounding box (since it is a temporary object, an annotation will be ignored)
-  if( _win->getReferential() != getReferential() )
-    setReferential( _win->getReferential() );
+    return "";
+}
 
-  _win->boundingBox( bmin, bmax, tmin, tmax );
-  Point3df center = ( bmin + bmax ) * 0.5;
+QString OrientationAnnotation::PositionFullLabel(OrientationAnnotation::Position position)
+{
+    switch (position)
+    {
+    case OrientationAnnotation::RIGHT:
+        return "Right";
+    case OrientationAnnotation::LEFT:
+        return "Left";
+    case OrientationAnnotation::ANT:
+        return "Anterior";
+    case OrientationAnnotation::POST:
+        return "Posterior";
+    case OrientationAnnotation::SUP:
+        return "Superior";
+    case OrientationAnnotation::INF:
+        return "Inferior";
+    default:
+        return "";
+    }
 
-  // Add bounding box min, max, center and current position
-  _winCoordParams.clear();
-  _winCoordParams = boost::assign::list_of( bmin )
-                                          ( bmax )
-                                          ( center )
-                                          ( _win->getPosition() );
+    return "";
+}
+
+void OrientationAnnotation::ConstrainCoordinates(QGraphicsSimpleTextItem* g_text, const QGraphicsScene* scene)
+{
+    float adjust_posx = 0.;
+    float adjust_posy = 0.;
+    bool v_align = false;
+    bool h_align = false;
+    const QPointF pos_to_scene = g_text->mapToScene(g_text->pos());
+    const QRectF g_text_rect = g_text->boundingRect();
+    if (pos_to_scene.x() <= 0.)
+    {
+        adjust_posx = 0.;
+        adjust_posy = -g_text_rect.height()*0.5;
+    }
+    else if (pos_to_scene.x() + g_text_rect.right() >= scene->width())
+    {
+        adjust_posx = -g_text_rect.width();
+        adjust_posy = -g_text_rect.height()*0.5;
+	}
+    if (pos_to_scene.y() <= 0.)
+    {
+        adjust_posy = 0.;
+        adjust_posx = -g_text_rect.width()*0.5;
+    }
+    else if (pos_to_scene.y() + g_text_rect.bottom() >= scene->height())
+    {
+        adjust_posy = -g_text_rect.height();
+        adjust_posx = -g_text_rect.width()*0.5;
+    }
+    g_text->setPos(adjust_posx, adjust_posy);
+}
+
+void OrientationAnnotation::InitParameters()
+{
+    if (!win_)
+    {
+        return;
+    }
+
+    AWindow3D::ViewType view_type = win_->viewType();
+    string ax_conv;
+    theAnatomist->config()->getProperty("axialConvention", ax_conv);
+    const bool is_ax_conv_radio = (ax_conv != "neuro");
+    annotation_coord_params_.clear();
+    if (view_type == AWindow3D::Axial)
+    {
+        if (is_ax_conv_radio)
+        {
+            annotation_coord_params_[RIGHT] = boost::assign::list_of(0)(1);
+            annotation_coord_params_[LEFT] = boost::assign::list_of(2)(1);
+        }
+        else
+        {
+            annotation_coord_params_[RIGHT] = boost::assign::list_of(2)(1);
+            annotation_coord_params_[LEFT] = boost::assign::list_of(0)(1);
+        }
+        annotation_coord_params_[ANT] = boost::assign::list_of(1)(0);
+        annotation_coord_params_[POST] = boost::assign::list_of(1)(2);
+    }
+    else if (view_type == AWindow3D::Coronal)
+    {
+        if (is_ax_conv_radio)
+        {
+            annotation_coord_params_[RIGHT] = boost::assign::list_of(0)(1);
+            annotation_coord_params_[LEFT] = boost::assign::list_of(2)(1);
+        }
+        else
+        {
+            annotation_coord_params_[RIGHT] = boost::assign::list_of(2)(1);
+            annotation_coord_params_[LEFT] = boost::assign::list_of(0)(1);
+        }
+        annotation_coord_params_[SUP] = boost::assign::list_of(1)(0);
+        annotation_coord_params_[INF] = boost::assign::list_of(1)(2);
+    }
+    else if (view_type == AWindow3D::Sagittal)
+    {
+        annotation_coord_params_[ANT] = boost::assign::list_of(0)(1);
+        annotation_coord_params_[POST] = boost::assign::list_of(2)(1);
+        annotation_coord_params_[SUP] = boost::assign::list_of(1)(0);
+        annotation_coord_params_[INF] = boost::assign::list_of(1)(2);
+    }
 }
