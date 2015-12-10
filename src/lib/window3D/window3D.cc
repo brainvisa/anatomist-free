@@ -2163,6 +2163,18 @@ AWindow3D::ViewType AWindow3D::viewType() const
   return (d->viewtype);
 }
 
+bool AWindow3D::isViewOblique() const
+{
+    const Point4df quat_vector = d->draw->quaternion().vector();
+    if (quat_vector != axialQuaternion(getReferential()).vector() &&
+        quat_vector != coronalQuaternion(getReferential()).vector() &&
+        quat_vector != sagittalQuaternion(getReferential()).vector())
+    {
+        return true;
+    }
+    return false;
+}
+
 void AWindow3D::muteAxial()
 {
   setViewType( Axial);

@@ -190,6 +190,7 @@ public:
   /// Mute into a new view type (Axial, Sagittal, Coronal or Oblique)
   virtual void setViewType( ViewType t );
   ViewType viewType() const;
+  bool isViewOblique() const;
 
   bool perspectiveEnabled() const;
   void enablePerspective( bool );
