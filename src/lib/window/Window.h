@@ -158,9 +158,30 @@ namespace anatomist
     /// returns the own flag of the window (see hasGlobalCursor) (tri-state)
     int hasSelfCursor() const;
 
-    static void setLeftRightDisplay( bool state )
-    { _leftRightDisplay = state; }
-    static int leftRightDisplay() { return( _leftRightDisplay ); }
+    static void setLeftRightDisplay(bool state)
+    {
+    	_leftRightDisplay = state;
+    }
+    static int leftRightDisplay()
+    {
+    	return _leftRightDisplay;
+    }
+    static void setLeftRightDisplaySize(int size)
+    {
+    	_leftRightDisplaySize = size;
+	}
+    static int leftRightDisplaySize()
+    {
+    	return _leftRightDisplaySize;
+    }
+    static void setDisplayedAnnotations(const std::vector<std::string>& annotation_list)
+    {
+    	_displayedAnnotations = annotation_list;
+    }
+    static std::vector<std::string> displayedAnnotations()
+    {
+    	return _displayedAnnotations;
+    }
     static void setGlobalHasCursor(bool hasCursor){ _hasCursor = hasCursor; }
     static int hasGlobalCursor() { return( _hasCursor ); }
     static void setCursorSize(int cursorSize){ _cursorSize = cursorSize; }
@@ -268,6 +289,10 @@ namespace anatomist
     AWindow& operator=(const AWindow& x);
     /// Right-left display flag
     static bool _leftRightDisplay;
+    /// Right-left display size
+    static int _leftRightDisplaySize;
+    /// Right-left display size
+    static std::vector<std::string> _displayedAnnotations;
     /// Cursor flag
     static bool _hasCursor;
     /// Cursor size

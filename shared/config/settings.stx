@@ -26,6 +26,8 @@ cursorColorAuto			int
 cursorColor			int_vector
 axialConvention			string
 leftRightDisplayed		int
+leftRightDisplaySize    int
+displayedAnnotations    string_vector
 spmFlip				int
 windowSizeFactor                float
 windowBackground                float_vector

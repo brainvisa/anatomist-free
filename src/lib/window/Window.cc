@@ -31,7 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
+#include <boost/assign.hpp>
 #include <anatomist/application/fileDialog.h>
 #include <anatomist/control/wControl.h>
 #include <anatomist/window/Window.h>
@@ -53,6 +53,8 @@ using namespace std;
 
 
 bool AWindow::_leftRightDisplay = false;
+int AWindow::_leftRightDisplaySize = 20;
+
 bool AWindow::_hasCursor = true;
 int AWindow::_cursorSize = 20;
 bool AWindow::_useDefaultCursorColor = true;
@@ -75,6 +77,19 @@ struct AWindow::Private
   }
 };
 
+vector<string> initAnnotations()
+{
+	vector<string> tmp;
+	tmp.push_back("Anterior");
+	tmp.push_back("Inferior");
+	tmp.push_back("Left");
+	tmp.push_back("Posterior");
+	tmp.push_back("Right");
+	tmp.push_back("Superior");
+	return tmp;
+}
+
+vector<string> AWindow::_displayedAnnotations(initAnnotations());
 
 //--- methods -----------------------------------------------------------------
 

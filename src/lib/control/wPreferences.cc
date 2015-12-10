@@ -55,6 +55,9 @@
 #include <qbuttongroup.h>
 #include <qlayout.h>
 #include <qcheckbox.h>
+#include <qwidgetaction.h>
+#include <qspinbox.h>
+#include <qmenu.h>
 #include <qradiobutton.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
@@ -411,10 +414,42 @@ PreferencesWindow::PreferencesWindow()
   if( axconv == "neuro" )
     btn = 1;
   flipg->button( btn )->setChecked( true );
+
+  QHBoxLayout *hlay10 = new QHBoxLayout();
+  vlay2->addLayout(hlay10);
+
   QCheckBox	*flipDisplay 
     = new QCheckBox( tr( "Display L/R in corners" ), flip );
-  vlay2->addWidget( flipDisplay );
+  hlay10->addWidget( flipDisplay );
   flipDisplay->setChecked( AWindow::leftRightDisplay() );
+
+  hlay10->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
+  const vector<string> defaultAnnotations = AWindow::displayedAnnotations();
+  string annotation_array[] = {"Anterior", "Inferior", "Left", "Posterior", "Right", "Superior"};
+  const vector<string> annotations (annotation_array, annotation_array + sizeof(annotation_array)/sizeof(string));
+  QMenu* menu = new QMenu();
+  for (vector<string>::const_iterator it = annotations.begin(); it != annotations.end(); it++)
+  {
+	  QCheckBox* checkBox = new QCheckBox(QString::fromStdString(*it), menu);
+	  bool checked = (std::find(defaultAnnotations.begin(), defaultAnnotations.end(), *it) != defaultAnnotations.end());
+	  checkBox->setChecked(checked);
+	  QWidgetAction* checkableAction = new QWidgetAction(menu);
+	  checkableAction->setDefaultWidget(checkBox);
+	  menu->addAction(checkableAction);
+	  connect(checkBox, SIGNAL(stateChanged(int)), this,
+			  	  	    SLOT(displayedAnnotationChanged(int)));
+  }
+  QPushButton* pushBt = new QPushButton("Displayed annotations");
+  pushBt->setMenu(menu);
+  hlay10->addWidget(pushBt);
+
+  hlay10->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
+  hlay10->addWidget(new QLabel("Annotation size: "));
+  QSpinBox* leftRightDisplaySizeSb = new QSpinBox(flip);
+  hlay10->addWidget(leftRightDisplaySizeSb);
+  leftRightDisplaySizeSb->setValue(AWindow::leftRightDisplaySize());
+  hlay10->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
   _pdat->disppos = new QCheckBox( tr( "Display cursor position by default" ),
                                   flip );
   vlay2->addWidget( _pdat->disppos );
@@ -746,6 +781,8 @@ PreferencesWindow::PreferencesWindow()
 
   connect( flipDisplay, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enableLRDisplay( bool ) ) );
+  connect(leftRightDisplaySizeSb, SIGNAL(valueChanged(int)), this,
+  	      	  	  	  	  	  	  SLOT(leftRightDisplaySizeChanged(int)));
   connect( flipg, SIGNAL( buttonClicked( int ) ), this, 
 	   SLOT( setAxialConvention( int ) ) );
   connect( _pdat->winszed, SIGNAL( returnPressed() ), this, 
@@ -917,6 +954,36 @@ void PreferencesWindow::enableLRDisplay( bool state )
   theAnatomist->config()->update();
 }
 
+void PreferencesWindow::leftRightDisplaySizeChanged(int size)
+{
+	AWindow::setLeftRightDisplaySize(size);
+	updateWindows();
+	theAnatomist->config()->update();
+}
+
+void PreferencesWindow::displayedAnnotationChanged(int)
+{
+	QCheckBox* checkbox = dynamic_cast<QCheckBox*>(sender());
+	if (!checkbox)
+	{
+		return;
+	}
+	vector<string> annotations = AWindow::displayedAnnotations();
+	const string text = checkbox->text().toStdString();
+	if (checkbox->isChecked())
+	{
+		annotations.push_back(text);
+	}
+	else
+	{
+		annotations.erase(std::remove(annotations.begin(), annotations.end(),
+									  text), annotations.end());
+	}
+	std::sort(annotations.begin(), annotations.end());
+	AWindow::setDisplayedAnnotations(annotations);
+	updateWindows();
+	theAnatomist->config()->update();
+}
 
 void PreferencesWindow::setAxialConvention( int x )
 {

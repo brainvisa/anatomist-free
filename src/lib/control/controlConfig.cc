@@ -58,6 +58,7 @@ void ControlConfiguration::apply( const GlobalConfiguration* cfg )
   string	stratt, gratt, grmode;
   int		intatt, grcolact, tips;
   vector<int>	vecatt;
+  vector<string>	vecstringatt;
 
   // selection settings
   if( cfg->getProperty( "selectionColorInverse", intatt ) )
@@ -101,6 +102,13 @@ void ControlConfiguration::apply( const GlobalConfiguration* cfg )
   if( cfg->getProperty( "leftRightDisplayed", intatt ) )
     AWindow::setLeftRightDisplay( intatt );
 
+  //	L/R display size
+  if (cfg->getProperty("leftRightDisplaySize", intatt))
+	  AWindow::setLeftRightDisplaySize(intatt);
+
+  if (cfg->getProperty("displayedAnnotations", vecstringatt))
+	  AWindow::setDisplayedAnnotations(vecstringatt);
+
   //	control window look
   if( cfg->getProperty( "controlWindowLogo", intatt ) )
     {
@@ -136,6 +144,7 @@ void ControlConfiguration::update( GlobalConfiguration* cfg )
   int		num;
   string	att, strval;
   vector<int>	vec;
+  vector<string> vecstring;
 
   //	selection
   att = "selectionColorInverse";
@@ -203,6 +212,18 @@ void ControlConfiguration::update( GlobalConfiguration* cfg )
     cfg->setProperty( att, num );
   else if( cfg->hasProperty( att ) )
     cfg->removeProperty( att );
+
+  //	L/R display size
+  att = "leftRightDisplaySize";
+  num = AWindow::leftRightDisplaySize();
+  if (num)
+	  cfg->setProperty(att, num);
+  else if (cfg->hasProperty(att))
+	  cfg->removeProperty(att);
+
+  att = "displayedAnnotations";
+  vecstring = AWindow::displayedAnnotations();
+  cfg->setProperty(att, vecstring);
 
   //	control window look
   ControlWindow	*cw = theAnatomist->getControlWindow();
