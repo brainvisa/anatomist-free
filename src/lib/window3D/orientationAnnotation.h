@@ -31,84 +31,68 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef ANATOMIST_WINDOW3D_ORIENTATIONANNOTATION_H
-#define ANATOMIST_WINDOW3D_ORIENTATIONANNOTATION_H
+#ifndef ANATOMIST_WINDOW3D_OrientationAnnotation_H
+#define ANATOMIST_WINDOW3D_OrientationAnnotation_H
 
-#include <anatomist/object/Object.h>
+#include <qobject.h>
 #include <anatomist/window3D/window3D.h>
 #include <aims/resampling/quaternion.h>
-#include <string>
-#include <map>
+
+class QGraphicsScene;
+class QGraphicsView;
+class QGraphicsItem;
+class QGraphicsSimpleTextItem;
+class QString;
 
 namespace anatomist
 {
-    class TransformedObject;
-    class TextObject;
-
-    class OrientationAnnotation : public AObject
+class OrientationAnnotation : public QObject
+{
+    Q_OBJECT
+public:
+    // Position enum
+    enum Position
     {
-    public:
-    	// Position enum
-        enum Position
-        {
-            RIGHT = 0,
-            LEFT,
-            ANT,
-            POST,
-            UP,
-            DOWN
-        };
-
-        OrientationAnnotation( AWindow3D * win );
-        OrientationAnnotation( const OrientationAnnotation & a );
-        virtual ~OrientationAnnotation();
-        // Gets the object name
-        virtual std::string name() const;
-        // Removes annotations
-        void remove();
-        using AObject::update; // restore visibility of virtual method
-        // Updates annotations
-        void update();
-        virtual bool Is2DObject()
-        {
-            return false;
-        }
-        virtual bool Is3DObject()
-        {
-            return true;
-        }
-        // Gets a annotation position label
-        static std::string getPositionLabel( OrientationAnnotation::Position pos );
-
-    protected:
-        // Builds annotations
-        void build();
-        // Gets a annotation position
-        Point3df getPosition( OrientationAnnotation::Position pos );
-        // Gets the view depth direction
-        int getZFactor() const;
-        // Gets the annotation shift parameters
-        void getShiftParams( OrientationAnnotation::Position pos,
-                             int & shiftIndex, int & shiftDirection, float & shiftValue );
-        // Get the image and window dimensions
-        void getImageAndWinDimensions( OrientationAnnotation::Position pos,
-                                       float & sizeImgAlongAxis, float & sizeImgAlongNormAxis,
-                                       float & sizeWinAlongAxis, float & sizeWinAlongNormAxis ) const;
-        // Sets the available annotations according to the 3D window view type
-        void initParams();
-        // Updates the window coordinate parameters
-        void updateWindowCoordParams();
-
-        AWindow3D * _win; // The view window
-        std::vector< Point3df > _winCoordParams; // The coordinate parameters: < bbox min, bbox max, bbox center, current position >
-        std::map< Position, std::vector< int > > _winCoordParamIndexes; // The indexes to know what coordinate parameter to use for a given axis
-        std::map< Position, TransformedObject * > _annotMap; // The annotation map
-        std::map< Position, TextObject * > _textMap; // The text map
-        std::vector< Position > _activedAnnot; // The current active annotations
-        AWindow3D::ViewType _viewType; // The window view type
-        aims::Quaternion _nonObliqueSliceQuaternion; // The initial slice quaternion
-        float _fontSize; // The font size
+        RIGHT = 0,
+        LEFT,
+        ANT,
+        POST,
+        SUP,
+        INF
     };
+
+    OrientationAnnotation(AWindow3D*);
+    OrientationAnnotation(const OrientationAnnotation&);
+    virtual ~OrientationAnnotation();
+
+    // Gets the graphic view of the current window
+    QGraphicsView* GraphicsViewOnWindow();
+    // Updates all annotations
+    void UpdateText();
+    // Draws an annotation
+    void DrawText(OrientationAnnotation::Position);
+    // Clears the temporary items
+    void ClearTemporaryItems();
+    // Updates annotations
+//    void update();
+    // Gets an annotation position label
+    static QString PositionLabel(OrientationAnnotation::Position);
+    // Gets an annotation position full label
+    static QString PositionFullLabel(OrientationAnnotation::Position);
+
+public slots:
+    void update();
+
+private:
+    // Inits the annotation parameters
+    void InitParameters();
+    // Constrains the window coordinates of an item in the current scene
+    void ConstrainCoordinates(QGraphicsSimpleTextItem*, const QGraphicsScene*);
+
+    AWindow3D * win_; // The view window
+    std::list<QGraphicsItem*> temporary_items_; // The temporary items
+    std::map<Position, std::vector<int> > annotation_coord_params_; // The annotation coordinate parameters
+};
 }
 
 #endif
