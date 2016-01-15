@@ -55,6 +55,11 @@ int main( int argc, char** argv )
     QApplication::setStyle( new QWindowsStyle );
 #endif
 
+    // init qApp before other static things are done so that qt.conf is used
+    // see: http://www.tripleboot.org/?p=536
+    //      https://bugreports.qt.io/browse/QTBUG-38598
+    QApplication app( argc, argv );
+
     Processor processor;
     Anatomist      anato( argc, (const char **) argv, "Anatomist GUI" );
 

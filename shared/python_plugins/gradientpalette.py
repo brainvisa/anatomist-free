@@ -32,11 +32,6 @@
 # knowledge of the CeCILL-B license and that you accept its terms.
 import sys
 import os
-try:
-    from soma.qt_gui.qt_backend import init_matplotlib_backend
-    init_matplotlib_backend()
-except:
-    pass
 
 import anatomist.cpp as anatomist
 from soma import aims
