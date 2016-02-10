@@ -84,9 +84,9 @@ namespace anatomist
 
     virtual void initialize();
     /// full version ("1.30.3" or "1.31beta")
-    std::string versionString() const;
+    static std::string versionString();
     /// shorter version matching the library number (2 numbers: "1.31")
-    std::string libraryVersionString() const;
+    static std::string libraryVersionString();
 
     PaletteList & palettes();
     const PaletteList & palettes() const;
