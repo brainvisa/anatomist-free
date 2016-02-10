@@ -120,7 +120,7 @@ using namespace std;
 Anatomist* theAnatomist = 0;
 
 
-string Anatomist::versionString() const
+string Anatomist::versionString()
 {
   static string	ver;
   if( ver.empty() )
@@ -136,7 +136,7 @@ string Anatomist::versionString() const
 
 
 
-string Anatomist::libraryVersionString() const
+string Anatomist::libraryVersionString()
 {
   static string	ver;
   if( ver.empty() )
