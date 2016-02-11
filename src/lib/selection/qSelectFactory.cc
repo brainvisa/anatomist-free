@@ -181,6 +181,8 @@ void QSelectFactory::neighbours( AWindow* win )
 void QSelectFactory::selectNeighbours( AGraph* graph, AGraphObject* go, 
 				       set<AObject *> & toselect ) const
 {
+  using carto::shared_ptr;
+
   Graph* gr = graph->graph();	// we deal with low-level object
 
   shared_ptr<AObject> sgo( shared_ptr<AObject>::Weak, (AObject *) go );
@@ -269,6 +271,8 @@ void QSelectFactory::selectNodesWith( set<AObject *> & tosel,
 				      const Graph* gr, const string & attr, 
 				      const string & val )
 {
+  using carto::shared_ptr;
+
   set<Vertex *> 	vert;
 
   try

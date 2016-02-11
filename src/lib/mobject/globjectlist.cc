@@ -67,6 +67,8 @@ GLObjectList::~GLObjectList()
 
 MObject::const_iterator GLObjectList::find( const AObject *obj ) const
 {
+  using carto::shared_ptr;
+
   datatype::const_iterator i;
 
   i = _data.find( shared_ptr<AObject>( shared_ptr<AObject>::Weak,
@@ -93,11 +95,13 @@ void GLObjectList::erase( MObject::iterator & i )
 
 void GLObjectList::insert( AObject* x, unsigned pos )
 {
+  using carto::shared_ptr;
+
   insert( shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, x ), pos );
 }
 
 
-void GLObjectList::insert( const shared_ptr<AObject> & x, unsigned pos )
+void GLObjectList::insert( const carto::shared_ptr<AObject> & x, unsigned pos )
 {
   if( pos >= _data.size() )
   {
@@ -121,6 +125,8 @@ void GLObjectList::insert( const shared_ptr<AObject> & x, unsigned pos )
 
 bool GLObjectList::CanRemove( AObject * obj )
 {
+  using carto::shared_ptr;
+
   datatype::iterator  it
       = _data.find( shared_ptr<AObject>( shared_ptr<AObject>::Weak, obj ) );
   if( it == _data.end() )

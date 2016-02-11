@@ -248,37 +248,54 @@ void OrientationAnnotation::InitParameters()
     {
         if (is_ax_conv_radio)
         {
-            annotation_coord_params_[RIGHT] = boost::assign::list_of(0)(1);
-            annotation_coord_params_[LEFT] = boost::assign::list_of(2)(1);
+            annotation_coord_params_[RIGHT]
+              = ( boost::assign::list_of<int>(0)(1) ).
+                convert_to_container<vector<int> >();
+            annotation_coord_params_[LEFT] = ( boost::assign::list_of(2)(1) ).
+                convert_to_container<vector<int> >();
         }
         else
         {
-            annotation_coord_params_[RIGHT] = boost::assign::list_of(2)(1);
-            annotation_coord_params_[LEFT] = boost::assign::list_of(0)(1);
+            annotation_coord_params_[RIGHT] = ( boost::assign::list_of(2)(1) ).
+              convert_to_container<vector<int> >();
+            annotation_coord_params_[LEFT] = ( boost::assign::list_of(0)(1) ).
+            convert_to_container<vector<int> >();
         }
-        annotation_coord_params_[ANT] = boost::assign::list_of(1)(0);
-        annotation_coord_params_[POST] = boost::assign::list_of(1)(2);
+        annotation_coord_params_[ANT] = ( boost::assign::list_of(1)(0) ).
+          convert_to_container<vector<int> >();
+        annotation_coord_params_[POST] = ( boost::assign::list_of(1)(2) ).
+          convert_to_container<vector<int> >();
     }
     else if (view_type == AWindow3D::Coronal)
     {
         if (is_ax_conv_radio)
         {
-            annotation_coord_params_[RIGHT] = boost::assign::list_of(0)(1);
-            annotation_coord_params_[LEFT] = boost::assign::list_of(2)(1);
+            annotation_coord_params_[RIGHT] = ( boost::assign::list_of(0)(1) ).
+              convert_to_container<vector<int> >();
+            annotation_coord_params_[LEFT] = ( boost::assign::list_of(2)(1) ).
+              convert_to_container<vector<int> >();
         }
         else
         {
-            annotation_coord_params_[RIGHT] = boost::assign::list_of(2)(1);
-            annotation_coord_params_[LEFT] = boost::assign::list_of(0)(1);
+            annotation_coord_params_[RIGHT] = ( boost::assign::list_of(2)(1) ).
+              convert_to_container<vector<int> >();
+            annotation_coord_params_[LEFT] = ( boost::assign::list_of(0)(1) ).
+              convert_to_container<vector<int> >();
         }
-        annotation_coord_params_[SUP] = boost::assign::list_of(1)(0);
-        annotation_coord_params_[INF] = boost::assign::list_of(1)(2);
+        annotation_coord_params_[SUP] = ( boost::assign::list_of(1)(0) ).
+          convert_to_container<vector<int> >();
+        annotation_coord_params_[INF] = ( boost::assign::list_of(1)(2) ).
+          convert_to_container<vector<int> >();
     }
     else if (view_type == AWindow3D::Sagittal)
     {
-        annotation_coord_params_[ANT] = boost::assign::list_of(0)(1);
-        annotation_coord_params_[POST] = boost::assign::list_of(2)(1);
-        annotation_coord_params_[SUP] = boost::assign::list_of(1)(0);
-        annotation_coord_params_[INF] = boost::assign::list_of(1)(2);
+        annotation_coord_params_[ANT] = ( boost::assign::list_of(0)(1) ).
+          convert_to_container<vector<int> >();
+        annotation_coord_params_[POST] = ( boost::assign::list_of(2)(1) ).
+          convert_to_container<vector<int> >();
+        annotation_coord_params_[SUP] = ( boost::assign::list_of(1)(0) ).
+          convert_to_container<vector<int> >();
+        annotation_coord_params_[INF] = ( boost::assign::list_of(1)(2) ).
+          convert_to_container<vector<int> >();
     }
 }

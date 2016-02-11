@@ -1388,7 +1388,7 @@ void VolumeScalarTraits<T>::setExtrema()
           for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
           {
             val = *pvol;
-            if( isnan( val ) )
+            if( std::isnan( val ) )
             {
               *pvol = 0; // WARNING can't work on MMap/RO volumes !
               val = 0;

@@ -211,10 +211,10 @@ struct Anatomist::Anatomist_privateData
 
   /* the map and double pointers is for finding windows that could be
   already deleted, so we cannot take a smart pointer on them */
-  map<const AWindow *, shared_ptr<AWindow> > anaWin;
+  map<const AWindow *, carto::shared_ptr<AWindow> > anaWin;
   /* the map and double pointers is for finding objects that could be
     already deleted, so we cannot take a smart pointer on them */
-  map<const AObject *, shared_ptr<AObject> > anaObj;
+  map<const AObject *, carto::shared_ptr<AObject> > anaObj;
   set<Referential*>		anaRef;
   map<std::string, AObject*>	anaNameObj;
   CommandWriter 			*historyW;
@@ -745,6 +745,8 @@ void Anatomist::registerWindow( AWindow* win )
 
 void Anatomist::unregisterWindow( AWindow* win )
 {
+  using carto::shared_ptr;
+
   if( getControlWindow() != 0)
     getControlWindow()->unregisterWindow( win );
 
@@ -757,6 +759,8 @@ void Anatomist::unregisterWindow( AWindow* win )
 
 void Anatomist::releaseWindow( AWindow* win )
 {
+  using carto::shared_ptr;
+
   map<const AWindow *, shared_ptr<AWindow> >::iterator
       i = _privData->anaWin.find( win );
   // change the smart pointer type to Weak
@@ -767,6 +771,8 @@ void Anatomist::releaseWindow( AWindow* win )
 
 void Anatomist::takeWindowRef( AWindow* win )
 {
+  using carto::shared_ptr;
+
   map<const AWindow *, shared_ptr<AWindow> >::iterator
       i = _privData->anaWin.find( win );
   // change the smart pointer type to Weak
@@ -782,6 +788,8 @@ void Anatomist::takeWindowRef( AWindow* win )
 
 void Anatomist::registerObject( AObject* obj, int inctrl )
 {
+  using carto::shared_ptr;
+
 #ifdef ANA_DEBUG
   cout << "Anatomist::registerObject " << obj << " (" 
        << typeid( *obj ).name() << ") - " << obj->name() << endl;
@@ -798,6 +806,8 @@ void Anatomist::registerObject( AObject* obj, int inctrl )
 
 void Anatomist::unregisterObject( AObject* obj )
 {
+  using carto::shared_ptr;
+
 #ifdef ANA_DEBUG
   cout << "Anatomist::unregisterObject " << obj << " ("
       << typeid( *obj ).name() << ") - " << obj->name() << endl;
@@ -817,6 +827,8 @@ void Anatomist::unregisterObject( AObject* obj )
 
 void Anatomist::releaseObject( AObject* obj )
 {
+  using carto::shared_ptr;
+
   map<const AObject *, shared_ptr<AObject> >::iterator
       i = _privData->anaObj.find( obj );
   // change the smart pointer type to Weak
@@ -827,6 +839,8 @@ void Anatomist::releaseObject( AObject* obj )
 
 void Anatomist::takeObjectRef( AObject* obj )
 {
+  using carto::shared_ptr;
+
   map<const AObject *, shared_ptr<AObject> >::iterator
       i = _privData->anaObj.find( obj );
   // change the smart pointer type to Weak
@@ -980,6 +994,8 @@ int Anatomist::destroyObject( AObject *obj )
 
 void Anatomist::Refresh()
 {
+  using carto::shared_ptr;
+
   map<const AWindow *, shared_ptr<AWindow> >::iterator	i;
   for( i=_privData->anaWin.begin(); i!=_privData->anaWin.end(); ++i )
     if( i->first->RefreshFlag() )
@@ -1058,6 +1074,8 @@ void Anatomist::unregisterObjectName( const string& name )
 
 int Anatomist::groupWindows( set<AWindow*> & winL, int g )
 {
+  using carto::shared_ptr;
+
   set<AWindow*>::iterator	iw, fw;
   map<const AWindow *, shared_ptr<AWindow> >::iterator
       is, es = _privData->anaWin.end();
@@ -1091,6 +1109,8 @@ int Anatomist::groupWindows( set<AWindow*> & winL, int g )
 
 void Anatomist::ungroupWindows( int group )
 {
+  using carto::shared_ptr;
+
   map<const AWindow *, shared_ptr<AWindow> >::iterator
       iw, fw=_privData->anaWin.end();
 
@@ -1117,6 +1137,8 @@ void Anatomist::ungroupWindows( int group )
 
 set<AWindow*> Anatomist::getWindowsInGroup( int group )
 {
+  using carto::shared_ptr;
+
   map<const AWindow *, shared_ptr<AWindow> >::iterator
       iw, fw=_privData->anaWin.end();
   set<AWindow*>		lw;
@@ -1160,6 +1182,8 @@ Anatomist::getTransformation( const Referential* src,
 
 void Anatomist::createControlWindow()
 {
+  using carto::shared_ptr;
+
   if (!getControlWindow())
   {
     new ControlWindow;
@@ -1417,6 +1441,8 @@ bool Anatomist::hasObject( const AObject* obj ) const
 
 set<AObject* > Anatomist::getObjects() const
 {
+  using carto::shared_ptr;
+
   map<const AObject *, shared_ptr<AObject> >::const_iterator
       i, e = _privData->anaObj.end();
   set<AObject *>  objs;
@@ -1428,6 +1454,8 @@ set<AObject* > Anatomist::getObjects() const
 
 set<AWindow*> Anatomist::getWindows() const
 {
+  using carto::shared_ptr;
+
   map<const AWindow *, shared_ptr<AWindow> >::const_iterator
       i, e = _privData->anaWin.end();
   set<AWindow *>  wins;

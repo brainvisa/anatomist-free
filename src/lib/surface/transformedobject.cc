@@ -73,6 +73,8 @@ TransformedObject::TransformedObject( const vector<AObject *> & obj,
                                       const Point3df & pos, bool strongref )
   : d( new Private( followorientation, followposition, pos ) )
 {
+  using carto::shared_ptr;
+
   vector<AObject *>::const_iterator io, eo = obj.end();
   shared_ptr<AObject>::ReferenceType rtype = shared_ptr<AObject>::WeakShared;
   if( strongref )
@@ -82,12 +84,15 @@ TransformedObject::TransformedObject( const vector<AObject *> & obj,
 }
 
 
-TransformedObject::TransformedObject( const vector<shared_ptr<AObject> > & obj,
-                                      bool followorientation,
-                                      bool followposition,
-                                      const Point3df & pos )
+TransformedObject::TransformedObject(
+  const vector<carto::shared_ptr<AObject> > & obj,
+  bool followorientation,
+  bool followposition,
+  const Point3df & pos )
   : d( new Private( followorientation, followposition, pos ) )
 {
+  using carto::shared_ptr;
+
   vector<shared_ptr<AObject> >::const_iterator io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
     insert( *io );

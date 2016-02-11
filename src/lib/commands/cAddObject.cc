@@ -92,6 +92,8 @@ namespace
                   const set<AWindow *> & win, bool addchildren, bool addnodes,
                   bool addrels, bool showDetails )
   {
+    using carto::shared_ptr;
+
     AObject::ParentList::iterator	ip, ep;
     set<AObject *>::const_iterator	eo = obj.end();
     AObject::ParentList		& parents = o->Parents();

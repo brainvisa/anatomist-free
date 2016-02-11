@@ -66,6 +66,8 @@ struct Fusion3D::Private
 Fusion3D::Fusion3D( const vector<AObject *> & obj )
   : GLObjectVector(), d( new Private )
 {
+  using carto::shared_ptr;
+
   // cout << "Fusion3D::Fusion3D " << this << endl;
   vector<AObject *>::const_iterator	io, fo=obj.end();
   vector<AObject *>			surf, vol;

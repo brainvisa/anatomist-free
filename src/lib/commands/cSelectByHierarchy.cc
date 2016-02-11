@@ -89,6 +89,8 @@ bool SelectByHierarchyCommand::initSyntax()
 
 void SelectByHierarchyCommand::doit()
 {
+  using carto::shared_ptr;
+
   cout << "SelectByNomenclatureCommand\n";
   cout << "nomenclature : " << _hie->name() << endl;
   cout << "select : " << _names.size() << " names\n";
