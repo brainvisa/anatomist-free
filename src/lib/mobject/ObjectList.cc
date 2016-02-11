@@ -98,6 +98,8 @@ ObjectList::~ObjectList()
 
 MObject::const_iterator ObjectList::find( const AObject *obj ) const
 {
+  using carto::shared_ptr;
+
   shared_ptr<AObject> sob = shared_ptr<AObject>( shared_ptr<AObject>::Weak,
       const_cast<AObject *>( obj ) );
   set<shared_ptr<AObject> >::const_iterator i;
@@ -137,6 +139,8 @@ Tree* ObjectList::optionTree() const
 
 bool ObjectList::CanRemove( AObject * obj )
 {
+  using carto::shared_ptr;
+
   datatype::iterator  it
       = _data.find( shared_ptr<AObject>( shared_ptr<AObject>::Weak, obj ) );
   if( it == _data.end() )

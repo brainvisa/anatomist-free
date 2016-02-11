@@ -240,6 +240,8 @@ void AnnotationAction::switchAnnotations()
 
 void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
 {
+  using carto::shared_ptr;
+
   Graph *graph = agraph->graph();
   string labelatt = "name";
   graph->getProperty( "label_property", labelatt );

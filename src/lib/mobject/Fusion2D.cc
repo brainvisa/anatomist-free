@@ -60,6 +60,8 @@ Tree*	Fusion2D::_optionTree = 0;
 Fusion2D::Fusion2D( const vector<AObject *> & obj )
   : ObjectVector(), Sliceable()
 {
+  using carto::shared_ptr;
+
   _type = AObject::FUSION2D;
 
   vector<AObject *>::const_iterator	io, fo=obj.end();
@@ -100,6 +102,8 @@ Fusion2D::~Fusion2D()
 
 void Fusion2D::moveVolume( AObject* vol, int dstpos )
 {
+  using carto::shared_ptr;
+
   datatype::iterator	ii, e = _data.end();
   int	i = 0;
 
@@ -123,6 +127,8 @@ void Fusion2D::moveVolume( AObject* vol, int dstpos )
 
 void Fusion2D::moveVolume( int srcpos, int dstpos )
 {
+  using carto::shared_ptr;
+
   // cout << "Fusion2D::moveVolume " << srcpos << " -> " << dstpos << endl;
   datatype::iterator	ii, e = _data.end();
   int	i = 0;
@@ -147,6 +153,8 @@ void Fusion2D::moveVolume( int srcpos, int dstpos )
 
 void Fusion2D::reorder( const vector<AObject *> & ord )
 {
+  using carto::shared_ptr;
+
   // check
   unsigned			i, n = ord.size();
   if( n != _data.size() )

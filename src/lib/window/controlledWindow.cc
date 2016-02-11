@@ -116,6 +116,8 @@ void ControlledWindow::registerObject( AObject* o, bool temporaryObject,
 
 void ControlledWindow::updateControls()
 {
+  using carto::shared_ptr;
+
   list<string>				obj;
   list<shared_ptr<AObject> >::const_iterator	io, eo=_objects.end();
 

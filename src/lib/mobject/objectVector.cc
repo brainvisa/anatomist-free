@@ -41,7 +41,6 @@
 
 using namespace anatomist;
 using namespace std;
-using carto::shared_ptr;
 
 
 Tree*	ObjectVector::_optionTree = 0;
@@ -95,13 +94,15 @@ ObjectVector::~ObjectVector()
 
 MObject::const_iterator ObjectVector::find( const AObject *obj ) const
 {
+  using carto::shared_ptr;
+
   return find( shared_ptr<AObject>( shared_ptr<AObject>::Weak,
                const_cast<AObject *>( obj ) ) );
 }
 
 
 MObject::const_iterator
-ObjectVector::find( const shared_ptr<AObject> & obj ) const
+ObjectVector::find( const carto::shared_ptr<AObject> & obj ) const
 {
   datatype::const_iterator i;
 
@@ -150,11 +151,13 @@ void ObjectVector::erase( MObject::iterator & i )
 
 void ObjectVector::insert( AObject* x, int pos )
 {
+  using carto::shared_ptr;
+
   insert( shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, x ), pos );
 }
 
 
-void ObjectVector::insert( const shared_ptr<AObject> & x, int pos )
+void ObjectVector::insert( const carto::shared_ptr<AObject> & x, int pos )
 {
   if( pos < 0 )
     pos = _data.size() + pos + 1;
@@ -178,6 +181,8 @@ void ObjectVector::insert( const shared_ptr<AObject> & x, int pos )
 
 bool ObjectVector::CanRemove( AObject * obj )
 {
+  using carto::shared_ptr;
+
   iterator  it
       = find( shared_ptr<AObject>( shared_ptr<AObject>::Weak, obj ) );
   if( it == end() )

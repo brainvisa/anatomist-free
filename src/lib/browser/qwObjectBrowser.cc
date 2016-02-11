@@ -449,6 +449,8 @@ void QObjectBrowser::update( const anatomist::Observable* observable,
 
 void QObjectBrowser::refreshNow()
 {
+  using carto::shared_ptr;
+
   //cout << "QObjectBrowser::refreshNow()\n";
   if( d->recursive )
     return;		// already in refresh process
@@ -543,6 +545,8 @@ void QObjectBrowser::leftSelectionChangedSlot()
 
 void QObjectBrowser::normalModeSelectionChanged()
 {
+  using carto::shared_ptr;
+
   const unsigned selColumn = 4;
 
   if( d->recursive )
@@ -790,6 +794,8 @@ void QObjectBrowser::updateRightPanel()
 
 void QObjectBrowser::updateRightPanelNow()
 {
+  using carto::shared_ptr;
+
   if( !d->rviewrefresh )
     return;
 
@@ -1528,6 +1534,8 @@ GenericObject* QObjectBrowser::gObject( const QObjectBrowserWidget* br,
 AObject* QObjectBrowser::aObject( const QObjectBrowserWidget* br, 
 				  const QTreeWidgetItem* item )
 {
+  using carto::shared_ptr;
+
   int 			type;
   shared_ptr<AObject>	sobj;
   AObject               *obj = 0;
@@ -2201,6 +2209,8 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
                                    QObjectBrowserWidget::ItemDescr & descr, 
                                    set<AObject *> & tosel )
 {
+  using carto::shared_ptr;
+
   if( d->lview->buttonsAtLastEvent() != Qt::LeftButton )
     return; // if another button than the left is pressed: do nothing.
 
@@ -2310,6 +2320,8 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
 				  QObjectBrowserWidget* bw, 
 				  const set<QTreeWidgetItem*> & )
 {
+  using carto::shared_ptr;
+
   if( objs.empty() )
     return 0;
   vector<int>	attval;
@@ -2423,6 +2435,8 @@ bool QObjectBrowser::event( QEvent* ev )
 
 void QObjectBrowser::updateRightSelectionChange( int modifier )
 {
+  using carto::shared_ptr;
+
   // cout << "QObjectBrowser::updateRightSelectionChange()\n";
   QTreeWidgetItem	*item, *cur = 0;
   unsigned              nsel = 0;

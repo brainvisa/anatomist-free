@@ -100,10 +100,10 @@ struct AGraph::Private
   Point3dl				labelDim;
   AGraph::ColorMode			colormode;
   bool					recolorrecurs;
-  string				colorproperty;
+  string			        colorproperty;
   int                                   colorpropmask;
   rc_ptr<Graph>                         graph;
-  set<shared_ptr<AObject> >             data;
+  set<carto::shared_ptr<AObject> >      data;
 };
 
 
@@ -226,6 +226,8 @@ void AGraph::initialize( const string & filename, bool init,
 
 AGraph::~AGraph()
 {
+  using carto::shared_ptr;
+
 #ifdef ANA_DEBUG
   cout << "~AGraph " << this << ": before cleanup. #obj: "
        << theAnatomist->getObjects().size() << endl;
@@ -289,6 +291,8 @@ bool AGraph::render( PrimList &, const ViewState & )
 
 namespace
 {
+  using carto::shared_ptr;
+
 
   template<class T> static bool insertElem( Process & p, const string &,
                                             Finder & )
@@ -989,6 +993,8 @@ bool AGraph::save( const string & filename )
 template<class T> static bool extractElem( Process & p, const string &,
 					   Finder & )
 {
+  using carto::shared_ptr;
+
   AimsGraphWriter		& pp = (AimsGraphWriter &) p;
   AimsGraphWriter::ElementInfo	& info = pp.elementInfo();
   shared_ptr<AObject>	go1;
@@ -1058,6 +1064,8 @@ void AGraph::saveSubObjects( bool filechanged )
 
 void AGraph::SetMaterial( const Material & mat )
 {
+  using carto::shared_ptr;
+
   // cout << "AGraph::SetMaterial, this: " << this << endl;
   AObject::SetMaterial( mat );
 
@@ -1412,6 +1420,8 @@ void AGraph::updateColors(void)
 
 namespace
 {
+  using carto::shared_ptr;
+
 
   bool graphObjectValue( const GenericObject & o, const string & prop,
                          double & val )
@@ -1742,6 +1752,8 @@ void AGraph::insert( const carto::shared_ptr<AObject> & obj,
 
 MObject::const_iterator AGraph::find( const AObject* obj ) const
 {
+  using carto::shared_ptr;
+
   datatype::const_iterator io
       = d->data.find( shared_ptr<AObject>( shared_ptr<AObject>::Weak,
                       const_cast<AObject *>( obj ) ) );
@@ -1839,6 +1851,8 @@ void AGraph::setLabelProperty( const string & prop )
 
 void AGraph::updateAfterAimsChange()
 {
+  using carto::shared_ptr;
+
   Graph *g = graph();
   // check for removed elements
   set<shared_ptr<AObject> >::iterator   id, id2, ed = d->data.end();

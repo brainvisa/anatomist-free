@@ -339,6 +339,8 @@ void ObjectActions::generateTexture2D( const std::set<AObject *> & obj )
 
 void ObjectActions::addGraphWithoutChildren(const std::set<AObject *> &obj)
 {
+  using carto::shared_ptr;
+
   theAnatomist->setCursor( Anatomist::Working );
 
   set<AObject *>::const_iterator        io, eo = obj.end();
@@ -377,6 +379,8 @@ void ObjectActions::addGraphWithoutChildren(const std::set<AObject *> &obj)
 
 void ObjectActions::displayGraphChildren(const std::set<AObject *> &obj)
 {
+  using carto::shared_ptr;
+
   theAnatomist->setCursor( Anatomist::Working );
 
   set<AObject *>::const_iterator	io, eo = obj.end();
@@ -432,6 +436,8 @@ void ObjectActions::displayGraphChildren(const std::set<AObject *> &obj)
 
 void ObjectActions::displayGraphRelations(const std::set<AObject *> &obj)
 {
+  using carto::shared_ptr;
+
   theAnatomist->setCursor( Anatomist::Working );
 
   set<AObject *>::const_iterator        io, eo = obj.end();

@@ -89,6 +89,8 @@ void QObjectBrowserWidget::registerObject( AObject* object,
                                            int /*pos*/,
                                            bool showDetailsUponRegister )
 {
+  using carto::shared_ptr;
+
   /* cout << "QObjectBrowserWidget::registerObject( AObject* object, bool ) "
   << object->name() << endl; */
   map<QTreeWidgetItem *, AObject *>::const_iterator	ia, fa=_aobjects.end();
@@ -144,6 +146,8 @@ void QObjectBrowserWidget::registerObject( AObject* object,
 
 void QObjectBrowserWidget::unregisterObject( AObject* object )
 {
+  using carto::shared_ptr;
+
   map<QTreeWidgetItem *, AObject *>::iterator	ia, fa = _aobjects.end();
   const unsigned	regColumn = 5;
 
@@ -187,6 +191,8 @@ void QObjectBrowserWidget::updateObject( GenericObject* )
 
 void QObjectBrowserWidget::registerObject( GenericObject* object )
 {
+  using carto::shared_ptr;
+
   shared_ptr<AObject> ao;
   /* if( object->getProperty( "ana_object", ao ) )
   {
@@ -498,6 +504,8 @@ void QObjectBrowserWidget::describeGraph( QObjectBrowserWidget* br,
 					  AObject* obj,
                                           QTreeWidgetItem* parent )
 {
+  using carto::shared_ptr;
+
   Graph			*gr = ((AGraph *) obj)->graph();
   AttDescr		*attd = AttDescr::descr();
   Graph::const_iterator	iv, fv=gr->end();
@@ -744,6 +752,8 @@ QTreeWidgetItem* QObjectBrowserWidget::itemFor( QTreeWidgetItem* parent,
 void QObjectBrowserWidget::whatIs( QTreeWidgetItem* item, 
 				   ItemDescr & descr ) const
 {
+  using carto::shared_ptr;
+
   map<QTreeWidgetItem *, AObject *>::const_iterator	io, fo=_aobjects.end();
   map<QTreeWidgetItem *, GenericObject *>::const_iterator 
     ig, fg=_gobjects.end();

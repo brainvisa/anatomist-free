@@ -158,6 +158,8 @@ void AWindow::setCursorColor( const AimsRGB & cursCol )
 
 void AWindow::displayTalairach()
 {
+  using carto::shared_ptr;
+
   list<shared_ptr<AObject> >::iterator obj;
 
   for (obj = _objects.begin(); obj != _objects.end(); ++obj)
@@ -215,6 +217,8 @@ void AWindow::Refresh()
 
 void AWindow::registerObject( AObject* object, bool temporaryObject, int pos )
 {
+  using carto::shared_ptr;
+
   if( _sobjects.find( object ) == _sobjects.end() )
   {
     if( pos < 0 || (unsigned) pos >= _sobjects.size() )
@@ -251,6 +255,8 @@ void AWindow::registerObject( AObject* object, bool temporaryObject, int pos )
 
 void AWindow::unregisterObject( AObject* object )
 {
+  using carto::shared_ptr;
+
   set<AObject *>::iterator is = _sobjects.find( object );
   if( is == _sobjects.end() )
     return;

@@ -67,13 +67,15 @@ GLObjectVector::~GLObjectVector()
 
 MObject::const_iterator GLObjectVector::find( const AObject *obj ) const
 {
+  using carto::shared_ptr;
+
   return find( shared_ptr<AObject>( shared_ptr<AObject>::Weak,
                const_cast<AObject *>( obj ) ) );
 }
 
 
 MObject::const_iterator
-GLObjectVector::find( const shared_ptr<AObject> & obj ) const
+GLObjectVector::find( const carto::shared_ptr<AObject> & obj ) const
 {
   datatype::const_iterator i;
 
@@ -98,11 +100,13 @@ void GLObjectVector::erase( MObject::iterator & i )
 
 void GLObjectVector::insert( AObject* x, int pos )
 {
+  using carto::shared_ptr;
+
   insert( shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, x ), pos );
 }
 
 
-void GLObjectVector::insert( const shared_ptr<AObject> & x, int pos )
+void GLObjectVector::insert( const carto::shared_ptr<AObject> & x, int pos )
 {
   if( pos < 0 )
     pos = _data.size() + pos + 1;
@@ -126,6 +130,8 @@ void GLObjectVector::insert( const shared_ptr<AObject> & x, int pos )
 
 bool GLObjectVector::CanRemove( AObject * obj )
 {
+  using carto::shared_ptr;
+
   iterator  it
       = find( shared_ptr<AObject>( shared_ptr<AObject>::Weak, obj ) );
   if( it == end() )

@@ -982,6 +982,8 @@ namespace
 
 void AWindow3D::printPositionAndValue()
 {
+  using carto::shared_ptr;
+
   list<shared_ptr<AObject> >::iterator obj;
 
   for (obj = _objects.begin(); obj != _objects.end(); ++obj)
@@ -1050,6 +1052,8 @@ void AWindow3D::freeResize()
 
 void AWindow3D::refreshNow()
 {
+  using carto::shared_ptr;
+
   sortPolygons();
 
   switch (d->refreshneeded)
@@ -2322,9 +2326,11 @@ void AWindow3D::updateWindowGeometry()
 }
 
 Geometry AWindow3D::setupWindowGeometry(
-    const list<shared_ptr<AObject> > & objects, const Quaternion & slicequat,
+    const list<carto::shared_ptr<AObject> > & objects, const Quaternion & slicequat,
     const Referential *wref, QGLWidget* glw, bool with3d )
 {
+  using carto::shared_ptr;
+
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
   Point3df size, s2, vst, vs, p, pmin, pmax, dmin, dmax;
@@ -2780,6 +2786,8 @@ void AWindow3D::syncViews(bool keepextrema)
 bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
                             float & tmin, float & tmax ) const
 {
+  using carto::shared_ptr;
+
   bool valid = false;
 
   //	determine objects extrema
@@ -3021,6 +3029,8 @@ void AWindow3D::refreshLightView()
 
 void AWindow3D::refreshLightViewNow()
 {
+  using carto::shared_ptr;
+
   d->refreshneeded = Private::FullRefresh;
   list<shared_ptr<AObject> >::iterator i, e = _objects.end();
   GLWidgetManager *wm = dynamic_cast<GLWidgetManager *>( view() );
@@ -3055,6 +3065,8 @@ void AWindow3D::refreshTemp()
 
 void AWindow3D::refreshTempNow()
 {
+  using carto::shared_ptr;
+
   // cout << "refreshTempNow...\n";
 
   d->refreshneeded = Private::FullRefresh;
@@ -3320,6 +3332,8 @@ void AWindow3D::update(const Observable* o, void* arg)
 
 void AWindow3D::setReferential(Referential* ref)
 {
+  using carto::shared_ptr;
+
   ATransformSet *ts = ATransformSet::instance();
   Referential *old = getReferential(), *r2;
   list<shared_ptr<AObject> >::iterator io, eo = _objects.end();
@@ -3552,6 +3566,8 @@ namespace
 list<AObject *>::iterator AWindow3D::processRenderingOrder(
     list<AObject *> & ordered) const
 {
+  using carto::shared_ptr;
+
   list<shared_ptr<AObject> >::const_iterator i, e = _objects.end();
   map<AObject *, Private::ConstrainedObject>::iterator ic, ec =
       d->renderconstraints.end();

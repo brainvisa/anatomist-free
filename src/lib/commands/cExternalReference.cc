@@ -85,6 +85,8 @@ namespace
   template <typename T>
   void manageRef( T* obj, ExternalReferenceCommand::ActionType t )
   {
+    using carto::shared_ptr;
+
     typename shared_ptr<T>::ReferenceType rt = shared_ptr<T>::Weak;
     shared_ptr<T> sp;
     switch( t )
