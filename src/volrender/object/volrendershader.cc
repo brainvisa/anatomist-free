@@ -499,7 +499,7 @@ namespace
   {
     Quaternion q( 0.F, 0.F, 0.F, 1.F );
     Point3df vox = avol->glVoxelSize();
-    Geometry geom( vox, Point4dl( 0L ), Point4dl( d->dimx, d->dimy,
+    Geometry geom( vox, Point4dl( 0l ), Point4dl( d->dimx, d->dimy,
                    d->dimz, 1 ) );
     SliceViewState vs( t, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
