@@ -744,7 +744,7 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
     // don't copy wingeom since the volume has his own
   }
 
-  Point4dl vmin( 0l );
+  Point4dl vmin( 0, 0, 0, 0 );
 
   if( vol.header().hasProperty( "transformations" ) )
   {
