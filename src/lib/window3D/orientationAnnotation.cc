@@ -38,6 +38,20 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 
+// Macro to deal with boost convert_to_container issue 
+// using some specific GCC versions
+#if __cplusplus >= 201100
+#define BOOST_VECTOR_OF(TYPE, ...) \
+boost::assign::list_of<TYPE> __VA_ARGS__ .convert_to_container<vector<TYPE> >()
+#else
+#define BOOST_VECTOR_OF(TYPE, ...) \
+boost::assign::list_of<TYPE> __VA_ARGS__
+#endif
+
+#define BOOST_VECTOR_OF_INT(...) \
+BOOST_VECTOR_OF( int, __VA_ARGS__ )
+
+
 using namespace anatomist;
 using namespace std;
 
@@ -244,58 +258,42 @@ void OrientationAnnotation::InitParameters()
     theAnatomist->config()->getProperty("axialConvention", ax_conv);
     const bool is_ax_conv_radio = (ax_conv != "neuro");
     annotation_coord_params_.clear();
+
     if (view_type == AWindow3D::Axial)
     {
         if (is_ax_conv_radio)
         {
-            annotation_coord_params_[RIGHT]
-              = ( boost::assign::list_of<int>(0)(1) ).
-                convert_to_container<vector<int> >();
-            annotation_coord_params_[LEFT] = ( boost::assign::list_of(2)(1) ).
-                convert_to_container<vector<int> >();
+            annotation_coord_params_[RIGHT] = BOOST_VECTOR_OF_INT((0)(1));
+            annotation_coord_params_[LEFT] = BOOST_VECTOR_OF_INT((2)(1));
         }
         else
         {
-            annotation_coord_params_[RIGHT] = ( boost::assign::list_of(2)(1) ).
-              convert_to_container<vector<int> >();
-            annotation_coord_params_[LEFT] = ( boost::assign::list_of(0)(1) ).
-            convert_to_container<vector<int> >();
+            annotation_coord_params_[RIGHT] = BOOST_VECTOR_OF_INT((2)(1));
+            annotation_coord_params_[LEFT] = BOOST_VECTOR_OF_INT((0)(1));
         }
-        annotation_coord_params_[ANT] = ( boost::assign::list_of(1)(0) ).
-          convert_to_container<vector<int> >();
-        annotation_coord_params_[POST] = ( boost::assign::list_of(1)(2) ).
-          convert_to_container<vector<int> >();
+        annotation_coord_params_[ANT] = BOOST_VECTOR_OF_INT((1)(0));
+        annotation_coord_params_[POST] = BOOST_VECTOR_OF_INT((1)(2));
     }
     else if (view_type == AWindow3D::Coronal)
     {
         if (is_ax_conv_radio)
         {
-            annotation_coord_params_[RIGHT] = ( boost::assign::list_of(0)(1) ).
-              convert_to_container<vector<int> >();
-            annotation_coord_params_[LEFT] = ( boost::assign::list_of(2)(1) ).
-              convert_to_container<vector<int> >();
+            annotation_coord_params_[RIGHT] = BOOST_VECTOR_OF_INT((0)(1));
+            annotation_coord_params_[LEFT] = BOOST_VECTOR_OF_INT((2)(1));
         }
         else
         {
-            annotation_coord_params_[RIGHT] = ( boost::assign::list_of(2)(1) ).
-              convert_to_container<vector<int> >();
-            annotation_coord_params_[LEFT] = ( boost::assign::list_of(0)(1) ).
-              convert_to_container<vector<int> >();
+            annotation_coord_params_[RIGHT] = BOOST_VECTOR_OF_INT((2)(1));
+            annotation_coord_params_[LEFT] = BOOST_VECTOR_OF_INT((0)(1));
         }
-        annotation_coord_params_[SUP] = ( boost::assign::list_of(1)(0) ).
-          convert_to_container<vector<int> >();
-        annotation_coord_params_[INF] = ( boost::assign::list_of(1)(2) ).
-          convert_to_container<vector<int> >();
+        annotation_coord_params_[SUP] = BOOST_VECTOR_OF_INT((1)(0));
+        annotation_coord_params_[INF] = BOOST_VECTOR_OF_INT((1)(2));
     }
     else if (view_type == AWindow3D::Sagittal)
     {
-        annotation_coord_params_[ANT] = ( boost::assign::list_of(0)(1) ).
-          convert_to_container<vector<int> >();
-        annotation_coord_params_[POST] = ( boost::assign::list_of(2)(1) ).
-          convert_to_container<vector<int> >();
-        annotation_coord_params_[SUP] = ( boost::assign::list_of(1)(0) ).
-          convert_to_container<vector<int> >();
-        annotation_coord_params_[INF] = ( boost::assign::list_of(1)(2) ).
-          convert_to_container<vector<int> >();
+        annotation_coord_params_[ANT] = BOOST_VECTOR_OF_INT((0)(1));
+        annotation_coord_params_[POST] = BOOST_VECTOR_OF_INT((2)(1));
+        annotation_coord_params_[SUP] = BOOST_VECTOR_OF_INT((1)(0));
+        annotation_coord_params_[INF] = BOOST_VECTOR_OF_INT((1)(2));
     }
 }
