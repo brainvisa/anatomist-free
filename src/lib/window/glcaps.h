@@ -42,16 +42,6 @@
 
 #ifdef _WIN32 // TODO: remove this workaround (added by Denis for Windows)
 #include <qgl.h>
-
-// OUT and IN may be defined by a macro in qgl.h, but it can break templates named OUT and IN.
-#ifdef IN
-#undef IN
-#endif
-
-#ifdef OUT
-#undef OUT
-#endif
-
 #ifndef HAS_GLEXT
 #  define HAS_GLEXT
 #endif

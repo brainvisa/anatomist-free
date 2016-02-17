@@ -37,16 +37,6 @@
 #define protected public
 #endif
 #include <qgl.h>
-
-// OUT and IN may be defined by a macro in qgl.h, but it can break templates named OUT and IN.
-#ifdef IN
-#undef IN
-#endif
-
-#ifdef OUT
-#undef OUT
-#endif
-
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #undef protected
 #undef private
