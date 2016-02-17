@@ -38,6 +38,16 @@
 #include <QtOpenGL/QGLWidget>
 #else
 #include <qgl.h>
+
+// OUT and IN may be defined by a macro in qgl.h, but it can break templates named OUT and IN.
+#ifdef IN
+#undef IN
+#endif
+
+#ifdef OUT
+#undef OUT
+#endif
+
 #endif
 #include <qpaintdevice.h>
 #include <qtimer.h>
