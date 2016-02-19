@@ -40,11 +40,7 @@
 #include <anatomist/window/viewstate.h>
 
 #include <qglobal.h>
-#if QT_VERSION>=0x040000
 #include <QtOpenGL/QGLWidget>
-#else
-#include <qgl.h>
-#endif
 #if QT_VERSION >= 0x040600
 class QGestureEvent;
 #endif
