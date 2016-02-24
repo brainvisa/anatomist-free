@@ -106,17 +106,6 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
   cmax0 = colors->dimX() - 1;
   cmax1 = colors->dimY() - 1;
 
-  if( scale0 < 0 )
-    {
-      cmin0 = cmax0;
-      cmax0 = 0;
-    }
-  if( scale1 < 0 )
-    {
-      cmin1 = cmax1;
-      cmax1 = 0;
-    }
-
   /*
   std::cout << "cmin0: " << cmin0 << ", cmax0: " << cmax0 << ", cmin1: " << cmin1
             << ", cmax1: " << cmax1 << ", scale0: " << scale0 << ", scale1: "
@@ -176,18 +165,6 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
   cmin1 = 0;
   cmax0 = colors->dimX() - 1;
   cmax1 = colors->dimY() - 1;
-
-  if( scale0 < 0 )
-  {
-    cmin0 = cmax0;
-    cmax0 = 0;
-  }
-  if( scale1 < 0 )
-  {
-    cmin1 = cmax1;
-    cmax1 = 0;
-  }
-
 }
 
 
@@ -240,18 +217,6 @@ void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
   cmin1 = 0;
   cmax0 = colors->dimX() - 1;
   cmax1 = colors->dimY() - 1;
-
-  if( scale0 < 0 )
-  {
-    cmin0 = cmax0;
-    cmax0 = 0;
-  }
-  if( scale1 < 0 )
-  {
-    cmin1 = cmax1;
-    cmax1 = 0;
-  }
-
 }
 
 }
