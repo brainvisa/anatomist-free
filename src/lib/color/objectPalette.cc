@@ -37,6 +37,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
+#include <cartobase/stream/fileutil.h>
 #include <qimage.h>
 #include <iostream>
 
@@ -291,129 +292,265 @@ AimsRGBA AObjectPalette::normColor( float x, float y ) const
                      int( ys * _colors->dimY() ) );
 }
 
+
+namespace
+{
+
+  rc_ptr<APalette> getOrCreatePalette( const GenericObject & obj, int index )
+  {
+    string palette_key = "palette";
+    string colors_key = "colors";
+    string image_key = "image";
+    string colmode_key = "color_mode";
+    if( index == 1 )
+    {
+      palette_key = "palette2";
+      colors_key = "colors2";
+      image_key = "image2";
+      colmode_key = "color_mode2";
+    }
+
+    Object colors;
+    string image, colmode, pname;
+
+    try
+    {
+      colors = obj.getProperty( colors_key );
+      try
+      {
+        colmode = obj.getProperty( colmode_key )->getString();
+      }
+      catch( ... )
+      {
+      }
+    }
+    catch( ... )
+    {
+      try
+      {
+        image = obj.getProperty( image_key )->getString();
+      }
+      catch( ... )
+      {
+      }
+    }
+
+    try
+    {
+      pname = obj.getProperty( palette_key )->getString();
+    }
+    catch( ... )
+    {
+      return rc_ptr<APalette>( 0 );
+    }
+
+    PaletteList     & pall = theAnatomist->palettes();
+    rc_ptr<APalette> p;
+    if( colors || !image.empty() )
+    {
+      // colors or image are specified: create a new palette
+      if( colors )
+      {
+        unsigned i, n;
+        Object cit = colors->objectIterator();
+        vector<AimsRGBA> colortable;
+
+        if( colmode == "RGBA" || colmode == "rgba" )
+        {
+          n = colors->size() / 4;
+          if( n * 4 != colors->size() )
+            cerr << "Wrong number of numbers, should be a multiple of 4\n";
+          else
+          {
+            for( i=0; i<n; ++i )
+            {
+              AimsRGBA rgba;
+              rgba[0] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              rgba[1] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              rgba[2] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              rgba[3] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              colortable.push_back( rgba );
+            }
+          }
+        }
+        else
+        {
+          n = colors->size() / 3;
+          if( n * 3 != colors->size() )
+            cerr << "Wrong number of numbers, should be a multiple of 3\n";
+          else
+          {
+            for( i=0; i<n; ++i )
+            {
+              AimsRGBA rgba;
+              rgba[3] = 255;
+              rgba[0] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              rgba[1] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              rgba[2] = int( rint( cit->currentValue()->getScalar() ) );
+              cit->next();
+              colortable.push_back( rgba );
+            }
+          }
+        }
+
+        // set colors in palette
+        AimsData<AimsRGBA>    dat( colortable.size() );
+
+        for( i=0, n=colortable.size(); i<n; ++i )
+          dat[i] = colortable[i];
+        p.reset( new APalette( pname ) );
+        p->AimsData<AimsRGBA>::operator = ( dat );
+        // private palette, not inserted in global list
+        // pall.push_back( p );
+      }
+      else
+      {
+        // image file provided
+        // handle (relative) directory (relative to... what ?)
+        if( !image.empty() && image[0] != '/'
+            && ( image.length() >= 3 && image[1] != ':' ) )
+        {
+          try
+          {
+            string path = obj.getProperty( "image_directory" )->getString();
+            image = path + FileUtil::separator() + image;
+          }
+          catch( ... )
+          {
+          }
+        }
+        p = pall.loadPalette( image, pname );
+        if( !p )
+          cerr << "Warning: could not load palette image: " << image << endl;
+      }
+    }
+    else
+    {
+      p = pall.find( pname );
+      if( !p )
+        cerr << "AObjectPalette::set : warning: " << palette_key << " \""
+          << pname << "\" not found\n";
+    }
+
+    return p;
+  }
+
+}
+
+
 bool AObjectPalette::set( const GenericObject & obj )
 {
-  Object		o;
+  Object		o, colors1, colors2;
+  string                image1, image2;
   const PaletteList	& pall = theAnatomist->palettes();
   bool			mod = false;
 
+  rc_ptr<APalette> p = getOrCreatePalette( obj, 0 );
+  if( p && _refPal != p )
+  {
+    clearColors();
+    _refPal = p;
+    mod = true;
+  }
+  p = getOrCreatePalette( obj, 1 );
+  if( p && _refPal != p )
+  {
+    if( !mod )
+      clearColors();
+    _refPal2 = p;
+    mod = true;
+  }
+
   try
-    {
-      o = obj.getProperty( "palette" );
-      rc_ptr<APalette> p = pall.find( o->getString() );
-      if( !p )
-        cerr << "AObjectPalette::set : warning: palette \"" << o->getString()
-          << "\" not found\n";
-      else if( _refPal != p )
-        {
-          clearColors();
-          _refPal = p;
-          mod = true;
-        }
-    }
+  {
+    o = obj.getProperty( "min" );
+    _min = o->getScalar();
+    mod = true;
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   try
-    {
-      o = obj.getProperty( "palette2" );
-      rc_ptr<APalette> p = pall.find( o->getString() );
-      if( !p )
-        cerr << "AObjectPalette::set : warning: palette2 \"" << o->getString()
-          << "\" not found\n";
-      else
-        {
-          _refPal2 = p;
-          mod = true;
-        }
-    }
+  {
+    o = obj.getProperty( "max" );
+    _max = o->getScalar();
+    mod = true;
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   try
-    {
-      o = obj.getProperty( "min" );
-      _min = o->getScalar();
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "min2" );
+    _min2 = o->getScalar();
+    mod = true;
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   try
-    {
-      o = obj.getProperty( "max" );
-      _max = o->getScalar();
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "max2" );
+    _max2 = o->getScalar();
+    mod = true;
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   try
-    {
-      o = obj.getProperty( "min2" );
-      _min2 = o->getScalar();
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "mixMethod" );
+    setMixMethod( o->getString() );
+    mod = true;
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   try
-    {
-      o = obj.getProperty( "max2" );
-      _max2 = o->getScalar();
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "linMixFactor" );
+    _linMixFactor = o->getScalar();
+    mod = true;
+  }
   catch( ... )
-    {
-    }
+  {
+  }
   try
-    {
-      o = obj.getProperty( "mixMethod" );
-      setMixMethod( o->getString() );
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "palette1Dmapping" );
+    setPalette1DMappingName( o->getString() );
+    mod = true;
+  }
   catch( ... )
-    {
-    }
-  try
-    {
-      o = obj.getProperty( "linMixFactor" );
-      _linMixFactor = o->getScalar();
-      mod = true;
-    }
-  catch( ... )
-    {
-    }
-  try
-    {
-      o = obj.getProperty( "palette1Dmapping" );
-      setPalette1DMappingName( o->getString() );
-      mod = true;
-    }
-  catch( ... )
-    {
-    }
+  {
+  }
   int sx = -1, sy = -1;
   try
-    {
-      o = obj.getProperty( "sizex" );
-      sx = int( o->getScalar() );
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "sizex" );
+    sx = int( o->getScalar() );
+    mod = true;
+  }
   catch( ... )
-    {
-      sx = glMaxSizeX();
-    }
+  {
+    sx = glMaxSizeX();
+  }
   try
-    {
-      o = obj.getProperty( "sizey" );
-      sy = int( o->getScalar() );
-      mod = true;
-    }
+  {
+    o = obj.getProperty( "sizey" );
+    sy = int( o->getScalar() );
+    mod = true;
+  }
   catch( ... )
-    {
-      sy = glMaxSizeY();
-    }
+  {
+    sy = glMaxSizeY();
+  }
   if( mod )
     glSetMaxSize( sx, sy );
 

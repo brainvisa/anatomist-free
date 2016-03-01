@@ -78,6 +78,77 @@ void PaletteList::erase( rc_ptr<APalette> pal )
 }
 
 
+rc_ptr<APalette> PaletteList::loadPalette( const string & filename,
+                                           const string & palettename )
+{
+  rc_ptr<APalette> pal;
+  Finder  f;
+  if( f.check( filename ) && f.objectType() == "Volume" )
+    {
+      string      dt;
+      if( f.dataType() == "RGBA" )
+        dt = f.dataType();
+      else
+      {
+        vector<string>  pdt = f.possibleDataTypes();
+        unsigned                ipt, ept = pdt.size();
+        for( ipt=0; ipt!=ept; ++ipt )
+          if( pdt[ipt] == "RGBA" )
+          {
+            dt = "RGBA";
+            break;
+          }
+          else if( pdt[ipt] == "RGB" )
+            dt = "RGB";
+        if( dt.empty() && f.dataType() == "RGB" )
+          dt = f.dataType();
+      }
+      if( dt.empty() )
+        return pal;
+
+      pal.reset( new APalette( palettename ) );
+
+      string      format = f.format();
+
+      if( dt == "RGBA" )
+        try
+        {
+          //cout << "trying to read " << filename << " as RGBA...\n";
+          Reader<AimsData<AimsRGBA> > dr( filename );
+          dr.read( *pal, 0, &format );
+          pal->update();
+        }
+        catch( exception & )
+        {
+        }
+      else
+        // try to load as RGB
+        try
+        {
+          //cout << "failed. Trying as RGB...\n";
+          Reader<AimsData<AimsRGB> >    dr2( filename );
+          AimsData<AimsRGB>                     tpal;
+          dr2.read( tpal, 0, &format );
+          // copy to RGBA array
+          AimsData<AimsRGBA>    tpal2( tpal.dimX(), tpal.dimY(),
+                                        tpal.dimZ(), tpal.dimT() );
+          long  x, y, z, t;
+          ForEach4d( tpal, x, y, z, t )
+            tpal2( x, y, z, t ) = tpal( x, y, z, t );
+          (AimsData<AimsRGBA> &) *pal = tpal2;
+          pal->setHeader( tpal.header()->cloneHeader() );
+          pal->update();
+        }
+        catch( exception & )
+        {
+          //cout << "Failed\n";
+        }
+    }
+
+  return pal;
+}
+
+
 void PaletteList::load( const string & dirname, bool clr )
 {
   if( !dirname.empty() )
@@ -91,94 +162,28 @@ void PaletteList::load( const string & dirname, bool clr )
     bool newpal;
 
     for( in = names.begin(); in != en; ++in )
+    {
+      string palettename = *in;
+      string filename = dirname + FileUtil::separator() + palettename;
+      pos = palettename.rfind( '.' );
+      if ( pos != string::npos )
+        // remove extension
+        palettename.erase( pos, palettename.length() - pos );
+      set<string>::iterator  ff = done.find( palettename );
+      if( ff != done.end() )
+        continue; // already read
+      done.insert( palettename );
+
+      rc_ptr<APalette> pal = loadPalette( filename, palettename );
+      if( pal )
       {
-        string palettename = *in;
-        string filename = dirname + FileUtil::separator() + palettename;
-        Finder	f;
-        if( f.check( filename ) && f.objectType() == "Volume" )
-          {
-            string	dt;
-            if( f.dataType() == "RGBA" )
-              dt = f.dataType();
-            else
-              {
-                vector<string>	pdt = f.possibleDataTypes();
-                unsigned		ipt, ept = pdt.size();
-                for( ipt=0; ipt!=ept; ++ipt )
-                  if( pdt[ipt] == "RGBA" )
-                    {
-                      dt = "RGBA";
-                      break;
-                    }
-                  else if( pdt[ipt] == "RGB" )
-                    dt = "RGB";
-                if( dt.empty() && f.dataType() == "RGB" )
-                  dt = f.dataType();
-              }
-            if( dt.empty() )
-              continue;
-
-            pos = palettename.rfind( '.' );
-            if ( pos != string::npos )
-              // remove extension
-              palettename.erase( pos, palettename.length() - pos );
-
-            set<string>::iterator	ff = done.find( palettename );
-            if( ff != done.end() )
-              continue; // already read
-            done.insert( palettename );
-
-            rc_ptr<APalette> pal = find( palettename );
-            if ( !pal )
-              {
-                pal.reset( new APalette( palettename ) );
-                newpal = true;
-              }
-            else
-              newpal = false;
-
-            string	format = f.format();
-
-            if( dt == "RGBA" )
-              try
-                {
-                  //cout << "trying to read " << filename << " as RGBA...\n";
-                  Reader<AimsData<AimsRGBA> > dr( filename );
-                  dr.read( *pal, 0, &format );
-                  pal->update();
-                  if( newpal )
-                    _pal.push_back( pal );
-                }
-              catch( exception & )
-                {
-                }
-            else
-              // try to load as RGB
-              try
-                {
-                  //cout << "failed. Trying as RGB...\n";
-                  Reader<AimsData<AimsRGB> >	dr2( filename );
-                  AimsData<AimsRGB>			tpal;
-                  dr2.read( tpal, 0, &format );
-                  // copy to RGBA array
-                  AimsData<AimsRGBA>	tpal2( tpal.dimX(), tpal.dimY(),
-                                                tpal.dimZ(), tpal.dimT() );
-                  long	x, y, z, t;
-                  ForEach4d( tpal, x, y, z, t )
-                    tpal2( x, y, z, t ) = tpal( x, y, z, t );
-                  (AimsData<AimsRGBA> &) *pal = tpal2;
-                  pal->setHeader( tpal.header()->cloneHeader() );
-                  pal->update();
-                  if( newpal )
-                    _pal.push_back( pal );
-                  //cout << "OK\n";
-                }
-              catch( exception & )
-                {
-                  //cout << "Failed\n";
-                }
-          }
+        rc_ptr<APalette> oldpal = find( palettename );
+        if( !oldpal )
+          _pal.push_back( pal );
+        else
+          oldpal = pal;
       }
+    }
   }
 
   if( palettes().empty() )

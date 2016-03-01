@@ -61,6 +61,8 @@ namespace anatomist
     { return( _pal ); }
     const carto::rc_ptr<APalette> find( const std::string & name ) const;
     carto::rc_ptr<APalette> find( const std::string & name );
+    static carto::rc_ptr<APalette> loadPalette( const std::string & filename,
+                                                const std::string & name );
 
   protected:
     std::list<carto::rc_ptr<APalette> > _pal;

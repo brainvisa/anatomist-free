@@ -55,6 +55,7 @@
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/resampling/quaternion.h>
+#include <cartobase/stream/fileutil.h>
 #include <time.h>
 
 //#define ANA_DEBUG
@@ -823,6 +824,8 @@ void AObject::setHeaderOptions()
             {
               m = o->getProperty( "palette" );
               getOrCreatePalette();
+              m->setProperty( "image_directory",
+                              FileUtil::dirname( fileName() ) );
               if( palette() && palette()->set( *m ) )
                 {
                   setPalette( *palette() );

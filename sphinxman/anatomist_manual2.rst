@@ -1528,7 +1528,20 @@ Some of these properties are interpreted by Anatomist, and may bring information
   A list of affine transformation matrices. Each of them transforms from the object referential (see the "referential" property) to another referential listed in the "referentials" property. Each transformation is given as a list of affine matrix (4x4) coefficients: 16 numbers, the matrix is written as lines.
 
 .. |palette_prop_doc| replace::
-  A dictionary of palette properties. These properties have the same syntax as the :anadev:`SetPalette command <commands.html#setobjectpalette>`
+  A dictionary of palette properties. These properties have the same syntax as the :anadev:`SetObjectPalette command <commands.html#setobjectpalette>`.
+  In addition, in Anatomist 4.5 and later, palette properties can include additional information to define new, personal, palettes:
+
+.. |colors_prop| replace::
+  **colors**: list of R, G, B or R, G, B, A values, all in one line, int values between 0 and 255. Depending on the "color_mode" property, values will be grouped by 3 or 4 to form colors.
+
+.. |color_mode_prop| replace::
+  **color_mode**: "RGB" or "rgb", "RGBA" or "rgba": tells if "colors" values should have 3 or 4 chanels.
+
+.. |image_prop| replace::
+  **image**: image file name for palette. If "colors" is specified, it has priority and "image" is not taken into account in such a case. File names can be absolute, or relative to the current object file.
+
+.. |palette2_prop| replace::
+  **colors2**, **color_mode2**, **image2**: same as above for the 2nd palette, if any.
 
 .. |material_prop_doc| replace::
   A dictionary of material properties. These properties have the same syntax as the :anadev:`SetMaterial command <commands.html#setmaterial>`
@@ -1573,6 +1586,11 @@ Some of these properties are interpreted by Anatomist, and may bring information
 |                    | objects             |                               |
 +--------------------+---------------------+-------------------------------+
 | palette            | textured objects    | |palette_prop_doc|            |
+|                    |                     |                               |
+|                    |                     | * |colors_prop|               |
+|                    |                     | * |color_mode_prop|           |
+|                    |                     | * |image_prop|                |
+|                    |                     | * |palette2_prop|             |
 +--------------------+---------------------+-------------------------------+
 | material           | geometrical objects | |material_prop_doc|           |
 +--------------------+---------------------+-------------------------------+
