@@ -119,8 +119,12 @@ class _ProcDeleter( object ):
     def __del__( self ):
         self.o.kill()
 
-from zmq.eventloop import ioloop
-from zmq.eventloop.ioloop import IOLoop
+try:
+    from zmq.eventloop import ioloop
+    from zmq.eventloop.ioloop import IOLoop
+    have_zmq = True
+except ImportError:
+    have_zmq = False
 import signal
 import thread
 import logging
@@ -263,7 +267,9 @@ def _my_ioloop_start(self):
             while self._events:
                 fd, events = self._events.popitem()
                 try:
-                    open('/tmp/analog.txt', 'w').write('handlers[fd]: %s, fd: %d\n' % (repr(self._handlers[fd]), fd))
+                    open('/tmp/analog.txt', 'w').write(
+                        'handlers[fd]: %s, fd: %d\n'
+                        % (repr(self._handlers[fd]), fd))
                     handler = self._handlers[fd]
                     if isinstance(handler, tuple):
                         # tornado >= 4
@@ -328,6 +334,8 @@ def runIPConsoleKernel(mode='qtconsole'):
         return None
 
     elif ipversion >= [1, 0]:
+        if not have_zmq:
+            return None # no zmq: fail
         from IPython.kernel.zmq.kernelapp import IPKernelApp
         app = IPKernelApp.instance()
         if not app.initialized() or not app.kernel:
@@ -434,6 +442,8 @@ def ipythonShell():
   if ipversion >= [ 0, 11 ]:
     # new Ipython API
     ipConsole = runIPConsoleKernel()
+    if not ipConsole:
+      return 0 # failed.
     import subprocess
     exe = sys.executable
     if sys.platform == 'darwin':

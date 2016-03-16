@@ -309,7 +309,11 @@ namespace
 
       r2 = restr && !restricted->hasProperty( "SparseMatrix" );
       if( !r2 )
+      {
         registerProcessType( "SparseMatrix", "DOUBLE", &loadSparseMatrix );
+        registerProcessType( "SparseOrDenseMatrix", "DOUBLE",
+                             &loadSparseMatrix );
+      }
     }
 
     AObject	*object;
