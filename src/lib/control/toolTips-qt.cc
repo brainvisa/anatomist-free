@@ -162,6 +162,11 @@ namespace
 
   QString printobj( const AObject* obj )
   {
+    // if the object provides its own tooltip, use it.
+    string toolip_text = obj->toolTip();
+    if( !toolip_text.empty() )
+      return QString( toolip_text.c_str() );
+
     list<string> todisp;
     const GenericObject* aao = propertiesToDisplay( obj, todisp );
     QString	text = ( string( "<b>" ) + obj->name() + "</b>" ).c_str();

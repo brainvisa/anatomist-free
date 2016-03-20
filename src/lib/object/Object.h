@@ -373,6 +373,11 @@ namespace anatomist
     virtual void update( const Observable *observable, void *arg );
     bool isCopy() const;
     void setCopyFlag( bool x = true );
+    /** tooltip displayed in 3D views (HTML).
+
+        The default impementation returns an empty string, and the default tooltip will be displayed (see QAViewToolTip)
+    */
+    virtual std::string toolTip() const;
 
     /// Static object loader: creates an objects, loads its contents
     static AObject* load( const std::string & filename );

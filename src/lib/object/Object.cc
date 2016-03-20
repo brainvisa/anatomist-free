@@ -1474,6 +1474,12 @@ bool AObject::save( const std::string & filename )
 }
 
 
+string AObject::toolTip() const
+{
+  return string();
+}
+
+
 // ----
 
 AObject::Private::MenuRegistrersMap &
