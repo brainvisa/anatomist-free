@@ -44,6 +44,8 @@
 #include <anatomist/commands/cLoadTransformation.h>
 #include <anatomist/commands/cSaveTransformation.h>
 #include <anatomist/commands/cAssignReferential.h>
+#include <anatomist/commands/cCreateWindow.h>
+#include <anatomist/commands/cAddObject.h>
 #include <anatomist/misc/error.h>
 #include <aims/def/general.h>
 #include <QMouseEvent>
@@ -681,7 +683,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
 void ReferentialWindow::popupRefMenu( const QPoint & pos )
 {
   QMenu	*pop = pdat->refmenu;
-  QAction *delete_action, *load_action, *icon_action;
+  QAction *delete_action, *load_action, *icon_action, *see_objects_action;
 
   if( !pop )
     {
@@ -690,8 +692,11 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
 
       pop->addAction( QIcon(QPixmap( 16, 16 )), "" );
       pop->addSeparator();
+      see_objects_action = pop->addAction(
+        tr( "See objects in this referential" ), this,
+        SLOT( seeObjectsInReferential() ) );
       delete_action = pop->addAction( tr( "Delete referential" ), this,
-               SLOT( deleteReferential() ));
+               SLOT( deleteReferential() ) );
       load_action = pop->addAction( tr( "Load referential information" ), this,
                        SLOT( loadReferential() ));
       pop->addAction( tr( "Split referential to disconnect transformations" ),
@@ -1103,6 +1108,28 @@ void ReferentialWindow::splitReferential()
   }
   theAnatomist->Refresh();
   refresh();
+}
+
+
+void ReferentialWindow::seeObjectsInReferential()
+{
+  set<AObject *> objs = theAnatomist->getObjects();
+  set<AObject *>::iterator io, eo = objs.end();
+  CreateWindowCommand *wc = new CreateWindowCommand( "Browser" );
+  theProcessor->execute( wc );
+  AWindow *win = wc->createdWindow();
+  set<AObject *> selobj;
+  for( io=objs.begin(); io!=eo; ++io )
+    if( (*io)->getReferential() == pdat->srcref )
+      selobj.insert( *io );
+  if( !selobj.empty() )
+  {
+    set<AWindow *> winset;
+    winset.insert( win );
+    AddObjectCommand *add = new AddObjectCommand( selobj, winset, false,
+                                                  false, false );
+    theProcessor->execute( add );
+  }
 }
 
 
