@@ -175,17 +175,43 @@ void Referential::setColor( const AimsRGB & col )
 }
 
 
+namespace
+{
+
+  void fillColorList( vector<Point3df> & color_list )
+  {
+    color_list.reserve( 14 );
+    color_list.push_back( Point3df( 1., 0., 0. ) );
+    color_list.push_back( Point3df( 0., 1., 0. ) );
+    color_list.push_back( Point3df( 1., 1., 0. ) );
+    color_list.push_back( Point3df( 0., 0., 1. ) );
+    color_list.push_back( Point3df( 1., 0., 1. ) );
+    color_list.push_back( Point3df( 0., 1., 1. ) );
+    color_list.push_back( Point3df( 1., 1., 1. ) );
+    color_list.push_back( Point3df( 0., 0., 0. ) );
+    color_list.push_back( Point3df( 1., 0.5, 0. ) );
+    color_list.push_back( Point3df( 0.5, 1., 0. ) );
+    color_list.push_back( Point3df( 0., 1., 0.5 ) );
+    color_list.push_back( Point3df( 0., 0.5, 1. ) );
+    color_list.push_back( Point3df( 1., 0., 0.5 ) );
+    color_list.push_back( Point3df( 0.5, 0., 1. ) );
+  }
+
+}
+
+
 AimsRGB Referential::NewColor()
 {
+  static vector<Point3df> color_list;
+  if( color_list.empty() )
+    fillColorList( color_list );
+
   set<Referential*> lisref;
   set<Referential*>::iterator ref;
   AimsRGB col;
-  int nobject=64;
-  float nstep,red,green,blue;
+  size_t nobject = color_list.size();
 
   lisref = theAnatomist->getReferentials();
-
-  // Determination de l'indice de la couleur
 
   if( lisref.empty() )
     _indCol = 0;
@@ -201,25 +227,18 @@ AimsRGB Referential::NewColor()
            ++ii, ++_indCol ) {}
     }
 
-  int	indCol = _indCol + 1;
-  if( indCol > nobject )
-    indCol = nobject;
 
-  nstep = (float)((nobject % 8) ? (nobject/8 + 1) : (nobject/8));
+  float saturation = 1. - std::exp( -float( _indCol / nobject ) / 3. );
+  float brightness = std::exp( -float( _indCol / nobject ) / 3. );
+  int	indCol = _indCol % nobject;
+  Point3df base_col = color_list[indCol], colf;
 
-  red   = (float)(indCol & 1) *
-            (1.0 - ((float)((indCol%8) ? (indCol/8 + 1) : (indCol/8))-1) /
-            nstep);
-  green = (float)((indCol & 2)/2) *
-            (1.0 - ((float)((indCol%8) ? (indCol/8 + 1) : (indCol/8))-1) /
-            nstep);
-  blue  = (float)((indCol & 4)/4) *
-            (1.0 - ((float)((indCol%8) ? (indCol/8 + 1) : (indCol/8))-1) /
-            nstep);
+  colf = ( base_col * (1. - saturation ) + Point3df( saturation ) )
+    * brightness;
 
-  col.red() = (unsigned short)( 255. * red );
-  col.green() = (unsigned short)( 255. * green );
-  col.blue() = (unsigned short)( 255. * blue );
+  col.red() = (unsigned short)( 255. * colf[0] );
+  col.green() = (unsigned short)( 255. * colf[1] );
+  col.blue() = (unsigned short)( 255. * colf[2] );
 
   return col;
 }
