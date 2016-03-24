@@ -122,6 +122,7 @@ set( _headers
     reference/transformobserver.h
     reference/transfSet.h
     reference/wReferential.h
+    reference/wReferential_3d.h
     reference/wChooseReferential.h
     surface/cutmesh.h
     surface/fusion2Dmesh.h
@@ -358,6 +359,7 @@ set( _sources
     reference/transformobserver.cc
     reference/transfSet.cc
     reference/wReferential.cc
+    reference/wReferential_3d.cc
     reference/wChooseReferential.cc
     surface/cutmesh.cc
     surface/fusion2Dmesh.cc

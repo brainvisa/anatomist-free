@@ -62,7 +62,7 @@ namespace anatomist
 				    const Referential* dst );
     const Transformation* transformation( const Referential* src, 
 					  const Referential* dst ) const;
-    std::set<Transformation *> allTransformations() const;
+    const std::set<Transformation *> & allTransformations() const;
     void registerTransformation( Transformation* t );
     void unregisterTransformation( Transformation* t );
     std::set<Transformation *> transformationsWith( const Referential* ref ) 

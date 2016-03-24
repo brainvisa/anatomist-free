@@ -259,7 +259,7 @@ void ATransformSet::unregisterTransformation( Transformation* t )
 }
 
 
-set<Transformation *> ATransformSet::allTransformations() const
+const set<Transformation *> & ATransformSet::allTransformations() const
 {
   return d->tset;
 }
