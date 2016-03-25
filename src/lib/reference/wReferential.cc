@@ -46,6 +46,7 @@
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cCreateWindow.h>
 #include <anatomist/commands/cAddObject.h>
+#include <anatomist/reference/wReferential_3d.h>
 #include <anatomist/misc/error.h>
 #include <aims/def/general.h>
 #include <QMouseEvent>
@@ -248,7 +249,7 @@ namespace anatomist
   {
     ReferentialWindow_PrivateData() 
       : srcref( 0 ), dstref( 0 ), trans( 0 ), tracking( false ), refmenu( 0 ),
-      bgmenu( 0 )
+      bgmenu( 0 ), view2d( 0 ), view3d( 0 )
     {}
 
     Referential			*srcref;
@@ -258,22 +259,31 @@ namespace anatomist
     bool			tracking;
     map<Referential *, QPoint>	refpos;
     QMenu			*refmenu;
-    QMenu                  *bgmenu;
+    QMenu                       *bgmenu;
     RefToolTip                  *tooltip;
+    QLabel                      *view2d;
+    RefWindow                   *view3d;
   };
 
 }
 
 
 ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name, 
-				      Qt::WFlags f )
-  : QLabel( parent, f ), 
+                                      Qt::WFlags f )
+  : QWidget( parent, f ),
   pdat( new ReferentialWindow_PrivateData )
 {
   setWindowTitle( tr( "Referentials" ) );
   setObjectName(name);
-  resize( 256, 256 );
-  setPixmap( QPixmap( width(), height() ) );
+  QHBoxLayout *lay = new QHBoxLayout;
+  lay->setContentsMargins( 3, 3, 3, 3 );
+  setLayout( lay );
+  pdat->view2d = new QLabel( this );
+  pdat->view2d->setSizePolicy( QSizePolicy::Ignored,
+                               QSizePolicy::Ignored );
+  lay->addWidget( pdat->view2d );
+  resize( 300, 300 );
+  pdat->view2d->setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
 }
@@ -288,7 +298,7 @@ ReferentialWindow::~ReferentialWindow()
 
 void ReferentialWindow::closeEvent( QCloseEvent * ev )
 {
-  QLabel::closeEvent( ev );
+  QWidget::closeEvent( ev );
   if( theAnatomist->getControlWindow() )
     theAnatomist->getControlWindow()->enableRefWinMenu( true );
 }
@@ -296,7 +306,7 @@ void ReferentialWindow::closeEvent( QCloseEvent * ev )
 
 void ReferentialWindow::resizeEvent( QResizeEvent* ev )
 {
-  QLabel::resizeEvent( ev );
+  QWidget::resizeEvent( ev );
   refresh();
 }
 
@@ -376,6 +386,9 @@ void ReferentialWindow::saveTransformation( const string & filename )
 void ReferentialWindow::refresh()
 {
   pdat->refpos.clear();
+  if( !pdat->view2d->isVisible() || pdat->view2d->width() == 0
+      || pdat->view2d->height() == 0 )
+    return;
 
   set<Referential *>	refs = theAnatomist->getReferentials();
   set<anatomist::Transformation *>	trans 
@@ -387,7 +400,9 @@ void ReferentialWindow::refresh()
   Referential		*ref;
   anatomist::Transformation	*tr;
   unsigned		x, y, sz = 20;
-  int			w = width(), h = height(), R = w, Rmin = 50;
+  int			w = pdat->view2d->width(),
+                        h = pdat->view2d->height(),
+                        R = w, Rmin = 50;
   QPixmap		pix( w, h );
 
   QPainter		p( &pix );
@@ -475,7 +490,7 @@ void ReferentialWindow::refresh()
     }
 
   p.end();
-  setPixmap( pix );
+  pdat->view2d->setPixmap( pix );
 }
 
 
@@ -535,7 +550,8 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
     {
       pdat->tracking = false;
       QPainter	p( this );
-      p.drawPixmap( 0, 0, *pixmap() );
+      p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                    *pdat->view2d->pixmap() );
 
       QPoint		dummy;
       pdat->dstref = refAt( ev->pos(), dummy );
@@ -576,11 +592,13 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
 void ReferentialWindow::mouseMoveEvent( QMouseEvent* ev )
 {
   if( pdat->tracking )
-    {
-      QPainter	p( this );
-      p.drawPixmap( 0, 0, *pixmap() );
-      p.drawLine( pdat->pos, ev->pos() );
-    }
+  {
+    QPainter	p( this );
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  *pdat->view2d->pixmap() );
+    p.drawLine( pdat->view2d->mapToParent( pdat->pos ),
+                pdat->view2d->mapFromParent( ev->pos() ) );
+  }
 }
 
 
@@ -590,13 +608,14 @@ Referential* ReferentialWindow::refAt( const QPoint & pos, QPoint & newpos )
   Referential		*ref;
   int			sz = 10;
   QPoint		rpos;
+  QPoint                refpos = pdat->view2d->mapFromParent( pos );
 
   for( ir=pdat->refpos.begin(); ir!=fr; ++ir )
     {
       ref = (*ir).first;
       rpos = (*ir).second;
-      if( pos.x() >= rpos.x()-sz && pos.x() < rpos.x()+sz 
-	  && pos.y() >= rpos.y()-sz && pos.y() < rpos.y()+sz )
+      if( refpos.x() >= rpos.x()-sz && refpos.x() < rpos.x()+sz
+	  && refpos.y() >= rpos.y()-sz && refpos.y() < rpos.y()+sz )
 	{
 	  newpos = rpos;
 	  return( ref );
@@ -625,6 +644,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
   QPoint                                rvec, relp;
   float                                 x, y, normv, norm;
   vector<anatomist::Transformation *>              trat;
+  QPoint refpos = pdat->view2d->mapFromParent( pos );
 
   // 1st pass on loaded transformations
   for( it=trans.begin(); it!=ft; ++it )
@@ -634,7 +654,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
         {
           const QPoint & rpos1 = pdat->refpos[ t->source() ];
           rvec = pdat->refpos[ t->destination() ] - rpos1;
-          relp = pos - rpos1;
+          relp = refpos - rpos1;
           // project
           x = relp.x() * rvec.x() + relp.y() * rvec.y();
           norm = rvec.x() * rvec.x() + rvec.y() * rvec.y();
@@ -659,7 +679,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
         {
           const QPoint & rpos1 = pdat->refpos[ t->source() ];
           rvec = pdat->refpos[ t->destination() ] - rpos1;
-          relp = pos - rpos1;
+          relp = refpos - rpos1;
           // project
           x = relp.x() * rvec.x() + relp.y() * rvec.y();
           norm = rvec.x() * rvec.x() + rvec.y() * rvec.y();
@@ -806,6 +826,8 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
                      SLOT( loadNewTransformation() ) );
     pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
+    pop->addSeparator();
+    pop->addAction( tr( "Switch to 3D view" ), this, SLOT( set3DView() ) );
   }
 
   pop->popup( mapToGlobal( pos ) );
@@ -1145,6 +1167,30 @@ bool ReferentialWindow::event( QEvent* event )
 }
 #endif
 
+
+void ReferentialWindow::set3DView()
+{
+  if( pdat->view3d )
+  {
+    pdat->view3d->updateReferentialView();
+    pdat->view3d->show();
+    return;
+  }
+  RefWindow *rwin = new RefWindow;
+  rwin->updateReferentialView();
+  layout()->addWidget( rwin );
+  pdat->view3d = rwin;
+  connect( pdat->view3d, SIGNAL( destroyed() ),
+           this, SLOT( view3dDeleted() ) );
+  rwin->show();
+}
+
+
+void ReferentialWindow::view3dDeleted()
+{
+  pdat->view3d = 0;
+  refresh();
+}
 
 // -----------
 

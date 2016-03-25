@@ -52,7 +52,7 @@ namespace anatomist
 /**	Window displaying referentials and transformations between them.
 	This interface allows to load new transformations
 */
-class ReferentialWindow : public QLabel
+class ReferentialWindow : public QWidget
 {
   Q_OBJECT
 
@@ -99,6 +99,8 @@ protected slots:
   void clearUnusedReferentials();
   void splitReferential();
   void seeObjectsInReferential();
+  void set3DView();
+  void view3dDeleted();
 
 private:
   anatomist::ReferentialWindow_PrivateData	*pdat;

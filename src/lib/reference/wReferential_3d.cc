@@ -37,11 +37,23 @@
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/surface/surface.h>
+#include <anatomist/window/glwidgetmanager.h>
+#include <anatomist/window3D/control3D.h>
+#include <anatomist/window3D/trackball.h>
+#include <anatomist/reference/wReferential.h>
+#include <anatomist/application/settings.h>
+#include <anatomist/controler/controldictionary.h>
+#include <anatomist/controler/controlmanager.h>
+#include <anatomist/controler/actiondictionary.h>
+#include <anatomist/controler/icondictionary.h>
+#include <anatomist/controler/control_d.h>
 #include <aims/points_distribution/points_distribution.h>
 #include <aims/mesh/surfacegen.h>
+#include <aims/resampling/quaternion.h>
 #include <cartodata/volume/volume.h>
 #include <algorithm>
 #include <cfloat>
+#include <QMenu>
 
 using namespace anatomist;
 using namespace aims;
@@ -147,7 +159,7 @@ namespace
   }
 
 
-  void normalize_coords( vector<Point2df> & pos, Point2df offset,
+  void normalize_coords( map<Referential *, Point2df> & pos, Point2df offset,
                          const Point2df & bbox_min, const Point2df & bbox_max )
   {
     Point2df scales( bbox_max[0] - bbox_min[0], bbox_max[1] - bbox_min[1] );
@@ -162,12 +174,13 @@ namespace
     offset = Point2df( offset[0] / scales[0] - bbox_min[0],
                        offset[1] / scales[1] - bbox_min[1] );
 
-    vector<Point2df>::iterator ip, ep = pos.end();
+    map<Referential *, Point2df>::iterator ip, ep = pos.end();
     for( ip=pos.begin(); ip!=ep; ++ip )
     {
-      *ip += offset;
-      (*ip)[0] *= scales[0];
-      (*ip)[1] *= scales[1];
+      Point2df & pt = ip->second;
+      pt += offset;
+      pt[0] *= scales[0];
+      pt[1] *= scales[1];
     }
   }
 
@@ -223,20 +236,20 @@ namespace
     int x = 0;
     int y = 0;
     VolumeRef<uint8_t> used_spc( 1, 1 );
+    const set<Referential *> & all_refs = theAnatomist->getReferentials();
     set<Referential *>::const_iterator
-      ir, er = theAnatomist->getReferentials().end();
+      ir, er = all_refs.end();
     set<Referential *>::iterator not_done = done.end();
     map<Referential*, Point2df> *allpos = 0;
     map<Referential*, Point2df>::iterator ic, ec;
 
-    for( ir=theAnatomist->getReferentials().begin(); ir!=er; ++ir )
+    for( ir=all_refs.begin(); ir!=er; ++ir )
     {
       Referential *r0 = *ir;
       if( done.find( r0 ) == not_done )
       {
         map<Referential*, Point2df> *cc = plot_one_connected_component(
           *strans, r0 );
-        vector<Point2df> pts( cc->size() );
         Point2df bb_min( FLT_MAX ), bb_max( -FLT_MAX );
         int i = 0;
         for( ic=cc->begin(), ec=cc->end(); ic!=ec; ++ic, ++i )
@@ -251,11 +264,10 @@ namespace
             bb_min[1] = pos[1];
           if( pos[1] > bb_max[1] )
             bb_max[1] = pos[1];
-          pts[i] = pos;
         }
         Point2d xy = find_place( used_spc );
         Point2df offset( xy[0] * 2., xy[1] * 2. );
-        normalize_coords( pts, offset, bb_min, bb_max );
+        normalize_coords( *cc, offset, bb_min, bb_max );
         used_spc = store_place( used_spc, xy );
         if( !allpos )
         {
@@ -413,7 +425,7 @@ namespace
     float radius = 10.;
     AimsSurfaceTriangle *mesh;
     if( ref == theAnatomist->centralReferential() )
-      mesh = SurfaceGenerator::icosahedron( pos, radius );
+      mesh = SurfaceGenerator::icosahedron( pos, radius * 1.2 );
     else
       mesh = SurfaceGenerator::sphere( pos, radius, 200 );
     RefMesh *amesh = new RefMesh;
@@ -482,8 +494,303 @@ namespace
 
 // ---
 
-RefWindow::RefWindow() : AWindow3D(), _view_mode( Flat )
+class ReferentialMenu : public Action
 {
+public:
+  ReferentialMenu();
+  virtual ~ReferentialMenu() {}
+
+  static Action* creator() { return new ReferentialMenu; }
+  virtual std::string name() const { return "ReferentialMenu"; }
+
+  void popupMenu( int x, int y, int, int );
+  void backgroundMenu( int x, int y );
+  void referentialMenu( int x, int y, AObject *obj );
+  void transformationMenu( int x, int y, AObject *obj );
+};
+
+
+ReferentialMenu::ReferentialMenu() : Action()
+{
+}
+
+
+void ReferentialMenu::popupMenu( int x, int y, int, int )
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( !w )
+    return;
+  AObject *obj = w->objectAtCursorPosition( x, y );
+  if( !obj )
+    backgroundMenu( x, y );
+  else if( dynamic_cast<RefMesh *>( obj ) )
+    referentialMenu( x, y, obj );
+  else if( dynamic_cast<TransMesh *>( obj ) )
+    transformationMenu( x, y, obj );
+  else
+    backgroundMenu( x, y );
+}
+
+
+void ReferentialMenu::backgroundMenu( int x, int y )
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( !w )
+    return;
+  QMenu menu;
+  QWidget *parent = w->parentWidget();
+  if( !parent )
+    return;
+  menu.addAction( ReferentialWindow::tr( "New referential" ),
+                  parent, SLOT( newReferential() ) );
+  menu.addSeparator();
+  menu.addAction( RefWindow::tr( "Rebuild referentials positions" ),
+                  w, SLOT( updateReferentialView() ) );
+  menu.addAction( RefWindow::tr( "3D sphere mapping" ),
+                  w, SLOT( setSphereView() ) );
+  menu.addAction( RefWindow::tr( "3D flat mapping" ),
+                  w, SLOT( setFlatView() ) );
+  menu.addAction( RefWindow::tr( "Legacy 2D circle mapping" ),
+                  w, SLOT( close() ) );
+  menu.exec( static_cast<GLWidgetManager *>( view() )->
+    qglWidget()->mapToGlobal( QPoint( x, y ) ) );
+}
+
+
+void ReferentialMenu::referentialMenu( int x, int y, AObject *obj )
+{
+//   menu = QtGui.QMenu()
+//   menu.addAction('Objects in this referential')
+//   menu.addAction('Delete referential')
+//   menu.exec_(self.view().qglWidget().mapToGlobal(QtCore.QPoint(x, y)))
+}
+
+
+void ReferentialMenu::transformationMenu( int x, int y, AObject *obj )
+{
+//   menu = QtGui.QMenu()
+//   menu.addAction('Delete transformation')
+//   menu.exec_(self.view().qglWidget().mapToGlobal(QtCore.QPoint(x, y)))
+}
+
+// ---
+
+class TransformDrag : public Action
+{
+public:
+  TransformDrag();
+  virtual ~TransformDrag() {}
+
+  static Action* creator() { return new TransformDrag; }
+  virtual std::string name() const { return "TransformDrag"; }
+
+  void beginDrawTrans( int x, int y, int, int );
+  void beginDrawIdTrans( int x, int y, int, int );
+  void moveDrawTrans( int x, int y, int, int );
+  void endDrawTrans( int x, int y, int, int );
+
+private:
+  bool identity;
+  Point3df start_pos;
+  Point2df start_2d;
+  rc_ptr<ASurface<3> > drag_mesh;
+  RefMesh *start_ref;
+};
+
+
+TransformDrag::TransformDrag()
+  : Action(), identity( false ), start_pos( 0. ), start_2d( 0. ),
+    drag_mesh( 0 ), start_ref( 0 )
+{
+}
+
+
+void TransformDrag::beginDrawTrans( int x, int y, int, int )
+{
+  identity = false;
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( !w )
+    return;
+  AObject *obj = w->objectAtCursorPosition( x, y );
+  RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
+  if( rmesh )
+  {
+    start_ref = rmesh;
+    rmesh->attributed()->getProperty( "position", start_pos );
+    start_2d = Point2df( x, y );
+  }
+}
+
+
+void TransformDrag::beginDrawIdTrans( int x, int y, int dx, int dy )
+{
+  beginDrawTrans( x, y, dx, dy );
+  identity = true;
+}
+
+
+void TransformDrag::moveDrawTrans( int x, int y, int, int )
+{
+  if( !start_ref )
+    return;
+  GLWidgetManager *v = dynamic_cast<GLWidgetManager *>( view() );
+  if( !v )
+    return;
+  const Quaternion & quat = v->quaternion();
+  float zoom = v->zoom() * min( v->width(), v->height() );
+  Point3df bbox = v->windowBoundingMax() - v->windowBoundingMin();
+  Point3df vec( float( x - start_2d[0] ) / zoom * bbox[0],
+                float( start_2d[1] - y ) / zoom * bbox[1], 0. );
+  Point3df tvec = quat.transform( vec );
+  if( v->invertedX() )
+    tvec[0] *= -1;
+  if( v->invertedY() )
+    tvec[1] *= -1;
+  if( v->invertedZ() )
+    tvec[2] *= -1;
+  tvec += start_pos;
+
+  AimsSurfaceTriangle *mesh = SurfaceGenerator::arrow(
+    tvec, start_pos, 1., 3., 10, 0.2 );
+  if( !drag_mesh )
+  {
+    drag_mesh.reset( new ASurface<3> );
+    theAnatomist->registerObject( drag_mesh.get(), false );
+    theAnatomist->releaseObject( drag_mesh.get() );
+    Material & mat = drag_mesh->GetMaterial();
+    mat.SetDiffuse( 1., 0.8, 0.2, 0.5 );
+    drag_mesh->SetMaterial( mat );
+    AWindow *win = v->aWindow();
+    win->registerObject( drag_mesh.get(), true );
+  }
+  else
+  {
+    drag_mesh->setSurface( mesh );
+    drag_mesh->notifyObservers( this );
+  }
+}
+
+
+void TransformDrag::endDrawTrans( int x, int y, int, int )
+{
+  if( drag_mesh )
+  {
+    RefWindow *w = static_cast<RefWindow *>( view()->aWindow() );
+    AObject *obj = w->objectAtCursorPosition( x, y );
+    RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
+    if( rmesh && rmesh != start_ref )
+    {
+      cout << "load: " << obj << endl;
+    }
+    start_ref = 0;
+    w->unregisterObject( drag_mesh.get() );
+    drag_mesh.reset( 0 );
+  }
+};
+
+
+// ---
+
+class RefTransControl : public Control
+{
+public:
+  RefTransControl( int prio = 1 );
+  virtual ~RefTransControl() {}
+
+  static Control* creator() { return new RefTransControl; }
+
+  virtual void eventAutoSubscription( ActionPool *pool );
+};
+
+
+RefTransControl::RefTransControl( int prio )
+  : Control( prio, "RefTransControl" )
+{
+}
+
+
+void RefTransControl::eventAutoSubscription( ActionPool* pool )
+{
+  mouseLongEventSubscribe(
+    Qt::MidButton, Qt::NoModifier,
+    MouseActionLinkOf<ContinuousTrackball>(
+      pool->action( "ContinuousTrackball" ),
+      &ContinuousTrackball::beginTrackball ),
+    MouseActionLinkOf<ContinuousTrackball>
+    ( pool->action( "ContinuousTrackball" ),
+      &ContinuousTrackball::moveTrackball ),
+    MouseActionLinkOf<ContinuousTrackball>
+    ( pool->action( "ContinuousTrackball" ),
+      &ContinuousTrackball::endTrackball ), true );
+  mouseLongEventSubscribe
+  ( Qt::MidButton, Qt::ShiftModifier,
+    MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
+                                      &Zoom3DAction::beginZoom ),
+    MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
+                                      &Zoom3DAction::moveZoom ),
+    MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
+                                      &Zoom3DAction::endZoom ), true );
+  wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
+                       ( pool->action( "Zoom3DAction" ),
+                         &Zoom3DAction::zoomWheel ) );
+  mouseLongEventSubscribe
+  ( Qt::MidButton, Qt::ControlModifier,
+    MouseActionLinkOf<Translate3DAction>
+    ( pool->action( "Translate3DAction" ),
+      &Translate3DAction::beginTranslate ),
+    MouseActionLinkOf<Translate3DAction>
+    ( pool->action( "Translate3DAction" ),
+      &Translate3DAction::moveTranslate ),
+    MouseActionLinkOf<Translate3DAction>
+    ( pool->action( "Translate3DAction" ),
+      &Translate3DAction::endTranslate ), true );
+  mousePressButtonEventSubscribe(
+    Qt::RightButton, Qt::NoModifier,
+    MouseActionLinkOf<ReferentialMenu>(
+      pool->action( "ReferentialMenu" ), &ReferentialMenu::popupMenu ) );
+  mouseLongEventSubscribe(
+    Qt::LeftButton, Qt::NoModifier,
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::beginDrawTrans ),
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::moveDrawTrans ),
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::endDrawTrans ), true );
+  mouseLongEventSubscribe(
+    Qt::LeftButton, Qt::ControlModifier,
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::beginDrawIdTrans ),
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::moveDrawTrans ),
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::endDrawTrans ),
+    true );
+}
+
+// ---
+
+RefWindow::RefWindow() : AWindow3D( AWindow3D::ThreeD ), _view_mode( Flat )
+{
+  static bool first_time = true;
+  if( first_time )
+  {
+    first_time = false;
+    QPixmap pix( Settings::findResourceFile(
+      "icons/simple3Dcontrol.png" ).c_str() );
+    IconDictionary::instance()->addIcon( "RefTransControl", pix );
+
+    ActionDictionary *ad = ActionDictionary::instance();
+    ad->addAction( "ReferentialMenu", &ReferentialMenu::creator );
+    ad->addAction( "TransformDrag", &TransformDrag::creator );
+    ControlDictionary::instance()->addControl( "RefTransControl",
+                                               &RefTransControl::creator, 1 );
+    ControlManager::instance()->addControl( "QAGLWidget3D", "",
+                                            "RefTransControl" );
+  }
+
+  updateControls();
+  view()->controlSwitch()->setActiveControl( "RefTransControl" );
+  view()->controlSwitch()->notifyActiveControlChange();
 }
 
 
@@ -494,6 +801,8 @@ RefWindow::~RefWindow()
 
 void RefWindow::updateReferentialView()
 {
+  using anatomist::Transformation;
+
   vector<Referential *> excluded;
   set<Referential *> excluded_set;
   if( _view_mode == Sphere )
@@ -501,10 +810,11 @@ void RefWindow::updateReferentialView()
   excluded_set.insert( excluded.begin(), excluded.end() );
   set<Referential *>::iterator included = excluded_set.end();
   vector<Referential *> refs = excluded;
-  refs.reserve( theAnatomist->getReferentials().size() );
+  const set<Referential *> & all_refs = theAnatomist->getReferentials();
+  refs.reserve( all_refs.size() );
   set<Referential *>::const_iterator
-    ir, er = theAnatomist->getReferentials().end();
-  for( ir=theAnatomist->getReferentials().begin(); ir!=er; ++ir )
+    ir, er = all_refs.end();
+  for( ir=all_refs.begin(); ir!=er; ++ir )
     if( excluded_set.find( *ir ) == included )
       refs.push_back( *ir );
 
@@ -551,7 +861,8 @@ void RefWindow::updateReferentialView()
 
   map<Transformation *, rc_ptr<AObject> > atrans;
   map<Referential *, set<Referential *> > tr_set;
-  map<Referential *, set<Referential *> >::iterator not_done = tr_set.end();
+  map<Referential *, set<Referential *> >::iterator
+    itr, not_done = tr_set.end();
 
   for( it=trans.begin(); it!=et; ++it )
   {
@@ -569,18 +880,15 @@ void RefWindow::updateReferentialView()
   // invisible trans
   for( it=trans.begin(); it!=et; ++it )
   {
+    tr = *it;
     s = tr->source();
     d = tr->destination();
-    if( tr_set.find( s ) == not_done )
-    {
-      set<Referential *> & sr = tr_set[s];
-      if( sr.find( d ) == sr.end() )
-      {
-        atrans[ tr ] = createTransMesh( tr, arefs );
-        tr_set[s].insert( d );
-        tr_set[d].insert( s );
-      }
-    }
+    itr = tr_set.find( s );
+    if( itr != not_done && itr->second.find( d ) != itr->second.end() )
+      continue;
+    atrans[ tr ] = createTransMesh( tr, arefs );
+    tr_set[s].insert( d );
+    tr_set[d].insert( s );
   }
 
   // remove former objects

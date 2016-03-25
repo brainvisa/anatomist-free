@@ -36,11 +36,14 @@
 
 #include <anatomist/window3D/window3D.h>
 
+
 namespace anatomist
 {
 
   class RefWindow : public AWindow3D
   {
+    Q_OBJECT
+
   public:
     enum ViewType
     {
@@ -59,8 +62,10 @@ namespace anatomist
 
   private:
     ViewType _view_mode;
-    std::map<Referential *, carto::rc_ptr<AObject> > _referentials;
-    std::map<Transformation *, carto::rc_ptr<AObject> > _transformations;
+    std::map<anatomist::Referential *, carto::rc_ptr<anatomist::AObject> >
+      _referentials;
+    std::map<anatomist::Transformation *, carto::rc_ptr<anatomist::AObject> >
+      _transformations;
   };
 
 }
