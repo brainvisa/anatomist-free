@@ -132,7 +132,7 @@ namespace anatomist
     std::string makeObjectName( const std::string & name );
     std::set<AObject* > getObjects() const;
     std::set<AWindow*> getWindows() const;
-    std::set<Referential*> getReferentials() const;
+    const std::set<Referential*> & getReferentials() const;
     bool hasReferential( const Referential * );
     Transformation* getTransformation( const Referential*, 
 				       const Referential* );

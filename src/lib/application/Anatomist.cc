@@ -1465,7 +1465,7 @@ set<AWindow*> Anatomist::getWindows() const
 }
 
 
-set<Referential*> Anatomist::getReferentials() const
+const set<Referential*> & Anatomist::getReferentials() const
 {
   return _privData->anaRef;
 }
