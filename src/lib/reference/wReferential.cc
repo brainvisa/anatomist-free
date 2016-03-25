@@ -64,6 +64,7 @@
 #include <qmenu.h>
 #include <qaction.h>
 #include <qicon.h>
+#include <QTimer>
 
 
 using namespace anatomist;
@@ -204,7 +205,8 @@ namespace anatomist
   {
     ReferentialWindow_PrivateData() 
       : srcref( 0 ), dstref( 0 ), trans( 0 ), tracking( false ), refmenu( 0 ),
-      bgmenu( 0 ), view2d( 0 ), view3d( 0 ), has_changed( true )
+      bgmenu( 0 ), view2d( 0 ), view3d( 0 ), has_changed( true ),
+      refreshtimer( 0 ), refreshneeded( false )
     {}
 
     Referential			*srcref;
@@ -227,6 +229,8 @@ namespace anatomist
     RefWindow                   *view3d;
     rc_ptr<AWindow>             view3d_ref;
     bool                        has_changed;
+    QTimer                      *refreshtimer;
+    bool                        refreshneeded;
   };
 
 }
@@ -246,7 +250,7 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
   pdat->view2d->setSizePolicy( QSizePolicy::Ignored,
                                QSizePolicy::Ignored );
   lay->addWidget( pdat->view2d );
-  resize( 300, 300 );
+  resize( 500, 400 );
   pdat->view2d->setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
@@ -274,7 +278,7 @@ void ReferentialWindow::closeEvent( QCloseEvent * ev )
 void ReferentialWindow::resizeEvent( QResizeEvent* ev )
 {
   QWidget::resizeEvent( ev );
-  refresh();
+  refresh( true );
 }
 
 
@@ -326,7 +330,6 @@ void ReferentialWindow::loadTransformation( const string & filename )
   LoadTransformationCommand	*com 
     = new LoadTransformationCommand( filename, pdat->srcref, pdat->dstref );
   theProcessor->execute( com );
-  pdat->has_changed = true;
   refresh();
 }
 
@@ -351,8 +354,30 @@ void ReferentialWindow::saveTransformation( const string & filename )
 }
 
 
-void ReferentialWindow::refresh()
+void ReferentialWindow::refresh( bool partial )
 {
+  if( !partial )
+    pdat->has_changed = true;
+
+  if( !pdat->refreshtimer )
+  {
+    pdat->refreshtimer = new QTimer( this );
+    pdat->refreshtimer->setObjectName( "ReferentialWindow_refreshtimer" );
+    connect( pdat->refreshtimer, SIGNAL( timeout() ), this,
+            SLOT( refreshNow() ) );
+  }
+  if( !pdat->refreshneeded )
+  {
+    pdat->refreshneeded = true;
+    pdat->refreshtimer->setSingleShot( true );
+    pdat->refreshtimer->start( 30 );
+  }
+}
+
+
+void ReferentialWindow::refreshNow()
+{
+  pdat->refreshneeded = false;
   pdat->refpos.clear();
   if( pdat->view3d && pdat->has_changed )
     pdat->view3d->updateReferentialView();
@@ -565,7 +590,6 @@ void ReferentialWindow::addTransformationGui( Referential* source,
     LoadTransformationCommand	*com
       = new LoadTransformationCommand( matrix, source, dest );
     theProcessor->execute( com );
-    pdat->has_changed = true;
     refresh();
   }
   else
@@ -840,17 +864,13 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
 void ReferentialWindow::deleteReferential()
 {
   delete pdat->srcref;
-  pdat->has_changed = true;
   theAnatomist->Refresh();
-  refresh();
 }
 
 
 void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 {
   delete trans;
-  pdat->has_changed = true;
-  refresh();
 
   set<AWindow *>		win = theAnatomist->getWindows();
   set<AWindow*>::iterator	iw, fw = win.end();
@@ -983,7 +1003,6 @@ void ReferentialWindow::clearUnusedReferentials()
     else
       ++i;
   }
-  pdat->has_changed = true;
   refresh();
 }
 

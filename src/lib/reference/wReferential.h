@@ -62,7 +62,7 @@ public:
   virtual ~ReferentialWindow();
 
   /// updates contents (new referentials or transformations...)
-  void refresh();
+  void refresh( bool partial = false );
 
   anatomist::Referential* refAt( const QPoint & pos, QPoint & newpos );
   anatomist::Transformation* transfAt( const QPoint & pos );
@@ -101,9 +101,7 @@ protected:
   void invertTransformation( anatomist::Transformation* );
   void reloadTransformation( anatomist::Transformation* );
   void saveTransformation( anatomist::Transformation* );
-#if QT_VERSION >= 0x040000
   virtual bool event( QEvent* );
-#endif
 
 protected slots:
   void deleteReferential();
@@ -115,6 +113,7 @@ protected slots:
   void seeObjectsInReferential();
   void set3DView();
   void view3dDeleted();
+  void refreshNow();
 
 private:
   anatomist::ReferentialWindow_PrivateData	*pdat;

@@ -510,13 +510,13 @@ namespace
     Material & mat = atr->GetMaterial();
     if( !tr->isGenerated() )
     {
-      mesh = SurfaceGenerator::arrow( dpos, spos, 1., 3., 10, 0.2 );
+      mesh = SurfaceGenerator::arrow( dpos, spos, 2., 5., 10, 0.2 );
       mat.SetDiffuse( 0.8, 0.6, 0.4, 1. );
     }
     else
     {
-      mesh = SurfaceGenerator::cylinder( dpos, spos, 1., 1., 4, false, false );
-      mat.SetDiffuse( 0.8, 0.8, 0.8, 0.1 );
+      mesh = SurfaceGenerator::cylinder( dpos, spos, 2., 2., 4, false, false );
+      mat.SetDiffuse( 0.8, 0.8, 0.8, 0.03 );
     }
     theAnatomist->registerObject( atr, false );
     theAnatomist->releaseObject( atr );
