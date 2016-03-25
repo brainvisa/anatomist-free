@@ -2444,6 +2444,53 @@ void WindowActions::toggleFullScreen()
 }
 
 
+void WindowActions::focusView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+    w->focusView();
+}
+
+
+void WindowActions::focusAxialView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+  {
+    Quaternion quat( 0., 0., 0., 1. );
+    GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+    v->setQuaternion( quat );
+    w->focusView();
+  }
+}
+
+
+void WindowActions::focusCoronalView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+  {
+    Quaternion quat( 1. / sqrt( 2. ), 0., 0., 1. / sqrt( 2. ) );
+    GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+    v->setQuaternion( quat );
+    w->focusView();
+  }
+}
+
+
+void WindowActions::focusSagittelView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+  {
+    Quaternion quat( -0.5, -0.5, -0.5, 0.5 );
+    GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+    v->setQuaternion( quat );
+    w->focusView();
+  }
+}
+
+
 SortMeshesPolygonsAction::SortMeshesPolygonsAction()
   : Action()
 {

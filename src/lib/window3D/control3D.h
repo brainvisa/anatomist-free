@@ -142,6 +142,10 @@ namespace anatomist
     void close();
     void toggleShowTools();
     void toggleFullScreen();
+    void focusView();
+    void focusAxialView();
+    void focusCoronalView();
+    void focusSagittelView();
 
     QWidget* actionView( QWidget* parent );
     bool viewableAction() const;

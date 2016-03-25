@@ -1328,40 +1328,78 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   }
 }
 
+
+Point3df GLWidgetManager::objectPositionFromWindow( const Point3df & winpos )
+{
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
+  setupView();
+
+  float y = _pd->glwidget->height() - 1 - winpos[1];
+
+  // from window coordinates to object coordinates
+  // see "OpenGL programming Guide, Second Edition", p. 149
+  GLint viewport[4];
+  GLdouble mmatrix[16];
+  GLdouble pmatrix[16];
+  GLdouble wx, wy, wz;
+  glGetIntegerv( GL_VIEWPORT, viewport );
+  glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
+  glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
+  gluUnProject( winpos[0], y, winpos[2],
+                mmatrix, pmatrix, viewport,
+                &wx, &wy, &wz);
+
+  Point3df position( wx, wy, wz );
+
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+
+  return position;
+}
+
 bool GLWidgetManager::cursorFromPosition( const Point3df & position, Point3df & cursor )
 {
-	_pd->glwidget->makeCurrent();
-	glMatrixMode( GL_MODELVIEW );
-	glPushMatrix();
-	glMatrixMode( GL_PROJECTION );
-	glPushMatrix();
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
 
-	updateZBuffer();
-	setupView();
+//   updateZBuffer();
+  setupView();
 
-	GLint viewport[4];
-	GLdouble mmatrix[16];
-	GLdouble pmatrix[16];
-	GLdouble ox, oy, oz;
-	glGetIntegerv( GL_VIEWPORT, viewport );
-	glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
-	glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
-	gluProject( (GLdouble) position[0], (GLdouble) position[1], (GLdouble) position[2],
-				  mmatrix, pmatrix, viewport,
-				  &ox, &oy, &oz);
+  GLint viewport[4];
+  GLdouble mmatrix[16];
+  GLdouble pmatrix[16];
+  GLdouble ox, oy, oz;
+  glGetIntegerv( GL_VIEWPORT, viewport );
+  glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
+  glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
+  gluProject( (GLdouble) position[0], (GLdouble) position[1],
+              (GLdouble) position[2],
+              mmatrix, pmatrix, viewport,
+              &ox, &oy, &oz);
 
-	oy = _pd->glwidget->height() - 1 - oy;
+  oy = _pd->glwidget->height() - 1 - oy;
 
-	cursor[0] = ox;
-	cursor[1] = oy;
+  cursor[0] = ox;
+  cursor[1] = oy;
 
-	glMatrixMode( GL_PROJECTION );
-	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
-	glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
 
-	return true;
+  return true;
 }
+
 
 void GLWidgetManager::copyBackBuffer2Texture(void)
 {

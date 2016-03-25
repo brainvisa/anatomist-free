@@ -478,7 +478,7 @@ namespace
     else
     {
       mesh = SurfaceGenerator::cylinder( dpos, spos, 1., 1., 4, false, false );
-      mat.SetDiffuse( 0.8, 0.8, 0.8, 0.2 );
+      mat.SetDiffuse( 0.8, 0.8, 0.8, 0.1 );
     }
     theAnatomist->registerObject( atr, false );
     theAnatomist->releaseObject( atr );
@@ -507,6 +507,7 @@ public:
   void backgroundMenu( int x, int y );
   void referentialMenu( int x, int y, AObject *obj );
   void transformationMenu( int x, int y, AObject *obj );
+  void refreshView();
 };
 
 
@@ -550,7 +551,7 @@ void ReferentialMenu::backgroundMenu( int x, int y )
   menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
                   SLOT( clearUnusedReferentials() ) );
   menu.addSeparator();
-  menu.addAction( RefWindow::tr( "Rebuild referentials positions" ),
+  menu.addAction( RefWindow::tr( "Rebuild referentials positions (F5)" ),
                   w, SLOT( updateReferentialView() ) );
   menu.addAction( RefWindow::tr( "3D sphere view" ),
                   w, SLOT( setSphereView() ) );
@@ -621,6 +622,14 @@ void ReferentialMenu::transformationMenu( int x, int y, AObject *obj )
   }
 }
 
+
+void ReferentialMenu::refreshView()
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( w )
+    w->updateReferentialView();
+}
+
 // ---
 
 class TransformDrag : public Action
@@ -684,19 +693,8 @@ void TransformDrag::moveDrawTrans( int x, int y, int, int )
   GLWidgetManager *v = dynamic_cast<GLWidgetManager *>( view() );
   if( !v )
     return;
-  const Quaternion & quat = v->quaternion();
-  float zoom = v->zoom() * min( v->width(), v->height() );
-  Point3df bbox = v->windowBoundingMax() - v->windowBoundingMin();
-  Point3df vec( float( x - start_2d[0] ) / zoom * bbox[0],
-                float( start_2d[1] - y ) / zoom * bbox[1], 0. );
-  Point3df tvec = quat.transform( vec );
-  if( v->invertedX() )
-    tvec[0] *= -1;
-  if( v->invertedY() )
-    tvec[1] *= -1;
-  if( v->invertedZ() )
-    tvec[2] *= -1;
-  tvec += start_pos;
+
+  Point3df tvec = v->objectPositionFromWindow( Point3df( x, y, 0. ) );
 
   AimsSurfaceTriangle *mesh = SurfaceGenerator::arrow(
     tvec, start_pos, 1., 3., 10, 0.2 );
@@ -726,7 +724,9 @@ void TransformDrag::endDrawTrans( int x, int y, int, int )
     RefWindow *w = static_cast<RefWindow *>( view()->aWindow() );
     AObject *obj = w->objectAtCursorPosition( x, y );
     RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
-    if( rmesh && rmesh != start_ref )
+    if( rmesh && rmesh != start_ref
+      && !ATransformSet::instance()->transformation( start_ref->referential,
+                                                     rmesh->referential ) )
     {
       ReferentialWindow *rwin
         = dynamic_cast<ReferentialWindow *>( w->parentWidget() );
@@ -799,10 +799,16 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
     MouseActionLinkOf<Translate3DAction>
     ( pool->action( "Translate3DAction" ),
       &Translate3DAction::endTranslate ), true );
+
   mousePressButtonEventSubscribe(
     Qt::RightButton, Qt::NoModifier,
     MouseActionLinkOf<ReferentialMenu>(
       pool->action( "ReferentialMenu" ), &ReferentialMenu::popupMenu ) );
+  keyPressEventSubscribe( Qt::Key_F5, Qt::NoModifier,
+      KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
+                                      &ReferentialMenu::refreshView ),
+      "refresh" );
+
   mouseLongEventSubscribe(
     Qt::LeftButton, Qt::NoModifier,
     MouseActionLinkOf<TransformDrag>(
@@ -811,6 +817,7 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
       pool->action( "TransformDrag" ), &TransformDrag::moveDrawTrans ),
     MouseActionLinkOf<TransformDrag>(
       pool->action( "TransformDrag" ), &TransformDrag::endDrawTrans ), true );
+
   mouseLongEventSubscribe(
     Qt::LeftButton, Qt::ControlModifier,
     MouseActionLinkOf<TransformDrag>(
@@ -820,6 +827,15 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
     MouseActionLinkOf<TransformDrag>(
       pool->action( "TransformDrag" ), &TransformDrag::endDrawTrans ),
     true );
+
+  keyPressEventSubscribe( Qt::Key_Home, Qt::NoModifier,
+      KeyActionLinkOf<WindowActions>( pool->action( "WindowActions" ),
+                                      &WindowActions::focusView ), "focus" );
+  keyPressEventSubscribe( Qt::Key_Return, Qt::NoModifier,
+      KeyActionLinkOf<WindowActions>( pool->action( "WindowActions" ),
+                                      &WindowActions::focusCoronalView ),
+      "focus_coronal" );
+
 }
 
 // ---
@@ -849,12 +865,22 @@ namespace
     return pos;
   }
 
+
+  Object _ref_win_options()
+  {
+    Object options = Object::value( Dictionary() );
+
+    options->setProperty( "no_decoration", true );
+
+    return options;
+  }
+
 }
 
 // ---
 
 RefWindow::RefWindow()
-  : AWindow3D( AWindow3D::ThreeD ), _view_mode( Flat ),
+  : AWindow3D( AWindow3D::ThreeD, 0, _ref_win_options() ), _view_mode( Flat ),
     _disable_shuffle( false )
 {
   static bool first_time = true;
@@ -874,6 +900,7 @@ RefWindow::RefWindow()
                                             "RefTransControl" );
   }
 
+  setHasCursor( false );
   updateControls();
   view()->controlSwitch()->setActiveControl( "RefTransControl" );
   view()->controlSwitch()->notifyActiveControlChange();
@@ -942,7 +969,13 @@ void RefWindow::updateReferentialView()
   else
   {
     if( _view_mode == Flat )
+    {
       refpos = get_flat_pos( Point3df( 0., 0., 0. ), 150., links );
+      // go back to coronal orientation
+      Quaternion quat( 1. / sqrt( 2. ), 0., 0., 1. / sqrt( 2. ) );
+      GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+      v->setQuaternion( quat );
+    }
     else
       refpos = get_sphere_pos( 0, Point3df( 0., 0., 0. ), 100., links );
   }
