@@ -1017,6 +1017,8 @@ void ReferentialWindow::clearUnusedReferentials()
     else
       ++i;
   }
+  pdat->has_changed = true;
+  refresh();
 }
 
 

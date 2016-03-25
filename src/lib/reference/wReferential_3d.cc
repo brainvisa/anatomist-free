@@ -508,6 +508,9 @@ public:
   void referentialMenu( int x, int y, AObject *obj );
   void transformationMenu( int x, int y, AObject *obj );
   void refreshView();
+  void sphereView();
+  void flatView();
+  void legacy2DView();
 };
 
 
@@ -551,14 +554,19 @@ void ReferentialMenu::backgroundMenu( int x, int y )
   menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
                   SLOT( clearUnusedReferentials() ) );
   menu.addSeparator();
+  menu.addAction( RefWindow::tr( "3D sphere view (S)" ),
+                  w, SLOT( setSphereView() ) );
+  menu.addAction( RefWindow::tr( "3D flat view (F)" ),
+                  w, SLOT( setFlatView() ) );
+  menu.addAction( RefWindow::tr( "Legacy 2D circle view (L)" ),
+                  w, SLOT( close() ) );
+  menu.addSeparator();
   menu.addAction( RefWindow::tr( "Rebuild referentials positions (F5)" ),
                   w, SLOT( updateReferentialView() ) );
-  menu.addAction( RefWindow::tr( "3D sphere view" ),
-                  w, SLOT( setSphereView() ) );
-  menu.addAction( RefWindow::tr( "3D flat view" ),
-                  w, SLOT( setFlatView() ) );
-  menu.addAction( RefWindow::tr( "Legacy 2D circle view" ),
-                  w, SLOT( close() ) );
+  menu.addAction( RefWindow::tr( "Focus view (Home)" ),
+                  w, SLOT( focusView() ) );
+  menu.addAction( RefWindow::tr( "Reset view orientation (Return)" ),
+                  w, SLOT( muteCoronal() ) );
   menu.exec( static_cast<GLWidgetManager *>( view() )->
     qglWidget()->mapToGlobal( QPoint( x, y ) ) );
 }
@@ -629,6 +637,31 @@ void ReferentialMenu::refreshView()
   if( w )
     w->updateReferentialView();
 }
+
+
+void ReferentialMenu::sphereView()
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( w )
+    w->setSphereView();
+}
+
+
+void ReferentialMenu::flatView()
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( w )
+    w->setFlatView();
+}
+
+
+void ReferentialMenu::legacy2DView()
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( w )
+    w->close();
+}
+
 
 // ---
 
@@ -808,6 +841,18 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
       KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
                                       &ReferentialMenu::refreshView ),
       "refresh" );
+  keyPressEventSubscribe( Qt::Key_S, Qt::NoModifier,
+      KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
+                                      &ReferentialMenu::sphereView ),
+      "sphere_view" );
+  keyPressEventSubscribe( Qt::Key_F, Qt::NoModifier,
+      KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
+                                      &ReferentialMenu::flatView ),
+      "flat_view" );
+  keyPressEventSubscribe( Qt::Key_L, Qt::NoModifier,
+      KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
+                                      &ReferentialMenu::legacy2DView ),
+      "2d_view" );
 
   mouseLongEventSubscribe(
     Qt::LeftButton, Qt::NoModifier,
