@@ -81,6 +81,7 @@ public:
   virtual void SelectObject( anatomist::AObject *obj );
   virtual bool isObjectSelected( anatomist::AObject* obj ) const;
   virtual void UnselectAll();
+  bool hasObject( anatomist::AObject *obj ) const;
 
   ///	Are reference colors markers visible ?
   virtual bool ViewingRefColors() const;

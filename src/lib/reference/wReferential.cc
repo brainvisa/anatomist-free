@@ -48,6 +48,7 @@
 #include <anatomist/commands/cAddObject.h>
 #include <anatomist/reference/wReferential_3d.h>
 #include <anatomist/misc/error.h>
+#include <anatomist/mobject/MObject.h>
 #include <aims/def/general.h>
 #include <QMouseEvent>
 #include <cartobase/object/pythonwriter.h>
@@ -165,6 +166,31 @@ namespace
         ReferentialWindow::unlinkFiles( temp );
       }
     }
+  }
+
+
+  set<AObject *> objectsInReferential( Referential *ref )
+  {
+    const set<AObject *> & objs = theAnatomist->getObjects();
+    set<AObject *>::const_iterator io, eo = objs.end();
+    set<AObject *> selobj;
+    ControlWindow *ctrl = theAnatomist->getControlWindow();
+    for( io=objs.begin(); io!=eo; ++io )
+      if( (*io)->getReferential() == ref
+        && theAnatomist->hasObject( *io )
+        && (!ctrl || ctrl->hasObject( *io ) ) ) // skip hidden objects
+      {
+        const AObject::ParentList & parents = (*io)->parents();
+        AObject::ParentList::const_iterator ip, ep = parents.end();
+        for( ip=parents.begin(); ip!=ep; ++ip )
+          if( (*ip)->getReferential() == ref )
+            // parent with same referential: drop the child, get just the parent
+            break;
+        if( ip == ep )
+          selobj.insert( *io );
+      }
+
+    return selobj;
   }
 
 }
@@ -1121,15 +1147,10 @@ void ReferentialWindow::splitReferential()
 
 void ReferentialWindow::seeObjectsInReferential()
 {
-  set<AObject *> objs = theAnatomist->getObjects();
-  set<AObject *>::iterator io, eo = objs.end();
   CreateWindowCommand *wc = new CreateWindowCommand( "Browser" );
   theProcessor->execute( wc );
   AWindow *win = wc->createdWindow();
-  set<AObject *> selobj;
-  for( io=objs.begin(); io!=eo; ++io )
-    if( (*io)->getReferential() == pdat->srcref )
-      selobj.insert( *io );
+  set<AObject *> selobj = objectsInReferential( pdat->srcref );
   if( !selobj.empty() )
   {
     set<AWindow *> winset;
@@ -1224,6 +1245,20 @@ QString ReferentialWindow::referentialToolTipText(
   exclude.insert( "name" );
   exclude.insert( "uuid" );
   text += headerPrint( ph, exclude );
+
+  set<AObject *> objs = objectsInReferential( ref );
+  set<AObject *>::const_iterator io, eo = objs.end();
+
+  if( !objs.empty() )
+  {
+    text += "<h4>Objects in this referential:</h4><ul>";
+    unsigned i = 0;
+    for( io=objs.begin(); io!=eo && i<10; ++io, ++i )
+      text += QString( "<li>" ) + (*io)->name().c_str() + "</li>";
+    if( objs.size() > 10 )
+      text += "<li>...</li>";
+    text += "</ul>";
+  }
 
   return text;
 }

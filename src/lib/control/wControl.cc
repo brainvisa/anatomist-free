@@ -457,6 +457,12 @@ set<AWindow*> ControlWindow::selectedWindows()
 }
 
 
+bool ControlWindow::hasObject( AObject *obj ) const
+{
+  return d->objList->hasObject( obj );
+}
+
+
 set<int> ControlWindow::SelectedWinGroups() const
 {
   return( d->winList->SelectedGroups() );
