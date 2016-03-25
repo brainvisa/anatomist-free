@@ -55,6 +55,8 @@ namespace anatomist
     RefWindow();
     virtual ~RefWindow();
 
+    void tempDisableShuffle( bool disable = true );
+
   public slots:
     void updateReferentialView();
     void setSphereView();
@@ -66,6 +68,7 @@ namespace anatomist
       _referentials;
     std::map<anatomist::Transformation *, carto::rc_ptr<anatomist::AObject> >
       _transformations;
+    bool _disable_shuffle;
   };
 
 }

@@ -68,6 +68,14 @@ public:
   anatomist::Transformation* transfAt( const QPoint & pos );
   std::vector<anatomist::Transformation*> transformsAt( const QPoint & pos );
 
+  void popupRefMenu( const QPoint & pos, anatomist::Referential* ref );
+  void popupTransfMenu(
+    const QPoint & pos,
+    const std::vector<anatomist::Transformation *> & trans );
+  void addTransformationGui( anatomist::Referential* source,
+                             anatomist::Referential* dest,
+                             bool identity = false );
+
 protected:
   ///	opens the file selection dialog to choose a transformation
   void openSelectBox();

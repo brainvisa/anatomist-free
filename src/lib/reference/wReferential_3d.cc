@@ -392,7 +392,7 @@ namespace
          crossing transformations */
       Point3df & p = *ip;
       p[0] = p[0] * radius - center[0];
-      p[1] = frand() * radius - center[1];
+      p[1] = frand() * 0.5 * radius - center[1];
       p[2] = p[2] * radius - center[2];
     }
     return pos;
@@ -543,14 +543,20 @@ void ReferentialMenu::backgroundMenu( int x, int y )
     return;
   menu.addAction( ReferentialWindow::tr( "New referential" ),
                   parent, SLOT( newReferential() ) );
+  menu.addAction( ReferentialWindow:: tr( "Load referential" ), parent,
+                  SLOT( loadReferential() ) );
+  menu.addAction( ReferentialWindow::tr( "Load transformation" ), parent,
+                  SLOT( loadNewTransformation() ) );
+  menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
+                  SLOT( clearUnusedReferentials() ) );
   menu.addSeparator();
   menu.addAction( RefWindow::tr( "Rebuild referentials positions" ),
                   w, SLOT( updateReferentialView() ) );
-  menu.addAction( RefWindow::tr( "3D sphere mapping" ),
+  menu.addAction( RefWindow::tr( "3D sphere view" ),
                   w, SLOT( setSphereView() ) );
-  menu.addAction( RefWindow::tr( "3D flat mapping" ),
+  menu.addAction( RefWindow::tr( "3D flat view" ),
                   w, SLOT( setFlatView() ) );
-  menu.addAction( RefWindow::tr( "Legacy 2D circle mapping" ),
+  menu.addAction( RefWindow::tr( "Legacy 2D circle view" ),
                   w, SLOT( close() ) );
   menu.exec( static_cast<GLWidgetManager *>( view() )->
     qglWidget()->mapToGlobal( QPoint( x, y ) ) );
@@ -559,18 +565,60 @@ void ReferentialMenu::backgroundMenu( int x, int y )
 
 void ReferentialMenu::referentialMenu( int x, int y, AObject *obj )
 {
-//   menu = QtGui.QMenu()
-//   menu.addAction('Objects in this referential')
-//   menu.addAction('Delete referential')
-//   menu.exec_(self.view().qglWidget().mapToGlobal(QtCore.QPoint(x, y)))
+  RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
+  if( rmesh )
+  {
+    Referential *ref = rmesh->referential;
+    RefWindow *win = dynamic_cast<RefWindow *>( view()->aWindow() );
+    if( win )
+    {
+      QWidget *parent = win->parentWidget();
+      if( parent )
+      {
+        ReferentialWindow *refwin
+          = dynamic_cast<ReferentialWindow *>( parent );
+        if( refwin )
+        {
+          QPoint pos = static_cast<GLWidgetManager *>( view() )->
+            qglWidget()->mapTo( refwin, QPoint( x, y ) );
+          refwin->popupRefMenu( pos, ref );
+        }
+      }
+    }
+  }
 }
 
 
 void ReferentialMenu::transformationMenu( int x, int y, AObject *obj )
 {
-//   menu = QtGui.QMenu()
-//   menu.addAction('Delete transformation')
-//   menu.exec_(self.view().qglWidget().mapToGlobal(QtCore.QPoint(x, y)))
+  using anatomist::Transformation;
+
+  TransMesh *tmesh = dynamic_cast<TransMesh *>( obj );
+  if( tmesh )
+  {
+    Transformation* tr = tmesh->transformation;
+    RefWindow *win = dynamic_cast<RefWindow *>( view()->aWindow() );
+    if( win )
+    {
+      QWidget *parent = win->parentWidget();
+      if( parent )
+      {
+        ReferentialWindow *refwin
+          = dynamic_cast<ReferentialWindow *>( parent );
+        if( refwin )
+        {
+          QPoint pos = static_cast<GLWidgetManager *>( view() )->
+            qglWidget()->mapTo( refwin, QPoint( x, y ) );
+          vector<Transformation *> tvec;
+          tvec.push_back( tr );
+          // add inverse trans
+          tvec.push_back( ATransformSet::instance()->transformation(
+            tr->destination(), tr->source() ) );
+          refwin->popupTransfMenu( pos, tvec );
+        }
+      }
+    }
+  }
 }
 
 // ---
@@ -680,7 +728,14 @@ void TransformDrag::endDrawTrans( int x, int y, int, int )
     RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
     if( rmesh && rmesh != start_ref )
     {
-      cout << "load: " << obj << endl;
+      ReferentialWindow *rwin
+        = dynamic_cast<ReferentialWindow *>( w->parentWidget() );
+      if( rwin )
+      {
+        w->tempDisableShuffle();
+        rwin->addTransformationGui( start_ref->referential, rmesh->referential,
+                                    identity );
+      }
     }
     start_ref = 0;
     w->unregisterObject( drag_mesh.get() );
@@ -769,7 +824,38 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
 
 // ---
 
-RefWindow::RefWindow() : AWindow3D( AWindow3D::ThreeD ), _view_mode( Flat )
+namespace
+{
+
+  vector<Point3df> *get_old_pos(
+    const map<Referential *, rc_ptr<AObject> > & refs )
+  {
+    vector<Point3df> *pos = new vector<Point3df>( refs.size() );
+    map<Referential *, rc_ptr<AObject> >::const_iterator ir, er = refs.end();
+    unsigned i = 0;
+
+    for( ir=refs.begin(); ir!=er; ++ir, ++i )
+    {
+      RefMesh *rmesh = dynamic_cast<RefMesh *>( ir->second.get() );
+      if( rmesh )
+        rmesh->attributed()->getProperty( "position", (*pos)[i] );
+      else
+      {
+        cout << "warning, referential is not represented as a RefMesh.\n";
+        (*pos)[i] = Point3df( frand(), frand(), frand() );
+      }
+    }
+
+    return pos;
+  }
+
+}
+
+// ---
+
+RefWindow::RefWindow()
+  : AWindow3D( AWindow3D::ThreeD ), _view_mode( Flat ),
+    _disable_shuffle( false )
 {
   static bool first_time = true;
   if( first_time )
@@ -796,6 +882,12 @@ RefWindow::RefWindow() : AWindow3D( AWindow3D::ThreeD ), _view_mode( Flat )
 
 RefWindow::~RefWindow()
 {
+}
+
+
+void RefWindow::tempDisableShuffle( bool disable )
+{
+  _disable_shuffle = disable;
 }
 
 
@@ -845,10 +937,15 @@ void RefWindow::updateReferentialView()
   }
 
   vector<Point3df> *refpos;
-  if( _view_mode = Flat )
-    refpos = get_flat_pos( Point3df( 0., 0., 0. ), 150., links );
+  if( _disable_shuffle )
+    refpos = get_old_pos( _referentials );
   else
-    refpos = get_sphere_pos( 0, Point3df( 0., 0., 0. ), 100., links );
+  {
+    if( _view_mode == Flat )
+      refpos = get_flat_pos( Point3df( 0., 0., 0. ), 150., links );
+    else
+      refpos = get_sphere_pos( 0, Point3df( 0., 0., 0. ), 100., links );
+  }
 
   map<Referential *, rc_ptr<AObject> > arefs;
   vector<Referential *>::iterator irf, erf = refs.end();
@@ -908,6 +1005,7 @@ void RefWindow::updateReferentialView()
 
   _referentials = arefs;
   _transformations = atrans;
+  _disable_shuffle = false;
 }
 
 
@@ -921,6 +1019,9 @@ void RefWindow::setSphereView()
 void RefWindow::setFlatView()
 {
   _view_mode = Flat;
+  Quaternion quat( 1. / sqrt( 2. ), 0., 0., 1. / sqrt( 2. ) );
+  GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+  v->setQuaternion( quat );
   updateReferentialView();
 }
 

@@ -249,7 +249,7 @@ namespace anatomist
   {
     ReferentialWindow_PrivateData() 
       : srcref( 0 ), dstref( 0 ), trans( 0 ), tracking( false ), refmenu( 0 ),
-      bgmenu( 0 ), view2d( 0 ), view3d( 0 )
+      bgmenu( 0 ), view2d( 0 ), view3d( 0 ), has_changed( true )
     {}
 
     Referential			*srcref;
@@ -263,6 +263,7 @@ namespace anatomist
     RefToolTip                  *tooltip;
     QLabel                      *view2d;
     RefWindow                   *view3d;
+    bool                        has_changed;
   };
 
 }
@@ -359,6 +360,7 @@ void ReferentialWindow::loadTransformation( const string & filename )
   LoadTransformationCommand	*com 
     = new LoadTransformationCommand( filename, pdat->srcref, pdat->dstref );
   theProcessor->execute( com );
+  pdat->has_changed = true;
   refresh();
 }
 
@@ -386,6 +388,11 @@ void ReferentialWindow::saveTransformation( const string & filename )
 void ReferentialWindow::refresh()
 {
   pdat->refpos.clear();
+  if( pdat->view3d && pdat->has_changed )
+    pdat->view3d->updateReferentialView();
+
+  pdat->has_changed = false;
+
   if( !pdat->view2d->isVisible() || pdat->view2d->width() == 0
       || pdat->view2d->height() == 0 )
     return;
@@ -516,7 +523,7 @@ void ReferentialWindow::mousePressEvent( QMouseEvent* ev )
 	  {
 	    /*cout << "ref : " << ref->Color().r << ", " << ref->Color().g 
 	      << ", " << ref->Color().b << endl;*/
-	    popupRefMenu( ev->globalPos() );
+	    popupRefMenu( ev->pos() );
 	    break;
 	  }
 	else
@@ -547,44 +554,59 @@ void ReferentialWindow::mousePressEvent( QMouseEvent* ev )
 void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
 {
   if( pdat->tracking )
+  {
+    pdat->tracking = false;
+    QPainter	p( this );
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  *pdat->view2d->pixmap() );
+
+    QPoint		dummy;
+    pdat->dstref = refAt( ev->pos(), dummy );
+
+    if( pdat->dstref && pdat->srcref != pdat->dstref
+        && !ATransformSet::instance()->transformation( pdat->srcref,
+                                                        pdat->dstref ) )
     {
-      pdat->tracking = false;
-      QPainter	p( this );
-      p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
-                    *pdat->view2d->pixmap() );
+      bool id = false;
+      if( ev->modifiers() & Qt::ControlModifier )
+        id = true;
+      addTransformationGui( pdat->srcref, pdat->dstref, id );
+    }
+  }
+}
 
-      QPoint		dummy;
-      pdat->dstref = refAt( ev->pos(), dummy );
 
-      if( pdat->dstref && pdat->srcref != pdat->dstref 
-          && !ATransformSet::instance()->transformation( pdat->srcref, 
-                                                         pdat->dstref ) )
-      {
-        if( ev->modifiers() & Qt::ControlModifier )
-        {
-          float	matrix[4][3];
-          matrix[0][0] = 0;
-          matrix[0][1] = 0;
-          matrix[0][2] = 0;
-          matrix[1][0] = 1;
-          matrix[1][1] = 0;
-          matrix[1][2] = 0;
-          matrix[2][0] = 0;
-          matrix[2][1] = 1;
-          matrix[2][2] = 0;
-          matrix[3][0] = 0;
-          matrix[3][1] = 0;
-          matrix[3][2] = 1;
+void ReferentialWindow::addTransformationGui( Referential* source,
+                                              Referential* dest,
+                                              bool identity )
+{
+  if( identity )
+  {
+    float	matrix[4][3];
+    matrix[0][0] = 0;
+    matrix[0][1] = 0;
+    matrix[0][2] = 0;
+    matrix[1][0] = 1;
+    matrix[1][1] = 0;
+    matrix[1][2] = 0;
+    matrix[2][0] = 0;
+    matrix[2][1] = 1;
+    matrix[2][2] = 0;
+    matrix[3][0] = 0;
+    matrix[3][1] = 0;
+    matrix[3][2] = 1;
 
-          LoadTransformationCommand	*com 
-            = new LoadTransformationCommand( matrix, pdat->srcref, 
-                                              pdat->dstref );
-          theProcessor->execute( com );
-          refresh();
-        }
-        else
-          openSelectBox();
-      }
+    LoadTransformationCommand	*com
+      = new LoadTransformationCommand( matrix, source, dest );
+    theProcessor->execute( com );
+    pdat->has_changed = true;
+    refresh();
+  }
+  else
+  {
+    pdat->srcref = source;
+    pdat->dstref = dest;
+    openSelectBox();
   }
 }
 
@@ -700,6 +722,14 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
 }
 
 
+void ReferentialWindow::popupRefMenu( const QPoint & pos,
+                                      Referential* ref )
+{
+  pdat->srcref = ref;
+  popupRefMenu( pos );
+}
+
+
 void ReferentialWindow::popupRefMenu( const QPoint & pos )
 {
   QMenu	*pop = pdat->refmenu;
@@ -741,7 +771,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
   icon_action = pop->actions()[0];
   icon_action->setIcon( QIcon(pix) );
 
-  pop->popup( pos );
+  pop->popup( mapToGlobal( pos ) );
 }
 
 
@@ -750,7 +780,14 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
   vector<anatomist::Transformation *>  trans = transformsAt( pos );
   if( trans.empty() )
     return;
+  popupTransfMenu( pos, trans );
+}
 
+
+void ReferentialWindow::popupTransfMenu(
+    const QPoint & pos,
+    const vector<anatomist::Transformation *> & trans )
+{
   unsigned        i, n = trans.size();
   anatomist::Transformation  *t;
   QMenu      pop( this );
@@ -837,13 +874,16 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
 void ReferentialWindow::deleteReferential()
 {
   delete pdat->srcref;
+  pdat->has_changed = true;
   theAnatomist->Refresh();
+  refresh();
 }
 
 
 void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 {
   delete trans;
+  pdat->has_changed = true;
   refresh();
 
   set<AWindow *>		win = theAnatomist->getWindows();
@@ -1016,6 +1056,7 @@ void ReferentialWindow::newReferential()
   set<AWindow *>  w;
   AssignReferentialCommand	*com
       = new AssignReferentialCommand( 0, o, w, -1 );
+  pdat->has_changed = true;
   theProcessor->execute( com );
 }
 
@@ -1041,6 +1082,7 @@ void ReferentialWindow::loadReferential()
     AssignReferentialCommand  *com
         = new AssignReferentialCommand( pdat->srcref, o, w, -1, 0,
                                         filename.toStdString() );
+    pdat->has_changed = true;
     theProcessor->execute( com );
   }
 }
@@ -1065,6 +1107,7 @@ void ReferentialWindow::loadNewTransformation()
     pdat->srcref = 0;
     pdat->dstref = 0;
     loadTransformation( filename.toStdString() );
+    pdat->has_changed = true;
   }
 }
 
@@ -1128,6 +1171,7 @@ void ReferentialWindow::splitReferential()
       }
     }
   }
+  pdat->has_changed = true;
   theAnatomist->Refresh();
   refresh();
 }
@@ -1155,17 +1199,16 @@ void ReferentialWindow::seeObjectsInReferential()
 }
 
 
-#if QT_VERSION >= 0x040000
 bool ReferentialWindow::event( QEvent* event )
 {
-  if (event->type() == QEvent::ToolTip)
+  if( event->type() == QEvent::ToolTip && pdat->view2d->isVisible()
+    && pdat->view2d->width() != 0 && pdat->view2d->height() != 0 )
   {
     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
     pdat->tooltip->maybeTip( helpEvent->pos() );
   }
   return QWidget::event(event);
 }
-#endif
 
 
 void ReferentialWindow::set3DView()
