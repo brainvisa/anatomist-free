@@ -76,6 +76,12 @@ public:
                              anatomist::Referential* dest,
                              bool identity = false );
 
+  static QString referentialToolTipText(
+    anatomist::Referential *ref, std::list<std::string> & temp_filenames );
+  static QString transformationToolTipText(
+    anatomist::Transformation *tr, std::list<std::string> & temp_filenames );
+  static void unlinkFiles( const std::list<std::string> & temp_filenames );
+
 protected:
   ///	opens the file selection dialog to choose a transformation
   void openSelectBox();

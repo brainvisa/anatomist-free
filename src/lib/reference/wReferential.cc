@@ -149,91 +149,20 @@ namespace
     Referential *r = _refwin->refAt( p, pos );
     if( r )
     {
-      string  name;
-      PythonHeader  & ph = r->header();
-      if( !ph.getProperty( "name", name ) )
-        name = "&lt;unnamed&gt;";
-
-      QPixmap pix( 16, 16 );
-      QPainter      ptr( &pix );
-      AimsRGB       col = r->Color();
-      ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-      ptr.fillRect( 0, 0, 16, 16, QColor( 255, 255, 255 ) );
-      ptr.drawEllipse( 0, 0, 16, 16 );
-      ptr.end();
-      pix.setMask( pix.createHeuristicMask() );
-      int fd;
-      string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
-      pix.save( QString( pixfname.c_str() ), "PNG" );
-
-      /* QTextDocument document;
-      document.addResource( QTextDocument::ImageResource, QUrl("refimage.png"),
-                            pix ); */
-
-      QString text( "<h4>Referential:  <img src=\"" );
-      text += pixfname.c_str();
-      text += "\"></img></h4><em><b>  ";
-      text += name.c_str();
-      text += "</b></em><br/><b>UUID</b>        :  ";
-      text += r->uuid().toString().c_str();
-      text += "<br/>";
-      set<string> exclude;
-      exclude.insert( "name" );
-      exclude.insert( "uuid" );
-      text += headerPrint( ph, exclude );
+      list<string> temp;
+      QString text = ReferentialWindow::referentialToolTipText( r, temp );
       QToolTip::showText( _refwin->mapToGlobal( p ), text );
-      ::close( fd );
-      unlink( pixfname.c_str() );
+      ReferentialWindow::unlinkFiles( temp );
     }
     else
     {
       anatomist::Transformation  *t = _refwin->transfAt( p );
       if( t )
       {
-        QPixmap     pix( 64, 16 );
-        QPainter    ptr( &pix );
-        AimsRGB     col = t->source()->Color();
-        ptr.setBackgroundMode( Qt::OpaqueMode );
-        ptr.fillRect( 0, 0, 64, 16, QColor( 255, 255, 255 ) );
-        ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-        ptr.drawEllipse( 0, 0, 16, 16 );
-        col = t->destination()->Color();
-        ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-        ptr.drawEllipse( 48, 0, 16, 16 );
-        ptr.drawLine( 16, 8, 48, 8 );
-        ptr.drawLine( 40, 4, 48, 8 );
-        ptr.drawLine( 40, 12, 48, 8 );
-        ptr.end();
-        pix.setMask( pix.createHeuristicMask() );
-        int fd;
-        string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
-        pix.save( QString( pixfname.c_str() ), "PNG" );
-
-        QString text( "<h4>Transformation:  <img src=\"" );
-        text += pixfname.c_str();
-        text += "\"/></h4>";
-        AimsData<float> r = t->motion().rotation();
-        text += "<table border=1 cellspacing=0><tr>"
-            "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
-            "<tr><td>"
-            + QString::number( r( 0,0 ) ) + "</td><td>"
-            + QString::number( r( 0,1 ) ) + "</td><td>"
-            + QString::number( r( 0,2 ) ) + "</td><td>"
-            + QString::number( t->Translation( 0 ) ) + "</td></tr><tr><td>"
-            + QString::number( r( 1,0 ) ) + "</td><td>"
-            + QString::number( r( 1,1 ) ) + "</td><td>"
-            + QString::number( r( 1,2 ) ) + "</td><td>"
-            + QString::number( t->Translation( 1 ) ) + "</td></tr><tr><td>"
-            + QString::number( r( 2,0 ) ) + "</td><td>"
-            + QString::number( r( 2,1 ) ) + "</td><td>"
-            + QString::number( r( 2,2 ) ) + "</td><td>"
-            + QString::number( t->Translation( 2 ) ) + "</td></tr></table>";
-        PythonHeader  *ph = t->motion().header();
-        if( ph )
-          text += headerPrint( *ph );
+        list<string> temp;
+        QString text = ReferentialWindow::transformationToolTipText( t, temp );
         QToolTip::showText( _refwin->mapToGlobal( p ), text );
-        ::close( fd );
-        unlink( pixfname.c_str() );
+        ReferentialWindow::unlinkFiles( temp );
       }
     }
   }
@@ -262,7 +191,15 @@ namespace anatomist
     QMenu                       *bgmenu;
     RefToolTip                  *tooltip;
     QLabel                      *view2d;
+    /* FIXME: we would need a weak_shared_ptr<RefWindow> here,
+       or rc_ptr<RefWindow>, but rc_ptr<RefWindow> does not compile.
+       Neither does rc_ptr<AWindow3D>.
+       Actually AWindow3D inherits SharedObject and RCObject via 2 bases
+       (diamond), via AWindow and Observable, which apparently introduces
+       an ambiguity in destroy().
+    */
     RefWindow                   *view3d;
+    rc_ptr<AWindow>             view3d_ref;
     bool                        has_changed;
   };
 
@@ -1221,7 +1158,15 @@ void ReferentialWindow::set3DView()
     pdat->view3d->show();
     return;
   }
+
   RefWindow *rwin = new RefWindow;
+  pdat->view3d_ref.reset( rwin );
+  // make the window not appear in control win, and be a weak reference in
+  // the app.
+  if( theAnatomist->getControlWindow() )
+    theAnatomist->getControlWindow()->unregisterWindow( rwin );
+  theAnatomist->releaseWindow( rwin );
+
   rwin->updateReferentialView();
   layout()->addWidget( rwin );
   pdat->view3d = rwin;
@@ -1233,8 +1178,110 @@ void ReferentialWindow::set3DView()
 
 void ReferentialWindow::view3dDeleted()
 {
+  pdat->view3d_ref.release();
   pdat->view3d = 0;
   refresh();
+}
+
+
+QString ReferentialWindow::referentialToolTipText(
+  Referential *ref, list<string> & temp_filenames )
+{
+  string  name;
+  PythonHeader  & ph = ref->header();
+  if( !ph.getProperty( "name", name ) )
+    name = "&lt;unnamed&gt;";
+
+  QPixmap pix( 16, 16 );
+  QPainter      ptr( &pix );
+  AimsRGB       col = ref->Color();
+  ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+  ptr.fillRect( 0, 0, 16, 16, QColor( 255, 255, 255 ) );
+  ptr.drawEllipse( 0, 0, 16, 16 );
+  ptr.end();
+  pix.setMask( pix.createHeuristicMask() );
+  int fd;
+  string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+  ::close( fd );
+  pix.save( QString( pixfname.c_str() ), "PNG" );
+  temp_filenames.push_back( pixfname );
+
+  /* QTextDocument document;
+  document.addResource( QTextDocument::ImageResource, QUrl("refimage.png"),
+                        pix ); */
+
+  QString text( "<h4>Referential:  <img src=\"" );
+  text += pixfname.c_str();
+  text += "\"></img></h4><em><b>  ";
+  text += name.c_str();
+  text += "</b></em><br/><b>UUID</b>        :  ";
+  text += ref->uuid().toString().c_str();
+  text += "<br/>";
+  set<string> exclude;
+  exclude.insert( "name" );
+  exclude.insert( "uuid" );
+  text += headerPrint( ph, exclude );
+
+  return text;
+}
+
+
+QString ReferentialWindow::transformationToolTipText(
+  anatomist::Transformation *tr, list<string> & temp_filenames )
+{
+  QPixmap     pix( 64, 16 );
+  QPainter    ptr( &pix );
+  AimsRGB     col = tr->source()->Color();
+  ptr.setBackgroundMode( Qt::OpaqueMode );
+  ptr.fillRect( 0, 0, 64, 16, QColor( 255, 255, 255 ) );
+  ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+  ptr.drawEllipse( 0, 0, 16, 16 );
+  col = tr->destination()->Color();
+  ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+  ptr.drawEllipse( 48, 0, 16, 16 );
+  ptr.drawLine( 16, 8, 48, 8 );
+  ptr.drawLine( 40, 4, 48, 8 );
+  ptr.drawLine( 40, 12, 48, 8 );
+  ptr.end();
+  pix.setMask( pix.createHeuristicMask() );
+  int fd;
+  string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+  ::close( fd );
+  pix.save( QString( pixfname.c_str() ), "PNG" );
+  temp_filenames.push_back( pixfname );
+
+  QString text( "<h4>Transformation:  <img src=\"" );
+  text += pixfname.c_str();
+  text += "\"/></h4>";
+  AimsData<float> r = tr->motion().rotation();
+  text += "<table border=1 cellspacing=0><tr>"
+      "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
+      "<tr><td>"
+      + QString::number( r( 0,0 ) ) + "</td><td>"
+      + QString::number( r( 0,1 ) ) + "</td><td>"
+      + QString::number( r( 0,2 ) ) + "</td><td>"
+      + QString::number( tr->Translation( 0 ) ) + "</td></tr><tr><td>"
+      + QString::number( r( 1,0 ) ) + "</td><td>"
+      + QString::number( r( 1,1 ) ) + "</td><td>"
+      + QString::number( r( 1,2 ) ) + "</td><td>"
+      + QString::number( tr->Translation( 1 ) ) + "</td></tr><tr><td>"
+      + QString::number( r( 2,0 ) ) + "</td><td>"
+      + QString::number( r( 2,1 ) ) + "</td><td>"
+      + QString::number( r( 2,2 ) ) + "</td><td>"
+      + QString::number( tr->Translation( 2 ) ) + "</td></tr></table>";
+  PythonHeader  *ph = tr->motion().header();
+  if( ph )
+    text += headerPrint( *ph );
+
+  return text;
+}
+
+
+void ReferentialWindow::unlinkFiles( const list<string> & temp_filenames )
+{
+  list<string>::const_iterator il, el = temp_filenames.end();
+  for( il=temp_filenames.begin(); il!=el; ++il )
+    unlink( il->c_str() );
 }
 
 // -----------

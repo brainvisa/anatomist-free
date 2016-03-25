@@ -403,20 +403,58 @@ namespace
   {
   public:
     RefMesh() : ASurface<3>(), referential( 0 ) {}
-    virtual ~RefMesh() {}
+    virtual ~RefMesh();
+
+    virtual string toolTip() const;
 
     Referential *referential;
+    mutable list<string> temp_filenames;
   };
+
+
+  RefMesh::~RefMesh()
+  {
+    ReferentialWindow::unlinkFiles( temp_filenames );
+  }
+
+
+  string RefMesh::toolTip() const
+  {
+    ReferentialWindow::unlinkFiles( temp_filenames );
+    temp_filenames.clear();
+    QString text = ReferentialWindow::referentialToolTipText(
+      referential, temp_filenames );
+    return text.toStdString();
+  }
 
 
   class TransMesh : public ASurface<3>
   {
   public:
     TransMesh() : ASurface<3>(), transformation( 0 ) {}
-    virtual ~TransMesh() {}
+    virtual ~TransMesh();
+
+    virtual string toolTip() const;
 
     Transformation *transformation;
+    mutable list<string> temp_filenames;
   };
+
+
+  TransMesh::~TransMesh()
+  {
+    ReferentialWindow::unlinkFiles( temp_filenames );
+  }
+
+
+  string TransMesh::toolTip() const
+  {
+    ReferentialWindow::unlinkFiles( temp_filenames );
+    temp_filenames.clear();
+    QString text = ReferentialWindow::transformationToolTipText(
+      transformation, temp_filenames );
+    return text.toStdString();
+  }
 
 
   rc_ptr<AObject> createRefMesh( const Point3df & pos, Referential *ref )
