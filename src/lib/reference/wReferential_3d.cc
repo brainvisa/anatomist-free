@@ -768,7 +768,7 @@ void TransformDrag::moveDrawTrans( int x, int y, int, int )
   Point3df tvec = v->objectPositionFromWindow( Point3df( x, y, 0. ) );
 
   AimsSurfaceTriangle *mesh = SurfaceGenerator::arrow(
-    tvec, start_pos, 1., 3., 10, 0.2 );
+    tvec, start_pos, 2., 5., 10, 0.2 );
   if( !drag_mesh )
   {
     drag_mesh.reset( new ASurface<3> );

@@ -227,7 +227,7 @@ namespace anatomist
        an ambiguity in destroy().
     */
     RefWindow                   *view3d;
-    rc_ptr<AWindow>             view3d_ref;
+    weak_shared_ptr<AWindow>    view3d_ref;
     bool                        has_changed;
     QTimer                      *refreshtimer;
     bool                        refreshneeded;
@@ -406,7 +406,7 @@ void ReferentialWindow::refreshNow()
   QPainter		p( &pix );
 
   p.setPen( QPen( Qt::black ) );
-  p.eraseRect( 0, 0, w, h );
+  p.fillRect( 0, 0, w, h, Qt::white );
   if( h < R )
     R = h;
   R = R/2 - 50;
@@ -1286,6 +1286,8 @@ QString ReferentialWindow::referentialToolTipText(
 QString ReferentialWindow::transformationToolTipText(
   anatomist::Transformation *tr, list<string> & temp_filenames )
 {
+  using anatomist::Transformation;
+
   QPixmap     pix( 64, 16 );
   QPainter    ptr( &pix );
   AimsRGB     col = tr->source()->Color();
@@ -1329,6 +1331,43 @@ QString ReferentialWindow::transformationToolTipText(
   PythonHeader  *ph = tr->motion().header();
   if( ph )
     text += headerPrint( *ph );
+
+  if( !tr->motion().isIdentity() )
+  {
+    Transformation *trinv = ATransformSet::instance()->transformation(
+      tr->destination(), tr->source() );
+
+    col = tr->destination()->Color();
+    ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+    ptr.drawEllipse( 0, 0, 16, 16 );
+    col = tr->source()->Color();
+    ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+    ptr.drawEllipse( 48, 0, 16, 16 );
+    string pixfname_inv = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+    ::close( fd );
+    pix.save( QString( pixfname_inv.c_str() ), "PNG" );
+    temp_filenames.push_back( pixfname_inv );
+
+    text += "<br/><h4>Inverse: <img src=\"";
+    text += pixfname_inv.c_str();
+    text += "\"/></h4>";
+    r = trinv->motion().rotation();
+    text += "<table border=1 cellspacing=0><tr>"
+        "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
+        "<tr><td>"
+        + QString::number( r( 0,0 ) ) + "</td><td>"
+        + QString::number( r( 0,1 ) ) + "</td><td>"
+        + QString::number( r( 0,2 ) ) + "</td><td>"
+        + QString::number( trinv->Translation( 0 ) ) + "</td></tr><tr><td>"
+        + QString::number( r( 1,0 ) ) + "</td><td>"
+        + QString::number( r( 1,1 ) ) + "</td><td>"
+        + QString::number( r( 1,2 ) ) + "</td><td>"
+        + QString::number( trinv->Translation( 1 ) ) + "</td></tr><tr><td>"
+        + QString::number( r( 2,0 ) ) + "</td><td>"
+        + QString::number( r( 2,1 ) ) + "</td><td>"
+        + QString::number( r( 2,2 ) ) + "</td><td>"
+        + QString::number( trinv->Translation( 2 ) ) + "</td></tr></table>";
+  }
 
   return text;
 }
