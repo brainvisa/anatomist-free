@@ -56,6 +56,7 @@ namespace anatomist
     virtual ~RefWindow();
 
     void tempDisableShuffle( bool disable = true );
+    virtual anatomist::AObject* objectAtCursorPosition( int x, int y );
 
   public slots:
     void updateReferentialView();

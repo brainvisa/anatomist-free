@@ -1125,6 +1125,47 @@ void RefWindow::updateReferentialView()
 }
 
 
+AObject* RefWindow::objectAtCursorPosition( int x, int y )
+{
+  // 1st pass: make generated transformations unselectable
+  using anatomist::Transformation;
+  map<Transformation *, rc_ptr<AObject> >::iterator
+    it, et = _transformations.end();
+  bool has_gen = false;
+  TransMesh* tmesh;
+  for( it=_transformations.begin(); it!=et; ++it )
+    if( it->first->isGenerated() )
+    {
+      tmesh = static_cast<TransMesh *>( it->second.get() );
+      if( tmesh->GetMaterial().renderProperty( Material::SelectableMode )
+          != Material::GhostSelection )
+      {
+        tmesh->GetMaterial().setRenderProperty( Material::SelectableMode,
+                                                Material::GhostSelection );
+        tmesh->glAPI()->glSetChanged( GLComponent::glMATERIAL );
+      }
+      has_gen = true;
+    }
+
+  // look for object at this place
+  AObject* obj = AWindow3D::objectAtCursorPosition( x, y );
+  if( obj || !has_gen )
+    return obj;
+
+  // 2nd pass: restore selectable state
+  for( it=_transformations.begin(); it!=et; ++it )
+    if( it->first->isGenerated() )
+    {
+      tmesh = static_cast<TransMesh *>( it->second.get() );
+      tmesh->GetMaterial().setRenderProperty( Material::SelectableMode,
+                                              Material::AlwaysSelectable );
+      tmesh->glAPI()->glSetChanged( GLComponent::glMATERIAL );
+    }
+  obj = AWindow3D::objectAtCursorPosition( x, y );
+  return obj;
+}
+
+
 void RefWindow::setSphereView()
 {
   _view_mode = Sphere;
