@@ -37,6 +37,7 @@
 #include <anatomist/window/glwidget.h>
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/reference/Transformation.h>
+#include <anatomist/reference/transfSet.h>
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cLoadTransformation.h>
 #include <anatomist/processor/Processor.h>
@@ -216,15 +217,18 @@ void TransformerActionData::setTransformData(const Transformation & t,
                                              bool absolute,
                                              bool addToHistory)
 {
+  ATransformSet *tset = ATransformSet::instance();
   map<Transformation*, Transformation>::iterator        it, et = _trans.end();
   for( it=_trans.begin(); it!=et; ++it )
   {
-    it->first->unregisterTrans();
-    *it->first = t;
+//     it->first->unregisterTrans();
+//     *it->first = t;
+    it->first->motion() = t.motion();
     if( !absolute )
-    	*it->first *= it->second;
+      *it->first *= it->second;
 
-    it->first->registerTrans();
+//     it->first->registerTrans();
+    tset->updateTransformation( it->first );
 
     if (addToHistory)
     {
@@ -239,16 +243,19 @@ void TransformerActionData::setTransformData(const Transformation & t,
     t2.invert();
     for( it=_itrans.begin(), et=_itrans.end(); it!=et; ++it )
     {
-      it->first->unregisterTrans();
-      *it->first = t2;
+//       it->first->unregisterTrans();
+//       *it->first = t2;
+      it->first->motion() = t2.motion();
       if( !absolute )
         *it->first *= it->second;
-      it->first->registerTrans();
+//       it->first->registerTrans();
+      tset->updateTransformation( it->first );
     }
   }
 
   emitTransformationChanged();
 }
+
 
 void TransformerActionData::emitTransformationChanged()
 {

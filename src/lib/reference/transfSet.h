@@ -73,24 +73,21 @@ namespace anatomist
                            Observer* o );
     void unregisterObserver( const Referential* src, const Referential* dst, 
                              Observer* o );
-    void setTransformationChanged( const Referential* src, 
-                                   const Referential* dst );
-    void notifyTransformationChanged( const Referential* src, 
-                                      const Referential* dst, 
-                                      void* arg = 0, bool setchanged = false );
 
     static ATransformSet* instance();
     std::set<Referential *> connectedComponent( Referential* r ) const;
     std::list<Transformation *> shortestPath( Referential* src,
                                               Referential *dst ) const;
+    void updateTransformation( Transformation *tr );
 
   private:
     struct Private;
 
     void completeTransformations( Transformation* t );
-    void propagate( Referential* ref, Referential* r2, 
+    void propagate( Referential* ref, Referential* r2,
                     const std::set<Referential *> & others );
     void deleteGeneratedConnections( Referential* r1, Referential* r2 );
+    void updateGeneratedConnections( Transformation *tr );
 
     Private	*d;
   };
