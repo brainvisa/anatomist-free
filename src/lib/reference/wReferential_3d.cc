@@ -54,6 +54,9 @@
 #include <algorithm>
 #include <cfloat>
 #include <QMenu>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsProxyWidget>
 
 using namespace anatomist;
 using namespace aims;
@@ -549,6 +552,7 @@ public:
   void sphereView();
   void flatView();
   void legacy2DView();
+  void info();
 };
 
 
@@ -605,6 +609,9 @@ void ReferentialMenu::backgroundMenu( int x, int y )
                   w, SLOT( focusView() ) );
   menu.addAction( RefWindow::tr( "Reset view orientation (Return)" ),
                   w, SLOT( muteCoronal() ) );
+  menu.addSeparator();
+  menu.addAction( RefWindow::tr( "Toggle on-screen info (I)" ),
+                  w, SLOT( toggleInfo() ) );
   menu.exec( static_cast<GLWidgetManager *>( view() )->
     qglWidget()->mapToGlobal( QPoint( x, y ) ) );
 }
@@ -698,6 +705,14 @@ void ReferentialMenu::legacy2DView()
   RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
   if( w )
     w->close();
+}
+
+
+void ReferentialMenu::info()
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( w )
+    w->toggleInfo();
 }
 
 
@@ -920,6 +935,9 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
       KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
                                       &ReferentialMenu::legacy2DView ),
       "2d_view" );
+  keyPressEventSubscribe( Qt::Key_I, Qt::NoModifier,
+    KeyActionLinkOf<ReferentialMenu>( pool->action( "ReferentialMenu" ),
+                                      &ReferentialMenu::info ), "info" );
 
   mouseLongEventSubscribe(
     Qt::LeftButton, Qt::NoModifier,
@@ -1018,6 +1036,8 @@ RefWindow::RefWindow()
   }
 
   setHasCursor( false );
+  if( graphicsScene() )
+    enableToolTips( false );
   updateControls();
   view()->controlSwitch()->setActiveControl( "RefTransControl" );
   view()->controlSwitch()->notifyActiveControlChange();
@@ -1225,6 +1245,34 @@ void RefWindow::unregisterObject( AObject* obj )
 }
 
 
+QGraphicsScene* RefWindow::graphicsScene()
+{
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( gview )
+    return gview->scene();
+  return 0;
+}
+
+
+namespace
+{
+
+  void clearGraphicsScene( QGraphicsScene *scene )
+  {
+    QList<QGraphicsItem *> items = scene->items();
+    QList<QGraphicsItem *>::iterator it, et = items.end();
+    for( it=items.begin(); it!=et; ++it )
+    {
+      scene->removeItem( *it );
+      delete *it;
+    }
+  }
+
+}
+
+
 void RefWindow::selectReferential( AObject* mesh )
 {
   if( _selected_obj == mesh )
@@ -1242,6 +1290,23 @@ void RefWindow::selectReferential( AObject* mesh )
   dif[3] = 1. - ( 1. - dif[3] ) * 0.1;
   rmesh->glSetChanged( GLComponent::glMATERIAL );
   rmesh->notifyObservers( this );
+
+  QGraphicsScene *gs = graphicsScene();
+  if( gs && !toopTipsEnabled() )
+  {
+    clearGraphicsScene( gs );
+    QLabel *label = new QLabel;
+    QString text( rmesh->toolTip().c_str() );
+    label->setText( text );
+    QGraphicsProxyWidget *pw = gs->addWidget( label );
+    label->setAutoFillBackground( false );
+    label->setStyleSheet(
+      "color: rgb(192, 88, 0); background: rgba(255, 255, 255, 0); border: 1px solid rgb(120, 60, 0);" );
+    QPointF pos = pw->mapToScene( 0, gs->height() - pw->size().height() );
+    if( pos.y() < 0 )
+      pos.setY( 0 );
+    pw->setPos( pos );
+  }
 }
 
 
@@ -1262,6 +1327,23 @@ void RefWindow::selectTransformation( AObject* mesh )
   dif[3] = 1. - ( 1. - dif[3] ) * 0.1;
   tmesh->glSetChanged( GLComponent::glMATERIAL );
   tmesh->notifyObservers( this );
+
+  QGraphicsScene *gs = graphicsScene();
+  if( gs && !toopTipsEnabled() )
+  {
+    clearGraphicsScene( gs );
+    QLabel *label = new QLabel;
+    QString text( tmesh->toolTip().c_str() );
+    label->setText( text );
+    QGraphicsProxyWidget *pw = gs->addWidget( label );
+    label->setAutoFillBackground( false );
+    label->setStyleSheet(
+      "color: rgb(192, 88, 0); background: rgba(255, 255, 255, 0); border: 1px solid rgb(120, 60, 0);" );
+    QPointF pos = pw->mapToScene( 0, gs->height() - pw->size().height() );
+    if( pos.y() < 0 )
+      pos.setY( 0 );
+    pw->setPos( pos );
+  }
 }
 
 
@@ -1293,7 +1375,21 @@ void RefWindow::unselect()
     }
   }
   mesh->glSetChanged( GLComponent::glMATERIAL );
+
+  QGraphicsScene *gs = graphicsScene();
+  if( gs )
+    clearGraphicsScene( gs );
+
   mesh->notifyObservers( this );
+}
+
+
+void RefWindow::toggleInfo()
+{
+  if( toopTipsEnabled() )
+    enableToolTips( false );
+  else
+    enableToolTips( true );
 }
 
 

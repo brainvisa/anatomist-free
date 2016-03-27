@@ -36,6 +36,8 @@
 
 #include <anatomist/window3D/window3D.h>
 
+class QGraphicsScene;
+
 
 namespace anatomist
 {
@@ -61,11 +63,13 @@ namespace anatomist
     void selectTransformation( AObject* tmesh );
     void unselect();
     virtual void unregisterObject( AObject* obj );
+    QGraphicsScene* graphicsScene();
 
   public slots:
     void updateReferentialView();
     void setSphereView();
     void setFlatView();
+    void toggleInfo();
 
   private:
     ViewType _view_mode;
