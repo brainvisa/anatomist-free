@@ -2386,8 +2386,7 @@ void PaintAction::updateCursor()
   pos[2] = round( pos[2] / vs[2] ) * vs[2];
   pos *= -1;
   tr->setTranslation( &pos[0] );
-  tr->unregisterTrans();
-  tr->registerTrans();
+  tr->notifyChange();
 
   //win->unregisterObject( _sharedData->myCursor );
   if( !win->hasObject( _sharedData->myCursor ) )

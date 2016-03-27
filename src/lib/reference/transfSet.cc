@@ -179,17 +179,28 @@ void ATransformSet::registerTransformation( Transformation* t )
     return;
   Private::Ts::iterator	is = d->trans.find( t->source() );
   if( is != d->trans.end() )
+  {
+    Private::Ts2::iterator
+      id = is->second.find( t->destination() );
+    if( id != is->second.end() && id->second.trans )
     {
-      Private::Ts2::iterator 
-        id = is->second.find( t->destination() );
-      if( id != is->second.end() && id->second.trans )
-	{
-	  cerr << "registerTransformation : there was already a "
-	       << "transformation between this source and destination" 
-	       << "- deleting it ( " << id->second.trans << " )\n";
-          delete id->second.trans;
-	}
+      if( id->second.trans == t )
+      {
+        // the (same) transformation was already registered - just update it.
+        if( id->second.obs.get() )
+          id->second.obs->setChanged();
+        updateTransformation( t );
+        return;
+      }
+      else
+      {
+        cerr << "registerTransformation : there was already a "
+              << "transformation between this source and destination"
+              << "- deleting it ( " << id->second.trans << " )\n";
+        delete id->second.trans;
+      }
     }
+  }
   TransfHolder	& th = d->trans[ t->source() ][ t->destination() ];
   th.trans = t;
   d->tset.insert( t );
@@ -626,6 +637,10 @@ void ATransformSet::updateTransformation( Transformation *tr )
     id->second.obs->setChanged();
     id->second.obs->notifyObservers( tr );
   }
+
+  // generated trans do not trigger inverse/linked trans updates
+  if( tr->isGenerated() )
+    return;
 
   Transformation *inv = transformation( r2, r1 );
   inv->motion() = tr->motion().inverse();

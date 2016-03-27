@@ -118,13 +118,11 @@ float Transformation::Translation(int i)
 void Transformation::invert()
 {
   bool	reg = ATransformSet::instance()->hasTransformation( this );
-  if( reg )
-    unregisterTrans();
 
   _motion = _motion.inverse();
 
   if( reg )
-    registerTrans();
+    ATransformSet::instance()->updateTransformation( this );
 }
 
 void Transformation::invertReferentials()
@@ -294,30 +292,24 @@ void Transformation::addMotionToHistory(const Motion & motion)
 
 void Transformation::undo()
 {
-	if (_motionHistoryIndex < 0 ||
-		_motionHistory.empty())
-	{
-		return;
-	}
+  if (_motionHistoryIndex < 0 ||
+          _motionHistory.empty())
+    return;
 
-	unregisterTrans();
-	_motion = _motionHistory[_motionHistoryIndex].inverse() * _motion;
-	_motionHistoryIndex -= 1;
-	registerTrans();
+  _motion = _motionHistory[_motionHistoryIndex].inverse() * _motion;
+  _motionHistoryIndex -= 1;
+  notifyChange();
 }
 
 void Transformation::redo()
 {
-  if (static_cast<size_t>(_motionHistoryIndex) == (_motionHistory.size() - 1) ||
-		_motionHistory.empty())
-	{
-		return;
-	}
+  if (static_cast<size_t>(_motionHistoryIndex) == (_motionHistory.size() - 1)
+      || _motionHistory.empty())
+    return;
 
-	unregisterTrans();
-	_motionHistoryIndex += 1;
-	_motion = _motionHistory[_motionHistoryIndex] * _motion;
-	registerTrans();
+  _motionHistoryIndex += 1;
+  _motion = _motionHistory[_motionHistoryIndex] * _motion;
+  notifyChange();
 }
 
 Transformation & Transformation::operator *= ( const Transformation & t )
@@ -326,6 +318,13 @@ Transformation & Transformation::operator *= ( const Transformation & t )
 
   return( *this );
 }
+
+
+void Transformation::notifyChange()
+{
+  ATransformSet::instance()->updateTransformation( this );
+}
+
 
 #if 0
 Transformation & Transformation::operator += ( const Transformation & t )
