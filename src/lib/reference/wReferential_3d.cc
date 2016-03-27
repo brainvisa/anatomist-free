@@ -717,6 +717,8 @@ public:
   void moveDrawTrans( int x, int y, int, int );
   void endDrawTrans( int x, int y, int, int );
 
+  void moveCursor( int x, int y, int, int );
+
 private:
   bool identity;
   Point3df start_pos;
@@ -813,6 +815,33 @@ void TransformDrag::endDrawTrans( int x, int y, int, int )
     drag_mesh.reset( 0 );
   }
 };
+
+
+void TransformDrag::moveCursor( int x, int y, int, int )
+{
+  RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
+  if( !w )
+    return;
+  AObject *obj = w->objectAtCursorPosition( x, y );
+  if( !obj )
+  {
+    w->unselect();
+    return;
+  }
+  RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
+  if( rmesh )
+  {
+    w->selectReferential( rmesh );
+    return;
+  }
+  TransMesh *tmesh = dynamic_cast<TransMesh *>( obj );
+  if( tmesh )
+  {
+    w->selectTransformation( tmesh );
+    return;
+  }
+  w->unselect();
+}
 
 
 // ---
@@ -919,6 +948,11 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
                                       &WindowActions::focusCoronalView ),
       "focus_coronal" );
 
+  mouseMoveEventSubscribe
+    ( Qt::NoButton, Qt::NoModifier,
+      MouseActionLinkOf<TransformDrag>( pool->action( "TransformDrag" ),
+                                        &TransformDrag::moveCursor ),
+    "transform_move_cursor" );
 }
 
 // ---
@@ -964,7 +998,7 @@ namespace
 
 RefWindow::RefWindow()
   : AWindow3D( AWindow3D::ThreeD, 0, _ref_win_options() ), _view_mode( Flat ),
-    _disable_shuffle( false )
+    _disable_shuffle( false ), _selected_obj( 0 )
 {
   static bool first_time = true;
   if( first_time )
@@ -1181,4 +1215,85 @@ void RefWindow::setFlatView()
   v->setQuaternion( quat );
   updateReferentialView();
 }
+
+
+void RefWindow::unregisterObject( AObject* obj )
+{
+  if( obj == _selected_obj )
+    unselect();
+  AWindow3D::unregisterObject( obj );
+}
+
+
+void RefWindow::selectReferential( AObject* mesh )
+{
+  if( _selected_obj == mesh )
+    return;
+  RefMesh *rmesh = dynamic_cast<RefMesh *>( mesh );
+  if( !rmesh )
+    return;
+  unselect();
+  _selected_obj = mesh;
+  Material & mat = rmesh->GetMaterial();
+  GLfloat * dif = mat.Diffuse();
+  dif[0] = 1. - ( 1. - dif[0] ) * 0.5;
+  dif[1] = 1. - ( 1. - dif[1] ) * 0.5;
+  dif[2] = 1. - ( 1. - dif[2] ) * 0.5;
+  dif[3] = 1. - ( 1. - dif[3] ) * 0.1;
+  rmesh->glSetChanged( GLComponent::glMATERIAL );
+  rmesh->notifyObservers( this );
+}
+
+
+void RefWindow::selectTransformation( AObject* mesh )
+{
+  if( _selected_obj == mesh )
+    return;
+  TransMesh *tmesh = dynamic_cast<TransMesh *>( mesh );
+  if( !tmesh )
+    return;
+  unselect();
+  _selected_obj = mesh;
+  Material & mat = tmesh->GetMaterial();
+  GLfloat * dif = mat.Diffuse();
+  dif[0] = 1. - ( 1. - dif[0] ) * 0.3;
+  dif[1] = 1. - ( 1. - dif[1] ) * 0.3;
+  dif[2] = 1. - ( 1. - dif[2] ) * 0.3;
+  dif[3] = 1. - ( 1. - dif[3] ) * 0.1;
+  tmesh->glSetChanged( GLComponent::glMATERIAL );
+  tmesh->notifyObservers( this );
+}
+
+
+void RefWindow::unselect()
+{
+  if( !_selected_obj )
+    return;
+  ASurface<3> *mesh = static_cast<ASurface<3> *>( _selected_obj );
+  _selected_obj = 0;
+  Material & mat = mesh->GetMaterial();
+  GLfloat *dif = mat.Diffuse();
+  RefMesh *rmesh = dynamic_cast<RefMesh *>( mesh );
+  if( rmesh )
+  {
+    AimsRGB col = rmesh->referential->Color();
+    dif[0] = float( col.red() ) / 255.;
+    dif[1] = float( col.green() ) / 255.;
+    dif[2] = float( col.blue() ) / 255.;
+  }
+  else
+  {
+    TransMesh *tmesh = dynamic_cast<TransMesh *>( mesh );
+    if( tmesh )
+    {
+      if( !tmesh->transformation->isGenerated() )
+        mat.SetDiffuse( 0.8, 0.6, 0.4, 1. );
+      else
+        mat.SetDiffuse( 0.8, 0.8, 0.8, 0.03 );
+    }
+  }
+  mesh->glSetChanged( GLComponent::glMATERIAL );
+  mesh->notifyObservers( this );
+}
+
 

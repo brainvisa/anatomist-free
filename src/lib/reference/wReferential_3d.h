@@ -57,6 +57,10 @@ namespace anatomist
 
     void tempDisableShuffle( bool disable = true );
     virtual anatomist::AObject* objectAtCursorPosition( int x, int y );
+    void selectReferential( AObject* rmesh );
+    void selectTransformation( AObject* tmesh );
+    void unselect();
+    virtual void unregisterObject( AObject* obj );
 
   public slots:
     void updateReferentialView();
@@ -70,6 +74,7 @@ namespace anatomist
     std::map<anatomist::Transformation *, carto::rc_ptr<anatomist::AObject> >
       _transformations;
     bool _disable_shuffle;
+    AObject *_selected_obj;
   };
 
 }
