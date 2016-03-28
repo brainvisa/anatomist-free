@@ -3289,7 +3289,7 @@ void AWindow3D::update(const Observable* o, void* arg)
     {
 #ifdef ANA_DEBUG_UPDATE
       cout << "object " << ao->name() << " (" << o
-      << ") has changed ref in window " << name() << " ("
+      << ") has changed ref in window " << Title() << " ("
       << this << ")\n";
 #endif
       const Referential *r1 = getReferential(), *r2 = ao->previousReferential();
