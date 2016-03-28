@@ -596,21 +596,22 @@ void ReferentialMenu::backgroundMenu( int x, int y )
   menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
                   SLOT( clearUnusedReferentials() ) );
   menu.addSeparator();
-  menu.addAction( RefWindow::tr( "3D sphere view (S)" ),
+  menu.addAction( anatomist::RefWindow::tr( "3D sphere view (S)" ),
                   w, SLOT( setSphereView() ) );
-  menu.addAction( RefWindow::tr( "3D flat view (F)" ),
+  menu.addAction( anatomist::RefWindow::tr( "3D flat view (F)" ),
                   w, SLOT( setFlatView() ) );
-  menu.addAction( RefWindow::tr( "Legacy 2D circle view (L)" ),
+  menu.addAction( anatomist::RefWindow::tr( "Legacy 2D circle view (L)" ),
                   w, SLOT( close() ) );
   menu.addSeparator();
-  menu.addAction( RefWindow::tr( "Rebuild referentials positions (F5)" ),
+  menu.addAction( anatomist::RefWindow::tr(
+                    "Rebuild referentials positions (F5)" ),
                   w, SLOT( updateReferentialView() ) );
-  menu.addAction( RefWindow::tr( "Focus view (Home)" ),
+  menu.addAction( anatomist::RefWindow::tr( "Focus view (Home)" ),
                   w, SLOT( focusView() ) );
-  menu.addAction( RefWindow::tr( "Reset view orientation (Return)" ),
+  menu.addAction( anatomist::RefWindow::tr( "Reset view orientation (Return)" ),
                   w, SLOT( muteCoronal() ) );
   menu.addSeparator();
-  menu.addAction( RefWindow::tr( "Toggle on-screen info (I)" ),
+  menu.addAction( anatomist::RefWindow::tr( "Toggle on-screen info (I)" ),
                   w, SLOT( toggleInfo() ) );
   menu.exec( static_cast<GLWidgetManager *>( view() )->
     qglWidget()->mapToGlobal( QPoint( x, y ) ) );

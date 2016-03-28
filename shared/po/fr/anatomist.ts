@@ -3343,6 +3343,14 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Split referential to disconnect transformations</source>
         <translation>Dupliquer le référentiel pour déconnecter les transformations</translation>
     </message>
+    <message>
+        <source>See objects in this referential</source>
+        <translation>Voir les objets dans ce référentiel</translation>
+    </message>
+    <message>
+        <source>Switch to 3D view</source>
+        <translation>Passer en vue 3D</translation>
+    </message>
 </context>
 <context>
     <name>RegionsFusionWindow</name>
@@ -4210,6 +4218,14 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
         <source>&lt;p align=&quot;justify&quot;&gt;Well, this mode doesn&apos;t exist in fact... Maybe one day it will perform real-time polygon pruning to speed-up huge mesh rendering, but up to now...&lt;/p&gt;</source>
         <translation>&lt;p align=&quot;justify&quot;&gt;Bon, ce mode n&apos;existe pas en fait... Peut-être qu&apos;un jour il effectuera une décimation en temps réel des polygônes pour accélérer le rendu des très gros maillages, mais pour l&apos;instant...&lt;/p&gt;</translation>
     </message>
+    <message>
+        <source>Depth sorting of polygons</source>
+        <translation>Tri par profondeur des poligones</translation>
+    </message>
+    <message>
+        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
+        <translation>Trier les polygones par profondeur pour les objets transparents. Les rendus transparents sont meilleurs, mais l&apos;impact sur les performances de rendu sont importantes.</translation>
+    </message>
 </context>
 <context>
     <name>VolRenderPanel</name>
@@ -4266,6 +4282,37 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     <message>
         <source>Zoom :</source>
         <translation>Zoom :</translation>
+    </message>
+</context>
+<context>
+    <name>anatomist::RefWindow</name>
+    <message>
+        <source>3D sphere view (S)</source>
+        <translation>Vue sur sphère (S)</translation>
+    </message>
+    <message>
+        <source>3D flat view (F)</source>
+        <translation>Vue plane (F)</translation>
+    </message>
+    <message>
+        <source>Legacy 2D circle view (L)</source>
+        <translation>Ancienne vue ne cercle 2D (L)</translation>
+    </message>
+    <message>
+        <source>Rebuild referentials positions (F5)</source>
+        <translation>Recalculer les positions des référetiels (F5)</translation>
+    </message>
+    <message>
+        <source>Focus view (Home)</source>
+        <translation>Focaliser la vue (Home)</translation>
+    </message>
+    <message>
+        <source>Reset view orientation (Return)</source>
+        <translation>Réinitialiser l&apos;orientation de la vue (Return)</translation>
+    </message>
+    <message>
+        <source>Toggle on-screen info (I)</source>
+        <translation>Voir informations sur la vue / en bulle (I)</translation>
     </message>
 </context>
 <context>
