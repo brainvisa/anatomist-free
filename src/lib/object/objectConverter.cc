@@ -44,7 +44,6 @@
 #include <anatomist/sparsematrix/sparsematrix.h>
 #include <aims/sparsematrix/sparseordensematrix.h>
 
-using namespace anatomist;
 using namespace aims;
 using namespace carto;
 
@@ -955,10 +954,6 @@ ObjectConverter<SparseOrDenseMatrix>::setAims( AObject* x,
 }
 
 
-}
-
-
-
 template class ObjectConverter<BucketMap<Void> >;
 template class ObjectConverter<AimsBucket<Void> >;
 template class ObjectConverter<AimsSurfaceTriangle>;
@@ -990,4 +985,4 @@ template class ObjectConverter<TimeTexture<int> >;
 template class ObjectConverter<TimeTexture<unsigned> >;
 template class ObjectConverter<TimeTexture<Point2df> >;
 
-
+} // namespace anatomist
