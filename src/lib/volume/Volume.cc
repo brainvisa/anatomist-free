@@ -1550,8 +1550,7 @@ VolumeVectorTraits<AimsRGBA>::texValue( unsigned x, unsigned y,
   return v;
 }
 
-}
-}
+} // namespace internal
 
 template<typename T> inline
 float VolumeVectorTraits<T>::mixedTexValue( unsigned x, unsigned y, 
@@ -1583,3 +1582,5 @@ template class AVolume<float>;
 template class AVolume<double>;
 template class AVolume<AimsRGB>;
 template class AVolume<AimsRGBA>;
+
+} // namespace anatomist

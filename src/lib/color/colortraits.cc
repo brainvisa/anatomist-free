@@ -35,9 +35,10 @@
 
 #include <algorithm>
 
-using namespace anatomist;
 using std::swap;
 
+namespace anatomist
+{
 
 template <typename T>
 void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
@@ -112,9 +113,6 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
             << scale1 << std::endl; */
 }
 
-
-namespace anatomist
-{
 
 template <>
 void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
@@ -219,8 +217,6 @@ void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
   cmax1 = colors->dimY() - 1;
 }
 
-}
-
 
 template class ColorScalarPaletteTraits<int8_t>;
 template class ColorScalarPaletteTraits<uint8_t>;
@@ -232,3 +228,5 @@ template class ColorScalarPaletteTraits<int64_t>;
 template class ColorScalarPaletteTraits<uint64_t>;
 template class ColorScalarPaletteTraits<float>;
 template class ColorScalarPaletteTraits<double>;
+
+} // namespace anatomist

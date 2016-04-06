@@ -107,6 +107,8 @@ void OrientationAnnotation::UpdateText()
     }
 
     QGraphicsView* g_view = GraphicsViewOnWindow();
+    if( !g_view )
+      return;
     QGraphicsScene* scene = g_view->scene();
     if (!scene)
     {
@@ -130,6 +132,8 @@ void OrientationAnnotation::DrawText(OrientationAnnotation::Position position)
     }
 
     QGraphicsView* g_view = GraphicsViewOnWindow();
+    if( !g_view )
+      return;
     QGraphicsSimpleTextItem* g_text = new QGraphicsSimpleTextItem(PositionLabel(position));
     QGraphicsScene* scene = g_view->scene();
     QFont font = g_text->font();

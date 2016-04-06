@@ -220,7 +220,19 @@ Point4df Fusion2DMesh::getPlane( const ViewState & state ) const
         = theAnatomist->getTransformation( wref, oref );
       if( tr )
       {
-        n = tr->transform( n ) - tr->transform( Point3df( 0. ) );
+        // transform a trieder
+        Point3df v3 = tr->transform( n ) - tr->transform( Point3df( 0. ) );
+        Point3df v1, v2;
+        v1 = Point3df( 1, 0, 0 );
+        v1 = Point3df( 1, 0, 0 ) - n * n.dot( Point3df( 1, 0, 0 ) );
+        if( v1.norm2() < 1e-5 )
+          v1 = Point3df( 0, 1, 0 ) - n * n.dot( Point3df( 0, 1, 0 ) );
+        v1.normalize();
+        v2 = vectProduct( n, v1 );
+        // transform v1 and v2
+        v1 = tr->transform( v1 ) - tr->transform( Point3df( 0. ) );
+        v2 = tr->transform( v2 ) - tr->transform( Point3df( 0. ) );
+        n = vectProduct( v1, v2 );
         n.normalize();
         d = - n.dot( tr->transform( st->position ) );
       }

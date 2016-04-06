@@ -35,8 +35,6 @@
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/surface_d.h>
 
-using namespace anatomist;
-
 namespace anatomist
 {
 
@@ -53,11 +51,9 @@ ASurface<2>::ASurface( const char * )
   glAPI()->setupShader();
 }
 
-}
-
 
 template class ASurface<2>;
 template class ASurface<3>;
 template class ASurface<4>;
 
-
+} // namespace anatomist
