@@ -72,6 +72,10 @@
 #define ABOUT_NO_SOUND
 #endif
 
+#if !defined( ABOUT_NO_SOUND ) && defined( SOMA_SOUND_ALSA )
+#include <dlfcn.h>
+#endif
+
 /* AudiQ classes sources - I directly include them so they don't appear
    externally
  */
@@ -247,6 +251,7 @@ struct QAbout::Private
   long                  soundBufferSize;
 #ifdef SOMA_SOUND_ALSA
   snd_pcm_t             *alsaHandle;
+  void                  *libasound;
 #endif
 #ifdef SOMA_SOUND_OSS
   int                   sndFD;
@@ -379,7 +384,14 @@ QAbout::~QAbout()
 #ifdef SOMA_SOUND_ALSA
     if( d->useAlsa )
     {
+      int (*snd_pcm_close)(snd_pcm_t *pcm)
+        = reinterpret_cast<int (*)(snd_pcm_t *)>(
+          dlsym( d->libasound, "snd_pcm_close" ) );
+
       snd_pcm_close( d->alsaHandle );
+
+      dlclose( d->libasound );
+      d->libasound = 0;
     }
 #endif
 #ifdef SOMA_SOUND_OSS
@@ -435,12 +447,114 @@ namespace
 #if !defined( ABOUT_NO_SOUND ) && defined( SOMA_SOUND_ALSA )
   bool initSoundAlsa( QAbout::Private *d, const WavHeader & hdr )
   {
+    d->useAlsa = false;
+    d->alsaHandle = 0;
+
+    void *libaudio = dlopen( "libasound.so.2", RTLD_LOCAL | RTLD_LAZY );
+    char* lerr = dlerror();
+    if( !libaudio )
+    {
+      cout << "could not load libaudio. I will be mute.\n";
+      return false;
+    }
+    d->libasound = libaudio;
+
+    int (*snd_pcm_open)( snd_pcm_t **pcm, const char *name,
+                        snd_pcm_stream_t stream, int mode )
+      = reinterpret_cast<int (*)( snd_pcm_t **, const char *,
+        snd_pcm_stream_t, int )>( dlsym( libaudio, "snd_pcm_open" ) );
+
+    int (*snd_pcm_hw_params_malloc)(snd_pcm_hw_params_t **ptr)
+      = reinterpret_cast<int (*)(snd_pcm_hw_params_t **)>(
+        dlsym( libaudio, "snd_pcm_hw_params_malloc" ) );
+
+    int (*snd_pcm_hw_params_any)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *)>(
+        dlsym( libaudio, "snd_pcm_hw_params_any" ) );
+
+    int (*snd_pcm_hw_params_set_access)(snd_pcm_t *pcm, snd_pcm_hw_params_t
+         *params, snd_pcm_access_t _access)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *,
+                                 snd_pcm_access_t)>(
+        dlsym( libaudio, "snd_pcm_hw_params_set_access" ) );
+
+    int (*snd_pcm_hw_params_set_format)(snd_pcm_t *pcm,
+                                        snd_pcm_hw_params_t *params,
+                                        snd_pcm_format_t val)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *,
+                                 snd_pcm_format_t)>(
+        dlsym( libaudio, "snd_pcm_hw_params_set_format" ) );
+
+    int (*snd_pcm_hw_params_set_rate_near)(snd_pcm_t *pcm,
+                                           snd_pcm_hw_params_t *params,
+                                           unsigned int *val, int *dir)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *,
+                                 unsigned int *, int *)>(
+        dlsym( libaudio, "snd_pcm_hw_params_set_rate_near" ) );
+
+    int (*snd_pcm_hw_params_set_channels)(snd_pcm_t *pcm,
+                                          snd_pcm_hw_params_t *params,
+                                          unsigned int val)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *,
+                                 unsigned int)>(
+        dlsym( libaudio, "snd_pcm_hw_params_set_channels" ) );
+
+    int (*snd_pcm_hw_params)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *)>(
+        dlsym( libaudio, "snd_pcm_hw_params" ) );
+
+    int (*snd_pcm_hw_params_set_buffer_time_near)(
+        snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val,
+        int *dir)
+      = reinterpret_cast<int (*)(snd_pcm_t *, snd_pcm_hw_params_t *,
+                                 unsigned int *, int *)>(
+        dlsym( libaudio, "snd_pcm_hw_params_set_buffer_time_near" ) );
+
+    void (*snd_pcm_hw_params_free)(snd_pcm_hw_params_t *obj)
+      = reinterpret_cast<void (*)(snd_pcm_hw_params_t *)>(
+        dlsym( libaudio, "snd_pcm_hw_params_free" ) );
+
+    int (*snd_pcm_close)(snd_pcm_t *pcm)
+      = reinterpret_cast<int (*)(snd_pcm_t *)>(
+        dlsym( libaudio, "snd_pcm_close" ) );
+
+    int (*snd_pcm_hw_params_get_buffer_size)(const snd_pcm_hw_params_t *params,
+                                             snd_pcm_uframes_t *val)
+      = reinterpret_cast<int (*)(const snd_pcm_hw_params_t *,
+                                 snd_pcm_uframes_t *)>(
+        dlsym( libaudio, "snd_pcm_hw_params_get_buffer_size" ) );
+
+    const char *(*snd_strerror)(int errnum)
+      = reinterpret_cast<const char *(*)(int)>(
+        dlsym( libaudio, "snd_strerror" ) );
+
+    int (*snd_pcm_prepare)(snd_pcm_t *pcm)
+      = reinterpret_cast<int (*)(snd_pcm_t *)>(
+        dlsym( libaudio, "snd_pcm_prepare" ) );
+
+    if( !snd_pcm_open || !snd_pcm_hw_params_malloc || !snd_pcm_hw_params_any
+        || !snd_pcm_hw_params_set_access || !snd_pcm_hw_params_set_format
+        || !snd_pcm_hw_params_set_rate_near || !snd_pcm_hw_params_set_channels
+        || !snd_pcm_hw_params || !snd_pcm_hw_params_set_buffer_time_near
+        || !snd_pcm_hw_params_free || !snd_pcm_close
+        || !snd_pcm_hw_params_get_buffer_size || !snd_strerror
+        || !snd_pcm_prepare )
+    {
+      cout << "symbols not found in libaudio. I will be mute.\n";
+      cout << snd_pcm_open << ", " << snd_pcm_hw_params_malloc << ", " << snd_pcm_hw_params_any << ", " <<
+        snd_pcm_hw_params_set_access << ", " << snd_pcm_hw_params_set_format
+        << ", " << snd_pcm_hw_params_set_rate_near << ", " << snd_pcm_hw_params_set_channels
+        << ", " << snd_pcm_hw_params << ", " << snd_pcm_hw_params_set_buffer_time_near
+        << ", " << snd_pcm_hw_params_free << ", " << snd_pcm_close
+        << ", " << snd_pcm_hw_params_get_buffer_size << ", " << snd_strerror
+        << ", " << snd_pcm_prepare << endl;
+      return false;
+    }
+
     const char    audiodev[] = "default";
     // Open the soundcard device.
     int err;
 
-    d->useAlsa = false;
-    d->alsaHandle = 0;
     snd_pcm_t *handle;
 
     if( ( err = snd_pcm_open( &handle, audiodev, SND_PCM_STREAM_PLAYBACK,
@@ -779,6 +893,17 @@ void QAbout::music()
 #ifdef SOMA_SOUND_ALSA
   int done;
   snd_pcm_sframes_t frames = -1;
+
+  snd_pcm_sframes_t (*snd_pcm_writei)(snd_pcm_t *pcm, const void *buffer,
+                                      snd_pcm_uframes_t size)
+    = reinterpret_cast<snd_pcm_sframes_t (*)(snd_pcm_t *, const void *,
+                                             snd_pcm_uframes_t)>(
+      dlsym( d->libasound, "snd_pcm_writei" ) );
+
+  int (*snd_pcm_recover)(snd_pcm_t *pcm, int err, int silent)
+    = reinterpret_cast<int (*)(snd_pcm_t *, int, int)>(
+      dlsym( d->libasound, "snd_pcm_recover" ) );
+
 #endif
   // cout << "buffer size: " << mbuf.size() << endl;
   // cout << "sampleSize: " << hdr.sampleSize << ", channels: " << hdr.channels
