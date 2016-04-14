@@ -1,0 +1,26 @@
+attributes = {
+    'boundingbox_max' : [ 512, 1, 1, 1 ],
+    'boundingbox_min' : [ 0, 0, 0, 0 ],
+    'file_type' : 'JPEG',
+    'filenames' : [ 'white_blue_red.jpg' ],
+    'material' : {
+        'ambient' : [ 0.100000001490116, 0.100000001490116, 0.100000001490116, 1 ],
+        'diffuse' : [ 0.800000011920929, 0.800000011920929, 0.800000011920929, 1 ],
+        'emission' : [ 0, 0, 0, 1 ],
+        'selectable_mode' : 'selectable_when_opaque',
+        'shininess' : 20,
+        'specular' : [ 0.200000002980232, 0.200000002980232, 0.200000002980232, 1 ],
+        'unlit_color' : [ 0, 0, 0, 1 ]
+      },
+    'palette_gradients' : '0;1;0.0897436;0;0.520513;0.933333;0.617949;1;0.833333;1;1;0.488889#0;1;0.0897436;0;0.251282;1;0.620513;1;0.889744;0;1;0#0;1;0.258974;1;0.438462;0.133333;1;0#0.5;1',
+    'palette_gradients_mode' : 'RGB',
+    'texture_properties' : [ {
+            'filtering' : 'nearest',
+            'generation' : 'none',
+            'interpolation' : 'palette',
+            'mode' : 'decal',
+            'rate' : 1
+          } ],
+    'volume_dimension' : [ 512, 1, 1, 1 ],
+    'voxel_size' : [ 1, 1, 1, 1 ]
+  }
