@@ -64,7 +64,7 @@ namespace anatomist
    *    http://java.sun.com/javase/6/docs/api/java/util/Observable.html
    */
 
-  class Observable : public carto::SharedObject
+  class Observable : virtual public carto::SharedObject
   {
   public:
     /// Construct an Observable with zero observers

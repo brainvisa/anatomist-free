@@ -54,7 +54,7 @@ namespace anatomist
 
   /** Abstract base class Anatomist window
    */
-  class ANATOMIST_API AWindow : public carto::SharedObject, public Observer
+  class ANATOMIST_API AWindow : virtual public carto::SharedObject, public Observer
   {
   public:
     enum Type
