@@ -629,8 +629,35 @@ void ATransformSet::deleteGeneratedConnections( Referential* r1,
 void ATransformSet::updateTransformation( Transformation *tr )
 {
   Referential* r1 = tr->source(), *r2 = tr->destination();
+  if( !r1 || !r2 )
+    // not a finalized transform.
+    return;
   Private::Ts::iterator		is = d->trans.find( r1 );
+  if( is == d->trans.end() )
+  {
+    registerTransformation( tr );
+    is = d->trans.find( r1 );
+    if( is == d->trans.end() )
+    {
+      cerr << "PROBLEM in updateTransformation: source ref not found\n";
+      return;
+    }
+  }
   Private::Ts2::iterator	id = is->second.find( r2 );
+  if( id == is->second.end() )
+  {
+    if( !hasTransformation( tr ) )
+    {
+      registerTransformation( tr );
+      id = is->second.find( r2 );
+      if( id == is->second.end() )
+      {
+        cerr << "PROBLEM in updateTransformation: dest ref not found\n";
+        return;
+      }
+    }
+    return;
+  }
 
   if( id->second.obs.get() )
   {
@@ -643,6 +670,11 @@ void ATransformSet::updateTransformation( Transformation *tr )
     return;
 
   Transformation *inv = transformation( r2, r1 );
+  if( !inv )
+  {
+    cout << "PROBLEM: no inverse transform\n";
+    return;
+  }
   inv->motion() = tr->motion().inverse();
   is = d->trans.find( r2 );
   id = is->second.find( r1 );
