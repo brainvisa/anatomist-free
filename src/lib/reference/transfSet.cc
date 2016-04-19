@@ -636,12 +636,7 @@ void ATransformSet::updateTransformation( Transformation *tr )
   if( is == d->trans.end() )
   {
     registerTransformation( tr );
-    is = d->trans.find( r1 );
-    if( is == d->trans.end() )
-    {
-      cerr << "PROBLEM in updateTransformation: source ref not found\n";
-      return;
-    }
+    return;
   }
   Private::Ts2::iterator	id = is->second.find( r2 );
   if( id == is->second.end() )
@@ -649,13 +644,9 @@ void ATransformSet::updateTransformation( Transformation *tr )
     if( !hasTransformation( tr ) )
     {
       registerTransformation( tr );
-      id = is->second.find( r2 );
-      if( id == is->second.end() )
-      {
-        cerr << "PROBLEM in updateTransformation: dest ref not found\n";
-        return;
-      }
+      return;
     }
+    cerr << "PROBLEM in updateTransformation: dest ref not found\n";
     return;
   }
 
@@ -671,10 +662,7 @@ void ATransformSet::updateTransformation( Transformation *tr )
 
   Transformation *inv = transformation( r2, r1 );
   if( !inv )
-  {
-    cout << "PROBLEM: no inverse transform\n";
-    return;
-  }
+    inv = new Transformation( r2, r1, true, true );
   inv->motion() = tr->motion().inverse();
   is = d->trans.find( r2 );
   id = is->second.find( r1 );
