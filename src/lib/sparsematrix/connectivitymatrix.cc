@@ -190,32 +190,24 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     d->patch->getOrCreatePalette();
     AObjectPalette *pal = d->patch->palette();
     rc_ptr<Texture1d> aimstex = d->patch->texture<float>( false, false );
-    string apal = "BLUE-ufusion";
-    // check if texture has only one patch (2 values max)
-    vector<float> t( 2, 0 );
-    vector<int32_t> n( 3, 0 );
-    vector<float>::const_iterator it,
-      et = aimstex->begin()->second.data().end();
-    for( it=aimstex->begin()->second.data().begin(); it!=et && n[2] == 0;
-      ++it )
-    {
-      if( n[0] == 0 || t[0] == *it )
-      {
-        ++n[0];
-        t[0] = *it;
-      }
-      else if( n[1] == 0 || t[1] == *it )
-      {
-        ++n[1];
-        t[1] = *it;
-      }
-      else // here's a 3rd value
-        ++n[2];
-    }
-    if( n[2] != 0 )
-      // if texture has several values, use a non-binary palette
-      apal = "Blue-Red-fusion";
-    pal->setRefPalette( theAnatomist->palettes().find( apal ) );
+    GLComponent::TexExtrema & text = d->patch->glTexExtrema( 0 );
+    unsigned nval
+      = unsigned( rint( text.maxquant[0] - text.minquant[0] ) ) + 1;
+    rc_ptr<APalette> apal( new APalette( "batch_bin", nval ) );
+    unsigned i, npatch = unsigned( rint( d->patchnum - text.minquant[0] ) );
+    if( d->patchmode == ONE )
+      for( i=0; i<nval; ++i )
+        if( i == npatch )
+          (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
+        else
+          (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
+    else
+      for( i=0; i<nval; ++i )
+        if( i != npatch )
+          (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
+        else
+          (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
+    pal->setRefPalette( apal );
     d->patch->setPalette( *pal );
     d->patch->glSetTexRGBInterpolation( true, 0 );
 
@@ -655,22 +647,28 @@ void AConnectivityMatrix::buildPatchIndices()
     d->patchindices.clear();
     return;
   }
-  rc_ptr<TimeTexture<float> > tx = d->patch->texture<float>( true, false );
+  rc_ptr<TimeTexture<float> > tx = d->patch->texture<float>( false, false );
   const vector<float> & tex = (*tx)[0].data();
   vector<float>::const_iterator it, et = tex.end();
   uint32_t i = 0, j = 0;
   d->patchindices.resize( d->sparse->matrix()->getSize1() );
-  // cout << "patch size: " << d->patchindices.size() << endl;
+  const GLComponent::TexExtrema & te = d->patch->glTexExtrema( 0 );
+  float scale = 1., offset = 0.;
+  if( te.scaled && te.max[0] != te.min[0] )
+  {
+    scale = ( te.maxquant[0] - te.minquant[0] ) / ( te.max[0] - te.min[0] );
+    offset = te.minquant[0] - te.min[0] * scale;
+  }
   if( d->patchmode == ONE )
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
-      if( *it == d->patchnum )
+      if( int( rint( *it * scale + offset ) ) == d->patchnum )
         d->patchindices[ i++ ] = j;
   }
   else // ALL_BUT_ONE
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
-      if( *it != d->patchnum )
+      if( ( *it * scale + offset ) != d->patchnum )
         d->patchindices[ i++ ] = j;
   }
 }
