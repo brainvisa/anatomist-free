@@ -249,7 +249,7 @@ void ATexture::setTexture( rc_ptr<TimeTexture<short> > tex )
   Converter<TimeTexture<short>, Texture1d>	c;
   c.convert( *tex, *ftex );
   // keep track of original data type
-  tex->header().setProperty( "data_type", DataTypeCode<short>::name() );
+  ftex->header().setProperty( "data_type", DataTypeCode<short>::name() );
 
   setTexture( ftex );
 }
@@ -264,7 +264,7 @@ void ATexture::setTexture( rc_ptr<TimeTexture<int> > tex )
   Converter<TimeTexture<int>, Texture1d>	c;
   c.convert( *tex, *ftex );
   // keep track of original data type
-  tex->header().setProperty( "data_type", DataTypeCode<int>::name() );
+  ftex->header().setProperty( "data_type", DataTypeCode<int>::name() );
 
   setTexture( ftex );
 }
@@ -279,7 +279,7 @@ void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
   Converter<TimeTexture<unsigned>, Texture1d>	c;
   c.convert( *tex, *ftex );
   // keep track of original data type
-  tex->header().setProperty( "data_type", DataTypeCode<unsigned>::name() );
+  ftex->header().setProperty( "data_type", DataTypeCode<unsigned>::name() );
 
   setTexture( ftex );
 }
