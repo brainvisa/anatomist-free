@@ -378,8 +378,8 @@ namespace
   {
     bool canbebasins = false;
     string dtype;
-    if( !header->getProperty( "data_type", dtype )
-        || ( dtype != "S32" && dtype != "S16" ) )
+    if( header->getProperty( "data_type", dtype )
+        && ( dtype != "S32" && dtype != "S16" ) )
       return false;
     if( tex.size() != 1 )
       return false;
@@ -391,7 +391,12 @@ namespace
       return false; // doesn't match mesh size
     vector<float>::const_iterator it, et = tex0.end();
     for( it=tex0.begin(); it!=et; ++it )
+    {
+      if( uniquevals.size() >= 100000 )
+        // too many labels: obviously not basins
+        return false;
       uniquevals.insert( int( rint( *it ) ) );
+    }
     uniquevals.erase( 0 ); // remove background
     if( uniquevals.size() == ncol ) // match matrix columns
       canbebasins = true;

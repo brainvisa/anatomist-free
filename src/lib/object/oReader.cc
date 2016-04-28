@@ -734,6 +734,7 @@ namespace
 
     Converter<TimeTexture<T>, Texture1d>	c;
     c.convert( ts, *tex );
+    tex->header().setProperty( "data_type", DataTypeCode<T>::name() );
 
     ATexture	*ao = new ATexture;
     ao->setTexture( tex );
@@ -766,6 +767,8 @@ namespace
     if( !loadData( ts, fname, f, ap.options ) )
       return( false );
     rc_ptr<Texture2d> tex( new Texture2d );
+    tex->header().setProperty( "data_type",
+                               DataTypeCode<AimsVector<T, 2> >::name() );
     typename TimeTexture<AimsVector<T, 2> >::const_iterator 
       it, et = ts.end();
     unsigned	i, n;
