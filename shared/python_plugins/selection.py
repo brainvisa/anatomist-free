@@ -49,7 +49,6 @@ class SelectionActionView( qt.QWidget ):
   _instances = set()
 
   def __init__( self, action, parent, name=None, flags=0 ):
-    print 'SelectionActionView:', self
     qt.QWidget.__init__( self, parent )
     self.setObjectName( name )
     self._action = action
@@ -258,7 +257,6 @@ class SelectionAction( anatomist.cpp.Action ):
             mat.set(mat_desc)
             v0.SetMaterial(mat)
             v0.notifyObservers()
-    #print 'time:', time.time() - t
 
   def changeColorByTargets(self, vertex_source, edge):
     vertices = edge.vertices()
@@ -304,7 +302,6 @@ class SelectionAction( anatomist.cpp.Action ):
     except:
       pass
     self._recursion = True
-    # print 'edgeSelection'
     sf = anatomist.cpp.SelectFactory.factory()
     sel = sf.selected()
     window = self.view().aWindow()

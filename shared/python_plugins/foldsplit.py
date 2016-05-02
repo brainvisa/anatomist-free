@@ -30,6 +30,9 @@
 #
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
+
+from __future__ import print_function
+
 import anatomist.cpp as anatomist
 from soma import aims, aimsalgo
 import numpy
@@ -73,7 +76,7 @@ class SplitFoldAction( anatomist.Action ):
           ag = p
           break
     if ag is None:
-      print 'Vertex has no parent graph, strange. Aborting.'
+      print('Vertex has no parent graph, strange. Aborting.')
       return
     g = ag.attributed()
     ag.loadSubObjects( 3 )
@@ -125,7 +128,7 @@ class SplitFoldAction( anatomist.Action ):
           ag = p
           break
     if ag is None:
-      print 'Vertex has no parent graph, strange. Aborting.'
+      print('Vertex has no parent graph, strange. Aborting.')
       return
     g = ag.attributed()
     ag.loadSubObjects( 3 )
@@ -195,7 +198,7 @@ class SplitFoldAction( anatomist.Action ):
             ag = p
             break
       if ag is None:
-        print 'Vertex has no parent graph, strange. Aborting.'
+        print('Vertex has no parent graph, strange. Aborting.')
         return
     g = ag.attributed()
     ag.loadSubObjects( 3 )
@@ -269,10 +272,10 @@ class SplitFoldAction( anatomist.Action ):
         return existingvertex
     obj = win.objectAt( pos[0], pos[1], pos[2], win.getTime() )
     if not obj:
-      print 'No object at that position'
+      print('No object at that position')
       return
     if obj.type() != anatomist.AObject.GRAPHOBJECT:
-      print 'Not a Vertex:', obj
+      print('Not a Vertex:', obj)
       return
     vertex = obj.attributed()
     if vertex.getSyntax() != 'fold':
@@ -296,7 +299,7 @@ class SplitFoldAction( anatomist.Action ):
             vertex = v
         if dmin < tolerance:
           return vertex
-      print 'Not a cortical fold:', obj, vertex.getSyntax()
+      print('Not a cortical fold:', obj, vertex.getSyntax())
       return
     return vertex
 
@@ -322,7 +325,7 @@ class SplitFoldAction( anatomist.Action ):
           ag = p
           break
     if ag is None:
-      print 'Vertex has no parent graph, strange. Aborting.'
+      print('Vertex has no parent graph, strange. Aborting.')
       return
     g = ag.attributed()
     data = getattr( self, 'temporary', {} )
@@ -332,14 +335,14 @@ class SplitFoldAction( anatomist.Action ):
     elif data.has_key( 'graph' ):
       oldg = data[ 'graph' ]
       if oldg != g:
-        print 'different graph.'
+        print('different graph.')
         self.cleanup()
         data = {}
       else:
         if data.has_key( 'vertex' ):
           oldv = data[ 'vertex' ]
           if oldv != vertex:
-            print 'different vertex'
+            print('different vertex')
             self.cleanup()
             data = {}
     self.temporary = data
@@ -371,7 +374,7 @@ class SplitFoldAction( anatomist.Action ):
 
   def doSplit( self ):
     if not hasattr( self, 'temporary' ):
-      print 'nothing to split yet. Use ctrl+left button to set split points.'
+      print('nothing to split yet. Use ctrl+left button to set split points.')
       return
     data = self.temporary
     if data.has_key( 'splitline' ): # split confirmed
@@ -384,7 +387,7 @@ class SplitFoldAction( anatomist.Action ):
       fos = aims.FoldArgOverSegment( graph )
       newvertex = fos.splitVertex( vertex, splitline, 50 )
       if newvertex is None:
-        print 'Split failed.'
+        print('Split failed.')
         return
       try:
         bk = vertex[ 'aims_ss_ana' ]
@@ -413,13 +416,14 @@ class SplitFoldAction( anatomist.Action ):
     else: #  make split line from points
       if not data.has_key( 'graph' ) or not data.has_key( 'vertex' ) \
         or not data.has_key( 'points' ):
-        print 'missing split information. Use ctrl+left button to set split points.'
+        print('missing split information. Use ctrl+left button to set split '
+              'points.')
         return
       graph = data[ 'graph' ]
       vertex = data[ 'vertex' ]
       points = data[ 'points' ]
       if len( points ) == 0:
-        print 'no split points set. Use ctrl+left button to set split points.'
+        print('no split points set. Use ctrl+left button to set split points.')
         return
       fos = aims.FoldArgOverSegment( graph )
       splitline = fos.findSplitLine( vertex, points )
