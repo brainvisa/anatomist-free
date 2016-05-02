@@ -35,7 +35,13 @@
 BSA atlas probabilities
 '''
 
-import urllib2, ctypes
+try:
+    # python3
+    from urllib.request import urlopen, Request
+except ImportError:
+    # python2
+    from urllib2 import urlopen, Request
+import ctypes
 from soma import aims
 import numpy
 import anatomist.api as ana
@@ -55,13 +61,7 @@ def bsaClickHandler(eventName, params):
   win=params['window']
   a = ana.Anatomist()
   wref = win.getReferential()
-  print type( wref )
-  print type( wref )
-  print wref.refUuid
   mniref = a.mniTemplateRef
-  print 'mni:', type( mniref )
-  #if mniref is not None:
-    #mniref = a.Referential( a, mniref, mniref.uuid() )
   tr = a.getTransformation( wref, mniref )
   bsaw = BSAWindow._instance
   if bsaw is None:
@@ -91,12 +91,12 @@ def bsaClickHandler(eventName, params):
       return
   offset0 = ( posvox[0] + posvox[1] * imgdim[0] + posvox[2] * imgdim[0]*imgdim[1] ) *4 + hdrsz
   offsets = [ t * imgdim[0]*imgdim[1]*imgdim[2]*4 + offset0 for t in xrange(imgdim[3]) ]
-  req = urllib2.Request( bsa_url )
+  req = Request( bsa_url )
 
   if use_multirange:
     req.headers['Range'] = 'bytes=' + ','.join( [ '%s-%s' % (offset, offset+3) \
       for offset in offsets ] )
-    f = urllib2.urlopen(req)
+    f = urlopen(req)
     values = f.read()
     del f
     poff = 0
@@ -121,7 +121,7 @@ def bsaClickHandler(eventName, params):
     probs = []
     for offset in offsets:
       req.headers['Range'] = 'bytes=%s-%s' % (offset, offset+3)
-      f = urllib2.urlopen(req)
+      f = urlopen(req)
       values = f.read()
       del f
       # WARNING TODO: take byte order into account !
@@ -130,7 +130,7 @@ def bsaClickHandler(eventName, params):
 
   global labels
   if labels is None:
-    labels = urllib2.urlopen( labelsfile ).readlines()
+    labels = urlopen( labelsfile ).readlines()
     labels = [ l.strip().split(',') for l in labels[1:] ]
 
   text = '<html><p>Position: <b>%f, %f, %f</b></p><p><table><tr><td><b>index:</b></td><td><b>proba:</b></td><td><b>label:</b></td><td><b>common name:</b></td></tr>' % tuple( pos[:3] )
@@ -199,7 +199,6 @@ class BSAWindow( ana.cpp.QAWindow ):
     a.onCursorNotifier.remove( bsaClickHandler )
 
   def destroyNotified( self ):
-    #print 'destroyNotified'
     # release internal reference which kept the python side of the object
     # alive - now the python object may be destroyed since the C++ side
     # will be also destroyed anyway.

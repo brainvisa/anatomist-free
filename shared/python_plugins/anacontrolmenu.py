@@ -41,6 +41,8 @@ options dealing with python modules:
 * run a python program file in Anatomist
 """
 
+from __future__ import print_function
+
 import sys, os, string, glob
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -108,8 +110,8 @@ def fixMatplotlib():
         matplotlib.backends.new_figure_manager = backend_conf[0]
         matplotlib.backends.draw_if_interactive = backend_conf[1]
         matplotlib.backends.show = backend_conf[2]
-    except Exception, e:
-      print 'exception:', e
+    except Exception as e:
+      print('exception:', e)
       pass
 
 
@@ -126,7 +128,7 @@ try:
 except ImportError:
     have_zmq = False
 import signal
-import thread
+import threading
 import logging
 import heapq
 
@@ -148,7 +150,7 @@ def _my_ioloop_start(self):
             return
         old_current = getattr(IOLoop._current, "instance", None)
         IOLoop._current.instance = self
-        self._thread_ident = thread.get_ident()
+        self._thread_ident = threading.get_ident()
         self._running = True
 
         # signal.set_wakeup_fd closes a race condition in event loops:
@@ -339,7 +341,7 @@ def runIPConsoleKernel(mode='qtconsole'):
         from IPython.kernel.zmq.kernelapp import IPKernelApp
         app = IPKernelApp.instance()
         if not app.initialized() or not app.kernel:
-          print 'runing IP console kernel'
+          print('runing IP console kernel')
           app.hb_port = 50042 # don't know why this is not set automatically
           app.initialize([mode, '--pylab=qt',
               "--KernelApp.parent_appname='ipython-%s'" % mode])
@@ -377,7 +379,7 @@ def runIPConsoleKernel(mode='qtconsole'):
         from IPython.zmq.ipkernel import IPKernelApp
         app = IPKernelApp.instance()
         if not app.initialized() or not app.kernel:
-            print 'runing IP console kernel'
+            print('runing IP console kernel')
             app.hb_port = 50042 # don't know why this is not set automatically
             app.initialize( [ 'qtconsole', '--pylab=qt',
                 "--KernelApp.parent_appname='ipython-qtconsole'" ] )
@@ -432,7 +434,7 @@ def ipythonNotebook():
 def ipythonShell():
   global consoleShellRunning
   if consoleShellRunning:
-    print 'console shell is already running.'
+    print('console shell is already running.')
     return 1
   import IPython
   fixMatplotlib()
@@ -484,7 +486,7 @@ def ipythonShell():
 def pythonShell():
   global consoleShellRunning
   if consoleShellRunning:
-    print 'console shell is already running.'
+    print('console shell is already running.')
     return 1
   try:
     import code
@@ -498,11 +500,11 @@ def pythonShell():
     except:
       pass
     # run interpreter
-    print 'running interactive interpreter.'
+    print('running interactive interpreter.')
     consoleShellRunning = True
     code.interact()
     consoleShellRunning = False
-    print 'shell terminated'
+    print('shell terminated')
     return 1
   except:
     return 0
@@ -520,7 +522,7 @@ def pyShell():
       from idle.PyShell import main
     except:
       return 0
-  print 'PyShell imported'
+  print('PyShell imported')
   sys.argv = [ 'anatomist' ]
   #shellThread = threading.Thread( target=main )
   #shellThread.start()
@@ -534,7 +536,7 @@ def openshell():
     return # OK
   global consoleShellRunning
   if consoleShellRunning:
-    print 'console shell is already running.'
+    print('console shell is already running.')
     return
   if ipythonShell():
     return
@@ -542,11 +544,11 @@ def openshell():
     return
   if pyShell():
     return
-  print 'No shell available. Sorry.'
+  print('No shell available. Sorry.')
 
 def listmods():
-  print 'python modules:'
-  print
+  print('python modules:')
+  print()
   sz = 0
   for x in anatomist.loaded_modules:
     try:
@@ -559,35 +561,43 @@ def listmods():
       s = ''
       for i in xrange( sz - len(x) ):
         s += ' '
-      print ' ', x, s + ':', eval( x + '.__file__' )
+      print(' ', x, s + ':', eval( x + '.__file__' ))
       descr = eval( x + '.__doc__' )
       if descr is not None:
-        print descr
+        print(descr)
       print
     except:
       pass
 
 def loadpython():
-  print 'load python file'
+  print('load python file')
   file = QFileDialog.getOpenFileName( None, '*.py', options=QFileDialog.DontUseNativeDialog )
   if file is not None:
     import sip
     if sip.getapi('QString') == 1:
         file = file.toLocal8Bit().data()
-    execfile( file )
+    if sys.version_info[0] >= 3:
+        code = compile(open(file).read(), file, 'exec')
+        exec(code)
+    else:
+      execfile(file)
 
 
 class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
   def run( filename, options ):
-    print 'run:', filename, 'with options:', options
+    print('run:', filename, 'with options:', options)
     try:
       a.theProcessor().allowExecWhileIdle( True )
-      execfile( filename )
-    except Exception, e:
+      if sys.version_info[0] >= 3:
+          code = compile(open(filename).read(), filename, 'exec')
+          exec(code)
+      else:
+          execfile(filename)
+    except Exception as e:
       import traceback, sys
       sys.stdout.flush()
       sys.stderr.flush()
-      print >> sys.stderr, e
+      print(e, file=sys.stderr)
       traceback.print_stack()
       sys.stderr.flush()
     a.theProcessor().allowExecWhileIdle( False )
@@ -596,7 +606,7 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
   def load( self, filename, subobjects, options ):
     import threading
     if not isinstance(threading.current_thread(), threading._MainThread):
-      print 'warning, running python script in an arbitrary thread'
+      print('warning, running python script in an arbitrary thread')
     res = self.run( filename, options )
     return res
 
@@ -614,7 +624,7 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
   #def doit( self ):
     #try:
       #execfile( self._filename )
-    #except Exception, e:
+    #except Exception as e:
       #import traceback, sys
       #sys.stdout.flush()
       #sys.stderr.flush()

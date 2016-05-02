@@ -36,6 +36,8 @@
 A Matplotlib-based histogram window for Anatomist
 '''
 
+from __future__ import print_function
+
 import anatomist.direct.api as ana
 from soma import aims
 import numpy, sys
@@ -44,7 +46,7 @@ try:
   use_aimsalgo = True
 except:
   use_aimsalgo = False
-  print 'warning: aimsalgo cannot be used - histograms will be slow.'
+  print('warning: aimsalgo cannot be used - histograms will be slow.')
 
 from soma.qt_gui.qt_backend import init_matplotlib_backend
 init_matplotlib_backend()

@@ -35,6 +35,8 @@
 """Models Fusion Method
 """
 
+from __future__ import print_function
+
 import sys, os
 import PyQt4.QtCore as qt
 import PyQt4.QtGui as qtui
@@ -107,7 +109,7 @@ class ConfigureCallback(anatomist.ObjectMenuCallback):
 		if widget:
 			self._conf = Configurator(widget, objects)
 			widget.show()
-		else:	print "can't load ui file '%s'" % ui
+		else:	print("can't load ui file '%s'" % ui)
 
 
 class AModelsGraphFusionObject(anatomist.ObjectList):
