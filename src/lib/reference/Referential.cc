@@ -339,6 +339,8 @@ bool Referential::load( const string & filename )
     cerr << "Unknown exception" << endl;
   }
   delete ph;
+  if( !_header )
+    _header = new PythonHeader;
   return false;
 }
 
@@ -494,10 +496,11 @@ Referential* Referential::referentialOfNameOrUUID( const AObject* o,
   unsigned  i, n = refs.size();
   Object  it = transs->objectIterator();
 
+  Referential *mni_ref = Referential::mniTemplateReferential();
   if( refname == StandardReferentials::mniTemplateReferential()
-      || refname == Referential::mniTemplateReferential()->uuid().toString() )
+      || (mni_ref && refname == mni_ref->uuid().toString() ) )
   {
-    ref = Referential::mniTemplateReferential();
+    ref = mni_ref;
     // another special case where referential property is set to MNI: then
     // no matter what referentials property contains, just check if there is
     // a transformation between o and MNI, because SPM may not indicate MNI
