@@ -206,7 +206,7 @@ void ConstraintEditorWindow::constraintListInit()
 }
 
 ConstraintEditorWindow::ConstraintEditorWindow( const set<AObject*> &objects,
-                                                const char *name, Qt::WFlags f ) 
+                                                const char *name, Qt::WindowFlags f )
   : QDialog( 0, f ), d( new Private )
 {
   setModal( true );

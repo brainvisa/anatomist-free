@@ -192,6 +192,7 @@ void QObjectBrowserWidget::updateObject( GenericObject* )
 void QObjectBrowserWidget::registerObject( GenericObject* object )
 {
   using carto::shared_ptr;
+  using ::Edge;
 
   shared_ptr<AObject> ao;
   /* if( object->getProperty( "ana_object", ao ) )
@@ -326,6 +327,8 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent,
 
 void QObjectBrowserWidget::decorateItem( QTreeWidgetItem* item, AObject* obj )
 {
+  using ::Edge;
+
   enum { nameCol, typeCol, valueCol, labelCol };
   map<int, QPixmap>::const_iterator	ip, fp=QObjectTree::TypeIcons.end();
   map<int, string>::const_iterator	it, ft=QObjectTree::TypeNames.end();
@@ -753,6 +756,7 @@ void QObjectBrowserWidget::whatIs( QTreeWidgetItem* item,
 				   ItemDescr & descr ) const
 {
   using carto::shared_ptr;
+  using ::Edge;
 
   map<QTreeWidgetItem *, AObject *>::const_iterator	io, fo=_aobjects.end();
   map<QTreeWidgetItem *, GenericObject *>::const_iterator 

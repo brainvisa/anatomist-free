@@ -24,7 +24,21 @@ get_filename_component( @PROJECT_NAME_UPPER@_BINARY_DIR "${@PROJECT_NAME_UPPER@_
 set( @PROJECT_NAME_UPPER@_USE_FILE "${@PROJECT_NAME_UPPER@_BINARY_DIR}/share/@PROJECT_NAME@-@BRAINVISA_PACKAGE_VERSION_MAJOR@.@BRAINVISA_PACKAGE_VERSION_MINOR@/cmake/@PROJECT_NAME@-use.cmake" )
 
 BRAINVISA_FIND_PACKAGE( aims-free REQUIRED )
-find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED )
+
+if( DESIRED_QT_VERSION EQUAL 4 )
+  find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL QtNetwork REQUIRED )
+elseif( DESIRED_QT_VERSION EQUAL 5 )
+  find_package( Qt5Widgets REQUIRED )
+  find_package( Qt5OpenGL REQUIRED )
+  find_package( Qt5Network REQUIRED )
+  add_definitions( ${Qt5Widgets_DEFINITIONS} ${Qt5OpenGL_DEFINITIONS}
+    ${Qt5Network_DEFINITIONS} )
+  include_directories( ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}
+    ${Qt5Network_INCLUDE_DIRS} )
+  set( QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES}
+    ${Qt5Network_LIBRARIES} )
+endif()
+
 find_package( OpenGL REQUIRED )
 find_package( Qwt )
 find_package( python )

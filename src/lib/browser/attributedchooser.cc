@@ -46,7 +46,7 @@ using namespace Qt;
 AttributedChooser::AttributedChooser( const GenericObject & ao, 
                                       const SyntaxSet & ss, bool newonly, 
                                       QWidget* parent, const char* name, 
-                                      Qt::WFlags f )
+                                      Qt::WindowFlags f )
   : QDialog( parent, f ), _newonly( newonly ), _ao( &ao ), 
     _syntax( &ss )
 {

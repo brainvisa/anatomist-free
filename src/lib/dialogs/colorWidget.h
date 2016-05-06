@@ -47,7 +47,7 @@ class QAColorWidget : public QWidget
 
 public:
   QAColorWidget( QColor, QWidget * parent = 0, const char * name = 0, 
-		 Qt::WFlags flags = 0, bool allowAlpha = false, 
+		 Qt::WindowFlags flags = 0, bool allowAlpha = false,
 		 bool allowNeutralAlpha = false, int initalpha = 255, 
 		 bool neutralph = false );
   ~QAColorWidget();

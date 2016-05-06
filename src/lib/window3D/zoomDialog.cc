@@ -58,7 +58,7 @@ namespace anatomist
 
 
 ZoomDialog::ZoomDialog( float zoom, bool forceResize, QWidget* parent, 
-			const char* name, bool modal, Qt::WFlags f )
+			const char* name, bool modal, Qt::WindowFlags f )
   : QDialog( parent, f ), d( new ZoomDialog_Private )
 {
   setWindowTitle( tr( "Zoom selection" ) );

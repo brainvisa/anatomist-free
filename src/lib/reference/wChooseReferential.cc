@@ -52,7 +52,7 @@ using namespace std;
 
 ChooseReferentialWindow::ChooseReferentialWindow( const set<AObject*> &objL,
                                                   const char *name, 
-                                                  Qt::WFlags f )
+                                                  Qt::WindowFlags f )
   : QDialog( 0, f ), _objL(objL), 
     _chosenref( 0 )
 {
@@ -62,7 +62,7 @@ ChooseReferentialWindow::ChooseReferentialWindow( const set<AObject*> &objL,
 
 ChooseReferentialWindow::ChooseReferentialWindow( const set<AWindow *> &winL,
                                                   const char *name, 
-                                                  Qt::WFlags f  )
+                                                  Qt::WindowFlags f  )
   : QDialog( 0, f ), _winL(winL)
 { 
   drawContents( name );
@@ -72,7 +72,7 @@ ChooseReferentialWindow::ChooseReferentialWindow( const set<AWindow *> &winL,
 ChooseReferentialWindow::ChooseReferentialWindow( const set<AWindow *> &winL, 
                                                   const set<AObject*> &objL, 
                                                   const char *name, 
-                                                  Qt::WFlags f  )
+                                                  Qt::WindowFlags f  )
   : QDialog( 0, f ), 
     _winL(winL), _objL(objL)
 {

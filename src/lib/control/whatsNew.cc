@@ -47,7 +47,7 @@ using namespace std;
 
 
 WhatsNew::WhatsNew( QWidget* parent, const char * name, bool modal, 
-                    Qt::WFlags f )
+                    Qt::WindowFlags f )
   : QDialog( parent, f )
 {
   setWindowTitle( tr( "Anatomist News" ) );

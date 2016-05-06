@@ -57,7 +57,7 @@ void QCancelLineEdit:: keyPressEvent( QKeyEvent* kev )
 
 
 QStringEdit::QStringEdit( const string & text, int x, int y, int w, int h, 
-			  QWidget* parent, const char* name, WFlags f )
+			  QWidget* parent, const char* name, WindowFlags f )
   : QDialog( parent, f )
 {
   if( name ){

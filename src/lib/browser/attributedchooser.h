@@ -52,7 +52,7 @@ public:
   AttributedChooser( const carto::GenericObject & ao, 
                      const carto::SyntaxSet & ss, bool newonly = true, 
                      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, 
-                     Qt::WFlags f = 0 );
+                     Qt::WindowFlags f = 0 );
   virtual ~AttributedChooser();
 
   std::string attName() const;

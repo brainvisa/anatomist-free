@@ -58,7 +58,7 @@ public:
 
   QAHistogramWindow( QWidget *parent=0, const char *name=0, 
                      carto::Object options = carto::none(), 
-                     Qt::WFlags f = Qt::Window );
+                     Qt::WindowFlags f = Qt::Window );
   virtual ~QAHistogramWindow();
 
   static AWindow *createHistogramWindow( void *, carto::Object );

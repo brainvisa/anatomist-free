@@ -49,7 +49,7 @@ class Fusion2DWindow : public QWidget, public anatomist::Observer
 
 public:
   Fusion2DWindow( const std::set<anatomist::AObject *> &, QWidget* parent = 0, 
-          const char *name = 0, Qt::WFlags f = 0 );
+          const char *name = 0, Qt::WindowFlags f = 0 );
   virtual ~Fusion2DWindow();
 
   const std::set<anatomist::AObject *> & Objects() const { return( _obj ); }

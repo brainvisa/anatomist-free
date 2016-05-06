@@ -237,7 +237,7 @@ namespace anatomist
 
 
 ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name, 
-                                      Qt::WFlags f )
+                                      Qt::WindowFlags f )
   : QWidget( parent, f ),
   pdat( new ReferentialWindow_PrivateData )
 {

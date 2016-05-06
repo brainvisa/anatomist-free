@@ -112,7 +112,7 @@ public:
 
   AWindow3D( ViewType t = Oblique, QWidget* parent = 0, 
              carto::Object params = carto::none(), 
-             Qt::WFlags f = 0 );
+             Qt::WindowFlags f = 0 );
   virtual ~AWindow3D();
 
   /// Get the window type (2D, 3D or control)
@@ -229,7 +229,7 @@ public:
 
   typedef anatomist::GLWidgetManager* (*GLWidgetCreator)
       ( anatomist::AWindow* win, QWidget* parent, const char* name,
-        const QGLWidget * shareWidget, Qt::WFlags f );
+        const QGLWidget * shareWidget, Qt::WindowFlags f );
   /// hook to create inherited QAGLWidgets (Vtk-enabled for instance)
   static void setGLWidgetCreator( GLWidgetCreator );
 

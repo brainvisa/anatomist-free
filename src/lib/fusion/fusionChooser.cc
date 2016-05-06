@@ -77,7 +77,7 @@ FusionChooser::Private::Private( const vector<AObject *>* obj )
 
 FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
 			      QWidget* parent, const char *name, 
-			      bool modal, Qt::WFlags f, 
+			      bool modal, Qt::WindowFlags f,
                               const vector<AObject *>* objects )
   : QDialog( parent, f ), d( new Private( objects ) )
 {

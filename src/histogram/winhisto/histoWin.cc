@@ -81,7 +81,7 @@ public:
 
 
 QAHistogramWindow::QAHistogramWindow( QWidget *p, const char *name, 
-                                      Object options, Qt::WFlags f ) 
+                                      Object options, Qt::WindowFlags f )
   : QAWindow( p, name, options, f ), d( new Private )
 {
   assert( theAnatomist );

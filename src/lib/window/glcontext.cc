@@ -139,7 +139,7 @@ void *GLContext::tryVisual( const QGLFormat& f, int bufDepth )
 
 
 GLWidget::GLWidget( QWidget* parent, const char* name,
-		    const QGLWidget* shareWidget, Qt::WFlags f )
+		    const QGLWidget* shareWidget, Qt::WindowFlags f )
   : QGLWidget( parent, shareWidget, f )
 {
     setObjectName( name );
@@ -169,7 +169,7 @@ GLWidget::GLWidget( QWidget* parent, const char* name,
 
 GLWidget::GLWidget( const QGLFormat& format, QWidget* parent, 
 		    const char* name, 
-		    const QGLWidget* shareWidget, Qt::WFlags f )
+		    const QGLWidget* shareWidget, Qt::WindowFlags f )
   : QGLWidget( format, parent, shareWidget, f )
 {
   setObjectName( name );

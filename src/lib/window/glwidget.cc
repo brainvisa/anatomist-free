@@ -44,7 +44,7 @@ using namespace std;
 
 QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
                         const char* name, const QGLWidget * shareWidget,
-                        Qt::WFlags f )
+                        Qt::WindowFlags f )
   : GLWidget( parent, name, shareWidget, f ),
     GLWidgetManager( win, this )
 {
