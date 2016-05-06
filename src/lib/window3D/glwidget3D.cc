@@ -57,7 +57,7 @@ QAGLWidget3D_PrivateData::QAGLWidget3D_PrivateData()
 
 
 QAGLWidget3D::QAGLWidget3D( AWindow* win, QWidget* parent, const char* name, 
-			    const QGLWidget * shareWidget, Qt::WFlags f )
+			    const QGLWidget * shareWidget, Qt::WindowFlags f )
   : QAGLWidget( win, parent, name, shareWidget, f ), 
     d( new QAGLWidget3D_PrivateData )
 {

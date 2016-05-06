@@ -60,7 +60,7 @@ struct QAColorWidget_PrivateData
 
 
 QAColorWidget::QAColorWidget( QColor init, QWidget * parent, 
-			      const char * name, Qt::WFlags flags, 
+			      const char * name, Qt::WindowFlags flags,
 			      bool allowAlpha, bool allowNeutralAlpha, 
 			      int initalpha, bool neutral )
   : QWidget( parent, flags ), _pdat( new QAColorWidget_PrivateData )

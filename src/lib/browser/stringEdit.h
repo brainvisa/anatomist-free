@@ -70,7 +70,7 @@ class QStringEdit : public QDialog
 public:
   QStringEdit( const std::string & text, int x, int y, int w, int h, 
                QWidget* parent = theAnatomist->getQWidgetAncestor(), 
-               const char* name = 0, Qt::WFlags f = 0 );
+               const char* name = 0, Qt::WindowFlags f = 0 );
   ~QStringEdit();
 
   std::string text() const

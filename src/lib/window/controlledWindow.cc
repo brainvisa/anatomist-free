@@ -74,7 +74,7 @@ ControlledWindow::Private::~Private()
 // ----
 
 ControlledWindow::ControlledWindow( QWidget* parent, const char* name, 
-				    Object options, Qt::WFlags f )
+				    Object options, Qt::WindowFlags f )
   : QAWindow( parent, name, options, f ), d( new Private )
 {
 }

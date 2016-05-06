@@ -53,11 +53,11 @@ public:
   QLabelEdit( const std::string & text, int x, int y, unsigned w, unsigned h, 
 	      QObjectBrowser* br, carto::GenericObject* ao, 
 	      const std::string & att, QTreeWidgetItem* item, 
-	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
+	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WindowFlags f = 0 );
   QLabelEdit( const std::string & text, int x, int y, unsigned w, unsigned h, 
 	      QObjectBrowser* br, const std::set<carto::GenericObject*> & ao,
 	      const std::string & att, const std::set<QTreeWidgetItem*> & item, 
-	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
+	      QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WindowFlags f = 0 );
   ~QLabelEdit();
 
   std::string text() const;

@@ -72,7 +72,8 @@ struct QImageLabel_privateData
 };
 
 
-QImageLabel::QImageLabel( QWidget* parent, const char* name, Qt::WFlags f )
+QImageLabel::QImageLabel( QWidget* parent, const char* name,
+                          Qt::WindowFlags f )
   : QLabel( parent, f ), _privdata( new QImageLabel_privateData )
 {
   setObjectName(name);

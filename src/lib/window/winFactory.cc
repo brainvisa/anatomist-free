@@ -134,13 +134,13 @@ void AWindowFactory::applyCommonOptions( AWindow* win, Object params )
 AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
 {
   QWidget	*dk = static_cast<QWidget *>( dock );
-  Qt::WFlags	f = 0;
+  Qt::WindowFlags	f = 0;
   if( dk )
     f |= Qt::Window;
   if( params )
     try
     {
-      f = Qt::WFlags( (int) params->getProperty( "wflags" )->getScalar() );
+      f = Qt::WindowFlags( (int) params->getProperty( "wflags" )->getScalar() );
     }
     catch( ... )
     {
@@ -157,13 +157,13 @@ AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
 AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
 {
   QWidget       *dk = static_cast<QWidget *>( dock );
-  Qt::WFlags    f = 0;
+  Qt::WindowFlags    f = 0;
   if( dk )
     f |= Qt::Window;
   if( params )
     try
     {
-      f = Qt::WFlags( (int) params->getProperty( "wflags" )->getScalar() );
+      f = Qt::WindowFlags( (int) params->getProperty( "wflags" )->getScalar() );
     }
     catch( ... )
     {
@@ -180,13 +180,13 @@ AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
 AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
 {
   QWidget       *dk = static_cast<QWidget *>( dock );
-  Qt::WFlags    f = 0;
+  Qt::WindowFlags    f = 0;
   if( dk )
     f |= Qt::Window;
   if( params )
     try
     {
-      f = Qt::WFlags( (int) params->getProperty( "wflags" )->getScalar() );
+      f = Qt::WindowFlags( (int) params->getProperty( "wflags" )->getScalar() );
     }
     catch( ... )
     {
@@ -203,13 +203,13 @@ AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
 AWindow* AWindowFactory::create3D( void *dock, carto::Object params )
 {
   QWidget       *dk = static_cast<QWidget *>( dock );
-  Qt::WFlags    f = 0;
+  Qt::WindowFlags    f = 0;
   if( dk )
     f |= Qt::Window;
   if( params )
     try
     {
-      f = Qt::WFlags( (int) params->getProperty( "wflags" )->getScalar() );
+      f = Qt::WindowFlags( (int) params->getProperty( "wflags" )->getScalar() );
     }
     catch( ... )
     {

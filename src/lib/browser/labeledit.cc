@@ -63,7 +63,7 @@ QLabelEdit::Private::Private( const set<GenericObject *> & ao,
 QLabelEdit::QLabelEdit( const string & text, int x, int y, unsigned w, 
 			unsigned h, QObjectBrowser* br, GenericObject* ao, 
 			const string & att, QTreeWidgetItem* item, 
-			QWidget* parent, const char* name, WFlags f )
+			QWidget* parent, const char* name, WindowFlags f )
   : QDialog( parent, f ), _browser( br ), 
     _att( att ), d( new Private )
 {
@@ -81,7 +81,7 @@ QLabelEdit::QLabelEdit( const string & text, int x, int y, unsigned w,
                         const set<GenericObject*> & ao,
 			const string & att,
                         const set<QTreeWidgetItem*> & items, 
-			QWidget* parent, const char* name, WFlags f )
+			QWidget* parent, const char* name, WindowFlags f )
   : QDialog( parent, f ), _browser( br ), 
     _att( att ), d( new Private( ao, items ) )
 {

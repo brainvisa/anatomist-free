@@ -47,7 +47,7 @@ class QAGLWidget : public carto::GLWidget,
 public:
   QAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
               const char* name = 0,
-              const QGLWidget * shareWidget = 0, Qt::WFlags f=0 );
+              const QGLWidget * shareWidget = 0, Qt::WindowFlags f=0 );
   virtual ~QAGLWidget();
 
   virtual QSize sizeHint() const;

@@ -514,7 +514,7 @@ namespace
 
 //	AWindow3D
 
-AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WFlags f) :
+AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlags f) :
     ControlledWindow(parent, "window3D", options, f),
     Observable(),
     d(new AWindow3D::Private)

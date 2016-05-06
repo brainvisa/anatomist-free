@@ -205,7 +205,7 @@ int QObjectBrowser::registerClass()
 
 
 QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name, 
-                                Object options, WFlags f ) 
+                                Object options, WindowFlags f )
   : ControlledWindow( parent, name, options, f ), d( new Private( this ) )
 {
   setAttribute( Qt::WA_DeleteOnClose );
@@ -252,6 +252,16 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   hdr->setText( 4, tr( "Sel." ) );
   hdr->setText( 5, tr( "Reg." ) );
   QHeaderView *hdri = d->lview->header();
+#if QT_VERSION >= 0x050000
+  hdri->setSectionResizeMode( 0, QHeaderView::Interactive );
+  hdri->setSectionResizeMode( 1, QHeaderView::Interactive );
+  hdri->setSectionResizeMode( 2, QHeaderView::Interactive );
+  hdri->setSectionResizeMode( 3, QHeaderView::Interactive );
+  hdri->setSectionResizeMode( 4, QHeaderView::Fixed );
+  hdri->resizeSection( 4, 26 );
+  hdri->setStretchLastSection( false );
+  hdri->setSectionResizeMode( 5, QHeaderView::Fixed );
+#else
   hdri->setResizeMode( 0, QHeaderView::Interactive );
   hdri->setResizeMode( 1, QHeaderView::Interactive );
   hdri->setResizeMode( 2, QHeaderView::Interactive );
@@ -260,6 +270,7 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   hdri->resizeSection( 4, 26 );
   hdri->setStretchLastSection( false );
   hdri->setResizeMode( 5, QHeaderView::Fixed );
+#endif
   hdri->resizeSection( 5, 26 );
   d->lview->setSortingEnabled( true );
 
@@ -272,10 +283,17 @@ QObjectBrowser::QObjectBrowser( QWidget * parent, const char * name,
   hdr->setText( 3, tr( "Label1" ) );
   hdr->setText( 4, tr( "Label2" ) );
   hdri = d->rview->header();
+#if QT_VERSION >= 0x050000
+  hdri->setSectionResizeMode( 2, QHeaderView::Interactive );
+  hdri->setStretchLastSection( false );
+  hdri->setSectionResizeMode( 3, QHeaderView::Interactive );
+  hdri->setSectionResizeMode( 4, QHeaderView::Interactive );
+#else
   hdri->setResizeMode( 2, QHeaderView::Interactive );
   hdri->setStretchLastSection( false );
   hdri->setResizeMode( 3, QHeaderView::Interactive );
   hdri->setResizeMode( 4, QHeaderView::Interactive );
+#endif
   d->rview->setSortingEnabled( true );
 
   d->statbar = statusBar(); // new QStatusBar( this, "status" );
@@ -795,6 +813,7 @@ void QObjectBrowser::updateRightPanel()
 void QObjectBrowser::updateRightPanelNow()
 {
   using carto::shared_ptr;
+  using ::Edge;
 
   if( !d->rviewrefresh )
     return;
@@ -2423,7 +2442,7 @@ bool QObjectBrowser::event( QEvent* ev )
     {
     case Event_BrowserUpdate:
       updateRightSelectionChange( 0 );
-      return( TRUE );
+      return true;
       break;
     default:
       break;
@@ -2436,6 +2455,7 @@ bool QObjectBrowser::event( QEvent* ev )
 void QObjectBrowser::updateRightSelectionChange( int modifier )
 {
   using carto::shared_ptr;
+  using ::Edge;
 
   // cout << "QObjectBrowser::updateRightSelectionChange()\n";
   QTreeWidgetItem	*item, *cur = 0;

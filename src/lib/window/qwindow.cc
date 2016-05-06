@@ -78,7 +78,7 @@ QAWindow::Private::Private()
 
 
 QAWindow::QAWindow( QWidget* parent, const char* name, Object params, 
-                    Qt::WFlags f )
+                    Qt::WindowFlags f )
   : QMainWindow( parent ), AWindow(), ControlSwitchObserver(), 
     d( new Private )
 {

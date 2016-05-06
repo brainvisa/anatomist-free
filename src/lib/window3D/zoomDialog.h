@@ -50,8 +50,10 @@ class ZoomDialog : public QDialog
   Q_OBJECT
 
 public:
-  ZoomDialog( float zoom, bool forceResize, QWidget* parent = theAnatomist->getQWidgetAncestor(),
-              const char* name = 0, bool modal = false, Qt::WFlags f = 0 );
+  ZoomDialog( float zoom, bool forceResize,
+              QWidget* parent = theAnatomist->getQWidgetAncestor(),
+              const char* name = 0, bool modal = false,
+              Qt::WindowFlags f = 0 );
   virtual ~ZoomDialog();
 
   QString zoomText() const;

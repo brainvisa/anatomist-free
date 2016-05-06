@@ -73,7 +73,7 @@ struct Fusion2DWindow::Private
 
 Fusion2DWindow::Fusion2DWindow( const set<AObject *> &objL, 
 				QWidget* parent, 
-				const char *name, Qt::WFlags f )
+				const char *name, Qt::WindowFlags f )
   : QWidget( parent, f ), Observer(),
     pdat( new Private( objL ) )
 {

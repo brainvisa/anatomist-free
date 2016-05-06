@@ -317,7 +317,7 @@ QTextureParams::Private::Private()
 
 
 QTextureParams::QTextureParams( QWidget *parent, const char *name, 
-                                bool modal, Qt::WFlags f )
+                                bool modal, Qt::WindowFlags f )
   : QDialog( parent, f ), d( new Private )
 {
   setObjectName( name );

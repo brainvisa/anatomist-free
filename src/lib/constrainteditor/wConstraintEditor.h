@@ -54,7 +54,7 @@ class ConstraintEditorWindow : public QDialog, public anatomist::Observer
 public:
   ConstraintEditorWindow(  const std::set<anatomist::AObject *> & ,
 			   const char *name, 
-                           Qt::WFlags = 0 );
+                           Qt::WindowFlags = 0 );
 
   virtual ~ConstraintEditorWindow();
 

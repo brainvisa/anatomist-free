@@ -49,7 +49,7 @@ namespace anatomist
 
   public:
     WhatsNew( QWidget* parent = theAnatomist->getQWidgetAncestor(), const char * name = 0, bool modal = true, 
-	      Qt::WFlags f = 0 );
+	      Qt::WindowFlags f = 0 );
     virtual ~WhatsNew();
 
   protected:

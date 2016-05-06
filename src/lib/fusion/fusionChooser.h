@@ -53,8 +53,9 @@ class FusionChooser : public QDialog
 
 public:
   FusionChooser( const std::multimap<int, anatomist::FusionMethod *> & methods,
-		 QWidget* parent = 0,
-		 const char *name = 0, bool modal = true, Qt::WFlags f = 0, 
+                 QWidget* parent = 0,
+                 const char *name = 0, bool modal = true,
+                 Qt::WindowFlags f = 0,
                  const std::vector<anatomist::AObject *>* objects = 0 );
   virtual ~FusionChooser();
 

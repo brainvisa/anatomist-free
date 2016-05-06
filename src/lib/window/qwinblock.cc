@@ -54,8 +54,9 @@ struct QAWindowBlock::Private
 };
 
 
-QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name, Qt::WFlags f,
-  int colsrows, bool inrows )
+QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
+                              Qt::WindowFlags f,
+                              int colsrows, bool inrows )
   : QMainWindow( parent, f ), d( new QAWindowBlock::Private )
 {
   setObjectName(name);
