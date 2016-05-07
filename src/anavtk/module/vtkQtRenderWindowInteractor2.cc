@@ -531,7 +531,11 @@ void vtkQtRenderWindowInteractor2::wheelEvent(QWheelEvent *e)
 
 int vtkQtRenderWindowInteractor2::GetDesiredDepth()
 {
+#if QT_VERSION >= 0x050000
   return QApplication::primaryScreen()->depth();
+#else
+  QX11Info::appDepth();
+#endif
 }
 
 
