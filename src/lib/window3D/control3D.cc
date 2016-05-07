@@ -60,6 +60,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <qtimer.h>
 #include <qtoolbar.h>
+#include <QDrag>
 #include <stdlib.h>
 
 #include <anatomist/window/glwidget.h>

@@ -1104,7 +1104,7 @@ QStringList fileAndFormat( const QString & caption )
     if( !filenames.isEmpty() )
     {
       QString filename = filenames[0];
-      QString format = fdiag.selectedFilter();
+      QString format = fdiag.selectedNameFilter();
       QString format2 = formatFromName( filename );
       if( format2.isEmpty() )
       {

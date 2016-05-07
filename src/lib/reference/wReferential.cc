@@ -275,7 +275,11 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
   resize( 256, 256 );
   setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
+#if QT_VERSION >= 0x050000
+#warning Qt::WA_PaintOutsidePaintEvent not set.
+#else
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
+#endif
 }
 
 ReferentialWindow::~ReferentialWindow()

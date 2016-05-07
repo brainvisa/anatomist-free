@@ -48,6 +48,7 @@
 #include <anatomist/commands/cLoadObject.h>
 #include <qtimer.h>
 #include <qmenubar.h>
+#include <QDrag>
 #include <qtoolbar.h>
 #include <stdio.h>
 
@@ -105,7 +106,7 @@ QAWindow::QAWindow( QWidget* parent, const char* name, Object params,
       setWindowIcon( anaicon );
   }
 
-  setAcceptDrops(TRUE);
+  setAcceptDrops( true );
 }
 
 

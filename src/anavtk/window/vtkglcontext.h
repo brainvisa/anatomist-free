@@ -47,9 +47,9 @@ namespace carto {
     Q_OBJECT
 public:
     vtkGLWidget( QWidget* parent=0, const char* name=0,
-              const QGLWidget* shareWidget = 0, Qt::WFlags f=0 );
+              const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0 );
     vtkGLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
-              const QGLWidget* shareWidget = 0, Qt::WFlags f=0 );
+              const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0 );
     virtual ~vtkGLWidget();
 };
 

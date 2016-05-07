@@ -115,7 +115,7 @@ void GraphLandmarkPicker::addGraphLandmarkOptions( Tree* tr )
 
 
 GraphLandmarkPicker::GraphLandmarkPicker( AGraph* ag, QWidget* parent, 
-					  const char* name, Qt::WFlags f )
+					  const char* name, Qt::WindowFlags f )
   : QWidget( parent, f ), _graph( ag ),
   pdat( new GraphLandmarkPicker_privateData )
 {

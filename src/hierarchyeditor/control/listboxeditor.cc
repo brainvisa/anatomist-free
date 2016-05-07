@@ -43,10 +43,13 @@ using namespace carto;
 using namespace std;
 
 
-listboxeditor::listboxeditor( const string & /*text*/, int x, int y, unsigned w,
-			unsigned h, QObjectBrowser* br, GenericObject* ao, 
-			const string & att, QTreeWidgetItem* item,
-                              QWidget* parent, const char* name, Qt::WFlags f )
+listboxeditor::listboxeditor( const string & /*text*/, int x, int y,
+                              unsigned w,
+                              unsigned h, QObjectBrowser* br,
+                              GenericObject* ao,
+                              const string & att, QTreeWidgetItem* item,
+                              QWidget* parent, const char* name,
+                              Qt::WindowFlags f )
   : QDialog( parent, f ), _browser( br ),
     _ao( ao ), _att( att.c_str() ), 
     _item( item )

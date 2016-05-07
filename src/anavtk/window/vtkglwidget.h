@@ -53,7 +53,7 @@ class vtkQAGLWidget : public carto::vtkGLWidget, public anatomist::GLWidgetManag
 public:
   vtkQAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
 	      const char* name = 0, 
-	      const QGLWidget * shareWidget = 0, Qt::WFlags f=0 );
+	      const QGLWidget * shareWidget = 0, Qt::WindowFlags f=0 );
   virtual ~vtkQAGLWidget();
   virtual QSize sizeHint() const;
   virtual QSize minimumSizeHint() const;

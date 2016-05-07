@@ -66,8 +66,10 @@ vtkQAGLWidget3D_PrivateData::vtkQAGLWidget3D_PrivateData()
 // --------
 
 
-vtkQAGLWidget3D::vtkQAGLWidget3D( AWindow* win, QWidget* parent, const char* name, 
-				  const QGLWidget * shareWidget, Qt::WFlags f )
+vtkQAGLWidget3D::vtkQAGLWidget3D( AWindow* win, QWidget* parent,
+                                  const char* name,
+                                  const QGLWidget * shareWidget,
+                                  Qt::WindowFlags f )
   : vtkQAGLWidget( win, parent, name, shareWidget, f ), 
     d( new vtkQAGLWidget3D_PrivateData )
 {

@@ -50,6 +50,7 @@
 #include <anatomist/control/backPixmap_P.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <QHeaderView>
+#include <QDrag>
 #include <qtimer.h>
 #include <stdio.h>
 
@@ -152,6 +153,17 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   d->lview->setDragDropMode( QAbstractItemView::NoDragDrop );
   d->lview->setIconSize( QSize( 32, 32 ) );
   QHeaderView *hdr = d->lview->header();
+#if QT_VERSION >= 0x050000
+  hdr->setSectionResizeMode( 0, QHeaderView::ResizeToContents );
+  hdr->setSectionResizeMode( 1, QHeaderView::Fixed );
+  hdr->resizeSection( 1, 26 );
+  hdr->setSectionResizeMode( 2, QHeaderView::Interactive );
+  hdr->resizeSection( 2, 130 );
+  hdr->setStretchLastSection( false );
+  hdr->setSectionResizeMode( 3, QHeaderView::Interactive );
+  hdr->resizeSection( 3, 60 );
+  hdr->setSectionResizeMode( 4, QHeaderView::Interactive );
+#else
   hdr->setResizeMode( 0, QHeaderView::ResizeToContents );
   hdr->setResizeMode( 1, QHeaderView::Fixed );
   hdr->resizeSection( 1, 26 );
@@ -161,6 +173,7 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   hdr->setResizeMode( 3, QHeaderView::Interactive );
   hdr->resizeSection( 3, 60 );
   hdr->setResizeMode( 4, QHeaderView::Interactive );
+#endif
   hdr->resizeSection( 4, 45 );
   d->lview->header()->hideSection( 5 );
   hdr->setSortIndicator( -1, Qt::AscendingOrder );
@@ -175,7 +188,7 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
   fr->resize( 300, 300 );	// default size
   resize( 300, 300 );
 
-  setAcceptDrops(TRUE);
+  setAcceptDrops( true );
   d->lview->setMouseTracking( true );
 
   d->lview->connect( d->lview, SIGNAL( itemSelectionChanged() ), this, 

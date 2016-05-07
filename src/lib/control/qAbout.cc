@@ -343,8 +343,12 @@ QAbout::QAbout( QWidget* parent, const char* name )
 #else
   bool enableQSound = true;
 #endif
+#if QT_VERSION < 0x050000
+  // in Qt5 isAvailable() has disapeared, probably meaning that sound is
+  // always supported... ?
   if( enableQSound && !QSound::isAvailable() )
     enableQSound = false;
+#endif
 
   if( enableQSound )
     {
