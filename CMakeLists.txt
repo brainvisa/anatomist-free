@@ -16,12 +16,13 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
   find_package( Qt5Widgets REQUIRED )
   find_package( Qt5OpenGL REQUIRED )
   find_package( Qt5Network REQUIRED )
+  find_package( Qt5Multimedia )
   add_definitions( ${Qt5Widgets_DEFINITIONS} ${Qt5OpenGL_DEFINITIONS}
-    ${Qt5Network_DEFINITIONS} )
+    ${Qt5Network_DEFINITIONS} ${Qt5Multimedia_DEFINITIONS} )
   include_directories( ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}
-    ${Qt5Network_INCLUDE_DIRS} )
+    ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS} )
   set( QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES}
-    ${Qt5Network_LIBRARIES} )
+    ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES} )
 endif()
 find_package( QtVersion REQUIRED )
 

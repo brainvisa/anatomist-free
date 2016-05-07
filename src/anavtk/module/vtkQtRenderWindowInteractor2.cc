@@ -62,7 +62,7 @@ vtkQtRenderWindowInteractor2 * vtkQtRenderWindowInteractor2::New()
 
 vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(
   QWidget* parent, const char* name, const QGLWidget* shareWidget,
-  Qt::WFlags f) :
+  Qt::WindowFlags f) :
   vtkRenderWindowInteractor(), QGLWidget ( parent, shareWidget, f )
 {
   setObjectName( name );
@@ -73,7 +73,7 @@ vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(
 
 vtkQtRenderWindowInteractor2::vtkQtRenderWindowInteractor2(
   const QGLFormat& format, QWidget* parent, const char* name,
-  const QGLWidget* shareWidget, Qt::WFlags f) :
+  const QGLWidget* shareWidget, Qt::WindowFlags f) :
   vtkRenderWindowInteractor(), QGLWidget( format, parent, shareWidget, f )
 {
   setObjectName( name );

@@ -74,7 +74,8 @@ using namespace std;
 
 
 vtkQAGLWidget::vtkQAGLWidget( AWindow* win, QWidget* parent, const char* name,
-                              const QGLWidget * shareWidget, Qt::WFlags f )
+                              const QGLWidget * shareWidget,
+                              Qt::WindowFlags f )
   : vtkGLWidget( parent, name, shareWidget, f ), GLWidgetManager( win, this )
 {
 

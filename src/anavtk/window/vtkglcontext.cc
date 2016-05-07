@@ -136,7 +136,7 @@ void *vtkGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 #include "anatomist/module/vtkQtRenderWindow2.h"
   
   vtkGLWidget::vtkGLWidget( QWidget* parent, const char* name,
-			    const QGLWidget* shareWidget, Qt::WFlags f )
+			    const QGLWidget* shareWidget, Qt::WindowFlags f )
     : vtkQtRenderWindowInteractor2( parent, name, shareWidget, f )
       //: vtkQtRenderWindow( parent, name, shareWidget, f )
   {
@@ -158,7 +158,7 @@ void *vtkGLContext::tryVisual( const QGLFormat& f, int bufDepth )
   
   vtkGLWidget::vtkGLWidget( const QGLFormat& format, QWidget* parent, 
 			    const char* name, 
-			    const QGLWidget* shareWidget, Qt::WFlags f )
+			    const QGLWidget* shareWidget, Qt::WindowFlags f )
     : vtkQtRenderWindowInteractor2( parent, name, shareWidget, f )
       //: vtkQtRenderWindow( format, parent, name, shareWidget, f  )
   {

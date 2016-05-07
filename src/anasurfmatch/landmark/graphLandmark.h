@@ -64,8 +64,8 @@ class GraphLandmarkPicker : public QWidget, public anatomist::Observer
 
 public:
   GraphLandmarkPicker( anatomist::AGraph* ag, QWidget* parent = 0, 
-		       const char* name = 0, 
-                       Qt::WFlags f = 0 );
+                       const char* name = 0,
+                       Qt::WindowFlags f = 0 );
   virtual ~GraphLandmarkPicker();
 
   static void addGraphLandmarkOptions( Tree* tr );

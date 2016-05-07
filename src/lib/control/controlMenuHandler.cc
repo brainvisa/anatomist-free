@@ -39,7 +39,6 @@
 #include <anatomist/application/module.h>
 #include <qmenubar.h>
 #include <graph/tree/tree.h>
-#include <QMenuItem>
 
 
 using namespace anatomist;

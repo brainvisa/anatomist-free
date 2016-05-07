@@ -42,6 +42,7 @@
 #include <qbitmap.h>
 #include <qpainter.h>
 #include <QDragEnterEvent>
+#include <QDrag>
 #include <anatomist/object/Object.h>
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/application/Anatomist.h>
@@ -224,6 +225,15 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   _lview->setDragDropMode( QAbstractItemView::NoDragDrop );
   // _lview->setAlternatingRowColors( true );
   _lview->setIconSize( QSize( 32, 32 ) );
+#if QT_VERSION >= 0x050000
+  _lview->header()->setSectionResizeMode( 0, QHeaderView::ResizeToContents );
+  _lview->header()->setSectionResizeMode( 1, QHeaderView::Fixed );
+  _lview->header()->resizeSection( 1, 26 );
+  _lview->header()->setSectionResizeMode( 2, QHeaderView::Interactive );
+  _lview->header()->resizeSection( 2, 160 );
+  _lview->header()->setStretchLastSection( false );
+  _lview->header()->setSectionResizeMode( 3, QHeaderView::Interactive );
+#else
   _lview->header()->setResizeMode( 0, QHeaderView::ResizeToContents );
   _lview->header()->setResizeMode( 1, QHeaderView::Fixed );
   _lview->header()->resizeSection( 1, 26 );
@@ -231,6 +241,7 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   _lview->header()->resizeSection( 2, 160 );
   _lview->header()->setStretchLastSection( false );
   _lview->header()->setResizeMode( 3, QHeaderView::Interactive );
+#endif
   _lview->header()->resizeSection( 3, 60 );
   _lview->header()->hideSection( 4 );
   _lview->header()->setSortIndicator( -1, Qt::AscendingOrder );
@@ -243,7 +254,7 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   lay2->addWidget( _lview );
 
   initIcons();
-  setAcceptDrops(TRUE);
+  setAcceptDrops( true );
 
   _lview->connect( _lview, SIGNAL( itemSelectionChanged() ), this, 
                    SLOT( unselectInvisibleItems() ) );

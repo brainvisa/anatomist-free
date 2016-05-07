@@ -61,7 +61,7 @@ class VolRenderPanel : public QWidget, public anatomist::Observer
   public:
     VolRenderPanel( const std::set<anatomist::AObject *> &,
                     QWidget* parent = 0, const char* name = 0,
-                    Qt::WFlags fl = 0 );
+                    Qt::WindowFlags fl = 0 );
     ~VolRenderPanel();
 
     const std::set<anatomist::AObject *> & objects() const;

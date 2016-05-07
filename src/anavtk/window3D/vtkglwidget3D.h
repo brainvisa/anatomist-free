@@ -53,15 +53,17 @@ class vtkQAGLWidget3D : public vtkQAGLWidget
 
 public:
   vtkQAGLWidget3D( anatomist::AWindow* win, QWidget* parent = 0, 
-		   const char* name = 0, const QGLWidget * shareWidget = 0, 
-		   Qt::WFlags f=0 );
+                   const char* name = 0, const QGLWidget * shareWidget = 0,
+                   Qt::WindowFlags f=0 );
   virtual ~vtkQAGLWidget3D();
 
   virtual std::string name() const;
 
-  static GLWidgetManager* createInstance (anatomist::AWindow* win, QWidget* parent, 
-					  const char* name, const QGLWidget * shareWidget, 
-					  Qt::WFlags f)
+  static GLWidgetManager* createInstance (anatomist::AWindow* win,
+                                          QWidget* parent,
+                                          const char* name,
+                                          const QGLWidget * shareWidget,
+                                          Qt::WindowFlags f)
   {
     return new vtkQAGLWidget3D (win, parent, name, shareWidget, f);
   }

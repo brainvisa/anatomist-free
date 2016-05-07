@@ -46,7 +46,7 @@ class QTypeEdit : public QWidget
 public:
   ///
   QTypeEdit( const std::string & text, int x, int y, int w, int h,
-	       QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+	       QWidget* parent = 0, const char* name = 0, WindowFlags f = 0 );
   ///
   ~QTypeEdit();
 
@@ -88,7 +88,8 @@ public:
   listboxeditor( const std::string & text, int x, int y, unsigned w, 
                  unsigned h, QObjectBrowser* br, carto::GenericObject* ao,
                  const std::string & att, QTreeWidgetItem* item,
-                 QWidget* parent = theAnatomist->getQWidgetAncestor(), const char* name = 0, Qt::WFlags f = 0 );
+                 QWidget* parent = theAnatomist->getQWidgetAncestor(),
+                 const char* name = 0, Qt::WindowFlags f = 0 );
   ~listboxeditor();
 
 //  std::string text() const;

@@ -33,6 +33,8 @@
 
 
 #include <anatomist/control/windowdrag.h>
+#include <QDataStream>
+#include <QIODevice>
 #include <string>
 
 using namespace anatomist;
