@@ -31,13 +31,13 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
 import sys
-from PyQt4 import QtCore, QtGui
+import anatomist.direct.api as anatomist
+from soma.qt_gui.qt_backend import QtCore, QtGui
 qt = QtGui
-#from PyQt4.uic import loadUiType
+#from soma.qt_gui.qt_backend import loadUiType
 from soma.qt_gui.qt_backend.uic import loadUiType
 findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
 
-import anatomist.direct.api as anatomist
 import anatomist.cpp.followerobject as followerobject
 from soma import aims
 import os, sip

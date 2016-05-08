@@ -38,9 +38,9 @@
 from __future__ import print_function
 
 import sys, os
-import PyQt4.QtCore as qt
-import PyQt4.QtGui as qtui
 import anatomist.cpp as anatomist
+import soma.qt_gui.qt_backend.QtCore as qt
+import soma.qt_gui.qt_backend.QtGui as qtui
 from soma import aims
 
 an = anatomist.Anatomist()

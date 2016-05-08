@@ -46,8 +46,8 @@ init_matplotlib_backend()
 from matplotlib import pyplot
 import pylab, sip
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from soma.qt_gui.qt_backend import QtCore
+from soma.qt_gui.qt_backend import QtGui
 
 
 class AProfile( ana.cpp.QAWindow ):

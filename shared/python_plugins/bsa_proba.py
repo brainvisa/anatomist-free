@@ -45,8 +45,8 @@ import ctypes
 from soma import aims
 import numpy
 import anatomist.api as ana
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from soma.qt_gui.qt_backend import QtCore
+from soma.qt_gui.qt_backend import QtGui
 Qt = QtCore.Qt
 
 bsa_url = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.nii'

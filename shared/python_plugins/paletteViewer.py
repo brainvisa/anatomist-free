@@ -48,8 +48,8 @@ processor = an.theProcessor()
 from soma.qt_gui.qt_backend import init_matplotlib_backend
 init_matplotlib_backend()
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui as qt
+from soma.qt_gui.qt_backend import QtCore
+from soma.qt_gui.qt_backend import QtGui as qt
 # copy needed classes to fake qt (yes, it's a horrible hack)
 qt.QPoint = QtCore.QPoint
 qt.QSize = QtCore.QSize
