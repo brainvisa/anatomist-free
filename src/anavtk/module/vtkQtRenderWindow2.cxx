@@ -52,13 +52,13 @@ void vtkQtRenderWindow2::MakeCurrent()
     }
     else
     {
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
       vtkXOpenGLRenderWindow::MakeCurrent();
 #endif
-#ifdef Q_WS_WIN32
+#if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
       vtkWin32OpenGLRenderWindow::MakeCurrent();
 #endif
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
       vtkCarbonRenderWindow::MakeCurrent();
 #endif
     }

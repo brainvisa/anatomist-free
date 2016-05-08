@@ -37,8 +37,8 @@ import anatomist.cpp as anatomist
 from soma import aims, aimsalgo
 import numpy
 import os, sys
-import PyQt4.QtCore as qt
-import PyQt4.QtGui as qtgui
+import soma.qt_gui.qt_backend.QtCore as qt
+import soma.qt_gui.qt_backend.QtGui as qtgui
 
 
 class SplitFoldModule( anatomist.Module ):

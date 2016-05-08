@@ -33,39 +33,41 @@
 #ifndef _vtkQtRenderWindow2_h_
 #define _vtkQtRenderWindow2_h_
 
-#ifdef Q_WS_X11
+#include <QObject>
+
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
 #include <vtkXOpenGLRenderWindow.h>
 #endif
 
-#ifdef Q_WS_WIN32
+#if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
 #include <vtkWin32OpenGLRenderWindow.h>
 #endif
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
 #include <vtkCarbonRenderWindow.h>
 #endif
 
 class vtkQtRenderWindow2 : 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
   public vtkXOpenGLRenderWindow
 #endif
-#ifdef Q_WS_WIN32
+#if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
   public vtkWin32OpenGLRenderWindow
 #endif
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
   public vtkCarbonRenderWindow
 #endif
 {
 
  public:
   static vtkQtRenderWindow2 *New();
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
   vtkTypeRevisionMacro (vtkQtRenderWindow2, vtkXOpenGLRenderWindow);
 #endif
-#ifdef Q_WS_WIN32
+#if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
   vtkTypeRevisionMacro (vtkQtRenderWindow2, vtkWin32OpenGLRenderWindow);
 #endif
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
   vtkTypeRevisionMacro (vtkQtRenderWindow2, vtkCarbonRenderWindow);
 #endif
 

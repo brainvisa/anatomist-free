@@ -38,7 +38,7 @@
 #include <qpaintdevice.h>
 #include <qtimer.h>
 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
@@ -120,7 +120,7 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
   virtual void focusInEvent(QFocusEvent*){};
   virtual void focusOutEvent(QFocusEvent*){};
 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) && QT_VERSION < 0x050000 // || defined( Q_OS_LINUX )
   int GetDesiredDepth();
   Colormap GetDesiredColormap();
   Visual *GetDesiredVisual();

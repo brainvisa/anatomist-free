@@ -44,8 +44,8 @@ options dealing with python modules:
 from __future__ import print_function
 
 import sys, os, string, glob
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from soma.qt_gui.qt_backend.QtCore import *
+from soma.qt_gui.qt_backend.QtGui import *
 Slot = pyqtSlot
 
 import anatomist.cpp as anatomist
@@ -470,7 +470,7 @@ def ipythonShell():
     consoleShellRunning = False
   else:
     # Old IPython <= 0.10 API
-    from PyQt4.QtGui import qApp
+    from soma.qt_gui.qt_backend.QtGui import qApp
     import time
     ipshell = IPython.Shell.IPShellQt4( [ '-q4thread' ] )
     def dummy_mainloop(*args, **kw):

@@ -4,6 +4,14 @@ if( vtkINRIA3D_FOUND )
   include( "${vtkINRIA3D_USE_FILE}" )
 endif()
 
+set( _additional_libs )
+if( UNIX )
+  find_package( Qt5X11Extras REQUIRED )
+  add_definitions( ${Qt5X11Extras_DEFINITIONS} )
+  include_directories( ${Qt5X11Extras_INCLUDE_DIRS} )
+  set( _additional_libs ${Qt5X11Extras_LIBRARIES} )
+endif()
+
 
 BRAINVISA_GET_FILE_LIST_FROM_PRO( anavtk.pro "HEADERS" _headers "SOURCES" _sources )
 if( NOT vtkINRIA3D_FOUND )
@@ -44,6 +52,7 @@ if( vtkINRIA3D_FOUND )
   vtkGraphics
   vtkIO
   vtkCommon
+  ${_additional_libs}
   )
 else()
   target_link_libraries( anavtk
@@ -54,6 +63,7 @@ else()
   vtkGraphics
   vtkIO
   vtkCommon
+  ${_additional_libs}
   )
 endif()
 BRAINVISA_INSTALL( TARGETS anavtk

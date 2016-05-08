@@ -7,7 +7,7 @@ attributes = {
     'libanasurfpaint.so',
     'libanasurfmatch.so',
     'libanaroibase.so',
-    'libanaroialgo.so', 
+    'libanaroialgo.so',
     'libpyanatomistmodule.so',
     'libanavolrender.so',
     'libanavtk.so',

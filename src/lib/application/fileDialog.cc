@@ -358,11 +358,28 @@ void AimsFileDialog::setupCustom()
   d->aims_ext->hide();
   QPushButton *editoptbt = new QPushButton( "... v" );
   d->expand_button = editoptbt;
-  layout->addWidget( editoptbt, layout->rowCount(), 2 );
   editoptbt->setSizePolicy( QSizePolicy::Preferred,
                             QSizePolicy::Fixed );
   editoptbt->setFixedHeight( 20 );
-  layout->addWidget( d->aims_ext, layout->rowCount(), 0, 1, 3 );
+  if( layout )
+  {
+    layout->addWidget( editoptbt, layout->rowCount(), 2 );
+    layout->addWidget( d->aims_ext, layout->rowCount(), 0, 1, 3 );
+  }
+  else
+  {
+    QLayout *layout2 = 0;
+    if( QFileDialog::layout() )
+      layout2 = QFileDialog::layout();
+    else
+    {
+      cout << "warning: no layout in QFileDialog\n";
+      layout2 = new QVBoxLayout;
+      setLayout( layout2 );
+    }
+    layout2->addWidget( editoptbt );
+    layout2->addWidget( d->aims_ext );
+  }
 
   connect( editoptbt, SIGNAL( clicked() ), this, SLOT( showHideOptions() ) );
 }

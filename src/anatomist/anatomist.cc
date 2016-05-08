@@ -37,7 +37,6 @@
 #include <anatomist/processor/Processor.h>
 #include <aims/plugin/aimsguiplugin.h>
 #include <qapplication.h>
-#include <qwindowsstyle.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -50,10 +49,6 @@ int main( int argc, char** argv )
   try
   {
     // QApplication::setColorSpec( QApplication::ManyColor );
-#if defined( __sun )
-    // (motif style is ugly)
-    QApplication::setStyle( new QWindowsStyle );
-#endif
 
     // init qApp before other static things are done so that qt.conf is used
     // see: http://www.tripleboot.org/?p=536

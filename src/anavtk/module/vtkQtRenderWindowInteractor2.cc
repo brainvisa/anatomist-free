@@ -33,13 +33,16 @@
 #include <qapplication.h>
 #include <qcursor.h>
 #include "qevent.h"
-#include <QX11Info>
 
 #include "anatomist/module/vtkQtRenderWindowInteractor2.h"
 
 #include <vtkCommand.h>
 #include <vtkRenderWindow.h>
 #include <vtkInteractorStyleSwitch.h>
+
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
+#include <QX11Info>
+#endif
 
 #ifdef Q_WS_MAC
 #include <vtkCarbonRenderWindow.h>
@@ -259,15 +262,15 @@ void vtkQtRenderWindowInteractor2::Start()
 void vtkQtRenderWindowInteractor2::Render()
 {
   long handle = 0;
-#ifdef Q_WS_WIN32
+#if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
   handle = QWidget::winId();
 #endif
   
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
   handle = this->winId(); //QPaintDevice::handle();  
 #endif
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
   handle = (long)this->handle();
 #endif
 
@@ -408,19 +411,19 @@ void vtkQtRenderWindowInteractor2::paintGL()
   if( !this->Handle )
   {
     
-#ifdef Q_WS_WIN32
+#if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
     this->Handle = QWidget::winId();
     this->RenderWindow->SetWindowId ( this->Handle );
     this->RenderWindow->SetDeviceContext (GetDC(WindowId));
 #endif
-    
-#ifdef Q_WS_X11
+
+#if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
     this->Handle = this->winId(); // QPaintDevice::handle();
     this->RenderWindow->SetDisplayId ( QX11Info::display() ); // buggy?
     this->RenderWindow->SetWindowId  ( reinterpret_cast<void*>( this->Handle ) );
 #endif
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
   this->Handle = (long)this->handle();
   vtkCarbonRenderWindow* rwin = vtkCarbonRenderWindow::SafeDownCast(this->RenderWindow);
   if( rwin )
@@ -449,13 +452,9 @@ void vtkQtRenderWindowInteractor2::resizeGL(int x,int y) {
   {
     return;
   }
-  
-#if defined (Q_WS_MAC) && (QT_VERSION < 0x040000)
-  macFixRect();
-#endif
 
   InvokeEvent(vtkCommand::ConfigureEvent, NULL);
-  
+
   //updateGL();
 
 }
@@ -528,77 +527,15 @@ void vtkQtRenderWindowInteractor2::wheelEvent(QWheelEvent *e)
 }
 
 
-#if defined (Q_WS_MAC) && QT_VERSION < 0x040000
-
-// gotta do some special stuff on the MAC to make it work right
-// this stuff will need changing when using Qt4 with HIViews
-
-#include <AGL/agl.h>
-
-void vtkQtRenderWindowInteractor2::macFixRect()
-{
-  AGLContext context = static_cast<vtkCarbonRenderWindow*>(this->GetRenderWindow())->GetContextId();
-  
-  if(!this->isTopLevel())
-    {
-    GLint bufRect[4];
-
-    // always do AGL_BUFFER_RECT if we have a parent
-    if(!aglIsEnabled(context, AGL_BUFFER_RECT))
-      aglEnable(context, AGL_BUFFER_RECT);
-
-    // get the clip region
-    QRegion clip = this->clippedRegion();
-    QRect clip_rect = clip.boundingRect();
-    
-    // get the position of this widget with respect to the top level widget
-    QPoint mp(posInWindow(this));
-    int win_height = this->topLevelWidget()->height();
-    win_height -= win_height - this->topLevelWidget()->clippedRegion(FALSE).boundingRect().height();
-
-    // give the position and size to agl
-    bufRect[0] = mp.x();
-    bufRect[1] = win_height -(mp.y() + this->height());
-    bufRect[2] = this->width();
-    bufRect[3] = this->height();
-    aglSetInteger(context, AGL_BUFFER_RECT, bufRect);
-
-    if(clip_rect.isEmpty())
-      {
-      // no clipping, disable it
-      if(!aglIsEnabled(context, AGL_CLIP_REGION))
-        aglDisable(context, AGL_CLIP_REGION);
-      
-      bufRect[0] = 0;
-      bufRect[1] = 0;
-      bufRect[2] = 0;
-      bufRect[3] = 0;
-      aglSetInteger(context, AGL_BUFFER_RECT, bufRect);
-      }
-    else
-      {
-      // we are clipping, so lets enable it
-      if(!aglIsEnabled(context, AGL_CLIP_REGION))
-        aglEnable(context, AGL_CLIP_REGION);
-
-      // give agl the clip region
-      aglSetInteger(context, AGL_CLIP_REGION, (const GLint*)clip.handle(TRUE));
-      }
-    }
-  
-  // update the context
-  aglUpdateContext(context);
-}
-
-#endif
-
-
-#ifdef Q_WS_X11
-#include <QX11Info>
+#if defined( Q_WS_X11 ) && QT_VERSION < 0x050000 // || defined( Q_OS_LINUX )
 
 int vtkQtRenderWindowInteractor2::GetDesiredDepth()
 {
-  return QX11Info::appDepth();
+#if QT_VERSION >= 0x050000
+  return QApplication::primaryScreen()->depth();
+#else
+  QX11Info::appDepth();
+#endif
 }
 
 
