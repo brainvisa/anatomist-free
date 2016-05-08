@@ -77,7 +77,7 @@ class AProfile( ana.cpp.QAWindow ):
     # keep a reference to the python object to prevent destruction of the
     # python part
     AProfile._instances.add( self )
-    self.connect( self, QtCore.SIGNAL( 'destroyed()' ), self.destroyNotified )
+    self.destroyed.connect(self.destroyNotified)
     self._plots = {}
     self._orientation = aims.Quaternion( 0, 0, 0, 1 )
     self._cursorplot = None
@@ -119,11 +119,11 @@ class AProfile( ana.cpp.QAWindow ):
     self._reflabel = refdirmark
     ana.cpp.anatomist.setQtColorStyle( rbut )
     self.paintRefLabel()
-    self.connect( rbut, QtGui.SIGNAL( 'clicked()' ), self.changeReferential )
+    rbut.clicked.connect(self.changeReferential)
     # close shortcut
     ac = QtGui.QAction( 'Close', self )
     ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
-    self.connect( ac, QtGui.SIGNAL( 'triggered(bool)' ), self.closeAction )
+    ac.triggered.connect(self.closeAction)
     self.addAction( ac )
 
 
@@ -484,7 +484,7 @@ class AProfile( ana.cpp.QAWindow ):
 
   def changeReferential( self ):
     sw = ana.cpp.set_AWindowPtr( [ self ] )
-    w = ana.cpp.ChooseReferentialWindow( sw, 'Choose Referential Window' )
+    w = ana.cpp.ChooseReferentialWindow( sw, [], 'Choose Referential Window' )
     w.setParent( self )
     w.setWindowFlags( QtCore.Qt.Window )
     w.show()

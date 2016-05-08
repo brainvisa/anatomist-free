@@ -85,7 +85,7 @@ class AHistogram( ana.cpp.QAWindow ):
     # keep a reference to the python object to prevent destruction of the
     # python part
     AHistogram._instances.add( self )
-    self.connect( self, QtCore.SIGNAL( 'destroyed()' ), self.destroyNotified )
+    self.destroyed.connect(self.destroyNotified)
     self._plots = {}
     self._histo4d = True
     self._localHisto = False
@@ -95,22 +95,22 @@ class AHistogram( ana.cpp.QAWindow ):
     toolbar = QtGui.QToolBar( wid )
     ac = QtGui.QAction( '3D', toolbar )
     ac.setCheckable( True )
-    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.set3DHisto )
+    ac.triggered.connect(self.set3DHisto)
     toolbar.addAction( ac )
     ac = QtGui.QAction( 'Local', toolbar )
     ac.setCheckable( True )
-    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.setLocalHisto )
+    ac.triggered.connect(self.setLocalHisto)
     toolbar.addAction( ac )
     toolbar.addAction( 'Neighborhood...', self.setHistoNeighborhood )
     wid.addToolBar( toolbar )
     ac = QtGui.QAction( 'Fixed scale', toolbar )
     ac.setCheckable( True )
-    self.connect( ac, QtCore.SIGNAL( 'triggered(bool)' ), self.setFixedScale )
+    ac.triggered.connect(self.setFixedScale)
     toolbar.addAction( ac )
     # close shortcut
     ac = QtGui.QAction( 'Close', self )
     ac.setShortcut( QtCore.Qt.CTRL + QtCore.Qt.Key_W )
-    self.connect( ac, QtGui.SIGNAL( 'triggered(bool)' ), self.closeAction )
+    ac.triggered.connect(self.closeAction)
     self.addAction( ac )
     self._objectschanged = True
     self._oldpos = None
@@ -217,6 +217,8 @@ class AHistogram( ana.cpp.QAWindow ):
         ipos = numpy.round( numpy.array( pos ) / vs[:3] ).astype( int )
         ipos0 = ipos - self._localSize / numpy.array( vs[:3] )
         ipos1 = ipos + self._localSize / numpy.array( vs[:3] )
+        ipos0 = numpy.round(ipos0).astype(int)
+        ipos1 = numpy.round(ipos1).astype(int)
         ipos0[ numpy.where( ipos0 < 0 ) ] = 0
         if ipos1[0] >= vol.getSizeX():
           ipos1[0] = vol.getSizeX() - 1
@@ -230,7 +232,6 @@ class AHistogram( ana.cpp.QAWindow ):
         typecode = aims.typeCode( str( ar.dtype ) )
         hisclass = getattr( aims, 'RegularBinnedHistogram_' + typecode, None )
         if hisclass is not None:
-          # print 'plotting with aims histo'
           ha = hisclass( 256 )
           varr = vol
           if ( not self._histo4d and vol.getSizeT() != 1 ) or self._localHisto:
@@ -241,8 +242,7 @@ class AHistogram( ana.cpp.QAWindow ):
             else:
               ipos0t = numpy.hstack( ( ipos0, [ self.getTime() ] ) )
               ipos1t = numpy.hstack( ( ipos1, [ self.getTime() + 1 ] ) )
-            varr = aims.VolumeView( vol, vol.Position4Di( *ipos0t ),
-              vol.Position4Di( *(ipos1t - ipos0t ) ) )
+            varr = aims.VolumeView(vol, ipos0t, ipos1t - ipos0t)
           ha.doit( varr )
           d = ha.data()
           har = numpy.array( d.volume(), copy=False ).reshape( d.dimX() )
@@ -320,8 +320,8 @@ class AHistogram( ana.cpp.QAWindow ):
     cancel = QtGui.QPushButton( 'Cancel', b )
     l2.addWidget( ok )
     l2.addWidget( cancel )
-    dia.connect( ok, QtGui.SIGNAL( 'pressed()' ), dia.accept )
-    dia.connect( cancel, QtGui.SIGNAL( 'pressed()' ), dia.reject )
+    ok.pressed.connect(dia.accept)
+    cancel.pressed.connect(dia.reject)
     res = dia.exec_()
     if res:
       val = int( le.text() )
