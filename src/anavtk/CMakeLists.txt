@@ -5,7 +5,7 @@ if( vtkINRIA3D_FOUND )
 endif()
 
 set( _additional_libs )
-if( UNIX )
+if( UNIX AND DESIRED_QT_VERSION EQUAL 5 )
   find_package( Qt5X11Extras REQUIRED )
   add_definitions( ${Qt5X11Extras_DEFINITIONS} )
   include_directories( ${Qt5X11Extras_INCLUDE_DIRS} )
