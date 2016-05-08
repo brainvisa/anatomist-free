@@ -45,6 +45,8 @@ from soma import aims
 an = anatomist.Anatomist()
 processor = an.theProcessor()
 
+from soma.qt_gui import qt_backend
+qt_backend.set_qt_backend(compatible_qt5=True)
 from soma.qt_gui.qt_backend import init_matplotlib_backend
 init_matplotlib_backend()
 
@@ -54,10 +56,7 @@ from soma.qt_gui.qt_backend import QtGui as qt
 qt.QPoint = QtCore.QPoint
 qt.QSize = QtCore.QSize
 qt.QObject = QtCore.QObject
-qt.SIGNAL = QtCore.SIGNAL
-qt.PYSIGNAL = QtCore.SIGNAL
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg \
-  as FigureCanvas
+from soma.qt_gui.qt_backend import FigureCanvas
 from matplotlib.figure import Figure
 
 
@@ -250,11 +249,11 @@ class ClosableWidget(qt.QWidget):
     self._child = None
     biglayout = qt.QVBoxLayout(self)
     biglayout.setObjectName( "biglayout" )
-    biglayout.setMargin( 11 )
+    biglayout.setContentsMargins( 11, 11, 11, 11 )
     biglayout.setSpacing( 6 )
     layout = qt.QHBoxLayout(None)
     layout.setObjectName( "layout1" )
-    layout.setMargin( 0 )
+    layout.setContentsMargins( 0, 0, 0, 0 )
     layout.setSpacing( 6 )
     spacer = qt.QSpacerItem(10,10, qt.QSizePolicy.Expanding,
                             qt.QSizePolicy.Minimum)
@@ -286,7 +285,7 @@ class ClosableWidget(qt.QWidget):
     subwidget = qt.QWidget(self)
     sublayout = qt.QHBoxLayout(subwidget)
     sublayout.setObjectName( "sublayout" )
-    sublayout.setMargin( 0 )
+    sublayout.setContentsMargins( 0, 0, 0, 0 )
     sublayout.setSpacing( 0 )
     biglayout.addWidget(subwidget)
     biglayout.addWidget(label)
@@ -331,13 +330,16 @@ class ReparentManager(object):
 
 
 class GroupClosableWidget(qt.QWidget):
+
+  clicked = QtCore.Signal(int)
+
   class Clicked(object):
     def __init__(self, group, id):
       self._id = id
       self._group = weakref.ref( group )
 
     def doit(self):
-      self._group().emit( qt.PYSIGNAL('clicked(int)'), self._id )
+      self._group().clicked.emit(self._id)
 
   def __init__(self, parent, name = ''):
     qt.QWidget.__init__(self, parent)
@@ -355,10 +357,8 @@ class GroupClosableWidget(qt.QWidget):
     slot = GroupClosableWidget.Clicked(self, id)
     self._slots[id] = slot
     self._widgets[id] = widget
-    qt.QObject.connect(widget._closeButton, qt.SIGNAL("clicked()"),
-                       slot.doit)
-    qt.QObject.connect(widget._saveButton, qt.SIGNAL("clicked()"),
-                       widget.savePalette)
+    widget._closeButton.clicked.connect(slot.doit)
+    widget._saveButton.clicked.connect(widget.savePalette)
     self.show()
 
   def get(self, id):
@@ -366,6 +366,8 @@ class GroupClosableWidget(qt.QWidget):
 
   def remove(self, id):
     widget = self._widgets[id]
+    widget._closeButton.clicked.disconnect(self._slots[id].doit)
+    widget._saveButton.clicked.disconnect(widget.savePalette)
     del self._slots[id]
     del self._widgets[id]
     widget.close()
@@ -387,8 +389,7 @@ class GroupPaletteWidget(GroupClosableWidget):
     #GroupClosableWidget.__del__( self )
 
   def _connect(self):
-    qt.QObject.connect(self, qt.PYSIGNAL("clicked(int)"),
-                       self.closeOnePalette)
+    self.clicked.connect(self.closeOnePalette)
 
   def newPalette(self, object):
     p = ClosableWidget(self)

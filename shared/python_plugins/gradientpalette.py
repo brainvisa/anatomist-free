@@ -98,7 +98,7 @@ class GradientPaletteWidget(qtgui.QWidget):
         if name:
             self.setObjectName(name)
         lay = qtgui.QVBoxLayout(self)
-        lay.setMargin(5)
+        lay.setContentsMargins(5, 5, 5, 5)
         lay.setSpacing(5)
         self._objsel = GradientPaletteWidget.GradientObjectParamSelect(objects,
                                                                        self)
@@ -133,18 +133,17 @@ class GradientPaletteWidget(qtgui.QWidget):
                 o0 = obj
             obj.addObserver(self._observer)
         self._initial = [] + self._objects
-        self.connect(self._gradw, qt.SIGNAL('gradientChanged( QString )'),
-                     self.gradientChanged)
+        self._gradw.gradientChanged.connect(self.gradientChanged)
         global gwManager
         gwManager.gradwidgets.add(self)
         if o0 is not None:
             self.update(o0, None)
         self._objsel.selectionStarts.connect(self.chooseObject)
         self._objsel.objectsSelectedSip.connect(self.objectsChosen)
-        self.connect(savebtn, qt.SIGNAL('clicked()'), self.save)
-        self.connect(keepbtn, qt.SIGNAL('clicked()'), self.makeStaticPalette)
-        self.connect(editbtn, qt.SIGNAL('clicked()'), self.editGradient)
-        self.connect(modecb, qt.SIGNAL('activated(int)'), self.setMode)
+        savebtn.clicked.connect(self.save)
+        keepbtn.clicked.connect(self.makeStaticPalette)
+        editbtn.clicked.connect(self.editGradient)
+        modecb.activated.connect(self.setMode)
 
     def closeEvent(self, event):
         gwManager.gradwidgets.remove(self)
@@ -293,7 +292,7 @@ class GradientPaletteWidget(qtgui.QWidget):
         l = qtgui.QVBoxLayout(d)
         t = qtgui.QLineEdit(pali.name(), d)
         l.addWidget(t)
-        d.connect(t, qt.SIGNAL('returnPressed()'), d.accept)
+        t.returnPressed.connect(d.accept)
         res = d.exec_()
 
         if res:

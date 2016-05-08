@@ -105,20 +105,17 @@ class SelectionActionView( qt.QWidget ):
       self._action.boxSelectionCustomColor.b * 255.99 )
     boxCustomColor.setPalette( QtGui.QPalette( col ) )
 
-    self.connect( findChild( qWidget, 'nodesSlider' ),
-      qt.SIGNAL( 'valueChanged(int)' ), self.nodesOpacityChanged )
-    self.connect( findChild( qWidget, 'edgesSlider' ),
-      qt.SIGNAL( 'valueChanged(int)' ), self.edgesOpacityChanged )
+    findChild(qWidget, 'nodesSlider').valueChanged.connect(
+      self.nodesOpacityChanged)
+    findChild(qWidget, 'edgesSlider').valueChanged.connect(
+      self.edgesOpacityChanged)
     smc.activated.connect(self.selectionModeChanged)
-    self.connect( boxHighlight, qt.SIGNAL( 'stateChanged(int)' ),
-      self.switchBoxHighligting )
+    boxHighlight.stateChanged.connect(self.switchBoxHighligting)
     smc.activated.emit(1)
-    self.connect( boxHighlightIndividual, qt.SIGNAL( 'stateChanged(int)' ),
-      self.switchBoxHighligtingIndividual )
-    self.connect( boxColorMode, qt.SIGNAL( 'activated(int)' ),
-      self.switchBoxColorMode )
-    self.connect( boxCustomColor, qt.SIGNAL( 'clicked(bool)' ),
-      self.selectCustomBoxColor )
+    boxHighlightIndividual.stateChanged.connect(
+      self.switchBoxHighligtingIndividual)
+    boxColorMode.activated.connect(self.switchBoxColorMode)
+    boxCustomColor.clicked.connect(self.selectCustomBoxColor)
     # prevent python instance to be deleted right now
     SelectionActionView._instances.add(self)
     if parent is not None:

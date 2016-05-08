@@ -163,7 +163,7 @@ class BSAWindow( ana.cpp.QAWindow ):
     # keep a reference to the python object to prevent destruction of the
     # python part
     BSAWindow._instance = self
-    self.connect( self, QtCore.SIGNAL( 'destroyed()' ), self.destroyNotified )
+    self.destroyed.connect(self.destroyNotified)
     a = ana.Anatomist()
     # register the function on the cursor notifier of anatomist. It will be called when the user click on a window
     a.onCursorNotifier.add( bsaClickHandler )
