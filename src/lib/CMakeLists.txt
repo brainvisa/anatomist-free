@@ -504,7 +504,7 @@ set(_ui "${CMAKE_CURRENT_SOURCE_DIR}/ui/color_rendering.ui")
 BRAINVISA_QT4_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_CURRENT_BINARY_DIR}/anatomist/ui")
 BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_CURRENT_BINARY_DIR}/anatomist/ui")
 set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${ZLIB_INCLUDE_DIR})
 add_custom_target(run_uic  DEPENDS ${UI_HDRS})
 set(${_headers} ${${_headers}} ${UI_HDRS} )
 
@@ -520,9 +520,7 @@ set( _libraries ${OPENGL_LIBRARIES} aimsgui ${AIMS-FREE_LIBRARIES} ${QT_LIBRARIE
 # if(ALSA_FOUND)
 #   set( _libraries ${_libraries} ${ALSA_LIBRARIES} )
 # endif()
-if( APPLE )
-  set( _libraries ${_libraries} z )
-endif( APPLE )
+set( _libraries ${_libraries} ${ZLIB_LIBRARIES} )
 
 target_link_libraries( anatomist ${_libraries} )
 
