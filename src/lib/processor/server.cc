@@ -51,7 +51,11 @@ namespace anatomist
     virtual ~AnaTcpServer();
 
   protected:
+#if QT_VERSION >= 0x050000
+    virtual void incomingConnection( qintptr fd );
+#else
     virtual void incomingConnection( int fd );
+#endif
   };
 
   AnaTcpServer::AnaTcpServer() : QTcpServer()
@@ -62,7 +66,11 @@ namespace anatomist
   {
   }
 
+#if QT_VERSION >= 0x050000
+  void AnaTcpServer::incomingConnection( qintptr fd )
+#else
   void AnaTcpServer::incomingConnection( int fd )
+#endif
   {
     // The default incomingConnection implementation is not thread-safe.
     // see Qt QTcpServer doc.
