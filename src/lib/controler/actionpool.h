@@ -49,8 +49,8 @@ namespace anatomist {
   public:
     ActionPool( View * myView ) ;
     ~ActionPool() ;
-    ActionPtr action( std::string name ) ;
-    
+    ActionPtr action( const std::string & name );
+
   const std::set<std::string>& actionSet() const ;
   private:
     std::set<std::string> myActionSet ;

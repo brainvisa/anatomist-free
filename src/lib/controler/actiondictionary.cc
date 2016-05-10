@@ -82,14 +82,14 @@ ActionDictionary::~ActionDictionary()
 }
 
 ActionPtr 
-ActionDictionary::getActionInstance( string name )
+ActionDictionary::getActionInstance( const string & name )
 {
   map<string, rc_ptr<ActionCreatorBase> >::iterator 
     found( actions.find( name ) ) ;
   if ( found != actions.end() )
     return (*found->second)();
   AWarning( (string( "getActionInstance: Unknown action name " ) 
-	     + name).c_str() );
+             + name).c_str() );
 
   return 0 ;
 }

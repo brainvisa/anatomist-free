@@ -41,56 +41,58 @@ import anatomist.cpp as anatomist
 from anatomist.cpp import palettecontrastaction
 import types
 
-def neweventAutoSubscription( self, pool ):
-  key = palettecontrastaction.QtCore.Qt
-  NoModifier = key.NoModifier
-  ShiftModifier = key.ShiftModifier
-  ControlModifier = key.ControlModifier
-  AltModifier = key.AltModifier
-  if hasattr( self, '_initial_eventAutoSubscription' ):
-    self._initial_eventAutoSubscription( pool )
-  else:
-    self.__class__.__base__.eventAutoSubscription( self, pool )
-  self.mouseLongEventSubscribe( key.RightButton, ControlModifier,
-    pool.action( 'PaletteContrastAction' ).startContrast,
-    pool.action( 'PaletteContrastAction' ).moveContrast,
-    pool.action( 'PaletteContrastAction' ).stopContrast, True )
-  self.keyPressEventSubscribe( key.Key_C, NoModifier,
-    pool.action( "PaletteContrastAction" ).resetPalette )
 
-def makePalettedSubclass( c ):
-  if type( c.eventAutoSubscription ) is types.BuiltinMethodType:
-    clname = 'Paletted_' + c.__class__.__name__
-    cmd = 'class ' + clname + '( anatomist.' + c.__class__.__name__ \
-      + ' ): pass'
+def neweventAutoSubscription(self, pool):
+    key = palettecontrastaction.QtCore.Qt
+    NoModifier = key.NoModifier
+    ShiftModifier = key.ShiftModifier
+    ControlModifier = key.ControlModifier
+    AltModifier = key.AltModifier
+    if hasattr(self, '_initial_eventAutoSubscription'):
+        self._initial_eventAutoSubscription(pool)
+    else:
+        self.__class__.__base__.eventAutoSubscription(self, pool)
+    self.mouseLongEventSubscribe( key.RightButton, ControlModifier,
+        pool.action('PaletteContrastAction').startContrast,
+        pool.action('PaletteContrastAction').moveContrast,
+        pool.action('PaletteContrastAction').stopContrast, True)
+    self.keyPressEventSubscribe(key.Key_C, NoModifier,
+        pool.action("PaletteContrastAction").resetPalette)
 
-    exec( cmd )
-    cl = eval( clname )
-    setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
-  else:
-    cl = c.__class__
-    cl._initial_eventAutoSubscription = cl.eventAutoSubscription
-    setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
-  cd = anatomist.ControlDictionary.instance()
-  cd.addControl( c.name(), cl, c.priority(), True )
+def makePalettedSubclass(c):
+    if type( c.eventAutoSubscription ) is types.BuiltinMethodType:
+        clname = 'Paletted_' + c.__class__.__name__
+        cmd = 'class ' + clname + '( anatomist.' + c.__class__.__name__ \
+          + ' ): pass'
+
+        exec( cmd )
+        cl = eval( clname )
+        setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
+    else:
+        cl = c.__class__
+        cl._initial_eventAutoSubscription = cl.eventAutoSubscription
+        setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
+    cd = anatomist.ControlDictionary.instance()
+    cd.addControl( c.name(), cl, c.priority(), True )
 
 
 cd = anatomist.ControlDictionary.instance()
-c = cd.getControlInstance( 'Default 3D control' )
-makePalettedSubclass( c )
-c = cd.getControlInstance( 'ObliqueControl' )
-makePalettedSubclass( c )
+c = cd.getControlInstance('Default 3D control')
+makePalettedSubclass(c)
+c = cd.getControlInstance('ObliqueControl')
+makePalettedSubclass(c)
 try:
-  import selection
-  c = cd.getControlInstance( 'SelectionControl' )
-  makePalettedSubclass( c )
+    import selection
+    c = cd.getControlInstance('SelectionControl')
+    makePalettedSubclass(c)
 except:
-  c = cd.getControlInstance( 'Selection 3D' )
-  makePalettedSubclass( c )
-c = cd.getControlInstance( 'TransformControl' )
-makePalettedSubclass( c )
-c = cd.getControlInstance( 'CutControl' )
-makePalettedSubclass( c )
-c = cd.getControlInstance( 'Flight control' )
-makePalettedSubclass( c )
+    c = cd.getControlInstance('Selection 3D')
+    makePalettedSubclass(c)
+c = cd.getControlInstance('TransformControl')
+makePalettedSubclass(c)
+c = cd.getControlInstance('CutControl')
+makePalettedSubclass(c)
+c = cd.getControlInstance('Flight control')
+makePalettedSubclass(c)
 
+del c, cd
