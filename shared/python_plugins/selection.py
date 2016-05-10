@@ -450,7 +450,7 @@ class SelectionAction(anatomist.cpp.Action):
 
     def switchBoxHighligting( self, value ):
       self.useBoxHighlight = value
-      a = anatomist.Anatomist()
+      a = anatomist.cpp.Anatomist()
       gconf = a.config()
       if value == 0:
         gconf[ 'boxSelectionHighlight' ] = 0
@@ -460,7 +460,7 @@ class SelectionAction(anatomist.cpp.Action):
 
     def switchBoxHighligtingIndividual( self, value ):
       self.useBoxHighlightIndividual = value
-      a = anatomist.Anatomist()
+      a = anatomist.cpp.Anatomist()
       gconf = a.config()
       if value != 0:
         gconf[ 'boxSelectionIndividual' ] = 1
@@ -469,16 +469,16 @@ class SelectionAction(anatomist.cpp.Action):
       self.boxSelection()
 
     def switchBoxColorMode( self, value ):
-      self.boxSelectionColorMode = value
-      a = anatomist.Anatomist()
-      gconf = a.config()
-      if value != 0:
-        gconf[ 'boxSelectionColorMode' ] = self.BoxColor_Modes[ value ]
-      elif 'boxSelectionColorMode' in gconf:
-        del gconf[ 'boxSelectionColorMode' ]
-      if hasattr( self, '_selectboxes' ):
-        del self._selectboxes
-      self.boxSelection()
+        self.boxSelectionColorMode = value
+        a = anatomist.cpp.Anatomist()
+        gconf = a.config()
+        if value != 0:
+            gconf[ 'boxSelectionColorMode' ] = self.BoxColor_Modes[ value ]
+        elif 'boxSelectionColorMode' in gconf:
+            del gconf[ 'boxSelectionColorMode' ]
+        if hasattr( self, '_selectboxes' ):
+            del self._selectboxes
+        self.boxSelection()
 
     def selectCustomBoxColor( self ):
       sc = self.boxSelectionCustomColor
@@ -497,7 +497,7 @@ class SelectionAction(anatomist.cpp.Action):
         hcol.a = float( alpha ) / 255.99
         hcol.na = nalpha
         self.boxSelectionCustomColor = hcol
-        a = anatomist.Anatomist()
+        a = anatomist.cpp.Anatomist()
         gconf = a.config()
         cval = [ hcol.r, hcol.g, hcol.b ]
         if not hcol.na:
@@ -562,4 +562,7 @@ cm = anatomist.cpp.ControlManager.instance()
 cm.removeControl('QAGLWidget3D', '', 'Selection 3D')
 cm.addControl('QAGLWidget3D', '', 'SelectionControl')
 
-del ad, cd, cm, icon
+# don't del these, it will unregister the new controls (why?)
+#del ad , cd, cm, icon
+del icon
+
