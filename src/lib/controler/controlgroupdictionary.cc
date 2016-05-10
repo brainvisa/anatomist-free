@@ -62,7 +62,7 @@ ControlGroupDictionary::getControlGroupInstance( const string& name )
   map< string, set<string> >::iterator found( myControls.find( name ) ) ;
   if ( found != myControls.end() )
     return found->second ;
-  AWarning("Such control name correspond to no control") ;
+  AWarning( ( string( "Control not found: " ) + name ).c_str() );
 
   return set<string>() ;
 }
@@ -71,7 +71,9 @@ void
 ControlGroupDictionary::addControlGroup( const string& name, const set<string>& controlSet ){
   map<string, set<string> >::const_iterator found( myControls.find( name ) ) ;
   if( found != myControls.end() ) {
-    AWarning( "Control group can not be added to dictionary, its name is already registered" ) ;
+    AWarning( (
+      string( "Control group can not be added to dictionary, its name " )
+      + name + string( "is already registered" ) ).c_str() );
     return ;
   }
   myControls[name] = controlSet ;
