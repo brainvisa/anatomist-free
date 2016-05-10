@@ -1326,7 +1326,7 @@ void Anatomist::setCursor( Cursor c )
 
 GlobalConfiguration* Anatomist::config()
 {
-  return( _privData->config );
+  return _privData->config;
 }
 
 

@@ -33,10 +33,10 @@
 import sys
 import anatomist.direct.api as anatomist
 from soma.qt_gui.qt_backend import QtCore, QtGui
-qt = QtGui
 #from soma.qt_gui.qt_backend import loadUiType
 from soma.qt_gui.qt_backend.uic import loadUiType
-findChild = lambda x, y: QtCore.QObject.findChild( x, QtCore.QObject, y )
+
+findChild = lambda x, y: QtCore.QObject.findChild(x, QtCore.QObject, y)
 
 import anatomist.cpp.followerobject as followerobject
 from soma import aims
@@ -44,12 +44,12 @@ import os, sip
 
 #disable_me
 
-class SelectionActionView( qt.QWidget ):
+class SelectionActionView(QtGui.QWidget):
   UIFormClass = None
   _instances = set()
 
-  def __init__( self, action, parent, name=None, flags=0 ):
-    qt.QWidget.__init__( self, parent )
+  def __init__(self, action, parent, name=None, flags=0):
+    QtGui.QWidget.__init__( self, parent )
     self.setObjectName( name )
     self._action = action
     view = self._action.view()
@@ -157,403 +157,409 @@ class SelectionActionView( qt.QWidget ):
     SelectionActionView._instances.remove(self)
 
 
-class SelectionAction( anatomist.cpp.Action ):
-  modes_list = ["Basic", "Intersection", "Union"]
-  mode_basic = 0
-  mode_intersection = 1
-  mode_union = 2
-  BoxColor_Gray = 0
-  BoxColor_AsSelection = 1
-  BoxColor_Custom = 2
-  BoxColor_Modes = ( 'gray', 'as_selection', 'custom' )
-  mode = mode_basic
+class SelectionAction(anatomist.cpp.Action):
+    modes_list = ["Basic", "Intersection", "Union"]
+    mode_basic = 0
+    mode_intersection = 1
+    mode_union = 2
+    BoxColor_Gray = 0
+    BoxColor_AsSelection = 1
+    BoxColor_Custom = 2
+    BoxColor_Modes = ('gray', 'as_selection', 'custom')
+    mode = mode_basic
 
-  def __init__(self):
-    anatomist.cpp.Action.__init__(self)
-    gconf = a.config()
-    self.useBoxHighlight = True
-    self.useBoxHighlightIndividual = False
-    self.boxSelectionColorMode = self.BoxColor_Gray
-    self.boxSelectionCustomColor = anatomist.cpp.SelectFactory.HColor()
-    self.boxSelectionCustomColor.r = 0.7
-    self.boxSelectionCustomColor.g = 0.7
-    self.boxSelectionCustomColor.b = 0.7
-    self.boxSelectionCustomColor.a = 1.
-    self.boxSelectionCustomColor.na = False
-    if gconf.has_key( 'boxSelectionHighlight' ):
-      self.useBoxHighlight = gconf[ 'boxSelectionHighlight' ]
-    if gconf.has_key( 'boxSelectionIndividual' ):
-      self.useBoxHighlightIndividual = gconf[ 'boxSelectionIndividual' ]
-    if gconf.has_key( 'boxSelectionColorMode' ):
-      self.boxSelectionColorMode = self.BoxColor_Modes.index( \
-        gconf[ 'boxSelectionColorMode' ] )
-    if gconf.has_key( 'boxSelectionCustomColor' ):
-      col = gconf[ 'boxSelectionCustomColor' ]
-      self.boxSelectionCustomColor.r = col[0]
-      self.boxSelectionCustomColor.g = col[1]
-      self.boxSelectionCustomColor.b = col[2]
-      if len( col ) >= 4:
-        self.boxSelectionCustomColor.a = col[3]
-        self.boxSelectionCustomColor.na = False
-      else:
+    def __init__(self):
+        super(SelectionAction, self).__init__()
+        a = anatomist.cpp.Anatomist()
+        gconf = a.config()
+        self.useBoxHighlight = True
+        self.useBoxHighlightIndividual = False
+        self.boxSelectionColorMode = self.BoxColor_Gray
+        self.boxSelectionCustomColor = anatomist.cpp.SelectFactory.HColor()
+        self.boxSelectionCustomColor.r = 0.7
+        self.boxSelectionCustomColor.g = 0.7
+        self.boxSelectionCustomColor.b = 0.7
         self.boxSelectionCustomColor.a = 1.
-        self.boxSelectionCustomColor.na = True
+        self.boxSelectionCustomColor.na = False
+        if 'boxSelectionHighlight' in gconf:
+            self.useBoxHighlight = gconf['boxSelectionHighlight']
+        if 'boxSelectionIndividual' in gconf:
+            self.useBoxHighlightIndividual = gconf['boxSelectionIndividual']
+        if 'boxSelectionColorMode' in gconf:
+            self.boxSelectionColorMode = self.BoxColor_Modes.index( \
+                gconf['boxSelectionColorMode'])
+        if 'boxSelectionCustomColor' in gconf:
+            col = gconf['boxSelectionCustomColor']
+            self.boxSelectionCustomColor.r = col[0]
+            self.boxSelectionCustomColor.g = col[1]
+            self.boxSelectionCustomColor.b = col[2]
+            if len(col) >= 4:
+                self.boxSelectionCustomColor.a = col[3]
+                self.boxSelectionCustomColor.na = False
+            else:
+                self.boxSelectionCustomColor.a = 1.
+                self.boxSelectionCustomColor.na = True
 
-  def setMode(self,mode):
-    if type(mode) is type('') or type(mode) is type(u''):
-      mode = self.modes_list.index( mode )
-    SelectionAction.mode = mode
-    self.cleanup()
-    self.edgeSelection()
+    def setMode(self,mode):
+      if type(mode) is type('') or type(mode) is type(u''):
+        mode = self.modes_list.index( mode )
+      SelectionAction.mode = mode
+      self.cleanup()
+      self.edgeSelection()
 
-  def name( self ):
-    return 'SelectionAction'
+    def name( self ):
+      return 'SelectionAction'
 
-  def viewableAction( self ):
-    return True
+    def viewableAction( self ):
+      return True
 
-  def actionView(self, parent):
-    qWidget = SelectionActionView( self, parent,
-      "Selection Widget" )
-    return qWidget
+    def actionView(self, parent):
+      qWidget = SelectionActionView( self, parent,
+        "Selection Widget" )
+      return qWidget
 
-  def updateNodesOpacity(self, value):
-    window = self.view().aWindow()
-    objs = window.Objects()
-    for obj in objs:
-      if isinstance(obj, anatomist.cpp.AGraph):
-        aimsObj = anatomist.cpp.AObjectConverter.aims(obj)
-        vertices = aimsObj.vertices()
-        for vertex in vertices:
-          if vertex.has_key('ana_object'):
-            v0 = vertex['ana_object']
-            mat = v0.GetMaterial()
-            mat_desc = mat.genericDescription()
-            mat_desc = { 'diffuse': [mat_desc['diffuse'][0],
-              mat_desc['diffuse'][1], mat_desc['diffuse'][2], value/100. ] }
-            mat.set(mat_desc)
-            v0.SetMaterial(mat)
-            v0.notifyObservers()
+    def updateNodesOpacity(self, value):
+      window = self.view().aWindow()
+      objs = window.Objects()
+      for obj in objs:
+        if isinstance(obj, anatomist.cpp.AGraph):
+          aimsObj = anatomist.cpp.AObjectConverter.aims(obj)
+          vertices = aimsObj.vertices()
+          for vertex in vertices:
+            if 'ana_object' in vertex:
+              v0 = vertex['ana_object']
+              mat = v0.GetMaterial()
+              mat_desc = mat.genericDescription()
+              mat_desc = { 'diffuse': [mat_desc['diffuse'][0],
+                mat_desc['diffuse'][1], mat_desc['diffuse'][2], value/100. ] }
+              mat.set(mat_desc)
+              v0.SetMaterial(mat)
+              v0.notifyObservers()
 
-  def updateEdgesOpacity(self, value):
-    window = self.view().aWindow()
-    objs = window.Objects()
-    import time
-    t = time.time()
-    for obj in objs:
-      if isinstance(obj, anatomist.cpp.AGraph):
-        aimsObj = anatomist.cpp.AObjectConverter.aims(obj)
-        edges = aimsObj.edges()
-        for edge in edges:
-          if edge.has_key('ana_object'):
-            v0 =edge['ana_object']
-            mat = v0.GetMaterial()
-            mat_desc = mat.genericDescription()
-            mat_desc = { 'diffuse': [mat_desc['diffuse'][0],
-              mat_desc['diffuse'][1], mat_desc['diffuse'][2], value/100. ] }
-            mat.set(mat_desc)
-            v0.SetMaterial(mat)
-            v0.notifyObservers()
+    def updateEdgesOpacity(self, value):
+      window = self.view().aWindow()
+      objs = window.Objects()
+      import time
+      t = time.time()
+      for obj in objs:
+        if isinstance(obj, anatomist.cpp.AGraph):
+          aimsObj = anatomist.cpp.AObjectConverter.aims(obj)
+          edges = aimsObj.edges()
+          for edge in edges:
+            if 'ana_object' in edge:
+              v0 =edge['ana_object']
+              mat = v0.GetMaterial()
+              mat_desc = mat.genericDescription()
+              mat_desc = { 'diffuse': [mat_desc['diffuse'][0],
+                mat_desc['diffuse'][1], mat_desc['diffuse'][2], value/100. ] }
+              mat.set(mat_desc)
+              v0.SetMaterial(mat)
+              v0.notifyObservers()
 
-  def changeColorByTargets(self, vertex_source, edge):
-    vertices = edge.vertices()
-    vertex_target = [ x for x in vertices if x != vertex_source ][0]
-    if vertex_target.has_key("ana_object"):
-      mat = vertex_target["ana_object"].GetMaterial()
-      edgeAna_object = edge['ana_object']
-      mat_desc = mat.genericDescription()
-      mat_edge = edgeAna_object.GetMaterial()
-      matEdge_desc = mat_edge.genericDescription()
-      matEdge_desc = { 'diffuse': [mat_desc['diffuse'][0],
-        mat_desc['diffuse'][1], mat_desc['diffuse'][2],
-        matEdge_desc['diffuse'][3] ] }
-      mat_edge.set(matEdge_desc)
-      edgeAna_object.SetMaterial(mat_edge)
-      edgeAna_object.notifyObservers()
-
-  def changeColorBySources(self, edge):
-    if edge.has_key( 'ana_object' ):
+    def changeColorByTargets(self, vertex_source, edge):
       vertices = edge.vertices()
+      vertex_target = [ x for x in vertices if x != vertex_source ][0]
+      if "ana_object" in vertex_target:
+        mat = vertex_target["ana_object"].GetMaterial()
+        edgeAna_object = edge['ana_object']
+        mat_desc = mat.genericDescription()
+        mat_edge = edgeAna_object.GetMaterial()
+        matEdge_desc = mat_edge.genericDescription()
+        matEdge_desc = { 'diffuse': [mat_desc['diffuse'][0],
+          mat_desc['diffuse'][1], mat_desc['diffuse'][2],
+          matEdge_desc['diffuse'][3] ] }
+        mat_edge.set(matEdge_desc)
+        edgeAna_object.SetMaterial(mat_edge)
+        edgeAna_object.notifyObservers()
+
+    def changeColorBySources(self, edge):
+      if 'ana_object' in edge:
+        vertices = edge.vertices()
+        sf = anatomist.cpp.SelectFactory.factory()
+        window = self.view().aWindow()
+        group = window.Group()
+        for vertex in vertices:
+          if 'ana_object' in vertex \
+            and sf.isSelected(group, vertex['ana_object']):
+            mat = vertex["ana_object"].GetMaterial()
+            edgeAna_object = edge['ana_object']
+            mat_desc = mat.genericDescription()
+            mat_edge = edgeAna_object.GetMaterial()
+            matEdge_desc = mat_edge.genericDescription()
+            matEdge_desc = { 'diffuse': [mat_desc['diffuse'][0],  mat_desc['diffuse'][1], mat_desc['diffuse'][2], matEdge_desc['diffuse'][3] ] }
+            mat_edge.set(matEdge_desc)
+            edgeAna_object.SetMaterial(mat_edge)
+            edgeAna_object.notifyObservers()
+            break
+
+    def edgeSelection( self ):
+      try:
+        recursion = getattr( self, '_recursion' )
+        if recursion:
+          return
+      except:
+        pass
+      self._recursion = True
       sf = anatomist.cpp.SelectFactory.factory()
+      sel = sf.selected()
       window = self.view().aWindow()
       group = window.Group()
-      for vertex in vertices:
-        if vertex.has_key('ana_object') \
-          and sf.isSelected(group, vertex['ana_object']):
-          mat = vertex["ana_object"].GetMaterial()
-          edgeAna_object = edge['ana_object']
-          mat_desc = mat.genericDescription()
-          mat_edge = edgeAna_object.GetMaterial()
-          matEdge_desc = mat_edge.genericDescription()
-          matEdge_desc = { 'diffuse': [mat_desc['diffuse'][0],  mat_desc['diffuse'][1], mat_desc['diffuse'][2], matEdge_desc['diffuse'][3] ] }
-          mat_edge.set(matEdge_desc)
-          edgeAna_object.SetMaterial(mat_edge)
-          edgeAna_object.notifyObservers()
-          break
-
-  def edgeSelection( self ):
-    try:
-      recursion = getattr( self, '_recursion' )
-      if recursion:
-        return
-    except:
-      pass
-    self._recursion = True
-    sf = anatomist.cpp.SelectFactory.factory()
-    sel = sf.selected()
-    window = self.view().aWindow()
-    group = window.Group()
-    gsel = sel.get( group )
-    vertexlist = set()
-    edgeslist = set()
-    selectedEdges_set = set()
-    if gsel is not None:
-      for obj in gsel:
-        if obj.type() == anatomist.cpp.AObject.GRAPHOBJECT:
-          go = obj.attributed()
-          if isinstance( go, aims.Vertex ):
-            vertexlist.add( go )
-            for edge in go.edges():
-              edgeslist.add(edge)
-    #colorchanged = False
-    if len(vertexlist)==1:
-      for edge in edgeslist:
-        if edge.has_key( 'ana_object' ):
-          if self.mode == self.mode_intersection:
-            self.changeColorByTargets(list(vertexlist)[0], edge)
-            #colorchanged = True
-            aobj = edge['ana_object']
-            window.registerObject( aobj )
-            selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
-          elif self.mode == self.mode_union:
+      gsel = sel.get( group )
+      vertexlist = set()
+      edgeslist = set()
+      selectedEdges_set = set()
+      if gsel is not None:
+        for obj in gsel:
+          if obj.type() == anatomist.cpp.AObject.GRAPHOBJECT:
+            go = obj.attributed()
+            if isinstance( go, aims.Vertex ):
+              vertexlist.add( go )
+              for edge in go.edges():
+                edgeslist.add(edge)
+      #colorchanged = False
+      if len(vertexlist)==1:
+        for edge in edgeslist:
+          if 'ana_object' in edge:
+            if self.mode == self.mode_intersection:
+              self.changeColorByTargets(list(vertexlist)[0], edge)
+              #colorchanged = True
+              aobj = edge['ana_object']
+              window.registerObject( aobj )
+              selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
+            elif self.mode == self.mode_union:
+              self.changeColorBySources(edge)
+              #colorchanged = True
+              aobj = edge['ana_object']
+              window.registerObject( aobj )
+              selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
+      else:
+        if self.mode == self.mode_intersection:
+          for edge in edgeslist:
+            edge_validity = True
+            for vertex in edge.vertices():
+              if vertex not in vertexlist:
+                edge_validity = False
+                break
+            if edge_validity:
+              if 'ana_object' in edge:
+                aobj = edge['ana_object']
+                selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
+                window.registerObject( aobj )
+        elif self.mode == self.mode_union:
+          for edge in edgeslist:
             self.changeColorBySources(edge)
             #colorchanged = True
             aobj = edge['ana_object']
             window.registerObject( aobj )
             selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
-    else:
-      if self.mode == self.mode_intersection:
-        for edge in edgeslist:
-          edge_validity = True
-          for vertex in edge.vertices():
-            if vertex not in vertexlist:
-              edge_validity = False
-              break
-          if edge_validity:
-            if edge.has_key( 'ana_object' ):
-              aobj = edge['ana_object']
-              selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
-              window.registerObject( aobj )
-      elif self.mode == self.mode_union:
-        for edge in edgeslist:
-          self.changeColorBySources(edge)
-          #colorchanged = True
-          aobj = edge['ana_object']
-          window.registerObject( aobj )
-          selectedEdges_set.add( anatomist.cpp.weak_ptr_AObject( aobj ) )
 
-    #if colorchanged:
-      #graphs = set()
-      #for edge in selectedEdges_set:
-        #pl = edge['ana_object'].parents()
-        #for p in pl:
-          #if p.type() == anatomist.cpp.AObject.GRAPH:
-            #graphs.add( p )
-      #for graph in graphs:
-        #graph.setChanged()
-        #graph.notifyObservers()
+      #if colorchanged:
+        #graphs = set()
+        #for edge in selectedEdges_set:
+          #pl = edge['ana_object'].parents()
+          #for p in pl:
+            #if p.type() == anatomist.cpp.AObject.GRAPH:
+              #graphs.add( p )
+        #for graph in graphs:
+          #graph.setChanged()
+          #graph.notifyObservers()
 
-    if self.mode != self.mode_basic:
-      objlist = [ obj for obj in window.Objects() \
-        if obj.type() == anatomist.cpp.AObject.GRAPHOBJECT ]
-      for obj in objlist:
-        go = obj.attributed()
-        if isinstance( go, aims.Edge ):
-          if anatomist.cpp.weak_ptr_AObject( obj ) not in selectedEdges_set:
-            window.unregisterObject(obj)
-    self._tempedges = selectedEdges_set
+      if self.mode != self.mode_basic:
+        objlist = [ obj for obj in window.Objects() \
+          if obj.type() == anatomist.cpp.AObject.GRAPHOBJECT ]
+        for obj in objlist:
+          go = obj.attributed()
+          if isinstance( go, aims.Edge ):
+            if anatomist.cpp.weak_ptr_AObject( obj ) not in selectedEdges_set:
+              window.unregisterObject(obj)
+      self._tempedges = selectedEdges_set
 
-    del self._recursion
+      del self._recursion
 
 
-  def boxSelectionColor( self, objs=None ):
-    if self.boxSelectionColorMode == self.BoxColor_Gray:
-      col = anatomist.cpp.SelectFactory.HColor()
-      col.r = 0.7
-      col.g = 0.7
-      col.b = 0.7
-      col.a = 1.
-      col.na = False
-      return col
-    elif self.boxSelectionColorMode == self.BoxColor_Custom:
-      return self.boxSelectionCustomColor
-    else:
-      sf = anatomist.cpp.SelectFactory.factory()
-      for obj in objs:
-        break
-      col = sf.highlightColor( obj )
-    return col
-
-
-  def boxSelection( self ):
-    if hasattr( self, '_recursing' ):
-      return
-    self._recursing = True
-    a = anatomist.cpp.Anatomist()
-    v = self.view()
-    w = v.aWindow()
-    if self.useBoxHighlight:
-      sf = anatomist.cpp.SelectFactory.factory()
-      sel = sf.selected().get( w.Group() )
-    else:
-      sel = set()
-    if not hasattr( self, '_selectboxes' ):
-      self._selectboxes = {}
-    if not sel:
-      sel = []
-    selectboxes = {}
-    bboxglob = None
-    globalbb = not self.useBoxHighlightIndividual
-    def makefollower( self, objs, w, selectboxes, key ):
-      if key in self._selectboxes:
-        f = self._selectboxes[ key ]
-        f.setObserved( objs )
+    def boxSelectionColor( self, objs=None ):
+      if self.boxSelectionColorMode == self.BoxColor_Gray:
+        col = anatomist.cpp.SelectFactory.HColor()
+        col.r = 0.7
+        col.g = 0.7
+        col.b = 0.7
+        col.a = 1.
+        col.na = False
+        return col
+      elif self.boxSelectionColorMode == self.BoxColor_Custom:
+        return self.boxSelectionCustomColor
       else:
-        f = followerobject.ObjectFollowerCube( objs )
-        f.setName( 'follower' )
-        a.releaseObject( f )
-      selectboxes[ key ] = f
-      col = self.boxSelectionColor( objs )
-      mat = f.GetMaterial()
-      mat.set( { 'diffuse' : [ col.r, col.g, col.b, col.a ] } )
-      f.SetMaterial( mat )
-      w.registerObject( f, True )
-      w.refreshTemp()
-    tosel = []
-    for obj in sel:
-      if not w.hasObject( obj ) or w.isTemporary( obj ):
-        continue
-      tosel.append( obj )
-      if not globalbb:
-        if self._selectboxes.has_key( anatomist.cpp.weak_ptr_AObject( obj ) ):
-          selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ] \
-            = self._selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ]
+        sf = anatomist.cpp.SelectFactory.factory()
+        for obj in objs:
+          break
+        col = sf.highlightColor( obj )
+      return col
+
+
+    def boxSelection( self ):
+      if hasattr( self, '_recursing' ):
+        return
+      self._recursing = True
+      a = anatomist.cpp.Anatomist()
+      v = self.view()
+      w = v.aWindow()
+      if self.useBoxHighlight:
+        sf = anatomist.cpp.SelectFactory.factory()
+        sel = sf.selected().get( w.Group() )
+      else:
+        sel = set()
+      if not hasattr( self, '_selectboxes' ):
+        self._selectboxes = {}
+      if not sel:
+        sel = []
+      selectboxes = {}
+      bboxglob = None
+      globalbb = not self.useBoxHighlightIndividual
+      def makefollower( self, objs, w, selectboxes, key ):
+        if key in self._selectboxes:
+          f = self._selectboxes[ key ]
+          f.setObserved( objs )
+        else:
+          f = followerobject.ObjectFollowerCube( objs )
+          f.setName( 'follower' )
+          a.releaseObject( f )
+        selectboxes[ key ] = f
+        col = self.boxSelectionColor( objs )
+        mat = f.GetMaterial()
+        mat.set( { 'diffuse' : [ col.r, col.g, col.b, col.a ] } )
+        f.SetMaterial( mat )
+        w.registerObject( f, True )
+        w.refreshTemp()
+      tosel = []
+      for obj in sel:
+        if not w.hasObject( obj ) or w.isTemporary( obj ):
           continue
-        makefollower( self, [ obj ], w, selectboxes,
-          anatomist.cpp.weak_ptr_AObject( obj ) )
-    if globalbb:
-      if tosel:
-        makefollower( self, tosel, w, selectboxes, 'global' )
-    self._selectboxes = selectboxes
-    del self._recursing
+        tosel.append( obj )
+        if not globalbb:
+          if anatomist.cpp.weak_ptr_AObject(obj) in self._selectboxes:
+            selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ] \
+              = self._selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ]
+            continue
+          makefollower( self, [ obj ], w, selectboxes,
+            anatomist.cpp.weak_ptr_AObject( obj ) )
+      if globalbb:
+        if tosel:
+          makefollower( self, tosel, w, selectboxes, 'global' )
+      self._selectboxes = selectboxes
+      del self._recursing
 
-  def switchBoxHighligting( self, value ):
-    self.useBoxHighlight = value
-    gconf = a.config()
-    if value == 0:
-      gconf[ 'boxSelectionHighlight' ] = 0
-    elif gconf.has_key( 'boxSelectionHighlight' ):
-      del gconf[ 'boxSelectionHighlight' ]
-    self.boxSelection()
-
-  def switchBoxHighligtingIndividual( self, value ):
-    self.useBoxHighlightIndividual = value
-    gconf = a.config()
-    if value != 0:
-      gconf[ 'boxSelectionIndividual' ] = 1
-    elif gconf.has_key( 'boxSelectionIndividual' ):
-      del gconf[ 'boxSelectionIndividual' ]
-    self.boxSelection()
-
-  def switchBoxColorMode( self, value ):
-    self.boxSelectionColorMode = value
-    gconf = a.config()
-    if value != 0:
-      gconf[ 'boxSelectionColorMode' ] = self.BoxColor_Modes[ value ]
-    elif gconf.has_key( 'boxSelectionColorMode' ):
-      del gconf[ 'boxSelectionColorMode' ]
-    if hasattr( self, '_selectboxes' ):
-      del self._selectboxes
-    self.boxSelection()
-
-  def selectCustomBoxColor( self ):
-    sc = self.boxSelectionCustomColor
-    alpha = int( sc.a * 255.99 )
-    nalpha = sc.na
-    col, alpha, nalpha = anatomist.cpp.QAColorDialog.getColor( \
-      QtGui.QColor( int( sc.r * 255.99 ),
-                    int( sc.g * 255.99 ),
-                    int( sc.b * 255.99 ) ), None,
-      'Selection color', alpha, nalpha )
-    if col.isValid():
-      hcol = anatomist.cpp.SelectFactory.HColor()
-      hcol.r = float( col.red() ) / 255.99
-      hcol.g = float( col.green() ) / 255.99
-      hcol.b = float( col.blue() ) / 255.99
-      hcol.a = float( alpha ) / 255.99
-      hcol.na = nalpha
-      self.boxSelectionCustomColor = hcol
+    def switchBoxHighligting( self, value ):
+      self.useBoxHighlight = value
+      a = anatomist.Anatomist()
       gconf = a.config()
-      cval = [ hcol.r, hcol.g, hcol.b ]
-      if not hcol.na:
-        cval.append( hcol.a )
-      gconf[ 'boxSelectionCustomColor' ] = cval
-      if cval != [ 0.7, 0.7, 0.7, 1. ]:
-        gconf[ 'boxSelectionCustomColor' ] = cval
-      elif gconf.has_key( 'boxSelectionCustomColor' ):
-        del gconf[ 'boxSelectionCustomColor' ]
+      if value == 0:
+        gconf[ 'boxSelectionHighlight' ] = 0
+      elif 'boxSelectionHighlight' in gconf:
+        del gconf[ 'boxSelectionHighlight' ]
+      self.boxSelection()
+
+    def switchBoxHighligtingIndividual( self, value ):
+      self.useBoxHighlightIndividual = value
+      a = anatomist.Anatomist()
+      gconf = a.config()
+      if value != 0:
+        gconf[ 'boxSelectionIndividual' ] = 1
+      elif 'boxSelectionIndividual' in gconf:
+        del gconf[ 'boxSelectionIndividual' ]
+      self.boxSelection()
+
+    def switchBoxColorMode( self, value ):
+      self.boxSelectionColorMode = value
+      a = anatomist.Anatomist()
+      gconf = a.config()
+      if value != 0:
+        gconf[ 'boxSelectionColorMode' ] = self.BoxColor_Modes[ value ]
+      elif 'boxSelectionColorMode' in gconf:
+        del gconf[ 'boxSelectionColorMode' ]
       if hasattr( self, '_selectboxes' ):
         del self._selectboxes
       self.boxSelection()
 
-  def selectionChanged( self ):
-    self.edgeSelection()
-    self.boxSelection()
+    def selectCustomBoxColor( self ):
+      sc = self.boxSelectionCustomColor
+      alpha = int( sc.a * 255.99 )
+      nalpha = sc.na
+      col, alpha, nalpha = anatomist.cpp.QAColorDialog.getColor( \
+        QtGui.QColor( int( sc.r * 255.99 ),
+                      int( sc.g * 255.99 ),
+                      int( sc.b * 255.99 ) ), None,
+        'Selection color', alpha, nalpha )
+      if col.isValid():
+        hcol = anatomist.cpp.SelectFactory.HColor()
+        hcol.r = float( col.red() ) / 255.99
+        hcol.g = float( col.green() ) / 255.99
+        hcol.b = float( col.blue() ) / 255.99
+        hcol.a = float( alpha ) / 255.99
+        hcol.na = nalpha
+        self.boxSelectionCustomColor = hcol
+        a = anatomist.Anatomist()
+        gconf = a.config()
+        cval = [ hcol.r, hcol.g, hcol.b ]
+        if not hcol.na:
+          cval.append( hcol.a )
+        gconf[ 'boxSelectionCustomColor' ] = cval
+        if cval != [ 0.7, 0.7, 0.7, 1. ]:
+          gconf[ 'boxSelectionCustomColor' ] = cval
+        elif 'boxSelectionCustomColor' in gconf:
+          del gconf[ 'boxSelectionCustomColor' ]
+        if hasattr( self, '_selectboxes' ):
+          del self._selectboxes
+        self.boxSelection()
 
-  def cleanup( self ):
-    if hasattr( self, '_recursion' ):
-      return
-    if hasattr( self, '_tempedges' ):
-      self._recursion = True
-      window = self.view().aWindow()
-      for obj in self._tempedges:
-        window.unregisterObject(obj.get())
-      del self._tempedges
-      del self._recursion
-    if hasattr( self, '_selectboxes' ):
-      del self._selectboxes
+    def selectionChanged( self ):
+      self.edgeSelection()
+      self.boxSelection()
+
+    def cleanup( self ):
+      if hasattr( self, '_recursion' ):
+        return
+      if hasattr( self, '_tempedges' ):
+        self._recursion = True
+        window = self.view().aWindow()
+        for obj in self._tempedges:
+          window.unregisterObject(obj.get())
+        del self._tempedges
+        del self._recursion
+      if hasattr( self, '_selectboxes' ):
+        del self._selectboxes
 
 
-class SelectionControl( anatomist.cpp.Select3DControl ):
-  def __init__( self,
-    name=QtCore.QT_TRANSLATE_NOOP( 'ControlledWindow', 'SelectionControl' ) ):
-    anatomist.cpp.Select3DControl.__init__( self, name )
+class SelectionControl(anatomist.cpp.Select3DControl):
+    def __init__(self,
+            name=QtCore.QT_TRANSLATE_NOOP(
+                'ControlledWindow', 'SelectionControl')):
+        super(SelectionControl, self).__init__(name)
 
-  def eventAutoSubscription( self, pool ):
-    anatomist.cpp.Select3DControl.eventAutoSubscription( self, pool )
-    self.selectionChangedEventSubscribe( pool.action( \
-      'SelectionAction' ).selectionChanged )
+    def eventAutoSubscription( self, pool ):
+        anatomist.cpp.Select3DControl.eventAutoSubscription( self, pool )
+        self.selectionChangedEventSubscribe( pool.action( \
+            'SelectionAction' ).selectionChanged )
 
-  def doAlsoOnSelect( self, actionpool ):
-    anatomist.cpp.Select3DControl.doAlsoOnSelect( self, actionpool )
-    actionpool.action("SelectionAction").edgeSelection()
-    actionpool.action("SelectionAction").boxSelection()
+    def doAlsoOnSelect(self, actionpool):
+        super(SelectionControl, self).doAlsoOnSelect(actionpool)
+        ac = actionpool.action("SelectionAction")
+        ac.edgeSelection()
+        actionpool.action("SelectionAction").boxSelection()
 
-  def doAlsoOnDeselect( self, actionpool ):
-    anatomist.cpp.Select3DControl.doAlsoOnDeselect( self, actionpool )
-    actionpool.action("SelectionAction").cleanup()
+    def doAlsoOnDeselect(self, actionpool):
+        super(SelectionControl, self).doAlsoOnDeselect(actionpool)
+        actionpool.action("SelectionAction").cleanup()
 
-a = anatomist.Anatomist()
 
-icon = anatomist.cpp.IconDictionary.instance().getIconInstance( \
-  'Selection 3D' )
-anatomist.cpp.IconDictionary.instance().addIcon( 'SelectionControl',
-  qt.QPixmap( icon ) )
+icon = anatomist.cpp.IconDictionary.instance().getIconInstance('Selection 3D')
+anatomist.cpp.IconDictionary.instance().addIcon(
+    'SelectionControl', QtGui.QPixmap(icon))
 ad = anatomist.cpp.ActionDictionary.instance()
-ad.addAction( 'SelectionAction', SelectionAction )
+ad.addAction('SelectionAction', SelectionAction)
 cd = anatomist.cpp.ControlDictionary.instance()
-cd.addControl( 'SelectionControl', SelectionControl, 2 )
+cd.addControl('SelectionControl', SelectionControl, 2)
 cm = anatomist.cpp.ControlManager.instance()
-cm.removeControl( 'QAGLWidget3D', '', 'Selection 3D' )
-cm.addControl( 'QAGLWidget3D', '', 'SelectionControl' )
+cm.removeControl('QAGLWidget3D', '', 'Selection 3D')
+cm.addControl('QAGLWidget3D', '', 'SelectionControl')
 
+del ad, cd, cm, icon

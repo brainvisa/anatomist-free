@@ -62,19 +62,19 @@ ActionPool::~ActionPool()
 }
 
 ActionPtr 
-ActionPool::action( string name ) 
+ActionPool::action( const string & name )
 {
   map<string, ActionPtr>::iterator found( myActions.find( name ) ) ;
   if ( found != myActions.end() )
-    return found->second ;
-  
+    return found->second;
+
   ActionPtr action = ActionDictionary::instance()->getActionInstance( name ) ;
   if( !action )
     return 0;
-  action->setView( myView ) ;
-  myActions[name] = action ;
+  action->setView( myView );
+  myActions[name] = action;
   if( action->viewableAction() )
-    myActionSet.insert( name ) ;
+    myActionSet.insert( name );
 
   myView->controlSwitch()->notifyActionChange() ;
 
