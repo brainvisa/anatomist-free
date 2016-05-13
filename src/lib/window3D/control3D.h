@@ -376,6 +376,7 @@ namespace anatomist
 
     void sort();
     void toggleAutoSort();
+    void toggleSortDirection();
   };
 
 }

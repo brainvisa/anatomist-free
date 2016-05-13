@@ -300,6 +300,11 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::toggleAutoSort ),
                           "auto_sort_polygons_by_depth" );
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleSortDirection ),
+                          "sort_polygons_direction" );
 
   // Is it MY job to maintain this map ???
   myActions[ "MovieAction" ] = actionPool->action( "MovieAction" );
@@ -2479,6 +2484,14 @@ void SortMeshesPolygonsAction::toggleAutoSort()
   AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( w )
     w->setPolygonsSortingEnabled( !w->polygonsSortingEnabled() );
+}
+
+
+void SortMeshesPolygonsAction::toggleSortDirection()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+    w->setPolygonsSortingDirection( !w->polygonsSortingDirection() );
 }
 
 

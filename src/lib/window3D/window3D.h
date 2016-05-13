@@ -254,6 +254,9 @@ public:
 
   bool polygonsSortingEnabled() const;
   void setPolygonsSortingEnabled( bool );
+  /// returns false for back-to-front, true for front-to-back
+  bool polygonsSortingDirection() const;
+  void setPolygonsSortingDirection( bool dir );
   virtual void sortPolygons( bool force = false );
 
 

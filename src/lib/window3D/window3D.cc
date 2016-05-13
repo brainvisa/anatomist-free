@@ -204,6 +204,7 @@ struct AWindow3D::Private
     AObject *texConstraint;
     OrientationAnnotation * orientAnnot;
     bool sortPolygons;
+    bool sortPolygonsDirection;
 };
 
 namespace
@@ -371,7 +372,7 @@ AWindow3D::Private::Private() :
       righteye(0), objvallabel(0), statusbarvisible(false),
       needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false )
+      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false )
 {
   try
   {
@@ -825,6 +826,9 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
         this, SLOT( switchToolbox() ) );
     roibt->setToolTip( tr( "Open the ROI toolbox" ) );
     roibt->setCheckable( true );
+
+    // in some versions of Qt5, the menubar does not show automatically
+    menuBar()->show();
 
   }
 
@@ -3883,6 +3887,24 @@ void AWindow3D::setPolygonsSortingEnabled( bool enabled )
 }
 
 
+bool AWindow3D::polygonsSortingDirection() const
+{
+  return d->sortPolygonsDirection;
+}
+
+
+void AWindow3D::setPolygonsSortingDirection( bool dir )
+{
+  if( dir != d->sortPolygonsDirection )
+  {
+    d->sortPolygonsDirection = dir;
+    Refresh();
+    setChanged();
+    notifyObservers( this );
+  }
+}
+
+
 void AWindow3D::sortPolygons( bool force )
 {
   GLWidgetManager *wm = dynamic_cast<GLWidgetManager *>( view() );
@@ -3943,6 +3965,8 @@ void AWindow3D::sortPolygons( bool force )
       transDir = t->transform( direction );
     else
       transDir = direction;
+    if( d->sortPolygonsDirection )
+      transDir *= -1;
     SurfaceManip::sortPolygonsAlongDirection(
       *(*is)->surface(), timemesh, transDir );
     (*is)->glSetChanged( GLComponent::glGEOMETRY );
