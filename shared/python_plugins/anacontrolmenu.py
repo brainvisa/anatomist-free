@@ -44,11 +44,12 @@ options dealing with python modules:
 from __future__ import print_function
 
 import sys, os, string, glob
+import anatomist.cpp as anatomist
 from soma.qt_gui.qt_backend.QtCore import *
 from soma.qt_gui.qt_backend.QtGui import *
+from soma.qt_gui.qt_backend import QtGui
 Slot = pyqtSlot
 
-import anatomist.cpp as anatomist
 
 consoleShellRunning = False
 _ipsubprocs = []
@@ -303,7 +304,7 @@ def _my_ioloop_start(self):
 def runIPConsoleKernel(mode='qtconsole'):
     import IPython
     from IPython.lib import guisupport
-    qtapp = QApplication.instance()
+    qtapp = QtGui.QApplication.instance()
     qtapp._in_event_loop = True
     guisupport.in_event_loop  = True
     ipversion = [int(x) for x in IPython.__version__.split('.')]
@@ -631,7 +632,6 @@ class PythonScriptRun( anatomist.ObjectReader.LoadFunctionClass ):
       #print >> sys.stderr, e
       #traceback.print_stack()
       #sys.stderr.flush()
-
 
 cw = a.getControlWindow()
 if cw is not None:

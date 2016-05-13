@@ -32,6 +32,8 @@
 # knowledge of the CeCILL-B license and that you accept its terms.
 import sys
 import anatomist.direct.api as anatomist
+from soma.qt_gui import qt_backend
+qt_backend.set_qt_backend(compatible_qt5=True)
 from soma.qt_gui.qt_backend import QtCore, QtGui
 #from soma.qt_gui.qt_backend import loadUiType
 from soma.qt_gui.qt_backend.uic import loadUiType
