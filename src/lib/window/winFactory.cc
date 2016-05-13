@@ -295,7 +295,9 @@ int AWindowFactory::registerType( const string & type,
   if( visibleinCtrlWin )
     CtrlWinVisibleTypes.insert( itype );
 
-  ControlWindow* cw = theAnatomist->getControlWindow();
+  ControlWindow* cw = 0;
+  if( theAnatomist )
+    cw = theAnatomist->getControlWindow();
   if( cw )
   {
     AControlMenuHandler* mh = cw->menuHandler();
