@@ -165,6 +165,7 @@ ControlWindow::ControlWindow()
   _menu = new AControlMenuHandler( menuBar(), this );
   
   drawContents();
+  menuBar()->show();
 
   QToolBar	*tb = d->toolbar;
   int	w = tb->sizeHint().height();

@@ -760,7 +760,7 @@ PreferencesWindow::PreferencesWindow()
   mainlay->addWidget( tvol );
   mainlay->addWidget( tgl );
 
-  connect( tbar, SIGNAL( selected( int ) ), this, SLOT( enableTab( int ) ) );
+  connect( tbar, SIGNAL( currentChanged( int ) ), this, SLOT( enableTab( int ) ) );
   connect( htmlbox, SIGNAL( activated( const QString & ) ), this, 
 	   SLOT( htmlBrowserChanged( const QString & ) ) );
   connect( langbox, SIGNAL( activated( const QString & ) ), this, 

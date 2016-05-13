@@ -48,6 +48,9 @@ try:
 except:
     pass
 
+if sys.version_info[0] >= 3:
+    xrange = range
+
 
 class GWManager(qt.QObject):
     gradwidgets = set()
@@ -160,15 +163,27 @@ class GradientPaletteWidget(qtgui.QWidget):
         rgbp = self._gradw.fillGradient(paldim, True)
         rgb = rgbp.data()
         if sys.byteorder == 'little':
-            for i in xrange(paldim):
-                pdata.setValue(
-                    aims.AimsRGBA(ord(rgb[i * 4 + 2]), ord(rgb[i * 4 + 1]),
-                                  ord(rgb[i * 4]), ord(rgb[i * 4 + 3])), i)
+            if sys.version_info[0] >= 3:
+                for i in xrange(paldim):
+                    pdata.setValue(
+                        aims.AimsRGBA(rgb[i * 4 + 2], rgb[i * 4 + 1],
+                                      rgb[i * 4], rgb[i * 4 + 3]), i)
+            else:
+                for i in xrange(paldim):
+                    pdata.setValue(
+                        aims.AimsRGBA(ord(rgb[i * 4 + 2]), ord(rgb[i * 4 + 1]),
+                                      ord(rgb[i * 4]), ord(rgb[i * 4 + 3])), i)
         else:
-            for i in xrange(paldim):
-                pdata.setValue(
-                    aims.AimsRGBA(ord(rgb[i * 4 + 1]), ord(rgb[i * 4 + 2]),
-                                  ord(rgb[i * 4 + 3]), ord(rgb[i * 4])), i)
+            if sys.version_info[0] >= 3:
+                for i in xrange(paldim):
+                    pdata.setValue(
+                        aims.AimsRGBA(rgb[i * 4 + 1], rgb[i * 4 + 2],
+                                      rgb[i * 4 + 3], rgb[i * 4]), i)
+            else:
+                for i in xrange(paldim):
+                    pdata.setValue(
+                        aims.AimsRGBA(ord(rgb[i * 4 + 1]), ord(rgb[i * 4 + 2]),
+                                      ord(rgb[i * 4 + 3]), ord(rgb[i * 4])), i)
         gradientString = self._gradw.getGradientString()
         if use_qstring:
             gradientString = gradientString.toLocal8Bit().data()
