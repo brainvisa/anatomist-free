@@ -9,6 +9,9 @@ if( APPLE )
   #  i686-apple-darwin9-g++-4.0.1: -compatibility_version only allowed with -dynamiclib
   set_property( TARGET anaperfusion
     PROPERTY OUTPUT_NAME anaperfusion.${${PROJECT_NAME}_VERSION} )
+elseif( CMAKE_VERSION VERSION_LESS "3.5" )
+    set_target_properties( anaperfusion
+        PROPERTIES SOVERSION ${${PROJECT_NAME}_VERSION} )
 else()
   # in cmake 3.5 on linux, making a "module" removes the version number in the
   # .so so the suffix has to be forced.
