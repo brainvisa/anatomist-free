@@ -11,6 +11,6 @@ attributes = {
     'libpyanatomistmodule.so',
     'libanavolrender.so',
     'libanavtk.so',
-    'libanaptk.so'
+    'libptk-anatomist-plugin.so'
   ],
 }
