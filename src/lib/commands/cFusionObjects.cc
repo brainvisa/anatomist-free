@@ -110,7 +110,7 @@ void FusionObjectsCommand::doit()
         string name = AObject::objectTypeName( _newobj->type() ) + ": ";
         vector<AObject *>::const_iterator i, e = _obj.end();
         bool first = true, trunc = false;
-        string::size_type maxlen = 30;
+        string::size_type maxlen = 300;
         for( i=_obj.begin(); i!=e; ++i )
         {
           if( first )
