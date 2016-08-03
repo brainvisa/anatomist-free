@@ -1221,12 +1221,6 @@ ReferentialWindow* Anatomist::getReferentialWindow() const
   return _privData->referentialWindow;
 }
 
-string Anatomist::catObjectNames( const set<AObject *> &setobj ) const
-{
-  return ObjectUtils::catObjectNames( setobj );
-}
-
-
 void Anatomist::registerSubObject( MObject* parent, AObject* obj )
 {
   registerObject( obj, false );

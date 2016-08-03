@@ -138,7 +138,6 @@ namespace anatomist
 				       const Referential* );
     const Transformation* getTransformation( const Referential*, 
 					     const Referential* ) const;
-    std::string catObjectNames( const std::set<AObject *> &setobj ) const;
 
     AObject* loadObject( const std::string & filename, 
 			 const std::string & objname = "", 
