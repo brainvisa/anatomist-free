@@ -153,6 +153,8 @@ set( _headers
     object/objectmenuCallbacks.h
     object/objectmenu.h
     object/objectparamselect.h
+    object/objectutils.h
+    object/objectutils_d.h
     object/optionMatcher.h
     object/oReader.h
     object/Object.h
@@ -386,6 +388,7 @@ set( _sources
     object/loadevent.cc
     object/objectmenu.cc
     object/objectparamselect.cc
+    object/objectutils.cc
     object/optionMatcher.cc
     object/oReader.cc
     object/Object.cc

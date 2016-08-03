@@ -43,6 +43,8 @@
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/processor/event.h>
 #include <anatomist/reference/Transformation.h>
+#include <anatomist/object/objectutils.h>
+#include <anatomist/application/globalConfig.h>
 #include <qfiledialog.h>
 #include <algorithm>
 #include <assert.h>
@@ -330,17 +332,16 @@ void AWindow::setWindowTitle()
 {
   if( d->destroying )
     return;
-  const unsigned MAXLEN = 300;
-  set<AObject *> sobjects;
+  int MAXLEN = 300;
+  theAnatomist->config()->getProperty( "object_names_list_max_size", MAXLEN );
+  list<AObject *> sobjects;
   list<carto::shared_ptr<AObject> >::const_iterator io, eo = _objects.end();
   // skip hidden and temporary objects
   for( io=_objects.begin(); io!=eo; ++io )
     if( theAnatomist->hasObject( io->get() ) && !isTemporary( io->get() ) )
-      sobjects.insert( io->get() );
+      sobjects.push_back( io->get() );
   string newtitle = Title().substr( 0, Title().find( ':' ) ) + ": " 
-  		    + theAnatomist->catObjectNames( sobjects );
-  if( newtitle.size() > MAXLEN )
-    newtitle.replace( 37, newtitle.size(), "..." );
+  		    + ObjectUtils::catObjectNames( sobjects, MAXLEN );
 
   setTitle( newtitle );
 
@@ -358,7 +359,6 @@ void AWindow::selectObject( float x, float y, float z, float t, int modifier )
 
 void AWindow::button3clicked( int x, int y )
 {
-  //	passe le b�b� � une impl�mentation externe (Qt ?)
   SelectFactory::factory()->handleSelectionMenu( this, x, y );
 }
 

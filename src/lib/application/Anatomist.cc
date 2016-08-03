@@ -77,6 +77,7 @@
 #include <anatomist/object/objectmenuCallbacks.h>
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/selection/selectFactory.h>
+#include <anatomist/object/objectutils.h>
 #include "anatomistprivate.h"
 #include <aims/def/path.h>
 #include <cartobase/plugin/plugin.h>
@@ -1222,58 +1223,7 @@ ReferentialWindow* Anatomist::getReferentialWindow() const
 
 string Anatomist::catObjectNames( const set<AObject *> &setobj ) const
 {
-  set<AObject *>::const_iterator obj, fo = setobj.end();
-  string  nameWin;
-  AObject::ParentList::const_iterator	ip, fp;
-  bool				first = true;
-
-  if( setobj.empty() )
-    return( nameWin );
-
-  for( obj=setobj.begin(); obj!=fo; ++obj )
-    {
-      for( ip=(*obj)->Parents().begin(), fp=(*obj)->Parents().end(); 
-           ip!=fp && setobj.find( *ip ) == fo; ++ip ) {}
-      if( ip == fp )	// no parent in list
-        {
-          if( first )
-            first = false;
-          else
-            nameWin += ", ";
-          switch( (*obj)->type() )
-	    {
-	    case AObject::FUSION2D:
-	    case AObject::FUSION3D:
-	      {
-		MObject::iterator	io, fo = ((MObject *) *obj)->end();
-		nameWin += "(";
-		io=((MObject *) *obj)->begin();
-		if( !(*io)->name().empty() )
-		  nameWin += (*io)->name();
-		else
-		  nameWin += "<unnamed>";
-		for( ++io; io!=fo; ++io )
-		  {
-		    nameWin += ",";
-		    if( !(*io)->name().empty() )
-		      nameWin += (*io)->name();
-		    else
-		      nameWin += "<unnamed>";
-		  }
-		nameWin += ")";
-	      }
-	      break;
-	    default:
-	      if( !(*obj)->name().empty() )
-		nameWin += (*obj)->name();
-	      else
-		nameWin += "<unnamed>";
-	      break;
-	    }
-	}
-    }
-
-  return( nameWin );
+  return ObjectUtils::catObjectNames( setobj );
 }
 
 

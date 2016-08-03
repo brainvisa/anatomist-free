@@ -48,6 +48,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/color/paletteList.h>
+#include <anatomist/object/objectutils.h>
 #include <aims/resampling/motion.h>
 #include <aims/resampling/quaternion.h>
 #include <aims/math/mathelem.h>
@@ -1351,9 +1352,12 @@ bool VolRender::renderingIsObserverDependent() const
 
 void VolRender::volrenderProperties( const set<AObject *> & obj )
 {
+  int MAXLEN = 300;
+  theAnatomist->config()->getProperty( "object_names_list_max_size", MAXLEN );
   VolRenderPanel	*w
-      = new VolRenderPanel( obj, theAnatomist->getQWidgetAncestor(),
-                            theAnatomist->catObjectNames( obj ).c_str() );
+      = new VolRenderPanel(
+        obj, theAnatomist->getQWidgetAncestor(),
+        ObjectUtils::catObjectNames( obj, MAXLEN ).c_str() );
   w->setWindowFlags(Qt::Window);
   w->show();
 }
