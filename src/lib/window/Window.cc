@@ -330,13 +330,13 @@ void AWindow::setWindowTitle()
 {
   if( d->destroying )
     return;
-  const unsigned MAXLEN = 40;
+  const unsigned MAXLEN = 300;
   set<AObject *> sobjects;
-  set<AObject *>::const_iterator io, eo = _sobjects.end();
+  list<carto::shared_ptr<AObject> >::const_iterator io, eo = _objects.end();
   // skip hidden and temporary objects
-  for( io=_sobjects.begin(); io!=eo; ++io )
-    if( theAnatomist->hasObject( *io ) && !isTemporary( *io ) )
-      sobjects.insert( *io );
+  for( io=_objects.begin(); io!=eo; ++io )
+    if( theAnatomist->hasObject( io->get() ) && !isTemporary( io->get() ) )
+      sobjects.insert( io->get() );
   string newtitle = Title().substr( 0, Title().find( ':' ) ) + ": " 
   		    + theAnatomist->catObjectNames( sobjects );
   if( newtitle.size() > MAXLEN )
