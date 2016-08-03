@@ -310,6 +310,16 @@ Here is a complete (I hope) list of the possible options:
         <td>4.1</td>
       </tr>
       <tr>
+
+        <td><tt>object_names_list_max_size</tt></td>
+        <td><tt>int</tt></td>
+        <td>300</td>
+        <td>positive int</td>
+        <td>Limit to the number of characters dispayed in objects lists for objects and window names. 0 means no limit.</td>
+        <td>4.5.1</td>
+      </tr>
+
+      <tr>
         <td><tt>path_list</tt></td>
         <td><tt>string</tt></td>
         <td></td>

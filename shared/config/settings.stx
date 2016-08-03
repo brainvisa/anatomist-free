@@ -55,4 +55,6 @@ fascicleThickness		float
 volumeInterpolation		int
 useSpmOrigin			int
 
+object_names_list_max_size      int
+
 *END

@@ -60,6 +60,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/application/globalConfig.h>
+#include <anatomist/object/objectutils.h>
 #include <aims/resampling/standardreferentials.h>
 #include <aims/graph/graphmanip.h>
 #include <cartobase/stream/fileutil.h>
@@ -145,20 +146,24 @@ void ObjectActions::referentialLoad( const set<AObject *> & obj )
 
 void ObjectActions::fusion2DControl( const set<AObject *> & obj )
 {
-  //	command removed
+  int MAXLEN = 300;
+  theAnatomist->config()->getProperty( "object_names_list_max_size", MAXLEN );
+
   Fusion2DWindow	*fw
     = new Fusion2DWindow( obj, theAnatomist->getQWidgetAncestor(),
-              theAnatomist->catObjectNames( obj ).c_str(), Qt::Window );
+      ObjectUtils::catObjectNames( obj, MAXLEN ).c_str(), Qt::Window );
   fw->show();
 }
 
 
 void ObjectActions::fusion3DControl( const set<AObject *> & obj )
 {
-  //	command removed
+  int MAXLEN = 300;
+  theAnatomist->config()->getProperty( "object_names_list_max_size", MAXLEN );
+
   Fusion3DWindow	*fw
     = new Fusion3DWindow( obj, theAnatomist->getQWidgetAncestor(),
-			  theAnatomist->catObjectNames( obj ).c_str() );
+                          ObjectUtils::catObjectNames( obj, MAXLEN ).c_str() );
   fw->setWindowFlags(Qt::Window);
   fw->show();
 }
@@ -166,8 +171,13 @@ void ObjectActions::fusion3DControl( const set<AObject *> & obj )
 
 void ObjectActions::textureControl( const set<AObject *> & obj )
 {
+  int MAXLEN = 300;
+  theAnatomist->config()->getProperty( "object_names_list_max_size", MAXLEN );
+
   QTextureWin	*tp
-    = new QTextureWin( obj, theAnatomist->getQWidgetAncestor(), theAnatomist->catObjectNames( obj ).c_str(), Qt::Window );
+    = new QTextureWin( obj, theAnatomist->getQWidgetAncestor(),
+                       ObjectUtils::catObjectNames( obj, MAXLEN ).c_str(),
+                       Qt::Window );
   tp->show();
 }
 

@@ -40,6 +40,8 @@
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/processor/context.h>
 #include <anatomist/processor/event.h>
+#include <anatomist/object/objectutils.h>
+#include <anatomist/application/globalConfig.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <stdio.h>
@@ -110,22 +112,10 @@ void FusionObjectsCommand::doit()
         string name = AObject::objectTypeName( _newobj->type() ) + ": ";
         vector<AObject *>::const_iterator i, e = _obj.end();
         bool first = true, trunc = false;
-        string::size_type maxlen = 300;
-        for( i=_obj.begin(); i!=e; ++i )
-        {
-          if( first )
-            first = false;
-          else
-            name += ", ";
-          name += (*i)->name();
-          if( name.length() > maxlen )
-          {
-            trunc = true;
-            break;
-          }
-        }
-        if( trunc )
-          name = name.substr( 0, maxlen ) + "...";
+        int MAXLEN = 300;
+        theAnatomist->config()->getProperty( "object_names_list_max_size",
+                                             MAXLEN );
+        name += ObjectUtils::catObjectNames( _obj, MAXLEN );
         _newobj->setName( theAnatomist->makeObjectName( name ) );
       }
       theAnatomist->registerObject( _newobj );
