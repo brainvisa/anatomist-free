@@ -49,6 +49,7 @@
 #include <anatomist/application/settings.h>
 #include <anatomist/color/paletteList.h>
 #include <anatomist/object/objectutils.h>
+#include <anatomist/application/globalConfig.h>
 #include <aims/resampling/motion.h>
 #include <aims/resampling/quaternion.h>
 #include <aims/math/mathelem.h>
