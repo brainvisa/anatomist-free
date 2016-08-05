@@ -83,7 +83,7 @@ namespace anatomist
 
     static bool checkObjects( const std::set<AObject *> & objects, 
                               std::list<AObject *> & ordered, 
-                              PatchMode & pmode, int & patch );
+                              PatchMode & pmode, std::set<int> & patches );
 
   private:
     struct Private;

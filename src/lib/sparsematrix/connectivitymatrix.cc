@@ -59,7 +59,7 @@ struct AConnectivityMatrix::Private
   Private();
 
   AConnectivityMatrix::PatchMode patchmode;
-  int patchnum;
+  set<int> patchnums;
   ASparseMatrix *sparse;
   ATriangulated *mesh;
   ATexture *patch;
@@ -75,7 +75,7 @@ struct AConnectivityMatrix::Private
 
 
 AConnectivityMatrix::Private::Private()
-  : patchmode( AConnectivityMatrix::ALL_BUT_ONE ), patchnum( 0 ),
+  : patchmode( AConnectivityMatrix::ALL_BUT_ONE ),
   sparse( 0 ), mesh( 0 ), patch( 0 ), basins( 0 ), texture( 0 ), mtexture( 0 ),
   texsurface( 0 ), marker( 0 ), vertex( 0 ), connectivity_max( 0 )
 {
@@ -170,7 +170,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   set<AObject *> sobj;
   sobj.insert( obj.begin(), obj.end() );
 
-  if( !checkObjects( sobj, filteredobj, d->patchmode, d->patchnum ) )
+  if( !checkObjects( sobj, filteredobj, d->patchmode, d->patchnums ) )
   {
     cerr << "AConnectivityMatrix: inconsistency in fusion objects types\n";
     return;
@@ -194,16 +194,16 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     unsigned nval
       = unsigned( rint( text.maxquant[0] - text.minquant[0] ) ) + 1;
     rc_ptr<APalette> apal( new APalette( "batch_bin", nval ) );
-    unsigned i, npatch = unsigned( rint( d->patchnum - text.minquant[0] ) );
+    unsigned i, minpatch = unsigned( rint( text.minquant[0] ) );
     if( d->patchmode == ONE )
       for( i=0; i<nval; ++i )
-        if( i == npatch )
+        if( d->patchnums.find( i + minpatch ) != d->patchnums.end() )
           (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
         else
           (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
     else
       for( i=0; i<nval; ++i )
-        if( i != npatch )
+        if( d->patchnums.find( i + minpatch ) == d->patchnums.end() )
           (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
         else
           (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
@@ -221,7 +221,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   else
   {
     d->patch = 0;
-    d->patchnum = 0;
+    d->patchnums.clear();
   }
 
   // matrix handling / transformation
@@ -407,11 +407,42 @@ namespace
 
   bool checkTextureAsConnectivity(
     const Texture1d & tex, size_t nvert, size_t nlines,
-    AConnectivityMatrix::PatchMode & patchnummode, int & patchnum )
+    AConnectivityMatrix::PatchMode & patchnummode, set<int> & patchnum,
+    Object patchlabels, Object & patchintlabels, Object texheader )
   {
     bool canbeconn = false;
     patchnummode = AConnectivityMatrix::ALL_BUT_ONE;
-    patchnum = 0;
+    patchnum.clear();
+    set<int> patches;
+
+    if( patchlabels.get() )
+    {
+      try
+      {
+        Object labels_table = texheader->getProperty( "GIFTI_labels_table" );
+        cout << "GIFTI_labels_table found\n";
+        // FIXME: needs int dict iterator interface...
+      }
+      catch( ... )
+      {
+      }
+    }
+
+    if( patches.empty() && patchintlabels.get() )
+    {
+      Object iter = patchintlabels->objectIterator();
+      for( ; iter->isValid(); iter->next() )
+      {
+        try
+        {
+          patches.insert( int( rint(
+            iter->currentValue()->getScalar() ) ) );
+        }
+        catch( ... )
+        {
+        }
+      }
+    }
 
     // texture histogram
     map<int32_t, size_t> histo;
@@ -426,10 +457,27 @@ namespace
       if( t != 0 )
         ++nonzero;
     }
+
+    if( !patches.empty() )
+    {
+      set<int>::const_iterator i, n = patches.end();
+      size_t sum = 0;
+      for( i=patches.begin(); i!=n; ++i )
+      {
+        sum += histo[*i];
+      }
+      if( sum == nlines )
+      {
+        canbeconn = true;
+        patchnum = patches;
+        patchnummode = AConnectivityMatrix::ONE;
+      }
+    }
+
     // try all but 0 (all non-null values) first
-    if( nonzero == nlines )
+    if( !canbeconn && nonzero == nlines )
       canbeconn = true;
-    else // doesn't work
+    else if( !canbeconn ) // doesn't work
     {
       // now try one patch value
       map<int32_t, size_t>::const_iterator ih, eh = histo.end();
@@ -445,7 +493,7 @@ namespace
       if( !compatiblepatches.empty() )
       {
         patchnummode = AConnectivityMatrix::ONE;
-        patchnum = *compatiblepatches.begin();
+        patchnum.insert( *compatiblepatches.begin() );
         canbeconn = true;
       }
       else //no patch has the good size
@@ -462,7 +510,7 @@ namespace
         if( compatiblepatches.empty() )
           return false; // no matching patch[es]
         patchnummode = AConnectivityMatrix::ALL_BUT_ONE;
-        patchnum = *compatiblepatches.begin();
+        patchnum.insert( *compatiblepatches.begin() );
         canbeconn = true;
       }
     }
@@ -474,7 +522,8 @@ namespace
 
 
 bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects, 
-  list<AObject *> & ordered, PatchMode & patchnummode, int & patchnum )
+  list<AObject *> & ordered, PatchMode & patchnummode,
+  set<int> & patchnums )
 {
   ASparseMatrix *sparse = 0;
   AVolume<float> *dense = 0;
@@ -529,21 +578,65 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
   unsigned nvert = mesh->surface()->vertex().size();
   unsigned lines, texsize;
+  Object patchlabels;
+  Object patchintlabels;
   if( sparse )
   {
     rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
     texsize = smat->getSize2();
     lines = smat->getSize1();
+    try
+    {
+      patchlabels = smat->header()->getProperty( "row_labels" );
+    }
+    catch( ... )
+    {
+    }
+    try
+    {
+      patchintlabels = smat->header()->getProperty( "row_int_labels" );
+    }
+    catch( ... )
+    {
+    }
   }
   else if( dense )
   {
     texsize = dense->volume()->getSizeX();
     lines = dense->volume()->getSizeY();
+    try
+    {
+      patchlabels = dense->attributed()->getProperty( "row_labels" );
+    }
+    catch( ... )
+    {
+    }
+    try
+    {
+      patchintlabels = dense->attributed()->getProperty( "row_int_labels" );
+    }
+    catch( ... )
+    {
+    }
   }
   else
   {
     texsize = ddense->volume()->getSizeX();
     lines = ddense->volume()->getSizeY();
+    try
+    {
+      patchlabels = ddense->attributed()->getProperty( "row_labels" );
+    }
+    catch( ... )
+    {
+    }
+    try
+    {
+      patchintlabels = ddense->attributed()->getProperty( "row_int_labels" );
+    }
+    catch( ... )
+    {
+    }
   }
 
   cout << "matrix size: " << lines << ", " << texsize << endl;
@@ -569,7 +662,9 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
         return false;
       }
       if( !checkTextureAsConnectivity( *aimstex, nvert, lines,
-                                       patchnummode, patchnum ) )
+                                       patchnummode, patchnums,
+                                       patchlabels, patchintlabels,
+                                       tex->attributed() ) )
       {
         cout << "incompatible texture\n";
         return false;
@@ -596,17 +691,23 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
         return false;
       }
       AConnectivityMatrix::PatchMode patchmode1, patchmode2;
-      int patchnum1, patchnum2;
+      set<int> patchnum1, patchnum2;
 
       bool t1asconn = checkTextureAsConnectivity( *aimstex, nvert, lines,
-                                                  patchmode1, patchnum1 );
+                                                  patchmode1, patchnum1,
+                                                  patchlabels,
+                                                  patchintlabels,
+                                                  tex->attributed() );
       bool t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, lines,
-                                                  patchmode2, patchnum2 );
+                                                  patchmode2, patchnum2,
+                                                  patchlabels,
+                                                  patchintlabels,
+                                                  tex2->attributed() );
       //cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
       if( t1asconn && t2asbasins )
       {
         patchnummode = patchmode1;
-        patchnum = patchnum1;
+        patchnums = patchnum1;
       }
       else if( t1asbasins && t2asconn )
       {
@@ -615,7 +716,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
         tex = tex2;
         tex2 = ttmp;
         patchnummode = patchmode2;
-        patchnum = patchnum2;
+        patchnums = patchnum2;
       }
       else
         return false;
@@ -667,13 +768,14 @@ void AConnectivityMatrix::buildPatchIndices()
   if( d->patchmode == ONE )
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
-      if( int( rint( *it * scale + offset ) ) == d->patchnum )
+      if( d->patchnums.find( int( rint( *it * scale + offset ) ) )
+          != d->patchnums.end() )
         d->patchindices[ i++ ] = j;
   }
   else // ALL_BUT_ONE
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
-      if( ( *it * scale + offset ) != d->patchnum )
+      if( d->patchnums.find( ( *it * scale + offset ) ) == d->patchnums.end() )
         d->patchindices[ i++ ] = j;
   }
 }
