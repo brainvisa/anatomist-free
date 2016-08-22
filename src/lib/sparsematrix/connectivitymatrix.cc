@@ -417,11 +417,37 @@ namespace
 
     if( patchlabels.get() )
     {
+      /* patchlabels provides a list of (string) labels to be used as initial
+         region.
+      */
       try
       {
         Object labels_table = texheader->getProperty( "GIFTI_labels_table" );
         cout << "GIFTI_labels_table found\n";
-        // FIXME: needs int dict iterator interface...
+        set<string> labels_set;
+
+        Object it = patchlabels->objectIterator();
+        try
+        {
+          for( ; it->isValid(); it->next() )
+            labels_set.insert( it->currentValue()->getString() );
+        }
+        catch( ... )
+        {
+        }
+
+        for( it=labels_table->objectIterator(); it->isValid(); it->next() )
+        {
+          try
+          {
+            string label = it->currentValue()->getString();
+            if( labels_set.find( label ) != labels_set.end() )
+              patches.insert( it->intKey() );
+          }
+          catch( ... )
+          {
+          }
+        }
       }
       catch( ... )
       {
@@ -430,6 +456,9 @@ namespace
 
     if( patches.empty() && patchintlabels.get() )
     {
+      /* patchintlabels provides a list of (int) labels to be used as initial
+         region.
+      */
       Object iter = patchintlabels->objectIterator();
       for( ; iter->isValid(); iter->next() )
       {
