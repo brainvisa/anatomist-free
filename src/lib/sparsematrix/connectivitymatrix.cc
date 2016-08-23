@@ -629,7 +629,7 @@ namespace
 
   bool check_meshes( rc_ptr<SparseOrDenseMatrix> mat,
                      const list<string> & mesh_ids,
-                     list<ATriangulated *> & meshes, //list<ATexture *> & tex,
+                     list<ATriangulated *> & meshes, list<ATexture *> & tex,
                      list<pair<vector<int>, size_t> > & cols )
   {
     if( mesh_ids.size() != meshes.size() )
