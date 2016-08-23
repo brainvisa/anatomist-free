@@ -47,6 +47,7 @@
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/utility/converter_texture.h>
+#include <aims/sparsematrix/ciftitools.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -547,6 +548,171 @@ namespace
     return canbeconn;
   }
 
+
+  list<string> get_cifti_mesh_ids( rc_ptr<SparseOrDenseMatrix> mat,
+                                   int dim = 1 )
+  {
+    list<string> mesh_ids;
+    CiftiTools ctools( mat );
+    list<string> bstruct = ctools.getBrainStructures( dim, true, false );
+    list<string>::iterator ibs, ebs = bstruct.end();
+    const CiftiTools::BrainStuctureToMeshMap & meshmap
+      = ctools.brainStructureMap();
+    CiftiTools::BrainStuctureToMeshMap::const_iterator imm,
+      emm = meshmap.end();
+
+    for( ibs=bstruct.begin(); ibs!=ebs; ++ibs )
+    {
+      imm = meshmap.find( *ibs );
+      if( imm != emm )
+      {
+        while( mesh_ids.size() <= imm->second )
+          mesh_ids.push_back( "" );
+        list<string>::iterator is = mesh_ids.begin();
+        for( int i=0; i<imm->second; ++i )
+          ++is;
+        *is = imm->first;
+      }
+    }
+
+    if( mesh_ids.empty() )
+      mesh_ids.push_back( "CORTEX" );
+    return mesh_ids;
+  }
+
+
+  list<pair<vector<int>, size_t> > get_cifti_mesh_cols(
+    rc_ptr<SparseOrDenseMatrix> mat, const list<string> mesh_ids )
+  {
+    list<pair<vector<int>, size_t> > cols;
+    CiftiTools ctools( mat );
+    list<string> tmp_mesh_ids;
+    const list<string> *pmesh_ids = &mesh_ids;
+    const CiftiTools::BrainStuctureToMeshMap & meshmap
+      = ctools.brainStructureMap();
+    CiftiTools::BrainStuctureToMeshMap::const_iterator imm,
+      emm = meshmap.end();
+    try
+    {
+      if( ctools.dimensionType( 1 ) == "brain_models" )
+      {
+        if( mesh_ids.empty() )
+        {
+          tmp_mesh_ids = get_cifti_mesh_ids( mat, 1 );
+          pmesh_ids = &tmp_mesh_ids;
+        }
+        list<string>::const_iterator im, em=pmesh_ids->end();
+
+        for( im=pmesh_ids->begin(); im!=em; ++im )
+        {
+          vector<int> scols = ctools.getIndicesForBrainStructure( 1, *im );
+          imm = meshmap.find( *im );
+          int index = 0;
+          if( imm != emm )
+            index = imm->second;
+          while( cols.size() <= index )
+            cols.push_back( make_pair( vector<int>(), 0 ) );
+          list<pair<vector<int>, size_t> >::iterator icv = cols.begin();
+          for( int i=0; i<index; ++i )
+            ++icv;
+          icv->first.insert( icv->first.end(), scols.begin(), scols.end() );
+          icv->second = ctools.getBrainStructureMeshNumberOfNodes( 1, *im );
+        }
+      }
+    }
+    catch( ... )
+    {
+    }
+    return cols;
+  }
+
+
+  bool check_meshes( rc_ptr<SparseOrDenseMatrix> mat,
+                     const list<string> & mesh_ids,
+                     list<ATriangulated *> & meshes, //list<ATexture *> & tex,
+                     list<pair<vector<int>, size_t> > & cols )
+  {
+    if( mesh_ids.size() != meshes.size() )
+      return false;
+    if( tex.size() < mesh_ids.size() )
+      return false;
+
+    cols = get_cifti_mesh_cols( mat, mesh_ids );
+    list<ATriangulated *> ordered_meshes;
+    list<string>::const_iterator imid, emid = mesh_ids.end();
+    list<ATriangulated *>::iterator im, em = meshes.end(), bm;
+    list<ATexture *> ordered_tex;
+    list<ATexture *>::iterator it, et = tex.end(), bt;
+    list<pair<vector<int>, size_t> >::iterator icol;
+    set<ATriangulated *> done_meshes;
+    set<ATriangulated *>::iterator mesh_not_done = done_meshes.end();
+    set<ATexture *> done_tex;
+    set<ATexture *>::iterator tex_not_done = done_tex.end();
+    ViewState vs;
+
+    for( imid=mesh_ids.begin(), icol=cols.begin(); imid!=emid; ++imid, ++icol )
+    {
+      // look for matching mesh(es)
+      bm = em;
+      for( im=meshes.begin(); im!=em; ++im )
+      {
+        if( done_meshes.find( *im ) != mesh_not_done )
+          continue;
+        rc_ptr<AimsSurfaceTriangle> mesh = (*im)->surface();
+        if( mesh->vertex().size() == icol->second )
+        {
+          if( bm == em )
+            bm = im;
+          try
+          {
+            string name = mesh->header().getProperty( "cifti_mesh_name" )
+              ->getString();
+            if( name == *imid )
+              break;
+          }
+          catch( ... )
+          {
+          }
+        }
+      }
+      if( bm == em )
+        return false;
+      ordered_meshes.push_back( *bm );
+      done_meshes.insert( *bm );
+
+      // look for matching texture(s)
+      bt = et;
+      for( it=tex.begin(); it!=et; ++it )
+      {
+        if( done_tex.find( *it ) != tex_not_done )
+          continue;
+        if( (*it)->glTexCoordSize( vs, 0 ) == icol->second )
+        {
+          if( bt == et )
+            bt = it;
+          try
+          {
+            string name = (*it)->attributed()->getProperty( "cifti_mesh_name" )
+              ->getString();
+            if( name == *imid )
+              break;
+          }
+          catch( ... )
+          {
+          }
+        }
+      }
+      if( bt == et )
+        return false;
+      ordered_tex.push_back( *bt );
+      done_tex.insert( *bt );
+    }
+
+    meshes = ordered_meshes;
+    tex = ordered_tex;
+    return true;
+  }
+
 }
 
 
@@ -557,7 +723,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   ASparseMatrix *sparse = 0;
   AVolume<float> *dense = 0;
   AVolume<double> *ddense = 0;
-  ATriangulated *mesh = 0;
+  list<ATriangulated *> mesh;
   ATexture *tex = 0, *tex2 = 0;
 
   set<AObject *>::const_iterator io, eo = objects.end();
@@ -583,9 +749,11 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     }
     else if( dynamic_cast<ATriangulated *>( *io ) )
     {
-      if( mesh )
+      if( !mesh.empty() )
+        // a mesh should be the only one unless they are fusionned with
+        // textures
         return false;
-      mesh = static_cast<ATriangulated *>( *io );
+      mesh.push_back( static_cast<ATriangulated *>( *io ) );
     }
     else if( dynamic_cast<ATexture *>( *io ) )
     {
@@ -602,13 +770,23 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
       return false;
   }
 
-  if( ( !sparse && !dense && !ddense ) || !mesh )
+  if( ( !sparse && !dense && !ddense ) || mesh.size() != 1 )
     return false;
 
-  unsigned nvert = mesh->surface()->vertex().size();
+  list<unsigned> nvert_list;
+  unsigned nvert = 0;
+  list<ATriangulated *>::iterator imesh, emesh = mesh.end();
+  for( imesh=mesh.begin(); imesh!=emesh; ++imesh )
+  {
+    unsigned n = (*imesh)->surface()->vertex().size();
+    nvert_list.push_back( n );
+    nvert += n;
+  }
   unsigned lines, texsize;
+  list<unsigned> texsize_list;
   Object patchlabels;
   Object patchintlabels;
+  list<string> cifti_meshes_ids;
   if( sparse )
   {
     rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
@@ -628,6 +806,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     catch( ... )
     {
     }
+    cifti_meshes_ids = get_cifti_mesh_ids( smat );
   }
   else if( dense )
   {
@@ -763,7 +942,8 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     ordered.push_back( dense );
   else
     ordered.push_back( ddense );
-  ordered.push_back( mesh );
+  for( imesh=mesh.begin(); imesh!=emesh; ++imesh )
+  ordered.push_back( *imesh );
   if( tex )
     ordered.push_back( tex );
   if( tex2 )
@@ -834,6 +1014,7 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
 
   d->vertex = startvertex;
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
+  mat->readRow( vertex );
   vector<double> row = mat->getRow( vertex );
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
@@ -923,6 +1104,12 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
   }
   if( valid )
   {
+    /* TODO: here we should mat->readColumn( column );
+       but on large CIFTI files, this operation is too slow to allow
+       interactive reading. So for now, this will not dislay good data on
+       CIFTI files.
+       Another way would be to read all rows for the selected ROIs.
+    */
     vector<double> col = mat->getColumn( column );
     vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
     vector<double>::const_iterator iv, ev = col.end();
@@ -1018,6 +1205,7 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
     ptext.resize( texsize, 0. );
     for( vertex=0, n=patchindices.size(); vertex<n; ++vertex )
     {
+      mat->readRow( patchindices[vertex] );
       vector<double> row = mat->getRow( patchindices[vertex] );
       if( !basins )
         for( i=0; i<texsize; ++i )
