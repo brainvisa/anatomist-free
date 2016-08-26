@@ -72,17 +72,23 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     virtual void update( const Observable *observable, void *arg );
 
-    void buildTexture( uint32_t vertex, float time_pos = 0 );
-    void buildColumnTexture( uint32_t vertex, float time_pos = 0 );
-    void buildPatchTexture( uint32_t vertex, float time_pos = 0 );
-    void buildColumnPatchTexture( uint32_t vertex, float time_pos = 0 );
+    void buildTexture( int mesh_index, uint32_t vertex, float time_pos = 0 );
+    void buildColumnTexture( int mesh_index, uint32_t vertex,
+                             float time_pos = 0 );
+    void buildPatchTexture( int mesh_index, uint32_t vertex,
+                            float time_pos = 0 );
+    void buildColumnPatchTexture( int mesh_index, uint32_t vertex,
+                                  float time_pos = 0 );
 
-    const carto::rc_ptr<ATriangulated> mesh() const;
-    const carto::rc_ptr<ATexture> texture() const;
+    std::vector<carto::rc_ptr<ATriangulated> > meshes() const;
+    std::vector<carto::rc_ptr<ATexture> > textures() const;
     const carto::rc_ptr<ATriangulated> marker() const;
 
-    static bool checkObjects( const std::set<AObject *> & objects, 
-                              std::list<AObject *> & ordered, 
+    static bool checkObjects( const std::set<AObject *> & objects,
+                              AObject * & matrix,
+                              std::list<ATriangulated *> & meshes,
+                              std::list<ATexture *> & patch_textures,
+                              std::list<ATexture *> & basin_textures,
                               PatchMode & pmode, std::set<int> & patches );
 
   private:

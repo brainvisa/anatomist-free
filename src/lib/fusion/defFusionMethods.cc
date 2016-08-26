@@ -468,10 +468,14 @@ string ConnectivityMatrixFusionMethod::ID() const
 
 int ConnectivityMatrixFusionMethod::canFusion( const set<AObject *> & obj )
 {
-  list<AObject *> ordered;
+  AObject *matrix = 0;
+  list<ATriangulated *> meshes;
+  list<ATexture *> patch_textures, basin_textures;
   AConnectivityMatrix::PatchMode pmode;
   set<int> patches;
-  bool ok = AConnectivityMatrix::checkObjects( obj, ordered, pmode, patches );
+  bool ok = AConnectivityMatrix::checkObjects( obj, matrix, meshes,
+                                               patch_textures, basin_textures,
+                                               pmode, patches );
   if( !ok )
     return 0;
   return 100;

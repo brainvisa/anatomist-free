@@ -58,28 +58,42 @@ using namespace std;
 struct AConnectivityMatrix::Private
 {
   Private();
+  ~Private();
 
   AConnectivityMatrix::PatchMode patchmode;
   set<int> patchnums;
   ASparseMatrix *sparse;
-  ATriangulated *mesh;
-  ATexture *patch;
-  ATexture *basins;
-  ATexture *texture;
-  AMTexture *mtexture;
-  ATexSurface *texsurface;
+  vector<ATriangulated *> meshes;
+  vector<ATexture *> patches;
+  vector<ATexture *> basins;
+  vector<ATexture *> textures;
+  vector<AMTexture *> mtextures;
+  vector<ATexSurface *> texsurfaces;
   ATriangulated *marker;
-  vector<uint32_t> patchindices;
-  uint32_t vertex;
+  vector<vector<uint32_t> > patchindices;
+//   uint32_t vertex;
   double connectivity_max;
 };
 
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ),
-  sparse( 0 ), mesh( 0 ), patch( 0 ), basins( 0 ), texture( 0 ), mtexture( 0 ),
-  texsurface( 0 ), marker( 0 ), vertex( 0 ), connectivity_max( 0 )
+  sparse( 0 ), marker( 0 ), connectivity_max( 0 )
 {
+}
+
+
+AConnectivityMatrix::Private::~Private()
+{
+  vector<ATexSurface *>::iterator its, ets = texsurfaces.end();
+  for( its=texsurfaces.begin(); its!=ets; ++its )
+    delete *its;
+  vector<AMTexture *>::iterator imt, emt = mtextures.end();
+  for( imt=mtextures.begin(); imt!=emt; ++imt )
+    delete *imt;
+  vector<ATexture *>::iterator it, et = textures.end();
+  for( it=textures.begin(); it!=et; ++it )
+    delete *it;
 }
 
 namespace
@@ -167,31 +181,30 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 {
   _type = connectivityMatrixType();
 
-  list<AObject *> filteredobj;
   set<AObject *> sobj;
   sobj.insert( obj.begin(), obj.end() );
+  AObject *matrix = 0;
+  list<ATriangulated *> meshes;
+  list<ATexture *> patch_textures, basin_textures;
 
-  if( !checkObjects( sobj, filteredobj, d->patchmode, d->patchnums ) )
+  if( !checkObjects( sobj, matrix, meshes, patch_textures, basin_textures,
+                     d->patchmode, d->patchnums ) )
   {
     cerr << "AConnectivityMatrix: inconsistency in fusion objects types\n";
     return;
   }
 
-  list<AObject *>::iterator io, eo = filteredobj.end();
-  io=filteredobj.begin();
-  AObject *matrix = *io;
   // matrix transformation / transposition delayed after textures analysis
-  ++io;
-  d->mesh = static_cast<ATriangulated *>( *io );
-  setReferentialInheritance( d->mesh );
-  ++io;
-  if( io != eo )
+  d->meshes.insert( d->meshes.end(), meshes.begin(), meshes.end() );
+  setReferentialInheritance( d->meshes[0] );
+  if( !patch_textures.empty() )
   {
-    d->patch = static_cast<ATexture *>( *io );
-    d->patch->getOrCreatePalette();
-    AObjectPalette *pal = d->patch->palette();
-    rc_ptr<Texture1d> aimstex = d->patch->texture<float>( false, false );
-    GLComponent::TexExtrema & text = d->patch->glTexExtrema( 0 );
+    d->patches.insert( d->patches.end(), patch_textures.begin(),
+                       patch_textures.end() );
+    d->patches[0]->getOrCreatePalette();
+    AObjectPalette *pal = d->patches[0]->palette();
+    rc_ptr<Texture1d> aimstex = d->patches[0]->texture<float>( false, false );
+    GLComponent::TexExtrema & text = d->patches[0]->glTexExtrema( 0 );
     unsigned nval
       = unsigned( rint( text.maxquant[0] - text.minquant[0] ) ) + 1;
     rc_ptr<APalette> apal( new APalette( "batch_bin", nval ) );
@@ -209,20 +222,19 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
         else
           (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
     pal->setRefPalette( apal );
-    d->patch->setPalette( *pal );
-    d->patch->glSetTexRGBInterpolation( true, 0 );
-
-    ++io;
-    if( io != eo )
-    {
-      // 2nd texture for matrix reduction along basins
-      d->basins = static_cast<ATexture *>( *io );
-    }
+    d->patches[0]->setPalette( *pal );
+    d->patches[0]->glSetTexRGBInterpolation( true, 0 );
   }
   else
   {
-    d->patch = 0;
+    d->patches.clear();
     d->patchnums.clear();
+  }
+  if( !basin_textures.empty() )
+  {
+    // 2nd texture for matrix reduction along basins
+    d->basins.insert( d->basins.begin(), basin_textures.begin(),
+                      basin_textures.end() );
   }
 
   // matrix handling / transformation
@@ -252,88 +264,126 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   }
 
   // make a texture to store connectivity data
-  rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
-  size_t nvert = d->mesh->surface()->vertex().size();
-  vector<float> & tex0 = (*tex)[0].data();
-  tex0.resize( nvert, 0 );
-  d->texture = new ATexture;
-  d->texture->setTexture( tex );
-  d->texture->setName( "ConnectivityTexture" );
-  theAnatomist->registerObject( d->texture, false );
-  d->texture->getOrCreatePalette();
-  AObjectPalette *pal = d->texture->palette();
-  pal->setRefPalette( theAnatomist->palettes().find( "yellow-red-fusion" ) );
-  d->texture->setPalette( *pal );
+  unsigned count = 0;
+  vector<ATriangulated *>::iterator im, em = d->meshes.end();
+  for( im=d->meshes.begin(); im!=em; ++im, ++count )
+  {
+    rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
+    size_t nvert = (*im)->surface()->vertex().size();
+    vector<float> & tex0 = (*tex)[0].data();
+    tex0.resize( nvert, 0 );
+    ATexture *texture = new ATexture;
+    d->textures.push_back( texture );
+    texture->setTexture( tex );
+    stringstream name;
+    name << "ConnectivityTexture_" << count;
+    texture->setName( name.str() );
+    theAnatomist->registerObject( texture, false );
+    texture->getOrCreatePalette();
+    AObjectPalette *pal = texture->palette();
+    pal->setRefPalette( theAnatomist->palettes().find( "yellow-red-fusion" ) );
+    texture->setPalette( *pal );
+  }
 
   // make a textured surface
   FusionFactory *ff = FusionFactory::factory();
-  AObject *texture = 0;
-  if( d->patch ) // with 2 textures
+  vector<AObject *> textures;
+  if( !d->patches.empty() ) // with 2 textures
   {
-    vector<AObject *> objf( 2 );
-    objf[0] = d->patch;
-    objf[1] = d->texture;
-    d->mtexture = static_cast<AMTexture *>( ff->method( 
-      "FusionMultiTextureMethod" )->fusion( objf ) );
-    d->mtexture->setName( "PatchAndConnectivity" );
-    theAnatomist->registerObject( d->mtexture, false );
-    texture = d->mtexture;
+    size_t ntex = std::min( d->patches.size(), d->textures.size() );
+    textures.reserve( ntex );
+    vector<ATexture *>::iterator ipt, it, ept = d->patches.end(),
+      et = d->textures.end();
+    for( ipt=d->patches.begin(), it=d->textures.begin(), count=0;
+        it!=et && ipt!=ept; ++it, ++ipt, ++count )
+    {
+      vector<AObject *> objf( 2 );
+      objf[0] = *ipt;
+      objf[1] = *it;
+      AMTexture *mtexture = static_cast<AMTexture *>( ff->method(
+        "FusionMultiTextureMethod" )->fusion( objf ) );
+      d->mtextures.push_back( mtexture );
+      stringstream name;
+      name << "PatchAndConnectivity_" << count;
+      mtexture->setName( name.str() );
+      theAnatomist->registerObject( mtexture, false );
+      textures.push_back( mtexture );
+    }
   }
   else // no patch: complete matrix
-    texture = d->texture;
+    textures.insert( textures.end(), d->textures.begin(), d->textures.end() );
 
-  vector<AObject *> objf( 2 );
-  objf[0] = d->mesh;
-  objf[1] = texture;
-  d->texsurface = static_cast<ATexSurface *>( 
-    ff->method( "FusionTexSurfMethod" )->fusion( objf ) );
-  d->texsurface->setName( "ConnectivityTextureMesh" );
-  theAnatomist->registerObject( d->texsurface, false );
-  if( d->mtexture )
-    theAnatomist->releaseObject( d->mtexture );
+  // textured surfaces fusions
+  vector<AObject *>::iterator iot, eot = textures.end();
+  for( im=d->meshes.begin(), iot=textures.begin(), count=0; im!=em && iot!=eot;
+      ++im, ++iot, ++count )
+  {
+    vector<AObject *> objf( 2 );
+    objf[0] = *im;
+    objf[1] = *iot;
+    ATexSurface *texsurface = static_cast<ATexSurface *>(
+      ff->method( "FusionTexSurfMethod" )->fusion( objf ) );
+    d->texsurfaces.push_back( texsurface );
+    stringstream name;
+    name << "ConnectivityTextureMesh_" << count;
+    texsurface->setName( name.str() );
+    theAnatomist->registerObject( texsurface, false );
+    if( !d->mtextures.empty() )
+      theAnatomist->releaseObject( *iot );
+  }
 
   // build vertices indices on patch
   buildPatchIndices();
   // take initial vertex
   uint32_t vertex = 0;
-  if( !d->patchindices.empty() )
-    vertex = d->patchindices[0];
-  d->vertex = vertex;
+  if( !d->patchindices.empty() && !d->patchindices[0].empty() )
+    vertex = d->patchindices[0][0];
+//   d->vertex = vertex;
 
   // build small sphere to point starting vertex
   AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron( 
-    d->mesh->surface()->vertex()[ vertex ], 1.5 );
+    d->meshes[0]->surface()->vertex()[ vertex ], 1.5 );
   d->marker = new ATriangulated;
   d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
   d->marker->setName( "StartingPoint" );
-  d->marker->setReferentialInheritance( d->mesh );
+  d->marker->setReferentialInheritance( d->meshes[0] );
   theAnatomist->registerObject( d->marker, false );
 
   // insert in MObject
   insert( rc_ptr<AObject>( d->sparse ) );
-  insert( rc_ptr<AObject>( d->mesh ) );
-  if( d->patch )
+  insert( rc_ptr<AObject>( d->meshes[0] ) );
+  if( !d->patches.empty() )
   {
-    insert( rc_ptr<AObject>( d->patch ) );
-    if( d->basins )
-      insert( rc_ptr<AObject>( d->basins ) );
+    insert( rc_ptr<AObject>( d->patches[0] ) );
+    if( !d->basins.empty() )
+      insert( rc_ptr<AObject>( d->basins[0] ) );
   }
   /* if the matrix object has been created here, release it (remove from
      the main GUI) now, after it is inserted in the MObject.
   */
   if( builtnewmatrix )
     theAnatomist->releaseObject( d->sparse );
-  insert( rc_ptr<AObject>( d->texture ) );
-  theAnatomist->releaseObject( d->texture );
-  insert( rc_ptr<AObject>( d->texsurface ) );
-  theAnatomist->releaseObject( d->texsurface );
+  vector<ATexture *>::iterator it, et = d->textures.end();
+  for( it=d->textures.begin(), et; it!=et; ++it )
+  {
+    insert( rc_ptr<AObject>( *it ) );
+    theAnatomist->releaseObject( *it );
+  }
+  vector<ATexSurface *>::iterator its, ets = d->texsurfaces.end();
+  for( its=d->texsurfaces.begin(); its!=ets; ++its )
+  {
+    insert( rc_ptr<AObject>( *its ) );
+    theAnatomist->releaseObject( *its );
+  }
   insert( rc_ptr<AObject>( d->marker ) );
   theAnatomist->releaseObject( d->marker );
 
   d->connectivity_max = SparseMatrixUtil::max( *d->sparse->matrix() );
+  if( d->connectivity_max == 0. )
+    d->connectivity_max = 1.;
 
   // build connectivity texture contents
-  buildTexture( vertex );
+  buildTexture( 0, vertex );
 }
 
 
@@ -349,21 +399,22 @@ bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
 {
   if( d->marker )
     d->marker->render( plist, vs );
-  if( d->texsurface )
-    d->texsurface->render( plist, vs );
+  vector<ATexSurface *>::iterator its, ets = d->texsurfaces.end();
+  for( its=d->texsurfaces.begin(); its!=ets; ++its )
+    (*its)->render( plist, vs );
   return true;
 }
 
 
 void AConnectivityMatrix::update( const Observable *observable, void *arg )
 {
-  if( observable == d->patch )
+  if( !d->patches.empty() && observable == d->patches[0] )
   {
     buildPatchIndices();
     setChanged();
     notifyObservers( this );
   }
-  else if( observable != d->texture )
+  else if( observable != d->textures[0] )
   {
     setChanged();
     notifyObservers( this );
@@ -632,81 +683,76 @@ namespace
                      list<ATriangulated *> & meshes, list<ATexture *> & tex,
                      list<pair<vector<int>, size_t> > & cols )
   {
+    cout << "check_meshes " << mesh_ids.size() << ", " << meshes.size() << ", " << tex.size() << endl;
     if( mesh_ids.size() != meshes.size() )
       return false;
     if( tex.size() < mesh_ids.size() )
       return false;
 
+    CiftiTools ctools( mat );
     cols = get_cifti_mesh_cols( mat, mesh_ids );
     list<ATriangulated *> ordered_meshes;
-    list<string>::const_iterator imid, emid = mesh_ids.end();
     list<ATriangulated *>::iterator im, em = meshes.end(), bm;
     list<ATexture *> ordered_tex;
     list<ATexture *>::iterator it, et = tex.end(), bt;
-    list<pair<vector<int>, size_t> >::iterator icol;
-    set<ATriangulated *> done_meshes;
-    set<ATriangulated *>::iterator mesh_not_done = done_meshes.end();
-    set<ATexture *> done_tex;
-    set<ATexture *>::iterator tex_not_done = done_tex.end();
+//     set<ATexture *> done_tex;
     ViewState vs;
 
-    for( imid=mesh_ids.begin(), icol=cols.begin(); imid!=emid; ++imid, ++icol )
+    // find / order matching meshes
+    for( im=meshes.begin(); im!=em; ++im )
     {
-      // look for matching mesh(es)
-      bm = em;
-      for( im=meshes.begin(); im!=em; ++im )
-      {
-        if( done_meshes.find( *im ) != mesh_not_done )
-          continue;
-        rc_ptr<AimsSurfaceTriangle> mesh = (*im)->surface();
-        if( mesh->vertex().size() == icol->second )
-        {
-          if( bm == em )
-            bm = im;
-          try
-          {
-            string name = mesh->header().getProperty( "cifti_mesh_name" )
-              ->getString();
-            if( name == *imid )
-              break;
-          }
-          catch( ... )
-          {
-          }
-        }
-      }
-      if( bm == em )
+      list<string> structs;
+      int mesh_num, i;
+      if( !ctools.isMatchingSurface( 0, *(*im)->surface(), structs,
+                                     mesh_num ) )
+      { cout << "unmatching mesh on dim 0\n";
         return false;
-      ordered_meshes.push_back( *bm );
-      done_meshes.insert( *bm );
-
-      // look for matching texture(s)
-      bt = et;
-      for( it=tex.begin(); it!=et; ++it )
-      {
-        if( done_tex.find( *it ) != tex_not_done )
-          continue;
-        if( (*it)->glTexCoordSize( vs, 0 ) == icol->second )
-        {
-          if( bt == et )
-            bt = it;
-          try
-          {
-            string name = (*it)->attributed()->getProperty( "cifti_mesh_name" )
-              ->getString();
-            if( name == *imid )
-              break;
-          }
-          catch( ... )
-          {
-          }
-        }
       }
-      if( bt == et )
+      if( !ctools.isMatchingSurface( 1, *(*im)->surface(), structs,
+                                     mesh_num ) )
+      { cout << "unmatching mesh on dim 1\n";
         return false;
-      ordered_tex.push_back( *bt );
-      done_tex.insert( *bt );
+      }
+      while( ordered_meshes.size() <= mesh_num )
+        ordered_meshes.push_back( 0 );
+      for( bm=ordered_meshes.begin(), i=0; i<mesh_num; ++i )
+        ++bm;
+      if( *bm )
+      {
+        // already found
+        cout << "mesh already found\n";
+        return false;
+      }
+      *bm = *im;
     }
+
+    for( it=tex.begin(); it!=et; ++it )
+    {
+      list<string> structs;
+      int mesh_num, i;
+      size_t nv = (*it)->glTexCoordSize( vs, 0 );
+      if( !ctools.isMatchingSurfaceOrTexture( 0, nv, (*it)->attributed(),
+                                              structs, mesh_num ) )
+      { cout << "unmatching texture\n";
+        return false;
+      }
+      while( ordered_tex.size() <= mesh_num )
+        ordered_tex.push_back( 0 );
+      for( bt=ordered_tex.begin(), i=0; i<mesh_num; ++i )
+        ++bt;
+      if( *bt )
+      { cout << "tex already found\n";
+        // already found
+        return false;
+      }
+      *bt = *it;
+//       done_tex.insert( *it );
+    }
+    for( bt=ordered_tex.begin(), et=ordered_tex.end(); bt!=et; ++bt )
+      if( !*bt )
+      { cout << "missing texture\n";
+        return false;
+      }
 
     meshes = ordered_meshes;
     tex = ordered_tex;
@@ -716,15 +762,21 @@ namespace
 }
 
 
-bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects, 
-  list<AObject *> & ordered, PatchMode & patchnummode,
-  set<int> & patchnums )
+bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
+                                        AObject * & matrix,
+                                        list<ATriangulated *> & meshes,
+                                        list<ATexture *> & patch_textures,
+                                        list<ATexture *> & basin_textures,
+                                        PatchMode & patchnummode,
+                                        set<int> & patchnums )
 {
   ASparseMatrix *sparse = 0;
   AVolume<float> *dense = 0;
   AVolume<double> *ddense = 0;
   list<ATriangulated *> mesh;
+  list<ATexture *> tex_list;
   ATexture *tex = 0, *tex2 = 0;
+  cout << "checkObjects\n";
 
   set<AObject *>::const_iterator io, eo = objects.end();
   for( io=objects.begin(); io!=eo; ++io )
@@ -749,28 +801,29 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     }
     else if( dynamic_cast<ATriangulated *>( *io ) )
     {
-      if( !mesh.empty() )
-        // a mesh should be the only one unless they are fusionned with
-        // textures
-        return false;
+//       if( !mesh.empty() )
+//         // a mesh should be the only one unless they are fusionned with
+//         // textures
+//         return false;
       mesh.push_back( static_cast<ATriangulated *>( *io ) );
     }
     else if( dynamic_cast<ATexture *>( *io ) )
     {
       if( tex )
       {
-        if( tex2 )
-          return false;
+//         if( tex2 )
+//           return false;
         tex2 = static_cast<ATexture *>( *io );
       }
       else
         tex = static_cast<ATexture *>( *io );
+      tex_list.push_back( static_cast<ATexture *>( *io ) );
     }
     else
       return false;
   }
 
-  if( ( !sparse && !dense && !ddense ) || mesh.size() != 1 )
+  if( ( !sparse && !dense && !ddense ) || mesh.empty() )
     return false;
 
   list<unsigned> nvert_list;
@@ -807,6 +860,12 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     {
     }
     cifti_meshes_ids = get_cifti_mesh_ids( smat );
+    list<pair<vector<int>, size_t> > cols;
+    if( !check_meshes( smat, cifti_meshes_ids, mesh, tex_list, cols ) )
+    {
+      cout << "check_meshes is false.\n";
+    }
+    cout << "check_meshes OK\n";
   }
   else if( dense )
   {
@@ -937,17 +996,16 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   }
 
   if( sparse )
-    ordered.push_back( sparse );
+    matrix = sparse;
   else if( dense )
-    ordered.push_back( dense );
+    matrix = dense;
   else
-    ordered.push_back( ddense );
-  for( imesh=mesh.begin(); imesh!=emesh; ++imesh )
-  ordered.push_back( *imesh );
+    matrix = ddense;
+  meshes = mesh;
   if( tex )
-    ordered.push_back( tex );
+    patch_textures.push_back( tex );
   if( tex2 )
-    ordered.push_back( tex2 );
+    basin_textures.push_back( tex2 );
 
   cout << "OK for connectivity matrix fusion.\n";
   return true;
@@ -956,114 +1014,154 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
 void AConnectivityMatrix::buildPatchIndices()
 {
-  if( !d->patch )
+  d->patchindices.clear();
+  if( d->patches.empty() )
   {
     // no patch texture: no indices
-    d->patchindices.clear();
     return;
   }
-  rc_ptr<TimeTexture<float> > tx = d->patch->texture<float>( false, false );
-  const vector<float> & tex = (*tx)[0].data();
-  vector<float>::const_iterator it, et = tex.end();
-  uint32_t i = 0, j = 0;
-  d->patchindices.resize( d->sparse->matrix()->getSize1() );
-  const GLComponent::TexExtrema & te = d->patch->glTexExtrema( 0 );
-  float scale = 1., offset = 0.;
-  if( te.scaled && te.max[0] != te.min[0] )
+
+  vector<ATexture *>::iterator ipt, ept = d->patches.end();
+  d->patchindices.reserve( d->patches.size() );
+  int surf_index = 0;
+  for( ipt=d->patches.begin(); ipt!=ept; ++ipt, ++surf_index )
   {
-    scale = ( te.maxquant[0] - te.minquant[0] ) / ( te.max[0] - te.min[0] );
-    offset = te.minquant[0] - te.min[0] * scale;
-  }
-  if( d->patchmode == ONE )
-  {
-    for( it=tex.begin(); it!=et; ++it, ++j )
-      if( d->patchnums.find( int( rint( *it * scale + offset ) ) )
-          != d->patchnums.end() )
-        d->patchindices[ i++ ] = j;
-  }
-  else // ALL_BUT_ONE
-  {
-    for( it=tex.begin(); it!=et; ++it, ++j )
-      if( d->patchnums.find( ( *it * scale + offset ) ) == d->patchnums.end() )
-        d->patchindices[ i++ ] = j;
+    rc_ptr<TimeTexture<float> > tx = (*ipt)->texture<float>( false, false );
+    const vector<float> & tex = (*tx)[0].data();
+    vector<float>::const_iterator it, et = tex.end();
+    uint32_t i = 0, j = 0;
+    d->patchindices.push_back( vector<uint32_t>() );
+    vector<uint32_t> & patchindices = *d->patchindices.rbegin();
+    // FIXME: use cifti cols info
+    patchindices.resize( d->sparse->matrix()->getSize1() );
+    const GLComponent::TexExtrema & te = (*ipt)->glTexExtrema( 0 );
+    float scale = 1., offset = 0.;
+    if( te.scaled && te.max[0] != te.min[0] )
+    {
+      scale = ( te.maxquant[0] - te.minquant[0] ) / ( te.max[0] - te.min[0] );
+      offset = te.minquant[0] - te.min[0] * scale;
+    }
+    if( d->patchmode == ONE )
+    {
+      for( it=tex.begin(); it!=et; ++it, ++j )
+        if( d->patchnums.find( int( rint( *it * scale + offset ) ) )
+            != d->patchnums.end() )
+          patchindices[ i++ ] = j;
+    }
+    else // ALL_BUT_ONE
+    {
+      for( it=tex.begin(); it!=et; ++it, ++j )
+        if( d->patchnums.find( ( *it * scale + offset ) )
+            == d->patchnums.end() )
+          patchindices[ i++ ] = j;
+    }
   }
 }
 
 
-void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
+void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
+                                        float time_pos )
 {
   uint32_t vertex = startvertex;
   if( !d->patchindices.empty() )
   {
     // find vertex in indices
-    vector<uint32_t>::const_iterator ipi, epi = d->patchindices.end();
+    vector<uint32_t>::const_iterator ipi,
+      epi = d->patchindices[ mesh_index ].end();
     uint32_t i = 0;
-    for( ipi=d->patchindices.begin(); ipi!=epi; ++ipi, ++i )
+    for( ipi=d->patchindices[ mesh_index ].begin(); ipi!=epi; ++ipi, ++i )
       if( *ipi == startvertex )
       {
+        // startvertex found in patch: regular display by line
         vertex = i;
         break;
       }
     if( ipi == epi )
     {
       // clicked outside patch: show column connections, to the patch
-      buildColumnTexture( startvertex, time_pos );
+      buildColumnTexture( mesh_index, startvertex, time_pos );
       return;
     }
   }
 
-  d->vertex = startvertex;
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
-  mat->readRow( vertex );
-  vector<double> row = mat->getRow( vertex );
-  rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
-  vector<float> & tex0 = (*tex)[0].data();
-  const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
+  CiftiTools::TextureList texlist;
+  CiftiTools ctools( mat );
+  vector<int> pos( 2, 0 );
+  pos[0] = vertex; // FIXME: get vertex index in surface for dim 0
+  cout << "get row " << vertex << endl;
+  ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
+//   mat->readRow( vertex );
+//   vector<double> row = mat->getRow( vertex );
   float texmax = -numeric_limits<float>::max();
   float colscale = 0.F;
 
-  if( !d->basins )
+  vector<ATriangulated *>::iterator im, em = d->meshes.end();
+  unsigned index = 0;
+  for( im=d->meshes.begin(); im!=em; ++im, ++index )
   {
-    tex0.insert( tex0.end(), row.begin(), row.end() );
-    texmax = 1.F;
-    colscale = 1.F;
-  }
-  else
-  {
-    // expand matrix to basins
-    tex0.insert( tex0.end(), surf->vertex().size(), 0 );
-    // FIXME needs to cache this int texture
-    rc_ptr<Texture1d> basintex = d->basins->texture<float>( true, false );
-    const vector<float> & basinv = basintex->begin()->second.data();
-    vector<float>::const_iterator ib, eb = basinv.end();
-    vector<float>::iterator ic = tex0.begin();
-    int basin;
+    vector<float> & row = (*texlist[index])[0].data();
+    rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
+    vector<float> & tex0 = (*tex)[0].data();
+    const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( time_pos );
 
-    for( ib=basinv.begin(); ib!=eb; ++ib, ++ic )
+    if( d->basins.empty() )
     {
-      basin = int( rint( *ib ) );
-      if( *ib != 0 )
+      unsigned i = 0, n = row.size();
+      tex0.resize( row.size() );
+      for( i=0; i<n; ++ i )
       {
-        *ic = row[ *ib - 1 ];
-        if( *ic > texmax )
-          texmax = *ic;
+        float x = row[i];
+        if( isinf( x ) )
+          x = 0.;
+        if( x > texmax )
+          texmax = x;
+        tex0[i] = x;
+      }
+//       texmax = 1.F;
+//       colscale = 1.F;
+    }
+    else
+    {
+      // expand matrix to basins
+      tex0.insert( tex0.end(), surf->vertex().size(), 0 );
+      // FIXME needs to cache this int texture
+      rc_ptr<Texture1d> basintex = d->basins[index]->texture<float>( true,
+                                                                     false );
+      const vector<float> & basinv = basintex->begin()->second.data();
+      vector<float>::const_iterator ib, eb = basinv.end();
+      vector<float>::iterator ic = tex0.begin();
+      int basin;
+
+      for( ib=basinv.begin(); ib!=eb; ++ib, ++ic )
+      {
+        basin = int( rint( *ib ) );
+        if( *ib != 0 )
+        {
+          *ic = row[ *ib - 1 ];
+          if( isinf( *ic ) )
+            *ic = 0.;
+          if( *ic > texmax )
+            texmax = *ic;
+        }
       }
     }
+
+    if( texmax == -numeric_limits<float>::max() )
+      colscale = 1.F;
+    else if( colscale == 0.F )
+      colscale = d->connectivity_max / texmax;
+
+    d->textures[index]->setTexture( tex );
+    d->textures[index]->palette()->setMax1( colscale );
   }
-
-  if( texmax == -numeric_limits<float>::max() )
-    colscale = 1.F;
-  else if( colscale == 0.F )
-    colscale = d->connectivity_max / texmax;
-
-  d->texture->setTexture( tex );
-  d->texture->palette()->setMax1( colscale );
 
   // update sphere marker
   if( d->marker )
   {
-    AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron( 
-      surf->vertex()[ startvertex ], 1.5 );
+    AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron(
+      d->meshes[ mesh_index ]->surfaceOfTime( time_pos )->vertex()
+        [ startvertex ], 1.5 );
     d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
     Material & mat = d->marker->GetMaterial();
     mat.SetDiffuse( 0.6, 1., 0., 1. );
@@ -1073,67 +1171,77 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
 }
 
 
-void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
+void AConnectivityMatrix::buildColumnTexture( int mesh_index,
+                                              uint32_t startvertex,
                                               float time_pos )
 {
-  d->vertex = startvertex;
+//   d->vertex = startvertex;
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
-  const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
-  tex0.resize( surf->vertex().size(), 0. );
-  bool valid = true;
-  uint32_t column = startvertex;
-  float texmax = -numeric_limits<float>::max();
-  float colscale = 0.F;
 
-  if( d->basins )
+  vector<ATriangulated *>::iterator im, em = d->meshes.end();
+  unsigned index = 0;
+  for( im=d->meshes.begin(); im!=em; ++im, ++index )
   {
-    // expand matrix to basins
-    // FIXME needs to cache this int texture
-    rc_ptr<Texture1d> basintex = d->basins->texture<float>( true, false );
-    const vector<float> & basinv = basintex->begin()->second.data();
-    int basin = int( rint( basinv[ startvertex ] ) );
-    if( basin == 0 )
+    const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( time_pos );
+    tex0.resize( surf->vertex().size(), 0. );
+    bool valid = true;
+    uint32_t column = startvertex;
+    float texmax = -numeric_limits<float>::max();
+    float colscale = 0.F;
+
+    if( !d->basins.empty() )
     {
-      valid = false;
+      // expand matrix to basins
+      // FIXME needs to cache this int texture
+      rc_ptr<Texture1d> basintex = d->basins[index]->texture<float>( true,
+                                                                     false );
+      const vector<float> & basinv = basintex->begin()->second.data();
+      int basin = int( rint( basinv[ startvertex ] ) );
+      if( basin == 0 )
+      {
+        valid = false;
+        colscale = 1.F;
+      }
+      else
+        column = basin - 1; // new index in matrix columns
+    }
+    if( valid )
+    {
+      /* TODO: here we should mat->readColumn( column );
+        but on large CIFTI files, this operation is too slow to allow
+        interactive reading. So for now, this will not dislay good data on
+        CIFTI files.
+        Another way would be to read all rows for the selected ROIs.
+      */
+      vector<double> col = mat->getColumn( column );
+      vector<uint32_t>::const_iterator ip, ep = d->patchindices[index].end();
+      vector<double>::const_iterator iv, ev = col.end();
+      for( ip=d->patchindices[index].begin(), iv=col.begin(); ip!=ep;
+           ++ip, ++iv )
+      {
+        tex0[*ip] = *iv;
+        if( *iv > texmax )
+          texmax = *iv;
+      }
+    }
+
+    if( texmax == -numeric_limits<float>::max() )
       colscale = 1.F;
-    }
-    else
-      column = basin - 1; // new index in matrix columns
-  }
-  if( valid )
-  {
-    /* TODO: here we should mat->readColumn( column );
-       but on large CIFTI files, this operation is too slow to allow
-       interactive reading. So for now, this will not dislay good data on
-       CIFTI files.
-       Another way would be to read all rows for the selected ROIs.
-    */
-    vector<double> col = mat->getColumn( column );
-    vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
-    vector<double>::const_iterator iv, ev = col.end();
-    for( ip=d->patchindices.begin(), iv=col.begin(); ip!=ep; ++ip, ++iv )
-    {
-      tex0[*ip] = *iv;
-      if( *iv > texmax )
-        texmax = *iv;
-    }
-  }
+    else if( colscale == 0.F )
+      colscale = d->connectivity_max / texmax;
 
-  if( texmax == -numeric_limits<float>::max() )
-    colscale = 1.F;
-  else if( colscale == 0.F )
-    colscale = d->connectivity_max / texmax;
-
-  d->texture->setTexture( tex );
-  d->texture->palette()->setMax1( colscale );
+    d->textures[index]->setTexture( tex );
+    d->textures[index]->palette()->setMax1( colscale );
+  }
 
   // update sphere marker
   if( d->marker )
   {
     AimsSurfaceTriangle *sph = SurfaceGenerator::icosahedron(
-      surf->vertex()[ startvertex ], 1.5 );
+      d->meshes[ mesh_index ]->surfaceOfTime( time_pos )->vertex()
+        [ startvertex ], 1.5 );
     d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( sph ) );
     Material & mat = d->marker->GetMaterial();
     mat.SetDiffuse( 0., .6, 1., 1. );
@@ -1143,86 +1251,113 @@ void AConnectivityMatrix::buildColumnTexture( uint32_t startvertex,
 }
 
 
-void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
+void AConnectivityMatrix::buildPatchTexture( int mesh_index,
+                                             uint32_t startvertex,
                                              float time_pos )
 {
-  if( !d->patch )
+  if( d->patches.empty() )
     return;
 
   // find vertex in patch
-  vector<uint32_t>::const_iterator ip, ep = d->patchindices.end();
-  const AimsSurface<3, Void> *surf = d->mesh->surfaceOfTime( time_pos );
-  uint32_t vertex = 0, n, texsize = surf->vertex().size(), i;
-  for( ip=d->patchindices.begin(); ip!=ep; ++ip, ++vertex )
-    if( *ip == startvertex )
-      break;
-  if( ip == ep )
+  if( !d->patchindices.empty() )
   {
-    // outside patch
-    buildColumnPatchTexture( startvertex, time_pos );
-    return;
+    vector<uint32_t>::const_iterator
+      ip, ep = d->patchindices[mesh_index].end();
+    for( ip=d->patchindices[mesh_index].begin(); ip!=ep; ++ip )
+      if( *ip == startvertex )
+        break;
+    if( ip == ep )
+    {
+      // outside patch
+      buildColumnPatchTexture( mesh_index, startvertex, time_pos );
+      return;
+    }
   }
 
-  d->vertex = startvertex;
-  rc_ptr<TimeTexture<int16_t> > tx = d->patch->texture<int16_t>( true, false );
-  rc_ptr<TimeTexture<float> > ptex( new TimeTexture<float> );
-  TimeTexture<int16_t>::const_iterator it, et = tx->end();
-  int timestep;
-  int16_t patchval, tval;
+  // get patch values at clicked vertex
   vector<int16_t> pvals;
-  pvals.reserve( tx->size() );
-  rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
-
-  for( it=tx->begin(); it!=et; ++it )
+  int16_t patchval;
+  rc_ptr<TimeTexture<int16_t> > tx0 = d->patches[mesh_index]->texture<int16_t>(
+    true, false );
+  int timestep;
+  uint32_t i, n;
+  TimeTexture<int16_t>::const_iterator it, et = tx0->end();
+  for( it=tx0->begin(); it!=et; ++it )
   {
     timestep = it->first;
     const vector<int16_t> & tex = it->second.data();
     patchval = tex[ startvertex ];
     pvals.push_back( patchval );
-    vector<uint32_t> patchindices;
-    n = d->patchindices.size();
-    patchindices.reserve( n ); // sub-patch vertices
-    // get sub-patch
-    for( vertex=0; vertex<n; ++vertex )
-    {
-      tval = tex[ d->patchindices[vertex] ];
-      if( tval == patchval )
-        patchindices.push_back( vertex ); // indices in d->patchindices
-    }
-
-    // if using basins, prepare a translation table
-    rc_ptr<TimeTexture<int> > basinstex;
-    Texture<int> *basins = 0;
-    int b;
-    if( d->basins )
-    {
-      basinstex = d->basins->texture<int>( true, false );
-      basins = &basinstex->begin()->second;
-    }
-
-    // sum rows in sparse matrix
-    vector<float> & ptext = (*ptex)[timestep].data();
-    ptext.resize( texsize, 0. );
-    for( vertex=0, n=patchindices.size(); vertex<n; ++vertex )
-    {
-      mat->readRow( patchindices[vertex] );
-      vector<double> row = mat->getRow( patchindices[vertex] );
-      if( !basins )
-        for( i=0; i<texsize; ++i )
-          ptext[i] += row[i];
-      else
-        for( i=0; i<texsize; ++i )
-        {
-          b = (*basins)[i];
-          if( b != 0 )
-            ptext[i] += row[ b - 1 ];
-        }
-    }
   }
 
-  // store texture with timesteps
-  d->texture->setTexture( ptex );
-  d->texture->palette()->setMax1( 1. );
+  vector<ATriangulated *>::iterator im, em = d->meshes.end();
+  unsigned index = 0;
+  for( im=d->meshes.begin(); im!=em; ++im, ++index )
+  {
+    const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( time_pos );
+    uint32_t vertex, texsize = surf->vertex().size();
+
+    rc_ptr<TimeTexture<int16_t> > tx;
+    if( index == mesh_index )
+      tx = tx0;
+    else
+      tx = d->patches[index]->texture<int16_t>( true, false );
+    rc_ptr<TimeTexture<float> > ptex( new TimeTexture<float> );
+    int16_t tval;
+    if( index == mesh_index )
+      pvals.reserve( tx->size() );
+    rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
+
+    for( it=tx->begin(), et=tx->end(); it!=et; ++it )
+    {
+      timestep = it->first;
+      const vector<int16_t> & tex = it->second.data();
+      patchval = pvals[ timestep ];
+      vector<uint32_t> patchindices;
+      n = d->patchindices[index].size();
+      patchindices.reserve( n ); // sub-patch vertices
+      // get sub-patch
+      for( vertex=0; vertex<n; ++vertex )
+      {
+        tval = tex[ d->patchindices[index][vertex] ];
+        if( tval == patchval )
+          patchindices.push_back( vertex ); // indices in d->patchindices
+      }
+
+      // if using basins, prepare a translation table
+      rc_ptr<TimeTexture<int> > basinstex;
+      Texture<int> *basins = 0;
+      int b;
+      if( !d->basins.empty() )
+      {
+        basinstex = d->basins[index]->texture<int>( true, false );
+        basins = &basinstex->begin()->second;
+      }
+
+      // sum rows in sparse matrix
+      vector<float> & ptext = (*ptex)[timestep].data();
+      ptext.resize( texsize, 0. );
+      for( vertex=0, n=patchindices.size(); vertex<n; ++vertex )
+      {
+        mat->readRow( patchindices[vertex] );
+        vector<double> row = mat->getRow( patchindices[vertex] );
+        if( !basins )
+          for( i=0; i<texsize; ++i )
+            ptext[i] += row[i];
+        else
+          for( i=0; i<texsize; ++i )
+          {
+            b = (*basins)[i];
+            if( b != 0 )
+              ptext[i] += row[ b - 1 ];
+          }
+      }
+    }
+
+    // store texture with timesteps
+    d->textures[index]->setTexture( ptex );
+    d->textures[index]->palette()->setMax1( 1. );
+  }
 
   // mesh patch marker
   if( d->marker )
@@ -1235,19 +1370,20 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
     AimsSurfaceTriangle *mesh = 0;
     if( i == n ) // only one patch value
     {
-      mesh = SurfaceManip::meshExtract( *d->mesh->surface(), *tx, patchval );
+      mesh = SurfaceManip::meshExtract( *d->meshes[mesh_index]->surface(),
+                                        *tx0, patchval );
     }
     else
     {
       // build sub-mesh for each timestep
-      for( it=tx->begin(), i=0; it!=et; ++it, ++i )
+      for( it=tx0->begin(), et=tx0->end(), i=0; it!=et; ++it, ++i )
       {
         timestep=it->first;
         // get patch texture for meshExtract
         TimeTexture<int16_t> tex16;
         tex16[0] = it->second;
         AimsSurfaceTriangle *tmesh = SurfaceManip::meshExtract(
-          *d->mesh->surface(), tex16, pvals[i] );
+          *d->meshes[mesh_index]->surface(), tex16, pvals[i] );
         if( !mesh )
           mesh = tmesh;
         else
@@ -1269,21 +1405,30 @@ void AConnectivityMatrix::buildPatchTexture( uint32_t startvertex,
 }
 
 
-void AConnectivityMatrix::buildColumnPatchTexture( uint32_t /*startvertex*/,
+void AConnectivityMatrix::buildColumnPatchTexture( int /* mesh_index */,
+                                                   uint32_t /*startvertex*/,
                                                    float /*time_pos*/ )
 {
 }
 
 
-const rc_ptr<ATriangulated> AConnectivityMatrix::mesh() const
+vector<rc_ptr<ATriangulated> > AConnectivityMatrix::meshes() const
 {
-  return rc_ptr<ATriangulated>( d->mesh );
+  unsigned i, n = d->meshes.size();
+  vector<rc_ptr<ATriangulated> > meshes( n );
+  for( i=0; i<n; ++i )
+    meshes[i].reset( d->meshes[i] );
+  return meshes;
 }
 
 
-const rc_ptr<ATexture> AConnectivityMatrix::texture() const
+vector<rc_ptr<ATexture> > AConnectivityMatrix::textures() const
 {
-  return rc_ptr<ATexture>( d->texture );
+  unsigned i, n = d->textures.size();
+  vector<rc_ptr<ATexture> > tex( n );
+  for( i=0; i<n; ++i )
+    tex[i].reset( d->textures[i] );
+  return tex;
 }
 
 

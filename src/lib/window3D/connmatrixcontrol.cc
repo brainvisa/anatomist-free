@@ -77,6 +77,7 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   AObject *obj = w->objectAtCursorPosition( x, y );
   if( !obj )
     return;
+  // obj should be a textured surface
   AObject::ParentList & parents = obj->parents();
   AObject::ParentList::iterator ip, ep = parents.end();
   AConnectivityMatrix *aconn = 0;
@@ -84,25 +85,48 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
     aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
   if( !aconn )
     return;
-  const AimsSurface<3, Void> *surf
-    = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0
-      || static_cast<size_t>(poly) >= surf->polygon().size() )
+  if( poly == 0xffffff || poly < 0 )
     return;
-  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
-  const vector<Point3df> & vert = surf->vertex();
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
-  Point3df d( ( vert[ppoly[0]]-pos ).norm2(), 
+
+  vector<rc_ptr<ATriangulated > > meshes = aconn->meshes();
+  vector<rc_ptr<ATriangulated > >::iterator im, em = meshes.end();
+  int index = 0;
+  MObject *mobj = dynamic_cast<MObject *>( obj );
+
+  for( im=meshes.begin(); im!=em; ++im, ++index )
+  {
+    if( obj == im->get() )
+      break;
+    if( mobj )
+    {
+      AObject::ParentList & mparents = (*im)->parents();
+      if( mparents.find( mobj ) != mparents.end() )
+        break;
+    }
+  }
+  if( im == em )
+    // mesh not found
+    return;
+  const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( w->getTime() );
+  if( static_cast<size_t>(poly) >= surf->polygon().size() )
+    return;
+  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
+  const vector<Point3df> & vert = surf->vertex();
+  Point3df d( ( vert[ppoly[0]]-pos ).norm2(),
               ( vert[ppoly[1]]-pos ).norm2(),
               ( vert[ppoly[2]]-pos ).norm2() );
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
-  aconn->buildTexture( v, w->getTime() );
-  aconn->texture()->notifyObservers();
+  aconn->buildTexture( index, v, w->getTime() );
+  vector<rc_ptr<ATexture> > textures = aconn->textures();
+  vector<rc_ptr<ATexture> >::iterator it, et = textures.end();
+  for( it=textures.begin(); it!=et; ++it )
+    (*it)->notifyObservers();
   aconn->marker()->notifyObservers();
 }
 
@@ -123,25 +147,48 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
     aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
   if( !aconn )
     return;
-  const AimsSurface<3, Void> *surf
-    = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0
-      || static_cast<size_t>(poly) >= surf->polygon().size() )
+  if( poly == 0xffffff || poly < 0 )
     return;
-  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
-  const vector<Point3df> & vert = surf->vertex();
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
+
+  vector<rc_ptr<ATriangulated > > meshes = aconn->meshes();
+  vector<rc_ptr<ATriangulated > >::iterator im, em = meshes.end();
+  int index = 0;
+  MObject *mobj = dynamic_cast<MObject *>( obj );
+
+  for( im=meshes.begin(); im!=em; ++im, ++index )
+  {
+    if( obj == im->get() )
+      break;
+    if( mobj )
+    {
+      AObject::ParentList & mparents = (*im)->parents();
+      if( mparents.find( mobj ) != mparents.end() )
+        break;
+    }
+  }
+  if( im == em )
+    // mesh not found
+    return;
+  const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( w->getTime() );
+  if( static_cast<size_t>(poly) >= surf->polygon().size() )
+    return;
+  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
+  const vector<Point3df> & vert = surf->vertex();
   Point3df d( ( vert[ppoly[0]]-pos ).norm2(),
               ( vert[ppoly[1]]-pos ).norm2(),
               ( vert[ppoly[2]]-pos ).norm2() );
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
-  aconn->buildPatchTexture( v, w->getTime() );
-  aconn->texture()->notifyObservers();
+  aconn->buildPatchTexture( index, v, w->getTime() );
+  vector<rc_ptr<ATexture> > textures = aconn->textures();
+  vector<rc_ptr<ATexture> >::iterator it, et = textures.end();
+  for( it=textures.begin(); it!=et; ++it )
+    (*it)->notifyObservers();
   aconn->marker()->notifyObservers();
 }
 
