@@ -1068,20 +1068,28 @@ void AConnectivityMatrix::buildPatchIndices()
       scale = ( te.maxquant[0] - te.minquant[0] ) / ( te.max[0] - te.min[0] );
       offset = te.minquant[0] - te.min[0] * scale;
     }
+    vector<int> indices_vec;
     if( d->patchmode == ONE )
     {
       for( it=tex.begin(); it!=et; ++it, ++j )
         if( d->patchnums.find( int( rint( *it * scale + offset ) ) )
             != d->patchnums.end() )
-          patchindices[j] = i++;
+          indices_vec.push_back( j );
+//           patchindices[j] = i++;
     }
     else // ALL_BUT_ONE
     {
       for( it=tex.begin(); it!=et; ++it, ++j )
         if( d->patchnums.find( ( *it * scale + offset ) )
             == d->patchnums.end() )
-          patchindices[ j ] = i++;
+          indices_vec.push_back( j );
+//           patchindices[ j ] = i++;
     }
+    vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, surf_index,
+                                                              indices_vec );
+    size_t n = mat_ind.size();
+    for( i=0; i<n; ++i )
+      patchindices[ indices_vec[i] ] = mat_ind[i];
   }
 }
 
@@ -1221,15 +1229,33 @@ void AConnectivityMatrix::buildColumnTexture( int mesh_index,
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
-
+  CiftiTools ctools( d->sparse->matrix() );
+  vector<int> cind( 1, startvertex );
+  cout << "buildColumnTexture " << startvertex << ": " << cind[0] << endl;
+  vector<int> col_indices = ctools.getIndicesForSurfaceIndices( 1, mesh_index,
+                                                                cind );
+  cout << "col_indices: " << col_indices.size() << endl;
   vector<ATriangulated *>::iterator im, em = d->meshes.end();
   unsigned index = 0;
+
+  if( col_indices.empty() )
+  {
+    // not in the matrix: clear textures
+    for( im=d->meshes.begin(); im!=em; ++im, ++index )
+    {
+      const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( time_pos );
+      tex0.resize( surf->vertex().size(), 0. );
+      d->textures[index]->setTexture( tex );
+    }
+    return;
+  }
+  uint32_t column = col_indices[0];
+
   for( im=d->meshes.begin(); im!=em; ++im, ++index )
   {
     const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( time_pos );
     tex0.resize( surf->vertex().size(), 0. );
     bool valid = true;
-    uint32_t column = startvertex; // FIXME: use map in cifti
     float texmax = -numeric_limits<float>::max();
     float colscale = 0.F;
 
