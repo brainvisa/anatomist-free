@@ -1476,6 +1476,8 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
   for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
   {
     d->textures[index]->setTexture( ptex[index] );
+    d->textures[index]->palette()->setMin1( 0. );
+    // FIXME: adjust globally for all textures
     d->textures[index]->palette()->setMax1( 1. );
   }
 
