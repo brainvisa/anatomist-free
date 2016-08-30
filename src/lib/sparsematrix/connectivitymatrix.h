@@ -63,6 +63,7 @@ namespace anatomist
     {
       ONE,
       ALL_BUT_ONE,
+      ALL_MESH,
     };
 
     AConnectivityMatrix( const std::vector<AObject *> & obj );

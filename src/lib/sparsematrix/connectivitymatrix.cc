@@ -79,7 +79,7 @@ struct AConnectivityMatrix::Private
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ),
-  sparse( 0 ), marker( 0 ), connectivity_max( 0 )
+  sparse( 0 ), marker( 0 ), connectivity_max( 1. )
 {
 }
 
@@ -224,33 +224,49 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   // matrix transformation / transposition delayed after textures analysis
   d->meshes.insert( d->meshes.end(), meshes.begin(), meshes.end() );
   setReferentialInheritance( d->meshes[0] );
+
+  bool patchindices_built = false;
+
   if( !patch_textures.empty() )
   {
+    unsigned index, npatch = patch_textures.size();
     d->patches.insert( d->patches.end(), patch_textures.begin(),
                        patch_textures.end() );
-    d->patches[0]->getOrCreatePalette();
-    AObjectPalette *pal = d->patches[0]->palette();
-    rc_ptr<Texture1d> aimstex = d->patches[0]->texture<float>( false, false );
-    GLComponent::TexExtrema & text = d->patches[0]->glTexExtrema( 0 );
-    unsigned nval
-      = unsigned( rint( text.maxquant[0] - text.minquant[0] ) ) + 1;
-    rc_ptr<APalette> apal( new APalette( "batch_bin", nval ) );
-    unsigned i, minpatch = unsigned( rint( text.minquant[0] ) );
-    if( d->patchmode == ONE )
-      for( i=0; i<nval; ++i )
-        if( d->patchnums.find( i + minpatch ) != d->patchnums.end() )
-          (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
+
+    // build vertices indices on patch
+    buildPatchIndices();
+    patchindices_built = true;
+
+    for( index=0; index<npatch; ++index )
+    {
+      if( d->patchmode != ALL_MESH )
+      {
+        d->patches[index]->getOrCreatePalette();
+        AObjectPalette *pal = d->patches[index]->palette();
+        rc_ptr<Texture1d> aimstex = d->patches[index]->texture<float>( false,
+                                                                  false );
+        GLComponent::TexExtrema & text = d->patches[index]->glTexExtrema( 0 );
+        unsigned nval
+          = unsigned( rint( text.maxquant[0] - text.minquant[0] ) ) + 1;
+        rc_ptr<APalette> apal( new APalette( "batch_bin", nval ) );
+        unsigned i, minpatch = unsigned( rint( text.minquant[0] ) );
+        if( d->patchmode == ONE )
+          for( i=0; i<nval; ++i )
+            if( d->patchnums.find( i + minpatch ) != d->patchnums.end() )
+              (*apal)( i ) = AimsRGBA( 200, 100, 255, 255 );
+            else
+              (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
         else
-          (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
-    else
-      for( i=0; i<nval; ++i )
-        if( d->patchnums.find( i + minpatch ) == d->patchnums.end() )
-          (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
-        else
-          (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
-    pal->setRefPalette( apal );
-    d->patches[0]->setPalette( *pal );
-    d->patches[0]->glSetTexRGBInterpolation( true, 0 );
+          for( i=0; i<nval; ++i )
+            if( d->patchnums.find( i + minpatch ) == d->patchnums.end() )
+              (*apal)( i ) = AimsRGBA( 200, 100, 255, 255 );
+            else
+              (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
+        pal->setRefPalette( apal );
+        d->patches[index]->setPalette( *pal );
+      }
+      d->patches[index]->glSetTexRGBInterpolation( true, 0 );
+    }
   }
   else
   {
@@ -307,6 +323,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
       stringstream name;
       name << "PatchAndConnectivity_" << count;
       mtexture->setName( name.str() );
+      mtexture->glSetTexRate( 0.3, 0 );
       theAnatomist->registerObject( mtexture, false );
       textures.push_back( mtexture );
     }
@@ -334,7 +351,9 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   }
 
   // build vertices indices on patch
-  buildPatchIndices();
+  if( !patchindices_built )
+    buildPatchIndices();
+
   // take initial vertex
   uint32_t vertex = 0;
   if( !d->patchindices.empty() && !d->patchindices[0].empty() )
@@ -379,9 +398,9 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   insert( rc_ptr<AObject>( d->marker ) );
   theAnatomist->releaseObject( d->marker );
 
-  d->connectivity_max = SparseMatrixUtil::max( *d->sparse->matrix() );
-  if( d->connectivity_max == 0. )
-    d->connectivity_max = 1.;
+//   d->connectivity_max = SparseMatrixUtil::max( *d->sparse->matrix() );
+//   if( d->connectivity_max == 0. )
+//     d->connectivity_max = 1.;
 
   // build connectivity texture contents
   buildTexture( 0, vertex );
@@ -840,7 +859,9 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   list<unsigned> texsize_list;
   Object patchlabels;
   Object patchintlabels;
+  bool cifti_check = false;
   list<string> cifti_meshes_ids;
+
   if( sparse )
   {
     rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
@@ -862,11 +883,12 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     }
     cifti_meshes_ids = get_cifti_mesh_ids( smat );
     list<pair<vector<int>, size_t> > cols;
-    if( !check_meshes( smat, cifti_meshes_ids, mesh, tex_list, cols ) )
+    cifti_check = check_meshes( smat, cifti_meshes_ids, mesh, tex_list, cols );
+    if( !cifti_check )
     {
       cout << "check_meshes is false.\n";
     }
-    cout << "check_meshes OK\n";
+    cout << "check_meshes done\n";
   }
   else if( dense )
   {
@@ -912,7 +934,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   if( tex2 )
     cout << "using 2 textures\n";
 
-  if( tex )
+  if( !cifti_check && tex )
   {
     /* texture should have nvert elements, with texsize "useable" as a ROI
        patch, or combination of patches (all but one value) */
@@ -1003,10 +1025,17 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   else
     matrix = ddense;
   meshes = mesh;
-  if( tex )
-    patch_textures.push_back( tex );
-  if( tex2 )
-    basin_textures.push_back( tex2 );
+  if( cifti_check )
+  {
+    patch_textures = tex_list;
+  }
+  else
+  {
+    if( tex )
+      patch_textures.push_back( tex );
+    if( tex2 )
+      basin_textures.push_back( tex2 );
+  }
 
   cout << "OK for connectivity matrix fusion.\n";
   return true;
@@ -1018,85 +1047,83 @@ void AConnectivityMatrix::buildPatchIndices()
   d->patchindices.clear();
 
   CiftiTools ctools( d->sparse->matrix() );
+  CiftiTools::RoiTextureList *roitex = ctools.roiTextureFromDimension( 0 );
+  CiftiTools::RoiTextureList::iterator irt, ert = roitex->end();
+  int surf_index = 0;
+  d->patchindices.reserve( d->meshes.size() );
 
-  if( d->patches.empty() )
+  for( irt=roitex->begin(); irt!=ert; ++irt, ++surf_index )
   {
-    // no patch texture: no indices
-
-    CiftiTools::RoiTextureList *roitex = ctools.roiTextureFromDimension( 0 );
-    CiftiTools::RoiTextureList::iterator irt, ert = roitex->end();
-    int index = 0, i;
-
-    for( irt=roitex->begin(); irt!=ert; ++irt, ++index )
+    const vector<int32_t> & vtex = (**irt)[0].data();
+    if( vtex.size() == d->meshes[surf_index]->surface()->vertex().size() )
     {
-      const vector<int32_t> & vtex = (**irt)[0].data();
+      d->patchmode = ALL_MESH;
+      // patch texture from Cifti matrix
       size_t i, n = vtex.size();
       vector<int> indices_vec;
+      indices_vec.reserve( n ); // we will use less.
 
       for( i=0; i<n; ++i )
         if( vtex[i] != 0 )
           indices_vec.push_back( i );
 
-      vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, index,
+      vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, surf_index,
                                                                 indices_vec );
       d->patchindices.push_back( map<uint32_t, uint32_t>() );
       map<uint32_t, uint32_t> & pind = *d->patchindices.rbegin();
-      for( i=0; i<n; ++i )
+      for( i=0, n=mat_ind.size(); i<n; ++i )
         pind[ indices_vec[i] ] = mat_ind[i];
     }
-
-    delete roitex;
-    return;
+    else if( !d->patches.empty() )
+    {
+      ATexture *atex = d->patches[ surf_index ];
+      int surf_index = 0;
+      rc_ptr<TimeTexture<float> > tx = atex->texture<float>( false, false );
+      const vector<float> & tex = (*tx)[0].data();
+      vector<float>::const_iterator it, et = tex.end();
+      uint32_t i = 0, j = 0;
+      d->patchindices.push_back( map<uint32_t, uint32_t>() );
+      map<uint32_t, uint32_t> & patchindices = *d->patchindices.rbegin();
+      // FIXME: use cifti cols info
+      const GLComponent::TexExtrema & te = atex->glTexExtrema( 0 );
+      float scale = 1., offset = 0.;
+      if( te.scaled && te.max[0] != te.min[0] )
+      {
+        scale = ( te.maxquant[0] - te.minquant[0] ) / ( te.max[0] - te.min[0] );
+        offset = te.minquant[0] - te.min[0] * scale;
+      }
+      vector<int> indices_vec;
+      if( d->patchmode == ONE )
+      {
+        for( it=tex.begin(); it!=et; ++it, ++j )
+          if( d->patchnums.find( int( rint( *it * scale + offset ) ) )
+              != d->patchnums.end() )
+            indices_vec.push_back( j );
+  //           patchindices[j] = i++;
+      }
+      else // ALL_BUT_ONE
+      {
+        for( it=tex.begin(); it!=et; ++it, ++j )
+          if( d->patchnums.find( ( *it * scale + offset ) )
+              == d->patchnums.end() )
+            indices_vec.push_back( j );
+  //           patchindices[ j ] = i++;
+      }
+      vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, surf_index,
+                                                                indices_vec );
+      size_t n = mat_ind.size();
+      for( i=0; i<n; ++i )
+        patchindices[ indices_vec[i] ] = mat_ind[i];
+    }
   }
-
-  vector<ATexture *>::iterator ipt, ept = d->patches.end();
-  d->patchindices.reserve( d->patches.size() );
-  int surf_index = 0;
-  for( ipt=d->patches.begin(); ipt!=ept; ++ipt, ++surf_index )
-  {
-    rc_ptr<TimeTexture<float> > tx = (*ipt)->texture<float>( false, false );
-    const vector<float> & tex = (*tx)[0].data();
-    vector<float>::const_iterator it, et = tex.end();
-    uint32_t i = 0, j = 0;
-    d->patchindices.push_back( map<uint32_t, uint32_t>() );
-    map<uint32_t, uint32_t> & patchindices = *d->patchindices.rbegin();
-    // FIXME: use cifti cols info
-    const GLComponent::TexExtrema & te = (*ipt)->glTexExtrema( 0 );
-    float scale = 1., offset = 0.;
-    if( te.scaled && te.max[0] != te.min[0] )
-    {
-      scale = ( te.maxquant[0] - te.minquant[0] ) / ( te.max[0] - te.min[0] );
-      offset = te.minquant[0] - te.min[0] * scale;
-    }
-    vector<int> indices_vec;
-    if( d->patchmode == ONE )
-    {
-      for( it=tex.begin(); it!=et; ++it, ++j )
-        if( d->patchnums.find( int( rint( *it * scale + offset ) ) )
-            != d->patchnums.end() )
-          indices_vec.push_back( j );
-//           patchindices[j] = i++;
-    }
-    else // ALL_BUT_ONE
-    {
-      for( it=tex.begin(); it!=et; ++it, ++j )
-        if( d->patchnums.find( ( *it * scale + offset ) )
-            == d->patchnums.end() )
-          indices_vec.push_back( j );
-//           patchindices[ j ] = i++;
-    }
-    vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, surf_index,
-                                                              indices_vec );
-    size_t n = mat_ind.size();
-    for( i=0; i<n; ++i )
-      patchindices[ indices_vec[i] ] = mat_ind[i];
-  }
+  delete roitex;
 }
 
 
 void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
                                         float time_pos )
 {
+  cout << "startvertex: " << startvertex << endl;
   uint32_t row = startvertex;
   if( !d->patchindices.empty() )
   {
@@ -1117,6 +1144,7 @@ void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
   CiftiTools::TextureList texlist;
   CiftiTools ctools( mat );
   vector<int> pos( 2, 0 );
+  cout << "row: " << row << endl;
   pos[0] = row;
   ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
   float texmax = -numeric_limits<float>::max(),
@@ -1250,6 +1278,7 @@ void AConnectivityMatrix::buildColumnTexture( int mesh_index,
     return;
   }
   uint32_t column = col_indices[0];
+  cout << "column: " << column << endl;
 
   for( im=d->meshes.begin(); im!=em; ++im, ++index )
   {
@@ -1323,6 +1352,8 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
                                              uint32_t startvertex,
                                              float time_pos )
 {
+  theAnatomist->setCursor( Anatomist::Working );
+
   if( d->patches.empty() )
     return;
 
@@ -1339,90 +1370,112 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     }
   }
 
-  // get patch values at clicked vertex
+  CiftiTools ctools( d->sparse->matrix() );
+
+  // get patch values at clicked vertex on the clicked mesh
   vector<int16_t> pvals;
-  int16_t patchval;
+  int16_t patchval, tval;
   rc_ptr<TimeTexture<int16_t> > tx0 = d->patches[mesh_index]->texture<int16_t>(
     true, false );
   int timestep;
-  uint32_t i, n;
+  uint32_t i, n, nmesh = d->meshes.size();
+  unsigned index = 0;
   TimeTexture<int16_t>::const_iterator it, et = tx0->end();
+  vector<rc_ptr<TimeTexture<float> > > ptex( nmesh );
+  vector<ATriangulated *>::iterator im, em = d->meshes.end();
+
+  // if using basins, prepare a translation table
+  vector<rc_ptr<TimeTexture<int> > > basinstex;
+  vector<Texture<int> * > basins;
+  if( !d->basins.empty() )
+  {
+    basinstex.resize( nmesh );
+    basins.resize( nmesh );
+  }
+
+  for( index=0; index<nmesh; ++index )
+  {
+    ptex[index].reset( new TimeTexture<float> );
+    if( !d->basins.empty() )
+    {
+      basinstex[index] = d->basins[index]->texture<int>( true, false );
+      basins[index] = &basinstex[index]->begin()->second;
+    }
+  }
+
   for( it=tx0->begin(); it!=et; ++it )
   {
     timestep = it->first;
     const vector<int16_t> & tex = it->second.data();
     patchval = tex[ startvertex ];
+    cout << "patchval: " << patchval << ", mesh_index: " << mesh_index << endl;
     pvals.push_back( patchval );
-  }
 
-  vector<ATriangulated *>::iterator im, em = d->meshes.end();
-  unsigned index = 0;
-  for( im=d->meshes.begin(); im!=em; ++im, ++index )
-  {
-    const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( time_pos );
-    uint32_t vertex, texsize = surf->vertex().size();
-
-    rc_ptr<TimeTexture<int16_t> > tx;
-    if( index == mesh_index )
-      tx = tx0;
-    else
-      tx = d->patches[index]->texture<int16_t>( true, false );
-    rc_ptr<TimeTexture<float> > ptex( new TimeTexture<float> );
-    int16_t tval;
-    if( index == mesh_index )
-      pvals.reserve( tx->size() );
-    rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
-
-    for( it=tx->begin(), et=tx->end(); it!=et; ++it )
+    map<uint32_t, uint32_t> patchindices;
+    cout << "patchindices: " << d->patchindices.size() << endl;
+    map<uint32_t, uint32_t>::const_iterator
+      ip, ep = d->patchindices[mesh_index].end();
+    n = d->patchindices[mesh_index].size();
+    cout << "n: " << n << endl;
+    // get sub-patch
+    for( ip=d->patchindices[mesh_index].begin(); ip!=ep; ++ip )
     {
-      timestep = it->first;
-      const vector<int16_t> & tex = it->second.data();
-      patchval = pvals[ timestep ];
-      map<uint32_t, uint32_t> patchindices;
-      map<uint32_t, uint32_t>::const_iterator
-        ip, ep = d->patchindices[index].end();
-      n = d->patchindices[index].size();
-      // get sub-patch
-      for( ip=d->patchindices[index].begin(); ip!=ep; ++ip )
-      {
-        tval = tex[ ip->first ];
-        if( tval == patchval )
-          patchindices[ ip->first ] = ip->second; // indices in d->patchindices
-      }
+      tval = tex[ ip->first ];
+      if( tval == patchval )
+        patchindices[ ip->first ] = ip->second; // indices in d->patchindices
+    }
+    cout << "patchindices: " << patchindices.size() << endl;
 
-      // if using basins, prepare a translation table
-      rc_ptr<TimeTexture<int> > basinstex;
-      Texture<int> *basins = 0;
-      int b;
-      if( !d->basins.empty() )
-      {
-        basinstex = d->basins[index]->texture<int>( true, false );
-        basins = &basinstex->begin()->second;
-      }
+    // sum rows in sparse matrix
+    vector<int> pos( 2, 0 );
+    CiftiTools::TextureList texlist;
+    for( ip=patchindices.begin(), ep=patchindices.end(); ip!=ep; ++ip )
+    {
+      pos[0] = ip->second;
+      cout << "row: " << ip->second << endl;
+      ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
 
-      // sum rows in sparse matrix
-      vector<float> & ptext = (*ptex)[timestep].data();
-      ptext.resize( texsize, 0. );
-      for( ip=patchindices.begin(), ep=patchindices.end(); ip!=ep; ++ip )
+      for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
       {
-        mat->readRow( ip->second );
-        // FIXME: use Cifti expandedValueTextureFromDimension
-        vector<double> row = mat->getRow( ip->second );
-        if( !basins )
-          for( i=0; i<texsize; ++i )
-            ptext[i] += row[i];
-        else
+        vector<float> & row = (*texlist[ index ])[0].data();
+        vector<float> & ptext = (*ptex[index])[timestep].data();
+        uint32_t texsize = row.size();
+        if( ptext.empty() )
+          ptext.resize( texsize, 0. );
+
+        // copy row texture data into ptext
+        if( d->basins.empty() )
+        {
           for( i=0; i<texsize; ++i )
           {
-            b = (*basins)[i];
-            if( b != 0 )
-              ptext[i] += row[ b - 1 ];
+            float x = row[i];
+            if( !isinf( x ) && x > 0)
+              ptext[i] += x;
           }
+        }
+        else
+        {
+          int b;
+          Texture<int> *basintex = basins[index];
+          for( i=0; i<texsize; ++i )
+          {
+            b = (*basintex)[i];
+            if( b != 0 )
+            {
+              float x = row[ b - 1 ];
+              if( !isinf( x ) && x > 0 )
+                ptext[i] += x;
+            }
+          }
+        }
       }
     }
+  }
 
-    // store texture with timesteps
-    d->textures[index]->setTexture( ptex );
+  // store texture with timesteps
+  for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
+  {
+    d->textures[index]->setTexture( ptex[index] );
     d->textures[index]->palette()->setMax1( 1. );
   }
 
@@ -1469,6 +1522,8 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     d->marker->SetMaterial( mat );
     d->marker->glSetChanged( GLComponent::glMATERIAL );
   }
+
+  theAnatomist->setCursor( Anatomist::Normal );
 }
 
 
