@@ -118,15 +118,28 @@ AConnectivityMatrix::Private::Private()
 
 AConnectivityMatrix::Private::~Private()
 {
-  vector<ATexSurface *>::iterator its, ets = texsurfaces.end();
-  for( its=texsurfaces.begin(); its!=ets; ++its )
-    delete *its;
-  vector<AMTexture *>::iterator imt, emt = mtextures.end();
-  for( imt=mtextures.begin(); imt!=emt; ++imt )
-    delete *imt;
-  vector<ATexture *>::iterator it, et = textures.end();
-  for( it=textures.begin(); it!=et; ++it )
-    delete *it;
+  // anatomist objects will be deleted by reference counting
+  // (they are inserted in the MObject)
+//   cout << "delete AConnectivityMatrix::Private\n";
+//   cout << "texsurfaces: " << texsurfaces.size();
+//   vector<ATexSurface *>::iterator its, ets = texsurfaces.end();
+//   for( its=texsurfaces.begin(); its!=ets; ++its )
+//   { cout << "del " << (*its)->name() << endl;
+//     delete *its;
+//   }
+//   cout << "mtextures: " << mtextures.size() << endl;
+//   vector<AMTexture *>::iterator imt, emt = mtextures.end();
+//   for( imt=mtextures.begin(); imt!=emt; ++imt )
+//   { cout << "del mtex: " << (*imt)->name() << endl;
+//     delete *imt;
+//   }
+//   cout << "textures: " << textures.size() << endl;
+//   vector<ATexture *>::iterator it, et = textures.end();
+//   for( it=textures.begin(); it!=et; ++it )
+//   { cout << "del tex: " << (*it)->name() << endl;
+//     delete *it;
+//   }
+//   cout << "~Private done.\n";
 }
 
 namespace
@@ -404,7 +417,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
   // insert in MObject
   insert( rc_ptr<AObject>( d->sparse ) );
-  insert( rc_ptr<AObject>( d->meshes[0] ) );
+//   insert( rc_ptr<AObject>( d->meshes[0] ) );
   if( !d->patches.empty() )
   {
     insert( rc_ptr<AObject>( d->patches[0] ) );
@@ -1440,6 +1453,8 @@ void AConnectivityMatrix::buildPatchTextureThread()
   uint32_t startvertex = d->startvertex;
   float time_pos = d->start_time_pos;
 
+  emit processingProgress( this, 0, 100 );
+
   // get patch values at clicked vertex on the clicked mesh
   vector<int16_t> pvals;
   int16_t patchval, tval;
@@ -1570,6 +1585,7 @@ void AConnectivityMatrix::buildPatchTextureThread()
         }
       }
     }
+    emit processingProgress( this, d->progress_current, d->progress_total );
   }
 
   // store texture with timesteps

@@ -110,6 +110,7 @@ namespace anatomist
 
   signals:
     void texturesUpdated( AConnectivityMatrix* );
+    void processingProgress( AConnectivityMatrix*, int current, int count );
   };
 
 

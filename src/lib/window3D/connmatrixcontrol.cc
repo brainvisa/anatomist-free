@@ -38,6 +38,11 @@
 #include <anatomist/controler/control_d.h>
 #include <anatomist/window3D/trackball.h>
 #include <anatomist/controler/view.h>
+#include <anatomist/window/glwidgetmanager.h>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsItem>
+#include <QProgressBar>
 
 using namespace anatomist;
 using namespace carto;
@@ -203,6 +208,10 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
+  aconn->connect( aconn, SIGNAL( processingProgress( AConnectivityMatrix *,
+                                                     int, int ) ),
+                  this, SLOT( updateConnectivityProgress(
+                                AConnectivityMatrix *, int, int ) ) );
   aconn->connect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
                   this,
                   SLOT( updateConnectivityObject( AConnectivityMatrix * ) ) );
@@ -213,6 +222,7 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
 void ConnectivityMatrixAction::updateConnectivityObject(
   AConnectivityMatrix *aconn )
 {
+  clearConnectivityProgress( aconn );
   aconn->disconnect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
                      this, SLOT(
                       updateConnectivityObject( AConnectivityMatrix * ) ) );
@@ -221,6 +231,51 @@ void ConnectivityMatrixAction::updateConnectivityObject(
   for( it=textures.begin(); it!=et; ++it )
     (*it)->notifyObservers();
   aconn->marker()->notifyObservers();
+}
+
+
+void ConnectivityMatrixAction::updateConnectivityProgress(
+  AConnectivityMatrix* aconn, int current, int count )
+{
+  cout << "updateConnectivityProgress\n";
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( !gview )
+    return;
+  QGraphicsScene *scene = gview->scene();
+  cout << "scene: " << scene << endl;
+  QProgressBar* progress = scene->findChild<QProgressBar *>( "progressbar" );
+  cout << "found: " << progress << endl;
+//   if( !progress )
+//   {
+//     progress = new QProgressBar;
+//     progress->setObjectName( "progressbar" );
+//     QGraphicsProxyWidget *pw = scene->addWidget( progress );
+//   }
+//   progress->setRange( current, count );
+  cout << "progress: " << current << " / " << count << endl;
+}
+
+
+void ConnectivityMatrixAction::clearConnectivityProgress(
+  AConnectivityMatrix* aconn )
+{
+  cout << "clearConnectivityProgress\n";
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( !gview )
+    return;
+  QGraphicsScene *scene = gview->scene();
+  cout << "scene: " << scene << endl;
+  QList<QGraphicsItem *> items = scene->items();
+  QList<QGraphicsItem *>::iterator it, et = items.end();
+  for( it=items.begin(); it!=et; ++it )
+  {
+    scene->removeItem( *it );
+    delete *it;
+  }
 }
 
 

@@ -64,9 +64,11 @@ namespace anatomist
     virtual void showConnectivityAtPoint( int x, int y, int, int );
     virtual void showConnectivityForPatch( int x, int y, int, int );
     void cancelProcessings();
+    void clearConnectivityProgress( AConnectivityMatrix* aconn );
 
   private slots:
     void updateConnectivityObject( AConnectivityMatrix* aconn );
+    void updateConnectivityProgress( AConnectivityMatrix* aconn, int, int );
   };
 
 
