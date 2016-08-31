@@ -75,14 +75,8 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   if( !w )
     return;
   AObject *obj = w->objectAtCursorPosition( x, y );
-  if( !obj )
-    return;
   // obj should be a textured surface
-  AObject::ParentList & parents = obj->parents();
-  AObject::ParentList::iterator ip, ep = parents.end();
-  AConnectivityMatrix *aconn = 0;
-  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
-    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  AConnectivityMatrix *aconn = connectivityMatrix( obj );
   if( !aconn )
     return;
   int poly = w->polygonAtCursorPosition( x, y, aconn );
@@ -91,6 +85,8 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
+
+  aconn->cancelThread();
 
   vector<rc_ptr<ATriangulated > > meshes = aconn->meshes();
   vector<rc_ptr<ATriangulated > >::iterator im, em = meshes.end();
@@ -131,6 +127,33 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
 }
 
 
+AConnectivityMatrix* ConnectivityMatrixAction::connectivityMatrix(
+  AObject * obj ) const
+{
+  if( !obj )
+    return 0;
+  AObject::ParentList & parents = obj->parents();
+  AObject::ParentList::iterator ip, ep = parents.end();
+  AConnectivityMatrix *aconn = 0;
+  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
+    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  return aconn;
+}
+
+
+void ConnectivityMatrixAction::cancelProcessings()
+{
+  set<AObject *> objs = view()->aWindow()->Objects();
+  set<AObject *>::iterator io, eo = objs.end();
+  for( io=objs.begin(); io!=eo; ++io )
+  {
+    AConnectivityMatrix* aconn = dynamic_cast<AConnectivityMatrix *>( *io );
+    if( aconn )
+      aconn->cancelThread();
+  }
+}
+
+
 void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y, 
                                                          int, int )
 {
@@ -138,13 +161,7 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   if( !w )
     return;
   AObject *obj = w->objectAtCursorPosition( x, y );
-  if( !obj )
-    return;
-  AObject::ParentList & parents = obj->parents();
-  AObject::ParentList::iterator ip, ep = parents.end();
-  AConnectivityMatrix *aconn = 0;
-  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
-    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  AConnectivityMatrix *aconn = connectivityMatrix( obj );
   if( !aconn )
     return;
   int poly = w->polygonAtCursorPosition( x, y, aconn );
@@ -153,6 +170,8 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
+
+  aconn->cancelThread();
 
   vector<rc_ptr<ATriangulated > > meshes = aconn->meshes();
   vector<rc_ptr<ATriangulated > >::iterator im, em = meshes.end();
@@ -184,7 +203,19 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
+  aconn->connect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
+                  this,
+                  SLOT( updateConnectivityObject( AConnectivityMatrix * ) ) );
   aconn->buildPatchTexture( index, v, w->getTime() );
+}
+
+
+void ConnectivityMatrixAction::updateConnectivityObject(
+  AConnectivityMatrix *aconn )
+{
+  aconn->disconnect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
+                     this, SLOT(
+                      updateConnectivityObject( AConnectivityMatrix * ) ) );
   vector<rc_ptr<ATexture> > textures = aconn->textures();
   vector<rc_ptr<ATexture> >::iterator it, et = textures.end();
   for( it=textures.begin(); it!=et; ++it )
@@ -222,6 +253,10 @@ void ConnectivityMatrixControl::eventAutoSubscription(
     MouseActionLinkOf<ConnectivityMatrixAction>( 
       actionPool->action( "ConnectivityMatrixAction" ), 
       &ConnectivityMatrixAction::showConnectivityForPatch ) );
+  keyPressEventSubscribe( Qt::Key_Escape, Qt::NoModifier,
+                          KeyActionLinkOf<ConnectivityMatrixAction>
+                          ( actionPool->action( "ConnectivityMatrixAction" ),
+                            &ConnectivityMatrixAction::cancelProcessings ) );
 
   // standard actions
   mouseLongEventSubscribe

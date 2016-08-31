@@ -48,11 +48,33 @@
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/utility/converter_texture.h>
 #include <aims/sparsematrix/ciftitools.h>
+#include <QThread>
+#include <QMutex>
 
 using namespace anatomist;
 using namespace aims;
 using namespace carto;
 using namespace std;
+
+namespace anatomist
+{
+
+  class ConnectivityMatrixProcessingThread : public QThread
+  {
+  public:
+    ConnectivityMatrixProcessingThread( AConnectivityMatrix *cmat = 0 )
+      : QThread(), cmat( cmat ) {}
+    virtual ~ConnectivityMatrixProcessingThread() {}
+
+    AConnectivityMatrix *cmat;
+
+    virtual void run()
+    {
+      cmat->buildPatchTextureThread();
+    }
+  };
+
+}
 
 
 struct AConnectivityMatrix::Private
@@ -72,19 +94,24 @@ struct AConnectivityMatrix::Private
   ATriangulated *marker;
   // index in mesh -> index in matrix table
   vector<map<uint32_t, uint32_t> > patchindices;
-//   uint32_t vertex;
   double connectivity_max;
-//   bool in_progress;
-//   size_t progress_current;
-//   size_t progress_total;
+  bool in_progress;
+  size_t progress_current;
+  size_t progress_total;
+  bool processing_aborted;
+  ConnectivityMatrixProcessingThread thread;
+  QMutex mutex;
+  int start_mesh_index;
+  uint32_t startvertex;
+  float start_time_pos;
 };
 
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ),
-  sparse( 0 ), marker( 0 ), connectivity_max( 1. )
-//   , in_progress( false ),
-//   progress_current( 0 ), progress_total( 0 )
+  sparse( 0 ), marker( 0 ), connectivity_max( 1. ), in_progress( false ),
+  progress_current( 0 ), progress_total( 0 ), processing_aborted( false ),
+  start_mesh_index( 0 ), startvertex( 0 ), start_time_pos( 0 )
 {
 }
 
@@ -185,6 +212,7 @@ namespace
 AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   : ObjectVector(), d( new Private )
 {
+  d->thread.cmat = this;
   _type = connectivityMatrixType();
 
   set<AObject *> sobj;
@@ -409,11 +437,14 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
   // build connectivity texture contents
   buildTexture( 0, vertex );
+  d->thread.connect( &d->thread, SIGNAL( finished() ),
+                     this, SLOT( releaseAnaCursor() ) );
 }
 
 
 AConnectivityMatrix::~AConnectivityMatrix()
 {
+  cancelThread();
 //   if( d->texsurface )
 //     theAnatomist->unregisterObject( d->texsurface );
   delete d;
@@ -435,6 +466,7 @@ void AConnectivityMatrix::update( const Observable *observable, void *arg )
 {
   if( !d->patches.empty() && observable == d->patches[0] )
   {
+    cancelThread();
     buildPatchIndices();
     setChanged();
     notifyObservers( this );
@@ -1353,24 +1385,26 @@ void AConnectivityMatrix::buildColumnTexture( int mesh_index,
 }
 
 
-#if 0
-#include <QApplication>
-bool AConnectivityMatrix::processGuiInterruption()
+void AConnectivityMatrix::cancelThread()
 {
-  qApp->processEvents();
-  return false;
+  d->mutex.lock();
+  d->processing_aborted = true;
+  d->mutex.unlock();
+  d->thread.wait();
+  d->processing_aborted = false;
 }
-#endif
 
 
 void AConnectivityMatrix::buildPatchTexture( int mesh_index,
                                              uint32_t startvertex,
                                              float time_pos )
 {
-  theAnatomist->setCursor( Anatomist::Working );
-
   if( d->patches.empty() )
     return;
+
+  cancelThread();
+
+  theAnatomist->setCursor( Anatomist::Working );
 
   // find vertex in patch
   if( !d->patchindices.empty() )
@@ -1381,11 +1415,30 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     {
       // outside patch
       buildColumnPatchTexture( mesh_index, startvertex, time_pos );
+      theAnatomist->setCursor( Anatomist::Normal );
       return;
     }
   }
 
+  d->start_mesh_index = mesh_index;
+  d->startvertex = startvertex;
+  d->start_time_pos = time_pos;
+  d->thread.start();
+}
+
+
+void AConnectivityMatrix::releaseAnaCursor()
+{
+  theAnatomist->setCursor( Anatomist::Normal );
+}
+
+
+void AConnectivityMatrix::buildPatchTextureThread()
+{
   CiftiTools ctools( d->sparse->matrix() );
+  int mesh_index = d->start_mesh_index;
+  uint32_t startvertex = d->startvertex;
+  float time_pos = d->start_time_pos;
 
   // get patch values at clicked vertex on the clicked mesh
   vector<int16_t> pvals;
@@ -1455,21 +1508,27 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
   list<int>::iterator its, ets;
   vector<int> pos( 2, 0 );
   CiftiTools::TextureList texlist;
-//   d->progress_total = lines_to_timestep.size();
-//   d->progress_current = 0;
+  d->mutex.lock();
+  d->progress_total = lines_to_timestep.size();
+  d->progress_current = 0;
+  d->mutex.unlock();
 
   // sum rows in sparse matrix
-  for( il=lines_to_timestep.begin(); il!=el; ++il ) //, ++d->progress_current )
+  for( il=lines_to_timestep.begin(); il!=el; ++il )
   {
     int line = il->first;
     cout << "row: " << line << endl;
     pos[0] = line;
-//     if( processGuiInterruption() )
-//     {
-//       // abort: it's too long...
-//       theAnatomist->setCursor( Anatomist::Normal );
-//       return;
-//     }
+    d->mutex.lock();
+    ++d->progress_current;
+    bool interrupt = d->processing_aborted;
+    d->mutex.unlock();
+    if( interrupt )
+    {
+      // abort
+      theAnatomist->setCursor( Anatomist::Normal );
+      return;
+    }
     ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
 
     for( its=il->second.begin(), ets=il->second.end(); its!=ets; ++its )
@@ -1485,7 +1544,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
           ptext.resize( texsize, 0. );
 
         // copy row texture data into ptext
-        if( d->basins.empty() )
+        if( basins.empty() )
         {
           for( i=0; i<texsize; ++i )
           {
@@ -1515,6 +1574,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
 
   // store texture with timesteps
   float vmax = 0.F;
+  d->mutex.lock();
   for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
   {
     d->textures[index]->setTexture( ptex[index] );
@@ -1578,8 +1638,9 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     d->marker->SetMaterial( mat );
     d->marker->glSetChanged( GLComponent::glMATERIAL );
   }
+  d->mutex.unlock();
 
-  theAnatomist->setCursor( Anatomist::Normal );
+  emit texturesUpdated( this );
 }
 
 

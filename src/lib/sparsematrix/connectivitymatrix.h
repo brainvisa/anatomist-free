@@ -38,12 +38,14 @@
 
 #include <anatomist/mobject/objectVector.h>
 #include <anatomist/surface/triangulated.h>
+#include <QObject>
 
 
 namespace anatomist
 {
 
   class ATexture;
+  class ConnectivityMatrixProcessingThread;
 
 
   /** Connectivity matix object: fusions sparse matrix, white mesh,
@@ -56,8 +58,10 @@ namespace anatomist
     In this latter case, sub-patch connectivity may be displayed
     using ctrl+left click
   */
-  class AConnectivityMatrix : public ObjectVector
+  class AConnectivityMatrix : public QObject, public ObjectVector
   {
+    Q_OBJECT
+
   public:
     enum PatchMode
     {
@@ -91,13 +95,21 @@ namespace anatomist
                               std::list<ATexture *> & patch_textures,
                               std::list<ATexture *> & basin_textures,
                               PatchMode & pmode, std::set<int> & patches );
+    void cancelThread();
 
   private:
     struct Private;
     Private *d;
+    friend class anatomist::ConnectivityMatrixProcessingThread;
 
     void buildPatchIndices();
-    bool processGuiInterruption();
+    void buildPatchTextureThread();
+
+  private slots:
+    void releaseAnaCursor();
+
+  signals:
+    void texturesUpdated( AConnectivityMatrix* );
   };
 
 
