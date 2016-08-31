@@ -97,6 +97,7 @@ namespace anatomist
     Private *d;
 
     void buildPatchIndices();
+    bool processGuiInterruption();
   };
 
 

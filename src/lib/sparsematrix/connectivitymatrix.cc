@@ -74,12 +74,17 @@ struct AConnectivityMatrix::Private
   vector<map<uint32_t, uint32_t> > patchindices;
 //   uint32_t vertex;
   double connectivity_max;
+//   bool in_progress;
+//   size_t progress_current;
+//   size_t progress_total;
 };
 
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ),
   sparse( 0 ), marker( 0 ), connectivity_max( 1. )
+//   , in_progress( false ),
+//   progress_current( 0 ), progress_total( 0 )
 {
 }
 
@@ -1348,6 +1353,16 @@ void AConnectivityMatrix::buildColumnTexture( int mesh_index,
 }
 
 
+#if 0
+#include <QApplication>
+bool AConnectivityMatrix::processGuiInterruption()
+{
+  qApp->processEvents();
+  return false;
+}
+#endif
+
+
 void AConnectivityMatrix::buildPatchTexture( int mesh_index,
                                              uint32_t startvertex,
                                              float time_pos )
@@ -1403,6 +1418,11 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     }
   }
 
+  /* get a map of matrix lines -> timesteps, to read each line only once
+     (which avoids reading data several times when the matrix uses lazy
+     reading) */
+  map<int, list<int> > lines_to_timestep;
+
   for( it=tx0->begin(); it!=et; ++it )
   {
     timestep = it->first;
@@ -1426,16 +1446,37 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     }
     cout << "patchindices: " << patchindices.size() << endl;
 
-    // sum rows in sparse matrix
-    vector<int> pos( 2, 0 );
-    CiftiTools::TextureList texlist;
+    // get rows list in sparse matrix
     for( ip=patchindices.begin(), ep=patchindices.end(); ip!=ep; ++ip )
-    {
-      pos[0] = ip->second;
-      cout << "row: " << ip->second << endl;
-      ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
+      lines_to_timestep[ ip->second ].push_back( timestep );
+  }
 
-      for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
+  map<int, list<int> >::iterator il, el = lines_to_timestep.end();
+  list<int>::iterator its, ets;
+  vector<int> pos( 2, 0 );
+  CiftiTools::TextureList texlist;
+//   d->progress_total = lines_to_timestep.size();
+//   d->progress_current = 0;
+
+  // sum rows in sparse matrix
+  for( il=lines_to_timestep.begin(); il!=el; ++il ) //, ++d->progress_current )
+  {
+    int line = il->first;
+    cout << "row: " << line << endl;
+    pos[0] = line;
+//     if( processGuiInterruption() )
+//     {
+//       // abort: it's too long...
+//       theAnatomist->setCursor( Anatomist::Normal );
+//       return;
+//     }
+    ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
+
+    for( its=il->second.begin(), ets=il->second.end(); its!=ets; ++its )
+    {
+      timestep = *its;
+
+      for( index=0; index<nmesh; ++index )
       {
         vector<float> & row = (*texlist[ index ])[0].data();
         vector<float> & ptext = (*ptex[index])[timestep].data();
@@ -1473,12 +1514,25 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
   }
 
   // store texture with timesteps
+  float vmax = 0.F;
   for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
   {
     d->textures[index]->setTexture( ptex[index] );
-    d->textures[index]->palette()->setMin1( 0. );
-    // FIXME: adjust globally for all textures
-    d->textures[index]->palette()->setMax1( 1. );
+    GLComponent::TexExtrema & text = d->textures[index]->glTexExtrema( 0 );
+    if( text.maxquant[0] > vmax )
+      vmax = text.maxquant[0];
+  }
+  // set palette, all textures with same values range
+  for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
+  {
+    GLComponent::TexExtrema & text = d->textures[index]->glTexExtrema( 0 );
+    float div = text.maxquant[0] -text.minquant[0];
+    if( div == 0 )
+      div = 1.F;
+    d->textures[index]->palette()->setMin1( -text.minquant[0] / div );
+    d->textures[index]->palette()->setMax1( ( vmax - text.minquant[0] )
+                                             / div );
+    d->textures[index]->glSetTexImageChanged();
   }
 
   // mesh patch marker
