@@ -120,26 +120,6 @@ AConnectivityMatrix::Private::~Private()
 {
   // anatomist objects will be deleted by reference counting
   // (they are inserted in the MObject)
-//   cout << "delete AConnectivityMatrix::Private\n";
-//   cout << "texsurfaces: " << texsurfaces.size();
-//   vector<ATexSurface *>::iterator its, ets = texsurfaces.end();
-//   for( its=texsurfaces.begin(); its!=ets; ++its )
-//   { cout << "del " << (*its)->name() << endl;
-//     delete *its;
-//   }
-//   cout << "mtextures: " << mtextures.size() << endl;
-//   vector<AMTexture *>::iterator imt, emt = mtextures.end();
-//   for( imt=mtextures.begin(); imt!=emt; ++imt )
-//   { cout << "del mtex: " << (*imt)->name() << endl;
-//     delete *imt;
-//   }
-//   cout << "textures: " << textures.size() << endl;
-//   vector<ATexture *>::iterator it, et = textures.end();
-//   for( it=textures.begin(); it!=et; ++it )
-//   { cout << "del tex: " << (*it)->name() << endl;
-//     delete *it;
-//   }
-//   cout << "~Private done.\n";
 }
 
 namespace
@@ -266,6 +246,9 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     d->sparse = matrixFromVolume( vol );
     builtnewmatrix = true;
   }
+
+  // filter out inf/nan upon reading
+  d->sparse->matrix()->lazyReader()->setInfFiltering( false, false );
 
   // matrix transformation / transposition delayed after textures analysis
   d->meshes.insert( d->meshes.end(), meshes.begin(), meshes.end() );
@@ -846,7 +829,6 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   list<ATriangulated *> mesh;
   list<ATexture *> tex_list;
   ATexture *tex = 0, *tex2 = 0;
-  cout << "checkObjects\n";
 
   set<AObject *>::const_iterator io, eo = objects.end();
   for( io=objects.begin(); io!=eo; ++io )
@@ -934,11 +916,6 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     cifti_meshes_ids = get_cifti_mesh_ids( smat );
     list<pair<vector<int>, size_t> > cols;
     cifti_check = check_meshes( smat, cifti_meshes_ids, mesh, tex_list, cols );
-    if( !cifti_check )
-    {
-      cout << "check_meshes is false.\n";
-    }
-    cout << "check_meshes done\n";
   }
   else if( dense )
   {
@@ -1173,7 +1150,6 @@ void AConnectivityMatrix::buildPatchIndices()
 void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
                                         float time_pos )
 {
-  cout << "startvertex: " << startvertex << endl;
   uint32_t row = startvertex;
   if( !d->patchindices.empty() )
   {
@@ -1194,7 +1170,6 @@ void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
   CiftiTools::TextureList texlist;
   CiftiTools ctools( mat );
   vector<int> pos( 2, 0 );
-  cout << "row: " << row << endl;
   pos[0] = row;
   ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
   float texmax = -numeric_limits<float>::max(),
@@ -1496,15 +1471,12 @@ void AConnectivityMatrix::buildPatchTextureThread()
     timestep = it->first;
     const vector<int16_t> & tex = it->second.data();
     patchval = tex[ startvertex ];
-    cout << "patchval: " << patchval << ", mesh_index: " << mesh_index << endl;
     pvals.push_back( patchval );
 
     map<uint32_t, uint32_t> patchindices;
-    cout << "patchindices: " << d->patchindices.size() << endl;
     map<uint32_t, uint32_t>::const_iterator
       ip, ep = d->patchindices[mesh_index].end();
     n = d->patchindices[mesh_index].size();
-    cout << "n: " << n << endl;
     // get sub-patch
     for( ip=d->patchindices[mesh_index].begin(); ip!=ep; ++ip )
     {
@@ -1512,7 +1484,6 @@ void AConnectivityMatrix::buildPatchTextureThread()
       if( tval == patchval )
         patchindices[ ip->first ] = ip->second; // indices in d->patchindices
     }
-    cout << "patchindices: " << patchindices.size() << endl;
 
     // get rows list in sparse matrix
     for( ip=patchindices.begin(), ep=patchindices.end(); ip!=ep; ++ip )
@@ -1532,7 +1503,6 @@ void AConnectivityMatrix::buildPatchTextureThread()
   for( il=lines_to_timestep.begin(); il!=el; ++il )
   {
     int line = il->first;
-    cout << "row: " << line << endl;
     pos[0] = line;
     d->mutex.lock();
     ++d->progress_current;
