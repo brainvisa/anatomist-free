@@ -67,6 +67,7 @@
 #include <vtkCornerAnnotation.h>
 #include <vtkTextProperty.h>
 #include <vtkIdentityTransform.h>
+#include <vtkSmartPointer.h>
 #include <QGraphicsView>
 
 using namespace anatomist;
@@ -545,11 +546,13 @@ void vtkQAGLWidget::project()
               mat[7] = 0.;
               mat[11] = far * near * 2. / ( near - far );
               mat[15] = 0.;
-              vtkTransform *vtkt = vtkTransform::New();
+              vtkSmartPointer<vtkTransform>
+                vtkt = vtkSmartPointer<vtkTransform>::New();
               vtkt->SetMatrix( mat );
               if( invertedZ() )
               {
-                vtkTransform *vtkt2 = vtkTransform::New();
+                vtkSmartPointer<vtkTransform>
+                  vtkt2 = vtkSmartPointer<vtkTransform>::New();
                 double	mat2[16] = { 1.,0,0,0, 0,1.,0,0, 0,0,-1.,0, 0,0,0,1. };
                 vtkt2->SetMatrix( mat2 );
                 vtkt2->Concatenate( vtkt );
@@ -559,7 +562,8 @@ void vtkQAGLWidget::project()
             }
             else
             {
-              cam->SetUserTransform( vtkIdentityTransform::New() );
+              cam->SetUserTransform(
+                vtkSmartPointer<vtkIdentityTransform>::New() );
             }
 
 	    /*
