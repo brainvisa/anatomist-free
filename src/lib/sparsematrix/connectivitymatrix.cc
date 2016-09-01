@@ -105,6 +105,7 @@ struct AConnectivityMatrix::Private
   int start_mesh_index;
   uint32_t startvertex;
   float start_time_pos;
+  map<pair<int, int>, vector<rc_ptr<TimeTexture<float> > > > patchtex_cache;
 };
 
 
@@ -472,6 +473,8 @@ void AConnectivityMatrix::update( const Observable *observable, void *arg )
   }
   else if( observable != d->textures[0] )
   {
+//     cout << "clear cache\n";
+//     d->patchtex_cache.clear();
     setChanged();
     notifyObservers( this );
   }
@@ -1387,12 +1390,71 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
                                              uint32_t startvertex,
                                              float time_pos )
 {
-  if( d->patches.empty() )
-    return;
-
   cancelThread();
 
+  if( d->patches.empty() )
+  {
+    emit texturesUpdated( this );
+    return;
+  }
+
   theAnatomist->setCursor( Anatomist::Working );
+
+  // look in textures cache
+  if( false && !d->patchtex_cache.empty() )
+  {
+    size_t i, n = d->patches.size();
+    rc_ptr<TimeTexture<int16_t> >
+      tx0 = d->patches[mesh_index]->texture<int16_t>( true, false );
+    int patchval;
+    map<pair<int, int>, vector<rc_ptr<TimeTexture<float> > > >::iterator
+      patchcache, cacheend = d->patchtex_cache.end();
+    vector<rc_ptr<TimeTexture<float> > > cachetex;
+    bool incache = true;
+
+    TimeTexture<int16_t>::iterator it, et = tx0->end();
+    int timestep;
+    for( it=tx0->begin(); it!=et; ++it )
+    {
+      timestep = it->first;
+      const vector<int16_t> & tex = it->second.data();
+      patchval = tex[ startvertex ];
+      patchcache = d->patchtex_cache.find( make_pair( mesh_index, patchval ) );
+      if( patchcache == cacheend )
+      {
+        incache = false;
+        break;
+      }
+      TimeTexture<float>::iterator
+        itx = patchcache->second[0]->find( timestep );
+      if( itx == patchcache->second[0]->end() )
+      {
+        incache = false;
+        break;
+      }
+      if( cachetex.empty() )
+      {
+        cachetex.resize( n );
+        for( int i=0; i<n; ++i )
+          cachetex[i].reset( new TimeTexture<float> );
+      }
+      for( int i=0; i<n; ++i )
+      (*cachetex[i])[ timestep ] = (*patchcache->second[i])[ timestep ];
+    }
+    if( incache )
+    {
+      cout << "in cache\n";
+      for( int i=0; i<n; ++i )
+      {
+        d->textures[i]->setTexture( cachetex[i] );
+        d->textures[i]->glSetTexImageChanged();
+      }
+//       buildPatchMeshes();
+      releaseAnaCursor();
+      emit texturesUpdated( this );
+      return;
+    }
+  }
 
   // find vertex in patch
   if( !d->patchindices.empty() )
@@ -1404,6 +1466,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
       // outside patch
       buildColumnPatchTexture( mesh_index, startvertex, time_pos );
       theAnatomist->setCursor( Anatomist::Normal );
+      emit texturesUpdated( this );
       return;
     }
   }
@@ -1566,6 +1629,23 @@ void AConnectivityMatrix::buildPatchTextureThread()
     if( text.maxquant[0] > vmax )
       vmax = text.maxquant[0];
   }
+  // set in cache
+  for( it=tx0->begin(); it!=et; ++it )
+  {
+    timestep = it->first;
+    patchval = pvals[ timestep ];
+    vector<rc_ptr<TimeTexture<float> > > & cachetex
+      = d->patchtex_cache[ make_pair( mesh_index, int( patchval ) ) ];
+    if( cachetex.size() != nmesh )
+      cachetex.resize( nmesh );
+    for( index=0; index<nmesh; ++index )
+    {
+      if( cachetex[index].isNull() )
+        cachetex[index].reset( new TimeTexture<float> );
+      (*cachetex[index])[timestep] = (*ptex[index])[timestep];
+    }
+  }
+
   // set palette, all textures with same values range
   for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
   {
