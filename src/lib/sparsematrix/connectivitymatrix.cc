@@ -95,6 +95,7 @@ struct AConnectivityMatrix::Private
   // index in mesh -> index in matrix table
   vector<map<uint32_t, uint32_t> > patchindices;
   double connectivity_max;
+  CiftiTools ctools;
   bool in_progress;
   size_t progress_current;
   size_t progress_total;
@@ -109,7 +110,8 @@ struct AConnectivityMatrix::Private
 
 AConnectivityMatrix::Private::Private()
   : patchmode( AConnectivityMatrix::ALL_BUT_ONE ),
-  sparse( 0 ), marker( 0 ), connectivity_max( 1. ), in_progress( false ),
+  sparse( 0 ), marker( 0 ), connectivity_max( 1. ),
+  ctools( rc_ptr<SparseOrDenseMatrix>() ), in_progress( false ),
   progress_current( 0 ), progress_total( 0 ), processing_aborted( false ),
   start_mesh_index( 0 ), startvertex( 0 ), start_time_pos( 0 )
 {
@@ -249,6 +251,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
   // filter out inf/nan upon reading
   d->sparse->matrix()->lazyReader()->setInfFiltering( false, false );
+  d->ctools.setMatrix( d->sparse->matrix() );
 
   // matrix transformation / transposition delayed after textures analysis
   d->meshes.insert( d->meshes.end(), meshes.begin(), meshes.end() );
@@ -653,11 +656,10 @@ namespace
   }
 
 
-  list<string> get_cifti_mesh_ids( rc_ptr<SparseOrDenseMatrix> mat,
-                                   int dim = 1 )
+  list<string> get_cifti_mesh_ids( CiftiTools & ctools, int dim = 1 )
   {
     list<string> mesh_ids;
-    CiftiTools ctools( mat );
+    rc_ptr<SparseOrDenseMatrix> mat = ctools.matrix();
     list<string> bstruct = ctools.getBrainStructures( dim, true, false );
     list<string>::iterator ibs, ebs = bstruct.end();
     const CiftiTools::BrainStuctureToMeshMap & meshmap
@@ -686,10 +688,10 @@ namespace
 
 
   list<pair<vector<int>, size_t> > get_cifti_mesh_cols(
-    rc_ptr<SparseOrDenseMatrix> mat, const list<string> mesh_ids )
+    CiftiTools & ctools, const list<string> mesh_ids )
   {
+    rc_ptr<SparseOrDenseMatrix> mat = ctools.matrix();
     list<pair<vector<int>, size_t> > cols;
-    CiftiTools ctools( mat );
     list<string> tmp_mesh_ids;
     const list<string> *pmesh_ids = &mesh_ids;
     const CiftiTools::BrainStuctureToMeshMap & meshmap
@@ -702,7 +704,7 @@ namespace
       {
         if( mesh_ids.empty() )
         {
-          tmp_mesh_ids = get_cifti_mesh_ids( mat, 1 );
+          tmp_mesh_ids = get_cifti_mesh_ids( ctools, 1 );
           pmesh_ids = &tmp_mesh_ids;
         }
         list<string>::const_iterator im, em=pmesh_ids->end();
@@ -731,7 +733,7 @@ namespace
   }
 
 
-  bool check_meshes( rc_ptr<SparseOrDenseMatrix> mat,
+  bool check_meshes( CiftiTools & ctools,
                      const list<string> & mesh_ids,
                      list<ATriangulated *> & meshes, list<ATexture *> & tex,
                      list<pair<vector<int>, size_t> > & cols )
@@ -742,8 +744,7 @@ namespace
     if( tex.size() < mesh_ids.size() )
       return false;
 
-    CiftiTools ctools( mat );
-    cols = get_cifti_mesh_cols( mat, mesh_ids );
+    cols = get_cifti_mesh_cols( ctools, mesh_ids );
     list<ATriangulated *> ordered_meshes;
     list<ATriangulated *>::iterator im, em = meshes.end(), bm;
     list<ATexture *> ordered_tex;
@@ -897,6 +898,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   if( sparse )
   {
     rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
+    CiftiTools ctools( smat );
     texsize = smat->getSize2();
     lines = smat->getSize1();
     try
@@ -913,9 +915,10 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     catch( ... )
     {
     }
-    cifti_meshes_ids = get_cifti_mesh_ids( smat );
+    cifti_meshes_ids = get_cifti_mesh_ids( ctools );
     list<pair<vector<int>, size_t> > cols;
-    cifti_check = check_meshes( smat, cifti_meshes_ids, mesh, tex_list, cols );
+    cifti_check = check_meshes( ctools, cifti_meshes_ids, mesh, tex_list,
+                                cols );
   }
   else if( dense )
   {
@@ -1073,8 +1076,7 @@ void AConnectivityMatrix::buildPatchIndices()
 {
   d->patchindices.clear();
 
-  CiftiTools ctools( d->sparse->matrix() );
-  CiftiTools::RoiTextureList *roitex = ctools.roiTextureFromDimension( 0 );
+  CiftiTools::RoiTextureList *roitex = d->ctools.roiTextureFromDimension( 0 );
   CiftiTools::RoiTextureList::iterator irt, ert = roitex->end();
   int surf_index = 0;
   d->patchindices.reserve( d->meshes.size() );
@@ -1094,8 +1096,8 @@ void AConnectivityMatrix::buildPatchIndices()
         if( vtex[i] != 0 )
           indices_vec.push_back( i );
 
-      vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, surf_index,
-                                                                indices_vec );
+      vector<int> mat_ind
+        = d->ctools.getIndicesForSurfaceIndices( 0, surf_index, indices_vec );
       d->patchindices.push_back( map<uint32_t, uint32_t>() );
       map<uint32_t, uint32_t> & pind = *d->patchindices.rbegin();
       for( i=0, n=mat_ind.size(); i<n; ++i )
@@ -1136,8 +1138,8 @@ void AConnectivityMatrix::buildPatchIndices()
             indices_vec.push_back( j );
   //           patchindices[ j ] = i++;
       }
-      vector<int> mat_ind = ctools.getIndicesForSurfaceIndices( 0, surf_index,
-                                                                indices_vec );
+      vector<int> mat_ind
+        = d->ctools.getIndicesForSurfaceIndices( 0, surf_index, indices_vec );
       size_t n = mat_ind.size();
       for( i=0; i<n; ++i )
         patchindices[ indices_vec[i] ] = mat_ind[i];
@@ -1168,10 +1170,9 @@ void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
 
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   CiftiTools::TextureList texlist;
-  CiftiTools ctools( mat );
   vector<int> pos( 2, 0 );
   pos[0] = row;
-  ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
+  d->ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
   float texmax = -numeric_limits<float>::max(),
     texmin = 0;
   float colscale = 0.F, colscalemin = 0.F;
@@ -1282,11 +1283,10 @@ void AConnectivityMatrix::buildColumnTexture( int mesh_index,
   rc_ptr<SparseOrDenseMatrix> mat = d->sparse->matrix();
   rc_ptr<TimeTexture<float> > tex( new TimeTexture<float> );
   vector<float> & tex0 = (*tex)[0].data();
-  CiftiTools ctools( d->sparse->matrix() );
   vector<int> cind( 1, startvertex );
   cout << "buildColumnTexture " << startvertex << ": " << cind[0] << endl;
-  vector<int> col_indices = ctools.getIndicesForSurfaceIndices( 1, mesh_index,
-                                                                cind );
+  vector<int> col_indices
+    = d->ctools.getIndicesForSurfaceIndices( 1, mesh_index, cind );
   cout << "col_indices: " << col_indices.size() << endl;
   vector<ATriangulated *>::iterator im, em = d->meshes.end();
   unsigned index = 0;
@@ -1423,7 +1423,6 @@ void AConnectivityMatrix::releaseAnaCursor()
 
 void AConnectivityMatrix::buildPatchTextureThread()
 {
-  CiftiTools ctools( d->sparse->matrix() );
   int mesh_index = d->start_mesh_index;
   uint32_t startvertex = d->startvertex;
   float time_pos = d->start_time_pos;
@@ -1513,7 +1512,7 @@ void AConnectivityMatrix::buildPatchTextureThread()
       // abort
       return;
     }
-    ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
+    d->ctools.expandedValueTextureFromDimension( 1, pos, &texlist );
 
     for( its=il->second.begin(), ets=il->second.end(); its!=ets; ++its )
     {
