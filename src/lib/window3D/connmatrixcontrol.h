@@ -81,6 +81,7 @@ namespace anatomist
     virtual ~ConnectivityMatrixControl();
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
+    virtual void doAlsoOnDeselect( ActionPool * actionPool );
   };
 
 }

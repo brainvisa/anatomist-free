@@ -43,6 +43,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QProgressBar>
+#include <QGraphicsProxyWidget>
 
 using namespace anatomist;
 using namespace carto;
@@ -245,16 +246,28 @@ void ConnectivityMatrixAction::updateConnectivityProgress(
     return;
   QGraphicsScene *scene = gview->scene();
   cout << "scene: " << scene << endl;
-  QProgressBar* progress = scene->findChild<QProgressBar *>( "progressbar" );
+  QList<QGraphicsItem *> items = scene->items();
+  QProgressBar* progress = 0;
+  QList<QGraphicsItem *>::iterator it, et = items.end();
+  for( it=items.begin(); it!=et; ++it )
+  {
+    QGraphicsProxyWidget *item = dynamic_cast<QGraphicsProxyWidget *>( *it );
+    if( item && item->objectName() == "progressbaritem" )
+      progress = dynamic_cast<QProgressBar *>( item->widget() );
+  }
+
+  if( !progress )
+  {
+    progress = new QProgressBar;
+    progress->setObjectName( "progressbar" );
+    QGraphicsProxyWidget *item = scene->addWidget( progress );
+    item->setObjectName( "progressbaritem" );
+  }
+
   cout << "found: " << progress << endl;
-//   if( !progress )
-//   {
-//     progress = new QProgressBar;
-//     progress->setObjectName( "progressbar" );
-//     QGraphicsProxyWidget *pw = scene->addWidget( progress );
-//   }
-//   progress->setRange( current, count );
-  cout << "progress: " << current << " / " << count << endl;
+  progress->setRange( 0, count );
+  progress->setValue( current );
+//   cout << "progress: " << current << " / " << count << endl;
 }
 
 
@@ -455,4 +468,10 @@ void ConnectivityMatrixControl::eventAutoSubscription(
                             &SliceAction::toggleLinkedOnSlider ) );
 }
 
+
+void ConnectivityMatrixControl::doAlsoOnDeselect( ActionPool * actionPool )
+{
+  KeyActionLinkOf<ConnectivityMatrixAction>(
+    actionPool->action( "ConnectivityMatrixAction" ), &ConnectivityMatrixAction::cancelProcessings ).execute();
+}
 
