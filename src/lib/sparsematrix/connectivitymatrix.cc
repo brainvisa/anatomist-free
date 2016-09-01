@@ -1541,7 +1541,6 @@ void AConnectivityMatrix::buildPatchTextureThread()
     if( interrupt )
     {
       // abort
-      theAnatomist->setCursor( Anatomist::Normal );
       return;
     }
     ctools.expandedValueTextureFromDimension( 1, pos, &texlist );

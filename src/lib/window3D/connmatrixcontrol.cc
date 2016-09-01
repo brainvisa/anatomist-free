@@ -149,13 +149,17 @@ AConnectivityMatrix* ConnectivityMatrixAction::connectivityMatrix(
 
 void ConnectivityMatrixAction::cancelProcessings()
 {
+  cout << "cancelProcessings\n";
   set<AObject *> objs = view()->aWindow()->Objects();
   set<AObject *>::iterator io, eo = objs.end();
   for( io=objs.begin(); io!=eo; ++io )
   {
     AConnectivityMatrix* aconn = dynamic_cast<AConnectivityMatrix *>( *io );
     if( aconn )
+    {
       aconn->cancelThread();
+      clearConnectivityProgress( aconn );
+    }
   }
 }
 
@@ -209,6 +213,37 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
+
+  // create progress bar
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( gview )
+  {
+    QGraphicsScene *scene = gview->scene();
+    QList<QGraphicsItem *> items = scene->items();
+    QProgressBar* progress = 0;
+    QList<QGraphicsItem *>::iterator it, et = items.end();
+    for( it=items.begin(); it!=et; ++it )
+    {
+      QGraphicsProxyWidget *item = dynamic_cast<QGraphicsProxyWidget *>( *it );
+      if( item && item->objectName() == "progressbaritem" )
+      {
+        progress = dynamic_cast<QProgressBar *>( item->widget() );
+        if( progress )
+          break;
+      }
+    }
+    if( !progress )
+    {
+      progress = new QProgressBar;
+      progress->setObjectName( "progressbar" );
+      QGraphicsProxyWidget *item = scene->addWidget( progress );
+      item->setObjectName( "progressbaritem" );
+      item->setOpacity( 0.5 );
+    }
+  }
+
   aconn->connect( aconn, SIGNAL( processingProgress( AConnectivityMatrix *,
                                                      int, int ) ),
                   this, SLOT( updateConnectivityProgress(
@@ -227,6 +262,11 @@ void ConnectivityMatrixAction::updateConnectivityObject(
   aconn->disconnect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
                      this, SLOT(
                       updateConnectivityObject( AConnectivityMatrix * ) ) );
+  aconn->disconnect( aconn,
+                     SIGNAL( processingProgress( AConnectivityMatrix *, int,
+                                                 int ) ),
+                     this, SLOT( updateConnectivityProgress(
+                       AConnectivityMatrix *, int, int ) ) );
   vector<rc_ptr<ATexture> > textures = aconn->textures();
   vector<rc_ptr<ATexture> >::iterator it, et = textures.end();
   for( it=textures.begin(); it!=et; ++it )
@@ -238,14 +278,12 @@ void ConnectivityMatrixAction::updateConnectivityObject(
 void ConnectivityMatrixAction::updateConnectivityProgress(
   AConnectivityMatrix* aconn, int current, int count )
 {
-  cout << "updateConnectivityProgress\n";
   GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
   QWidget* parent = glw->qglWidget()->parentWidget();
   QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
   if( !gview )
     return;
   QGraphicsScene *scene = gview->scene();
-  cout << "scene: " << scene << endl;
   QList<QGraphicsItem *> items = scene->items();
   QProgressBar* progress = 0;
   QList<QGraphicsItem *>::iterator it, et = items.end();
@@ -253,35 +291,40 @@ void ConnectivityMatrixAction::updateConnectivityProgress(
   {
     QGraphicsProxyWidget *item = dynamic_cast<QGraphicsProxyWidget *>( *it );
     if( item && item->objectName() == "progressbaritem" )
+    {
       progress = dynamic_cast<QProgressBar *>( item->widget() );
+      if( progress )
+        break;
+    }
   }
 
-  if( !progress )
+  if( progress )
   {
-    progress = new QProgressBar;
-    progress->setObjectName( "progressbar" );
-    QGraphicsProxyWidget *item = scene->addWidget( progress );
-    item->setObjectName( "progressbaritem" );
+    progress->setRange( 0, count );
+    progress->setValue( current );
   }
-
-  cout << "found: " << progress << endl;
-  progress->setRange( 0, count );
-  progress->setValue( current );
-//   cout << "progress: " << current << " / " << count << endl;
+  else
+    cout << "progress: " << current << " / " << count << endl;
 }
 
 
 void ConnectivityMatrixAction::clearConnectivityProgress(
   AConnectivityMatrix* aconn )
 {
-  cout << "clearConnectivityProgress\n";
+  aconn->disconnect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
+                     this, SLOT(
+                      updateConnectivityObject( AConnectivityMatrix * ) ) );
+  aconn->disconnect( aconn,
+                     SIGNAL( processingProgress( AConnectivityMatrix *, int,
+                                                 int ) ),
+                     this, SLOT( updateConnectivityProgress(
+                       AConnectivityMatrix *, int, int ) ) );
   GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
   QWidget* parent = glw->qglWidget()->parentWidget();
   QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
   if( !gview )
     return;
   QGraphicsScene *scene = gview->scene();
-  cout << "scene: " << scene << endl;
   QList<QGraphicsItem *> items = scene->items();
   QList<QGraphicsItem *>::iterator it, et = items.end();
   for( it=items.begin(); it!=et; ++it )
