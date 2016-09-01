@@ -741,7 +741,7 @@ namespace
     cout << "check_meshes " << mesh_ids.size() << ", " << meshes.size() << ", " << tex.size() << endl;
     if( mesh_ids.size() != meshes.size() )
       return false;
-    if( tex.size() < mesh_ids.size() )
+    if( !tex.empty() && tex.size() < mesh_ids.size() )
       return false;
 
     cols = get_cifti_mesh_cols( ctools, mesh_ids );
