@@ -40,6 +40,7 @@
 #include <anatomist/surface/triangulated.h>
 #include <QObject>
 
+template <typename T> class TimeTexture;
 
 namespace anatomist
 {
@@ -104,6 +105,9 @@ namespace anatomist
 
     void buildPatchIndices();
     void buildPatchTextureThread();
+    void buildPatchMeshes( const std::vector<int16_t> & pvals,
+                           carto::rc_ptr<TimeTexture<int16_t> > tx0,
+                           int mesh_index );
 
   private slots:
     void releaseAnaCursor();

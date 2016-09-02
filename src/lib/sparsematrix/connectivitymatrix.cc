@@ -1386,6 +1386,84 @@ void AConnectivityMatrix::cancelThread()
 }
 
 
+void AConnectivityMatrix::buildPatchMeshes( const vector<int16_t> & pvals,
+                                            rc_ptr<TimeTexture<int16_t> > tx0,
+                                            int mesh_index )
+{
+  vector<ATriangulated *>::iterator im, em = d->meshes.end();
+  unsigned index;
+  int16_t patchval;
+  uint32_t i, n;
+  TimeTexture<int16_t>::const_iterator it, et = tx0->end();
+  float vmax = 0.F;
+  int timestep;
+
+  // set palette, all textures with same values range
+  for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
+  {
+    GLComponent::TexExtrema & text = d->textures[index]->glTexExtrema( 0 );
+    if( text.maxquant[0] > vmax )
+      vmax = text.maxquant[0];
+  }
+
+  for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
+  {
+    GLComponent::TexExtrema & text = d->textures[index]->glTexExtrema( 0 );
+    float div = text.maxquant[0] -text.minquant[0];
+    if( div == 0 )
+      div = 1.F;
+    d->textures[index]->palette()->setMin1( -text.minquant[0] / div );
+    d->textures[index]->palette()->setMax1( ( vmax - text.minquant[0] )
+                                            / div );
+    d->textures[index]->glSetTexImageChanged();
+  }
+
+  // mesh patch marker
+  if( d->marker )
+  {
+    // is the patch time-dependent ?
+    patchval = pvals[0];
+    for( i=1, n=pvals.size(); i<n; ++i )
+      if( pvals[i] != patchval )
+        break;
+    AimsSurfaceTriangle *mesh = 0;
+    if( i == n ) // only one patch value
+    {
+      mesh = SurfaceManip::meshExtract( *d->meshes[mesh_index]->surface(),
+                                        *tx0, patchval );
+    }
+    else
+    {
+      // build sub-mesh for each timestep
+      for( it=tx0->begin(), et=tx0->end(), i=0; it!=et; ++it, ++i )
+      {
+        timestep=it->first;
+        // get patch texture for meshExtract
+        TimeTexture<int16_t> tex16;
+        tex16[0] = it->second;
+        AimsSurfaceTriangle *tmesh = SurfaceManip::meshExtract(
+          *d->meshes[mesh_index]->surface(), tex16, pvals[i] );
+        if( !mesh )
+          mesh = tmesh;
+        else
+        {
+          // merge meshes
+          (*mesh)[timestep] = (*tmesh)[0];
+          delete tmesh;
+        }
+      }
+    }
+
+    // set marker mesh
+    d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( mesh ) );
+    Material & mat = d->marker->GetMaterial();
+    mat.SetDiffuse( 1., 0.6, 0., 1. );
+    d->marker->SetMaterial( mat );
+    d->marker->glSetChanged( GLComponent::glMATERIAL );
+  }
+}
+
+
 void AConnectivityMatrix::buildPatchTexture( int mesh_index,
                                              uint32_t startvertex,
                                              float time_pos )
@@ -1401,7 +1479,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
   theAnatomist->setCursor( Anatomist::Working );
 
   // look in textures cache
-  if( false && !d->patchtex_cache.empty() )
+  if( !d->patchtex_cache.empty() )
   {
     size_t i, n = d->patches.size();
     rc_ptr<TimeTexture<int16_t> >
@@ -1411,14 +1489,17 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
       patchcache, cacheend = d->patchtex_cache.end();
     vector<rc_ptr<TimeTexture<float> > > cachetex;
     bool incache = true;
-
+    vector<int16_t> pvals;
+    pvals.reserve( tx0->size() );
     TimeTexture<int16_t>::iterator it, et = tx0->end();
     int timestep;
+
     for( it=tx0->begin(); it!=et; ++it )
     {
       timestep = it->first;
       const vector<int16_t> & tex = it->second.data();
       patchval = tex[ startvertex ];
+      pvals.push_back( patchval );
       patchcache = d->patchtex_cache.find( make_pair( mesh_index, patchval ) );
       if( patchcache == cacheend )
       {
@@ -1443,13 +1524,12 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
     }
     if( incache )
     {
-      cout << "in cache\n";
       for( int i=0; i<n; ++i )
       {
         d->textures[i]->setTexture( cachetex[i] );
         d->textures[i]->glSetTexImageChanged();
       }
-//       buildPatchMeshes();
+      buildPatchMeshes( pvals, tx0, mesh_index );
       releaseAnaCursor();
       emit texturesUpdated( this );
       return;
@@ -1646,62 +1726,7 @@ void AConnectivityMatrix::buildPatchTextureThread()
     }
   }
 
-  // set palette, all textures with same values range
-  for( im=d->meshes.begin(), index=0; im!=em; ++im, ++index )
-  {
-    GLComponent::TexExtrema & text = d->textures[index]->glTexExtrema( 0 );
-    float div = text.maxquant[0] -text.minquant[0];
-    if( div == 0 )
-      div = 1.F;
-    d->textures[index]->palette()->setMin1( -text.minquant[0] / div );
-    d->textures[index]->palette()->setMax1( ( vmax - text.minquant[0] )
-                                             / div );
-    d->textures[index]->glSetTexImageChanged();
-  }
-
-  // mesh patch marker
-  if( d->marker )
-  {
-    // is the patch time-dependent ?
-    patchval = pvals[0];
-    for( i=1, n=pvals.size(); i<n; ++i )
-      if( pvals[i] != patchval )
-        break;
-    AimsSurfaceTriangle *mesh = 0;
-    if( i == n ) // only one patch value
-    {
-      mesh = SurfaceManip::meshExtract( *d->meshes[mesh_index]->surface(),
-                                        *tx0, patchval );
-    }
-    else
-    {
-      // build sub-mesh for each timestep
-      for( it=tx0->begin(), et=tx0->end(), i=0; it!=et; ++it, ++i )
-      {
-        timestep=it->first;
-        // get patch texture for meshExtract
-        TimeTexture<int16_t> tex16;
-        tex16[0] = it->second;
-        AimsSurfaceTriangle *tmesh = SurfaceManip::meshExtract(
-          *d->meshes[mesh_index]->surface(), tex16, pvals[i] );
-        if( !mesh )
-          mesh = tmesh;
-        else
-        {
-          // merge meshes
-          (*mesh)[timestep] = (*tmesh)[0];
-          delete tmesh;
-        }
-      }
-    }
-
-    // set marker mesh
-    d->marker->setSurface( rc_ptr<AimsSurfaceTriangle>( mesh ) );
-    Material & mat = d->marker->GetMaterial();
-    mat.SetDiffuse( 1., 0.6, 0., 1. );
-    d->marker->SetMaterial( mat );
-    d->marker->glSetChanged( GLComponent::glMATERIAL );
-  }
+  buildPatchMeshes( pvals, tx0, mesh_index );
   d->mutex.unlock();
 
   emit texturesUpdated( this );
