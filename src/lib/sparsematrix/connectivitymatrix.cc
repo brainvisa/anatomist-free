@@ -464,19 +464,34 @@ bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
 
 void AConnectivityMatrix::update( const Observable *observable, void *arg )
 {
-  if( !d->patches.empty() && observable == d->patches[0] )
+  const AObject *oobj = dynamic_cast<const AObject *>( observable );
+  if( oobj )
   {
-    cancelThread();
-    buildPatchIndices();
-    setChanged();
-    notifyObservers( this );
-  }
-  else if( observable != d->textures[0] )
-  {
-//     cout << "clear cache\n";
-//     d->patchtex_cache.clear();
-    setChanged();
-    notifyObservers( this );
+    if( !d->patches.empty() && oobj == d->patches[0] )
+    {
+      cancelThread();
+      const GLComponent *glc = oobj->glAPI();
+      /* glBODY changes when palette settings change in a texture using RGB
+         interpolation, so the cache will be cleared when the patch palette is
+         changed. But now we have no other way to know that the texture
+         contents have changed, not just its palette settings. */
+      if( glc && glc->glHasChanged( GLComponent::glBODY ) )
+        d->patchtex_cache.clear();
+      buildPatchIndices();
+      setChanged();
+      notifyObservers( this );
+    }
+    else if( oobj != d->textures[0] )
+    {
+      setChanged();
+      notifyObservers( this );
+    }
+    if( oobj == d->sparse )
+    {
+      d->patchtex_cache.clear();
+      setChanged();
+      notifyObservers( this );
+    }
   }
 }
 
