@@ -1124,6 +1124,14 @@ bool Control::selectionChangedEventUnsubscribe
 }
 
 
+bool Control::selectionChangedEventUnsubscribe()
+{
+  delete mySelectionChangedAction;
+  mySelectionChangedAction = 0;
+  return true;
+}
+
+
 bool
 Control::keyPressEventUnsubscribe( int key,
                                    Qt::KeyboardModifiers buttonState,
@@ -1153,6 +1161,34 @@ Control::keyPressEventUnsubscribe( int key,
   return false;
 }
 
+
+bool
+Control::keyPressEventUnsubscribe( int key,
+                                   Qt::KeyboardModifiers buttonState )
+{
+  KeyMapKey k(key, buttonState );
+
+  map<KeyMapKey, KeyActionLink*, LessKeyMap>::iterator
+    found( myKeyPressActionMap.find(k) );
+
+  if ( found != myKeyPressActionMap.end() )
+  {
+    for( map<string, KeyActionLink*>::iterator
+          in=_keyPressActionsByName.begin(),
+          en=_keyPressActionsByName.end();
+        in!=en; ++in )
+      if( in->second == found->second )
+      {
+        _keyPressActionsByName.erase( in );
+        break;
+      }
+    myKeyPressActionMap.erase( found );
+    delete found->second;
+    return true;
+  }
+  return false;
+}
+
 bool
 Control::keyReleaseEventUnsubscribe( int key,
                                      Qt::KeyboardModifiers buttonState,
@@ -1179,6 +1215,34 @@ Control::keyReleaseEventUnsubscribe( int key,
       delete found->second;
       return true;
     }
+  return false;
+}
+
+
+bool
+Control::keyReleaseEventUnsubscribe( int key,
+                                     Qt::KeyboardModifiers buttonState )
+{
+  KeyMapKey k(key, buttonState );
+
+  map<KeyMapKey, KeyActionLink*, LessKeyMap>::iterator
+    found( myKeyPressActionMap.find(k) );
+
+  if ( found != myKeyReleaseActionMap.end() )
+  {
+    for( map<string, KeyActionLink*>::iterator
+          in=_keyReleaseActionsByName.begin(),
+          en=_keyReleaseActionsByName.end();
+        in!=en; ++in )
+      if( in->second == found->second )
+      {
+        _keyReleaseActionsByName.erase( in );
+        break;
+      }
+    myKeyReleaseActionMap.erase( found );
+    delete found->second;
+    return true;
+  }
   return false;
 }
 
@@ -1212,6 +1276,35 @@ Control::mousePressButtonEventUnsubscribe(
   return false;
 }
 
+
+bool
+Control::mousePressButtonEventUnsubscribe(
+  Qt::MouseButtons button,
+  Qt::KeyboardModifiers state )
+{
+  MouseButtonMapKey k(button, state );
+
+  map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator
+    found( myMousePressButtonActionMap.find(k) );
+
+  if ( found != myMousePressButtonActionMap.end() )
+  {
+    for( map<string, MouseActionLink*>::iterator
+          in=_mousePressActionsByName.begin(),
+          en=_mousePressActionsByName.end();
+        in!=en; ++in )
+      if( in->second == found->second )
+      {
+        _mousePressActionsByName.erase( in );
+        break;
+      }
+    myMousePressButtonActionMap.erase( found );
+    delete found->second;
+    return true;
+  }
+  return false;
+}
+
 bool
 Control::mouseReleaseButtonEventUnsubscribe(
   Qt::MouseButtons button,
@@ -1239,6 +1332,35 @@ Control::mouseReleaseButtonEventUnsubscribe(
       delete found->second;
       return true;
     }
+  return false;
+}
+
+
+bool
+Control::mouseReleaseButtonEventUnsubscribe(
+  Qt::MouseButtons button,
+  Qt::KeyboardModifiers state )
+{
+  MouseButtonMapKey k(button, state );
+
+  map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator
+    found( myMouseReleaseButtonActionMap.find(k) );
+
+  if ( found != myMouseReleaseButtonActionMap.end() )
+  {
+    for( map<string, MouseActionLink*>::iterator
+          in=_mouseReleaseActionsByName.begin(),
+          en=_mouseReleaseActionsByName.end();
+        in!=en; ++in )
+      if( in->second == found->second )
+      {
+        _mouseReleaseActionsByName.erase( in );
+        break;
+      }
+    myMouseReleaseButtonActionMap.erase( found );
+    delete found->second;
+    return true;
+  }
   return false;
 }
 
@@ -1272,6 +1394,34 @@ Control::mouseDoubleClickEventUnsubscribe( Qt::MouseButtons button,
   return false;
 }
 
+
+bool
+Control::mouseDoubleClickEventUnsubscribe( Qt::MouseButtons button,
+                                           Qt::KeyboardModifiers state )
+{
+  MouseButtonMapKey k(button, state );
+
+  map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator
+    found( myMouseDoubleClickButtonActionMap.find(k) );
+
+  if ( found != myMouseDoubleClickButtonActionMap.end() )
+  {
+    for( map<string, MouseActionLink*>::iterator
+          in=_mouseDoubleClickActionsByName.begin(),
+          en=_mouseDoubleClickActionsByName.end();
+        in!=en; ++in )
+      if( in->second == found->second )
+      {
+        _mouseDoubleClickActionsByName.erase( in );
+        break;
+      }
+    myMouseDoubleClickButtonActionMap.erase( found );
+    delete found->second;
+    return true;
+  }
+  return false;
+}
+
 bool
 Control::mouseMoveEventUnsubscribe( Qt::MouseButtons button,
                                     Qt::KeyboardModifiers state,
@@ -1298,6 +1448,34 @@ Control::mouseMoveEventUnsubscribe( Qt::MouseButtons button,
       delete found->second;
       return true;
     }
+  return false;
+}
+
+
+bool
+Control::mouseMoveEventUnsubscribe( Qt::MouseButtons button,
+                                    Qt::KeyboardModifiers state )
+{
+  MouseButtonMapKey k(button, state );
+
+  map<MouseButtonMapKey, MouseActionLink*, LessMouseMap>::iterator
+    found( myMouseMoveActionMap.find(k) );
+
+  if ( found != myMouseMoveActionMap.end() )
+  {
+    for( map<string, MouseActionLink*>::iterator
+          in=_mouseMoveActionsByName.begin(),
+          en=_mouseMoveActionsByName.end();
+        in!=en; ++in )
+      if( in->second == found->second )
+      {
+        _mouseMoveActionsByName.erase( in );
+        break;
+      }
+    myMouseMoveActionMap.erase( found );
+    delete found->second;
+    return true;
+  }
   return false;
 }
 
@@ -1349,6 +1527,15 @@ Control::wheelEventUnsubscribe( const WheelActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::wheelEventUnsubscribe()
+{
+  delete myWheelAction;
+  myWheelAction = 0;
+  return true;
+}
+
 bool
 Control::wheelEventUnsubscribeAll( )
 {
@@ -1373,6 +1560,15 @@ Control::focusInEventUnsubscribe( const FocusActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::focusInEventUnsubscribe()
+{
+  delete myFocusInAction;
+  myFocusInAction = 0;
+  return true;
+}
+
 bool
 Control::focusOutEventUnsubscribe( const FocusActionLink& actionMethod )
 {
@@ -1382,6 +1578,15 @@ Control::focusOutEventUnsubscribe( const FocusActionLink& actionMethod )
     delete myFocusOutAction;
     myFocusOutAction = 0;
   }
+  return true;
+}
+
+
+bool
+Control::focusOutEventUnsubscribe()
+{
+  delete myFocusOutAction;
+  myFocusOutAction = 0;
   return true;
 }
 
@@ -1397,6 +1602,15 @@ Control::enterEventUnsubscribe( const EnterLeaveActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::enterEventUnsubscribe()
+{
+  delete myEnterAction;
+  myEnterAction = 0;
+  return true;
+}
+
 bool
 Control::leaveEventUnsubscribe( const EnterLeaveActionLink& actionMethod )
 {
@@ -1406,6 +1620,15 @@ Control::leaveEventUnsubscribe( const EnterLeaveActionLink& actionMethod )
     delete myLeaveAction;
     myLeaveAction = 0;
   }
+  return true;
+}
+
+
+bool
+Control::leaveEventUnsubscribe()
+{
+  delete myLeaveAction;
+  myLeaveAction = 0;
   return true;
 }
 
@@ -1421,6 +1644,15 @@ Control::paintEventUnsubscribe( const PaintActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::paintEventUnsubscribe()
+{
+  delete myPaintAction;
+  myPaintAction = 0;
+  return true;
+}
+
 bool
 Control::moveEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
 {
@@ -1430,6 +1662,15 @@ Control::moveEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
     delete myMoveAction;
     myMoveAction = 0;
   }
+  return true;
+}
+
+
+bool
+Control::moveEventUnsubscribe()
+{
+  delete myMoveAction;
+  myMoveAction = 0;
   return true;
 }
 
@@ -1445,6 +1686,15 @@ Control::resizeEventUnsubscribe( const ResizeActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::resizeEventUnsubscribe()
+{
+  delete myResizeAction;
+  myResizeAction = 0;
+  return true;
+}
+
 bool
 Control::dragEnterEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
 {
@@ -1454,6 +1704,15 @@ Control::dragEnterEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
     delete myDragEnterAction;
     myDragEnterAction = 0;
   }
+  return true;
+}
+
+
+bool
+Control::dragEnterEventUnsubscribe()
+{
+  delete myDragEnterAction;
+  myDragEnterAction = 0;
   return true;
 }
 
@@ -1469,6 +1728,15 @@ Control::dragLeaveEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::dragLeaveEventUnsubscribe()
+{
+  delete myDragLeaveAction;
+  myDragLeaveAction = 0;
+  return true;
+}
+
 bool
 Control::dragMoveEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
 {
@@ -1478,6 +1746,15 @@ Control::dragMoveEventUnsubscribe( const MoveOrDragActionLink& actionMethod )
     delete myDragMoveAction;
     myDragMoveAction = 0;
   }
+  return true;
+}
+
+
+bool
+Control::dragMoveEventUnsubscribe()
+{
+  delete myDragMoveAction;
+  myDragMoveAction = 0;
   return true;
 }
 
@@ -1493,6 +1770,15 @@ Control::dropEventUnsubscribe( const DropActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::dropEventUnsubscribe()
+{
+  delete myDropAction;
+  myDropAction = 0;
+  return true;
+}
+
 bool
 Control::showEventUnsubscribe( const ShowHideActionLink& actionMethod )
 {
@@ -1505,6 +1791,15 @@ Control::showEventUnsubscribe( const ShowHideActionLink& actionMethod )
   return true;
 }
 
+
+bool
+Control::showEventUnsubscribe()
+{
+  delete myShowAction;
+  myShowAction = 0;
+  return true;
+}
+
 bool
 Control::hideEventUnsubscribe( const ShowHideActionLink& actionMethod )
 {
@@ -1514,6 +1809,14 @@ Control::hideEventUnsubscribe( const ShowHideActionLink& actionMethod )
     delete myHideAction;
     myHideAction = 0;
   }
+  return true;
+}
+
+bool
+Control::hideEventUnsubscribe()
+{
+  delete myHideAction;
+  myHideAction = 0;
   return true;
 }
 
