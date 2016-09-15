@@ -565,30 +565,50 @@ namespace anatomist {
     bool selectionChangedEventSubscribe
         ( const SelectionChangedActionLink& actionMethod );
 
+    /// obsolete, use the other one
     bool keyPressEventUnsubscribe( int key,
                                    Qt::KeyboardModifiers buttonState,
                                    const KeyActionLink& actionMethods);
+    bool keyPressEventUnsubscribe( int key,
+                                   Qt::KeyboardModifiers buttonState);
 
+    /// obsolete, use the other one
     bool keyReleaseEventUnsubscribe( int key,
                                      Qt::KeyboardModifiers buttonState,
                                      const KeyActionLink& actionMethods);
+    bool keyReleaseEventUnsubscribe( int key,
+                                     Qt::KeyboardModifiers buttonState);
 
+    /// obsolete, use the other one
     bool mousePressButtonEventUnsubscribe( Qt::MouseButtons button,
                                            Qt::KeyboardModifiers state,
                                            const MouseActionLink& actionMethods );
+    bool mousePressButtonEventUnsubscribe( Qt::MouseButtons button,
+                                           Qt::KeyboardModifiers state );
 
+
+    /// obsolete, use the other one
     bool mouseReleaseButtonEventUnsubscribe( Qt::MouseButtons button,
                                              Qt::KeyboardModifiers state,
                                              const MouseActionLink& actionMethods );
+    bool mouseReleaseButtonEventUnsubscribe( Qt::MouseButtons button,
+                                             Qt::KeyboardModifiers state );
 
+    /// obsolete, use the other one
     bool
     mouseDoubleClickEventUnsubscribe( Qt::MouseButtons button,
                                       Qt::KeyboardModifiers state,
                                       const MouseActionLink& actionMethods );
+    bool
+    mouseDoubleClickEventUnsubscribe( Qt::MouseButtons button,
+                                      Qt::KeyboardModifiers state );
 
+    /// obsolete, use the other one
     bool mouseMoveEventUnsubscribe( Qt::MouseButtons button,
                                     Qt::KeyboardModifiers state,
                                     const MouseActionLink& actionMethods );
+    bool mouseMoveEventUnsubscribe( Qt::MouseButtons button,
+                                    Qt::KeyboardModifiers state );
 
     bool keyAndMouseLongEventUnsubscribe( int startingKey,
                                           Qt::KeyboardModifiers startingButtonState,
@@ -606,21 +626,36 @@ namespace anatomist {
                                         Qt::KeyboardModifiers endingButtonState );
 
     bool wheelEventUnsubscribe( const WheelActionLink& actionMethod );
+    bool wheelEventUnsubscribe();
     bool focusInEventUnsubscribe( const FocusActionLink& actionMethod );
+    bool focusInEventUnsubscribe();
     bool focusOutEventUnsubscribe( const FocusActionLink& actionMethod );
+    bool focusOutEventUnsubscribe();
     bool enterEventUnsubscribe( const EnterLeaveActionLink& actionMethod );
+    bool enterEventUnsubscribe();
     bool leaveEventUnsubscribe( const EnterLeaveActionLink& actionMethod );
+    bool leaveEventUnsubscribe();
     bool paintEventUnsubscribe( const PaintActionLink& actionMethod );
+    bool paintEventUnsubscribe();
     bool moveEventUnsubscribe( const MoveOrDragActionLink& actionMethod );
+    bool moveEventUnsubscribe();
     bool resizeEventUnsubscribe( const ResizeActionLink& actionMethod );
+    bool resizeEventUnsubscribe();
     bool dragEnterEventUnsubscribe( const MoveOrDragActionLink& actionMethod );
+    bool dragEnterEventUnsubscribe();
     bool dragLeaveEventUnsubscribe( const MoveOrDragActionLink& actionMethod );
+    bool dragLeaveEventUnsubscribe();
     bool dragMoveEventUnsubscribe( const MoveOrDragActionLink& actionMethod );
+    bool dragMoveEventUnsubscribe();
     bool dropEventUnsubscribe( const DropActionLink& actionMethod );
+    bool dropEventUnsubscribe();
     bool showEventUnsubscribe( const ShowHideActionLink& actionMethod );
+    bool showEventUnsubscribe();
     bool hideEventUnsubscribe( const ShowHideActionLink& actionMethod );
+    bool hideEventUnsubscribe();
     bool selectionChangedEventUnsubscribe
         ( const SelectionChangedActionLink& actionMethod );
+    bool selectionChangedEventUnsubscribe();
 
     //   static bool controlFusion( const Control& control1, const Control& control2,
     //                           Control& controlsFusion );
