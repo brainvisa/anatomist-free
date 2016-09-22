@@ -419,7 +419,9 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
     anatomist.ObjectMenuCallback.__init__(self)
 
   def doit(self, objects):
-    windows = an.getControlWindow().selectedWindows()
+    windows = []
+    if an.getControlWindow() is not None:
+      windows = an.getControlWindow().selectedWindows()
     if len(windows) == 0: windows = an.getWindows()
     for w in windows:
       if w.type() in [anatomist.AWindow.WINDOW_2D,
