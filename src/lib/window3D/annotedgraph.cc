@@ -256,6 +256,7 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
   Point3df vs = agraph->VoxelSize();
   list<rc_ptr<AObject> > objects;
   AimsTimeSurface<2, Void> *lines = new AimsTimeSurface<2, Void>;
+  AWindow *win = view()->aWindow();
 
   map<string, pair<Point3df, float> > elements;
   map<string, Point4df > colors;
@@ -267,6 +268,11 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
     string label;
     if( v->getProperty( labelatt, label ) && label != "unknown" )
     {
+      shared_ptr<AObject> av;
+      v->getProperty( "ana_object", av );
+      if( !av.get() || !win->hasObject( av.get() ) )
+        continue;
+
       Point3df gc;
       Object ogc = none();
       try
@@ -285,8 +291,6 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
       {
         ogc = none();
       }
-      shared_ptr<AObject> av;
-      v->getProperty( "ana_object", av );
       if( ogc.isNull() && av.get() )
       {
         Point3df gbbm, gbbM;
@@ -385,7 +389,6 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
   theAnatomist->registerObject( labels, false );
   theAnatomist->releaseObject( labels );
   labels->setReferentialInheritance( agraph );
-  AWindow *win = view()->aWindow();
   win->registerObject( alines, true );
   for( io=objects.begin(); io!=eo; ++io )
     win->registerObject( io->get(), true );

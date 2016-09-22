@@ -44,6 +44,7 @@ namespace anatomist
 {
   class AObject;
   class AGraph;
+  class AWindow;
 
   class AnnotationAction : public Action
   {
