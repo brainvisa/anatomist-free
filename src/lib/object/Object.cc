@@ -55,6 +55,7 @@
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/resampling/quaternion.h>
+#include <aims/mesh/texturetools.h>
 #include <cartobase/stream/fileutil.h>
 #include <time.h>
 
@@ -818,6 +819,28 @@ void AObject::setHeaderOptions()
           catch( ... )
             {
             }
+
+          // GIFTI colormap
+          VolumeRef<AimsRGBA> cmap = giftiColormap( Object::reference( *o ) );
+          if( cmap.get() && cmap->getSizeX() > 1 )
+          {
+            string palname = name();
+            rc_ptr<APalette>      pal( new APalette( palname ) );
+
+            unsigned      i, n;
+            pal->AimsData<AimsRGBA>::operator = ( cmap );
+
+//             theAnatomist->palettes().push_back( pal );
+
+            getOrCreatePalette();
+            AObjectPalette  *opal = palette();
+            opal->setRefPalette( pal );
+            opal->setMin1( 0. );
+            opal->setMax1( 1. );
+            opal->setMin2( 0. );
+            opal->setMax2( 1. );
+            setPalette( *opal );
+          }
 
           // palette
           try
