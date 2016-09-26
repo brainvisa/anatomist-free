@@ -712,14 +712,22 @@ void AObject::cleanup()
       (*current)->eraseObject(this) ;
     }
 
-    // TEMPORARY until SelectFactory is an observer of this
-    SelectFactory			*sf = SelectFactory::factory();
-    map<unsigned, set<AObject *> >	sel = sf->selected();
-    map<unsigned, set<AObject *> >::iterator	is, es = sel.end();
-    set<AObject *>			so;
-    so.insert( this );
-    for( is=sel.begin(); is!=es; ++is )
-      sf->unselect( is->first, so );
+    if( !theAnatomist->destroying() )
+    {
+      // TEMPORARY until SelectFactory is an observer of this
+      SelectFactory *sf = SelectFactory::factory();
+      const map<unsigned, set<AObject *> > & sel = sf->selected();
+      map<unsigned, set<AObject *> >::const_iterator is, es = sel.end();
+      set<AObject *> so;
+      so.insert( this );
+      vector<unsigned> groups;
+      groups.reserve( sel.size() );
+      for( is=sel.begin(); is!=es; ++is )
+        groups.push_back( is->first );
+      vector<unsigned>::iterator iv, ev=groups.end();
+      for( iv=groups.begin(); iv!=ev; ++iv )
+        sf->unselect( *iv, so );
+    }
   }
 }
 
