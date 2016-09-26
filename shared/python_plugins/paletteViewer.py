@@ -229,8 +229,9 @@ class PaletteWidget(MplCanvas):
     pylab.imshow(range, aspect='auto', cmap=palette, \
       extent=(0, 1, rmin, rmax))
     pylab.xticks([], [])
-    self.draw()
     self._figure = figure
+    if figure.canvas is not None:
+      self.draw()
 
   def close(self):
     self.fig.set_canvas(None)
@@ -442,7 +443,8 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
       else:	groupwidget.newPalette(o)
     topwidget.show()
 
-  def _getOrCreateTopWidget(self, window):
+  @staticmethod
+  def _getOrCreateTopWidget(window):
     parent = window.parent()
     layout = None
     lay_pos = None
