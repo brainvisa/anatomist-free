@@ -1833,8 +1833,6 @@ void AWindow3D::setupTimeSlider(float mint, float maxt)
   int t = (int) getTime();
   if (d->slidt->value() != t)
   {
-    cout << "T slider change : " << d->slidt->value() << " -> " << t << endl;
-
     d->slidt->setValue(t);
     d->timelabel->setText(QString::number(t));
   }
