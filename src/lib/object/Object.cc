@@ -843,8 +843,21 @@ void AObject::setHeaderOptions()
             getOrCreatePalette();
             AObjectPalette  *opal = palette();
             opal->setRefPalette( pal );
-            opal->setMin1( 0. );
-            opal->setMax1( 1. );
+            GLComponent *glc = glAPI();
+            if( glc )
+            {
+              const GLComponent::TexExtrema & te = glc->glTexExtrema( 0 );
+              float den = te.maxquant[0] - te.minquant[0];
+              if( den == 0. )
+                den = 1.;
+              opal->setMin1( ( 0. - te.minquant[0] ) / den );
+              opal->setMax1( 1. );
+            }
+            else
+            {
+              opal->setMin1( 0. );
+              opal->setMax1( 1. );
+            }
             opal->setMin2( 0. );
             opal->setMax2( 1. );
             setPalette( *opal );
