@@ -1124,8 +1124,14 @@ AObject* ATexture::clone( bool shallow )
     break;
   }
   at->setFileName( fileName() );
+  const GLComponent::TexExtrema & ste = glTexExtrema();
+  GLComponent::TexExtrema & dte = at->glTexExtrema();
+  dte.minquant = ste.minquant;
+  dte.maxquant = ste.maxquant;
   // copy header
   *at->attributed() = *attributed();
+  at->setPalette( *palette() );
+
   return at;
 }
 
