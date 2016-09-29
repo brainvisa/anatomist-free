@@ -331,6 +331,22 @@ AddObject
         Also add the given objects children relations if they are graphs. This is a bit more specific than the <tt>add_children</tt> option which adds all children.
       </td>
     </tr>
+    <tr>
+      <td><tt>temporary</tt></td>
+      <td><tt>int</tt> (optional)</td>
+      <td>
+        <b>New in Anatomist 3.5.1</b><br>
+        Temporary objects do not affect the window bounding box and camera settings.
+      </td>
+    </tr>
+    <tr>
+      <td><tt>position</tt></td>
+      <td><tt>int</tt> (optional)</td>
+      <td>
+        <b>New in Anatomist 3.5.1</b><br>
+        Position in objects order list.
+      </td>
+    </tr>
   </tbody>
   </table>
 
