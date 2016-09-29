@@ -84,12 +84,19 @@
 <h4> <a name="version-4.5.1"></a>2016/05/02 - Version 4.5.1</h4>
 <h5>Visible changes (users):</h5>
 
+<ul>
+<li>Fixes in texture duplication function, which avoids losing scaling and palette in some texture displays
+</li>
+</ul>
+
 <h5>Internal changes (programmers):</h5>
 
 <ul>
 <li>Porting to Python3. PyAnatomist and the underlying libraries (PyAims, Soma-Base) have finally been ported to Python 3. They are thus source compatible with with Python 2 series (2.6 and later) and Python 3 (3.4 and later).
 </li>
 <li>Porting to Qt5. Anatomist and PyAnatomist (and the underlying aimsgui) have been made source-compatible with both Qt4 and Qt5. The build system of BrainVisa will select the appropriate configuration according to the DESIRED_QT_VERSION variable in cmake, and building should work transparently.
+</li>
+<li>New options in AddObject command: temporary and position
 </li>
 </ul>
 

@@ -56,9 +56,11 @@ using namespace std;
 AddObjectCommand::AddObjectCommand( const set<AObject *> & objL, 
                                     const set<AWindow*> & winL,
                                     bool addchildren, bool addnodes,
-                                    bool addrels ) 
+                                    bool addrels, bool temporary,
+                                    int position )
   : RegularCommand(), _objL( objL ), _winL( winL ),
-    _addchildren( addchildren ), _addnodes( addnodes ), _addrels( addrels )
+    _addchildren( addchildren ), _addnodes( addnodes ), _addrels( addrels ),
+    _temporary( temporary ), _position( position )
 {
 }
 
@@ -80,6 +82,8 @@ bool AddObjectCommand::initSyntax()
   s[ "add_graph_nodes" ] = Semantic( "int", false );
   s[ "add_graph_relations" ] = Semantic( "int", false );
   s[ "add_children" ] = Semantic( "int", false );
+  s[ "position" ] = Semantic( "int", false );
+  s[ "temporary" ] = Semantic( "int", false );
   Registry::instance()->add( "AddObject", &read, ss );
   return( true );
 }
@@ -90,7 +94,7 @@ namespace
 
   void addobject( AObject* o, const set<AObject *> & obj, 
                   const set<AWindow *> & win, bool addchildren, bool addnodes,
-                  bool addrels, bool showDetails )
+                  bool addrels, bool showDetails, bool temp, int & position )
   {
     using carto::shared_ptr;
 
@@ -99,7 +103,8 @@ namespace
     AObject::ParentList		& parents = o->Parents();
     for( ip=parents.begin(), ep=parents.end(); ip!=ep; ++ip )
       if( obj.find( *ip ) != eo )
-        addobject( *ip, obj, win, false, false, false, showDetails );
+        addobject( *ip, obj, win, false, false, false, showDetails, temp,
+                   position );
 
     set<AWindow*>::const_iterator w, ew = win.end();
     for( w=win.begin(); w!=ew; ++w )
@@ -108,7 +113,9 @@ namespace
       QObjectBrowser *br = dynamic_cast<QObjectBrowser *>( *w );
       if( showDetails && br )
         br->setShowDetailsUponRegister( showDetails );
-      (*w)->registerObject( o );
+      (*w)->registerObject( o, temp, position );
+      if( position >= 0 )
+        ++position;
       if( showDetails && br )
         br->setShowDetailsUponRegister( false );
     }
@@ -122,7 +129,11 @@ namespace
         set<AWindow*>::const_iterator w, ew = win.end();
         for( i=mo->begin(); i!=e; ++i )
           for( w=win.begin(); w!=ew; ++w )
-            (*w)->registerObject( *i );
+          {
+            (*w)->registerObject( *i, temp, position );
+            if( position >= 0 )
+              ++position;
+          }
       }
     }
     else
@@ -138,7 +149,11 @@ namespace
           for( iv=g->begin(); iv!=ev; ++iv )
             if( (*iv)->getProperty( "ana_object", ao ) )
               for( w=win.begin(); w!=ew; ++w )
-                (*w)->registerObject( ao.get() );
+              {
+                (*w)->registerObject( ao.get(), temp, position );
+                if( position >= 0 )
+                  ++position;
+              }
         }
         if( addrels )
         {
@@ -147,7 +162,11 @@ namespace
           for( ie=edg.begin(); ie!=ee; ++ie )
             if( (*ie)->getProperty( "ana_object", ao ) )
               for( w=win.begin(); w!=ew; ++w )
-                (*w)->registerObject( ao.get() );
+              {
+                (*w)->registerObject( ao.get(), temp, position );
+                if( position >= 0 )
+                  ++position;
+              }
         }
       }
     }
@@ -179,6 +198,8 @@ AddObjectCommand::doit()
   set<MObject *>::const_iterator ip, ep;
   set<AObject *> *todo = &_objL, *nexttodo = &todo1;
   bool showDetails = _objL.size() < 2;
+  int position = _position;
+
   do
   {
     currents.clear();
@@ -198,7 +219,7 @@ AddObjectCommand::doit()
 
     for( ic=currents.begin(); ic!=ec; ++ic )
       addobject( *ic, _objL, _winL, _addchildren, _addnodes, _addrels,
-                 showDetails );
+                 showDetails, _temporary, position );
 
     // switch todo lists
     if( todo != &todo1 )
@@ -231,7 +252,7 @@ Command* AddObjectCommand::read( const Tree & com, CommandContext* context )
   set<AWindow *>	winL;
   unsigned		i, n;
   void			*ptr;
-  int                   addch = 0, addnodes = 1, addrels = 0;
+  int addch = 0, addnodes = 1, addrels = 0, temp = 0, position = -1;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -240,6 +261,8 @@ Command* AddObjectCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "add_children", addch );
   com.getProperty( "add_graph_nodes", addnodes );
   com.getProperty( "add_graph_relations", addrels );
+  com.getProperty( "temporary", temp );
+  com.getProperty( "position", position );
 
   for( i=0, n=obj.size(); i<n; ++i )
     {
@@ -259,7 +282,8 @@ Command* AddObjectCommand::read( const Tree & com, CommandContext* context )
     }
 
   if( !objL.empty() && !winL.empty() )
-    return( new AddObjectCommand( objL, winL, addch, addnodes, addrels ) );
+    return( new AddObjectCommand( objL, winL, addch, addnodes, addrels,
+                                  temp, position ) );
   else
     return( 0 );
 }
@@ -289,5 +313,9 @@ void AddObjectCommand::write( Tree & com, Serializer* ser ) const
     if( _addrels )
       t->setProperty( "add_graph_relations", 1 );
   }
+  if( _position >= 0 )
+    t->setProperty( "position", _position );
+  if( _temporary )
+    t->setProperty( "temporary", 1 );
   com.insert( t );
 }

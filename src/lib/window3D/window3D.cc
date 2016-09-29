@@ -2044,6 +2044,9 @@ void AWindow3D::unregisterObject(AObject* o)
 
 void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
 {
+  if( hasObject( o ) )
+    return;
+
   Point3df bmin, bmax;
   float tmin, tmax;
   //boundingBox( bmin, bmax, tmin, tmax );
@@ -2070,69 +2073,67 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
      d->draw->setExtrema( bmin, bmax );
      updateWindowGeometry();
      setupSliceSlider();*/
-  }
 
-  if (fst && _objects.size() == 1)
-  {
-    boundingBox(bmin, bmax, tmin, tmax);
-    d->draw->setExtrema(bmin, bmax);
-    d->needsextrema = false;
-    updateWindowGeometry();
-    setupSliceSlider();
-
-    set<AWindow*> wg = theAnatomist->getWindowsInGroup(Group());
-    bool setpos = true;
-    if (wg.size() > 1)
+    if( fst && _objects.size() == 1 )
     {
-      set<AWindow*>::const_iterator iw, ew = wg.end();
-      for (iw = wg.begin(); iw != ew; ++iw)
-        if (*iw != this && dynamic_cast<const AWindow3D *> (*iw))
-        {
-          setPosition((*iw)->getPosition(), (*iw)->getReferential());
-          setpos = false;
-          break;
-        }
-    }
-    if (setpos)
-      // set cursor in middle of object
-      setPosition((bmin + bmax) * 0.5f, getReferential() );
-    setTime(0);
+      boundingBox(bmin, bmax, tmin, tmax);
+      d->draw->setExtrema(bmin, bmax);
+      d->needsextrema = false;
+      updateWindowGeometry();
+      setupSliceSlider();
 
-    // resize window if in 2D mode
-    if( o->Is2DObject() && isWindow() )
-    {
-      float wf = 1.5;
-      theAnatomist->config()->getProperty("windowSizeFactor", wf);
-
-      Point3df vs = o->VoxelSize();
-      Point3df mo, Mo;
-      switch (viewType())
+      set<AWindow*> wg = theAnatomist->getWindowsInGroup(Group());
+      bool setpos = true;
+      if (wg.size() > 1)
       {
-        case Axial:
-          o->boundingBox2D( mo, Mo );
-          d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
-              (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ) );
-          break;
-        case Coronal:
-          o->boundingBox2D( mo, Mo );
-          d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
-              (int) ( wf * ( Mo[2] - mo[2] + vs[2] ) ) );
-          break;
-        case Sagittal:
-          o->boundingBox2D( mo, Mo );
-          d->askedsize = QSize( (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ),
-              (int) ( wf * (Mo[2] - mo[2] + vs[2] ) ) );
-          break;
-        default:
-          break;
+        set<AWindow*>::const_iterator iw, ew = wg.end();
+        for (iw = wg.begin(); iw != ew; ++iw)
+          if (*iw != this && dynamic_cast<const AWindow3D *> (*iw))
+          {
+            setPosition((*iw)->getPosition(), (*iw)->getReferential());
+            setpos = false;
+            break;
+          }
+      }
+      if (setpos)
+        // set cursor in middle of object
+        setPosition((bmin + bmax) * 0.5f, getReferential() );
+      setTime(0);
+
+      // resize window if in 2D mode
+      if( o->Is2DObject() && isWindow() )
+      {
+        float wf = 1.5;
+        theAnatomist->config()->getProperty("windowSizeFactor", wf);
+
+        Point3df vs = o->VoxelSize();
+        Point3df mo, Mo;
+        switch (viewType())
+        {
+          case Axial:
+            o->boundingBox2D( mo, Mo );
+            d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
+                (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ) );
+            break;
+          case Coronal:
+            o->boundingBox2D( mo, Mo );
+            d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
+                (int) ( wf * ( Mo[2] - mo[2] + vs[2] ) ) );
+            break;
+          case Sagittal:
+            o->boundingBox2D( mo, Mo );
+            d->askedsize = QSize( (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ),
+                (int) ( wf * (Mo[2] - mo[2] + vs[2] ) ) );
+            break;
+          default:
+            break;
+        }
       }
     }
-  }
-
-  if (temporaryObject)
-    refreshTemp();
-  else
     Refresh();
+  }
+  else
+    refreshTemp();
 }
 
 void AWindow3D::setViewType(ViewType t)

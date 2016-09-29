@@ -57,7 +57,8 @@ namespace anatomist
   public:
     AddObjectCommand( const std::set<AObject*> &, const std::set<AWindow*> &,
                       bool addchildren = false, bool addgraphnodes = true,
-                      bool addgraphrels = false );
+                      bool addgraphrels = false, bool temporary = false,
+                      int position = -1 );
     virtual ~AddObjectCommand();
 
     virtual std::string name() const { return( "AddObject" ); }
@@ -73,6 +74,8 @@ namespace anatomist
     bool _addchildren;
     bool _addnodes;
     bool _addrels;
+    bool _temporary;
+    int _position;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );
