@@ -984,12 +984,16 @@ When selecting graph nodes, specific options can decide whether to also show gra
 Labels copy/paste tool
 ++++++++++++++++++++++
 
-The selection control also brings access to a ROI and sulci renaming tool: labels can be picked on a selected "graph" node (using the space key), and pasted onto other selected nodes (from the same graph or another one), using the ctrl+return key combination. The current which has been copied is visible on the top toolbar button.
+The selection control also brings access to a ROI and sulci renaming tool: labels can be picked on a selected graph node, using the **space key**, and pasted onto other selected nodes, using the **ctrl + Return** key combination. It is possible to pick a label from one graph / window, and to paste it into another graph / window, provided both winfdows are not in different groups (like the selection, labels copy/paste works by windows group). The current label which has been copied is visible on the top toolbar of wnidows in selection mode.
+
+This tool is especially useful to work with cortical sulci, typically to fix automatic sulci identifications.
+
+Remember that graphs (sulci graphs especially) may use 2 attributes for labels: "label" or "name", typically meaning automatic or manual identification. The label copy/paste tool will use the currently selected mode.
 
 Graph labels display as text
 ++++++++++++++++++++++++++++
 
-The A key activates (or desactivates) a "graph annotation" mode, which displays the labels of the regins in a graph as text in 3D.
+The A key activates (or desactivates) a "graph annotation" mode, which displays the labels of the regions in a graph as text in 3D.
 
 .. figure:: images/graphannote.jpg
 
