@@ -198,7 +198,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -215,7 +215,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     return (*colors)( ival0, ival1 );
@@ -245,7 +245,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -262,7 +262,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[0] = (*colors)( ival0, ival1 )[0];
@@ -279,7 +279,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -294,7 +294,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[1] = (*colors)( ival0, ival1 )[1];
@@ -311,7 +311,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -326,7 +326,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[2] = (*colors)( ival0, ival1 )[2];
@@ -343,7 +343,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -358,7 +358,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[3] = (*colors)( ival0, ival1 )[3];
@@ -386,7 +386,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -403,7 +403,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[0] = (*colors)( ival0, ival1 )[0];
@@ -420,7 +420,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -437,7 +437,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[1] = (*colors)( ival0, ival1 )[1];
@@ -454,7 +454,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -471,7 +471,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[2] = (*colors)( ival0, ival1 )[2];
@@ -488,7 +488,7 @@ namespace anatomist
     else if( fval0 >= cmax0 )
       ival0 = cmax0;
     else
-      return neutralColor();
+      ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
         colors->dimY() == 1 )
@@ -505,7 +505,7 @@ namespace anatomist
         else if( fval1 >= cmax1 )
           ival1 = cmax1;
         else
-          return neutralColor();
+          ival1 = cmin1;
       }
 
     col[3] = (*colors)( ival0, ival1 )[3];
