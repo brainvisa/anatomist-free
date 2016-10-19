@@ -385,7 +385,7 @@ class SplitFoldAction( anatomist.Action ):
       ag = graph[ 'ana_object' ]
       ag.loadSubObjects( 3 )
       fos = aims.FoldArgOverSegment( graph )
-      newvertex = fos.splitVertex( vertex, splitline, 50 )
+      newvertex = fos.splitVertex( vertex, splitline, 15 )
       if newvertex is None:
         print('Split failed.')
         return
