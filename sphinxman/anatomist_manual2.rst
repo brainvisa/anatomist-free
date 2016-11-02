@@ -199,6 +199,13 @@ The following table shows the available types of fusion according to the type of
           Allows to map and interpolate textures from a mesh to another mesh with a different geometry. To obtain reasonable results, it is recommended to use a "SurfaceMatcher" first, it will warp a surface towards the other one
         </td>
       </tr>
+      <tr class="row-odd">
+        <td>Mesh</td>
+        <td>Fusion2DMeshMethod</td>
+        <td>
+          Marks the intersection line of a mesh with the view slice plane.
+        </td>
+      </tr>
     </tbody>
   </table>
 
