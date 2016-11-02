@@ -138,11 +138,11 @@ namespace anatomist
   class Fusion2DMeshMethod : public FusionMethod
   {
   public:
-	  Fusion2DMeshMethod() {}
-	  virtual ~Fusion2DMeshMethod() {}
-	  virtual int canFusion( const std::set<AObject *> & );
-	  virtual AObject* fusion( const std::vector<AObject *> & );
-	  virtual std::string ID() const;
+    Fusion2DMeshMethod() {}
+    virtual ~Fusion2DMeshMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
   };
 
   class FusionSliceMethod : public FusionMethod
@@ -198,6 +198,16 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
     virtual bool orderingMatters() const { return false; }
+  };
+
+  class VectorFieldFusionMethod : public FusionMethod
+  {
+  public:
+    VectorFieldFusionMethod() {}
+    virtual ~VectorFieldFusionMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
   };
 
 }

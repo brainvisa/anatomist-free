@@ -46,6 +46,7 @@
 #include <anatomist/volume/Volume.h>
 #include <anatomist/object/clippedobject.h>
 #include <anatomist/sparsematrix/connectivitymatrix.h>
+#include <anatomist/surface/vectorfield.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/mesh/texture.h>
@@ -486,6 +487,24 @@ AObject* ConnectivityMatrixFusionMethod::fusion(
   const vector<AObject *> & obj )
 {
   return new AConnectivityMatrix( obj );
+}
+
+
+string VectorFieldFusionMethod::ID() const
+{
+  return( QT_TRANSLATE_NOOP( "FusionChooser", "VectorFieldFusionMethod" ) );
+}
+
+
+int VectorFieldFusionMethod::canFusion( const set<AObject *> & obj )
+{
+  return VectorField::canFusion( obj );
+}
+
+
+AObject * VectorFieldFusionMethod::fusion( const vector<AObject *> & obj )
+{
+  return new VectorField( obj );
 }
 
 

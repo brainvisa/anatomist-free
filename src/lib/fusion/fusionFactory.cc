@@ -84,6 +84,7 @@ FusionFactory::FusionFactory()
       registerMethod( new FusionTesselationMethod );
       registerMethod( new Fusion2DMeshMethod );
       registerMethod( new ConnectivityMatrixFusionMethod );
+      registerMethod( new VectorFieldFusionMethod );
     }
 }
 

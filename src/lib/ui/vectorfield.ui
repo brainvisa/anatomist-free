@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VectorField</class>
+ <widget class="QWidget" name="VectorField">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>545</width>
+    <height>578</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="scale_layout">
+     <item>
+      <widget class="QLabel" name="scale_label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scaling factor for the vector module (intensity).&lt;/p&gt;&lt;p&gt;As each vector is represented inside a voxel, the scaling generally needs to be small.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>vectors scaling:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="scale_lineedit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="x_mapping">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vector mapping specifies where, and in which volume, the x/y/z coord for the mapped vectors are taken from.&lt;/p&gt;&lt;p&gt;Each box describes how to get the given coordinate for vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="title">
+      <string>vector x mapping:</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="x_volume">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Each vector coordinate (values) may be taken from a different volume, or all could be from the same.&lt;/p&gt;&lt;p&gt;Several cases:&lt;/p&gt;&lt;p&gt;* a 4D volume can hold, for each 3D space position (dimensions 0..2), 3 vector coordinates: then vector coordinates are in dimension 3: values 0, 1 and 2 in this 4th dimension correspond to the vector components.&lt;/p&gt;&lt;p&gt;* or 3 3D volumes can hold the 3 components of vectors: then each component should be taken from a different volume.&lt;/p&gt;&lt;p&gt;* We may only use 1D or 2D vectors by omitting one or 2 components (no volume for these coordinates)&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>volume:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="x_vol"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="x_var_map">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;x, y, z map determines which dimensions in the input volume correspond to spatial positions of voxels, where vectors are located.&lt;/p&gt;&lt;p&gt;In most cases, leave 0, 1, 2 (the 3 1st dimensions of the volume), it will certainly be OK.&lt;/p&gt;&lt;p&gt;But in special cases, axes may be flipped, or the 1st dimension could be the vector coordinate, not its spatial position, so a change would be needed here.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>x, y, z map:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="x_map_layout">
+        <item>
+         <widget class="QComboBox" name="x_map0"/>
+        </item>
+        <item>
+         <widget class="QComboBox" name="x_map1"/>
+        </item>
+        <item>
+         <widget class="QComboBox" name="x_map2"/>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="x_coord">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This specifies which dimension/position the vector coordinates are taken from.&lt;/p&gt;&lt;p&gt;As 3 spatial dimensions will vary in space according to x, y, z map above, the corresponding volume coordinates are meaningless and cannot be specified.&lt;/p&gt;&lt;p&gt;Additional dimensions can store the vectors components. Typically, in a 4D volume, dimension 3 (the 4th) will store the 1st component at position 0, 2nd at position 1 etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>coord in all dims:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="x_coord_layout">
+        <item>
+         <widget class="QSpinBox" name="x_coord0"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="y_mapping">
+     <property name="title">
+      <string>vector y mapping:</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="y_volume">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>volume:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="y_vol"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="y_var_map">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>x, y, z map:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="y_map_layout">
+        <item>
+         <widget class="QComboBox" name="y_map0"/>
+        </item>
+        <item>
+         <widget class="QComboBox" name="y_map1"/>
+        </item>
+        <item>
+         <widget class="QComboBox" name="y_map2"/>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="y_coord">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>coord in all dims:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="y_coord_layout">
+        <item>
+         <widget class="QSpinBox" name="y_coord0"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="z_mapping">
+     <property name="title">
+      <string>vector z mapping:</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="z_volume">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>volume:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="z_vol"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="z_var_map">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>x, y, z map:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="z_map_layout">
+        <item>
+         <widget class="QComboBox" name="z_map0"/>
+        </item>
+        <item>
+         <widget class="QComboBox" name="z_map1"/>
+        </item>
+        <item>
+         <widget class="QComboBox" name="z_map2"/>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="z_coord">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>coord in all dims:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="z_coord_layout">
+        <item>
+         <widget class="QSpinBox" name="z_coord0"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
