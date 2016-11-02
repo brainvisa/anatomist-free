@@ -252,8 +252,9 @@ VectorField::VectorField( const vector<AObject *> & obj )
   }
   for( ; i<3; ++i )
   {
-    if( d->sizes[i-1].size() < 4
-        || d->sizes[i-1][3] <= d->fixeddim[i-1][3] + 1 )
+    if( d->datatype[i-1] != Private::RGB && d->datatype[i-1] != Private::RGBA
+        && ( d->sizes[i-1].size() < 4
+             || d->sizes[i-1][3] <= d->fixeddim[i-1][3] + 1 ) )
     {
       d->refvol[i] = 0;
     }
@@ -264,7 +265,9 @@ VectorField::VectorField( const vector<AObject *> & obj )
       d->vardim[i] = d->vardim[i-1];
       d->sizes[i] = d->sizes[i-1];
       d->fixeddim[i] = d->fixeddim[i-1];
-      ++d->fixeddim[i][3];
+      if( d->datatype[i-1] != Private::RGB
+          && d->datatype[i-1] != Private::RGBA )
+        ++d->fixeddim[i][3];
     }
   }
 
@@ -397,6 +400,34 @@ void VectorField::createDefaultPalette( const std::string & name )
   d->vecTexture->createDefaultPalette( name );
   AObject::setPalette( *d->vecTexture->palette() );
   glSetChanged( glPALETTE );
+}
+
+
+//--------------------------------------------------------------
+void VectorField::glBeforeBodyGLL( const ViewState &,
+                                    GLPrimitives & pl ) const
+{
+  GLList * p = new GLList;
+  p->generate();
+  GLuint l = p->item();
+  glNewList( l, GL_COMPILE );
+  // Put the VectorField object in the front scene
+  glDepthRange( 0.0, 0.999999 );
+  glEndList();
+  pl.push_back( RefGLItem( p ) );
+}
+
+//--------------------------------------------------------------
+void VectorField::glAfterBodyGLL( const ViewState &,
+                                   GLPrimitives & pl ) const
+{
+  GLList *p = new GLList;
+  p->generate();
+  GLuint l = p->item();
+  glNewList( l, GL_COMPILE );
+  glDepthRange( 0.0, 1.0 );
+  glEndList();
+  pl.push_back( RefGLItem( p ) );
 }
 
 

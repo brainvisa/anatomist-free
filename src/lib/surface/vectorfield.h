@@ -87,6 +87,9 @@ namespace anatomist
     virtual ObjectMenu* optionMenu() const;
     virtual Tree* optionTree() const;
 
+    virtual void glBeforeBodyGLL( const ViewState &, GLPrimitives & ) const;
+    virtual void glAfterBodyGLL( const ViewState &, GLPrimitives & ) const;
+
     AObject *volume( int channel ) const;
     void setVolume( int channel, AObject* obj );
     Point3di spaceCoordsDimensions( int channel ) const;
