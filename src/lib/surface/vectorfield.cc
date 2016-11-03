@@ -75,8 +75,8 @@ struct VectorField::Private
 
 
 VectorField::Private::Private()
-  : vardim( 3, Point3di( 0 ) ), fixeddim( 3 ), refvol( 3, 0 ), sizes( 3 ),
-    scaling( 0.01 ), datatype( 3, NONE )
+  : vardim( 3, Point3di( 0 ) ), fixeddim( 3 ), refvol( 3, (AObject *) 0 ),
+    sizes( 3 ), scaling( 0.01 ), datatype( 3, NONE )
 {
 }
 
