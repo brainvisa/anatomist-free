@@ -3967,7 +3967,7 @@ void AWindow3D::sortPolygons( bool force )
     if( d->sortPolygonsDirection )
       transDir *= -1;
     SurfaceManip::sortPolygonsAlongDirection(
-      *(*is)->surface(), timemesh, transDir );
+      *(*is)->surface(), int( timemesh ), transDir );
     (*is)->glSetChanged( GLComponent::glGEOMETRY );
   }
 }

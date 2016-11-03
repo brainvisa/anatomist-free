@@ -180,7 +180,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
                 (int) ( c[2] * 255.9 ) );
   _pdat->modelBackground
     = new QAColorWidget( col, vg, "lgtmodel_model_backg", 0, true, false,
-                          c[3] * 255.9 );
+                         int( c[3] * 255.9 ) );
   vlay->addWidget( _pdat->modelBackground );
   vlay->addStretch( 1 );
   vg = new QGroupBox( tr( "Parameters :" ), model );

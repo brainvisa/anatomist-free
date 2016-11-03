@@ -591,7 +591,7 @@ void Fusion3DWindow::depthLineChanged()
     d->depth = value;
     d->depthHasChanged = true;
     d->depthsl->blockSignals( true );
-    d->depthsl->setValue( d->depth * 10 );
+    d->depthsl->setValue( int( d->depth * 10 ) );
     d->depthsl->blockSignals( false );
   }
   else
@@ -608,7 +608,7 @@ void Fusion3DWindow::stepLineChanged()
     d->step = value;
     d->stepHasChanged = true;
     d->stepsl->blockSignals( true );
-    d->stepsl->setValue( d->step * 10 );
+    d->stepsl->setValue( int( d->step * 10 ) );
     d->stepsl->blockSignals( false );
   }
   else

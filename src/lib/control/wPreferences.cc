@@ -495,14 +495,14 @@ PreferencesWindow::PreferencesWindow()
       Object oi = oc->objectIterator();
       if( oi->isValid() )
       {
-        col[0] = oi->currentValue()->getScalar() * 255.99;
+        col[0] = uint8_t( oi->currentValue()->getScalar() * 255.99 );
         oi->next();
         if( oi->isValid() )
         {
-          col[1] = oi->currentValue()->getScalar() * 255.99;
+          col[1] = uint8_t( oi->currentValue()->getScalar() * 255.99 );
           oi->next();
           if( oi->isValid() )
-            col[2] = oi->currentValue()->getScalar() * 255.99;
+            col[2] = uint8_t( oi->currentValue()->getScalar() * 255.99 );
         }
       }
     }
@@ -1300,14 +1300,14 @@ void PreferencesWindow::changeWindowBackground()
       Object oi = oc->objectIterator();
       if( oi->isValid() )
       {
-        col.setRed( oi->currentValue()->getScalar() * 255.99 );
+        col.setRed( uint8_t( oi->currentValue()->getScalar() * 255.99 ) );
         oi->next();
         if( oi->isValid() )
         {
-          col.setGreen( oi->currentValue()->getScalar() * 255.99 );
+          col.setGreen( uint8_t( oi->currentValue()->getScalar() * 255.99 ) );
           oi->next();
           if( oi->isValid() )
-            col.setBlue( oi->currentValue()->getScalar() * 255.99 );
+            col.setBlue( uint8_t( oi->currentValue()->getScalar() * 255.99 ) );
         }
       }
     }

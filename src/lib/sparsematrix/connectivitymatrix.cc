@@ -775,7 +775,8 @@ void AConnectivityMatrix::buildPatchIndices()
   else // ALL_BUT_ONE
   {
     for( it=tex.begin(); it!=et; ++it, ++j )
-      if( d->patchnums.find( ( *it * scale + offset ) ) == d->patchnums.end() )
+      if( d->patchnums.find( int( *it * scale + offset ) )
+          == d->patchnums.end() )
         d->patchindices[ i++ ] = j;
   }
 }
@@ -834,7 +835,7 @@ void AConnectivityMatrix::buildTexture( uint32_t startvertex, float time_pos )
       basin = int( rint( *ib ) );
       if( *ib != 0 )
       {
-        *ic = row[ *ib - 1 ];
+        *ic = row[ basin - 1 ];
         if( *ic > texmax )
           texmax = *ic;
       }

@@ -943,7 +943,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
 
 void GLWidgetManager::setBackgroundAlpha( float a )
 {
-  _pd->backgroundAlpha = a * 255.9;
+  _pd->backgroundAlpha = uint8_t( a * 255.9 );
 }
 
 
