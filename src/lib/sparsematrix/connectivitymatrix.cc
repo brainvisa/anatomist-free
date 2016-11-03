@@ -1151,7 +1151,7 @@ void AConnectivityMatrix::buildPatchIndices()
       else // ALL_BUT_ONE
       {
         for( it=tex.begin(); it!=et; ++it, ++j )
-          if( d->patchnums.find( ( *it * scale + offset ) )
+          if( d->patchnums.find( int( *it * scale + offset ) )
               == d->patchnums.end() )
             indices_vec.push_back( j );
   //           patchindices[ j ] = i++;
@@ -1242,7 +1242,7 @@ void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
         basin = int( rint( *ib ) );
         if( *ib != 0 )
         {
-          *ic = row[ *ib - 1 ];
+          *ic = row[ basin - 1 ];
           if( isinf( *ic ) )
             *ic = 0.;
           if( *ic > tmax[index] )
