@@ -199,6 +199,20 @@ The following table shows the available types of fusion according to the type of
           Allows to map and interpolate textures from a mesh to another mesh with a different geometry. To obtain reasonable results, it is recommended to use a "SurfaceMatcher" first, it will warp a surface towards the other one
         </td>
       </tr>
+      <tr class="row-odd">
+        <td>Mesh</td>
+        <td>Fusion2DMeshMethod</td>
+        <td>
+          Marks the intersection line of a mesh with the view slice plane.
+        </td>
+      </tr>
+      <tr class="row-even">
+        <td>Volumes (1 to 3)</td>
+        <td>VectorFieldFusionMethod</td>
+        <td>
+          <b>(new in Anatomist 4.6)</b> Vector field display: draw small lines at voxels locations showing the direction and intensity of a vector field. Vector components may be taken from a 4D (or more) volume, a RGB volume, or a combination of several volumes.
+        </td>
+      </tr>
     </tbody>
   </table>
 
