@@ -114,7 +114,7 @@ VectorFieldEditionWindow::VectorFieldEditionWindow( const set<AObject *> &objL,
   y_coord0 = 0;
   z_coord0 = 0;
 
-  scale_lineedit->setValidator( new QDoubleValidator );
+  scale_lineedit->setValidator( new QDoubleValidator( 0 ) );
 
   updateInterface();
 
