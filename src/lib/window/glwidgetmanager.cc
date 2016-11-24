@@ -837,6 +837,12 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   QString	ext;
   bool		alpha;
   QImage::Format iformat;
+  QImage        pix;
+
+  _pd->glwidget->makeCurrent();
+  glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
+  glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
+  glReadBuffer( GL_FRONT );
 
   switch( bufmode )
     {
@@ -853,6 +859,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       alpha = true;
       ext = "-rgba";
       iformat = QImage::Format_ARGB32;
+      pix = _pd->glwidget->grabFrameBuffer( true );
       break;
     case 8:	// depth
       depth = 8;
@@ -873,63 +880,63 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       mode = GL_BGRA;
       alpha = false;
       iformat = QImage::Format_RGB32;
+      pix = _pd->glwidget->grabFrameBuffer( false );
       break;
     }
 
-  int	ncol = 0;
-  if( depth == 8 )
-    ncol = 256;
-  QImage pix( _pd->glwidget->width(), _pd->glwidget->height(), iformat );
-  int	i;
-  for( i=0; i<ncol; ++i )
-    pix.setColor( i, qRgb(i,i,i) );
-  // read the GL buffer
-  _pd->glwidget->makeCurrent();
-//   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-//   glPixelStorei( GL_UNPACK_SKIP_PIXELS, 0 );
-  glReadBuffer( GL_FRONT );
-  glReadPixels( 0, 0, (GLint) _pd->glwidget->width(), (GLint)
-      _pd->glwidget->height(), mode, GL_UNSIGNED_BYTE, pix.bits() );
+  if( pix.isNull() )
+  {
+    int	ncol = 0;
+    if( depth == 8 )
+      ncol = 256;
+    pix = QImage( _pd->glwidget->width(), _pd->glwidget->height(), iformat );
+    int	i;
+    for( i=0; i<ncol; ++i )
+      pix.setColor( i, qRgb(i,i,i) );
+    // read the GL buffer
+    glReadPixels( 0, 0, (GLint) _pd->glwidget->width(), (GLint)
+        _pd->glwidget->height(), mode, GL_UNSIGNED_BYTE, pix.bits() );
 
-  pix = pix.mirrored( false, true );
-  if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
-  {
-    cout << "change bit order\n";
-    int n = _pd->glwidget->width()*_pd->glwidget->height();
-    unsigned char *buf = pix.bits(), c;
-    for( i=0; i<n; ++i )
+    pix = pix.mirrored( false, true );
+    if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
     {
-      c = *buf;
-      *buf = *(buf+3);
-      ++buf;
-      *(buf+2) = c;
-      c = *buf;
-      *buf = *(buf+1);
-      ++buf;
-      *buf = c;
-      ++buf;
-      ++buf;
-    }
-  }
-  if( alpha && _pd->transparentBackground && bufmode == 4
-      && _pd->backgroundAlpha != 255 && depth == 32 )
-  {
-    glReadBuffer( GL_FRONT );
-    int n = width()*height(), y, w = width();
-    vector<GLfloat> buffer( n, 2. );
-    // read Z buffer
-    glReadPixels( 0, 0, (GLint) width(), (GLint) height(),
-                  GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
-    unsigned char *buf = pix.bits();
-    // TODO: WHY THIS y-inversion ???
-    for( y=height()-1; y>=0; --y )
-      for( i=0; i<w; ++i )
+      cout << "change bit order\n";
+      int n = _pd->glwidget->width()*_pd->glwidget->height();
+      unsigned char *buf = pix.bits(), c;
+      for( i=0; i<n; ++i )
       {
-        buf += 3;
-        if( buffer[i+y*w] >= 1. )
-          *buf = _pd->backgroundAlpha;
+        c = *buf;
+        *buf = *(buf+3);
+        ++buf;
+        *(buf+2) = c;
+        c = *buf;
+        *buf = *(buf+1);
+        ++buf;
+        *buf = c;
+        ++buf;
         ++buf;
       }
+    }
+    if( alpha && _pd->transparentBackground && bufmode == 4
+        && _pd->backgroundAlpha != 255 && depth == 32 )
+    {
+      glReadBuffer( GL_FRONT );
+      int n = width()*height(), y, w = width();
+      vector<GLfloat> buffer( n, 2. );
+      // read Z buffer
+      glReadPixels( 0, 0, (GLint) width(), (GLint) height(),
+                    GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
+      unsigned char *buf = pix.bits();
+      // TODO: WHY THIS y-inversion ???
+      for( y=height()-1; y>=0; --y )
+        for( i=0; i<w; ++i )
+        {
+          buf += 3;
+          if( buffer[i+y*w] >= 1. )
+            *buf = _pd->backgroundAlpha;
+          ++buf;
+        }
+    }
   }
   QString	alphaname = filename;
   int pos = alphaname.lastIndexOf( '.' );
