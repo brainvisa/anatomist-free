@@ -842,7 +842,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   _pd->glwidget->makeCurrent();
   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
-  glReadBuffer( GL_FRONT );
+  glReadBuffer( GL_BACK );
 
   switch( bufmode )
     {
