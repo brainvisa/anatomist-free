@@ -497,7 +497,7 @@ void ControlWindow::UpdateObjectMenu()
   if( objL.size() > 1 )
     {
       // grouping possible
-      _menu->setGroupMenuText( tr( "Group objects" ).toStdString() );
+      _menu->setGroupMenuText( tr( "Group objects" ) );
       enableGroupMenu( true );
     }
   else	// 1 object
@@ -509,7 +509,7 @@ void ControlWindow::UpdateObjectMenu()
 	  return;
 	}
       // ungrouping possible
-      _menu->setGroupMenuText( tr( "Ungroup objects" ).toStdString() );
+      _menu->setGroupMenuText( tr( "Ungroup objects" ) );
       enableGroupMenu( true );
     }
 
@@ -532,7 +532,7 @@ void ControlWindow::UpdateWindowMenu()
 
   if( sgr.size() != 0 && winL.empty() )
     {	// link group(s) selected alone
-      _menu->setLinkMenuText( tr( "Unlink windows" ).toStdString() );
+      _menu->setLinkMenuText( tr( "Unlink windows" ) );
       _menu->enableLinkMenu( true );
     }
   else if( sgr.size() == 0 && !winL.empty() )
@@ -549,7 +549,7 @@ void ControlWindow::UpdateWindowMenu()
 
       if( linkable )	//	Windows not already linked
 	{
-	  _menu->setLinkMenuText( tr( "Link windows" ).toStdString() );
+	  _menu->setLinkMenuText( tr( "Link windows" ) );
 	  _menu->enableLinkMenu( true );
 	}
       else

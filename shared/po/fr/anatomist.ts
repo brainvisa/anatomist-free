@@ -3343,6 +3343,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Split referential to disconnect transformations</source>
         <translation>Dupliquer le référentiel pour déconnecter les transformations</translation>
     </message>
+    <message>
+        <source>See objects in this referential</source>
+        <translation>Voir les objest dans ce référentiel</translation>
+    </message>
 </context>
 <context>
     <name>RegionsFusionWindow</name>
@@ -4209,6 +4213,14 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     <message>
         <source>&lt;p align=&quot;justify&quot;&gt;Well, this mode doesn&apos;t exist in fact... Maybe one day it will perform real-time polygon pruning to speed-up huge mesh rendering, but up to now...&lt;/p&gt;</source>
         <translation>&lt;p align=&quot;justify&quot;&gt;Bon, ce mode n&apos;existe pas en fait... Peut-être qu&apos;un jour il effectuera une décimation en temps réel des polygônes pour accélérer le rendu des très gros maillages, mais pour l&apos;instant...&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Depth sorting of polygons</source>
+        <translation>Tri par profondeur des poligones</translation>
+    </message>
+    <message>
+        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
+        <translation>Trier les polygones des objets transparents par profondeur. Cela fait un meilleur rendu de la transparence, mais a un impact important sur les performances des rendus.</translation>
     </message>
 </context>
 <context>

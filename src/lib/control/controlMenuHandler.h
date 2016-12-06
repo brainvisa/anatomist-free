@@ -42,6 +42,7 @@
 class QMenuBar;
 class QObject;
 class QSelectMenu;
+class QString;
 
 namespace anatomist
 {
@@ -66,8 +67,8 @@ namespace anatomist
     void enableLoadRefMenu( bool );
     void enableUnloadRefMenu( bool );
     void enablePreferencesMenu( bool );
-    void setGroupMenuText( const std::string & text );
-    void setLinkMenuText( const std::string & text );
+    void setGroupMenuText( const QString & text );
+    void setLinkMenuText( const QString & text );
     void makeObjectManipMenus( const std::set<AObject *> & obj, 
                                const Tree & tr );
     void addWindowType( const std::string & type, int id );
