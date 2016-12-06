@@ -492,62 +492,22 @@ void QWindowTree::UndisplayRefColors()
 void QWindowTree::dragEnterEvent( QDragEnterEvent* event )
 {
   event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
-      || QAObjectDrag::canDecodeURI( event->mimeData() ) );
+      || QAObjectDrag::canDecodeURI( event->mimeData() )
+      || QAWindowDrag::canDecode( event->mimeData() ) );
 }
 
 
 void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
 {
-  QTreeWidgetItem	*item
-    = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
-  if( item )
+  bool isobj = ( QAObjectDrag::canDecode( event->mimeData() )
+                  || QAObjectDrag::canDecodeURI( event->mimeData() ) );
+  if( isobj && dragMoveEventFromObject( event ) )
+    return;
+  else
   {
-    //cout << "QWindowTree::dragMoveEvent\n";
-    map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
-      = d->items.find( item );
-    if( iw != d->items.end() )
-    {
-      if( iw->second != d->highlightedWindow )
-      {
-        highlightWindow( d->highlightedWindow, false );
-        highlightWindow( iw->second, true );
-      }
-      bool ok = ( QAObjectDrag::canDecode( event->mimeData() )
-            || QAObjectDrag::canDecodeURI( event->mimeData() ) );
-      if( ok )
-      {
-        set<AWindow *>    *sw;
-        if( item->isSelected() )
-          sw = SelectedWindows();
-        else
-        {
-          sw = new set<AWindow *>;
-          sw->insert( (*iw).second );
-        }
-        set<QAWindow *>::iterator iw, ew = d->highlighted.end();
-        for( iw=d->highlighted.begin(); iw!=ew; ++iw )
-        {
-          if( sw->find( *iw ) == sw->end() )
-            highlightWindow( *iw, false );
-        }
-        set<AWindow *>::iterator iw2, ew2 = sw->end();
-        d->highlighted.clear();
-        QAWindow *qwin;
-        for( iw2=sw->begin(); iw2!=ew2; ++iw2 )
-        {
-          qwin = dynamic_cast<QAWindow *>( *iw2 );
-          if( qwin )
-          {
-            d->highlighted.insert( qwin );
-            highlightWindow( qwin, true );
-          }
-        }
-        delete sw;
-        d->timer().start( 800 );
-        event->accept();
-        return;
-      }
-    }
+    bool iswin = QAWindowDrag::canDecode( event->mimeData() );
+    if( iswin && dragMoveEventFromWindow( event ) )
+      return;
   }
   highlightWindow( d->highlightedWindow, false );
   d->timer().stop();
@@ -559,30 +519,135 @@ void QWindowTree::dragMoveEvent( QDragMoveEvent* event )
 }
 
 
+bool QWindowTree::dragMoveEventFromObject( QDragMoveEvent* event )
+{
+  QTreeWidgetItem	*item
+    = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
+  if( item )
+  {
+    //cout << "QWindowTree::dragMoveEvent\n";
+    set<AWindow *>    *sw;
+    set<int> sg;
+    map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
+      = d->items.find( item );
+    if( iw != d->items.end() )
+    {
+      if( iw->second != d->highlightedWindow )
+      {
+        highlightWindow( d->highlightedWindow, false );
+        highlightWindow( iw->second, true );
+      }
+      if( item->isSelected() )
+      {
+        sw = SelectedWindows();
+        sg = SelectedGroups();
+      }
+      else
+      {
+        sw = new set<AWindow *>;
+        sw->insert( (*iw).second );
+      }
+    }
+    else
+    {
+      map<QTreeWidgetItem *, int>::const_iterator ig
+        = d->groupItems.find( item );
+      if( ig != d->groupItems.end() )
+      {
+        highlightWindow( d->highlightedWindow, false );
+        if( item->isSelected() )
+        {
+          sw = SelectedWindows();
+          sg = SelectedGroups();
+        }
+        else
+        {
+          sg.insert( ig->second );
+          sw = new set<AWindow *>;
+        }
+      }
+    }
+    if( sw )
+    {
+      set<QAWindow *>::iterator iw, ew = d->highlighted.end();
+      for( iw=d->highlighted.begin(); iw!=ew; ++iw )
+      {
+        if( sw->find( *iw ) == sw->end() )
+          highlightWindow( *iw, false );
+      }
+      set<AWindow *>::iterator iw2, ew2 = sw->end();
+      d->highlighted.clear();
+      QAWindow *qwin;
+      for( iw2=sw->begin(); iw2!=ew2; ++iw2 )
+      {
+        qwin = dynamic_cast<QAWindow *>( *iw2 );
+        if( qwin )
+        {
+          d->highlighted.insert( qwin );
+          highlightWindow( qwin, true );
+        }
+      }
+      delete sw;
+      d->timer().start( 800 );
+      event->accept();
+      return true;
+    }
+  }
+}
+
+
+bool QWindowTree::dragMoveEventFromWindow( QDragMoveEvent* event )
+{
+  return true;
+//   QTreeWidgetItem	*item
+//     = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
+//   if( item )
+//   {
+//   }
+}
+
+
 void QWindowTree::dropEvent( QDropEvent* event )
 {
   //cout << "QWindowTree::dropEvent\n";
   clearWindowsHighlights();
   d->timer().stop();
-  QTreeWidgetItem	*item 
+  bool isobj = ( QAObjectDrag::canDecode( event->mimeData() )
+                  || QAObjectDrag::canDecodeURI( event->mimeData() ) );
+  if( isobj )
+    dropEventFromObject( event );
+  else
+  {
+    bool iswin = QAWindowDrag::canDecode( event->mimeData() );
+    if( iswin  )
+      dropEventFromWindow( event );
+  }
+}
+
+
+void QWindowTree::dropEventFromObject( QDropEvent* event )
+{
+  QTreeWidgetItem	*item
     = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
   if( item )
   {
     map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
       = d->items.find( item );
-    if( iw != d->items.end() )
+    map<QTreeWidgetItem *, int>::const_iterator	ig
+      = d->groupItems.find( item );
+    if( iw != d->items.end() || ig != d->groupItems.end() )
     {
       set<AObject *>	o;
       list<QString> objects;
       list<QString> scenars;
 
       if( !QAObjectDrag::decode( event->mimeData(), o )
-           && QAObjectDrag::decodeURI( event->mimeData(), objects, scenars ) )
+          && QAObjectDrag::decodeURI( event->mimeData(), objects, scenars ) )
       {
         list<QString>::iterator       is, es = objects.end();
         for( is=objects.begin(); is!=es; ++is )
         {
-          LoadObjectCommand *command 
+          LoadObjectCommand *command
             = new LoadObjectCommand( is->toStdString() );
           theProcessor->execute( command );
           o.insert( command->loadedObject() );
@@ -593,21 +658,89 @@ void QWindowTree::dropEvent( QDropEvent* event )
 
       //cout << "object decoded, " << o.size() << " objects\n";
       set<AWindow *>	*sw;
+      set<int> sg;
 
       if( item->isSelected() )
       {
         sw = SelectedWindows();
+        sg = SelectedGroups();
       }
       else
       {
         sw = new set<AWindow *>;
-        sw->insert( (*iw).second );
+        if( iw != d->items.end() )
+          sw->insert( (*iw).second );
+        else
+          sg.insert( ig->second );
+      }
+      if( !sg.empty() )
+      {
+        set<AWindow*> aw = theAnatomist->getWindows();
+        sw->insert( aw.begin(), aw.end() );
       }
       Command	*c = new AddObjectCommand( o, *sw );
       theProcessor->execute( c );
       delete sw;
     }
   }
+}
+
+
+void QWindowTree::dropEventFromWindow( QDropEvent* event )
+{
+  set<AWindow *> sw, rsw;
+  if( !QAWindowDrag::decode( event->mimeData(), sw ) )
+    return;
+  int new_group = 0;
+  QTreeWidgetItem	*item
+    = d->lview->itemAt( d->lview->viewport()->mapFromParent( event->pos() ) );
+  if( item )
+  {
+    map<QTreeWidgetItem *, int>::const_iterator	ig
+      = d->groupItems.find( item );
+    if( ig != d->groupItems.end() )
+      // move into a group
+      new_group = ig->second;
+    else
+      return; // drop on a window
+  }
+  // else drop on background: move out of group: new_group = 0
+
+  // break / rebuild older groups
+  set<AWindow *> aw = theAnatomist->getWindows();
+  map<int, set<AWindow *> > changedGroups;
+  map<int, set<AWindow *> >::iterator ic, ec = changedGroups.end();
+  set<AWindow *>::iterator iw, ew = sw.end(), aew = aw.end(), rew = rsw.end();
+  changedGroups[ new_group ];
+  for( iw=sw.begin(); iw!=ew; ++iw )
+    if( (*iw)->Group() != new_group )
+    {
+      rsw.insert( *iw ); // really changing
+      changedGroups[ (*iw)->Group() ];
+    }
+  for( iw=aw.begin(); iw!=aew; ++iw )
+  {
+    if( rsw.find( *iw ) == rew )
+    {
+      ic = changedGroups.find( (*iw)->Group() );
+      if( ic != ec )
+        ic->second.insert( *iw );
+    }
+  }
+  // break all involved groups
+  for( ic=changedGroups.begin(); ic!=ec; ++ic )
+    if( ic->first != 0 )
+      theAnatomist->ungroupWindows( ic->first );
+  // rebuild all groups
+  if( new_group != 0 )
+  {
+    set<AWindow *> & nsw = changedGroups[ new_group ];
+    for( iw=rsw.begin(); iw!=rew; ++iw )
+      nsw.insert( *iw );
+  }
+  for( ic=changedGroups.begin(); ic!=ec; ++ic )
+    if( ic->first != 0 )
+      theAnatomist->groupWindows( ic->second, ic->first );
 }
 
 

@@ -95,8 +95,12 @@ protected:
   virtual void decorateItem( QTreeWidgetItem* item, anatomist::AWindow* obj );
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
+  bool dragMoveEventFromObject( QDragMoveEvent* );
+  bool dragMoveEventFromWindow( QDragMoveEvent* );
   virtual void dragLeaveEvent( QDragLeaveEvent* );
   virtual void dropEvent( QDropEvent* );
+  void dropEventFromObject( QDropEvent* );
+  void dropEventFromWindow( QDropEvent* );
   void highlightWindow( anatomist::AWindow *win, bool state );
   void clearWindowsHighlights();
 

@@ -55,13 +55,10 @@ namespace anatomist
 
     virtual ~WindowTreeBase();
 
-    /**@name	Windows registration */
-    //@{
     ///	adds the window at the base level of this tree
     virtual void registerWindow( AWindow* obj ) = 0;
     virtual void unregisterWindow( AWindow* obj ) = 0;
     virtual void NotifyWindowChange( AWindow* obj ) = 0;
-    //@}
 
     virtual std::set<AWindow *> *SelectedWindows() const = 0;
     virtual std::set<int> SelectedGroups() const = 0;

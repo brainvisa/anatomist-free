@@ -270,15 +270,15 @@ void AControlMenuHandler::enablePreferencesMenu( bool state )
 }
 
 
-void AControlMenuHandler::setGroupMenuText( const string & text )
+void AControlMenuHandler::setGroupMenuText( const QString & text )
 {
-  d->group->setText( QString::fromUtf8( text.c_str() ) );
+  d->group->setText( text );
 }
 
 
-void AControlMenuHandler::setLinkMenuText( const string & text )
+void AControlMenuHandler::setLinkMenuText( const QString & text )
 {
-  d->link->setText( QString::fromUtf8( text.c_str() ) );
+  d->link->setText( text );
 }
 
 

@@ -4224,6 +4224,14 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
+        <translation>Trier les polygones des objets transparents par profondeur. Cela fait un meilleur rendu de la transparence, mais a un impact important sur les performances des rendus.</translation>
+    </message>
+    <message>
+        <source>Depth sorting of polygons</source>
+        <translation>Tri par profondeur des poligones</translation>
+    </message>
+    <message>
+        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
         <translation>Trier les polygones par profondeur pour les objets transparents. Les rendus transparents sont meilleurs, mais l&apos;impact sur les performances de rendu sont importantes.</translation>
     </message>
 </context>
