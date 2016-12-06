@@ -2381,7 +2381,7 @@ Cela est particulièrement utile pour l&apos;affichage de gros jeux de faisceaux
     </message>
     <message>
         <source>Save only modified sub-objects</source>
-        <translation>Sauver seulement les sous-objest modifiés</translation>
+        <translation>Sauver seulement les sous-objets modifiés</translation>
     </message>
     <message>
         <source>Use attribute :</source>
