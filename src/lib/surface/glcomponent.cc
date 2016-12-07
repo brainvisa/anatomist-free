@@ -1070,9 +1070,9 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
       }
       else
       {
-        *ptr++ = (GLubyte) ( (float) rgb.red()   ) * r + ir;
-        *ptr++ = (GLubyte) ( (float) rgb.green() ) * r + ir;
-        *ptr++ = (GLubyte) ( (float) rgb.blue()  ) * r + ir;
+        *ptr++ = (GLubyte) ( (float) rgb.red()   * r ) + ir;
+        *ptr++ = (GLubyte) ( (float) rgb.green() * r ) + ir;
+        *ptr++ = (GLubyte) ( (float) rgb.blue()  * r ) + ir;
         *ptr++ = (GLubyte) rgb.alpha();
       }
     }
