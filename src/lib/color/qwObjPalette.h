@@ -97,6 +97,9 @@ protected slots:
   void chooseObject();
   void objectsChosen( const std::set<anatomist::AObject *> & );
   void extensionActionTriggered( QAction* action );
+  void zeroCentered1Changed( int state );
+  void zeroCentered2Changed( int state );
+
 
 protected:
   struct DimBox;
