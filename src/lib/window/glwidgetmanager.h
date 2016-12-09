@@ -160,7 +160,8 @@ namespace anatomist
     void setAutoCentering( bool );
     bool autoCentering() const;
     virtual void recordStart( const QString & basename, 
-                              const QString & format = QString::null );
+                              const QString & format = QString::null,
+                              int width=0, int height=0 );
     void saveContents( const QString & filename, const QString & format,
                        int width=0, int height=0 );
     void saveOtherBuffer( const QString & filename, 
@@ -195,7 +196,9 @@ namespace anatomist
   // public slots:
 
     virtual void saveContents();
+    void saveContentsWithCustomSize();
     virtual void recordStart();
+    void recordStartWithCustomSize();
     virtual void recordStop();
 
     bool hasCameraChanged() const;
@@ -252,7 +255,9 @@ public:
 
 public slots:
   void saveContents();
+  void saveContentsWithCustomSize();
   void recordStart();
+  void recordStartWithCustomSize();
   void recordStop();
 
 protected slots:

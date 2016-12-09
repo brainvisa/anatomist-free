@@ -55,6 +55,8 @@
 #include <qdesktopwidget.h>
 #include <QGraphicsView>
 #include <QSysInfo>
+#include <QLineEdit>
+#include <QIntValidator>
 
 namespace Qt
 {
@@ -100,9 +102,21 @@ void GLWidgetManager_Private_QObject::saveContents()
 }
 
 
+void GLWidgetManager_Private_QObject::saveContentsWithCustomSize()
+{
+  _manager->saveContentsWithCustomSize();
+}
+
+
 void GLWidgetManager_Private_QObject::recordStart()
 {
   _manager->recordStart();
+}
+
+
+void GLWidgetManager_Private_QObject::recordStartWithCustomSize()
+{
+  _manager->recordStartWithCustomSize();
 }
 
 
@@ -167,6 +181,8 @@ struct GLWidgetManager::Private
   bool resized;
   bool saveInProgress;
   bool cameraChanged;
+  int recordWidth;
+  int recordHeight;
 };
 
 
@@ -186,7 +202,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true )
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 )
 {
   buildRotationMatrix();
 }
@@ -767,7 +783,8 @@ void GLWidgetManager::record()
   QString	filename = _pd->recordBaseName + num + _pd->recordSuffix;
 
   cout << "writing " << filename.toStdString() << endl;
-  saveContents( filename, _pd->recordFormat );
+  saveContents( filename, _pd->recordFormat, _pd->recordWidth,
+                _pd->recordHeight );
   ++_pd->recIndex;
 }
 
@@ -1232,11 +1249,83 @@ void GLWidgetManager::saveContents()
 }
 
 
+namespace
+{
+
+  bool askSize( int & width, int & height, QWidget* parent )
+  {
+    QDialog rv( parent );
+    rv.setObjectName( "snapshot_size" );
+    rv.setModal( true );
+    rv.setWindowTitle( QObject::tr( "Snapshot size", "AWindow3D" ) );
+    QVBoxLayout *l = new QVBoxLayout(&rv);
+    l->setMargin( 5 );
+    l->setSpacing( 5 );
+    l->addWidget( new QLabel( QObject::tr( "Snapshot size:", "AWindow3D" ),
+                              &rv ) );
+    QWidget *hb = new QWidget( &rv );
+    l->addWidget( hb );
+    QHBoxLayout *hlay = new QHBoxLayout( hb );
+    hlay->setSpacing( 10 );
+    hlay->setMargin( 0 );
+    QLineEdit *xed = new QLineEdit(QString::number(width), hb);
+    xed->setValidator( new QIntValidator );
+    hlay->addWidget( xed );
+    hlay->addWidget( new QLabel("x", hb) );
+    QLineEdit *yed = new QLineEdit(QString::number(height), hb);
+    yed->setValidator( new QIntValidator );
+    hlay->addWidget( yed );
+    QWidget *hb2 = new QWidget( &rv );
+    l->addWidget( hb2 );
+    hlay = new QHBoxLayout( hb2 );
+    hlay->setSpacing( 10 );
+    hlay->setMargin( 0 );
+    QPushButton *ok = new QPushButton(QObject::tr( "OK", "AWindow3D" ), hb2 );
+    hlay->addWidget( ok );
+    QPushButton *cc = new QPushButton(QObject::tr( "Cancel", "AWindow3D" ),
+                                      hb2 );
+    hlay->addWidget( cc );
+    ok->setDefault(true);
+    rv.connect( ok, SIGNAL( clicked() ), &rv, SLOT( accept() ) );
+    rv.connect( cc, SIGNAL( clicked() ), &rv, SLOT( reject() ) );
+
+    if( rv.exec() )
+    {
+      width = xed->text().toInt();
+      height = yed->text().toInt();
+      return true;
+    }
+    return false;
+  }
+
+}
+
+
+void GLWidgetManager::saveContentsWithCustomSize()
+{
+  int w = width(), h = height();
+  if( !askSize( w, h, dynamic_cast<QWidget *>( this ) ) )
+    return;
+
+  QStringList	names = fileAndFormat( "Save window image" );
+  if( names.count() != 2 )
+    {
+      cout << "save aborted\n";
+      return;
+    }
+
+  saveContents( names.first(), names.last(), w, h );
+}
+
+
 void GLWidgetManager::recordStart( const QString & basename,
-                                   const QString & format )
+                                   const QString & format,
+                                   int width, int height )
 {
   _pd->recordBaseName = basename;
   _pd->recordFormat = format;
+  _pd->recordWidth = width;
+  _pd->recordHeight = height;
   int	p = _pd->recordBaseName.lastIndexOf( '.' );
   if( p >= 0 )
   {
@@ -1263,6 +1352,22 @@ void GLWidgetManager::recordStart()
       return;
     }
   recordStart( names.first(), names.last() );
+}
+
+
+void GLWidgetManager::recordStartWithCustomSize()
+{
+  int w = width(), h = height();
+  if( !askSize( w, h, dynamic_cast<QWidget *>( this ) ) )
+    return;
+
+  QStringList	names = fileAndFormat( "Record window in images" );
+  if( names.count() != 2 )
+  {
+    cout << "save aborted\n";
+    return;
+  }
+  recordStart( names.first(), names.last(), w, h );
 }
 
 

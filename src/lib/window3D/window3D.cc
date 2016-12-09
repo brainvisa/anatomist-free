@@ -720,8 +720,12 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     QMenu *win = new QMenu( tr("Window"), this );
     menuBar()->addMenu(win);
     win->addAction( tr("Save..."), d->draw->qobject(), SLOT(saveContents()) );
-    win->addAction( tr("Start recording..."), d->draw->qobject(), SLOT(
-        recordStart()) );
+    win->addAction( tr("Save high-res..."),
+                    d->draw->qobject(), SLOT(saveContentsWithCustomSize()) );
+    win->addAction( tr("Start recording..."),
+                    d->draw->qobject(), SLOT( recordStart() ) );
+    win->addAction( tr("Start recording high-res..."),
+                    d->draw->qobject(), SLOT( recordStartWithCustomSize() ) );
     win->addAction( tr("Stop recording"), d->draw->qobject(),
         SLOT(recordStop()) );
     win->addSeparator();

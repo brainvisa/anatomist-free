@@ -3301,6 +3301,20 @@ WindowConfig
         shows or hides everything around the 3D view (menus, buttons bars, status bar, referential...)
       </td>
     </tr>
+    <tr>
+      <td valign="top"><tt>snapshot_width</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        Snapshot or recorded images width. If unspecified, fit the window size.
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>snapshot_height</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        Snapshot or recorded images height. If unspecified, fit the window size.
+      </td>
+    </tr>
 
   </tbody>
   </table>
