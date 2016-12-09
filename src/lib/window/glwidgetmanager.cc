@@ -32,6 +32,7 @@
  */
 
 
+#include <anatomist/window/glcaps.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/application/fileDialog.h>
@@ -459,8 +460,14 @@ void GLWidgetManager::setRGBBufferUpdated( bool x )
 }
 
 
-void GLWidgetManager::paintGL( DrawMode m )
+void GLWidgetManager::paintGL( DrawMode m, int virtualWidth, int virtualHeight )
 {
+  int width = _pd->glwidget->width(), height = _pd->glwidget->height();
+  if( virtualWidth != 0 )
+    width = virtualWidth;
+  if( virtualHeight != 0 )
+    height = virtualHeight;
+
   _pd->cameraChanged = false;
   //   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
@@ -480,7 +487,7 @@ void GLWidgetManager::paintGL( DrawMode m )
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
   glClearColor( 1, 1, 1, 1 );
 
-  project();
+  project( width, height );
 
   if( m != ObjectSelect && m != ObjectsSelect && m != PolygonSelect )
   {
@@ -529,7 +536,7 @@ void GLWidgetManager::paintGL( DrawMode m )
       }*/
 
   // Viewport to draw objects into
-  glViewport( 0, 0, _pd->glwidget->width(), _pd->glwidget->height() );
+  glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );
@@ -750,7 +757,7 @@ void GLWidgetManager::record()
     return;
   // flush buffered events, without saving pictures
   _pd->saveInProgress = true;
-  aWindow()->show();
+  // aWindow()->show();
   qApp->processEvents();
   _pd->saveInProgress = false;
 
@@ -766,12 +773,13 @@ void GLWidgetManager::record()
 
 
 void GLWidgetManager::saveContents( const QString & filename,
-                                    const QString & format )
+                                    const QString & format,
+                                    int width, int height )
 {
   if( _pd->saveInProgress )
     return;
   _pd->saveInProgress = true;
-  aWindow()->show();
+//   aWindow()->show();
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
   /* TODO: try using FrameBuffer objects
@@ -815,7 +823,7 @@ void GLWidgetManager::saveContents( const QString & filename,
     {
       mode = _pd->otherbuffers & (1<<i);
       if( mode )
-        saveOtherBuffer( filename, f, mode );
+        saveOtherBuffer( filename, f, mode, width, height );
     }
   }
   _pd->saveInProgress = false;
@@ -823,14 +831,78 @@ void GLWidgetManager::saveContents( const QString & filename,
 
 
 void GLWidgetManager::saveOtherBuffer( const QString & filename,
-                                       const QString & format, int bufmode )
+                                       const QString & format, int bufmode,
+                                       int width, int height )
 {
-  //setupView();
-  if( !_pd->rgbbufready )
-    {
-      paintGL( Normal );
-      _pd->rgbbufready = true;
-    }
+  if( width == 0 )
+    width = _pd->glwidget->width();
+  if( height == 0 )
+    height = _pd->glwidget->height();
+
+  GLuint fb, depth_rb, color_tex;
+  glGenTextures(1, &color_tex);
+  glBindTexture(GL_TEXTURE_2D, color_tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //NULL means reserve texture memory, but texels are undefined
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+
+  glGenFramebuffersEXT(1, &fb);
+  glBindFramebuffer(GL_FRAMEBUFFER, fb);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_tex, 0);
+  glGenRenderbuffers(1, &depth_rb);
+  glBindRenderbuffer(GL_RENDERBUFFER, depth_rb);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_rb);
+
+    GLenum status;
+   status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+   switch(status)
+   {
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+      cout<<"good\n";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+      cout << "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS\n";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      cout << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n";
+      break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      cout << "GL_FRAMEBUFFER_UNSUPPORTED\n";
+      break;
+    default:
+      cout << "It des not work.\n";
+   }
+
+  glBindFramebufferEXT(GL_FRAMEBUFFER, fb);
+
+  paintGL( Normal, width, height );
+
+//   QImage pix2 = QImage( width, height, QImage::Format_ARGB32 );
+
+//   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
+//   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
+//   glReadBuffer(GL_FRONT);
+//   glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, pix2.bits());
+
+  //Bind 0, which means render to back buffer
+//   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+//   pix2.save( "/tmp/test_snapshot.jpg", "JPEG", 100 );
+
+//   return;
+//
+//   //setupView();
+//   if( !_pd->rgbbufready )
+//     {
+//       paintGL( Normal );
+//       _pd->rgbbufready = true;
+//     }
 
   int		depth;
   GLenum	mode;
@@ -880,7 +952,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       mode = GL_BGRA;
       alpha = false;
       iformat = QImage::Format_RGB32;
-      pix = _pd->glwidget->grabFrameBuffer( false );
+//       pix = _pd->glwidget->grabFrameBuffer( false );
       break;
     }
 
@@ -889,19 +961,19 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
     int	ncol = 0;
     if( depth == 8 )
       ncol = 256;
-    pix = QImage( _pd->glwidget->width(), _pd->glwidget->height(), iformat );
+    pix = QImage( width, height, iformat );
     int	i;
     for( i=0; i<ncol; ++i )
       pix.setColor( i, qRgb(i,i,i) );
     // read the GL buffer
-    glReadPixels( 0, 0, (GLint) _pd->glwidget->width(), (GLint)
-        _pd->glwidget->height(), mode, GL_UNSIGNED_BYTE, pix.bits() );
+    glReadPixels( 0, 0, (GLint) width, (GLint)
+        height, mode, GL_UNSIGNED_BYTE, pix.bits() );
 
     pix = pix.mirrored( false, true );
     if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
     {
       cout << "change bit order\n";
-      int n = _pd->glwidget->width()*_pd->glwidget->height();
+      int n = width*height;
       unsigned char *buf = pix.bits(), c;
       for( i=0; i<n; ++i )
       {
@@ -921,14 +993,14 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
         && _pd->backgroundAlpha != 255 && depth == 32 )
     {
       glReadBuffer( GL_FRONT );
-      int n = width()*height(), y, w = width();
+      int n = width * height, y, w = width;
       vector<GLfloat> buffer( n, 2. );
       // read Z buffer
-      glReadPixels( 0, 0, (GLint) width(), (GLint) height(),
+      glReadPixels( 0, 0, (GLint) width, (GLint) height,
                     GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
       unsigned char *buf = pix.bits();
       // TODO: WHY THIS y-inversion ???
-      for( y=height()-1; y>=0; --y )
+      for( y=height-1; y>=0; --y )
         for( i=0; i<w; ++i )
         {
           buf += 3;
@@ -945,6 +1017,12 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   alphaname = alphaname.insert( pos, ext );
   cout << "saving " << alphaname.toStdString() << endl;
   pix.save( alphaname, format.toStdString().c_str(), 100 );
+
+  //Bind 0, which means render to back buffer, as a result, fb is unbound
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glDeleteTextures(1, &color_tex);
+  glDeleteRenderbuffersEXT(1, &depth_rb);
+  glDeleteFramebuffersEXT(1, &fb);
 }
 
 
@@ -1200,13 +1278,17 @@ void GLWidgetManager::setPreferredSize( int w, int h )
 }
 
 
-void GLWidgetManager::project()
+void GLWidgetManager::project( int width, int height )
 {
+  if( width == 0 )
+    width = _pd->glwidget->width();
+  if( height == 0 )
+    height = _pd->glwidget->height();
   // Make our OpenGL context current
   _pd->glwidget->makeCurrent();
 
   // Projection matrix: should be defined only at init time and when resizing
-  float	w = _pd->glwidget->width(), h = _pd->glwidget->height();
+  float	w = width, h = height;
   float ratio = w / h;
 
   float	sizex = ( _pd->bmaxw[0] - _pd->bminw[0] ) / 2;
@@ -1262,14 +1344,19 @@ void GLWidgetManager::project()
 }
 
 
-void GLWidgetManager::setupView()
+void GLWidgetManager::setupView( int width, int height )
 {
-  project();
+  if( width == 0 )
+    width = _pd->glwidget->width();
+  if( height == 0 )
+    height = _pd->glwidget->height();
+
+  project( width, height );
   // Modelview matrix: we only apply rotation for now!
   glLoadMatrixf( &_pd->rotation[0] );
 
   // Viewport to draw objects into
-  glViewport( 0, 0, _pd->glwidget->width(), _pd->glwidget->height() );
+  glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );

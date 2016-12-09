@@ -161,9 +161,11 @@ namespace anatomist
     bool autoCentering() const;
     virtual void recordStart( const QString & basename, 
                               const QString & format = QString::null );
-    void saveContents( const QString & filename, const QString & format );
+    void saveContents( const QString & filename, const QString & format,
+                       int width=0, int height=0 );
     void saveOtherBuffer( const QString & filename, 
-                          const QString & format, int mode );
+                          const QString & format, int mode,
+                          int width=0, int height=0 );
     void setOtherBuffersSaveMode( int mode );
     int otherBuffersSaveMode() const;
 
@@ -211,11 +213,14 @@ namespace anatomist
       PolygonSelect
     };
 
-    virtual void project();
-    virtual void setupView();
+    virtual void project( int virtualWidth=0, int virtualHeight=0 );
+    virtual void setupView( int virtualWidth=0, int virtualHeight=0 );
     void drawObjects( DrawMode m = Normal );
     void depthPeelingRender( DrawMode m = Normal );
-    virtual void paintGL( DrawMode m );
+    /** Virtual width and height are used to perform off-screen rendering.
+        They are used only in the context of a framebuffer.
+    */
+    virtual void paintGL( DrawMode m, int virtualWidth=0, int virtualHeight=0 );
     void record();
 
     anatomist::GLPrimitives _primitives;

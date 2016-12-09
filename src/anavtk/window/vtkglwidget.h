@@ -85,11 +85,11 @@ protected:
   virtual void initializeGL();
   virtual void resizeGL( int w, int h );
   virtual void paintGL();
-  virtual void paintGL( DrawMode m );
+  virtual void paintGL( DrawMode m, int virtualWidth=0, int virtualHeight=0 );
 
-  virtual void project();
-  virtual void rotate();
-  virtual void setupView();
+  virtual void project( int virtualWidth=0, int virtualHeight=0 );
+  virtual void rotate( int virtualWidth=0, int virtualHeight=0 );
+  virtual void setupView( int virtualWidth=0, int virtualHeight=0 );
 
   virtual void vtkUpdateCamera (void);
   virtual void vtkRender  (void);
