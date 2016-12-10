@@ -109,6 +109,10 @@ namespace anatomist
                                            GLuint renderbuffer );
     static void glRenderbufferStorage( GLenum target, GLenum internalformat, 
                                        GLsizei width, GLsizei height );
+    static GLenum glCheckFramebufferStatus( GLenum target );
+    static void glDeleteRenderbuffers( GLsizei n,
+                                       const GLuint *renderbuffers );
+    static void glDeleteFramebuffers( GLsizei n, const GLuint *framebuffers );
     static void glUniform1f( GLint location, GLfloat v0 );
     static void glUniform1i( GLint location, GLint v0 );
     static void glUniform4fv( GLint location, GLsizei count,

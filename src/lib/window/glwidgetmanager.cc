@@ -851,35 +851,51 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
                                        const QString & format, int bufmode,
                                        int width, int height )
 {
-  if( width == 0 )
+  bool use_framebuffer = GLCaps::hasFramebuffer();
+
+  if( !use_framebuffer &&
+      ( ( width != 0 && width != _pd->glwidget->width() )
+        || (height != 0 && height != _pd->glwidget->height() ) ) )
+    cout << "Warning: Framebuffer rendering is unavailable. "
+      << "Using on-screen snapshot.\n";
+
+  if( width == 0 || !use_framebuffer )
     width = _pd->glwidget->width();
-  if( height == 0 )
+  if( height == 0 || !use_framebuffer )
     height = _pd->glwidget->height();
 
   GLuint fb, depth_rb, color_tex;
-  glGenTextures(1, &color_tex);
-  glBindTexture(GL_TEXTURE_2D, color_tex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  //NULL means reserve texture memory, but texels are undefined
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 
-  glGenFramebuffersEXT(1, &fb);
-  glBindFramebuffer(GL_FRAMEBUFFER, fb);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_tex, 0);
-  glGenRenderbuffers(1, &depth_rb);
-  glBindRenderbuffer(GL_RENDERBUFFER, depth_rb);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_rb);
+  if( use_framebuffer )
+  {
+    glGenTextures( 1, &color_tex );
+    glBindTexture( GL_TEXTURE_2D, color_tex );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    //NULL means reserve texture memory, but texels are undefined
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA,
+                  GL_UNSIGNED_BYTE, NULL );
+
+    GLCaps::glGenFramebuffers( 1, &fb );
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, fb );
+    GLCaps::glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                    GL_TEXTURE_2D, color_tex, 0 );
+    GLCaps::glGenRenderbuffers( 1, &depth_rb );
+    GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, depth_rb );
+    GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width,
+                                  height );
+    GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                      GL_RENDERBUFFER, depth_rb );
 
     GLenum status;
-   status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-   switch(status)
-   {
-    case GL_FRAMEBUFFER_COMPLETE_EXT:
-      cout<<"good\n";
+    status = GLCaps::glCheckFramebufferStatus( GL_FRAMEBUFFER );
+    bool fb_ok = false;
+    switch(status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE:
+      fb_ok = true;
       break;
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
       cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n";
@@ -894,32 +910,40 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       cout << "GL_FRAMEBUFFER_UNSUPPORTED\n";
       break;
     default:
-      cout << "It des not work.\n";
-   }
+      cout << "Framebuffer is not working for a unknown reason.\n";
+    }
+    if( fb_ok )
+    {
+      paintGL( Normal, width, height );
+      _pd->rgbbufready = true;
+    }
+    else
+    {
+      cout << "Warning: Framebuffer rendering is not working. "
+        << "Using on-screen snapshot.\n";
+      // problem with FB: release resources and switch to on-screen mode
+      GLCaps::glBindFramebuffer( GL_FRAMEBUFFER_EXT, 0 );
+      glDeleteTextures( 1, &color_tex );
+      GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
+      GLCaps::glDeleteFramebuffers( 1, &fb );
+      use_framebuffer = false;
+      width = _pd->glwidget->width();
+      height = _pd->glwidget->height();
+    }
+  }
+  if( !use_framebuffer )
+  {
+    // without framebuffer
 
-  glBindFramebufferEXT(GL_FRAMEBUFFER, fb);
+    aWindow()->show();
 
-  paintGL( Normal, width, height );
-
-//   QImage pix2 = QImage( width, height, QImage::Format_ARGB32 );
-
-//   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
-//   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
-//   glReadBuffer(GL_FRONT);
-//   glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, pix2.bits());
-
-  //Bind 0, which means render to back buffer
-//   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-//   pix2.save( "/tmp/test_snapshot.jpg", "JPEG", 100 );
-
-//   return;
-//
-//   //setupView();
-//   if( !_pd->rgbbufready )
-//     {
-//       paintGL( Normal );
-//       _pd->rgbbufready = true;
-//     }
+    //setupView();
+    if( !_pd->rgbbufready )
+    {
+      paintGL( Normal );
+      _pd->rgbbufready = true;
+    }
+  }
 
   int		depth;
   GLenum	mode;
@@ -931,7 +955,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   _pd->glwidget->makeCurrent();
   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
-  glReadBuffer( GL_BACK );
+  glReadBuffer( GL_FRONT );
 
   switch( bufmode )
     {
@@ -1009,7 +1033,6 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
     if( alpha && _pd->transparentBackground && bufmode == 4
         && _pd->backgroundAlpha != 255 && depth == 32 )
     {
-      glReadBuffer( GL_FRONT );
       int n = width * height, y, w = width;
       vector<GLfloat> buffer( n, 2. );
       // read Z buffer
@@ -1035,11 +1058,14 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   cout << "saving " << alphaname.toStdString() << endl;
   pix.save( alphaname, format.toStdString().c_str(), 100 );
 
-  //Bind 0, which means render to back buffer, as a result, fb is unbound
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-  glDeleteTextures(1, &color_tex);
-  glDeleteRenderbuffersEXT(1, &depth_rb);
-  glDeleteFramebuffersEXT(1, &fb);
+  if( use_framebuffer )
+  {
+    //Bind 0, which means render to back buffer, as a result, fb is unbound
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER_EXT, 0 );
+    glDeleteTextures( 1, &color_tex );
+    GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
+    GLCaps::glDeleteFramebuffers( 1, &fb );
+  }
 }
 
 
