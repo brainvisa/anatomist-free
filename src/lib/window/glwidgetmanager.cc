@@ -922,7 +922,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       cout << "Warning: Framebuffer rendering is not working. "
         << "Using on-screen snapshot.\n";
       // problem with FB: release resources and switch to on-screen mode
-      GLCaps::glBindFramebuffer( GL_FRAMEBUFFER_EXT, 0 );
+      GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
       glDeleteTextures( 1, &color_tex );
       GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
       GLCaps::glDeleteFramebuffers( 1, &fb );
@@ -1061,7 +1061,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   if( use_framebuffer )
   {
     //Bind 0, which means render to back buffer, as a result, fb is unbound
-    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER_EXT, 0 );
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
     glDeleteTextures( 1, &color_tex );
     GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
     GLCaps::glDeleteFramebuffers( 1, &fb );
