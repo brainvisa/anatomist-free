@@ -796,31 +796,6 @@ void GLWidgetManager::saveContents( const QString & filename,
   if( _pd->saveInProgress )
     return;
   _pd->saveInProgress = true;
-//   aWindow()->show();
-  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-
-  /* TODO: try using FrameBuffer objects
-     See Matthieu's trials: /home/mp210984/fbo in NS
-  */
-  /* // renderPixmap seems not to work with shared contexts:
-  // when using the existing context, the rendering is just crap.
-  // When using its own context, OpenGL fails with errors, either because
-  // the context is not shared, or because there are some makeCurrent() calls
-  // within our routines (and we may have to find a way to disable them)
-  int x, y;
-  unsigned w, h;
-  aWindow()->geometry( &x, &y, &w, &h );
-  QPixmap pix = qglWidget()->renderPixmap( w, h, false ); // doesn't work....
-  if( pix.isNull() )
-  {
-    cout << "Pixmap rendering failed\n";
-  }
-  else
-  {
-    pix.save( filename, format, 100 );
-    return;
-  }
-  */
 
   QString	f;
   if( format.isNull() )
@@ -851,6 +826,39 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
                                        const QString & format, int bufmode,
                                        int width, int height )
 {
+  QImage pix = snapshotImage( width, height );
+  QString	ext;
+
+  switch( bufmode )
+  {
+  case 2:	// alpha buffer
+    ext = "-alpha";
+    break;
+  case 4:	// RGBA
+    ext = "-rgba";
+    break;
+  case 8:	// depth
+    ext = "-depth";
+    break;
+  case 16:	// luminance
+    ext = "-luminance";
+    break;
+  default:	// RGB buffer
+    break;
+  }
+
+  QString	alphaname = filename;
+  int pos = alphaname.lastIndexOf( '.' );
+  if( pos == -1 )
+    pos = alphaname.length();
+  alphaname = alphaname.insert( pos, ext );
+//   cout << "saving " << alphaname.toStdString() << endl;
+  pix.save( alphaname, format.toStdString().c_str(), 100 );
+}
+
+
+QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
+{
   bool use_framebuffer = GLCaps::hasFramebuffer();
 
   if( !use_framebuffer &&
@@ -869,7 +877,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   {
     cerr << "Problem in GLWidgetManager::saveOtherBuffer: window is not "
       << "a QWidget !\n";
-    return;
+    return QImage();
   }
 
   bool setdontshow = false;
@@ -969,7 +977,6 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
 
   int		depth;
   GLenum	mode;
-  QString	ext;
   bool		alpha;
   QImage::Format iformat;
   QImage        pix;
@@ -985,29 +992,24 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       depth = 8;
       mode = GL_ALPHA;
       alpha = false;
-      ext = "-alpha";
       iformat = QImage::Format_Indexed8;
       break;
     case 4:	// RGBA
       depth = 32;
       mode = GL_BGRA;
       alpha = true;
-      ext = "-rgba";
       iformat = QImage::Format_ARGB32;
-      pix = _pd->glwidget->grabFrameBuffer( true );
       break;
     case 8:	// depth
       depth = 8;
       mode = GL_DEPTH_COMPONENT;
       alpha = false;
-      ext = "-depth";
       iformat = QImage::Format_Indexed8;
       break;
     case 16:	// luminance
       depth = 8;
       mode = GL_LUMINANCE;
       alpha = false;
-      ext = "-luminance";
       iformat = QImage::Format_Indexed8;
       break;
     default:	// RGB buffer
@@ -1015,7 +1017,6 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       mode = GL_BGRA;
       alpha = false;
       iformat = QImage::Format_RGB32;
-//       pix = _pd->glwidget->grabFrameBuffer( false );
       break;
     }
 
@@ -1079,14 +1080,6 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
     awindow->setAttribute( Qt::WA_DontShowOnScreen, false );
   }
 
-  QString	alphaname = filename;
-  int pos = alphaname.lastIndexOf( '.' );
-  if( pos == -1 )
-    pos = alphaname.length();
-  alphaname = alphaname.insert( pos, ext );
-  cout << "saving " << alphaname.toStdString() << endl;
-  pix.save( alphaname, format.toStdString().c_str(), 100 );
-
   if( use_framebuffer )
   {
     //Bind 0, which means render to back buffer, as a result, fb is unbound
@@ -1095,6 +1088,8 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
     GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
     GLCaps::glDeleteFramebuffers( 1, &fb );
   }
+
+  return pix;
 }
 
 

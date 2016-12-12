@@ -164,7 +164,8 @@ namespace anatomist
                               int width=0, int height=0 );
     void saveContents( const QString & filename, const QString & format,
                        int width=0, int height=0 );
-    void saveOtherBuffer( const QString & filename, 
+    QImage snapshotImage( int bufmode, int width=0, int height=0 );
+    void saveOtherBuffer( const QString & filename,
                           const QString & format, int mode,
                           int width=0, int height=0 );
     void setOtherBuffersSaveMode( int mode );
