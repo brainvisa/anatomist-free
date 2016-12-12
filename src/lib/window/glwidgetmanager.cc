@@ -864,6 +864,31 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   if( height == 0 || !use_framebuffer )
     height = _pd->glwidget->height();
 
+  QWidget *awindow = dynamic_cast<QWidget *>( aWindow() );
+  if( !awindow )
+  {
+    cerr << "Problem in GLWidgetManager::saveOtherBuffer: window is not "
+      << "a QWidget !\n";
+    return;
+  }
+
+  bool setdontshow = false;
+  if( !awindow->isVisible()
+      && !awindow->testAttribute( Qt::WA_DontShowOnScreen ) )
+  {
+    /* The OpenGL context is bound to the on-screen window. Even if rendering to
+       a framebuffer, if the window is hidden, nothing will be rendered.
+       A solution is to use the WA_DontShowOnScreen flag, then show() the
+       window. It seems to work that way (and nothing is actually displayed
+       on screen).
+     */
+    setdontshow = true;
+    awindow->setAttribute( Qt::WA_DontShowOnScreen );
+  }
+
+  awindow->show();
+  qApp->processEvents();
+
   GLuint fb, depth_rb, color_tex;
 
   if( use_framebuffer )
@@ -934,9 +959,6 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
   if( !use_framebuffer )
   {
     // without framebuffer
-
-    aWindow()->show();
-
     //setupView();
     if( !_pd->rgbbufready )
     {
@@ -1050,6 +1072,13 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
         }
     }
   }
+
+  if( setdontshow )
+  {
+    awindow->hide();
+    awindow->setAttribute( Qt::WA_DontShowOnScreen, false );
+  }
+
   QString	alphaname = filename;
   int pos = alphaname.lastIndexOf( '.' );
   if( pos == -1 )
