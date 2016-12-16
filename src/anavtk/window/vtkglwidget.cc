@@ -291,9 +291,9 @@ void vtkQAGLWidget::vtkRender()
 void vtkQAGLWidget::rotate( int width, int height )
 {
   if( width == 0 )
-    width = GLWidgetManager::width();
+    width = vtkQAGLWidget::width();
   if( height == 0 )
-    height = GLWidgetManager::height();
+    height = vtkQAGLWidget::height();
 
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
@@ -323,9 +323,9 @@ void vtkQAGLWidget::paintGL()
 void vtkQAGLWidget::paintGL( DrawMode m, int width, int height )
 {
   if( width == 0 )
-    width = GLWidgetManager::width();
+    width = vtkQAGLWidget::width();
   if( height == 0 )
-    height = GLWidgetManager::height();
+    height = vtkQAGLWidget::height();
 
   // cout << "vtkQAGLWidget::paintGL " << m << endl;
   qglWidget()->makeCurrent();
@@ -434,9 +434,9 @@ void vtkQAGLWidget::updateGL()
 void vtkQAGLWidget::project( int width, int height )
 {
   if( width == 0 )
-    width = GLWidgetManager::width();
+    width = vtkQAGLWidget::width();
   if( height == 0 )
-    height = GLWidgetManager::height();
+    height = vtkQAGLWidget::height();
 
   // Make our OpenGL context current
   qglWidget()->makeCurrent();
@@ -668,9 +668,9 @@ void vtkQAGLWidget::project( int width, int height )
 void vtkQAGLWidget::setupView( int width, int height )
 {
   if( width == 0 )
-    width = GLWidgetManager::width();
+    width = vtkQAGLWidget::width();
   if( height == 0 )
-    height = GLWidgetManager::height();
+    height = vtkQAGLWidget::height();
 
   //rotate();
   project( width, height );
