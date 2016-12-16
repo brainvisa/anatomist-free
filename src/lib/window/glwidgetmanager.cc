@@ -826,7 +826,7 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
                                        const QString & format, int bufmode,
                                        int width, int height )
 {
-  QImage pix = snapshotImage( width, height );
+  QImage pix = snapshotImage( bufmode, width, height );
   QString	ext;
 
   switch( bufmode )
