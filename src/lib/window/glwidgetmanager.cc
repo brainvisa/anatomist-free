@@ -895,6 +895,10 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   }
 
   awindow->show();
+  awindow->ensurePolished();
+  // processing events just once is not always enough.
+  // maybe some events send additional ones (timers in AWindow3D)
+  qApp->processEvents();
   qApp->processEvents();
 
   GLuint fb, depth_rb, color_tex;
