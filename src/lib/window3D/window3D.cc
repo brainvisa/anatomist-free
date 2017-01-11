@@ -3019,6 +3019,7 @@ void AWindow3D::setFog(bool x)
   d->fog = x;
 }
 
+
 void AWindow3D::Refresh()
 {
   d->refreshneeded = Private::FullRefresh;
@@ -3974,6 +3975,13 @@ void AWindow3D::sortPolygons( bool force )
       *(*is)->surface(), int( timemesh ), transDir );
     (*is)->glSetChanged( GLComponent::glGEOMETRY );
   }
+}
+
+
+QImage AWindow3D::snapshotImage( int width, int height, int bufmode )
+{
+  triggeredRefresh();
+  return d->draw->snapshotImage( bufmode, width, height );
 }
 
 
