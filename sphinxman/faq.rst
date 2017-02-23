@@ -158,7 +158,7 @@ To fully understand all this, you may make use of the :anatomist:`Slides on the 
 * make sure you are viewing all images in windows in compatible coordinates systems: the windows referentials must have a links path to the image ones in the transformations graph.
 
 Now this is OK for my volumes, but I have the same problem with meshes, or ROI graphs
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 It depends somewhat whether the meshes/ROIs contain the same kind of information or not (this depends on the tools which have generated them).
 
