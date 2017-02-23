@@ -152,6 +152,7 @@ set( _headers
     object/actions.h
     object/clippedobject.h
     object/loadevent.h
+    object/mobjectio.h
     object/objectmenuCallbacks.h
     object/objectmenu.h
     object/objectparamselect.h
@@ -390,6 +391,7 @@ set( _sources
     object/actions.cc
     object/clippedobject.cc
     object/loadevent.cc
+    object/mobjectio.cc
     object/objectmenu.cc
     object/objectparamselect.cc
     object/objectutils.cc

@@ -51,6 +51,7 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & obj );
     ///	identifier for the method
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 }

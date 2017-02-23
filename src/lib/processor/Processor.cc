@@ -179,6 +179,21 @@ Command *Processor::execute( const string & cname, const string & params,
 }
 
 
+Command* Processor::execute( const string & cname, Object params,
+                             CommandContext* cc )
+{
+  Tree	t( true, cname );
+  t.copyProperties( params );
+  if( !cc )
+    cc = &CommandContext::defaultContext();
+  Command	*c = Registry::instance()->create( t, cc );
+  //cout << "command: " << c << endl;
+  if( c )
+    execute( c );
+  return c;
+}
+
+
 bool
 Processor::undo()
 {

@@ -49,6 +49,7 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 #if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
@@ -61,6 +62,7 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 #endif
 

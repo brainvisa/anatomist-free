@@ -32,59 +32,31 @@
  */
 
 
-#include <anatomist/surfmatcher/surfMatchMethod.h>
-#include <anatomist/surfmatcher/surfMatcher.h>
-#include <anatomist/surface/triangulated.h>
-#include <qobject.h>
+#ifndef ANA_OBJECT_MOBJECT_IO_H
+#define ANA_OBJECT_MOBJECT_IO_H
 
-using namespace anatomist;
-using namespace std;
+#include <anatomist/object/Object.h>
 
-
-string ASurfMatchMethod::ID() const
+namespace anatomist
 {
-  return QT_TRANSLATE_NOOP( "FusionChooser", "SurfaceMatcher" );
+
+  class MObjectIO
+  {
+  public:
+
+    static carto::Object readMObject( carto::Object object_descr,
+                                      const std::string & path = "",
+                                      std::map<std::string, carto::Object>
+                                        *obj_map = 0,
+                                      bool return_id = false );
+
+    static carto::Object writeMObject( AObject* aobject,
+                                       const std::string & path = "",
+                                       std::map<std::string, carto::Object>
+                                         *obj_map = 0 );
+  };
+
 }
 
+#endif
 
-string ASurfMatchMethod::generatedObjectType() const
-{
-  return AObject::objectTypeName( ASurfMatcher::classType() );
-}
-
-
-ASurfMatchMethod::~ASurfMatchMethod()
-{
-}
-
-
-int ASurfMatchMethod::canFusion( const set<AObject *> & obj )
-{
-  if( obj.size() != 2 )
-    return 0;
-
-  set<AObject *>::const_iterator	io = obj.begin();
-  AObject				*o1, *o2;
-  ATriangulated				*go1, *go2;
-
-  o1 = *io;
-  ++io;
-  o2 = *io;
-  go1 = dynamic_cast<ATriangulated *>( o1 );
-  go2 = dynamic_cast<ATriangulated *>( o2 );
-
-  if( go1 && go2 )
-    return 20;
-  else
-    return 0;
-}
-
-
-AObject* ASurfMatchMethod::fusion( const vector<AObject *> & obj )
-{
-  vector<AObject *>::const_iterator	io = obj.begin();
-  AObject				*o = *io;
-
-  ++io;
-  return( new ASurfMatcher( o, *io ) );
-}
