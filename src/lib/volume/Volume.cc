@@ -608,16 +608,16 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
                       wy2 = 1. - wy;
                       wz = pf[2] - pfi[2];
                       val = (T)
-                        ( ( ( ( wx <= 0 ? 0 : *(pim+nextx) * wx )
+                        ( ( ( ( wx <= 0 ? (T)0 : *(pim+nextx) * wx )
                               + val * wx2 ) * wy2
-                            + ( wy <= 0 ? 0 :
-                                ( ( wx <= 0 ? 0 : *(pim+nextyx) * wx )
+                            + ( wy <= 0 ? (T)0 :
+                                ( ( wx <= 0 ? (T)0 : *(pim+nextyx) * wx )
                                   + *(pim+nexty) * wx2 ) * wy ) ) * (1. - wz)
-                          + ( wz <= 0 ? 0 :
-                              ( ( ( wx <= 0 ? 0 : *(pim+nextzx) * wx )
+                          + ( wz <= 0 ? (T)0 :
+                              ( ( ( wx <= 0 ? (T)0 : *(pim+nextzx) * wx )
                                   + *(pim+nextz) * wx2 ) * wy2
-                                + ( wy <= 0 ? 0 :
-                                    ( ( wx <= 0 ? 0 : *(pim+nextzyx) * wx )
+                                + ( wy <= 0 ? (T)0 :
+                                    ( ( wx <= 0 ? (T)0 : *(pim+nextzyx) * wx )
                                       + *(pim+nextzy) * wx2 ) * wy ) )
                               * wz ) );
                     }
