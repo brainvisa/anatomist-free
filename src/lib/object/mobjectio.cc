@@ -38,6 +38,7 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/processor/context.h>
 #include <anatomist/commands/cFusionObjects.h>
+#include <anatomist/mobject/MObject.h>
 #include <cartobase/stream/fileutil.h>
 
 using namespace anatomist;
@@ -128,6 +129,31 @@ namespace
       commands[ "fusion3dparams" ] = c;
     }
     return commands;
+  }
+
+
+  string objectId( AObject* aobj, map<AObject *, string> & obj_map )
+  {
+    string obj_id = aobj->name();
+    set<string> values;
+    // build reverse map (could be optimized externally)
+    map<AObject *, string>::const_iterator iom, eom = obj_map.end();
+    for( iom=obj_map.begin(); iom!=eom; ++iom )
+      values.insert( iom->second );
+
+    while( values.find( obj_id ) != values.end() )
+        obj_id = obj_id + " (2)"; // FIXME NOT GOOD
+    return obj_id;
+  }
+
+
+  bool objectHasNativeSave( AObject* aobj )
+  {
+    // WARNING: non-portable
+    // http://stackoverflow.com/questions/4741271/ways-to-detect-whether-a-c-virtual-function-has-been-redefined-in-a-derived-cl
+    AObject &obj = *aobj;
+    return reinterpret_cast<void*>(obj.*(&AObject::save))
+      != reinterpret_cast<void*>(&AObject::save);
   }
 
 }
@@ -364,15 +390,107 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
   {
     AObject *obj = mobj->value<AObject *>();
     obj->setName( theAnatomist->makeObjectName( obj_name ) );
-    obj->notifyObservers();
+    theAnatomist->NotifyObjectChange( obj );
   }
 
   return make_obj( mobj, obj_id, return_id );
 }
 
 
-Object MObjectIO::writeMObject( AObject* aobject, const string & path,
-                                map<string, Object> *pobj_map )
+Object MObjectIO::writeMObject( Object aobject, const std::string & path )
 {
+  if( aobject->isArray() )
+  {
+    Object objects = Object::value( ObjectVector() );
+    ObjectVector & ov = objects->value<ObjectVector>();
+
+    Object it = aobject->objectIterator();
+    for( ; it->isValid(); it->next() )
+    {
+      Object item = writeMObject( it->currentValue()->value<AObject *>(),
+                                  path );
+      ov.push_back( item );
+    }
+    return objects;
+  }
+  else
+  {
+    AObject *aobj = aobject->value<AObject *>();
+    return writeMObject( aobj, path );
+  }
+}
+
+
+Object MObjectIO::writeMObject( AObject* aobject, const string & path,
+                                map<AObject*, string> *pobj_map )
+{
+  rc_ptr<map<AObject*, string> > robj_map;
+  if( !pobj_map )
+    robj_map.reset( new map<AObject*, string> );
+  else
+    robj_map.reset( pobj_map );
+  map<AObject*, string> & obj_map = *robj_map;
+  if( pobj_map )
+    robj_map.release();
+
+  map<AObject*, string>::iterator iom = obj_map.find( aobject );
+  if( iom != obj_map.end() )
+    return Object::value( iom->second );
+
+  Object objects;
+
+  string otype = aobject->objectFullTypeName();
+  string ftype;
+  list<AObject *> children;
+  if( dynamic_cast<MObject *>( aobject ) )
+  {
+    MObject *mobj = static_cast<MObject *>( aobject );
+    MObject::const_iterator im, em = mobj->end();
+    for( im=mobj->begin(); im!=em; ++im )
+      children.push_back( *im );
+    ftype = getFusionMethod( otype, children );
+  }
+  if( !ftype.empty() )
+  {
+    objects = Object::value( Dictionary() );
+    objects->setProperty( "fusion", ftype );
+    objects->setProperty( "name", aobject->name() );
+    objects->setProperty( "identifier", objectId( aobject, obj_map ) );
+    Object props = aobject->makeHeaderOptions();
+    if( props )
+      objects->setProperty( "properties", props );
+    ObjectVector sub_obj;
+    sub_obj.reserve( children.size() );
+    list<AObject *>::iterator ic, ec = children.end();
+    for( ic=children.begin(); ic!=ec; ++ic )
+    {
+      Object sobj = writeMObject( *ic, path, &obj_map );
+      sub_obj.push_back( sobj );
+      obj_map[ *ic ] = objectId( *ic, obj_map );
+    }
+    objects->setProperty( "objects", sub_obj );
+  }
+  else if( objectHasNativeSave( aobject ) )
+  {
+    string filename = aobject->fileName();
+    if( !path.empty()
+        && filename.substr( 0, path.length() + 1 )
+          == path + FileUtil::separator() )
+      filename = filename.substr( path.length() + 1, filename.length() );
+    cout << "save filename: " << filename << endl;
+    string obj_id = filename;
+    obj_map[ aobject ] = obj_id;
+    objects = Object::value( Dictionary() );
+    objects->setProperty( "objects", filename );
+    objects->setProperty( "identifier", obj_id );
+    objects->setProperty( "name", aobject->name() );
+    Object props = aobject->makeHeaderOptions();
+    if( props )
+      objects->setProperty( "properties", props );
+  }
+  else
+    throw runtime_error( string( "Cannot serialize object type " ) + otype );
+
+  return objects;
 }
 

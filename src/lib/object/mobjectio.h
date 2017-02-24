@@ -52,8 +52,11 @@ namespace anatomist
 
     static carto::Object writeMObject( AObject* aobject,
                                        const std::string & path = "",
-                                       std::map<std::string, carto::Object>
+                                       std::map<AObject*, std::string>
                                          *obj_map = 0 );
+    /// for cases AObject is inside an Object, or we have a list of objects
+    static carto::Object writeMObject( carto::Object aobject,
+                                       const std::string & path = "" );
   };
 
 }
