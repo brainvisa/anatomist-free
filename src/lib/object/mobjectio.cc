@@ -86,6 +86,7 @@ namespace
       {
         if( found )
           return ""; // 2 or more matching fusion types
+        found = true;
         meth_name = im->second;
       }
     }
@@ -101,8 +102,9 @@ namespace
     if( return_id )
     {
       Object robj = Object::value( ObjectVector() );
-      robj->setArrayItem( 0, obj );
-      robj->setArrayItem( 1, Object::value( id ) );
+      ObjectVector & vo = robj->value<ObjectVector>();
+      vo.push_back( obj );
+      vo.push_back( Object::value( id ) );
       return robj;
     }
     else
@@ -145,7 +147,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
 
   string obj_id;
   Object obj_desc;
-  if( object_descr->type() == DataTypeCode<string>::name() )
+  if( object_descr->isString() )
   {
     obj_id = object_descr->getString();
     obj_desc = object_descr;
@@ -157,8 +159,6 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
   else
     obj_desc = object_descr;
 
-  cout << "obj_id: " << obj_id << endl;
-
   if( !obj_id.empty() )
   {
     map<string, Object>::const_iterator iom = obj_map.find( obj_id );
@@ -169,7 +169,6 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
 
   if( object_descr->isString() )
   {
-    cout << "string\n";
     // read sub_object
     string fpath = obj_desc->getString();
     if( !path.empty() && !FileUtil::isAbsPath( fpath ) )
@@ -185,7 +184,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
   Object objects;
   string otype, fmethod;
 
-  if( obj_desc->isArray() )
+  if( !obj_desc->isString() && obj_desc->isArray() )
   {
     // list
     objects = obj_desc;
@@ -233,9 +232,11 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
     }
   }
 
+  // cout << "id: " << obj_id << ", otype: " << otype << ", fmethod: " << fmethod << ", name: " << obj_name << endl;
+
   list<AObject *> aobjects;
 
-  if( !objects.isNull() && objects->isArray() )
+  if( !objects.isNull() && !objects->isString() && objects->isArray() )
   {
     Object oit = objects->objectIterator();
     for( ; oit->isValid(); oit->next() )
@@ -252,7 +253,9 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
           aobjects.push_back( lit->value<AObject *>() );
       }
       else
+      {
         aobjects.push_back( aobj->value<AObject *>() );
+      }
     }
   }
   else
@@ -288,7 +291,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
 
   Object mobj;
 
-  if( !objects.isNull() && objects->isArray() )
+  if( !objects.isNull() && !objects->isString() && objects->isArray() )
   {
     if( ( otype.empty() && fmethod.empty() ) || otype == "list" )
     {
@@ -313,6 +316,8 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
                                     fmethod, -1, false );
       theProcessor->execute( c );
       AObject *fobj = c->createdObject();
+      for( iao=aobjects.begin(); iao!=eao; ++iao )
+        theAnatomist->releaseObject( *iao ); // release app ref
       mobj = Object::value( fobj );
       if( !properties.isNull() )
       {
