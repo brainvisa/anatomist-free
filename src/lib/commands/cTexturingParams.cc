@@ -172,7 +172,10 @@ Command* TexturingParamsCommand::read( const Tree & com,
   vector<float>		genparam1, genparam2, genparam3;
 
   com.getProperty( "objects", id );
-  com.getProperty( "texture_index", tex );
+  try
+  {
+    tex = int( com.getProperty( "texture_index" )->getScalar() );
+  } catch( ... ) {}
 
   for( i=0, n=id.size(); i<n; ++i )
     {
