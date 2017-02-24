@@ -185,11 +185,26 @@ Command* TexturingParamsCommand::read( const Tree & com,
       obj.insert( (AObject *) ptr );
     }
 
-  com.getProperty( "mode", smode );
-  com.getProperty( "filtering", sfilt );
-  com.getProperty( "generation", sgen );
-  com.getProperty( "rate", rate );
-  com.getProperty( "interpolation", sinter );
+  try
+  {
+    smode = com.getProperty( "mode" )->getString();
+  } catch( ... ) {}
+  try
+  {
+    sfilt = com.getProperty( "filtering" )->getString();
+  } catch( ... ) {}
+  try
+  {
+    sgen = com.getProperty( "generation" )->getString();
+  } catch( ... ) {}
+  try
+  {
+    rate = com.getProperty( "rate" )->getScalar();
+  } catch( ... ) {}
+  try
+  {
+    sinter = com.getProperty( "interpolation" )->getString();
+  } catch( ... ) {}
   com.getProperty( "generation_params_1", genparam1 );
   com.getProperty( "generation_params_2", genparam2 );
   com.getProperty( "generation_params_3", genparam3 );
