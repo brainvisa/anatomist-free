@@ -39,9 +39,11 @@
 #include <anatomist/processor/context.h>
 #include <anatomist/commands/cFusionObjects.h>
 #include <anatomist/mobject/MObject.h>
+#include <aims/io/writer.h>
 #include <cartobase/stream/fileutil.h>
 
 using namespace anatomist;
+using namespace aims;
 using namespace carto;
 using namespace std;
 
@@ -159,8 +161,19 @@ namespace
 }
 
 
+Object MObjectIO::readMObject( const std::string & filename )
+{
+  Reader<GenericObject> ro( filename );
+  cout << "reading Object\n";
+  Object aobjects( ro.read() );
+  cout << "done: " << aobjects << endl;
+  return readMObject( aobjects, FileUtil::dirname( filename ) );
+}
+
+
 Object MObjectIO::readMObject( Object object_descr, const string & path,
-                               map<string, Object> *pobj_map, bool return_id )
+                               map<string, Object> *pobj_map,
+                               bool return_id )
 {
   rc_ptr<map<string, Object> > robj_map;
   if( !pobj_map )
@@ -397,7 +410,9 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
 }
 
 
-Object MObjectIO::writeMObject( Object aobject, const std::string & path )
+Object MObjectIO::createMObjectDescr( Object aobject,
+                                      const std::string & path,
+                                      bool writeLeafs )
 {
   if( aobject->isArray() )
   {
@@ -407,8 +422,8 @@ Object MObjectIO::writeMObject( Object aobject, const std::string & path )
     Object it = aobject->objectIterator();
     for( ; it->isValid(); it->next() )
     {
-      Object item = writeMObject( it->currentValue()->value<AObject *>(),
-                                  path );
+      Object item = createMObjectDescr( it->currentValue()->value<AObject *>(),
+                                        path, writeLeafs );
       ov.push_back( item );
     }
     return objects;
@@ -416,13 +431,14 @@ Object MObjectIO::writeMObject( Object aobject, const std::string & path )
   else
   {
     AObject *aobj = aobject->value<AObject *>();
-    return writeMObject( aobj, path );
+    return createMObjectDescr( aobj, path, writeLeafs );
   }
 }
 
 
-Object MObjectIO::writeMObject( AObject* aobject, const string & path,
-                                map<AObject*, string> *pobj_map )
+Object MObjectIO::createMObjectDescr( AObject* aobject, const string & path,
+                                      bool writeLeafs,
+                                      map<AObject*, string> *pobj_map )
 {
   rc_ptr<map<AObject*, string> > robj_map;
   if( !pobj_map )
@@ -464,7 +480,7 @@ Object MObjectIO::writeMObject( AObject* aobject, const string & path,
     list<AObject *>::iterator ic, ec = children.end();
     for( ic=children.begin(); ic!=ec; ++ic )
     {
-      Object sobj = writeMObject( *ic, path, &obj_map );
+      Object sobj = createMObjectDescr( *ic, path, writeLeafs, &obj_map );
       sub_obj.push_back( sobj );
       obj_map[ *ic ] = objectId( *ic, obj_map );
     }
@@ -492,5 +508,38 @@ Object MObjectIO::writeMObject( AObject* aobject, const string & path,
     throw runtime_error( string( "Cannot serialize object type " ) + otype );
 
   return objects;
+}
+
+
+
+bool MObjectIO::writeMObject( AObject* aobject, const string & filename,
+                              bool writeLeafs )
+{
+  Object objects = createMObjectDescr( aobject, FileUtil::dirname( filename ),
+                                       writeLeafs );
+  return saveDescription( objects, filename );
+}
+
+
+bool MObjectIO::writeMObject( Object aobject, const string & filename,
+                              bool writeLeafs )
+{
+  Object objects = createMObjectDescr( aobject, FileUtil::dirname( filename ),
+                                       writeLeafs );
+  return saveDescription( objects, filename );
+}
+
+
+bool MObjectIO::saveDescription( Object objects, const string & filename,
+                                 bool writeLeafs )
+{
+  if( objects )
+  {
+    Writer<Object> wo( filename );
+    string format = "JSON";
+    wo.write( objects, true, &format );
+    return true;
+  }
+  return false;
 }
 
