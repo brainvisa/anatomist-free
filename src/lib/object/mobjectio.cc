@@ -363,6 +363,8 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
         = new FusionObjectsCommand( vector<AObject *>(aobjects.begin(),
                                                       aobjects.end() ),
                                     fmethod, -1, false );
+      bool allowidle = theProcessor->execWhileIdle();
+      theProcessor->allowExecWhileIdle( true );
       theProcessor->execute( c );
       AObject *fobj = c->createdObject();
       for( iao=aobjects.begin(); iao!=eao; ++iao )
@@ -402,6 +404,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
           }
         }
       }
+      theProcessor->allowExecWhileIdle( allowidle );
     }
   }
   else
