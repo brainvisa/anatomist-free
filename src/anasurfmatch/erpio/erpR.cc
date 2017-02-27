@@ -167,7 +167,7 @@ ErpReader & ErpReader::operator >> ( ATexture & tex )
 }
 
 
-AObject* ErpReader::readErp( const string & filename,
+list<AObject*> ErpReader::readErp( const string & filename,
                              ObjectReader::PostRegisterList &,
                              Object options )
 {
@@ -176,7 +176,7 @@ AObject* ErpReader::readErp( const string & filename,
       {
         Object restricted = options->getProperty( "restrict_object_types" );
         if( !restricted->hasProperty( "Texture" ) )
-          return 0;
+          return list<AObject *>();
       }
     catch( ... )
       {
@@ -190,7 +190,9 @@ AObject* ErpReader::readErp( const string & filename,
   if( obj->size() == 0 )
     {
       delete obj;
-      return 0;
+      return list<AObject *>();
     }
-  return( obj );
+  list<AObject *> objs;
+  objs.push_back( obj );
+  return( objs );
 }

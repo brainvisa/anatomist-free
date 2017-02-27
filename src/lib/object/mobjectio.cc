@@ -164,9 +164,7 @@ namespace
 Object MObjectIO::readMObject( const std::string & filename )
 {
   Reader<GenericObject> ro( filename );
-  cout << "reading Object\n";
   Object aobjects( ro.read() );
-  cout << "done: " << aobjects << endl;
   return readMObject( aobjects, FileUtil::dirname( filename ) );
 }
 
@@ -212,10 +210,22 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
     string fpath = obj_desc->getString();
     if( !path.empty() && !FileUtil::isAbsPath( fpath ) )
       fpath = path + FileUtil::separator() + fpath;
-    AObject *aobj = theAnatomist->loadObject( fpath );
-    if( !aobj )
+    list<AObject *> aobj = theAnatomist->loadObject( fpath );
+    if( aobj.empty() )
       throw io_error( "Could not read object in file " + fpath );
-    return make_obj( Object::value( aobj ), obj_id, return_id );
+    Object robj;
+    if( aobj.size() == 1 )
+      robj = Object::value( *aobj.begin() );
+    else
+    {
+      robj = Object::value( ObjectVector() );
+      vector<Object> & vo = robj->value<ObjectVector>();
+      vo.reserve( aobj.size() );
+      list<AObject *>::iterator io, eo=aobj.end();
+      for( io=aobj.begin(); io!=eo; ++io )
+        vo.push_back( Object::value( *io ) );
+    }
+    return make_obj( robj, obj_id, return_id );
   }
 
   Object properties = carto::none();

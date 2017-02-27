@@ -139,9 +139,9 @@ namespace anatomist
     const Transformation* getTransformation( const Referential*, 
 					     const Referential* ) const;
 
-    AObject* loadObject( const std::string & filename, 
-			 const std::string & objname = "", 
-                         carto::Object options = carto::none() );
+    std::list<AObject *> loadObject( const std::string & filename,
+                                     const std::string & objname = "",
+                                     carto::Object options = carto::none() );
 
     void registerObject( AObject* obj, int inctrl=1 );
     void unregisterObject( AObject* obj );

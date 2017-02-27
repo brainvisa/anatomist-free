@@ -921,10 +921,10 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
                                     GL_TEXTURE_2D, color_tex, 0 );
     GLCaps::glGenRenderbuffers( 1, &depth_rb );
     GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, depth_rb );
-    GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width,
-                                  height );
+    GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                                   width, height );
     GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                      GL_RENDERBUFFER, depth_rb );
+                                       GL_RENDERBUFFER, depth_rb );
 
     GLenum status;
     status = GLCaps::glCheckFramebufferStatus( GL_FRAMEBUFFER );

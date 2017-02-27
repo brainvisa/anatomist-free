@@ -36,6 +36,7 @@
 #define ANATOMIST_COMMANDS_CSAVEOBJECT_H
 
 #include <anatomist/processor/Command.h>
+#include <set>
 
 
 namespace anatomist
@@ -46,6 +47,8 @@ namespace anatomist
   {
   public:
     SaveObjectCommand( AObject* obj, const std::string & filename = "" );
+    SaveObjectCommand( const std::set<AObject*> & obj,
+                       const std::string & filename = "" );
     virtual ~SaveObjectCommand();
 
     virtual std::string name() const { return( "SaveObject" ); }
@@ -55,7 +58,7 @@ namespace anatomist
     virtual void doit();
 
   private:
-    AObject		*_object;
+    std::set<AObject *> _objects;
     std::string		_filename;
 
     friend class StdModule;

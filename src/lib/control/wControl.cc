@@ -731,7 +731,8 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
         LoadObjectCommand *command = new LoadObjectCommand(
           (*it).toLocal8Bit().data(), -1, "", false, options );
         theProcessor->execute( command );
-        loaded.insert( command->loadedObject() );
+        list<AObject *> objs = command->loadedObjects();
+        loaded.insert( objs.begin(), objs.end() );
       }
     }
 
@@ -827,7 +828,8 @@ void ControlWindow::dropOnWindowIcon( int type, QDropEvent* event )
       LoadObjectCommand *command = new LoadObjectCommand( 
         is->toLocal8Bit().data() );
       theProcessor->execute( command );
-      o.insert( command->loadedObject() );
+      list<AObject *> objs = command->loadedObjects();
+      o.insert( objs.begin(), objs.end() );
     }
   }
   if( o.empty() )

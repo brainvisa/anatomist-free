@@ -2096,7 +2096,10 @@ RoiManagementAction::loadUDHierarchy( const string& hierarchyName )
 
   theProcessor->execute( cmd4 ) ;
 
-  AObject * loadedObj = cmd4->loadedObject() ;
+  list<AObject *> loadedObjs = cmd4->loadedObjects() ;
+  if( loadedObjs.empty() )
+    return "";
+  AObject *loadedObj = *loadedObjs.begin();
   loadedObj->setFileName(
     QFileInfo( hierarchyName.c_str() ).fileName().toStdString() );
 
@@ -2606,9 +2609,12 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
         it != filenames.end(); ++it ) {
     command = new LoadObjectCommand( (*it).toStdString(), -1, "", false, options );
     theProcessor->execute( command );
-    loadedObj = command->loadedObject() ;
-    if( loadedObj )
+    list<AObject *> loadedObjs = command->loadedObjects() ;
+    if( !loadedObjs.empty() )
+    {
+      loadedObj = *loadedObjs.begin();
       loadedObj->setFileName( (*it).toStdString() ) ;
+    }
   }
   if( !command )
     return ;

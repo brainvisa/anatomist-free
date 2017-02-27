@@ -381,7 +381,7 @@ namespace anatomist
     virtual std::string toolTip() const;
 
     /// Static object loader: creates an objects, loads its contents
-    static AObject* load( const std::string & filename );
+    static std::list<AObject *> load( const std::string & filename );
     /// Reads from disk again
     static bool reload( AObject* object, bool onlyoutdated = false );
     /// Creates a new object type number and returns it

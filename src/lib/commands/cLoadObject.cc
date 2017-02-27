@@ -81,7 +81,7 @@ LoadObjectCommand::LoadObjectCommand( const string & filename, int id,
                                       CommandContext* context ) 
   : QObject(), WaitCommand(), SerializingCommand( context ),
     _filename( filename ),
-    _id( id ), _obj( 0 ), _objectname( objname ), _ascursor( ascursor ), 
+    _id( id ), _objectname( objname ), _ascursor( ascursor ),
     _options( options )
 {
 }
@@ -117,13 +117,15 @@ LoadObjectCommand::doit()
   {
     // could also use the async mode, but is it worth it ?
     _obj = AObject::load( _filename );
-    if( _obj )
-      {
-        string	name = _objectname;
-        if( name.empty() )
-          name = FileUtil::basename( _filename );
-        Cursor::addCursor( name, _obj );
-      }
+    if( !_obj.empty() )
+    {
+      string	name = _objectname;
+      if( name.empty() )
+        name = FileUtil::basename( _filename );
+      list<AObject *>::iterator io, eo = _obj.end();
+      for( io=_obj.begin(); io!=eo; ++io )
+        Cursor::addCursor( name, *io );
+    }
   }
   else
   {
@@ -144,10 +146,10 @@ LoadObjectCommand::doit()
     QObject::connect( ObjectReaderNotifier::notifier(),
       SIGNAL( objectLoaded( AObject*,
                             const ObjectReader::PostRegisterList & ,
-                            void * ) ),
+                            void *, bool ) ),
       this, SLOT( objectLoadDone( AObject*,
                                   const ObjectReader::PostRegisterList &,
-                                  void * ) ) );
+                                  void *, bool ) ) );
 
     if( async )
     {
@@ -161,11 +163,15 @@ LoadObjectCommand::doit()
     }
     else
     {
-      _obj = theAnatomist->loadObject( _filename, _objectname, _options );
-      if( _obj )
+      list<AObject *> obj = theAnatomist->loadObject( _filename, _objectname,
+                                                     _options );
+      if( !obj.empty() )
       {
+        AObject *last = *obj.rbegin();
         ObjectReader::PostRegisterList prl;
-        objectLoadDone( _obj, prl, this );
+        list<AObject *>::iterator io, eo = obj.end();
+        for( io=obj.begin(); io!=eo; ++io )
+          objectLoadDone( *io, prl, this, *io == last );
       }
     }
   }
@@ -180,7 +186,7 @@ void LoadObjectCommand::doLoad()
 void LoadObjectCommandThread::doRun()
 {
   ObjectReader::PostRegisterList subObjectsToRegister;
-  AObject *object = ObjectReader::reader()->load( _filename,
+  list<AObject *> object = ObjectReader::reader()->load( _filename,
                                                   subObjectsToRegister, true,
                                                   _options, cmd );
 //   if( !_objectname.empty() )
@@ -190,7 +196,7 @@ void LoadObjectCommandThread::doRun()
 
 
 void LoadObjectCommand::objectLoadDone( AObject* obj,
-  const ObjectReader::PostRegisterList &, void* clientid )
+  const ObjectReader::PostRegisterList &, void* clientid, bool last )
 {
   /* slot called after loading is done in ObjectReader, either from a
      different thread, or in the main thread */
@@ -198,27 +204,30 @@ void LoadObjectCommand::objectLoadDone( AObject* obj,
   if( clientid != this )
     return; // it's not for me.
   // cleanup: we must disconnect the slot connected from doit()
-  QObject::disconnect( ObjectReaderNotifier::notifier(),
-    SIGNAL( objectLoaded( AObject*,
-                          const ObjectReader::PostRegisterList &, void* ) ),
-    this, SLOT( objectLoadDone( AObject*,
-                              const ObjectReader::PostRegisterList &, void* ) ) );
-  _obj = obj;
+  if( last )
+    QObject::disconnect( ObjectReaderNotifier::notifier(),
+      SIGNAL( objectLoaded( AObject*,
+                            const ObjectReader::PostRegisterList &, void*,
+                            bool ) ),
+      this, SLOT( objectLoadDone( AObject*,
+                                const ObjectReader::PostRegisterList &, void*,
+                                bool ) ) );
+  _obj.push_back( obj );
   if( obj )
   {
     if( context() && context()->unserial )
-      context()->unserial->registerPointer( _obj, _id, "AObject" );
+      context()->unserial->registerPointer( obj, _id, "AObject" );
     // send event
     Object        ex = Object::value( Dictionary() );
-    ex->setProperty( "_object", Object::value( _obj ) );
+    ex->setProperty( "_object", Object::value( obj ) );
     ex->setProperty( "filename", Object::value( _filename ) );
     ex->setProperty( "type",
                       Object::value
-                      ( AObject::objectTypeName( _obj->type() ) ) );
+                      ( AObject::objectTypeName( obj->type() ) ) );
     OutputEvent   ev( "LoadObject", ex );
     ev.send();
   }
-  // emit even if _obj is null to notify the load failure.
+  // emit even if obj is null to notify the load failure.
   emit objectLoaded( obj, _filename );
 }
 
@@ -228,6 +237,9 @@ LoadObjectCommand::read( const Tree & com, CommandContext* context )
 {
   string	filename;
   int		id, ascurs = 0;
+
+
+  if( com.getProperty( "res_pointer", id ) )
 
   if( !com.getProperty( "filename", filename ) 
       || !com.getProperty( "res_pointer", id ) )
@@ -249,7 +261,15 @@ void LoadObjectCommand::write( Tree & com, Serializer* ser ) const
   Tree	*t = new Tree( true, name() );
 
   t->setProperty( "filename", _filename );
-  t->setProperty( "res_pointer", ser->serialize( _obj ) );
+//   vector<int> objs;
+//   objs.reserve( _obj.size() );
+//   list<AObject *>::iterator io, eo = _obj.end();
+//   for( io=_obj.begin(); io!=eo; ++io )
+//     objs.push_back( ser->serialize( *io ) );
+  int id = -1;
+  if( !_obj.empty() )
+    id = ser->serialize( *_obj.begin() ); // FIXME only 1st object has an ID
+  t->setProperty( "res_pointer", id );
   if( !_objectname.empty() )
     t->setProperty( "name", _objectname );
   if( _ascursor )

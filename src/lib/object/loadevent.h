@@ -49,19 +49,21 @@ namespace anatomist
 
     AObjectLoadEvent( AObject* newobject,
                       const ObjectReader::PostRegisterList & subObjects,
-                      carto::Object options, void* clientid
+                      carto::Object options, void* clientid, bool last = true
                     );
     virtual ~AObjectLoadEvent();
     AObject* newObject();
     const ObjectReader::PostRegisterList & subObjects();
     carto::Object loadOptions();
     void* clientid();
+    bool isLast() const;
 
   private:
     AObject* _object;
     ObjectReader::PostRegisterList _subObjects;
     carto::Object _options;
     void* _clientid;
+    bool _last;
   };
 
 
@@ -77,7 +79,7 @@ namespace anatomist
   signals:
     void objectLoaded( AObject* obj,
                        const ObjectReader::PostRegisterList & subobjects,
-                       void* clientid );
+                       void* clientid, bool last );
   };
 
 }

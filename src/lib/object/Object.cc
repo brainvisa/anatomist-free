@@ -491,10 +491,20 @@ AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol )
 }
 
 
-AObject* AObject::load( const string & filename )
+list<AObject *> AObject::load( const string & filename )
 {
   ObjectReader::PostRegisterList subobjects;
-  return( ObjectReader::reader()->load( filename, subobjects ) );
+  list<AObject *> obj = ObjectReader::reader()->load( filename, subobjects );
+//   if( !obj.empty() )
+//     return obj;
+//   Object objs = MObjectIO::readMObject( filename );
+//   if( objs )
+//   {
+//     Object it = objs->objectIterator();
+//     for( ; it->isValid(); it->next() )
+//       obj.insert( it->currentValue()->value<AObject *>() );
+//   }
+  return obj;
 }
 
 

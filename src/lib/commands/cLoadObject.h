@@ -70,7 +70,7 @@ namespace anatomist
 
     virtual std::string name() const { return( "LoadObject" ); }
     virtual void write( Tree & com, Serializer *ser ) const;
-    AObject * loadedObject() { return _obj ; }
+    std::list<AObject *> loadedObjects() { return _obj ; }
 
   protected:
     virtual void doit();
@@ -80,7 +80,7 @@ namespace anatomist
 
   protected slots:
     void objectLoadDone( AObject*, const ObjectReader::PostRegisterList &,
-      void* );
+      void*, bool );
     void doLoad();
 
   private:
@@ -90,7 +90,7 @@ namespace anatomist
 
     std::string			_filename;
     int				_id;
-    AObject			*_obj;
+    std::list<AObject *>         _obj;
     std::string			_objectname;
     bool			_ascursor;
     carto::Object		_options;

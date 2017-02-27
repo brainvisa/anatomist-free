@@ -900,9 +900,9 @@ void Anatomist::UpdateInterface()
 
 //	Object operations
 
-AObject* Anatomist::loadObject( const string & filename, 
-                                const string & objname, 
-                                Object options )
+list<AObject *> Anatomist::loadObject( const string & filename,
+                                       const string & objname,
+                                       Object options )
 {
   string name;
   if( objname.empty() )
@@ -910,21 +910,21 @@ AObject* Anatomist::loadObject( const string & filename,
   else
     name = objname;
 
-  AObject* object = 0;
+  list<AObject*> objects;
   ObjectReader::PostRegisterList subObjectsToRegister;
   try
   {
-    object = ObjectReader::reader()->load( filename, subObjectsToRegister,
+    objects = ObjectReader::reader()->load( filename, subObjectsToRegister,
                                            true, options );
   }
   catch( assert_error& e )
   {
     cerr << "cannot open file" << endl;
   }
-  if( object )
+  if( !objects.empty() )
   {
-    if( !objname.empty() )
-      object->setName( makeObjectName( name ) );
+    if( !objname.empty() && objects.size() == 1 )
+      (*objects.begin())->setName( makeObjectName( name ) );
     bool  visible = true;
     if( options )
     {
@@ -938,7 +938,9 @@ AObject* Anatomist::loadObject( const string & filename,
       {
       }
     }
-    registerObject( object, visible );
+    list<AObject *>::iterator io, eo = objects.end();
+    for( io=objects.begin(); io!=eo; ++io )
+      registerObject( *io, visible );
     // register sub-objects also created (if any)
     ObjectReader::PostRegisterList::const_iterator ipr,
       epr = subObjectsToRegister.end();
@@ -946,7 +948,7 @@ AObject* Anatomist::loadObject( const string & filename,
       registerObject( ipr->first, ipr->second );
   }
 
-  return( object );
+  return( objects );
 }
 
 

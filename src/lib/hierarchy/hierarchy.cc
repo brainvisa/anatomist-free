@@ -177,7 +177,7 @@ Hierarchy::~Hierarchy()
 }
 
 
-AObject* Hierarchy::loadHierarchy( const string & filename,
+list<AObject*> Hierarchy::loadHierarchy( const string & filename,
                                    ObjectReader::PostRegisterList &,
                                    Object options )
 {
@@ -186,7 +186,7 @@ AObject* Hierarchy::loadHierarchy( const string & filename,
       {
         Object restricted = options->getProperty( "restrict_object_types" );
         if( !restricted->hasProperty( "Hierarchy" ) )
-          return 0;
+          return list<AObject *>();
       }
     catch( ... )
       {
@@ -239,10 +239,13 @@ AObject* Hierarchy::loadHierarchy( const string & filename,
     {
       cerr << e.what() << endl;
       delete tr;
-      return( 0 );
+      return list<AObject *>();
     }
 
-  return new Hierarchy( tr );
+  AObject *h = new Hierarchy( tr );
+  list<AObject *> objs;
+  objs.push_back( h );
+  return objs;
 }
 
 
