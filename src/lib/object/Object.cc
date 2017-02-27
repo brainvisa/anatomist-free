@@ -54,6 +54,7 @@
 #include <anatomist/surface/glcomponent_internals.h> // for TexInfo struct
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/object/mobjectio.h>
 #include <aims/resampling/quaternion.h>
 #include <aims/mesh/texturetools.h>
 #include <cartobase/stream/fileutil.h>
@@ -1521,11 +1522,17 @@ carto::Object AObject::aimsMeshFromGLComponent()
 
 bool AObject::save( const std::string & filename )
 {
+  if( filename.substr( filename.length() - 5, 5 ) == ".aobj" )
+    if( MObjectIO::writeMObject( Object::value( this ), filename ) )
+      return true;
+
   Object meshobj = aimsMeshFromGLComponent();
-  if( !meshobj )
+  if( meshobj )
+  {
+    saveMesh( meshobj, filename );
     return true;
-  saveMesh( meshobj, filename );
-  return true;
+  }
+  return false;
 }
 
 

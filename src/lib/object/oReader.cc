@@ -1653,7 +1653,15 @@ list<AObject *> ObjectReader::readMObject(
 {
   list<AObject *> objects;
   Object objs = MObjectIO::readMObject( filename );
-  if( !objs || objs->size() == 0 )
+  if( !objs )
+    return objects;
+  if( objs->type() == DataTypeCode<AObject *>::name() )
+  {
+    // single object
+    objects.push_back( objs->value<AObject *>() );
+    return objects;
+  }
+  if( objs->size() == 0 )
     return objects;
   Object it = objs->objectIterator();
   for( ; it->isValid(); it->next() )

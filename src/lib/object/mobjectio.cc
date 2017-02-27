@@ -204,7 +204,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
       return make_obj( iom->second, obj_id, return_id );
   }
 
-  if( object_descr->isString() )
+  if( obj_desc->isString() )
   {
     // read sub_object
     string fpath = obj_desc->getString();
