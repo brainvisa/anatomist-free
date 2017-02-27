@@ -175,7 +175,9 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
 
   reader->Delete();
 
-  return obj;
+  list<AObject *> lobj;
+  lobj.push_back( obj );
+  return lobj;
 
 }
 
@@ -185,11 +187,13 @@ list<AObject *> vtkAReader::readVTKSequence (const std::string& filename,
                                       ObjectReader::PostRegisterList &,
                                       Object options)
 {
+  list<AObject *> lobj;
+
 #ifndef ANATOMIST_NO_VTKINRIA3D
   std::ifstream buffer (filename.c_str());
   if( buffer.fail() )
   {
-    return 0;
+    return lobj;
   }
 
   vtkMetaDataSetSequence* sequence = vtkMetaDataSetSequence::New();
@@ -210,9 +214,10 @@ list<AObject *> vtkAReader::readVTKSequence (const std::string& filename,
   obj->SetMetaDataSet (sequence);
   sequence->Delete();
 
-  return obj;
+  lobj.push_back( obj );
+  return lobj;
 
 #else
-  return 0;
+  return lobj;
 #endif
 }
