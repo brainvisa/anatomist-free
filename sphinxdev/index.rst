@@ -57,6 +57,11 @@ Commands system
 
 :doc:`Commands system and commands list <commands>` (mainly in french...)
 
+Objects file format (.aobj)
++++++++++++++++++++++++++++
+
+:doc:`Anatomist objects file format <aobj_format>` (since Anatomist 4.6)
+
 
 More or less obsolete docs
 ++++++++++++++++++++++++++
