@@ -367,8 +367,8 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
       theProcessor->allowExecWhileIdle( true );
       theProcessor->execute( c );
       AObject *fobj = c->createdObject();
-      for( iao=aobjects.begin(); iao!=eao; ++iao )
-        theAnatomist->releaseObject( *iao ); // release app ref
+//       for( iao=aobjects.begin(); iao!=eao; ++iao )
+//         theAnatomist->releaseObject( *iao ); // release app ref
       mobj = Object::value( fobj );
       if( !properties.isNull() )
       {
@@ -432,11 +432,12 @@ Object MObjectIO::createMObjectDescr( Object aobject,
     Object objects = Object::value( ObjectVector() );
     ObjectVector & ov = objects->value<ObjectVector>();
 
+    map<AObject*, string> obj_map;
     Object it = aobject->objectIterator();
     for( ; it->isValid(); it->next() )
     {
       Object item = createMObjectDescr( it->currentValue()->value<AObject *>(),
-                                        path, writeLeafs );
+                                        path, writeLeafs, &obj_map );
       ov.push_back( item );
     }
     return objects;
@@ -495,22 +496,45 @@ Object MObjectIO::createMObjectDescr( AObject* aobject, const string & path,
     {
       Object sobj = createMObjectDescr( *ic, path, writeLeafs, &obj_map );
       sub_obj.push_back( sobj );
-      obj_map[ *ic ] = objectId( *ic, obj_map );
+      if( obj_map.find( *ic ) == obj_map.end() )
+      {
+        obj_map[ *ic ] = objectId( *ic, obj_map );
+      }
     }
     objects->setProperty( "objects", sub_obj );
   }
   else if( objectHasNativeSave( aobject ) )
   {
     string filename = aobject->fileName();
-    if( !path.empty()
-        && filename.substr( 0, path.length() + 1 )
+    string bname = FileUtil::basename( filename );
+    string idname = filename;
+    if( bname.empty() )
+    {
+      bname = aobject->name();
+      filename = FileUtil::dirname( filename ) + FileUtil::separator() + bname;
+    }
+    if( !path.empty() )
+    {
+      if( filename.substr( 0, path.length() + 1 )
           == path + FileUtil::separator() )
-      filename = filename.substr( path.length() + 1, filename.length() );
-    cout << "save filename: " << filename << endl;
-    string obj_id = filename;
+        idname = filename.substr( path.length() + 1, filename.length() );
+      else
+      {
+        filename = path + FileUtil::separator() + bname;
+        idname = bname;
+      }
+    }
+    cout << "save filename: " << filename << ", id: " << idname << endl;
+    if( writeLeafs )
+    {
+      // FIXME: should maybe not be done here
+      // FIXME: sometimes needs file extension / format
+      aobject->save( filename );
+    }
+    string obj_id = idname;
     obj_map[ aobject ] = obj_id;
     objects = Object::value( Dictionary() );
-    objects->setProperty( "objects", filename );
+    objects->setProperty( "objects", idname );
     objects->setProperty( "identifier", obj_id );
     objects->setProperty( "name", aobject->name() );
     Object props = aobject->makeHeaderOptions();
