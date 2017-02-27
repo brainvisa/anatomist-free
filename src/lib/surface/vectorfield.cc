@@ -737,6 +737,8 @@ ObjectMenu* VectorField::optionMenu() const
     vector<string>  vs;
     vs.reserve(1);
     vs.push_back(QT_TRANSLATE_NOOP( "QSelectMenu", "File"));
+    om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
+                    &ObjectActions::saveStatic );
     om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
                    "Rename object"),
                    &ObjectActions::renameObject);

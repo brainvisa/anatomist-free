@@ -1059,9 +1059,14 @@ Tree* TesselatedMesh::optionTree() const
       //Tree    *t, *t2;
       _optionTree = new Tree( true, "option tree" );
 
-      Tree      *t = new Tree( true, "Referential" );
+      Tree *t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
       _optionTree->insert( t );
-      Tree      *t2 = new Tree( true, "Load" );
+      Tree *t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
+      t2->setProperty( "callback", &ObjectActions::saveStatic );
+      t->insert( t2 );
+      t = new Tree( true, "Referential" );
+      _optionTree->insert( t );
+      t2 = new Tree( true, "Load" );
       t2->setProperty( "callback", &ObjectActions::referentialLoad );
       t->insert( t2 );
     }

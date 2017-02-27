@@ -290,7 +290,10 @@ Tree* PlanarFusion3D::optionTree() const
       _optionTree = new Tree( true, "option tree" );
       t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
       _optionTree->insert( t );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", 
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
+      t2->setProperty( "callback", &ObjectActions::saveStatic );
+      t->insert( t2 );
+      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
                                               "Rename object" ) );
       t2->setProperty( "callback", &ObjectActions::renameObject );
       t->insert( t2 );
