@@ -96,7 +96,7 @@ vtkAReader::~vtkAReader()
 }
 
 
-AObject* vtkAReader::readVTK (const std::string& filename,
+list<AObject *> vtkAReader::readVTK (const std::string& filename,
                               ObjectReader::PostRegisterList &,
                               Object options)
 {
@@ -181,7 +181,7 @@ AObject* vtkAReader::readVTK (const std::string& filename,
 
 
 
-AObject* vtkAReader::readVTKSequence (const std::string& filename,
+list<AObject *> vtkAReader::readVTKSequence (const std::string& filename,
                                       ObjectReader::PostRegisterList &,
                                       Object options)
 {
