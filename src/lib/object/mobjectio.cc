@@ -475,9 +475,7 @@ Object MObjectIO::createMObjectDescr( AObject* aobject, const string & path,
   if( dynamic_cast<MObject *>( aobject ) )
   {
     MObject *mobj = static_cast<MObject *>( aobject );
-    MObject::const_iterator im, em = mobj->end();
-    for( im=mobj->begin(); im!=em; ++im )
-      children.push_back( *im );
+    children = mobj->generativeChildren();
     ftype = getFusionMethod( otype, children );
   }
   if( !ftype.empty() )

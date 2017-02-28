@@ -330,6 +330,15 @@ namespace anatomist
     /** tells whether children objects should be removed from views when
         this MObject is removed from a view. Useful for graphs. */
     virtual bool shouldRemoveChildrenWithMe() const;
+    /** Children objects which have been used to build the current MObject
+
+        Typically in a fusion, some objects have been used to generate the
+        fusion object, but the fusion may have additional children which are
+        built to hold intermediate data.
+
+        The default implementation returns all children.
+    */
+    virtual std::list<AObject *> generativeChildren() const;
 
   protected:
     /// must be called by all subclasses in their insert() implementation
@@ -339,10 +348,7 @@ namespace anatomist
     virtual void updateSubObjectReferential( const AObject* o );
     virtual void clearReferentialInheritance();
 
-    /**@name	Observable data */
-    //@{
     mutable bool _contentHasChanged;
-    //@}
   };
 
 

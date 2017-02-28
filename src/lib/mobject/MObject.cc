@@ -614,3 +614,14 @@ bool MObject::shouldRemoveChildrenWithMe() const
 {
   return false;
 }
+
+
+list<AObject *> MObject::generativeChildren() const
+{
+  list<AObject *> children;
+  const_iterator i, e = end();
+  for( i=begin(); i!=e; ++i )
+    children.push_back( *i );
+  return children;
+}
+

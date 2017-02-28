@@ -92,6 +92,8 @@ namespace anatomist
     virtual void updateCut();
     virtual void sliceChanged();
 
+    virtual std::list<AObject *> generativeChildren() const;
+
   private:
     struct Private;
     ///	ensures the object class is registered in Anatomist

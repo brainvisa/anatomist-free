@@ -768,3 +768,13 @@ AObject* CutMesh::fallbackReferentialInheritance() const
 }
 
 
+list<AObject *> CutMesh::generativeChildren() const
+{
+  list<AObject *> children;
+  const_iterator io, e = end();
+  int i = 0;
+  for( io=begin(); i<d->cutmeshindex; ++i, ++io )
+    children.push_back( *io );
+  return children;
+}
+
