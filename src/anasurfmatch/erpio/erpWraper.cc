@@ -154,6 +154,8 @@ ObjectMenu* ErpWraper::textureMenus( const AObject* objtype, ObjectMenu* menu )
     vector<string> vs;
     vs.reserve(1);
     vs.push_back( QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
+    menu->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
+                      &ObjectActions::saveStatic );
     menu->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "ERP loader" ),
                       &openWraper );
 
