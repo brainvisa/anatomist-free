@@ -72,6 +72,9 @@ namespace anatomist
                                  const aims::Quaternion & quat );
     /// "silent" functions don't call sliceChanged()
     void setPlaneSilent( const Point4df & plane );
+    /// implement a part of AObject::makeHeaderOptions for slice description
+    void makeSliceHeaderOptions( carto::Object options ) const;
+    void setSliceProperties( carto::Object options );
 
   protected:
     Point3df	_offset;

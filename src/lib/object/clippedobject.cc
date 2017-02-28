@@ -350,3 +350,19 @@ void ClippedObject::update( const Observable *observable, void * )
   notifyObservers( this );
 }
 
+
+
+Object ClippedObject::makeHeaderOptions() const
+{
+  Object opts = ObjectVector::makeHeaderOptions();
+  makeSliceHeaderOptions( opts );
+  return opts;
+}
+
+
+void ClippedObject::setProperties( Object options )
+{
+  ObjectVector::setProperties( options );
+  setSliceProperties( options );
+}
+

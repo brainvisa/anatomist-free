@@ -1909,9 +1909,9 @@ void AGraph::updateAfterAimsChange()
 }
 
 
-void AGraph::setHeaderOptions()
+void AGraph::setProperties( Object options )
 {
-  AObject::setHeaderOptions();
+  AObject::setProperties( options );
 
   Motion m = GraphManip::talairach( *d->graph );
   if( !m.isIdentity() )

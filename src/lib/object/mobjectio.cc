@@ -334,6 +334,8 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
           aaaobj->attributed()->copyProperties( properties );
           aaobj->setHeaderOptions();
         }
+        else
+          aaobj->setProperties( properties );
       }
     }
   }
@@ -378,6 +380,8 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
           aaaobj->attributed()->copyProperties( properties );
           fobj->setHeaderOptions();
         }
+        else
+          fobj->setProperties( properties );
         Object pit = properties->objectIterator();
         const map<string, Object> & commands = getCommands();
         map<string, Object>::const_iterator cit, ecit = commands.end();

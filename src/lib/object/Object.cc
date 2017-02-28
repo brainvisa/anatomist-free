@@ -807,6 +807,18 @@ namespace
 
 void AObject::setHeaderOptions()
 {
+  PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );
+  if( pao )
+  {
+    const GenericObject	*o = pao->attributed();
+    if( o )
+      setProperties( Object::reference( *o ) );
+  }
+}
+
+
+void AObject::setProperties( Object options )
+{
   /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": " 
      << "name: " << name() << ", filename: " << fileName() << endl; */
   PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );

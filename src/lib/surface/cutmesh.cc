@@ -778,3 +778,18 @@ list<AObject *> CutMesh::generativeChildren() const
   return children;
 }
 
+
+Object CutMesh::makeHeaderOptions() const
+{
+  Object opts = ObjectVector::makeHeaderOptions();
+  makeSliceHeaderOptions( opts );
+  return opts;
+}
+
+
+void CutMesh::setProperties( Object options )
+{
+  ObjectVector::setProperties( options );
+  setSliceProperties( options );
+}
+

@@ -357,7 +357,9 @@ namespace anatomist
     { return( false ); }
     /** Set some object properties according to the header (.minf), such as 
         material, palette etc */
-    virtual void setHeaderOptions();
+    void setHeaderOptions();
+    /// Same as setHeaderOptions() and used by it, allows passing a dictionary
+    virtual void setProperties( carto::Object options );
     /** Store some object properties into the header (.minf), such as
         material, palette etc before saving the object.
 

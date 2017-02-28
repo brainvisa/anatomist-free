@@ -271,3 +271,18 @@ void Slice::update( const Observable *observable, void * )
   notifyObservers( this );
 }
 
+
+Object Slice::makeHeaderOptions() const
+{
+  Object opts = ObjectVector::makeHeaderOptions();
+  makeSliceHeaderOptions( opts );
+  return opts;
+}
+
+
+void Slice::setProperties( Object options )
+{
+  ObjectVector::setProperties( options );
+  setSliceProperties( options );
+}
+
