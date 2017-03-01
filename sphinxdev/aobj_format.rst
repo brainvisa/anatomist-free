@@ -64,6 +64,8 @@ Description of objects inside a ``.aobj`` file:
             with parameters corresponding to the :ref:`TexturingParams` command
         ``fusion3dparams``:
             with parameters corresponding to the :ref:`Fusion3DParams` command
+        ``slice_plane``: (float_vector)
+            for objects containing a slice plane (slice objects, cutmesh, clipped objects), this specifies the slice plane equation parameters (4 coefficients).
 
 Example
 -------
