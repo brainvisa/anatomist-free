@@ -130,6 +130,7 @@ except ImportError:
     have_zmq = False
 import signal
 import threading
+import thread
 import logging
 import heapq
 
@@ -151,7 +152,7 @@ def _my_ioloop_start(self):
             return
         old_current = getattr(IOLoop._current, "instance", None)
         IOLoop._current.instance = self
-        self._thread_ident = threading.get_ident()
+        self._thread_ident = thread.get_ident()
         self._running = True
 
         # signal.set_wakeup_fd closes a race condition in event loops:
@@ -356,8 +357,8 @@ def runIPConsoleKernel(mode='qtconsole'):
           app.kernel.start()
 
           from zmq.eventloop import ioloop
-          if ipversion >= [3, 0]:
-              # IP 3 allows just calling the current callbacks.
+          if ipversion >= [2, 0]:
+              # IP 2 allows just calling the current callbacks.
               # For IP 1 it is not sufficient.
               def my_start_ioloop_callbacks(self):
                   with self._callback_lock:
