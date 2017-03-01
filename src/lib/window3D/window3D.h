@@ -326,6 +326,8 @@ public slots:
 
 protected slots:
   void freeResize();
+  void saveSnapshot();
+
 
 protected:
   void showReferential();
