@@ -1511,10 +1511,12 @@ carto::Object AObject::aimsMeshFromGLComponent()
 bool AObject::save( const std::string & filename )
 {
   Object meshobj = aimsMeshFromGLComponent();
-  if( !meshobj )
+  if( meshobj )
+  {
+    saveMesh( meshobj, filename );
     return true;
-  saveMesh( meshobj, filename );
-  return true;
+  }
+  return false;
 }
 
 
