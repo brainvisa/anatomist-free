@@ -884,8 +884,8 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   if( !awindow->isVisible()
       && !awindow->testAttribute( Qt::WA_DontShowOnScreen ) )
   {
-    /* The OpenGL context is bound to the on-screen window. Even if rendering to
-       a framebuffer, if the window is hidden, nothing will be rendered.
+    /* The OpenGL context is bound to the on-screen window. Even if rendering
+       to a framebuffer, if the window is hidden, nothing will be rendered.
        A solution is to use the WA_DontShowOnScreen flag, then show() the
        window. It seems to work that way (and nothing is actually displayed
        on screen).
@@ -898,8 +898,11 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   awindow->ensurePolished();
   // processing events just once is not always enough.
   // maybe some events send additional ones (timers in AWindow3D)
+  qApp->sendPostedEvents();
   qApp->processEvents();
   qApp->processEvents();
+
+  _pd->glwidget->makeCurrent();
 
   GLuint fb, depth_rb, color_tex;
 
@@ -951,6 +954,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     }
     if( fb_ok )
     {
+      // setupView();
       paintGL( Normal, width, height );
       _pd->rgbbufready = true;
     }
@@ -985,7 +989,6 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   QImage::Format iformat;
   QImage        pix;
 
-  _pd->glwidget->makeCurrent();
   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
   glReadBuffer( GL_FRONT );
