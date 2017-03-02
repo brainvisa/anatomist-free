@@ -119,6 +119,7 @@ namespace anatomist
     static AObject* LoadGraph( const std::string & filename,
                                carto::Object options=carto::none() );
     virtual bool save( const std::string & filename );
+    virtual bool savable() const { return true; }
     void loadSubObjects( int mask );
     ColorMode colorMode() const;
     void setColorMode( ColorMode, bool update = true );

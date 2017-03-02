@@ -153,9 +153,10 @@ namespace
   {
     // WARNING: non-portable
     // http://stackoverflow.com/questions/4741271/ways-to-detect-whether-a-c-virtual-function-has-been-redefined-in-a-derived-cl
-    AObject &obj = *aobj;
-    return reinterpret_cast<void*>(obj.*(&AObject::save))
-      != reinterpret_cast<void*>(&AObject::save);
+//     AObject &obj = *aobj;
+//     return reinterpret_cast<void*>(obj.*(&AObject::save))
+//       != reinterpret_cast<void*>(&AObject::save);
+    return aobj->savable();
   }
 
 }
