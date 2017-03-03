@@ -721,7 +721,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     menuBar()->addMenu(win);
     win->addAction( tr("Save..."), this, SLOT(saveSnapshot()) );
     win->addAction( tr("Save high-res..."),
-                    d->draw->qobject(), SLOT(saveContentsWithCustomSize()) );
+                    this, SLOT(saveSnapshotWithCustomSize()) );
     win->addAction( tr("Start recording..."),
                     d->draw->qobject(), SLOT( recordStart() ) );
     win->addAction( tr("Start recording high-res..."),
@@ -4003,6 +4003,20 @@ void AWindow3D::saveSnapshot()
 
   triggeredRefresh();
   wm->saveContents();
+}
+
+
+void AWindow3D::saveSnapshotWithCustomSize()
+{
+  GLWidgetManager *wm = dynamic_cast<GLWidgetManager *>( view() );
+  if( wm && wm->hasCameraChanged() && !d->sortPolygons )
+  {
+    sortPolygons( true );
+    Refresh();
+  }
+
+  triggeredRefresh();
+  wm->saveContentsWithCustomSize();
 }
 
 
