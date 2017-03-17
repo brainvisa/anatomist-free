@@ -1033,6 +1033,16 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     ti.texoffset[2] = 0.;
   }
 
+  const TexExtrema & te = glTexExtrema( tex );
+  if( te.min[0] != 0. || te.max[0] != 1. && te.min[0] != te.max[0] )
+  {
+    // if actual bounds are not [0,1], a texture rescaling must be
+    // performed in addition.
+    float scl = 1. / ( te.max[0] - te.min[0] );
+    ti.texscale[0] *= scl;
+    ti.texoffset[0] -= te.min[0];
+  }
+
   // allocate colormap
   VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
   GLubyte       *texImage = reinterpret_cast<GLubyte *>(
