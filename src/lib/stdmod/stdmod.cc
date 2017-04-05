@@ -217,6 +217,10 @@ void StdModule::actionsDeclaration()
   ActionDictionary::instance()->addAction( smpa.name(),
     &SortMeshesPolygonsAction::creator );
 
+  ObjectStatAction va;
+  ActionDictionary::instance()->addAction( va.name(),
+                                           &ObjectStatAction::creator );
+
   //        Commands
   ActivateActionCommand::initSyntax();
   AddObjectCommand::initSyntax();
