@@ -383,6 +383,19 @@ namespace anatomist
     void toggleSortDirection();
   };
 
+
+  class ObjectStatAction : public Action
+  {
+  public:
+    ObjectStatAction();
+    virtual ~ObjectStatAction();
+
+    virtual std::string name() const { return "ObjectStatAction"; }
+    static Action * creator();
+
+    void displayStat();
+  };
+
 }
 
 

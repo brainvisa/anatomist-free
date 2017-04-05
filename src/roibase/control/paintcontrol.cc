@@ -365,6 +365,13 @@ PaintControl::eventAutoSubscription( ActionPool * actionPool )
                             &SliceAction::nextTime ),
                           "next_time" );
 
+  // show things
+  keyPressEventSubscribe( Qt::Key_V, Qt::NoModifier,
+                          KeyActionLinkOf<ObjectStatAction>
+                          ( actionPool->action( "ObjectStatAction" ),
+                            &ObjectStatAction::displayStat ),
+                          "display_stat" );
+
   // paint cursor action
   mouseMoveEventSubscribe
     ( Qt::NoButton, Qt::NoModifier,

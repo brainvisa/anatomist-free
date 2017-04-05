@@ -58,9 +58,12 @@
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/reference/Transformation.h>
+#include <anatomist/bucket/Bucket.h>
+#include <aims/mesh/surfaceOperation.h>
 #include <qtimer.h>
 #include <qtoolbar.h>
 #include <QDrag>
+#include <QStatusBar>
 #include <stdlib.h>
 
 #include <anatomist/window/glwidget.h>
@@ -538,6 +541,13 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "AnnotationAction" ),
                             &AnnotationAction::switchAnnotations ),
                           "graph_annotation" );
+
+  // show things
+  keyPressEventSubscribe( Qt::Key_V, Qt::NoModifier,
+                          KeyActionLinkOf<ObjectStatAction>
+                          ( actionPool->action( "ObjectStatAction" ),
+                            &ObjectStatAction::displayStat ),
+                          "display_stat" );
 }
 
 
@@ -2539,6 +2549,102 @@ void SortMeshesPolygonsAction::toggleSortDirection()
   AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( w )
     w->setPolygonsSortingDirection( !w->polygonsSortingDirection() );
+}
+
+
+ObjectStatAction::ObjectStatAction()
+  : Action()
+{
+}
+
+
+ObjectStatAction::~ObjectStatAction()
+{
+}
+
+
+Action * ObjectStatAction::creator()
+{
+  return new ObjectStatAction;
+}
+
+
+namespace
+{
+
+  string objectStatus( const AObject * obj, AWindow3D *w )
+  {
+    string st;
+    const AGraphObject *ago = dynamic_cast<const AGraphObject *>( obj );
+    if( ago )
+    {
+      float vol = 0., surf = 0.;
+
+      AGraphObject::const_iterator i, e = ago->end();
+      for( i=ago->begin(); i!=e; ++i )
+      {
+        const Bucket *abk = dynamic_cast<const Bucket *>( *i );
+        const ATriangulated *atr;
+        if( abk )
+        {
+          const BucketMap<Void> & bk = abk->bucket();
+          vol += bk.lower_bound( w->getTime() )->second.size()
+            * bk.sizeX() * bk.sizeY() * bk.sizeZ();
+        }
+        else if( (atr = dynamic_cast<const ATriangulated *>( *i ) ) != 0 )
+        {
+          const AimsSurface<3, Void> *mesh
+            = atr->surfaceOfTime( w->getTime() );
+          surf += SurfaceManip::meshArea( *mesh );
+        }
+      }
+      stringstream ss;
+      if( vol != 0 )
+      {
+        ss << "volume: " << vol << " mm3";
+        if( surf != 0 )
+          ss << ", ";
+      }
+      if( surf != 0 )
+        ss << "area: " << surf << " mm2";
+      st = ss.str();
+    }
+    return st;
+  }
+
+}
+
+
+void ObjectStatAction::displayStat()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( !w )
+    return;
+
+  SelectFactory *sf = SelectFactory::factory();
+  const map<unsigned, set<AObject *> > & sel = sf->selected();
+  map<unsigned, set<AObject *> >::const_iterator is = sel.find( w->Group() );
+  if( is == sel.end() )
+    return;
+  const set<AObject *> & so = is->second;
+  set<AObject *>::const_iterator io, eo = so.end();
+  AObject *obj = 0;
+  string s;
+  for( io=so.begin(); io!=eo; ++io )
+    if( w->hasObject( *io ) && !( s = objectStatus( *io, w ) ).empty() )
+    {
+      if( obj )
+      {
+        obj = 0;
+        break;
+      }
+      else
+        obj = *io;
+    }
+  if( !obj )
+    w->statusBar()->showMessage( "select one object", 1500 );
+  else
+    w->statusBar()->showMessage( s.c_str() );
 }
 
 
