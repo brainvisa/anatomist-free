@@ -1266,7 +1266,7 @@ Bt droit   :  menu
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélection additive&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;modif. sélection&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette :&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
@@ -2581,22 +2581,22 @@ Cela est particulièrement utile pour l&apos;affichage de gros jeux de faisceaux
     <message>
         <source>Snapshot size</source>
         <comment>AWindow3D</comment>
-        <translation type="unfinished"></translation>
+        <translation>Taille du rendu</translation>
     </message>
     <message>
         <source>Snapshot size:</source>
         <comment>AWindow3D</comment>
-        <translation type="unfinished"></translation>
+        <translation>Taille du rendu:</translation>
     </message>
     <message>
         <source>OK</source>
         <comment>AWindow3D</comment>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
         <comment>AWindow3D</comment>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -3053,7 +3053,7 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>Edit vector field properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer les propriétés du champ de vecteurs</translation>
     </message>
 </context>
 <context>
@@ -4339,19 +4339,19 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scaling factor for the vector module (intensity).&lt;/p&gt;&lt;p&gt;As each vector is represented inside a voxel, the scaling generally needs to be small.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Facteur d&apos;échelle pour le module du vecteur (intensité).&lt;/p&gt;&lt;p&gt;Chaque vecteur étant représenté dans un voxel, le facteur d&apos;échelle doit généralement être petit.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>vectors scaling:</source>
-        <translation type="unfinished"></translation>
+        <translation>Échelle des vecteurs:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vector mapping specifies where, and in which volume, the x/y/z coord for the mapped vectors are taken from.&lt;/p&gt;&lt;p&gt;Each box describes how to get the given coordinate for vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;La correspondance des vecteurs précise où et dans quel volume sont prises les coordonnées x/y/z des vecteurs représentés.&lt;/p&gt;&lt;p&gt;Chaque boîte décrit comment obtenir la coordonnée correspondante des vecteurs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>vector x mapping:</source>
-        <translation type="unfinished"></translation>
+        <translation>coordonnée x du vecteur:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Each vector coordinate (values) may be taken from a different volume, or all could be from the same.&lt;/p&gt;&lt;p&gt;Several cases:&lt;/p&gt;&lt;p&gt;* a 4D volume can hold, for each 3D space position (dimensions 0..2), 3 vector coordinates: then vector coordinates are in dimension 3: values 0, 1 and 2 in this 4th dimension correspond to the vector components.&lt;/p&gt;&lt;p&gt;* or 3 3D volumes can hold the 3 components of vectors: then each component should be taken from a different volume.&lt;/p&gt;&lt;p&gt;* We may only use 1D or 2D vectors by omitting one or 2 components (no volume for these coordinates)&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -4359,7 +4359,7 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>volume:</source>
-        <translation type="unfinished"></translation>
+        <translation>volume:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;x, y, z map determines which dimensions in the input volume correspond to spatial positions of voxels, where vectors are located.&lt;/p&gt;&lt;p&gt;In most cases, leave 0, 1, 2 (the 3 1st dimensions of the volume), it will certainly be OK.&lt;/p&gt;&lt;p&gt;But in special cases, axes may be flipped, or the 1st dimension could be the vector coordinate, not its spatial position, so a change would be needed here.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -4367,7 +4367,7 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>x, y, z map:</source>
-        <translation type="unfinished"></translation>
+        <translation>correspondance x, y, z:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This specifies which dimension/position the vector coordinates are taken from.&lt;/p&gt;&lt;p&gt;As 3 spatial dimensions will vary in space according to x, y, z map above, the corresponding volume coordinates are meaningless and cannot be specified.&lt;/p&gt;&lt;p&gt;Additional dimensions can store the vectors components. Typically, in a 4D volume, dimension 3 (the 4th) will store the 1st component at position 0, 2nd at position 1 etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -4375,15 +4375,15 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>coord in all dims:</source>
-        <translation type="unfinished"></translation>
+        <translation>coord dans toutes les dims:</translation>
     </message>
     <message>
         <source>vector y mapping:</source>
-        <translation type="unfinished"></translation>
+        <translation>coordonnée y du vecteur:</translation>
     </message>
     <message>
         <source>vector z mapping:</source>
-        <translation type="unfinished"></translation>
+        <translation>coordonnée z du vecteur:</translation>
     </message>
 </context>
 <context>
