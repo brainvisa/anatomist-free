@@ -202,18 +202,19 @@ void ControlledWindow::updateAvailableControls()
 
     for( ic=ctl.begin(); ic!=ec; ++ic )
     {
-      const string	& txt = (*ic).second;
+      const string & txt = ic->second;
+      string descr = view()->controlSwitch()->controlDescription( txt );
       int ul = cd->getControlInstance( txt )->userLevel();
       ib = d->ctlbts.find( txt );
       if( ib == eb )
       {
         p = icons->getIconInstance( txt.c_str() );
         if( p )
-          ac = d->actions->addAction( *p, tr( txt.c_str() ) );
+          ac = d->actions->addAction( *p, tr( descr.c_str() ) );
         else	// no icon
         {
           cout << "No icon for control " << txt << endl;
-          ac = d->actions->addAction( tr( txt.c_str() ) );
+          ac = d->actions->addAction( tr( descr.c_str() ) );
         }
         ac->setCheckable( true );
         d->controls->addAction( ac );

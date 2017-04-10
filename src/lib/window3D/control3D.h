@@ -56,6 +56,8 @@ namespace anatomist
     Control3D( const Control3D & c );
     virtual ~Control3D();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnDeselect( ActionPool * actionPool );
 
@@ -71,6 +73,8 @@ namespace anatomist
     Select3DControl( const std::string & name = "Selection 3D" );
     Select3DControl( const Select3DControl & c );
     virtual ~Select3DControl();
+
+    virtual std::string description() const;
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnSelect( ActionPool * actionPool );

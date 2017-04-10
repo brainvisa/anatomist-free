@@ -41,6 +41,7 @@
 #include <anatomist/window/winFactory.h>
 #include <anatomist/window/controlledWindow.h>
 #include <anatomist/selection/selectFactory.h>
+#include <QApplication>
 #include <qlabel.h>
 #include <set>
 #include <iostream>
@@ -136,8 +137,9 @@ ToolBox::updateActiveControl( const string& activeControlDescription )
   if( myDescriptionActivated )
   {
     myControlDescriptionWidget 
-      = new QLabel( tr( myControlDescription.c_str() ), 
-                    d->controldata ) ;
+      = new QLabel(
+        qApp->translate( "ControlledWindow", myControlDescription.c_str() ),
+        d->controldata );
     d->controldata->layout()->addWidget( myControlDescriptionWidget );
     myControlDescriptionWidget->
       setMaximumSize( myControlDescriptionWidget->sizeHint() );
@@ -396,7 +398,7 @@ ControlSwitch::setActiveControl( const string& control )
   myActiveControl = control ;
   found->second->doOnSelect( myActionPool ) ;
   if( myToolBox )
-    myToolBox->updateActiveControl( myActiveControl ) ;
+    myToolBox->updateActiveControl( controlDescription( myActiveControl ) );
   myControlEnabled = true ;
 }
 
@@ -1060,7 +1062,7 @@ ControlSwitch::updateToolBox()
 
   // here actions have changed
   myToolBox->resetActions() ;
-  myToolBox->updateActiveControl(myActiveControl) ;
+  myToolBox->updateActiveControl( controlDescription( myActiveControl) );
 
   for( iter=actions.begin(); iter != last; ++iter )
   {
@@ -1189,5 +1191,15 @@ void ControlSwitch::activateMouseMoveAction(
 ControlPtr ControlSwitch::activeControlInstance() const
 {
   return myControls.find( myActiveControl )->second;
+}
+
+
+string ControlSwitch::controlDescription( const string & ctrlname ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( ctrlname );
+  if( ic == myControls.end() )
+    return string();
+  return ic->second->description();
 }
 

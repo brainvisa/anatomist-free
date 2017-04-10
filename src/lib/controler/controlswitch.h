@@ -134,6 +134,7 @@ public:
   const std::set<std::string>& activableControlGroups( ) const;
   const std::set<std::string>& availableControlGroups( ) const;  
   const std::set<std::string>& actions() const;
+  std::string controlDescription( const std::string & ctrlname ) const;
 
   //vector<ControlPtr>::iterator iterator;
   typedef std::map<std::string, anatomist::ControlPtr>::const_iterator 

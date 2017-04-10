@@ -174,6 +174,14 @@
         <source>Resize window</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save high-res...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start recording high-res...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AimsFileDialogExtension</name>
@@ -670,14 +678,6 @@
     </message>
     <message>
         <source>Anatomist / AIMS libraries information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save one object at a time !</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1213,6 +1213,85 @@ Right Button   :  menu
         <source>tolerance</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Control3D_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Default 3D / Linked Cursor control:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show/hide menus/buttons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro views&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sync views orientation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;set center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Slice movie:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;slice&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+T&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;time&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+L&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;moving linked cursor mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;start / stop slice slider movie&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;weightlessness mode: continuous rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+M&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change slice movie mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;increase movie speed&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;decrease movie speed&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;Colormap handling:&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and horizontal move:&lt;/td&gt;&lt;td&gt;change colormap(s) min value&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+right button&amp;&amp;gt;&amp;&amp;nbsp;, and vertical move:&lt;/td&gt;&lt;td&gt;change colormap(s) max value&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;Reset palette settings&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Select3DControl_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Selection:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;selection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;additive selection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;toggle selection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel:&lt;/td&gt;&lt;td&gt;zoom / distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;menu&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;show/hide menus/buttons&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;synchronize 3D views&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;set centre of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;show position of the center of view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;select/unselect all objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;remove selected object from this view&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt:&lt;/td&gt;&lt;td&gt;remove selected objects from group&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;V&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;View selected object info in status bar&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Slice movie:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next slice&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;previous time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;next time&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;slice&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+T&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;select &apos;time&apos; mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+L&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;moving linked cursor mode&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Label copy/paste:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;SPACE&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;pick selection label&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+RETURN&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;paste current label to selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Transparency:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Depth sorting: sort transparent meshes polygons by depth to allow better transparency handling (should be done for a given eye orientation)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Toggle automatic depth sorting, on the fly, for transparent objects. &lt;b&gt;Warning:&lt;/b&gt; large impact on performances&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
 </context>
 <context>
     <name>ErpWraper</name>
@@ -1232,10 +1311,6 @@ Right Button   :  menu
 <context>
     <name>ErrorMessage</name>
     <message>
-        <source>Save failed: object </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> could not be saved to </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1249,6 +1324,10 @@ Right Button   :  menu
     </message>
     <message>
         <source>Message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save failed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1636,6 +1715,10 @@ Right Button   :  menu
     </message>
     <message>
         <source>VolumeRenderingShaderFusionMethod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VectorFieldFusionMethod</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2485,6 +2568,26 @@ It is especially useful when displaying large fiber tracts sets, where cutting o
         <comment>ControlWindow</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Snapshot size</source>
+        <comment>AWindow3D</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snapshot size:</source>
+        <comment>AWindow3D</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <comment>AWindow3D</comment>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <comment>AWindow3D</comment>
+        <translation type="unfinished">Cancel</translation>
+    </message>
 </context>
 <context>
     <name>QObjectBrowser</name>
@@ -2938,6 +3041,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <source>Save as textured mesh</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Edit vector field properties</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3328,6 +3435,14 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Split referential to disconnect transformations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>See objects in this referential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to 3D view</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4189,6 +4304,69 @@ Do you still want to proceed ?</source>
         <source>&lt;p align=&quot;justify&quot;&gt;This is the thickness of the slice between the current 2D window plane and the clipping plane(s). If you are using a volume (slice), don&apos;t set the distance to zero because the slice will be just on the clipping plane, and you don&apos;t know what will be drawn and what won&apos;t be&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Depth sorting of polygons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VectorField</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scaling factor for the vector module (intensity).&lt;/p&gt;&lt;p&gt;As each vector is represented inside a voxel, the scaling generally needs to be small.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>vectors scaling:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vector mapping specifies where, and in which volume, the x/y/z coord for the mapped vectors are taken from.&lt;/p&gt;&lt;p&gt;Each box describes how to get the given coordinate for vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>vector x mapping:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Each vector coordinate (values) may be taken from a different volume, or all could be from the same.&lt;/p&gt;&lt;p&gt;Several cases:&lt;/p&gt;&lt;p&gt;* a 4D volume can hold, for each 3D space position (dimensions 0..2), 3 vector coordinates: then vector coordinates are in dimension 3: values 0, 1 and 2 in this 4th dimension correspond to the vector components.&lt;/p&gt;&lt;p&gt;* or 3 3D volumes can hold the 3 components of vectors: then each component should be taken from a different volume.&lt;/p&gt;&lt;p&gt;* We may only use 1D or 2D vectors by omitting one or 2 components (no volume for these coordinates)&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>volume:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;x, y, z map determines which dimensions in the input volume correspond to spatial positions of voxels, where vectors are located.&lt;/p&gt;&lt;p&gt;In most cases, leave 0, 1, 2 (the 3 1st dimensions of the volume), it will certainly be OK.&lt;/p&gt;&lt;p&gt;But in special cases, axes may be flipped, or the 1st dimension could be the vector coordinate, not its spatial position, so a change would be needed here.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>x, y, z map:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This specifies which dimension/position the vector coordinates are taken from.&lt;/p&gt;&lt;p&gt;As 3 spatial dimensions will vary in space according to x, y, z map above, the corresponding volume coordinates are meaningless and cannot be specified.&lt;/p&gt;&lt;p&gt;Additional dimensions can store the vectors components. Typically, in a 4D volume, dimension 3 (the 4th) will store the 1st component at position 0, 2nd at position 1 etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>coord in all dims:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>vector y mapping:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>vector z mapping:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>VolRenderPanel</name>
@@ -4245,6 +4423,37 @@ Do you still want to proceed ?</source>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
+    </message>
+</context>
+<context>
+    <name>anatomist::RefWindow</name>
+    <message>
+        <source>3D sphere view (S)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3D flat view (F)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Legacy 2D circle view (L)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rebuild referentials positions (F5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus view (Home)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset view orientation (Return)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle on-screen info (I)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

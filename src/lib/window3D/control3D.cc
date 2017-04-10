@@ -97,6 +97,14 @@ Control3D::~Control3D()
 }
 
 
+string Control3D::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "Control3D_description" );
+}
+
+
 void Control3D::eventAutoSubscription( ActionPool * actionPool )
 {
   //cout << "Control3D::eventAutoSubscription\n";
@@ -356,6 +364,14 @@ Select3DControl::Select3DControl( const Select3DControl & c ) : Control( c )
 
 Select3DControl::~Select3DControl()
 {
+}
+
+
+string Select3DControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "Select3DControl_description" );
 }
 
 
