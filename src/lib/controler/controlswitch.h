@@ -53,8 +53,9 @@
 #include <vector>
 #include <list>
 
-  
+
 class ControlSwitch;
+class QTextBrowser;
 
 
 namespace anatomist
@@ -100,11 +101,12 @@ private slots :
 private:
   struct Private;
 
-  QVBoxLayout * myLayout;
+  QVBoxLayout * myLayout; // OBSOLETE - don't use it
   QTabWidget * myActionTab;
   QPushButton * myControlDescriptionActivation;
   std::string myControlDescription;
-  QLabel * myControlDescriptionWidget, *l1, *l2, *l3, *l4;
+  QTextBrowser * myControlDescriptionWidget;
+  QLabel *l1, *l2, *l3, *l4;
 
   bool myDescriptionActivated;
   Private	*d;

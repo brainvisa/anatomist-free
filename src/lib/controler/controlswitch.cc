@@ -41,6 +41,9 @@
 #include <anatomist/window/winFactory.h>
 #include <anatomist/window/controlledWindow.h>
 #include <anatomist/selection/selectFactory.h>
+#include <QApplication>
+#include <QTextBrowser>
+#include <QSplitter>
 #include <qlabel.h>
 #include <set>
 #include <iostream>
@@ -59,12 +62,15 @@ struct ToolBox::Private
 
   QWidget	*tab;
   QWidget	*controldata;
+  QSplitter     *split;
   set<string> actions;
 };
 
 
 ToolBox::ToolBox( const string& activeControlDescription ):
-  QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ), myActionTab(0), 
+  QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ),
+  myLayout( 0 ), // OBSOLETE - don't use it
+  myActionTab(0),
   myControlDescriptionActivation(0), 
   myControlDescription(activeControlDescription),
   myControlDescriptionWidget(0), myDescriptionActivated(false), 
@@ -73,21 +79,20 @@ ToolBox::ToolBox( const string& activeControlDescription ):
   setObjectName("ToolBox");
   setAttribute(Qt::WA_DeleteOnClose);
   //cout << "ToolBox::ToolBox, this=" << this << endl;
-  myLayout = new QVBoxLayout( this );
-  myLayout->setMargin( 10 );
-  myLayout->setSpacing( 10 );
-  myLayout->setObjectName( "Layout" );
-  myLayout->setEnabled(true) ;
+  QVBoxLayout *lay = new QVBoxLayout( this );
+  setLayout( lay );
+  d->split = new QSplitter( Qt::Vertical, this );
+  lay->addWidget( d->split );
 
   d->tab = new QWidget( this );
   QVBoxLayout *vlay = new QVBoxLayout( d->tab );
   d->tab->setLayout( vlay );
   vlay->setMargin( 0 );
-  d->controldata = new QWidget( this );
+  d->controldata = new QWidget;
   vlay = new QVBoxLayout( d->controldata );
   d->controldata->setLayout( vlay );
-  myLayout->addWidget( d->tab );
-  myLayout->addWidget( d->controldata );
+  d->split->addWidget( d->tab );
+  d->split->addWidget( d->controldata );
 
   myControlDescriptionActivation 
     = new QPushButton( tr("Show control description"),
@@ -123,8 +128,8 @@ ToolBox::resetActions()
 void
 ToolBox::updateActiveControl( const string& activeControlDescription ) 
 {
-  cout << "ToolBox::updateActiveControl, this=" << this << ", descr: "
-       << activeControlDescription << endl;
+//   cout << "ToolBox::updateActiveControl, this=" << this << ", descr: "
+//        << activeControlDescription << endl;
 
   myControlDescription = activeControlDescription ;
   if ( myControlDescriptionWidget )
@@ -135,15 +140,20 @@ ToolBox::updateActiveControl( const string& activeControlDescription )
 
   if( myDescriptionActivated )
   {
-    myControlDescriptionWidget 
-      = new QLabel( tr( myControlDescription.c_str() ), 
-                    d->controldata ) ;
+    myControlDescriptionWidget = new QTextBrowser( d->controldata );
+    QString text = qApp->translate(
+      "ControlledWindow", myControlDescription.c_str() );
+    // in translations for tooltips, "&" (&lt;) are doubled
+    text.replace( "&&", "&" );
+    myControlDescriptionWidget->setSizePolicy(
+      QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    myControlDescriptionWidget->setHtml( text );
     d->controldata->layout()->addWidget( myControlDescriptionWidget );
-    myControlDescriptionWidget->
-      setMaximumSize( myControlDescriptionWidget->sizeHint() );
+//     myControlDescriptionWidget->
+//       setMaximumSize( myControlDescriptionWidget->sizeHint() );
     myControlDescriptionWidget->show() ;
   }
-  resize( sizeHint() ) ;
+//   resize( sizeHint() ) ;
 
   //cout << "ToolBox::updateActiveControl done\n";
 }
