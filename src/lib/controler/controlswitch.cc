@@ -69,7 +69,6 @@ struct ToolBox::Private
 
 ToolBox::ToolBox( const string& activeControlDescription ):
   QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ),
-  myLayout( 0 ), // OBSOLETE - don't use it
   myActionTab(0),
   myControlDescriptionActivation(0), 
   myControlDescription(activeControlDescription),

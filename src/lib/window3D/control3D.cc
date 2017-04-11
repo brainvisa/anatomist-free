@@ -1266,6 +1266,13 @@ FlightControl::~FlightControl()
 }
 
 
+string FlightControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "FlightControl_description" );
+}
+
 
 void FlightControl::eventAutoSubscription( ActionPool * actionPool )
 {
@@ -1516,6 +1523,13 @@ ObliqueControl::~ObliqueControl()
 }
 
 
+string ObliqueControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "ObliqueControl_description" );
+}
+
 
 void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
 {
@@ -1685,6 +1699,13 @@ TransformControl::~TransformControl()
 {
 }
 
+
+string TransformControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "TransformControl_description" );
+}
 
 
 void TransformControl::eventAutoSubscription( ActionPool * actionPool )
@@ -1896,6 +1917,13 @@ CutControl::~CutControl()
 {
 }
 
+
+string CutControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "CutControl_description" );
+}
 
 
 void CutControl::eventAutoSubscription( ActionPool * actionPool )

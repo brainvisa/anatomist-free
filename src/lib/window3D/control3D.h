@@ -90,6 +90,8 @@ namespace anatomist
     FlightControl( const FlightControl & c );
     virtual ~FlightControl();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnDeselect( ActionPool * actionPool );
   };
@@ -103,6 +105,8 @@ namespace anatomist
     ObliqueControl( const ObliqueControl & c );
     virtual ~ObliqueControl();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
   };
 
@@ -114,6 +118,8 @@ namespace anatomist
     TransformControl();
     TransformControl( const TransformControl & c );
     virtual ~TransformControl();
+
+    virtual std::string description() const;
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnSelect( ActionPool * actionPool );
@@ -128,6 +134,8 @@ namespace anatomist
     CutControl();
     CutControl( const CutControl & c );
     virtual ~CutControl();
+
+    virtual std::string description() const;
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
   };

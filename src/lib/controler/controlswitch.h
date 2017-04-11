@@ -101,7 +101,6 @@ private slots :
 private:
   struct Private;
 
-  QVBoxLayout * myLayout; // OBSOLETE - don't use it
   QTabWidget * myActionTab;
   QPushButton * myControlDescriptionActivation;
   std::string myControlDescription;
