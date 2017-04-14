@@ -3330,6 +3330,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <source>Split referential to disconnect transformations</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>See objects in this referential</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RegionsFusionWindow</name>
@@ -4187,6 +4191,14 @@ Do you still want to proceed ?</source>
     </message>
     <message>
         <source>&lt;p align=&quot;justify&quot;&gt;This is the thickness of the slice between the current 2D window plane and the clipping plane(s). If you are using a volume (slice), don&apos;t set the distance to zero because the slice will be just on the clipping plane, and you don&apos;t know what will be drawn and what won&apos;t be&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth sorting of polygons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
