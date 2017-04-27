@@ -467,7 +467,19 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
         d->modifiers()[ w3 ] = new GhostSelected( w3 );
         w3->enableToolTips( false );
       }
+      
+      RoiManagementAction        rma;
+      std::set<std::string> current_rois = rma.getCurrentGraphRegions();
+      
+      //std::cout << "PaintControl::doAlsoOnSelect, current_rois: " 
+      //          << (int32_t)current_rois.size() 
+      //          << std::endl;
+      if (current_rois.size() > 0)
+          // Current rois are usable for drawing, so we do not display 
+          // the roi management window
+          return;
 
+      // Only displays the ROI windows when no editable ROI is selected
       ControlSwitch        *cs = myPaintAction->view()->controlSwitch();
       if( !cs->isToolBoxVisible() )
         {
@@ -488,7 +500,6 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
           if( !visible )
             cs->switchToolBoxVisible();
         }
-      RoiManagementAction        rma;
       if( cs->toolBox() )
         cs->toolBox()->showPage( rma.name() );
     }
