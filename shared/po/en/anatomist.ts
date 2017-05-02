@@ -4407,6 +4407,14 @@ Do you still want to proceed ?</source>
         <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Depth sorting of polygons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>VectorField</name>

@@ -984,9 +984,17 @@ int Anatomist::destroyObject( AObject *obj )
   else
     {
       stringstream	s;
+      // count references not owned by the anatomist application
+      int refs = rc_ptr_trick::refCount( *obj );
+      if( hasObject( obj ) )
+      {
+        carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
+        if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
+          --refs;
+      }
       s << "Cannot delete object " << obj->name()
           << ",\ncheck for multi-objects which contain it. There are still "
-          << rc_ptr_trick::refCount( *obj )-1 << " other references to it\n";
+          << refs << " other references to it\n";
       AWarning( s.str().c_str() );
       return 0;
     }
