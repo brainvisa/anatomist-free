@@ -57,24 +57,26 @@ class Configurator(object):
 		self._connect()	
 
 	def _connect(self):
-		clicked = qt.SIGNAL("clicked()")
-		activated = qt.SIGNAL("activated(int)")
-		toggled = qt.SIGNAL("toggled(bool)")
-		widgets_slots = {'applyButton' : (clicked, self.applySlot),
-			'dataComboBox' : (activated, self.dataSlot),
-			'typeComboBox' : (activated, self.typeSlot),
-			'absRadioButton' : (toggled, self.absSlot)}
+		widgets_slots = {
+                    self._widget.child('applyButton').clicked: self.applySlot,
+                    self._widget.child('dataComboBox').activated:
+                        self.dataSlot,
+                    self._widget.child('typeComboBox').activated:
+                        self.typeSlot,
+                    self._widget.child('absRadioButton').toggled: self.absSlot,
+                }
 		widgets = dict([(name, self._widget.child(name)) \
 				for name in widgets_slots.keys()])	
-		for name, (signal, slot) in widgets_slots.items():
-			qt.QObject.connect(widgets[name], signal, slot)
+		for signal, slot in widgets_slots.items():
+			signal.connect(slot)
 		dataToId = {'raw' : 0, 'mean' : 1, 'good' : 2, 'bad' : 3}
 		typeToId = {'vertex' : 0, 'all' : 1}
-		widgets['absRadioButton'].setChecked(self._abs_enable)
-		widgets['dataComboBox'].setCurrentItem(\
-			dataToId[self._choosen_data])
-		widgets['typeComboBox'].setCurrentItem(\
-			typeToId[self._choosen_type])
+		self._widget.child('absRadioButton').setChecked(
+                        self._abs_enable)
+		self._widget.child('dataComboBox').setCurrentItem(
+                        dataToId[self._choosen_data])
+		self._widget.child('typeComboBox').setCurrentItem(
+                        typeToId[self._choosen_type])
 
 	def applySlot(self):
 		for o in self._objects:
