@@ -209,7 +209,7 @@ ObjectMenu* ATexture::optionMenu() const
 
 
 template <typename T>
-void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex )
+void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex, bool normalize_data )
 {
   unsigned dim = texdim<T>();
   TexExtrema    & te = glTexExtrema();
@@ -232,7 +232,8 @@ void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex )
   freeTexture();
   delete d;
   d = new Private_<T>( tex );
-  normalize();
+  if( normalize_data )
+    normalize();
   d->header = Object::value( tex->header() );
 }
 
@@ -241,7 +242,8 @@ namespace anatomist
 {
 
 template <>
-void ATexture::setTexture( rc_ptr<TimeTexture<short> > tex )
+void ATexture::setTexture( rc_ptr<TimeTexture<short> > tex,
+                           bool normalize_data )
 {
   // convert to texture<float>
   rc_ptr<Texture1d>	ftex( new Texture1d );
@@ -251,12 +253,12 @@ void ATexture::setTexture( rc_ptr<TimeTexture<short> > tex )
   // keep track of original data type
   ftex->header().setProperty( "data_type", DataTypeCode<short>::name() );
 
-  setTexture( ftex );
+  setTexture( ftex, normalize_data );
 }
 
 
 template <>
-void ATexture::setTexture( rc_ptr<TimeTexture<int> > tex )
+void ATexture::setTexture( rc_ptr<TimeTexture<int> > tex, bool normalize_data )
 {
   // convert to texture<float>
   rc_ptr<Texture1d>	ftex( new Texture1d );
@@ -266,12 +268,13 @@ void ATexture::setTexture( rc_ptr<TimeTexture<int> > tex )
   // keep track of original data type
   ftex->header().setProperty( "data_type", DataTypeCode<int>::name() );
 
-  setTexture( ftex );
+  setTexture( ftex, normalize_data );
 }
 
 
 template <>
-void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
+void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex,
+                           bool normalize_data )
 {
   // convert to texture<float>
   rc_ptr<Texture1d>	ftex( new Texture1d );
@@ -281,7 +284,7 @@ void ATexture::setTexture( rc_ptr<TimeTexture<unsigned> > tex )
   // keep track of original data type
   ftex->header().setProperty( "data_type", DataTypeCode<unsigned>::name() );
 
-  setTexture( ftex );
+  setTexture( ftex, normalize_data );
 }
 
 }
@@ -1108,17 +1111,19 @@ AObject* ATexture::clone( bool shallow )
   {
   case 1:
     if( shallow )
-      at->setTexture( texture<float>() );
+      at->setTexture( texture<float>( false, false ), false );
     else
       at->setTexture( rc_ptr<TimeTexture<float> >
-          ( new TimeTexture<float>( *texture<float>() ) ) );
+          ( new TimeTexture<float>( *texture<float>( false, false ) ),
+            false ) );
     break;
   case 2:
     if( shallow )
-      at->setTexture( texture<Point2df>() );
+      at->setTexture( texture<Point2df>( false, false ), false );
     else
       at->setTexture( rc_ptr<TimeTexture<float> >
-          ( new TimeTexture<float>( *texture<float>() ) ) );
+          ( new TimeTexture<float>( *texture<float>( false, false ) ),
+            false ) );
     break;
   default:
     break;
@@ -1126,8 +1131,7 @@ AObject* ATexture::clone( bool shallow )
   at->setFileName( fileName() );
   const GLComponent::TexExtrema & ste = glTexExtrema();
   GLComponent::TexExtrema & dte = at->glTexExtrema();
-  dte.minquant = ste.minquant;
-  dte.maxquant = ste.maxquant;
+  dte = ste;
   // copy header
   *at->attributed() = *attributed();
   at->setPalette( *palette() );
@@ -1144,9 +1148,11 @@ template rc_ptr<TimeTexture<unsigned> >
 ATexture::texture<unsigned>( bool, bool );
 template rc_ptr<TimeTexture<Point2df> >
 ATexture::texture<Point2df>( bool, bool );
-template void ATexture::setTexture<float>( rc_ptr<TimeTexture<float> > );
-template void ATexture::setTexture<short>( rc_ptr<TimeTexture<short> > );
-template void ATexture::setTexture<int>( rc_ptr<TimeTexture<int> > );
-template void ATexture::setTexture<unsigned>( rc_ptr<TimeTexture<unsigned> > );
-template void ATexture::setTexture<Point2df>( rc_ptr<TimeTexture<Point2df> > );
+template void ATexture::setTexture<float>( rc_ptr<TimeTexture<float> >, bool );
+template void ATexture::setTexture<short>( rc_ptr<TimeTexture<short> >, bool );
+template void ATexture::setTexture<int>( rc_ptr<TimeTexture<int> >, bool );
+template void ATexture::setTexture<unsigned>( rc_ptr<TimeTexture<unsigned> >,
+                                              bool );
+template void ATexture::setTexture<Point2df>( rc_ptr<TimeTexture<Point2df> >,
+                                              bool );
 

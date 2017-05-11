@@ -85,7 +85,7 @@ namespace anatomist
 
     virtual void normalize();
     template <typename T> void setTexture( carto::rc_ptr<TimeTexture<T> >
-        tex );
+        tex, bool normalize_data = true );
     template <typename T>
     carto::rc_ptr<TimeTexture<T> > texture( bool rescaled = false,
                                             bool always_copy = false );
