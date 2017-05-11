@@ -62,7 +62,7 @@ struct AConnectivityMatrix::Private
   set<int> patchnums;
   ASparseMatrix *sparse;
   ATriangulated *mesh;
-  ATexture *patch;
+  rc_ptr<ATexture> patch;
   ATexture *basins;
   ATexture *texture;
   AMTexture *mtexture;
@@ -186,15 +186,20 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   ++io;
   if( io != eo )
   {
-    d->patch = static_cast<ATexture *>( *io );
+    // make a shallow copy of patch texture since we will change its palette
+    d->patch.reset( static_cast<ATexture *>( (*io)->clone( true ) ) );
+    d->patch->setName( theAnatomist->makeObjectName( (*io)->name()
+                                                      + " copy" ) );
+    theAnatomist->registerObject( d->patch.get(), false );
+    theAnatomist->releaseObject( d->patch.get() );
+
     d->patch->getOrCreatePalette();
     AObjectPalette *pal = d->patch->palette();
-    rc_ptr<Texture1d> aimstex = d->patch->texture<float>( false, false );
     GLComponent::TexExtrema & text = d->patch->glTexExtrema( 0 );
     unsigned nval
       = unsigned( rint( text.maxquant[0] - text.minquant[0] ) ) + 1;
     rc_ptr<APalette> apal( new APalette( "batch_bin", nval ) );
-    unsigned i, minpatch = unsigned( rint( text.minquant[0] ) );
+    long i, minpatch = long( rint( text.minquant[0] ) );
     if( d->patchmode == ONE )
       for( i=0; i<nval; ++i )
         if( d->patchnums.find( i + minpatch ) != d->patchnums.end() )
@@ -207,6 +212,8 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
           (*apal)( i ) = AimsRGBA( 200, 200, 255, 255 );
         else
           (*apal)( i ) = AimsRGBA( 255, 255, 255, 255 );
+    pal->setMin1( 0. );
+    pal->setMax1( 1. );
     pal->setRefPalette( apal );
     d->patch->setPalette( *pal );
     d->patch->glSetTexRGBInterpolation( true, 0 );
@@ -220,7 +227,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   }
   else
   {
-    d->patch = 0;
+    d->patch.reset( 0 );
     d->patchnums.clear();
   }
 
@@ -270,7 +277,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   if( d->patch ) // with 2 textures
   {
     vector<AObject *> objf( 2 );
-    objf[0] = d->patch;
+    objf[0] = d->patch.get();
     objf[1] = d->texture;
     d->mtexture = static_cast<AMTexture *>( ff->method( 
       "FusionMultiTextureMethod" )->fusion( objf ) );
@@ -313,7 +320,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   insert( rc_ptr<AObject>( d->mesh ) );
   if( d->patch )
   {
-    insert( rc_ptr<AObject>( d->patch ) );
+    insert( rc_ptr<AObject>( d->patch.get() ) );
     if( d->basins )
       insert( rc_ptr<AObject>( d->basins ) );
   }
@@ -356,7 +363,7 @@ bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
 
 void AConnectivityMatrix::update( const Observable *observable, void *arg )
 {
-  if( observable == d->patch )
+  if( observable == d->patch.get() )
   {
     buildPatchIndices();
     setChanged();
@@ -448,13 +455,17 @@ namespace
     map<int32_t, size_t> histo;
     vector<float>::const_iterator it,
       et = tex.begin()->second.data().end();
-    int32_t t;
+    int32_t t, tmin;
     size_t nonzero = 0;
+    tmin = tex.begin()->second.data()[0];
+    for( it=tex.begin()->second.data().begin(); it!=et; ++it )
+      if( *it < tmin )
+        tmin = int32_t( rint( *it ) );
     for( it=tex.begin()->second.data().begin(); it!=et; ++it )
     {
       t = int32_t( rint( *it ) );
       ++histo[ t ];
-      if( t != 0 )
+      if( t != tmin )
         ++nonzero;
     }
 
