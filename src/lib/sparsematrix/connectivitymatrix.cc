@@ -266,6 +266,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
     list<ATexture *>::iterator ilt, elt = patch_textures.end();
     for( ilt=patch_textures.begin(); ilt!=elt; ++ilt )
     {
+    cout << "patchmode: " << d->patchmode << ", patchnums: " << d->patchnums.size() << endl;
       // make a shallow copy of patch texture since we will change its palette
       rc_ptr<ATexture> ptx;
       ptx.reset( static_cast<ATexture *>( (*ilt)->clone( true ) ) );
@@ -647,9 +648,9 @@ namespace
       canbeconn = true;
     else if( !canbeconn ) // doesn't work
     {
-      // now try one patch value
       map<int32_t, size_t>::const_iterator ih, eh = histo.end();
       list<int32_t> compatiblepatches;
+      // now try one patch value
       cout << "compatible patches: ";
       for( ih=histo.begin(); ih!=eh; ++ih )
         if( ih->second == nlines )
@@ -664,23 +665,27 @@ namespace
         patchnum.insert( *compatiblepatches.begin() );
         canbeconn = true;
       }
-      else //no patch has the good size
-      {
-        // check all values but one
-        cout << "compatible compl. patches: ";
-        for( ih=histo.begin(); ih!=eh; ++ih )
-          if( ih->second == nvert - nlines )
-          {
-            compatiblepatches.push_back( ih->first );
-            cout << ih->first << ", ";
-          }
-        cout << endl;
-        if( compatiblepatches.empty() )
-          return false; // no matching patch[es]
-        patchnummode = AConnectivityMatrix::ALL_BUT_ONE;
-        patchnum.insert( *compatiblepatches.begin() );
-        canbeconn = true;
-      }
+    }
+
+    if( !canbeconn || nonzero == nlines )
+    {
+      // no single patch has the good size
+      map<int32_t, size_t>::const_iterator ih, eh = histo.end();
+      list<int32_t> compatiblepatches;
+      // check all values but one
+      cout << "compatible compl. patches: ";
+      for( ih=histo.begin(); ih!=eh; ++ih )
+        if( ih->second == nvert - nlines )
+        {
+          compatiblepatches.push_back( ih->first );
+          cout << ih->first << ", ";
+        }
+      cout << endl;
+      if( compatiblepatches.empty() )
+        return false; // no matching patch[es]
+      patchnummode = AConnectivityMatrix::ALL_BUT_ONE;
+      patchnum.insert( *compatiblepatches.begin() );
+      canbeconn = true;
     }
 
     return canbeconn;
