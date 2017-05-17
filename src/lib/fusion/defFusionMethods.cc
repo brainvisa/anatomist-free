@@ -471,7 +471,9 @@ int ConnectivityMatrixFusionMethod::canFusion( const set<AObject *> & obj )
   list<AObject *> ordered;
   AConnectivityMatrix::PatchMode pmode;
   set<int> patches;
-  bool ok = AConnectivityMatrix::checkObjects( obj, ordered, pmode, patches );
+  bool transpose = false;
+  bool ok = AConnectivityMatrix::checkObjects( obj, ordered, pmode, patches,
+                                               transpose );
   if( !ok )
     return 0;
   return 100;
