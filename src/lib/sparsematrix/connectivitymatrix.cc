@@ -214,11 +214,12 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   set<AObject *> sobj;
   sobj.insert( obj.begin(), obj.end() );
   AObject *matrix = 0;
+  bool transpose = false;
   list<ATriangulated *> meshes;
   list<ATexture *> patch_textures, basin_textures;
 
   if( !checkObjects( sobj, matrix, meshes, patch_textures, basin_textures,
-                     d->patchmode, d->patchnums ) )
+                     d->patchmode, d->patchnums, transpose ) )
   {
     cerr << "AConnectivityMatrix: inconsistency in fusion objects types\n";
     return;
@@ -858,7 +859,8 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
                                         list<ATexture *> & patch_textures,
                                         list<ATexture *> & basin_textures,
                                         PatchMode & patchnummode,
-                                        set<int> & patchnums )
+                                        set<int> & patchnums, 
+                                        bool & transpose )
 {
   ASparseMatrix *sparse = 0;
   AVolume<float> *dense = 0;
@@ -1010,6 +1012,8 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     if( !aimstex || aimstex->size() == 0 )
       return false;
 
+    bool transpose1 = false, transpose2 = false;
+
     if( !tex2 )
     {
       if( nvert != texsize )
@@ -1022,9 +1026,20 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
                                        patchlabels, patchintlabels,
                                        tex->attributed() ) )
       {
-        cout << "incompatible texture\n";
-        return false;
+        if( !checkTextureAsConnectivity( *aimstex, nvert, texsize,
+                                       patchnummode, patchnums,
+                                       patchlabels, patchintlabels,
+                                       tex->attributed() ) )
+        {
+          cout << "incompatible texture\n";
+          return false;
+        }
+        else
+        {
+          transpose1 = true;
+        }
       }
+      transpose = transpose1;
     }
     else
     {
@@ -1039,8 +1054,22 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
 
       bool t1asbasins = checkTextureAsBasins( *aimstex, tex->attributed(),
                                               nvert, texsize );
+      if( !t1asbasins )
+      {
+        t1asbasins = checkTextureAsBasins( *aimstex, tex->attributed(),
+                                           nvert, lines );
+        if( t1asbasins )
+          transpose1 = true;
+      }
       bool t2asbasins = checkTextureAsBasins( *aimstex2, tex2->attributed(),
                                               nvert, texsize );
+      if( !t2asbasins && !t1asbasins )
+      {
+        t2asbasins = checkTextureAsBasins( *aimstex2, tex2->attributed(),
+                                           nvert, lines );
+        if( t2asbasins )
+          transpose2 = true;
+      }
       if( !t1asbasins && !t2asbasins )
       {
         cout << "no texture can be used for basins reduction\n";
@@ -1048,24 +1077,46 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
       }
       AConnectivityMatrix::PatchMode patchmode1, patchmode2;
       set<int> patchnum1, patchnum2;
+      bool transpose3 = false, transpose4 = false;
 
       bool t1asconn = checkTextureAsConnectivity( *aimstex, nvert, lines,
                                                   patchmode1, patchnum1,
                                                   patchlabels,
                                                   patchintlabels,
                                                   tex->attributed() );
+      if( !t1asconn )
+      {
+        t1asconn = checkTextureAsConnectivity( *aimstex, nvert, texsize,
+                                               patchmode1, patchnum1,
+                                               patchlabels,
+                                               patchintlabels,
+                                               tex->attributed() );
+        if( t1asconn )
+          transpose3 = true;
+      }
       bool t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, lines,
                                                   patchmode2, patchnum2,
                                                   patchlabels,
                                                   patchintlabels,
                                                   tex2->attributed() );
-      //cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
-      if( t1asconn && t2asbasins )
+      if( !t2asconn && !t1asconn )
+      {
+        t2asconn = checkTextureAsConnectivity( *aimstex2, nvert, texsize,
+                                               patchmode2, patchnum2,
+                                               patchlabels,
+                                               patchintlabels,
+                                               tex2->attributed() );
+        if( t2asconn )
+          transpose4 = true;
+      }
+     // cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
+      if( t1asconn && t2asbasins && transpose3 == transpose2 )
       {
         patchnummode = patchmode1;
         patchnums = patchnum1;
+        transpose = transpose2;
       }
-      else if( t1asbasins && t2asconn )
+      else if( t1asbasins && t2asconn && transpose1 == transpose4 )
       {
         // swap textures
         ATexture * ttmp = tex;
@@ -1073,6 +1124,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
         tex2 = ttmp;
         patchnummode = patchmode2;
         patchnums = patchnum2;
+        transpose = transpose1;
       }
       else
         return false;
@@ -1082,6 +1134,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   {
     if( lines != texsize && nvert != lines )
       return false;
+    transpose = false;
   }
 
   if( sparse )

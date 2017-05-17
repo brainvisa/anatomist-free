@@ -547,9 +547,10 @@ int ConnectivityMatrixFusionMethod::canFusion( const set<AObject *> & obj )
   list<ATexture *> patch_textures, basin_textures;
   AConnectivityMatrix::PatchMode pmode;
   set<int> patches;
+  bool transpose = false;
   bool ok = AConnectivityMatrix::checkObjects( obj, matrix, meshes,
                                                patch_textures, basin_textures,
-                                               pmode, patches );
+                                               pmode, patches, transpose );
   if( !ok )
     return 0;
   return 100;

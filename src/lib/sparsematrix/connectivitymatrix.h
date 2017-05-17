@@ -95,7 +95,8 @@ namespace anatomist
                               std::list<ATriangulated *> & meshes,
                               std::list<ATexture *> & patch_textures,
                               std::list<ATexture *> & basin_textures,
-                              PatchMode & pmode, std::set<int> & patches );
+                              PatchMode & pmode, std::set<int> & patches,
+                              bool & transpose );
     void cancelThread();
 
   private:
