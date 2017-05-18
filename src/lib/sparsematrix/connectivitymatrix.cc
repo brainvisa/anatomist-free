@@ -234,20 +234,13 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   else if( dynamic_cast<AVolume<float> *>( matrix ) )
   {
     AVolume<float> *vol = static_cast<AVolume<float> *>( matrix );
-    bool transpose = false;
-    /* TODO: check matrix size for transposition
-    if( d->basins )
-    {
-    }
-    */
     d->sparse = matrixFromVolume( vol, transpose );
     builtnewmatrix = true;
   }
   else
   {
     AVolume<double> *vol = static_cast<AVolume<double> *>( matrix );
-    // TODO: check matrix size for transposition
-    d->sparse = matrixFromVolume( vol );
+    d->sparse = matrixFromVolume( vol, transpose );
     builtnewmatrix = true;
   }
 
