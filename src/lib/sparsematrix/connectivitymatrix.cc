@@ -1234,6 +1234,7 @@ void AConnectivityMatrix::buildPatchIndices()
 void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
                                         float time_pos )
 {
+  cout << "buildTexture\n";
   uint32_t row = startvertex;
   if( !d->patchindices.empty() )
   {
@@ -1369,7 +1370,7 @@ void AConnectivityMatrix::buildColumnTexture( int mesh_index,
   cout << "buildColumnTexture " << startvertex << ": " << cind[0] << endl;
   vector<int> col_indices
     = d->ctools.getIndicesForSurfaceIndices( 1, mesh_index, cind );
-  cout << "col_indices: " << col_indices.size() << endl;
+//   cout << "col_indices: " << col_indices.size() << endl;
   vector<ATriangulated *>::iterator im, em = d->meshes.end();
   unsigned index = 0;
 
@@ -1745,12 +1746,12 @@ void AConnectivityMatrix::buildPatchTextureThread()
         vector<float> & row = (*texlist[ index ])[0].data();
         vector<float> & ptext = (*ptex[index])[timestep].data();
         uint32_t texsize = row.size();
-        if( ptext.empty() )
-          ptext.resize( texsize, 0. );
 
         // copy row texture data into ptext
         if( basins.empty() )
         {
+          if( ptext.empty() )
+            ptext.resize( texsize, 0. );
           for( i=0; i<texsize; ++i )
           {
             float x = row[i];
@@ -1762,6 +1763,9 @@ void AConnectivityMatrix::buildPatchTextureThread()
         {
           int b;
           Texture<int> *basintex = basins[index];
+          texsize = basintex->nItem();
+          if( ptext.empty() )
+            ptext.resize( texsize, 0. );
           for( i=0; i<texsize; ++i )
           {
             b = (*basintex)[i];
