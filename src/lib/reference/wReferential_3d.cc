@@ -425,6 +425,8 @@ namespace
   {
     ReferentialWindow::unlinkFiles( temp_filenames );
     temp_filenames.clear();
+    if( !theAnatomist->hasReferential( referential ) )
+      return string();
     QString text = ReferentialWindow::referentialToolTipText(
       referential, temp_filenames );
     return text.toStdString();
@@ -595,6 +597,8 @@ void ReferentialMenu::backgroundMenu( int x, int y )
                   SLOT( loadNewTransformation() ) );
   menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
                   SLOT( clearUnusedReferentials() ) );
+  menu.addAction( ReferentialWindow::tr( "Merge identical referentials" ),
+                  parent, SLOT( mergeIdenticalReferentials() ) );
   menu.addSeparator();
   menu.addAction( anatomist::RefWindow::tr( "3D sphere view (S)" ),
                   w, SLOT( setSphereView() ) );
@@ -730,6 +734,7 @@ public:
 
   void beginDrawTrans( int x, int y, int, int );
   void beginDrawIdTrans( int x, int y, int, int );
+  void beginDrawMergeTrans( int x, int y, int, int );
   void moveDrawTrans( int x, int y, int, int );
   void endDrawTrans( int x, int y, int, int );
 
@@ -737,6 +742,7 @@ public:
 
 private:
   bool identity;
+  bool merge;
   Point3df start_pos;
   Point2df start_2d;
   rc_ptr<ASurface<3> > drag_mesh;
@@ -745,8 +751,8 @@ private:
 
 
 TransformDrag::TransformDrag()
-  : Action(), identity( false ), start_pos( 0. ), start_2d( 0. ),
-    drag_mesh( 0 ), start_ref( 0 )
+  : Action(), identity( false ), merge( false ), start_pos( 0. ),
+    start_2d( 0. ), drag_mesh( 0 ), start_ref( 0 )
 {
 }
 
@@ -754,6 +760,7 @@ TransformDrag::TransformDrag()
 void TransformDrag::beginDrawTrans( int x, int y, int, int )
 {
   identity = false;
+  merge = false;
   RefWindow *w = dynamic_cast<RefWindow *>( view()->aWindow() );
   if( !w )
     return;
@@ -772,6 +779,15 @@ void TransformDrag::beginDrawIdTrans( int x, int y, int dx, int dy )
 {
   beginDrawTrans( x, y, dx, dy );
   identity = true;
+  merge = false;
+}
+
+
+void TransformDrag::beginDrawMergeTrans( int x, int y, int dx, int dy )
+{
+  beginDrawTrans( x, y, dx, dy );
+  identity = false;
+  merge = true;
 }
 
 
@@ -793,7 +809,12 @@ void TransformDrag::moveDrawTrans( int x, int y, int, int )
     theAnatomist->registerObject( drag_mesh.get(), false );
     theAnatomist->releaseObject( drag_mesh.get() );
     Material & mat = drag_mesh->GetMaterial();
-    mat.SetDiffuse( 1., 0.8, 0.2, 0.5 );
+    if( identity )
+      mat.SetDiffuse( 1., 0.2, 0.8, 0.5 );
+    else if( merge )
+      mat.SetDiffuse( 0.2, 1., 0.2, 0.5 );
+    else
+      mat.SetDiffuse( 1., 0.8, 0.2, 0.5 );
     drag_mesh->SetMaterial( mat );
     AWindow *win = v->aWindow();
     win->registerObject( drag_mesh.get(), true );
@@ -823,7 +844,7 @@ void TransformDrag::endDrawTrans( int x, int y, int, int )
       {
         w->tempDisableShuffle();
         rwin->addTransformationGui( start_ref->referential, rmesh->referential,
-                                    identity );
+                                    identity, merge );
       }
     }
     start_ref = 0;
@@ -953,6 +974,16 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
     Qt::LeftButton, Qt::ControlModifier,
     MouseActionLinkOf<TransformDrag>(
       pool->action( "TransformDrag" ), &TransformDrag::beginDrawIdTrans ),
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::moveDrawTrans ),
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::endDrawTrans ),
+    true );
+
+  mouseLongEventSubscribe(
+    Qt::LeftButton, Qt::ShiftModifier,
+    MouseActionLinkOf<TransformDrag>(
+      pool->action( "TransformDrag" ), &TransformDrag::beginDrawMergeTrans ),
     MouseActionLinkOf<TransformDrag>(
       pool->action( "TransformDrag" ), &TransformDrag::moveDrawTrans ),
     MouseActionLinkOf<TransformDrag>(

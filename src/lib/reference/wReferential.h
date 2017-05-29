@@ -74,7 +74,7 @@ public:
     const std::vector<anatomist::Transformation *> & trans );
   void addTransformationGui( anatomist::Referential* source,
                              anatomist::Referential* dest,
-                             bool identity = false );
+                             bool identity = false, bool merge = false );
 
   static QString referentialToolTipText(
     anatomist::Referential *ref, std::list<std::string> & temp_filenames );
@@ -101,6 +101,7 @@ protected:
   void invertTransformation( anatomist::Transformation* );
   void reloadTransformation( anatomist::Transformation* );
   void saveTransformation( anatomist::Transformation* );
+  void mergeReferentials( anatomist::Transformation* );
   virtual bool event( QEvent* );
 
 protected slots:
@@ -114,6 +115,7 @@ protected slots:
   void set3DView();
   void view3dDeleted();
   void refreshNow();
+  void mergeIdenticalReferentials();
 
 private:
   anatomist::ReferentialWindow_PrivateData	*pdat;
@@ -135,6 +137,7 @@ public slots:
   void invertTransformation();
   void reloadTransformation();
   void saveTransformation();
+  void mergeReferentials();
 
 private:
   ReferentialWindow *refwin;

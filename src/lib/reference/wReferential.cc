@@ -149,7 +149,7 @@ namespace
   {
     QPoint  pos;
     Referential *r = _refwin->refAt( p, pos );
-    if( r )
+    if( r && theAnatomist->hasReferential( r ) )
     {
       list<string> temp;
       QString text = ReferentialWindow::referentialToolTipText( r, temp );
@@ -159,7 +159,7 @@ namespace
     else
     {
       anatomist::Transformation  *t = _refwin->transfAt( p );
-      if( t )
+      if( t && ATransformSet::instance()->hasTransformation( t ) )
       {
         list<string> temp;
         QString text = ReferentialWindow::transformationToolTipText( t, temp );
@@ -562,9 +562,12 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
                                                         pdat->dstref ) )
     {
       bool id = false;
+      bool merge = false;
       if( ev->modifiers() & Qt::ControlModifier )
         id = true;
-      addTransformationGui( pdat->srcref, pdat->dstref, id );
+      else if( ev->modifiers() & Qt::ShiftModifier )
+        merge = true;
+      addTransformationGui( pdat->srcref, pdat->dstref, id, merge );
     }
   }
 }
@@ -572,7 +575,7 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
 
 void ReferentialWindow::addTransformationGui( Referential* source,
                                               Referential* dest,
-                                              bool identity )
+                                              bool identity, bool merge )
 {
   if( identity )
   {
@@ -594,6 +597,11 @@ void ReferentialWindow::addTransformationGui( Referential* source,
       = new LoadTransformationCommand( matrix, source, dest );
     theProcessor->execute( com );
     refresh();
+  }
+  else if( merge )
+  {
+    if( Referential::mergeReferentials( source, dest ) )
+      refresh();
   }
   else
   {
@@ -825,6 +833,10 @@ void ReferentialWindow::popupTransfMenu(
                       SLOT( invertTransformation() ) );
       pop.addAction( tr( "Reload transformation" ), cbk,
                       SLOT( reloadTransformation() ) );
+      QAction *ac = pop.addAction( tr( "Merge referentials" ), cbk,
+                                   SLOT( mergeReferentials() ) );
+      if( !t->motion().isIdentity() )
+        ac->setEnabled( false );
     }
     pop.addAction( tr( "Save transformation..." ), cbk,
                     SLOT( saveTransformation() ) );
@@ -856,6 +868,8 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
                      SLOT( loadNewTransformation() ) );
     pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
+    pop->addAction( tr( "Merge identical referentials" ), this,
+                    SLOT( mergeIdenticalReferentials() ) );
     pop->addSeparator();
     pop->addAction( tr( "Switch to 3D view" ), this, SLOT( set3DView() ) );
   }
@@ -886,126 +900,7 @@ void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 
 void ReferentialWindow::clearUnusedReferentials()
 {
-  set<Referential *> refs = theAnatomist->getReferentials();
-  set<Referential *>::iterator i, e = refs.end();
-  Referential *ref;
-  set<Referential *> usedrefs;
-  for( i=refs.begin(); i!=e; ++i )
-  {
-    ref = *i;
-    if( ref == Referential::acPcReferential()
-        || ref == Referential::mniTemplateReferential()
-        || !ref->AnaWin().empty() || !ref->AnaObj().empty() )
-      usedrefs.insert( ref );
-  }
-  // check other referentials
-  set<Referential *>::iterator j, k, unused = usedrefs.end();
-  ATransformSet *ts = ATransformSet::instance();
-  for( i=refs.begin(); i!=e; )
-  {
-    ref = *i;
-    if( usedrefs.find( ref ) == unused )
-    {
-      // get the connected component this ref is in
-      set<Referential *>
-          cc = ts->connectedComponent( ref );
-      // check whether there are any useful ref in this CC
-      for( j=cc.begin(), k=cc.end(); j!=k; ++j )
-        if( usedrefs.find( *j ) != unused )
-          break;
-      if( j == k ) // no useful ref: we can delete the entire CC
-      {
-        for( j=cc.begin(), k=cc.end(); j!=k; ++j )
-          if( *j != ref ) // don't delete ref yet
-          {
-            refs.erase( *j );
-            delete *j;
-          }
-        ++i; // increment iterator
-        delete ref; // then we can delete ref safely
-      }
-      else
-      {
-        // ref is linked to a "useful connected component"
-        // we must check whether it would break the CC if we remove it
-        set<anatomist::Transformation *> trs = ts->transformationsWith( ref );
-        set<anatomist::Transformation *>::iterator it, jt, et = trs.end();
-        // filter out generated transformations
-        for( it=trs.begin(), et=trs.end(); it!=et; )
-        {
-          if( (*it)->isGenerated() )
-          {
-            jt = it;
-            ++it;
-            trs.erase( jt );
-          }
-          else
-            ++it;
-        }
-        if( trs.size() <= 1 ) // then no link goes through ref
-        {
-          ++i;
-          delete ref;
-        }
-        else // now trs *must* contain exactly 2 transfos
-        {
-          //debug
-          if( trs.size() != 2 )
-            cerr << "BUG in ReferentialWindow::clearUnusedReferentials: more "
-                "than 2 connections to a ref inside a connected component"
-                << endl;
-          int usedcc = 0;
-          for( it=trs.begin(), et=trs.end(); it!=et; ++it )
-          {
-            anatomist::Transformation *tr = *it;
-            // get other end
-            Referential *ref2 = tr->source();
-            if( ref2 == ref )
-              ref2 = tr->destination();
-            // temporarily disable the transformation
-            tr->unregisterTrans();
-            // get CC of other end
-            set<Referential *> cc2 = ts->connectedComponent( ref2 );
-            // if cc2 has useful refs, then ref is useful
-            if( cc2.size() != cc.size() )
-            {
-              for( j=cc2.begin(), k=cc2.end(); j!=k; ++j )
-                if( usedrefs.find( *j ) != unused )
-                  break;
-              if( j == k ) // no useful ref: we can delete the entire CC2
-              {
-                for( j=cc2.begin(), k=cc2.end(); j!=k; ++j )
-                  if( *j != ref ) // don't delete ref yet
-                  {
-                    refs.erase( *j );
-                    delete *j;
-                  }
-                tr = 0;
-              }
-              else
-              {
-                tr->registerTrans();
-                ++usedcc;
-              }
-            }
-            else
-              ++usedcc;
-            if( tr )
-              tr->registerTrans();
-          }
-          if( usedcc <= 1 ) // ref is not useful
-          {
-            ++i;
-            delete ref;
-          }
-          else
-            ++i;
-        }
-      }
-    }
-    else
-      ++i;
-  }
+  Referential::clearUnusedReferentials();
   refresh();
 }
 
@@ -1376,6 +1271,24 @@ QString ReferentialWindow::transformationToolTipText(
 }
 
 
+void ReferentialWindow::mergeReferentials( anatomist::Transformation* tr )
+{
+  if( !tr->motion().isIdentity() )
+  {
+    cout << "transformation is not identity: cannot merge referentials\n";
+    return;
+  }
+  Referential::mergeReferentials( tr->source(), tr->destination() );
+  refresh();
+}
+
+
+void ReferentialWindow::mergeIdenticalReferentials()
+{
+  Referential::mergeIdenticalReferentials();
+}
+
+
 void ReferentialWindow::unlinkFiles( const list<string> & temp_filenames )
 {
   list<string>::const_iterator il, el = temp_filenames.end();
@@ -1414,3 +1327,9 @@ void ReferentialWindow_TransCallback::saveTransformation()
 {
   refwin->saveTransformation( trans );
 }
+
+void ReferentialWindow_TransCallback::mergeReferentials()
+{
+  refwin->mergeReferentials( trans );
+}
+
