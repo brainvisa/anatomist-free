@@ -557,17 +557,19 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
     QPoint		dummy;
     pdat->dstref = refAt( ev->pos(), dummy );
 
-    if( pdat->dstref && pdat->srcref != pdat->dstref
-        && !ATransformSet::instance()->transformation( pdat->srcref,
-                                                        pdat->dstref ) )
+    if( pdat->dstref && pdat->srcref != pdat->dstref )
     {
+      anatomist::Transformation *tr
+        = ATransformSet::instance()->transformation( pdat->srcref,
+                                                     pdat->dstref );
       bool id = false;
       bool merge = false;
       if( ev->modifiers() & Qt::ControlModifier )
         id = true;
       else if( ev->modifiers() & Qt::ShiftModifier )
         merge = true;
-      addTransformationGui( pdat->srcref, pdat->dstref, id, merge );
+      if( !tr || merge )
+        addTransformationGui( pdat->srcref, pdat->dstref, id, merge );
     }
   }
 }
