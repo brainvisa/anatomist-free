@@ -49,6 +49,7 @@
 #include <anatomist/controler/control_d.h>
 #include <aims/points_distribution/points_distribution.h>
 #include <aims/mesh/surfacegen.h>
+#include <aims/mesh/surfaceOperation.h>
 #include <aims/resampling/quaternion.h>
 #include <cartodata/volume/volume.h>
 #include <algorithm>
@@ -800,30 +801,62 @@ void TransformDrag::moveDrawTrans( int x, int y, int, int )
     return;
 
   Point3df tvec = v->objectPositionFromWindow( Point3df( x, y, 0. ) );
+  RefWindow *w = static_cast<RefWindow *>( view()->aWindow() );
+  AObject *obj = w->objectAtCursorPosition( x, y );
+  RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
 
-  AimsSurfaceTriangle *mesh = SurfaceGenerator::arrow(
-    tvec, start_pos, 2., 5., 10, 0.2 );
-  if( !drag_mesh )
+  AimsSurfaceTriangle *mesh = 0;
+  if( identity )
+    mesh = SurfaceGenerator::cylinder(
+      tvec, start_pos, 5., 5., 10, false, true );
+  else if( merge )
+  {
+    mesh = SurfaceGenerator::arrow(
+      start_pos * 0.55 + tvec * 0.45, start_pos, 2., 5., 10, 0.2 );
+    AimsSurfaceTriangle *mesh2 = SurfaceGenerator::arrow(
+      start_pos * 0.45 + tvec * 0.55, tvec, 2., 5., 10, 0.2 );
+    SurfaceManip::meshMerge( *mesh, *mesh2 );
+    delete mesh2;
+  }
+  else
+    mesh = SurfaceGenerator::arrow(
+      tvec, start_pos, 2., 5., 10, 0.2 );
+
+  bool regist = !drag_mesh;
+  if( regist )
   {
     drag_mesh.reset( new ASurface<3> );
     theAnatomist->registerObject( drag_mesh.get(), false );
     theAnatomist->releaseObject( drag_mesh.get() );
     Material & mat = drag_mesh->GetMaterial();
-    if( identity )
-      mat.SetDiffuse( 1., 0.2, 0.8, 0.5 );
-    else if( merge )
-      mat.SetDiffuse( 0.2, 1., 0.2, 0.5 );
-    else
-      mat.SetDiffuse( 1., 0.8, 0.2, 0.5 );
-    drag_mesh->SetMaterial( mat );
-    AWindow *win = v->aWindow();
-    win->registerObject( drag_mesh.get(), true );
+    mat.setRenderProperty( Material::SelectableMode,
+                           Material::GhostSelection );
   }
+
+  drag_mesh->setSurface( mesh );
+
+  Material & mat = drag_mesh->GetMaterial();
+  if( identity )
+    mat.SetDiffuse( 1., 0.2, 0.8, 0.5 );
+  else if( merge )
+    mat.SetDiffuse( 0.2, 1., 0.2, 0.5 );
   else
+    mat.SetDiffuse( 1., 0.8, 0.2, 0.5 );
+
+  if( rmesh && rmesh != start_ref )
   {
-    drag_mesh->setSurface( mesh );
-    drag_mesh->notifyObservers( this );
+    anatomist::Transformation *tr
+      = ATransformSet::instance()->transformation( start_ref->referential,
+                                                   rmesh->referential );
+    if( tr && ( !merge || !tr->motion().isIdentity() ) )
+      mat.Diffuse()[3] = 0.2;
   }
+
+  drag_mesh->glSetChanged( GLComponent::glMATERIAL );
+  if( regist )
+    w->registerObject( drag_mesh.get(), true );
+  drag_mesh->notifyObservers( this );
+  w->Refresh();
 }
 
 
@@ -834,17 +867,22 @@ void TransformDrag::endDrawTrans( int x, int y, int, int )
     RefWindow *w = static_cast<RefWindow *>( view()->aWindow() );
     AObject *obj = w->objectAtCursorPosition( x, y );
     RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
-    if( rmesh && rmesh != start_ref
-      && !ATransformSet::instance()->transformation( start_ref->referential,
-                                                     rmesh->referential ) )
+    if( rmesh && rmesh != start_ref )
     {
-      ReferentialWindow *rwin
-        = dynamic_cast<ReferentialWindow *>( w->parentWidget() );
-      if( rwin )
+      anatomist::Transformation *tr
+        = ATransformSet::instance()->transformation( start_ref->referential,
+                                                     rmesh->referential );
+      if( !tr || merge )
       {
-        w->tempDisableShuffle();
-        rwin->addTransformationGui( start_ref->referential, rmesh->referential,
-                                    identity, merge );
+        ReferentialWindow *rwin
+          = dynamic_cast<ReferentialWindow *>( w->parentWidget() );
+        if( rwin )
+        {
+          w->tempDisableShuffle();
+          rwin->addTransformationGui( start_ref->referential,
+                                      rmesh->referential,
+                                      identity, merge );
+        }
       }
     }
     start_ref = 0;
