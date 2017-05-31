@@ -597,30 +597,116 @@ Why changing the referential of a window, and how ?
     Modifying the referential of a window (2)
 
 
+Managing referentials and transformations
++++++++++++++++++++++++++++++++++++++++++
+
+Most of the management is done using the **Referentials window**. To open it, use the menu *Settings => Referential window*.
+
+.. image:: images/ref_window.jpg
+
+* In this window, referentials are displayed as colored spheres.
+* Two special referentials are always present: the *Talairach-AC/PC-Anatomist* referential, whish is displayed as the red icosahedron, and the *Talairach-MNI template-SPM* referential, which is light blue.
+* transformations are displayed as arrows joining the referential spheres.
+* Implicit transformations (combining several explicit transformatons) are displayed in light.
+
+The windows displays a 3D view with similar interactions as regular Anatomist 3D windows:
+
+* the middle button rotates the view
+* *shift + middle button*, or mouse wheel, controls the zoom
+* *control + middle button* translates the view
+* *right button* opens a popup menu
+
+Anatomist older than 4.6 was using a 2D view with colored circles. This view is still present, it can be switched using the popup menu "legacy 2D view", but the 3D view is likely to be clearer.
+
+When the mouse gets over a referential (sphere) or a transformation, the corresponding object is highlighted, and information about it is displayed on an overlay on the window:
+
+.. image:: images/ref_window_info_ref.jpg
+
+.. image:: images/ref_window_info_trans.jpg
+
+Info display can be toggled on or off by pressing the ``I`` key.
+
+In this view, implicit transformations are present and are visible in very light colors: they can also display information and be used for interactions.
+
+.. image:: images/ref_window_implicit.jpg
+
+Interacting with referentials and transformations can be done in several ways:
+
+* by using the popup menu while the mouse cursor is over the background: allows to create referentials, load transformations with referential information, clear unused or duplicate referentials...
+* by using the popup menu while the mouse cursor is over a referential: allows to delete the referential, load its information, duplicate it, or show objects in this coordinates system.
+* by using the popup menu while the mouse cursor is over a transformation: allows to delete the transformation, load a different transformation matrix, invert it, or merge the referenrtials linked by this transformation.
+* by dragging with the mouse a link between two unlinked referentials: allows to load a new transformation from a ``.trm`` file.
+* by dragging with the mouse and *control* key pressed, a link between two unlinked referentials: allows to create an identity transformation between two referentials.
+* by dragging with the mouse and *shift* key pressed, a link between two referentials, either unlinked or linked by an identity transfortmation: allows to merge both referentials into a single one.
+
+These actions are detailed a bit more below.
+
+* When many referentials are present in the view, it is sometimes not so easy to distinguish all transformation arrows. It can be useful to rotate the view, or to rearrange the referentials positions. This can be done by pressing the ``F5`` key. Referentials positions are taken randomly, then optimized by a placement algorithm which tries to limit arrows crossings for explicit transformations.
+
+.. image:: images/ref_window_manyref_1.jpg
+    :width: 400
+
+.. image:: images/ref_window_manyref_2.jpg
+    :width: 400
+
+* Alternately the 3D view can arrange referentials on a "semi-flat" map (the default), or around a sphere. Switching between modes can be done using the background popup menu, or by pressing ``S`` (sphere) or ``F`` (flat). In sphere mode, ``F5`` also rearranges the referentials positions around the sphere.
+
+.. image:: images/ref_window_spheres_1.jpg
+    :width: 400
+
+.. image:: images/ref_window_spheres_2.jpg
+    :width: 400
+
+
 Loading a transformation between two referentials
-+++++++++++++++++++++++++++++++++++++++++++++++++
+#################################################
 
 To load a transformation between two referentials:
 
-* Select the menu *Settings => Referential window*.
-* A new window opens showing existing referentials (colored points) and transformations (arrows) between them. To load a new transformation, you need at least 2 referentials.
-* To load the transformation, draw a line with the mouse from one referential to the other (take care of the direction). Then a file dialog opens and you select the transformation file.
+* open the referentials window
+* To load the transformation, draw an arrow with the mouse from one referential to the other (take care of the direction). While dragging, a semi-transparent brown arrow will be drawn. If the mouse cursor gets over an incompatible referential (already linked to the source referential), the drawn arrow will become more transparent.
+  Then a file dialog opens and you select the transformation file.
 * Windows and objects associated to these referentials are updated.
+
+.. image:: images/ref_window_draw_trans.jpg
 
 
 Actions on transformations: delete, save...
-+++++++++++++++++++++++++++++++++++++++++++
+###########################################
 
 The transformation menu is available by right click on the arrow representing the transformation (in the window *Settings => Referential window*). Here is this menu:
 
 * **Delete transformation**: deletes the transformation between the two referentials.
 * **Invert transformation**: inverts the direction of the transformation.
 * **Reload transformation**: enables to change the transformation information by choosing a .trm file.
+* **Merge referentials**: only enabled if the transformation is **identity**, in which case both referentials represent the same coordinates system, and can be merged into a single one.
 * **Save transformation**: saves the transformation in a file. Used in transformation control (manual registration).
 
 
+Creating an identity transformation between two referentials
+############################################################
+
+In many cases we have to tell Anatomist that two distinct, existing, unlinked, referentials, are actually in the same coordinates system. We can draw an **identity** transformation between them.
+
+To do so, draw an arrow with the mouse from one referential to the other, while maintaining the *Control* key pressed. While dragging, a semi-transparent purple line will be drawn. If the mouse cursor gets over an incompatible referential (already linked to the source referential), the drawn line will become more transparent.
+
+.. image:: images/ref_window_draw_identity.jpg
+
+
+Merging two referentials
+########################
+
+This can be done between two referentials which are not linked (neither directly nor indirectly), or which are linked by an **identity** transformation. This will tell Anatomist that both are in the same coordinates system, and that we will merge them into a single one. Transformations between them and other referentials will be preserved.
+
+To do so, draw an arrow with the mouse from one referential to the other, while maintaining the *Shift* key pressed. While dragging, a semi-transparent green double-arrow will be drawn (it represents two referentials that will join together). If the mouse cursor gets over an incompatible referential (already linked to the source referential by a non-identity transformation), the drawn arrows will become more transparent.
+
+Alternately, if an identity transformation already exists between the referentials to be merged, the merge action is also available on the right-click menu on the transformation.
+
+.. image:: images/ref_window_draw_merge.jpg
+
+
 Application: loading a transformation (coming from registration) between an anatomical volume and a functional volume.
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+######################################################################################################################
 
 For example, we want to visualize an antomical image (``anat.nii``) and a functional image (``func.nii``). We need to align the volumes using a transformation matrix (previously computed ``anatTOfunc.trm``). Each volume has its own coordinates system.
 
