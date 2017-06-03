@@ -1,10 +1,3 @@
-.. toctree::
-  :maxdepth: 3
-  :hidden:
-
-  developer_details
-  commands
-
 .. image:: ../sphinxman/images/anatomist.png
   :align: center
 
@@ -58,6 +51,12 @@ Commands system
 :doc:`Commands system and commands list <commands>` (mainly in french...)
 
 
+View/controler model
+++++++++++++++++++++
+
+:doc:`controler`
+
+
 More or less obsolete docs
 ++++++++++++++++++++++++++
 
@@ -70,3 +69,13 @@ and in french...
 
 * `Vew / controler model in Anatomist <../html/fr/programmation/controls.html>`_
 
+
+Contents
+++++++++
+
+.. toctree::
+  :maxdepth: 1
+
+  commands
+  developer_details
+  controler
