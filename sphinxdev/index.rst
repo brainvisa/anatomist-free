@@ -1,10 +1,3 @@
-.. toctree::
-  :maxdepth: 3
-  :hidden:
-
-  developer_details
-  commands
-
 .. image:: ../sphinxman/images/anatomist.png
   :align: center
 
@@ -63,6 +56,12 @@ Objects file format (.aobj)
 :doc:`Anatomist objects file format <aobj_format>` (since Anatomist 4.6)
 
 
+View/controler model
+++++++++++++++++++++
+
+:doc:`controler`
+
+
 More or less obsolete docs
 ++++++++++++++++++++++++++
 
@@ -75,3 +74,14 @@ and in french...
 
 * `Vew / controler model in Anatomist <../html/fr/programmation/controls.html>`_
 
+
+Contents
+++++++++
+
+.. toctree::
+  :maxdepth: 1
+
+  commands
+  developer_details
+  controler
+  aobj_format

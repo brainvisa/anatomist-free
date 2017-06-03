@@ -735,21 +735,21 @@ For example, we want to visualize an antomical image (``anat.nii``) and a functi
 
     function displayVideo(fig_node)
     {
-      // assumes figure's 2 first children are flash and ogg videos
+      // assumes figure's 2 first children are flash and html5 videos
       var flash = fig_node.firstChild.nextSibling;
-      var ogg = flash.nextSibling.nextSibling;
-      var btn = ogg.nextSibling.nextSibling.firstChild.nextSibling;
+      var html5 = flash.nextSibling.nextSibling;
+      var btn = html5.nextSibling.nextSibling.firstChild.nextSibling;
       if (hasFlash)
       {
-        ogg.style.display = 'none';
+        html5.style.display = 'none';
         flash.style.display = 'block';
         btn.textContent = 'Flash';
       }
       else
       {
         flash.style.display = 'none';
-        ogg.style.display = 'block';
-        btn.textContent = 'OGG';
+        html5.style.display = 'block';
+        btn.textContent = 'HTML5';
       }
     };
 
@@ -778,8 +778,8 @@ For example, we want to visualize an antomical image (``anat.nii``) and a functi
       </object>
     </div>
     <div align="center">
-      <video align="center" preload="auto" autoplay="false" controls>
-        <source src="_static/images/registration.ogg" />
+      <video align="center" controls>
+        <source src="_static/images/registration.mp4" />
         Your browser does not support the video tag.
       </video>
     </div>
