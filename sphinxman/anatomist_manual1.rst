@@ -1001,7 +1001,7 @@ Default control
 
 *Description* : Default control enables to use the linked cursor, to zoom in, to rotate...
 
-.. figure:: images/fb_mtrackball.png
+.. figure:: images/fb_mtrackball.jpg
 
   *Default control* keyboard shortcuts
 
@@ -1035,9 +1035,9 @@ Selection control
 
 *Icon* : |fb_select|
 
-*Description* : Select graph nodes, rotate...
+*Description* : Select objects and graph nodes, rotate...
 
-.. figure:: images/fb_mselect.png
+.. figure:: images/fb_mselect.jpg
 
   *Selection control* keyboard shortcuts
 
@@ -1078,7 +1078,7 @@ Oblique view control
 
 *Description* : Creates oblique view by rotating the slice plan.
 
-.. figure:: images/fb_moblique.png
+.. figure:: images/fb_moblique.jpg
 
   *Oblique view control* keyboard shortcuts
 
@@ -1106,10 +1106,10 @@ Transformation control
 
 *Icon* : |fb_control_transfo|
 
-*Description : *Enables to move an object in a view in order to make manual registration. It can be useful to initialize a registration method with translation parameters. You can get theses parameters in the .trm file obtained from this registration. See the part :ref:`manual registration <manual_registration>` for more details.
+*Description* : Enables to move an object in a view in order to make manual registration. It can be useful to initialize a registration method with translation parameters. You can get theses parameters in the .trm file obtained from this registration. See the part :ref:`manual registration <manual_registration>` for more details.
 
 
-.. figure:: images/fb_mcontrol_transfo.png
+.. figure:: images/fb_mcontrol_transfo.jpg
 
   *Transformation control* keyboard shortcuts
 
@@ -1124,7 +1124,7 @@ Hand-drawing of Regions of Interest (ROI)
 *Description* : See the part :ref:`ROI drawing toolbox <roi_toolbox>` for more details.
 
 
-.. figure:: images/fb_mdraw.png
+.. figure:: images/fb_mdraw.jpg
 
   *ROI drawing control* keyboard shortcut
 
@@ -1208,7 +1208,7 @@ Mesh cutting control
 
 *Description* : available only if a cut mesh is selected (cut mesh is obtained by fusion between a mesh and a volume). It controls the slice on a cut mesh.
 
-.. figure:: images/mcontrol-cut.png
+.. figure:: images/mcontrol-cut.jpg
 
   *Mesh cutting control* keyborad shortcut
 
@@ -1222,7 +1222,7 @@ Fold split control
 
 *Icon* : |control-foldsplit|
 
-.. figure:: images/mcontrol-foldsplit.png
+.. figure:: images/mcontrol-foldsplit.jpg
 
   *Fold split control* keyborad shortcuts
 
