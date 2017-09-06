@@ -103,6 +103,7 @@ namespace anatomist {
     virtual void doAlsoOnSelect( ActionPool *) {}
 
     const std::string& name() const { return myName; }
+    virtual std::string description() const;
 
     //   QPushButton * button( ) {
     //     return myButton;

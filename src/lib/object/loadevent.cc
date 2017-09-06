@@ -51,10 +51,11 @@ QEvent::Type AObjectLoadEvent::eventType()
 AObjectLoadEvent::AObjectLoadEvent( AObject* newobject,
                                     const ObjectReader::PostRegisterList &
                                     subObjects,
-                                    Object options, void* clientid
+                                    Object options, void* clientid,
+                                    bool last
                                   )
   : QEvent( eventType() ), _object( newobject ), _subObjects( subObjects ),
-    _options( options ), _clientid( clientid )
+    _options( options ), _clientid( clientid ), _last( last )
 {
 }
 
@@ -85,6 +86,12 @@ const ObjectReader::PostRegisterList & AObjectLoadEvent::subObjects()
 void* AObjectLoadEvent::clientid()
 {
   return _clientid;
+}
+
+
+bool AObjectLoadEvent::isLast() const
+{
+  return _last;
 }
 
 
@@ -141,7 +148,7 @@ bool ObjectReaderNotifier::event( QEvent *e )
       object->notifyObservers( (void *) this );
     }
     emit( objectLoaded( lev->newObject(), lev->subObjects(),
-                        lev->clientid() ) );
+                        lev->clientid(), lev->isLast() ) );
     return true;
   }
   else

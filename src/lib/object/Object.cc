@@ -54,6 +54,7 @@
 #include <anatomist/surface/glcomponent_internals.h> // for TexInfo struct
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/object/mobjectio.h>
 #include <aims/resampling/quaternion.h>
 #include <aims/mesh/texturetools.h>
 #include <cartobase/stream/fileutil.h>
@@ -491,10 +492,20 @@ AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol )
 }
 
 
-AObject* AObject::load( const string & filename )
+list<AObject *> AObject::load( const string & filename )
 {
   ObjectReader::PostRegisterList subobjects;
-  return( ObjectReader::reader()->load( filename, subobjects ) );
+  list<AObject *> obj = ObjectReader::reader()->load( filename, subobjects );
+//   if( !obj.empty() )
+//     return obj;
+//   Object objs = MObjectIO::readMObject( filename );
+//   if( objs )
+//   {
+//     Object it = objs->objectIterator();
+//     for( ; it->isValid(); it->next() )
+//       obj.insert( it->currentValue()->value<AObject *>() );
+//   }
+  return obj;
 }
 
 
@@ -573,6 +584,7 @@ string AObject::objectTypeName( int type )
 	  _objectTypeNames[ TEXTURE       ] = "TEXTURE";
 	  _objectTypeNames[ TEXSURFACE    ] = "TEXTURED SURF.";
 	  _objectTypeNames[ FUSION2DMESH  ] = "FUSION2D MESH";
+	  _objectTypeNames[ VECTORFIELD   ] = "VECTOR FIELD";
 	  _objectTypeNames[ OTHER         ] = "UNREGISTERED";
 	  return( _objectTypeNames[ type ] );
 	}
@@ -794,6 +806,18 @@ namespace
 
 
 void AObject::setHeaderOptions()
+{
+  PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );
+  if( pao )
+  {
+    const GenericObject	*o = pao->attributed();
+    if( o )
+      setProperties( Object::reference( *o ) );
+  }
+}
+
+
+void AObject::setProperties( Object options )
 {
   /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": " 
      << "name: " << name() << ", filename: " << fileName() << endl; */
@@ -1510,6 +1534,10 @@ carto::Object AObject::aimsMeshFromGLComponent()
 
 bool AObject::save( const std::string & filename )
 {
+  if( filename.substr( filename.length() - 5, 5 ) == ".aobj" )
+    if( MObjectIO::writeMObject( Object::value( this ), filename ) )
+      return true;
+
   Object meshobj = aimsMeshFromGLComponent();
   if( meshobj )
   {
@@ -1517,6 +1545,12 @@ bool AObject::save( const std::string & filename )
     return true;
   }
   return false;
+}
+
+
+string AObject::toolTip() const
+{
+  return string();
 }
 
 

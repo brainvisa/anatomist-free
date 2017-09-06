@@ -52,7 +52,7 @@ namespace anatomist
 /**	Window displaying referentials and transformations between them.
 	This interface allows to load new transformations
 */
-class ReferentialWindow : public QLabel
+class ReferentialWindow : public QWidget
 {
   Q_OBJECT
 
@@ -62,11 +62,25 @@ public:
   virtual ~ReferentialWindow();
 
   /// updates contents (new referentials or transformations...)
-  void refresh();
+  void refresh( bool partial = false );
 
   anatomist::Referential* refAt( const QPoint & pos, QPoint & newpos );
   anatomist::Transformation* transfAt( const QPoint & pos );
   std::vector<anatomist::Transformation*> transformsAt( const QPoint & pos );
+
+  void popupRefMenu( const QPoint & pos, anatomist::Referential* ref );
+  void popupTransfMenu(
+    const QPoint & pos,
+    const std::vector<anatomist::Transformation *> & trans );
+  void addTransformationGui( anatomist::Referential* source,
+                             anatomist::Referential* dest,
+                             bool identity = false, bool merge = false );
+
+  static QString referentialToolTipText(
+    anatomist::Referential *ref, std::list<std::string> & temp_filenames );
+  static QString transformationToolTipText(
+    anatomist::Transformation *tr, std::list<std::string> & temp_filenames );
+  static void unlinkFiles( const std::list<std::string> & temp_filenames );
 
 protected:
   ///	opens the file selection dialog to choose a transformation
@@ -87,9 +101,8 @@ protected:
   void invertTransformation( anatomist::Transformation* );
   void reloadTransformation( anatomist::Transformation* );
   void saveTransformation( anatomist::Transformation* );
-#if QT_VERSION >= 0x040000
+  void mergeReferentials( anatomist::Transformation* );
   virtual bool event( QEvent* );
-#endif
 
 protected slots:
   void deleteReferential();
@@ -99,6 +112,10 @@ protected slots:
   void clearUnusedReferentials();
   void splitReferential();
   void seeObjectsInReferential();
+  void set3DView();
+  void view3dDeleted();
+  void refreshNow();
+  void mergeIdenticalReferentials();
 
 private:
   anatomist::ReferentialWindow_PrivateData	*pdat;
@@ -120,6 +137,7 @@ public slots:
   void invertTransformation();
   void reloadTransformation();
   void saveTransformation();
+  void mergeReferentials();
 
 private:
   ReferentialWindow *refwin;

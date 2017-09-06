@@ -38,6 +38,12 @@
 #include <anatomist/controler/control_d.h>
 #include <anatomist/window3D/trackball.h>
 #include <anatomist/controler/view.h>
+#include <anatomist/window/glwidgetmanager.h>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsItem>
+#include <QProgressBar>
+#include <QGraphicsProxyWidget>
 
 using namespace anatomist;
 using namespace carto;
@@ -75,35 +81,86 @@ void ConnectivityMatrixAction::showConnectivityAtPoint( int x, int y,
   if( !w )
     return;
   AObject *obj = w->objectAtCursorPosition( x, y );
-  if( !obj )
-    return;
-  AObject::ParentList & parents = obj->parents();
-  AObject::ParentList::iterator ip, ep = parents.end();
-  AConnectivityMatrix *aconn = 0;
-  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
-    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  // obj should be a textured surface
+  AConnectivityMatrix *aconn = connectivityMatrix( obj );
   if( !aconn )
     return;
-  const AimsSurface<3, Void> *surf
-    = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0
-      || static_cast<size_t>(poly) >= surf->polygon().size() )
+  if( poly == 0xffffff || poly < 0 )
     return;
-  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
-  const vector<Point3df> & vert = surf->vertex();
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
-  Point3df d( ( vert[ppoly[0]]-pos ).norm2(), 
+
+  aconn->cancelThread();
+
+  vector<rc_ptr<ATriangulated > > meshes = aconn->meshes();
+  vector<rc_ptr<ATriangulated > >::iterator im, em = meshes.end();
+  int index = 0;
+  MObject *mobj = dynamic_cast<MObject *>( obj );
+
+  for( im=meshes.begin(); im!=em; ++im, ++index )
+  {
+    if( obj == im->get() )
+      break;
+    if( mobj )
+    {
+      AObject::ParentList & mparents = (*im)->parents();
+      if( mparents.find( mobj ) != mparents.end() )
+        break;
+    }
+  }
+  if( im == em )
+    // mesh not found
+    return;
+  const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( w->getTime() );
+  if( static_cast<size_t>(poly) >= surf->polygon().size() )
+    return;
+  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
+  const vector<Point3df> & vert = surf->vertex();
+  Point3df d( ( vert[ppoly[0]]-pos ).norm2(),
               ( vert[ppoly[1]]-pos ).norm2(),
               ( vert[ppoly[2]]-pos ).norm2() );
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
-  aconn->buildTexture( v, w->getTime() );
-  aconn->texture()->notifyObservers();
+  aconn->buildTexture( index, v, w->getTime() );
+  vector<rc_ptr<ATexture> > textures = aconn->textures();
+  vector<rc_ptr<ATexture> >::iterator it, et = textures.end();
+  for( it=textures.begin(); it!=et; ++it )
+    (*it)->notifyObservers();
   aconn->marker()->notifyObservers();
+}
+
+
+AConnectivityMatrix* ConnectivityMatrixAction::connectivityMatrix(
+  AObject * obj ) const
+{
+  if( !obj )
+    return 0;
+  AObject::ParentList & parents = obj->parents();
+  AObject::ParentList::iterator ip, ep = parents.end();
+  AConnectivityMatrix *aconn = 0;
+  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
+    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  return aconn;
+}
+
+
+void ConnectivityMatrixAction::cancelProcessings()
+{
+  cout << "cancelProcessings\n";
+  set<AObject *> objs = view()->aWindow()->Objects();
+  set<AObject *>::iterator io, eo = objs.end();
+  for( io=objs.begin(); io!=eo; ++io )
+  {
+    AConnectivityMatrix* aconn = dynamic_cast<AConnectivityMatrix *>( *io );
+    if( aconn )
+    {
+      aconn->cancelThread();
+      clearConnectivityProgress( aconn );
+    }
+  }
 }
 
 
@@ -114,35 +171,167 @@ void ConnectivityMatrixAction::showConnectivityForPatch( int x, int y,
   if( !w )
     return;
   AObject *obj = w->objectAtCursorPosition( x, y );
-  if( !obj )
-    return;
-  AObject::ParentList & parents = obj->parents();
-  AObject::ParentList::iterator ip, ep = parents.end();
-  AConnectivityMatrix *aconn = 0;
-  for( ip=parents.begin(); !aconn && ip!=ep; ++ip )
-    aconn = dynamic_cast<AConnectivityMatrix *>( *ip );
+  AConnectivityMatrix *aconn = connectivityMatrix( obj );
   if( !aconn )
     return;
-  const AimsSurface<3, Void> *surf
-    = aconn->mesh()->surfaceOfTime( w->getTime() );
   int poly = w->polygonAtCursorPosition( x, y, aconn );
-  if( poly == 0xffffff || poly < 0
-      || static_cast<size_t>(poly) >= surf->polygon().size() )
+  if( poly == 0xffffff || poly < 0 )
     return;
-  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
-  const vector<Point3df> & vert = surf->vertex();
   Point3df pos;
   if( !w->positionFromCursor( x, y, pos ) )
     return;
+
+  aconn->cancelThread();
+
+  vector<rc_ptr<ATriangulated > > meshes = aconn->meshes();
+  vector<rc_ptr<ATriangulated > >::iterator im, em = meshes.end();
+  int index = 0;
+  MObject *mobj = dynamic_cast<MObject *>( obj );
+
+  for( im=meshes.begin(); im!=em; ++im, ++index )
+  {
+    if( obj == im->get() )
+      break;
+    if( mobj )
+    {
+      AObject::ParentList & mparents = (*im)->parents();
+      if( mparents.find( mobj ) != mparents.end() )
+        break;
+    }
+  }
+  if( im == em )
+    // mesh not found
+    return;
+  const AimsSurface<3, Void> *surf = (*im)->surfaceOfTime( w->getTime() );
+  if( static_cast<size_t>(poly) >= surf->polygon().size() )
+    return;
+  const AimsVector<uint,3> & ppoly = surf->polygon()[ poly ];
+  const vector<Point3df> & vert = surf->vertex();
   Point3df d( ( vert[ppoly[0]]-pos ).norm2(),
               ( vert[ppoly[1]]-pos ).norm2(),
               ( vert[ppoly[2]]-pos ).norm2() );
   int imin = d[0] <= d[1] ? 0 : 1;
   imin = d[imin] <= d[2] ? imin : 2;
   uint v = ppoly[ imin ]; // nearest point
-  aconn->buildPatchTexture( v, w->getTime() );
-  aconn->texture()->notifyObservers();
+
+  // create progress bar
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( gview )
+  {
+    QGraphicsScene *scene = gview->scene();
+    QList<QGraphicsItem *> items = scene->items();
+    QProgressBar* progress = 0;
+    QList<QGraphicsItem *>::iterator it, et = items.end();
+    for( it=items.begin(); it!=et; ++it )
+    {
+      QGraphicsProxyWidget *item = dynamic_cast<QGraphicsProxyWidget *>( *it );
+      if( item && item->objectName() == "progressbaritem" )
+      {
+        progress = dynamic_cast<QProgressBar *>( item->widget() );
+        if( progress )
+          break;
+      }
+    }
+    if( !progress )
+    {
+      progress = new QProgressBar;
+      progress->setObjectName( "progressbar" );
+      QGraphicsProxyWidget *item = scene->addWidget( progress );
+      item->setObjectName( "progressbaritem" );
+      item->setOpacity( 0.5 );
+    }
+  }
+
+  aconn->connect( aconn, SIGNAL( processingProgress( AConnectivityMatrix *,
+                                                     int, int ) ),
+                  this, SLOT( updateConnectivityProgress(
+                                AConnectivityMatrix *, int, int ) ) );
+  aconn->connect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
+                  this,
+                  SLOT( updateConnectivityObject( AConnectivityMatrix * ) ) );
+  aconn->buildPatchTexture( index, v, w->getTime() );
+}
+
+
+void ConnectivityMatrixAction::updateConnectivityObject(
+  AConnectivityMatrix *aconn )
+{
+  clearConnectivityProgress( aconn );
+  aconn->disconnect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
+                     this, SLOT(
+                      updateConnectivityObject( AConnectivityMatrix * ) ) );
+  aconn->disconnect( aconn,
+                     SIGNAL( processingProgress( AConnectivityMatrix *, int,
+                                                 int ) ),
+                     this, SLOT( updateConnectivityProgress(
+                       AConnectivityMatrix *, int, int ) ) );
+  vector<rc_ptr<ATexture> > textures = aconn->textures();
+  vector<rc_ptr<ATexture> >::iterator it, et = textures.end();
+  for( it=textures.begin(); it!=et; ++it )
+    (*it)->notifyObservers();
   aconn->marker()->notifyObservers();
+}
+
+
+void ConnectivityMatrixAction::updateConnectivityProgress(
+  AConnectivityMatrix* aconn, int current, int count )
+{
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( !gview )
+    return;
+  QGraphicsScene *scene = gview->scene();
+  QList<QGraphicsItem *> items = scene->items();
+  QProgressBar* progress = 0;
+  QList<QGraphicsItem *>::iterator it, et = items.end();
+  for( it=items.begin(); it!=et; ++it )
+  {
+    QGraphicsProxyWidget *item = dynamic_cast<QGraphicsProxyWidget *>( *it );
+    if( item && item->objectName() == "progressbaritem" )
+    {
+      progress = dynamic_cast<QProgressBar *>( item->widget() );
+      if( progress )
+        break;
+    }
+  }
+
+  if( progress )
+  {
+    progress->setRange( 0, count );
+    progress->setValue( current );
+  }
+  else
+    cout << "progress: " << current << " / " << count << endl;
+}
+
+
+void ConnectivityMatrixAction::clearConnectivityProgress(
+  AConnectivityMatrix* aconn )
+{
+  aconn->disconnect( aconn, SIGNAL( texturesUpdated( AConnectivityMatrix * ) ),
+                     this, SLOT(
+                      updateConnectivityObject( AConnectivityMatrix * ) ) );
+  aconn->disconnect( aconn,
+                     SIGNAL( processingProgress( AConnectivityMatrix *, int,
+                                                 int ) ),
+                     this, SLOT( updateConnectivityProgress(
+                       AConnectivityMatrix *, int, int ) ) );
+  GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
+  QWidget* parent = glw->qglWidget()->parentWidget();
+  QGraphicsView* gview = dynamic_cast<QGraphicsView *>( parent );
+  if( !gview )
+    return;
+  QGraphicsScene *scene = gview->scene();
+  QList<QGraphicsItem *> items = scene->items();
+  QList<QGraphicsItem *>::iterator it, et = items.end();
+  for( it=items.begin(); it!=et; ++it )
+  {
+    scene->removeItem( *it );
+    delete *it;
+  }
 }
 
 
@@ -175,6 +364,10 @@ void ConnectivityMatrixControl::eventAutoSubscription(
     MouseActionLinkOf<ConnectivityMatrixAction>( 
       actionPool->action( "ConnectivityMatrixAction" ), 
       &ConnectivityMatrixAction::showConnectivityForPatch ) );
+  keyPressEventSubscribe( Qt::Key_Escape, Qt::NoModifier,
+                          KeyActionLinkOf<ConnectivityMatrixAction>
+                          ( actionPool->action( "ConnectivityMatrixAction" ),
+                            &ConnectivityMatrixAction::cancelProcessings ) );
 
   // standard actions
   mouseLongEventSubscribe
@@ -318,4 +511,10 @@ void ConnectivityMatrixControl::eventAutoSubscription(
                             &SliceAction::toggleLinkedOnSlider ) );
 }
 
+
+void ConnectivityMatrixControl::doAlsoOnDeselect( ActionPool * actionPool )
+{
+  KeyActionLinkOf<ConnectivityMatrixAction>(
+    actionPool->action( "ConnectivityMatrixAction" ), &ConnectivityMatrixAction::cancelProcessings ).execute();
+}
 

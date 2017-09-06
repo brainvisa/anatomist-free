@@ -39,6 +39,7 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/processor/context.h>
 #include <anatomist/processor/errormessage.h>
+#include <anatomist/object/mobjectio.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 #include <qapplication.h>
@@ -50,7 +51,15 @@ using namespace std;
 
 
 SaveObjectCommand::SaveObjectCommand( AObject* obj, const string & filename )
-  : WaitCommand(), _object( obj ), _filename( filename )
+  : WaitCommand(), _filename( filename )
+{
+  _objects.insert( obj );
+}
+
+
+SaveObjectCommand::SaveObjectCommand( const set<AObject*> & obj,
+                                      const string & filename )
+  : WaitCommand(), _objects( obj ), _filename( filename )
 {
 }
 
@@ -65,8 +74,8 @@ bool SaveObjectCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "SaveObject" ];
   
-  s[ "object" ].type = "int";
-  s[ "object" ].needed = true;
+  s[ "object"   ].type = "int";
+  s[ "objects"  ].type = "int_vector";
   s[ "filename" ].type = "string";
   s[ "filename" ].needed = false;
   Registry::instance()->add( "SaveObject", &read, ss );
@@ -77,61 +86,112 @@ bool SaveObjectCommand::initSyntax()
 void
 SaveObjectCommand::doit()
 {
-  if( theAnatomist->hasObject( _object ) )
+  if( _objects.size() == 1 )
+  {
+    AObject *obj = *_objects.begin();
+    if( theAnatomist->hasObject( obj ) )
     {
-      bool	res = false;
       string	fname = _filename;
       if( _filename.empty() )
-        fname = _object->fileName();
-      res = _object->save( fname );
-      if( !res )
-        ErrorMessage::message( string( qApp->translate
-                                       ( "ErrorMessage", 
-                                         "Save failed: object " ).toStdString() ) 
-                               + _object->name() 
-                               + qApp->translate
-                               ( "ErrorMessage", 
-                                 " could not be saved to " ).toStdString() + fname, 
-                               ErrorMessage::Error );
-      else
-        {
-          _object->setFileName( fname );
-          _object->setLoadDate( time( 0 ) );
-        }
+        fname = obj->fileName();
+      if( obj->save( fname ) )
+      {
+        obj->setFileName( fname );
+        obj->setLoadDate( time( 0 ) );
+        return;
+      }
     }
+    else
+      return;
+  }
+
+  // multiple objects or .aobj
+  Object gobj = Object::value( ObjectVector() );
+  ObjectVector & ov = gobj->value<ObjectVector>();
+  ov.reserve( _objects.size() );
+  set<AObject *>::const_iterator io, eo = _objects.end();
+  for( io=_objects.begin(); io!=eo; ++io )
+  {
+    AObject *obj = *io;
+    if( theAnatomist->hasObject( obj ) )
+      ov.push_back( Object::value( obj ) );
+  }
+
+  if( !ov.empty() )
+  {
+    bool	res = false;
+    string	fname = _filename;
+    res = MObjectIO::writeMObject( gobj, _filename );
+    if( !res )
+      ErrorMessage::message( string( qApp->translate
+                                      ( "ErrorMessage",
+                                        "Save failed" ).toStdString() )
+                              + qApp->translate
+                              ( "ErrorMessage",
+                                " could not be saved to " ).toStdString()
+                              + _filename,
+                              ErrorMessage::Error );
+    else
+      for( io=_objects.begin(); io!=eo; ++io )
+        (*io)->setLoadDate( time( 0 ) );
+  }
 }
 
 
 Command* SaveObjectCommand::read( const Tree & com, CommandContext* context )
 {
-  int		obj;
   string	fname;
-  AObject	*ao;
   void		*ptr;
+  int           obj;
+  set<AObject *> sobj;
 
-  if( !com.getProperty( "object", obj ) )
-    return( 0 );
-  com.getProperty( "filename", fname );
-
-  ptr = context->unserial->pointer( obj, "AObject" );
-  if( ptr )
-    ao = (AObject *) ptr;
-  else
+  if( com.hasProperty( "object" ) )
+  {
+    obj = int( com.getProperty( "object" )->getScalar() );
+    ptr = context->unserial->pointer( obj, "AObject" );
+    if( !ptr )
     {
       cerr << "object id " << obj << " not found\n";
       return( 0 );
     }
+    sobj.insert( (AObject *) ptr );
+  }
+  else if( com.hasProperty( "objects" ) )
+  {
+    Object objs = com.getProperty( "objects" );
+    Object oit = objs->objectIterator();
+    for( ; oit->isValid(); oit->next() )
+    {
+      obj = int( oit->getScalar() );
+      ptr = context->unserial->pointer( obj, "AObject" );
+      if( !ptr )
+      {
+        cerr << "object id " << obj << " not found\n";
+        return( 0 );
+      }
+      sobj.insert( (AObject *) ptr );
+    }
+  }
+  else
+    return( 0 );
 
-  return( new SaveObjectCommand( ao, fname ) );
+  com.getProperty( "filename", fname );
+
+
+  return( new SaveObjectCommand( sobj, fname ) );
 }
 
 
 void SaveObjectCommand::write( Tree & com, Serializer* ser ) const
 {
   Tree	*t = new Tree( true, name() );
-  int	obj = ser->serialize( _object );
+  vector<int> objs;
+  objs.reserve( _objects.size() );
+  set<AObject *>::const_iterator io, eo = _objects.end();
+  for( io=_objects.begin(); io!=eo; ++io )
+    objs.push_back( ser->serialize( *io ) );
 
-  t->setProperty( "object", obj );
+  t->setProperty( "objects", objs );
   if( !_filename.empty() )
     t->setProperty( "filename", _filename );
   com.insert( t );

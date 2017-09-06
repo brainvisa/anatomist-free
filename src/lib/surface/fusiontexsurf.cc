@@ -47,6 +47,12 @@ string FusionTexSurfMethod::ID() const
 }
 
 
+string FusionTexSurfMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::TEXSURFACE );
+}
+
+
 int FusionTexSurfMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )

@@ -100,6 +100,16 @@ namespace anatomist
                                                  const std::string & refname );
     /// WARNING: a referential may not have a unique name.
     static Referential* referentialOfName( const std::string & refname );
+    static void clearUnusedReferentials();
+    /** merge 2 unconnected referential or connected by identity.
+        r2 will be deleted, objects/windows in ref r2 will be moved to r1.
+        If r2 is a non-destructible referential (AC/PC...) then r1 will be
+        deleted.
+
+        \return false if r1 and r2 are connected by a non-identity transform.
+    */
+    static bool mergeReferentials( Referential* r1, Referential *r2 );
+    static void mergeIdenticalReferentials();
 
   protected:
     std::set<AObject*> _anaObj;

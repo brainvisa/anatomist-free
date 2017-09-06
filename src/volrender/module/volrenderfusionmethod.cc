@@ -74,6 +74,12 @@ string VolRenderFusionMethod::ID() const
 }
 
 
+string VolRenderFusionMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( VolRender::classType() );
+}
+
+
 // VolRenderShader
 
 #if defined( GL_FRAMEBUFFER ) || defined( GL_FRAMEBUFFER_EXT )
@@ -107,7 +113,14 @@ AObject* VolRenderShaderFusionMethod::fusion( const std::vector<AObject *> & obj
 
 string VolRenderShaderFusionMethod::ID() const
 {
-  return QT_TRANSLATE_NOOP( "FusionChooser", "VolumeRenderingShaderFusionMethod" );
+  return QT_TRANSLATE_NOOP( "FusionChooser",
+                            "VolumeRenderingShaderFusionMethod" );
+}
+
+
+string VolRenderShaderFusionMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( VolRenderShader::classType() );
 }
 
 #endif

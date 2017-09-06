@@ -89,7 +89,8 @@ AObjectPalette::AObjectPalette( rc_ptr<APalette> pal )
     _refPal2( 0 ), _min2( 0 ), _max2( 1 ), _mixMethod( &geometricMixMethod ), 
     _mixMethodName( "GEOMETRIC" ), _linMixFactor( 0.5 ),
     _palette1DMapping( FIRSTLINE ), _mode2d( false ), _transp( false ),
-    _maxSizeX( 256 ), _maxSizeY( 256 ), _glMaxSizeX( -1 ), _glMaxSizeY( -1 )
+    _maxSizeX( 256 ), _maxSizeY( 256 ), _glMaxSizeX( -1 ), _glMaxSizeY( -1 ),
+    _zeroCentered1( false ), _zeroCentered2( false )
 {
 }
 
@@ -101,7 +102,8 @@ AObjectPalette::AObjectPalette( const AObjectPalette & x )
     _mixMethodName( x._mixMethodName ), _linMixFactor( x._linMixFactor ),
     _palette1DMapping( x._palette1DMapping ), _mode2d( x._mode2d ), 
     _transp( x._transp ), _maxSizeX( x._maxSizeX ), _maxSizeY( x._maxSizeY ),
-    _glMaxSizeX( -1 ), _glMaxSizeY( -1 )
+    _glMaxSizeX( -1 ), _glMaxSizeY( -1 ), _zeroCentered1( x._zeroCentered1 ),
+    _zeroCentered2( x._zeroCentered2 )
 {
 }
 
@@ -130,6 +132,8 @@ AObjectPalette & AObjectPalette::operator = ( const AObjectPalette & x )
       _palette1DMapping = x._palette1DMapping ;
       _mode2d = x._mode2d;
       _transp = x._transp;
+      _zeroCentered1 = x._zeroCentered1;
+      _zeroCentered2 = x._zeroCentered2;
     }
   return( *this );
 }

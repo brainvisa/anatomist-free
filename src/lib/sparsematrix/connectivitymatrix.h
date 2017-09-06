@@ -38,12 +38,15 @@
 
 #include <anatomist/mobject/objectVector.h>
 #include <anatomist/surface/triangulated.h>
+#include <QObject>
 
+template <typename T> class TimeTexture;
 
 namespace anatomist
 {
 
   class ATexture;
+  class ConnectivityMatrixProcessingThread;
 
 
   /** Connectivity matix object: fusions sparse matrix, white mesh,
@@ -56,13 +59,16 @@ namespace anatomist
     In this latter case, sub-patch connectivity may be displayed
     using ctrl+left click
   */
-  class AConnectivityMatrix : public ObjectVector
+  class AConnectivityMatrix : public QObject, public ObjectVector
   {
+    Q_OBJECT
+
   public:
     enum PatchMode
     {
       ONE,
       ALL_BUT_ONE,
+      ALL_MESH,
     };
 
     AConnectivityMatrix( const std::vector<AObject *> & obj );
@@ -72,25 +78,44 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     virtual void update( const Observable *observable, void *arg );
 
-    void buildTexture( uint32_t vertex, float time_pos = 0 );
-    void buildColumnTexture( uint32_t vertex, float time_pos = 0 );
-    void buildPatchTexture( uint32_t vertex, float time_pos = 0 );
-    void buildColumnPatchTexture( uint32_t vertex, float time_pos = 0 );
+    void buildTexture( int mesh_index, uint32_t vertex, float time_pos = 0 );
+    void buildColumnTexture( int mesh_index, uint32_t vertex,
+                             float time_pos = 0 );
+    void buildPatchTexture( int mesh_index, uint32_t vertex,
+                            float time_pos = 0 );
+    void buildColumnPatchTexture( int mesh_index, uint32_t vertex,
+                                  float time_pos = 0 );
 
-    const carto::rc_ptr<ATriangulated> mesh() const;
-    const carto::rc_ptr<ATexture> texture() const;
+    std::vector<carto::rc_ptr<ATriangulated> > meshes() const;
+    std::vector<carto::rc_ptr<ATexture> > textures() const;
     const carto::rc_ptr<ATriangulated> marker() const;
 
-    static bool checkObjects( const std::set<AObject *> & objects, 
-                              std::list<AObject *> & ordered, 
+    static bool checkObjects( const std::set<AObject *> & objects,
+                              AObject * & matrix,
+                              std::list<ATriangulated *> & meshes,
+                              std::list<ATexture *> & patch_textures,
+                              std::list<ATexture *> & basin_textures,
                               PatchMode & pmode, std::set<int> & patches,
                               bool & transpose );
+    void cancelThread();
 
   private:
     struct Private;
     Private *d;
+    friend class anatomist::ConnectivityMatrixProcessingThread;
 
     void buildPatchIndices();
+    void buildPatchTextureThread();
+    void buildPatchMeshes( const std::vector<int16_t> & pvals,
+                           carto::rc_ptr<TimeTexture<int16_t> > tx0,
+                           int mesh_index );
+
+  private slots:
+    void releaseAnaCursor();
+
+  signals:
+    void texturesUpdated( AConnectivityMatrix* );
+    void processingProgress( AConnectivityMatrix*, int current, int count );
   };
 
 

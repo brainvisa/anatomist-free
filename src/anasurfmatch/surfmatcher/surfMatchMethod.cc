@@ -47,6 +47,12 @@ string ASurfMatchMethod::ID() const
 }
 
 
+string ASurfMatchMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( ASurfMatcher::classType() );
+}
+
+
 ASurfMatchMethod::~ASurfMatchMethod()
 {
 }

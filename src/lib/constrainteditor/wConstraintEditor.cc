@@ -116,7 +116,10 @@ void ConstraintEditorWindow::constraintTexOpen()
       cmd = new LoadObjectCommand( filename.toStdString() ) ;
       theProcessor->execute( cmd ) ;
 
-      ATexture *atex = dynamic_cast<ATexture *>( cmd->loadedObject() );
+      ATexture *atex = 0;
+      list<AObject *> objs = cmd->loadedObjects();
+      if( !objs.empty() )
+        atex = dynamic_cast<ATexture *>( *objs.begin() );
 
       cout << atex << " " << atex->dimTexture() << "\n";
       if( atex && atex->dimTexture() == 1 )
@@ -126,9 +129,16 @@ void ConstraintEditorWindow::constraintTexOpen()
 
         if (nnodest == d->nnodes)
         {
-          d->texConstraint = cmd->loadedObject() ;
-          cout << d->texConstraint->name() << endl;
-          d->constraintTextureLabel->setText(d->texConstraint->name().c_str());
+          list<AObject *> objs = cmd->loadedObjects();
+          if( !objs.empty() )
+          {
+            d->texConstraint = *objs.begin();
+            cout << d->texConstraint->name() << endl;
+            d->constraintTextureLabel->setText(
+              d->texConstraint->name().c_str());
+          }
+          else
+            d->texConstraint = NULL;
         }
         else
         {

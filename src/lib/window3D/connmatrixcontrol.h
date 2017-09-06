@@ -38,14 +38,18 @@
 #include <anatomist/window3D/control3D.h>
 #include <aims/vector/vector.h>
 #include <map>
+#include <QObject>
 
 
 namespace anatomist
 {
   class AObject;
+  class AConnectivityMatrix;
 
-  class ConnectivityMatrixAction : public Action
+  class ConnectivityMatrixAction : public QObject, public Action
   {
+    Q_OBJECT
+
   public:
     static Action * creator();
 
@@ -55,8 +59,16 @@ namespace anatomist
 
     virtual std::string name() const { return "ConnectivityMatrixAction"; }
 
+    AConnectivityMatrix* connectivityMatrix( AObject* obj ) const;
+
     virtual void showConnectivityAtPoint( int x, int y, int, int );
     virtual void showConnectivityForPatch( int x, int y, int, int );
+    void cancelProcessings();
+    void clearConnectivityProgress( AConnectivityMatrix* aconn );
+
+  private slots:
+    void updateConnectivityObject( AConnectivityMatrix* aconn );
+    void updateConnectivityProgress( AConnectivityMatrix* aconn, int, int );
   };
 
 
@@ -69,6 +81,7 @@ namespace anatomist
     virtual ~ConnectivityMatrixControl();
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
+    virtual void doAlsoOnDeselect( ActionPool * actionPool );
   };
 
 }

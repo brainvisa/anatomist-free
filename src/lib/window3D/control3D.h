@@ -56,6 +56,8 @@ namespace anatomist
     Control3D( const Control3D & c );
     virtual ~Control3D();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnDeselect( ActionPool * actionPool );
 
@@ -72,6 +74,8 @@ namespace anatomist
     Select3DControl( const Select3DControl & c );
     virtual ~Select3DControl();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnSelect( ActionPool * actionPool );
     virtual void doAlsoOnDeselect( ActionPool * actionPool );
@@ -86,6 +90,8 @@ namespace anatomist
     FlightControl( const FlightControl & c );
     virtual ~FlightControl();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnDeselect( ActionPool * actionPool );
   };
@@ -99,6 +105,8 @@ namespace anatomist
     ObliqueControl( const ObliqueControl & c );
     virtual ~ObliqueControl();
 
+    virtual std::string description() const;
+
     virtual void eventAutoSubscription( ActionPool * actionPool );
   };
 
@@ -110,6 +118,8 @@ namespace anatomist
     TransformControl();
     TransformControl( const TransformControl & c );
     virtual ~TransformControl();
+
+    virtual std::string description() const;
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
     virtual void doAlsoOnSelect( ActionPool * actionPool );
@@ -124,6 +134,8 @@ namespace anatomist
     CutControl();
     CutControl( const CutControl & c );
     virtual ~CutControl();
+
+    virtual std::string description() const;
 
     virtual void eventAutoSubscription( ActionPool * actionPool );
   };
@@ -142,6 +154,10 @@ namespace anatomist
     void close();
     void toggleShowTools();
     void toggleFullScreen();
+    void focusView();
+    void focusAxialView();
+    void focusCoronalView();
+    void focusSagittelView();
 
     QWidget* actionView( QWidget* parent );
     bool viewableAction() const;

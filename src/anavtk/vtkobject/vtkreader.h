@@ -50,10 +50,10 @@ namespace anatomist
     vtkAReader( const std::string& );
     ~vtkAReader();
 
-    static AObject* readVTK (const std::string & filename,
+    static std::list<AObject *> readVTK (const std::string & filename,
                              ObjectReader::PostRegisterList &,
                              carto::Object options);
-    static AObject* readVTKSequence (const std::string & filename,
+    static std::list<AObject *> readVTKSequence (const std::string & filename,
                                      ObjectReader::PostRegisterList &,
                                      carto::Object options);
 

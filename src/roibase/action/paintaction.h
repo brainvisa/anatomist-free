@@ -388,9 +388,14 @@ namespace anatomist {
     
     void clearRegion() ;
     void fill( int x, int y, int globalX, int globalY ) ;
-    void fillRegion2D( const Point3d& seed, Point3d neighbour[],
-		       AimsData<AObject*>& volumeOfLabels, AObject * final,
-		       std::list< std::pair< Point3d, ChangesItem> > & changes ) ;
+    void fillRegion2D( const Point3d& seed, 
+                       const Point3d& bmin,
+                       const Point3d& bmax,
+                       Point3d neighbour[],
+                       AimsData<AObject*>& volumeOfLabels, 
+                       AObject * final,
+                       std::list< std::pair< Point3d, 
+                                             ChangesItem> > & changes ) ;
     void validateChange( int x = 0, int y = 0, int globalX = 0,
                          int globalY = 0 ) ;
     void undo( ) ;

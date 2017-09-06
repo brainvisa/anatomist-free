@@ -289,6 +289,10 @@ namespace anatomist
     om.reset( volumeScalarTraitsOptionMenu() );
     AObject::setObjectMenu("VOLUME<uint32_t>", om);
     om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<int64_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
+    AObject::setObjectMenu("VOLUME<uint64_t>", om);
+    om.reset( volumeScalarTraitsOptionMenu() );
     AObject::setObjectMenu("VOLUME<float>", om);
     om.reset( volumeScalarTraitsOptionMenu() );
     AObject::setObjectMenu("VOLUME<double>", om);

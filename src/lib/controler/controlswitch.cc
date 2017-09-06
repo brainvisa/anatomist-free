@@ -69,7 +69,6 @@ struct ToolBox::Private
 
 ToolBox::ToolBox( const string& activeControlDescription ):
   QWidget( theAnatomist->getQWidgetAncestor(), Qt::Window ),
-  myLayout( 0 ), // OBSOLETE - don't use it
   myActionTab(0),
   myControlDescriptionActivation(0), 
   myControlDescription(activeControlDescription),
@@ -406,7 +405,7 @@ ControlSwitch::setActiveControl( const string& control )
   myActiveControl = control ;
   found->second->doOnSelect( myActionPool ) ;
   if( myToolBox )
-    myToolBox->updateActiveControl( myActiveControl ) ;
+    myToolBox->updateActiveControl( controlDescription( myActiveControl ) );
   myControlEnabled = true ;
 }
 
@@ -1070,7 +1069,7 @@ ControlSwitch::updateToolBox()
 
   // here actions have changed
   myToolBox->resetActions() ;
-  myToolBox->updateActiveControl(myActiveControl) ;
+  myToolBox->updateActiveControl( controlDescription( myActiveControl) );
 
   for( iter=actions.begin(); iter != last; ++iter )
   {
@@ -1199,5 +1198,15 @@ void ControlSwitch::activateMouseMoveAction(
 ControlPtr ControlSwitch::activeControlInstance() const
 {
   return myControls.find( myActiveControl )->second;
+}
+
+
+string ControlSwitch::controlDescription( const string & ctrlname ) const
+{
+  map<string, ControlPtr>::const_iterator
+    ic = myControls.find( ctrlname );
+  if( ic == myControls.end() )
+    return string();
+  return ic->second->description();
 }
 

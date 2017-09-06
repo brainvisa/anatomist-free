@@ -289,7 +289,7 @@ public slots:
   /// Redraws temporary objects only
   void refreshTemp();
   void refreshTempNow();
-  /** Only redraws existing objects (in most cases, just calls existing OpelGL
+  /** Only redraws existing objects (in most cases, just calls existing OpenGL
       lists, except for observer-dependent objects)
   */
   void refreshLightView();
@@ -315,12 +315,20 @@ public slots:
   bool toopTipsEnabled() const;
   void enableToolTips( bool );
   // Refreshs the window when resized
-  void resizeEvent ( QResizeEvent * ) ;
+  void resizeEvent( QResizeEvent * ) ;
+
+  /** Get a snapshot of the window, after a refresh if needed.
+      mode: 0: RGB, 2: alpha, 4: RGBA, 8: depth, 16: luminance
+  */
+  QImage snapshotImage( int width=0, int height=0, int bufmode=0 );
 
   friend class anatomist::internal::AGraphicsView;
 
 protected slots:
   void freeResize();
+  void saveSnapshot();
+  void saveSnapshotWithCustomSize();
+
 
 protected:
   void showReferential();

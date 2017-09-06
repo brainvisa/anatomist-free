@@ -97,6 +97,14 @@ Control3D::~Control3D()
 }
 
 
+string Control3D::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "Control3D_description" );
+}
+
+
 void Control3D::eventAutoSubscription( ActionPool * actionPool )
 {
   //cout << "Control3D::eventAutoSubscription\n";
@@ -356,6 +364,14 @@ Select3DControl::Select3DControl( const Select3DControl & c ) : Control( c )
 
 Select3DControl::~Select3DControl()
 {
+}
+
+
+string Select3DControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "Select3DControl_description" );
 }
 
 
@@ -1250,6 +1266,13 @@ FlightControl::~FlightControl()
 }
 
 
+string FlightControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "FlightControl_description" );
+}
+
 
 void FlightControl::eventAutoSubscription( ActionPool * actionPool )
 {
@@ -1500,6 +1523,13 @@ ObliqueControl::~ObliqueControl()
 }
 
 
+string ObliqueControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "ObliqueControl_description" );
+}
+
 
 void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
 {
@@ -1669,6 +1699,13 @@ TransformControl::~TransformControl()
 {
 }
 
+
+string TransformControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "TransformControl_description" );
+}
 
 
 void TransformControl::eventAutoSubscription( ActionPool * actionPool )
@@ -1880,6 +1917,13 @@ CutControl::~CutControl()
 {
 }
 
+
+string CutControl::description() const
+{
+  return QT_TRANSLATE_NOOP(
+    "ControlledWindow",
+    "CutControl_description" );
+}
 
 
 void CutControl::eventAutoSubscription( ActionPool * actionPool )
@@ -2457,6 +2501,53 @@ void WindowActions::toggleFullScreen()
   p->value<Dictionary>()[ "fullscreen" ] = Object::value( 2 );
   WindowConfigCommand *c = new WindowConfigCommand( sw, *p );
   theProcessor->execute( c );
+}
+
+
+void WindowActions::focusView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+    w->focusView();
+}
+
+
+void WindowActions::focusAxialView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+  {
+    Quaternion quat( 0., 0., 0., 1. );
+    GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+    v->setQuaternion( quat );
+    w->focusView();
+  }
+}
+
+
+void WindowActions::focusCoronalView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+  {
+    Quaternion quat( 1. / sqrt( 2. ), 0., 0., 1. / sqrt( 2. ) );
+    GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+    v->setQuaternion( quat );
+    w->focusView();
+  }
+}
+
+
+void WindowActions::focusSagittelView()
+{
+  AWindow3D *w = dynamic_cast<AWindow3D *>( view()->aWindow() );
+  if( w )
+  {
+    Quaternion quat( -0.5, -0.5, -0.5, 0.5 );
+    GLWidgetManager* v = static_cast<GLWidgetManager *>( view() );
+    v->setQuaternion( quat );
+    w->focusView();
+  }
 }
 
 

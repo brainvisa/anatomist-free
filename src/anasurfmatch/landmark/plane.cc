@@ -63,6 +63,12 @@ string PlaneFusionMethod::ID() const
 }
 
 
+string PlaneFusionMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::TRIANG );
+}
+
+
 PlaneFusionMethod::~PlaneFusionMethod()
 {
 }
@@ -227,6 +233,12 @@ AObject* PlaneFusionMethod::fusion( const vector<AObject *> & obj )
 string CylinderFusionMethod::ID() const
 {
   return QT_TRANSLATE_NOOP( "FusionChooser", "Cylinder" );
+}
+
+
+string CylinderFusionMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::TRIANG );
 }
 
 

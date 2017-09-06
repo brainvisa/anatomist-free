@@ -193,44 +193,48 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
                                    const string & caption )
 {
   //cerr << "ObjectActions::specificSaveStatic\n";
-  if( obj.size() > 1 ) 
-    {
-      QMessageBox::critical( 0, ControlWindow::tr( "Save object" ),
-                             ControlWindow::tr( "Save one object at a time !" 
-                                                ) );
-      return "";
-    }
-  AObject *object = *obj.begin();
+//   if( obj.size() > 1 )
+//   {
+//     QMessageBox::critical( 0, ControlWindow::tr( "Save object" ),
+//                             ControlWindow::tr( "Save one object at a time !"
+//                                               ) );
+//     return "";
+//   }
+
+  AObject *object = 0;
+  if( obj.size() == 1 )
+    object = *obj.begin();
   
   QString	filt = filter.c_str() ;
   QString	capt = caption.c_str() ;
   QString	initial = QString::null;
-  if( !object->fileName().empty() )
-    initial = object->fileName().c_str();
-  else if( !object->name().empty() )
-    initial = object->name().c_str();
+  if( object )
+  {
+    if( !object->fileName().empty() )
+      initial = object->fileName().c_str();
+    else if( !object->name().empty() )
+      initial = object->name().c_str();
+  }
   /* cout << "specificSaveStatic filename: "
      << ( initial.isNull() ? "<Null>" : initial.toStdString() ) << endl; */
 
   QString filename = QFileDialog::getSaveFileName( 0, "Save object file",
     initial, filt );
-  if ( filename != QString::null )
-    {
-      if( FileUtil::fileStat( filename.toStdString() ).find( '+' ) != string::npos 
-          && QMessageBox::information
-          ( 0, ControlWindow::tr( "Overwrite File ?" ),
-            ControlWindow::tr( "A file called %1 already exists."
-                               "Do you want to overwrite it?").arg( filename ),
-            ControlWindow::tr("&Yes"), ControlWindow::tr("&No"), 
-            QString::null, 0, 1 ) )
-        return "";
-      SaveObjectCommand	*c 
-	= new SaveObjectCommand( object, filename.toStdString() );
-      theProcessor->execute( c );
-      //if( !object->save( filename.toStdString() ) )
-      //cerr << "Save object failed!" << endl;
-      return filename.toStdString() ;
-    }
+  if( filename != QString::null )
+  {
+    if( FileUtil::fileStat( filename.toStdString() ).find( '+' ) != string::npos
+        && QMessageBox::information
+        ( 0, ControlWindow::tr( "Overwrite File ?" ),
+          ControlWindow::tr( "A file called %1 already exists."
+                              "Do you want to overwrite it?").arg( filename ),
+          ControlWindow::tr("&Yes"), ControlWindow::tr("&No"),
+          QString::null, 0, 1 ) )
+      return "";
+    SaveObjectCommand	*c
+      = new SaveObjectCommand( obj, filename.toStdString() );
+    theProcessor->execute( c );
+    return filename.toStdString() ;
+  }
   return "" ;
 }
 

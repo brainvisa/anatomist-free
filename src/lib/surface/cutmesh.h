@@ -92,6 +92,10 @@ namespace anatomist
     virtual void updateCut();
     virtual void sliceChanged();
 
+    virtual std::list<AObject *> generativeChildren() const;
+    virtual carto::Object makeHeaderOptions() const;
+    virtual void setProperties( carto::Object options );
+
   private:
     struct Private;
     ///	ensures the object class is registered in Anatomist

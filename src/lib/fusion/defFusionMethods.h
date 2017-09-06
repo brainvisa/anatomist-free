@@ -55,6 +55,7 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & );
     ///	identifier for the method
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
 
   protected:
 
@@ -79,6 +80,7 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & );
     ///	identifier for the method
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
 
   protected:
 
@@ -96,6 +98,7 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & );
     ///	identifier for the method
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
 
   protected:
 
@@ -111,6 +114,7 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 
@@ -122,6 +126,7 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 
@@ -133,16 +138,18 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
   class Fusion2DMeshMethod : public FusionMethod
   {
   public:
-	  Fusion2DMeshMethod() {}
-	  virtual ~Fusion2DMeshMethod() {}
-	  virtual int canFusion( const std::set<AObject *> & );
-	  virtual AObject* fusion( const std::vector<AObject *> & );
-	  virtual std::string ID() const;
+    Fusion2DMeshMethod() {}
+    virtual ~Fusion2DMeshMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
   class FusionSliceMethod : public FusionMethod
@@ -153,6 +160,7 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 
@@ -164,17 +172,19 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 
   class FusionClipMethod : public FusionMethod
   {
-    public:
-      FusionClipMethod() {}
-      virtual ~FusionClipMethod() {}
-      virtual int canFusion( const std::set<AObject *> & );
-      virtual AObject* fusion( const std::vector<AObject *> & );
-      virtual std::string ID() const;
+  public:
+    FusionClipMethod() {}
+    virtual ~FusionClipMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 
@@ -186,6 +196,7 @@ namespace anatomist
     virtual int canFusion( const std::set<AObject *> & );
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 
@@ -198,6 +209,18 @@ namespace anatomist
     virtual AObject* fusion( const std::vector<AObject *> & );
     virtual std::string ID() const;
     virtual bool orderingMatters() const { return false; }
+    virtual std::string generatedObjectType() const;
+  };
+
+  class VectorFieldFusionMethod : public FusionMethod
+  {
+  public:
+    VectorFieldFusionMethod() {}
+    virtual ~VectorFieldFusionMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
   };
 
 }

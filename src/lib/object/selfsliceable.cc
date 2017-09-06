@@ -35,6 +35,8 @@
 
 using namespace anatomist;
 using namespace aims;
+using namespace carto;
+using namespace std;
 
 
 SelfSliceable::SelfSliceable() //: Sliceable()
@@ -117,4 +119,38 @@ Point4df SelfSliceable::plane() const
   return plane;
 }
 
+
+void SelfSliceable::makeSliceHeaderOptions( Object options ) const
+{
+  vector<float> p( 4 );
+  Point4df pl = plane();
+  p[0] = pl[0];
+  p[1] = pl[1];
+  p[2] = pl[2];
+  p[3] = pl[3];
+  options->setProperty( "slice_plane", p );
+}
+
+
+void SelfSliceable::setSliceProperties( carto::Object options )
+{
+  try
+  {
+    Object p = options->getProperty( "slice_plane" );
+    if( p->size() != 4 )
+      cerr << "Warning: slice_plane option has not 4 items\n";
+    else
+    {
+      Point4df pl;
+      pl[0] = float( p->getArrayItem(0)->getScalar() );
+      pl[1] = float( p->getArrayItem(1)->getScalar() );
+      pl[2] = float( p->getArrayItem(2)->getScalar() );
+      pl[3] = float( p->getArrayItem(3)->getScalar() );
+      setPlane( pl );
+    }
+  }
+  catch( ... )
+  {
+  }
+}
 

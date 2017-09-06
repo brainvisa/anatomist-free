@@ -130,6 +130,7 @@ namespace anatomist
     void setMinimumSizeHint( const QSize & );
     virtual bool positionFromCursor( int x, int y, Point3df & position );
     virtual bool cursorFromPosition( const Point3df & position, Point3df & cursor );
+    virtual Point3df objectPositionFromWindow( const Point3df & winpos );
     virtual void readBackBuffer( int x, int y, GLubyte & red, GLubyte & green,
                                  GLubyte & blue );
     GLubyte* getTextureFromBackBuffer (void);
@@ -159,10 +160,14 @@ namespace anatomist
     void setAutoCentering( bool );
     bool autoCentering() const;
     virtual void recordStart( const QString & basename, 
-                              const QString & format = QString::null );
-    void saveContents( const QString & filename, const QString & format );
-    void saveOtherBuffer( const QString & filename, 
-                          const QString & format, int mode );
+                              const QString & format = QString::null,
+                              int width=0, int height=0 );
+    void saveContents( const QString & filename, const QString & format,
+                       int width=0, int height=0 );
+    QImage snapshotImage( int bufmode, int width=0, int height=0 );
+    void saveOtherBuffer( const QString & filename,
+                          const QString & format, int mode,
+                          int width=0, int height=0 );
     void setOtherBuffersSaveMode( int mode );
     int otherBuffersSaveMode() const;
 
@@ -192,7 +197,9 @@ namespace anatomist
   // public slots:
 
     virtual void saveContents();
+    void saveContentsWithCustomSize();
     virtual void recordStart();
+    void recordStartWithCustomSize();
     virtual void recordStop();
 
     bool hasCameraChanged() const;
@@ -210,11 +217,14 @@ namespace anatomist
       PolygonSelect
     };
 
-    virtual void project();
-    virtual void setupView();
+    virtual void project( int virtualWidth=0, int virtualHeight=0 );
+    virtual void setupView( int virtualWidth=0, int virtualHeight=0 );
     void drawObjects( DrawMode m = Normal );
     void depthPeelingRender( DrawMode m = Normal );
-    virtual void paintGL( DrawMode m );
+    /** Virtual width and height are used to perform off-screen rendering.
+        They are used only in the context of a framebuffer.
+    */
+    virtual void paintGL( DrawMode m, int virtualWidth=0, int virtualHeight=0 );
     void record();
 
     anatomist::GLPrimitives _primitives;
@@ -246,7 +256,9 @@ public:
 
 public slots:
   void saveContents();
+  void saveContentsWithCustomSize();
   void recordStart();
+  void recordStartWithCustomSize();
   void recordStop();
 
 protected slots:

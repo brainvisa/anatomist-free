@@ -105,6 +105,7 @@ public:
   void enableClose( bool );
   bool closeEnabled() const;
   void setWindowTypeVisible( int type, bool visible=true );
+  bool hasObject( anatomist::AObject * obj ) const;
 
   static ControlWindow* theControlWindow() { return( _theControlWindow ); }
 

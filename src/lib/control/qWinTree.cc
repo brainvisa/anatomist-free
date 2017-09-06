@@ -650,7 +650,8 @@ void QWindowTree::dropEventFromObject( QDropEvent* event )
           LoadObjectCommand *command
             = new LoadObjectCommand( is->toStdString() );
           theProcessor->execute( command );
-          o.insert( command->loadedObject() );
+          list<AObject *> lobj = command->loadedObjects();
+          o.insert( lobj.begin(), lobj.end() );
         }
       }
       if( o.empty() )

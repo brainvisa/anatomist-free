@@ -46,7 +46,9 @@
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cCreateWindow.h>
 #include <anatomist/commands/cAddObject.h>
+#include <anatomist/reference/wReferential_3d.h>
 #include <anatomist/misc/error.h>
+#include <anatomist/mobject/MObject.h>
 #include <aims/def/general.h>
 #include <QMouseEvent>
 #include <cartobase/object/pythonwriter.h>
@@ -62,6 +64,7 @@
 #include <qmenu.h>
 #include <qaction.h>
 #include <qicon.h>
+#include <QTimer>
 
 
 using namespace anatomist;
@@ -146,95 +149,49 @@ namespace
   {
     QPoint  pos;
     Referential *r = _refwin->refAt( p, pos );
-    if( r )
+    if( r && theAnatomist->hasReferential( r ) )
     {
-      string  name;
-      PythonHeader  & ph = r->header();
-      if( !ph.getProperty( "name", name ) )
-        name = "&lt;unnamed&gt;";
-
-      QPixmap pix( 16, 16 );
-      QPainter      ptr( &pix );
-      AimsRGB       col = r->Color();
-      ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-      ptr.fillRect( 0, 0, 16, 16, QColor( 255, 255, 255 ) );
-      ptr.drawEllipse( 0, 0, 16, 16 );
-      ptr.end();
-      pix.setMask( pix.createHeuristicMask() );
-      int fd;
-      string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
-      pix.save( QString( pixfname.c_str() ), "PNG" );
-
-      /* QTextDocument document;
-      document.addResource( QTextDocument::ImageResource, QUrl("refimage.png"),
-                            pix ); */
-
-      QString text( "<h4>Referential:  <img src=\"" );
-      text += pixfname.c_str();
-      text += "\"></img></h4><em><b>  ";
-      text += name.c_str();
-      text += "</b></em><br/><b>UUID</b>        :  ";
-      text += r->uuid().toString().c_str();
-      text += "<br/>";
-      set<string> exclude;
-      exclude.insert( "name" );
-      exclude.insert( "uuid" );
-      text += headerPrint( ph, exclude );
+      list<string> temp;
+      QString text = ReferentialWindow::referentialToolTipText( r, temp );
       QToolTip::showText( _refwin->mapToGlobal( p ), text );
-      ::close( fd );
-      unlink( pixfname.c_str() );
+      ReferentialWindow::unlinkFiles( temp );
     }
     else
     {
       anatomist::Transformation  *t = _refwin->transfAt( p );
-      if( t )
+      if( t && ATransformSet::instance()->hasTransformation( t ) )
       {
-        QPixmap     pix( 64, 16 );
-        QPainter    ptr( &pix );
-        AimsRGB     col = t->source()->Color();
-        ptr.setBackgroundMode( Qt::OpaqueMode );
-        ptr.fillRect( 0, 0, 64, 16, QColor( 255, 255, 255 ) );
-        ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-        ptr.drawEllipse( 0, 0, 16, 16 );
-        col = t->destination()->Color();
-        ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
-        ptr.drawEllipse( 48, 0, 16, 16 );
-        ptr.drawLine( 16, 8, 48, 8 );
-        ptr.drawLine( 40, 4, 48, 8 );
-        ptr.drawLine( 40, 12, 48, 8 );
-        ptr.end();
-        pix.setMask( pix.createHeuristicMask() );
-        int fd;
-        string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
-        pix.save( QString( pixfname.c_str() ), "PNG" );
-
-        QString text( "<h4>Transformation:  <img src=\"" );
-        text += pixfname.c_str();
-        text += "\"/></h4>";
-        AimsData<float> r = t->motion().rotation();
-        text += "<table border=1 cellspacing=0><tr>"
-            "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
-            "<tr><td>"
-            + QString::number( r( 0,0 ) ) + "</td><td>"
-            + QString::number( r( 0,1 ) ) + "</td><td>"
-            + QString::number( r( 0,2 ) ) + "</td><td>"
-            + QString::number( t->Translation( 0 ) ) + "</td></tr><tr><td>"
-            + QString::number( r( 1,0 ) ) + "</td><td>"
-            + QString::number( r( 1,1 ) ) + "</td><td>"
-            + QString::number( r( 1,2 ) ) + "</td><td>"
-            + QString::number( t->Translation( 1 ) ) + "</td></tr><tr><td>"
-            + QString::number( r( 2,0 ) ) + "</td><td>"
-            + QString::number( r( 2,1 ) ) + "</td><td>"
-            + QString::number( r( 2,2 ) ) + "</td><td>"
-            + QString::number( t->Translation( 2 ) ) + "</td></tr></table>";
-        PythonHeader  *ph = t->motion().header();
-        if( ph )
-          text += headerPrint( *ph );
+        list<string> temp;
+        QString text = ReferentialWindow::transformationToolTipText( t, temp );
         QToolTip::showText( _refwin->mapToGlobal( p ), text );
-        ::close( fd );
-        unlink( pixfname.c_str() );
+        ReferentialWindow::unlinkFiles( temp );
       }
     }
+  }
+
+
+  set<AObject *> objectsInReferential( Referential *ref )
+  {
+    const set<AObject *> & objs = theAnatomist->getObjects();
+    set<AObject *>::const_iterator io, eo = objs.end();
+    set<AObject *> selobj;
+    ControlWindow *ctrl = theAnatomist->getControlWindow();
+    for( io=objs.begin(); io!=eo; ++io )
+      if( (*io)->getReferential() == ref
+        && theAnatomist->hasObject( *io )
+        && (!ctrl || ctrl->hasObject( *io ) ) ) // skip hidden objects
+      {
+        const AObject::ParentList & parents = (*io)->parents();
+        AObject::ParentList::const_iterator ip, ep = parents.end();
+        for( ip=parents.begin(); ip!=ep; ++ip )
+          if( (*ip)->getReferential() == ref )
+            // parent with same referential: drop the child, get just the parent
+            break;
+        if( ip == ep )
+          selobj.insert( *io );
+      }
+
+    return selobj;
   }
 
 }
@@ -248,7 +205,8 @@ namespace anatomist
   {
     ReferentialWindow_PrivateData() 
       : srcref( 0 ), dstref( 0 ), trans( 0 ), tracking( false ), refmenu( 0 ),
-      bgmenu( 0 )
+      bgmenu( 0 ), view2d( 0 ), view3d( 0 ), has_changed( true ),
+      refreshtimer( 0 ), refreshneeded( false )
     {}
 
     Referential			*srcref;
@@ -258,28 +216,50 @@ namespace anatomist
     bool			tracking;
     map<Referential *, QPoint>	refpos;
     QMenu			*refmenu;
-    QMenu                  *bgmenu;
+    QMenu                       *bgmenu;
     RefToolTip                  *tooltip;
+    QLabel                      *view2d;
+    /* FIXME: we would need a weak_shared_ptr<RefWindow> here,
+       or rc_ptr<RefWindow>, but rc_ptr<RefWindow> does not compile.
+       Neither does rc_ptr<AWindow3D>.
+       Actually AWindow3D inherits SharedObject and RCObject via 2 bases
+       (diamond), via AWindow and Observable, which apparently introduces
+       an ambiguity in destroy().
+    */
+    RefWindow                   *view3d;
+    weak_shared_ptr<AWindow>    view3d_ref;
+    bool                        has_changed;
+    QTimer                      *refreshtimer;
+    bool                        refreshneeded;
   };
 
 }
 
 
 ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name, 
-				      Qt::WindowFlags f )
-  : QLabel( parent, f ), 
+                                      Qt::WindowFlags f )
+  : QWidget( parent, f ),
   pdat( new ReferentialWindow_PrivateData )
 {
   setWindowTitle( tr( "Referentials" ) );
   setObjectName(name);
-  resize( 256, 256 );
-  setPixmap( QPixmap( width(), height() ) );
+  QHBoxLayout *lay = new QHBoxLayout;
+  lay->setContentsMargins( 3, 3, 3, 3 );
+  setLayout( lay );
+  pdat->view2d = new QLabel( this );
+  pdat->view2d->setSizePolicy( QSizePolicy::Ignored,
+                               QSizePolicy::Ignored );
+  lay->addWidget( pdat->view2d );
+  resize( 500, 400 );
+  pdat->view2d->setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
 #if QT_VERSION >= 0x050000
 #warning Qt::WA_PaintOutsidePaintEvent not set.
 #else
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
 #endif
+  // switch directly to the 3D view
+  set3DView();
 }
 
 ReferentialWindow::~ReferentialWindow()
@@ -292,7 +272,7 @@ ReferentialWindow::~ReferentialWindow()
 
 void ReferentialWindow::closeEvent( QCloseEvent * ev )
 {
-  QLabel::closeEvent( ev );
+  QWidget::closeEvent( ev );
   if( theAnatomist->getControlWindow() )
     theAnatomist->getControlWindow()->enableRefWinMenu( true );
 }
@@ -300,8 +280,8 @@ void ReferentialWindow::closeEvent( QCloseEvent * ev )
 
 void ReferentialWindow::resizeEvent( QResizeEvent* ev )
 {
-  QLabel::resizeEvent( ev );
-  refresh();
+  QWidget::resizeEvent( ev );
+  refresh( true );
 }
 
 
@@ -377,9 +357,39 @@ void ReferentialWindow::saveTransformation( const string & filename )
 }
 
 
-void ReferentialWindow::refresh()
+void ReferentialWindow::refresh( bool partial )
 {
+  if( !partial )
+    pdat->has_changed = true;
+
+  if( !pdat->refreshtimer )
+  {
+    pdat->refreshtimer = new QTimer( this );
+    pdat->refreshtimer->setObjectName( "ReferentialWindow_refreshtimer" );
+    connect( pdat->refreshtimer, SIGNAL( timeout() ), this,
+            SLOT( refreshNow() ) );
+  }
+  if( !pdat->refreshneeded )
+  {
+    pdat->refreshneeded = true;
+    pdat->refreshtimer->setSingleShot( true );
+    pdat->refreshtimer->start( 30 );
+  }
+}
+
+
+void ReferentialWindow::refreshNow()
+{
+  pdat->refreshneeded = false;
   pdat->refpos.clear();
+  if( pdat->view3d && pdat->has_changed )
+    pdat->view3d->updateReferentialView();
+
+  pdat->has_changed = false;
+
+  if( !pdat->view2d->isVisible() || pdat->view2d->width() == 0
+      || pdat->view2d->height() == 0 )
+    return;
 
   set<Referential *>	refs = theAnatomist->getReferentials();
   set<anatomist::Transformation *>	trans 
@@ -391,13 +401,15 @@ void ReferentialWindow::refresh()
   Referential		*ref;
   anatomist::Transformation	*tr;
   unsigned		x, y, sz = 20;
-  int			w = width(), h = height(), R = w, Rmin = 50;
+  int			w = pdat->view2d->width(),
+                        h = pdat->view2d->height(),
+                        R = w, Rmin = 50;
   QPixmap		pix( w, h );
 
   QPainter		p( &pix );
 
   p.setPen( QPen( Qt::black ) );
-  p.eraseRect( 0, 0, w, h );
+  p.fillRect( 0, 0, w, h, Qt::white );
   if( h < R )
     R = h;
   R = R/2 - 50;
@@ -479,7 +491,7 @@ void ReferentialWindow::refresh()
     }
 
   p.end();
-  setPixmap( pix );
+  pdat->view2d->setPixmap( pix );
 }
 
 
@@ -505,7 +517,7 @@ void ReferentialWindow::mousePressEvent( QMouseEvent* ev )
 	  {
 	    /*cout << "ref : " << ref->Color().r << ", " << ref->Color().g 
 	      << ", " << ref->Color().b << endl;*/
-	    popupRefMenu( ev->globalPos() );
+	    popupRefMenu( ev->pos() );
 	    break;
 	  }
 	else
@@ -536,43 +548,68 @@ void ReferentialWindow::mousePressEvent( QMouseEvent* ev )
 void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
 {
   if( pdat->tracking )
+  {
+    pdat->tracking = false;
+    QPainter	p( this );
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  *pdat->view2d->pixmap() );
+
+    QPoint		dummy;
+    pdat->dstref = refAt( ev->pos(), dummy );
+
+    if( pdat->dstref && pdat->srcref != pdat->dstref )
     {
-      pdat->tracking = false;
-      QPainter	p( this );
-      p.drawPixmap( 0, 0, *pixmap() );
+      anatomist::Transformation *tr
+        = ATransformSet::instance()->transformation( pdat->srcref,
+                                                     pdat->dstref );
+      bool id = false;
+      bool merge = false;
+      if( ev->modifiers() & Qt::ControlModifier )
+        id = true;
+      else if( ev->modifiers() & Qt::ShiftModifier )
+        merge = true;
+      if( !tr || merge )
+        addTransformationGui( pdat->srcref, pdat->dstref, id, merge );
+    }
+  }
+}
 
-      QPoint		dummy;
-      pdat->dstref = refAt( ev->pos(), dummy );
 
-      if( pdat->dstref && pdat->srcref != pdat->dstref 
-          && !ATransformSet::instance()->transformation( pdat->srcref, 
-                                                         pdat->dstref ) )
-      {
-        if( ev->modifiers() & Qt::ControlModifier )
-        {
-          float	matrix[4][3];
-          matrix[0][0] = 0;
-          matrix[0][1] = 0;
-          matrix[0][2] = 0;
-          matrix[1][0] = 1;
-          matrix[1][1] = 0;
-          matrix[1][2] = 0;
-          matrix[2][0] = 0;
-          matrix[2][1] = 1;
-          matrix[2][2] = 0;
-          matrix[3][0] = 0;
-          matrix[3][1] = 0;
-          matrix[3][2] = 1;
+void ReferentialWindow::addTransformationGui( Referential* source,
+                                              Referential* dest,
+                                              bool identity, bool merge )
+{
+  if( identity )
+  {
+    float	matrix[4][3];
+    matrix[0][0] = 0;
+    matrix[0][1] = 0;
+    matrix[0][2] = 0;
+    matrix[1][0] = 1;
+    matrix[1][1] = 0;
+    matrix[1][2] = 0;
+    matrix[2][0] = 0;
+    matrix[2][1] = 1;
+    matrix[2][2] = 0;
+    matrix[3][0] = 0;
+    matrix[3][1] = 0;
+    matrix[3][2] = 1;
 
-          LoadTransformationCommand	*com 
-            = new LoadTransformationCommand( matrix, pdat->srcref, 
-                                              pdat->dstref );
-          theProcessor->execute( com );
-          refresh();
-        }
-        else
-          openSelectBox();
-      }
+    LoadTransformationCommand	*com
+      = new LoadTransformationCommand( matrix, source, dest );
+    theProcessor->execute( com );
+    refresh();
+  }
+  else if( merge )
+  {
+    if( Referential::mergeReferentials( source, dest ) )
+      refresh();
+  }
+  else
+  {
+    pdat->srcref = source;
+    pdat->dstref = dest;
+    openSelectBox();
   }
 }
 
@@ -580,11 +617,13 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
 void ReferentialWindow::mouseMoveEvent( QMouseEvent* ev )
 {
   if( pdat->tracking )
-    {
-      QPainter	p( this );
-      p.drawPixmap( 0, 0, *pixmap() );
-      p.drawLine( pdat->pos, ev->pos() );
-    }
+  {
+    QPainter	p( this );
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  *pdat->view2d->pixmap() );
+    p.drawLine( pdat->view2d->mapToParent( pdat->pos ),
+                pdat->view2d->mapFromParent( ev->pos() ) );
+  }
 }
 
 
@@ -594,13 +633,14 @@ Referential* ReferentialWindow::refAt( const QPoint & pos, QPoint & newpos )
   Referential		*ref;
   int			sz = 10;
   QPoint		rpos;
+  QPoint                refpos = pdat->view2d->mapFromParent( pos );
 
   for( ir=pdat->refpos.begin(); ir!=fr; ++ir )
     {
       ref = (*ir).first;
       rpos = (*ir).second;
-      if( pos.x() >= rpos.x()-sz && pos.x() < rpos.x()+sz 
-	  && pos.y() >= rpos.y()-sz && pos.y() < rpos.y()+sz )
+      if( refpos.x() >= rpos.x()-sz && refpos.x() < rpos.x()+sz
+	  && refpos.y() >= rpos.y()-sz && refpos.y() < rpos.y()+sz )
 	{
 	  newpos = rpos;
 	  return( ref );
@@ -629,6 +669,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
   QPoint                                rvec, relp;
   float                                 x, y, normv, norm;
   vector<anatomist::Transformation *>              trat;
+  QPoint refpos = pdat->view2d->mapFromParent( pos );
 
   // 1st pass on loaded transformations
   for( it=trans.begin(); it!=ft; ++it )
@@ -638,7 +679,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
         {
           const QPoint & rpos1 = pdat->refpos[ t->source() ];
           rvec = pdat->refpos[ t->destination() ] - rpos1;
-          relp = pos - rpos1;
+          relp = refpos - rpos1;
           // project
           x = relp.x() * rvec.x() + relp.y() * rvec.y();
           norm = rvec.x() * rvec.x() + rvec.y() * rvec.y();
@@ -663,7 +704,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
         {
           const QPoint & rpos1 = pdat->refpos[ t->source() ];
           rvec = pdat->refpos[ t->destination() ] - rpos1;
-          relp = pos - rpos1;
+          relp = refpos - rpos1;
           // project
           x = relp.x() * rvec.x() + relp.y() * rvec.y();
           norm = rvec.x() * rvec.x() + rvec.y() * rvec.y();
@@ -681,6 +722,14 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
     }
 
   return trat;
+}
+
+
+void ReferentialWindow::popupRefMenu( const QPoint & pos,
+                                      Referential* ref )
+{
+  pdat->srcref = ref;
+  popupRefMenu( pos );
 }
 
 
@@ -725,7 +774,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
   icon_action = pop->actions()[0];
   icon_action->setIcon( QIcon(pix) );
 
-  pop->popup( pos );
+  pop->popup( mapToGlobal( pos ) );
 }
 
 
@@ -734,7 +783,14 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
   vector<anatomist::Transformation *>  trans = transformsAt( pos );
   if( trans.empty() )
     return;
+  popupTransfMenu( pos, trans );
+}
 
+
+void ReferentialWindow::popupTransfMenu(
+    const QPoint & pos,
+    const vector<anatomist::Transformation *> & trans )
+{
   unsigned        i, n = trans.size();
   anatomist::Transformation  *t;
   QMenu      pop( this );
@@ -779,6 +835,10 @@ void ReferentialWindow::popupTransfMenu( const QPoint & pos )
                       SLOT( invertTransformation() ) );
       pop.addAction( tr( "Reload transformation" ), cbk,
                       SLOT( reloadTransformation() ) );
+      QAction *ac = pop.addAction( tr( "Merge referentials" ), cbk,
+                                   SLOT( mergeReferentials() ) );
+      if( !t->motion().isIdentity() )
+        ac->setEnabled( false );
     }
     pop.addAction( tr( "Save transformation..." ), cbk,
                     SLOT( saveTransformation() ) );
@@ -810,6 +870,10 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
                      SLOT( loadNewTransformation() ) );
     pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
+    pop->addAction( tr( "Merge identical referentials" ), this,
+                    SLOT( mergeIdenticalReferentials() ) );
+    pop->addSeparator();
+    pop->addAction( tr( "Switch to 3D view" ), this, SLOT( set3DView() ) );
   }
 
   pop->popup( mapToGlobal( pos ) );
@@ -826,7 +890,6 @@ void ReferentialWindow::deleteReferential()
 void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 {
   delete trans;
-  refresh();
 
   set<AWindow *>		win = theAnatomist->getWindows();
   set<AWindow*>::iterator	iw, fw = win.end();
@@ -839,126 +902,8 @@ void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 
 void ReferentialWindow::clearUnusedReferentials()
 {
-  set<Referential *> refs = theAnatomist->getReferentials();
-  set<Referential *>::iterator i, e = refs.end();
-  Referential *ref;
-  set<Referential *> usedrefs;
-  for( i=refs.begin(); i!=e; ++i )
-  {
-    ref = *i;
-    if( ref == Referential::acPcReferential()
-        || ref == Referential::mniTemplateReferential()
-        || !ref->AnaWin().empty() || !ref->AnaObj().empty() )
-      usedrefs.insert( ref );
-  }
-  // check other referentials
-  set<Referential *>::iterator j, k, unused = usedrefs.end();
-  ATransformSet *ts = ATransformSet::instance();
-  for( i=refs.begin(); i!=e; )
-  {
-    ref = *i;
-    if( usedrefs.find( ref ) == unused )
-    {
-      // get the connected component this ref is in
-      set<Referential *>
-          cc = ts->connectedComponent( ref );
-      // check whether there are any useful ref in this CC
-      for( j=cc.begin(), k=cc.end(); j!=k; ++j )
-        if( usedrefs.find( *j ) != unused )
-          break;
-      if( j == k ) // no useful ref: we can delete the entire CC
-      {
-        for( j=cc.begin(), k=cc.end(); j!=k; ++j )
-          if( *j != ref ) // don't delete ref yet
-          {
-            refs.erase( *j );
-            delete *j;
-          }
-        ++i; // increment iterator
-        delete ref; // then we can delete ref safely
-      }
-      else
-      {
-        // ref is linked to a "useful connected component"
-        // we must check whether it would break the CC if we remove it
-        set<anatomist::Transformation *> trs = ts->transformationsWith( ref );
-        set<anatomist::Transformation *>::iterator it, jt, et = trs.end();
-        // filter out generated transformations
-        for( it=trs.begin(), et=trs.end(); it!=et; )
-        {
-          if( (*it)->isGenerated() )
-          {
-            jt = it;
-            ++it;
-            trs.erase( jt );
-          }
-          else
-            ++it;
-        }
-        if( trs.size() <= 1 ) // then no link goes through ref
-        {
-          ++i;
-          delete ref;
-        }
-        else // now trs *must* contain exactly 2 transfos
-        {
-          //debug
-          if( trs.size() != 2 )
-            cerr << "BUG in ReferentialWindow::clearUnusedReferentials: more "
-                "than 2 connections to a ref inside a connected component"
-                << endl;
-          int usedcc = 0;
-          for( it=trs.begin(), et=trs.end(); it!=et; ++it )
-          {
-            anatomist::Transformation *tr = *it;
-            // get other end
-            Referential *ref2 = tr->source();
-            if( ref2 == ref )
-              ref2 = tr->destination();
-            // temporarily disable the transformation
-            tr->unregisterTrans();
-            // get CC of other end
-            set<Referential *> cc2 = ts->connectedComponent( ref2 );
-            // if cc2 has useful refs, then ref is useful
-            if( cc2.size() != cc.size() )
-            {
-              for( j=cc2.begin(), k=cc2.end(); j!=k; ++j )
-                if( usedrefs.find( *j ) != unused )
-                  break;
-              if( j == k ) // no useful ref: we can delete the entire CC2
-              {
-                for( j=cc2.begin(), k=cc2.end(); j!=k; ++j )
-                  if( *j != ref ) // don't delete ref yet
-                  {
-                    refs.erase( *j );
-                    delete *j;
-                  }
-                tr = 0;
-              }
-              else
-              {
-                tr->registerTrans();
-                ++usedcc;
-              }
-            }
-            else
-              ++usedcc;
-            if( tr )
-              tr->registerTrans();
-          }
-          if( usedcc <= 1 ) // ref is not useful
-          {
-            ++i;
-            delete ref;
-          }
-          else
-            ++i;
-        }
-      }
-    }
-    else
-      ++i;
-  }
+  Referential::clearUnusedReferentials();
+  refresh();
 }
 
 
@@ -998,6 +943,7 @@ void ReferentialWindow::newReferential()
   set<AWindow *>  w;
   AssignReferentialCommand	*com
       = new AssignReferentialCommand( 0, o, w, -1 );
+  pdat->has_changed = true;
   theProcessor->execute( com );
 }
 
@@ -1023,6 +969,7 @@ void ReferentialWindow::loadReferential()
     AssignReferentialCommand  *com
         = new AssignReferentialCommand( pdat->srcref, o, w, -1, 0,
                                         filename.toStdString() );
+    pdat->has_changed = true;
     theProcessor->execute( com );
   }
 }
@@ -1047,6 +994,7 @@ void ReferentialWindow::loadNewTransformation()
     pdat->srcref = 0;
     pdat->dstref = 0;
     loadTransformation( filename.toStdString() );
+    pdat->has_changed = true;
   }
 }
 
@@ -1110,6 +1058,7 @@ void ReferentialWindow::splitReferential()
       }
     }
   }
+  pdat->has_changed = true;
   theAnatomist->Refresh();
   refresh();
 }
@@ -1117,15 +1066,10 @@ void ReferentialWindow::splitReferential()
 
 void ReferentialWindow::seeObjectsInReferential()
 {
-  set<AObject *> objs = theAnatomist->getObjects();
-  set<AObject *>::iterator io, eo = objs.end();
   CreateWindowCommand *wc = new CreateWindowCommand( "Browser" );
   theProcessor->execute( wc );
   AWindow *win = wc->createdWindow();
-  set<AObject *> selobj;
-  for( io=objs.begin(); io!=eo; ++io )
-    if( (*io)->getReferential() == pdat->srcref )
-      selobj.insert( *io );
+  set<AObject *> selobj = objectsInReferential( pdat->srcref );
   if( !selobj.empty() )
   {
     set<AWindow *> winset;
@@ -1137,18 +1081,222 @@ void ReferentialWindow::seeObjectsInReferential()
 }
 
 
-#if QT_VERSION >= 0x040000
 bool ReferentialWindow::event( QEvent* event )
 {
-  if (event->type() == QEvent::ToolTip)
+  if( event->type() == QEvent::ToolTip && pdat->view2d->isVisible()
+    && pdat->view2d->width() != 0 && pdat->view2d->height() != 0 )
   {
     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
     pdat->tooltip->maybeTip( helpEvent->pos() );
   }
   return QWidget::event(event);
 }
-#endif
 
+
+void ReferentialWindow::set3DView()
+{
+  if( pdat->view3d )
+  {
+    pdat->view3d->updateReferentialView();
+    pdat->view3d->show();
+    return;
+  }
+
+  RefWindow *rwin = new RefWindow;
+  pdat->view3d_ref.reset( rwin );
+  // make the window not appear in control win, and be a weak reference in
+  // the app.
+  if( theAnatomist->getControlWindow() )
+    theAnatomist->getControlWindow()->unregisterWindow( rwin );
+  theAnatomist->releaseWindow( rwin );
+
+  rwin->updateReferentialView();
+  layout()->addWidget( rwin );
+  pdat->view3d = rwin;
+  connect( pdat->view3d, SIGNAL( destroyed() ),
+           this, SLOT( view3dDeleted() ) );
+  rwin->show();
+}
+
+
+void ReferentialWindow::view3dDeleted()
+{
+  pdat->view3d_ref.release();
+  pdat->view3d = 0;
+  refresh();
+}
+
+
+QString ReferentialWindow::referentialToolTipText(
+  Referential *ref, list<string> & temp_filenames )
+{
+  string  name;
+  PythonHeader  & ph = ref->header();
+  if( !ph.getProperty( "name", name ) )
+    name = "&lt;unnamed&gt;";
+
+  QPixmap pix( 16, 16 );
+  QPainter      ptr( &pix );
+  AimsRGB       col = ref->Color();
+  ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+  ptr.fillRect( 0, 0, 16, 16, QColor( 255, 255, 255 ) );
+  ptr.drawEllipse( 0, 0, 16, 16 );
+  ptr.end();
+  pix.setMask( pix.createHeuristicMask() );
+  int fd;
+  string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+  ::close( fd );
+  pix.save( QString( pixfname.c_str() ), "PNG" );
+  temp_filenames.push_back( pixfname );
+
+  /* QTextDocument document;
+  document.addResource( QTextDocument::ImageResource, QUrl("refimage.png"),
+                        pix ); */
+
+  QString text( "<h4>Referential:  <img src=\"" );
+  text += pixfname.c_str();
+  text += "\"></img></h4><em><b>  ";
+  text += name.c_str();
+  text += "</b></em><br/><b>UUID</b>        :  ";
+  text += ref->uuid().toString().c_str();
+  text += "<br/>";
+  set<string> exclude;
+  exclude.insert( "name" );
+  exclude.insert( "uuid" );
+  text += headerPrint( ph, exclude );
+
+  set<AObject *> objs = objectsInReferential( ref );
+  set<AObject *>::const_iterator io, eo = objs.end();
+
+  if( !objs.empty() )
+  {
+    text += "<h4>Objects in this referential:</h4><ul>";
+    unsigned i = 0;
+    for( io=objs.begin(); io!=eo && i<10; ++io, ++i )
+      text += QString( "<li>" ) + (*io)->name().c_str() + "</li>";
+    if( objs.size() > 10 )
+      text += "<li>...</li>";
+    text += "</ul>";
+  }
+
+  return text;
+}
+
+
+QString ReferentialWindow::transformationToolTipText(
+  anatomist::Transformation *tr, list<string> & temp_filenames )
+{
+  using anatomist::Transformation;
+
+  QPixmap     pix( 64, 16 );
+  QPainter    ptr( &pix );
+  AimsRGB     col = tr->source()->Color();
+  ptr.setBackgroundMode( Qt::OpaqueMode );
+  ptr.fillRect( 0, 0, 64, 16, QColor( 255, 255, 255 ) );
+  ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+  ptr.drawEllipse( 0, 0, 16, 16 );
+  col = tr->destination()->Color();
+  ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+  ptr.drawEllipse( 48, 0, 16, 16 );
+  ptr.drawLine( 16, 8, 48, 8 );
+  ptr.drawLine( 40, 4, 48, 8 );
+  ptr.drawLine( 40, 12, 48, 8 );
+  ptr.end();
+  pix.setMask( pix.createHeuristicMask() );
+  int fd;
+  string pixfname = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+  ::close( fd );
+  pix.save( QString( pixfname.c_str() ), "PNG" );
+  temp_filenames.push_back( pixfname );
+
+  QString text( "<h4>Transformation:  <img src=\"" );
+  text += pixfname.c_str();
+  text += "\"/></h4>";
+  AimsData<float> r = tr->motion().rotation();
+  text += "<table border=1 cellspacing=0><tr>"
+      "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
+      "<tr><td>"
+      + QString::number( r( 0,0 ) ) + "</td><td>"
+      + QString::number( r( 0,1 ) ) + "</td><td>"
+      + QString::number( r( 0,2 ) ) + "</td><td>"
+      + QString::number( tr->Translation( 0 ) ) + "</td></tr><tr><td>"
+      + QString::number( r( 1,0 ) ) + "</td><td>"
+      + QString::number( r( 1,1 ) ) + "</td><td>"
+      + QString::number( r( 1,2 ) ) + "</td><td>"
+      + QString::number( tr->Translation( 1 ) ) + "</td></tr><tr><td>"
+      + QString::number( r( 2,0 ) ) + "</td><td>"
+      + QString::number( r( 2,1 ) ) + "</td><td>"
+      + QString::number( r( 2,2 ) ) + "</td><td>"
+      + QString::number( tr->Translation( 2 ) ) + "</td></tr></table>";
+  PythonHeader  *ph = tr->motion().header();
+  if( ph )
+    text += headerPrint( *ph );
+
+  if( !tr->motion().isIdentity() )
+  {
+    Transformation *trinv = ATransformSet::instance()->transformation(
+      tr->destination(), tr->source() );
+
+    col = tr->destination()->Color();
+    ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+    ptr.drawEllipse( 0, 0, 16, 16 );
+    col = tr->source()->Color();
+    ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
+    ptr.drawEllipse( 48, 0, 16, 16 );
+    string pixfname_inv = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+    ::close( fd );
+    pix.save( QString( pixfname_inv.c_str() ), "PNG" );
+    temp_filenames.push_back( pixfname_inv );
+
+    text += "<br/><h4>Inverse: <img src=\"";
+    text += pixfname_inv.c_str();
+    text += "\"/></h4>";
+    r = trinv->motion().rotation();
+    text += "<table border=1 cellspacing=0><tr>"
+        "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
+        "<tr><td>"
+        + QString::number( r( 0,0 ) ) + "</td><td>"
+        + QString::number( r( 0,1 ) ) + "</td><td>"
+        + QString::number( r( 0,2 ) ) + "</td><td>"
+        + QString::number( trinv->Translation( 0 ) ) + "</td></tr><tr><td>"
+        + QString::number( r( 1,0 ) ) + "</td><td>"
+        + QString::number( r( 1,1 ) ) + "</td><td>"
+        + QString::number( r( 1,2 ) ) + "</td><td>"
+        + QString::number( trinv->Translation( 1 ) ) + "</td></tr><tr><td>"
+        + QString::number( r( 2,0 ) ) + "</td><td>"
+        + QString::number( r( 2,1 ) ) + "</td><td>"
+        + QString::number( r( 2,2 ) ) + "</td><td>"
+        + QString::number( trinv->Translation( 2 ) ) + "</td></tr></table>";
+  }
+
+  return text;
+}
+
+
+void ReferentialWindow::mergeReferentials( anatomist::Transformation* tr )
+{
+  if( !tr->motion().isIdentity() )
+  {
+    cout << "transformation is not identity: cannot merge referentials\n";
+    return;
+  }
+  Referential::mergeReferentials( tr->source(), tr->destination() );
+  refresh();
+}
+
+
+void ReferentialWindow::mergeIdenticalReferentials()
+{
+  Referential::mergeIdenticalReferentials();
+}
+
+
+void ReferentialWindow::unlinkFiles( const list<string> & temp_filenames )
+{
+  list<string>::const_iterator il, el = temp_filenames.end();
+  for( il=temp_filenames.begin(); il!=el; ++il )
+    unlink( il->c_str() );
+}
 
 // -----------
 
@@ -1181,3 +1329,9 @@ void ReferentialWindow_TransCallback::saveTransformation()
 {
   refwin->saveTransformation( trans );
 }
+
+void ReferentialWindow_TransCallback::mergeReferentials()
+{
+  refwin->mergeReferentials( trans );
+}
+

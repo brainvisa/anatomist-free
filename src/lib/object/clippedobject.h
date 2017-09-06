@@ -68,6 +68,8 @@ namespace anatomist
 
     virtual void sliceChanged();
     int clipID() const;
+    virtual carto::Object makeHeaderOptions() const;
+    virtual void setProperties( carto::Object options );
 
   private:
     ///	ensures the object class is registered in Anatomist

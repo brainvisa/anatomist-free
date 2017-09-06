@@ -122,6 +122,11 @@ namespace
                                                const GLchar *const*string,
                                                const GLint *length );
   typedef void (APIENTRYP glUseProgramFunc)( GLuint program );
+  typedef GLenum (APIENTRYP glCheckFramebufferStatusFunc)( GLenum target );
+  typedef void (APIENTRYP glDeleteRenderbuffersFunc)(
+    GLsizei n, const GLuint *renderbuffers );
+  typedef void (APIENTRYP glDeleteFramebuffersFunc)(
+    GLsizei n, const GLuint *framebuffers );
 
   /* the APIENTRY macro here seems to be very important on Windows: it caused
      display bugs and crashed for one year without it. */
@@ -256,6 +261,24 @@ namespace
   }
 
 
+  GLenum APIENTRY _void_glCheckFramebufferStatus( GLenum target )
+  {
+    return 0x8CDD; // value for GL_FRAMEBUFFER_UNSUPPORTED
+  }
+
+
+  void APIENTRY _void_glDeleteRenderbuffers( GLsizei n,
+                                             const GLuint *renderbuffers )
+  {
+  }
+
+
+  void APIENTRY _void_glDeleteFramebuffers( GLsizei n,
+                                            const GLuint *framebuffers )
+  {
+  }
+
+
   struct GLCapsPrivate
   {
     GLCapsPrivate();
@@ -299,6 +322,9 @@ namespace
     glLinkProgramFunc glLinkProgram;
     glShaderSourceFunc glShaderSource;
     glUseProgramFunc glUseProgram;
+    glCheckFramebufferStatusFunc glCheckFramebufferStatus;
+    glDeleteRenderbuffersFunc glDeleteRenderbuffers;
+    glDeleteFramebuffersFunc glDeleteFramebuffers;
   };
 
 
@@ -383,13 +409,15 @@ namespace
       glMultiTexCoord3f( 0 ),
       glBindFramebuffer( 0 ), glBindRenderbuffer( 0 ),
       glFramebufferTexture2D( 0 ), glGenFramebuffers( 0 ),
-      glGenRenderbuffers( 0 ), glFramebufferRenderbuffer( 0 ), glUniform1f( 0 ),
+      glGenRenderbuffers( 0 ), glFramebufferRenderbuffer( 0 ),
+      glUniform1f( 0 ),
       glUniform1i( 0 ), glUniform4fv( 0 ), glGetUniformLocation( 0 ),
       glMultTransposeMatrixf( 0 ), glAttachShader( 0 ), glDetachShader( 0 ),
       glCompileShader( 0 ), glCreateProgram( 0 ), glCreateShader( 0 ),
       glDeleteProgram( 0 ), glDeleteShader( 0 ), glGetProgramiv( 0 ),
       glGetShaderiv( 0 ), glLinkProgram( 0 ), glShaderSource( 0 ),
-      glUseProgram( 0 )
+      glUseProgram( 0 ), glCheckFramebufferStatus( 0 ),
+      glDeleteRenderbuffers( 0 ), glDeleteFramebuffers( 0 )
   {
   const GLubyte	*p = glGetString( GL_EXTENSIONS );
   if( !p )
@@ -500,6 +528,21 @@ namespace
           handle, _void_glRenderbufferStorage,
           "glRenderbufferStorage", "_glRenderbufferStorage",
           "glRenderbufferStorageEXT", "_glRenderbufferStorageEXT", NULL );
+        glCheckFramebufferStatus = find_symbol(
+          handle, _void_glCheckFramebufferStatus,
+          "glCheckFramebufferStatus", "_glCheckFramebufferStatus",
+          "glCheckFramebufferStatusEXT", "_glCheckFramebufferStatusEXT",
+          NULL );
+        glDeleteRenderbuffers = find_symbol(
+          handle, _void_glDeleteRenderbuffers,
+          "glDeleteRenderbuffers", "_glDeleteRenderbuffers",
+          "glDeleteRenderbuffersEXT", "_glDeleteRenderbuffersEXT",
+          NULL );
+        glDeleteFramebuffers = find_symbol(
+          handle, _void_glDeleteFramebuffers,
+          "glDeleteFramebuffers", "_glDeleteFramebuffers",
+          "glDeleteFramebuffersEXT", "_glDeleteFramebuffersEXT",
+          NULL );
 
 #ifndef _WIN32
       }
@@ -989,6 +1032,24 @@ void GLCaps::glShaderSource( GLuint shader, GLsizei count,
 void GLCaps::glUseProgram( GLuint program )
 {
   _glcapsPrivate().glUseProgram( program );
+}
+
+
+GLenum GLCaps::glCheckFramebufferStatus( GLenum target )
+{
+  return _glcapsPrivate().glCheckFramebufferStatus( target );
+}
+
+
+void GLCaps::glDeleteRenderbuffers( GLsizei n, const GLuint *renderbuffers )
+{
+  _glcapsPrivate().glDeleteRenderbuffers( n, renderbuffers );
+}
+
+
+void GLCaps::glDeleteFramebuffers( GLsizei n, const GLuint *framebuffers )
+{
+  _glcapsPrivate().glDeleteFramebuffers( n, framebuffers );
 }
 
 

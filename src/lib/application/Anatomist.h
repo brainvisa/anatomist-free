@@ -132,17 +132,16 @@ namespace anatomist
     std::string makeObjectName( const std::string & name );
     std::set<AObject* > getObjects() const;
     std::set<AWindow*> getWindows() const;
-    std::set<Referential*> getReferentials() const;
+    const std::set<Referential*> & getReferentials() const;
     bool hasReferential( const Referential * );
     Transformation* getTransformation( const Referential*, 
 				       const Referential* );
     const Transformation* getTransformation( const Referential*, 
 					     const Referential* ) const;
-    std::string catObjectNames( const std::set<AObject *> &setobj ) const;
 
-    AObject* loadObject( const std::string & filename, 
-			 const std::string & objname = "", 
-                         carto::Object options = carto::none() );
+    std::list<AObject *> loadObject( const std::string & filename,
+                                     const std::string & objname = "",
+                                     carto::Object options = carto::none() );
 
     void registerObject( AObject* obj, int inctrl=1 );
     void unregisterObject( AObject* obj );

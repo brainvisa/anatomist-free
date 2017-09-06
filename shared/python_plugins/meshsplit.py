@@ -80,6 +80,9 @@ class MeshSplitFusionMethod(anatomist.FusionMethod):
   def ID(self):
     return "MeshSplitFusionMethod"
 
+  def generatedObjectType(self):
+    return anatomist.AObject.objectTypeName(anatomist.AObject.GRAPH)
+
 
 f = anatomist.FusionFactory.factory()
 m = MeshSplitFusionMethod()

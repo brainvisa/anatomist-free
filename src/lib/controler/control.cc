@@ -397,6 +397,12 @@ Control::~Control()
   //delete mySurfpaintAction;
 }
 
+
+string Control::description() const
+{
+  return name();
+}
+
 void
 Control::doOnSelect( ActionPool * pool )
 {

@@ -53,6 +53,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/object/loadevent.h>
 #include <anatomist/sparsematrix/sparsematrix.h>
+#include <anatomist/object/mobjectio.h>
 #include <aims/data/pheader.h>
 #include <aims/utility/converter_hsv.h>
 #include <aims/utility/converter_rgb.h>
@@ -86,7 +87,10 @@ ObjectReader * ObjectReader::reader()
 {
   static ObjectReader *_theReader = 0;
   if( _theReader == 0 )
+  {
     _theReader = new ObjectReader;
+    registerLoader( "aobj", readMObject );
+  }
   return _theReader;
 }
 
@@ -1147,11 +1151,12 @@ namespace
 
 }
 
-AObject* ObjectReader::load_internal( const string & filename, 
+
+list<AObject*> ObjectReader::load_internal( const string & filename,
                                       PostRegisterList & subObjectsToRegister,
                                       Object options ) const
 {
-  AObject       *object = 0;
+  list<AObject *> objects;
 
   string extension = FileUtil::extension( filename );
   if( !extension.empty() )
@@ -1161,30 +1166,35 @@ AObject* ObjectReader::load_internal( const string & filename,
     _storagetype::const_iterator im, em = il.second;
     for( im = il.first; im!=em; ++im )
     {
-      object = im->second->load( filename, subObjectsToRegister, options );
-      if( object )
-        return object;
+      objects = im->second->load( filename, subObjectsToRegister, options );
+      if( !objects.empty() )
+        return objects;
     }
   }
 
-  if( !object )
-  //  extension not recognized : let's try the Aims finder
-    object = ObjectReader::readAims( filename, subObjectsToRegister, options );
+  if( objects.empty() )
+  {
+    //  extension not recognized : let's try the Aims finder
+    AObject *object = ObjectReader::readAims( filename, subObjectsToRegister,
+                                              options );
+    if( object )
+      objects.push_back( object );
+  }
 
-  return object;
+  return objects;
 }
 
 
-AObject* ObjectReader::load( const string & filename,
+list<AObject *> ObjectReader::load( const string & filename,
                              PostRegisterList & subObjectsToRegister,
                              bool notifyFail,
                              Object options, void* clientid ) const
 {
 //   cout << "ObjectReader::load\n";
-  AObject       *object = load_internal( filename, subObjectsToRegister,
+  list<AObject *> objects = load_internal( filename, subObjectsToRegister,
                                          options );
 //   cout << "load_internal done\n";
-  if( !object )
+  if( objects.empty() )
   {
     //	Tentative de lecture des .Z et .gz
 
@@ -1193,7 +1203,7 @@ AObject* ObjectReader::load( const string & filename,
 
     if( checkCompressedFiles( filename, newFilename, tempFiles ) )
     {
-      object = load_internal( newFilename, subObjectsToRegister, options );
+      objects = load_internal( newFilename, subObjectsToRegister, options );
       delFiles( tempFiles );
     }
   }
@@ -1212,12 +1222,18 @@ AObject* ObjectReader::load( const string & filename,
     }
   }
 
-  if( object )
+  list<AObject *>::iterator io, eo = objects.end();
+  if( !objects.empty() )
   {
-    object->setFileName( filename );
-    object->setName( theAnatomist->makeObjectName(
-        FileUtil::basename( filename ) ) );
-    object->setHeaderOptions();
+    if( objects.size() == 1 )
+    {
+      (*objects.begin())->setFileName( filename );
+      (*objects.begin())->setName( theAnatomist->makeObjectName(
+          FileUtil::basename( filename ) ) );
+    }
+
+    for( io=objects.begin(); io!=eo; ++io )
+      (*io)->setHeaderOptions();
     bool autoref = false;
     try
     {
@@ -1235,14 +1251,16 @@ AObject* ObjectReader::load( const string & filename,
     if( autoref )
     {
       set<AObject *> so;
-      so.insert( object );
+      so.insert( objects.begin(), objects.end() );
       ObjectActions::setAutomaticReferential( so );
     }
-    object->setLoadDate( time( 0 ) );
+    for( io=objects.begin(); io!=eo; ++io )
+      (*io)->setLoadDate( time( 0 ) );
 
     if( !async )
       // sync mode: immediately update
-      object->notifyObservers( (void *) this );
+      for( io=objects.begin(); io!=eo; ++io )
+        (*io)->notifyObservers( (void *) this );
   }
   else
   {
@@ -1257,13 +1275,16 @@ AObject* ObjectReader::load( const string & filename,
   if( async )
   {
     // async mode: post an event
-    AObjectLoadEvent* ev = new AObjectLoadEvent( object,
-                                                 subObjectsToRegister,
-                                                 options, clientid );
-    qApp->postEvent( ObjectReaderNotifier::notifier(), ev );
+    for( io=objects.begin(); io!=eo; ++io )
+    {
+      AObjectLoadEvent* ev = new AObjectLoadEvent( *io,
+                                                   subObjectsToRegister,
+                                                   options, clientid );
+      qApp->postEvent( ObjectReaderNotifier::notifier(), ev );
+    }
   }
 
-  return object;
+  return objects;
 }
 
 
@@ -1380,7 +1401,7 @@ namespace
     {
     }
 
-    virtual AObject * load( const string & filename,
+    virtual list<AObject *> load( const string & filename,
                             ObjectReader::PostRegisterList &
                             subObjectsToRegister,
                             Object options )
@@ -1627,3 +1648,23 @@ string ObjectReader::anatomistSupportedFileExtensions()
 }
 
 
+list<AObject *> ObjectReader::readMObject(
+  const string & filename, vector<pair<AObject *, bool> > &, Object )
+{
+  list<AObject *> objects;
+  Object objs = MObjectIO::readMObject( filename );
+  if( !objs )
+    return objects;
+  if( objs->type() == DataTypeCode<AObject *>::name() )
+  {
+    // single object
+    objects.push_back( objs->value<AObject *>() );
+    return objects;
+  }
+  if( objs->size() == 0 )
+    return objects;
+  Object it = objs->objectIterator();
+  for( ; it->isValid(); it->next() )
+    objects.push_back( it->currentValue()->value<AObject *>() );
+  return objects;
+}

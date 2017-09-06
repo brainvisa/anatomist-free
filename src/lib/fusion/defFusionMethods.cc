@@ -46,6 +46,7 @@
 #include <anatomist/volume/Volume.h>
 #include <anatomist/object/clippedobject.h>
 #include <anatomist/sparsematrix/connectivitymatrix.h>
+#include <anatomist/surface/vectorfield.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/window/viewstate.h>
 #include <aims/mesh/texture.h>
@@ -60,6 +61,12 @@ using namespace std;
 string Fusion2dMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "Fusion2DMethod" ) );
+}
+
+
+string Fusion2dMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::FUSION2D );
 }
 
 
@@ -87,6 +94,12 @@ AObject* Fusion2dMethod::fusion( const vector<AObject *> & obj )
 string Fusion3dMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "Fusion3DMethod" ) );
+}
+
+
+string Fusion3dMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::FUSION3D );
 }
 
 
@@ -131,6 +144,12 @@ AObject* Fusion3dMethod::fusion( const vector<AObject *> & obj )
 string PlanarFusion3dMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "PlanarFusion3DMethod" ) );
+}
+
+
+string PlanarFusion3dMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( PlanarFusion3D::classType() );
 }
 
 
@@ -199,6 +218,12 @@ string FusionTextureMethod::ID() const
 }
 
 
+string FusionTextureMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::TEXTURE );
+}
+
+
 AObject* FusionTextureMethod::fusion( const vector<AObject *> & obj )
 {
   vector<AObject *>::const_iterator	io = obj.begin();
@@ -235,6 +260,12 @@ string FusionMultiTextureMethod::ID() const
 }
 
 
+string FusionMultiTextureMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AMTexture::classType() );
+}
+
+
 int FusionMultiTextureMethod::canFusion( const set<AObject *> & obj )
 {
   set<AObject *>::const_iterator	io, eo = obj.end();
@@ -261,6 +292,12 @@ AObject* FusionMultiTextureMethod::fusion( const vector<AObject *> & obj )
 string FusionCutMeshMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "FusionCutMeshMethod" ) );
+}
+
+
+string FusionCutMeshMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( CutMesh::classType() );
 }
 
 
@@ -306,6 +343,13 @@ string Fusion2DMeshMethod::ID() const
     return( QT_TRANSLATE_NOOP( "FusionChooser", "Fusion2DMeshMethod" ) );
 }
 
+
+string Fusion2DMeshMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::FUSION2DMESH );
+}
+
+
 int Fusion2DMeshMethod::canFusion( const set<AObject *> & obj )
 {
     set<AObject *>::const_iterator	io, fo = obj.end();
@@ -330,6 +374,12 @@ AObject * Fusion2DMeshMethod::fusion( const vector<AObject *> & obj )
 string FusionSliceMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "FusionSliceMethod" ) );
+}
+
+
+string FusionSliceMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( Slice::classType() );
 }
 
 
@@ -363,6 +413,12 @@ int FusionRGBAVolumeMethod::canFusion( const std::set<AObject *> & obj )
 }
 
 
+string FusionRGBAVolumeMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::VOLUME );
+}
+
+
 AObject* FusionRGBAVolumeMethod::fusion( const std::vector<AObject *> & obj )
 {
   AObject *o = *obj.begin();
@@ -389,6 +445,12 @@ string FusionRGBAVolumeMethod::ID() const
 string FusionClipMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "FusionClipMethod" ) );
+}
+
+
+string FusionClipMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( ClippedObject::classType() );
 }
 
 
@@ -432,6 +494,12 @@ string FusionTesselationMethod::ID() const
 }
 
 
+string FusionTesselationMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( TesselatedMesh::classType() );
+}
+
+
 int FusionTesselationMethod::canFusion( const set<AObject *> & obj )
 {
   if( theAnatomist->userLevel() < 3 )
@@ -466,14 +534,23 @@ string ConnectivityMatrixFusionMethod::ID() const
 }
 
 
+string ConnectivityMatrixFusionMethod::generatedObjectType() const
+{
+  return "ConnectivityMatrix";
+}
+
+
 int ConnectivityMatrixFusionMethod::canFusion( const set<AObject *> & obj )
 {
-  list<AObject *> ordered;
+  AObject *matrix = 0;
+  list<ATriangulated *> meshes;
+  list<ATexture *> patch_textures, basin_textures;
   AConnectivityMatrix::PatchMode pmode;
   set<int> patches;
   bool transpose = false;
-  bool ok = AConnectivityMatrix::checkObjects( obj, ordered, pmode, patches,
-                                               transpose );
+  bool ok = AConnectivityMatrix::checkObjects( obj, matrix, meshes,
+                                               patch_textures, basin_textures,
+                                               pmode, patches, transpose );
   if( !ok )
     return 0;
   return 100;
@@ -484,6 +561,30 @@ AObject* ConnectivityMatrixFusionMethod::fusion(
   const vector<AObject *> & obj )
 {
   return new AConnectivityMatrix( obj );
+}
+
+
+string VectorFieldFusionMethod::ID() const
+{
+  return( QT_TRANSLATE_NOOP( "FusionChooser", "VectorFieldFusionMethod" ) );
+}
+
+
+string VectorFieldFusionMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::VECTORFIELD );
+}
+
+
+int VectorFieldFusionMethod::canFusion( const set<AObject *> & obj )
+{
+  return VectorField::canFusion( obj );
+}
+
+
+AObject * VectorFieldFusionMethod::fusion( const vector<AObject *> & obj )
+{
+  return new VectorField( obj );
 }
 
 

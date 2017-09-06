@@ -119,6 +119,7 @@ namespace anatomist
     static AObject* LoadGraph( const std::string & filename,
                                carto::Object options=carto::none() );
     virtual bool save( const std::string & filename );
+    virtual bool savable() const { return true; }
     void loadSubObjects( int mask );
     ColorMode colorMode() const;
     void setColorMode( ColorMode, bool update = true );
@@ -169,7 +170,7 @@ namespace anatomist
     virtual GLComponent* glAPI();
     virtual const GLComponent* glAPI() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
-    virtual void setHeaderOptions();
+    virtual void setProperties( carto::Object options );
     std::set<std::string> mappableVertexProperties() const;
     std::set<std::string> mappableEdgeProperties() const;
 

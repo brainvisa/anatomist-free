@@ -174,6 +174,14 @@
         <source>Resize window</source>
         <translation>Redimensionner la fenêtre</translation>
     </message>
+    <message>
+        <source>Save high-res...</source>
+        <translation>Sauver en haute résolution...</translation>
+    </message>
+    <message>
+        <source>Start recording high-res...</source>
+        <translation>Enregistrer un film haute résolution...</translation>
+    </message>
 </context>
 <context>
     <name>AimsFileDialogExtension</name>
@@ -643,14 +651,6 @@
     <message>
         <source>Graph Editor</source>
         <translation>Editeur de graphe</translation>
-    </message>
-    <message>
-        <source>Save object</source>
-        <translation>Sauvegarde d&apos;objet</translation>
-    </message>
-    <message>
-        <source>Save one object at a time !</source>
-        <translation>Sauvez un seul objet à la fois !</translation>
     </message>
     <message>
         <source>Overwrite File ?</source>
@@ -1216,6 +1216,178 @@ Bt droit   :  menu
         <source>tolerance</source>
         <translation>Tolérance :</translation>
     </message>
+    <message>
+        <source>Control3D_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle par défaut 3D / Curseur lié:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fermer la fenêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;synchro vues (orientation seulement)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Défilement des coupes:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+S&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;coupes&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+T&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;sélection du mode &apos;temps&apos;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+L&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;&lt;/td&gt;mode curseur lié bougeant avec les coupes&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défilement / arrêt du défilement des coupes&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+SPACE&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;mode &quot;apesanteur&quot;: rotation continue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+M&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change le mode de défilement des coupes&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;+&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile plus vite&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;-&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;défile moins vite&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Palettes et couleurs:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+bt droit&amp;&amp;gt; et déplacement horizontal&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur min de la palette&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+bt droit&amp;&amp;gt; et déplacement vertical&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;change la valeur max de la palette&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;C&lt;/td&gt;&lt;td&gt;réglages de couleurs par défaut&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;
+&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Select3DControl_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Sélection&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;sélection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélection additive&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;modif. sélection&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;V&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;Voir les infos sur l&apos;objet sélectionné dans la barre de statut&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Défilement des coupes:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&gt;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Copie/collage d&apos;étiquette:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;espace&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;&quot;pipette&quot;, mémorise le label des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+&amp;&amp;lt;ENTRÉE&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;applique le label courant aux objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Transparence:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>FlightControl_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Simulateur de vol&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Ce contrôle n&apos;est pas encore complètement opérationnel...
+Il permet de changer le point de vue avec les touches du clavier. Noter que ce contrôle fonctionne normalement en mode perspective non-isométrique, et que le plugin VTK est incompatible avec lui...
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;flèches&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;manche à balai&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+gauche&amp;&amp;gt;, &lt;ctrl+droite&gt;:&lt;/td&gt;&lt;td&gt;tourne à plat (palonnier)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;Q&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;accélère&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;freine&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;mode vol continu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;G&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;arrête le vol continu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;R&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;marche avant / arrière&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>ObliqueControl_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle des vues obliques&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation des objets avec plan de coupe fixe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Défilement des coupes:&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe précédente&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;coupe suivante&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgUp&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps précédent&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+PgDown&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;temps suivant&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>TransformControl_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle de transformation:&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;joue sur la transformation entre les objets sélectionnés et
+la vue.&lt;br/&gt;
+Il s&apos;utilise comme le contrôle des vues obliques, sauf qu&apos;il
+opère sur la transformation au lieu du plan de coupe:
+les coordonnées des objets changent par raport aux autres.
+De plus:
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + btn gauche :&lt;/td&gt;&lt;td&gt;change l&apos;échelle&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + btn gauche :&lt;/td&gt;&lt;td&gt;rotation dans le plan de coupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche / cache les infos sur la transformation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>CutControl_description</source>
+        <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Coupe sur maillage&lt;/b&gt;&lt;/div&gt;
+&lt;p&gt;Bouge le plan de coupe des maillages coupés
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F10&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;montre/cache les menus/boutons&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;synchro vues (orientation seulement)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fixe le centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;alt+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;affiche la position du centre de vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélectionne/désélectionne tous les objets&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés de la vue&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+DEL&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;enlève les objets sélectionnés du groupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+A&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan axial&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+C&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan coronal&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift+S&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plan sagittal&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D&lt;/td&gt;&lt;td&gt;Tri par profondeur: trie les polygones des maillages transparents par profondeur pour obtenir un meilleur rendu de la transparence (doit être fait pour une orientation donnée)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt;+D&lt;/td&gt;&lt;td&gt;Tri par profondeur automatique, à la volée, pour les objets transparents. &lt;b&gt;Attention:&lt;/b&gt; impact important sur les performances.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;&lt;/html&gt;</translation>
+    </message>
 </context>
 <context>
     <name>ErpWraper</name>
@@ -1235,10 +1407,6 @@ Bt droit   :  menu
 <context>
     <name>ErrorMessage</name>
     <message>
-        <source>Save failed: object </source>
-        <translation>Echec de la sauvegarde: l&apos;objet </translation>
-    </message>
-    <message>
         <source> could not be saved to </source>
         <translation> n&apos;a pas pu être sauvé sous </translation>
     </message>
@@ -1253,6 +1421,10 @@ Bt droit   :  menu
     <message>
         <source>Message</source>
         <translation>Message</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>Échec de la sauvegarde</translation>
     </message>
 </context>
 <context>
@@ -1640,6 +1812,10 @@ Bt droit   :  menu
     <message>
         <source>VolumeRenderingShaderFusionMethod</source>
         <translation>Rendu volumique (shaders OpenGL)</translation>
+    </message>
+    <message>
+        <source>VectorFieldFusionMethod</source>
+        <translation>Champ de vecteurs</translation>
     </message>
 </context>
 <context>
@@ -2498,6 +2674,26 @@ Cela est particulièrement utile pour l&apos;affichage de gros jeux de faisceaux
         <comment>ControlWindow</comment>
         <translation>. Le type de voxel ne peut pas changer dynamiquement, les valeurs peuvent donc être tronquées. Vous feriez sans doute mieux de charger le fichier comme un nouvel objet.</translation>
     </message>
+    <message>
+        <source>Snapshot size</source>
+        <comment>AWindow3D</comment>
+        <translation>Taille du rendu</translation>
+    </message>
+    <message>
+        <source>Snapshot size:</source>
+        <comment>AWindow3D</comment>
+        <translation>Taille du rendu:</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <comment>AWindow3D</comment>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <comment>AWindow3D</comment>
+        <translation>Annuler</translation>
+    </message>
 </context>
 <context>
     <name>QObjectBrowser</name>
@@ -2951,6 +3147,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Save as textured mesh</source>
         <translation>Sauver comme maillage texturé</translation>
     </message>
+    <message>
+        <source>Edit vector field properties</source>
+        <translation>Éditer les propriétés du champ de vecteurs</translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3345,7 +3545,11 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     </message>
     <message>
         <source>See objects in this referential</source>
-        <translation>Voir les objest dans ce référentiel</translation>
+        <translation>Voir les objets dans ce référentiel</translation>
+    </message>
+    <message>
+        <source>Switch to 3D view</source>
+        <translation>Passer en vue 3D</translation>
     </message>
 </context>
 <context>
@@ -4224,6 +4428,61 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
+    <name>VectorField</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">Form</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scaling factor for the vector module (intensity).&lt;/p&gt;&lt;p&gt;As each vector is represented inside a voxel, the scaling generally needs to be small.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Facteur d&apos;échelle pour le module du vecteur (intensité).&lt;/p&gt;&lt;p&gt;Chaque vecteur étant représenté dans un voxel, le facteur d&apos;échelle doit généralement être petit.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>vectors scaling:</source>
+        <translation>Échelle des vecteurs:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vector mapping specifies where, and in which volume, the x/y/z coord for the mapped vectors are taken from.&lt;/p&gt;&lt;p&gt;Each box describes how to get the given coordinate for vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;La correspondance des vecteurs précise où et dans quel volume sont prises les coordonnées x/y/z des vecteurs représentés.&lt;/p&gt;&lt;p&gt;Chaque boîte décrit comment obtenir la coordonnée correspondante des vecteurs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>vector x mapping:</source>
+        <translation>coordonnée x du vecteur:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Each vector coordinate (values) may be taken from a different volume, or all could be from the same.&lt;/p&gt;&lt;p&gt;Several cases:&lt;/p&gt;&lt;p&gt;* a 4D volume can hold, for each 3D space position (dimensions 0..2), 3 vector coordinates: then vector coordinates are in dimension 3: values 0, 1 and 2 in this 4th dimension correspond to the vector components.&lt;/p&gt;&lt;p&gt;* or 3 3D volumes can hold the 3 components of vectors: then each component should be taken from a different volume.&lt;/p&gt;&lt;p&gt;* We may only use 1D or 2D vectors by omitting one or 2 components (no volume for these coordinates)&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>volume:</source>
+        <translation>volume:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;x, y, z map determines which dimensions in the input volume correspond to spatial positions of voxels, where vectors are located.&lt;/p&gt;&lt;p&gt;In most cases, leave 0, 1, 2 (the 3 1st dimensions of the volume), it will certainly be OK.&lt;/p&gt;&lt;p&gt;But in special cases, axes may be flipped, or the 1st dimension could be the vector coordinate, not its spatial position, so a change would be needed here.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>x, y, z map:</source>
+        <translation>correspondance x, y, z:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This specifies which dimension/position the vector coordinates are taken from.&lt;/p&gt;&lt;p&gt;As 3 spatial dimensions will vary in space according to x, y, z map above, the corresponding volume coordinates are meaningless and cannot be specified.&lt;/p&gt;&lt;p&gt;Additional dimensions can store the vectors components. Typically, in a 4D volume, dimension 3 (the 4th) will store the 1st component at position 0, 2nd at position 1 etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>coord in all dims:</source>
+        <translation>coord dans toutes les dims:</translation>
+    </message>
+    <message>
+        <source>vector y mapping:</source>
+        <translation>coordonnée y du vecteur:</translation>
+    </message>
+    <message>
+        <source>vector z mapping:</source>
+        <translation>coordonnée z du vecteur:</translation>
+    </message>
+</context>
+<context>
     <name>VolRenderPanel</name>
     <message>
         <source>Volume Rendering Properties</source>
@@ -4278,6 +4537,37 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     <message>
         <source>Zoom :</source>
         <translation>Zoom :</translation>
+    </message>
+</context>
+<context>
+    <name>anatomist::RefWindow</name>
+    <message>
+        <source>3D sphere view (S)</source>
+        <translation>Vue sur sphère (S)</translation>
+    </message>
+    <message>
+        <source>3D flat view (F)</source>
+        <translation>Vue plane (F)</translation>
+    </message>
+    <message>
+        <source>Legacy 2D circle view (L)</source>
+        <translation>Ancienne vue ne cercle 2D (L)</translation>
+    </message>
+    <message>
+        <source>Rebuild referentials positions (F5)</source>
+        <translation>Recalculer les positions des référetiels (F5)</translation>
+    </message>
+    <message>
+        <source>Focus view (Home)</source>
+        <translation>Focaliser la vue (Home)</translation>
+    </message>
+    <message>
+        <source>Reset view orientation (Return)</source>
+        <translation>Réinitialiser l&apos;orientation de la vue (Return)</translation>
+    </message>
+    <message>
+        <source>Toggle on-screen info (I)</source>
+        <translation>Voir informations sur la vue / en bulle (I)</translation>
     </message>
 </context>
 <context>

@@ -317,6 +317,12 @@ void QObjectTree::registerSubObjects( QTreeWidgetItem* li, MObject* mobj )
 }
 
 
+bool QObjectTree::hasObject( AObject *obj ) const
+{
+  return _objects.find( obj ) != _objects.end();
+}
+
+
 QTreeWidgetItem* QObjectTree::insertObject( QTreeWidgetItem* item, AObject*obj )
 {
   QTreeWidgetItem	*ni = new QTreeWidgetItem;

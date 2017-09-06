@@ -558,6 +558,229 @@ bool Referential::hidden() const
 }
 
 
+void Referential::clearUnusedReferentials()
+{
+  set<Referential *> refs = theAnatomist->getReferentials();
+  set<Referential *>::iterator i, e = refs.end();
+  Referential *ref;
+  set<Referential *> usedrefs;
+  for( i=refs.begin(); i!=e; ++i )
+  {
+    ref = *i;
+    if( ref == Referential::acPcReferential()
+        || ref == Referential::mniTemplateReferential()
+        || !ref->AnaWin().empty() || !ref->AnaObj().empty() )
+      usedrefs.insert( ref );
+  }
+  // check other referentials
+  set<Referential *>::iterator j, k, unused = usedrefs.end();
+  ATransformSet *ts = ATransformSet::instance();
+  for( i=refs.begin(); i!=e; )
+  {
+    ref = *i;
+    if( usedrefs.find( ref ) == unused )
+    {
+      // get the connected component this ref is in
+      set<Referential *>
+          cc = ts->connectedComponent( ref );
+      // check whether there are any useful ref in this CC
+      for( j=cc.begin(), k=cc.end(); j!=k; ++j )
+        if( usedrefs.find( *j ) != unused )
+          break;
+      if( j == k ) // no useful ref: we can delete the entire CC
+      {
+        for( j=cc.begin(), k=cc.end(); j!=k; ++j )
+          if( *j != ref ) // don't delete ref yet
+          {
+            refs.erase( *j );
+            delete *j;
+          }
+        ++i; // increment iterator
+        delete ref; // then we can delete ref safely
+      }
+      else
+      {
+        // ref is linked to a "useful connected component"
+        // we must check whether it would break the CC if we remove it
+        set<anatomist::Transformation *> trs = ts->transformationsWith( ref );
+        set<anatomist::Transformation *>::iterator it, jt, et = trs.end();
+        // filter out generated transformations
+        for( it=trs.begin(), et=trs.end(); it!=et; )
+        {
+          if( (*it)->isGenerated() )
+          {
+            jt = it;
+            ++it;
+            trs.erase( jt );
+          }
+          else
+            ++it;
+        }
+        if( trs.size() <= 1 ) // then no link goes through ref
+        {
+          ++i;
+          delete ref;
+        }
+        else // now trs *must* contain exactly 2 transfos
+        {
+          //debug
+          if( trs.size() != 2 )
+            cerr << "BUG in ReferentialWindow::clearUnusedReferentials: more "
+                "than 2 connections to a ref inside a connected component"
+                << endl;
+          int usedcc = 0;
+          for( it=trs.begin(), et=trs.end(); it!=et; ++it )
+          {
+            anatomist::Transformation *tr = *it;
+            // get other end
+            Referential *ref2 = tr->source();
+            if( ref2 == ref )
+              ref2 = tr->destination();
+            // temporarily disable the transformation
+            tr->unregisterTrans();
+            // get CC of other end
+            set<Referential *> cc2 = ts->connectedComponent( ref2 );
+            // if cc2 has useful refs, then ref is useful
+            if( cc2.size() != cc.size() )
+            {
+              for( j=cc2.begin(), k=cc2.end(); j!=k; ++j )
+                if( usedrefs.find( *j ) != unused )
+                  break;
+              if( j == k ) // no useful ref: we can delete the entire CC2
+              {
+                for( j=cc2.begin(), k=cc2.end(); j!=k; ++j )
+                  if( *j != ref ) // don't delete ref yet
+                  {
+                    refs.erase( *j );
+                    delete *j;
+                  }
+                tr = 0;
+              }
+              else
+              {
+                tr->registerTrans();
+                ++usedcc;
+              }
+            }
+            else
+              ++usedcc;
+            if( tr )
+              tr->registerTrans();
+          }
+          if( usedcc <= 1 ) // ref is not useful
+          {
+            ++i;
+            delete ref;
+          }
+          else
+            ++i;
+        }
+      }
+    }
+    else
+      ++i;
+  }
+}
+
+
+bool Referential::mergeReferentials( Referential* r1, Referential *r2 )
+{
+  // cout << "mergeReferentials " << r1 << ", " << r2 << endl;
+  Transformation *tr = theAnatomist->getTransformation( r1, r2 );
+  if( tr && !tr->motion().isIdentity() )
+    return false;
+
+  if( tr )
+    delete tr;
+  tr = theAnatomist->getTransformation( r2, r1 );
+  if( tr )
+    delete tr;
+  tr = 0;
+
+  if( r2 == Referential::acPcReferential()
+      || r2 == Referential::mniTemplateReferential() )
+  {
+    // swap r1 and r2
+    Referential *r3 = r1;
+    r1 = r2;
+    r2 = r3;
+  }
+
+  // move objects and windows in r2 to r1
+  set<AObject *> objs = r2->AnaObj();
+  set<AObject *>::iterator io, eo = objs.end();
+  for( io=objs.begin(); io!=eo; ++io )
+  {
+    if( !(*io)->referentialInheritance() )
+      (*io)->setReferential( r1 );
+  }
+  set<AWindow *> wins = r2->AnaWin();
+  set<AWindow *>::iterator iw, ew = wins.end();
+  for( iw=wins.begin(); iw!=ew; ++iw )
+    (*iw)->setReferential( r1 );
+
+  // reassign transformations involving r2 to r1
+  ATransformSet *ts = ATransformSet::instance();
+  set<Transformation *> trans = ts->transformationsWith( r2 );
+  set<Transformation *>::iterator it, et = trans.end();
+  Transformation *tr2;
+  for( it=trans.begin(); it!=et; ++it )
+  {
+    tr = *it;
+    if( ts->hasTransformation( tr ) )
+    {
+      tr->unregisterTrans();
+      if( !tr->isGenerated() )
+      {
+        if( tr->source() == r2 )
+          tr2 = new Transformation( r1, tr->destination(), false, false );
+        else
+          tr2 = new Transformation( tr->source(), r1, false, false );
+        tr2->motion() = tr->motion();
+        // motion history ?
+        tr2->registerTrans();
+      }
+      delete tr;
+    }
+  }
+
+  delete r2;
+
+  return true;
+}
+
+
+void Referential::mergeIdenticalReferentials()
+{
+  ATransformSet *ts = ATransformSet::instance();
+  bool todo = true;
+
+  while( todo )
+  {
+    todo = false;
+    const set<Transformation *> trans = ts->allTransformations();
+    set<Transformation *> done;
+    set<Transformation *>::const_iterator it, et = trans.end();
+    Transformation *tr;
+
+    for( it=trans.begin(); it!=et; ++it )
+    {
+      tr = *it;
+      if( done.find( tr ) == done.end()
+          && ts->hasTransformation( tr )
+          && tr->motion().isIdentity()
+          && theAnatomist->hasReferential( tr->source() )
+          && theAnatomist->hasReferential( tr->destination() ) )
+      {
+        done.insert( tr );
+        mergeReferentials( tr->source(), tr->destination() );
+        todo = true; // some new trans may have been created
+      }
+    }
+  }
+}
+
+
 #include <cartobase/object/object_d.h>
 INSTANTIATE_GENERIC_OBJECT_TYPE( Referential * )
 INSTANTIATE_GENERIC_OBJECT_TYPE( set<Referential *> )

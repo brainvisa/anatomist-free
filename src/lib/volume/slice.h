@@ -70,6 +70,8 @@ namespace anatomist
     AObject* volume();
 
     virtual void sliceChanged();
+    virtual carto::Object makeHeaderOptions() const;
+    virtual void setProperties( carto::Object options );
 
   private:
     ///	ensures the object class is registered in Anatomist

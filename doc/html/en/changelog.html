@@ -25,6 +25,7 @@
 </h1>
 
 <p>
+<b><a href="#version-4.6.0">Version 4.6.0</a></b><br/>
 <b><a href="#version-4.5.1">Version 4.5.1</a></b><br/>
 <b><a href="#version-4.5.0">Version 4.5.0</a></b><br/>
 <b><a href="#version-4.4.0">Version 4.4.0</a></b><br/>
@@ -67,6 +68,25 @@
 <b><a href="#version-1.16">Version 1.16</a></b> <br/>
 </p>
 
+
+<!-- -->
+<h4> <a name="version-4.6.0"></a>2017/02/28 - Version 4.6.0</h4>
+<h5>Visible changes (users):</h5>
+<ul>
+<li>CIFTI connectivity matrices display. The connectivity matrix object may use a CIFTI file using on-the-fly reading, and use its information to map to one or several meshes. Additional ROI textures may be used as patches.
+</li>
+<li>The referentials / transformations window has been entirely rewritten. It is now using a 3D display.</li>
+<li>New fusion type: VectorField. Fusion 1 to 3 volumes to form a vector field, displayed as lines in a slice.
+</li>
+<li>Palette mode "value 0 at center of palette" is now part of palette properties, is used in palette controls, and can be set by programming.
+</li>
+<li>Windows snapshots and movie recording can now be done at given arbitrary resolution, and need no longer to fit the window / screen size. Off-screen rendering is working too, using hidden windows. They still need a X connection on Linux: Qt needs it and OpenGL contexts need it also.
+</li>
+<li>Save / reload fusion objects and multiple objects. The new <tt>.aobj</tt> format can describe Anatomist objects, fusions, and properties. One or several objects may be saved in this format, and laded later.
+</li>
+</ul>
+
+<h5>Internal changes (programmers):</h5>
 
 <!-- -->
 <h4> <a name="version-4.5.1"></a>2017/05/17 - Version 4.5.1</h4>

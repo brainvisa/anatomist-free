@@ -120,6 +120,7 @@ namespace anatomist
       TEXTURE,
       TEXSURFACE,
       FUSION2DMESH,
+      VECTORFIELD,
       ///	External object type (unknown from the base anatomist library)
       OTHER
     };
@@ -356,7 +357,9 @@ namespace anatomist
     { return( false ); }
     /** Set some object properties according to the header (.minf), such as 
         material, palette etc */
-    virtual void setHeaderOptions();
+    void setHeaderOptions();
+    /// Same as setHeaderOptions() and used by it, allows passing a dictionary
+    virtual void setProperties( carto::Object options );
     /** Store some object properties into the header (.minf), such as
         material, palette etc before saving the object.
 
@@ -373,9 +376,14 @@ namespace anatomist
     virtual void update( const Observable *observable, void *arg );
     bool isCopy() const;
     void setCopyFlag( bool x = true );
+    /** tooltip displayed in 3D views (HTML).
+
+        The default impementation returns an empty string, and the default tooltip will be displayed (see QAViewToolTip)
+    */
+    virtual std::string toolTip() const;
 
     /// Static object loader: creates an objects, loads its contents
-    static AObject* load( const std::string & filename );
+    static std::list<AObject *> load( const std::string & filename );
     /// Reads from disk again
     static bool reload( AObject* object, bool onlyoutdated = false );
     /// Creates a new object type number and returns it

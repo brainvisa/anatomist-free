@@ -104,6 +104,10 @@ namespace anatomist
     bool isTransparent() const { return _transp; }
     AimsRGBA normColor( float x, float y = 0 ) const;
     AimsRGBA normColor( const Point2df & pos ) const;
+    bool zeroCenteredAxis1() const { return _zeroCentered1; }
+    bool zeroCenteredAxis2() const { return _zeroCentered2; }
+    void setZeroCenteredAxis1( bool x ) { _zeroCentered1 = x; }
+    void setZeroCenteredAxis2( bool x ) { _zeroCentered2 = x; }
 
     static AimsRGBA palette2DMixMethod( const AimsData<AimsRGBA> & map1, 
 					const AimsData<AimsRGBA> *map2, 
@@ -164,6 +168,8 @@ namespace anatomist
     int                 _maxSizeY;
     int                 _glMaxSizeX;
     int                 _glMaxSizeY;
+    bool                _zeroCentered1;
+    bool                _zeroCentered2;
   };
 
 }

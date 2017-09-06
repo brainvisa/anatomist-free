@@ -51,6 +51,13 @@ string AInterpolerMethod::ID() const
   return( QT_TRANSLATE_NOOP( "FusionChooser", "Interpoler" ) );
 }
 
+
+string AInterpolerMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AInterpoler::classType() );
+}
+
+
 int AInterpolerMethod::canFusion( const set<AObject *> & obj )
 {
   if( obj.size() != 2 )

@@ -364,6 +364,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 	   SLOT( resetValues1() ) );
   connect( d->dimBox1->autoBoundsBtn, SIGNAL( clicked() ), this,
 	   SLOT( resetBounds1() ) );
+  connect( d->dimBox1->symbox, SIGNAL( stateChanged( int ) ),
+           this, SLOT( zeroCentered1Changed( int ) ) );
 
   connect( d->dimBox2->minSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( min2Changed( int ) ) );
@@ -381,6 +383,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 	   SLOT( resetValues2() ) );
   connect( d->dimBox2->autoBoundsBtn, SIGNAL( clicked() ), this,
 	   SLOT( resetBounds2() ) );
+  connect( d->dimBox2->symbox, SIGNAL( stateChanged( int ) ),
+           this, SLOT( zeroCentered2Changed( int ) ) );
 
   connect( respBtn, SIGNAL( toggled( bool ) ),
 	   this, SLOT( responsiveToggled( bool ) ) );
@@ -661,6 +665,8 @@ void QAPaletteWin::updateInterface()
   if( !o )
     return;
 
+  d->dimBox1->symbox->setChecked( d->objpal->zeroCenteredAxis1() );
+  d->dimBox2->symbox->setChecked( d->objpal->zeroCenteredAxis2() );
   if( d->objpal->is2dMode() )
     d->dim = 2;
   //cout << "using palette " << d->objpal->refPalette()->name() << endl;
@@ -795,6 +801,9 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
             break;
           }
       }
+
+      d->dimBox1->symbox->setChecked( pal->zeroCenteredAxis1() );
+      d->dimBox2->symbox->setChecked( pal->zeroCenteredAxis2() );
     }
 
     const GLComponent	*gl = obj->glAPI();
@@ -1642,14 +1651,16 @@ void QAPaletteWin::runCommand()
           true, float(omi2), true, float(oma2),
           d->objpal->mixMethodName(), true,
           d->objpal->linearMixFactor(), "",
-          true );
+          true, -2, -2, true, d->objpal->zeroCenteredAxis1(), true,
+          d->objpal->zeroCenteredAxis2() );
       }
       else
         com = new SetObjectPaletteCommand(
           _parents, d->objpal->refPalette()->name(),
           true, float(omi), true, float(oma),
           "", true, omi2,  true, oma2, "",
-          false, 0.5, "", true );
+          false, 0.5, "", true, -2, -2, true, d->objpal->zeroCenteredAxis1(),
+          true, d->objpal->zeroCenteredAxis2() );
 
       // pb: unnecessary command execution: should be only writen, not executed
       // because it has already been done before.
@@ -1694,6 +1705,24 @@ void QAPaletteWin::extensionActionTriggered( QAction *action )
   if( ac )
     ac->extensionTriggered( d->objsel->selectedObjects() );
 //     ac->emit extensionTriggered( d->objsel->selectedObjects() );
+}
+
+
+void QAPaletteWin::zeroCentered1Changed( int state )
+{
+  d->objpal->setZeroCenteredAxis1( bool( state ) );
+  d->modified = true;
+  if( d->responsive )
+    updateObjects();
+}
+
+
+void QAPaletteWin::zeroCentered2Changed( int state )
+{
+  d->objpal->setZeroCenteredAxis2( bool( state ) );
+  d->modified = true;
+  if( d->responsive )
+    updateObjects();
 }
 
 

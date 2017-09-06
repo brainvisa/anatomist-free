@@ -99,8 +99,6 @@ public slots:
   virtual void detach();
   virtual void toggleToolBars();
   virtual void toggleFullScreen();
-
-protected slots:
   /// calls refreshNow() and cleanup
   void triggeredRefresh();
 

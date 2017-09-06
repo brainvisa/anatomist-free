@@ -40,6 +40,7 @@
 
 #include <anatomist/config/anatomist_config.h>
 #include <anatomist/observer/Observable.h>
+#include <cartobase/object/object.h>
 
 #include <queue>
 #include <stack>
@@ -80,7 +81,16 @@ namespace anatomist
         \return the executed command
     */
     Command* execute( const std::string & cname, 
-                      const std::string & params = "", 
+                      const std::string & params = "",
+                      CommandContext* cc = 0 );
+    /** build and execute a command
+        \param cname is the command type (syntactic attribute)
+        \param params is a python dictionary carto::Object
+        \param cc IO and ID namespace for command execution
+        \return the executed command
+    */
+    Command* execute( const std::string & cname,
+                      carto::Object params = carto::none(),
                       CommandContext* cc = 0 );
     ///	Undo last done command
     bool undo();

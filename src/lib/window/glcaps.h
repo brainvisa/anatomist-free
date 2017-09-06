@@ -109,6 +109,10 @@ namespace anatomist
                                            GLuint renderbuffer );
     static void glRenderbufferStorage( GLenum target, GLenum internalformat, 
                                        GLsizei width, GLsizei height );
+    static GLenum glCheckFramebufferStatus( GLenum target );
+    static void glDeleteRenderbuffers( GLsizei n,
+                                       const GLuint *renderbuffers );
+    static void glDeleteFramebuffers( GLsizei n, const GLuint *framebuffers );
     static void glUniform1f( GLint location, GLfloat v0 );
     static void glUniform1i( GLint location, GLint v0 );
     static void glUniform4fv( GLint location, GLsizei count,
@@ -136,5 +140,34 @@ namespace anatomist
   };
 
 }
+
+// fix any missing definitions from glext.h
+#ifndef GL_FRAMEBUFFER
+#define GL_FRAMEBUFFER 0x8D40
+#endif
+#ifndef GL_COLOR_ATTACHMENT0
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#endif
+#ifndef GL_RENDERBUFFER
+#define GL_RENDERBUFFER 0x8D41
+#endif
+#ifndef GL_DEPTH_ATTACHMENT
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#endif
+#ifndef GL_FRAMEBUFFER_COMPLETE
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#endif
+#ifndef GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT
+#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT 0x8CD6
+#endif
+#ifndef GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
+#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT 0x8CD7
+#endif
+#ifndef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT
+#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT 0x8CD9
+#endif
+#ifndef GL_FRAMEBUFFER_UNSUPPORTED
+#define GL_FRAMEBUFFER_UNSUPPORTED 0x8CDD
+#endif
 
 #endif

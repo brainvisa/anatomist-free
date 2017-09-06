@@ -589,9 +589,15 @@ Tree* CutMesh::optionTree() const
       //Tree	*t, *t2;
       _optionTree = new Tree( true, "option tree" );
 
-      Tree	*t = new Tree( true, "Referential" );
+      Tree *t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
       _optionTree->insert( t );
-      Tree	*t2 = new Tree( true, "Load" );
+      Tree *t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
+      t2->setProperty( "callback", &ObjectActions::saveStatic );
+      t->insert( t2 );
+
+      t = new Tree( true, "Referential" );
+      _optionTree->insert( t );
+      t2 = new Tree( true, "Load" );
       t2->setProperty( "callback", &ObjectActions::referentialLoad );
       t->insert( t2 );
     }
@@ -761,4 +767,29 @@ AObject* CutMesh::fallbackReferentialInheritance() const
   return const_cast<AObject *>( mesh() );
 }
 
+
+list<AObject *> CutMesh::generativeChildren() const
+{
+  list<AObject *> children;
+  const_iterator io, e = end();
+  int i = 0;
+  for( io=begin(); i<d->cutmeshindex; ++i, ++io )
+    children.push_back( *io );
+  return children;
+}
+
+
+Object CutMesh::makeHeaderOptions() const
+{
+  Object opts = ObjectVector::makeHeaderOptions();
+  makeSliceHeaderOptions( opts );
+  return opts;
+}
+
+
+void CutMesh::setProperties( Object options )
+{
+  ObjectVector::setProperties( options );
+  setSliceProperties( options );
+}
 

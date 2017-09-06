@@ -118,6 +118,7 @@ void WindowConfigCommand::doit()
   string	snap;
   int           showtoolbars = -1, showcursorpos = -1, fullscreen = -1;
   vector<string>	snapfiles;
+  int           snap_width = 0, snap_height = 0;
 
   _config->getProperty( "record_mode", recmode );
   _config->getProperty( "record_basename", recbase );
@@ -149,6 +150,8 @@ void WindowConfigCommand::doit()
   _config->getProperty( "raise", raise );
   _config->getProperty( "iconify", icon );
   _config->getProperty( "snapshot", snap );
+  _config->getProperty( "snapshot_width", snap_width );
+  _config->getProperty( "snapshot_height", snap_height );
   if( !snap.empty() )
     {
       if( _windows.size() == 1 )
@@ -241,7 +244,8 @@ void WindowConfigCommand::doit()
                 if( recmode )
                   {
                     if( !recbase.empty() )
-                      v->recordStart( recbase.c_str() );
+                      v->recordStart( recbase.c_str(), QString::null,
+                                      snap_width, snap_height );
                   }
                 else
                   v->recordStop();
@@ -260,7 +264,8 @@ void WindowConfigCommand::doit()
           if( v && i < nsnap )
             {
               w3->refreshNow();
-              v->saveContents( snapfiles[i].c_str(), QString::null );
+              v->saveContents( snapfiles[i].c_str(), QString::null,
+                               snap_width, snap_height );
               ++i;
             }
           if( dolink )
@@ -323,6 +328,8 @@ bool WindowConfigCommand::initSyntax()
   s[ "show_cursor_position"          ] = Semantic( "int" );
   s[ "fullscreen"                    ] = Semantic( "int" );
   s[ "light"                         ] = Semantic( "dictionary" );
+  s[ "snapshot_width"                ] = Semantic( "int" );
+  s[ "snapshot_height"               ] = Semantic( "int" );
 
   Registry::instance()->add( "WindowConfig", &read, ss );
   return( true );

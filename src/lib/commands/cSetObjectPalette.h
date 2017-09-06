@@ -63,7 +63,9 @@ namespace anatomist
 			     float linMixFactor = 0.5, 
 			     const std::string & pal1Dmapping = "",
                              bool absmode = false, int sizex = -2,
-                             int sizey = -2 );
+                             int sizey = -2, bool zeroc1flg = false,
+                             bool zeroc1 = false, bool zeroc2flg = false,
+                             bool zeroc2 = false );
     virtual ~SetObjectPaletteCommand();
 
     virtual std::string name() const { return( "SetObjectPalette" ); }
@@ -91,6 +93,10 @@ namespace anatomist
     bool                _absmode;
     int                 _sizex;
     int                 _sizey;
+    bool                _zeroc1flg;
+    bool                _zeroc1;
+    bool                _zeroc2flg;
+    bool                _zeroc2;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

@@ -74,6 +74,10 @@ namespace
       AObject::setObjectMenu( "VolumeRendering", om );
     }
     vector<string>  vl;
+    om->insertItem( vl, "File" );
+    vl.push_back( "File" );
+    om->insertItem( vl, "Save", &ObjectActions::saveStatic );
+    vl.clear();
     om->insertItem( vl, "Color" );
     vl.push_back( "Color" );
     om->insertItem( vl, "Palette", ObjectActions::colorPaletteMenuCallback() );

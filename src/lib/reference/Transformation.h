@@ -165,6 +165,7 @@ namespace anatomist
 	The function name changes here to differ from the one above */
     static Point3df transformDG( const Point3df & pos, 
 				 const Point3df & voxSizeDst );
+    void notifyChange();
 
   protected:
     Motion      _motion;

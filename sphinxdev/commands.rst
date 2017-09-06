@@ -2831,6 +2831,20 @@ SetObjectPalette
         Ce paramètre peut être utile pour avoir une bonne précision de texture sur certains objets.
       </td>
     </tr>
+    <tr>
+      <td><tt>zero_centered_axis1</tt></td>
+      <td><tt>int</tt> (optionnel)</td>
+      <td><b>New in Anatomist 4.6</b><br>
+        If activated (1), the palette will be centered to absolute value 0 when min/max are manipulated. Note that it doesn't force symmetry when setting min/max by a program, and the center is related to object extremal values.
+      </td>
+    </tr>
+    <tr>
+      <td><tt>zero_centered_axis2</tt></td>
+      <td><tt>int</tt> (optionnel)</td>
+      <td><b>New in Anatomist 4.6</b><br>
+        If activated (1), the 2nd palette will be centered to absolute value 0 when min/max are manipulated. Note that it doesn't force symmetry when setting min/max by a program, and the center is related to object extremal values.
+      </td>
+    </tr>
 
   </tbody>
   </table>
@@ -3285,6 +3299,20 @@ WindowConfig
       <td valign="top"><tt>int</tt> (optional)</td>
       <td valign="top"><b>New in Anatomist 3.1</b>.
         shows or hides everything around the 3D view (menus, buttons bars, status bar, referential...)
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>snapshot_width</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        Snapshot or recorded images width. If unspecified, fit the window size.
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>snapshot_height</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        Snapshot or recorded images height. If unspecified, fit the window size.
       </td>
     </tr>
 

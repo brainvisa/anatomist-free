@@ -32,6 +32,7 @@
  */
 
 
+#include <anatomist/window/glcaps.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/application/fileDialog.h>
@@ -54,6 +55,8 @@
 #include <qdesktopwidget.h>
 #include <QGraphicsView>
 #include <QSysInfo>
+#include <QLineEdit>
+#include <QIntValidator>
 
 namespace Qt
 {
@@ -99,9 +102,21 @@ void GLWidgetManager_Private_QObject::saveContents()
 }
 
 
+void GLWidgetManager_Private_QObject::saveContentsWithCustomSize()
+{
+  _manager->saveContentsWithCustomSize();
+}
+
+
 void GLWidgetManager_Private_QObject::recordStart()
 {
   _manager->recordStart();
+}
+
+
+void GLWidgetManager_Private_QObject::recordStartWithCustomSize()
+{
+  _manager->recordStartWithCustomSize();
 }
 
 
@@ -166,6 +181,8 @@ struct GLWidgetManager::Private
   bool resized;
   bool saveInProgress;
   bool cameraChanged;
+  int recordWidth;
+  int recordHeight;
 };
 
 
@@ -185,7 +202,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true )
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 )
 {
   buildRotationMatrix();
 }
@@ -459,8 +476,14 @@ void GLWidgetManager::setRGBBufferUpdated( bool x )
 }
 
 
-void GLWidgetManager::paintGL( DrawMode m )
+void GLWidgetManager::paintGL( DrawMode m, int virtualWidth, int virtualHeight )
 {
+  int width = _pd->glwidget->width(), height = _pd->glwidget->height();
+  if( virtualWidth != 0 )
+    width = virtualWidth;
+  if( virtualHeight != 0 )
+    height = virtualHeight;
+
   _pd->cameraChanged = false;
   //   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
@@ -480,7 +503,7 @@ void GLWidgetManager::paintGL( DrawMode m )
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
   glClearColor( 1, 1, 1, 1 );
 
-  project();
+  project( width, height );
 
   if( m != ObjectSelect && m != ObjectsSelect && m != PolygonSelect )
   {
@@ -529,7 +552,7 @@ void GLWidgetManager::paintGL( DrawMode m )
       }*/
 
   // Viewport to draw objects into
-  glViewport( 0, 0, _pd->glwidget->width(), _pd->glwidget->height() );
+  glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );
@@ -750,7 +773,7 @@ void GLWidgetManager::record()
     return;
   // flush buffered events, without saving pictures
   _pd->saveInProgress = true;
-  aWindow()->show();
+  // aWindow()->show();
   qApp->processEvents();
   _pd->saveInProgress = false;
 
@@ -760,42 +783,19 @@ void GLWidgetManager::record()
   QString	filename = _pd->recordBaseName + num + _pd->recordSuffix;
 
   cout << "writing " << filename.toStdString() << endl;
-  saveContents( filename, _pd->recordFormat );
+  saveContents( filename, _pd->recordFormat, _pd->recordWidth,
+                _pd->recordHeight );
   ++_pd->recIndex;
 }
 
 
 void GLWidgetManager::saveContents( const QString & filename,
-                                    const QString & format )
+                                    const QString & format,
+                                    int width, int height )
 {
   if( _pd->saveInProgress )
     return;
   _pd->saveInProgress = true;
-  aWindow()->show();
-  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-
-  /* TODO: try using FrameBuffer objects
-     See Matthieu's trials: /home/mp210984/fbo in NS
-  */
-  /* // renderPixmap seems not to work with shared contexts:
-  // when using the existing context, the rendering is just crap.
-  // When using its own context, OpenGL fails with errors, either because
-  // the context is not shared, or because there are some makeCurrent() calls
-  // within our routines (and we may have to find a way to disable them)
-  int x, y;
-  unsigned w, h;
-  aWindow()->geometry( &x, &y, &w, &h );
-  QPixmap pix = qglWidget()->renderPixmap( w, h, false ); // doesn't work....
-  if( pix.isNull() )
-  {
-    cout << "Pixmap rendering failed\n";
-  }
-  else
-  {
-    pix.save( filename, format, 100 );
-    return;
-  }
-  */
 
   QString	f;
   if( format.isNull() )
@@ -815,7 +815,7 @@ void GLWidgetManager::saveContents( const QString & filename,
     {
       mode = _pd->otherbuffers & (1<<i);
       if( mode )
-        saveOtherBuffer( filename, f, mode );
+        saveOtherBuffer( filename, f, mode, width, height );
     }
   }
   _pd->saveInProgress = false;
@@ -823,26 +823,175 @@ void GLWidgetManager::saveContents( const QString & filename,
 
 
 void GLWidgetManager::saveOtherBuffer( const QString & filename,
-                                       const QString & format, int bufmode )
+                                       const QString & format, int bufmode,
+                                       int width, int height )
 {
-  //setupView();
-  if( !_pd->rgbbufready )
+  QImage pix = snapshotImage( bufmode, width, height );
+  QString	ext;
+
+  switch( bufmode )
+  {
+  case 2:	// alpha buffer
+    ext = "-alpha";
+    break;
+  case 4:	// RGBA
+    ext = "-rgba";
+    break;
+  case 8:	// depth
+    ext = "-depth";
+    break;
+  case 16:	// luminance
+    ext = "-luminance";
+    break;
+  default:	// RGB buffer
+    break;
+  }
+
+  QString	alphaname = filename;
+  int pos = alphaname.lastIndexOf( '.' );
+  if( pos == -1 )
+    pos = alphaname.length();
+  alphaname = alphaname.insert( pos, ext );
+//   cout << "saving " << alphaname.toStdString() << endl;
+  pix.save( alphaname, format.toStdString().c_str(), 100 );
+}
+
+
+QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
+{
+  bool use_framebuffer = GLCaps::hasFramebuffer();
+
+  if( !use_framebuffer &&
+      ( ( width != 0 && width != _pd->glwidget->width() )
+        || (height != 0 && height != _pd->glwidget->height() ) ) )
+    cout << "Warning: Framebuffer rendering is unavailable. "
+      << "Using on-screen snapshot.\n";
+
+  if( width == 0 || !use_framebuffer )
+    width = _pd->glwidget->width();
+  if( height == 0 || !use_framebuffer )
+    height = _pd->glwidget->height();
+
+  QWidget *awindow = dynamic_cast<QWidget *>( aWindow() );
+  if( !awindow )
+  {
+    cerr << "Problem in GLWidgetManager::saveOtherBuffer: window is not "
+      << "a QWidget !\n";
+    return QImage();
+  }
+
+  bool setdontshow = false;
+  if( !awindow->isVisible()
+      && !awindow->testAttribute( Qt::WA_DontShowOnScreen ) )
+  {
+    /* The OpenGL context is bound to the on-screen window. Even if rendering
+       to a framebuffer, if the window is hidden, nothing will be rendered.
+       A solution is to use the WA_DontShowOnScreen flag, then show() the
+       window. It seems to work that way (and nothing is actually displayed
+       on screen).
+     */
+    setdontshow = true;
+    awindow->setAttribute( Qt::WA_DontShowOnScreen );
+  }
+
+  awindow->show();
+  awindow->ensurePolished();
+  // processing events just once is not always enough.
+  // maybe some events send additional ones (timers in AWindow3D)
+  qApp->sendPostedEvents();
+  qApp->processEvents();
+  qApp->processEvents();
+
+  _pd->glwidget->makeCurrent();
+
+  GLuint fb, depth_rb, color_tex;
+
+  if( use_framebuffer )
+  {
+    glGenTextures( 1, &color_tex );
+    glBindTexture( GL_TEXTURE_2D, color_tex );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    //NULL means reserve texture memory, but texels are undefined
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA,
+                  GL_UNSIGNED_BYTE, NULL );
+
+    GLCaps::glGenFramebuffers( 1, &fb );
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, fb );
+    GLCaps::glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                    GL_TEXTURE_2D, color_tex, 0 );
+    GLCaps::glGenRenderbuffers( 1, &depth_rb );
+    GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, depth_rb );
+    GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                                   width, height );
+    GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                       GL_RENDERBUFFER, depth_rb );
+
+    GLenum status;
+    status = GLCaps::glCheckFramebufferStatus( GL_FRAMEBUFFER );
+    bool fb_ok = false;
+    switch(status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE:
+      fb_ok = true;
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+      cout << "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS\n";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      cout << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n";
+      break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      cout << "GL_FRAMEBUFFER_UNSUPPORTED\n";
+      break;
+    default:
+      cout << "Framebuffer is not working for a unknown reason.\n";
+    }
+    if( fb_ok )
+    {
+      // setupView();
+      paintGL( Normal, width, height );
+      _pd->rgbbufready = true;
+    }
+    else
+    {
+      cout << "Warning: Framebuffer rendering is not working. "
+        << "Using on-screen snapshot.\n";
+      // problem with FB: release resources and switch to on-screen mode
+      GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+      glDeleteTextures( 1, &color_tex );
+      GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
+      GLCaps::glDeleteFramebuffers( 1, &fb );
+      use_framebuffer = false;
+      width = _pd->glwidget->width();
+      height = _pd->glwidget->height();
+    }
+  }
+  if( !use_framebuffer )
+  {
+    // without framebuffer
+    //setupView();
+    if( !_pd->rgbbufready )
     {
       paintGL( Normal );
       _pd->rgbbufready = true;
     }
+  }
 
   int		depth;
   GLenum	mode;
-  QString	ext;
   bool		alpha;
   QImage::Format iformat;
   QImage        pix;
 
-  _pd->glwidget->makeCurrent();
   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
-  glReadBuffer( GL_BACK );
+  glReadBuffer( GL_FRONT );
 
   switch( bufmode )
     {
@@ -850,29 +999,24 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       depth = 8;
       mode = GL_ALPHA;
       alpha = false;
-      ext = "-alpha";
       iformat = QImage::Format_Indexed8;
       break;
     case 4:	// RGBA
       depth = 32;
       mode = GL_BGRA;
       alpha = true;
-      ext = "-rgba";
       iformat = QImage::Format_ARGB32;
-      pix = _pd->glwidget->grabFrameBuffer( true );
       break;
     case 8:	// depth
       depth = 8;
       mode = GL_DEPTH_COMPONENT;
       alpha = false;
-      ext = "-depth";
       iformat = QImage::Format_Indexed8;
       break;
     case 16:	// luminance
       depth = 8;
       mode = GL_LUMINANCE;
       alpha = false;
-      ext = "-luminance";
       iformat = QImage::Format_Indexed8;
       break;
     default:	// RGB buffer
@@ -880,7 +1024,6 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
       mode = GL_BGRA;
       alpha = false;
       iformat = QImage::Format_RGB32;
-      pix = _pd->glwidget->grabFrameBuffer( false );
       break;
     }
 
@@ -889,19 +1032,19 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
     int	ncol = 0;
     if( depth == 8 )
       ncol = 256;
-    pix = QImage( _pd->glwidget->width(), _pd->glwidget->height(), iformat );
+    pix = QImage( width, height, iformat );
     int	i;
     for( i=0; i<ncol; ++i )
       pix.setColor( i, qRgb(i,i,i) );
     // read the GL buffer
-    glReadPixels( 0, 0, (GLint) _pd->glwidget->width(), (GLint)
-        _pd->glwidget->height(), mode, GL_UNSIGNED_BYTE, pix.bits() );
+    glReadPixels( 0, 0, (GLint) width, (GLint)
+        height, mode, GL_UNSIGNED_BYTE, pix.bits() );
 
     pix = pix.mirrored( false, true );
     if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
     {
       cout << "change bit order\n";
-      int n = _pd->glwidget->width()*_pd->glwidget->height();
+      int n = width*height;
       unsigned char *buf = pix.bits(), c;
       for( i=0; i<n; ++i )
       {
@@ -920,15 +1063,14 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
     if( alpha && _pd->transparentBackground && bufmode == 4
         && _pd->backgroundAlpha != 255 && depth == 32 )
     {
-      glReadBuffer( GL_FRONT );
-      int n = width()*height(), y, w = width();
+      int n = width * height, y, w = width;
       vector<GLfloat> buffer( n, 2. );
       // read Z buffer
-      glReadPixels( 0, 0, (GLint) width(), (GLint) height(),
+      glReadPixels( 0, 0, (GLint) width, (GLint) height,
                     GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
       unsigned char *buf = pix.bits();
       // TODO: WHY THIS y-inversion ???
-      for( y=height()-1; y>=0; --y )
+      for( y=height-1; y>=0; --y )
         for( i=0; i<w; ++i )
         {
           buf += 3;
@@ -938,13 +1080,23 @@ void GLWidgetManager::saveOtherBuffer( const QString & filename,
         }
     }
   }
-  QString	alphaname = filename;
-  int pos = alphaname.lastIndexOf( '.' );
-  if( pos == -1 )
-    pos = alphaname.length();
-  alphaname = alphaname.insert( pos, ext );
-  cout << "saving " << alphaname.toStdString() << endl;
-  pix.save( alphaname, format.toStdString().c_str(), 100 );
+
+  if( setdontshow )
+  {
+    awindow->hide();
+    awindow->setAttribute( Qt::WA_DontShowOnScreen, false );
+  }
+
+  if( use_framebuffer )
+  {
+    //Bind 0, which means render to back buffer, as a result, fb is unbound
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+    glDeleteTextures( 1, &color_tex );
+    GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
+    GLCaps::glDeleteFramebuffers( 1, &fb );
+  }
+
+  return pix;
 }
 
 
@@ -1154,11 +1306,83 @@ void GLWidgetManager::saveContents()
 }
 
 
+namespace
+{
+
+  bool askSize( int & width, int & height, QWidget* parent )
+  {
+    QDialog rv( parent );
+    rv.setObjectName( "snapshot_size" );
+    rv.setModal( true );
+    rv.setWindowTitle( QObject::tr( "Snapshot size", "AWindow3D" ) );
+    QVBoxLayout *l = new QVBoxLayout(&rv);
+    l->setMargin( 5 );
+    l->setSpacing( 5 );
+    l->addWidget( new QLabel( QObject::tr( "Snapshot size:", "AWindow3D" ),
+                              &rv ) );
+    QWidget *hb = new QWidget( &rv );
+    l->addWidget( hb );
+    QHBoxLayout *hlay = new QHBoxLayout( hb );
+    hlay->setSpacing( 10 );
+    hlay->setMargin( 0 );
+    QLineEdit *xed = new QLineEdit(QString::number(width), hb);
+    xed->setValidator( new QIntValidator );
+    hlay->addWidget( xed );
+    hlay->addWidget( new QLabel("x", hb) );
+    QLineEdit *yed = new QLineEdit(QString::number(height), hb);
+    yed->setValidator( new QIntValidator );
+    hlay->addWidget( yed );
+    QWidget *hb2 = new QWidget( &rv );
+    l->addWidget( hb2 );
+    hlay = new QHBoxLayout( hb2 );
+    hlay->setSpacing( 10 );
+    hlay->setMargin( 0 );
+    QPushButton *ok = new QPushButton(QObject::tr( "OK", "AWindow3D" ), hb2 );
+    hlay->addWidget( ok );
+    QPushButton *cc = new QPushButton(QObject::tr( "Cancel", "AWindow3D" ),
+                                      hb2 );
+    hlay->addWidget( cc );
+    ok->setDefault(true);
+    rv.connect( ok, SIGNAL( clicked() ), &rv, SLOT( accept() ) );
+    rv.connect( cc, SIGNAL( clicked() ), &rv, SLOT( reject() ) );
+
+    if( rv.exec() )
+    {
+      width = xed->text().toInt();
+      height = yed->text().toInt();
+      return true;
+    }
+    return false;
+  }
+
+}
+
+
+void GLWidgetManager::saveContentsWithCustomSize()
+{
+  int w = width(), h = height();
+  if( !askSize( w, h, dynamic_cast<QWidget *>( this ) ) )
+    return;
+
+  QStringList	names = fileAndFormat( "Save window image" );
+  if( names.count() != 2 )
+    {
+      cout << "save aborted\n";
+      return;
+    }
+
+  saveContents( names.first(), names.last(), w, h );
+}
+
+
 void GLWidgetManager::recordStart( const QString & basename,
-                                   const QString & format )
+                                   const QString & format,
+                                   int width, int height )
 {
   _pd->recordBaseName = basename;
   _pd->recordFormat = format;
+  _pd->recordWidth = width;
+  _pd->recordHeight = height;
   int	p = _pd->recordBaseName.lastIndexOf( '.' );
   if( p >= 0 )
   {
@@ -1188,6 +1412,22 @@ void GLWidgetManager::recordStart()
 }
 
 
+void GLWidgetManager::recordStartWithCustomSize()
+{
+  int w = width(), h = height();
+  if( !askSize( w, h, dynamic_cast<QWidget *>( this ) ) )
+    return;
+
+  QStringList	names = fileAndFormat( "Record window in images" );
+  if( names.count() != 2 )
+  {
+    cout << "save aborted\n";
+    return;
+  }
+  recordStart( names.first(), names.last(), w, h );
+}
+
+
 void GLWidgetManager::recordStop()
 {
   _pd->record = false;
@@ -1200,13 +1440,17 @@ void GLWidgetManager::setPreferredSize( int w, int h )
 }
 
 
-void GLWidgetManager::project()
+void GLWidgetManager::project( int width, int height )
 {
+  if( width == 0 )
+    width = _pd->glwidget->width();
+  if( height == 0 )
+    height = _pd->glwidget->height();
   // Make our OpenGL context current
   _pd->glwidget->makeCurrent();
 
   // Projection matrix: should be defined only at init time and when resizing
-  float	w = _pd->glwidget->width(), h = _pd->glwidget->height();
+  float	w = width, h = height;
   float ratio = w / h;
 
   float	sizex = ( _pd->bmaxw[0] - _pd->bminw[0] ) / 2;
@@ -1262,14 +1506,19 @@ void GLWidgetManager::project()
 }
 
 
-void GLWidgetManager::setupView()
+void GLWidgetManager::setupView( int width, int height )
 {
-  project();
+  if( width == 0 )
+    width = _pd->glwidget->width();
+  if( height == 0 )
+    height = _pd->glwidget->height();
+
+  project( width, height );
   // Modelview matrix: we only apply rotation for now!
   glLoadMatrixf( &_pd->rotation[0] );
 
   // Viewport to draw objects into
-  glViewport( 0, 0, _pd->glwidget->width(), _pd->glwidget->height() );
+  glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );
@@ -1335,40 +1584,78 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
   }
 }
 
+
+Point3df GLWidgetManager::objectPositionFromWindow( const Point3df & winpos )
+{
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+
+  setupView();
+
+  float y = _pd->glwidget->height() - 1 - winpos[1];
+
+  // from window coordinates to object coordinates
+  // see "OpenGL programming Guide, Second Edition", p. 149
+  GLint viewport[4];
+  GLdouble mmatrix[16];
+  GLdouble pmatrix[16];
+  GLdouble wx, wy, wz;
+  glGetIntegerv( GL_VIEWPORT, viewport );
+  glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
+  glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
+  gluUnProject( winpos[0], y, winpos[2],
+                mmatrix, pmatrix, viewport,
+                &wx, &wy, &wz);
+
+  Point3df position( wx, wy, wz );
+
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+
+  return position;
+}
+
 bool GLWidgetManager::cursorFromPosition( const Point3df & position, Point3df & cursor )
 {
-	_pd->glwidget->makeCurrent();
-	glMatrixMode( GL_MODELVIEW );
-	glPushMatrix();
-	glMatrixMode( GL_PROJECTION );
-	glPushMatrix();
+  _pd->glwidget->makeCurrent();
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
 
-	updateZBuffer();
-	setupView();
+//   updateZBuffer();
+  setupView();
 
-	GLint viewport[4];
-	GLdouble mmatrix[16];
-	GLdouble pmatrix[16];
-	GLdouble ox, oy, oz;
-	glGetIntegerv( GL_VIEWPORT, viewport );
-	glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
-	glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
-	gluProject( (GLdouble) position[0], (GLdouble) position[1], (GLdouble) position[2],
-				  mmatrix, pmatrix, viewport,
-				  &ox, &oy, &oz);
+  GLint viewport[4];
+  GLdouble mmatrix[16];
+  GLdouble pmatrix[16];
+  GLdouble ox, oy, oz;
+  glGetIntegerv( GL_VIEWPORT, viewport );
+  glGetDoublev( GL_MODELVIEW_MATRIX, mmatrix );
+  glGetDoublev( GL_PROJECTION_MATRIX, pmatrix );
+  gluProject( (GLdouble) position[0], (GLdouble) position[1],
+              (GLdouble) position[2],
+              mmatrix, pmatrix, viewport,
+              &ox, &oy, &oz);
 
-	oy = _pd->glwidget->height() - 1 - oy;
+  oy = _pd->glwidget->height() - 1 - oy;
 
-	cursor[0] = ox;
-	cursor[1] = oy;
+  cursor[0] = ox;
+  cursor[1] = oy;
 
-	glMatrixMode( GL_PROJECTION );
-	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
-	glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
 
-	return true;
+  return true;
 }
+
 
 void GLWidgetManager::copyBackBuffer2Texture(void)
 {

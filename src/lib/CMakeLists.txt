@@ -122,6 +122,7 @@ set( _headers
     reference/transformobserver.h
     reference/transfSet.h
     reference/wReferential.h
+    reference/wReferential_3d.h
     reference/wChooseReferential.h
     surface/cutmesh.h
     surface/fusion2Dmesh.h
@@ -140,6 +141,8 @@ set( _headers
     surface/transformedobject.h
     surface/triangulated.h
     surface/Shader.h
+    surface/vectorfield.h
+    surface/wvectorfield.h
     graph/AGraphIterator.h
     graph/attribAObject.h
     graph/pythonAObject.h
@@ -149,6 +152,7 @@ set( _headers
     object/actions.h
     object/clippedobject.h
     object/loadevent.h
+    object/mobjectio.h
     object/objectmenuCallbacks.h
     object/objectmenu.h
     object/objectparamselect.h
@@ -360,6 +364,7 @@ set( _sources
     reference/transformobserver.cc
     reference/transfSet.cc
     reference/wReferential.cc
+    reference/wReferential_3d.cc
     reference/wChooseReferential.cc
     surface/cutmesh.cc
     surface/fusion2Dmesh.cc
@@ -375,6 +380,8 @@ set( _sources
     surface/transformedobject.cc
     surface/triangulated.cc
     surface/Shader.cc
+    surface/vectorfield.cc
+    surface/wvectorfield.cc
     graph/AGraphIterator.cc
     graph/attribAObject.cc
     graph/pythonAObject.cc
@@ -384,6 +391,7 @@ set( _sources
     object/actions.cc
     object/clippedobject.cc
     object/loadevent.cc
+    object/mobjectio.cc
     object/objectmenu.cc
     object/objectparamselect.cc
     object/objectutils.cc
@@ -502,10 +510,12 @@ set( _sources
 )
 
 set(_ui "${CMAKE_CURRENT_SOURCE_DIR}/ui/color_rendering.ui")
-BRAINVISA_QT4_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_CURRENT_BINARY_DIR}/anatomist/ui")
-BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_CURRENT_BINARY_DIR}/anatomist/ui")
+BRAINVISA_QT4_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
 set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${ZLIB_INCLUDE_DIR})
+BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/vectorfield.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
+include_directories(${ZLIB_INCLUDE_DIR})
 add_custom_target(run_uic  DEPENDS ${UI_HDRS})
 set(${_headers} ${${_headers}} ${UI_HDRS} )
 

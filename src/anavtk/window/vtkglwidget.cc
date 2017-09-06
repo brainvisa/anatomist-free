@@ -288,16 +288,21 @@ void vtkQAGLWidget::vtkRender()
 }
 
 
-void vtkQAGLWidget::rotate()
+void vtkQAGLWidget::rotate( int width, int height )
 {
+  if( width == 0 )
+    width = vtkQAGLWidget::width();
+  if( height == 0 )
+    height = vtkQAGLWidget::height();
+
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   glMultMatrixf( &rotation()[0] );
 
   // Viewport to draw objects into
-  glViewport( 0, 0, width(), height() );
+  glViewport( 0, 0, width, height );
   glEnable( GL_SCISSOR_TEST );
-  glScissor( 0, 0, width(), height() );
+  glScissor( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );
@@ -315,8 +320,13 @@ void vtkQAGLWidget::paintGL()
   anatomist::GLWidgetManager::paintGL();
 }
 
-void vtkQAGLWidget::paintGL( DrawMode m )
+void vtkQAGLWidget::paintGL( DrawMode m, int width, int height )
 {
+  if( width == 0 )
+    width = vtkQAGLWidget::width();
+  if( height == 0 )
+    height = vtkQAGLWidget::height();
+
   // cout << "vtkQAGLWidget::paintGL " << m << endl;
   qglWidget()->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
@@ -336,7 +346,7 @@ void vtkQAGLWidget::paintGL( DrawMode m )
   glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
   glClearColor( 1, 1, 1, 1 );
 
-  project();
+  project( width, height );
 
 
   if( m != ObjectSelect && m != ObjectsSelect && m != PolygonSelect )
@@ -347,7 +357,7 @@ void vtkQAGLWidget::paintGL( DrawMode m )
       glCallList( lightGLList() );
   }
 
-  rotate();
+  rotate( width, height );
   vtkUpdateCamera();
 
   // Clear the viewport // -> do it here otherwise flickering may occur
@@ -421,13 +431,18 @@ void vtkQAGLWidget::updateGL()
 }
 
 
-void vtkQAGLWidget::project()
+void vtkQAGLWidget::project( int width, int height )
 {
+  if( width == 0 )
+    width = vtkQAGLWidget::width();
+  if( height == 0 )
+    height = vtkQAGLWidget::height();
+
   // Make our OpenGL context current
   qglWidget()->makeCurrent();
 
   // Projection matrix: should be defined only at init time and when resizing
-  float	w = width(), h = height();
+  float	w = width, h = height;
   float ratio = w / h;
 
   float	sizex = ( windowBoundingMax()[0] - windowBoundingMin()[0] ) / 2;
@@ -650,18 +665,23 @@ void vtkQAGLWidget::project()
  }
  
 
-void vtkQAGLWidget::setupView()
+void vtkQAGLWidget::setupView( int width, int height )
 {
+  if( width == 0 )
+    width = vtkQAGLWidget::width();
+  if( height == 0 )
+    height = vtkQAGLWidget::height();
+
   //rotate();
-  project();
+  project( width, height );
 
   // Modelview matrix: we only apply rotation for now!
   glLoadMatrixf( &rotation()[0] );
 
   // Viewport to draw objects into
-  glViewport( 0, 0, width(), height() );
+  glViewport( 0, 0, width, height );
   glEnable( GL_SCISSOR_TEST );
-  glScissor( 0, 0, width(), height() );
+  glScissor( 0, 0, width, height );
   
   // Modelview matrix: we can now apply translation and left-right mirroring
   glMatrixMode( GL_MODELVIEW );

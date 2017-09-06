@@ -57,7 +57,7 @@ namespace anatomist
   {
   public:
     typedef std::vector<std::pair<AObject*,bool> > PostRegisterList;
-    typedef AObject* (*LoadFunction)( const std::string & filename, 
+    typedef std::list<AObject *> (*LoadFunction)( const std::string & filename,
                                       PostRegisterList & subObjectsToRegister,
                                       carto::Object options );
 
@@ -65,7 +65,7 @@ namespace anatomist
     {
     public:
       virtual ~LoadFunctionClass();
-      virtual AObject* load( const std::string & filename,
+      virtual std::list<AObject *> load( const std::string & filename,
                              PostRegisterList & subObjectsToRegister,
                              carto::Object options ) = 0;
     };
@@ -86,7 +86,7 @@ namespace anatomist
     static void registerLoader( const std::string & extension,
                                 LoadFunctionClass *newFunc );
 
-    virtual AObject* load( const std::string & filename, 
+    virtual std::list<AObject *> load( const std::string & filename,
                            PostRegisterList & subObjectsToRegister,
                            bool notifyFail = true,
                            carto::Object options = carto::none(),
@@ -107,7 +107,7 @@ namespace anatomist
       anatomistSupportedFileExtensionsSet();
 
   protected:
-    AObject* load_internal( const std::string & filename,
+    std::list<AObject *> load_internal( const std::string & filename,
                             PostRegisterList & subObjectsToRegister,
                             carto::Object options ) const;
 
@@ -115,6 +115,9 @@ namespace anatomist
     ///	extention -> reader function map
     typedef std::multimap<std::string, carto::rc_ptr<LoadFunctionClass> >
         _storagetype;
+    static std::list<AObject*> readMObject(
+        const std::string & filename,
+        std::vector<std::pair<AObject *, bool> > &, carto::Object options );
     static _storagetype & _loaders();
   };
 

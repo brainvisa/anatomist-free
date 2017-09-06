@@ -50,28 +50,22 @@ using namespace carto;
 using namespace std;
 
 
-SetObjectPaletteCommand::SetObjectPaletteCommand( const set<AObject *> & obj,
-						  const string & palname1,
-						  bool min1flg,
-						  float min1, bool max1flg,
-						  float max1,
-						  const string & palname2,
-						  bool min2flg,
-						  float min2, bool max2flg,
-						  float max2,
-						  const string & mixMethod,
-						  bool mixFacFlg,
-						  float linMixFactor,
-						  const string & pal1Dmapping,
-                                                  bool absmode, int sizex,
-                                                  int sizey )
+SetObjectPaletteCommand::SetObjectPaletteCommand(
+  const set<AObject *> & obj, const string & palname1, bool min1flg,
+  float min1, bool max1flg, float max1, const string & palname2, bool min2flg,
+  float min2, bool max2flg, float max2, const string & mixMethod,
+  bool mixFacFlg, float linMixFactor, const string & pal1Dmapping,
+  bool absmode, int sizex, int sizey, bool zeroc1flg, bool zeroc1,
+  bool zeroc2flg, bool zeroc2 )
   : RegularCommand(), _objL( obj ), _pal1( palname1 ), _pal2( palname2 ),
     _pal1Dmapping(pal1Dmapping),
     _min1( min1 ), _max1( max1 ), _min2( min2 ), _max2( max2 ),
     _mixMethod( mixMethod ), _linMixFactor( linMixFactor ),
     _min1flg( min1flg ), _max1flg( max1flg ), _min2flg( min2flg ),
     _max2flg( max2flg ), _mixFacFlg( mixFacFlg ), _absmode( absmode ),
-    _sizex( sizex ), _sizey( sizey )
+    _sizex( sizex ), _sizey( sizey ),
+    _zeroc1flg( zeroc1flg ), _zeroc1( zeroc1 ),
+    _zeroc2flg( zeroc2flg ), _zeroc2( zeroc2 )
 {
 }
 
@@ -86,19 +80,21 @@ bool SetObjectPaletteCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "SetObjectPalette" ];
 
-  s[ "objects"          ] = Semantic( "int_vector", true );
-  s[ "palette"          ] = Semantic( "string", false );
-  s[ "palette2"         ] = Semantic( "string", false );
-  s[ "palette1Dmapping" ] = Semantic( "string", false );
-  s[ "min"              ] = Semantic( "float", false );
-  s[ "max"              ] = Semantic( "float", false );
-  s[ "min2"             ] = Semantic( "float", false );
-  s[ "max2"             ] = Semantic( "float", false );
-  s[ "mixMethod"        ] = Semantic( "string", false );
-  s[ "linMixFactor"     ] = Semantic( "float", false );
-  s[ "absoluteMode"     ] = Semantic( "int", false );
-  s[ "sizex"            ] = Semantic( "int", false );
-  s[ "sizey"            ] = Semantic( "int", false );
+  s[ "objects"             ] = Semantic( "int_vector", true );
+  s[ "palette"             ] = Semantic( "string", false );
+  s[ "palette2"            ] = Semantic( "string", false );
+  s[ "palette1Dmapping"    ] = Semantic( "string", false );
+  s[ "min"                 ] = Semantic( "float", false );
+  s[ "max"                 ] = Semantic( "float", false );
+  s[ "min2"                ] = Semantic( "float", false );
+  s[ "max2"                ] = Semantic( "float", false );
+  s[ "mixMethod"           ] = Semantic( "string", false );
+  s[ "linMixFactor"        ] = Semantic( "float", false );
+  s[ "absoluteMode"        ] = Semantic( "int", false );
+  s[ "sizex"               ] = Semantic( "int", false );
+  s[ "sizey"               ] = Semantic( "int", false );
+  s[ "zero_centered_axis1" ] = Semantic( "int", false );
+  s[ "zero_centered_axis2" ] = Semantic( "int", false );
   Registry::instance()->add( "SetObjectPalette", &read, ss );
   return( true );
 }
@@ -150,7 +146,18 @@ void SetObjectPaletteCommand::doit()
         else
           pal.setPalette1DMappingName( o->palette()->palette1DMappingName() ) ;
         if( _pal1Dmapping == "Diagonal" )
-          pal.set2dMode( true ) ;
+          pal.set2dMode( true );
+        if( _zeroc1flg )
+          pal.setZeroCenteredAxis1( _zeroc1 );
+        else if( o->getOrCreatePalette() )
+          pal.setZeroCenteredAxis1(
+            o->getOrCreatePalette()->zeroCenteredAxis1() );
+        if( _zeroc2flg )
+          pal.setZeroCenteredAxis2( _zeroc2 );
+        else if( o->getOrCreatePalette() )
+          pal.setZeroCenteredAxis2(
+            o->getOrCreatePalette()->zeroCenteredAxis2() );
+
         bool absmode = false;
         if( _absmode )
         {
@@ -250,6 +257,8 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
     max2f = false, mixf = false;
   float			linmix = -1;
   int                   absmode = 0, sizex = 0, sizey = 0;
+  bool                  zeroc1flg = false, zeroc2flg = false;
+  int                   zeroc1 = 0, zeroc2 = 0;
 
   if( !com.getProperty( "objects", obj ) )
     return( 0 );
@@ -283,11 +292,15 @@ Command* SetObjectPaletteCommand::read( const Tree & com,
   com.getProperty( "absoluteMode", absmode );
   com.getProperty( "sizex", sizex );
   com.getProperty( "sizey", sizey );
+  zeroc1flg = com.getProperty( "zero_centered_axis1", zeroc1 );
+  zeroc2flg = com.getProperty( "zero_centered_axis2", zeroc2 );
 
   return( new SetObjectPaletteCommand( objL, pal1, min1f, min1, max1f, max1,
-				       pal2, min2f, min2, max2f, max2, mix,
-				       mixf, linmix, pal1Dmapping,
-                                       absmode != 0, sizex, sizey ) );
+                                       pal2, min2f, min2, max2f, max2, mix,
+                                       mixf, linmix, pal1Dmapping,
+                                       absmode != 0, sizex, sizey, zeroc1flg,
+                                       bool(zeroc1),
+                                       zeroc2flg, bool(zeroc2) ) );
 }
 
 
@@ -328,5 +341,9 @@ void SetObjectPaletteCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "sizex", _sizex );
   if( _sizey != 0 )
     t->setProperty( "sizey", _sizey );
+  if( _zeroc1flg )
+    t->setProperty( "zero_centered_axis1", int( _zeroc1 ) );
+  if( _zeroc2flg )
+    t->setProperty( "zero_centered_axis2", int( _zeroc2 ) );
   com.insert( t );
 }

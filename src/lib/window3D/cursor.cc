@@ -96,12 +96,14 @@ namespace
             continue;
         }
         name = path + FileUtil::separator() + *i;
-        AObject	*o = AObject::load( name.c_str() );
-        if( o )
-          {
-            Cursor::addCursor( *i, o );
-            done.insert( *i );
-          }
+        list<AObject *> o = AObject::load( name.c_str() );
+        if( !o.empty() )
+        {
+          list<AObject *>::iterator io, eo = o.end();
+          for( io=o.begin(); io!=eo; ++io )
+            Cursor::addCursor( *i, *io );
+          done.insert( *i );
+        }
       }
   }
 

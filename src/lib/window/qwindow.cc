@@ -392,7 +392,8 @@ void QAWindow::dropEvent( QDropEvent* event )
     {
       LoadObjectCommand *command = new LoadObjectCommand( is->toStdString() );
       theProcessor->execute( command );
-      o.insert( command->loadedObject() );
+      list<AObject *> objs = command->loadedObjects();
+      o.insert( objs.begin(), objs.end() );
     }
   }
   if( o.empty() )

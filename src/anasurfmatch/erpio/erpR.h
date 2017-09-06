@@ -53,7 +53,7 @@ namespace anatomist
     ErpReader( const std::string & filename );
     ~ErpReader() {}
 
-    static AObject* readErp( const std::string & filename,
+    static std::list<AObject *> readErp( const std::string & filename,
                              ObjectReader::PostRegisterList &,
                              carto::Object options );
 

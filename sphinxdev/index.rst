@@ -50,6 +50,11 @@ Commands system
 
 :doc:`Commands system and commands list <commands>` (mainly in french...)
 
+Objects file format (.aobj)
++++++++++++++++++++++++++++
+
+:doc:`Anatomist objects file format <aobj_format>` (since Anatomist 4.6)
+
 
 View/controler model
 ++++++++++++++++++++
@@ -79,3 +84,4 @@ Contents
   commands
   developer_details
   controler
+  aobj_format

@@ -37,6 +37,7 @@
 #include <anatomist/reference/transformobserver.h>
 #include <anatomist/reference/wReferential.h> // TODO: remove this bidouille
 #include <anatomist/application/Anatomist.h>    // idem
+#include <aims/transformation/affinetransformation3d.h>
 #include <assert.h>
 #include <iostream>
 
@@ -178,17 +179,28 @@ void ATransformSet::registerTransformation( Transformation* t )
     return;
   Private::Ts::iterator	is = d->trans.find( t->source() );
   if( is != d->trans.end() )
+  {
+    Private::Ts2::iterator
+      id = is->second.find( t->destination() );
+    if( id != is->second.end() && id->second.trans )
     {
-      Private::Ts2::iterator 
-        id = is->second.find( t->destination() );
-      if( id != is->second.end() && id->second.trans )
-	{
-	  cerr << "registerTransformation : there was already a "
-	       << "transformation between this source and destination" 
-	       << "- deleting it ( " << id->second.trans << " )\n";
-          delete id->second.trans;
-	}
+      if( id->second.trans == t )
+      {
+        // the (same) transformation was already registered - just update it.
+        if( id->second.obs.get() )
+          id->second.obs->setChanged();
+        updateTransformation( t );
+        return;
+      }
+      else
+      {
+        cerr << "registerTransformation : there was already a "
+              << "transformation between this source and destination"
+              << "- deleting it ( " << id->second.trans << " )\n";
+        delete id->second.trans;
+      }
     }
+  }
   TransfHolder	& th = d->trans[ t->source() ][ t->destination() ];
   th.trans = t;
   d->tset.insert( t );
@@ -259,7 +271,7 @@ void ATransformSet::unregisterTransformation( Transformation* t )
 }
 
 
-set<Transformation *> ATransformSet::allTransformations() const
+const set<Transformation *> & ATransformSet::allTransformations() const
 {
   return d->tset;
 }
@@ -567,50 +579,191 @@ void ATransformSet::deleteGeneratedConnections( Referential* r1,
   bool				stop;
 
   for( ir1=s1.begin(); ir1!=er1; ++ir1 )
+  {
+    is = d->trans.find( *ir1 );
+    if( is != es )
     {
-      is = d->trans.find( *ir1 );
-      if( is != es )
-	{
-	  id = is->second.begin();
-	  ed = is->second.end();
-	  stop = false;
-	  while( !stop && id != ed )
-	    {
-	      r = id->first;
-	      t = id->second.trans;
-	      ++id;
-	      if( t && t->isGenerated() && s2.find( r ) != er2 )
-		{
-		  if( is->second.size() == 1 )
-		    stop = true;
-		  delete t;
-		}
-	    }
-	}
+      id = is->second.begin();
+      ed = is->second.end();
+      stop = false;
+      while( !stop && id != ed )
+      {
+        r = id->first;
+        t = id->second.trans;
+        ++id;
+        if( t && t->isGenerated() && s2.find( r ) != er2 )
+        {
+          if( is->second.size() == 1 )
+            stop = true;
+          delete t;
+        }
+      }
     }
+  }
 
   for( ir2=s2.begin(); ir2!=er2; ++ir2 )
+  {
+    is = d->trans.find( *ir2 );
+    if( is != es )
     {
-      is = d->trans.find( *ir2 );
-      if( is != es )
-	{
-	  id = is->second.begin();
-	  ed = is->second.end();
-	  stop = false;
-	  while( !stop && id != ed )
-	    {
-	      r = id->first;
-	      t = id->second.trans;
-	      ++id;
-	      if( t && t->isGenerated() && s1.find( r ) != er1 )
-		{
-		  if( is->second.size() == 1 )
-		    stop = true;
-		  delete t;
-		}
-	    }
-	}
+      id = is->second.begin();
+      ed = is->second.end();
+      stop = false;
+      while( !stop && id != ed )
+      {
+        r = id->first;
+        t = id->second.trans;
+        ++id;
+        if( t && t->isGenerated() && s1.find( r ) != er1 )
+        {
+          if( is->second.size() == 1 )
+            stop = true;
+          delete t;
+        }
+      }
     }
+  }
+}
+
+
+void ATransformSet::updateTransformation( Transformation *tr )
+{
+  Referential* r1 = tr->source(), *r2 = tr->destination();
+  if( !r1 || !r2 )
+    // not a finalized transform.
+    return;
+  Private::Ts::iterator		is = d->trans.find( r1 );
+  if( is == d->trans.end() )
+  {
+    registerTransformation( tr );
+    return;
+  }
+  Private::Ts2::iterator	id = is->second.find( r2 );
+  if( id == is->second.end() )
+  {
+    if( !hasTransformation( tr ) )
+    {
+      registerTransformation( tr );
+      return;
+    }
+    cerr << "PROBLEM in updateTransformation: dest ref not found\n";
+    return;
+  }
+
+  if( id->second.obs.get() )
+  {
+    id->second.obs->setChanged();
+    id->second.obs->notifyObservers( tr );
+  }
+
+  // generated trans do not trigger inverse/linked trans updates
+  if( tr->isGenerated() )
+    return;
+
+  Transformation *inv = transformation( r2, r1 );
+  if( !inv )
+    inv = new Transformation( r2, r1, true, true );
+  inv->motion() = tr->motion().inverse();
+  is = d->trans.find( r2 );
+  id = is->second.find( r1 );
+  if( id->second.obs.get() )
+  {
+    id->second.obs->setChanged();
+    id->second.obs->notifyObservers( inv );
+  }
+
+  updateGeneratedConnections( tr );
+}
+
+
+void ATransformSet::updateGeneratedConnections( Transformation *tr )
+{
+  Referential* r1 = tr->source(), *r2 = tr->destination();
+  // temporary disconnect tr to separate components
+  // setting it to generated state is enough because such transforms are not
+  // counted in connected components
+  tr->setGenerated( true );
+
+  // get both connected components
+  set<Referential *>	s1 = connectedComponent( r1 );
+  set<Referential *>	s2 = connectedComponent( r2 );
+
+  // re-plug the initial transform
+  tr->setGenerated( false );
+
+  // update all trans between both cc
+  set<Referential *>::iterator	ir1, er1 = s1.end(), ir2, er2 = s2.end();
+  Private::Ts::iterator		is, es = d->trans.end();
+  Private::Ts2::iterator	id, ed;
+  Transformation		*t, *to_first, *to_second;
+  Referential			*r;
+
+  for( ir1=s1.begin(); ir1!=er1; ++ir1 )
+  {
+    to_first = transformation( *ir1, r1 ); // (inverse)
+    is = d->trans.find( *ir1 );
+    if( is != es )
+    {
+      ed = is->second.end();
+      for( id=is->second.begin(); id!=ed; ++id )
+      {
+        r = id->first;
+        t = id->second.trans;
+        if( t && t->isGenerated() && s2.find( r ) != er2 )
+        {
+          to_second = transformation( r2, r );
+          // combine to_first, tr, and to_second
+          if( to_second )
+            t->motion() = to_second->motion() * tr->motion();
+          else
+            t->motion() = tr->motion();
+          if( to_first )
+            t->motion() *= to_first->motion();
+          // notify change
+          if( id->second.obs.get() )
+          {
+            id->second.obs->setChanged();
+            id->second.obs->notifyObservers( t );
+          }
+        }
+      }
+    }
+  }
+
+  // other direction. need inverse of tr
+  aims::AffineTransformation3d inv = tr->motion().inverse();
+
+  for( ir2=s2.begin(); ir2!=er2; ++ir2 )
+  {
+    to_first = transformation( *ir2, r2 );
+    is = d->trans.find( *ir2 );
+    if( is != es )
+    {
+      ed = is->second.end();
+      for( id=is->second.begin(); id!=ed; ++id )
+      {
+        r = id->first;
+        t = id->second.trans;
+        if( t && t->isGenerated() && s1.find( r ) != er1 )
+        {
+          to_second = transformation( r1, r );
+          // combine to_first, tr^-1, and to_second
+          if( to_second )
+            t->motion() = to_second->motion() * inv;
+          else
+            t->motion() = inv;
+          if( to_first )
+            t->motion() *= to_first->motion();
+          // notify change
+          if( id->second.obs.get() )
+          {
+            id->second.obs->setChanged();
+            id->second.obs->notifyObservers( t );
+          }
+        }
+      }
+    }
+  }
 }
 
 
@@ -703,67 +856,6 @@ void ATransformSet::unregisterObserver( const Referential* src,
     }
   else
     cerr << "ATransformSet::unregisterObserver: ref " << sr << " not found\n";
-}
-
-
-void ATransformSet::setTransformationChanged( const Referential* src, 
-                                              const Referential* dst )
-{
-  if( src == dst || !src || !dst )
-    return;
-
-  Referential	*sr = const_cast<Referential *>( src );
-  Referential	*ds = const_cast<Referential *>( dst );
-  if( sr > ds )
-    {
-      Referential	*tmp = ds;
-      ds = sr;
-      sr = tmp;
-    }
-  Private::Ts::iterator	i = d->trans.find( sr );
-  if( i != d->trans.end() )
-    {
-      Private::Ts2::iterator	j = i->second.find( ds );
-      if( j != i->second.end() )
-        {
-          TransfHolder	& th = j->second;
-          if( th.obs.get() )
-            th.obs->setChanged();
-        }
-    }
-}
-
-
-void ATransformSet::notifyTransformationChanged( const Referential* src, 
-                                                 const Referential* dst, 
-                                                 void* arg, bool setchanged )
-{
-  if( src == dst || !src || !dst )
-    return;
-
-  Referential	*sr = const_cast<Referential *>( src );
-  Referential	*ds = const_cast<Referential *>( dst );
-  if( sr > ds )
-    {
-      Referential	*tmp = ds;
-      ds = sr;
-      sr = tmp;
-    }
-  Private::Ts::iterator	i = d->trans.find( sr );
-  if( i != d->trans.end() )
-    {
-      Private::Ts2::iterator	j = i->second.find( ds );
-      if( j != i->second.end() )
-        {
-          TransfHolder	& th = j->second;
-          if( th.obs.get() )
-            {
-              if( setchanged )
-                th.obs->setChanged();
-              th.obs->notifyObservers( arg );
-            }
-        }
-    }
 }
 
 
