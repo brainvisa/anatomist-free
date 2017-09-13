@@ -465,12 +465,16 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::sort ),
                           "sort_polygons_by_depth" );
-
   keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
                           KeyActionLinkOf<SortMeshesPolygonsAction>
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::toggleAutoSort ),
                           "auto_sort_polygons_by_depth" );
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleSortDirection ),
+                          "sort_polygons_direction" );
 
   // rotation
 
@@ -1376,12 +1380,16 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::sort ),
                           "sort_polygons_by_depth" );
-
   keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
                           KeyActionLinkOf<SortMeshesPolygonsAction>
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::toggleAutoSort ),
                           "auto_sort_polygons_by_depth" );
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleSortDirection ),
+                          "sort_polygons_direction" );
 
   //        Flight simulator
 
@@ -1636,12 +1644,16 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::sort ),
                           "sort_polygons_by_depth" );
-
   keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
                           KeyActionLinkOf<SortMeshesPolygonsAction>
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::toggleAutoSort ),
                           "auto_sort_polygons_by_depth" );
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleSortDirection ),
+                          "sort_polygons_direction" );
 
   // oblique trackball
 
@@ -1770,12 +1782,16 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::sort ),
                           "sort_polygons_by_depth" );
-
   keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
                           KeyActionLinkOf<SortMeshesPolygonsAction>
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::toggleAutoSort ),
                           "auto_sort_polygons_by_depth" );
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleSortDirection ),
+                          "sort_polygons_direction" );
 
   // rotation
 
@@ -2006,12 +2022,16 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::sort ),
                           "sort_polygons_by_depth" );
-
   keyPressEventSubscribe( Qt::Key_D, Qt::ControlModifier,
                           KeyActionLinkOf<SortMeshesPolygonsAction>
                           ( actionPool->action( "SortMeshesPolygonsAction" ),
                             &SortMeshesPolygonsAction::toggleAutoSort ),
                           "auto_sort_polygons_by_depth" );
+  keyPressEventSubscribe( Qt::Key_D, Qt::ShiftModifier,
+                          KeyActionLinkOf<SortMeshesPolygonsAction>
+                          ( actionPool->action( "SortMeshesPolygonsAction" ),
+                            &SortMeshesPolygonsAction::toggleSortDirection ),
+                          "sort_polygons_direction" );
 
   // rotation
 
@@ -2575,7 +2595,7 @@ void SortMeshesPolygonsAction::sort()
   if( w )
   {
     w->sortPolygons( true );
-    w->Refresh();
+//     w->Refresh();
   }
 }
 

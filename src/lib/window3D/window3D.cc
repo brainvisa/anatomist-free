@@ -3974,6 +3974,7 @@ void AWindow3D::sortPolygons( bool force )
     SurfaceManip::sortPolygonsAlongDirection(
       *(*is)->surface(), int( timemesh ), transDir );
     (*is)->glSetChanged( GLComponent::glGEOMETRY );
+    (*is)->notifyObservers( this );
   }
 }
 
