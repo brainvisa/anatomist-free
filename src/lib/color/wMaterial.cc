@@ -268,7 +268,8 @@ void MaterialWindow::drawContents()
   mainlay->addWidget( bpan );
   mainlay->addWidget( epan );
 
-  connect( tbar, SIGNAL( selected( int ) ), this, SLOT( enableTab( int ) ) );
+  connect( tbar, SIGNAL( currentChanged( int ) ),
+           this, SLOT( enableTab( int ) ) );
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
   connect( sel, 
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
