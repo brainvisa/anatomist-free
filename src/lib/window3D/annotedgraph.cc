@@ -80,29 +80,27 @@ namespace
     Point4df col = color;
     map<string, Point4df>::const_iterator ic = colors.find( label );
     if( ic != colors.end() )
-    {
       col = ic->second;
-      if( props.usespheres )
-      {
-        AimsSurfaceTriangle *sph = SurfaceGenerator::icosphere( gc, 2, 50 );
-        ASurface<3> *asph = new ASurface<3>;
-        asph->setSurface( sph );
-        rc_ptr<AObject> osph( asph );
-        theAnatomist->registerObject( asph, false );
-        theAnatomist->releaseObject( asph );
-        asph->setReferentialInheritance( agraph );
-        Material & mat = asph->GetMaterial();
-        mat.SetDiffuse( col[0], col[1], col[2], col[3] );
-        asph->SetMaterial( mat );
-        asph->setName( string( "gc: " ) + label );
-        objects.push_back( osph );
-      }
-      if( props.colorlabels )
-      {
-        Material & mat = to->GetMaterial();
-        mat.SetDiffuse( col[0], col[1], col[2], col[3] );
-        to->SetMaterial( mat );
-      }
+    if( props.usespheres )
+    {
+      AimsSurfaceTriangle *sph = SurfaceGenerator::icosphere( gc, 2, 50 );
+      ASurface<3> *asph = new ASurface<3>;
+      asph->setSurface( sph );
+      rc_ptr<AObject> osph( asph );
+      theAnatomist->registerObject( asph, false );
+      theAnatomist->releaseObject( asph );
+      asph->setReferentialInheritance( agraph );
+      Material & mat = asph->GetMaterial();
+      mat.SetDiffuse( col[0], col[1], col[2], col[3] );
+      asph->SetMaterial( mat );
+      asph->setName( string( "gc: " ) + label );
+      objects.push_back( osph );
+    }
+    if( props.colorlabels )
+    {
+      Material & mat = to->GetMaterial();
+      mat.SetDiffuse( col[0], col[1], col[2], col[3] );
+      to->SetMaterial( mat );
     }
     vector<AObject *> vto;
     vto.push_back( to );
