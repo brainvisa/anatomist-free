@@ -56,7 +56,7 @@ QAObjectDrag::QAObjectDrag( const set<AObject *> & o )
 
   QDataStream	ds( &ba, QIODevice::ReadWrite );
   // Qt4 doesn't have QDataStream << size_t, what a shame...
-  if( sizeof( long ) == 4 )
+  if( sizeof( set<AObject*>::size_type ) == 4 )
     ds << (uint32_t) o.size();
   else
     ds << (quint64) o.size();
