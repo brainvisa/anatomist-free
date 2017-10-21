@@ -124,12 +124,11 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
       obj->SetDataSet (output);
     }
     else
-#else
+#endif
     {
       obj = vtkAObject::New();
       obj->SetDataSet (output);
     }
-#endif
 /*    {
       std::cerr << "Error: Only vtkPolyData with lines are supported for now, and you vtkPolyData has no line." << std::endl;
     }*/
@@ -147,12 +146,11 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
       obj = vtkVectorAObject::New();
       obj->SetDataSet (output);
     }
-#else
+#endif
     {
       obj = vtkAObject::New();
       obj->SetDataSet (output);
     }
-#endif
 /*    {
       std::cerr << "Error: Only vtkStructuredPoints with tensors are supported for now, and you vtkStructuredPoints has no tensor attribute." << std::endl;
     }*/
