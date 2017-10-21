@@ -100,13 +100,14 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
                               ObjectReader::PostRegisterList &,
                               Object options)
 {
-
+  // cout << "readVTK\n";
 
   vtkDataSetReader* reader = vtkDataSetReader::New();
   reader->SetFileName ( filename.c_str() );
   reader->Update();
   vtkDataSet* output = reader->GetOutput();
 
+  // cout << "output: " << output << endl;
 
   vtkAObject* obj = 0;
 
@@ -122,7 +123,12 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
       obj = vtkFiberAObject::New();
       obj->SetDataSet (output);
     }
-//    else
+    else
+#else
+    {
+      obj = vtkAObject::New();
+      obj->SetDataSet (output);
+    }
 #endif
 /*    {
       std::cerr << "Error: Only vtkPolyData with lines are supported for now, and you vtkPolyData has no line." << std::endl;
@@ -141,7 +147,11 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
       obj = vtkVectorAObject::New();
       obj->SetDataSet (output);
     }
-//    else
+#else
+    {
+      obj = vtkAObject::New();
+      obj->SetDataSet (output);
+    }
 #endif
 /*    {
       std::cerr << "Error: Only vtkStructuredPoints with tensors are supported for now, and you vtkStructuredPoints has no tensor attribute." << std::endl;
@@ -170,13 +180,16 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
   }
   */
 
+  list<AObject *> lobj;
+
   if( obj )
+  {
     vtkAReader::ObjectList.push_back(obj);
+    lobj.push_back( obj );
+  }
 
   reader->Delete();
 
-  list<AObject *> lobj;
-  lobj.push_back( obj );
   return lobj;
 
 }
