@@ -34,12 +34,19 @@
 #define __vtkAnatomistRendererFactory_h
 
 #include "vtkObjectFactory.h"
+#if VTK_MAJOR_VERSION >= 6
+#include <vtkVersionMacros.h>
+#endif
 
 class vtkAnatomistRendererFactory : public vtkObjectFactory
 {
 public: 
 // Methods from vtkObject
+#if VTK_MAJOR_VERSION >= 6
+  vtkTypeMacro(vtkAnatomistRendererFactory,vtkObjectFactory);
+#else
   vtkTypeRevisionMacro(vtkAnatomistRendererFactory,vtkObjectFactory);
+#endif
   static vtkAnatomistRendererFactory *New();
   void PrintSelf(ostream& os, vtkIndent indent);
   virtual const char* GetVTKSourceVersion();

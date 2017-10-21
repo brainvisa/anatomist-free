@@ -41,12 +41,15 @@
 #include "vtkgl.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
+#if VTK_MAJOR_VERSION < 6
 vtkCxxRevisionMacro(vtkAnatomistRenderer, "$Revision: 1.0 $");
+#endif
 vtkStandardNewMacro(vtkAnatomistRenderer);
 #endif
 
 vtkAnatomistRenderer::vtkAnatomistRenderer()
 {
+  // cout << "new vtkAnatomistRenderer\n";
   vtkCamera* cam = vtkAnatomistCamera::New();
   cam->ParallelProjectionOn();
   this->SetActiveCamera (cam);

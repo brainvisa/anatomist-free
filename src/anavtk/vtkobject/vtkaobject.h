@@ -50,9 +50,13 @@ namespace anatomist
   {
 
     Q_OBJECT
-      
+
   public :
+#if VTK_MAJOR_VERSION >= 6
+    vtkTypeMacro(vtkAObject, vtkObject);
+#else
     vtkTypeRevisionMacro(vtkAObject, vtkObject);
+#endif
     static vtkAObject* New();
 
     vtkSetObjectMacro(DataSet, vtkDataSet);

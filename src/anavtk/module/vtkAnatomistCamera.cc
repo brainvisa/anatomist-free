@@ -46,7 +46,9 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
+#if VTK_MAJOR_VERSION < 6
 vtkCxxRevisionMacro(vtkAnatomistCamera, "$Revision: 1.0 $");
+#endif
 vtkStandardNewMacro(vtkAnatomistCamera);
 #endif
 

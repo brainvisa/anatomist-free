@@ -45,7 +45,11 @@ class vtkAnatomistCamera : public vtkOpenGLCamera
 {
 public:
   static vtkAnatomistCamera *New();
+#if VTK_MAJOR_VERSION >= 6
+  vtkTypeMacro(vtkAnatomistCamera,vtkOpenGLCamera);
+#else
   vtkTypeRevisionMacro(vtkAnatomistCamera,vtkOpenGLCamera);
+#endif
 
   // Description:
   // Implement base class method.

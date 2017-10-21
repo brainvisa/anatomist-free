@@ -45,7 +45,9 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
+#if VTK_MAJOR_VERSION < 6
 vtkCxxRevisionMacro(vtkAObject, "$Revision: 1.0 $");
+#endif
 vtkStandardNewMacro (vtkAObject);
 
 
