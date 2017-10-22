@@ -51,10 +51,13 @@ namespace anatomist
     virtual ~AVolumeView();
 
     virtual void setVolume( carto::rc_ptr<carto::Volume<T> > vol );
-    void move( const Point3d & pos, const Point3d & size );
+    // void move( const Point3d & pos, const Point3d & size );
 
     void setupTransformationFromView();
     void setupViewFromTransformation();
+    void setTargetSize( const std::vector<int> & );
+    const std::vector<int> & targetSize() const;
+    int selectBestResolutionLevel( const Point3df & vs ) const;
 
     // overloads
     virtual int MType() const { return type(); }
@@ -83,8 +86,12 @@ namespace anatomist
     virtual void update( const Observable *observable, void *arg );
 
   private:
+    void init( const std::vector<carto::rc_ptr<carto::Volume<T> > > & vols );
+
     carto::rc_ptr<AVolume<T> > _myvolume;
-    carto::rc_ptr<AVolume<T> > _avolume;
+    std::vector<carto::rc_ptr<AVolume<T> > > _avolume;
+    std::vector<int> _target_size;
+    int _resolution_level;
   };
 
 }

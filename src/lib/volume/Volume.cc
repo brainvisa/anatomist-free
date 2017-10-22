@@ -1223,6 +1223,10 @@ void AVolume<T>::setVolume( carto::rc_ptr<Volume<T> > vol )
   _volume = vol;
   delete d->attrib;
   d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
+  glSetChanged( glTEXIMAGE );
+  glSetChanged( glGEOMETRY );
+  glSetChanged( glBODY );
+  setInternalsChanged();
 }
 
 

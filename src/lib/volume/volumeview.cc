@@ -57,32 +57,35 @@ template <typename T>
 AVolumeView<T>::AVolumeView( const list<AObject *> & obj )
  : anatomist::ObjectVector(),
   _myvolume( new AVolume<T>( "" ) ),
-  _avolume( 0 )
+  _target_size( 4, 1 ),
+  _resolution_level( 0 )
 {
   _type = AVolumeView<T>::classType();
-
-  if( obj.size() != 1 )
-  {
-    cerr << "Can only build view on a single volume\n";
-  }
-  AVolume<T> * vol = dynamic_cast<AVolume<T> *>( *obj.begin() );
-  if( !vol )
-  {
-    cerr << "View can only be built on a volume\n";
-  }
   insert( _myvolume.get() );
-  insert( vol );
-  _avolume.reset( vol );
-
-  typename Volume<T>::Position4Di pos( 0, 0, 0, 0 ), size( 1, 1, 1, 1 );
-
-  _myvolume->setVolume(
-    rc_ptr<Volume<T> >( new Volume<T>( vol->volume(), pos, size ) ) );
-
   theAnatomist->registerObject( _myvolume.get(), false );
   theAnatomist->releaseObject( _myvolume.get() );
-  theAnatomist->registerObject( _avolume.get(), false );
-  theAnatomist->releaseObject( _avolume.get() );
+
+  list<AObject *>::const_iterator io, eo = obj.end();
+  for( io=obj.begin(); io!=eo; ++io )
+  {
+    AVolume<T> * vol = dynamic_cast<AVolume<T> *>( *obj.begin() );
+    if( !vol )
+      cerr << "View can only be built on a volume\n";
+    else
+    {
+      insert( vol );
+      _avolume.push_back( rc_ptr<AVolume<T> >( vol ) );
+    }
+  }
+
+  if( !_avolume.empty() )
+  {
+    typename Volume<T>::Position4Di pos( 0, 0, 0, 0 ), size( 1, 1, 1, 1 );
+    AVolume<T> * vol = _avolume.begin()->get();
+
+    _myvolume->setVolume(
+      rc_ptr<Volume<T> >( new Volume<T>( vol->volume(), pos, size ) ) );
+  }
 
   setupTransformationFromView();
 }
@@ -92,22 +95,22 @@ template <typename T>
 AVolumeView<T>::AVolumeView( const string & filename )
  : anatomist::ObjectVector(),
   _myvolume( new AVolume<T>() ),
-  _avolume( 0 )
+  _target_size( 4, 1 ),
+  _resolution_level( 0 )
 {
   _type = AVolumeView<T>::classType();
   insert( _myvolume.get() );
+  theAnatomist->registerObject( _myvolume.get(), false );
+  theAnatomist->releaseObject( _myvolume.get() );
 
   if( _myvolume->volume()->refVolume() )
   {
-    _avolume = rc_ptr<AVolume<T> >(
-      new AVolume<T>( _myvolume->volume()->refVolume() ) );
-    insert( _avolume.get() );
+    _avolume.push_back( rc_ptr<AVolume<T> >(
+      new AVolume<T>( _myvolume->volume()->refVolume() ) ) );
+    insert( _avolume[0].get() );
+    theAnatomist->registerObject( _avolume[0].get(), false );
+    theAnatomist->releaseObject( _avolume[0].get() );
   }
-
-  theAnatomist->registerObject( _myvolume.get(), false );
-  theAnatomist->releaseObject( _myvolume.get() );
-  theAnatomist->registerObject( _avolume.get(), false );
-  theAnatomist->releaseObject( _avolume.get() );
 
   setupTransformationFromView();
 }
@@ -117,25 +120,51 @@ template <typename T>
 AVolumeView<T>::AVolumeView( rc_ptr<Volume<T> > vol )
  : anatomist::ObjectVector(),
   _myvolume( new AVolume<T>() ),
-  _avolume( 0 )
+  _target_size( 4, 1 ),
+  _resolution_level( 0 )
 {
-  _type = AVolumeView<T>::classType();
-  insert( _myvolume.get() );
-
-  setVolume( vol );
-
-  theAnatomist->registerObject( _myvolume.get(), false );
-  theAnatomist->releaseObject( _myvolume.get() );
-  theAnatomist->registerObject( _avolume.get(), false );
-  theAnatomist->releaseObject( _avolume.get() );
-
-  setupTransformationFromView();
+  vector<rc_ptr<Volume<T> > > vols( 1 );
+  vols[0] = vol;
+  init( vols );
 }
 
 
 template <typename T>
 AVolumeView<T>::~AVolumeView()
 {
+}
+
+
+template <typename T>
+void AVolumeView<T>::init( const vector<rc_ptr<Volume<T> > > & vols )
+{
+  _type = AVolumeView<T>::classType();
+  insert( _myvolume.get() );
+  theAnatomist->registerObject( _myvolume.get(), false );
+  theAnatomist->releaseObject( _myvolume.get() );
+
+  if( !vols.empty() )
+  {
+    rc_ptr<Volume<T> > vol = vols[0];
+
+    setVolume( vol );
+    _target_size = vol->getSize();
+
+    typename vector<rc_ptr<Volume<T> > >::const_iterator iv, ev = vols.end();
+    for( iv=vols.begin(), ++iv; iv!=ev; ++iv )
+    {
+      rc_ptr<Volume<T> > rvol = (*iv)->refVolume();
+      if( !rvol.get() )
+        rvol = *iv;
+      rc_ptr<AVolume<T> > avol( new AVolume<T>( rvol ) );
+      _avolume.push_back( avol );
+      insert( avol.get() );
+      theAnatomist->registerObject( avol.get(), false );
+      theAnatomist->releaseObject( avol.get() );
+    }
+
+    setupTransformationFromView();
+  }
 }
 
 
@@ -150,24 +179,28 @@ int AVolumeView<T>::classType()
 template <typename T>
 void AVolumeView<T>::setVolume( rc_ptr<Volume<T> > vol )
 {
-  if( size() >= 2 )
+  while( size() >= 2 )
   {
     iterator i = begin();
     ++i;
     erase( i );
   }
-  _avolume.reset( 0 );
+  _avolume.clear();
   _myvolume->setVolume( vol );
   _myvolume->setReferentialInheritance( this );
   if( _myvolume->volume()->refVolume() )
   {
-    _avolume = rc_ptr<AVolume<T> >(
+    rc_ptr<AVolume<T> > avol(
       new AVolume<T>( _myvolume->volume()->refVolume() ) );
-    insert( _avolume.get() );
+    _avolume.push_back( avol );
+    insert( avol.get() );
+    theAnatomist->registerObject( avol.get(), false );
+    theAnatomist->releaseObject( avol.get() );
   }
 }
 
 
+/*
 template <typename T>
 void AVolumeView<T>::move( const Point3d & pos, const Point3d & size )
 {
@@ -179,12 +212,13 @@ void AVolumeView<T>::move( const Point3d & pos, const Point3d & size )
   _myvolume->glSetChanged( GLComponent::glGEOMETRY );
   _myvolume->glSetChanged( GLComponent::glTEXIMAGE );
 }
+*/
 
 
 template <typename T>
 void AVolumeView<T>::setupTransformationFromView()
 {
-  if( !_avolume.get() )
+  if( _avolume.empty() )
     return;
   const typename Volume<T>::Position & pos
     = _myvolume->volume()->posInRefVolume();
@@ -198,15 +232,17 @@ void AVolumeView<T>::setupTransformationFromView()
       at_origin = false;
       ipos[i] = *ip;
     }
-  if( at_origin && _myvolume->getReferential() == _avolume->getReferential() )
+  rc_ptr<AVolume<T> > avol = _avolume[_resolution_level];
+
+  if( at_origin && _myvolume->getReferential() == avol->getReferential() )
   {
     setReferentialInheritance( _myvolume.get() );
     return;
   }
-  if( !_avolume->getReferential() )
+  if( !avol->getReferential() )
   {
     // we need the reference volume to have a referential
-    _avolume->setReferential( theAnatomist->centralReferential() );
+    avol->setReferential( theAnatomist->centralReferential() );
   }
 
   /* WARNING: API mismatch: AObject::getReferential() const returns a
@@ -214,15 +250,15 @@ void AVolumeView<T>::setupTransformationFromView()
      a const Referential *
   */
   Referential *ref = _myvolume->AObject::getReferential();
-  if( !ref || ref == _avolume->getReferential() )
+  if( !ref || ref == avol->getReferential() )
   {
     ref = new Referential;
     _myvolume->setReferential( ref );
   }
   Transformation *tr
-    = theAnatomist->getTransformation( ref, _avolume->getReferential() );
+    = theAnatomist->getTransformation( ref, avol->getReferential() );
   if( !tr )
-    tr = new Transformation( ref, _avolume->AObject::getReferential() );
+    tr = new Transformation( ref, avol->AObject::getReferential() );
   AffineTransformation3d & atr = tr->motion();
   atr.setToIdentity();
   Point3df vs = _myvolume->VoxelSize();
@@ -237,11 +273,14 @@ void AVolumeView<T>::setupTransformationFromView()
 template <typename T>
 void AVolumeView<T>::setupViewFromTransformation()
 {
-  if( !_avolume.get() )
+  if( _avolume.empty() )
     return;
+
+  rc_ptr<AVolume<T> > avol = _avolume[_resolution_level];
+
   Transformation *tr
     = theAnatomist->getTransformation( _myvolume->getReferential(),
-                                       _avolume->getReferential() );
+                                       avol->getReferential() );
   if( !tr )
     return;
 
@@ -254,16 +293,14 @@ void AVolumeView<T>::setupViewFromTransformation()
   Point3df bbmin( 0, 0, 0 ),
     bbmax( ( isz[0] - 1 ) * ivs[0], ( isz[1] - 1 ) * ivs[1],
            ( isz[2] - 1 ) * ivs[2] );
-  cout << "bb: " << bbmin << " - " << bbmax << endl;
   Point3df p0 = tr->transform( bbmin );
   Point3df p1 = tr->transform( bbmax );
-  cout << "after trans: " << p0 << " - " << p1 << endl;
 
   Point3df pos( min( p0[0], p1[0] ), min( p0[1], p1[1] ),
                 min( p0[2], p1[2] ) );
   Point3df pmax( max( p0[0], p1[0] ), max( p0[1], p1[1] ),
                  max( p0[2], p1[2] ) );
-  Point3df vs = _avolume->VoxelSize();
+  Point3df vs = avol->VoxelSize();
   pos[0] /= vs[0];
   pos[1] /= vs[1];
   pos[2] /= vs[2];
@@ -279,9 +316,9 @@ void AVolumeView<T>::setupViewFromTransformation()
   npos[2] = int( pos[2] );
 
   vector<int> nsize( 3 );
-  nsize[0] = ceil( pmax[0] - pos[0] + 1 );
-  nsize[1] = ceil( pmax[1] - pos[1] + 1);
-  nsize[2] = ceil( pmax[2] - pos[2] + 1 );
+  nsize[0] = int( pmax[0] - pos[0] + 1 ); // ceil() ?
+  nsize[1] = int( pmax[1] - pos[1] + 1);
+  nsize[2] = int( pmax[2] - pos[2] + 1 );
   if( nsize[0] < 1 )
     nsize[0] = 1;
   if( nsize[1] < 1 )
@@ -289,7 +326,52 @@ void AVolumeView<T>::setupViewFromTransformation()
   if( nsize[2] < 1 )
     nsize[2] = 1;
 
-  vector<int> maxsize = _avolume->volume()->getSize();
+  cout << "calculated size: " << nsize[0] << ", " << nsize[1] << ", " << nsize[2] << endl;
+  Point3df res( float( _target_size[0] ) / nsize[0],
+                float( _target_size[1] ) / nsize[1],
+                float( _target_size[2] ) / nsize[2] );
+  cout << "scaling: " << res << endl;
+
+  Point3df target_vs( vs[0] / res[0], vs[1] / res[1], vs[2] / res[2] );
+  cout << "target vs: " << target_vs << endl;
+  int resolution_level = selectBestResolutionLevel( target_vs );
+  cout << "selected resolution_level: " << resolution_level << endl;
+  if( resolution_level != _resolution_level )
+  {
+    _resolution_level = resolution_level;
+    avol = _avolume[_resolution_level];
+    vs = avol->VoxelSize();
+
+    // recalculate position and size in the new ref volume
+    Transformation *tr2
+      = theAnatomist->getTransformation( _myvolume->getReferential(),
+                                         avol->getReferential() );
+    if( tr2 )
+      tr = tr2;
+    // if no tr2, assume the same as the previous one, which is probably wrong
+
+    p0 = tr->transform( bbmin );
+    p1 = tr->transform( bbmax );
+
+    pos = Point3df( min( p0[0], p1[0] ), min( p0[1], p1[1] ),
+                    min( p0[2], p1[2] ) );
+    pmax = Point3df( max( p0[0], p1[0] ), max( p0[1], p1[1] ),
+                     max( p0[2], p1[2] ) );
+    pos[0] /= vs[0];
+    pos[1] /= vs[1];
+    pos[2] /= vs[2];
+    pmax[0] /= vs[0];
+    pmax[1] /= vs[1];
+    pmax[2] /= vs[2];
+
+    npos[0] = int( pos[0] );
+    npos[1] = int( pos[1] );
+    npos[2] = int( pos[2] );
+  }
+
+  nsize = _target_size;
+
+  vector<int> maxsize = avol->volume()->getSize();
   if( npos[0] + nsize[0] > maxsize[0] )
     nsize[0] = maxsize[0] - npos[0];
   if( npos[1] + nsize[1] > maxsize[1] )
@@ -310,7 +392,7 @@ void AVolumeView<T>::setupViewFromTransformation()
 
     // FIXME: totally suboptimal
     rc_ptr<DataSourceInfo> dsi
-      = _avolume->volume()->allocatorContext().dataSourceInfo();
+      = avol->volume()->allocatorContext().dataSourceInfo();
     cout << "read from file: " << dsi->url() << endl;
     Object options = Object::value( Dictionary() );
     options->setProperty( "ox", npos[0] );
@@ -319,6 +401,7 @@ void AVolumeView<T>::setupViewFromTransformation()
     options->setProperty( "sx", nsize[0] );
     options->setProperty( "sy", nsize[1] );
     options->setProperty( "sz", nsize[2] );
+    options->setProperty( "resolution_level", _resolution_level );
 //     options->setProperty( "format", dsi->identifiedFormat() );
 
     Reader<Volume<T> > r( dsi->url() );
@@ -326,9 +409,31 @@ void AVolumeView<T>::setupViewFromTransformation()
     string format = dsi->identifiedFormat();
     VolumeRef<T> view = r.read( 0, &format );
 
-//     VolumeRef<T> view( _avolume->volume(), npos, nsize );
+//     VolumeRef<T> view( avol->volume(), npos, nsize );
     _myvolume->setVolume( view );
+
+    setChanged();
   }
+}
+
+
+template <typename T>
+int
+AVolumeView<T>::selectBestResolutionLevel( const Point3df & target_vs ) const
+{
+  if( _avolume.size() < 2 )
+    return 0; // no choice anyway
+
+  Point3df ok_diff;
+  Point3df subopt_diff;
+
+  int level, n = _avolume.size();
+  for( level=0; level<n; ++level )
+  {
+    Point3df vs = _avolume[level]->VoxelSize();
+  }
+
+  return 0; // TODO
 }
 
 
@@ -363,6 +468,21 @@ void AVolumeView<T>::adjustPalette()
 
 
 template <typename T>
+void AVolumeView<T>::setTargetSize( const vector<int> & size )
+{
+  _target_size = size;
+  setChanged();
+}
+
+
+template <typename T>
+const vector<int> & AVolumeView<T>::targetSize() const
+{
+  return _target_size;
+}
+
+
+template <typename T>
 void AVolumeView<T>::update( const Observable *observable, void *arg )
 {
   const TransformationObserver *to
@@ -371,6 +491,16 @@ void AVolumeView<T>::update( const Observable *observable, void *arg )
   if( to && to->involves( _myvolume->getReferential() ) )
   {
     setupViewFromTransformation();
+    if( _myvolume->hasChanged() )
+      _myvolume->notifyObservers( this );
+  }
+  else if( observable == _myvolume.get() )
+  {
+    if( _myvolume->glHasChanged( GLComponent::glTEXIMAGE ) )
+    {
+      setChanged();
+      notifyObservers( this );
+    }
   }
 
   ObjectVector::update( observable, arg );
