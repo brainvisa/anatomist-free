@@ -324,6 +324,9 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
 {
   /* cout << "AVolume<" << DataTypeCode<T>::name()
       << ">::update2DTexture, pos : " << pos << "\n"; */
+  if( !_volume->allocatorContext().isAllocated() )
+    return false;
+
   const Referential	*objref;
   Transformation	*tra = 0;
   bool			owntr = false;
@@ -1210,9 +1213,7 @@ void AVolume<T>::setInternalsChanged()
 template <typename T>
 void AVolume<T>::setVolume( carto::rc_ptr<AimsData<T> > vol )
 {
-  _volume = vol->volume();
-  delete d->attrib;
-  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
+  setVolume( vol->volume() );
 }
 
 

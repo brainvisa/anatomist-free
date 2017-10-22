@@ -239,6 +239,7 @@ set( _headers
     mobject/wFusion3D.h
     volume/slice.h
     volume/Volume.h
+    volume/volumeview.h
     processor/context.h
     processor/errormessage.h
     processor/event.h
@@ -477,6 +478,7 @@ set( _sources
     mobject/wFusion3D.cc
     volume/slice.cc
     volume/Volume.cc
+    volume/volumeview.cc
     processor/context.cc
     processor/errormessage.cc
     processor/event.cc
