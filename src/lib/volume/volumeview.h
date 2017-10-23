@@ -48,6 +48,7 @@ namespace anatomist
     AVolumeView( const std::list<AObject *> & );
     AVolumeView( const std::string & filename );
     AVolumeView( carto::rc_ptr<carto::Volume<T> > vol );
+    AVolumeView( const std::vector<carto::rc_ptr<carto::Volume<T> > > & vols );
     virtual ~AVolumeView();
 
     virtual void setVolume( carto::rc_ptr<carto::Volume<T> > vol );
