@@ -331,6 +331,12 @@ void AVolumeView<T>::setupViewFromTransformation()
   Point3df pmax( max( p0[0], p1[0] ), max( p0[1], p1[1] ),
                  max( p0[2], p1[2] ) );
   Point3df vs = avol->VoxelSize();
+
+  Point3df vsize = pmax - pos;
+  Point3df target_vs( vsize[0] / _target_size[0], vsize[1] / _target_size[1],
+                      vsize[2] / _target_size[2] );
+  cout << "target vs: " << target_vs << endl;
+
   pos[0] /= vs[0];
   pos[1] /= vs[1];
   pos[2] /= vs[2];
@@ -340,11 +346,10 @@ void AVolumeView<T>::setupViewFromTransformation()
   cout << "new pos: " << pos << endl;
   cout << "new size: " << pmax - pos << endl;
 
-  Point3df vsize = pmax - pos;
-  Point3df res( float( vsize[0] / _target_size[0] ),
-                float( vsize[1] / _target_size[1] ),
-                float( vsize[2] / _target_size[2] ) );
-  cout << "scaling: " << res << endl;
+//   Point3df res( float( vsize[0] / _target_size[0] ),
+//                 float( vsize[1] / _target_size[1] ),
+//                 float( vsize[2] / _target_size[2] ) );
+//   cout << "scaling: " << res << endl;
 
   vector<int> npos( 3 );
   Point3df neg_trans( 0, 0, 0 );
@@ -380,8 +385,6 @@ void AVolumeView<T>::setupViewFromTransformation()
 
   cout << "calculated size: " << nsize[0] << ", " << nsize[1] << ", " << nsize[2] << endl;
 
-  Point3df target_vs( vs[0] / res[0], vs[1] / res[1], vs[2] / res[2] );
-  cout << "target vs: " << target_vs << endl;
   int resolution_level = selectBestResolutionLevel( target_vs );
   cout << "selected resolution_level: " << resolution_level << endl;
   if( resolution_level != _resolution_level )
