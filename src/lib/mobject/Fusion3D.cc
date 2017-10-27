@@ -45,10 +45,14 @@
 #include <graph/tree/tree.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/application/Anatomist.h>
+#include <aims/mesh/mesh_rasterization_d.h>
+#include <aims/bucket/bucket.h>
+#include <aims/mesh/surfaceOperation.h>
 #include <qtranslator.h>
 #include <cfloat>
 
 using namespace anatomist;
+using namespace aims;
 using namespace carto;
 using namespace std;
 
@@ -503,7 +507,7 @@ void Fusion3D::refreshVTextureWithLineToPoint( const ViewState & s,
 }
 
 
-void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep, 
+void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
 				   const ViewState & s, unsigned tex ) const
 {
   int	nbElem = maxIter - minIter + 1;
@@ -544,15 +548,33 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
   map<float, unsigned> histo;
   map<float, unsigned>::iterator ih, eh=histo.end();
 
+  Point3df vs = functional->VoxelSize();
+  BucketMap<Void>::Bucket line;
+  BucketMap<Void>::Bucket::iterator iline, eline = line.end();
+  bool inv_norm = ( minIter < 0 );
+  float length = fabs( ( maxIter - minIter ) * estep );
+  float start_dec = minIter * estep;
+  // TODO: replace minIter / maxIter + step by depths
 
-  int i = 0;
-  for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3, ++i )
+  for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
       ver = Point3df( *itver, *(itver+1), *(itver+2) );
       if( vnor )
         nor = Point3df( *itnor, *(itnor+1), *(itnor+2) );
       else
         nor = Point3df( 0, 0, 1 ); // FIXME
+
+      cver = ver + nor * start_dec;
+      if( trans )
+      {
+        // work in volume space
+        cver = trans->transform( cver );
+        nor = trans->transform( nor ) - trans->transform( Point3df( 0, 0, 0 ) );
+      }
+      nor[0] /= vs[0];
+      nor[1] /= vs[1];
+      nor[2] /= vs[2];
+      nor.norm();
 
       switch( _submethod )
       {
@@ -568,12 +590,16 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
       }
       nvalue = 0;
 
-      for (j=minIter;j<=maxIter;++j)
-      {
-        cver = ver + (j*estep) * nor;
+      line.clear();
+      SurfaceManip::rasterizeLine(
+        Point3df( cver[0] / vs[0], cver[1] / vs[1], cver[2] / vs[2] ),
+        nor, length, line, 0 );
 
-        if( trans )
-          cver = trans->transform( cver );
+      for( iline=line.begin(); iline!=eline; ++iline )
+      {
+        cver = Point3df( iline->first[0] * vs[0], iline->first[1] * vs[1],
+                         iline->first[2] * vs[2] );
+
         cvalue = functional->mixedTexValue( cver, s.time );
 
         switch( _submethod )
