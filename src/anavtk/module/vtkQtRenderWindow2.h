@@ -62,13 +62,25 @@ class vtkQtRenderWindow2 :
  public:
   static vtkQtRenderWindow2 *New();
 #if defined( Q_WS_X11 ) || defined( Q_OS_LINUX )
+#if VTK_MAJOR_VERSION >= 6
+  vtkTypeMacro (vtkQtRenderWindow2, vtkXOpenGLRenderWindow);
+#else
   vtkTypeRevisionMacro (vtkQtRenderWindow2, vtkXOpenGLRenderWindow);
 #endif
+#endif
 #if defined( Q_WS_WIN32 ) || defined( Q_OS_WIN32 )
+#if VTK_MAJOR_VERSION >= 6
+  vtkTypeMacro (vtkQtRenderWindow2, vtkWin32OpenGLRenderWindow);
+#else
   vtkTypeRevisionMacro (vtkQtRenderWindow2, vtkWin32OpenGLRenderWindow);
 #endif
+#endif
 #if defined( Q_WS_MAC ) || defined( Q_OS_MAC )
+#if VTK_MAJOR_VERSION >= 6
+  vtkTypeMacro (vtkQtRenderWindow2, vtkCarbonRenderWindow);
+#else
   vtkTypeRevisionMacro (vtkQtRenderWindow2, vtkCarbonRenderWindow);
+#endif
 #endif
 
   void MakeCurrent (void);

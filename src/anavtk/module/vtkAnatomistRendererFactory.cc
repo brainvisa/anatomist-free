@@ -36,7 +36,9 @@
 #include "vtkAnatomistRenderer.h"
 #include "vtkVersion.h"
 
+#if VTK_MAJOR_VERSION < 6
 vtkCxxRevisionMacro(vtkAnatomistRendererFactory, "$Revision: 1.0 $");
+#endif
 vtkStandardNewMacro(vtkAnatomistRendererFactory);
 
 void vtkAnatomistRendererFactory::PrintSelf(ostream& os, vtkIndent indent)
@@ -69,5 +71,6 @@ const char* vtkAnatomistRendererFactory::GetDescription()
 
 extern "C" vtkObjectFactory* vtkLoad()
 {
+  // cout << "vtkLoad: create vtkAnatomistRendererFactory\n";
   return vtkAnatomistRendererFactory::New();
 }

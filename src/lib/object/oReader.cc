@@ -39,6 +39,7 @@
 #include <aims/io/finder.h>
 #include <aims/mesh/texture.h>
 #include <anatomist/volume/Volume.h>
+#include <anatomist/volume/volumeview.h>
 #include <anatomist/bucket/Bucket.h>
 #include <anatomist/graph/Graph.h>
 #include <anatomist/surface/triangulated.h>
@@ -335,12 +336,25 @@ namespace
     {
       return( false );
     }
-    AVolume<T>  *vol = new AVolume<T>( fname.c_str() /*, type*/ );
-    vol->setVolume( vref );
-    ap.object = vol;
-    vol->setFileName( fname );
-    vol->SetExtrema();
-    vol->adjustPalette();
+    if( vref->refVolume() && theAnatomist->userLevel() >= 3 )
+    {
+      // for now enabled only in debugger mode
+      cout << "Build AVolumeView\n";
+      AVolumeView<T> *vol = new AVolumeView<T>( vref );
+      ap.object = vol;
+      vol->setFileName( fname );
+      vol->SetExtrema();
+      vol->adjustPalette();
+    }
+    else
+    {
+      AVolume<T>  *vol = new AVolume<T>( fname.c_str() /*, type*/ );
+      vol->setVolume( vref );
+      ap.object = vol;
+      vol->setFileName( fname );
+      vol->SetExtrema();
+      vol->adjustPalette();
+    }
     return true;
   }
 
@@ -391,6 +405,8 @@ namespace
   template<long D>
   bool loadMesh( Process & p, const string & fname, Finder & f )
   {
+    using carto::ObjectVector;
+
     AimsLoader	& ap = (AimsLoader &) p;
     AimsTimeSurface<D, Void>	*surf = new AimsTimeSurface<D, Void>;
     if( !loadData( *surf, fname, f, ap.options ) )

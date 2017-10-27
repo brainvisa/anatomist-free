@@ -93,7 +93,7 @@ namespace anatomist
     const carto::rc_ptr<AimsData<T> > aimsvolume() const
     { return carto::rc_ptr<AimsData<T> >( new AimsData<T>( _volume ) ); }
     void setVolume( carto::rc_ptr<AimsData<T> > vol );
-    void setVolume( carto::rc_ptr<carto::Volume<T> > vol );
+    virtual void setVolume( carto::rc_ptr<carto::Volume<T> > vol );
     T & operator () ( size_t x=0, size_t y=0, size_t z=0, size_t t=0 )
     { return (*_volume)( x, y , z ,t ); }
     const T & operator () ( size_t x=0, size_t y=0, size_t z=0, 

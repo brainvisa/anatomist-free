@@ -42,8 +42,11 @@ class vtkAnatomistRenderer : public vtkOpenGLRenderer
 
  public:
   static vtkAnatomistRenderer *New();
+#if VTK_MAJOR_VERSION >= 6
+  vtkTypeMacro (vtkAnatomistRenderer, vtkOpenGLRenderer);
+#else
   vtkTypeRevisionMacro (vtkAnatomistRenderer, vtkOpenGLRenderer);
-  
+#endif
 
   virtual void DeviceRender();
 

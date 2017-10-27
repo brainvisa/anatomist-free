@@ -36,7 +36,9 @@
 #include <anatomist/module/vtkQtRenderWindow2.h>
 
 
+#if VTK_MAJOR_VERSION < 6
 vtkCxxRevisionMacro(vtkQtRenderWindow2, "$Revision: 1.0 $");
+#endif
 vtkStandardNewMacro(vtkQtRenderWindow2);
 
 
