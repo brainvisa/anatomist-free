@@ -294,6 +294,8 @@ void AVolumeView<T>::setupTransformationFromView()
   AffineTransformation3d & atr = tr->motion();
   atr.setToIdentity();
   Point3df vs = _myvolume->VoxelSize();
+  vector<int> size = _myvolume->volume()->getSize();
+  _initial_fov = Point3df( size[0] * vs[0], size[1] * vs[1], size[2] * vs[2] );
   Point3df trans( ipos[0] * vs[0], ipos[1] * vs[1], ipos[2] * vs[2] );
   atr.setTranslation( trans );
   tr->registerTrans();
@@ -317,14 +319,9 @@ void AVolumeView<T>::setupViewFromTransformation()
   // TODO: erase all non-diagonal transform coefs
 
   rc_ptr<Volume<T> > vol = _myvolume->volume();
-  vector<float> ivs = vol->getVoxelSize();
-  vector<int> isz = vol->getSize();
 
-  Point3df bbmin( 0, 0, 0 ),
-    bbmax( ( isz[0] - 1 ) * ivs[0], ( isz[1] - 1 ) * ivs[1],
-           ( isz[2] - 1 ) * ivs[2] );
-  Point3df p0 = tr->transform( bbmin );
-  Point3df p1 = tr->transform( bbmax );
+  Point3df p0 = tr->transform( Point3df( 0, 0, 0 ) );
+  Point3df p1 = tr->transform( _initial_fov );
 
   Point3df pos( min( p0[0], p1[0] ), min( p0[1], p1[1] ),
                 min( p0[2], p1[2] ) );
@@ -336,6 +333,23 @@ void AVolumeView<T>::setupViewFromTransformation()
   Point3df target_vs( vsize[0] / _target_size[0], vsize[1] / _target_size[1],
                       vsize[2] / _target_size[2] );
   cout << "target vs: " << target_vs << endl;
+  int resolution_level = selectBestResolutionLevel( target_vs );
+  cout << "selected resolution_level: " << resolution_level << endl;
+
+  if( resolution_level != _resolution_level )
+  {
+    avol = _avolume[resolution_level];
+    vs = avol->VoxelSize();
+    cout << "new vs: " << Point3df( vs[0], vs[1], vs[2] ) << endl;
+
+    // recalculate position and size in the new ref volume
+    Transformation *tr2
+      = theAnatomist->getTransformation( getReferential(),
+                                         avol->getReferential() );
+    if( tr2 )
+      tr = tr2;
+    // if no tr2, assume the same as the previous one, which is probably wrong
+  }
 
   pos[0] /= vs[0];
   pos[1] /= vs[1];
@@ -385,57 +399,7 @@ void AVolumeView<T>::setupViewFromTransformation()
 
   cout << "calculated size: " << nsize[0] << ", " << nsize[1] << ", " << nsize[2] << endl;
 
-  int resolution_level = selectBestResolutionLevel( target_vs );
-  cout << "selected resolution_level: " << resolution_level << endl;
-  if( resolution_level != _resolution_level )
-  {
-    avol = _avolume[resolution_level];
-    vs = avol->VoxelSize();
-
-    // recalculate position and size in the new ref volume
-    Transformation *tr2
-      = theAnatomist->getTransformation( getReferential(),
-                                         avol->getReferential() );
-    if( tr2 )
-      tr = tr2;
-    // if no tr2, assume the same as the previous one, which is probably wrong
-
-    p0 = tr->transform( bbmin );
-    p1 = tr->transform( bbmax );
-
-    pos = Point3df( min( p0[0], p1[0] ), min( p0[1], p1[1] ),
-                    min( p0[2], p1[2] ) );
-    pmax = Point3df( max( p0[0], p1[0] ), max( p0[1], p1[1] ),
-                     max( p0[2], p1[2] ) );
-    pos[0] /= vs[0];
-    pos[1] /= vs[1];
-    pos[2] /= vs[2];
-    pmax[0] /= vs[0];
-    pmax[1] /= vs[1];
-    pmax[2] /= vs[2];
-
-    neg_trans = Point3df( 0, 0, 0 );
-    npos[0] = int( pos[0] );
-    npos[1] = int( pos[1] );
-    npos[2] = int( pos[2] );
-    if( npos[0] < 0 )
-    {
-      neg_trans[0] = npos[0] * vs[0];
-      npos[0] = 0.;
-    }
-    if( npos[1] < 0 )
-    {
-      neg_trans[1] = npos[1] * vs[1];
-      npos[1] = 0.;
-    }
-    if( npos[2] < 0 )
-    {
-      neg_trans[2] = npos[2] * vs[2];
-      npos[2] = 0.;
-    }
-  }
-
-  nsize = _target_size;
+//   nsize = _target_size;
 
   vector<int> maxsize = avol->volume()->getSize();
 
@@ -507,6 +471,10 @@ void AVolumeView<T>::setupViewFromTransformation()
 
 //     VolumeRef<T> view( avol->volume(), npos, nsize );
     _myvolume->setVolume( view );
+    _myvolume->SetExtrema();
+    _myvolume->adjustPalette();
+
+    cout << "value mid: " << view->at( nsize[0]/2, nsize[1]/2, nsize[2]/2 ) << endl;
 
     setChanged();
   }

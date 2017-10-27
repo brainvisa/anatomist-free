@@ -92,6 +92,7 @@ namespace anatomist
     carto::rc_ptr<AVolume<T> > _myvolume;
     std::vector<carto::rc_ptr<AVolume<T> > > _avolume;
     std::vector<int> _target_size;
+    Point3df _initial_fov;
     int _resolution_level;
   };
 
