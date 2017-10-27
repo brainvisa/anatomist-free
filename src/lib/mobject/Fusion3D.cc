@@ -336,16 +336,6 @@ void Fusion3D::refreshVTexture( const ViewState & s ) const
           }
         }
     }
-#if 0   // JEFF
-  // enhancedMean normalisation
-  vector<float>::iterator it;
-  float max = 0;
-  for (it=_vtextureEnhancedMean.begin();it!=_vtextureEnhancedMean.end();it++)
-    if (max < (*it)) max=(*it);
-  if (max != 0)
-    for (it=_vtextureEnhancedMean.begin();it!=_vtextureEnhancedMean.end();it++)
-      (*it) /= max;
-#endif
 
   d->refreshVTexture = false;
 }
@@ -405,20 +395,9 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   float		value;
   Point3df	pos, ver, nor;
 
-  min = 0;
-  max = 0;
-  if( glf && glf->glNumTextures() > 0 )
-  {
-    const TexExtrema  & te = glf->glTexExtrema( 0 );
-    if( !te.min.empty() )
-      min = te.min[0];
-    if( !te.max.empty() )
-      max = te.max[0];
-  }
-  if (min >= max) 
-    scale = 1;
-  else
-    scale = 1. / ( max - min );
+  min = FLT_MAX;
+  max = -FLT_MAX;
+
   /* cout << "Fusion3D min: " << min << ", max: " << max << ", scale: "
      << scale << endl; */
   float	depth = _depth;
@@ -442,15 +421,34 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
       pos = trans->transform( pos );
     value = functional->mixedTexValue( pos, s.time );
 
-    vtexture.push_back( (value - min) * scale );
+    if( value < min )
+      min = value;
+    if( value > max )
+      max = value;
+
+    vtexture.push_back( value );
+  }
+
+  float qmin = min, qmax = max;
+  if( max > 1. || min < 0. )
+  {
+    if( min == max )
+      scale = 1.;
+    else
+      scale = 1. / ( max - min );
+    max = 1.;
+    min = 0.;
+    vector<float>::iterator itt, ett = vtexture.end();
+    for( itt=vtexture.begin(); itt!=ett; ++itt )
+      *itt = ( *itt - qmin ) * scale + min;
   }
 
   TexExtrema  & te 
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
-  te.minquant[0] = min; // qmin
-  te.maxquant[0] = max; // qmax
-  te.min[0] = 0; // ( qmin - min ) * scale
-  te.max[0] = ( max - min ) * scale; // ( qmax - min ) * scale;
+  te.minquant[0] = qmin;
+  te.maxquant[0] = qmax;
+  te.min[0] = min;
+  te.max[0] = max;
   te.scaled = true;
   /* cout << "qmin: " << qmin << ", qmax: " << qmax << endl;
   cout << "actual min: " << ( qmin - min ) * scale << ", max: " 
@@ -535,38 +533,26 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
   const GLfloat	*itnor;
   Point3df	ver, cver;
   Point3df	nor;
-  float		cvalue, xvalue, cxvalue;
+  float		cvalue;
   float 	value;
   unsigned	nvalue;
   int		j;
 
-  min = 0;
-  max = 0;
-  if( glf && glf->glNumTextures() > 0 )
-  {
-    const TexExtrema  & te = glf->glTexExtrema( 0 );
-    if( !te.minquant.empty() )
-      min = te.minquant[0];
-    if( !te.maxquant.empty() )
-      max = te.maxquant[0];
-  }
-  if (min == max) 
-    scale = 1;
-  else
-    scale = 1. / ( max - min );
+  min = FLT_MAX;
+  max = -FLT_MAX;
 
-  float  qmin = FLT_MAX, qmax = -FLT_MAX;
   map<float, unsigned> histo;
   map<float, unsigned>::iterator ih, eh=histo.end();
 
-  for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
+
+  int i = 0;
+  for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3, ++i )
     {
       ver = Point3df( *itver, *(itver+1), *(itver+2) );
       if( vnor )
         nor = Point3df( *itnor, *(itnor+1), *(itnor+2) );
       else
         nor = Point3df( 0, 0, 1 ); // FIXME
-      xvalue = 0.;
 
       switch( _submethod )
       {
@@ -588,8 +574,7 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
 
         if( trans )
           cver = trans->transform( cver );
-        cxvalue = functional->mixedTexValue( cver, s.time );
-        cvalue = ( cxvalue - min ) * scale;
+        cvalue = functional->mixedTexValue( cver, s.time );
 
         switch( _submethod )
         {
@@ -613,10 +598,9 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
           }
           break;
         case ABSMAX:
-          if( fabs( xvalue ) <= fabs( cxvalue ) )
+          if( fabs( value ) <= fabs( cvalue ) )
           {
             value = cvalue;
-            xvalue = cxvalue;
           }
           break;
         case MEDIAN:
@@ -649,20 +633,34 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
       default:
         break;
       }
-      if( value < qmin )
-        qmin = value;
-      if( value > qmax )
-        qmax = value;
+      if( value < min )
+        min = value;
+      if( value > max )
+        max = value;
 
       vtexture.push_back(value);
     }
 
-  TexExtrema  & te 
+  float qmin = min, qmax = max;
+  if( max > 1. || min < 0. )
+  {
+    if( min == max )
+      scale = 1.;
+    else
+      scale = 1. / ( max - min );
+    max = 1.;
+    min = 0.;
+    vector<float>::iterator itt, ett = vtexture.end();
+    for( itt=vtexture.begin(); itt!=ett; ++itt )
+      *itt = ( *itt - qmin ) * scale + min;
+  }
+
+  TexExtrema  & te
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
   te.minquant[0] = qmin;
   te.maxquant[0] = qmax;
-  te.min[0] = ( qmin - min ) * scale;
-  te.max[0] = ( qmax - min ) * scale;
+  te.min[0] = min;
+  te.max[0] = max;
   te.scaled = true;
 }
 
@@ -691,8 +689,8 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
                                                  unsigned tex ) const
 {
   // get volume scale
-  float min;
-  float max;
+  float min = FLT_MAX;
+  float max = -FLT_MAX;
   float	scale;
 
   // get surface vector of vertex
@@ -739,33 +737,16 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
   const GLfloat			*verend = vver + 3*nver;
   Point3df			ver, cver;
   Point3df			nor;
-  float				cvalue, xvalue, cxvalue;
+  float				cvalue;
   float 			value;
   unsigned			nvalue;
 
-  min = 0;
-  max = 0;
-  if( glf && glf->glNumTextures() > 0 )
-  {
-    const TexExtrema  & te = glf->glTexExtrema( 0 );
-    if( !te.minquant.empty() )
-      min = te.minquant[0];
-    if( !te.maxquant.empty() )
-      max = te.maxquant[0];
-  }
-  if( min == max )
-    scale = 1;
-  else
-    scale = 1. / ( max - min );
-
-  float  qmin = FLT_MAX, qmax = -FLT_MAX;
   map<float, unsigned> histo;
   map<float, unsigned>::iterator ih, eh=histo.end();
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
       ver = Point3df( *itver, *(itver+1), *(itver+2) );
-      xvalue = 0.;
 
       switch( _submethod )
       {
@@ -787,8 +768,7 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
 
         if( trans )
           cver = trans->transform( cver );
-        cxvalue = functional->mixedTexValue( cver, s.time );
-        cvalue = ( cxvalue - min ) * scale;
+        cvalue = functional->mixedTexValue( cver, s.time );
 
         switch( _submethod )
         {
@@ -812,10 +792,9 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
           }
           break;
         case ABSMAX:
-          if( fabs( xvalue ) <= fabs( cxvalue ) )
+          if( fabs( value ) <= fabs( cvalue ) )
           {
             value = cvalue;
-            xvalue = cxvalue;
           }
           break;
         case MEDIAN:
@@ -849,20 +828,35 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
         break;
       }
 
-      if( value < qmin )
-        qmin = value;
-      if( value > qmax )
-        qmax = value;
+      if( value < min )
+        min = value;
+      if( value > max )
+        max = value;
 
       vtexture.push_back(value);
     }
 
-  TexExtrema  & te 
+  scale = max - min;
+  float qmin = min, qmax = max;
+  if( max > 1. || min < 0. )
+  {
+    if( min == max )
+      scale = 1.;
+    else
+      scale = 1. / ( max - min );
+    max = 1.;
+    min = 0.;
+    vector<float>::iterator itt, ett = vtexture.end();
+    for( itt=vtexture.begin(); itt!=ett; ++itt )
+      *itt = ( *itt - qmin ) * scale + min;
+  }
+
+  TexExtrema  & te
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
   te.minquant[0] = qmin;
   te.maxquant[0] = qmax;
-  te.min[0] = ( qmin - min ) * scale;
-  te.max[0] = ( qmax - min ) * scale;
+  te.min[0] = min;
+  te.max[0] = max;
   te.scaled = true;
 }
 
