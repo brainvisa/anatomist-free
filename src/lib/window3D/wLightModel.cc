@@ -442,7 +442,8 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   mainlay->addWidget( spot );
   mainlay->addWidget( attenuation );
 
-  connect( tbar, SIGNAL( selected( int ) ), this, SLOT( enableTab( int ) ) );
+  connect( tbar, SIGNAL( currentChanged( int ) ),
+           this, SLOT( enableTab( int ) ) );
   connect( _pdat->sourceAmbient, SIGNAL( colorChanged() ), this, 
 	   SLOT( sourceAmbientChanged() ) );
   connect( _pdat->sourceDiffuse, SIGNAL( colorChanged() ), this, 
