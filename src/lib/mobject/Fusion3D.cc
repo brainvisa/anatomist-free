@@ -503,15 +503,13 @@ void Fusion3D::refreshVTextureWithLineToPoint( const ViewState & s,
   pair<float,int>	es = _effectiveStep( (*firstVolume())->VoxelSize(), 
                                              _step, _depth );
 
-  refreshLineTexture( -es.second, es.second, es.first, s, tex );
+  refreshLineTexture( -_depth, _depth, s, tex );
 }
 
 
-void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
-				   const ViewState & s, unsigned tex ) const
+void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
+                                   const ViewState & s, unsigned tex ) const
 {
-  int	nbElem = maxIter - minIter + 1;
-
   // get volume scale
   float min; 
   float max;
@@ -551,10 +549,8 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
   Point3df vs = functional->VoxelSize();
   BucketMap<Void>::Bucket line;
   BucketMap<Void>::Bucket::iterator iline, eline = line.end();
-  bool inv_norm = ( minIter < 0 );
-  float length = fabs( ( maxIter - minIter ) * estep );
-  float start_dec = minIter * estep;
-  // TODO: replace minIter / maxIter + step by depths
+  float length = fabs( stop_depth - start_deth );
+  int nbElem;
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
@@ -564,7 +560,7 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
       else
         nor = Point3df( 0, 0, 1 ); // FIXME
 
-      cver = ver + nor * start_dec;
+      cver = ver + nor * start_deth;
       if( trans )
       {
         // work in volume space
@@ -594,6 +590,7 @@ void Fusion3D::refreshLineTexture( int minIter, int maxIter, float estep,
       SurfaceManip::rasterizeLine(
         Point3df( cver[0] / vs[0], cver[1] / vs[1], cver[2] / vs[2] ),
         nor, length, line, 0 );
+      nbElem = line.size();
 
       for( iline=line.begin(); iline!=eline; ++iline )
       {
@@ -697,7 +694,7 @@ void Fusion3D::refreshVTextureWithInsideLineToPoint( const ViewState & s,
   pair<float,int>	es = _effectiveStep( (*firstVolume())->VoxelSize(), 
                                              _step, _depth );
 
-  refreshLineTexture( -es.second, 0, es.first, s, tex );
+  refreshLineTexture( -_depth, 0, s, tex );
 }
 
 
@@ -707,7 +704,7 @@ void Fusion3D::refreshVTextureWithOutsideLineToPoint( const ViewState & s,
   pair<float,int>	es = _effectiveStep( (*firstVolume())->VoxelSize(), 
                                              _step, _depth );
 
-  refreshLineTexture( 0, es.second, es.first, s, tex );
+  refreshLineTexture( 0, _depth, s, tex );
 }
 
 

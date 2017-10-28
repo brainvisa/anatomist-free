@@ -193,8 +193,8 @@ namespace anatomist
     /**		Refresh textures with lines and various ranges along the line. 
 		Called by the various refreshTextureWith*Line* functions
     */
-    void refreshLineTexture( int minIter, int maxIter, float estep, 
-			     const ViewState &, unsigned tex ) const;
+    void refreshLineTexture( float start_depth, float stop_depth,
+                             const ViewState &, unsigned tex ) const;
 
     float enhancedMean( float value, int nbElemCorrected, int nbElem ) const;
 
