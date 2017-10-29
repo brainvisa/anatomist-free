@@ -266,6 +266,9 @@ ReferentialWindow::~ReferentialWindow()
 {
   if (theAnatomist->getControlWindow() != 0)
     theAnatomist->getControlWindow()->enableRefWinMenu( true );
+  if( pdat->view3d )
+    disconnect( pdat->view3d, SIGNAL( destroyed() ),
+                this, SLOT( view3dDeleted() ) );
   delete pdat;
 }
 
