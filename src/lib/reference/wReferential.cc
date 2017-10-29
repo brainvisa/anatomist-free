@@ -1238,12 +1238,15 @@ QString ReferentialWindow::transformationToolTipText(
       tr->destination(), tr->source() );
 
     col = tr->destination()->Color();
+    ptr.begin( &pix );
     ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
     ptr.drawEllipse( 0, 0, 16, 16 );
     col = tr->source()->Color();
     ptr.setBrush( QBrush( QColor( col.red(), col.green(), col.blue() ) ) );
     ptr.drawEllipse( 48, 0, 16, 16 );
-    string pixfname_inv = FileUtil::temporaryFile( "anarefpixmap.png", fd );
+    ptr.end();
+    string pixfname_inv = FileUtil::temporaryFile( "anarefpixmap.png",
+                                                   fd );
     ::close( fd );
     pix.save( QString( pixfname_inv.c_str() ), "PNG" );
     temp_filenames.push_back( pixfname_inv );
