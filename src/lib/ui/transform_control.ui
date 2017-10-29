@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>287</width>
-    <height>286</height>
+    <width>276</width>
+    <height>267</height>
    </rect>
   </property>
   <property name="palette">
@@ -273,7 +273,7 @@
    <string notr="true">color: rgb(192, 88, 0);
 </string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="sizeConstraint">
@@ -346,6 +346,31 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="inv_trans_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>&lt;-&gt;</string>
        </property>
       </widget>
      </item>
@@ -674,7 +699,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="matrix_tab">
       <attribute name="title">
@@ -686,7 +711,7 @@
          <x>0</x>
          <y>10</y>
          <width>252</width>
-         <height>146</height>
+         <height>111</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="matrix_layout">
@@ -905,7 +930,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="matrix_spacer">
+         <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -1491,40 +1516,51 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QPushButton" name="reset_pushButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(192, 192, 192, 90);
-</string>
-       </property>
+      <widget class="QCheckBox" name="center_on_objects">
        <property name="text">
-        <string>Reset (Id)</string>
+        <string>Centered on objects</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="resetR_pushButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(192, 192, 192, 90);
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="reset_pushButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(192, 192, 192, 90);
 </string>
-       </property>
-       <property name="text">
-        <string>Reset rotation/scale</string>
-       </property>
-      </widget>
+         </property>
+         <property name="text">
+          <string>Reset (Id)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="resetR_pushButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(192, 192, 192, 90);
+</string>
+         </property>
+         <property name="text">
+          <string>Reset rotation/scale</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

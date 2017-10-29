@@ -94,6 +94,10 @@ namespace anatomist
     public slots:
       virtual void resetTransform();
       virtual void resetRotation();
+      virtual void fromRefButtonClicked();
+      virtual void toRefButtonClicked();
+      virtual void invertTransformationClicked();
+      virtual void centerOnObjectsToggled( int state );
 
     protected slots:
       virtual void rotationAngleEdited( const QString & );
@@ -107,6 +111,7 @@ namespace anatomist
       bool _rotationAngleEdited;
       bool _rotationScaleEdited;
       Motion _pendingMotion;
+      bool _centerOnObjects;
 
       virtual void updateTemporaryObjects(
         const aims::Quaternion & rotation ) = 0;
