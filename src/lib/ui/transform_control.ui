@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>276</width>
-    <height>267</height>
+    <height>270</height>
    </rect>
   </property>
   <property name="palette">
@@ -312,6 +312,9 @@
          <height>20</height>
         </size>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(192, 192, 192, 90);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -344,6 +347,9 @@
          <height>20</height>
         </size>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(192, 192, 192, 90);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -368,6 +374,9 @@
          <width>20</width>
          <height>20</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(192, 192, 192, 90);</string>
        </property>
        <property name="text">
         <string>&lt;-&gt;</string>
@@ -691,8 +700,12 @@
        </disabled>
       </palette>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
-      <string notr="true">background: transparent;
+      <string notr="true">background-color: transparent;
+QTabWidget,QTabWidget::pane,QTabBar { background: transparent; border: 0px; }
 </string>
      </property>
      <property name="tabShape">
@@ -702,6 +715,9 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="matrix_tab">
+      <property name="styleSheet">
+       <string notr="true">background: transparent;</string>
+      </property>
       <attribute name="title">
        <string>Matrix</string>
       </attribute>
@@ -730,8 +746,7 @@
            </size>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: rgba(255, 255, 255, 60);
-</string>
+           <string notr="true">background-color: rgba(255, 255, 255, 60);</string>
           </property>
           <attribute name="horizontalHeaderVisible">
            <bool>false</bool>
