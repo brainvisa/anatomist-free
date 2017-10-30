@@ -433,30 +433,27 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
     vtexture.push_back( value );
   }
 
-  float qmin = min, qmax = max;
-  if( max > 1. || min < 0. )
+  const TexExtrema & fte = glf->glTexExtrema( tex );
+  float qmin = fte.minquant[0], qmax = fte.maxquant[0];
+  float fmin = 0., fmax = 1.;
+  // keep same qmin/qmax as the volume
   {
-    if( min == max )
+    if( qmin == qmax )
       scale = 1.;
     else
-      scale = 1. / ( max - min );
-    max = 1.;
-    min = 0.;
+      scale = ( fmax - fmin ) / ( qmax - qmin );
     vector<float>::iterator itt, ett = vtexture.end();
     for( itt=vtexture.begin(); itt!=ett; ++itt )
-      *itt = ( *itt - qmin ) * scale + min;
+      *itt = ( *itt - qmin ) * scale + fmin;
   }
 
   TexExtrema  & te 
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
   te.minquant[0] = qmin;
   te.maxquant[0] = qmax;
-  te.min[0] = min;
-  te.max[0] = max;
+  te.min[0] = fmin;
+  te.max[0] = fmax;
   te.scaled = true;
-  /* cout << "qmin: " << qmin << ", qmax: " << qmax << endl;
-  cout << "actual min: " << ( qmin - min ) * scale << ", max: " 
-  << ( qmax - min ) * scale << endl; */
 }
 
 
@@ -664,26 +661,26 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
       vtexture.push_back(value);
     }
 
-  float qmin = min, qmax = max;
-  if( max > 1. || min < 0. )
+  const TexExtrema & fte = glf->glTexExtrema( tex );
+  float qmin = fte.minquant[0], qmax = fte.maxquant[0];
+  float fmin = 0., fmax = 1.;
+  // keep same qmin/qmax as the volume
   {
-    if( min == max )
+    if( qmin == qmax )
       scale = 1.;
     else
-      scale = 1. / ( max - min );
-    max = 1.;
-    min = 0.;
+      scale = ( fmax - fmin ) / ( qmax - qmin );
     vector<float>::iterator itt, ett = vtexture.end();
     for( itt=vtexture.begin(); itt!=ett; ++itt )
-      *itt = ( *itt - qmin ) * scale + min;
+      *itt = ( *itt - qmin ) * scale + fmin;
   }
 
   TexExtrema  & te
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
   te.minquant[0] = qmin;
   te.maxquant[0] = qmax;
-  te.min[0] = min;
-  te.max[0] = max;
+  te.min[0] = fmin;
+  te.max[0] = fmax;
   te.scaled = true;
 }
 
@@ -859,27 +856,26 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
       vtexture.push_back(value);
     }
 
-  scale = max - min;
-  float qmin = min, qmax = max;
-  if( max > 1. || min < 0. )
+  const TexExtrema & fte = glf->glTexExtrema( tex );
+  float qmin = fte.minquant[0], qmax = fte.maxquant[0];
+  float fmin = 0., fmax = 1.;
+  // keep same qmin/qmax as the volume
   {
-    if( min == max )
+    if( qmin == qmax )
       scale = 1.;
     else
-      scale = 1. / ( max - min );
-    max = 1.;
-    min = 0.;
+      scale = ( fmax - fmin ) / ( qmax - qmin );
     vector<float>::iterator itt, ett = vtexture.end();
     for( itt=vtexture.begin(); itt!=ett; ++itt )
-      *itt = ( *itt - qmin ) * scale + min;
+      *itt = ( *itt - qmin ) * scale + fmin;
   }
 
   TexExtrema  & te
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
   te.minquant[0] = qmin;
   te.maxquant[0] = qmax;
-  te.min[0] = min;
-  te.max[0] = max;
+  te.min[0] = fmin;
+  te.max[0] = fmax;
   te.scaled = true;
 }
 
