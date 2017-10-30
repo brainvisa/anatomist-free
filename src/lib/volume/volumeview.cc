@@ -171,19 +171,83 @@ void AVolumeView<T>::init( const vector<rc_ptr<Volume<T> > > & vols )
   Referential *ref = new Referential;
   _myvolume->setReferential( ref );
 
+
   if( !vols.empty() )
   {
+    vector<rc_ptr<Volume<T> > > cvols;
     rc_ptr<Volume<T> > vol = vols[0];
 
-    setVolume( vol );
+    if( vol->header().hasProperty( "resolutions_dimension" ) )
+    {
+      VolumeRef<T> refvol = vol->refVolume();
+      if( !refvol.get() )
+        refvol = vol;
+      try
+      {
+        Object all_res = vol->header().getProperty( "resolutions_dimension" );
+        Object it;
+        int rl = 0;
+        cvols.reserve( all_res->size() + vols.size() - 1 );
+
+        for( it=all_res->objectIterator(); it->isValid(); it->next(), ++rl )
+        {
+          Object res = it->currentValue();
+          vector<int> vres;
+          Object rit;
+          cout << "resolution level dims: ";
+          for( rit=res->objectIterator(); rit->isValid(); rit->next() )
+          {
+            vres.push_back( int( rint( rit->currentValue()->getScalar() ) ) );
+            cout << vres[ vres.size() -1 ] << ", ";
+          }
+          cout << endl;
+          if( vres == refvol->getSize() )
+          {
+            cout << "found current one\n";
+            _resolution_level = rl;
+            cvols.push_back( vol );
+          }
+          else
+          {
+            rc_ptr<DataSourceInfo> dsi
+              = refvol->allocatorContext().dataSourceInfo();
+            cout << "read from file: " << dsi->url() << endl;
+            Object options = Object::value( Dictionary() );
+            options->setProperty( "sx", 1 );
+            options->setProperty( "sy", 1 );
+            options->setProperty( "sz", 1 );
+            options->setProperty( "resolution_level", rl );
+//               options->setProperty( "unallocated", true );
+
+            Reader<Volume<T> > r( dsi->url() );
+            r.setOptions( options );
+            string format = dsi->identifiedFormat();
+            VolumeRef<T> view = r.read( 0, &format );
+            cvols.push_back( view );
+          }
+        }
+      }
+      catch( exception & e )
+      {
+        cerr << "error while reading resolutions_dimension of the volume: "
+          << e.what() << endl;
+      }
+      cvols.insert( cvols.end(), vols.begin() + 1, vols.end() );
+    }
+    else
+      cvols.insert( cvols.end(), vols.begin(), vols.end() );
+
+    setVolume( cvols[0] );
+    if( _resolution_level != 0 )
+      _myvolume->setVolume( vol );
     _target_size = vol->getSize();
     Transformation *tr
       = new Transformation( ref, _avolume[0]->AObject::getReferential() );
     tr->motion().setToIdentity();
     tr->registerTrans();
 
-    typename vector<rc_ptr<Volume<T> > >::const_iterator iv, ev = vols.end();
-    for( iv=vols.begin(), ++iv; iv!=ev; ++iv )
+    typename vector<rc_ptr<Volume<T> > >::const_iterator iv, ev = cvols.end();
+    for( iv=cvols.begin(), ++iv; iv!=ev; ++iv )
     {
       rc_ptr<Volume<T> > rvol = (*iv)->refVolume();
       if( !rvol.get() )
@@ -500,7 +564,12 @@ AVolumeView<T>::selectBestResolutionLevel( const Point3df & target_vs ) const
   for( level=0; level<n; ++level )
   {
     Point3df vs = _avolume[level]->VoxelSize();
-    Point3df diff = target_vs - vs;
+    Point3df diff = vs - target_vs;
+    // make it relative
+    diff[0] /= target_vs[0];
+    diff[1] /= target_vs[1];
+    diff[2] /= target_vs[2];
+
     if( diff[0] >= 0 && diff[1] >= 0 && diff[2] >= 0 )
     {
       if( !found_ok )
@@ -528,8 +597,9 @@ AVolumeView<T>::selectBestResolutionLevel( const Point3df & target_vs ) const
       }
       else
       {
-        if( max( -diff[0], max( -diff[1], -diff[2] ) )
-            < max( -subopt_diff[0], max( -subopt_diff[1], -subopt_diff[2] ) ) )
+        if( max( fabs( diff[0] ), max( fabs( diff[1] ), fabs( diff[2] ) ) )
+            < max( fabs( subopt_diff[0] ),
+                   max( fabs( subopt_diff[1] ), fabs( subopt_diff[2] ) ) ) )
         {
           subopt_diff = diff;
           best_level = level;
@@ -539,7 +609,7 @@ AVolumeView<T>::selectBestResolutionLevel( const Point3df & target_vs ) const
   }
 
   if( best_level < 0 )
-    best_level = 0;
+    best_level = n - 1; // take the lowest, it's safer
 
   return best_level;
 }
@@ -579,6 +649,14 @@ template <typename T>
 void AVolumeView<T>::setTargetSize( const vector<int> & size )
 {
   _target_size = size;
+  setChanged();
+}
+
+
+template <typename T>
+void AVolumeView<T>::setInitialFOV( const Point3df & fov )
+{
+  _initial_fov = fov;
   setChanged();
 }
 

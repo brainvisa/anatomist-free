@@ -44,6 +44,7 @@
 #include <anatomist/window3D/boxviewslice.h>
 #include <anatomist/surface/surface.h>
 #include <anatomist/reference/Referential.h>
+#include <anatomist/reference/wChooseReferential.h>
 #include <anatomist/ui/ui_transform_control.h>
 #include <aims/mesh/surfacegen.h>
 #include <aims/mesh/surfaceOperation.h>
@@ -72,9 +73,9 @@ TransformerActionData::TransformerActionData(
   : QObject(), _maintrans( other._maintrans ), _trans( other._trans ),
     _itrans( other._itrans ),
     _rotationAngleEdited( false ), _rotationScaleEdited( false ),
-    _pendingMotion(other._pendingMotion)
+    _pendingMotion( other._pendingMotion ),
+    _centerOnObjects( false )
 {
-
 }
 
 
@@ -91,6 +92,22 @@ anatomist::Transformation* TransformerActionData::mainTransformation() const
 
 void TransformerActionData::selectTransformations( AWindow * win )
 {
+  Action* action = dynamic_cast<AWindow3D *>( win )->view()
+    ->controlSwitch()->getAction( "Transformer" );
+  if( action )
+  {
+    Transformer *ta = dynamic_cast<Transformer *>( action );
+    if( ta && ta != this )
+    {
+      ta->selectTransformations( win );
+      _maintrans = ta->_maintrans;
+      _trans = ta->_trans;
+      _itrans = ta->_itrans;
+      _centerOnObjects = ta->_centerOnObjects;
+      return;
+    }
+  }
+
   const std::map<unsigned, set<AObject *> >
     & sel = SelectFactory::factory()->selected();
   map<unsigned, set<AObject *> >::const_iterator is = sel.find( win->Group() );
@@ -102,6 +119,12 @@ void TransformerActionData::selectTransformations( AWindow * win )
   set<AObject *>::const_iterator        io, eo = obj.end();
   Referential   *ref = 0, *cref = theAnatomist->centralReferential();
   Transformation                        *t;
+
+  if( _maintrans )
+  {
+    ref = _maintrans->source();
+    cref = _maintrans->destination();
+  }
 
   _trans.clear();
   _itrans.clear();
@@ -163,7 +186,15 @@ void TransformerActionData::selectTransformations( AWindow * win )
   {
     if( _trans.find( _maintrans ) == _trans.end()
       && _itrans.find( _maintrans ) == _itrans.end() )
-      _maintrans = 0;
+    {
+      // if the inverse transform is found, it is OK.
+      Transformation *itr
+        = theAnatomist->getTransformation( _maintrans->destination(),
+                                           _maintrans->source() );
+      if( _trans.find( itr ) == _trans.end()
+      && _itrans.find( itr ) == _itrans.end() )
+        _maintrans = 0;
+    }
   }
   if( !_maintrans )
   {
@@ -545,6 +576,74 @@ void TransformerActionData::clearEditionFlags()
     _rotationAngleEdited = false;
     _rotationScaleEdited = false;
 }
+
+
+void TransformerActionData::fromRefButtonClicked()
+{
+  set<AObject *> obj;
+  ChooseReferentialWindow chref( obj, "Source referential" );
+  chref.exec();
+  Referential *ref = chref.selectedReferential();
+  if( ref )
+  {
+    Referential *dref = theAnatomist->centralReferential();
+    if( _maintrans )
+      dref = _maintrans->destination();
+    Transformation *tr = theAnatomist->getTransformation( ref, dref );
+    if( tr )
+    {
+      setMainTransformation( tr );
+      updateGVInfo( initialQuaternion() );
+    }
+  }
+}
+
+
+void TransformerActionData::toRefButtonClicked()
+{
+  set<AObject *> obj;
+  ChooseReferentialWindow chref( obj, "Destination referential" );
+  chref.exec();
+  Referential *ref = chref.selectedReferential();
+  if( ref )
+  {
+    Referential *sref = theAnatomist->centralReferential();
+    if( _maintrans )
+      sref = _maintrans->source();
+    Transformation *tr = theAnatomist->getTransformation( sref, ref );
+    if( tr )
+    {
+      setMainTransformation( tr );
+      updateGVInfo( initialQuaternion() );
+    }
+  }
+}
+
+
+void TransformerActionData::invertTransformationClicked()
+{
+  selectTransformations(tadView()->aWindow());
+
+  Transformation* t = mainTransformation();
+  if( t )
+  {
+    Transformation *itr
+      = theAnatomist->getTransformation( t->destination(),
+                                         t->source() );
+    if( itr )
+    {
+      setMainTransformation( itr );
+      updateGVInfo( initialQuaternion() );
+    }
+  }
+}
+
+
+void TransformerActionData::centerOnObjectsToggled( int state )
+{
+  _centerOnObjects = state;
+}
+
 
 bool TransformerActionData::getCurrentMotion(Motion& motion)
 {
@@ -1004,6 +1103,14 @@ namespace
                    ob, SLOT( rotationScaleEdited( const QString & ) ) );
       ob->connect( tui->rotation_scaling_lineEdit, SIGNAL( editingFinished() ),
                    ob, SLOT( rotationScaleChanged() ) );
+      ob->connect( tui->from_ref_button, SIGNAL( clicked() ),
+                   ob, SLOT( fromRefButtonClicked() ) );
+      ob->connect( tui->to_ref_button, SIGNAL( clicked() ),
+                   ob, SLOT( toRefButtonClicked() ) );
+      ob->connect( tui->inv_trans_button, SIGNAL( clicked() ),
+                   ob, SLOT( invertTransformationClicked() ) );
+      ob->connect( tui->center_on_objects, SIGNAL( stateChanged( int ) ),
+                   ob, SLOT( centerOnObjectsToggled( int ) ) );
     }
 
     QGraphicsScene *scene = gv->scene();
@@ -1058,7 +1165,8 @@ namespace
 
 
   void updateGVInfo( Transformer::Private *d, anatomist::Transformation * tr,
-                     Action* action, const Quaternion & q, float scale=1. )
+                     Action* action, const Quaternion & q,
+                     int centerOnObjects, float scale=1. )
   {
     Action * ac = action->view()->controlSwitch()->getAction( "Transformer" );
     if( !ac )
@@ -1150,6 +1258,9 @@ namespace
       angle *= 180. / M_PI;
     d->trans_ui->rotation_angle_lineEdit->setText(
       QString::number( angle, 'f', 2 ) );
+
+    d->trans_ui->center_on_objects->setChecked( centerOnObjects );
+
     d->trans_ui->rotation_angle_lineEdit->blockSignals( false );
     d->trans_ui->rotation_scaling_lineEdit->blockSignals( true );
     d->trans_ui->rotation_scaling_lineEdit->setText(
@@ -1206,13 +1317,66 @@ Quaternion Transformer::initialQuaternion()
 }
 
 
+namespace
+{
+
+  Point3df getRotationCenter( GLWidgetManager *w, bool centerOnObjects )
+  {
+    Point3df center = w->rotationCenter();
+    if( centerOnObjects )
+    {
+      AWindow* w3 = w->aWindow();
+      const std::map<unsigned, set<AObject *> >
+        & sel = SelectFactory::factory()->selected();
+      map<unsigned, set<AObject *> >::const_iterator
+        is = sel.find( w3->Group() );
+      if( is != sel.end() )
+      {
+        int n = 0;
+        center = Point3df( 0, 0, 0 );
+        set<AObject *>::const_iterator io, eo = is->second.end();
+        for( io=is->second.begin(); io!=eo; ++io, ++n )
+        {
+          Point3df bbmin, bbmax;
+          (*io)->boundingBox( bbmin, bbmax );
+          bbmax += bbmin;
+          bbmax /= 2;
+          if( (*io)->getReferential() )
+          {
+            anatomist::Transformation *tr
+              = theAnatomist->getTransformation( (*io)->getReferential(),
+                                                 w3->getReferential() );
+            if( tr )
+              bbmax = tr->transform( bbmax );
+          }
+          center += bbmax;
+        }
+        if( n == 0 )
+          center = w->rotationCenter();
+        else
+          center /= n;
+      }
+    }
+
+    return center;
+  }
+
+}
+
+
 void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
 {
-  Trackball::beginTrackball( x, y, globalX, globalY );
-
   selectTransformations( view()->aWindow() );
   if( !_maintrans )
     return;
+
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  Point3df center = getRotationCenter( w, _centerOnObjects );
+  Point3df old_center = w->rotationCenter();
+  if( old_center != center )
+    w->setRotationCenter( center );
+
+  Trackball::beginTrackball( x, y, globalX, globalY );
 
   Referential *ref, *cref;
   if( isMainTransDirect() )
@@ -1229,10 +1393,10 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
   d->box1->setObjectsReferential( ref );
   d->box2->setObjectsReferential( cref );
 
-  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  AWindow* w3 = w->aWindow();
+
   if( w && d->box2->additionalObjects().size() <= 1 )
   {
-    AWindow* w3 = w->aWindow();
     rc_ptr<AObject> axis = axisWithCircles( w->rotationCenter(),
                                             initialQuaternion(),
                                             70, 100, 0.8, 0.3, 0.2, 1. );
@@ -1248,12 +1412,13 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
     updateTemporaryObjects( initialQuaternion() );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  ::updateGVInfo( d, _maintrans, this, initialQuaternion() );
+  ::updateGVInfo( d, _maintrans, this, initialQuaternion(), _centerOnObjects );
 
   d->box1->beginTrackball( x, y );
   d->box2->beginTrackball( x, y );
 
-
+  if( old_center != center )
+    w->setRotationCenter( old_center );
 }
 
 
@@ -1336,12 +1501,17 @@ void Transformer::moveTrackball( int x, int y, int, int )
     return;
   }
 
+  Point3df center = getRotationCenter( w, _centerOnObjects );
+  Point3df old_center = w->rotationCenter();
+  if( old_center != center )
+    w->setRotationCenter( center );
+
   Quaternion	q = rotation( x, y );
   q.norm();
 
   Transformation	t( 0, 0 );
   t.setQuaternion( q.inverse() );
-  Point3df t0 = w->rotationCenter();
+  Point3df t0 = center;
   t0 -= t.transform( t0 ); // (I-R) t0
   t.SetTranslation( 0, t0[0] );
   t.SetTranslation( 1, t0[1] );
@@ -1351,9 +1521,14 @@ void Transformer::moveTrackball( int x, int y, int, int )
   updatePendingMotion(t.motion());
   setTransformData( t );
   updateTemporaryObjects( q );
-  ::updateGVInfo( d, _trans.begin()->first, this, q );
+  ::updateGVInfo( d, _maintrans /*_trans.begin()->first*/, this, q,
+                  _centerOnObjects );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
+
+  if( center != old_center )
+    w->setRotationCenter( old_center );
+
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( w3 )
     w3->refreshNow();
@@ -1373,6 +1548,7 @@ void Transformer::endTrackball( int x, int y, int globx, int globy )
 void Transformer::showGraphicsView()
 {
   initGVItems( d->box1->graphicsView(), this, d );
+  updateGVInfo( initialQuaternion() );
 }
 
 
@@ -1432,7 +1608,7 @@ void Transformer::rotationScaleChanged()
 
 void Transformer::updateGVInfo( const Quaternion & q )
 {
-  ::updateGVInfo( d, _maintrans, this, q );
+  ::updateGVInfo( d, _maintrans, this, q, _centerOnObjects );
 }
 
 // ------------------
@@ -1499,7 +1675,7 @@ void TranslaterAction::begin( int x, int y, int, int )
   d->box2->beginTrackball( x, y );
 
   initGVItems( d->box1->graphicsView(), this, d );
-  ::updateGVInfo( d, _maintrans, this, Quaternion() );
+  ::updateGVInfo( d, _maintrans, this, Quaternion(), _centerOnObjects );
 }
 
 
@@ -1548,7 +1724,8 @@ void TranslaterAction::move( int x, int y, int, int )
   setTransformData( t );
 
   if( !_trans.empty() )
-    ::updateGVInfo( d, _trans.begin()->first, this, Quaternion() );
+    ::updateGVInfo( d, _maintrans /*_trans.begin()->first*/, this,
+                    Quaternion(), _centerOnObjects );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
@@ -1581,7 +1758,7 @@ void TranslaterAction::updateTemporaryObjects( const aims::Quaternion & )
 
 void TranslaterAction::updateGVInfo( const Quaternion & q )
 {
-  ::updateGVInfo( d, _maintrans, this, q );
+  ::updateGVInfo( d, _maintrans, this, q, _centerOnObjects );
 }
 
 
@@ -1711,7 +1888,16 @@ string ResizerAction::name() const
 
 void ResizerAction::begin( int x, int y, int globalX, int globalY )
 {
+  selectTransformations( view()->aWindow() );
+  if( !_maintrans )
+    return;
+
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  Point3df center = getRotationCenter( w, _centerOnObjects );
+  Point3df old_center = w->rotationCenter();
+  if( old_center != center )
+    w->setRotationCenter( center );
+
   if( w && d->box2->additionalObjects().size() <= 1 )
   {
     AWindow* w3 = w->aWindow();
@@ -1727,6 +1913,9 @@ void ResizerAction::begin( int x, int y, int globalX, int globalY )
   else
     updateTemporaryObjects( 1. );
   TranslaterAction::begin( x, y, globalX, globalY );
+
+  if( center != old_center )
+    w->setRotationCenter( old_center );
 }
 
 
@@ -1741,6 +1930,11 @@ void ResizerAction::move( int /* x */, int y, int, int )
     }
 
   GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+  Point3df center = getRotationCenter( w, _centerOnObjects );
+  Point3df old_center = w->rotationCenter();
+  if( old_center != center )
+    w->setRotationCenter( center );
+
   if( !w )
     {
       cerr << "ResizeAction operating on wrong view type -- error\n";
@@ -1763,9 +1957,14 @@ void ResizerAction::move( int /* x */, int y, int, int )
   setTransformData( t );
   updateTemporaryObjects( zfac );
   if( !_trans.empty() )
-    ::updateGVInfo( d, _trans.begin()->first, this, Quaternion(), zfac );
+    ::updateGVInfo( d, _maintrans /*_trans.begin()->first*/, this,
+                    Quaternion(), _centerOnObjects, zfac );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
+
+  if( old_center != center )
+    w->setRotationCenter( old_center );
+
   AWindow3D    *w3 = dynamic_cast<AWindow3D *>( view()->aWindow() );
   if( w3 )
     w3->refreshNow();

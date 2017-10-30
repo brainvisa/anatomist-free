@@ -1889,24 +1889,19 @@ void TransformControl::doAlsoOnSelect( ActionPool * actionPool )
   {
     Transformer *tac = dynamic_cast<Transformer *>( ac );
     if( tac )
-    { cout << "do showGraphicsView\n";
       tac->showGraphicsView();
-    }
   }
 }
 
 
 void TransformControl::doAlsoOnDeselect( ActionPool * actionPool )
 {
-  cout << " TransformControl::doAlsoOnDeselect\n";
   Action *ac = actionPool->action( "Transformer" );
   if( ac )
   {
     Transformer *tac = dynamic_cast<Transformer *>( ac );
     if( tac )
-    { cout << "do clearGraphicsView\n";
       tac->clearGraphicsView();
-    }
   }
 }
 

@@ -58,7 +58,12 @@ namespace anatomist
     void setupViewFromTransformation();
     void setTargetSize( const std::vector<int> & );
     const std::vector<int> & targetSize() const;
+    int resolutionLevel() const { return _resolution_level; }
     int selectBestResolutionLevel( const Point3df & vs ) const;
+    const carto::rc_ptr<AVolume<T> > view() const { return _myvolume; }
+    carto::rc_ptr<AVolume<T> > view() { return _myvolume; }
+    Point3df initialFOV() const { return _initial_fov; }
+    void setInitialFOV( const Point3df & fov );
 
     // overloads
     virtual int MType() const { return type(); }

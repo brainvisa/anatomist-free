@@ -1174,10 +1174,11 @@ Fusion2DParams
 Fusion3DParams
 --------------
 
-.. raw:: html
+**New in Anatomist 3.0**
 
-  <b>New in Anatomist 3.0</b><br>
-  Sets texture mapping parameters for Fusion3D objects (mesh+volume)<br>
+Sets texture mapping parameters for Fusion3D objects (mesh+volume)
+
+.. raw:: html
 
   <table class="docutils">
   <tbody>
@@ -1273,7 +1274,9 @@ Fusion3DParams
     <tr>
       <td><tt>step</tt></td>
       <td><tt>float</tt> (optional)</td>
-      <td id="txt">Integration sampling step, in mm.</td>
+      <td id="txt">Integration sampling step, in mm. This parameter is now only used in <tt>sphere</tt> mode to downsample a sphere.<br/>
+      In <b>Anatomist 4.6</b>, the <tt>line</tt> mode has changed to use one sample in each volume voxel on the line, using a rasterization method instead of a fixed step.
+      </td>
     </tr>
   </tbody>
   </table>

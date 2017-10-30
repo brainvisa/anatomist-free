@@ -336,17 +336,17 @@ namespace
     {
       return( false );
     }
-    if( vref->refVolume() && theAnatomist->userLevel() >= 3 )
-    {
-      // for now enabled only in debugger mode
-      cout << "Build AVolumeView\n";
-      AVolumeView<T> *vol = new AVolumeView<T>( vref );
-      ap.object = vol;
-      vol->setFileName( fname );
-      vol->SetExtrema();
-      vol->adjustPalette();
-    }
-    else
+//     if( vref->refVolume() && theAnatomist->userLevel() >= 3 )
+//     {
+//       // for now enabled only in debugger mode
+//       cout << "Build AVolumeView\n";
+//       AVolumeView<T> *vol = new AVolumeView<T>( vref );
+//       ap.object = vol;
+//       vol->setFileName( fname );
+//       vol->SetExtrema();
+//       vol->adjustPalette();
+//     }
+//     else
     {
       AVolume<T>  *vol = new AVolume<T>( fname.c_str() /*, type*/ );
       vol->setVolume( vref );
