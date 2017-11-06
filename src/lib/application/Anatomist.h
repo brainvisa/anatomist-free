@@ -204,8 +204,12 @@ namespace anatomist
     void lockObjects( bool locked=true );
 
   private:
+    // friend ~ReferentialWindow would be enough but needs to include its .h
+    friend class ::ReferentialWindow;
     friend class anatomist::internal::AnatomistPrivate;
     struct Anatomist_privateData;
+
+    void unregisterReferentialWindow();
 
     Anatomist_privateData		*_privData;
   };

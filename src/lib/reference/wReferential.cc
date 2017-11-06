@@ -66,6 +66,9 @@
 #include <qicon.h>
 #include <QTimer>
 
+// FIXME DEBUG
+#include <cartobase/smart/rcptrtrick.h>
+
 
 using namespace anatomist;
 using namespace aims;
@@ -264,6 +267,7 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
 
 ReferentialWindow::~ReferentialWindow()
 {
+  theAnatomist->unregisterReferentialWindow();
   if (theAnatomist->getControlWindow() != 0)
     theAnatomist->getControlWindow()->enableRefWinMenu( true );
   if( pdat->view3d )
@@ -1124,7 +1128,6 @@ void ReferentialWindow::set3DView()
 
 void ReferentialWindow::view3dDeleted()
 {
-  pdat->view3d_ref.release();
   pdat->view3d = 0;
   refresh();
 }
