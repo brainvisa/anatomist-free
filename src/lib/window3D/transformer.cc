@@ -51,6 +51,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsProxyWidget>
+#include <qstylefactory.h>
 #include <iostream>
 
 using namespace anatomist;
@@ -1079,6 +1080,32 @@ namespace
     tui->euler_tab->setLayout( tui->euler_layout );
     tui->transform_tabWidget->removeTab( 1 ); // disable euler for now.
     tui->rotation_tab->setLayout( tui->rotation_layout );
+
+    /* change dtyle of QTabWidget because some styles have bugs and do not allow
+       setting it transparent.
+       See http://www.qtforum.org/article/27925/qtabwidget-background-color-problem.html?s=5259c535328c02e7296db4d3628e018ca7f9c100#post96233
+
+       Curiously, re-setting the same buggy style (Breeze) on the widget fixes
+       the problem... !
+    */
+    static QStyle	*s = 0;
+    if( !s )
+    {
+      QStringList styles = QStyleFactory::keys();
+      QStringList::const_iterator	ist, est = styles.end();
+      if( (ist = find( styles.begin(), styles.end(), "Breeze" ) ) == est
+          && (ist = find( styles.begin(), styles.end(), "QtCurve" ) )
+            == est
+          && (ist = find( styles.begin(), styles.end(), "Plastique" ) ) == est
+          && (ist = find( styles.begin(), styles.end(), "Cleanlooks" ) ) == est
+          && (ist = find( styles.begin(), styles.end(), "Windows" ) ) == est
+        )
+        ist = styles.begin();
+
+      s = QStyleFactory::create( *ist );
+    }
+    tui->transform_tabWidget->setStyle( s );
+
     if( ob )
     {
       ob->connect( tui->reset_pushButton, SIGNAL( pressed() ),

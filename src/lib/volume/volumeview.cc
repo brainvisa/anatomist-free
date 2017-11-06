@@ -294,6 +294,8 @@ void AVolumeView<T>::setVolume( rc_ptr<Volume<T> > vol )
     theAnatomist->registerObject( avol.get(), false );
     theAnatomist->releaseObject( avol.get() );
   }
+  _myvolume->SetExtrema();
+  _myvolume->adjustPalette();
 }
 
 
@@ -537,8 +539,6 @@ void AVolumeView<T>::setupViewFromTransformation()
     _myvolume->setVolume( view );
     _myvolume->SetExtrema();
     _myvolume->adjustPalette();
-
-    cout << "value mid: " << view->at( nsize[0]/2, nsize[1]/2, nsize[2]/2 ) << endl;
 
     setChanged();
   }

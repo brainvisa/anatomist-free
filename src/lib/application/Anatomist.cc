@@ -1220,9 +1220,21 @@ void Anatomist::createReferentialWindow()
 {
   if( !_privData->referentialWindow )
   {
-    _privData->referentialWindow = new ReferentialWindow( getQWidgetAncestor(), "referential", Qt::Window );
+    _privData->referentialWindow
+      = new ReferentialWindow( getQWidgetAncestor(), "referential",
+                               Qt::Window );
+    _privData->referentialWindow->setAttribute( Qt::WA_DeleteOnClose );
   }
   _privData->referentialWindow->show();
+}
+
+
+void Anatomist::unregisterReferentialWindow()
+{
+  if( _privData->referentialWindow )
+  {
+    _privData->referentialWindow = 0;
+  }
 }
 
 

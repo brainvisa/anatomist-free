@@ -406,7 +406,8 @@ namespace
   class RefMesh : public ASurface<3>
   {
   public:
-    RefMesh() : ASurface<3>(), referential( 0 ) {}
+    RefMesh() : ASurface<3>(), referential( 0 )
+    { _type = registerObjectType( "RefMesh" ); }
     virtual ~RefMesh();
 
     virtual string toolTip() const;
@@ -1096,12 +1097,14 @@ RefWindow::RefWindow()
       "icons/simple3Dcontrol.png" ).c_str() );
     IconDictionary::instance()->addIcon( "RefTransControl", pix );
 
+    AObject::registerObjectType( "RefMesh" );
+
     ActionDictionary *ad = ActionDictionary::instance();
     ad->addAction( "ReferentialMenu", &ReferentialMenu::creator );
     ad->addAction( "TransformDrag", &TransformDrag::creator );
     ControlDictionary::instance()->addControl( "RefTransControl",
                                                &RefTransControl::creator, 1 );
-    ControlManager::instance()->addControl( "QAGLWidget3D", "",
+    ControlManager::instance()->addControl( "QAGLWidget3D", "RefMesh",
                                             "RefTransControl" );
   }
 
