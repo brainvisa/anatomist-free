@@ -37,6 +37,7 @@
 #include <anatomist/surface/fusiontexsurf.h>
 #include <anatomist/fusion/fusionChooser.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/surface/shownormals.h>
 
 
 
@@ -85,6 +86,7 @@ FusionFactory::FusionFactory()
       registerMethod( new Fusion2DMeshMethod );
       registerMethod( new ConnectivityMatrixFusionMethod );
       registerMethod( new VectorFieldFusionMethod );
+      registerMethod( new NormalsFusionMethod );
     }
 }
 

@@ -141,6 +141,8 @@ set( _headers
     surface/transformedobject.h
     surface/triangulated.h
     surface/Shader.h
+    surface/shownormals.h
+    surface/shownormalsgui.h
     surface/vectorfield.h
     surface/wvectorfield.h
     graph/AGraphIterator.h
@@ -381,6 +383,8 @@ set( _sources
     surface/transformedobject.cc
     surface/triangulated.cc
     surface/Shader.cc
+    surface/shownormals.cc
+    surface/shownormalsgui.cc
     surface/vectorfield.cc
     surface/wvectorfield.cc
     graph/AGraphIterator.cc
