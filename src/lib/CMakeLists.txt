@@ -141,6 +141,8 @@ set( _headers
     surface/transformedobject.h
     surface/triangulated.h
     surface/Shader.h
+    surface/shownormals.h
+    surface/shownormalsgui.h
     surface/vectorfield.h
     surface/wvectorfield.h
     graph/AGraphIterator.h
@@ -381,6 +383,8 @@ set( _sources
     surface/transformedobject.cc
     surface/triangulated.cc
     surface/Shader.cc
+    surface/shownormals.cc
+    surface/shownormalsgui.cc
     surface/vectorfield.cc
     surface/wvectorfield.cc
     graph/AGraphIterator.cc
@@ -515,11 +519,12 @@ set(_ui "${CMAKE_CURRENT_SOURCE_DIR}/ui/color_rendering.ui")
 BRAINVISA_QT4_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
 BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
 set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
-BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/vectorfield.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
-set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
+BRAINVISA_QT4_WRAP_UI(UI_HDRS3 "${CMAKE_CURRENT_SOURCE_DIR}/ui/vectorfield.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+BRAINVISA_QT4_WRAP_UI(UI_HDRS4 "${CMAKE_CURRENT_SOURCE_DIR}/ui/shownormals.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} ${UI_HDRS3} ${UI_HDRS4} )
 include_directories(${ZLIB_INCLUDE_DIR})
-add_custom_target(run_uic  DEPENDS ${UI_HDRS})
-set(${_headers} ${${_headers}} ${UI_HDRS} )
+add_custom_target(run_uic  DEPENDS ${UI_HDRS} ${UI_HDRS2} ${UI_HDRS3} ${UI_HDRS4} )
+set(${_headers} ${${_headers}} ${UI_HDRS} ${UI_HDRS2} ${UI_HDRS3} ${UI_HDRS4} )
 
 
 set(LIB_HEADERS ${_headers} PARENT_SCOPE)

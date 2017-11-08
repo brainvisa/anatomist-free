@@ -93,6 +93,12 @@ anatomist::Transformation* TransformerActionData::mainTransformation() const
 
 void TransformerActionData::selectTransformations( AWindow * win )
 {
+  /* First, see if there is a Transformer action attached to the current
+     view, and make it do thee job for us. This is because the Transformer
+     action actually holds the GUI and its update.
+     This is obviously sub-optimal since we just copy its state here, instead
+     of sharing some data.
+  */
   Action* action = dynamic_cast<AWindow3D *>( win )->view()
     ->controlSwitch()->getAction( "Transformer" );
   if( action )
@@ -121,15 +127,28 @@ void TransformerActionData::selectTransformations( AWindow * win )
   Referential   *ref = 0, *cref = theAnatomist->centralReferential();
   Transformation                        *t;
 
+  _trans.clear();
+  _itrans.clear();
+
+  // if a main transform has been registered, use it
   if( _maintrans )
   {
     ref = _maintrans->source();
     cref = _maintrans->destination();
+
+    t = theAnatomist->getTransformation( ref, cref );
+
+    if( t && !t->isGenerated() )
+      _trans[ t ] = *t;
+    else
+    {
+      t = theAnatomist->getTransformation( cref, ref );
+      if( t && !t->isGenerated() )
+        _itrans[ t ] = *t;
+    }
   }
 
-  _trans.clear();
-  _itrans.clear();
-
+  // use also transforms between selected objects and the destination cref
   for( io=obj.begin(); io!=eo; ++io )
   {
     ref = (*io)->getReferential();
@@ -142,6 +161,7 @@ void TransformerActionData::selectTransformations( AWindow * win )
     }
     else
     {
+      // inverse ?
       t = theAnatomist->getTransformation( cref, ref );
       if( t && !t->isGenerated() )
       {
@@ -153,6 +173,9 @@ void TransformerActionData::selectTransformations( AWindow * win )
     }
   }
 
+  /* nobj: selected objects without a valid transform to cref
+     Assign them a new referential and a new transform to cref
+  */
   if( !nobj.empty() )
   {
     set<AWindow *> wins;
@@ -210,6 +233,8 @@ void TransformerActionData::selectTransformations( AWindow * win )
 void TransformerActionData::setMainTransformation( Transformation* t )
 {
   _maintrans = t;
+  AWindow * win = tadView()->aWindow();
+  SelectFactory::factory()->unselectAll( win->Group() );
 }
 
 
@@ -1195,6 +1220,7 @@ namespace
                      Action* action, const Quaternion & q,
                      int centerOnObjects, float scale=1. )
   {
+    // only the Transformer action in the view has the GUI
     Action * ac = action->view()->controlSwitch()->getAction( "Transformer" );
     if( !ac )
       return;
@@ -1751,7 +1777,7 @@ void TranslaterAction::move( int x, int y, int, int )
   setTransformData( t );
 
   if( !_trans.empty() )
-    ::updateGVInfo( d, _maintrans /*_trans.begin()->first*/, this,
+    ::updateGVInfo( d, _maintrans, this,
                     Quaternion(), _centerOnObjects );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
@@ -1984,7 +2010,7 @@ void ResizerAction::move( int /* x */, int y, int, int )
   setTransformData( t );
   updateTemporaryObjects( zfac );
   if( !_trans.empty() )
-    ::updateGVInfo( d, _maintrans /*_trans.begin()->first*/, this,
+    ::updateGVInfo( d, _maintrans, this,
                     Quaternion(), _centerOnObjects, zfac );
 //   d->box1->moveTrackball( x, y );
 //   d->box2->moveTrackball( x, y );
