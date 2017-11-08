@@ -34,6 +34,8 @@
 #include <anatomist/surface/fusion2Dmesh.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/control/qObjTree.h>
+#include <anatomist/application/settings.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/resampling/quaternion.h>
 
@@ -47,6 +49,18 @@ Fusion2DMesh::Fusion2DMesh( const vector<AObject *> & obj )
       _voxelSize( Point3df( 1., 1., 1. ) )
 {
     _type = AObject::FUSION2DMESH;
+
+    if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+    {
+      string str = Settings::findResourceFile( "icons/list_2dmesh.xpm" );
+      if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
+      {
+        QObjectTree::TypeIcons.erase( _type );
+        cerr << "Icon " << str.c_str() << " not found\n";
+      }
+
+      QObjectTree::TypeNames[ _type ] = "2D Mesh";
+    }
 
     // Insert the input objects
     vector<AObject *>::const_iterator io, fo=obj.end();
