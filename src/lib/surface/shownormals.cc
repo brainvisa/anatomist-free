@@ -34,6 +34,8 @@
 #include <anatomist/surface/shownormals.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/surface/shownormalsgui.h>
+#include <anatomist/control/qObjTree.h>
+#include <anatomist/application/settings.h>
 #include <anatomist/object/actions.h>
 #include <algorithm>
 
@@ -48,6 +50,18 @@ ANormalsMesh::ANormalsMesh( const vector<AObject *> & ameshes )
   : ObjectVector(), _length( _default_length ), _nmesh( 0 )
 {
   _type = registerObjectType( "ANormalsMesh" );
+
+  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  {
+    string str = Settings::findResourceFile( "icons/list_normals.xpm" );
+    if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
+    {
+      QObjectTree::TypeIcons.erase( _type );
+      cerr << "Icon " << str.c_str() << " not found\n";
+    }
+
+    QObjectTree::TypeNames[ _type ] = "Normals";
+  }
 
   vector<AObject *>::const_iterator io, eo = ameshes.end();
 

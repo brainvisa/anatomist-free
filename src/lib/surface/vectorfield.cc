@@ -39,6 +39,8 @@
 #include <anatomist/volume/Volume.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/surface/wvectorfield.h>
+#include <anatomist/control/qObjTree.h>
+#include <anatomist/application/settings.h>
 #include <aims/resampling/quaternion.h>
 
 using namespace anatomist;
@@ -235,6 +237,18 @@ VectorField::VectorField( const vector<AObject *> & obj )
   : ObjectVector(), Sliceable(), d( new Private )
 {
   _type = AObject::VECTORFIELD;
+
+  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  {
+    string str = Settings::findResourceFile( "icons/list_vectorfield.xpm" );
+    if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
+    {
+      QObjectTree::TypeIcons.erase( _type );
+      cerr << "Icon " << str.c_str() << " not found\n";
+    }
+
+    QObjectTree::TypeNames[ _type ] = "Vector field";
+  }
 
   // Insert the input objects
   vector<AObject *>::const_iterator io, eo=obj.end();
