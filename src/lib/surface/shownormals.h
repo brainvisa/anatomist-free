@@ -55,10 +55,14 @@ namespace anatomist
 
     void rebuild();
     void setLength( float length );
+    float length() const { return _length; }
 
     virtual bool render( PrimList & plist, const ViewState & vs );
     virtual void update( const Observable* observable, void* arg );
+    virtual ObjectMenu* optionMenu() const;
+    virtual Tree* optionTree() const;
 
+    static void editNormalsProperties( const std::set<AObject *> & );
 
   private:
     std::vector<ASurface<3> *> _ameshes;

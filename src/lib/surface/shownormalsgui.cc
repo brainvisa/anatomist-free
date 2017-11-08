@@ -32,6 +32,8 @@
  */
 
 #include <anatomist/surface/shownormalsgui.h>
+#include <anatomist/object/objectparamselect.h>
+#include <anatomist/application/Anatomist.h>
 
 using namespace anatomist;
 using namespace std;
@@ -41,6 +43,9 @@ NormalsSettingsPanel::NormalsObserver::NormalsObserver(
   NormalsSettingsPanel* normpanel )
   : Observer(), _normpanel( normpanel )
 {
+  set<AObject *>::iterator io, eo = _normpanel->_objects.end();
+  for( io=_normpanel->_objects.begin(); io!=eo; ++io )
+    (*io)->addObserver( this );
 }
 
 
@@ -54,18 +59,20 @@ void NormalsSettingsPanel::NormalsObserver::registerObservable(
   Observer::registerObservable( obs );
   AObject *obj = dynamic_cast<AObject *>( obs );
   if( obj )
-    _normpanel->_objects.push_back( obj );
+    _normpanel->_objects.insert( obj );
 }
 
 
 void NormalsSettingsPanel::NormalsObserver::unregisterObservable(
   Observable* obs )
 {
-  vector<AObject *>::iterator io
-    = std::find( _normpanel->_objects.begin(), _normpanel->_objects.end(),
-                 obs );
-  if(  io != _normpanel->_objects.end() )
-    _normpanel->_objects.erase( io );
+  AObject *obj = dynamic_cast<AObject *>( obs );
+  if( obj )
+  {
+    set<AObject *>::iterator io = _normpanel->_objects.find( obj );
+    if( io != _normpanel->_objects.end() )
+      _normpanel->_objects.erase( io );
+  }
   Observer::unregisterObservable( obs );
 }
 
@@ -79,11 +86,50 @@ void NormalsSettingsPanel::NormalsObserver::update(
 
 // ----
 
+
+namespace
+{
+
+  bool filterANormalMesh( const AObject * obj )
+  {
+    return dynamic_cast<const ANormalsMesh *>( obj ) != 0;
+  }
+
+}
+
 NormalsSettingsPanel::NormalsSettingsPanel(
-  const std::vector<AObject *> & objects, QWidget* parent )
-  : QWidget( parent ), Observer()
+  const std::set<AObject *> & objects, QWidget* parent )
+  : QWidget( parent ), Ui::ShowNormals(), Observer()
 {
   setAttribute( Qt::WA_DeleteOnClose );
+
+  setupUi( this );
+
+  object_selection->setAttribute( Qt::WA_DeleteOnClose );
+  object_selection->close();
+  delete object_selection;
+
+  _objectsel = new ObjectParamSelect( objects, this );
+  _objectsel->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+  dynamic_cast<QBoxLayout *>( layout() )->insertWidget( 0, _objectsel );
+  setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+  _objectsel->addFilter( filterANormalMesh );
+
+  _objects = objects;
+  _initial = _objects;
+  _observer = new NormalsObserver( this );
+
+  if( !_objects.empty() )
+    length_spin->setValue(
+      dynamic_cast<ANormalsMesh *>( *_objects.begin() )->length() );
+  connect( _objectsel, SIGNAL( selectionStarts() ),
+           this, SLOT( chooseObject() ) );
+  connect( _objectsel,
+           SIGNAL( objectsSelected( const std::set<anatomist::AObject *> &) ),
+           this,
+           SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
+  connect( length_spin, SIGNAL( valueChanged( double ) ),
+           this, SLOT( setLength( double ) ) );
 }
 
 
@@ -94,21 +140,68 @@ NormalsSettingsPanel::~NormalsSettingsPanel()
 
 void NormalsSettingsPanel::chooseObject()
 {
+  set<AObject *>::iterator io = _initial.begin(), eo = _initial.end(), io2;
+  while( io!=eo )
+  {
+    if( !theAnatomist->hasObject( *io ) )
+    {
+      if( io == _initial.begin() )
+      {
+        _initial.erase( io );
+        io = _initial.begin();
+      }
+      else
+      {
+        io2 = io;
+        --io;
+        _initial.erase( io2 );
+        ++io;
+      }
+    }
+    else
+      ++io;
+  }
+
+  _objectsel->selectObjects( _initial, _objects );
 }
 
 
 void NormalsSettingsPanel::update( const Observable* observable, void* args )
 {
+  const ANormalsMesh *obj = dynamic_cast<const ANormalsMesh *>( observable );
+  if( obj && obj == *_objects.begin() )
+  {
+    float val = dynamic_cast<ANormalsMesh *>( *_objects.begin() )->length();
+    if( val != length_spin->value() )
+      length_spin->setValue( val );
+  }
 }
 
 
-void NormalsSettingsPanel::setLength( float value )
+void NormalsSettingsPanel::setLength( double value )
 {
+  blockSignals( true );
+  set<AObject *>::iterator io, eo = _objects.end();
+  for( io=_objects.begin(); io!=eo; ++io )
+  {
+    dynamic_cast<ANormalsMesh *>( *io )->setLength( float( value ) );
+    (*io)->notifyObservers( this );
+  }
+  blockSignals( false );
 }
 
 
-void NormalsSettingsPanel::objectsChosen( const std::vector<AObject *> & objects )
+void NormalsSettingsPanel::objectsChosen( const std::set<AObject *> & objects )
 {
+  set<AObject *>::iterator io, eo = _objects.end();
+  for( io=_objects.begin(); io!=eo; ++io )
+    (*io)->deleteObserver( _observer );
+  _objects = objects;
+  for( io=_objects.begin(); io!=eo; ++io )
+    (*io)->addObserver( _observer );
+
+  if( !_objects.empty() )
+    update( *_objects.begin(), this );
 }
 
 

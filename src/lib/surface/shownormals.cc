@@ -33,6 +33,8 @@
 
 #include <anatomist/surface/shownormals.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/surface/shownormalsgui.h>
+#include <anatomist/object/actions.h>
 #include <algorithm>
 
 using namespace anatomist;
@@ -67,6 +69,7 @@ ANormalsMesh::ANormalsMesh( const vector<AObject *> & ameshes )
   _nmesh = normalmesh;
   insert( rc_ptr<AObject>( normalmesh ) );
   theAnatomist->registerObject( normalmesh, false );
+  theAnatomist->releaseObject( normalmesh );
 
   rebuild();
 }
@@ -78,14 +81,13 @@ ANormalsMesh::~ANormalsMesh()
 
 void ANormalsMesh::rebuild()
 {
-  cout << "rebuild\n";
+//   cout << "rebuild\n";
   ASurface<2> *nmesh = normalMesh();
   vector<Point3df> &vert = nmesh->surface()->vertex();
   vector<AimsVector<uint, 2> > & poly = nmesh->surface()->polygon();
 
   vert.clear();
   poly.clear();
-  clearHasChangedFlags();
 
   if( _ameshes.empty() )
     return;
@@ -137,15 +139,14 @@ void ANormalsMesh::setLength( float length )
   {
     _length = length;
     normalMesh()->glSetChanged( GLComponent::glGEOMETRY );
+    setChanged();
+    rebuild(); // could be postponed
   }
 }
 
 
 bool ANormalsMesh::render( PrimList & plist, const ViewState & vs )
 {
-  if( hasChanged() )
-    rebuild();
-
   vector<ASurface<3> *>::iterator io, eo = _ameshes.end();
   for( io=_ameshes.begin(); io!=eo; ++io )
     (*io)->render( plist, vs );
@@ -156,15 +157,61 @@ bool ANormalsMesh::render( PrimList & plist, const ViewState & vs )
 
 void ANormalsMesh::update( const Observable* observable, void* arg )
 {
-  cout << "ANormalsMesh::update\n";
+//   cout << "ANormalsMesh::update\n";
   const AObject *obj = dynamic_cast<const AObject *>( observable );
-  if( obj
-      && std::find( _ameshes.begin(), _ameshes.end(), obj ) != _ameshes.end() )
+  if( obj )
   {
-    normalMesh()->glSetChanged( GLComponent::glGEOMETRY );
-    setChanged();
-    normalMesh()->notifyObservers( this );
+    if( std::find( _ameshes.begin(), _ameshes.end(), obj ) != _ameshes.end() )
+    {
+      rebuild();
+      normalMesh()->notifyObservers( this );
+    }
+    else if( obj == normalMesh() )
+    {
+      setChanged();
+      notifyObservers( this );
+    }
   }
+}
+
+
+ObjectMenu* ANormalsMesh::optionMenu() const
+{
+  rc_ptr<ObjectMenu> om = getObjectMenu( objectFullTypeName() );
+  if( !om )
+  {
+    om.reset( new ObjectMenu );
+    vector<string>  vs;
+    vs.reserve(1);
+    vs.push_back( QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
+    om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ),
+                    &ObjectActions::saveStatic );
+    om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                    "Rename object"),
+                    &ObjectActions::renameObject );
+    vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Referential" );
+    om->insertItem( vs, QT_TRANSLATE_NOOP( "QSelectMenu", "Load" ),
+                    &ObjectActions::referentialLoad );
+    vs[0] = QT_TRANSLATE_NOOP( "QSelectMenu", "Fusion" );
+    om->insertItem(vs, QT_TRANSLATE_NOOP( "QSelectMenu",
+                                          "Edit normals properties"),
+                   &editNormalsProperties );
+    setObjectMenu( objectFullTypeName(), om );
+  }
+  return AObject::optionMenu();
+}
+
+
+Tree* ANormalsMesh::optionTree() const
+{
+  return AObject::optionTree();
+}
+
+
+void ANormalsMesh::editNormalsProperties( const set<AObject *> & objects )
+{
+  NormalsSettingsPanel *np = new NormalsSettingsPanel( objects );
+  np->show();
 }
 
 

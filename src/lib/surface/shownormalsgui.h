@@ -35,14 +35,17 @@
 #define ANATOMIST_SURFACE_SHOWNORMALS_GUI_H
 
 #include <anatomist/surface/shownormals.h>
-#include <QWidget>
+#include <anatomist/ui/ui_shownormals.h>
 
+
+class ObjectParamSelect;
 
 namespace anatomist
 {
 
   /// normals settings GUI
-  class NormalsSettingsPanel : public QWidget, public Observer
+  class NormalsSettingsPanel
+    : public QWidget, public Ui::ShowNormals, public Observer
   {
     Q_OBJECT
 
@@ -62,22 +65,25 @@ namespace anatomist
       NormalsSettingsPanel* _normpanel;
     };
 
-    NormalsSettingsPanel( const std::vector<AObject *> & objects,
+    NormalsSettingsPanel( const std::set<AObject *> & objects,
                           QWidget* parent=0 );
     virtual ~NormalsSettingsPanel();
 
-    void chooseObject();
     virtual void update( const Observable* observable, void* args );
-    void setLength( float value );
 
   public slots:
 
-    void objectsChosen( const std::vector<AObject *> & objects );
+    void chooseObject();
+    void objectsChosen( const std::set<anatomist::AObject *> & objects );
+    void setLength( double value );
 
   private:
     friend class anatomist::NormalsSettingsPanel::NormalsObserver;
 
-    std::vector<AObject *> _objects;
+    std::set<AObject *> _objects;
+    ObjectParamSelect *_objectsel;
+    NormalsObserver *_observer;
+    std::set<AObject *> _initial;
   };
 
 }
