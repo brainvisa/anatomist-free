@@ -82,6 +82,8 @@ namespace anatomist
     float MaxT() const { return float(_volume->getSizeT()-1); }
 
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
 
     void SetExtrema();
     void adjustPalette();

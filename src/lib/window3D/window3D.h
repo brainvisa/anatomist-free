@@ -200,8 +200,12 @@ public:
   void setSliceOrientation( const Point3df & normal );
   /// Tries to resize the viewing area to given size
   void resizeView( int w, int h );
+  /// Get bounding box in traditional 3D + t mode
   bool boundingBox( Point3df & bmin, Point3df & bmax,
                     float & tmin, float & tmax ) const;
+  /// Get bounding box in new N-dimension mode (new in anatomist 4.6)
+  bool boundingBox( std::vector<float> & bmin,
+                    std::vector<float> & bmax ) const;
   ClipMode clipMode() const;
   void setClipMode( ClipMode m );
   float clipDistance() const;

@@ -752,6 +752,25 @@ bool AObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
 }
 
 
+bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
+{
+  bmin = vector<float>( 4, 0.f );
+  bmax = vector<float>( 4, 0.f );
+  // for now use the 3D method
+  Point3df bbmin, bbmax;
+  bool res = boundingBox( bbmin, bbmax );
+  bmin[0] = bbmin[0];
+  bmin[1] = bbmin[1];
+  bmin[2] = bbmin[2];
+  bmax[0] = bbmax[0];
+  bmax[1] = bbmax[1];
+  bmax[2] = bbmax[2];
+  bmin[3] = MinT();
+  bmax[3] = MaxT();
+  return res;
+}
+
+
 bool AObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
 {
   Point3df vs = VoxelSize();

@@ -149,6 +149,7 @@ struct AWindow3D::Private
     void deleteLists();
 
     GLWidgetManager *draw;
+    vector<QSlider *> sliders;
     QSlider *slidt;
     QWidget *refbox;
     QPushButton *reflabel;
@@ -645,6 +646,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   vlay->addWidget( d->slicelabel );
   d->slids = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel,
                               "sliderS");
+  d->sliders.push_back( d->slids );
   d->slids->setFixedWidth(d->slids->sizeHint().width());
   vlay->addWidget( d->slids );
   d->slicepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
@@ -661,6 +663,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   vlay->addWidget( d->timelabel );
   d->slidt = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel,
                               "sliderT");
+  d->sliders.push_back( d->slidt );
   d->slidt->setFixedWidth(d->slidt->sizeHint().width());
   vlay->addWidget( d->slidt );
   d->timepanel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
@@ -2790,32 +2793,66 @@ void AWindow3D::syncViews(bool keepextrema)
   }
 }
 
+
 bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
                             float & tmin, float & tmax ) const
+{
+  vector<float> bbmin, bbmax;
+  bool res = boundingBox( bbmin, bbmax );
+  bmin[0] = bbmin[0];
+  bmin[1] = bbmin[1];
+  bmin[2] = bbmin[2];
+  tmin = bbmin[3];
+  bmax[0] = bbmax[0];
+  bmax[1] = bbmax[1];
+  bmax[2] = bbmax[2];
+  tmax = bbmax[3];
+  return res;
+}
+
+
+bool AWindow3D::boundingBox( vector<float> & bmin,
+                             vector<float> & bmax ) const
 {
   using carto::shared_ptr;
 
   bool valid = false;
 
+  bmin.resize( 4 );
+  bmax.resize( 4 );
+
   //	determine objects extrema
   if( _objects.empty() )
   {
-    bmin = Point3df(0, 0, 0);
-    bmax = Point3df(1, 1, 1);
-    tmin = tmax = 0;
-    return (false);
+    bmin[0] = 0.f;
+    bmin[1] = 0.f;
+    bmin[2] = 0.f;
+    bmin[3] = 0.f;
+    bmax[0] = 1.f;
+    bmax[1] = 1.f;
+    bmax[2] = 1.f;
+    bmax[3] = 0.f;
+    return false;
   }
   else
   {
     list<shared_ptr<AObject> >::const_iterator i, e = _objects.end();
     AObject *obj;
-    Point3df pmin, pmax, pmino, pmaxo;
+    vector<float> pmin, pmax;
+    Point3df ppmino, ppmaxo, ppmin, ppmax;
     Referential *wref = getReferential(), *oref;
     anatomist::Transformation *tr;
     float tmp;
+    unsigned j, n, m = 4;
 
-    tmin = FLT_MAX;
-    tmax = -FLT_MAX;
+    bmin[0] = FLT_MAX;
+    bmin[1] = FLT_MAX;
+    bmin[2] = FLT_MAX;
+    bmin[3] = FLT_MAX;
+    bmax[0] = -FLT_MAX;
+    bmax[1] = -FLT_MAX;
+    bmax[2] = -FLT_MAX;
+    bmax[3] = -FLT_MAX;
 
     for( i=_objects.begin(); i != e; ++i )
     {
@@ -2823,25 +2860,35 @@ bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
       if( isTemporary( obj ) )
         continue;
 
-      if( obj->boundingBox( pmino, pmaxo ) )
+      if( obj->boundingBox( pmin, pmax ) )
       {
         if( wref && (oref = obj->getReferential() )
           && ( tr = theAnatomist->getTransformation( oref, wref ) ) )
-          tr->transformBoundingBox(pmino, pmaxo, pmin, pmax);
-        else
         {
-          pmin = pmino;
-          pmax = pmaxo;
+          ppmino[0] = pmin[0];
+          ppmino[1] = pmin[1];
+          ppmino[2] = pmin[2];
+          tr->transformBoundingBox( ppmino, ppmaxo, ppmin, ppmax );
+          pmin[0] = ppmin[0];
+          pmin[1] = ppmin[1];
+          pmin[2] = ppmin[2];
         }
 
         if (valid)
         {
-          if (pmin[0] < bmin[0]) bmin[0] = pmin[0];
-          if (pmin[1] < bmin[1]) bmin[1] = pmin[1];
-          if (pmin[2] < bmin[2]) bmin[2] = pmin[2];
-          if (pmax[0] > bmax[0]) bmax[0] = pmax[0];
-          if (pmax[1] > bmax[1]) bmax[1] = pmax[1];
-          if (pmax[2] > bmax[2]) bmax[2] = pmax[2];
+          for( j=0, n=std::min( unsigned( pmin.size() ), m ); j<n; ++j )
+          {
+            if( pmin[j] < bmin[j] )
+              bmin[j] = pmin[j];
+            if( pmax[j] > bmax[j] )
+              bmax[j] = pmax[j];
+          }
+          while( pmin.size() > m )
+          {
+            bmin.push_back( pmin[m] );
+            bmax.push_back( pmax[m] );
+            ++m;
+          }
         }
         else
         {
@@ -2850,10 +2897,6 @@ bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
         }
         valid = true;
       }
-      tmp = obj->MinT();
-      if (tmp < tmin) tmin = tmp;
-      tmp = obj->MaxT();
-      if (tmp > tmax) tmax = tmp;
     }
   }
 
