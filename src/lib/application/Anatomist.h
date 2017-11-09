@@ -195,7 +195,10 @@ namespace anatomist
     int userLevel() const;
     void setUserLevel( int );
     void setLastPosition( const Point3df & pos, Referential * fromref = 0 );
+    void setLastPosition( const std::vector<float> & pos,
+                          Referential * fromref = 0 );
     Point3df lastPosition( const Referential* toref = 0 ) const;
+    std::vector<float> lastFullPosition( const Referential* toref = 0 ) const;
     /// returns true if the Anatomist application is currently being destroyed
     bool destroying() const;
     /// setup/update extensions list for readable files

@@ -175,6 +175,8 @@ public:
   virtual const std::string & baseTitle() const;
   virtual void setPosition( const Point3df& position,
           const anatomist::Referential* orgref );
+  virtual void setPosition( const std::vector<float> & position,
+                            const anatomist::Referential* orgref );
   virtual void updateWindowGeometry();
 
   static anatomist::Geometry 
@@ -272,6 +274,7 @@ public slots:
   void resizeView();
   void changeSlice( int );
   void changeTime( int );
+  void changeTimeSliders( int, int );
   void changeReferential();
   void muteAxial();
   void muteCoronal();
@@ -342,7 +345,8 @@ protected:
 
   /// Display the click point
   void displayClickPos( Point3df clickPos );
-  void setupTimeSlider( float mint, float maxt );
+  void setupTimeSlider( const std::vector<float> & bmin,
+                        const std::vector<float> & bmax );
   void setupSliceSlider( float mins, float maxs );
   void setupSliceSlider();
   void updateViewTypeToolBar();
@@ -357,6 +361,7 @@ protected:
                            = anatomist::ViewState::glSELECTRENDER_NONE );
   anatomist::GLPrimitives cursorGLL() const;
   int updateSliceSlider();
+  void updateTimeSliders();
   /// Allows changing display lists from normal objects DLists
   void registerObjectModifier( ObjectModifier *mod );
   void unregisterObjectModifier( ObjectModifier *mod );

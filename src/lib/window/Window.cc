@@ -108,7 +108,7 @@ AWindow::AWindow() :
   _id(0),
   _refresh(false),
   _lookupChanged( true ), 
-  _time( 0 ), 
+  _timepos( 1, 0.f ),
   _referential( theAnatomist->centralReferential() ), 
   _geometry( 0 ), 
   _title( "Window" ), 
@@ -444,6 +444,46 @@ Point3df AWindow::getPosition() const
 }
 
 
+vector<float> AWindow::getFullPosition() const
+{
+  vector<float> pos( 3 );
+  pos.reserve( 3 + _timepos.size() );
+  pos[0] = _position[0];
+  pos[1] = _position[1];
+  pos[2] = _position[2];
+  pos.insert( pos.end(), _timepos.begin(), _timepos.end() );
+
+  return pos;
+}
+
+
+void AWindow::setPosition( const vector<float> & position,
+                           const Referential * orgref )
+{
+  anatomist::Transformation *tra = 0;
+  if( orgref )
+    tra = theAnatomist->getTransformation( orgref, getReferential() );
+  Point3df pos( position[0], position[1], position[2] );
+  if( tra )
+    pos = tra->transform( pos );
+  if( pos != _position )
+  {
+    _position = pos;
+    SetRefreshFlag();
+  }
+
+  if( position.size() > 3 )
+  {
+    vector<float> tpos( position.begin() + 3, position.end() );
+    if( tpos != _timepos )
+    {
+      _timepos = tpos;
+      SetRefreshFlag();
+    }
+  }
+}
+
+
 void AWindow::setPosition( const Point3df& position ,
                            const Referential * orgref )
 {
@@ -465,9 +505,9 @@ void AWindow::setPosition( const Point3df& position ,
 
 void AWindow::setTime( float time )
 {
-  if( time != _time )
+  if( time != _timepos[0] )
   {
-    _time = time;
+    _timepos[0] = time;
     SetRefreshFlag();
   }
 }

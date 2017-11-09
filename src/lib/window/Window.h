@@ -138,9 +138,12 @@ namespace anatomist
     virtual Point3df getPosition() const;
     /// Get time position of cursor
     float getTime() const;
+    virtual std::vector<float> getFullPosition() const;
     /// Set position of cursor
     virtual void setPosition( const Point3df& position ,
                               const Referential *refdep );
+    virtual void setPosition( const std::vector<float> & position,
+                              const Referential *refdep = 0 );
     /// Set time position of cursor
     virtual void setTime( float time );
     virtual void setTitle( const std::string & title );
@@ -261,8 +264,8 @@ namespace anatomist
     /// Same but as a set (for fast search)
     std::set<AObject *>        _sobjects;
     std::set<AObject *>        _tempObjects;
-    /// Cursor time
-    float _time;
+    /// Cursor time + next dimensions
+    std::vector<float> _timepos;
     /// Referentiel.
     Referential *_referential;
     /// Geometry.
@@ -348,7 +351,7 @@ namespace anatomist
   inline
   float AWindow::getTime() const
   {
-    return _time;
+    return _timepos[0];
   }
 
   inline

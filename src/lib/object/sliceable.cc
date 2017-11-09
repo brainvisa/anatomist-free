@@ -405,7 +405,7 @@ VolumeRef<AimsRGBA> Sliceable::glBuildTexImage(
 bool Sliceable::glMakeTexImage( const ViewState & state, 
                                 const GLTexture & gltex, unsigned tex ) const
 {
-  // cout << "Sliceable::glMakeTexImage\n";
+  // cout << "Sliceable::glMakeTexImage " << this << ": " << typeid( *this ).name() << endl;
   if( !glVertexArray( state ) )
     return false;
 
@@ -472,14 +472,15 @@ bool Sliceable::glMakeTexImage( const ViewState & state,
 	} while( twidth == 0 && w > 0 && h > 0 );
       if( w > 0 && h > 0 )
         {
+          // cout << "glTexImage2D " << w << " x " << h << endl;
           glTexImage2D( GL_TEXTURE_2D, 0, 4, w, h, 0, GL_RGBA, 
                         GL_UNSIGNED_BYTE, (GLvoid*) xim.data );
           GLenum status = glGetError();
           if( status != GL_NO_ERROR )
-            {
-              cerr << "OpenGL error tex: " << gluErrorString(status) << endl;
-              retcode = false;
-            }
+          {
+            cerr << "OpenGL error tex: " << gluErrorString(status) << endl;
+            retcode = false;
+          }
         }
       else
         {

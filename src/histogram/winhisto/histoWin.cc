@@ -118,7 +118,6 @@ QAHistogramWindow::QAHistogramWindow( QWidget *p, const char *name,
 #endif
 
   _position = Point3df( 0.0f, 0.0f, 0.0f );
-  _time = 0.0f;
 
   setFixedSize( sizeHint() );
 }
