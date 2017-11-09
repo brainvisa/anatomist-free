@@ -63,7 +63,8 @@ using namespace std;
 
 TransformerActionData::TransformerActionData()
   : QObject(), _maintrans( 0 ), rotationAxis( 0, 0, 1 ),
-    _rotationAngleEdited( false ), _rotationScaleEdited( false )
+    _rotationAngleEdited( false ), _rotationScaleEdited( false ),
+    _centerOnObjects( false )
 {
 
 }
@@ -72,10 +73,10 @@ TransformerActionData::TransformerActionData()
 TransformerActionData::TransformerActionData(
   const TransformerActionData & other )
   : QObject(), _maintrans( other._maintrans ), _trans( other._trans ),
-    _itrans( other._itrans ),
+    _itrans( other._itrans ), rotationAxis( other.rotationAxis ),
     _rotationAngleEdited( false ), _rotationScaleEdited( false ),
     _pendingMotion( other._pendingMotion ),
-    _centerOnObjects( false )
+    _centerOnObjects( other._centerOnObjects )
 {
 }
 

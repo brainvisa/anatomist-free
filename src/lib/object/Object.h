@@ -179,10 +179,18 @@ namespace anatomist
     /// more modern replacement for MinX2D... maxZ2D, in float coords
     virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
 
-    /**	Fills \a bmin and \a bmax with the 3D bounding box extrema in the 
-	object's referential coordinates 
-	\return	true if object has a bounding box */
+    /** Fills \a bmin and \a bmax with the 3D bounding box extrema in the
+        object's referential coordinates
+        \return	true if object has a bounding box */
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    /** Fills \a bmin and \a bmax with the N-D bounding box extrema in the
+        object's referential coordinates.
+
+        New in Anatomist 4.6.
+
+        \return	true if object has a bounding box */
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
 
     /** rendering (generally 2D or 3D using OpenGL).
         Calls GLComponent API ig glAPI() is not null, otherwise nothing is

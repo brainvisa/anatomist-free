@@ -37,6 +37,8 @@
 #include <anatomist/reference/transformobserver.h>
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/control/qObjTree.h>
+#include <anatomist/application/settings.h>
 
 using namespace anatomist;
 using namespace aims;
@@ -49,6 +51,19 @@ namespace
   int registerClass()
   {
     int   type = AObject::registerObjectType( "VolumeView" );
+
+    if( QObjectTree::TypeNames.find( type ) == QObjectTree::TypeNames.end() )
+    {
+      string str = Settings::findResourceFile( "icons/list_volmultires.xpm" );
+      if( !QObjectTree::TypeIcons[ type ].load( str.c_str() ) )
+      {
+        QObjectTree::TypeIcons.erase( type );
+        cerr << "Icon " << str.c_str() << " not found\n";
+      }
+
+      QObjectTree::TypeNames[ type ] = "Multi-res volume view";
+    }
+
     return type;
   }
 }
@@ -62,6 +77,7 @@ AVolumeView<T>::AVolumeView( const list<AObject *> & obj )
   _resolution_level( 0 )
 {
   _type = AVolumeView<T>::classType();
+
   insert( _myvolume.get() );
   theAnatomist->registerObject( _myvolume.get(), false );
   theAnatomist->releaseObject( _myvolume.get() );
