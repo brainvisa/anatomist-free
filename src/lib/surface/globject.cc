@@ -100,26 +100,47 @@ std::string AGLObject::viewStateID( glPart part,
 {
   // cout << "AGLObject::viewStateID " << part << ", smode: " << state.selectRenderMode << endl;
   string	s;
-  float		t = state.time;
+  vector<float> td = state.timedims;
   if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL )
     return s;
-  if( t < MinT() )
-    t = MinT();
-  if( t > MaxT() )
-    t = MaxT();
+  unsigned i, n = td.size();
+  vector<float> bbmin( 3, 0. ), bbmax( 3, 0. );
+  boundingBox( bbmin, bbmax );
+  if( n > bbmax.size() - 3 )
+    n = bbmax.size() - 3;
+
+  for( i=0; i<n; ++i )
+  {
+    if( td[i] < bbmin[i + 3] )
+      td[i] = bbmin[i + 3];
+    if( td[i] > bbmax[i + 3] )
+      td[i] = bbmax[i + 3];
+  }
+  if( n < bbmax.size() - 3 )
+  {
+    n = bbmax.size() - 3;
+    for( ; i<n; ++i )
+      td.push_back( bbmin[i + 3] );
+  }
+
+  const unsigned nf = sizeof( float );
 
   if( state.selectRenderMode != ViewState::glSELECTRENDER_NONE )
   {
     if( part == glPALETTE )
       return s;
-    s.resize( sizeof(float) + sizeof( glSelectRenderMode ) );
-    (float &) s[0] = t;
-    (glSelectRenderMode &) s[sizeof(float)] = state.selectRenderMode;
+    s.resize( nf * ( n + 1 ) + sizeof( glSelectRenderMode ) );
+    (float &) s[0] = n;
+    for( i=0; i<n; ++i )
+      (float &) s[nf * ( i + 1 )] = td[i];
+    (glSelectRenderMode &) s[nf * (n + 2)] = state.selectRenderMode;
     return s;
   }
 
-  s.resize( sizeof(float) );
-  (float &) s[0] = t;
+  s.resize( nf * ( n + 1 ) );
+  (float &) s[0] = n;
+    for( i=0; i<n; ++i )
+      (float &) s[nf * ( i + 1 )] = td[i];
   return s;
 }
 

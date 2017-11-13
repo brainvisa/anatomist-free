@@ -129,17 +129,21 @@ const GenericObject* Bucket::attributed() const
 }
 
 
-bool Bucket::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool Bucket::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
+  bmin = vector<float>( 4, 0. );
+  bmax = vector<float>( 4, 0. );
   if( empty() )
-    return( false );
+    return false;
 
-  bmin = Point3df( _bucket->sizeX() * ( _minX - 0.5 ),
-                   _bucket->sizeY() * ( _minY - 0.5 ),
-                   _bucket->sizeZ() * ( _minZ - 0.5 ) );
-  bmax = Point3df( _bucket->sizeX() * ( _maxX + 0.5 ),
-                   _bucket->sizeY() * ( _maxY + 0.5 ),
-                   _bucket->sizeZ() * ( _maxZ + 0.5 ) );
+  bmin[0] = _bucket->sizeX() * ( _minX - 0.5 );
+  bmin[1] = _bucket->sizeY() * ( _minY - 0.5 );
+  bmin[2] = _bucket->sizeZ() * ( _minZ - 0.5 );
+  bmax[0] = _bucket->sizeX() * ( _maxX + 0.5 );
+  bmax[1] = _bucket->sizeY() * ( _maxY + 0.5 );
+  bmax[2] = _bucket->sizeZ() * ( _maxZ + 0.5 );
+  bmin[3] = _minT;
+  bmax[3] = _maxT;
   return true;
 }
 
@@ -1211,7 +1215,7 @@ Bucket::meshPlane( const SliceViewState & state ) const
 
   // get time in bucket
 
-  float	time = state.time;
+  float time = state.timedims[0];
   if( time > MaxT() )
     time = MaxT();
 
@@ -1332,7 +1336,7 @@ const AimsSurface<4, Void>* Bucket::surface( const ViewState & state ) const
     }
   else
     {
-      size_t	t = createFacet( (size_t) rint( state.time / TimeStep() ) );
+      size_t t = createFacet( (size_t) rint( state.timedims[0] / TimeStep() ) );
       if( !d->surface )
         return 0;
       AimsSurfaceFacet::const_iterator	i = d->surface->find( t );
@@ -1568,7 +1572,7 @@ string Bucket::viewStateID( glPart part, const ViewState & state ) const
   if( !st || !st->wantslice )
     return AGLObject::viewStateID( part, state );
 
-  float	t = state.time;
+  float	t = state.timedims[0];
   float	gmin = MinT(), gmax = MaxT();
   if( t < gmin )
     t = gmin;
@@ -1587,7 +1591,7 @@ string Bucket::viewStateID( glPart part, const ViewState & state ) const
     case glGENERAL:
       {
         s.resize( 9*nf );
-        (float &) s[0] = state.time;
+        (float &) s[0] = t;
         Point4df	o =  st->orientation->vector();
         // WARNING: assumes AimsVector is contiguous (true today)
         memcpy( &s[nf], &o[0], 4*nf );

@@ -275,10 +275,15 @@ namespace anatomist
     virtual float MaxX2D() const;
     virtual float MaxY2D() const;
     virtual float MaxZ2D() const;
-    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const;
+    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const
+    { return AObject::boundingBox2D( bmin, bmax ); }
 
-    virtual Point3df VoxelSize() const;
+    virtual std::vector<float> voxelSize() const;
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
 
     /**@name	Contents / volume of labels handling */
     //@{

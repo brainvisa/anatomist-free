@@ -392,7 +392,8 @@ namespace
       VolRender::Private & p )
   {
     glpixtype<AimsRGBA>( p );
-    Point4df max = avol->glMax2D() + Point4df( 1.F );
+    vector<float> vmax = avol->glMax2D();
+    Point3df max = Point3df( vmax[0], vmax[1], vmax[2] ) + Point3df( 1.F );
     p.dimx = (unsigned) rint( max[0] );
     p.dimy = (unsigned) rint( max[1] );
     p.dimz = (unsigned) rint( max[2] );
@@ -410,13 +411,14 @@ namespace
   }
 
 
-  void resamplesliceable( Sliceable * avol, VolRender::Private * d, int t )
+  void resamplesliceable( Sliceable * avol, VolRender::Private * d,
+                          const vector<float> & td )
   {
     Quaternion q( 0.F, 0.F, 0.F, 1.F );
-    Point3df vox = avol->glVoxelSize();
-    Geometry geom( vox, Point4dl( 0, 0, 0, 0 ), Point4dl( d->texdimx, d->texdimy,
-                   d->texdimz, 1 ) );
-    SliceViewState vs( t, true, Point3df( 0.F ), &q, avol->getReferential(),
+    vector<float> vox = avol->glVoxelSize();
+    Geometry geom( Point3df( vox[0], vox[1], vox[2] ), Point4dl( 0, 0, 0, 0 ),
+                   Point4dl( d->texdimx, d->texdimy, d->texdimz, 1 ) );
+    SliceViewState vs( td, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
     VolumeRef<AimsRGBA> vol = avol->rgbaVolume( &vs );
     if( !dynamic_cast<AObject *>( avol )->isTransparent() )
@@ -440,31 +442,40 @@ namespace
 
 
   template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
-      VolRender::Private * d, int t );
+      VolRender::Private * d, const vector<float> & td );
 
   template <typename T> void resamplevolNoScale( AVolume<T> * avol,
-      VolRender::Private * d, int t0 )
+      VolRender::Private * d, const vector<float> & td )
   {
     rc_ptr<Volume<T> > v0 = avol->volume();
     VolumeRef<T>  vol;
-    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0,
-                                                                t0 ) );
+
+    long x, y, z;
+    vector<int> pos( td.size() + 3, 0 );
+    for( x=0, y=td.size(); x<y; ++x )
+      pos[x+3] = int( rint( td[x] ) );
+
+    const char *data = reinterpret_cast<const char *>( &v0->at( pos ) );
     if( d->dimx != d->texdimx || d->dimy != d->texdimy
         || d->dimz != d->texdimz || d->xscalefac != 1 || d->yscalefac != 1
         || d->zscalefac != 1 )
     {
       vol = VolumeRef<T>( d->texdimx, d->texdimy, d->texdimz );
-      long x, y, z, t = t0;
       /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
           << d->dimy << "/" << d->texdimy << ", "
           << d->dimz << "/" << d->texdimz << endl; */
+
       for( z=0; z<d->dimz; ++z )
       {
+        pos[2] = z * d->zscalefac;
         for( y=0; y<d->dimy; ++y )
         {
+          pos[1] = y * d->yscalefac;
           for( x=0; x<d->dimx; ++x )
-            vol->at( x, y, z ) = v0->at( x * d->xscalefac, y * d->yscalefac,
-                    z * d->zscalefac, t );
+          {
+            pos[0] = x * d->xscalefac;
+            vol->at( x, y, z ) = v0->at( pos );
+          }
           for( ; x<d->texdimx; ++x )
             vol->at( x, y, z ) = T(0);
         }
@@ -485,38 +496,44 @@ namespace
 
 
   template <typename T> void resamplevol( AVolume<T> * avol,
-                                          VolRender::Private * d, int t )
+                                          VolRender::Private * d,
+                                          const vector<float> & td )
   {
     if( !d->ownextrema ) // needs rescaling
     {
       if( d->pixtype == GL_UNSIGNED_BYTE )
-        resamplevolFloat<T, uint8_t>( avol, d, t );
+        resamplevolFloat<T, uint8_t>( avol, d, td );
       else if( d->pixtype == GL_UNSIGNED_SHORT )
-        resamplevolFloat<T, uint16_t>( avol, d, t );
+        resamplevolFloat<T, uint16_t>( avol, d, td );
       else
-        resamplevolFloat<T, int8_t>( avol, d, t );
+        resamplevolFloat<T, int8_t>( avol, d, td );
     }
     else
-      resamplevolNoScale( avol, d, t );
+      resamplevolNoScale( avol, d, td );
   }
 
 
   // special case of FLOAT and DOUBLE: resample as int (short)
   template <typename T, typename U> void resamplevolFloat(AVolume<T> * avol,
-      VolRender::Private * d, int t0 )
+      VolRender::Private * d, const vector<float> & td )
   {
     rc_ptr<Volume<T> > v0 = avol->volume();
     VolumeRef<U>  vol;
     const GLComponent::TexExtrema  & te = avol->glTexExtrema( 0 );
     double scl = ( d->maxval + .99 ) / ( te.max[0] - te.min[0] );
     double offset = - te.min[0];
-    const char *data = reinterpret_cast<const char *>( &v0->at( 0, 0, 0, t0 ) );
+
+    long x, y, z;
+    vector<int> pos( td.size() + 3, 0 );
+    for( x=0, y=td.size(); x<y; ++x )
+      pos[x+3] = int( rint( td[x] ) );
+
+    const char *data = reinterpret_cast<const char *>( &v0->at( pos ) );
     if( !d->ownextrema || d->dimx != d->texdimx || d->dimy != d->texdimy
         || d->dimz != d->texdimz || d->xscalefac != 1 || d->yscalefac != 1
         || d->zscalefac != 1 || scl != 1. || offset != 0. )
     {
       vol = VolumeRef<U>( d->texdimx, d->texdimy, d->texdimz );
-      long x, y, z, t = t0;
       /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
       << d->dimy << "/" << d->texdimy << ", "
       << d->dimz << "/" << d->texdimz << endl; */
@@ -525,12 +542,15 @@ namespace
         zero = (U) 0;
       for( z=0; z<d->dimz; ++z )
       {
+        pos[2] = z * d->zscalefac;
         for( y=0; y<d->dimy; ++y )
         {
+          pos[1] = y * d->yscalefac;
           for( x=0; x<d->dimx; ++x )
-            vol->at( x, y, z ) = (U) ( ( v0->at( x * d->xscalefac,
-                     y * d->yscalefac, z * d->zscalefac, t ) + offset )
-                         * scl );
+          {
+            pos[0] = x * d->xscalefac;
+            vol->at( x, y, z ) = (U) ( ( v0->at( pos ) + offset ) * scl );
+          }
           for( ; x<d->texdimx; ++x )
             vol->at( x, y, z ) = zero;
         }
@@ -556,24 +576,31 @@ namespace
 
   // special case for RGB: add a A component
   template <> void resamplevol( AVolume<AimsRGB> * avol,
-      VolRender::Private * d, int t0 )
+      VolRender::Private * d, const vector<float> & td )
   {
     rc_ptr<Volume<AimsRGB> > v0 = avol->volume();
     VolumeRef<AimsRGBA>  vol = VolumeRef<AimsRGBA>( d->texdimx, d->texdimy,
         d->texdimz );
-    long x, y, z, t = t0;
+
+    long x, y, z;
+    vector<int> pos( td.size() + 3, 0 );
+    for( x=0, y=td.size(); x<y; ++x )
+      pos[x+3] = int( rint( td[x] ) );
+
     /* cout << "resampling to " << d->dimx << "/" << d->texdimx << ", "
         << d->dimy << "/" << d->texdimy << ", "
         << d->dimz << "/" << d->texdimz << endl; */
     AimsRGBA  rgba;
     for( z=0; z<d->dimz; ++z )
     {
+      pos[2] = z * d->zscalefac;
       for( y=0; y<d->dimy; ++y )
       {
+        pos[1] = y * d->yscalefac;
         for( x=0; x<d->dimx; ++x )
         {
-          const AimsRGB & rgb = v0->at( x * d->xscalefac, y * d->yscalefac,
-                  z * d->zscalefac, t );
+          pos[0] = x * d->xscalefac;
+          const AimsRGB & rgb = v0->at( pos );
           vol->at( x, y, z ) = AimsRGBA( rgb.red(), rgb.green(), rgb.blue(),
                                          (uint8_t)
                                          sqrt( float( rgb.red() * rgb.red()
@@ -601,9 +628,10 @@ namespace
 
 
   template <> void resamplevol( AVolume<AimsRGBA> * avol,
-                                VolRender::Private * d, int t )
+                                VolRender::Private * d,
+                                const vector<float> & td )
   {
-    resamplevolNoScale( avol, d, t );
+    resamplevolNoScale( avol, d, td );
   }
 
 }
@@ -825,7 +853,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   }
   // cout << endl;
 
-  int t = int( rint( state.time ) );
+  const vector<float> & td = state.timedims;
 
   GLuint	texName = gltex.item();
   GLCaps::glActiveTexture( GLCaps::textureID( 0 ) );
@@ -939,27 +967,27 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   }
 
   if( dynamic_cast<AVolume<int8_t> *>( d->object ) )
-    resamplevol( static_cast<AVolume<int8_t> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<int8_t> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<uint8_t> *>( d->object ) )
-    resamplevol( static_cast<AVolume<uint8_t> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<uint8_t> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<int16_t> *>( d->object ) )
-    resamplevol( static_cast<AVolume<int16_t> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<int16_t> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<uint16_t> *>( d->object ) )
-    resamplevol( static_cast<AVolume<uint16_t> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<uint16_t> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<int32_t> *>( d->object ) )
-    resamplevol( static_cast<AVolume<int32_t> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<int32_t> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<uint32_t> *>( d->object ) )
-    resamplevol( static_cast<AVolume<uint32_t> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<uint32_t> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<float> *>( d->object ) )
-    resamplevol( static_cast<AVolume<float> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<float> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<double> *>( d->object ) )
-    resamplevol( static_cast<AVolume<double> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<double> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<AimsRGB> *>( d->object ) )
-    resamplevol( static_cast<AVolume<AimsRGB> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<AimsRGB> *>(  d->object ), d, td );
   else if( dynamic_cast<AVolume<AimsRGBA> *>( d->object ) )
-    resamplevol( static_cast<AVolume<AimsRGBA> *>(  d->object ), d, t );
+    resamplevol( static_cast<AVolume<AimsRGBA> *>(  d->object ), d, td );
   else
-    resamplesliceable( dynamic_cast<Sliceable *>(  d->object ), d, t );
+    resamplesliceable( dynamic_cast<Sliceable *>(  d->object ), d, td );
 
   status = glGetError();
   if( status != GL_NO_ERROR )
@@ -1163,12 +1191,23 @@ string VolRender::viewStateID( glPart part, const ViewState & state ) const
   if( !st )
     return GLComponent::viewStateID( part, state );
 
-  float		t = state.time;
-  Point4df	gmin = MinT(), gmax = MaxT();
-  if( t < gmin[3] )
-    t = gmin[3];
-  if( t > gmax[3] )
-    t = gmax[3];
+  vector<float> bbmin( 4, 0. ), bbmax( 4, 0. );
+  boundingBox( bbmin, bbmax );
+  vector<float> td = state.timedims;
+  unsigned i, n = std::min( td.size(), bbmax.size() - 3 );
+  for( i=0; i<n; ++i )
+  {
+    if( td[i] < bbmin[i + 3] )
+      td[i] = bbmin[i + 3];
+    if( td[i] > bbmax[i + 3] )
+      td[i] = bbmax[i + 3];
+  }
+  if( n < bbmax.size() - 3 )
+  {
+    n = bbmax.size() - 3;
+    for( ; i<n; ++i )
+      td.push_back( bbmin[i + 3] );
+  }
 
   string		s;
   static const int	nf = sizeof(float);
@@ -1180,15 +1219,20 @@ string VolRender::viewStateID( glPart part, const ViewState & state ) const
     case glGENERAL:
       if( st->vieworientation )
       {
-        s.resize( 5*nf );
-        (float &) s[0] = t;
+        s.resize( ( n + 5 ) * nf );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[nf * ( i + 1 )] = td[i];
+        size_t p = nf * ( n + 1 );
         Point4df	o = st->vieworientation->vector();
-        memcpy( &s[4], &o[0], 4*nf );
+        memcpy( &s[p], &o[0], 4*nf );
       }
       else
       {
-        s.resize( nf );
-        (float &) s[0] = t;
+        s.resize( ( n + 1 ) * nf );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[nf * ( i + 1 )] = td[i];
       }
     break;
     case glGEOMETRY:
@@ -1204,8 +1248,10 @@ string VolRender::viewStateID( glPart part, const ViewState & state ) const
     case glTEXIMAGE:
     case glTEXENV:
     {
-      s.resize( nf );
-      (float &) s[0] = t;
+      s.resize( ( n + 1 ) * nf );
+      (float &) s[0] = n;
+      for( i=0; i<n; ++i )
+        (float &) s[nf * ( i + 1 )] = td[i];
     }
     break;
     default:

@@ -148,6 +148,10 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
   {
     if( osvs )
       svs = *osvs;
+    else
+      // copy state before completing it
+      static_cast<ViewState &>( svs ) = state;
+
     const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( state.window );
     if( w3 )
     {

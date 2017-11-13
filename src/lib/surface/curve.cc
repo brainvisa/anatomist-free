@@ -319,14 +319,25 @@ void ACurve::invertTriangles()
 }
 
 
-bool ACurve::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool ACurve::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   if( !d->curve )
-    return( false );
+    return false;
 
-  bmin = d->curve.minimum();
-  bmax = d->curve.maximum();
-  return( true );
+  Point3df bbmin = d->curve.minimum();
+  Point3df bbmax = d->curve.maximum();
+
+  bmin.resize( 4 );
+  bmax.resize( 4 );
+  bmin[0] = bbmin[0];
+  bmin[1] = bbmin[1];
+  bmin[2] = bbmin[2];
+  bmin[3] = MinT();
+  bmax[0] = bbmax[0];
+  bmax[1] = bbmax[1];
+  bmax[2] = bbmax[2];
+  bmax[3] = MaxT();
+  return true;
 }
 
 
@@ -351,7 +362,7 @@ void ACurve::notifyObservers( void * arg )
 }
 
 void ACurve::glBeforeBodyGLL( const ViewState &, 
-				   GLPrimitives & ) const
+                              GLPrimitives & ) const
 {
-	std::cout << "ACurve::glBeforeBodyGLL" << std::endl;
+  // std::cout << "ACurve::glBeforeBodyGLL" << std::endl;
 }

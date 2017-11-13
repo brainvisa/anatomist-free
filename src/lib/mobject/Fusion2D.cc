@@ -621,7 +621,7 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
     {
     }
   */
-  
+
   size_t size = (size_t)ximage.width * ximage.height * ximage.depth / 8;
 
   //cout << "im size : " << ximage.width << " x " << ximage.height << endl;
@@ -755,21 +755,40 @@ Point3df Fusion2D::VoxelSize() const
 }
 
 
-Point3df Fusion2D::glVoxelSize() const
+vector<float> Fusion2D::glVoxelSize() const
 {
-  return VoxelSize();
+  vector<float> vs, vs2;
+  datatype::const_iterator io, fo=_data.end();
+
+  io = _data.begin();
+  vs = (*io)->voxelSize();
+  unsigned i, n;
+
+  for( ++io; io!=fo; ++io )
+  {
+    vs2 = (*io)->voxelSize();
+    for( i=0, n=std::min( vs.size(), vs2.size() ); i<n; ++i )
+      if( vs2[i] < vs[i] )
+        vs[i] = vs2[i];
+  }
+
+  return vs;
 }
 
 
-Point4df Fusion2D::glMin2D() const
+vector<float> Fusion2D::glMin2D() const
 {
-  return Point4df( MinX2D(), MinY2D(), MinZ2D(), MinT() );
+  vector<float> bmin, bmax;
+  boundingBox2D( bmin, bmax );
+  return bmin;
 }
 
 
-Point4df Fusion2D::glMax2D() const
+vector<float> Fusion2D::glMax2D() const
 {
-  return Point4df( MaxX2D(), MaxY2D(), MaxZ2D(), MaxT() );
+  vector<float> bmin, bmax;
+  boundingBox2D( bmin, bmax );
+  return bmax;
 }
 
 

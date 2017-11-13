@@ -138,7 +138,7 @@ bool Slice::render( PrimList & prim, const ViewState & state )
     firstlist = true;
   else
     --ip;
-  SliceViewState  svs( state.time, true, offset(), &q,
+  SliceViewState  svs( state.timedims, true, offset(), &q,
                        obj->getReferential(), &geom,
                        state.sliceVS() ? state.sliceVS()->vieworientation : 0,
                        state.window );

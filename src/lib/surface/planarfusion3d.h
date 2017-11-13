@@ -62,7 +62,10 @@ namespace anatomist
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
 
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
+    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
+    { return AObject::boundingBox( bmin, bmax ); }
 
     virtual bool refreshTexCoords( const ViewState & state ) const;
 
@@ -88,6 +91,7 @@ namespace anatomist
                                           unsigned tex = 0 ) const;
     virtual void glSetAutoTexParams( const float* params, unsigned coord = 0, 
                                      unsigned tex = 0 );
+    virtual std::string viewStateID( glPart part, const ViewState & ) const;
 
     const AObject* volume() const;
     AObject* volume();

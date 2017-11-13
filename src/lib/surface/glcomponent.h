@@ -102,15 +102,47 @@ namespace anatomist
       glFILT_LINEAR,
     };
 
+    /** GL object parts, each driving a GL list. Each may be updated / rebuilt
+        at different times.
+
+        GL lists of parts are rebuilt when the object has changed for the
+        selected part, or when a different view on the same objet is asked.
+        Anatomist holds internal caches for such lists, which are identified
+        using the viewStateID() method.
+    */
     enum glPart
     {
+      /** General list, this one calls the others, so should be rebuilt when
+          any other part changes. This is ensured by the internal mechanisms
+          of GLComponent (in glMainGLL() method).
+      */
       glGENERAL,
+      /// Body part: gathers vertices, polygons, normals, textures alltogether.
       glBODY,
+      /** Material / coloring list. Also handles rendering properties.
+      */
       glMATERIAL,
+      /** Geometry is the polygons, normals arrays. The geometry is not really
+          handled by the GLComponent now, it is rather reserved for future use.
+          The glBODY part is the one used currently. However, changing
+          glGEOMETRY involves also changing glBODY.
+      */
       glGEOMETRY,
+      /** Palette settings. The colormap itself (when used) is generally in a
+          texture image.
+      */
       glPALETTE,
+      /// Coordinates transformations list
       glREFERENTIAL,
+      /** Texture image part. This is stored in a GL texture object, which is
+          used by the glTEXENV part, so rebuilding a glTEXIMAGE (either because
+          of a change or a different view) generally also requires rebuilding
+          the glTEXENV part, but this implication is not hard-coded.
+      */
       glTEXIMAGE,
+      /** Texture environment part: activate texture units, bind textures,
+          setup their properties.
+      */
       glTEXENV,
 
       glNOPART,

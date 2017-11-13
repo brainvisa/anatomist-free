@@ -68,14 +68,14 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     virtual void update( const Observable *, void * );
 
-    virtual Point4df glMin2D() const;
-    virtual Point4df glMax2D() const;
+    virtual std::vector<float> glMin2D() const;
+    virtual std::vector<float> glMax2D() const;
     virtual const Referential * getReferential() const;
     virtual void SetMaterial( const Material & );
     virtual Material & GetMaterial();
     virtual void setVoxelSize( const Point3df & );
     virtual Point3df VoxelSize() const;
-    virtual Point3df glVoxelSize() const;
+    virtual std::vector<float> glVoxelSize() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
     virtual AObjectPalette* palette();
     virtual const AObjectPalette* palette() const;

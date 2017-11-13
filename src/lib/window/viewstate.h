@@ -79,12 +79,14 @@ namespace anatomist
 
     ViewState( float t = 0, AWindow* win = 0,
                glSelectRenderMode = glSELECTRENDER_NONE  );
+    ViewState( const std::vector<float> & timedims, AWindow* win = 0,
+               glSelectRenderMode = glSELECTRENDER_NONE  );
     virtual ~ViewState();
 
     virtual SliceViewState *sliceVS() { return 0; }
     virtual const SliceViewState* sliceVS() const { return 0; }
 
-    float	time;
+    std::vector<float> timedims;
     AWindow     *window;
     glSelectRenderMode selectRenderMode;
   };
@@ -95,7 +97,14 @@ namespace anatomist
   */
   struct SliceViewState : public ViewState
   {
-    SliceViewState( float t = 0, bool slicewanted = false, 
+    SliceViewState( float t = 0, bool slicewanted = false,
+                    const Point3df & pos = Point3df(),
+                    const aims::Quaternion* orient = 0,
+                    const Referential* wref = 0, const Geometry* wgeom = 0,
+                    const aims::Quaternion* vorient = 0, AWindow* win = 0,
+                    glSelectRenderMode = glSELECTRENDER_NONE );
+    SliceViewState( const std::vector<float> & timedims,
+                    bool slicewanted = false,
                     const Point3df & pos = Point3df(), 
                     const aims::Quaternion* orient = 0, 
                     const Referential* wref = 0, const Geometry* wgeom = 0,

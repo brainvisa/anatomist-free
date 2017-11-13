@@ -348,9 +348,15 @@ Point3df VectorField::VoxelSize() const
 }
 
 //--------------------------------------------------------------
-Point3df VectorField::glVoxelSize() const
+vector<float>  VectorField::glVoxelSize() const
 {
-  return (*begin())->VoxelSize();
+  // FIXME TOTO take axes changes into account
+  vector<float> vs( 4, 1. );
+  Point3df vsp = (*begin())->VoxelSize();
+  vs[0] = vsp[0];
+  vs[1] = vsp[1];
+  vs[2] = vsp[2];
+  return vs;
 }
 
 //--------------------------------------------------------------
@@ -495,10 +501,10 @@ Point4df VectorField::getPlane( const ViewState & state ) const
 }
 
 //--------------------------------------------------------------
-Point4df VectorField::glMin2D() const
+vector<float> VectorField::glMin2D() const
 {
 //   if ( !d->vecMesh )
-  return Point4df( 0, 0, 0, 0 );
+  return vector<float>( 4, 0.f );
 
 //   Point3df min, max;
 //   d->vecMesh->boundingBox( min, max );
@@ -507,9 +513,9 @@ Point4df VectorField::glMin2D() const
 }
 
 //--------------------------------------------------------------
-Point4df VectorField::glMax2D() const
+vector<float> VectorField::glMax2D() const
 {
-  Point4df p( 0. );
+  vector<float> p( 4, 0. );
   int chan = 0;
   if( !d->refvol[0] )
   {
@@ -573,7 +579,7 @@ void VectorField::buildMesh( const ViewState & state )
   // project extremities to get bounds
   float fxmin = dir1.dot( Point3df( 0., 0., 0. ) ), fxmax = fxmin;
   float fymin = dir2.dot( Point3df( 0., 0., 0. ) ), fymax = fymin;
-  Point4df pmax4 = glMax2D();
+  vector<float> pmax4 = glMax2D();
   Point3df pmax( pmax4[0] * vs[0],
                  pmax4[1] * vs[1],
                  pmax4[2] * vs[2] );

@@ -985,7 +985,7 @@ void AWindow3D::updateObject2D(AObject* obj, PrimList* pl,
     ViewState::glSelectRenderMode selectmode)
 {
   if (!pl) pl = &d->primitives;
-  SliceViewState st(_timepos[0], true, _position, &d->slicequat,
+  SliceViewState st(_timepos, true, _position, &d->slicequat,
                     getReferential(),
       windowGeometry(), &d->draw->quaternion(), this, selectmode);
   obj->render(*pl, st);
@@ -995,7 +995,7 @@ void AWindow3D::updateObject3D(AObject* obj, PrimList* pl,
     ViewState::glSelectRenderMode selectmode)
 {
   if (!pl) pl = &d->primitives;
-  obj->render(*pl, ViewState(_timepos[0], this, selectmode));
+  obj->render(*pl, ViewState(_timepos, this, selectmode));
 }
 
 void AWindow3D::updateObject(AObject* obj, PrimList* pl,
@@ -1072,7 +1072,7 @@ void AWindow3D::refreshNow()
   Point3df vs, bmin, bmax;
   vector<float> bbmin, bbmax;
 
-  boundingBox(bbmin, bbmax);
+  boundingBox( bbmin, bbmax );
   bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
   bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
   if (d->needsextrema)
@@ -1827,6 +1827,16 @@ void AWindow3D::setupTimeSlider( const vector<float> & bmin,
   //cout << "show time\n";
 
   unsigned i, n = bmax.size();
+  if( n - 3 > _timepos.size() )
+  {
+    unsigned m = _timepos.size();
+    _timepos.resize( n - 3 );
+    for( i=m; i<n - 3; ++i )
+      _timepos[i] = 0;
+  }
+  else if( n - 3 < _timepos.size() )
+    _timepos.resize( n - 3 );
+
   QSlider *slider;
   for( i=4; i<n; ++i )
   {
@@ -1879,7 +1889,7 @@ void AWindow3D::setupTimeSlider( const vector<float> & bmin,
 
 void AWindow3D::setupSliceSlider(float mins, float maxs)
 {
-  //cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
+  // cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
   if( d->slids->minimum() != (int) mins || d->slids->maximum() != (int) maxs )
   {
     d->slids->blockSignals(true);
@@ -3388,11 +3398,17 @@ void AWindow3D::setTimeSliderPosition(int position)
 
 void AWindow3D::updateTimeSliders()
 {
-  unsigned i, n = _timepos.size();
+  unsigned i, n = std::min( _timepos.size(), d->sliders.size() - 1 );
   for( i=0; i<n; ++i )
   {
     d->sliders[i+1]->setValue( int( _timepos[i] ) );
     d->slicelabels[i+1]->setText( QString::number( int( _timepos[i] ) ) );
+  }
+  n = d->sliders.size() - 1;
+  for( ; i<n; ++i )
+  {
+    d->sliders[i+1]->setValue( 0 );
+    d->slicelabels[i+1]->setText( QString::number( 0 ) );
   }
 }
 

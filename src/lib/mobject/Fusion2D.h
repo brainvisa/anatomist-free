@@ -66,9 +66,9 @@ namespace anatomist
     { const_iterator i = begin(); ++i; return *i; }
     virtual int MType() const { return( AObject::FUSION2D ); }
     virtual Point3df VoxelSize() const;
-    virtual Point3df glVoxelSize() const;
-    virtual Point4df glMin2D() const;
-    virtual Point4df glMax2D() const;
+    virtual std::vector<float> glVoxelSize() const;
+    virtual std::vector<float> glMin2D() const;
+    virtual std::vector<float> glMax2D() const;
     virtual AObject* fallbackReferentialInheritance() const;
 
     virtual bool CanRemove( AObject* obj );

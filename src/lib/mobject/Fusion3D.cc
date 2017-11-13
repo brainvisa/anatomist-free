@@ -374,6 +374,7 @@ const AObject* Fusion3D::volume( unsigned n ) const
 void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s, 
                                                 unsigned tex ) const
 {
+  cout << "refreshVTextureWithPointToPoint, tex: " << tex << endl;
   //  volume scale
   float min;
   float max;
@@ -382,17 +383,29 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   // get surface vector of vertex
   const AObject		*osurf = *begin();
   const GLComponent	*surf = osurf->glAPI();
+  cout << "surf: " << surf << endl;
   const GLfloat		*vver = surf->glVertexArray( s );
+  cout << "vver: " << vver << endl;
   const GLfloat		*vnor = surf->glNormalArray( s );
+  cout << "vnor: " << vnor << endl;
   unsigned		nver = surf->glNumVertex( s );
   string		id = viewStateID( glBODY, s );
+  cout << "id: " << id.size() << endl;
+  cout << "id exists: " << ( d->vtexture.find(id) != d->vtexture.end() ) << endl;
+  cout << "vtexture size: " << d->vtexture.size() << endl;
+  cout << "len vtexture: " << d->vtexture[id].size() << endl;
   vector<float>		& vtexture = d->vtexture[id][ tex ];
+  cout << "vtex: " << vtexture.size() << endl;
 
   const AObject		*functional = volume( tex );
+  cout << "vol: " << functional << endl;
   const GLComponent     *glf = functional->glAPI();
   Transformation	*trans 
     = theAnatomist->getTransformation( osurf->getReferential(), 
-				       functional->getReferential() );
+                                       functional->getReferential() );
+
+  vtexture.clear();
+  vtexture.reserve( nver );
 
   // computation of texture values
   const GLfloat	*itver, *verend = vver + 3*nver, *itnor;
@@ -423,7 +436,7 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
 
     if( trans )
       pos = trans->transform( pos );
-    value = functional->mixedTexValue( pos, s.time );
+    value = functional->mixedTexValue( pos, s.timedims[0] );
 
     if( value < min )
       min = value;
@@ -594,7 +607,7 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
         cver = Point3df( iline->first[0] * vs[0], iline->first[1] * vs[1],
                          iline->first[2] * vs[2] );
 
-        cvalue = functional->mixedTexValue( cver, s.time );
+        cvalue = functional->mixedTexValue( cver, s.timedims[0] );
 
         switch( _submethod )
         {
@@ -788,7 +801,7 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
 
         if( trans )
           cver = trans->transform( cver );
-        cvalue = functional->mixedTexValue( cver, s.time );
+        cvalue = functional->mixedTexValue( cver, s.timedims[0] );
 
         switch( _submethod )
         {
@@ -963,40 +976,61 @@ const GLfloat* Fusion3D::glTexCoordArray( const ViewState & s,
 }
 
 
-bool Fusion3D::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool Fusion3D::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   unsigned		i;
-  const_iterator	is;
-  Point3df		pmin, pmax;
+  const_iterator	is, es = end();
+  vector<float>		pmin, pmax;
   bool			valid = false;
+  unsigned j, n;
 
   for( i=0, is=begin(); i<_nsurf; ++i )
     if( (*is)->boundingBox( pmin, pmax ) )
+    {
+      if( valid )
       {
-	if( valid )
-	  {
-	    if( pmin[0] < bmin[0] )
-	      bmin[0] = pmin[0];
-	    if( pmin[1] < bmin[1] )
-	      bmin[1] = pmin[1];
-	    if( pmin[2] < bmin[2] )
-	      bmin[2] = pmin[2];
-	    if( pmax[0] > bmax[0] )
-	      bmax[0] = pmax[0];
-	    if( pmax[1] > bmax[1] )
-	      bmax[1] = pmax[1];
-	    if( pmax[2] > bmax[2] )
-	      bmax[2] = pmax[2];
-	  }
-	else
-	  {
-	    bmin = pmin;
-	    bmax = pmax;
-	  }
-	valid = true;
+        for( j=0, n=std::min( pmax.size(), bmax.size() ); j<n; ++j )
+        {
+          // TODO take transformation into account
+          if( pmin[j] < bmin[j] )
+            bmin[j] = pmin[j];
+          if( pmax[j] > bmax[j] )
+            bmax[j] = pmax[j];
+        }
+        if( n < pmax.size() )
+        {
+          bmin.insert( bmin.end(), pmin.begin() + n, pmin.end() );
+          bmax.insert( bmax.end(), pmax.begin() + n, pmax.end() );
+        }
       }
+      else
+      {
+        bmin = pmin;
+        bmax = pmax;
+      }
+      valid = true;
+    }
 
-  return( valid );
+  // textures can extend time dimensions (only)
+  if( valid )
+    for( ; is!=es; ++is )
+    if( (*is)->boundingBox( pmin, pmax ) )
+    {
+      for( j=3, n=std::min( pmax.size(), bmax.size() ); j<n; ++j )
+      {
+        if( pmin[j] < bmin[j] )
+          bmin[j] = pmin[j];
+        if( pmax[j] > bmax[j] )
+          bmax[j] = pmax[j];
+      }
+      if( n < pmax.size() )
+      {
+        bmin.insert( bmin.end(), pmin.begin() + n, pmin.end() );
+        bmax.insert( bmax.end(), pmax.begin() + n, pmax.end() );
+      }
+    }
+
+  return valid;
 }
 
 
@@ -1154,16 +1188,40 @@ std::string Fusion3D::viewStateID( glPart part, const ViewState & state ) const
   case glGENERAL:
   case glBODY:
     {
-      string s = GLMObject::viewStateID( part, state );
-      float t = state.time;
-      if( t < MinT() )
-        t = MinT();
-      if( t > MaxT() )
-        t = MaxT();
-      (float &) s[0] = t;
-      return s;
+      string s;
+      vector<float> td = state.timedims;
+      vector<float> bbmin, bbmax;
+      size_t i, n = td.size();
+      if( boundingBox( bbmin, bbmax ) )
+      {
+        n = std::min( n, bbmax.size() - 3 );
+        for( i=0; i<n; ++i )
+        {
+          if( td[i] < bbmin[i + 3] )
+            td[i] = bbmin[i + 3];
+          if( td[i] > bbmax[i + 3] )
+            td[i] = bbmax[i + 3];
+        }
+        if( n < bbmax.size() - 3 )
+        {
+          n = bbmax.size() - 3;
+          for( ; i<n; ++i )
+            td.push_back( bbmin[i + 3] );
+        }
+      }
+      else
+      {
+        n = 1;
+        td[0] = 0.f;
+      }
+      s.resize( sizeof(float) * ( n + 1 ) );
+      (float &) s[0] = n;
+      for( i=0; i<n; ++i )
+        (float &) s[sizeof(float) * ( i + 1 )] = td[i];
+      return s + GLMObject::viewStateID( part, state );
     }
   case glTEXIMAGE:
+  case glTEXENV:
     return GLMObject::viewStateID( glBODY, state );
   default:
     return GLMObject::viewStateID( part, state );

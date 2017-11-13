@@ -40,73 +40,75 @@
 
 namespace anatomist
 {
-	/**	Anatomist object which contains several meshes: it displays
-	 *  the mesh polygons that intersect the current slice plane
-	 */
-	class Fusion2DMesh : public ObjectVector, public Sliceable
-	{
-	public:
-		Fusion2DMesh( const std::vector<AObject *> & obj );
-		virtual ~Fusion2DMesh();
+  /**	Anatomist object which contains several meshes: it displays
+    *  the mesh polygons that intersect the current slice plane
+    */
+  class Fusion2DMesh : public ObjectVector, public Sliceable
+  {
+  public:
+    Fusion2DMesh( const std::vector<AObject *> & obj );
+    virtual ~Fusion2DMesh();
 
-		virtual const GLComponent* glAPI() const
-		{
-			return this;
-		}
-		virtual GLComponent* glAPI()
-		{
-			return this;
-		}
-        virtual const Sliceable* sliceableAPI() const
-        {
-        	return this;
-        }
-        virtual Sliceable* sliceableAPI()
-        {
-        	return this;
-        }
+    virtual const GLComponent* glAPI() const
+    {
+      return this;
+    }
+    virtual GLComponent* glAPI()
+    {
+      return this;
+    }
+    virtual const Sliceable* sliceableAPI() const
+    {
+      return this;
+    }
+    virtual Sliceable* sliceableAPI()
+    {
+      return this;
+    }
 
-        virtual bool Is2DObject()
-        {
-        	return true;
-        }
+    virtual bool Is2DObject()
+    {
+      return true;
+    }
 
-        virtual bool render( PrimList &, const ViewState & );
-        virtual void update( const Observable *, void * );
+    virtual bool render( PrimList &, const ViewState & );
+    virtual void update( const Observable *, void * );
 
-        virtual const Material * glMaterial() const;
-		virtual unsigned glNumVertex( const ViewState & ) const;
-        virtual const GLfloat* glVertexArray( const ViewState & ) const;
-        virtual const GLfloat* glNormalArray( const ViewState & ) const;
-        virtual unsigned glPolygonSize( const ViewState & ) const;
-        virtual unsigned glNumPolygon( const ViewState & ) const;
-        virtual const GLuint* glPolygonArray( const ViewState & ) const;
-        virtual void glBeforeBodyGLL( const ViewState &,
-        							  GLPrimitives & ) const;
-        virtual void glAfterBodyGLL( const ViewState &,
-        				 	 	 	 GLPrimitives & ) const;
-        virtual Point4df glMin2D() const;
-        virtual Point4df glMax2D() const;
-        virtual const Referential * getReferential() const;
-        virtual void SetMaterial( const Material & );
-        virtual Material & GetMaterial();
-        virtual void setVoxelSize( const Point3df & );
-		virtual Point3df VoxelSize() const;
-		virtual Point3df glVoxelSize() const;
+    virtual const Material * glMaterial() const;
+    virtual unsigned glNumVertex( const ViewState & ) const;
+    virtual const GLfloat* glVertexArray( const ViewState & ) const;
+    virtual const GLfloat* glNormalArray( const ViewState & ) const;
+    virtual unsigned glPolygonSize( const ViewState & ) const;
+    virtual unsigned glNumPolygon( const ViewState & ) const;
+    virtual const GLuint* glPolygonArray( const ViewState & ) const;
+    virtual void glBeforeBodyGLL( const ViewState &, GLPrimitives & ) const;
+    virtual void glAfterBodyGLL( const ViewState &, GLPrimitives & ) const;
+    virtual std::vector<float> glMin2D() const;
+    virtual std::vector<float> glMax2D() const;
+    virtual const Referential * getReferential() const;
+    virtual void SetMaterial( const Material & );
+    virtual Material & GetMaterial();
+    virtual void setVoxelSize( const Point3df & );
+    virtual std::vector<float> voxelSize() const;
+    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const
+    { return boundingBox( bmin, bmax ); }
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const
+    { return boundingBox( bmin, bmax ); }
 
-        //! Gets the current slice plane
-        Point4df getPlane( const ViewState & ) const;
+    //! Gets the current slice plane
+    Point4df getPlane( const ViewState & ) const;
 
-        //! Updates the merged surface according to the surface object list and the current plane
-		void updateMergedSurface( const ViewState & );
+    //! Updates the merged surface according to the surface object list and the current plane
+    void updateMergedSurface( const ViewState & );
 
-		//! Returns true if the merged surface needs to be updated and false otherwise
-		bool needMergedSurfaceUpdate() const;
+    //! Returns true if the merged surface needs to be updated and false otherwise
+    bool needMergedSurfaceUpdate() const;
 
-	private:
-		ASurface<2>	* _mergedSurface; //! The merged surface
-		Point3df _voxelSize; //! The voxel size
-	};
+  private:
+    ASurface<2>	* _mergedSurface; //! The merged surface
+    std::vector<float> _voxelSize; //! The voxel size
+  };
 }
 
 #endif

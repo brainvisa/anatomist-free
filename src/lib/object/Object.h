@@ -178,6 +178,8 @@ namespace anatomist
     virtual float MaxZ2D() const { return 0; }
     /// more modern replacement for MinX2D... maxZ2D, in float coords
     virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const;
 
     /** Fills \a bmin and \a bmax with the 3D bounding box extrema in the
         object's referential coordinates
@@ -201,7 +203,9 @@ namespace anatomist
     float TimeStep() const;
     ///	For 3D objects, returns (1, 1, 1)
     virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & ) {}
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const Point3df & );
+    virtual void setVoxelSize( const std::vector<float> & ) {}
     /**	Updates the state of the object.
 	(when a part has changed and other parts depend on this change). 
 	Does nothing by default */

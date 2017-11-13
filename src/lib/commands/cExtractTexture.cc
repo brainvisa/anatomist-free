@@ -123,7 +123,7 @@ ExtractTextureCommand::doit()
 	scl = (vqmax - vqmin) / (vmax - vmin);
       for( t=tmin; t<=tmax; t+=intv, ++k )
 	{
-          s.time = t;
+          s.timedims[0] = t;
           n = glo->glNumVertex( s );
           Texture<float>	& text = (*tx)[k];
           text.reserve( n );
@@ -179,7 +179,7 @@ ExtractTextureCommand::doit()
 	scl[1] = (vqmax[1] - vqmin[1]) / (vmax[1] - vmin[1]);
       for( t=tmin; t<=tmax; t+=intv, ++k )
 	{
-          s.time = t;
+          s.timedims[0] = t;
           n = glo->glNumVertex( s );
           Texture<Point2df>	& text = (*tx)[k];
           text.reserve( n );

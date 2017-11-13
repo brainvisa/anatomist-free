@@ -103,7 +103,12 @@ namespace anatomist
     virtual float MaxY2D() const;
     virtual float MaxZ2D() const;
     virtual void setGeomExtrema();
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
+    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
+    {
+      return AObject::boundingBox( bmin, bmax );
+    }
     /// Can be display in 2D windows.
     bool Is2DObject() { return(true); }
     /// Can be display in 3D windows.

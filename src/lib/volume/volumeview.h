@@ -86,6 +86,9 @@ namespace anatomist
     float MaxZ2D() const { return _myvolume->MaxZ2D(); }
     float MinT() const { return _myvolume->MinT(); }
     float MaxT() const { return _myvolume->MaxT(); }
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const
+    { return _myvolume->boundingBox( bmin, bmax ); }
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
     { return _myvolume->boundingBox( bmin, bmax ); }
 

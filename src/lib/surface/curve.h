@@ -64,7 +64,10 @@ namespace anatomist
     virtual float MinT() const;
     virtual float MaxT() const;
 
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
+    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
+    { return AObject::boundingBox( bmin, bmax ); }
 
     virtual AObject* ObjectAt( float x, float y, float z, float t, 
 			       float tol = 0 );

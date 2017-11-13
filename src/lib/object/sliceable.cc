@@ -105,9 +105,9 @@ unsigned Sliceable::glNumVertex( const ViewState & state ) const
 }
 
 
-Point3df Sliceable::glVoxelSize() const
+vector<float> Sliceable::glVoxelSize() const
 {
-  return Point3df( 1, 1, 1 );
+  return vector<float>( 4, 1.f );
 }
 
 
@@ -140,7 +140,7 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
 
   SliceInfo	& si = d->slices[ id ];
 
-  Point3df	vs = glVoxelSize();
+  vector<float> vs = glVoxelSize();
 
   float			xm, ym;
   const Quaternion	& rot = *st->orientation;
@@ -186,8 +186,8 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
 
       //cout << "gs : " << gs << endl;
 
-      Point4df	min2d = glMin2D();
-      Point4df	max2d = glMax2D();
+      vector<float> min2d = glMin2D();
+      vector<float> max2d = glMax2D();
       Point3df	lims = Point3df( vs[0] * ( 0.5 + max2d[0] ), 
 				 vs[1] * ( 0.5 + max2d[1] ), 
 				 vs[2] * ( 0.5 + max2d[2] ) );
@@ -571,16 +571,28 @@ string Sliceable::viewStateID( glPart part,
   if( !st || !st->wantslice )
     return GLComponent::viewStateID( part, state );
 
-  float		t = state.time;
-  Point4df	gmin = glMin2D(), gmax = glMax2D();
-  if( t < gmin[3] )
-    t = gmin[3];
-  if( t > gmax[3] )
-    t = gmax[3];
+  vector<float> timedims = state.timedims;
+  vector<float> gmin = glMin2D(), gmax = glMax2D();
+  unsigned i, n = std::min( timedims.size(), gmax.size() - 3 );
+  timedims.resize( n );
+  for( i=0; i<n; ++i )
+  {
+    if( timedims[i] < gmin[3 + i] )
+      timedims[i] = gmin[3 + i];
+    if( timedims[i] > gmax[3 + i] )
+      timedims[i] = gmax[3 + i];
+  }
+  if( n < gmax.size() - 3 )
+  {
+    n = gmax.size() - 3;
+    for( ; i<n; ++i )
+      timedims.push_back( gmin[i + 3] );
+  }
 
   string		s;
   static const int	nf = sizeof(float);
   static const int	ns4 = 4*sizeof(int);
+  size_t p = 0;
 
   switch( part )
     {
@@ -590,9 +602,9 @@ string Sliceable::viewStateID( glPart part,
     case glBODY:
       {
         if( st->wingeom )
-          s.resize( 6*nf + 2*ns4 );
+          s.resize( 6 * nf + 2 * ns4 );
         else
-          s.resize( 6*nf );
+          s.resize( 6 * nf );
         Point4df	o = st->orientation->vector();
         // level in plane: position .dot. plane normal
         // (inverse since the quaternion transforms to the texture space)
@@ -603,53 +615,59 @@ string Sliceable::viewStateID( glPart part,
         memcpy( &s[4*nf], &level, nf );
         memcpy( &s[5*nf], &state.selectRenderMode, nf );
         if( st->wingeom )
-          {
-            memcpy( &s[6*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[6*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
-          }
+        {
+          memcpy( &s[6*nf], &st->wingeom->DimMin()[0], ns4 );
+          memcpy( &s[6*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+        }
       }
       break;
     case glGENERAL:
       {
         if( st->wingeom )
-          s.resize( 7*nf + 2*ns4 );
+          s.resize( ( 7 + n ) * nf + 2 * ns4 );
         else
-          s.resize( 7*nf );
-        (float &) s[0] = t;
+          s.resize( ( 7 + n ) * nf );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[nf * ( i + 1 )] = timedims[i];
+        p = nf * (n + 1 );
         Point4df        o = st->orientation->vector();
         // level in plane: position .dot. plane normal
         Point3df normal = st->orientation->transformInverse(
           Point3df( 0, 0, 1 ) );
         float level = normal.dot( st->position );
-        memcpy( &s[nf], &o[0], 4*nf );
-        memcpy( &s[5*nf], &level, nf );
-        memcpy( &s[6*nf], &state.selectRenderMode, nf );
+        memcpy( &s[p], &o[0], 4*nf );
+        memcpy( &s[p + 4*nf], &level, nf );
+        memcpy( &s[p + 5*nf], &state.selectRenderMode, nf );
         if( st->wingeom )
-          {
-            memcpy( &s[7*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[7*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
-          }
+        {
+          memcpy( &s[p + 6*nf], &st->wingeom->DimMin()[0], ns4 );
+          memcpy( &s[p + 6*nf + ns4], &st->wingeom->DimMax()[0], ns4 );
+        }
       }
       break;
     case glTEXIMAGE:
     case glTEXENV:
       {
         if( st->wingeom )
-          s.resize( 6*nf + 2*ns4 );
+          s.resize( ( 6 + n ) * nf + 2 * ns4 );
         else
-          s.resize( 6*nf );
-        (float &) s[0] = t;
+          s.resize( ( 6 + n ) * nf );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[nf * ( i + 1 )] = timedims[i];
+        p = nf * (n + 1 );
         Point4df	o = st->orientation->vector();
         // level in plane: position .dot. plane normal
         Point3df normal = st->orientation->transformInverse(
           Point3df( 0, 0, 1 ) );
         float level = normal.dot( st->position );
-        memcpy( &s[nf], &o[0], 4*nf );
-        memcpy( &s[5*nf], &level, nf );
+        memcpy( &s[p], &o[0], 4*nf );
+        memcpy( &s[p + 4*nf], &level, nf );
         if( st->wingeom )
           {
-            memcpy( &s[6*nf], &st->wingeom->DimMin()[0], ns4 );
-            memcpy( &s[6*nf+ns4], &st->wingeom->DimMax()[0], ns4 );
+            memcpy( &s[p + 5*nf], &st->wingeom->DimMin()[0], ns4 );
+            memcpy( &s[p + 5*nf + ns4], &st->wingeom->DimMax()[0], ns4 );
           }
       }
       break;
@@ -670,11 +688,15 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
                                            int tex ) const
 {
   Point3dl dims;
-  Point3df vs, dmin;
+  Point3df dmin;
+  vector<float> vvs(3, 1.);
 
   if( svs && svs->wingeom )
   {
-    vs = svs->wingeom->Size();
+    Point3df vs = svs->wingeom->Size();
+    vvs[0] = vs[0];
+    vvs[1] = vs[1];
+    vvs[2] = vs[2];
     Point4dl dmm = svs->wingeom->DimMin();
     Point4dl	dm = svs->wingeom->DimMax() - dmm;
     dims[0] = dm[0];
@@ -685,19 +707,17 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
   else
   {
     // no geometry case
-    Point4df dmm = glMin2D();
-    Point4df	max2d = glMax2D() - dmm + Point4df( 1.F );
-    vs = glVoxelSize();
+    vector<float>  dmm = glMin2D();
+    vector<float> dmax2d;
+    Point3df max2d = Point3df( dmax2d[0], dmax2d[1], dmax2d[2] )
+      - Point3df( dmm[0], dmm[1], dmm[2] ) + Point3df( 1.F );
+    vvs = glVoxelSize();
     dims = Point3dl( (int) rint( max2d[0] ), (int) rint( max2d[1] ),
                     (int) rint( max2d[2] ) );
     dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
 
   VolumeRef<AimsRGBA> vol( new Volume<AimsRGBA>( dims[0], dims[1], dims[2] ) );
-  vector<float> vvs(3);
-  vvs[0] = vs[0];
-  vvs[1] = vs[1];
-  vvs[2] = vs[2];
   vol->header().setProperty( "voxel_size", vvs );
   if( dmin[0] != 0 || dmin[1] != 0 || dmin[2] != 0 )
   {
@@ -712,9 +732,9 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
     t[5] = 1.;
     t[10] = 1.;
     t[15] = 1.;
-    t[3] = dmin[0] * vs[0];
-    t[7] = dmin[1] * vs[1];
-    t[11] = dmin[2] * vs[2];
+    t[3] = dmin[0] * vvs[0];
+    t[7] = dmin[1] * vvs[1];
+    t[11] = dmin[2] * vvs[2];
     vol->header().setProperty( "transformations", trans );
     vol->header().setProperty( "referentials", refs );
   }
@@ -737,7 +757,7 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
   SliceViewState svs( 0, true, Point3df( 0.F ), &q );
   if( slvs )
   {
-    svs.time = slvs->time;
+    svs.timedims = slvs->timedims;
     svs.window = slvs->window;
     svs.orientation = slvs->orientation;
     svs.winref = slvs->winref;
@@ -867,20 +887,25 @@ void SliceableObject::glSetTexEnvChanged( bool x, unsigned tex ) const
 }
 
 
-Point3df SliceableObject::glVoxelSize() const
+vector<float> SliceableObject::glVoxelSize() const
 {
-  return VoxelSize();
-}
-
-Point4df SliceableObject::glMin2D() const
-{
-  return Point4df( MinX2D(), MinY2D(), MinZ2D(), MinT() );
+  return voxelSize();
 }
 
 
-Point4df SliceableObject::glMax2D() const
+vector<float> SliceableObject::glMin2D() const
 {
-  return Point4df( MaxX2D(), MaxY2D(), MaxZ2D(), MaxT() );
+  vector<float> bmin, bmax;
+  boundingBox2D( bmin, bmax );
+  return bmin;
+}
+
+
+vector<float> SliceableObject::glMax2D() const
+{
+  vector<float> bmin, bmax;
+  boundingBox2D( bmin, bmax );
+  return bmax;
 }
 
 

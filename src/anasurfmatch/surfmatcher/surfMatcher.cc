@@ -763,8 +763,11 @@ void ASurfMatcher::setOrgControlPoints( const vector<unsigned> & pts )
   const set<AWindow *>			& wl = movingSurface()->WinList();
   set<AWindow *>::const_iterator	iw, fw=wl.end();
   Point3df				col( 0.3, 0.3, 1 ), bmin, bmax;
+  vector<float> bbmin, bbmax;
 
-  dsurf->boundingBox( bmin, bmax );
+  dsurf->boundingBox( bbmin, bbmax );
+  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
   bmax -= bmin;
   sz = sqrt( bmax.dot( bmax ) ) * 0.01;
   _ctrlPts->ctrlPtsSize = sz;
@@ -796,8 +799,11 @@ void ASurfMatcher::setDestControlPoints( const vector<Point3df> & pts )
   const set<AWindow *>			& wl = dsurf->WinList();
   set<AWindow *>::const_iterator	iw, fw=wl.end();
   Point3df				col( 1, 0, 0 ), bmin, bmax;
+  vector<float> bbmin, bbmax;
 
-  dsurf->boundingBox( bmin, bmax );
+  dsurf->boundingBox( bbmin, bbmax );
+  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
   bmax -= bmin;
   sz = sqrt( bmax.dot( bmax ) ) * 0.01;
 

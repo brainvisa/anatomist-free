@@ -477,7 +477,8 @@ namespace
       VolRenderShader::Private & p )
   {
     glpixtype<AimsRGBA>( p );
-    Point4df max = avol->glMax2D() + Point4df( 1.F );
+    vector<float> vmax = avol->glMax2D();
+    Point3df max = Point3df( vmax[0], vmax[1], vmax[2] ) + Point3df( 1.F );
     p.dimx = (unsigned) rint( max[0] );
     p.dimy = (unsigned) rint( max[1] );
     p.dimz = (unsigned) rint( max[2] );
@@ -498,9 +499,9 @@ namespace
   void resamplesliceable( Sliceable * avol, VolRenderShader::Private * d, int t )
   {
     Quaternion q( 0.F, 0.F, 0.F, 1.F );
-    Point3df vox = avol->glVoxelSize();
-    Geometry geom( vox, Point4dl( 0, 0, 0, 0 ), Point4dl( d->dimx, d->dimy,
-                   d->dimz, 1 ) );
+    vector<float> vox = avol->glVoxelSize();
+    Geometry geom( Point3df( vox[0], vox[1], vox[2] ), Point4dl( 0, 0, 0, 0 ),
+                   Point4dl( d->dimx, d->dimy, d->dimz, 1 ) );
     SliceViewState vs( t, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
     VolumeRef<AimsRGBA> vol = avol->rgbaVolume( &vs );
@@ -768,7 +769,7 @@ bool VolRenderShader::glMakeTexImage( const ViewState &state,
   double minquant = te.minquant[0];
   double maxquant = te.maxquant[0];
 
-  int t = int( rint( state.time ) );
+  int t = int( rint( state.timedims[0] ) );
 
   GLuint	texName = gltex.item();
   GLCaps::glActiveTexture( GLCaps::textureID( 0 ) );
@@ -1224,12 +1225,23 @@ string VolRenderShader::viewStateID( glPart part, const ViewState & state ) cons
   if( !st )
     return GLComponent::viewStateID( part, state );
 
-  float		t = state.time;
-  Point4df	gmin = MinT(), gmax = MaxT();
-  if( t < gmin[3] )
-    t = gmin[3];
-  if( t > gmax[3] )
-    t = gmax[3];
+  vector<float> bbmin( 4, 0. ), bbmax( 4, 0. );
+  boundingBox( bbmin, bbmax );
+  vector<float> td = state.timedims;
+  unsigned i, n = std::min( td.size(), bbmax.size() - 3 );
+  for( i=0; i<n; ++i )
+  {
+    if( td[i] < bbmin[i + 3] )
+      td[i] = bbmin[i + 3];
+    if( td[i] > bbmax[i + 3] )
+      td[i] = bbmax[i + 3];
+  }
+  if( n < bbmax.size() - 3 )
+  {
+    n = bbmax.size() - 3;
+    for( ; i<n; ++i )
+      td.push_back( bbmin[i + 3] );
+  }
 
   string		s;
   static const int	nf = sizeof(float);
@@ -1241,15 +1253,20 @@ string VolRenderShader::viewStateID( glPart part, const ViewState & state ) cons
     case glGENERAL:
       if( st->vieworientation )
       {
-        s.resize( 5*nf );
-        (float &) s[0] = t;
+        s.resize( ( 5 + n ) * nf );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[nf * ( i + 1 )] = td[i];
+        size_t p = nf * (n + 1 );
         Point4df	o = st->vieworientation->vector();
-        memcpy( &s[4], &o[0], 4*nf );
+        memcpy( &s[p], &o[0], 4*nf );
       }
       else
       {
-        s.resize( nf );
-        (float &) s[0] = t;
+        s.resize( ( n + 1 ) * nf );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[nf * ( i + 1 )] = td[i];
       }
     break;
     case glGEOMETRY:
@@ -1265,8 +1282,10 @@ string VolRenderShader::viewStateID( glPart part, const ViewState & state ) cons
     case glTEXIMAGE:
     case glTEXENV:
     {
-      s.resize( nf );
-      (float &) s[0] = t;
+      s.resize( ( n + 1 ) * nf );
+      (float &) s[0] = n;
+      for( i=0; i<n; ++i )
+        (float &) s[nf * ( i + 1 )] = td[i];
     }
     break;
     default:

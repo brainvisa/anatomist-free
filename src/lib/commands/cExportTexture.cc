@@ -128,7 +128,7 @@ ExportTextureCommand::doit()
       << endl; */
       for( t=tmin /*, tt0=-1 */; t<=tmax; t+=intv, ++k )
 	{
-          s.time = t;
+          s.timedims[0] = t;
 	  //glo->refreshData( t );
 	  /*tt = glo->glTexCoordTime( t );
 	  if( tt != tt0 )
@@ -192,7 +192,7 @@ ExportTextureCommand::doit()
 	scl[1] = (vqmax[1] - vqmin[1]) / (vmax[1] - vmin[1]);
       for( t=tmin /*, tt0=-1 */; t<=tmax; t+=intv, ++k )
 	{
-          s.time = t;
+          s.timedims[0] = t;
 	  //glo->refreshData( t );
 	  /*tt = glo->texCoordTime( t );
 	  if( tt != tt0 )

@@ -46,41 +46,42 @@ using namespace std;
 Fusion2DMesh::Fusion2DMesh( const vector<AObject *> & obj )
     : ObjectVector(), Sliceable(),
       _mergedSurface(0),
-      _voxelSize( Point3df( 1., 1., 1. ) )
+      _voxelSize( 3, 1. )
 {
-    _type = AObject::FUSION2DMESH;
+  _type = AObject::FUSION2DMESH;
 
-    if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  {
+    string str = Settings::findResourceFile( "icons/list_2dmesh.xpm" );
+    if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
     {
-      string str = Settings::findResourceFile( "icons/list_2dmesh.xpm" );
-      if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
-      {
-        QObjectTree::TypeIcons.erase( _type );
-        cerr << "Icon " << str.c_str() << " not found\n";
-      }
-
-      QObjectTree::TypeNames[ _type ] = "2D Mesh";
+      QObjectTree::TypeIcons.erase( _type );
+      cerr << "Icon " << str.c_str() << " not found\n";
     }
 
-    // Insert the input objects
-    vector<AObject *>::const_iterator io, fo=obj.end();
-    for( io=obj.begin(); io!=fo; ++io )
-    {
-        insert( carto::shared_ptr<AObject>( carto::shared_ptr<AObject>::Strong, *io ) );
-    }
+    QObjectTree::TypeNames[ _type ] = "2D Mesh";
+  }
 
-    // Create the merged surface object
-    _mergedSurface = new ASurface<2>( "" );
-    _mergedSurface->setSurface( new AimsTimeSurface<2,Void> );
-    Material & polmat = _mergedSurface->GetMaterial();
-    polmat.SetDiffuse( 1., 0., 0., 1. );
-    polmat.setLineWidth( 2. );
-    polmat.setRenderProperty( Material::RenderFiltering, 1 );
-    _mergedSurface->SetMaterial( polmat );
-    _mergedSurface->setReferentialInheritance( *begin() );
+  // Insert the input objects
+  vector<AObject *>::const_iterator io, fo=obj.end();
+  for( io=obj.begin(); io!=fo; ++io )
+  {
+    insert( carto::shared_ptr<AObject>( carto::shared_ptr<AObject>::Strong,
+                                        *io ) );
+  }
 
-    SetMaterial( polmat );
-    setReferentialInheritance( *begin() );
+  // Create the merged surface object
+  _mergedSurface = new ASurface<2>( "" );
+  _mergedSurface->setSurface( new AimsTimeSurface<2,Void> );
+  Material & polmat = _mergedSurface->GetMaterial();
+  polmat.SetDiffuse( 1., 0., 0., 1. );
+  polmat.setLineWidth( 2. );
+  polmat.setRenderProperty( Material::RenderFiltering, 1 );
+  _mergedSurface->SetMaterial( polmat );
+  _mergedSurface->setReferentialInheritance( *begin() );
+
+  SetMaterial( polmat );
+  setReferentialInheritance( *begin() );
 }
 
 //--------------------------------------------------------------
@@ -98,25 +99,27 @@ const Material * Fusion2DMesh::glMaterial() const
 //--------------------------------------------------------------
 void Fusion2DMesh::setVoxelSize( const Point3df & voxelSize )
 {
-	_voxelSize = voxelSize;
+  _voxelSize[0] = voxelSize[0];
+  _voxelSize[1] = voxelSize[1];
+  _voxelSize[2] = voxelSize[2];
 }
 
 //--------------------------------------------------------------
-Point3df Fusion2DMesh::VoxelSize() const
+vector<float> Fusion2DMesh::voxelSize() const
 {
-	return _voxelSize;
+  vector<float> vs( 4, 1. );
+  vs[0] = _voxelSize[0];
+  vs[1] = _voxelSize[1];
+  vs[2] = _voxelSize[2];
+  vs[3] = TimeStep();
+  return vs;
 }
 
-//--------------------------------------------------------------
-Point3df Fusion2DMesh::glVoxelSize() const
-{
-	return _voxelSize;
-}
 
 //--------------------------------------------------------------
 bool Fusion2DMesh::needMergedSurfaceUpdate() const
 {
-	return true;
+  return true;
 }
 
 //--------------------------------------------------------------
@@ -138,7 +141,12 @@ void Fusion2DMesh::updateMergedSurface( const ViewState & state )
     const AimsSurfaceTriangle * mesh = dynamic_cast<const ATriangulated *>( (*io).get() )->surface().get();
     AimsTimeSurface<2,Void> pol;
     const SliceViewState* st = state.sliceVS();
-    int timestep = int( rint( state.time / (*io)->TimeStep() ) );
+    float time = state.timedims[0];
+    if( time < (*io)->MinT() )
+      time = 0;
+    else if( time > (*io)->MaxT() )
+      time = (*io)->MaxT();
+    int timestep = int( rint( time / (*io)->TimeStep() ) );
 
     // Cut the mesh with the current plane
     aims::SurfaceManip::cutMesh( *mesh, plane, pol, timestep );
@@ -180,9 +188,9 @@ Material & Fusion2DMesh::GetMaterial()
 //--------------------------------------------------------------
 bool Fusion2DMesh::render( PrimList & prim, const ViewState & state )
 {
-	updateMergedSurface( state );
+  updateMergedSurface( state );
 
-    return AObject::render( prim, state );
+  return AObject::render( prim, state );
 }
 
 //--------------------------------------------------------------
@@ -317,40 +325,30 @@ const GLuint * Fusion2DMesh::glPolygonArray( const ViewState & ) const
 }
 
 //--------------------------------------------------------------
-Point4df Fusion2DMesh::glMin2D() const
+vector<float> Fusion2DMesh::glMin2D() const
 {
-	if ( !_mergedSurface )
-	{
-		return Point4df( 0, 0, 0, 0 );
-	}
+  vector<float> min, max;
+  if( !boundingBox( min, max ) )
+    return vector<float>( 4, 0.f );
 
-    Point3df min, max;
-    _mergedSurface->boundingBox( min, max );
-
-    return Point4df( min[0], min[1], min[2], 0 );
+  return min;
 }
 
 //--------------------------------------------------------------
-Point4df Fusion2DMesh::glMax2D() const
+vector<float> Fusion2DMesh::glMax2D() const
 {
-	if ( !_mergedSurface )
-	{
-		return Point4df( 0, 0, 0, 0 );
-	}
+  vector<float> min, max;
+  if( !boundingBox( min, max ) )
+    return vector<float>( 4, 0.f );
 
-	Point3df min, max;
-    _mergedSurface->boundingBox( min, max );
-
-    return Point4df( max[0], max[1], max[2], 0 );
+  return max;
 }
 
 //--------------------------------------------------------------
 const Referential * Fusion2DMesh::getReferential() const
 {
-	if ( !_mergedSurface )
-	{
-		return 0;
-	}
+  if ( !_mergedSurface )
+    return 0;
 
-    return _mergedSurface->getReferential();
+return _mergedSurface->getReferential();
 }

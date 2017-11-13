@@ -289,7 +289,25 @@ float AObject::TimeStep() const
 
 Point3df AObject::VoxelSize() const
 {
-  return Point3df( 1, 1, 1 );
+  vector<float> vs = voxelSize();
+  return Point3df( vs[0], vs[1], vs[2] );
+}
+
+
+vector<float> AObject::voxelSize() const
+{
+  return vector<float>( 4, 1. );
+}
+
+
+void AObject::setVoxelSize( const Point3df & vs )
+{
+  vector<float> vvs( 4, 1. );
+  vvs[0] = vs[0];
+  vvs[1] = vs[1];
+  vvs[2] = vs[2];
+  vvs[3] = TimeStep();
+  setVoxelSize( vvs );
 }
 
 
@@ -746,9 +764,20 @@ void AObject::cleanup()
 
 bool AObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
 {
-  bmin = Point3df( 0, 0, 0 );
-  bmax = Point3df( 0, 0, 0 );
-  return( false );
+  vector<float> bbmin, bbmax;
+  if( !boundingBox( bbmin, bbmax ) )
+  {
+    bmin = Point3df( 0, 0, 0 );
+    bmax = Point3df( 0, 0, 0 );
+    return( false );
+  }
+  bmin[0] = bbmin[0];
+  bmin[1] = bbmin[1];
+  bmin[2] = bbmin[2];
+  bmax[0] = bbmax[0];
+  bmax[1] = bbmax[1];
+  bmax[2] = bbmax[2];
+  return true;
 }
 
 
@@ -773,9 +802,29 @@ bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 
 bool AObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
 {
-  Point3df vs = VoxelSize();
-  bmin = Point3df( MinX2D() * vs[0], MinY2D() * vs[1], MinZ2D() * vs[2] );
-  bmax = Point3df( MaxX2D() * vs[0], MaxY2D() * vs[1], MaxZ2D() * vs[2] );
+  vector<float> bbmin, bbmax;
+  if( !boundingBox2D( bbmin, bbmax ) )
+    return false;
+  bmin[0] = bbmin[0];
+  bmin[1] = bbmin[1];
+  bmin[2] = bbmin[2];
+  return true;
+}
+
+
+bool AObject::boundingBox2D( vector<float> & bmin, vector<float> & bmax ) const
+{
+  bmin.resize( 4 );
+  bmax.resize( 4 );
+  vector<float> vs = voxelSize();
+  bmin[0] = MinX2D() * vs[0];
+  bmin[1] = MinY2D() * vs[1];
+  bmin[2] = MinZ2D() * vs[2];
+  bmax[0] = MaxX2D() * vs[0];
+  bmax[1] = MaxY2D() * vs[1];
+  bmax[2] = MaxZ2D() * vs[2];
+  bmin[3] = MinT() * vs[3];
+  bmax[3] = MaxT() * vs[3];
   return true;
 }
 

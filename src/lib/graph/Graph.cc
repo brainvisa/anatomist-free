@@ -1231,13 +1231,21 @@ Point3dl AGraph::labelsVolumeDimension() const
 }
 
 
-bool AGraph::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool AGraph::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
-  bmin = Point3df( d->minX * d->voxelSize.item( 0 ), d->minY * d->voxelSize.item( 1 ),
-		   d->minZ * d->voxelSize.item( 2 ) );
-  bmax = Point3df( d->maxX * d->voxelSize.item( 0 ), d->maxY * d->voxelSize.item( 1 ),
-		   d->maxZ * d->voxelSize.item( 2 ) );
-  return( true );
+  bmin.resize( 4 );
+  bmax.resize( 4 );
+
+  bmin[0] = d->minX * d->voxelSize.item( 0 );
+  bmin[1] = d->minY * d->voxelSize.item( 1 );
+  bmin[2] = d->minZ * d->voxelSize.item( 2 );
+  bmax[0] = d->maxX * d->voxelSize.item( 0 );
+  bmax[1] = d->maxY * d->voxelSize.item( 1 );
+  bmax[2] = d->maxZ * d->voxelSize.item( 2 );
+  bmin[3] = 0;
+  bmax[3] = 0;
+
+  return true;
 }
 
 

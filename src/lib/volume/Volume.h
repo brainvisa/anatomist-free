@@ -81,6 +81,8 @@ namespace anatomist
     float MinT() const { return 0.0; }
     float MaxT() const { return float(_volume->getSizeT()-1); }
 
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const;
     virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
@@ -106,8 +108,8 @@ namespace anatomist
     virtual bool update2DTexture( AImage &, const Point3df & posbase, 
                                   const SliceViewState &, 
                                   unsigned tex = 0 ) const;
-    virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & vs );
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & vs );
     /// Retourne la valeur d'un voxel du volume.
     float GetValue(Point3df pos,float time, Referential *winref,
 		   Geometry *wingeom);
@@ -143,17 +145,19 @@ namespace anatomist
 
   protected:
     ///	Generic texture filling routine for any transformation
-    void updateSlice( AImage & image, const Point3df & p0, float time, 
-		      const Transformation* tra, const Point3df & inc, 
-		      const Point3df & offset, const Geometry* wingeom ) const;
+    void updateSlice( AImage & image, const Point3df & p0,
+                      const std::vector<float> & time,
+                      const Transformation* tra, const Point3df & inc,
+                      const Point3df & offset, const Geometry* wingeom ) const;
     /// Optimized texture filling routine (no transformation)
-    void updateAxial( AImage *ximage, const Point3df & p0, float time ) const;
+    void updateAxial( AImage *ximage, const Point3df & p0,
+                      const std::vector<float> & time ) const;
     /// Optimized texture filling routine (no transformation)
     void updateCoronal( AImage *ximage, const Point3df & p0, 
-                        float time ) const;
+                        const std::vector<float> & time ) const;
     /// Optimized texture filling routine (no transformation)
     void updateSagittal( AImage *ximage, const Point3df & p0, 
-                         float time ) const;
+                         const std::vector<float> & time ) const;
 
   private:
     struct PrivateData;

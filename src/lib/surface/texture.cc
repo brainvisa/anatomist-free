@@ -766,7 +766,7 @@ const float* ATexture::glTexCoordArray( const ViewState & s,
                                         unsigned ) const
 {
   //cout << "Texture::texCoordArray: " << textureCoords( s.time ) << endl;
-  return textureCoords( s.time );
+  return textureCoords( s.timedims[0] );
 }
 
 

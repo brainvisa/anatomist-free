@@ -48,7 +48,7 @@
 
 
 // uncomment this to allow lots of output messages about GL lists
-//#define ANA_DEBUG_GLLISTS
+// #define ANA_DEBUG_GLLISTS
 
 using namespace anatomist;
 using namespace carto;
@@ -447,15 +447,18 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
   GLPrimitives	p;
   bool		changed = glHasChanged( glGENERAL );
   if( !changed )
+  {
+    // cout << "not changed\n";
+    map<string, GLPrimitives>::const_iterator	i = d->mainGLL.find( s );
+    if( i != d->mainGLL.end() )
     {
-      map<string, GLPrimitives>::const_iterator	i = d->mainGLL.find( s );
-      if( i != d->mainGLL.end() )
-        {
-          p = i->second;
-          // cout << "main list " << i->first << " in cache\n";
-          return p;
-        }
+      p = i->second;
+      // cout << "main list in cache\n";
+      return p;
     }
+    // else cout << "not in cache\n";
+  }
+  // else cout << "has changed.\n";
 
   // run garbage collector
   glGarbageCollector();
@@ -477,7 +480,7 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
     {
       //cout << "texName " << it << "...\n";
       GLPrimitives	tp = glTexNameGLL( state, it );
-      //cout << "TexName: " << tp.size() << " items\n";
+      // cout << "TexName: " << tp.size() << " items\n";
       noexec->items.insert( noexec->items.end(), tp.begin(), tp.end() );
     }
 
@@ -508,7 +511,6 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
   GLPrimitives::iterator	ip, ep;
 
   // make main list
-  // cout << "making main list\n";
   GLList	*ml = new GLList;
   ml->generate();
   glNewList( ml->item(), GL_COMPILE );
@@ -524,8 +526,15 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
   for( ip=tp.begin(), ep=tp.end(); ip!=ep; ++ip )
     {
 #ifdef ANA_DEBUG_GLLISTS
-      cout << "in main list " << ml->item() << ": texenv: " 
-         << ((GLList &) **ip).item() << endl;
+      if( dynamic_cast<GLList *>( ip->get() ) )
+        cout << "in main list " << ml->item() << ": texenv list: "
+          << ((GLList &) **ip).item() << endl;
+      else if( dynamic_cast<GLTexture *>( ip->get() ) )
+        cout << "in main list " << ml->item() << ": texenv tex: "
+          << ((GLTexture &) **ip).item() << endl;
+      else
+        cout << "in main list " << ml->item() << ": texenv unkown item "
+          << typeid( **ip ).name() << endl;
 #endif
       (*ip)->callList();
     }
@@ -816,12 +825,12 @@ GLPrimitives GLComponent::glTexNameGLL( const ViewState & state,
       map<string, RefGLItem>::const_iterator 
         i = t.name.find( s );
       if( i != t.name.end() )
-        {
-          if( ((GLTexture &) *i->second).item() != 0 )
-            p.push_back( i->second );
-          // cout << "cached: " << ((GLTexture &) *i->second).item() << "\n";
-          return p;
-        }
+      {
+        if( ((GLTexture &) *i->second).item() != 0 )
+          p.push_back( i->second );
+        // cout << "cached: " << ((GLTexture &) *i->second).item() << "\n";
+        return p;
+      }
     }
 
   if( changed )
@@ -1731,23 +1740,30 @@ string GLComponent::viewStateID( glPart part, const ViewState & state ) const
 {
   // cout << "viewStateID " << part << ", smode: " << state.selectRenderMode << endl;
   string	s;
-  float		t = state.time;
+  vector<float>	timedims = state.timedims;
   if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL )
     return s;
+
+  unsigned i, n = timedims.size();
 
   if( state.selectRenderMode != ViewState::glSELECTRENDER_NONE )
   {
     if( part == glTEXIMAGE || part == glTEXENV || part == glMATERIAL
         || part == glPALETTE )
       return s;
-    s.resize( sizeof(float) + sizeof( glSelectRenderMode ) );
-    (float &) s[0] = t;
-    (glSelectRenderMode &) s[sizeof(float)] = state.selectRenderMode;
+    s.resize( sizeof(float) * ( n + 1 ) + sizeof( glSelectRenderMode ) );
+    (float &) s[0] = n;
+    for( i=0; i<n; ++i )
+      (float &) s[sizeof(float) * ( i + 1 )] = timedims[i];
+    (glSelectRenderMode &) s[sizeof(float) * ( n + 1 )]
+      = state.selectRenderMode;
     return s;
   }
 
-  s.resize( sizeof(float) );
-  (float &) s[0] = t;
+  s.resize( sizeof(float) * ( n + 1 ) );
+  (float &) s[0] = n;
+  for( i=0; i<n; ++i )
+    (float &) s[sizeof(float) * ( i + 1 )] = timedims[i];
   return s;
 }
 

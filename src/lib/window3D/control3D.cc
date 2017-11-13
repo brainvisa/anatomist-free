@@ -679,13 +679,17 @@ void LinkAction::execLink( int x, int y, int, int )
   Point3df        pos;
   if( win->positionFromCursor( x, y, pos ) )
   {
-    cout << "Position : " << pos << endl;
+    vector<float>        vp = win->getFullPosition();
+    vp[0] = pos[0];
+    vp[1] = pos[1];
+    vp[2] = pos[2];
 
-    vector<float>        vp;
-    vp.push_back( pos[0] );
-    vp.push_back( pos[1] );
-    vp.push_back( pos[2] );
-    vp.push_back( win->getTime() );
+    cout << "Position : " << vp[0];
+    unsigned i, n = vp.size();
+    for( i=1; i<n; ++i )
+      cout << ", " << vp[i];
+    cout << endl;
+
     LinkedCursorCommand        *c
       = new LinkedCursorCommand( v->aWindow(), vp );
     theProcessor->execute( c );

@@ -323,7 +323,8 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
                                   unsigned /*tex*/ ) const
 {
   /* cout << "AVolume<" << DataTypeCode<T>::name()
-      << ">::update2DTexture, pos : " << pos << "\n"; */
+      << ">::update2DTexture, pos : " << pos << "\n";
+  cout << "vol timedims: " << state.timedims.size() << endl; */
   if( !_volume->allocatorContext().isAllocated() )
     return false;
 
@@ -333,15 +334,15 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
   const Quaternion	& quat = *state.orientation;
   const Referential	*winref = state.winref;
   const Geometry	*wingeom = state.wingeom;
-  float			time = state.time;
+  vector<float>		td = state.timedims;
 
   objref = getReferential();
   if( winref && objref != winref )
-    {
-      tra = theAnatomist->getTransformation( winref, objref );
-      /* cout << "refs : obj : " << objref << ", win : " << winref 
-         << ", tr : " << tra << endl; */
-    }
+  {
+    tra = theAnatomist->getTransformation( winref, objref );
+    /* cout << "refs : obj : " << objref << ", win : " << winref
+        << ", tr : " << tra << endl; */
+  }
 
   Point3df	u = quat.transformInverse( Point3df( 1, 0, 0 ) ),
     v = quat.transformInverse( Point3df( 0, 1, 0 ) ),
@@ -353,10 +354,17 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
   else
     q = quat;
 
-  if( time < 0 )
-    time = 0;
-  else if( time > _volume->getSizeT() - 1 )
-    time = _volume->getSizeT() - 1;
+  vector<int> dims = _volume->getSize();
+  unsigned i, n = std::min( dims.size() - 3, td.size() );
+  for( i=0; i<n; ++i )
+  {
+    if( td[i] < 0 )
+      td[i] = 0;
+    else if( td[i] > dims[i + 3] - 1 )
+      td[i] = dims[i + 3] - 1;
+  }
+  if( td.size() > n )
+    td.resize( n );
 
   Point4df		vec = q.vector();
   Point3df		gs = wingeom->Size();
@@ -376,7 +384,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
       if( tra )
         post = tra->transform( pos );
       //cout << "axial optimized\n";
-      updateAxial( &ximage, post, time );
+      updateAxial( &ximage, post, td );
       return true;
     }
   }
@@ -390,7 +398,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
       if( tra )
         post = tra->transform( pos );
       // cout << "coronal optimized\n";
-      updateCoronal( &ximage, post, time );
+      updateCoronal( &ximage, post, td );
       return true;
     }
   }
@@ -403,7 +411,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
       if( tra )
         post = tra->transform( pos );
       // cout << "sagittal optimized\n";
-      updateSagittal( &ximage, post, time );
+      updateSagittal( &ximage, post, td );
       return true;
     }
   }
@@ -413,7 +421,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
     tra = new Transformation( 0, 0 );
     owntr = true;
   }
-  updateSlice( ximage, pos, time, tra, u, v, wingeom );
+  updateSlice( ximage, pos, td, tra, u, v, wingeom );
   if( owntr )
     delete tra;
 
@@ -445,10 +453,11 @@ namespace
 }
 
 template <class T>
-void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time, 
-			      const Transformation* tra, const Point3df & inc, 
-			      const Point3df & offset, 
-			      const Geometry* wingeom ) const
+void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
+                              const vector<float> & td,
+                              const Transformation* tra, const Point3df & inc,
+                              const Point3df & offset,
+                              const Geometry* wingeom ) const
 {
   /* p0 is the center of the first voxel */
 
@@ -471,7 +480,6 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   AimsRGBA	*pdat = (AimsRGBA *) image.data;
   T		val = 0;
   float		dx = _volume->getSizeX() - 1, dy = _volume->getSizeY() - 1, dz = _volume->getSizeZ() - 1;
-  int		t = (int) time;
 
   // cout << "wingeom : " << gs[0] << ", " << gs[1] << ", " << gs[2] << endl;
   Point3df	pf = Transformation::transform( p0, tra, /*gs,*/ vs );
@@ -482,11 +490,15 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0, float time,
   Point3df	pxd;
   Point3dl	pfi;
   float		wx, wy, wz, wx2, wy2;
-  const T *fp = &_volume->at( 0 );
-  const T *pim0 = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * t;
+  unsigned i, n = td.size();
+  vector<int> pinit( 3 + td.size(), 0 );
+  for( i=0; i<n; ++i )
+    pinit[i + 3] = int( rint( td[i] ) );
+  const T *fp = &_volume->at( pinit );
+  const T *pim0 = fp;
   const T *pim;
-  long		dyi = &_volume->at( 0, 1 ) - fp;
-  long		dzi = &_volume->at( 0, 0, 1 ) - fp;
+  long		dyi = &_volume->at( 0, 1 ) - &_volume->at( 0 );
+  long		dzi = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
   long		dyxi = dyi + 1;
   long		dzyi = dzi + dyi;
   long		dzxi = dzi + 1;
@@ -657,7 +669,7 @@ namespace
 
 template <class T>
 void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0, 
-			      float time ) const
+			      const vector<float> & td ) const
 {
   // cout << "UpdateAxial simple, pos : " << pf0 << " on " << name() << endl;
   long	dx, dxx, dy;		// Dimensions du volume
@@ -690,15 +702,26 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
     - min( max( 0, - int( p0[0] ) ), ximage->width );
   dy = max( min( ximage->height, _volume->getSizeY() - int( p0[1] ) ), 0 )
     - min( max( 0, - int( p0[1] ) ), ximage->height );
-  const T *fp = &_volume->at( 0 );
-  dxx = &_volume->at( 0, 1 ) - fp;
 
-  dslice = &_volume->at( 0, 0, 1 ) - fp;
+  vector<int> dims = _volume->getSize();
+  unsigned i, n = td.size(), nd = dims.size();
+  vector<int> pinit( 3 + td.size(), 0 );
+  for( i=0; i<n; ++i )
+  {
+    pinit[i + 3] = int( rint( td[i] ) );
+    if( i + 3 >= nd || pinit[i + 3] < 0 )
+      pinit[i + 3] = 0;
+    else if( pinit[i + 3] >= dims[i + 3] )
+      pinit[i + 3] = dims[i + 3] - 1;
+  }
+
+  const T *fp = &_volume->at( pinit );
+  dxx = &_volume->at( 0, 1 ) - &_volume->at( 0 );
+  dslice = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
 
   // Initialisation des pointeurs utilises
 
-  const T *ptrori = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * (int)time
-    + dslice * zz ;
+  const T *ptrori = fp + dslice * zz ;
   AimsRGBA     *ptrpix = (AimsRGBA *) ximage->data;
   int	   offset_xim = (ximage->effectiveWidth - dx) * ( ximage->depth / 32 );
   if( p0[0] < 0 )
@@ -746,7 +769,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
 
 template <class T>
 void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0, 
-				float time ) const
+                                const vector<float> & td ) const
 {
   // cout << "UpdateCoronal simple, p0 : " << pf0 << "\n";
   long	dx, dxx, dz;		// Dimensions du volume
@@ -763,7 +786,19 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 				   d->traits.maxTypedTexValue() );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
-  if( time >= _volume->getSizeT() || yy >= _volume->getSizeY() || yy < 0 )
+  vector<int> dims = _volume->getSize();
+  unsigned i, n = td.size(), nd = dims.size();
+  vector<int> pinit( 3 + td.size(), 0 );
+  for( i=0; i<n; ++i )
+  {
+    pinit[i + 3] = int( rint( td[i] ) );
+    if( i + 3 >= nd || pinit[i + 3] < 0 )
+      pinit[i + 3] = 0;
+    else if( pinit[i + 3] >= dims[i + 3] )
+      pinit[i + 3] = dims[i + 3] - 1;
+  }
+
+  if( yy >= _volume->getSizeY() || yy < 0 )
   {
     fillBlack( ximage, empty );
     return;
@@ -774,9 +809,10 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
     - min( max( 0, - int( p0[0] ) ), ximage->width );
   dz = max( min( ximage->height, _volume->getSizeZ() - ze ), 0 )
     - min( max( 0, - ze ), ximage->height );
-  const T* fp = &_volume->at( 0 );
-  dxx = &_volume->at( 0, 0, 1 ) - fp;
-  dline = &_volume->at( 0, 1 ) - fp;
+
+  const T *fp = &_volume->at( pinit );
+  dxx = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
+  dline = &_volume->at( 0, 1 ) - &_volume->at( 0 );
 
   /* cout << "taille obj : " << dx << " x " << dz << endl;
   cout << "taille pix : " << ximage->width << " x " << ximage->height << endl;
@@ -784,7 +820,7 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 
   // Initialisation des pointeurs utilises
 
-  const T *ptrori = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * (int)time;
+  const T *ptrori = fp;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
   int	   offset_xim = (-ximage->effectiveWidth - dx) * ( ximage->depth / 32 );
   ptrpix += ximage->effectiveWidth * ( dz - 1 ) * ( ximage->depth / 32 );
@@ -832,23 +868,21 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 
 template <class T>
 void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0, 
-				 float time ) const
+                                 const std::vector<float> & td ) const
 {
   // cout << "UpdateSagittal simple, pf0 : " << pf0 << "\n";
   long	dyy, dy, dz;		// Dimensions du volume
-  const T *fp = &_volume->at( 0 );
-  long	decY = &_volume->at( 0, 1 ) - fp;
 
   Point3df vs = VoxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
-			       rint( pf0[1] / vs[1] ),
-			       rint( pf0[2] / vs[2] ) );
+                               rint( pf0[1] / vs[1] ),
+                               rint( pf0[2] / vs[2] ) );
 
   int	xx = (int) p0[0];
 
-  ColorTraits<T>	coltraits( getOrCreatePalette(), 
-				   d->traits.minTypedTexValue(), 
-				   d->traits.maxTypedTexValue() );
+  ColorTraits<T>	coltraits( getOrCreatePalette(),
+                                   d->traits.minTypedTexValue(),
+                                   d->traits.maxTypedTexValue() );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( xx >= _volume->getSizeX() || xx < 0 )
@@ -857,12 +891,27 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
     return;
   }
 
+  vector<int> dims = _volume->getSize();
+  unsigned i, n = td.size(), nd = dims.size();
+  vector<int> pinit( 3 + td.size(), 0 );
+  for( i=0; i<n; ++i )
+  {
+    pinit[i + 3] = int( rint( td[i] ) );
+    if( i + 3 >= nd || pinit[i + 3] < 0 )
+      pinit[i + 3] = 0;
+    else if( pinit[i + 3] >= dims[i + 3] )
+      pinit[i + 3] = dims[i + 3] - 1;
+  }
+
+  const T *fp = &_volume->at( pinit );
+  long	decY = &_volume->at( 0, 1 ) - &_volume->at( 0 );
+
   dy = max( min( ximage->width, _volume->getSizeY() - int( p0[1] ) ), 0 )
     - min( max( 0, - int( p0[1] ) ), ximage->width );
   dz = max( min( ximage->height, _volume->getSizeZ() - int( p0[2] ) ), 0 )
     - min( max( 0, - int( p0[2] ) ), ximage->height );
-//   dyy = (int) _volume->getSizeY() * decY + &_volume->at( 0, 0, 1 ) - fp;
-  dyy = &_volume->at( 0, 0, 1 ) - fp;
+//   dyy = (int) _volume->getSizeY() * decY + &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
+  dyy = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
 
   /*
   cout << "taille obj : " << dy << " x " << dz << endl;
@@ -871,18 +920,18 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 
   // Initialisation des pointeurs utilises
 
-  const T *ptrori = fp + ( &_volume->at( 0, 0, 0, 1 ) - fp ) * (int)time;
+  const T *ptrori = fp;
   AimsRGBA     *ptrpix = (AimsRGBA *)ximage->data;
   int	   offset_xim = (ximage->effectiveWidth - dy) * ( ximage->depth / 32 );
   if( p0[1] < 0 )
     ptrpix -= ( (int) p0[1] ) * ( ximage->depth / 32 );
   else if( p0[1] > 0 )
-    ptrori += (int) p0[1] * ( &_volume->at( 0, 1 ) - fp );
+    ptrori += (int) p0[1] * ( &_volume->at( 0, 1 ) - &_volume->at( 0 ) );
   if( p0[2] < 0 )
     ptrpix -= ( (int) p0[2] ) * ximage->effectiveWidth
       * ( ximage->depth / 32 );
   else if( p0[2] > 0 )
-    ptrori += ( (int) p0[2] ) * ( &_volume->at( 0, 0, 1 ) - fp );
+    ptrori += ( (int) p0[2] ) * ( &_volume->at( 0, 0, 1 ) - &_volume->at( 0 ) );
 
   //	remove garbage at beginning of image
   AimsRGBA	*p = (AimsRGBA *) ximage->data;
@@ -938,32 +987,27 @@ template<class T> void AVolume<T>::SetExtrema()
   attrib->setProperty( "boundingbox_max", vec );
 }
 
-template <class T> Point3df AVolume<T>::VoxelSize() const
+template <class T> vector<float> AVolume<T>::voxelSize() const
 {
-  vector<float> vs( 3, 1. );
-  _volume->header().getProperty( "voxel_size", vs );
-  while( vs.size() < 3 )
-    vs.push_back( 1. );
-  return Point3df( vs[0], vs[1], vs[2] );
+  if( !_volume.get() )
+    return vector<float>( 4, 1. );
+  return _volume->getVoxelSize();
 }
 
 
-template <class T> void AVolume<T>::setVoxelSize( const Point3df & vs )
+template <class T> void AVolume<T>::setVoxelSize( const vector<float> & vs )
 {
-  vector<float> vvs( 4, 1. );
-  vvs[0] = vs[0];
-  vvs[1] = vs[1];
-  vvs[2] = vs[2];
-  _volume->header().setProperty( "voxel_size", vvs );
+  _volume->header().setProperty( "voxel_size", vs );
 }
 
 
 template<class T> 
 float AVolume<T>::mixedTexValue( const Point3df & pos, float time ) const
 {
-  int x = (int) rint( pos[0] / VoxelSize()[0] );
-  int y = (int) rint( pos[1] / VoxelSize()[1] );
-  int z = (int) rint( pos[2] / VoxelSize()[2] );
+  vector<float> vs = voxelSize();
+  int x = (int) rint( pos[0] / vs[0] );
+  int y = (int) rint( pos[1] / vs[1] );
+  int z = (int) rint( pos[2] / vs[2] );
 
   if( x >= MinX2D() && x <= MaxX2D() && y >= MinY2D() && 
       y <= MaxY2D() && z >= MinZ2D() && z <= MaxZ2D() )
@@ -1062,7 +1106,35 @@ template<> std::string	AVolume<AimsRGBA>::objectFullTypeName(void) const
 
 }
 
-template<class T> 
+template<class T>
+bool AVolume<T>::boundingBox2D( vector<float> & bmin,
+                                vector<float> & bmax ) const
+{
+  AObject::boundingBox2D( bmin, bmax );
+
+  vector<int> dims = _volume->getSize();
+  vector<float> vs = _volume->getVoxelSize();
+  int i, n = dims.size(), m = vs.size();
+  float vsi;
+
+  bmin.resize( n );
+  bmax.resize( n );
+
+  for( i=4; i<n; ++i )
+  {
+    if( i < m )
+      vsi = vs[i];
+    else
+      vsi = 1.f;
+    bmin[i] = 0.f;
+    bmax[i] = ( dims[i] - 1 ) * vsi;
+  }
+
+  return true;
+}
+
+
+template<class T>
 bool AVolume<T>::boundingBox( Point3df & bmin, Point3df & bmax ) const
 {
   Point3df vs = VoxelSize();

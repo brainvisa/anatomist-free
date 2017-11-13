@@ -475,8 +475,8 @@ AObject* CutMesh::planarFusion()
 
 bool CutMesh::render( PrimList & prim, const ViewState & state )
 {
-  /* cout << "CutMesh::render\n";
-  ATriangulated	*cm = (ATriangulated *) cutMesh();
+//   cout << "CutMesh::render, this: " << this << endl;
+  /* ATriangulated	*cm = (ATriangulated *) cutMesh();
   cout << "cutmesh: " << cm->glNumVertex( state ) << " vertices, "
     << cm->glNumPolygon( state ) << " polygons\n"; */
 
@@ -501,7 +501,6 @@ bool CutMesh::render( PrimList & prim, const ViewState & state )
        ++io, ++i )
     (*io)->render( prim, state );
 
-  //cout << "CutMesh::render done\n";
   clearHasChangedFlags();
   return true;
 }
@@ -605,9 +604,37 @@ Tree* CutMesh::optionTree() const
 }
 
 
-bool CutMesh::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool CutMesh::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
-  return mesh()->boundingBox( bmin, bmax );
+  bool ok = mesh()->boundingBox( bmin, bmax );
+  MObject::const_iterator io;
+  unsigned i, j, n;
+  for( io=begin(), j=0; j<d->texindex; ++j, ++io ) {}
+  for( ; j<d->cutmeshindex; ++j, ++io )
+  {
+    vector<float> obmin, obmax;
+    bool ook = (*io)->boundingBox( obmin, obmax );
+    ok &= ook;
+    if( ook )
+    {
+      for( i=3, n=obmax.size(); i<n; ++i )
+      {
+        if( bmin.size() <= i )
+        {
+          bmin.push_back( obmin[i] );
+          bmax.push_back( obmax[i] );
+        }
+        else
+        {
+          if( obmin[i] < bmin[i] )
+            bmin[i] = obmin[i];
+          if( obmax[i] > bmax[i] )
+            bmax[i] = obmax[i];
+        }
+      }
+    }
+  }
+  return ok;
 }
 
 

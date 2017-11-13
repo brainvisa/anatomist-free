@@ -93,9 +93,9 @@ namespace anatomist
     /// same as the other rgbaVolume() but fills an already allocated volume
     virtual void rgbaVolume( carto::Volume<AimsRGBA> &,
                              const SliceViewState* = 0, int tex = 0 ) const;
-    virtual Point3df glVoxelSize() const;
-    virtual Point4df glMin2D() const = 0;
-    virtual Point4df glMax2D() const = 0;
+    virtual std::vector<float> glVoxelSize() const;
+    virtual std::vector<float> glMin2D() const = 0;
+    virtual std::vector<float> glMax2D() const = 0;
     virtual bool glAllowedTexRGBInterpolation( unsigned tex = 0 ) const;
     virtual const Referential *getReferential() const = 0;
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
@@ -119,9 +119,9 @@ namespace anatomist
     virtual const Sliceable* sliceableAPI() const { return this; }
     virtual Sliceable* sliceableAPI() { return this; }
 
-    virtual Point3df glVoxelSize() const;
-    virtual Point4df glMin2D() const;
-    virtual Point4df glMax2D() const;
+    virtual std::vector<float> glVoxelSize() const;
+    virtual std::vector<float> glMin2D() const;
+    virtual std::vector<float> glMax2D() const;
 
     virtual void glSetChanged( glPart, bool = true ) const;
     virtual void glSetTexImageChanged( bool x = true, unsigned tex = 0 ) const;

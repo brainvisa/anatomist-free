@@ -1,4 +1,4 @@
-/* This software and supporting documentation are distributed by
+  /* This software and supporting documentation are distributed by
  *     Institut Federatif de Recherche 49
  *     CEA/NeuroSpin, Batiment 145,
  *     91191 Gif-sur-Yvette cedex
@@ -65,7 +65,10 @@ namespace anatomist
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
 
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
+    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
+    { return AObject::boundingBox( bmin, bmax ); }
 
     virtual void registerWindow  (AWindow* window);
     virtual void unregisterWindow(AWindow* window);
