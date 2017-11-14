@@ -68,8 +68,6 @@ namespace anatomist
     float MaxZ2D() const { return( _maxZ ); }
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
-    { return AObject::boundingBox( bmin, bmax ); }
 
     virtual void 
     setSubBucketGeomExtrema( const Point3df& pmin = Point3df(0., 0., 0.), 

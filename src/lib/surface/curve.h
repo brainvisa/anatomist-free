@@ -66,11 +66,9 @@ namespace anatomist
 
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
-    { return AObject::boundingBox( bmin, bmax ); }
 
     virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+                               float tol = 0 );
 
     bool Is2DObject() { return false; }
     bool Is3DObject() { return true; }

@@ -2106,11 +2106,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
   if( hasObject( o ) )
     return;
 
-  Point3df bmin, bmax;
-  float tmin, tmax;
-  //boundingBox( bmin, bmax, tmin, tmax );
-
-  // cout << "bmin = " <<  bmin << "bmax = "  << endl ;
+  vector<float> bmin, bmax;
 
   bool fst = _objects.empty();
   ControlledWindow::registerObject(o, temporaryObject, pos);
@@ -2123,20 +2119,13 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
 
   if (!temporaryObject)
   {
-    // d->needsboundingbox = true;
     d->needsextrema = true;
-    // d->needswingeom = true;
-    // d->needssliceslider = true;
-
-    /*boundingBox( bmin, bmax, tmin, tmax );
-     d->draw->setExtrema( bmin, bmax );
-     updateWindowGeometry();
-     setupSliceSlider();*/
 
     if( fst && _objects.size() == 1 )
     {
-      boundingBox(bmin, bmax, tmin, tmax);
-      d->draw->setExtrema(bmin, bmax);
+      boundingBox( bmin, bmax );
+      d->draw->setExtrema( Point3df( bmin[0], bmin[1], bmin[2] ),
+                           Point3df( bmax[0], bmax[1], bmax[2] ) );
       d->needsextrema = false;
       updateWindowGeometry();
       setupSliceSlider();
@@ -2155,8 +2144,13 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
           }
       }
       if (setpos)
+      {
         // set cursor in middle of object
-        setPosition((bmin + bmax) * 0.5f, getReferential() );
+        bmin[0] = ( bmin[0] + bmax[0] ) * 0.5f;
+        bmin[1] = ( bmin[1] + bmax[1] ) * 0.5f;
+        bmin[2] = ( bmin[2] + bmax[2] ) * 0.5f;
+        setPosition( bmin, getReferential() );
+      }
       setTime(0);
 
       // resize window if in 2D mode
@@ -2166,7 +2160,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
         theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
         Point3df vs = o->VoxelSize();
-        Point3df mo, Mo;
+        vector<float> mo, Mo;
         switch (viewType())
         {
           case Axial:
@@ -2395,7 +2389,8 @@ Geometry AWindow3D::setupWindowGeometry(
 
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
-  Point3df size, s2, vst, vs, p, pmin, pmax, dmin, dmax;
+  Point3df size, s2, vst, vs, p, dmin, dmax;
+  vector<float> pmin, pmax;
   Point4dl dimMin, dimMax;
   Referential *oref;
   AObject *o;
@@ -2466,7 +2461,7 @@ Geometry AWindow3D::setupWindowGeometry(
       if ((*obj)->boundingBox(pmin, pmax))
       {
         //cout << "boundingbox : " << pmin << " / " << pmax << endl;
-        p = pmin;
+        p = Point3df( pmin[0], pmin[1], pmin[2] );
         if (tr) p = tr->transform(p);
         p = slicequat.transform(p);
 
@@ -2880,23 +2875,6 @@ void AWindow3D::syncViews(bool keepextrema)
 }
 
 
-bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
-                            float & tmin, float & tmax ) const
-{
-  vector<float> bbmin, bbmax;
-  bool res = boundingBox( bbmin, bbmax );
-  bmin[0] = bbmin[0];
-  bmin[1] = bbmin[1];
-  bmin[2] = bbmin[2];
-  tmin = bbmin[3];
-  bmax[0] = bbmax[0];
-  bmax[1] = bbmax[1];
-  bmax[2] = bbmax[2];
-  tmax = bbmax[3];
-  return res;
-}
-
-
 bool AWindow3D::boundingBox( vector<float> & bmin,
                              vector<float> & bmax ) const
 {
@@ -2992,12 +2970,12 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
 
 void AWindow3D::focusView()
 {
-  float tmin, tmax;
-  Point3df bmin, bmax;
+  vector<float> bmin, bmax;
 
-  if (boundingBox(bmin, bmax, tmin, tmax))
+  if( boundingBox( bmin, bmax ) )
   {
-    d->draw->setExtrema(bmin, bmax);
+    d->draw->setExtrema( Point3df( bmin[0], bmin[1], bmin[2] ),
+                         Point3df( bmax[0], bmax[1], bmax[2] ) );
     d->needsextrema = false;
     d->draw->setZoom(1.);
     d->draw->setAutoCentering(true);

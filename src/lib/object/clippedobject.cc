@@ -104,13 +104,10 @@ ClippedObject::ClippedObject( const vector<AObject *> & obj )
     o = *begin();
     setReferentialInheritance( o );
 
-/*    Point3df	vs = o->VoxelSize();
-    _offset = Point3df( ( o->MinX2D() + o->MaxX2D() ) * vs[0] / 2, 
-                        ( o->MinY2D() + o->MaxY2D() ) * vs[1] / 2, 
-                        ( o->MinZ2D() + o->MaxZ2D() ) * vs[2] / 2 );*/
-    Point3df bmin, bmax;
+    vector<float> bmin, bmax;
     if( boundingBox( bmin, bmax ) )
-      _offset = (bmin + bmax) / 2;
+      _offset = ( Point3df( bmin[0], bmin[1], bmin[2] )
+                  + Point3df( bmax[0], bmax[1], bmax[2] ) ) / 2;
 
   }
 }

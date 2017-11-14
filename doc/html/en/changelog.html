@@ -73,6 +73,8 @@
 <h4> <a name="version-4.6.0"></a>2017/11/07 - Version 4.6.0</h4>
 <h5>Visible changes (users):</h5>
 <ul>
+<li>Handle objects of any dimensionality. Up to v 4.5 Anatomist was only handling 4D (3D + time) objects. This version can now use and visualize volumes with more dimensions, and use them in various types of fusions. A few objects are still limited to 4D and will be updated in later releases.
+</li>
 <li>CIFTI connectivity matrices display. The connectivity matrix object may use a CIFTI file using on-the-fly reading, and use its information to map to one or several meshes. Additional ROI textures may be used as patches.
 </li>
 <li>The referentials / transformations window has been entirely rewritten. It is now using a 3D display.</li>
@@ -93,6 +95,11 @@
 </ul>
 
 <h5>Internal changes (programmers):</h5>
+
+<ul>
+<li>Objects and windows APIs have been changed to handle N-dimensional objects and coordinates: typically AObject methods boundingBox, boundingBox2D, voxelSize (replacing the older VoxelSize), LinkedCursor actions, ViewState objects and GLComponent viewStateID method, etc.
+</li>
+</ul>
 
 <!-- -->
 <h4> <a name="version-4.5.1"></a>2017/05/17 - Version 4.5.1 - never released...</h4>

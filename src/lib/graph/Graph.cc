@@ -1162,7 +1162,7 @@ void AGraph::setGeomExtrema()
     }
   else
     {
-      Point3df	pmin, pmax, vs = VoxelSize();
+      vector<float> pmin, pmax, vs = voxelSize();
       if( MObject::boundingBox( pmin, pmax ) )
 	{
 	  d->minX = pmin[0] / vs[0];

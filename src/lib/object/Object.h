@@ -84,6 +84,17 @@ namespace anatomist
     char	*data;
   };
 
+  /*
+     TODO:
+     objectAt()
+     texValues()
+     mixedTexValue()
+
+     remove:
+     MinT(), MaxT(), MinX2D..MaxZ2D()
+     VoxelSize()
+     TimeStep() ?
+   */
 
   /**	 Base Anatomist object (abstract)
    */
@@ -177,18 +188,14 @@ namespace anatomist
     virtual float MaxY2D() const { return 0; }
     virtual float MaxZ2D() const { return 0; }
     /// more modern replacement for MinX2D... maxZ2D, in float coords
-    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
     virtual bool boundingBox2D( std::vector<float> & bmin,
                                 std::vector<float> & bmax ) const;
 
-    /** Fills \a bmin and \a bmax with the 3D bounding box extrema in the
-        object's referential coordinates
-        \return	true if object has a bounding box */
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
     /** Fills \a bmin and \a bmax with the N-D bounding box extrema in the
         object's referential coordinates.
 
-        New in Anatomist 4.6.
+        Changed in Anatomist 4.6. The older API was using Point3df instead of
+        vectord and informed only the spatial dimensions.
 
         \return	true if object has a bounding box */
     virtual bool boundingBox( std::vector<float> & bmin,

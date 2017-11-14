@@ -208,7 +208,7 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
   tessm->setReferentialInheritance( s ); // should be bp
   d->planeindex = d->polygonindex + 1;
 
-  Point3df  bmin, bmax;
+  vector<float> bmin, bmax;
   s->boundingBox( bmin, bmax );
   setOffsetSilent( Point3df( ( bmin[0] + bmax[0] ) / 2,
                              ( bmin[1] + bmax[1] ) / 2,
@@ -240,7 +240,7 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
       d->planarfusionindex = d->planeindex + 1;
       pm->setReferentialInheritance( s );
 
-      Point3df	bmin, bmax;
+       vector<float> bmin, bmax;
       s->boundingBox( bmin, bmax );
       setOffsetSilent( Point3df( ( bmin[0] + bmax[0] ) / 2, 
                                  ( bmin[1] + bmax[1] ) / 2, 

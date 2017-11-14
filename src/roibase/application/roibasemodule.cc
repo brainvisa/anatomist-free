@@ -522,7 +522,7 @@ AGraph* RoiBaseModule::newGraph( AObject* o, const string & roiName,
 
   gr->setProperty( syntax + "_VERSION", string( "1.0" ) );
   gr->setProperty( "boundingbox_min", bb );
-  Point3df	bmin, bmax;
+  vector<float> bmin, bmax;
   o->boundingBox( bmin, bmax );
 
   bb[0] = static_cast<int>( rint( (bmax[0] - bmin[0]) / o->VoxelSize()[0] ) );
@@ -534,6 +534,9 @@ AGraph* RoiBaseModule::newGraph( AObject* o, const string & roiName,
   --bb[1];
   --bb[2];
   gr->setProperty( "boundingbox_max", bb );
+  cout << "bounding box: " << bb[0] << ", "<< bb[1] << ", " << bb[2] << endl;
+  cout << bmin[0] << ", " << bmin[1] << ", " << bmin[2] << endl;
+  cout << bmax[0] << ", " << bmax[1] << ", " << bmax[2] << endl;
 
   const PythonAObject	*pa = dynamic_cast<const PythonAObject *>( o );
   if( pa )

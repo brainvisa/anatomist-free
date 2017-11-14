@@ -203,33 +203,34 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
       Point3df proj = r.transform( pos - offsetfrom );
 
       // align correct corner
-      Point3df bmin, bmax, bmt, bmat;
+      vector<float> bmin( 3, 0.f ), bmax( 3, 0.f ), bmt, bmat;
       iterator io, eo = end();
       bool first = true;
       for( io=begin(); io!=eo; ++io ) // TODO: use refs
       {
-        (*io)->boundingBox( bmt, bmat );
-
-        if( first )
+        if( (*io)->boundingBox( bmt, bmat ) )
         {
-          bmin = bmt;
-          bmax = bmat;
-          first = false;
-        }
-        else
-        {
-          if( bmin[0] > bmt[0] )
-            bmin[0] = bmt[0];
-          if( bmin[1] > bmt[1] )
-            bmin[1] = bmt[1];
-          if( bmin[2] > bmt[2] )
-            bmin[2] = bmt[2];
-          if( bmax[0] < bmat[0] )
-            bmax[0] = bmat[0];
-          if( bmax[0] < bmat[1] )
-            bmax[0] = bmat[0];
-          if( bmax[0] < bmat[0] )
-            bmax[0] = bmat[0];
+          if( first )
+          {
+            bmin = bmt;
+            bmax = bmat;
+            first = false;
+          }
+          else
+          {
+            if( bmin[0] > bmt[0] )
+              bmin[0] = bmt[0];
+            if( bmin[1] > bmt[1] )
+              bmin[1] = bmt[1];
+            if( bmin[2] > bmt[2] )
+              bmin[2] = bmt[2];
+            if( bmax[0] < bmat[0] )
+              bmax[0] = bmat[0];
+            if( bmax[0] < bmat[1] )
+              bmax[0] = bmat[0];
+            if( bmax[0] < bmat[0] )
+              bmax[0] = bmat[0];
+          }
         }
       }
       Point3df dynoffset( 0, 0, 0 );

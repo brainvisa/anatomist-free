@@ -67,8 +67,6 @@ namespace anatomist
 
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
-    { return AObject::boundingBox( bmin, bmax ); }
 
     virtual void registerWindow  (AWindow* window);
     virtual void unregisterWindow(AWindow* window);

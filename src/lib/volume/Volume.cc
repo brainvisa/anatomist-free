@@ -1135,19 +1135,6 @@ bool AVolume<T>::boundingBox2D( vector<float> & bmin,
 
 
 template<class T>
-bool AVolume<T>::boundingBox( Point3df & bmin, Point3df & bmax ) const
-{
-  Point3df vs = VoxelSize();
-  bmin = Point3df( -0.5 * vs[0], -0.5 * vs[1],
-                   -0.5 * vs[2] );
-  bmax = Point3df( (-0.5 + (float)_volume->getSizeX()) * vs[0],
-                   (-0.5 + (float)_volume->getSizeY()) * vs[1],
-                   (-0.5 + (float)_volume->getSizeZ()) * vs[2] );
-  return true;
-}
-
-
-template<class T>
 bool AVolume<T>::boundingBox( vector<float> & bmin,
                               vector<float> & bmax ) const
 {
@@ -1162,7 +1149,7 @@ bool AVolume<T>::boundingBox( vector<float> & bmin,
   for( i=0; i<3; ++i )
   {
     bmin[i] = -0.5 * vs[i];
-    bmax[i] = ( dims[i] + 0.5 ) * vs[i];
+    bmax[i] = ( dims[i] - 0.5 ) * vs[i];
   }
 
   for( ; i<n; ++i )

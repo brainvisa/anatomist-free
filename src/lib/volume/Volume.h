@@ -83,7 +83,6 @@ namespace anatomist
 
     virtual bool boundingBox2D( std::vector<float> & bmin,
                                 std::vector<float> & bmax ) const;
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
 

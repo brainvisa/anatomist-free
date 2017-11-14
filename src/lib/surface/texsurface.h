@@ -122,8 +122,6 @@ public:
   virtual float MaxT() const;
   virtual bool boundingBox( std::vector<float> & bmin,
                             std::vector<float> & bmax ) const;
-  virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
-  { return AObject::boundingBox( bmin, bmax ); }
 
   AObject* surface() { return( _surf.get() ); }
   const AObject* surface() const { return( _surf.get() ); }

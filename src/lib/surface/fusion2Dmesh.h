@@ -90,8 +90,6 @@ namespace anatomist
     virtual Material & GetMaterial();
     virtual void setVoxelSize( const Point3df & );
     virtual std::vector<float> voxelSize() const;
-    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const
-    { return boundingBox( bmin, bmax ); }
     virtual bool boundingBox2D( std::vector<float> & bmin,
                                 std::vector<float> & bmax ) const
     { return boundingBox( bmin, bmax ); }

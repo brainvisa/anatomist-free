@@ -609,13 +609,17 @@ RoiDynSegmentAction::pcaRegionGrowth( )
     AWarning("No volume selected") ;
     return ;
   }
-  
-  list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
+
+  list< pair< Point3d, ChangesItem> >* changes
+    = new list< pair< Point3d, ChangesItem> > ;
 
   Point3df	bmin, bmax ;
   Point3d       dims ;
-  myCurrentImage->boundingBox( bmin, bmax );
-  
+  vector<float> bbmin, bbmax;
+  myCurrentImage->boundingBox( bbmin, bbmax );
+  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
+
   // the .1 addition is due to some unfortunate rounding
   dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / myCurrentImage->VoxelSize()[0] + .1 ) ;
   dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / myCurrentImage->VoxelSize()[1] + .1 ) ;
@@ -873,21 +877,21 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
   if(!g)
     return ;
 
-  Point3df	bmin, bmax ;
-  Point3d       dims ;
-  
+  vector<float> bmin, bmax;
+  Point3d       dims;
+
   if( !myCurrentImage )
     return ;
-  
+
   myCurrentImage->boundingBox( bmin, bmax );
-  
+
   // the .1 addition is due to some unfortunate rounding
   dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / 
-			      myCurrentImage->VoxelSize()[0] + .1 ) ;
+                              myCurrentImage->VoxelSize()[0] + .1 ) ;
   dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / 
-			      myCurrentImage->VoxelSize()[1] + .1 ) ;
+                              myCurrentImage->VoxelSize()[1] + .1 ) ;
   dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / 
-			      myCurrentImage->VoxelSize()[2] + .1 ) ;
+                              myCurrentImage->VoxelSize()[2] + .1 ) ;
   
   AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
   Bucket * currentModifiedRegion = RoiChangeProcessor::instance()->getCurrentRegion( 0 ) ;

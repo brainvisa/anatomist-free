@@ -95,55 +95,55 @@ float MObject::MaxT() const
 
 float MObject::MinX2D() const
 {
-  Point3df m, M;
+  vector<float> m, M;
   if( !boundingBox2D( m, M ) )
     return 0;
-  return m[0] / VoxelSize()[0];
+  return m[0] / voxelSize()[0];
 }
 
 
 float MObject::MinY2D() const
 {
-  Point3df m, M;
+  vector<float> m, M;
   if( !boundingBox2D( m, M ) )
     return 0;
-  return m[1] / VoxelSize()[1];
+  return m[1] / voxelSize()[1];
 }
 
 
 float MObject::MinZ2D() const
 {
-  Point3df m, M;
+  vector<float> m, M;
   if( !boundingBox2D( m, M ) )
     return 0;
-  return m[2] / VoxelSize()[2];
+  return m[2] / voxelSize()[2];
 }
 
 
 float MObject::MaxX2D() const
 {
-  Point3df m, M;
+  vector<float> m, M;
   if( !boundingBox2D( m, M ) )
     return 0;
-  return M[0] / VoxelSize()[0];
+  return M[0] / voxelSize()[0];
 }
 
 
 float MObject::MaxY2D() const
 {
-  Point3df m, M;
+  vector<float> m, M;
   if( !boundingBox2D( m, M ) )
     return 0;
-  return M[1] / VoxelSize()[1];
+  return M[1] / voxelSize()[1];
 }
 
 
 float MObject::MaxZ2D() const
 {
-  Point3df m, M;
+  vector<float> m, M;
   if( !boundingBox2D( m, M ) )
     return 0;
-  return M[2] / VoxelSize()[2];
+  return M[2] / voxelSize()[2];
 }
 
 
@@ -363,12 +363,6 @@ vector<float> MObject::voxelSize() const
     }
 
   return( vs );
-}
-
-
-bool MObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
-{
-  return AObject::boundingBox( bmin, bmax );
 }
 
 

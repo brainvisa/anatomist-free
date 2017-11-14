@@ -500,10 +500,10 @@ AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol )
   if( tol < 0 ) tol *= -1;
 
   //	default behaviour is really primitive...
-  Point3df	bmin, bmax;
-  if( boundingBox( bmin, bmax ) 
-      && t>=MinT() && t<=MaxT() && x>=bmin[0]-tol && x<=bmax[0]+tol 
-      && y>=bmin[1]-tol && y<=bmax[1]+tol && z>=bmin[2]-tol && z<=bmax[2]+tol )
+  vector<float> bmin, bmax;
+  if( boundingBox( bmin, bmax ) && t>=bmin[3] && t<=bmax[3] && x>=bmin[0]-tol
+      && x<=bmax[0]+tol && y>=bmin[1]-tol && y<=bmax[1]+tol && z>=bmin[2]-tol
+      && z<=bmax[2]+tol )
     return this ;
   else
     return 0;
@@ -762,53 +762,13 @@ void AObject::cleanup()
 }
 
 
-bool AObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
-{
-  vector<float> bbmin, bbmax;
-  if( !boundingBox( bbmin, bbmax ) )
-  {
-    bmin = Point3df( 0, 0, 0 );
-    bmax = Point3df( 0, 0, 0 );
-    return( false );
-  }
-  bmin[0] = bbmin[0];
-  bmin[1] = bbmin[1];
-  bmin[2] = bbmin[2];
-  bmax[0] = bbmax[0];
-  bmax[1] = bbmax[1];
-  bmax[2] = bbmax[2];
-  return true;
-}
-
-
 bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   bmin = vector<float>( 4, 0.f );
   bmax = vector<float>( 4, 0.f );
-  // for now use the 3D method
-  Point3df bbmin, bbmax;
-  bool res = boundingBox( bbmin, bbmax );
-  bmin[0] = bbmin[0];
-  bmin[1] = bbmin[1];
-  bmin[2] = bbmin[2];
-  bmax[0] = bbmax[0];
-  bmax[1] = bbmax[1];
-  bmax[2] = bbmax[2];
   bmin[3] = MinT();
   bmax[3] = MaxT();
-  return res;
-}
-
-
-bool AObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
-{
-  vector<float> bbmin, bbmax;
-  if( !boundingBox2D( bbmin, bbmax ) )
-    return false;
-  bmin[0] = bbmin[0];
-  bmin[1] = bbmin[1];
-  bmin[2] = bbmin[2];
-  return true;
+  return false;
 }
 
 

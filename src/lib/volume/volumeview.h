@@ -89,8 +89,6 @@ namespace anatomist
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const
     { return _myvolume->boundingBox( bmin, bmax ); }
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const
-    { return _myvolume->boundingBox( bmin, bmax ); }
 
     virtual void update( const Observable *observable, void *arg );
 

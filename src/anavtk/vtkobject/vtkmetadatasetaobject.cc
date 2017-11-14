@@ -73,24 +73,29 @@ namespace anatomist
 
 
 
-  bool vtkMetaDataSetAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
+  bool vtkMetaDataSetAObject::boundingBox ( vector<float> & bmin,
+                                            vector<float> & bmax) const
   {
     if( !this->MetaDataSet )
     {
       return false;
     }
-    
+
     double* bounds = this->MetaDataSet->GetDataSet()->GetBounds();
-    
+
+    bmin.resize( 4 );
+    bmax.resize( 4 );
     bmin[0] = bounds[0];
     bmin[1] = bounds[2];
     bmin[2] = bounds[4];
-    
+    bmin[3] = 0.f;
+
     bmax[0] = bounds[1];
     bmax[1] = bounds[3];
     bmax[2] = bounds[5];
-    
-    return true;  
+    bmax[3] = 0.f;
+
+    return true;
   }
 
 

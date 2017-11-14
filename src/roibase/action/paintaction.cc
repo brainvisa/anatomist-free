@@ -1342,11 +1342,11 @@ PaintAction::fill(int x, int y, int, int)
             _sharedData->myCurrentModifiedRegion->VoxelSize());
       Transformation * transf = theAnatomist->getTransformation(
                                     winRef, buckRef);
-      
+
       // Get current region bounding box
-      Point3df bmin, bmax;
+      vector<float> bmin, bmax;
       _sharedData->myCurrentModifiedRegion->boundingBox2D(bmin, bmax);
-      
+
       if (transf)
         pos = Transformation::transform(pos, transf, voxelSize);
       else {
@@ -1354,7 +1354,7 @@ PaintAction::fill(int x, int y, int, int)
         pos[1] /= voxelSize[1] - g->MinY2D();
         pos[2] /= voxelSize[2] - g->MinZ2D();
       }
-      
+
       Point3d neighbourhood[4];
 
       if(normalVector[0] > 0.99){

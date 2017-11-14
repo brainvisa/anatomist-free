@@ -315,14 +315,17 @@ void QAProfileWindow::initX()
   pmax = Point4df( 0.0f, 0.0f, 0.0f, 0.0f );
 
   set< AObject * >::iterator it;
-  Point3df		bmin, bmax, bmin2, bmax2;
+  Point3df      bmin, bmax, bmin2, bmax2;
+  vector<float> bbmin, bbmax;
   Referential *ref = getReferential();
 
   if ( !_sobjects.empty() )
   {
     for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {
-      (*it)->boundingBox( bmin, bmax );
+      (*it)->boundingBox( bbmin, bbmax );
+      bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+      bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
       Referential *oref = (*it)->getReferential();
       Transformation *tra = theAnatomist->getTransformation( ref, oref );
       
