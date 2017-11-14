@@ -610,14 +610,17 @@ RoiHistoPlot::getImageHisto( const string& image, int& nbOfPoints, float& binSiz
   
   vector<float> histo(myNbOfBins+1, 0.) ;
     
-  Point3df p(300., 230., 57.) ;
+  vector<float> p( 4, 0. );
+  p[3] = time;
   nbOfPoints = 0 ;
+
   for( p[2] = 0 ; p[2] <= img->MaxZ2D() ; ++(p[2]) )
     for( p[1] = 0 ; p[1] <= img->MaxY2D() ; ++(p[1]) )
-      for( p[0] = 0 ; p[0] <= img->MaxX2D() ; ++(p[0]) ){
-	++(histo[(unsigned int)( (img->mixedTexValue(p, time) - imin) * 
-        invBinSize + 0.5) ]) ;
-	++nbOfPoints ;
+      for( p[0] = 0 ; p[0] <= img->MaxX2D() ; ++(p[0]) )
+      {
+        ++(histo[(unsigned int)( (img->mixedTexValue( p ) - imin)
+                                 * invBinSize + 0.5) ]);
+        ++nbOfPoints ;
       }
   myImageHistos[image] = histo ;
   myNbOfPoints[image] = nbOfPoints ;
@@ -678,20 +681,32 @@ RoiHistoPlot::getRegionHisto( const string& image,
     iter( bk->bucket()[0].begin() ), 
     last( bk->bucket()[0].end() ) ;
   
-  Point3df p ;
+  Point3df p;
+  vector<float> vpos( 4 );
+  vpos[3] = time;
   meanValue = 0. ;
   stdDev = 0. ;
   float val ;
-  while ( iter != last){
+  vector<float> vs = graphObject->voxelSize();
+
+  while ( iter != last)
+  {
     if( transf )
-      p = anatomist::Transformation::transform
-          ( Point3df(float(iter->first[0] ), float(iter->first[1] ),
-            float(iter->first[2] )  ) , transf, graphObject->VoxelSize(),
-                  img->VoxelSize() ) ;
+    {
+      p = transf->transform( Point3df( float( iter->first[0] * vs[0] ),
+                                       float( iter->first[1] * vs[1] ),
+                                       float( iter->first[2] * vs[2] ) ) );
+      vpos[0] = p[0];
+      vpos[1] = p[1];
+      vpos[2] = p[2];
+    }
     else
-      p = Point3df( float(iter->first[0] ), float(iter->first[1] ), 
-		    float(iter->first[2] ) ) ;
-    val = img->mixedTexValue(p, time) ;
+    {
+      vpos[0] = iter->first[0] * vs[0];
+      vpos[1] = iter->first[1] * vs[1];
+      vpos[2] = iter->first[2] * vs[2];
+    }
+    val = img->mixedTexValue( vpos );
     meanValue += val ;
     stdDev += val * val ;
     ++histo[(unsigned int)( (val - imin) * invBinSize + 0.5 ) ] ;

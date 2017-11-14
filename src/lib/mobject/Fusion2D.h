@@ -107,12 +107,12 @@ namespace anatomist
 
     virtual bool hasTexture() const { return( true ); }
     virtual unsigned dimTexture() const { return( 2 ); }
-    virtual float mixedTexValue( const Point3df & pos, float time ) const;
-    virtual float mixedTexValue( const Point3df & pos, float time,
+    virtual float mixedTexValue( const std::vector<float> & pos ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos,
                                  const Referential* orgRef ) const;
-    virtual std::vector<float> texValues( const Point3df & pos,
-                                          float time ) const;
-    virtual std::vector<float> texValues( const Point3df & pos, float time,
+    virtual std::vector<float>
+    texValues( const std::vector<float> & pos ) const;
+    virtual std::vector<float> texValues( const std::vector<float> & pos,
                                           const Referential* orgRef ) const;
     virtual float mixedValue( const std::vector<float> & pv ) const;
     virtual const Material *glMaterial() const;

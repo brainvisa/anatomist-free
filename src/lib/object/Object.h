@@ -86,10 +86,6 @@ namespace anatomist
 
   /*
      TODO:
-     objectAt()
-     texValues()
-     mixedTexValue()
-
      remove:
      MinT(), MaxT(), MinX2D..MaxZ2D()
      VoxelSize()
@@ -328,11 +324,11 @@ namespace anatomist
         voxels rather in mm, which is wrong. In Anatomist 4.5 coords are
         officially always in mm.
     */
-    virtual float mixedTexValue( const Point3df & pos, float time,
+    virtual float mixedTexValue( const std::vector<float> & pos,
                                  const Referential* orgRef ) const;
     /** Same as above except that coordinates are not transformed but taken
         in object coordinates system */
-    virtual float mixedTexValue( const Point3df & pos, float time ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos ) const;
     /** Gets the array of texture values at a given location
 
         Note: in Anatomist 4.4 and earlier, this method was taking an
@@ -341,18 +337,18 @@ namespace anatomist
         voxels rather in mm, which is wrong. In Anatomist 4.5 coords are
         officially always in mm.
     */
-    virtual std::vector<float> texValues( const Point3df & pos, float time,
+    virtual std::vector<float> texValues( const std::vector<float> & pos,
                                           const Referential* orgRef ) const;
-    virtual std::vector<float> texValues( const Point3df & pos, 
-                                          float time ) const;
+    virtual std::vector<float>
+    texValues( const std::vector<float> & pos ) const;
 
-    virtual bool loadable() const { return( false ); }
-    virtual bool savable() const { return( false ); }
-    /**	Re-reads objects from disk. Only called if loadable()
-	is \c true and fileName() is not empty. A new filename can be passed 
-	to the reload function, so that files uncompressed by the ObjectReader 
-	in temporary locations can be processed. Overload this function in 
-	inherited classes to implement it.
+    virtual bool loadable() const { return false; }
+    virtual bool savable() const { return false; }
+    /** Re-reads objects from disk. Only called if loadable()
+        is \c true and fileName() is not empty. A new filename can be passed
+        to the reload function, so that files uncompressed by the ObjectReader
+        in temporary locations can be processed. Overload this function in
+        inherited classes to implement it.
 
         If \c onlyoutdated is true, reloading will only be done if the files 
         containing the object have been modified since the object has been 
@@ -483,17 +479,18 @@ namespace anatomist
 }
 
 
-inline float anatomist::AObject::mixedTexValue( const Point3df &, float ) const
+inline float
+anatomist::AObject::mixedTexValue( const std::vector<float> & ) const
 {
-  return( 0 );
+  return 0;
 }
 
 
 inline std::vector<float> 
-anatomist::AObject::texValues( const Point3df &, float ) const
+anatomist::AObject::texValues( const std::vector<float> & ) const
 {
   std::vector<float> t;
-  return( t );
+  return t;
 }
 
 

@@ -783,7 +783,7 @@ bool
 RoiDynSegmentAction::evaluateError( const Point3d& p, 
 				    const Point3d& halfSize, 
 				    const Point3d& dims,
-				    AimsData<float>&  errorMatrix, 
+				    AimsData<float>& errorMatrix,
 				    vector<float>& meanSignal,
 				    float& mean, float& var, 
 				    bool forceComputing )
@@ -797,34 +797,52 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
 				*(2*halfSize[2]+1), nbFrame );
   map<Point3d, float, PointLess>::iterator found ;
   if(!forceComputing )
-    if( (found = myPreviousComputing.find(p) ) != myPreviousComputing.end() ){
+    if( (found = myPreviousComputing.find(p) ) != myPreviousComputing.end() )
+    {
       mean = found->second ;
       //cout << "Already Computed"  << endl ;
       return true ;
     }
   float val ;
-  int nbIndiv = 0, nbInvalid = 0 ;
-  meanSignal = vector<float>( nbFrame, 0. ) ;
+  int nbIndiv = 0, nbInvalid = 0;
+  meanSignal = vector<float>( nbFrame, 0. );
+  vector<float> vpos( 4 );
+  vector<float> vs = myCurrentImage->voxelSize();
+  while( vs.size() < 4 )
+    vs.push_back( 1.f );
+
   for( int i = -halfSize[0] ; i <= halfSize[0]  ; ++i )
+  {
+    vpos[0] = ( p[0] + i ) * vs[0];
     for( int j = -halfSize[1] ; j <= halfSize[1]  ; ++j )
-      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k ){
-	bool valid = true ;
-	for( int t = 0 ; t < nbFrame && valid == true ; ++t ){
-	  if( in( dims, p + Point3d(i, j, k) ) ){
-	    val = myCurrentImage->mixedTexValue( Point3df( p[0] + i, p[1] + j, p[2] + k ), t ) ;
-	    if ( val <= 0. )
-		valid = false ;
-	    matriceIndiv( nbIndiv, t ) = val  ;
-	    meanSignal[t] += val ;
-	  }
-	}
-	if ( valid )
-	  ++nbIndiv ;
-	else 
-	  ++nbInvalid ;
+    {
+      vpos[1] = ( p[1] + j ) * vs[1];
+      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k )
+      {
+        vpos[2] = ( p[2] + k ) * vs[3];
+        bool valid = true ;
+        for( int t = 0 ; t < nbFrame && valid == true ; ++t )
+        {
+          if( in( dims, p + Point3d(i, j, k) ) )
+          {
+            vpos[3] = t * vs[3];
+            val = myCurrentImage->mixedTexValue( vpos );
+            if( val <= 0. )
+              valid = false ;
+            matriceIndiv( nbIndiv, t ) = val  ;
+            meanSignal[t] += val ;
+          }
+        }
+        if ( valid )
+          ++nbIndiv ;
+        else
+          ++nbInvalid ;
       }
-  
-  if ( nbIndiv < nbFrame ) {
+    }
+  }
+
+  if ( nbIndiv < nbFrame )
+  {
     cout << "Non physiological data " << endl ;
     return false ;
   }
@@ -837,21 +855,33 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
   
   // Calcul de la moyenne et l'écart type des erreurs
   for( int i = -halfSize[0] ; i <= halfSize[0]  ; ++i )
+  {
+    vpos[0] = ( p[0] + i ) * vs[0];
     for( int j = -halfSize[1] ; j <= halfSize[1]  ; ++j )
-      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k ){
-	bool valid = true ;
-	for( int t = 0 ; t < nbFrame ; ++t )
-	  if( myCurrentImage->mixedTexValue( Point3df( p[0] + i, p[1] + j, p[2] + k ), t ) <= 0. )
-	    valid = false ;
-	if ( valid ) {
-	  err = error( myCurrentImage, Point3df( p[0] + i, p[1] + j, p[2] + k ), meanSignal, errorMatrix ) ;
-	  //cout << "\tError : " << err << endl ;
-	  
-	  sum += err  ;
-	  sum2 += err * err ;
-	  ++nbInd ;
-	}
+    {
+      vpos[1] = ( p[1] + j ) * vs[1];
+      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k )
+      {
+        vpos[2] = ( p[2] + k ) * vs[3];
+        bool valid = true ;
+        for( int t = 0 ; t < nbFrame ; ++t )
+          if( myCurrentImage->mixedTexValue( vpos ) <= 0. )
+            valid = false ;
+        if ( valid )
+        {
+          err = error( myCurrentImage,
+                       Point3df( p[0] + i, p[1] + j, p[2] + k ), meanSignal,
+                       errorMatrix ) ;
+          //cout << "\tError : " << err << endl ;
+
+          sum += err  ;
+          sum2 += err * err ;
+          ++nbInd ;
+        }
       }
+    }
+  }
+
   if( nbInd <= nbFrame )
     {
       cout << "No significant data around selected point" << endl ;
@@ -989,7 +1019,7 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
 }
 
 void 
-RoiDynSegmentAction::refinePCA(  list< pair< Point3d, ChangesItem> >* changes )
+RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
 {
   if( !myCurrentImage )
     return ;
@@ -999,26 +1029,36 @@ RoiDynSegmentAction::refinePCA(  list< pair< Point3d, ChangesItem> >* changes )
   AimsData<float> matriceIndiv( (*changes).size(), nbFrame );
   
   myMeanSignal = vector<float>(nbFrame, 0.) ;
+  vector<float> vpos( 4 );
+  vector<float> vs = myCurrentImage->voxelSize();
+  while( vs.size() < 4 )
+    vs.push_back( 1.f );
   
   int indiv = 0 ;
-  while( bckIter != bckLast ){
-    Point3df pIn( (bckIter->first)[0], (bckIter->first)[1], (bckIter->first)[2] ) ;
-    for( int t = 0 ; t < nbFrame ; ++t ) {
-      matriceIndiv( indiv, t ) = myCurrentImage->mixedTexValue( pIn, t ) ;
+  while( bckIter != bckLast )
+  {
+    vpos[0] = (bckIter->first)[0] * vs[0];
+    vpos[1] = (bckIter->first)[1] * vs[1];
+    vpos[2] = (bckIter->first)[2] * vs[2];
+
+    for( int t = 0 ; t < nbFrame ; ++t )
+    {
+      vpos[3] = t * vs[3];
+      matriceIndiv( indiv, t ) = myCurrentImage->mixedTexValue( vpos );
       myMeanSignal[t] += matriceIndiv( indiv, t ) ;
     }
     ++bckIter ; ++indiv ;
   }
-  
+
   if( indiv <= 1 )
     return ;
   computeErrorMatrix( matriceIndiv, myErrorMatrix, myMeanSignal ) ;
-  
+
   bckIter = (*changes).begin() ;
-  
+
   float sum = 0., sum2 = 0. ;
   float err ;
-  
+
   // Calcul de la moyenne et l'écart type des erreurs
   while( bckIter != bckLast )
     {

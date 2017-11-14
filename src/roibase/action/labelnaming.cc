@@ -307,13 +307,11 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
     {
-      int timePos = win->getTimeSliderPosition() ;
-      
       //cout << "Pos : " << pos << endl ;
-      
+
       // cout << "Position from cursor : (" << x << " , "<< y << ") = " 
       //   << pos << endl ;
-      
+
       Point3df voxelSize = region->VoxelSize() ;
 
       Point3df normalVector( win->sliceQuaternion().
@@ -372,47 +370,54 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
 	change.after = 0 ;
 	toChange = &change.before ;
       }
-      
+      vector<float> vpos = win->getFullPosition();
+      vector<float> vs = myCurrentImage->voxelSize();
+      while( vs.size() < 4 )
+        vs.push_back( 1.f );
+
       std::queue<Point3d> trialPoints ;
       Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ() ) ;
-      if( in( dims, pVL ) ){
-	short currentLabel = short ( rint ( myCurrentImage->mixedTexValue( Point3df( pVL[0], 
-									   pVL[1], 
-									   pVL[2] ), timePos) ) ) ;
-	AVolume<int16_t> * vol16bits = dynamic_cast<AVolume<int16_t> *>(myCurrentImage) ;
-	if( vol16bits )
-	  computeImageValueMap( *vol16bits, timePos ) ;
-	else{
-	  AVolume<int8_t> * vol8bits = dynamic_cast<AVolume<int8_t> *>(myCurrentImage) ;
-	  if( vol8bits )
-	    computeImageValueMap( *vol8bits, timePos ) ;
-	  else{
-	    AVolume<int32_t> * vol32bits = dynamic_cast<AVolume<int32_t> *>(myCurrentImage) ;
-	    if( vol32bits )
-	      computeImageValueMap( *vol32bits, timePos ) ;
-	    else {
-	      AVolume<uint16_t> * volu16bits = dynamic_cast<AVolume<uint16_t> *>(myCurrentImage) ;
-	      if( volu16bits )
-	        computeImageValueMap( *volu16bits, timePos ) ;
-	      else{
-	        AVolume<uint8_t> * volu8bits = dynamic_cast<AVolume<uint8_t> *>(myCurrentImage) ;
-	        if( volu8bits )
-	          computeImageValueMap( *volu8bits, timePos ) ;
-	        else{
-	          AVolume<uint32_t> * volu32bits = dynamic_cast<AVolume<uint32_t> *>(myCurrentImage) ;
-	          if( volu32bits )
-	            computeImageValueMap( *volu32bits, timePos ) ;
-	        }
-	      }
-	    }
-	  }
-	}
-	
+      if( in( dims, pVL ) )
+      {
+        vpos[0] = pVL[0] * vs[0];
+        vpos[1] = pVL[1] * vs[1];
+        vpos[2] = pVL[2] * vs[2];
+        short currentLabel
+          = short( rint( myCurrentImage->mixedTexValue( vpos ) ) );
+        AVolume<int16_t> * vol16bits = dynamic_cast<AVolume<int16_t> *>(myCurrentImage) ;
+        if( vol16bits )
+          computeImageValueMap( *vol16bits, vpos[3] );
+        else{
+          AVolume<int8_t> * vol8bits = dynamic_cast<AVolume<int8_t> *>(myCurrentImage) ;
+          if( vol8bits )
+            computeImageValueMap( *vol8bits, vpos[3] ) ;
+          else{
+            AVolume<int32_t> * vol32bits = dynamic_cast<AVolume<int32_t> *>(myCurrentImage) ;
+            if( vol32bits )
+              computeImageValueMap( *vol32bits, vpos[3] ) ;
+            else {
+              AVolume<uint16_t> * volu16bits = dynamic_cast<AVolume<uint16_t> *>(myCurrentImage) ;
+              if( volu16bits )
+                computeImageValueMap( *volu16bits, vpos[3] ) ;
+              else{
+                AVolume<uint8_t> * volu8bits = dynamic_cast<AVolume<uint8_t> *>(myCurrentImage) ;
+                if( volu8bits )
+                  computeImageValueMap( *volu8bits, vpos[3] ) ;
+                else{
+                  AVolume<uint32_t> * volu32bits = dynamic_cast<AVolume<uint32_t> *>(myCurrentImage) ;
+                  if( volu32bits )
+                    computeImageValueMap( *volu32bits, vpos[3] ) ;
+                }
+              }
+            }
+          }
+        }
+
 	std::map< int16_t, int32_t>::iterator found
-	  = myCurrentImageValues[timePos].find( currentLabel ) ;
+	  = myCurrentImageValues[vpos[3]].find( currentLabel ) ;
 	int32_t nbOfPointsInImageToSegment = 0 ;
-	if( found == myCurrentImageValues[timePos].end() ){
-// 	  cout << "myCurrentImageValues.size() = " << myCurrentImageValues[timePos].size() << endl ;
+	if( found == myCurrentImageValues[vpos[3]].end() ){
+// 	  cout << "myCurrentImageValues.size() = " << myCurrentImageValues[vpos[3]].size() << endl ;
 // 	  cout << "unfound label = " << currentLabel << endl ;
 	} else
 	  nbOfPointsInImageToSegment = found->second  ;
@@ -439,7 +444,7 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
 	  int x, y, z ;
 	  ForEach3d(volumeOfLabels, x, y, z){
 	    Point3d pc(x, y, z) ;
-	    if( fillPoint( pc, timePos, volumeOfLabels, region, currentLabel, 
+	    if( fillPoint( pc, vpos[3], volumeOfLabels, region, currentLabel,
 			   toChange, trialPoints, replace, add ) )
 	      changes.push_back(pair<Point3d, ChangesItem>( pc, change ) )  ;
 	    
@@ -477,7 +482,7 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
 	    pc = trialPoints.front() ;
 	    trialPoints.pop() ;
 	    for( int n = 0 ; n < connec->nbNeighbors() ; ++n )
-	      if( fillPoint( pc + connec->xyzOffset(n), timePos, volumeOfLabels, region, currentLabel, 
+	      if( fillPoint( pc + connec->xyzOffset(n), vpos[3], volumeOfLabels, region, currentLabel,
 			     toChange, trialPoints, replace, add ) ){
 		changes.push_back(pair<Point3d, ChangesItem>( pc + connec->xyzOffset(n), change ) )  ;
 		++regionSize ;

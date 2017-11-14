@@ -107,10 +107,8 @@ namespace anatomist
       void setExtrema();
       T minTypedTexValue() const;
       T maxTypedTexValue() const;
-      float mixedTexValue( unsigned x, unsigned y, unsigned z, 
-                           unsigned t ) const;
-      vector<float> texValue( unsigned x, unsigned y, unsigned z,
-                              unsigned t ) const;
+      float mixedTexValue( const vector<int> & ipos ) const;
+      vector<float> texValue( const vector<int> & ipos ) const;
 
     private:
       AVolume<T>	*volume;
@@ -127,10 +125,8 @@ namespace anatomist
       void setExtrema();
       T minTypedTexValue() const;
       T maxTypedTexValue() const;
-      float mixedTexValue( unsigned x, unsigned y, unsigned z, 
-                           unsigned t ) const;
-      vector<float> texValue( unsigned x, unsigned y, unsigned z,
-                              unsigned t ) const;
+      float mixedTexValue( const vector<int> & ipos ) const;
+      vector<float> texValue( const vector<int> & ipos ) const;
 
     private:
       AVolume<T>	*volume;
@@ -154,12 +150,10 @@ namespace anatomist
       void setExtrema() { vttype.setExtrema(); }
       T minTypedTexValue() const { return vttype.minTypedTexValue(); }
       T maxTypedTexValue() const { return vttype.maxTypedTexValue(); }
-      float mixedTexValue( unsigned x, unsigned y, unsigned z,
-                           unsigned t ) const
-      { return vttype.mixedTexValue( x, y, z, t ); }
-      vector<float> texValue( unsigned x, unsigned y, unsigned z,
-                              unsigned t ) const
-      { return vttype.texValue( x, y, z, t ); }
+      float mixedTexValue( const vector<int> & ipos ) const
+      { return vttype.mixedTexValue( ipos ); }
+      vector<float> texValue( const vector<int> & ipos ) const
+      { return vttype.texValue( ipos ); }
 
     private:
       typename VolumeTraitsType<T>::traitstype	vttype;
@@ -1002,107 +996,122 @@ template <class T> void AVolume<T>::setVoxelSize( const vector<float> & vs )
 
 
 template<class T> 
-float AVolume<T>::mixedTexValue( const Point3df & pos, float time ) const
+float AVolume<T>::mixedTexValue( const vector<float> & pos ) const
 {
-  vector<float> vs = voxelSize();
-  int x = (int) rint( pos[0] / vs[0] );
-  int y = (int) rint( pos[1] / vs[1] );
-  int z = (int) rint( pos[2] / vs[2] );
-
-  if( x >= MinX2D() && x <= MaxX2D() && y >= MinY2D() && 
-      y <= MaxY2D() && z >= MinZ2D() && z <= MaxZ2D() )
+  vector<int> dims = _volume->getSize();
+  vector<float> vs = _volume->getVoxelSize();
+  vector<int> ipos( std::min( pos.size(), dims.size() ) );
+  unsigned i, n = pos.size();
+  for( i=0; i<n; ++i )
   {
-    if( time < MinT() )
-      time = MinT();
-    else if( time > MaxT() )
-      time = MaxT();
-    return d->traits.mixedTexValue( (unsigned) x, (unsigned) y,
-                                    (unsigned) z, (unsigned) time );
+    ipos[i] = int( rint( pos[i] / ( vs.size() > i ? vs[i] : 1. ) ) );
+    if( ipos[i] < 0 )
+    {
+      if( i >= 3 )
+        ipos[i] = 0;
+      else
+        return 0.f;
+    }
+    else if( ipos[i] >= dims[i] )
+    {
+      if( i >= 3 )
+        ipos[i] = dims[i] - 1;
+      else
+        return 0.f;
+    }
   }
-  else
-    return 0;
+
+  return d->traits.mixedTexValue( ipos );
 }
 
 
 template<class T> 
-vector<float> AVolume<T>::texValues( const Point3df & pos, float time ) const
+vector<float> AVolume<T>::texValues( const vector<float> & pos ) const
 {
-  int x = (int) rint( pos[0] / VoxelSize()[0] );
-  int y = (int) rint( pos[1] / VoxelSize()[1] );
-  int z = (int) rint( pos[2] / VoxelSize()[2] );
-
-  if( x >= MinX2D() && x <= MaxX2D() && y >= MinY2D() &&
-      y <= MaxY2D() && z >= MinZ2D() && z <= MaxZ2D() )
+  vector<int> dims = _volume->getSize();
+  vector<float> vs = _volume->getVoxelSize();
+  vector<int> ipos( std::min( pos.size(), dims.size() ) );
+  unsigned i, n = pos.size();
+  for( i=0; i<n; ++i )
   {
-    if( time < MinT() )
-      time = MinT();
-    else if( time > MaxT() )
-      time = MaxT();
-    return d->traits.texValue( (unsigned) x, (unsigned) y,
-                               (unsigned) z, (unsigned) time );
+    ipos[i] = int( rint( pos[i] / ( vs.size() > i ? vs[i] : 1. ) ) );
+    if( ipos[i] < 0 )
+    {
+      if( i >= 3 )
+        ipos[i] = 0;
+      else
+        return vector<float>();
+    }
+    else if( ipos[i] >= dims[i] )
+    {
+      if( i >= 3 )
+        ipos[i] = dims[i] - 1;
+      else
+        return vector<float>();
+    }
   }
-  else
-    return vector<float>();
-}
 
+  return d->traits.texValue( ipos );
+}
 
 
 namespace anatomist
 {
-template<class T> std::string	AVolume<T>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<?>";
-}
 
-template<> std::string	AVolume<int8_t>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<int8_t>";
-}
+  template<class T> std::string	AVolume<T>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<?>";
+  }
 
-template<> std::string	AVolume<uint8_t>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<uint8_t>";
-}
+  template<> std::string AVolume<int8_t>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<int8_t>";
+  }
 
-template<> std::string	AVolume<int16_t>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<int16_t>";
-}
+  template<> std::string AVolume<uint8_t>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<uint8_t>";
+  }
 
-template<> std::string	AVolume<uint16_t>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<uint16_t>";
-}
+  template<> std::string AVolume<int16_t>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<int16_t>";
+  }
 
-template<> std::string	AVolume<int32_t>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<int32_t>";
-}
+  template<> std::string AVolume<uint16_t>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<uint16_t>";
+  }
 
-template<> std::string	AVolume<uint32_t>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<uint32_t>";
-}
+  template<> std::string AVolume<int32_t>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<int32_t>";
+  }
 
-template<> std::string	AVolume<float>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<float>";
-}
+  template<> std::string AVolume<uint32_t>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<uint32_t>";
+  }
 
-template<> std::string	AVolume<double>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<double>";
-}
+  template<> std::string AVolume<float>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<float>";
+  }
 
-template<> std::string	AVolume<AimsRGB>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<AimsRGB>";
-}
+  template<> std::string AVolume<double>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<double>";
+  }
 
-template<> std::string	AVolume<AimsRGBA>::objectFullTypeName(void) const
-{
-  return objectTypeName(_type) + "<AimsRGBA>";
-}
+  template<> std::string AVolume<AimsRGB>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<AimsRGB>";
+  }
+
+  template<> std::string AVolume<AimsRGBA>::objectFullTypeName(void) const
+  {
+    return objectTypeName(_type) + "<AimsRGBA>";
+  }
 
 }
 
@@ -1577,18 +1586,16 @@ T VolumeVectorTraits<T>::maxTypedTexValue() const
 
 
 template<typename T> inline
-float VolumeScalarTraits<T>::mixedTexValue( unsigned x, unsigned y, 
-					    unsigned z, unsigned t ) const
+float VolumeScalarTraits<T>::mixedTexValue( const vector<int> & pos ) const
 {
-  return (float) (*volume->volume())( x, y, z, t );
+  return (float) (*volume->volume())( pos );
 }
 
 template<typename T> inline
-vector<float> VolumeScalarTraits<T>::texValue( unsigned x, unsigned y,
-                                               unsigned z, unsigned t ) const
+vector<float> VolumeScalarTraits<T>::texValue( const vector<int> & pos ) const
 {
   vector<float> v(1);
-  v[0] = (float) (*volume->volume())( x, y, z, t );
+  v[0] = (float) (*volume->volume())( pos );
   return v;
 }
 
@@ -1599,20 +1606,18 @@ namespace internal
 
 template<> inline
 float 
-VolumeVectorTraits<AimsRGB>::mixedTexValue( unsigned x, unsigned y, 
-					    unsigned z, unsigned t ) const
+VolumeVectorTraits<AimsRGB>::mixedTexValue( const vector<int> & pos ) const
 {
-  const AimsRGB	& rgb = (*volume->volume())( x, y, z, t );
+  const AimsRGB	& rgb = (*volume->volume())( pos );
   return ( ((float) rgb.red() ) + rgb.green() + rgb.blue() ) / 3;
 }
 
 
 template<> inline
 vector<float>
-VolumeVectorTraits<AimsRGB>::texValue( unsigned x, unsigned y,
-                                       unsigned z, unsigned t ) const
+VolumeVectorTraits<AimsRGB>::texValue( const vector<int> & pos ) const
 {
-  const AimsRGB	& rgb = (*volume->volume())( x, y, z, t );
+  const AimsRGB	& rgb = (*volume->volume())( pos );
   vector<float> v(3);
   v[0] = (float) rgb.red();
   v[1] = (float) rgb.green();
@@ -1623,10 +1628,9 @@ VolumeVectorTraits<AimsRGB>::texValue( unsigned x, unsigned y,
 
 template<> inline
 float 
-VolumeVectorTraits<AimsRGBA>::mixedTexValue( unsigned x, unsigned y, 
-					     unsigned z, unsigned t ) const
+VolumeVectorTraits<AimsRGBA>::mixedTexValue( const vector<int> & pos ) const
 {
-  const AimsRGBA	& rgb = (*volume->volume())( x, y, z, t );
+  const AimsRGBA	& rgb = (*volume->volume())( pos );
   return ( ((float) rgb.red() ) + rgb.green() + rgb.blue() + 
 	   rgb.alpha() ) / 4;
 }
@@ -1634,10 +1638,9 @@ VolumeVectorTraits<AimsRGBA>::mixedTexValue( unsigned x, unsigned y,
 
 template<> inline
 vector<float>
-VolumeVectorTraits<AimsRGBA>::texValue( unsigned x, unsigned y,
-                                        unsigned z, unsigned t ) const
+VolumeVectorTraits<AimsRGBA>::texValue( const vector<int> & pos ) const
 {
-  const AimsRGBA	& rgb = (*volume->volume())( x, y, z, t );
+  const AimsRGBA	& rgb = (*volume->volume())( pos );
   vector<float> v(4);
   v[0] = (float) rgb.red();
   v[1] = (float) rgb.green();
@@ -1649,10 +1652,9 @@ VolumeVectorTraits<AimsRGBA>::texValue( unsigned x, unsigned y,
 } // namespace internal
 
 template<typename T> inline
-float VolumeVectorTraits<T>::mixedTexValue( unsigned x, unsigned y, 
-					    unsigned z, unsigned t ) const
+float VolumeVectorTraits<T>::mixedTexValue( const vector<int> & pos ) const
 {
-  const T			& val = (*volume)( x, y, z, t );
+  const T			& val = (*volume)( pos );
   float				mval = 0;
   typename T::const_iterator	it, et = val.end();
   unsigned			n = 0;

@@ -115,27 +115,39 @@ anatomist::RoiLabelNamingAction::fillPoint( const Point3d& pc, int t,
 					    std::queue<Point3d>& trialPoints, bool replace, bool add )
 {
   Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ()) ;
-  if( in( dims, pc ) ){
-    float val = myCurrentImage->mixedTexValue( Point3df( pc[0], pc[1], pc[2] ), t ) ;
-    if (add){
-      if( (volumeOfLabels( pc ) != region) &&  (short(rint(val) == label) &&
-						( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) ) ) {
-	/*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
-	trialPoints.push(pc) ;
-	*toChange = volumeOfLabels( pc ) ;
-	
-	volumeOfLabels( pc ) = region ;
-	return true ;
-      } 
-    } else {
-      if(  (volumeOfLabels( pc ) != 0 ) && (short(rint(val) == label) &&
-	    ( replace || ( (!replace) && volumeOfLabels( pc ) == region ) ) ) ) {
-	/*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
-	trialPoints.push(pc) ;
-	*toChange = volumeOfLabels( pc ) ;
-	
-	volumeOfLabels( pc ) = 0 ;
-	return true ;
+  if( in( dims, pc ) )
+  {
+    std::vector<float> vpos( 4 );
+    vpos[0] = pc[0];
+    vpos[1] = pc[1];
+    vpos[2] = pc[2];
+    vpos[3] = t;
+    float val = myCurrentImage->mixedTexValue( vpos );
+    if (add)
+    {
+      if( (volumeOfLabels( pc ) != region)
+          &&  (short(rint(val) == label)
+          && ( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) ) )
+      {
+        /*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
+        trialPoints.push(pc) ;
+        *toChange = volumeOfLabels( pc ) ;
+
+        volumeOfLabels( pc ) = region ;
+        return true ;
+      }
+    }
+    else
+    {
+      if( (volumeOfLabels( pc ) != 0 ) && (short(rint(val) == label)
+          && ( replace || ( (!replace) && volumeOfLabels( pc ) == region ) ) ) )
+      {
+        /*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
+        trialPoints.push(pc) ;
+        *toChange = volumeOfLabels( pc ) ;
+
+        volumeOfLabels( pc ) = 0 ;
+        return true ;
       }
     }
   }
@@ -146,11 +158,11 @@ anatomist::RoiLabelNamingAction::fillPoint( const Point3d& pc, int t,
 inline bool
 anatomist::RoiLabelNamingAction::in( const Point3d& dims, const Point3d& p )
 {
-  if ( p[0] < 0 || p[0] > dims[0] - 1 ||  
+  if ( p[0] < 0 || p[0] > dims[0] - 1 ||
        p[1] < 0 || p[1] > dims[1] - 1 ||
        p[2] < 0 || p[2] > dims[2] - 1 )
     return false ;
-  
+
   return true ;
 }
 

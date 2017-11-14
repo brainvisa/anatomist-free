@@ -1050,8 +1050,6 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
   {
-    int timePos = win->getTimeSliderPosition() ;
-
     // cout << "Pos : " << pos << endl ;
 
     // cout << "Position from cursor : (" << x << " , "<< y << ") = "
@@ -1098,8 +1096,9 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
       maxNbOfPoints
         = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ();
     Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ),
-                  static_cast<int> ( p[1] - vlOffset[1] +.5 ),
-                  static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
+                 static_cast<int> ( p[1] - vlOffset[1] +.5 ),
+                 static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
+    vector<float> vpos = win->getFullPosition();
 
     float realLowLevel = realMin() ;
     float realHighLevel = realMax() ;
@@ -1127,9 +1126,11 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     {
       Point3df vs = _sharedData->myCurrentImage->VoxelSize();
       // mixedTexValue is in mm, not in voxels.
+      vpos[0] = pVL[0] * vs[0];
+      vpos[1] = pVL[1] * vs[1];
+      vpos[2] = pVL[2] * vs[2];
       float val
-        = _sharedData->myCurrentImage->mixedTexValue(
-          Point3df( pVL[0] * vs[0], pVL[1] * vs[1], pVL[2] * vs[2] ), timePos);
+        = _sharedData->myCurrentImage->mixedTexValue( vpos );
       if ( val < realLowLevel || val > realHighLevel )
         return ;
       else
@@ -1178,7 +1179,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
         {
           neighbor = pc + connec->xyzOffset(n) ;
           if( in(dims, neighbor) )
-            if( fillPoint( neighbor, timePos, volumeOfLabels,
+            if( fillPoint( neighbor, vpos[3], volumeOfLabels,
                            region, realLowLevel, realHighLevel,
                            toChange, trialPoints, replace ) )
             {
@@ -1221,9 +1222,14 @@ anatomist::RoiLevelSetAction::fillPoint(
                 volumeOfLabels.dimZ()) ;
   if( in( dims, pc ) )
   {
-    Point3df vs = _sharedData->myCurrentImage->VoxelSize();
-    float val = _sharedData->myCurrentImage->mixedTexValue(
-      Point3df( pc[0] * vs[0], pc[1] * vs[1], pc[2] * vs[2] ), t );
+    vector<float> vs = _sharedData->myCurrentImage->voxelSize();
+    vector<float> vpos( 4 );
+    vpos[0] = pc[0] * vs[0];
+    vpos[1] = pc[1] * vs[1];
+    vpos[2] = pc[2] * vs[2];
+    vpos[3] = t;
+
+    float val = _sharedData->myCurrentImage->mixedTexValue( vpos );
     if( (volumeOfLabels( pc ) != region) &&
         (val >= realLowLevel) && (val <= realHighLevel)  &&
         ( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) )

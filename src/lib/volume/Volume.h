@@ -123,9 +123,9 @@ namespace anatomist
 
     virtual bool hasTexture() const { return( true ); }
     virtual unsigned dimTexture() const { return( 1 ); }
-    virtual float mixedTexValue( const Point3df & pos, float time ) const;
-    virtual std::vector<float> texValues( const Point3df & pos, 
-					  float time ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos ) const;
+    virtual std::vector<float>
+    texValues( const std::vector<float> & pos ) const;
 
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;

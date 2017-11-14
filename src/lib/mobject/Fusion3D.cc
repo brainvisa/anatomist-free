@@ -374,7 +374,7 @@ const AObject* Fusion3D::volume( unsigned n ) const
 void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s, 
                                                 unsigned tex ) const
 {
-  cout << "refreshVTextureWithPointToPoint, tex: " << tex << endl;
+  // cout << "refreshVTextureWithPointToPoint, tex: " << tex << endl;
   //  volume scale
   float min;
   float max;
@@ -383,22 +383,13 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   // get surface vector of vertex
   const AObject		*osurf = *begin();
   const GLComponent	*surf = osurf->glAPI();
-  cout << "surf: " << surf << endl;
   const GLfloat		*vver = surf->glVertexArray( s );
-  cout << "vver: " << vver << endl;
   const GLfloat		*vnor = surf->glNormalArray( s );
-  cout << "vnor: " << vnor << endl;
   unsigned		nver = surf->glNumVertex( s );
   string		id = viewStateID( glBODY, s );
-  cout << "id: " << id.size() << endl;
-  cout << "id exists: " << ( d->vtexture.find(id) != d->vtexture.end() ) << endl;
-  cout << "vtexture size: " << d->vtexture.size() << endl;
-  cout << "len vtexture: " << d->vtexture[id].size() << endl;
   vector<float>		& vtexture = d->vtexture[id][ tex ];
-  cout << "vtex: " << vtexture.size() << endl;
 
   const AObject		*functional = volume( tex );
-  cout << "vol: " << functional << endl;
   const GLComponent     *glf = functional->glAPI();
   Transformation	*trans 
     = theAnatomist->getTransformation( osurf->getReferential(), 
@@ -411,6 +402,8 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
   const GLfloat	*itver, *verend = vver + 3*nver, *itnor;
   float		value;
   Point3df	pos, ver, nor;
+  vector<float> vpos( 3, 0.f );
+  vpos.insert( vpos.end(), s.timedims.begin(), s.timedims.end() );
 
   min = FLT_MAX;
   max = -FLT_MAX;
@@ -436,7 +429,11 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
 
     if( trans )
       pos = trans->transform( pos );
-    value = functional->mixedTexValue( pos, s.timedims[0] );
+
+    vpos[0] = pos[0];
+    vpos[1] = pos[1];
+    vpos[2] = pos[2];
+    value = functional->mixedTexValue( vpos );
 
     if( value < min )
       min = value;
@@ -561,6 +558,8 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
   BucketMap<Void>::Bucket::iterator iline, eline = line.end();
   float length = fabs( stop_depth - start_deth );
   int nbElem;
+  vector<float> vpos( 3, 0.f );
+  vpos.insert( vpos.end(), s.timedims.begin(), s.timedims.end() );
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
@@ -607,7 +606,10 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
         cver = Point3df( iline->first[0] * vs[0], iline->first[1] * vs[1],
                          iline->first[2] * vs[2] );
 
-        cvalue = functional->mixedTexValue( cver, s.timedims[0] );
+        vpos[0] = cver[0];
+        vpos[1] = cver[1];
+        vpos[2] = cver[2];
+        cvalue = functional->mixedTexValue( vpos );
 
         switch( _submethod )
         {
@@ -776,6 +778,8 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
 
   map<float, unsigned> histo;
   map<float, unsigned>::iterator ih, eh=histo.end();
+  vector<float> vpos( 3, 0.f );
+  vpos.insert( vpos.end(), s.timedims.begin(), s.timedims.end() );
 
   for( itnor=vnor, itver=vver; itver!=verend; itver+=3, itnor+=3 )
     {
@@ -801,7 +805,11 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
 
         if( trans )
           cver = trans->transform( cver );
-        cvalue = functional->mixedTexValue( cver, s.timedims[0] );
+
+        vpos[0] = cver[0];
+        vpos[1] = cver[1];
+        vpos[2] = cver[2];
+        cvalue = functional->mixedTexValue( vpos );
 
         switch( _submethod )
         {

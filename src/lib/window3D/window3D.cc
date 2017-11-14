@@ -950,17 +950,34 @@ namespace
       vector<float> vals;
       unsigned i, n;
 
-      vals = obj->texValues(wpos, tpos[0], wref);
+      vector<float> fpos( 3 );
+      fpos[0] = wpos[0];
+      fpos[1] = wpos[1];
+      fpos[2] = wpos[2];
+      fpos.insert( fpos.end(), tpos.begin(), tpos.end() );
+      vals = obj->texValues( fpos, wref );
       for (i = 0; i < indent; ++i)
         cout << ' ';
       cout << obj->name() << " : ";
-      pos = anatomist::Transformation::transform(wpos, wref,
-          obj->getReferential(), Point3df(1, 1, 1), obj->VoxelSize());
-      if (obj->Is2DObject())
-        cout << Point3d((short) rint(pos[0]), (short) rint(pos[1]),
-            (short) rint(pos[2]));
+      pos = anatomist::Transformation::transform( wpos, wref,
+          obj->getReferential(), Point3df(1, 1, 1), obj->VoxelSize() );
+      fpos[0] = pos[0];
+      fpos[1] = pos[1];
+      fpos[2] = pos[2];
+      if( obj->Is2DObject() )
+      {
+        cout << "(" << (short) rint( fpos[0] );
+        for( i=1, n=fpos.size(); i<n; ++i )
+          cout << ", " << (short) rint( fpos[i] );
+        cout << ")";
+      }
       else
-        cout << pos;
+      {
+        cout << "(" << fpos[0];
+        for( i=1, n=fpos.size(); i<n; ++i )
+          cout << ", " << fpos[i];
+        cout << ")";
+      }
       cout << " -> (";
       for (i = 0, n = vals.size(); i < n; ++i)
         cout << " " << vals[i];
@@ -2699,8 +2716,8 @@ void AWindow3D::setPosition( const vector<float> & position,
     AObject *obj = objectToShow(this, _sobjects);
     if (obj)
     {
-      vector<float> vals = obj->texValues(
-        _position, _timepos[0], getReferential() );
+      vector<float> vals = obj->texValues( getFullPosition(),
+                                           getReferential() );
       QString txt;
       unsigned i, n = vals.size();
       for (i = 0; i < n; ++i)
