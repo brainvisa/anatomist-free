@@ -77,8 +77,8 @@ namespace anatomist
     virtual float MaxT3D() const;
     virtual unsigned dimTexture() const;
 
-    virtual AObject* ObjectAt( float, float, float, float, float = 0 ) 
-      { return( 0 ); }
+    virtual AObject* objectAt( const std::vector<float> &, float = 0 )
+    { return 0 ; }
 
     virtual void setTexExtrema();
     void setTexExtrema(float min,float max);

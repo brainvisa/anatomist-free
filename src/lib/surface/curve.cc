@@ -260,10 +260,9 @@ Tree* ACurve::optionTree() const
 }
 
 
-AObject* ACurve::ObjectAt( float, float, float, float, 
-				  float )
+AObject* ACurve::objectAt( const vector<float> &, float )
 {
-  return( 0 );
+  return 0;
 }
 
 

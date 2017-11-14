@@ -119,8 +119,7 @@ namespace anatomist
     bool Is3DObject() { return(false); }
     virtual bool isTransparent() const;
     /// Not selectable: always returns Null
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
 
     virtual bool hasTexture() const { return( true ); }
     virtual unsigned dimTexture() const { return( 1 ); }
@@ -167,7 +166,7 @@ namespace anatomist
 
   template<class T>
   inline AObject* 
-  anatomist::AVolume<T>::ObjectAt( float, float, float, float, float ) 
+  anatomist::AVolume<T>::objectAt( const std::vector<float> &, float )
   { return 0; }
 
 }

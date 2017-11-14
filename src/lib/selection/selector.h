@@ -50,9 +50,9 @@ namespace anatomist
     Selector();
     virtual ~Selector();
 
-    virtual AObject* objectAt( AObject* o, const Point3df & pos, float t, 
-			       float tolerence, const Referential* wref, 
-			       const Point3df & wgeom ) const;
+    virtual AObject* objectAt( AObject* o, const std::vector<float> & pos,
+                               float tolerence, const Referential* wref,
+                               const Point3df & wgeom ) const;
   };
 
 
@@ -62,9 +62,9 @@ namespace anatomist
     LowestLevelSelector();
     virtual ~LowestLevelSelector();
 
-    virtual AObject* objectAt( AObject* o, const Point3df & pos, float t, 
-			       float tolerence, const Referential* wref, 
-			       const Point3df & wgeom ) const;
+    virtual AObject* objectAt( AObject* o, const std::vector<float> & pos,
+                               float tolerence, const Referential* wref,
+                               const Point3df & wgeom ) const;
   };
 
 }

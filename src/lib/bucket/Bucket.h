@@ -110,8 +110,7 @@ namespace anatomist
 			aims::BucketMap<Void>::Bucket::const_iterator> > & iv, 
 			AimsSurface<4,Void> *surf, bool glonfly=false ) const;
 
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
 
     virtual bool loadable() const { return( true ); }
     virtual bool savable() const { return( true ); }

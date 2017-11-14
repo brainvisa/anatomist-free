@@ -54,11 +54,11 @@ Selector::~Selector()
 }
 
 
-AObject* Selector::objectAt( AObject* o, const Point3df & pos, float t, 
-			     float tolerence, const Referential* wref, 
-			     const Point3df & wgeom ) const
+AObject* Selector::objectAt( AObject* o, const vector<float> & pos,
+                             float tolerence, const Referential* wref,
+                             const Point3df & wgeom ) const
 {
-  return( o->ObjectAt( pos[0], pos[1], pos[2], t, tolerence, wref, wgeom ) );
+  return( o->objectAt( pos, tolerence, wref, wgeom ) );
 }
 
 
@@ -75,18 +75,17 @@ LowestLevelSelector::~LowestLevelSelector()
 }
 
 
-AObject* LowestLevelSelector::objectAt( AObject* o, const Point3df & pos, 
-					float t, float tolerence, 
-					const Referential* wref, 
-					const Point3df & wgeom ) const
+AObject* LowestLevelSelector::objectAt( AObject* o, const vector<float> & pos,
+                                        float tolerence,
+                                        const Referential* wref,
+                                        const Point3df & wgeom ) const
 {
-  AObject	*so = o->ObjectAt( pos[0], pos[1], pos[2], t, tolerence, wref, 
-				   wgeom );
+  AObject	*so = o->objectAt( pos, tolerence, wref, wgeom );
   if( so )
-    {
-      MObject	*mo = dynamic_cast<MObject *>( so );
-      if( mo )
-	return( objectAt( mo, pos, t, tolerence, wref, wgeom ) );
-    }
+  {
+    MObject	*mo = dynamic_cast<MObject *>( so );
+    if( mo )
+      return( objectAt( mo, pos, tolerence, wref, wgeom ) );
+  }
   return( so );
 }

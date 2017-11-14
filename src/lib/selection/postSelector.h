@@ -51,11 +51,11 @@ namespace anatomist
     PostSelector();
     virtual ~PostSelector();
 
-    /**	Action called after selection.
-	\return new objects to be selected (post-selector won't be called on 
-	those objects) */
-    virtual std::set<AObject *> execute( AObject* o, const Point3df & pos, 
-					 float t ) const;
+    /** Action called after selection.
+        \return new objects to be selected (post-selector won't be called on
+        those objects) */
+    virtual std::set<AObject *> execute( AObject* o,
+                                         const std::vector<float> & pos ) const;
   };
 
 }

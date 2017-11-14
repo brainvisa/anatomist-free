@@ -350,10 +350,9 @@ void AWindow::setWindowTitle()
 }
 
 
-void AWindow::selectObject( float x, float y, float z, float t, int modifier )
+void AWindow::selectObject( const vector<float> & pos, int modifier )
 {
-  SelectFactory::select( this, Point3df( x, y, z ), t, _selectTolerence, 
-			 modifier );
+  SelectFactory::select( this, pos, _selectTolerence, modifier );
 }
 
 
@@ -369,19 +368,19 @@ bool AWindow::hasObject( AObject * obj ) const
 }
 
 
-void AWindow::findObjectsAt( float x, float y, float z, float t, 
+void AWindow::findObjectsAt( const vector<float> & pos,
                              set<AObject *>& shown, set<AObject *>& hidden )
 {
-  SelectFactory::findObjectsAt( this, Point3df( x, y, z ), t, 
-				_selectTolerence, shown, hidden, "default" );
+  SelectFactory::findObjectsAt( this, pos, _selectTolerence, shown, hidden,
+                                "default" );
 }
 
 
-AObject* AWindow::objectAt( float x, float y, float z, float t )
+AObject* AWindow::objectAt( const vector<float> & pos )
 {
   set<AObject *>	shown, hidden;
 
-  findObjectsAt( x, y, z, t, shown, hidden );
+  findObjectsAt( pos, shown, hidden );
   if( shown.size() > 0 )
     return( *shown.begin() );
   if( hidden.size() > 0 )

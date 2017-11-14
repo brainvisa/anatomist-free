@@ -109,8 +109,7 @@ namespace anatomist
     bool Is2DObject() { return(true); }
     /// Can be display in 3D windows.
     bool Is3DObject() { return(true); }
-    virtual AObject* ObjectAt( float x, float y, float z, float t,
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
     virtual void SetMaterial( const Material & mat );
     virtual bool shouldRemoveChildrenWithMe() const;
 

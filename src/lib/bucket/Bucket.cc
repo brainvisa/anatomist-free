@@ -1106,11 +1106,13 @@ void Bucket::meshSubBucket( const vector<pair<
 }
 
 
-AObject* Bucket::ObjectAt( float x, float y, float z, float t, float tol )
+AObject* Bucket::objectAt( const vector<float> & pos, float tol )
 {
-  int	a = (int) (x / _bucket->sizeX()), b = (int) (y / _bucket->sizeY());
-  int	c = (int) (z / _bucket->sizeZ());
-  BucketMap<Void>::iterator	ib = _bucket->find( (size_t) t );
+  int a = (int) (pos[0] / _bucket->sizeX());
+  int b = (int) (pos[1] / _bucket->sizeY());
+  int c = (int) (pos[2] / _bucket->sizeZ());
+  BucketMap<Void>::iterator
+    ib = _bucket->find( pos.size() >= 3 ? (size_t) pos[3] : 0 );
 
   if( ib == _bucket->end() )
     return( 0 );	// time does not match
@@ -1121,8 +1123,8 @@ AObject* Bucket::ObjectAt( float x, float y, float z, float t, float tol )
     {
       const Point3d	& loc = ip->first;
       if( abs( loc[0] - a ) <= tol && abs( loc[1] - b ) < tol 
-	  && abs( loc[2] - c ) < tol )
-	return( this );
+          && abs( loc[2] - c ) < tol )
+        return( this );
     }
   return( 0 );	// not found
 }

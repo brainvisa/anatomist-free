@@ -138,17 +138,17 @@ namespace anatomist
     static SelectFactory* factory();
     ///	tells if win sees obj or one of its ancestors
     static bool hasAncestor( const AWindow* win, AObject* obj );
-    static AObject* objectAt( AObject* o, const Point3df & pos, float t, 
-			      float tolerence, const Referential* wref, 
-			      const Point3df & wgeom, 
-			      const std::string & selector = "default" );
-    static void select( AWindow* w, const Point3df & pos, float t, 
-			float tolerence, int modifier, 
-			const std::string & selector = "default" );
-    static void findObjectsAt( AWindow* w, const Point3df & pos, float t, 
-			       float tolerence, std::set<AObject *>& shown, 
-			       std::set<AObject *>& hidden, 
-			       const std::string & selector );
+    static AObject* objectAt( AObject* o, const std::vector<float> & pos,
+                              float tolerence, const Referential* wref,
+                              const Point3df & wgeom,
+                              const std::string & selector = "default" );
+    static void select( AWindow* w, const std::vector<float> & pos,
+                        float tolerence, int modifier,
+                        const std::string & selector = "default" );
+    static void findObjectsAt( AWindow* w, const std::vector<float> & pos,
+                               float tolerence, std::set<AObject *>& shown,
+                               std::set<AObject *>& hidden,
+                               const std::string & selector );
     static void registerSelector( const std::string & key, Selector* s );
     ///	Registers possible actions to be taken after object selection
     static void registerPostSelector( const std::string & key, 

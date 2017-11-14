@@ -278,7 +278,7 @@ void MObject::SetMaterial( const Material & mat )
 
 
 AObject* 
-MObject::ObjectAt( float x, float y, float z, float t, float tol )
+MObject::objectAt( const vector<float> & pos, float tol )
 {
   //	By default, look into every child
 
@@ -287,7 +287,7 @@ MObject::ObjectAt( float x, float y, float z, float t, float tol )
 
   for( io=begin(); io!=end(); ++io )
     {
-      obj = (*io)->ObjectAt( x, y, z, t, tol );
+      obj = (*io)->objectAt( pos, tol );
       if( obj ) return( this );	// found one
     }
   return( 0 );	// not found

@@ -478,33 +478,46 @@ void AObject::clearHasChangedFlags() const
 }
 
 
-AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol, 
-			    const Referential* orgref, const Point3df & )
+AObject* AObject::objectAt( const vector<float> & pos, float tol,
+                            const Referential* orgref, const Point3df & )
 {
   if( !orgref || !getReferential() )
-    return( ObjectAt( x, y, z, t, tol ) );
+    return( objectAt( pos, tol ) );
 
   const Transformation	*tra 
     = theAnatomist->getTransformation( orgref, getReferential() );
   if( !tra )
-    return( ObjectAt( x, y, z, t, tol ) );
+    return( objectAt( pos, tol ) );
 
-  Point3df	tp = tra->transform( Point3df( x, y, z ) );
+  Point3df	tp = tra->transform( Point3df( pos[0], pos[1], pos[2] ) );
 
-  return( ObjectAt( tp[0], tp[1], tp[2], t, tol ) );
+  vector<float> new_pos = pos;
+  new_pos[0] = tp[0];
+  new_pos[1] = tp[1];
+  new_pos[2] = tp[2];
+
+  return( objectAt( new_pos, tol ) );
 }
 
 
-AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol )
+AObject* AObject::objectAt( const vector<float> & pos, float tol )
 {
   if( tol < 0 ) tol *= -1;
 
   //	default behaviour is really primitive...
   vector<float> bmin, bmax;
-  if( boundingBox( bmin, bmax ) && t>=bmin[3] && t<=bmax[3] && x>=bmin[0]-tol
-      && x<=bmax[0]+tol && y>=bmin[1]-tol && y<=bmax[1]+tol && z>=bmin[2]-tol
-      && z<=bmax[2]+tol )
-    return this ;
+  if( boundingBox( bmin, bmax ) )
+  {
+    unsigned i, n = std::min( bmax.size(), pos.size() );
+    for( i=0; i<n; ++i )
+      if( pos[i] < bmin[i] || pos[i] > bmax[i] )
+        return 0;
+    for( n=pos.size(); i<n; ++i )
+      if( pos[i] != 0 )
+        // extra dimensions in pos should be 0 to be acceptable
+        return 0;
+    return this;
+  }
   else
     return 0;
 }

@@ -691,9 +691,9 @@ rc_ptr<map<string, vector<int> > > AGraph::objAttColors()
 }
 
 
-AObject* AGraph::ObjectAt( float x, float y, float z, float t, float tol )
+AObject* AGraph::objectAt( const vector<float> & pos, float tol )
 {
-  //cout << "AGraph::ObjectAt( " << x << ", " << y << ", " << z << " )\n";
+  //cout << "AGraph::objectAt( " << pos[0] << ", " << pos[1] << ", " << pos[2] << " )\n";
   float		rx, ry, rz;
   float		mx = d->minX, my = d->minY, mz = d->minZ;
   float		Mx = d->maxX, My = d->maxY, Mz = d->maxZ;
@@ -705,10 +705,10 @@ AObject* AGraph::ObjectAt( float x, float y, float z, float t, float tol )
   ry = ((float) d->labelDim[ 1 ]) / (My - my + 1);
   rz = ((float) d->labelDim[ 2 ]) / (Mz - mz + 1);
 
-  int	a = (int) ( (x/d->voxelSize.item( 0 ) - mx) * rx + 0.5 );
-  int	b = (int) ( (y/d->voxelSize.item( 1 ) - my) * ry + 0.5 );
-  int	c = (int) ( (z/d->voxelSize.item( 2 ) - mz) * rz + 0.5 );
-  int	dd = (int) t;
+  int	a = (int) ( (pos[0] / d->voxelSize.item( 0 ) - mx) * rx + 0.5 );
+  int	b = (int) ( (pos[1] / d->voxelSize.item( 1 ) - my) * ry + 0.5 );
+  int	c = (int) ( (pos[2] / d->voxelSize.item( 2 ) - mz) * rz + 0.5 );
+  int	dd = pos.size() >= 3 ? (int) pos[3] : 0;
 
   AimsData<AObject *>	*pvol;
 
@@ -755,12 +755,12 @@ AObject* AGraph::ObjectAt( float x, float y, float z, float t, float tol )
     return( 0 );
 
   // if not found at once, check in the neighbourhood
-  int	sa = (int) ( ((x+tol)/d->voxelSize[0] - mx) * rx + 0.5 );
-  int	sb = (int) ( ((y+tol)/d->voxelSize[1] - my) * ry + 0.5 );
-  int	sc = (int) ( ((z+tol)/d->voxelSize[2] - mz) * rz + 0.5 );
-  int	ea = (int) ( ((x-tol)/d->voxelSize[0] - mx) * rx);
-  int	eb = (int) ( ((y-tol)/d->voxelSize[1] - my) * ry);
-  int	ec = (int) ( ((z-tol)/d->voxelSize[2] - mz) * rz);
+  int	sa = (int) ( ((pos[0] + tol)/d->voxelSize[0] - mx) * rx + 0.5 );
+  int	sb = (int) ( ((pos[1] + tol)/d->voxelSize[1] - my) * ry + 0.5 );
+  int	sc = (int) ( ((pos[2] + tol)/d->voxelSize[2] - mz) * rz + 0.5 );
+  int	ea = (int) ( ((pos[0] - tol)/d->voxelSize[0] - mx) * rx);
+  int	eb = (int) ( ((pos[1] - tol)/d->voxelSize[1] - my) * ry);
+  int	ec = (int) ( ((pos[2] - tol)/d->voxelSize[2] - mz) * rz);
   int	xx, yy, zz;
 
   if( sa >= (int) d->labelDim[ 0 ] ) sa = d->labelDim[ 0 ] - 1;

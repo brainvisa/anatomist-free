@@ -90,8 +90,7 @@ namespace anatomist
                               std::vector<float> & bmax ) const;
 
     /// selection is disabled for surfaces
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
 
     /// Can't be display in 2D windows.
     bool Is2DObject() { return false; }

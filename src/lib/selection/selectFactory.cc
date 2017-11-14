@@ -569,9 +569,9 @@ void SelectFactory::select( SelectMode mode, unsigned group,
 }
 
 
-AObject* SelectFactory::objectAt( AObject* o, const Point3df & pos, float t, 
-				  float tolerence, const Referential* wref, 
-				  const Point3df & wgeom, const string & key )
+AObject* SelectFactory::objectAt( AObject* o, const vector<float> & pos,
+                                  float tolerence, const Referential* wref,
+                                  const Point3df & wgeom, const string & key )
 {
   SelectFactory__selectors__init();
 
@@ -582,13 +582,13 @@ AObject* SelectFactory::objectAt( AObject* o, const Point3df & pos, float t,
       cerr << "No Selectors in factory -- no selection possible\n";
       return( 0 );
     }
-  return( (*is).second->objectAt( o, pos, t, tolerence, wref, wgeom ) );
+  return( (*is).second->objectAt( o, pos, tolerence, wref, wgeom ) );
 }
 
 
-void SelectFactory::select( AWindow* w, const Point3df & pos, float t, 
-			    float tolerence, int modifier, 
-			    const string & selector )
+void SelectFactory::select( AWindow* w, const vector<float> & pos,
+                            float tolerence, int modifier,
+                            const string & selector )
 {
   enum mode{ SELECT, SHOW };
 
@@ -598,7 +598,7 @@ void SelectFactory::select( AWindow* w, const Point3df & pos, float t,
 
   //cout << "select " << x << ", " << y << ", " << z << ", " << t << endl;
 
-  findObjectsAt( w, pos, t, tolerence, selected, shown, selector );
+  findObjectsAt( w, pos, tolerence, selected, shown, selector );
 
   if ( selected.size() > 0 )	// selection case
   {
@@ -689,29 +689,28 @@ void SelectFactory::select( AWindow* w, const Point3df & pos, float t,
   set<AObject *>::const_iterator	ino, eno;
 
   for( ips=SelectFactory__active_postsel().begin(); ips!=eps; ++ips )
+  {
+    ps = SelectFactory__postselectors()[ ips->second ];
+    for( s=choice->begin(); s!=es; ++s )
     {
-      ps = SelectFactory__postselectors()[ ips->second ];
-      for( s=choice->begin(); s!=es; ++s )
-	{
-	  set<AObject *>	newobj = ps->execute( *s, pos, t );
-	  for( ino=newobj.begin(), eno=newobj.end(); ino!=eno; ++ino )
-	    addedsel.insert( *ino );
-	}
+      set<AObject *> newobj = ps->execute( *s, pos );
+      for( ino=newobj.begin(), eno=newobj.end(); ino!=eno; ++ino )
+        addedsel.insert( *ino );
     }
+  }
 
   for( ino=addedsel.begin(), eno=addedsel.end(); ino!=eno; ++ino )
     choice->insert( *ino );
 
-  SelectCommand	*c = new SelectCommand( *choice, w->Group(), 
-						modifier );
+  SelectCommand	*c = new SelectCommand( *choice, w->Group(), modifier );
   theProcessor->execute( c );
 }
 
 
-void SelectFactory::findObjectsAt( AWindow* w, const Point3df & pos, float t, 
-				   float tolerence, set<AObject *>& shown, 
-				   set<AObject *>& hidden, 
-				   const string & selector )
+void SelectFactory::findObjectsAt( AWindow* w, const vector<float> & pos,
+                                   float tolerence, set<AObject *>& shown,
+                                   set<AObject *>& hidden,
+                                   const string & selector )
 {
   set<AObject *>		obj = w->Objects();
   AObject* object = 0;
@@ -743,7 +742,7 @@ void SelectFactory::findObjectsAt( AWindow* w, const Point3df & pos, float t,
 
     if ( mustcheck )	// top-level for this window only
     {
-      object = objectAt( *i, pos, t, tolerence, wref, sgeom, selector );
+      object = objectAt( *i, pos, tolerence, wref, sgeom, selector );
       if ( object )
       {
         if( obj.find( object ) == obj.end() )

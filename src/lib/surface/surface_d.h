@@ -429,10 +429,9 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
 
 
   template<int D>
-  AObject* ASurface<D>::ObjectAt( float, float, float, float, 
-				  float )
+  AObject* ASurface<D>::objectAt( const std::vector<float> &, float )
   {
-    return( 0 );
+    return 0;
   }
 
 

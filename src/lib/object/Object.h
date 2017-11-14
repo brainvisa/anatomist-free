@@ -300,15 +300,14 @@ namespace anatomist
     virtual void clearHasChangedFlags() const;
 
     /**	Find the object (sub-object) at given postion with a tolerence
-	@return	0 if not found
+        @return	0 if not found
     */
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
     /**	Same with origin window referential
      */
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol, const Referential* orgref, 
-			       const Point3df & orggeom );
+    virtual AObject* objectAt( const std::vector<float> & pos,
+                               float tol, const Referential* orgref,
+                               const Point3df & orggeom );
 
     ///	Scans the object internals and determines its geometry extrema
     virtual void setGeomExtrema() {}

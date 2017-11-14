@@ -882,9 +882,13 @@ void SelectAction::select( int x, int y, int modifier )
       = new SelectionCommand( w->aWindow(), vp );
       theProcessor->execute( c );*/
 
-    view()->aWindow()->selectObject( pos[0], pos[1], pos[2],
-                                    view()->aWindow()->getTime(),
-                                    (SelectFactory::SelectMode) modifier );
+    vector<float> posw = view()->aWindow()->getFullPosition();
+    posw[0] = pos[0];
+    posw[1] = pos[1];
+    posw[2] = pos[2];
+
+    view()->aWindow()->selectObject( posw,
+                                     (SelectFactory::SelectMode) modifier );
   }
 }
 
