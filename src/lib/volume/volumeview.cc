@@ -78,6 +78,10 @@ AVolumeView<T>::AVolumeView( const list<AObject *> & obj )
 {
   _type = AVolumeView<T>::classType();
 
+  cout << "Warning:\n";
+  cout << "--------\n";
+  cout << "the AVolumeView object is still in development. Basic functionalities for multi-resolution sub-volume views are here but are largely sub-optimal and not integrated in a convenient way. There are also still bugs and Anatomist may crash when using this object.\n";
+
   insert( _myvolume.get() );
   theAnatomist->registerObject( _myvolume.get(), false );
   theAnatomist->releaseObject( _myvolume.get() );
