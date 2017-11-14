@@ -42,6 +42,8 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkCallbackCommand.h>
 
+using namespace std;
+
 namespace anatomist
 {
   vtkCxxRevisionMacro(vtkMetaDataSetAObject, "$Revision: 1.0 $");
