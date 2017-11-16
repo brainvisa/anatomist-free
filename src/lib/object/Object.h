@@ -87,7 +87,7 @@ namespace anatomist
   /*
      TODO:
      remove:
-     MinT(), MaxT(), MinX2D..MaxZ2D()
+     MinT(), MaxT()
      VoxelSize()
      TimeStep() ?
    */
@@ -176,14 +176,13 @@ namespace anatomist
     virtual float MinT() const { return 0; }
     virtual float MaxT() const { return 0; }
 
-    ///	Object boundaries, for 2D representations
-    virtual float MinX2D() const { return 0; }
-    virtual float MinY2D() const { return 0; }
-    virtual float MinZ2D() const { return 0; }
-    virtual float MaxX2D() const { return 0; }
-    virtual float MaxY2D() const { return 0; }
-    virtual float MaxZ2D() const { return 0; }
-    /// more modern replacement for MinX2D... maxZ2D, in float coords
+    /** Bounding box in 2D views mode. In mm, may be the same as boundingBox()
+        if the object field of view is the same in 3D and 2D modes.
+        It normally inccludes voxels size ( for a volume, bmin will be -vs/2
+        where vs is the voxel size, for the 3 first coordinates).
+
+        The default implementation just calls boundingBox().
+    */
     virtual bool boundingBox2D( std::vector<float> & bmin,
                                 std::vector<float> & bmax ) const;
 

@@ -784,26 +784,16 @@ bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   bmin = vector<float>( 4, 0.f );
   bmax = vector<float>( 4, 0.f );
-  bmin[3] = MinT();
-  bmax[3] = MaxT();
+  vector<float> vs = voxelSize();
+  bmin[3] = MinT() * vs[3];
+  bmax[3] = MaxT() * vs[3];
   return false;
 }
 
 
 bool AObject::boundingBox2D( vector<float> & bmin, vector<float> & bmax ) const
 {
-  bmin.resize( 4 );
-  bmax.resize( 4 );
-  vector<float> vs = voxelSize();
-  bmin[0] = MinX2D() * vs[0];
-  bmin[1] = MinY2D() * vs[1];
-  bmin[2] = MinZ2D() * vs[2];
-  bmax[0] = MaxX2D() * vs[0];
-  bmax[1] = MaxY2D() * vs[1];
-  bmax[2] = MaxZ2D() * vs[2];
-  bmin[3] = MinT() * vs[3];
-  bmax[3] = MaxT() * vs[3];
-  return true;
+  return boundingBox( bmin, bmax );
 }
 
 

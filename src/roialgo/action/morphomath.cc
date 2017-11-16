@@ -358,13 +358,19 @@ RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
     return 0 ;
   
   AimsData<AObject*>& volOfLabels = g->volumeOfLabels( 0 ) ;
-  if( volOfLabels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      volOfLabels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      volOfLabels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
-    g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
-				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
-				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( volOfLabels.dimX() != dims[0]
+      || volOfLabels.dimY() != dims[1]
+      || volOfLabels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
   
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;

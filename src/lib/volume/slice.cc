@@ -92,10 +92,11 @@ Slice::Slice( const vector<AObject *> & obj )
     setReferentialInheritance( o );
     cout << "init ref: " << o->getReferential() << endl;
 
-    Point3df	vs = o->VoxelSize();
-    _offset = Point3df( ( o->MinX2D() + o->MaxX2D() ) * vs[0] / 2, 
-                        ( o->MinY2D() + o->MaxY2D() ) * vs[1] / 2, 
-                        ( o->MinZ2D() + o->MaxZ2D() ) * vs[2] / 2 );
+    vector<float> bmin, bmax;
+    o->boundingBox2D( bmin, bmax );
+    _offset = Point3df( ( bmin[0] + bmax[0] ) / 2,
+                        ( bmin[1] + bmax[1] ) / 2,
+                        ( bmin[2] + bmax[2] ) / 2 );
   }
 }
 

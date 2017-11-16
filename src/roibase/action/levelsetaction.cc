@@ -908,15 +908,22 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
   
   if (!g) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
-    g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
-				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
-				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
-  } else {
-    
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
+  else
+  {
     //cout << "item : " << endl ;
     //cout << "\tbefore " << item.before << endl
     //	 << "\tafter " << item.after << endl ;
@@ -976,18 +983,20 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
-    {
-      g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-                                                     - g->MinX2D() ) + 1,
-                                   static_cast<int>( g->MaxY2D()
-                                                     - g->MinY2D() ) + 1,
-                                   static_cast<int>( g->MaxZ2D()
-                                                     - g->MinZ2D() ) + 1 ) ;
-    }
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
 
   fillRegion( x, y, go, *changes, true ) ;
 
@@ -1084,8 +1093,16 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     // cout << "P : " << p << endl ;
 
 
-    Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
+    vector<float> bmin, bmax;
+    g->boundingBox2D( bmin, bmax );
+
+    Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
+                       bmin[1] / voxelSize[1] + 0.5,
+                       bmin[2] / voxelSize[2] + 0.5) ;
     AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+    Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
+                 static_cast<int>( rint( p[1] - vlOffset[1] ) ),
+                 static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
     int maxNbOfPoints ;
     if( _sharedData->myMaxSize > 0 )
       maxNbOfPoints
@@ -1095,9 +1112,6 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     else
       maxNbOfPoints
         = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ();
-    Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ),
-                 static_cast<int> ( p[1] - vlOffset[1] +.5 ),
-                 static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
     vector<float> vpos = win->getFullPosition();
 
     float realLowLevel = realMin() ;

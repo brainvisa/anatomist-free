@@ -143,16 +143,21 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
-    {
-      g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
-    }
-  
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
+
   AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() ) ;
   grao->attributed()->setProperty("modified", true) ;
 
@@ -207,7 +212,13 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
         vpos[0] = p[0];
         vpos[1] = p[1];
         vpos[2] = p[2];
-        Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
+
+        vector<float> bmin, bmax;
+        g->boundingBox2D( bmin, bmax );
+
+        Point3df vlOffset( bmin[0] / vs[0] + 0.5,
+                           bmin[1] / vs[1] + 0.5,
+                           bmin[2] / vs[2] + 0.5 );
 
         Point3d posInt( static_cast<int>( p[0] / vs[0] + 0.5 ),
                         static_cast<int>( p[1] / vs[1] + 0.5 ), static_cast<int>( p[2] / vs[2] + 0.5 ) ) ;

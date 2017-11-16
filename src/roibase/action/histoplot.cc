@@ -614,9 +614,17 @@ RoiHistoPlot::getImageHisto( const string& image, int& nbOfPoints, float& binSiz
   p[3] = time;
   nbOfPoints = 0 ;
 
-  for( p[2] = 0 ; p[2] <= img->MaxZ2D() ; ++(p[2]) )
-    for( p[1] = 0 ; p[1] <= img->MaxY2D() ; ++(p[1]) )
-      for( p[0] = 0 ; p[0] <= img->MaxX2D() ; ++(p[0]) )
+  vector<float> bmin, bmax, vs;
+  img->boundingBox2D( bmin, bmax );
+  vs = img->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( bmax[0] / vs[0] - 0.5 ) );
+  dims[1] = int( rint( bmax[1] / vs[1] - 0.5 ) );
+  dims[2] = int( rint( bmax[2] / vs[2] - 0.5 ) );
+
+  for( p[2] = 0 ; p[2] <= dims[2] ; ++(p[2]) )
+    for( p[1] = 0 ; p[1] <= dims[1] ; ++(p[1]) )
+      for( p[0] = 0 ; p[0] <= dims[0] ; ++(p[0]) )
       {
         ++(histo[(unsigned int)( (img->mixedTexValue( p ) - imin)
                                  * invBinSize + 0.5) ]);

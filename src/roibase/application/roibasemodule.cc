@@ -505,94 +505,95 @@ AGraphObject* RoiBaseModule::newRegion( AGraph* gra, const string & regionName,
 AGraph* RoiBaseModule::newGraph( AObject* o, const string & roiName, 
                                  const string & syntax )
 {
-  Point3df	vs = o->VoxelSize();
-  
+  vector<float> vs = o->voxelSize();
+
   Graph		*gr = new Graph( syntax );
   AGraph	*agr = new AGraph( gr, "", false ) ;
   // agr->setFileName( roiName ) ;
-  vector<int>	bb ;
-  bb.push_back(0) ;
-  bb.push_back(0) ;
-  bb.push_back(0) ;  
-  
+  vector<int>	bb( 3, 0 );
+
   agr->setName( theAnatomist->makeObjectName( roiName ) );
   theAnatomist->registerObject( agr );
   agr->setVoxelSize( o->VoxelSize() );
   agr->setReferential( o->getReferential() );
 
   gr->setProperty( syntax + "_VERSION", string( "1.0" ) );
-  gr->setProperty( "boundingbox_min", bb );
   vector<float> bmin, bmax;
   o->boundingBox( bmin, bmax );
 
-  bb[0] = static_cast<int>( rint( (bmax[0] - bmin[0]) / o->VoxelSize()[0] ) );
-  bb[1] = static_cast<int>( rint( (bmax[1] - bmin[1]) / o->VoxelSize()[1] ) );
-  bb[2] = static_cast<int>( rint( (bmax[2] - bmin[2]) / o->VoxelSize()[2] ) );
+  bb[0] = int( rint( bmin[0] / vs[0] + 0.5 ) );
+  bb[1] = int( rint( bmin[1] / vs[1] + 0.5 ) );
+  bb[2] = int( rint( bmin[2] / vs[2] + 0.5 ) );
+  gr->setProperty( "boundingbox_min", bb );
+
+  bb[0] = int( rint( bmax[0] / vs[0] - 0.5 ) );
+  bb[1] = int( rint( bmax[1] / vs[1] - 0.5 ) );
+  bb[2] = int( rint( bmax[2] / vs[2] - 0.5 ) );
+  gr->setProperty( "boundingbox_max", bb );
+
+  bb[0] = static_cast<int>( rint( (bmax[0] - bmin[0]) / vs[0] ) );
+  bb[1] = static_cast<int>( rint( (bmax[1] - bmin[1]) / vs[1] ) );
+  bb[2] = static_cast<int>( rint( (bmax[2] - bmin[2]) / vs[2] ) );
 
   agr->setLabelsVolumeDimension( bb[0], bb[1], bb[2] ) ;
-  --bb[0];
-  --bb[1];
-  --bb[2];
-  gr->setProperty( "boundingbox_max", bb );
   cout << "bounding box: " << bb[0] << ", "<< bb[1] << ", " << bb[2] << endl;
   cout << bmin[0] << ", " << bmin[1] << ", " << bmin[2] << endl;
   cout << bmax[0] << ", " << bmax[1] << ", " << bmax[2] << endl;
 
   const PythonAObject	*pa = dynamic_cast<const PythonAObject *>( o );
   if( pa )
+  {
+    const GenericObject	*go = pa->attributed();
+    if( go )
     {
-      const GenericObject	*go = pa->attributed();
-      if( go )
+      vector<float>		origin;
+      if( go->getProperty( "origin", origin ) && origin.size() >= 3 )
+        gr->setProperty( "origin", origin );
+      try
+      {
+        Object	ob = go->getProperty( "spm_normalized" );
+        bool	n = (bool) ob->getScalar();
+        if( n )
+          gr->setProperty( "spm_normalized", (int) n );
+      }
+      catch( ... )
+      {
+      }
+      try
+      {
+        Object	ob = go->getProperty( "spm_spm2_normalization" );
+        bool	n = (bool) ob->getScalar();
+        gr->setProperty( "spm_spm2_normalization", (int) n );
+      }
+      catch( ... )
+      {
+      }
+      try
+      {
+        Object	ob = go->getProperty( "spm_radio_convention" );
+        bool	n = (bool) ob->getScalar();
+        gr->setProperty( "spm_radio_convention", (int) n );
+      }
+      catch( ... )
+      {
+      }
+      try
+      {
+        if( go->hasProperty( "referentials" )
+            && go->hasProperty( "transformations" ) )
         {
-          vector<float>		origin;
-          if( go->getProperty( "origin", origin ) && origin.size() >= 3 )
-            gr->setProperty( "origin", origin );
-          try
-            {
-              Object	ob = go->getProperty( "spm_normalized" );
-              bool	n = (bool) ob->getScalar();
-              if( n )
-                gr->setProperty( "spm_normalized", (int) n );
-            }
-          catch( ... )
-            {
-            }
-          try
-            {
-              Object	ob = go->getProperty( "spm_spm2_normalization" );
-              bool	n = (bool) ob->getScalar();
-              gr->setProperty( "spm_spm2_normalization", (int) n );
-            }
-          catch( ... )
-            {
-            }
-          try
-            {
-              Object	ob = go->getProperty( "spm_radio_convention" );
-              bool	n = (bool) ob->getScalar();
-              gr->setProperty( "spm_radio_convention", (int) n );
-            }
-          catch( ... )
-            {
-            }
-          try
-          {
-            if( go->hasProperty( "referentials" ) 
-                && go->hasProperty( "transformations" ) )
-            {
-              gr->setProperty( "referentials", 
-                               go->getProperty( "referentials" ) );
-              gr->setProperty( "transformations", 
-                               go->getProperty( "transformations" ) );
-            }
-          }
-          catch( ... )
-          {
-          }
+          gr->setProperty( "referentials",
+                            go->getProperty( "referentials" ) );
+          gr->setProperty( "transformations",
+                            go->getProperty( "transformations" ) );
         }
+      }
+      catch( ... )
+      {
+      }
     }
+  }
 
-  cout << "newGraph: roiName: " << roiName << endl;
   gr->setProperty( "filename_base", string( "*" ) );
   agr->setGeomExtrema();
 

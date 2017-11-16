@@ -60,14 +60,11 @@ namespace anatomist
 
     float MinT() const { return( _minT ); }
     float MaxT() const { return( _maxT ); }
-    float MinX2D() const { return( _minX ); }
-    float MinY2D() const { return( _minY ); }
-    float MinZ2D() const { return( _minZ ); }
-    float MaxX2D() const { return( _maxX ); }
-    float MaxY2D() const { return( _maxY ); }
-    float MaxZ2D() const { return( _maxZ ); }
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const
+    { return boundingBox( bmin, bmax ); }
 
     virtual void 
     setSubBucketGeomExtrema( const Point3df& pmin = Point3df(0., 0., 0.), 

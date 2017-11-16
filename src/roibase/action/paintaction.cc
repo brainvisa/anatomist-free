@@ -703,18 +703,20 @@ PaintAction::paintStart(int x, int y, int globalX, int globalY)
   if (!g) return;
 
   AimsData<AObject*>& labels = g->volumeOfLabels(0);
-  if(labels.dimX() != (g->MaxX2D() - g->MinX2D() + 1) ||
-      labels.dimY() != (g->MaxY2D() - g->MinY2D() + 1) ||
-      labels.dimZ() != (g->MaxZ2D() - g->MinZ2D() + 1))
-    {
-      g->clearLabelsVolume();
-      g->setLabelsVolumeDimension(static_cast<int>(g->MaxX2D()
-						     - g->MinX2D()) + 1,
-				   static_cast<int>(g->MaxY2D()
-						     - g->MinY2D()) + 1,
-				   static_cast<int>(g->MaxZ2D()
-						     - g->MinZ2D()) + 1);
-    }
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
 
   RoiChangeProcessor::instance()->getGraphObject(view()->aWindow())
     ->attributed()->setProperty("modified", true);
@@ -759,56 +761,58 @@ PaintAction::paint(int x, int y, int, int)
   Referential* buckRef = _sharedData->myCurrentModifiedRegion->getReferential();
   Point3df pos;
   if(win->positionFromCursor(x, y, pos))
+  {
+    _sharedData->myCursorPos = pos;
+    AGraph	*g
+      = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
+
+    vector<float> bmin, bmax, vs;
+    g->boundingBox2D( bmin, bmax );
+    vs = g->voxelSize();
+
+    _sharedData->myPainter->paint(
+      win,
+      theAnatomist->getTransformation(winRef, buckRef),
+      pos,
+      (AGraphObject *)0,
+      RoiChangeProcessor::instance()->getGraphObject(view()->aWindow()),
+      _sharedData->myBrushSize, _sharedData->myLineMode,
+      /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
+      &g->volumeOfLabels(0),
+      Point3df( bmin[0] / vs[0] + 0.5, bmin[1] / vs[1] + 0.5,
+                bmin[2] / vs[2] + 0.5 ),
+      /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
+      (_sharedData->myDeltaModifications->bucket())[0],
+      (*_sharedData->myCurrentChanges),
+      _sharedData->myCurrentModifiedRegion->VoxelSize(),
+      _sharedData->myLineMode,
+      _sharedData->myReplaceMode, _sharedData->myMmMode);
+
+    _sharedData->myIsChangeValidated = false;
+    _sharedData->myDeltaModifications->setBucketChanged();
+    _sharedData->myDeltaModifications->setGeomExtrema();	// not optimal
+
+    if(_sharedData->myFollowingLinkedCursor)
     {
-      _sharedData->myCursorPos = pos;
-      AGraph	*g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
-
-      _sharedData->myPainter->paint(win,
-		        theAnatomist->getTransformation(winRef, buckRef),
-			pos,
-			(AGraphObject *)0, RoiChangeProcessor::instance()->getGraphObject(view()->aWindow()),
-			_sharedData->myBrushSize, _sharedData->myLineMode,
-			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			&g->volumeOfLabels(0),
-			Point3df(g->MinX2D(), g->MinY2D(), g->MinZ2D()),
-			/* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			(_sharedData->myDeltaModifications->bucket())[0],
-			(*_sharedData->myCurrentChanges),
-			_sharedData->myCurrentModifiedRegion->VoxelSize(),
-			_sharedData->myLineMode,
-			_sharedData->myReplaceMode, _sharedData->myMmMode);
-      _sharedData->myIsChangeValidated = false;
-
-      _sharedData->myDeltaModifications->setBucketChanged();
-      _sharedData->myDeltaModifications->setGeomExtrema();	// not optimal
-//       _sharedData->myDeltaModifications
-// 	->setSubBucketGeomExtrema(Point3df(_sharedData->myDeltaModifications->MinX2D(),
-// 					    _sharedData->myDeltaModifications->MinY2D(),
-// 					    _sharedData->myDeltaModifications->MinZ2D()),
-// 				  Point3df(_sharedData->myDeltaModifications->MaxX2D(),
-// 					    _sharedData->myDeltaModifications->MaxY2D(),
-// 					    _sharedData->myDeltaModifications->MaxZ2D()+1.));
-
-      if(_sharedData->myFollowingLinkedCursor)
-	{
-	  vector<float>	vp;
-	  vp.push_back(pos[0]);
-	  vp.push_back(pos[1]);
-	  vp.push_back(pos[2]);
-	  LinkedCursorCommand	*c
-	    = new LinkedCursorCommand(win, vp);
-	  theProcessor->execute(c);
-	}
-
-      list<AWindow3D*>::iterator iter(myLinkedWindows.begin()),
-	last(myLinkedWindows.end());
-
-      while (iter != last){
-	(*iter)->refreshTemp();
-	++iter;
-      }
-
+      vector<float>	vp;
+      vp.push_back(pos[0]);
+      vp.push_back(pos[1]);
+      vp.push_back(pos[2]);
+      LinkedCursorCommand	*c
+        = new LinkedCursorCommand(win, vp);
+      theProcessor->execute(c);
     }
+
+    list<AWindow3D*>::iterator iter(myLinkedWindows.begin()),
+      last(myLinkedWindows.end());
+
+    while (iter != last)
+    {
+      (*iter)->refreshTemp();
+      ++iter;
+    }
+
+  }
 }
 
 
@@ -844,14 +848,21 @@ PaintAction::eraseStart(int x, int y, int globalX, int globalY)
 
   AGraph * g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
   if(!g) return;
+  vector<float> bbmin, bbmax;
+  if( !g->boundingBox2D( bbmin, bbmax ) )
+    return;
+  vector<float> vs = g->voxelSize();
+  vector<int> dims( 3, 0 );
+
+  dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
   AimsData<AObject*>& labels = g->volumeOfLabels(0);
-  if(labels.dimX() != (g->MaxX2D() - g->MinX2D() + 1) ||
-      labels.dimY() != (g->MaxY2D() - g->MinY2D() + 1) ||
-      labels.dimZ() != (g->MaxZ2D() - g->MinZ2D() + 1)){
+  if( labels.dimX() != dims[0] || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
     g->clearLabelsVolume();
-    g->setLabelsVolumeDimension(static_cast<int>(g->MaxX2D() - g->MinX2D()) + 1,
-				 static_cast<int>(g->MaxY2D() - g->MinY2D()) + 1,
-				 static_cast<int>(g->MaxZ2D() - g->MinZ2D()) + 1);
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
 
   RoiChangeProcessor::instance()->getGraphObject(view()->aWindow())
@@ -907,22 +918,30 @@ PaintAction::erase(int x, int y, int, int)
 
       //Bucket * temp = new Bucket();
       //temp->setVoxelSize(_sharedData->myCurrentModifiedRegion->VoxelSize());
-      AGraph	*g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
-      _sharedData->myPainter-> paint(win,
-			 theAnatomist->getTransformation(winRef, buckRef), pos,
-			 RoiChangeProcessor::instance()->getGraphObject(view()->aWindow()),
-			 0, _sharedData->myBrushSize,
-			 _sharedData->myLineMode,
-			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			 &g->volumeOfLabels(0),
-			 /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-			 Point3df(g->MinX2D(), g->MinY2D(), g->MinZ2D()),
-			 //(temp->bucket())[0],
-                         (_sharedData->myDeltaModifications->bucket())[0],
-			 (*_sharedData->myCurrentChanges),
-			 _sharedData->myCurrentModifiedRegion->VoxelSize(),
-			 _sharedData->myLineMode,
-			 _sharedData->myReplaceMode, _sharedData->myMmMode);
+      AGraph *g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
+
+      vector<float> bmin, bmax, vs;
+      g->boundingBox2D( bmin, bmax );
+      vs = g->voxelSize();
+
+      _sharedData->myPainter-> paint(
+        win,
+        theAnatomist->getTransformation(winRef, buckRef), pos,
+        RoiChangeProcessor::instance()->getGraphObject(view()->aWindow()),
+        0, _sharedData->myBrushSize,
+        _sharedData->myLineMode,
+        /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
+        &g->volumeOfLabels(0),
+        /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
+        Point3df( bmin[0] / vs[0] + 0.5,
+                  bmin[1] / vs[1] + 0.5,
+                  bmin[2] / vs[2] + 0.5 ),
+        //(temp->bucket())[0],
+        (_sharedData->myDeltaModifications->bucket())[0],
+        (*_sharedData->myCurrentChanges),
+        _sharedData->myCurrentModifiedRegion->VoxelSize(),
+        _sharedData->myLineMode,
+        _sharedData->myReplaceMode, _sharedData->myMmMode);
       _sharedData->myIsChangeValidated = false;
       // _sharedData->myCurrentModifiedRegion->erase(temp->bucket());
       //_sharedData->myCurrentModifiedRegion->setBucketChanged();
@@ -982,13 +1001,19 @@ PaintAction::clearRegion()
 
   if (!g) return;
   AimsData<AObject*>& label = g->volumeOfLabels(0);
-  if(label.dimX() != (g->MaxX2D() - g->MinX2D() + 1) ||
-      label.dimY() != (g->MaxY2D() - g->MinY2D() + 1) ||
-      label.dimZ() != (g->MaxZ2D() - g->MinZ2D() + 1)){
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( label.dimX() != dims[0]
+      || label.dimY() != dims[1]
+      || label.dimZ() != dims[2] )
+  {
     g->clearLabelsVolume();
-    g->setLabelsVolumeDimension(static_cast<int>(g->MaxX2D() - g->MinX2D()) + 1,
-				 static_cast<int>(g->MaxY2D() - g->MinY2D()) + 1,
-				 static_cast<int>(g->MaxZ2D() - g->MinZ2D()) + 1);
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
 
   AimsData<AObject*>& labels = g->volumeOfLabels(0);
@@ -1297,15 +1322,19 @@ PaintAction::fill(int x, int y, int, int)
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> >;
 
   AimsData<AObject*>& labels = g->volumeOfLabels(0);
-  if(labels.dimX() != (g->MaxX2D() - g->MinX2D() + 1) ||
-     labels.dimY() != (g->MaxY2D() - g->MinY2D() + 1) ||
-     labels.dimZ() != (g->MaxZ2D() - g->MinZ2D() + 1))
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
   {
-       g->clearLabelsVolume();
-       g->setLabelsVolumeDimension(
-       static_cast<int>(g->MaxX2D() - g->MinX2D()) + 1,
-       static_cast<int>(g->MaxY2D() - g->MinY2D()) + 1,
-       static_cast<int>(g->MaxZ2D() - g->MinZ2D()) + 1);
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
 
   AGraphObject * graphObject = RoiChangeProcessor::instance()
@@ -1349,10 +1378,11 @@ PaintAction::fill(int x, int y, int, int)
 
       if (transf)
         pos = Transformation::transform(pos, transf, voxelSize);
-      else {
-        pos[0] /= voxelSize[0] - g->MinX2D();
-        pos[1] /= voxelSize[1] - g->MinY2D();
-        pos[2] /= voxelSize[2] - g->MinZ2D();
+      else
+      {
+        pos[0] = ( pos[0] - bmin[0] ) / voxelSize[0] - 0.5;
+        pos[1] = ( pos[1] - bmin[1] ) / voxelSize[1] - 0.5;
+        pos[2] = ( pos[2] - bmin[2] ) / voxelSize[2] - 0.5;
       }
 
       Point3d neighbourhood[4];
@@ -1379,12 +1409,12 @@ PaintAction::fill(int x, int y, int, int)
       Point3d pt((short) rint(pos[0]),
                  (short) rint(pos[1]),
                  (short) rint(pos[2]));
-      Point3d ptmin((short) rint(bmin[0] / voxelSize[0]),
-                    (short) rint(bmin[1] / voxelSize[1]),
-                    (short) rint(bmin[2] / voxelSize[2]));
-      Point3d ptmax((short) rint(bmax[0] / voxelSize[0]),
-                    (short) rint(bmax[1] / voxelSize[1]),
-                    (short) rint(bmax[2] / voxelSize[2]));
+      Point3d ptmin((short) rint( bmin[0] / voxelSize[0] + 0.5 ),
+                    (short) rint( bmin[1] / voxelSize[1] + 0.5 ),
+                    (short) rint( bmin[2] / voxelSize[2] + 0.5 ));
+      Point3d ptmax((short) rint( bmax[0] / voxelSize[0] - 0.5 ),
+                    (short) rint( bmax[1] / voxelSize[1] - 0.5 ),
+                    (short) rint( bmax[2] / voxelSize[2] - 0.5 ));
       
       fillRegion2D(pt, ptmin, ptmax, 
                    neighbourhood, g->volumeOfLabels(), 
@@ -2207,18 +2237,20 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
   if (!g) return;
 
   AimsData<AObject*>& labels = g->volumeOfLabels(0);
-  if(labels.dimX() != (g->MaxX2D() - g->MinX2D() + 1) ||
-      labels.dimY() != (g->MaxY2D() - g->MinY2D() + 1) ||
-      labels.dimZ() != (g->MaxZ2D() - g->MinZ2D() + 1))
-    {
-      g->clearLabelsVolume();
-      g->setLabelsVolumeDimension(static_cast<int>(g->MaxX2D()
-						     - g->MinX2D()) + 1,
-				   static_cast<int>(g->MaxY2D()
-						     - g->MinY2D()) + 1,
-				   static_cast<int>(g->MaxZ2D()
-						     - g->MinZ2D()) + 1);
-    }
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
 
   AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels(0);
   AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject(view()->aWindow());
@@ -2265,11 +2297,12 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
     cp[2] /= voxelSize[2];
   }
 
-  Point3df vlOffset(g->MinX2D(), g->MinY2D(), g->MinZ2D());
-
-  Point3d pVL(static_cast<int> (cp[0] - vlOffset[0] +.5),
-	       static_cast<int> (cp[1] - vlOffset[1] +.5),
-	       static_cast<int> (cp[2] - vlOffset[2] +.5));
+  Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
+                     bmin[1] / voxelSize[1] + 0.5,
+                     bmin[2] / voxelSize[2] + 0.5) ;
+  Point3d pVL( static_cast<int>( rint( cp[0] - vlOffset[0] ) ),
+               static_cast<int>( rint( cp[1] - vlOffset[1] ) ),
+               static_cast<int>( rint( cp[2] - vlOffset[2] ) ) );
 
   if(normalVector[0] > 0.99 || normalVector[1] > 0.99 || normalVector[2] > 0.99)
     {
@@ -2407,12 +2440,18 @@ void PaintAction::updateCursor()
 
     list< pair< Point3d, ChangesItem> > changes;
 
+    vector<float> bmin, bmax, vs;
+    g->boundingBox2D( bmin, bmax );
+    vs = g->voxelSize();
+
     _sharedData->myPainter->reset();
     _sharedData->myPainter->paint
       (win, 0, // no transfo: draw at (0,0,0) in its own ref
         Point3df(0, 0, 0), //_sharedData->myCursorPos,
         0, 0, _sharedData->myBrushSize, false, 0,
-        Point3df(g->MinX2D(), g->MinY2D(), g->MinZ2D()),
+        Point3df(bmin[0] / vs[0] + 0.5,
+                 bmin[1] / vs[1] + 0.5,
+                 bmin[2] / vs[2] + 0.5 ),
         (_sharedData->myCursor->bucket())[0],
         changes, region->VoxelSize(),
         false, true, _sharedData->myMmMode);

@@ -96,7 +96,7 @@ struct AGraph::Private
   float					maxX;
   float					maxY;
   float					maxZ;
-  Point3df				voxelSize;
+  vector<float>				voxelSize;
   Point3dl				labelDim;
   AGraph::ColorMode			colormode;
   bool					recolorrecurs;
@@ -693,7 +693,7 @@ rc_ptr<map<string, vector<int> > > AGraph::objAttColors()
 
 AObject* AGraph::objectAt( const vector<float> & pos, float tol )
 {
-  //cout << "AGraph::objectAt( " << pos[0] << ", " << pos[1] << ", " << pos[2] << " )\n";
+  // cout << "AGraph::objectAt( " << pos[0] << ", " << pos[1] << ", " << pos[2] << " )\n";
   float		rx, ry, rz;
   float		mx = d->minX, my = d->minY, mz = d->minZ;
   float		Mx = d->maxX, My = d->maxY, Mz = d->maxZ;
@@ -705,9 +705,9 @@ AObject* AGraph::objectAt( const vector<float> & pos, float tol )
   ry = ((float) d->labelDim[ 1 ]) / (My - my + 1);
   rz = ((float) d->labelDim[ 2 ]) / (Mz - mz + 1);
 
-  int	a = (int) ( (pos[0] / d->voxelSize.item( 0 ) - mx) * rx + 0.5 );
-  int	b = (int) ( (pos[1] / d->voxelSize.item( 1 ) - my) * ry + 0.5 );
-  int	c = (int) ( (pos[2] / d->voxelSize.item( 2 ) - mz) * rz + 0.5 );
+  int	a = (int) rint( (pos[0] / d->voxelSize[0] - mx) * rx );
+  int	b = (int) rint( (pos[1] / d->voxelSize[1] - my) * ry );
+  int	c = (int) rint( (pos[2] / d->voxelSize[2] - mz) * rz );
   int	dd = pos.size() >= 3 ? (int) pos[3] : 0;
 
   AimsData<AObject *>	*pvol;
@@ -721,46 +721,46 @@ AObject* AGraph::objectAt( const vector<float> & pos, float tol )
     return( 0 );	// time does not match
 
   if( !d->labelsVol )
-    {
-      cout << "creating volume of labels\n";
-      d->labelsVol = new map<int, AimsData<AObject *> >;
-      pvol = &( (*d->labelsVol)[ dd ]
-         	= AimsData<AObject *>( d->labelDim[ 0 ],
-				       d->labelDim[ 1 ],
-				       d->labelDim[ 2 ] ) );
-      fillVol( *pvol, dd, mx, my, mz, Mx, My, Mz );
-    }
+  {
+    cout << "creating volume of labels\n";
+    d->labelsVol = new map<int, AimsData<AObject *> >;
+    pvol = &( (*d->labelsVol)[ dd ]
+              = AimsData<AObject *>( d->labelDim[ 0 ],
+                                      d->labelDim[ 1 ],
+                                      d->labelDim[ 2 ] ) );
+    fillVol( *pvol, dd, mx, my, mz, Mx, My, Mz );
+  }
   else if( d->labelsVol->find( dd ) == d->labelsVol->end() )
-    {
-      pvol = &( (*d->labelsVol)[ dd ]
-		= AimsData<AObject *>( d->labelDim[ 0 ], d->labelDim[ 1 ],
-				       d->labelDim[ 2 ] ) );
-      fillVol( *pvol, dd , mx, my, mz, Mx, My, Mz);
-    }
+  {
+    pvol = &( (*d->labelsVol)[ dd ]
+              = AimsData<AObject *>( d->labelDim[ 0 ], d->labelDim[ 1 ],
+                                      d->labelDim[ 2 ] ) );
+    fillVol( *pvol, dd , mx, my, mz, Mx, My, Mz);
+  }
   else
     pvol = &(*d->labelsVol)[ dd ];
 
   if( a >= 0 && b >= 0 && c >= 0 && a < (int) d->labelDim[ 0 ] &&
                                     b < (int) d->labelDim[ 1 ] &&
                                     c < (int) d->labelDim[ 2 ] )
-    {
-      obj = (*pvol)( a, b, c );
-      if( obj )
-	return( obj );
-    }
+  {
+    obj = (*pvol)( a, b, c );
+    if( obj )
+      return( obj );
+  }
   /*else
     cout << "out of bounds\n";*/
 
   if( tol == 0 )
-    return( 0 );
+    return 0;
 
   // if not found at once, check in the neighbourhood
-  int	sa = (int) ( ((pos[0] + tol)/d->voxelSize[0] - mx) * rx + 0.5 );
-  int	sb = (int) ( ((pos[1] + tol)/d->voxelSize[1] - my) * ry + 0.5 );
-  int	sc = (int) ( ((pos[2] + tol)/d->voxelSize[2] - mz) * rz + 0.5 );
-  int	ea = (int) ( ((pos[0] - tol)/d->voxelSize[0] - mx) * rx);
-  int	eb = (int) ( ((pos[1] - tol)/d->voxelSize[1] - my) * ry);
-  int	ec = (int) ( ((pos[2] - tol)/d->voxelSize[2] - mz) * rz);
+  int	sa = (int) rint( ((pos[0] + tol)/d->voxelSize[0] - mx) * rx );
+  int	sb = (int) rint( ((pos[1] + tol)/d->voxelSize[1] - my) * ry );
+  int	sc = (int) rint( ((pos[2] + tol)/d->voxelSize[2] - mz) * rz );
+  int	ea = (int) rint( ((pos[0] - tol)/d->voxelSize[0] - mx) * rx);
+  int	eb = (int) rint( ((pos[1] - tol)/d->voxelSize[1] - my) * ry);
+  int	ec = (int) rint( ((pos[2] - tol)/d->voxelSize[2] - mz) * rz);
   int	xx, yy, zz;
 
   if( sa >= (int) d->labelDim[ 0 ] ) sa = d->labelDim[ 0 ] - 1;
@@ -782,11 +782,11 @@ AObject* AGraph::objectAt( const vector<float> & pos, float tol )
   for( zz=ec; zz<=sc; ++zz )
     for( yy=eb; yy<=sb; ++yy )
       for( xx=ea; xx<=sa; ++xx )
-	{
-	  obj = (*pvol)( xx, yy, zz );
-	  if( obj )
-	    ++counts[ obj ];
-	}
+      {
+        obj = (*pvol)( xx, yy, zz );
+        if( obj )
+          ++counts[ obj ];
+      }
   if( counts.empty() )
   return( 0 );	// really not found...
 
@@ -1129,65 +1129,61 @@ void AGraph::SetMaterial( const Material & mat )
 
 void AGraph::setVoxelSize( const Point3df & vs )
 {
-  d->voxelSize = vs;
-  vector<float>	vvs;
+  d->voxelSize = vs.toStdVector();
 
-  vvs.push_back( vs[0] );
-  vvs.push_back( vs[1] );
-  vvs.push_back( vs[2] );
-
-  d->graph->setProperty( "voxel_size", vvs );
+  d->graph->setProperty( "voxel_size", d->voxelSize );
 }
 
 
 void AGraph::setGeomExtrema()
 {
+  // cout << "AGraph::setGeomExtrema\n";
   vector<int>	bmin, bmax;
   float		minx = d->minX, miny = d->minY, minz = d->minZ;
   float		maxx = d->maxX, maxy = d->maxY, maxz = d->maxZ;
 
   if( d->graph->getProperty( "boundingbox_min", bmin ) && bmin.size() >= 3
       && d->graph->getProperty( "boundingbox_max", bmax ) && bmax.size() >= 3 )
-    {
-      d->minX = bmin[0];
-      d->minY = bmin[1];
-      d->minZ = bmin[2];
-      d->maxX = bmax[0];
-      d->maxY = bmax[1];
-      d->maxZ = bmax[2];
-      cout << "bounding box found : " << d->minX << ", " << d->minY << ", "
-	   << d->minZ << endl;
-      cout << "                     " << d->maxX << ", " << d->maxY << ", "
-	   << d->maxZ << endl;
-    }
+  {
+    d->minX = bmin[0];
+    d->minY = bmin[1];
+    d->minZ = bmin[2];
+    d->maxX = bmax[0];
+    d->maxY = bmax[1];
+    d->maxZ = bmax[2];
+    cout << "bounding box found : " << d->minX << ", " << d->minY << ", "
+          << d->minZ << endl;
+    cout << "                     " << d->maxX << ", " << d->maxY << ", "
+          << d->maxZ << endl;
+  }
   else
+  {
+    vector<float> pmin, pmax, vs = voxelSize();
+    if( MObject::boundingBox( pmin, pmax ) )
     {
-      vector<float> pmin, pmax, vs = voxelSize();
-      if( MObject::boundingBox( pmin, pmax ) )
-	{
-	  d->minX = pmin[0] / vs[0];
-	  d->minY = pmin[1] / vs[1];
-	  d->minZ = pmin[2] / vs[2];
-	  d->maxX = pmax[0] / vs[0];
-	  d->maxY = pmax[1] / vs[1];
-	  d->maxZ = pmax[2] / vs[2];
-	  cout << "bounding box created : " << d->minX << ", " << d->minY << ", "
-	       << d->minZ << endl;
-	  cout << "                       " << d->maxX << ", " << d->maxY << ", "
-	       << d->maxZ << endl;
-	}
-      else
-	{
-	  cout << "can't determine a bounding box - taking 'standard' values"
-	       << endl;
-	  d->minX = 0;
-	  d->minY = 0;
-	  d->minZ = 0;
-	  d->maxX = 255;
-	  d->maxY = 255;
-	  d->maxZ = 255;
-	}
+      d->minX = pmin[0] / vs[0];
+      d->minY = pmin[1] / vs[1];
+      d->minZ = pmin[2] / vs[2];
+      d->maxX = pmax[0] / vs[0];
+      d->maxY = pmax[1] / vs[1];
+      d->maxZ = pmax[2] / vs[2];
+      cout << "bounding box created : " << d->minX << ", " << d->minY << ", "
+            << d->minZ << endl;
+      cout << "                       " << d->maxX << ", " << d->maxY << ", "
+            << d->maxZ << endl;
     }
+    else
+    {
+      cout << "can't determine a bounding box - taking 'standard' values"
+            << endl;
+      d->minX = 0;
+      d->minY = 0;
+      d->minZ = 0;
+      d->maxX = 255;
+      d->maxY = 255;
+      d->maxZ = 255;
+    }
+  }
 
   if( d->labelsVol && ( minx != d->minX || miny != d->minY || minz != d->minZ
                       || maxx != d->maxX || maxy != d->maxY || maxz != d->maxZ
@@ -1233,15 +1229,16 @@ Point3dl AGraph::labelsVolumeDimension() const
 
 bool AGraph::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
+  // cout << "AGraph::boundingBox\n";
   bmin.resize( 4 );
   bmax.resize( 4 );
 
-  bmin[0] = d->minX * d->voxelSize.item( 0 );
-  bmin[1] = d->minY * d->voxelSize.item( 1 );
-  bmin[2] = d->minZ * d->voxelSize.item( 2 );
-  bmax[0] = d->maxX * d->voxelSize.item( 0 );
-  bmax[1] = d->maxY * d->voxelSize.item( 1 );
-  bmax[2] = d->maxZ * d->voxelSize.item( 2 );
+  bmin[0] = ( d->minX - 0.5 ) * d->voxelSize[0];
+  bmin[1] = ( d->minY - 0.5 ) * d->voxelSize[1];
+  bmin[2] = ( d->minZ - 0.5 ) * d->voxelSize[2];
+  bmax[0] = ( d->maxX + 0.5 ) * d->voxelSize[0];
+  bmax[1] = ( d->maxY + 0.5 ) * d->voxelSize[1];
+  bmax[2] = ( d->maxZ + 0.5 ) * d->voxelSize[2];
   bmin[3] = 0;
   bmax[3] = 0;
 
@@ -1295,42 +1292,6 @@ void AGraph::setGraph( rc_ptr<Graph> g )
 }
 
 
-float AGraph::MinX2D() const
-{
-  return d->minX;
-}
-
-
-float AGraph::MinY2D() const
-{
-  return d->minY;
-}
-
-
-float AGraph::MinZ2D() const
-{
-  return d->minZ;
-}
-
-
-float AGraph::MaxX2D() const
-{
-  return d->maxX;
-}
-
-
-float AGraph::MaxY2D() const
-{
-  return d->maxY;
-}
-
-
-float AGraph::MaxZ2D() const
-{
-  return d->maxZ;
-}
-
-
 GenericObject* AGraph::attributed()
 {
   return d->graph.get();
@@ -1343,7 +1304,7 @@ const GenericObject* AGraph::attributed() const
 }
 
 
-Point3df  AGraph::VoxelSize() const
+vector<float> AGraph::voxelSize() const
 {
   return d->voxelSize;
 }

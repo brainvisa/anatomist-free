@@ -96,15 +96,12 @@ namespace anatomist
 
     virtual bool render( PrimList &, const ViewState & );
 
-    virtual float MinX2D() const;
-    virtual float MinY2D() const;
-    virtual float MinZ2D() const;
-    virtual float MaxX2D() const;
-    virtual float MaxY2D() const;
-    virtual float MaxZ2D() const;
     virtual void setGeomExtrema();
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const
+    { return boundingBox( bmin, bmax ); }
     /// Can be display in 2D windows.
     bool Is2DObject() { return(true); }
     /// Can be display in 3D windows.
@@ -154,7 +151,7 @@ namespace anatomist
     std::string labelProperty( bool allowDefault = true ) const;
     void setLabelProperty( const std::string & prop );
 
-    virtual Point3df VoxelSize() const;
+    virtual std::vector<float> voxelSize() const;
     virtual void setVoxelSize( const Point3df & vs );
     void clearLabelsVolume();
     void setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz );

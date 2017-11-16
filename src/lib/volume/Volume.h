@@ -72,12 +72,6 @@ namespace anatomist
 
     virtual AObject* clone( bool shallow = true );
 
-    float MinX2D() const { return 0.0; }
-    float MinY2D() const { return 0.0; }
-    float MinZ2D() const { return 0.0; }
-    float MaxX2D() const { return float(_volume->getSizeX()-1); }
-    float MaxY2D() const { return float(_volume->getSizeY()-1); }
-    float MaxZ2D() const { return float(_volume->getSizeZ()-1); }
     float MinT() const { return 0.0; }
     float MaxT() const { return float(_volume->getSizeT()-1); }
 

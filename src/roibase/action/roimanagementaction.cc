@@ -691,7 +691,6 @@ RoiManagementActionView::selectGraph( int row )
   if ( myUpdatingFlag || row < 0 )
     return ;
 
-  cout << "row: " << row << endl;
   QListWidgetItem *graph = _private->mySelectGraph->item( row );
 
   mySelectingGraph = true ;
@@ -1821,7 +1820,7 @@ RoiManagementAction::regionStats( )
 set<string>
 RoiManagementAction::getCurrentGraphRegions()
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "RoiManagementAction::getCurrentGraphRegions()" << endl ;
 #endif
 
@@ -1830,7 +1829,6 @@ RoiManagementAction::getCurrentGraphRegions()
 
   AObject * obj = _sharedData->getObjectByName( AObject::GRAPH, _sharedData->myCurrentGraph ) ;
   AGraph * graph = dynamic_cast<AGraph*>( obj ) ;
-
   _sharedData->myCurrentGraphRegions.clear() ;
   if( !graph )
     return _sharedData->myCurrentGraphRegions ;
@@ -1838,16 +1836,18 @@ RoiManagementAction::getCurrentGraphRegions()
   string name ;
   AGraph::iterator iter( graph->begin() ), last( graph->end() ) ;
   while( iter != last )
+  {
+    AGraphObject * go = dynamic_cast<AGraphObject*>( *iter ) ;
+    if( go )
     {
-      AGraphObject * go = dynamic_cast<AGraphObject*>( *iter ) ;
-      if( go ){
-	go->attributed()->getProperty("name", name ) ;
-	_sharedData->myCurrentGraphRegions.insert(name) ;
-      }
-      ++iter ;
+      go->attributed()->getProperty("name", name ) ;
+      _sharedData->myCurrentGraphRegions.insert(name) ;
     }
+    ++iter;
+  }
 
-  if( _sharedData->myCurrentGraphId == -1 && _sharedData->myGraphNames.size() != 0 ){
+  if( _sharedData->myCurrentGraphId == -1 && _sharedData->myGraphNames.size() != 0 )
+  {
     _sharedData->myCurrentGraph = *( _sharedData->myGraphNames.begin() ) ;
     _sharedData->myCurrentGraphId = 0 ;
     setChanged() ;
@@ -2354,16 +2354,16 @@ RoiManagementAction::selectGraph( const string & graphName, int graphId  )
 void
 RoiManagementAction::newGraph( const string& /* name */ )
 {
-  //cout << "newGraph( " << name << " )" << endl ;
+  // cout << "newGraph" << endl ;
 
   AObject * obj = _sharedData->getObjectByName( -1,
                                                 _sharedData->myCurrentImage );
 
   if(! obj )
-    {
-      AWarning("An Image must be selected, or selected image no more existing") ;
-      return ;
-    }
+  {
+    AWarning("An Image must be selected, or selected image no more existing") ;
+    return ;
+  }
   string graphName
     = theAnatomist->makeObjectName( FileUtil::removeExtension(obj->name())
                                     + "_ROI.arg" );
@@ -2371,10 +2371,11 @@ RoiManagementAction::newGraph( const string& /* name */ )
   Command	*cmd = new CreateGraphCommand( obj, graphName, "RoiArg" ) ;
   theProcessor->execute( cmd ) ;
 
-  obj = _sharedData->getObjectByName( AObject::GRAPH, graphName ) ;
+  obj = _sharedData->getObjectByName( AObject::GRAPH, graphName );
   AGraph * graph = dynamic_cast<AGraph*>( obj ) ;
 
-  if ( !graph) {
+  if ( !graph)
+  {
     AWarning("Major bug : graph has not been created !") ;
     return ;
   }
@@ -2382,17 +2383,19 @@ RoiManagementAction::newGraph( const string& /* name */ )
   //graph->setFileName( graphName + ".arg" ) ;
 /*  graph->setFileName( FileUtil::removeExtension(obj->name())
 		      + ".arg" );*/
-  graph->setName( graphName ) ;
+  graph->setName( graphName );
   theAnatomist->registerObjectName( graph->name(), graph ) ;
-  graph->setLabelsVolumeDimension( static_cast<int>( graph->MaxX2D()
-						     - graph->MinX2D() ) + 1,
-				   static_cast<int>( graph->MaxY2D()
-						     - graph->MinY2D() ) + 1,
-				   static_cast<int>( graph->MaxZ2D()
-						     - graph->MinZ2D() ) + 1 ) ;
-  graph->volumeOfLabels(0) ;
+  vector<float> bmin, bmax, vs;
+  graph->boundingBox2D( bmin, bmax );
+  vs = graph->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  graph->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  graph->volumeOfLabels(0);
 
-  theAnatomist->NotifyObjectChange( graph ) ;
+  theAnatomist->NotifyObjectChange( graph );
 
   _sharedData->myGraphNamesChanged = true ;
   getGraphNames() ;
@@ -2401,14 +2404,15 @@ RoiManagementAction::newGraph( const string& /* name */ )
     lastName( _sharedData->myGraphNames.end() ) ;
   int id = 0 ;
   while ( iterName != lastName )
-    {
-      if ( *iterName == graphName )
-	break ;
-      ++id ;
-      ++iterName ;
-    }
+  {
+    if ( *iterName == graphName )
+      break ;
+    ++id ;
+    ++iterName ;
+  }
 
-  if ( iterName != lastName ){
+  if ( iterName != lastName )
+  {
     _sharedData->myGraphName = graphName ;
     selectGraph( _sharedData->myGraphName, id ) ;
     //cout << "graph selected " << _sharedData->myGraphName << endl ;
@@ -2417,20 +2421,22 @@ RoiManagementAction::newGraph( const string& /* name */ )
   set<AObject *> objs = theAnatomist->getObjects() ;
   set<AObject *>::iterator iter( objs.begin() ), last( objs.end() ), found ;
 
-  int objCount = 0 ;
-  while ( iter != last )
+  int objCount = 0;
+  while( iter != last )
+  {
+    if( (*iter)->type() == Hierarchy::classType() )
     {
-      if( (*iter)->type() == Hierarchy::classType() ){
-	++objCount ;
-	found = iter ;
-	break ;
-      }
-      ++iter ;
+      ++objCount ;
+      found = iter ;
+      break ;
     }
+    ++iter ;
+  }
 
-  if( objCount == 0 ){
+  if( objCount == 0 )
+  {
     Command	*cmd4 = new LoadObjectCommand( Path().hierarchy()
-					       + "/neuronames.hie" ) ;
+                                               + "/neuronames.hie" ) ;
     theProcessor->execute( cmd4 ) ;
     _sharedData->myHierarchyNamesChanged = true ;
     _sharedData->refreshGraphs() ;
@@ -2443,11 +2449,14 @@ RoiManagementAction::newGraph( const string& /* name */ )
   iter = objs.begin(), last = objs.end() ;
   set<AObject*>::iterator foundGraph = last, foundVolume = last, obj2d = last;
 
-  while( iter != last ) {
-    if( (*iter)->type() == AObject::GRAPH ){
+  while( iter != last )
+  {
+    if( (*iter)->type() == AObject::GRAPH )
+    {
       foundGraph = iter ;
     }
-    if( (*iter)->type() == AObject::VOLUME ){
+    if( (*iter)->type() == AObject::VOLUME )
+    {
       foundVolume = iter ;
     }
     else if( (*iter)->Is2DObject() )
@@ -2458,7 +2467,8 @@ RoiManagementAction::newGraph( const string& /* name */ )
   if( foundVolume == last && obj2d != last )
     foundVolume = obj2d;
 
-  if ( foundGraph == last && foundVolume != last){
+  if ( foundGraph == last && foundVolume != last)
+  {
     if( fabs( (*foundVolume)->VoxelSize()[0] - graph->VoxelSize()[0] )
         > .000001 ||
         fabs( (*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] )
@@ -2472,12 +2482,15 @@ RoiManagementAction::newGraph( const string& /* name */ )
       return ;
     }
 
-    if( (*foundVolume)->MinX2D() != graph->MinX2D() ||
-        (*foundVolume)->MinY2D() != graph->MinY2D() ||
-        (*foundVolume)->MinZ2D() != graph->MinZ2D() ||
-        (*foundVolume)->MaxX2D() != graph->MaxX2D() ||
-        (*foundVolume)->MaxY2D() != graph->MaxY2D() ||
-        (*foundVolume)->MaxZ2D() != graph->MaxZ2D() )
+    vector<float> bmin, bmax, vbmin, vbmax;
+    graph->boundingBox2D( bmin, bmax );
+    (*foundVolume)->boundingBox2D( vbmin, vbmax );
+    if( vbmin[0] != bmin[0] ||
+        vbmax[0] != bmax[0] ||
+        vbmin[1] != bmin[1] ||
+        vbmax[1] != bmax[1] ||
+        vbmin[2] != bmin[2] ||
+        vbmax[2] != bmax[2] )
     {
       AWarning("Incompatible bounding box !") ;
       return ;
@@ -2494,7 +2507,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
     theProcessor->execute( cmd2 ) ;
 
     Command	*cmd3 = new SetControlCommand( wins, "PaintControl" ) ;
-    theProcessor->execute( cmd3 ) ;
+    theProcessor->execute( cmd3 );
   }
 }
 
@@ -2739,26 +2752,26 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
       return ;
     }
 
-    if( (*foundVolume)->MinX2D() != loadedObj->MinX2D() ||
-	(*foundVolume)->MinY2D() != loadedObj->MinY2D() ||
-	(*foundVolume)->MinZ2D() != loadedObj->MinZ2D() ||
-	(*foundVolume)->MaxX2D() != loadedObj->MaxX2D() ||
-	(*foundVolume)->MaxY2D() != loadedObj->MaxY2D() ||
-	(*foundVolume)->MaxZ2D() != loadedObj->MaxZ2D() ){
-      AWarning("Incompatible bounding box !") ;
-      cout << "Volume ( " << (*foundVolume)->MinX2D() << " , "
-	   << (*foundVolume)->MinY2D() << " , "
-	   << (*foundVolume)->MinZ2D() << " ) , ( "
-	   << (*foundVolume)->MaxX2D() << " , "
-	   << (*foundVolume)->MaxY2D() << " , "
-	   << (*foundVolume)->MaxZ2D() << " ) " << endl ;
-      cout << "Graph ( " << loadedObj->MinX2D() << " , "
-	   << loadedObj->MinY2D() << " , "
-	   << loadedObj->MinZ2D() << " ) , ( "
-	   << loadedObj->MaxX2D() << " , "
-	   << loadedObj->MaxY2D() << " , "
-	   << loadedObj->MaxZ2D() << " ) " << endl ;
-      return ;
+    vector<float> bmin, bmax, vbmin, vbmax;
+    (*foundVolume)->boundingBox2D( vbmin, vbmax );
+    if( loadedObj->boundingBox2D( bmin, bmax ) )
+    {
+      if( vbmin[0] != bmin[0] ||
+          vbmax[0] != bmax[0] ||
+          vbmin[1] != bmin[1] ||
+          vbmax[1] != bmax[1] ||
+          vbmin[2] != bmin[2] ||
+          vbmax[2] != bmax[2] )
+      {
+        AWarning("Incompatible bounding box !") ;
+        cout << "Volume ( " << vbmin[0] << " , " << vbmin[1] << " , "
+            << vbmin[2] << " ) , ( " << vbmax[0] << " , " << vbmax[1]
+            << " , " << vbmax[2] << " ) " << endl ;
+        cout << "Graph ( " << bmin[0] << " , " << bmin[1] << " , "
+            << bmin[2] << " ) , ( " << bmax[0] << " , " << bmax[1] << " , "
+            << bmax[2] << " ) " << endl ;
+        return ;
+      }
     }
   }
 
@@ -2998,22 +3011,28 @@ RoiManagementAction::deleteRegion( )
   if(!gr)
     return ;
 
-  Bucket * currentRegion = RoiChangeProcessor::instance()->getCurrentRegion(0) ;
-  if(currentRegion){
+  Bucket * currentRegion = RoiChangeProcessor::instance()->getCurrentRegion(0);
+  if(currentRegion)
+  {
     list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> >;
     BucketMap<Void>::Bucket::iterator
       iter( currentRegion->bucket()[0].begin() ),
       last( currentRegion->bucket()[0].end() ) ;
 
-    AimsData<AObject*>& labels( gr->volumeOfLabels() ) ;
-
-    if( labels.dimX() != ( gr->MaxX2D() - gr->MinX2D() + 1 ) ||
-	labels.dimY() != ( gr->MaxY2D() - gr->MinY2D() + 1 ) ||
-	labels.dimZ() != ( gr->MaxZ2D() - gr->MinZ2D() + 1 ) ){
-      gr->clearLabelsVolume() ;
-      gr->setLabelsVolumeDimension( static_cast<int>( gr->MaxX2D() - gr->MinX2D() ) + 1,
-				    static_cast<int>( gr->MaxY2D() - gr->MinY2D() ) + 1,
-				    static_cast<int>( gr->MaxZ2D() - gr->MinZ2D() ) + 1 ) ;
+    AimsData<AObject*>& labels( gr->volumeOfLabels() );
+    vector<float> bmin, bmax, vs;
+    gr->boundingBox2D( bmin, bmax );
+    vs = gr->voxelSize();
+    vector<int> dims( 3 );
+    dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+    if( labels.dimX() != dims[0]
+        || labels.dimY() != dims[1]
+        || labels.dimZ() != dims[2] )
+    {
+      gr->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+      gr->volumeOfLabels(0) ;
     }
 
     AimsData<AObject*>& volOfLabels( gr->volumeOfLabels() ) ;

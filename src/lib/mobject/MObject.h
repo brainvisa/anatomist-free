@@ -269,12 +269,6 @@ namespace anatomist
     virtual float MinT() const;
     virtual float MaxT() const;
 
-    virtual float MinX2D() const;
-    virtual float MinY2D() const;
-    virtual float MinZ2D() const;
-    virtual float MaxX2D() const;
-    virtual float MaxY2D() const;
-    virtual float MaxZ2D() const;
     virtual bool boundingBox2D( std::vector<float> & bmin,
                                 std::vector<float> & bmax ) const;
 

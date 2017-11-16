@@ -93,62 +93,6 @@ float MObject::MaxT() const
 
 //
 
-float MObject::MinX2D() const
-{
-  vector<float> m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return m[0] / voxelSize()[0];
-}
-
-
-float MObject::MinY2D() const
-{
-  vector<float> m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return m[1] / voxelSize()[1];
-}
-
-
-float MObject::MinZ2D() const
-{
-  vector<float> m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return m[2] / voxelSize()[2];
-}
-
-
-float MObject::MaxX2D() const
-{
-  vector<float> m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return M[0] / voxelSize()[0];
-}
-
-
-float MObject::MaxY2D() const
-{
-  vector<float> m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return M[1] / voxelSize()[1];
-}
-
-
-float MObject::MaxZ2D() const
-{
-  vector<float> m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return M[2] / voxelSize()[2];
-}
-
-
-//
-
 void MObject::update( const Observable* o, void* arg )
 {
   // cout << "MObject::update, this: " << this << endl;

@@ -78,17 +78,14 @@ namespace anatomist
     bool textured2D() const { return( true ); }
     bool Is3DObject() { return(false); }
     virtual bool isTransparent() const { return _myvolume->isTransparent(); }
-    float MinX2D() const { return _myvolume->MinX2D(); }
-    float MinY2D() const { return _myvolume->MinY2D(); }
-    float MinZ2D() const { return _myvolume->MinZ2D(); }
-    float MaxX2D() const { return _myvolume->MaxX2D(); }
-    float MaxY2D() const { return _myvolume->MaxY2D(); }
-    float MaxZ2D() const { return _myvolume->MaxZ2D(); }
     float MinT() const { return _myvolume->MinT(); }
     float MaxT() const { return _myvolume->MaxT(); }
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const
     { return _myvolume->boundingBox( bmin, bmax ); }
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const
+    { return _myvolume->boundingBox2D( bmin, bmax ); }
 
     virtual void update( const Observable *observable, void *arg );
 

@@ -1119,27 +1119,7 @@ template<class T>
 bool AVolume<T>::boundingBox2D( vector<float> & bmin,
                                 vector<float> & bmax ) const
 {
-  AObject::boundingBox2D( bmin, bmax );
-
-  vector<int> dims = _volume->getSize();
-  vector<float> vs = _volume->getVoxelSize();
-  int i, n = dims.size(), m = vs.size();
-  float vsi;
-
-  bmin.resize( n );
-  bmax.resize( n );
-
-  for( i=4; i<n; ++i )
-  {
-    if( i < m )
-      vsi = vs[i];
-    else
-      vsi = 1.f;
-    bmin[i] = 0.f;
-    bmax[i] = ( dims[i] - 1 ) * vsi;
-  }
-
-  return true;
+  return boundingBox( bmin, bmax );
 }
 
 

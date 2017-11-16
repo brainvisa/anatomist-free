@@ -120,18 +120,22 @@ RoiLabelNamingAction::addConnecCompToRegion( int x, int y, int, int )
   if (!g) return ;
   
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
+  vector<float> bbmin, bbmax;
+  if( g->boundingBox2D( bbmin, bbmax ) )
+  {
+    vector<float> vs = g->voxelSize();
+    vector<int> dims( 3, 0 );
+    dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
+    if( labels.dimX() !=  dims[0]
+        || labels.dimY() !=  dims[1]
+        || labels.dimZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
-						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
-						     - g->MinZ2D() ) + 1 ) ;
+      g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
     }
+  }
 
   fillRegion( x, y, go, *changes, true, false ) ;
   
@@ -156,20 +160,25 @@ RoiLabelNamingAction::removeConnecCompFromRegion( int x, int y, int, int )
   
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
-  if (!g) return ;
+  if (!g) return;
+
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
+  vector<float> bmin, bmax, vs;
+  if( g->boundingBox2D( bmin, bmax ) )
+  {
+    vs = g->voxelSize();
+    vector<int> dims( 3 );
+    dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+    if( labels.dimX() != dims[0] ||
+        labels.dimY() != dims[1] ||
+        labels.dimZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
-						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
-						     - g->MinZ2D() ) + 1 ) ;
+      g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
     }
+  }
   
   fillRegion( x, y, go, *changes, false, false ) ;
   
@@ -205,19 +214,23 @@ RoiLabelNamingAction::addWholeLabelToRegion( int x, int y, int, int )
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
+  AimsData<AObject*>& labels = g->volumeOfLabels( 0 );
+  vector<float> bmin, bmax;
+  if( g->boundingBox2D( bmin, bmax ) )
+  {
+    vector<float> vs = g->voxelSize();
+    vector<int> dims( 3 );
+    dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+    if( labels.dimX() != dims[0] ||
+        labels.dimY() != dims[1] ||
+        labels.dimZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
-						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
-						     - g->MinZ2D() ) + 1 ) ;
+      g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
     }
+  }
   
   fillRegion( x, y, go, *changes, true, true ) ;
   
@@ -245,19 +258,23 @@ RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
   if (!g) return ;
   
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
+  vector<float> bmin, bmax;
+  if( g->boundingBox2D( bmin, bmax ) )
+  {
+    vector<float> vs = g->voxelSize();
+    vector<int> dims( 3 );
+    dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+    if( labels.dimX() != dims[0] ||
+        labels.dimY() != dims[1] ||
+        labels.dimZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-						     - g->MinX2D() ) + 1, 
-				   static_cast<int>( g->MaxY2D() 
-						     - g->MinY2D() ) + 1,
-				   static_cast<int>( g->MaxZ2D() 
-						     - g->MinZ2D() ) + 1 ) ;
+      g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
     }
-  fillRegion( x, y, go, *changes, false, true ) ;
+  }
+//   fillRegion( x, y, go, *changes, false, true ) ;
   
   if ( ! (*changes).empty() )
     RoiChangeProcessor::instance()->applyChange( changes ) ;
@@ -345,15 +362,16 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
       
       //cout << "P : " << p << endl ;
 
-      
-      Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
+      vector<float> bmin, bmax;
+      g->boundingBox2D( bmin, bmax );
+
+      Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
+                         bmin[1] / voxelSize[1] + 0.5,
+                         bmin[2] / voxelSize[2] + 0.5 );
       AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
-      Point3d pToInt( static_cast<int> ( p[0] +.5 ), 
-		      static_cast<int> ( p[1] +.5 ), 
-		      static_cast<int> ( p[2] +.5 ) ) ;
-      Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ), 
-		   static_cast<int> ( p[1] - vlOffset[1] +.5 ), 
-		   static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
+      Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
+		   static_cast<int>( rint( p[1] - vlOffset[1] ) ),
+		   static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
       
 	
       

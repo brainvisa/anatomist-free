@@ -416,15 +416,27 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
   
   if (!g) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
-    g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
-				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
-				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
-  } else {
-    
+  vector<float> bbmin, bbmax;
+  vector<float> vs = g->voxelSize();
+  vector<int> dims( 3, 1 );
+
+  if( g->boundingBox2D( bbmin, bbmax ) )
+  {
+    dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
+    if( labels.dimX() != dims[0]
+        || labels.dimY() != dims[1]
+        || labels.dimZ() != dims[2] )
+    {
+
+      g->clearLabelsVolume() ;
+      g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+    }
+  }
+  else
+  {
+
     //cout << "item : " << endl ;
     //cout << "\tbefore " << item.before << endl
     //	 << "\tafter " << item.after << endl ;
@@ -486,8 +498,8 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
       
 //       cout << "Position from cursor : (" << x << " , "<< y << ") = " 
 // 	    << pos << endl ;
-      
-      Point3df voxelSize = region->VoxelSize() ;
+
+      vector<float> voxelSize = region->voxelSize();
 
       Point3df normalVector( win->sliceQuaternion().transformInverse(
         Point3df(0., 0., 1.1) ) );
@@ -509,26 +521,37 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
 
       Point3df p ;
       if ( transf )
-	p = Transformation::transform( pos, transf, voxelSize ) ;
+        p = Transformation::transform( pos, transf, Point3df( voxelSize ) ) ;
       else
-	{
-	  p = pos ;
-	  p[0] /= voxelSize[0] ; 
-	  p[1] /= voxelSize[1] ;
-	  p[2] /= voxelSize[2] ;
-	}
-      
+      {
+        p = pos ;
+        p[0] /= voxelSize[0] ;
+        p[1] /= voxelSize[1] ;
+        p[2] /= voxelSize[2] ;
+      }
+
       //cout << "P : " << p << endl ;
 
-      
-      Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
-      Point3d pToInt( static_cast<int> ( p[0] +.5 ), 
-		      static_cast<int> ( p[1] +.5 ), 
-		      static_cast<int> ( p[2] +.5 ) ) ;
-      Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ), 
-		   static_cast<int> ( p[1] - vlOffset[1] +.5 ), 
-		   static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
-      
+      vector<float> bbmin, bbmax;
+      vector<int> dims( 3, 1 );
+
+      if( g->boundingBox2D( bbmin, bbmax ) )
+      {
+        dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / voxelSize[0] ) );
+        dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / voxelSize[1] ) );
+        dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / voxelSize[2] ) );
+      }
+
+      Point3df vlOffset( bbmin[0] / voxelSize[0] + 0.5,
+                         bbmin[1] / voxelSize[1] + 0.5,
+                         bbmin[2] / voxelSize[2] + 0.5 );
+      Point3d pToInt( static_cast<int>(  rint( p[0] ) ),
+                      static_cast<int>( rint( p[1] ) ),
+                      static_cast<int>( rint( p[2] ) ) );
+      Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
+                    static_cast<int>( rint( p[1] - vlOffset[1] ) ),
+                    static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
+
 //       myPreviousSeed = mySeed ;
       mySeed = pVL ;
       mySeedChanged = true ;
