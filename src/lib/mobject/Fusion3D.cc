@@ -469,13 +469,13 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
 
 namespace
 {
-  pair<float,int> _effectiveStep( const Point3df & vs, float estep, 
+  pair<float,int> _effectiveStep( const std::vector<float> & vs, float estep,
                                   float depth )
   {
     // computation of the effective step
-    float vox = vs.item(0);
-    float voy = vs.item(1);
-    float voz = vs.item(2);
+    float vox = vs[0];
+    float voy = vs[1];
+    float voz = vs[2];
     float minvoxsize;
     int i = 1;
 
@@ -507,7 +507,7 @@ namespace
 void Fusion3D::refreshVTextureWithLineToPoint( const ViewState & s, 
                                                unsigned tex ) const
 {
-  pair<float,int>	es = _effectiveStep( (*firstVolume())->VoxelSize(), 
+  pair<float,int>	es = _effectiveStep( (*firstVolume())->voxelSize(),
                                              _step, _depth );
 
   refreshLineTexture( -_depth, _depth, s, tex );
@@ -553,7 +553,7 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
   map<float, unsigned> histo;
   map<float, unsigned>::iterator ih, eh=histo.end();
 
-  Point3df vs = functional->VoxelSize();
+  vector<float> vs = functional->voxelSize();
   BucketMap<Void>::Bucket line;
   BucketMap<Void>::Bucket::iterator iline, eline = line.end();
   float length = fabs( stop_depth - start_deth );
@@ -703,7 +703,7 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
 void Fusion3D::refreshVTextureWithInsideLineToPoint( const ViewState & s, 
                                                      unsigned tex ) const
 {
-  pair<float,int>	es = _effectiveStep( (*firstVolume())->VoxelSize(), 
+  pair<float,int>	es = _effectiveStep( (*firstVolume())->voxelSize(),
                                              _step, _depth );
 
   refreshLineTexture( -_depth, 0, s, tex );
@@ -713,7 +713,7 @@ void Fusion3D::refreshVTextureWithInsideLineToPoint( const ViewState & s,
 void Fusion3D::refreshVTextureWithOutsideLineToPoint( const ViewState & s, 
                                                       unsigned tex ) const
 {
-  pair<float,int>	es = _effectiveStep( (*firstVolume())->VoxelSize(), 
+  pair<float,int>	es = _effectiveStep( (*firstVolume())->voxelSize(),
                                              _step, _depth );
 
   refreshLineTexture( 0, _depth, s, tex );
@@ -743,7 +743,7 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
     = theAnatomist->getTransformation( osurf->getReferential(), 
 				       functional->getReferential() );
 
-  Point3df		vs = functional->VoxelSize();
+  vector<float>		vs = functional->voxelSize();
   pair<float,int>	es = _effectiveStep( vs, _step, _depth );
   int	i = es.second;
   float	estep = es.first;

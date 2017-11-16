@@ -379,7 +379,7 @@ void AVolumeView<T>::setupTransformationFromView()
     tr = new Transformation( ref, avol->AObject::getReferential() );
   AffineTransformation3d & atr = tr->motion();
   atr.setToIdentity();
-  Point3df vs = _myvolume->VoxelSize();
+  vector<float> vs = _myvolume->voxelSize();
   vector<int> size = _myvolume->volume()->getSize();
   _initial_fov = Point3df( size[0] * vs[0], size[1] * vs[1], size[2] * vs[2] );
   Point3df trans( ipos[0] * vs[0], ipos[1] * vs[1], ipos[2] * vs[2] );
@@ -413,20 +413,20 @@ void AVolumeView<T>::setupViewFromTransformation()
                 min( p0[2], p1[2] ) );
   Point3df pmax( max( p0[0], p1[0] ), max( p0[1], p1[1] ),
                  max( p0[2], p1[2] ) );
-  Point3df vs = avol->VoxelSize();
+  vector<float> vs = avol->voxelSize();
 
   Point3df vsize = pmax - pos;
   Point3df target_vs( vsize[0] / _target_size[0], vsize[1] / _target_size[1],
                       vsize[2] / _target_size[2] );
-  cout << "target vs: " << target_vs << endl;
+  cout << "target vs: " << Point3df( target_vs ) << endl;
   int resolution_level = selectBestResolutionLevel( target_vs );
   cout << "selected resolution_level: " << resolution_level << endl;
 
   if( resolution_level != _resolution_level )
   {
     avol = _avolume[resolution_level];
-    vs = avol->VoxelSize();
-    cout << "new vs: " << Point3df( vs[0], vs[1], vs[2] ) << endl;
+    vs = avol->voxelSize();
+    cout << "new vs: " << Point3df( vs ) << endl;
 
     // recalculate position and size in the new ref volume
     Transformation *tr2
@@ -583,7 +583,7 @@ AVolumeView<T>::selectBestResolutionLevel( const Point3df & target_vs ) const
   int level, n = _avolume.size();
   for( level=0; level<n; ++level )
   {
-    Point3df vs = _avolume[level]->VoxelSize();
+    Point3df vs = Point3df( _avolume[level]->voxelSize() );
     Point3df diff = vs - target_vs;
     // make it relative
     diff[0] /= target_vs[0];

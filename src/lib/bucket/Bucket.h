@@ -70,8 +70,8 @@ namespace anatomist
     setSubBucketGeomExtrema( const Point3df& pmin = Point3df(0., 0., 0.), 
                              const Point3df& pmax = Point3df(0., 0., 0.) ) ;
     virtual void setGeomExtrema();
-    virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & vs );
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & vs );
     virtual void setBucketChanged();
     virtual bool hasBucketChanged() const;
     void setBucket( const aims::BucketMap<Void>& theBuck );

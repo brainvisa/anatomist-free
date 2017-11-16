@@ -596,7 +596,7 @@ Point3d
 RoiDynSegmentAction::maskHalfSize( const AObject * vol, int nbIndiv )
 {
   // cas 3D
-  Point3df voxSize( vol->VoxelSize() ) ;
+  vector<float> voxSize( vol->voxelSize() );
   int max, min1, min2 ;
   if( voxSize[0] > voxSize[1] && voxSize[0] > voxSize[2] ){
     max = 0 ; min1 = 1 ; min2 = 2 ;
@@ -644,10 +644,12 @@ RoiDynSegmentAction::pcaRegionGrowth( )
   bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
 
   // the .1 addition is due to some unfortunate rounding
-  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / myCurrentImage->VoxelSize()[0] + .1 ) ;
-  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / myCurrentImage->VoxelSize()[1] + .1 ) ;
-  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / myCurrentImage->VoxelSize()[2] + .1 ) ;
-  
+  vector<float> vs = myCurrentImage->voxelSize();
+
+  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / vs[0] + .1 ) ;
+  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / vs[1] + .1 ) ;
+  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / vs[2] + .1 ) ;
+
   //cout << "Dims = " << dims << endl ;
  
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
@@ -939,12 +941,10 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
   myCurrentImage->boundingBox( bmin, bmax );
 
   // the .1 addition is due to some unfortunate rounding
-  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / 
-                              myCurrentImage->VoxelSize()[0] + .1 ) ;
-  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / 
-                              myCurrentImage->VoxelSize()[1] + .1 ) ;
-  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / 
-                              myCurrentImage->VoxelSize()[2] + .1 ) ;
+  vector<float> vs = myCurrentImage->voxelSize();
+  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / vs[0] + .1 );
+  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / vs[1] + .1 );
+  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / vs[2] + .1 );
   
   AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
   Bucket * currentModifiedRegion = RoiChangeProcessor::instance()->getCurrentRegion( 0 ) ;

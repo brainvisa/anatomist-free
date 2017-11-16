@@ -186,11 +186,13 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
 
       AObject * image = RoiManagementActionSharedData::instance()->
 	getObjectByName( AObject::VOLUME, 
-			 RoiManagementActionSharedData::instance()->
-			 currentImage() ) ;
-      
-      Point3df voxSize = image->VoxelSize() ;
-      float volOfElt = voxSize[0] * voxSize[1] * voxSize[2] ;
+                         RoiManagementActionSharedData::instance()->
+                         currentImage() );
+      if( !image )
+        return;
+
+      vector<float> vs = image->voxelSize();
+      float volOfElt = vs[0] * vs[1] * vs[2] ;
       _blobVolume = RoiLevelSetActionSharedData::instance()->maxSize()  ;
       if( _blobVolume <= 0 )
         _blobVolume = labels.dimX() * labels.dimY() * labels.dimZ() * labels.sizeX() * labels.sizeY() * labels.sizeZ() ;
@@ -200,53 +202,175 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
       float maximum = -10000000. ;
       float val ;
 
-      if( image != 0 )
+      Transformation * transf = theAnatomist->getTransformation( winRef, buckRef ) ;
+      Point3df p ;
+      if ( transf )
+        p = transf->transform( pos );
+      else
+        p = pos;
+      vpos[0] = p[0];
+      vpos[1] = p[1];
+      vpos[2] = p[2];
+
+      vector<float> bmin, bmax;
+      g->boundingBox2D( bmin, bmax );
+
+      Point3df vlOffset( bmin[0] / vs[0] + 0.5,
+                          bmin[1] / vs[1] + 0.5,
+                          bmin[2] / vs[2] + 0.5 );
+
+      Point3d posInt( static_cast<int>( p[0] / vs[0] + 0.5 ),
+                      static_cast<int>( p[1] / vs[1] + 0.5 ), static_cast<int>( p[2] / vs[2] + 0.5 ) ) ;
+      set<Point3d, PointLess> added ;
+      added.insert(posInt) ;
+      Connectivity connec(0, 0, Connectivity::CONNECTIVITY_6_XYZ) ;
+      multimap<float, Point3d> front ;
+      multimap<float, Point3d, More> rfront ;
+      val = image->mixedTexValue( vpos ) ;
+      if( _blobType == BLOB ){
+        rfront.insert( pair<float, Point3d>( val, posInt ) ) ;
+      }else{
+        front.insert( pair<float, Point3d>( val, posInt ) );
+      }
+      Point3d pCurr, neigh ;
+      float threshold = val;
+
+      AimsData<short> finalMap( volOfLabels.dimX(), volOfLabels.dimY(),
+                                volOfLabels.dimZ() ) ;
+      finalMap.setSizeXYZT( volOfLabels.sizeX(), volOfLabels.sizeY(),
+                            volOfLabels.sizeZ(), 1.0 ) ;
+      finalMap(posInt) = 1 ;
+
+      Point3d pMax, pMin ;
+
+      while( ( ( _blobType == BLOB && !rfront.empty() /*&& minimum > percentageOfMax * maximum*/ ) ||
+                ( _blobType != BLOB && !front.empty() /*&& maximum < percentageOfMax * minimum*/ ) )
+            && (added.size() * volOfElt < _blobVolume || _blobVolume < 0 ) )
       {
-        vector<float> vs = image->voxelSize();
-        Transformation * transf = theAnatomist->getTransformation( winRef, buckRef ) ;
-        Point3df p ;
-        if ( transf )
-          p = transf->transform( pos );
-        else
-          p = pos;
-        vpos[0] = p[0];
-        vpos[1] = p[1];
-        vpos[2] = p[2];
+        if( _blobType == BLOB )
+        {
+          if( rfront.empty() )
+            cerr << "map should not be empty !" << endl ;
+          pCurr = rfront.begin()->second ;
+          //cout << "RFront size : " << rfront.size() << endl ;
 
-        vector<float> bmin, bmax;
-        g->boundingBox2D( bmin, bmax );
+          rfront.erase( rfront.begin() ) ;
+        } else {
+          if( front.empty() )
+            cerr << "map should not be empty !" << endl ;
+          pCurr = front.begin()->second ;
 
-        Point3df vlOffset( bmin[0] / vs[0] + 0.5,
-                           bmin[1] / vs[1] + 0.5,
-                           bmin[2] / vs[2] + 0.5 );
-
-        Point3d posInt( static_cast<int>( p[0] / vs[0] + 0.5 ),
-                        static_cast<int>( p[1] / vs[1] + 0.5 ), static_cast<int>( p[2] / vs[2] + 0.5 ) ) ;
-        set<Point3d, PointLess> added ;
-        added.insert(posInt) ;
-        Connectivity connec(0, 0, Connectivity::CONNECTIVITY_6_XYZ) ;
-        multimap<float, Point3d> front ;
-        multimap<float, Point3d, More> rfront ;
-        val = image->mixedTexValue( vpos ) ;
-        if( _blobType == BLOB ){
-          rfront.insert( pair<float, Point3d>( val, posInt ) ) ;
-        }else{
-          front.insert( pair<float, Point3d>( val, posInt ) );
+          //cout << "Front size : " << front.size() << endl ;
+          front.erase( front.begin() ) ;
         }
-        Point3d pCurr, neigh ;
-        float threshold = val;
 
-        AimsData<short> finalMap( volOfLabels.dimX(), volOfLabels.dimY(),
-                                  volOfLabels.dimZ() ) ;
-        finalMap.setSizeXYZT( volOfLabels.sizeX(), volOfLabels.sizeY(),
-                              volOfLabels.sizeZ(), 1.0 ) ;
-        finalMap(posInt) = 1 ;
+        vpos[0] = pCurr[0] * vs[0];
+        vpos[1] = pCurr[1] * vs[1];
+        vpos[2] = pCurr[2] * vs[2];
+        val = image->mixedTexValue( vpos );
 
-        Point3d pMax, pMin ;
+        if( val > maximum ){
+          maximum = val ;
+          pMax = pCurr ;
+        }
+        if( val < minimum ){
+          minimum = val ;
+          pMin = pCurr ;
+        }
 
-        while( ( ( _blobType == BLOB && !rfront.empty() /*&& minimum > percentageOfMax * maximum*/ ) ||
-                  ( _blobType != BLOB && !front.empty() /*&& maximum < percentageOfMax * minimum*/ ) )
-              && (added.size() * volOfElt < _blobVolume || _blobVolume < 0 ) )
+        //cout << "maximum = " << maximum << "\tminimum = " << minimum << endl ;
+        for( int n = 0 ; n < connec.nbNeighbors() ; ++n )
+        {
+          neigh = pCurr + connec.xyzOffset(n) ;
+          if( in( volOfLabels, Point3df(neigh[0], neigh[1], neigh[2]),
+                  vlOffset ) )
+          {
+            vpos[0] = neigh[0] * vs[0];
+            vpos[1] = neigh[1] * vs[1];
+            vpos[2] = neigh[2] * vs[2];
+            float val = image->mixedTexValue( vpos );
+
+            if( _blobType == BLOB )
+            {
+              if( val > threshold && !finalMap(neigh) )
+              {
+                finalMap(neigh) = 1 ;
+                if( PaintActionSharedData::instance()->replaceMode() ||
+                    volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
+                                  (unsigned) rint( neigh[1] - vlOffset[1] ),
+                                  (unsigned) rint( neigh[2] - vlOffset[2] ) ) == 0 )
+                  added.insert(neigh) ;
+
+                rfront.insert( pair<float, Point3d>( val, neigh ) );
+              }
+            }
+            else
+            {
+              if( val < threshold && !finalMap(neigh) )
+              {
+                finalMap(neigh) = 1 ;
+                if( PaintActionSharedData::instance()->replaceMode() ||
+                    volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
+                                  (unsigned) rint( neigh[1] - vlOffset[1] ),
+                                  (unsigned) rint( neigh[2] - vlOffset[2] ) ) == 0 )
+                  added.insert(neigh) ;
+
+                front.insert( pair<float, Point3d>( val, neigh ) );
+              }
+            }
+          }
+        }
+      }
+
+      if( ((!front.empty() || !rfront.empty()) && _blobVolume > 0. )||
+          ( _blobType == BLOB
+            && ( minimum <= percentageOfMax * maximum ||
+                  volOfLabels( (unsigned) rint( pMax[0] - vlOffset[0] ),
+                              (unsigned) rint( pMax[1] - vlOffset[1] ),
+                              (unsigned) rint( pMax[2] - vlOffset[2] ) )
+                    != 0 ) ) ||
+          ( _blobType != BLOB
+            && ( maximum >= percentageOfMax * minimum ||
+                  volOfLabels( (unsigned) rint( pMin[0] - vlOffset[0] ),
+                              (unsigned) rint( pMin[1] - vlOffset[1] ),
+                              (unsigned) rint( pMin[2] - vlOffset[2] ) )
+                    != 0 ) ) )
+      {
+        cerr << "Sorry, you should click nearer from the chosen blob or increase blob size" << endl ;
+        return ;
+      }
+
+      if( _blobVolume > 0. )
+      {
+        set<Point3d, PointLess> frontSet ;
+        for( set<Point3d, PointLess>::iterator itA = added.begin() ; itA != added.end() ; ++itA )
+        {
+          for( int n = 0 ; n < connec.nbNeighbors() ; ++n )
+          {
+            Point3d neigh = *itA + connec.xyzOffset(n) ;
+            if( in( finalMap, Point3df(neigh[0], neigh[1], neigh[2]),
+                    vlOffset ) )
+              if( !finalMap( neigh ) )
+                if( frontSet.find(neigh) == frontSet.end() )
+                {
+                  vpos[0] = neigh[0] * vs[0];
+                  vpos[1] = neigh[1] * vs[1];
+                  vpos[2] = neigh[2] * vs[2];
+                  val = image->mixedTexValue( vpos );
+                  if( _blobType == BLOB && val > maximum * percentageOfMax )
+                    rfront.insert( pair<float, Point3d>( val, neigh ) );
+                  else if( val < minimum * percentageOfMax )
+                    front.insert( pair<float, Point3d>( val, neigh ) );
+
+                  frontSet.insert( neigh );
+                }
+          }
+        }
+
+        //cout << "volume = " << added.size() * volOfElt << endl ;
+        while( added.size() * volOfElt < _blobVolume
+                && ( ( _blobType == BLOB && !rfront.empty() )
+                    || ( _blobType != BLOB && !front.empty() ) ) )
         {
           if( _blobType == BLOB )
           {
@@ -254,13 +378,13 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
               cerr << "map should not be empty !" << endl ;
             pCurr = rfront.begin()->second ;
             //cout << "RFront size : " << rfront.size() << endl ;
-
             rfront.erase( rfront.begin() ) ;
-          } else {
+          }
+          else
+          {
             if( front.empty() )
               cerr << "map should not be empty !" << endl ;
             pCurr = front.begin()->second ;
-
             //cout << "Front size : " << front.size() << endl ;
             front.erase( front.begin() ) ;
           }
@@ -268,190 +392,64 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
           vpos[0] = pCurr[0] * vs[0];
           vpos[1] = pCurr[1] * vs[1];
           vpos[2] = pCurr[2] * vs[2];
-          val = image->mixedTexValue( vpos );
-
-          if( val > maximum ){
+          val = image->mixedTexValue( vpos ) ;
+          if( val > maximum )
             maximum = val ;
-            pMax = pCurr ;
-          }
-          if( val < minimum ){
+          if( val < minimum )
             minimum = val ;
-            pMin = pCurr ;
-          }
 
-          //cout << "maximum = " << maximum << "\tminimum = " << minimum << endl ;
+          // cout << "maximum = " << maximum << "\tminimum = " << minimum << endl ;
+
+          finalMap( pCurr ) = 1 ;
+          added.insert( pCurr ) ;
+
           for( int n = 0 ; n < connec.nbNeighbors() ; ++n )
           {
             neigh = pCurr + connec.xyzOffset(n) ;
+
             if( in( volOfLabels, Point3df(neigh[0], neigh[1], neigh[2]),
-                    vlOffset ) )
-            {
-              vpos[0] = neigh[0] * vs[0];
-              vpos[1] = neigh[1] * vs[1];
-              vpos[2] = neigh[2] * vs[2];
-              float val = image->mixedTexValue( vpos );
-
-              if( _blobType == BLOB )
+                    vlOffset) )
+              if( (PaintActionSharedData::instance()->replaceMode() ||
+                    volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
+                                (unsigned) rint( neigh[1] - vlOffset[1] ),
+                                (unsigned) rint( neigh[2] - vlOffset[2] ) )
+                        == 0)
+                    && !finalMap(neigh) )
               {
-                if( val > threshold && !finalMap(neigh) )
-                {
-                  finalMap(neigh) = 1 ;
-                  if( PaintActionSharedData::instance()->replaceMode() ||
-                      volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
-                                    (unsigned) rint( neigh[1] - vlOffset[1] ),
-                                    (unsigned) rint( neigh[2] - vlOffset[2] ) ) == 0 )
-                    added.insert(neigh) ;
-
-                  rfront.insert( pair<float, Point3d>( val, neigh ) );
-                }
+                vpos[0] = neigh[0] * vs[0];
+                vpos[1] = neigh[1] * vs[1];
+                vpos[2] = neigh[2] * vs[2];
+                val = image->mixedTexValue( vpos );
+                if( _blobType == BLOB && val > maximum * percentageOfMax )
+                  rfront.insert( pair<float, Point3d>( val, neigh ) ) ;
+                else if( val < minimum * percentageOfMax )
+                  front.insert( pair<float, Point3d>( val, neigh ) ) ;
               }
-              else
-              {
-                if( val < threshold && !finalMap(neigh) )
-                {
-                  finalMap(neigh) = 1 ;
-                  if( PaintActionSharedData::instance()->replaceMode() ||
-                      volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
-                                    (unsigned) rint( neigh[1] - vlOffset[1] ),
-                                    (unsigned) rint( neigh[2] - vlOffset[2] ) ) == 0 )
-                    added.insert(neigh) ;
-
-                  front.insert( pair<float, Point3d>( val, neigh ) );
-                }
-              }
-            }
           }
         }
-
-        if( ((!front.empty() || !rfront.empty()) && _blobVolume > 0. )||
-            ( _blobType == BLOB
-              && ( minimum <= percentageOfMax * maximum ||
-                    volOfLabels( (unsigned) rint( pMax[0] - vlOffset[0] ),
-                                (unsigned) rint( pMax[1] - vlOffset[1] ),
-                                (unsigned) rint( pMax[2] - vlOffset[2] ) )
-                      != 0 ) ) ||
-            ( _blobType != BLOB
-              && ( maximum >= percentageOfMax * minimum ||
-                    volOfLabels( (unsigned) rint( pMin[0] - vlOffset[0] ),
-                                (unsigned) rint( pMin[1] - vlOffset[1] ),
-                                (unsigned) rint( pMin[2] - vlOffset[2] ) )
-                      != 0 ) ) )
-        {
-          cerr << "Sorry, you should click nearer from the chosen blob or increase blob size" << endl ;
-          return ;
-        }
-
-        if( _blobVolume > 0. )
-        {
-          set<Point3d, PointLess> frontSet ;
-          for( set<Point3d, PointLess>::iterator itA = added.begin() ; itA != added.end() ; ++itA )
-          {
-            for( int n = 0 ; n < connec.nbNeighbors() ; ++n )
-            {
-              Point3d neigh = *itA + connec.xyzOffset(n) ;
-              if( in( finalMap, Point3df(neigh[0], neigh[1], neigh[2]),
-                      vlOffset ) )
-                if( !finalMap( neigh ) )
-                  if( frontSet.find(neigh) == frontSet.end() )
-                  {
-                    vpos[0] = neigh[0] * vs[0];
-                    vpos[1] = neigh[1] * vs[1];
-                    vpos[2] = neigh[2] * vs[2];
-                    val = image->mixedTexValue( vpos );
-                    if( _blobType == BLOB && val > maximum * percentageOfMax )
-                      rfront.insert( pair<float, Point3d>( val, neigh ) );
-                    else if( val < minimum * percentageOfMax )
-                      front.insert( pair<float, Point3d>( val, neigh ) );
-
-                    frontSet.insert( neigh );
-                  }
-            }
-          }
-
-          //cout << "volume = " << added.size() * volOfElt << endl ;
-          while( added.size() * volOfElt < _blobVolume
-                  && ( ( _blobType == BLOB && !rfront.empty() )
-                      || ( _blobType != BLOB && !front.empty() ) ) )
-          {
-            if( _blobType == BLOB )
-            {
-              if( rfront.empty() )
-                cerr << "map should not be empty !" << endl ;
-              pCurr = rfront.begin()->second ;
-              //cout << "RFront size : " << rfront.size() << endl ;
-              rfront.erase( rfront.begin() ) ;
-            }
-            else
-            {
-              if( front.empty() )
-                cerr << "map should not be empty !" << endl ;
-              pCurr = front.begin()->second ;
-              //cout << "Front size : " << front.size() << endl ;
-              front.erase( front.begin() ) ;
-            }
-
-            vpos[0] = pCurr[0] * vs[0];
-            vpos[1] = pCurr[1] * vs[1];
-            vpos[2] = pCurr[2] * vs[2];
-            val = image->mixedTexValue( vpos ) ;
-            if( val > maximum )
-              maximum = val ;
-            if( val < minimum )
-              minimum = val ;
-
-            // cout << "maximum = " << maximum << "\tminimum = " << minimum << endl ;
-
-            finalMap( pCurr ) = 1 ;
-            added.insert( pCurr ) ;
-
-            for( int n = 0 ; n < connec.nbNeighbors() ; ++n )
-            {
-              neigh = pCurr + connec.xyzOffset(n) ;
-
-              if( in( volOfLabels, Point3df(neigh[0], neigh[1], neigh[2]),
-                      vlOffset) )
-                if( (PaintActionSharedData::instance()->replaceMode() ||
-                      volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
-                                  (unsigned) rint( neigh[1] - vlOffset[1] ),
-                                  (unsigned) rint( neigh[2] - vlOffset[2] ) )
-                          == 0)
-                      && !finalMap(neigh) )
-                {
-                  vpos[0] = neigh[0] * vs[0];
-                  vpos[1] = neigh[1] * vs[1];
-                  vpos[2] = neigh[2] * vs[2];
-                  val = image->mixedTexValue( vpos );
-                  if( _blobType == BLOB && val > maximum * percentageOfMax )
-                    rfront.insert( pair<float, Point3d>( val, neigh ) ) ;
-                  else if( val < minimum * percentageOfMax )
-                    front.insert( pair<float, Point3d>( val, neigh ) ) ;
-                }
-            }
-          }
-        }
-        for( set<Point3d>::iterator it = added.begin() ; it != added.end() ; ++it )
-        {
-          ChangesItem item ;
-          item.before
-            = volOfLabels( (unsigned) rint( (*it)[0] - vlOffset[0] ),
-                            (unsigned) rint( (*it)[1] - vlOffset[1] ),
-                            (unsigned) rint( (*it)[2] - vlOffset[2] ) );
-          item.after = grao;
-
-          currentChanges->push_back(pair<Point3d, ChangesItem>( *it, item ) );
-        }
-
-        RoiChangeProcessor::instance()->applyChange( currentChanges ) ;
-
-        cout << "Segmented blob volume : " << added.size() * volOfElt ;
-        if( _blobType == BLOB )
-          cout << "\tMinimum value segmented (in percentage of maximum value) : "
-                << minimum / maximum * 100 << " %" << endl ;
-        else
-          cout << "\tMaximum value segmented (in percentage of minimum value) : "
-                << maximum / minimum * 100 << " %"<< endl ;
-
       }
+      for( set<Point3d>::iterator it = added.begin() ; it != added.end() ; ++it )
+      {
+        ChangesItem item ;
+        item.before
+          = volOfLabels( (unsigned) rint( (*it)[0] - vlOffset[0] ),
+                          (unsigned) rint( (*it)[1] - vlOffset[1] ),
+                          (unsigned) rint( (*it)[2] - vlOffset[2] ) );
+        item.after = grao;
+
+        currentChanges->push_back(pair<Point3d, ChangesItem>( *it, item ) );
+      }
+
+      RoiChangeProcessor::instance()->applyChange( currentChanges ) ;
+
+      cout << "Segmented blob volume : " << added.size() * volOfElt ;
+      if( _blobType == BLOB )
+        cout << "\tMinimum value segmented (in percentage of maximum value) : "
+              << minimum / maximum * 100 << " %" << endl ;
+      else
+        cout << "\tMaximum value segmented (in percentage of minimum value) : "
+              << maximum / minimum * 100 << " %"<< endl ;
+
     }
 }
 

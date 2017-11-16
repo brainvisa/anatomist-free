@@ -65,7 +65,7 @@ namespace anatomist
     AObject* functional() const 
     { const_iterator i = begin(); ++i; return *i; }
     virtual int MType() const { return( AObject::FUSION2D ); }
-    virtual Point3df VoxelSize() const;
+    virtual std::vector<float> voxelSize() const;
     virtual std::vector<float> glVoxelSize() const;
     virtual std::vector<float> glMin2D() const;
     virtual std::vector<float> glMax2D() const;

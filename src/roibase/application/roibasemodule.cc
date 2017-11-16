@@ -471,9 +471,9 @@ AGraphObject* RoiBaseModule::newRegion( AGraph* gra, const string & regionName,
     {
       bck = new Bucket ;
 
-      bck->setVoxelSize( gra->VoxelSize() ) ;
+      bck->setVoxelSize( gra->voxelSize() ) ;
       bck->setName( theAnatomist->makeObjectName( regionName ).c_str() );
-      bck->setVoxelSize( gra->VoxelSize() ) ;
+      bck->setVoxelSize( gra->voxelSize() ) ;
       bck->setReferentialInheritance( ago );
 
       // Temporaire
@@ -514,7 +514,7 @@ AGraph* RoiBaseModule::newGraph( AObject* o, const string & roiName,
 
   agr->setName( theAnatomist->makeObjectName( roiName ) );
   theAnatomist->registerObject( agr );
-  agr->setVoxelSize( o->VoxelSize() );
+  agr->setVoxelSize( o->voxelSize() );
   agr->setReferential( o->getReferential() );
 
   gr->setProperty( syntax + "_VERSION", string( "1.0" ) );

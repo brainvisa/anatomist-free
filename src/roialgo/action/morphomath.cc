@@ -376,7 +376,7 @@ RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   
   AimsData<int16_t> * binMask = new AimsData<int16_t>( labels.dimX(), labels.dimY(), labels.dimZ(), 1, 1 );
-  binMask->setSizeXYZT( g->VoxelSize()[0], g->VoxelSize()[1], g->VoxelSize()[2], 1.0 ) ;
+  binMask->setSizeXYZT( vs[0], vs[1], vs[2], 1.0 );
 
   if(!go)
     return 0 ;

@@ -415,7 +415,6 @@ void QAProfileWindow::refreshNow()
 
   QAWindow::refreshNow();
 
-  Point3df vs;
   Point3df thePos;
   Referential *ref = getReferential();
 
@@ -455,7 +454,6 @@ void QAProfileWindow::refreshNow()
         thePos = tra->transform( pos0 );
       else
         thePos = pos0;
-      vs = (*it)->VoxelSize();
       Point4df increment;
       Point3df inc3;
       if( tra )
@@ -471,9 +469,6 @@ void QAProfileWindow::refreshNow()
       {
         increment = incw;
       }
-      /* thePos[0] /= vs[0];
-      thePos[1] /= vs[1];
-      thePos[2] /= vs[2]; */
       if ( pprof.find( *it ) != pprof.end() )  delete[] pprof[ *it ];
       cout << "doit...\n";
       pprof[ *it ] = profS->doit( *it, thePos, _timepos[0], pmin, pdim,

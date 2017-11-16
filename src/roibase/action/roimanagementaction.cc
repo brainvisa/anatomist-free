@@ -1808,11 +1808,12 @@ RoiManagementAction::regionStats( )
 {
   // UNUSED: AGraph * graph = RoiChangeProcessor::instance()->getGraph(0) ;
   Bucket * currentRegion = RoiChangeProcessor::instance()->getCurrentRegion(0) ;
-  if( currentRegion ){
-     Point3df voxSize = currentRegion->VoxelSize() ;
-     cout << "Graph : " << _sharedData->myCurrentGraph << endl << "Region : "
-	  << _sharedData->myRegionName << "\tVolume = "
-	  << currentRegion->bucket()[0].size()*voxSize[0]*voxSize[1]*voxSize[2] << endl ;
+  if( currentRegion )
+  {
+    vector<float> voxSize = currentRegion->voxelSize();
+    cout << "Graph : " << _sharedData->myCurrentGraph << endl << "Region : "
+        << _sharedData->myRegionName << "\tVolume = "
+        << currentRegion->bucket()[0].size()*voxSize[0]*voxSize[1]*voxSize[2] << endl ;
   }
 
 }
@@ -2469,17 +2470,16 @@ RoiManagementAction::newGraph( const string& /* name */ )
 
   if ( foundGraph == last && foundVolume != last)
   {
-    if( fabs( (*foundVolume)->VoxelSize()[0] - graph->VoxelSize()[0] )
-        > .000001 ||
-        fabs( (*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] )
-        > .000001 ||
-        fabs( (*foundVolume)->VoxelSize()[1] - graph->VoxelSize()[1] )
-        > .000001 )
+    vector<float> vs = (*foundVolume)->voxelSize(), gvs = graph->voxelSize();
+    if( fabs( vs[0] - gvs[0] ) / vs[0] > .0001 ||
+        fabs( vs[1] - gvs[1] ) / vs[1] > .0001 ||
+        fabs( vs[2] - gvs[2] ) / vs[2] > .0001 )
     {
       AWarning("Incompatible voxel size !") ;
       cout << "Image Voxel Size - Graph Voxel Size = "
-           << (*foundVolume)->VoxelSize() - graph->VoxelSize() << endl ;
-      return ;
+           << Point3df( (*foundVolume)->voxelSize() )
+              - Point3df( graph->voxelSize() ) << endl;
+      return;
     }
 
     vector<float> bmin, bmax, vbmin, vbmax;
@@ -2742,14 +2742,18 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
   if( foundVolume == last && obj2d != last )
     foundVolume = obj2d;
 
-  if ( foundGraph == last && foundVolume != last){
-    if( (*foundVolume)->VoxelSize()[0] - loadedObj->VoxelSize()[0] > .000001 ||
-	(*foundVolume)->VoxelSize()[1] - loadedObj->VoxelSize()[1] > .000001 ||
-	(*foundVolume)->VoxelSize()[1] - loadedObj->VoxelSize()[1] > .000001 ){
+  if ( foundGraph == last && foundVolume != last)
+  {
+    vector<float> vs = (*foundVolume)->voxelSize(),
+      lvs = loadedObj->voxelSize();
+    if( ( vs[0] - lvs[0] ) / vs[0] > .0001 ||
+        ( vs[1] - lvs[1] ) / vs[1] > .0001 ||
+        ( vs[2] - lvs[2] ) / vs[2] > .0001 )
+    {
       AWarning("Incompatible voxel size !") ;
       cout << "Image Voxel Size - Graph Voxel Size = "
-	   << (*foundVolume)->VoxelSize() - loadedObj->VoxelSize() << endl ;
-      return ;
+           << Point3df( vs ) - Point3df( lvs ) << endl;
+      return;
     }
 
     vector<float> bmin, bmax, vbmin, vbmax;

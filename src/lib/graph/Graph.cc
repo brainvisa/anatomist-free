@@ -585,9 +585,9 @@ namespace
     vector<float>	vs;
     Graph		*g = ag->graph();
     if( g->getProperty( "voxel_size", vs ) && vs.size() >= 3 )
-      ag->setVoxelSize( Point3df( vs[0], vs[1], vs[2] ) );
+      ag->setVoxelSize( vs );
     else
-      ag->setVoxelSize( Point3df( 1., 1., 1. ) );
+      ag->setVoxelSize( vector<float>( 3, 1.f ) );
 
     g->setProperty( "ana_object",
                     shared_ptr<AObject>( shared_ptr<AObject>::Weak, ag ) );
@@ -1127,10 +1127,9 @@ void AGraph::SetMaterial( const Material & mat )
 }
 
 
-void AGraph::setVoxelSize( const Point3df & vs )
+void AGraph::setVoxelSize( const vector<float> & vs )
 {
-  d->voxelSize = vs.toStdVector();
-
+  d->voxelSize = vs;
   d->graph->setProperty( "voxel_size", d->voxelSize );
 }
 

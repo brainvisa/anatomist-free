@@ -1064,7 +1064,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     // cout << "Position from cursor : (" << x << " , "<< y << ") = "
     //   << pos << endl ;
 
-    Point3df voxelSize = region->VoxelSize() ;
+    Point3df voxelSize = Point3df( region->voxelSize() );
 
     Point3df normalVector( win->sliceQuaternion().
                            transformInverse(Point3df(0., 0., 1.) ) );
@@ -1138,7 +1138,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
                   volumeOfLabels.dimZ() );
     if( in( dims, pVL ) )
     {
-      Point3df vs = _sharedData->myCurrentImage->VoxelSize();
+      vector<float> vs = _sharedData->myCurrentImage->voxelSize();
       // mixedTexValue is in mm, not in voxels.
       vpos[0] = pVL[0] * vs[0];
       vpos[1] = pVL[1] * vs[1];

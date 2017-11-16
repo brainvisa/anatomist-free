@@ -545,7 +545,7 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 
   // handle geometry and bounds
 
-  Point3df	vs = vol->VoxelSize();
+  vector<float>	vs = vol->voxelSize();
 
   // we must select geometry in the volume local referential
   // (code copied from Window3D::updateWindowGeometry() )

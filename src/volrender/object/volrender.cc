@@ -1013,7 +1013,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   if( !d->shader )
     return false;
 
-  Point3df vs = VoxelSize();
+  vector<float> vs = voxelSize();
   const SliceViewState  *svs = state.sliceVS();
 
   float sV = 1.; //data.volume().ratio();

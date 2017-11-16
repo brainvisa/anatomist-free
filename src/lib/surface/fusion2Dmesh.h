@@ -88,7 +88,7 @@ namespace anatomist
     virtual const Referential * getReferential() const;
     virtual void SetMaterial( const Material & );
     virtual Material & GetMaterial();
-    virtual void setVoxelSize( const Point3df & );
+    virtual void setVoxelSize( const std::vector<float> & );
     virtual std::vector<float> voxelSize() const;
     virtual bool boundingBox2D( std::vector<float> & bmin,
                                 std::vector<float> & bmax ) const

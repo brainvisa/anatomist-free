@@ -686,7 +686,7 @@ PaintAction::paintStart(int x, int y, int globalX, int globalY)
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> >;
 
   _sharedData->myDeltaModifications
-    ->setVoxelSize(_sharedData->myCurrentModifiedRegion->VoxelSize());
+    ->setVoxelSize(_sharedData->myCurrentModifiedRegion->voxelSize());
   _sharedData->myDeltaModifications
     ->setReferential(_sharedData->myCurrentModifiedRegion->getReferential());
   _sharedData->myDeltaModifications->GetMaterial().SetDiffuse
@@ -784,7 +784,7 @@ PaintAction::paint(int x, int y, int, int)
       /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
       (_sharedData->myDeltaModifications->bucket())[0],
       (*_sharedData->myCurrentChanges),
-      _sharedData->myCurrentModifiedRegion->VoxelSize(),
+      Point3df( _sharedData->myCurrentModifiedRegion->voxelSize() ),
       _sharedData->myLineMode,
       _sharedData->myReplaceMode, _sharedData->myMmMode);
 
@@ -837,7 +837,7 @@ PaintAction::eraseStart(int x, int y, int globalX, int globalY)
 
   _sharedData->myDeltaModifications->bucket().clear();
   _sharedData->myDeltaModifications
-    ->setVoxelSize(_sharedData->myCurrentModifiedRegion->VoxelSize());
+    ->setVoxelSize(_sharedData->myCurrentModifiedRegion->voxelSize());
   _sharedData->myDeltaModifications->GetMaterial().SetDiffuse
     (1., 1., 1., 0.3);
 
@@ -917,7 +917,7 @@ PaintAction::erase(int x, int y, int, int)
       pos = pos - normalVector;
 
       //Bucket * temp = new Bucket();
-      //temp->setVoxelSize(_sharedData->myCurrentModifiedRegion->VoxelSize());
+      //temp->setVoxelSize(_sharedData->myCurrentModifiedRegion->voxelSize());
       AGraph *g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
 
       vector<float> bmin, bmax, vs;
@@ -939,7 +939,7 @@ PaintAction::erase(int x, int y, int, int)
         //(temp->bucket())[0],
         (_sharedData->myDeltaModifications->bucket())[0],
         (*_sharedData->myCurrentChanges),
-        _sharedData->myCurrentModifiedRegion->VoxelSize(),
+        Point3df( _sharedData->myCurrentModifiedRegion->voxelSize() ),
         _sharedData->myLineMode,
         _sharedData->myReplaceMode, _sharedData->myMmMode);
       _sharedData->myIsChangeValidated = false;
@@ -988,7 +988,7 @@ PaintAction::clearRegion()
 
   _sharedData->myDeltaModifications->bucket()[0].clear();
   _sharedData->myDeltaModifications
-    ->setVoxelSize(_sharedData->myCurrentModifiedRegion->VoxelSize());
+    ->setVoxelSize(_sharedData->myCurrentModifiedRegion->voxelSize());
   _sharedData->myDeltaModifications
     ->setReferential(_sharedData->myCurrentModifiedRegion->getReferential());
 
@@ -1368,7 +1368,7 @@ PaintAction::fill(int x, int y, int, int)
                         view()->aWindow());
 
       Point3df voxelSize (
-            _sharedData->myCurrentModifiedRegion->VoxelSize());
+            _sharedData->myCurrentModifiedRegion->voxelSize());
       Transformation * transf = theAnatomist->getTransformation(
                                     winRef, buckRef);
 
@@ -2227,7 +2227,7 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
 
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> >;
 
-  Point3df voxelSize = _sharedData->myCurrentModifiedRegion->VoxelSize();
+  Point3df voxelSize( _sharedData->myCurrentModifiedRegion->voxelSize() );
 
   RoiChangeProcessor::instance()->setRedoable(false);
 
@@ -2435,7 +2435,7 @@ void PaintAction::updateCursor()
   if(_sharedData->myCursorShapeChanged)
   {
     _sharedData->myCursorShapeChanged = false;
-    _sharedData->myCursor->setVoxelSize(region->VoxelSize());
+    _sharedData->myCursor->setVoxelSize(region->voxelSize());
     _sharedData->myCursor->bucket().clear();
 
     list< pair< Point3d, ChangesItem> > changes;
@@ -2453,7 +2453,7 @@ void PaintAction::updateCursor()
                  bmin[1] / vs[1] + 0.5,
                  bmin[2] / vs[2] + 0.5 ),
         (_sharedData->myCursor->bucket())[0],
-        changes, region->VoxelSize(),
+        changes, Point3df( region->voxelSize() ),
         false, true, _sharedData->myMmMode);
     _sharedData->myCursor->setBucketChanged();
     _sharedData->myCursor->setGeomExtrema();
@@ -2465,7 +2465,7 @@ void PaintAction::updateCursor()
   {
     tr = new Transformation(buckRef, ref /*, true ? */);
   }
-  Point3df vs = region->VoxelSize();
+  vector<float> vs = region->voxelSize();
   Point3df pos(_sharedData->myCursorPos);
   Transformation *tr2 = theAnatomist->getTransformation(winRef, buckRef);
   if(tr2)

@@ -449,7 +449,7 @@ RoiChangeProcessor::updateCurrentRegion( AWindow * win )
 
 //   cout << "Bucket Name : " << myCurrentModifiedRegion->name() 
 //        << "\t id : " << myCurrentModifiedRegion->id() << " Vox Size : " 
-//        << myCurrentModifiedRegion->VoxelSize() << endl ;
+//        << Point3df( myCurrentModifiedRegion->voxelSize() ) << endl ;
   
   // It will never be a null pointer, but verify anyway
   if ( myCurrentRegion == 0 )

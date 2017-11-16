@@ -73,7 +73,8 @@ namespace anatomist
     virtual void setFileName( const std::string & fname );
     virtual void SetExtrema();
     virtual void adjustPalette();
-    virtual Point3df VoxelSize() const { return _myvolume->VoxelSize(); }
+    virtual std::vector<float> voxelSize() const
+    { return _myvolume->voxelSize(); }
     bool Is2DObject() { return(true); }
     bool textured2D() const { return( true ); }
     bool Is3DObject() { return(false); }

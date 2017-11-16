@@ -875,7 +875,7 @@ void Bucket::meshSubBucket( const vector<pair<
   // y0 walls for each x
   int		*row = new int[ dimx ];
   unsigned	i, n, nv = ivec.size();
-  Point3df	vs = VoxelSize();
+  Point3df	vs = Point3df( voxelSize() );
   BucketMap<Void>::Bucket::const_iterator	ibi, iend;
   // prevy, prevz are the coordinates of before-last row of voxels
   int		prevy = -1, prevz = -1;
@@ -1243,7 +1243,7 @@ Bucket::meshPlane( const SliceViewState & state ) const
   const BucketMap<Void>::Bucket			& listB = (*ib).second;
   BucketMap<Void>::Bucket::const_iterator	it,ite;
   float		dis;
-  Point3df	vs = VoxelSize(), p;
+  Point3df	vs = Point3df( voxelSize() ), p;
   Point3df      direction = state.orientation->transformInverse(
     Point3df( 0, 0, 1 ) );
   Point3df	posr;
@@ -1419,7 +1419,7 @@ void Bucket::setBucket( rc_ptr<BucketMap<Void> > bck )
 }
 
 
-void Bucket::setVoxelSize( const Point3df & vs )
+void Bucket::setVoxelSize( const vector<float> & vs )
 {
   //cout << "\tBucket : " << this << endl << "Vox Size : " << vs << endl ;
 
@@ -1430,11 +1430,15 @@ void Bucket::setVoxelSize( const Point3df & vs )
 }
 
 
-Point3df Bucket::VoxelSize() const
+vector<float> Bucket::voxelSize() const
 {
   //cout << "\tBucket : " << this << endl ;
+  vector<float> vs( 4, 1. );
+  vs[0] = _bucket->sizeX();
+  vs[1] = _bucket->sizeY();
+  vs[2] = _bucket->sizeZ();
 
-  return( Point3df( _bucket->sizeX(), _bucket->sizeY(), _bucket->sizeZ() ) );
+  return vs;
 }
 
 

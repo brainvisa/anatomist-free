@@ -960,7 +960,8 @@ namespace
         cout << ' ';
       cout << obj->name() << " : ";
       pos = anatomist::Transformation::transform( wpos, wref,
-          obj->getReferential(), Point3df(1, 1, 1), obj->VoxelSize() );
+          obj->getReferential(), Point3df(1, 1, 1),
+          Point3df( obj->voxelSize() ) );
       fpos[0] = pos[0];
       fpos[1] = pos[1];
       fpos[2] = pos[2];
@@ -2176,7 +2177,6 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
         float wf = 1.5;
         theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
-        Point3df vs = o->VoxelSize();
         vector<float> mo, Mo;
         switch (viewType())
         {
@@ -2406,16 +2406,16 @@ Geometry AWindow3D::setupWindowGeometry(
 
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
-  Point3df size, s2, vst, vs, p, dmin, dmax;
-  vector<float> pmin, pmax;
+  Point3df p, dmin, dmax;
+  vector<float> pmin, pmax, size, s2, vst;
   Point4dl dimMin, dimMax;
   Referential *oref;
   AObject *o;
   anatomist::Transformation *tr;
   Point3df u, v, w;
 
-  size = Point3df(1, 1, 1);
-  vst = Point3df(1, 1, 1);
+  size = vector<float>( 3, 1.f );
+  vst = vector<float>( 3, 1.f );
   dimMin = Point4dl(0, 0, 0, 0);
   dimMax = Point4dl(1, 1, 1, 0);
 
@@ -2444,7 +2444,7 @@ Geometry AWindow3D::setupWindowGeometry(
 
     if( with3d || o->Is2DObject() )
     {
-      vs = s2 = o->VoxelSize();
+      s2 = o->voxelSize();
       //cout << "Object " << o->name() << ", vs : " << vs << endl;
 
       tr = 0;
@@ -2468,10 +2468,12 @@ Geometry AWindow3D::setupWindowGeometry(
       w = slicequat.transformInverse(w);
       //cout << "base : " << u << endl << v << endl << w << endl;
 
-      s2 = Point3df(1. / max(max(fabs(u[0] / s2[0]), fabs(u[1] / s2[1])), fabs(
-          u[2] / s2[2])), 1. / max(max(fabs(v[0] / s2[0]), fabs(v[1] / s2[1])),
-          fabs(v[2] / s2[2])), 1. / max(max(fabs(w[0] / s2[0]), fabs(w[1]
-          / s2[1])), fabs(w[2] / s2[2])));
+      s2[0] = 1. / max( max( fabs(u[0] / s2[0] ), fabs( u[1] / s2[1] ) ),
+                        fabs( u[2] / s2[2] ) );
+      s2[1] = 1. / max( max( fabs(v[0] / s2[0]), fabs( v[1] / s2[1] ) ),
+                        fabs(v[2] / s2[2] ) );
+      s2[3] = 1. / max( max( fabs(w[0] / s2[0]), fabs( w[1] / s2[1] ) ),
+                        fabs( w[2] / s2[2] ) );
 
       // check extrema
 
@@ -2603,7 +2605,7 @@ Geometry AWindow3D::setupWindowGeometry(
     dimMax[2] = dimMin[2] + dimmax;
   }
 
-  return Geometry(size, dimMin, dimMax);
+  return Geometry( Point3df(size), dimMin, dimMax );
 }
 
 namespace

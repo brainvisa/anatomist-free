@@ -962,7 +962,6 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
     cerr << "GLComponent::glMakeBodyGLL : step 4 error: "
         << gluErrorString(status) << endl;
 
-  Point3df vs = VoxelSize();
   const SliceViewState  *svs = state.sliceVS();
 
   float tx = (float) d->dimx;

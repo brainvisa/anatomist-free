@@ -73,8 +73,8 @@ namespace anatomist
     virtual const Referential * getReferential() const;
     virtual void SetMaterial( const Material & );
     virtual Material & GetMaterial();
-    virtual void setVoxelSize( const Point3df & );
-    virtual Point3df VoxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & );
+    virtual std::vector<float> voxelSize() const;
     virtual std::vector<float> glVoxelSize() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
     virtual AObjectPalette* palette();

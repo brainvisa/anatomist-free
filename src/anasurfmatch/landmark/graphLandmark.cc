@@ -160,14 +160,14 @@ GraphLandmarkPicker::~GraphLandmarkPicker()
     return;
   AObject	*o = *obj.begin();
 
-  Point3df	vs = o->VoxelSize();
+  vector<float>	vs = o->voxelSize();
   Graph		*gr = new Graph( "RoiArg" );
   AGraph	*agr = new AGraph( gr, "landmarks", false );
   vector<int>	bb;
 
   agr->setName( theAnatomist->makeObjectName( "LandmarkGraph" ) );
   theAnatomist->registerObject( agr );
-  agr->setVoxelSize( o->VoxelSize() );
+  agr->setVoxelSize( o->voxelSize() );
   bb.push_back( 0 );
   bb.push_back( 0 );
   bb.push_back( 0 );
@@ -285,7 +285,7 @@ void GraphLandmarkPicker::createLandmark( const Point3df & pt )
 {
   vector<int>	bbmi, bbma;
   Graph		*gr = _graph->graph();
-  Point3df	vs = _graph->VoxelSize();
+  vector<float>	vs = _graph->voxelSize();
   Point3d	pi = Point3d( (short) ( pt[0] / vs[0] + 0.5 ), 
 			      (short) ( pt[1] / vs[1] + 0.5 ), 
 			      (short) ( pt[2] / vs[2] + 0.5 ) );

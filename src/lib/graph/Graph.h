@@ -152,7 +152,7 @@ namespace anatomist
     void setLabelProperty( const std::string & prop );
 
     virtual std::vector<float> voxelSize() const;
-    virtual void setVoxelSize( const Point3df & vs );
+    virtual void setVoxelSize( const std::vector<float> & vs );
     void clearLabelsVolume();
     void setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz );
     void setLabelsVolumeDimension( const Point3d & vd );

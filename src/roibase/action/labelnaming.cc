@@ -329,7 +329,7 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
       // cout << "Position from cursor : (" << x << " , "<< y << ") = " 
       //   << pos << endl ;
 
-      Point3df voxelSize = region->VoxelSize() ;
+      Point3df voxelSize = Point3df( region->voxelSize() );
 
       Point3df normalVector( win->sliceQuaternion().
                             transformInverse(Point3df(0., 0., 1.) ) ) ;

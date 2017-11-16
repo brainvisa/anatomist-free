@@ -733,46 +733,32 @@ Tree* Fusion2D::optionTree() const
 }
 
 
-Point3df Fusion2D::VoxelSize() const
+vector<float> Fusion2D::voxelSize() const
 {
-  Point3df			vs, vs2;
+  vector<float>			vs, vs2;
   datatype::const_iterator	io, fo=_data.end();
 
   io = _data.begin();
-  vs = (*io)->VoxelSize();
+  vs = (*io)->voxelSize();
+  size_t i, n, d = vs.size();
 
   for( ++io; io!=fo; ++io )
-    {
-      vs2 = (*io)->VoxelSize();
-      if( vs2[0] < vs[0] )
-	vs[0] = vs2[0];
-      if( vs2[1] < vs[1] )
-	vs[1] = vs2[1];
-      if( vs2[2] < vs[2] )
-	vs[2] = vs2[2];
-    }
-  return( vs );
+  {
+    vs2 = (*io)->voxelSize();
+    for( i=0, n=std::min(d, vs2.size()); i<n; ++i )
+      if( vs2[i] < vs[i] )
+        vs[i] = vs2[i];
+    for( n=vs2.size(); i<n; ++i )
+      vs.push_back( vs2[i] );
+    d = vs.size();
+  }
+  return vs;
 }
 
 
 vector<float> Fusion2D::glVoxelSize() const
 {
-  vector<float> vs, vs2;
-  datatype::const_iterator io, fo=_data.end();
-
-  io = _data.begin();
-  vs = (*io)->voxelSize();
-  unsigned i, n;
-
-  for( ++io; io!=fo; ++io )
-  {
-    vs2 = (*io)->voxelSize();
-    for( i=0, n=std::min( vs.size(), vs2.size() ); i<n; ++i )
-      if( vs2[i] < vs[i] )
-        vs[i] = vs2[i];
-  }
-
-  return vs;
+  return voxelSize();
 }
 
 

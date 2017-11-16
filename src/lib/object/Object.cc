@@ -287,27 +287,9 @@ float AObject::TimeStep() const
 }
 
 
-Point3df AObject::VoxelSize() const
-{
-  vector<float> vs = voxelSize();
-  return Point3df( vs[0], vs[1], vs[2] );
-}
-
-
 vector<float> AObject::voxelSize() const
 {
   return vector<float>( 4, 1. );
-}
-
-
-void AObject::setVoxelSize( const Point3df & vs )
-{
-  vector<float> vvs( 4, 1. );
-  vvs[0] = vs[0];
-  vvs[1] = vs[1];
-  vvs[2] = vs[2];
-  vvs[3] = TimeStep();
-  setVoxelSize( vvs );
 }
 
 

@@ -97,7 +97,7 @@ const Material * Fusion2DMesh::glMaterial() const
 }
 
 //--------------------------------------------------------------
-void Fusion2DMesh::setVoxelSize( const Point3df & voxelSize )
+void Fusion2DMesh::setVoxelSize( const vector<float> & voxelSize )
 {
   _voxelSize[0] = voxelSize[0];
   _voxelSize[1] = voxelSize[1];

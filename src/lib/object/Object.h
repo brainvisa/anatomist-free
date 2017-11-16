@@ -88,7 +88,6 @@ namespace anatomist
      TODO:
      remove:
      MinT(), MaxT()
-     VoxelSize()
      TimeStep() ?
    */
 
@@ -203,10 +202,8 @@ namespace anatomist
     virtual bool render( PrimList &, const ViewState & );
     ///	Time quantification interval
     float TimeStep() const;
-    ///	For 3D objects, returns (1, 1, 1)
-    virtual Point3df VoxelSize() const;
+    /// Returns at least 4 sizes. For 3D objects, returns (1, 1, 1, 1)
     virtual std::vector<float> voxelSize() const;
-    virtual void setVoxelSize( const Point3df & );
     virtual void setVoxelSize( const std::vector<float> & ) {}
     /**	Updates the state of the object.
 	(when a part has changed and other parts depend on this change). 

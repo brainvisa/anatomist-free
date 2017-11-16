@@ -254,7 +254,7 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
   props.bsize = bmax - bmin;
 //   float size = bsize[0] * bsize[1] * bsize[2];
   props.size = 2.; // ellipsoid going through the corner of the bbox
-  Point3df vs = agraph->VoxelSize();
+  vector<float> vs = agraph->voxelSize();
   list<rc_ptr<AObject> > objects;
   AimsTimeSurface<2, Void> *lines = new AimsTimeSurface<2, Void>;
   AWindow *win = view()->aWindow();

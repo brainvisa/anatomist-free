@@ -469,7 +469,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
   AimsRGBA empty = coltraits.color( iempty );
 
   //	image
-  Point3df	vs = VoxelSize(), gs = wingeom->Size();
+  Point3df	vs = Point3df( voxelSize() ), gs = wingeom->Size();
   int		x, y;
   AimsRGBA	*pdat = (AimsRGBA *) image.data;
   T		val = 0;
@@ -669,7 +669,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   long	dx, dxx, dy;		// Dimensions du volume
   long	dslice;			// Taille d'une coupe
 
-  Point3df vs = VoxelSize();
+  vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
                                rint( pf0[1] / vs[1] ),
                                rint( pf0[2] / vs[2] ) );
@@ -769,10 +769,10 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   long	dx, dxx, dz;		// Dimensions du volume
   long	dline;			// Taille d'une ligne
 
-  Point3df vs = VoxelSize();
+  vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
-			       rint( pf0[1] / vs[1] ),
-			       rint( pf0[2] / vs[2] ) );
+                               rint( pf0[1] / vs[1] ),
+                               rint( pf0[2] / vs[2] ) );
   int	yy = (int) p0[1];
 
   ColorTraits<T>	coltraits( getOrCreatePalette(), 
@@ -867,7 +867,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   // cout << "UpdateSagittal simple, pf0 : " << pf0 << "\n";
   long	dyy, dy, dz;		// Dimensions du volume
 
-  Point3df vs = VoxelSize();
+  vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
                                rint( pf0[1] / vs[1] ),
                                rint( pf0[2] / vs[2] ) );
@@ -1239,7 +1239,8 @@ bool AVolume<T>::printTalairachCoord( const Point3df & pos,
   vector<float>	origin;
   Point3df	rpos 
     = Transformation::transform( pos, ref, getReferential(), 
-				 Point3df( 1, 1, 1 ), VoxelSize() );
+                                 Point3df( 1, 1, 1 ),
+                                 Point3df( voxelSize() ) );
 
   const PropertySet & ph = _volume->header();
   try

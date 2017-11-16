@@ -336,27 +336,23 @@ GLComponent* VectorField::glAPI()
 }
 
 //--------------------------------------------------------------
-void VectorField::setVoxelSize( const Point3df & voxelSize )
+void VectorField::setVoxelSize( const vector<float> & voxelSize )
 {
   (*begin())->setVoxelSize( voxelSize );
 }
 
 //--------------------------------------------------------------
-Point3df VectorField::VoxelSize() const
+vector<float> VectorField::voxelSize() const
 {
-  return (*begin())->VoxelSize();
+  // FIXME TOTO take axes changes into account
+  return (*begin())->voxelSize();
 }
 
 //--------------------------------------------------------------
 vector<float>  VectorField::glVoxelSize() const
 {
   // FIXME TOTO take axes changes into account
-  vector<float> vs( 4, 1. );
-  Point3df vsp = (*begin())->VoxelSize();
-  vs[0] = vsp[0];
-  vs[1] = vsp[1];
-  vs[2] = vsp[2];
-  return vs;
+  return voxelSize();
 }
 
 //--------------------------------------------------------------
@@ -556,7 +552,7 @@ void VectorField::buildMesh( const ViewState & state )
   if( dir1.norm2() < 1.e-6 )
     dir1 = dir1 = vectProduct( norm, Point3df( 0., 0., 1. ) );
   Point3df dir2 = vectProduct( norm, dir1 / dir1.norm() );
-  Point3df vs = VoxelSize();
+  vector<float> vs = voxelSize();
   dir1.normalize();
   dir2.normalize();
 
