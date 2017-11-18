@@ -91,7 +91,7 @@ ExportTextureCommand::doit()
     {
       tmin = _object->MinT();
       tmax = _object->MaxT();
-      intv = _object->TimeStep();
+      intv = _object->voxelSize()[3];
     }
   else
     {

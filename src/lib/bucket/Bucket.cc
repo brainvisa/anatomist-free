@@ -1338,7 +1338,8 @@ const AimsSurface<4, Void>* Bucket::surface( const ViewState & state ) const
     }
   else
     {
-      size_t t = createFacet( (size_t) rint( state.timedims[0] / TimeStep() ) );
+      size_t t = createFacet( (size_t) rint(
+        state.timedims[0] / voxelSize()[3] ) );
       if( !d->surface )
         return 0;
       AimsSurfaceFacet::const_iterator	i = d->surface->find( t );

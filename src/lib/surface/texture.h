@@ -71,11 +71,9 @@ namespace anatomist
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( false ); }
 
-    virtual float MinT() const { return( MinT3D() ); }
-    virtual float MaxT() const { return( MaxT3D() ); }
-    virtual float MinT3D() const;
-    virtual float MaxT3D() const;
     virtual unsigned dimTexture() const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
 
     virtual AObject* objectAt( const std::vector<float> &, float = 0 )
     { return 0 ; }

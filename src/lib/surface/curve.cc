@@ -78,7 +78,7 @@ const vector<CurveType>* ACurve::curveOfTime( float time ) const
   if( d->curve.empty() )
     return( 0 );
 
-  unsigned	t = (unsigned) ( time / TimeStep() );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] );
   Bundle::const_iterator	is = d->curve.lower_bound( t );
 
   if( is == d->curve.end() )
@@ -89,7 +89,7 @@ const vector<CurveType>* ACurve::curveOfTime( float time ) const
 
 vector<CurveType>* ACurve::curveOfTime( float time )
 {
-  unsigned	t = (unsigned) ( time / TimeStep() );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] );
 
   if( d->curve.empty() )
     return( &(*d->curve)[t] );
@@ -134,7 +134,7 @@ float ACurve::MaxT() const
 {
   if( d->curve.empty() )
     return( 0. );
-  return( TimeStep() * (*d->curve.rbegin()).first );
+  return( voxelSize()[3] * (*d->curve.rbegin()).first );
 }
 
 
@@ -142,7 +142,7 @@ float ACurve::MinT() const
 {
   if(d->curve.empty() )
     return( 0. );
-  return( TimeStep() * (*d->curve.begin()).first );
+  return( voxelSize()[3] * (*d->curve.begin()).first );
 }
 
 
@@ -345,12 +345,12 @@ float ACurve::actualTime( float time ) const
   if( !d->curve )
     return( 0 );
 
-  unsigned	t = (unsigned) ( time / TimeStep() );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] );
   map<unsigned, CurveType>::const_iterator	is = d->curve.lower_bound( t );
 
   if( is == d->curve.end() )
     is = d->curve.begin();
-  return( is->first * TimeStep() );
+  return( is->first * voxelSize()[3] );
 }
 
 

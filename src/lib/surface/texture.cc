@@ -473,28 +473,28 @@ namespace anatomist
 
 unsigned ATexture::size( float time ) const
 {
-  size_t	t = (size_t) ( time / TimeStep() + 0.5 );
+  size_t	t = (size_t) ( time / voxelSize()[3] + 0.5 );
 
   switch( d->dim )
+  {
+  case 1:
     {
-    case 1:
-      {
-	const Texture1d	*tex = (const Texture1d *) d->data;
-	Texture1d::const_iterator it = tex->find( t );
-	return( it == tex->end() ? 0 : it->second.nItem() );
-      }
-      break;
-    case 2:
-      {
-	const Texture2d	*tex = (const Texture2d *) d->data;
-	Texture2d::const_iterator it = tex->find( t );
-	return( it == tex->end() ? 0 : it->second.nItem() );
-      }
-      break;
-    default:
-      return( 0 );
-      break;
+      const Texture1d	*tex = (const Texture1d *) d->data;
+      Texture1d::const_iterator it = tex->find( t );
+      return( it == tex->end() ? 0 : it->second.nItem() );
     }
+    break;
+  case 2:
+    {
+      const Texture2d	*tex = (const Texture2d *) d->data;
+      Texture2d::const_iterator it = tex->find( t );
+      return( it == tex->end() ? 0 : it->second.nItem() );
+    }
+    break;
+  default:
+    return( 0 );
+    break;
+  }
 }
 
 
@@ -721,41 +721,41 @@ void ATexture::setTexExtrema()
 
 const float* ATexture::textureCoords( float time ) const
 {
-  unsigned	t = (unsigned) ( time / TimeStep() + 0.5 );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] + 0.5 );
   const float	*texval = 0;
 
   //  cout << "ATexture::textureCoords, time " << t << endl;
 
   switch( d->dim )
+  {
+  case 1:
     {
-    case 1:
-      {
-	Texture1d	*tex = (Texture1d *) d->data;
-	Texture1d::const_iterator	it = tex->lower_bound( t );
+      Texture1d	*tex = (Texture1d *) d->data;
+      Texture1d::const_iterator	it = tex->lower_bound( t );
 
-	if( it == tex->end() )
-	  {
-	    //cout << "time not found\n";
-	    texval = &tex->rbegin()->second.item(0);
-	  }
-	else
-	  texval = &it->second.item(0);
-      }
-      break;
-    case 2:
-      {
-	Texture2d	*tex = (Texture2d *) d->data;
-	Texture2d::const_iterator	it = tex->lower_bound( t );
-
-	if( it == tex->end() )
-	  texval = (float *) &tex->rbegin()->second.item(0);
-	else
-	  texval = (float *) &it->second.item(0);
-      }
-      break;
-    default:
-      break;
+      if( it == tex->end() )
+        {
+          //cout << "time not found\n";
+          texval = &tex->rbegin()->second.item(0);
+        }
+      else
+        texval = &it->second.item(0);
     }
+    break;
+  case 2:
+    {
+      Texture2d	*tex = (Texture2d *) d->data;
+      Texture2d::const_iterator	it = tex->lower_bound( t );
+
+      if( it == tex->end() )
+        texval = (float *) &tex->rbegin()->second.item(0);
+      else
+        texval = (float *) &it->second.item(0);
+    }
+    break;
+  default:
+    break;
+  }
 
   //cout << "texval : " << texval << endl;
   return( texval );
@@ -796,99 +796,82 @@ unsigned ATexture::glTexCoordSize( const ViewState &, unsigned ) const
 
 float ATexture::textureTime( float time ) const
 {
-  unsigned	t = (unsigned) ( time / TimeStep() + 0.5 );
+  float timestep = voxelSize()[3];
+  unsigned	t = (unsigned) ( time / timestep + 0.5 );
 
   //  cout << "ATexture::textureCoords, time " << t << endl;
 
   switch( d->dim )
+  {
+  case 1:
     {
-    case 1:
-      {
-	Texture1d			*tex = (Texture1d *) d->data;
-	Texture1d::const_iterator	it = tex->lower_bound( t );
+      Texture1d			*tex = (Texture1d *) d->data;
+      Texture1d::const_iterator	it = tex->lower_bound( t );
 
-	if( it == tex->end() )
-	  {
-	    cout << "time not found\n";
-	    it = tex->begin();
-	  }
+      if( it == tex->end() )
+        {
+          cout << "time not found\n";
+          it = tex->begin();
+        }
 
-	return( TimeStep() * (*it).first );
-      }
-      break;
-    case 2:
-      {
-	Texture2d			*tex = (Texture2d *) d->data;
-	Texture2d::const_iterator	it = tex->lower_bound( t );
-
-	if( it == tex->end() )
-	  {
-	    it = tex->begin();
-	  }
-
-	return( TimeStep() * (*it).first );
-      }
-      break;
-    default:
-      return( 0 );
-      break;
+      return( timestep * (*it).first );
     }
+    break;
+  case 2:
+    {
+      Texture2d			*tex = (Texture2d *) d->data;
+      Texture2d::const_iterator	it = tex->lower_bound( t );
+
+      if( it == tex->end() )
+        {
+          it = tex->begin();
+        }
+
+      return( timestep * (*it).first );
+    }
+    break;
+  default:
+    return( 0 );
+    break;
+  }
 }
 
 
-float ATexture::MinT3D() const
+bool ATexture::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
-  unsigned	t = 0;
+  bmin = vector<float>( 4, 0.f );
+  bmax = vector<float>( 4, 0.f );
+  float ts = voxelSize()[3], tm = 0.f, tM = 0.f;
 
   switch( d->dim )
+  {
+  case 1:
     {
-    case 1:
+      Texture1d	*tex = (Texture1d *) d->data;
+      if( tex->size() != 0 )
       {
-	Texture1d	*tex = (Texture1d *) d->data;
-	if( tex->size() != 0 )
-	  t = (*tex->begin()).first;
+        tm = (*tex->begin()).first;
+        tM = (*tex->rbegin()).first;
       }
-      break;
-    case 2:
-      {
-	Texture2d	*tex = (Texture2d *) d->data;
-	if( tex->size() != 0 )
-	  t = (*tex->begin()).first;
-      }
-      break;
-    default:
-      break;
     }
-
-  return( TimeStep() * t );
-}
-
-
-float ATexture::MaxT3D() const
-{
-  unsigned	t = 0;
-
-  switch( d->dim )
+    break;
+  case 2:
     {
-    case 1:
+      Texture2d	*tex = (Texture2d *) d->data;
+      if( tex->size() != 0 )
       {
-	Texture1d	*tex = (Texture1d *) d->data;
-	if( tex->size() != 0 )
-	  t = (*tex->rbegin()).first;
+        tm = (*tex->begin()).first;
+        tM = (*tex->rbegin()).first;
       }
-      break;
-    case 2:
-      {
-	Texture2d	*tex = (Texture2d *) d->data;
-	if( tex->size() != 0 )
-	  t = (*tex->rbegin()).first;
-      }
-      break;
-    default:
-      break;
     }
+    break;
+  default:
+    break;
+  }
+  bmin[3] = tm * ts;
+  bmax[3] = tM * ts;
 
-  return( TimeStep() * t );
+  return false;
 }
 
 

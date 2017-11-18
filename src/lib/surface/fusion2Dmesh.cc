@@ -46,7 +46,7 @@ using namespace std;
 Fusion2DMesh::Fusion2DMesh( const vector<AObject *> & obj )
     : ObjectVector(), Sliceable(),
       _mergedSurface(0),
-      _voxelSize( 3, 1. )
+      _voxelSize( 4, 1. )
 {
   _type = AObject::FUSION2DMESH;
 
@@ -87,32 +87,27 @@ Fusion2DMesh::Fusion2DMesh( const vector<AObject *> & obj )
 //--------------------------------------------------------------
 Fusion2DMesh::~Fusion2DMesh()
 {
-	delete _mergedSurface;
+  delete _mergedSurface;
 }
 
 //--------------------------------------------------------------
 const Material * Fusion2DMesh::glMaterial() const
 {
-	return &AObject::material();
+  return &AObject::material();
 }
 
 //--------------------------------------------------------------
 void Fusion2DMesh::setVoxelSize( const vector<float> & voxelSize )
 {
-  _voxelSize[0] = voxelSize[0];
-  _voxelSize[1] = voxelSize[1];
-  _voxelSize[2] = voxelSize[2];
+  _voxelSize = voxelSize;
+  while( _voxelSize.size() < 4 )
+    _voxelSize.push_back( 1. );
 }
 
 //--------------------------------------------------------------
 vector<float> Fusion2DMesh::voxelSize() const
 {
-  vector<float> vs( 4, 1. );
-  vs[0] = _voxelSize[0];
-  vs[1] = _voxelSize[1];
-  vs[2] = _voxelSize[2];
-  vs[3] = TimeStep();
-  return vs;
+  return _voxelSize;
 }
 
 
@@ -146,7 +141,7 @@ void Fusion2DMesh::updateMergedSurface( const ViewState & state )
       time = 0;
     else if( time > (*io)->MaxT() )
       time = (*io)->MaxT();
-    int timestep = int( rint( time / (*io)->TimeStep() ) );
+    int timestep = int( rint( time / (*io)->voxelSize()[3] ) );
 
     // Cut the mesh with the current plane
     aims::SurfaceManip::cutMesh( *mesh, plane, pol, timestep );

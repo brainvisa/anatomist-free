@@ -88,7 +88,6 @@ namespace anatomist
      TODO:
      remove:
      MinT(), MaxT()
-     TimeStep() ?
    */
 
   /**	 Base Anatomist object (abstract)
@@ -177,7 +176,7 @@ namespace anatomist
 
     /** Bounding box in 2D views mode. In mm, may be the same as boundingBox()
         if the object field of view is the same in 3D and 2D modes.
-        It normally inccludes voxels size ( for a volume, bmin will be -vs/2
+        It normally inccludes voxels size (for a volume, bmin will be -vs/2
         where vs is the voxel size, for the 3 first coordinates).
 
         The default implementation just calls boundingBox().
@@ -191,7 +190,14 @@ namespace anatomist
         Changed in Anatomist 4.6. The older API was using Point3df instead of
         vectord and informed only the spatial dimensions.
 
-        \return	true if object has a bounding box */
+        An object with no spatial information (a texture for instance) may
+        still have time information. For this reason, the resulting bounding
+        box should always have 4 components (at least), then 4th and additional
+        ones should be valid, even if the function returns false (no spatial
+        bounding box).
+
+        \return true if object has a "spatial" bounding box (x, y, z coordinates)
+    */
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
 
@@ -200,8 +206,6 @@ namespace anatomist
         done and this method should be overloaded.
     */
     virtual bool render( PrimList &, const ViewState & );
-    ///	Time quantification interval
-    float TimeStep() const;
     /// Returns at least 4 sizes. For 3D objects, returns (1, 1, 1, 1)
     virtual std::vector<float> voxelSize() const;
     virtual void setVoxelSize( const std::vector<float> & ) {}

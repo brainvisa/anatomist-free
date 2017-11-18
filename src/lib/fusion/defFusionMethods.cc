@@ -201,10 +201,10 @@ int FusionTextureMethod::canFusion( const set<AObject *> & obj )
   if( !t2 || t2->dimTexture() != 1 )
     return 0;
   if( t1->MinT() != t2->MinT() || t1->MaxT() != t2->MaxT()
-      || t1->TimeStep() != t2->TimeStep() )
+      || t1->voxelSize()[3] != t2->voxelSize()[3] )
     return 0;
 
-  float	t, te, it = t1->TimeStep();
+  float	t, te, it = t1->voxelSize()[3];
   for( t=t1->MinT(), te=t1->MaxT(); t<=te; t+=it )
     if( t1->size( t ) != t2->size( t ) )
       return 0;
@@ -232,7 +232,7 @@ AObject* FusionTextureMethod::fusion( const vector<AObject *> & obj )
   ATexture				*t2 = dynamic_cast<ATexture *>( *io );
   rc_ptr<Texture2d>			tex( new Texture2d );
 
-  float		t, te, it = t1->TimeStep();
+  float		t, te, it = t1->voxelSize()[3];
   size_t	s;
   const float	*tc1, *tc2;
   size_t	i = 0, j;

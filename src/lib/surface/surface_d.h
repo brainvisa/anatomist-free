@@ -152,7 +152,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return 0;
 
-    unsigned	t = (unsigned) ( time / TimeStep() );
+    unsigned	t = (unsigned) ( time / voxelSize()[3] );
     typename TimeSurfaceType::const_iterator is = _surface->lower_bound( t );
 
     if( is == _surface->end() )
@@ -170,7 +170,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return 0;
 
-    unsigned	t = (unsigned) ( time / TimeStep() );
+    unsigned	t = (unsigned) ( time / voxelSize()[3] );
 
     if( _surface->empty() )
       return( &(*_surface)[t] );
@@ -219,7 +219,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   {
     if( !_surface || _surface->size() == 0 )
       return( 0. );
-    return( TimeStep() * (*_surface->rbegin()).first );
+    return( voxelSize()[3] * (*_surface->rbegin()).first );
   }
 
 
@@ -228,7 +228,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   {
     if( !_surface || _surface->size() == 0 )
       return( 0. );
-    return( TimeStep() * (*_surface->begin()).first );
+    return( voxelSize()[3] * (*_surface->begin()).first );
   }
 
 
@@ -517,8 +517,9 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     }
     else
     {
-      bmin[3] = _surface->begin()->first * TimeStep();
-      bmax[3] = _surface->rbegin()->first * TimeStep();
+      float timestep = voxelSize()[3];
+      bmin[3] = _surface->begin()->first * timestep;
+      bmax[3] = _surface->rbegin()->first * timestep;
     }
     return true;
   }
@@ -530,12 +531,13 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return( 0 );
 
-    unsigned	t = (unsigned) ( time / TimeStep() );
+    float ts = voxelSize()[3];
+    unsigned	t = (unsigned) ( time / ts );
     typename TimeSurfaceType::const_iterator is = _surface->lower_bound( t );
 
     if( is == _surface->end() )
       is = _surface->begin();
-    return( is->first * TimeStep() );
+    return( is->first * ts );
   }
 
 

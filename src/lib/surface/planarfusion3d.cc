@@ -358,7 +358,8 @@ unsigned PlanarFusion3D::glTexCoordSize( const ViewState & state,
   refreshTexCoords( state );
 
   const AObject	*functional = volume();
-  unsigned	t = (unsigned) (state.timedims[0] / functional->TimeStep() );
+  unsigned	t = (unsigned) ( state.timedims[0]
+                                 / functional->voxelSize()[3] );
   map<unsigned, vector<Point2df> >::const_iterator it = d->vtexture.find( t );
 
   if( it == d->vtexture.end() )
@@ -377,7 +378,8 @@ const GLfloat* PlanarFusion3D::glTexCoordArray( const ViewState & state,
   refreshTexCoords( state );
 
   const AObject	*functional = volume();
-  unsigned	t = (unsigned) (state.timedims[0] / functional->TimeStep() );
+  unsigned	t = (unsigned) ( state.timedims[0]
+                                 / functional->voxelSize()[3] );
   map<unsigned, vector<Point2df> >::const_iterator it = d->vtexture.find( t );
 
   if( it == d->vtexture.end() )
@@ -426,7 +428,7 @@ bool PlanarFusion3D::boundingBox( vector<float> & bmin,
 bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 {
   const AObject	*vol = volume();
-  unsigned	time = (unsigned) (state.timedims[0] / vol->TimeStep() );
+  unsigned	time = (unsigned) (state.timedims[0] / vol->voxelSize()[3] );
 
   if( d->refreshVTexture )
     d->vtexture.clear();

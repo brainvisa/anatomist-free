@@ -242,7 +242,7 @@ const GLfloat* AInterpoler::glTexCoordArray( const ViewState & s,
                                              unsigned tex ) const
 {
   const_cast<AInterpoler *>( this )->refreshTexCoordArray( s );
-  unsigned step = (unsigned) ( s.timedims[0] / TimeStep() );
+  unsigned step = (unsigned) ( s.timedims[0] / voxelSize()[3] );
   return &d->texCoords[ step ][ tex ][0];
 }
 
@@ -266,7 +266,7 @@ void AInterpoler::refreshTexCoordArray( const ViewState & state )
     d->texCoords.clear();
     }
 
-  unsigned step = (unsigned) ( state.timedims[0] / TimeStep() );
+  unsigned step = (unsigned) ( state.timedims[0] / voxelSize()[3] );
   unsigned			tex, ntex = texSurf()->glNumTextures( state );
   vector<Private::CoordVec>	& cvec = d->texCoords[ step ];
 

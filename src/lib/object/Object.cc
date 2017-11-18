@@ -281,15 +281,9 @@ bool AObject::render( PrimList & prim, const ViewState & vs )
 }
 
 
-float AObject::TimeStep() const
-{
-  return 1.;
-}
-
-
 vector<float> AObject::voxelSize() const
 {
-  return vector<float>( 4, 1. );
+  return vector<float>( 4, 1.f );
 }
 
 
