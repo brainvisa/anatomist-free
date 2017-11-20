@@ -113,6 +113,8 @@ namespace
   bool loadVolume( Process & p, const string & fname, Finder & f );
   template<>
   bool loadVolume<AimsHSV>( Process & p, const string & fname, Finder & f );
+  template<>
+  bool loadVolume<Point3df>( Process & p, const string & fname, Finder & f );
   template<class T>
   bool loadData( T & obj, const string & fname, Finder & f, Object options );
   template<long D>
@@ -193,6 +195,8 @@ namespace
             registerProcessType( "Volume", "RGBA", &loadVolume<AimsRGBA> );
           if( !restr || types.find( "HSV" ) != eir )
             registerProcessType( "Volume", "HSV", &loadVolume<AimsHSV> );
+          if( !restr || types.find( "POINT3DF" ) != eir )
+            registerProcessType( "Volume", "POINT3DF", &loadVolume<Point3df> );
         }
 
       r2 = restr && !restricted->hasProperty( "Segments" );
@@ -373,6 +377,41 @@ namespace
     delete vref_tmp;
     AVolume<AimsRGB>  *vol = new AVolume<AimsRGB>( fname.c_str() /*, type*/ );
     vol->setVolume( vref2 );
+    ap.object = vol;
+    vol->setFileName( fname );
+    vol->SetExtrema();
+    vol->adjustPalette();
+    return true;
+  }
+
+  template<>
+  bool loadVolume<Point3df>( Process & p, const string & fname, Finder & f )
+  {
+    AimsLoader  & ap = (AimsLoader &) p;
+    VolumeRef<Point3df> vref;
+    if( !loadData( vref, fname, f, ap.options ) )
+    {
+      return false;
+    }
+
+    VolumeRef<float> avol( vref->getSizeX(), vref->getSizeY(), vref->getSizeZ(),
+                           3 );
+    avol->copyHeaderFrom( vref->header() );
+
+    int x, y, z, dx = vref->getSizeX(), dy = vref->getSizeY(),
+      dz = vref->getSizeZ();
+    for( z=0; z<dz; ++z )
+      for( y=0; y<dy; ++y )
+        for( x=0; x<dx; ++x )
+        {
+          const Point3df & p = vref->at( x, y, z );
+          avol->at( x, y, z, 0 ) = p[0];
+          avol->at( x, y, z, 1 ) = p[1];
+          avol->at( x, y, z, 2 ) = p[2];
+        }
+
+    AVolume<float>  *vol = new AVolume<float>( fname.c_str() /*, type*/ );
+    vol->setVolume( avol );
     ap.object = vol;
     vol->setFileName( fname );
     vol->SetExtrema();
@@ -1561,6 +1600,7 @@ namespace
       sotypes.insert( "carto_volume of DOUBLE" );
       sotypes.insert( "carto_volume of RGB" );
       sotypes.insert( "carto_volume of RGBA" );
+      sotypes.insert( "carto_volume of POINT3DF" );
     }
     else
       sotypes.insert( aimstype );
