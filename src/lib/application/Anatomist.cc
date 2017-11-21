@@ -230,7 +230,7 @@ struct Anatomist::Anatomist_privateData
   string		allFilesFilter;
   Referential		*centralRef;
   int			userLevel;
-  Point3df		lastpos;
+  vector<float>		lastpos;
   mutable Referential	*lastref;
   bool                  destroying;
   Mutex                 objectsLock;
@@ -248,7 +248,7 @@ ReferentialWindow* Anatomist::Anatomist_privateData::referentialWindow = 0;
 Anatomist::Anatomist_privateData::Anatomist_privateData()
   : historyW( new CommandWriter ), paletteList( 0 ),
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
-    userLevel( 0 ), lastpos( 0, 0, 0 ),
+    userLevel( 0 ), lastpos( 4, 0. ),
     lastref( 0 ), destroying( false ), objectsLock( Mutex::Recursive ),
     qWidgetAncestor( 0 ), argc( 0 ), argv( 0 )
 {
@@ -1365,19 +1365,61 @@ void Anatomist::setUserLevel( int x )
 
 void Anatomist::setLastPosition( const Point3df & pos, Referential* fromref )
 {
-  _privData->lastpos = pos;
+  _privData->lastpos[0] = pos[0];
+  _privData->lastpos[1] = pos[1];
+  _privData->lastpos[2] = pos[2];
   _privData->lastref = fromref;
   // try to go to a more persistent referential
   if( fromref )
+  {
+    Transformation *t = ATransformSet::instance()->transformation
+      ( fromref, centralReferential() );
+    if( t )
     {
-      Transformation *t = ATransformSet::instance()->transformation
-	( fromref, centralReferential() );
-      if( t )
-	{
-	  _privData->lastpos = t->transform( pos );
-	  _privData->lastref = centralReferential();
-	}
+      Point3df tpos = t->transform( pos );
+      _privData->lastpos[0] = tpos[0];
+      _privData->lastpos[1] = tpos[1];
+      _privData->lastpos[2] = tpos[2];
+      _privData->lastref = centralReferential();
     }
+  }
+}
+
+
+void Anatomist::setLastPosition( const vector<float> & pos,
+                                 Referential* fromref )
+{
+  // try to go to a more persistent referential
+  Transformation *t = 0;
+  if( fromref )
+  {
+    Transformation *t = ATransformSet::instance()->transformation
+      ( fromref, centralReferential() );
+    if( t )
+    {
+      Point3df tpos( pos[0], pos[1], pos[2] );
+      tpos = t->transform( tpos );
+      _privData->lastpos[0] = tpos[0];
+      _privData->lastpos[1] = tpos[1];
+      _privData->lastpos[2] = tpos[2];
+      _privData->lastref = centralReferential();
+    }
+  }
+  if( !t )
+  {
+    _privData->lastpos[0] = pos[0];
+    _privData->lastpos[1] = pos[1];
+    _privData->lastpos[2] = pos[2];
+    _privData->lastref = centralReferential();
+  }
+  if( pos.size() > 3 )
+  {
+    _privData->lastpos.resize( 3 );
+    _privData->lastpos.reserve( pos.size() );
+    unsigned i, n = pos.size();
+    for( i=3; i<n; ++i )
+      _privData->lastpos.push_back( pos[i] );
+  }
 }
 
 
@@ -1387,9 +1429,37 @@ Point3df Anatomist::lastPosition( const Referential* toref ) const
       && _privData->anaRef.find( _privData->lastref )
          == _privData->anaRef.end() )
     _privData->lastref = 0;
-  return Transformation::transform( _privData->lastpos, _privData->lastref, 
-				    toref, Point3df( 1, 1, 1 ), 
-				    Point3df( 1, 1, 1 ) );
+  return Transformation::transform(
+    Point3df( _privData->lastpos[0], _privData->lastpos[1],
+              _privData->lastpos[2] ),
+    _privData->lastref, toref, Point3df( 1, 1, 1 ), Point3df( 1, 1, 1 ) );
+}
+
+
+vector<float> Anatomist::lastFullPosition( const Referential* toref ) const
+{
+  vector<float> pos = _privData->lastpos;
+  if( _privData->lastref
+      && _privData->anaRef.find( _privData->lastref )
+         == _privData->anaRef.end() )
+    _privData->lastref = 0;
+  Referential *ref = _privData->lastref;
+  if( !ref )
+    ref = centralReferential();
+  const Referential *dref = toref;
+  if( !dref )
+    dref = centralReferential();
+  Transformation *t = ATransformSet::instance()->transformation( ref, dref );
+  if( t )
+  {
+    Point3df pt( pos[0], pos[1], pos[2] );
+    pt = t->transform( pt );
+    pos[0] = pt[0];
+    pos[1] = pt[1];
+    pos[2] = pt[2];
+  }
+
+  return pos;
 }
 
 

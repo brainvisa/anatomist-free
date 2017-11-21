@@ -502,7 +502,7 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       cout << "create Texture temp" << endl;
 
-      float it = at->TimeStep();
+      float it = at->voxelSize()[3];
       int tn = 0; // 1st texture
       GLComponent::TexExtrema & te = at->glTexExtrema(tn);
       int tx = 0; // 1st tex coord
@@ -1001,7 +1001,7 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
   if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect)
       && objtype == "TEXTURED SURF.")
   {
-    float it = at->TimeStep();
+    float it = at->voxelSize()[3];
     int tn = 0; // 1st texture
     GLComponent::TexExtrema & te = at->glTexExtrema(tn);
     int tx = 0; // 1st tex coord
@@ -1108,7 +1108,7 @@ void SurfpaintTools::updateTexture (vector<float> values)
   {
     if (objtype == "TEXTURED SURF.")
     {
-      float it = at->TimeStep();
+      float it = at->voxelSize()[3];
       int tn = 0; // 1st texture
       GLComponent::TexExtrema & te = at->glTexExtrema(tn);
       int tx = 0; // 1st tex coord
@@ -1322,7 +1322,7 @@ void SurfpaintTools::changeToleranceSpinBox(int v)
 {
   toleranceValue = v;
 
-  float it = at->TimeStep();
+  float it = at->voxelSize()[3];
   int tn = 0; // 1st texture
   GLComponent::TexExtrema & te = at->glTexExtrema(tn);
   int tx = 0; // 1st tex coord

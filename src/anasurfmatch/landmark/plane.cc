@@ -82,15 +82,16 @@ int PlaneFusionMethod::canFusion( const set<AObject *> & obj )
   float					diam = 8;
   set<AObject *>::const_iterator	io, fo=obj.end();
   GLComponent				*glo;
-  Point3df				bmin, bmax;
+  vector<float>                         bmin, bmax;
   for( io=obj.begin(); io!=fo; ++io )
     {
       glo = (*io)->glAPI();
       if( !glo )
-	return 0;
+        return 0;
       if( !(*io)->boundingBox( bmin, bmax ) )
         return 0;
-      if( (bmax - bmin).norm() > diam )
+      if( ( Point3df( bmax[0], bmax[1], bmax[2] )
+            - Point3df( bmin[0], bmin[1], bmin[2] ) ).norm() > diam )
         return 0;	// avoid big objects
     }
 
@@ -255,15 +256,16 @@ int CylinderFusionMethod::canFusion( const set<AObject *> & obj )
   float					diam = 12;
   set<AObject *>::const_iterator	io, fo=obj.end();
   GLComponent				*glo;
-  Point3df				bmin, bmax;
+  vector<float>                         bmin, bmax;
   for( io=obj.begin(); io!=fo; ++io )
     {
       glo = (*io)->glAPI();
       if( !glo )
-	return 0;
+        return 0;
       if( !(*io)->boundingBox( bmin, bmax ) )
         return 0;
-      if( (bmax - bmin).norm() > diam )
+      if( ( Point3df( bmax[0], bmax[1], bmax[2] )
+            - Point3df( bmin[0], bmin[1], bmin[2] ) ).norm() > diam )
         return 0;	// avoid big objects
     }
 

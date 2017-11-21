@@ -144,12 +144,28 @@ std::string GLMObject::viewStateID( glPart part,
           return c->viewStateID( part, state );
         if( part == glMATERIAL )
           return string();
-        float t = state.time;
-        if( t > MaxT() )
-          t = MaxT();
+        vector<float> td = state.timedims;
+        vector<float> bbmin, bbmax;
+        boundingBox( bbmin, bbmax );
+        unsigned i, n = std::min( td.size(), bbmax.size() - 3 );
+        for( i=0; i<n; ++i )
+        {
+          if( td[i] < bbmin[i + 3] )
+            td[i] = bbmin[i + 3];
+          if( td[i] > bbmax[i + 3] )
+            td[i] = bbmax[i + 3];
+        }
+        if( n < bbmax.size() - 3 )
+        {
+          n = bbmax.size() - 3;
+          for( ; i<n; ++i )
+            td.push_back( bbmin[i + 3] );
+        }
         string	s;
-        s.resize( sizeof(float) );
-        (float &) s[0] = t;
+        s.resize( sizeof(float) * ( n + 1 ) );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[( i + 1 ) * sizeof(float)] = td[i];
         return s;
       }
     case glTEXIMAGE:

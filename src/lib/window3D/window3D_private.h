@@ -32,56 +32,61 @@
  */
 
 
-#include <anatomist/winprof/profStrategy.h>
+#ifndef ANA_WINDOW3D_WINDOW3D_PRIVATE_H
+#define ANA_WINDOW3D_WINDOW3D_PRIVATE_H
 
+#include <QSlider>
 
-using namespace anatomist;
-using namespace std;
-
-
-double *QAProfileStrategy::abscisse( Point4df&, int )
+namespace anatomist
 {
-  return (double *)0;
-}
 
-
-double *QAProfileStrategy::doit( AObject *d, Point3df& pt, float t, 
-                                 Point4df& pmin, int pdim, 
-                                 const Point4df & increment )
-{
-  vector<float> vs = d->voxelSize();
-  float sx = vs[ 0 ];
-  double *y = new double[ pdim ];
-  vector<float> pos( 4 );
-  float inct = increment[3];
-  int i;
-
-  pos[0] = pt[0];
-  pos[1] = pt[1];
-  pos[2] = pt[2];
-  pos[3] = t;
-
-  for( i=0; i<pdim; i++, pos[3] += inct )
+  namespace internal
   {
-    y[ i ] = d->mixedTexValue( pos );
-    pos[0] += increment[0];
-    pos[1] += increment[1];
-    pos[2] += increment[2];
+
+    /** this subclassed slider always accepts the MouseMove event so that
+      the drag system doesn't start, which causes problems because then the
+      slider doesn't get MouseRelease events.
+
+      Moreover it stores an ID number which is emitted with the myValueChanged()
+      signal.
+    */
+    class NoDragSlider : public QSlider
+    {
+      Q_OBJECT
+
+    public:
+      NoDragSlider( int number, int minValue, int maxValue, int pageStep,
+                    int value,
+                    Qt::Orientation orientation, QWidget * parent = 0,
+                    const char * name = 0 )
+        : QSlider( orientation, parent ), number( number )
+      {
+        setObjectName( name );
+        setMinimum( minValue );
+        setMaximum( maxValue );
+        setPageStep( pageStep );
+        setValue( value );
+        connect( this, SIGNAL( valueChanged( int ) ),
+                 this, SLOT( _valueChanged( int ) ) );
+      }
+
+      virtual ~NoDragSlider();
+
+      virtual void mouseMoveEvent( QMouseEvent * e );
+
+      int number;
+
+    signals:
+      void myValueChanged( int, int );
+
+    private slots:
+      void _valueChanged( int value );
+    };
+
   }
 
-  return y;
 }
 
+#endif
 
 
-
-int QAProfileStrategy::size( Point4df&, Point4df& )
-{
-  return 0;
-}
-
-
-double QAProfileStrategy::markerPos( Point3df&, float, Point4df& )
-{
-  return 0.0;
-}

@@ -78,7 +78,7 @@ const vector<CurveType>* ACurve::curveOfTime( float time ) const
   if( d->curve.empty() )
     return( 0 );
 
-  unsigned	t = (unsigned) ( time / TimeStep() );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] );
   Bundle::const_iterator	is = d->curve.lower_bound( t );
 
   if( is == d->curve.end() )
@@ -89,7 +89,7 @@ const vector<CurveType>* ACurve::curveOfTime( float time ) const
 
 vector<CurveType>* ACurve::curveOfTime( float time )
 {
-  unsigned	t = (unsigned) ( time / TimeStep() );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] );
 
   if( d->curve.empty() )
     return( &(*d->curve)[t] );
@@ -134,7 +134,7 @@ float ACurve::MaxT() const
 {
   if( d->curve.empty() )
     return( 0. );
-  return( TimeStep() * (*d->curve.rbegin()).first );
+  return( voxelSize()[3] * (*d->curve.rbegin()).first );
 }
 
 
@@ -142,7 +142,7 @@ float ACurve::MinT() const
 {
   if(d->curve.empty() )
     return( 0. );
-  return( TimeStep() * (*d->curve.begin()).first );
+  return( voxelSize()[3] * (*d->curve.begin()).first );
 }
 
 
@@ -260,10 +260,9 @@ Tree* ACurve::optionTree() const
 }
 
 
-AObject* ACurve::ObjectAt( float, float, float, float, 
-				  float )
+AObject* ACurve::objectAt( const vector<float> &, float )
 {
-  return( 0 );
+  return 0;
 }
 
 
@@ -319,14 +318,25 @@ void ACurve::invertTriangles()
 }
 
 
-bool ACurve::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool ACurve::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   if( !d->curve )
-    return( false );
+    return false;
 
-  bmin = d->curve.minimum();
-  bmax = d->curve.maximum();
-  return( true );
+  Point3df bbmin = d->curve.minimum();
+  Point3df bbmax = d->curve.maximum();
+
+  bmin.resize( 4 );
+  bmax.resize( 4 );
+  bmin[0] = bbmin[0];
+  bmin[1] = bbmin[1];
+  bmin[2] = bbmin[2];
+  bmin[3] = MinT();
+  bmax[0] = bbmax[0];
+  bmax[1] = bbmax[1];
+  bmax[2] = bbmax[2];
+  bmax[3] = MaxT();
+  return true;
 }
 
 
@@ -335,12 +345,12 @@ float ACurve::actualTime( float time ) const
   if( !d->curve )
     return( 0 );
 
-  unsigned	t = (unsigned) ( time / TimeStep() );
+  unsigned	t = (unsigned) ( time / voxelSize()[3] );
   map<unsigned, CurveType>::const_iterator	is = d->curve.lower_bound( t );
 
   if( is == d->curve.end() )
     is = d->curve.begin();
-  return( is->first * TimeStep() );
+  return( is->first * voxelSize()[3] );
 }
 
 
@@ -351,7 +361,7 @@ void ACurve::notifyObservers( void * arg )
 }
 
 void ACurve::glBeforeBodyGLL( const ViewState &, 
-				   GLPrimitives & ) const
+                              GLPrimitives & ) const
 {
-	std::cout << "ACurve::glBeforeBodyGLL" << std::endl;
+  // std::cout << "ACurve::glBeforeBodyGLL" << std::endl;
 }

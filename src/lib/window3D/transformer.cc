@@ -1391,19 +1391,20 @@ namespace
         set<AObject *>::const_iterator io, eo = is->second.end();
         for( io=is->second.begin(); io!=eo; ++io, ++n )
         {
-          Point3df bbmin, bbmax;
+          vector<float> bbmin, bbmax;
+          Point3df cent;
           (*io)->boundingBox( bbmin, bbmax );
-          bbmax += bbmin;
-          bbmax /= 2;
+          cent = ( Point3df( bbmin[0], bbmin[1], bbmin[2] )
+                   + Point3df( bbmax[0], bbmax[1], bbmax[2] ) ) / 2;
           if( (*io)->getReferential() )
           {
             anatomist::Transformation *tr
               = theAnatomist->getTransformation( (*io)->getReferential(),
                                                  w3->getReferential() );
             if( tr )
-              bbmax = tr->transform( bbmax );
+              cent = tr->transform( cent );
           }
-          center += bbmax;
+          center += cent;
         }
         if( n == 0 )
           center = w->rotationCenter();

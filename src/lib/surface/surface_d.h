@@ -152,7 +152,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return 0;
 
-    unsigned	t = (unsigned) ( time / TimeStep() );
+    unsigned	t = (unsigned) ( time / voxelSize()[3] );
     typename TimeSurfaceType::const_iterator is = _surface->lower_bound( t );
 
     if( is == _surface->end() )
@@ -170,7 +170,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return 0;
 
-    unsigned	t = (unsigned) ( time / TimeStep() );
+    unsigned	t = (unsigned) ( time / voxelSize()[3] );
 
     if( _surface->empty() )
       return( &(*_surface)[t] );
@@ -219,7 +219,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   {
     if( !_surface || _surface->size() == 0 )
       return( 0. );
-    return( TimeStep() * (*_surface->rbegin()).first );
+    return( voxelSize()[3] * (*_surface->rbegin()).first );
   }
 
 
@@ -228,7 +228,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   {
     if( !_surface || _surface->size() == 0 )
       return( 0. );
-    return( TimeStep() * (*_surface->begin()).first );
+    return( voxelSize()[3] * (*_surface->begin()).first );
   }
 
 
@@ -297,7 +297,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   template<int D>
   unsigned ASurface<D>::glNumVertex( const ViewState & s ) const
   {
-    const SurfaceType	*surf = surfaceOfTime( s.time );
+    const SurfaceType	*surf = surfaceOfTime( s.timedims[0] );
 
     if( !surf )
       return 0;
@@ -308,7 +308,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   template<int D>
   const GLfloat* ASurface<D>::glVertexArray( const ViewState & s ) const
   {
-    const SurfaceType	*surf = surfaceOfTime( s.time );
+    const SurfaceType	*surf = surfaceOfTime( s.timedims[0] );
 
     if( !surf )
       return 0;
@@ -319,7 +319,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   template<int D>
   unsigned ASurface<D>::glNumNormal( const ViewState & s ) const
   {
-    const SurfaceType	*surf = surfaceOfTime( s.time );
+    const SurfaceType	*surf = surfaceOfTime( s.timedims[0] );
 
     if( !surf )
       return 0;
@@ -330,7 +330,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   template<int D>
   const GLfloat* ASurface<D>::glNormalArray( const ViewState & s ) const
   {
-    const SurfaceType	*surf = surfaceOfTime( s.time );
+    const SurfaceType	*surf = surfaceOfTime( s.timedims[0] );
 
     if( !surf )
       return( 0 );
@@ -344,7 +344,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   template<int D>
   const GLuint* ASurface<D>::glPolygonArray( const ViewState & s ) const
   {
-    const SurfaceType	*surf = surfaceOfTime( s.time );
+    const SurfaceType	*surf = surfaceOfTime( s.timedims[0] );
 
     if( !surf )
       return( 0 );
@@ -355,7 +355,7 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
   template<int D>
   unsigned ASurface<D>::glNumPolygon( const ViewState & s ) const
   {
-    const SurfaceType	*surf = surfaceOfTime( s.time );
+    const SurfaceType	*surf = surfaceOfTime( s.timedims[0] );
 
     if( !surf )
       return( 0 );
@@ -429,10 +429,9 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
 
 
   template<int D>
-  AObject* ASurface<D>::ObjectAt( float, float, float, float, 
-				  float )
+  AObject* ASurface<D>::objectAt( const std::vector<float> &, float )
   {
-    return( 0 );
+    return 0;
   }
 
 
@@ -491,18 +490,38 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
 
 
   template<int D>
-  bool ASurface<D>::boundingBox( Point3df & bmin, Point3df & bmax ) const
+  bool ASurface<D>::boundingBox( std::vector<float> & bmin,
+                                 std::vector<float> & bmax ) const
   {
     if( !_surface )
       return( false );
 
-    bmin = _surface->minimum();
-    bmax = _surface->maximum();
-    if( bmin == Point3df( 1e38, 1e38, 1e38 )
-        && bmax == Point3df( -1e38, -1e38, -1e38) )
+    Point3df bminp = _surface->minimum();
+    Point3df bmaxp = _surface->maximum();
+    if( bminp == Point3df( 1e38, 1e38, 1e38 )
+        && bmaxp == Point3df( -1e38, -1e38, -1e38) )
       // emty meshes return a crappy bounding box...
       return false;
-    return( true );
+    bmin.resize( 4 );
+    bmax.resize( 4 );
+    bmin[0] = bminp[0];
+    bmin[1] = bminp[1];
+    bmin[2] = bminp[2];
+    bmax[0] = bmaxp[0];
+    bmax[1] = bmaxp[1];
+    bmax[2] = bmaxp[2];
+    if( _surface->empty() )
+    {
+      bmin[3] = 0.f;
+      bmax[3] = 0.f;
+    }
+    else
+    {
+      float timestep = voxelSize()[3];
+      bmin[3] = _surface->begin()->first * timestep;
+      bmax[3] = _surface->rbegin()->first * timestep;
+    }
+    return true;
   }
 
 
@@ -512,12 +531,13 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return( 0 );
 
-    unsigned	t = (unsigned) ( time / TimeStep() );
+    float ts = voxelSize()[3];
+    unsigned	t = (unsigned) ( time / ts );
     typename TimeSurfaceType::const_iterator is = _surface->lower_bound( t );
 
     if( is == _surface->end() )
       is = _surface->begin();
-    return( is->first * TimeStep() );
+    return( is->first * ts );
   }
 
 

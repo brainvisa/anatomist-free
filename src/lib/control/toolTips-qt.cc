@@ -289,9 +289,12 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
       return;	// not a valid position
 
     // cout << "point 3D : " << pos3 << endl;
+    vector<float> posw = d->window->getFullPosition();
+    posw[0] = pos3[0];
+    posw[1] = pos3[1];
+    posw[2] = pos3[2];
 
-    d->window->findObjectsAt( pos3[0], pos3[1], pos3[2], d->window->getTime(),
-                              shown, hidden );
+    d->window->findObjectsAt( posw, shown, hidden );
   }
 
   set<AObject *>::iterator      io = shown.begin(), jo, eo = shown.end();

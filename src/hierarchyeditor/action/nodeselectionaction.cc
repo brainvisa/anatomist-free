@@ -207,13 +207,15 @@ void NodeSelectionAction::add( int x, int y, int , int  )
 	Point3df pos;
 	if( w->positionFromCursor( x, y, pos ) )
 	{
-		cout << "Position : " << pos << endl;
-		aw->selectObject( pos[0], pos[1], pos[2],
-                aw->getTime(),
-		SelectFactory::Normal );
+          cout << "Position : " << pos << endl;
+          vector<float> posw( 3 );
+          posw[0] = pos[0];
+          posw[1] = pos[1];
+          posw[2] = pos[2];
+          aw->selectObject( posw, SelectFactory::Normal );
 	}
 
- /*Acces � la selection*/
+ /*Access to selection*/
 	cout<<"acces a la Selection"<<endl;
 
 	std::map<unsigned, std::set<AObject *> >  current_element = SelectFactory::factory()->selected() ;
@@ -277,10 +279,12 @@ void NodeSelectionAction::remove( int x, int y, int , int  )
 	Point3df pos;
 	if( w->positionFromCursor( x, y, pos ) )
 	{
-		cout << "Position : " << pos << endl;
-		aw->selectObject( pos[0], pos[1], pos[2],
-		aw->getTime(),
-		SelectFactory::Normal );
+          cout << "Position : " << pos << endl;
+          vector<float> posw( 3 );
+          posw[0] = pos[0];
+          posw[1] = pos[1];
+          posw[2] = pos[2];
+          aw->selectObject( posw, SelectFactory::Normal );
 	}
 
 	/*Acces � la selection*/
@@ -337,10 +341,12 @@ void NodeSelectionAction::select( int x, int y, int , int   )
 	Point3df pos;
 	if( w->positionFromCursor( x, y, pos ) )
 	{
-		cout << "Position : " << pos << endl;
-		aw->selectObject( pos[0], pos[1], pos[2],
-		aw->getTime(),
-		SelectFactory::Normal );
+          cout << "Position : " << pos << endl;
+          vector<float> posw( 3 );
+          posw[0] = pos[0];
+          posw[1] = pos[1];
+          posw[2] = pos[2];
+          aw->selectObject( posw, SelectFactory::Normal );
 	}
 	
 	/*Acces � la selection*/

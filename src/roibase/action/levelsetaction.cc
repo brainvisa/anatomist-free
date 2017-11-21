@@ -908,15 +908,22 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
   
   if (!g) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
-    g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
-				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
-				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
-  } else {
-    
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
+  else
+  {
     //cout << "item : " << endl ;
     //cout << "\tbefore " << item.before << endl
     //	 << "\tafter " << item.after << endl ;
@@ -976,18 +983,20 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
   if (!g) return ;
 
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) )
-    {
-      g->clearLabelsVolume() ;
-      g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() 
-                                                     - g->MinX2D() ) + 1,
-                                   static_cast<int>( g->MaxY2D()
-                                                     - g->MinY2D() ) + 1,
-                                   static_cast<int>( g->MaxZ2D()
-                                                     - g->MinZ2D() ) + 1 ) ;
-    }
+  vector<float> bmin, bmax, vs;
+  g->boundingBox2D( bmin, bmax );
+  vs = g->voxelSize();
+  vector<int> dims( 3 );
+  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  if( labels.dimX() != dims[0]
+      || labels.dimY() != dims[1]
+      || labels.dimZ() != dims[2] )
+  {
+    g->clearLabelsVolume();
+    g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+  }
 
   fillRegion( x, y, go, *changes, true ) ;
 
@@ -1050,14 +1059,12 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
   {
-    int timePos = win->getTimeSliderPosition() ;
-
     // cout << "Pos : " << pos << endl ;
 
     // cout << "Position from cursor : (" << x << " , "<< y << ") = "
     //   << pos << endl ;
 
-    Point3df voxelSize = region->VoxelSize() ;
+    Point3df voxelSize = Point3df( region->voxelSize() );
 
     Point3df normalVector( win->sliceQuaternion().
                            transformInverse(Point3df(0., 0., 1.) ) );
@@ -1086,8 +1093,16 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     // cout << "P : " << p << endl ;
 
 
-    Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
+    vector<float> bmin, bmax;
+    g->boundingBox2D( bmin, bmax );
+
+    Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
+                       bmin[1] / voxelSize[1] + 0.5,
+                       bmin[2] / voxelSize[2] + 0.5) ;
     AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+    Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
+                 static_cast<int>( rint( p[1] - vlOffset[1] ) ),
+                 static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
     int maxNbOfPoints ;
     if( _sharedData->myMaxSize > 0 )
       maxNbOfPoints
@@ -1097,9 +1112,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     else
       maxNbOfPoints
         = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ();
-    Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ),
-                  static_cast<int> ( p[1] - vlOffset[1] +.5 ),
-                  static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
+    vector<float> vpos = win->getFullPosition();
 
     float realLowLevel = realMin() ;
     float realHighLevel = realMax() ;
@@ -1125,11 +1138,13 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
                   volumeOfLabels.dimZ() );
     if( in( dims, pVL ) )
     {
-      Point3df vs = _sharedData->myCurrentImage->VoxelSize();
+      vector<float> vs = _sharedData->myCurrentImage->voxelSize();
       // mixedTexValue is in mm, not in voxels.
+      vpos[0] = pVL[0] * vs[0];
+      vpos[1] = pVL[1] * vs[1];
+      vpos[2] = pVL[2] * vs[2];
       float val
-        = _sharedData->myCurrentImage->mixedTexValue(
-          Point3df( pVL[0] * vs[0], pVL[1] * vs[1], pVL[2] * vs[2] ), timePos);
+        = _sharedData->myCurrentImage->mixedTexValue( vpos );
       if ( val < realLowLevel || val > realHighLevel )
         return ;
       else
@@ -1178,7 +1193,7 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
         {
           neighbor = pc + connec->xyzOffset(n) ;
           if( in(dims, neighbor) )
-            if( fillPoint( neighbor, timePos, volumeOfLabels,
+            if( fillPoint( neighbor, vpos[3], volumeOfLabels,
                            region, realLowLevel, realHighLevel,
                            toChange, trialPoints, replace ) )
             {
@@ -1221,9 +1236,14 @@ anatomist::RoiLevelSetAction::fillPoint(
                 volumeOfLabels.dimZ()) ;
   if( in( dims, pc ) )
   {
-    Point3df vs = _sharedData->myCurrentImage->VoxelSize();
-    float val = _sharedData->myCurrentImage->mixedTexValue(
-      Point3df( pc[0] * vs[0], pc[1] * vs[1], pc[2] * vs[2] ), t );
+    vector<float> vs = _sharedData->myCurrentImage->voxelSize();
+    vector<float> vpos( 4 );
+    vpos[0] = pc[0] * vs[0];
+    vpos[1] = pc[1] * vs[1];
+    vpos[2] = pc[2] * vs[2];
+    vpos[3] = t;
+
+    float val = _sharedData->myCurrentImage->mixedTexValue( vpos );
     if( (volumeOfLabels( pc ) != region) &&
         (val >= realLowLevel) && (val <= realHighLevel)  &&
         ( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) )

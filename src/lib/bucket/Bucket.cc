@@ -129,17 +129,21 @@ const GenericObject* Bucket::attributed() const
 }
 
 
-bool Bucket::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool Bucket::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
+  bmin = vector<float>( 4, 0. );
+  bmax = vector<float>( 4, 0. );
   if( empty() )
-    return( false );
+    return false;
 
-  bmin = Point3df( _bucket->sizeX() * ( _minX - 0.5 ),
-                   _bucket->sizeY() * ( _minY - 0.5 ),
-                   _bucket->sizeZ() * ( _minZ - 0.5 ) );
-  bmax = Point3df( _bucket->sizeX() * ( _maxX + 0.5 ),
-                   _bucket->sizeY() * ( _maxY + 0.5 ),
-                   _bucket->sizeZ() * ( _maxZ + 0.5 ) );
+  bmin[0] = _bucket->sizeX() * ( _minX - 0.5 );
+  bmin[1] = _bucket->sizeY() * ( _minY - 0.5 );
+  bmin[2] = _bucket->sizeZ() * ( _minZ - 0.5 );
+  bmax[0] = _bucket->sizeX() * ( _maxX + 0.5 );
+  bmax[1] = _bucket->sizeY() * ( _maxY + 0.5 );
+  bmax[2] = _bucket->sizeZ() * ( _maxZ + 0.5 );
+  bmin[3] = _minT;
+  bmax[3] = _maxT;
   return true;
 }
 
@@ -871,7 +875,7 @@ void Bucket::meshSubBucket( const vector<pair<
   // y0 walls for each x
   int		*row = new int[ dimx ];
   unsigned	i, n, nv = ivec.size();
-  Point3df	vs = VoxelSize();
+  Point3df	vs = Point3df( voxelSize() );
   BucketMap<Void>::Bucket::const_iterator	ibi, iend;
   // prevy, prevz are the coordinates of before-last row of voxels
   int		prevy = -1, prevz = -1;
@@ -1102,11 +1106,13 @@ void Bucket::meshSubBucket( const vector<pair<
 }
 
 
-AObject* Bucket::ObjectAt( float x, float y, float z, float t, float tol )
+AObject* Bucket::objectAt( const vector<float> & pos, float tol )
 {
-  int	a = (int) (x / _bucket->sizeX()), b = (int) (y / _bucket->sizeY());
-  int	c = (int) (z / _bucket->sizeZ());
-  BucketMap<Void>::iterator	ib = _bucket->find( (size_t) t );
+  int a = (int) (pos[0] / _bucket->sizeX());
+  int b = (int) (pos[1] / _bucket->sizeY());
+  int c = (int) (pos[2] / _bucket->sizeZ());
+  BucketMap<Void>::iterator
+    ib = _bucket->find( pos.size() >= 3 ? (size_t) pos[3] : 0 );
 
   if( ib == _bucket->end() )
     return( 0 );	// time does not match
@@ -1117,8 +1123,8 @@ AObject* Bucket::ObjectAt( float x, float y, float z, float t, float tol )
     {
       const Point3d	& loc = ip->first;
       if( abs( loc[0] - a ) <= tol && abs( loc[1] - b ) < tol 
-	  && abs( loc[2] - c ) < tol )
-	return( this );
+          && abs( loc[2] - c ) < tol )
+        return( this );
     }
   return( 0 );	// not found
 }
@@ -1211,7 +1217,7 @@ Bucket::meshPlane( const SliceViewState & state ) const
 
   // get time in bucket
 
-  float	time = state.time;
+  float time = state.timedims[0];
   if( time > MaxT() )
     time = MaxT();
 
@@ -1237,7 +1243,7 @@ Bucket::meshPlane( const SliceViewState & state ) const
   const BucketMap<Void>::Bucket			& listB = (*ib).second;
   BucketMap<Void>::Bucket::const_iterator	it,ite;
   float		dis;
-  Point3df	vs = VoxelSize(), p;
+  Point3df	vs = Point3df( voxelSize() ), p;
   Point3df      direction = state.orientation->transformInverse(
     Point3df( 0, 0, 1 ) );
   Point3df	posr;
@@ -1332,7 +1338,8 @@ const AimsSurface<4, Void>* Bucket::surface( const ViewState & state ) const
     }
   else
     {
-      size_t	t = createFacet( (size_t) rint( state.time / TimeStep() ) );
+      size_t t = createFacet( (size_t) rint(
+        state.timedims[0] / voxelSize()[3] ) );
       if( !d->surface )
         return 0;
       AimsSurfaceFacet::const_iterator	i = d->surface->find( t );
@@ -1413,7 +1420,7 @@ void Bucket::setBucket( rc_ptr<BucketMap<Void> > bck )
 }
 
 
-void Bucket::setVoxelSize( const Point3df & vs )
+void Bucket::setVoxelSize( const vector<float> & vs )
 {
   //cout << "\tBucket : " << this << endl << "Vox Size : " << vs << endl ;
 
@@ -1424,11 +1431,15 @@ void Bucket::setVoxelSize( const Point3df & vs )
 }
 
 
-Point3df Bucket::VoxelSize() const
+vector<float> Bucket::voxelSize() const
 {
   //cout << "\tBucket : " << this << endl ;
+  vector<float> vs( 4, 1. );
+  vs[0] = _bucket->sizeX();
+  vs[1] = _bucket->sizeY();
+  vs[2] = _bucket->sizeZ();
 
-  return( Point3df( _bucket->sizeX(), _bucket->sizeY(), _bucket->sizeZ() ) );
+  return vs;
 }
 
 
@@ -1568,7 +1579,7 @@ string Bucket::viewStateID( glPart part, const ViewState & state ) const
   if( !st || !st->wantslice )
     return AGLObject::viewStateID( part, state );
 
-  float	t = state.time;
+  float	t = state.timedims[0];
   float	gmin = MinT(), gmax = MaxT();
   if( t < gmin )
     t = gmin;
@@ -1587,7 +1598,7 @@ string Bucket::viewStateID( glPart part, const ViewState & state ) const
     case glGENERAL:
       {
         s.resize( 9*nf );
-        (float &) s[0] = state.time;
+        (float &) s[0] = t;
         Point4df	o =  st->orientation->vector();
         // WARNING: assumes AimsVector is contiguous (true today)
         memcpy( &s[nf], &o[0], 4*nf );

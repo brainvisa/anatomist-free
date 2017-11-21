@@ -66,7 +66,8 @@ namespace anatomist
     virtual bool Is3DObject() { return( true ); }
     virtual void clearHasChangedFlags() const;
 
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
     virtual void SetMaterial( const Material & );
     virtual Material & GetMaterial();
     virtual AObject* fallbackReferentialInheritance() const;

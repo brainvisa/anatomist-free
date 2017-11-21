@@ -207,8 +207,11 @@ bool QAToolTips::drawTip()
 
   //cout << "point 3D : " << pos3 << endl;
 
-  AObject	*obj = _window->objectAt( pos3[0], pos3[1], pos3[2], 
-					  _window->getTime() );
+  vector<float> posw = _window->getFullPosition();
+  posw[0] = pos3[0];
+  posw[1] = pos3[1];
+  posw[2] = pos3[2];
+  AObject	*obj = _window->objectAt( posw );
 
   if( !obj )
     return( false );	// no object there

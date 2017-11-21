@@ -48,8 +48,7 @@ PostSelector::~PostSelector()
 }
 
 
-set<AObject *> PostSelector::execute( AObject *, const Point3df &, 
-				      float ) const
+set<AObject *> PostSelector::execute( AObject *, const vector<float> & ) const
 {
-	return set<AObject *>();
+  return set<AObject *>();
 }

@@ -84,6 +84,11 @@ namespace anatomist
     char	*data;
   };
 
+  /*
+     TODO:
+     remove:
+     MinT(), MaxT()
+   */
 
   /**	 Base Anatomist object (abstract)
    */
@@ -169,26 +174,30 @@ namespace anatomist
     virtual float MinT() const { return 0; }
     virtual float MaxT() const { return 0; }
 
-    ///	Object boundaries, for 2D representations
-    virtual float MinX2D() const { return 0; }
-    virtual float MinY2D() const { return 0; }
-    virtual float MinZ2D() const { return 0; }
-    virtual float MaxX2D() const { return 0; }
-    virtual float MaxY2D() const { return 0; }
-    virtual float MaxZ2D() const { return 0; }
-    /// more modern replacement for MinX2D... maxZ2D, in float coords
-    virtual bool boundingBox2D( Point3df & bmin, Point3df & bmax ) const;
+    /** Bounding box in 2D views mode. In mm, may be the same as boundingBox()
+        if the object field of view is the same in 3D and 2D modes.
+        It normally inccludes voxels size (for a volume, bmin will be -vs/2
+        where vs is the voxel size, for the 3 first coordinates).
 
-    /** Fills \a bmin and \a bmax with the 3D bounding box extrema in the
-        object's referential coordinates
-        \return	true if object has a bounding box */
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+        The default implementation just calls boundingBox().
+    */
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const;
+
     /** Fills \a bmin and \a bmax with the N-D bounding box extrema in the
         object's referential coordinates.
 
-        New in Anatomist 4.6.
+        Changed in Anatomist 4.6. The older API was using Point3df instead of
+        vectord and informed only the spatial dimensions.
 
-        \return	true if object has a bounding box */
+        An object with no spatial information (a texture for instance) may
+        still have time information. For this reason, the resulting bounding
+        box should always have 4 components (at least), then 4th and additional
+        ones should be valid, even if the function returns false (no spatial
+        bounding box).
+
+        \return true if object has a "spatial" bounding box (x, y, z coordinates)
+    */
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
 
@@ -197,11 +206,9 @@ namespace anatomist
         done and this method should be overloaded.
     */
     virtual bool render( PrimList &, const ViewState & );
-    ///	Time quantification interval
-    float TimeStep() const;
-    ///	For 3D objects, returns (1, 1, 1)
-    virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & ) {}
+    /// Returns at least 4 sizes. For 3D objects, returns (1, 1, 1, 1)
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & ) {}
     /**	Updates the state of the object.
 	(when a part has changed and other parts depend on this change). 
 	Does nothing by default */
@@ -289,15 +296,14 @@ namespace anatomist
     virtual void clearHasChangedFlags() const;
 
     /**	Find the object (sub-object) at given postion with a tolerence
-	@return	0 if not found
+        @return	0 if not found
     */
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
     /**	Same with origin window referential
      */
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol, const Referential* orgref, 
-			       const Point3df & orggeom );
+    virtual AObject* objectAt( const std::vector<float> & pos,
+                               float tol, const Referential* orgref,
+                               const Point3df & orggeom );
 
     ///	Scans the object internals and determines its geometry extrema
     virtual void setGeomExtrema() {}
@@ -318,11 +324,11 @@ namespace anatomist
         voxels rather in mm, which is wrong. In Anatomist 4.5 coords are
         officially always in mm.
     */
-    virtual float mixedTexValue( const Point3df & pos, float time,
+    virtual float mixedTexValue( const std::vector<float> & pos,
                                  const Referential* orgRef ) const;
     /** Same as above except that coordinates are not transformed but taken
         in object coordinates system */
-    virtual float mixedTexValue( const Point3df & pos, float time ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos ) const;
     /** Gets the array of texture values at a given location
 
         Note: in Anatomist 4.4 and earlier, this method was taking an
@@ -331,18 +337,18 @@ namespace anatomist
         voxels rather in mm, which is wrong. In Anatomist 4.5 coords are
         officially always in mm.
     */
-    virtual std::vector<float> texValues( const Point3df & pos, float time,
+    virtual std::vector<float> texValues( const std::vector<float> & pos,
                                           const Referential* orgRef ) const;
-    virtual std::vector<float> texValues( const Point3df & pos, 
-                                          float time ) const;
+    virtual std::vector<float>
+    texValues( const std::vector<float> & pos ) const;
 
-    virtual bool loadable() const { return( false ); }
-    virtual bool savable() const { return( false ); }
-    /**	Re-reads objects from disk. Only called if loadable()
-	is \c true and fileName() is not empty. A new filename can be passed 
-	to the reload function, so that files uncompressed by the ObjectReader 
-	in temporary locations can be processed. Overload this function in 
-	inherited classes to implement it.
+    virtual bool loadable() const { return false; }
+    virtual bool savable() const { return false; }
+    /** Re-reads objects from disk. Only called if loadable()
+        is \c true and fileName() is not empty. A new filename can be passed
+        to the reload function, so that files uncompressed by the ObjectReader
+        in temporary locations can be processed. Overload this function in
+        inherited classes to implement it.
 
         If \c onlyoutdated is true, reloading will only be done if the files 
         containing the object have been modified since the object has been 
@@ -473,17 +479,18 @@ namespace anatomist
 }
 
 
-inline float anatomist::AObject::mixedTexValue( const Point3df &, float ) const
+inline float
+anatomist::AObject::mixedTexValue( const std::vector<float> & ) const
 {
-  return( 0 );
+  return 0;
 }
 
 
 inline std::vector<float> 
-anatomist::AObject::texValues( const Point3df &, float ) const
+anatomist::AObject::texValues( const std::vector<float> & ) const
 {
   std::vector<float> t;
-  return( t );
+  return t;
 }
 
 

@@ -621,7 +621,7 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
     {
     }
   */
-  
+
   size_t size = (size_t)ximage.width * ximage.height * ximage.depth / 8;
 
   //cout << "im size : " << ximage.width << " x " << ximage.height << endl;
@@ -733,69 +733,74 @@ Tree* Fusion2D::optionTree() const
 }
 
 
-Point3df Fusion2D::VoxelSize() const
+vector<float> Fusion2D::voxelSize() const
 {
-  Point3df			vs, vs2;
+  vector<float>			vs, vs2;
   datatype::const_iterator	io, fo=_data.end();
 
   io = _data.begin();
-  vs = (*io)->VoxelSize();
+  vs = (*io)->voxelSize();
+  size_t i, n, d = vs.size();
 
   for( ++io; io!=fo; ++io )
-    {
-      vs2 = (*io)->VoxelSize();
-      if( vs2[0] < vs[0] )
-	vs[0] = vs2[0];
-      if( vs2[1] < vs[1] )
-	vs[1] = vs2[1];
-      if( vs2[2] < vs[2] )
-	vs[2] = vs2[2];
-    }
-  return( vs );
+  {
+    vs2 = (*io)->voxelSize();
+    for( i=0, n=std::min(d, vs2.size()); i<n; ++i )
+      if( vs2[i] < vs[i] )
+        vs[i] = vs2[i];
+    for( n=vs2.size(); i<n; ++i )
+      vs.push_back( vs2[i] );
+    d = vs.size();
+  }
+  return vs;
 }
 
 
-Point3df Fusion2D::glVoxelSize() const
+vector<float> Fusion2D::glVoxelSize() const
 {
-  return VoxelSize();
+  return voxelSize();
 }
 
 
-Point4df Fusion2D::glMin2D() const
+vector<float> Fusion2D::glMin2D() const
 {
-  return Point4df( MinX2D(), MinY2D(), MinZ2D(), MinT() );
+  vector<float> bmin, bmax;
+  boundingBox2D( bmin, bmax );
+  return bmin;
 }
 
 
-Point4df Fusion2D::glMax2D() const
+vector<float> Fusion2D::glMax2D() const
 {
-  return Point4df( MaxX2D(), MaxY2D(), MaxZ2D(), MaxT() );
+  vector<float> bmin, bmax;
+  boundingBox2D( bmin, bmax );
+  return bmax;
 }
 
 
-vector<float> Fusion2D::texValues( const Point3df & pos, float time ) const
+vector<float> Fusion2D::texValues( const vector<float> & pos ) const
 {
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io=_data.begin(), fo=_data.end();
   unsigned			i = 1;
 
   //	assume MRI referential...
-  tv[0] = (*io)->mixedTexValue( pos, time );
+  tv[0] = (*io)->mixedTexValue( pos );
 
   Referential	*ref = (*io)->getReferential();
 
   if( ref )
     for( ++io; io!=fo; ++io, ++i )
-      tv[i] = (*io)->mixedTexValue( pos, time, ref );
+      tv[i] = (*io)->mixedTexValue( pos, ref );
   else
     for( ++io; io!=fo; ++io, ++i )
-      tv[i] = (*io)->mixedTexValue( pos, time );
+      tv[i] = (*io)->mixedTexValue( pos );
 
   return( tv );
 }
 
 
-vector<float> Fusion2D::texValues( const Point3df & pos, float time,
+vector<float> Fusion2D::texValues( const vector<float> & pos,
                                    const Referential* orgRef ) const
 {
   unsigned			i;
@@ -803,22 +808,22 @@ vector<float> Fusion2D::texValues( const Point3df & pos, float time,
   datatype::const_iterator	io, fo=_data.end();
 
   for( i = 0, io=_data.begin(); io!=fo; ++io, ++i )
-    tv[i] = (*io)->mixedTexValue( pos, time, orgRef );
+    tv[i] = (*io)->mixedTexValue( pos, orgRef );
 
   return( tv );
 }
 
 
-float Fusion2D::mixedTexValue( const Point3df & pos, float time ) const
+float Fusion2D::mixedTexValue( const vector<float> & pos ) const
 {
-  return( mixedValue( texValues( pos, time ) ) );
+  return( mixedValue( texValues( pos ) ) );
 }
 
 
-float Fusion2D::mixedTexValue( const Point3df & pos, float time,
+float Fusion2D::mixedTexValue( const vector<float> & pos,
                                const Referential* orgRef ) const
 {
-  return( mixedValue( texValues( pos, time, orgRef ) ) );
+  return( mixedValue( texValues( pos, orgRef ) ) );
 }
 
 

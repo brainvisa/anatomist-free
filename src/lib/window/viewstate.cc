@@ -36,11 +36,19 @@
 
 using namespace anatomist;
 using namespace aims;
+using namespace std;
 
 
 ViewState::ViewState( float t, AWindow* win,
                       glSelectRenderMode selectrendermode )
-  : time( t ), window( win ), selectRenderMode( selectrendermode )
+  : timedims( 1, t ), window( win ), selectRenderMode( selectrendermode )
+{
+}
+
+
+ViewState::ViewState( const vector<float> & timedims, AWindow* win,
+                      glSelectRenderMode selectrendermode )
+  : timedims( timedims ), window( win ), selectRenderMode( selectrendermode )
 {
 }
 
@@ -59,6 +67,29 @@ SliceViewState::SliceViewState( float t, bool slicewanted,
                                 AWindow* win,
                                 glSelectRenderMode selectrendermode )
   : ViewState( t, win, selectrendermode ), wantslice( slicewanted ),
+    position( pos ), orientation( orient ), winref( wref ), wingeom( wgeom ),
+    vieworientation( vorient )
+{
+  if( win )
+  {
+    if( !wref )
+      winref = win->getReferential();
+    if( !wgeom )
+      wingeom = win->windowGeometry();
+  }
+}
+
+
+SliceViewState::SliceViewState( const vector<float> & timedims,
+                                bool slicewanted,
+                                const Point3df & pos,
+                                const Quaternion *orient,
+                                const Referential* wref,
+                                const Geometry* wgeom,
+                                const Quaternion* vorient,
+                                AWindow* win,
+                                glSelectRenderMode selectrendermode )
+  : ViewState( timedims, win, selectrendermode ), wantslice( slicewanted ),
     position( pos ), orientation( orient ), winref( wref ), wingeom( wgeom ),
     vieworientation( vorient )
 {

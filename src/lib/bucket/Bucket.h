@@ -60,20 +60,18 @@ namespace anatomist
 
     float MinT() const { return( _minT ); }
     float MaxT() const { return( _maxT ); }
-    float MinX2D() const { return( _minX ); }
-    float MinY2D() const { return( _minY ); }
-    float MinZ2D() const { return( _minZ ); }
-    float MaxX2D() const { return( _maxX ); }
-    float MaxY2D() const { return( _maxY ); }
-    float MaxZ2D() const { return( _maxZ ); }
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const
+    { return boundingBox( bmin, bmax ); }
 
     virtual void 
     setSubBucketGeomExtrema( const Point3df& pmin = Point3df(0., 0., 0.), 
                              const Point3df& pmax = Point3df(0., 0., 0.) ) ;
     virtual void setGeomExtrema();
-    virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & vs );
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & vs );
     virtual void setBucketChanged();
     virtual bool hasBucketChanged() const;
     void setBucket( const aims::BucketMap<Void>& theBuck );
@@ -109,8 +107,7 @@ namespace anatomist
 			aims::BucketMap<Void>::Bucket::const_iterator> > & iv, 
 			AimsSurface<4,Void> *surf, bool glonfly=false ) const;
 
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
 
     virtual bool loadable() const { return( true ); }
     virtual bool savable() const { return( true ); }

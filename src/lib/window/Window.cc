@@ -108,7 +108,7 @@ AWindow::AWindow() :
   _id(0),
   _refresh(false),
   _lookupChanged( true ), 
-  _time( 0 ), 
+  _timepos( 1, 0.f ),
   _referential( theAnatomist->centralReferential() ), 
   _geometry( 0 ), 
   _title( "Window" ), 
@@ -350,10 +350,9 @@ void AWindow::setWindowTitle()
 }
 
 
-void AWindow::selectObject( float x, float y, float z, float t, int modifier )
+void AWindow::selectObject( const vector<float> & pos, int modifier )
 {
-  SelectFactory::select( this, Point3df( x, y, z ), t, _selectTolerence, 
-			 modifier );
+  SelectFactory::select( this, pos, _selectTolerence, modifier );
 }
 
 
@@ -369,19 +368,19 @@ bool AWindow::hasObject( AObject * obj ) const
 }
 
 
-void AWindow::findObjectsAt( float x, float y, float z, float t, 
+void AWindow::findObjectsAt( const vector<float> & pos,
                              set<AObject *>& shown, set<AObject *>& hidden )
 {
-  SelectFactory::findObjectsAt( this, Point3df( x, y, z ), t, 
-				_selectTolerence, shown, hidden, "default" );
+  SelectFactory::findObjectsAt( this, pos, _selectTolerence, shown, hidden,
+                                "default" );
 }
 
 
-AObject* AWindow::objectAt( float x, float y, float z, float t )
+AObject* AWindow::objectAt( const vector<float> & pos )
 {
   set<AObject *>	shown, hidden;
 
-  findObjectsAt( x, y, z, t, shown, hidden );
+  findObjectsAt( pos, shown, hidden );
   if( shown.size() > 0 )
     return( *shown.begin() );
   if( hidden.size() > 0 )
@@ -444,6 +443,46 @@ Point3df AWindow::getPosition() const
 }
 
 
+vector<float> AWindow::getFullPosition() const
+{
+  vector<float> pos( 3 );
+  pos.reserve( 3 + _timepos.size() );
+  pos[0] = _position[0];
+  pos[1] = _position[1];
+  pos[2] = _position[2];
+  pos.insert( pos.end(), _timepos.begin(), _timepos.end() );
+
+  return pos;
+}
+
+
+void AWindow::setPosition( const vector<float> & position,
+                           const Referential * orgref )
+{
+  anatomist::Transformation *tra = 0;
+  if( orgref )
+    tra = theAnatomist->getTransformation( orgref, getReferential() );
+  Point3df pos( position[0], position[1], position[2] );
+  if( tra )
+    pos = tra->transform( pos );
+  if( pos != _position )
+  {
+    _position = pos;
+    SetRefreshFlag();
+  }
+
+  if( position.size() > 3 )
+  {
+    vector<float> tpos( position.begin() + 3, position.end() );
+    if( tpos != _timepos )
+    {
+      _timepos = tpos;
+      SetRefreshFlag();
+    }
+  }
+}
+
+
 void AWindow::setPosition( const Point3df& position ,
                            const Referential * orgref )
 {
@@ -465,9 +504,9 @@ void AWindow::setPosition( const Point3df& position ,
 
 void AWindow::setTime( float time )
 {
-  if( time != _time )
+  if( time != _timepos[0] )
   {
-    _time = time;
+    _timepos[0] = time;
     SetRefreshFlag();
   }
 }

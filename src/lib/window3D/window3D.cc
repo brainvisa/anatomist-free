@@ -41,6 +41,7 @@
 #include <aims/utility/converter_texture.h>
 
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/window3D/window3D_private.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window3D/glwidget3D.h>
 #include <anatomist/control/toolTips-qt.h>
@@ -156,8 +157,10 @@ struct AWindow3D::Private
     QLabel *refdirmark;
     QLabel *timelabel;
     QWidget *timepanel;
+    vector<QWidget *> sliderpanels;
     QSlider *slids;
     QLabel *slicelabel;
+    vector<QLabel *> slicelabels;
     QWidget *slicepanel;
     QAViewToolTip *tooltip;
     AWindow3D::ViewType viewtype;
@@ -482,35 +485,6 @@ namespace
     return c;
   }
 
-
-  /* this subclassed slider always accepts the MouseMove event so that
-     the drag system doesn't start, which causes problems because then the
-     slider doesn't get MouseRelease events
-  */
-  class NoDragSlider : public QSlider
-  {
-  public:
-    NoDragSlider( int minValue, int maxValue, int pageStep, int value,
-                  Qt::Orientation orientation, QWidget * parent = 0,
-                  const char * name = 0 )
-      : QSlider( orientation, parent )
-    {
-      setObjectName( name );
-      setMinimum( minValue );
-      setMaximum( maxValue );
-      setPageStep( pageStep );
-      setValue( value );
-    }
-
-    virtual ~NoDragSlider() {}
-
-    virtual void mouseMoveEvent( QMouseEvent * e )
-    {
-      QSlider::mouseMoveEvent( e );
-      e->accept();
-    }
-  };
-
 }
 
 
@@ -551,6 +525,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   if (nodeco) d->refbox->hide();
 
   QWidget *hb = new QWidget(vb);
+  hb->setObjectName( "horiz_widget" );
   vlay->addWidget( hb );
   QHBoxLayout *hbl = new QHBoxLayout( hb );
   hbl->setSpacing(0);
@@ -637,15 +612,17 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     }
 
   d->slicepanel = new QWidget(hb);
+  d->sliderpanels.push_back( d->slicepanel );
   vlay = new QVBoxLayout( d->slicepanel );
   vlay->setSpacing(0);
   vlay->setMargin(0);
   hbl->addWidget( d->slicepanel );
-  d->slicelabel = new QLabel( d->slicepanel );
+  d->slicelabel = new QLabel( "0", d->slicepanel );
+  d->slicelabels.push_back( d->slicelabel );
   d->slicelabel->setFixedWidth(30);
   vlay->addWidget( d->slicelabel );
-  d->slids = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->slicepanel,
-                              "sliderS");
+  d->slids = new NoDragSlider( 0, 0, 0, 1, 0, Qt::Vertical, d->slicepanel,
+                               "sliderS" );
   d->sliders.push_back( d->slids );
   d->slids->setFixedWidth(d->slids->sizeHint().width());
   vlay->addWidget( d->slids );
@@ -654,15 +631,17 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->slicepanel->hide();
 
   d->timepanel = new QWidget(hb);
+  d->sliderpanels.push_back( d->timepanel );
   vlay = new QVBoxLayout( d->timepanel );
   vlay->setSpacing(0);
   vlay->setMargin(0);
   hbl->addWidget( d->timepanel );
-  d->timelabel = new QLabel( d->timepanel );
+  d->timelabel = new QLabel( "0", d->timepanel );
+  d->slicelabels.push_back( d->timelabel );
   d->timelabel->setFixedWidth(30);
   vlay->addWidget( d->timelabel );
-  d->slidt = new NoDragSlider(0, 0, 1, 0, Qt::Vertical, d->timepanel,
-                              "sliderT");
+  d->slidt = new NoDragSlider( 1, 0, 0, 1, 0, Qt::Vertical, d->timepanel,
+                               "sliderT" );
   d->sliders.push_back( d->slidt );
   d->slidt->setFixedWidth(d->slidt->sizeHint().width());
   vlay->addWidget( d->slidt );
@@ -952,7 +931,7 @@ namespace
 {
 
   void printPositionAndValue(AObject* obj, const Referential* wref,
-      const Point3df & wpos, float t, unsigned indent)
+      const Point3df & wpos, const vector<float> & tpos, unsigned indent)
   {
     if (obj->isMultiObject())
     {
@@ -963,7 +942,7 @@ namespace
       const MObject *mo = (const MObject *) obj;
       MObject::const_iterator im, em = mo->end();
       for (im = mo->begin(); im != em; ++im)
-        printPositionAndValue(*im, wref, wpos, t, indent + 2);
+        printPositionAndValue(*im, wref, wpos, tpos, indent + 2);
     }
     else if (obj->hasTexture())
     {
@@ -971,17 +950,35 @@ namespace
       vector<float> vals;
       unsigned i, n;
 
-      vals = obj->texValues(wpos, t, wref);
+      vector<float> fpos( 3 );
+      fpos[0] = wpos[0];
+      fpos[1] = wpos[1];
+      fpos[2] = wpos[2];
+      fpos.insert( fpos.end(), tpos.begin(), tpos.end() );
+      vals = obj->texValues( fpos, wref );
       for (i = 0; i < indent; ++i)
         cout << ' ';
       cout << obj->name() << " : ";
-      pos = anatomist::Transformation::transform(wpos, wref,
-          obj->getReferential(), Point3df(1, 1, 1), obj->VoxelSize());
-      if (obj->Is2DObject())
-        cout << Point3d((short) rint(pos[0]), (short) rint(pos[1]),
-            (short) rint(pos[2]));
+      pos = anatomist::Transformation::transform( wpos, wref,
+          obj->getReferential(), Point3df(1, 1, 1),
+          Point3df( obj->voxelSize() ) );
+      fpos[0] = pos[0];
+      fpos[1] = pos[1];
+      fpos[2] = pos[2];
+      if( obj->Is2DObject() )
+      {
+        cout << "(" << (short) rint( fpos[0] );
+        for( i=1, n=fpos.size(); i<n; ++i )
+          cout << ", " << (short) rint( fpos[i] );
+        cout << ")";
+      }
       else
-        cout << pos;
+      {
+        cout << "(" << fpos[0];
+        for( i=1, n=fpos.size(); i<n; ++i )
+          cout << ", " << fpos[i];
+        cout << ")";
+      }
       cout << " -> (";
       for (i = 0, n = vals.size(); i < n; ++i)
         cout << " " << vals[i];
@@ -998,14 +995,16 @@ void AWindow3D::printPositionAndValue()
   list<shared_ptr<AObject> >::iterator obj;
 
   for (obj = _objects.begin(); obj != _objects.end(); ++obj)
-    ::printPositionAndValue(obj->get(), getReferential(), _position, _time, 0);
+    ::printPositionAndValue(obj->get(), getReferential(), _position, _timepos,
+                            0);
 }
 
 void AWindow3D::updateObject2D(AObject* obj, PrimList* pl,
     ViewState::glSelectRenderMode selectmode)
 {
   if (!pl) pl = &d->primitives;
-  SliceViewState st(_time, true, _position, &d->slicequat, getReferential(),
+  SliceViewState st(_timepos, true, _position, &d->slicequat,
+                    getReferential(),
       windowGeometry(), &d->draw->quaternion(), this, selectmode);
   obj->render(*pl, st);
 }
@@ -1014,7 +1013,7 @@ void AWindow3D::updateObject3D(AObject* obj, PrimList* pl,
     ViewState::glSelectRenderMode selectmode)
 {
   if (!pl) pl = &d->primitives;
-  obj->render(*pl, ViewState(_time, this, selectmode));
+  obj->render(*pl, ViewState(_timepos, this, selectmode));
 }
 
 void AWindow3D::updateObject(AObject* obj, PrimList* pl,
@@ -1088,10 +1087,12 @@ void AWindow3D::refreshNow()
 
   list<shared_ptr<AObject> >::iterator i;
 
-  float mint = 0, maxt = 0;
   Point3df vs, bmin, bmax;
+  vector<float> bbmin, bbmax;
 
-  boundingBox(bmin, bmax, mint, maxt);
+  boundingBox( bbmin, bbmax );
+  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
   if (d->needsextrema)
   {
     d->draw->setExtrema(bmin, bmax);
@@ -1115,7 +1116,7 @@ void AWindow3D::refreshNow()
   }
 
   setupSliceSlider();
-  setupTimeSlider(mint, maxt);
+  setupTimeSlider( bbmin, bbmax );
   if (d->askedsize.width() >= 0 && d->askedsize.height() > 0)
   {
     resizeView(d->askedsize.width(), d->askedsize.height());
@@ -1826,30 +1827,87 @@ void AWindow3D::resizeView(int w, int h)
   }
 }
 
-void AWindow3D::setupTimeSlider(float mint, float maxt)
+void AWindow3D::setupTimeSlider( const vector<float> & bmin,
+                                 const vector<float> & bmax )
 {
-  if (mint >= maxt)
-  {
-    d->timepanel->hide();
-    d->slidt->setValue(0);
-    //cout << "hide time, mint : " << mint << ", maxt : " << maxt << "\n";
-    return;
-  }
-  d->slidt->setMinimum( (int) mint );
-  d->slidt->setMaximum( (int) maxt );
+  d->slidt->setMinimum( (int) bmin[3] );
+  d->slidt->setMaximum( (int) bmax[3] );
   int t = (int) getTime();
   if (d->slidt->value() != t)
   {
     d->slidt->setValue(t);
     d->timelabel->setText(QString::number(t));
   }
-  d->timepanel->show();
+  if( bmin[3] >= bmax[3] )
+    d->timepanel->hide();
+  else
+    d->timepanel->show();
   //cout << "show time\n";
+
+  unsigned i, n = bmax.size();
+  if( n - 3 > _timepos.size() )
+  {
+    unsigned m = _timepos.size();
+    _timepos.resize( n - 3 );
+    for( i=m; i<n - 3; ++i )
+      _timepos[i] = 0;
+  }
+  else if( n - 3 < _timepos.size() )
+    _timepos.resize( n - 3 );
+
+  QSlider *slider;
+  for( i=4; i<n; ++i )
+  {
+    if( d->sliderpanels.size() < i - 1 )
+    {
+      // create a new slider
+      QWidget *hb = findChild<QWidget *>( "horiz_widget" );
+      QWidget *panel = new QWidget( hb );
+      d->sliderpanels.push_back( panel );
+      hb->layout()->addWidget( panel );
+      QVBoxLayout *vlay = new QVBoxLayout( panel );
+      vlay->setSpacing(0);
+      vlay->setMargin(0);
+      QLabel *label = new QLabel( "0", panel );
+      d->slicelabels.push_back( label );
+      label->setFixedWidth(30);
+      vlay->addWidget( label );
+      stringstream name;
+      name << "sliderX" << i;
+      slider
+        = new NoDragSlider( i-2, 0, 0, 1, 0, Qt::Vertical, d->timepanel,
+                            name.str().c_str() );
+      d->sliders.push_back( slider );
+      slider->setFixedWidth( slider->sizeHint().width() );
+      vlay->addWidget( slider );
+      panel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+                                         QSizePolicy::Expanding ) );
+      slider->setInvertedAppearance( true );
+      slider->setInvertedControls( true );
+      connect( slider, SIGNAL( myValueChanged( int, int ) ),
+               this, SLOT( changeTimeSliders( int, int ) ) );
+    }
+    slider = d->sliders[ i - 2 ];
+    slider->setMinimum( (int) bmin[i] );
+    slider->setMaximum( (int) bmax[i] );
+    d->sliderpanels[ i - 2 ]->show();
+  }
+
+  // delete additional sliders which are not useful any longer
+  for( n=d->sliderpanels.size() + 2; i<n; ++i )
+  {
+    delete d->sliderpanels[ d->sliderpanels.size() - 1 ];
+    d->sliders.erase( d->sliders.begin() + ( d->sliders.size() - 1 ) );
+    d->sliderpanels.erase( d->sliderpanels.begin()
+                           + ( d->sliderpanels.size() - 1 ) );
+    d->slicelabels.erase( d->slicelabels.begin()
+                          + ( d->slicelabels.size() - 1 ) );
+  }
 }
 
 void AWindow3D::setupSliceSlider(float mins, float maxs)
 {
-  //cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
+  // cout << "setupSliceSlider : " << mins << " - " << maxs << endl;
   if( d->slids->minimum() != (int) mins || d->slids->maximum() != (int) maxs )
   {
     d->slids->blockSignals(true);
@@ -1892,29 +1950,41 @@ void AWindow3D::setupSliceSlider()
   setupSliceSlider(mins, maxs);
 }
 
-void AWindow3D::changeTime(int t)
+
+void AWindow3D::changeTimeSliders( int slider_num, int value )
 {
-  if (t != (int) getTime())
+  int sl = slider_num - 1;
+  if( value != (int) _timepos[ sl ] )
   {
-    d->timelabel->setText(QString::number(t));
+    d->slicelabels[slider_num]->setText( QString::number( value ) );
+
     if( d->linkonslider )
     {
-      vector<float> p(4);
+      vector<float> p(3);
+      p.reserve( 3 + _timepos.size() );
       Point3df pos = getPosition();
       p[0] = pos[0];
       p[1] = pos[1];
       p[2] = pos[2];
-      p[3] = t;
-      LinkedCursorCommand *c = new LinkedCursorCommand(this, p);
+      p.insert( p.end(), _timepos.begin(), _timepos.end() );
+      LinkedCursorCommand *c = new LinkedCursorCommand( this, p );
       theProcessor->execute(c);
     }
     else
     {
-      setTime(t);
+      _timepos[sl] = value;
+      SetRefreshFlag();
       Refresh();
     }
   }
 }
+
+
+void AWindow3D::changeTime(int t)
+{
+  changeTimeSliders( 1, t );
+}
+
 
 int AWindow3D::updateSliceSlider()
 {
@@ -2054,11 +2124,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
   if( hasObject( o ) )
     return;
 
-  Point3df bmin, bmax;
-  float tmin, tmax;
-  //boundingBox( bmin, bmax, tmin, tmax );
-
-  // cout << "bmin = " <<  bmin << "bmax = "  << endl ;
+  vector<float> bmin, bmax;
 
   bool fst = _objects.empty();
   ControlledWindow::registerObject(o, temporaryObject, pos);
@@ -2071,20 +2137,13 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
 
   if (!temporaryObject)
   {
-    // d->needsboundingbox = true;
     d->needsextrema = true;
-    // d->needswingeom = true;
-    // d->needssliceslider = true;
-
-    /*boundingBox( bmin, bmax, tmin, tmax );
-     d->draw->setExtrema( bmin, bmax );
-     updateWindowGeometry();
-     setupSliceSlider();*/
 
     if( fst && _objects.size() == 1 )
     {
-      boundingBox(bmin, bmax, tmin, tmax);
-      d->draw->setExtrema(bmin, bmax);
+      boundingBox( bmin, bmax );
+      d->draw->setExtrema( Point3df( bmin[0], bmin[1], bmin[2] ),
+                           Point3df( bmax[0], bmax[1], bmax[2] ) );
       d->needsextrema = false;
       updateWindowGeometry();
       setupSliceSlider();
@@ -2103,8 +2162,13 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
           }
       }
       if (setpos)
+      {
         // set cursor in middle of object
-        setPosition((bmin + bmax) * 0.5f, getReferential() );
+        bmin[0] = ( bmin[0] + bmax[0] ) * 0.5f;
+        bmin[1] = ( bmin[1] + bmax[1] ) * 0.5f;
+        bmin[2] = ( bmin[2] + bmax[2] ) * 0.5f;
+        setPosition( bmin, getReferential() );
+      }
       setTime(0);
 
       // resize window if in 2D mode
@@ -2113,24 +2177,23 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
         float wf = 1.5;
         theAnatomist->config()->getProperty("windowSizeFactor", wf);
 
-        Point3df vs = o->VoxelSize();
-        Point3df mo, Mo;
+        vector<float> mo, Mo;
         switch (viewType())
         {
           case Axial:
             o->boundingBox2D( mo, Mo );
-            d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
-                (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ) );
+            d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] ) ),
+                (int) ( wf * (Mo[1] - mo[1] ) ) );
             break;
           case Coronal:
             o->boundingBox2D( mo, Mo );
-            d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] + vs[0] ) ),
-                (int) ( wf * ( Mo[2] - mo[2] + vs[2] ) ) );
+            d->askedsize = QSize( (int) ( wf * ( Mo[0] - mo[0] ) ),
+                (int) ( wf * ( Mo[2] - mo[2] ) ) );
             break;
           case Sagittal:
             o->boundingBox2D( mo, Mo );
-            d->askedsize = QSize( (int) ( wf * (Mo[1] - mo[1] + vs[1] ) ),
-                (int) ( wf * (Mo[2] - mo[2] + vs[2] ) ) );
+            d->askedsize = QSize( (int) ( wf * (Mo[1] - mo[1] ) ),
+                (int) ( wf * (Mo[2] - mo[2] ) ) );
             break;
           default:
             break;
@@ -2343,15 +2406,16 @@ Geometry AWindow3D::setupWindowGeometry(
 
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
-  Point3df size, s2, vst, vs, p, pmin, pmax, dmin, dmax;
+  Point3df p, dmin, dmax;
+  vector<float> pmin, pmax, size, s2, vst;
   Point4dl dimMin, dimMax;
   Referential *oref;
   AObject *o;
   anatomist::Transformation *tr;
   Point3df u, v, w;
 
-  size = Point3df(1, 1, 1);
-  vst = Point3df(1, 1, 1);
+  size = vector<float>( 3, 1.f );
+  vst = vector<float>( 3, 1.f );
   dimMin = Point4dl(0, 0, 0, 0);
   dimMax = Point4dl(1, 1, 1, 0);
 
@@ -2380,7 +2444,7 @@ Geometry AWindow3D::setupWindowGeometry(
 
     if( with3d || o->Is2DObject() )
     {
-      vs = s2 = o->VoxelSize();
+      s2 = o->voxelSize();
       //cout << "Object " << o->name() << ", vs : " << vs << endl;
 
       tr = 0;
@@ -2404,17 +2468,19 @@ Geometry AWindow3D::setupWindowGeometry(
       w = slicequat.transformInverse(w);
       //cout << "base : " << u << endl << v << endl << w << endl;
 
-      s2 = Point3df(1. / max(max(fabs(u[0] / s2[0]), fabs(u[1] / s2[1])), fabs(
-          u[2] / s2[2])), 1. / max(max(fabs(v[0] / s2[0]), fabs(v[1] / s2[1])),
-          fabs(v[2] / s2[2])), 1. / max(max(fabs(w[0] / s2[0]), fabs(w[1]
-          / s2[1])), fabs(w[2] / s2[2])));
+      s2[0] = 1. / max( max( fabs(u[0] / s2[0] ), fabs( u[1] / s2[1] ) ),
+                        fabs( u[2] / s2[2] ) );
+      s2[1] = 1. / max( max( fabs(v[0] / s2[0]), fabs( v[1] / s2[1] ) ),
+                        fabs(v[2] / s2[2] ) );
+      s2[3] = 1. / max( max( fabs(w[0] / s2[0]), fabs( w[1] / s2[1] ) ),
+                        fabs( w[2] / s2[2] ) );
 
       // check extrema
 
       if ((*obj)->boundingBox(pmin, pmax))
       {
         //cout << "boundingbox : " << pmin << " / " << pmax << endl;
-        p = pmin;
+        p = Point3df( pmin[0], pmin[1], pmin[2] );
         if (tr) p = tr->transform(p);
         p = slicequat.transform(p);
 
@@ -2539,7 +2605,7 @@ Geometry AWindow3D::setupWindowGeometry(
     dimMax[2] = dimMin[2] + dimmax;
   }
 
-  return Geometry(size, dimMin, dimMax);
+  return Geometry( Point3df(size), dimMin, dimMax );
 }
 
 namespace
@@ -2570,17 +2636,28 @@ namespace
 
 }
 
+
 void AWindow3D::setPosition( const Point3df& position,
                              const Referential* orgref )
 {
-  anatomist::Transformation *tra = theAnatomist->getTransformation(orgref,
-      getReferential());
-  Point3df pos;
+  vector<float> pos( 3 );
+  pos[0] = position[0];
+  pos[1] = position[1];
+  pos[2] = position[2];
+  setPosition( pos, orgref );
+}
+
+
+void AWindow3D::setPosition( const vector<float> & position,
+                             const Referential* orgref )
+{
+  anatomist::Transformation *tra = 0;
+  if( orgref )
+    tra = theAnatomist->getTransformation( orgref, getReferential() );
+  Point3df pos( position[0], position[1], position[2] );
 
   if (tra)
-    pos = tra->transform(position);
-  else
-    pos = position;
+    pos = tra->transform( pos );
 
   Geometry *geom = windowGeometry();
 
@@ -2603,23 +2680,46 @@ void AWindow3D::setPosition( const Point3df& position,
       pos += float( rint(z) - z ) * geom->Size()[2] * dir;
   }
 
-  if (pos != _position)
+  bool haschanged = false;
+
+  if( pos != _position )
   {
     _position = pos;
     SetRefreshFlag();
+    haschanged = true;
     updateSliceSlider();
+  }
+
+  if( position.size() > 3 )
+  {
+    vector<float> tpos( position.begin() + 3, position.end() );
+    if( tpos != _timepos )
+    {
+      _timepos = tpos;
+      SetRefreshFlag();
+      haschanged = true;
+      updateTimeSliders();
+    }
+  }
+
+  if( haschanged )
+  {
     // status bar
     QStatusBar *sb = statusBar();
-    sb->showMessage( tr("cursor position: ") + "( " 
-      + QString::number(_position[0])
-      + ", " + QString::number(_position[1]) + ", " + QString::number(
-        _position[2]) + ", " + QString::number(_time) + " )" );
+    QString spos = "( "
+      + QString::number( _position[0] )
+      + ", " + QString::number( _position[1] ) + ", "
+      + QString::number( _position[2] );
+    unsigned i, n = _timepos.size();
+    for( i=0; i<n; ++i )
+      spos += ", " + QString::number( _timepos[i] );
+    sb->showMessage( tr("cursor position: ") + spos + " )" );
     // object value
     AObject *obj = objectToShow(this, _sobjects);
     if (obj)
     {
-      vector<float> vals = obj->texValues(
-        _position, _time, getReferential() );
+      vector<float> vals = obj->texValues( getFullPosition(),
+                                           getReferential() );
       QString txt;
       unsigned i, n = vals.size();
       for (i = 0; i < n; ++i)
@@ -2794,23 +2894,6 @@ void AWindow3D::syncViews(bool keepextrema)
 }
 
 
-bool AWindow3D::boundingBox(Point3df & bmin, Point3df & bmax,
-                            float & tmin, float & tmax ) const
-{
-  vector<float> bbmin, bbmax;
-  bool res = boundingBox( bbmin, bbmax );
-  bmin[0] = bbmin[0];
-  bmin[1] = bbmin[1];
-  bmin[2] = bbmin[2];
-  tmin = bbmin[3];
-  bmax[0] = bbmax[0];
-  bmax[1] = bbmax[1];
-  bmax[2] = bbmax[2];
-  tmax = bbmax[3];
-  return res;
-}
-
-
 bool AWindow3D::boundingBox( vector<float> & bmin,
                              vector<float> & bmax ) const
 {
@@ -2906,12 +2989,12 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
 
 void AWindow3D::focusView()
 {
-  float tmin, tmax;
-  Point3df bmin, bmax;
+  vector<float> bmin, bmax;
 
-  if (boundingBox(bmin, bmax, tmin, tmax))
+  if( boundingBox( bmin, bmax ) )
   {
-    d->draw->setExtrema(bmin, bmax);
+    d->draw->setExtrema( Point3df( bmin[0], bmin[1], bmin[2] ),
+                         Point3df( bmax[0], bmax[1], bmax[2] ) );
     d->needsextrema = false;
     d->draw->setZoom(1.);
     d->draw->setAutoCentering(true);
@@ -3308,6 +3391,24 @@ void AWindow3D::setTimeSliderPosition(int position)
 {
   d->slidt->setValue(position);
 }
+
+
+void AWindow3D::updateTimeSliders()
+{
+  unsigned i, n = std::min( _timepos.size(), d->sliders.size() - 1 );
+  for( i=0; i<n; ++i )
+  {
+    d->sliders[i+1]->setValue( int( _timepos[i] ) );
+    d->slicelabels[i+1]->setText( QString::number( int( _timepos[i] ) ) );
+  }
+  n = d->sliders.size() - 1;
+  for( ; i<n; ++i )
+  {
+    d->sliders[i+1]->setValue( 0 );
+    d->slicelabels[i+1]->setText( QString::number( 0 ) );
+  }
+}
+
 
 void AWindow3D::switchToolbox()
 {

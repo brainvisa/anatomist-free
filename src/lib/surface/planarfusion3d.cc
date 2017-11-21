@@ -69,7 +69,8 @@ int PlanarFusion3D::registerClass()
 struct PlanarFusion3D::Private
 {
   Private() 
-    : xmin( 0 ), xmax( 0 ), ymin( 0 ), ymax( 0 ), refreshVTexture( true )
+    : xmin( 0 ), xmax( 0 ), ymin( 0 ), ymax( 0 ), volindex( 0 ),
+      refreshVTexture( true )
   {}
 
   float		xmin;
@@ -79,6 +80,7 @@ struct PlanarFusion3D::Private
   Geometry	geometry;
   Quaternion	quat;
   Point3df	origin;
+  unsigned      volindex;
   mutable map<unsigned, vector<Point2df> >	vtexture;
   mutable bool					refreshVTexture;
 };
@@ -121,6 +123,9 @@ PlanarFusion3D::PlanarFusion3D( const vector<AObject *> & obj )
     setReferentialInheritance( *surf.begin() );
   for( io=surf.begin(), fo=surf.end(); io!=fo; ++io )
     insert( *io );
+  d->volindex = surf.size();
+  cout << "volindex: " << d->volindex << endl;
+  cout << "vols: " << vol.size() << endl;
   for( io=vol.begin(), fo=vol.end(); io!=fo; ++io )
     insert( *io );
 
@@ -148,13 +153,21 @@ int PlanarFusion3D::classType()
 
 const AObject* PlanarFusion3D::volume() const
 {
-  return *(++begin());
+  iterator	ii = begin();
+  int		i;
+  for( i=0; i<d->volindex; ++i )
+    ++ii;
+  return *ii;
 }
 
 
 AObject* PlanarFusion3D::volume()
 {
-  return *(++begin());
+  iterator	ii = begin();
+  int		i;
+  for( i=0; i<d->volindex; ++i )
+    ++ii;
+  return *ii;
 }
 
 
@@ -345,7 +358,8 @@ unsigned PlanarFusion3D::glTexCoordSize( const ViewState & state,
   refreshTexCoords( state );
 
   const AObject	*functional = volume();
-  unsigned	t = (unsigned) (state.time / functional->TimeStep() );
+  unsigned	t = (unsigned) ( state.timedims[0]
+                                 / functional->voxelSize()[3] );
   map<unsigned, vector<Point2df> >::const_iterator it = d->vtexture.find( t );
 
   if( it == d->vtexture.end() )
@@ -364,7 +378,8 @@ const GLfloat* PlanarFusion3D::glTexCoordArray( const ViewState & state,
   refreshTexCoords( state );
 
   const AObject	*functional = volume();
-  unsigned	t = (unsigned) (state.time / functional->TimeStep() );
+  unsigned	t = (unsigned) ( state.timedims[0]
+                                 / functional->voxelSize()[3] );
   map<unsigned, vector<Point2df> >::const_iterator it = d->vtexture.find( t );
 
   if( it == d->vtexture.end() )
@@ -374,16 +389,46 @@ const GLfloat* PlanarFusion3D::glTexCoordArray( const ViewState & state,
 }
 
 
-bool PlanarFusion3D::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool PlanarFusion3D::boundingBox( vector<float> & bmin,
+                                  vector<float> & bmax ) const
 {
-  return mesh()->boundingBox( bmin, bmax );
+  bool ok = mesh()->boundingBox( bmin, bmax );
+  iterator	ii = begin(), ei = end();
+  int		i, n;
+  for( i=0; i<d->volindex; ++i )
+    ++ii;
+  for( ; ii!=ei; ++ii )
+  {
+    vector<float> obmin, obmax;
+    bool ook = (*ii)->boundingBox( obmin, obmax );
+    ok &= ook;
+    if( ook )
+    {
+      for( i=3, n=obmax.size(); i<n; ++i )
+      {
+        if( bmin.size() <= i )
+        {
+          bmin.push_back( obmin[i] );
+          bmax.push_back( obmax[i] );
+        }
+        else
+        {
+          if( obmin[i] < bmin[i] )
+            bmin[i] = obmin[i];
+          if( obmax[i] > bmax[i] )
+            bmax[i] = obmax[i];
+        }
+      }
+    }
+  }
+  return ok;
 }
 
 
 bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 {
   const AObject	*vol = volume();
-  unsigned	time = (unsigned) (state.time / vol->TimeStep() );
+  unsigned	time = (unsigned) (state.timedims[0] / vol->voxelSize()[3] );
 
   if( d->refreshVTexture )
     d->vtexture.clear();
@@ -502,7 +547,7 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 
   // handle geometry and bounds
 
-  Point3df	vs = vol->VoxelSize();
+  vector<float>	vs = vol->voxelSize();
 
   // we must select geometry in the volume local referential
   // (code copied from Window3D::updateWindowGeometry() )
@@ -572,6 +617,8 @@ VolumeRef<AimsRGBA> PlanarFusion3D::glBuildTexImage(
   const ViewState & state, unsigned tex, int dimx, int dimy,
   bool /*useTexScale*/ ) const
 {
+  // cout << "PlanarFusion3D::glBuildTexImage\n";
+
   refreshTexCoords( state );
 
   const GLComponent     *surf = mesh()->glAPI();
@@ -607,7 +654,7 @@ VolumeRef<AimsRGBA> PlanarFusion3D::glBuildTexImage(
 
   image.data = (char *) &teximage( 0 );
 
-  SliceViewState        sst( state.time, true, d->origin, &d->quat,
+  SliceViewState        sst( state.timedims, true, d->origin, &d->quat,
                              getReferential(), &d->geometry );
   bool  retcode = vol->update2DTexture( image, d->origin, sst );
 
@@ -626,7 +673,7 @@ bool PlanarFusion3D::glMakeTexImage( const ViewState & state,
 
   refreshTexCoords( state );
 
-  /* SliceViewState	sst( state.time, true, d->origin, &d->quat, 
+  /* SliceViewState	sst( state.timedims, true, d->origin, &d->quat,
                              getReferential(), &d->geometry );
     return volume()->glAPI()->glMakeTexImage( sst, gltex, tex ); */
 
@@ -653,7 +700,7 @@ bool PlanarFusion3D::glMakeTexImage( const ViewState & state,
 
   // ---
 
-  SliceViewState	sst( state.time, true, d->origin, &d->quat, 
+  SliceViewState	sst( state.timedims, true, d->origin, &d->quat,
                              getReferential(), &d->geometry );
   bool	retcode = vol->update2DTexture( image, d->origin, sst );
 
@@ -736,6 +783,72 @@ void PlanarFusion3D::glSetAutoTexParams( const float* params, unsigned coord,
 AObject* PlanarFusion3D::fallbackReferentialInheritance() const
 {
   return *begin();
+}
+
+
+string PlanarFusion3D::viewStateID( glPart part, const ViewState & state ) const
+{
+  // cout << "PlanarFusion3D::viewStateID " << part << ", this: " << this << endl;
+
+  vector<float> td = state.timedims;
+  vector<float> bbmin, bbmax;
+  size_t i, n = td.size();
+  if( boundingBox( bbmin, bbmax ) )
+  {
+    n = std::min( n, bbmax.size() - 3 );
+    for( i=0; i<n; ++i )
+    {
+      if( td[i] < bbmin[i + 3] )
+        td[i] = bbmin[i + 3];
+      if( td[i] > bbmax[i + 3] )
+        td[i] = bbmax[i + 3];
+    }
+    if( n < bbmax.size() - 3 )
+    {
+      n = bbmax.size() - 3;
+      for( ; i<n; ++i )
+      {
+        td.push_back( bbmin[i + 3] );
+      }
+    }
+  }
+  else
+  {
+    n = 1;
+    td[0] = 0.f;
+  }
+
+  // cout << "n: " << n << endl;
+
+  switch( part )
+  {
+  case glGENERAL:
+  case glBODY:
+    {
+      string s;
+      s.resize( sizeof(float) * ( n + 1 ) );
+      (float &) s[0] = n;
+      for( i=0; i<n; ++i )
+        (float &) s[sizeof(float) * ( i + 1 )] = td[i];
+      return s + GLMObject::viewStateID( part, state );
+    }
+  case glTEXIMAGE:
+  case glTEXENV:
+    {
+      string s;
+      s.resize( sizeof(float) * ( n + 1 ) );
+      (float &) s[0] = n;
+      for( i=0; i<n; ++i )
+      {
+        (float &) s[sizeof(float) * ( i + 1 )] = td[i];
+        // cout << td[i] << " ";
+      }
+      // cout << endl;
+      return s; // + GLMObject::viewStateID( glBODY, state );
+    }
+  default:
+    return GLMObject::viewStateID( part, state );
+  }
 }
 
 

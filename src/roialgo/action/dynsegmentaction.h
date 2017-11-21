@@ -169,9 +169,17 @@ inline
 bool 
 anatomist::RoiDynSegmentAction::valid( const anatomist::AObject* data, const Point3df& p )
 {
-  for( int t = 0 ; t <= data->MaxT() ; ++t )
-    if( data->mixedTexValue( p, t) <= 0. )
+  std::vector<float> vpos( 4 );
+  vpos[0] = p[0];
+  vpos[1] = p[1];
+  vpos[2] = p[2];
+
+  for( int t = 0; t <= data->MaxT(); ++t )
+  {
+    vpos[3] = t;
+    if( data->mixedTexValue( vpos ) <= 0. )
       return false ;
+  }
   return true ;
 }
 
@@ -184,13 +192,21 @@ anatomist::RoiDynSegmentAction::error( const anatomist::AObject* data,
 {
   AimsData<float> indiv( 1, int(data->MaxT()+1.1) ), indivTr(int(data->MaxT()+1.1 ) ) ;
   float norm2 = 0. ;
-  for ( int t = 0 ; t < data->MaxT()+1 ; ++t ){
-    float dt = data->mixedTexValue( p, t ) ;
-    indiv(0,t) = dt - meanSignal[t] ;
-    indivTr(t,0) = dt - meanSignal[t] ;
+  std::vector<float> vpos( 4 );
+  vpos[0] = p[0];
+  vpos[1] = p[1];
+  vpos[2] = p[2];
+
+  for ( int t = 0 ; t < data->MaxT()+1 ; ++t )
+  {
+    vpos[3] = t;
+    float dt = data->mixedTexValue( vpos );
+    indiv(0,t) = dt - meanSignal[t];
+    indivTr(t,0) = dt - meanSignal[t];
     norm2 += dt*dt ;
   }
-  if( norm2 == 0. ){
+  if( norm2 == 0. )
+  {
     return 100. ;
   }
   return indiv.cross( errorMatrix.cross(indivTr) )(0,0) / norm2 ;

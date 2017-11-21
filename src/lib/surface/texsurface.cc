@@ -341,9 +341,17 @@ float ATexSurface::MaxT() const
 }
 
 
-bool ATexSurface::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool ATexSurface::boundingBox( vector<float> & bmin,
+                               vector<float> & bmax ) const
 {
-  return( _surf->boundingBox( bmin, bmax ) );
+  bool res = _surf->boundingBox( bmin, bmax );
+  if( bmin.size() < 4 )
+    bmin.resize( 4 );
+  if( bmax.size() < 4 )
+    bmax.resize( 4 );
+  bmin[3] = MinT();
+  bmax[3] = MaxT();
+  return res;
 }
 
 void ATexSurface::setShaderParameters(const Shader &shader, const ViewState & state) const

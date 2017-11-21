@@ -243,15 +243,18 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
   Graph *graph = agraph->graph();
   string labelatt = "name";
   graph->getProperty( "label_property", labelatt );
+  vector<float> bbmin, bbmax;
   Point3df bmin, bmax;
-  agraph->boundingBox( bmin, bmax );
+  agraph->boundingBox( bbmin, bbmax );
+  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
   AnnotationProperties props;
   props.center = ( bmin + bmax ) / 2;
   // float size = ( bmax - bmin ).norm() * 0.2;
   props.bsize = bmax - bmin;
 //   float size = bsize[0] * bsize[1] * bsize[2];
   props.size = 2.; // ellipsoid going through the corner of the bbox
-  Point3df vs = agraph->VoxelSize();
+  vector<float> vs = agraph->voxelSize();
   list<rc_ptr<AObject> > objects;
   AimsTimeSurface<2, Void> *lines = new AimsTimeSurface<2, Void>;
   AWindow *win = view()->aWindow();
@@ -291,9 +294,10 @@ void AnnotationAction::buildGraphAnnotations( AGraph * agraph )
       }
       if( ogc.isNull() && av.get() )
       {
-        Point3df gbbm, gbbM;
-        av->boundingBox( gbbm, gbbM );
-        gc = ( gbbm + gbbM ) / 2;
+        vector<float> gbbm, gbbM;
+        if( av->boundingBox( gbbm, gbbM ) )
+          gc = ( Point3df( gbbm[0], gbbm[1], gbbm[2] )
+                 + Point3df( gbbM[0], gbbM[1], gbbM[2] ) ) / 2;
       }
       else if( ogc.isNull() )
         continue;

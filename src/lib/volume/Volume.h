@@ -72,16 +72,11 @@ namespace anatomist
 
     virtual AObject* clone( bool shallow = true );
 
-    float MinX2D() const { return 0.0; }
-    float MinY2D() const { return 0.0; }
-    float MinZ2D() const { return 0.0; }
-    float MaxX2D() const { return float(_volume->getSizeX()-1); }
-    float MaxY2D() const { return float(_volume->getSizeY()-1); }
-    float MaxZ2D() const { return float(_volume->getSizeZ()-1); }
     float MinT() const { return 0.0; }
     float MaxT() const { return float(_volume->getSizeT()-1); }
 
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const;
     virtual bool boundingBox( std::vector<float> & bmin,
                               std::vector<float> & bmax ) const;
 
@@ -106,8 +101,8 @@ namespace anatomist
     virtual bool update2DTexture( AImage &, const Point3df & posbase, 
                                   const SliceViewState &, 
                                   unsigned tex = 0 ) const;
-    virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & vs );
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & vs );
     /// Retourne la valeur d'un voxel du volume.
     float GetValue(Point3df pos,float time, Referential *winref,
 		   Geometry *wingeom);
@@ -118,14 +113,13 @@ namespace anatomist
     bool Is3DObject() { return(false); }
     virtual bool isTransparent() const;
     /// Not selectable: always returns Null
-    virtual AObject* ObjectAt( float x, float y, float z, float t, 
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
 
     virtual bool hasTexture() const { return( true ); }
     virtual unsigned dimTexture() const { return( 1 ); }
-    virtual float mixedTexValue( const Point3df & pos, float time ) const;
-    virtual std::vector<float> texValues( const Point3df & pos, 
-					  float time ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos ) const;
+    virtual std::vector<float>
+    texValues( const std::vector<float> & pos ) const;
 
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;
@@ -143,17 +137,19 @@ namespace anatomist
 
   protected:
     ///	Generic texture filling routine for any transformation
-    void updateSlice( AImage & image, const Point3df & p0, float time, 
-		      const Transformation* tra, const Point3df & inc, 
-		      const Point3df & offset, const Geometry* wingeom ) const;
+    void updateSlice( AImage & image, const Point3df & p0,
+                      const std::vector<float> & time,
+                      const Transformation* tra, const Point3df & inc,
+                      const Point3df & offset, const Geometry* wingeom ) const;
     /// Optimized texture filling routine (no transformation)
-    void updateAxial( AImage *ximage, const Point3df & p0, float time ) const;
+    void updateAxial( AImage *ximage, const Point3df & p0,
+                      const std::vector<float> & time ) const;
     /// Optimized texture filling routine (no transformation)
     void updateCoronal( AImage *ximage, const Point3df & p0, 
-                        float time ) const;
+                        const std::vector<float> & time ) const;
     /// Optimized texture filling routine (no transformation)
     void updateSagittal( AImage *ximage, const Point3df & p0, 
-                         float time ) const;
+                         const std::vector<float> & time ) const;
 
   private:
     struct PrivateData;
@@ -164,7 +160,7 @@ namespace anatomist
 
   template<class T>
   inline AObject* 
-  anatomist::AVolume<T>::ObjectAt( float, float, float, float, float ) 
+  anatomist::AVolume<T>::objectAt( const std::vector<float> &, float )
   { return 0; }
 
 }

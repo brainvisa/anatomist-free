@@ -31,57 +31,28 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
-#include <anatomist/winprof/profStrategy.h>
-
+#include <anatomist/window3D/window3D_private.h>
+#include <QMouseEvent>
 
 using namespace anatomist;
-using namespace std;
+using namespace anatomist::internal;
 
 
-double *QAProfileStrategy::abscisse( Point4df&, int )
+NoDragSlider::~NoDragSlider()
 {
-  return (double *)0;
 }
 
 
-double *QAProfileStrategy::doit( AObject *d, Point3df& pt, float t, 
-                                 Point4df& pmin, int pdim, 
-                                 const Point4df & increment )
+void NoDragSlider::mouseMoveEvent( QMouseEvent * e )
 {
-  vector<float> vs = d->voxelSize();
-  float sx = vs[ 0 ];
-  double *y = new double[ pdim ];
-  vector<float> pos( 4 );
-  float inct = increment[3];
-  int i;
-
-  pos[0] = pt[0];
-  pos[1] = pt[1];
-  pos[2] = pt[2];
-  pos[3] = t;
-
-  for( i=0; i<pdim; i++, pos[3] += inct )
-  {
-    y[ i ] = d->mixedTexValue( pos );
-    pos[0] += increment[0];
-    pos[1] += increment[1];
-    pos[2] += increment[2];
-  }
-
-  return y;
+  QSlider::mouseMoveEvent( e );
+  e->accept();
 }
 
 
-
-
-int QAProfileStrategy::size( Point4df&, Point4df& )
+void NoDragSlider::_valueChanged( int value )
 {
-  return 0;
+  emit myValueChanged( number, value );
 }
 
 
-double QAProfileStrategy::markerPos( Point3df&, float, Point4df& )
-{
-  return 0.0;
-}

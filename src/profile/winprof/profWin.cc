@@ -149,7 +149,6 @@ QAProfileWindow::QAProfileWindow( QWidget *p, const char *name,
   profS = new QAProfileX();
 
   _position = Point3df( 0.0f, 0.0f, 0.0f );
-  _time = 0.0f;
   pmin = Point4df( 1000.0f, 1000.0f, 1000.0f, 1000.0f );
   pmax = Point4df( 0.0f, 0.0f, 0.0f, 0.0f );
 
@@ -316,14 +315,17 @@ void QAProfileWindow::initX()
   pmax = Point4df( 0.0f, 0.0f, 0.0f, 0.0f );
 
   set< AObject * >::iterator it;
-  Point3df		bmin, bmax, bmin2, bmax2;
+  Point3df      bmin, bmax, bmin2, bmax2;
+  vector<float> bbmin, bbmax;
   Referential *ref = getReferential();
 
   if ( !_sobjects.empty() )
   {
     for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {
-      (*it)->boundingBox( bmin, bmax );
+      (*it)->boundingBox( bbmin, bbmax );
+      bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+      bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
       Referential *oref = (*it)->getReferential();
       Transformation *tra = theAnatomist->getTransformation( ref, oref );
       
@@ -413,7 +415,6 @@ void QAProfileWindow::refreshNow()
 
   QAWindow::refreshNow();
 
-  Point3df vs;
   Point3df thePos;
   Referential *ref = getReferential();
 
@@ -443,7 +444,7 @@ void QAProfileWindow::refreshNow()
   if( incw[2] == 0. )
     pos0[2] = _position[2];
   if( incw[3] == 0. )
-    t0 = _time;
+    t0 = _timepos[0];
 
   for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {
@@ -453,7 +454,6 @@ void QAProfileWindow::refreshNow()
         thePos = tra->transform( pos0 );
       else
         thePos = pos0;
-      vs = (*it)->VoxelSize();
       Point4df increment;
       Point3df inc3;
       if( tra )
@@ -469,13 +469,10 @@ void QAProfileWindow::refreshNow()
       {
         increment = incw;
       }
-      /* thePos[0] /= vs[0];
-      thePos[1] /= vs[1];
-      thePos[2] /= vs[2]; */
       if ( pprof.find( *it ) != pprof.end() )  delete[] pprof[ *it ];
-      //pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim );
       cout << "doit...\n";
-      pprof[ *it ] = profS->doit( *it, thePos, _time, pmin, pdim, increment );
+      pprof[ *it ] = profS->doit( *it, thePos, _timepos[0], pmin, pdim,
+                                  increment );
       cout << "done\n";
 #if QWT_VERSION >= 0x060000
       QwtPlotCurve      *crv = d->mcurve[ *it ];
@@ -494,7 +491,7 @@ void QAProfileWindow::refreshNow()
 
   double pos = 0.0;
   if ( !_sobjects.empty() )
-    pos = profS->markerPos( thePos, _time, pmin );
+    pos = profS->markerPos( thePos, _timepos[0], pmin );
 
 #if QWT_VERSION >= 0x050000
   d->pmark1->setValue( pos, 0. );

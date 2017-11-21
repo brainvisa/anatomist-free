@@ -336,21 +336,23 @@ GLComponent* VectorField::glAPI()
 }
 
 //--------------------------------------------------------------
-void VectorField::setVoxelSize( const Point3df & voxelSize )
+void VectorField::setVoxelSize( const vector<float> & voxelSize )
 {
   (*begin())->setVoxelSize( voxelSize );
 }
 
 //--------------------------------------------------------------
-Point3df VectorField::VoxelSize() const
+vector<float> VectorField::voxelSize() const
 {
-  return (*begin())->VoxelSize();
+  // FIXME TOTO take axes changes into account
+  return (*begin())->voxelSize();
 }
 
 //--------------------------------------------------------------
-Point3df VectorField::glVoxelSize() const
+vector<float>  VectorField::glVoxelSize() const
 {
-  return (*begin())->VoxelSize();
+  // FIXME TOTO take axes changes into account
+  return voxelSize();
 }
 
 //--------------------------------------------------------------
@@ -495,10 +497,10 @@ Point4df VectorField::getPlane( const ViewState & state ) const
 }
 
 //--------------------------------------------------------------
-Point4df VectorField::glMin2D() const
+vector<float> VectorField::glMin2D() const
 {
 //   if ( !d->vecMesh )
-  return Point4df( 0, 0, 0, 0 );
+  return vector<float>( 4, 0.f );
 
 //   Point3df min, max;
 //   d->vecMesh->boundingBox( min, max );
@@ -507,9 +509,9 @@ Point4df VectorField::glMin2D() const
 }
 
 //--------------------------------------------------------------
-Point4df VectorField::glMax2D() const
+vector<float> VectorField::glMax2D() const
 {
-  Point4df p( 0. );
+  vector<float> p( 4, 0. );
   int chan = 0;
   if( !d->refvol[0] )
   {
@@ -550,7 +552,7 @@ void VectorField::buildMesh( const ViewState & state )
   if( dir1.norm2() < 1.e-6 )
     dir1 = dir1 = vectProduct( norm, Point3df( 0., 0., 1. ) );
   Point3df dir2 = vectProduct( norm, dir1 / dir1.norm() );
-  Point3df vs = VoxelSize();
+  vector<float> vs = voxelSize();
   dir1.normalize();
   dir2.normalize();
 
@@ -573,7 +575,7 @@ void VectorField::buildMesh( const ViewState & state )
   // project extremities to get bounds
   float fxmin = dir1.dot( Point3df( 0., 0., 0. ) ), fxmax = fxmin;
   float fymin = dir2.dot( Point3df( 0., 0., 0. ) ), fymax = fymin;
-  Point4df pmax4 = glMax2D();
+  vector<float> pmax4 = glMax2D();
   Point3df pmax( pmax4[0] * vs[0],
                  pmax4[1] * vs[1],
                  pmax4[2] * vs[2] );

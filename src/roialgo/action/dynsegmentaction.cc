@@ -416,15 +416,27 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
   
   if (!g) return ;
   AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  if( labels.dimX() != ( g->MaxX2D() - g->MinX2D() + 1 ) || 
-      labels.dimY() != ( g->MaxY2D() - g->MinY2D() + 1 ) ||
-      labels.dimZ() != ( g->MaxZ2D() - g->MinZ2D() + 1 ) ){
-    g->clearLabelsVolume() ;
-    g->setLabelsVolumeDimension( static_cast<int>( g->MaxX2D() - g->MinX2D() ) + 1, 
-				 static_cast<int>( g->MaxY2D() - g->MinY2D() ) + 1,
-				 static_cast<int>( g->MaxZ2D() - g->MinZ2D() ) + 1 ) ;
-  } else {
-    
+  vector<float> bbmin, bbmax;
+  vector<float> vs = g->voxelSize();
+  vector<int> dims( 3, 1 );
+
+  if( g->boundingBox2D( bbmin, bbmax ) )
+  {
+    dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
+    dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
+    dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
+    if( labels.dimX() != dims[0]
+        || labels.dimY() != dims[1]
+        || labels.dimZ() != dims[2] )
+    {
+
+      g->clearLabelsVolume() ;
+      g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
+    }
+  }
+  else
+  {
+
     //cout << "item : " << endl ;
     //cout << "\tbefore " << item.before << endl
     //	 << "\tafter " << item.after << endl ;
@@ -486,8 +498,8 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
       
 //       cout << "Position from cursor : (" << x << " , "<< y << ") = " 
 // 	    << pos << endl ;
-      
-      Point3df voxelSize = region->VoxelSize() ;
+
+      vector<float> voxelSize = region->voxelSize();
 
       Point3df normalVector( win->sliceQuaternion().transformInverse(
         Point3df(0., 0., 1.1) ) );
@@ -509,26 +521,37 @@ RoiDynSegmentAction::setPointToSegmentByDiscriminatingAnalyse( int x, int y, int
 
       Point3df p ;
       if ( transf )
-	p = Transformation::transform( pos, transf, voxelSize ) ;
+        p = Transformation::transform( pos, transf, Point3df( voxelSize ) ) ;
       else
-	{
-	  p = pos ;
-	  p[0] /= voxelSize[0] ; 
-	  p[1] /= voxelSize[1] ;
-	  p[2] /= voxelSize[2] ;
-	}
-      
+      {
+        p = pos ;
+        p[0] /= voxelSize[0] ;
+        p[1] /= voxelSize[1] ;
+        p[2] /= voxelSize[2] ;
+      }
+
       //cout << "P : " << p << endl ;
 
-      
-      Point3df vlOffset( g->MinX2D(), g->MinY2D(), g->MinZ2D() ) ;
-      Point3d pToInt( static_cast<int> ( p[0] +.5 ), 
-		      static_cast<int> ( p[1] +.5 ), 
-		      static_cast<int> ( p[2] +.5 ) ) ;
-      Point3d pVL( static_cast<int> ( p[0] - vlOffset[0] +.5 ), 
-		   static_cast<int> ( p[1] - vlOffset[1] +.5 ), 
-		   static_cast<int> ( p[2] - vlOffset[2] +.5 ) );
-      
+      vector<float> bbmin, bbmax;
+      vector<int> dims( 3, 1 );
+
+      if( g->boundingBox2D( bbmin, bbmax ) )
+      {
+        dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / voxelSize[0] ) );
+        dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / voxelSize[1] ) );
+        dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / voxelSize[2] ) );
+      }
+
+      Point3df vlOffset( bbmin[0] / voxelSize[0] + 0.5,
+                         bbmin[1] / voxelSize[1] + 0.5,
+                         bbmin[2] / voxelSize[2] + 0.5 );
+      Point3d pToInt( static_cast<int>(  rint( p[0] ) ),
+                      static_cast<int>( rint( p[1] ) ),
+                      static_cast<int>( rint( p[2] ) ) );
+      Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
+                    static_cast<int>( rint( p[1] - vlOffset[1] ) ),
+                    static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
+
 //       myPreviousSeed = mySeed ;
       mySeed = pVL ;
       mySeedChanged = true ;
@@ -573,7 +596,7 @@ Point3d
 RoiDynSegmentAction::maskHalfSize( const AObject * vol, int nbIndiv )
 {
   // cas 3D
-  Point3df voxSize( vol->VoxelSize() ) ;
+  vector<float> voxSize( vol->voxelSize() );
   int max, min1, min2 ;
   if( voxSize[0] > voxSize[1] && voxSize[0] > voxSize[2] ){
     max = 0 ; min1 = 1 ; min2 = 2 ;
@@ -609,18 +632,24 @@ RoiDynSegmentAction::pcaRegionGrowth( )
     AWarning("No volume selected") ;
     return ;
   }
-  
-  list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
+
+  list< pair< Point3d, ChangesItem> >* changes
+    = new list< pair< Point3d, ChangesItem> > ;
 
   Point3df	bmin, bmax ;
   Point3d       dims ;
-  myCurrentImage->boundingBox( bmin, bmax );
-  
+  vector<float> bbmin, bbmax;
+  myCurrentImage->boundingBox( bbmin, bbmax );
+  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
+  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
+
   // the .1 addition is due to some unfortunate rounding
-  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / myCurrentImage->VoxelSize()[0] + .1 ) ;
-  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / myCurrentImage->VoxelSize()[1] + .1 ) ;
-  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / myCurrentImage->VoxelSize()[2] + .1 ) ;
-  
+  vector<float> vs = myCurrentImage->voxelSize();
+
+  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / vs[0] + .1 ) ;
+  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / vs[1] + .1 ) ;
+  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / vs[2] + .1 ) ;
+
   //cout << "Dims = " << dims << endl ;
  
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
@@ -779,7 +808,7 @@ bool
 RoiDynSegmentAction::evaluateError( const Point3d& p, 
 				    const Point3d& halfSize, 
 				    const Point3d& dims,
-				    AimsData<float>&  errorMatrix, 
+				    AimsData<float>& errorMatrix,
 				    vector<float>& meanSignal,
 				    float& mean, float& var, 
 				    bool forceComputing )
@@ -793,34 +822,52 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
 				*(2*halfSize[2]+1), nbFrame );
   map<Point3d, float, PointLess>::iterator found ;
   if(!forceComputing )
-    if( (found = myPreviousComputing.find(p) ) != myPreviousComputing.end() ){
+    if( (found = myPreviousComputing.find(p) ) != myPreviousComputing.end() )
+    {
       mean = found->second ;
       //cout << "Already Computed"  << endl ;
       return true ;
     }
   float val ;
-  int nbIndiv = 0, nbInvalid = 0 ;
-  meanSignal = vector<float>( nbFrame, 0. ) ;
+  int nbIndiv = 0, nbInvalid = 0;
+  meanSignal = vector<float>( nbFrame, 0. );
+  vector<float> vpos( 4 );
+  vector<float> vs = myCurrentImage->voxelSize();
+  while( vs.size() < 4 )
+    vs.push_back( 1.f );
+
   for( int i = -halfSize[0] ; i <= halfSize[0]  ; ++i )
+  {
+    vpos[0] = ( p[0] + i ) * vs[0];
     for( int j = -halfSize[1] ; j <= halfSize[1]  ; ++j )
-      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k ){
-	bool valid = true ;
-	for( int t = 0 ; t < nbFrame && valid == true ; ++t ){
-	  if( in( dims, p + Point3d(i, j, k) ) ){
-	    val = myCurrentImage->mixedTexValue( Point3df( p[0] + i, p[1] + j, p[2] + k ), t ) ;
-	    if ( val <= 0. )
-		valid = false ;
-	    matriceIndiv( nbIndiv, t ) = val  ;
-	    meanSignal[t] += val ;
-	  }
-	}
-	if ( valid )
-	  ++nbIndiv ;
-	else 
-	  ++nbInvalid ;
+    {
+      vpos[1] = ( p[1] + j ) * vs[1];
+      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k )
+      {
+        vpos[2] = ( p[2] + k ) * vs[3];
+        bool valid = true ;
+        for( int t = 0 ; t < nbFrame && valid == true ; ++t )
+        {
+          if( in( dims, p + Point3d(i, j, k) ) )
+          {
+            vpos[3] = t * vs[3];
+            val = myCurrentImage->mixedTexValue( vpos );
+            if( val <= 0. )
+              valid = false ;
+            matriceIndiv( nbIndiv, t ) = val  ;
+            meanSignal[t] += val ;
+          }
+        }
+        if ( valid )
+          ++nbIndiv ;
+        else
+          ++nbInvalid ;
       }
-  
-  if ( nbIndiv < nbFrame ) {
+    }
+  }
+
+  if ( nbIndiv < nbFrame )
+  {
     cout << "Non physiological data " << endl ;
     return false ;
   }
@@ -833,21 +880,33 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
   
   // Calcul de la moyenne et l'écart type des erreurs
   for( int i = -halfSize[0] ; i <= halfSize[0]  ; ++i )
+  {
+    vpos[0] = ( p[0] + i ) * vs[0];
     for( int j = -halfSize[1] ; j <= halfSize[1]  ; ++j )
-      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k ){
-	bool valid = true ;
-	for( int t = 0 ; t < nbFrame ; ++t )
-	  if( myCurrentImage->mixedTexValue( Point3df( p[0] + i, p[1] + j, p[2] + k ), t ) <= 0. )
-	    valid = false ;
-	if ( valid ) {
-	  err = error( myCurrentImage, Point3df( p[0] + i, p[1] + j, p[2] + k ), meanSignal, errorMatrix ) ;
-	  //cout << "\tError : " << err << endl ;
-	  
-	  sum += err  ;
-	  sum2 += err * err ;
-	  ++nbInd ;
-	}
+    {
+      vpos[1] = ( p[1] + j ) * vs[1];
+      for( int k = -halfSize[2] ; k <= halfSize[2]  ; ++k )
+      {
+        vpos[2] = ( p[2] + k ) * vs[3];
+        bool valid = true ;
+        for( int t = 0 ; t < nbFrame ; ++t )
+          if( myCurrentImage->mixedTexValue( vpos ) <= 0. )
+            valid = false ;
+        if ( valid )
+        {
+          err = error( myCurrentImage,
+                       Point3df( p[0] + i, p[1] + j, p[2] + k ), meanSignal,
+                       errorMatrix ) ;
+          //cout << "\tError : " << err << endl ;
+
+          sum += err  ;
+          sum2 += err * err ;
+          ++nbInd ;
+        }
       }
+    }
+  }
+
   if( nbInd <= nbFrame )
     {
       cout << "No significant data around selected point" << endl ;
@@ -873,21 +932,19 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
   if(!g)
     return ;
 
-  Point3df	bmin, bmax ;
-  Point3d       dims ;
-  
+  vector<float> bmin, bmax;
+  Point3d       dims;
+
   if( !myCurrentImage )
     return ;
-  
+
   myCurrentImage->boundingBox( bmin, bmax );
-  
+
   // the .1 addition is due to some unfortunate rounding
-  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / 
-			      myCurrentImage->VoxelSize()[0] + .1 ) ;
-  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / 
-			      myCurrentImage->VoxelSize()[1] + .1 ) ;
-  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / 
-			      myCurrentImage->VoxelSize()[2] + .1 ) ;
+  vector<float> vs = myCurrentImage->voxelSize();
+  dims[0] = static_cast<int>( (bmax[0] - bmin[0]) / vs[0] + .1 );
+  dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / vs[1] + .1 );
+  dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / vs[2] + .1 );
   
   AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
   Bucket * currentModifiedRegion = RoiChangeProcessor::instance()->getCurrentRegion( 0 ) ;
@@ -985,7 +1042,7 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
 }
 
 void 
-RoiDynSegmentAction::refinePCA(  list< pair< Point3d, ChangesItem> >* changes )
+RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
 {
   if( !myCurrentImage )
     return ;
@@ -995,26 +1052,36 @@ RoiDynSegmentAction::refinePCA(  list< pair< Point3d, ChangesItem> >* changes )
   AimsData<float> matriceIndiv( (*changes).size(), nbFrame );
   
   myMeanSignal = vector<float>(nbFrame, 0.) ;
+  vector<float> vpos( 4 );
+  vector<float> vs = myCurrentImage->voxelSize();
+  while( vs.size() < 4 )
+    vs.push_back( 1.f );
   
   int indiv = 0 ;
-  while( bckIter != bckLast ){
-    Point3df pIn( (bckIter->first)[0], (bckIter->first)[1], (bckIter->first)[2] ) ;
-    for( int t = 0 ; t < nbFrame ; ++t ) {
-      matriceIndiv( indiv, t ) = myCurrentImage->mixedTexValue( pIn, t ) ;
+  while( bckIter != bckLast )
+  {
+    vpos[0] = (bckIter->first)[0] * vs[0];
+    vpos[1] = (bckIter->first)[1] * vs[1];
+    vpos[2] = (bckIter->first)[2] * vs[2];
+
+    for( int t = 0 ; t < nbFrame ; ++t )
+    {
+      vpos[3] = t * vs[3];
+      matriceIndiv( indiv, t ) = myCurrentImage->mixedTexValue( vpos );
       myMeanSignal[t] += matriceIndiv( indiv, t ) ;
     }
     ++bckIter ; ++indiv ;
   }
-  
+
   if( indiv <= 1 )
     return ;
   computeErrorMatrix( matriceIndiv, myErrorMatrix, myMeanSignal ) ;
-  
+
   bckIter = (*changes).begin() ;
-  
+
   float sum = 0., sum2 = 0. ;
   float err ;
-  
+
   // Calcul de la moyenne et l'écart type des erreurs
   while( bckIter != bckLast )
     {

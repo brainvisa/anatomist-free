@@ -76,37 +76,16 @@ bool LinkedCursorCommand::initSyntax()
 
 void LinkedCursorCommand::doit()
 {
-  Point3df	pos( _pos[0], _pos[1], _pos[2] );
-  bool		hastime = ( _pos.size() > 3 );
-  float		time = 0;
-  if( hastime )
-    time = _pos[3];
-
-//   cout << "linked cursor (mm): " << _pos[0] << ", " << _pos[1] << ", " 
-//        << _pos[2] << ", " << time << endl;
-
   if( !theAnatomist->hasWindow( _win ) )
     return;
 
-//   cout << "win : " << _win->Title() << endl;
-
-  theAnatomist->setLastPosition( pos, _win->getReferential() );
+  theAnatomist->setLastPosition( _pos, _win->getReferential() );
 
   set<AWindow*> group = theAnatomist->getWindowsInGroup( _win->Group() );
   set<AWindow*>::iterator gbegin = group.begin();
   set<AWindow*>::iterator gend = group.end();
   for( set<AWindow*>::iterator i = gbegin; i != gend; ++i )
-  {
-    if( hastime )
-      (*i)->setTime( time );
-    (*i)->setPosition( pos, _win->getReferential() );
-  }
-  /* AWindow3D	*w3 = dynamic_cast<AWindow3D *>( _win );
-  if( w3 )
-  {
-    w3->printPositionAndValue();
-    w3->getInfos3D();
-  } */
+    (*i)->setPosition( _pos, _win->getReferential() );
   _win->displayTalairach();
   theAnatomist->Refresh();
 

@@ -55,7 +55,7 @@ double *QAProfileY::doit( AObject *d, Point3df& pt, float t, Point4df& pmin,
 {
   Point3df	bmin, bmax;
   d->boundingBox( bmin, bmax );
-  Point3df vs = d->VoxelSize();
+  vector<float> vs = d->voxelSize();
   float sy = vs[ 1 ];
   int dY = (int)( ( bmax[1] - bmin[1] ) / sy );
   int omin = (int)( bmin[1] / sy );

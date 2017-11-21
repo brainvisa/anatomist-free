@@ -281,15 +281,9 @@ bool AObject::render( PrimList & prim, const ViewState & vs )
 }
 
 
-float AObject::TimeStep() const
+vector<float> AObject::voxelSize() const
 {
-  return 1.;
-}
-
-
-Point3df AObject::VoxelSize() const
-{
-  return Point3df( 1, 1, 1 );
+  return vector<float>( 4, 1.f );
 }
 
 
@@ -460,33 +454,46 @@ void AObject::clearHasChangedFlags() const
 }
 
 
-AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol, 
-			    const Referential* orgref, const Point3df & )
+AObject* AObject::objectAt( const vector<float> & pos, float tol,
+                            const Referential* orgref, const Point3df & )
 {
   if( !orgref || !getReferential() )
-    return( ObjectAt( x, y, z, t, tol ) );
+    return( objectAt( pos, tol ) );
 
   const Transformation	*tra 
     = theAnatomist->getTransformation( orgref, getReferential() );
   if( !tra )
-    return( ObjectAt( x, y, z, t, tol ) );
+    return( objectAt( pos, tol ) );
 
-  Point3df	tp = tra->transform( Point3df( x, y, z ) );
+  Point3df	tp = tra->transform( Point3df( pos[0], pos[1], pos[2] ) );
 
-  return( ObjectAt( tp[0], tp[1], tp[2], t, tol ) );
+  vector<float> new_pos = pos;
+  new_pos[0] = tp[0];
+  new_pos[1] = tp[1];
+  new_pos[2] = tp[2];
+
+  return( objectAt( new_pos, tol ) );
 }
 
 
-AObject* AObject::ObjectAt( float x, float y, float z, float t, float tol )
+AObject* AObject::objectAt( const vector<float> & pos, float tol )
 {
   if( tol < 0 ) tol *= -1;
 
   //	default behaviour is really primitive...
-  Point3df	bmin, bmax;
-  if( boundingBox( bmin, bmax ) 
-      && t>=MinT() && t<=MaxT() && x>=bmin[0]-tol && x<=bmax[0]+tol 
-      && y>=bmin[1]-tol && y<=bmax[1]+tol && z>=bmin[2]-tol && z<=bmax[2]+tol )
-    return this ;
+  vector<float> bmin, bmax;
+  if( boundingBox( bmin, bmax ) )
+  {
+    unsigned i, n = std::min( bmax.size(), pos.size() );
+    for( i=0; i<n; ++i )
+      if( pos[i] < bmin[i] || pos[i] > bmax[i] )
+        return 0;
+    for( n=pos.size(); i<n; ++i )
+      if( pos[i] != 0 )
+        // extra dimensions in pos should be 0 to be acceptable
+        return 0;
+    return this;
+  }
   else
     return 0;
 }
@@ -655,35 +662,40 @@ void AObject::createDefaultPalette( const string & name )
 }
 
 
-float AObject::mixedTexValue( const Point3df & pos, float time, 
+float AObject::mixedTexValue( const vector<float> & pos,
                               const Referential* orgRef ) const
 {
   Transformation *trans
     = theAnatomist->getTransformation( orgRef, getReferential() );
-  Point3df pt;
+  vector<float> pt = pos;
 
   if( trans )
-    pt = trans->transform( pos );
-  else
-    pt = pos;
-  return( mixedTexValue( pt, time ) );
+  {
+    Point3df ptp = trans->transform( Point3df( pos[0], pos[1], pos[2] ) );
+    pt[0] = ptp[0];
+    pt[1] = ptp[1];
+    pt[2] = ptp[2];
+  }
+  return mixedTexValue( pt );
 }
 
 
-vector<float> AObject::texValues( const Point3df & pos, float time,
+vector<float> AObject::texValues( const vector<float> & pos,
                                   const Referential* orgRef ) const
 {
   Transformation	*trans 
     = theAnatomist->getTransformation( orgRef, getReferential() );
-  Point3df		pt;
+  vector<float> pt = pos;
 
   if( trans )
-    pt = trans->transform( pos );
-  else
-    pt = pos;
-  //cout << "AObject::texValues, point org: " << pos << ", dst: " << pt 
-  //     << endl;
-  return( texValues( pt, time ) );
+  {
+    Point3df ptp = trans->transform( Point3df( pos[0], pos[1], pos[2] ) );
+    pt[0] = ptp[0];
+    pt[1] = ptp[1];
+    pt[2] = ptp[2];
+ }
+
+  return texValues( pt );
 }
 
 
@@ -744,39 +756,20 @@ void AObject::cleanup()
 }
 
 
-bool AObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
-{
-  bmin = Point3df( 0, 0, 0 );
-  bmax = Point3df( 0, 0, 0 );
-  return( false );
-}
-
-
 bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   bmin = vector<float>( 4, 0.f );
   bmax = vector<float>( 4, 0.f );
-  // for now use the 3D method
-  Point3df bbmin, bbmax;
-  bool res = boundingBox( bbmin, bbmax );
-  bmin[0] = bbmin[0];
-  bmin[1] = bbmin[1];
-  bmin[2] = bbmin[2];
-  bmax[0] = bbmax[0];
-  bmax[1] = bbmax[1];
-  bmax[2] = bbmax[2];
-  bmin[3] = MinT();
-  bmax[3] = MaxT();
-  return res;
+  vector<float> vs = voxelSize();
+  bmin[3] = MinT() * vs[3];
+  bmax[3] = MaxT() * vs[3];
+  return false;
 }
 
 
-bool AObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
+bool AObject::boundingBox2D( vector<float> & bmin, vector<float> & bmax ) const
 {
-  Point3df vs = VoxelSize();
-  bmin = Point3df( MinX2D() * vs[0], MinY2D() * vs[1], MinZ2D() * vs[2] );
-  bmax = Point3df( MaxX2D() * vs[0], MaxY2D() * vs[1], MaxZ2D() * vs[2] );
-  return true;
+  return boundingBox( bmin, bmax );
 }
 
 

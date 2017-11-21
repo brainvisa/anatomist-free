@@ -81,7 +81,7 @@ int vtkAObject::registerClass()
 
 
 
-bool vtkAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
+bool vtkAObject::boundingBox ( vector<float> & bmin, vector<float> & bmax) const
 {
 
   if( !this->DataSet )
@@ -95,13 +95,17 @@ bool vtkAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
         return false;
       }
 
+      bmin.resize( 4 );
+      bmax.resize( 4 );
       bmin[0] = bounds[0];
       bmin[1] = bounds[2];
       bmin[2] = bounds[4];
+      bmin[3] = 0.f;
 
       bmax[0] = bounds[1];
       bmax[1] = bounds[3];
       bmax[2] = bounds[5];
+      bmax[3] = 0.f;
 
 //       cout << "BBox: " << bmin << " / " << bmax << endl;
 
@@ -114,13 +118,17 @@ bool vtkAObject::boundingBox ( Point3df & bmin, Point3df & bmax) const
 
   double* bounds = this->DataSet->GetBounds();
 
+  bmin.resize( 4 );
+  bmax.resize( 4 );
   bmin[0] = bounds[0];
   bmin[1] = bounds[2];
   bmin[2] = bounds[4];
+  bmin[3] = 0.f;
 
   bmax[0] = bounds[1];
   bmax[1] = bounds[3];
   bmax[2] = bounds[5];
+  bmax[3] = 0.f;
 
   return true;
 }

@@ -138,9 +138,12 @@ namespace anatomist
     virtual Point3df getPosition() const;
     /// Get time position of cursor
     float getTime() const;
+    virtual std::vector<float> getFullPosition() const;
     /// Set position of cursor
     virtual void setPosition( const Point3df& position ,
                               const Referential *refdep );
+    virtual void setPosition( const std::vector<float> & position,
+                              const Referential *refdep = 0 );
     /// Set time position of cursor
     virtual void setTime( float time );
     virtual void setTitle( const std::string & title );
@@ -160,31 +163,32 @@ namespace anatomist
 
     static void setLeftRightDisplay(bool state)
     {
-    	_leftRightDisplay = state;
+      _leftRightDisplay = state;
     }
     static int leftRightDisplay()
     {
-    	return _leftRightDisplay;
+      return _leftRightDisplay;
     }
     static void setLeftRightDisplaySize(int size)
     {
-    	_leftRightDisplaySize = size;
-	}
+      _leftRightDisplaySize = size;
+    }
     static int leftRightDisplaySize()
     {
-    	return _leftRightDisplaySize;
+      return _leftRightDisplaySize;
     }
-    static void setDisplayedAnnotations(const std::vector<std::string>& annotation_list)
+    static void setDisplayedAnnotations(
+      const std::vector<std::string> & annotation_list)
     {
-    	_displayedAnnotations = annotation_list;
+      _displayedAnnotations = annotation_list;
     }
     static std::vector<std::string> displayedAnnotations()
     {
-    	return _displayedAnnotations;
+      return _displayedAnnotations;
     }
-    static void setGlobalHasCursor(bool hasCursor){ _hasCursor = hasCursor; }
+    static void setGlobalHasCursor(bool hasCursor) { _hasCursor = hasCursor; }
     static int hasGlobalCursor() { return( _hasCursor ); }
-    static void setCursorSize(int cursorSize){ _cursorSize = cursorSize; }
+    static void setCursorSize(int cursorSize) { _cursorSize = cursorSize; }
     static int cursorSize() { return(_cursorSize); }
     /// Set the default color cursor flag.
     static void setUseDefaultCursorColor( bool state )
@@ -200,19 +204,19 @@ namespace anatomist
     /// Set the selection tolerence distance
     static void setSelectTolerence( float tol ) { _selectTolerence = tol; }
     virtual void displayClickPoint() {}
-    /**        Translates mouse position to Anatomist geometry position
-        @return        false if posision cannot be computed (out of viewport)
+    /** Translates mouse position to Anatomist geometry position
+        @return false if posision cannot be computed (out of viewport)
     */
     virtual bool positionFromCursor( int x, int y, Point3df & pos );
-    virtual AObject* objectAt( float x, float y, float z, float t );
+    virtual AObject* objectAt( const std::vector<float> & pos );
 
     ///        Selects (highlights) object at a given 4D space position
-    virtual void selectObject( float x, float y, float z, float t,
+    virtual void selectObject( const std::vector<float> & pos,
                                int modifier );
     ///        handles button3 click (menu)
     virtual void button3clicked( int x, int y );
     ///        finds objects at given position (internal)
-    virtual void findObjectsAt( float x, float y, float z, float t,
+    virtual void findObjectsAt( const std::vector<float> & pos,
                                 std::set<AObject *> & shown,
                                 std::set<AObject *> & hidden );
 
@@ -261,8 +265,8 @@ namespace anatomist
     /// Same but as a set (for fast search)
     std::set<AObject *>        _sobjects;
     std::set<AObject *>        _tempObjects;
-    /// Cursor time
-    float _time;
+    /// Cursor time + next dimensions
+    std::vector<float> _timepos;
     /// Referentiel.
     Referential *_referential;
     /// Geometry.
@@ -348,7 +352,7 @@ namespace anatomist
   inline
   float AWindow::getTime() const
   {
-    return _time;
+    return _timepos[0];
   }
 
   inline

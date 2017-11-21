@@ -93,62 +93,6 @@ float MObject::MaxT() const
 
 //
 
-float MObject::MinX2D() const
-{
-  Point3df m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return m[0] / VoxelSize()[0];
-}
-
-
-float MObject::MinY2D() const
-{
-  Point3df m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return m[1] / VoxelSize()[1];
-}
-
-
-float MObject::MinZ2D() const
-{
-  Point3df m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return m[2] / VoxelSize()[2];
-}
-
-
-float MObject::MaxX2D() const
-{
-  Point3df m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return M[0] / VoxelSize()[0];
-}
-
-
-float MObject::MaxY2D() const
-{
-  Point3df m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return M[1] / VoxelSize()[1];
-}
-
-
-float MObject::MaxZ2D() const
-{
-  Point3df m, M;
-  if( !boundingBox2D( m, M ) )
-    return 0;
-  return M[2] / VoxelSize()[2];
-}
-
-
-//
-
 void MObject::update( const Observable* o, void* arg )
 {
   // cout << "MObject::update, this: " << this << endl;
@@ -278,7 +222,7 @@ void MObject::SetMaterial( const Material & mat )
 
 
 AObject* 
-MObject::ObjectAt( float x, float y, float z, float t, float tol )
+MObject::objectAt( const vector<float> & pos, float tol )
 {
   //	By default, look into every child
 
@@ -287,7 +231,7 @@ MObject::ObjectAt( float x, float y, float z, float t, float tol )
 
   for( io=begin(); io!=end(); ++io )
     {
-      obj = (*io)->ObjectAt( x, y, z, t, tol );
+      obj = (*io)->objectAt( pos, tol );
       if( obj ) return( this );	// found one
     }
   return( 0 );	// not found
@@ -337,57 +281,63 @@ bool MObject::isTransparent() const
 }
 
 
-Point3df MObject::VoxelSize() const
+vector<float> MObject::voxelSize() const
 {
   const_iterator	io, fo=end();
-  Point3df		vs = Point3df( 1, 1, 1 ), vs2;
+  vector<float>		vs, vs2;
   bool			first = true;
+  unsigned i, n;
 
   for( io=begin(); io!=end(); ++io )
     if( (*io)->Is2DObject() )
+    {
+      if( first )
+        vs = (*io)->voxelSize();
+      else
       {
-	if( first )
-	  vs = (*io)->VoxelSize();
-	else
-	  {
-	    vs2 = (*io)->VoxelSize();
-	    if( vs2[0] < vs[0] )
-	      vs[0] = vs2[0];
-	    if( vs2[1] < vs[1] )
-	      vs[1] = vs2[1];
-	    if( vs2[2] < vs[2] )
-	      vs[2] = vs2[2];
-	  }
+        vs2 = (*io)->voxelSize();
+        for( i=0, n=std::min( vs.size(), vs2.size() ); i<n; ++i )
+        {
+          if( vs2[i] < vs[i] )
+            vs[i] = vs2[i];
+        }
+        if( n < vs2.size() )
+          vs.insert( vs.end(), vs2.begin() + n, vs2.end() );
       }
+    }
 
   return( vs );
 }
 
 
-bool MObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
+bool MObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   const_iterator	i, j = end();
   Referential		*r = getReferential(), *oref;
   Transformation	*tr;
   AObject		*o;
-  Point3df		pmin, pmax, pmino, pmaxo;
+  vector<float>		pmin, pmax;
   bool			valid = false;
+  unsigned k, n;
+  bmin.resize( 4 );
+  bmax.resize( 4 );
 
   for( i=begin(); i!=j; ++i )
   {
     o = *i;
 
-    if( o->boundingBox( pmino, pmaxo ) )
+    if( o->boundingBox( pmin, pmax ) )
     {
       if( r && ( oref = o->getReferential() )
           && ( tr = theAnatomist->getTransformation( oref, r ) ) )
       {
-        tr->transformBoundingBox( pmino, pmaxo, pmin, pmax );
-      }
-      else
-      {
-        pmin = pmino;
-        pmax = pmaxo;
+        Point3df ppmino, ppmaxo, pmino2, pmaxo2;
+        ppmino = Point3df( pmin[0], pmin[1], pmin[2] );
+        ppmaxo = Point3df( pmax[0], pmax[1], pmax[2] );
+        tr->transformBoundingBox( ppmino, ppmaxo, pmino2, pmaxo2 );
+        pmin[0] = pmino2[0];
+        pmin[1] = pmino2[1];
+        pmin[2] = pmino2[2];
       }
       if( !valid )
       {
@@ -396,18 +346,18 @@ bool MObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
       }
       else
       {
-        if( pmin[0] < bmin[0] )
-          bmin[0] = pmin[0];
-        if( pmin[1] < bmin[1] )
-          bmin[1] = pmin[1];
-        if( pmin[2] < bmin[2] )
-          bmin[2] = pmin[2];
-        if( pmax[0] > bmax[0] )
-          bmax[0] = pmax[0];
-        if( pmax[1] > bmax[1] )
-          bmax[1] = pmax[1];
-        if( pmax[2] > bmax[2] )
-          bmax[2] = pmax[2];
+        for( k=0, n=std::min( pmin.size(), bmin.size() ); k<n; ++k )
+        {
+          if( pmin[k] < bmin[k] )
+            bmin[k] = pmin[k];
+          if( pmax[k] > bmax[k] )
+          bmax[k] = pmax[k];
+        }
+        if( n < pmin.size() )
+        {
+          bmin.insert( bmin.end(), pmin.begin() + n, pmin.end() );
+          bmax.insert( bmax.end(), pmax.begin() + n, pmax.end() );
+        }
       }
       valid = true;
     }
@@ -417,30 +367,35 @@ bool MObject::boundingBox( Point3df & bmin, Point3df & bmax ) const
 }
 
 
-bool MObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
+bool MObject::boundingBox2D( vector<float> & bmin, vector<float> & bmax ) const
 {
   const_iterator        i, j = end();
   Referential           *r = getReferential(), *oref;
   Transformation        *tr;
   AObject               *o;
-  Point3df              pmin, pmax, pmino, pmaxo;
+  vector<float>              pmin, pmax, pmino, pmaxo;
   bool                  valid = false;
+  unsigned k, n;
 
   for( i=begin(); i!=j; ++i )
   {
     o = *i;
 
-    if( o->boundingBox2D( pmino, pmaxo ) )
+    if( o->boundingBox2D( pmin, pmax ) )
     {
       if( r && ( oref = o->getReferential() )
           && ( tr = theAnatomist->getTransformation( oref, r ) ) )
       {
-        tr->transformBoundingBox( pmino, pmaxo, pmin, pmax );
-      }
-      else
-      {
-        pmin = pmino;
-        pmax = pmaxo;
+        Point3df pmino, pmaxo, pmino2, pmaxo2;
+        pmino = Point3df( pmin[0], pmin[1], pmin[2] );
+        pmaxo = Point3df( pmax[0], pmax[1], pmax[2] );
+        tr->transformBoundingBox( pmino, pmaxo, pmino2, pmaxo2 );
+        pmin[0] = pmino2[0];
+        pmin[1] = pmino2[1];
+        pmin[2] = pmino2[2];
+        pmax[0] = pmaxo2[0];
+        pmax[1] = pmaxo2[1];
+        pmax[2] = pmaxo2[2];
       }
       if( !valid )
       {
@@ -449,18 +404,18 @@ bool MObject::boundingBox2D( Point3df & bmin, Point3df & bmax ) const
       }
       else
       {
-        if( pmin[0] < bmin[0] )
-          bmin[0] = pmin[0];
-        if( pmin[1] < bmin[1] )
-          bmin[1] = pmin[1];
-        if( pmin[2] < bmin[2] )
-          bmin[2] = pmin[2];
-        if( pmax[0] > bmax[0] )
-          bmax[0] = pmax[0];
-        if( pmax[1] > bmax[1] )
-          bmax[1] = pmax[1];
-        if( pmax[2] > bmax[2] )
-          bmax[2] = pmax[2];
+        for( k=0, n=std::min(bmin.size(), pmin.size() ); k<n; ++k )
+        {
+          if( pmin[k] < bmin[k] )
+            bmin[k] = pmin[k];
+          if( pmax[k] > bmax[k] )
+            bmax[k] = pmax[k];
+        }
+        if( bmin.size() > n )
+        {
+          pmin.insert( pmin.end(), bmin.begin() + n, bmin.end() );
+          pmax.insert( pmax.end(), bmax.begin() + n, bmax.end() );
+        }
       }
       valid = true;
     }

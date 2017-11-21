@@ -96,20 +96,17 @@ namespace anatomist
 
     virtual bool render( PrimList &, const ViewState & );
 
-    virtual float MinX2D() const;
-    virtual float MinY2D() const;
-    virtual float MinZ2D() const;
-    virtual float MaxX2D() const;
-    virtual float MaxY2D() const;
-    virtual float MaxZ2D() const;
     virtual void setGeomExtrema();
-    virtual bool boundingBox( Point3df & bmin, Point3df & bmax ) const;
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
+    virtual bool boundingBox2D( std::vector<float> & bmin,
+                                std::vector<float> & bmax ) const
+    { return boundingBox( bmin, bmax ); }
     /// Can be display in 2D windows.
     bool Is2DObject() { return(true); }
     /// Can be display in 3D windows.
     bool Is3DObject() { return(true); }
-    virtual AObject* ObjectAt( float x, float y, float z, float t,
-			       float tol = 0 );
+    virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
     virtual void SetMaterial( const Material & mat );
     virtual bool shouldRemoveChildrenWithMe() const;
 
@@ -154,8 +151,8 @@ namespace anatomist
     std::string labelProperty( bool allowDefault = true ) const;
     void setLabelProperty( const std::string & prop );
 
-    virtual Point3df VoxelSize() const;
-    virtual void setVoxelSize( const Point3df & vs );
+    virtual std::vector<float> voxelSize() const;
+    virtual void setVoxelSize( const std::vector<float> & vs );
     void clearLabelsVolume();
     void setLabelsVolumeDimension( unsigned dx, unsigned dy, unsigned dz );
     void setLabelsVolumeDimension( const Point3d & vd );

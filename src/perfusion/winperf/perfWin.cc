@@ -506,12 +506,12 @@ void QAPerfusionWindow::createPerfusion( const set< AObject * >& obj )
       if ( (*it)->MaxT() > 1 )  
 	((QAProfileWindow *)prof)->setDirection( QAProfileWindow::alongT );
       else
-	{
-	  Point3df	bmin, bmax;
-	  (*it)->boundingBox( bmin, bmax );
-	  if ( bmax[2] > 1 )
-	    ((QAProfileWindow *)prof)->setDirection( QAProfileWindow::alongZ );
-	}
+      {
+        vector<float> bmin, bmax;
+        (*it)->boundingBox( bmin, bmax );
+        if ( bmax[2] > 1 )
+          ((QAProfileWindow *)prof)->setDirection( QAProfileWindow::alongZ );
+      }
     }
 }
 

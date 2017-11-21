@@ -225,6 +225,7 @@ set( _headers
     window3D/trackObliqueSlice.h
     window3D/transformer.h
     window3D/window3D.h
+    window3D/window3D_private.h
     window3D/wFixedPointOfView.h
     window3D/wLightModel.h
     window3D/wTools3D.h
@@ -466,6 +467,7 @@ set( _sources
     window3D/trackObliqueSlice.cc
     window3D/transformer.cc
     window3D/window3D.cc
+    window3D/window3D_private.cc
     window3D/wFixedPointOfView.cc
     window3D/wLightModel.cc
     window3D/wTools3D.cc
