@@ -291,6 +291,9 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( AObject* obj )
   // cout << "QObjectBrowserWidget::insertObject( AObject* obj )\n";
   QTreeWidgetItem	*item = itemFor( obj );
 
+  bool sorted = isSortingEnabled();
+  setSortingEnabled( false );
+
   if( !item )
   {
     item = new QTreeWidgetItem;
@@ -302,6 +305,8 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( AObject* obj )
 
   decorateItem( item, obj );
   describeAObject( obj, item );
+
+  setSortingEnabled( sorted );
   return item;
 }
 
@@ -310,6 +315,9 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent,
                                                      AObject* obj )
 {
   QTreeWidgetItem	*item = itemFor( obj );
+
+  bool sorted = isSortingEnabled();
+  setSortingEnabled( false );
 
   if( !item )
     {
@@ -321,6 +329,8 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent,
 
   decorateItem( item, obj );
   describeAObject( obj, item );
+
+  setSortingEnabled( sorted );
   return item;
 }
 
@@ -328,6 +338,9 @@ QTreeWidgetItem* QObjectBrowserWidget::insertObject( QTreeWidgetItem* parent,
 void QObjectBrowserWidget::decorateItem( QTreeWidgetItem* item, AObject* obj )
 {
   using ::Edge;
+
+  bool sorted = isSortingEnabled();
+  setSortingEnabled( false );
 
   enum { nameCol, typeCol, valueCol, labelCol };
   map<int, QPixmap>::const_iterator	ip, fp=QObjectTree::TypeIcons.end();
@@ -383,6 +396,8 @@ void QObjectBrowserWidget::decorateItem( QTreeWidgetItem* item, AObject* obj )
         item->setText( valueCol, name.c_str() );
     }
   item->setText( typeCol, t.c_str() );
+
+  setSortingEnabled( sorted );
 }
 
 
@@ -395,6 +410,9 @@ void QObjectBrowserWidget::removeObject( QTreeWidgetItem* item, AObject* )
 
 void QObjectBrowserWidget::removeItem( QTreeWidgetItem* item )
 {
+  bool sorted = isSortingEnabled();
+  setSortingEnabled( false );
+
   map<QTreeWidgetItem *, ItemType>::iterator	it = _itemTypes.find( item );
 
   if( it != _itemTypes.end() )
@@ -441,6 +459,8 @@ void QObjectBrowserWidget::removeItem( QTreeWidgetItem* item )
     citem = item->child( i );
     removeItem( citem );
   }
+
+  setSortingEnabled( sorted );
 }
 
 
