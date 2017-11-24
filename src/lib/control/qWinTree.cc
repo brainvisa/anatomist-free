@@ -593,6 +593,7 @@ bool QWindowTree::dragMoveEventFromObject( QDragMoveEvent* event )
       return true;
     }
   }
+  return false;
 }
 
 
