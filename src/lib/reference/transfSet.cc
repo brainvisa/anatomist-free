@@ -63,18 +63,18 @@ namespace
 
   struct TransfHolder
   {
-    TransfHolder() : trans( 0 ), obs( 0 ) {}
-    TransfHolder( const TransfHolder & );
+    TransfHolder() : trans( 0 ), obs() {}
+    // TransfHolder( const TransfHolder & );
 
     Transformation			*trans;
-    mutable auto_ptr<TransformationObserver>	obs;
+    mutable unique_ptr<TransformationObserver>	obs;
   };
 
 
-  TransfHolder::TransfHolder( const TransfHolder & x )
-    : trans( x.trans ), obs( x.obs )
-  {
-  }
+//   TransfHolder::TransfHolder( const TransfHolder & x )
+//     : trans( x.trans ), obs( x.obs )
+//   {
+//   }
 
 }
 

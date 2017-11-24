@@ -128,7 +128,7 @@ void TextObject::setText( const std::string & text )
   glSetChanged( glBODY );
 
   const QFont *font = d->font;
-  auto_ptr<QFont> fontdel( 0 );
+  unique_ptr<QFont> fontdel;
   if( !font )
   {
     fontdel.reset( new QFont( qApp->font().family(), 30 ) );
@@ -210,7 +210,7 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
   QFont *font = d->font;
-  auto_ptr<QFont> fontdel( 0 );
+  unique_ptr<QFont> fontdel;
   if( !font )
   {
     fontdel.reset( new QFont( qApp->font().family(), 30 ) );
