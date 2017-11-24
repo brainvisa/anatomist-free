@@ -421,7 +421,7 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
   if( builtnewmatrix )
     theAnatomist->releaseObject( d->sparse );
   vector<ATexture *>::iterator it, et = d->textures.end();
-  for( it=d->textures.begin(), et; it!=et; ++it )
+  for( it=d->textures.begin(); it!=et; ++it )
   {
     insert( rc_ptr<AObject>( *it ) );
     theAnatomist->releaseObject( *it );

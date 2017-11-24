@@ -638,7 +638,7 @@ AVolumeView<T>::selectBestResolutionLevel( const Point3df & target_vs ) const
 template <typename T>
 bool AVolumeView<T>::render( PrimList & prim, const ViewState & vs )
 {
-  _myvolume->render( prim, vs );
+  return _myvolume->render( prim, vs );
 }
 
 
