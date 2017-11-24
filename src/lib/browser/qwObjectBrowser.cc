@@ -133,7 +133,7 @@ struct QObjectBrowser::Private
   QTimer        	*rviewrefreshtimer;
   bool          	rviewrefresh;
 
-  auto_ptr<View>	view;
+  unique_ptr<View>	view;
 
   QTreeWidgetItem        *lastselectednode1;
   QTreeWidgetItem        *lastselectednode2;
