@@ -64,17 +64,17 @@ namespace
   struct TransfHolder
   {
     TransfHolder() : trans( 0 ), obs() {}
-    // TransfHolder( const TransfHolder & );
+    TransfHolder( const TransfHolder & );
 
     Transformation			*trans;
     mutable unique_ptr<TransformationObserver>	obs;
   };
 
 
-//   TransfHolder::TransfHolder( const TransfHolder & x )
-//     : trans( x.trans ), obs( x.obs )
-//   {
-//   }
+  TransfHolder::TransfHolder( const TransfHolder & x )
+    : trans( x.trans ), obs() // x.obs )
+  {
+  }
 
 }
 
