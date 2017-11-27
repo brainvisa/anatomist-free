@@ -496,14 +496,18 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     if( !_surface )
       return( false );
 
+    bmin.resize( 4 );
+    bmax.resize( 4 );
     Point3df bminp = _surface->minimum();
     Point3df bmaxp = _surface->maximum();
     if( bminp == Point3df( 1e38, 1e38, 1e38 )
         && bmaxp == Point3df( -1e38, -1e38, -1e38) )
-      // emty meshes return a crappy bounding box...
+    {
+      // empty meshes return a crappy bounding box...
+      bmin[3] = 0.f;
+      bmax[3] = 0.f;
       return false;
-    bmin.resize( 4 );
-    bmax.resize( 4 );
+    }
     bmin[0] = bminp[0];
     bmin[1] = bminp[1];
     bmin[2] = bminp[2];
