@@ -136,6 +136,8 @@ void ANormalsMesh::rebuild()
     vert.push_back( *ip + *in * _length );
     poly.push_back( AimsVector<uint, 2>( i*2, i*2 + 1 ) );
   }
+  nmesh->surface()->setMini();
+  nmesh->surface()->setMaxi();
 
   if( !_ameshes.empty() )
   {

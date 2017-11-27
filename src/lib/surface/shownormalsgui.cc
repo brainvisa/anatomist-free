@@ -184,8 +184,9 @@ void NormalsSettingsPanel::setLength( double value )
   set<AObject *>::iterator io, eo = _objects.end();
   for( io=_objects.begin(); io!=eo; ++io )
   {
-    dynamic_cast<ANormalsMesh *>( *io )->setLength( float( value ) );
-    (*io)->notifyObservers( this );
+    ANormalsMesh *nmesh = dynamic_cast<ANormalsMesh *>( *io );
+    nmesh->setLength( float( value ) );
+    nmesh->normalMesh()->notifyObservers( this );
   }
   blockSignals( false );
 }
