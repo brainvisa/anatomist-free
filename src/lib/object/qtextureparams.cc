@@ -153,7 +153,7 @@ QTextureVectorEditor::Private::Private()
 QTextureVectorEditor::QTextureVectorEditor( QWidget* parent )
   : QWidget( parent ), d( new Private )
 {
-  QVBoxLayout *vlay = new QVBoxLayout( this );
+  QVBoxLayout *vlay = new QVBoxLayout;
   setLayout( vlay );
   vlay->setSpacing( 5 );
   vlay->setMargin( 0 );
@@ -161,12 +161,21 @@ QTextureVectorEditor::QTextureVectorEditor( QWidget* parent )
   vlay->addWidget( dirbox );
   QGroupBox	*scale = new QGroupBox( tr( "Scale:" ), this );
   vlay->addWidget( scale );
-  d->edits[0] = new QVectorCompEditor( "x:", dirbox );
-  d->edits[1] = new QVectorCompEditor( "y:", dirbox );
-  d->edits[2] = new QVectorCompEditor( "z:", dirbox );
-  d->edits[3] = new QVectorCompEditor( "p:", dirbox );
+  QVBoxLayout *dbl = new QVBoxLayout;
+  dirbox->setLayout( dbl );
+  d->edits[0] = new QVectorCompEditor( "x:" );
+  dbl->addWidget( d->edits[0] );
+  d->edits[1] = new QVectorCompEditor( "y:" );
+  dbl->addWidget( d->edits[1] );
+  d->edits[2] = new QVectorCompEditor( "z:" );
+  dbl->addWidget( d->edits[2] );
+  d->edits[3] = new QVectorCompEditor( "p:" );
+  dbl->addWidget( d->edits[3] );
   d->edits[3]->hide();
+  QVBoxLayout *sbl = new QVBoxLayout;
+  scale->setLayout( sbl );
   d->scaleed = new QLineEdit( "1", scale );
+  sbl->addWidget( d->scaleed );
   QDoubleValidator	*v = new QDoubleValidator( d->scaleed );
   v->setBottom( 0 );
   d->scaleed->setValidator( v );
@@ -325,6 +334,7 @@ QTextureParams::QTextureParams( QWidget *parent, const char *name,
     setModal( true );
   setWindowTitle( tr( "Texture generation parameters" ) );
   QVBoxLayout	*layout = new QVBoxLayout( this );
+  setLayout( layout );
   layout->setMargin( 5 );
   layout->setSpacing( 5 );
   QTabWidget	*comps = new QTabWidget( this );
@@ -335,11 +345,11 @@ QTextureParams::QTextureParams( QWidget *parent, const char *name,
   hlay->setMargin( 0 );
   layout->addWidget( comps );
   layout->addWidget( buts );
-  d->edits[0] = new QTextureVectorEditor( comps );
+  d->edits[0] = new QTextureVectorEditor;
   comps->addTab( d->edits[0], tr( "1st comp." ) );
-  d->edits[1] = new QTextureVectorEditor( comps );
+  d->edits[1] = new QTextureVectorEditor;
   comps->addTab( d->edits[1], tr( "2nd comp." ) );
-  d->edits[2] = new QTextureVectorEditor( comps );
+  d->edits[2] = new QTextureVectorEditor;
   comps->addTab( d->edits[2], tr( "3rd comp." ) );
   QPushButton	*bok = new QPushButton( tr( "OK" ), buts );
   hlay->addWidget( bok );
