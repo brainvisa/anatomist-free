@@ -1322,13 +1322,13 @@ PaintAction::fill(int x, int y, int, int)
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> >;
 
   AimsData<AObject*>& labels = g->volumeOfLabels(0);
-  vector<float> bmin, bmax, vs;
-  g->boundingBox2D( bmin, bmax );
+  vector<float> gbmin, gbmax, vs;
+  g->boundingBox2D( gbmin, gbmax );
   vs = g->voxelSize();
   vector<int> dims( 3 );
-  dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
-  dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
-  dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
+  dims[0] = int( rint( ( gbmax[0] - gbmin[0] ) / vs[0] ) );
+  dims[1] = int( rint( ( gbmax[1] - gbmin[1] ) / vs[1] ) );
+  dims[2] = int( rint( ( gbmax[2] - gbmin[2] ) / vs[2] ) );
   if( labels.dimX() != dims[0]
       || labels.dimY() != dims[1]
       || labels.dimZ() != dims[2] )
@@ -1369,20 +1369,20 @@ PaintAction::fill(int x, int y, int, int)
 
       Point3df voxelSize (
             _sharedData->myCurrentModifiedRegion->voxelSize());
-      Transformation * transf = theAnatomist->getTransformation(
-                                    winRef, buckRef);
+      Transformation * transf
+        = theAnatomist->getTransformation( winRef, buckRef );
 
       // Get current bounding box
       vector<float> bmin, bmax;
-      g->boundingBox2D(bmin, bmax);
+      _sharedData->myCurrentModifiedRegion->boundingBox2D( bmin, bmax );
 
       if (transf)
         pos = Transformation::transform(pos, transf, voxelSize);
       else
       {
-        pos[0] = ( pos[0] - bmin[0] ) / voxelSize[0] - 0.5;
-        pos[1] = ( pos[1] - bmin[1] ) / voxelSize[1] - 0.5;
-        pos[2] = ( pos[2] - bmin[2] ) / voxelSize[2] - 0.5;
+        pos[0] = ( pos[0] - gbmin[0] ) / voxelSize[0] - 0.5;
+        pos[1] = ( pos[1] - gbmin[1] ) / voxelSize[1] - 0.5;
+        pos[2] = ( pos[2] - gbmin[2] ) / voxelSize[2] - 0.5;
       }
 
       Point3d neighbourhood[4];
