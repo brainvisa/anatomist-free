@@ -177,7 +177,7 @@ QTextureVectorEditor::QTextureVectorEditor( QWidget* parent )
   d->scaleed = new QLineEdit( "1", scale );
   sbl->addWidget( d->scaleed );
   QDoubleValidator	*v = new QDoubleValidator( d->scaleed );
-  v->setBottom( 0 );
+  // v->setBottom( 0 );
   d->scaleed->setValidator( v );
 
   connect( d->edits[0], 
