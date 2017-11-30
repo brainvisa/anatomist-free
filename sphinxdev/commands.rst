@@ -3212,6 +3212,35 @@ WindowConfig
       </td>
     </tr>
     <tr>
+      <td valign="top"><tt>perspective_angle</tt></td>
+      <td valign="top"><tt>float</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        set the perspective view angle (low: more isometric, high: more distorted). Only used when perspective is enabled.
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>perspective_auto_far_plane</tt></td>
+      <td valign="top"><tt>int</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        enables (1) or disables (0) the automatic perspective
+        far clipping plane setup. Only used when perspective is enabled.
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>perspective_far_distance</tt></td>
+      <td valign="top"><tt>float</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        set the clipping distance from the eye. Only used when perspective is enabled and <tt>perspective_auto_far_plane</tt> is disabled.
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><tt>perspective_near_ratio</tt></td>
+      <td valign="top"><tt>float</tt> (optional)</td>
+      <td valign="top"><b>New in Anatomist 4.6</b>.
+        set the minimum ratio between the near clipping plane distance and the far one. Objects nearer than this near plane will not be displayed. But reducing this ratio lowers the precision of the depth buffer. Default is 0.01. Only used when perspective is enabled.
+      </td>
+    </tr>
+    <tr>
       <td valign="top"><tt>polygon_filtering</tt></td>
       <td valign="top"><tt>int</tt> (optional)</td>
       <td valign="top">enables (1) or disables (0) polygons and lines
