@@ -1307,12 +1307,12 @@ PaintAction::fill(int x, int y, int, int)
     return;
   }
 
-  Point3df normalVector(win->sliceQuaternion().
-                         transformInverse(Point3df(0., 0., 1.)));
+  Point3df normalVector( win->sliceQuaternion().
+                         transformInverse(Point3df(0., 0., 1.)) );
 
-  if(normalVector[0] <= 0.99 
+  if( normalVector[0] <= 0.99
       && normalVector[1] <= 0.99 
-      && normalVector[2] <= 0.99)
+      && normalVector[2] <= 0.99 )
     return;
 
   AGraph * g = RoiChangeProcessor::instance()->getGraph(
@@ -1361,8 +1361,8 @@ PaintAction::fill(int x, int y, int, int)
   Point3df pos;
   if(win->positionFromCursor(x, y, pos))
     {
-      Point3df n(normalVector * 
-                  normalVector.dot(pos - win->getPosition()));
+      Point3df n( normalVector *
+                  normalVector.dot(pos - win->getPosition()) );
       pos = pos - n;
       AGraph	*g = RoiChangeProcessor::instance()->getGraph(
                         view()->aWindow());
@@ -1372,9 +1372,9 @@ PaintAction::fill(int x, int y, int, int)
       Transformation * transf = theAnatomist->getTransformation(
                                     winRef, buckRef);
 
-      // Get current region bounding box
+      // Get current bounding box
       vector<float> bmin, bmax;
-      _sharedData->myCurrentModifiedRegion->boundingBox2D(bmin, bmax);
+      g->boundingBox2D(bmin, bmax);
 
       if (transf)
         pos = Transformation::transform(pos, transf, voxelSize);
