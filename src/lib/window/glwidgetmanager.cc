@@ -156,6 +156,11 @@ struct GLWidgetManager::Private
   bool			invertY;
   bool			invertZ;
   bool			perspective;
+  bool                  perspectiveAutoFarPlane;
+  float                 perspectiveAngle;
+  float                 perspectiveFarPlane;
+  float                 perspectiveMaxPlaneRatio;
+  float                 perspectiveNearPlaneRatio;
   bool			autocenter;
   int			otherbuffers;
   // depth peeling stuff
@@ -193,7 +198,10 @@ GLWidgetManager::Private::Private()
     recIndex( 0 ), prefSize( 384, 384 ), zoom( 1 ), 
     quaternion( 1./::sqrt(2), 0, 0, 1./::sqrt(2) ), 
     invertX( false ), 
-    invertY( false ), invertZ( true ), perspective( false ), 
+    invertY( false ), invertZ( true ), perspective( false ),
+    perspectiveAutoFarPlane( true ), perspectiveAngle( 45.f ),
+    perspectiveFarPlane( 200.f ), perspectiveMaxPlaneRatio( 0.01f ),
+    perspectiveNearPlaneRatio( 0.01f ),
     autocenter( true ), otherbuffers( 1 ), 
     hastransparent( false ), depthpeeling( false ), depthpeelallowed( false ), 
     depthpasses( 2 ), texunits( 1 ), zbufready( false ), zbuftimer( 0 ), 
@@ -1482,16 +1490,24 @@ void GLWidgetManager::project( int width, int height )
   if( _pd->perspective )
     {
       float pnear = -bmax[2], pfar = -bmin[2];
-      if( pnear <= 0 )
+      if( !_pd->perspectiveAutoFarPlane )
       {
-        if( pfar <= 0 )
-          pnear = 1;
-        else
-          pnear = pfar * 0.05;
+        pfar = _pd->perspectiveFarPlane;
+        pnear = pfar * _pd->perspectiveNearPlaneRatio;
       }
-      if( pfar < pnear )
-        pfar = pnear * 10;
-      gluPerspective( 45, ratio, pnear, pfar );
+      else
+      {
+        if( pnear <= 0 || pnear / pfar < _pd->perspectiveNearPlaneRatio )
+        {
+          if( pfar <= 0 )
+            pnear = 1;
+          else
+            pnear = pfar * _pd->perspectiveNearPlaneRatio;
+        }
+        if( pfar < pnear )
+          pfar = pnear * 10;
+      }
+      gluPerspective( _pd->perspectiveAngle, ratio, pnear, pfar );
     }
   else
     {
@@ -1503,6 +1519,61 @@ void GLWidgetManager::project( int width, int height )
   // Modelview matrix: we now use the viewport coordinate system
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+}
+
+
+float GLWidgetManager::perspectiveAngle() const
+{
+  return _pd->perspectiveAngle;
+}
+
+
+void GLWidgetManager::setPerspectiveAngle( float a )
+{
+  _pd->perspectiveAngle = a;
+}
+
+
+bool GLWidgetManager::perspectiveAutoFarPlane() const
+{
+  return _pd->perspectiveAutoFarPlane;
+}
+
+
+void GLWidgetManager::setPerspectiveAutoFarPlane( bool x )
+{
+  _pd->perspectiveAutoFarPlane = x;
+}
+
+
+float GLWidgetManager::perspectiveFarPlane() const
+{
+  // TODO calculate it if un auto mode
+  return _pd->perspectiveFarPlane;
+}
+
+
+void GLWidgetManager::setPerspectiveFarPlane( float d )
+{
+  _pd->perspectiveFarPlane = d;
+}
+
+
+float GLWidgetManager::perspectiveNearPlane() const
+{
+  return _pd->perspectiveFarPlane * _pd->perspectiveNearPlaneRatio;
+}
+
+
+float GLWidgetManager::perspectiveNearPlaneRatio() const
+{
+  return _pd->perspectiveNearPlaneRatio;
+}
+
+
+void GLWidgetManager::setPerspectiveNearPlaneRatio( float d )
+{
+  _pd->perspectiveNearPlaneRatio = d;
 }
 
 

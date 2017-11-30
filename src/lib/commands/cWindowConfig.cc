@@ -112,9 +112,10 @@ void WindowConfigCommand::doit()
   int		persp, zbuf, cull, flat, filt, fog, polysort, clip;
   bool		bpolmode = false, bpersp = false, bzbuf = false, 
     bcull = false, bflat = false, bfilt = false, bfog = false, bclip = false, 
-    bclipd = false, bcurs, bpolysort = false;
-  float		clipd;
-  int		raise = 0, icon = 0, hascursor = -1;
+    bclipd = false, bcurs, bpolysort = false, bautopers = false,
+    bpersangle = false, bpersfar = false, bpersnearratio = false;
+  float		clipd, persangle, persfar, persnearratio;
+  int		raise = 0, icon = 0, hascursor = -1, autopers = -1;
   string	snap;
   int           showtoolbars = -1, showcursorpos = -1, fullscreen = -1;
   vector<string>	snapfiles;
@@ -137,6 +138,11 @@ void WindowConfigCommand::doit()
         bpolmode = false;
     }
   bpersp = _config->getProperty( "perspective", persp );
+  bautopers = _config->getProperty( "perspective_auto_far_plane", autopers );
+  bpersangle = _config->getProperty( "perspective_angle", persangle );
+  bpersfar = _config->getProperty( "perspective_far_distance", persfar );
+  bpersnearratio = _config->getProperty( "perspective_near_ratio",
+                                         persnearratio );
   bzbuf = _config->getProperty( "transparent_depth_buffer", zbuf );
   bcull = _config->getProperty( "face_culling", cull );
   bflat = _config->getProperty( "flat_shading", flat );
@@ -204,12 +210,25 @@ void WindowConfigCommand::doit()
         w->setFullScreen( fullscreen );
 
       w3 = dynamic_cast<AWindow3D *>( w );
+      GLWidgetManager *v = dynamic_cast<GLWidgetManager *>( w3->view() );
+
       if( w3 )
         {
           if( bpolmode )
             w3->setRenderingMode( ipolmode );
           if( bpersp )
             w3->enablePerspective( (bool) persp );
+          if( v )
+          {
+            if( bautopers )
+              v->setPerspectiveAutoFarPlane( autopers );
+            if( bpersangle )
+              v->setPerspectiveAngle( persangle );
+            if( bpersfar )
+              v->setPerspectiveFarPlane( persfar );
+            if( bpersnearratio )
+              v->setPerspectiveNearPlaneRatio( persnearratio );
+          }
           if( bzbuf )
             w3->enableTransparentZ( (bool) zbuf );
           if( bcull )
@@ -236,38 +255,35 @@ void WindowConfigCommand::doit()
           if( !light.isNull() )
             w3->light()->set( light );
 
-          v = dynamic_cast<GLWidgetManager *>( w3->view() );
-          if( v )
-            {
-              if( recmode != -1 )
+          if( v && recmode != -1 )
+          {
+            if( recmode )
               {
-                if( recmode )
-                  {
-                    if( !recbase.empty() )
-                      v->recordStart( recbase.c_str(), QString::null,
-                                      snap_width, snap_height );
-                  }
-                else
-                  v->recordStop();
+                if( !recbase.empty() )
+                  v->recordStart( recbase.c_str(), QString::null,
+                                  snap_width, snap_height );
               }
-            }
+            else
+              v->recordStop();
+          }
 
           if( bpolmode || bpersp || bzbuf || bcull || bflat || bfilt || bfog
-              || bpolysort || bclip || bclipd || bcurs || !light.isNull() )
-            {
-              w3->setChanged();
-              w3->notifyObservers( w3 );
-              if( !v || i >= nsnap )
-                w3->Refresh();
-            }
+              || bpolysort || bclip || bclipd || bcurs || !light.isNull()
+              || bpersangle || bautopers || bpersfar || bpersnearratio )
+          {
+            w3->setChanged();
+            w3->notifyObservers( w3 );
+            if( !v || i >= nsnap )
+              w3->Refresh();
+          }
 
           if( v && i < nsnap )
-            {
-              w3->refreshNow();
-              v->saveContents( snapfiles[i].c_str(), QString::null,
-                               snap_width, snap_height );
-              ++i;
-            }
+          {
+            w3->refreshNow();
+            v->saveContents( snapfiles[i].c_str(), QString::null,
+                             snap_width, snap_height );
+            ++i;
+          }
           if( dolink )
             w3->setLinkedCursorOnSliderChange( linkon );
         }
@@ -311,6 +327,10 @@ bool WindowConfigCommand::initSyntax()
   s[ "record_basename"               ].type = "string";
   s[ "polygon_mode"                  ].type = "string";
   s[ "perspective"                   ].type = "int";
+  s[ "perspective_angle"             ].type = "float";
+  s[ "perspective_auto_far_plane"    ].type = "int";
+  s[ "perspective_far_distance"      ].type = "float";
+  s[ "perspective_near_ratio"        ].type = "float";
   s[ "transparent_depth_buffer"      ].type = "int";
   s[ "face_culling"                  ].type = "int";
   s[ "flat_shading"                  ].type = "int";

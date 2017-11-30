@@ -157,6 +157,15 @@ namespace anatomist
     Point3df rotationCenter() const;
     bool perspectiveEnabled() const;
     void enablePerspective( bool );
+    float perspectiveAngle() const;
+    void setPerspectiveAngle( float a );
+    bool perspectiveAutoFarPlane() const;
+    void setPerspectiveAutoFarPlane( bool x );
+    float perspectiveFarPlane() const;
+    void setPerspectiveFarPlane( float d );
+    float perspectiveNearPlane() const;
+    float perspectiveNearPlaneRatio() const;
+    void setPerspectiveNearPlaneRatio( float d );
     void setAutoCentering( bool );
     bool autoCentering() const;
     virtual void recordStart( const QString & basename, 

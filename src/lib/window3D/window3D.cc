@@ -2983,6 +2983,18 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
     }
   }
 
+  // avoid flat bboxes
+  for( unsigned j=0; j<3; ++j )
+    if( bmin[j] == bmax[j] )
+    {
+      unsigned k = ( j + 1 ) % 3, l = ( j + 2 ) % 3;
+      float d = std::min( bmax[k] - bmin[k], bmax[l] - bmin[l] );
+      if( d == 0. )
+        d = std::max( bmax[k] - bmin[k], bmax[l] - bmin[l] );
+      bmin[j] -= d * 0.01;
+      bmax[j] += d * 0.01;
+    }
+
   // d->needsboundingbox = false;
   return valid;
 }
