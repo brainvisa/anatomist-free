@@ -56,6 +56,7 @@ ObjectConverter<BucketMap<Void> >::aims2ana( BucketMap<Void> *x )
   Bucket	*y = new Bucket;
   y->setBucket( *x );
   delete x;
+  y->setHeaderOptions();
   y->setGeomExtrema();
 
   return( y );
@@ -67,6 +68,7 @@ ObjectConverter<BucketMap<Void> >::aims2ana( rc_ptr<BucketMap<Void> > x )
 {
   Bucket	*y = new Bucket;
   y->setBucket( x );
+  y->setHeaderOptions();
   y->setGeomExtrema();
 
   return( y );
@@ -101,6 +103,7 @@ ObjectConverter<AimsBucket<Void> >::aims2ana( AimsBucket<Void> *x )
   Bucket	*y = new Bucket;
   y->setBucket( *x );
   delete x;
+  y->setHeaderOptions();
   y->setGeomExtrema();
 
   return( y );
@@ -113,6 +116,7 @@ ObjectConverter<AimsBucket<Void> >::aims2ana( rc_ptr<AimsBucket<Void> > x )
   Bucket	*y = new Bucket;
   rc_ptr<BucketMap<Void> > b( new BucketMap<Void>( *x ) );
   y->setBucket( b );
+  y->setHeaderOptions();
   y->setGeomExtrema();
 
   return( y );
@@ -124,6 +128,7 @@ ObjectConverter<AimsSurfaceTriangle>::aims2ana( AimsSurfaceTriangle *x )
 {
   ATriangulated	*y = new ATriangulated( "triangulation" );
   y->setSurface( x );
+  y->setHeaderOptions();
 
   return( y );
 }
@@ -134,6 +139,7 @@ ObjectConverter<AimsSurfaceTriangle>::aims2ana( rc_ptr<AimsSurfaceTriangle> x )
 {
   ATriangulated	*y = new ATriangulated( "triangulation" );
   y->setSurface( x );
+  y->setHeaderOptions();
 
   return( y );
 }
@@ -157,6 +163,7 @@ ObjectConverter<AimsTimeSurface<2, Void> >::aims2ana( AimsTimeSurface<2, Void>
 {
   ASurface<2>	*y = new ASurface<2>( "triangulation" );
   y->setSurface( x );
+  y->setHeaderOptions();
 
   return( y );
 }
@@ -168,6 +175,7 @@ ObjectConverter<AimsTimeSurface<2, Void> >::aims2ana(
 {
   ASurface<2>	*y = new ASurface<2>( "triangulation" );
   y->setSurface( x );
+  y->setHeaderOptions();
 
   return( y );
 }
@@ -190,6 +198,7 @@ ObjectConverter<AimsSurfaceFacet>::aims2ana( AimsSurfaceFacet *x )
 {
   ASurface<4>	*y = new ASurface<4>( "triangulation" );
   y->setSurface( x );
+  y->setHeaderOptions();
 
   return( y );
 }
@@ -200,6 +209,7 @@ ObjectConverter<AimsSurfaceFacet>::aims2ana( rc_ptr<AimsSurfaceFacet> x )
 {
   ASurface<4>	*y = new ASurface<4>( "triangulation" );
   y->setSurface( x );
+  y->setHeaderOptions();
 
   return( y );
 }
@@ -907,6 +917,7 @@ template<> AObject*
 ObjectConverter<Tree>::aims2ana( Tree *x )
 {
   Hierarchy	*y = new Hierarchy( x );
+  y->setHeaderOptions();
 
   return y;
 }
@@ -917,6 +928,7 @@ ObjectConverter<SparseOrDenseMatrix>::aims2ana( SparseOrDenseMatrix *x )
 {
   ASparseMatrix *y = new ASparseMatrix;
   y->setMatrix( rc_ptr<SparseOrDenseMatrix>( x ) );
+  y->setHeaderOptions();
 
   return y;
 }
@@ -927,6 +939,7 @@ ObjectConverter<SparseOrDenseMatrix>::aims2ana( rc_ptr<SparseOrDenseMatrix> x )
 {
   ASparseMatrix *y = new ASparseMatrix;
   y->setMatrix( x );
+  y->setHeaderOptions();
 
   return y;
 }

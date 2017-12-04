@@ -831,7 +831,7 @@ void AObject::setHeaderOptions()
 
 void AObject::setProperties( Object options )
 {
-  /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": " 
+  /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
      << "name: " << name() << ", filename: " << fileName() << endl; */
   PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );
   if( pao )
@@ -926,7 +926,7 @@ void AObject::setProperties( Object options )
                 if( n > g->glNumTextures() )
                   n = g->glNumTextures();
                 Object	iter;
-                for( i=0, iter=m->objectIterator(); i<n && iter->isValid(); 
+                for( i=0, iter=m->objectIterator(); i<n && iter->isValid();
                      ++i, iter->next() )
                   {
                     Object	t = iter->currentValue();
@@ -1038,12 +1038,23 @@ void AObject::setProperties( Object options )
                     catch( ... )
                       {
                       }
-                    try
+                    for( int p=0; p<3; ++p )
+                      try
                       {
-                        Object	tp = t->getProperty( "generation_params_1" );
-                        //gc->glSetAutoTexParams( &_genparams_1[0], 0, i );
+                        stringstream pname;
+                        pname << "generation_params_" << p;
+                        Object	tp = t->getProperty( pname.str() );
+                        if( tp && tp->size() >= 4 )
+                        {
+                          vector<float> gpar( 4, 0. );
+                          Object it = tp->objectIterator();
+                          int k;
+                          for( k=0; k<4 && it->isValid(); it->next(), ++k )
+                            gpar[k] = float( it->currentValue()->getScalar() );
+                          g->glSetAutoTexParams( &gpar[0], 0, i );
+                        }
                       }
-                    catch( ... )
+                      catch( ... )
                       {
                       }
                   }

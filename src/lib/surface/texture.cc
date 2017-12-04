@@ -1025,11 +1025,11 @@ namespace
 
 bool ATexture::save( const string & filename )
 {
-  if( glAutoTexMode( 0 ) != glTEX_MANUAL )
-  {
-    cerr << "This is a generated texture, which cannot be saved.\n";
-    return false;
-  }
+//   if( glAutoTexMode( 0 ) != glTEX_MANUAL )
+//   {
+//     cerr << "This is a generated texture, which cannot be saved.\n";
+//     return false;
+//   }
   storeHeaderOptions();
 
   switch( d->dim )
