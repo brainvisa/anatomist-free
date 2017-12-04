@@ -110,6 +110,14 @@ namespace
         return;
       }
 
+    Object hdr_opt = ao->makeHeaderOptions();
+    if( hdr_opt )
+    {
+      Object it = hdr_opt->objectIterator();
+      for( ; it->isValid(); it->next() )
+        ex->setProperty( it->key(), it->currentValue() );
+    }
+
     map<void *, int>::iterator		ipt, ept = ptrs.end();
     string				fname = ao->fileName();
     const set<AWindow *>			& wl = ao->WinList();
@@ -180,41 +188,31 @@ namespace
           ex->setProperty( "children", chdl );
       }
 
-    // material
-    Material	& mat = ao->GetMaterial();
-    Object      m = mat.genericDescription();
-    ex->setProperty( "material", m );
+    /* material, palette, texture_properties have been done
+       by makeHeaderOptions()
+    */
+
     GLComponent  *gl = ao->glAPI();
-    Object	t( (GenericObject *) 
-		   new ValueObject<Dictionary> );
+    Object	t( (GenericObject *) new ValueObject<Dictionary> );
     ex->setProperty( "texture", t );
 
     if( gl && gl->glNumTextures() > 0 )
-      {
-        GLComponent::TexExtrema  & te = gl->glTexExtrema( 0 );
-        if( !te.minquant.empty() )
-          t->setProperty( "textureMin", te.minquant[0] );
-        if( !te.maxquant.empty() )
-          t->setProperty( "textureMax", te.maxquant[0] );
-      }
-  
-    // palette
+    {
+      GLComponent::TexExtrema  & te = gl->glTexExtrema( 0 );
+      if( !te.minquant.empty() )
+        t->setProperty( "textureMin", te.minquant[0] );
+      if( !te.maxquant.empty() )
+        t->setProperty( "textureMax", te.maxquant[0] );
+      Object tp = Object::value( ObjectVector() );
+    }
+
     AObjectPalette	*pal = ao->palette();
     if( pal )
-      {
-        Object	p( (GenericObject *) new ValueObject<Dictionary> );
-        ex->setProperty( "palette", p );
-        p->setProperty( "palette", pal->refPalette()->name() );
-        if( pal->refPalette2() )
-          p->setProperty( "palette2", pal->refPalette2()->name() );
-        p->setProperty( "min", pal->min1() );
-        p->setProperty( "max", pal->max1() );
-        p->setProperty( "min2", pal->min2() );
-        p->setProperty( "max2", pal->max2() );
-        p->setProperty( "mixMethod", pal->mixMethodName() );
-        p->setProperty( "linMixFactor", pal->linearMixFactor() );
-        p->setProperty( "colorMixSize", pal->colors()->dimX() );
-      }
+    {
+      Object p = ex->getProperty( "palette" ); // done by makeHeaderOptions()
+      // now we complement it a bit
+      p->setProperty( "colorMixSize", pal->colors()->dimX() );
+    }
 
     // selected
     SelectFactory				*sf = SelectFactory::factory();
