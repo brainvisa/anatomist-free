@@ -41,6 +41,7 @@
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/surface/textobject.h>
 #include <anatomist/surface/transformedobject.h>
+#include <anatomist/mobject/ObjectList.h>
 #include <aims/io/writer.h>
 #include <cartobase/stream/fileutil.h>
 
@@ -167,7 +168,15 @@ namespace
   {
 //     cout << "objectFromFactory " << otype << endl;
     Object obj;
-    if( otype == "TextObject" )
+    if( otype == "List" )
+    {
+      ObjectList *lobj = new ObjectList;
+      list<AObject *>::const_iterator ic, ec = children.end();
+      for( ic=children.begin(); ic!=ec; ++ic )
+        lobj->insert( *ic );
+      obj = Object::value( static_cast<AObject *>( lobj ) );
+    }
+    else if( otype == "TextObject" )
     {
       string text = "<no text>";
       Point3df pos( 0.f, 0.f, 0.f );
@@ -599,9 +608,15 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
 
   if( !obj_name.empty() && !mobj.isNull() && !mobj->isArray() )
   {
-    AObject *obj = mobj->value<AObject *>();
-    obj->setName( theAnatomist->makeObjectName( obj_name ) );
-    theAnatomist->NotifyObjectChange( obj );
+    try
+    {
+      AObject *obj = mobj->value<AObject *>();
+      obj->setName( theAnatomist->makeObjectName( obj_name ) );
+      theAnatomist->NotifyObjectChange( obj );
+    }
+    catch( ... )
+    {
+    }
   }
 
   return make_obj( mobj, obj_id, return_id );
@@ -770,6 +785,28 @@ Object MObjectIO::createMObjectDescr( AObject* aobject, const string & path,
     props->setProperty( "scale", to->scale() );
     props->setProperty( "font_size", to->fontSize() );
     objects->setProperty( "properties", props );
+  }
+  else if( dynamic_cast<ObjectList *>( aobject ) )
+  {
+    ObjectList *lo = static_cast<ObjectList *>( aobject );
+    objects = Object::value( Dictionary() );
+    objects->setProperty( "object_type", "List" );
+    objects->setProperty( "name", aobject->name() );
+    objects->setProperty( "identifier", objectId( aobject, obj_map ) );
+    Object props = aobject->makeHeaderOptions();
+    if( props )
+      objects->setProperty( "properties", props );
+
+    carto::ObjectVector sub_obj;
+    sub_obj.reserve( lo->size() );
+
+    MObject::iterator it, et = lo->end();
+    for( it=lo->begin(); it!=et; ++it )
+    {
+      Object item = createMObjectDescr( *it, path, writeLeafs, &obj_map );
+      sub_obj.push_back( item );
+    }
+    objects->setProperty( "objects", sub_obj );
   }
   else
   {

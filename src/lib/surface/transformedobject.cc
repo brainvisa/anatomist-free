@@ -114,7 +114,7 @@ bool TransformedObject::renderingIsObserverDependent() const
 
 bool TransformedObject::render( PrimList & pl, const ViewState & vs )
 {
-  // change transformation matrixes
+  // change transformation matrices
   setupTransforms( pl, vs );
 
   // render sub-objects

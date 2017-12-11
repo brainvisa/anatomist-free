@@ -1721,6 +1721,8 @@ list<AObject *> ObjectReader::readMObject(
     return objects;
   Object it = objs->objectIterator();
   for( ; it->isValid(); it->next() )
+  {
     objects.push_back( it->currentValue()->value<AObject *>() );
+  }
   return objects;
 }
