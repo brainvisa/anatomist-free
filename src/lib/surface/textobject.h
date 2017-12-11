@@ -66,10 +66,13 @@ namespace anatomist
     void setFont( QFont *font );
     QFont* font();
     const QFont* font() const;
+    void setFontSize( float x );
+    float fontSize() const;
     void setScale( float );
     float scale() const;
     void setPosition( const Point3df & );
     Point3df position() const;
+    virtual bool savable() const { return false; }
 
   private:
     struct Private;

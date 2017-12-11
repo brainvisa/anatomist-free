@@ -154,3 +154,16 @@ bool ObjectList::CanRemove( AObject * obj )
 }
 
 
+bool ObjectList::render( PrimList & prim, const ViewState & state )
+{
+  bool retcode = false;
+
+  const_iterator i, j = end();
+  for( i=begin(); i!=j; ++i )
+    if( (*i)->render( prim, state ) )
+      retcode = true;
+
+  return retcode;
+}
+
+

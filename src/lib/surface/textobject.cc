@@ -342,4 +342,15 @@ Point3df TextObject::position() const
 }
 
 
+void TextObject::setFontSize( float x )
+{
+  d->fontSize = x;
+}
+
+
+float TextObject::fontSize() const
+{
+  return d->fontSize;
+}
+
 

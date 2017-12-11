@@ -114,7 +114,7 @@ bool TransformedObject::renderingIsObserverDependent() const
 
 bool TransformedObject::render( PrimList & pl, const ViewState & vs )
 {
-  // change transformation matrixes
+  // change transformation matrices
   setupTransforms( pl, vs );
 
   // render sub-objects
@@ -395,4 +395,27 @@ Point3df TransformedObject::dynamicOffsetFromPoint() const
   return d->offsetfrom;
 }
 
+
+bool TransformedObject::followsOrientation() const
+{
+  return d->followorientation;
+}
+
+
+void TransformedObject::setFollowOrientation( bool x )
+{
+  d->followorientation = x;
+}
+
+
+bool TransformedObject::followsPosition() const
+{
+  return d->followposition;
+}
+
+
+void TransformedObject::setFollowPosition( bool x )
+{
+  d->followposition = x;
+}
 

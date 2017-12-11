@@ -78,6 +78,10 @@ namespace anatomist
     Point3df dynamicOffsetFromPoint() const;
     void setScale( float scale );
     float scale() const;
+    bool followsOrientation() const;
+    void setFollowOrientation( bool x );
+    bool followsPosition() const;
+    void setFollowPosition( bool x );
     virtual const GLComponent* glAPI() const { return ObjectVector::glAPI(); }
     virtual GLComponent* glAPI() { return ObjectVector::glAPI(); }
 

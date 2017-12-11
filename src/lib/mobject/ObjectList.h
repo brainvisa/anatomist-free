@@ -210,13 +210,8 @@ namespace anatomist
     ObjectList();
     virtual ~ObjectList();
 
-    /**@name	Identification handling functions */
-    //@{
     virtual int MType() const { return( AObject::LIST ); }
-    //@}
 
-    /**@name	Container methods */
-    //@{
     virtual size_t size() const;
     virtual iterator begin();
     virtual const_iterator begin() const;
@@ -226,9 +221,10 @@ namespace anatomist
     virtual void insert( const carto::shared_ptr<AObject> & );
     virtual const_iterator find( const AObject * ) const;
     virtual void erase( iterator & );
-    //@}
 
     virtual bool CanRemove( AObject *obj );
+
+    virtual bool render( PrimList &, const ViewState & );
 
     virtual Tree* optionTree() const;
     static Tree*	_optionTree;
