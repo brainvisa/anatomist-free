@@ -230,7 +230,10 @@ namespace
       vector<carto::shared_ptr<AObject> > children_vec;
       children_vec.reserve( children.size() );
       bool follow_orientation = false, follow_position = true;
-      Point3df pos( 0.f, 0.f, 0.f );
+      bool use_dyn_offset = false;
+      Point3df pos( 0.f, 0.f, 0.f ), dynoffset( 0.f, 0.f, 0.f );
+      Point3df offset( 0.f, 0.f, 0.f );
+      float scale = 1.f;
       list<AObject *>::const_iterator ic, ec = children.end();
       for( ic=children.begin(); ic!=ec; ++ic )
         children_vec.push_back( rc_ptr<AObject>( *ic ) );
@@ -267,11 +270,51 @@ namespace
         catch( ... )
         {
         }
+        try
+        {
+          Object p = properties->getProperty( "dynamic_offset_from_point" );
+          if( p && p->size() >= 3 )
+          {
+            Object pit = p->objectIterator();
+            unsigned i;
+            for( i=0; i < 3 && pit->isValid(); ++i, pit->next() )
+              dynoffset[i] = float( pit->currentValue()->getScalar() );
+            use_dyn_offset = true;
+          }
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          Object p = properties->getProperty( "offset" );
+          if( p && p->size() >= 3 )
+          {
+            Object pit = p->objectIterator();
+            unsigned i;
+            for( i=0; i < 3 && pit->isValid(); ++i, pit->next() )
+              offset[i] = float( pit->currentValue()->getScalar() );
+          }
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          scale = float( properties->getProperty( "scale" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
       }
 
       TransformedObject *tro
         = new TransformedObject( children_vec, follow_orientation,
                                  follow_position, pos );
+      tro->setScale( scale );
+      tro->setOffset( offset );
+      if( use_dyn_offset )
+        tro->setDynamicOffsetFromPoint( dynoffset );
       obj = Object::value( static_cast<AObject *>( tro ) );
     }
     return obj;
@@ -681,8 +724,57 @@ Object MObjectIO::createMObjectDescr( AObject* aobject, const string & path,
     if( props )
       objects->setProperty( "properties", props );
   }
+  else if( dynamic_cast<TransformedObject *>( aobject ) )
+  {
+    TransformedObject *tro = static_cast<TransformedObject *>( aobject );
+    objects = Object::value( Dictionary() );
+    objects->setProperty( "object_type", "TransformedObject" );
+    objects->setProperty( "name", aobject->name() );
+    objects->setProperty( "identifier", objectId( aobject, obj_map ) );
+    Object props = aobject->makeHeaderOptions();
+    if( !props )
+      props = Object::value( Dictionary() );
+    props->setProperty( "position", tro->position().toStdVector() );
+    props->setProperty( "scale", tro->scale() );
+    props->setProperty( "follow_orientation", tro->followsOrientation() );
+    props->setProperty( "follow_position", tro->followsPosition() );
+    if( tro->usesDynamicOffset() )
+      props->setProperty( "dynamic_offset_from_point",
+                          tro->dynamicOffsetFromPoint().toStdVector() );
+    props->setProperty( "offset", tro->offset().toStdVector() );
+    objects->setProperty( "properties", props );
+
+    carto::ObjectVector sub_obj;
+    sub_obj.reserve( tro->size() );
+
+    MObject::iterator it, et = tro->end();
+    for( it=tro->begin(); it!=et; ++it )
+    {
+      Object item = createMObjectDescr( *it, path, writeLeafs, &obj_map );
+      sub_obj.push_back( item );
+    }
+    objects->setProperty( "objects", sub_obj );
+  }
+  else if( dynamic_cast<TextObject *>( aobject ) )
+  {
+    TextObject *to = static_cast<TextObject *>( aobject );
+    objects = Object::value( Dictionary() );
+    objects->setProperty( "object_type", "TextObject" );
+    objects->setProperty( "name", aobject->name() );
+    objects->setProperty( "identifier", objectId( aobject, obj_map ) );
+    Object props = aobject->makeHeaderOptions();
+    if( !props )
+      props = Object::value( Dictionary() );
+    props->setProperty( "text", to->text() );
+    props->setProperty( "position", to->position().toStdVector() );
+    props->setProperty( "scale", to->scale() );
+    props->setProperty( "font_size", to->fontSize() );
+    objects->setProperty( "properties", props );
+  }
   else
+  {
     throw runtime_error( string( "Cannot serialize object type " ) + otype );
+  }
 
   return objects;
 }

@@ -396,3 +396,26 @@ Point3df TransformedObject::dynamicOffsetFromPoint() const
 }
 
 
+bool TransformedObject::followsOrientation() const
+{
+  return d->followorientation;
+}
+
+
+void TransformedObject::setFollowOrientation( bool x )
+{
+  d->followorientation = x;
+}
+
+
+bool TransformedObject::followsPosition() const
+{
+  return d->followposition;
+}
+
+
+void TransformedObject::setFollowPosition( bool x )
+{
+  d->followposition = x;
+}
+
