@@ -46,7 +46,7 @@ using namespace std;
 
 struct TextObject::Private
 {
-  Private( const Point3df & pos );
+  Private( const Point3df & pos, float fontSize );
   ~Private();
 
   string text;
@@ -54,11 +54,12 @@ struct TextObject::Private
   QFont* font;
   float scale;
   Point3df pos;
+  float fontSize;
 };
 
 
-TextObject::Private::Private( const Point3df & pos )
-  : font( 0 ), scale( 1. ), pos( pos )
+TextObject::Private::Private( const Point3df & pos, float fontSize )
+  : font( 0 ), scale( 1. ), pos( pos ), fontSize( fontSize )
 {
   texcoords[0] = 0;
   texcoords[1] = 1;
@@ -78,8 +79,8 @@ TextObject::Private::~Private()
 
 
 TextObject::TextObject( const std::string & text,
-                        const Point3df & pos )
-  : ASurface<3>(), d( new Private( pos ) )
+                        const Point3df & pos, float fontSize )
+  : ASurface<3>(), d( new Private( pos, fontSize ) )
 {
   AimsTimeSurface<3> *mesh = new AimsTimeSurface<3>();
   vector<Point3df> &vert = mesh->vertex();
@@ -131,12 +132,13 @@ void TextObject::setText( const std::string & text )
   unique_ptr<QFont> fontdel;
   if( !font )
   {
-    fontdel.reset( new QFont( qApp->font().family(), 30 ) );
+    fontdel.reset( new QFont( qApp->font().family(), d->fontSize ) );
     font = fontdel.get();
   }
   QFontMetrics fm( *font );
   QRect br = fm.boundingRect( QRect( QPoint( 0, 0 ), QSize( 1000, 1000 ) ),
-                              Qt::AlignLeft, d->text.c_str() );
+                              Qt::AlignLeft,
+                              QString::fromUtf8( d->text.c_str() ) );
   QSize sz = br.size();
   unsigned      dimx = sz.width(), dimy = sz.height(), x, utmp;
   for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
@@ -213,12 +215,13 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
   unique_ptr<QFont> fontdel;
   if( !font )
   {
-    fontdel.reset( new QFont( qApp->font().family(), 30 ) );
+    fontdel.reset( new QFont( qApp->font().family(), d->fontSize ) );
     font = fontdel.get();
   }
   QFontMetrics fm( *font );
   QRect br = fm.boundingRect( QRect( QPoint( 0, 0 ), QSize( 0, 0 ) ),
-                              Qt::AlignLeft, d->text.c_str() );
+                              Qt::AlignLeft,
+                              QString::fromUtf8( d->text.c_str() ) );
   QSize sz = br.size();
   unsigned      dimx = sz.width(), dimy = sz.height(), x, utmp;
   for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
@@ -241,7 +244,7 @@ bool TextObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
                           int( mat.Diffuse(2) * 255.99 ),
                           int( mat.Diffuse(3) * 255.99 ) ) ) );
   p.setFont( *font );
-  p.drawText( br, Qt::AlignLeft, d->text.c_str() );
+  p.drawText( br, Qt::AlignLeft, QString::fromUtf8( d->text.c_str() ) );
   p.end();
 
   glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, dimx, dimy, 0, GL_BGRA,

@@ -48,7 +48,8 @@ namespace anatomist
   {
   public:
     TextObject( const std::string & text="",
-                const Point3df & pos=Point3df( 0, 0, 0 ) );
+                const Point3df & pos=Point3df( 0, 0, 0 ),
+                float fontSize = 30. );
     virtual ~TextObject();
     const std::string & text() const;
     void setText( const std::string & );

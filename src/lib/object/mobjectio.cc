@@ -39,6 +39,8 @@
 #include <anatomist/processor/context.h>
 #include <anatomist/commands/cFusionObjects.h>
 #include <anatomist/mobject/MObject.h>
+#include <anatomist/surface/textobject.h>
+#include <anatomist/surface/transformedobject.h>
 #include <aims/io/writer.h>
 #include <cartobase/stream/fileutil.h>
 
@@ -104,8 +106,8 @@ namespace
   {
     if( return_id )
     {
-      Object robj = Object::value( ObjectVector() );
-      ObjectVector & vo = robj->value<ObjectVector>();
+      Object robj = Object::value( carto::ObjectVector() );
+      carto::ObjectVector & vo = robj->value<carto::ObjectVector>();
       vo.push_back( obj );
       vo.push_back( Object::value( id ) );
       return robj;
@@ -159,6 +161,122 @@ namespace
     return aobj->savable();
   }
 
+
+  Object objectFromFactory( const string & otype,
+                            const list<AObject *> children, Object properties )
+  {
+//     cout << "objectFromFactory " << otype << endl;
+    Object obj;
+    if( otype == "TextObject" )
+    {
+      string text = "<no text>";
+      Point3df pos( 0.f, 0.f, 0.f );
+      float fsize = 30., scale = 1.;
+      Object material;
+      if( properties.get() )
+      {
+        try
+        {
+          text = properties->getProperty( "text" )->getString();
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          Object p = properties->getProperty( "position" );
+          if( p && p->size() >= 3 )
+          {
+            Object pit = p->objectIterator();
+            unsigned i;
+            for( i=0; i < 3 && pit->isValid(); ++i, pit->next() )
+              pos[i] = float( pit->currentValue()->getScalar() );
+          }
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          fsize = float( properties->getProperty( "font_size" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          scale = float( properties->getProperty( "scale" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          material = properties->getProperty( "material" );
+        }
+        catch( ... )
+        {
+        }
+      }
+      TextObject *to = new TextObject( text, pos, fsize );
+      to->setScale( scale );
+      if( !material.isNull() )
+        to->attributed()->setProperty( "material", material );
+      to->setHeaderOptions();
+      obj = Object::value( static_cast<AObject *>( to ) );
+    }
+    else if( otype == "TransformedObject" )
+    {
+      vector<carto::shared_ptr<AObject> > children_vec;
+      children_vec.reserve( children.size() );
+      bool follow_orientation = false, follow_position = true;
+      Point3df pos( 0.f, 0.f, 0.f );
+      list<AObject *>::const_iterator ic, ec = children.end();
+      for( ic=children.begin(); ic!=ec; ++ic )
+        children_vec.push_back( rc_ptr<AObject>( *ic ) );
+
+      if( properties.get() )
+      {
+        try
+        {
+          follow_orientation = bool(
+            properties->getProperty( "follow_orientation" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          follow_position = bool(
+            properties->getProperty( "follow_position" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          Object p = properties->getProperty( "position" );
+          if( p && p->size() >= 3 )
+          {
+            Object pit = p->objectIterator();
+            unsigned i;
+            for( i=0; i < 3 && pit->isValid(); ++i, pit->next() )
+              pos[i] = float( pit->currentValue()->getScalar() );
+          }
+        }
+        catch( ... )
+        {
+        }
+      }
+
+      TransformedObject *tro
+        = new TransformedObject( children_vec, follow_orientation,
+                                 follow_position, pos );
+      obj = Object::value( static_cast<AObject *>( tro ) );
+    }
+    return obj;
+  }
+
 }
 
 
@@ -174,6 +292,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
                                map<string, Object> *pobj_map,
                                bool return_id )
 {
+//   cout << "readMObject\n";
   rc_ptr<map<string, Object> > robj_map;
   if( !pobj_map )
     robj_map.reset( new map<string, Object> );
@@ -219,8 +338,8 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
       robj = Object::value( *aobj.begin() );
     else
     {
-      robj = Object::value( ObjectVector() );
-      vector<Object> & vo = robj->value<ObjectVector>();
+      robj = Object::value( carto::ObjectVector() );
+      vector<Object> & vo = robj->value<carto::ObjectVector>();
       vo.reserve( aobj.size() );
       list<AObject *>::iterator io, eo=aobj.end();
       for( io=aobj.begin(); io!=eo; ++io )
@@ -257,7 +376,13 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
     catch( ... )
     {
     }
-    objects = obj_desc->getProperty( "objects" );
+    try
+    {
+      objects = obj_desc->getProperty( "objects" );
+    }
+    catch( ... )
+    {
+    }
     if( obj_id.empty() )
       try
       {
@@ -282,7 +407,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
     }
   }
 
-  // cout << "id: " << obj_id << ", otype: " << otype << ", fmethod: " << fmethod << ", name: " << obj_name << endl;
+//   cout << "id: " << obj_id << ", otype: " << otype << ", fmethod: " << fmethod << ", name: " << obj_name << endl;
 
   list<AObject *> aobjects;
 
@@ -308,7 +433,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
       }
     }
   }
-  else
+  else if( !objects.isNull() )
   {
     Object robj = readMObject( objects, path, &obj_map, true );
     Object aobj = robj->getArrayItem( 0 );
@@ -343,7 +468,11 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
 
   Object mobj;
 
-  if( !objects.isNull() && !objects->isString() && objects->isArray() )
+  if( objects.isNull() )
+  {
+    mobj = objectFromFactory( otype, aobjects, properties );
+  }
+  else if( !objects.isNull() && !objects->isString() && objects->isArray() )
   {
     if( ( otype.empty() && fmethod.empty() ) || otype == "list" )
     {
@@ -359,57 +488,65 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
       // fusion them
       if( fmethod.empty() )
         fmethod = getFusionMethod( otype, aobjects );
-      list<AObject *>::const_iterator iao, eao = aobjects.end();
-      for( iao=aobjects.begin(); iao!=eao; ++iao )
-        theAnatomist->unmapObject( *iao ); // remove from ctrlwin
-      FusionObjectsCommand *c
-        = new FusionObjectsCommand( vector<AObject *>(aobjects.begin(),
-                                                      aobjects.end() ),
-                                    fmethod, -1, false );
-      bool allowidle = theProcessor->execWhileIdle();
-      theProcessor->allowExecWhileIdle( true );
-      theProcessor->execute( c );
-      AObject *fobj = c->createdObject();
-//       for( iao=aobjects.begin(); iao!=eao; ++iao )
-//         theAnatomist->releaseObject( *iao ); // release app ref
-      mobj = Object::value( fobj );
-      if( !properties.isNull() )
+      if( fmethod.empty() )
       {
-        AttributedAObject *aaaobj = dynamic_cast<AttributedAObject *>( fobj );
-        if( aaaobj )
+        mobj = objectFromFactory( otype, aobjects, properties );
+      }
+      else
+      {
+        list<AObject *>::const_iterator iao, eao = aobjects.end();
+        for( iao=aobjects.begin(); iao!=eao; ++iao )
+          theAnatomist->unmapObject( *iao ); // remove from ctrlwin
+        FusionObjectsCommand *c
+          = new FusionObjectsCommand( vector<AObject *>(aobjects.begin(),
+                                                        aobjects.end() ),
+                                      fmethod, -1, false );
+        bool allowidle = theProcessor->execWhileIdle();
+        theProcessor->allowExecWhileIdle( true );
+        theProcessor->execute( c );
+        AObject *fobj = c->createdObject();
+  //       for( iao=aobjects.begin(); iao!=eao; ++iao )
+  //         theAnatomist->releaseObject( *iao ); // release app ref
+        mobj = Object::value( fobj );
+        if( !properties.isNull() )
         {
-          aaaobj->attributed()->copyProperties( properties );
-          fobj->setHeaderOptions();
-        }
-        else
-          fobj->setProperties( properties );
-        Object pit = properties->objectIterator();
-        const map<string, Object> & commands = getCommands();
-        map<string, Object>::const_iterator cit, ecit = commands.end();
-        for( ; pit->isValid(); pit->next() )
-        {
-          cit = commands.find( pit->key() );
-          if( cit != ecit )
+          AttributedAObject *aaaobj
+            = dynamic_cast<AttributedAObject *>( fobj );
+          if( aaaobj )
           {
-            Object params = Object::value( Dictionary() );
-            params->copyProperties( pit->currentValue() );
-            string cname, cobjects;
-            bool c_islist = false;
-            cit->second->getProperty( "name", cname );
-            cit->second->getProperty( "objects", cobjects );
-            cit->second->getProperty( "objects_list", c_islist );
-            rc_ptr<Unserializer> ser
-              = CommandContext::defaultContext().unserial;
-            int objnum = ser->makeID( fobj, "AObject" );
-            if( c_islist )
-              params->setProperty( cobjects, vector<int>( 1, objnum ) );
-            else
-              params->setProperty( cobjects, objnum );
-            theProcessor->execute( cname, params );
+            aaaobj->attributed()->copyProperties( properties );
+            fobj->setHeaderOptions();
+          }
+          else
+            fobj->setProperties( properties );
+          Object pit = properties->objectIterator();
+          const map<string, Object> & commands = getCommands();
+          map<string, Object>::const_iterator cit, ecit = commands.end();
+          for( ; pit->isValid(); pit->next() )
+          {
+            cit = commands.find( pit->key() );
+            if( cit != ecit )
+            {
+              Object params = Object::value( Dictionary() );
+              params->copyProperties( pit->currentValue() );
+              string cname, cobjects;
+              bool c_islist = false;
+              cit->second->getProperty( "name", cname );
+              cit->second->getProperty( "objects", cobjects );
+              cit->second->getProperty( "objects_list", c_islist );
+              rc_ptr<Unserializer> ser
+                = CommandContext::defaultContext().unserial;
+              int objnum = ser->makeID( fobj, "AObject" );
+              if( c_islist )
+                params->setProperty( cobjects, vector<int>( 1, objnum ) );
+              else
+                params->setProperty( cobjects, objnum );
+              theProcessor->execute( cname, params );
+            }
           }
         }
+        theProcessor->allowExecWhileIdle( allowidle );
       }
-      theProcessor->allowExecWhileIdle( allowidle );
     }
   }
   else
@@ -434,8 +571,8 @@ Object MObjectIO::createMObjectDescr( Object aobject,
 {
   if( aobject->isArray() )
   {
-    Object objects = Object::value( ObjectVector() );
-    ObjectVector & ov = objects->value<ObjectVector>();
+    Object objects = Object::value( carto::ObjectVector() );
+    carto::ObjectVector & ov = objects->value<carto::ObjectVector>();
 
     map<AObject*, string> obj_map;
     Object it = aobject->objectIterator();
@@ -492,7 +629,7 @@ Object MObjectIO::createMObjectDescr( AObject* aobject, const string & path,
     Object props = aobject->makeHeaderOptions();
     if( props )
       objects->setProperty( "properties", props );
-    ObjectVector sub_obj;
+    carto::ObjectVector sub_obj;
     sub_obj.reserve( children.size() );
     list<AObject *>::iterator ic, ec = children.end();
     for( ic=children.begin(); ic!=ec; ++ic )
