@@ -239,7 +239,6 @@ void GLWidgetManager::Private::setWindowExtrema()
   t.transformBoundingBox( bmino - center, bmaxo - center, bminw, bmaxw );
   bminw[2] -= ( bmaxw[2] - bminw[2] ) * 0.01;
   bmaxw[2] += ( bmaxw[2] - bminw[2] ) * 0.01;
-  cout << "setWindowExtrema mindepth: " << bminw[2] << ", max: " << bmaxw[2] << endl;
 }
 
 // --------
