@@ -237,6 +237,9 @@ void GLWidgetManager::Private::setWindowExtrema()
   t.setQuaternion( quaternion );
   t.invert();
   t.transformBoundingBox( bmino - center, bmaxo - center, bminw, bmaxw );
+  bminw[2] -= ( bmaxw[2] - bminw[2] ) * 0.01;
+  bmaxw[2] += ( bmaxw[2] - bminw[2] ) * 0.01;
+  cout << "setWindowExtrema mindepth: " << bminw[2] << ", max: " << bmaxw[2] << endl;
 }
 
 // --------
@@ -1482,6 +1485,9 @@ void GLWidgetManager::project( int width, int height )
   bmino[2] *= -1;
   bmaxo[2] *= -1;
   t.transformBoundingBox( bmino, bmaxo, bmin, bmax );
+  // avoid losing far/near planes
+  bmin[2] -= ( bmax[2] - bmin[2] ) * 0.01;
+  bmax[2] += ( bmax[2] - bmin[2] ) * 0.01;
 
   //	viewport setup
 
