@@ -370,7 +370,7 @@ void QObjectTree::decorateItem( QTreeWidgetItem* item, AObject*obj )
   if( in != TypeNames.end() )
     item->setText( typeCol, (*in).second.c_str() );
   else
-    item->setText( typeCol, 0 );
+    item->setText( typeCol, AObject::objectTypeName( obj->type() ).c_str() );
   if( item->text( countCol ) == "" )
   {
     stringstream s;
