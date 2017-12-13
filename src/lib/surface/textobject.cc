@@ -82,6 +82,8 @@ TextObject::TextObject( const std::string & text,
                         const Point3df & pos, float fontSize )
   : ASurface<3>(), d( new Private( pos, fontSize ) )
 {
+  _type = registerObjectType( "Text" );
+
   AimsTimeSurface<3> *mesh = new AimsTimeSurface<3>();
   vector<Point3df> &vert = mesh->vertex();
   vector<AimsVector<uint32_t, 3> > & poly= mesh->polygon();

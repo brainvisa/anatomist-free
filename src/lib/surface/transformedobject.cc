@@ -76,6 +76,8 @@ TransformedObject::TransformedObject( const vector<AObject *> & obj,
 {
   using carto::shared_ptr;
 
+  _type = registerObjectType( "TransformedObject" );
+
   vector<AObject *>::const_iterator io, eo = obj.end();
   shared_ptr<AObject>::ReferenceType rtype = shared_ptr<AObject>::WeakShared;
   if( strongref )
@@ -94,6 +96,8 @@ TransformedObject::TransformedObject(
 {
   using carto::shared_ptr;
 
+  _type = registerObjectType( "TransformedObject" );
+
   vector<shared_ptr<AObject> >::const_iterator io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
     insert( *io );
@@ -108,7 +112,7 @@ TransformedObject::~TransformedObject()
 
 bool TransformedObject::renderingIsObserverDependent() const
 {
-  return true;
+  return !d->followorientation || !d->followposition;
 }
 
 
