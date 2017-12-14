@@ -1570,9 +1570,10 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->aWindow());
 
-  if (objselect)
+
+  if( objselect )
   {
-    if (w3->hasObject(objselect))
+    if( w3->hasObject(objselect) )
     {
       objtype = objselect->objectTypeName(objselect->type());
       *indexNearestVertex = 0;
@@ -3874,7 +3875,7 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
   if (x < 0 || y < 0 || x >= d->draw->qglWidget()->width() || y
       >= d->draw->qglWidget()->height()) return -1;
 
-  //cout << "polygonAtCursorPosition\n";
+  // cout << "polygonAtCursorPosition\n";
 
   GLubyte r, g, b;
 
@@ -3897,7 +3898,7 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
   }
   else
   {
-    //cout << "without optimization\n";
+    // cout << "without optimization\n";
     // render in ViewState::glSELECTRENDER_POLYGON mode (if needed)
     renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
     // read the color buffer at pos x,y
@@ -3916,7 +3917,12 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
     const AObject *selectedobject)
 {
-  // cout << "renderSelectionBuffer...\n";
+  /* cout << "renderSelectionBuffer... mode: " << mode << " for object: "
+       << selectedobject;
+  if( selectedobject )
+    cout << ": " << selectedobject->name();
+  cout << endl;
+   */
 
   d->refreshneeded = Private::FullRefresh;
   d->draw->qglWidget()->makeCurrent();
