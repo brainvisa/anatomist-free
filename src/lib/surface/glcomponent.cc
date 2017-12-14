@@ -635,19 +635,19 @@ GLPrimitives GLComponent::glMainGLL( const ViewState & state )
 
 GLPrimitives GLComponent::glBodyGLL( const ViewState & state ) const
 {
-  // cout << "GLComponent::glBodyGLL in " << this << endl;
+  // cout << "*** GLComponent::glBodyGLL in " << this << " ***" << endl;
   string s = viewStateID( glBODY, state );
   GLPrimitives	p;
   bool	changed = glHasChanged( glBODY );
   if( !changed )
+  {
+    map<string, RefGLItem>::const_iterator	i = d->bodyGLL.find( s );
+    if( i != d->bodyGLL.end() )
     {
-      map<string, RefGLItem>::const_iterator	i = d->bodyGLL.find( s );
-      if( i != d->bodyGLL.end() )
-        {
-          p.push_back( i->second );
-          return p;
-        }
+      p.push_back( i->second );
+      return p;
     }
+  }
 
   if( changed )
     d->bodyGLL.clear();

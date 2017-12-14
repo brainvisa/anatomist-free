@@ -133,7 +133,7 @@ std::string AGLObject::viewStateID( glPart part,
     (float &) s[0] = n;
     for( i=0; i<n; ++i )
       (float &) s[nf * ( i + 1 )] = td[i];
-    (glSelectRenderMode &) s[nf * (n + 2)] = state.selectRenderMode;
+    (glSelectRenderMode &) s[nf * (n + 1)] = state.selectRenderMode;
     return s;
   }
 
