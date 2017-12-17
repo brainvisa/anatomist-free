@@ -874,7 +874,9 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
   {
     if( surfp->attributed()->getProperty( "normal", normal )
       && normal.size() == 3 )
+    {
       hasnormal = true;
+    }
     else if( surfp->isPlanar() )
     {
       const GLComponent *gl = surfp->glAPI();
@@ -979,36 +981,22 @@ void TesselatedMesh::tesselate( const ViewState & vs ) const
 
   // recreate normals, fast
   Point3df pvec;
-  bool donormal = false;
   if( hasnormal )
   {
     pvec[0] = -normal[0];
     pvec[1] = -normal[1];
     pvec[2] = -normal[2];
-    donormal = true;
-  }
-  else if( d->polygons->size() != 0 )
-  {
-    unsigned ip, np = d->polygons->size();
-    for( ip=0; ip!=np; ++ip )
-    {
-      AimsVector<uint, 3> & pol = (*d->polygons)[ip];
-      Point3df v1 = (*d->vertices)[ pol[1] ] - (*d->vertices)[ pol[0] ];
-      Point3df v2 = (*d->vertices)[ pol[2] ] - (*d->vertices)[ pol[1] ];
-      pvec = vectProduct( v1, v2 );
-      if( pvec.norm2() >= abs( 1e-4 * v1.norm2() * v2.norm2() ) )
-        break; // non-flat triangle
-    }
-    donormal = true;
-    pvec.normalize();
-  }
-  if( donormal )
-  {
+
     unsigned i, n=d->vertices->size();
     vector<Point3df> & norm = surf->normal();
     norm.reserve( n );
     for( i=0; i<n; ++i )
       norm.push_back( pvec );
+  }
+  else if( d->polygons->size() != 0 )
+  {
+    // non-planar plygon: recompute all normals the standard way
+    surf->updateNormals();
   }
   asurf->UpdateMinAndMax();
   asurf->glSetChanged( glGEOMETRY );
