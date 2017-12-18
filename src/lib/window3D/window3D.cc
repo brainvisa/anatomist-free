@@ -2403,6 +2403,7 @@ Geometry AWindow3D::setupWindowGeometry(
     const list<carto::shared_ptr<AObject> > & objects, const Quaternion & slicequat,
     const Referential *wref, QGLWidget* glw, bool with3d )
 {
+  // cout << "setupWindowGeometry, objects: " << objects.size() << endl;
   using carto::shared_ptr;
 
   list<shared_ptr<AObject> >::const_iterator obj;
@@ -2446,7 +2447,9 @@ Geometry AWindow3D::setupWindowGeometry(
     if( with3d || o->Is2DObject() )
     {
       s2 = o->voxelSize();
-      //cout << "Object " << o->name() << ", vs : " << vs << endl;
+      // cout << "    Object " << o->name() << endl;
+      while( s2.size() < 3 )
+        s2.push_back( 1. );
 
       tr = 0;
       if (wref)
@@ -2480,7 +2483,7 @@ Geometry AWindow3D::setupWindowGeometry(
 
       if ((*obj)->boundingBox(pmin, pmax))
       {
-        //cout << "boundingbox : " << pmin << " / " << pmax << endl;
+        // cout << "    boundingbox : " << pmin.size() << " / " << pmax.size() << endl;
         p = Point3df( pmin[0], pmin[1], pmin[2] );
         if (tr) p = tr->transform(p);
         p = slicequat.transform(p);
