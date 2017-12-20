@@ -171,8 +171,10 @@ namespace anatomist
     ///	maybe not necessary ?: we can use dynamic_cast instead
     virtual int isMultiObject() const { return( false ); }
 
-    virtual float MinT() const { return 0; }
-    virtual float MaxT() const { return 0; }
+    /// Obsolete, deprecated
+    virtual float MinT() const;
+    /// Obsolete, deprecated
+    virtual float MaxT() const;
 
     /** Bounding box in 2D views mode. In mm, may be the same as boundingBox()
         if the object field of view is the same in 3D and 2D modes.

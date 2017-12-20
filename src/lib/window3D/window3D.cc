@@ -2904,6 +2904,7 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
   using carto::shared_ptr;
 
   bool valid = false;
+  bool timevalid = false;
 
   bmin.resize( 4 );
   bmax.resize( 4 );
@@ -2979,10 +2980,43 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
         }
         else
         {
-          bmin = pmin;
-          bmax = pmax;
+          if( !timevalid )
+          {
+            bmin = pmin;
+            bmax = pmax;
+          }
+          else
+          {
+            bmin[0] = pmin[0];
+            bmin[1] = pmin[1];
+            bmin[2] = pmin[2];
+            bmax[0] = pmax[0];
+            bmax[1] = pmax[1];
+            bmax[2] = pmax[2];
+          }
         }
         valid = true;
+        timevalid = true;
+      }
+      else if( pmax.size() >= 3 )
+      {
+        cout << "obj bbox false but time bounds\n";
+        /* some objects (Textures) return false for boundingbox() because they
+           have no geometric (3D) bounds, but still have time bounds */
+        timevalid = true;
+        for( j=3, n=std::min( unsigned( pmin.size() ), m ); j<n; ++j )
+        {
+          if( pmin[j] < bmin[j] )
+            bmin[j] = pmin[j];
+          if( pmax[j] > bmax[j] )
+            bmax[j] = pmax[j];
+        }
+        while( pmin.size() > m )
+        {
+          bmin.push_back( pmin[m] );
+          bmax.push_back( pmax[m] );
+          ++m;
+        }
       }
     }
   }
