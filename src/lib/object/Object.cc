@@ -773,6 +773,26 @@ bool AObject::boundingBox2D( vector<float> & bmin, vector<float> & bmax ) const
 }
 
 
+float AObject::MinT() const
+{
+  vector<float> bmin, bmax;
+  boundingBox( bmin, bmax );
+  if( bmin.size() >= 4 )
+    return bmin[3];
+  return 0.f;
+}
+
+
+float AObject::MaxT() const
+{
+  vector<float> bmin, bmax;
+  boundingBox( bmin, bmax );
+  if( bmax.size() >= 4 )
+    return bmax[3];
+  return 0.f;
+}
+
+
 bool AObject::isTransparent() const
 {
   return material().IsBlended() 

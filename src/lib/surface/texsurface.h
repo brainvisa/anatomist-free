@@ -118,8 +118,6 @@ public:
   virtual bool Is2DObject() { return _surf->Is2DObject(); }
   virtual bool Is3DObject() { return true; }
 
-  virtual float MinT() const;
-  virtual float MaxT() const;
   virtual bool boundingBox( std::vector<float> & bmin,
                             std::vector<float> & bmax ) const;
 

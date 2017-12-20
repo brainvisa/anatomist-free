@@ -323,24 +323,6 @@ Tree* ATexSurface::optionTree() const
 }
 
 
-float ATexSurface::MinT() const
-{
-  if( _surf->MinT() <= _tex->MinT() )
-    return( _surf->MinT() );
-  else
-    return( _tex->MinT() );
-}
-
-
-float ATexSurface::MaxT() const
-{
-  if( _surf->MaxT() >= _tex->MaxT() )
-    return( _surf->MaxT() );
-  else
-    return( _tex->MaxT() );
-}
-
-
 bool ATexSurface::boundingBox( vector<float> & bmin,
                                vector<float> & bmax ) const
 {
@@ -349,8 +331,13 @@ bool ATexSurface::boundingBox( vector<float> & bmin,
     bmin.resize( 4 );
   if( bmax.size() < 4 )
     bmax.resize( 4 );
-  bmin[3] = MinT();
-  bmax[3] = MaxT();
+  vector<float> tbmin, tbmax;
+  _tex->boundingBox( tbmin, tbmax );
+  if( tbmax.size() >= 4 )
+  {
+    bmin[3] = std::min( bmin[3], tbmin[3] );
+    bmax[3] = std::max( bmax[3], tbmax[3] );;
+  }
   return res;
 }
 
