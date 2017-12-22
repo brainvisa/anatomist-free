@@ -51,7 +51,7 @@ No real doc up to now...
 
 Anatomist/BrainVISA official web site:
 
-- <a href="http://anatomist.info">http://anatomist.info</a>
+- <a href="http://brainvisa.info">http://brainvisa.info</a>
 
 French helps from Anatomist help menu:
 
