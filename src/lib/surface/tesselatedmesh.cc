@@ -116,7 +116,8 @@ TesselatedMesh::TesselatedMesh( const vector<AObject *> & obj )
   surf->setName( theAnatomist->makeObjectName( "TessSubMesh" ) );
   theAnatomist->registerObject( surf, false );
   surf->setSurface( new AimsSurfaceTriangle );
-  insert( surf );
+  insert( rc_ptr<AObject>( surf ) );
+  theAnatomist->releaseObject( surf );
   AObject       *s = 0;
 
   for( io=obj.begin(); io!=fo; ++io )
@@ -127,7 +128,7 @@ TesselatedMesh::TesselatedMesh( const vector<AObject *> & obj )
       if( !s )
         s = *io;
       if( gc->glPolygonSize( vs ) == 2 )
-        insert( *io );
+        insert( rc_ptr<AObject>( *io ) );
     }
   }
 
@@ -149,11 +150,11 @@ TesselatedMesh::~TesselatedMesh()
     gluDeleteTess( d->polytess );
     gluDeleteTess( d->tesselator );
   }
-  iterator      i = begin();
-  AObject *o = *i;
-  erase( i );
-  if( o->Parents().empty() )
-    delete o;
+//   iterator      i = begin();
+//   AObject *o = *i;
+//   erase( i );
+//   if( o->Parents().empty() )
+//     delete o;
   delete d;
 }
 
