@@ -283,10 +283,13 @@ const GLfloat * Fusion2DMesh::glVertexArray( const ViewState & ) const
 //--------------------------------------------------------------
 const GLfloat * Fusion2DMesh::glNormalArray( const ViewState & ) const
 {
-	if ( !_mergedSurface || !_mergedSurface->surface() )
-	{
-		return 0;
-	}
+    if ( !_mergedSurface || !_mergedSurface->surface() )
+    {
+      return 0;
+    }
+
+    if( _mergedSurface->surface()->normal().size() == 0 )
+      return 0;
 
     return &(_mergedSurface->surface())->normal()[0][0];
 }
