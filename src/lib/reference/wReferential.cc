@@ -1111,11 +1111,14 @@ void ReferentialWindow::set3DView()
 
   RefWindow *rwin = new RefWindow;
   pdat->view3d_ref.reset( rwin );
+  set<AWindow *> sw;
+  sw.insert( rwin );
+  theAnatomist->groupWindows( sw, -1 );
   // make the window not appear in control win, and be a weak reference in
   // the app.
+  theAnatomist->releaseWindow( rwin );
   if( theAnatomist->getControlWindow() )
     theAnatomist->getControlWindow()->unregisterWindow( rwin );
-  theAnatomist->releaseWindow( rwin );
 
   rwin->updateReferentialView();
   layout()->addWidget( rwin );
