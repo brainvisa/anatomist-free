@@ -1383,13 +1383,16 @@ namespace
     }
 
     const GLfloat* glnorm = gl->glNormalArray( state );
-    norm.resize( nv );
-
-    for( i=0; i<nv; ++i )
+    if( glnorm != 0 )
     {
-      norm[i][0] = *glnorm++;
-      norm[i][1] = *glnorm++;
-      norm[i][2] = *glnorm++;
+      norm.resize( nv );
+
+      for( i=0; i<nv; ++i )
+      {
+        norm[i][0] = *glnorm++;
+        norm[i][1] = *glnorm++;
+        norm[i][2] = *glnorm++;
+      }
     }
 
     unsigned j, np = gl->glNumPolygon( state );
