@@ -175,9 +175,9 @@ RoiChangeProcessor::change( bool forward )
                                               lSet(changedBuckets.end()) ;
   while( iSet != lSet ){
     iSet->first->setSubBucketGeomExtrema( iSet->second.min, iSet->second.max ) ;
-    cout << "notify change for " << iSet->first->name() << endl;
-    if( !iSet->first->hasChanged() )
-      cout << "not changed...\n";
+//     cout << "notify change for " << iSet->first->name() << endl;
+//     if( !iSet->first->hasChanged() )
+//       cout << "not changed...\n";
     iSet->first->setGeomExtrema();
     iSet->first->notifyObservers( this );
     ++iSet ;
