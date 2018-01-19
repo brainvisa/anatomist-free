@@ -758,11 +758,6 @@ void AObject::cleanup()
 
 bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
-  bmin = vector<float>( 4, 0.f );
-  bmax = vector<float>( 4, 0.f );
-  vector<float> vs = voxelSize();
-  bmin[3] = MinT() * vs[3];
-  bmax[3] = MaxT() * vs[3];
   return false;
 }
 
