@@ -304,26 +304,35 @@ void SetMaterialCommand::doit()
       {
         mat.setRenderProperty( Material::UseShader, _useshader );
         changed = true;
+        shaderChanged = true;
       }
       if( _shadercolornormals != -2 )
       {
         mat.setRenderProperty( Material::ShaderColorNormals,
                                _shadercolornormals );
         changed = true;
+        shaderChanged = true;
       }
       if( _normalisdirection != -2 )
       {
         mat.setRenderProperty( Material::NormalIsDirection,
                                _normalisdirection );
         changed = true;
+        shaderChanged = true;
       }
 
       if( changed )
+      {
         o->SetMaterial( mat );
-      if( glc )
-        glc->glSetChanged( GLComponent::glMATERIAL );
-      if( _refresh && changed )
-        o->notifyObservers( this );
+        if( glc )
+        {
+          glc->glSetChanged( GLComponent::glMATERIAL );
+          if( shaderChanged )
+            glc->glSetChanged( GLComponent::glBODY );
+        }
+        if( _refresh )
+          o->notifyObservers( this );
+      }
     }
 }
 

@@ -786,7 +786,10 @@ GLPrimitives GLComponent::glMaterialGLL( const ViewState & state ) const
     }
 
   if( changed )
+  {
     d->materialGLL.clear();
+    const_cast<GLComponent *>( this )->setupShader();
+  }
 
   GLList	*l( new GLList );
   l->generate();
