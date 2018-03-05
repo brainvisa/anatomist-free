@@ -3155,10 +3155,7 @@ RoiManagementAction::exportRegion( AGraphObject * o)
   if( vol )
     {
       AVolume<int16_t>	avol = *vol;
-      vector<int> dim ;
-      dim.push_back(avol.volume()->getSizeX()) ;
-      dim.push_back(avol.volume()->getSizeY()) ;
-      dim.push_back(avol.volume()->getSizeZ()) ;
+      vector<int> dim = avol.volume()->getSize();
       avol.attributed()->setProperty( "volume_dimension", dim ) ;
       // take care of SPM origin/orientation properties
       vector<float>	org;
