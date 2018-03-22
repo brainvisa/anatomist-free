@@ -534,8 +534,8 @@ Referential* Referential::referentialOfName( const string & refname )
   string                name;
 
   for( i=refs.begin(); i!=e; ++i )
-    if( (*i)->header().getProperty( "name", name )
-          && name == refname )
+    if( ( (*i)->header().getProperty( "name", name ) && name == refname )
+        || ( (*i)->uuid().toString() == refname ) )
       return *i;
   return 0;
 }
