@@ -1050,9 +1050,17 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   {
     // if actual bounds are not [0,1], a texture rescaling must be
     // performed in addition.
-    float scl = 1. / ( te.max[0] - te.min[0] );
-    ti.texscale[0] *= scl;
-    ti.texoffset[0] -= te.min[0];
+    // FIXME TODO this does not apply in all cases: then the texture is a 1D
+    // quantity it should probably. When we are using 2D textures, it should
+    // not. Right now I cannot figure out a good criterion to determine whether
+    // whe should scale or not. In the meantime, we just check if it is 2D.
+    if( dimy == 1 )
+    {
+      float scl = 1. / ( te.max[0] - te.min[0] );
+      ti.texscale[0] *= scl;
+      ti.texoffset[0] -= te.min[0];
+  //     cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
+    }
   }
 
   // allocate colormap
