@@ -859,7 +859,22 @@ void AObject::setProperties( Object options )
           // referential
           string t = objectTypeName( type() );
           if( t != "NOMENCLATURE" && t != "TEXTURE" )
-            setReferential( theAnatomist->centralReferential() );
+          {
+            try
+            {
+              Object ref = o->getProperty( "referential" );
+              string refstr = ref->getString();
+              Referential *oref = Referential::referentialOfName( refstr );
+              if( oref )
+                setReferential( oref );
+              else
+                setReferential( theAnatomist->centralReferential() );
+            }
+            catch( ... )
+            {
+              setReferential( theAnatomist->centralReferential() );
+            }
+          }
 
           // material
           GLComponent	*g = glAPI();

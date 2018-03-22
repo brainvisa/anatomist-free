@@ -301,6 +301,8 @@ void RenderingWindow::updateInterface()
                    _material.renderProperty(Material::RenderZBuffer));
     setButtonState(cull_polygon_faces_checkBox,
                    _material.renderProperty(Material::RenderFaceCulling));
+    setButtonState(frontface_checkBox,
+                   _material.renderProperty(Material::FrontFace));
     lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
     QPixmap pix( 32, 16 );
     pix.fill( QColor( (int) ( _material.unlitColor(0) * 255.9 ),
