@@ -846,8 +846,8 @@ void AObject::setHeaderOptions()
 
 void AObject::setProperties( Object options )
 {
-  /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
-     << "name: " << name() << ", filename: " << fileName() << endl; */
+//    cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
+//      << "name: " << name() << ", filename: " << fileName() << endl;
   PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );
   if( pao )
     {
@@ -922,10 +922,10 @@ void AObject::setProperties( Object options )
               m->setProperty( "image_directory",
                               FileUtil::dirname( fileName() ) );
               if( palette() && palette()->set( *m ) )
-                {
-                  setPalette( *palette() );
-                  palette()->fill();
-                }
+              {
+                setPalette( *palette() );
+                palette()->fill();
+              }
             }
           catch( ... )
             {
@@ -1081,7 +1081,8 @@ void AObject::setProperties( Object options )
             try
             {
               map<int, Object> palettes;
-              if( o->getProperty( "_texture_palettes", palettes ) )
+              if( o->getProperty( "_texture_palettes", palettes )
+                  && palettes.size() != 0 )
               {
                 map<int, Object>::const_iterator ip/*, ep = palettes.end()*/;
                 ip=palettes.begin();
@@ -1116,6 +1117,7 @@ void AObject::setProperties( Object options )
 
                   theAnatomist->palettes().push_back( pal );
 
+                  getOrCreatePalette();
                   AObjectPalette  *opal = palette();
                   opal->setRefPalette( pal );
                   opal->setMin1( 0. );
