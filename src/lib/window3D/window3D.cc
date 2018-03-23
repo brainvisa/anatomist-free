@@ -2953,13 +2953,15 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
         if( wref && (oref = obj->getReferential() )
           && ( tr = theAnatomist->getTransformation( oref, wref ) ) )
         {
-          ppmino[0] = pmin[0];
-          ppmino[1] = pmin[1];
-          ppmino[2] = pmin[2];
+          ppmino = Point3df( pmin );
+          ppmaxo = Point3df( pmax );
           tr->transformBoundingBox( ppmino, ppmaxo, ppmin, ppmax );
           pmin[0] = ppmin[0];
           pmin[1] = ppmin[1];
           pmin[2] = ppmin[2];
+          pmax[0] = ppmax[0];
+          pmax[1] = ppmax[1];
+          pmax[2] = ppmax[2];
         }
 
         if (valid)
