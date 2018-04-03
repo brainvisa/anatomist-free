@@ -12,7 +12,7 @@ Anatomist
 
 Official web site: http://brainvisa.info
 
-.. |news| image:: ../html/images/new.gif
+.. |news| image:: images/new.gif
 
 |news| :doc:`Changelog and news <changelog>`
 
@@ -27,10 +27,10 @@ Have you tried :ref:`AnaSimpleViewer <anaSimpleViewer>` ? This simplified versio
   :align: center
   :target: anatomist_tutorial.html#anasimpleviewer
 
-.. |overview| image:: ../html/images/overview.png
+.. |overview| image:: images/overview.png
   :height: 48pt
   :target: overview.html
-.. |overview_slides| image:: ../html/images/overview.png
+.. |overview_slides| image:: images/overview.png
   :height: 48pt
   :target: ../anatomist_overview.pdf
 
@@ -43,13 +43,13 @@ To start in good conditions, the reader may:
 More complete docs
 ------------------
 
-.. |man| image:: ../html/images/manual.png
+.. |man| image:: images/manual.png
   :height: 48pt
   :target: anatomist_manual1.html
-.. |tuto| image:: ../html/images/manual.png
+.. |tuto| image:: images/manual.png
   :height: 48pt
   :target: anatomist_tutorial.html
-.. |pyana| image:: ../html/images/program.png
+.. |pyana| image:: images/program.png
   :height: 48pt
   :target: ../dev_doc/index.html
 
@@ -63,10 +63,10 @@ More complete docs
 Quick help elements
 -------------------
 
-.. |surfmatch| image:: ../html/images/texture.jpg
+.. |surfmatch| image:: images/texture.jpg
   :height: 48pt
   :target: surfmatch.html
-.. |roi| image:: ../html/images/roi.png
+.. |roi| image:: images/roi_win.png
   :height: 48pt
   :target: anatomist_manual2.html#roi-drawing-toolbox
 .. |surfpaint| image:: images/geodesic_distance.png
@@ -88,19 +88,13 @@ Quick help elements
 Old illustrations...
 --------------------
 
-.. image:: ../html/images/visualize.png
+.. image:: images/visualize.png
   :height: 64pt
   :target: museum.html#volumes
-.. image:: ../html/images/fusion.png
+.. image:: images/fusion.png
   :height: 64pt
   :target: museum.html#fusions-2d
-.. image:: ../html/images/tms.png
-  :height: 64pt
-  :target: museum.html
-.. image:: ../html/images/graph.png
-  :height: 64pt
-  :target: museum.html
-.. image:: ../html/images/texture.jpg
+.. image:: images/texture.jpg
   :height: 64pt
   :target: museum.html#surfacic
 

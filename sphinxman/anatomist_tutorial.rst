@@ -9,9 +9,9 @@ In order to work through the following sections, please download the demonstrati
 
 * ftp://ftp.cea.fr/pub/dsv/anatomist/data/demo_data.zip
 
-* Section *Exemple data* from `the download page of the BrainVisa web site <http://brainvisa.info/downloadpage.html>`_
+* Section *Exemple data* from `the download page of the BrainVisa web site <http://brainvisa.info/web/downloadpage_wrap.html>`_
 
-For more information concerning the installation, please refer to :axonman:`the manual of BrainVISA <index.html>`.
+For more information concerning the installation, please refer to :axonusr:`the manual of BrainVISA <axon_manual.html>`.
 
 
 
@@ -352,7 +352,7 @@ The option *Referential => Load information from file header* extracts informati
 
 .. note:: **Note about SPM2**
 
-  SPM2 can use a .mat file to store the origin information, so the information in the regular Analyze header is not always reliable. Anatomist cannot read .mat (matlab) files, but .trm files. To :axontuto:`convert the .mat file to .trm<ch07.html#bv_training%convert_matTOtrm>`, and then `load a transformation <load_transformation_>`_.
+  SPM2 can use a .mat file to store the origin information, so the information in the regular Analyze header is not always reliable. Anatomist cannot read .mat (matlab) files, but .trm files. To :axonusr:`convert the .mat file to .trm<tutorial.html#converting-spm-registration-and-normalization-matrices-to-aims>`, and then `load a transformation <load_transformation_>`_.
 
 .. note:: **Note about SPM5 / SPM8**
 

@@ -7,10 +7,10 @@ Anatomist developers documentation
 
 Anatomist is written in C++ language, and has Python bindings.
 
-.. |anadox| image:: ../html/images/program.png
+.. |anadox| image:: ../user_doc/_images/program.png
   :height: 64pt
   :target: ../doxygen/index.html
-.. |pyana| image:: ../html/images/program.png
+.. |pyana| image:: ../user_doc/_images/program.png
   :height: 64pt
   :target: ../../pyanatomist/sphinx/index.html
 
@@ -67,12 +67,12 @@ More or less obsolete docs
 
 and in french...
 
-* `Programming a new object type <../html/fr/programmation/new_aobject.html>`_
-* `Programming a new window type <../html/fr/programmation/new_awindow.html>`_
-* `Adding a new property on an object <../html/fr/programmation/new_optionTree.html>`_ (right-click and *Object specific* menus)
-* `Making a new module <../html/fr/programmation/new_module.html>`_
+* `Programming a new object type <_static/old_prog_fr/new_aobject.html>`_
+* `Programming a new window type <_static/old_prog_fr/new_awindow.html>`_
+* `Adding a new property on an object <_static/old_prog_fr/new_optionTree.html>`_ (right-click and *Object specific* menus)
+* `Making a new module <_static/old_prog_fr/new_module.html>`_
 
-* `Vew / controler model in Anatomist <../html/fr/programmation/controls.html>`_
+* `Vew / controler model in Anatomist <_static/old_prog_fr/controls.html>`_
 
 
 Contents

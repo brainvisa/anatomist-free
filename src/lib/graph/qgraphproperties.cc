@@ -279,7 +279,13 @@ void QGraphProperties::updateInterface()
 
   d->modecombo->setCurrentIndex( (int) g->colorMode() );
   string prop;
-  g->graph()->getProperty( "label_property", prop );
+  try
+  {
+    prop = g->graph()->getProperty( "label_property" )->getString();
+  }
+  catch( ... )
+  {
+  }
   if( prop.empty() )
     d->labelpropcombo->setCurrentIndex( 0 );
   else if( prop == "name" )
@@ -394,7 +400,13 @@ void QGraphProperties::updateObjects()
           + 2 * ( d->edgemask->isChecked() & 1 ), false );
       Graph *gg = g->graph();
       string  prop;
-      gg->getProperty( "label_property", prop );
+      try
+      {
+        prop = gg->getProperty( "label_property" )->getString();
+      }
+      catch( ... )
+      {
+      }
       switch( d->labelpropcombo->currentIndex() )
       {
       case 1:
