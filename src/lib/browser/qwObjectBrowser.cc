@@ -2301,7 +2301,13 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
   {
     gattrib = attrib;
     // if there a per-graph nomenclature property setting, use it
-    (*ig)->getProperty( "label_property", gattrib );
+    try
+    {
+      gattrib = (*ig)->getProperty( "label_property" )->getString();
+    }
+    catch( ... )
+    {
+    }
     for( iv=(*ig)->begin(), fv=(*ig)->end(); iv!=fv; ++iv )
       if( (*iv)->getProperty( "ana_object", obj ) 
           && (*iv)->getProperty( gattrib, name ) )

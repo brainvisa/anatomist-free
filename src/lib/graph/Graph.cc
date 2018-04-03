@@ -1797,8 +1797,15 @@ void AGraph::copyAttributes( const string & oldatt, const string & newatt,
 string AGraph::labelProperty( bool allowDefault ) const
 {
   string prop;
-  if( ( !graph() || !graph()->getProperty( "label_property", prop ) )
-         && allowDefault )
+  try
+  {
+    if( graph() )
+      prop = graph()->getProperty( "label_property" )->getString();
+  }
+  catch( ... )
+  {
+  }
+  if( prop.empty() )
     prop = GraphParams::graphParams()->attribute;
   return prop;
 }
