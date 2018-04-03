@@ -1,0 +1,330 @@
+<!doctype public "-//w3c//dtd html 4.01 transitional//en" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Programmation Anatomist: faire un objet</title>
+  <style type="text/css">
+    BODY {
+	  text-align: justify;
+	  margin: 0.5cm;
+	}
+  </style>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<center><table WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=RIGHT VALIGN=CENTER NOSAVE><img SRC="../../images/anaLogo.png" NOSAVE align=CENTER></td>
+
+<td ALIGN=CENTER VALIGN=CENTER WIDTH="100%" NOSAVE>
+<h1>
+Programmation dans Anatomist:<br>
+fabriquer un nouvel objet</h1>
+</td>
+
+<td><a href="http://www-dsv.cea.fr/content/cea/d_dep/d_drm/d_shfj/d_unaf/">
+<img SRC="../../images/logo_shfj_t.png" NOSAVE BORDER=0 align=CENTER></a>
+<a href="mailto:&#109;&#97;&#110;&#103;&#105;&#110;&#64;&#115;&#104;&#102;&#106;&#46;&#99;&#101;&#97;&#46;&#102;&#114;">
+<img SRC="../../images/feather.png" NOSAVE BORDER=0 align=CENTER></a></td>
+</tr>
+</table></center>
+
+<hr WIDTH="100%">
+<p><i>(mise &agrave; jour:&nbsp;27/07/2001)</i>
+<p>Regardez toujours la doc automatique en meme temps... (et les sources
+des classes que je donne en exemple, &ccedil;a peut aider aussi)
+<p>Objet d&eacute;rivant de la base, <tt>AObject</tt>, avec typage dynamique
+(cad pas connu de la librairie de base libanatomist)
+<br>Ex: <tt>Hierarchy</tt>, objet apport&eacute; par le module <tt>MyModule</tt>:
+<br>D&eacute;clarer la classe avec le squelette et les fonctions suivantes:
+<br>Prenons comme exemple une nouvelle classe d'objet Anatomist: <tt>AToto</tt>
+<blockquote>
+<pre>class AToto : public AObject
+{</pre>
+
+<pre>public:
+&nbsp; friend class MyModule;&nbsp;&nbsp;&nbsp; // allow access to registerClass()&nbsp;from the module init function</pre>
+
+<pre>&nbsp; AToto( params quelconques... );
+&nbsp; virtual ~AToto();
+&nbsp; virtual Tree* optionTree() const;
+&nbsp; static int&nbsp; classType();</pre>
+
+<pre>protected:</pre>
+
+<pre>&nbsp; static Tree* _optionTree;</pre>
+
+<pre>private:</pre>
+
+<pre>&nbsp; static int registerClass();
+&nbsp; static int _classType;</pre>
+
+<pre>};</pre>
+</blockquote>
+
+<p><br>Il y a un certain nombre de fonctions &agrave; red&eacute;finir,
+certaines obligatoires, d'autres fortement conseill&eacute;es
+<br>&nbsp;
+<h4>
+R&eacute;sum&eacute;</h4>
+<a href="#type_dyn">Enregistrement du type dynamique</a>
+<br><a href="#lecture">Enregistrement du lecteur</a>
+<br><a href="#constructeur">Remplissage du type de l'instance</a>
+<br><a href="#constructeur">Enregistrement de l'icone pour la fenetre de
+controle</a>
+<br><a href="#affichage_2D">D&eacute;finition des fonctions d'affichage
+(2D/3D)</a>
+<br><a href="#object_manips">Options dans le menu Object Manipulations</a>
+<br>&nbsp;
+<h2>
+<a NAME="type_dyn"></a>Enregistrement dynamique du nouveau type d'objet</h2>
+Le type est demand&eacute; et enregistr&eacute; par un appel &agrave; la
+fonction statique<tt> int AObject::registerObjectType( const string &amp;
+id )</tt>.&nbsp; Le type en question (l'entier retourn&eacute; par <tt>registerObjectType()</tt>&nbsp;)
+doit &ecirc;tre gard&eacute; et partag&eacute; par toutes les instances
+de la classe AToto, on le garde donc dans une variable statique:&nbsp;<tt>AToto::_classType</tt>.
+<br>L'ennui est que cette fonction doit etre appel&eacute;e avant la construction
+de toute instance de la classe <tt>AToto</tt>.
+<br>La bonne fa&ccedil;on de d&eacute;clarer ce type est d&eacute;sormais
+de le faire depuis l'initialisation du module auquel appartient l'objet,
+en red&eacute;finissant la fonction <tt>Module::objectsDeclaration()</tt>.
+<blockquote>
+<pre>void MyModule::objectsDeclaration()
+{
+&nbsp; AToto::registerClass();
+}</pre>
+
+<pre>//... in AToto definition source:</pre>
+
+<pre>void AToto::registerClass()
+{
+&nbsp; _classType = registerObjectType( "AToto" );
+}</pre>
+</blockquote>
+<a NAME="constructeur"></a><b>A faire dans le constructeur:</b>
+<br>Le champ <tt>AObject::_type</tt> doit etre rempli &agrave; la construction.
+Ce champ est <i>idiot</i>, n'ayons pas peur de le dire, il va &ecirc;tre
+remplac&eacute; dans le futur par une fonction virtuelle <tt>AObject::type()</tt>
+ou qqchose de ce go&ucirc;t-l&agrave;:&nbsp;le type n'a pas besoin, et
+ne <i>DOIT</i>&nbsp;pas &ecirc;tre stock&eacute; dans chaque instance de
+la classe. Enfin pour le moment...
+<br><i>Icone dans la fenetre de controle</i>: Les icones des objets sont
+des <tt>QPixmap</tt> , la classe qui en est responsable pour le moment
+est <tt>QObjectTree</tt> (qui affiche l'arborescence des objets). On peut
+proc&eacute;der &agrave; l'enregistrement, soit dans une initialisation
+faite une seule fois (la fonction <tt>registerClass()</tt> pr&eacute;c&eacute;dente),
+soit faire cet enregistrement dans le constructeur en v&eacute;rifiant
+qu'on ne le refait pas &agrave; chaque construction (c'est ce qui est fait
+dans <tt>Hierarchy</tt>):
+<blockquote>
+<pre>AToto::AToto()
+{
+&nbsp; _type = _classType();
+&nbsp; if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; str( theAnatomist->getPath() );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; str += "/icons/list_atoto.pm";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QObjectTree::TypeIcons.erase( _type );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cerr &lt;&lt; "Icon " &lt;&lt; str &lt;&lt; " not found\n";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QObjectTree::TypeNames[ _type ] = "AToto";
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+</blockquote>
+Inconv&eacute;nient: surcout du test &agrave; chaque construction d'une
+instance de cette classe et de ses d&eacute;riv&eacute;es.
+<br>Les ic&ocirc;nes vont tr&egrave;s certainement bient&ocirc;t "sortir"
+de la classe <tt>QObjectTree</tt> qui ne devrait pas &ecirc;tre n&eacute;cessairement
+connue des modules, ils vont peut-&ecirc;tre utiliser <tt>IconDictionary</tt>
+(qui est jusqu'ici utilis&eacute; uniquement pour les ic&ocirc;nes des
+contr&ocirc;les, mais rien n'emp&ecirc;che son utilisation pour d'autres
+besoins).
+<p><a NAME="object_manips"></a><b>Menu d'options optionTree():</b>
+<br>c'est la liste de ce qui peut etre mis dans le menu "Object manipulations"
+de la fenetre de controle. Jusqu'ici il ne d&eacute;pend que du type d'objet,
+donc peut etre mis en variable statique de chaque classe d&eacute;riv&eacute;e
+de <tt>AObject</tt>. Mais rien n'empeche de le diff&eacute;rentier pour
+un meme objet, selon son &eacute;tat.
+<h2>
+<a NAME="affichage_2D"></a>Objets affichables dans les fenetres 2D</h2>
+<tt>Is2DObject()</tt> doit retourner true
+<br>Red&eacute;finir les fonctions <tt>MinX2D()</tt>, ..., <tt>MaxT2D()</tt>
+(boite englobante de l'objet)
+<br><tt>Update2D()</tt> effectue l'affichage dans le XImage qui lui est
+pass&eacute; en argument.
+<br>&nbsp;
+<h2>
+<a NAME="affichage_3D"></a>Objets affichables dans les fenetres 3D</h2>
+<tt>Is3DObject()</tt> doit retourner true
+<br>Red&eacute;finir les fonctions <tt>MinX3D()</tt>, ..., <tt>MaxT3D()</tt>
+(boite englobante de l'objet)
+<br>L'affichage d'un objet 3D est demand&eacute; par la fenetre par la
+fonction <tt>Update3D( list&lt;GLuint> *, float time, const Point3df &amp;
+direction )</tt>. En partique le param&egrave;tre <tt>direction</tt> ne
+sert pas, il faudrait peut-etre l'enlever (ou bien il a &eacute;t&eacute;
+pr&eacute;vu pour permettre des fonctionnalit&eacute;s qu'on n'utilise
+pas pour le moment, et que j'ai oubli&eacute;es depuis).
+<p>2 alternatives:
+<br>&nbsp;
+<li>
+<font size=+1>Utilisation de la classe de base AGLObject qui encapsule
+les fonctions OpenGL (cr&eacute;ation des display lists etc)</font></li>
+
+<br>Exemple: <tt>ATriangulated</tt> (libanatomist)
+<p><tt>AToto</tt> d&eacute;rive &agrave; la fois de <tt>AObject</tt> (ou
+une classe d&eacute;riv&eacute;e de <tt>AObject</tt>) et de <b><tt>AGLObject</tt></b>
+<br>Attention &agrave; ne pas d&eacute;river d'un objet qui est d&eacute;j&agrave;
+3D et de <tt>AGLObject</tt> en plus (h&eacute;ritage en diamant sur <tt>AGLObject</tt>)
+<br><tt>AGLObject</tt> contient volontairement des fonctions qui existent,
+et qui entrent donc en conflit avec des fonctions de <tt>AObject</tt>.
+On est donc forc&eacute; de les red&eacute;finir pour les aiguiller, g&eacute;n&eacute;ralement
+sur la fonction du meme nom de <tt>AObject</tt>. Le but est de permettre
+&agrave; la partie <tt>AGLObject</tt> d'acc&eacute;der &agrave; certaines
+fonctions de <tt>AObject</tt> qui lui sont n&eacute;cessaires (les couleurs
+principalement: mat&eacute;riaux et palettes)
+<br>Ces fonctions sont:
+<blockquote>
+<pre>virtual void clearHasChangedFlags()
+virtual Material&amp; GetMaterial()
+virtual const AObjectPalette* palette() const
+virtual AObjectPalette* getOrCreatePalette()</pre>
+</blockquote>
+<tt>AGLObject</tt> g&egrave;re les aspects 3D, les listes OpenGL et les
+"refresh flags" pour:
+<br>Les noeuds (vertex)
+<br>Les normales
+<br>Les coordonn&eacute;es de texture 1D et 2D
+<br>L'image de texture 1D et 2D
+<br>Ces aspects tiennent compte du temps
+<br><tt>AGLObject</tt> utilise des "vertex arrays" OpenGL, ce qui implique
+que les listes de vertex, normales, etc. doivent etre pass&eacute;es &agrave;
+la partie <tt>AGLObject</tt> sous la forme qui va bien: tableaux de flottants
+g&eacute;n&eacute;ralement. Pour les rendre accessibles, les fonctions
+virtuelles pures suivanes de <tt>AGLObject</tt> doivent etre red&eacute;finies:
+<blockquote>
+<pre>virtual unsigned numVertex( float time ) const
+virtual const GLfloat* vertexArray( float time ) const
+virtual unsigned numPolygon( float time ) const
+virtual const GLuint* polygonArray( float time ) const</pre>
+</blockquote>
+Les fonctions suivantes ne sont pas virtuelles pures, mais on les red&eacute;finit
+si on veut utiliser des normales ou des textures:
+<blockquote>
+<pre>virtual bool hasTexture() const
+virtual bool hasNormals() const
+virtual const GLfloat* normalArray( float time ) const
+virtual unsigned dimTex( float time ) const
+virtual unsigned texCoordSize( float time ) const
+virtual const GLfloat* texCoordArray( float time ) const</pre>
+</blockquote>
+Les fonctions suivantes donnent l'instant effectivement utilis&eacute;
+pour chaque type de composante
+<blockquote>
+<pre>virtual float vertexTime( float time ) const
+virtual float normalTime( float time ) const
+virtual float polygonTime( float time ) const
+virtual float texCoordTime( float time ) const
+virtual float textureTime( float time ) const</pre>
+</blockquote>
+
+<li>
+<font size=+1>A la main</font></li>
+
+<br>Red&eacute;finir la fonction <tt>Update3D</tt>
+<br><tt>Update3D()</tt> ajoute &agrave; la liste qui lui est donn&eacute;e
+des indices de display lists OpenGL. Il faut bien faire attention de remettre
+&agrave; jour les composantes de ces listes qui ont pu changer, et seulement
+ces composantes-l&agrave;.
+<br>En principe c'est carr&eacute;ment plus simple d'utiliser <tt>AGLObject</tt>
+qui g&egrave;re d&eacute;j&agrave; tous ces flags de remise &agrave; jour
+(c'est fait pour &ccedil;a), sauf peut-etre pour des objets vraiment particuliers
+(je ne sais pas bien lesquels, peut-etre les soucoupes volantes de diffusion,
+et encore).
+<h2>
+<a NAME="io"></a>Lecture / &eacute;criture disque</h2>
+
+<h4>
+<a NAME="ecriture"></a>Ecriture:</h4>
+C'est simple, il suffit de mettre une fonction d'&eacute;criture dans la
+classe, qui &eacute;ventuellement cr&eacute;e et utilise un <i>Writer</i>.
+Comme on utilise l'&eacute;criture sur un objet d&eacute;termin&eacute;,
+il n'y a pas de <i>Writer</i> g&eacute;n&eacute;ral qui centralise toutes
+les &eacute;critures, juste une fonction <tt>AObject::saveStatic()</tt>:
+cette fonction ouvre une bo&icirc;te de dialogue demandant un nom de fichier
+et appelle &agrave; son tour une fonction <tt>save()</tt> (virtuelle )
+de l'objet. Il suffit de rendre <tt>saveStatic()</tt>&nbsp;accessible depuis
+le menu <tt>_optionTree</tt>.
+<br>&nbsp;
+<h4>
+<a NAME="lecture"></a>Lecture:</h4>
+La lecture d'un objet est centralis&eacute;e dans la fonction <tt>ObjectReader::load(
+const string &amp; filename )</tt> qui elle-meme est appel&eacute;e par
+la fonction statique <tt>AObject* AObject::load( const char* filename )</tt>,
+et de meme pour les fonctions <tt>reload(...)</tt>. Ces fonctions sont
+uniques et ne doivent jamais etre modifi&eacute;es pour des nouveaux objets.
+<br><tt>ObjectReader</tt> est une classe singleton qui poss&egrave;de un
+m&eacute;canisme d'enregistrement de nouveaux <i>Reader</i>s: elle les
+centralise.
+<br>On enregistre une nouvelle fonction de lecture en rapport avec un nom
+d'extension de fichier en appelant la fonction:
+<pre>ObjectReader::LoadFunction ObjectReader::registerLoader( const string &amp; extension, LoadFunction newFunc )</pre>
+On lui passe donc l'extension et la fonction de lecture, et cette fonction
+renvoie l'ancienne fonction utilis&eacute;e pour cette extension (s'il
+y en avait une, ou un pointeur nul sinon).
+<br>Dans le cas o&ugrave; une extension correspond &agrave; plueieurs lecteurs
+possibles (c'est le cas pour les graphes par exemple), il faut ranger &agrave;
+la main l'ancien pointeur sur le lecteur lors de l'appel &agrave; registerLoader,
+de mani&egrave;re &agrave; pouvoir l'appeler si le nouveau lecteur n'arrive
+pas &agrave; lire l'objet. De cette mani&egrave;re les fonctions de lecture
+s'appellent en chaine jusqu'&agrave; ce que l'une d'entre elles arrive
+effectivement &agrave; lire l'objet. On pourrait automatiser &ccedil;a,
+mais il faudrait l'automatiser de mani&egrave;re intelligente: appeler
+les lecteurs dans un ordre pr&eacute;cis, du plus sp&eacute;cifique au
+plus g&eacute;n&eacute;ral. A la main, on fait comme on veut: le lecteur
+de AToto peut appeler l'ancien lecteur avant ou apr&egrave;s l'essai du
+sien propre, comme on veut.
+<br>La fonction de lecture (par ex. une fonction statique de l'objet) doit
+prendre en entr&eacute;e le nom de fichier et retourne le nouvel objet,
+cr&eacute;&eacute; et lu, ou un pointeur nul en cas d'&eacute;chec. Par
+exemple, de fa&ccedil;on &agrave; peu pr&egrave;s standard:
+<blockquote>
+<pre>static AObject* AToto::load( const string &amp; filename )
+{
+&nbsp; AToto&nbsp; *toto = 0;</pre>
+
+<pre>&nbsp; ATotoReader&nbsp; tr( filename );
+&nbsp; if( tr )
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; toto = new AToto;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tr >> *toto;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch( exception &amp; e )
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cerr &lt;&lt; e.what() &lt;&lt; endl;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delete toto;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; toto = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }</pre>
+
+<pre>&nbsp; if( !toto &amp;&amp; _oldLoader )&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // _oldLoader is the result of ObjectReader::registerLoader()
+&nbsp;&nbsp;&nbsp; return _oldLoader( filename );&nbsp;&nbsp; // (must be declared in the class definition)
+&nbsp; return toto;
+}</pre>
+</blockquote>
+L'enregistrement du lecteur peut etre fait dans la fonction d'initialisation
+<tt>AToto::registerClass()</tt>.
+<br>On peut enregistrer plusieurs extensions et les faire pointer sur la
+meme fonction de lecture (quand il existe plusieurs formats pour un meme
+type d'objet, par ex <tt>.tri </tt>et <tt>.mesh</tt> pour les surfaces),
+mais dans ce cas il faut prendre soin de conserver les anciens lecteurs
+de chaque extension et renvoyer sur le bon en cas d'&eacute;chec de lecture
+par <tt>AToto::load()</tt>.
+<br>&nbsp;
+</body>
+</html>

@@ -217,8 +217,6 @@ extlinks = {
     'anatomist '),
   'anadox': ('../../anatomist-' + version + '/doxygen/%s',
     'anadox '),
-  'anaman': ('../../anatomist-' + version + '/ana_man/en/html/%s',
-    'anaman '),
   'anausr': ('../../pyanatomist-' + version + '/user_doc/%s',
     'anausr '),
   'aimsdox': ('../../aimsdata-' + version + '/doxygen/%s',
@@ -234,10 +232,6 @@ extlinks = {
   'cartoddox '),
   'graphdox' : ('../../graph-' + version + '/doxygen/%s',
   'graphdox '),
-  'axonman' : ('../../axon-' + version + '/bv_man/en/html/%s',
-  'axonman '),
-  'axontuto' : ('../../axon-' + version + '/bv_training/en/html/%s',
-  'axontuto '),
   'pyanatomist': ('../../pyanatomist-' + version + '/sphinx/%s',
     'pyanatomist '),
 }
@@ -255,6 +249,7 @@ intersphinx_mapping = {
   'pyaims': (os.path.join(docpath, 'pyaims-' + version + '/sphinx'), None),
   'pyana': (os.path.join(docpath, 'pyanatomist-' + version + '/sphinx'), None),
   'aims': (os.path.join(docpath, 'aimsdata-' + version), None),
-  'python': ('http://docs.python.org/2.7', None),
+  'python': ('http://docs.python.org/%d.%d' % sys.version_info[:2],
+             None),
 }
 

@@ -121,7 +121,7 @@ Install and start Anatomist software
 
 * Download: see the `BrainVISA web site download page <http://brainvisa.info/download.html>`_
 * See also the :doc:`anatomist_tutorial`
-* And the :axonman:`BrainVISA installation section <ch02.html>`
+* And the :axonusr:`BrainVISA installation section <axon_manual.html#installation>`
 
 
 Configuration
