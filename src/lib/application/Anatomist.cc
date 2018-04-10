@@ -1393,7 +1393,7 @@ void Anatomist::setLastPosition( const vector<float> & pos,
   Transformation *t = 0;
   if( fromref )
   {
-    Transformation *t = ATransformSet::instance()->transformation
+    t = ATransformSet::instance()->transformation
       ( fromref, centralReferential() );
     if( t )
     {
@@ -1410,7 +1410,7 @@ void Anatomist::setLastPosition( const vector<float> & pos,
     _privData->lastpos[0] = pos[0];
     _privData->lastpos[1] = pos[1];
     _privData->lastpos[2] = pos[2];
-    _privData->lastref = centralReferential();
+    _privData->lastref = fromref;
   }
   if( pos.size() > 3 )
   {
