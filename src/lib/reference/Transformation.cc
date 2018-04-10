@@ -149,10 +149,10 @@ Point3df Transformation::transform( const Point3df & pos ) const
 
 
 Point3df Transformation::transform( const Point3df & pos, 
-				    const Referential* orgRef, 
-				    const Referential* dstRef, 
-				    const Point3df & voxSizeOrg, 
-				    const Point3df & voxSizeDst )
+                                    const Referential* orgRef,
+                                    const Referential* dstRef,
+                                    const Point3df & voxSizeOrg,
+                                    const Point3df & voxSizeDst )
 {
   Transformation *tra 
     = ATransformSet::instance()->transformation( orgRef, dstRef );
