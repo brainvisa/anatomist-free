@@ -87,6 +87,7 @@
 #include <cartobase/config/paths.h>
 #include <cartobase/smart/rcptrtrick.h>
 #include <cartobase/thread/mutex.h>
+#include <cartobase/exception/file.h>
 #include <string.h>
 #include <algorithm>
 #include <stdio.h>
@@ -526,19 +527,32 @@ void Anatomist::initialize()
   // Fichier history
   string history_name = Settings::localPath();
   Directory	dir( history_name );
-  dir.mkdir();
+  bool write_hist = true;
+  try
+  {
+    dir.mkdir();
+  }
+  catch( file_error & e )
+  {
+    // do nothing...
+    write_hist = false;
+  }
   history_name += ssep + "history.ana";
   // keep backup
-  rename( history_name.c_str(), (history_name + "~").c_str() );
-  _privData->historyW->open( history_name.c_str() );
+  if( write_hist )
+  {
+    rename( history_name.c_str(), (history_name + "~").c_str() );
+    _privData->historyW->open( history_name.c_str() );
+  }
+
   if ( !*_privData->historyW )
-    {
-      AWarning("Unable to open history file. No output will be written");
-    }
+  {
+    AWarning("Unable to open history file. No output will be written");
+  }
   else
-    {
-      theProcessor->addObserver( _privData->historyW );
-    }
+  {
+    theProcessor->addObserver( _privData->historyW );
+  }
 
   //	Language
 
@@ -606,8 +620,8 @@ void Anatomist::initialize()
 
   SyntaxRepository::scanExportedSyntaxes();
   SyntaxRepository::scanSyntaxesInDir( SyntaxRepository::internalSyntax(), 
-				       Path::singleton().syntax() 
-				       + sep + "internal" );
+                                       Path::singleton().syntax()
+                                       + sep + "internal" );
   SyntaxRepository::scanSyntaxesInDir
     ( SyntaxRepository::internalSyntax(), Settings::localPath() 
       + sep + "syntax" + sep + "internal" );
@@ -640,41 +654,41 @@ void Anatomist::initialize()
   // process args, load files etc.
 
   if( !args.batch )
-    {
-      Command* command = new CreateControlWindowCommand;
-      theProcessor->execute(command);
-    }
+  {
+    Command* command = new CreateControlWindowCommand;
+    theProcessor->execute(command);
+  }
 
   if( args.port != 0 )
-    {
-      ServerCommand	*serv = new ServerCommand( args.port );
-      theProcessor->execute( serv );
-    }
+  {
+    ServerCommand	*serv = new ServerCommand( args.port );
+    theProcessor->execute( serv );
+  }
 
   if( args.userlevel >= 0 )
     _privData->userLevel = args.userlevel;
 
   unsigned	i, n = args.pipenames.size();
   for( i=0; i<n; ++i )
-    {
-      cout << "pipe: " << args.pipenames[i] << endl;
-      new APipeReader( args.pipenames[i], false );
-    }
+  {
+    cout << "pipe: " << args.pipenames[i] << endl;
+    new APipeReader( args.pipenames[i], false );
+  }
 
   for( i=0, n=args.files.size(); i<n; ++i )
-    {
-      cout << "file: " << args.files[i] << endl;
-      if( args.files[i].length() >= 4 
-	  && args.files[i].substr( args.files[i].length() - 4, 4 ) ==".ana" )
-	{	// scenario script
-	  new APipeReader( args.files[i] );
-	}
-      else
-	{	// standard object
-	  Command	*c = new LoadObjectCommand( args.files[i] );
-	  theProcessor->execute( c );
-	}
+  {
+    cout << "file: " << args.files[i] << endl;
+    if( args.files[i].length() >= 4
+        && args.files[i].substr( args.files[i].length() - 4, 4 ) ==".ana" )
+    {	// scenario script
+      new APipeReader( args.files[i] );
     }
+    else
+    {	// standard object
+      Command	*c = new LoadObjectCommand( args.files[i] );
+      theProcessor->execute( c );
+    }
+  }
 
   _privData->initialized = true;
 }

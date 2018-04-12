@@ -47,6 +47,7 @@
 #include <cartobase/object/sreader.h>
 #include <cartobase/stream/directory.h>
 #include <cartobase/stream/fileutil.h>
+#include <cartobase/exception/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <algorithm>
@@ -107,20 +108,20 @@ void GlobalConfiguration::load( const string & filename )
 
   cout << "config file : " << _filename << endl;
   try
-    {
-      TreeReader	tr( _filename, _syntax );
-      tr.read( *this );
-    }
+  {
+    TreeReader	tr( _filename, _syntax );
+    tr.read( *this );
+  }
   catch( file_not_found_error & )
-    {
-      cerr << "(warning: no config file " << _filename << ": creating it)" 
-           << endl;
-      save();
-    }
+  {
+    cerr << "(warning: no config file " << _filename << ": creating it)"
+          << endl;
+    save();
+  }
   catch( exception & e )
-    {
-      cerr << e.what() << endl;
-    }
+  {
+    cerr << e.what() << endl;
+  }
 
 
   /*string	ver;
@@ -143,25 +144,36 @@ void GlobalConfiguration::save( const string & filename )
 
   string	path = FileUtil::dirname( _filename );
   Directory	dir( path );
-  dir.makedirs();
+  try
+  {
+    dir.makedirs();
+  }
+  catch( file_error & e )
+  {
+    cerr << e.what() << endl;
+    return;
+  }
+
+  if( !dir.isValid() )
+    return;
 
   try
-    {
-      // set syntax in case it is wrong
-      setSyntax( "anatomist_settings" );
+  {
+    // set syntax in case it is wrong
+    setSyntax( "anatomist_settings" );
 #ifdef ANA_SAVE_SETTINGS_PYTHON
-      GraphWriter_Python	tw( _filename, _syntax );
-      tw.write( *this );
+    GraphWriter_Python	tw( _filename, _syntax );
+    tw.write( *this );
 #else
-      TreeWriter	tw( _filename, _syntax );
-      tw << *this;
+    TreeWriter	tw( _filename, _syntax );
+    tw << *this;
 #endif
-    }
+  }
   catch( exception & e )
-    {
-      cerr << e.what() << endl;
-      return;
-    }
+  {
+    cerr << e.what() << endl;
+    return;
+  }
   cout << "saved global configuration file : " << _filename << endl;
 }
 

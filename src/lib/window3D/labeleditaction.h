@@ -55,7 +55,7 @@ namespace anatomist
 
     virtual std::string name() const;
 
-    // pick seleciton label
+    // pick selection label
     void pick();
     // set current (picked) label to seleted objects
     void edit();
