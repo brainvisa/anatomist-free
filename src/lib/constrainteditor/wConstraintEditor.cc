@@ -61,6 +61,7 @@
 #include <qapplication.h>
 #include <qfiledialog.h>
 #include <QToolButton>
+#include <Qt>
 
 using namespace anatomist;
 using namespace aims;
@@ -219,7 +220,10 @@ ConstraintEditorWindow::ConstraintEditorWindow( const set<AObject*> &objects,
                                                 const char *name, Qt::WindowFlags f )
   : QDialog( 0, f ), d( new Private )
 {
-  setModal( true );
+  setAttribute( Qt::WA_DeleteOnClose );
+  // using a modal dialog seems to cause the created AWindow (in accept())
+  // never get events afterwards.
+//   setWindowModality( Qt::ApplicationModal );
   drawContents( name, objects );
 }
 
@@ -232,8 +236,6 @@ ConstraintEditorWindow::~ConstraintEditorWindow()
 void ConstraintEditorWindow::drawContents( const char *name,
                                            const set<AObject *> & obj )
 {
-  setAttribute( Qt::WA_DeleteOnClose );
-  setModal( true );
   setWindowTitle( name );
   this->setFixedWidth(350);
 
@@ -545,6 +547,7 @@ void ConstraintEditorWindow::accept()
     w->registerObject(tso);
 
     AWindow3D *w3 = static_cast<AWindow3D *> (w);
+//     w3->setWindowModality( Qt::NonModal );
     w3->setActiveConstraintEditor(true);
     w3->loadConstraintData( d->constraintList, d->constraintValuesType, d->texConstraint );
 
