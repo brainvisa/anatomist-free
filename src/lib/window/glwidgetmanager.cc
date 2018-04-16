@@ -709,7 +709,7 @@ GLPrimitives GLWidgetManager::selectionPrimitives() const
 void GLWidgetManager::setExtrema( const Point3df & bmin,
                                   const Point3df & bmax )
 {
-  cout << "GLWidgetManager::setExtrema: " << bmin << ", " << bmax << endl;
+  // cout << "GLWidgetManager::setExtrema: " << bmin << ", " << bmax << endl;
   _pd->bmino = bmin;
   _pd->bmaxo = bmax;
 
@@ -723,7 +723,7 @@ void GLWidgetManager::setExtrema( const Point3df & bmin,
 void GLWidgetManager::setWindowExtrema( const Point3df & bmin,
                                         const Point3df & bmax )
 {
-  cout << "GLWidgetManager::setWindowExtrema: " << bmin << ", " << bmax << endl;
+  // cout << "GLWidgetManager::setWindowExtrema: " << bmin << ", " << bmax << endl;
   if( _pd->lefteye )
   {
     _pd->bminw = bmin + _pd->lefteye->windowBoundingMin() - _pd->bminw;

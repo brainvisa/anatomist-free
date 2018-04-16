@@ -1121,29 +1121,43 @@ void SurfpaintTools::updateTexture (vector<float> values)
 
       float value,minv,maxv;
 
-      vector<float>::iterator itemin = min_element (values.begin(), values.end());
-      vector<float>::iterator itemax = max_element (values.begin(), values.end());
+      vector<float>::iterator itemin = min_element (values.begin(),
+                                                    values.end());
+      vector<float>::iterator itemax = max_element (values.begin(),
+                                                    values.end());
 
       minv = *itemin;
       maxv = *itemax;
-
       if (maxv > te.maxquant[tx] )
       {
         at->getOrCreatePalette();
         AObjectPalette *pal = at->palette();
         //pal->setMax1( maxv );
+        pal->setMax1( 1. );
         at->setPalette( *pal );
         te.maxquant[tx] = maxv;
       }
+      if( minv < te.minquant[tx] )
+      {
+        at->getOrCreatePalette();
+        AObjectPalette *pal = at->palette();
+        pal->setMin1( 0. );
+        at->setPalette( *pal );
+        te.minquant[tx] = minv;
+      }
 
       scl = (te.maxquant[tx] - te.minquant[tx]);
+
+      te.min[tx] = 0.;
+      te.max[tx] = 1.;
+      te.scaled = true;
 
       float svalue;
 
       vector<float>::iterator ite = values.begin();
       int i = 0;
 
-      for (; ite != values.end(); ite++)
+      for (; ite != values.end(); ite++, ++i)
       {
         svalue = ( *ite - te.minquant[tx] ) / scl;
 
