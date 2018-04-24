@@ -180,7 +180,7 @@ void SelectByHierarchyCommand::doit()
             }
 	    for( iv=(*ig)->begin(), fv=(*ig)->end(); iv!=fv; ++iv )
 	      if( (*iv)->getProperty( "ana_object", obj ) 
-		  && (*iv)->getProperty( attrib, name ) )
+		  && (*iv)->getProperty( gattrib, name ) )
 		{
 		  done = false;
 		  while( !name.empty() && !done )
@@ -199,7 +199,7 @@ void SelectByHierarchyCommand::doit()
 			      done = true;
 			      break;
 			    }
-			  /*sv = (*ig)->getVerticesWith( attrib, *is );
+			  /*sv = (*ig)->getVerticesWith( gattrib, *is );
 			    for( iv=sv.begin(), fv=sv.end(); iv!=fv; ++iv )
 			    if( (*iv)->getProperty( "ana_object", obj ) )
 			    tosel.insert( obj );*/
@@ -210,7 +210,7 @@ void SelectByHierarchyCommand::doit()
 	}
     }
 
-  // cout << "select " << tosel.size() << " objects\n";
+  //cout << "select " << tosel.size() << " objects\n";
   SelectFactory	*fac = SelectFactory::factory();
   int	mod = _modifiers;
   if( mod == Remove )
