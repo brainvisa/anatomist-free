@@ -51,30 +51,39 @@ namespace anatomist
   public:
     Geometry();
     Geometry(Point3df size,Point4dl dimMin,Point4dl dimMax);
+    Geometry( const std::vector<float> & steps,
+              const std::vector<int> & dimMin,
+              const std::vector<int> & dimMax );
     Geometry( const Geometry & g );
     virtual ~Geometry();
 
     Geometry & operator = ( const Geometry & g );
 
-    Point3df Size() const { return(_size); }
-    /// Affecte la taille des voxels.
+    /// voxel size / steps. Obsolete, use stepSize() insted
+    Point3df Size() const { return( Point3df( _size ) ); }
+    /// voxel size. Obsolete, use setStepSize() insead
     void SetSize( Point3df size );
-    /// Retourne la position minimale de la geometrie.
-    Point4dl DimMin() const { return(_dimMin); }
-    /// Affecte la position minimale de la geometrie.
+    /// Obsolete - use dimMin()
+    Point4dl DimMin() const;
+    /// Obsolete. use setDimMin()
     void SetDimMin( Point4dl dimMin );
-    /// Retourne la position maximale de la geometrie.
-    Point4dl DimMax() const { return(_dimMax); }
-    /// Affecte la position maximale de la geometrie.
+    /// Obsolete - use dimMax()
+    Point4dl DimMax() const;
+    /// Obsolete - use setDimMax()
     void SetDimMax( Point4dl dimMax );
 
+    /// voxel size / steps
+    std::vector<float> stepSize() const { return _size; }
+    void setStepSize( const std::vector<float> & steps );
+    std::vector<int> dimMin() const { return _dimMin; }
+    std::vector<int> dimMax() const { return _dimMax; }
+    void setDimMin( const std::vector<int> & dimMin );
+    void setDimMax( const std::vector<int> & dimMax );
+
   protected:
-    /// Taille des voxels.
-    Point3df _size;
-    /// Positions minimales de la geometry.
-    Point4dl  _dimMin;
-    /// Positions maximales de la geometry.
-    Point4dl  _dimMax;
+    std::vector<float> _size;
+    std::vector<int>  _dimMin;
+    std::vector<int>  _dimMax;
   };
 
 }

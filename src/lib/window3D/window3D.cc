@@ -1831,9 +1831,10 @@ void AWindow3D::resizeView(int w, int h)
 void AWindow3D::setupTimeSlider( const vector<float> & bmin,
                                  const vector<float> & bmax )
 {
-  d->slidt->setMinimum( (int) bmin[3] );
-  d->slidt->setMaximum( (int) bmax[3] );
-  int t = (int) getTime();
+  float timestep = windowGeometry()->stepSize()[3];
+  d->slidt->setMinimum( (int) rint( bmin[3] / timestep ) );
+  d->slidt->setMaximum( (int) rint( bmax[3] / timestep ) );
+  int t = (int) rint( getTime() / timestep );
   if (d->slidt->value() != t)
   {
     d->slidt->setValue(t);
@@ -1889,8 +1890,9 @@ void AWindow3D::setupTimeSlider( const vector<float> & bmin,
                this, SLOT( changeTimeSliders( int, int ) ) );
     }
     slider = d->sliders[ i - 2 ];
-    slider->setMinimum( (int) bmin[i] );
-    slider->setMaximum( (int) bmax[i] );
+    timestep = windowGeometry()->stepSize()[i];
+    slider->setMinimum( (int) rint( bmin[i] / timestep ) );
+    slider->setMaximum( (int) rint( bmax[i] / timestep ) );
     d->sliderpanels[ i - 2 ]->show();
   }
 
@@ -1957,7 +1959,9 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
   int sl = slider_num - 1;
   if( value != (int) _timepos[ sl ] )
   {
-    d->slicelabels[slider_num]->setText( QString::number( value ) );
+    float timestep = windowGeometry()->stepSize()[sl + 3];
+    float tvalue = value * timestep;
+    d->slicelabels[slider_num]->setText( QString::number( tvalue ) );
 
     if( d->linkonslider )
     {
@@ -1973,7 +1977,7 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
     }
     else
     {
-      _timepos[sl] = value;
+      _timepos[sl] = tvalue;
       SetRefreshFlag();
       Refresh();
     }
@@ -2409,8 +2413,8 @@ Geometry AWindow3D::setupWindowGeometry(
   list<shared_ptr<AObject> >::const_iterator obj;
   bool first = true, firsttex = true;
   Point3df p, dmin, dmax;
-  vector<float> pmin, pmax, size, s2, vst;
-  Point4dl dimMin, dimMax;
+  vector<float> pmin, pmax, size, s2, vst, tmin, tmax;
+  vector<int> dimMin(3, 0), dimMax(3, 1);
   Referential *oref;
   AObject *o;
   anatomist::Transformation *tr;
@@ -2418,8 +2422,6 @@ Geometry AWindow3D::setupWindowGeometry(
 
   size = vector<float>( 3, 1.f );
   vst = vector<float>( 3, 1.f );
-  dimMin = Point4dl(0, 0, 0, 0);
-  dimMax = Point4dl(1, 1, 1, 0);
 
   // local macro
 #define check_extremum( p )				\
@@ -2450,6 +2452,7 @@ Geometry AWindow3D::setupWindowGeometry(
       // cout << "    Object " << o->name() << endl;
       while( s2.size() < 3 )
         s2.push_back( 1. );
+      vector<float> ovs = s2;
 
       tr = 0;
       if (wref)
@@ -2474,10 +2477,10 @@ Geometry AWindow3D::setupWindowGeometry(
 
       s2[0] = 1. / max( max( fabs(u[0] / s2[0] ), fabs( u[1] / s2[1] ) ),
                         fabs( u[2] / s2[2] ) );
-      s2[1] = 1. / max( max( fabs(v[0] / s2[0]), fabs( v[1] / s2[1] ) ),
-                        fabs(v[2] / s2[2] ) );
-      s2[3] = 1. / max( max( fabs(w[0] / s2[0]), fabs( w[1] / s2[1] ) ),
-                        fabs( w[2] / s2[2] ) );
+      s2[1] = 1. / max( max( fabs(v[0] / ovs[0]), fabs( v[1] / ovs[1] ) ),
+                        fabs(v[2] / ovs[2] ) );
+      s2[2] = 1. / max( max( fabs(w[0] / ovs[0]), fabs( w[1] / ovs[1] ) ),
+                        fabs( w[2] / ovs[2] ) );
 
       // check extrema
 
@@ -2507,7 +2510,8 @@ Geometry AWindow3D::setupWindowGeometry(
         {
           size = s2;
           dmin = dmax = p;
-          dimMin[3] = dimMax[3] = (int) (*obj)->MinT();
+          tmin.insert( tmin.begin(), pmin.begin() + 3, pmin.end() );
+          tmax.insert( tmax.begin(), pmax.begin() + 3, pmax.end() );
           first = false;
         }
         else
@@ -2519,13 +2523,25 @@ Geometry AWindow3D::setupWindowGeometry(
           if (p[0] < dmin[0]) dmin[0] = p[0];
           if (p[1] < dmin[1]) dmin[1] = p[1];
           if (p[2] < dmin[2]) dmin[2] = p[2];
-          if ((int) (*obj)->MinT() < dimMin[3]) dimMin[3]
-              = (int) (*obj)->MinT();
+          for( int i=3; i<pmin.size(); ++i )
+          {
+            if( tmin.size() <= i )
+            {
+              tmin.push_back( pmin[i] );
+              tmax.push_back( pmax[i] );
+            }
+            else
+            {
+              if( tmin[i - 3] > pmin[i] )
+                tmin[i - 3] = pmin[i];
+              if( tmax[i - 3] < pmax[i] )
+                tmax[i - 3] = pmax[i];
+            }
+          }
         }
         if (p[0] > dmax[0]) dmax[0] = p[0];
         if (p[1] > dmax[1]) dmax[1] = p[1];
         if (p[2] > dmax[2]) dmax[2] = p[2];
-        if ((int) (*obj)->MaxT() > dimMax[3]) dimMax[3] = (int) (*obj)->MaxT();
 
         p = Point3df(pmax[0], pmin[1], pmin[2]);
         check_extremum( p );
@@ -2550,8 +2566,9 @@ Geometry AWindow3D::setupWindowGeometry(
   if (first) // no object
   {
     //size = Point3df( 1, 1, 1 );
-    dimMin = Point4dl(0, 0, 0, 0);
-    dimMax = Point4dl(1, 1, 1, 0);
+    dimMin = vector<int>( 4, 0 );
+    dimMax = vector<int>( 4, 1 );
+    dimMax[3] = 0;
   }
   else
   {
@@ -2566,6 +2583,13 @@ Geometry AWindow3D::setupWindowGeometry(
     dimMax[0] = (int) rint((dmax[0] - dmin[0]) / size[0]) + dimMin[0];
     dimMax[1] = (int) rint((dmax[1] - dmin[1]) / size[1]) + dimMin[1];
     dimMax[2] = (int) rint((dmax[2] - dmin[2]) / size[2]) + dimMin[2];
+    int i, n = tmin.size();
+    for( i=0; i<n; ++i )
+    {
+      dimMin.push_back( int( ::ceil( tmin[i] / size[i+3] ) ) );
+      dimMax.push_back( int( rint( ( tmax[i] - tmin[i] ) / size[i+3] ) )
+                        + dimMin[i] );
+    }
   }
 
   /*cout << "new win geometry : vs : " << size << endl;
@@ -2574,7 +2598,7 @@ Geometry AWindow3D::setupWindowGeometry(
 
   // check if dimensions can be handled by GL textures
   static GLint dimmax = 0;
-  if (dimmax == 0)
+  if( dimmax == 0 )
   {
     if (!glw) glw = GLWidgetManager::sharedWidget();
     glw->makeCurrent();
@@ -2609,7 +2633,7 @@ Geometry AWindow3D::setupWindowGeometry(
     dimMax[2] = dimMin[2] + dimmax;
   }
 
-  return Geometry( Point3df(size), dimMin, dimMax );
+  return Geometry( size, dimMin, dimMax );
 }
 
 namespace
