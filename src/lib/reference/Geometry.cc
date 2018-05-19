@@ -43,11 +43,16 @@ using namespace std;
 
 //--- methods -----------------------------------------------------------------
 
-Geometry::Geometry()
+Geometry::Geometry( const vector<float> & steps, const vector<int> & dimMin,
+                    const vector<int> & dimMax )
+  : _size( steps ), _dimMin( dimMin ), _dimMax( dimMax )
 {
-  _size[0] = 0.;
-  _size[1] = 0.;
-  _size[2] = 0.;
+}
+
+
+Geometry::Geometry()
+  : _size( 4, 1.f ), _dimMin( 4, 1 ), _dimMax( 4, 1 )
+{
   _dimMin[0] = 0;
   _dimMin[1] = 0;
   _dimMin[2] = 0;
@@ -59,6 +64,7 @@ Geometry::Geometry()
 }
 
 Geometry::Geometry(Point3df size,Point4dl dimMin,Point4dl dimMax)
+  : _size( 4, 1.f ), _dimMin( 4, 1 ), _dimMax( 4, 1 )
 {
   _size[0] = size[0];
   _size[1] = size[1];
@@ -97,13 +103,25 @@ Geometry & Geometry::operator = ( const Geometry & g )
 
 void Geometry::SetSize( Point3df size )
 {
+  _size.resize( 4 );
   _size[0] = size[0];
   _size[1] = size[1];
   _size[2] = size[2];
+  _size[3] = 1.f;
 }
+
+
+void Geometry::setStepSize( const vector<float> & steps )
+{
+  _size = steps;
+  if( _size.size() < 4 )
+    _size.resize( 4, 1. );
+}
+
 
 void Geometry::SetDimMin( Point4dl dimMin )
 {
+  _dimMin.resize( 4 );
   _dimMin[0] = dimMin[0];
   _dimMin[1] = dimMin[1];
   _dimMin[2] = dimMin[2];
@@ -112,8 +130,46 @@ void Geometry::SetDimMin( Point4dl dimMin )
 
 void Geometry::SetDimMax( Point4dl dimMax )
 {
+  _dimMax.resize( 4 );
   _dimMax[0] = dimMax[0];
   _dimMax[1] = dimMax[1];
   _dimMax[2] = dimMax[2];
   _dimMax[3] = dimMax[3];
 }
+
+
+Point4dl Geometry::DimMin() const
+{
+  Point4dl d;
+  int i, n = _dimMin.size();
+  for( i=0; i<std::min(4, n); ++i )
+    d[i] = _dimMin[i];
+  for( ; i<4; ++i )
+    d[i] = 1;
+  return d;
+}
+
+
+Point4dl Geometry::DimMax() const
+{
+  Point4dl d;
+  int i, n = _dimMax.size();
+  for( i=0; i<std::min(4, n); ++i )
+    d[i] = _dimMax[i];
+  for( ; i<4; ++i )
+    d[i] = 1;
+  return d;
+}
+
+
+void Geometry::setDimMin( const std::vector<int> & dimMin )
+{
+  _dimMin = dimMin;
+}
+
+
+void Geometry::setDimMax( const std::vector<int> & dimMax )
+{
+  _dimMax = dimMax;
+}
+

@@ -349,9 +349,12 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
     q = quat;
 
   vector<int> dims = _volume->getSize();
-  unsigned i, n = std::min( dims.size() - 3, td.size() );
+  vector<float> vs = _volume->getVoxelSize();
+  unsigned i, n = std::min( dims.size() - 3, td.size() ), nvs = vs.size();
   for( i=0; i<n; ++i )
   {
+    if( i + 3 < nvs ) // un-apply voxel size
+      td[i] /= vs[i + 3];
     if( td[i] < 0 )
       td[i] = 0;
     else if( td[i] > dims[i + 3] - 1 )
@@ -363,8 +366,6 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
   Point4df		vec = q.vector();
   Point3df		gs = wingeom->Size();
   // cout << "quaternion : " << vec << endl;
-  vector<float> vs;
-  _volume->header().getProperty( "voxel_size", vs );
   while( vs.size() < 3 )
     vs.push_back( 1. );
 
