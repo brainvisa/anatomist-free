@@ -79,6 +79,8 @@
 #include <anatomist/window3D/orientationAnnotation.h>
 #include <anatomist/window3D/agraphicsview_p.h>
 #include <anatomist/object/objectConverter.h>
+#include <anatomist/mobject/Fusion2D.h>
+#include <anatomist/fusion/defFusionMethods.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/resampling/quaternion.h>
 #include <qslider.h>
@@ -209,6 +211,8 @@ struct AWindow3D::Private
     OrientationAnnotation * orientAnnot;
     bool sortPolygons;
     bool sortPolygonsDirection;
+    // auto-fusion volumes or Sliceable objects
+    rc_ptr<AObject> autoFusion;
 };
 
 namespace
@@ -376,7 +380,7 @@ AWindow3D::Private::Private() :
       righteye(0), objvallabel(0), statusbarvisible(false),
       needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false )
+      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false ), autoFusion( 0 )
 {
   try
   {
@@ -410,6 +414,8 @@ AWindow3D::Private::Private() :
 
 AWindow3D::Private::~Private()
 {
+  if( autoFusion )
+    autoFusion.reset( 0 );
   while (!objmodifiers.empty())
     delete objmodifiers.front();
   delete tools;
@@ -2114,6 +2120,8 @@ void AWindow3D::unregisterObject(AObject* o)
       ++i;
   }
 
+  removeFromAutoFusion2D( o );
+
   Referential *r1 = getReferential();
   if (r1)
   {
@@ -2129,10 +2137,23 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
   if( hasObject( o ) )
     return;
 
-  vector<float> bmin, bmax;
-
   bool fst = _objects.empty();
   ControlledWindow::registerObject(o, temporaryObject, pos);
+
+  if( autoFusion2D( o ) )
+  {
+    Fusion2D *autoFusion = static_cast<Fusion2D *>( d->autoFusion.get() );
+    if( autoFusion->size() + 1 == _objects.size() )
+    {
+      // the only "visible" object is the auto-fusion: use it to setup
+      // bounding box and window size
+      fst = true;
+      o = autoFusion;
+    }
+  }
+
+  vector<float> bmin, bmax;
+
   Referential *r1 = getReferential();
   if (r1)
   {
@@ -2144,7 +2165,7 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
   {
     d->needsextrema = true;
 
-    if( fst && _objects.size() == 1 )
+    if( fst )
     {
       boundingBox( bmin, bmax );
       d->draw->setExtrema( Point3df( bmin[0], bmin[1], bmin[2] ),
@@ -2211,6 +2232,110 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
     refreshTemp();
 }
 
+
+bool AWindow3D::inAutoFusion( const anatomist::AObject *obj ) const
+{
+  if( !d->autoFusion )
+    return false;
+  const Fusion2D *autoFusion
+    = static_cast<const Fusion2D *>( d->autoFusion.get() );
+  MObject::const_iterator io, eo = autoFusion->end();
+  for( io=autoFusion->begin(); io!=eo; ++io )
+    if( *io == obj )
+      return true;
+  return false;
+}
+
+
+bool AWindow3D::autoFusion2D( AObject *obj )
+{
+  if( obj == d->autoFusion.get() || obj->Is3DObject() )
+    return false;
+  GLComponent *gl = obj->glAPI();
+  if( !gl || !gl->sliceableAPI() )
+    return false;
+  vector<AObject *> vobj;
+  if( d->autoFusion )
+  {
+    // if there is a autoFusion, take its children
+    Fusion2D * autoFusion = static_cast<Fusion2D *>( d->autoFusion.get() );
+    MObject::iterator io, eo = autoFusion->end();
+    for( io=autoFusion->begin(); io!=eo; ++io )
+      vobj.push_back( *io );
+  }
+  else
+  {
+    /* if there was no autoFusion yet, look in already displayed objects
+       if there was a Sliceable */
+    set<AObject *>::iterator iso, eso = _sobjects.end();
+    for( iso=_sobjects.begin(); iso!=eso; ++iso )
+      if( *iso != obj && !(*iso)->Is3DObject() && !isTemporary( *iso )
+          && (*iso)->glAPI() && (*iso)->glAPI()->sliceableAPI() )
+      {
+        vobj.push_back( *iso );
+        // there should be only 1, otherwise the autoFusion would already
+        // exist
+        break;
+      }
+  }
+  if( vobj.empty() )
+    return false;
+  // of course we add obj to the list
+  vobj.push_back( obj );
+
+  set<AObject *> sobj;
+  sobj.insert( vobj.begin(), vobj.end() );
+  Fusion2dMethod m;
+  if( !m.canFusion( sobj ) )
+    return false;
+  string fusionName;
+  if( d->autoFusion )
+  {
+    fusionName = d->autoFusion->name();
+    unregisterObject( d->autoFusion.get() );
+    d->autoFusion.reset( 0 );
+  }
+  d->autoFusion.reset( m.fusion( vobj ) );
+  if( fusionName.empty() )
+    fusionName = theAnatomist->makeObjectName( "auto_fusion" );
+  theAnatomist->registerObjectName( fusionName, d->autoFusion.get() );
+  d->autoFusion->setName( fusionName );
+  theAnatomist->registerObject( d->autoFusion.get(), false );
+  registerObject( d->autoFusion.get() );
+  return true;
+}
+
+
+void AWindow3D::removeFromAutoFusion2D( AObject *obj )
+{
+  if( !d->autoFusion || obj == d->autoFusion.get() )
+    return;
+  GLComponent *gl = obj->glAPI();
+  if( !gl || !gl->sliceableAPI() )
+    return;
+  vector<AObject *> vobj;
+  bool found = false;
+  Fusion2D *autoFusion = static_cast<Fusion2D *>( d->autoFusion.get() );
+  MObject::iterator io, eo = autoFusion->end();
+  for( io=autoFusion->begin(); io!=eo; ++io )
+    if( *io == obj )
+      found = true;
+    else
+      vobj.push_back( *io );
+  if( !found )
+    return;
+  unregisterObject( autoFusion );
+  d->autoFusion.reset( 0 );
+  if( vobj.size() >= 2 )
+  {
+    Fusion2dMethod m;
+    d->autoFusion.reset( m.fusion( vobj ) );
+    theAnatomist->registerObject( d->autoFusion.get(), false );
+    registerObject( d->autoFusion.get() );
+  }
+}
+
+
 void AWindow3D::setViewType(ViewType t)
 {
   static const float c = 1. / sqrt(2.);
@@ -2238,7 +2363,9 @@ void AWindow3D::setViewType(ViewType t)
     default:
       break;
   }
+
 }
+
 
 AWindow3D::ViewType AWindow3D::viewType() const
 {
@@ -3338,7 +3465,6 @@ void AWindow3D::refreshTempNow()
   // cout << "done\n";
 
   list<AObject *> objs;
-  list<shared_ptr<AObject> >::const_iterator ilo, elo = _objects.end();
   list<AObject *>::iterator ioo = objs.begin(), eoo = objs.end(), nexto;
   AObject *ao;
   map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator ipl,
@@ -3363,6 +3489,9 @@ void AWindow3D::refreshTempNow()
   // in real rendering order
   for (ioo = objs.begin(); ioo != eoo; ++ioo)
   {
+    if( inAutoFusion( *ioo ) )
+      continue;
+
     ao = *ioo;
     // copy orphan lists
     ipl = pli.find(ao);
@@ -3811,6 +3940,9 @@ list<AObject *>::iterator AWindow3D::processRenderingOrder(
 
   for (i = _objects.begin(); i != _objects.end(); ++i)
   {
+    if( inAutoFusion( i->get() ) )
+      continue;
+
     ao = i->get();
     ic = d->renderconstraints.find(ao);
     if (ic == ec) // non-constrained position

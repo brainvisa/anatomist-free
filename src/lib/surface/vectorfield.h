@@ -64,6 +64,10 @@ namespace anatomist
     {
       return true;
     }
+    virtual bool Is3DObject()
+    {
+      return true;
+    }
 
     virtual bool render( PrimList &, const ViewState & );
     virtual void update( const Observable *, void * );
