@@ -43,6 +43,9 @@
 #include <anatomist/graph/Graph.h>
 #include <anatomist/hierarchy/hierarchy.h>
 #include <graph/tree/tree.h>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsProxyWidget>
 
 using namespace anatomist;
 using namespace carto;
@@ -241,7 +244,30 @@ void LabelEditAction::setLabel( const std::string & l, const AimsRGB & color )
     return;
   QLabel *ql = w->findChild<QLabel *>( "selectionLabel" );
   if( !ql )
-    return; // no QLabel found
+  {
+    // label not found - maybe in a QGraphcsView ?
+    QGraphicsView *gv = w->findChild<QGraphicsView *>();
+    if( !gv || !gv->scene() )
+      return; // no QLabel found
+
+    QList<QGraphicsItem *> items = gv->scene()->items();
+    foreach( QGraphicsItem *item, items )
+    {
+      QGraphicsProxyWidget *pw
+        = qgraphicsitem_cast<QGraphicsProxyWidget *>( item );
+      if( pw )
+      {
+        if( pw->widget()->objectName() == "selectionLabel" )
+        {
+          ql = dynamic_cast<QLabel *>( pw->widget() );
+          if( ql )
+            break;
+        }
+      }
+    }
+    if( !ql )
+      return;
+  }
 
   QColor col( color.red(), color.green(), color.blue() );
   QPixmap pix( 20, 20 );
