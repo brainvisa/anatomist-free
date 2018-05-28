@@ -2301,6 +2301,7 @@ bool AWindow3D::autoFusion2D( AObject *obj )
   theAnatomist->registerObjectName( fusionName, d->autoFusion.get() );
   d->autoFusion->setName( fusionName );
   theAnatomist->registerObject( d->autoFusion.get(), false );
+  theAnatomist->releaseObject( d->autoFusion.get() );
   registerObject( d->autoFusion.get() );
   return true;
 }
