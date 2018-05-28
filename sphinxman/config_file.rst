@@ -356,6 +356,15 @@ Here is a complete (I hope) list of the possible options:
         <td>3.1.5</td>
       </tr>
       <tr>
+        <td><tt>setAutomaticReferential</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td><tt>0</tt>, <tt>1</tt></td>
+        <td>Automatically use any file header information specifying referentials and transformations information. Several referentials may be created, with transformations between them. The object will be assigned one of these referentials.
+        </td>
+        <td>all</td>
+      </tr>
+      <tr>
         <td><tt>useSpmOrigin</tt></td>
         <td><tt>int</tt></td>
         <td><tt>0</tt></td>
