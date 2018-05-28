@@ -416,7 +416,7 @@ AWindow3D::Private::~Private()
 {
   if( autoFusion )
     autoFusion.reset( 0 );
-  while (!objmodifiers.empty())
+  while( !objmodifiers.empty() )
     delete objmodifiers.front();
   delete tools;
   delete poview;
@@ -2296,6 +2296,7 @@ bool AWindow3D::autoFusion2D( AObject *obj )
     d->autoFusion.reset( 0 );
   }
   d->autoFusion.reset( m.fusion( vobj ) );
+  static_cast<Fusion2D *>( d->autoFusion.get() )->setDynamic( true );
   if( fusionName.empty() )
     fusionName = theAnatomist->makeObjectName( "auto_fusion" );
   theAnatomist->registerObjectName( fusionName, d->autoFusion.get() );
@@ -2309,6 +2310,7 @@ bool AWindow3D::autoFusion2D( AObject *obj )
 
 void AWindow3D::removeFromAutoFusion2D( AObject *obj )
 {
+  // cout << "removeFromAutoFusion2D: " << obj->name() << endl;
   if( !d->autoFusion || obj == d->autoFusion.get() )
     return;
   GLComponent *gl = obj->glAPI();
@@ -2331,6 +2333,7 @@ void AWindow3D::removeFromAutoFusion2D( AObject *obj )
   {
     Fusion2dMethod m;
     d->autoFusion.reset( m.fusion( vobj ) );
+    static_cast<Fusion2D *>( d->autoFusion.get() )->setDynamic( true );
     theAnatomist->registerObject( d->autoFusion.get(), false );
     registerObject( d->autoFusion.get() );
   }
