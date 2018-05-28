@@ -53,7 +53,11 @@ namespace anatomist
   class Fusion2D : public ObjectVector, public Sliceable
   {
   public:
-    Fusion2D( const std::vector<AObject *> & obj );
+    /** The *dynamic* parameter has been added in Anatomist 4.6.1 and is false
+        by default. If true, children objects can be destroyed, except the last
+        one.
+    */
+    Fusion2D( const std::vector<AObject *> & obj, bool dynamic = false );
     virtual ~Fusion2D();
 
     virtual const GLComponent* glAPI() const { return this; }
@@ -61,9 +65,8 @@ namespace anatomist
     virtual const Sliceable* sliceableAPI() const { return this; }
     virtual Sliceable* sliceableAPI() { return this; }
 
-    AObject* mri() const { return _data.begin()->get(); }
-    AObject* functional() const 
-    { const_iterator i = begin(); ++i; return *i; }
+    AObject* mri() const
+    { if( size() == 0 ) return 0; return _data.begin()->get(); }
     virtual int MType() const { return( AObject::FUSION2D ); }
     virtual std::vector<float> voxelSize() const;
     virtual std::vector<float> glVoxelSize() const;
@@ -117,25 +120,22 @@ namespace anatomist
     virtual float mixedValue( const std::vector<float> & pv ) const;
     virtual const Material *glMaterial() const;
     virtual bool isTransparent() const;
+    bool isDynamic() const { return _dynamic; }
+    void setDynamic( bool dynamic ) { _dynamic = dynamic; }
 
     virtual Tree* optionTree() const;
     static Tree*	_optionTree;
 
   protected:
-    ///	Disable public edition
-    virtual void insert( AObject* o ) { ObjectVector::insert( o ); }
-    virtual void insert( AObject* o, int pos )
-    { ObjectVector::insert( o, pos ); }
-    virtual void insert( const carto::shared_ptr<AObject> & o,
-                         int pos = -1 )
-    { ObjectVector::insert( o, pos  ); }
-    virtual void erase( iterator & i ) { ObjectVector::erase( i ); }
+    virtual void unregisterObservable( Observable* );
+
+    bool _dynamic;
   };
 
 
   inline bool Fusion2D::CanRemove( AObject * )
   {
-    return( false );
+    return _dynamic && size() >= 2;
   }
 
 }

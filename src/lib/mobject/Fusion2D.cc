@@ -57,8 +57,8 @@ using namespace std;
 Tree*	Fusion2D::_optionTree = 0;
 
 
-Fusion2D::Fusion2D( const vector<AObject *> & obj )
-  : ObjectVector(), Sliceable()
+Fusion2D::Fusion2D( const vector<AObject *> & obj, bool dynamic )
+  : ObjectVector(), Sliceable(), _dynamic( dynamic )
 {
   using carto::shared_ptr;
 
@@ -67,7 +67,7 @@ Fusion2D::Fusion2D( const vector<AObject *> & obj )
   vector<AObject *>::const_iterator	io, fo=obj.end();
 
   for( io=obj.begin(); io!=fo; ++io )
-    insert( shared_ptr<AObject>( shared_ptr<AObject>::Strong, *io ) );
+    insert( shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, *io ) );
 
   unsigned	i, n = obj.size();
   glAddTextures( n );
@@ -187,6 +187,36 @@ void Fusion2D::reorder( const vector<AObject *> & ord )
   _data.clear();
   for( i=0; i<n; ++i )
     _data.push_back( reord[i] );
+}
+
+
+void Fusion2D::unregisterObservable( Observable* observable )
+{
+  const AObject *o = dynamic_cast<const AObject *>( observable );
+  bool changeref = false;
+  AObject *objref = 0;
+  if( o && o == referentialInheritance() )
+  {
+    changeref = true;
+    iterator i = begin();
+    ++i;
+    if( i == end() )
+      objref = 0;
+    else
+      objref = *i;
+  }
+
+  ObjectVector::unregisterObservable( observable );
+
+  if( o )
+  {
+    glSetTexImageChanged( true, 0 );
+    glSetChanged( glBODY, true );
+    if( changeref )
+      setReferentialInheritance( objref );
+
+    notifyObservers((void*)this);
+  }
 }
 
 
@@ -605,6 +635,9 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
                                 const SliceViewState & state,
                                 unsigned ) const
 {
+  if( size() == 0 )
+    return false;
+
   const Referential	*winref = state.winref;
 
   /*
@@ -625,15 +658,6 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
   size_t size = (size_t)ximage.width * ximage.height * ximage.depth / 8;
 
   //cout << "im size : " << ximage.width << " x " << ximage.height << endl;
-  if( (winref == NULL) && ( (mri()->getReferential() != NULL)
-                            || (functional()->getReferential() != NULL) ) )
-  winref = getReferential();
-  if( !winref )
-  {
-    cout << "Fusion2D::update2DTexture: no referential\n";
-    return false;
-  }
-
   char *functionalImage = new char[size];
 
   datatype::const_reverse_iterator	io=_data.rbegin(), fo=_data.rend();
@@ -659,7 +683,8 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
   fimage.data = ximage.data;
 
   // mix other images from end to start
-  for( ++io; io!=fo; ++io, --tex )
+  if( io != fo )
+    for( ++io; io!=fo; ++io, --tex )
     {
       //cout << "Fusion2D: updating other image...\n";
       (*io)->glAPI()->sliceableAPI()->update2DTexture( fimage, pos, state );
@@ -735,6 +760,9 @@ Tree* Fusion2D::optionTree() const
 
 vector<float> Fusion2D::voxelSize() const
 {
+  if( _data.empty() )
+    return vector<float>( 4, 1. );
+
   vector<float>			vs, vs2;
   datatype::const_iterator	io, fo=_data.end();
 
@@ -752,6 +780,9 @@ vector<float> Fusion2D::voxelSize() const
       vs.push_back( vs2[i] );
     d = vs.size();
   }
+  if( vs.size() < 4 )
+    vs.resize( 4, 1. );
+
   return vs;
 }
 

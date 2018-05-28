@@ -85,7 +85,7 @@ ObjectVector::~ObjectVector()
     {
       (*it)->UnregisterParent( this );
       (*it)->deleteObserver((Observer*)this);
-      if( !(*it)->Visible() )
+      if( theAnatomist->hasObject( it->get() ) && !(*it)->Visible() )
         theAnatomist->mapObject( it->get() );
     }
   _data.erase( _data.begin(), _data.end() );
