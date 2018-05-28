@@ -608,6 +608,17 @@ void AWindow::manageAutoReferential()
   {
     if( _tempObjects.find( *io ) != eto )
       continue; // temporary object: doesn't count.
+
+    // special case: it the object parent is also in the winwow, then
+    // skip this one
+    const AObject::ParentList & pl = (*io)->parents();
+    AObject::ParentList::const_iterator ip, ep = pl.end();
+    for( ip=pl.begin(); ip!=ep; ++ip )
+      if( _sobjects.find( *ip ) != eo )
+        break;
+    if( ip != ep )
+      continue;
+
     if( ref == 0 )
       ref = (*io)->getReferential();
     else if( ref != (*io)->getReferential() )
