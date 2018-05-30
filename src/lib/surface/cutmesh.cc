@@ -41,7 +41,7 @@
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/tesselatedmesh.h>
 #include <anatomist/object/actions.h>
-#include <aims/mesh/surfaceOperation.h>
+#include <aims/mesh/cutmesh.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
 #include <qpixmap.h>
@@ -54,6 +54,10 @@ using namespace aims;
 using namespace carto;
 using namespace std;
 
+namespace anatomist
+{
+
+  using anatomist::CutMesh;
 
 int CutMesh::registerClass()
 {
@@ -648,7 +652,9 @@ void CutMesh::clearHasChangedFlags() const
 void CutMesh::cut()
 {
   // cout << "CutMesh::cut...\n";
-  // # ATriangulated		*p = (ATriangulated *) planarMesh();
+#ifndef USE_TESSELATION
+  ATriangulated		*p = (ATriangulated *) planarMesh();
+#endif
   ASurface<2>		*border = (ASurface<2> *) borderPolygon();
 
   vector<const AimsSurfaceTriangle *> insurf;
@@ -664,30 +670,34 @@ void CutMesh::cut()
   unsigned  nmesh = d->texindex;
   vector<rc_ptr<AimsSurfaceTriangle> > cut( nmesh );
   for( ; i<d->cutmeshindex; ++i, ++io ) {}
-  AimsTimeSurface<2,Void>	*pol = 0;
+  rc_ptr<AimsTimeSurface<2,Void> > pol( 0 );
 #ifndef USE_TESSELATION
-  AimsSurfaceTriangle		*ps = 0;
+  rc_ptr<AimsSurfaceTriangle> ps( 0 );
 #endif
+  aims::CutMesh cutmesh( insurf, plane() );
   try
   {
 #ifndef USE_TESSELATION
     if( p )
       {
-        ps = new AimsSurfaceTriangle;
         if( border )
           {
-            pol = new AimsTimeSurface<2,Void>;
-            SurfaceManip::cutMesh( insurf, plane(), cut, *ps, *pol );
+            cutmesh.cut( true, true, true );
+            ps = cutmesh.planeMesh();
           }
         else
-          SurfaceManip::cutMesh( insurf, plane(), cut, *ps );
+        {
+          cutmesh.cut( false, true, true );
+          ps = cutmesh.planeMesh();
+        }
       }
     else
 #endif
     if( border || nmesh != 0 )
       {
-        pol = new AimsTimeSurface<2,Void>;
-        SurfaceManip::cutMesh( insurf, plane(), cut, *pol );
+        cutmesh.cut();
+        cut = cutmesh.cutMeshes();
+        pol = cutmesh.borderLine();
       }
   }
   catch( exception & e )
@@ -718,8 +728,6 @@ void CutMesh::cut()
     border->attributed()->setProperty( "normal", normal );
     // border->notifyObservers( this );
   }
-  else
-    delete pol;
   setGeomExtrema();
   // cout << "CutMesh::cut done\n";
 }
@@ -819,4 +827,6 @@ void CutMesh::setProperties( Object options )
   ObjectVector::setProperties( options );
   setSliceProperties( options );
 }
+
+} // namespace anatomist
 
