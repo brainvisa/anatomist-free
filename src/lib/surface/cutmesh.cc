@@ -39,6 +39,8 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/fusion/defFusionMethods.h>
 #include <anatomist/surface/triangulated.h>
+#include <anatomist/surface/texsurface.h>
+#include <anatomist/surface/texture.h>
 #include <anatomist/surface/tesselatedmesh.h>
 #include <anatomist/object/actions.h>
 #include <aims/mesh/cutmesh.h>
@@ -113,7 +115,8 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
   //	sort objects: surfaces first, volumes last
   for( io=obj.begin(); io!=fo; ++io )
   {
-    if( dynamic_cast<ATriangulated *>( *io ) )
+    if( dynamic_cast<ATriangulated *>( *io )
+        || dynamic_cast<ATexSurface *>( *io ) )
       surf.push_back( *io );
     else if( dynamic_cast<CutMesh *>( *io ) )
     {
@@ -150,18 +153,40 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
   d->cutmeshindex = d->texindex + vol.size();
   d->polygonindex = d->cutmeshindex + nmesh;
   ATriangulated *atr;
+  ATexSurface *ats;
+  vector<ATexture *> textured;
+  int dimtex = 0;
+
   for( i=0; i<nmesh; ++i )
   {
-    atr = dynamic_cast<ATriangulated *>( surf[i] );
+    ats = dynamic_cast<ATexSurface *>( surf[i] );
+    if( ats )
+    {
+      atr = dynamic_cast<ATriangulated *>( ats->surface() );
+      if( dimtex == 0 )
+        dimtex = static_cast<ATexture *>( ats->texture() )->dimTexture();
+    }
+    else
+      atr = dynamic_cast<ATriangulated *>( surf[i] );
     if( !atr || !atr->isPlanar() )
+    {
       insert( surf[i] );
+      textured.push_back( ats ? static_cast<ATexture *>( ats->texture() )
+                          : 0 );
+    }
   }
   d->inplanarmeshindex = size();
   nplanar = nmesh - d->inplanarmeshindex;
   if( nplanar != 0 )
     for( i=0; i<nmesh; ++i )
     {
-      atr = dynamic_cast<ATriangulated *>( surf[i] );
+      ats = dynamic_cast<ATexSurface *>( surf[i] );
+      if( ats )
+      {
+        atr = dynamic_cast<ATriangulated *>( ats->surface() );
+      }
+      else
+        atr = dynamic_cast<ATriangulated *>( surf[i] );
       if( atr && atr->isPlanar() )
         insert( surf[i] );
     }
@@ -181,7 +206,28 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
     cm->setName( theAnatomist->makeObjectName( "CutSubMesh" ) );
     theAnatomist->registerObject( cm, false );
     cm->setSurface( new AimsSurfaceTriangle );
-    insert( cm );
+    if( textured[i] )
+    {
+      ATexture *tex = new ATexture;
+      tex->setName( theAnatomist->makeObjectName( "CutSubTexture" ) );
+      theAnatomist->registerObject( tex, false );
+      tex->setPalette( *textured[i]->palette() );
+      if( dimtex == 2 )
+        tex->setTexture( rc_ptr<TimeTexture<Point2df> >(
+          new TimeTexture<Point2df> ) );
+      else
+        tex->setTexture( rc_ptr<TimeTexture<float> >(
+          new TimeTexture<float> ) );
+      tex->attributed()->copyProperties(
+        Object::reference( *textured[i]->attributed() ) );
+      ATexSurface *ts = new ATexSurface( cm, tex );
+      ts->setName( theAnatomist->makeObjectName( "CutSubTexSurf" ) );
+      theAnatomist->registerObject( ts, false );
+      insert( ts );
+    }
+    else
+      insert( cm );
+
     cm->setReferentialInheritance( s );
     cm->SetMaterial( s->GetMaterial() );
   }
@@ -649,6 +695,46 @@ void CutMesh::clearHasChangedFlags() const
 }
 
 
+namespace
+{
+
+  template <typename T>
+  void fillNTextures( vector<vector<rc_ptr<TimeTexture<T> > > > &texs, int n )
+  {
+    while( texs.size() < n )
+    {
+      texs.resize( n );
+    }
+  }
+
+
+  template <typename T>
+  void storeTextures( MObject::iterator io,
+                      vector<vector<rc_ptr<TimeTexture<T> > > > textures,
+                      CutMesh* cutmesh )
+  {
+    typename vector<vector<rc_ptr<TimeTexture<T> > > >::iterator
+      it, et = textures.end();
+    ATexSurface *ts;
+    ATexture *tex;
+    for( it=textures.begin(); it!=et; ++it, ++io )
+    {
+      if( it->empty() )
+        continue;
+
+      ts = dynamic_cast<ATexSurface *>( *io );
+      if( ts )
+      {
+        tex = static_cast<ATexture *>( ts->texture() );
+        tex->setTexture( (*it)[0] );
+        tex->notifyObservers( cutmesh );
+      }
+    }
+  }
+
+}
+
+
 void CutMesh::cut()
 {
   // cout << "CutMesh::cut...\n";
@@ -660,13 +746,59 @@ void CutMesh::cut()
   vector<const AimsSurfaceTriangle *> insurf;
   insurf.reserve( d->texindex );
   int               i;
-  MObject::iterator io;
+  MObject::iterator io, io2;
   // cout << "cutMesh " << d->texindex << " meshes\n";
+  ATexSurface *ts;
+  vector<vector<rc_ptr<TimeTexture<float> > > > textures1;
+  vector<vector<rc_ptr<TimeTexture<Point2df> > > > textures2;
+  int dimtex = 0;
+
   for( i=0, io=begin(); i<d->texindex; ++i, ++io )
   {
-    insurf.push_back( static_cast<const ATriangulated *>(
-      *io )->surface().get() );
+    ts = dynamic_cast<ATexSurface *>( *io );
+    if( ts )
+    {
+      insurf.push_back( static_cast<const ATriangulated *>(
+        ts->surface() )->surface().get() );
+      const ATexture *tex = static_cast<const ATexture *>( ts->texture() );
+      if( dimtex == 0 )
+        dimtex = tex->dimTexture();
+      if( tex->dimTexture() == dimtex )
+      {
+        if( dimtex == 2 )
+        {
+          fillNTextures( textures2, i + 1 );
+          textures2[i].push_back( tex->texture<Point2df>() );
+        }
+        else
+        {
+          fillNTextures( textures1, i + 1 );
+          textures1[i].push_back( tex->texture<float>() );
+        }
+      }
+    }
+    else
+    {
+      insurf.push_back( static_cast<const ATriangulated *>(
+        *io )->surface().get() );
+    }
   }
+
+  rc_ptr<aims::CutMesh> cutmesh;
+  if( dimtex == 2 )
+  {
+    fillNTextures( textures2, d->texindex );
+    cutmesh.reset( new CutTexturedMesh<Point2df>( insurf, textures2,
+                                                  plane() ) );
+  }
+  else if( dimtex == 1 )
+  {
+    fillNTextures( textures1, d->texindex );
+    cutmesh.reset( new CutTexturedMesh<float>( insurf, textures1, plane() ) );
+  }
+  else
+    cutmesh.reset( new aims::CutMesh( insurf, plane() ) );
+
   unsigned  nmesh = d->texindex;
   vector<rc_ptr<AimsSurfaceTriangle> > cut( nmesh );
   for( ; i<d->cutmeshindex; ++i, ++io ) {}
@@ -674,39 +806,44 @@ void CutMesh::cut()
 #ifndef USE_TESSELATION
   rc_ptr<AimsSurfaceTriangle> ps( 0 );
 #endif
-  aims::CutMesh cutmesh( insurf, plane() );
   try
   {
 #ifndef USE_TESSELATION
     if( p )
+    {
+      if( border )
       {
-        if( border )
-          {
-            cutmesh.cut( true, true, true );
-            ps = cutmesh.planeMesh();
-          }
-        else
-        {
-          cutmesh.cut( false, true, true );
-          ps = cutmesh.planeMesh();
-        }
+        cutmesh->cut( true, true, true );
+        ps = cutmesh->planeMesh();
       }
+      else
+      {
+        cutmesh->cut( false, true, true );
+        ps = cutmesh->planeMesh();
+      }
+    }
     else
 #endif
     if( border || nmesh != 0 )
-      {
-        cutmesh.cut();
-        cut = cutmesh.cutMeshes();
-        pol = cutmesh.borderLine();
-      }
+    {
+      cutmesh->cut();
+      cut = cutmesh->cutMeshes();
+      pol = cutmesh->borderLine();
+    }
   }
   catch( exception & e )
   {
     cerr << e.what() << endl;
   }
+  io2 = io;
   for( i=0; i<(int)nmesh; ++i, ++io )
   {
-    static_cast<ATriangulated *>(*io)->setSurface( cut[i].get() );
+    ts = dynamic_cast<ATexSurface *>( *io );
+    if( ts )
+      static_cast<ATriangulated *>( ts->surface() )->setSurface(
+        cut[i].get() );
+   else
+      static_cast<ATriangulated *>(*io)->setSurface( cut[i].get() );
     cut[i].release();
     // (*io)->notifyObservers( this );
   }
@@ -728,6 +865,20 @@ void CutMesh::cut()
     border->attributed()->setProperty( "normal", normal );
     // border->notifyObservers( this );
   }
+  // store back modified textures
+  if( dimtex == 2 )
+  {
+    CutTexturedMesh<Point2df>
+      *cm = static_cast<CutTexturedMesh<Point2df> *>( cutmesh.get() );
+    storeTextures( io2, cm->cutTextures(), this );
+  }
+  else if( dimtex == 1 )
+  {
+    CutTexturedMesh<float>
+      *cm = static_cast<CutTexturedMesh<float> *>( cutmesh.get() );
+    storeTextures( io2, cm->cutTextures(), this );
+  }
+
   setGeomExtrema();
   // cout << "CutMesh::cut done\n";
 }

@@ -40,6 +40,7 @@
 #include <anatomist/surface/fusion2Dmesh.h>
 #include <anatomist/surface/triangulated.h>
 #include <anatomist/surface/texture.h>
+#include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/mtexture.h>
 #include <anatomist/surface/tesselatedmesh.h>
 #include <anatomist/volume/slice.h>
@@ -312,18 +313,26 @@ int FusionCutMeshMethod::canFusion( const set<AObject *> & obj )
       if( dynamic_cast<CutMesh *>(*io) )
         ++nc;
       else if( (*io)->Is2DObject() )
-	++nv;
+        ++nv;
       else
-	{
-	  ATriangulated	*tr = dynamic_cast<ATriangulated*>( *io );
-          if( tr )
+      {
+        ATriangulated	*tr = dynamic_cast<ATriangulated*>( *io );
+        if( !tr )
+        {
+          ATexSurface *ts = dynamic_cast<ATexSurface *>( *io );
+          if( ts )
           {
-            if( !tr->isPlanar() )
-	      ++ns;
+            tr = dynamic_cast<ATriangulated*>( ts->surface() );
           }
-	  else
-	    return 0;
-	}
+        }
+        if( tr )
+        {
+          if( !tr->isPlanar() )
+            ++ns;
+        }
+        else
+          return 0;
+      }
     }
 
   if( ( ns >= 1 && nv == 1 ) || nc >= 1 )

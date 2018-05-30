@@ -86,7 +86,7 @@ namespace anatomist
         tex, bool normalize_data = true );
     template <typename T>
     carto::rc_ptr<TimeTexture<T> > texture( bool rescaled = false,
-                                            bool always_copy = false );
+                                            bool always_copy = false ) const;
     virtual void createDefaultPalette( const std::string & name = "" );
     virtual void update( const Observable* observable, void* arg );
     virtual void notifyObservers( void * = 0 );
