@@ -337,7 +337,7 @@ namespace
 
 
 template <typename T>
-rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool )
+rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool ) const
 {
   if( texdim<T>() != d->dim )
     return rc_ptr<TimeTexture<T> >( 0 );
@@ -352,7 +352,7 @@ rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool )
       if( rescaled )
       {
         ftex->header().copyProperties( d->header );
-        TexExtrema	& te = glTexExtrema();
+        const TexExtrema	& te = glTexExtrema();
         typename TimeTexture<float>::iterator i, e = tex->end();
         typename vector<float>::iterator it, et;
         float m = te.min[0];
@@ -383,14 +383,14 @@ rc_ptr<TimeTexture<T> > ATexture::texture( bool rescaled, bool )
     default:
     break;
   }
-  return static_cast<Private_<T> *>( d )->texture;
+  return static_cast<const Private_<T> *>( d )->texture;
 }
 
 namespace anatomist
 {
 
   template <>
-  rc_ptr<Texture2d> ATexture::texture( bool rescaled, bool alwayscopy )
+  rc_ptr<Texture2d> ATexture::texture( bool rescaled, bool alwayscopy ) const
   {
     if( 2 != d->dim )
       return rc_ptr<Texture2d>( 0 );
@@ -401,7 +401,7 @@ namespace anatomist
     if( rescaled )
     {
       ftex.reset( new TimeTexture<Point2df> );
-      TexExtrema	& te = glTexExtrema();
+      const TexExtrema	& te = glTexExtrema();
       TimeTexture<Point2df>::iterator i, e = tex->end();
       vector<Point2df>::iterator it, et;
       float m0 = te.min[0];
@@ -433,7 +433,7 @@ namespace anatomist
 
 
   template <>
-  rc_ptr<Texture1d> ATexture::texture( bool rescaled, bool alwayscopy )
+  rc_ptr<Texture1d> ATexture::texture( bool rescaled, bool alwayscopy ) const
   {
     if( 1 != d->dim )
       return rc_ptr<Texture1d>( 0 );
@@ -444,7 +444,7 @@ namespace anatomist
     if( rescaled )
     {
       ftex.reset( new TimeTexture<float> );
-      TexExtrema      & te = glTexExtrema();
+      const TexExtrema      & te = glTexExtrema();
       TimeTexture<float>::iterator i, e = tex->end();
       vector<float>::iterator it, et;
       float m0 = te.min[0];
@@ -1124,13 +1124,16 @@ AObject* ATexture::clone( bool shallow )
 
 
 
-template rc_ptr<TimeTexture<float> > ATexture::texture<float>( bool, bool );
-template rc_ptr<TimeTexture<short> > ATexture::texture<short>( bool, bool );
-template rc_ptr<TimeTexture<int> > ATexture::texture<int>( bool, bool );
+template rc_ptr<TimeTexture<float> >
+ATexture::texture<float>( bool, bool ) const;
+template rc_ptr<TimeTexture<short> >
+ATexture::texture<short>( bool, bool ) const;
+template rc_ptr<TimeTexture<int> >
+ATexture::texture<int>( bool, bool ) const;
 template rc_ptr<TimeTexture<unsigned> >
-ATexture::texture<unsigned>( bool, bool );
+ATexture::texture<unsigned>( bool, bool ) const;
 template rc_ptr<TimeTexture<Point2df> >
-ATexture::texture<Point2df>( bool, bool );
+ATexture::texture<Point2df>( bool, bool ) const;
 template void ATexture::setTexture<float>( rc_ptr<TimeTexture<float> >, bool );
 template void ATexture::setTexture<short>( rc_ptr<TimeTexture<short> >, bool );
 template void ATexture::setTexture<int>( rc_ptr<TimeTexture<int> >, bool );
