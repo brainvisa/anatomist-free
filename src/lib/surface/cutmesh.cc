@@ -206,12 +206,13 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
     cm->setName( theAnatomist->makeObjectName( "CutSubMesh" ) );
     theAnatomist->registerObject( cm, false );
     cm->setSurface( new AimsSurfaceTriangle );
-    if( textured[i] )
+    ATexture *itex = textured[i];
+    if( itex )
     {
       ATexture *tex = new ATexture;
       tex->setName( theAnatomist->makeObjectName( "CutSubTexture" ) );
       theAnatomist->registerObject( tex, false );
-      tex->setPalette( *textured[i]->palette() );
+      tex->setPalette( *itex->palette() );
       if( dimtex == 2 )
         tex->setTexture( rc_ptr<TimeTexture<Point2df> >(
           new TimeTexture<Point2df> ) );
@@ -219,7 +220,20 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
         tex->setTexture( rc_ptr<TimeTexture<float> >(
           new TimeTexture<float> ) );
       tex->attributed()->copyProperties(
-        Object::reference( *textured[i]->attributed() ) );
+        Object::reference( *itex->attributed() ) );
+
+      for( int j=0, nt=itex->glNumTextures(); j<nt; ++j )
+      {
+        tex->glSetTexMode( itex->glTexMode( j ), j );
+        tex->glSetTexFiltering( itex->glTexFiltering( j ), j );
+        tex->glSetAutoTexMode( itex->glAutoTexMode( j ), j );
+        tex->glSetTexRate( itex->glTexRate( j ), j );
+        tex->glSetTexRGBInterpolation( itex->glTexRGBInterpolation( j ), j );
+        tex->glSetAutoTexParams( itex->glAutoTexParams( 0, j ), 0, j );
+        tex->glSetAutoTexParams( itex->glAutoTexParams( 1, j ), 1, j );
+        tex->glSetAutoTexParams( itex->glAutoTexParams( 2, j ), 2, j );
+      }
+
       ATexSurface *ts = new ATexSurface( cm, tex );
       ts->setName( theAnatomist->makeObjectName( "CutSubTexSurf" ) );
       theAnatomist->registerObject( ts, false );
