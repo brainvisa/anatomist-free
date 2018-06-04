@@ -2342,8 +2342,8 @@ QObjectBrowser::nomenclatureClick( Hierarchy* h,
 
 bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
                                   const string & att,
-				  QObjectBrowserWidget* bw, 
-				  const set<QTreeWidgetItem*> & )
+                                  QObjectBrowserWidget* bw,
+                                  const set<QTreeWidgetItem*> & )
 {
   using carto::shared_ptr;
 
@@ -2354,10 +2354,10 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
   ao->getProperty( att, attval );
   if( attval.size() != 3 )
   {
-    while( attval.size() > 4 )
-      attval.erase( vector<int>::iterator( &attval[ attval.size() - 1 ] ) );
-    while( attval.size() < 3 )
-      attval.push_back( 128 );
+    if( attval.size() > 4 )
+      attval.resize( 4 );
+    if( attval.size() < 3 )
+      attval.resize( 4, 128 );
   }
 
   string	oname;
@@ -2393,7 +2393,7 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
     if( neutralpha )
     {
       if( attval.size() > 3 )
-        attval.erase( vector<int>::iterator( &attval[ 3 ] ) );
+        attval.resize( 3 );
     }
     else
     {
