@@ -49,6 +49,7 @@
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/dialogs/colorDialog.h>
 #include <cartobase/object/object.h>
+#include <QDoubleValidator>
 
 using namespace anatomist;
 using namespace std;
