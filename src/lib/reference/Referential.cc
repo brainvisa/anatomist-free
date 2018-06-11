@@ -70,8 +70,10 @@ namespace
 
   Referential*& giftiTalairachRef()
   {
-    static Referential *ref = 0;
-    return ref;
+//     static Referential *ref = 0;
+//     return ref;
+    // seems to be the same as MNI (according to Freesurfer 5.3/6 data)
+    return mniref();
   }
 
 }
@@ -132,8 +134,8 @@ Referential::~Referential()
   _destroying = true;
   if( this == mniref() )
     mniref() = 0;
-  else if( this == giftiTalairachRef() )
-    giftiTalairachRef() = 0;
+//   else if( this == giftiTalairachRef() )
+//     giftiTalairachRef() = 0;
   AObject  *o;
   while( !_anaObj.empty() )
     {
@@ -444,38 +446,40 @@ Referential* Referential::mniTemplateReferential()
 
 Referential* Referential::giftiTalairachReferential()
 {
-  // cout << "Referential::giftiTalairachReferential()\n";
-  Referential * & ref = giftiTalairachRef();
-  if( !ref )
-  {
-    set<AObject *> so;
-    set<AWindow *> sw;
-    char           sep = FileUtil::separator();
-    carto::UUID uuid;
-    uuid.generate();
-    AssignReferentialCommand  *c
-        = new AssignReferentialCommand( 0, so, sw, -1, 0, "",
-                                        uuid.toString() );
-    // exec command even if recursively
-    if( theProcessor->idle() )
-      theProcessor->execute( c );
-    else
-      c->execute();
-    ref = c->ref();
-    ref->setColor( AimsRGB( 130, 50, 50 ) );
-    ref->header().setProperty( "name", "Talairach" );
-    vector<float> trm( 12, 0. ); // transformation inverting all axes
-    trm[3] = -1;
-    trm[7] = -1;
-    trm[11] = -1;
-    LoadTransformationCommand *c2
-      = new LoadTransformationCommand( trm, acPcReferential(), ref );
-    if( theProcessor->idle() )
-      theProcessor->execute( c2 );
-    else
-      c2->execute();
-  }
-  return ref;
+  return mniTemplateReferential();
+
+//   // cout << "Referential::giftiTalairachReferential()\n";
+//   Referential * & ref = giftiTalairachRef();
+//   if( !ref )
+//   {
+//     set<AObject *> so;
+//     set<AWindow *> sw;
+//     char           sep = FileUtil::separator();
+//     carto::UUID uuid;
+//     uuid.generate();
+//     AssignReferentialCommand  *c
+//         = new AssignReferentialCommand( 0, so, sw, -1, 0, "",
+//                                         uuid.toString() );
+//     // exec command even if recursively
+//     if( theProcessor->idle() )
+//       theProcessor->execute( c );
+//     else
+//       c->execute();
+//     ref = c->ref();
+//     ref->setColor( AimsRGB( 130, 50, 50 ) );
+//     ref->header().setProperty( "name", "Talairach" );
+//     vector<float> trm( 12, 0. ); // transformation inverting all axes
+//     trm[3] = -1;
+//     trm[7] = -1;
+//     trm[11] = -1;
+//     LoadTransformationCommand *c2
+//       = new LoadTransformationCommand( trm, acPcReferential(), ref );
+//     if( theProcessor->idle() )
+//       theProcessor->execute( c2 );
+//     else
+//       c2->execute();
+//   }
+//   return ref;
 }
 
 
