@@ -36,7 +36,23 @@ except:
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'sphinx.ext.extlinks', 'sphinx.ext.inheritance_diagram']
+try:
+    # try napoleon which replaces numpydoc (and googledoc),
+    # comes with sphinx 1.2
+    import sphinx.ext.napoleon
+    napoleon = 'sphinx.ext.napoleon'
+except ImportError:
+    # not available, fallback to numpydoc
+    napoleon = 'numpy_ext.numpydoc'
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.todo',
+              'sphinx.ext.coverage',
+              'sphinx.ext.ifconfig',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.extlinks',
+              'sphinx.ext.inheritance_diagram',
+              napoleon]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
