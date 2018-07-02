@@ -66,7 +66,54 @@ if( DESIRED_QT_VERSION EQUAL 4 )
   BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt4-xmlpatterns RUN ">= ${QT_VERSION}" )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt4-xmlpatterns DEV )
 elseif( DESIRED_QT_VERSION EQUAL 5 )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libqt5core RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV DEPENDS libqt5core DEV )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libqt5gui RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV DEPENDS libqt5gui DEV )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libqt5widgets RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV DEPENDS libqt5widgets DEV )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libqt5opengl RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV DEPENDS libqt5opengl DEV )
+  BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt5network RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5network DEV )
+  BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt5sql RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5sql DEV )
+  BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt5multimedia RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5multimedia DEV )
+  BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt5multimediawidgets RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5multimediawidgets DEV )
   # TODO...
+#   libqt5clucene5:amd64
+#   libqt5concurrent5:amd64
+#   libqt5dbus5:amd64
+#   libqt5designer5:amd64
+#   libqt5designercomponents5:amd64
+#   libqt5feedback5:amd64
+#   libqt5help5:amd64
+#   libqt5multimediaquick-p5:amd64
+#   libqt5organizer5:amd64
+#   libqt5positioning5:amd64
+#   libqt5printsupport5:amd64
+#   libqt5qml-graphicaleffects
+#   libqt5qml5:amd64
+#   libqt5quick5:amd64
+#   libqt5quickparticles5:amd64
+#   libqt5quicktest5:amd64
+#   libqt5quickwidgets5:amd64
+#   libqt5script5:amd64
+#   libqt5svg5:amd64
+#   libqt5svg5-dev:amd64
+#   libqt5waylandclient5:amd64
+#   libqt5waylandclient5-dev:amd64
+#   libqt5webkit5:amd64
+#   libqt5webkit5-dev:amd64
+#   libqt5websockets5:amd64
+#   libqt5websockets5-dev:amd64
+#   libqt5x11extras5:amd64
+#   libqt5x11extras5-dev:amd64
+#   libqt5xml5:amd64
+#   libqt5xmlpatterns5:amd64
+#   libqt5xmlpatterns5-dev:amd64
 endif()
 
 
