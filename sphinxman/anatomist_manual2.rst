@@ -1742,39 +1742,44 @@ Some of these properties are interpreted by Anatomist, and may bring information
 .. |texture_names_prop_doc| replace::
   list of names assigned to each texture read from the "texture_names" property. Texture names values "red", "green" and "blue" are used as the special case of RGB textures: in this case each is assigned to the red, green and blue channel, respectively.
 
-+--------------------+---------------------+-------------------------------+
-| Property:          | Applies to:         | Description:                  |
-+====================+=====================+===============================+
-| referential        | all geometrical     | |referential_prop_doc|        |
-|                    | objects             |                               |
-+--------------------+---------------------+-------------------------------+
-| referentials       | all geometrical     | |referentials_prop_doc|       |
-|                    | objects             |                               |
-+--------------------+---------------------+-------------------------------+
-| transformations    | all geometrical     | |transformations_prop_doc|    |
-|                    | objects             |                               |
-+--------------------+---------------------+-------------------------------+
-| palette            | textured objects    | |palette_prop_doc|            |
-|                    |                     |                               |
-|                    |                     | * |colors_prop|               |
-|                    |                     | * |color_mode_prop|           |
-|                    |                     | * |image_prop|                |
-|                    |                     | * |palette2_prop|             |
-+--------------------+---------------------+-------------------------------+
-| material           | geometrical objects | |material_prop_doc|           |
-+--------------------+---------------------+-------------------------------+
-| texture_properties | textured objects    | |texture_properties_prop_doc| |
-|                    |                     |                               |
-|                    |                     | * |tex_mode_prop|             |
-|                    |                     | * |tex_filtering_prop|        |
-|                    |                     | * |tex_generation_prop|       |
-|                    |                     | * |tex_rate_prop|             |
-|                    |                     | * |tex_interpolation_prop|    |
-+--------------------+---------------------+-------------------------------+
-| texture_filenames  | meshes              | |texture_filenames_prop_doc|  |
-+--------------------+---------------------+-------------------------------+
-| texture_names      | meshes              | |texture_names_prop_doc|      |
-+--------------------+---------------------+-------------------------------+
+.. |volume_interpolation_doc| replace::
+  Enables (1) or disables (0) voxel values interpolation when a volume is resampled with a different voxel size or with a transformation (in a Fusion2D object typically). This parameter has the same effect as the global preferences setting in the Volumes panel, but can be set here individually for each volume. Volumes with continuous values (intensities) will generally look better when interpolation is active (which is the default), but volumes which values represent a label ("label volumes", or binary volumes) should be displayed without interpolation to preserve their label values.
+
++----------------------+---------------------+-------------------------------+
+| Property:            | Applies to:         | Description:                  |
++======================+=====================+===============================+
+| referential          | all geometrical     | |referential_prop_doc|        |
+|                      | objects             |                               |
++----------------------+---------------------+-------------------------------+
+| referentials         | all geometrical     | |referentials_prop_doc|       |
+|                      | objects             |                               |
++----------------------+---------------------+-------------------------------+
+| transformations      | all geometrical     | |transformations_prop_doc|    |
+|                      | objects             |                               |
++----------------------+---------------------+-------------------------------+
+| palette              | textured objects    | |palette_prop_doc|            |
+|                      |                     |                               |
+|                      |                     | * |colors_prop|               |
+|                      |                     | * |color_mode_prop|           |
+|                      |                     | * |image_prop|                |
+|                      |                     | * |palette2_prop|             |
++----------------------+---------------------+-------------------------------+
+| material             | geometrical objects | |material_prop_doc|           |
++----------------------+---------------------+-------------------------------+
+| texture_properties   | textured objects    | |texture_properties_prop_doc| |
+|                      |                     |                               |
+|                      |                     | * |tex_mode_prop|             |
+|                      |                     | * |tex_filtering_prop|        |
+|                      |                     | * |tex_generation_prop|       |
+|                      |                     | * |tex_rate_prop|             |
+|                      |                     | * |tex_interpolation_prop|    |
++----------------------+---------------------+-------------------------------+
+| texture_filenames    | meshes              | |texture_filenames_prop_doc|  |
++----------------------+---------------------+-------------------------------+
+| texture_names        | meshes              | |texture_names_prop_doc|      |
++----------------------+---------------------+-------------------------------+
+| volumleInterpolation | volumes             | |volume_interpolation_doc|    |
++----------------------+---------------------+-------------------------------+
 
 
 Sulci nomenclature
