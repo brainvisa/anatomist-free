@@ -213,6 +213,13 @@ The following table shows the available types of fusion according to the type of
           <b>(new in Anatomist 4.6)</b> Vector field display: draw small lines at voxels locations showing the direction and intensity of a vector field. Vector components may be taken from a 4D (or more) volume, a RGB volume, or a combination of several volumes.
         </td>
       </tr>
+      <tr class="row-odd">
+        <td>Normals</td>
+        <td>NormalsFusionMethod</td>
+        <td>
+          <b>(new in Anatomist 4.6)</b> Display lines representing a mesh normals at each vertex position.
+        </td>
+      </tr>
     </tbody>
   </table>
 
