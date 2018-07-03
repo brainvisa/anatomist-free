@@ -82,6 +82,8 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5multimedia DEV )
   BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt5multimediawidgets RUN ">= ${QT_VERSION}" )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5multimediawidgets DEV )
+  BRAINVISA_DEPENDENCY( RUN RECOMMENDS libqt5webkit RUN ">= ${QT_VERSION}" )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libqt5webkit DEV )
   # TODO...
 #   libqt5clucene5:amd64
 #   libqt5concurrent5:amd64
@@ -92,7 +94,6 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
 #   libqt5help5:amd64
 #   libqt5multimediaquick-p5:amd64
 #   libqt5organizer5:amd64
-#   libqt5positioning5:amd64
 #   libqt5printsupport5:amd64
 #   libqt5qml-graphicaleffects
 #   libqt5qml5:amd64
@@ -105,10 +106,6 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
 #   libqt5svg5-dev:amd64
 #   libqt5waylandclient5:amd64
 #   libqt5waylandclient5-dev:amd64
-#   libqt5webkit5:amd64
-#   libqt5webkit5-dev:amd64
-#   libqt5websockets5:amd64
-#   libqt5websockets5-dev:amd64
 #   libqt5x11extras5:amd64
 #   libqt5x11extras5-dev:amd64
 #   libqt5xml5:amd64
