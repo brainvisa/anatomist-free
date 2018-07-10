@@ -910,6 +910,16 @@ void Fusion2D::glSetChanged( glPart part, bool x ) const
 }
 
 
+void Fusion2D::glSetTexMode( GLComponent::glTextureMode mode, unsigned tex )
+{
+  if( mode != glTexMode( tex ) )
+  {
+    Sliceable::glSetTexMode( mode, tex );
+    glSetTexImageChanged( true, tex );
+  }
+}
+
+
 void Fusion2D::glSetTexImageChanged( bool x, unsigned tex ) const
 {
   Sliceable::glSetTexImageChanged( x, tex );

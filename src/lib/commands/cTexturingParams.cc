@@ -147,8 +147,7 @@ void TexturingParamsCommand::doit()
             if( _genparams_3.size() >= 4 )
               gc->glSetAutoTexParams( &_genparams_3[0], 2, _tex );
 
-            if( _mode >= 0 || _filter >= 0 || _gen >= 0 || _rate >= 0 
-                || _rgbinter >= 0 )
+            if( (*io)->hasChanged() )
               (*io)->notifyObservers( this );
           }
       }
