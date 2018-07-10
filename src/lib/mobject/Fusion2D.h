@@ -97,7 +97,8 @@ namespace anatomist
 
     virtual void glClearHasChangedFlags() const;
     virtual void glSetChanged( glPart, bool = true ) const;
-    virtual void glSetTexImageChanged( bool x = true, 
+    virtual void glSetTexMode( glTextureMode mode, unsigned tex = 0 );
+    virtual void glSetTexImageChanged( bool x = true,
                                        unsigned tex = 0 ) const ;
     virtual void glSetTexEnvChanged( bool x = true, unsigned tex = 0 ) const;
     unsigned glNumTextures( const ViewState & ) const;
