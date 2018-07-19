@@ -127,6 +127,33 @@ void Trackball::moveTrackball( int x, int y, int, int )
 }
 
 
+Quaternion Trackball::rotation( int x, int y )
+{
+  if( _beginx < 0 || _beginy < 0 )
+    return( Quaternion( 0, 0, 0, 1 ) );
+
+  GLWidgetManager * w = dynamic_cast<GLWidgetManager *>( view() );
+
+  if( !w )
+    {
+      cerr << "Trackball operating on wrong view type -- error\n";
+      return( Quaternion( 0, 0, 0, 1 ) );
+    }
+
+  float	dimx = w->width();
+  float	dimy = w->height();
+
+  Quaternion	q
+    = initQuaternion( ( 2. * _beginx - dimx ) / dimx,
+                      ( dimy - 2. * _beginy ) / dimy,
+                      ( 2. * x - dimx ) / dimx,
+                      ( dimy - 2. * y ) / dimy );
+  q.norm();
+
+  return q;
+}
+
+
 bool Trackball::moveTrackballInternal( int x, int y )
 {
   if( _beginx < 0 || _beginy < 0 || ( x == _beginx && y == _beginy ) )
@@ -143,13 +170,7 @@ bool Trackball::moveTrackballInternal( int x, int y )
   float	dimx = w->width();
   float	dimy = w->height();
 
-  Quaternion	q 
-    = initQuaternion( ( 2. * _beginx - dimx ) / dimx,
-		      ( dimy - 2. * _beginy ) / dimy,
-		      ( 2. * x - dimx ) / dimx,
-		      ( dimy - 2. * y ) / dimy )
-    * _beginquat;
-  q.norm();
+  Quaternion	q = rotation( x, y ) * _beginquat;
   w->setQuaternion( q );
   return true;
 }
