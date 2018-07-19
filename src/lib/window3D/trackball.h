@@ -70,6 +70,7 @@ namespace anatomist
     virtual void endTrackball( int x, int y, int globalX, int globalY );
     void setCenter();
     void showRotationCenter();
+    virtual aims::Quaternion rotation( int x, int y );
 
   protected:
     static aims::Quaternion initQuaternion( float x1, float y1, float x2,
