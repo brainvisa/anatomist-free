@@ -400,7 +400,7 @@ def ipythonQtConsoleShell():
         return 0 # Qt console does not exist in ipython <= 0.10
     global _ipsubprocs
     ipConsole = runIPConsoleKernel()
-    import subprocess
+    import soma.subprocess
     exe = sys.executable
     if sys.platform == 'darwin':
         exe = 'python'
@@ -409,7 +409,7 @@ def ipythonQtConsoleShell():
     else:
         ipmodule = 'IPython.frontend.terminal.ipapp'
     if ipConsole:
-        sp = subprocess.Popen([exe, '-c',
+        sp = soma.subprocess.Popen([exe, '-c',
             'import os; os.environ["QT_API"] = "pyqt"; from %s import launch_new_instance; launch_new_instance()' \
                 % ipmodule,
             'qtconsole', '--existing',
@@ -448,7 +448,7 @@ def ipythonShell():
     ipConsole = runIPConsoleKernel()
     if not ipConsole:
       return 0 # failed.
-    import subprocess
+    import soma.subprocess
     exe = sys.executable
     if sys.platform == 'darwin':
       exe = 'python'
@@ -456,7 +456,7 @@ def ipythonShell():
       ipmodule = 'IPython.terminal.ipapp'
     else:
       ipmodule = 'IPython.frontend.terminal.ipapp'
-    sp = subprocess.Popen( [ exe, '-c',
+    sp = soma.subprocess.Popen( [ exe, '-c',
       'from %s import launch_new_instance; launch_new_instance()' % ipmodule, 
       'console', '--existing',
       '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
