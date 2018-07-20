@@ -291,7 +291,6 @@ void LoadTransformationCommand::doit()
     }
   else	// hard-coded matrix
     {
-      cout << "set matrix\n";
       _tra->setMatrixT( _matrix );
       _tra->setGenerated( false );
     }
