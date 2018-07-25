@@ -47,6 +47,11 @@ Geometry::Geometry( const vector<float> & steps, const vector<int> & dimMin,
                     const vector<int> & dimMax )
   : _size( steps ), _dimMin( dimMin ), _dimMax( dimMax )
 {
+  cout << "Geometry steps size: " << steps.size() << endl;
+  if( steps.size() >= 4 )
+    cout << "step t: " << steps[3] << endl;
+  if( _size.size() < 4 )
+    _size.resize( 4, 1. );
 }
 
 
@@ -93,6 +98,11 @@ Geometry & Geometry::operator = ( const Geometry & g )
   if( &g != this )
     {
       _size = g._size;
+      if( _size.size() < 4 )
+        _size.resize( 4, 1. );
+      cout << "Geometry=, steps size: " << _size.size() << endl;
+      if( _size.size() >= 4 )
+        cout << "step T: " << _size[3] << endl;
       _dimMin = g._dimMin;
       _dimMax = g._dimMax;
     }
