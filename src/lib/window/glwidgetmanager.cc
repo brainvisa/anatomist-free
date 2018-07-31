@@ -57,6 +57,9 @@
 #include <QSysInfo>
 #include <QLineEdit>
 #include <QIntValidator>
+#if QT_VERSION >= 0x050000
+#include <QWindow>
+#endif
 
 namespace Qt
 {
@@ -332,6 +335,14 @@ void GLWidgetManager::initializeGL()
 
 void GLWidgetManager::resizeGL( int w, int h )
 {
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    w *= win->devicePixelRatio();
+    h *= win->devicePixelRatio();
+  }
+#endif
   glViewport( 0, 0, (GLint)w, (GLint)h );
   _pd->resized = true;
 }
@@ -562,6 +573,14 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth, int virtualHeight )
       }*/
 
   // Viewport to draw objects into
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+#endif
   glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
@@ -1596,6 +1615,14 @@ void GLWidgetManager::setupView( int width, int height )
   glLoadMatrixf( &_pd->rotation[0] );
 
   // Viewport to draw objects into
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+#endif
   glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
