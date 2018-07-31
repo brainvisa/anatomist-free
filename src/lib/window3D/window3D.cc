@@ -2776,20 +2776,62 @@ namespace
     SelectFactory *sf = SelectFactory::factory();
     unsigned nobj = 0, nsel = 0;
 
-    set<AObject *>::const_iterator io, eo = objs.end();
+    set<AObject *> found;
+    set<AObject *>::const_iterator io, eo = objs.end(), jo, ejo = found.end(),
+      tjo;
     for (io = objs.begin(); io != eo; ++io)
-      if ((*io)->hasTexture())
+      if( (*io)->hasTexture() )
       {
-        ++nobj;
-        if (nobj == 1) obj = *io;
-        if (sf->isSelected(w->Group(), *io))
+        if( obj )
         {
-          if (nsel > 0) return 0; // ambiguity
+          // check if one is parent of the other
+          MObject *mobj = dynamic_cast<MObject *>( *io );
+          if( obj->parents().find( mobj ) != obj->parents().end() )
+          {
+            // io is parent of obj: take it preferably
+            found.erase( found.find( obj ) );
+            // if io is parent to other already found objects, then remove them
+            obj = *io;
+            for( jo=found.begin(); jo!=ejo; ++ejo )
+            {
+              if( (*jo)->parents().find( mobj ) != (*jo)->parents().end() )
+              {
+                tjo = jo;
+                ++jo;
+                found.erase( tjo );
+                --nobj;
+                if( jo == ejo )
+                  break;
+              }
+            }
+            found.insert( obj );
+          }
+          else if( (*io)->parents().find( dynamic_cast<MObject *>( obj ) )
+                    == (*io)->parents().end() )
+          {
+            // no parental link: probably too many objects
+            ++ nobj;
+            found.insert( *io );
+          }
+          // else obj is parent: keep it as is
+        }
+        else
+        {
+          ++nobj;
+          found.insert( *io );
+        }
+        if( !obj )
+          obj = *io;
+        if( sf->isSelected( w->Group(), *io ) )
+        {
+          if( nsel > 0 )
+            return 0; // ambiguity
           ++nsel;
           obj = *io;
         }
       }
-    if (nsel == 1 || (nsel == 0 && nobj == 1)) return obj;
+    if( nsel == 1 || ( nsel == 0 && nobj == 1 ) )
+      return obj;
     return 0;
   }
 
@@ -2886,9 +2928,11 @@ void AWindow3D::setPosition( const vector<float> & position,
         if (i != 0) txt += ", ";
         txt += QString::number(vals[i]);
       }
-      if (d->objvallabel) d->objvallabel->setText(txt);
+      if( d->objvallabel )
+        d->objvallabel->setText(txt);
     }
-    else if (d->objvallabel) d->objvallabel->setText("");
+    else if( d->objvallabel )
+      d->objvallabel->setText("");
   }
 }
 
