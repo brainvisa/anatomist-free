@@ -906,8 +906,11 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   if( !use_framebuffer &&
       ( ( width != 0 && width != wwidth )
         || (height != 0 && height != wheight ) ) )
+  {
     cout << "Warning: Framebuffer rendering is unavailable. "
       << "Using on-screen snapshot.\n";
+    use_framebuffer = false;
+  }
 
   if( width == 0 || !use_framebuffer )
     width = wwidth;
@@ -947,6 +950,17 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   _pd->glwidget->makeCurrent();
 
   GLuint fb, depth_rb, color_tex;
+  GLint devwidth = width;
+  GLint devheight = height;
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    // width and height are in device dims, and are used as virtual dims
+    width /= win->devicePixelRatio();
+    height /= win->devicePixelRatio();
+  }
+#endif
 
   if( use_framebuffer )
   {
@@ -957,7 +971,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
     //NULL means reserve texture memory, but texels are undefined
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA,
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, devwidth, devheight, 0, GL_BGRA,
                   GL_UNSIGNED_BYTE, NULL );
 
     GLCaps::glGenFramebuffers( 1, &fb );
@@ -967,7 +981,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     GLCaps::glGenRenderbuffers( 1, &depth_rb );
     GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, depth_rb );
     GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
-                                   width, height );
+                                   devwidth, devheight );
     GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                        GL_RENDERBUFFER, depth_rb );
 
@@ -1074,23 +1088,12 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     int	ncol = 0;
     if( depth == 8 )
       ncol = 256;
-#if QT_VERSION >= 0x050000
-    if( !use_framebuffer )
-    {
-      QWindow *win = qglWidget()->window()->windowHandle();
-      if( win )
-      {
-        width *= win->devicePixelRatio();
-        height *= win->devicePixelRatio();
-      }
-    }
-#endif
-    pix = QImage( width, height, iformat );
+    pix = QImage( devwidth, devheight, iformat );
     int	i;
     for( i=0; i<ncol; ++i )
       pix.setColor( i, qRgb(i,i,i) );
     // read the GL buffer
-    glReadPixels( 0, 0, (GLint) width, (GLint) height,
+    glReadPixels( 0, 0, devwidth, devheight,
                   mode, GL_UNSIGNED_BYTE, pix.bits() );
 
     pix = pix.mirrored( false, true );
@@ -1119,7 +1122,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       int n = width * height, y, w = width;
       vector<GLfloat> buffer( n, 2. );
       // read Z buffer
-      glReadPixels( 0, 0, (GLint) width, (GLint) height,
+      glReadPixels( 0, 0, devwidth, devheight,
                     GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
       unsigned char *buf = pix.bits();
       // TODO: WHY THIS y-inversion ???
