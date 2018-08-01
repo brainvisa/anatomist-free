@@ -1073,18 +1073,20 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     int	ncol = 0;
     if( depth == 8 )
       ncol = 256;
+#if QT_VERSION >= 0x050000
+    QWindow *win = qglWidget()->window()->windowHandle();
+    if( win )
+    {
+      width *= win->devicePixelRatio();
+      height *= win->devicePixelRatio();
+    }
+#endif
     pix = QImage( width, height, iformat );
     int	i;
     for( i=0; i<ncol; ++i )
       pix.setColor( i, qRgb(i,i,i) );
     // read the GL buffer
-    float factor = 1.;
-#if QT_VERSION >= 0x050000
-    QWindow *win = qglWidget()->window()->windowHandle();
-    if( win )
-      factor *= win->devicePixelRatio();
-#endif
-    glReadPixels( 0, 0, (GLint) (width * factor), (GLint) (height * factor),
+    glReadPixels( 0, 0, (GLint) width, (GLint) height,
                   mode, GL_UNSIGNED_BYTE, pix.bits() );
 
     pix = pix.mirrored( false, true );
@@ -1113,7 +1115,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       int n = width * height, y, w = width;
       vector<GLfloat> buffer( n, 2. );
       // read Z buffer
-      glReadPixels( 0, 0, (GLint) (width * factor), (GLint) (height * factor),
+      glReadPixels( 0, 0, (GLint) width, (GLint) height,
                     GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
       unsigned char *buf = pix.bits();
       // TODO: WHY THIS y-inversion ???
