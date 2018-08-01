@@ -1306,6 +1306,7 @@ QStringList fileAndFormat( const QString & caption )
   fdiag.setNameFilter( filter.join( ";;" ) );
   fdiag.setWindowTitle( caption );
   fdiag.setFileMode( QFileDialog::AnyFile );
+  fdiag.setAcceptMode( QFileDialog::AcceptSave );
   if( fdiag.exec() )
   {
     QStringList	filenames = fdiag.selectedFiles();

@@ -879,6 +879,7 @@ void PreferencesWindow::loadCursor()
   fd.setNameFilter( filt );
   fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
   if( !fd.exec() )
     return;
 
