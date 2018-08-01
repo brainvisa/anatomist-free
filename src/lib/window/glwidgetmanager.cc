@@ -655,19 +655,26 @@ void GLWidgetManager::depthPeelingRender( DrawMode m )
 
   drawObjects( m );
 
-  unsigned		n = _pd->glwidget->width() * _pd->glwidget->height();
+  GLint width = _pd->glwidget->width();
+  GLint height = _pd->glwidget->height();
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+#endif
+  unsigned		n = width * height;
   vector<GLfloat>	buffer( n );
   GLfloat		*b = &buffer[0], *be = b + n;
 
   // make depth texture
   // could be optimized by SGIX_depth_texture extension
-  glReadPixels( 0, 0, (GLint) _pd->glwidget->width(),
-                (GLint) _pd->glwidget->height(),
-		GL_DEPTH_COMPONENT, GL_FLOAT, b );
+  glReadPixels( 0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, b );
 
   cout << "corner: " << buffer[0] << endl;
-  cout << "center: " << buffer[ _pd->glwidget->width()*_pd->glwidget->height()/2
-      + _pd->glwidget->width()/2 ] << endl;
+  cout << "center: " << buffer[ width*height/2 + width/2 ] << endl;
 
   // generate binary alpha texture from buffer
 
@@ -892,16 +899,27 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
 {
   bool use_framebuffer = GLCaps::hasFramebuffer();
 
+  int wwidth = _pd->glwidget->width();
+  int wheight = _pd->glwidget->height();
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    wwidth *= win->devicePixelRatio();
+    wheight *= win->devicePixelRatio();
+  }
+#endif
+
   if( !use_framebuffer &&
-      ( ( width != 0 && width != _pd->glwidget->width() )
-        || (height != 0 && height != _pd->glwidget->height() ) ) )
+      ( ( width != 0 && width != wwidth )
+        || (height != 0 && height != wheight ) ) )
     cout << "Warning: Framebuffer rendering is unavailable. "
       << "Using on-screen snapshot.\n";
 
   if( width == 0 || !use_framebuffer )
-    width = _pd->glwidget->width();
+    width = wwidth;
   if( height == 0 || !use_framebuffer )
-    height = _pd->glwidget->height();
+    height = wheight;
 
   QWidget *awindow = dynamic_cast<QWidget *>( aWindow() );
   if( !awindow )
@@ -999,8 +1017,8 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
       GLCaps::glDeleteFramebuffers( 1, &fb );
       use_framebuffer = false;
-      width = _pd->glwidget->width();
-      height = _pd->glwidget->height();
+      width = wwidth;
+      height = wheight;
     }
   }
   if( !use_framebuffer )
@@ -1644,6 +1662,14 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    x *= win->devicePixelRatio();
+    y *= win->devicePixelRatio();
+  }
+#endif
   // get z coordinate in the depth buffer
   GLfloat z = 2.;
   glReadPixels( (GLint)x, (GLint) y, 1, 1, 
@@ -1846,8 +1872,18 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     if( bufsz != _pd->backBufferTexture.size() )
       _pd->backBufferTexture.resize( _pd->glwidget->width() * _pd->glwidget->height() * 3 );
 
-    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(),GL_RGB,
-        GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
+    GLint width = _pd->glwidget->width();
+    GLint height = _pd->glwidget->height();
+#if QT_VERSION >= 0x050000
+    QWindow *win = qglWidget()->window()->windowHandle();
+    if( win )
+    {
+      width *= win->devicePixelRatio();
+      height *= win->devicePixelRatio();
+    }
+#endif
+    glReadPixels(0, 0, width, height,GL_RGB, GL_UNSIGNED_BYTE,
+                 &_pd->backBufferTexture[0] );
 
     //glFinish();
   }
@@ -1873,6 +1909,14 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   glFlush(); // or glFinish() ?
   glReadBuffer( GL_BACK );
   GLubyte rgba[4];
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    x *= win->devicePixelRatio();
+    y *= win->devicePixelRatio();
+  }
+#endif
   glReadPixels( x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
   red = rgba[0];
   green = rgba[1];
