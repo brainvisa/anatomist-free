@@ -497,7 +497,8 @@ void GLWidgetManager::setRGBBufferUpdated( bool x )
 }
 
 
-void GLWidgetManager::paintGL( DrawMode m, int virtualWidth, int virtualHeight )
+void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
+                               int virtualHeight )
 {
   int width = _pd->glwidget->width(), height = _pd->glwidget->height();
   if( virtualWidth != 0 )
@@ -1074,11 +1075,14 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     if( depth == 8 )
       ncol = 256;
 #if QT_VERSION >= 0x050000
-    QWindow *win = qglWidget()->window()->windowHandle();
-    if( win )
+    if( !use_framebuffer )
     {
-      width *= win->devicePixelRatio();
-      height *= win->devicePixelRatio();
+      QWindow *win = qglWidget()->window()->windowHandle();
+      if( win )
+      {
+        width *= win->devicePixelRatio();
+        height *= win->devicePixelRatio();
+      }
     }
 #endif
     pix = QImage( width, height, iformat );
@@ -1752,7 +1756,8 @@ Point3df GLWidgetManager::objectPositionFromWindow( const Point3df & winpos )
   return position;
 }
 
-bool GLWidgetManager::cursorFromPosition( const Point3df & position, Point3df & cursor )
+bool GLWidgetManager::cursorFromPosition( const Point3df & position,
+                                          Point3df & cursor )
 {
   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
