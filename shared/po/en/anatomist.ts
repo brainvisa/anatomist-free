@@ -1219,9 +1219,9 @@ Right Button   :  menu
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;alt&amp;&amp;gt; + left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel / &amp;&amp;lt;shift&amp;&amp;gt; + right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;alt&amp;&amp;gt; + right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1262,9 +1262,9 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;selection&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;additive selection&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;toggle selection&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;alt&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;zoom / distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt; / &amp;&amp;lt;alt&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;menu&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1299,9 +1299,9 @@ Right Button   :  menu
 It allows to change the view point with the keyboard. It works better in non-isometric perspective (but this mode is broken when the VTK plugin is active).
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;alt&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;lt; + right btn:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;alt&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1323,9 +1323,9 @@ It allows to change the view point with the keyboard. It works better in non-iso
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;alt&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;rotate slice plane&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + lright btn:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;alt&amp;&amp;gt; + lright btn:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+w&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1352,7 +1352,7 @@ rather than on the slice plane: object coordinates actually change
 In addition:
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + mid btn / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;rotate&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + mid btn § / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + mid btn § / &amp;&amp;lt;alt&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translate&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;scale&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
@@ -1365,9 +1365,9 @@ In addition:
 &lt;p&gt;Moves the cutting plane on cut meshes
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn: rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;alt&amp;&amp;gt; + left btn: rotation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;slice plane rotation on selected objects&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;slice plane translation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;alt&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;slice plane translation on selected objects&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
