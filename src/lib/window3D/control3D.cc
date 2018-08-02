@@ -179,7 +179,7 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
         &ContinuousTrackball::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::MetaModifier,
+    ( Qt::LeftButton, Qt::AltModifier,
       MouseActionLinkOf<ContinuousTrackball>
       ( actionPool->action( "ContinuousTrackball" ),
         &ContinuousTrackball::beginTrackball ),
@@ -252,7 +252,7 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
         &Translate3DAction::endTranslate ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::RightButton, Qt::MetaModifier,
+    ( Qt::RightButton, Qt::AltModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),
@@ -521,7 +521,7 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
             &Trackball::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::MetaModifier,
+    ( Qt::LeftButton, Qt::AltModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
             &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -568,7 +568,7 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
       &Translate3DAction::endTranslate ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::RightButton, Qt::MetaModifier,
+    ( Qt::RightButton, Qt::AltModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
       &Translate3DAction::beginTranslate ),
@@ -1417,7 +1417,7 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
                                     &Trackball::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::MetaModifier,
+    ( Qt::LeftButton, Qt::AltModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -1464,7 +1464,7 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
         &Translate3DAction::endTranslate ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::RightButton, Qt::MetaModifier,
+    ( Qt::RightButton, Qt::AltModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),
@@ -1708,7 +1708,7 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
                                     &Trackball::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::MetaModifier,
+    ( Qt::LeftButton, Qt::AltModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -1807,7 +1807,7 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
         &TrackObliqueSlice::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::RightButton, Qt::MetaModifier,
+    ( Qt::RightButton, Qt::AltModifier,
       MouseActionLinkOf<TrackObliqueSlice>
       ( actionPool->action( "TrackObliqueSlice" ),
         &TrackObliqueSlice::beginTrackball ),
@@ -1936,7 +1936,7 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
                                     &Trackball::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::MetaModifier,
+    ( Qt::LeftButton, Qt::AltModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -2011,7 +2011,7 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
       true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::RightButton, Qt::MetaModifier,
+    ( Qt::RightButton, Qt::AltModifier,
       MouseActionLinkOf<TranslaterAction>
       ( actionPool->action( "TranslaterAction" ), &TranslaterAction::begin ),
       MouseActionLinkOf<TranslaterAction>
@@ -2200,7 +2200,7 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
                                     &Trackball::endTrackball ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::LeftButton, Qt::MetaModifier,
+    ( Qt::LeftButton, Qt::AltModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -2273,7 +2273,7 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
         &CutSliceAction::endTrack ), true );
   // for Mac and its 2 button mouse
   mouseLongEventSubscribe
-    ( Qt::RightButton, Qt::MetaModifier,
+    ( Qt::RightButton, Qt::AltModifier,
       MouseActionLinkOf<CutSliceAction>
       ( actionPool->action( "CutSliceAction" ),
         &CutSliceAction::beginTrack ),
