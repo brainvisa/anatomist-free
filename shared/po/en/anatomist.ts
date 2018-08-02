@@ -765,9 +765,9 @@
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn&amp;&amp;nbsp;, or &amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel&amp;&amp;nbsp;, or &amp;&amp;lt;shift&amp;&amp;gt; + left btn on Mac:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp; or &amp;&amp;lt;ctrl&amp;&amp;gt; + right btn on Mac:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1219,9 +1219,9 @@ Right Button   :  menu
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel / &amp;&amp;lt;shift&amp;&amp;gt; + right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1262,9 +1262,9 @@ Right Button   :  menu
 &lt;tr&gt;&lt;td&gt;Left btn&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;selection&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;additive selection&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;toggle selection&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel:&lt;/td&gt;&lt;td&gt;zoom / distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / wheel / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;zoom / distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;menu&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1299,9 +1299,9 @@ Right Button   :  menu
 It allows to change the view point with the keyboard. It works better in non-isometric perspective (but this mode is broken when the VTK plugin is active).
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;lt; + right btn:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1323,9 +1323,9 @@ It allows to change the view point with the keyboard. It works better in non-iso
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate slice plane&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;rotate slice plane&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + lright btn:&lt;/td&gt;&lt;td&gt;rotate objects with still slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+w&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1351,8 +1351,8 @@ It works like the oblique control but operates on the transformation
 rather than on the slice plane: object coordinates actually change
 In addition:
 &lt;table&gt;
-&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + mid btn:&lt;/td&gt;&lt;td&gt;rotate&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + mid btn:&lt;/td&gt;&lt;td&gt;translate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + mid btn / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;rotate&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + mid btn § / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;translate&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;shift&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;scale&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl&amp;&amp;gt; + left btn:&lt;/td&gt;&lt;td&gt;rotate in the view slice plane&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;I&amp;&amp;gt; :&lt;/td&gt;&lt;td&gt;display / hide transformation information overlay&lt;/td&gt;&lt;/tr&gt;
@@ -1365,9 +1365,9 @@ In addition:
 &lt;p&gt;Moves the cutting plane on cut meshes
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Left btn:&lt;/td&gt;&lt;td&gt;linked cursor&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Mid btn: rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;slice plane rotation on selected objects&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;slice plane translation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mid btn / &amp;&amp;lt;meta&amp;&amp;gt; + left btn: rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;slice plane rotation on selected objects&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + right btn:&lt;/td&gt;&lt;td&gt;slice plane translation on selected objects&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Right btn:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;close window&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;full screen&lt;/td&gt;&lt;/tr&gt;
@@ -1910,6 +1910,22 @@ In addition:
         <source>Quadratic :</source>
         <translation type="unfinished">Quadratic :</translation>
     </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attenuation</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MaterialWindow</name>
@@ -1959,6 +1975,14 @@ In addition:
     </message>
     <message>
         <source>Blue:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fast color selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced settings</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2276,6 +2300,30 @@ might still crash with such an OpenGL implementation.</source>
         <source>Setting such a limit allows to work around performance problems with very large meshes and limited 3D hardware. Rendering will be incomplete in such a case, but this may avoid complete computer hangups.
 It is especially useful when displaying large fiber tracts sets, where cutting off a part of fibers will, in most cases, not really affect the golbal sight of fibers.
 0 here means no limitation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linked cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows</source>
+        <translation type="unfinished">Windows</translation>
+    </message>
+    <message>
+        <source>Control window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volumes</source>
+        <translation type="unfinished">Volumes</translation>
+    </message>
+    <message>
+        <source>OpenGL</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3140,6 +3188,10 @@ try clicking it and selecting &apos;Modify&apos;</translation>
         <source>Edit vector field properties</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Edit normals properties</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3538,6 +3590,14 @@ try clicking it and selecting &apos;Modify&apos;</translation>
     </message>
     <message>
         <source>Switch to 3D view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge referentials</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge identical referentials</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4188,6 +4248,21 @@ Do you still want to proceed ?</source>
     </message>
 </context>
 <context>
+    <name>ShowNormals</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>object_selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normals length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SurfpaintTools</name>
     <message>
         <source>Unconstrained</source>
@@ -4397,14 +4472,6 @@ Do you still want to proceed ?</source>
     </message>
     <message>
         <source>&lt;p align=&quot;justify&quot;&gt;This is the thickness of the slice between the current 2D window plane and the clipping plane(s). If you are using a volume (slice), don&apos;t set the distance to zero because the slice will be just on the clipping plane, and you don&apos;t know what will be drawn and what won&apos;t be&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Depth sorting of polygons</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sort polygons by depth for transparent objects. This makes transparency look far better, but has a large impact on rendering performance.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4659,6 +4726,14 @@ Do you still want to proceed ?</source>
     </message>
     <message>
         <source>Reset rotation/scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;-&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Centered on objects</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

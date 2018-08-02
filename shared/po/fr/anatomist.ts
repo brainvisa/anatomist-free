@@ -887,9 +887,9 @@ Utilisation de divers types de pinceaux, mode suivi de curseur lié, undo, redo
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu ou &amp;&amp;lt;ctrl&amp;&amp;gt;+bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette ou &amp;&amp;lt;shift&amp;&amp;gt;+bt gauche sur Mac&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; ou &amp;&amp;lt;ctrl&amp;&amp;gt;+bt droit sur Mac&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fermer la fenêtre&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
@@ -1222,9 +1222,9 @@ Bt droit   :  menu
 &lt;p&gt;
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu / &amp;&amp;lt;meta&amp;&amp;gt; + bt gauche&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette / &amp;&amp;lt;shift&amp;&amp;gt; + bt droit&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;fermer la fenêtre&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;&amp;&amp;nbsp;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
@@ -1265,9 +1265,9 @@ Bt droit   :  menu
 &lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;sélection&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;sélection additive&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;modif. sélection&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu / &amp;&amp;lt;meta&amp;&amp;gt; + bt gauche:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / molette / &amp;&amp;lt;shift&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
@@ -1299,9 +1299,9 @@ Bt droit   :  menu
 Il permet de changer le point de vue avec les touches du clavier. Noter que ce contrôle fonctionne normalement en mode perspective non-isométrique, et que le plugin VTK est incompatible avec lui...
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu / &amp;&amp;lt;meta&amp;&amp;gt; + bt gauche:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;zoom/distance&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;translation&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
@@ -1325,9 +1325,9 @@ Il permet de changer le point de vue avec les touches du clavier. Noter que ce c
         <translation>&lt;html&gt;&lt;div align=&quot;center&quot;&gt;&lt;b&gt;Contrôle des vues obliques&lt;/b&gt;&lt;/div&gt;
 &lt;p&gt;&lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation des objets avec plan de coupe fixe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu / &amp;&amp;lt;meta&amp;&amp;gt; + bt gauche:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;rotation des objets avec plan de coupe fixe&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
@@ -1367,9 +1367,9 @@ De plus:
 &lt;p&gt;Bouge le plan de coupe des maillages coupés
 &lt;table&gt;
 &lt;tr&gt;&lt;td&gt;Bt gauche:&lt;/td&gt;&lt;td&gt;curseur lié&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Bt milieu:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;translation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Bt milieu / &amp;&amp;lt;meta&amp;&amp;gt; + bt gauche:&lt;/td&gt;&lt;td&gt;rotation&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;shift&amp;&amp;gt; / &amp;&amp;lt;shift&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;rotation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+ &amp;&amp;lt;ctrl&amp;&amp;gt; / &amp;&amp;lt;meta&amp;&amp;gt; + bt droit:&lt;/td&gt;&lt;td&gt;translation du plan de coupe des objets sélectionnés&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Bt droit:&lt;/td&gt;&lt;td&gt;menu&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;ctrl+W&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;fermer la frnêtre&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&amp;&amp;lt;F9&amp;&amp;gt;:&lt;/td&gt;&lt;td&gt;plein écran&lt;/td&gt;&lt;/tr&gt;
@@ -1911,6 +1911,22 @@ De plus:
         <source>Two side</source>
         <translation>Eclairage des 2 côtés</translation>
     </message>
+    <message>
+        <source>Source</source>
+        <translation>Source</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Modèle</translation>
+    </message>
+    <message>
+        <source>Spot</source>
+        <translation>Spot</translation>
+    </message>
+    <message>
+        <source>Attenuation</source>
+        <translation>Atténuation</translation>
+    </message>
 </context>
 <context>
     <name>MaterialWindow</name>
@@ -1961,6 +1977,14 @@ De plus:
     <message>
         <source>Blue:</source>
         <translation>Bleu :</translation>
+    </message>
+    <message>
+        <source>Fast color selection</source>
+        <translation>Sélection rapide de couleur</translation>
+    </message>
+    <message>
+        <source>Advanced settings</source>
+        <translation>Réglages avancés</translation>
     </message>
 </context>
 <context>
@@ -2286,6 +2310,30 @@ It is especially useful when displaying large fiber tracts sets, where cutting o
         <translation>Mettre une limite ici permet de pallier à certains problèmes de performance pour de très gros maillages et un matériel 3D limité. Dans ce cas le rendu sera incomplet, mais cela peut parfois éviter des blocages complets de l&apos;ordinateur.
 Cela est particulièrement utile pour l&apos;affichage de gros jeux de faisceaux de fibres, où le masquage d&apos;une partie des fibres ne sera, la plupart du temps, pas dommageable pour l&apos;appréciation des fibres.
 0 signifie: pas de limitation.</translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation>Application</translation>
+    </message>
+    <message>
+        <source>Linked cursor</source>
+        <translation>Curseur lié</translation>
+    </message>
+    <message>
+        <source>Windows</source>
+        <translation>Fenêtres</translation>
+    </message>
+    <message>
+        <source>Control window</source>
+        <translation>Fenêtre de contrôle</translation>
+    </message>
+    <message>
+        <source>Volumes</source>
+        <translation>Volumes</translation>
+    </message>
+    <message>
+        <source>OpenGL</source>
+        <translation>OpenGL</translation>
     </message>
 </context>
 <context>
@@ -3151,6 +3199,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <source>Edit vector field properties</source>
         <translation>Éditer les propriétés du champ de vecteurs</translation>
     </message>
+    <message>
+        <source>Edit normals properties</source>
+        <translation>Éditer les propriétés des normales</translation>
+    </message>
 </context>
 <context>
     <name>QSelectWidget</name>
@@ -3550,6 +3602,14 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
     <message>
         <source>Switch to 3D view</source>
         <translation>Passer en vue 3D</translation>
+    </message>
+    <message>
+        <source>Merge referentials</source>
+        <translation>Fusionner les référentiels</translation>
+    </message>
+    <message>
+        <source>Merge identical referentials</source>
+        <translation>Fusionner les référentiels identiques</translation>
     </message>
 </context>
 <context>
@@ -4206,6 +4266,21 @@ Voulez-vous fermer ?</translation>
     </message>
 </context>
 <context>
+    <name>ShowNormals</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">Form</translation>
+    </message>
+    <message>
+        <source>object_selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normals length: </source>
+        <translation>Longueur des normales: </translation>
+    </message>
+</context>
+<context>
     <name>SurfpaintTools</name>
     <message>
         <source>Unconstrained</source>
@@ -4451,7 +4526,7 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Each vector coordinate (values) may be taken from a different volume, or all could be from the same.&lt;/p&gt;&lt;p&gt;Several cases:&lt;/p&gt;&lt;p&gt;* a 4D volume can hold, for each 3D space position (dimensions 0..2), 3 vector coordinates: then vector coordinates are in dimension 3: values 0, 1 and 2 in this 4th dimension correspond to the vector components.&lt;/p&gt;&lt;p&gt;* or 3 3D volumes can hold the 3 components of vectors: then each component should be taken from a different volume.&lt;/p&gt;&lt;p&gt;* We may only use 1D or 2D vectors by omitting one or 2 components (no volume for these coordinates)&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Chaque valeur de coordonnée de vecteur peut être prise sur un volume différent, ou tous sur le même.&lt;/p&gt;&lt;p&gt;Différents cas:&lt;/p&gt;&lt;p&gt;* Un volume 4D peut contenir, pour chaque coordonnée 3D de l&apos;espace (dimensions 0..2), 3 coordonnées de vecteur: ainsi les coordonnées de vecteurs sont en dimension 3: valeurs 0, 1 et 2 dans cette 4e dimension correspondent aux composantes du vecteur.&lt;/p&gt;&lt;p&gt;* ou bien un volume 3D peut contenir les 3 composantes d&apos;un vecteur: alors chaque composante peut être prise dans un volume différent.&lt;/p&gt;&lt;p&gt;* On peut utiliser des vecteurs 1D ou 2D en omettant une ou 2 composantes (pas de volume pour ces coordonnées)&lt;/p&gt;&lt;br/&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>volume:</source>
@@ -4671,6 +4746,14 @@ comme dans le mode contour (lent, donc)&lt;/p&gt;</translation>
     <message>
         <source>Reset rotation/scale</source>
         <translation>RAZ rotation/échelle</translation>
+    </message>
+    <message>
+        <source>&lt;-&gt;</source>
+        <translation>&lt;-&gt;</translation>
+    </message>
+    <message>
+        <source>Centered on objects</source>
+        <translation>Centré sur des objets</translation>
     </message>
 </context>
 </TS>
