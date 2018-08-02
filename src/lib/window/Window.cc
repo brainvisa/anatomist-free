@@ -425,6 +425,7 @@ void AWindow::startRecord()
   fd.setNameFilter( filter );
   fd.setWindowTitle( caption );
   fd.setFileMode( QFileDialog::AnyFile );
+  fd.setAcceptMode( QFileDialog::AcceptSave );
   if( !fd.exec() )
     return;
 

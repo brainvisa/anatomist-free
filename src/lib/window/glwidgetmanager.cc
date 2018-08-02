@@ -57,6 +57,9 @@
 #include <QSysInfo>
 #include <QLineEdit>
 #include <QIntValidator>
+#if QT_VERSION >= 0x050000
+#include <QWindow>
+#endif
 
 namespace Qt
 {
@@ -332,6 +335,14 @@ void GLWidgetManager::initializeGL()
 
 void GLWidgetManager::resizeGL( int w, int h )
 {
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    w *= win->devicePixelRatio();
+    h *= win->devicePixelRatio();
+  }
+#endif
   glViewport( 0, 0, (GLint)w, (GLint)h );
   _pd->resized = true;
 }
@@ -486,7 +497,8 @@ void GLWidgetManager::setRGBBufferUpdated( bool x )
 }
 
 
-void GLWidgetManager::paintGL( DrawMode m, int virtualWidth, int virtualHeight )
+void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
+                               int virtualHeight )
 {
   int width = _pd->glwidget->width(), height = _pd->glwidget->height();
   if( virtualWidth != 0 )
@@ -562,6 +574,14 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth, int virtualHeight )
       }*/
 
   // Viewport to draw objects into
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+#endif
   glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
@@ -636,19 +656,26 @@ void GLWidgetManager::depthPeelingRender( DrawMode m )
 
   drawObjects( m );
 
-  unsigned		n = _pd->glwidget->width() * _pd->glwidget->height();
+  GLint width = _pd->glwidget->width();
+  GLint height = _pd->glwidget->height();
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+#endif
+  unsigned		n = width * height;
   vector<GLfloat>	buffer( n );
   GLfloat		*b = &buffer[0], *be = b + n;
 
   // make depth texture
   // could be optimized by SGIX_depth_texture extension
-  glReadPixels( 0, 0, (GLint) _pd->glwidget->width(),
-                (GLint) _pd->glwidget->height(),
-		GL_DEPTH_COMPONENT, GL_FLOAT, b );
+  glReadPixels( 0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, b );
 
   cout << "corner: " << buffer[0] << endl;
-  cout << "center: " << buffer[ _pd->glwidget->width()*_pd->glwidget->height()/2
-      + _pd->glwidget->width()/2 ] << endl;
+  cout << "center: " << buffer[ width*height/2 + width/2 ] << endl;
 
   // generate binary alpha texture from buffer
 
@@ -873,16 +900,22 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
 {
   bool use_framebuffer = GLCaps::hasFramebuffer();
 
+  int wwidth = _pd->glwidget->width();
+  int wheight = _pd->glwidget->height();
+
   if( !use_framebuffer &&
-      ( ( width != 0 && width != _pd->glwidget->width() )
-        || (height != 0 && height != _pd->glwidget->height() ) ) )
+      ( ( width != 0 && width != wwidth )
+        || (height != 0 && height != wheight ) ) )
+  {
     cout << "Warning: Framebuffer rendering is unavailable. "
       << "Using on-screen snapshot.\n";
+    use_framebuffer = false;
+  }
 
   if( width == 0 || !use_framebuffer )
-    width = _pd->glwidget->width();
+    width = wwidth;
   if( height == 0 || !use_framebuffer )
-    height = _pd->glwidget->height();
+    height = wheight;
 
   QWidget *awindow = dynamic_cast<QWidget *>( aWindow() );
   if( !awindow )
@@ -917,6 +950,17 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   _pd->glwidget->makeCurrent();
 
   GLuint fb, depth_rb, color_tex;
+  GLint devwidth = width;
+  GLint devheight = height;
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    // width and height are in device dims, and are used as virtual dims
+    width /= win->devicePixelRatio();
+    height /= win->devicePixelRatio();
+  }
+#endif
 
   if( use_framebuffer )
   {
@@ -927,7 +971,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
     //NULL means reserve texture memory, but texels are undefined
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA,
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, devwidth, devheight, 0, GL_BGRA,
                   GL_UNSIGNED_BYTE, NULL );
 
     GLCaps::glGenFramebuffers( 1, &fb );
@@ -937,7 +981,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     GLCaps::glGenRenderbuffers( 1, &depth_rb );
     GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, depth_rb );
     GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
-                                   width, height );
+                                   devwidth, devheight );
     GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                        GL_RENDERBUFFER, depth_rb );
 
@@ -980,8 +1024,8 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
       GLCaps::glDeleteFramebuffers( 1, &fb );
       use_framebuffer = false;
-      width = _pd->glwidget->width();
-      height = _pd->glwidget->height();
+      width = wwidth;
+      height = wheight;
     }
   }
   if( !use_framebuffer )
@@ -1044,13 +1088,13 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     int	ncol = 0;
     if( depth == 8 )
       ncol = 256;
-    pix = QImage( width, height, iformat );
+    pix = QImage( devwidth, devheight, iformat );
     int	i;
     for( i=0; i<ncol; ++i )
       pix.setColor( i, qRgb(i,i,i) );
     // read the GL buffer
-    glReadPixels( 0, 0, (GLint) width, (GLint)
-        height, mode, GL_UNSIGNED_BYTE, pix.bits() );
+    glReadPixels( 0, 0, devwidth, devheight,
+                  mode, GL_UNSIGNED_BYTE, pix.bits() );
 
     pix = pix.mirrored( false, true );
     if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
@@ -1078,7 +1122,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       int n = width * height, y, w = width;
       vector<GLfloat> buffer( n, 2. );
       // read Z buffer
-      glReadPixels( 0, 0, (GLint) width, (GLint) height,
+      glReadPixels( 0, 0, devwidth, devheight,
                     GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
       unsigned char *buf = pix.bits();
       // TODO: WHY THIS y-inversion ???
@@ -1269,6 +1313,7 @@ QStringList fileAndFormat( const QString & caption )
   fdiag.setNameFilter( filter.join( ";;" ) );
   fdiag.setWindowTitle( caption );
   fdiag.setFileMode( QFileDialog::AnyFile );
+  fdiag.setAcceptMode( QFileDialog::AcceptSave );
   if( fdiag.exec() )
   {
     QStringList	filenames = fdiag.selectedFiles();
@@ -1596,6 +1641,14 @@ void GLWidgetManager::setupView( int width, int height )
   glLoadMatrixf( &_pd->rotation[0] );
 
   // Viewport to draw objects into
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+#endif
   glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
@@ -1617,6 +1670,14 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    x *= win->devicePixelRatio();
+    y *= win->devicePixelRatio();
+  }
+#endif
   // get z coordinate in the depth buffer
   GLfloat z = 2.;
   glReadPixels( (GLint)x, (GLint) y, 1, 1, 
@@ -1698,7 +1759,8 @@ Point3df GLWidgetManager::objectPositionFromWindow( const Point3df & winpos )
   return position;
 }
 
-bool GLWidgetManager::cursorFromPosition( const Point3df & position, Point3df & cursor )
+bool GLWidgetManager::cursorFromPosition( const Point3df & position,
+                                          Point3df & cursor )
 {
   _pd->glwidget->makeCurrent();
   glMatrixMode( GL_MODELVIEW );
@@ -1819,8 +1881,18 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     if( bufsz != _pd->backBufferTexture.size() )
       _pd->backBufferTexture.resize( _pd->glwidget->width() * _pd->glwidget->height() * 3 );
 
-    glReadPixels(0, 0, _pd->glwidget->width(), _pd->glwidget->height(),GL_RGB,
-        GL_UNSIGNED_BYTE, &_pd->backBufferTexture[0] );
+    GLint width = _pd->glwidget->width();
+    GLint height = _pd->glwidget->height();
+#if QT_VERSION >= 0x050000
+    QWindow *win = qglWidget()->window()->windowHandle();
+    if( win )
+    {
+      width *= win->devicePixelRatio();
+      height *= win->devicePixelRatio();
+    }
+#endif
+    glReadPixels(0, 0, width, height,GL_RGB, GL_UNSIGNED_BYTE,
+                 &_pd->backBufferTexture[0] );
 
     //glFinish();
   }
@@ -1846,6 +1918,14 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   glFlush(); // or glFinish() ?
   glReadBuffer( GL_BACK );
   GLubyte rgba[4];
+#if QT_VERSION >= 0x050000
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    x *= win->devicePixelRatio();
+    y *= win->devicePixelRatio();
+  }
+#endif
   glReadPixels( x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
   red = rgba[0];
   green = rgba[1];

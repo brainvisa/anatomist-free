@@ -693,6 +693,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   fd.setNameFilter( filt );
   fd.setWindowTitle( capt );
   fd.setFileMode( QFileDialog::ExistingFiles );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
   if( !fd.exec() )
   {
     cout << "Load cancelled\n";
@@ -764,6 +765,7 @@ void ControlWindow::replayScenario()
   fd.setNameFilter( filter );
   fd.setWindowTitle( caption );
   fd.setFileMode( QFileDialog::ExistingFile );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
   if( !fd.exec() )
     return;
 

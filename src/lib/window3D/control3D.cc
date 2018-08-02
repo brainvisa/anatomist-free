@@ -177,6 +177,18 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<ContinuousTrackball>
       ( actionPool->action( "ContinuousTrackball" ),
         &ContinuousTrackball::endTrackball ), true );
+  // for Mac and its 2 button mouse
+  mouseLongEventSubscribe
+    ( Qt::LeftButton, Qt::ControlModifier,
+      MouseActionLinkOf<ContinuousTrackball>
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::beginTrackball ),
+      MouseActionLinkOf<ContinuousTrackball>
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::moveTrackball ),
+      MouseActionLinkOf<ContinuousTrackball>
+      ( actionPool->action( "ContinuousTrackball" ),
+        &ContinuousTrackball::endTrackball ), true );
 
   keyPressEventSubscribe( Qt::Key_Space, Qt::ControlModifier,
                           KeyActionLinkOf<ContinuousTrackball>
@@ -215,6 +227,17 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
   wheelEventSubscribe( WheelActionLinkOf<Zoom3DAction>
                        ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
+  // for Mac and its 2 button mouse
+#ifdef __APPLE__
+  mouseLongEventSubscribe
+    ( Qt::LeftButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::beginZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::moveZoom ),
+      MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
+                                       &Zoom3DAction::endZoom ), true );
+#endif
 
   //        translation
 
@@ -229,6 +252,20 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::endTranslate ), true );
+  // for Mac and its 2 button mouse
+#ifdef __APPLE__
+  mouseLongEventSubscribe
+    ( Qt::RightButton, Qt::ControlModifier,
+      MouseActionLinkOf<Translate3DAction>
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::beginTranslate ),
+      MouseActionLinkOf<Translate3DAction>
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::moveTranslate ),
+      MouseActionLinkOf<Translate3DAction>
+      ( actionPool->action( "Translate3DAction" ),
+        &Translate3DAction::endTranslate ), true );
+#endif
 
   // Slice action
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,

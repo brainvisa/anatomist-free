@@ -302,6 +302,7 @@ void ReferentialWindow::openSelectBox()
   fd.setNameFilter( filter );
   fd.setWindowTitle( tr( "Open transformation" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
   if( !fd.exec() )
     return;
   QStringList selected = fd.selectedFiles();
@@ -323,6 +324,7 @@ void ReferentialWindow::saveTransformation( anatomist::Transformation* trans )
   fd.setNameFilter( filter );
   fd.setWindowTitle( tr( "Save transformation" ) );
   fd.setFileMode( QFileDialog::AnyFile );
+  fd.setAcceptMode( QFileDialog::AcceptSave );
   if( !fd.exec() )
     return;
   QStringList selected = fd.selectedFiles();
@@ -965,6 +967,7 @@ void ReferentialWindow::loadReferential()
   fd.setNameFilter( filter );
   fd.setWindowTitle( tr( "Load referential information" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
   if( !fd.exec() )
     return;
   QStringList selected = fd.selectedFiles();
@@ -992,6 +995,7 @@ void ReferentialWindow::loadNewTransformation()
   fd.setNameFilter( filter );
   fd.setWindowTitle( tr( "Open transformation" ) );
   fd.setFileMode( QFileDialog::ExistingFile );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
   if( !fd.exec() )
     return;
   QStringList selected = fd.selectedFiles();
