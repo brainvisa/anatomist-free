@@ -436,15 +436,15 @@ void QAProfileWindow::refreshNow()
   }
   
   Point3df pos0 = Point3df( pmin[0], pmin[1], pmin[2] );
-  float t0 = pmin[3];
+  //float t0 = pmin[3];
   if( incw[0] == 0. )
     pos0[0] = _position[0];
   if( incw[1] == 0. )
     pos0[1] = _position[1];
   if( incw[2] == 0. )
     pos0[2] = _position[2];
-  if( incw[3] == 0. )
-    t0 = _timepos[0];
+  //if( incw[3] == 0. )
+  //  t0 = _timepos[0];
 
   for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {

@@ -47,7 +47,7 @@ static bool initPerfusionModule()
   return( true );
 }
 
-static bool garbage = initPerfusionModule();
+static bool garbage __attribute__((unused)) = initPerfusionModule();
 
 
 PerfusionModule::PerfusionModule() : Module()

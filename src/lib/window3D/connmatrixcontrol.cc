@@ -64,7 +64,8 @@ ConnectivityMatrixAction::ConnectivityMatrixAction()
 
 ConnectivityMatrixAction::ConnectivityMatrixAction( 
   const ConnectivityMatrixAction & a )
-  : Action( a )
+  : QObject(),
+    Action( a )
 {
 }
 
@@ -276,7 +277,7 @@ void ConnectivityMatrixAction::updateConnectivityObject(
 
 
 void ConnectivityMatrixAction::updateConnectivityProgress(
-  AConnectivityMatrix* aconn, int current, int count )
+  AConnectivityMatrix* /*aconn*/, int current, int count )
 {
   GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
   QWidget* parent = glw->qglWidget()->parentWidget();

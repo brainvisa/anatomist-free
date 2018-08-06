@@ -46,7 +46,7 @@ static bool initAnaSurfMatch()
   return( true );
 }
 
-static bool garbage = initAnaSurfMatch();
+static bool garbage __attribute__((unused)) = initAnaSurfMatch();
 
 
 AnaSurfMatch::AnaSurfMatch() : Module()

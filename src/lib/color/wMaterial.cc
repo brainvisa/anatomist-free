@@ -426,12 +426,10 @@ void MaterialWindow::enableAutoUpdate( bool state )
 }
 
 
+// defined but not used...
+#if 0
 namespace
 {
-
-  void toto()
-  {
-  }
 
   void setButtonState( QAbstractButton* b, int x )
   {
@@ -452,6 +450,7 @@ namespace
   }
 
 }
+#endif
 
 
 void MaterialWindow::updateInterface()

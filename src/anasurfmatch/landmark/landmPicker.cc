@@ -97,7 +97,7 @@ static bool registerLandmarkPicker()
 }
 
 
-static bool dummy = registerLandmarkPicker();
+static bool dummy __attribute__((unused)) = registerLandmarkPicker();
 
 
 //	private struct

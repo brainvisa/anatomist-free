@@ -214,7 +214,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
     actionPool->action( "SurfpaintToolsAction" ) );
 }
 
-void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
+void SurfpaintToolsControl::doAlsoOnSelect(ActionPool * /*pool*/)
 {
 
   if (myAction)

@@ -76,7 +76,7 @@ namespace
     return( true );
   }
 
-  bool dummy = dummyfunc();
+  bool dummy __attribute__((unused)) = dummyfunc();
 
 }
 
@@ -596,7 +596,7 @@ void QAPaletteWin::fillPalette2List()
   list<rc_ptr<APalette> >::const_iterator	ip, fp=pal.end();
   int				i = 0;
 
-  int w = d->palette2Box->width();
+  //int w = d->palette2Box->width();
   d->palette2Box->addItem( tr( "None" ) );
 
   d->palette2Box->setCurrentIndex( 0 );

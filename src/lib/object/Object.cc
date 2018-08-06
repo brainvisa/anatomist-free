@@ -174,7 +174,7 @@ AObject::AObject( const string & filename )
 
 
 AObject::AObject( const AObject & x )
-  : Observable(), Observer(), _type( x._type ), _id( 0 ), _name( x._name ),
+  : SharedObject(), Observable(), Observer(), _type( x._type ), _id( 0 ), _name( x._name ),
     _filename( x._filename ), _inMemory( x._inMemory ), _visible( x._visible ),
     _material( x._material ), _referential( 0 ), _referenceHasChanged( false ),
     _palette( 0 ),
@@ -756,7 +756,7 @@ void AObject::cleanup()
 }
 
 
-bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
+bool AObject::boundingBox( vector<float> & /*bmin*/, vector<float> & /*bmax*/ ) const
 {
   return false;
 }
@@ -844,7 +844,7 @@ void AObject::setHeaderOptions()
 }
 
 
-void AObject::setProperties( Object options )
+void AObject::setProperties( Object /*options*/ )
 {
 //    cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
 //      << "name: " << name() << ", filename: " << fileName() << endl;
@@ -901,7 +901,6 @@ void AObject::setProperties( Object options )
             string palname = name();
             rc_ptr<APalette>      pal( new APalette( palname ) );
 
-            unsigned      i, n;
             pal->AimsData<AimsRGBA>::operator = ( cmap );
 
 //             theAnatomist->palettes().push_back( pal );
@@ -1125,7 +1124,6 @@ void AObject::setProperties( Object options )
                   string palname = name();
                   rc_ptr<APalette>      pal( new APalette( palname ) );
 
-                  unsigned      i, n;
                   AimsData<AimsRGBA>    dat( teximage );
 
                   pal->AimsData<AimsRGBA>::operator = ( dat );
@@ -1423,7 +1421,7 @@ namespace
     if( nt != 0 )
     {
       // palette
-      int nsteps = 256;
+      //int nsteps = 256;
       if( ao->palette() )
       {
         const rc_ptr<Volume<AimsRGBA> > teximage
@@ -1433,7 +1431,7 @@ namespace
         ph.getProperty( "_texture_palettes", pal_list );
         pal_list[timestep] = Object::value( teximage );
         ph.setProperty( "_texture_palettes", pal_list );
-        nsteps = teximage->getSizeX();
+        //nsteps = teximage->getSizeX();
       }
 
       const GLfloat* gltex = gl->glTexCoordArray( state, tex );
@@ -1444,7 +1442,7 @@ namespace
       // rescale texture
 //       const GLComponent::TexInfo & t = gl->glTexInfo( tex );
 
-      float m = 1. / ( nsteps * 2 );
+      //float m = 1. / ( nsteps * 2 );
       for( i=0; i<nt; ++i )
       {
         texture[i] = *ttex++;

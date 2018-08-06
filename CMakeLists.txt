@@ -139,6 +139,8 @@ endif()
 set( ANATOMIST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/include" ${AIMS-FREE_INCLUDE_DIRS} "${QT_INCLUDE_DIR}" )
 include_directories( ${ANATOMIST_INCLUDE_DIRS} )
 
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall" )
+
 add_subdirectory( src )
 add_subdirectory( doxygen )
 

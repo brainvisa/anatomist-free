@@ -2654,7 +2654,7 @@ Geometry AWindow3D::setupWindowGeometry(
           if (p[0] < dmin[0]) dmin[0] = p[0];
           if (p[1] < dmin[1]) dmin[1] = p[1];
           if (p[2] < dmin[2]) dmin[2] = p[2];
-          for( int i=3; i<pmin.size(); ++i )
+          for( size_t i=3; i<pmin.size(); ++i )
           {
             if( tmin.size() <= i )
             {
@@ -3129,7 +3129,6 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
     Point3df ppmino, ppmaxo, ppmin, ppmax;
     Referential *wref = getReferential(), *oref;
     anatomist::Transformation *tr;
-    float tmp;
     unsigned j, n, m = 4;
 
     bmin[0] = FLT_MAX;
@@ -3299,10 +3298,9 @@ void AWindow3D::setSliceQuaternion(const Quaternion & q)
 void AWindow3D::setSliceOrientation( const Point3df & normal )
 {
   Point3df pos, v1, v2, v3, r;
-  float    x, y, angle, nrm;
+  float    x, y, angle;
 
   v3 = normal;
-  nrm = v3.norm();
   v3.normalize();
   r = Point3df( 0, 0, 1 );
   v1 = crossed( r, v3 );

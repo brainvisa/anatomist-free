@@ -97,7 +97,6 @@ ModuleManager::ModuleManager()
 
 ModuleManager::~ModuleManager()
 {
-  iterator i, e = my_modules.end();
   while( !my_modules.empty() )
     delete my_modules.back();
   my_manager = 0;

@@ -386,7 +386,8 @@ Select3DControl::Select3DControl( const string & name )
   : Control( 2, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
   // just for Qt translator parsing
-  QT_TRANSLATE_NOOP( "ControlledWindow", "Selection 3D" );
+  std::string txt __attribute__((unused)) = 
+    QT_TRANSLATE_NOOP( "ControlledWindow", "Selection 3D" );
 }
 
 
@@ -1618,7 +1619,8 @@ ObliqueControl::ObliqueControl( const string & name )
   : Control( 3, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
   // just for Qt translation parsing
-  QT_TRANSLATE_NOOP( "ControlledWindow", "ObliqueControl" );
+  std::string txt __attribute__((unused)) = 
+    QT_TRANSLATE_NOOP( "ControlledWindow", "ObliqueControl" );
 }
 
 

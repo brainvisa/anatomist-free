@@ -48,7 +48,7 @@ using namespace std;
 FusionFactory		*FusionFactory::_theFactory = 0;
 set<FusionMethod *>	FusionFactory::_methods;
 
-static FusionFactory	*_theFusionFactory = new FusionFactory;
+static FusionFactory	*_theFusionFactory __attribute__((unused)) = new FusionFactory;
 
 
 

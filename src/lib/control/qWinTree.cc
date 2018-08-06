@@ -526,7 +526,7 @@ bool QWindowTree::dragMoveEventFromObject( QDragMoveEvent* event )
   if( item )
   {
     //cout << "QWindowTree::dragMoveEvent\n";
-    set<AWindow *>    *sw;
+    set<AWindow *>    *sw = NULL;
     set<int> sg;
     map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
       = d->items.find( item );
@@ -597,7 +597,7 @@ bool QWindowTree::dragMoveEventFromObject( QDragMoveEvent* event )
 }
 
 
-bool QWindowTree::dragMoveEventFromWindow( QDragMoveEvent* event )
+bool QWindowTree::dragMoveEventFromWindow( QDragMoveEvent* /*event*/ )
 {
   return true;
 //   QTreeWidgetItem	*item
@@ -805,7 +805,7 @@ void QWindowTree::itemChanged( QTreeWidgetItem *item, int )
 {
   if( item )
   {
-    AWindow *win = d->items[ item ];
+    //AWindow *win = d->items[ item ];
     map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator       iw
       = d->items.find( item );
     if( iw != d->items.end() )

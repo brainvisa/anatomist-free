@@ -1459,7 +1459,6 @@ template<typename T>
 void VolumeScalarTraits<T>::setExtrema()
 {
   //	clear NaN values found in some SPM volumes
-  int	x, y, z, t;
   T	val;
   Volume<T>	& vol = *volume->volume();
 

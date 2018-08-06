@@ -121,7 +121,7 @@ AVolumeView<T>::AVolumeView( const list<AObject *> & obj )
 
 
 template <typename T>
-AVolumeView<T>::AVolumeView( const string & filename )
+AVolumeView<T>::AVolumeView( const string & /*filename*/ )
  : anatomist::ObjectVector(),
   _myvolume( new AVolume<T>() ),
   _target_size( 4, 1 ),

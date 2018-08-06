@@ -507,8 +507,8 @@ namespace
 void Fusion3D::refreshVTextureWithLineToPoint( const ViewState & s, 
                                                unsigned tex ) const
 {
-  pair<float,int>	es = _effectiveStep( (*firstVolume())->voxelSize(),
-                                             _step, _depth );
+  pair<float,int>	es __attribute__((unused)) = 
+    _effectiveStep( (*firstVolume())->voxelSize(), _step, _depth );
 
   refreshLineTexture( -_depth, _depth, s, tex );
 }
@@ -545,7 +545,6 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
   float		cvalue;
   float 	value;
   unsigned	nvalue;
-  int		j;
 
   min = FLT_MAX;
   max = -FLT_MAX;
@@ -703,8 +702,8 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
 void Fusion3D::refreshVTextureWithInsideLineToPoint( const ViewState & s, 
                                                      unsigned tex ) const
 {
-  pair<float,int>	es = _effectiveStep( (*firstVolume())->voxelSize(),
-                                             _step, _depth );
+  pair<float,int>	es __attribute__((unused)) = 
+    _effectiveStep( (*firstVolume())->voxelSize(), _step, _depth );
 
   refreshLineTexture( -_depth, 0, s, tex );
 }
@@ -713,8 +712,8 @@ void Fusion3D::refreshVTextureWithInsideLineToPoint( const ViewState & s,
 void Fusion3D::refreshVTextureWithOutsideLineToPoint( const ViewState & s, 
                                                       unsigned tex ) const
 {
-  pair<float,int>	es = _effectiveStep( (*firstVolume())->voxelSize(),
-                                             _step, _depth );
+  pair<float,int>	es __attribute__((unused)) = 
+    _effectiveStep( (*firstVolume())->voxelSize(), _step, _depth );
 
   refreshLineTexture( 0, _depth, s, tex );
 }

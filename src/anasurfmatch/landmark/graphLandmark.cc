@@ -69,7 +69,7 @@ static bool initGraphLandmark()
   return( true );
 }
 
-static bool dummy = initGraphLandmark();
+static bool dummy __attribute__((unused)) = initGraphLandmark();
 
 
 //	private struct

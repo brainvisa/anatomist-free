@@ -174,7 +174,7 @@ void ControlledWindow::updateAvailableControls()
     d->actions->setExclusive( true );
   }
 
-  QToolBar					*tb = d->controls;
+  //QToolBar					*tb = d->controls;
   const QPixmap					*p;
   map<string, QAction *>::const_iterator	ib, eb=d->ctlbts.end();
 

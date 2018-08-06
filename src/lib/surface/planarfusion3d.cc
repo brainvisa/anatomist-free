@@ -154,7 +154,7 @@ int PlanarFusion3D::classType()
 const AObject* PlanarFusion3D::volume() const
 {
   iterator	ii = begin();
-  int		i;
+  unsigned		i;
   for( i=0; i<d->volindex; ++i )
     ++ii;
   return *ii;
@@ -164,7 +164,7 @@ const AObject* PlanarFusion3D::volume() const
 AObject* PlanarFusion3D::volume()
 {
   iterator	ii = begin();
-  int		i;
+  unsigned		i;
   for( i=0; i<d->volindex; ++i )
     ++ii;
   return *ii;
@@ -394,7 +394,7 @@ bool PlanarFusion3D::boundingBox( vector<float> & bmin,
 {
   bool ok = mesh()->boundingBox( bmin, bmax );
   iterator	ii = begin(), ei = end();
-  int		i, n;
+  unsigned		i, n;
   for( i=0; i<d->volindex; ++i )
     ++ii;
   for( ; ii!=ei; ++ii )
@@ -614,7 +614,7 @@ bool PlanarFusion3D::refreshTexCoords( const ViewState & state ) const
 
 
 VolumeRef<AimsRGBA> PlanarFusion3D::glBuildTexImage(
-  const ViewState & state, unsigned tex, int dimx, int dimy,
+  const ViewState & state, unsigned /*tex*/, int dimx, int dimy,
   bool /*useTexScale*/ ) const
 {
   // cout << "PlanarFusion3D::glBuildTexImage\n";

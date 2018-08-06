@@ -244,8 +244,6 @@ void SurfpaintTools::magicBrush()
 
 void SurfpaintTools::validateEdit()
 {
-  int i;
-
   float texvalue = getTextureValueFloat();
 
   // fill closed region
@@ -502,7 +500,6 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       cout << "create Texture temp" << endl;
 
-      float it = at->voxelSize()[3];
       int tn = 0; // 1st texture
       GLComponent::TexExtrema & te = at->glTexExtrema(tn);
       int tx = 0; // 1st tex coord
@@ -587,8 +584,6 @@ void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 
   if (w3)
   {
-    const QPixmap *p;
-
     tbControls = new QToolBar( w3 );
     tbControls->setObjectName( "surfpainttoolbarControls" );
 
@@ -824,8 +819,6 @@ void SurfpaintTools::addToolBarInfosTexture(AWindow3D *w3)
 
   if (w3)
   {
-    const QPixmap *p;
-
     tbTextureValue = new QToolBar( w3 );
     tbTextureValue->setObjectName( "surfpainttoolbarTex" );
 
@@ -1001,7 +994,6 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
   if (win3D != NULL && objselect != NULL && win3D->hasObject(objselect)
       && objtype == "TEXTURED SURF.")
   {
-    float it = at->voxelSize()[3];
     int tn = 0; // 1st texture
     GLComponent::TexExtrema & te = at->glTexExtrema(tn);
     int tx = 0; // 1st tex coord
@@ -1026,7 +1018,7 @@ void SurfpaintTools::updateTextureValue(int indexVertex, float value)
         - std::min( rval, te.min[tx] ) );
       if( rval < 0 )
         offs = - rval * nscl;
-      unsigned i, n = at->glTexCoordSize( vs, tn );
+      unsigned n = at->glTexCoordSize( vs, tn );
       GLfloat *tb = texbuf;
       for( unsigned i=0; i<n; ++i, ++tb )
         *tb = *tb * nscl + offs;
@@ -1108,7 +1100,6 @@ void SurfpaintTools::updateTexture (vector<float> values)
   {
     if (objtype == "TEXTURED SURF.")
     {
-      float it = at->voxelSize()[3];
       int tn = 0; // 1st texture
       GLComponent::TexExtrema & te = at->glTexExtrema(tn);
       int tx = 0; // 1st tex coord
@@ -1119,7 +1110,7 @@ void SurfpaintTools::updateTexture (vector<float> values)
 
       float scl;
 
-      float value,minv,maxv;
+      float minv,maxv;
 
       vector<float>::iterator itemin = min_element (values.begin(),
                                                     values.end());
@@ -1216,14 +1207,9 @@ void SurfpaintTools::floodFillStop(void)
 
   const AimsData<AimsRGBA> *col = pal->colors();
 
-  unsigned  ncol0, ncol1;
-  float   min1, max1;
-  float   min2, max2;
+  int  ncol0;
 
   ncol0 = col->dimX();
-  ncol1 = col->dimY();
-  min1 = pal->min1();
-  max1 = pal->max1();
 
   AimsRGBA empty;
 
@@ -1252,7 +1238,7 @@ void SurfpaintTools::floodFillStop(void)
 }
 
 
-void SurfpaintTools::fastFillMove(int indexVertex, float newTextureValue,
+void SurfpaintTools::fastFillMove(int indexVertex, float /*newTextureValue*/,
     float oldTextureValue)
 {
   /* Adds n items in listIndexVertexFill
@@ -1320,7 +1306,7 @@ void SurfpaintTools::updateConstraintList(void)
     string constraintLabel = constraintList->currentText().toStdString();
 
     // cout << constraintLabel << " value " << item << endl;
-    int position = constraintLabel.find_last_of(' ');
+    size_t position = constraintLabel.find_last_of(' ');
 
     if( position != string::npos )
     {
@@ -1336,7 +1322,6 @@ void SurfpaintTools::changeToleranceSpinBox(int v)
 {
   toleranceValue = v;
 
-  float it = at->voxelSize()[3];
   int tn = 0; // 1st texture
   GLComponent::TexExtrema & te = at->glTexExtrema(tn);
   int tx = 0; // 1st tex coord
@@ -1349,8 +1334,6 @@ void SurfpaintTools::changeToleranceSpinBox(int v)
 
 void SurfpaintTools::loadConstraintsList(vector<string> clist)
 {
-  char sep = carto::FileUtil::separator();
-
   vector<string>::iterator it = clist.begin();
 
   for (; it != clist.end(); ++it)
@@ -1446,7 +1429,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
   clearUndoneGeodesicPath();
   clearRedoBuffer();
 
-  int i;
+  unsigned i;
 
   AimsSurfaceTriangle *tmpMeshOut;
   tmpMeshOut = new AimsSurfaceTriangle;
@@ -1484,7 +1467,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
   const string ac = getPathType();
 
-  GeodesicPath *sptemp;
+  GeodesicPath *sptemp = NULL;
 
   if (ac.compare("ShortestPath") == 0)
     sptemp = getMeshStructSP();
@@ -1495,7 +1478,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
   unsigned npoints = 0;
 
-  if (listIndexVertexSelectSP.size() >= 2)
+  if (sptemp && (listIndexVertexSelectSP.size() >= 2))
   {
 
     std::vector<Point3df> vertexList;
@@ -1536,14 +1519,9 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     const AimsData<AimsRGBA> *col = pal->colors();
 
-    unsigned  ncol0, ncol1;
-    float   min1, max1;
-    float   min2, max2;
+    int  ncol0;
 
     ncol0 = col->dimX();
-    ncol1 = col->dimY();
-    min1 = pal->min1();
-    max1 = pal->max1();
 
     AimsRGBA empty;
 
@@ -1682,7 +1660,7 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
      adds 1 item (n) in numIndexVertexHolesPath
      adds 1 item in holesObject
   */
-  int i;
+  unsigned i;
 
   AimsSurfaceTriangle *tmpMeshOut;
   tmpMeshOut = new AimsSurfaceTriangle;
@@ -1725,21 +1703,16 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 
   const AimsData<AimsRGBA> *col = pal->colors();
 
-  unsigned  ncol0, ncol1;
-  float   min1, max1;
-  float   min2, max2;
+  int  ncol0;
 
   ncol0 = col->dimX();
-  ncol1 = col->dimY();
-  min1 = pal->min1();
-  max1 = pal->max1();
 
   AimsRGBA empty;
 
   int ind = int( (ncol0 - 1) * (float) (getTextureValueFloat() / 360.) );
   if( ind < 0 )
     ind = 0;
-  else if( ind >= ncol0 )
+  else if( ind >= (int)ncol0 )
     ind = ncol0 - 1;
   empty = (*col)( ind );
 
@@ -1909,7 +1882,7 @@ void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
 
   const string ac = getPathType();
 
-  GeodesicPath *sptemp;
+  GeodesicPath *sptemp = NULL;
 
   if (ac.compare("ShortestPath") == 0)
   sptemp = getMeshStructSP();
@@ -1919,7 +1892,8 @@ void SurfpaintTools::computeDistanceMap(int indexNearestVertex)
   sptemp = getMeshStructGyriP();
   else assert(false);
 
- sptemp->distanceMap_1_N_ind(indexNearestVertex, distanceMap,&length, 0);
+ if ( sptemp )
+   sptemp->distanceMap_1_N_ind(indexNearestVertex, distanceMap,&length, 0);
 
   updateTexture(distanceMap);
 }

@@ -39,7 +39,7 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-static AnatomistInfo	*dummy = new AnatomistInfo;
+static AnatomistInfo	*dummy __attribute__((unused)) = new AnatomistInfo;
 
 AnatomistInfo::AnatomistInfo() : Info()
 {

@@ -50,7 +50,6 @@ string Settings::globalPath()
   string result;
 #ifdef USE_SHARE_CONFIG
   const char *path = getenv( "ANATOMIST_PATH" );
-  char	s = FileUtil::separator();
   Directory	d( "/" );
 
   if ( path ) {

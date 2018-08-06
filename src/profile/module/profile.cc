@@ -46,7 +46,7 @@ static bool initProfileModule()
   return( true );
 }
 
-static bool garbage = initProfileModule();
+static bool garbage __attribute__((unused)) = initProfileModule();
 
 
 ProfileModule::ProfileModule() : Module()

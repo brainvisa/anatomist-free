@@ -291,7 +291,7 @@ void VectorFieldEditionWindow::updateInterface()
           else
           {
             sb->setRange( 0, dims[i] - 1 );
-            if( i < pos.size() )
+            if( i < (int)pos.size() )
               sb->setValue( pos[i] );
             else
               sb->setValue( 0 );
@@ -462,7 +462,7 @@ void VectorFieldEditionWindow::zSpace2Changed( int index )
 }
 
 
-void VectorFieldEditionWindow::setSpaceDim( int chan, int dim, int index )
+void VectorFieldEditionWindow::setSpaceDim( int chan, int /*dim*/, int /*index*/ )
 {
   anatomist::VectorField* vf = vectorField();
   if( !vf->volume( chan ) )
@@ -491,7 +491,7 @@ void VectorFieldEditionWindow::setSpaceDim( int chan, int dim, int index )
 }
 
 
-void VectorFieldEditionWindow::setFixedCoord( int chan, int coord, int value )
+void VectorFieldEditionWindow::setFixedCoord( int chan, int /*coord*/, int /*value*/ )
 {
   anatomist::VectorField* vf = vectorField();
   if( !vf->volume( chan ) )
@@ -503,5 +503,3 @@ void VectorFieldEditionWindow::setFixedCoord( int chan, int coord, int value )
   vf->setVectorChannelPosition( chan, pos );
   vf->notifyObservers();
 }
-
-

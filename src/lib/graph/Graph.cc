@@ -1794,7 +1794,7 @@ void AGraph::copyAttributes( const string & oldatt, const string & newatt,
 }
 
 
-string AGraph::labelProperty( bool allowDefault ) const
+string AGraph::labelProperty( bool /*allowDefault*/ ) const
 {
   string prop;
   try

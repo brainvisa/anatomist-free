@@ -36,7 +36,13 @@
 #include <math.h>
 
 
-QFloatSpinBox::QFloatSpinBox( int pr, QWidget *p, const char *n ) :
+QFloatSpinBox::QFloatSpinBox( int pr, QWidget *p, 
+#if QT_VERSION >= 0x040000
+                              const char * /*n*/
+#else
+                              const char *n
+#endif
+                             ) :
 #if QT_VERSION >= 0x040000
   QFloatSpinBoxBase( p )
 #else
@@ -57,8 +63,8 @@ QFloatSpinBox::QFloatSpinBox( int pr, QWidget *p, const char *n ) :
 }
 
 
-QFloatSpinBox::QFloatSpinBox( int min, int max, int pr, int st, QWidget *p,
-			      const char *n ) :
+QFloatSpinBox::QFloatSpinBox( int min, int max, int pr, int /*st*/, QWidget *p,
+			      const char * /*n*/ ) :
 #if QT_VERSION >= 0x040000
   QDoubleSpinBox( p )
 #else

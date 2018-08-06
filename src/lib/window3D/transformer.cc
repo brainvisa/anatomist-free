@@ -465,7 +465,7 @@ void TransformerActionData::axisCellChanged( int row, int col,
   QString text = item->text();
   bool ok = false;
   double value = text.toDouble( &ok );
-  AffineTransformation3d & atr = t->motion();
+  //AffineTransformation3d & atr = t->motion();
   if( !ok )
   {
     twid->blockSignals( true );
@@ -515,7 +515,7 @@ void TransformerActionData::rotationAngleChanged( QLineEdit* ledit,
   QString text = ledit->text();
   bool ok = false;
   double value = text.toDouble( &ok );
-  AffineTransformation3d & atr = t->motion();
+  //AffineTransformation3d & atr = t->motion();
   if( !ok )
     ledit->setText( QString::number( 0., 'f', 2 ) );
   else
@@ -910,7 +910,7 @@ namespace
                                    float colb, float cola )
   {
     Point3df axis = rotation.axis();
-    float angle = rotation.angle();
+    //float angle = rotation.angle();
     Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
     AimsTimeSurface<2,Void> *mesh = new AimsTimeSurface<2,Void>;
     updateAxisWithCircles( *mesh, p0, rotation, radius, circlespacing );
@@ -928,7 +928,7 @@ namespace
                                     float colb, float cola )
   {
     Point3df axis = rotation.axis();
-    float angle = rotation.angle();
+    //float angle = rotation.angle();
     Point3df startdir = rotation.transformInverse( Point3df( 1, 0, 0 ) );
     AimsTimeSurface<2,Void> *mesh = new AimsTimeSurface<2,Void>;
     updateCirclesAngles( *mesh, p0, rotation, radius, circlespacing );
@@ -1235,7 +1235,7 @@ namespace
       = dynamic_cast<QGraphicsProxyWidget *>( *d->gvitems.begin() );
     if( !gw )
       return; // not normal...
-    QWidget *wid = gw->widget();
+    //QWidget *wid = gw->widget();
     if( !tr )
     {
       // clear all
