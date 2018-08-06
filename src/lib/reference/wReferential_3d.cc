@@ -458,9 +458,14 @@ namespace
   {
     ReferentialWindow::unlinkFiles( temp_filenames );
     temp_filenames.clear();
-    QString text = ReferentialWindow::transformationToolTipText(
-      transformation, temp_filenames );
-    return text.toStdString();
+    if( transformation
+        && ATransformSet::instance()->hasTransformation( transformation ) )
+    {
+      QString text = ReferentialWindow::transformationToolTipText(
+        transformation, temp_filenames );
+      return text.toStdString();
+    }
+    return string();
   }
 
 
