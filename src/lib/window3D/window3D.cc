@@ -111,6 +111,10 @@
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/graph/Graph.h>
 
+#ifdef __APPLE__
+#include <AvailabilityMacros.h>
+#endif
+
 /* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
    QGraphicsView, in which the OpenGL widget is the background (viewport).
 */
@@ -542,7 +546,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   QWidget *daparent = hb;
   AGraphicsView *gv = 0;
 #ifdef ANA_USE_QGRAPHICSVIEW
-#if defined( __APPLE__ ) || defined( _WIN32 ) // does not work well on Mac with Qt 4.6
+#if ( defined( __APPLE__ ) && !defined( MAC_OS_X_VERSION_10_11 ) ) || defined( _WIN32 ) // does not work well on Mac with Qt 4.6
   bool use_graphicsview = false;
 #else
   bool use_graphicsview = true;
