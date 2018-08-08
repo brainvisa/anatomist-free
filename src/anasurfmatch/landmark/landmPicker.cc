@@ -125,7 +125,7 @@ namespace anatomist
 //	class
 
 ALandmarkPicker::ALandmarkPicker( const set<AObject *> & obj ) 
-  : QWidget( theAnatomist->getQWidgetAncestor() ), _obj( obj ),
+  : QWidget( /* theAnatomist->getQWidgetAncestor() */ ), _obj( obj ),
     _privdata( new ALandmarkPicker_privateData )
 {
   QString				title = tr( "Landmark picker : " );
