@@ -2796,7 +2796,7 @@ namespace
             found.erase( found.find( obj ) );
             // if io is parent to other already found objects, then remove them
             obj = *io;
-            for( jo=found.begin(); jo!=ejo; ++ejo )
+            for( jo=found.begin(); jo!=ejo; )
             {
               if( (*jo)->parents().find( mobj ) != (*jo)->parents().end() )
               {
@@ -2804,9 +2804,9 @@ namespace
                 ++jo;
                 found.erase( tjo );
                 --nobj;
-                if( jo == ejo )
-                  break;
               }
+              else
+                ++jo;
             }
             found.insert( obj );
           }
