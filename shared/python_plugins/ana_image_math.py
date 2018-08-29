@@ -16,15 +16,26 @@ def combine_vols():
     w.setLayout(lay)
     fw = Qt.QLabel(w.tr('enter formula:'))
     lay.addWidget(fw)
-    doc = ('Formula involving volumes. Ex:<br/>'
-        '<b><tt>I0 * 2.3 + I1 * I0 / 2 + 4.5</tt></b><br/>If volumes do not '
-        'have the same size / resolution, resampling occurs to the finest '
-        'resolution and largest field of view, which may in some cases '
-        'require much computer memory (and some time).<br/>'
+    doc = (
+        '<style>.code {color: #800000; background-color: #ffffff; '
+        'font-family: monospace; font-weight: bold; '
+        'padding: 5px 20px 5px 20px;}</style>'
+        'Formula involving volumes. Ex:'
+        '<blockquote class="code">I0 * 2.3 + I1 * I0 / 2 + 4.5</blockquote>'
+        'If volumes do not have the same size / resolution, resampling occurs '
+        'to the smallest resolution and largest field of view, which may in '
+        'some cases require much computer memory (and some time).<br/>'
         'The formula is inerpreted in Python language, using the PyAims API '
         'of Volume objects, thus it is possible to use richer expressions, '
-        'such as:<br/>'
-        '<b><tt>I0.astype("FLOAT") * I1</tt></b>')
+        'such as:'
+        '<blockquote class="code">I0.astype("FLOAT") * I1</blockquote>'
+        'It is also possible to manipuate and/or return numpy arrays built '
+        'from volumes:'
+        '<blockquote class="code">np.asarray(I0).astype(np.float32)**3'
+        '</blockquote>'
+        'Images names are given as I0, I1 etc. or image0, image1 etc. '
+        'The correspondance with available objects is given in the combobox '
+        'below.')
     fw.setToolTip(w.tr(doc))
     le = Qt.QLineEdit()
     lay.addWidget(le)
@@ -119,6 +130,7 @@ def combine_vols():
                                 mindim[1][:3]).volume()._get()
                 try:
                     new_image = eval(formula)
+                    print('result:', new_image, new_image.__class__.__name__)
                     if isinstance(new_image, np.ndarray):
                         if mindim is not None:
                             np_image = new_image # save ref to np array
@@ -129,18 +141,19 @@ def combine_vols():
                             new_image.header()['voxel_size'] = mindim[1]
                         else:
                             Qt.QMessageBox.critical(
-                                w.tr('Formula error'),
+                                None, w.tr('Formula error'),
                                 w.tr('The formula result is a numpy array, '
                                      'but no voxel size could be found in '
                                      'image arguments'))
                             return
                     elif not hasattr(new_image, '__class__') \
-                            or not new_image.__class__.__name__.startswith(
-                                'Volume_') \
-                            or not new_image.__class__.__name__.startswith(
-                                'AimsData_'):
+                            or (not new_image.__class__.__name__.startswith(
+                                    'Volume_')
+                                and not
+                                new_image.__class__.__name__.startswith(
+                                    'AimsData_')):
                         Qt.QMessageBox.critical(
-                            w.tr('Formula error'),
+                            None, w.tr('Formula error'),
                             w.tr('The formula result is not a Volume or a '
                                  'numpy array.'))
                         return
