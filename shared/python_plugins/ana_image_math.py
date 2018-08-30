@@ -130,7 +130,6 @@ def combine_vols():
                                 mindim[1][:3]).volume()._get()
                 try:
                     new_image = eval(formula)
-                    print('result:', new_image, new_image.__class__.__name__)
                     if isinstance(new_image, np.ndarray):
                         if mindim is not None:
                             np_image = new_image # save ref to np array
@@ -157,9 +156,7 @@ def combine_vols():
                             w.tr('The formula result is not a Volume or a '
                                  'numpy array.'))
                         return
-                    print('toObject')
                     new_vol = a.toAObject(new_image)
-                    print('done.')
                     a.registerObject(new_vol)
                 except Exception as e:
                     Qt.QMessageBox.critical(None, str(e.__class__.__name__),
