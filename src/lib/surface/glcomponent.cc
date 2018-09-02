@@ -1046,7 +1046,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   }
 
   const TexExtrema & te = glTexExtrema( tex );
-  if( ((te.min[0] != 0.) || (te.max[0] != 1.)) && (te.min[0] != te.max[0]) )
+  if( ( te.min[0] != 0. || te.max[0] != 1. ) && te.min[0] != te.max[0] )
   {
     // if actual bounds are not [0,1], a texture rescaling must be
     // performed in addition.
