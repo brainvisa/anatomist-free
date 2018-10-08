@@ -352,7 +352,7 @@ AimsFileDialog::~AimsFileDialog()
 
 void AimsFileDialog::setupCustom()
 {
-  // setOptions( QFileDialog::DontUseNativeDialog );
+  setOptions( QFileDialog::DontUseNativeDialog );
   QGridLayout *layout = dynamic_cast<QGridLayout *>( QFileDialog::layout() );
   d->aims_ext = new AimsFileDialogExtension( this );
   d->aims_ext->hide();
