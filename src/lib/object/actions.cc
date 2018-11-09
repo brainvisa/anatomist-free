@@ -668,7 +668,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
             else if( uid.toString() != sref )
             {
                 // sref doesn't correspond to an UUID, so it is not unique
-              sref = sref + " for " + (*io)->name();
+              sref = sref + " " + toString(i) + " for " + (*io)->name();
               ref = 0;
               uid = carto::UUID();
             }
