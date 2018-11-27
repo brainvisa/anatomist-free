@@ -3,7 +3,7 @@ Visualization of neuroimaging data
 
 ## Documentation
 
-See http://brainvisa.fr/aimsdata/user_doc
+See http://brainvisa.info/anatomist/user_doc/
 
 ## Licence
 
