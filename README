@@ -1,6 +1,10 @@
+# anatomist-free
+Visualization of neuroimaging data
 
- This software package is Copyright (C) 1996-2002 CEA.
+## Documentation
 
- You can redistribute it and/or modify it under the terms of the GNU General
- Public License version 2 as published by the Free Software Foundation, which
- is displayed in the accompanying COPYING file.
+See http://brainvisa.fr/aimsdata/user_doc
+
+## Licence
+
+This project is distributed under [CeCILL-B licence](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)
