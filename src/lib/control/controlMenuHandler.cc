@@ -187,8 +187,8 @@ void AControlMenuHandler::create()
   view->addSeparator();
   d->prefs = view->addAction( ControlWindow::tr( "Preferences" ), _receiver, 
                    SLOT( openPreferencesWin() ), 0 );
-  view->addAction( ControlWindow::tr( "Graph parameters" ), _receiver, 
-                   SLOT( graphParams() ), 0 );
+  view->addAction( ControlWindow::tr( "Selection / graph parameters" ),
+                   _receiver, SLOT( graphParams() ), 0 );
   view->addAction( ControlWindow::tr( "Save preferences" ), _receiver, 
                    SLOT( saveSettings() ), 0 );
   view->addSeparator();

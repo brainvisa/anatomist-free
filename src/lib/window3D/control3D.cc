@@ -930,6 +930,25 @@ void SelectAction::select( int x, int y, int modifier )
         sf->refresh();
         return;
       }
+      else if( modifier == SelectFactory::Normal )
+      {
+        bool unsel_bg = false;
+        try
+        {
+          unsel_bg = bool(
+            cfg->getProperty( "unselect_on_background" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        if( unsel_bg )
+        {
+          SelectFactory *sf = SelectFactory::factory();
+          sf->unselectAll( w3->Group() );
+          sf->refresh();
+        }
+      }
+      return;
     }
   }
 
@@ -952,6 +971,25 @@ void SelectAction::select( int x, int y, int modifier )
 
     view()->aWindow()->selectObject( posw,
                                      (SelectFactory::SelectMode) modifier );
+  }
+  else if( modifier == SelectFactory::Normal )
+  {
+    GlobalConfiguration   *cfg = theAnatomist->config();
+    bool unsel_bg = false;
+    try
+    {
+      unsel_bg
+        = bool( cfg->getProperty( "unselect_on_background" )->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+    if( unsel_bg )
+    {
+      SelectFactory *sf = SelectFactory::factory();
+      sf->unselectAll( w3->Group() );
+      sf->refresh();
+    }
   }
 }
 

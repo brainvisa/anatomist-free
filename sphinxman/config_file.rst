@@ -365,6 +365,15 @@ Here is a complete (I hope) list of the possible options:
         <td>all</td>
       </tr>
       <tr>
+        <td><tt>unselect_on_background</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td><tt>0</tt>, <tt>1</tt></td>
+        <td>In selection mode (selection control), clicking outside any selectable object used to keep the current selection unchanged. The user thus has to use the rigt button popup menu to unselect. Thie option allows to un select when clicking on the background.
+        </td>
+        <td>4.6.2</td>
+      </tr>
+      <tr>
         <td><tt>useSpmOrigin</tt></td>
         <td><tt>int</tt></td>
         <td><tt>0</tt></td>
