@@ -84,6 +84,7 @@ namespace anatomist
     bool        loadRelations;
     int         selectRenderMode;
     std::vector<std::string> selectRenderModes;
+    bool        background_unselects;
 
   private:
     friend class AGraph;
@@ -129,6 +130,7 @@ protected slots:
   void colorClicked( bool onoff );
   void attribActivated( const QString & str );
   void installToolTips( bool onoff );
+  void unselectOnBackgroung( bool onoff );
   void invSelColorClicked( bool onoff );
   void selColorClicked();
   void loadRelationsChanged( bool );

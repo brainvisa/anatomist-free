@@ -41,6 +41,7 @@
 #include <graph/tree/tree.h>
 #include <anatomist/selection/selectFactory.h>
 #include <anatomist/dialogs/colorDialog.h>
+#include <anatomist/application/globalConfig.h>
 
 #include <qlayout.h>
 #include <qbuttongroup.h>
@@ -60,7 +61,7 @@ GraphParams::GraphParams()
   : colorsActive( true ), attribute( "name" ), toolTips( true ),
     saveMode( 1 ), saveOnlyModified( true ), autoSaveDir( true ),
     loadRelations( false ), selectRenderMode( 0 ),
-    rescanhierarchies( true )
+    rescanhierarchies( true ), background_unselects( false )
 {
   delete _graphParams();
   _graphParams() = this;
@@ -248,6 +249,7 @@ struct QGraphParam::Private
   QButtonGroup	*iobox;
   QCheckBox     *loadrelations;
   QComboBox     *selectmode;
+  QCheckBox     *bg_unselects;
 };
 
 
@@ -333,8 +335,20 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   tip->setChecked( gp->toolTips );
   vlay->addStretch( 1 );
 
-  QGroupBox	*sel = new QGroupBox( tr( "Selection color" ), this );
+  QGroupBox	*sel = new QGroupBox( tr( "Selection" ), this );
   vlay = new QVBoxLayout( sel );
+  d->bg_unselects = new QCheckBox( tr( "click background: unselects" ), sel );
+  vlay->addWidget( d->bg_unselects );
+  bool bg_unsel = false;
+  try
+  {
+    bg_unsel = bool( theAnatomist->config()->getProperty(
+      "unselect_on_background" )->getScalar() );
+  }
+  catch( ... )
+  {
+  }
+  d->bg_unselects->setChecked( bg_unsel );
   QWidget *selhbox = new QWidget( sel );
   vlay->addWidget( selhbox );
   hlay = new QHBoxLayout( selhbox );
@@ -417,6 +431,8 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   connect( tip, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( installToolTips( bool ) ) );
 
+  connect( d->bg_unselects, SIGNAL( toggled( bool ) ), this,
+           SLOT( unselectOnBackgroung( bool ) ) );
   connect( inv, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( invSelColorClicked( bool ) ) );
   connect( _selcol, SIGNAL( clicked() ), this, 
@@ -475,6 +491,13 @@ void QGraphParam::installToolTips( bool onoff )
 {
   GraphParams::graphParams()->toolTips = onoff;
   QAViewToolTip::setEnabled( onoff );
+}
+
+
+void QGraphParam::unselectOnBackgroung( bool onoff )
+{
+  theAnatomist->config()->setProperty( "unselect_on_background",
+                                             int( onoff ) );
 }
 
 
