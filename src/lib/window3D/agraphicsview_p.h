@@ -55,6 +55,9 @@ namespace anatomist
       virtual QSize sizeHint() const;
 
     protected:
+#if QT_VERSION >= 0x040600
+      virtual bool event( QEvent *ev );
+#endif
       virtual void resizeEvent( QResizeEvent* event );
       virtual void mousePressEvent( QMouseEvent* me );
       virtual void mouseReleaseEvent( QMouseEvent* me );
