@@ -48,6 +48,11 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
   : GLWidget( parent, name, shareWidget, f ),
     GLWidgetManager( win, this )
 {
+#if QT_VERSION >= 0x040600
+  grabGesture( Qt::PinchGesture );
+  grabGesture( Qt::PanGesture );
+  grabGesture( Qt::SwipeGesture );
+#endif
 }
 
 
@@ -95,8 +100,10 @@ void QAGLWidget::paintGL()
 #if QT_VERSION >= 0x040600
 bool QAGLWidget::event( QEvent * event )
 {
+  // cout << "EVENT: " << event->type() << endl;
   if( event->type() == QEvent::Gesture )
   {
+    // cout << "-- gesture --\n";
     gestureEvent( static_cast<QGestureEvent*>( event ) );
     return true;
   }

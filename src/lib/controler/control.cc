@@ -683,7 +683,7 @@ void Control::selectionChangedEvent()
 #if QT_VERSION >= 0x040600
 void Control::gestureEvent( QGestureEvent * event )
 {
-  cout << "Gesture event\n";
+  // cout << "Gesture event\n";
   if( QGesture *pinch = event->gesture(Qt::PinchGesture ) )
   {
     event->setAccepted( pinch, pinchGesture(

@@ -53,12 +53,41 @@ using namespace std;
 AGraphicsView::AGraphicsView( QWidget* parent )
   : QGraphicsView( parent ), _sizehint( QSize( 0, 0 ) )
 {
+#if QT_VERSION >= 0x040600
+  setAttribute( Qt::WA_AcceptTouchEvents );
+  setAttribute( Qt::WA_TouchPadAcceptSingleTouchEvents );
+  grabGesture( Qt::SwipeGesture );
+  grabGesture( Qt::PanGesture );
+  grabGesture( Qt::PinchGesture );
+#endif
 }
 
 
 AGraphicsView::~AGraphicsView()
 {
 }
+
+
+#if QT_VERSION >= 0x040600
+bool AGraphicsView::event( QEvent* ev )
+{
+  // cout << "GraphicsView event: " << ev->type() << endl;
+  bool res = QGraphicsView::event( ev );
+  // cout << "accepted: " << ev->isAccepted() << endl;
+  if( /* !ev->isAccepted() && */ ( ev->type() == QEvent::Gesture || ev->type() == QEvent::GestureOverride ) )
+  {
+    GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+    if( glm )
+    {
+      glm->gestureEvent( static_cast<QGestureEvent*>( ev ) );
+      // ev->ignore();
+      if( ev->isAccepted() )
+        return true;
+    }
+  }
+  return res;
+}
+#endif
 
 
 void AGraphicsView::setSizeHint( const QSize & sz )
