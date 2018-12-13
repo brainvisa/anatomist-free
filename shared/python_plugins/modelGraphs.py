@@ -286,7 +286,10 @@ class ModelsFusionMethod(anatomist.FusionMethod):
         anatomist.FusionMethod.__init__(self)
 
     def canFusion(self, objects):
-        import sigraph
+        try:
+            import sigraph
+        except ImportError:
+            return False
         if len(objects) not in [2, 3]:
             return 0
         types = []
