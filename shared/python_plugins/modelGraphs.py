@@ -43,6 +43,11 @@ import anatomist.cpp as anatomist
 import soma.qt_gui.qt_backend.QtCore as qt
 import soma.qt_gui.qt_backend.QtGui as qtui
 from soma import aims
+try:
+    import sigraph
+except:
+    # this module will not be available
+    sigraph = None
 
 an = anatomist.Anatomist()
 processor = an.theProcessor()
@@ -331,8 +336,11 @@ class ModelsFusionModule(anatomist.Module):
     def description(self):
         return __doc__
 
-f = anatomist.FusionFactory.factory()
-m = ModelsFusionMethod()
-f.registerMethod(m)
 
-pm = ModelsFusionModule()
+if sigraph is not None:
+    f = anatomist.FusionFactory.factory()
+    m = ModelsFusionMethod()
+    f.registerMethod(m)
+
+    pm = ModelsFusionModule()
+
