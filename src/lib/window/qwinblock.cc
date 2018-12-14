@@ -156,6 +156,7 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
     }
   }
   d->layout->addWidget( item, row, col );
+//   item->setParent( centralWidget() ); // seems needed with Qt5
 #else // Qt version >= 4.0 and <= 4.3
   vector< vector<bool> > used;
   int i, j, k, n = d->layout->count();

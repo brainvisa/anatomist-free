@@ -687,6 +687,7 @@ namespace anatomist {
     std::map<std::string, anatomist::ActionPtr> myActions;
     std::list<std::string> myControlLinksDescription;
   private:
+    struct Private;
 
     int myPriority;
     int myUserLevel;
@@ -728,6 +729,7 @@ namespace anatomist {
     std::map<std::string, MouseActionLink*> _mouseReleaseActionsByName;
     std::map<std::string, MouseActionLink*> _mouseDoubleClickActionsByName;
     std::map<std::string, MouseActionLink*> _mouseMoveActionsByName;
+    Private *d;
   };
 
 

@@ -52,6 +52,8 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
   grabGesture( Qt::PinchGesture );
   grabGesture( Qt::PanGesture );
   grabGesture( Qt::SwipeGesture );
+  grabGesture( Qt::TapGesture );
+  grabGesture( Qt::TapAndHoldGesture );
 #endif
 }
 

@@ -59,6 +59,8 @@ AGraphicsView::AGraphicsView( QWidget* parent )
   grabGesture( Qt::SwipeGesture );
   grabGesture( Qt::PanGesture );
   grabGesture( Qt::PinchGesture );
+  grabGesture( Qt::TapGesture );
+  grabGesture( Qt::TapAndHoldGesture );
 #endif
 }
 
