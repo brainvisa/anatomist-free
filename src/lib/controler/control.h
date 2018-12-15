@@ -43,6 +43,9 @@
 class QGestureEvent;
 class QPinchGesture;
 class QPanGesture;
+class QSwipeGesture;
+class QTapGesture;
+class QTapAndHoldGesture;
 #include <list>
 #include <map>
 #include <set>
@@ -458,6 +461,138 @@ namespace anatomist {
       Callback actionCallback;
     };
 
+    class PinchActionLink
+    {
+    public:
+      virtual ~PinchActionLink() = 0;
+      virtual void execute( QPinchGesture* );
+      virtual PinchActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class PinchActionLinkOf : public PinchActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( bool spontaneous );
+      PinchActionLinkOf();
+      PinchActionLinkOf( anatomist::Action* action,
+                         Callback actioncb );
+      virtual ~PinchActionLinkOf() {}
+
+      virtual void execute( QPinchGesture * );
+      virtual PinchActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
+    class PanActionLink
+    {
+    public:
+      virtual ~PanActionLink() = 0;
+      virtual void execute( QPanGesture* );
+      virtual PanActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class PanActionLinkOf : public PanActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( bool spontaneous );
+      PanActionLinkOf();
+      PanActionLinkOf( anatomist::Action* action,
+                       Callback actioncb );
+      virtual ~PanActionLinkOf() {}
+
+      virtual void execute( QPanGesture * );
+      virtual PanActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
+    class TapActionLink
+    {
+    public:
+      virtual ~TapActionLink() = 0;
+      virtual void execute( QTapGesture* );
+      virtual TapActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class TapActionLinkOf : public TapActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( bool spontaneous );
+      TapActionLinkOf();
+      TapActionLinkOf( anatomist::Action* action,
+                       Callback actioncb );
+      virtual ~TapActionLinkOf() {}
+
+      virtual void execute( QTapGesture * );
+      virtual TapActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
+    class TapAndHoldActionLink
+    {
+    public:
+      virtual ~TapAndHoldActionLink() = 0;
+      virtual void execute( QTapAndHoldGesture* );
+      virtual TapAndHoldActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class TapAndHoldActionLinkOf : public TapAndHoldActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( bool spontaneous );
+      TapAndHoldActionLinkOf();
+      TapAndHoldActionLinkOf( anatomist::Action* action,
+                              Callback actioncb );
+      virtual ~TapAndHoldActionLinkOf() {}
+
+      virtual void execute( QTapAndHoldGesture * );
+      virtual TapAndHoldActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
+    class SwipeActionLink
+    {
+    public:
+      virtual ~SwipeActionLink() = 0;
+      virtual void execute( QSwipeGesture* );
+      virtual SwipeActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class SwipeActionLinkOf : public SwipeActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( bool spontaneous );
+      SwipeActionLinkOf();
+      SwipeActionLinkOf( anatomist::Action* action,
+                         Callback actioncb );
+      virtual ~SwipeActionLinkOf() {}
+
+      virtual void execute( QSwipeGesture * );
+      virtual SwipeActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
+    // ----
+
     int priority( ) { return myPriority; }
     std::map<std::string, anatomist::ActionPtr> actions( )
     { return myActions; }
@@ -489,6 +624,9 @@ namespace anatomist {
     virtual void gestureEvent( QGestureEvent * event );
     virtual bool pinchGesture( QPinchGesture * gesture );
     virtual bool panGesture( QPanGesture * gesture );
+    virtual bool tapGesture( QTapGesture* gesture );
+    virtual bool tapAndHoldGesture( QTapAndHoldGesture* gesture );
+    virtual bool swipeGesture( QSwipeGesture* gesture );
 #endif
 
     bool keyPressEventSubscribe( int key,
@@ -565,6 +703,26 @@ namespace anatomist {
     bool hideEventSubscribe( const ShowHideActionLink& actionMethod );
     bool selectionChangedEventSubscribe
         ( const SelectionChangedActionLink& actionMethod );
+    bool pinchEventSubscribe( const PinchActionLink & startMethod,
+                              const PinchActionLink & moveMethod,
+                              const PinchActionLink & stopMethod,
+                              const PinchActionLink & cancelMethod );
+    bool panEventSubscribe( const PanActionLink & startMethod,
+                            const PanActionLink & moveMethod,
+                            const PanActionLink & stopMethod,
+                            const PanActionLink & cancelMethod );
+    bool swipeEventSubscribe( const SwipeActionLink & startMethod,
+                              const SwipeActionLink & moveMethod,
+                              const SwipeActionLink & stopMethod,
+                              const SwipeActionLink & cancelMethod );
+    bool tapEventSubscribe( const TapActionLink & startMethod,
+                            const TapActionLink & moveMethod,
+                            const TapActionLink & stopMethod,
+                            const TapActionLink & cancelMethod );
+    bool tapAndHoldEventSubscribe( const TapAndHoldActionLink & startMethod,
+                                   const TapAndHoldActionLink & moveMethod,
+                                   const TapAndHoldActionLink & stopMethod,
+                                   const TapAndHoldActionLink & cancelMethod );
 
     /// obsolete, use the other one
     bool keyPressEventUnsubscribe( int key,
@@ -657,6 +815,11 @@ namespace anatomist {
     bool selectionChangedEventUnsubscribe
         ( const SelectionChangedActionLink& actionMethod );
     bool selectionChangedEventUnsubscribe();
+    bool pinchEventUnsubscribe();
+    bool panEventUnsubscribe();
+    bool swipeEventUnsubscribe();
+    bool tapEventUnsubscribe();
+    bool tapAndHoldEventUnsubscribe();
 
     //   static bool controlFusion( const Control& control1, const Control& control2,
     //                           Control& controlsFusion );
