@@ -465,7 +465,7 @@ namespace anatomist {
     {
     public:
       virtual ~PinchActionLink() = 0;
-      virtual void execute( QPinchGesture* );
+      virtual void execute( QPinchGesture* ) = 0;
       virtual PinchActionLink* clone() const = 0;
     };
 
@@ -491,7 +491,7 @@ namespace anatomist {
     {
     public:
       virtual ~PanActionLink() = 0;
-      virtual void execute( QPanGesture* );
+      virtual void execute( QPanGesture* ) = 0;
       virtual PanActionLink* clone() const = 0;
     };
 
@@ -517,7 +517,7 @@ namespace anatomist {
     {
     public:
       virtual ~TapActionLink() = 0;
-      virtual void execute( QTapGesture* );
+      virtual void execute( QTapGesture* ) = 0;
       virtual TapActionLink* clone() const = 0;
     };
 
@@ -543,7 +543,7 @@ namespace anatomist {
     {
     public:
       virtual ~TapAndHoldActionLink() = 0;
-      virtual void execute( QTapAndHoldGesture* );
+      virtual void execute( QTapAndHoldGesture* ) = 0;
       virtual TapAndHoldActionLink* clone() const = 0;
     };
 
@@ -569,7 +569,7 @@ namespace anatomist {
     {
     public:
       virtual ~SwipeActionLink() = 0;
-      virtual void execute( QSwipeGesture* );
+      virtual void execute( QSwipeGesture* ) = 0;
       virtual SwipeActionLink* clone() const = 0;
     };
 
