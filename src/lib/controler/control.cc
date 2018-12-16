@@ -854,21 +854,21 @@ bool Control::pinchGesture( QPinchGesture * gesture )
   }
 
   float scl = gesture->totalScaleFactor();
-  if( isnan( scl ) )
+  if( std::isnan( scl ) )
   {
     // some buggy devices / drivers (such as wacom intuos on ubuntu 16.04)
     // report nan as totalScaleFactor, and also sometimes as scaleFactor.
     // Plus, they tend to send (several times) anormally large or small
     // values at the end of the gesture (when the user releases fingers)
     // so we have to filter a little bit.
-    if( !isnan( gesture->scaleFactor() )
+    if( !std::isnan( gesture->scaleFactor() )
         && gesture->state() == Qt::GestureUpdated
         && gesture->scaleFactor() > 0.9 && gesture->scaleFactor() < 1.1 )
       d->pinch_scale *= gesture->scaleFactor();
     scl = d->pinch_scale;
     gesture->setTotalScaleFactor( scl );
 //     scl = gesture->scaleFactor();
-//     if( isnan( scl ) )
+//     if( std::isnan( scl ) )
 //       scl = 1.F;
   }
   if( gesture->state() == Qt::GestureUpdated )
