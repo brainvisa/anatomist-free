@@ -473,7 +473,7 @@ namespace anatomist {
     class PinchActionLinkOf : public PinchActionLink
     {
     public:
-      typedef void (T:: * Callback)( bool spontaneous );
+      typedef void (T:: * Callback)( QPinchGesture* );
       PinchActionLinkOf();
       PinchActionLinkOf( anatomist::Action* action,
                          Callback actioncb );
@@ -499,7 +499,7 @@ namespace anatomist {
     class PanActionLinkOf : public PanActionLink
     {
     public:
-      typedef void (T:: * Callback)( bool spontaneous );
+      typedef void (T:: * Callback)( QPanGesture* );
       PanActionLinkOf();
       PanActionLinkOf( anatomist::Action* action,
                        Callback actioncb );
@@ -525,7 +525,7 @@ namespace anatomist {
     class TapActionLinkOf : public TapActionLink
     {
     public:
-      typedef void (T:: * Callback)( bool spontaneous );
+      typedef void (T:: * Callback)( QTapGesture* );
       TapActionLinkOf();
       TapActionLinkOf( anatomist::Action* action,
                        Callback actioncb );
@@ -551,7 +551,7 @@ namespace anatomist {
     class TapAndHoldActionLinkOf : public TapAndHoldActionLink
     {
     public:
-      typedef void (T:: * Callback)( bool spontaneous );
+      typedef void (T:: * Callback)( QTapAndHoldGesture* );
       TapAndHoldActionLinkOf();
       TapAndHoldActionLinkOf( anatomist::Action* action,
                               Callback actioncb );
@@ -577,7 +577,7 @@ namespace anatomist {
     class SwipeActionLinkOf : public SwipeActionLink
     {
     public:
-      typedef void (T:: * Callback)( bool spontaneous );
+      typedef void (T:: * Callback)( QSwipeGesture* );
       SwipeActionLinkOf();
       SwipeActionLinkOf( anatomist::Action* action,
                          Callback actioncb );
