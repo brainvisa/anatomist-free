@@ -2968,7 +2968,7 @@ struct PinchZoomAction::Private
   Private() : orgzoom( 1. ), organgle( 0. ), orgscale( 1. ),
     current_zoom( 1. ),
     current_angle( 0. ), current_trans( 0., 0. ), max_scl_fac( 1.15 ),
-    max_angle_diff( 20. ), max_trans( 30. ), delay( 10 ), count( 0 )
+    max_angle_diff( 20. ), max_trans( 30. ), delay( 20 ), count( 0 )
   {}
 
   float      orgzoom;
@@ -3017,7 +3017,8 @@ void PinchZoomAction::pinchStart( QPinchGesture *gesture )
   d->organgle = gesture->totalRotationAngle();
   d->current_zoom = 1.;
   d->current_angle = gesture->totalRotationAngle();
-  d->current_trans = QPointF( 0., 0. );
+  // d->current_trans = QPointF( 0., 0. );
+  d->current_trans = gesture->centerPoint();
   d->count = 0;
 }
 
@@ -3037,6 +3038,7 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
     d->organgle = gesture->totalRotationAngle();
     d->current_angle = gesture->totalRotationAngle();
     d->orgscale = gesture->totalScaleFactor();
+    d->current_trans = gesture->centerPoint();
     return;
   }
 
@@ -3088,17 +3090,16 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
     cout << "set zoom\n";
     w->setZoom( zfac * d->orgzoom );
 
-    QPointF trans = gesture->centerPoint() - gesture->lastCenterPoint();
-    QPointF trans_diff = trans - d->current_trans;
-    float tdiff_norm = sqrt( trans.x() * trans.x()
-                             + trans.y() * trans.y() );
+    QPointF trans = gesture->centerPoint() - d->current_trans;
+    float tdiff_norm = sqrt( trans.x() * trans.x() + trans.y() * trans.y() );
     if( tdiff_norm > d->max_trans )
     {
       cout << "too much translation: " << trans.x() << ", " << trans.y() << ": " << tdiff_norm << endl;
+      cout << "center: " << gesture->centerPoint().x() << ", " << gesture->centerPoint().y() << ", last: " << gesture->lastCenterPoint().x() << ", " << gesture->lastCenterPoint().y() << endl;
       trans = trans * d->max_trans / tdiff_norm;
       cout << "back to: " << trans.x() << ", " << trans.y() << endl;
     }
-    d->current_trans = trans;
+    d->current_trans = gesture->centerPoint();
 
     Point3df t;
     w->translateCursorPosition( -trans.x(), trans.y(), t );
