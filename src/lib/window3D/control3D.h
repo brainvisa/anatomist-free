@@ -41,6 +41,7 @@
 #include <qglobal.h>
 
 class AWindow3D;
+class PinchGesture;
 
 namespace anatomist
 {
@@ -407,6 +408,27 @@ namespace anatomist
 
     void displayStat();
   };
+
+
+#if QT_VERSION >= 0x040600
+  class PinchZoomAction : public Action
+  {
+  public:
+    PinchZoomAction();
+    virtual ~PinchZoomAction();
+
+    virtual std::string name() const { return "PinchZoomAction"; }
+    static Action* creator();
+
+    void pinchStart( QPinchGesture *gesture );
+    void pinchMove( QPinchGesture *gesture );
+    void pinchStop( QPinchGesture *gesture );
+
+  private:
+    struct Private;
+    Private *d;
+  };
+#endif
 
 }
 

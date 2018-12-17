@@ -370,6 +370,171 @@ Control::SelectionChangedActionLinkOf<T>::clone() const
 }
 
 
+template<typename T>
+Control::PinchActionLinkOf<T>::PinchActionLinkOf()
+  : actionInstance( 0 ), actionCallback( 0 )
+{
+}
+
+
+template<typename T>
+Control::PinchActionLinkOf<T>::PinchActionLinkOf(
+  Action * action, Callback actionCb )
+  : actionCallback( actionCb )
+{
+  actionInstance = dynamic_cast<T *>( action );
+  ASSERT( actionInstance != 0 );
+}
+
+
+template<typename T>
+void
+Control::PinchActionLinkOf<T>::execute( QPinchGesture* gesture )
+{
+  (actionInstance->*(actionCallback))( gesture );
+}
+
+
+template<typename T>
+Control::PinchActionLink*
+Control::PinchActionLinkOf<T>::clone() const
+{
+  return new PinchActionLinkOf<T>( actionInstance, actionCallback );
+}
+
+
+template<typename T>
+Control::PanActionLinkOf<T>::PanActionLinkOf()
+  : actionInstance( 0 ), actionCallback( 0 )
+{
+}
+
+
+template<typename T>
+Control::PanActionLinkOf<T>::PanActionLinkOf(
+  Action * action, Callback actionCb )
+  : actionCallback( actionCb )
+{
+  actionInstance = dynamic_cast<T *>( action );
+  ASSERT( actionInstance != 0 );
+}
+
+
+template<typename T>
+void
+Control::PanActionLinkOf<T>::execute( QPanGesture* gesture )
+{
+  (actionInstance->*(actionCallback))( gesture );
+}
+
+
+template<typename T>
+Control::PanActionLink*
+Control::PanActionLinkOf<T>::clone() const
+{
+  return new PanActionLinkOf<T>( actionInstance, actionCallback );
+}
+
+
+template<typename T>
+Control::SwipeActionLinkOf<T>::SwipeActionLinkOf()
+  : actionInstance( 0 ), actionCallback( 0 )
+{
+}
+
+
+template<typename T>
+Control::SwipeActionLinkOf<T>::SwipeActionLinkOf(
+  Action * action, Callback actionCb )
+  : actionCallback( actionCb )
+{
+  actionInstance = dynamic_cast<T *>( action );
+  ASSERT( actionInstance != 0 );
+}
+
+
+template<typename T>
+void
+Control::SwipeActionLinkOf<T>::execute( QSwipeGesture* gesture )
+{
+  (actionInstance->*(actionCallback))( gesture );
+}
+
+
+template<typename T>
+Control::SwipeActionLink*
+Control::SwipeActionLinkOf<T>::clone() const
+{
+  return new SwipeActionLinkOf<T>( actionInstance, actionCallback );
+}
+
+
+template<typename T>
+Control::TapActionLinkOf<T>::TapActionLinkOf()
+  : actionInstance( 0 ), actionCallback( 0 )
+{
+}
+
+
+template<typename T>
+Control::TapActionLinkOf<T>::TapActionLinkOf(
+  Action * action, Callback actionCb )
+  : actionCallback( actionCb )
+{
+  actionInstance = dynamic_cast<T *>( action );
+  ASSERT( actionInstance != 0 );
+}
+
+
+template<typename T>
+void
+Control::TapActionLinkOf<T>::execute( QTapGesture* gesture )
+{
+  (actionInstance->*(actionCallback))( gesture );
+}
+
+
+template<typename T>
+Control::TapActionLink*
+Control::TapActionLinkOf<T>::clone() const
+{
+  return new TapActionLinkOf<T>( actionInstance, actionCallback );
+}
+
+
+template<typename T>
+Control::TapAndHoldActionLinkOf<T>::TapAndHoldActionLinkOf()
+  : actionInstance( 0 ), actionCallback( 0 )
+{
+}
+
+
+template<typename T>
+Control::TapAndHoldActionLinkOf<T>::TapAndHoldActionLinkOf(
+  Action * action, Callback actionCb )
+  : actionCallback( actionCb )
+{
+  actionInstance = dynamic_cast<T *>( action );
+  ASSERT( actionInstance != 0 );
+}
+
+
+template<typename T>
+void
+Control::TapAndHoldActionLinkOf<T>::execute( QTapAndHoldGesture* gesture )
+{
+  (actionInstance->*(actionCallback))( gesture );
+}
+
+
+template<typename T>
+Control::TapAndHoldActionLink*
+Control::TapAndHoldActionLinkOf<T>::clone() const
+{
+  return new TapAndHoldActionLinkOf<T>( actionInstance, actionCallback );
+}
+
+
 }
 
 

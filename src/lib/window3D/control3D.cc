@@ -64,6 +64,9 @@
 #include <qtoolbar.h>
 #include <QDrag>
 #include <QStatusBar>
+#if QT_VERSION >= 0x040600
+#include <QPinchGesture>
+#endif
 #include <stdlib.h>
 
 #include <anatomist/window/glwidget.h>
@@ -262,6 +265,21 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::endTranslate ), true );
+
+#if QT_VERSION >= 0x040600
+
+  // pinch
+  pinchEventSubscribe(
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStart ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchMove ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+#endif
 
   // Slice action
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
@@ -2941,6 +2959,177 @@ void ObjectStatAction::displayStat()
     w->statusBar()->showMessage( s.c_str() );
 }
 
+
+// ------
+
+
+#if QT_VERSION >= 0x040600
+
+struct PinchZoomAction::Private
+{
+  Private() : orgzoom( 1. ), organgle( 0. ), orgscale( 1. ),
+    current_zoom( 1. ),
+    current_angle( 0. ), current_trans( 0., 0. ), max_scl_fac( 1.15 ),
+    max_angle_diff( 20. ), max_trans( 30. ), delay( 20 ), count( 0 )
+  {}
+
+  float      orgzoom;
+  Quaternion orgquaternion;
+//   Point3df   startpos;
+  float      organgle;
+  float      orgscale;
+  float current_zoom;
+  float current_angle;
+  QPointF current_trans;
+  float max_scl_fac;
+  float max_angle_diff;
+  float max_trans;
+  int delay;
+  int count;
+};
+
+
+PinchZoomAction::PinchZoomAction()
+  : Action(), d( new Private )
+{
+}
+
+
+PinchZoomAction::~PinchZoomAction()
+{
+  delete d;
+}
+
+
+void PinchZoomAction::pinchStart( QPinchGesture *gesture )
+{
+  cout << "PinchZoomAction start\n";
+
+  GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
+
+  if( !w )
+  {
+    cerr << "Zoom3DAction operating on wrong view type -- error\n";
+    return;
+    d->orgzoom = 1;
+  }
+  d->orgzoom = w->zoom();
+  d->orgquaternion = w->quaternion();
+  d->orgscale = gesture->totalScaleFactor();
+  d->organgle = gesture->totalRotationAngle();
+  d->current_zoom = 1.;
+  d->current_angle = gesture->totalRotationAngle();
+  // d->current_trans = QPointF( 0., 0. );
+  d->current_trans = gesture->centerPoint();
+  d->count = 0;
+}
+
+
+void PinchZoomAction::pinchMove( QPinchGesture *gesture )
+{
+  cout << "PinchZoomAction move\n";
+  cout << "scale: " << gesture->totalScaleFactor() << endl;
+  cout << "angle: " << gesture->totalRotationAngle() << endl;
+//   cout << "diff: " << gesture->centerPoint() - gesture->startCenterPoint() << endl;
+
+  // skip first events to wait stabilization
+  // (some devices send hazardous values at the beginning)
+  if( d->count < d->delay )
+  {
+    ++ d->count;
+    d->organgle = gesture->totalRotationAngle();
+    d->current_angle = gesture->totalRotationAngle();
+    d->orgscale = gesture->totalScaleFactor();
+    d->current_trans = gesture->centerPoint();
+    return;
+  }
+
+  float zfac = gesture->totalScaleFactor() / d->orgscale;
+  // attenuate too fast changes
+  if( zfac / d->current_zoom > d->max_scl_fac )
+    zfac = d->current_zoom * d->max_scl_fac;
+  else if( d->current_zoom / zfac > d->max_scl_fac )
+    zfac = d->current_zoom / d->max_scl_fac;
+  d->current_zoom = zfac;
+
+  float angle = gesture->totalRotationAngle() - d->organgle;
+  float angle_diff = angle - d->current_angle;
+  if( angle_diff > 180. )
+    angle_diff -= 360.;
+  if( angle_diff < -180. )
+    angle_diff += 360.;
+  if( angle_diff > d->max_angle_diff )
+    angle = d->current_angle + d->max_angle_diff;
+  else if( angle_diff < -d->max_angle_diff )
+    angle = d->current_angle - d->max_angle_diff;
+  d->current_angle = angle;
+  angle = angle / 180. * M_PI;
+
+  GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
+
+  /*if( zfac < 1e-6 )
+    zfac = 1e-6;*/
+  //cout << "zoom factor : " << zfac << endl;
+
+  if( !w )
+  {
+    cerr << "Zoom3DAction operating on wrong view type -- error\n";
+    return;
+  }
+
+  if( w->perspectiveEnabled() )
+  {
+    const Quaternion        & q = w->quaternion();
+    float zfac2 = log( zfac * d->orgzoom ) * 100;
+    Point3df p = q.transform( Point3df( 0, 0, -zfac2 ) );
+    float fac = w->invertedZ() ? -1 : 1;
+    p[2] = fac * p[2];        // invert Z axis
+    //cout << "avance : " << p << endl;
+    w->setRotationCenter( w->rotationCenter() + p );
+  }
+  else
+  {
+    cout << "set zoom\n";
+    w->setZoom( zfac * d->orgzoom );
+
+    QPointF trans = gesture->centerPoint() - d->current_trans;
+    float tdiff_norm = sqrt( trans.x() * trans.x() + trans.y() * trans.y() );
+    if( tdiff_norm > d->max_trans )
+    {
+      cout << "too much translation: " << trans.x() << ", " << trans.y() << ": " << tdiff_norm << endl;
+      cout << "center: " << gesture->centerPoint().x() << ", " << gesture->centerPoint().y() << ", last: " << gesture->lastCenterPoint().x() << ", " << gesture->lastCenterPoint().y() << endl;
+      trans = trans * d->max_trans / tdiff_norm;
+      cout << "back to: " << trans.x() << ", " << trans.y() << endl;
+    }
+    d->current_trans = gesture->centerPoint();
+
+    Point3df t;
+    w->translateCursorPosition( -trans.x(), trans.y(), t );
+    w->setRotationCenter( w->rotationCenter() + t );
+
+    Quaternion r = Quaternion();
+    r.fromAxis( Point3df( 0, 0, 1. ), angle );
+    w->setQuaternion( r * d->orgquaternion );
+  }
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
+}
+
+
+void PinchZoomAction::pinchStop( QPinchGesture *gesture )
+{
+  cout << "PinchZoomAction stop\n";
+}
+
+
+Action* PinchZoomAction::creator()
+{
+  return new PinchZoomAction;
+}
+
+
+#endif
+
+// ------
 
 /* the following lines are needed in release mode (optimization -O3)
 using gcc 4.2.2 of Mandriva 2008. Otherwise there are undefined symbols.

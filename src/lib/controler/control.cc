@@ -32,9 +32,12 @@
  */
 
 
+#include <cstdlib>
+#include <cmath>
 #include "anatomist/controler/control_d.h"
 #include "anatomist/controler/actionpool.h"
 #include "anatomist/controler/view.h"
+#include <anatomist/window/glwidgetmanager.h>
 #include <qtimer.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -42,6 +45,8 @@
 #include <QGestureEvent>
 #include <QPinchGesture>
 #include <QPanGesture>
+#include <QTapGesture>
+#include <QTapAndHoldGesture>
 #include <math.h>
 #endif
 #include <qwidget.h>
@@ -134,6 +139,17 @@ Control::ResizeActionLink::~ResizeActionLink( ){}
 Control::ShowHideActionLink::~ShowHideActionLink( ){}
 
 Control::SelectionChangedActionLink::~SelectionChangedActionLink( ){}
+
+Control::PinchActionLink::~PinchActionLink() {}
+
+Control::PanActionLink::~PanActionLink() {}
+
+Control::SwipeActionLink::~SwipeActionLink() {}
+
+Control::TapActionLink::~TapActionLink() {}
+
+Control::TapAndHoldActionLink::~TapAndHoldActionLink() {}
+
 
 KeyAndMouseLongEvent::KeyAndMouseLongEvent
 ( const Control::KeyMapKey& startingEvent,
@@ -309,6 +325,74 @@ MouseLongEvent::executeEnd( int x, int y, int globalX, int globalY )
 
 //------------------------------------------------------------
 
+struct Control::Private
+{
+  Private()
+    : myPinchStartAction(0), myPinchMoveAction(0), myPinchStopAction(0),
+      myPinchCancelAction(0), myPanStartAction(0), myPanMoveAction(0),
+      myPanStopAction(0), myPanCancelAction(0), mySwipeStartAction(0),
+      mySwipeMoveAction(0), mySwipeStopAction(0), mySwipeCancelAction(0),
+      myTapStartAction(0), myTapMoveAction(0), myTapStopAction(0),
+      myTapCancelAction(0), myTapAndHoldStartAction(0),
+      myTapAndHoldMoveAction(0), myTapAndHoldStopAction(0),
+      myTapAndHoldCancelAction(0),
+      doing_pan( false ), doing_pinch( false ), pinch_scale( 1. ) {}
+  ~Private()
+  {
+    delete myPinchStartAction;
+    delete myPinchMoveAction;
+    delete myPinchStopAction;
+    delete myPinchCancelAction;
+    delete myPanStartAction;
+    delete myPanMoveAction;
+    delete myPanStopAction;
+    delete myPanCancelAction;
+    delete mySwipeStartAction;
+    delete mySwipeMoveAction;
+    delete mySwipeStopAction;
+    delete mySwipeCancelAction;
+    delete myTapStartAction;
+    delete myTapMoveAction;
+    delete myTapStopAction;
+    delete myTapCancelAction;
+    delete myTapAndHoldStartAction;
+    delete myTapAndHoldMoveAction;
+    delete myTapAndHoldStopAction;
+    delete myTapAndHoldCancelAction;
+  }
+
+  Control::PinchActionLink* myPinchStartAction;
+  Control::PinchActionLink* myPinchMoveAction;
+  Control::PinchActionLink* myPinchStopAction;
+  Control::PinchActionLink* myPinchCancelAction;
+  Control::PanActionLink* myPanStartAction;
+  Control::PanActionLink* myPanMoveAction;
+  Control::PanActionLink* myPanStopAction;
+  Control::PanActionLink* myPanCancelAction;
+  Control::SwipeActionLink* mySwipeStartAction;
+  Control::SwipeActionLink* mySwipeMoveAction;
+  Control::SwipeActionLink* mySwipeStopAction;
+  Control::SwipeActionLink* mySwipeCancelAction;
+  Control::TapActionLink* myTapStartAction;
+  Control::TapActionLink* myTapMoveAction;
+  Control::TapActionLink* myTapStopAction;
+  Control::TapActionLink* myTapCancelAction;
+  Control::TapAndHoldActionLink* myTapAndHoldStartAction;
+  Control::TapAndHoldActionLink* myTapAndHoldMoveAction;
+  Control::TapAndHoldActionLink* myTapAndHoldStopAction;
+  Control::TapAndHoldActionLink* myTapAndHoldCancelAction;
+
+  bool doing_pan;
+  bool doing_pinch;
+  float pinch_scale;
+  // some devices / drivers report a strange initial offset,
+  // so we record it to substract to later ones
+  QPoint last_pan_pos;
+  QPoint last_pan_gpos;
+};
+
+//------------------------------------------------------------
+
 ControlPtr
 Control::creator( int priority, const string& name )
 {
@@ -316,7 +400,12 @@ Control::creator( int priority, const string& name )
 }
 
 Control::Control( int priority, string name ) :
-  myPriority(priority), myUserLevel( 0 ), myName(name), myWheelAction(0), myFocusInAction(0), myFocusOutAction(0), myEnterAction(0), myLeaveAction(0), myPaintAction(0), myMoveAction(0), myResizeAction(0), myDragEnterAction(0), myDragLeaveAction(0), myDragMoveAction(0), myDropAction(0), myShowAction(0), myHideAction(0), mySelectionChangedAction(0)
+  myPriority(priority), myUserLevel( 0 ), myName(name), myWheelAction(0),
+  myFocusInAction(0), myFocusOutAction(0), myEnterAction(0), myLeaveAction(0),
+  myPaintAction(0), myMoveAction(0), myResizeAction(0), myDragEnterAction(0),
+  myDragLeaveAction(0), myDragMoveAction(0), myDropAction(0), myShowAction(0),
+  myHideAction(0), mySelectionChangedAction(0),
+  d( new Private )
 {
 //   cout << "NEW CONTROL" << endl;
   myLongActions = new LongActions;
@@ -324,7 +413,13 @@ Control::Control( int priority, string name ) :
 }
 
 Control::Control( const Control& control ) :
-  myPriority(control.myPriority), myUserLevel( 0 ), myName(control.myName), myWheelAction(0), myFocusInAction(0), myFocusOutAction(0), myEnterAction(0), myLeaveAction(0), myPaintAction(0), myMoveAction(0), myResizeAction(0), myDragEnterAction(0), myDragLeaveAction(0), myDragMoveAction(0), myDropAction(0), myShowAction(0), myHideAction(0), mySelectionChangedAction(0)
+  myPriority(control.myPriority), myUserLevel( 0 ), myName(control.myName),
+  myWheelAction(0), myFocusInAction(0), myFocusOutAction(0), myEnterAction(0),
+  myLeaveAction(0), myPaintAction(0), myMoveAction(0), myResizeAction(0),
+  myDragEnterAction(0), myDragLeaveAction(0), myDragMoveAction(0),
+  myDropAction(0), myShowAction(0), myHideAction(0),
+  mySelectionChangedAction(0),
+  d( new Private )
 {
 //   cout << "NEW CONTROL : copy" << endl;
 
@@ -395,6 +490,8 @@ Control::~Control()
 
   delete myLongActions;
   //delete mySurfpaintAction;
+
+  delete d;
 }
 
 
@@ -554,7 +651,7 @@ Control::mouseDoubleClickEvent ( QMouseEvent * event  )
 void
 Control::mouseMoveEvent ( QMouseEvent * event  )
 {
-//   cout << "MOUSEMOVEEVENT" << endl;
+//   cout << "MOUSEMOVEEVENT " << event->button() << ", " << event->modifiers() << ", " << event->x() << ", " << event->y() << endl;
 //   cout << "Control :" << this << endl;
   if( myLongActions->submitMouseMoveEvent( event ) )
     return;
@@ -683,55 +780,149 @@ void Control::selectionChangedEvent()
 #if QT_VERSION >= 0x040600
 void Control::gestureEvent( QGestureEvent * event )
 {
-  // cout << "Gesture event\n";
+  cout << "Gesture event\n";
+  if( QGesture *swipe = event->gesture( Qt::SwipeGesture ) )
+  {
+    event->setAccepted( swipe,
+                        swipeGesture(
+                          static_cast<QSwipeGesture *>( swipe ) ) );
+  }
+  else if( QGesture *pan = event->gesture( Qt::PanGesture ) )
+  {
+    event->setAccepted( pan, panGesture( static_cast<QPanGesture *>( pan ) ) );
+  }
   if( QGesture *pinch = event->gesture(Qt::PinchGesture ) )
   {
     event->setAccepted( pinch, pinchGesture(
       static_cast<QPinchGesture *>( pinch ) ) );
   }
-  if( QGesture *pan = event->gesture( Qt::PanGesture ) )
+  if( QGesture *taphold = event->gesture( Qt::TapAndHoldGesture ) )
   {
-    event->setAccepted( pan, panGesture( static_cast<QPanGesture *>( pan ) ) );
+    event->setAccepted( taphold,
+                        tapAndHoldGesture(
+                          static_cast<QTapAndHoldGesture *>( taphold ) ) );
+  }
+  else if( QGesture *tap = event->gesture( Qt::TapGesture ) )
+  {
+    event->setAccepted( tap, tapGesture( static_cast<QTapGesture *>( tap ) ) );
   }
 }
 
 
 bool Control::pinchGesture( QPinchGesture * gesture )
 {
+  cout << "Gesture event: pinch\n";
+//   cout << "hotspot:" << gesture->hotSpot().rx() << ", " << gesture->hotSpot().ry() << ", " << gesture->totalScaleFactor() << ", " << gesture->scaleFactor() << ", " << gesture->totalRotationAngle() << ", " << gesture->rotationAngle() << endl;
+
+  if( d->doing_pan )
+  {
+    cout << "abort pan from pinch\n";
+    if( d->myPanCancelAction )
+    {
+      // ? generate a QPanGesture
+    }
+    else
+    {
+      QMouseEvent ev( QEvent::MouseButtonRelease,
+                      d->last_pan_pos, d->last_pan_gpos,
+                      Qt::MidButton, Qt::MidButton,
+                      0 /*TODO: get actual current modifiers */ );
+      mouseReleaseEvent( &ev );
+    }
+    d->doing_pan = false;
+  }
+
+  d->doing_pinch = true;
+
   if( gesture->state() == Qt::GestureStarted )
   {
-    // for now, simulate corresponding mouse events
-    QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
-                    QPoint( (int) gesture->hotSpot().rx(),
-                            (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton, Qt::MidButton,
-                    Qt::ShiftModifier );
-    mousePressEvent( &ev );
+    cout << "start\n";
+    d->pinch_scale = 1.;
+    if( d->myPinchStartAction )
+      d->myPinchStartAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
+                      QPoint( (int) gesture->hotSpot().rx(),
+                              (int) gesture->hotSpot().rx() ),
+                      Qt::MidButton, Qt::MidButton,
+                      Qt::ShiftModifier );
+      mousePressEvent( &ev );
+    }
+    return true;
   }
-  else if( gesture->state() == Qt::GestureUpdated )
+
+  float scl = gesture->totalScaleFactor();
+  if( std::isnan( scl ) )
   {
-    // for now, simulate corresponding mouse events
-    QPoint p = QPoint( 0,
-                       - (int)( 100 * log( gesture->totalScaleFactor() ) ) );
-    QMouseEvent ev( QEvent::MouseMove, p,
-                    QPoint( (int) gesture->hotSpot().rx(),
-                            (int) gesture->hotSpot().rx() ) + p,
-                    Qt::MidButton, Qt::MidButton,
-                    Qt::ShiftModifier );
-    mouseMoveEvent( &ev );
+    // some buggy devices / drivers (such as wacom intuos on ubuntu 16.04)
+    // report nan as totalScaleFactor, and also sometimes as scaleFactor.
+    // Plus, they tend to send (several times) anormally large or small
+    // values at the end of the gesture (when the user releases fingers)
+    // so we have to filter a little bit.
+    if( !std::isnan( gesture->scaleFactor() )
+        && gesture->state() == Qt::GestureUpdated
+        && gesture->scaleFactor() > 0.9 && gesture->scaleFactor() < 1.1 )
+      d->pinch_scale *= gesture->scaleFactor();
+    scl = d->pinch_scale;
+    gesture->setTotalScaleFactor( scl );
+//     scl = gesture->scaleFactor();
+//     if( std::isnan( scl ) )
+//       scl = 1.F;
   }
-  else if( gesture->state() == Qt::GestureCanceled
-    || gesture->state() == Qt::GestureFinished )
+  if( gesture->state() == Qt::GestureUpdated )
   {
-    // for now, simulate corresponding mouse events
-    QPoint p = QPoint( 0,
-                       - (int)( 100 * log( gesture->totalScaleFactor() ) ) );
-    QMouseEvent ev( QEvent::MouseButtonRelease, p,
-                    QPoint( (int) gesture->hotSpot().rx(),
-                            (int) gesture->hotSpot().rx() ) + p,
-                    Qt::MidButton, Qt::MidButton,
-                    Qt::ShiftModifier );
-    mouseReleaseEvent( &ev );
+    if( d->myPinchMoveAction )
+      d->myPinchMoveAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QPoint p = QPoint( 0, - (int)( 100 * log( scl ) ) );
+      cout << "update, scl: " << scl << ", p: " << p.y() << endl;
+      QMouseEvent ev( QEvent::MouseMove, p,
+                      QPoint( (int) gesture->hotSpot().rx(),
+                              (int) gesture->hotSpot().rx() ) + p,
+                      Qt::MidButton, Qt::MidButton,
+                      Qt::ShiftModifier );
+      mouseMoveEvent( &ev );
+    }
+  }
+  else if( gesture->state() == Qt::GestureFinished )
+  {
+    cout << "finish, scl: " << scl << endl;
+    if( d->myPinchStopAction )
+      d->myPinchStopAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QPoint p = QPoint( 0, - (int)( 100 * log( scl ) ) );
+      QMouseEvent ev( QEvent::MouseButtonRelease, p,
+                      QPoint( (int) gesture->hotSpot().rx(),
+                              (int) gesture->hotSpot().rx() ) + p,
+                      Qt::MidButton, Qt::MidButton,
+                      Qt::ShiftModifier );
+      mouseReleaseEvent( &ev );
+    }
+    d->doing_pinch = false;
+  }
+  else if( gesture->state() == Qt::GestureCanceled )
+  {
+    cout << "cancel, scl: " << scl << endl;
+    if( d->myPinchCancelAction )
+      d->myPinchCancelAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QPoint p = QPoint( 0, - (int)( 100 * log( scl ) ) );
+      QMouseEvent ev( QEvent::MouseButtonRelease, p,
+                      QPoint( (int) gesture->hotSpot().rx(),
+                              (int) gesture->hotSpot().rx() ) + p,
+                      Qt::MidButton, Qt::MidButton,
+                      Qt::ShiftModifier );
+      mouseReleaseEvent( &ev );
+    }
+    d->doing_pinch = false;
   }
   return true;
 }
@@ -739,43 +930,256 @@ bool Control::pinchGesture( QPinchGesture * gesture )
 
 bool Control::panGesture( QPanGesture * gesture )
 {
+  cout << "Gesture event: pan\n";
+
+  // try to find associated widget, through actions
+  QWidget *w = 0;
+  if( !myActions.empty() )
+  {
+    GLWidgetManager *glw = dynamic_cast<GLWidgetManager *>(
+        myActions.begin()->second->view() );
+    if( glw )
+      w = glw->qglWidget();
+  }
+  cout << "offset: " << gesture->offset().rx() << ", " << gesture->offset().ry() << ", delta: " << gesture->delta().x() << ", " << gesture->delta().y() << endl;
+
+  if( d->doing_pinch )
+  {
+    if( d->doing_pan )
+    {
+      // pinch in progress: abort pan
+      cout << "abort pan\n";
+      if( d->myPanCancelAction )
+      {
+        // ?
+      }
+      else
+      {
+        QMouseEvent ev( QEvent::MouseButtonRelease,
+                        d->last_pan_pos, d->last_pan_gpos,
+                        Qt::MidButton, Qt::MidButton,
+                        0 /*TODO: get actual current modifiers */ );
+        mouseReleaseEvent( &ev );
+      }
+      d->doing_pan = false;
+    }
+    cout << "pinch in progress.\n";
+    return false;
+  }
+
+  d->doing_pan = true;
+//   if( gesture->state() == Qt::GestureStarted )
+//     d->fix_pan_offset = gesture->offset().toPoint();
+//   d->fix_pan_offset = QPoint( 0, 0 );
+
+  QPoint gpos = QPoint( (int) ( gesture->offset().rx()
+                                + gesture->hotSpot().rx() ),
+                        (int) ( gesture->offset().ry()
+                                + gesture->hotSpot().ry() ) );
+//   gpos -= d->fix_pan_offset;
+  QPoint pos = gpos;
+  if( w )
+    pos = w->mapFromGlobal( gpos );
+  d->last_pan_gpos = gpos;
+  d->last_pan_pos = pos;
+
   if( gesture->state() == Qt::GestureStarted )
   {
-    // for now, simulate corresponding mouse events
-    QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
-                    QPoint( (int) gesture->hotSpot().rx(),
-                            (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton, Qt::MidButton,
-                    0 /*TODO: get actual current modifiers */ );
-    mousePressEvent( &ev );
+    cout << "start " << pos.x() << ", " << pos.y() << " / " << gpos.x() << ", " << gpos.y() << endl;
+    if( d->myPanStartAction )
+      d->myPanStartAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QMouseEvent ev( QEvent::MouseButtonPress,
+                      pos, gpos,
+                      Qt::MidButton, Qt::MidButton,
+                      0 /*TODO: get actual current modifiers */ );
+      mousePressEvent( &ev );
+    }
   }
   else if( gesture->state() == Qt::GestureUpdated )
   {
-    // for now, simulate corresponding mouse events
-    QMouseEvent ev( QEvent::MouseMove,
-                    QPoint( (int) gesture->offset().rx(),
-                            (int) gesture->offset().ry() ),
-                    QPoint( (int) gesture->hotSpot().rx(),
-                            (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton, Qt::MidButton,
-                    0 /*TODO: get actual current modifiers */ );
-    mouseMoveEvent( &ev );
+    cout << "update " << pos.x() << ", " << pos.y() << " / " << gpos.x() << ", " << gpos.y() << endl;
+    if( d->myPanMoveAction )
+      d->myPanMoveAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QMouseEvent ev( QEvent::MouseMove,
+                      pos, gpos,
+                      Qt::MidButton, Qt::MidButton,
+                      0 /*TODO: get actual current modifiers */ );
+      mouseMoveEvent( &ev );
+    }
   }
-  else if( gesture->state() == Qt::GestureCanceled
-    || gesture->state() == Qt::GestureFinished )
+  else if( gesture->state() == Qt::GestureFinished )
   {
-    // for now, simulate corresponding mouse events
-    QMouseEvent ev( QEvent::MouseButtonRelease,
-                    QPoint( (int) gesture->offset().rx(),
-                            (int) gesture->offset().ry() ),
-                    QPoint( (int) gesture->hotSpot().rx(),
-                            (int) gesture->hotSpot().rx() ),
-                    Qt::MidButton, Qt::MidButton,
-                    0 /*TODO: get actual current modifiers */ );
-    mouseReleaseEvent( &ev );
+    cout << "finish\n";
+    if( d->myPanStopAction )
+      d->myPanStopAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QMouseEvent ev( QEvent::MouseButtonRelease,
+                      pos, gpos,
+                      Qt::MidButton, Qt::MidButton,
+                      0 /*TODO: get actual current modifiers */ );
+      mouseReleaseEvent( &ev );
+    }
+    d->doing_pan = false;
+  }
+  else if( gesture->state() == Qt::GestureCanceled )
+  {
+    cout << "cancel\n";
+    if( d->myPanCancelAction )
+      d->myPanCancelAction->execute( gesture );
+    else
+    {
+      // for now, simulate corresponding mouse events
+      QMouseEvent ev( QEvent::MouseButtonRelease,
+                      pos, gpos,
+                      Qt::MidButton, Qt::MidButton,
+                      0 /*TODO: get actual current modifiers */ );
+      mouseReleaseEvent( &ev );
+    }
+    d->doing_pan = false;
   }
   return true;
 }
+
+
+bool Control::swipeGesture( QSwipeGesture *gesture )
+{
+  cout << "Swipe\n";
+  if( gesture->state() == Qt::GestureStarted )
+  {
+    if( d->mySwipeStartAction )
+    {
+      d->mySwipeStartAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureUpdated )
+  {
+    if( d->mySwipeMoveAction )
+    {
+      d->mySwipeMoveAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureFinished )
+  {
+    if( d->mySwipeStopAction )
+    {
+      d->mySwipeStopAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureCanceled )
+  {
+    if( d->mySwipeCancelAction )
+    {
+      d->mySwipeCancelAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
+
+bool Control::tapGesture( QTapGesture *gesture )
+{
+  cout << "Tap\n";
+  if( gesture->state() == Qt::GestureStarted )
+  {
+    if( d->myTapStartAction )
+    {
+      d->myTapStartAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureUpdated )
+  {
+    if( d->myTapMoveAction )
+    {
+      d->myTapMoveAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureFinished )
+  {
+    if( d->myTapStopAction )
+    {
+      d->myTapStopAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureCanceled )
+  {
+    if( d->myTapCancelAction )
+    {
+      d->myTapCancelAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
+
+bool Control::tapAndHoldGesture( QTapAndHoldGesture *gesture )
+{
+  cout << "Tap And Hold\n";
+  if( gesture->state() == Qt::GestureStarted )
+  {
+    if( d->myTapAndHoldStartAction )
+    {
+      d->myTapAndHoldStartAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureUpdated )
+  {
+    if( d->myTapAndHoldMoveAction )
+    {
+      d->myTapAndHoldMoveAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureFinished )
+  {
+    if( d->myTapAndHoldStopAction )
+    {
+      d->myTapAndHoldStopAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+  if( gesture->state() == Qt::GestureCanceled )
+  {
+    if( d->myTapAndHoldCancelAction )
+    {
+      d->myTapAndHoldCancelAction->execute( gesture );
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
 #endif // Qt >= 4.6
 
 
@@ -1136,6 +1540,123 @@ bool Control::selectionChangedEventUnsubscribe()
   mySelectionChangedAction = 0;
   return true;
 }
+
+
+bool Control::pinchEventSubscribe(
+  const PinchActionLink & startMethod,
+  const PinchActionLink & moveMethod,
+  const PinchActionLink & stopMethod,
+  const PinchActionLink & cancelMethod )
+{
+  if( d->myPinchStartAction != 0 )
+    return false;
+  d->myPinchStartAction  = startMethod.clone();
+  d->myPinchMoveAction   = moveMethod.clone();
+  d->myPinchStopAction   = stopMethod.clone();
+  d->myPinchCancelAction = cancelMethod.clone();
+  return true;
+}
+
+bool Control::pinchEventUnsubscribe()
+{
+  delete d->myPinchStartAction;
+  d->myPinchStartAction = 0;
+  delete d->myPinchMoveAction;
+  d->myPinchMoveAction = 0;
+  delete d->myPinchStopAction;
+  d->myPinchStopAction = 0;
+  delete d->myPinchCancelAction;
+  d->myPinchCancelAction = 0;
+  return true;
+}
+
+
+bool Control::panEventSubscribe(
+  const PanActionLink & startMethod,
+  const PanActionLink & moveMethod,
+  const PanActionLink & stopMethod,
+  const PanActionLink & cancelMethod )
+{
+  if( d->myPanStartAction != 0 )
+    return false;
+  d->myPanStartAction  = startMethod.clone();
+  d->myPanMoveAction   = moveMethod.clone();
+  d->myPanStopAction   = stopMethod.clone();
+  d->myPanCancelAction = cancelMethod.clone();
+  return true;
+}
+
+bool Control::panEventUnsubscribe()
+{
+  delete d->myPanStartAction;
+  d->myPanStartAction = 0;
+  delete d->myPanMoveAction;
+  d->myPanMoveAction = 0;
+  delete d->myPanStopAction;
+  d->myPanStopAction = 0;
+  delete d->myPanCancelAction;
+  d->myPanCancelAction = 0;
+  return true;
+}
+
+
+bool Control::swipeEventSubscribe(
+  const SwipeActionLink & startMethod,
+  const SwipeActionLink & moveMethod,
+  const SwipeActionLink & stopMethod,
+  const SwipeActionLink & cancelMethod )
+{
+  if( d->mySwipeStartAction != 0 )
+    return false;
+  d->mySwipeStartAction  = startMethod.clone();
+  d->mySwipeMoveAction   = moveMethod.clone();
+  d->mySwipeStopAction   = stopMethod.clone();
+  d->mySwipeCancelAction = cancelMethod.clone();
+  return true;
+}
+
+bool Control::swipeEventUnsubscribe()
+{
+  delete d->mySwipeStartAction;
+  d->mySwipeStartAction = 0;
+  delete d->mySwipeMoveAction;
+  d->mySwipeMoveAction = 0;
+  delete d->mySwipeStopAction;
+  d->mySwipeStopAction = 0;
+  delete d->mySwipeCancelAction;
+  d->mySwipeCancelAction = 0;
+  return true;
+}
+
+
+bool Control::tapEventSubscribe(
+  const TapActionLink & startMethod,
+  const TapActionLink & moveMethod,
+  const TapActionLink & stopMethod,
+  const TapActionLink & cancelMethod )
+{
+  if( d->myTapStartAction != 0 )
+    return false;
+  d->myTapStartAction  = startMethod.clone();
+  d->myTapMoveAction   = moveMethod.clone();
+  d->myTapStopAction   = stopMethod.clone();
+  d->myTapCancelAction = cancelMethod.clone();
+  return true;
+}
+
+bool Control::tapEventUnsubscribe()
+{
+  delete d->myTapStartAction;
+  d->myTapStartAction = 0;
+  delete d->myTapMoveAction;
+  d->myTapMoveAction = 0;
+  delete d->myTapStopAction;
+  d->myTapStopAction = 0;
+  delete d->myTapCancelAction;
+  d->myTapCancelAction = 0;
+  return true;
+}
+
 
 
 bool
