@@ -2965,11 +2965,25 @@ void ObjectStatAction::displayStat()
 
 struct PinchZoomAction::Private
 {
-  Private() : orgzoom( 1. ) {}
+  Private() : orgzoom( 1. ), organgle( 0. ), orgscale( 1. ),
+    current_zoom( 1. ),
+    current_angle( 0. ), current_trans( 0., 0. ), max_scl_fac( 1.15 ),
+    max_angle_diff( 20. ), max_trans( 30. ), delay( 10 ), count( 0 )
+  {}
 
   float      orgzoom;
   Quaternion orgquaternion;
-  Point3df   startpos;
+//   Point3df   startpos;
+  float      organgle;
+  float      orgscale;
+  float current_zoom;
+  float current_angle;
+  QPointF current_trans;
+  float max_scl_fac;
+  float max_angle_diff;
+  float max_trans;
+  int delay;
+  int count;
 };
 
 
@@ -2999,7 +3013,12 @@ void PinchZoomAction::pinchStart( QPinchGesture *gesture )
   }
   d->orgzoom = w->zoom();
   d->orgquaternion = w->quaternion();
-//   d->startpos =
+  d->orgscale = gesture->totalScaleFactor();
+  d->organgle = gesture->totalRotationAngle();
+  d->current_zoom = 1.;
+  d->current_angle = gesture->totalRotationAngle();
+  d->current_trans = QPointF( 0., 0. );
+  d->count = 0;
 }
 
 
@@ -3010,26 +3029,37 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
   cout << "angle: " << gesture->totalRotationAngle() << endl;
 //   cout << "diff: " << gesture->centerPoint() - gesture->startCenterPoint() << endl;
 
-  float zfac = gesture->totalScaleFactor();
-//   if( !std::isnan( gesture->lastScaleFactor() )
-//       && gesture->lastScaleFactor() != 0. )
-//   {
-//     cout << "lastScaleFactor: " << gesture->lastScaleFactor() << endl;
-//     if( zfac / gesture->lastScaleFactor() < 0.9 )
-//     {
-//       zfac = gesture->lastScaleFactor() * 0.9;
-//       gesture->setTotalScaleFactor( zfac );
-//       gesture->setScaleFactor( zfac );
-//     }
-//     else if( zfac / gesture->lastScaleFactor() > 1.1 )
-//     {
-//       zfac = gesture->lastScaleFactor() * 1.1;
-//       gesture->setTotalScaleFactor( zfac );
-//       gesture->setScaleFactor( zfac );
-//     }
-//   }
-  float angle = gesture->totalRotationAngle() / 180. * M_PI;
-  bool full_refresh = false;
+  // skip first events to wait stabilization
+  // (some devices send hazardous values at the beginning)
+  if( d->count < d->delay )
+  {
+    ++ d->count;
+    d->organgle = gesture->totalRotationAngle();
+    d->current_angle = gesture->totalRotationAngle();
+    d->orgscale = gesture->totalScaleFactor();
+    return;
+  }
+
+  float zfac = gesture->totalScaleFactor() / d->orgscale;
+  // attenuate too fast changes
+  if( zfac / d->current_zoom > d->max_scl_fac )
+    zfac = d->current_zoom * d->max_scl_fac;
+  else if( d->current_zoom / zfac > d->max_scl_fac )
+    zfac = d->current_zoom / d->max_scl_fac;
+  d->current_zoom = zfac;
+
+  float angle = gesture->totalRotationAngle() - d->organgle;
+  float angle_diff = angle - d->current_angle;
+  if( angle_diff > 180. )
+    angle_diff -= 360.;
+  if( angle_diff < -180. )
+    angle_diff += 360.;
+  if( angle_diff > d->max_angle_diff )
+    angle = d->current_angle + d->max_angle_diff;
+  else if( angle_diff < -d->max_angle_diff )
+    angle = d->current_angle - d->max_angle_diff;
+  d->current_angle = angle;
+  angle = angle / 180. * M_PI;
 
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
 
@@ -3059,12 +3089,20 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
     w->setZoom( zfac * d->orgzoom );
 
     QPointF trans = gesture->centerPoint() - gesture->lastCenterPoint();
-    if( trans.x() * trans.x() + trans.y() * trans.y() < 400 )
+    QPointF trans_diff = trans - d->current_trans;
+    float tdiff_norm = sqrt( trans.x() * trans.x()
+                             + trans.y() * trans.y() );
+    if( tdiff_norm > d->max_trans )
     {
-      Point3df t;
-      w->translateCursorPosition( -trans.x(), trans.y(), t );
-      w->setRotationCenter( w->rotationCenter() + t );
+      cout << "too much translation: " << trans.x() << ", " << trans.y() << ": " << tdiff_norm << endl;
+      trans = trans * d->max_trans / tdiff_norm;
+      cout << "back to: " << trans.x() << ", " << trans.y() << endl;
     }
+    d->current_trans = trans;
+
+    Point3df t;
+    w->translateCursorPosition( -trans.x(), trans.y(), t );
+    w->setRotationCenter( w->rotationCenter() + t );
 
     Quaternion r = Quaternion();
     r.fromAxis( Point3df( 0, 0, 1. ), angle );
