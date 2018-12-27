@@ -47,6 +47,9 @@ using namespace std;
 using aims::Quaternion;
 
 
+namespace anatomist
+{
+
 //--- methods -----------------------------------------------------------------
 
 Transformation::Transformation() 
@@ -105,7 +108,7 @@ float Transformation::Rotation(int i,int j)
 void Transformation::SetTranslation(int i,float val)
 {
   if( (i >= 0) && (i <= 2) )
-    _motion.translation()[i] = val;
+    _motion.matrix()(i, 3) = val;
 }
 
 float Transformation::Translation(int i)
@@ -175,7 +178,7 @@ Quaternion Transformation::quaternion() const
 void Transformation::setQuaternion( const Quaternion & q )
 {
   AimsVector<float,16>	r = q.rotationMatrix();
-  AimsData<float>       & rotation = _motion.rotation();
+  AimsData<float>       rotation = _motion.rotation();
   rotation(0,0) = r[0];
   rotation(0,1) = r[1];
   rotation(0,2) = r[2];
@@ -214,7 +217,7 @@ void Transformation::unregisterTrans()
 
 void Transformation::setRotation( float** r )
 {
-  AimsData<float>       & rotation = _motion.rotation();
+  AimsData<float>       rotation = _motion.rotation();
   rotation(0,0) = r[0][0];
   rotation(0,1) = r[0][1];
   rotation(0,2) = r[0][2];
@@ -229,65 +232,64 @@ void Transformation::setRotation( float** r )
 
 void Transformation::setTranslation( float* t )
 {
-  Point3df & translation = _motion.translation();
-  translation[0] = t[0];
-  translation[1] = t[1];
-  translation[2] = t[2];
+  aims::AffineTransformation3d::Table<float> & matrix = _motion.matrix();
+  matrix(0, 3) = t[0];
+  matrix(1, 3) = t[1];
+  matrix(2, 3) = t[2];
 }
 
 
 void Transformation::setMatrix( float** m )
 {
-  AimsData<float>       & rotation = _motion.rotation();
-  Point3df & translation = _motion.translation();
-  rotation(0,0) = m[0][0];
-  rotation(0,1) = m[0][1];
-  rotation(0,2) = m[0][2];
-  rotation(1,0) = m[1][0];
-  rotation(1,1) = m[1][1];
-  rotation(1,2) = m[1][2];
-  rotation(2,0) = m[2][0];
-  rotation(2,1) = m[2][1];
-  rotation(2,2) = m[2][2];
-  translation[0] = m[0][0];
-  translation[1] = m[1][0];
-  translation[2] = m[2][0];
+  aims::AffineTransformation3d::Table<float> & matrix = _motion.matrix();
+  matrix(0,0) = m[0][0];
+  matrix(0,1) = m[0][1];
+  matrix(0,2) = m[0][2];
+  matrix(1,0) = m[1][0];
+  matrix(1,1) = m[1][1];
+  matrix(1,2) = m[1][2];
+  matrix(2,0) = m[2][0];
+  matrix(2,1) = m[2][1];
+  matrix(2,2) = m[2][2];
+  matrix(0,3) = m[0][0];
+  matrix(1,3) = m[1][0];
+  matrix(2,3) = m[2][0];
 }
 
 
 void Transformation::setMatrixT( float m[4][3] )
 {
-  AimsData<float>       & rotation = _motion.rotation();
-  Point3df & translation = _motion.translation();
-  rotation(0,0) = m[1][0];
-  rotation(0,1) = m[1][1];
-  rotation(0,2) = m[1][2];
-  rotation(1,0) = m[2][0];
-  rotation(1,1) = m[2][1];
-  rotation(1,2) = m[2][2];
-  rotation(2,0) = m[3][0];
-  rotation(2,1) = m[3][1];
-  rotation(2,2) = m[3][2];
-  translation[0] = m[0][0];
-  translation[1] = m[0][1];
-  translation[2] = m[0][2];
+  aims::AffineTransformation3d::Table<float> & matrix = _motion.matrix();
+  matrix(0,0) = m[1][0];
+  matrix(0,1) = m[1][1];
+  matrix(0,2) = m[1][2];
+  matrix(1,0) = m[2][0];
+  matrix(1,1) = m[2][1];
+  matrix(1,2) = m[2][2];
+  matrix(2,0) = m[3][0];
+  matrix(2,1) = m[3][1];
+  matrix(2,2) = m[3][2];
+  matrix(0,3) = m[0][0];
+  matrix(1,3) = m[0][1];
+  matrix(2,3) = m[0][2];
 }
 
 void Transformation::addMotionToHistory(const Motion & motion)
 {
-	if (_motionHistoryIndex == -1)
-	{
-		_motionHistory.clear();
-	}
-	else if (_motionHistoryIndex >= 0 &&
-                 static_cast<size_t>(_motionHistoryIndex) < (_motionHistory.size() - 1))
-	{
-		_motionHistory.erase(_motionHistory.begin() + _motionHistoryIndex + 1,
-							 _motionHistory.end());
-	}
+  if (_motionHistoryIndex == -1)
+  {
+    _motionHistory.clear();
+  }
+  else if( _motionHistoryIndex >= 0 &&
+           static_cast<size_t>(_motionHistoryIndex)
+              < (_motionHistory.size() - 1))
+  {
+    _motionHistory.erase( _motionHistory.begin() + _motionHistoryIndex + 1,
+                          _motionHistory.end() );
+  }
 
-	_motionHistory.push_back(motion);
-	_motionHistoryIndex = _motionHistory.size() - 1;
+  _motionHistory.push_back(motion);
+  _motionHistoryIndex = _motionHistory.size() - 1;
 }
 
 void Transformation::undo()
@@ -365,10 +367,11 @@ bool Transformation::isDirect() const
   return _motion.isDirect();
 }
 
+}
 
 #include <cartobase/object/object_d.h>
-INSTANTIATE_GENERIC_OBJECT_TYPE( Transformation * )
-INSTANTIATE_GENERIC_OBJECT_TYPE( set<Transformation *> )
-INSTANTIATE_GENERIC_OBJECT_TYPE( vector<Transformation *> )
-INSTANTIATE_GENERIC_OBJECT_TYPE( list<Transformation *> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( anatomist::Transformation * )
+INSTANTIATE_GENERIC_OBJECT_TYPE( set<anatomist::Transformation *> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( vector<anatomist::Transformation *> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( list<anatomist::Transformation *> )
 

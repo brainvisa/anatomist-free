@@ -440,7 +440,7 @@ void TransformerActionData::matrixCellChanged( int row, int col,
     if( col < 3 )
       atr.rotation()( row, col ) = value;
     else
-      atr.translation()[ row ] = value;
+      atr.matrix()( row, 3 ) = value;
 
     setTransformData( *t, true );
     Quaternion q( initialQuaternion() );
@@ -1252,7 +1252,7 @@ namespace
     d->trans_ui->to_ref_button->setIcon( pix );
     const AffineTransformation3d & atr = tr->motion();
     const AimsData<float> & rot = atr.rotation();
-    const Point3df & tra = atr.translation();
+    Point3df tra = atr.translation();
     int i, j;
 
     d->trans_ui->matrix_tableWidget->blockSignals( true );

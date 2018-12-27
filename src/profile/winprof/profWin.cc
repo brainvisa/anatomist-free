@@ -311,6 +311,8 @@ void QAProfileWindow::dirChange( int btn )
 
 void QAProfileWindow::initX()
 {
+  using anatomist::Transformation;
+
   pmin = Point4df( 1000.0f, 1000.0f, 1000.0f, 1000.0f );
   pmax = Point4df( 0.0f, 0.0f, 0.0f, 0.0f );
 
@@ -411,6 +413,8 @@ void QAProfileWindow::initX()
 
 void QAProfileWindow::refreshNow()
 {
+  using anatomist::Transformation;
+
   set< AObject * >::iterator it;
 
   QAWindow::refreshNow();
