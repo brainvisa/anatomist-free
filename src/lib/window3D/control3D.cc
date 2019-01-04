@@ -3001,7 +3001,7 @@ PinchZoomAction::~PinchZoomAction()
 
 void PinchZoomAction::pinchStart( QPinchGesture *gesture )
 {
-  cout << "PinchZoomAction start\n";
+  // cout << "PinchZoomAction start\n";
 
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
 
@@ -3025,9 +3025,11 @@ void PinchZoomAction::pinchStart( QPinchGesture *gesture )
 
 void PinchZoomAction::pinchMove( QPinchGesture *gesture )
 {
+  /*
   cout << "PinchZoomAction move\n";
   cout << "scale: " << gesture->totalScaleFactor() << endl;
   cout << "angle: " << gesture->totalRotationAngle() << endl;
+  */
 //   cout << "diff: " << gesture->centerPoint() - gesture->startCenterPoint() << endl;
 
   // skip first events to wait stabilization
@@ -3087,17 +3089,19 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
   }
   else
   {
-    cout << "set zoom\n";
+    // cout << "set zoom\n";
     w->setZoom( zfac * d->orgzoom );
 
     QPointF trans = gesture->centerPoint() - d->current_trans;
     float tdiff_norm = sqrt( trans.x() * trans.x() + trans.y() * trans.y() );
     if( tdiff_norm > d->max_trans )
     {
+      /*
       cout << "too much translation: " << trans.x() << ", " << trans.y() << ": " << tdiff_norm << endl;
       cout << "center: " << gesture->centerPoint().x() << ", " << gesture->centerPoint().y() << ", last: " << gesture->lastCenterPoint().x() << ", " << gesture->lastCenterPoint().y() << endl;
+      */
       trans = trans * d->max_trans / tdiff_norm;
-      cout << "back to: " << trans.x() << ", " << trans.y() << endl;
+      // cout << "back to: " << trans.x() << ", " << trans.y() << endl;
     }
     d->current_trans = gesture->centerPoint();
 
@@ -3115,7 +3119,7 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
 
 void PinchZoomAction::pinchStop( QPinchGesture *gesture )
 {
-  cout << "PinchZoomAction stop\n";
+  // cout << "PinchZoomAction stop\n";
 }
 
 

@@ -780,7 +780,7 @@ void Control::selectionChangedEvent()
 #if QT_VERSION >= 0x040600
 void Control::gestureEvent( QGestureEvent * event )
 {
-  cout << "Gesture event\n";
+  // cout << "Gesture event\n";
   if( QGesture *swipe = event->gesture( Qt::SwipeGesture ) )
   {
     event->setAccepted( swipe,
@@ -811,12 +811,12 @@ void Control::gestureEvent( QGestureEvent * event )
 
 bool Control::pinchGesture( QPinchGesture * gesture )
 {
-  cout << "Gesture event: pinch\n";
+  // cout << "Gesture event: pinch\n";
 //   cout << "hotspot:" << gesture->hotSpot().rx() << ", " << gesture->hotSpot().ry() << ", " << gesture->totalScaleFactor() << ", " << gesture->scaleFactor() << ", " << gesture->totalRotationAngle() << ", " << gesture->rotationAngle() << endl;
 
   if( d->doing_pan )
   {
-    cout << "abort pan from pinch\n";
+    // cout << "abort pan from pinch\n";
     if( d->myPanCancelAction )
     {
       // ? generate a QPanGesture
@@ -836,7 +836,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
 
   if( gesture->state() == Qt::GestureStarted )
   {
-    cout << "start\n";
+    // cout << "start\n";
     d->pinch_scale = 1.;
     if( d->myPinchStartAction )
       d->myPinchStartAction->execute( gesture );
@@ -879,7 +879,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
     {
       // for now, simulate corresponding mouse events
       QPoint p = QPoint( 0, - (int)( 100 * log( scl ) ) );
-      cout << "update, scl: " << scl << ", p: " << p.y() << endl;
+      // cout << "update, scl: " << scl << ", p: " << p.y() << endl;
       QMouseEvent ev( QEvent::MouseMove, p,
                       QPoint( (int) gesture->hotSpot().rx(),
                               (int) gesture->hotSpot().rx() ) + p,
@@ -890,7 +890,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
   }
   else if( gesture->state() == Qt::GestureFinished )
   {
-    cout << "finish, scl: " << scl << endl;
+    // cout << "finish, scl: " << scl << endl;
     if( d->myPinchStopAction )
       d->myPinchStopAction->execute( gesture );
     else
@@ -908,7 +908,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
   }
   else if( gesture->state() == Qt::GestureCanceled )
   {
-    cout << "cancel, scl: " << scl << endl;
+    // cout << "cancel, scl: " << scl << endl;
     if( d->myPinchCancelAction )
       d->myPinchCancelAction->execute( gesture );
     else
@@ -930,7 +930,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
 
 bool Control::panGesture( QPanGesture * gesture )
 {
-  cout << "Gesture event: pan\n";
+  // cout << "Gesture event: pan\n";
 
   // try to find associated widget, through actions
   QWidget *w = 0;
@@ -941,14 +941,14 @@ bool Control::panGesture( QPanGesture * gesture )
     if( glw )
       w = glw->qglWidget();
   }
-  cout << "offset: " << gesture->offset().rx() << ", " << gesture->offset().ry() << ", delta: " << gesture->delta().x() << ", " << gesture->delta().y() << endl;
+  // cout << "offset: " << gesture->offset().rx() << ", " << gesture->offset().ry() << ", delta: " << gesture->delta().x() << ", " << gesture->delta().y() << endl;
 
   if( d->doing_pinch )
   {
     if( d->doing_pan )
     {
       // pinch in progress: abort pan
-      cout << "abort pan\n";
+      // cout << "abort pan\n";
       if( d->myPanCancelAction )
       {
         // ?
@@ -963,7 +963,7 @@ bool Control::panGesture( QPanGesture * gesture )
       }
       d->doing_pan = false;
     }
-    cout << "pinch in progress.\n";
+    // cout << "pinch in progress.\n";
     return false;
   }
 
@@ -985,7 +985,7 @@ bool Control::panGesture( QPanGesture * gesture )
 
   if( gesture->state() == Qt::GestureStarted )
   {
-    cout << "start " << pos.x() << ", " << pos.y() << " / " << gpos.x() << ", " << gpos.y() << endl;
+    // cout << "start " << pos.x() << ", " << pos.y() << " / " << gpos.x() << ", " << gpos.y() << endl;
     if( d->myPanStartAction )
       d->myPanStartAction->execute( gesture );
     else
@@ -1000,7 +1000,7 @@ bool Control::panGesture( QPanGesture * gesture )
   }
   else if( gesture->state() == Qt::GestureUpdated )
   {
-    cout << "update " << pos.x() << ", " << pos.y() << " / " << gpos.x() << ", " << gpos.y() << endl;
+    // cout << "update " << pos.x() << ", " << pos.y() << " / " << gpos.x() << ", " << gpos.y() << endl;
     if( d->myPanMoveAction )
       d->myPanMoveAction->execute( gesture );
     else
@@ -1015,7 +1015,7 @@ bool Control::panGesture( QPanGesture * gesture )
   }
   else if( gesture->state() == Qt::GestureFinished )
   {
-    cout << "finish\n";
+    // cout << "finish\n";
     if( d->myPanStopAction )
       d->myPanStopAction->execute( gesture );
     else
@@ -1031,7 +1031,7 @@ bool Control::panGesture( QPanGesture * gesture )
   }
   else if( gesture->state() == Qt::GestureCanceled )
   {
-    cout << "cancel\n";
+    // cout << "cancel\n";
     if( d->myPanCancelAction )
       d->myPanCancelAction->execute( gesture );
     else
@@ -1051,7 +1051,7 @@ bool Control::panGesture( QPanGesture * gesture )
 
 bool Control::swipeGesture( QSwipeGesture *gesture )
 {
-  cout << "Swipe\n";
+  // cout << "Swipe\n";
   if( gesture->state() == Qt::GestureStarted )
   {
     if( d->mySwipeStartAction )
@@ -1095,7 +1095,7 @@ bool Control::swipeGesture( QSwipeGesture *gesture )
 
 bool Control::tapGesture( QTapGesture *gesture )
 {
-  cout << "Tap\n";
+  // cout << "Tap\n";
   if( gesture->state() == Qt::GestureStarted )
   {
     if( d->myTapStartAction )
@@ -1139,7 +1139,7 @@ bool Control::tapGesture( QTapGesture *gesture )
 
 bool Control::tapAndHoldGesture( QTapAndHoldGesture *gesture )
 {
-  cout << "Tap And Hold\n";
+  // cout << "Tap And Hold\n";
   if( gesture->state() == Qt::GestureStarted )
   {
     if( d->myTapAndHoldStartAction )
