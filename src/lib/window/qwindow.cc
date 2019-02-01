@@ -211,8 +211,11 @@ void QAWindow::showToolBars( int state )
         QObjectList::const_iterator	ic, ec = ch.end();
         for( ic=ch.begin(); ic!=ec; ++ic )
           {
-            if( *ic != centralWidget() && (*ic)->isWidgetType() )
+            if( *ic != centralWidget() && (*ic)->isWidgetType()
+                && ! dynamic_cast<QMenu *>( *ic ) )
+            {
               ((QWidget *) *ic)->show();
+            }
           }
       }
     }
