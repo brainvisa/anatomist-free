@@ -572,6 +572,21 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
                        ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
+#if QT_VERSION >= 0x040600
+
+  // pinch
+  pinchEventSubscribe(
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStart ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchMove ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+#endif
+
   //  translation
 
   mouseLongEventSubscribe
