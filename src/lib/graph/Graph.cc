@@ -1887,18 +1887,6 @@ void AGraph::updateAfterAimsChange()
 void AGraph::setProperties( Object options )
 {
   AObject::setProperties( options );
-
-  Motion m = GraphManip::talairach( *d->graph );
-  if( !m.isIdentity() )
-  {
-    GenericObject *go = attributed();
-    vector<string> refs;
-    refs.push_back( StandardReferentials::acPcReferential() );
-    go->setProperty( "referentials", refs );
-    vector< vector<float> > mot;
-    mot.push_back( m.toVector() );
-    go->setProperty( "transformations", mot );
-  }
 }
 
 
