@@ -48,6 +48,7 @@ import pylab, sip
 
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import QtGui
+import six
 
 
 class AProfile( ana.cpp.QAWindow ):
@@ -298,7 +299,7 @@ class AProfile( ana.cpp.QAWindow ):
       t0, t1 = bounds
       step = min( vs ) # not optimal.
       indices = [ opos+uvect*(t0+x*step) for x in \
-        xrange( 0, int( (t1 - t0 + 1)/step ) ) ]
+        six.moves.xrange( 0, int( (t1 - t0 + 1)/step ) ) ]
 
       besti = numpy.argmax( numpy.abs( self._orientation.transform( [ 1, 0, 0 ] ) ) )
       self._coordindex = besti
@@ -349,7 +350,7 @@ class AProfile( ana.cpp.QAWindow ):
       ts = vs[3]
     else:
       ts = 1.
-    xdata = [ x * ts for x in xrange( vol.getSizeT() ) ]
+    xdata = [ x * ts for x in six.moves.xrange( vol.getSizeT() ) ]
     ipos = numpy.array( opos ) / vs[:3]
     if ipos[0] < 0 or ipos[1] < 0 or ipos[2] < 0 or ipos[0] >= vol.getSizeX() \
       or ipos[1] >= vol.getSizeY() or ipos[2] >= vol.getSizeZ():

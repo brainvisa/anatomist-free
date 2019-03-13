@@ -58,6 +58,7 @@ qt.QSize = QtCore.QSize
 qt.QObject = QtCore.QObject
 from soma.qt_gui.qt_backend import FigureCanvas
 from matplotlib.figure import Figure
+import six
 
 
 def setObjectId(object):
@@ -456,8 +457,8 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
         if isinstance(layout, qt.QGridLayout):
           nc = layout.columnCount()
           nr = layout.rowCount()
-          for r in xrange(nr):
-            for c in xrange(nc):
+          for r in six.moves.xrange(nr):
+            for c in six.moves.xrange(nc):
               if layout.itemAtPosition(r, c).widget() == window:
                 lay_pos = (r, c)
                 break
@@ -465,7 +466,7 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
               break
         else: # std layout
           nitem = layout.count()
-          for c in xrange(nitem):
+          for c in six.moves.xrange(nitem):
             if layout.itemAt(c).widget() == window:
               lay_pos = (c, )
               break

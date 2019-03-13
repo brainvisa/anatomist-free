@@ -48,6 +48,8 @@ import anatomist.cpp as anatomist
 from soma.qt_gui.qt_backend.QtCore import *
 from soma.qt_gui.qt_backend.QtGui import *
 from soma.qt_gui.qt_backend import QtGui
+import six
+
 Slot = pyqtSlot
 
 
@@ -561,7 +563,7 @@ def listmods():
   for x in anatomist.loaded_modules:
     try:
       s = ''
-      for i in xrange( sz - len(x) ):
+      for i in six.moves.xrange( sz - len(x) ):
         s += ' '
       print(' ', x, s + ':', eval( x + '.__file__' ))
       descr = eval( x + '.__doc__' )
