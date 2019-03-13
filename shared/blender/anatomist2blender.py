@@ -33,6 +33,7 @@ import Anatomist
 import os
 import quaternion
 import operator
+import six
 
 a = Anatomist.anatomist()
 window = a.getInfo( windows=1 )[ 'windows' ]
@@ -70,7 +71,7 @@ if window:
   cameraLocation[ 2 ]  = -cameraLocation[ 2 ]
   m = quaternion.Quaternion( windowInfo[ 'view_quaternion' ] ).rotationMatrix()
   cameraMatrix = [ m[0:4], m[4:8], m[8:12], m[12:16] ]
-#  for i in xrange( 3 ):
+#  for i in six.moves.xrange( 3 ):
 #    cameraMatrix[ i ][ 2 ] = -cameraMatrix[ i ][ 2 ]
 #  print cameraMatrix
   
@@ -79,6 +80,7 @@ import os, struct, re
 import Blender
 from Blender import Scene, Object, Camera, NMesh, Material
 from Blender.Mathutils import Matrix
+import six
 
 class PaletteReader:
   def __init__( self, fileName ):
@@ -121,12 +123,12 @@ class PaletteReader:
       self._file = open( ima, 'rb' )
     
   def _readBinaryRGB( self ):
-    for i in xrange( self.size ):
+    for i in six.moves.xrange( self.size ):
       yield struct.unpack( self._byteOrder + 'BBB',
                            self._file.read( 3 ) ) + (255,)
 
   def _readBinaryRGBA( self ):
-    for i in xrange( self.size ):
+    for i in six.moves.xrange( self.size ):
       yield struct.unpack( self._byteOrder + 'BBBB',
                            self._file.read( 4 ) )
                         
@@ -193,7 +195,7 @@ class MeshReader:
   def vertices( self ):
     if self._verticesRead:
       raise RuntimeError( 'Vertices can be read only once' )
-    for i in xrange( self.verticesCount ):
+    for i in six.moves.xrange( self.verticesCount ):
       yield self._itemReader.read( 'fff', self._file )
     self._verticesRead = True
     self.normalsCount = self._itemReader.read( 'L', self._file )[0]
@@ -206,7 +208,7 @@ class MeshReader:
         raise RuntimeError( 'Vertices must be read before normals' )
     if self._normalsRead:
       raise RuntimeError( 'Normals can be read only once' )
-    for i in xrange( self.normalsCount ):
+    for i in six.moves.xrange( self.normalsCount ):
       yield self._itemReader.read( 'fff', self._file )
     self._normalsRead = True
     textureCount = self._itemReader.read( 'L', self._file )[0]
@@ -232,7 +234,7 @@ class MeshReader:
     if self._facesRead:
       raise RuntimeError( 'Faces can be read only once' )
     format = 'L' * self._polygonDimension
-    for i in xrange( self.facesCount ):
+    for i in six.moves.xrange( self.facesCount ):
       yield self._itemReader.read( format, self._file )
     self._facesRead = True
     self._file.close()
@@ -293,7 +295,7 @@ class TextureReader:
     type, timeStepCount, instant, self._size = self._itemReader.read( 'sLLL', self._file )
 
   def read( self ):
-    for i in xrange( self._size ):
+    for i in six.moves.xrange( self._size ):
       t = self._itemReader.read( 'f', self._file )[ 0 ]
       yield int( t )
 

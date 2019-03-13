@@ -47,6 +47,8 @@ import numpy
 import anatomist.api as ana
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import QtGui
+import six
+
 Qt = QtCore.Qt
 
 bsa_url = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.nii'
@@ -90,7 +92,8 @@ def bsaClickHandler(eventName, params):
       lw.setText( '<html>Out of atlas space.</html>' )
       return
   offset0 = ( posvox[0] + posvox[1] * imgdim[0] + posvox[2] * imgdim[0]*imgdim[1] ) *4 + hdrsz
-  offsets = [ t * imgdim[0]*imgdim[1]*imgdim[2]*4 + offset0 for t in xrange(imgdim[3]) ]
+  offsets = [t * imgdim[0]*imgdim[1]*imgdim[2]*4 + offset0
+             for t in six.moves.xrange(imgdim[3])]
   req = Request( bsa_url )
 
   if use_multirange:
