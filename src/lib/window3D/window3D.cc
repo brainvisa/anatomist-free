@@ -234,7 +234,8 @@ namespace
               Referential::acPcReferential(), ref);
       if (t)
       {
-        Point3df p = t->transform(Point3df(1, 0, 0));
+        Point3df p = t->transform( Point3df( 1, 0, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         Quaternion q;
         if (p[0] < 0)
         {
@@ -243,7 +244,8 @@ namespace
           q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
-        p = t->transform(Point3df(0, 1, 0));
+        p = t->transform( Point3df( 0, 1, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         if (p[1] < 0)
         {
           q.fromAxis(Point3df(1, 0, 0), M_PI);
@@ -268,7 +270,8 @@ namespace
               Referential::acPcReferential(), ref);
       if (t)
       {
-        Point3df p = t->transform(Point3df(1, 0, 0));
+        Point3df p = t->transform( Point3df( 1, 0, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         Quaternion q;
         if (p[0] < 0)
         {
@@ -277,7 +280,8 @@ namespace
           q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
-        p = t->transform(Point3df(0, 0, 1));
+        p = t->transform( Point3df( 0, 0, 1 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         if (p[2] < 0)
         {
           q.fromAxis(Point3df(1, 0, 0), M_PI);
@@ -304,7 +308,8 @@ namespace
               Referential::acPcReferential(), ref);
       if (t)
       {
-        Point3df p = t->transform(Point3df(0, 1, 0));
+        Point3df p = t->transform( Point3df( 0, 1, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         Quaternion q;
         if (p[1] < 0)
         {
@@ -313,7 +318,8 @@ namespace
           q.fromAxis(Point3df(0, 1, 0), M_PI);
           quat *= q;
         }
-        p = t->transform(Point3df(0, 0, 1));
+        p = t->transform( Point3df( 0, 0, 1 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         if (p[2] < 0)
         {
           q.fromAxis(Point3df(0, 1, 0), M_PI);
@@ -2141,6 +2147,8 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
   if( hasObject( o ) )
     return;
 
+  bool reorient = ( viewType() != AWindow3D::ThreeD
+                    && !isViewOblique() );
   bool fst = _objects.empty();
   ControlledWindow::registerObject(o, temporaryObject, pos);
 
@@ -2229,6 +2237,8 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
             break;
         }
       }
+      if( reorient )
+        setViewType( viewType() ); // reorient according to transforms
     }
     Refresh();
   }
@@ -2389,6 +2399,11 @@ bool AWindow3D::isViewOblique() const
     {
         return true;
     }
+    static const float c = 1. / sqrt(2.);
+    const Point4df & sl_vec = d->slicequat.vector();
+    if( sl_vec != Point4df(0, 0, 0, 1) && sl_vec != Point4df(c, 0, 0, c)
+        && sl_vec != Point4df(-0.5, -0.5, -0.5, 0.5) )
+      return true;
     return false;
 }
 
