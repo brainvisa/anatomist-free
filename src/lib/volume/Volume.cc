@@ -348,7 +348,7 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
   {
     AffineTransformation3d t
       = tra->motion().inverse() * AffineTransformation3d( quat );
-    t.translation() = Point3df( 0, 0, 0 ); // TODO: don't merge this in 4.7
+    t.setTranslation( Point3df( 0, 0, 0 ) );
     if( t.isDirect() )
     {
       q.buildFromMotion( t );
