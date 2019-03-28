@@ -316,8 +316,8 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
                                   const SliceViewState & state, 
                                   unsigned /*tex*/ ) const
 {
-  /* cout << "AVolume<" << DataTypeCode<T>::name()
-      << ">::update2DTexture, pos : " << pos << "\n";
+  /* cout << "\nAVolume<" << DataTypeCode<T>::name()
+      << ">::update2DTexture, " << name() << ", pos : " << pos << "\n";
   cout << "vol timedims: " << state.timedims.size() << endl; */
   if( !_volume->allocatorContext().isAllocated() )
     return false;
@@ -338,13 +338,26 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
         << ", tr : " << tra << endl; */
   }
 
+  // cout << "orientation quat: " << quat.vector() << endl;
   Point3df	u = quat.transformInverse( Point3df( 1, 0, 0 ) ),
     v = quat.transformInverse( Point3df( 0, 1, 0 ) ),
     w = quat.transformInverse( Point3df( 0, 0, 1 ) );
 
   Quaternion	q;
   if( tra )
-    q = tra->quaternion().inverse() * quat;
+  {
+    AffineTransformation3d t
+      = tra->motion().inverse() * AffineTransformation3d( quat );
+    t.translation() = Point3df( 0, 0, 0 ); // TODO: don't merge this in 4.7
+    if( t.isDirect() )
+    {
+      q.buildFromMotion( t );
+      if( !( AffineTransformation3d( q ) == t ) )
+        q.fromAxis( Point3df( 0, 0, 0 ), 0 ); // invalid quaternion
+    }
+    else
+      q.fromAxis( Point3df( 0, 0, 0 ), 0 ); // invalid quaternion
+  }
   else
     q = quat;
 
