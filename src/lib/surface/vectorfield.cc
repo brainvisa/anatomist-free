@@ -736,7 +736,7 @@ int VectorField::canFusion( const set<AObject *> & obj )
     if( Private::getDataType( *io ) == Private::NONE )
       return 0;
   }
-  if( i >= 3 )
+  if( i > 3 )
     return 0;
 
   return 50;
