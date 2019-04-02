@@ -86,7 +86,11 @@
 #include <qslider.h>
 #include <qglobal.h>
 #include <qmessagebox.h>
-#include <QtOpenGL/QGLWidget>
+#if QT_VERSION >= 0x050900
+#include <QOpenGLWidget>
+#else
+#include <QGLWidget>
+#endif
 #include <qlabel.h>
 #include <qmenubar.h>
 #include <qmenu.h>
@@ -450,8 +454,8 @@ AWindow3D::ObjectModifier::~ObjectModifier()
 namespace
 {
 
-  void paintRefLabel(QPushButton* reflabel, QLabel* refdirmark,
-      const Referential* ref)
+  void paintRefLabel(QPushButton* reflabel, 
+                     QLabel* refdirmark, const Referential* ref)
   {
     if (ref && ref->isDirect())
     {
@@ -487,7 +491,7 @@ namespace
       else
         reflabel->setPalette(QPalette(QColor(192, 192, 192)));
     }
-  }
+ }
 
   AWindow3D::GLWidgetCreator & glWidgetCreator()
   {
@@ -572,8 +576,10 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     d->draw = glWidgetCreator()(this, daparent, "GL drawing area",
         GLWidgetManager::sharedWidget(), 0);
   else
-    d->draw = new QAGLWidget3D(this, daparent, "GL drawing area",
-        GLWidgetManager::sharedWidget());
+  {
+    d->draw = new QAGLWidget3D( this, daparent, "GL drawing area",
+                                GLWidgetManager::sharedWidget() );
+  }
   if( gv )
   {
     gv->setViewport( d->draw->qglWidget() );
@@ -2540,7 +2546,11 @@ void AWindow3D::updateWindowGeometry()
 
 Geometry AWindow3D::setupWindowGeometry(
     const list<carto::shared_ptr<AObject> > & objects, const Quaternion & slicequat,
+#if QT_VERSION >= 0x050900
+    const Referential *wref, QOpenGLWidget* glw, bool with3d )
+#else
     const Referential *wref, QGLWidget* glw, bool with3d )
+#endif
 {
   // cout << "setupWindowGeometry, objects: " << objects.size() << endl;
   using carto::shared_ptr;

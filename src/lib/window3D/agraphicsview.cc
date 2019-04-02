@@ -256,12 +256,13 @@ void AGraphicsView::dragMoveEvent( QDragMoveEvent* event )
         w->dragMoveEvent( event );
     }
   }
+#
 }
 
 
 void AGraphicsView::dropEvent( QDropEvent* event )
 {
-  /* We should try the QGraphicsView first to enable dropping on graphics items
+ /* We should try the QGraphicsView first to enable dropping on graphics items
      or widgets, but unfortunately, QGraphicsView:dropEvent always accepts the
      event, so we don't know if drop has actually taken place.
   */

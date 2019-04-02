@@ -60,7 +60,11 @@ namespace anatomist
 
 }
 
+#if QT_VERSION >= 0x050900
+class QOpenGLWidget;
+#else
 class QGLWidget;
+#endif
 class QSlider;
 
 
@@ -184,7 +188,11 @@ public:
                        & objects,
                        const aims::Quaternion & slicequat,
                        const anatomist::Referential *wref = 0, 
+#if QT_VERSION >= 0x050900
+                       QOpenGLWidget* glw = 0, bool with3d = false );
+#else
                        QGLWidget* glw = 0, bool with3d = false );
+#endif
 
   virtual anatomist::View* view();
   virtual const anatomist::View* view() const;
@@ -232,7 +240,11 @@ public:
 
   typedef anatomist::GLWidgetManager* (*GLWidgetCreator)
       ( anatomist::AWindow* win, QWidget* parent, const char* name,
+#if QT_VERSION >= 0x050900
+        const QOpenGLWidget * shareWidget, Qt::WindowFlags f );
+#else
         const QGLWidget * shareWidget, Qt::WindowFlags f );
+#endif
   /// hook to create inherited QAGLWidgets (Vtk-enabled for instance)
   static void setGLWidgetCreator( GLWidgetCreator );
 

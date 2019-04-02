@@ -41,7 +41,9 @@
 #include <qtimer.h>
 #include <map>
 #include <anatomist/controler/controlswitch.h>
+#if QT_VERSION < 0x050900
 #include <anatomist/window/glcontext.h>
+#endif
 #include <anatomist/reference/Transformation.h>
 #include <aims/resampling/quaternion.h>
 #include <cartobase/type/string_conversion.h>
@@ -60,6 +62,9 @@
 #if QT_VERSION >= 0x050000
 #include <QWindow>
 #endif
+#if QT_VERSION >= 0x050900
+#include <QOpenGLWidget>
+#endif
 
 namespace Qt
 {
@@ -74,11 +79,19 @@ using namespace std;
 #define COMPILE_DEPTH_PEELING
 
 
+#if QT_VERSION >= 0x050900
+QOpenGLWidget* GLWidgetManager::sharedWidget()
+{
+  static QOpenGLWidget *w = 0;
+  return  w ? w : w = new QOpenGLWidget();
+}
+#else
 QGLWidget* GLWidgetManager::sharedWidget()
 {
   static QGLWidget *w = 0;
   return  w ? w : w = new GLWidget( 0, "ref GLWidget" );
 }
+#endif
 
 
 GLWidgetManager_Private_QObject::GLWidgetManager_Private_QObject(
@@ -138,7 +151,11 @@ struct GLWidgetManager::Private
   void setAutoCenter();
   void setWindowExtrema();
 
+#if QT_VERSION >= 0x050900
+  QOpenGLWidget         *glwidget;
+#else
   QGLWidget             *glwidget;
+#endif
   Point3df		bmino;
   Point3df		bmaxo;
   Point3df		bminw;
@@ -247,8 +264,12 @@ void GLWidgetManager::Private::setWindowExtrema()
 // --------
 
 
+#if QT_VERSION >= 0x050900
+GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QOpenGLWidget * glw )
+#else
 GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QGLWidget * glw )
-  : View( win ), _pd( new Private )
+#endif
+  : View( win ), _pd( new GLWidgetManager::Private() )
 {
   _pd->glwidget = glw;
   glw->setFocusPolicy( StrongFocus );
@@ -272,7 +293,11 @@ QObject* GLWidgetManager::qobject()
 }
 
 
+#if QT_VERSION >= 0x050900
+QOpenGLWidget* GLWidgetManager::qglWidget()
+#else
 QGLWidget* GLWidgetManager::qglWidget()
+#endif
 {
   return _pd->glwidget;
 }
@@ -305,7 +330,6 @@ namespace
   }
 
 }
-
 
 void GLWidgetManager::initializeGL()
 {
@@ -406,6 +430,9 @@ void GLWidgetManager::paintScene()
 
 void GLWidgetManager::paintGL()
 {
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+  glClearColor( 1, 1, 1, 1 );
+
   _pd->zbufready = true;
   if( _pd->zbuftimer )
     _pd->zbuftimer->stop();
@@ -1175,10 +1202,17 @@ void GLWidgetManager::updateGL()
   }
   else if( _pd->glwidget )
   {
+#if QT_VERSION >= 0x050900
+    if( dynamic_cast<QOpenGLWidget *>( this ) == _pd->glwidget )
+      _pd->glwidget->QOpenGLWidget::update();
+    else
+      _pd->glwidget->update();
+#else
     if( dynamic_cast<QGLWidget *>( this ) == _pd->glwidget )
       _pd->glwidget->QGLWidget::updateGL();
     else
       _pd->glwidget->updateGL();
+#endif
   }
 
   if( _pd->record )
@@ -1987,6 +2021,7 @@ void GLWidgetManager::mousePressEvent( QMouseEvent* ev )
     copyBackBuffer2Texture();
 
   controlSwitch()->mousePressEvent( ev );
+#
 }
 
 
@@ -2214,9 +2249,14 @@ QSize GLWidgetManager::minimumSizeHint() const
 {
   if( _pd->minSizeHint == QSize( 0, 0 ) )
   {
-    if( dynamic_cast<const QGLWidget *>( this ) == _pd->glwidget )
+#if QT_VERSION >= 0x050900
+    if( dynamic_cast<const QOpenGLWidget *>( this ) == _pd->glwidget )
+      return _pd->glwidget->QOpenGLWidget::minimumSizeHint();
+#else
+     if( dynamic_cast<const QGLWidget *>( this ) == _pd->glwidget )
       return _pd->glwidget->QGLWidget::minimumSizeHint();
-    else
+#endif
+   else
       return _pd->glwidget->minimumSizeHint();
   }
   return( _pd->minSizeHint );
@@ -2306,5 +2346,3 @@ bool GLWidgetManager::hasCameraChanged() const
 {
   return _pd->cameraChanged;
 }
-
-
