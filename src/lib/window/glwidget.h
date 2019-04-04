@@ -38,6 +38,7 @@
 #include <qglobal.h>
 #if QT_VERSION >= 0x050900
 #include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #else
 #include <anatomist/window/glcontext.h>
 #endif
@@ -45,7 +46,9 @@
 
 
 #if QT_VERSION >= 0x050900
-class QAGLWidget : public QOpenGLWidget, public anatomist::GLWidgetManager
+class QAGLWidget : public QOpenGLWidget, 
+                   public anatomist::GLWidgetManager,
+                   protected QOpenGLFunctions
 #else
 class QAGLWidget : public carto::GLWidget, public anatomist::GLWidgetManager
 #endif
@@ -104,7 +107,6 @@ protected:
   virtual void focusInEvent( QFocusEvent * );
   virtual void focusOutEvent( QFocusEvent * );
   virtual void wheelEvent( QWheelEvent * );
-  
 };
 
 

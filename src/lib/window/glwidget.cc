@@ -36,6 +36,9 @@
 #if QT_VERSION >= 0x040600
 #include <QGestureEvent>
 #endif
+#if QT_VERSION >= 0x050900
+#include <QOpenGLContext>
+#endif
 
 using namespace anatomist;
 using namespace carto;
@@ -47,13 +50,15 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
                         const char* name, const QOpenGLWidget * /*shareWidget*/,
                         Qt::WindowFlags f )
   : QOpenGLWidget( parent, f ),
+    GLWidgetManager( win, this ),
+    QOpenGLFunctions()
 #else
 QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
                         const char* name, const QGLWidget * shareWidget,
                         Qt::WindowFlags f )
   : GLWidget( parent, name, shareWidget, f ),
-#endif
     GLWidgetManager( win, this )
+#endif
 {
 #if QT_VERSION >= 0x040600
   grabGesture( Qt::PinchGesture );
@@ -92,6 +97,14 @@ void QAGLWidget::updateGL()
 
 void QAGLWidget::initializeGL()
 {
+#if QT_VERSION >= 0x050900
+  initializeOpenGLFunctions();
+//  QOpenGLContext* sharedContext = _sharedWidget->context();
+//  QOpenGLContext* ctxt = context();
+//  ctxt->setFormat( sharedContext->format() );
+//  ctxt->setShareContext( sharedContext );
+//  ctxt->create();
+#endif
   GLWidgetManager::initializeGL();
 }
 

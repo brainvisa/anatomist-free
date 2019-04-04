@@ -83,7 +83,15 @@ using namespace std;
 QOpenGLWidget* GLWidgetManager::sharedWidget()
 {
   static QOpenGLWidget *w = 0;
-  return  w ? w : w = new QOpenGLWidget();
+  //return  w ? w : w = new QOpenGLWidget();
+  if ( !w )
+  {
+    w = new QOpenGLWidget();
+    w->setGeometry( 0, 0, 1, 1 );
+    w->show();
+    w->hide();
+  }
+  return w;
 }
 #else
 QGLWidget* GLWidgetManager::sharedWidget()
