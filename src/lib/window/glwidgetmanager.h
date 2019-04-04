@@ -216,8 +216,8 @@ namespace anatomist
     AWindow * aWindow();
     const AWindow * aWindow() const;
 
-    virtual int width() { return 1;} //= 0;
-    virtual int height() { return 1; } //= 0;
+    virtual int width() = 0;
+    virtual int height() = 0;
   // public slots:
 
     virtual void saveContents();
