@@ -64,7 +64,16 @@
 #endif
 #if QT_VERSION >= 0x050900
 #include <QOpenGLWidget>
+#include <QOpenGLContext>
 #endif
+
+
+#if QT_VERSION >= 0x050900
+// Declared in <QtGui/private/qopenglcontext_p.h> which
+// is not part of the API
+extern void qt_gl_set_global_share_context(QOpenGLContext *context);
+#endif
+
 
 namespace Qt
 {
@@ -83,13 +92,15 @@ using namespace std;
 QOpenGLWidget* GLWidgetManager::sharedWidget()
 {
   static QOpenGLWidget *w = 0;
-  //return  w ? w : w = new QOpenGLWidget();
   if ( !w )
   {
+    // Create global shared context
+    QOpenGLContext* context = new QOpenGLContext();
+    context->setFormat( QSurfaceFormat::defaultFormat() );
+    context->create();
+    qt_gl_set_global_share_context( context );
+    // Create widget
     w = new QOpenGLWidget();
-    w->setGeometry( 0, 0, 1, 1 );
-    w->show();
-    w->hide();
   }
   return w;
 }

@@ -36,9 +36,6 @@
 #if QT_VERSION >= 0x040600
 #include <QGestureEvent>
 #endif
-#if QT_VERSION >= 0x050900
-#include <QOpenGLContext>
-#endif
 
 using namespace anatomist;
 using namespace carto;
@@ -99,11 +96,6 @@ void QAGLWidget::initializeGL()
 {
 #if QT_VERSION >= 0x050900
   initializeOpenGLFunctions();
-//  QOpenGLContext* sharedContext = _sharedWidget->context();
-//  QOpenGLContext* ctxt = context();
-//  ctxt->setFormat( sharedContext->format() );
-//  ctxt->setShareContext( sharedContext );
-//  ctxt->create();
 #endif
   GLWidgetManager::initializeGL();
 }
