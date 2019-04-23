@@ -101,6 +101,12 @@ QOpenGLWidget* GLWidgetManager::sharedWidget()
     qt_gl_set_global_share_context( context );
     // Create widget
     w = new QOpenGLWidget();
+    // Required to initialize the QOpenGLWidget context otherwise
+    // a call to GLWidgetManager::sharedWidget()->makeCurrent()
+    // won't have any effect (w->context() is null until w->show() is called)
+    w->setGeometry( 0, 0, 1, 1 );
+    w->show();
+    w->hide();
   }
   return w;
 }
