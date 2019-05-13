@@ -163,7 +163,6 @@ class SaveResampledModule(ana.cpp.Module):
             if k.startswith('VOLUME<'):
                 menus[v] = k
         for m in menus.keys():
-            print(m)
             self.addMenuEntryToOptionMenu(m)
 
 
