@@ -64,7 +64,8 @@ using namespace std;
 
 struct SurfpaintTools::Private
 {
-  Private() {}
+  Private() : valid( false )
+  {}
 
   list<unsigned> undone_listIndexVertexPathSP;
   list<unsigned> undone_listIndexVertexSelectSP;
@@ -88,6 +89,7 @@ struct SurfpaintTools::Private
 
   list<map<unsigned, float> > recorded_modifs;
   list<map<unsigned, float> > undone_modifs;
+  bool valid;
 };
 
 
@@ -397,6 +399,8 @@ void SurfpaintTools::save()
 
 bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 {
+  d->valid = false;
+
   win3D = w3;
 
   stepToleranceValue = 0;
@@ -567,9 +571,17 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
 
       }
 
-      sp = new GeodesicPath(*mesh,texCurv,0,0);
-      sp_sulci = new GeodesicPath(*mesh,texCurv,1,3);
-      sp_gyri = new GeodesicPath(*mesh,texCurv,2,3);
+      try
+      {
+        sp = new GeodesicPath(*mesh,texCurv,0,0);
+        sp_sulci = new GeodesicPath(*mesh,texCurv,1,3);
+        sp_gyri = new GeodesicPath(*mesh,texCurv,2,3);
+      }
+      catch( exception & e )
+      {
+        cerr << "Problem: " << e.what() << endl;
+        throw;
+      }
 
       cout << "compute surface neighbours : ";
       neighbours = SurfaceManip::surfaceNeighbours((*mesh));
@@ -577,9 +589,18 @@ bool SurfpaintTools::initSurfPaintModule(AWindow3D *w3)
     }
   }
 
+  d->valid = true;
+
   w3->Refresh();
   return true;
 }
+
+
+bool SurfpaintTools::isValid() const
+{
+  return d->valid;
+}
+
 
 void SurfpaintTools::addToolBarControls(AWindow3D *w3)
 {
