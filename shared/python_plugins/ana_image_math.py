@@ -6,7 +6,7 @@ from soma.qt_gui.qt_backend import Qt
 from soma import aims, aimsalgo
 import re
 import numpy as np
-import anacontrolmenu # needs this one to be initialized first
+import anacontrolmenu  # needs this one to be initialized first
 
 
 def combine_vols():
@@ -69,6 +69,7 @@ def combine_vols():
     vols.sort(key=lambda x: x.name)
     for i, x in enumerate(vols):
         obox.addItem('I%d : %s' % (i, x.name))
+
     def obj_selected(num):
         new_text = le.text()
         if len(new_text) != 0 and not new_text.endswith(' '):
@@ -82,35 +83,35 @@ def combine_vols():
         resample_order = int(rsp_combo.currentText())
         formula = le.text()
         formula = re.sub('I([0-9]+)', 'image[\\1]', formula)
-        #print('formula:', formula)
+        # print('formula:', formula)
         used_im = re.findall('image\[[0-9]+\]', formula)
         if len(used_im) != 0:
             Qt.qApp.setOverrideCursor(Qt.QCursor(Qt.Qt.WaitCursor))
             try:
                 used_im = set(used_im)
-                #print('used:', used_im)
+                # print('used:', used_im)
                 image = [None] * len(vols)
                 dims_vs = []
                 mindim = None
                 resample = False
                 for im in used_im:
                     num = int(im[6:-1])
-                    #print(num)
+                    # print(num)
                     image[num] = a.toAimsObject(vols[num]).volume()._get()
                     vs = list(image[num].getVoxelSize())
                     dim = list(image[num].getSize())
-                    #print(dim, vs)
+                    # print(dim, vs)
                     dims_vs.append((dim, vs))
                     if mindim is None:
                         mindim = [dim, vs]
                     if dim != dims_vs[0][0] or vs != dims_vs[0][1]:
-                        viewsize = [x*y for x, y in zip(*mindim)]
-                        nvsize = [x*y for x, y in zip(dim, vs)]
+                        viewsize = [x * y for x, y in zip(*mindim)]
+                        nvsize = [x * y for x, y in zip(dim, vs)]
                         new_vsize = [max(x, y) for x, y in zip(viewsize,
                                                                nvsize)]
                         mindim[1] = [min(x, y) for x, y in zip(vs, mindim[1])]
-                        mindim[0] = [np.ceil(x/y)
-                                    for x, y in zip(new_vsize, mindim[1])]
+                        mindim[0] = [np.ceil(x / y)
+                                     for x, y in zip(new_vsize, mindim[1])]
                         resample = True
                 if resample:
                     print('resampling needed:', mindim)
@@ -120,7 +121,7 @@ def combine_vols():
                             vol = image[num]
                             dtype = aims.typeCode(np.asarray(vol).dtype)
                             rfactory = getattr(aims,
-                                              'ResamplerFactory_%s' % dtype)()
+                                               'ResamplerFactory_%s' % dtype)()
                             resampler = rfactory.getResampler(resample_order)
                             t = aims.AffineTransformation3d()
                             resampler.setRef(image[num])
@@ -132,7 +133,7 @@ def combine_vols():
                     new_image = eval(formula)
                     if isinstance(new_image, np.ndarray):
                         if mindim is not None:
-                            np_image = new_image # save ref to np array
+                            np_image = new_image  # save ref to np array
                             del new_image
                             new_image = aims.Volume(np_image)
                             # copy volume to avoid pointing to deleted np array
@@ -147,7 +148,7 @@ def combine_vols():
                             return
                     elif not hasattr(new_image, '__class__') \
                             or (not new_image.__class__.__name__.startswith(
-                                    'Volume_')
+                                'Volume_')
                                 and not
                                 new_image.__class__.__name__.startswith(
                                     'AimsData_')):

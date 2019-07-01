@@ -57,7 +57,7 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
         # so that we are able to resample in their space
         vols = [o for o in a.getObjects()
                 if o.getInternalRep() is not obj
-                    and o.objectType.startswith('VOLUME')]
+                and o.objectType.startswith('VOLUME')]
         tr = [a.getTransformation(ref, v.referential) for v in vols]
         vols = [(v, t) for v, t in zip(vols, tr) if t is not None]
 
@@ -116,7 +116,8 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
         Qt.qApp.setOverrideCursor(Qt.QCursor(Qt.Qt.WaitCursor))
         try:
             # get source and dest aims volumes
-            sel = [vols[i] for i in range(lw.count()) if lw.item(i).isSelected()]
+            sel = [vols[i]
+                   for i in range(lw.count()) if lw.item(i).isSelected()]
             sel, tr = sel[0]
             source = a.AObject(a, obj).toAimsObject().volume()
             target = sel.toAimsObject().volume()
@@ -149,10 +150,10 @@ class SaveResampledModule(ana.cpp.Module):
 
     @staticmethod
     def addMenuEntryToOptionMenu(menu):
-      '''Add menu to optionMenu (new menu system API)'''
-      save_resampled = SaveResampled()
-      SaveResampledModule.callbacks_list.append(save_resampled)
-      menu.insertItem(['File'], 'Save resampled', save_resampled)
+        '''Add menu to optionMenu (new menu system API)'''
+        save_resampled = SaveResampled()
+        SaveResampledModule.callbacks_list.append(save_resampled)
+        menu.insertItem(['File'], 'Save resampled', save_resampled)
 
     def objectPropertiesDeclaration(self):
         '''Add here entry to optionTree for save new menu'''
@@ -168,4 +169,3 @@ class SaveResampledModule(ana.cpp.Module):
 
 sm = SaveResampledModule()
 sm.init()
-
