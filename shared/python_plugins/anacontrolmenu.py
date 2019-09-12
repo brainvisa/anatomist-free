@@ -373,12 +373,21 @@ def runIPConsoleKernel(mode='qtconsole'):
             if ipversion >= [2, 0]:
                 # IP 2 allows just calling the current callbacks.
                 # For IP 1 it is not sufficient.
-                def my_start_ioloop_callbacks(self):
-                    with self._callback_lock:
-                        callbacks = self._callbacks
-                        self._callbacks = []
-                    for callback in callbacks:
-                        self._run_callback(callback)
+                import tornado
+                if tornado.version_info[0] >= 5:
+                    # tornado 5 is using a decque for _callbacks, not a
+                    # list + explicit locking
+                    def my_start_ioloop_callbacks(self):
+                        ncallbacks = len(self._callbacks)
+                        for i in range(ncallbacks):
+                            self._run_callback(self._callbacks.popleft())
+                else:
+                    def my_start_ioloop_callbacks(self):
+                        with self._callback_lock:
+                            callbacks = self._callbacks
+                            self._callbacks = []
+                        for callback in callbacks:
+                            self._run_callback(callback)
 
                 my_start_ioloop_callbacks(ioloop.IOLoop.instance())
             else:
