@@ -48,6 +48,7 @@ import os
 import string
 import glob
 import anatomist.cpp as anatomist
+from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend.QtCore import *
 from soma.qt_gui.qt_backend.QtGui import *
 from soma.qt_gui.qt_backend import QtGui
@@ -316,6 +317,7 @@ def _my_ioloop_start(self):
 
 
 def runIPConsoleKernel(mode='qtconsole'):
+    print('runIPConsoleKernel, QT_QPI:', os.environ.get('QT_API'))
     import IPython
     from IPython.lib import guisupport
     qtapp = QtGui.QApplication.instance()
@@ -327,12 +329,16 @@ def runIPConsoleKernel(mode='qtconsole'):
     # embedded ipython engine + qt loop in the same process.
     # works for ipython >= 3 but forbids connection from outside
     # so it is not so interesting after all.
-        os.environ['QT_API'] = 'pyqt'
+        qt_api = qt_backend.get_qt_backend().lower()
+        os.environ['QT_API'] = qt_api
         from IPython.qt.inprocess import QtInProcessKernelManager
         kernel_manager = QtInProcessKernelManager()
         kernel_manager.start_kernel()
         kernel = kernel_manager.kernel
-        kernel.gui = 'qt4'
+        if qt_api == 'pyqt4':
+            kernel.gui = 'qt4'
+        elif qt_api == 'pyqt5':
+            kernel.gui = 'qt5'
         # kernel.shell.push({'foo': 43, 'print_process_id': print_process_id})
 
         kernel_client = kernel_manager.client()
@@ -354,6 +360,7 @@ def runIPConsoleKernel(mode='qtconsole'):
         if not have_zmq:
             return None  # no zmq: fail
         from IPython.kernel.zmq.kernelapp import IPKernelApp
+        print('QT_QPI:', os.environ.get('QT_API'))
         app = IPKernelApp.instance()
         if not app.initialized() or not app.kernel:
             print('runing IP console kernel')
@@ -367,7 +374,9 @@ def runIPConsoleKernel(mode='qtconsole'):
             # instead we must just initialize its callback.
             # if app.poller is not None:
                 # app.poller.start()
+            print('before start')
             app.kernel.start()
+            print('after start')
 
             from zmq.eventloop import ioloop
             if ipversion >= [2, 0]:
@@ -431,9 +440,12 @@ def ipythonQtConsoleShell():
     else:
         ipmodule = 'IPython.frontend.terminal.ipapp'
     if ipConsole:
+        qt_api = qt_backend.get_qt_backend()
+        qt_apis = {'PyQt4': 'pyqt', 'PyQt5': 'pyqt5', 'PySide': 'pyside'}
+        qt_api_code = qt_apis.get(qt_api, 'pyqt')
         sp = soma.subprocess.Popen([exe, '-c',
-                                    'import os; os.environ["QT_API"] = "pyqt"; from %s import launch_new_instance; launch_new_instance()'
-                                    % ipmodule,
+                                    'import os; os.environ["QT_API"] = "%s"; from %s import launch_new_instance; launch_new_instance()'
+                                    % (qt_api_code, ipmodule),
                                     'qtconsole', '--existing',
                                     '--shell=%d' % ipConsole.shell_port,
                                     '--iopub=%d' % ipConsole.iopub_port,
