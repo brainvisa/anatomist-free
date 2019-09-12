@@ -75,6 +75,9 @@ void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globa
 {
   //cout << "pressRightButton\n" ;
 
+  if( !getTools()->isValid() )
+    return;
+
   int activeControl = getTools()->getActiveControl();
   //cout << "active control = " << activeControl <<endl;
 
@@ -97,7 +100,8 @@ void SurfpaintToolsAction::setupTools()
 
 void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int globalY)
 {
-  //AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  if( !getTools()->isValid() )
+    return;
 
   int activeControl = getTools()->getActiveControl();
 
@@ -134,6 +138,9 @@ void SurfpaintToolsAction::longLeftButtonMove(int x, int y, int globalX, int glo
 {
   //cout << "longLeftButtonMove\n" ;
 
+  if( !getTools()->isValid() )
+    return;
+
   int activeControl = getTools()->getActiveControl();
 
   switch (activeControl)
@@ -159,6 +166,9 @@ void SurfpaintToolsAction::longLeftButtonMove(int x, int y, int globalX, int glo
 void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int globalY)
 {
   //cout << "longLeftButtonStop\n" ;
+
+  if( !getTools()->isValid() )
+    return;
 
   int activeControl = getTools()->getActiveControl();
   texvalue = getTools()->getTextureValueFloat();

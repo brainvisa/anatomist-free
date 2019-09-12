@@ -343,4 +343,3 @@ if sigraph is not None:
     f.registerMethod(m)
 
     pm = ModelsFusionModule()
-

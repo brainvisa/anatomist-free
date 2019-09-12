@@ -132,6 +132,7 @@ namespace anatomist
       void newEditOperation();
       void undoTextureOperation();
       void redoTextureOperation();
+      bool isValid() const;
 
     public slots:
 

@@ -174,6 +174,8 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
       textured.push_back( ats ? static_cast<ATexture *>( ats->texture() )
                           : 0 );
     }
+    else
+      textured.push_back( 0 );
   }
   d->inplanarmeshindex = size();
   nplanar = nmesh - d->inplanarmeshindex;
