@@ -152,6 +152,7 @@ def _my_ioloop_start(self):
         # this is a hacked version of tornado.ioloop.PollIOLoop.start()
         # with smaller timeout (2 instead of 3600 s)
         # and breaks when idle with this max timeout
+        # (used only with ipython 1.x)
     if not logging.getLogger().handlers:
         # The IOLoop catches and logs exceptions, so it's
         # important that log output be visible.  However, python's
@@ -383,7 +384,7 @@ def runIPConsoleKernel(mode='qtconsole'):
                 # IP 2 allows just calling the current callbacks.
                 # For IP 1 it is not sufficient.
                 import tornado
-                if tornado.version_info[0] >= 5:
+                if tornado.version_info >= (4, 5):
                     # tornado 5 is using a decque for _callbacks, not a
                     # list + explicit locking
                     def my_start_ioloop_callbacks(self):
