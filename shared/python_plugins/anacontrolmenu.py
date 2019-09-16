@@ -152,6 +152,7 @@ def _my_ioloop_start(self):
         # this is a hacked version of tornado.ioloop.PollIOLoop.start()
         # with smaller timeout (2 instead of 3600 s)
         # and breaks when idle with this max timeout
+        # (used only with ipython 1.x)
     if not logging.getLogger().handlers:
         # The IOLoop catches and logs exceptions, so it's
         # important that log output be visible.  However, python's
@@ -317,7 +318,6 @@ def _my_ioloop_start(self):
 
 
 def runIPConsoleKernel(mode='qtconsole'):
-    print('runIPConsoleKernel, QT_QPI:', os.environ.get('QT_API'))
     import IPython
     from IPython.lib import guisupport
     qtapp = QtGui.QApplication.instance()
@@ -330,6 +330,8 @@ def runIPConsoleKernel(mode='qtconsole'):
     # works for ipython >= 3 but forbids connection from outside
     # so it is not so interesting after all.
         qt_api = qt_backend.get_qt_backend().lower()
+        if qt_api == 'pyqt4':
+            qt_api = 'pyqt'
         os.environ['QT_API'] = qt_api
         from IPython.qt.inprocess import QtInProcessKernelManager
         kernel_manager = QtInProcessKernelManager()
@@ -359,8 +361,10 @@ def runIPConsoleKernel(mode='qtconsole'):
     elif ipversion >= [1, 0]:
         if not have_zmq:
             return None  # no zmq: fail
-        from IPython.kernel.zmq.kernelapp import IPKernelApp
-        print('QT_QPI:', os.environ.get('QT_API'))
+        if ipversion >= [4, 0]:
+            from ipykernel.kernelapp import IPKernelApp
+        else:
+            from IPython.kernel.zmq.kernelapp import IPKernelApp
         app = IPKernelApp.instance()
         if not app.initialized() or not app.kernel:
             print('runing IP console kernel')
@@ -374,16 +378,14 @@ def runIPConsoleKernel(mode='qtconsole'):
             # instead we must just initialize its callback.
             # if app.poller is not None:
                 # app.poller.start()
-            print('before start')
             app.kernel.start()
-            print('after start')
 
             from zmq.eventloop import ioloop
             if ipversion >= [2, 0]:
                 # IP 2 allows just calling the current callbacks.
                 # For IP 1 it is not sufficient.
                 import tornado
-                if tornado.version_info[0] >= 5:
+                if tornado.version_info >= (4, 5):
                     # tornado 5 is using a decque for _callbacks, not a
                     # list + explicit locking
                     def my_start_ioloop_callbacks(self):
