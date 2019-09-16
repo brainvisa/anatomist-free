@@ -419,7 +419,7 @@ bool Sliceable::glMakeTexImage( const ViewState & state,
   unsigned		w = xim.effectiveWidth, h = xim.effectiveHeight;
   const SliceViewState	*st = state.sliceVS();
 
-  xim.data = new char[ w * h * 4 ];
+  xim.data = new char[ ((long long)w) * h * 4 ];
 
   bool	retcode = update2DTexture( xim, si.posbase, *st, tex );
 
