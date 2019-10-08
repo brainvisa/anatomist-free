@@ -629,7 +629,10 @@ void ControlWindow::windowTreeClick()
 
 void ControlWindow::windowTreeDblClick( AWindow* w )
 {
-  w->show();
+  if(w)
+    {
+      w->show();
+    }
 }
 
 
