@@ -58,8 +58,8 @@ namespace
   {
     if( qApp )
       {
-	GLWidgetManager::sharedWidget()->makeCurrent();
-	return( true );
+        GLWidgetManager::sharedWidget()->makeCurrent();
+        return( true );
       }
     else
       return( false );

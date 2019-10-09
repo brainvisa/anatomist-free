@@ -869,6 +869,14 @@ AWindow3D::~AWindow3D()
   setChanged();
   notifyUnregisterObservers();
 
+  AObject *curs = Cursor::currentCursor();
+  if (curs)
+  {
+    GLComponent *gc = curs->glAPI();
+    if (gc)
+      gc->clearLists();
+  }
+
   delete d;
 }
 
