@@ -20,7 +20,7 @@ Features and originality of Anatomist are based on:
 
 Anatomist control window (main window) enables to have a general view of loaded objects and opened windows, to choose actions for combining objects (merging...), or controls to use on windows according to contained objects. Here's Anatomist control window:
 
-.. figure:: _images/control_window0.png
+.. figure:: images/control_window0.png
 
   Anatomist control window
 

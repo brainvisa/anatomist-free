@@ -115,7 +115,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-even">
         <td>
           Only one volume or 2D fusion <br/>
-          <img src="_images/fusion_slice_method_little.png" />
+          <img src="images/fusion_slice_method_little.png" />
         </td>
         <td>FusionSliceMethod</td>
         <td>
@@ -135,7 +135,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-even">
         <td>
           Volume + Mesh <br/>
-          <img src="_images/fusion_map_iwhitemesh_little.png" />
+          <img src="images/fusion_map_iwhitemesh_little.png" />
         </td>
         <td>Fusion3DMethod</td>
         <td>
@@ -1274,7 +1274,7 @@ In a PET exam, you can use this module in order to isolate a region according to
 |                | 64mm3) and you set 1280 mm3, the region size is 20 voxels. |
 +----------------+------------------------------------------------------------+
 | *Percentage of | Percentage of the maximum value. It is possible to change  |
-| extremum       | between a maximum and a minimum using keys *Shift+B* (to a |
+| extremum*      | between a maximum and a minimum using keys *Shift+B* (to a |
 |                | maximum) and *Control+B* (to a minimun).                   |
 +----------------+------------------------------------------------------------+
 
