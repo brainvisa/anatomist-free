@@ -7,10 +7,10 @@ Anatomist developers documentation
 
 Anatomist is written in C++ language, and has Python bindings.
 
-.. |anadox| image:: ../user_doc/_images/program.png
+.. |anadox| image:: ../user_doc/images/program.png
   :height: 64pt
   :target: ../doxygen/index.html
-.. |pyana| image:: ../user_doc/_images/program.png
+.. |pyana| image:: ../user_doc/images/program.png
   :height: 64pt
   :target: ../../pyanatomist/sphinx/index.html
 

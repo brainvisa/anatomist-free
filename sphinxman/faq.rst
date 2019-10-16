@@ -28,9 +28,7 @@ There are several ways:
 
 * Using *Aims* commands to register 2 volumes (``AimsMIRegister`` and ``AimsManualRegistration``).
 * Using *Anatomist* :ref:`transformation control <d_ctr_transformation>` in order to do a manual registration.
-* Convert *SPM* ``.mat`` files into ``.trm`` files with *BrainVISA processes*:
-*Tools => converters => SPM to AIMS transformation converter* and
-*Tools => converters => SPM sn3d to AIMS transformation converter*. Only the affine part of the transformation is converted.
+* Convert *SPM* ``.mat`` files into ``.trm`` files with *BrainVISA processes*: *Tools => converters => SPM to AIMS transformation converter* and *Tools => converters => SPM sn3d to AIMS transformation converter*. Only the affine part of the transformation is converted.
 * You can write your own transformation file.
 
 
