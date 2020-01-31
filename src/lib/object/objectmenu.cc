@@ -56,6 +56,11 @@ bool ObjectMenuCallback::operator == ( const ObjectMenuCallback & x ) const
   return typeid( x ) == typeid( *this );
 }
 
+bool ObjectMenuCallback::operator != ( const ObjectMenuCallback & x ) const
+{
+  return !this->operator==(x);
+}
+
 // ----------------------------------------
 
 ObjectMenuCallbackFunc::ObjectMenuCallbackFunc( CallbackFunc cbk )

@@ -101,6 +101,12 @@ bool SelectFactory::HColor::operator == ( const HColor & c ) const
 }
 
 
+bool SelectFactory::HColor::operator != ( const HColor & c ) const
+{
+  return !this->operator==(c);
+}
+
+
 SelectFactory* SelectFactory::factory()
 {
   if( !_theFactory() )

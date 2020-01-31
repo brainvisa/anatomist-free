@@ -59,6 +59,7 @@ namespace anatomist
     */
     virtual void doit( const std::set<AObject *> & obj ) = 0;
     virtual bool operator == ( const ObjectMenuCallback & ) const;
+    virtual bool operator != ( const ObjectMenuCallback & ) const;
   };
 
 
