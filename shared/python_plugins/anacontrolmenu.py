@@ -109,7 +109,6 @@ def pyCuteShell():
 
 def fixMatplotlib():
     # fix matplotlib if if is already loaded
-    # print 'ipythonShell, test matplotlib'
     if 'matplotlib' in sys.modules:
         # print 'fixing matplotlib'
         try:
@@ -133,7 +132,14 @@ class _ProcDeleter(object):
         self.o = o
 
     def __del__(self):
-        self.o.kill()
+        print('_ProcDeleter.__del__')
+        try:
+            self.o.kill()
+        except Exception:
+            pass
+        if getattr(self, 'console', False):
+            global consoleShellRunning
+            consoleShellRunning = False
 
 try:
     from zmq.eventloop import ioloop
@@ -369,7 +375,7 @@ def runIPConsoleKernel(mode='qtconsole'):
         if not app.initialized() or not app.kernel:
             print('runing IP console kernel')
             app.hb_port = 50042  # don't know why this is not set automatically
-            app.initialize([mode, '--pylab=qt',
+            app.initialize([mode, '--gui=qt', # '--pylab=qt',
                             "--KernelApp.parent_appname='ipython-%s'" % mode])
             # in ipython >= 1.2, app.start() blocks until a ctrl-c is issued in
             # the terminal. Seems to block in tornado.ioloop.PollIOLoop.start()
@@ -407,7 +413,7 @@ def runIPConsoleKernel(mode='qtconsole'):
                     _my_ioloop_start(ioloop.IOLoop.instance())
                 except KeyboardInterrupt:
                     pass
-            return app
+        return app
 
     else:
         # ipython 0.x API
@@ -422,106 +428,87 @@ def runIPConsoleKernel(mode='qtconsole'):
         return app
 
 
-def ipythonQtConsoleShell():
+def ipythonShell(mode='qtconsole'):
     try:
-        import IPython
-        fixMatplotlib()
-    except:
-        return 0
-    ipversion = [int(x) for x in IPython.__version__.split('.')]
-    if ipversion < [0, 11]:
-        return 0  # Qt console does not exist in ipython <= 0.10
+        import jupyter_core.application
+        ipfunc = 'from jupyter_core import application; ' \
+            'app = application.JupyterApp(); app.initialize(); app.start()'
+        print('ipfunc:', ipfunc)
+    except ImportError:
+        try:
+            import IPython
+            ipversion = [int(x) for x in IPython.__version__.split('.')]
+            if ipversion >= [0, 11]:
+                # ipython >= 0.11, use client/server mode
+                print('ipversion:', ipversion)
+                if ipversion >= [1, 0]:
+                    ipmodule = 'IPython.terminal.ipapp'
+                else:
+                    ipmodule = 'IPython.frontend.terminal.ipapp'
+                ipfunc = 'from %s import launch_new_instance; ' \
+                    'launch_new_instance()' % ipmodule
+        except Exception:
+            print('failed to run jupyter console')
+            return 0
+
+    fixMatplotlib()
+
     global _ipsubprocs
-    ipConsole = runIPConsoleKernel()
-    import soma.subprocess
-    exe = sys.executable
-    if sys.platform == 'darwin':
-        exe = 'python'
-    if ipversion >= [1, 0]:
-        ipmodule = 'IPython.terminal.ipapp'
-    else:
-        ipmodule = 'IPython.frontend.terminal.ipapp'
-    if ipConsole:
-        qt_api = qt_backend.get_qt_backend()
-        qt_apis = {'PyQt4': 'pyqt', 'PyQt5': 'pyqt5', 'PySide': 'pyside'}
-        qt_api_code = qt_apis.get(qt_api, 'pyqt')
-        sp = soma.subprocess.Popen([exe, '-c',
-                                    'import os; os.environ["QT_API"] = "%s"; from %s import launch_new_instance; launch_new_instance()'
-                                    % (qt_api_code, ipmodule),
-                                    'qtconsole', '--existing',
-                                    '--shell=%d' % ipConsole.shell_port,
-                                    '--iopub=%d' % ipConsole.iopub_port,
-                                    '--stdin=%d' % ipConsole.stdin_port,
-                                    '--hb=%d' % ipConsole.hb_port])
-        _ipsubprocs.append(_ProcDeleter(sp))
-    return 1
+    if ipfunc:
+        import soma.subprocess
+
+        ipConsole = runIPConsoleKernel(mode)
+        exe = sys.executable
+        if sys.platform == 'darwin':
+            exe = 'python'
+        if ipConsole:
+            qt_api = qt_backend.get_qt_backend()
+            qt_apis = {'PyQt4': 'pyqt', 'PyQt5': 'pyqt5', 'PySide': 'pyside'}
+            qt_api_code = qt_apis.get(qt_api, 'pyqt')
+            cmd = [exe, '-c',
+                   'import os; os.environ["QT_API"] = "%s"; %s'
+                   % (qt_api_code, ipfunc),
+                   mode, '--existing',
+                   '--shell=%d' % ipConsole.shell_port,
+                   '--iopub=%d' % ipConsole.iopub_port,
+                   '--stdin=%d' % ipConsole.stdin_port,
+                   '--hb=%d' % ipConsole.hb_port]
+            sp = soma.subprocess.Popen(cmd)
+            _ipsubprocs.append(_ProcDeleter(sp))
+        return 1
+    return 0
+
+
+def ipythonQtConsoleShell():
+    return ipythonShell('qtconsole')
 
 
 def ipythonNotebook():
-    try:
-        import IPython
-        fixMatplotlib()
-    except:
-        return 0
-    ipversion = [int(x) for x in IPython.__version__.split('.')]
-    if ipversion < [0, 11]:
-        return 0  # Qt console does not exist in ipython <= 0.10
-    ipConsole = runIPConsoleKernel('notebook')
+    # does not work anyway...
+    return ipythonShell('notebook')
+    #try:
+        #import IPython
+        #fixMatplotlib()
+    #except:
+        #return 0
+    #ipversion = [int(x) for x in IPython.__version__.split('.')]
+    #if ipversion < [0, 11]:
+        #return 0  # Qt console does not exist in ipython <= 0.10
+    #ipConsole = runIPConsoleKernel('notebook')
 
 
-def ipythonShell():
+def ipythonConsoleShell():
     global consoleShellRunning
     if consoleShellRunning:
         print('console shell is already running.')
         return 1
-    import IPython
-    fixMatplotlib()
-    # run interpreter
-    consoleShellRunning = True
-    ipversion = [int(x) for x in IPython.__version__.split('.')]
-    if ipversion >= [0, 11]:
-        # new Ipython API
-        ipConsole = runIPConsoleKernel()
-        if not ipConsole:
-            return 0  # failed.
-        import soma.subprocess
-        exe = sys.executable
-        if sys.platform == 'darwin':
-            exe = 'python'
-        if ipversion >= [1, 0]:
-            ipmodule = 'IPython.terminal.ipapp'
-        else:
-            ipmodule = 'IPython.frontend.terminal.ipapp'
-        sp = soma.subprocess.Popen([exe, '-c',
-                                    'from %s import launch_new_instance; launch_new_instance()' % ipmodule,
-                                    'console', '--existing',
-                                    '--shell=%d' % ipConsole.shell_port, '--iopub=%d' % ipConsole.iopub_port,
-                                    '--stdin=%d' % ipConsole.stdin_port, '--hb=%d' % ipConsole.hb_port])
-        _ipsubprocs.append(sp)
+    res = ipythonShell('console')
+    if res:
+        consoleShellRunning = True
+        global _ipsubprocs
+        _ipsubprocs[-1].console = True
 
-        # from IPython.lib import guisupport
-        # guisupport.in_event_loop  = True
-        # from IPython.frontend.terminal.ipapp import TerminalIPythonApp
-        # app = TerminalIPythonApp.instance()
-        # app.initialize( [ '--gui=qt' ] )
-        # app.start()
-        consoleShellRunning = False
-    else:
-        # Old IPython <= 0.10 API
-        from soma.qt_gui.qt_backend.QtGui import qApp
-        import time
-        ipshell = IPython.Shell.IPShellQt4(['-q4thread'])
-
-        def dummy_mainloop(*args, **kw):
-            qApp.processEvents()
-            time.sleep(0.02)
-        # replace ipython shell event loop with a 'local loop'
-        ipshell.exec_ = dummy_mainloop
-        ipshell.mainloop()
-        consoleShellRunning = False
-        # print 'shell terminated'
-        return 1
-
+    return res
 
 def pythonShell():
     global consoleShellRunning
@@ -581,9 +568,7 @@ def openshell():
     if consoleShellRunning:
         print('console shell is already running.')
         return
-    if ipythonShell():
-        return
-    if pythonShell():
+    if ipythonConsoleShell():
         return
     if pyShell():
         return
@@ -688,7 +673,7 @@ if cw is not None:
     p.addAction('Open python shell', openshell)
     pop = p.addMenu('Specific python shells')
     ipcshell = pop.addAction('Graphical IPython shell', ipythonQtConsoleShell)
-    ipshell = pop.addAction('Console IPython shell', ipythonShell)
+    ipshell = pop.addAction('Console IPython shell', ipythonConsoleShell)
     pcshell = pop.addAction('Pycute shell', pyCuteShell)
     pshell = pop.addAction('Console standard python shell', pythonShell)
     pyshell = pop.addAction('PyShell', pyShell)
