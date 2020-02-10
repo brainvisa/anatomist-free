@@ -395,9 +395,10 @@ def runIPConsoleKernel(mode='qtconsole'):
                     # tornado 5 is using a decque for _callbacks, not a
                     # list + explicit locking
                     def my_start_ioloop_callbacks(self):
-                        ncallbacks = len(self._callbacks)
-                        for i in range(ncallbacks):
-                            self._run_callback(self._callbacks.popleft())
+                        if hasattr(self, '_callbacks'):
+                            ncallbacks = len(self._callbacks)
+                            for i in range(ncallbacks):
+                                self._run_callback(self._callbacks.popleft())
                 else:
                     def my_start_ioloop_callbacks(self):
                         with self._callback_lock:
