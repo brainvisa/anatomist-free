@@ -53,17 +53,14 @@ from soma.qt_gui.qt_backend.QtCore import *
 from soma.qt_gui.qt_backend.QtGui import *
 from soma.qt_gui.qt_backend import QtGui
 import six
+import threading
 
 Slot = pyqtSlot
 
 
 consoleShellRunning = False
+_ipsubprocs_lock = threading.RLock()
 _ipsubprocs = []
-
-# doesn't work anyway...
-# def delipsubprocs():
-  # global ipsubprocs
-  # del ipsubprocs
 
 
 class PyAnatomistModule(anatomist.Module):
@@ -126,13 +123,13 @@ def fixMatplotlib():
             pass
 
 
-class _ProcDeleter(object):
+class _ProcDeleter(threading.Thread):
 
     def __init__(self, o):
+        threading.Thread.__init__(self)
         self.o = o
 
     def __del__(self):
-        print('_ProcDeleter.__del__')
         try:
             self.o.kill()
         except Exception:
@@ -140,6 +137,19 @@ class _ProcDeleter(object):
         if getattr(self, 'console', False):
             global consoleShellRunning
             consoleShellRunning = False
+
+    def run(self):
+        try:
+            self.o.communicate()
+        except Exception as e:
+            print('exception in ipython process:', e)
+        global _ipsubprocs
+        try:
+            with _ipsubprocs_lock:
+                _ipsubprocs.remove(self)
+        except Exception:
+            pass
+
 
 try:
     from zmq.eventloop import ioloop
@@ -292,9 +302,9 @@ def _my_ioloop_start(self):
         while self._events:
             fd, events = self._events.popitem()
             try:
-                open('/tmp/analog.txt', 'w').write(
-                    'handlers[fd]: %s, fd: %d\n'
-                    % (repr(self._handlers[fd]), fd))
+                #open('/tmp/analog.txt', 'w').write(
+                    #'handlers[fd]: %s, fd: %d\n'
+                    #% (repr(self._handlers[fd]), fd))
                 handler = self._handlers[fd]
                 if isinstance(handler, tuple):
                     # tornado >= 4
@@ -474,9 +484,33 @@ def ipythonShell(mode='qtconsole'):
                    '--stdin=%d' % ipConsole.stdin_port,
                    '--hb=%d' % ipConsole.hb_port]
             sp = soma.subprocess.Popen(cmd)
-            _ipsubprocs.append(_ProcDeleter(sp))
+            pd = _ProcDeleter(sp)
+            with _ipsubprocs_lock:
+                _ipsubprocs.append(pd)
+            pd.start()
         return 1
     return 0
+
+
+def clean_ipsubprocs():
+    global _ipsubprocs
+    with _ipsubprocs_lock:
+        _ipsubprocs = []
+    import gc
+    gc.collect()
+
+
+def child_exited(sig, frame):
+    global _ipsubprocs
+    todel = []
+    with _ipsubprocs_lock:
+        for proc in _ipsubprocs:
+            proc.o.poll()
+            if proc.o.returncode is not None:
+                todel.append(proc)
+                proc.o.wait()
+        for proc in todel:
+            _ipsubprocs.remove(proc)
 
 
 def ipythonQtConsoleShell():
@@ -506,7 +540,8 @@ def ipythonConsoleShell():
     if res:
         consoleShellRunning = True
         global _ipsubprocs
-        _ipsubprocs[-1].console = True
+        with _ipsubprocs_lock:
+            _ipsubprocs[-1].console = True
 
     return res
 
@@ -710,3 +745,8 @@ if cw is not None:
 pm = PyAnatomistModule()
 pythonscriptloader = PythonScriptRun()
 anatomist.ObjectReader.registerLoader('py', pythonscriptloader)
+import atexit
+atexit.register(clean_ipsubprocs)  # doesn't get called anyway...
+import signal
+signal.signal(signal.SIGCHLD, child_exited)
+
