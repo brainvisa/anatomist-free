@@ -579,7 +579,7 @@ def pythonShell():
 def pyShell():
     # import threading
     try:
-        import Tkinter
+        import six.moves.tkinter as Tkinter
     except:
         return 0  # no Tkinter: fails
     try:
@@ -734,7 +734,7 @@ if cw is not None:
         ipshell.setEnabled(False)
         # ipnotebook.setEnabled(False)
     try:
-        import Tkinter
+        import six.moves.tkinter as Tkinter
         try:
             import idlelib.PyShell
         except:
