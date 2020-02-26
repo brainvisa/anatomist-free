@@ -33,11 +33,14 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import Qt
 from soma import aims, aimsalgo
 import numpy as np
+from six.moves import range
+from six.moves import zip
 
 
 class SaveResampled(ana.cpp.ObjectMenuCallback):
@@ -50,7 +53,7 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
                 'Only one object should be saved at a time')
             return
         # get 1st object (in a std::set)
-        obj = iter(objects).next()
+        obj = next(iter(objects))
         ref = obj.getReferential()
         a = ana.Anatomist()
         # get volumes which are linked to obj via a transformation

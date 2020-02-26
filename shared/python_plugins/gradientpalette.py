@@ -30,6 +30,7 @@
 #
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
+from __future__ import absolute_import
 import sys
 import os
 
@@ -39,6 +40,7 @@ import sip
 import weakref
 import soma.qt_gui.qt_backend.QtCore as qt
 import soma.qt_gui.qt_backend.QtGui as qtgui
+from six.moves import range
 use_qstring = False
 try:
     # test SIP and QString API
@@ -164,23 +166,23 @@ class GradientPaletteWidget(qtgui.QWidget):
         rgb = rgbp.data()
         if sys.byteorder == 'little':
             if sys.version_info[0] >= 3:
-                for i in xrange(paldim):
+                for i in range(paldim):
                     pdata.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 2], rgb[i * 4 + 1],
                                       rgb[i * 4], rgb[i * 4 + 3]), i)
             else:
-                for i in xrange(paldim):
+                for i in range(paldim):
                     pdata.setValue(
                         aims.AimsRGBA(ord(rgb[i * 4 + 2]), ord(rgb[i * 4 + 1]),
                                       ord(rgb[i * 4]), ord(rgb[i * 4 + 3])), i)
         else:
             if sys.version_info[0] >= 3:
-                for i in xrange(paldim):
+                for i in range(paldim):
                     pdata.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 1], rgb[i * 4 + 2],
                                       rgb[i * 4 + 3], rgb[i * 4]), i)
             else:
-                for i in xrange(paldim):
+                for i in range(paldim):
                     pdata.setValue(
                         aims.AimsRGBA(ord(rgb[i * 4 + 1]), ord(rgb[i * 4 + 2]),
                                       ord(rgb[i * 4 + 3]), ord(rgb[i * 4])), i)

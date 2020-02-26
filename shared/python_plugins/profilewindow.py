@@ -36,6 +36,7 @@
 A Matplotlib-based profile window for Anatomist
 '''
 
+from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma import aims
 import numpy
