@@ -645,11 +645,7 @@ def loadpython():
         import sip
         if sip.getapi('QString') == 1:
             file = file.toLocal8Bit().data()
-        if sys.version_info[0] >= 3:
-            code = compile(open(file).read(), file, 'exec')
-            exec(code)
-        else:
-            exec(compile(open(file).read(), file, 'exec'))
+        exec(compile(open(file).read(), file, 'exec'))
 
 
 class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
@@ -658,11 +654,7 @@ class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
         print('run:', filename, 'with options:', options)
         try:
             a.theProcessor().allowExecWhileIdle(True)
-            if sys.version_info[0] >= 3:
-                code = compile(open(filename).read(), filename, 'exec')
-                exec(code)
-            else:
-                exec(compile(open(filename).read(), filename, 'exec'))
+            exec(compile(open(filename).read(), filename, 'exec'))
         except Exception as e:
             import traceback
             import sys

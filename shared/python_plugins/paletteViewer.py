@@ -221,7 +221,7 @@ class PaletteWidget(MplCanvas):
         colors = numpy.array(colors)
         comps = [scaleComponent(colors, id) for id in range(3)]
         colorname = ['red', 'green', 'blue']
-        cdict = dict(list(zip(colorname, comps)))
+        cdict = dict(zip(colorname, comps))
         return matplotlib.colors.LinearSegmentedColormap(
             'my_colormap', cdict, self._size)
 
