@@ -37,9 +37,11 @@ non-overlapping), according to the guessed type of volume (anatomical,
 functional, diffusion, labels)
 '''
 
+from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma.aims import colormaphints
 import sip
+from six.moves import zip
 
 
 class SetAutoPalettes(ana.cpp.ObjectMenuCallback):
@@ -52,7 +54,7 @@ class SetAutoPalettes(ana.cpp.ObjectMenuCallback):
         aimsobj = [oc(x) for x in objects]
         hints = []
         for x in aimsobj:
-            if x.header().has_key('colormaphints'):
+            if 'colormaphints' in x.header():
                 hints.append(x.header()['colormaphints'])
             else:
                 hint = colormaphints.checkVolume(x)

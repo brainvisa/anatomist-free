@@ -33,6 +33,7 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import anatomist.cpp as anatomist
 from soma import aims, aimsalgo
 import numpy
@@ -236,11 +237,11 @@ class SplitFoldAction(anatomist.Action):
 
     def distanceToVertex(self, pos, vertex):
         bck = []
-        if vertex.has_key('aims_ss'):
+        if 'aims_ss' in vertex:
             bck.append(vertex['aims_ss'])
-        if vertex.has_key('aims_bottom'):
+        if 'aims_bottom' in vertex:
             bck.append(vertex['aims_bottom'])
-        if vertex.has_key('aims_other'):
+        if 'aims_other' in vertex:
             bck.append(vertex['aims_other'])
         dmin = 1.e38
         pmin = None
@@ -260,7 +261,7 @@ class SplitFoldAction(anatomist.Action):
         opos = None
         if hasattr(self, 'temporary'):
             data = self.temporary
-            if data.has_key('vertex'):
+            if 'vertex' in data:
                 existingvertex = data['vertex']
         if existingvertex:
             ro = data['graph']['ana_object'].getReferential()
@@ -332,17 +333,17 @@ class SplitFoldAction(anatomist.Action):
             return
         g = ag.attributed()
         data = getattr(self, 'temporary', {})
-        if data.has_key('splitline'):
+        if 'splitline' in data:
             self.cleanup()
             data = {}
-        elif data.has_key('graph'):
+        elif 'graph' in data:
             oldg = data['graph']
             if oldg != g:
                 print('different graph.')
                 self.cleanup()
                 data = {}
             else:
-                if data.has_key('vertex'):
+                if 'vertex' in data:
                     oldv = data['vertex']
                     if oldv != vertex:
                         print('different vertex')
@@ -381,7 +382,7 @@ class SplitFoldAction(anatomist.Action):
                 'nothing to split yet. Use ctrl+left button to set split points.')
             return
         data = self.temporary
-        if data.has_key('splitline'):  # split confirmed
+        if 'splitline' in data:  # split confirmed
             self.cleanup()
             splitline = data['splitline']
             graph = data['graph']
@@ -418,8 +419,8 @@ class SplitFoldAction(anatomist.Action):
             ag.notifyObservers()
             sf.refresh()
         else:  # make split line from points
-            if not data.has_key( 'graph' ) or not data.has_key( 'vertex' ) \
-                    or not data.has_key('points'):
+            if 'graph' not in data or 'vertex' not in data \
+                    or 'points' not in data:
                 print('missing split information. Use ctrl+left button to set split '
                       'points.')
                 return
