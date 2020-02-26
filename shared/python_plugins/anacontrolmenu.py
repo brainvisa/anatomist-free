@@ -43,6 +43,7 @@ options dealing with python modules:
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import sys
 import os
 import string
@@ -54,6 +55,7 @@ from soma.qt_gui.qt_backend.QtGui import *
 from soma.qt_gui.qt_backend import QtGui
 import six
 import threading
+from six.moves import range
 
 Slot = pyqtSlot
 
@@ -577,7 +579,7 @@ def pythonShell():
 def pyShell():
     # import threading
     try:
-        import Tkinter
+        import six.moves.tkinter as Tkinter
     except:
         return 0  # no Tkinter: fails
     try:
@@ -630,7 +632,7 @@ def listmods():
             descr = eval(x + '.__doc__')
             if descr is not None:
                 print(descr)
-            print
+            print()
         except:
             pass
 
@@ -647,7 +649,7 @@ def loadpython():
             code = compile(open(file).read(), file, 'exec')
             exec(code)
         else:
-            execfile(file)
+            exec(compile(open(file).read(), file, 'exec'))
 
 
 class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
@@ -660,7 +662,7 @@ class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
                 code = compile(open(filename).read(), filename, 'exec')
                 exec(code)
             else:
-                execfile(filename)
+                exec(compile(open(filename).read(), filename, 'exec'))
         except Exception as e:
             import traceback
             import sys
@@ -732,7 +734,7 @@ if cw is not None:
         ipshell.setEnabled(False)
         # ipnotebook.setEnabled(False)
     try:
-        import Tkinter
+        import six.moves.tkinter as Tkinter
         try:
             import idlelib.PyShell
         except:

@@ -37,6 +37,7 @@ controls:
 ctrl+right mouse button: left-right: change min, up-down: change max
 """
 
+from __future__ import absolute_import
 import anatomist.cpp as anatomist
 from anatomist.cpp import palettecontrastaction
 import types

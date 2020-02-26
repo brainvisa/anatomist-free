@@ -37,12 +37,15 @@
    palettes related to the selected objects in selected windows.
 """
 
+from __future__ import absolute_import
 import sys
 import os
 import weakref
 import anatomist.direct.api as ana
 import anatomist.cpp as anatomist
 from soma import aims
+from six.moves import range
+from six.moves import zip
 
 an = anatomist.Anatomist()
 processor = an.theProcessor()
@@ -218,7 +221,7 @@ class PaletteWidget(MplCanvas):
         colors = numpy.array(colors)
         comps = [scaleComponent(colors, id) for id in range(3)]
         colorname = ['red', 'green', 'blue']
-        cdict = dict(zip(colorname, comps))
+        cdict = dict(list(zip(colorname, comps)))
         return matplotlib.colors.LinearSegmentedColormap(
             'my_colormap', cdict, self._size)
 
@@ -396,7 +399,7 @@ class GroupClosableWidget(qt.QWidget):
             self.hide()
 
     def has_key(self, id):
-        return self._widgets.has_key(id)
+        return id in self._widgets
 
 
 class GroupPaletteWidget(GroupClosableWidget):
@@ -464,7 +467,7 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
             if not o.palette():
                 continue  # do nothing on objects with no palette
             id = getObjectId(o)
-            if groupwidget.has_key(id):
+            if id in groupwidget:
                 groupwidget.remove(id)
             else:
                 groupwidget.newPalette(o)

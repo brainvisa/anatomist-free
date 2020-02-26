@@ -1,12 +1,15 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma.qt_gui.qt_backend import Qt
 from soma import aims, aimsalgo
 import re
 import numpy as np
 import anacontrolmenu  # needs this one to be initialized first
+from six.moves import range
+from six.moves import zip
 
 
 def combine_vols():

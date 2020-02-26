@@ -35,12 +35,9 @@
 BSA atlas probabilities
 '''
 
-try:
-    # python3
-    from urllib.request import urlopen, Request
-except ImportError:
-    # python2
-    from urllib2 import urlopen, Request
+from __future__ import absolute_import
+from six.moves import range
+from six.moves.urllib.request import urlopen, Request
 import ctypes
 from soma import aims
 import numpy
