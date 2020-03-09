@@ -356,7 +356,7 @@ class AProfile( ana.cpp.QAWindow ):
       or ipos[1] >= vol.getSizeY() or ipos[2] >= vol.getSizeZ():
       self.eraseObject( obj )
       return
-    data = ar[ ipos[0], ipos[1], ipos[2], : ]
+    data = ar[ int( ipos[0] ), int( ipos[1] ), int( ipos[2] ), : ]
     kw = {}
     p = self._plots.get( ana.cpp.weak_ptr_AObject( obj ) )
     if p:
