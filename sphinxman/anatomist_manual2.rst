@@ -1483,7 +1483,7 @@ Colors (2D / 3D)
 
 * Use Nomenclature/color bindings (if any): enables to link attributes of the loaded nomenclature and of the loaded graphs.
 * Use attribute Label/name: nomenclatures and graphs are linked through *Label* or *Name* attribute.
-* Display Tooltips: display information tooltips when the mouse passes on objects. Afficher les bulles: affiche les bulles d'informations lorsque la souris est déplacée sur les objets.
+* Display Tooltips: display information tooltips when the mouse passes on objects.
 
 Selection color
 +++++++++++++++
