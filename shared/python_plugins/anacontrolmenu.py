@@ -503,17 +503,24 @@ def clean_ipsubprocs():
     gc.collect()
 
 
-def child_exited(sig, frame):
-    global _ipsubprocs
-    todel = []
-    with _ipsubprocs_lock:
-        for proc in _ipsubprocs:
-            proc.o.poll()
-            if proc.o.returncode is not None:
-                todel.append(proc)
-                proc.o.wait()
-        for proc in todel:
-            _ipsubprocs.remove(proc)
+#def child_exited(sig, frame):
+    #print('** child exited:', sig, '**')
+    #global _ipsubprocs
+    #todel = []
+    #with _ipsubprocs_lock:
+        #for proc in _ipsubprocs:
+            #proc.o.poll()
+            #if proc.o.returncode is not None:
+                #todel.append(proc)
+                #proc.o.wait()
+        #for proc in todel:
+            #_ipsubprocs.remove(proc)
+    #global old_sigchld
+    #print('old_sigchld:', old_sigchld)
+    #if old_sigchld:
+        #print('calling old sigchld:')
+        ##old_sigchld(sig, frame)
+        #old_sigchld(sig)
 
 
 def ipythonQtConsoleShell():
@@ -742,6 +749,17 @@ pythonscriptloader = PythonScriptRun()
 anatomist.ObjectReader.registerLoader('py', pythonscriptloader)
 import atexit
 atexit.register(clean_ipsubprocs)  # doesn't get called anyway...
-import signal
-signal.signal(signal.SIGCHLD, child_exited)
+# can't make this work...
+#import signal
+#import ctypes
+#print('get SIGCHILD')
+#dll = ctypes.cdll.LoadLibrary('')
+#print('call signal')
+#old_sigchld = dll.signal(signal.SIGCHLD, None)
+#print('old_sigchld:', old_sigchld)
+#if old_sigchld != 0:
+    #old_sigchld = ctypes.CFUNCTYPE(None, ctypes.c_int)(old_sigchld)
+#else:
+    #old_sigchld = None
+#signal.signal(signal.SIGCHLD, child_exited)
 
