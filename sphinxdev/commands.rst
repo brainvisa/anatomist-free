@@ -3016,6 +3016,13 @@ TexturingParams
       <td id="txt">colors interpolation space on textures: <tt>palette</tt> (default) or <tt>rgb</tt>.
       </td>
     </tr>
+    <tr>
+      <td><tt>value_interpolation</tt></td>
+      <td><tt>int</tt> (optional)</td>
+      <td id="txt"><b>New in Anatomist 4.6.2.</b><br/>
+        Enables (1) or disables (0) values interpolation during resampling operations. It is currently only used in scalar volumes. Default is 1.
+      </td>
+    </tr>
   </tbody>
   </table>
 
