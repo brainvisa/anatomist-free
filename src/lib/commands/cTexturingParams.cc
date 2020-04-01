@@ -40,6 +40,7 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/graph/pythonAObject.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
 
@@ -54,9 +55,11 @@ TexturingParamsCommand::TexturingParamsCommand( const set<AObject *> & obj,
                                                 float rate, int rgbint, 
                                                 const float* genp1, 
                                                 const float* genp2, 
-                                                const float* genp3 )
+                                                const float* genp3,
+                                                int valinter )
   : RegularCommand(), _objects( obj ), _tex( tex ), _mode( mode ), 
-    _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint )
+    _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint ),
+    _valinter( valinter )
 {
   if( genp1 )
     {
@@ -102,6 +105,7 @@ bool TexturingParamsCommand::initSyntax()
   s[ "generation"          ] = Semantic( "string", false );
   s[ "rate"                ] = Semantic( "float", false );
   s[ "interpolation"       ] = Semantic( "string", false );
+  s[ "value_interpolation" ] = Semantic( "int", false );
   s[ "generation_params_1" ] = Semantic( "float_vector", false );
   s[ "generation_params_2" ] = Semantic( "float_vector", false );
   s[ "generation_params_3" ] = Semantic( "float_vector", false );
@@ -139,6 +143,17 @@ void TexturingParamsCommand::doit()
               gc->glSetTexRate( _rate, _tex );
             if( _rgbinter >= 0 )
               gc->glSetTexRGBInterpolation( (bool) _rgbinter, _tex );
+
+            if( _valinter >= 0 )
+            {
+              PythonAObject *po = dynamic_cast<PythonAObject *>( *io );
+              if( po )
+              {
+                GenericObject *o = po->attributed();
+                o->setProperty( "volumeInterpolation", _valinter );
+                gc->glSetChanged( GLComponent::glTEXIMAGE, true );
+              }
+            }
 
             if( _genparams_1.size() >= 4 )
               gc->glSetAutoTexParams( &_genparams_1[0], 0, _tex );

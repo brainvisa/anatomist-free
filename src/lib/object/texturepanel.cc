@@ -37,6 +37,7 @@
 #include <anatomist/commands/cTexturingParams.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/object/qtextureparams.h>
+#include <anatomist/graph/pythonAObject.h>
 #include <qlayout.h>
 #include <qradiobutton.h>
 #include <qslider.h>
@@ -48,6 +49,7 @@
 #include <qbuttongroup.h>
 
 using namespace anatomist;
+using namespace carto;
 using namespace std;
 
 struct QTexturePanel::Private
@@ -66,11 +68,13 @@ struct QTexturePanel::Private
   QSlider			*mixsl;
   QLabel			*mixlb;
   QPushButton			*genparambutton;
+  QCheckBox                     *valintercb;
   int				mode;
   int				filt;
   int				genmode;
   int				rate;
   bool				rgbinterpol;
+  bool                          valinter;
   bool				updating;
   unsigned			tex;
   vector<bool>			partvisible;
@@ -87,13 +91,14 @@ struct QTexturePanel::Private
 QTexturePanel::Private::Private( const set<AObject *> & obj )
   : objects( obj ), mode( 0 ), filt( 0 ), rgbinterpol( false ), 
     updating( false ), tex( 0 ), 
-    partvisible( 5 ), recurs( false ), uptodate( true ), modes( 0 )
+    partvisible( 6 ), recurs( false ), uptodate( true ), modes( 0 )
 {
   partvisible[0] = true;
   partvisible[1] = true;
   partvisible[2] = true;
   partvisible[3] = true;
   partvisible[4] = true;
+  partvisible[5] = true;
   texModesStrings.reserve( GLComponent::glGEOMETRIC_SQRT + 1 );
   texModesStrings.push_back( QTexturePanel::tr( "Geometric" ) );
   texModesStrings.push_back( QTexturePanel::tr( "Linear" ) );
@@ -227,13 +232,17 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   vlay2->addWidget( btn );
   d->filtg->addButton( btn );
   d->filtg->setId( btn, 1 );
+
+  d->valintercb = new QCheckBox( tr( "Resampling interpolation" ),
+                                 d->filtbox );
+  vlay2->addWidget( d->valintercb );
   vlay2->addStretch( 1 );
 
   d->rgbintbox = new QGroupBox( tr( "Texture interpolation" ), vbox );
   vlay->addWidget( d->rgbintbox );
   vlay2 = new QVBoxLayout( d->rgbintbox );
   d->rgbintbox->setLayout( vlay2 );
-  d->rgbint = new QCheckBox( tr( "RGB space interpolation (label textures)" ), 
+  d->rgbint = new QCheckBox( tr( "RGB space interpolation (label textures)" ),
                              d->rgbintbox );
   vlay2->addWidget( d->rgbint );
   vlay2->addStretch( 1 );
@@ -250,6 +259,8 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   connect( d->rgbint, SIGNAL( toggled( bool ) ), this, 
            SLOT( rgbInterpolation( bool ) ) );
   connect( gpb, SIGNAL( clicked() ), this, SLOT( generationParamsDialog() ) );
+  connect( d->valintercb, SIGNAL( toggled( bool ) ),
+           this, SLOT( valueInterpolationChanged( bool ) ) );
 
   set<AObject *>::const_iterator	io, eo = obj.end();
   for( io=obj.begin(); io!=eo; ++io )
@@ -295,7 +306,8 @@ void QTexturePanel::runCommand()
       TexturingParamsCommand 
         *c = new TexturingParamsCommand( d->objects, d->tex, d->mode, d->filt, 
                                          d->genmode, 0.01 * d->rate, 
-                                         d->rgbinterpol, gp1, gp2, gp3 );
+                                         d->rgbinterpol, gp1, gp2, gp3,
+                                         d->valinter );
       theProcessor->execute( c );
     }
   d->uptodate = true;
@@ -308,7 +320,7 @@ const set<AObject *> & QTexturePanel::objects() const
 }
 
 
-void QTexturePanel::update( const Observable* /*observable*/, 
+void QTexturePanel::update( const anatomist::Observable* /*observable*/,
                             void* /*arg*/ )
 {
   if( d->updating )
@@ -395,7 +407,7 @@ void QTexturePanel::updateWindow()
 
   AObject	*ao = *d->objects.begin();
   // cout << "obj name: " << ao->name() << ", tex: " << d->tex << endl;
-  vector<bool>	mv( 5 );
+  vector<bool>	mv( 6 );
 
   GLComponent	*c = ao->glAPI();
   if( c )
@@ -476,6 +488,22 @@ void QTexturePanel::updateWindow()
         d->genparambutton->setEnabled( true );
       else
         d->genparambutton->setEnabled( false );
+
+      if( ao->type() == AObject::VOLUME )
+      {
+        mv[ ValueInterpolation ] = true;
+        GenericObject *po = dynamic_cast<PythonAObject *>( ao )->attributed();
+        d->valinter = true;
+        try
+        {
+          d->valinter = bool(
+            po->getProperty( "volumeInterpolation" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        d->valintercb->setChecked( d->valinter );
+      }
      }
   else
     d->genparambutton->setEnabled( false );
@@ -500,6 +528,8 @@ void QTexturePanel::updateWindow()
     d->rgbintbox->show();
   else
     d->rgbintbox->hide();
+  d->valintercb->setVisible( d->partvisible[ ValueInterpolation ]
+                             && mv[ ValueInterpolation ] );
 
   d->mixsl->blockSignals( false );
 
@@ -670,6 +700,17 @@ void QTexturePanel::rgbInterpolation( bool x )
   if( d->rgbinterpol != x )
     {
       d->rgbinterpol = x;
+      d->uptodate = false;
+      runCommand();
+    }
+}
+
+
+void QTexturePanel::valueInterpolationChanged( bool x )
+{
+  if( d->valinter != x )
+    {
+      d->valinter = x;
       d->uptodate = false;
       runCommand();
     }

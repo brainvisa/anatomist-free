@@ -53,7 +53,9 @@ namespace anatomist
                             float rate = -1, int rgbint = -1, 
                             const float* genparams1 = 0, 
                             const float* genparams2 = 0, 
-                            const float* genparams3 = 0);
+                            const float* genparams3 = 0,
+                            int valinter = -1
+                          );
     virtual ~TexturingParamsCommand();
 
     virtual std::string name() const { return( "TexturingParams" ); }
@@ -70,6 +72,7 @@ namespace anatomist
     int			_gen;
     float		_rate;
     int			_rgbinter;
+    int                 _valinter;
     std::vector<float>	_genparams_1;
     std::vector<float>	_genparams_2;
     std::vector<float>	_genparams_3;
