@@ -703,48 +703,52 @@ class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
             # traceback.print_stack()
             # sys.stderr.flush()
 
-cw = a.getControlWindow()
-if cw is not None:
-    menu = cw.menuBar()
-    p = menu.addMenu('Python')
-    p.addAction('Open python shell', openshell)
-    pop = p.addMenu('Specific python shells')
-    ipcshell = pop.addAction('Graphical IPython shell', ipythonQtConsoleShell)
-    ipshell = pop.addAction('Console IPython shell', ipythonConsoleShell)
-    pcshell = pop.addAction('Pycute shell', pyCuteShell)
-    pshell = pop.addAction('Console standard python shell', pythonShell)
-    pyshell = pop.addAction('PyShell', pyShell)
-    # ipnotebook = pop.addAction( 'IPython Notebook server', ipythonNotebook )
-    p.addSeparator()
-    p.addAction('list loaded python modules', listmods)
-    p.addAction('run python script file...', loadpython)
-    try:
-        import Pycute
-    except:
-        pcshell.setEnabled(False)
-    try:
-        import IPython
-        fixMatplotlib()
-        if [int(x) for x in IPython.__version__.split('.')] < [0, 11]:
-            ipcshell.setEnabled(False)
-            # ipnotebook.setEnabled(False)
-    except:
-        ipcshell.setEnabled(False)
-        ipshell.setEnabled(False)
-        # ipnotebook.setEnabled(False)
-    try:
-        import six.moves.tkinter as Tkinter
+def add_gui_menus():
+    cw = a.getControlWindow()
+    if cw is not None:
+        menu = cw.menuBar()
+        p = menu.addMenu('Python')
+        p.addAction('Open python shell', openshell)
+        pop = p.addMenu('Specific python shells')
+        ipcshell = pop.addAction('Graphical IPython shell',
+                                 ipythonQtConsoleShell)
+        ipshell = pop.addAction('Console IPython shell', ipythonConsoleShell)
+        pcshell = pop.addAction('Pycute shell', pyCuteShell)
+        pshell = pop.addAction('Console standard python shell', pythonShell)
+        pyshell = pop.addAction('PyShell', pyShell)
+        # ipnotebook = pop.addAction( 'IPython Notebook server', ipythonNotebook )
+        p.addSeparator()
+        p.addAction('list loaded python modules', listmods)
+        p.addAction('run python script file...', loadpython)
         try:
-            import idlelib.PyShell
+            import Pycute
         except:
+            pcshell.setEnabled(False)
+        try:
+            import IPython
+            fixMatplotlib()
+            if [int(x) for x in IPython.__version__.split('.')] < [0, 11]:
+                ipcshell.setEnabled(False)
+                # ipnotebook.setEnabled(False)
+        except:
+            ipcshell.setEnabled(False)
+            ipshell.setEnabled(False)
+            # ipnotebook.setEnabled(False)
+        try:
+            import six.moves.tkinter as Tkinter
             try:
-                import idle.PyShell
+                import idlelib.PyShell
             except:
-                pyshell.setEnabled(False)
-    except:
-        pyshell.setEnabled(False)
+                try:
+                    import idle.PyShell
+                except:
+                    pyshell.setEnabled(False)
+        except:
+            pyshell.setEnabled(False)
+
 
 pm = PyAnatomistModule()
+add_gui_menus()
 pythonscriptloader = PythonScriptRun()
 anatomist.ObjectReader.registerLoader('py', pythonscriptloader)
 import atexit
