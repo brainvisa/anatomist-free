@@ -39,6 +39,7 @@
 #include <set>
 
 class Tree;
+class QSelectMenu;
 
 namespace anatomist
 {
@@ -71,6 +72,8 @@ namespace anatomist
     /**	Copies 'tin' into 'tout', with only syntactic attribute and
         "objectmenucallback" or "callback" attribute */
     static void copyTree( Tree & tout, const Tree & tin );
+    /// get the QSelectMenu (Qt QMenu) for given options tree
+    static QSelectMenu* popupMenu( const std::set<AObject *> & ol, Tree & tr );
 
   protected:
 
