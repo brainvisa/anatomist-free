@@ -606,18 +606,9 @@ void ControlWindow::objectTreeRightClick( AObject*, const QPoint & p )
 
   OptionMatcher::commonOptions( ol, tr );
 
-  QSelectMenu	pop;
-  Tree::const_iterator	it, ft = tr.end();
-  const Tree		*t;
-
-  pop.setObjects( ol );
-
-  for( it=tr.begin(); it!=ft; ++it )
-    {
-      t = (const Tree *) *it;
-      pop.addOptionMenus( &pop, t );
-    }
-  pop.exec( p );
+  QSelectMenu	*pop = OptionMatcher::popupMenu( ol, tr );
+  pop->exec( p );
+  delete pop;
 }
 
 

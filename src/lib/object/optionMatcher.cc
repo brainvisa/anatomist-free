@@ -36,6 +36,7 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/object/objectmenu.h>
+#include <anatomist/selection/qSelMenu.h>
 #include <graph/tree/tree.h>
 
 
@@ -164,4 +165,22 @@ void OptionMatcher::copyTree( Tree & tout, const Tree & tin )
       copyTree( *ntr, *(Tree *) *it );
     }
 }
+
+
+QSelectMenu* OptionMatcher::popupMenu( const set<AObject *> & ol, Tree & tr )
+{
+  QSelectMenu	*pop = new QSelectMenu;
+  Tree::const_iterator	it, ft = tr.end();
+  const Tree		*t;
+
+  pop->setObjects( ol );
+
+  for( it=tr.begin(); it!=ft; ++it )
+  {
+    t = (const Tree *) *it;
+    pop->addOptionMenus( pop, t );
+  }
+  return pop;
+}
+
 
