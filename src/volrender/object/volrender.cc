@@ -394,7 +394,10 @@ namespace
   {
     glpixtype<AimsRGBA>( p );
     vector<float> vmax = avol->glMax2D();
-    Point3df max = Point3df( vmax[0], vmax[1], vmax[2] ) + Point3df( 1.F );
+    vector<float> vs = avol->glVoxelSize();
+    Point3df max = Point3df( ceil( vmax[0] / vs[0] ),
+                             ceil( vmax[1] / vs[1] ),
+                             ceil( vmax[2] / vs[2] ) ) + Point3df( 1.F );
     p.dimx = (unsigned) rint( max[0] );
     p.dimy = (unsigned) rint( max[1] );
     p.dimz = (unsigned) rint( max[2] );
