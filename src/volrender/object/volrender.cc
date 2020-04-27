@@ -41,6 +41,7 @@
 #include <anatomist/window/glwidget.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/reference/transfSet.h>
+#include <anatomist/reference/Referential.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/control/qObjTree.h>
@@ -1022,6 +1023,12 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   float ty = (float) d->dimy;
   float tz = (float) d->dimz;
 
+  const Referential *wref = 0;
+  if( svs && svs->winref )
+    wref = svs->winref;
+  else if( state.window )
+    wref = state.window->getReferential();
+
   //float m[16];
   Motion  mot;
   bool hasorient = false;
@@ -1034,14 +1041,21 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
       hasorient = true;
       Quaternion q1 = svs->vieworientation->inverse();
       qo = q1.vector();
-      qo[0] *= -1;
-      qo[1] *= -1;
+      if( !wref || !wref->isDirect() )
+      {
+        qo[0] *= -1;
+        qo[1] *= -1;
+      }
+
       q = Quaternion( qo );
-      Quaternion q2;
-      q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
-      q *= q2;
-      q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
-      q *= q2;
+      if( !wref || !wref->isDirect() )
+      {
+        Quaternion q2;
+        q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
+        q *= q2;
+        q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+        q *= q2;
+      }
     }
     else
     {
@@ -1065,14 +1079,20 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
         Point4df  qo;
         Quaternion q1 = glv->quaternion().inverse();
         qo = q1.vector();
-        qo[0] *= -1;
-        qo[1] *= -1;
+        if( !wref || !wref->isDirect() )
+        {
+          qo[0] *= -1;
+          qo[1] *= -1;
+        }
         q = Quaternion( qo );
-        Quaternion q2;
-        q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
-        q *= q2;
-        q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
-        q *= q2;
+        if( !wref || !wref->isDirect() )
+        {
+          Quaternion q2;
+          q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
+          q *= q2;
+          q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q *= q2;
+        }
       }
     }
   }
@@ -1081,17 +1101,12 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
 
   // apply object -> window transformation if one exists
   const Referential *oref = d->object->getReferential();
-  const Referential *wref = 0;
-  if( svs && svs->winref )
-    wref = svs->winref;
-  else if( state.window )
-    wref = state.window->getReferential();
   if( oref && wref )
   {
     const Transformation  *t
         = ATransformSet::instance()->transformation( oref, wref );
     if( t )
-      mot *= t->motion();
+      mot = mot * t->motion();
   }
 
   // apply cube -> object size scaling
