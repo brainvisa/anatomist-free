@@ -34,6 +34,7 @@
 #include <anatomist/object/clippedobject.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/reference/Transformation.h>
+#include <anatomist/reference/Referential.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
@@ -228,6 +229,15 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
       pl[2] = p[2];
       pl[3] = p[3];
     }
+    if( wr && wr->isDirect() )
+    {
+      // invert plane in direct ref
+      pl[0] *= -1;
+      pl[1] *= -1;
+      pl[2] *= -1;
+      pl[3] *= -1;
+    }
+
     glClipPlane( GL_CLIP_PLANE2 + d->clipID, pl );
     glEndList();
     prim.insert( ip, rc_ptr<GLItem>( gll ) );
