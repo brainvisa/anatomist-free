@@ -42,6 +42,8 @@ import anatomist.cpp as anatomist
 from anatomist.cpp import palettecontrastaction
 import types
 
+import six
+
 
 def neweventAutoSubscription(self, pool):
     key = palettecontrastaction.QtCore.Qt
@@ -69,7 +71,7 @@ def makePalettedSubclass(c):
         cmd = 'class ' + clname + '( anatomist.' + c.__class__.__name__ \
             + ' ): pass'
 
-        exec(cmd)
+        six.exec_(cmd)
         cl = eval(clname)
         setattr(cl, 'eventAutoSubscription', neweventAutoSubscription)
     else:
