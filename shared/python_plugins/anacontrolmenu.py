@@ -53,8 +53,9 @@ from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend.QtCore import *
 from soma.qt_gui.qt_backend.QtGui import *
 from soma.qt_gui.qt_backend import QtGui
-import six
 import threading
+
+import six
 from six.moves import range
 
 Slot = pyqtSlot
@@ -628,19 +629,17 @@ def listmods():
         try:
             exec('import ' + x)
             sz = max(sz, len(x))
-        except:
+        except ImportError:
             pass
     for x in anatomist.loaded_modules:
         try:
-            s = ''
-            for i in six.moves.xrange(sz - len(x)):
-                s += ' '
+            s = ' ' * (sz - len(x))
             print(' ', x, s + ':', eval(x + '.__file__'))
             descr = eval(x + '.__doc__')
             if descr is not None:
                 print(descr)
             print()
-        except:
+        except Exception:
             pass
 
 
@@ -652,7 +651,9 @@ def loadpython():
         import sip
         if sip.getapi('QString') == 1:
             file = file.toLocal8Bit().data()
-        exec(compile(open(file).read(), file, 'exec'))
+        with open(file, 'rb') as f:
+            code = compile(f.read(), file, 'exec')
+        six.exec_(code)
 
 
 class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
@@ -661,7 +662,9 @@ class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
         print('run:', filename, 'with options:', options)
         try:
             a.theProcessor().allowExecWhileIdle(True)
-            exec(compile(open(filename).read(), filename, 'exec'))
+            with open(filename, 'rb') as f:
+                code = compile(f.read(), f.name, 'exec')
+            six.exec_(code)
         except Exception as e:
             import traceback
             import sys

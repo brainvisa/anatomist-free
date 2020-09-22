@@ -39,8 +39,8 @@ from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import Qt
 from soma import aims, aimsalgo
 import numpy as np
-from six.moves import range
-from six.moves import zip
+
+from six.moves import range, zip
 
 
 class SaveResampled(ana.cpp.ObjectMenuCallback):

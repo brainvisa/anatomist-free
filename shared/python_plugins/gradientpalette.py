@@ -40,7 +40,10 @@ import sip
 import weakref
 import soma.qt_gui.qt_backend.QtCore as qt
 import soma.qt_gui.qt_backend.QtGui as qtgui
+
+import six
 from six.moves import range
+
 use_qstring = False
 try:
     # test SIP and QString API
@@ -49,9 +52,6 @@ try:
         use_qstring = True
 except:
     pass
-
-if sys.version_info[0] >= 3:
-    xrange = range
 
 
 class GWManager(qt.QObject):
@@ -165,7 +165,7 @@ class GradientPaletteWidget(qtgui.QWidget):
         rgbp = self._gradw.fillGradient(paldim, True)
         rgb = rgbp.data()
         if sys.byteorder == 'little':
-            if sys.version_info[0] >= 3:
+            if not six.PY2:
                 for i in range(paldim):
                     pdata.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 2], rgb[i * 4 + 1],
@@ -176,7 +176,7 @@ class GradientPaletteWidget(qtgui.QWidget):
                         aims.AimsRGBA(ord(rgb[i * 4 + 2]), ord(rgb[i * 4 + 1]),
                                       ord(rgb[i * 4]), ord(rgb[i * 4 + 3])), i)
         else:
-            if sys.version_info[0] >= 3:
+            if not six.PY2:
                 for i in range(paldim):
                     pdata.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 1], rgb[i * 4 + 2],
