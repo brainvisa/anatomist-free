@@ -696,10 +696,10 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->draw->controlSwitch()->attach(this);
   d->draw->controlSwitch()->notifyAvailableControlChange();
   d->draw->controlSwitch()->notifyActivableControlChange();
-  d->draw->controlSwitch()->setActiveControl("Default 3D control");
-  // should be done in ControlSwitch
-  d->draw->controlSwitch()->notifyActiveControlChange();
-  d->draw->controlSwitch()->notifyActionChange();
+  // d->draw->controlSwitch()->setActiveControl("Default 3D control");
+  // // should be done in ControlSwitch
+  // d->draw->controlSwitch()->notifyActiveControlChange();
+  // d->draw->controlSwitch()->notifyActionChange();
   setFocusProxy(d->draw->qglWidget());
 
   if (!nodeco)
