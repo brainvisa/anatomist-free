@@ -46,7 +46,9 @@ class LinkAndRotateAction(ana.cpp.ContinuousTrackball):
 # (useful for touch devices)
 class LeftSelect3DControl(selection.SelectionControl):
 
-    def __init__(self, name='LeftSelect3DControl'):
+    def __init__(self,
+                 name=Qt.QT_TRANSLATE_NOOP('ControlledWindow',
+                                           'LeftSelect3DControl')):
         super(LeftSelect3DControl, self).__init__(name)
 
     def eventAutoSubscription(self, pool):
@@ -84,7 +86,9 @@ class LeftSelect3DControl(selection.SelectionControl):
 # (useful for touch devices)
 class Left3DControl(selection.SelectionControl):
 
-    def __init__(self, name='Left3DControl'):
+    def __init__(self,
+                 name=Qt.QT_TRANSLATE_NOOP('ControlledWindow',
+                                           'Left3DControl')):
         super(Left3DControl, self).__init__(name)
 
     def eventAutoSubscription(self, pool):
