@@ -816,6 +816,19 @@ AObject* AGraph::LoadGraph( const string & filename, Object options )
       if( GraphParams::graphParams()->loadRelations )
         mask = -1;
       Reader<Graph>	grd( filename );
+      if( !options )
+        options = Object::value( Dictionary() );
+      cout << "LoadGraph\n";
+      if( !options->hasProperty( "max_filtered_memory" ) )
+      {
+        /* limit tracts size in memory
+           This will not ensure the graphics system will bbe able to render it
+        */
+        offset_t ram, freeram, swap;
+        AllocatorStrategy::memSizes( ram, freeram, swap );
+        cout << "limit memory: " << freeram << endl;
+        options->setProperty( "max_filtered_memory", freeram );
+      }
       grd.setOptions( options );
       gr = grd.read( 0, 0, mask );
 
