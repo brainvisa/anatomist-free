@@ -826,6 +826,7 @@ AObject* AGraph::LoadGraph( const string & filename, Object options )
         */
         offset_t ram, freeram, swap;
         AllocatorStrategy::memSizes( ram, freeram, swap );
+        freeram *= 0.8; // don't use more than 80% of the current free memory
         cout << "limit memory: " << freeram << endl;
         options->setProperty( "max_filtered_memory", freeram );
       }
