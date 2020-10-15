@@ -818,7 +818,6 @@ AObject* AGraph::LoadGraph( const string & filename, Object options )
       Reader<Graph>	grd( filename );
       if( !options )
         options = Object::value( Dictionary() );
-      cout << "LoadGraph\n";
       if( !options->hasProperty( "max_filtered_memory" ) )
       {
         /* limit tracts size in memory
@@ -827,7 +826,7 @@ AObject* AGraph::LoadGraph( const string & filename, Object options )
         offset_t ram, freeram, swap;
         AllocatorStrategy::memSizes( ram, freeram, swap );
         freeram *= 0.8; // don't use more than 80% of the current free memory
-        cout << "limit memory: " << freeram << endl;
+        cout << "memory limit: " << freeram << endl;
         options->setProperty( "max_filtered_memory", freeram );
       }
       grd.setOptions( options );
@@ -866,9 +865,9 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
 
   //cout << "rx : " << rx << ", ry : " << ry << ", rz : " << rz << endl;
 
-  //float	xx, yy, zz;
+  //float  xx, yy, zz;
 
-  //	vide le volume
+  //  clear volume
   for( iv=vol.begin(); iv!=fv; ++iv )
     (*iv) = 0;
   /* for( unsigned iz=0; iz<d->labelDim[ 2 ]; ++iz )
@@ -881,7 +880,7 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
   cout << "dims vol : " << vol.dimX() << " X " << vol.dimY() << " X "
        << vol.dimZ() << " X " << vol.dimT() << "; bord : "
        << vol.borderWidth() << endl;
-  cout << "volume vid�. " << flush; */
+  cout << "volume cleared. " << flush; */
 
   Point3dl	l;
 
