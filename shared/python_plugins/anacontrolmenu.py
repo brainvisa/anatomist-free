@@ -42,8 +42,8 @@ options dealing with python modules:
 """
 
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import sys
 import os
 import string
@@ -115,12 +115,13 @@ def fixMatplotlib():
             from soma.qt_gui.qt_backend import init_matplotlib_backend
             init_matplotlib_backend()
             import matplotlib.backends
-            backend_conf = matplotlib.backends.pylab_setup()
-            if len(backend_conf) <= 3:
-                # seems not to exist any longer in mpl 1.3
-                matplotlib.backends.new_figure_manager = backend_conf[0]
-                matplotlib.backends.draw_if_interactive = backend_conf[1]
-                matplotlib.backends.show = backend_conf[2]
+            if hasattr(matplotlib.backends, 'pylab_setup'):
+                backend_conf = matplotlib.backends.pylab_setup()
+                if len(backend_conf) <= 3:
+                    # seems not to exist any longer in mpl 1.3
+                    matplotlib.backends.new_figure_manager = backend_conf[0]
+                    matplotlib.backends.draw_if_interactive = backend_conf[1]
+                    matplotlib.backends.show = backend_conf[2]
         except Exception as e:
             print('exception:', e)
             pass
