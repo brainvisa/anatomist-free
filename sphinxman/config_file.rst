@@ -374,6 +374,14 @@ Here is a complete (I hope) list of the possible options:
         <td>4.6.2</td>
       </tr>
       <tr>
+        <td><tt>userLevel</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td>positive int</td>
+        <td>Visibility and access to advanced or experimental features may be disabled for lower user levels, in order to keep things simple and robust for beginners.</td>
+        <td>all</td>
+      </tr>
+      <tr>
         <td><tt>useSpmOrigin</tt></td>
         <td><tt>int</tt></td>
         <td><tt>0</tt></td>
