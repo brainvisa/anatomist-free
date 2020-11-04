@@ -34,7 +34,12 @@
 #include <anatomist/sparsematrix/sparsematrix.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/volume/Volume.h>
+#include <anatomist/application/Anatomist.h>
 #include <aims/sparsematrix/sparseordensematrix.h>
+#include <anatomist/color/palette.h>
+#include <anatomist/color/paletteList.h>
+#include <anatomist/color/objectPalette.h>
 #include <aims/io/reader.h>
 #include <aims/io/writer.h>
 
@@ -68,9 +73,27 @@ namespace
 
 
 ASparseMatrix::ASparseMatrix()
-  : AObject(), AttributedAObject(), d( new Private )
+  : ObjectVector(), AttributedAObject(), d( new Private )
 {
   _type = sparsematrixType();
+  AVolume<double> *volume
+    = new AVolume<double>( VolumeRef<double>( 1, 1, 1 ) );
+  volume->setName( "Matrix_volume" );
+  theAnatomist->registerObject( volume, false );
+  volume->getOrCreatePalette();
+
+  rc_ptr<APalette> pal;
+  const PaletteList & pall = theAnatomist->palettes();
+
+  pal = pall.find( "Blue-Red" );
+  if( pal )
+  {
+    AObjectPalette opal( pal );
+    volume->setPalette( opal );
+  }
+
+  insert( rc_ptr<AObject>( volume ) );
+  theAnatomist->releaseObject( volume );
 }
 
 
@@ -111,6 +134,20 @@ rc_ptr<SparseOrDenseMatrix> ASparseMatrix::matrix()
 void ASparseMatrix::setMatrix( rc_ptr<SparseOrDenseMatrix> matrix )
 {
   d->matrix = matrix;
+  AObject *vol = *begin();
+  AVolume<double> *volume = dynamic_cast<AVolume<double> *>( vol );
+  if( volume )
+  {
+    if( matrix->getSize1() <= 32000 && matrix->getSize1() <= 32000 )
+      matrix->muteToDense();
+    VolumeRef<double> vmat = matrix->denseMatrix();
+    if( vmat.get() )
+      volume->setVolume( matrix->denseMatrix() );
+    else
+      volume->setVolume( VolumeRef<double>( 1 ) );
+    volume->SetExtrema();
+    volume->adjustPalette();
+  }
   setChanged();
 }
 

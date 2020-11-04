@@ -36,7 +36,7 @@
 #define ANA_SPARSEMATRIX_SPARSEMATRIX_H
 
 
-#include <anatomist/object/Object.h>
+#include <anatomist/mobject/objectVector.h>
 #include <anatomist/graph/attribAObject.h>
 
 
@@ -51,7 +51,7 @@ namespace anatomist
 
   /**   Sparse matrix in Anatomist.
   */
-  class ASparseMatrix : public AObject, public AttributedAObject
+  class ASparseMatrix : public ObjectVector, public AttributedAObject
   {
   public:
     ASparseMatrix();
