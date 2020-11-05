@@ -85,7 +85,7 @@ ASparseMatrix::ASparseMatrix()
   rc_ptr<APalette> pal;
   const PaletteList & pall = theAnatomist->palettes();
 
-  pal = pall.find( "Blue-Red" );
+  pal = pall.find( "viridis" );
   if( pal )
   {
     AObjectPalette opal( pal );
