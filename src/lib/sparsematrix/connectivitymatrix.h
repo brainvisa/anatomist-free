@@ -100,6 +100,8 @@ namespace anatomist
                               PatchMode & pmode, std::set<int> & patches,
                               bool & transpose );
     void cancelThread();
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
 
   private:
     struct Private;

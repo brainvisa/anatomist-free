@@ -1921,3 +1921,33 @@ const rc_ptr<ATriangulated> AConnectivityMatrix::marker() const
 }
 
 
+bool AConnectivityMatrix::boundingBox( vector<float> & bmin,
+                                       vector<float> & bmax ) const
+{
+  vector<rc_ptr<ATriangulated> > smeshes = meshes();
+  unsigned i, n = smeshes.size();
+  vector<float> smin, smax;
+
+  for( i=0; i<n; ++i )
+    if( i == 0 )
+      smeshes[i]->boundingBox( bmin, bmax );
+    else
+    {
+      smeshes[i]->boundingBox( smin, smax );
+      if( smin[0] < bmin[0] )
+        bmin[0] = smin[0];
+      if( smin[1] < bmin[1] )
+        bmin[1] = smin[1];
+      if( smin[2] < bmin[2] )
+        bmin[2] = smin[2];
+      if( bmax[0] < smax[0] )
+        bmax[0] = smax[0];
+      if( bmax[1] < smax[1] )
+        bmax[1] = smax[1];
+      if( bmax[2] < smax[2] )
+        bmax[2] = smax[2];
+    }
+  return true;
+}
+
+
