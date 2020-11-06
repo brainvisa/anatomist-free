@@ -3835,7 +3835,7 @@ void AWindow3D::setLinkedCursorPos()
     bool ok = true;
     for (i = 0; i < 4 && l < n; ++i)
     {
-      while (txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',')
+      while( txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',' )
         ++l;
       if( l == n )
         break; // reached the end
@@ -3851,7 +3851,7 @@ void AWindow3D::setLinkedCursorPos()
       QString s = txt;
       s.remove(0, l);
       s.remove(m - l, txt.length() - m);
-      cout << "read: " << s.toStdString().c_str() << endl;
+      // cout << "read: " << s.toStdString().c_str() << endl;
       nums.push_back(s.toFloat(&ok));
       if (!ok)
       {
@@ -3861,9 +3861,11 @@ void AWindow3D::setLinkedCursorPos()
       l = m;
     }
     n = nums.size();
-    if (n >= 3)
+    if( n >= 1 )
     {
-      LinkedCursorCommand *c = new LinkedCursorCommand(this, nums);
+      while( nums.size() < 3 )
+        nums.push_back( getPosition()[ nums.size() ] );
+      LinkedCursorCommand *c = new LinkedCursorCommand( this, nums );
       theProcessor->execute(c);
     }
     else
