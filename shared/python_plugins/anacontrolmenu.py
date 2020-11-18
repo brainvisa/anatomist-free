@@ -750,9 +750,10 @@ def add_gui_menus():
         except:
             pyshell.setEnabled(False)
 
+#menu_slot = Slot(add_gui_menus)
 
 pm = PyAnatomistModule()
-add_gui_menus()
+QTimer.singleShot(10, add_gui_menus)
 pythonscriptloader = PythonScriptRun()
 anatomist.ObjectReader.registerLoader('py', pythonscriptloader)
 import atexit
