@@ -178,7 +178,7 @@ namespace anatomist
 
     /** Bounding box in 2D views mode. In mm, may be the same as boundingBox()
         if the object field of view is the same in 3D and 2D modes.
-        It normally inccludes voxels size (for a volume, bmin will be -vs/2
+        It normally includes voxels size (for a volume, bmin will be -vs/2
         where vs is the voxel size, for the 3 first coordinates).
 
         The default implementation just calls boundingBox().
@@ -190,7 +190,7 @@ namespace anatomist
         object's referential coordinates.
 
         Changed in Anatomist 4.6. The older API was using Point3df instead of
-        vectord and informed only the spatial dimensions.
+        vector and informed only the spatial dimensions.
 
         An object with no spatial information (a texture for instance) may
         still have time information. For this reason, the resulting bounding

@@ -256,11 +256,11 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
 
   if( !patch_textures.empty() )
   {
+    cout << "patchmode: " << d->patchmode << ", patchnums: " << d->patchnums.size() << endl;
     unsigned index, npatch = patch_textures.size();
     list<ATexture *>::iterator ilt, elt = patch_textures.end();
     for( ilt=patch_textures.begin(); ilt!=elt; ++ilt )
     {
-    cout << "patchmode: " << d->patchmode << ", patchnums: " << d->patchnums.size() << endl;
       // make a shallow copy of patch texture since we will change its palette
       rc_ptr<ATexture> ptx;
       ptx.reset( static_cast<ATexture *>( (*ilt)->clone( true ) ) );
@@ -270,9 +270,18 @@ AConnectivityMatrix::AConnectivityMatrix( const vector<AObject *> & obj )
       theAnatomist->releaseObject( ptx.get() );
     }
 
+    if( d->patchmode == REDUCED )
+    {
+      rc_ptr< TimeTexture<int> > tex = (*patch_textures.begin())->texture<int>(
+        true, false );
+      d->ctools.buildDimensionObjectFromLabelsTexture( 0, *tex );
+      d->ctools.buildDimensionObjectFromLabelsTexture( 1, *tex );
+    }
+
     // build vertices indices on patch
     buildPatchIndices();
     patchindices_built = true;
+    cout << "buildPatchIndices done.\n";
 
     for( index=0; index<npatch; ++index )
     {
@@ -689,30 +698,39 @@ namespace
   list<string> get_cifti_mesh_ids( CiftiTools & ctools, int dim = 1 )
   {
     list<string> mesh_ids;
-    rc_ptr<SparseOrDenseMatrix> mat = ctools.matrix();
-    list<string> bstruct = ctools.getBrainStructures( dim, true, false );
-    list<string>::iterator ibs, ebs = bstruct.end();
-    const CiftiTools::BrainStuctureToMeshMap & meshmap
-      = ctools.brainStructureMap();
-    CiftiTools::BrainStuctureToMeshMap::const_iterator imm,
-      emm = meshmap.end();
 
-    for( ibs=bstruct.begin(); ibs!=ebs; ++ibs )
+    try
     {
-      imm = meshmap.find( *ibs );
-      if( imm != emm )
+      rc_ptr<SparseOrDenseMatrix> mat = ctools.matrix();
+      list<string> bstruct = ctools.getBrainStructures( dim, true, false );
+      list<string>::iterator ibs, ebs = bstruct.end();
+      const CiftiTools::BrainStuctureToMeshMap & meshmap
+        = ctools.brainStructureMap();
+      CiftiTools::BrainStuctureToMeshMap::const_iterator imm,
+        emm = meshmap.end();
+
+      for( ibs=bstruct.begin(); ibs!=ebs; ++ibs )
       {
+        imm = meshmap.find( *ibs );
+        if( imm != emm )
+        {
         while( mesh_ids.size() <= (size_t)imm->second )
-          mesh_ids.push_back( "" );
-        list<string>::iterator is = mesh_ids.begin();
-        for( int i=0; i<imm->second; ++i )
-          ++is;
-        *is = imm->first;
+            mesh_ids.push_back( "" );
+          list<string>::iterator is = mesh_ids.begin();
+          for( int i=0; i<imm->second; ++i )
+            ++is;
+          *is = imm->first;
+        }
       }
+
+      if( mesh_ids.empty() )
+        mesh_ids.push_back( "CORTEX" );
+    }
+    catch( exception & e )
+    {
+      cerr << e.what() << endl;
     }
 
-    if( mesh_ids.empty() )
-      mesh_ids.push_back( "CORTEX" );
     return mesh_ids;
   }
 
@@ -768,7 +786,7 @@ namespace
                      list<ATriangulated *> & meshes, list<ATexture *> & tex,
                      list<pair<vector<int>, size_t> > & cols )
   {
-    cout << "check_meshes " << mesh_ids.size() << ", " << meshes.size() << ", " << tex.size() << endl;
+//     cout << "check_meshes " << mesh_ids.size() << ", " << meshes.size() << ", " << tex.size() << endl;
     if( mesh_ids.size() != meshes.size() )
       return false;
     if( !tex.empty() && tex.size() < mesh_ids.size() )
@@ -919,7 +937,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     nvert_list.push_back( n );
     nvert += n;
   }
-  unsigned lines, texsize;
+  unsigned lines, ncols, texsize, tex1size;
   list<unsigned> texsize_list;
   Object patchlabels;
   Object patchintlabels;
@@ -930,7 +948,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   {
     rc_ptr<SparseOrDenseMatrix> smat = sparse->matrix();
     CiftiTools ctools( smat );
-    texsize = smat->getSize2();
+    ncols = smat->getSize2();
     lines = smat->getSize1();
     try
     {
@@ -953,7 +971,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   }
   else if( dense )
   {
-    texsize = dense->volume()->getSizeX();
+    ncols = dense->volume()->getSizeX();
     lines = dense->volume()->getSizeY();
     try
     {
@@ -972,7 +990,7 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
   }
   else
   {
-    texsize = ddense->volume()->getSizeX();
+    ncols = ddense->volume()->getSizeX();
     lines = ddense->volume()->getSizeY();
     try
     {
@@ -990,17 +1008,28 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     }
   }
 
-  cout << "matrix size: " << lines << ", " << texsize << endl;
+  texsize = ncols;
+  if( tex )
+    tex1size = tex->glTexCoordSize( ViewState() );
+  else
+    tex1size = ncols;
+
+  cout << "matrix size: " << lines << ", " << ncols << endl;
   cout << "mesh vertices: " << nvert << endl;
+  cout << "texture size: " << tex1size << endl;
   if( tex2 )
     cout << "using 2 textures\n";
 
+  cout << "cifti_check: " << cifti_check << endl;
+
+
+  /* texture should have nvert elements, with texsize "useable" as a ROI
+      patch, or combination of patches (all but one value) */
+  if( tex1size != nvert )
+    return false; // incompatible texture
+
   if( !cifti_check && tex )
   {
-    /* texture should have nvert elements, with texsize "useable" as a ROI
-       patch, or combination of patches (all but one value) */
-    if( tex->glTexCoordSize( ViewState() ) != nvert )
-      return false; // incompatible texture
     rc_ptr<Texture1d> aimstex = tex->texture<float>( true, false );
     if( !aimstex || aimstex->size() == 0 )
       return false;
@@ -1011,28 +1040,57 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
     {
       if( nvert != texsize )
       {
-        cout << "matrix columns do not correspond to mesh vertices\n";
-        return false;
+        /* or maybe it's a reduced matrix: matrix size should be square and
+          match the texture labels number */
+        if( ncols != lines )
+        {
+          cout << "matrix columns do not correspond to mesh vertices\n";
+          return false; // not square: incompatible texture
+        }
+
+        // get number of regions
+        int i, nroi = 0;
+        set<int> patchnum1;
+        for( i=0; i<tex1size; ++i )
+        {
+          int label = int( rint( (*aimstex)[0][i] ) );
+          patchnum1.insert( label );
+          if( label > nroi )
+            nroi = label;
+        }
+        ++nroi;
+        cout << "nb of regions in texture: " << nroi
+             << " (" << patchnum1.size() << " actually used)" << endl;
+        if( nroi != ncols && patchnum1.size() != ncols )
+          return false; // nb of regions don't match matrix size
+
+        patchnummode = REDUCED;
+        cout << "It's a reduced matrix.\n";
+        transpose = false;
+        patchnums = patchnum1;
       }
-      if( !checkTextureAsConnectivity( *aimstex, nvert, lines,
-                                       patchnummode, patchnums,
-                                       patchlabels, patchintlabels,
-                                       tex->attributed() ) )
+      else
       {
-        if( !checkTextureAsConnectivity( *aimstex, nvert, texsize,
-                                       patchnummode, patchnums,
-                                       patchlabels, patchintlabels,
-                                       tex->attributed() ) )
+        if( !checkTextureAsConnectivity( *aimstex, nvert, lines,
+                                        patchnummode, patchnums,
+                                        patchlabels, patchintlabels,
+                                        tex->attributed() ) )
         {
-          cout << "incompatible texture\n";
-          return false;
+          if( !checkTextureAsConnectivity( *aimstex, nvert, texsize,
+                                        patchnummode, patchnums,
+                                        patchlabels, patchintlabels,
+                                        tex->attributed() ) )
+          {
+            cout << "incompatible texture\n";
+            return false;
+          }
+          else
+          {
+            transpose1 = true;
+          }
         }
-        else
-        {
-          transpose1 = true;
-        }
+        transpose = transpose1;
       }
-      transpose = transpose1;
     }
     else
     {
@@ -1168,22 +1226,34 @@ void AConnectivityMatrix::buildPatchIndices()
     const vector<int32_t> & vtex = (**irt)[0].data();
     if( vtex.size() == d->meshes[surf_index]->surface()->vertex().size() )
     {
-      d->patchmode = ALL_MESH;
-      // patch texture from Cifti matrix
-      size_t i, n = vtex.size();
-      vector<int> indices_vec;
-      indices_vec.reserve( n ); // we will use less.
+      if( d->patchmode != REDUCED )
+      {
+        d->patchmode = ALL_MESH;
+        // patch texture from Cifti matrix
+        size_t i, n = vtex.size();
+        vector<int> indices_vec;
+        indices_vec.reserve( n ); // we will use less.
 
-      for( i=0; i<n; ++i )
-        if( vtex[i] != 0 )
-          indices_vec.push_back( i );
+        for( i=0; i<n; ++i )
+          if( vtex[i] != 0 )
+            indices_vec.push_back( i );
 
-      vector<int> mat_ind
-        = d->ctools.getIndicesForSurfaceIndices( 0, surf_index, indices_vec );
-      d->patchindices.push_back( map<uint32_t, uint32_t>() );
-      map<uint32_t, uint32_t> & pind = *d->patchindices.rbegin();
-      for( i=0, n=mat_ind.size(); i<n; ++i )
-        pind[ indices_vec[i] ] = mat_ind[i];
+        vector<int> mat_ind
+          = d->ctools.getIndicesForSurfaceIndices( 0, surf_index, indices_vec );
+        d->patchindices.push_back( map<uint32_t, uint32_t>() );
+        map<uint32_t, uint32_t> & pind = *d->patchindices.rbegin();
+        for( i=0, n=mat_ind.size(); i<n; ++i )
+          pind[ indices_vec[i] ] = mat_ind[i];
+      }
+      else
+      {
+        // reduced matrix case
+        size_t i, n = vtex.size();
+        d->patchindices.push_back( map<uint32_t, uint32_t>() );
+        map<uint32_t, uint32_t> & pind = *d->patchindices.rbegin();
+        for( i=0; i<n; ++i )
+          pind[i] = vtex[i];
+      }
     }
     else if( !d->patches.empty() )
     {
@@ -1234,7 +1304,7 @@ void AConnectivityMatrix::buildPatchIndices()
 void AConnectivityMatrix::buildTexture( int mesh_index, uint32_t startvertex,
                                         float time_pos )
 {
-  cout << "buildTexture\n";
+  cout << "buildTexture mesh: " << mesh_index << ", vertex: " << startvertex << ", timepos: " << time_pos << endl;
   uint32_t row = startvertex;
   if( !d->patchindices.empty() )
   {
@@ -1619,6 +1689,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
   // find vertex in patch
   if( !d->patchindices.empty() )
   {
+    cout << d->patchindices[mesh_index].size() << endl;
     map<uint32_t, uint32_t>::const_iterator
       ip = d->patchindices[mesh_index].find( startvertex );
     if( ip == d->patchindices[mesh_index].end() )
@@ -1629,6 +1700,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
       emit texturesUpdated( this );
       return;
     }
+    cout << "patch: " << ip->second << endl;
   }
 
   d->start_mesh_index = mesh_index;
@@ -1844,6 +1916,36 @@ vector<rc_ptr<ATexture> > AConnectivityMatrix::textures() const
 const rc_ptr<ATriangulated> AConnectivityMatrix::marker() const
 {
   return rc_ptr<ATriangulated>( d->marker );
+}
+
+
+bool AConnectivityMatrix::boundingBox( vector<float> & bmin,
+                                       vector<float> & bmax ) const
+{
+  vector<rc_ptr<ATriangulated> > smeshes = meshes();
+  unsigned i, n = smeshes.size();
+  vector<float> smin, smax;
+
+  for( i=0; i<n; ++i )
+    if( i == 0 )
+      smeshes[i]->boundingBox( bmin, bmax );
+    else
+    {
+      smeshes[i]->boundingBox( smin, smax );
+      if( smin[0] < bmin[0] )
+        bmin[0] = smin[0];
+      if( smin[1] < bmin[1] )
+        bmin[1] = smin[1];
+      if( smin[2] < bmin[2] )
+        bmin[2] = smin[2];
+      if( bmax[0] < smax[0] )
+        bmax[0] = smax[0];
+      if( bmax[1] < smax[1] )
+        bmax[1] = smax[1];
+      if( bmax[2] < smax[2] )
+        bmax[2] = smax[2];
+    }
+  return true;
 }
 
 

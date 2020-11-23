@@ -58,6 +58,7 @@ namespace anatomist
     all but 0)
     In this latter case, sub-patch connectivity may be displayed
     using ctrl+left click
+  - a label texture for a reduced matrix (region-region)
   */
   class AConnectivityMatrix : public QObject, public ObjectVector
   {
@@ -69,6 +70,7 @@ namespace anatomist
       ONE,
       ALL_BUT_ONE,
       ALL_MESH,
+      REDUCED,
     };
 
     AConnectivityMatrix( const std::vector<AObject *> & obj );
@@ -98,6 +100,8 @@ namespace anatomist
                               PatchMode & pmode, std::set<int> & patches,
                               bool & transpose );
     void cancelThread();
+    virtual bool boundingBox( std::vector<float> & bmin,
+                              std::vector<float> & bmax ) const;
 
   private:
     struct Private;
