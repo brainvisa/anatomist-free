@@ -571,7 +571,7 @@ anatomist.cpp.IconDictionary.instance().addIcon(
 ad = anatomist.cpp.ActionDictionary.instance()
 ad.addAction('SelectionAction', SelectionAction)
 cd = anatomist.cpp.ControlDictionary.instance()
-cd.addControl('SelectionControl', SelectionControl, 2)
+cd.addControl('SelectionControl', SelectionControl, 185)
 cm = anatomist.cpp.ControlManager.instance()
 cm.removeControl('QAGLWidget3D', '', 'Selection 3D')
 cm.addControl('QAGLWidget3D', '', 'SelectionControl')

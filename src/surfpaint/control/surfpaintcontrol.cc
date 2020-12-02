@@ -59,7 +59,8 @@ SurfpaintToolsControl::creator()
 }
 
 SurfpaintToolsControl::SurfpaintToolsControl() :
-  Control(518, QT_TRANSLATE_NOOP("ControlledWindow", "SurfpaintToolsControl")),
+  Control(5180, QT_TRANSLATE_NOOP("ControlledWindow",
+                                  "SurfpaintToolsControl")),
   myAction( 0 )
 {
 }

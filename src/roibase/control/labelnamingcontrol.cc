@@ -59,7 +59,7 @@ RoiLabelNamingControl::creator( )
 
 
 RoiLabelNamingControl::RoiLabelNamingControl( )
-  : Control( 110, "LabelNamingControl" )
+  : Control( 81023, "LabelNamingControl" )
 {
 
 }

@@ -79,7 +79,7 @@ PaintControl::creator( )
 
 
 PaintControl::PaintControl( )
-  : Control( 101, QT_TRANSLATE_NOOP( "ControlledWindow", "PaintControl" ) ),
+  : Control( 893, QT_TRANSLATE_NOOP( "ControlledWindow", "PaintControl" ) ),
     d( new Private ), myPaintAction(0)
 {
 

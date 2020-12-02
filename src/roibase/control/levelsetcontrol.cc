@@ -60,7 +60,7 @@ RoiLevelSetControl::creator( )
 
 
 RoiLevelSetControl::RoiLevelSetControl()
-  : Control( 103, "ConnectivityThresholdControl" )
+  : Control( 9343, "ConnectivityThresholdControl" )
 {
 
 }
