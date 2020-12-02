@@ -149,6 +149,7 @@ ControlDictionary::addControl( const string& name,
   cerr << "Test priority unicity" << endl ;
 #endif
   int validPriority = testPriorityUnicity( el.priority ) ;
+  cout << "addControl " << name << ": " << priority << " -> " << validPriority << endl;
   el.priority = validPriority ;
   myControls[name] = el ;
 }

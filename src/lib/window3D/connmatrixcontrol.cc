@@ -342,7 +342,7 @@ Control * ConnectivityMatrixControl::creator()
 
 
 ConnectivityMatrixControl::ConnectivityMatrixControl()
-  : Control( 20, "ConnectivityMatrixControl" )
+  : Control( 5000, "ConnectivityMatrixControl" )
 {
 }
 

@@ -79,6 +79,7 @@ def makePalettedSubclass(c):
         cl._initial_eventAutoSubscription = cl.eventAutoSubscription
         setattr(cl, 'eventAutoSubscription', neweventAutoSubscription)
     cd = anatomist.ControlDictionary.instance()
+    cd.removeControl(c.name())
     cd.addControl(c.name(), cl, c.priority(), True)
 
 

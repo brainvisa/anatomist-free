@@ -51,7 +51,7 @@ namespace anatomist
   public:
     static Control * creator( ) ;
     
-    Control3D( int priority = 1, 
+    Control3D( int priority = 100,
       const std::string & name = QT_TRANSLATE_NOOP( "ControlledWindow", 
         "Default 3D control" ) );
     Control3D( const Control3D & c );

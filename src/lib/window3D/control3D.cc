@@ -401,7 +401,7 @@ Select3DControl::creator( )
 }
 
 Select3DControl::Select3DControl( const string & name )
-  : Control( 2, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
+  : Control( 200, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
   // just for Qt translator parsing
   QT_TRANSLATE_NOOP( "ControlledWindow", "Selection 3D" );
@@ -1396,7 +1396,8 @@ FlightControl::creator( )
 }
 
 FlightControl::FlightControl()
-  : Control( 4, QT_TRANSLATE_NOOP( "ControlledWindow", "Flight control" ) )
+  : Control( 400000,
+             QT_TRANSLATE_NOOP( "ControlledWindow", "Flight control" ) )
 {
   setUserLevel( 2 );
 }
@@ -1686,7 +1687,7 @@ Control * ObliqueControl::creator()
 }
 
 ObliqueControl::ObliqueControl( const string & name )
-  : Control( 3, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
+  : Control( 300, QT_TRANSLATE_NOOP( "ControlledWindow", name ) )
 {
   // just for Qt translation parsing
   QT_TRANSLATE_NOOP( "ControlledWindow", "ObliqueControl" );
@@ -1899,7 +1900,7 @@ Control * TransformControl::creator()
 }
 
 TransformControl::TransformControl()
-  : Control( 10, QT_TRANSLATE_NOOP( "ControlledWindow", "TransformControl" ) )
+  : Control( 10000, QT_TRANSLATE_NOOP( "ControlledWindow", "TransformControl" ) )
 {
 }
 
@@ -2145,7 +2146,7 @@ Control * CutControl::creator()
 }
 
 CutControl::CutControl()
-  : Control( 30, QT_TRANSLATE_NOOP( "ControlledWindow", "CutControl" ) )
+  : Control( 3000, QT_TRANSLATE_NOOP( "ControlledWindow", "CutControl" ) )
 {
 }
 

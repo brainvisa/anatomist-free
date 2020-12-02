@@ -117,7 +117,7 @@ void RoiAlgoModule::actionsDeclaration()
 void RoiAlgoModule::controlsDeclaration()
 {
   ControlDictionary::instance()->addControl("DynSegmentControl",
-					    RoiDynSegmentControl::creator, 106 ) ;
+					    RoiDynSegmentControl::creator, 106576 ) ;
   
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::BUCKET ), 
 					  "DynSegmentControl" ) ;
