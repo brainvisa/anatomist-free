@@ -58,7 +58,7 @@ map<string, int>			AWindowFactory::TypeID;
 map<int, carto::rc_ptr<AWindowCreator> >	AWindowFactory::Creators;
 set<int> AWindowFactory::CtrlWinVisibleTypes;
 
-static bool	AWindowFactory_initialized = AWindowFactory::initTypes();
+static bool	AWindowFactory_initialized __attribute__((unused)) = AWindowFactory::initTypes();
 
 //	Commands Registry
 
@@ -136,6 +136,6 @@ void StaticInitializers::cleanup()
 
 namespace
 {
-  bool dummy = StaticInitializers::init();
+  bool dummy __attribute__((unused)) = StaticInitializers::init();
 }
 

@@ -170,7 +170,7 @@ AnnotationAction::AnnotationAction() : _built( false )
 }
 
 
-AnnotationAction::AnnotationAction( const AnnotationAction & a )
+AnnotationAction::AnnotationAction( const AnnotationAction & /*a*/ )
   : _built( false )
 {
 }

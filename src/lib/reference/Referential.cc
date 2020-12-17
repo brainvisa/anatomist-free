@@ -68,6 +68,8 @@ namespace
     return ref;
   }
 
+// defined but not used...
+#if 0
   Referential*& giftiTalairachRef()
   {
 //     static Referential *ref = 0;
@@ -75,6 +77,7 @@ namespace
     // seems to be the same as MNI (according to Freesurfer 5.3/6 data)
     return mniref();
   }
+#endif
 
 }
 

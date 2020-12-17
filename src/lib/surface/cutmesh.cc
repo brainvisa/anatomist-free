@@ -674,7 +674,8 @@ bool CutMesh::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 {
   bool ok = mesh()->boundingBox( bmin, bmax );
   MObject::const_iterator io;
-  unsigned i, j, n;
+  unsigned i, n;
+  int j;
   for( io=begin(), j=0; j<d->texindex; ++j, ++io ) {}
   for( ; j<d->cutmeshindex; ++j, ++io )
   {
@@ -717,7 +718,7 @@ namespace
   template <typename T>
   void fillNTextures( vector<vector<rc_ptr<TimeTexture<T> > > > &texs, int n )
   {
-    while( texs.size() < n )
+    while( (int)texs.size() < n )
     {
       texs.resize( n );
     }
@@ -767,7 +768,7 @@ void CutMesh::cut()
   ATexSurface *ts;
   vector<vector<rc_ptr<TimeTexture<float> > > > textures1;
   vector<vector<rc_ptr<TimeTexture<Point2df> > > > textures2;
-  int dimtex = 0;
+  unsigned dimtex = 0;
 
   for( i=0, io=begin(); i<d->texindex; ++i, ++io )
   {

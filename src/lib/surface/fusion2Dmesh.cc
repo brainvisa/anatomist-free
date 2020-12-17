@@ -135,7 +135,7 @@ void Fusion2DMesh::updateMergedSurface( const ViewState & state )
   {
     const AimsSurfaceTriangle * mesh = dynamic_cast<const ATriangulated *>( (*io).get() )->surface().get();
     AimsTimeSurface<2,Void> pol;
-    const SliceViewState* st = state.sliceVS();
+    //const SliceViewState* st = state.sliceVS();
     float time = state.timedims[0];
     if( time < (*io)->MinT() )
       time = 0;

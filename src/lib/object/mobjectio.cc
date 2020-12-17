@@ -837,7 +837,7 @@ bool MObjectIO::writeMObject( Object aobject, const string & filename,
 
 
 bool MObjectIO::saveDescription( Object objects, const string & filename,
-                                 bool writeLeafs )
+                                 bool /*writeLeafs*/ )
 {
   if( objects )
   {

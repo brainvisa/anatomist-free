@@ -411,7 +411,7 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
     return ;
   }
   
-  // Effacer la région courante
+  // Effacer la rï¿½gion courante
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
@@ -660,19 +660,21 @@ RoiDynSegmentAction::pcaRegionGrowth( )
   
   Point3d halfSize = maskHalfSize( myCurrentImage, int( ( myCurrentImage->MaxT()+1 ) * 2.5 ) ) ;
   cout << "Mask half size " << halfSize << endl ;
-  // s'il est necessaire de recalculer la matrice d'erreur et l'ereur de référence
+  // s'il est necessaire de recalculer la matrice d'erreur et l'ereur de rï¿½fï¿½rence
   if( mySeedChanged || myOrderChanged ){
     // Preparation des individus our l'acp.
     myMeanSignal = vector<float>(nbFrame, 0.) ;
     
     if( !myFindNearestMinimumMode )
+    {
       if( !evaluateError( mySeed, halfSize, dims,
 			myErrorMatrix, myMeanSignal,
 			myInsideMeanError, myInsideSigmaError, true ) )
-	return ;
+	      return ;
+    }
     else
       if( !findLocalBestSeed( dims, halfSize ) )
-	return ;
+	      return ;
   }
 
   // Region growth from seed point with error < meanError + faithInterval * errorDeviation
@@ -878,7 +880,7 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
   float sum = 0., sum2 = 0. ;
   float err ;
   
-  // Calcul de la moyenne et l'écart type des erreurs
+  // Calcul de la moyenne et l'ï¿½cart type des erreurs
   for( int i = -halfSize[0] ; i <= halfSize[0]  ; ++i )
   {
     vpos[0] = ( p[0] + i ) * vs[0];
@@ -1082,7 +1084,7 @@ RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
   float sum = 0., sum2 = 0. ;
   float err ;
 
-  // Calcul de la moyenne et l'écart type des erreurs
+  // Calcul de la moyenne et l'ï¿½cart type des erreurs
   while( bckIter != bckLast )
     {
       err = error( myCurrentImage, Point3df((bckIter->first)[0], (bckIter->first)[1], (bckIter->first)[2] ),

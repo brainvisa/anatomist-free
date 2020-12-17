@@ -159,7 +159,6 @@ void PaletteList::load( const string & dirname, bool clr )
     set<string>::const_iterator	in, en = names.end();
     if ( clr )
       clear();
-    bool newpal;
 
     for( in = names.begin(); in != en; ++in )
     {

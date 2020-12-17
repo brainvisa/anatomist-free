@@ -226,9 +226,6 @@ void PerfusionProcessingQtDecorator::doMask( int btn )
 void PerfusionProcessingQtDecorator::doAifPoints( int btn )
 {
   _ppBase->doAifPoints( btn );
-
-  char t[6], delta[10], point[20];
-
   _parent->listAIF()->clear();
 
   if ( !_ppBase->aifPointList().empty() )
@@ -259,7 +256,7 @@ void PerfusionProcessingQtDecorator::doAifPoints( int btn )
 
 void PerfusionProcessingQtDecorator::doInjection( int btn )
 {
-  int delta, p1, p2, p3;
+  int p1, p2, p3;
   Point4dl pt;
   string pos;
 
@@ -269,8 +266,6 @@ void PerfusionProcessingQtDecorator::doInjection( int btn )
   for( ; *it; ++it )
     if( (*it)->isSelected() )
     {
-      delta = atoi( (*it)->text( 0 ).toStdString().c_str() );
-
       pos = (*it)->text( 2 ).toStdString();
       p1 = pos.find( "," );
       p2 = pos.rfind( "," );

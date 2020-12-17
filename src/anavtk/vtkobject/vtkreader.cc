@@ -98,7 +98,7 @@ vtkAReader::~vtkAReader()
 
 list<AObject *> vtkAReader::readVTK (const std::string& filename,
                               ObjectReader::PostRegisterList &,
-                              Object options)
+                              Object /*options*/)
 {
   // cout << "readVTK\n";
 
@@ -194,9 +194,14 @@ list<AObject *> vtkAReader::readVTK (const std::string& filename,
 
 
 
-list<AObject *> vtkAReader::readVTKSequence (const std::string& filename,
+list<AObject *> vtkAReader::readVTKSequence (
+ #ifndef ANATOMIST_NO_VTKINRIA3D
+                                     const std::string& filename,
+#else
+                                     const std::string& /*filename*/,
+#endif
                                       ObjectReader::PostRegisterList &,
-                                      Object options)
+                                      Object /*options*/)
 {
   list<AObject *> lobj;
 

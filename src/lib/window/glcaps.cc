@@ -145,76 +145,76 @@ namespace
   {
   }
 
-  void APIENTRY _void_glMultiTexCoord3f( GLenum target, GLfloat s, GLfloat t,
-                                         GLfloat r )
+  void APIENTRY _void_glMultiTexCoord3f( GLenum /*target*/, GLfloat /*s*/,
+                                         GLfloat /*t*/, GLfloat /*r*/ )
   {
   }
 
-  void APIENTRY _void_glBindFramebuffer( GLenum target, GLuint framebuffer )
+  void APIENTRY _void_glBindFramebuffer( GLenum /*target*/, GLuint /*framebuffer*/ )
   {
   }
 
-  void APIENTRY _void_glBindRenderbuffer( GLenum target, GLuint renderbuffer )
+  void APIENTRY _void_glBindRenderbuffer( GLenum /*target*/, GLuint /*renderbuffer*/ )
   {
   }
 
-  void APIENTRY _void_glFramebufferTexture2D( GLenum target, GLenum attachment,
-                                              GLenum textarget, GLuint texture,
-                                              GLint level )
+  void APIENTRY _void_glFramebufferTexture2D( GLenum /*target*/, GLenum /*attachment*/,
+                                              GLenum /*textarget*/, GLuint /*texture*/,
+                                              GLint /*level*/ )
   {
   }
 
-  void APIENTRY _void_glGenFramebuffers( GLsizei n, GLuint *ids )
+  void APIENTRY _void_glGenFramebuffers( GLsizei /*n*/, GLuint * /*ids*/ )
   {
   }
 
-  void APIENTRY _void_glGenRenderbuffers( GLsizei n, GLuint *renderbuffers )
+  void APIENTRY _void_glGenRenderbuffers( GLsizei /*n*/, GLuint * /*renderbuffers*/ )
   {
   }
 
   void APIENTRY _void_glFramebufferRenderbuffer(
-    GLenum target, GLenum attachment, GLenum renderbuffertarget,
-    GLuint renderbuffer )
+    GLenum /*target*/, GLenum /*attachment*/, GLenum /*renderbuffertarget*/,
+    GLuint /*renderbuffer*/ )
   {
   }
 
   void APIENTRY _void_glRenderbufferStorage(
-    GLenum target, GLenum internalformat, GLsizei width, GLsizei height )
+    GLenum /*target*/, GLenum /*internalformat*/, GLsizei /*width*/, GLsizei /*height*/ )
   {
   }
 
-  void APIENTRY _void_glMultTransposeMatrix( const GLfloat m[16] )
+  void APIENTRY _void_glMultTransposeMatrix( const GLfloat /*m*/[16] )
   {
   }
 
-  void APIENTRY _void_glUniform1f( GLint location, GLfloat v0 )
+  void APIENTRY _void_glUniform1f( GLint /*location*/, GLfloat /*v0*/ )
   {
   }
 
-  void APIENTRY _void_glUniform1i( GLint location, GLint v0 )
+  void APIENTRY _void_glUniform1i( GLint /*location*/, GLint /*v0*/ )
   {
   }
 
-  void APIENTRY _void_glUniform4fvf( GLint location, GLsizei count,
-                            const GLfloat *value )
+  void APIENTRY _void_glUniform4fvf( GLint /*location*/, GLsizei /*count*/,
+                            const GLfloat * /*value*/ )
   {
   }
 
-  GLint APIENTRY _void_glGetUniformLocation( GLuint program,
-                                             const GLchar *name )
+  GLint APIENTRY _void_glGetUniformLocation( GLuint /*program*/,
+                                             const GLchar * /*name*/ )
   {
     return 0;
   }
 
-  void APIENTRY _void_glAttachShader( GLuint program, GLuint shader )
+  void APIENTRY _void_glAttachShader( GLuint /*program*/, GLuint /*shader*/ )
   {
   }
 
-  void APIENTRY _void_glDetachShader( GLuint program, GLuint shader )
+  void APIENTRY _void_glDetachShader( GLuint /*program*/, GLuint /*shader*/ )
   {
   }
 
-  void APIENTRY _void_glCompileShader( GLuint shader )
+  void APIENTRY _void_glCompileShader( GLuint /*shader*/ )
   {
   }
 
@@ -223,58 +223,58 @@ namespace
     return 0; // error code
   }
 
-  GLuint APIENTRY _void_glCreateShader( GLenum type )
+  GLuint APIENTRY _void_glCreateShader( GLenum /*type*/ )
   {
     return 0; // error code
   }
 
-  void APIENTRY _void_glDeleteProgram( GLuint program )
+  void APIENTRY _void_glDeleteProgram( GLuint /*program*/ )
   {
   }
 
-  void APIENTRY _void_glDeleteShader( GLuint shader )
+  void APIENTRY _void_glDeleteShader( GLuint /*shader*/ )
   {
   }
 
-  void APIENTRY _void_glGetProgramiv( GLuint program, GLenum pname,
-                                      GLint *params )
+  void APIENTRY _void_glGetProgramiv( GLuint /*program*/, GLenum /*pname*/,
+                                      GLint * /*params*/ )
   {
   }
 
-  void APIENTRY _void_glGetShaderiv( GLuint shader, GLenum pname,
-                                     GLint *params )
+  void APIENTRY _void_glGetShaderiv( GLuint /*shader*/, GLenum /*pname*/,
+                                     GLint * /*params*/ )
   {
   }
 
-  void APIENTRY _void_glLinkProgram( GLuint program )
+  void APIENTRY _void_glLinkProgram( GLuint /*program*/ )
   {
   }
 
-  void APIENTRY _void_glShaderSource( GLuint shader, GLsizei count,
-                                      const GLchar *const*string,
-                                      const GLint *length )
+  void APIENTRY _void_glShaderSource( GLuint /*shader*/, GLsizei /*count*/,
+                                      const GLchar *const* /*string*/,
+                                      const GLint * /*length*/ )
   {
   }
 
-  void APIENTRY _void_glUseProgram( GLuint program )
+  void APIENTRY _void_glUseProgram( GLuint /*program*/ )
   {
   }
 
 
-  GLenum APIENTRY _void_glCheckFramebufferStatus( GLenum target )
+  GLenum APIENTRY _void_glCheckFramebufferStatus( GLenum /*target*/ )
   {
     return 0x8CDD; // value for GL_FRAMEBUFFER_UNSUPPORTED
   }
 
 
-  void APIENTRY _void_glDeleteRenderbuffers( GLsizei n,
-                                             const GLuint *renderbuffers )
+  void APIENTRY _void_glDeleteRenderbuffers( GLsizei /*n*/,
+                                             const GLuint * /*renderbuffers*/ )
   {
   }
 
 
-  void APIENTRY _void_glDeleteFramebuffers( GLsizei n,
-                                            const GLuint *framebuffers )
+  void APIENTRY _void_glDeleteFramebuffers( GLsizei /*n*/,
+                                            const GLuint * /*framebuffers*/ )
   {
   }
 

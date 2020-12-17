@@ -46,7 +46,7 @@ static bool initHistogramModule()
   return( true );
 }
 
-static bool garbage = initHistogramModule();
+static bool garbage __attribute__((unused)) = initHistogramModule();
 
 
 HistogramModule::HistogramModule() : Module()

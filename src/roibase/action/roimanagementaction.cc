@@ -179,7 +179,7 @@ void
 RegionsFusionWindow::selectedRegionsChanged()
 {
   mySelectedRegions.clear();
-  for( unsigned int i = 0 ; i < selectRegions->count() ; ++i )
+  for( int i = 0 ; i < selectRegions->count() ; ++i )
   {
     if( selectRegions->item( i )->isSelected() )
       mySelectedRegions.append( selectRegions->item(i)->text() );

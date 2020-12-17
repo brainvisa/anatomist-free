@@ -190,13 +190,9 @@ PaintParamsCommand::doit()
 }
 
 
-Command* PaintParamsCommand::read( const Tree & com, CommandContext* context )
+Command* PaintParamsCommand::read( const Tree & com, CommandContext* /*context*/ )
 {
   Object params = Object::value( carto::Dictionary() );
-  int           iobj, rid, bkid, wb = 1, nodup = false;
-  AGraph        *gr;
-  void          *ptr;
-  string        name, syntax;
 
   params->copyProperties( Object::reference( const_cast<Tree &>(
     com ).getValue()  ) );
@@ -208,7 +204,6 @@ Command* PaintParamsCommand::read( const Tree & com, CommandContext* context )
 void PaintParamsCommand::write( Tree & com, Serializer* ) const
 {
   Tree  *t = new Tree( true, name() );
-  int   obj;
 
   t->copyProperties( _params );
 

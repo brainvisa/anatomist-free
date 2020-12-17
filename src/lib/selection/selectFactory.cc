@@ -394,14 +394,14 @@ void SelectFactory::setSelectColor( const HColor & col )
 void SelectFactory::refresh() const
 {
   map<unsigned, set<AObject *> >::iterator	is, fs=_selected().end();
-  unsigned				group;
+  //unsigned				group;
   set<AObject *>::iterator		io, fo, io2;
   bool					reset = false;
   set<AWindow *>::iterator		iw, fw=_winToRefresh().end();
 
   for( is=_selected().begin(); is!=fs; ++is )
     {
-      group = (*is).first;
+      //group = (*is).first;
       set<AObject *> & so = (*is).second;
 
       reset = false;
@@ -521,17 +521,17 @@ void SelectFactory::propagateSelection( unsigned group ) const
   set<AWindow *>::iterator		iw, fw=win.end();
   set<AObject *>			& sel = _selected()[ group ];
   set<AObject *>::const_iterator	io, fo=sel.end();
-  bool					refr;
+  //bool					refr;
 
   for( iw=win.begin(); iw!=fw; ++iw )
     {
       //cout << "check win " << (*iw)->Title() << endl;
-      refr = false;
+      //refr = false;
       for( io=sel.begin(); io!=fo; ++io )
 	if( !(*iw)->hasObject( *io ) )
 	  {
 	    (*iw)->registerObject( *io );
-	    refr = true;
+	    //refr = true;
 	    //cout << "register obj " << (*io)->name() << endl;
 	  }
 	/*else cout << "obj " << (*io)->name() << " already in win " 

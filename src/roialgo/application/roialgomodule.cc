@@ -76,7 +76,7 @@ static bool initRoiAlgoModule()
   return( true );
 }
 
-static bool garbage = initRoiAlgoModule();
+static bool garbage __attribute__((unused)) = initRoiAlgoModule();
 
 std::string 
 RoiAlgoModule::name() const

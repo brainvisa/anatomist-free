@@ -257,15 +257,15 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     AffineTransformation3d r \
       = AffineTransformation3d( view->quaternion() ).inverse();
     AffineTransformation3d p;
-    p.translation()[0] = trans[0];
-    p.translation()[1] = trans[1];
-    p.translation()[2] = trans[2];
+    p.matrix()(0, 3) = trans[0];
+    p.matrix()(1, 3) = trans[1];
+    p.matrix()(2, 3) = trans[2];
     AffineTransformation3d inv;
     if( view->invertedZ() )
       inv.rotation()( 2, 2 ) = -1;
     r = r * inv * p;
     glTranslatef( r.translation()[0], r.translation()[1],
-      r.translation()[2] );
+                  r.translation()[2] );
     float sym = ( view->invertedZ() ? 1 : -1 );
     glScalef( d->scale * sym, -d->scale * sym, d->scale * sym );
   }

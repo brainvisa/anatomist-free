@@ -475,7 +475,7 @@ bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
 }
 
 
-void AConnectivityMatrix::update( const Observable *observable, void *arg )
+void AConnectivityMatrix::update( const Observable *observable, void * /*arg*/ )
 {
   const AObject *oobj = dynamic_cast<const AObject *>( observable );
   if( oobj )
@@ -714,7 +714,7 @@ namespace
         imm = meshmap.find( *ibs );
         if( imm != emm )
         {
-          while( mesh_ids.size() <= imm->second )
+        while( mesh_ids.size() <= (size_t)imm->second )
             mesh_ids.push_back( "" );
           list<string>::iterator is = mesh_ids.begin();
           for( int i=0; i<imm->second; ++i )
@@ -764,7 +764,7 @@ namespace
           int index = 0;
           if( imm != emm )
             index = imm->second;
-          while( cols.size() <= index )
+          while( cols.size() <= (size_t)index )
             cols.push_back( make_pair( vector<int>(), 0 ) );
           list<pair<vector<int>, size_t> >::iterator icv = cols.begin();
           for( int i=0; i<index; ++i )
@@ -815,7 +815,7 @@ namespace
       { cout << "unmatching mesh on dim 1\n";
         return false;
       }
-      while( ordered_meshes.size() <= mesh_num )
+      while( ordered_meshes.size() <= (size_t)mesh_num )
         ordered_meshes.push_back( 0 );
       for( bm=ordered_meshes.begin(), i=0; i<mesh_num; ++i )
         ++bm;
@@ -838,7 +838,7 @@ namespace
       { cout << "unmatching texture\n";
         return false;
       }
-      while( ordered_tex.size() <= mesh_num )
+      while( ordered_tex.size() <= (size_t)mesh_num )
         ordered_tex.push_back( 0 );
       for( bt=ordered_tex.begin(), i=0; i<mesh_num; ++i )
         ++bt;
@@ -1631,7 +1631,7 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
   // look in textures cache
   if( !d->patchtex_cache.empty() )
   {
-    size_t i, n = d->patches.size();
+    size_t n = d->patches.size();
     rc_ptr<TimeTexture<int16_t> >
       tx0 = d->patches[mesh_index]->texture<int16_t>( true, false );
     int patchval;
@@ -1666,15 +1666,15 @@ void AConnectivityMatrix::buildPatchTexture( int mesh_index,
       if( cachetex.empty() )
       {
         cachetex.resize( n );
-        for( int i=0; i<n; ++i )
+        for( size_t i=0; i<n; ++i )
           cachetex[i].reset( new TimeTexture<float> );
       }
-      for( int i=0; i<n; ++i )
+      for( size_t i=0; i<n; ++i )
       (*cachetex[i])[ timestep ] = (*patchcache->second[i])[ timestep ];
     }
     if( incache )
     {
-      for( int i=0; i<n; ++i )
+      for( size_t i=0; i<n; ++i )
       {
         d->textures[i]->setTexture( cachetex[i] );
         d->textures[i]->glSetTexImageChanged();
@@ -1720,7 +1720,6 @@ void AConnectivityMatrix::buildPatchTextureThread()
 {
   int mesh_index = d->start_mesh_index;
   uint32_t startvertex = d->startvertex;
-  float time_pos = d->start_time_pos;
 
   emit processingProgress( this, 0, 100 );
 
@@ -1730,7 +1729,7 @@ void AConnectivityMatrix::buildPatchTextureThread()
   rc_ptr<TimeTexture<int16_t> > tx0 = d->patches[mesh_index]->texture<int16_t>(
     true, false );
   int timestep;
-  uint32_t i, n, nmesh = d->meshes.size();
+  uint32_t i, nmesh = d->meshes.size();
   unsigned index = 0;
   TimeTexture<int16_t>::const_iterator it, et = tx0->end();
   vector<rc_ptr<TimeTexture<float> > > ptex( nmesh );
@@ -1770,7 +1769,6 @@ void AConnectivityMatrix::buildPatchTextureThread()
     map<uint32_t, uint32_t> patchindices;
     map<uint32_t, uint32_t>::const_iterator
       ip, ep = d->patchindices[mesh_index].end();
-    n = d->patchindices[mesh_index].size();
     // get sub-patch
     for( ip=d->patchindices[mesh_index].begin(); ip!=ep; ++ip )
     {

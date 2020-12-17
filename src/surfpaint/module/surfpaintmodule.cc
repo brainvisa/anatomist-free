@@ -70,7 +70,7 @@ static bool initSurfpaintModule()
   return( true );
 }
 
-static bool garbage = initSurfpaintModule();
+static bool garbage __attribute__((unused)) = initSurfpaintModule();
 
 
 SurfpaintModule::SurfpaintModule() : Module()

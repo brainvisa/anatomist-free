@@ -317,6 +317,10 @@ QAbout::QAbout( QWidget* parent, const char* name )
     {
       d->edit->text = new char[ buf.st_size + 1 ];
       size_t nr = fread( d->edit->text, 1, buf.st_size, f );
+      if ( nr != (size_t)buf.st_size )
+      {
+        cerr << "scrolling message file is corrupted" << endl;
+      }
       d->edit->text[ buf.st_size - 1 ] = '\0';
       fclose( f );
       d->edit->current = d->edit->text;
@@ -459,6 +463,7 @@ namespace
     if( !libaudio )
     {
       cout << "could not load libaudio. I will be mute.\n";
+      cout << "Error message : " << lerr << endl;
       return false;
     }
     d->libasound = libaudio;

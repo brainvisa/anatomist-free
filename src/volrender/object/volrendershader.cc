@@ -597,9 +597,9 @@ namespace
       /* cout << "resampling to " << d->dimx << "/" << d->dimx << ", "
       << d->dimy << "/" << d->texdimy << ", "
       << d->dimz << "/" << d->texdimz << endl; */
-      U zero = (U) ( offset * scl );
-      if( offset < 0 )
-        zero = (U) 0;
+      //U zero = (U) ( offset * scl );
+      //if( offset < 0 )
+      //  zero = (U) 0;
       for( z=0; z<d->dimz; ++z )
       {
         for( y=0; y<d->dimy; ++y )
@@ -753,21 +753,14 @@ bool VolRenderShader::glMakeTexImage( const ViewState &state,
   if( !objpal )
     return false;
 
-  const AimsData<AimsRGBA>	*cols = objpal->colors();
   float		min = objpal->min1(), max = objpal->max1();
-  unsigned   	dimx = 65536;
-  int           h;
-  unsigned	dimpx = cols->dimX();
-  int		xs;
-  const TexExtrema  & te = glTexExtrema( tex );
+  //const TexExtrema  & te = glTexExtrema( tex );
 
   if( min == max )
   {
     min = 0;
     max = 1;
   }
-  double minquant = te.minquant[0];
-  double maxquant = te.maxquant[0];
 
   int t = int( rint( state.timedims[0] ) );
 
@@ -963,10 +956,6 @@ bool VolRenderShader::glMakeBodyGLL( const ViewState &state,
         << gluErrorString(status) << endl;
 
   const SliceViewState  *svs = state.sliceVS();
-
-  float tx = (float) d->dimx;
-  float ty = (float) d->dimy;
-  float tz = (float) d->dimz;
 
   //float m[16];
   Motion  mot;
@@ -1602,8 +1591,6 @@ std::string VolRenderShader::loadShaderFile( const std::string& filename )
     if ( ifs.good() )
     {
 
-      char buffer[ 256 ];
-
       while ( !ifs.eof() )
       {
 
@@ -1694,14 +1681,15 @@ void VolRenderShader::createRenderTextures( int width, int height )
     return;
   }
 
-  GLint texWidth, texHeight;
+//  GLint texWidth, texHeight;
 
 //   glBindTexture( GL_TEXTURE_2D, d->m_texture[ 2 ] );
 
 //   glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth );
 //   glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight );
 
-  if ( ( width == d->buffer_width ) && ( height == d->buffer_height ) )
+  if ( ( width == (int)d->buffer_width ) && 
+       ( height == (int)d->buffer_height ) )
   {
     return;
   }

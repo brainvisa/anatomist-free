@@ -369,7 +369,7 @@ void Shader::setShaderParameters(const GLMObject &obj, const ViewState & state) 
 
 
 void Shader::setShaderParameters( const GLComponent &obj,
-                                  const ViewState & state ) const
+                                  const ViewState & /*state*/ ) const
 {
   bool normalIsDirection = false;
   if( obj.glMaterial() )

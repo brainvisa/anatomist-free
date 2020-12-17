@@ -151,10 +151,10 @@ ASurfMatcher::ASurfMatcher( AObject* o1, AObject* o2 )
   _type = _classType;
 
   ATriangulated	*s1 = dynamic_cast<ATriangulated *>( o1 );
-  ATriangulated	*s2 = dynamic_cast<ATriangulated *>( o2 );
+  //ATriangulated	*s2 = dynamic_cast<ATriangulated *>( o2 );
 
   assert( s1 );
-  assert( s2 );
+  //assert( s2 );
 
   insert( o1 );
   insert( o2 );

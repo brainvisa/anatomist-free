@@ -1128,11 +1128,10 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   const AimsData<AimsRGBA>	*cols = objpal->colors();
   if( !cols )
     return false;
-  float		min = objpal->min1(), max = objpal->max1();
-  float		min2 = objpal->min2(), max2 = objpal->max2();
-  unsigned	dimx, dimy, x, y;
+  //float		min = objpal->min1(), max = objpal->max1();
+  //float		min2 = objpal->min2(), max2 = objpal->max2();
+  unsigned	dimx, dimy, x;
   unsigned	dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
-  int		xs, ys;
   unsigned	dimtex = glDimTex( state, tex );
   if(dimtex > 2)
   {
@@ -1141,8 +1140,8 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
     return false;
   }
 
-  const TexInfo	& t = glTexInfo( tex );
-  TexInfo & ti = d->textures[ tex ];
+  //const TexInfo	& t = glTexInfo( tex );
+  //TexInfo & ti = d->textures[ tex ];
 
   dimx = dimpx;
   dimy = dimpy;

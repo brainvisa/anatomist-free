@@ -85,7 +85,7 @@ static bool initRoiBaseModule()
   return( true );
 }
 
-static bool garbage = initRoiBaseModule();
+static bool garbage __attribute__((unused)) = initRoiBaseModule();
 
 std::string 
 RoiBaseModule::name() const

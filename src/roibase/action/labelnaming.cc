@@ -242,7 +242,7 @@ RoiLabelNamingAction::addWholeLabelToRegion( int x, int y, int, int )
 
 
 void 
-RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
+RoiLabelNamingAction::removeWholeLabelFromRegion( int /*x*/, int /*y*/, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
@@ -251,7 +251,7 @@ RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
   }
   
   AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
-  AGraphObject * go = RoiChangeProcessor::instance()->getGraphObject( 0 ) ;
+  //AGraphObject * go = RoiChangeProcessor::instance()->getGraphObject( 0 ) ;
   
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
@@ -522,7 +522,6 @@ RoiLabelNamingAction::computeImageValueMap( const anatomist::AVolume<T>& avol, i
   
   if( myComputeCurrentImageValueMap[timePos] )
   {
-    int x, y, z ;
     myCurrentImageValues = std::vector< std::map< int16_t, int32_t> >(
       vol.getSizeT() ) ;
 

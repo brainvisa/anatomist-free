@@ -167,9 +167,6 @@ bool Trackball::moveTrackballInternal( int x, int y )
       return false;
     }
 
-  float	dimx = w->width();
-  float	dimy = w->height();
-
   Quaternion	q = rotation( x, y ) * _beginquat;
   w->setQuaternion( q );
   return true;

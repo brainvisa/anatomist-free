@@ -111,7 +111,6 @@ void FusionObjectsCommand::doit()
       {
         string name = AObject::objectTypeName( _newobj->type() ) + ": ";
         vector<AObject *>::const_iterator i, e = _obj.end();
-        bool first = true, trunc = false;
         int MAXLEN = 300;
         theAnatomist->config()->getProperty( "object_names_list_max_size",
                                              MAXLEN );

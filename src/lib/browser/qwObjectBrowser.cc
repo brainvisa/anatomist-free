@@ -2682,7 +2682,7 @@ void QObjectBrowser::startDrag( QTreeWidgetItem*, Qt::MouseButtons button,
 //         d->setPixmap( (*ip).second );
 //       d->dragCopy();
 
-    Qt::DropAction dropaction = drag->exec( Qt::CopyAction );
+    Qt::DropAction dropaction __attribute__((unused)) = drag->exec( Qt::CopyAction );
     // we should not delete drag.
   }
 }

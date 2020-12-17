@@ -105,7 +105,7 @@ if( (DESIRED_QT_VERSION EQUAL 4) AND NOT(CMAKE_CROSSCOMPILING) )
       set( VTK_FOUND 0 )
     endif()
     if( VTK_FOUND )
-      BRAINVISA_DEPENDENCY( RUN DEPENDS libvtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION} RUN ">=5.4 <6" )
+      BRAINVISA_DEPENDENCY( RUN DEPENDS libvtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION} RUN ">= 5.4;<< 6" )
       find_package( vtkINRIA3D QUIET )
       if( vtkINRIA3D_FOUND )
         BRAINVISA_DEPENDENCY( RUN DEPENDS vtkINRIA3D RUN )
@@ -138,6 +138,8 @@ endif()
 
 set( ANATOMIST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/include" ${AIMS-FREE_INCLUDE_DIRS} "${QT_INCLUDE_DIR}" )
 include_directories( ${ANATOMIST_INCLUDE_DIRS} )
+
+#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall" )
 
 add_subdirectory( src )
 add_subdirectory( doxygen )

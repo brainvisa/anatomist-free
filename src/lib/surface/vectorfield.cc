@@ -78,7 +78,7 @@ struct VectorField::Private
 
 VectorField::Private::Private()
   : vardim( 3, Point3di( 0 ) ), fixeddim( 3 ), refvol( 3, (AObject *) 0 ),
-    sizes( 3 ), scaling( 0.01 ), datatype( 3, NONE )
+    sizes( 3 ), datatype( 3, NONE ), scaling( 0.01 )
 {
 }
 
@@ -252,7 +252,7 @@ VectorField::VectorField( const vector<AObject *> & obj )
 
   // Insert the input objects
   vector<AObject *>::const_iterator io, eo=obj.end();
-  size_t i = 0, n = obj.size();
+  size_t i = 0;
 
   for( io=obj.begin(); io!=eo; ++io, ++i )
   {
@@ -730,7 +730,6 @@ int VectorField::canFusion( const set<AObject *> & obj )
 {
   set<AObject *>::const_iterator	io, fo = obj.end();
   int i = 0;
-  GLComponent *gl;
   for( io=obj.begin(); io!=fo && i<3; ++io, ++i )
   {
     if( Private::getDataType( *io ) == Private::NONE )
@@ -845,7 +844,7 @@ void VectorField::setSpaceCoordsDimensions( int channel,
     return;
 
   d->vardim[ channel ] = dims;
-  size_t n = d->sizes[channel].size();
+  int n = d->sizes[channel].size();
   if( d->vardim[ channel ][0] >= n )
     d->vardim[ channel ][0] = n - 1;
   if( d->vardim[ channel ][1] >= n )

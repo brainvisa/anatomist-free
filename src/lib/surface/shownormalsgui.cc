@@ -166,7 +166,7 @@ void NormalsSettingsPanel::chooseObject()
 }
 
 
-void NormalsSettingsPanel::update( const Observable* observable, void* args )
+void NormalsSettingsPanel::update( const Observable* observable, void* /*args*/ )
 {
   const ANormalsMesh *obj = dynamic_cast<const ANormalsMesh *>( observable );
   if( obj && obj == *_objects.begin() )

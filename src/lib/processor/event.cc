@@ -68,6 +68,7 @@ OutputEvent::~OutputEvent()
 
 namespace
 {
+  using anatomist::Transformation;
 
   template<typename T> 
   bool trytype( Object val, const string & att, 

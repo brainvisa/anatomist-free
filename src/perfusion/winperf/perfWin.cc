@@ -526,13 +526,11 @@ void QAPerfusionWindow::registerObject( AObject *object )
       str += object->name().c_str();
       setWindowTitle( str );
 
-      int dT = 1;
       PropertySet *aheader = 0;
       AVolume< byte > *volb = dynamic_cast< AVolume< byte > * >( object );
       if ( volb )
         {
 	  aheader = &volb->volume()->header();
-	  dT = volb->volume()->getSizeT();
 	}
       else
 	{
@@ -541,7 +539,6 @@ void QAPerfusionWindow::registerObject( AObject *object )
 	  if ( vols )
 	    {
 	      aheader = &vols->volume()->header();
-	      dT = vols->volume()->getSizeT();
 	    }
 	}
 

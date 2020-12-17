@@ -104,7 +104,7 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   vboxlayout->setSpacing(0);
   select_container_widget->layout()->setMargin(0); 
 
-  GlobalConfiguration   *cfg = theAnatomist->config();
+  //GlobalConfiguration   *cfg = theAnatomist->config();
   bool use_glshader = Shader::isActivated();
   if (!use_glshader) shader_tab->setEnabled(false);
   if (theAnatomist->userLevel() < 3) reload_pushButton->hide();
@@ -273,8 +273,6 @@ void RenderingWindow::updateInterface()
   _privdata->operating = true;
 
   blockSignals( true );
-
-  unsigned	panel, i, n = tabWidget->count();
 
   if( _parents.empty() )
   {

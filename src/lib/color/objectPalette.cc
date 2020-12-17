@@ -452,7 +452,7 @@ bool AObjectPalette::set( const GenericObject & obj )
 {
   Object		o, colors1, colors2;
   string                image1, image2;
-  const PaletteList	& pall = theAnatomist->palettes();
+  //const PaletteList	& pall = theAnatomist->palettes();
   bool			mod = false;
 
   rc_ptr<APalette> p = getOrCreatePalette( obj, 0 );

@@ -68,7 +68,8 @@ class ShaderFactory : public VrSingleton< ShaderFactory >
 
 
 #define RegisterShader( S ) \
-  static bool init_##S = Vr::ShaderFactory::instance().registerShader( \
+  static bool init_##S __attribute__((unused)) = \
+                 Vr::ShaderFactory::instance().registerShader( \
 				 	       Vr::S::getStaticName(), \
 					       &Vr::S::create )
 

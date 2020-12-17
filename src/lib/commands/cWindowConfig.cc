@@ -106,7 +106,6 @@ void WindowConfigCommand::doit()
   string	recbase;
   AWindow	*w;
   AWindow3D	*w3;
-  GLWidgetManager	*v;
   string	polymode;
   AWindow3D::RenderingMode	ipolmode = AWindow3D::Normal;
   int		persp, zbuf, cull, flat, filt, fog, polysort, clip;

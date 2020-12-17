@@ -252,7 +252,7 @@ void AControlMenuHandler::enableLoadRefMenu( bool state )
 }
 
 
-void AControlMenuHandler::enableUnloadRefMenu( bool state )
+void AControlMenuHandler::enableUnloadRefMenu( bool /*state*/ )
 {
 //   d->unloadRef->setEnabled( state );
 }

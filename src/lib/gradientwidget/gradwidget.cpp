@@ -15,7 +15,12 @@
 #include <QMouseEvent>
 #endif
 
-GradientWidget::GradientWidget(QWidget* parent, const char* name, 
+GradientWidget::GradientWidget(
+#if QT_VERSION >= 0x040000
+                               QWidget* parent, const char* /*name*/, 
+#else
+                               QWidget* parent, const char* name, 
+#endif
                                const QString& gradString, double vMin,
                                double vMax) :
 #if QT_VERSION >= 0x040000
@@ -119,7 +124,7 @@ QString GradientWidget::getRGBnodes()
 {
   int tmpLength = 100;
   double* temp = new double[tmpLength];
-  double* data;
+  double* data = NULL;
   QStringList sl;
   int ncomps = 3;
   if( _hasAlpha )

@@ -237,8 +237,6 @@ namespace
                     exclude_refs );
     Point2df bounds_max( 0. );
     set<Referential *> done = exclude_refs;
-    int x = 0;
-    int y = 0;
     VolumeRef<uint8_t> used_spc( 1, 1 );
     const set<Referential *> & all_refs = theAnatomist->getReferentials();
     set<Referential *>::const_iterator
@@ -342,7 +340,7 @@ namespace
     }
     else
     {
-      Referential *cent = theAnatomist->centralReferential();
+      //Referential *cent = theAnatomist->centralReferential();
       map<Referential*, Point2df> *init_ref_pos
         = plot_all_connected_components();
       unsigned i, np = init_ref_pos->size();

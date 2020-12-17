@@ -282,20 +282,15 @@ void AInterpoler::refreshTexCoordArray( const ViewState & state )
   vector<const GLfloat *>	orgTex( ntex );
   const GLComponent		*so = orgGeom();
   const GLComponent		*sd = glGeometry();
-  const Point3df		*po 
+  const Point3df		*po __attribute__((unused)) 
     = (const Point3df *) so->glVertexArray( state );
   unsigned			n = sd->glNumVertex( state );
-  const Point3df		*pd 
+  const Point3df		*pd __attribute__((unused)) 
     = (const Point3df *) sd->glVertexArray( state );
-  const AimsVector<uint,3>	*polyo 
+  const AimsVector<uint,3>	*polyo __attribute__((unused)) 
     = (const AimsVector<uint,3> *) so->glPolygonArray( state );
-  unsigned			i, t;
   vector<GLfloat *>		ptr( ntex );
-  const GLfloat			*ptro1, *ptro2, *ptro3;
-  unsigned			tri, j1, j2, j3;
-  float				d1, d2, d3, x1, x2, a, b, l1, l2;
   Point3df			vec1, vec2, vec3, vec4;
-  bool				xxfar;
   vector<unsigned>		texsize( ntex );
 
   if( !hasChanged() && cvec.size() == ntex )
@@ -337,7 +332,7 @@ void AInterpoler::computeNeighbours( const ViewState & state )
     = (const Point3df *) s2->glVertexArray( state );
   const AimsVector<uint,3>	*tri1 
     = (const AimsVector<uint,3> *) s1->glPolygonArray( state );
-  unsigned			i, t, n2 = s2->glNumVertex( state );
+  unsigned			n2 = s2->glNumVertex( state );
   unsigned			nt1 = s1->glNumPolygon( state );
 
   delete d->interpol;

@@ -745,7 +745,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos,
 void ReferentialWindow::popupRefMenu( const QPoint & pos )
 {
   QMenu	*pop = pdat->refmenu;
-  QAction *delete_action, *load_action, *icon_action, *see_objects_action;
+  QAction *delete_action, *load_action, *icon_action;
 
   if( !pop )
     {
@@ -754,7 +754,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
 
       pop->addAction( QIcon(QPixmap( 16, 16 )), "" );
       pop->addSeparator();
-      see_objects_action = pop->addAction(
+      QAction* see_objects_action __attribute__((unused)) = pop->addAction(
         tr( "See objects in this referential" ), this,
         SLOT( seeObjectsInReferential() ) );
       delete_action = pop->addAction( tr( "Delete referential" ), this,
