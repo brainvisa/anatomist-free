@@ -690,7 +690,8 @@ void Select3DControl::doAlsoOnSelect( ActionPool* pool )
     l->setObjectName( "selectionLabel" );
     LabelEditAction *la = static_cast<LabelEditAction *>( a );
     la->setLabel( la->label() );
-    tb->show();
+//     tb->show();
+    tb->setVisible( aw->toolBarsVisible() );
   }
   // annotation
   a = pool->action( "AnnotationAction" );
