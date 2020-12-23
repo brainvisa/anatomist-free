@@ -2955,10 +2955,35 @@ void AWindow3D::setPosition( const vector<float> & position,
   }
 }
 
+const aims::Quaternion & AWindow3D::getViewPointQuaternion() const
+{
+  return d->draw->quaternion();
+}
+
+float AWindow3D::getViewPointZoom() const
+{
+  return d->draw->zoom();
+}
+
+Point3df AWindow3D::getViewPointRotationCenter() const
+{
+  return d->draw->rotationCenter();
+}
+
 void AWindow3D::setViewPoint(float *quaternion, const float zoom)
 {
   d->draw->setZoom(zoom);
   d->draw->setQuaternion( Point4df( quaternion ) );
+  refreshLightViewNow();
+}
+
+void AWindow3D::setViewPoint(const aims::Quaternion & quaternion,
+                             const float zoom,
+                             const Point3df & center)
+{
+  d->draw->setZoom(zoom);
+  d->draw->setQuaternion(quaternion);
+  d->draw->setRotationCenter(center);
   refreshLightViewNow();
 }
 

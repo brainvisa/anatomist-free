@@ -155,9 +155,15 @@ public:
   void printPositionAndValue();
   void displayInfoAtClickPosition( int x, int y );
   virtual void displayClickPoint();
+  const aims::Quaternion & getViewPointQuaternion() const;
+  Point3df getViewPointRotationCenter() const;
+  float getViewPointZoom() const;
   ///   set the view of the scene
-  void setViewPoint( float *quaternion, 
+  void setViewPoint( float *quaternion,
          const float zoom );
+  void setViewPoint(const aims::Quaternion & quaternion,
+         float zoom,
+         const Point3df & center);
   anatomist::Light *light();
   void setLight( const anatomist::Light &light );
   ///   Compass handling methods
