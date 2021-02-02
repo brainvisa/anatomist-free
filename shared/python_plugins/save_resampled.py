@@ -133,9 +133,13 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
                                 'ResamplerFactory_%s' % tc)().getResampler(order)
             # create an output volume in dest space and dimensions
             dest = aims.Volume(target.getSize(), dtype=tc)
-            dest.copyHeaderFrom(target)
             resampler.resample(source, tr.motion(), background, dest)
-            dest.header()['referential'] = sel.referential.uuid()
+            target_atts = ('referentials', 'transformations')
+            for att in target_atts:
+                if att in target.header():
+                    dest.header()[att] = target.header()[att]
+            if 'referential' not in target.header():
+                dest.header()['referential'] = sel.referential.uuid()
             aims.write(dest, out_filename)
         finally:
             Qt.qApp.restoreOverrideCursor()
