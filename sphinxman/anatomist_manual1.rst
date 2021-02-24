@@ -119,7 +119,7 @@ Here are some examples about typical actions in Anatomist, for example to look a
 Install and start Anatomist software
 ====================================
 
-* Download: see the `BrainVISA web site download page <http://brainvisa.info/download.html>`_
+* Download: see the `BrainVISA web site download page <https://brainvisa.info/download.html>`_
 * See also the :doc:`anatomist_tutorial`
 * And the :axonusr:`BrainVISA installation section <axon_manual.html#installation>`
 
