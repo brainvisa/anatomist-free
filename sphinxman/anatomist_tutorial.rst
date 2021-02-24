@@ -9,8 +9,6 @@ In order to work through the following sections, please download the demonstrati
 
 * ftp://ftp.cea.fr/pub/dsv/anatomist/data/demo_data.zip
 
-* Section *Exemple data* from `the download page of the BrainVisa web site <http://brainvisa.info/web/downloadpage_wrap.html>`_
-
 For more information concerning the installation, please refer to :axonusr:`the manual of BrainVISA <axon_manual.html>`.
 
 
