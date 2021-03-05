@@ -300,8 +300,10 @@ void RenderingWindow::updateInterface()
                    _material.renderProperty(Material::RenderZBuffer));
     setButtonState(cull_polygon_faces_checkBox,
                    _material.renderProperty(Material::RenderFaceCulling));
-    setButtonState(frontface_checkBox,
-                   _material.renderProperty(Material::FrontFace));
+    int ff = -1;
+    if( _material.renderProperty(Material::FrontFace) >= 0 )
+      ff = 1 - _material.renderProperty(Material::FrontFace);
+    setButtonState( frontface_checkBox, ff );
     lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
     QPixmap pix( 32, 16 );
     pix.fill( QColor( (int) ( _material.unlitColor(0) * 255.9 ),
@@ -488,6 +490,11 @@ void RenderingWindow::renderPropertyChanged( int x )
     }
 
   Material::RenderProperty prop = (Material::RenderProperty) (-x - 2);
+  if( prop == Material::FrontFace && y >= 0 )
+  {
+    // front face 0 is CW: invert selection
+    y = 1 - y;
+  }
   _material.setRenderProperty( prop, y );
 
   if( prop == Material::RenderLighting && y >= 0 )
