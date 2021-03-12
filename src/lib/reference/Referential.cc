@@ -296,8 +296,15 @@ void Referential::RemoveWindow(AWindow* win)
 carto::UUID Referential::uuid() const
 {
   string	id;
-  if( _header->getProperty( "uuid", id ) )
+  try
+  {
+    Object ruuid = _header->getProperty( "uuid" );
+    id = ruuid->getString();
     return carto::UUID( id );
+  }
+  catch( ... )
+  {
+  }
   return carto::UUID();
 }
 
@@ -315,9 +322,17 @@ Referential* Referential::referentialOfUUID( const string & uuid )
   string		id;
 
   for( i=refs.begin(); i!=e; ++i )
-    if( (*i)->header().getProperty( "uuid", id ) 
-        && id == uuid )
-      return *i;
+    try
+    {
+      Object ruuid = (*i)->header().getProperty( "uuid" );
+      id = ruuid->getString();
+      if( id == uuid )
+        return *i;
+    }
+    catch( ... )
+    {
+    }
+
   return 0;
 }
 
