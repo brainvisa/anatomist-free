@@ -524,6 +524,13 @@ void RenderingWindow::enableShadersClicked( int x )
   bool state = (x == Qt::Checked);
 
   _material.setRenderProperty( Material::UseShader, int( state ) );
+//   if( state )
+//   {
+//     _material.setRenderProperty( Material::RenderLighting,
+//                                  _shader.getLightingModel() );
+//     _material.setRenderProperty( Material::RenderSmoothShading,
+//                                  _shader.getInterpolationModel() );
+//   }
 
   lighting_model_groupBox->setEnabled(state);
   interpolation_model_groupBox->setEnabled(state);

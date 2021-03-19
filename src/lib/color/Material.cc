@@ -1025,7 +1025,8 @@ int Material::renderProperty( RenderProperty p ) const
 
 void Material::setRenderProperty( RenderProperty p, int x )
 {
-  if( p != RenderMode && p != SelectableMode )
+  if( p != RenderMode && p != SelectableMode && p != RenderLighting
+      && p != RenderSmoothShading )
   {
     if( x < 0 )
       x = -1;
