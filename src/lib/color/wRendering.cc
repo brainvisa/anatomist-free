@@ -250,6 +250,8 @@ namespace
     QCheckBox	*cb = dynamic_cast<QCheckBox *>( b );
     if( !cb )
       return;
+    if( x > 1 )
+      x = 1;
     switch( x )
       {
       case 0:
@@ -324,7 +326,7 @@ void RenderingWindow::updateInterface()
     int interpolation = _material.renderProperty(
       Material::RenderSmoothShading );
     if( interpolation < 0 )
-      interpolation = Material::PhongShading;
+      interpolation = Material::GouraudShading;
     interpolation_model_buttonGroup->button(
       -interpolation - 3)->setChecked(true);
     int coloring_model = _material.renderProperty(
@@ -511,7 +513,7 @@ void RenderingWindow::renderPropertyChanged( int x )
   {
     _shader.setInterpolationModel( (Shader::InterpolationModel)( y ) );
     if( y >= 0 )
-    interpolation_model_buttonGroup->button( -y - 3 )->setChecked(true);
+      interpolation_model_buttonGroup->button( -y - 3 )->setChecked(true);
   }
 
   _privdata->modified = true;
