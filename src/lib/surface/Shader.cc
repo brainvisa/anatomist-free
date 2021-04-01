@@ -122,7 +122,7 @@ static void doDeleteInternal(QGLShaderProgram **obj)
 }
 
 
-Shader::Private::Private() : _shader_program_p((QGLShaderProgram **) 0, doDeleteInternal), enable(true)
+Shader::Private::Private() : _shader_program_p((QGLShaderProgram **) 0, doDeleteInternal), enable( Shader::isActivated() )
 {
 }
 

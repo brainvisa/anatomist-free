@@ -122,7 +122,7 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   default_lighting_model_radioButton->hide();
   default_interpolation_model_radioButton->hide();
   default_coloring_model_radioButton->hide();
-  directions_coloring_model_radioButton->hide();
+//   directions_coloring_model_radioButton->hide();
 
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
@@ -333,6 +333,8 @@ void RenderingWindow::updateInterface()
       Material::ShaderColorNormals );
     if( coloring_model < 0 )
       coloring_model = 0;
+    if( _material.renderProperty( Material::NormalIsDirection ) )
+      coloring_model = 2;
     coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
     if (shader)
       _shader = *shader;
@@ -580,7 +582,14 @@ void RenderingWindow::interpolationModelChanged( int x )
 
 void RenderingWindow::coloringModelChanged( int x )
 {
-  _material.setRenderProperty( Material::ShaderColorNormals, -x - 3 );
+  int nisd = 0, scn = -x - 3;
+  if( x == -5 ) // normal is direction
+  {
+    scn = 1;
+    nisd = 1;
+  }
+  _material.setRenderProperty( Material::ShaderColorNormals, scn );
+  _material.setRenderProperty( Material::NormalIsDirection, nisd );
   //XXX : skip default (window default)
   if (x == -2)
   {
