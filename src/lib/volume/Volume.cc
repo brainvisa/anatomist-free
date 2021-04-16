@@ -515,144 +515,144 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
     = (image.effectiveWidth - image.width) * ( image.depth / 32 );
 
   if( ppv )	// no interpolation
+  {
+    // advance 1/2 voxel for rounding float->int conversion
+    // Point3df	p1 = p0 + inc * gs[0] * 0.5F + offset * gs[1] * 0.5F;
+    Point3df	p1 = p0;
+    pf = Transformation::transform( p1, tra, vs );
+
+    for( y=0; y<image.height; ++y )
     {
-      // advance 1/2 voxel for rounding float->int conversion
-      // Point3df	p1 = p0 + inc * gs[0] * 0.5F + offset * gs[1] * 0.5F;
-      Point3df	p1 = p0;
-      pf = Transformation::transform( p1, tra, vs );
+      pxd = pf;
+      for( x=0; x<image.width; ++x )
+        {
+          pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ),
+                            (int) rint( pf[2] ) );
+          if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy
+          || pfi[2] < 0 || pfi[2] > dz )
+        val = iempty;
+          else
+        val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0] );
 
-      for( y=0; y<image.height; ++y )
-	{
-	  pxd = pf;
-	  for( x=0; x<image.width; ++x )
-	    {
-	      pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ), 
-                             (int) rint( pf[2] ) );
-	      if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy 
-		  || pfi[2] < 0 || pfi[2] > dz )
-		val = iempty;
-	      else
-		val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0] );
-	      
-	      *pdat++ = coltraits.color( val );
+          *pdat++ = coltraits.color( val );
 
-	      pf += incd;
-	    }
-	  pf = pxd + offsd;
-	  pdat += offset_xim;
-	}
+          pf += incd;
+        }
+      pf = pxd + offsd;
+      pdat += offset_xim;
     }
+  }
 
   else		// interpolation
+  {
+    //cout << "fill image - interpolation\n";
+    /*--dx;
+    --dy;
+    --dz;*/
+    long	nextx, nexty, nextyx, nextz, nextzy, nextzx, nextzyx;
+    bool	done;
+
+    for( y=0; y<image.height; ++y )
     {
-      //cout << "fill image - interpolation\n";
-      /*--dx;
-      --dy;
-      --dz;*/
-      long	nextx, nexty, nextyx, nextz, nextzy, nextzx, nextzyx;
-      bool	done;
-
-      for( y=0; y<image.height; ++y )
+      pxd = pf;
+      for( x=0; x<image.width; ++x )
+      {
+        done = false;
+        pfi = Point3dl( (int) pf[0], (int) pf[1], (int) pf[2] );
+        if( pf[0] < 0 || pf[1] < 0 || pf[2] < 0 )
         {
-          pxd = pf;
-          for( x=0; x<image.width; ++x )
-            {
-              done = false;
-              pfi = Point3dl( (int) pf[0], (int) pf[1], (int) pf[2] );
-              if( pf[0] < 0 || pf[1] < 0 || pf[2] < 0 )
-                {
-                  val = iempty;
-                  done = true;
-                }
-              else
-                {
-                  nextx = 1;
-                  nexty = dyi;
-                  nextyx = dyxi;
-                  nextz = dzi;
-                  nextzx = dzxi;
-                  nextzy = dzyi;
-                  nextzyx = dzyxi;
-
-                  if( pfi[0] >= dx )
-                  {
-                    if( pfi[0] > dx )
-                      {
-                        val = iempty;
-                        done = true;
-                      }
-                    else
-                      {
-                        nextx = 0;
-                        nextyx = dyi;
-                        nextzx = dzi;
-                        nextzyx = dzyi;
-                      }
-                  }
-                  if( pfi[1] >= dy )
-                  {
-                    if( pfi[1] > dy )
-                      {
-                        val = iempty;
-                        done = true;
-                      }
-                    else
-                      {
-                        nexty = 0;
-                        nextyx = nextx;
-                        nextzy = dzi;
-                        nextzyx = dzi + nextx;
-                      }
-                  }
-                  if( pfi[2] >= dz )
-                  {
-                    if( pfi[2] > dz )
-                      {
-                        val = iempty;
-                        done = true;
-                      }
-                    else
-                      {
-                        nextz = 0;
-                        nextzx = nextx;
-                        nextzy = nexty;
-                        nextzyx = nextyx;
-                      }
-                  }
-
-                  if( !done )
-                    {
-                      pim = pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0];
-                      val = *pim;
-
-                      wx = pf[0] - pfi[0];
-                      wx2 = 1. - wx;
-                      wy = pf[1] - pfi[1];
-                      wy2 = 1. - wy;
-                      wz = pf[2] - pfi[2];
-                      val = (T)
-                        ( ( ( ( wx <= 0 ? T(0) : *(pim+nextx) * wx )
-                              + val * wx2 ) * wy2
-                            + ( wy <= 0 ? T(0) :
-                                ( ( wx <= 0 ? T(0) : *(pim+nextyx) * wx )
-                                  + *(pim+nexty) * wx2 ) * wy ) ) * (1. - wz)
-                          + ( wz <= 0 ? T(0) :
-                              ( ( ( wx <= 0 ? T(0) : *(pim+nextzx) * wx )
-                                  + *(pim+nextz) * wx2 ) * wy2
-                                + ( wy <= 0 ? T(0) :
-                                    ( ( wx <= 0 ? T(0) : *(pim+nextzyx) * wx )
-                                      + *(pim+nextzy) * wx2 ) * wy ) )
-                              * wz ) );
-                    }
-                }
-
-              *pdat++ = coltraits.color( val );
-              pf += incd;
-            }
-          pf = pxd + offsd;
-          pdat += offset_xim;
+          val = iempty;
+          done = true;
         }
+        else
+          {
+            nextx = 1;
+            nexty = dyi;
+            nextyx = dyxi;
+            nextz = dzi;
+            nextzx = dzxi;
+            nextzy = dzyi;
+            nextzyx = dzyxi;
+
+            if( pfi[0] >= dx )
+            {
+              if( pfi[0] > dx )
+              {
+                val = iempty;
+                done = true;
+              }
+              else
+              {
+                nextx = 0;
+                nextyx = dyi;
+                nextzx = dzi;
+                nextzyx = dzyi;
+              }
+            }
+            if( pfi[1] >= dy )
+            {
+              if( pfi[1] > dy )
+              {
+                val = iempty;
+                done = true;
+              }
+              else
+              {
+                nexty = 0;
+                nextyx = nextx;
+                nextzy = dzi;
+                nextzyx = dzi + nextx;
+              }
+            }
+            if( pfi[2] >= dz )
+            {
+              if( pfi[2] > dz )
+              {
+                val = iempty;
+                done = true;
+              }
+              else
+              {
+                nextz = 0;
+                nextzx = nextx;
+                nextzy = nexty;
+                nextzyx = nextyx;
+              }
+            }
+
+            if( !done )
+            {
+              pim = pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0];
+              val = *pim;
+
+              wx = pf[0] - pfi[0];
+              wx2 = 1. - wx;
+              wy = pf[1] - pfi[1];
+              wy2 = 1. - wy;
+              wz = pf[2] - pfi[2];
+              val = (T)
+                ( ( ( ( wx <= 0 ? T(0) : *(pim+nextx) * wx )
+                      + val * wx2 ) * wy2
+                    + ( wy <= 0 ? T(0) :
+                        ( ( wx <= 0 ? T(0) : *(pim+nextyx) * wx )
+                          + *(pim+nexty) * wx2 ) * wy ) ) * (1. - wz)
+                  + ( wz <= 0 ? T(0) :
+                      ( ( ( wx <= 0 ? T(0) : *(pim+nextzx) * wx )
+                          + *(pim+nextz) * wx2 ) * wy2
+                        + ( wy <= 0 ? T(0) :
+                            ( ( wx <= 0 ? T(0) : *(pim+nextzyx) * wx )
+                              + *(pim+nextzy) * wx2 ) * wy ) )
+                      * wz ) );
+            }
+          }
+
+          *pdat++ = coltraits.color( val );
+          pf += incd;
+        }
+      pf = pxd + offsd;
+      pdat += offset_xim;
     }
+  }
   //cout << "OK updateSlice\n";
 }
 
