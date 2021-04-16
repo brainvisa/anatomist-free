@@ -525,19 +525,19 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
     {
       pxd = pf;
       for( x=0; x<image.width; ++x )
-        {
-          pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ),
-                            (int) rint( pf[2] ) );
-          if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy
-          || pfi[2] < 0 || pfi[2] > dz )
-        val = iempty;
-          else
-        val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0] );
+      {
+        pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ),
+                          (int) rint( pf[2] ) );
+        if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy
+            || pfi[2] < 0 || pfi[2] > dz )
+          val = iempty;
+        else
+          val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0] );
 
-          *pdat++ = coltraits.color( val );
+        *pdat++ = coltraits.color( val );
 
-          pf += incd;
-        }
+        pf += incd;
+      }
       pf = pxd + offsd;
       pdat += offset_xim;
     }
