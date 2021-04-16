@@ -505,13 +505,14 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
   const T *fp = &_volume->at( pinit );
   const T *pim0 = fp;
   const T *pim;
-  long		dyi = &_volume->at( 0, 1 ) - &_volume->at( 0 );
-  long		dzi = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
-  long		dyxi = dyi + 1;
-  long		dzyi = dzi + dyi;
-  long		dzxi = dzi + 1;
-  long		dzyxi = dzyi + 1;
-  long		offset_xim
+  long dxi = &_volume->at( 1 ) - &_volume->at( 0 );
+  long	dyi = &_volume->at( 0, 1 ) - &_volume->at( 0 );
+  long	dzi = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
+  long	dyxi = dyi + dxi;
+  long	dzyi = dzi + dyi;
+  long	dzxi = dzi + dxi;
+  long	dzyxi = dzyi + dxi;
+  long	offset_xim
     = (image.effectiveWidth - image.width) * ( image.depth / 32 );
 
   if( ppv )	// no interpolation
@@ -532,7 +533,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
             || pfi[2] < 0 || pfi[2] > dz )
           val = iempty;
         else
-          val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0] );
+          val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + dxi * pfi[0] );
 
         *pdat++ = coltraits.color( val );
 
@@ -566,7 +567,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
         }
         else
           {
-            nextx = 1;
+            nextx = dxi;
             nexty = dyi;
             nextyx = dyxi;
             nextz = dzi;
@@ -622,7 +623,7 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
 
             if( !done )
             {
-              pim = pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0];
+              pim = pim0 + dzi * pfi[2] + dyi * pfi[1] + dxi * pfi[0];
               val = *pim;
 
               wx = pf[0] - pfi[0];
@@ -681,7 +682,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
 {
   // cout << "UpdateAxial simple, pos : " << pf0 << " on " << name() << endl;
   long	dx, dxx, dy;		// Dimensions du volume
-  long	dslice;			// Taille d'une coupe
+  long	dix, dslice;
 
   vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
@@ -724,6 +725,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   }
 
   const T *fp = &_volume->at( pinit );
+  dix = &_volume->at( 1 ) - &_volume->at( 0 );
   dxx = &_volume->at( 0, 1 ) - &_volume->at( 0 );
   dslice = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
 
@@ -762,7 +764,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   for( y=0; y<dy; ++y )
   {
     for( x=0; x<dx; ++x )
-      *ptrpix++ = coltraits.color( *( ptrori + dxx * y + x ) );
+      *ptrpix++ = coltraits.color( *( ptrori + dxx * y + dix * x ) );
     p = ptrpix + offset_xim;
     if( p > pend )
       p = pend;
@@ -781,7 +783,7 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 {
   // cout << "UpdateCoronal simple, p0 : " << pf0 << "\n";
   long	dx, dxx, dz;		// Dimensions du volume
-  long	dline;			// Taille d'une ligne
+  long	dline, dix;
 
   vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
@@ -819,6 +821,7 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
     - min( max( 0, - ze ), ximage->height );
 
   const T *fp = &_volume->at( pinit );
+  dix = &_volume->at( 1 ) - &_volume->at( 0 );
   dxx = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
   dline = &_volume->at( 0, 1 ) - &_volume->at( 0 );
 
@@ -860,7 +863,8 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   {
     p2 = ptrpix;
     for( x=0; x<dx; ++x )
-      *ptrpix++ = coltraits.color( *( ptrori + dline * yy + dxx * z + x ) );
+      *ptrpix++ = coltraits.color( *( ptrori + dline * yy + dxx * z
+                                      + dix * x ) );
     ptrpix += offset_xim;
     p = ptrpix + off_line;
     if( p < (AimsRGBA *) ximage->data )
@@ -880,6 +884,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 {
   // cout << "UpdateSagittal simple, pf0 : " << pf0 << "\n";
   long	dyy, dy, dz;		// Dimensions du volume
+  long dix;
 
   vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
@@ -919,6 +924,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   dz = max( min( ximage->height, _volume->getSizeZ() - int( p0[2] ) ), 0 )
     - min( max( 0, - int( p0[2] ) ), ximage->height );
 //   dyy = (int) _volume->getSizeY() * decY + &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
+  dix = &_volume->at( 1 ) - &_volume->at( 0 );
   dyy = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
 
   /*
@@ -955,7 +961,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   for( z=0; z<dz; ++z )
     {
       for( y=0; y<dy; ++y )
-	*ptrpix++ = coltraits.color( *( ptrori + xx + dyy * z + decY * y ) );
+	*ptrpix++ = coltraits.color( *( ptrori + dix * xx + dyy * z + decY * y ) );
       p = ptrpix + offset_xim;
       if( p > pend )
 	p = pend;
