@@ -1419,29 +1419,31 @@ void VolumeScalarTraits<T>::adjustPalette()
   }
   */
 
-  unsigned long x, y, z, t, nx = volume->volume()->getSizeX(), ny = volume->volume()->getSizeY(), nz = volume->volume()->getSizeZ(), nt = volume->volume()->getSizeT();
+  unsigned long x, y, z, t, nx = volume->volume()->getSizeX(),
+    ny = volume->volume()->getSizeY(), nz = volume->volume()->getSizeZ(),
+    nt = volume->volume()->getSizeT();
+  long stride = &volume->volume()->at( 1 ) - &volume->volume()->at( 0 );
   T *buf;
   for( t=0; t<nt; ++t )
     for( z=0; z<nz; ++z )
       for( y=0; y<ny; ++y )
-  {
-    buf = &volume->volume()->at( 0, y, z, t );
-//     cout << "t: " << t << ", z: " << z << ", y: " << y << endl;
-    for( x=0; x<nx; ++x, ++buf )
-    {
-    value = static_cast<int> ( ( (*buf) - mini ) * factor );
-    if( value < 0 )
-      value = 0;
-    else if( value >= 256 )
-      value = 255;
-    ++histo[ value ];
-    if( nval < maxval )
-    {
-      vals.insert( *buf );
-      nval = vals.size();
-    }
-    }
-  }
+      {
+        buf = &volume->volume()->at( 0, y, z, t );
+        for( x=0; x<nx; ++x, buf+=stride )
+        {
+          value = static_cast<int> ( ( (*buf) - mini ) * factor );
+          if( value < 0 )
+            value = 0;
+          else if( value >= 256 )
+            value = 255;
+          ++histo[ value ];
+          if( nval < maxval )
+          {
+            vals.insert( *buf );
+            nval = vals.size();
+          }
+        }
+      }
 
 //   cout << "histo done\n";
 
@@ -1484,13 +1486,15 @@ void VolumeScalarTraits<T>::setExtrema()
   mini = vol( 0, 0, 0, 0 );
   maxi = vol( 0, 0, 0, 0 );
 
+  long stride = &vol( 1 ) - &vol( 0 );
+
   if( numeric_limits<T>::has_infinity )
     for( long t=0, nt=vol.getSizeT(); t!=nt; ++t )
       for( long z=0, nz=vol.getSizeZ(); z!=nz; ++z )
         for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
         {
           T* pvol = &vol( 0, y, z, t );
-          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
+          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, pvol+=stride )
           {
             val = *pvol;
             if( std::isnan( val ) )
@@ -1515,7 +1519,7 @@ void VolumeScalarTraits<T>::setExtrema()
         for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
         {
           T* pvol = &vol( 0, y, z, t );
-          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
+          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, pvol+=stride )
           {
             val = *pvol;
             if( val < mini )
