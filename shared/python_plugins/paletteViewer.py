@@ -401,6 +401,9 @@ class GroupClosableWidget(qt.QWidget):
     def has_key(self, id):
         return id in self._widgets
 
+    def __contains__(self, id):
+        return id in self._widgets
+
 
 class GroupPaletteWidget(GroupClosableWidget):
 
@@ -501,6 +504,8 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
                             break
         topwidget = topWidgetWindow(parent)
         topwidget.setObjectName('paletteviewer_top')
+        # if parent and parent.layout():
+            # parent.layout().removeWidget(window)
         window.setParent(topwidget)
         if parent and lay_pos is not None:
             if len(lay_pos) == 2:
