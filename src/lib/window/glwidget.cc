@@ -78,6 +78,7 @@ QSize QAGLWidget::minimumSizeHint() const
 void QAGLWidget::updateGL()
 {
   GLWidgetManager::updateGL();
+  emit viewRendered();
 }
 
 

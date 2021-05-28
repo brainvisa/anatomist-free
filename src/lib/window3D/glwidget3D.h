@@ -49,8 +49,8 @@ class QAGLWidget3D : public QAGLWidget
 
 public:
   QAGLWidget3D( anatomist::AWindow* win, QWidget* parent = 0, 
-		const char* name = 0, const QGLWidget * shareWidget = 0, 
-		Qt::WindowFlags f=0 );
+        const char* name = 0, const QGLWidget * shareWidget = 0,
+        Qt::WindowFlags f=0 );
   virtual ~QAGLWidget3D();
 
   virtual std::string name() const;

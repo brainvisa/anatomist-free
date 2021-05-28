@@ -65,6 +65,9 @@ public:
     return carto::GLWidget::height();
   }
   
+signals:
+  void viewRendered();
+
 public slots:
   /// to be reimplemented in "public slots"
   virtual void updateGL();
