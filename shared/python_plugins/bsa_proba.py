@@ -41,7 +41,7 @@ from six.moves.urllib.request import urlopen, Request
 import ctypes
 from soma import aims
 import numpy
-import anatomist.api as ana
+import anatomist.direct.api as ana
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import QtGui
 import six
