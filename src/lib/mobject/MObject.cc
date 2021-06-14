@@ -326,6 +326,14 @@ bool MObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
   {
     o = *i;
 
+    if( o == this )
+    {
+      // this is a safeguard
+      cerr << "Object is parent of himself ! " << o << ", " << o->name()
+           << endl;
+      continue;
+    }
+
     if( o->boundingBox( pmin, pmax ) )
     {
       if( r && ( oref = o->getReferential() )
