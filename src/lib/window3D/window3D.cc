@@ -2308,6 +2308,30 @@ bool AWindow3D::autoFusion2D( AObject *obj )
     fusionName = d->autoFusion->name();
     unregisterObject( d->autoFusion.get() );
     d->autoFusion.reset( 0 );
+
+    // some objects may have been deleted and unregistered during the above
+    // operation. Re-check all
+    vector<AObject *>::iterator iv, iv2, ev = vobj.end();
+    bool changed = false;
+    for( iv=vobj.begin(); iv!=ev; )
+    {
+      if( theAnatomist->hasObject( *iv ) || *iv == obj )
+        ++iv;
+      else
+      {
+        iv2 = iv;
+        ++iv;
+        vobj.erase( iv2 );
+        changed = true;
+      }
+    }
+    if( changed )
+    {
+      sobj.clear();
+      sobj.insert( vobj.begin(), vobj.end() );
+      if( !m.canFusion( sobj ) )
+        return false;
+    }
   }
   d->autoFusion.reset( m.fusion( vobj ) );
   static_cast<Fusion2D *>( d->autoFusion.get() )->setDynamic( true );
@@ -2317,7 +2341,8 @@ bool AWindow3D::autoFusion2D( AObject *obj )
   d->autoFusion->setName( fusionName );
   theAnatomist->registerObject( d->autoFusion.get(), false );
   theAnatomist->releaseObject( d->autoFusion.get() );
-  registerObject( d->autoFusion.get() );
+  ControlledWindow::registerObject( d->autoFusion.get() );
+
   return true;
 }
 
