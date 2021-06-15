@@ -426,14 +426,17 @@ void ControlWindow::unregisterObject( AObject *obj )
   for( ip=obj->Parents().begin(); ip!=fp; ++ip )
     d->objList->UnregisterSubObject( *ip, obj );
 
-  if( !d->updatemenutimer )
+  if( !theAnatomist->destroying() )
+  {
+    if( !d->updatemenutimer )
     {
       d->updatemenutimer = new QTimer( this );
       connect( d->updatemenutimer, SIGNAL( timeout() ), this, 
                SLOT( UpdateMenus() ) );
     }
-  d->updatemenutimer->setSingleShot( true );
-  d->updatemenutimer->start( 1 );
+    d->updatemenutimer->setSingleShot( true );
+    d->updatemenutimer->start( 1 );
+  }
 }
 
 
