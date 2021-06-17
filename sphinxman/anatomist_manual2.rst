@@ -373,13 +373,13 @@ About referentials
 Load and display objects
 ------------------------
 
-Loading and displaying are two different actions in Anatomist. Loading is reading data stored in memory. While displaying is visualizing the object in Anatomist windows, with maybe modifications. For example, you can load data written in radiological convention and display it in neurological convention. The display options does not change data on disk.
+Loading and displaying are two different actions in Anatomist. Loading is reading data stored in memory. While displaying is visualizing the object in Anatomist windows, with maybe modifications.
 
 
 Axis orientation
 ++++++++++++++++
 
-Axis in Anatomist  are oriented like this:
+Axes in native images in Anatomist are oriented like this:
 
 * X axis: right => left
 * Y axis: anterior => posterior
@@ -393,9 +393,9 @@ Neurological and radiological convention managing
 Reading volumes on disk
 #######################
 
-When loading a volume, data organisation is supposed to match axis organisation describe before. That is to say data is supposed to be in radiological convention. In this case, data is not modified for displaying in radiological convention.
+When loading a volume, data organisation is supposed to match axis organisation describe before. That is to say data is loaded in radiological convention in memory ("LPI" convention, the contrary of the more used "RAS").
 
-For volumes in ANALYZE format, reading and displaying data depends on the following properties (attributes in ``.minf`` file and ``.aimsrc`` configuration file):
+Some image formats, however, do not specify correctly their voxels orientation without ambiguity. This is the case for the old ANALYZE format (almost disapeared, hopefully). Here, reading and displaying data depends on the following properties (attributes in ``.minf`` file and ``.aimsrc`` configuration file):
 
 * Attributes *spm_normalized* and *spm_radio_convention* in .minf file of the volume (GIS format).
 * ``.aimsrc`` configuration file of the user.
@@ -414,6 +414,8 @@ For volumes in ANALYZE format, reading and displaying data depends on the follow
 
 What is SPM99 mode ?
 ####################
+
+We hope SPM99 is not used any longer thus this paragraph is obsolete.
 
 **The following explanations are valid only if your site / computer is configured as ours according to the flip parameter of SPM99.** So for us, non normalized volumes are in radiological convention and volumes nomralized by SPM99 are in neurological convention. That's why volumes identified as normalized volumes (according to their size in mm) are automatically flipped, to have a coherent display with data in radiological convention.
 
@@ -441,6 +443,8 @@ As it is said before, in SPM99 mode, Aims tests the volume dimensions to see if 
 What is SPM2 mode ?
 ###################
 
+We hope SPM2 is not used any longer thus this paragraph is obsolete. Later versions of SPM are using NIFTI or Minc image formats, which (when correctly used) do not present ambiguity.
+
 It is different for volumes normalized with SPM2. Indeed, there is a parameter *defaults.analyze.flip* which indicates if input data must be flipped. (for more details, see SPM2 documentation). So data normalized with SPM2 can be either in radiological convention or in neurological convention. The aim is to keep the same convention for input and output data (before and after normalization).
 
 To work in SPM2 mode (input convention = output convention), your ``.aimsrc`` file must be configured like this if your data is in radiological convention:
@@ -464,30 +468,26 @@ Anatomist needs make this kind of guess because there is no reliable information
 For this reason **it is strongly recommended not to use the Analyze format**, but to prefer more "modern" volume formats such as NIFTI.
 
 
-Origin of volumes
-+++++++++++++++++
-
-Reading origin
-##############
-
-The origin of volumes is the voxel whose coordinates are (0, 0, 0). This voxel is located forward, on top and on the right of the volume. So, in an axial Anatomist window, this point will be at the top left corner if you keep the radiological display mode. If the origin is in mm, the origin of the volume is the centre of the voxel located at the origin.
-
-
 Coordinates system
 ------------------
 
-Real world sampling: coordinates in mm and in voxels
-++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 Definition
-##########
+++++++++++
 
-When loading any object (volume, mesh, ROI graph...), the real world is sampled. That is to say, the view is sampled according to the image matrix and the voxels resolution. So coordinates can be expressed in mm (real world) and in voxels (after sampling).
+When loading any object (volume, mesh, ROI graph...), it has coordinates (in mm for meshes or objects with floating point coordinates, or in voxels for matrix-based objects like volumes, which also have voxel sizes to get to mm coordinates).
+An object thus has a "native" coordinates system, in which coordinates are directly expressed.
+
+For volumes, Anatomist is using a native coordinates system referential in "LPI" convention (axes oriented toward (Left, Posterior, Inferior) of the head), the contrary of the more used "RAS" (Right, Anterior, Superior) as in MNI coordinates system.
+
+Meshes may be in any native coordinates system, but unless specified in their header, Anatomist will think they are also in LPI orientation by default.
+
+Anatomist manages transformations between referentials, which allows to display on-the-fly objects with transformed coordinates in a different referential.
+
 
 Mecanism
-########
+++++++++
 
-When you click on an object in a window, the position of the cursor appears in the console. This position is given in mm and in voxel if the object is a volume. After the position, you find the value of the voxel.
+When you click on an object in a window, the position of the cursor appears in the terminal, and in the status bar of the window. This position is given in mm. After the position, you find the value of the voxel or of the texture, if any.
 
 If the window contains several objects, the coordinates of each objects are displayed.
 
@@ -499,6 +499,28 @@ If the window contains several objects, the coordinates of each objects are disp
 Coordinates systems
 ###################
 
+Coordinates is a matter of conventions. Conventions may (and actually do) differ between different software worlds. Anatomist (and the AIMS library underneath) is using certain conventions, and other software have taken different ones.
+
+Anatomist is using for native image referentials a "LPI" system: axes oriented toward (Left, Posterior, Inferior) of the head. SPM and the MNI coordinates system are using the contrary, a "RAS" (Right, Anterior, Superior) system. For Anatomist it is certainly a bad choice, historically done about 25 years ago, because this referential is "indirect", but whatever, it doesn't forbid any functionality.
+
+The origin of volumes, in their "native" coordinates system, is the "first" voxel in the corner of the volume. This voxel is located forward, on top and on the right of the volume. So, in an axial Anatomist window, this point will be at the top left corner if you keep the radiological display mode. The origin of the volume is the centre of this first voxel.
+
+Anatomist manages affine transformations toward any other orientation. But such transformatons must be provided to Anatomist, it cannot (or not always) infer missing information.
+
+Some objects (like NIFTI images) contain transformations toward other coordinates systems in their header. **By default, Anatomist does not apply these transformations**, because we don't always know which are these referentials, and it could lead to errors (NIFTI is not very precise, it just has a code for "MNI", "acquisition scanner coordinates", or "other").
+
+In comparison, SPM and some other software do apply transformations by default, generally assuming that all loaded images have a transformation to a common referential. This assumption may be OK when all images have a transformation toward a norlmalized referential (MNI for instance), or are all images acquired in a single scan session where the scanner referential is actually the same. But in other situations, it's wrong.
+
+Anatomist can be asked to apply these transformations by default: it can be set in the preferences (volumes/use header information fore referentials/transformations) - don't forget to save the preferences in your config if needed.
+
+The preferences also allow to assume that all "scanner-based" coordinates system are the same (otherwise each imahe will have its own one with no connection to others). In the same preferences panel, check the appropriate option (and save if needed).
+
+Once this is set Anatomist will try to make links between objects referentials, but will sometimes make wrong links.
+
+Anyway ther is no miracle solution: there will be mistakes in links in inter-subject, inter-acquisition etc. But with these settings, Anatomist will behave "close" to the behaviour of SPM or other viewers.
+
+The only reliable solution is to maintain a complete database of referentials and transformations. This is what BrainVISA does (https://brainvisa.info).
+
 There are several coordinates systems (referentials) managed by Anatomist more or less automatically. That is to say some transformations can be loaded automatically either via BrainVISA, or by Anatomist. For example, if a volume is identified as a normalized volume (SPM), then the transformation toward SPM referential is loaded.
 
 * **Object referential**: this is the real world sampled like explained before.
@@ -508,6 +530,33 @@ There are several coordinates systems (referentials) managed by Anatomist more o
 .. note::
 
   Anatomist always loads a transformation from Talairach-AC/PC-Anatomist referential to Talairach-MNI template-SPM referential.
+
+Coordinates systems and meshes
+##############################
+
+Meshes are handled the same way as other objects like volumes. However they are less constrained than volumes: mesh coordinates are floating point, and may be negative or positive (contrarily to volumes). Thus a mesh may have native coorinates in any coordinates system. It depends on how it has been built.
+
+Typically, meshes built by Morphologist will have coordinates in the T1 MRI image native coordinates (an indirect referential), while meshes from Freesurfer will have coordinates in the MNI space (a direct referential). It's then a matter of assigning them the right referential.
+
+Until specified by the user, the mesh header, or an external program, Anatomist will think meshes are in an indirect referential.
+
+.. note:: mesh in a wrong coordinates system
+
+    When a mesh is assigned a wrong coordinates system, it may appear symmetrized.
+    This will typically make a left hemisphere mesh as a right one, and the contrary.
+    This is tricky and important since it may lead the user to make mistakes (not
+    speaking about flipped analyses). For instance between an individual volume referential (indirect) and the MNI space, all 3 axes should be inverted (the transformation matrix should have negative values around -1. on their 3 diagonal axes). If you load such a mesh in a software which does not have this transformation, then it will appear flipped (on all axes).
+
+Another point with meshes is that they have a notion of interior / exterior, used for rendering and shading.
+
+The exterior of a mesh is given by its polygon orientation (``front_face`` property of the :anadev:`material <commands.html#SetMaterial>` or :ref:`material entry in the object header <obj_minf_properties>`: ``clockwise`` (normally in indirect referentials) or ``counterclockwise`` (in direct referentials).
+
+Normals are used for lighting and shading, and should thus match the exterior notion.
+
+In Anatomist (and generally in OpenGL) a mesh may be rendered in "single face" mode (only triangles seen from ther external side are drawn) or "double face", so when there is an interior/exterior problem, meshes may be almost entirely not drawn (because most polygons are seen from the interior), and when there is a normals inversion issue, the mesh will be completely black because not lit at all.
+
+A mesh may be transformed using a transformation in Anatomist, or externally, using the ``AimsApplyTransform`` command.
+
 
 Linked cursor position
 ++++++++++++++++++++++
@@ -1672,15 +1721,62 @@ All actions done in Anatomist interface are stored in a file ``history.ana`` in 
 You can also load a script file by using the menu *File => Replay scenario*.
 
 
+.. _a_colors:
+
+More on colors and palettes
+===========================
+
 .. _a_add_palette:
 
 Adding a new palette
-====================
+--------------------
 
 * Go into your ``.anatomist`` directory. It is ``C:\Documents and Settings\user_name\.anatomist`` under windows and ``/home/user_name/.anatomist`` under Unix.
 * Create a directory ``rgb`` if it doesn't exist yet.
 * Put the palette files in it. It can be for example in GIS or JPG format, or any image/volume format readable by *Anatomist*.
 * This new palette will be available in the list of palettes in *Anatomist* when *Anatomist* is restarted. If it is aleady running, use the menu *Settings => Reload palettes*.
+
+.. _a_palettes_details
+
+Details on how palettes are working
+-----------------------------------
+
+Palettes and opacity
+++++++++++++++++++++
+
+Textures may be using RGB or RGBA values or palettes. Transformed palettes color are then mapped onto a mesh, using a given "blending" mode.
+
+Volumes are similar to textures, because in Anatomist a volume slice is a square mesh in 3D space with a texture on it.
+
+It is thus possible to tweak both the RGBA palette (with or without opacity), and the mapping mode (texturing properties).
+
+Texture
++++++++
+
+By default a mesh is opaque. The palette transparency (in RGBA mode) means the opacity of the texture *in the blending with the mesh color* (its material). It will not make the mesh transparent. The mesh transparency, in turn, is only given by its material (the "diffuse" part mainly).
+
+The texture blending mode can be changed, in Anatomist interface, via the right-click menu on objects "color/texture", or in a program via the :anadev:`TexturingParams <commands.html#texturingparams>` command.
+
+Volumes are using by default the ``decal`` mode (modes are defined in OpenGL).
+
+If we want a semi-transparent mesh where its opacity is given by the texture, then we may use the ``geometric`` mode (geometric blending between the material and lighting, and the texture), or the ``replace`` mode (material and lighting are not taken into account any longer).
+
+With several images
++++++++++++++++++++
+
+Stricto sensu, when there are several images in the same view, there are several squares in space, at the same location. The resulting rendering is not good: only one image will be seen, or it will be an aliased alternance between them (due to numerical imprecisions in OpenGL Z buffer). In order to get the expected result, images must be mixed (blended, or often called "overlayed", but we have not used this terminology in Anatomist). In Anatomist we use a "fusion" of the images (2 or more) in a "Fusion 2D" object.
+
+Anatomist (since version 4.6.1) build this 2D fusion automatically and internally; but as it is automatic, the user does not get (or not easily) full control over it. If you need to tweak it, it's probably easier to build the fusion "by hand" (or in a custom application program code).
+
+To be clear, the Fusion2D builds a texture resulting from the different images, then maps it on the square mesh (like for a single image). The way an image is mixed with another is determined by texturing modes and options, for texture indices >= 1. Texturing index 0 is the mapping of the final texture on the mesh.
+
+Things should be seen the reverse way. For instance if we have 3 volumes, ``A``, ``B`` and ``C``,
+
+* Texture properties index 2 tells how to mix volume ``B`` with volume ``C``.
+* Texture properties index 1 tells how to mix volume ``A`` with the previous one (``BC`` mix) etc.
+* Texture properties index 0 tells how to map the result (``ABC``) onto the mesh.
+
+For indices >= 1 (mixing between volumes) there are more modes than the OpenGL modes (it's not an OpenGL multitexturing, Anatomist is making the mixing here, thus we have more flexibility). Some modes consider white or black colors as transparent, others are using the RGBA palettes. The mixing rate tells how to blend textures between the condidered layers (as described above).
 
 
 .. _obj_minf_properties:
