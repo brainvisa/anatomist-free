@@ -138,7 +138,8 @@ public:
   void getInfos3DFromClickPoint( int x, int y, Point3df & position, int *poly,
       anatomist::AObject *objselect, std::string & objtype,
       std::vector<float> &texvalue, std::string & textype,
-      Point3df & positionNearestVertex, int* indexNearestVertex);
+      Point3df & positionNearestVertex, int* indexNearestVertex,
+      std::vector<std::string> & texlabels );
 
   bool surfpaintIsVisible();
   void setVisibleSurfpaint(bool b);

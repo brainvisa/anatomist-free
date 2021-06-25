@@ -1577,7 +1577,8 @@ int AWindow3D::computeNearestVertexFromPolygonPoint(const ViewState & vs, int po
 void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
     int *poly, AObject *objselect, string & objtype, vector<float> & texvalue,
     string & textype,
-    Point3df & positionNearestVertex, int* indexNearestVertex)
+    Point3df & positionNearestVertex, int* indexNearestVertex,
+    vector<string> & texlabels )
 {
   d->draw->positionFromCursor(x, y, position);
 
@@ -1608,15 +1609,53 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
         if (aao)
           aao->attributed()->getProperty("data_type", textype);
 
-        if (!objselect->Is2DObject() || (d->viewtype == ThreeD && objselect->Is3DObject()))
+        if( !objselect->Is2DObject()
+            || (d->viewtype == ThreeD && objselect->Is3DObject()) )
           vs = &vs3;
 
-        *indexNearestVertex = computeNearestVertexFromPolygonPoint(*vs, *poly, glc, position, positionNearestVertex);
+        *indexNearestVertex = computeNearestVertexFromPolygonPoint(
+          *vs, *poly, glc, position, positionNearestVertex );
 
-        if (*indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
-            < glc->glNumVertex(*vs))
+        if( *indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
+            < glc->glNumVertex(*vs) )
         {
           unsigned ntex = glc->glNumTextures(*vs), tx;
+          Object labels;
+          if( aao )
+          {
+            try
+            {
+              labels = aao->attributed()->getProperty( "labels" );
+            }
+            catch( ... )
+            {
+            }
+          }
+          if( !labels.get() )
+          {
+            // try another texture object
+            MObject *mo = dynamic_cast<MObject *>( objselect );
+            if( mo )
+            {
+              MObject::iterator im, em = mo->end();
+              for( im=mo->begin(); im!=em; ++im )
+              {
+                aao = dynamic_cast<AttributedAObject *>( *im );
+                if( aao )
+                {
+                  try
+                  {
+                    labels = aao->attributed()->getProperty( "labels" );
+                    break;
+                  }
+                  catch( ... )
+                  {
+                  }
+                }
+              }
+            }
+          }
+
           for (tx = 0; tx < ntex; ++tx)
           {
             unsigned nvtex = glc->glTexCoordSize(*vs, tx);
@@ -1631,11 +1670,29 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
                 if (dt > 0)
                 {
                   texvalue.reserve( dt );
+                  if( labels.get() )
+                    texlabels.reserve( dt );
                   for (i = 0; i < dt; ++i)
                   {
-                    float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i] - te.min[i]);
+                    float scl = (te.maxquant[i] - te.minquant[i])
+                      / (te.max[i] - te.min[i]);
                     float off = te.minquant[i] - scl * te.min[i];
-                    texvalue.push_back( scl * tc[*indexNearestVertex * dt + i] + off );
+                    float tval = scl * tc[*indexNearestVertex * dt + i] + off;
+                    texvalue.push_back( tval );
+                    // get string label if any
+                    if( labels.get() )
+                    {
+                      string label;
+                      try
+                      {
+                        label = labels->getArrayItem(
+                          int( rint( tval ) ) )->getString();
+                      }
+                      catch( ... )
+                      {
+                      }
+                      texlabels.push_back( label );
+                    }
                   }
                 }
               }
@@ -1665,23 +1722,30 @@ void AWindow3D::displayInfoAtClickPosition( int x, int y )
   {
     int poly = -1, vert = -1;
     vector<float> texval;
+    vector<string> texlabels;
     Point3df pos, posvert;
     string objtype, textype;
     getInfos3DFromClickPoint( x, y, pos, &poly, obj, objtype, texval, textype,
-                              posvert, &vert );
+                              posvert, &vert, texlabels );
     stringstream txt;
     if( vert >= 0 )
     {
       txt << "poly: " << poly << ", vert: " << vert << ", tex: ";
       bool first = true;
       vector<float>::const_iterator iv, ev = texval.end();
-      for( iv=texval.begin(); iv!=ev; ++iv )
+      vector<string>::const_iterator il, el = texlabels.end();
+      for( iv=texval.begin(), il=texlabels.begin(); iv!=ev; ++iv )
       {
         if( first )
           first = false;
         else
           txt << ", ";
         txt << *iv;
+        if( il != el )
+        {
+          txt << ": " << *il;
+          ++il;
+        }
       }
       d->objvallabel->setText( txt.str().c_str() );
     }
