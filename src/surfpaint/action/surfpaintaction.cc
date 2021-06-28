@@ -206,8 +206,9 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int /*globalX*/, int /*glob
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
   if( tval.size() >= 1 )
     texvalue = tval[0];
   else
@@ -232,8 +233,9 @@ void SurfpaintToolsAction::magicselection(int x, int y,
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->clearRegion();
 
@@ -260,8 +262,9 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   distanceMove(x, y, globalX, globalY);
 }
@@ -286,8 +289,9 @@ void SurfpaintToolsAction::distanceMove(int x, int y, int /*globalX*/, int /*glo
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   if( indexNearestVertex >= 0 )
     getTools()->computeDistanceMap(indexNearestVertex);
@@ -322,8 +326,9 @@ void SurfpaintToolsAction::brushMove(int x, int y, int /*globalX*/, int /*global
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -370,8 +375,9 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y,
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-    tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+    tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -413,8 +419,9 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -449,8 +456,9 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y )
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   //float texvalue = (float)(getTools()->getTextureValueFloat());
 
