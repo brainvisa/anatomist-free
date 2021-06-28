@@ -95,3 +95,5 @@ m = MeshSplitFusionMethod()
 f.registerMethod(m)
 
 pm = MeshSplitModule()
+
+del m, f

@@ -254,3 +254,4 @@ if not cw:
 else:
     init_image_math()
 
+del cw, a

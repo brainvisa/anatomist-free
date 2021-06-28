@@ -137,3 +137,5 @@ cd.addControl('Left3DControl', Left3DControl, 80)
 cm = ana.cpp.ControlManager.instance()
 #cm.addControl('QAGLWidget3D', '', 'LeftSelect3DControl' )
 cm.addControl('QAGLWidget3D', '', 'Left3DControl' )
+
+del cm, ad, cd, pix, iconpath, a

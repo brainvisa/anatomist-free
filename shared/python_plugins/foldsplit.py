@@ -511,3 +511,5 @@ cd = anatomist.ControlDictionary.instance()
 cd.addControl('SplitFoldControl', lambda: SplitFoldControl(), 8543)
 cm = anatomist.ControlManager.instance()
 cm.addControl('QAGLWidget3D', '', 'SplitFoldControl')
+
+del cm, cd, ad, pix, a

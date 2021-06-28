@@ -577,5 +577,5 @@ cm.removeControl('QAGLWidget3D', '', 'Selection 3D')
 cm.addControl('QAGLWidget3D', '', 'SelectionControl')
 
 # don't del these, it will unregister the new controls (why?)
-# del ad , cd, cm, icon
+#del ad , cd, cm, icon
 del icon
