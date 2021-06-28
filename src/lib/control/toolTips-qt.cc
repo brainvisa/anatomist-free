@@ -247,10 +247,10 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   {
   }
   bool usegl = !glxsel;
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( d->window );
 
   if( usegl )
   {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *>( d->window );
     if( w3 )
     {
       AObject *obj = w3->objectAtCursorPosition( pos.x(), pos.y() );
@@ -333,24 +333,32 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   bool				first = true;
 
   for( i=shown.begin(); i!=e; ++i )
-    {
-      if( first )
-        first = false;
-      else
-        text += "<br>";
-      text += printobj( *i );
-    }
+  {
+    if( first )
+      first = false;
+    else
+      text += "<br/>";
+    text += printobj( *i );
+  }
   if( !hidden.empty() )
-    {
-      if( !shown.empty() )
-        text += "<br><br>";
-      text += "<em>objects not currently displayed:</em>";
-      for( i=hidden.begin(), e=hidden.end(); i!=e; ++i )
-        {
-          text += "<br>";
-          text += printobj( *i );
-        }
-    }
+  {
+    if( !shown.empty() )
+      text += "<br/><br/>";
+    text += "<em>objects not currently displayed:</em>";
+    for( i=hidden.begin(), e=hidden.end(); i!=e; ++i )
+      {
+        text += "<br/>";
+        text += printobj( *i );
+      }
+  }
+
+  if( w3 )
+  {
+    string ninfo = w3->displayInfoAtClickPositionAsText( pos.x(), pos.y(),
+                                                         true );
+    text += QString( "<br/><br/><b>At cursor position:</b><br/>" )
+      + QString( ninfo.c_str() );
+  }
 
   tip( QRect( pos, pos ), text );
 }

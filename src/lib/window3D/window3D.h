@@ -140,6 +140,16 @@ public:
       std::vector<float> &texvalue, std::string & textype,
       Point3df & positionNearestVertex, int* indexNearestVertex,
       std::vector<std::string> & texlabels );
+  /** same as above but from a 3+D position.
+      The polygon "poly" must be provided if info about vertices are to be
+      retreived, because we cannot guess it from the 3D position. If poly is
+      negative, no vertex info will be provided.
+  */
+  void getInfos3DFromPosition( const std::vector<float> & position, int poly,
+      anatomist::AObject *objselect, std::string & objtype,
+      std::vector<float> &texvalue, std::string & textype,
+      Point3df & positionNearestVertex, int* indexNearestVertex,
+      std::vector<std::string> & texlabels );
 
   bool surfpaintIsVisible();
   void setVisibleSurfpaint(bool b);
@@ -155,6 +165,8 @@ public:
 
   void printPositionAndValue();
   void displayInfoAtClickPosition( int x, int y );
+  std::string displayInfoAtClickPositionAsText( int x, int y,
+                                                bool html = false );
   virtual void displayClickPoint();
   ///   set the view of the scene
   void setViewPoint( float *quaternion, 
