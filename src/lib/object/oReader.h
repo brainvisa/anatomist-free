@@ -105,6 +105,8 @@ namespace anatomist
       supportedFileExtensionsSet( const std::string & objtype );
     static std::set<std::string>
       anatomistSupportedFileExtensionsSet();
+    /// unregister all loaders (called when exiting)
+    static void cleanup();
 
   protected:
     std::list<AObject *> load_internal( const std::string & filename,

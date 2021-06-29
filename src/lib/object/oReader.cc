@@ -1494,6 +1494,12 @@ ObjectReader::_storagetype & ObjectReader::_loaders()
   return loaders;
 }
 
+
+void ObjectReader::cleanup()
+{
+  _loaders().clear();
+}
+
 // -------
 
 

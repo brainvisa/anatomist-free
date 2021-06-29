@@ -410,6 +410,8 @@ Anatomist::~Anatomist()
   AObject::cleanStatic();
   delete SelectFactory::factory();
 
+  ObjectReader::cleanup();
+
   StaticInitializers::cleanup();
 
   ModuleManager::shutdown();
