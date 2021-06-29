@@ -84,6 +84,8 @@ DeleteElementCommand::doit()
   void			*ptr;
   string		type;
 
+  list<AObject *> objs;
+
   for( i=_elem.begin(); i!=_elem.end(); ++i )
   {
     ptr = context()->unserial->pointer( *i );
@@ -97,7 +99,7 @@ DeleteElementCommand::doit()
       {
         AObject	*o = (AObject *) ptr;
         if( theAnatomist->hasObject( o ) )
-          theAnatomist->destroyObject( o );
+          objs.push_back( o );
       }
       else if( type == "AWindow" )
       {
@@ -157,6 +159,37 @@ DeleteElementCommand::doit()
         cerr << "DeleteElementCommand: Unrecognized element type " << type 
               << endl;
     }
+  }
+
+  /* for objects we may try several passes because they may have dependencies
+     in their lives, and some of them will allow deletion after their parent
+     objects are also deleted.
+  */
+  list<AObject *>::iterator io, jo, eo = objs.end();
+  while( !objs.empty() )
+  {
+    bool changed = false;
+
+    for( io=objs.begin(); io!=eo; )
+    {
+      if( theAnatomist->destroyObject( *io, false ) )
+      {
+        changed = true;
+        jo = io;
+        ++io;
+        objs.erase( jo );
+      }
+      else
+        ++io;
+    }
+    if( !changed )
+      break;
+  }
+  if( !objs.empty() )
+  {
+    // retry just to print warnings
+    for( io=objs.begin(); io!=eo; ++io )
+      theAnatomist->destroyObject( *io );
   }
 
   theAnatomist->UpdateInterface();
