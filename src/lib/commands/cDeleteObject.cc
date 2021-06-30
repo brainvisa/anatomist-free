@@ -75,38 +75,9 @@ bool DeleteObjectCommand::initSyntax()
 void
 DeleteObjectCommand::doit()
 {
-  /* for objects we may try several passes because they may have dependencies
-     in their lives, and some of them will allow deletion after their parent
-     objects are also deleted.
-  */
-  list<AObject *> objs( _objL.begin(), _objL.end() );
-  list<AObject *>::iterator io, jo, eo = objs.end();
-  while( !objs.empty() )
-  {
-    bool changed = false;
-
-    for( io=objs.begin(); io!=eo; )
-    {
-      if( theAnatomist->destroyObject( *io, false ) )
-      {
-        changed = true;
-        jo = io;
-        ++io;
-        objs.erase( jo );
-      }
-      else
-        ++io;
-    }
-    if( !changed )
-      break;
-  }
-  if( !objs.empty() )
-  {
-    // retry just to print warnings
-    for( io=objs.begin(); io!=eo; ++io )
-      theAnatomist->destroyObject( *io );
-  }
-
+  set<AObject *> objs( _objL.begin(), _objL.end() );
+  theAnatomist->destroyObjects( objs );
+  _objL.clear();
   theAnatomist->UpdateInterface();
   theAnatomist->Refresh();
 }

@@ -115,11 +115,16 @@ namespace anatomist
     void NotifyWindowChange( AWindow* win );
 
     /**	Destroys an object if possible. \\
-	@return	true if the object has actually been deleted, \\
-	false if the object cannot be deleted (it is used in other 
-	compound objects which require it and cannot release it)
+    @return	true if the object has actually been deleted, \\
+    false if the object cannot be deleted (it is used in other
+    compound objects which require it and cannot release it)
     */
     int destroyObject( AObject*, bool verbose = true );
+    /**	Destroys an object if possible. \\
+    @return objects which could not be destroyed
+    */
+    std::set<AObject *> destroyObjects( const std::set<AObject* > &,
+                                        bool verbose = true );
     bool hasObject( const AObject* obj ) const;
     ///	Makes an object visible (ie seen in control window(s))
     void mapObject( AObject* obj );

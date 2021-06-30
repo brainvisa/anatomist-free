@@ -84,7 +84,7 @@ DeleteElementCommand::doit()
   void			*ptr;
   string		type;
 
-  list<AObject *> objs;
+  set<AObject *> objs;
 
   for( i=_elem.begin(); i!=_elem.end(); ++i )
   {
@@ -99,7 +99,7 @@ DeleteElementCommand::doit()
       {
         AObject	*o = (AObject *) ptr;
         if( theAnatomist->hasObject( o ) )
-          objs.push_back( o );
+          objs.insert( o );
       }
       else if( type == "AWindow" )
       {
@@ -161,37 +161,7 @@ DeleteElementCommand::doit()
     }
   }
 
-  /* for objects we may try several passes because they may have dependencies
-     in their lives, and some of them will allow deletion after their parent
-     objects are also deleted.
-  */
-  list<AObject *>::iterator io, jo, eo = objs.end();
-  while( !objs.empty() )
-  {
-    bool changed = false;
-
-    for( io=objs.begin(); io!=eo; )
-    {
-      if( theAnatomist->destroyObject( *io, false ) )
-      {
-        changed = true;
-        jo = io;
-        ++io;
-        objs.erase( jo );
-      }
-      else
-        ++io;
-    }
-    if( !changed )
-      break;
-  }
-  if( !objs.empty() )
-  {
-    // retry just to print warnings
-    for( io=objs.begin(); io!=eo; ++io )
-      theAnatomist->destroyObject( *io );
-  }
-
+  theAnatomist->destroyObjects( objs );
   theAnatomist->UpdateInterface();
   theAnatomist->Refresh();
 }

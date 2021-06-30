@@ -362,8 +362,6 @@ Anatomist::~Anatomist()
   ev.send();
 
   cout << "Exiting Anatomist --- Goodbye.\n";
-  AObject	*obj;
-
 
   _privData->destroying = true;
   while( !_privData->anaWin.empty() )
@@ -372,37 +370,32 @@ Anatomist::~Anatomist()
   
   anatomist::Cursor::cleanStatic();
   
-  while( !_privData->anaObj.empty() )
+  set<AObject *> objs;
+  map<const AObject *, carto::shared_ptr<AObject> >::iterator
+    io, eo = _privData->anaObj.end();
+
+  for( io=_privData->anaObj.begin(); io!=eo; ++io )
+    objs.insert( io->second.get() );
+  _privData->anaObj.clear();
+
+  objs = destroyObjects( objs );
+
+  set<AObject *>::iterator iso, eso = objs.end();
+  AObject	*obj;
+
+  for( iso=objs.begin(); iso!=eso; ++iso )
   {
-    obj = _privData->anaObj.begin()->second.get();
-    if( !obj )
-    {
-      cerr << "BUG: null object in Anatomist list" << endl;
-      continue;
-    }
-    while( !obj->Parents().empty() )
-      obj = *obj->Parents().begin();
+    obj = *iso;
+    cerr << "object " << obj->name()
+          << " refuses to die peacefully - killing it (better crash than "
+          << "loop endlessly)." << endl;
 #ifdef ANA_DEBUG
-    cout << "~Anatomist: destroy object " << obj << " (still "
-         << _privData->anaObj.size()
-         << " in memory) ..." << endl;
+    cerr << "  + ref counter: " << rc_ptr_trick::refCount( *obj )
+          << "\n  + weak counter: " << rc_ptr_trick::weakCount( *obj )
+          << ", type:" << obj->objectFullTypeName() << endl;
 #endif
-    if( !destroyObject( obj ) )
-    {
-      cerr << "object " << obj->name()
-           << " refuses to die peacefully - killing it (better crash than "
-           << "loop endlessly)." << endl;
-#ifdef ANA_DEBUG
-      cerr << "  + ref counter: " << rc_ptr_trick::refCount( *obj )
-           << "\n  + weak counter: " << rc_ptr_trick::weakCount( *obj )
-           << ", type:" << obj->objectFullTypeName() << endl;
-#endif
-      delete obj;
-    }
-#ifdef ANA_DEBUG
-    cout << "~Anatomist: object " << obj << " destroyed" << endl;
-#endif
-    }
+    delete obj;
+  }
 
   // cleanup some global variables
   delete getControlWindow();
@@ -968,13 +961,54 @@ list<AObject *> Anatomist::loadObject( const string & filename,
 }
 
 
-//	Window operations
+set<AObject *> Anatomist::destroyObjects( const set<AObject *> & obj,
+                                          bool verbose )
+{
+  /* We may try several passes because they may have dependencies
+     in their lives, and some of them will allow deletion after their parent
+     objects are also deleted.
+  */
+  set<AObject *> objs( obj.begin(), obj.end() );
+  set<AObject *>::iterator io, jo, eo = objs.end();
+
+  while( !objs.empty() )
+  {
+    bool changed = false;
+
+    for( io=objs.begin(); io!=eo; )
+    {
+      if( destroyObject( *io, false ) )
+      {
+        changed = true;
+        jo = io;
+        ++io;
+        objs.erase( jo );
+      }
+      else
+        ++io;
+    }
+    if( !changed )
+      break;
+  }
+  if( verbose && !objs.empty() )
+  {
+    // retry just to print warnings
+    for( io=objs.begin(); io!=eo; ++io )
+      destroyObject( *io );
+  }
+
+  return objs;
+}
+
 
 int Anatomist::destroyObject( AObject *obj, bool verbose )
 {
 #ifdef ANA_DEBUG
   cout << "destroyObject: " << obj << " (" << typeid( *obj ).name() << ")\n";
 #endif
+  if( !hasObject( obj ) )
+    return 1;  // already detroyed or released
+
   if( obj->CanBeDestroyed() )
   {
     // send event
@@ -1002,12 +1036,9 @@ int Anatomist::destroyObject( AObject *obj, bool verbose )
     stringstream	s;
     // count references not owned by the anatomist application
     int refs = rc_ptr_trick::refCount( *obj );
-    if( hasObject( obj ) )
-    {
-      carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
-      if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
-        --refs;
-    }
+    carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
+    if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
+      --refs;
     if( verbose )
     {
       s << "Cannot delete object " << obj->name()
