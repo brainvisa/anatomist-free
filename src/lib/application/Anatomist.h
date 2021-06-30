@@ -119,7 +119,7 @@ namespace anatomist
 	false if the object cannot be deleted (it is used in other 
 	compound objects which require it and cannot release it)
     */
-    int destroyObject( AObject* );
+    int destroyObject( AObject*, bool verbose = true );
     bool hasObject( const AObject* obj ) const;
     ///	Makes an object visible (ie seen in control window(s))
     void mapObject( AObject* obj );

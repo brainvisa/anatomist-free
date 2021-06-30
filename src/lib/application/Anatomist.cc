@@ -970,50 +970,53 @@ list<AObject *> Anatomist::loadObject( const string & filename,
 
 //	Window operations
 
-int Anatomist::destroyObject( AObject *obj )
+int Anatomist::destroyObject( AObject *obj, bool verbose )
 {
 #ifdef ANA_DEBUG
   cout << "destroyObject: " << obj << " (" << typeid( *obj ).name() << ")\n";
 #endif
   if( obj->CanBeDestroyed() )
-    {
-      // send event
-      Object	ex( (GenericObject *) 
-		    new ValueObject<Dictionary> );
-      ex->setProperty( "_object", obj );
-      set<string>	disc;
-      disc.insert( "object" );
-      OutputEvent	ev( "DeleteObject", ex, false, disc );
-      ev.send();
+  {
+    // send event
+    Object	ex( (GenericObject *)
+          new ValueObject<Dictionary> );
+    ex->setProperty( "_object", obj );
+    set<string>	disc;
+    disc.insert( "object" );
+    OutputEvent	ev( "DeleteObject", ex, false, disc );
+    ev.send();
 
-      //assert( obj->tryDelete() );
-      if ( !obj->tryDelete() )
-      {
-	return 0;
-      }
+    //assert( obj->tryDelete() );
+    if ( !obj->tryDelete() )
+    {
+      return 0;
+    }
 
 #ifdef ANA_DEBUG
-      cout << "done destroyObject: " << obj << endl;
+    cout << "done destroyObject: " << obj << endl;
 #endif
-      return 1;
-    }
+    return 1;
+  }
   else
+  {
+    stringstream	s;
+    // count references not owned by the anatomist application
+    int refs = rc_ptr_trick::refCount( *obj );
+    if( hasObject( obj ) )
     {
-      stringstream	s;
-      // count references not owned by the anatomist application
-      int refs = rc_ptr_trick::refCount( *obj );
-      if( hasObject( obj ) )
-      {
-        carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
-        if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
-          --refs;
-      }
+      carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
+      if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
+        --refs;
+    }
+    if( verbose )
+    {
       s << "Cannot delete object " << obj->name()
           << ",\ncheck for multi-objects which contain it. There are still "
           << refs << " other references to it\n";
       AWarning( s.str().c_str() );
-      return 0;
     }
+    return 0;
+  }
 }
 
 
