@@ -50,8 +50,8 @@ OutputEvent::OutputEvent() : _allocateIDs( true )
 
 
 OutputEvent::OutputEvent( const string & evname, const Object contents, 
-			  bool allocIDs, 
-			  const std::set<std::string> & discrim )
+                	  bool allocIDs,
+                	  const std::set<std::string> & discrim )
   : _name( evname ), _allocateIDs( allocIDs ), _contents( contents ), 
     _discrim( discrim )
 {
@@ -72,52 +72,52 @@ namespace
 
   template<typename T> 
   bool trytype( Object val, const string & att, 
-		Syntax & s, const string & typen )
+                Syntax & s, const string & typen )
   {
     try
       {
-	val->GenericObject::value<T *>();
-	s[ att ] = Semantic( typen, false, true );
-	//cout << "internal attrib: " << att << ": " << typen << " *\n";
-	return true;
+        val->GenericObject::value<T *>();
+        s[ att ] = Semantic( typen, false, true );
+        //cout << "internal attrib: " << att << ": " << typen << " *\n";
+        return true;
       }
     catch( exception & )
       {
-	try
-	  {
-	    val->GenericObject::value<vector<T *> >();
-	    s[ att ] = Semantic( typen + "_vector", false, true );
-	    /*cout << "internal attrib: " << att << ": vector<" << typen 
-	      << " *>\n";*/
-	    return true;
-	  }
-	catch( exception & )
-	  {
-	    try
-	      {
-		val->GenericObject::value<list<T *> >();
-		s[ att ] = Semantic( typen + "_list", false, true );
-		/*cout << "internal attrib: " << att << ": list<" << typen 
-		  << " *>\n";*/
-		return true;
-	      }
-	    catch( exception & )
-	      {
-		try
-		  {
-		    val->GenericObject::value<set<T *> >();
-		    s[ att ] = Semantic( typen + "_set", false, true );
-		    /*cout << "internal attrib: " << att << ": set<" << typen 
-		      << " *>\n";*/
-		    return true;
-		  }
-		catch( exception & )
-		  {
-		    //cout << "not recognized\n";
-		    return false;
-		  }
-	      }
-	  }
+        try
+          {
+            val->GenericObject::value<vector<T *> >();
+            s[ att ] = Semantic( typen + "_vector", false, true );
+            /*cout << "internal attrib: " << att << ": vector<" << typen
+              << " *>\n";*/
+            return true;
+          }
+        catch( exception & )
+          {
+            try
+              {
+                val->GenericObject::value<list<T *> >();
+                s[ att ] = Semantic( typen + "_list", false, true );
+                /*cout << "internal attrib: " << att << ": list<" << typen
+                  << " *>\n";*/
+                return true;
+              }
+            catch( exception & )
+              {
+                try
+                  {
+                    val->GenericObject::value<set<T *> >();
+                    s[ att ] = Semantic( typen + "_set", false, true );
+                    /*cout << "internal attrib: " << att << ": set<" << typen
+                      << " *>\n";*/
+                    return true;
+                  }
+                catch( exception & )
+                  {
+                    //cout << "not recognized\n";
+                    return false;
+                  }
+              }
+          }
       }
   }
 
@@ -128,31 +128,50 @@ namespace
     string	attn;
 
     for( ia=contents->objectIterator(); ia->isValid(); ia->next() )
-      if( ia->key()[0] == '_' )
-	{
-	  Object	val = ia->currentValue();
-          attn = ia->key();
-	  trytype<AObject>( val, attn, s, "AObject" )
-	    || trytype<AWindow>( val, attn, s, "AWindow" )
-	    || trytype<Referential>( val, attn, s, "Referential" )
-	    || trytype<Transformation>( val, attn, s, "Transformation" );
-	}
+    {
+      string attn;
+      try
+      {
+        attn = ia->key();
+      }
+      catch( ... )
+      {
+        try
+        {
+          Object keyo = ia->keyObject();
+          attn = keyo->getString();
+        }
+        catch( ... )
+        {
+          continue;
+        }
+      }
+      if( attn.length() != 0 && attn[0] == '_' )
+      {
+        Object	val = ia->currentValue();
+        attn = ia->key();
+        trytype<AObject>( val, attn, s, "AObject" )
+          || trytype<AWindow>( val, attn, s, "AWindow" )
+          || trytype<Referential>( val, attn, s, "Referential" )
+          || trytype<Transformation>( val, attn, s, "Transformation" );
+      }
+    }
   }
 
 
   int idOf( Unserializer * uns, map<void*, int> & rev, void * ptr, 
-	    const string & type, bool aid )
+            const string & type, bool aid )
   {
     map<void*, int>::iterator	ir = rev.find( ptr );
     if( ir == rev.end() )
       {
-	if( !aid )
-	  return -1;
-	/*cout << "id for " << ptr << " not found (table size: " << rev.size() 
-	  << ")\n";*/
-	int	id = uns->makeID( ptr, type );
-	rev[ ptr ] = id;
-	return id;
+        if( !aid )
+          return -1;
+        /*cout << "id for " << ptr << " not found (table size: " << rev.size()
+          << ")\n";*/
+        int	id = uns->makeID( ptr, type );
+        rev[ ptr ] = id;
+        return id;
       }
     return ir->second;
   }
@@ -160,55 +179,55 @@ namespace
 
   template<typename T> 
   bool serializeT2( Object contents, const Semantic & sem, 
-		    Object val, Unserializer * uns, 
-		    map<void*, int> & rev, const string & att, bool aid )
+                    Object val, Unserializer * uns,
+                    map<void*, int> & rev, const string & att, bool aid )
   {
     try
       {
-	const T & v = val->GenericObject::value<T>();
-	typename T::const_iterator	is, es = v.end();
-	vector<int>			ids;
-	int				id;
-	for( is=v.begin(); is!=es; ++is )
-	  {
-	    id = idOf( uns, rev, *is, sem.type, aid );
-	    if( id >= 0 )
-	      ids.push_back( id );
-	  }
-	contents->setProperty( att.substr( 1, att.length() - 1 ), ids );
-	return true;
+        const T & v = val->GenericObject::value<T>();
+        typename T::const_iterator	is, es = v.end();
+        vector<int>	        	ids;
+        int	        	        id;
+        for( is=v.begin(); is!=es; ++is )
+          {
+            id = idOf( uns, rev, *is, sem.type, aid );
+            if( id >= 0 )
+              ids.push_back( id );
+          }
+        contents->setProperty( att.substr( 1, att.length() - 1 ), ids );
+        return true;
       }
     catch( exception & )
       {
-	return false;
+        return false;
       }
   }
 
 
   template<typename T> 
   bool serializeT3( Object contents, const Semantic & sem, 
-		    Object val, Unserializer * uns, 
-		    map<void*, int> & rev, const string & att, bool aid )
+                    Object val, Unserializer * uns,
+                    map<void*, int> & rev, const string & att, bool aid )
   {
     try
       {
-	const T	*v = val->GenericObject::value<T *>();
-	int	id = idOf( uns, rev, (void *) v, sem.type, aid );
-	if( id >= 0 )
-	  contents->setProperty( att.substr( 1, att.length() - 1 ), id );
-	return true;
+        const T	*v = val->GenericObject::value<T *>();
+        int	id = idOf( uns, rev, (void *) v, sem.type, aid );
+        if( id >= 0 )
+          contents->setProperty( att.substr( 1, att.length() - 1 ), id );
+        return true;
       }
     catch( exception & )
       {
-	return false;
+        return false;
       }
   }
 
 
   template<typename T> 
   bool serializeT( Object contents, const Semantic & sem, 
-		   Object val, Unserializer * uns, 
-		   map<void*, int> & rev, const string & att, bool aid )
+                   Object val, Unserializer * uns,
+                   map<void*, int> & rev, const string & att, bool aid )
   {
     if( sem.type.substr( sem.type.length() - 4, 4 ) == "_set" )
       return serializeT2<set<T *> >( contents, sem, val, uns, rev, att, aid );
@@ -216,14 +235,14 @@ namespace
       return serializeT2<list<T *> >( contents, sem, val, uns, rev, att, aid );
     else if( sem.type.substr( sem.type.length() - 7, 7 ) == "_vector" )
       return serializeT2<vector<T *> >( contents, sem, val, uns, rev, att, 
-					aid );
+                	        	aid );
     else
       return serializeT3<T>( contents, sem, val, uns, rev, att, aid );
   }
 
 
   void serialize( Object contents, const Syntax & s, 
-		  CommandContext & context, bool aid )
+                  CommandContext & context, bool aid )
   {
     context.mutex()->lock();
     Unserializer	*uns = context.unserial.get();
@@ -231,8 +250,8 @@ namespace
       return;
     // make reverse serializer map
     uns->garbageCollect();
-    map<void*, int>			rev;
-    const map<int, void *> 		& ids = uns->ids();
+    map<void*, int>	        	rev;
+    const map<int, void *> 	        & ids = uns->ids();
     map<int, void *>::const_iterator	ii, ei = ids.end();
     for( ii=ids.begin(); ii!=ei; ++ii )
       rev[ ii->second ] = ii->first;
@@ -240,20 +259,20 @@ namespace
     Syntax::const_iterator	is, es = s.end();
     for( is=s.begin(); is!=es; ++is )
       try
-	{
-	  Object	val = contents->getProperty( is->first );
-	  const Semantic	& sem = is->second;
-	  serializeT<AObject>( contents, sem, val, uns, rev, is->first, aid ) 
-	    || serializeT<AWindow>( contents, sem, val, uns, rev, is->first, 
-				    aid ) 
-	    || serializeT<Referential>( contents, sem, val, uns, rev, 
-					is->first, aid ) 
-	    || serializeT<Transformation>( contents, sem, val, uns, rev, 
-					   is->first, aid );
-	}
+        {
+          Object	val = contents->getProperty( is->first );
+          const Semantic	& sem = is->second;
+          serializeT<AObject>( contents, sem, val, uns, rev, is->first, aid )
+            || serializeT<AWindow>( contents, sem, val, uns, rev, is->first,
+                	            aid )
+            || serializeT<Referential>( contents, sem, val, uns, rev,
+                	        	is->first, aid )
+            || serializeT<Transformation>( contents, sem, val, uns, rev,
+                	        	   is->first, aid );
+        }
       catch( exception & )
-	{
-	}
+        {
+        }
     context.mutex()->unlock();
   }
 
@@ -261,13 +280,14 @@ namespace
 
 void OutputEvent::send()
 {
+  // cout << "OutputEvent::send " << eventType() << "\n";
   const set<CommandContext *>	& contexts = CommandContext::contexts();
   set<CommandContext *>::const_iterator	ic, ec = contexts.end();
-  ostream			*ostr;
-  SyntaxSet			synt;
-  string			satt;
-  bool				neg;
-  OutputEventFilter		*filt;
+  ostream	        	*ostr;
+  SyntaxSet	        	synt;
+  string	        	satt;
+  bool	        	        neg;
+  OutputEventFilter	        *filt;
 
   SyntaxedInterface	*si = _contents->getInterface<SyntaxedInterface>();
   if( si && si->hasSyntax() )
@@ -275,60 +295,60 @@ void OutputEvent::send()
   else
     satt = "__generic__";
 
-  Syntax			& s = synt[ satt ];
+  Syntax	        	& s = synt[ satt ];
   set<string>::const_iterator	idi, edi = _discrim.end();
-  unsigned			n;
+  unsigned	        	n;
 
   scanSerialize( _contents, s );
 
   for( ic=contexts.begin(); ic!=ec; ++ic )
+  {
+    ostr = (*ic)->ostr;
+    //	check event filter
+    filt = (*ic)->evfilter;
+    if( ostr && filt )
     {
-      ostr = (*ic)->ostr;
-      //	check event filter
-      filt = (*ic)->evfilter;
-      if( ostr && filt )
-	{
-	  const set<string>	& filts = filt->filters();
-	  neg = ( filts.find( eventType() ) != filts.end() );
-	  if( !( neg ^ filt->isDefaultFiltering() ) )
-	    {
-	      serialize( _contents, s, **ic, _allocateIDs );
-	      if( !_discrim.empty() )
-		{
-		  n = 0;
-		  for( idi=_discrim.begin(); idi!=edi; ++idi )
-		    if( _contents->hasProperty( *idi ) )
-		      ++n;
-		}
-	      else
-		n = 1;
-	      if( n > 0 )
-		{
-                  if( ostr != &cout )
-                    {
-                      (*ostr) << "'" << _name << "'" << endl;
-                      PythonWriter	pw( synt );
-                      pw.setSingleLineMode( true );
-                      pw.attach( *ostr );
-                      pw.write( *_contents, false, false );
-                      (*ostr) << endl << flush;
-                    }
-                  if( *ic == &CommandContext::defaultContext() )
-                    {
-                      map<string, set<rc_ptr<EventHandler> > >::const_iterator 
-                        ih = EventHandler::handlers().find( eventType() );
-                      if( ih != EventHandler::handlers().end() )
-                        {
-                          set<rc_ptr<EventHandler> >::const_iterator 
-                            ihh, eh = ih->second.end();
-                          for( ihh=ih->second.begin(); ihh!=eh; ++ihh )
-                            (*ihh)->doit( *this );
-                        }
-                    }
-		}
-	    }
-	}
+      const set<string>	& filts = filt->filters();
+      neg = ( filts.find( eventType() ) != filts.end() );
+      if( !( neg ^ filt->isDefaultFiltering() ) )
+      {
+        serialize( _contents, s, **ic, _allocateIDs );
+        if( !_discrim.empty() )
+        {
+          n = 0;
+          for( idi=_discrim.begin(); idi!=edi; ++idi )
+            if( _contents->hasProperty( *idi ) )
+              ++n;
+        }
+        else
+          n = 1;
+        if( n > 0 )
+        {
+          if( ostr != &cout )
+          {
+            (*ostr) << "'" << _name << "'" << endl;
+            PythonWriter	pw( synt );
+            pw.setSingleLineMode( true );
+            pw.attach( *ostr );
+            pw.write( *_contents, false, false );
+            (*ostr) << endl << flush;
+          }
+          if( *ic == &CommandContext::defaultContext() )
+          {
+            map<string, set<rc_ptr<EventHandler> > >::const_iterator
+              ih = EventHandler::handlers().find( eventType() );
+            if( ih != EventHandler::handlers().end() )
+            {
+              set<rc_ptr<EventHandler> >::const_iterator
+                ihh, eh = ih->second.end();
+              for( ihh=ih->second.begin(); ihh!=eh; ++ihh )
+                (*ihh)->doit( *this );
+            }
+          }
+        }
+      }
     }
+  }
 }
 
 // ---------------
