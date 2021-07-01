@@ -96,4 +96,6 @@ f.registerMethod(m)
 
 pm = MeshSplitModule()
 
-del m, f
+# del m, f
+del f
+
