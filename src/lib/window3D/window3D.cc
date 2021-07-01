@@ -671,6 +671,24 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
 
   d->objvallabel = new QLabel(statusBar());
   statusBar()->addPermanentWidget( d->objvallabel, 0 );
+  d->objvallabel->setTextInteractionFlags(
+    d->objvallabel->textInteractionFlags() | Qt::TextSelectableByMouse
+    | Qt::TextSelectableByKeyboard );
+//   // find label in statusbar
+//   QWidgetItem *wi = dynamic_cast<QWidgetItem *>(
+//     static_cast<QBoxLayout *>(
+//       static_cast<QBoxLayout *>( statusBar()->layout()->itemAt(0) )
+//       ->itemAt(1) )->itemAt(2) );
+//   if( wi )
+//   {
+//     QLabel *l = dynamic_cast<QLabel *>( wi->widget() );
+//     if( l )
+//       l->setTextInteractionFlags(
+//         l->textInteractionFlags() | Qt::TextSelectableByMouse
+//         | Qt::TextSelectableByKeyboard );
+//     cout << "label: " << l << ", " << d->objvallabel << endl;
+//   }
+
   bool showsbar = !nodeco;
   if( showsbar )
     try
