@@ -105,11 +105,14 @@ Fusion3D::Fusion3D( const vector<AObject *> & obj )
   setReferentialInheritance( *begin() );
   unsigned	ntex = vol.size();
   glAddTextures( ntex );
-  TexExtrema  & te = GLComponent::glTexExtrema( 0 );
-  te.min.push_back( 0 );
-  te.max.push_back( 0 );
-  te.minquant.push_back( 0 );
-  te.maxquant.push_back( 0 );
+  for( unsigned tex=0; tex<ntex; ++tex )
+  {
+    TexExtrema  & te = GLComponent::glTexExtrema( tex );
+    te.min.push_back( 0 );
+    te.max.push_back( 0 );
+    te.minquant.push_back( 0 );
+    te.maxquant.push_back( 0 );
+  }
   setReferentialInheritance( *begin() );
 }
 
@@ -391,6 +394,9 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
 
   const AObject		*functional = volume( tex );
   const GLComponent     *glf = functional->glAPI();
+  unsigned ftex = tex;
+  if( glf->glNumTextures() <= tex )
+    ftex = 0; // separate texture objects, each is assumed having only 1 tex
   Transformation	*trans 
     = theAnatomist->getTransformation( osurf->getReferential(), 
                                        functional->getReferential() );
@@ -443,7 +449,7 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
     vtexture.push_back( value );
   }
 
-  const TexExtrema & fte = glf->glTexExtrema( tex );
+  const TexExtrema & fte = glf->glTexExtrema( ftex );
   float qmin = fte.minquant[0], qmax = fte.maxquant[0];
   float fmin = 0., fmax = 1.;
   // keep same qmin/qmax as the volume
@@ -457,7 +463,7 @@ void Fusion3D::refreshVTextureWithPointToPoint( const ViewState & s,
       *itt = ( *itt - qmin ) * scale + fmin;
   }
 
-  TexExtrema  & te 
+  TexExtrema  & te
     = const_cast<Fusion3D *>( this )->GLComponent::glTexExtrema( 0 );
   te.minquant[0] = qmin;
   te.maxquant[0] = qmax;
@@ -532,7 +538,10 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
   vector<float>		& vtexture = d->vtexture[id][ tex ];
 
   const AObject		*functional = volume( tex );
+  unsigned ftex = tex;
   const GLComponent     *glf = functional->glAPI();
+  if( glf->glNumTextures() <= tex )
+    ftex = 0; // separate texture objects, each is assumed having only 1 tex
   Transformation	*trans 
     = theAnatomist->getTransformation( osurf->getReferential(), 
 				       functional->getReferential() );
@@ -675,7 +684,7 @@ void Fusion3D::refreshLineTexture( float start_deth, float stop_depth,
       vtexture.push_back(value);
     }
 
-  const TexExtrema & fte = glf->glTexExtrema( tex );
+  const TexExtrema & fte = glf->glTexExtrema( ftex );
   float qmin = fte.minquant[0], qmax = fte.maxquant[0];
   float fmin = 0., fmax = 1.;
   // keep same qmin/qmax as the volume
@@ -737,7 +746,10 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
   vector<float>		& vtexture = d->vtexture[id][ tex ];
 
   const AObject		*functional = volume( tex );
+  unsigned ftex = tex;
   const GLComponent     *glf = functional->glAPI();
+  if( glf->glNumTextures() <= tex )
+    ftex = 0; // separate texture objects, each is assumed having only 1 tex
   Transformation	*trans 
     = theAnatomist->getTransformation( osurf->getReferential(), 
 				       functional->getReferential() );
@@ -876,7 +888,7 @@ void Fusion3D::refreshVTextureWithSphereToPoint( const ViewState & s,
       vtexture.push_back(value);
     }
 
-  const TexExtrema & fte = glf->glTexExtrema( tex );
+  const TexExtrema & fte = glf->glTexExtrema( ftex );
   float qmin = fte.minquant[0], qmax = fte.maxquant[0];
   float fmin = 0., fmax = 1.;
   // keep same qmin/qmax as the volume
