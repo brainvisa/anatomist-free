@@ -202,8 +202,6 @@ namespace
 }
 
 
-
-
 //	Private data structure
 
 struct Anatomist::Anatomist_privateData
@@ -364,21 +362,24 @@ Anatomist::~Anatomist()
   cout << "Exiting Anatomist --- Goodbye.\n";
 
   _privData->destroying = true;
+
   while( !_privData->anaWin.empty() )
     delete _privData->anaWin.begin()->second.get();
 
-  
+
   anatomist::Cursor::cleanStatic();
-  
+
+  // cout << "deleting objects... " << _privData->anaObj.size() << endl;
   set<AObject *> objs;
   map<const AObject *, carto::shared_ptr<AObject> >::iterator
     io, eo = _privData->anaObj.end();
 
   for( io=_privData->anaObj.begin(); io!=eo; ++io )
     objs.insert( io->second.get() );
-  _privData->anaObj.clear();
 
   objs = destroyObjects( objs );
+
+  _privData->anaObj.clear();
 
   set<AObject *>::iterator iso, eso = objs.end();
   AObject	*obj;
@@ -396,6 +397,7 @@ Anatomist::~Anatomist()
 #endif
     delete obj;
   }
+  // cout << "objects deleted.\n";
 
   // cleanup some global variables
   delete getControlWindow();
