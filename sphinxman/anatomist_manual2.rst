@@ -1736,7 +1736,7 @@ Adding a new palette
 * Put the palette files in it. It can be for example in GIS or JPG format, or any image/volume format readable by *Anatomist*.
 * This new palette will be available in the list of palettes in *Anatomist* when *Anatomist* is restarted. If it is aleady running, use the menu *Settings => Reload palettes*.
 
-.. _a_palettes_details
+.. _a_palettes_details:
 
 Details on how palettes are working
 -----------------------------------
@@ -1770,14 +1770,56 @@ Anatomist (since version 4.6.1) build this 2D fusion automatically and internall
 
 To be clear, the Fusion2D builds a texture resulting from the different images, then maps it on the square mesh (like for a single image). The way an image is mixed with another is determined by texturing modes and options, for texture indices >= 1. Texturing index 0 is the mapping of the final texture on the mesh.
 
-Things should be seen the reverse way. For instance if we have 3 volumes, ``A``, ``B`` and ``C``,
+Things should be seen the reverse way. *Order is important*. For instance if we have 3 volumes, ``A``, ``B`` and ``C``,
 
 * Texture properties index 2 tells how to mix volume ``B`` with volume ``C``.
 * Texture properties index 1 tells how to mix volume ``A`` with the previous one (``BC`` mix) etc.
 * Texture properties index 0 tells how to map the result (``ABC``) onto the mesh.
 
-For indices >= 1 (mixing between volumes) there are more modes than the OpenGL modes (it's not an OpenGL multitexturing, Anatomist is making the mixing here, thus we have more flexibility). Some modes consider white or black colors as transparent, others are using the RGBA palettes. The mixing rate tells how to blend textures between the condidered layers (as described above).
+For indices >= 1 (mixing between volumes) there are more modes than the OpenGL modes (it's not an OpenGL multitexturing, Anatomist is making the mixing here, thus we have more flexibility). Some modes consider white or black colors as transparent, others are using the RGBA palettes. The mixing rate tells how to blend textures between the condidered layers (as described above). Remember that this mixing happens in RGBA space (after applying palettes), not in image values space.
 
+Example
++++++++
+
+Let's take a classical example with 2 images, say one anatomical MRI (we call it ``mri``) and a labels image containing segmented objects (we call it ``seg``). ``seg`` has the value 0 in its background, which we wish to be transparent.
+
+We fusion (``mri``, ``seg``), in this order (order can be checked and changed in the GUI in the Fusion2D object properties).
+
+We set the *"B-W LINEAR"* palette on ``mri`` (gray levels, classical, this is the defaut).
+
+We set a colored palette on ``seg``. Let's take one with a black color as 1st value (ex: *"Blue-Green-Red-Yellow"*). The background of this image is thus black:
+
+.. image:: images/mri_seg_black_bg_lin.jpg
+    :align: center
+
+We set the texturing mode for **texture 1** of the fusion object (so: mixing between the two images ``mri`` and ``seg``). Let's use the mode ``linear_A_if_B_black`` (here ``A`` is ``mri`` and ``B`` is ``seg``): where ``seg`` is black (background) we want to fully see ``mri`` behind.
+
+Then the mixing rate sets the relative weight of ``mri`` and ``seg`` in the regions where ``seg`` is *not black*. If we set it to zero, the weight of ``mri`` is null, and we see only ``seg``. Inversely if we set it to 1, we don't see ``seg`` anymore:
+
+.. image:: images/mri_seg_black_bg.jpg
+    :align: center
+
+If we had used for ``seg`` a palette wich first color is white (ex: *"Blue-Red-fusion"*), then its background would be white. We would rather have used the ``linear_A_if_B_white`` mode:
+
+.. image:: images/mri_seg_white_bg.jpg
+    :align: center
+
+In both cases the resulting object (the 2D fusion) is **opaque** (black opaque background): if there is for instance an additional mesh in the view, we don't see the parts behind the square of the 2D slice.
+
+Now if we want the slice object to be transparent, we will use a RGBA palette for the ``mri`` object: for instance the *"B-W LINEAR-transparent"* palette. This specific palette is mostly opaque, except for the first color which is totally transparent. The lowest value of the image (0 generally) will thus be transparent. As there is generally noise in the image, the user will probably need to slightly increase the min value of the palette settings so that values under this threshold become transparent. But for not the slice object (2d fusion) is still not transparent: for this we also need to set the mixing mode between the final texture (mixed ``mri`` and ``seg``) and the mesh. This is what the properties for **texture 0** of the fusion object do. By default it is in ``decal`` (opaque) mode:
+
+.. image:: images/fusion2d_transp_decal.jpg
+    :align: center
+
+We can set it to ``replace`` mode (total replacement of the mesh material: the mesh colors and lighting do not apply any longer), or to ``geometric`` mode (multiplicative blend between the mesh material and lighting and the texture: lighting applies, the image becomes black when seen and lit from the profile side):
+
+.. image:: images/fusion2d_transp_replace.jpg
+.. image:: images/fusion2d_transp_geom.jpg
+
+We could also use a *semi-transparent palette* for ``mri``, like *"semitransparent"* or *"semitransparent2"* to get partial transparency on the ``mri`` object. Here we use *"semitransparent"* (both gray levels and opacity corresponding to the the image intensity) with a white background, and *"semitransparent2"* (all white, with opacity corresponding to the image intensity). Of course here, as objects are transparent and their color will mix with the window backgorund color, the window background color is important:
+
+.. image:: images/fusion2d_semitransp1_replace.jpg
+.. image:: images/fusion2d_semitransp2_replace.jpg
 
 .. _obj_minf_properties:
 

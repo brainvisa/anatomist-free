@@ -289,7 +289,7 @@ namespace
   }
 
 
-  // linear-on-defined (A if B)
+  // linear-on-defined (A if B is white)
   template<> inline
   void _mix_item<2>( unsigned char* src, unsigned char *dst, float rate )
   {
@@ -332,7 +332,7 @@ namespace
   }
 
 
-  // linear-on-defined (A if not B)
+  // linear-on-defined (A if B is black or transparent)
   template<> inline
   void _mix_item<6>( unsigned char* src, unsigned char *dst, float rate )
   {
