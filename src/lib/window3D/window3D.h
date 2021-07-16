@@ -277,7 +277,9 @@ public:
 
 
 signals:
-	void refreshed();
+  void refreshed();
+  void sliderChanged( int dim, int slice );
+  void orientationChanged();
 
 public slots:
   virtual void polish();

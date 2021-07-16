@@ -2246,6 +2246,13 @@ void AWindow3D::changeSlice(int s)
       Refresh();
     }
   }
+
+  int dim = 2;
+  if( norm[1] > norm[2] && norm[1] > norm[0] )
+    dim = 1;
+  else if( norm[0] > norm[1] && norm[0] > norm[2] )
+    dim = 0;
+  emit( sliderChanged( dim, s ) );
 }
 
 void AWindow3D::changeReferential()
@@ -2528,9 +2535,14 @@ void AWindow3D::removeFromAutoFusion2D( AObject *obj )
 void AWindow3D::setViewType(ViewType t)
 {
   static const float c = 1. / sqrt(2.);
+  bool has_changed = false;
 
-  d->viewtype = t;
-  updateViewTypeToolBar();
+  if( d->viewtype != t )
+  {
+    d->viewtype = t;
+    updateViewTypeToolBar();
+    has_changed = true;
+  }
   // handle point of view
   switch (t)
   {
@@ -2553,6 +2565,8 @@ void AWindow3D::setViewType(ViewType t)
       break;
   }
 
+  if( has_changed )
+    emit orientationChanged();
 }
 
 
