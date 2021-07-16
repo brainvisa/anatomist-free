@@ -2143,6 +2143,8 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
       SetRefreshFlag();
       Refresh();
     }
+
+    emit sliderChanged( sl + 3, value );
   }
 }
 
