@@ -295,12 +295,22 @@ namespace
             registerProcessType( "Texture", "FLOAT", &loadTex1d );
           if( !restr || types.find( "POINT2DF" ) != eir )
             registerProcessType( "Texture", "POINT2DF", &loadTex2d );
+          if( !restr || types.find( "S8" ) != eir )
+            registerProcessType( "Texture", "S8", &loadTex1dInt<int8_t> );
+          if( !restr || types.find( "U8" ) != eir )
+            registerProcessType( "Texture", "U8", &loadTex1dInt<uint8_t> );
           if( !restr || types.find( "S16" ) != eir )
             registerProcessType( "Texture", "S16", &loadTex1dInt<int16_t> );
+          if( !restr || types.find( "U16" ) != eir )
+            registerProcessType( "Texture", "U16", &loadTex1dInt<uint16_t> );
           if( !restr || types.find( "S32" ) != eir )
             registerProcessType( "Texture", "S32", &loadTex1dInt<int32_t> );
           if( !restr || types.find( "U32" ) != eir )
             registerProcessType( "Texture", "U32", &loadTex1dInt<uint32_t> );
+          if( !restr || types.find( "S64" ) != eir )
+            registerProcessType( "Texture", "S64", &loadTex1dInt<int64_t> );
+          if( !restr || types.find( "U64" ) != eir )
+            registerProcessType( "Texture", "U64", &loadTex1dInt<uint64_t> );
           if( !restr || types.find( "POINT2D" ) != eir )
             registerProcessType( "Texture", "POINT2D", &loadTex2dInt<short> );
           if( !restr || types.find( "DOUBLE" ) != eir )
