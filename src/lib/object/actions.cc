@@ -659,7 +659,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               sref = "Scanner-based anatomical coordinates";
               ref = Referential::referentialOfUUID( sref );
             }
-            else if( sref == "Talairach" )
+            else if( sref == StandardReferentials::talairachReferential() )
             {
               // GIFTI Talairach
               ref = Referential::giftiTalairachReferential();
