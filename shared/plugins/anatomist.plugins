@@ -3,7 +3,6 @@ attributes = {
     'libanafold.so',
     'libanahistogram.so',
     'libanaprofile.so',
-    'libanaperfusion.so',
     'libanasurfpaint.so',
     'libanasurfmatch.so',
     'libanaroibase.so',
