@@ -7,8 +7,6 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/anatomist/config/version.h
                    DESTINATION "include/anatomist/config" 
                    COMPONENT ${PROJECT_NAME}-dev )
 
-# BRAINVISA_GET_FILE_LIST_FROM_PRO( project.pro "HEADERS" _headers "SOURCES" _sources )
-
 set( _headers
     application/anatomistinfo.h
     application/Anatomist.h
