@@ -178,7 +178,7 @@ Quaternion Transformation::quaternion() const
 void Transformation::setQuaternion( const Quaternion & q )
 {
   AimsVector<float,16>	r = q.rotationMatrix();
-  AimsData<float>       rotation = _motion.rotation();
+  VolumeRef<float>       rotation = _motion.rotation();
   rotation(0,0) = r[0];
   rotation(0,1) = r[1];
   rotation(0,2) = r[2];
@@ -217,7 +217,7 @@ void Transformation::unregisterTrans()
 
 void Transformation::setRotation( float** r )
 {
-  AimsData<float>       rotation = _motion.rotation();
+  VolumeRef<float>       rotation = _motion.rotation();
   rotation(0,0) = r[0][0];
   rotation(0,1) = r[0][1];
   rotation(0,2) = r[0][2];

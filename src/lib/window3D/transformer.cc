@@ -1251,7 +1251,7 @@ namespace
     pix.fill( QColor( col[0], col[1], col[2] ) );
     d->trans_ui->to_ref_button->setIcon( pix );
     const AffineTransformation3d & atr = tr->motion();
-    const AimsData<float> & rot = atr.rotation();
+    const VolumeRef<float> & rot = atr.rotation();
     Point3df tra = atr.translation();
     int i, j;
 
