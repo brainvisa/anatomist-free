@@ -437,6 +437,7 @@ class SplitFoldAction(anatomist.Action):
                 data['splitline'] = splitline
                 # show split line
                 asplit = anatomist.AObjectConverter.anatomist(splitline)
+                a = anatomist.Anatomist()
                 a.unmapObject(asplit)
                 a.releaseObject(asplit)
                 mat = asplit.GetMaterial()
