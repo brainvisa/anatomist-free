@@ -200,7 +200,7 @@ class PaletteWidget(MplCanvas):
         if not self._obj.palette():
             return
         self._aobjectPalette = self._obj.getOrCreatePalette()
-        img = self._aobjectPalette.refPalette().volume()
+        img = self._aobjectPalette.refPalette()
         self._size = img.getSizeX()
         palette = self._compute_palette(img)
         self._display(palette)

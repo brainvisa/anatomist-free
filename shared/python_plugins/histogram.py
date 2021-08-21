@@ -208,7 +208,7 @@ class AHistogram(ana.cpp.QAWindow):
                 col = p[0].get_edgecolor()
                 kw['edgecolor'] = col
                 self.eraseObject(obj)
-            vol = ana.cpp.AObjectConverter.aims(obj).volume()
+            vol = ana.cpp.AObjectConverter.aims(obj)
             ar = numpy.array(vol, copy=False)
             if not self._histo4d:
                 ar = ar[:, :, :, self.getTime()]

@@ -122,8 +122,8 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
             sel = [vols[i]
                    for i in range(lw.count()) if lw.item(i).isSelected()]
             sel, tr = sel[0]
-            source = a.AObject(a, obj).toAimsObject().volume()
-            target = sel.toAimsObject().volume()
+            source = a.AObject(a, obj).toAimsObject()
+            target = sel.toAimsObject()
             # get a resampler for source voxel type
             t = np.asarray(source).dtype
             tc = aims.typeCode(t)

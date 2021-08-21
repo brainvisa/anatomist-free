@@ -198,7 +198,7 @@ class AModelsGraphFusionObject(anatomist.ObjectList):
 
         # palette
         infomin, infomax = self._md.getMinMax(choosen_data)
-        vol = self.getOrCreatePalette().refPalette().volume().get()
+        vol = self.getOrCreatePalette().refPalette()
         size = vol.getSizeX()
         coeff = (size + 1) / float(size)
         processor.execute('SetObjectPalette',

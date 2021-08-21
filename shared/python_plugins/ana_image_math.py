@@ -18,8 +18,8 @@ def get_resampled_volume(source, target, order, background, new_dim=None):
     '''
     asource = source
     atarget = target
-    source = asource.toAimsObject().volume()
-    target = atarget.toAimsObject().volume()
+    source = asource.toAimsObject()
+    target = atarget.toAimsObject()
     # get a resampler for source voxel type
     t = np.asarray(source).dtype
     tc = aims.typeCode(t)
@@ -136,7 +136,7 @@ def combine_vols():
                 for im in used_im:
                     num = int(im[6:-1])
                     # print(num)
-                    image[num] = a.toAimsObject(vols[num]).volume()._get()
+                    image[num] = a.toAimsObject(vols[num])
                     vs = list(image[num].getVoxelSize())
                     dim = list(image[num].getSize())
                     tr = a.getTransformation(vols[num].referential,

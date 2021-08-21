@@ -161,29 +161,28 @@ class GradientPaletteWidget(qtgui.QWidget):
         a = anatomist.Anatomist()
         paldim = 512
         pal = anatomist.APalette('CustomGradient', paldim)
-        pdata = pal.volume()
         rgbp = self._gradw.fillGradient(paldim, True)
         rgb = rgbp.data()
         if sys.byteorder == 'little':
             if not six.PY2:
                 for i in range(paldim):
-                    pdata.setValue(
+                    pal.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 2], rgb[i * 4 + 1],
                                       rgb[i * 4], rgb[i * 4 + 3]), i)
             else:
                 for i in range(paldim):
-                    pdata.setValue(
+                    pal.setValue(
                         aims.AimsRGBA(ord(rgb[i * 4 + 2]), ord(rgb[i * 4 + 1]),
                                       ord(rgb[i * 4]), ord(rgb[i * 4 + 3])), i)
         else:
             if not six.PY2:
                 for i in range(paldim):
-                    pdata.setValue(
+                    pal.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 1], rgb[i * 4 + 2],
                                       rgb[i * 4 + 3], rgb[i * 4]), i)
             else:
                 for i in range(paldim):
-                    pdata.setValue(
+                    pal.setValue(
                         aims.AimsRGBA(ord(rgb[i * 4 + 1]), ord(rgb[i * 4 + 2]),
                                       ord(rgb[i * 4 + 3]), ord(rgb[i * 4])), i)
         gradientString = self._gradw.getGradientString()
@@ -260,7 +259,7 @@ class GradientPaletteWidget(qtgui.QWidget):
         if len(self._objects) > 0:
             obj = self._objects[0]
             pal = obj.getOrCreatePalette().refPalette()
-            apal = anatomist.AObjectConverter.anatomist(pal.volume())
+            apal = anatomist.AObjectConverter.anatomist(pal)
             apal.setName(pal.name())
             a = anatomist.Anatomist()
             hp = a.anatomistHomePath()

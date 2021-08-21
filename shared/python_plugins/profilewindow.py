@@ -205,7 +205,7 @@ class AProfile(ana.cpp.QAWindow):
             if self._coordindex == 3:
                 return self.plotTprofile(obj)
             figure = pyplot.figure(self._fig.number)
-            vol = ana.cpp.AObjectConverter.aims(obj).volume()
+            vol = ana.cpp.AObjectConverter.aims(obj)
             ar = numpy.array(vol, copy=False)
             pos = self.getPosition()
             tpos = self.getTime()
@@ -340,8 +340,8 @@ class AProfile(ana.cpp.QAWindow):
 
     def plotTprofile(self, obj):
         figure = pyplot.figure(self._fig.number)
-        vol = ana.cpp.AObjectConverter.aims(obj).volume()
-        ar = numpy.array(vol, copy=False)
+        vol = ana.cpp.AObjectConverter.aims(obj)
+        ar = vol.np
         pos = self.getPosition()
         tpos = self.getTime()
         opos = pos
