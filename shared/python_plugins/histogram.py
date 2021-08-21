@@ -255,8 +255,7 @@ class AHistogram(ana.cpp.QAWindow):
                         varr = aims.VolumeView(vol, ipos0t, ipos1t - ipos0t)
                     ha.doit(varr)
                     d = ha.data()
-                    har = numpy.array(
-                        d.volume(), copy=False).reshape(d.dimX())
+                    har = d.np.reshape(d.shape[0])
                     step = float(
                         ha.maxDataValue() - ha.minDataValue()) / ha.bins()
                     his = (har, numpy.arange(ha.minDataValue(),
