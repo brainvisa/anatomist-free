@@ -214,10 +214,7 @@ def combine_vols():
                             return
                     elif not hasattr(new_image, '__class__') \
                             or (not new_image.__class__.__name__.startswith(
-                                'Volume_')
-                                and not
-                                new_image.__class__.__name__.startswith(
-                                    'AimsData_')):
+                                'Volume_')):
                         Qt.QMessageBox.critical(
                             None, w.tr('Formula error'),
                             w.tr('The formula result is not a Volume or a '
