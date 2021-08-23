@@ -723,7 +723,7 @@ RoiDynSegmentAction::findLocalBestSeed( const Point3d& dims, const Point3d& half
   
   //cout << "RoiDynSegmentAction::findLocalBestSeed" << endl ;
   Point3d currentPoint(mySeed), minDirection(0,0,0) ;
-  AimsData<float> errorMatrix ;
+  VolumeRef<float> errorMatrix ;
   vector<float> meanSignal ;
   float meanError = 0., varError = 0., minMeanError = 1. ;
   bool minFound = false, valid = false ;
@@ -731,7 +731,8 @@ RoiDynSegmentAction::findLocalBestSeed( const Point3d& dims, const Point3d& half
     currentPoint += minDirection ;
     minDirection = -myXAxis ;
     
-    if( in(dims, currentPoint - myXAxis) ){
+    if( in(dims, currentPoint - myXAxis) )
+    {
       if( evaluateError( currentPoint - myXAxis, halfSize, dims, errorMatrix, meanSignal, 
 			 minMeanError, varError ) )
 	valid = true ;
@@ -802,7 +803,7 @@ RoiDynSegmentAction::findLocalBestSeed( const Point3d& dims, const Point3d& half
   myMeanSignal = meanSignal ;
   myInsideMeanError = minMeanError ;
   myInsideSigmaError = varError ;
-  myErrorMatrix = errorMatrix.clone() ;
+  myErrorMatrix = errorMatrix;
   
   return true ;
 }
@@ -811,7 +812,7 @@ bool
 RoiDynSegmentAction::evaluateError( const Point3d& p, 
 				    const Point3d& halfSize, 
 				    const Point3d& dims,
-				    AimsData<float>& errorMatrix,
+				    VolumeRef<float>& errorMatrix,
 				    vector<float>& meanSignal,
 				    float& mean, float& var, 
 				    bool forceComputing )
@@ -821,8 +822,8 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
   if( !myCurrentImage )
     return false ;
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
-  AimsData<float> matriceIndiv( (2*halfSize[0]+1)*(2*halfSize[1]+1)
-				*(2*halfSize[2]+1), nbFrame );
+  VolumeRef<float> matriceIndiv(
+    (2*halfSize[0]+1) * (2*halfSize[1]+1) * (2*halfSize[2]+1), nbFrame );
   map<Point3d, float, PointLess>::iterator found ;
   if(!forceComputing )
     if( (found = myPreviousComputing.find(p) ) != myPreviousComputing.end() )
@@ -857,7 +858,7 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
             val = myCurrentImage->mixedTexValue( vpos );
             if( val <= 0. )
               valid = false ;
-            matriceIndiv( nbIndiv, t ) = val  ;
+            matriceIndiv->at( nbIndiv, t ) = val  ;
             meanSignal[t] += val ;
           }
         }
@@ -1052,7 +1053,7 @@ RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
   list< pair< Point3d, ChangesItem> >::const_iterator bckIter((*changes).begin()), 
     bckLast( (*changes).end() ) ;
-  AimsData<float> matriceIndiv( (*changes).size(), nbFrame );
+  VolumeRef<float> matriceIndiv( (*changes).size(), nbFrame );
   
   myMeanSignal = vector<float>(nbFrame, 0.) ;
   vector<float> vpos( 4 );
@@ -1115,55 +1116,59 @@ RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
 }
 
 void 
-RoiDynSegmentAction::computeErrorMatrix( AimsData<float>& matriceIndiv, 
-				       AimsData<float>& errorMatrix,
-				       vector<float>& meanSignal )
+RoiDynSegmentAction::computeErrorMatrix( VolumeRef<float>& matriceIndiv,
+                                         VolumeRef<float>& errorMatrix,
+                                         vector<float>& meanSignal )
 {
   if( !myCurrentImage )
     return ;
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
   
   for( int t = 0 ; t < nbFrame ; ++t ){
-    meanSignal[t] /= matriceIndiv.dimX() ;
-    for( int ind = 0 ; ind < matriceIndiv.dimX() ; ++ind )
+    meanSignal[t] /= matriceIndiv.getSizeX() ;
+    for( int ind = 0 ; ind < matriceIndiv.getSizeX() ; ++ind )
       matriceIndiv( ind, t ) -= meanSignal[t] ;
   }
   
   // Matrice des correlations
-  AimsData< double >  matVarCov(nbFrame, nbFrame);
+  VolumeRef< double >  matVarCov(nbFrame, nbFrame);
   
   int                 x1, y1;
-  ForEach2d( matVarCov, x1, y1 )
+  int dx = matVarCov.getSizeX(), dy = matVarCov.getSizeY();
+
+  for( y1=0; y1<dy; ++y1 )
+    for( x1=0; x1<dx; ++x1 )
     {
-      for(int k=0;  k < matriceIndiv.dimX()  ;++k)
-	matVarCov(x1, y1) += matriceIndiv(k, x1) * matriceIndiv(k, y1);	
-      matVarCov(x1, y1) /= matriceIndiv.dimX() - 1 ;
+      for(int k=0;  k < matriceIndiv.getSizeX()  ;++k)
+        matVarCov(x1, y1) += matriceIndiv(k, x1) * matriceIndiv(k, y1);
+      matVarCov(x1, y1) /= matriceIndiv.getSizeX() - 1 ;
     }
   
   // Decomposition SVD 
   AimsSVD< double >  svd;
   svd.setReturnType( AimsSVD< double >::VectorOfSingularValues );
-  AimsData< double > eigenVal  = svd.doit( matVarCov );
+  AimsData<double> matVarCov_d = matVarCov; // svd API is still AimsData
+  AimsData< double > eigenVal = svd.doit( matVarCov_d );
   
-  svd.sort(matVarCov, eigenVal);
+  svd.sort(matVarCov_d, eigenVal);
   
   // Calcul de la matrice d'erreurs
-  AimsData< float > errorMatrixk( nbFrame, nbFrame ) ;
-  vector< AimsData<float>* > pkk(myOrder) ;
+  vector< VolumeRef<float> > pkk(myOrder) ;
   for(int order = 0 ; order < myOrder ; ++order )
-    pkk[order] = new AimsData<float>(nbFrame) ;
+    pkk[order] = VolumeRef<float>(nbFrame) ;
   
   for( int i = 0 ; i < myOrder ; ++i )
     for( int t = 0 ; t < nbFrame ; ++t )
       (*pkk[i])(t) = matVarCov( t, i ) ;
   
-  errorMatrix = AimsData<float>(nbFrame, nbFrame) ;
+  errorMatrix = VolumeRef<float>(nbFrame, nbFrame) ;
   for( int t = 0 ; t < nbFrame ; ++t )
     errorMatrix(t, t) = 1. ;
   
   cerr << "Crossing " << endl ;
   for(int order = 0 ; order < myOrder ; ++order )
-    errorMatrix = errorMatrix - pkk[order]->cross( pkk[order]->clone().transpose() ) ;
+    errorMatrix = errorMatrix
+      - matrix_product( pkk[order], transpose( pkk[order] ) ) ;
   cerr << "Crossed " << endl ;
 }
 

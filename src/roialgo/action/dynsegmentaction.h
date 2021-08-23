@@ -125,20 +125,20 @@ namespace anatomist
     
     bool findLocalBestSeed( const Point3d& dims, const Point3d& halfSize ) ;
     bool evaluateError( const Point3d& p, const Point3d& halfSize, 
-			const Point3d& dims,
-			AimsData<float>&  errorMatrix, 
-			std::vector<float>& meanSignal,
-			float& mean, float& var, 
-			bool forceComputing = false ) ;
+                        const Point3d& dims,
+                        carto::VolumeRef<float>&  errorMatrix,
+                        std::vector<float>& meanSignal,
+                        float& mean, float& var,
+                        bool forceComputing = false ) ;
     void pcaRegionGrowth( ) ;
     void growth( std::list< std::pair< Point3d, ChangesItem> >* changes ) ;
     void refinePCA(  std::list< std::pair< Point3d, ChangesItem> >* changes ) ;
-    void computeErrorMatrix( AimsData<float>& matriceIndiv, 
-			     AimsData<float>& errorMatrix,
-			     std::vector<float>& meanSignal  ) ;
-    float error( const anatomist::AObject* data, 
-		 const Point3df& p, const std::vector<float>& meanSignal,
-		 AimsData<float>& errorMatrix ) ;
+    void computeErrorMatrix( carto::VolumeRef<float>& matriceIndiv,
+                             carto::VolumeRef<float>& errorMatrix,
+                             std::vector<float>& meanSignal  ) ;
+    float error( const anatomist::AObject* data,
+                 const Point3df& p, const std::vector<float>& meanSignal,
+                 carto::VolumeRef<float>& errorMatrix ) ;
     bool valid( const anatomist::AObject* data, const Point3df& p ) ;
     Point3d maskHalfSize( const anatomist::AObject * vol, int nbIndiv )  ;
 
@@ -153,7 +153,7 @@ namespace anatomist
     DimensionMode myDimensionMode ;
     int myFaithInterval ;
     int myOrder ;
-    AimsData<float> myErrorMatrix ;
+    carto::VolumeRef<float> myErrorMatrix ;
     float myInsideMeanError ;
     float myInsideSigmaError ;
     std::vector<float> myMeanSignal ;
@@ -186,11 +186,12 @@ anatomist::RoiDynSegmentAction::valid( const anatomist::AObject* data, const Poi
 inline
 float 
 anatomist::RoiDynSegmentAction::error( const anatomist::AObject* data, 
-				     const Point3df& p, 
-				     const std::vector<float>& meanSignal,
-				     AimsData<float>& errorMatrix )
+                                       const Point3df& p,
+                                       const std::vector<float>& meanSignal,
+                                       carto::VolumeRef<float>& errorMatrix )
 {
-  AimsData<float> indiv( 1, int(data->MaxT()+1.1) ), indivTr(int(data->MaxT()+1.1 ) ) ;
+  carto::VolumeRef<float> indiv( 1, int(data->MaxT()+1.1) ),
+    indivTr( int(data->MaxT()+1.1 ) );
   float norm2 = 0. ;
   std::vector<float> vpos( 4 );
   vpos[0] = p[0];
@@ -209,7 +210,8 @@ anatomist::RoiDynSegmentAction::error( const anatomist::AObject* data,
   {
     return 100. ;
   }
-  return indiv.cross( errorMatrix.cross(indivTr) )(0,0) / norm2 ;
+  return carto::matrix_product(
+    indiv, carto::matrix_product( errorMatrix, indivTr ) )(0,0) / norm2 ;
 }
 
 
