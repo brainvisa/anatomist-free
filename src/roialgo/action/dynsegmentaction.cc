@@ -1147,10 +1147,9 @@ RoiDynSegmentAction::computeErrorMatrix( VolumeRef<float>& matriceIndiv,
   // Decomposition SVD 
   AimsSVD< double >  svd;
   svd.setReturnType( AimsSVD< double >::VectorOfSingularValues );
-  AimsData<double> matVarCov_d = matVarCov; // svd API is still AimsData
-  AimsData< double > eigenVal = svd.doit( matVarCov_d );
+  VolumeRef< double > eigenVal = svd.doit( matVarCov );
   
-  svd.sort(matVarCov_d, eigenVal);
+  svd.sort(matVarCov, eigenVal);
   
   // Calcul de la matrice d'erreurs
   vector< VolumeRef<float> > pkk(myOrder) ;
