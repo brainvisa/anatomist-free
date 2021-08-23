@@ -60,6 +60,7 @@
 
 using namespace anatomist ;
 using namespace aims;
+using namespace carto;
 using namespace std;
 
 namespace anatomist
@@ -415,7 +416,7 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bbmin, bbmax;
   vector<float> vs = g->voxelSize();
   vector<int> dims( 3, 1 );
@@ -425,9 +426,9 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
     dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0]
-        || labels.dimY() != dims[1]
-        || labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0]
+        || labels.getSizeY() != dims[1]
+        || labels.getSizeZ() != dims[2] )
     {
 
       g->clearLabelsVolume() ;
@@ -453,7 +454,7 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
 //       if( (*_sharedData->myCurrentChanges)[0][iter->first].before == 0 ) 
 //   	cout << "change.before == 0" << endl ;
       
-      labels( iter->first ) = 0  ;
+      labels->at( iter->first ) = 0;
       ++iter ;
     }
     
@@ -948,19 +949,19 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
   dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / vs[1] + .1 );
   dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / vs[2] + .1 );
   
-  AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
   Bucket * currentModifiedRegion = RoiChangeProcessor::instance()->getCurrentRegion( 0 ) ;
   ChangesItem item ;
   item.after = go ;
   item.before = 0 ;
 
   queue<Point3d> insideList ;
-  item.before = volumeOfLabels( mySeed ) ;
+  item.before = volumeOfLabels->at( mySeed ) ;
   
-  if( (!replaceMode) && (volumeOfLabels( mySeed ) != 0) )
+  if( (!replaceMode) && (volumeOfLabels->at( mySeed ) != 0) )
     return ;
 
-  volumeOfLabels( mySeed ) = currentModifiedRegion ;
+  volumeOfLabels->at( mySeed ) = currentModifiedRegion ;
   changes->push_back(pair<Point3d, ChangesItem>( mySeed, item ) )  ;
   insideList.push(mySeed) ;
     
@@ -969,73 +970,73 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
     insideList.pop() ;
     
     Point3d pc = p - myXAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ) )
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ) )
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     pc = p + myXAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     
     pc = p - myYAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     
     pc = p + myYAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     
     if( myDimensionMode == THREED ){
       pc = p - myZAxis ;
-      if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+      if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
 	if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	  if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	      < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( p ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( p ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
       
       pc = p + myZAxis ;
-      if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ) )
+      if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ) )
 	if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	  if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	      < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}

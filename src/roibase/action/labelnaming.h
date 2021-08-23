@@ -80,7 +80,7 @@ namespace anatomist
 		     std::list< std::pair< Point3d, ChangesItem> >& changes, 
 		     bool add, bool wholeImage ) ;
     bool fillPoint( const Point3d& pc, int t,
-		    AimsData<anatomist::AObject*>& volumeOfLabels, 
+		    carto::VolumeRef<anatomist::AObject*>& volumeOfLabels,
 		    anatomist::AGraphObject * region, short label,
 		    anatomist::AObject** toChange,
 		    std::queue<Point3d>& trialPoints, bool replace = false, bool add = true )  ;
@@ -109,12 +109,13 @@ namespace anatomist
 
 inline bool 
 anatomist::RoiLabelNamingAction::fillPoint( const Point3d& pc, int t,
-					    AimsData<anatomist::AObject*>& volumeOfLabels, 
+					    carto::VolumeRef<anatomist::AObject*>& volumeOfLabels,
 					    anatomist::AGraphObject * region, short label,
 					    anatomist::AObject** toChange,
 					    std::queue<Point3d>& trialPoints, bool replace, bool add )
 {
-  Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ()) ;
+  Point3d dims( volumeOfLabels.getSizeX(), volumeOfLabels.getSizeY(),
+                volumeOfLabels.getSizeZ() );
   if( in( dims, pc ) )
   {
     std::vector<float> vpos( 4 );
@@ -125,28 +126,28 @@ anatomist::RoiLabelNamingAction::fillPoint( const Point3d& pc, int t,
     float val = myCurrentImage->mixedTexValue( vpos );
     if (add)
     {
-      if( (volumeOfLabels( pc ) != region)
+      if( (volumeOfLabels->at( pc ) != region)
           &&  (short(rint(val) == label)
-          && ( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) ) )
+          && ( replace || ( (!replace) && volumeOfLabels->at( pc ) == 0 )) ) )
       {
-        /*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
+        /*     if( (volumeOfLabels->at( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
         trialPoints.push(pc) ;
-        *toChange = volumeOfLabels( pc ) ;
+        *toChange = volumeOfLabels->at( pc ) ;
 
-        volumeOfLabels( pc ) = region ;
+        volumeOfLabels->at( pc ) = region ;
         return true ;
       }
     }
     else
     {
-      if( (volumeOfLabels( pc ) != 0 ) && (short(rint(val) == label)
-          && ( replace || ( (!replace) && volumeOfLabels( pc ) == region ) ) ) )
+      if( (volumeOfLabels->at( pc ) != 0 ) && (short(rint(val) == label)
+          && ( replace || ( (!replace) && volumeOfLabels->at( pc ) == region ) ) ) )
       {
-        /*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
+        /*     if( (volumeOfLabels->at( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
         trialPoints.push(pc) ;
-        *toChange = volumeOfLabels( pc ) ;
+        *toChange = volumeOfLabels->at( pc ) ;
 
-        volumeOfLabels( pc ) = 0 ;
+        volumeOfLabels->at( pc ) = 0 ;
         return true ;
       }
     }

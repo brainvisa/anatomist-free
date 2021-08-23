@@ -98,13 +98,14 @@ struct PointLess : public std::binary_function< Point3d, Point3d , bool>
 
 template <class T>
 bool 
-in( const AimsData<T>& o, Point3df p, 
+in( const VolumeRef<T>& o, Point3df p,
     const Point3df & offset )
 {
   p -= offset;
-  if ( p[0] < 0 || p[0] > o.dimX() - 1 ||  
-       p[1] < 0 || p[1] > o.dimY() - 1 ||
-	 p[2] < 0 || p[2] > o.dimZ() - 1 )
+  vector<int> osize = o.getSize();
+  if ( p[0] < 0 || p[0] > osize[0] - 1 ||
+       p[1] < 0 || p[1] > osize[1] - 1 ||
+       p[2] < 0 || p[2] > osize[2] - 1 )
     return false ;
   
   return true ;
@@ -142,7 +143,7 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
   AGraph * g = RoiChangeProcessor::instance()->getGraph( view()->aWindow() ) ;
   if (!g) return ;
 
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -150,9 +151,9 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( labels.dimX() != dims[0]
-      || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  if( labels.getSizeX() != dims[0]
+      || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -161,7 +162,7 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
   AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject( view()->aWindow() ) ;
   grao->attributed()->setProperty("modified", true) ;
 
-  AimsData<AObject*> volOfLabels( g->volumeOfLabels( 0 ) ) ;
+  VolumeRef<AObject*> volOfLabels( g->volumeOfLabels( 0 ) ) ;
   AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
     {
@@ -195,7 +196,11 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
       float volOfElt = vs[0] * vs[1] * vs[2] ;
       _blobVolume = RoiLevelSetActionSharedData::instance()->maxSize()  ;
       if( _blobVolume <= 0 )
-        _blobVolume = labels.dimX() * labels.dimY() * labels.dimZ() * labels.sizeX() * labels.sizeY() * labels.sizeZ() ;
+      {
+        vector<float> vs = labels.getVoxelSize();
+        _blobVolume = labels.getSizeX() * labels.getSizeY() * labels.getSizeZ()
+          * vs[0] * vs[1] * vs[2];
+      }
 
       float percentageOfMax = RoiLevelSetActionSharedData::instance()->percentageOfMaximum() / 100. ;
       float minimum = 10000000. ;
@@ -235,11 +240,9 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
       Point3d pCurr, neigh ;
       float threshold = val;
 
-      AimsData<short> finalMap( volOfLabels.dimX(), volOfLabels.dimY(),
-                                volOfLabels.dimZ() ) ;
-      finalMap.setSizeXYZT( volOfLabels.sizeX(), volOfLabels.sizeY(),
-                            volOfLabels.sizeZ(), 1.0 ) ;
-      finalMap(posInt) = 1 ;
+      VolumeRef<short> finalMap( volOfLabels.getSize() );
+      finalMap.setVoxelSize( volOfLabels.getVoxelSize() );
+      finalMap.at(posInt) = 1 ;
 
       Point3d pMax, pMin ;
 
@@ -292,9 +295,9 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
 
             if( _blobType == BLOB )
             {
-              if( val > threshold && !finalMap(neigh) )
+              if( val > threshold && !finalMap.at(neigh) )
               {
-                finalMap(neigh) = 1 ;
+                finalMap.at(neigh) = 1 ;
                 if( PaintActionSharedData::instance()->replaceMode() ||
                     volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
                                   (unsigned) rint( neigh[1] - vlOffset[1] ),
@@ -306,9 +309,9 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
             }
             else
             {
-              if( val < threshold && !finalMap(neigh) )
+              if( val < threshold && !finalMap.at(neigh) )
               {
-                finalMap(neigh) = 1 ;
+                finalMap.at(neigh) = 1 ;
                 if( PaintActionSharedData::instance()->replaceMode() ||
                     volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
                                   (unsigned) rint( neigh[1] - vlOffset[1] ),
@@ -350,7 +353,7 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
             Point3d neigh = *itA + connec.xyzOffset(n) ;
             if( in( finalMap, Point3df(neigh[0], neigh[1], neigh[2]),
                     vlOffset ) )
-              if( !finalMap( neigh ) )
+              if( !finalMap.at( neigh ) )
                 if( frontSet.find(neigh) == frontSet.end() )
                 {
                   vpos[0] = neigh[0] * vs[0];
@@ -400,7 +403,7 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
 
           // cout << "maximum = " << maximum << "\tminimum = " << minimum << endl ;
 
-          finalMap( pCurr ) = 1 ;
+          finalMap.at( pCurr ) = 1 ;
           added.insert( pCurr ) ;
 
           for( int n = 0 ; n < connec.nbNeighbors() ; ++n )
@@ -410,11 +413,11 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
             if( in( volOfLabels, Point3df(neigh[0], neigh[1], neigh[2]),
                     vlOffset) )
               if( (PaintActionSharedData::instance()->replaceMode() ||
-                    volOfLabels( (unsigned) rint( neigh[0] - vlOffset[0] ),
-                                (unsigned) rint( neigh[1] - vlOffset[1] ),
-                                (unsigned) rint( neigh[2] - vlOffset[2] ) )
+                    volOfLabels.at( (unsigned) rint( neigh[0] - vlOffset[0] ),
+                                    (unsigned) rint( neigh[1] - vlOffset[1] ),
+                                    (unsigned) rint( neigh[2] - vlOffset[2] ) )
                         == 0)
-                    && !finalMap(neigh) )
+                    && !finalMap.at(neigh) )
               {
                 vpos[0] = neigh[0] * vs[0];
                 vpos[1] = neigh[1] * vs[1];
@@ -432,9 +435,9 @@ RoiBlobSegmentationAction::segmentBlob(int x, int y, int , int )
       {
         ChangesItem item ;
         item.before
-          = volOfLabels( (unsigned) rint( (*it)[0] - vlOffset[0] ),
-                          (unsigned) rint( (*it)[1] - vlOffset[1] ),
-                          (unsigned) rint( (*it)[2] - vlOffset[2] ) );
+          = volOfLabels.at( (unsigned) rint( (*it)[0] - vlOffset[0] ),
+                            (unsigned) rint( (*it)[1] - vlOffset[1] ),
+                            (unsigned) rint( (*it)[2] - vlOffset[2] ) );
         item.after = grao;
 
         currentChanges->push_back(pair<Point3d, ChangesItem>( *it, item ) );

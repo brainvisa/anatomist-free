@@ -3023,7 +3023,7 @@ RoiManagementAction::deleteRegion( )
       iter( currentRegion->bucket()[0].begin() ),
       last( currentRegion->bucket()[0].end() ) ;
 
-    AimsData<AObject*>& labels( gr->volumeOfLabels() );
+    VolumeRef<AObject*>& labels( gr->volumeOfLabels() );
     vector<float> bmin, bmax, vs;
     gr->boundingBox2D( bmin, bmax );
     vs = gr->voxelSize();
@@ -3031,15 +3031,15 @@ RoiManagementAction::deleteRegion( )
     dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0]
-        || labels.dimY() != dims[1]
-        || labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0]
+        || labels.getSizeY() != dims[1]
+        || labels.getSizeZ() != dims[2] )
     {
       gr->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
       gr->volumeOfLabels(0) ;
     }
 
-    AimsData<AObject*>& volOfLabels( gr->volumeOfLabels() ) ;
+    VolumeRef<AObject*>& volOfLabels( gr->volumeOfLabels() ) ;
 
     while ( iter != last){
       ChangesItem item ;
@@ -3047,7 +3047,7 @@ RoiManagementAction::deleteRegion( )
       item.before = graphObject ;
       changes->push_back(pair<Point3d, ChangesItem>( iter->first,  item ) )  ;
 
-      volOfLabels( iter->first ) = 0  ;
+      volOfLabels->at( iter->first ) = 0  ;
       ++iter ;
     }
 
