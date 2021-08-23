@@ -86,11 +86,10 @@ void ChangePaletteCommand::doit()
       return;
     }
 
-  AimsData<AimsRGBA>	dat( _colors.size() );
+  pal->reallocate( _colors.size() );
 
   for( i=0, n=_colors.size(); i<n; ++i )
-    dat[i] = _colors[i];
-  pal->AimsData<AimsRGBA>::operator = ( dat );
+    pal->at( i ) = _colors[i];
   pal->update();
 }
 

@@ -36,7 +36,7 @@
 #define ANA_COLOR_APALETTE_H
 
 
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 #include <aims/rgb/rgb.h>
 #include <string>
 
@@ -44,11 +44,11 @@
 namespace anatomist
 {
 
-  class APalette : public AimsData<AimsRGBA>
+  class APalette : public carto::Volume<AimsRGBA>
   {
   public:
     APalette( const std::string & name = "", unsigned dimx = 256, 
-	      unsigned dimy = 1, unsigned dimz = 1, unsigned dimt = 1 );
+              unsigned dimy = 1, unsigned dimz = 1, unsigned dimt = 1 );
     virtual ~APalette();
     std::string name() const { return( _name ); }
     void setName( const std::string & name ) { _name = name; }

@@ -901,7 +901,7 @@ void AObject::setProperties( Object /*options*/ )
             string palname = name();
             rc_ptr<APalette>      pal( new APalette( palname ) );
 
-            pal->AimsData<AimsRGBA>::operator = ( cmap );
+            pal->Volume<AimsRGBA>::operator = ( *cmap );
 
 //             theAnatomist->palettes().push_back( pal );
 
@@ -1124,9 +1124,7 @@ void AObject::setProperties( Object /*options*/ )
                   string palname = name();
                   rc_ptr<APalette>      pal( new APalette( palname ) );
 
-                  AimsData<AimsRGBA>    dat( teximage );
-
-                  pal->AimsData<AimsRGBA>::operator = ( dat );
+                  pal->Volume<AimsRGBA>::operator = ( *teximage );
 
                   theAnatomist->palettes().push_back( pal );
 

@@ -40,8 +40,8 @@ using namespace std;
 
 
 APalette:: APalette( const string & name, unsigned dimx, unsigned dimy, 
-		     unsigned dimz, unsigned dimt ) 
-  : AimsData<AimsRGBA>( dimx, dimy, dimz, dimt ), _name( name ),
+                     unsigned dimz, unsigned dimt )
+  : Volume<AimsRGBA>( dimx, dimy, dimz, dimt ), _name( name ),
     _transp( false )
 {
 }
@@ -54,13 +54,14 @@ APalette::~APalette()
 
 void APalette::update()
 {
-  unsigned x, y, z, t, dx = dimX(), dy = dimY(), dz = dimZ(), dt = dimT();
+  unsigned x, y, z, t, dx = getSizeX(), dy = getSizeY(), dz = getSizeZ(),
+    dt = getSizeT();
   _transp = false;
   for( t=0; t<dt && !_transp; ++t )
     for( z=0; z<dz && !_transp; ++z )
       for( y=0; y<dy && !_transp; ++y )
         for( x=0; x<dx; ++x )
-          if( (*this)( x, y, z, t ).alpha() != 255 )
+          if( this->at( x, y, z, t ).alpha() != 255 )
           {
             _transp = true;
             break;

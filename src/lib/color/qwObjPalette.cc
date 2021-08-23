@@ -538,12 +538,11 @@ void QAPaletteWin::fillPalettes()
     QTableWidgetItem *iconitem = new QTableWidgetItem;
     iconitem->setIcon( QIcon( pix ) );
     d->palettes->setItem( i, 1, iconitem );
-    const PythonHeader *ph 
-      = dynamic_cast<const PythonHeader *>( (*ip)->header() );
-    if( ph && ph->hasProperty( "display_properties" ) )
+    PropertySet & ph = (*ip)->header();
+    if( ph.hasProperty( "display_properties" ) )
     {
       // fill columns
-      Object props = ph->getProperty( "display_properties" );
+      Object props = ph.getProperty( "display_properties" );
       Object piter = props->objectIterator();
       while( piter->isValid() )
       {
@@ -868,7 +867,7 @@ AObjectPalette* QAPaletteWin::objPalette()
 
 void QAPaletteWin::fillPalette( const rc_ptr<APalette> pal, QPixmap & pm )
 {
-  unsigned		dimpx = pal->dimX(), dimpy = pal->dimY();
+  unsigned		dimpx = pal->getSizeX(), dimpy = pal->getSizeY();
   unsigned		dimx = dimpx, dimy = dimpy;
   unsigned		x, y;
 
@@ -1359,14 +1358,14 @@ void QAPaletteWin::updateObjPal()
   if( !pal )
     return;
   const rc_ptr<APalette> pal2 = objpal->refPalette2();
-  unsigned		dimx = pal->dimX(), dimy = pal->dimY();
+  unsigned		dimx = pal->getSizeX(), dimy = pal->getSizeY();
   unsigned		dimxmax = 256, dimymax = 256;
 
   if( d->dim <= 1 )
     dimy = 1;
   else if( pal2 )
     {
-      dimy = pal2->dimX();
+      dimy = pal2->getSizeX();
       if( dimy < 1 )
 	dimy = 1;
       else if( dimy > dimymax )

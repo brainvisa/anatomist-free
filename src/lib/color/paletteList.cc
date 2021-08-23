@@ -114,7 +114,7 @@ rc_ptr<APalette> PaletteList::loadPalette( const string & filename,
         try
         {
           //cout << "trying to read " << filename << " as RGBA...\n";
-          Reader<AimsData<AimsRGBA> > dr( filename );
+          Reader<Volume<AimsRGBA> > dr( filename );
           dr.read( *pal, 0, &format );
           pal->update();
         }
@@ -126,17 +126,20 @@ rc_ptr<APalette> PaletteList::loadPalette( const string & filename,
         try
         {
           //cout << "failed. Trying as RGB...\n";
-          Reader<AimsData<AimsRGB> >    dr2( filename );
-          AimsData<AimsRGB>                     tpal;
-          dr2.read( tpal, 0, &format );
+          Reader<Volume<AimsRGB> >    dr2( filename );
+          VolumeRef<AimsRGB>          tpal;
+          dr2.read( *tpal, 0, &format );
           // copy to RGBA array
-          AimsData<AimsRGBA>    tpal2( tpal.dimX(), tpal.dimY(),
-                                        tpal.dimZ(), tpal.dimT() );
+          VolumeRef<AimsRGBA>    tpal2( tpal.getSize() );
           long  x, y, z, t;
-          ForEach4d( tpal, x, y, z, t )
-            tpal2( x, y, z, t ) = tpal( x, y, z, t );
-          (AimsData<AimsRGBA> &) *pal = tpal2;
-          pal->setHeader( tpal.header()->cloneHeader() );
+          vector<int> tsize = tpal.getSize();
+          for( t=0; t<tsize[3]; ++t )
+            for( z=0; z<tsize[2]; ++z )
+              for( y=0; y<tsize[1]; ++y )
+                for( x=0; x<tsize[0]; ++x )
+                  tpal2( x, y, z, t ) = tpal( x, y, z, t );
+          (Volume<AimsRGBA> &) *pal = *tpal2;
+          pal->copyHeaderFrom( tpal.header() );
           pal->update();
         }
         catch( exception & )
@@ -190,7 +193,7 @@ void PaletteList::load( const string & dirname, bool clr )
     // create a default greyscale palette
     rc_ptr<APalette> pal( new APalette( "B-W LINEAR", 256 ) );
     for( int i=0; i<256; ++i )
-      (*pal)[i] = AimsRGBA( i, i, i, 255 );
+      pal->at( i ) = AimsRGBA( i, i, i, 255 );
     _pal.push_back( pal );
   }
 }
@@ -211,7 +214,7 @@ void PaletteList::save( const string & dirname, bool bin ) const
 #endif
       name = dirname + '/' + name;
       cout << "writing " << name << endl;
-      Writer<AimsData<AimsRGBA> >	dw( name );
+      Writer<Volume<AimsRGBA> >	dw( name );
       dw.write( **ip, !bin );
     }
 }

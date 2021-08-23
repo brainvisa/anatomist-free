@@ -54,10 +54,11 @@ namespace anatomist
       DIAGONAL
     };
 
-    typedef AimsRGBA (*MixMethod)( const AimsData<AimsRGBA> & map1, 
-				   const AimsData<AimsRGBA> *map2, 
-				   unsigned x, unsigned y, 
-				   const AObjectPalette & pal );
+    typedef AimsRGBA (*MixMethod)(
+      const carto::Volume<AimsRGBA> & map1,
+      const carto::Volume<AimsRGBA> *map2,
+      unsigned x, unsigned y,
+      const AObjectPalette & pal );
 
     AObjectPalette( carto::rc_ptr<APalette> pal );
     AObjectPalette( const AObjectPalette & x );
@@ -109,18 +110,18 @@ namespace anatomist
     void setZeroCenteredAxis1( bool x ) { _zeroCentered1 = x; }
     void setZeroCenteredAxis2( bool x ) { _zeroCentered2 = x; }
 
-    static AimsRGBA palette2DMixMethod( const AimsData<AimsRGBA> & map1, 
-					const AimsData<AimsRGBA> *map2, 
-					unsigned x, unsigned y, 
-					const AObjectPalette & pal );
-    static AimsRGBA linearMixMethod( const AimsData<AimsRGBA> & map1, 
-				     const AimsData<AimsRGBA> *map2, 
-				     unsigned x, unsigned y, 
-				     const AObjectPalette & pal );
-    static AimsRGBA geometricMixMethod( const AimsData<AimsRGBA> & map1, 
-					const AimsData<AimsRGBA> *map2, 
-					unsigned x, unsigned y, 
-					const AObjectPalette & pal );
+    static AimsRGBA palette2DMixMethod( const carto::Volume<AimsRGBA> & map1,
+                                        const carto::Volume<AimsRGBA> *map2,
+                                        unsigned x, unsigned y,
+                                        const AObjectPalette & pal );
+    static AimsRGBA linearMixMethod( const carto::Volume<AimsRGBA> & map1,
+                                     const carto::Volume<AimsRGBA> *map2,
+                                     unsigned x, unsigned y,
+                                     const AObjectPalette & pal );
+    static AimsRGBA geometricMixMethod( const carto::Volume<AimsRGBA> & map1,
+                                        const carto::Volume<AimsRGBA> *map2,
+                                        unsigned x, unsigned y,
+                                        const AObjectPalette & pal );
     bool set( const carto::GenericObject & );
     carto::Object genericDescription() const;
     /** Maximum size of the internal palette image.
