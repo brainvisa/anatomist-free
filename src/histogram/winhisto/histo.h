@@ -36,7 +36,7 @@
 #define ANATOMIST_HISTOGRAM_HISTO_H
 
 #include <anatomist/object/Object.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 
 class QAHistogram
 {

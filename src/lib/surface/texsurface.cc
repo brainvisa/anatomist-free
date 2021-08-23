@@ -44,7 +44,6 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 #include <graph/tree/tree.h>
-#include <aims/data/data.h>
 #include <aims/rgb/rgb.h>
 
 

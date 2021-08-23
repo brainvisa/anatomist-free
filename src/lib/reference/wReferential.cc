@@ -50,7 +50,6 @@
 #include <anatomist/misc/error.h>
 #include <anatomist/mobject/MObject.h>
 #include <aims/def/general.h>
-#include <aims/data/data.h>
 #include <QMouseEvent>
 #include <cartobase/object/pythonwriter.h>
 #include <cartobase/stream/fileutil.h>

@@ -38,7 +38,6 @@
 #include <anatomist/graph/Graph.h>
 #include <anatomist/graph/GraphObject.h>
 #include <anatomist/bucket/Bucket.h>
-#include <aims/data/data.h>
 #include <aims/vector/vector.h>
 #include <stack>
 

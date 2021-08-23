@@ -38,11 +38,11 @@
 #include "anatomist/controler/action.h"
 #include <anatomist/bucket/Bucket.h>
 #include <anatomist/object/Object.h>
-#include <aims/data/data.h>
-#include <aims/bucket/bucket.h>
 #include <anatomist/observer/Observer.h>
 #include <anatomist/observer/Observable.h>
 #include <anatomist/action/roichangeprocessor.h>
+#include <aims/bucket/bucket.h>
+#include <cartodata/volume/volume.h>
 #include <qobject.h>
 #include <QWidget>
 #include <string>

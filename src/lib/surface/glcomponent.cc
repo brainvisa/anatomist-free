@@ -41,7 +41,6 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/object/Object.h>
-#include <aims/data/data.h>
 #include <aims/rgb/rgb.h>
 #include <map>
 #include <vector>

@@ -41,7 +41,7 @@
 #include <anatomist/graph/AGraphIterator.h>
 #include <anatomist/surface/glcomponent.h>
 #include <graph/graph/graph.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 
 
 class QGraphProperties;
