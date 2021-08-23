@@ -729,11 +729,11 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   if( !objpal )
     return false;
 
-  const AimsData<AimsRGBA>	*cols = objpal->colors();
+  const Volume<AimsRGBA>	*cols = objpal->colors();
   float		min = objpal->min1(), max = objpal->max1();
   unsigned   	dimx = 65536;
   int           h;
-  unsigned	dimpx = cols->dimX();
+  unsigned	dimpx = cols->getSizeX();
   int		xs;
   const TexExtrema  & te = glTexExtrema( tex );
 
@@ -848,7 +848,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
     else if( xs >= (int) dimpx )
       xs = dimpx - 1;
 
-    rgb = (*cols)( xs, 0 );
+    rgb = cols->at( xs, 0 );
     palR[h % dimx] = (GLfloat) rgb.red()   / 255;
     palG[h % dimx] = (GLfloat) rgb.green() / 255;
     palB[h % dimx] = (GLfloat) rgb.blue()  / 255;
@@ -1315,11 +1315,11 @@ void VolRender::createDefaultPalette( const string & name )
         rc_ptr<APalette> apal = theAnatomist->palettes().find( pname );
         if( !apal )
         {
-          int dx = rpal->dimX(), x;
+          int dx = rpal->getSizeX(), x;
           apal.reset( new APalette( pname, dx ) );
           for( x=0; x<dx; ++x )
           {
-            const AimsRGBA & rgb = (*rpal)(x);
+            const AimsRGBA & rgb = rpal->at(x);
             AimsRGBA & xrgb = (*apal)(x);
             xrgb.red() = rgb.red();
             xrgb.green() = rgb.green();

@@ -106,7 +106,7 @@ GenerateTextureCommand::doit()
       ao->setName( theAnatomist->makeObjectName( "genrated_2D_texture" ) );
       ao->createDefaultPalette( "toto" );
       ao->palette()->set2dMode( true );
-      ao->palette()->create( ao->palette()->colors()->dimX(), 256 );
+      ao->palette()->create( ao->palette()->colors()->getSizeX(), 256 );
       ao->palette()->fill();
       theAnatomist->registerObject( ao );
       _outobject = ao;

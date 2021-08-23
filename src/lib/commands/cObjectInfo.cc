@@ -212,7 +212,7 @@ namespace
     {
       Object p = ex->getProperty( "palette" ); // done by makeHeaderOptions()
       // now we complement it a bit
-      p->setProperty( "colorMixSize", pal->colors()->dimX() );
+      p->setProperty( "colorMixSize", pal->colors()->getSizeX() );
     }
 
     // selected

@@ -36,7 +36,7 @@
 #define ANA_COLOR_OBJECTPALETTE_H
 
 #include <anatomist/color/palette.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
 
@@ -73,12 +73,13 @@ namespace anatomist
     void setRefPalette( carto::rc_ptr<APalette> pal )
     { if( _refPal != pal ) { clearColors(); _refPal = pal; } }
     void setRefPalette2( carto::rc_ptr<APalette> pal ) { _refPal2 = pal; }
-    const AimsData<AimsRGBA>* colors() const
+    const carto::Volume<AimsRGBA>* colors() const
     { if( !_colors ) const_cast<AObjectPalette *>(this)->fill();
-    return _colors; }
-    AimsData<AimsRGBA>* colors() { if( !_colors ) fill(); return _colors; }
+      return _colors.get(); }
+    carto::Volume<AimsRGBA>* colors()
+    { if( !_colors ) fill(); return _colors.get(); }
     void create( unsigned dimx, unsigned dimy = 1, unsigned dimz = 1, 
-		 unsigned dimt = 1 );
+                 unsigned dimt = 1 );
     virtual void fill();
     float min1() const { return( _min ); }
     float max1() const { return( _max ); }
@@ -153,7 +154,7 @@ namespace anatomist
     static std::map<std::string, MixMethod> defaultMixMethods();
 
     carto::rc_ptr<APalette> _refPal;
-    AimsData<AimsRGBA>	*_colors;
+    carto::VolumeRef<AimsRGBA>	_colors;
     float		_min;
     float		_max;
     carto::rc_ptr<APalette> _refPal2;

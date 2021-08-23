@@ -1319,7 +1319,7 @@ void VolRenderShader::createDefaultPalette( const string & name )
         rc_ptr<APalette> apal = theAnatomist->palettes().find( pname );
         if( !apal )
         {
-          int dx = rpal->dimX(), x;
+          int dx = rpal->getSizeX(), x;
           apal.reset( new APalette( pname, dx ) );
           for( x=0; x<dx; ++x )
           {
@@ -1640,13 +1640,13 @@ void VolRenderShader::loadTransferFunction()
   if( !objpal )
     return;
 
-  const AimsData<AimsRGBA>	*cols = objpal->colors();
+  const Volume<AimsRGBA>	*cols = objpal->colors();
   GLenum status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "VolRenderShader::loadTransferFunction : start with error : "
         << gluErrorString(status) << endl;
 
-cout << "Palette size : " << cols->dimX() << endl;
+  // cout << "Palette size : " << cols->getSizeX() << endl;
   glBindTexture( GL_TEXTURE_1D, d->m_texture[ 1 ] );
   status = glGetError();
   if( status != GL_NO_ERROR )
@@ -1662,9 +1662,9 @@ cout << "Palette size : " << cols->dimX() << endl;
     cerr << "VolRenderShader::loadTransferFunction : glTexParameteri error : "
         << gluErrorString(status) << endl;
   glTexImage1D( GL_TEXTURE_1D, 0, GL_RGBA, 
-                cols->dimX(), 0,
+                cols->getSizeX(), 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, 
-                &(*cols)(0) );
+                &cols->at(0) );
   status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "VolRenderShader::loadTransferFunction : glTexImage2D error : "

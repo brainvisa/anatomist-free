@@ -958,13 +958,13 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   if( !objpal )
     return VolumeRef<AimsRGBA>();
 
-  const AimsData<AimsRGBA>      *cols = objpal->colors();
+  const Volume<AimsRGBA>      *cols = objpal->colors();
   if( !cols )
     return VolumeRef<AimsRGBA>();
   float         min = objpal->min1(), max = objpal->max1();
   float         min2 = objpal->min2(), max2 = objpal->max2();
   unsigned      x, y;
-  unsigned      dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
+  unsigned      dimpx = cols->getSizeX(), dimpy = cols->getSizeY(), utmp;
   int           xs, ys;
   const TexInfo & t = glTexInfo( tex );
   TexInfo & ti = d->textures[ tex ];
@@ -1007,8 +1007,8 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   }
   float facx = ( (float) dimpx ) / ( ( max - min ) * dimx );
   float facy = ( (float) dimpy ) / ( ( max2 - min2 ) * dimy );
-  float dx = min * cols->dimX() / ( max - min );
-  float dy = min2 * cols->dimY() / ( max2 - min2 );
+  float dx = min * cols->getSizeX() / ( max - min );
+  float dy = min2 * cols->getSizeY() / ( max2 - min2 );
 
   // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
   /* if the texture image can contain the whole colormap, then use it unscaled,
@@ -1125,13 +1125,13 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   if( !objpal )
     return false;
 
-  const AimsData<AimsRGBA>	*cols = objpal->colors();
+  const Volume<AimsRGBA>	*cols = objpal->colors();
   if( !cols )
     return false;
   //float		min = objpal->min1(), max = objpal->max1();
   //float		min2 = objpal->min2(), max2 = objpal->max2();
   unsigned	dimx, dimy, x;
-  unsigned	dimpx = cols->dimX(), dimpy = cols->dimY(), utmp;
+  unsigned	dimpx = cols->getSizeX(), dimpy = cols->getSizeY(), utmp;
   unsigned	dimtex = glDimTex( state, tex );
   if(dimtex > 2)
   {

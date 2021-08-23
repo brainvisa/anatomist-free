@@ -1427,7 +1427,7 @@ namespace
 
   void recolorElement( AObject* ao, GenericObject* gen, const string & prop,
                        float fmin, float fmax, float scale, unsigned ncol,
-                       const AimsData<AimsRGBA> & cols, float galpha )
+                       const Volume<AimsRGBA> & cols, float galpha )
   {
     double  val;
     int     ind;
@@ -1457,7 +1457,7 @@ namespace
       else
       { */
 
-      const AimsRGBA        & rgb = cols( ind );
+      const AimsRGBA        & rgb = cols.at( ind );
       mat.SetDiffuse( (float) rgb.red()   / 255,
                        (float) rgb.green() / 255,
                        (float) rgb.blue()  / 255,
@@ -1485,10 +1485,10 @@ namespace
       maxval = -numeric_limits<double>::max();
     g.getOrCreatePalette();
     AObjectPalette	*objpal = g.palette();
-    AimsData<AimsRGBA>	*cols = objpal->colors();
+    Volume<AimsRGBA>	*cols = objpal->colors();
     float		cmin = objpal->min1(), cmax = objpal->max1();
     float		scale, fmin, fmax;
-    unsigned		ncol = cols->dimX();
+    unsigned		ncol = cols->getSizeX();
     shared_ptr<AObject>	ao;
     GLComponent::TexExtrema & ex = g.glTexExtrema();
 

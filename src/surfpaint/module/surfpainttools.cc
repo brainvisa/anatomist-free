@@ -1226,11 +1226,11 @@ void SurfpaintTools::floodFillStop(void)
 
   const AObjectPalette *pal = at->getOrCreatePalette();
 
-  const AimsData<AimsRGBA> *col = pal->colors();
+  const Volume<AimsRGBA> *col = pal->colors();
 
   int  ncol0;
 
-  ncol0 = col->dimX();
+  ncol0 = col->getSizeX();
 
   AimsRGBA empty;
 
@@ -1239,7 +1239,7 @@ void SurfpaintTools::floodFillStop(void)
     ind = 0;
   else if( ind >= ncol0 )
     ind = ncol0 - 1;
-  empty = (*col)( ind );
+  empty = col->at( ind );
 
   Material mat2;
   mat2.setRenderProperty(Material::Ghost, 1);
@@ -1538,11 +1538,11 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
 
     const AObjectPalette *pal = at->getOrCreatePalette();
 
-    const AimsData<AimsRGBA> *col = pal->colors();
+    const Volume<AimsRGBA> *col = pal->colors();
 
     int  ncol0;
 
-    ncol0 = col->dimX();
+    ncol0 = col->getSizeX();
 
     AimsRGBA empty;
 
@@ -1551,7 +1551,7 @@ void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
       ind = 0;
     else if( ind >= ncol0 )
       ind = ncol0 - 1;
-    empty = (*col)( ind );
+    empty = col->at( ind );
 
     Material mat2;
     mat2.setRenderProperty(Material::Ghost, 1);
@@ -1722,11 +1722,11 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
 
   const AObjectPalette *pal = at->getOrCreatePalette();
 
-  const AimsData<AimsRGBA> *col = pal->colors();
+  const Volume<AimsRGBA> *col = pal->colors();
 
   int  ncol0;
 
-  ncol0 = col->dimX();
+  ncol0 = col->getSizeX();
 
   AimsRGBA empty;
 
@@ -1735,7 +1735,7 @@ void SurfpaintTools::addSimpleShortPath(int indexSource,int indexDest)
     ind = 0;
   else if( ind >= (int)ncol0 )
     ind = ncol0 - 1;
-  empty = (*col)( ind );
+  empty = col->at( ind );
 
   Material mat2;
   mat2.setRenderProperty(Material::Ghost, 1);

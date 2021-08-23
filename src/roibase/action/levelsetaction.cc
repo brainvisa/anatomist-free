@@ -789,7 +789,7 @@ RoiLevelSetAction::realMin( ) const
   if ( _sharedData->myLowLevel > 1. )
     return _sharedData->myImageMax ;
   float factor = _sharedData->myLowLevel + ( _sharedData->myHighLevel - _sharedData->myLowLevel ) 
-    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->dimX() ;
+    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->getSizeX();
   
   
   return _sharedData->myImageMin + factor * ( _sharedData->myImageMax - _sharedData->myImageMin ) ;
@@ -806,7 +806,7 @@ RoiLevelSetAction::realMax( ) const
   if ( _sharedData->myHighLevel > 1. )
     return _sharedData->myImageMax ;
   float factor = _sharedData->myHighLevel - ( _sharedData->myHighLevel - _sharedData->myLowLevel ) 
-    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->dimX() ;
+    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->getSizeX();
   
   return _sharedData->myImageMin + factor * ( _sharedData->myImageMax - _sharedData->myImageMin ) ;
 }
@@ -869,14 +869,14 @@ RoiLevelSetAction::updateObjPal()
   if( !pal )
     return;
   rc_ptr<APalette>	pal2 = objpal->refPalette2();
-  unsigned		dimx = pal->dimX(), dimy = pal->dimY();
+  unsigned		dimx = pal->getSizeX(), dimy = pal->getSizeY();
   unsigned		dimxmax = 256, dimymax = 256;
 
   if( objpal->palette1DMapping() == AObjectPalette::FIRSTLINE )
     dimy = 1;
   else if( pal2 )
     {
-      dimy = pal2->dimX();
+      dimy = pal2->getSizeX();
       if( dimy < 1 )
 	dimy = 1;
       else if( dimy > dimymax )
