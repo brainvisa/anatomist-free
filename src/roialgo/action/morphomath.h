@@ -88,7 +88,7 @@ namespace anatomist
     int regionMode() { return myRegionMode ; }
     
   private:
-    AimsData<int16_t> * regionBinaryMask(  AGraphObject * go ) const ;
+    carto::VolumeRef<int16_t> regionBinaryMask( AGraphObject * go ) const ;
     
     DistanceMode myDistanceMode ;
     RegionMode myRegionMode ;
