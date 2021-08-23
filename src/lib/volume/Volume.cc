@@ -232,41 +232,6 @@ AVolume<T>::AVolume( const string & fname )
 
 
 template <class T>
-AVolume<T>::AVolume( const AimsData<T> & aims )
-  : AVolumeBase(), 
-    d( new PrivateData( this ) ), 
-    _volume( aims.volume() )
-{
-  _type = AObject::VOLUME;
-  glAddTextures( 1 );
-  glSetTexMode( glDECAL );
-  TexExtrema  & te = glTexExtrema( 0 );
-  te.min.push_back( 0 );
-  te.max.push_back( 0 );
-  te.minquant.push_back( 0 );
-  te.maxquant.push_back( 0 );
-  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
-}
-
-
-template <class T>
-AVolume<T>::AVolume( rc_ptr<AimsData<T> > aims )
-  : AVolumeBase(), 
-    d( new PrivateData( this ) ), _volume( aims->volume() )
-{
-  _type = AObject::VOLUME;
-  glAddTextures( 1 );
-  glSetTexMode( glDECAL );
-  TexExtrema  & te = glTexExtrema( 0 );
-  te.min.push_back( 0 );
-  te.max.push_back( 0 );
-  te.minquant.push_back( 0 );
-  te.maxquant.push_back( 0 );
-  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
-}
-
-
-template <class T>
 AVolume<T>::AVolume( rc_ptr<Volume<T> > aims )
   : AVolumeBase(),
     d( new PrivateData( this ) ), _volume( aims )
@@ -1308,13 +1273,6 @@ void AVolume<T>::setInternalsChanged()
 {
   glSetTexImageChanged( true, 0 );
   glSetTexEnvChanged( true, 0 );
-}
-
-
-template <typename T>
-void AVolume<T>::setVolume( carto::rc_ptr<AimsData<T> > vol )
-{
-  setVolume( vol->volume() );
 }
 
 

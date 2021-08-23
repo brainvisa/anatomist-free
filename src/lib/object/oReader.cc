@@ -935,18 +935,18 @@ namespace
     //	look for other files going together with the 1st compressed one
     set<string>	others;
 
-    checkFormats<AimsData<int8_t> >( ext, others );
-    checkFormats<AimsData<uint8_t> >( ext, others );
-    checkFormats<AimsData<int16_t> >( ext, others );
-    checkFormats<AimsData<uint16_t> >( ext, others );
-    checkFormats<AimsData<int32_t> >( ext, others );
-    checkFormats<AimsData<uint32_t> >( ext, others );
-    checkFormats<AimsData<int64_t> >( ext, others );
-    checkFormats<AimsData<uint64_t> >( ext, others );
-    checkFormats<AimsData<float> >( ext, others );
-    checkFormats<AimsData<double> >( ext, others );
-    checkFormats<AimsData<AimsRGB> >( ext, others );
-    checkFormats<AimsData<AimsRGBA> >( ext, others );
+    checkFormats<Volume<int8_t> >( ext, others );
+    checkFormats<Volume<uint8_t> >( ext, others );
+    checkFormats<Volume<int16_t> >( ext, others );
+    checkFormats<Volume<uint16_t> >( ext, others );
+    checkFormats<Volume<int32_t> >( ext, others );
+    checkFormats<Volume<uint32_t> >( ext, others );
+    checkFormats<Volume<int64_t> >( ext, others );
+    checkFormats<Volume<uint64_t> >( ext, others );
+    checkFormats<Volume<float> >( ext, others );
+    checkFormats<Volume<double> >( ext, others );
+    checkFormats<Volume<AimsRGB> >( ext, others );
+    checkFormats<Volume<AimsRGBA> >( ext, others );
     checkFormats<AimsSurfaceTriangle>( ext, others );
     checkFormats<BucketMap<Void> >( ext, others );
     checkFormats<Texture1d>( ext, others );
