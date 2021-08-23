@@ -1226,7 +1226,7 @@ QString ReferentialWindow::transformationToolTipText(
   QString text( "<h4>Transformation:  <img src=\"" );
   text += pixfname.c_str();
   text += "\"/></h4>";
-  AimsData<float> r = tr->motion().rotation();
+  VolumeRef<float> r = tr->motion().affine();
   text += "<table border=1 cellspacing=0><tr>"
       "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
       "<tr><td>"
