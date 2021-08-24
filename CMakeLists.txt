@@ -141,10 +141,6 @@ include_directories( ${ANATOMIST_INCLUDE_DIRS} )
 
 #set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall" )
 
-# don't warn on obsolete classes within this library: we still provide obsolete
-# features so we have to build them without warnings
-add_definitions( "-DAIMSDATA_CLASS_NO_DEPREC_WARNING=1" )
-
 add_subdirectory( src )
 add_subdirectory( doxygen )
 

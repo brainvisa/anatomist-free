@@ -32,6 +32,11 @@
  */
 
 
+// we don't want to issue a warning
+#ifndef AIMSDATA_CLASS_NO_DEPREC_WARNING
+#define AIMSDATA_CLASS_NO_DEPREC_WARNING
+#endif
+
 #include <anatomist/winhisto/histo.h>
 #include <anatomist/object/objectConverter.h>
 #include <aims/histogram/simpleHisto.h>

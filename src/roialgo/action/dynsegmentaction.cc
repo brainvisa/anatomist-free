@@ -35,7 +35,6 @@
 #include <anatomist/action/roichangeprocessor.h>
 #include <anatomist/action/roimanagementaction.h>
 #include <anatomist/action/paintaction.h>
-
 #include <anatomist/controler/view.h>
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/color/paletteList.h>
@@ -45,6 +44,7 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/reference/Transformation.h>
+#include <anatomist/misc/error.h>
 
 #include <QButtonGroup>
 #include <QGroupBox>
@@ -55,8 +55,7 @@
 #include <qcombobox.h>
 #include <queue>
 #include <aims/resampling/quaternion.h>
-#include <aims/math/math_g.h>
-#include <anatomist/misc/error.h>
+#include <aims/math/svd.h>
 
 using namespace anatomist ;
 using namespace aims;
