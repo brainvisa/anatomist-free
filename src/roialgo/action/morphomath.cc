@@ -37,7 +37,6 @@
 #include <anatomist/action/roimanagementaction.h>
 #include <anatomist/misc/error.h>
 #include <aims/morphology/morphology_g.h>
-#include <aims/data/data.h>  // still needed for conversion
 
 #include <QGroupBox>
 #include <qslider.h>
