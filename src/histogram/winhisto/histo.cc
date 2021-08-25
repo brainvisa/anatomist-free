@@ -32,11 +32,6 @@
  */
 
 
-// we don't want to issue a warning
-#ifndef AIMSDATA_CLASS_NO_DEPREC_WARNING
-#define AIMSDATA_CLASS_NO_DEPREC_WARNING
-#endif
-
 #include <anatomist/winhisto/histo.h>
 #include <anatomist/object/objectConverter.h>
 #include <aims/histogram/simpleHisto.h>
@@ -188,8 +183,8 @@ double *QAHistogram::doit( AObject *d )
     float bmin = (float)h.minValid();
     // float bmax = (float)h.maxValid();
     int64_t dX = pdim; // (int64_t)( bmax - bmin + 1.0f );
-    if( dX > h.data().dimX() )
-      dX = h.data().dimX(); // should rather rescale instead...
+    if( dX > h.data().getSizeX() )
+      dX = h.data().getSizeX(); // should rather rescale instead...
     // why this conversion/copy from SimpleHistogram to this ??
     double *y = new double[ pdim ];
     double *yptr = y + (int64_t)bmin - (int64_t)pmin;
