@@ -92,6 +92,7 @@ AObjectPalette::AObjectPalette( rc_ptr<APalette> pal )
     _maxSizeX( 256 ), _maxSizeY( 256 ), _glMaxSizeX( -1 ), _glMaxSizeY( -1 ),
     _zeroCentered1( false ), _zeroCentered2( false )
 {
+  _colors.reset( 0 );
 }
 
 
@@ -105,6 +106,7 @@ AObjectPalette::AObjectPalette( const AObjectPalette & x )
     _glMaxSizeX( -1 ), _glMaxSizeY( -1 ), _zeroCentered1( x._zeroCentered1 ),
     _zeroCentered2( x._zeroCentered2 )
 {
+  _colors.reset( 0 );
 }
 
 
@@ -164,7 +166,8 @@ void AObjectPalette::fill()
   if( !_refPal )
     return;
 
-  unsigned	dimpx = _refPal->getSizeX(), dimpy = _refPal->getSizeY(), xp, yp;
+  unsigned	dimpx = _refPal->getSizeX(), dimpy = _refPal->getSizeY(),
+    xp, yp;
 
   MixMethod	mm = _mixMethod;
   if( _refPal2 && _mode2d )
@@ -172,7 +175,7 @@ void AObjectPalette::fill()
   else
     mm = &palette2DMixMethod;
 
-  if( !_colors || _colors->getSizeX() == 0 || _colors->getSizeY() == 0 )
+  if( !_colors.get() || _colors->getSizeX() == 0 || _colors->getSizeY() == 0 )
   {
     unsigned dx = dimpx, dy = dimpy;
     if( _maxSizeX == 0 )
@@ -608,7 +611,7 @@ void AObjectPalette::clearColors()
 
 void AObjectPalette::copyColors( const AObjectPalette & pal )
 {
-  if( _colors )
+  if( _colors.get() )
     return;
   if( isSameColorsSize( *this, pal.colors() ) )
   {
@@ -623,7 +626,7 @@ void AObjectPalette::copyColors( const AObjectPalette & pal )
 void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
 {
   copyColors( pal );
-  if( _colors )
+  if( _colors.get() )
     return;
   fill();
 }

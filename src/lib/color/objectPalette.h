@@ -74,10 +74,10 @@ namespace anatomist
     { if( _refPal != pal ) { clearColors(); _refPal = pal; } }
     void setRefPalette2( carto::rc_ptr<APalette> pal ) { _refPal2 = pal; }
     const carto::Volume<AimsRGBA>* colors() const
-    { if( !_colors ) const_cast<AObjectPalette *>(this)->fill();
+    { if( !_colors.get() ) const_cast<AObjectPalette *>(this)->fill();
       return _colors.get(); }
     carto::Volume<AimsRGBA>* colors()
-    { if( !_colors ) fill(); return _colors.get(); }
+    { if( !_colors.get() ) fill(); return _colors.get(); }
     void create( unsigned dimx, unsigned dimy = 1, unsigned dimz = 1, 
                  unsigned dimt = 1 );
     virtual void fill();
