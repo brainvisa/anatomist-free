@@ -673,6 +673,8 @@ void QObjectTree::setObjectTypeName(int type, const std::string &name)
 
 void QObjectTree::setObjectTypeIcon(int type, const std::string &img)
 {
+  // ensure the base icons are already registered
+  initIcons();
   if (!TypeIcons[type].load(img.c_str()))
   {
     TypeIcons.erase(type);
