@@ -535,7 +535,7 @@ void ATexture::normalize()
 		max = val;
 	    }
 
-	cout << "min : " << min << ", max : " << max << endl;
+	// cout << "min : " << min << ", max : " << max << endl;
 	te.minquant.push_back( min );
 	te.maxquant.push_back( max );
 	if( min < 0 || max > rmax || max - min < rangemin )

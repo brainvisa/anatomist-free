@@ -124,8 +124,8 @@ PlanarFusion3D::PlanarFusion3D( const vector<AObject *> & obj )
   for( io=surf.begin(), fo=surf.end(); io!=fo; ++io )
     insert( *io );
   d->volindex = surf.size();
-  cout << "volindex: " << d->volindex << endl;
-  cout << "vols: " << vol.size() << endl;
+  // cout << "volindex: " << d->volindex << endl;
+  // cout << "vols: " << vol.size() << endl;
   for( io=vol.begin(), fo=vol.end(); io!=fo; ++io )
     insert( *io );
 
