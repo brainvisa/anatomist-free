@@ -237,6 +237,7 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
       }
 
       ATexSurface *ts = new ATexSurface( cm, tex );
+      ts->setReferentialInheritance( s );
       ts->setName( theAnatomist->makeObjectName( "CutSubTexSurf" ) );
       theAnatomist->registerObject( ts, false );
       insert( ts );
