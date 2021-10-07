@@ -1690,7 +1690,9 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
         string label;
         try
         {
-          label = labels->getArrayItem( itval )->getString();
+          Object olabel = labels->getArrayItem( itval );
+          if( olabel )
+            label = olabel->getString();
         }
         catch( ... )
         {
