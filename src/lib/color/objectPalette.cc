@@ -348,7 +348,7 @@ namespace
     }
     catch( ... )
     {
-      return rc_ptr<APalette>( 0 );
+      pname = "custom";
     }
 
     PaletteList     & pall = theAnatomist->palettes();
