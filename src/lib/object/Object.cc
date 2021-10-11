@@ -957,116 +957,117 @@ void AObject::setProperties( Object /*options*/ )
                 Object	iter;
                 for( i=0, iter=m->objectIterator(); i<n && iter->isValid();
                      ++i, iter->next() )
+                {
+                  Object	t = iter->currentValue();
+                  if( !t.isNone() )
                   {
-                    Object	t = iter->currentValue();
-                    if( !t.isNone() )
-                      try
+                    try
+                    {
+                        Object	tp = t->getProperty( "mode" );
+                        static map<string, GLComponent::glTextureMode> modes;
+                        if( modes.empty() )
+                          {
+                            modes[ "geometric"        ]
+                              = GLComponent::glGEOMETRIC;
+                            modes[ "linear"           ]
+                              = GLComponent::glLINEAR;
+                            modes[ "replace"          ]
+                              = GLComponent::glREPLACE;
+                            modes[ "decal"            ]
+                              = GLComponent::glDECAL;
+                            modes[ "blend"            ]
+                              = GLComponent::glBLEND;
+                            modes[ "add"              ]
+                              = GLComponent::glADD;
+                            modes[ "combine"          ]
+                              = GLComponent::glCOMBINE;
+                            modes[ "linear_on_nonnul" ]
+                              = GLComponent::glLINEAR_ON_DEFINED;
+                          }
+                        map<string, GLComponent::glTextureMode>::
+                          const_iterator
+                          im = modes.find( tp->getString() );
+                        if( im != modes.end() )
+                          g->glSetTexMode( im->second, i );
+                    }
+                    catch( ... )
+                    {
+                    }
+                    try
+                    {
+                      Object	tp = t->getProperty( "filtering" );
+                      static map<string, GLComponent::glTextureFiltering>
+                        filters;
+                      if( filters.empty() )
                         {
-                          Object	tp = t->getProperty( "mode" );
-                          static map<string, GLComponent::glTextureMode> modes;
-                          if( modes.empty() )
-                            {
-                              modes[ "geometric"        ] 
-                                = GLComponent::glGEOMETRIC;
-                              modes[ "linear"           ] 
-                                = GLComponent::glLINEAR;
-                              modes[ "replace"          ] 
-                                = GLComponent::glREPLACE;
-                              modes[ "decal"            ] 
-                                = GLComponent::glDECAL;
-                              modes[ "blend"            ] 
-                                = GLComponent::glBLEND;
-                              modes[ "add"              ] 
-                                = GLComponent::glADD;
-                              modes[ "combine"          ] 
-                                = GLComponent::glCOMBINE;
-                              modes[ "linear_on_nonnul" ] 
-                                = GLComponent::glLINEAR_ON_DEFINED;
-                            }
-                          map<string, GLComponent::glTextureMode>::
-                            const_iterator 
-                            im = modes.find( tp->getString() );
-                          if( im != modes.end() )
-                            g->glSetTexMode( im->second, i );
+                          filters[ "nearest"        ]
+                            = GLComponent::glFILT_NEAREST;
+                          filters[ "linear"         ]
+                            = GLComponent::glFILT_LINEAR;
                         }
+                      map<string, GLComponent::glTextureFiltering>::
+                        const_iterator
+                        im = filters.find( tp->getString() );
+                      if( im != filters.end() )
+                        g->glSetTexFiltering( im->second, i );
+                    }
                     catch( ... )
-                      {
-                      }
+                    {
+                    }
                     try
-                      {
-                        Object	tp = t->getProperty( "filtering" );
-                        static map<string, GLComponent::glTextureFiltering> 
-                          filters;
-                       if( filters.empty() )
-                          {
-                            filters[ "nearest"        ] 
-                              = GLComponent::glFILT_NEAREST;
-                            filters[ "linear"         ] 
-                              = GLComponent::glFILT_LINEAR;
-                          }
-                       map<string, GLComponent::glTextureFiltering>::
-                         const_iterator 
-                         im = filters.find( tp->getString() );
-                       if( im != filters.end() )
-                         g->glSetTexFiltering( im->second, i );
-                      }
+                    {
+                      Object	tp = t->getProperty( "generation" );
+                      static map<string, GLComponent::glAutoTexturingMode>
+                        gens;
+                      if( gens.empty() )
+                        {
+                          gens[ "none"           ]
+                            = GLComponent::glTEX_MANUAL;
+                          gens[ "object_linear"  ]
+                            = GLComponent::glTEX_OBJECT_LINEAR;
+                          gens[ "eye_linear"     ]
+                            = GLComponent::glTEX_EYE_LINEAR;
+                          gens[ "sphere_map"     ]
+                            = GLComponent::glTEX_SPHERE_MAP;
+                          gens[ "reflection_map" ]
+                            = GLComponent::glTEX_REFLECTION_MAP;
+                          gens[ "normal_map"     ]
+                            = GLComponent::glTEX_NORMAL_MAP;
+                        }
+                      map<string, GLComponent::glAutoTexturingMode>::
+                        const_iterator
+                        im = gens.find( tp->getString() );
+                      if( im != gens.end() )
+                        g->glSetAutoTexMode( im->second, i );
+                    }
                     catch( ... )
-                      {
-                      }
+                    {
+                    }
                     try
-                      {
-                        Object	tp = t->getProperty( "generation" );
-                        static map<string, GLComponent::glAutoTexturingMode> 
-                          gens;
-                        if( gens.empty() )
-                          {
-                            gens[ "none"           ] 
-                              = GLComponent::glTEX_MANUAL;
-                            gens[ "object_linear"  ] 
-                              = GLComponent::glTEX_OBJECT_LINEAR;
-                            gens[ "eye_linear"     ] 
-                              = GLComponent::glTEX_EYE_LINEAR;
-                            gens[ "sphere_map"     ] 
-                              = GLComponent::glTEX_SPHERE_MAP;
-                            gens[ "reflection_map" ] 
-                              = GLComponent::glTEX_REFLECTION_MAP;
-                            gens[ "normal_map"     ] 
-                              = GLComponent::glTEX_NORMAL_MAP;
-                          }
-                       map<string, GLComponent::glAutoTexturingMode>::
-                         const_iterator 
-                         im = gens.find( tp->getString() );
-                       if( im != gens.end() )
-                         g->glSetAutoTexMode( im->second, i );
-                      }
+                    {
+                      Object	tp = t->getProperty( "rate" );
+                      g->glSetTexRate( tp->getScalar(), i );
+                    }
                     catch( ... )
-                      {
-                      }
+                    {
+                    }
                     try
-                      {
-                        Object	tp = t->getProperty( "rate" );
-                        g->glSetTexRate( tp->getScalar(), i );
-                      }
+                    {
+                      Object	tp = t->getProperty( "interpolation" );
+                      static map<string, bool>	inters;
+                      if( inters.empty() )
+                        {
+                          inters[ "palette" ] = false;
+                          inters[ "rgb"     ] = true;
+                        }
+                      map<string, bool>::const_iterator
+                        im = inters.find( tp->getString() );
+                      if( im != inters.end() )
+                        g->glSetTexRGBInterpolation( im->second, i );
+                    }
                     catch( ... )
-                      {
-                      }
-                    try
-                      {
-                        Object	tp = t->getProperty( "interpolation" );
-                        static map<string, bool>	inters;
-                       if( inters.empty() )
-                          {
-                            inters[ "palette" ] = false;
-                            inters[ "rgb"     ] = true;
-                          }
-                       map<string, bool>::const_iterator 
-                         im = inters.find( tp->getString() );
-                       if( im != inters.end() )
-                         g->glSetTexRGBInterpolation( im->second, i );
-                      }
-                    catch( ... )
-                      {
-                      }
+                    {
+                    }
                     for( int p=0; p<3; ++p )
                       try
                       {
@@ -1087,6 +1088,7 @@ void AObject::setProperties( Object /*options*/ )
                       {
                       }
                   }
+                }
               }
             catch( ... )
               {
