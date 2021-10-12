@@ -366,7 +366,8 @@ namespace
         {
           n = colors->size() / 4;
           if( n * 4 != colors->size() )
-            cerr << "Wrong number of numbers, should be a multiple of 4\n";
+            cerr << "Wrong number of color components, should be a multiple "
+                 << "of 4\n";
           else
           {
             for( i=0; i<n; ++i )
@@ -388,7 +389,8 @@ namespace
         {
           n = colors->size() / 3;
           if( n * 3 != colors->size() )
-            cerr << "Wrong number of numbers, should be a multiple of 3\n";
+            cerr << "Wrong number of color components, should be a multiple "
+                 << "of 3\n";
           else
           {
             for( i=0; i<n; ++i )
