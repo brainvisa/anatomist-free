@@ -309,6 +309,7 @@ namespace
     string colors_key = "colors";
     string image_key = "image";
     string colmode_key = "color_mode";
+    bool palette_found = false;
     if( index == 1 )
     {
       palette_key = "palette2";
@@ -345,6 +346,7 @@ namespace
     try
     {
       pname = obj.getProperty( palette_key )->getString();
+      palette_found = true;
     }
     catch( ... )
     {
@@ -440,6 +442,9 @@ namespace
     }
     else
     {
+      if( !palette_found )
+        return p;  // no warning, we were not looking for this specific one.
+
       p = pall.find( pname );
       if( !p )
         cerr << "AObjectPalette::set : warning: " << palette_key << " \""
