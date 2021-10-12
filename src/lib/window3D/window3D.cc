@@ -1690,9 +1690,12 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
         string label;
         try
         {
-          Object olabel = labels->getArrayItem( itval );
-          if( olabel )
-            label = olabel->getString();
+          if( labels->hasItem( itval ) )
+          {
+            Object olabel = labels->getArrayItem( itval );
+            if( olabel )
+              label = olabel->getString();
+          }
         }
         catch( ... )
         {
@@ -1753,13 +1756,16 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
                 if( labels.get() )
                 {
                   string label;
-                  try
+                  if( labels->hasItem( int( rint( tval ) ) ) )
                   {
-                    label = labels->getArrayItem(
-                      int( rint( tval ) ) )->getString();
-                  }
-                  catch( ... )
-                  {
+                    try
+                    {
+                      label = labels->getArrayItem(
+                        int( rint( tval ) ) )->getString();
+                    }
+                    catch( ... )
+                    {
+                    }
                   }
                   texlabels.push_back( label );
                 }
