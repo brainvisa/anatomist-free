@@ -599,10 +599,12 @@ def pyShell():
         except:
             return 0
     print('PyShell imported')
+    old_argv = sys.argv
     sys.argv = ['anatomist']
     # shellThread = threading.Thread( target=main )
     # shellThread.start()
     main()
+    sys.argv = old_argv
     return 1
 
 
