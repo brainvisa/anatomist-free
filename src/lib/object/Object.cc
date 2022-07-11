@@ -926,6 +926,16 @@ void AObject::setProperties( Object /*options*/ )
             opal->setMin2( 0. );
             opal->setMax2( 1. );
             setPalette( *opal );
+
+            // copy labels table, if any
+            try
+            {
+              Object labels = cmap->header().getProperty( "labels" );
+              pao->attributed()->setProperty( "labels", labels );
+            }
+            catch( ... )
+            {
+            }
           }
 
           // palette
@@ -944,6 +954,29 @@ void AObject::setProperties( Object /*options*/ )
           catch( ... )
             {
             }
+
+          // if labels are present, set the texture properties to labels mode,
+          // using RGB interpolation
+          try
+          {
+            Object labels = o->getProperty( "labels" );
+            Object tprop = Object::value( carto::ObjectVector() );
+            try
+            {
+              tprop = pao->attributed()->getProperty( "texture_properties" );
+            }
+            catch( ... )
+            {
+            }
+            if( tprop->size() < 1 )
+              tprop->insertArrayItem( 0, Object::value( Dictionary() ) );
+            Object t0prop = tprop->getArrayItem( 0 );
+            t0prop->setProperty( "interpolation", "rgb" );
+            pao->attributed()->setProperty( "texture_properties", tprop );
+          }
+          catch( ... )
+          {
+          }
 
           // texture properties
           if( g && g->glNumTextures() > 0 )
