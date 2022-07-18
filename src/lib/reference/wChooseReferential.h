@@ -57,12 +57,15 @@ class ChooseReferentialWindow : public QDialog, public anatomist::Observer
 
 public:
   ChooseReferentialWindow( const std::set<anatomist::AObject *> &, 
-			   const char *name, Qt::WindowFlags = 0 );
+                           const char *name,
+                           Qt::WindowFlags = Qt::WindowFlags() );
   ChooseReferentialWindow( const std::set<anatomist::AWindow *> &, 
-			   const char *name, Qt::WindowFlags = 0 );
+                           const char *name,
+                           Qt::WindowFlags = Qt::WindowFlags() );
   ChooseReferentialWindow( const std::set<anatomist::AWindow *> &, 
-			   const std::set<anatomist::AObject *> &, 
-			   const char *name, Qt::WindowFlags = 0 );
+                           const std::set<anatomist::AObject *> &,
+                           const char *name,
+                           Qt::WindowFlags = Qt::WindowFlags() );
   virtual ~ChooseReferentialWindow();
 
   void update(const anatomist::Observable* observable, void* arg);

@@ -107,7 +107,7 @@ void ConstraintEditorWindow::constraintTexOpen()
 
   QString filename;
 
-  filename = QFileDialog::getOpenFileName( 0, capt, QString::null, filt );
+  filename = QFileDialog::getOpenFileName( 0, capt, QString(), filt );
 
   if( d->meshSelect )
   {
@@ -157,7 +157,7 @@ void ConstraintEditorWindow::constraintListOpen()
 
   QString filename;
 
-  filename = QFileDialog::getOpenFileName( 0, capt, QString::null, filt );
+  filename = QFileDialog::getOpenFileName( 0, capt, QString(), filt );
 
   d->constraintListValues->clear();
   d->constraintList.clear();

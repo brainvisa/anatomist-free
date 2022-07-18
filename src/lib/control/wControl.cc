@@ -757,7 +757,7 @@ void ControlWindow::replayScenario()
   QFileDialog	& fd = fileDialog();
   QString filter = tr( "Scenario" ) + " (*.ana)";
   QString caption = tr( "Open scenario" );
-  /*QString filename = QFileDialog::getOpenFileName( QString::null,
+  /*QString filename = QFileDialog::getOpenFileName( QString(),
     filter, 0, 0, caption );*/
   fd.setNameFilter( filter );
   fd.setWindowTitle( caption );
@@ -1149,7 +1149,7 @@ void ControlWindow::saveWindowsConfig()
   QString filter = tr( "Anatomist scripts" ) + " (*.ana)";
   QString caption = tr( "Save windows configuration" );
   QString filename = QFileDialog::getSaveFileName( this, caption, 
-    QString::null, filter, 0, 0 );
+    QString(), filter, 0, QFileDialog::Options() );
   if ( !filename.isEmpty() )
   {
     AWinConfigIO cio;

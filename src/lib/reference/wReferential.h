@@ -58,7 +58,7 @@ class ReferentialWindow : public QWidget
 
 public:
   ReferentialWindow( QWidget* parent = 0, const char* name = 0, 
-		     Qt::WindowFlags f = 0 );
+		     Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~ReferentialWindow();
 
   /// updates contents (new referentials or transformations...)

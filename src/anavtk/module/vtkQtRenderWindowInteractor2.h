@@ -68,11 +68,11 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
   vtkQtRenderWindowInteractor2();
   vtkQtRenderWindowInteractor2( QWidget* parent=0, const char* name=0,
                                 const QGLWidget* shareWidget = 0,
-                                Qt::WindowFlags f=0 );
+                                Qt::WindowFlags f=Qt::WindowFlags() );
   vtkQtRenderWindowInteractor2( const QGLFormat& format, QWidget* parent=0,
                                 const char* name=0,
                                 const QGLWidget* shareWidget = 0,
-                                Qt::WindowFlags f=0 );
+                                Qt::WindowFlags f=Qt::WindowFlags() );
   
   static int IsTypeOf(const char *type)
   {

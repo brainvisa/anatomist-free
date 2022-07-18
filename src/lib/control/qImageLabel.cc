@@ -53,22 +53,13 @@ struct QImageLabel_privateData
 {
   QImageLabel_privateData()
     : movie( 0 )
-#if QT_VERSION < 0x040000
-    , ttg( 0 )
-#endif
   {}
   ~QImageLabel_privateData()
   {
-#if QT_VERSION < 0x040000
-    delete movie;
-#endif
     movie = 0;
   }
 
   QMovie	*movie;
-#if QT_VERSION < 0x040000
-  QToolTipGroup	*ttg;
-#endif
 };
 
 
@@ -87,17 +78,9 @@ QImageLabel::QImageLabel( QWidget* parent, const char* name,
     setAlignment( Qt::AlignCenter );
   installImage();
 
-#if QT_VERSION >= 0x040000
   setToolTip( tr( "  This big stupid logo annoys you ?  \n"
                   "  Remove it !\n"
                   "  (in Settings->Prefs)..." ) );
-#else
-  _privdata->ttg = new QToolTipGroup( this );
-  QToolTip::add( this, tr( "  This big stupid logo annoys you ?  \n"
-			   "  Remove it !\n"
-			   "  (in Settings->Prefs)..." ), _privdata->ttg, "" );
-  connect( _privdata->ttg, SIGNAL( removeTip() ), this, SLOT( removeTip() ) );
-#endif
 }
 
 
@@ -164,67 +147,22 @@ void QImageLabel::movieStatusChanged( int s )
 
 void QImageLabel::mousePressEvent( QMouseEvent* e )
 {
-  if( e->button() == Qt::RightButton && !movie() )
-    {
-#if QT_VERSION >= 0x040000
-/*
-      if( !_privdata->movie )
-	{
-	  _privdata->movie = 
-	    new QMovie( Settings::findResourceFile(
-                        "movie/anatomist.gif" ).c_str(), QByteArray(),
-                        this );
-          connect( _privdata->movie, 
-                   SIGNAL( stateChanged( QMovie::MovieState ) ), 
-                   this, SLOT( stateChanged( QMovie::MovieState ) ) );
-	}
-      else
-	{
-	  _privdata->movie->start();
-	}
-      setMovie( _privdata->movie );
-*/
-#else
-
-      if( !_privdata->movie )
-	{
-	  _privdata->movie = 
-	    new QMovie( Settings::findResourceFile(
-                        "movie/anatomist.gif" ).c_str() );
-	  _privdata->movie->connectStatus( this, 
-					   SLOT( movieStatusChanged( int ) ) );
-	}
-      else
-	{
-	  _privdata->movie->restart();
-	  //QRect	sz = _privdata->movie->getValidRect();
-	  //resize( sz.width(), sz.height() );
-	}
-      setMovie( *_privdata->movie );
-#endif
-    }
   QLabel::mousePressEvent( e );
 }
 
 
 void QImageLabel::removeTip()
 {
-#if QT_VERSION >= 0x040000
-  setToolTip( QString::null );
-#else
-  _privdata->ttg->setEnabled( false );
-#endif
+  setToolTip( QString() );
 }
 
 
-#if QT_VERSION >= 0x040000
 bool QImageLabel::event( QEvent* e )
 {
   if( e->type() == QEvent::ToolTip )
     QTimer::singleShot( 3000, this, SLOT( removeTip() ) );
   return QLabel::event( e );
 }
-#endif
 
 
 

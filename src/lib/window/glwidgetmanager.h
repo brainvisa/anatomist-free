@@ -169,7 +169,7 @@ namespace anatomist
     void setAutoCentering( bool );
     bool autoCentering() const;
     virtual void recordStart( const QString & basename, 
-                              const QString & format = QString::null,
+                              const QString & format = QString(),
                               int width=0, int height=0 );
     void saveContents( const QString & filename, const QString & format,
                        int width=0, int height=0 );

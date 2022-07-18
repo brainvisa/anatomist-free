@@ -46,9 +46,11 @@ class GLWidget : public QGLWidget
     Q_OBJECT
 public:
     GLWidget( QWidget* parent=0, const char* name=0,
-              const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0 );
+              const QGLWidget* shareWidget = 0,
+              Qt::WindowFlags f=Qt::WindowFlags() );
     GLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
-              const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0 );
+              const QGLWidget* shareWidget = 0,
+              Qt::WindowFlags f=Qt::WindowFlags() );
     virtual ~GLWidget();
 };
 

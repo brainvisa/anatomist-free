@@ -561,7 +561,7 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
     pdat->tracking = false;
     QPainter	p( this );
     p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
-                  *pdat->view2d->pixmap() );
+                  pdat->view2d->pixmap( Qt::ReturnByValue ) );
 
     QPoint		dummy;
     pdat->dstref = refAt( ev->pos(), dummy );
@@ -629,7 +629,7 @@ void ReferentialWindow::mouseMoveEvent( QMouseEvent* ev )
   {
     QPainter	p( this );
     p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
-                  *pdat->view2d->pixmap() );
+                  pdat->view2d->pixmap( Qt::ReturnByValue ) );
     p.drawLine( pdat->view2d->mapToParent( pdat->pos ),
                 pdat->view2d->mapFromParent( ev->pos() ) );
   }

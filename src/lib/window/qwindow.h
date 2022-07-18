@@ -55,7 +55,7 @@ public:
 
   QAWindow( QWidget* parent = 0, const char* name = 0, 
 	    carto::Object params = carto::none(), 
-            Qt::WindowFlags f = 0 );
+            Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~QAWindow();
 
   virtual void setGeometry( int x, int y, unsigned w, unsigned h );

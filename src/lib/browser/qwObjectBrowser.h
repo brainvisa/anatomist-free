@@ -76,7 +76,7 @@ public:
 
   QObjectBrowser( QWidget * parent=0, const char * name=0, 
                   carto::Object options = carto::none(), 
-                  Qt::WindowFlags f = 0 );
+                  Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~QObjectBrowser();
 
   virtual Type type() const;

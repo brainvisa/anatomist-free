@@ -55,7 +55,7 @@ class MaterialWindow : public QWidget, public anatomist::Observer
 
 public:
   MaterialWindow( const std::set<anatomist::AObject *> &, QWidget* parent = 0, 
-		  const char *name = 0, Qt::WindowFlags f = 0 );
+		  const char *name = 0, Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~MaterialWindow();
 
   const std::set<anatomist::AObject*>& objects() const { return _parents; }

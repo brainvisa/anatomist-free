@@ -54,7 +54,7 @@ class vtkQAGLWidget3D : public vtkQAGLWidget
 public:
   vtkQAGLWidget3D( anatomist::AWindow* win, QWidget* parent = 0, 
                    const char* name = 0, const QGLWidget * shareWidget = 0,
-                   Qt::WindowFlags f=0 );
+                   Qt::WindowFlags f=Qt::WindowFlags() );
   virtual ~vtkQAGLWidget3D();
 
   virtual std::string name() const;

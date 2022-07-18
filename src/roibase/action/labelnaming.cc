@@ -464,7 +464,7 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
                                     "Do you still want to proceed ?"),
                     RoiManagementActionView::tr("&Yes"),
                     RoiManagementActionView::tr("&No"),
-                    QString::null, 0, 1 ) ;
+                    QString(), 0, 1 ) ;
         //cout << "Mess box res = " << res << endl ;
         if( res == 1 )
           proceed = false ;

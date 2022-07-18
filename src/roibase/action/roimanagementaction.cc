@@ -1973,7 +1973,7 @@ RoiManagementAction::selectHierarchy( const string& hieName, int hieId )
 							    "Do you want to save it ?"),
 				RoiManagementActionView::tr("&Yes"),
 				RoiManagementActionView::tr("&No"),
-				      QString::null, 0, 1 ) ;
+				      QString(), 0, 1 ) ;
       //cout << "Mess box res = " << res << endl ;
       if( res == 0 )
 	saveUDHierarchy() ;
@@ -2060,7 +2060,7 @@ RoiManagementAction::newUDHierarchy( const string& name )
 							    "Do you want to save it ?"),
 				RoiManagementActionView::tr("&Yes"),
 				RoiManagementActionView::tr("&No"),
-				      QString::null, 0, 1 ) ;
+				      QString(), 0, 1 ) ;
       //cout << "Mess box res = " << res << endl ;
       if( res == 0 )
 	saveUDHierarchy() ;
@@ -2132,7 +2132,7 @@ RoiManagementAction::loadUDHierarchy( const string& hierarchyName )
 							    "Do you want to save it ?"),
 				RoiManagementActionView::tr("&Yes"),
 				RoiManagementActionView::tr("&No"),
-				      QString::null, 0, 1 ) ;
+				      QString(), 0, 1 ) ;
       //cout << "Mess box res = " << res << endl ;
       if( res == 0 )
 	saveUDHierarchy() ;

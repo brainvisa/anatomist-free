@@ -47,7 +47,8 @@ class QImageLabel : public QLabel
   Q_OBJECT
 
 public:
-  QImageLabel( QWidget* parent, const char* name=0, Qt::WindowFlags f=0 );
+  QImageLabel( QWidget* parent, const char* name=0,
+               Qt::WindowFlags f=Qt::WindowFlags() );
   virtual ~QImageLabel();
 
   void installImage();
