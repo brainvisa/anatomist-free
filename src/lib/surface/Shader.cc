@@ -117,8 +117,11 @@ bool Shader::Private::init_shader_programs_p(void)
 
 static void doDeleteInternal(QGLShaderProgram **obj)
 {
-  delete obj[0];
-  delete[] obj;
+  if( obj )
+  {
+    delete obj[0];
+    delete[] obj;
+  }
 }
 
 
