@@ -278,7 +278,7 @@ void Shader::load_if_needed(void)
   if (not d->_shader_program_p.isNull())
     d->_shader_program_p.clear();
 
-  if (not shader_program_w.data())
+  if( !shader_program_w.toStrongRef().data())
   {
     QGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
     shared_widget->makeCurrent();
@@ -316,7 +316,7 @@ void Shader::reload(void)
   QGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
   shared_widget->makeCurrent();
   QGLShaderProgram *pgm = new QGLShaderProgram(shared_widget->context());
-  (shader_program_w.data())[0] = pgm;
+  (shader_program_w.toStrongRef().data())[0] = pgm;
   load();
 }
 
