@@ -256,9 +256,7 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
   resize( 500, 400 );
   pdat->view2d->setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
-#if QT_VERSION >= 0x050000
-#warning Qt::WA_PaintOutsidePaintEvent not set.
-#else
+#if QT_VERSION < 0x050000
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
 #endif
   // switch directly to the 3D view
@@ -560,8 +558,13 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
   {
     pdat->tracking = false;
     QPainter	p( this );
+#if QT_VERSION >= 0x050F00
     p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
                   pdat->view2d->pixmap( Qt::ReturnByValue ) );
+#else
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  *pdat->view2d->pixmap() );
+#endif
 
     QPoint		dummy;
     pdat->dstref = refAt( ev->pos(), dummy );
@@ -628,8 +631,13 @@ void ReferentialWindow::mouseMoveEvent( QMouseEvent* ev )
   if( pdat->tracking )
   {
     QPainter	p( this );
+#if QT_VERSION >= 0x050F00
     p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
                   pdat->view2d->pixmap( Qt::ReturnByValue ) );
+#else
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  *pdat->view2d->pixmap() );
+#endif
     p.drawLine( pdat->view2d->mapToParent( pdat->pos ),
                 pdat->view2d->mapFromParent( ev->pos() ) );
   }
