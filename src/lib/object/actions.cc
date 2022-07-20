@@ -664,7 +664,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               // GIFTI Talairach
               ref = Referential::giftiTalairachReferential();
             }
-            else if( uid.toString() != sref)
+            else if( uid.toString() != sref && sref.substr( 0, 3 ) != "ID:" )
             {
                 // sref doesn't correspond to an UUID, so it is not unique
               sref = sref + " " + toString(i) + " for " + (*io)->name();
@@ -672,7 +672,15 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               uid = carto::UUID();
             }
             else
+            {
+              if( sref.substr( 0, 3 ) == "ID:" )
+              {
+                sref = sref.substr( 3, sref.length() - 3 );
+                while( !sref.empty() && sref[0] == ' ' )
+                  sref = sref.substr( 1, sref.length() - 1 );
+              }
               ref = Referential::referentialOfUUID( sref );
+            }
             if( !ref )
             {
               ref = Referential::referentialOfName( sref );
