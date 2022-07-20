@@ -1836,7 +1836,9 @@ Some of these properties are interpreted by Anatomist, and may bring information
   referential identifier. The referential property is the one used directly for the object coordinates system. It may be a string identifier for a known referential, or an UUID (unique identifier), with the shape "9a839283-7642-d21a-f67a-836a205be5e3" for instance. Referential identifiers may be used in transformations to handle coordinates systems. String identifiers refer to "standard" referentials, and are mostly derived from the NIFTI referentials identifiers: "Scanner-based anatomical coordinates", "Talairach-MNI template-SPM", "Talairach-AC/PC-Anatomist", "Talairach", "Coordinates aligned to another file or to anatomical truth".
 
 .. |referentials_prop_doc| replace::
-  This is a list of referentials, used as destinations for transformations. The "transformations" property should be the same size as referentials: there is a one-to-one mapping between them. The values are interpreted the same way as for referential.
+  This is a list of referentials, used as destinations for transformations. The "transformations" property should be the same size as referentials: there is a one-to-one mapping between them. The values are interpreted the same way as for referential. Referential names are considered "local", this means are not shared between objects, unless they are a UUID or a known referential name (Talairach, MNI).
+
+  *New in Anatomist 5.1*: a referential name starting with "ID:" is no longer local, and is shared between objects. The beginning "ID:" is removed from the actual name at load time.
 
 .. |transformations_prop_doc| replace::
   A list of affine transformation matrices. Each of them transforms from the object referential (see the "referential" property) to another referential listed in the "referentials" property. Each transformation is given as a list of affine matrix (4x4) coefficients: 16 numbers, the matrix is written as lines.
