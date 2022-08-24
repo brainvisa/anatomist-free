@@ -574,12 +574,12 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     daparent = gv;
     hbl->addWidget( daparent );
   }
-  if (glWidgetCreator())
-    d->draw = glWidgetCreator()(this, daparent, "GL drawing area",
-        GLWidgetManager::sharedWidget(), 0);
+  if( glWidgetCreator() )
+    d->draw = glWidgetCreator()( this, daparent, "GL drawing area",
+        GLWidgetManager::sharedWidget(), Qt::WindowFlags() );
   else
-    d->draw = new QAGLWidget3D(this, daparent, "GL drawing area",
-        GLWidgetManager::sharedWidget());
+    d->draw = new QAGLWidget3D( this, daparent, "GL drawing area",
+        GLWidgetManager::sharedWidget() );
   if( gv )
   {
     gv->setViewport( d->draw->qglWidget() );
@@ -1991,11 +1991,15 @@ void AWindow3D::setupSliceSlider()
 void AWindow3D::changeTimeSliders( int slider_num, int value )
 {
   int sl = slider_num - 1;
-  if( value != (int) _timepos[ sl ] )
+  float timestep = windowGeometry()->stepSize()[sl + 3];
+  if( timestep == 0.f )
+    timestep = 1.f;
+  if( value != (int) (_timepos[ sl ] / timestep ) )
   {
-    float timestep = windowGeometry()->stepSize()[sl + 3];
     float tvalue = value * timestep;
-    d->slicelabels[slider_num]->setText( QString::number( tvalue ) );
+    d->slicelabels[slider_num]->setText( QString::number( value ) );
+
+    _timepos[sl] = tvalue;
 
     if( d->linkonslider )
     {
@@ -2011,7 +2015,6 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
     }
     else
     {
-      _timepos[sl] = tvalue;
       SetRefreshFlag();
       Refresh();
     }
@@ -2924,7 +2927,7 @@ void AWindow3D::setPosition( const vector<float> & position,
 
   Geometry *geom = windowGeometry();
 
-  if (geom && viewType() != ThreeD)
+  if( geom && viewType() != ThreeD )
   { // snap to nearest slice
     Point3df dir = d->slicequat.transformInverse(Point3df(0, 0, 1));
     float z = dir.dot(pos) / geom->Size()[2];
@@ -3711,8 +3714,17 @@ void AWindow3D::updateTimeSliders()
   unsigned i, n = std::min( _timepos.size(), d->sliders.size() - 1 );
   for( i=0; i<n; ++i )
   {
-    d->sliders[i+1]->setValue( int( _timepos[i] ) );
-    d->slicelabels[i+1]->setText( QString::number( int( _timepos[i] ) ) );
+    float timestep = 1.;
+    if( windowGeometry() )
+    {
+      timestep = windowGeometry()->stepSize()[i + 3];
+      if( timestep == 0.f )
+        timestep = 1.f;
+    }
+
+    d->sliders[i+1]->setValue( int( _timepos[i] / timestep ) );
+    d->slicelabels[i+1]->setText( QString::number(
+      int( _timepos[i] / timestep ) ) );
   }
   n = d->sliders.size() - 1;
   for( ; i<n; ++i )
