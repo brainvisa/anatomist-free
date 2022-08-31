@@ -209,7 +209,7 @@ void QAColorWidget::relook( const QColor & col, int alpha, bool allowalph,
     _pdat->nalpha->show();
   _pdat->nalpha->setChecked( neutralph );
 
-  QPixmap	pix = *_pdat->color->pixmap();
+  QPixmap	pix = _pdat->color->pixmap( Qt::ReturnByValue );
   pix.fill( col );
   _pdat->color->setPixmap( pix );
 }
@@ -217,7 +217,7 @@ void QAColorWidget::relook( const QColor & col, int alpha, bool allowalph,
 
 void QAColorWidget::slidersChanged( int )
 {
-  QPixmap	pix = *_pdat->color->pixmap();
+  QPixmap	pix = _pdat->color->pixmap( Qt::ReturnByValue );
   QColor	col = color();
   pix.fill( col );
   _pdat->lbr->setText( QString::number( col.red() ) );

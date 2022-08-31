@@ -47,9 +47,10 @@ class QAColorWidget : public QWidget
 
 public:
   QAColorWidget( QColor, QWidget * parent = 0, const char * name = 0, 
-		 Qt::WindowFlags flags = 0, bool allowAlpha = false,
-		 bool allowNeutralAlpha = false, int initalpha = 255, 
-		 bool neutralph = false );
+                 Qt::WindowFlags flags = Qt::WindowFlags(),
+                 bool allowAlpha = false,
+                 bool allowNeutralAlpha = false, int initalpha = 255,
+                 bool neutralph = false );
   ~QAColorWidget();
 
   void relook( const QColor & col, int alpha = 255, bool allowalpha = false, 

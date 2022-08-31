@@ -53,7 +53,7 @@ QAColorDialog::QAColorDialog( QColor init, QWidget * parent,
   mainlay->setMargin( 5 );
   mainlay->setSpacing( 10 );
 
-  _widget = new QAColorWidget( init, this, 0, 0, allowAlpha, 
+  _widget = new QAColorWidget( init, this, 0, Qt::WindowFlags(), allowAlpha,
                                allowNeutralAlpha, initalpha, neutral );
 
   QWidget *butts = new QWidget( this );

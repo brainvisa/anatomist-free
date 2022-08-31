@@ -424,7 +424,7 @@ namespace
     if( id >= 0 )
       ex->setProperty( "destination", id );
 
-    const PythonHeader *hdr = t->motion().header();
+    Object hdr = t->motion().header();
     if( hdr )
     {
       Object i = hdr->objectIterator();

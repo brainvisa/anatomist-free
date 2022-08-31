@@ -101,7 +101,7 @@ namespace
   }
 
 
-  QString headerPrint( PythonHeader & ph,
+  QString headerPrint( const Object & ph,
                        const set<string> & exclude = set<string>() )
   {
     QString text;
@@ -109,7 +109,7 @@ namespace
     string  key, val;
     int     l = 12, x;
     set<string>::const_iterator printable = exclude.end();
-    for( i=ph.objectIterator(); i->isValid(); i->next() )
+    for( i=ph->objectIterator(); i->isValid(); i->next() )
     {
       key = i->key();
       if( exclude.find( key ) == printable )
@@ -1152,7 +1152,7 @@ QString ReferentialWindow::referentialToolTipText(
   Referential *ref, list<string> & temp_filenames )
 {
   string  name;
-  PythonHeader  & ph = ref->header();
+  PythonHeader  ph = ref->header();
   if( !ph.getProperty( "name", name ) )
     name = "&lt;unnamed&gt;";
 
@@ -1184,7 +1184,7 @@ QString ReferentialWindow::referentialToolTipText(
   set<string> exclude;
   exclude.insert( "name" );
   exclude.insert( "uuid" );
-  text += headerPrint( ph, exclude );
+  text += headerPrint( Object::reference( ph ), exclude );
 
   set<AObject *> objs = objectsInReferential( ref );
   set<AObject *>::const_iterator io, eo = objs.end();
@@ -1249,9 +1249,9 @@ QString ReferentialWindow::transformationToolTipText(
       + QString::number( r( 2,1 ) ) + "</td><td>"
       + QString::number( r( 2,2 ) ) + "</td><td>"
       + QString::number( tr->Translation( 2 ) ) + "</td></tr></table>";
-  PythonHeader  *ph = tr->motion().header();
+  Object ph = tr->motion().header();
   if( ph )
-    text += headerPrint( *ph );
+    text += headerPrint( ph );
 
   if( !tr->motion().isIdentity() )
   {
