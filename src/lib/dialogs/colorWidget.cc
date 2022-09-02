@@ -209,7 +209,11 @@ void QAColorWidget::relook( const QColor & col, int alpha, bool allowalph,
     _pdat->nalpha->show();
   _pdat->nalpha->setChecked( neutralph );
 
+#if QT_VERSION >= 0x050F00
   QPixmap	pix = _pdat->color->pixmap( Qt::ReturnByValue );
+#else
+  QPixmap	pix = *_pdat->color->pixmap();
+#endif
   pix.fill( col );
   _pdat->color->setPixmap( pix );
 }
@@ -217,7 +221,11 @@ void QAColorWidget::relook( const QColor & col, int alpha, bool allowalph,
 
 void QAColorWidget::slidersChanged( int )
 {
+#if QT_VERSION >= 0x050F00
   QPixmap	pix = _pdat->color->pixmap( Qt::ReturnByValue );
+#else
+  QPixmap	pix = *_pdat->color->pixmap();
+#endif
   QColor	col = color();
   pix.fill( col );
   _pdat->lbr->setText( QString::number( col.red() ) );
