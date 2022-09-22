@@ -196,6 +196,7 @@ Commands definition
   * :ref:`LoadObject`
   * :ref:`LoadReferentialFromHeader`
   * :ref:`LoadTransformation`
+  * :ref:`LoadTransformationGraph`
   * :ref:`NewId`
   * :ref:`NewPalette`
   * :ref:`ObjectInfo`
@@ -2044,6 +2045,39 @@ LoadTransformation
 
   </tbody>
   </table>
+
+
+.. _LoadTransformationGraph:
+
+LoadTransformationGraph
+-----------------------
+
+.. raw:: html
+
+  <b>New in Anatomist 5.1</b><br>
+  Load a transformations graph file (generally YAML or JSON format, can be any readable dict-like generic object, thus a <tt>.minf</tt> file could do it).
+  <br>
+  Only affine transformations are taken into account in the graph, because non-linear transformations cannot be used by Anatomist (and OpenGL).
+
+  <table width="100%" class="docutils">
+  <thead>
+    <tr>
+      <th><b>Attribute:</b></th>
+      <th><b>Type:</b></th>
+      <th><b>Description:</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><tt>filename</tt></td>
+      <td><tt>string</tt></td>
+      <td>filename for the transformations graph</td>
+    </tr>
+
+  </tbody>
+  </table>
+
+See :aimsdata:`the AIMS documentation for transformations graph description and format contents <user_doc/coordinates_systems.html#transformation-graph>`.
 
 
 .. _NewId:

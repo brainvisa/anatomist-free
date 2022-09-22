@@ -41,6 +41,7 @@ set( _headers
     commands/cAddObject.h
     commands/cApplyBuiltinReferential.h
     commands/cAskTexExtrema.h
+    commands/cAssignReferential.h
     commands/cCamera.h
     commands/cChangePalette.h
     commands/cControlsParams.h
@@ -70,6 +71,8 @@ set( _headers
     commands/cLinkWindows.h
     commands/cLoadGraphSubObjects.h
     commands/cLoadObject.h
+    commands/cLoadTransformation.h
+    commands/cLoadTransformationGraph.h
     commands/cNewId.h
     commands/cNewPalette.h
     commands/cObjectInfo.h
@@ -77,8 +80,6 @@ set( _headers
     commands/cPopupPalette.h
     commands/cReloadObject.h
     commands/cRemoveObject.h
-    commands/cAssignReferential.h
-    commands/cLoadTransformation.h
     commands/cSaveObject.h
     commands/cSaveTransformation.h
     commands/cSelect.h
@@ -319,6 +320,7 @@ set( _sources
     commands/cLoadGraphSubObjects.cc
     commands/cLoadObject.cc
     commands/cLoadTransformation.cc
+    commands/cLoadTransformationGraph.cc
     commands/cNewId.cc
     commands/cNewPalette.cc
     commands/cObjectInfo.cc

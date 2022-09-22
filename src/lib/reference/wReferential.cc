@@ -42,6 +42,7 @@
 #include <anatomist/reference/refpixmap.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cLoadTransformation.h>
+#include <anatomist/commands/cLoadTransformationGraph.h>
 #include <anatomist/commands/cSaveTransformation.h>
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cCreateWindow.h>
@@ -361,6 +362,15 @@ void ReferentialWindow::saveTransformation( const string & filename )
     }
   else
     cerr << "No transformation to save\n";
+}
+
+
+void ReferentialWindow::loadTransformationGraph( const string & filename )
+{
+  LoadTransformationGraphCommand	*com
+    = new LoadTransformationGraphCommand( filename );
+  theProcessor->execute( com );
+  refresh();
 }
 
 
@@ -885,6 +895,8 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
                      SLOT( loadReferential() ) );
     pop->addAction( tr( "Load transformation" ), this,
                      SLOT( loadNewTransformation() ) );
+    pop->addAction( tr( "Load transformations graph" ), this,
+                    SLOT( loadTransformationGraph() ) );
     pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
     pop->addAction( tr( "Merge identical referentials" ), this,
@@ -1013,6 +1025,31 @@ void ReferentialWindow::loadNewTransformation()
     pdat->srcref = 0;
     pdat->dstref = 0;
     loadTransformation( filename.toStdString() );
+    pdat->has_changed = true;
+  }
+}
+
+
+void ReferentialWindow::loadTransformationGraph()
+{
+  QString filter = tr( "Transformations graph" );
+  filter += " (*.yaml *.json);; ";
+  filter += ControlWindow::tr( "All files" );
+  filter += " (*)";
+  QFileDialog   & fd = fileDialog();
+  fd.setNameFilter( filter );
+  fd.setWindowTitle( tr( "Open transformations graph" ) );
+  fd.setFileMode( QFileDialog::ExistingFile );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
+  if( !fd.exec() )
+    return;
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    pdat->srcref = 0;
+    pdat->dstref = 0;
+    loadTransformationGraph( filename.toStdString() );
     pdat->has_changed = true;
   }
 }
