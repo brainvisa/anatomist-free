@@ -916,7 +916,7 @@ void AObject::setProperties( Object /*options*/ )
               if( den == 0. )
                 den = 1.;
               opal->setMin1( ( 0. - te.minquant[0] ) / den );
-              opal->setMax1( 1. );
+              opal->setMax1( ( pal->getSizeX() -1 ) / den );
             }
             else
             {
