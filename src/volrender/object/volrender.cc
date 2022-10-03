@@ -123,6 +123,7 @@ struct VolRender::Private
   double minval;
   double maxval;
   GLuint sourcepixtype;
+  vector<float> voxelSize;
 };
 
 
@@ -131,7 +132,8 @@ VolRender::Private::Private()
     dimx( 0 ), dimy( 0 ), dimz( 0 ), texdimx( 0 ), texdimy( 0 ), texdimz( 0 ),
     xscalefac( 1 ), yscalefac( 1 ), zscalefac( 1 ),
     shader( 0 ), slabSize( 1 ), maxslices( 0 ), sign( false ),
-    ownextrema( false ), minval( 0 ), maxval( 0 ), sourcepixtype( GL_RGBA )
+    ownextrema( false ), minval( 0 ), maxval( 0 ), sourcepixtype( GL_RGBA ),
+    voxelSize( 4, 1. )
 {
 }
 
@@ -169,6 +171,7 @@ VolRender::VolRender( AObject * vol )
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 0 );
   te.scaled = false;
+  d->voxelSize = vol->voxelSize();
   glSetAutoTexMode( GLComponent::glTEX_OBJECT_LINEAR, 0 );
   GetMaterial().setRenderProperty( Material::RenderFaceCulling, 0 );
   // assign 0.2 opacity to allow non-transparent objects to be drawn first
@@ -192,6 +195,12 @@ VolRender::~VolRender()
 {
   // cout << "VolRender::~VolRender\n";
   delete d;
+}
+
+
+vector<float> VolRender::voxelSize() const
+{
+  return d->voxelSize;
 }
 
 
@@ -933,12 +942,14 @@ bool VolRender::glMakeTexImage( const ViewState &state,
           d->xscalefac *= 2;
           d->texdimx /= 2;
           d->dimx /= 2;
+          d->voxelSize[0] *= 2;
         }
         else
         {
           d->zscalefac *= 2;
           d->texdimz /= 2;
           d->dimz /= 2;
+          d->voxelSize[2] *= 2;
         }
       else
         if( d->dimy > d->dimz )
@@ -946,12 +957,14 @@ bool VolRender::glMakeTexImage( const ViewState &state,
           d->yscalefac *= 2;
           d->texdimy /= 2;
           d->dimy /= 2;
+          d->voxelSize[1] *= 2;
         }
         else
         {
           d->zscalefac *= 2;
           d->texdimz /= 2;
           d->dimz /= 2;
+          d->voxelSize[2] *= 2;
         }
     }
     else
@@ -1025,6 +1038,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   float tx = (float) d->dimx;
   float ty = (float) d->dimy;
   float tz = (float) d->dimz;
+  cout << "VolRender::glMakeBodyGLL, dims: " << tx << ", " << ty << ", " << tz << endl;
 
   const Referential *wref = 0;
   if( svs && svs->winref )
@@ -1116,6 +1130,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
 
   int nb_slices = (int)( 2.0f * sqrt( tx * tx + ty * ty +
       tz * tz * sV * sV ) + 0.5f );
+  cout << "nb slices: " << nb_slices << ", max: " << d->maxslices << endl;
   if( d->maxslices > 0 && (unsigned) nb_slices > d->maxslices )
     nb_slices = d->maxslices;
   GLfloat sEq[ 4 ] = { 1.0f, 0.0f, 0.0f, 0.0f };
@@ -1150,6 +1165,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   glLoadIdentity();
   glScalef( float( tx ) / d->texdimx, float( ty ) / d->texdimy,
             float( tz ) / d->texdimz );
+  cout << "texdim: " << d->texdimx << ", " << d->texdimy << ", " << d->texdimz << endl;
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();

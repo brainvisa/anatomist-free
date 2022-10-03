@@ -94,6 +94,7 @@ namespace anatomist
     void setMaxSlices( unsigned n );
     int slabSize() const;
     void setSlabSize( int n );
+    virtual std::vector<float> voxelSize() const;
 
     static int classType();
     static void volrenderProperties( const std::set<anatomist::AObject *> & );
