@@ -89,6 +89,7 @@ protected:
   void loadTransformation( const std::string & filename );
   void saveTransformation( const std::string & filename );
   void loadTransformationGraph( const std::string & filename );
+  void saveTransformationGraph( const std::string & filename );
   virtual void closeEvent ( QCloseEvent * );
   virtual void resizeEvent( QResizeEvent * );
   virtual void mousePressEvent( QMouseEvent* ev );
@@ -111,6 +112,7 @@ protected slots:
   void loadReferential();
   void loadNewTransformation();
   void loadTransformationGraph();
+  void saveTransformationGraph();
   void clearUnusedReferentials();
   void splitReferential();
   void seeObjectsInReferential();

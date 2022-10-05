@@ -82,6 +82,7 @@ set( _headers
     commands/cRemoveObject.h
     commands/cSaveObject.h
     commands/cSaveTransformation.h
+    commands/cSaveTransformationGraph.h
     commands/cSelect.h
     commands/cSelectByHierarchy.h
     commands/cServer.h
@@ -330,6 +331,7 @@ set( _sources
     commands/cRemoveObject.cc
     commands/cSaveObject.cc
     commands/cSaveTransformation.cc
+    commands/cSaveTransformationGraph.cc
     commands/cSelect.cc
     commands/cSelectByHierarchy.cc
     commands/cServer.cc

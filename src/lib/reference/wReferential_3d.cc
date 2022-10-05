@@ -602,6 +602,8 @@ void ReferentialMenu::backgroundMenu( int x, int y )
                   SLOT( loadNewTransformation() ) );
   menu.addAction( ReferentialWindow::tr( "Load transformations graph" ),
                   parent, SLOT( loadTransformationGraph() ) );
+  menu.addAction( ReferentialWindow::tr( "Save transformations graph" ),
+                  parent, SLOT( saveTransformationGraph() ) );
   menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
                   SLOT( clearUnusedReferentials() ) );
   menu.addAction( ReferentialWindow::tr( "Merge identical referentials" ),

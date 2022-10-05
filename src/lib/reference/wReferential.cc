@@ -43,6 +43,7 @@
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cLoadTransformation.h>
 #include <anatomist/commands/cLoadTransformationGraph.h>
+#include <anatomist/commands/cSaveTransformationGraph.h>
 #include <anatomist/commands/cSaveTransformation.h>
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cCreateWindow.h>
@@ -367,10 +368,18 @@ void ReferentialWindow::saveTransformation( const string & filename )
 
 void ReferentialWindow::loadTransformationGraph( const string & filename )
 {
-  LoadTransformationGraphCommand	*com
+  LoadTransformationGraphCommand *com
     = new LoadTransformationGraphCommand( filename );
   theProcessor->execute( com );
   refresh();
+}
+
+
+void ReferentialWindow::saveTransformationGraph( const string & filename )
+{
+  SaveTransformationGraphCommand *com
+    = new SaveTransformationGraphCommand( filename );
+  theProcessor->execute( com );
 }
 
 
@@ -897,6 +906,8 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
                      SLOT( loadNewTransformation() ) );
     pop->addAction( tr( "Load transformations graph" ), this,
                     SLOT( loadTransformationGraph() ) );
+    pop->addAction( tr( "Save transformations graph" ), this,
+                    SLOT( saveTransformationGraph() ) );
     pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
     pop->addAction( tr( "Merge identical referentials" ), this,
@@ -1050,6 +1061,31 @@ void ReferentialWindow::loadTransformationGraph()
     pdat->srcref = 0;
     pdat->dstref = 0;
     loadTransformationGraph( filename.toStdString() );
+    pdat->has_changed = true;
+  }
+}
+
+
+void ReferentialWindow::saveTransformationGraph()
+{
+  QString filter = tr( "Transformations graph" );
+  filter += " (*.yaml *.json);; ";
+  filter += ControlWindow::tr( "All files" );
+  filter += " (*)";
+  QFileDialog   & fd = fileDialog();
+  fd.setNameFilter( filter );
+  fd.setWindowTitle( tr( "Open transformations graph" ) );
+  fd.setFileMode( QFileDialog::AnyFile );
+  fd.setAcceptMode( QFileDialog::AcceptSave );
+  if( !fd.exec() )
+    return;
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    pdat->srcref = 0;
+    pdat->dstref = 0;
+    saveTransformationGraph( filename.toStdString() );
     pdat->has_changed = true;
   }
 }

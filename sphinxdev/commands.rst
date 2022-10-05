@@ -207,6 +207,7 @@ Commands definition
   * :ref:`RemoveObject`
   * :ref:`SaveObject`
   * :ref:`SaveTransformation`
+  * :ref:`SaveTransformationGraph`
   * :ref:`Select`
   * :ref:`SelectByHierarchy`
   * :ref:`SelectByNomenclature`
@@ -2429,6 +2430,39 @@ SaveTransformation
     </tr>
   </tbody>
   </table>
+
+
+.. _SaveTransformationGraph:
+
+SaveTransformationGraph
+-----------------------
+
+.. raw:: html
+
+  <b>New in Anatomist 5.1</b><br>
+  Save a transformations graph file (generally YAML or JSON format, can be any readable dict-like generic object, thus a <tt>.minf</tt> file could do it).
+  <br>
+  Affine transformations are embedded in the graph file.
+
+  <table width="100%" class="docutils">
+  <thead>
+    <tr>
+      <th><b>Attribute:</b></th>
+      <th><b>Type:</b></th>
+      <th><b>Description:</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><tt>filename</tt></td>
+      <td><tt>string</tt></td>
+      <td>filename for the transformations graph</td>
+    </tr>
+
+  </tbody>
+  </table>
+
+See :aimsdata:`the AIMS documentation for transformations graph description and format contents <user_doc/coordinates_systems.html#transformation-graph>`.
 
 
 .. _Select:
