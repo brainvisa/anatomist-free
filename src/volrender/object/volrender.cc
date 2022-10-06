@@ -1038,7 +1038,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   float tx = (float) d->dimx;
   float ty = (float) d->dimy;
   float tz = (float) d->dimz;
-  cout << "VolRender::glMakeBodyGLL, dims: " << tx << ", " << ty << ", " << tz << endl;
+  // cout << "VolRender::glMakeBodyGLL, dims: " << tx << ", " << ty << ", " << tz << endl;
 
   const Referential *wref = 0;
   if( svs && svs->winref )
@@ -1130,7 +1130,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
 
   int nb_slices = (int)( 2.0f * sqrt( tx * tx + ty * ty +
       tz * tz * sV * sV ) + 0.5f );
-  cout << "nb slices: " << nb_slices << ", max: " << d->maxslices << endl;
+  // cout << "nb slices: " << nb_slices << ", max: " << d->maxslices << endl;
   if( d->maxslices > 0 && (unsigned) nb_slices > d->maxslices )
     nb_slices = d->maxslices;
   GLfloat sEq[ 4 ] = { 1.0f, 0.0f, 0.0f, 0.0f };
@@ -1165,7 +1165,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   glLoadIdentity();
   glScalef( float( tx ) / d->texdimx, float( ty ) / d->texdimy,
             float( tz ) / d->texdimz );
-  cout << "texdim: " << d->texdimx << ", " << d->texdimy << ", " << d->texdimz << endl;
+  // cout << "texdim: " << d->texdimx << ", " << d->texdimy << ", " << d->texdimz << endl;
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
