@@ -95,17 +95,18 @@ struct AObject::Private
     MenuRegistrersMap;
   static MenuRegistrersMap & objectMenuRegistrers();
 
-  PrimList		sharedprim;
-  bool		cleanupdone;
+  PrimList          sharedprim;
+  bool              cleanupdone;
   // texture stuff should be in GLComponent but...
-  TextureMode		texturemode;
-  TextureFiltering	texturefilter;
-  Referential		*oldref;
-  time_t		loaddate;
-  bool                  copy;
+  TextureMode       texturemode;
+  TextureFiltering  texturefilter;
+  Referential       *oldref;
+  time_t            loaddate;
+  bool              copy;
 
-  AObject               *inheritref;
-  // bool                  cycling;
+  AObject           *inheritref;
+  // bool             cycling;
+  bool              userModified;
 };
 
 std::map<std::string, rc_ptr<ObjectMenu> >	AObject::_objectmenu_map;
@@ -122,7 +123,8 @@ void AObject::cleanStatic()
 
 AObject::Private::Private() 
   : cleanupdone( false ), texturemode( Replace ), texturefilter( F_Nearest ), 
-    oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( 0 )
+    oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( 0 ),
+    userModified( false )
 {
 }
 
@@ -130,7 +132,7 @@ AObject::Private::Private()
 AObject::Private::Private( const Private & x )
   : cleanupdone( false ), texturemode( x.texturemode ),
     texturefilter( x.texturefilter ),
-    oldref( 0 ), loaddate( x.loaddate ), inheritref( x.inheritref )
+    oldref( 0 ), loaddate( x.loaddate ), inheritref( x.inheritref ), userModified( x.userModified )
     // cycling( x.cycling )
 {
 }
@@ -519,27 +521,30 @@ list<AObject *> AObject::load( const string & filename )
 
 bool AObject::reload( AObject* object, bool onlyoutdated )
 {
-  return( ObjectReader::reader()->reload( object, onlyoutdated ) );
+  bool res = ObjectReader::reader()->reload( object, onlyoutdated );
+  if( res )
+    object->setUserModified( false );
+  return res;
 }
 
 
 bool AObject::reload( const string & )
 {
-  return( false );
+  return false;
 }
 
 
 void AObject::internalUpdate()
 {
   if( hasChanged() )
+  {
+    ParentList::iterator i, f=Parents().end();
+    for( i=Parents().begin(); i!=f; ++i )
     {
-      ParentList::iterator i, f=Parents().end();
-      for( i=Parents().begin(); i!=f; ++i )
-        {
-	  (*i)->setChanged();
-          (*i)->internalUpdate();
-	}
+      (*i)->setChanged();
+      (*i)->internalUpdate();
     }
+  }
 }
 
 
@@ -1652,6 +1657,28 @@ string AObject::toolTip() const
   return string();
 }
 
+
+bool AObject::userModified() const
+{
+  return d->userModified;
+}
+
+
+void AObject::setUserModified( bool state )
+{
+  d->userModified = state;
+}
+
+
+bool AObject::save( const std::string & filename, bool onlyIfModified )
+{
+  if( onlyIfModified && !userModified() )
+    return true;
+  bool res = save( filename );
+  if( res )
+    setUserModified( false );
+  return res;
+}
 
 // ----
 

@@ -176,6 +176,7 @@ void LabelEditAction::edit()
       ato->attributed()->setProperty( att, _label );
       (*io)->setChanged();
       (*io)->internalUpdate();
+      (*ip)->setUserModified( true );
     }
   }
   for( io=aobj.begin(), eo=aobj.end(); io!=eo; ++io )

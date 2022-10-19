@@ -289,15 +289,20 @@ namespace anatomist
     /** Notifies some underlying lower-level objects have changed.
         Useful especially after an underlying AIMS object has been modified */
     virtual void setInternalsChanged();
-    /**	Reset has-changed flags.
-	Must be called after a call to notifyObservers function 
-	to reset changes.
-	This system is somewhat insuficient in fact: some observers don't 
-	need to update just now, and won't see the change later...
+    /** Reset has-changed flags.
+        Must be called after a call to notifyObservers function
+        to reset changes.
+        This system is somewhat insuficient in fact: some observers don't
+        need to update just now, and won't see the change later...
     */
     virtual void clearHasChangedFlags() const;
 
-    /**	Find the object (sub-object) at given postion with a tolerence
+    /// if the object has been modified by user interaction, and needs saving
+    bool userModified() const;
+    /// if the object has been modified by user interaction, and needs saving
+    void setUserModified( bool state = true );
+
+    /** Find the object (sub-object) at given postion with a tolerence
         @return	0 if not found
     */
     virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
@@ -366,10 +371,12 @@ namespace anatomist
     virtual std::string objectFullTypeName(void) const
     { return objectTypeName(_type); };
     /** */
+    bool save( const std::string & filename, bool onlyIfModified );
+    /** */
     virtual bool save( const std::string & filename );
     /// should be replaced by a real referential
     virtual bool printTalairachCoord( const Point3df &, 
-				      const Referential* ) const
+                                      const Referential* ) const
     { return( false ); }
     /** Set some object properties according to the header (.minf), such as 
         material, palette etc */

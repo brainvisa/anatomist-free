@@ -994,6 +994,8 @@ bool AGraph::save( const string & filename )
   gw << *d->graph;
   */
 
+  setUserModified( false );
+
   if( loadrels )
     notifyObservers( this );
 
@@ -1002,7 +1004,7 @@ bool AGraph::save( const string & filename )
 
 
 template<class T> static bool extractElem( Process & p, const string &,
-					   Finder & )
+                                           Finder & )
 {
   using carto::shared_ptr;
 

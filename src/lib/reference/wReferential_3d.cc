@@ -950,7 +950,7 @@ RefTransControl::RefTransControl( int prio )
 void RefTransControl::eventAutoSubscription( ActionPool* pool )
 {
   mouseLongEventSubscribe(
-    Qt::MidButton, Qt::NoModifier,
+    Qt::MiddleButton, Qt::NoModifier,
     MouseActionLinkOf<ContinuousTrackball>(
       pool->action( "ContinuousTrackball" ),
       &ContinuousTrackball::beginTrackball ),
@@ -961,7 +961,7 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
     ( pool->action( "ContinuousTrackball" ),
       &ContinuousTrackball::endTrackball ), true );
   mouseLongEventSubscribe
-  ( Qt::MidButton, Qt::ShiftModifier,
+  ( Qt::MiddleButton, Qt::ShiftModifier,
     MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
                                       &Zoom3DAction::beginZoom ),
     MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
@@ -972,7 +972,7 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
                        ( pool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
   mouseLongEventSubscribe
-  ( Qt::MidButton, Qt::ControlModifier,
+  ( Qt::MiddleButton, Qt::ControlModifier,
     MouseActionLinkOf<Translate3DAction>
     ( pool->action( "Translate3DAction" ),
       &Translate3DAction::beginTranslate ),

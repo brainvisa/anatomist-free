@@ -170,7 +170,7 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<ContinuousTrackball>
       ( actionPool->action( "ContinuousTrackball" ),
         &ContinuousTrackball::beginTrackball ),
@@ -220,7 +220,7 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                                        &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -243,7 +243,7 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
   //        translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),
@@ -531,7 +531,7 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
             &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -551,7 +551,7 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -590,7 +590,7 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
   //  translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
       &Translate3DAction::beginTranslate ),
@@ -1482,7 +1482,7 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -1502,7 +1502,7 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                                        &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -1526,7 +1526,7 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
   //        translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),
@@ -1774,7 +1774,7 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -1843,7 +1843,7 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
   // oblique trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
                                        &TrackOblique::beginTrackball ),
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
@@ -1870,7 +1870,7 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
   // oblique slice trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<TrackObliqueSlice>
       ( actionPool->action( "TrackObliqueSlice" ),
         &TrackObliqueSlice::beginTrackball ),
@@ -2002,7 +2002,7 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -2053,7 +2053,7 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
   // Transformer trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ),
                                       &Transformer::beginTrackball ),
       MouseActionLinkOf<Transformer>( actionPool->action( "Transformer" ),
@@ -2076,7 +2076,7 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
                             &Transformer::toggleDisplayInfo ),
                           "display_transform_info_toggle" );
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<TranslaterAction>
       ( actionPool->action( "TranslaterAction" ), &TranslaterAction::begin ),
       MouseActionLinkOf<TranslaterAction>
@@ -2266,7 +2266,7 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -2292,7 +2292,7 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
   // oblique trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<TrackCutAction>
       ( actionPool->action( "TrackCutAction" ),
         &TrackCutAction::beginTrackball ),
@@ -2336,7 +2336,7 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
   // oblique slice trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<CutSliceAction>
       ( actionPool->action( "CutSliceAction" ),
         &CutSliceAction::beginTrack ),

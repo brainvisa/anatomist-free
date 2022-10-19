@@ -2072,10 +2072,10 @@ void QObjectBrowser::setMode( unsigned mode )
       d->modeWid->setBackgroundRole( QPalette::Window );
       QPalette pal = d->modeWid->palette();
       if( d->editMode != 0 )
-        pal.setBrush(QPalette::Background, QColor( 255, 192, 192 ) );
+        pal.setBrush(QPalette::Window, QColor( 255, 192, 192 ) );
       else
-        pal.setBrush( QPalette::Background,
-          d->statbar->palette().brush( QPalette::Background ) );
+        pal.setBrush( QPalette::Window,
+          d->statbar->palette().brush( QPalette::Window ) );
       d->modeWid->setPalette( pal );
       d->modeWid->update();
 #else
@@ -2653,7 +2653,7 @@ void QObjectBrowser::startDrag( QTreeWidgetItem*, Qt::MouseButtons button,
                                 Qt::KeyboardModifiers )
 {
   set<AObject *>	so = Objects();
-  if( !( button & Qt::MidButton ) )
+  if( !( button & Qt::MiddleButton ) )
     {
       // filter selected objects
       SelectFactory	*sf = SelectFactory::factory();
