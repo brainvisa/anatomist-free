@@ -711,6 +711,10 @@ void Select3DControl::doAlsoOnDeselect( ActionPool* pool )
     QAWindow  *aw = dynamic_cast<QAWindow *>( v->aWindow() );
     if( !aw )
       return;
+    // the 1st time, tb is null, so is not deleted, althouth it is still
+    // here. So we find/delete the label by hand (this one is found.)
+    if( aw->findChild<QLabel *>( "selectionLabel" ) )
+      delete aw->findChild<QLabel *>( "selectionLabel" );
     QToolBar *tb = aw->removeToolBar( "select3D_toolbar" );
     delete tb;
   }
