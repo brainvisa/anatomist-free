@@ -728,8 +728,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     for( ic=ch.begin(); ic!=ec && !(ntb=qobject_cast<QToolBar *>( *ic ) );
         ++ic );
     if( !ntb )
-    ntb = addToolBar( tr( "controls" ), "controls" );
-    addToolBar( Qt::LeftToolBarArea, ntb, "controls" );
+    ntb = addToolBar( Qt::LeftToolBarArea, tr( "controls" ), "controls" );
 
     //	Menus
 
@@ -782,7 +781,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
 
     //	Mutation toolbar
 
-    d->mute = addToolBar( tr( "mutations" ), "mutations" );
+    d->mute = insertToolBar( 0, Qt::TopToolBarArea, tr( "mutations" ),
+                             "mutations" );
     d->mute->setIconSize( QSize( 20, 20 ) );
     const QPixmap *p;
 

@@ -682,15 +682,15 @@ void Select3DControl::doAlsoOnSelect( ActionPool* pool )
     QToolBar *tb = aw->findChild<QToolBar *>( "select3D_toolbar" );
     if( tb )
       return; // toolbar found: it already exists.
-    tb = aw->addToolBar( ControlledWindow::tr( "Selection tools" ),
-                        "select3D_toolbar" );
-    //d->toolbars.push_back( d->mute );
+    tb = aw->addToolBar( Qt::TopToolBarArea,
+                         ControlledWindow::tr( "Selection tools" ),
+                         "select3D_toolbar" );
     tb->setIconSize( QSize( 20, 20 ) );
     QLabel *l = new QLabel( ControlledWindow::tr( "Selection label" ), tb );
     l->setObjectName( "selectionLabel" );
+    tb->addWidget( l );
     LabelEditAction *la = static_cast<LabelEditAction *>( a );
     la->setLabel( la->label() );
-//     tb->show();
     tb->setVisible( aw->toolBarsVisible() );
   }
   // annotation

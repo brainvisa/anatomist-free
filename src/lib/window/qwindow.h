@@ -73,17 +73,22 @@ public:
   virtual void enableDetachMenu( bool x );
 
   /**	In QAWindows, Refresh() doesn't redraw right now. Instead, it triggers 
-	a timer do redraw in a few mseconds, so when multiple Refresh() are 
-	requested, only one redraw is performed.
-	As a result, subclasses of QAWindow MUSTN'T overload Refresh(), but 
-	overload refreshNow() instead, which is the effective drawing function 
-	called when the timer timesout. That's why Refresh is not virtual 
-	anymore. */
+    a timer do redraw in a few mseconds, so when multiple Refresh() are
+    requested, only one redraw is performed.
+    As a result, subclasses of QAWindow MUSTN'T overload Refresh(), but
+    overload refreshNow() instead, which is the effective drawing function
+    called when the timer timesout. That's why Refresh is not virtual
+    anymore. */
   void Refresh();
   virtual QToolBar* addToolBar( const QString & title, const QString & name );
+  virtual QToolBar* addToolBar( Qt::ToolBarArea area, const QString & title,
+                                const QString & name );
   virtual void addToolBar( QToolBar*, const QString & name );
   virtual void addToolBar( Qt::ToolBarArea area, QToolBar* toolbar,
                            const QString & name );
+  virtual QToolBar* insertToolBar( int pos, Qt::ToolBarArea area,
+                                   const QString & title,
+                                   const QString & name );
   virtual void removeToolBar( QToolBar * toolbar );
   virtual QToolBar* removeToolBar( const QString & name );
   QToolBar* toolBar( const QString & name );

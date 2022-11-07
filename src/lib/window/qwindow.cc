@@ -64,7 +64,7 @@ struct QAWindow::Private
 
   QTimer		*refreshtimer;
   bool			refreshneeded;
-  set<QToolBar *>	toolbars;
+  list<QToolBar *>	toolbars;
   QAction               *detachmenuaction;
 };
 
@@ -493,7 +493,18 @@ QToolBar* QAWindow::addToolBar( const QString & title, const QString & name )
 {
   QToolBar* tb = QMainWindow::addToolBar( title );
   tb->setObjectName( name );
-  d->toolbars.insert( tb );
+  d->toolbars.push_back( tb );
+  return tb;
+}
+
+
+QToolBar* QAWindow::addToolBar( Qt::ToolBarArea area, const QString & title,
+                                const QString & name )
+{
+  QToolBar* tb = new QToolBar( title, this );
+  tb->setObjectName( name );
+  QMainWindow::addToolBar( area, tb );
+  d->toolbars.push_back( tb );
   return tb;
 }
 
@@ -502,7 +513,7 @@ void QAWindow::addToolBar( QToolBar* toolbar, const QString & name )
 {
   toolbar->setObjectName( name );
   QMainWindow::addToolBar( toolbar );
-  d->toolbars.insert( toolbar );
+  d->toolbars.push_back( toolbar );
 }
 
 
@@ -511,13 +522,13 @@ void QAWindow::addToolBar( Qt::ToolBarArea area, QToolBar* toolbar,
 {
   toolbar->setObjectName( name );
   QMainWindow::addToolBar( area, toolbar );
-  d->toolbars.insert( toolbar );
+  d->toolbars.push_back( toolbar );
 }
 
 
 QToolBar* QAWindow::toolBar( const QString & name )
 {
-  set<QToolBar *>::const_iterator i, e = d->toolbars.end();
+  list<QToolBar *>::const_iterator i, e = d->toolbars.end();
   for( i=d->toolbars.begin(); i!=e && (*i)->objectName()!=name; ++i );
   if( i == e )
     return 0;
@@ -525,10 +536,31 @@ QToolBar* QAWindow::toolBar( const QString & name )
 }
 
 
+QToolBar* QAWindow::insertToolBar( int pos, Qt::ToolBarArea area,
+                                   const QString & title,
+                                   const QString & name )
+{
+  list<QToolBar *>::const_iterator i, e = d->toolbars.end();
+  int n = 0;
+  for( i=d->toolbars.begin(); i!=e && n<pos; ++i, ++n );
+  if( i == e )
+      return addToolBar( area, title, name );
+  QToolBar *before = *i;
+  QToolBar* tb = new QToolBar( title, this );
+  tb->setObjectName( name );
+  QMainWindow::insertToolBar( before, tb );
+  d->toolbars.insert( i, tb );
+  return tb;
+}
+
+
 void QAWindow::removeToolBar( QToolBar * toolbar )
 {
   QMainWindow::removeToolBar( toolbar );
-  d->toolbars.erase( toolbar );
+  list<QToolBar *>::iterator i
+    = std::find( d->toolbars.begin(), d->toolbars.end(), toolbar );
+  if( i != d->toolbars.end() )
+    d->toolbars.erase( i );
 }
 
 
