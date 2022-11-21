@@ -101,6 +101,8 @@ namespace anatomist
     void insertItem( const std::vector<std::string> & inside,
                      const std::string & text,
                      ObjectMenuCallbackFunc::CallbackFunc cbk );
+    void removeItem( const std::vector<std::string> & inside,
+                     const std::string & text );
     Tree* item( const std::vector<std::string> & pos,
                 bool createSubtrees = true );
     Tree* tree();

@@ -192,6 +192,25 @@ void ObjectMenu::insertItem( const vector<string> & inside,
 }
 
 
+void ObjectMenu::removeItem( const vector<string> & inside,
+                             const string & text )
+{
+  if( !d->menu )
+    return;
+
+  Tree  *t = item( inside );
+  if( !t )
+    return;
+  Tree::const_iterator it, et = t->end();
+  for( it=t->begin(); it!=et; ++it )
+    if( static_cast<const Tree *>( *it )->getSyntax() == text )
+    {
+      t->remove( *it );
+      break;
+    }
+}
+
+
 void ObjectMenu::insertItem( const vector<string> & inside,
                              const string & text,
                              ObjectMenuCallbackFunc::CallbackFunc cbk )
