@@ -250,6 +250,15 @@ def init():
         'Brain Sulci Atlas probabilities window',
       createbsa)
 
+def clean_wincreator():
+    ana.cpp.AWindowFactory.unregisterType(
+        'Brain Sulci Atlas probabilities window')
+    global createbsa
+    createbsa = None
+
 
 hm = BSAModule()
 init()
+import atexit
+atexit.register(clean_wincreator)
+

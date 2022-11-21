@@ -377,5 +377,13 @@ def init():
         ana.cpp.AWindowFactory.typeID('Histogram'), False)
 
 
+def clean_wincreator():
+    ana.cpp.AWindowFactory.unregisterType('Matplotlib-histogram')
+    global createhisto
+    createhisto = None
+
+
 hm = HistogramModule()
 init()
+import atexit
+atexit.register(clean_wincreator)

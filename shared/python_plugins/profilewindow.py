@@ -529,5 +529,13 @@ def init():
         ana.cpp.AWindowFactory.typeID('Profile'), False)
 
 
+def clean_wincreator():
+    ana.cpp.AWindowFactory.unregisterType('Matplotlib-profile')
+    global createprofile
+    createprofile = None
+
+
 hm = ProfileModule()
 init()
+import atexit
+atexit.register(clean_wincreator)

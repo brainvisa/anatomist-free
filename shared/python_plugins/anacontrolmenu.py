@@ -64,7 +64,7 @@ Slot = pyqtSlot
 consoleShellRunning = False
 _ipsubprocs_lock = threading.RLock()
 _ipsubprocs = []
-
+pythonscriptloader = None
 
 class PyAnatomistModule(anatomist.Module):
 
@@ -503,6 +503,11 @@ def clean_ipsubprocs():
         _ipsubprocs = []
     import gc
     gc.collect()
+
+    # unregister readers
+    anatomist.ObjectReader.cleanup()
+    global pythonscriptloader
+    pythonscriptloader = None
 
 
 #def child_exited(sig, frame):
