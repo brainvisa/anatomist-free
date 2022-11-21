@@ -310,6 +310,20 @@ int AWindowFactory::registerType( const string & type,
 }
 
 
+void AWindowFactory::unregisterType( const std::string & type )
+{
+  map<string, int>::const_iterator	it = TypeID.find( type );
+  if( it == TypeID.end() )
+    return;
+
+  std::map<int, carto::rc_ptr<AWindowCreator> >::iterator
+    i = Creators.find( it->second );
+  if( i != Creators.end() )
+    Creators.erase( i );
+}
+
+
+
 set<string> AWindowFactory::types()
 {
   set<string>	t;
