@@ -174,5 +174,17 @@ class SaveResampledModule(ana.cpp.Module):
             self.addMenuEntryToOptionMenu(m)
 
 
+def cleanup():
+    menumap = ana.cpp.AObject.getObjectMenuMap()
+    # Add palette menu to all menus but only once
+    for k, v in menumap.items():
+        if k.startswith('VOLUME<'):
+            v.removeItem(['File'], 'Save resampled')
+    global callbacks_list
+    callbacks_list = []
+
+
 sm = SaveResampledModule()
 sm.init()
+import atexit
+atexit.register(cleanup)

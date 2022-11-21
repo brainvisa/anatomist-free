@@ -579,6 +579,14 @@ def init():
     for m in menus.keys():
         addMenuEntryToOptionMenu(m)
 
+def cleanup():
+    menumap = ana.cpp.AObject.getObjectMenuMap()
+    # Add palette menu to all menus but only once
+    for k, v in menumap.items():
+        v.removeItem(['Color'], 'show/hide palette')
+    global callbacks_list
+    callbacks_list = []
+
 
 def toggleShowPaletteForObject(aobject):
     # show/hide palette
@@ -605,3 +613,6 @@ def savePaletteImage(aobject, filename):
 
 pm = PaletteViewerModule()
 init()
+import atexit
+atexit.register(cleanup)
+

@@ -379,6 +379,15 @@ class GradientPaletteMenuRegistrer(anatomist.ObjectMenuRegistrerClass):
         return menu
 
 
+def cleanup():
+    menumap = anatomist.AObject.getObjectMenuMap()
+    # Add palette menu to all menus but only once
+    for k, v in menumap.items():
+        v.removeItem(['Color'], 'Palette editor')
+    global callbacks_list
+    callbacks_list = []
+
+
 def init():
     r = GradientPaletteMenuRegistrer()
     callbacks_list.append(r)
@@ -396,3 +405,5 @@ def init():
 
 gp = GradientPaletteModule()
 init()
+import atexit
+atexit.register(cleanup)

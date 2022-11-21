@@ -67,7 +67,7 @@ class SetAutoPalettes(ana.cpp.ObjectMenuCallback):
 
 callbacks_list = []
 
-# Add plop Menu to an object
+# Add pop Menu to an object
 
 
 def addMenuEntryToOptionMenu(menu):
@@ -95,5 +95,18 @@ def init():
     for m in menus.keys():
         addMenuEntryToOptionMenu(m)
 
+
+def cleanup():
+    menumap = ana.cpp.AObject.getObjectMenuMap()
+    # Add palette menu to all menus but only once
+    for k, v in menumap.items():
+        if k.startswith('VOLUME'):
+            v.removeItem(['Color'], 'Set distinct palettes')
+    global callbacks_list
+    callbacks_list = []
+
+
 volpal = VolumePalettesModule()
 init()
+import atexit
+atexit.register(cleanup)
