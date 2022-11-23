@@ -48,10 +48,10 @@ QPixmap ColoredPixmapCache::coloredPixmap( const QColor & rgb, unsigned size,
   QString key = QString( colbgfilename.c_str() ) + "-"
       + QString( fgfilename.c_str() ) + "-" + QString::number( size ) +
       "-" + QString( "%1" ).arg( rgb.rgb(), 0, 16 );
-  /* cout << "key for " << colbgfilename << " / " << fgfilename << " : "
-      << key << endl; */
+   /* cout << "key for " << colbgfilename << " / " << fgfilename << " : "
+      << key.toStdString() << endl; */
   QPixmap *cpix1 = 0;
-  if( QPixmapCache::find( key, cpix1 ) )
+  if( QPixmapCache::find( key, cpix1 ) && cpix1 )
     return *cpix1;
   static map<string, QImage>  imgs;
   QPixmap cpix( size, size );
