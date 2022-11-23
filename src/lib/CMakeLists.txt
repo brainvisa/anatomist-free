@@ -544,6 +544,10 @@ set( _libraries ${OPENGL_LIBRARIES} ${OPENGL_glx_LIBRARY} aimsgui ${AIMS-FREE_LI
 # endif()
 set( _libraries ${_libraries} ${ZLIB_LIBRARIES} )
 
+if( DESIRED_QT_VERSION EQUAL 6 )
+  set (_libraries PUBLIC ${_libraries} )
+endif()
+
 target_link_libraries( anatomist ${_libraries} )
 
 BRAINVISA_INSTALL( TARGETS anatomist
