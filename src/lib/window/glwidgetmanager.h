@@ -40,7 +40,7 @@
 #include <anatomist/window/viewstate.h>
 
 #include <qglobal.h>
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 #include <QOpenGLWidget>
 #else
 #include <QtOpenGL/QGLWidget>
@@ -105,14 +105,14 @@ namespace anatomist
     struct Private;
     friend class ::GLWidgetManager_Private_QObject;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     GLWidgetManager( anatomist::AWindow* win, QOpenGLWidget* widget );
 #else
     GLWidgetManager( anatomist::AWindow* win, QGLWidget* widget );
 #endif
     virtual ~GLWidgetManager();
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     QOpenGLWidget* qglWidget();
 #else
     QGLWidget* qglWidget();
@@ -201,7 +201,7 @@ namespace anatomist
     unsigned numTextureUnits() const;
     bool recording() const;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     static QOpenGLWidget* sharedWidget();
 #else
     static QGLWidget* sharedWidget();

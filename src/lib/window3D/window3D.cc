@@ -86,7 +86,7 @@
 #include <qslider.h>
 #include <qglobal.h>
 #include <qmessagebox.h>
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 #include <QOpenGLWidget>
 #else
 #include <QGLWidget>
@@ -2767,7 +2767,7 @@ void AWindow3D::updateWindowGeometry()
 
 Geometry AWindow3D::setupWindowGeometry(
     const list<carto::shared_ptr<AObject> > & objects, const Quaternion & slicequat,
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     const Referential *wref, QOpenGLWidget* glw, bool with3d )
 #else
     const Referential *wref, QGLWidget* glw, bool with3d )

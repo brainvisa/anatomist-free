@@ -45,7 +45,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QPointer>
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #else
@@ -76,21 +76,21 @@ struct Shader::Private
   ~Private();
   Private( const Private & );
   Private & operator = ( const Private & );
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QSharedPointer<QOpenGLShaderProgram *> _shader_program_p;
 #else
   QSharedPointer<QGLShaderProgram *> _shader_program_p;
 #endif
   bool enable;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   static QWeakPointer<QOpenGLShaderProgram *> _shader_programs_p[3][3][3][2];
 #else
   static QWeakPointer<QGLShaderProgram *> _shader_programs_p[3][3][3][2];
 #endif
   static bool _dummy_init_shader_programs_p;
   static bool init_shader_programs_p(void);
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   static QSharedPointer<QOpenGLShaderProgram *> null_p;
 #else
   static QSharedPointer<QGLShaderProgram *> null_p;
@@ -103,13 +103,13 @@ struct Shader::Private
 };
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 QWeakPointer<QOpenGLShaderProgram *> Shader::Private::_shader_programs_p[3][3][3][2];
 #else
 QWeakPointer<QGLShaderProgram *> Shader::Private::_shader_programs_p[3][3][3][2];
 #endif
 bool Shader::Private::_dummy_init_shader_programs_p = Shader::Private::init_shader_programs_p();
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 QSharedPointer<QOpenGLShaderProgram *> Shader::Private::null_p;
 #else
 QSharedPointer<QGLShaderProgram *> Shader::Private::null_p;
@@ -128,7 +128,7 @@ QString Shader::Private::_diffuseDirs[2] = {
 bool Shader::Private::init_shader_programs_p(void)
 {
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   null_p = QSharedPointer<QOpenGLShaderProgram *>((QOpenGLShaderProgram **) 0);
 #else
   null_p = QSharedPointer<QGLShaderProgram *>((QGLShaderProgram **) 0);
@@ -144,7 +144,7 @@ bool Shader::Private::init_shader_programs_p(void)
 };
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 static void doDeleteInternal(QOpenGLShaderProgram **obj)
 #else
 static void doDeleteInternal(QGLShaderProgram **obj)
@@ -158,7 +158,7 @@ static void doDeleteInternal(QGLShaderProgram **obj)
 }
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 Shader::Private::Private() : _shader_program_p((QOpenGLShaderProgram **) 0, doDeleteInternal), enable( Shader::isActivated() )
 #else
 Shader::Private::Private() : _shader_program_p((QGLShaderProgram **) 0, doDeleteInternal), enable( Shader::isActivated() )
@@ -222,7 +222,7 @@ bool	Shader::isSupported(void) // cache version
 
 bool	Shader::_isSupported(void)
 {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLWidget *shared_widget = GLWidgetManager::sharedWidget();
   shared_widget->makeCurrent();
   bool support_glshader = QOpenGLShaderProgram::hasOpenGLShaderPrograms();
@@ -313,7 +313,7 @@ void Shader::load_if_needed(void)
   int material_model
     = _material_model >= 0 ? _material_model : DefaultMaterialModel;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QWeakPointer<QOpenGLShaderProgram *> &shader_program_w
 #else
   QWeakPointer<QGLShaderProgram *> &shader_program_w
@@ -327,7 +327,7 @@ void Shader::load_if_needed(void)
 
   if( !shader_program_w.toStrongRef().data())
   {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     QOpenGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
     shared_widget->makeCurrent();
     QOpenGLShaderProgram *pgm = new QOpenGLShaderProgram();
@@ -367,7 +367,7 @@ void Shader::reload(void)
   int material_model
     = _material_model >= 0 ? _material_model : DefaultMaterialModel;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QWeakPointer<QOpenGLShaderProgram *> &shader_program_w
 #else
   QWeakPointer<QGLShaderProgram *> &shader_program_w
@@ -375,7 +375,7 @@ void Shader::reload(void)
     = d->_shader_programs_p[lighting_model][interpolation_model]
       [coloring_model][material_model];
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
   shared_widget->makeCurrent();
   QOpenGLShaderProgram *pgm = new QOpenGLShaderProgram();
@@ -391,7 +391,7 @@ void Shader::reload(void)
 
 void Shader::load(void)
 {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShader	vertex_shader(QOpenGLShader::Vertex);
   QOpenGLShader	fragment_shader(QOpenGLShader::Fragment);
 #else
@@ -407,7 +407,7 @@ void Shader::load(void)
   fragment_shader_filename = (shader_basename + ".frag");
   vertex_shader_filename = (shader_basename + ".vert");
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));
   QOpenGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
 #else
@@ -457,7 +457,7 @@ void Shader::setShaderParameters( const GLComponent &obj,
     normalIsDirection = obj.glMaterial()->renderProperty(
       Material::NormalIsDirection ) > 0;
   }
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));
 #else
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
@@ -470,7 +470,7 @@ void Shader::setShaderParameters( const GLComponent &obj,
 void Shader::setShaderParameters(const ATexSurface &obj, const ViewState & state) const
 {
   setShaderParameters( static_cast<const GLComponent &>( obj ), state );
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));
 #else
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
@@ -490,7 +490,7 @@ void Shader::setShaderParameters(const ATexSurface &obj, const ViewState & state
 void Shader::setShaderParameters(const AVolumeBase &obj, const ViewState & state) const
 {
   setShaderParameters( static_cast<const GLComponent &>( obj ), state );
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));
 #else
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
@@ -507,7 +507,7 @@ void Shader::bind(const GLComponent &glc, const ViewState & state)
   if (not d->enable) return;
   if (d->_shader_program_p.isNull()) return;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));
 #else
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
@@ -531,7 +531,7 @@ void Shader::release(void)
   if (not d->enable) return;
   if (d->_shader_program_p.isNull()) return;
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));
 #else
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));

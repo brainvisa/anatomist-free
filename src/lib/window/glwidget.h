@@ -36,7 +36,7 @@
 #define ANATOMIST_WINDOW_GLWIDGET_H
 
 #include <qglobal.h>
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #else
@@ -45,7 +45,7 @@
 #include <anatomist/window/glwidgetmanager.h>
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 class QAGLWidget : public QOpenGLWidget, 
                    public anatomist::GLWidgetManager,
                    protected QOpenGLFunctions
@@ -58,7 +58,7 @@ class QAGLWidget : public carto::GLWidget, public anatomist::GLWidgetManager
 public:
   QAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
               const char* name = 0,
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
               const QOpenGLWidget * shareWidget = 0,
               Qt::WindowFlags f=Qt::WindowFlags() );
 #else
@@ -73,7 +73,7 @@ public:
 
   int width()
   {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     return QOpenGLWidget::width();
 #else
     return carto::GLWidget::width();
@@ -82,7 +82,7 @@ public:
 
   int height()
   {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     return QOpenGLWidget::height();
 #else
     return carto::GLWidget::height();

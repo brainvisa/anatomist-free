@@ -41,7 +41,7 @@
 #include <qtimer.h>
 #include <map>
 #include <anatomist/controler/controlswitch.h>
-#if QT_VERSION < 0x050900
+#if QT_VERSION < 0x060000
 #include <anatomist/window/glcontext.h>
 #endif
 #include <anatomist/reference/Transformation.h>
@@ -62,13 +62,13 @@
 #if QT_VERSION >= 0x050000
 #include <QWindow>
 #endif
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 #include <QOpenGLWidget>
 #include <QOpenGLContext>
 #endif
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 // Declared in <QtGui/private/qopenglcontext_p.h> which
 // is not part of the API
 extern void qt_gl_set_global_share_context(QOpenGLContext *context);
@@ -88,7 +88,7 @@ using namespace std;
 #define COMPILE_DEPTH_PEELING
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 QOpenGLWidget* GLWidgetManager::sharedWidget()
 {
   static QOpenGLWidget *w = 0;
@@ -176,7 +176,7 @@ struct GLWidgetManager::Private
   void setAutoCenter();
   void setWindowExtrema();
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
   QOpenGLWidget         *glwidget;
 #else
   QGLWidget             *glwidget;
@@ -289,7 +289,7 @@ void GLWidgetManager::Private::setWindowExtrema()
 // --------
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QOpenGLWidget * glw )
 #else
 GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QGLWidget * glw )
@@ -318,7 +318,7 @@ QObject* GLWidgetManager::qobject()
 }
 
 
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
 QOpenGLWidget* GLWidgetManager::qglWidget()
 #else
 QGLWidget* GLWidgetManager::qglWidget()
@@ -1227,7 +1227,7 @@ void GLWidgetManager::updateGL()
   }
   else if( _pd->glwidget )
   {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     if( dynamic_cast<QOpenGLWidget *>( this ) == _pd->glwidget )
       _pd->glwidget->QOpenGLWidget::update();
     else
@@ -2273,7 +2273,7 @@ QSize GLWidgetManager::minimumSizeHint() const
 {
   if( _pd->minSizeHint == QSize( 0, 0 ) )
   {
-#if QT_VERSION >= 0x050900
+#if QT_VERSION >= 0x060000
     if( dynamic_cast<const QOpenGLWidget *>( this ) == _pd->glwidget )
       return _pd->glwidget->QOpenGLWidget::minimumSizeHint();
 #else
