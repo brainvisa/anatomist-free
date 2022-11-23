@@ -49,7 +49,7 @@ class ControlledWindow : public QAWindow
 public:
   ControlledWindow( QWidget* parent = 0, const char* name = 0, 
                     carto::Object options = carto::none(), 
-                    Qt::WindowFlags f = 0 );
+                    Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~ControlledWindow();
 
   virtual void registerObject( anatomist::AObject* object,

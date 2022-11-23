@@ -32,49 +32,49 @@
  */
 
 
-#ifndef Q_FLOAT_SPIN_BOX_H
-#define Q_FLOAT_SPIN_BOX_H
+#ifndef ANATOMIST_COMMANDS_CLOADTRANSFORMATIONGRAPH_H
+#define ANATOMIST_COMMANDS_CLOADTRANSFORMATIONGRAPH_H
 
-#include <qspinbox.h>
 
-#if QT_VERSION >= 0x040000
-typedef QDoubleSpinBox QFloatSpinBoxBase;
-#else
-typedef QSpinBox QFloatSpinBoxBase;
-#endif
+#include <anatomist/processor/Command.h>
+#include <anatomist/processor/context.h>
+#include <cartobase/object/object.h>
+#include <vector>
 
-class QFloatSpinBox 
-  : public QFloatSpinBoxBase
+
+namespace anatomist
 {
-  Q_OBJECT
 
-public:
+  class Referential;
+  class Transformation;
 
-  QFloatSpinBox( int, QWidget *p=0, const char *n=0 );
-  QFloatSpinBox( int, int, int, int st=1, QWidget *p=0, const char *n=0 );
-  virtual ~QFloatSpinBox();
 
-public slots:
+  ///	Load a transformations graph
+  class LoadTransformationGraphCommand : public RegularCommand
+  {
+  public:
+    /// Load transformation graph from file
+    LoadTransformationGraphCommand( const std::string & filename );
+    /// Load transformation graph from dict Object
+    LoadTransformationGraphCommand( const carto::Object & desc );
+    virtual ~LoadTransformationGraphCommand();
 
-#if QT_VERSION >= 0x040000
-  void valChange( double );
-#else
-  void valChange( int );
-#endif
+    virtual std::string name() const { return( "LoadTransformationGraph" ); }
+    virtual void write( Tree & com, Serializer* ser ) const;
 
-signals:
+  protected:
+    virtual void doit();
 
-  void valueChanged( float );
+  private:
+    std::string     _filename;
+    carto::Object   _description;
 
-protected:
+    friend class StdModule;
+    static Command* read( const Tree & com, CommandContext* context );
+    static bool initSyntax();
+  };
 
-  QString mapValueToText( int );
-  int mapTextToValue( bool * );
+}
 
-private:
-
-  int prec;
-  int nDigit;
-};
 
 #endif

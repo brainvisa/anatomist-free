@@ -85,7 +85,7 @@ static bool initRoiBaseModule()
   return( true );
 }
 
-static bool garbage = initRoiBaseModule();
+static bool garbage __attribute__((unused)) = initRoiBaseModule();
 
 std::string 
 RoiBaseModule::name() const
@@ -145,11 +145,11 @@ void RoiBaseModule::actionsDeclaration()
 void RoiBaseModule::controlsDeclaration()
 {
   ControlDictionary::instance()->addControl("PaintControl",
-					    PaintControl::creator, 102 ) ;
+					    PaintControl::creator, 893 ) ;
   ControlDictionary::instance()->addControl("ConnectivityThresholdControl",
-					    RoiLevelSetControl::creator, 103 ) ;
+					    RoiLevelSetControl::creator, 9343 ) ;
   ControlDictionary::instance()->addControl("LabelNamingControl",
-					    RoiLabelNamingControl::creator, 110 ) ;
+					    RoiLabelNamingControl::creator, 81023 ) ;
 
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::GRAPHOBJECT ),
 					  "PaintControl" ) ;

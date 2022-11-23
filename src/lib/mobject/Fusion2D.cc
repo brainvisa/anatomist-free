@@ -289,7 +289,7 @@ namespace
   }
 
 
-  // linear-on-defined (A if B)
+  // linear-on-defined (A if B is white)
   template<> inline
   void _mix_item<2>( unsigned char* src, unsigned char *dst, float rate )
   {
@@ -332,7 +332,7 @@ namespace
   }
 
 
-  // linear-on-defined (A if not B)
+  // linear-on-defined (A if B is black or transparent)
   template<> inline
   void _mix_item<6>( unsigned char* src, unsigned char *dst, float rate )
   {
@@ -457,7 +457,7 @@ namespace
 
   // max
   template<> inline
-  void _mix_item<15>( unsigned char* src, unsigned char *dst, float rate )
+  void _mix_item<15>( unsigned char* src, unsigned char *dst, float /*rate*/ )
   {
     *dst = max( *src, *dst );
     *(dst+1) = max( *(src+1), *(dst+1) );
@@ -468,7 +468,7 @@ namespace
 
   // min
   template<> inline
-  void _mix_item<16>( unsigned char* src, unsigned char *dst, float rate )
+  void _mix_item<16>( unsigned char* src, unsigned char *dst, float /*rate*/ )
   {
     *dst = min( *src, *dst );
     *(dst+1) = min( *(src+1), *(dst+1) );
@@ -479,7 +479,7 @@ namespace
 
   // max alpha
   template<> inline
-  void _mix_item<17>( unsigned char* src, unsigned char *dst, float rate )
+  void _mix_item<17>( unsigned char* src, unsigned char *dst, float /*rate*/ )
   {
     if( *(src+3) > *(dst+3) )
     {
@@ -493,7 +493,7 @@ namespace
 
   // min alpha
   template<> inline
-  void _mix_item<18>( unsigned char* src, unsigned char *dst, float rate )
+  void _mix_item<18>( unsigned char* src, unsigned char *dst, float /*rate*/ )
   {
     if( *(src+3) < *(dst+3) )
     {
@@ -637,8 +637,6 @@ bool Fusion2D::update2DTexture( AImage & ximage, const Point3df & pos,
 {
   if( size() == 0 )
     return false;
-
-  const Referential	*winref = state.winref;
 
   /*
   cout << "Fusion2D::update2DTexture\n";

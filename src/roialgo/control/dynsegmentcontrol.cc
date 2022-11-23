@@ -60,7 +60,7 @@ RoiDynSegmentControl::creator()
 
 
 RoiDynSegmentControl::RoiDynSegmentControl()
-  : Control( 106, "DynSegmentControl" )
+  : Control( 106576, "DynSegmentControl" )
 {
 
 }

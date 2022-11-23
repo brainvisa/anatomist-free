@@ -36,7 +36,7 @@
 #define ANATOMIST_HISTOGRAM_HISTO_H
 
 #include <anatomist/object/Object.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 
 class QAHistogram
 {
@@ -58,7 +58,7 @@ public:
   float pmin;
   float pmax;
   int64_t pdim;
-  std::map< anatomist::AObject*, carto::rc_ptr<AimsData< float > > > crv;
+  std::map< anatomist::AObject*, carto::rc_ptr<carto::Volume< float > > > crv;
 };
 
 #endif

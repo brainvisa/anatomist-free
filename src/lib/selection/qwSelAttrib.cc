@@ -55,7 +55,7 @@ QSelAttrib::QSelAttrib( QWidget* parent, const char* name )
   setModal(true);
 
   QGridLayout	*lay = new QGridLayout( this );
-  lay->setMargin( 5 );
+  lay->setContentsMargins( 5, 5, 5, 5 );
   lay->setSpacing( 5 );
   QLabel	*lab1 = new QLabel( tr( "Attribute :" ), this );
   lab1->setObjectName( "attr" );

@@ -36,9 +36,6 @@
 #include <anatomist/action/paintaction.h>
 #include <anatomist/application/roibasemodule.h>
 #include <anatomist/object/Object.h>
-#include <aims/bucket/bucket.h>
-#include <aims/data/data.h>
-#include <aims/vector/vector.h>
 #include <anatomist/reference/Referential.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/window3D/window3D.h>
@@ -53,8 +50,11 @@
 #include <anatomist/misc/error.h>
 #include <anatomist/commands/cLinkedCursor.h>
 #include <anatomist/processor/Processor.h>
-
+#include <aims/bucket/bucket.h>
+#include <aims/vector/vector.h>
 #include <aims/resampling/quaternion.h>
+#include <cartodata/volume/volume.h>
+
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qslider.h>
@@ -64,6 +64,7 @@
 
 #include <algorithm>
 
+using namespace carto;
 using namespace std;
 
 const unsigned short ACTION_ROI_PAINT = 0x0001;
@@ -484,7 +485,7 @@ PaintActionView::clearRegionAction()
 }
 
 void
-PaintActionView::update(const Observable *, void *)
+PaintActionView::update(const anatomist::Observable *, void *)
 {
   //cout << "PaintActionView::update" << endl;
   if(myUpdatingFlag)
@@ -554,7 +555,7 @@ PaintActionSharedData* PaintActionSharedData::instance()
 }
 
 void
-PaintActionSharedData::update (const Observable *, void *)
+PaintActionSharedData::update (const anatomist::Observable *, void *)
 {
   //cout << "PaintActionSharedData::update" << endl;
   setChanged();
@@ -702,7 +703,7 @@ PaintAction::paintStart(int x, int y, int globalX, int globalY)
   AGraph * g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
   if (!g) return;
 
-  AimsData<AObject*>& labels = g->volumeOfLabels(0);
+  VolumeRef<AObject*>& labels = g->volumeOfLabels(0);
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -710,9 +711,9 @@ PaintAction::paintStart(int x, int y, int globalX, int globalY)
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( labels.dimX() != dims[0]
-      || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  if( labels.getSizeX() != dims[0]
+      || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -778,7 +779,7 @@ PaintAction::paint(int x, int y, int, int)
       RoiChangeProcessor::instance()->getGraphObject(view()->aWindow()),
       _sharedData->myBrushSize, _sharedData->myLineMode,
       /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-      &g->volumeOfLabels(0),
+      g->volumeOfLabels(0),
       Point3df( bmin[0] / vs[0] + 0.5, bmin[1] / vs[1] + 0.5,
                 bmin[2] / vs[2] + 0.5 ),
       /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
@@ -857,9 +858,9 @@ PaintAction::eraseStart(int x, int y, int globalX, int globalY)
   dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
-  AimsData<AObject*>& labels = g->volumeOfLabels(0);
-  if( labels.dimX() != dims[0] || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  VolumeRef<AObject*>& labels = g->volumeOfLabels(0);
+  if( labels.getSizeX() != dims[0] || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -931,7 +932,7 @@ PaintAction::erase(int x, int y, int, int)
         0, _sharedData->myBrushSize,
         _sharedData->myLineMode,
         /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
-        &g->volumeOfLabels(0),
+        g->volumeOfLabels(0),
         /* BEWARE, WE MIGHT NEED TO DRAW ROI OVER TIME*/
         Point3df( bmin[0] / vs[0] + 0.5,
                   bmin[1] / vs[1] + 0.5,
@@ -1000,7 +1001,7 @@ PaintAction::clearRegion()
 
 
   if (!g) return;
-  AimsData<AObject*>& label = g->volumeOfLabels(0);
+  VolumeRef<AObject*>& label = g->volumeOfLabels(0);
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -1008,15 +1009,15 @@ PaintAction::clearRegion()
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( label.dimX() != dims[0]
-      || label.dimY() != dims[1]
-      || label.dimZ() != dims[2] )
+  if( label.getSizeX() != dims[0]
+      || label.getSizeY() != dims[1]
+      || label.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
 
-  AimsData<AObject*>& labels = g->volumeOfLabels(0);
+  VolumeRef<AObject*>& labels = g->volumeOfLabels(0);
 
   BucketMap<Void>::Bucket::iterator
     iter(_sharedData->myCurrentModifiedRegion->bucket()[0].begin()),
@@ -1029,7 +1030,7 @@ PaintAction::clearRegion()
 
     _sharedData->myCurrentChanges->push_back(pair<Point3d, ChangesItem>(iter->first, item));
 
-    labels(iter->first) = 0 ;
+    labels.at(iter->first) = 0 ;
     ++iter;
   }
 
@@ -1321,7 +1322,7 @@ PaintAction::fill(int x, int y, int, int)
 
   _sharedData->myCurrentChanges = new list< pair< Point3d, ChangesItem> >;
 
-  AimsData<AObject*>& labels = g->volumeOfLabels(0);
+  VolumeRef<AObject*>& labels = g->volumeOfLabels(0);
   vector<float> gbmin, gbmax, vs;
   g->boundingBox2D( gbmin, gbmax );
   vs = g->voxelSize();
@@ -1329,9 +1330,9 @@ PaintAction::fill(int x, int y, int, int)
   dims[0] = int( rint( ( gbmax[0] - gbmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( gbmax[1] - gbmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( gbmax[2] - gbmin[2] ) / vs[2] ) );
-  if( labels.dimX() != dims[0]
-      || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  if( labels.getSizeX() != dims[0]
+      || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -1417,7 +1418,7 @@ PaintAction::fill(int x, int y, int, int)
                     (short) rint( bmax[2] / voxelSize[2] - 0.5 ));
       
       fillRegion2D(pt, ptmin, ptmax, 
-                   neighbourhood, g->volumeOfLabels(), 
+                   neighbourhood, g->volumeOfLabels(),
                    graphObject, (*_sharedData->myCurrentChanges));
       _sharedData->myIsChangeValidated = false;
       validateChange();
@@ -1429,19 +1430,20 @@ PaintAction::fillRegion2D(const Point3d& seed,
                           const Point3d& bmin,
                           const Point3d& bmax,
                           Point3d neighbourhood[],
-                          AimsData<AObject*>& volumeOfLabels, 
+                          VolumeRef<AObject*> & volumeOfLabels,
                           AObject * final,
                           list< pair< Point3d, ChangesItem> > & changes)
 {
 //   std::cout << "fillRegion2D, seed:" << seed
 //             << "bounding min:" << bmin
 //             << "bounding max:" << bmax << std::endl;
-  if(_sharedData->myPainter->in(&volumeOfLabels,
-                                Point3df((float)seed[0],
-                                         (float)seed[1],
-                                         (float)seed[2]),
-                                Point3df(0., 0., 0.))){
-    AObject *& value = volumeOfLabels(seed[0], seed[1], seed[2]);
+  if(_sharedData->myPainter->in( volumeOfLabels,
+                                 Point3df((float)seed[0],
+                                          (float)seed[1],
+                                          (float)seed[2]),
+                                 Point3df(0., 0., 0.)))
+  {
+    AObject *& value = volumeOfLabels.at(seed[0], seed[1], seed[2]);
 
     if ((!_sharedData->myReplaceMode && (value != 0))
      || (value == final))
@@ -1475,14 +1477,14 @@ PaintAction::fillRegion2D(const Point3d& seed,
           continue;
       
       if(_sharedData->myPainter->in(
-           &volumeOfLabels,
+           volumeOfLabels,
            Point3df((float)neighbour[0],
                     (float)neighbour[1], 
                     (float)neighbour[2]),
            Point3df(0., 0., 0.))){
-        AObject *& val = volumeOfLabels(neighbour[0], 
-                                        neighbour[1], 
-                                        neighbour[2]);
+        AObject *& val = volumeOfLabels->at( neighbour[0],
+                                             neighbour[1],
+                                             neighbour[2] );
         if ((_sharedData->myReplaceMode || (val == 0)) && (val != final)){
             trialPoints.push(neighbour);
             ChangesItem item;
@@ -1641,7 +1643,7 @@ PointPaintStrategy::paint(AWindow3D * /*win*/,
 			   Transformation * transf, const Point3df& point,
 			   const AObject * originalLabel, AObject * finalLabel,
 			   float /*brushSize*/, bool /*lineMode*/,
-			   AimsData<AObject*> *volumeOfLabels,
+			   VolumeRef<AObject*> & volumeOfLabels,
 			   const Point3df & vlOffset,
 			   BucketMap<Void>::Bucket & deltaModifications,
 			   list< pair< Point3d, ChangesItem> > & changes,
@@ -1681,11 +1683,11 @@ PointPaintStrategy::paint(AWindow3D * /*win*/,
               Point3d pt((short) rint((*iter)[0]),
                           (short) rint((*iter)[1]),
                           (short) rint((*iter)[2]));
-              if(volumeOfLabels)
+              if( volumeOfLabels.get() )
               {
                 AObject *& value
-                  = (*volumeOfLabels)
-                  ((unsigned) rint((*iter)[0] - vlOffset[0]),
+                  = volumeOfLabels->at(
+                    (unsigned) rint((*iter)[0] - vlOffset[0]),
                     (unsigned) rint((*iter)[1] - vlOffset[1]),
                     (unsigned) rint((*iter)[2] - vlOffset[2]));
                 if((value != originalLabel && !replace) ||
@@ -1713,9 +1715,9 @@ PointPaintStrategy::paint(AWindow3D * /*win*/,
   else if (in(volumeOfLabels, Point3df((float)pToInt[0], (float)pToInt[1],
 					 (float)pToInt[2]), vlOffset))
     {
-      if(volumeOfLabels)
+      if( volumeOfLabels.get() )
       {
-        AObject *& value = (*volumeOfLabels)(pVL);
+        AObject *& value = volumeOfLabels->at(pVL);
 
         if((value != originalLabel &&  !replace)
             || value == finalLabel)
@@ -1756,7 +1758,7 @@ SquarePaintStrategy::paint(AWindow3D */* win*/,
 			    const AObject * /*originalLabel*/,
 			    AObject * /*finalLabel*/,
 			    float /*brushSize*/, bool /*lineMode*/,
-			    AimsData<AObject*>* /*volumeOfLabels*/,
+			    VolumeRef<AObject*> & /*volumeOfLabels*/,
 			    const Point3df & /*vlOffset*/,
 			    BucketMap<Void>::Bucket & /*deltaModifications*/,
 			    list< pair< Point3d, ChangesItem> > & /*changes*/,
@@ -1791,7 +1793,7 @@ DiskPaintStrategy::brushPainter(const Point3df& diskCenter0,
   const AObject * originalLabel,
   AObject * finalLabel,
   float brushSize,
-  AimsData<AObject*> *volumeOfLabels,
+  VolumeRef<AObject*> & volumeOfLabels,
   const Point3df & voxelSize,
   const Point3df & vlOffset,
   BucketMap<Void>::Bucket & deltaModifications,
@@ -1871,9 +1873,9 @@ DiskPaintStrategy::brushPainter(const Point3df& diskCenter0,
                         (int) rint(vlOffset[1]),
                         (int) rint(vlOffset[2]));
 
-            if(volumeOfLabels)
+            if( volumeOfLabels.get() )
             {
-              AObject *& value = (*volumeOfLabels)(realPoint - VL);
+              AObject *& value = volumeOfLabels->at(realPoint - VL);
 
               if((value != originalLabel && !replace) ||
                   value == finalLabel)
@@ -1898,7 +1900,7 @@ DiskPaintStrategy::paint(AWindow3D * win,
   Transformation * transf, const Point3df& point,
   const AObject * originalLabel, AObject * finalLabel,
   float brushSize, bool /*lineMode*/,
-  AimsData<AObject*> *volumeOfLabels,
+  VolumeRef<AObject*> & volumeOfLabels,
   const Point3df & vlOffset,
   BucketMap<Void>::Bucket & deltaModifications,
   list< pair< Point3d, ChangesItem> > & changes,
@@ -2012,7 +2014,7 @@ BallPaintStrategy::brushPainter(const Point3d& pToInt,
 				 const AObject * originalLabel,
 				 AObject * finalLabel,
 				 float brushSize,
-				 AimsData<AObject*> *volumeOfLabels,
+				 VolumeRef<AObject*> & volumeOfLabels,
 				 const Point3df & voxelSize,
 				 const Point3df & vlOffset,
 				 BucketMap<Void>::Bucket & deltaModifications,
@@ -2037,9 +2039,9 @@ BallPaintStrategy::brushPainter(const Point3d& pToInt,
                 Point3d	VL((int) rint(vlOffset[0]),
                             (int) rint(vlOffset[1]),
                             (int) rint(vlOffset[2]));
-                if(volumeOfLabels)
+                if( volumeOfLabels.get() )
                 {
-                  AObject *& value = (*volumeOfLabels)(realPosition - VL);
+                  AObject *& value = volumeOfLabels->at(realPosition - VL);
 
                   if((value != originalLabel  && !replace) ||
                       value == finalLabel)
@@ -2075,9 +2077,9 @@ BallPaintStrategy::brushPainter(const Point3d& pToInt,
         Point3d	VL((int) rint(vlOffset[0]),
                         (int) rint(vlOffset[1]),
                         (int) rint(vlOffset[2]));
-        if(volumeOfLabels)
+        if( volumeOfLabels.get() )
         {
-          AObject *& value = (*volumeOfLabels)(realPosition - VL);
+          AObject *& value = volumeOfLabels->at(realPosition - VL);
 
           if((value != originalLabel  && !replace) ||
               value == finalLabel)
@@ -2106,7 +2108,7 @@ BallPaintStrategy::paint(AWindow3D * /*win*/,
 			  Transformation * transf, const Point3df& point,
 			  const AObject * originalLabel, AObject * finalLabel,
 			  float brushSize, bool /*lineMode*/,
-			  AimsData<AObject*> *volumeOfLabels,
+			  VolumeRef<AObject*> & volumeOfLabels,
 			  const Point3df & vlOffset,
 			  BucketMap<Void>::Bucket & deltaModifications,
 			  list< pair< Point3d, ChangesItem> > & changes,
@@ -2172,7 +2174,7 @@ PaintAction::viewableAction() const
 }
 
 
-PaintActionSharedData::PaintActionSharedData() : Observable(),
+PaintActionSharedData::PaintActionSharedData() : anatomist::Observable(),
   myBrushSize(1.), myLineMode(true), myReplaceMode(false),
   myFollowingLinkedCursor(false), myMmMode(false), myIsChangeValidated(true),
   myPainting(true), myCurrentModifiedRegion(0), myCursor(0),
@@ -2236,7 +2238,7 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
   AGraph * g = RoiChangeProcessor::instance()->getGraph(view()->aWindow());
   if (!g) return;
 
-  AimsData<AObject*>& labels = g->volumeOfLabels(0);
+  VolumeRef<AObject*>& labels = g->volumeOfLabels(0);
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -2244,15 +2246,15 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( labels.dimX() != dims[0]
-      || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  if( labels.getSizeX() != dims[0]
+      || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
 
-  AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels(0);
+  VolumeRef<AObject*>& volumeOfLabels = g->volumeOfLabels(0);
   AGraphObject * grao = RoiChangeProcessor::instance()->getGraphObject(view()->aWindow());
   grao->attributed()->setProperty("modified", true);
 
@@ -2326,7 +2328,8 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
 	  redirect[2] = 2;
 	}
 
-      Point3d dims(volumeOfLabels.dimX(), volumeOfLabels.dimY(),  volumeOfLabels.dimZ());
+      Point3d dims( volumeOfLabels.getSizeX(), volumeOfLabels.getSizeY(),
+                    volumeOfLabels.getSizeZ() );
       Point3d p;
       p[ redirect[2] ] = pVL[redirect[2]] ;
       Point3d normal(0, 0, 0);
@@ -2340,24 +2343,26 @@ PaintAction::copySlice(bool wholeSession, int sliceIncrement)
 	for(p[redirect[1]] = 0; p[redirect[1]] < dims[redirect[1]]; ++p[redirect[1]]){
 	  neighbor = p + (sliceIncrement > 0 ? normal : -normal) ;
 	  // Si les conditions sont respect�es, ajouter ce voxel dans le bucket courant.
-	  if((wholeSession && _sharedData->myReplaceMode) ||
-	      (wholeSession && !(_sharedData->myReplaceMode) && (volumeOfLabels(p)==0)) ||
-	      ((!wholeSession) && _sharedData->myReplaceMode && (volumeOfLabels(neighbor)==grao)) ||
-	      ((!wholeSession) && (!(_sharedData->myReplaceMode)) && (volumeOfLabels(neighbor)==grao) &&
-	       (volumeOfLabels(p)==0)))
+	  if( (wholeSession && _sharedData->myReplaceMode) ||
+          (wholeSession && !(_sharedData->myReplaceMode)
+           && (volumeOfLabels->at(p)==0)) ||
+	      ((!wholeSession) && _sharedData->myReplaceMode
+	       && (volumeOfLabels->at(neighbor)==grao)) ||
+	      ((!wholeSession) && (!(_sharedData->myReplaceMode)) && (volumeOfLabels->at(neighbor)==grao) &&
+	       (volumeOfLabels->at(p)==0)))
 	    {
 	      // Delta
 	      //_sharedData->myDeltaModifications->bucket()[0][p];
 
 	      //Changements pour le processeur
 	      ChangesItem item;
-	      item.before = volumeOfLabels(p);
-	      item.after = volumeOfLabels(neighbor);
+	      item.before = volumeOfLabels->at(p);
+	      item.after = volumeOfLabels->at(neighbor);
 	      _sharedData->myCurrentChanges->push_back(pair<Point3d, ChangesItem>(p,
 										    item));
 
 	      //Mise a jour du volume de labels
-	      volumeOfLabels(p) = volumeOfLabels(neighbor);
+	      volumeOfLabels->at(p) = volumeOfLabels->at(neighbor);
 	    }
 	}
     }
@@ -2445,16 +2450,18 @@ void PaintAction::updateCursor()
     vs = g->voxelSize();
 
     _sharedData->myPainter->reset();
-    _sharedData->myPainter->paint
-      (win, 0, // no transfo: draw at (0,0,0) in its own ref
-        Point3df(0, 0, 0), //_sharedData->myCursorPos,
-        0, 0, _sharedData->myBrushSize, false, 0,
-        Point3df(bmin[0] / vs[0] + 0.5,
-                 bmin[1] / vs[1] + 0.5,
-                 bmin[2] / vs[2] + 0.5 ),
-        (_sharedData->myCursor->bucket())[0],
-        changes, Point3df( region->voxelSize() ),
-        false, true, _sharedData->myMmMode);
+    VolumeRef<AObject *> null_label( 0 );
+    _sharedData->myPainter->paint(
+      win, 0, // no transfo: draw at (0,0,0) in its own ref
+      Point3df(0, 0, 0), //_sharedData->myCursorPos,
+      0, 0, _sharedData->myBrushSize, false, null_label,
+      Point3df( bmin[0] / vs[0] + 0.5,
+                bmin[1] / vs[1] + 0.5,
+                bmin[2] / vs[2] + 0.5 ),
+      (_sharedData->myCursor->bucket())[0],
+      changes, Point3df( region->voxelSize() ),
+      false, true, _sharedData->myMmMode );
+
     _sharedData->myCursor->setBucketChanged();
     _sharedData->myCursor->setGeomExtrema();
     _sharedData->myPainter->reset();

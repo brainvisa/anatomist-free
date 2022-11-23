@@ -119,7 +119,7 @@ RoiLabelNamingAction::addConnecCompToRegion( int x, int y, int, int )
   
   if (!g) return ;
   
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bbmin, bbmax;
   if( g->boundingBox2D( bbmin, bbmax ) )
   {
@@ -128,9 +128,9 @@ RoiLabelNamingAction::addConnecCompToRegion( int x, int y, int, int )
     dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
-    if( labels.dimX() !=  dims[0]
-        || labels.dimY() !=  dims[1]
-        || labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0]
+        || labels.getSizeY() != dims[1]
+        || labels.getSizeZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
       g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -162,7 +162,7 @@ RoiLabelNamingAction::removeConnecCompFromRegion( int x, int y, int, int )
   
   if (!g) return;
 
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bmin, bmax, vs;
   if( g->boundingBox2D( bmin, bmax ) )
   {
@@ -171,9 +171,9 @@ RoiLabelNamingAction::removeConnecCompFromRegion( int x, int y, int, int )
     dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0] ||
-        labels.dimY() != dims[1] ||
-        labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0] ||
+        labels.getSizeY() != dims[1] ||
+        labels.getSizeZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
       g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -214,7 +214,7 @@ RoiLabelNamingAction::addWholeLabelToRegion( int x, int y, int, int )
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 );
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 );
   vector<float> bmin, bmax;
   if( g->boundingBox2D( bmin, bmax ) )
   {
@@ -223,9 +223,9 @@ RoiLabelNamingAction::addWholeLabelToRegion( int x, int y, int, int )
     dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0] ||
-        labels.dimY() != dims[1] ||
-        labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0] ||
+        labels.getSizeY() != dims[1] ||
+        labels.getSizeZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
       g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -242,7 +242,7 @@ RoiLabelNamingAction::addWholeLabelToRegion( int x, int y, int, int )
 
 
 void 
-RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
+RoiLabelNamingAction::removeWholeLabelFromRegion( int /*x*/, int /*y*/, int, int )
 { 
   Bucket * currentModifiedRegion ; 
   if ( ! ( currentModifiedRegion = 
@@ -251,13 +251,13 @@ RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
   }
   
   AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
-  AGraphObject * go = RoiChangeProcessor::instance()->getGraphObject( 0 ) ;
+  //AGraphObject * go = RoiChangeProcessor::instance()->getGraphObject( 0 ) ;
   
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
   
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bmin, bmax;
   if( g->boundingBox2D( bmin, bmax ) )
   {
@@ -266,9 +266,9 @@ RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
     dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0] ||
-        labels.dimY() != dims[1] ||
-        labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0] ||
+        labels.getSizeY() != dims[1] ||
+        labels.getSizeZ() != dims[2] )
     {
       g->clearLabelsVolume() ;
       g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -294,15 +294,17 @@ RoiLabelNamingAction::removeWholeLabelFromRegion( int x, int y, int, int )
 
 void 
 RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region, 
-				  list< pair< Point3d, ChangesItem> >& changes,
-				  bool add, bool wholeImage )
+                                  list< pair< Point3d, ChangesItem> >& changes,
+                                  bool add, bool wholeImage )
 {
   anatomist::AObject * newSelectedImage = getCurrentImage() ;
-  if( newSelectedImage != myCurrentImage ){
+  if( newSelectedImage != myCurrentImage )
+  {
     myCurrentImage = getCurrentImage() ;
     if( myCurrentImage )
       myComputeCurrentImageValueMap.clear() ;
-  } else
+  }
+  else
     myComputeCurrentImageValueMap = vector<bool>(1, false) ;
 
   if( !myCurrentImage )
@@ -310,10 +312,10 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
   
   AWindow3D * win = dynamic_cast<AWindow3D*>( view()->aWindow() ) ;
   if( !win )
-    {
-      cerr << "warning: PaintAction operating on wrong view type\n";
-      return;
-    }
+  {
+    cerr << "warning: PaintAction operating on wrong view type\n";
+    return;
+  }
   
   //cout << "\tx = " << x << "\ty = " << y << endl ;
   
@@ -323,192 +325,225 @@ RoiLabelNamingAction::fillRegion( int x, int y, AGraphObject * region,
   //bool		newbck = myDeltaModifications->empty();
   Point3df pos ;
   if( win->positionFromCursor( x, y, pos ) )
+  {
+    //cout << "Pos : " << pos << endl ;
+
+    // cout << "Position from cursor : (" << x << " , "<< y << ") = "
+    //   << pos << endl ;
+
+    Point3df voxelSize = Point3df( region->voxelSize() );
+
+    Point3df normalVector( win->sliceQuaternion().
+                          transformInverse(Point3df(0., 0., 1.) ) ) ;
+    Point3df xAx( win->sliceQuaternion().
+                  transformInverse(Point3df(1., 0., 0.) ) ) ;
+    Point3df yAx( win->sliceQuaternion().
+                  transformInverse(Point3df(0., 1., 0.) ) ) ;
+
+    Point3d xAxis( (int)rint(xAx[0]), (int)rint(xAx[1]), (int)rint(xAx[2]) ) ;
+    Point3d yAxis( (int)rint(yAx[0]), (int)rint(yAx[1]), (int)rint(yAx[2]) ) ;
+    Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
+
+    //       cout << "Normal Vector : " << normalVector << endl ;
+    normalVector *= normalVector.dot( pos - win->getPosition() ) ;
+    pos = pos - normalVector ;
+
+    Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;
+    AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
+
+    Point3df p ;
+    if ( transf )
+      p = Transformation::transform( pos, transf, voxelSize ) ;
+    else
     {
-      //cout << "Pos : " << pos << endl ;
+      p = pos ;
+      p[0] /= voxelSize[0] ;
+      p[1] /= voxelSize[1] ;
+      p[2] /= voxelSize[2] ;
+    }
+      
+    //cout << "P : " << p << endl ;
 
-      // cout << "Position from cursor : (" << x << " , "<< y << ") = " 
-      //   << pos << endl ;
+    vector<float> bmin, bmax;
+    g->boundingBox2D( bmin, bmax );
 
-      Point3df voxelSize = Point3df( region->voxelSize() );
+    Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
+                        bmin[1] / voxelSize[1] + 0.5,
+                        bmin[2] / voxelSize[2] + 0.5 );
+    VolumeRef<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+    Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
+          static_cast<int>( rint( p[1] - vlOffset[1] ) ),
+          static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
 
-      Point3df normalVector( win->sliceQuaternion().
-                            transformInverse(Point3df(0., 0., 1.) ) ) ;
-      Point3df xAx( win->sliceQuaternion().
-                    transformInverse(Point3df(1., 0., 0.) ) ) ;
-      Point3df yAx( win->sliceQuaternion().
-                    transformInverse(Point3df(0., 1., 0.) ) ) ;
-      
-      Point3d xAxis( (int)rint(xAx[0]), (int)rint(xAx[1]), (int)rint(xAx[2]) ) ;
-      Point3d yAxis( (int)rint(yAx[0]), (int)rint(yAx[1]), (int)rint(yAx[2]) ) ;
-      Point3d zAxis( (int)rint(normalVector[0]), (int)rint(normalVector[1]), (int)rint(normalVector[2]) ) ;
-      
-      //       cout << "Normal Vector : " << normalVector << endl ;
-      normalVector *= normalVector.dot( pos - win->getPosition() ) ;
-      pos = pos - normalVector ;
-      
-      Transformation* transf = theAnatomist->getTransformation(winRef, buckRef) ;
-      AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
-      
-      Point3df p ;
-      if ( transf )
-	p = Transformation::transform( pos, transf, voxelSize ) ;
+
+
+    //cout << "\tpVL = " << pVL << endl ;
+
+    bool replace = PaintActionSharedData::instance()->replaceMode() ;
+    ChangesItem change ;
+    AObject** toChange ;
+    if( add )
+    {
+      change.after = region ;
+      toChange = &change.before ;
+    }
+    else
+    {
+      //replace = true ;
+      change.after = 0 ;
+      toChange = &change.before ;
+    }
+    vector<float> vpos = win->getFullPosition();
+    vector<float> vs = myCurrentImage->voxelSize();
+    while( vs.size() < 4 )
+      vs.push_back( 1.f );
+
+    std::queue<Point3d> trialPoints ;
+    Point3d dims( volumeOfLabels.getSizeX(), volumeOfLabels.getSizeY(),
+                  volumeOfLabels.getSizeZ() );
+    if( in( dims, pVL ) )
+    {
+      vpos[0] = pVL[0] * vs[0];
+      vpos[1] = pVL[1] * vs[1];
+      vpos[2] = pVL[2] * vs[2];
+      short currentLabel
+        = short( rint( myCurrentImage->mixedTexValue( vpos ) ) );
+      AVolume<int16_t> * vol16bits = dynamic_cast<AVolume<int16_t> *>(myCurrentImage) ;
+      if( vol16bits )
+        computeImageValueMap( *vol16bits, vpos[3] );
       else
-	{
-	  p = pos ;
-	  p[0] /= voxelSize[0] ; 
-	  p[1] /= voxelSize[1] ;
-	  p[2] /= voxelSize[2] ;
-	}
-      
-      //cout << "P : " << p << endl ;
-
-      vector<float> bmin, bmax;
-      g->boundingBox2D( bmin, bmax );
-
-      Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
-                         bmin[1] / voxelSize[1] + 0.5,
-                         bmin[2] / voxelSize[2] + 0.5 );
-      AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
-      Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
-		   static_cast<int>( rint( p[1] - vlOffset[1] ) ),
-		   static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
-      
-	
-      
-      //cout << "\tpVL = " << pVL << endl ;
-      
-      bool replace = PaintActionSharedData::instance()->replaceMode() ;
-      ChangesItem change ;
-      AObject** toChange ;
-      if( add ){
-	change.after = region ;
-	toChange = &change.before ;
-      }else{
-	//replace = true ;
-	change.after = 0 ;
-	toChange = &change.before ;
-      }
-      vector<float> vpos = win->getFullPosition();
-      vector<float> vs = myCurrentImage->voxelSize();
-      while( vs.size() < 4 )
-        vs.push_back( 1.f );
-
-      std::queue<Point3d> trialPoints ;
-      Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(), volumeOfLabels.dimZ() ) ;
-      if( in( dims, pVL ) )
       {
-        vpos[0] = pVL[0] * vs[0];
-        vpos[1] = pVL[1] * vs[1];
-        vpos[2] = pVL[2] * vs[2];
-        short currentLabel
-          = short( rint( myCurrentImage->mixedTexValue( vpos ) ) );
-        AVolume<int16_t> * vol16bits = dynamic_cast<AVolume<int16_t> *>(myCurrentImage) ;
-        if( vol16bits )
-          computeImageValueMap( *vol16bits, vpos[3] );
-        else{
-          AVolume<int8_t> * vol8bits = dynamic_cast<AVolume<int8_t> *>(myCurrentImage) ;
-          if( vol8bits )
-            computeImageValueMap( *vol8bits, vpos[3] ) ;
-          else{
-            AVolume<int32_t> * vol32bits = dynamic_cast<AVolume<int32_t> *>(myCurrentImage) ;
-            if( vol32bits )
-              computeImageValueMap( *vol32bits, vpos[3] ) ;
-            else {
-              AVolume<uint16_t> * volu16bits = dynamic_cast<AVolume<uint16_t> *>(myCurrentImage) ;
-              if( volu16bits )
-                computeImageValueMap( *volu16bits, vpos[3] ) ;
-              else{
-                AVolume<uint8_t> * volu8bits = dynamic_cast<AVolume<uint8_t> *>(myCurrentImage) ;
-                if( volu8bits )
-                  computeImageValueMap( *volu8bits, vpos[3] ) ;
-                else{
-                  AVolume<uint32_t> * volu32bits = dynamic_cast<AVolume<uint32_t> *>(myCurrentImage) ;
-                  if( volu32bits )
-                    computeImageValueMap( *volu32bits, vpos[3] ) ;
-                }
+        AVolume<int8_t> * vol8bits = dynamic_cast<AVolume<int8_t> *>(myCurrentImage) ;
+        if( vol8bits )
+          computeImageValueMap( *vol8bits, vpos[3] ) ;
+        else
+        {
+          AVolume<int32_t> * vol32bits = dynamic_cast<AVolume<int32_t> *>(myCurrentImage) ;
+          if( vol32bits )
+            computeImageValueMap( *vol32bits, vpos[3] ) ;
+          else
+          {
+            AVolume<uint16_t> * volu16bits = dynamic_cast<AVolume<uint16_t> *>(myCurrentImage) ;
+            if( volu16bits )
+              computeImageValueMap( *volu16bits, vpos[3] ) ;
+            else
+            {
+              AVolume<uint8_t> * volu8bits = dynamic_cast<AVolume<uint8_t> *>(myCurrentImage) ;
+              if( volu8bits )
+                computeImageValueMap( *volu8bits, vpos[3] ) ;
+              else
+              {
+                AVolume<uint32_t> * volu32bits = dynamic_cast<AVolume<uint32_t> *>(myCurrentImage) ;
+                if( volu32bits )
+                  computeImageValueMap( *volu32bits, vpos[3] ) ;
               }
             }
           }
         }
+      }
 
-	std::map< int16_t, int32_t>::iterator found
-	  = myCurrentImageValues[vpos[3]].find( currentLabel ) ;
-	int32_t nbOfPointsInImageToSegment = 0 ;
-	if( found == myCurrentImageValues[vpos[3]].end() ){
-// 	  cout << "myCurrentImageValues.size() = " << myCurrentImageValues[vpos[3]].size() << endl ;
-// 	  cout << "unfound label = " << currentLabel << endl ;
-	} else
-	  nbOfPointsInImageToSegment = found->second  ;
-	
-	bool proceed = true ;
-	if( nbOfPointsInImageToSegment > myNbOfPointsToSegmentLimit ){
-	  int res = 
-	    QMessageBox::warning( 0,
-				  RoiManagementActionView::tr("Huge amount of data !"),
-				  RoiManagementActionView::tr("You can procced, but it will \n"
-							      "take few minutes\n"
-							      "Do you still want to proceed ?"),
-				  RoiManagementActionView::tr("&Yes"), 
-				  RoiManagementActionView::tr("&No"),
-				  QString::null, 0, 1 ) ;
-	  //cout << "Mess box res = " << res << endl ;
-	  if( res == 1 )
-	    proceed = false ;
-	}
-	if( !proceed )
-	  return ;
-	
-	if( wholeImage ){
-	  int x, y, z ;
-	  ForEach3d(volumeOfLabels, x, y, z){
-	    Point3d pc(x, y, z) ;
-	    if( fillPoint( pc, vpos[3], volumeOfLabels, region, currentLabel,
-			   toChange, trialPoints, replace, add ) )
-	      changes.push_back(pair<Point3d, ChangesItem>( pc, change ) )  ;
-	    
-	    // 	    short label = short ( rint ( myCurrentImage->mixedTexValue( Point3df( x, y, z ), timePos) ) ) ;
-	    // 	    if( label == currentLabel )
-	  } 
-	}else{ 
-	  trialPoints.push(pVL) ;
-	  int regionSize = 0 ;
-	  Point3d pc ;
-	  Connectivity  * connec = 0 ; 
-	  //cout << "_sharedData->myDimensionMode == " << (TWOD ? "TWOD" : "ThreeD") << endl ;
-	  if( myTwoDMode == 1 ){
-	    //cout << "inside " << "TWOD" << "Normal Vect = " << normalVector << endl ;
-	    
-	    if( normalVector[2] > 0.9 ){
-	      //cout << "CONNECTIVITY_4_XY" << endl ;
-	      connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XY ) ;
-	    }else if( normalVector[1] > 0.9 ){
-	      //cout << "CONNECTIVITY_4_XZ" << endl ;	    
-	      connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XZ ) ;
-	    }else if( normalVector[0] > 0.9 ){
-	      connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_YZ ) ;
-	      //cout << "CONNECTIVITY_4_YZ" << endl ;
-	    }else{
-	      AWarning( "Level set should not be used in 2d mode on oblique views" ) ;
-	      return ;
-	    }
-	  } else
-	    connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_6_XYZ ) ;
-	  
-	  while( !trialPoints.empty() ){
-	    //cout << "Queue size : " <<  trialPoints.size() << "\tCurrent Point = " << pc << endl ;
-	    
-	    pc = trialPoints.front() ;
-	    trialPoints.pop() ;
-	    for( int n = 0 ; n < connec->nbNeighbors() ; ++n )
-	      if( fillPoint( pc + connec->xyzOffset(n), vpos[3], volumeOfLabels, region, currentLabel,
-			     toChange, trialPoints, replace, add ) ){
-		changes.push_back(pair<Point3d, ChangesItem>( pc + connec->xyzOffset(n), change ) )  ;
-		++regionSize ;
-	      }
-	    }
-	}
+      std::map< int16_t, int32_t>::iterator found
+        = myCurrentImageValues[vpos[3]].find( currentLabel ) ;
+      int32_t nbOfPointsInImageToSegment = 0 ;
+      if( found == myCurrentImageValues[vpos[3]].end() )
+      {
+        //  cout << "myCurrentImageValues.size() = " << myCurrentImageValues[vpos[3]].size() << endl ;
+        //  cout << "unfound label = " << currentLabel << endl ;
+      }
+      else
+        nbOfPointsInImageToSegment = found->second  ;
+
+      bool proceed = true ;
+      if( nbOfPointsInImageToSegment > myNbOfPointsToSegmentLimit )
+      {
+        int res =
+          QMessageBox::warning( 0,
+                    RoiManagementActionView::tr("Huge amount of data !"),
+                    RoiManagementActionView::tr("You can procced, but it will \n"
+                                    "take few minutes\n"
+                                    "Do you still want to proceed ?"),
+                    RoiManagementActionView::tr("&Yes"),
+                    RoiManagementActionView::tr("&No"),
+                    QString(), 0, 1 ) ;
+        //cout << "Mess box res = " << res << endl ;
+        if( res == 1 )
+          proceed = false ;
+      }
+      if( !proceed )
+        return ;
+
+      if( wholeImage )
+      {
+        int x, y, z ;
+        int dx = volumeOfLabels->getSizeX(), dy = volumeOfLabels->getSizeY(),
+          dz = volumeOfLabels->getSizeZ();
+        for( z=0; z<dz; ++z )
+          for( y=0; y<dy; ++y )
+            for( x=0; x<dx; ++x )
+        {
+          Point3d pc(x, y, z) ;
+          if( fillPoint( pc, vpos[3], volumeOfLabels, region, currentLabel,
+                toChange, trialPoints, replace, add ) )
+            changes.push_back(pair<Point3d, ChangesItem>( pc, change ) )  ;
+
+          // 	    short label = short ( rint ( myCurrentImage->mixedTexValue( Point3df( x, y, z ), timePos) ) ) ;
+          // 	    if( label == currentLabel )
+        }
+      }
+      else
+      {
+        trialPoints.push(pVL);
+        int regionSize = 0;
+        Point3d pc;
+        Connectivity  * connec = 0;
+        //cout << "_sharedData->myDimensionMode == " << (TWOD ? "TWOD" : "ThreeD") << endl ;
+        if( myTwoDMode == 1 )
+        {
+          //cout << "inside " << "TWOD" << "Normal Vect = " << normalVector << endl ;
+
+          if( normalVector[2] > 0.9 )
+          {
+            //cout << "CONNECTIVITY_4_XY" << endl ;
+            connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XY );
+          }
+          else if( normalVector[1] > 0.9 )
+          {
+            //cout << "CONNECTIVITY_4_XZ" << endl ;
+            connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_XZ );
+          }
+          else if( normalVector[0] > 0.9 )
+          {
+            connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_4_YZ );
+            //cout << "CONNECTIVITY_4_YZ" << endl ;
+          }
+          else
+          {
+            AWarning( "Level set should not be used in 2d mode on oblique views" ) ;
+            return ;
+          }
+        }
+        else
+          connec = new Connectivity(0, 0, Connectivity::CONNECTIVITY_6_XYZ );
+
+        while( !trialPoints.empty() )
+        {
+          //cout << "Queue size : " <<  trialPoints.size() << "\tCurrent Point = " << pc << endl ;
+
+          pc = trialPoints.front();
+          trialPoints.pop() ;
+          for( int n = 0 ; n < connec->nbNeighbors() ; ++n )
+            if( fillPoint( pc + connec->xyzOffset(n), vpos[3], volumeOfLabels,
+                           region, currentLabel, toChange, trialPoints,
+                           replace, add ) )
+            {
+              changes.push_back(pair<Point3d, ChangesItem>(
+                pc + connec->xyzOffset(n), change ) );
+              ++regionSize;
+            }
+        }
       }
     }
+  }
 }
   
 template <class T> 
@@ -522,7 +557,6 @@ RoiLabelNamingAction::computeImageValueMap( const anatomist::AVolume<T>& avol, i
   
   if( myComputeCurrentImageValueMap[timePos] )
   {
-    int x, y, z ;
     myCurrentImageValues = std::vector< std::map< int16_t, int32_t> >(
       vol.getSizeT() ) ;
 

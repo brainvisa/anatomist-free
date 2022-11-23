@@ -76,7 +76,7 @@ static bool initRoiAlgoModule()
   return( true );
 }
 
-static bool garbage = initRoiAlgoModule();
+static bool garbage __attribute__((unused)) = initRoiAlgoModule();
 
 std::string 
 RoiAlgoModule::name() const
@@ -117,7 +117,7 @@ void RoiAlgoModule::actionsDeclaration()
 void RoiAlgoModule::controlsDeclaration()
 {
   ControlDictionary::instance()->addControl("DynSegmentControl",
-					    RoiDynSegmentControl::creator, 106 ) ;
+					    RoiDynSegmentControl::creator, 106576 ) ;
   
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::BUCKET ), 
 					  "DynSegmentControl" ) ;

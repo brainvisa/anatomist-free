@@ -96,7 +96,7 @@ QGraphProperties::QGraphProperties( const set<AObject *> & obj,
     setWindowIcon( anaicon );
 
   QVBoxLayout	*mainLay = new QVBoxLayout( this );
-  mainLay->setMargin( 10 );
+  mainLay->setContentsMargins( 10, 10, 10, 10 );
   mainLay->setSpacing( 10 );
   d->objsel = new ObjectParamSelect( obj, this );
   mainLay->addWidget( d->objsel );
@@ -106,13 +106,13 @@ QGraphProperties::QGraphProperties( const set<AObject *> & obj,
   mainLay->addWidget( d->main );
   QVBoxLayout *vlay = new QVBoxLayout( d->main );
   vlay->setSpacing( 10 );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
 
   QWidget *modeb = new QWidget( d->main );
   vlay->addWidget( modeb );
   QGridLayout *glay = new QGridLayout( modeb );
   glay->setSpacing( 10 );
-  glay->setMargin( 0 );
+  glay->setContentsMargins( 0, 0, 0, 0 );
 
   glay->addWidget( new QLabel( tr( "Display mode : " ), modeb ), 0, 0 );
   d->modecombo = new QComboBox( modeb );

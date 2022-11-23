@@ -150,15 +150,18 @@ static void doDeleteInternal(QOpenGLShaderProgram **obj)
 static void doDeleteInternal(QGLShaderProgram **obj)
 #endif
 {
-  delete obj[0];
-  delete[] obj;
+  if( obj )
+  {
+    delete obj[0];
+    delete[] obj;
+  }
 }
 
 
 #if QT_VERSION >= 0x050900
-Shader::Private::Private() : _shader_program_p((QOpenGLShaderProgram **) 0, doDeleteInternal), enable(true)
+Shader::Private::Private() : _shader_program_p((QOpenGLShaderProgram **) 0, doDeleteInternal), enable( Shader::isActivated() )
 #else
-Shader::Private::Private() : _shader_program_p((QGLShaderProgram **) 0, doDeleteInternal), enable(true)
+Shader::Private::Private() : _shader_program_p((QGLShaderProgram **) 0, doDeleteInternal), enable( Shader::isActivated() )
 #endif
 {
 }
@@ -322,7 +325,7 @@ void Shader::load_if_needed(void)
   if (not d->_shader_program_p.isNull())
     d->_shader_program_p.clear();
 
-  if (not shader_program_w.data())
+  if( !shader_program_w.toStrongRef().data())
   {
 #if QT_VERSION >= 0x050900
     QOpenGLWidget	*shared_widget = GLWidgetManager::sharedWidget();
@@ -381,7 +384,7 @@ void Shader::reload(void)
   shared_widget->makeCurrent();
   QGLShaderProgram *pgm = new QGLShaderProgram(shared_widget->context());
 #endif
-  (shader_program_w.data())[0] = pgm;
+  (shader_program_w.toStrongRef().data())[0] = pgm;
   load();
 }
 
@@ -446,7 +449,7 @@ void Shader::setShaderParameters(const GLMObject &obj, const ViewState & state) 
 
 
 void Shader::setShaderParameters( const GLComponent &obj,
-                                  const ViewState & state ) const
+                                  const ViewState & /*state*/ ) const
 {
   bool normalIsDirection = false;
   if( obj.glMaterial() )

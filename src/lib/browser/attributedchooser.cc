@@ -54,7 +54,7 @@ AttributedChooser::AttributedChooser( const GenericObject & ao,
   setObjectName(name);
   setModal(true);
   QGridLayout	*lay1 = new QGridLayout( this );
-  lay1->setMargin( 10 );
+  lay1->setContentsMargins( 10, 10, 10, 10 );
   _nameBox = new QComboBox( this );
   _nameBox->setEditable( true );
   _nameBox->setObjectName( "name" );

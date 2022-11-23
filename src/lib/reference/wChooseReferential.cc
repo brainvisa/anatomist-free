@@ -91,7 +91,7 @@ void ChooseReferentialWindow::drawContents( const char *name )
   setWindowTitle( name );
   setObjectName( name );
   QVBoxLayout	*lay = new QVBoxLayout( this );
-  lay->setMargin( 10 );
+  lay->setContentsMargins( 10, 10, 10, 10 );
   lay->setSpacing( 5 );
   QGroupBox *grp = new QGroupBox( tr( "Referential:" ), this );
   QVBoxLayout *glay = new QVBoxLayout( grp );

@@ -295,12 +295,22 @@ namespace
             registerProcessType( "Texture", "FLOAT", &loadTex1d );
           if( !restr || types.find( "POINT2DF" ) != eir )
             registerProcessType( "Texture", "POINT2DF", &loadTex2d );
+          if( !restr || types.find( "S8" ) != eir )
+            registerProcessType( "Texture", "S8", &loadTex1dInt<int8_t> );
+          if( !restr || types.find( "U8" ) != eir )
+            registerProcessType( "Texture", "U8", &loadTex1dInt<uint8_t> );
           if( !restr || types.find( "S16" ) != eir )
             registerProcessType( "Texture", "S16", &loadTex1dInt<int16_t> );
+          if( !restr || types.find( "U16" ) != eir )
+            registerProcessType( "Texture", "U16", &loadTex1dInt<uint16_t> );
           if( !restr || types.find( "S32" ) != eir )
             registerProcessType( "Texture", "S32", &loadTex1dInt<int32_t> );
           if( !restr || types.find( "U32" ) != eir )
             registerProcessType( "Texture", "U32", &loadTex1dInt<uint32_t> );
+          if( !restr || types.find( "S64" ) != eir )
+            registerProcessType( "Texture", "S64", &loadTex1dInt<int64_t> );
+          if( !restr || types.find( "U64" ) != eir )
+            registerProcessType( "Texture", "U64", &loadTex1dInt<uint64_t> );
           if( !restr || types.find( "POINT2D" ) != eir )
             registerProcessType( "Texture", "POINT2D", &loadTex2dInt<short> );
           if( !restr || types.find( "DOUBLE" ) != eir )
@@ -925,18 +935,18 @@ namespace
     //	look for other files going together with the 1st compressed one
     set<string>	others;
 
-    checkFormats<AimsData<int8_t> >( ext, others );
-    checkFormats<AimsData<uint8_t> >( ext, others );
-    checkFormats<AimsData<int16_t> >( ext, others );
-    checkFormats<AimsData<uint16_t> >( ext, others );
-    checkFormats<AimsData<int32_t> >( ext, others );
-    checkFormats<AimsData<uint32_t> >( ext, others );
-    checkFormats<AimsData<int64_t> >( ext, others );
-    checkFormats<AimsData<uint64_t> >( ext, others );
-    checkFormats<AimsData<float> >( ext, others );
-    checkFormats<AimsData<double> >( ext, others );
-    checkFormats<AimsData<AimsRGB> >( ext, others );
-    checkFormats<AimsData<AimsRGBA> >( ext, others );
+    checkFormats<Volume<int8_t> >( ext, others );
+    checkFormats<Volume<uint8_t> >( ext, others );
+    checkFormats<Volume<int16_t> >( ext, others );
+    checkFormats<Volume<uint16_t> >( ext, others );
+    checkFormats<Volume<int32_t> >( ext, others );
+    checkFormats<Volume<uint32_t> >( ext, others );
+    checkFormats<Volume<int64_t> >( ext, others );
+    checkFormats<Volume<uint64_t> >( ext, others );
+    checkFormats<Volume<float> >( ext, others );
+    checkFormats<Volume<double> >( ext, others );
+    checkFormats<Volume<AimsRGB> >( ext, others );
+    checkFormats<Volume<AimsRGBA> >( ext, others );
     checkFormats<AimsSurfaceTriangle>( ext, others );
     checkFormats<BucketMap<Void> >( ext, others );
     checkFormats<Texture1d>( ext, others );
@@ -1492,6 +1502,12 @@ ObjectReader::_storagetype & ObjectReader::_loaders()
 {
   static _storagetype loaders;
   return loaders;
+}
+
+
+void ObjectReader::cleanup()
+{
+  _loaders().clear();
 }
 
 // -------

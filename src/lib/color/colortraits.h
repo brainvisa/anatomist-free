@@ -54,7 +54,7 @@ namespace anatomist
 
   private:
     const AObjectPalette	*palette;
-    const AimsData<AimsRGBA>	*colors;
+    const carto::Volume<AimsRGBA>	*colors;
     float			scale0;
     float			scale1;
     float			decal0;
@@ -201,7 +201,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -218,7 +218,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    return (*colors)( ival0, ival1 );
+    return colors->at( ival0, ival1 );
   }
 
   template <typename T> inline
@@ -248,7 +248,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -265,7 +265,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[0] = (*colors)( ival0, ival1 )[0];
+    col[0] = colors->at( ival0, ival1 )[0];
 
     val = static_cast<float>( in.green() );
 
@@ -282,7 +282,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -297,7 +297,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[1] = (*colors)( ival0, ival1 )[1];
+    col[1] = colors->at( ival0, ival1 )[1];
 
     val = static_cast<float>( in.blue() );
 
@@ -314,7 +314,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -329,7 +329,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[2] = (*colors)( ival0, ival1 )[2];
+    col[2] = colors->at( ival0, ival1 )[2];
 
     val = static_cast<float>( std::sqrt( in.red() * in.red()
                                          + in.green() * in.green()
@@ -346,7 +346,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -361,7 +361,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[3] = (*colors)( ival0, ival1 )[3];
+    col[3] = colors->at( ival0, ival1 )[3];
 
     return col;
   }
@@ -389,7 +389,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -406,7 +406,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[0] = (*colors)( ival0, ival1 )[0];
+    col[0] = colors->at( ival0, ival1 )[0];
 
     val = static_cast<float>( in.green() );
 
@@ -423,7 +423,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -440,7 +440,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[1] = (*colors)( ival0, ival1 )[1];
+    col[1] = colors->at( ival0, ival1 )[1];
 
     val = static_cast<float>( in.blue() );
 
@@ -457,7 +457,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -474,7 +474,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[2] = (*colors)( ival0, ival1 )[2];
+    col[2] = colors->at( ival0, ival1 )[2];
 
     val = static_cast<float>( in.alpha() );
 
@@ -491,7 +491,7 @@ namespace anatomist
       ival0 = cmin0;
 
     if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->dimY() == 1 )
+        colors->getSizeY() == 1 )
       ival1 = 0 ;
     else
       {
@@ -508,7 +508,7 @@ namespace anatomist
           ival1 = cmin1;
       }
 
-    col[3] = (*colors)( ival0, ival1 )[3];
+    col[3] = colors->at( ival0, ival1 )[3];
 
     return col;
   }

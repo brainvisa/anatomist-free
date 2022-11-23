@@ -84,6 +84,8 @@ DeleteElementCommand::doit()
   void			*ptr;
   string		type;
 
+  set<AObject *> objs;
+
   for( i=_elem.begin(); i!=_elem.end(); ++i )
   {
     ptr = context()->unserial->pointer( *i );
@@ -97,7 +99,7 @@ DeleteElementCommand::doit()
       {
         AObject	*o = (AObject *) ptr;
         if( theAnatomist->hasObject( o ) )
-          theAnatomist->destroyObject( o );
+          objs.insert( o );
       }
       else if( type == "AWindow" )
       {
@@ -159,6 +161,7 @@ DeleteElementCommand::doit()
     }
   }
 
+  theAnatomist->destroyObjects( objs );
   theAnatomist->UpdateInterface();
   theAnatomist->Refresh();
 }

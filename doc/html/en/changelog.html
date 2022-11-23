@@ -25,6 +25,12 @@
 </h1>
 
 <p>
+<b><a href="#version-5.1.0">Version 5.1.0</a></b><br/>
+<b><a href="#version-5.0.4">Version 5.0.4</a></b><br/>
+<b><a href="#version-5.0.3">Version 5.0.3</a></b><br/>
+<b><a href="#version-5.0.2">Version 5.0.2</a></b><br/>
+<b><a href="#version-5.0.1">Version 5.0.1</a></b><br/>
+<b><a href="#version-5.0.0">Version 5.0.0</a></b><br/>
 <b><a href="#version-4.6.1">Version 4.6.1</a></b><br/>
 <b><a href="#version-4.6.0">Version 4.6.0</a></b><br/>
 <b><a href="#version-4.5.1">Version 4.5.1</a></b><br/>
@@ -71,6 +77,78 @@
 
 
 <!-- -->
+<h4> <a name="version-5.1.0"></a>2022/09/22 - Version 5.1.0</h4>
+<h5>Visible changes (users):</h5>
+<ul>
+  <li>New Jupyter notebook interface, which embeds interactive Anatomist views (3D or 2D) in notebook outputs.
+  </li>
+  <li>Info about cursor position (texture values etc) is displayed in 3D windows tooltips.
+  </li>
+  <li>When a textured object (texture, volume) contains a "labels" attribute in its header, it is used to translate int labels to strings in info and tooltips.
+  </li>
+  <li>Transformations graphs files can be read and used in Anatomist: in the referentials window, use "load transformations graph" in the right-click popup menu on the background.
+  </li>
+  <li>The old perfusion plugin has been removed. It has been obsolete and unmaintained for many years, and nobody is still using it has methods have certainly evolved since then.
+  </li>
+</ul>
+
+<h5>Internal changes (programmers):</h5>
+<ul>
+  <li>Handle volumes with "strides" even on the 1st axis, allowing to map numpy arrays from external world.
+  </li>
+</ul>
+
+<!-- -->
+<h4> <a name="version-5.0.4"></a>2021/12/22 - Version 5.0.4</h4>
+<ul>
+  <li>Pyanatomist: prevent modification of sys.argv</li>
+  <li>pyanatomist: fixes in thread safe implementation</li>
+  <li>fixes variable potentially used before definintion in anasimpleviewer</li>
+</ul>
+
+<!-- -->
+<h4> <a name="version-5.0.3"></a>2021/10/13 - Version 5.0.3</h4>
+<ul>
+  <li>Fixed crash in Fusion3D using more than 2 volumes</li>
+  <li>Added a detailed doc about palettes and texturing</li>
+  <li>Fix in folds split</li>
+  <li>Fix in referential of internal CutMesh sub-object</li>
+  <li>Fixed objects icons being sometimes not loaded</li>
+  <li>Made the palette name optional palette specifications in objects .minf</li>
+</ul>
+
+<!-- -->
+<h4> <a name="version-5.0.2"></a>2021/06/17 - Version 5.0.2</h4>
+<h5>Visible changes (users):</h5>
+<ul>
+  <li>fixes in auto-fusion (when several sliceable objects are put in the same view), avoiding possible crashes.
+  </li>
+  <li>User docs have been imoroved and complemented, for referentials and coordinates systems, and coloring, especially.
+  </li>
+</ul>
+
+<!-- -->
+<h4> <a name="version-5.0.1"></a>2021/03/05 - Version 5.0.1</h4>
+<h5>Visible changes (users):</h5>
+<ul>
+  <li>Fixed meshes rendering property "front face", the display in the user interface was showing the contrary of what it was (clockwise/counterclockwise)
+  </li>
+</ul>
+
+<!-- -->
+<h4> <a name="version-5.0.0"></a>2021/01/20 - Version 5.0.0</h4>
+<h5>Visible changes (users):</h5>
+<ul>
+  <li>A new default control allows to perform most actions with a single (left) mouse button. This also allows to control Anatomist in touch devices. Specific touch gestures have also been implemented.
+  </li>
+  <li>Allow to save resampled volumes from anatomist</li>
+  <li>Limit used memory when loading large fiber tracks files</li>
+  <li>Support reduced connectivity matrices in connectivity matrix fusion (brain mesh + matrix + regions texture)
+  </li>
+  <li>Other fixes and improvements in Python bindings</li>
+</ul>
+
+<!-- -->
 <h4> <a name="version-4.6.1"></a>2018/09/24 - Version 4.6.1</h4>
 <h5>Visible changes (users):</h5>
 <ul>
@@ -80,6 +158,7 @@
   </li>
   <li>Fixes in time sliders for objects with time steps (or voxel size) different from 1. on time and higher axes.
   </li>
+  <li>Display connectivity matrices also as images</li>
   <li>Many other fixes</li>
 </ul>
 

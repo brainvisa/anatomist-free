@@ -20,7 +20,7 @@ Features and originality of Anatomist are based on:
 
 Anatomist control window (main window) enables to have a general view of loaded objects and opened windows, to choose actions for combining objects (merging...), or controls to use on windows according to contained objects. Here's Anatomist control window:
 
-.. figure:: _images/control_window0.png
+.. figure:: images/control_window0.png
 
   Anatomist control window
 
@@ -119,7 +119,7 @@ Here are some examples about typical actions in Anatomist, for example to look a
 Install and start Anatomist software
 ====================================
 
-* Download: see the `BrainVISA web site download page <http://brainvisa.info/download.html>`_
+* Download: see the `BrainVISA web site download page <https://brainvisa.info/download.html>`_
 * See also the :doc:`anatomist_tutorial`
 * And the :axonusr:`BrainVISA installation section <axon_manual.html#installation>`
 

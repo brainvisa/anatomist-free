@@ -75,6 +75,9 @@ void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globa
 {
   //cout << "pressRightButton\n" ;
 
+  if( !getTools()->isValid() )
+    return;
+
   int activeControl = getTools()->getActiveControl();
   //cout << "active control = " << activeControl <<endl;
 
@@ -97,7 +100,8 @@ void SurfpaintToolsAction::setupTools()
 
 void SurfpaintToolsAction::longLeftButtonStart(int x, int y, int globalX, int globalY)
 {
-  AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
+  if( !getTools()->isValid() )
+    return;
 
   int activeControl = getTools()->getActiveControl();
 
@@ -134,6 +138,9 @@ void SurfpaintToolsAction::longLeftButtonMove(int x, int y, int globalX, int glo
 {
   //cout << "longLeftButtonMove\n" ;
 
+  if( !getTools()->isValid() )
+    return;
+
   int activeControl = getTools()->getActiveControl();
 
   switch (activeControl)
@@ -160,6 +167,9 @@ void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int glo
 {
   //cout << "longLeftButtonStop\n" ;
 
+  if( !getTools()->isValid() )
+    return;
+
   int activeControl = getTools()->getActiveControl();
   texvalue = getTools()->getTextureValueFloat();
 
@@ -183,7 +193,7 @@ void SurfpaintToolsAction::longLeftButtonStop(int x, int y, int globalX, int glo
   }
 }
 
-void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::colorpicker(int x, int y, int /*globalX*/, int /*globalY*/)
 {
   AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
@@ -196,8 +206,9 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
   if( tval.size() >= 1 )
     texvalue = tval[0];
   else
@@ -209,7 +220,7 @@ void SurfpaintToolsAction::colorpicker(int x, int y, int globalX, int globalY)
 }
 
 void SurfpaintToolsAction::magicselection(int x, int y,
-                                          int globalX, int globalY)
+                                          int /*globalX*/, int /*globalY*/)
 {
   AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
 
@@ -222,8 +233,9 @@ void SurfpaintToolsAction::magicselection(int x, int y,
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->clearRegion();
 
@@ -250,18 +262,20 @@ void SurfpaintToolsAction::distanceStart(int x, int y, int globalX, int globalY)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   distanceMove(x, y, globalX, globalY);
 }
 
-void SurfpaintToolsAction::distanceStop(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::distanceStop(int /*x*/, int /*y*/, 
+                                        int /*globalX*/, int /*globalY*/)
 {
   cout << "distanceStop" << endl;
 }
 
-void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::distanceMove(int x, int y, int /*globalX*/, int /*globalY*/)
 {
   //cout << "brushMove" << endl;
   AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
@@ -275,8 +289,9 @@ void SurfpaintToolsAction::distanceMove(int x, int y, int globalX, int globalY)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   if( indexNearestVertex >= 0 )
     getTools()->computeDistanceMap(indexNearestVertex);
@@ -291,12 +306,13 @@ void SurfpaintToolsAction::brushStart(int x, int y, int globalX, int globalY)
   brushMove(x, y, globalX, globalY);
 }
 
-void SurfpaintToolsAction::brushStop(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::brushStop(int /*x*/, int /*y*/,
+                                     int /*globalX*/, int /*globalY*/)
 {
   // cout << "brushStop" << endl;
 }
 
-void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::brushMove(int x, int y, int /*globalX*/, int /*globalY*/)
 {
   //cout << "brushMove" << endl;
   AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
@@ -310,8 +326,9 @@ void SurfpaintToolsAction::brushMove(int x, int y, int globalX, int globalY)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -335,8 +352,8 @@ void SurfpaintToolsAction::magicbrushStart(int x, int y,
   magicbrushMove(x, y, globalX, globalY);
 }
 
-void SurfpaintToolsAction::magicbrushStop(int x, int y,
-                                          int globalX, int globalY)
+void SurfpaintToolsAction::magicbrushStop(int /*x*/, int /*y*/,
+                                          int /*globalX*/, int /*globalY*/)
 {
   // cout << "magicbrushStop" << endl;
 
@@ -344,7 +361,7 @@ void SurfpaintToolsAction::magicbrushStop(int x, int y,
 }
 
 void SurfpaintToolsAction::magicbrushMove(int x, int y,
-                                          int globalX, int globalY)
+                                          int /*globalX*/, int /*globalY*/)
 {
   //cout << "brushMove" << endl;
   AWindow3D *win3D = dynamic_cast<AWindow3D *> (view()->aWindow());
@@ -358,8 +375,9 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y,
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-    tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+    tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -372,14 +390,16 @@ void SurfpaintToolsAction::magicbrushMove(int x, int y,
   win3D->refreshNow();
 }
 
-void SurfpaintToolsAction::eraseStart(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::eraseStart(int x, int y, 
+                                      int /*globalX*/, int /*globalY*/)
 {
   //cout << "eraseStart" << endl;
   getTools()->newEditOperation();
   eraseMove(x, y, 0, 0);
 }
 
-void SurfpaintToolsAction::eraseStop(int x, int y, int globalX, int globalY)
+void SurfpaintToolsAction::eraseStop(int /*x*/, int /*y*/, 
+                                     int /*globalX*/, int /*globalY*/)
 {
   //cout << "eraseStop" << endl;
 }
@@ -399,8 +419,9 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
   getTools()->setPolygon(poly);
   getTools()->setVertex(indexNearestVertex);
@@ -412,7 +433,7 @@ void SurfpaintToolsAction::eraseMove(int x, int y, int, int)
 }
 
 void SurfpaintToolsAction::shortestpathClose(int x, int y,
-                                             int globalX, int globalY)
+                                             int /*globalX*/, int /*globalY*/)
 {
   //cout << "shortestpathClose" << endl;
 
@@ -435,10 +456,11 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y )
   int poly;
   string objtype, textype;
   vector<float> tval;
-  win3D->getInfos3DFromClickPoint(x, y, pos, &poly, objselect, objtype,
-      tval, textype, positionNearestVertex, &indexNearestVertex);
+  vector<string> texlabels;
+  win3D->getInfos3DFromClickPoint( x, y, pos, &poly, objselect, objtype,
+      tval, textype, positionNearestVertex, &indexNearestVertex, texlabels );
 
-  float texvalue = (float)(getTools()->getTextureValueFloat());
+  //float texvalue = (float)(getTools()->getTextureValueFloat());
 
   if (!getTools()->pathIsClosed())
   {
@@ -455,8 +477,8 @@ void SurfpaintToolsAction::shortestpathStart(int x, int y )
 }
 
 
-void SurfpaintToolsAction::shortestpathStop(int x, int y, int globalX,
-    int globalY)
+void SurfpaintToolsAction::shortestpathStop(int /*x*/, int /*y*/,
+                                            int /*globalX*/, int /*globalY*/)
 {
   //cout << "shortestpathStop" << endl;
 }
@@ -484,7 +506,3 @@ void SurfpaintToolsAction::redo()
 {
   getTools()->redo();
 }
-
-
-
-

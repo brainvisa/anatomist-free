@@ -53,7 +53,7 @@ static bool initVolRenderModule()
   return( true );
 }
 
-static bool garbage = initVolRenderModule();
+static bool garbage __attribute__((unused)) = initVolRenderModule();
 
 
 VolRenderModule::VolRenderModule() : Module()

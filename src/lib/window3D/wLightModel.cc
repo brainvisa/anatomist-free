@@ -167,7 +167,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
   _pdat->modelAmbient = new QAColorWidget( col, vg, 
-                                            "lgtmodel_model_ambient" );
+                                           "lgtmodel_model_ambient" );
   vlay->addWidget( _pdat->modelAmbient );
   vlay->addStretch( 1 );
   vg = new QGroupBox( tr( "Background :" ), model );
@@ -179,8 +179,8 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
   _pdat->modelBackground
-    = new QAColorWidget( col, vg, "lgtmodel_model_backg", 0, true, false,
-                         int( c[3] * 255.9 ) );
+    = new QAColorWidget( col, vg, "lgtmodel_model_backg", Qt::WindowFlags(),
+                         true, false, int( c[3] * 255.9 ) );
   vlay->addWidget( _pdat->modelBackground );
   vlay->addStretch( 1 );
   vg = new QGroupBox( tr( "Parameters :" ), model );

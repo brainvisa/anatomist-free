@@ -238,7 +238,8 @@ namespace
               Referential::acPcReferential(), ref);
       if (t)
       {
-        Point3df p = t->transform(Point3df(1, 0, 0));
+        Point3df p = t->transform( Point3df( 1, 0, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         Quaternion q;
         if (p[0] < 0)
         {
@@ -247,7 +248,8 @@ namespace
           q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
-        p = t->transform(Point3df(0, 1, 0));
+        p = t->transform( Point3df( 0, 1, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         if (p[1] < 0)
         {
           q.fromAxis(Point3df(1, 0, 0), M_PI);
@@ -272,7 +274,8 @@ namespace
               Referential::acPcReferential(), ref);
       if (t)
       {
-        Point3df p = t->transform(Point3df(1, 0, 0));
+        Point3df p = t->transform( Point3df( 1, 0, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         Quaternion q;
         if (p[0] < 0)
         {
@@ -281,7 +284,8 @@ namespace
           q.fromAxis(Point3df(1, 0, 0), M_PI);
           quat *= q;
         }
-        p = t->transform(Point3df(0, 0, 1));
+        p = t->transform( Point3df( 0, 0, 1 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         if (p[2] < 0)
         {
           q.fromAxis(Point3df(1, 0, 0), M_PI);
@@ -308,7 +312,8 @@ namespace
               Referential::acPcReferential(), ref);
       if (t)
       {
-        Point3df p = t->transform(Point3df(0, 1, 0));
+        Point3df p = t->transform( Point3df( 0, 1, 0 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         Quaternion q;
         if (p[1] < 0)
         {
@@ -317,7 +322,8 @@ namespace
           q.fromAxis(Point3df(0, 1, 0), M_PI);
           quat *= q;
         }
-        p = t->transform(Point3df(0, 0, 1));
+        p = t->transform( Point3df( 0, 0, 1 ) )
+          - t->transform( Point3df( 0, 0, 0 ) );
         if (p[2] < 0)
         {
           q.fromAxis(Point3df(0, 1, 0), M_PI);
@@ -572,9 +578,9 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     daparent = gv;
     hbl->addWidget( daparent );
   }
-  if (glWidgetCreator())
-    d->draw = glWidgetCreator()(this, daparent, "GL drawing area",
-        GLWidgetManager::sharedWidget(), 0);
+  if( glWidgetCreator() )
+    d->draw = glWidgetCreator()( this, daparent, "GL drawing area",
+        GLWidgetManager::sharedWidget(), Qt::WindowFlags() );
   else
   {
     d->draw = new QAGLWidget3D( this, daparent, "GL drawing area",
@@ -671,6 +677,24 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
 
   d->objvallabel = new QLabel(statusBar());
   statusBar()->addPermanentWidget( d->objvallabel, 0 );
+  d->objvallabel->setTextInteractionFlags(
+    d->objvallabel->textInteractionFlags() | Qt::TextSelectableByMouse
+    | Qt::TextSelectableByKeyboard );
+//   // find label in statusbar
+//   QWidgetItem *wi = dynamic_cast<QWidgetItem *>(
+//     static_cast<QBoxLayout *>(
+//       static_cast<QBoxLayout *>( statusBar()->layout()->itemAt(0) )
+//       ->itemAt(1) )->itemAt(2) );
+//   if( wi )
+//   {
+//     QLabel *l = dynamic_cast<QLabel *>( wi->widget() );
+//     if( l )
+//       l->setTextInteractionFlags(
+//         l->textInteractionFlags() | Qt::TextSelectableByMouse
+//         | Qt::TextSelectableByKeyboard );
+//     cout << "label: " << l << ", " << d->objvallabel << endl;
+//   }
+
   bool showsbar = !nodeco;
   if( showsbar )
     try
@@ -696,10 +720,10 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->draw->controlSwitch()->attach(this);
   d->draw->controlSwitch()->notifyAvailableControlChange();
   d->draw->controlSwitch()->notifyActivableControlChange();
-  d->draw->controlSwitch()->setActiveControl("Default 3D control");
-  // should be done in ControlSwitch
-  d->draw->controlSwitch()->notifyActiveControlChange();
-  d->draw->controlSwitch()->notifyActionChange();
+  // d->draw->controlSwitch()->setActiveControl("Default 3D control");
+  // // should be done in ControlSwitch
+  // d->draw->controlSwitch()->notifyActiveControlChange();
+  // d->draw->controlSwitch()->notifyActionChange();
   setFocusProxy(d->draw->qglWidget());
 
   if (!nodeco)
@@ -710,8 +734,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     for( ic=ch.begin(); ic!=ec && !(ntb=qobject_cast<QToolBar *>( *ic ) );
         ++ic );
     if( !ntb )
-    ntb = addToolBar( tr( "controls" ), "controls" );
-    addToolBar( Qt::LeftToolBarArea, ntb, "controls" );
+    ntb = addToolBar( Qt::LeftToolBarArea, tr( "controls" ), "controls" );
 
     //	Menus
 
@@ -764,7 +787,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
 
     //	Mutation toolbar
 
-    d->mute = addToolBar( tr( "mutations" ), "mutations" );
+    d->mute = insertToolBar( 0, Qt::TopToolBarArea, tr( "mutations" ),
+                             "mutations" );
     d->mute->setIconSize( QSize( 20, 20 ) );
     const QPixmap *p;
 
@@ -1585,66 +1609,179 @@ int AWindow3D::computeNearestVertexFromPolygonPoint(const ViewState & vs, int po
 void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
     int *poly, AObject *objselect, string & objtype, vector<float> & texvalue,
     string & textype,
-    Point3df & positionNearestVertex, int* indexNearestVertex)
+    Point3df & positionNearestVertex, int* indexNearestVertex,
+    vector<string> & texlabels )
 {
   d->draw->positionFromCursor(x, y, position);
 
   *poly = polygonAtCursorPosition(x, y, objselect);
+
+  vector<float> fpos = getFullPosition();
+  fpos[0] = position[0];
+  fpos[1] = position[1];
+  fpos[2] = position[2];
+
+  getInfos3DFromPosition( fpos, *poly, objselect, objtype, texvalue,
+                          textype, positionNearestVertex, indexNearestVertex,
+                          texlabels );
+}
+
+
+void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
+    int poly, AObject *objselect, string & objtype, vector<float> & texvalue,
+    string & textype,
+    Point3df & positionNearestVertex, int* indexNearestVertex,
+    vector<string> & texlabels )
+{
   *indexNearestVertex = -1;
+  *indexNearestVertex = 0;
 
-  AWindow3D *w3 = dynamic_cast<AWindow3D *> (view()->aWindow());
+  if( !objselect )
+    return;
 
+  objtype = objselect->objectTypeName( objselect->type() );
 
-  if( objselect )
+  if( !hasObject(objselect) )
+    return;
+  GLComponent *glc = objselect->glAPI();
+  if( !glc )
+    return;
+
+  AttributedAObject *aao = dynamic_cast<AttributedAObject *> (objselect);
+  Object labels;
+
+  // is there a labels table (int -> string map)
+  if( aao )
   {
-    if( w3->hasObject(objselect) )
+    aao->attributed()->getProperty("data_type", textype);
+    try
     {
-      objtype = objselect->objectTypeName(objselect->type());
-      *indexNearestVertex = 0;
-
-      GLComponent *glc = objselect->glAPI();
-      if (glc)
+      labels = aao->attributed()->getProperty( "labels" );
+    }
+    catch( ... )
+    {
+    }
+  }
+  if( !labels.get() )
+  {
+    // try another texture object
+    MObject *mo = dynamic_cast<MObject *>( objselect );
+    if( mo )
+    {
+      MObject::iterator im, em = mo->end();
+      for( im=mo->begin(); im!=em; ++im )
       {
-        ViewState vs3(getTime(), this);
-        SliceViewState vs2(getTime(), true, position, &d->slicequat,
-            getReferential(), windowGeometry(), &d->draw->quaternion(), this);
-        ViewState *vs = &vs2;
-
-        string text = objselect->name();
-        AttributedAObject *aao = dynamic_cast<AttributedAObject *> (objselect);
-
-        if (aao)
-          aao->attributed()->getProperty("data_type", textype);
-
-        if (!objselect->Is2DObject() || (d->viewtype == ThreeD && objselect->Is3DObject()))
-          vs = &vs3;
-
-        *indexNearestVertex = computeNearestVertexFromPolygonPoint(*vs, *poly, glc, position, positionNearestVertex);
-
-        if (*indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
-            < glc->glNumVertex(*vs))
+        aao = dynamic_cast<AttributedAObject *>( *im );
+        if( aao )
         {
-          unsigned ntex = glc->glNumTextures(*vs), tx;
-          for (tx = 0; tx < ntex; ++tx)
+          try
           {
-            unsigned nvtex = glc->glTexCoordSize(*vs, tx);
-            if (nvtex > (unsigned) *indexNearestVertex)
-            {
-              const GLfloat* tc = glc->glTexCoordArray(*vs, tx);
-              if (tc)
-              {
-                const GLComponent::TexExtrema & te = glc->glTexExtrema(tx);
+            labels = aao->attributed()->getProperty( "labels" );
+            break;
+          }
+          catch( ... )
+          {
+          }
+        }
+      }
+    }
+  }
 
-                unsigned dt = glc->glDimTex(*vs, tx), i;
-                if (dt > 0)
+  // sliceable textured object ?
+  texvalue = objselect->texValues( fpos, getReferential() );
+  if( !texvalue.empty() )
+  {
+    unsigned i, ntex = texvalue.size();
+    int itval;
+
+    if( labels.get() )
+    {
+      texlabels.reserve( ntex );
+      for( i = 0; i < ntex; ++i )
+      {
+        itval = int( rint( texvalue[i] ) );
+        // get string label if any
+        string label;
+        try
+        {
+          if( labels->hasItem( itval ) )
+          {
+            Object olabel = labels->getArrayItem( itval );
+            if( olabel )
+              label = olabel->getString();
+          }
+        }
+        catch( ... )
+        {
+        }
+        texlabels.push_back( label );
+      }
+    }
+
+    return;
+  }
+
+
+  Point3df position( fpos[0], fpos[1], fpos[2] );
+  ViewState vs3(getTime(), this);
+  SliceViewState vs2(getTime(), true, position, &d->slicequat,
+      getReferential(), windowGeometry(), &d->draw->quaternion(), this);
+  ViewState *vs = &vs2;
+
+  if( !objselect->Is2DObject()
+      || (d->viewtype == ThreeD && objselect->Is3DObject()) )
+    vs = &vs3;
+
+  if( poly >= 0 )
+  {
+    *indexNearestVertex = computeNearestVertexFromPolygonPoint(
+      *vs, poly, glc, position, positionNearestVertex );
+
+    if( *indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
+        < glc->glNumVertex(*vs) )
+    {
+      unsigned ntex = glc->glNumTextures(*vs), tx;
+
+      for (tx = 0; tx < ntex; ++tx)
+      {
+        unsigned nvtex = glc->glTexCoordSize(*vs, tx);
+        if (nvtex > (unsigned) *indexNearestVertex)
+        {
+          const GLfloat* tc = glc->glTexCoordArray(*vs, tx);
+          if (tc)
+          {
+            const GLComponent::TexExtrema & te = glc->glTexExtrema(tx);
+
+            unsigned dt = glc->glDimTex(*vs, tx), i;
+            if (dt > 0)
+            {
+              texvalue.reserve( dt );
+              if( labels.get() )
+                texlabels.reserve( dt );
+              for (i = 0; i < dt; ++i)
+              {
+                float scl = (te.maxquant[i] - te.minquant[i])
+                  / (te.max[i] - te.min[i]);
+                float off = te.minquant[i] - scl * te.min[i];
+                float tval
+                  = scl * tc[*indexNearestVertex * dt + i] + off;
+                texvalue.push_back( tval );
+                // get string label if any
+                if( labels.get() )
                 {
-                  texvalue.reserve( dt );
-                  for (i = 0; i < dt; ++i)
+                  string label;
+                  if( labels->hasItem( int( rint( tval ) ) ) )
                   {
-                    float scl = (te.maxquant[i] - te.minquant[i]) / (te.max[i] - te.min[i]);
-                    float off = te.minquant[i] - scl * te.min[i];
-                    texvalue.push_back( scl * tc[*indexNearestVertex * dt + i] + off );
+                    try
+                    {
+                      label = labels->getArrayItem(
+                        int( rint( tval ) ) )->getString();
+                    }
+                    catch( ... )
+                    {
+                    }
                   }
+                  texlabels.push_back( label );
                 }
               }
             }
@@ -1664,36 +1801,59 @@ bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
 }
 
 
+string AWindow3D::displayInfoAtClickPositionAsText( int x, int y, bool html )
+{
+  string text;
+
+  AObject* obj = objectAtCursorPosition( x, y );
+  if( !obj )
+    return text;
+
+  int poly = -1, vert = -1;
+  vector<float> texval;
+  vector<string> texlabels;
+  Point3df pos, posvert;
+  string objtype, textype;
+  getInfos3DFromClickPoint( x, y, pos, &poly, obj, objtype, texval, textype,
+                            posvert, &vert, texlabels );
+  stringstream txt;
+  string lf, coma = ", ";
+  if( html )
+  {
+    lf = "<br/>";
+    coma = "<br/>";
+  }
+  if( vert >= 0 )
+    txt << "poly: " << poly << coma << "vert: " << vert << coma << "tex: ";
+
+  bool first = true;
+  vector<float>::const_iterator iv, ev = texval.end();
+  vector<string>::const_iterator il, el = texlabels.end();
+  for( iv=texval.begin(), il=texlabels.begin(); iv!=ev; ++iv )
+  {
+    if( first )
+      first = false;
+    else
+      txt << ", ";
+    txt << *iv;
+    if( il != el )
+    {
+      txt << ": " << *il;
+      ++il;
+    }
+  }
+
+  text = txt.str();
+  return text;
+}
+
+
 void AWindow3D::displayInfoAtClickPosition( int x, int y )
 {
   if( !d->objvallabel || d->objvallabel->text() != "" )
     return;
-  AObject* obj = objectAtCursorPosition( x, y );
-  if( obj )
-  {
-    int poly = -1, vert = -1;
-    vector<float> texval;
-    Point3df pos, posvert;
-    string objtype, textype;
-    getInfos3DFromClickPoint( x, y, pos, &poly, obj, objtype, texval, textype,
-                              posvert, &vert );
-    stringstream txt;
-    if( vert >= 0 )
-    {
-      txt << "poly: " << poly << ", vert: " << vert << ", tex: ";
-      bool first = true;
-      vector<float>::const_iterator iv, ev = texval.end();
-      for( iv=texval.begin(); iv!=ev; ++iv )
-      {
-        if( first )
-          first = false;
-        else
-          txt << ", ";
-        txt << *iv;
-      }
-      d->objvallabel->setText( txt.str().c_str() );
-    }
-  }
+  string text = displayInfoAtClickPositionAsText( x, y );
+  d->objvallabel->setText( text.c_str() );
 }
 
 
@@ -1981,11 +2141,15 @@ void AWindow3D::setupSliceSlider()
 void AWindow3D::changeTimeSliders( int slider_num, int value )
 {
   int sl = slider_num - 1;
-  if( value != (int) _timepos[ sl ] )
+  float timestep = windowGeometry()->stepSize()[sl + 3];
+  if( timestep == 0.f )
+    timestep = 1.f;
+  if( value != (int) (_timepos[ sl ] / timestep ) )
   {
-    float timestep = windowGeometry()->stepSize()[sl + 3];
     float tvalue = value * timestep;
-    d->slicelabels[slider_num]->setText( QString::number( tvalue ) );
+    d->slicelabels[slider_num]->setText( QString::number( value ) );
+
+    _timepos[sl] = tvalue;
 
     if( d->linkonslider )
     {
@@ -2001,10 +2165,11 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
     }
     else
     {
-      _timepos[sl] = tvalue;
       SetRefreshFlag();
       Refresh();
     }
+
+    emit sliderChanged( sl + 3, value );
   }
 }
 
@@ -2108,6 +2273,13 @@ void AWindow3D::changeSlice(int s)
       Refresh();
     }
   }
+
+  int dim = 2;
+  if( norm[1] > norm[2] && norm[1] > norm[0] )
+    dim = 1;
+  else if( norm[0] > norm[1] && norm[0] > norm[2] )
+    dim = 0;
+  emit( sliderChanged( dim, s ) );
 }
 
 void AWindow3D::changeReferential()
@@ -2155,6 +2327,8 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
   if( hasObject( o ) )
     return;
 
+  bool reorient = ( viewType() != AWindow3D::ThreeD
+                    && !isViewOblique() );
   bool fst = _objects.empty();
   ControlledWindow::registerObject(o, temporaryObject, pos);
 
@@ -2243,6 +2417,8 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
             break;
         }
       }
+      if( reorient )
+        setViewType( viewType() ); // reorient according to transforms
     }
     Refresh();
   }
@@ -2312,6 +2488,30 @@ bool AWindow3D::autoFusion2D( AObject *obj )
     fusionName = d->autoFusion->name();
     unregisterObject( d->autoFusion.get() );
     d->autoFusion.reset( 0 );
+
+    // some objects may have been deleted and unregistered during the above
+    // operation. Re-check all
+    vector<AObject *>::iterator iv, iv2, ev = vobj.end();
+    bool changed = false;
+    for( iv=vobj.begin(); iv!=ev; )
+    {
+      if( theAnatomist->hasObject( *iv ) || *iv == obj )
+        ++iv;
+      else
+      {
+        iv2 = iv;
+        ++iv;
+        vobj.erase( iv2 );
+        changed = true;
+      }
+    }
+    if( changed )
+    {
+      sobj.clear();
+      sobj.insert( vobj.begin(), vobj.end() );
+      if( !m.canFusion( sobj ) )
+        return false;
+    }
   }
   d->autoFusion.reset( m.fusion( vobj ) );
   static_cast<Fusion2D *>( d->autoFusion.get() )->setDynamic( true );
@@ -2321,7 +2521,8 @@ bool AWindow3D::autoFusion2D( AObject *obj )
   d->autoFusion->setName( fusionName );
   theAnatomist->registerObject( d->autoFusion.get(), false );
   theAnatomist->releaseObject( d->autoFusion.get() );
-  registerObject( d->autoFusion.get() );
+  ControlledWindow::registerObject( d->autoFusion.get() );
+
   return true;
 }
 
@@ -2361,9 +2562,14 @@ void AWindow3D::removeFromAutoFusion2D( AObject *obj )
 void AWindow3D::setViewType(ViewType t)
 {
   static const float c = 1. / sqrt(2.);
+  bool has_changed = false;
 
-  d->viewtype = t;
-  updateViewTypeToolBar();
+  if( d->viewtype != t )
+  {
+    d->viewtype = t;
+    updateViewTypeToolBar();
+    has_changed = true;
+  }
   // handle point of view
   switch (t)
   {
@@ -2386,6 +2592,8 @@ void AWindow3D::setViewType(ViewType t)
       break;
   }
 
+  if( has_changed )
+    emit orientationChanged();
 }
 
 
@@ -2403,6 +2611,11 @@ bool AWindow3D::isViewOblique() const
     {
         return true;
     }
+    static const float c = 1. / sqrt(2.);
+    const Point4df & sl_vec = d->slicequat.vector();
+    if( sl_vec != Point4df(0, 0, 0, 1) && sl_vec != Point4df(c, 0, 0, c)
+        && sl_vec != Point4df(-0.5, -0.5, -0.5, 0.5) )
+      return true;
     return false;
 }
 
@@ -2676,7 +2889,7 @@ Geometry AWindow3D::setupWindowGeometry(
           if (p[0] < dmin[0]) dmin[0] = p[0];
           if (p[1] < dmin[1]) dmin[1] = p[1];
           if (p[2] < dmin[2]) dmin[2] = p[2];
-          for( int i=3; i<pmin.size(); ++i )
+          for( size_t i=3; i<pmin.size(); ++i )
           {
             if( tmin.size() <= i )
             {
@@ -2884,7 +3097,7 @@ void AWindow3D::setPosition( const vector<float> & position,
 
   Geometry *geom = windowGeometry();
 
-  if (geom && viewType() != ThreeD)
+  if( geom && viewType() != ThreeD )
   { // snap to nearest slice
     Point3df dir = d->slicequat.transformInverse(Point3df(0, 0, 1));
     float z = dir.dot(pos) / geom->Size()[2];
@@ -2941,14 +3154,24 @@ void AWindow3D::setPosition( const vector<float> & position,
     AObject *obj = objectToShow(this, _sobjects);
     if (obj)
     {
-      vector<float> vals = obj->texValues( getFullPosition(),
-                                           getReferential() );
+      string objtype;
+      vector<float> vals;
+      // = obj->texValues( getFullPosition(), getReferential() );
+      string textype;
+      Point3df pvert;
+      int vindex;
+      vector<string> texlabels;
+      getInfos3DFromPosition( getFullPosition(), -1, obj, objtype, vals,
+                              textype, pvert, &vindex, texlabels );
+
       QString txt;
       unsigned i, n = vals.size();
       for (i = 0; i < n; ++i)
       {
         if (i != 0) txt += ", ";
         txt += QString::number(vals[i]);
+        if( texlabels.size() > i )
+          txt += QString( ": " ) + QString( texlabels[i].c_str() );
       }
       if( d->objvallabel )
         d->objvallabel->setText(txt);
@@ -3151,7 +3374,6 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
     Point3df ppmino, ppmaxo, ppmin, ppmax;
     Referential *wref = getReferential(), *oref;
     anatomist::Transformation *tr;
-    float tmp;
     unsigned j, n, m = 4;
 
     bmin[0] = FLT_MAX;
@@ -3321,10 +3543,9 @@ void AWindow3D::setSliceQuaternion(const Quaternion & q)
 void AWindow3D::setSliceOrientation( const Point3df & normal )
 {
   Point3df pos, v1, v2, v3, r;
-  float    x, y, angle, nrm;
+  float    x, y, angle;
 
   v3 = normal;
-  nrm = v3.norm();
   v3.normalize();
   r = Point3df( 0, 0, 1 );
   v1 = crossed( r, v3 );
@@ -3673,8 +3894,17 @@ void AWindow3D::updateTimeSliders()
   unsigned i, n = std::min( _timepos.size(), d->sliders.size() - 1 );
   for( i=0; i<n; ++i )
   {
-    d->sliders[i+1]->setValue( int( _timepos[i] ) );
-    d->slicelabels[i+1]->setText( QString::number( int( _timepos[i] ) ) );
+    float timestep = 1.;
+    if( windowGeometry() )
+    {
+      timestep = windowGeometry()->stepSize()[i + 3];
+      if( timestep == 0.f )
+        timestep = 1.f;
+    }
+
+    d->sliders[i+1]->setValue( int( _timepos[i] / timestep ) );
+    d->slicelabels[i+1]->setText( QString::number(
+      int( _timepos[i] / timestep ) ) );
   }
   n = d->sliders.size() - 1;
   for( ; i<n; ++i )
@@ -3838,7 +4068,7 @@ void AWindow3D::setLinkedCursorPos()
     bool ok = true;
     for (i = 0; i < 4 && l < n; ++i)
     {
-      while (txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',')
+      while( txt[l] == ' ' || txt[l] == '\t' || txt[l] == ',' )
         ++l;
       if( l == n )
         break; // reached the end
@@ -3854,7 +4084,7 @@ void AWindow3D::setLinkedCursorPos()
       QString s = txt;
       s.remove(0, l);
       s.remove(m - l, txt.length() - m);
-      cout << "read: " << s.toStdString().c_str() << endl;
+      // cout << "read: " << s.toStdString().c_str() << endl;
       nums.push_back(s.toFloat(&ok));
       if (!ok)
       {
@@ -3864,9 +4094,11 @@ void AWindow3D::setLinkedCursorPos()
       l = m;
     }
     n = nums.size();
-    if (n >= 3)
+    if( n >= 1 )
     {
-      LinkedCursorCommand *c = new LinkedCursorCommand(this, nums);
+      while( nums.size() < 3 )
+        nums.push_back( getPosition()[ nums.size() ] );
+      LinkedCursorCommand *c = new LinkedCursorCommand( this, nums );
       theProcessor->execute(c);
     }
     else

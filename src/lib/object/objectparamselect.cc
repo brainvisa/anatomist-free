@@ -114,7 +114,7 @@ void ObjectParamSelect::drawContents()
   QHBoxLayout *layout = new QHBoxLayout( this );
   layout->setSpacing( 5 );
   
-  //setMargin( 5 );
+  //setContentsMargins( 5, 5, 5, 5 );
   QLineEdit	*l = new QLineEdit( labelname( d->objects ), this );
   d->label = l;
   l->setReadOnly( true );
@@ -270,7 +270,7 @@ ObjectChooseDialog::ObjectChooseDialog( const set<AObject *> & obj,
   setObjectName("selectobject");
   setModal(true);
   QVBoxLayout	*l = new QVBoxLayout( this );
-  l->setMargin( 5 );
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing( 5 );
   QListWidget	*lb = new QListWidget( this );
   d->list = lb;

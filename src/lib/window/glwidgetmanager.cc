@@ -1882,7 +1882,6 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 
     map< unsigned, set< AObject *> > sel = SelectFactory::factory()->selected ();
     map< unsigned, set< AObject *> >::iterator iter( sel.begin( ) ),last( sel.end( ) ) ;
-    int num_obj = 0;
 
     while( iter != last )
     {

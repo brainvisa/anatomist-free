@@ -68,7 +68,7 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
   setWindowTitle( name );
   setObjectName(name);
   QVBoxLayout	*lay1 = new QVBoxLayout( this );
-  lay1->setMargin( 0 );
+  lay1->setContentsMargins( 0, 0, 0, 0 );
   lay1->setSpacing( 10 );
   _pdat->color = new QLabel( this );
   QPixmap		pix( 80, 40 );
@@ -79,13 +79,13 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
   QWidget *fr1 = new QWidget( this );
   QVBoxLayout *vlay = new QVBoxLayout( fr1 );
   fr1->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   vlay->setSpacing( 5 );
   QWidget *hb = new QWidget( fr1 );
   vlay->addWidget( hb );
   QHBoxLayout *hlay = new QHBoxLayout( hb );
   hb->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   hlay->addWidget( new QLabel( tr( "R :" ), hb ) );
   _pdat->slr = new QSlider( Qt::Horizontal, hb );
@@ -100,7 +100,7 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
   vlay->addWidget( hb );
   hlay = new QHBoxLayout( hb );
   hb->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   hlay->addWidget( new QLabel( tr( "G :" ), hb ) );
   _pdat->slg = new QSlider( Qt::Horizontal, hb );
@@ -115,7 +115,7 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
   vlay->addWidget( hb );
   hlay = new QHBoxLayout( hb );
   hb->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   hlay->addWidget( new QLabel( tr( "B :" ), hb ) );
   _pdat->slb = new QSlider( Qt::Horizontal, hb );
@@ -131,12 +131,12 @@ QAColorWidget::QAColorWidget( QColor init, QWidget * parent,
   vlay->addWidget( _pdat->alphbox );
   vlay = new QVBoxLayout( _pdat->alphbox );
   _pdat->alphbox->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   hb = new QWidget( _pdat->alphbox );
   vlay->addWidget( hb );
   hlay = new QHBoxLayout( hb );
   hb->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   if( !allowAlpha )
     hb->hide();
@@ -209,7 +209,11 @@ void QAColorWidget::relook( const QColor & col, int alpha, bool allowalph,
     _pdat->nalpha->show();
   _pdat->nalpha->setChecked( neutralph );
 
+#if QT_VERSION >= 0x050F00
+  QPixmap	pix = _pdat->color->pixmap( Qt::ReturnByValue );
+#else
   QPixmap	pix = *_pdat->color->pixmap();
+#endif
   pix.fill( col );
   _pdat->color->setPixmap( pix );
 }
@@ -217,7 +221,11 @@ void QAColorWidget::relook( const QColor & col, int alpha, bool allowalph,
 
 void QAColorWidget::slidersChanged( int )
 {
+#if QT_VERSION >= 0x050F00
+  QPixmap	pix = _pdat->color->pixmap( Qt::ReturnByValue );
+#else
   QPixmap	pix = *_pdat->color->pixmap();
+#endif
   QColor	col = color();
   pix.fill( col );
   _pdat->lbr->setText( QString::number( col.red() ) );

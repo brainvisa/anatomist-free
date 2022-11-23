@@ -202,8 +202,6 @@ namespace
 }
 
 
-
-
 //	Private data structure
 
 struct Anatomist::Anatomist_privateData
@@ -362,53 +360,52 @@ Anatomist::~Anatomist()
   ev.send();
 
   cout << "Exiting Anatomist --- Goodbye.\n";
-  AObject	*obj;
-
 
   _privData->destroying = true;
+
   while( !_privData->anaWin.empty() )
     delete _privData->anaWin.begin()->second.get();
 
-  
+
   anatomist::Cursor::cleanStatic();
-  
-  while( !_privData->anaObj.empty() )
+
+  // cout << "deleting objects... " << _privData->anaObj.size() << endl;
+  set<AObject *> objs;
+  map<const AObject *, carto::shared_ptr<AObject> >::iterator
+    io, eo = _privData->anaObj.end();
+
+  for( io=_privData->anaObj.begin(); io!=eo; ++io )
+    objs.insert( io->second.get() );
+
+  objs = destroyObjects( objs );
+
+  _privData->anaObj.clear();
+
+  set<AObject *>::iterator iso, eso = objs.end();
+  AObject	*obj;
+
+  for( iso=objs.begin(); iso!=eso; ++iso )
   {
-    obj = _privData->anaObj.begin()->second.get();
-    if( !obj )
-    {
-      cerr << "BUG: null object in Anatomist list" << endl;
-      continue;
-    }
-    while( !obj->Parents().empty() )
-      obj = *obj->Parents().begin();
+    obj = *iso;
+    cerr << "object " << obj->name()
+          << " refuses to die peacefully - killing it (better crash than "
+          << "loop endlessly)." << endl;
 #ifdef ANA_DEBUG
-    cout << "~Anatomist: destroy object " << obj << " (still "
-         << _privData->anaObj.size()
-         << " in memory) ..." << endl;
+    cerr << "  + ref counter: " << rc_ptr_trick::refCount( *obj )
+          << "\n  + weak counter: " << rc_ptr_trick::weakCount( *obj )
+          << ", type:" << obj->objectFullTypeName() << endl;
 #endif
-    if( !destroyObject( obj ) )
-    {
-      cerr << "object " << obj->name()
-           << " refuses to die peacefully - killing it (better crash than "
-           << "loop endlessly)." << endl;
-#ifdef ANA_DEBUG
-      cerr << "  + ref counter: " << rc_ptr_trick::refCount( *obj )
-           << "\n  + weak counter: " << rc_ptr_trick::weakCount( *obj )
-           << ", type:" << obj->objectFullTypeName() << endl;
-#endif
-      delete obj;
-    }
-#ifdef ANA_DEBUG
-    cout << "~Anatomist: object " << obj << " destroyed" << endl;
-#endif
-    }
+    delete obj;
+  }
+  // cout << "objects deleted.\n";
 
   // cleanup some global variables
   delete getControlWindow();
   delete FusionFactory::factory();
   AObject::cleanStatic();
   delete SelectFactory::factory();
+
+  ObjectReader::cleanup();
 
   StaticInitializers::cleanup();
 
@@ -966,52 +963,93 @@ list<AObject *> Anatomist::loadObject( const string & filename,
 }
 
 
-//	Window operations
+set<AObject *> Anatomist::destroyObjects( const set<AObject *> & obj,
+                                          bool verbose )
+{
+  /* We may try several passes because they may have dependencies
+     in their lives, and some of them will allow deletion after their parent
+     objects are also deleted.
+  */
+  set<AObject *> objs( obj.begin(), obj.end() );
+  set<AObject *>::iterator io, jo, eo = objs.end();
 
-int Anatomist::destroyObject( AObject *obj )
+  while( !objs.empty() )
+  {
+    bool changed = false;
+
+    for( io=objs.begin(); io!=eo; )
+    {
+      if( destroyObject( *io, false ) )
+      {
+        changed = true;
+        jo = io;
+        ++io;
+        objs.erase( jo );
+      }
+      else
+        ++io;
+    }
+    if( !changed )
+      break;
+  }
+  if( verbose && !objs.empty() )
+  {
+    // retry just to print warnings
+    for( io=objs.begin(); io!=eo; ++io )
+      destroyObject( *io );
+  }
+
+  return objs;
+}
+
+
+int Anatomist::destroyObject( AObject *obj, bool verbose )
 {
 #ifdef ANA_DEBUG
   cout << "destroyObject: " << obj << " (" << typeid( *obj ).name() << ")\n";
 #endif
-  if( obj->CanBeDestroyed() )
-    {
-      // send event
-      Object	ex( (GenericObject *) 
-		    new ValueObject<Dictionary> );
-      ex->setProperty( "_object", obj );
-      set<string>	disc;
-      disc.insert( "object" );
-      OutputEvent	ev( "DeleteObject", ex, false, disc );
-      ev.send();
+  if( !hasObject( obj ) )
+    return 1;  // already detroyed or released
 
-      //assert( obj->tryDelete() );
-      if ( !obj->tryDelete() )
-      {
-	return 0;
-      }
+  if( obj->CanBeDestroyed() )
+  {
+    // send event
+    Object	ex( (GenericObject *)
+          new ValueObject<Dictionary> );
+    ex->setProperty( "_object", obj );
+    set<string>	disc;
+    disc.insert( "object" );
+    OutputEvent	ev( "DeleteObject", ex, false, disc );
+    ev.send();
+
+    //assert( obj->tryDelete() );
+    if ( !obj->tryDelete() )
+    {
+      return 0;
+    }
 
 #ifdef ANA_DEBUG
-      cout << "done destroyObject: " << obj << endl;
+    cout << "done destroyObject: " << obj << endl;
 #endif
-      return 1;
-    }
+    return 1;
+  }
   else
+  {
+    stringstream	s;
+    // count references not owned by the anatomist application
+    int refs = rc_ptr_trick::refCount( *obj );
+    carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
+    if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
+      --refs;
+    if( verbose )
     {
-      stringstream	s;
-      // count references not owned by the anatomist application
-      int refs = rc_ptr_trick::refCount( *obj );
-      if( hasObject( obj ) )
-      {
-        carto::shared_ptr<AObject> p = _privData->anaObj.find( obj )->second;
-        if( p.referenceType() != carto::shared_ptr<AObject>::Weak )
-          --refs;
-      }
       s << "Cannot delete object " << obj->name()
           << ",\ncheck for multi-objects which contain it. There are still "
           << refs << " other references to it\n";
       AWarning( s.str().c_str() );
-      return 0;
     }
+    return 0;
+  }
 }
 
 

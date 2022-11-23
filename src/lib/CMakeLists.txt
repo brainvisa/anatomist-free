@@ -7,8 +7,6 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/anatomist/config/version.h
                    DESTINATION "include/anatomist/config" 
                    COMPONENT ${PROJECT_NAME}-dev )
 
-# BRAINVISA_GET_FILE_LIST_FROM_PRO( project.pro "HEADERS" _headers "SOURCES" _sources )
-
 set( _headers
     application/anatomistinfo.h
     application/Anatomist.h
@@ -43,6 +41,7 @@ set( _headers
     commands/cAddObject.h
     commands/cApplyBuiltinReferential.h
     commands/cAskTexExtrema.h
+    commands/cAssignReferential.h
     commands/cCamera.h
     commands/cChangePalette.h
     commands/cControlsParams.h
@@ -72,6 +71,8 @@ set( _headers
     commands/cLinkWindows.h
     commands/cLoadGraphSubObjects.h
     commands/cLoadObject.h
+    commands/cLoadTransformation.h
+    commands/cLoadTransformationGraph.h
     commands/cNewId.h
     commands/cNewPalette.h
     commands/cObjectInfo.h
@@ -79,10 +80,9 @@ set( _headers
     commands/cPopupPalette.h
     commands/cReloadObject.h
     commands/cRemoveObject.h
-    commands/cAssignReferential.h
-    commands/cLoadTransformation.h
     commands/cSaveObject.h
     commands/cSaveTransformation.h
+    commands/cSaveTransformationGraph.h
     commands/cSelect.h
     commands/cSelectByHierarchy.h
     commands/cServer.h
@@ -321,6 +321,7 @@ set( _sources
     commands/cLoadGraphSubObjects.cc
     commands/cLoadObject.cc
     commands/cLoadTransformation.cc
+    commands/cLoadTransformationGraph.cc
     commands/cNewId.cc
     commands/cNewPalette.cc
     commands/cObjectInfo.cc
@@ -330,6 +331,7 @@ set( _sources
     commands/cRemoveObject.cc
     commands/cSaveObject.cc
     commands/cSaveTransformation.cc
+    commands/cSaveTransformationGraph.cc
     commands/cSelect.cc
     commands/cSelectByHierarchy.cc
     commands/cServer.cc
@@ -518,11 +520,11 @@ set( _sources
 )
 
 set(_ui "${CMAKE_CURRENT_SOURCE_DIR}/ui/color_rendering.ui")
-BRAINVISA_QT4_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
-BRAINVISA_QT4_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+BRAINVISA_QT_WRAP_UI(UI_HDRS "${_ui}" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+BRAINVISA_QT_WRAP_UI(UI_HDRS2 "${CMAKE_CURRENT_SOURCE_DIR}/ui/transform_control.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
 set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} )
-BRAINVISA_QT4_WRAP_UI(UI_HDRS3 "${CMAKE_CURRENT_SOURCE_DIR}/ui/vectorfield.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
-BRAINVISA_QT4_WRAP_UI(UI_HDRS4 "${CMAKE_CURRENT_SOURCE_DIR}/ui/shownormals.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+BRAINVISA_QT_WRAP_UI(UI_HDRS3 "${CMAKE_CURRENT_SOURCE_DIR}/ui/vectorfield.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
+BRAINVISA_QT_WRAP_UI(UI_HDRS4 "${CMAKE_CURRENT_SOURCE_DIR}/ui/shownormals.ui" "${CMAKE_BINARY_DIR}/include/anatomist/ui")
 set( UI_HDRS ${UI_HDRS} ${UI_HDRS2} ${UI_HDRS3} ${UI_HDRS4} )
 include_directories(${ZLIB_INCLUDE_DIR})
 add_custom_target(run_uic  DEPENDS ${UI_HDRS} ${UI_HDRS2} ${UI_HDRS3} ${UI_HDRS4} )
@@ -536,11 +538,15 @@ BRAINVISA_ADD_MOC_FILES( _sources ${_headers} )
 add_library( anatomist SHARED ${_sources} )
 add_dependencies( anatomist ${headersTarget} run_uic)
 set_property( TARGET anatomist PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-set( _libraries ${OPENGL_LIBRARIES} aimsgui ${AIMS-FREE_LIBRARIES} ${QT_LIBRARIES} )
+set( _libraries ${OPENGL_LIBRARIES} ${OPENGL_glx_LIBRARY} aimsgui ${AIMS-FREE_LIBRARIES} ${QT_LIBRARIES} )
 # if(ALSA_FOUND)
 #   set( _libraries ${_libraries} ${ALSA_LIBRARIES} )
 # endif()
 set( _libraries ${_libraries} ${ZLIB_LIBRARIES} )
+
+if( DESIRED_QT_VERSION EQUAL 6 )
+  set (_libraries PUBLIC ${_libraries} )
+endif()
 
 target_link_libraries( anatomist ${_libraries} )
 

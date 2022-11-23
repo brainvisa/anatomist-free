@@ -179,7 +179,7 @@ void
 RegionsFusionWindow::selectedRegionsChanged()
 {
   mySelectedRegions.clear();
-  for( unsigned int i = 0 ; i < selectRegions->count() ; ++i )
+  for( int i = 0 ; i < selectRegions->count() ; ++i )
   {
     if( selectRegions->item( i )->isSelected() )
       mySelectedRegions.append( selectRegions->item(i)->text() );
@@ -1973,7 +1973,7 @@ RoiManagementAction::selectHierarchy( const string& hieName, int hieId )
 							    "Do you want to save it ?"),
 				RoiManagementActionView::tr("&Yes"),
 				RoiManagementActionView::tr("&No"),
-				      QString::null, 0, 1 ) ;
+				      QString(), 0, 1 ) ;
       //cout << "Mess box res = " << res << endl ;
       if( res == 0 )
 	saveUDHierarchy() ;
@@ -2060,7 +2060,7 @@ RoiManagementAction::newUDHierarchy( const string& name )
 							    "Do you want to save it ?"),
 				RoiManagementActionView::tr("&Yes"),
 				RoiManagementActionView::tr("&No"),
-				      QString::null, 0, 1 ) ;
+				      QString(), 0, 1 ) ;
       //cout << "Mess box res = " << res << endl ;
       if( res == 0 )
 	saveUDHierarchy() ;
@@ -2132,7 +2132,7 @@ RoiManagementAction::loadUDHierarchy( const string& hierarchyName )
 							    "Do you want to save it ?"),
 				RoiManagementActionView::tr("&Yes"),
 				RoiManagementActionView::tr("&No"),
-				      QString::null, 0, 1 ) ;
+				      QString(), 0, 1 ) ;
       //cout << "Mess box res = " << res << endl ;
       if( res == 0 )
 	saveUDHierarchy() ;
@@ -3023,7 +3023,7 @@ RoiManagementAction::deleteRegion( )
       iter( currentRegion->bucket()[0].begin() ),
       last( currentRegion->bucket()[0].end() ) ;
 
-    AimsData<AObject*>& labels( gr->volumeOfLabels() );
+    VolumeRef<AObject*>& labels( gr->volumeOfLabels() );
     vector<float> bmin, bmax, vs;
     gr->boundingBox2D( bmin, bmax );
     vs = gr->voxelSize();
@@ -3031,15 +3031,15 @@ RoiManagementAction::deleteRegion( )
     dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0]
-        || labels.dimY() != dims[1]
-        || labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0]
+        || labels.getSizeY() != dims[1]
+        || labels.getSizeZ() != dims[2] )
     {
       gr->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
       gr->volumeOfLabels(0) ;
     }
 
-    AimsData<AObject*>& volOfLabels( gr->volumeOfLabels() ) ;
+    VolumeRef<AObject*>& volOfLabels( gr->volumeOfLabels() ) ;
 
     while ( iter != last){
       ChangesItem item ;
@@ -3047,7 +3047,7 @@ RoiManagementAction::deleteRegion( )
       item.before = graphObject ;
       changes->push_back(pair<Point3d, ChangesItem>( iter->first,  item ) )  ;
 
-      volOfLabels( iter->first ) = 0  ;
+      volOfLabels->at( iter->first ) = 0  ;
       ++iter ;
     }
 
@@ -3132,83 +3132,83 @@ RoiManagementAction::exportRegion( AGraphObject * o)
 
   MObject::iterator	io, eo = o->end();
   Bucket		*bck;
-  AimsData<int16_t>	*vol = 0;
+  VolumeRef<int16_t>	*vol = 0;
 
   for( io=o->begin(); io!=eo; ++io )
+  {
+    bck = dynamic_cast<Bucket *>( *io );
+    if( bck )
     {
-      bck = dynamic_cast<Bucket *>( *io );
-      if( bck )
-	{
-	  Converter<BucketMap<Void>, AimsData<int16_t> > conv;
-	  if( !vol )
-	    {
-	      vol = new AimsData<int16_t>( bbmax[0] + 1, bbmax[1] + 1,
-					   bbmax[2] + 1,
-					   bck->bucket().size() );
-	      conv.convert( bck->bucket(), *vol );
-	    }
-	  else
-	    conv.convert( bck->bucket(), *vol );
-	}
+      Converter<BucketMap<Void>, VolumeRef<int16_t> > conv;
+      if( !vol )
+      {
+        vol = new VolumeRef<int16_t>( bbmax[0] + 1, bbmax[1] + 1,
+                                      bbmax[2] + 1,
+                                      bck->bucket().size() );
+        conv.convert( bck->bucket(), *vol );
+      }
+      else
+        conv.convert( bck->bucket(), *vol );
     }
+  }
 
   if( vol )
+  {
+    AVolume<int16_t>	avol = *vol;
+    vector<int> dim = avol.volume()->getSize();
+    avol.attributed()->setProperty( "volume_dimension", dim ) ;
+    // take care of SPM origin/orientation properties
+    vector<float>	org;
+    try
     {
-      AVolume<int16_t>	avol = *vol;
-      vector<int> dim = avol.volume()->getSize();
-      avol.attributed()->setProperty( "volume_dimension", dim ) ;
-      // take care of SPM origin/orientation properties
-      vector<float>	org;
-      try
-      {
-        Object
-        ob = gra->attributed()->getProperty( "transformations" );
-        avol.attributed()->setProperty( "transformations", ob );
-        ob = gra->attributed()->getProperty( "referentials" );
-        avol.attributed()->setProperty( "referentials", ob );
-      }
-      catch( ... )
-      {
-      }
-      // old-style Analyze
-      if( gra->attributed()->getProperty( "origin", org ) )
-        avol.attributed()->setProperty( "origin", org );
-      try
-        {
-          Object
-            ob = gra->attributed()->getProperty( "spm_radio_convention" );
-          bool n = ob->getScalar();
-          avol.attributed()->setProperty( "spm_radio_convention", n );
-        }
-      catch( ... )
-        {
-        }
-      try
-        {
-          Object
-            ob = gra->attributed()->getProperty( "spm_normalized" );
-          bool n = ob->getScalar();
-          avol.attributed()->setProperty( "spm_normalized", n );
-        }
-      catch( ... )
-        {
-        }
-      try
-        {
-          Object
-            ob = gra->attributed()->getProperty( "spm_spm2_normalization" );
-          bool n = ob->getScalar();
-          avol.attributed()->setProperty( "spm_spm2_normalization", n );
-        }
-      catch( ... )
-        {
-        }
-
-      theAnatomist->registerObject( &avol, false );
-      set<AObject *>	so;
-      so.insert( &avol );
-      ObjectActions::saveStatic( so );
+      Object
+      ob = gra->attributed()->getProperty( "transformations" );
+      avol.attributed()->setProperty( "transformations", ob );
+      ob = gra->attributed()->getProperty( "referentials" );
+      avol.attributed()->setProperty( "referentials", ob );
     }
+    catch( ... )
+    {
+    }
+    // old-style Analyze
+    if( gra->attributed()->getProperty( "origin", org ) )
+      avol.attributed()->setProperty( "origin", org );
+    try
+    {
+      Object
+        ob = gra->attributed()->getProperty( "spm_radio_convention" );
+      bool n = ob->getScalar();
+      avol.attributed()->setProperty( "spm_radio_convention", n );
+    }
+    catch( ... )
+    {
+    }
+    try
+    {
+      Object
+        ob = gra->attributed()->getProperty( "spm_normalized" );
+      bool n = ob->getScalar();
+      avol.attributed()->setProperty( "spm_normalized", n );
+    }
+    catch( ... )
+    {
+    }
+    try
+    {
+      Object
+        ob = gra->attributed()->getProperty( "spm_spm2_normalization" );
+      bool n = ob->getScalar();
+      avol.attributed()->setProperty( "spm_spm2_normalization", n );
+    }
+    catch( ... )
+    {
+    }
+
+    theAnatomist->registerObject( &avol, false );
+    set<AObject *>	so;
+    so.insert( &avol );
+    ObjectActions::saveStatic( so );
+  }
 }
 
 void

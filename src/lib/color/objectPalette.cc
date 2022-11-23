@@ -65,18 +65,18 @@ namespace
 {
 
   bool isSameColorsSize( AObjectPalette & pal,
-                         const AimsData<AimsRGBA> * cols )
+                         const Volume<AimsRGBA> * cols )
   {
     if( !cols || !pal.refPalette() )
       return false;
-    int sx = pal.refPalette()->dimX(), sy = pal.refPalette()->dimY();
+    int sx = pal.refPalette()->getSizeX(), sy = pal.refPalette()->getSizeY();
     if( pal.maxSizeX() >= 0 && sx > pal.maxSizeX() )
       sx = pal.maxSizeX();
     if( pal.is2dMode() && pal.refPalette2() )
-      sy = pal.refPalette2()->dimX();
+      sy = pal.refPalette2()->getSizeX();
     if( pal.maxSizeY() >= 0 && sy > pal.maxSizeY() )
       sy = pal.maxSizeY();
-    if( sx <= cols->dimX() && sy >= cols->dimY() )
+    if( sx <= cols->getSizeX() && sy >= cols->getSizeY() )
       return true;
     return false;
   }
@@ -92,6 +92,7 @@ AObjectPalette::AObjectPalette( rc_ptr<APalette> pal )
     _maxSizeX( 256 ), _maxSizeY( 256 ), _glMaxSizeX( -1 ), _glMaxSizeY( -1 ),
     _zeroCentered1( false ), _zeroCentered2( false )
 {
+  _colors.reset( 0 );
 }
 
 
@@ -105,6 +106,7 @@ AObjectPalette::AObjectPalette( const AObjectPalette & x )
     _glMaxSizeX( -1 ), _glMaxSizeY( -1 ), _zeroCentered1( x._zeroCentered1 ),
     _zeroCentered2( x._zeroCentered2 )
 {
+  _colors.reset( 0 );
 }
 
 
@@ -117,24 +119,24 @@ AObjectPalette::~AObjectPalette()
 AObjectPalette & AObjectPalette::operator = ( const AObjectPalette & x )
 {
   if( &x != this )
-    {
-      clearColors();
-      _refPal = x._refPal;
-      _colors = 0;
-      _min = x._min;
-      _max = x._max;
-      _refPal2 = x._refPal2;
-      _min2 = x._min2;
-      _max2 = x._max2;
-      _mixMethod = x._mixMethod;
-      _mixMethodName = x._mixMethodName;
-      _linMixFactor = x._linMixFactor;
-      _palette1DMapping = x._palette1DMapping ;
-      _mode2d = x._mode2d;
-      _transp = x._transp;
-      _zeroCentered1 = x._zeroCentered1;
-      _zeroCentered2 = x._zeroCentered2;
-    }
+  {
+    clearColors();
+    _refPal = x._refPal;
+    _colors.reset( 0 );
+    _min = x._min;
+    _max = x._max;
+    _refPal2 = x._refPal2;
+    _min2 = x._min2;
+    _max2 = x._max2;
+    _mixMethod = x._mixMethod;
+    _mixMethodName = x._mixMethodName;
+    _linMixFactor = x._linMixFactor;
+    _palette1DMapping = x._palette1DMapping ;
+    _mode2d = x._mode2d;
+    _transp = x._transp;
+    _zeroCentered1 = x._zeroCentered1;
+    _zeroCentered2 = x._zeroCentered2;
+  }
   return( *this );
 }
 
@@ -149,11 +151,11 @@ void AObjectPalette::create( unsigned dimx, unsigned dimy, unsigned dimz,
 			     unsigned dimt )
 {
   clearColors();
-  if( ( !_mode2d || !_refPal2 ) && dimx == (unsigned) _refPal->dimX()
-        && dimy == (unsigned) _refPal->dimY() )
-    _colors = _refPal.get();
+  if( ( !_mode2d || !_refPal2 ) && dimx == (unsigned) _refPal->getSizeX()
+        && dimy == (unsigned) _refPal->getSizeY() )
+    _colors = VolumeRef<AimsRGBA>( _refPal.get() );
   else
-    _colors = new AimsData<AimsRGBA>( dimx, dimy, dimz, dimt );
+    _colors = new Volume<AimsRGBA>( dimx, dimy, dimz, dimt );
   if( dimy > 1 )
     set2dMode( true );
 }
@@ -164,15 +166,16 @@ void AObjectPalette::fill()
   if( !_refPal )
     return;
 
-  unsigned	dimpx = _refPal->dimX(), dimpy = _refPal->dimY(), xp, yp;
+  unsigned	dimpx = _refPal->getSizeX(), dimpy = _refPal->getSizeY(),
+    xp, yp;
 
   MixMethod	mm = _mixMethod;
   if( _refPal2 && _mode2d )
-    dimpy = _refPal2->dimX();
+    dimpy = _refPal2->getSizeX();
   else
     mm = &palette2DMixMethod;
 
-  if( !_colors || _colors->dimX() == 0 || _colors->dimY() == 0 )
+  if( !_colors.get() || _colors->getSizeX() == 0 || _colors->getSizeY() == 0 )
   {
     unsigned dx = dimpx, dy = dimpy;
     if( _maxSizeX == 0 )
@@ -185,47 +188,47 @@ void AObjectPalette::fill()
       dy = _maxSizeY;
     create( dx, dy );
   }
-  if( _colors == _refPal.get() )
+  if( _colors.get() == _refPal.get() )
   {
     _transp = _refPal->isTransparent();
     return;
   }
 
-  unsigned	dimx = _colors->dimX(), dimy = _colors->dimY(), x, y;
+  unsigned	dimx = _colors->getSizeX(), dimy = _colors->getSizeY(), x, y;
 
   float		facx = ((float) dimpx) / dimx;
   float		facy = ((float) dimpy) / dimy;
 
   _transp = false;
   for( x=0; x<dimx; ++x )
+  {
+    xp = (unsigned) ( facx * x );
+    for( y=0; y<dimy; ++y )
     {
-      xp = (unsigned) ( facx * x );
-      for( y=0; y<dimy; ++y )
-	{
-	  yp = (unsigned) ( facy * y );
-	  (*_colors)( x, y ) = mm( *_refPal, _refPal2.get(), xp, yp, *this );
-          if( !_transp && (*_colors)( x, y ).alpha() != 255 )
-            _transp = true;
-	}
+      yp = (unsigned) ( facy * y );
+      _colors->at( x, y ) = mm( *_refPal, _refPal2.get(), xp, yp, *this );
+      if( !_transp && _colors->at( x, y ).alpha() != 255 )
+        _transp = true;
     }
+  }
 }
 
 
-AimsRGBA AObjectPalette::palette2DMixMethod( const AimsData<AimsRGBA> & map1, 
-					     const AimsData<AimsRGBA> *, 
-					     unsigned x, unsigned y, 
-					     const AObjectPalette & )
+AimsRGBA AObjectPalette::palette2DMixMethod( const Volume<AimsRGBA> & map1,
+                                             const Volume<AimsRGBA> *,
+                                             unsigned x, unsigned y,
+                                             const AObjectPalette & )
 {
-  return( map1( x, y ) );
+  return( map1.at( x, y ) );
 }
 
 
-AimsRGBA AObjectPalette::linearMixMethod( const AimsData<AimsRGBA> & map1, 
-					  const AimsData<AimsRGBA> *map2, 
-					  unsigned x, unsigned y, 
-					  const AObjectPalette & pal )
+AimsRGBA AObjectPalette::linearMixMethod( const Volume<AimsRGBA> & map1,
+                                          const Volume<AimsRGBA> *map2,
+                                          unsigned x, unsigned y,
+                                          const AObjectPalette & pal )
 {
-  AimsRGBA	rgb = map1( x ), rgb2 = (*map2)( y );
+  AimsRGBA	rgb = map1.at( x ), rgb2 = map2->at( y );
   float		fac1 = 1. - pal.linearMixFactor();
   float		fac2 = pal.linearMixFactor();
 
@@ -237,12 +240,12 @@ AimsRGBA AObjectPalette::linearMixMethod( const AimsData<AimsRGBA> & map1,
 }
 
 
-AimsRGBA AObjectPalette::geometricMixMethod( const AimsData<AimsRGBA> & map1, 
-					     const AimsData<AimsRGBA> *map2, 
-					     unsigned x, unsigned y, 
-					     const AObjectPalette & )
+AimsRGBA AObjectPalette::geometricMixMethod( const Volume<AimsRGBA> & map1,
+                                             const Volume<AimsRGBA> *map2,
+                                             unsigned x, unsigned y,
+                                             const AObjectPalette & )
 {
-  AimsRGBA	rgb = map1( x ), rgb2 = (*map2)( y );
+  AimsRGBA	rgb = map1.at( x ), rgb2 = map2->at( y );
 
   rgb.red() = (unsigned char ) ( 0.003922 * rgb.red() * rgb2.red() );
   rgb.green() = (unsigned char ) ( 0.003922 * rgb.green() * rgb2.green() );
@@ -292,8 +295,8 @@ AimsRGBA AObjectPalette::normColor( float x, float y ) const
   else if( ys >= 0.9999 )
     ys = 0.9999;
 
-  return (*_colors)( int( xs * _colors->dimX() ), 
-                     int( ys * _colors->dimY() ) );
+  return _colors->at( int( xs * _colors->getSizeX() ),
+                      int( ys * _colors->getSizeY() ) );
 }
 
 
@@ -306,6 +309,7 @@ namespace
     string colors_key = "colors";
     string image_key = "image";
     string colmode_key = "color_mode";
+    bool palette_found = false;
     if( index == 1 )
     {
       palette_key = "palette2";
@@ -342,10 +346,11 @@ namespace
     try
     {
       pname = obj.getProperty( palette_key )->getString();
+      palette_found = true;
     }
     catch( ... )
     {
-      return rc_ptr<APalette>( 0 );
+      pname = "custom";
     }
 
     PaletteList     & pall = theAnatomist->palettes();
@@ -363,7 +368,8 @@ namespace
         {
           n = colors->size() / 4;
           if( n * 4 != colors->size() )
-            cerr << "Wrong number of numbers, should be a multiple of 4\n";
+            cerr << "Wrong number of color components, should be a multiple "
+                 << "of 4\n";
           else
           {
             for( i=0; i<n; ++i )
@@ -385,7 +391,8 @@ namespace
         {
           n = colors->size() / 3;
           if( n * 3 != colors->size() )
-            cerr << "Wrong number of numbers, should be a multiple of 3\n";
+            cerr << "Wrong number of color components, should be a multiple "
+                 << "of 3\n";
           else
           {
             for( i=0; i<n; ++i )
@@ -404,12 +411,11 @@ namespace
         }
 
         // set colors in palette
-        AimsData<AimsRGBA>    dat( colortable.size() );
+        p.reset( new APalette( pname, colortable.size() ) );
+        Volume<AimsRGBA>    & dat = *p;
 
         for( i=0, n=colortable.size(); i<n; ++i )
-          dat[i] = colortable[i];
-        p.reset( new APalette( pname ) );
-        p->AimsData<AimsRGBA>::operator = ( dat );
+          dat.at( i ) = colortable[i];
         // private palette, not inserted in global list
         // pall.push_back( p );
       }
@@ -436,6 +442,9 @@ namespace
     }
     else
     {
+      if( !palette_found )
+        return p;  // no warning, we were not looking for this specific one.
+
       p = pall.find( pname );
       if( !p )
         cerr << "AObjectPalette::set : warning: " << palette_key << " \""
@@ -452,7 +461,7 @@ bool AObjectPalette::set( const GenericObject & obj )
 {
   Object		o, colors1, colors2;
   string                image1, image2;
-  const PaletteList	& pall = theAnatomist->palettes();
+  //const PaletteList	& pall = theAnatomist->palettes();
   bool			mod = false;
 
   rc_ptr<APalette> p = getOrCreatePalette( obj, 0 );
@@ -603,22 +612,20 @@ void AObjectPalette::glSetMaxSize( int sx, int sy )
 
 void AObjectPalette::clearColors()
 {
-  if( !_refPal || _colors != _refPal.get() )
-    delete _colors;
-  _colors = 0;
+  _colors.reset( 0 );
 }
 
 
 void AObjectPalette::copyColors( const AObjectPalette & pal )
 {
-  if( _colors )
+  if( _colors.get() )
     return;
   if( isSameColorsSize( *this, pal.colors() ) )
   {
     if( pal.colors() == _refPal.get() )
-      _colors = _refPal.get();
+      _colors = VolumeRef<AimsRGBA>( _refPal.get() );
     else
-      _colors = new AimsData<AimsRGBA>( pal.colors()->clone() );
+      _colors = new Volume<AimsRGBA>( *pal.colors() );
   }
 }
 
@@ -626,7 +633,7 @@ void AObjectPalette::copyColors( const AObjectPalette & pal )
 void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
 {
   copyColors( pal );
-  if( _colors )
+  if( _colors.get() )
     return;
   fill();
 }
@@ -634,12 +641,12 @@ void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
 
 QImage* AObjectPalette::toQImage( int w, int h ) const
 {
-  const AimsData<AimsRGBA>    *col = colors();
+  const Volume<AimsRGBA>    *col = colors();
 
-  if( !col || col->dimX() == 0 || col->dimY() == 0 )
+  if( !col || col->getSizeX() == 0 || col->getSizeY() == 0 )
     return 0;
 
-  unsigned      dimpx = col->dimX(), dimpy = col->dimY();
+  unsigned      dimpx = col->getSizeX(), dimpy = col->getSizeY();
   unsigned      dimx = 256, dimy = dimpy, x, y;
   int           xp, yp;
   float         m1 = min1(), M1 = max1();

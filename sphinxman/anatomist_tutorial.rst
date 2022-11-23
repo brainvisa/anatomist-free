@@ -9,8 +9,6 @@ In order to work through the following sections, please download the demonstrati
 
 * ftp://ftp.cea.fr/pub/dsv/anatomist/data/demo_data.zip
 
-* Section *Exemple data* from `the download page of the BrainVisa web site <http://brainvisa.info/web/downloadpage_wrap.html>`_
-
 For more information concerning the installation, please refer to :axonusr:`the manual of BrainVISA <axon_manual.html>`.
 
 
@@ -195,9 +193,11 @@ You can have several objects of different types in the same view. Lets superimpo
 * Open a 3D window by clicking on |window-3d-small|.
 * Drag and drop the 3 objects into the 3D window.
 * You can see the meshes but the T1 MRI is "hidden":
+
 .. image:: images/ana_training_exo_handle-3.png
 
 * To view it, use the middle button of your mouse to rotate the objects of this window, and now:
+
 .. image:: images/ana_training_exo_handle-4.png
 
 See :pyanatomist:`corresponding python script <pyanatomist_tutorial.html#superimposing>`.

@@ -33,11 +33,14 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import Qt
 from soma import aims, aimsalgo
 import numpy as np
+
+from six.moves import range, zip
 
 
 class SaveResampled(ana.cpp.ObjectMenuCallback):
@@ -50,14 +53,14 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
                 'Only one object should be saved at a time')
             return
         # get 1st object (in a std::set)
-        obj = iter(objects).next()
+        obj = next(iter(objects))
         ref = obj.getReferential()
         a = ana.Anatomist()
         # get volumes which are linked to obj via a transformation
         # so that we are able to resample in their space
         vols = [o for o in a.getObjects()
                 if o.getInternalRep() is not obj
-                    and o.objectType.startswith('VOLUME')]
+                and o.objectType.startswith('VOLUME')]
         tr = [a.getTransformation(ref, v.referential) for v in vols]
         vols = [(v, t) for v, t in zip(vols, tr) if t is not None]
 
@@ -116,10 +119,11 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
         Qt.qApp.setOverrideCursor(Qt.QCursor(Qt.Qt.WaitCursor))
         try:
             # get source and dest aims volumes
-            sel = [vols[i] for i in range(lw.count()) if lw.item(i).isSelected()]
+            sel = [vols[i]
+                   for i in range(lw.count()) if lw.item(i).isSelected()]
             sel, tr = sel[0]
-            source = a.AObject(a, obj).toAimsObject().volume()
-            target = sel.toAimsObject().volume()
+            source = a.AObject(a, obj).toAimsObject()
+            target = sel.toAimsObject()
             # get a resampler for source voxel type
             t = np.asarray(source).dtype
             tc = aims.typeCode(t)
@@ -129,9 +133,13 @@ class SaveResampled(ana.cpp.ObjectMenuCallback):
                                 'ResamplerFactory_%s' % tc)().getResampler(order)
             # create an output volume in dest space and dimensions
             dest = aims.Volume(target.getSize(), dtype=tc)
-            dest.copyHeaderFrom(target)
             resampler.resample(source, tr.motion(), background, dest)
-            dest.header()['referential'] = sel.referential.uuid()
+            target_atts = ('referentials', 'transformations')
+            for att in target_atts:
+                if att in target.header():
+                    dest.header()[att] = target.header()[att]
+            if 'referential' not in target.header():
+                dest.header()['referential'] = sel.referential.uuid()
             aims.write(dest, out_filename)
         finally:
             Qt.qApp.restoreOverrideCursor()
@@ -149,10 +157,10 @@ class SaveResampledModule(ana.cpp.Module):
 
     @staticmethod
     def addMenuEntryToOptionMenu(menu):
-      '''Add menu to optionMenu (new menu system API)'''
-      save_resampled = SaveResampled()
-      SaveResampledModule.callbacks_list.append(save_resampled)
-      menu.insertItem(['File'], 'Save resampled', save_resampled)
+        '''Add menu to optionMenu (new menu system API)'''
+        save_resampled = SaveResampled()
+        SaveResampledModule.callbacks_list.append(save_resampled)
+        menu.insertItem(['File'], 'Save resampled', save_resampled)
 
     def objectPropertiesDeclaration(self):
         '''Add here entry to optionTree for save new menu'''
@@ -163,10 +171,20 @@ class SaveResampledModule(ana.cpp.Module):
             if k.startswith('VOLUME<'):
                 menus[v] = k
         for m in menus.keys():
-            print(m)
             self.addMenuEntryToOptionMenu(m)
+
+
+def cleanup():
+    menumap = ana.cpp.AObject.getObjectMenuMap()
+    # Add palette menu to all menus but only once
+    for k, v in menumap.items():
+        if k.startswith('VOLUME<'):
+            v.removeItem(['File'], 'Save resampled')
+    global callbacks_list
+    callbacks_list = []
 
 
 sm = SaveResampledModule()
 sm.init()
-
+import atexit
+atexit.register(cleanup)

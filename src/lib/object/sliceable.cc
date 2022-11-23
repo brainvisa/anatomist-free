@@ -419,7 +419,7 @@ bool Sliceable::glMakeTexImage( const ViewState & state,
   unsigned		w = xim.effectiveWidth, h = xim.effectiveHeight;
   const SliceViewState	*st = state.sliceVS();
 
-  xim.data = new char[ w * h * 4 ];
+  xim.data = new char[ ((long long)w) * h * 4 ];
 
   bool	retcode = update2DTexture( xim, si.posbase, *st, tex );
 
@@ -708,7 +708,7 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
   {
     // no geometry case
     vector<float>  dmm = glMin2D();
-    vector<float> dmax2d;
+    vector<float> dmax2d = glMax2D();
     Point3df max2d = Point3df( dmax2d[0], dmax2d[1], dmax2d[2] )
       - Point3df( dmm[0], dmm[1], dmm[2] ) + Point3df( 1.F );
     vvs = glVoxelSize();

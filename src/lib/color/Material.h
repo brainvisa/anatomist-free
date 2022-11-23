@@ -61,7 +61,7 @@ namespace anatomist
       /// filter back side polygons
       RenderFaceCulling,
       /** specify which is the front face
-      (normally CW in our indirect referentials) */
+      (normally CW in our indirect referentials): 0 is CW, 1 is CCW. */
       FrontFace,
       /// wireframe rendering
       RenderMode,

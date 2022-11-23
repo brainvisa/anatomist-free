@@ -58,7 +58,7 @@ class ReferentialWindow : public QWidget
 
 public:
   ReferentialWindow( QWidget* parent = 0, const char* name = 0, 
-		     Qt::WindowFlags f = 0 );
+		     Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~ReferentialWindow();
 
   /// updates contents (new referentials or transformations...)
@@ -88,6 +88,8 @@ protected:
   ///	loads a new transformation, should be in a separate IO class...
   void loadTransformation( const std::string & filename );
   void saveTransformation( const std::string & filename );
+  void loadTransformationGraph( const std::string & filename );
+  void saveTransformationGraph( const std::string & filename );
   virtual void closeEvent ( QCloseEvent * );
   virtual void resizeEvent( QResizeEvent * );
   virtual void mousePressEvent( QMouseEvent* ev );
@@ -109,6 +111,8 @@ protected slots:
   void newReferential();
   void loadReferential();
   void loadNewTransformation();
+  void loadTransformationGraph();
+  void saveTransformationGraph();
   void clearUnusedReferentials();
   void splitReferential();
   void seeObjectsInReferential();

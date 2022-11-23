@@ -59,6 +59,7 @@ namespace anatomist
     */
     virtual void doit( const std::set<AObject *> & obj ) = 0;
     virtual bool operator == ( const ObjectMenuCallback & ) const;
+    virtual bool operator != ( const ObjectMenuCallback & ) const;
   };
 
 
@@ -100,6 +101,8 @@ namespace anatomist
     void insertItem( const std::vector<std::string> & inside,
                      const std::string & text,
                      ObjectMenuCallbackFunc::CallbackFunc cbk );
+    void removeItem( const std::vector<std::string> & inside,
+                     const std::string & text );
     Tree* item( const std::vector<std::string> & pos,
                 bool createSubtrees = true );
     Tree* tree();

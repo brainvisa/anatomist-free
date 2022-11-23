@@ -55,109 +55,100 @@ QAHistogram::~QAHistogram()
 
 bool QAHistogram::add( AObject* d )
 {
-  rc_ptr<AimsData< float > > adata
-      = ObjectConverter< AimsData< float > >::ana2aims( d );
+  VolumeRef< float > adata
+      = ObjectConverter< Volume< float > >::ana2aims( d );
 
   if ( !adata )
+  {
+    rc_ptr<Volume< int8_t > > a8
+        = ObjectConverter< Volume< int8_t > >::ana2aims( d );
+
+    if ( a8 )
     {
-      rc_ptr<AimsData< int8_t > > a8
-          = ObjectConverter< AimsData< int8_t > >::ana2aims( d );
-
-      if ( a8 )
-	{
-	  adata.reset( new AimsData< float >( a8->dimX(), a8->dimY(),
-                       a8->dimZ(), a8->dimT() ) );
-	  carto::RawConverter< AimsData< int8_t >, AimsData< float > > conv;
-	  conv.convert( *a8, *adata );
-	}
-      else
-	{
-	  rc_ptr<AimsData< uint8_t > > au8;
-	  au8 = ObjectConverter< AimsData< uint8_t > >::ana2aims( d );
-
-	  if ( au8 )
-	    {
-	      adata.reset( new AimsData< float >( au8->dimX(), au8->dimY(),
-                           au8->dimZ(), au8->dimT() ) );
-	      carto::RawConverter< AimsData< uint8_t >, AimsData< float > > conv;
-	      conv.convert( *au8, *adata );
-	    }
-	  else
-	    {
-	      rc_ptr<AimsData< int16_t > > a16;
-	      a16 = ObjectConverter< AimsData< int16_t > >::ana2aims( d );
-
-	      if ( a16 )
-		{
-		  adata.reset( new AimsData< float >( a16->dimX(), a16->dimY(),
-                               a16->dimZ(), a16->dimT() ) );
-		  carto::RawConverter< AimsData< int16_t >, AimsData< float > > conv;
-		  conv.convert( *a16, *adata );
-		}
-	      else
-		{
-		  rc_ptr<AimsData< uint16_t > > au16;
-		  au16 = ObjectConverter< AimsData< uint16_t > >::ana2aims( d );
-
-		  if ( au16 )
-		    {
-		      adata.reset( new AimsData< float >( au16->dimX(),
-                                   au16->dimY(), au16->dimZ(),
-                                              au16->dimT() ) );
-		      carto::RawConverter< AimsData< uint16_t >, AimsData< float > > conv;
-		      conv.convert( *au16, *adata );
-		    }
-		  else
-		    {
-		      rc_ptr<AimsData< int32_t > > a32;
-		      a32 = 
-			ObjectConverter< AimsData< int32_t > >::ana2aims( d );
-
-		      if ( a32 )
-			{
-			  adata.reset( new AimsData< float >( a32->dimX(),
-                                       a32->dimY(), a32->dimZ(),
-                                           a32->dimT() ) );
-			  carto::RawConverter< AimsData< int32_t >, AimsData< float > > conv;
-			  conv.convert( *a32, *adata );
-			}
-		      else
-			{
-			  rc_ptr<AimsData< uint32_t > > au32;
-			  au32 = 
-			    ObjectConverter< AimsData< uint32_t > >::ana2aims( d );
-
-			  if ( au32 )
-			    {
-			      adata.reset( new AimsData< float >(
-                                           au32->dimX(), au32->dimY(),
-                                  au32->dimZ(), au32->dimT() ) );
-			      carto::RawConverter< AimsData< uint32_t >, AimsData< float > > conv;
-			      conv.convert( *au32, *adata );
-			    }
-			}
-		    }
-		}
-	    }
-	}
+      adata.reset( new Volume< float >( a8->getSize() ) );
+      carto::RawConverter< VolumeRef< int8_t >, VolumeRef< float > > conv;
+      conv.convert( a8, adata );
     }
+    else
+    {
+      rc_ptr<Volume< uint8_t > > au8;
+      au8 = ObjectConverter< Volume< uint8_t > >::ana2aims( d );
+
+      if ( au8 )
+      {
+        adata.reset( new Volume< float >( au8->getSize() ) );
+        carto::RawConverter< VolumeRef< uint8_t >, VolumeRef< float > > conv;
+        conv.convert( au8, adata );
+      }
+      else
+      {
+        rc_ptr<Volume< int16_t > > a16;
+        a16 = ObjectConverter< Volume< int16_t > >::ana2aims( d );
+
+        if ( a16 )
+        {
+          adata.reset( new Volume< float >( a16->getSize() ) );
+          carto::RawConverter< VolumeRef< int16_t >, VolumeRef< float > > conv;
+          conv.convert( a16, adata );
+        }
+        else
+        {
+          rc_ptr<Volume< uint16_t > > au16;
+          au16 = ObjectConverter< Volume< uint16_t > >::ana2aims( d );
+
+          if ( au16 )
+          {
+            adata.reset( new Volume< float >( au16->getSize() ) );
+            carto::RawConverter< VolumeRef< uint16_t >, VolumeRef< float > > conv;
+            conv.convert( au16, adata );
+          }
+          else
+          {
+            rc_ptr<Volume< int32_t > > a32;
+            a32 = ObjectConverter< Volume< int32_t > >::ana2aims( d );
+
+            if ( a32 )
+            {
+              adata.reset( new Volume< float >( a32->getSize() ) );
+              carto::RawConverter< VolumeRef< int32_t >, VolumeRef< float > >
+                conv;
+              conv.convert( a32, adata );
+            }
+            else
+            {
+              rc_ptr<Volume< uint32_t > > au32;
+              au32 = ObjectConverter< Volume< uint32_t > >::ana2aims( d );
+
+              if ( au32 )
+              {
+                adata.reset( new Volume< float >( au32->getSize() ) );
+                carto::RawConverter< VolumeRef<uint32_t>, VolumeRef<float> >
+                  conv;
+                conv.convert( au32, adata );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   if ( adata )
-    {
-      float bmin = adata->minimum();
-      float bmax = adata->maximum();
+  {
+    float bmin = adata->min();
+    float bmax = adata->max();
 
-      if ( bmin < pmin )
-	pmin = bmin;
+    if( bmin < pmin )
+      pmin = bmin;
 
-      if ( bmax > pmax )
-	pmax = bmax;
+    if( bmax > pmax )
+      pmax = bmax;
 
-      pdim = (int64_t)( pmax - pmin + 1.0f );
-      crv.insert( std::make_pair( d, adata ) );
+    pdim = (int64_t)( pmax - pmin + 1.0f );
+    crv.insert( std::make_pair( d, adata ) );
 
-      return true;
-    }
+    return true;
+  }
 
   return false;
 }
@@ -183,29 +174,29 @@ double *QAHistogram::abscisse()
 double *QAHistogram::doit( AObject *d )
 {
   SimpleHistogram< float > h;
-  rc_ptr<AimsData< float > > adata = crv.find( d )->second;
+  rc_ptr<Volume< float > > adata = crv.find( d )->second;
 
   if ( adata )
-    {
+  {
 
-      h.doit( *adata );
-      float bmin = (float)h.minValid();
-      // float bmax = (float)h.maxValid();
-      int64_t dX = pdim; // (int64_t)( bmax - bmin + 1.0f );
-      if( dX > h.data().dimX() )
-        dX = h.data().dimX(); // should rather rescale instead...
-      // why this conversion/copy from SimpleHistogram to this ??
-      double *y = new double[ pdim ];
-      double *yptr = y + (int64_t)bmin - (int64_t)pmin;
-      int64_t i;
+    h.doit( adata );
+    float bmin = (float)h.minValid();
+    // float bmax = (float)h.maxValid();
+    int64_t dX = pdim; // (int64_t)( bmax - bmin + 1.0f );
+    if( dX > h.data().getSizeX() )
+      dX = h.data().getSizeX(); // should rather rescale instead...
+    // why this conversion/copy from SimpleHistogram to this ??
+    double *y = new double[ pdim ];
+    double *yptr = y + (int64_t)bmin - (int64_t)pmin;
+    int64_t i;
 
-      for( i = 0; i < dX; i++ )
-        *yptr++ = h.data()( i );
-      for( ; i < pdim; ++i )
-        *yptr++ = 0;
+    for( i = 0; i < dX; i++ )
+      *yptr++ = h.data()( i );
+    for( ; i < pdim; ++i )
+      *yptr++ = 0;
 
-      return y;
-    }
+    return y;
+  }
 
   return NULL;
 }

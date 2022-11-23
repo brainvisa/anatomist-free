@@ -42,6 +42,8 @@
 #include <anatomist/reference/refpixmap.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cLoadTransformation.h>
+#include <anatomist/commands/cLoadTransformationGraph.h>
+#include <anatomist/commands/cSaveTransformationGraph.h>
 #include <anatomist/commands/cSaveTransformation.h>
 #include <anatomist/commands/cAssignReferential.h>
 #include <anatomist/commands/cCreateWindow.h>
@@ -101,7 +103,7 @@ namespace
   }
 
 
-  QString headerPrint( PythonHeader & ph,
+  QString headerPrint( const Object & ph,
                        const set<string> & exclude = set<string>() )
   {
     QString text;
@@ -109,7 +111,7 @@ namespace
     string  key, val;
     int     l = 12, x;
     set<string>::const_iterator printable = exclude.end();
-    for( i=ph.objectIterator(); i->isValid(); i->next() )
+    for( i=ph->objectIterator(); i->isValid(); i->next() )
     {
       key = i->key();
       if( exclude.find( key ) == printable )
@@ -256,9 +258,7 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
   resize( 500, 400 );
   pdat->view2d->setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
-#if QT_VERSION >= 0x050000
-#warning Qt::WA_PaintOutsidePaintEvent not set.
-#else
+#if QT_VERSION < 0x050000
   setAttribute( Qt::WA_PaintOutsidePaintEvent );
 #endif
   // switch directly to the 3D view
@@ -363,6 +363,23 @@ void ReferentialWindow::saveTransformation( const string & filename )
     }
   else
     cerr << "No transformation to save\n";
+}
+
+
+void ReferentialWindow::loadTransformationGraph( const string & filename )
+{
+  LoadTransformationGraphCommand *com
+    = new LoadTransformationGraphCommand( filename );
+  theProcessor->execute( com );
+  refresh();
+}
+
+
+void ReferentialWindow::saveTransformationGraph( const string & filename )
+{
+  SaveTransformationGraphCommand *com
+    = new SaveTransformationGraphCommand( filename );
+  theProcessor->execute( com );
 }
 
 
@@ -560,8 +577,13 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
   {
     pdat->tracking = false;
     QPainter	p( this );
+#if QT_VERSION >= 0x050F00
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  pdat->view2d->pixmap( Qt::ReturnByValue ) );
+#else
     p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
                   *pdat->view2d->pixmap() );
+#endif
 
     QPoint		dummy;
     pdat->dstref = refAt( ev->pos(), dummy );
@@ -628,8 +650,13 @@ void ReferentialWindow::mouseMoveEvent( QMouseEvent* ev )
   if( pdat->tracking )
   {
     QPainter	p( this );
+#if QT_VERSION >= 0x050F00
+    p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
+                  pdat->view2d->pixmap( Qt::ReturnByValue ) );
+#else
     p.drawPixmap( pdat->view2d->mapToParent( QPoint( 0, 0 ) ),
                   *pdat->view2d->pixmap() );
+#endif
     p.drawLine( pdat->view2d->mapToParent( pdat->pos ),
                 pdat->view2d->mapFromParent( ev->pos() ) );
   }
@@ -745,7 +772,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos,
 void ReferentialWindow::popupRefMenu( const QPoint & pos )
 {
   QMenu	*pop = pdat->refmenu;
-  QAction *delete_action, *load_action, *icon_action, *see_objects_action;
+  QAction *delete_action, *load_action, *icon_action;
 
   if( !pop )
     {
@@ -754,7 +781,7 @@ void ReferentialWindow::popupRefMenu( const QPoint & pos )
 
       pop->addAction( QIcon(QPixmap( 16, 16 )), "" );
       pop->addSeparator();
-      see_objects_action = pop->addAction(
+      QAction* see_objects_action __attribute__((unused)) = pop->addAction(
         tr( "See objects in this referential" ), this,
         SLOT( seeObjectsInReferential() ) );
       delete_action = pop->addAction( tr( "Delete referential" ), this,
@@ -877,6 +904,10 @@ void ReferentialWindow::popupBackgroundMenu( const QPoint & pos )
                      SLOT( loadReferential() ) );
     pop->addAction( tr( "Load transformation" ), this,
                      SLOT( loadNewTransformation() ) );
+    pop->addAction( tr( "Load transformations graph" ), this,
+                    SLOT( loadTransformationGraph() ) );
+    pop->addAction( tr( "Save transformations graph" ), this,
+                    SLOT( saveTransformationGraph() ) );
     pop->addAction( tr( "Clear unused referentials" ), this,
                      SLOT( clearUnusedReferentials() ) );
     pop->addAction( tr( "Merge identical referentials" ), this,
@@ -1005,6 +1036,56 @@ void ReferentialWindow::loadNewTransformation()
     pdat->srcref = 0;
     pdat->dstref = 0;
     loadTransformation( filename.toStdString() );
+    pdat->has_changed = true;
+  }
+}
+
+
+void ReferentialWindow::loadTransformationGraph()
+{
+  QString filter = tr( "Transformations graph" );
+  filter += " (*.yaml *.json);; ";
+  filter += ControlWindow::tr( "All files" );
+  filter += " (*)";
+  QFileDialog   & fd = fileDialog();
+  fd.setNameFilter( filter );
+  fd.setWindowTitle( tr( "Open transformations graph" ) );
+  fd.setFileMode( QFileDialog::ExistingFile );
+  fd.setAcceptMode( QFileDialog::AcceptOpen );
+  if( !fd.exec() )
+    return;
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    pdat->srcref = 0;
+    pdat->dstref = 0;
+    loadTransformationGraph( filename.toStdString() );
+    pdat->has_changed = true;
+  }
+}
+
+
+void ReferentialWindow::saveTransformationGraph()
+{
+  QString filter = tr( "Transformations graph" );
+  filter += " (*.yaml *.json);; ";
+  filter += ControlWindow::tr( "All files" );
+  filter += " (*)";
+  QFileDialog   & fd = fileDialog();
+  fd.setNameFilter( filter );
+  fd.setWindowTitle( tr( "Open transformations graph" ) );
+  fd.setFileMode( QFileDialog::AnyFile );
+  fd.setAcceptMode( QFileDialog::AcceptSave );
+  if( !fd.exec() )
+    return;
+  QStringList selected = fd.selectedFiles();
+  if ( !selected.isEmpty() )
+  {
+    QString filename = selected[0];
+    pdat->srcref = 0;
+    pdat->dstref = 0;
+    saveTransformationGraph( filename.toStdString() );
     pdat->has_changed = true;
   }
 }
@@ -1144,7 +1225,7 @@ QString ReferentialWindow::referentialToolTipText(
   Referential *ref, list<string> & temp_filenames )
 {
   string  name;
-  PythonHeader  & ph = ref->header();
+  PythonHeader  ph = ref->header();
   if( !ph.getProperty( "name", name ) )
     name = "&lt;unnamed&gt;";
 
@@ -1176,7 +1257,7 @@ QString ReferentialWindow::referentialToolTipText(
   set<string> exclude;
   exclude.insert( "name" );
   exclude.insert( "uuid" );
-  text += headerPrint( ph, exclude );
+  text += headerPrint( Object::reference( ph ), exclude );
 
   set<AObject *> objs = objectsInReferential( ref );
   set<AObject *>::const_iterator io, eo = objs.end();
@@ -1225,7 +1306,7 @@ QString ReferentialWindow::transformationToolTipText(
   QString text( "<h4>Transformation:  <img src=\"" );
   text += pixfname.c_str();
   text += "\"/></h4>";
-  AimsData<float> r = tr->motion().rotation();
+  VolumeRef<float> r = tr->motion().affine();
   text += "<table border=1 cellspacing=0><tr>"
       "<td colspan=3><b>R:</b></td><td><b>T:</b></td></tr>"
       "<tr><td>"
@@ -1241,9 +1322,9 @@ QString ReferentialWindow::transformationToolTipText(
       + QString::number( r( 2,1 ) ) + "</td><td>"
       + QString::number( r( 2,2 ) ) + "</td><td>"
       + QString::number( tr->Translation( 2 ) ) + "</td></tr></table>";
-  PythonHeader  *ph = tr->motion().header();
+  Object ph = tr->motion().header();
   if( ph )
-    text += headerPrint( *ph );
+    text += headerPrint( ph );
 
   if( !tr->motion().isIdentity() )
   {

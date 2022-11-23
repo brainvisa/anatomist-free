@@ -37,9 +37,12 @@
 #include <qpushbutton.h>
 #include <qtimer.h>
 #include <qpainter.h>
-#include <qsound.h>
+#include <QMediaPlayer>
 #include <qnamespace.h>
 #include <qevent.h>
+#if QT_VERSION >= 0x060000
+#include <QAudioOutput>
+#endif
 #include <unistd.h>
 #include <stdio.h>
 #include <math.h>
@@ -242,7 +245,10 @@ struct QAbout::Private
   pthread_t		musThrd;
 #endif
   bool			threadRunning;
-  QSound		*qsound;
+  QMediaPlayer		*qmediaplayer;
+#if QT_VERSION >= 0x060000
+  QAudioOutput          *audiooutput;
+#endif
   bool			diffcoded;
   string		musicfile;
   string		tempfile;
@@ -260,7 +266,11 @@ struct QAbout::Private
 
 
 QAbout::Private::Private()
-  : qsound( 0 ), diffcoded( false ), useAlsa( false ), useOSS( false ),
+  : qmediaplayer( 0 ),
+#if QT_VERSION >= 0x060000
+  audiooutput( 0 ),
+#endif
+  diffcoded( false ), useAlsa( false ), useOSS( false ),
   soundBufferSize( 0 )
 #ifdef SOMA_SOUND_ALSA
   , alsaHandle( 0 )
@@ -280,7 +290,7 @@ QAbout::QAbout( QWidget* parent, const char* name )
   setWindowTitle( tr( "About Anatomist" ) );
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this );
-  lay1->setMargin( 10 );
+  lay1->setContentsMargins( 10, 10, 10, 10 );
   d->edit = new QScrollingLabel( this, "edit" );
   d->edit->setLineWidth( 2 );
   d->edit->setMidLineWidth( 2 );
@@ -317,6 +327,10 @@ QAbout::QAbout( QWidget* parent, const char* name )
     {
       d->edit->text = new char[ buf.st_size + 1 ];
       size_t nr = fread( d->edit->text, 1, buf.st_size, f );
+      if ( nr != (size_t)buf.st_size )
+      {
+        cerr << "scrolling message file is corrupted" << endl;
+      }
       d->edit->text[ buf.st_size - 1 ] = '\0';
       fclose( f );
       d->edit->current = d->edit->text;
@@ -338,16 +352,10 @@ QAbout::QAbout( QWidget* parent, const char* name )
   d->tempfile = temporaryMusicFileName().toStdString();
   cout << "musicFile:" << d->musicfile << endl;
 
-#if defined( linux ) || defined( ABOUT_NO_SOUND )
+#if /* defined( linux ) || */ defined( ABOUT_NO_SOUND )
   bool enableQSound = false;
 #else
   bool enableQSound = true;
-#endif
-#if QT_VERSION < 0x050000
-  // in Qt5 isAvailable() has disapeared, probably meaning that sound is
-  // always supported... ?
-  if( enableQSound && !QSound::isAvailable() )
-    enableQSound = false;
 #endif
 
   if( enableQSound )
@@ -359,8 +367,14 @@ QAbout::QAbout( QWidget* parent, const char* name )
           file = d->tempfile;
           DiffCode::uncompress( d->musicfile, d->tempfile );
         }
-      d->qsound = new QSound( file.c_str(), this );
-      d->qsound->play();
+      d->qmediaplayer = new QMediaPlayer( this );
+#if QT_VERSION >= 0x060000
+      d->audiooutput = new QAudioOutput;
+      d->qmediaplayer->setSource( QUrl::fromLocalFile( file.c_str() ) );
+#else
+      d->qmediaplayer->setMedia( QUrl::fromLocalFile( file.c_str() ) );
+#endif
+      d->qmediaplayer->play();
     }
   else
     {
@@ -411,10 +425,13 @@ QAbout::~QAbout()
 #endif
 #endif // ABOUT_NO_SOUND
 
-  if( d->qsound )
+  if( d->qmediaplayer )
     {
-      d->qsound->stop();
-      delete d->qsound;
+      d->qmediaplayer->stop();
+      delete d->qmediaplayer;
+#if QT_VERSION >= 0x060000
+      delete d->audiooutput;
+#endif
     }
   if( !d->tempfile.empty() )
     unlink( d->tempfile.c_str() );
@@ -459,6 +476,7 @@ namespace
     if( !libaudio )
     {
       cout << "could not load libaudio. I will be mute.\n";
+      cout << "Error message : " << lerr << endl;
       return false;
     }
     d->libasound = libaudio;

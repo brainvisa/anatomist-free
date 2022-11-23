@@ -193,13 +193,13 @@ QObjectTree::QObjectTree( QWidget *parent, const char *name )
   setObjectName(name);
   QVBoxLayout	*lay1 = new QVBoxLayout( this );
   lay1->setObjectName( "OTlayout1" );
-  lay1->setMargin( 0 );
+  lay1->setContentsMargins( 0, 0, 0, 0 );
   QFrame	*fr = new QFrame( this );
   fr->setObjectName( "OTframe" );
 
   QVBoxLayout	*lay2 = new QVBoxLayout( fr );
   lay2->setObjectName( "OTlayout2" );
-  lay2->setMargin( 0 );
+  lay2->setContentsMargins( 0, 0, 0, 0 );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
@@ -673,6 +673,8 @@ void QObjectTree::setObjectTypeName(int type, const std::string &name)
 
 void QObjectTree::setObjectTypeIcon(int type, const std::string &img)
 {
+  // ensure the base icons are already registered
+  initIcons();
   if (!TypeIcons[type].load(img.c_str()))
   {
     TypeIcons.erase(type);

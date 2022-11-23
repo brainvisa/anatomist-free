@@ -103,7 +103,7 @@ VectorFieldEditionWindow::VectorFieldEditionWindow( const set<AObject *> &objL,
 
   QVBoxLayout	*vboxlayout = new QVBoxLayout( this );
   vboxlayout->setSpacing( 0 );
-  vboxlayout->setMargin( 0 );
+  vboxlayout->setContentsMargins( 0, 0, 0, 0 );
   vboxlayout->addWidget( sel );
   vboxlayout->addWidget( uiwid );
 
@@ -291,7 +291,7 @@ void VectorFieldEditionWindow::updateInterface()
           else
           {
             sb->setRange( 0, dims[i] - 1 );
-            if( i < pos.size() )
+            if( i < (int)pos.size() )
               sb->setValue( pos[i] );
             else
               sb->setValue( 0 );
@@ -339,6 +339,8 @@ void VectorFieldEditionWindow::chooseObject()
 
 anatomist::VectorField* VectorFieldEditionWindow::vectorField() const
 {
+  if( _parents.empty() )
+    return 0;
   return static_cast<anatomist::VectorField *>( *_parents.begin() );
 }
 
@@ -366,6 +368,8 @@ void VectorFieldEditionWindow::objectsChosen( const set<AObject *> & o )
 void VectorFieldEditionWindow::scalingChanged()
 {
   anatomist::VectorField* vf = vectorField();
+  if( !vf )
+    return;
   float value = scale_lineedit->text().toFloat();
   vf->setScaling( value );
   vf->notifyObservers( this );
@@ -393,6 +397,8 @@ void VectorFieldEditionWindow::zVolumeChanged( int index )
 void VectorFieldEditionWindow::setVolume( int chan, int index )
 {
   anatomist::VectorField* vf = vectorField();
+  if( !vf )
+    return;
   if( index == 0 )
     vf->setVolume( chan, 0 );
   else
@@ -462,9 +468,11 @@ void VectorFieldEditionWindow::zSpace2Changed( int index )
 }
 
 
-void VectorFieldEditionWindow::setSpaceDim( int chan, int dim, int index )
+void VectorFieldEditionWindow::setSpaceDim( int chan, int /*dim*/, int /*index*/ )
 {
   anatomist::VectorField* vf = vectorField();
+  if( !vf )
+    return;
   if( !vf->volume( chan ) )
     return;
   Point3di p;
@@ -491,9 +499,11 @@ void VectorFieldEditionWindow::setSpaceDim( int chan, int dim, int index )
 }
 
 
-void VectorFieldEditionWindow::setFixedCoord( int chan, int coord, int value )
+void VectorFieldEditionWindow::setFixedCoord( int chan, int /*coord*/, int /*value*/ )
 {
   anatomist::VectorField* vf = vectorField();
+  if( !vf )
+    return;
   if( !vf->volume( chan ) )
     return;
   size_t i, n = d->coords[chan].size();
@@ -503,5 +513,3 @@ void VectorFieldEditionWindow::setFixedCoord( int chan, int coord, int value )
   vf->setVectorChannelPosition( chan, pos );
   vf->notifyObservers();
 }
-
-

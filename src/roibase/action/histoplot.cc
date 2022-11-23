@@ -548,7 +548,7 @@ RoiHistoPlot::saveHistos()
   QString filt = ControlWindow::tr( "Anatomist Histograms" ) + " (*.anahis)" ;
   QString capt = "Save histos" ;
   
-  QString filename = QFileDialog::getSaveFileName( 0, capt, QString::null,
+  QString filename = QFileDialog::getSaveFileName( 0, capt, QString(),
     filt, 0 );
   if( !filename.isNull() )
     printHistos( filename.toStdString() ) ;

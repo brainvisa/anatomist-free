@@ -280,7 +280,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   setAttribute(Qt::WA_DeleteOnClose);
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this );
-  lay1->setMargin( 5 );
+  lay1->setContentsMargins( 5, 5, 5, 5 );
   lay1->setSpacing( 5 );
   QGroupBox	*bgr 
     = new QGroupBox( tr( "Graph 3D display mode" ), this );
@@ -313,7 +313,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   QWidget *fr1 = new QWidget( cgr );
   vlay->addWidget( fr1 );
   QHBoxLayout *hlay = new QHBoxLayout( fr1 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 10 );
   QLabel	*lab1 = new QLabel( tr( "Use attribute :" ), fr1 );
   hlay->addWidget( lab1 );
@@ -352,7 +352,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   QWidget *selhbox = new QWidget( sel );
   vlay->addWidget( selhbox );
   hlay = new QHBoxLayout( selhbox );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   lab1 = new QLabel( tr( "Selection highlight type :" ), selhbox );
   hlay->addWidget( lab1 );
   lab1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
@@ -371,7 +371,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   QWidget *fr2 = new QWidget( sel );
   vlay->addWidget( fr2 );
   hlay = new QHBoxLayout( fr2 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 10 );
   hlay->addWidget( new QLabel( tr( "Constant color :" ), fr2 ) );
   _selcol = new QPushButton( fr2 );

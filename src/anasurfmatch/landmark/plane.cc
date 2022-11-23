@@ -54,7 +54,7 @@ static bool registerPlaneFusionMethod()
   return true;
 }
 
-static bool PlaneFusionMethod_dummy = registerPlaneFusionMethod();
+static bool PlaneFusionMethod_dummy __attribute__((unused)) = registerPlaneFusionMethod();
 
 
 string PlaneFusionMethod::ID() const

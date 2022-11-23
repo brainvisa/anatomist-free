@@ -50,8 +50,6 @@
 
 namespace
 {
-  void generateTexture1D( const std::set<anatomist::AObject *> & obj );
-  void generateTexture2D( const std::set<anatomist::AObject *> & obj );
 
   template <int D> inline
   void _completeMeshDirections( AimsTimeSurface<D, Void> & )

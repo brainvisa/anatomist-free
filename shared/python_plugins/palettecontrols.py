@@ -37,9 +37,12 @@ controls:
 ctrl+right mouse button: left-right: change min, up-down: change max
 """
 
+from __future__ import absolute_import
 import anatomist.cpp as anatomist
 from anatomist.cpp import palettecontrastaction
 import types
+
+import six
 
 
 def neweventAutoSubscription(self, pool):
@@ -52,28 +55,32 @@ def neweventAutoSubscription(self, pool):
         self._initial_eventAutoSubscription(pool)
     else:
         self.__class__.__base__.eventAutoSubscription(self, pool)
-    self.mouseLongEventSubscribe( key.RightButton, ControlModifier,
-        pool.action('PaletteContrastAction').startContrast,
-        pool.action('PaletteContrastAction').moveContrast,
-        pool.action('PaletteContrastAction').stopContrast, True)
+    self.mouseLongEventSubscribe(key.RightButton, ControlModifier,
+                                 pool.action(
+                                     'PaletteContrastAction').startContrast,
+                                 pool.action(
+                                     'PaletteContrastAction').moveContrast,
+                                 pool.action('PaletteContrastAction').stopContrast, True)
     self.keyPressEventSubscribe(key.Key_C, NoModifier,
-        pool.action("PaletteContrastAction").resetPalette)
+                                pool.action("PaletteContrastAction").resetPalette)
+
 
 def makePalettedSubclass(c):
-    if type( c.eventAutoSubscription ) is types.BuiltinMethodType:
+    if type(c.eventAutoSubscription) is types.BuiltinMethodType:
         clname = 'Paletted_' + c.__class__.__name__
         cmd = 'class ' + clname + '( anatomist.' + c.__class__.__name__ \
-          + ' ): pass'
+            + ' ): pass'
 
-        exec( cmd )
-        cl = eval( clname )
-        setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
+        six.exec_(cmd)
+        cl = eval(clname)
+        setattr(cl, 'eventAutoSubscription', neweventAutoSubscription)
     else:
         cl = c.__class__
         cl._initial_eventAutoSubscription = cl.eventAutoSubscription
-        setattr( cl, 'eventAutoSubscription', neweventAutoSubscription )
+        setattr(cl, 'eventAutoSubscription', neweventAutoSubscription)
     cd = anatomist.ControlDictionary.instance()
-    cd.addControl( c.name(), cl, c.priority(), True )
+    cd.removeControl(c.name())
+    cd.addControl(c.name(), cl, c.priority(), True)
 
 
 cd = anatomist.ControlDictionary.instance()

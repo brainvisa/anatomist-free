@@ -78,6 +78,7 @@ namespace anatomist
 	      bool ntalp = false )
 	: r( red), g( grn ), b( blu ), a( al ), na( ntalp ) {}
       bool operator == ( const HColor & ) const;
+      bool operator != ( const HColor & ) const;
 
       float	r;
       float	g;

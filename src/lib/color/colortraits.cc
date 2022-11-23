@@ -50,8 +50,8 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
   float		mini = static_cast<float>( minit ),
     maxi = static_cast<float>( maxit );
 
-  ncol0 = colors->dimX();
-  ncol1 = colors->dimY();
+  ncol0 = colors->getSizeX();
+  ncol1 = colors->getSizeY();
 
   minc0 = palette->min1();
   maxc0 = palette->max1(); // colormap min & max
@@ -104,8 +104,8 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
     / (maxc1 - minc1) );
   cmin0 = 0;
   cmin1 = 0;
-  cmax0 = colors->dimX() - 1;
-  cmax1 = colors->dimY() - 1;
+  cmax0 = colors->getSizeX() - 1;
+  cmax1 = colors->getSizeY() - 1;
 
   /*
   std::cout << "cmin0: " << cmin0 << ", cmax0: " << cmax0 << ", cmin1: " << cmin1
@@ -124,8 +124,8 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
   float		minc0, minc1, maxc0, maxc1;
   float		mini = 0.F, maxi = 255.F;
 
-  ncol0 = colors->dimX();
-  ncol1 = colors->dimY();
+  ncol0 = colors->getSizeX();
+  ncol1 = colors->getSizeY();
 
   minc0 = palette->min1();
   maxc0 = palette->max1(); // colormap min & max
@@ -161,8 +161,8 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
   decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
   cmin0 = 0;
   cmin1 = 0;
-  cmax0 = colors->dimX() - 1;
-  cmax1 = colors->dimY() - 1;
+  cmax0 = colors->getSizeX() - 1;
+  cmax1 = colors->getSizeY() - 1;
 }
 
 
@@ -176,8 +176,8 @@ void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
   float		minc0, minc1, maxc0, maxc1;
   float		mini = 0.F, maxi = 255.F;
 
-  ncol0 = colors->dimX();
-  ncol1 = colors->dimY();
+  ncol0 = colors->getSizeX();
+  ncol1 = colors->getSizeY();
 
   minc0 = palette->min1();
   maxc0 = palette->max1(); // colormap min & max
@@ -213,8 +213,8 @@ void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
   decal1 = - ( mini / (maxi - mini) + minc1 ) * ncol1 / (maxc1 - minc1);
   cmin0 = 0;
   cmin1 = 0;
-  cmax0 = colors->dimX() - 1;
-  cmax1 = colors->dimY() - 1;
+  cmax0 = colors->getSizeX() - 1;
+  cmax1 = colors->getSizeY() - 1;
 }
 
 

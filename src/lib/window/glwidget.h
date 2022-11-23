@@ -59,9 +59,11 @@ public:
   QAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
               const char* name = 0,
 #if QT_VERSION >= 0x050900
-              const QOpenGLWidget * shareWidget = 0, Qt::WindowFlags f=0 );
+              const QOpenGLWidget * shareWidget = 0,
+              Qt::WindowFlags f=Qt::WindowFlags() );
 #else
-              const QGLWidget * shareWidget = 0, Qt::WindowFlags f=0 );
+              const QGLWidget * shareWidget = 0,
+              Qt::WindowFlags f=Qt::WindowFlags() );
 #endif
   virtual ~QAGLWidget();
 
@@ -87,6 +89,9 @@ public:
 #endif
   }
   
+signals:
+  void viewRendered();
+
 public slots:
   /// to be reimplemented in "public slots"
   virtual void updateGL();

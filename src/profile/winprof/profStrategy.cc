@@ -46,11 +46,10 @@ double *QAProfileStrategy::abscisse( Point4df&, int )
 
 
 double *QAProfileStrategy::doit( AObject *d, Point3df& pt, float t, 
-                                 Point4df& pmin, int pdim, 
+                                 Point4df& /*pmin*/, int pdim, 
                                  const Point4df & increment )
 {
   vector<float> vs = d->voxelSize();
-  float sx = vs[ 0 ];
   double *y = new double[ pdim ];
   vector<float> pos( 4 );
   float inct = increment[3];

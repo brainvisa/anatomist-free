@@ -122,13 +122,13 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this );
   lay1->setObjectName( "OTlayout1" );
-  lay1->setMargin( 0 );
+  lay1->setContentsMargins( 0, 0, 0, 0 );
   QFrame	*fr = new QFrame( this );
   fr->setObjectName( "OTframe" );
   int		margin = 0;
   QVBoxLayout	*lay2 = new QVBoxLayout( fr );
   lay2->setObjectName( "OTlayout2" );
-  lay2->setMargin( margin );
+  lay2->setContentsMargins( margin, margin, margin, margin );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
@@ -526,7 +526,7 @@ bool QWindowTree::dragMoveEventFromObject( QDragMoveEvent* event )
   if( item )
   {
     //cout << "QWindowTree::dragMoveEvent\n";
-    set<AWindow *>    *sw;
+    set<AWindow *>    *sw = NULL;
     set<int> sg;
     map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator	iw
       = d->items.find( item );
@@ -597,7 +597,7 @@ bool QWindowTree::dragMoveEventFromObject( QDragMoveEvent* event )
 }
 
 
-bool QWindowTree::dragMoveEventFromWindow( QDragMoveEvent* event )
+bool QWindowTree::dragMoveEventFromWindow( QDragMoveEvent* /*event*/ )
 {
   return true;
 //   QTreeWidgetItem	*item
@@ -805,7 +805,7 @@ void QWindowTree::itemChanged( QTreeWidgetItem *item, int )
 {
   if( item )
   {
-    AWindow *win = d->items[ item ];
+    //AWindow *win = d->items[ item ];
     map<QTreeWidgetItem *, anatomist::AWindow *>::const_iterator       iw
       = d->items.find( item );
     if( iw != d->items.end() )

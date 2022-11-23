@@ -232,41 +232,6 @@ AVolume<T>::AVolume( const string & fname )
 
 
 template <class T>
-AVolume<T>::AVolume( const AimsData<T> & aims )
-  : AVolumeBase(), 
-    d( new PrivateData( this ) ), 
-    _volume( aims.volume() )
-{
-  _type = AObject::VOLUME;
-  glAddTextures( 1 );
-  glSetTexMode( glDECAL );
-  TexExtrema  & te = glTexExtrema( 0 );
-  te.min.push_back( 0 );
-  te.max.push_back( 0 );
-  te.minquant.push_back( 0 );
-  te.maxquant.push_back( 0 );
-  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
-}
-
-
-template <class T>
-AVolume<T>::AVolume( rc_ptr<AimsData<T> > aims )
-  : AVolumeBase(), 
-    d( new PrivateData( this ) ), _volume( aims->volume() )
-{
-  _type = AObject::VOLUME;
-  glAddTextures( 1 );
-  glSetTexMode( glDECAL );
-  TexExtrema  & te = glTexExtrema( 0 );
-  te.min.push_back( 0 );
-  te.max.push_back( 0 );
-  te.minquant.push_back( 0 );
-  te.maxquant.push_back( 0 );
-  d->attrib = new ReferenceObject<PropertySet>( _volume->header() );
-}
-
-
-template <class T>
 AVolume<T>::AVolume( rc_ptr<Volume<T> > aims )
   : AVolumeBase(),
     d( new PrivateData( this ) ), _volume( aims )
@@ -316,8 +281,8 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
                                   const SliceViewState & state, 
                                   unsigned /*tex*/ ) const
 {
-  /* cout << "AVolume<" << DataTypeCode<T>::name()
-      << ">::update2DTexture, pos : " << pos << "\n";
+  /* cout << "\nAVolume<" << DataTypeCode<T>::name()
+      << ">::update2DTexture, " << name() << ", pos : " << pos << "\n";
   cout << "vol timedims: " << state.timedims.size() << endl; */
   if( !_volume->allocatorContext().isAllocated() )
     return false;
@@ -338,13 +303,26 @@ bool AVolume<T>::update2DTexture( AImage & ximage, const Point3df & pos,
         << ", tr : " << tra << endl; */
   }
 
+  // cout << "orientation quat: " << quat.vector() << endl;
   Point3df	u = quat.transformInverse( Point3df( 1, 0, 0 ) ),
     v = quat.transformInverse( Point3df( 0, 1, 0 ) ),
     w = quat.transformInverse( Point3df( 0, 0, 1 ) );
 
   Quaternion	q;
   if( tra )
-    q = tra->quaternion().inverse() * quat;
+  {
+    AffineTransformation3d t
+      = tra->motion().inverse() * AffineTransformation3d( quat );
+    t.setTranslation( Point3df( 0, 0, 0 ) );
+    if( t.isDirect() )
+    {
+      q.buildFromMotion( t );
+      if( !( AffineTransformation3d( q ) == t ) )
+        q.fromAxis( Point3df( 0, 0, 0 ), 0 ); // invalid quaternion
+    }
+    else
+      q.fromAxis( Point3df( 0, 0, 0 ), 0 ); // invalid quaternion
+  }
   else
     q = quat;
 
@@ -492,154 +470,155 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
   const T *fp = &_volume->at( pinit );
   const T *pim0 = fp;
   const T *pim;
-  long		dyi = &_volume->at( 0, 1 ) - &_volume->at( 0 );
-  long		dzi = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
-  long		dyxi = dyi + 1;
-  long		dzyi = dzi + dyi;
-  long		dzxi = dzi + 1;
-  long		dzyxi = dzyi + 1;
-  long		offset_xim
+  long dxi = &_volume->at( 1 ) - &_volume->at( 0 );
+  long	dyi = &_volume->at( 0, 1 ) - &_volume->at( 0 );
+  long	dzi = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
+  long	dyxi = dyi + dxi;
+  long	dzyi = dzi + dyi;
+  long	dzxi = dzi + dxi;
+  long	dzyxi = dzyi + dxi;
+  long	offset_xim
     = (image.effectiveWidth - image.width) * ( image.depth / 32 );
 
   if( ppv )	// no interpolation
+  {
+    // advance 1/2 voxel for rounding float->int conversion
+    // Point3df	p1 = p0 + inc * gs[0] * 0.5F + offset * gs[1] * 0.5F;
+    Point3df	p1 = p0;
+    pf = Transformation::transform( p1, tra, vs );
+
+    for( y=0; y<image.height; ++y )
     {
-      // advance 1/2 voxel for rounding float->int conversion
-      // Point3df	p1 = p0 + inc * gs[0] * 0.5F + offset * gs[1] * 0.5F;
-      Point3df	p1 = p0;
-      pf = Transformation::transform( p1, tra, vs );
+      pxd = pf;
+      for( x=0; x<image.width; ++x )
+      {
+        pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ),
+                          (int) rint( pf[2] ) );
+        if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy
+            || pfi[2] < 0 || pfi[2] > dz )
+          val = iempty;
+        else
+          val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + dxi * pfi[0] );
 
-      for( y=0; y<image.height; ++y )
-	{
-	  pxd = pf;
-	  for( x=0; x<image.width; ++x )
-	    {
-	      pfi = Point3dl( (int) rint( pf[0] ), (int) rint( pf[1] ), 
-                             (int) rint( pf[2] ) );
-	      if( pfi[0] < 0 || pfi[0] > dx || pfi[1] < 0 || pfi[1] > dy 
-		  || pfi[2] < 0 || pfi[2] > dz )
-		val = iempty;
-	      else
-		val = *( pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0] );
-	      
-	      *pdat++ = coltraits.color( val );
+        *pdat++ = coltraits.color( val );
 
-	      pf += incd;
-	    }
-	  pf = pxd + offsd;
-	  pdat += offset_xim;
-	}
+        pf += incd;
+      }
+      pf = pxd + offsd;
+      pdat += offset_xim;
     }
+  }
 
   else		// interpolation
+  {
+    //cout << "fill image - interpolation\n";
+    /*--dx;
+    --dy;
+    --dz;*/
+    long	nextx, nexty, nextyx, nextz, nextzy, nextzx, nextzyx;
+    bool	done;
+
+    for( y=0; y<image.height; ++y )
     {
-      //cout << "fill image - interpolation\n";
-      /*--dx;
-      --dy;
-      --dz;*/
-      long	nextx, nexty, nextyx, nextz, nextzy, nextzx, nextzyx;
-      bool	done;
-
-      for( y=0; y<image.height; ++y )
+      pxd = pf;
+      for( x=0; x<image.width; ++x )
+      {
+        done = false;
+        pfi = Point3dl( (int) pf[0], (int) pf[1], (int) pf[2] );
+        if( pf[0] < 0 || pf[1] < 0 || pf[2] < 0 )
         {
-          pxd = pf;
-          for( x=0; x<image.width; ++x )
-            {
-              done = false;
-              pfi = Point3dl( (int) pf[0], (int) pf[1], (int) pf[2] );
-              if( pf[0] < 0 || pf[1] < 0 || pf[2] < 0 )
-                {
-                  val = iempty;
-                  done = true;
-                }
-              else
-                {
-                  nextx = 1;
-                  nexty = dyi;
-                  nextyx = dyxi;
-                  nextz = dzi;
-                  nextzx = dzxi;
-                  nextzy = dzyi;
-                  nextzyx = dzyxi;
-
-                  if( pfi[0] >= dx )
-                  {
-                    if( pfi[0] > dx )
-                      {
-                        val = iempty;
-                        done = true;
-                      }
-                    else
-                      {
-                        nextx = 0;
-                        nextyx = dyi;
-                        nextzx = dzi;
-                        nextzyx = dzyi;
-                      }
-                  }
-                  if( pfi[1] >= dy )
-                  {
-                    if( pfi[1] > dy )
-                      {
-                        val = iempty;
-                        done = true;
-                      }
-                    else
-                      {
-                        nexty = 0;
-                        nextyx = nextx;
-                        nextzy = dzi;
-                        nextzyx = dzi + nextx;
-                      }
-                  }
-                  if( pfi[2] >= dz )
-                  {
-                    if( pfi[2] > dz )
-                      {
-                        val = iempty;
-                        done = true;
-                      }
-                    else
-                      {
-                        nextz = 0;
-                        nextzx = nextx;
-                        nextzy = nexty;
-                        nextzyx = nextyx;
-                      }
-                  }
-
-                  if( !done )
-                    {
-                      pim = pim0 + dzi * pfi[2] + dyi * pfi[1] + pfi[0];
-                      val = *pim;
-
-                      wx = pf[0] - pfi[0];
-                      wx2 = 1. - wx;
-                      wy = pf[1] - pfi[1];
-                      wy2 = 1. - wy;
-                      wz = pf[2] - pfi[2];
-                      val = (T)
-                        ( ( ( ( wx <= 0 ? T(0) : *(pim+nextx) * wx )
-                              + val * wx2 ) * wy2
-                            + ( wy <= 0 ? T(0) :
-                                ( ( wx <= 0 ? T(0) : *(pim+nextyx) * wx )
-                                  + *(pim+nexty) * wx2 ) * wy ) ) * (1. - wz)
-                          + ( wz <= 0 ? T(0) :
-                              ( ( ( wx <= 0 ? T(0) : *(pim+nextzx) * wx )
-                                  + *(pim+nextz) * wx2 ) * wy2
-                                + ( wy <= 0 ? T(0) :
-                                    ( ( wx <= 0 ? T(0) : *(pim+nextzyx) * wx )
-                                      + *(pim+nextzy) * wx2 ) * wy ) )
-                              * wz ) );
-                    }
-                }
-
-              *pdat++ = coltraits.color( val );
-              pf += incd;
-            }
-          pf = pxd + offsd;
-          pdat += offset_xim;
+          val = iempty;
+          done = true;
         }
+        else
+          {
+            nextx = dxi;
+            nexty = dyi;
+            nextyx = dyxi;
+            nextz = dzi;
+            nextzx = dzxi;
+            nextzy = dzyi;
+            nextzyx = dzyxi;
+
+            if( pfi[0] >= dx )
+            {
+              if( pfi[0] > dx )
+              {
+                val = iempty;
+                done = true;
+              }
+              else
+              {
+                nextx = 0;
+                nextyx = dyi;
+                nextzx = dzi;
+                nextzyx = dzyi;
+              }
+            }
+            if( pfi[1] >= dy )
+            {
+              if( pfi[1] > dy )
+              {
+                val = iempty;
+                done = true;
+              }
+              else
+              {
+                nexty = 0;
+                nextyx = nextx;
+                nextzy = dzi;
+                nextzyx = dzi + nextx;
+              }
+            }
+            if( pfi[2] >= dz )
+            {
+              if( pfi[2] > dz )
+              {
+                val = iempty;
+                done = true;
+              }
+              else
+              {
+                nextz = 0;
+                nextzx = nextx;
+                nextzy = nexty;
+                nextzyx = nextyx;
+              }
+            }
+
+            if( !done )
+            {
+              pim = pim0 + dzi * pfi[2] + dyi * pfi[1] + dxi * pfi[0];
+              val = *pim;
+
+              wx = pf[0] - pfi[0];
+              wx2 = 1. - wx;
+              wy = pf[1] - pfi[1];
+              wy2 = 1. - wy;
+              wz = pf[2] - pfi[2];
+              val = (T)
+                ( ( ( ( wx <= 0 ? T(0) : *(pim+nextx) * wx )
+                      + val * wx2 ) * wy2
+                    + ( wy <= 0 ? T(0) :
+                        ( ( wx <= 0 ? T(0) : *(pim+nextyx) * wx )
+                          + *(pim+nexty) * wx2 ) * wy ) ) * (1. - wz)
+                  + ( wz <= 0 ? T(0) :
+                      ( ( ( wx <= 0 ? T(0) : *(pim+nextzx) * wx )
+                          + *(pim+nextz) * wx2 ) * wy2
+                        + ( wy <= 0 ? T(0) :
+                            ( ( wx <= 0 ? T(0) : *(pim+nextzyx) * wx )
+                              + *(pim+nextzy) * wx2 ) * wy ) )
+                      * wz ) );
+            }
+          }
+
+          *pdat++ = coltraits.color( val );
+          pf += incd;
+        }
+      pf = pxd + offsd;
+      pdat += offset_xim;
     }
+  }
   //cout << "OK updateSlice\n";
 }
 
@@ -668,7 +647,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
 {
   // cout << "UpdateAxial simple, pos : " << pf0 << " on " << name() << endl;
   long	dx, dxx, dy;		// Dimensions du volume
-  long	dslice;			// Taille d'une coupe
+  long	dix, dslice;
 
   vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
@@ -711,6 +690,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   }
 
   const T *fp = &_volume->at( pinit );
+  dix = &_volume->at( 1 ) - &_volume->at( 0 );
   dxx = &_volume->at( 0, 1 ) - &_volume->at( 0 );
   dslice = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
 
@@ -749,7 +729,7 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   for( y=0; y<dy; ++y )
   {
     for( x=0; x<dx; ++x )
-      *ptrpix++ = coltraits.color( *( ptrori + dxx * y + x ) );
+      *ptrpix++ = coltraits.color( *( ptrori + dxx * y + dix * x ) );
     p = ptrpix + offset_xim;
     if( p > pend )
       p = pend;
@@ -768,7 +748,7 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
 {
   // cout << "UpdateCoronal simple, p0 : " << pf0 << "\n";
   long	dx, dxx, dz;		// Dimensions du volume
-  long	dline;			// Taille d'une ligne
+  long	dline, dix;
 
   vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
@@ -806,6 +786,7 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
     - min( max( 0, - ze ), ximage->height );
 
   const T *fp = &_volume->at( pinit );
+  dix = &_volume->at( 1 ) - &_volume->at( 0 );
   dxx = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
   dline = &_volume->at( 0, 1 ) - &_volume->at( 0 );
 
@@ -847,7 +828,8 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   {
     p2 = ptrpix;
     for( x=0; x<dx; ++x )
-      *ptrpix++ = coltraits.color( *( ptrori + dline * yy + dxx * z + x ) );
+      *ptrpix++ = coltraits.color( *( ptrori + dline * yy + dxx * z
+                                      + dix * x ) );
     ptrpix += offset_xim;
     p = ptrpix + off_line;
     if( p < (AimsRGBA *) ximage->data )
@@ -867,6 +849,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 {
   // cout << "UpdateSagittal simple, pf0 : " << pf0 << "\n";
   long	dyy, dy, dz;		// Dimensions du volume
+  long dix;
 
   vector<float> vs = voxelSize();
   Point3df	p0 = Point3df( rint( pf0[0] / vs[0] ),
@@ -906,6 +889,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   dz = max( min( ximage->height, _volume->getSizeZ() - int( p0[2] ) ), 0 )
     - min( max( 0, - int( p0[2] ) ), ximage->height );
 //   dyy = (int) _volume->getSizeY() * decY + &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
+  dix = &_volume->at( 1 ) - &_volume->at( 0 );
   dyy = &_volume->at( 0, 0, 1 ) - &_volume->at( 0 );
 
   /*
@@ -942,7 +926,7 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   for( z=0; z<dz; ++z )
     {
       for( y=0; y<dy; ++y )
-	*ptrpix++ = coltraits.color( *( ptrori + xx + dyy * z + decY * y ) );
+	*ptrpix++ = coltraits.color( *( ptrori + dix * xx + dyy * z + decY * y ) );
       p = ptrpix + offset_xim;
       if( p > pend )
 	p = pend;
@@ -1293,13 +1277,6 @@ void AVolume<T>::setInternalsChanged()
 
 
 template <typename T>
-void AVolume<T>::setVolume( carto::rc_ptr<AimsData<T> > vol )
-{
-  setVolume( vol->volume() );
-}
-
-
-template <typename T>
 void AVolume<T>::setVolume( carto::rc_ptr<Volume<T> > vol )
 {
   _volume = vol;
@@ -1400,29 +1377,31 @@ void VolumeScalarTraits<T>::adjustPalette()
   }
   */
 
-  unsigned long x, y, z, t, nx = volume->volume()->getSizeX(), ny = volume->volume()->getSizeY(), nz = volume->volume()->getSizeZ(), nt = volume->volume()->getSizeT();
+  unsigned long x, y, z, t, nx = volume->volume()->getSizeX(),
+    ny = volume->volume()->getSizeY(), nz = volume->volume()->getSizeZ(),
+    nt = volume->volume()->getSizeT();
+  long stride = &volume->volume()->at( 1 ) - &volume->volume()->at( 0 );
   T *buf;
   for( t=0; t<nt; ++t )
     for( z=0; z<nz; ++z )
       for( y=0; y<ny; ++y )
-  {
-    buf = &volume->volume()->at( 0, y, z, t );
-//     cout << "t: " << t << ", z: " << z << ", y: " << y << endl;
-    for( x=0; x<nx; ++x, ++buf )
-    {
-    value = static_cast<int> ( ( (*buf) - mini ) * factor );
-    if( value < 0 )
-      value = 0;
-    else if( value >= 256 )
-      value = 255;
-    ++histo[ value ];
-    if( nval < maxval )
-    {
-      vals.insert( *buf );
-      nval = vals.size();
-    }
-    }
-  }
+      {
+        buf = &volume->volume()->at( 0, y, z, t );
+        for( x=0; x<nx; ++x, buf+=stride )
+        {
+          value = static_cast<int> ( ( (*buf) - mini ) * factor );
+          if( value < 0 )
+            value = 0;
+          else if( value >= 256 )
+            value = 255;
+          ++histo[ value ];
+          if( nval < maxval )
+          {
+            vals.insert( *buf );
+            nval = vals.size();
+          }
+        }
+      }
 
 //   cout << "histo done\n";
 
@@ -1459,12 +1438,13 @@ template<typename T>
 void VolumeScalarTraits<T>::setExtrema()
 {
   //	clear NaN values found in some SPM volumes
-  int	x, y, z, t;
   T	val;
   Volume<T>	& vol = *volume->volume();
 
   mini = vol( 0, 0, 0, 0 );
   maxi = vol( 0, 0, 0, 0 );
+
+  long stride = &vol( 1 ) - &vol( 0 );
 
   if( numeric_limits<T>::has_infinity )
     for( long t=0, nt=vol.getSizeT(); t!=nt; ++t )
@@ -1472,7 +1452,7 @@ void VolumeScalarTraits<T>::setExtrema()
         for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
         {
           T* pvol = &vol( 0, y, z, t );
-          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
+          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, pvol+=stride )
           {
             val = *pvol;
             if( std::isnan( val ) )
@@ -1497,7 +1477,7 @@ void VolumeScalarTraits<T>::setExtrema()
         for( long y=0, ny=vol.getSizeY(); y!=ny; ++y )
         {
           T* pvol = &vol( 0, y, z, t );
-          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, ++pvol )
+          for( long x=0, nx=vol.getSizeX(); x!=nx; ++x, pvol+=stride )
           {
             val = *pvol;
             if( val < mini )

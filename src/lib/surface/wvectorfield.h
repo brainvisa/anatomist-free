@@ -54,7 +54,7 @@ class VectorFieldEditionWindow : public QWidget, public Ui::VectorField,
 public:
   VectorFieldEditionWindow( const std::set<anatomist::AObject *> &,
                             QWidget* parent = 0, const char *name = 0,
-                            Qt::WindowFlags f = 0 );
+                            Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~VectorFieldEditionWindow();
 
   const std::set<anatomist::AObject*>& objects() const { return _parents; }

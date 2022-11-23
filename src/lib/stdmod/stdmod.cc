@@ -86,6 +86,8 @@
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/commands/cNewId.h>
 #include <anatomist/commands/cLoadTransformation.h>
+#include <anatomist/commands/cLoadTransformationGraph.h>
+#include <anatomist/commands/cSaveTransformationGraph.h>
 #include <anatomist/commands/cNewPalette.h>
 #include <anatomist/commands/cObjectInfo.h>
 #include <anatomist/commands/cOutput.h>
@@ -266,6 +268,8 @@ void StdModule::actionsDeclaration()
   LoadGraphSubObjectsCommand::initSyntax();
   LoadObjectCommand::initSyntax();
   LoadTransformationCommand::initSyntax();
+  LoadTransformationGraphCommand::initSyntax();
+  SaveTransformationGraphCommand::initSyntax();
   NewIdCommand::initSyntax();
   NewPaletteCommand::initSyntax();
   ObjectInfoCommand::initSyntax();

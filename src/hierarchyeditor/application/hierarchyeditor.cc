@@ -31,7 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-/* Bibliothèques à vérifier...*/
+/* Bibliothï¿½ques ï¿½ vï¿½rifier...*/
 
 #include <anatomist/application/hierarchyeditor.h>
 #include <anatomist/control/nodeselectioncontrol.h>
@@ -110,7 +110,7 @@ static bool initHierarchyEditor()
   return( true );
 }
 
-static bool garbage = initHierarchyEditor();
+static bool garbage __attribute__((unused)) = initHierarchyEditor();
 /********/
    HierarchyEditor::HierarchyEditor()  : Module()
    {
@@ -146,7 +146,7 @@ void HierarchyEditor::controlsDeclaration()
 cout<<"control1"<<endl;
   ControlDictionary::instance()->addControl("NodeSelectionControl", NodeSelectionControl::creator, 500 ) ;
 cout<<"control2"<<endl;
-  /* Contexte d'activation du contrôle : quand il y a un graph uniquement*/
+  /* Contexte d'activation du contrï¿½le : quand il y a un graph uniquement*/
   ControlManager::instance()->addControl( "QAGLWidget3D", AObject::objectTypeName( AObject::GRAPHOBJECT ),
 					  "NodeSelectionControl" ) ;
 cout<<"control3"<<endl;

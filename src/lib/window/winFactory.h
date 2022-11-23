@@ -77,6 +77,7 @@ namespace anatomist
                              bool visibleinCtrlWin=false );
     static int registerType( const std::string & type, AWindowCreator *c,
                              bool visibleinCtrlWin=false );
+    static void unregisterType( const std::string & type );
     static std::set<std::string> types();
     static const std::map<std::string, int> & typeID() { return( TypeID ); }
     static const std::map<int, std::string> & typeNames()

@@ -56,7 +56,7 @@ static bool initVtkModule()
   return( true );
 }
 
-static bool garbage = initVtkModule();
+static bool garbage __attribute__((unused)) = initVtkModule();
 
 
 VtkModule::VtkModule() : Module()

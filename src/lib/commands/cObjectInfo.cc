@@ -53,6 +53,7 @@
 #include <anatomist/reference/transfSet.h>
 #include <anatomist/processor/context.h>
 #include <anatomist/control/wControl.h>
+#include <anatomist/processor/event.h>
 #include <aims/resampling/quaternion.h>
 #include <cartobase/object/object.h>
 #include <cartobase/object/pythonwriter.h>
@@ -211,7 +212,7 @@ namespace
     {
       Object p = ex->getProperty( "palette" ); // done by makeHeaderOptions()
       // now we complement it a bit
-      p->setProperty( "colorMixSize", pal->colors()->dimX() );
+      p->setProperty( "colorMixSize", pal->colors()->getSizeX() );
     }
 
     // selected
@@ -423,7 +424,7 @@ namespace
     if( id >= 0 )
       ex->setProperty( "destination", id );
 
-    const PythonHeader *hdr = t->motion().header();
+    Object hdr = t->motion().header();
     if( hdr )
     {
       Object i = hdr->objectIterator();
@@ -593,12 +594,17 @@ ObjectInfoCommand::doit()
 
   // cout << "ObjectInfoCommand::doit writing\n";
 
-  file << "'ObjectInfo'\n";
-  PythonWriter	pw;
-  pw.setSingleLineMode( true );
-  pw.attach( file );
-  pw.write( *ex, false, false );
-  file << endl << flush;
+  set<string>	disc;
+//   disc.insert( "object" );
+  OutputEvent	ev( "ObjectInfo", ex, false, disc );
+  ev.send();
+
+//   file << "'ObjectInfo'\n";
+//   PythonWriter	pw;
+//   pw.setSingleLineMode( true );
+//   pw.attach( file );
+//   pw.write( *ex, false, false );
+//   file << endl << flush;
 
   // cout << "ObjectInfoCommand::doit done\n";
 }

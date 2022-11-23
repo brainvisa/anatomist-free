@@ -55,6 +55,7 @@
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/object/mobjectio.h>
+#include <anatomist/object/sliceable.h>
 #include <aims/resampling/quaternion.h>
 #include <aims/mesh/texturetools.h>
 #include <cartobase/stream/fileutil.h>
@@ -94,17 +95,18 @@ struct AObject::Private
     MenuRegistrersMap;
   static MenuRegistrersMap & objectMenuRegistrers();
 
-  PrimList		sharedprim;
-  bool		cleanupdone;
+  PrimList          sharedprim;
+  bool              cleanupdone;
   // texture stuff should be in GLComponent but...
-  TextureMode		texturemode;
-  TextureFiltering	texturefilter;
-  Referential		*oldref;
-  time_t		loaddate;
-  bool                  copy;
+  TextureMode       texturemode;
+  TextureFiltering  texturefilter;
+  Referential       *oldref;
+  time_t            loaddate;
+  bool              copy;
 
-  AObject               *inheritref;
-  // bool                  cycling;
+  AObject           *inheritref;
+  // bool             cycling;
+  bool              userModified;
 };
 
 std::map<std::string, rc_ptr<ObjectMenu> >	AObject::_objectmenu_map;
@@ -121,7 +123,8 @@ void AObject::cleanStatic()
 
 AObject::Private::Private() 
   : cleanupdone( false ), texturemode( Replace ), texturefilter( F_Nearest ), 
-    oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( 0 )
+    oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( 0 ),
+    userModified( false )
 {
 }
 
@@ -129,7 +132,7 @@ AObject::Private::Private()
 AObject::Private::Private( const Private & x )
   : cleanupdone( false ), texturemode( x.texturemode ),
     texturefilter( x.texturefilter ),
-    oldref( 0 ), loaddate( x.loaddate ), inheritref( x.inheritref )
+    oldref( 0 ), loaddate( x.loaddate ), inheritref( x.inheritref ), userModified( x.userModified )
     // cycling( x.cycling )
 {
 }
@@ -174,7 +177,7 @@ AObject::AObject( const string & filename )
 
 
 AObject::AObject( const AObject & x )
-  : Observable(), Observer(), _type( x._type ), _id( 0 ), _name( x._name ),
+  : SharedObject(), Observable(), Observer(), _type( x._type ), _id( 0 ), _name( x._name ),
     _filename( x._filename ), _inMemory( x._inMemory ), _visible( x._visible ),
     _material( x._material ), _referential( 0 ), _referenceHasChanged( false ),
     _palette( 0 ),
@@ -518,27 +521,30 @@ list<AObject *> AObject::load( const string & filename )
 
 bool AObject::reload( AObject* object, bool onlyoutdated )
 {
-  return( ObjectReader::reader()->reload( object, onlyoutdated ) );
+  bool res = ObjectReader::reader()->reload( object, onlyoutdated );
+  if( res )
+    object->setUserModified( false );
+  return res;
 }
 
 
 bool AObject::reload( const string & )
 {
-  return( false );
+  return false;
 }
 
 
 void AObject::internalUpdate()
 {
   if( hasChanged() )
+  {
+    ParentList::iterator i, f=Parents().end();
+    for( i=Parents().begin(); i!=f; ++i )
     {
-      ParentList::iterator i, f=Parents().end();
-      for( i=Parents().begin(); i!=f; ++i )
-        {
-	  (*i)->setChanged();
-          (*i)->internalUpdate();
-	}
+      (*i)->setChanged();
+      (*i)->internalUpdate();
     }
+  }
 }
 
 
@@ -756,7 +762,7 @@ void AObject::cleanup()
 }
 
 
-bool AObject::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
+bool AObject::boundingBox( vector<float> & /*bmin*/, vector<float> & /*bmax*/ ) const
 {
   return false;
 }
@@ -844,7 +850,7 @@ void AObject::setHeaderOptions()
 }
 
 
-void AObject::setProperties( Object options )
+void AObject::setProperties( Object /*options*/ )
 {
 //    cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
 //      << "name: " << name() << ", filename: " << fileName() << endl;
@@ -901,8 +907,7 @@ void AObject::setProperties( Object options )
             string palname = name();
             rc_ptr<APalette>      pal( new APalette( palname ) );
 
-            unsigned      i, n;
-            pal->AimsData<AimsRGBA>::operator = ( cmap );
+            pal->Volume<AimsRGBA>::operator = ( *cmap );
 
 //             theAnatomist->palettes().push_back( pal );
 
@@ -917,7 +922,7 @@ void AObject::setProperties( Object options )
               if( den == 0. )
                 den = 1.;
               opal->setMin1( ( 0. - te.minquant[0] ) / den );
-              opal->setMax1( 1. );
+              opal->setMax1( ( pal->getSizeX() -1 ) / den );
             }
             else
             {
@@ -927,6 +932,16 @@ void AObject::setProperties( Object options )
             opal->setMin2( 0. );
             opal->setMax2( 1. );
             setPalette( *opal );
+
+            // copy labels table, if any
+            try
+            {
+              Object labels = cmap->header().getProperty( "labels" );
+              pao->attributed()->setProperty( "labels", labels );
+            }
+            catch( ... )
+            {
+            }
           }
 
           // palette
@@ -946,6 +961,38 @@ void AObject::setProperties( Object options )
             {
             }
 
+          // if labels are present, set the texture properties to labels mode,
+          // using RGB interpolation, or volumeInterpolation to 0
+          if( dynamic_cast<SliceableObject *>( this ) )
+          {
+            // for volumes / sliceables, labels interpolation is disabled
+            // in value space
+            pao->attributed()->setProperty( "volumeInterpolation", 0 );
+          }
+          else
+          {
+            // for textures, on the contrary, use RGB interpolation
+            // (instead of colormap space interpolation)
+            try
+            {
+              Object tprop = Object::value( carto::ObjectVector() );
+              try
+              {
+                tprop = pao->attributed()->getProperty( "texture_properties" );
+              }
+              catch( ... )
+              {
+              }
+              if( tprop->size() < 1 )
+                tprop->insertArrayItem( 0, Object::value( Dictionary() ) );
+              Object t0prop = tprop->getArrayItem( 0 );
+              t0prop->setProperty( "interpolation", "rgb" );
+              pao->attributed()->setProperty( "texture_properties", tprop );
+            }
+            catch( ... )
+            {
+            }
+          }
           // texture properties
           if( g && g->glNumTextures() > 0 )
           {
@@ -958,116 +1005,117 @@ void AObject::setProperties( Object options )
                 Object	iter;
                 for( i=0, iter=m->objectIterator(); i<n && iter->isValid();
                      ++i, iter->next() )
+                {
+                  Object	t = iter->currentValue();
+                  if( !t.isNone() )
                   {
-                    Object	t = iter->currentValue();
-                    if( !t.isNone() )
-                      try
+                    try
+                    {
+                        Object	tp = t->getProperty( "mode" );
+                        static map<string, GLComponent::glTextureMode> modes;
+                        if( modes.empty() )
+                          {
+                            modes[ "geometric"        ]
+                              = GLComponent::glGEOMETRIC;
+                            modes[ "linear"           ]
+                              = GLComponent::glLINEAR;
+                            modes[ "replace"          ]
+                              = GLComponent::glREPLACE;
+                            modes[ "decal"            ]
+                              = GLComponent::glDECAL;
+                            modes[ "blend"            ]
+                              = GLComponent::glBLEND;
+                            modes[ "add"              ]
+                              = GLComponent::glADD;
+                            modes[ "combine"          ]
+                              = GLComponent::glCOMBINE;
+                            modes[ "linear_on_nonnul" ]
+                              = GLComponent::glLINEAR_ON_DEFINED;
+                          }
+                        map<string, GLComponent::glTextureMode>::
+                          const_iterator
+                          im = modes.find( tp->getString() );
+                        if( im != modes.end() )
+                          g->glSetTexMode( im->second, i );
+                    }
+                    catch( ... )
+                    {
+                    }
+                    try
+                    {
+                      Object	tp = t->getProperty( "filtering" );
+                      static map<string, GLComponent::glTextureFiltering>
+                        filters;
+                      if( filters.empty() )
                         {
-                          Object	tp = t->getProperty( "mode" );
-                          static map<string, GLComponent::glTextureMode> modes;
-                          if( modes.empty() )
-                            {
-                              modes[ "geometric"        ] 
-                                = GLComponent::glGEOMETRIC;
-                              modes[ "linear"           ] 
-                                = GLComponent::glLINEAR;
-                              modes[ "replace"          ] 
-                                = GLComponent::glREPLACE;
-                              modes[ "decal"            ] 
-                                = GLComponent::glDECAL;
-                              modes[ "blend"            ] 
-                                = GLComponent::glBLEND;
-                              modes[ "add"              ] 
-                                = GLComponent::glADD;
-                              modes[ "combine"          ] 
-                                = GLComponent::glCOMBINE;
-                              modes[ "linear_on_nonnul" ] 
-                                = GLComponent::glLINEAR_ON_DEFINED;
-                            }
-                          map<string, GLComponent::glTextureMode>::
-                            const_iterator 
-                            im = modes.find( tp->getString() );
-                          if( im != modes.end() )
-                            g->glSetTexMode( im->second, i );
+                          filters[ "nearest"        ]
+                            = GLComponent::glFILT_NEAREST;
+                          filters[ "linear"         ]
+                            = GLComponent::glFILT_LINEAR;
                         }
+                      map<string, GLComponent::glTextureFiltering>::
+                        const_iterator
+                        im = filters.find( tp->getString() );
+                      if( im != filters.end() )
+                        g->glSetTexFiltering( im->second, i );
+                    }
                     catch( ... )
-                      {
-                      }
+                    {
+                    }
                     try
-                      {
-                        Object	tp = t->getProperty( "filtering" );
-                        static map<string, GLComponent::glTextureFiltering> 
-                          filters;
-                       if( filters.empty() )
-                          {
-                            filters[ "nearest"        ] 
-                              = GLComponent::glFILT_NEAREST;
-                            filters[ "linear"         ] 
-                              = GLComponent::glFILT_LINEAR;
-                          }
-                       map<string, GLComponent::glTextureFiltering>::
-                         const_iterator 
-                         im = filters.find( tp->getString() );
-                       if( im != filters.end() )
-                         g->glSetTexFiltering( im->second, i );
-                      }
+                    {
+                      Object	tp = t->getProperty( "generation" );
+                      static map<string, GLComponent::glAutoTexturingMode>
+                        gens;
+                      if( gens.empty() )
+                        {
+                          gens[ "none"           ]
+                            = GLComponent::glTEX_MANUAL;
+                          gens[ "object_linear"  ]
+                            = GLComponent::glTEX_OBJECT_LINEAR;
+                          gens[ "eye_linear"     ]
+                            = GLComponent::glTEX_EYE_LINEAR;
+                          gens[ "sphere_map"     ]
+                            = GLComponent::glTEX_SPHERE_MAP;
+                          gens[ "reflection_map" ]
+                            = GLComponent::glTEX_REFLECTION_MAP;
+                          gens[ "normal_map"     ]
+                            = GLComponent::glTEX_NORMAL_MAP;
+                        }
+                      map<string, GLComponent::glAutoTexturingMode>::
+                        const_iterator
+                        im = gens.find( tp->getString() );
+                      if( im != gens.end() )
+                        g->glSetAutoTexMode( im->second, i );
+                    }
                     catch( ... )
-                      {
-                      }
+                    {
+                    }
                     try
-                      {
-                        Object	tp = t->getProperty( "generation" );
-                        static map<string, GLComponent::glAutoTexturingMode> 
-                          gens;
-                        if( gens.empty() )
-                          {
-                            gens[ "none"           ] 
-                              = GLComponent::glTEX_MANUAL;
-                            gens[ "object_linear"  ] 
-                              = GLComponent::glTEX_OBJECT_LINEAR;
-                            gens[ "eye_linear"     ] 
-                              = GLComponent::glTEX_EYE_LINEAR;
-                            gens[ "sphere_map"     ] 
-                              = GLComponent::glTEX_SPHERE_MAP;
-                            gens[ "reflection_map" ] 
-                              = GLComponent::glTEX_REFLECTION_MAP;
-                            gens[ "normal_map"     ] 
-                              = GLComponent::glTEX_NORMAL_MAP;
-                          }
-                       map<string, GLComponent::glAutoTexturingMode>::
-                         const_iterator 
-                         im = gens.find( tp->getString() );
-                       if( im != gens.end() )
-                         g->glSetAutoTexMode( im->second, i );
-                      }
+                    {
+                      Object	tp = t->getProperty( "rate" );
+                      g->glSetTexRate( tp->getScalar(), i );
+                    }
                     catch( ... )
-                      {
-                      }
+                    {
+                    }
                     try
-                      {
-                        Object	tp = t->getProperty( "rate" );
-                        g->glSetTexRate( tp->getScalar(), i );
-                      }
+                    {
+                      Object	tp = t->getProperty( "interpolation" );
+                      static map<string, bool>	inters;
+                      if( inters.empty() )
+                        {
+                          inters[ "palette" ] = false;
+                          inters[ "rgb"     ] = true;
+                        }
+                      map<string, bool>::const_iterator
+                        im = inters.find( tp->getString() );
+                      if( im != inters.end() )
+                        g->glSetTexRGBInterpolation( im->second, i );
+                    }
                     catch( ... )
-                      {
-                      }
-                    try
-                      {
-                        Object	tp = t->getProperty( "interpolation" );
-                        static map<string, bool>	inters;
-                       if( inters.empty() )
-                          {
-                            inters[ "palette" ] = false;
-                            inters[ "rgb"     ] = true;
-                          }
-                       map<string, bool>::const_iterator 
-                         im = inters.find( tp->getString() );
-                       if( im != inters.end() )
-                         g->glSetTexRGBInterpolation( im->second, i );
-                      }
-                    catch( ... )
-                      {
-                      }
+                    {
+                    }
                     for( int p=0; p<3; ++p )
                       try
                       {
@@ -1088,6 +1136,7 @@ void AObject::setProperties( Object options )
                       {
                       }
                   }
+                }
               }
             catch( ... )
               {
@@ -1125,10 +1174,7 @@ void AObject::setProperties( Object options )
                   string palname = name();
                   rc_ptr<APalette>      pal( new APalette( palname ) );
 
-                  unsigned      i, n;
-                  AimsData<AimsRGBA>    dat( teximage );
-
-                  pal->AimsData<AimsRGBA>::operator = ( dat );
+                  pal->Volume<AimsRGBA>::operator = ( *teximage );
 
                   theAnatomist->palettes().push_back( pal );
 
@@ -1423,7 +1469,7 @@ namespace
     if( nt != 0 )
     {
       // palette
-      int nsteps = 256;
+      //int nsteps = 256;
       if( ao->palette() )
       {
         const rc_ptr<Volume<AimsRGBA> > teximage
@@ -1433,7 +1479,7 @@ namespace
         ph.getProperty( "_texture_palettes", pal_list );
         pal_list[timestep] = Object::value( teximage );
         ph.setProperty( "_texture_palettes", pal_list );
-        nsteps = teximage->getSizeX();
+        //nsteps = teximage->getSizeX();
       }
 
       const GLfloat* gltex = gl->glTexCoordArray( state, tex );
@@ -1444,7 +1490,7 @@ namespace
       // rescale texture
 //       const GLComponent::TexInfo & t = gl->glTexInfo( tex );
 
-      float m = 1. / ( nsteps * 2 );
+      //float m = 1. / ( nsteps * 2 );
       for( i=0; i<nt; ++i )
       {
         texture[i] = *ttex++;
@@ -1611,6 +1657,28 @@ string AObject::toolTip() const
   return string();
 }
 
+
+bool AObject::userModified() const
+{
+  return d->userModified;
+}
+
+
+void AObject::setUserModified( bool state )
+{
+  d->userModified = state;
+}
+
+
+bool AObject::save( const std::string & filename, bool onlyIfModified )
+{
+  if( onlyIfModified && !userModified() )
+    return true;
+  bool res = save( filename );
+  if( res )
+    setUserModified( false );
+  return res;
+}
 
 // ----
 

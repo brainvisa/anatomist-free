@@ -35,8 +35,8 @@
 #include <anatomist/action/roichangeprocessor.h>
 #include <anatomist/action/paintaction.h>
 #include <anatomist/action/roimanagementaction.h>
-#include <aims/morphology/morphology_g.h>
 #include <anatomist/misc/error.h>
+#include <aims/morphology/morphology_g.h>
 
 #include <QGroupBox>
 #include <qslider.h>
@@ -350,14 +350,15 @@ RoiMorphoMathAction::actionView( QWidget * parent )
   return obs ;
 }
 
-AimsData<int16_t> *
+
+VolumeRef<int16_t>
 RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
 {
   AGraph * g = RoiChangeProcessor::instance()->getGraph( 0 ) ;
   if (!g) 
     return 0 ;
   
-  AimsData<AObject*>& volOfLabels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& volOfLabels = g->volumeOfLabels( 0 ) ;
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -365,18 +366,19 @@ RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( volOfLabels.dimX() != dims[0]
-      || volOfLabels.dimY() != dims[1]
-      || volOfLabels.dimZ() != dims[2] )
+  if( volOfLabels.getSizeX() != dims[0]
+      || volOfLabels.getSizeY() != dims[1]
+      || volOfLabels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
   }
   
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   
-  AimsData<int16_t> * binMask = new AimsData<int16_t>( labels.dimX(), labels.dimY(), labels.dimZ(), 1, 1 );
-  binMask->setSizeXYZT( vs[0], vs[1], vs[2], 1.0 );
+  VolumeRef<int16_t> binMask(
+    labels.getSizeX(), labels.getSizeY(), labels.getSizeZ(), 1, 1 );
+  binMask->setVoxelSize( vs[0], vs[1], vs[2], 1.0 );
 
   if(!go)
     return 0 ;
@@ -393,7 +395,7 @@ RoiMorphoMathAction::regionBinaryMask(AGraphObject * go) const
       last( bk->bucket()[0].end() ) ;
     
     while ( iter != last){
-      (*binMask)(iter->first) = 255 ;
+      binMask->at(iter->first) = 255 ;
       ++iter ;
     }
   }
@@ -438,36 +440,37 @@ RoiMorphoMathAction::doingDilation( AGraphObject * go,  list< pair< Point3d, Cha
   if (!g) return ;
 
   bool replaceMode = PaintActionSharedData::instance()->replaceMode() ;
-  AimsData<int16_t> * binMask = regionBinaryMask(go) ;
-  if( !binMask )
+  VolumeRef<int16_t> binMask = regionBinaryMask(go) ;
+  if( !binMask.get() )
     return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   
-  int maskZ = min(3, binMask->dimZ() ) ;
-  int maskY = min(3, binMask->dimY() ) ;
-  int maskX = min(3, binMask->dimX() ) ;
-  AimsData<int16_t> dilMask
-    = AimsMorphoChamferDilation( *binMask, myStructuringElementRadius,
-                                 maskX, maskY, maskZ, 50 );
+  int maskZ = min(3, binMask->getSizeZ() ) ;
+  int maskY = min(3, binMask->getSizeY() ) ;
+  int maskX = min(3, binMask->getSizeX() ) ;
+  VolumeRef<int16_t> dilMask
+    = AimsMorphoChamferDilation<int16_t>( binMask, myStructuringElementRadius,
+                                          maskX, maskY, maskZ, 50 );
   
   ChangesItem item ;
   item.before = 0 ;
   item.after = go ;
+  vector<int> msize = dilMask.getSize();
 
-  for(int z = 0 ; z < dilMask.dimZ() ; ++z )
-    for(int y = 0 ; y < dilMask.dimY() ; ++y )
-      for(int x = 0 ; x < dilMask.dimX() ; ++x )
-        if( dilMask(x, y, z) && (!(*binMask)(x, y, z) ) &&
-            ( replaceMode || labels(x, y, z) == 0 ) )
+  for(int z = 0 ; z < msize[2]; ++z )
+    for(int y = 0 ; y < msize[1]; ++y )
+      for(int x = 0 ; x < msize[0]; ++x )
+        if( dilMask->at(x, y, z) && (!binMask->at(x, y, z) ) &&
+            ( replaceMode || labels->at(x, y, z) == 0 ) )
         {
-          changes->push_back(pair<Point3d, ChangesItem>( Point3d(x, y, z), item ) )  ;
-          labels( x, y, z ) = go  ;
+          changes->push_back( pair<Point3d, ChangesItem>( Point3d(x, y, z),
+                                                          item ) );
+          labels->at( x, y, z ) = go;
         }
-  delete binMask ;
 }
 
 void
-RoiMorphoMathAction::erosion(  ) 
+RoiMorphoMathAction::erosion()
 {
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   if( myRegionMode == REGION ){
@@ -500,31 +503,32 @@ RoiMorphoMathAction::doingErosion( AGraphObject * go, list< pair< Point3d, Chang
   
   int maskZ, maskY, maskX ;
   
-  AimsData<int16_t> * binMask = regionBinaryMask(go) ;
-  if( !binMask )
+  VolumeRef<int16_t> binMask = regionBinaryMask(go);
+  if( !binMask.get() )
     return ;
   
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
-  maskZ = min(3, binMask->dimZ() ) ;
-  maskY = min(3, binMask->dimY() ) ;
-  maskX = min(3, binMask->dimX() ) ;
-  AimsData<int16_t> erodeMask = 
-    AimsMorphoChamferErosion( *binMask, myStructuringElementRadius, 
-			      maskX, maskY, maskZ, 50 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  maskZ = min(3, binMask->getSizeZ() ) ;
+  maskY = min(3, binMask->getSizeX() ) ;
+  maskX = min(3, binMask->getSizeX() ) ;
+  VolumeRef<int16_t> erodeMask =
+    AimsMorphoChamferErosion<int16_t>( binMask, myStructuringElementRadius,
+                                       maskX, maskY, maskZ, 50 );
   
   ChangesItem item ;
   item.before = go ;
   item.after = 0 ;
+  vector<int> msize = erodeMask.getSize();
   
-  for(int z = 0 ; z < erodeMask.dimZ() ; ++z )
-    for(int y = 0 ; y < erodeMask.dimY() ; ++y )
-      for(int x = 0 ; x < erodeMask.dimX() ; ++x )
-	if( (*binMask)(x, y, z) && (!erodeMask(x, y, z) ) ) {
-	  changes->push_back(pair<Point3d, ChangesItem>( Point3d(x, y, z), item ) )  ;
-	  labels( x, y, z ) = go  ;
-	}
-  
-  delete binMask ;
+  for(int z = 0 ; z < msize[2]; ++z )
+    for(int y = 0 ; y < msize[1]; ++y )
+      for(int x = 0 ; x < msize[0]; ++x )
+        if( binMask->at(x, y, z) && (!erodeMask->at(x, y, z) ) )
+        {
+          changes->push_back(pair<Point3d, ChangesItem>( Point3d(x, y, z),
+                                                         item ) );
+          labels->at( x, y, z ) = go;
+        }
 }
 
 void

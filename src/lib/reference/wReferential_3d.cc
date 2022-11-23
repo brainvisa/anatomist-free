@@ -237,8 +237,6 @@ namespace
                     exclude_refs );
     Point2df bounds_max( 0. );
     set<Referential *> done = exclude_refs;
-    int x = 0;
-    int y = 0;
     VolumeRef<uint8_t> used_spc( 1, 1 );
     const set<Referential *> & all_refs = theAnatomist->getReferentials();
     set<Referential *>::const_iterator
@@ -342,7 +340,7 @@ namespace
     }
     else
     {
-      Referential *cent = theAnatomist->centralReferential();
+      //Referential *cent = theAnatomist->centralReferential();
       map<Referential*, Point2df> *init_ref_pos
         = plot_all_connected_components();
       unsigned i, np = init_ref_pos->size();
@@ -602,6 +600,10 @@ void ReferentialMenu::backgroundMenu( int x, int y )
                   SLOT( loadReferential() ) );
   menu.addAction( ReferentialWindow::tr( "Load transformation" ), parent,
                   SLOT( loadNewTransformation() ) );
+  menu.addAction( ReferentialWindow::tr( "Load transformations graph" ),
+                  parent, SLOT( loadTransformationGraph() ) );
+  menu.addAction( ReferentialWindow::tr( "Save transformations graph" ),
+                  parent, SLOT( saveTransformationGraph() ) );
   menu.addAction( ReferentialWindow::tr( "Clear unused referentials" ), parent,
                   SLOT( clearUnusedReferentials() ) );
   menu.addAction( ReferentialWindow::tr( "Merge identical referentials" ),
@@ -948,7 +950,7 @@ RefTransControl::RefTransControl( int prio )
 void RefTransControl::eventAutoSubscription( ActionPool* pool )
 {
   mouseLongEventSubscribe(
-    Qt::MidButton, Qt::NoModifier,
+    Qt::MiddleButton, Qt::NoModifier,
     MouseActionLinkOf<ContinuousTrackball>(
       pool->action( "ContinuousTrackball" ),
       &ContinuousTrackball::beginTrackball ),
@@ -959,7 +961,7 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
     ( pool->action( "ContinuousTrackball" ),
       &ContinuousTrackball::endTrackball ), true );
   mouseLongEventSubscribe
-  ( Qt::MidButton, Qt::ShiftModifier,
+  ( Qt::MiddleButton, Qt::ShiftModifier,
     MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
                                       &Zoom3DAction::beginZoom ),
     MouseActionLinkOf<Zoom3DAction>( pool->action( "Zoom3DAction" ),
@@ -970,7 +972,7 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
                        ( pool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
   mouseLongEventSubscribe
-  ( Qt::MidButton, Qt::ControlModifier,
+  ( Qt::MiddleButton, Qt::ControlModifier,
     MouseActionLinkOf<Translate3DAction>
     ( pool->action( "Translate3DAction" ),
       &Translate3DAction::beginTranslate ),

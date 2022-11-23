@@ -41,6 +41,7 @@
 #include <anatomist/window/glwidget.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/reference/transfSet.h>
+#include <anatomist/reference/Referential.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/control/qObjTree.h>
@@ -122,6 +123,7 @@ struct VolRender::Private
   double minval;
   double maxval;
   GLuint sourcepixtype;
+  vector<float> voxelSize;
 };
 
 
@@ -130,7 +132,8 @@ VolRender::Private::Private()
     dimx( 0 ), dimy( 0 ), dimz( 0 ), texdimx( 0 ), texdimy( 0 ), texdimz( 0 ),
     xscalefac( 1 ), yscalefac( 1 ), zscalefac( 1 ),
     shader( 0 ), slabSize( 1 ), maxslices( 0 ), sign( false ),
-    ownextrema( false ), minval( 0 ), maxval( 0 ), sourcepixtype( GL_RGBA )
+    ownextrema( false ), minval( 0 ), maxval( 0 ), sourcepixtype( GL_RGBA ),
+    voxelSize( 4, 1. )
 {
 }
 
@@ -168,6 +171,7 @@ VolRender::VolRender( AObject * vol )
   te.minquant.push_back( 0 );
   te.maxquant.push_back( 0 );
   te.scaled = false;
+  d->voxelSize = vol->voxelSize();
   glSetAutoTexMode( GLComponent::glTEX_OBJECT_LINEAR, 0 );
   GetMaterial().setRenderProperty( Material::RenderFaceCulling, 0 );
   // assign 0.2 opacity to allow non-transparent objects to be drawn first
@@ -191,6 +195,12 @@ VolRender::~VolRender()
 {
   // cout << "VolRender::~VolRender\n";
   delete d;
+}
+
+
+vector<float> VolRender::voxelSize() const
+{
+  return d->voxelSize;
 }
 
 
@@ -393,7 +403,10 @@ namespace
   {
     glpixtype<AimsRGBA>( p );
     vector<float> vmax = avol->glMax2D();
-    Point3df max = Point3df( vmax[0], vmax[1], vmax[2] ) + Point3df( 1.F );
+    vector<float> vs = avol->glVoxelSize();
+    Point3df max = Point3df( ceil( vmax[0] / vs[0] ),
+                             ceil( vmax[1] / vs[1] ),
+                             ceil( vmax[2] / vs[2] ) ) + Point3df( 1.F );
     p.dimx = (unsigned) rint( max[0] );
     p.dimy = (unsigned) rint( max[1] );
     p.dimz = (unsigned) rint( max[2] );
@@ -725,11 +738,11 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   if( !objpal )
     return false;
 
-  const AimsData<AimsRGBA>	*cols = objpal->colors();
+  const Volume<AimsRGBA>	*cols = objpal->colors();
   float		min = objpal->min1(), max = objpal->max1();
   unsigned   	dimx = 65536;
   int           h;
-  unsigned	dimpx = cols->dimX();
+  unsigned	dimpx = cols->getSizeX();
   int		xs;
   const TexExtrema  & te = glTexExtrema( tex );
 
@@ -844,7 +857,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
     else if( xs >= (int) dimpx )
       xs = dimpx - 1;
 
-    rgb = (*cols)( xs, 0 );
+    rgb = cols->at( xs, 0 );
     palR[h % dimx] = (GLfloat) rgb.red()   / 255;
     palG[h % dimx] = (GLfloat) rgb.green() / 255;
     palB[h % dimx] = (GLfloat) rgb.blue()  / 255;
@@ -929,12 +942,14 @@ bool VolRender::glMakeTexImage( const ViewState &state,
           d->xscalefac *= 2;
           d->texdimx /= 2;
           d->dimx /= 2;
+          d->voxelSize[0] *= 2;
         }
         else
         {
           d->zscalefac *= 2;
           d->texdimz /= 2;
           d->dimz /= 2;
+          d->voxelSize[2] *= 2;
         }
       else
         if( d->dimy > d->dimz )
@@ -942,12 +957,14 @@ bool VolRender::glMakeTexImage( const ViewState &state,
           d->yscalefac *= 2;
           d->texdimy /= 2;
           d->dimy /= 2;
+          d->voxelSize[1] *= 2;
         }
         else
         {
           d->zscalefac *= 2;
           d->texdimz /= 2;
           d->dimz /= 2;
+          d->voxelSize[2] *= 2;
         }
     }
     else
@@ -1021,6 +1038,13 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   float tx = (float) d->dimx;
   float ty = (float) d->dimy;
   float tz = (float) d->dimz;
+  // cout << "VolRender::glMakeBodyGLL, dims: " << tx << ", " << ty << ", " << tz << endl;
+
+  const Referential *wref = 0;
+  if( svs && svs->winref )
+    wref = svs->winref;
+  else if( state.window )
+    wref = state.window->getReferential();
 
   //float m[16];
   Motion  mot;
@@ -1034,14 +1058,21 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
       hasorient = true;
       Quaternion q1 = svs->vieworientation->inverse();
       qo = q1.vector();
-      qo[0] *= -1;
-      qo[1] *= -1;
+      if( !wref || !wref->isDirect() )
+      {
+        qo[0] *= -1;
+        qo[1] *= -1;
+      }
+
       q = Quaternion( qo );
-      Quaternion q2;
-      q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
-      q *= q2;
-      q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
-      q *= q2;
+      if( !wref || !wref->isDirect() )
+      {
+        Quaternion q2;
+        q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
+        q *= q2;
+        q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+        q *= q2;
+      }
     }
     else
     {
@@ -1065,14 +1096,20 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
         Point4df  qo;
         Quaternion q1 = glv->quaternion().inverse();
         qo = q1.vector();
-        qo[0] *= -1;
-        qo[1] *= -1;
+        if( !wref || !wref->isDirect() )
+        {
+          qo[0] *= -1;
+          qo[1] *= -1;
+        }
         q = Quaternion( qo );
-        Quaternion q2;
-        q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
-        q *= q2;
-        q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
-        q *= q2;
+        if( !wref || !wref->isDirect() )
+        {
+          Quaternion q2;
+          q2.fromAxis( Point3df( 0, 0, 1 ), M_PI );
+          q *= q2;
+          q2.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+          q *= q2;
+        }
       }
     }
   }
@@ -1081,23 +1118,19 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
 
   // apply object -> window transformation if one exists
   const Referential *oref = d->object->getReferential();
-  const Referential *wref = 0;
-  if( svs && svs->winref )
-    wref = svs->winref;
-  else if( state.window )
-    wref = state.window->getReferential();
   if( oref && wref )
   {
     const Transformation  *t
         = ATransformSet::instance()->transformation( oref, wref );
     if( t )
-      mot *= t->motion();
+      mot = mot * t->motion();
   }
 
   // apply cube -> object size scaling
 
   int nb_slices = (int)( 2.0f * sqrt( tx * tx + ty * ty +
       tz * tz * sV * sV ) + 0.5f );
+  // cout << "nb slices: " << nb_slices << ", max: " << d->maxslices << endl;
   if( d->maxslices > 0 && (unsigned) nb_slices > d->maxslices )
     nb_slices = d->maxslices;
   GLfloat sEq[ 4 ] = { 1.0f, 0.0f, 0.0f, 0.0f };
@@ -1132,6 +1165,7 @@ bool VolRender::glMakeBodyGLL( const ViewState &state,
   glLoadIdentity();
   glScalef( float( tx ) / d->texdimx, float( ty ) / d->texdimy,
             float( tz ) / d->texdimz );
+  // cout << "texdim: " << d->texdimx << ", " << d->texdimy << ", " << d->texdimz << endl;
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -1297,11 +1331,11 @@ void VolRender::createDefaultPalette( const string & name )
         rc_ptr<APalette> apal = theAnatomist->palettes().find( pname );
         if( !apal )
         {
-          int dx = rpal->dimX(), x;
+          int dx = rpal->getSizeX(), x;
           apal.reset( new APalette( pname, dx ) );
           for( x=0; x<dx; ++x )
           {
-            const AimsRGBA & rgb = (*rpal)(x);
+            const AimsRGBA & rgb = rpal->at(x);
             AimsRGBA & xrgb = (*apal)(x);
             xrgb.red() = rgb.red();
             xrgb.green() = rgb.green();

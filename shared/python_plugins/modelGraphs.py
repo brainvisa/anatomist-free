@@ -37,6 +37,7 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import sys
 import os
 import anatomist.cpp as anatomist
@@ -197,7 +198,7 @@ class AModelsGraphFusionObject(anatomist.ObjectList):
 
         # palette
         infomin, infomax = self._md.getMinMax(choosen_data)
-        vol = self.getOrCreatePalette().refPalette().volume().get()
+        vol = self.getOrCreatePalette().refPalette()
         size = vol.getSizeX()
         coeff = (size + 1) / float(size)
         processor.execute('SetObjectPalette',
@@ -343,4 +344,3 @@ if sigraph is not None:
     f.registerMethod(m)
 
     pm = ModelsFusionModule()
-

@@ -59,7 +59,8 @@ SurfpaintToolsControl::creator()
 }
 
 SurfpaintToolsControl::SurfpaintToolsControl() :
-  Control(518, QT_TRANSLATE_NOOP("ControlledWindow", "SurfpaintToolsControl")),
+  Control(5180, QT_TRANSLATE_NOOP("ControlledWindow",
+                                  "SurfpaintToolsControl")),
   myAction( 0 )
 {
 }
@@ -214,7 +215,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
     actionPool->action( "SurfpaintToolsAction" ) );
 }
 
-void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
+void SurfpaintToolsControl::doAlsoOnSelect( ActionPool * pool )
 {
 
   if (myAction)
@@ -228,18 +229,26 @@ void SurfpaintToolsControl::doAlsoOnSelect(ActionPool *pool)
       SurfpaintTools *myTools = myAction->getTools();
       myTools->addToolBarInfosTexture(w3);
 
-      if (myTools->initSurfPaintModule(w3))
+      try
       {
-        w3->setVisibleSurfpaint(true);
-        myTools->addToolBarControls(w3);
-        myTools->setTextureValueFloat( myAction->textureValue() );
+        if (myTools->initSurfPaintModule(w3))
+        {
+          w3->setVisibleSurfpaint(true);
+          myTools->addToolBarControls(w3);
+          myTools->setTextureValueFloat( myAction->textureValue() );
 
-        GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
-        if (glw)
-          glw->copyBackBuffer2Texture();
+          GLWidgetManager * glw = dynamic_cast<GLWidgetManager *> (w3->view());
+          if (glw)
+            glw->copyBackBuffer2Texture();
+        }
+        else
+          myTools->removeToolBarInfosTexture(w3);
       }
-      else
+      catch( ... )
+      {
         myTools->removeToolBarInfosTexture(w3);
+        doAlsoOnDeselect( pool );
+      }
     }
   }
 }

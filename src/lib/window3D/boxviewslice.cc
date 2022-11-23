@@ -103,13 +103,13 @@ BoxViewSlice::~BoxViewSlice()
 }
 
 
-void BoxViewSlice::beginTrackball( int x, int y )
+void BoxViewSlice::beginTrackball( int /*x*/, int /*y*/ )
 {
   initOjects();
 }
 
 
-void BoxViewSlice::moveTrackball( int x, int y )
+void BoxViewSlice::moveTrackball( int /*x*/, int /*y*/ )
 {
   updateRect();
   QGraphicsView *gview = graphicsView();
@@ -133,7 +133,7 @@ void BoxViewSlice::moveTrackball( int x, int y )
 }
 
 
-void BoxViewSlice::endTrackball( int x, int y )
+void BoxViewSlice::endTrackball( int /*x*/, int /*y*/ )
 {
   removeObjects();
 }

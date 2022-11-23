@@ -97,7 +97,7 @@ QTextureWin::QTextureWin( const set<AObject *> & obj,
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
   mainlay->setObjectName( "mainlayout" );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 5 );
 
   d->objsel = new ObjectParamSelect( obj, this );
@@ -108,13 +108,13 @@ QTextureWin::QTextureWin( const set<AObject *> & obj,
   QHBoxLayout *hlay = new QHBoxLayout( d->main );
   d->main->setLayout( hlay );
   hlay->setSpacing( 5 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   mainlay->addWidget( d->main );
   QGroupBox	*nb = new QGroupBox( tr( "Texture number" ), d->main );
   hlay->addWidget( nb );
   QVBoxLayout *gblay = new QVBoxLayout( nb );
   nb->setLayout( gblay );
-  gblay->setMargin( 5 );
+  gblay->setContentsMargins( 5, 5, 5, 5 );
   gblay->setSpacing( 5 );
   d->texbox = new QSpinBox( nb );
   gblay->addWidget( d->texbox );

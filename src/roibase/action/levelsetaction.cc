@@ -789,7 +789,7 @@ RoiLevelSetAction::realMin( ) const
   if ( _sharedData->myLowLevel > 1. )
     return _sharedData->myImageMax ;
   float factor = _sharedData->myLowLevel + ( _sharedData->myHighLevel - _sharedData->myLowLevel ) 
-    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->dimX() ;
+    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->getSizeX();
   
   
   return _sharedData->myImageMin + factor * ( _sharedData->myImageMax - _sharedData->myImageMin ) ;
@@ -806,7 +806,7 @@ RoiLevelSetAction::realMax( ) const
   if ( _sharedData->myHighLevel > 1. )
     return _sharedData->myImageMax ;
   float factor = _sharedData->myHighLevel - ( _sharedData->myHighLevel - _sharedData->myLowLevel ) 
-    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->dimX() ;
+    / _sharedData->myCurrentImage->getOrCreatePalette()->colors()->getSizeX();
   
   return _sharedData->myImageMin + factor * ( _sharedData->myImageMax - _sharedData->myImageMin ) ;
 }
@@ -869,14 +869,14 @@ RoiLevelSetAction::updateObjPal()
   if( !pal )
     return;
   rc_ptr<APalette>	pal2 = objpal->refPalette2();
-  unsigned		dimx = pal->dimX(), dimy = pal->dimY();
+  unsigned		dimx = pal->getSizeX(), dimy = pal->getSizeY();
   unsigned		dimxmax = 256, dimymax = 256;
 
   if( objpal->palette1DMapping() == AObjectPalette::FIRSTLINE )
     dimy = 1;
   else if( pal2 )
     {
-      dimy = pal2->dimX();
+      dimy = pal2->getSizeX();
       if( dimy < 1 )
 	dimy = 1;
       else if( dimy > dimymax )
@@ -907,7 +907,7 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
   list< pair< Point3d, ChangesItem> > * changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -915,9 +915,9 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( labels.dimX() != dims[0]
-      || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  if( labels.getSizeX() != dims[0]
+      || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -938,7 +938,7 @@ RoiLevelSetAction::replaceRegion( int x, int y, int, int )
       item.before = go ;
       changes->push_back( pair<Point3d, ChangesItem>( iter->first, item ) ) ;
       
-      labels( iter->first ) = 0  ;
+      labels->at( iter->first ) = 0  ;
       ++iter ;
     }
     
@@ -982,7 +982,7 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
 
   if (!g) return ;
 
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bmin, bmax, vs;
   g->boundingBox2D( bmin, bmax );
   vs = g->voxelSize();
@@ -990,9 +990,9 @@ RoiLevelSetAction::addToRegion( int x, int y, int, int )
   dims[0] = int( rint( ( bmax[0] - bmin[0] ) / vs[0] ) );
   dims[1] = int( rint( ( bmax[1] - bmin[1] ) / vs[1] ) );
   dims[2] = int( rint( ( bmax[2] - bmin[2] ) / vs[2] ) );
-  if( labels.dimX() != dims[0]
-      || labels.dimY() != dims[1]
-      || labels.dimZ() != dims[2] )
+  if( labels.getSizeX() != dims[0]
+      || labels.getSizeY() != dims[1]
+      || labels.getSizeZ() != dims[2] )
   {
     g->clearLabelsVolume();
     g->setLabelsVolumeDimension( dims[0], dims[1], dims[2] );
@@ -1099,19 +1099,21 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     Point3df vlOffset( bmin[0] / voxelSize[0] + 0.5,
                        bmin[1] / voxelSize[1] + 0.5,
                        bmin[2] / voxelSize[2] + 0.5) ;
-    AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+    VolumeRef<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
     Point3d pVL( static_cast<int>( rint( p[0] - vlOffset[0] ) ),
                  static_cast<int>( rint( p[1] - vlOffset[1] ) ),
                  static_cast<int>( rint( p[2] - vlOffset[2] ) ) );
     int maxNbOfPoints ;
     if( _sharedData->myMaxSize > 0 )
+    {
+      vector<float> vs = volumeOfLabels.getVoxelSize();
       maxNbOfPoints
-        = int( _sharedData->myMaxSize /
-          (volumeOfLabels.sizeX()*volumeOfLabels.sizeY()
-            *volumeOfLabels.sizeZ() ) ) ;
+        = int( _sharedData->myMaxSize / ( vs[0] * vs[1] * vs[2] ) );
+    }
     else
       maxNbOfPoints
-        = volumeOfLabels.dimX()*volumeOfLabels.dimY()*volumeOfLabels.dimZ();
+        = volumeOfLabels.getSizeX() * volumeOfLabels.getSizeY()
+          * volumeOfLabels.getSizeZ();
     vector<float> vpos = win->getFullPosition();
 
     float realLowLevel = realMin() ;
@@ -1134,8 +1136,8 @@ RoiLevelSetAction::fillRegion( int x, int y, AGraphObject * region,
     }
     Point3d neighbor ;
     bool replace = PaintActionSharedData::instance()->replaceMode();
-    Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(),
-                  volumeOfLabels.dimZ() );
+    Point3d dims( volumeOfLabels.getSizeX(), volumeOfLabels.getSizeY(),
+                  volumeOfLabels.getSizeZ() );
     if( in( dims, pVL ) )
     {
       vector<float> vs = _sharedData->myCurrentImage->voxelSize();
@@ -1227,13 +1229,13 @@ RoiLevelSetAction::in( const Point3d& dims, Point3d p )
 
 bool 
 anatomist::RoiLevelSetAction::fillPoint(
-  const Point3d& pc, int t, AimsData<anatomist::AObject*>& volumeOfLabels,
+  const Point3d& pc, int t, VolumeRef<anatomist::AObject*>& volumeOfLabels,
   anatomist::AGraphObject * region, float realLowLevel, float realHighLevel,
   anatomist::AObject** toChange, std::queue<Point3d>& trialPoints,
   bool replace )
 {
-  Point3d dims( volumeOfLabels.dimX(), volumeOfLabels.dimY(),
-                volumeOfLabels.dimZ()) ;
+  Point3d dims( volumeOfLabels.getSizeX(), volumeOfLabels.getSizeY(),
+                volumeOfLabels.getSizeZ() );
   if( in( dims, pc ) )
   {
     vector<float> vs = _sharedData->myCurrentImage->voxelSize();
@@ -1244,15 +1246,15 @@ anatomist::RoiLevelSetAction::fillPoint(
     vpos[3] = t;
 
     float val = _sharedData->myCurrentImage->mixedTexValue( vpos );
-    if( (volumeOfLabels( pc ) != region) &&
+    if( (volumeOfLabels->at( pc ) != region) &&
         (val >= realLowLevel) && (val <= realHighLevel)  &&
-        ( replace || ( (!replace) && volumeOfLabels( pc ) == 0 )) )
+        ( replace || ( (!replace) && volumeOfLabels->at( pc ) == 0 )) )
     {
-/*     if( (volumeOfLabels( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
+/*     if( (volumeOfLabels->at( pc ) != region) &&  (val >= realLowLevel) && (val <= realHighLevel) ){ */
       trialPoints.push(pc) ;
-      *toChange = volumeOfLabels( pc ) ;
+      *toChange = volumeOfLabels->at( pc ) ;
 
-      volumeOfLabels( pc ) = region ;
+      volumeOfLabels->at( pc ) = region ;
       return true ;
     }
   }

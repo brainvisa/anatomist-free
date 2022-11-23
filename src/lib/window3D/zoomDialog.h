@@ -53,7 +53,7 @@ public:
   ZoomDialog( float zoom, bool forceResize,
               QWidget* parent = theAnatomist->getQWidgetAncestor(),
               const char* name = 0, bool modal = false,
-              Qt::WindowFlags f = 0 );
+              Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~ZoomDialog();
 
   QString zoomText() const;

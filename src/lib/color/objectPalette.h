@@ -36,7 +36,7 @@
 #define ANA_COLOR_OBJECTPALETTE_H
 
 #include <anatomist/color/palette.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
 
@@ -54,10 +54,11 @@ namespace anatomist
       DIAGONAL
     };
 
-    typedef AimsRGBA (*MixMethod)( const AimsData<AimsRGBA> & map1, 
-				   const AimsData<AimsRGBA> *map2, 
-				   unsigned x, unsigned y, 
-				   const AObjectPalette & pal );
+    typedef AimsRGBA (*MixMethod)(
+      const carto::Volume<AimsRGBA> & map1,
+      const carto::Volume<AimsRGBA> *map2,
+      unsigned x, unsigned y,
+      const AObjectPalette & pal );
 
     AObjectPalette( carto::rc_ptr<APalette> pal );
     AObjectPalette( const AObjectPalette & x );
@@ -72,12 +73,13 @@ namespace anatomist
     void setRefPalette( carto::rc_ptr<APalette> pal )
     { if( _refPal != pal ) { clearColors(); _refPal = pal; } }
     void setRefPalette2( carto::rc_ptr<APalette> pal ) { _refPal2 = pal; }
-    const AimsData<AimsRGBA>* colors() const
-    { if( !_colors ) const_cast<AObjectPalette *>(this)->fill();
-    return _colors; }
-    AimsData<AimsRGBA>* colors() { if( !_colors ) fill(); return _colors; }
+    const carto::Volume<AimsRGBA>* colors() const
+    { if( !_colors.get() ) const_cast<AObjectPalette *>(this)->fill();
+      return _colors.get(); }
+    carto::Volume<AimsRGBA>* colors()
+    { if( !_colors.get() ) fill(); return _colors.get(); }
     void create( unsigned dimx, unsigned dimy = 1, unsigned dimz = 1, 
-		 unsigned dimt = 1 );
+                 unsigned dimt = 1 );
     virtual void fill();
     float min1() const { return( _min ); }
     float max1() const { return( _max ); }
@@ -109,18 +111,18 @@ namespace anatomist
     void setZeroCenteredAxis1( bool x ) { _zeroCentered1 = x; }
     void setZeroCenteredAxis2( bool x ) { _zeroCentered2 = x; }
 
-    static AimsRGBA palette2DMixMethod( const AimsData<AimsRGBA> & map1, 
-					const AimsData<AimsRGBA> *map2, 
-					unsigned x, unsigned y, 
-					const AObjectPalette & pal );
-    static AimsRGBA linearMixMethod( const AimsData<AimsRGBA> & map1, 
-				     const AimsData<AimsRGBA> *map2, 
-				     unsigned x, unsigned y, 
-				     const AObjectPalette & pal );
-    static AimsRGBA geometricMixMethod( const AimsData<AimsRGBA> & map1, 
-					const AimsData<AimsRGBA> *map2, 
-					unsigned x, unsigned y, 
-					const AObjectPalette & pal );
+    static AimsRGBA palette2DMixMethod( const carto::Volume<AimsRGBA> & map1,
+                                        const carto::Volume<AimsRGBA> *map2,
+                                        unsigned x, unsigned y,
+                                        const AObjectPalette & pal );
+    static AimsRGBA linearMixMethod( const carto::Volume<AimsRGBA> & map1,
+                                     const carto::Volume<AimsRGBA> *map2,
+                                     unsigned x, unsigned y,
+                                     const AObjectPalette & pal );
+    static AimsRGBA geometricMixMethod( const carto::Volume<AimsRGBA> & map1,
+                                        const carto::Volume<AimsRGBA> *map2,
+                                        unsigned x, unsigned y,
+                                        const AObjectPalette & pal );
     bool set( const carto::GenericObject & );
     carto::Object genericDescription() const;
     /** Maximum size of the internal palette image.
@@ -152,7 +154,7 @@ namespace anatomist
     static std::map<std::string, MixMethod> defaultMixMethods();
 
     carto::rc_ptr<APalette> _refPal;
-    AimsData<AimsRGBA>	*_colors;
+    carto::VolumeRef<AimsRGBA>	_colors;
     float		_min;
     float		_max;
     carto::rc_ptr<APalette> _refPal2;

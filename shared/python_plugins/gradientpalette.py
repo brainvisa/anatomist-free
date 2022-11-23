@@ -30,6 +30,7 @@
 #
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
+from __future__ import absolute_import
 import sys
 import os
 
@@ -39,6 +40,10 @@ import sip
 import weakref
 import soma.qt_gui.qt_backend.QtCore as qt
 import soma.qt_gui.qt_backend.QtGui as qtgui
+
+import six
+from six.moves import range
+
 use_qstring = False
 try:
     # test SIP and QString API
@@ -47,9 +52,6 @@ try:
         use_qstring = True
 except:
     pass
-
-if sys.version_info[0] >= 3:
-    xrange = range
 
 
 class GWManager(qt.QObject):
@@ -159,29 +161,28 @@ class GradientPaletteWidget(qtgui.QWidget):
         a = anatomist.Anatomist()
         paldim = 512
         pal = anatomist.APalette('CustomGradient', paldim)
-        pdata = pal.volume()
         rgbp = self._gradw.fillGradient(paldim, True)
         rgb = rgbp.data()
         if sys.byteorder == 'little':
-            if sys.version_info[0] >= 3:
-                for i in xrange(paldim):
-                    pdata.setValue(
+            if not six.PY2:
+                for i in range(paldim):
+                    pal.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 2], rgb[i * 4 + 1],
                                       rgb[i * 4], rgb[i * 4 + 3]), i)
             else:
-                for i in xrange(paldim):
-                    pdata.setValue(
+                for i in range(paldim):
+                    pal.setValue(
                         aims.AimsRGBA(ord(rgb[i * 4 + 2]), ord(rgb[i * 4 + 1]),
                                       ord(rgb[i * 4]), ord(rgb[i * 4 + 3])), i)
         else:
-            if sys.version_info[0] >= 3:
-                for i in xrange(paldim):
-                    pdata.setValue(
+            if not six.PY2:
+                for i in range(paldim):
+                    pal.setValue(
                         aims.AimsRGBA(rgb[i * 4 + 1], rgb[i * 4 + 2],
                                       rgb[i * 4 + 3], rgb[i * 4]), i)
             else:
-                for i in xrange(paldim):
-                    pdata.setValue(
+                for i in range(paldim):
+                    pal.setValue(
                         aims.AimsRGBA(ord(rgb[i * 4 + 1]), ord(rgb[i * 4 + 2]),
                                       ord(rgb[i * 4 + 3]), ord(rgb[i * 4])), i)
         gradientString = self._gradw.getGradientString()
@@ -258,7 +259,7 @@ class GradientPaletteWidget(qtgui.QWidget):
         if len(self._objects) > 0:
             obj = self._objects[0]
             pal = obj.getOrCreatePalette().refPalette()
-            apal = anatomist.AObjectConverter.anatomist(pal.volume())
+            apal = anatomist.AObjectConverter.anatomist(pal)
             apal.setName(pal.name())
             a = anatomist.Anatomist()
             hp = a.anatomistHomePath()
@@ -378,6 +379,15 @@ class GradientPaletteMenuRegistrer(anatomist.ObjectMenuRegistrerClass):
         return menu
 
 
+def cleanup():
+    menumap = anatomist.AObject.getObjectMenuMap()
+    # Add palette menu to all menus but only once
+    for k, v in menumap.items():
+        v.removeItem(['Color'], 'Palette editor')
+    global callbacks_list
+    callbacks_list = []
+
+
 def init():
     r = GradientPaletteMenuRegistrer()
     callbacks_list.append(r)
@@ -395,3 +405,5 @@ def init():
 
 gp = GradientPaletteModule()
 init()
+import atexit
+atexit.register(cleanup)

@@ -107,7 +107,7 @@ void ConstraintEditorWindow::constraintTexOpen()
 
   QString filename;
 
-  filename = QFileDialog::getOpenFileName( 0, capt, QString::null, filt );
+  filename = QFileDialog::getOpenFileName( 0, capt, QString(), filt );
 
   if( d->meshSelect )
   {
@@ -157,7 +157,7 @@ void ConstraintEditorWindow::constraintListOpen()
 
   QString filename;
 
-  filename = QFileDialog::getOpenFileName( 0, capt, QString::null, filt );
+  filename = QFileDialog::getOpenFileName( 0, capt, QString(), filt );
 
   d->constraintListValues->clear();
   d->constraintList.clear();
@@ -443,7 +443,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
 void ConstraintEditorWindow::accept()
 {
-  float min,max;
+  float min = 0.0f,max = 0.0f;
 
   d->constraintValuesType = d->latlon->currentIndex();
 
@@ -505,7 +505,7 @@ void ConstraintEditorWindow::accept()
     int tn = 0; // 1st texture
     GLComponent::TexExtrema & te = glc->glTexExtrema(tn);
     int tx = 0; // 1st tex coord
-    float scl = (te.maxquant[tx] - te.minquant[tx]);
+    //float scl = (te.maxquant[tx] - te.minquant[tx]);
 
     AObjectPalette *pal = d->texSelect->palette();
 

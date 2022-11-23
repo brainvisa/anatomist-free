@@ -151,11 +151,11 @@ namespace anatomist
     void fillRegion( int x, int y, anatomist::AGraphObject * region, 
 		     std::list< std::pair< Point3d, ChangesItem> >& changes, bool add ) ;
     bool fillPoint( const Point3d& pc, int t,
-		    AimsData<anatomist::AObject*>& volumeOfLabels, 
-		    anatomist::AGraphObject * region, float realLowLevel, 
-		    float realHighLevel,
-		    anatomist::AObject** toChange,
-		    std::queue<Point3d>& trialPoints, bool replace = false )  ;
+                    carto::VolumeRef<anatomist::AObject*>& volumeOfLabels,
+                    anatomist::AGraphObject * region, float realLowLevel,
+                    float realHighLevel,
+                    anatomist::AObject** toChange,
+                    std::queue<Point3d>& trialPoints, bool replace = false )  ;
     bool in( const Point3d&, Point3d p ) ;
     
     struct PointLess : public std::binary_function< Point3d, Point3d , bool>

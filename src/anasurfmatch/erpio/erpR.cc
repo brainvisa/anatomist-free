@@ -151,6 +151,10 @@ ErpReader & ErpReader::operator >> ( ATexture & tex )
     for( t=0; t<dimt; ++t )
       {
 	nr = fread( &value, sizeof( float ), 1, f );
+  if ( nr != 1)
+  {
+    cerr << "erp file is corrupted" << endl;
+  }
 	if( le != natle )
 	  value = byteswap( value );
 	(*tx)[t].push_back( value );

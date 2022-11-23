@@ -223,8 +223,6 @@ void OrientationAnnotation::ConstrainCoordinates(QGraphicsSimpleTextItem* g_text
 {
     float adjust_posx = 0.;
     float adjust_posy = 0.;
-    bool v_align = false;
-    bool h_align = false;
     const QPointF pos_to_scene = g_text->mapToScene(g_text->pos());
     const QRectF g_text_rect = g_text->boundingRect();
     if (pos_to_scene.x() <= 0.)

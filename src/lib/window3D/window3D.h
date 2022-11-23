@@ -116,7 +116,7 @@ public:
 
   AWindow3D( ViewType t = Oblique, QWidget* parent = 0, 
              carto::Object params = carto::none(), 
-             Qt::WindowFlags f = 0 );
+             Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~AWindow3D();
 
   /// Get the window type (2D, 3D or control)
@@ -142,7 +142,18 @@ public:
   void getInfos3DFromClickPoint( int x, int y, Point3df & position, int *poly,
       anatomist::AObject *objselect, std::string & objtype,
       std::vector<float> &texvalue, std::string & textype,
-      Point3df & positionNearestVertex, int* indexNearestVertex);
+      Point3df & positionNearestVertex, int* indexNearestVertex,
+      std::vector<std::string> & texlabels );
+  /** same as above but from a 3+D position.
+      The polygon "poly" must be provided if info about vertices are to be
+      retreived, because we cannot guess it from the 3D position. If poly is
+      negative, no vertex info will be provided.
+  */
+  void getInfos3DFromPosition( const std::vector<float> & position, int poly,
+      anatomist::AObject *objselect, std::string & objtype,
+      std::vector<float> &texvalue, std::string & textype,
+      Point3df & positionNearestVertex, int* indexNearestVertex,
+      std::vector<std::string> & texlabels );
 
   bool surfpaintIsVisible();
   void setVisibleSurfpaint(bool b);
@@ -158,6 +169,8 @@ public:
 
   void printPositionAndValue();
   void displayInfoAtClickPosition( int x, int y );
+  std::string displayInfoAtClickPositionAsText( int x, int y,
+                                                bool html = false );
   virtual void displayClickPoint();
   ///   set the view of the scene
   void setViewPoint( float *quaternion, 
@@ -276,7 +289,9 @@ public:
 
 
 signals:
-	void refreshed();
+  void refreshed();
+  void sliderChanged( int dim, int slice );
+  void orientationChanged();
 
 public slots:
   virtual void polish();

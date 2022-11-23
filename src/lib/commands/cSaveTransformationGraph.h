@@ -32,41 +32,46 @@
  */
 
 
-#include <anatomist/module/perfusion.h>
-#include <qtranslator.h>
+#ifndef ANATOMIST_COMMANDS_CSAVETRANSFORMATIONGRAPH_H
+#define ANATOMIST_COMMANDS_CSAVETRANSFORMATIONGRAPH_H
 
 
-using namespace anatomist;
-using namespace std;
+#include <anatomist/processor/Command.h>
+#include <anatomist/processor/context.h>
+#include <cartobase/object/object.h>
+#include <vector>
 
 
-static bool initPerfusionModule()
+namespace anatomist
 {
-  PerfusionModule	*a = new PerfusionModule;
-  a->init();
-  return( true );
+
+  class Referential;
+  class Transformation;
+
+
+  /// Save a transformations graph
+  class SaveTransformationGraphCommand : public RegularCommand
+  {
+  public:
+    /// Load transformation graph to file
+    SaveTransformationGraphCommand( const std::string & filename );
+    virtual ~SaveTransformationGraphCommand();
+
+    virtual std::string name() const { return( "SaveTransformationGraph" ); }
+    virtual void write( Tree & com, Serializer* ser ) const;
+
+  protected:
+    virtual void doit();
+
+  private:
+    std::string     _filename;
+
+    friend class StdModule;
+    static Command* read( const Tree & com, CommandContext* context );
+    static bool initSyntax();
+  };
+
 }
 
-static bool garbage = initPerfusionModule();
 
-
-PerfusionModule::PerfusionModule() : Module()
-{
-}
-
-
-PerfusionModule::~PerfusionModule()
-{
-}
-
-
-string PerfusionModule::name() const
-{
-  return( QT_TRANSLATE_NOOP( "ControlWindow", "Perfusion" ) );
-}
-
-
-string PerfusionModule::description() const
-{
-  return( QT_TRANSLATE_NOOP( "ControlWindow", "Perfusion processing" ) );
-}
+#endif

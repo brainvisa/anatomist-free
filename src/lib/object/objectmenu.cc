@@ -56,6 +56,11 @@ bool ObjectMenuCallback::operator == ( const ObjectMenuCallback & x ) const
   return typeid( x ) == typeid( *this );
 }
 
+bool ObjectMenuCallback::operator != ( const ObjectMenuCallback & x ) const
+{
+  return !this->operator==(x);
+}
+
 // ----------------------------------------
 
 ObjectMenuCallbackFunc::ObjectMenuCallbackFunc( CallbackFunc cbk )
@@ -184,6 +189,25 @@ void ObjectMenu::insertItem( const vector<string> & inside,
   Tree  *ti = new Tree( true, text );
   ti->setProperty( "objectmenucallback", rc_ptr<ObjectMenuCallback>( cbk ) );
   t->insert( ti );
+}
+
+
+void ObjectMenu::removeItem( const vector<string> & inside,
+                             const string & text )
+{
+  if( !d->menu )
+    return;
+
+  Tree  *t = item( inside );
+  if( !t )
+    return;
+  Tree::const_iterator it, et = t->end();
+  for( it=t->begin(); it!=et; ++it )
+    if( static_cast<const Tree *>( *it )->getSyntax() == text )
+    {
+      t->remove( *it );
+      break;
+    }
 }
 
 

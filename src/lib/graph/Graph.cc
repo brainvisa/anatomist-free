@@ -89,7 +89,7 @@ struct AGraph::Private
   Private();
 
   ///	volume of labels
-  std::map<int, AimsData<AObject *> >	*labelsVol;
+  std::map<int, VolumeRef<AObject *> >	*labelsVol;
   float					minX;
   float					minY;
   float					minZ;
@@ -710,7 +710,7 @@ AObject* AGraph::objectAt( const vector<float> & pos, float tol )
   int	c = (int) rint( (pos[2] / d->voxelSize[2] - mz) * rz );
   int	dd = pos.size() >= 3 ? (int) pos[3] : 0;
 
-  AimsData<AObject *>	*pvol;
+  VolumeRef<AObject *>	*pvol;
 
   /*cout << "coord ds vol label : " << a << ", " << b << ", " << c << endl;
   cout << "mins : " << mx << ", " << my << ", " << mz << endl;
@@ -723,9 +723,9 @@ AObject* AGraph::objectAt( const vector<float> & pos, float tol )
   if( !d->labelsVol )
   {
     cout << "creating volume of labels\n";
-    d->labelsVol = new map<int, AimsData<AObject *> >;
+    d->labelsVol = new map<int, VolumeRef<AObject *> >;
     pvol = &( (*d->labelsVol)[ dd ]
-              = AimsData<AObject *>( d->labelDim[ 0 ],
+              = VolumeRef<AObject *>( d->labelDim[ 0 ],
                                       d->labelDim[ 1 ],
                                       d->labelDim[ 2 ] ) );
     fillVol( *pvol, dd, mx, my, mz, Mx, My, Mz );
@@ -733,7 +733,7 @@ AObject* AGraph::objectAt( const vector<float> & pos, float tol )
   else if( d->labelsVol->find( dd ) == d->labelsVol->end() )
   {
     pvol = &( (*d->labelsVol)[ dd ]
-              = AimsData<AObject *>( d->labelDim[ 0 ], d->labelDim[ 1 ],
+              = VolumeRef<AObject *>( d->labelDim[ 0 ], d->labelDim[ 1 ],
                                       d->labelDim[ 2 ] ) );
     fillVol( *pvol, dd , mx, my, mz, Mx, My, Mz);
   }
@@ -816,6 +816,19 @@ AObject* AGraph::LoadGraph( const string & filename, Object options )
       if( GraphParams::graphParams()->loadRelations )
         mask = -1;
       Reader<Graph>	grd( filename );
+      if( !options )
+        options = Object::value( Dictionary() );
+      if( !options->hasProperty( "max_filtered_memory" ) )
+      {
+        /* limit tracts size in memory
+           This will not ensure the graphics system will bbe able to render it
+        */
+        offset_t ram, freeram, swap;
+        AllocatorStrategy::memSizes( ram, freeram, swap );
+        freeram *= 0.8; // don't use more than 80% of the current free memory
+        cout << "memory limit: " << freeram << endl;
+        options->setProperty( "max_filtered_memory", freeram );
+      }
       grd.setOptions( options );
       gr = grd.read( 0, 0, mask );
 
@@ -833,18 +846,17 @@ AObject* AGraph::LoadGraph( const string & filename, Object options )
 }
 
 
-void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
+void AGraph::fillVol( VolumeRef<AObject *> & vol, int t, float mx, float my,
 		      float mz, float Mx, float My, float Mz )
 {
-  /*cout << "Filling volume of labels ( " << vol.dimX() << ", "
-    << vol.dimY() << ", " << vol.dimZ() << " )..." << flush;*/
+  /*cout << "Filling volume of labels ( " << vol.getSizeX() << ", "
+    << vol.getSizeY() << ", " << vol.getSizeZ() << " )..." << flush;*/
   const_iterator			io, fo = end();
   AGraphObject				*go;
   AGraphObject::const_iterator		is, fs;
   Bucket				*bck;
   BucketMap<Void>::Bucket::const_iterator	ib, fb;
   float					rx, ry, rz;
-  AimsData<AObject*>::iterator		iv, fv=vol.end();
 
   rx = ((float) d->labelDim[ 0 ]) / (Mx - mx + 1);
   ry = ((float) d->labelDim[ 1 ]) / (My - my + 1);
@@ -852,11 +864,10 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
 
   //cout << "rx : " << rx << ", ry : " << ry << ", rz : " << rz << endl;
 
-  //float	xx, yy, zz;
+  //float  xx, yy, zz;
 
-  //	vide le volume
-  for( iv=vol.begin(); iv!=fv; ++iv )
-    (*iv) = 0;
+  //  clear volume
+  vol->fill( 0 );
   /* for( unsigned iz=0; iz<d->labelDim[ 2 ]; ++iz )
     for( unsigned iy=0; iy<d->labelDim[ 1 ]; ++iy )
       for( unsigned ix=0; ix<d->labelDim[ 0 ]; ++ix )
@@ -864,55 +875,55 @@ void AGraph::fillVol( AimsData<AObject *> & vol, int t, float mx, float my,
   cout << &vol( 0, 0, 0 ) << " , "
        << &vol( d->labelDim[ 0 ]-1, d->labelDim[ 1 ]-1, d->labelDim[ 2 ]-1 ) << endl;
   cout << vol.begin() << " , " << vol.end() << endl;
-  cout << "dims vol : " << vol.dimX() << " X " << vol.dimY() << " X "
-       << vol.dimZ() << " X " << vol.dimT() << "; bord : "
-       << vol.borderWidth() << endl;
-  cout << "volume vid�. " << flush; */
+  cout << "dims vol : " << vol.getSizeX() << " X " << vol.getSizeY() << " X "
+       << vol.getSizeZ() << " X " << vol.getSizeT() << "; bord : "
+       << vol.getBorders()[0] << endl;
+  cout << "volume cleared. " << flush; */
 
   Point3dl	l;
 
   for( io = begin(); io!=fo; ++io )
+  {
+    go = dynamic_cast<AGraphObject *>( *io );
+    assert( go );
+    for( is=go->begin(), fs=go->end(); is!=fs; ++is )
     {
-      go = dynamic_cast<AGraphObject *>( *io );
-      assert( go );
-      for( is=go->begin(), fs=go->end(); is!=fs; ++is )
-	{
-	  bck = dynamic_cast<Bucket *>( *is );
-	  if( bck )
-	    {
-	      BucketMap<Void>::const_iterator ibi
-		= bck->bucket().find( t );
+      bck = dynamic_cast<Bucket *>( *is );
+      if( bck )
+      {
+        BucketMap<Void>::const_iterator ibi
+          = bck->bucket().find( t );
 
-	      if( ibi != bck->bucket().end() )
-		for( ib=(*ibi).second.begin(), fb=(*ibi).second.end();
-		     ib!=fb; ++ib )
-		  {
-		    const Point3d & loc = ib->first;
-		    /*xx = (unsigned) ( (loc[0]-mx) * rx);
-		    yy = (unsigned) ( (loc[1]-my) * ry);
-		    zz = (unsigned) ( (loc[2]-mz) * rz);
-		    cout << loc[0] << "->" << xx << " , " << loc[1] << "->"
-		    << yy << " , " << loc[2] << "->" << zz << endl;*/
-		    l[0] = (short) ( (loc[0]-mx) * rx);
-		    l[1] = (short) ( (loc[1]-my) * ry);
-		    l[2] = (short) ( (loc[2]-mz) * rz);
-		    if( l[0] < 0 || l[1] < 0 || l[2] < 0
-			|| l[0] >= d->labelDim[0] || l[1] >= d->labelDim[1]
-			|| l[2] >= d->labelDim[2] )
-		      {
-			string name, label;
-			go->attributed()->getProperty( "name", name );
-			go->attributed()->getProperty( "label", label );
-			cerr << "Bucket outside bounding box: node name: "
-			     << name << ", label: " << label << ", bucket: "
-			     << (*is)->name() << " loc: " << loc << endl;
-		      }
-		    else
-		      vol( l ) = go;
-		  }
-	    }
-	}
+        if( ibi != bck->bucket().end() )
+        for( ib=(*ibi).second.begin(), fb=(*ibi).second.end();
+              ib!=fb; ++ib )
+        {
+          const Point3d & loc = ib->first;
+          /*xx = (unsigned) ( (loc[0]-mx) * rx);
+          yy = (unsigned) ( (loc[1]-my) * ry);
+          zz = (unsigned) ( (loc[2]-mz) * rz);
+          cout << loc[0] << "->" << xx << " , " << loc[1] << "->"
+          << yy << " , " << loc[2] << "->" << zz << endl;*/
+          l[0] = (short) ( (loc[0]-mx) * rx);
+          l[1] = (short) ( (loc[1]-my) * ry);
+          l[2] = (short) ( (loc[2]-mz) * rz);
+          if( l[0] < 0 || l[1] < 0 || l[2] < 0
+          || l[0] >= d->labelDim[0] || l[1] >= d->labelDim[1]
+          || l[2] >= d->labelDim[2] )
+          {
+            string name, label;
+            go->attributed()->getProperty( "name", name );
+            go->attributed()->getProperty( "label", label );
+            cerr << "Bucket outside bounding box: node name: "
+                 << name << ", label: " << label << ", bucket: "
+                 << (*is)->name() << " loc: " << loc << endl;
+          }
+          else
+            vol->at( l ) = go;
+        }
+      }
     }
+  }
   //cout << " OK\n";
 }
 
@@ -983,6 +994,8 @@ bool AGraph::save( const string & filename )
   gw << *d->graph;
   */
 
+  setUserModified( false );
+
   if( loadrels )
     notifyObservers( this );
 
@@ -991,7 +1004,7 @@ bool AGraph::save( const string & filename )
 
 
 template<class T> static bool extractElem( Process & p, const string &,
-					   Finder & )
+                                           Finder & )
 {
   using carto::shared_ptr;
 
@@ -1245,27 +1258,27 @@ bool AGraph::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 }
 
 
-AimsData<AObject *>&
+VolumeRef<AObject *>&
 AGraph::volumeOfLabels( int t )
 {
   if( d->labelsVol == 0 )
-    d->labelsVol = new map<int, AimsData<AObject *> >;
+    d->labelsVol = new map<int, VolumeRef<AObject *> >;
 
   if( t > MaxT() )
     t = (int) MaxT();
 
-  map<int, AimsData<AObject *> >::iterator found( d->labelsVol->find( t ) );
+  map<int, VolumeRef<AObject *> >::iterator found( d->labelsVol->find( t ) );
   if (found == d->labelsVol->end() )
-    {
-      cout << "Label Volume Dimension : "  << d->labelDim[0] << ", "
-           << d->labelDim[1] << ", " << d->labelDim[2] << endl ;
-      AimsData<AObject *>	& vol = (*d->labelsVol)[t];
-      vol = AimsData<AObject * >( d->labelDim[0], d->labelDim[1],
-                                  d->labelDim[2] );
-      float	mx = d->minX, my = d->minY, mz = d->minZ;
-      float	Mx = d->maxX, My = d->maxY, Mz = d->maxZ;
-      fillVol( vol, t, mx, my, mz, Mx, My, Mz );
-    }
+  {
+    cout << "Label Volume Dimension : "  << d->labelDim[0] << ", "
+          << d->labelDim[1] << ", " << d->labelDim[2] << endl ;
+    VolumeRef<AObject *>	& vol = (*d->labelsVol)[t];
+    vol = VolumeRef<AObject * >( d->labelDim[0], d->labelDim[1],
+                                 d->labelDim[2] );
+    float	mx = d->minX, my = d->minY, mz = d->minZ;
+    float	Mx = d->maxX, My = d->maxY, Mz = d->maxZ;
+    fillVol( vol, t, mx, my, mz, Mx, My, Mz );
+  }
   return (*d->labelsVol)[t] ;
 }
 
@@ -1414,7 +1427,7 @@ namespace
 
   void recolorElement( AObject* ao, GenericObject* gen, const string & prop,
                        float fmin, float fmax, float scale, unsigned ncol,
-                       const AimsData<AimsRGBA> & cols, float galpha )
+                       const Volume<AimsRGBA> & cols, float galpha )
   {
     double  val;
     int     ind;
@@ -1444,7 +1457,7 @@ namespace
       else
       { */
 
-      const AimsRGBA        & rgb = cols( ind );
+      const AimsRGBA        & rgb = cols.at( ind );
       mat.SetDiffuse( (float) rgb.red()   / 255,
                        (float) rgb.green() / 255,
                        (float) rgb.blue()  / 255,
@@ -1472,10 +1485,10 @@ namespace
       maxval = -numeric_limits<double>::max();
     g.getOrCreatePalette();
     AObjectPalette	*objpal = g.palette();
-    AimsData<AimsRGBA>	*cols = objpal->colors();
+    Volume<AimsRGBA>	*cols = objpal->colors();
     float		cmin = objpal->min1(), cmax = objpal->max1();
     float		scale, fmin, fmax;
-    unsigned		ncol = cols->dimX();
+    unsigned		ncol = cols->getSizeX();
     shared_ptr<AObject>	ao;
     GLComponent::TexExtrema & ex = g.glTexExtrema();
 
@@ -1794,7 +1807,7 @@ void AGraph::copyAttributes( const string & oldatt, const string & newatt,
 }
 
 
-string AGraph::labelProperty( bool allowDefault ) const
+string AGraph::labelProperty( bool /*allowDefault*/ ) const
 {
   string prop;
   try
@@ -1948,6 +1961,9 @@ bool AGraph::shouldRemoveChildrenWithMe() const
 #include <cartodata/volume/volume_d.h>
 
 template class carto::Volume< AObject * >;
+template class carto::VolumeProxy< AObject * >;
+template class carto::VolumeRef< AObject * >;
+template class carto::Creator<Volume< AObject * > >;
 
 #include <cartobase/object/object_d.h>
 INSTANTIATE_GENERIC_OBJECT_TYPE( AGraph * )

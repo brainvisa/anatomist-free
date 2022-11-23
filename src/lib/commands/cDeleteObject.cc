@@ -75,14 +75,9 @@ bool DeleteObjectCommand::initSyntax()
 void
 DeleteObjectCommand::doit()
 {
-  vector<AObject*>::iterator i;
-
-  for( i=_objL.begin(); i!=_objL.end(); ++i )
-    {
-      if( theAnatomist->hasObject( *i ) )
-	theAnatomist->destroyObject( *i );
-    }
-
+  set<AObject *> objs( _objL.begin(), _objL.end() );
+  theAnatomist->destroyObjects( objs );
+  _objL.clear();
   theAnatomist->UpdateInterface();
   theAnatomist->Refresh();
 }

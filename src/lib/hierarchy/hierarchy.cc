@@ -423,7 +423,7 @@ Hierarchy* Hierarchy::findMatchingNomenclature( const AObject* obj,
 }
 
 
-void Hierarchy::slotPropertyChanged( const Object& sender,
+void Hierarchy::slotPropertyChanged( const Object& /*sender*/,
                                      const string& propertyName,
                                      const Object& oldValue )
 {

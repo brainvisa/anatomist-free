@@ -89,7 +89,7 @@ class QTextureParams : public QDialog
 {
 public:
   QTextureParams( QWidget *parent = 0, const char *name = 0, 
-                  bool modal = false, Qt::WindowFlags f = 0 );
+                  bool modal = false, Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~QTextureParams();
 
   void setParams( unsigned comp, const std::vector<float> & values );

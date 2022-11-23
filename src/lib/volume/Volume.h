@@ -36,7 +36,7 @@
 
 #include <anatomist/object/sliceable.h>
 #include <anatomist/graph/pythonAObject.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 #include <aims/rgb/rgb.h>
 
 
@@ -65,8 +65,6 @@ namespace anatomist
   {
   public:
     AVolume( const std::string & filename = "" );
-    AVolume( const AimsData<T> & );
-    AVolume( carto::rc_ptr<AimsData<T> > );
     AVolume( carto::rc_ptr<carto::Volume<T> > );
     virtual ~AVolume();
 
@@ -84,12 +82,7 @@ namespace anatomist
     void adjustPalette();
 
     carto::rc_ptr<carto::Volume<T> > volume() { return _volume; }
-    carto::rc_ptr<AimsData<T> > aimsvolume()
-    { return carto::rc_ptr<AimsData<T> >( new AimsData<T>(_volume) ); }
     const carto::rc_ptr<carto::Volume<T> > volume() const { return _volume; }
-    const carto::rc_ptr<AimsData<T> > aimsvolume() const
-    { return carto::rc_ptr<AimsData<T> >( new AimsData<T>( _volume ) ); }
-    void setVolume( carto::rc_ptr<AimsData<T> > vol );
     virtual void setVolume( carto::rc_ptr<carto::Volume<T> > vol );
     T & operator () ( size_t x=0, size_t y=0, size_t z=0, size_t t=0 )
     { return (*_volume)( x, y , z ,t ); }

@@ -106,7 +106,6 @@ void WindowConfigCommand::doit()
   string	recbase;
   AWindow	*w;
   AWindow3D	*w3;
-  GLWidgetManager	*v;
   string	polymode;
   AWindow3D::RenderingMode	ipolmode = AWindow3D::Normal;
   int		persp, zbuf, cull, flat, filt, fog, polysort, clip;
@@ -260,7 +259,7 @@ void WindowConfigCommand::doit()
             if( recmode )
               {
                 if( !recbase.empty() )
-                  v->recordStart( recbase.c_str(), QString::null,
+                  v->recordStart( recbase.c_str(), QString(),
                                   snap_width, snap_height );
               }
             else
@@ -280,7 +279,7 @@ void WindowConfigCommand::doit()
           if( v && i < nsnap )
           {
             w3->refreshNow();
-            v->saveContents( snapfiles[i].c_str(), QString::null,
+            v->saveContents( snapfiles[i].c_str(), QString(),
                              snap_width, snap_height );
             ++i;
           }

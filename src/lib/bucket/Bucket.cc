@@ -1258,7 +1258,7 @@ Bucket::meshPlane( const SliceViewState & state ) const
       Transformation	*tr2 = theAnatomist->getTransformation( state.winref, 
          oref );
       Motion	m;
-      AimsData<float>	& r = m.rotation();
+      VolumeRef<float>	r = m.rotation();
       r( 0, 0 ) = tr->Rotation( 0, 0 );
       r( 0, 1 ) = tr->Rotation( 1, 0 );
       r( 0, 2 ) = tr->Rotation( 2, 0 );

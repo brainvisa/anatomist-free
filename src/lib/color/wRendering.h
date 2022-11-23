@@ -57,7 +57,7 @@ class RenderingWindow : public QWidget, public Ui::RenderingWindow, public anato
 
 public:
   RenderingWindow( const std::set<anatomist::AObject *> &, QWidget* parent = 0, 
-		  const char *name = 0, Qt::WindowFlags f = 0 );
+		  const char *name = 0, Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~RenderingWindow();
 
   const std::set<anatomist::AObject*>& objects() const { return _parents; }

@@ -75,7 +75,7 @@ namespace anatomist
 }
 
 
-static bool ErpWraper_initialized = ErpWraper::initTexOptions();
+static bool ErpWraper_initialized __attribute__((unused)) = ErpWraper::initTexOptions();
 
 
 ErpWraper::ErpWraper( ATexture* obj, const string & dirname, QWidget* parent ) 

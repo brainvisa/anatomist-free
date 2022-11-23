@@ -55,7 +55,7 @@ RoiManagementControl::creator( )
 
 
 RoiManagementControl::RoiManagementControl( )
-  : Control( 101, "RoiManagementControl" )
+  : Control( 11345, "RoiManagementControl" )
 {
 
 }

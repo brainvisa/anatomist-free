@@ -102,9 +102,9 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   QVBoxLayout	*vboxlayout = new QVBoxLayout(select_container_widget);
   vboxlayout->addWidget(sel);
   vboxlayout->setSpacing(0);
-  select_container_widget->layout()->setMargin(0); 
+  select_container_widget->layout()->setContentsMargins( 0, 0, 0, 0 );
 
-  GlobalConfiguration   *cfg = theAnatomist->config();
+  //GlobalConfiguration   *cfg = theAnatomist->config();
   bool use_glshader = Shader::isActivated();
   if (!use_glshader) shader_tab->setEnabled(false);
   if (theAnatomist->userLevel() < 3) reload_pushButton->hide();
@@ -122,7 +122,7 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   default_lighting_model_radioButton->hide();
   default_interpolation_model_radioButton->hide();
   default_coloring_model_radioButton->hide();
-  directions_coloring_model_radioButton->hide();
+//   directions_coloring_model_radioButton->hide();
 
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
@@ -250,6 +250,8 @@ namespace
     QCheckBox	*cb = dynamic_cast<QCheckBox *>( b );
     if( !cb )
       return;
+    if( x > 1 )
+      x = 1;
     switch( x )
       {
       case 0:
@@ -273,8 +275,6 @@ void RenderingWindow::updateInterface()
   _privdata->operating = true;
 
   blockSignals( true );
-
-  unsigned	panel, i, n = tabWidget->count();
 
   if( _parents.empty() )
   {
@@ -302,8 +302,10 @@ void RenderingWindow::updateInterface()
                    _material.renderProperty(Material::RenderZBuffer));
     setButtonState(cull_polygon_faces_checkBox,
                    _material.renderProperty(Material::RenderFaceCulling));
-    setButtonState(frontface_checkBox,
-                   _material.renderProperty(Material::FrontFace));
+    int ff = -1;
+    if( _material.renderProperty(Material::FrontFace) >= 0 )
+      ff = 1 - _material.renderProperty(Material::FrontFace);
+    setButtonState( frontface_checkBox, ff );
     lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
     QPixmap pix( 32, 16 );
     pix.fill( QColor( (int) ( _material.unlitColor(0) * 255.9 ),
@@ -324,13 +326,15 @@ void RenderingWindow::updateInterface()
     int interpolation = _material.renderProperty(
       Material::RenderSmoothShading );
     if( interpolation < 0 )
-      interpolation = Material::PhongShading;
+      interpolation = Material::GouraudShading;
     interpolation_model_buttonGroup->button(
       -interpolation - 3)->setChecked(true);
     int coloring_model = _material.renderProperty(
       Material::ShaderColorNormals );
     if( coloring_model < 0 )
       coloring_model = 0;
+    if( _material.renderProperty( Material::NormalIsDirection ) )
+      coloring_model = 2;
     coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
     if (shader)
       _shader = *shader;
@@ -490,6 +494,11 @@ void RenderingWindow::renderPropertyChanged( int x )
     }
 
   Material::RenderProperty prop = (Material::RenderProperty) (-x - 2);
+  if( prop == Material::FrontFace && y >= 0 )
+  {
+    // front face 0 is CW: invert selection
+    y = 1 - y;
+  }
   _material.setRenderProperty( prop, y );
 
   if( prop == Material::RenderLighting && y >= 0 )
@@ -506,7 +515,7 @@ void RenderingWindow::renderPropertyChanged( int x )
   {
     _shader.setInterpolationModel( (Shader::InterpolationModel)( y ) );
     if( y >= 0 )
-    interpolation_model_buttonGroup->button( -y - 3 )->setChecked(true);
+      interpolation_model_buttonGroup->button( -y - 3 )->setChecked(true);
   }
 
   _privdata->modified = true;
@@ -519,6 +528,13 @@ void RenderingWindow::enableShadersClicked( int x )
   bool state = (x == Qt::Checked);
 
   _material.setRenderProperty( Material::UseShader, int( state ) );
+//   if( state )
+//   {
+//     _material.setRenderProperty( Material::RenderLighting,
+//                                  _shader.getLightingModel() );
+//     _material.setRenderProperty( Material::RenderSmoothShading,
+//                                  _shader.getInterpolationModel() );
+//   }
 
   lighting_model_groupBox->setEnabled(state);
   interpolation_model_groupBox->setEnabled(state);
@@ -566,7 +582,14 @@ void RenderingWindow::interpolationModelChanged( int x )
 
 void RenderingWindow::coloringModelChanged( int x )
 {
-  _material.setRenderProperty( Material::ShaderColorNormals, -x - 3 );
+  int nisd = 0, scn = -x - 3;
+  if( x == -5 ) // normal is direction
+  {
+    scn = 1;
+    nisd = 1;
+  }
+  _material.setRenderProperty( Material::ShaderColorNormals, scn );
+  _material.setRenderProperty( Material::NormalIsDirection, nisd );
   //XXX : skip default (window default)
   if (x == -2)
   {

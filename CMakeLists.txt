@@ -1,6 +1,6 @@
-cmake_minimum_required( VERSION 2.6 )
+cmake_minimum_required( VERSION 3.10 )
 find_package( brainvisa-cmake REQUIRED )
-BRAINVISA_PROJECT()
+BRAINVISA_PROJECT( CXX )
 
 BRAINVISA_DEPENDENCY( DEV DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVISA_PACKAGE_NAME}_VERSION}" )
 BRAINVISA_FIND_PACKAGE( aims-free REQUIRED )
@@ -24,8 +24,17 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
     ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS} )
   set( QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES}
     ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES} )
+elseif( DESIRED_QT_VERSION EQUAL 6 )
+  find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL Network Multimedia )
+  add_definitions( ${Qt6Core_DEFINITIONS} ${Qt6Widgets_DEFINITIONS}
+                   ${Qt6OpenGL_DEFINITIONS} ${Qt6Network_DEFINITIONS}
+                   ${Qt6Multimedia_DEFINITIONS})
+  include_directories( ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS}
+                       ${Qt6OpenGL_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS}
+                       ${Qt6Multimedia_INCLUDE_DIRS} )
+  set( QT_LIBRARIES Qt6::Widgets Qt6::OpenGL Qt6::Network Qt6::Multimedia )
 endif()
-find_package( QtVersion REQUIRED )
+# find_package( QtVersion REQUIRED )
 
 BRAINVISA_DEPENDENCY( RUN DEPENDS aims-free RUN "= ${aims-free_VERSION}" )
 BRAINVISA_DEPENDENCY( DEV DEPENDS aims-free DEV "= ${aims-free_VERSION}" )
@@ -105,7 +114,7 @@ if( (DESIRED_QT_VERSION EQUAL 4) AND NOT(CMAKE_CROSSCOMPILING) )
       set( VTK_FOUND 0 )
     endif()
     if( VTK_FOUND )
-      BRAINVISA_DEPENDENCY( RUN DEPENDS libvtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION} RUN ">=5.4 <6" )
+      BRAINVISA_DEPENDENCY( RUN DEPENDS libvtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION} RUN ">= 5.4;<< 6" )
       find_package( vtkINRIA3D QUIET )
       if( vtkINRIA3D_FOUND )
         BRAINVISA_DEPENDENCY( RUN DEPENDS vtkINRIA3D RUN )
@@ -115,7 +124,7 @@ if( (DESIRED_QT_VERSION EQUAL 4) AND NOT(CMAKE_CROSSCOMPILING) )
     endif()
   endif()
 else()
-  message( "VTK5 and Qt5 are not supported. The VTK plugin is disabled." )
+  message( "VTK5 and Qt5+ are not supported. The VTK plugin is disabled." )
 endif()
 
 find_package( Doxygen )
@@ -139,6 +148,8 @@ endif()
 set( ANATOMIST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/include" ${AIMS-FREE_INCLUDE_DIRS} "${QT_INCLUDE_DIR}" )
 include_directories( ${ANATOMIST_INCLUDE_DIRS} )
 
+#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall" )
+
 add_subdirectory( src )
 add_subdirectory( doxygen )
 
@@ -151,9 +162,6 @@ BRAINVISA_COPY_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/doc"
 BRAINVISA_COPY_DIRECTORY( ${CMAKE_CURRENT_SOURCE_DIR}/shared
                           share/anatomist-${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}
                           ${PROJECT_NAME} )
-
-# docbook documentation
-# BRAINVISA_GENERATE_DOCBOOK_DOC()
 
 find_package( Sphinx )
 BRAINVISA_GENERATE_SPHINX_DOC( "sphinxman"

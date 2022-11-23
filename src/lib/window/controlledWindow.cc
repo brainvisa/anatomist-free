@@ -167,14 +167,14 @@ void ControlledWindow::updateAvailableControls()
   bool	deco = toolBarsVisible();
   if( !d->controls && deco )
   {
-    d->controls = addToolBar( tr( "controls" ), "controls" );
-    addToolBar( Qt::LeftToolBarArea, d->controls, "controls" );
+    d->controls = addToolBar( Qt::LeftToolBarArea, tr( "controls" ),
+                              "controls" );
     d->controls->setIconSize( QSize( 20, 20 ) );
     d->actions = new QActionGroup( d->controls );
     d->actions->setExclusive( true );
   }
 
-  QToolBar					*tb = d->controls;
+  //QToolBar					*tb = d->controls;
   const QPixmap					*p;
   map<string, QAction *>::const_iterator	ib, eb=d->ctlbts.end();
 

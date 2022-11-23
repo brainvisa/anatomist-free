@@ -12,6 +12,7 @@
 # serve to show the default.
 
 from __future__ import print_function
+from __future__ import absolute_import
 import sys, os
 import time
 
@@ -22,7 +23,7 @@ import time
 try:
   import matplotlib
   sys.path.append( os.path.abspath( os.path.join( os.path.dirname( os.path.dirname( matplotlib.__file__ ) ), 'sphinx', 'ext' ) ) )
-except Exception, e:
+except Exception as e:
   print('warning:', e)
 from soma import aims
 try:
@@ -265,7 +266,7 @@ intersphinx_mapping = {
   'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version + '/sphinx'), None),
   'pyaims': (os.path.join(docpath, 'pyaims-' + version + '/sphinx'), None),
   'pyana': (os.path.join(docpath, 'pyanatomist-' + version + '/sphinx'), None),
-  'aims': (os.path.join(docpath, 'aimsdata-' + version), None),
+  'aims': (os.path.join(docpath, 'aimsdata-' + version + '/user_doc'), None),
   'python': ('http://docs.python.org/%d.%d' % sys.version_info[:2],
              None),
 }

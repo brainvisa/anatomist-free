@@ -52,9 +52,9 @@ public:
 #if QT_VERSION >= 0x050900
 		const char* name = 0, const QOpenGLWidget * shareWidget = 0, 
 #else
-		const char* name = 0, const QGLWidget * shareWidget = 0, 
+        const char* name = 0, const QGLWidget * shareWidget = 0,
 #endif
-		Qt::WindowFlags f=0 );
+        Qt::WindowFlags f=Qt::WindowFlags() );
   virtual ~QAGLWidget3D();
 
   virtual std::string name() const;

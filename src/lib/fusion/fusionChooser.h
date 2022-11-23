@@ -55,7 +55,7 @@ public:
   FusionChooser( const std::multimap<int, anatomist::FusionMethod *> & methods,
                  QWidget* parent = 0,
                  const char *name = 0, bool modal = true,
-                 Qt::WindowFlags f = 0,
+                 Qt::WindowFlags f = Qt::WindowFlags(),
                  const std::vector<anatomist::AObject *>* objects = 0 );
   virtual ~FusionChooser();
 

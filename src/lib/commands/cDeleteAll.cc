@@ -76,7 +76,7 @@ DeleteAllCommand::doit()
   set<QWidget *> wids;
   for( iw=wins.begin(); iw!=ew; ++iw )
   {
-    QWidget *qw = dynamic_cast<QWidget *>( *iw );
+    //QWidget *qw = dynamic_cast<QWidget *>( *iw );
     (*iw)->tryDelete();
   }
 

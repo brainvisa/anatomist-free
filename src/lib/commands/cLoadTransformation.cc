@@ -123,12 +123,12 @@ void LoadTransformationCommand::doit()
 {
   // cout << "LoadTransformation\n";
 
-  Motion m;
+  AffineTransformation3d m;
   Referential *created1 = 0, *created2 = 0;
 
   if( !_filename.empty() )
   {
-    aims::Reader<Motion> rd( _filename );
+    aims::Reader<AffineTransformation3d> rd( _filename );
     try
     {
       rd.read( m );
@@ -139,7 +139,7 @@ void LoadTransformationCommand::doit()
       return;
     }
     string usrc, udst;
-    PythonHeader  *ph = m.header();
+    Object  ph = m.header();
     if( ph )
     {
       ph->getProperty( "source_referential", usrc );

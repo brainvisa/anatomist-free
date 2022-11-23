@@ -64,7 +64,8 @@ ConnectivityMatrixAction::ConnectivityMatrixAction()
 
 ConnectivityMatrixAction::ConnectivityMatrixAction( 
   const ConnectivityMatrixAction & a )
-  : Action( a )
+  : QObject(),
+    Action( a )
 {
 }
 
@@ -276,7 +277,7 @@ void ConnectivityMatrixAction::updateConnectivityObject(
 
 
 void ConnectivityMatrixAction::updateConnectivityProgress(
-  AConnectivityMatrix* aconn, int current, int count )
+  AConnectivityMatrix* /*aconn*/, int current, int count )
 {
   GLWidgetManager* glw = static_cast<GLWidgetManager *>( view() );
   QWidget* parent = glw->qglWidget()->parentWidget();
@@ -342,7 +343,7 @@ Control * ConnectivityMatrixControl::creator()
 
 
 ConnectivityMatrixControl::ConnectivityMatrixControl()
-  : Control( 20, "ConnectivityMatrixControl" )
+  : Control( 5000, "ConnectivityMatrixControl" )
 {
 }
 
@@ -434,7 +435,7 @@ void ConnectivityMatrixControl::eventAutoSubscription(
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<ContinuousTrackball>
       ( actionPool->action( "ContinuousTrackball" ),
         &ContinuousTrackball::beginTrackball ),
@@ -463,7 +464,7 @@ void ConnectivityMatrixControl::eventAutoSubscription(
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                                        &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -477,7 +478,7 @@ void ConnectivityMatrixControl::eventAutoSubscription(
   //    translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),

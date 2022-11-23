@@ -426,14 +426,17 @@ void ControlWindow::unregisterObject( AObject *obj )
   for( ip=obj->Parents().begin(); ip!=fp; ++ip )
     d->objList->UnregisterSubObject( *ip, obj );
 
-  if( !d->updatemenutimer )
+  if( !theAnatomist->destroying() )
+  {
+    if( !d->updatemenutimer )
     {
       d->updatemenutimer = new QTimer( this );
       connect( d->updatemenutimer, SIGNAL( timeout() ), this, 
                SLOT( UpdateMenus() ) );
     }
-  d->updatemenutimer->setSingleShot( true );
-  d->updatemenutimer->start( 1 );
+    d->updatemenutimer->setSingleShot( true );
+    d->updatemenutimer->start( 1 );
+  }
 }
 
 
@@ -606,18 +609,9 @@ void ControlWindow::objectTreeRightClick( AObject*, const QPoint & p )
 
   OptionMatcher::commonOptions( ol, tr );
 
-  QSelectMenu	pop;
-  Tree::const_iterator	it, ft = tr.end();
-  const Tree		*t;
-
-  pop.setObjects( ol );
-
-  for( it=tr.begin(); it!=ft; ++it )
-    {
-      t = (const Tree *) *it;
-      pop.addOptionMenus( &pop, t );
-    }
-  pop.exec( p );
+  QSelectMenu	*pop = OptionMatcher::popupMenu( ol, tr );
+  pop->exec( p );
+  delete pop;
 }
 
 
@@ -629,7 +623,10 @@ void ControlWindow::windowTreeClick()
 
 void ControlWindow::windowTreeDblClick( AWindow* w )
 {
-  w->show();
+  if(w)
+    {
+      w->show();
+    }
 }
 
 
@@ -760,7 +757,7 @@ void ControlWindow::replayScenario()
   QFileDialog	& fd = fileDialog();
   QString filter = tr( "Scenario" ) + " (*.ana)";
   QString caption = tr( "Open scenario" );
-  /*QString filename = QFileDialog::getOpenFileName( QString::null,
+  /*QString filename = QFileDialog::getOpenFileName( QString(),
     filter, 0, 0, caption );*/
   fd.setNameFilter( filter );
   fd.setWindowTitle( caption );
@@ -1152,7 +1149,7 @@ void ControlWindow::saveWindowsConfig()
   QString filter = tr( "Anatomist scripts" ) + " (*.ana)";
   QString caption = tr( "Save windows configuration" );
   QString filename = QFileDialog::getSaveFileName( this, caption, 
-    QString::null, filter, 0, 0 );
+    QString(), filter, 0, QFileDialog::Options() );
   if ( !filename.isEmpty() )
   {
     AWinConfigIO cio;

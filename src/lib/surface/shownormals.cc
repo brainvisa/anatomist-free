@@ -47,7 +47,7 @@ using namespace std;
 float ANormalsMesh::_default_length = 2.;
 
 ANormalsMesh::ANormalsMesh( const vector<AObject *> & ameshes )
-  : ObjectVector(), _length( _default_length ), _nmesh( 0 )
+  : ObjectVector(), _nmesh( 0 ), _length( _default_length )
 {
   _type = registerObjectType( "ANormalsMesh" );
 
@@ -171,7 +171,7 @@ bool ANormalsMesh::render( PrimList & plist, const ViewState & vs )
 }
 
 
-void ANormalsMesh::update( const Observable* observable, void* arg )
+void ANormalsMesh::update( const Observable* observable, void* /*arg*/ )
 {
 //   cout << "ANormalsMesh::update\n";
   const AObject *obj = dynamic_cast<const AObject *>( observable );

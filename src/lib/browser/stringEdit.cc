@@ -67,7 +67,7 @@ QStringEdit::QStringEdit( const string & text, int x, int y, int w, int h,
   setModal(true);
   setFocusPolicy( StrongFocus );
   QVBoxLayout	*lay = new QVBoxLayout( this );
-  lay->setMargin( 0 );
+  lay->setContentsMargins( 0, 0, 0, 0 );
   lay->setSpacing( 0 );
   _le = new QCancelLineEdit( this, "lineedit" );
   _le->setFrame( false );

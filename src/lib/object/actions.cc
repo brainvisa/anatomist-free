@@ -207,7 +207,7 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
   
   QString	filt = filter.c_str() ;
   QString	capt = caption.c_str() ;
-  QString	initial = QString::null;
+  QString	initial = QString();
   if( object )
   {
     if( !object->fileName().empty() )
@@ -220,7 +220,7 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
 
   QString filename = QFileDialog::getSaveFileName( 0, "Save object file",
     initial, filt );
-  if( filename != QString::null )
+  if( filename != QString() )
   {
     if( FileUtil::fileStat( filename.toStdString() ).find( '+' ) != string::npos
         && QMessageBox::information
@@ -228,7 +228,7 @@ ObjectActions::specificSaveStatic( const set<AObject *> & obj,
           ControlWindow::tr( "A file called %1 already exists."
                               "Do you want to overwrite it?").arg( filename ),
           ControlWindow::tr("&Yes"), ControlWindow::tr("&No"),
-          QString::null, 0, 1 ) )
+          QString(), 0, 1 ) )
       return "";
     SaveObjectCommand	*c
       = new SaveObjectCommand( obj, filename.toStdString() );
@@ -300,9 +300,9 @@ ObjectActions::specificSaveTexture( const set<AObject *> & obj,
   QString filt = filter.c_str() ;
   QString capt = caption.c_str() ;
   
-  QString filename = QFileDialog::getSaveFileName( 0, capt, QString::null,
+  QString filename = QFileDialog::getSaveFileName( 0, capt, QString(),
                                                    filt );
-  if ( filename != QString::null )
+  if ( filename != QString() )
     {
       ExportTextureCommand	*c 
         = new ExportTextureCommand( object, filename.toStdString() );
@@ -652,7 +652,6 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               == StandardReferentials::commonScannerBasedReferential() )
               sref = StandardReferentials::commonScannerBasedReferentialID();
 
-            // cout << "unspecified ref\n";
             carto::UUID uid( sref );
             if( sref
               == StandardReferentials::commonScannerBasedReferentialID() )
@@ -660,12 +659,12 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               sref = "Scanner-based anatomical coordinates";
               ref = Referential::referentialOfUUID( sref );
             }
-            else if( sref == "Talairach" )
+            else if( sref == StandardReferentials::talairachReferential() )
             {
               // GIFTI Talairach
               ref = Referential::giftiTalairachReferential();
             }
-            else if( uid.toString() != sref )
+            else if( uid.toString() != sref && sref.substr( 0, 3 ) != "ID:" )
             {
                 // sref doesn't correspond to an UUID, so it is not unique
               sref = sref + " " + toString(i) + " for " + (*io)->name();
@@ -673,7 +672,15 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
               uid = carto::UUID();
             }
             else
+            {
+              if( sref.substr( 0, 3 ) == "ID:" )
+              {
+                sref = sref.substr( 3, sref.length() - 3 );
+                while( !sref.empty() && sref[0] == ' ' )
+                  sref = sref.substr( 1, sref.length() - 1 );
+              }
               ref = Referential::referentialOfUUID( sref );
+            }
             if( !ref )
             {
               ref = Referential::referentialOfName( sref );

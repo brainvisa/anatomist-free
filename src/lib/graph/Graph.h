@@ -41,7 +41,7 @@
 #include <anatomist/graph/AGraphIterator.h>
 #include <anatomist/surface/glcomponent.h>
 #include <graph/graph/graph.h>
-#include <aims/data/data.h>
+#include <cartodata/volume/volume.h>
 
 
 class QGraphProperties;
@@ -158,7 +158,7 @@ namespace anatomist
     void setLabelsVolumeDimension( const Point3d & vd );
     void setLabelsVolumeDimension( const Point3dl & vd );
     Point3dl labelsVolumeDimension() const;
-    AimsData<AObject *>& volumeOfLabels( int t = 0 ) ;
+    carto::VolumeRef<AObject *>& volumeOfLabels( int t = 0 );
     virtual void createDefaultPalette( const std::string & name  );
     virtual void setPalette( const AObjectPalette & pal );
     /// to be called when there has been a structural modif on the AIMS graph
@@ -174,7 +174,7 @@ namespace anatomist
   protected:
     void saveSubObjects( bool filenamechanged = false );
     ///	Fills a volume of labels for a given time
-    virtual void fillVol( AimsData<AObject *> & vol, int t, float mx,
+    virtual void fillVol( carto::VolumeRef<AObject *> & vol, int t, float mx,
 			  float my, float mz, float Mx, float My, float Mz );
     void recolor();
     void updateExtrema();

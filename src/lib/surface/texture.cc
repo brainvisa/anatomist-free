@@ -535,7 +535,7 @@ void ATexture::normalize()
 		max = val;
 	    }
 
-	cout << "min : " << min << ", max : " << max << endl;
+	// cout << "min : " << min << ", max : " << max << endl;
 	te.minquant.push_back( min );
 	te.maxquant.push_back( max );
 	if( min < 0 || max > rmax || max - min < rangemin )
@@ -943,6 +943,8 @@ bool ATexture::reload( const string & filename )
 
   if( type == "S16" )
     setTexture( reloadTexture<int16_t, float>( filename ) );
+  else if( type == "U16" )
+    setTexture( reloadTexture<uint16_t, float>( filename ) );
   else if( type == "S32" )
     setTexture( reloadTexture<int32_t, float>( filename ) );
   else if( type == "integer" )
@@ -955,6 +957,14 @@ bool ATexture::reload( const string & filename )
     setTexture( reloadTexture<float, float>( filename ) );
   else if( type == "POINT2DF" )
     setTexture( reloadTexture<Point2df, Point2df>( filename ) );
+  else if( type == "S8" )
+    setTexture( reloadTexture<int8_t, float>( filename ) );
+  else if( type == "U8" )
+    setTexture( reloadTexture<uint8_t, float>( filename ) );
+  else if( type == "S64" )
+    setTexture( reloadTexture<int64_t, float>( filename ) );
+  else if( type == "U64" )
+    setTexture( reloadTexture<uint64_t, float>( filename ) );
   else
     return false;
 
@@ -1124,21 +1134,49 @@ AObject* ATexture::clone( bool shallow )
 
 
 
+template rc_ptr<TimeTexture<int8_t> >
+ATexture::texture<int8_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<uint8_t> >
+ATexture::texture<uint8_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<int16_t> >
+ATexture::texture<int16_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<uint16_t> >
+ATexture::texture<uint16_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<int32_t> >
+ATexture::texture<int32_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<uint32_t> >
+ATexture::texture<uint32_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<int64_t> >
+ATexture::texture<int64_t>( bool, bool ) const;
+template rc_ptr<TimeTexture<uint64_t> >
+ATexture::texture<uint64_t>( bool, bool ) const;
 template rc_ptr<TimeTexture<float> >
 ATexture::texture<float>( bool, bool ) const;
-template rc_ptr<TimeTexture<short> >
-ATexture::texture<short>( bool, bool ) const;
-template rc_ptr<TimeTexture<int> >
-ATexture::texture<int>( bool, bool ) const;
-template rc_ptr<TimeTexture<unsigned> >
-ATexture::texture<unsigned>( bool, bool ) const;
+template rc_ptr<TimeTexture<double> >
+ATexture::texture<double>( bool, bool ) const;
 template rc_ptr<TimeTexture<Point2df> >
 ATexture::texture<Point2df>( bool, bool ) const;
-template void ATexture::setTexture<float>( rc_ptr<TimeTexture<float> >, bool );
-template void ATexture::setTexture<short>( rc_ptr<TimeTexture<short> >, bool );
-template void ATexture::setTexture<int>( rc_ptr<TimeTexture<int> >, bool );
-template void ATexture::setTexture<unsigned>( rc_ptr<TimeTexture<unsigned> >,
-                                              bool );
-template void ATexture::setTexture<Point2df>( rc_ptr<TimeTexture<Point2df> >,
-                                              bool );
+
+template void ATexture::setTexture<int8_t>(
+  rc_ptr<TimeTexture<int8_t> >, bool );
+template void ATexture::setTexture<uint8_t>(
+  rc_ptr<TimeTexture<uint8_t> >, bool );
+template void ATexture::setTexture<int16_t>(
+  rc_ptr<TimeTexture<int16_t> >, bool );
+template void ATexture::setTexture<uint16_t>(
+  rc_ptr<TimeTexture<uint16_t> >, bool );
+template void ATexture::setTexture<int32_t>(
+  rc_ptr<TimeTexture<int32_t> >, bool );
+template void ATexture::setTexture<uint32_t>(
+  rc_ptr<TimeTexture<uint32_t> >, bool );
+template void ATexture::setTexture<int64_t>(
+  rc_ptr<TimeTexture<int64_t> >, bool );
+template void ATexture::setTexture<uint64_t>(
+  rc_ptr<TimeTexture<uint64_t> >, bool );
+template void ATexture::setTexture<float>(
+  rc_ptr<TimeTexture<float> >, bool );
+template void ATexture::setTexture<double>(
+  rc_ptr<TimeTexture<double> >, bool );
+template void ATexture::setTexture<Point2df>(
+  rc_ptr<TimeTexture<Point2df> >, bool );
 

@@ -196,6 +196,7 @@ Commands definition
   * :ref:`LoadObject`
   * :ref:`LoadReferentialFromHeader`
   * :ref:`LoadTransformation`
+  * :ref:`LoadTransformationGraph`
   * :ref:`NewId`
   * :ref:`NewPalette`
   * :ref:`ObjectInfo`
@@ -206,6 +207,7 @@ Commands definition
   * :ref:`RemoveObject`
   * :ref:`SaveObject`
   * :ref:`SaveTransformation`
+  * :ref:`SaveTransformationGraph`
   * :ref:`Select`
   * :ref:`SelectByHierarchy`
   * :ref:`SelectByNomenclature`
@@ -2046,6 +2048,39 @@ LoadTransformation
   </table>
 
 
+.. _LoadTransformationGraph:
+
+LoadTransformationGraph
+-----------------------
+
+.. raw:: html
+
+  <b>New in Anatomist 5.1</b><br>
+  Load a transformations graph file (generally YAML or JSON format, can be any readable dict-like generic object, thus a <tt>.minf</tt> file could do it).
+  <br>
+  Only affine transformations are taken into account in the graph, because non-linear transformations cannot be used by Anatomist (and OpenGL).
+
+  <table width="100%" class="docutils">
+  <thead>
+    <tr>
+      <th><b>Attribute:</b></th>
+      <th><b>Type:</b></th>
+      <th><b>Description:</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><tt>filename</tt></td>
+      <td><tt>string</tt></td>
+      <td>filename for the transformations graph</td>
+    </tr>
+
+  </tbody>
+  </table>
+
+See :aimsdata:`the AIMS documentation for transformations graph description and format contents <user_doc/coordinates_systems.html#transformation-graph>`.
+
+
 .. _NewId:
 
 NewId
@@ -2395,6 +2430,39 @@ SaveTransformation
     </tr>
   </tbody>
   </table>
+
+
+.. _SaveTransformationGraph:
+
+SaveTransformationGraph
+-----------------------
+
+.. raw:: html
+
+  <b>New in Anatomist 5.1</b><br>
+  Save a transformations graph file (generally YAML or JSON format, can be any readable dict-like generic object, thus a <tt>.minf</tt> file could do it).
+  <br>
+  Affine transformations are embedded in the graph file.
+
+  <table width="100%" class="docutils">
+  <thead>
+    <tr>
+      <th><b>Attribute:</b></th>
+      <th><b>Type:</b></th>
+      <th><b>Description:</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><tt>filename</tt></td>
+      <td><tt>string</tt></td>
+      <td>filename for the transformations graph</td>
+    </tr>
+
+  </tbody>
+  </table>
+
+See :aimsdata:`the AIMS documentation for transformations graph description and format contents <user_doc/coordinates_systems.html#transformation-graph>`.
 
 
 .. _Select:
@@ -3014,6 +3082,13 @@ TexturingParams
       <td><tt>interpolation</tt></td>
       <td><tt>string</tt> (optional)</td>
       <td id="txt">colors interpolation space on textures: <tt>palette</tt> (default) or <tt>rgb</tt>.
+      </td>
+    </tr>
+    <tr>
+      <td><tt>value_interpolation</tt></td>
+      <td><tt>int</tt> (optional)</td>
+      <td id="txt"><b>New in Anatomist 4.6.2.</b><br/>
+        Enables (1) or disables (0) values interpolation during resampling operations. It is currently only used in scalar volumes. Default is 1.
       </td>
     </tr>
   </tbody>

@@ -106,7 +106,7 @@ void QLabelEdit::drawContents( const std::string & text, int x, int y,
     setWindowTitle( name );
   setFocusPolicy( StrongFocus );
   QVBoxLayout	*lay = new QVBoxLayout( this );
-  lay->setMargin( 0 );
+  lay->setContentsMargins( 0, 0, 0, 0 );
   lay->setSpacing( 0 );
   lay->setObjectName( "lay" );
   _le = new QCancelLineEdit( this, "lineedit" );

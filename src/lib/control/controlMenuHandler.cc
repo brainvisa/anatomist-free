@@ -38,6 +38,7 @@
 #include <anatomist/window/winFactory.h>
 #include <anatomist/application/module.h>
 #include <qmenubar.h>
+#include <QActionGroup>
 #include <graph/tree/tree.h>
 
 
@@ -108,7 +109,7 @@ void AControlMenuHandler::create()
   QSelectMenu	*file = new QSelectMenu( ControlWindow::tr( "File" ) );
   _menubar->addMenu( file );
   file->addAction( ControlWindow::tr( "Open" ), _receiver, 
-                   SLOT( loadObject() ), Qt::CTRL+Qt::Key_O );
+                   SLOT( loadObject() ), Qt::CTRL | Qt::Key_O );
   file->addSeparator();
 //   file->addAction( ControlWindow::tr( "Save global settings" ), 
 //                    _receiver, SLOT( saveSettings() ), 0 );
@@ -121,7 +122,7 @@ void AControlMenuHandler::create()
                    SLOT( clearAll() ), 0 );
   file->addSeparator();
   file->addAction( ControlWindow::tr( "Quit" ), _receiver, SLOT( close() ), 
-                   Qt::CTRL+Qt::Key_Q );
+                   Qt::CTRL | Qt::Key_Q );
 
   //	Objects
   QSelectMenu	*object = new QSelectMenu( ControlWindow::tr( "Objects" ) );
@@ -132,15 +133,15 @@ void AControlMenuHandler::create()
                      _receiver, SLOT( removeObjects() ), Qt::Key_Minus );
   object->addSeparator();
   object->addAction( ControlWindow::tr( "Delete objects" ), _receiver, 
-                     SLOT( deleteObjects() ), Qt::CTRL+Qt::Key_Delete );
+                     SLOT( deleteObjects() ), Qt::CTRL | Qt::Key_Delete );
   object->addAction( ControlWindow::tr( "Reload objects" ), _receiver, 
-                     SLOT( reload() ), Qt::CTRL+Qt::Key_R );
+                     SLOT( reload() ), Qt::CTRL | Qt::Key_R );
   object->addSeparator();
   d->group = object->addAction( ControlWindow::tr( "Group objects" ), 
                                 _receiver, SLOT( groupObjects() ), 0 );
   d->fusion = object->addAction( ControlWindow::tr( "Fusion objects" ), 
                                  _receiver, SLOT( fusionObjects() ), 
-                                 Qt::CTRL+Qt::Key_F );
+                                 Qt::CTRL | Qt::Key_F );
 
   //	Windows
   QSelectMenu	*window = new QSelectMenu( ControlWindow::tr( "Windows" ) );
@@ -160,9 +161,9 @@ void AControlMenuHandler::create()
   ag->connect( ag, SIGNAL( triggered( QAction* ) ), 
                _receiver, SLOT( openWindow( QAction* ) ) );
   window->addAction( ControlWindow::tr( "Open 3 standard views" ), _receiver, 
-                     SLOT( openThreeViews() ), Qt::CTRL + Qt::Key_T );
+                     SLOT( openThreeViews() ), Qt::CTRL | Qt::Key_T );
   window->addAction( ControlWindow::tr( "Open a 4 views block" ), _receiver, 
-                     SLOT( openBlockView() ), Qt::CTRL + Qt::Key_B );
+                     SLOT( openBlockView() ), Qt::CTRL | Qt::Key_B );
 
   window->addSeparator();
   window->addAction( ControlWindow::tr( "Iconify windows" ), _receiver, 
@@ -170,7 +171,7 @@ void AControlMenuHandler::create()
   window->addAction( ControlWindow::tr( "Restore windows" ), _receiver, 
                      SLOT( restoreWindows() ), 0 );
   window->addAction( ControlWindow::tr( "Close windows" ), _receiver, 
-                     SLOT( closeWindows() ), Qt::CTRL+Qt::Key_W );
+                     SLOT( closeWindows() ), Qt::CTRL | Qt::Key_W );
   d->link = window->addAction( ControlWindow::tr( "Link windows" ), _receiver, 
                      SLOT( linkWindows() ), 0 );
   window->addSeparator();
@@ -252,7 +253,7 @@ void AControlMenuHandler::enableLoadRefMenu( bool state )
 }
 
 
-void AControlMenuHandler::enableUnloadRefMenu( bool state )
+void AControlMenuHandler::enableUnloadRefMenu( bool /*state*/ )
 {
 //   d->unloadRef->setEnabled( state );
 }

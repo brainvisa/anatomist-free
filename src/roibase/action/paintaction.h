@@ -38,11 +38,11 @@
 #include "anatomist/controler/action.h"
 #include <anatomist/bucket/Bucket.h>
 #include <anatomist/object/Object.h>
-#include <aims/data/data.h>
-#include <aims/bucket/bucket.h>
 #include <anatomist/observer/Observer.h>
 #include <anatomist/observer/Observable.h>
 #include <anatomist/action/roichangeprocessor.h>
+#include <aims/bucket/bucket.h>
+#include <cartodata/volume/volume.h>
 #include <qobject.h>
 #include <QWidget>
 #include <string>
@@ -125,7 +125,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*> *volumeOfLabels,
+			carto::VolumeRef<AObject*> & volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -139,7 +139,7 @@ namespace anatomist {
     static std::list< Point3d > drawFastLine( const Point3d& from, 
                                               const Point3d& dep ) ;
     void reset() ;
-    bool in( const AimsData<AObject*> *o, Point3df p,
+    bool in( const carto::VolumeRef<AObject*> & o, Point3df p,
              const Point3df & offset ) ;
     
   private:
@@ -152,15 +152,15 @@ namespace anatomist {
   } ;
 
   inline bool 
-  PaintStrategy::in( const AimsData<AObject*> *o, Point3df p,
+  PaintStrategy::in( const carto::VolumeRef<AObject*> & o, Point3df p,
                      const Point3df & offset )
   {
-    if( !o )
+    if( !o.get() )
       return true;
     p -= offset;
-    if ( p[0] < 0 || p[0] > o->dimX() - 1 ||
-         p[1] < 0 || p[1] > o->dimY() - 1 ||
-         p[2] < 0 || p[2] > o->dimZ() - 1 )
+    if ( p[0] < 0 || p[0] > o->getSizeX() - 1 ||
+         p[1] < 0 || p[1] > o->getSizeY() - 1 ||
+         p[2] < 0 || p[2] > o->getSizeZ() - 1 )
       return false ;
 
     return true ;
@@ -178,7 +178,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*> *volumeOfLabels,
+			carto::VolumeRef<AObject*> & volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -201,7 +201,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*> *volumeOfLabels,
+			carto::VolumeRef<AObject*> & volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -213,23 +213,6 @@ namespace anatomist {
 
   } ;
   
-  //   class CubePaintStrategy : public PaintStrategy {
-  //  public:
-  //     CubePaintStrategy() ;
-  //     virtual ~CubePaintStrategy() ;
-  //     virtual PaintType paintType() ;
-    
-  //     virtual void paint( AWindow3D * win,
-// 			   Transformation * transf, const Point3df& point, 
-  // 			const AObject * originalLabel, AObject * finalLabel, 
-  //                      float brushSize, bool lineMode,
-  // 			AimsData<AObject*>& volumeOfLabels,
-  // 			Bucket& deltaModifications,
-  // 			const Point3df& voxelSize,
-  //                      bool line ) ;
-    
-
-  //   } ;
 
   class DiskPaintStrategy : public PaintStrategy
   {
@@ -242,7 +225,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*> *volumeOfLabels,
+			carto::VolumeRef<AObject*> & volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -256,7 +239,7 @@ namespace anatomist {
 			       const AObject * originalLabel, 
 			       AObject * finalLabel,
 			       float brushSize, 
-			       AimsData<AObject*> *volumeOfLabels,
+			       carto::VolumeRef<AObject*> & volumeOfLabels,
 			       const Point3df & voxelSize, 
 			       const Point3df & vlOffset, 
 			       aims::BucketMap<Void>::Bucket & deltaModifications,
@@ -277,7 +260,7 @@ namespace anatomist {
 			Transformation * transf, const Point3df& point,
 			const AObject * originalLabel, AObject * finalLabel,
 			float brushSize, bool lineMode,
-			AimsData<AObject*> *volumeOfLabels,
+			carto::VolumeRef<AObject*> & volumeOfLabels,
 			const Point3df & vlOffset, 
 			aims::BucketMap<Void>::Bucket & deltaModifications,
 			std::list< std::pair< Point3d, ChangesItem> > & changes,
@@ -290,7 +273,7 @@ namespace anatomist {
 			       const AObject * originalLabel, 
 			       AObject * finalLabel,
 			       float brushSize, 
-			       AimsData<AObject*> *volumeOfLabels,
+			       carto::VolumeRef<AObject*> & volumeOfLabels,
 			       const Point3df & voxelSize, 
 			       const Point3df & vlOffset, 
 			       aims::BucketMap<Void>::Bucket  & deltaModifications,
@@ -392,7 +375,7 @@ namespace anatomist {
                        const Point3d& bmin,
                        const Point3d& bmax,
                        Point3d neighbour[],
-                       AimsData<AObject*>& volumeOfLabels, 
+                       carto::VolumeRef<AObject*>& volumeOfLabels,
                        AObject * final,
                        std::list< std::pair< Point3d, 
                                              ChangesItem> > & changes ) ;

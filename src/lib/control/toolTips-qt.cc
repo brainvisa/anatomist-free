@@ -47,7 +47,7 @@
 #include <qapplication.h>
 #include <qtimer.h>
 #include <qcursor.h>
-#include <qdesktopwidget.h>
+#include <QScreen>
 
 using namespace anatomist;
 using namespace carto;
@@ -247,10 +247,10 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   {
   }
   bool usegl = !glxsel;
+  AWindow3D *w3 = dynamic_cast<AWindow3D *>( d->window );
 
   if( usegl )
   {
-    AWindow3D *w3 = dynamic_cast<AWindow3D *>( d->window );
     if( w3 )
     {
       AObject *obj = w3->objectAtCursorPosition( pos.x(), pos.y() );
@@ -333,24 +333,32 @@ void QAViewToolTip::maybeTip( const QPoint & pos )
   bool				first = true;
 
   for( i=shown.begin(); i!=e; ++i )
-    {
-      if( first )
-        first = false;
-      else
-        text += "<br>";
-      text += printobj( *i );
-    }
+  {
+    if( first )
+      first = false;
+    else
+      text += "<br/>";
+    text += printobj( *i );
+  }
   if( !hidden.empty() )
-    {
-      if( !shown.empty() )
-        text += "<br><br>";
-      text += "<em>objects not currently displayed:</em>";
-      for( i=hidden.begin(), e=hidden.end(); i!=e; ++i )
-        {
-          text += "<br>";
-          text += printobj( *i );
-        }
-    }
+  {
+    if( !shown.empty() )
+      text += "<br/><br/>";
+    text += "<em>objects not currently displayed:</em>";
+    for( i=hidden.begin(), e=hidden.end(); i!=e; ++i )
+      {
+        text += "<br/>";
+        text += printobj( *i );
+      }
+  }
+
+  if( w3 )
+  {
+    string ninfo = w3->displayInfoAtClickPositionAsText( pos.x(), pos.y(),
+                                                         true );
+    text += QString( "<br/><br/><b>At cursor position:</b><br/>" )
+      + QString( ninfo.c_str() );
+  }
 
   tip( QRect( pos, pos ), text );
 }
@@ -435,9 +443,29 @@ void QAViewToolTip::tip( const QRect & pos, const QString & text )
 
   s.currenttip->setText( text );
   s.currenttip->resize( s.currenttip->sizeHint() );
-  QPoint	gpos = d->widget->mapToGlobal( pos.topLeft() );
-  QPoint	npos( gpos.x() + 10, gpos.y() - s.currenttip->height() - 10 );
-  if( npos.x() + s.currenttip->width() > QApplication::desktop()->width() )
+  QPoint        gpos = d->widget->mapToGlobal( pos.topLeft() );
+#if QT_VERSION >= 0x050a00
+  QScreen       *screen = qApp->screenAt( gpos );
+#else
+  QList<QScreen *> screens = qApp->screens();
+  QList<SQcreen *>::iterator is, es = screens.end();
+  QScreen *screen = 0;
+  for( is=screens.begin(); is!=es; ++is )
+  {
+    QRect geom = (*is)->geometry();
+    if( gpos.x() >= geom.left() && gpos.y() >= geom.top()
+        && gpos.x() < geom.right() && gpos.y() < geom.bottom() )
+    {
+      screen = *is;
+      break;
+    }
+  }
+#endif
+  int screenw = 2000;
+  if( screen )
+    screenw = screen->geometry().width();
+  QPoint        npos( gpos.x() + 10, gpos.y() - s.currenttip->height() - 10 );
+  if( npos.x() + s.currenttip->width() > screenw )
     npos.setX( gpos.x() - s.currenttip->width() - 10 );
   if( npos.y() < 0 )
     npos.setY( gpos.y() + 20 );

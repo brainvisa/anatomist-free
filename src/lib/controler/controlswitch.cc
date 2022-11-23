@@ -86,7 +86,7 @@ ToolBox::ToolBox( const string& activeControlDescription ):
   d->tab = new QWidget( this );
   QVBoxLayout *vlay = new QVBoxLayout( d->tab );
   d->tab->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   d->controldata = new QWidget;
   vlay = new QVBoxLayout( d->controldata );
   d->controldata->setLayout( vlay );

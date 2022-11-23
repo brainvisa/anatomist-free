@@ -56,11 +56,12 @@ class QTexturePanel : public QWidget, public anatomist::Observer
 public:
   enum Part
   {
-    Mode, 
-    Rate, 
-    Filtering, 
-    Generation, 
-    Interpolation //, 
+    Mode,
+    Rate,
+    Filtering,
+    Generation,
+    Interpolation,
+    ValueInterpolation //,
   };
 
   QTexturePanel( const std::set<anatomist::AObject *> &, 
@@ -88,6 +89,7 @@ protected slots:
   void generationChanged( int );
   void rateChanged( int );
   void rgbInterpolation( bool );
+  void valueInterpolationChanged( bool );
   void generationParamsDialog();
 
 private:

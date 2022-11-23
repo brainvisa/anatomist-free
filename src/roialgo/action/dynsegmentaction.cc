@@ -35,7 +35,6 @@
 #include <anatomist/action/roichangeprocessor.h>
 #include <anatomist/action/roimanagementaction.h>
 #include <anatomist/action/paintaction.h>
-
 #include <anatomist/controler/view.h>
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/color/paletteList.h>
@@ -45,6 +44,7 @@
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/reference/Transformation.h>
+#include <anatomist/misc/error.h>
 
 #include <QButtonGroup>
 #include <QGroupBox>
@@ -55,11 +55,11 @@
 #include <qcombobox.h>
 #include <queue>
 #include <aims/resampling/quaternion.h>
-#include <aims/math/math_g.h>
-#include <anatomist/misc/error.h>
+#include <aims/math/svd.h>
 
 using namespace anatomist ;
 using namespace aims;
+using namespace carto;
 using namespace std;
 
 namespace anatomist
@@ -411,11 +411,11 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
     return ;
   }
   
-  // Effacer la région courante
+  // Effacer la rï¿½gion courante
   list< pair< Point3d, ChangesItem> >* changes = new list< pair< Point3d, ChangesItem> > ;
   
   if (!g) return ;
-  AimsData<AObject*>& labels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& labels = g->volumeOfLabels( 0 ) ;
   vector<float> bbmin, bbmax;
   vector<float> vs = g->voxelSize();
   vector<int> dims( 3, 1 );
@@ -425,9 +425,9 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
     dims[0] = int( rint( ( bbmax[0] - bbmin[0] ) / vs[0] ) );
     dims[1] = int( rint( ( bbmax[1] - bbmin[1] ) / vs[1] ) );
     dims[2] = int( rint( ( bbmax[2] - bbmin[2] ) / vs[2] ) );
-    if( labels.dimX() != dims[0]
-        || labels.dimY() != dims[1]
-        || labels.dimZ() != dims[2] )
+    if( labels.getSizeX() != dims[0]
+        || labels.getSizeY() != dims[1]
+        || labels.getSizeZ() != dims[2] )
     {
 
       g->clearLabelsVolume() ;
@@ -453,7 +453,7 @@ RoiDynSegmentAction::replaceRegion( int x, int y, int, int )
 //       if( (*_sharedData->myCurrentChanges)[0][iter->first].before == 0 ) 
 //   	cout << "change.before == 0" << endl ;
       
-      labels( iter->first ) = 0  ;
+      labels->at( iter->first ) = 0;
       ++iter ;
     }
     
@@ -660,19 +660,21 @@ RoiDynSegmentAction::pcaRegionGrowth( )
   
   Point3d halfSize = maskHalfSize( myCurrentImage, int( ( myCurrentImage->MaxT()+1 ) * 2.5 ) ) ;
   cout << "Mask half size " << halfSize << endl ;
-  // s'il est necessaire de recalculer la matrice d'erreur et l'ereur de référence
+  // s'il est necessaire de recalculer la matrice d'erreur et l'ereur de rï¿½fï¿½rence
   if( mySeedChanged || myOrderChanged ){
     // Preparation des individus our l'acp.
     myMeanSignal = vector<float>(nbFrame, 0.) ;
     
     if( !myFindNearestMinimumMode )
+    {
       if( !evaluateError( mySeed, halfSize, dims,
 			myErrorMatrix, myMeanSignal,
 			myInsideMeanError, myInsideSigmaError, true ) )
-	return ;
+	      return ;
+    }
     else
       if( !findLocalBestSeed( dims, halfSize ) )
-	return ;
+	      return ;
   }
 
   // Region growth from seed point with error < meanError + faithInterval * errorDeviation
@@ -720,7 +722,7 @@ RoiDynSegmentAction::findLocalBestSeed( const Point3d& dims, const Point3d& half
   
   //cout << "RoiDynSegmentAction::findLocalBestSeed" << endl ;
   Point3d currentPoint(mySeed), minDirection(0,0,0) ;
-  AimsData<float> errorMatrix ;
+  VolumeRef<float> errorMatrix ;
   vector<float> meanSignal ;
   float meanError = 0., varError = 0., minMeanError = 1. ;
   bool minFound = false, valid = false ;
@@ -728,7 +730,8 @@ RoiDynSegmentAction::findLocalBestSeed( const Point3d& dims, const Point3d& half
     currentPoint += minDirection ;
     minDirection = -myXAxis ;
     
-    if( in(dims, currentPoint - myXAxis) ){
+    if( in(dims, currentPoint - myXAxis) )
+    {
       if( evaluateError( currentPoint - myXAxis, halfSize, dims, errorMatrix, meanSignal, 
 			 minMeanError, varError ) )
 	valid = true ;
@@ -799,7 +802,7 @@ RoiDynSegmentAction::findLocalBestSeed( const Point3d& dims, const Point3d& half
   myMeanSignal = meanSignal ;
   myInsideMeanError = minMeanError ;
   myInsideSigmaError = varError ;
-  myErrorMatrix = errorMatrix.clone() ;
+  myErrorMatrix = errorMatrix;
   
   return true ;
 }
@@ -808,7 +811,7 @@ bool
 RoiDynSegmentAction::evaluateError( const Point3d& p, 
 				    const Point3d& halfSize, 
 				    const Point3d& dims,
-				    AimsData<float>& errorMatrix,
+				    VolumeRef<float>& errorMatrix,
 				    vector<float>& meanSignal,
 				    float& mean, float& var, 
 				    bool forceComputing )
@@ -818,8 +821,8 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
   if( !myCurrentImage )
     return false ;
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
-  AimsData<float> matriceIndiv( (2*halfSize[0]+1)*(2*halfSize[1]+1)
-				*(2*halfSize[2]+1), nbFrame );
+  VolumeRef<float> matriceIndiv(
+    (2*halfSize[0]+1) * (2*halfSize[1]+1) * (2*halfSize[2]+1), nbFrame );
   map<Point3d, float, PointLess>::iterator found ;
   if(!forceComputing )
     if( (found = myPreviousComputing.find(p) ) != myPreviousComputing.end() )
@@ -854,7 +857,7 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
             val = myCurrentImage->mixedTexValue( vpos );
             if( val <= 0. )
               valid = false ;
-            matriceIndiv( nbIndiv, t ) = val  ;
+            matriceIndiv->at( nbIndiv, t ) = val  ;
             meanSignal[t] += val ;
           }
         }
@@ -878,7 +881,7 @@ RoiDynSegmentAction::evaluateError( const Point3d& p,
   float sum = 0., sum2 = 0. ;
   float err ;
   
-  // Calcul de la moyenne et l'écart type des erreurs
+  // Calcul de la moyenne et l'ï¿½cart type des erreurs
   for( int i = -halfSize[0] ; i <= halfSize[0]  ; ++i )
   {
     vpos[0] = ( p[0] + i ) * vs[0];
@@ -946,19 +949,19 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
   dims[1] = static_cast<int>( (bmax[1] - bmin[1]) / vs[1] + .1 );
   dims[2] = static_cast<int>( (bmax[2] - bmin[2]) / vs[2] + .1 );
   
-  AimsData<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
+  VolumeRef<AObject*>& volumeOfLabels = g->volumeOfLabels( 0 ) ;
   Bucket * currentModifiedRegion = RoiChangeProcessor::instance()->getCurrentRegion( 0 ) ;
   ChangesItem item ;
   item.after = go ;
   item.before = 0 ;
 
   queue<Point3d> insideList ;
-  item.before = volumeOfLabels( mySeed ) ;
+  item.before = volumeOfLabels->at( mySeed ) ;
   
-  if( (!replaceMode) && (volumeOfLabels( mySeed ) != 0) )
+  if( (!replaceMode) && (volumeOfLabels->at( mySeed ) != 0) )
     return ;
 
-  volumeOfLabels( mySeed ) = currentModifiedRegion ;
+  volumeOfLabels->at( mySeed ) = currentModifiedRegion ;
   changes->push_back(pair<Point3d, ChangesItem>( mySeed, item ) )  ;
   insideList.push(mySeed) ;
     
@@ -967,73 +970,73 @@ RoiDynSegmentAction::growth( list< pair< Point3d, ChangesItem> >* changes )
     insideList.pop() ;
     
     Point3d pc = p - myXAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ) )
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ) )
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     pc = p + myXAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     
     pc = p - myYAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     
     pc = p + myYAxis ;
-    if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+    if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
       if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	    < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
     
     if( myDimensionMode == THREED ){
       pc = p - myZAxis ;
-      if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ))
+      if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ))
 	if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	  if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	      < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( p ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( p ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
       
       pc = p + myZAxis ;
-      if( in( dims, pc ) && volumeOfLabels( pc ) != currentModifiedRegion && 
-	( replaceMode || volumeOfLabels( pc ) == 0 ) )
+      if( in( dims, pc ) && volumeOfLabels->at( pc ) != currentModifiedRegion &&
+	( replaceMode || volumeOfLabels->at( pc ) == 0 ) )
 	if( valid( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ) ) )
 	  if( error ( myCurrentImage, Point3df( pc[0], pc[1], pc[2] ), myMeanSignal, myErrorMatrix ) 
 	      < myInsideMeanError + myFaithInterval * myInsideSigmaError ){
-	  item.before = volumeOfLabels( pc ) ;
-	  volumeOfLabels( pc ) = currentModifiedRegion ;
+	  item.before = volumeOfLabels->at( pc ) ;
+	  volumeOfLabels->at( pc ) = currentModifiedRegion ;
 	  changes->push_back(pair<Point3d, ChangesItem>( pc, item ) )  ;
 	  insideList.push( pc ) ;
 	}
@@ -1049,7 +1052,7 @@ RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
   list< pair< Point3d, ChangesItem> >::const_iterator bckIter((*changes).begin()), 
     bckLast( (*changes).end() ) ;
-  AimsData<float> matriceIndiv( (*changes).size(), nbFrame );
+  VolumeRef<float> matriceIndiv( (*changes).size(), nbFrame );
   
   myMeanSignal = vector<float>(nbFrame, 0.) ;
   vector<float> vpos( 4 );
@@ -1082,7 +1085,7 @@ RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
   float sum = 0., sum2 = 0. ;
   float err ;
 
-  // Calcul de la moyenne et l'écart type des erreurs
+  // Calcul de la moyenne et l'ï¿½cart type des erreurs
   while( bckIter != bckLast )
     {
       err = error( myCurrentImage, Point3df((bckIter->first)[0], (bckIter->first)[1], (bckIter->first)[2] ),
@@ -1112,55 +1115,58 @@ RoiDynSegmentAction::refinePCA( list< pair< Point3d, ChangesItem> >* changes )
 }
 
 void 
-RoiDynSegmentAction::computeErrorMatrix( AimsData<float>& matriceIndiv, 
-				       AimsData<float>& errorMatrix,
-				       vector<float>& meanSignal )
+RoiDynSegmentAction::computeErrorMatrix( VolumeRef<float>& matriceIndiv,
+                                         VolumeRef<float>& errorMatrix,
+                                         vector<float>& meanSignal )
 {
   if( !myCurrentImage )
     return ;
   int nbFrame = int(myCurrentImage->MaxT() + 1.1) ;
   
   for( int t = 0 ; t < nbFrame ; ++t ){
-    meanSignal[t] /= matriceIndiv.dimX() ;
-    for( int ind = 0 ; ind < matriceIndiv.dimX() ; ++ind )
+    meanSignal[t] /= matriceIndiv.getSizeX() ;
+    for( int ind = 0 ; ind < matriceIndiv.getSizeX() ; ++ind )
       matriceIndiv( ind, t ) -= meanSignal[t] ;
   }
   
   // Matrice des correlations
-  AimsData< double >  matVarCov(nbFrame, nbFrame);
+  VolumeRef< double >  matVarCov(nbFrame, nbFrame);
   
   int                 x1, y1;
-  ForEach2d( matVarCov, x1, y1 )
+  int dx = matVarCov.getSizeX(), dy = matVarCov.getSizeY();
+
+  for( y1=0; y1<dy; ++y1 )
+    for( x1=0; x1<dx; ++x1 )
     {
-      for(int k=0;  k < matriceIndiv.dimX()  ;++k)
-	matVarCov(x1, y1) += matriceIndiv(k, x1) * matriceIndiv(k, y1);	
-      matVarCov(x1, y1) /= matriceIndiv.dimX() - 1 ;
+      for(int k=0;  k < matriceIndiv.getSizeX()  ;++k)
+        matVarCov(x1, y1) += matriceIndiv(k, x1) * matriceIndiv(k, y1);
+      matVarCov(x1, y1) /= matriceIndiv.getSizeX() - 1 ;
     }
   
   // Decomposition SVD 
   AimsSVD< double >  svd;
   svd.setReturnType( AimsSVD< double >::VectorOfSingularValues );
-  AimsData< double > eigenVal  = svd.doit( matVarCov );
+  VolumeRef< double > eigenVal = svd.doit( matVarCov );
   
   svd.sort(matVarCov, eigenVal);
   
   // Calcul de la matrice d'erreurs
-  AimsData< float > errorMatrixk( nbFrame, nbFrame ) ;
-  vector< AimsData<float>* > pkk(myOrder) ;
+  vector< VolumeRef<float> > pkk(myOrder) ;
   for(int order = 0 ; order < myOrder ; ++order )
-    pkk[order] = new AimsData<float>(nbFrame) ;
+    pkk[order] = VolumeRef<float>(nbFrame) ;
   
   for( int i = 0 ; i < myOrder ; ++i )
     for( int t = 0 ; t < nbFrame ; ++t )
       (*pkk[i])(t) = matVarCov( t, i ) ;
   
-  errorMatrix = AimsData<float>(nbFrame, nbFrame) ;
+  errorMatrix = VolumeRef<float>(nbFrame, nbFrame) ;
   for( int t = 0 ; t < nbFrame ; ++t )
     errorMatrix(t, t) = 1. ;
   
   cerr << "Crossing " << endl ;
   for(int order = 0 ; order < myOrder ; ++order )
-    errorMatrix = errorMatrix - pkk[order]->cross( pkk[order]->clone().transpose() ) ;
+    errorMatrix = errorMatrix
+      - matrix_product( pkk[order], transpose( pkk[order] ) ) ;
   cerr << "Crossed " << endl ;
 }
 
