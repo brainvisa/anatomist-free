@@ -55,7 +55,7 @@ WhatsNew::WhatsNew( QWidget* parent, const char * name, bool modal,
   setModal(modal);
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 10 );
+  mainlay->setContentsMargins( 10, 10, 10, 10 );
   mainlay->setSpacing( 10 );
   QTextBrowser	*txt = new QTextBrowser( this );
   QPushButton	*ok = new QPushButton( tr( "OK" ), this );

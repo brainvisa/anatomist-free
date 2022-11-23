@@ -103,7 +103,7 @@ VectorFieldEditionWindow::VectorFieldEditionWindow( const set<AObject *> &objL,
 
   QVBoxLayout	*vboxlayout = new QVBoxLayout( this );
   vboxlayout->setSpacing( 0 );
-  vboxlayout->setMargin( 0 );
+  vboxlayout->setContentsMargins( 0, 0, 0, 0 );
   vboxlayout->addWidget( sel );
   vboxlayout->addWidget( uiwid );
 

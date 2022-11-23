@@ -50,7 +50,7 @@ QAColorDialog::QAColorDialog( QColor init, QWidget * parent,
   setObjectName(name);
   setModal(modal);
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 10 );
 
   _widget = new QAColorWidget( init, this, 0, Qt::WindowFlags(), allowAlpha,
@@ -60,7 +60,7 @@ QAColorDialog::QAColorDialog( QColor init, QWidget * parent,
   QHBoxLayout *hlay = new QHBoxLayout( butts );
   butts->setLayout( hlay );
   hlay->setSpacing( 5 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QPushButton	*okb = new QPushButton( tr( "OK" ), butts );
   hlay->addWidget( okb );
   QPushButton	*ccb = new QPushButton( tr( "Cancel" ), butts );

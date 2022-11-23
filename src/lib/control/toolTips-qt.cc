@@ -47,7 +47,7 @@
 #include <qapplication.h>
 #include <qtimer.h>
 #include <qcursor.h>
-#include <qdesktopwidget.h>
+#include <QScreen>
 
 using namespace anatomist;
 using namespace carto;
@@ -443,9 +443,29 @@ void QAViewToolTip::tip( const QRect & pos, const QString & text )
 
   s.currenttip->setText( text );
   s.currenttip->resize( s.currenttip->sizeHint() );
-  QPoint	gpos = d->widget->mapToGlobal( pos.topLeft() );
-  QPoint	npos( gpos.x() + 10, gpos.y() - s.currenttip->height() - 10 );
-  if( npos.x() + s.currenttip->width() > QApplication::desktop()->width() )
+  QPoint        gpos = d->widget->mapToGlobal( pos.topLeft() );
+#if QT_VERSION >= 0x050a00
+  QScreen       *screen = qApp->screenAt( gpos );
+#else
+  QList<QScreen *> screens = qApp->screens();
+  QList<SQcreen *>::iterator is, es = screens.end();
+  QScreen *screen = 0;
+  for( is=screens.begin(); is!=es; ++is )
+  {
+    QRect geom = (*is)->geometry();
+    if( gpos.x() >= geom.left() && gpos.y() >= geom.top()
+        && gpos.x() < geom.right() && gpos.y() < geom.bottom() )
+    {
+      screen = *is;
+      break;
+    }
+  }
+#endif
+  int screenw = 2000;
+  if( screen )
+    screenw = screen->geometry().width();
+  QPoint        npos( gpos.x() + 10, gpos.y() - s.currenttip->height() - 10 );
+  if( npos.x() + s.currenttip->width() > screenw )
     npos.setX( gpos.x() - s.currenttip->width() - 10 );
   if( npos.y() < 0 )
     npos.setY( gpos.y() + 20 );

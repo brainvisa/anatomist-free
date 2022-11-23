@@ -175,7 +175,7 @@ void MaterialWindow::updateObjects()
 void MaterialWindow::drawContents()
 {
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 10 );
+  mainlay->setContentsMargins( 10, 10, 10, 10 );
   mainlay->setSpacing( 10 );
 
   ObjectParamSelect	*sel = new ObjectParamSelect( _parents, this );
@@ -201,7 +201,7 @@ void MaterialWindow::drawContents()
   QGridLayout *glay = new QGridLayout( epan );
   epan->hide();
   glay->setSpacing( 5 );
-  glay->setMargin( 0 );
+  glay->setContentsMargins( 0, 0, 0, 0 );
   _privdata->tabs.push_back( epan );
 
   QGroupBox	*ebox = new QGroupBox( tr( "Ambient :" ), epan );
@@ -236,7 +236,7 @@ void MaterialWindow::drawContents()
   vlay->addStretch( 1 );
   QHBoxLayout *hlay = new QHBoxLayout( grd );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "Value:" ), grd ) );
   QSlider	*sl = _privdata->shinsl
     = new QSlider( grd );
@@ -289,7 +289,7 @@ QWidget* MaterialWindow::buildRgbaBox( QWidget* parent, int num )
   QWidget *grd = new QWidget( parent );
   QGridLayout *glay = new QGridLayout( grd );
   glay->setSpacing( 10 );
-  glay->setMargin( 0 );
+  glay->setContentsMargins( 0, 0, 0, 0 );
   glay->addWidget( new QLabel( tr( "Red:" ), grd ), 0, 0 );
   sl = _privdata->sliders[num][0]
     = new QANumSlider( num, 0, 0, 100, 1, 0, Qt::Horizontal, grd );

@@ -122,13 +122,13 @@ QWindowTree::QWindowTree( QWidget *parent, const char *name )
 
   QVBoxLayout	*lay1 = new QVBoxLayout( this );
   lay1->setObjectName( "OTlayout1" );
-  lay1->setMargin( 0 );
+  lay1->setContentsMargins( 0, 0, 0, 0 );
   QFrame	*fr = new QFrame( this );
   fr->setObjectName( "OTframe" );
   int		margin = 0;
   QVBoxLayout	*lay2 = new QVBoxLayout( fr );
   lay2->setObjectName( "OTlayout2" );
-  lay2->setMargin( margin );
+  lay2->setContentsMargins( margin, margin, margin, margin );
 
   fr->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 

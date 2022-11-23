@@ -75,7 +75,7 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
   setCentralWidget( mainw );
   d->layout = new QGridLayout( mainw );
   d->layout->setSpacing(0); 
-  d->layout->setMargin(5);
+  d->layout->setContentsMargins( 5, 5, 5, 5 );
   mainw->setLayout(d->layout);
   d->inrows = inrows;
   d->colsrows = colsrows;

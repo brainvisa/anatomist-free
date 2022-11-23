@@ -102,7 +102,7 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   QVBoxLayout	*vboxlayout = new QVBoxLayout(select_container_widget);
   vboxlayout->addWidget(sel);
   vboxlayout->setSpacing(0);
-  select_container_widget->layout()->setMargin(0); 
+  select_container_widget->layout()->setContentsMargins( 0, 0, 0, 0 );
 
   //GlobalConfiguration   *cfg = theAnatomist->config();
   bool use_glshader = Shader::isActivated();

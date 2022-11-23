@@ -71,7 +71,7 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
   setWindowTitle( tr( "Select object(s)" ) );
 
   QVBoxLayout	*lay = new QVBoxLayout( this );
-  lay->setMargin( 5 );
+  lay->setContentsMargins( 5, 5, 5, 5 );
   lay->setSpacing( 5 );
   QTreeWidget	*l = new QTreeWidget( this );
   l->setObjectName( "listview" );
@@ -118,7 +118,7 @@ void QSelectWidget::init( unsigned gr, const set<AObject *> & objects )
   QPushButton	*bok = new QPushButton( tr( "Select" ), fr );
   QPushButton	*bcc = new QPushButton( tr( "Cancel" ), fr );
   QHBoxLayout	*lay2 = new QHBoxLayout( fr );
-  lay2->setMargin( 5 );
+  lay2->setContentsMargins( 5, 5, 5, 5 );
 
   bok->setFixedSize( bok->sizeHint() );
   bok->setDefault( true );

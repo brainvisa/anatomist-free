@@ -647,7 +647,7 @@ void GradientWidget::mouseMoveEvent(QMouseEvent* e)
         double a = (x*(_maxVal-_minVal)+_minVal) 
           / pow(10, floor(log10(std::max(std::abs(_maxVal),
                                           std::abs(_minVal)))));
-        _posText.sprintf("%1.3f", a);
+        _posText = QString::asprintf("%1.3f", a);
       }
 
   }
@@ -703,7 +703,7 @@ void GradientWidget::mouseMoveEvent(QMouseEvent* e)
           double a = (xr*(_maxVal-_minVal)+_minVal) 
             / pow(10, floor(log10(std::max(std::abs(_maxVal),
                                             std::abs(_minVal)))));
-          _posText.sprintf("%1.3f", a);
+          _posText = QString::asprintf("%1.3f", a);
         }
     }
 

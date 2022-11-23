@@ -141,12 +141,12 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
 
   QHBoxLayout	*mainlay = new QHBoxLayout( this );
   QWidget	*vbox = new QWidget( this );
-  mainlay->setMargin( 0 );
+  mainlay->setContentsMargins( 0, 0, 0, 0 );
   mainlay->setSpacing( 10 );
   mainlay->addWidget( vbox );
   QVBoxLayout *vlay = new QVBoxLayout( vbox );
   vbox->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   vlay->setSpacing( 10 );
 
   d->modebox = new QGroupBox( tr( "Mapping mode" ), vbox );
@@ -177,7 +177,7 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   vlay = new QVBoxLayout( vbox );
   vbox->setLayout( vlay );
   vlay->setSpacing( 10 );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
 
   mainlay->addWidget( vbox );
 

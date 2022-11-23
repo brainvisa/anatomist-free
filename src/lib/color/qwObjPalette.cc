@@ -60,6 +60,7 @@
 #include <qaction.h>
 #include <qtoolbar.h>
 #include <qheaderview.h>
+#include <QActionGroup>
 
 
 using namespace anatomist;
@@ -178,19 +179,19 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   QVBoxLayout	*mainLay = new QVBoxLayout( this );
   mainLay->setObjectName( "mainLay" );
-  mainLay->setMargin( 0 );
+  mainLay->setContentsMargins( 0, 0, 0, 0 );
   mainLay->setSpacing( 0 );
   d->objsel = new ObjectParamSelect( obj, this );
   mainLay->addWidget( d->objsel );
   d->objsel->addFilter( filterPalette );
-  d->objsel->layout()->setMargin( 5 );
+  d->objsel->layout()->setContentsMargins( 5, 5, 5, 5 );
 
   d->main = new QWidget( this );
   d->main->setObjectName( "mainLay" );
   QHBoxLayout *mainl = new QHBoxLayout( d->main );
   d->main->setLayout( mainl );
   mainLay->addWidget( d->main );
-  mainl->setMargin( 5 );
+  mainl->setContentsMargins( 5, 5, 5, 5 );
   mainl->setSpacing( 5 );
 
   QWidget *ltPanel = new QWidget( d->main );
@@ -198,7 +199,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   ltPanel->setObjectName( "ltPanel" );
   QVBoxLayout *ltPanell = new QVBoxLayout( ltPanel );
   ltPanel->setLayout( ltPanell );
-  ltPanell->setMargin( 0 );
+  ltPanell->setContentsMargins( 0, 0, 0, 0 );
   ltPanell->setSpacing( 5 );
 
   d->toolbar = new QToolBar( ltPanel );
@@ -228,14 +229,14 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   mainl->addWidget( rtPanel );
   QVBoxLayout *rtPanell = new QVBoxLayout( rtPanel );
   rtPanel->setLayout( rtPanell );
-  rtPanell->setMargin( 0 );
+  rtPanell->setContentsMargins( 0, 0, 0, 0 );
   rtPanell->setSpacing( 5 );
 
   QGroupBox	*updateGrp = new QGroupBox( tr( "Update mode :" ), rtPanel );
   rtPanell->addWidget( updateGrp );
   QHBoxLayout *updateGrpl = new QHBoxLayout( updateGrp );
   updateGrp->setLayout( updateGrpl );
-  updateGrpl->setMargin( 5 );
+  updateGrpl->setContentsMargins( 5, 5, 5, 5 );
   updateGrpl->setSpacing( 5 );
   QCheckBox	*respBtn = new QCheckBox( tr( "Responsive" ), updateGrp );
   updateGrpl->addWidget( respBtn );
@@ -250,7 +251,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   rtPanell->addWidget( dimBgpw );
   QHBoxLayout *dimBgpl = new QHBoxLayout( dimBgpw );
   dimBgpw->setLayout( dimBgpl );
-  dimBgpl->setMargin( 5 );
+  dimBgpl->setContentsMargins( 5, 5, 5, 5 );
   dimBgpl->setSpacing( 5 );
   QRadioButton *rb = new QRadioButton( tr( "1D" ), dimBgpw );
   rb->setObjectName( "btn1D" );
@@ -272,7 +273,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   pal2Panel->setObjectName( "pal2Panel" );
   QVBoxLayout *pal2Panell = new QVBoxLayout( pal2Panel );
   pal2Panel->setLayout( pal2Panell );
-  pal2Panell->setMargin( 0 );
+  pal2Panell->setContentsMargins( 0, 0, 0, 0 );
   pal2Panell->setSpacing( 5 );
 
   d->dimBox2 = new DimBox;
@@ -286,13 +287,13 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->dimBox2->topBox->layout()->addWidget( d->pal2SetBox );
   QVBoxLayout *pal2SetBoxl = new QVBoxLayout( d->pal2SetBox );
   d->pal2SetBox->setLayout( pal2SetBoxl );
-  pal2SetBoxl->setMargin( 5 );
+  pal2SetBoxl->setContentsMargins( 5, 5, 5, 5 );
   pal2SetBoxl->setSpacing( 5 );
   QWidget *pal2box = new QWidget( d->pal2SetBox );
   pal2SetBoxl->addWidget( pal2box );
   QGridLayout *pal2boxl = new QGridLayout( pal2box );
   pal2box->setLayout( pal2boxl );
-  pal2boxl->setMargin( 0 );
+  pal2boxl->setContentsMargins( 0, 0, 0, 0 );
   pal2boxl->setSpacing( 5 );
   pal2boxl->addWidget( new QLabel( tr( "Second palette :" ), pal2box ), 0, 0 );
   d->palette2Box = new QComboBox( pal2box );
@@ -319,7 +320,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   pal2SetBoxl->addWidget( mixFacBox );
   QHBoxLayout *mixFacBoxl = new QHBoxLayout( mixFacBox );
   mixFacBox->setLayout( mixFacBoxl );
-  mixFacBoxl->setMargin( 0 );
+  mixFacBoxl->setContentsMargins( 0, 0, 0, 0 );
   mixFacBoxl->setSpacing( 5 );
   mixFacBoxl->addWidget( new QLabel( tr( "Mixing factor :" ), mixFacBox ) );
   d->mixSlid = new QSlider( mixFacBox );
@@ -336,7 +337,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   QGroupBox	*dispGp = new QGroupBox( tr( "Palette view :" ), rtPanel );
   rtPanell->addWidget( dispGp );
   QVBoxLayout	*dispGpLay = new QVBoxLayout( dispGp );
-  dispGpLay->setMargin( 5 );
+  dispGpLay->setContentsMargins( 5, 5, 5, 5 );
   dispGpLay->setSpacing( 5 );
   d->view = new QLabel( dispGp );
   dispGpLay->addWidget( d->view );
@@ -426,14 +427,14 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   dbox->topBox = new QGroupBox( title, parent );
   QVBoxLayout *topBoxl = new QVBoxLayout( dbox->topBox );
   dbox->topBox->setLayout( topBoxl );
-  topBoxl->setMargin( 5 );
+  topBoxl->setContentsMargins( 5, 5, 5, 5 );
   topBoxl->setSpacing( 5 );
 
   QWidget *minmaxbox = new QWidget( dbox->topBox );
   topBoxl->addWidget( minmaxbox );
   QGridLayout *minmaxboxl = new QGridLayout( minmaxbox );
   minmaxbox->setLayout( minmaxboxl );
-  minmaxboxl->setMargin( 0 );
+  minmaxboxl->setContentsMargins( 0, 0, 0, 0 );
   minmaxboxl->setSpacing( 5 );
   minmaxboxl->addWidget( new QLabel( tr( "Min:" ), minmaxbox ), 0, 0 );
   dbox->minSlider = new QSlider( minmaxbox );
@@ -464,7 +465,7 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   topBoxl->addWidget( boundsbox );
   QHBoxLayout *boundsboxl = new QHBoxLayout( boundsbox );
   boundsbox->setLayout( boundsboxl );
-  boundsboxl->setMargin( 0 );
+  boundsboxl->setContentsMargins( 0, 0, 0, 0 );
   boundsboxl->setSpacing( 5 );
   boundsboxl->addWidget( new QLabel( tr( "Bounds:" ), boundsbox ) );
   dbox->minEd = new QScopeLineEdit( "0", boundsbox, "minEd" );
@@ -481,7 +482,7 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   topBoxl->addWidget( autobox );
   QHBoxLayout *autoboxl = new QHBoxLayout( autobox );
   autobox->setLayout( autoboxl );
-  autoboxl->setMargin( 0 );
+  autoboxl->setContentsMargins( 0, 0, 0, 0 );
   autoboxl->setSpacing( 5 );
   dbox->autoValBtn = new QPushButton( tr( "Reset values" ), autobox );
   autoboxl->addWidget( dbox->autoValBtn );

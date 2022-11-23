@@ -65,7 +65,7 @@ QVectorCompEditor::QVectorCompEditor( const QString & label, QWidget* parent )
 {
   QHBoxLayout *hlay = new QHBoxLayout( this );
   setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   hlay->addWidget( new QLabel( label, this ) );
   d->lineedit = new QLineEdit( this );
@@ -156,7 +156,7 @@ QTextureVectorEditor::QTextureVectorEditor( QWidget* parent )
   QVBoxLayout *vlay = new QVBoxLayout;
   setLayout( vlay );
   vlay->setSpacing( 5 );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   QGroupBox	*dirbox = new QGroupBox( tr( "Direction:" ), this );
   vlay->addWidget( dirbox );
   QGroupBox	*scale = new QGroupBox( tr( "Scale:" ), this );
@@ -335,14 +335,14 @@ QTextureParams::QTextureParams( QWidget *parent, const char *name,
   setWindowTitle( tr( "Texture generation parameters" ) );
   QVBoxLayout	*layout = new QVBoxLayout( this );
   setLayout( layout );
-  layout->setMargin( 5 );
+  layout->setContentsMargins( 5, 5, 5, 5 );
   layout->setSpacing( 5 );
   QTabWidget	*comps = new QTabWidget( this );
   QWidget *buts = new QWidget( this );
   QHBoxLayout *hlay = new QHBoxLayout( buts );
   buts->setLayout( hlay );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   layout->addWidget( comps );
   layout->addWidget( buts );
   d->edits[0] = new QTextureVectorEditor;
