@@ -31,6 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#if QT_VERSION < 0x060000
 
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #define private public
@@ -187,3 +188,5 @@ GLWidget::GLWidget( const QGLFormat& format, QWidget* parent,
 GLWidget::~GLWidget()
 {
 }
+
+#endif

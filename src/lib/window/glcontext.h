@@ -35,6 +35,7 @@
 #ifndef ANATOMIST_WINDOW_GLCONTEXT_H
 #define ANATOMIST_WINDOW_GLCONTEXT_H
 
+#if QT_VERSION < 0x060000
 #include <qglobal.h>
 #include <QtOpenGL/QGLWidget>
 
@@ -54,8 +55,7 @@ public:
     virtual ~GLWidget();
 };
 
-
 }
 
-
+#endif
 #endif
