@@ -35,8 +35,10 @@
 #ifndef ANATOMIST_WINDOW_GLCONTEXT_H
 #define ANATOMIST_WINDOW_GLCONTEXT_H
 
-#if QT_VERSION < 0x060000
 #include <qglobal.h>
+
+#if QT_VERSION < 0x060000
+
 #include <QtOpenGL/QGLWidget>
 
 namespace carto {

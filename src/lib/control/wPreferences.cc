@@ -50,7 +50,6 @@
 #include <anatomist/surface/Shader.h>
 #include <anatomist/surface/glcomponent.h>
 #include <qtabbar.h>
-#include <QGLShaderProgram>
 #include <qgroupbox.h>
 #include <qbuttongroup.h>
 #include <qlayout.h>
@@ -68,6 +67,8 @@
 #include <qradiobutton.h>
 #include <qvalidator.h>
 #include <qfiledialog.h>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <cartobase/config/paths.h>
 #include <vector>
 #include <map>
@@ -151,7 +152,7 @@ PreferencesWindow::PreferencesWindow()
   setObjectName( "prefWin" );
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 10 );
   QTabBar	*tbar = new QTabBar( this );
 
@@ -173,7 +174,7 @@ PreferencesWindow::PreferencesWindow()
   vlay->addWidget( applang );
   QHBoxLayout *hlay = new QHBoxLayout( applang );
   hlay->setSpacing( 5 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QLabel	*l = new QLabel( tr( "Language :" ), applang );
   hlay->addWidget( l );
   l->setToolTip( tr( "Language options will apply the next time you start " 
@@ -209,7 +210,7 @@ PreferencesWindow::PreferencesWindow()
   vlay->addWidget( appbrow );
   hlay = new QHBoxLayout( appbrow );
   hlay->setSpacing( 5 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "HTML browser command line :" ), 
                                appbrow ) );
   QComboBox	*htmlbox = new QComboBox( appbrow );
@@ -257,8 +258,9 @@ PreferencesWindow::PreferencesWindow()
   au->addItem( "Expert" );
   au->setEditable( true );
   au->setInsertPolicy( QComboBox::NoInsert );
-  au->setValidator( new QRegExpValidator( QRegExp(
-    "\\d*|Basic|Advanced|Expert|Debugger", Qt::CaseInsensitive ), au ) );
+  au->setValidator( new QRegularExpressionValidator( QRegularExpression(
+    "\\d*|Basic|Advanced|Expert|Debugger",
+    QRegularExpression::CaseInsensitiveOption ), au ) );
   resetUserLevel();
   connect( au, SIGNAL( activated( const QString & ) ), this,
     SLOT( setUserLevel( const QString & ) ) );
@@ -293,7 +295,7 @@ PreferencesWindow::PreferencesWindow()
   QWidget *refg = new QWidget( refs );
   vlay->addWidget( refg );
   QGridLayout *glay = new QGridLayout( refg );
-  glay->setMargin( 0 );
+  glay->setContentsMargins( 0, 0, 0, 0 );
   glay->addWidget(
     new QLabel( tr( "Default referential for loaded objects" ), refg ), 0, 0 );
   _pdat->defobjref = new QPushButton( refg );
@@ -319,7 +321,7 @@ PreferencesWindow::PreferencesWindow()
 
   QWidget *lkcur = new QWidget( this );
   vlay = new QVBoxLayout( lkcur );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   vlay->setSpacing( 5 );
   lkcur->hide();
   _pdat->tabs.push_back( lkcur );
@@ -345,7 +347,7 @@ PreferencesWindow::PreferencesWindow()
   hlay = new QHBoxLayout( cursSzBox );
   vlay->addWidget( cursSzBox );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "Size :" ), cursSzBox ) );
   _pdat->cursEdit 
     = new QLineEdit( QString::number( AWindow::cursorSize() ), cursSzBox );
@@ -388,7 +390,7 @@ PreferencesWindow::PreferencesWindow()
   QWidget *winbox = new QWidget( this );
   _pdat->tabs.push_back( winbox );
   vlay = new QVBoxLayout( winbox );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   winbox->hide();
   QGroupBox	*flip 
     = new QGroupBox( tr( "3D views" ), winbox );
@@ -537,7 +539,7 @@ PreferencesWindow::PreferencesWindow()
   QWidget *brattlen = new QWidget( brows );
   vlay2->addWidget( brattlen );
   hlay = new QHBoxLayout( brattlen );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "limit browsers attribute values to: " ), 
                                brattlen ) );
   _pdat->browsattlen = new QLineEdit( brattlen );
@@ -627,7 +629,7 @@ PreferencesWindow::PreferencesWindow()
   QWidget *btexmax = new QWidget( tgl );
   vlay->addWidget( btexmax );
   hlay = new QHBoxLayout( btexmax );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "limit number of textures: " ), btexmax ) );
   QComboBox *texmax = new QComboBox( btexmax );
   hlay->addWidget( texmax );
@@ -646,8 +648,9 @@ PreferencesWindow::PreferencesWindow()
   texmax->addItem( "7" );
   texmax->addItem( "8" );
   texmax->setEditable( true );
-  texmax->setValidator( new QRegExpValidator( QRegExp(
-    "\\d*|" + tr( "Unlimited" ) + "|-1", Qt::CaseInsensitive ), texmax ) );
+  texmax->setValidator( new QRegularExpressionValidator( QRegularExpression(
+    "\\d*|" + tr( "Unlimited" ) + "|-1",
+    QRegularExpression::CaseInsensitiveOption ), texmax ) );
   #ifdef _WIN32
   /* On Windows for an unknown reason (probably a bug well hidden somewhere in
      anatomist), allowing more than 3 textures results to nothing being 

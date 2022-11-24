@@ -102,7 +102,7 @@
 #include <qapplication.h>
 #include <qlist.h>
 #include <qtimer.h>
-#include <qdesktopwidget.h>
+#include <QScreen>
 #include <qstatusbar.h>
 #include <qpainter.h>
 #include <iostream>
@@ -521,12 +521,12 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   QWidget *vb = new QWidget(this);
   QVBoxLayout *vlay = new QVBoxLayout( vb );
   vb->setLayout( vlay );
-  vlay->setMargin(2);
+  vlay->setContentsMargins( 2, 2, 2, 2 );
   vlay->setSpacing(5);
   d->refbox = new QWidget(vb);
   QHBoxLayout *hlay = new QHBoxLayout( d->refbox );
   d->refbox->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   vlay->addWidget( d->refbox );
   d->reflabel = new QPushButton(d->refbox);
@@ -549,7 +549,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   vlay->addWidget( hb );
   QHBoxLayout *hbl = new QHBoxLayout( hb );
   hbl->setSpacing(0);
-  hbl->setMargin(0);
+  hbl->setContentsMargins( 0, 0, 0, 0 );
 
   paintRefLabel(d->reflabel, d->refdirmark, getReferential());
 
@@ -637,7 +637,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->sliderpanels.push_back( d->slicepanel );
   vlay = new QVBoxLayout( d->slicepanel );
   vlay->setSpacing(0);
-  vlay->setMargin(0);
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   hbl->addWidget( d->slicepanel );
   d->slicelabel = new QLabel( "0", d->slicepanel );
   d->slicelabels.push_back( d->slicelabel );
@@ -656,7 +656,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->sliderpanels.push_back( d->timepanel );
   vlay = new QVBoxLayout( d->timepanel );
   vlay->setSpacing(0);
-  vlay->setMargin(0);
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   hbl->addWidget( d->timepanel );
   d->timelabel = new QLabel( "0", d->timepanel );
   d->slicelabels.push_back( d->timelabel );
@@ -1876,14 +1876,14 @@ void AWindow3D::resizeView()
   rv.setModal( true );
   rv.setWindowTitle( tr( "Resize window" ) );
   QVBoxLayout *l = new QVBoxLayout(&rv);
-  l->setMargin( 5 );
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing( 5 );
   l->addWidget( new QLabel( tr("New window size :"), &rv ) );
   QWidget *hb = new QWidget( &rv );
   l->addWidget( hb );
   QHBoxLayout *hlay = new QHBoxLayout( hb );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QSize sz = d->draw->qglWidget()->size();
   QLineEdit *xed = new QLineEdit(QString::number(sz.width()), hb);
   hlay->addWidget( xed );
@@ -1894,7 +1894,7 @@ void AWindow3D::resizeView()
   l->addWidget( hb2 );
   hlay = new QHBoxLayout( hb2 );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QPushButton *ok = new QPushButton(tr("OK"), hb2 );
   hlay->addWidget( ok );
   QPushButton *cc = new QPushButton(tr("Cancel"), hb2 );
@@ -1936,8 +1936,33 @@ void AWindow3D::askZoom()
       if( g && viewType() != ThreeD )
       {
         float w = gs[0] * dim[0] * z2, h = gs[1] * dim[1] * z2;
-        int scrw = QApplication::desktop()->width(), scrh =
-            QApplication::desktop()->height();
+        int scrw = 0, scrh = 0, sxmin = -1, symin = -1;
+        QList<QScreen *> screens = qApp->screens();
+        QList<QScreen *>::iterator is, es = screens.end();
+        QScreen *screen = 0;
+        for( is=screens.begin(); is!=es; ++is )
+        {
+          QRect geom = (*is)->geometry();
+          if( sxmin < 0 || geom.left() < sxmin )
+            sxmin = geom.left();
+          if( symin < 0 || geom.top() < symin )
+            symin = geom.top();
+          if( scrw < geom.right() )
+            scrw = geom.right();
+          if( scrh < geom.bottom() )
+            scrh = geom.bottom();
+        }
+        if( scrw != 0 )
+        {
+          scrw -= sxmin;
+          scrh -= symin;
+        }
+        else
+        {
+          scrw = 2000;
+          scrh = 1600;
+        }
+
         z2 = 1;
         if (w > scrw)
         {
@@ -1985,10 +2010,37 @@ void AWindow3D::resizeView(int w, int h)
    return;
    */
 
-  if (w > QApplication::desktop()->width()) w
-      = QApplication::desktop()->width();
-  if (h > QApplication::desktop()->height()) h
-      = QApplication::desktop()->height();
+    int scrw = 0, scrh = 0, sxmin = -1, symin = -1;
+    QList<QScreen *> screens = qApp->screens();
+    QList<QScreen *>::iterator is, es = screens.end();
+    QScreen *screen = 0;
+    for( is=screens.begin(); is!=es; ++is )
+    {
+      QRect geom = (*is)->geometry();
+      if( sxmin < 0 || geom.left() < sxmin )
+        sxmin = geom.left();
+      if( symin < 0 || geom.top() < symin )
+        symin = geom.top();
+      if( scrw < geom.right() )
+        scrw = geom.right();
+      if( scrh < geom.bottom() )
+        scrh = geom.bottom();
+    }
+    if( scrw != 0 )
+    {
+      scrw -= sxmin;
+      scrh -= symin;
+    }
+    else
+    {
+      scrw = 2000;
+      scrh = 1600;
+    }
+
+  if( w > scrw )
+    w = scrw;
+  if( h > scrh )
+    h = scrh;
 
   QSize s = QSize(w, h);
   if (d->draw->qglWidget()->size() != s)
@@ -2053,7 +2105,7 @@ void AWindow3D::setupTimeSlider( const vector<float> & bmin,
       hb->layout()->addWidget( panel );
       QVBoxLayout *vlay = new QVBoxLayout( panel );
       vlay->setSpacing(0);
-      vlay->setMargin(0);
+      vlay->setContentsMargins( 0, 0, 0, 0 );
       QLabel *label = new QLabel( "0", panel );
       d->slicelabels.push_back( label );
       label->setFixedWidth(30);
@@ -4036,7 +4088,7 @@ void AWindow3D::setLinkedCursorPos()
   dial.setModal( true );
   dial.setWindowTitle("Set linked cursor position");
   QVBoxLayout *l = new QVBoxLayout(&dial);
-  l->setMargin(5);
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing(5);
   QLineEdit *le = new QLineEdit(&dial);
   l->addWidget(le);
@@ -4048,7 +4100,7 @@ void AWindow3D::setLinkedCursorPos()
   QWidget *hb = new QWidget(&dial);
   QHBoxLayout *hlay = new QHBoxLayout( hb );
   l->addWidget(hb);
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   QPushButton *pb = new QPushButton(tr("OK"), hb);
   hlay->addWidget( pb );
