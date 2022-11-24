@@ -92,7 +92,7 @@ FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
   setWindowTitle( tr( "Select fusion type" ) );
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
   setLayout( mainlay );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 5 );
   QComboBox	*met = new QComboBox( this );
   d->help = new QTextEdit( this );
@@ -102,7 +102,7 @@ FusionChooser::FusionChooser( const multimap<int, FusionMethod *> & methods,
   QWidget *butts = new QWidget( this );
   QHBoxLayout *hlay = new QHBoxLayout( butts );
   butts->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 10 );
   QPushButton	*ok = new QPushButton( tr( "OK" ), butts );
   hlay->addWidget( ok );

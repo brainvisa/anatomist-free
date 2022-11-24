@@ -91,7 +91,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   setWindowTitle( tr( "Light model : " ) + win->Title().c_str() );
 
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 5 );
   QTabBar	*tbar = new QTabBar( this );
 
@@ -110,14 +110,14 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   QWidget	*source = new QWidget( this );
   QHBoxLayout *hlay = new QHBoxLayout( source );
   source->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   _pdat->tabs.push_back( source );
   QGroupBox	*vg = new QGroupBox( tr( "Ambient :" ), source );
   hlay->addWidget( vg );
   QVBoxLayout* vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   c = l->Ambient();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
@@ -129,7 +129,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   c = l->Diffuse();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
@@ -141,7 +141,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   c = l->Specular();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
@@ -154,7 +154,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   QWidget *model = new QWidget( this );
   hlay = new QHBoxLayout( model );
   model->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   _pdat->tabs.push_back( model );
   model->hide();
@@ -162,7 +162,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   c = l->ModelAmbient();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
@@ -174,7 +174,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   c = l->Background();
   col = QColor( (int) ( c[0] * 255.9 ), (int) ( c[1] * 255.9 ), 
                 (int) ( c[2] * 255.9 ) );
@@ -187,7 +187,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 5 );
+  vlay->setContentsMargins( 5, 5, 5, 5 );
   QCheckBox	*lv = new QCheckBox( tr( "Local viewer" ), vg );
   vlay->addWidget( lv );
   lv->setChecked( l->ModelLocalViewer() );
@@ -200,7 +200,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   QWidget *spot = new QWidget( this );
   hlay = new QHBoxLayout( spot );
   spot->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   _pdat->tabs.push_back( spot );
   spot->hide();
@@ -209,12 +209,12 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 5 );
+  vlay->setContentsMargins( 5, 5, 5, 5 );
   QWidget *hb = new QWidget( vg );
   vlay->addWidget( hb );
   QHBoxLayout *hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   hlay2->addWidget( new QLabel( tr( "X :" ), hb ) );
   f = l->Position( 0 );
@@ -231,7 +231,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   hlay2->addWidget( new QLabel( tr( "Y :" ), hb ) );
   f = l->Position( 1 );
@@ -248,7 +248,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   hlay2->addWidget( new QLabel( tr( "Z :" ), hb ) );
   f = l->Position( 2 );
@@ -267,12 +267,12 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 5 );
+  vlay->setContentsMargins( 5, 5, 5, 5 );
   hb = new QWidget( vg );
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   hlay2->addWidget( new QLabel( tr( "X :" ), hb ) );
   f = l->SpotDirection( 0 );
@@ -289,7 +289,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   hlay2->addWidget( new QLabel( tr( "Y :" ), hb ) );
   f = l->SpotDirection( 1 );
@@ -306,7 +306,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   hlay2->addWidget( new QLabel( tr( "Z :" ), hb ) );
   f = l->SpotDirection( 2 );
@@ -325,13 +325,13 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 5 );
+  vlay->setContentsMargins( 5, 5, 5, 5 );
   vlay->addWidget( new QLabel( tr( "Exponent :" ), vg ) );
   hb = new QWidget( vg );
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   f = l->SpotExponent();
   _pdat->spotExpo = new QSlider( Qt::Horizontal, hb );
@@ -347,7 +347,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   f = l->SpotCutoff();
   _pdat->spotCutoff = new QSlider( Qt::Horizontal, hb );
@@ -373,20 +373,20 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   _pdat->tabs.push_back( attenuation );
   hlay = new QHBoxLayout( attenuation );
   attenuation->setLayout( hlay );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 5 );
   attenuation->hide();
   vg = new QGroupBox( tr( "Parameters :" ), attenuation );
   hlay->addWidget( vg );
   vlay = new QVBoxLayout( vg );
   vg->setLayout( vlay );
-  vlay->setMargin( 5 );
+  vlay->setContentsMargins( 5, 5, 5, 5 );
   vlay->addWidget( new QLabel( tr( "Constant :" ), vg ) );
   hb = new QWidget( vg );
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   f = l->ConstantAttenuation();
   _pdat->attConst = new QSlider( Qt::Horizontal, hb );
@@ -403,7 +403,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   f = l->LinearAttenuation();
   _pdat->attLin = new QSlider( Qt::Horizontal, hb );
@@ -420,7 +420,7 @@ LightModelWindow::LightModelWindow( AWindow3D *win )
   vlay->addWidget( hb );
   hlay2 = new QHBoxLayout( hb );
   hb->setLayout( hlay2 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   hlay2->setSpacing( 5 );
   f = l->QuadraticAttenuation();
   _pdat->attQuad = new QSlider( Qt::Horizontal, hb );

@@ -190,7 +190,7 @@ namespace
 void Fusion2DWindow::drawContents()
 {
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 5 );
 
   ObjectParamSelect	*hbtl = new ObjectParamSelect( _obj, this );
@@ -202,7 +202,7 @@ void Fusion2DWindow::drawContents()
   mainlay->addWidget( hb0 );
   QHBoxLayout *hlay = new QHBoxLayout( hb0 );
   hlay->setSpacing( 5 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
 
   pdat->objbox = new QGroupBox( tr( "Objects :" ), hb0 );
   hlay->addWidget( pdat->objbox );
@@ -213,7 +213,7 @@ void Fusion2DWindow::drawContents()
   vlay->addWidget( hb1 );
   QHBoxLayout *hlay2 = new QHBoxLayout( hb1 );
   hlay2->setSpacing( 5 );
-  hlay2->setMargin( 0 );
+  hlay2->setContentsMargins( 0, 0, 0, 0 );
   QPushButton	*up = new QPushButton( tr( "Up" ), hb1 );
   hlay2->addWidget( up );
   QPushButton	*dn = new QPushButton( tr( "Down" ), hb1 );

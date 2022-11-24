@@ -240,7 +240,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
   this->setFixedWidth(350);
 
   QVBoxLayout *mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
   mainlay->setSpacing( 5 );
 
   /* convert objects list to a real list because we may append sub-objects to
@@ -316,7 +316,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   QWidget *hbm = new QWidget;
   QHBoxLayout *hlay = new QHBoxLayout( hbm );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QLabel  *meshLabel = new QLabel( tr( "Mesh : " ),hbm);
   hlay->addWidget( meshLabel );
   QLabel  *meshName;
@@ -342,7 +342,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   QWidget *hbt = new QWidget;
   hlay = new QHBoxLayout( hbt );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QLabel  *textureLabel = new QLabel( tr( "Texture : " ),hbt);
   hlay->addWidget( textureLabel );
 
@@ -364,7 +364,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   QWidget *hblatlon = new QWidget;
   hlay = new QHBoxLayout( hblatlon );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "Type : " ),hblatlon) );
   d->latlon = new QComboBox( hblatlon );
   hlay->addWidget( d->latlon );
@@ -379,7 +379,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   QWidget *butts = new QWidget( this );
   hlay = new QHBoxLayout( butts );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->setSpacing( 10 );
   QPushButton *ok = new QPushButton( tr( "OK" ), butts );
   hlay->addWidget( ok );
@@ -390,7 +390,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   QWidget *hbtc = new QWidget;
   hlay = new QHBoxLayout( hbtc );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "weight map : " ),hbtc) );
 
   iconname = Settings::findResourceFile( "icons/meshPaint/constraint_map.png" );
@@ -408,7 +408,7 @@ void ConstraintEditorWindow::drawContents( const char *name,
 
   QWidget *hbcv = new QWidget;
   hlay = new QHBoxLayout( hbcv );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( "constraint list : " ),hbcv) );
 
   iconname = Settings::findResourceFile( "icons/meshPaint/list_constraint.png" );

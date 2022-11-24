@@ -202,7 +202,7 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
   setWindowTitle( tr( "Standard point of view" ) );
   setObjectName(name);
   QHBoxLayout	*lay = new QHBoxLayout( this );
-  lay->setMargin( 10 );
+  lay->setContentsMargins( 10, 10, 10, 10 );
   lay->setSpacing( 10 );
 
   QGroupBox *straight = new QGroupBox( tr( "Straight view :" ), this );

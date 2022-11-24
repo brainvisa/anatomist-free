@@ -67,7 +67,7 @@ ZoomDialog::ZoomDialog( float zoom, bool forceResize, QWidget* parent,
 
   QVBoxLayout	*l = new QVBoxLayout( this );
   setLayout( l );
-  l->setMargin( 5 );
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing( 5 );
   l->addWidget( new QLabel( tr( "Zoom :" ), this ) );
   QWidget *hb = new QWidget( this );
@@ -75,7 +75,7 @@ ZoomDialog::ZoomDialog( float zoom, bool forceResize, QWidget* parent,
   QHBoxLayout *hlay = new QHBoxLayout( hb );
   hb->setLayout( hlay );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
 
   float		z = zoom;
   d->zoom = new QLineEdit( QString::number( z ), hb );
@@ -103,7 +103,7 @@ ZoomDialog::ZoomDialog( float zoom, bool forceResize, QWidget* parent,
   hlay = new QHBoxLayout( hb2 );
   hb2->setLayout( hlay );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QPushButton	*ok = new QPushButton( tr( "OK" ), hb2 );
   hlay->addWidget( ok );
   ok->setDefault( true );

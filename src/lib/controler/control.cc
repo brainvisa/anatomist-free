@@ -669,8 +669,10 @@ void
 Control::wheelEvent ( QWheelEvent * event  )
 {
   if( myWheelAction )
-    myWheelAction->execute( event->delta(), event->x(), event->y(),
-                            event->globalX(), event->globalY() );
+    myWheelAction->execute( event->pixelDelta().y(), event->position().x(),
+                            event->position().y(),
+                            event->globalPosition().x(),
+                            event->globalPosition().y() );
 //   else cout << "no wheel action\n";
 }
 
@@ -825,8 +827,8 @@ bool Control::pinchGesture( QPinchGesture * gesture )
     {
       QMouseEvent ev( QEvent::MouseButtonRelease,
                       d->last_pan_pos, d->last_pan_gpos,
-                      Qt::MidButton, Qt::MidButton,
-                      0 /*TODO: get actual current modifiers */ );
+                      Qt::MiddleButton, Qt::MiddleButton,
+                      Qt::KeyboardModifier() /*TODO: get actual current modifiers */ );
       mouseReleaseEvent( &ev );
     }
     d->doing_pan = false;
@@ -846,7 +848,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
       QMouseEvent ev( QEvent::MouseButtonPress, QPoint( 0, 0 ),
                       QPoint( (int) gesture->hotSpot().rx(),
                               (int) gesture->hotSpot().rx() ),
-                      Qt::MidButton, Qt::MidButton,
+                      Qt::MiddleButton, Qt::MiddleButton,
                       Qt::ShiftModifier );
       mousePressEvent( &ev );
     }
@@ -883,7 +885,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
       QMouseEvent ev( QEvent::MouseMove, p,
                       QPoint( (int) gesture->hotSpot().rx(),
                               (int) gesture->hotSpot().rx() ) + p,
-                      Qt::MidButton, Qt::MidButton,
+                      Qt::MiddleButton, Qt::MiddleButton,
                       Qt::ShiftModifier );
       mouseMoveEvent( &ev );
     }
@@ -900,7 +902,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
       QMouseEvent ev( QEvent::MouseButtonRelease, p,
                       QPoint( (int) gesture->hotSpot().rx(),
                               (int) gesture->hotSpot().rx() ) + p,
-                      Qt::MidButton, Qt::MidButton,
+                      Qt::MiddleButton, Qt::MiddleButton,
                       Qt::ShiftModifier );
       mouseReleaseEvent( &ev );
     }
@@ -918,7 +920,7 @@ bool Control::pinchGesture( QPinchGesture * gesture )
       QMouseEvent ev( QEvent::MouseButtonRelease, p,
                       QPoint( (int) gesture->hotSpot().rx(),
                               (int) gesture->hotSpot().rx() ) + p,
-                      Qt::MidButton, Qt::MidButton,
+                      Qt::MiddleButton, Qt::MiddleButton,
                       Qt::ShiftModifier );
       mouseReleaseEvent( &ev );
     }
@@ -957,8 +959,8 @@ bool Control::panGesture( QPanGesture * gesture )
       {
         QMouseEvent ev( QEvent::MouseButtonRelease,
                         d->last_pan_pos, d->last_pan_gpos,
-                        Qt::MidButton, Qt::MidButton,
-                        0 /*TODO: get actual current modifiers */ );
+                        Qt::MiddleButton, Qt::MiddleButton,
+                        Qt::KeyboardModifier() /*TODO: get actual current modifiers */ );
         mouseReleaseEvent( &ev );
       }
       d->doing_pan = false;
@@ -993,8 +995,8 @@ bool Control::panGesture( QPanGesture * gesture )
       // for now, simulate corresponding mouse events
       QMouseEvent ev( QEvent::MouseButtonPress,
                       pos, gpos,
-                      Qt::MidButton, Qt::MidButton,
-                      0 /*TODO: get actual current modifiers */ );
+                      Qt::MiddleButton, Qt::MiddleButton,
+                      Qt::KeyboardModifier() /*TODO: get actual current modifiers */ );
       mousePressEvent( &ev );
     }
   }
@@ -1008,8 +1010,8 @@ bool Control::panGesture( QPanGesture * gesture )
       // for now, simulate corresponding mouse events
       QMouseEvent ev( QEvent::MouseMove,
                       pos, gpos,
-                      Qt::MidButton, Qt::MidButton,
-                      0 /*TODO: get actual current modifiers */ );
+                      Qt::MiddleButton, Qt::MiddleButton,
+                      Qt::KeyboardModifier() /*TODO: get actual current modifiers */ );
       mouseMoveEvent( &ev );
     }
   }
@@ -1023,8 +1025,8 @@ bool Control::panGesture( QPanGesture * gesture )
       // for now, simulate corresponding mouse events
       QMouseEvent ev( QEvent::MouseButtonRelease,
                       pos, gpos,
-                      Qt::MidButton, Qt::MidButton,
-                      0 /*TODO: get actual current modifiers */ );
+                      Qt::MiddleButton, Qt::MiddleButton,
+                      Qt::KeyboardModifier() /*TODO: get actual current modifiers */ );
       mouseReleaseEvent( &ev );
     }
     d->doing_pan = false;
@@ -1039,8 +1041,8 @@ bool Control::panGesture( QPanGesture * gesture )
       // for now, simulate corresponding mouse events
       QMouseEvent ev( QEvent::MouseButtonRelease,
                       pos, gpos,
-                      Qt::MidButton, Qt::MidButton,
-                      0 /*TODO: get actual current modifiers */ );
+                      Qt::MiddleButton, Qt::MiddleButton,
+                      Qt::KeyboardModifier() /*TODO: get actual current modifiers */ );
       mouseReleaseEvent( &ev );
     }
     d->doing_pan = false;
