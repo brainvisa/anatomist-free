@@ -37,6 +37,9 @@
 #define protected public
 #endif
 #include <qglobal.h>
+
+#if QT_VERSION < 0x060000
+
 #include <QtOpenGL/QGLWidget>
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #undef protected
