@@ -25,14 +25,18 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
   set( QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES}
     ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES} )
 elseif( DESIRED_QT_VERSION EQUAL 6 )
-  find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL Network Multimedia )
+  find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets Network
+                Multimedia )
   add_definitions( ${Qt6Core_DEFINITIONS} ${Qt6Widgets_DEFINITIONS}
-                   ${Qt6OpenGL_DEFINITIONS} ${Qt6Network_DEFINITIONS}
-                   ${Qt6Multimedia_DEFINITIONS})
+                   ${Qt6OpenGL_DEFINITIONS} ${Qt6OpenGLWidgets_DEFINITIONS}
+                   ${Qt6Network_DEFINITIONS} ${Qt6Multimedia_DEFINITIONS})
   include_directories( ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS}
-                       ${Qt6OpenGL_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS}
+                       ${Qt6OpenGL_INCLUDE_DIRS}
+                       ${Qt6OpenGLWidgets_INCLUDE_DIRS}
+                       ${Qt6Network_INCLUDE_DIRS}
                        ${Qt6Multimedia_INCLUDE_DIRS} )
-  set( QT_LIBRARIES Qt6::Widgets Qt6::OpenGL Qt6::Network Qt6::Multimedia )
+  set( QT_LIBRARIES Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Network
+                    Qt6::Multimedia )
 endif()
 # find_package( QtVersion REQUIRED )
 
