@@ -448,7 +448,7 @@ void QAViewToolTip::tip( const QRect & pos, const QString & text )
   QScreen       *screen = qApp->screenAt( gpos );
 #else
   QList<QScreen *> screens = qApp->screens();
-  QList<SQcreen *>::iterator is, es = screens.end();
+  QList<QScreen *>::iterator is, es = screens.end();
   QScreen *screen = 0;
   for( is=screens.begin(); is!=es; ++is )
   {
