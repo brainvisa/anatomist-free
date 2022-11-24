@@ -31,13 +31,15 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#if QT_VERSION < 0x060000
 
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #define private public
 #define protected public
 #endif
 #include <qglobal.h>
+
+#if QT_VERSION < 0x060000
+
 #include <QtOpenGL/QGLWidget>
 #if defined(_WS_X11_) || defined(Q_WS_X11)
 #undef protected
