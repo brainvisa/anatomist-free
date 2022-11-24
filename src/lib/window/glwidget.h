@@ -35,20 +35,36 @@
 #ifndef ANATOMIST_WINDOW_GLWIDGET_H
 #define ANATOMIST_WINDOW_GLWIDGET_H
 
+#include <qglobal.h>
+#if QT_VERSION >= 0x060000
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#else
 #include <anatomist/window/glcontext.h>
+#endif
 #include <anatomist/window/glwidgetmanager.h>
 
 
-class QAGLWidget : public carto::GLWidget,
-  public anatomist::GLWidgetManager
+#if QT_VERSION >= 0x060000
+class QAGLWidget : public QOpenGLWidget, 
+                   public anatomist::GLWidgetManager,
+                   protected QOpenGLFunctions
+#else
+class QAGLWidget : public carto::GLWidget, public anatomist::GLWidgetManager
+#endif
 {
   Q_OBJECT
 
 public:
   QAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
               const char* name = 0,
+#if QT_VERSION >= 0x060000
+              const QOpenGLWidget * shareWidget = 0,
+              Qt::WindowFlags f=Qt::WindowFlags() );
+#else
               const QGLWidget * shareWidget = 0,
               Qt::WindowFlags f=Qt::WindowFlags() );
+#endif
   virtual ~QAGLWidget();
 
   virtual QSize sizeHint() const;
@@ -57,13 +73,20 @@ public:
 
   int width()
   {
+#if QT_VERSION >= 0x060000
+    return QOpenGLWidget::width();
+#else
     return carto::GLWidget::width();
+#endif
   }
-  void setBackgroundAlpha( float a );
 
   int height()
   {
+#if QT_VERSION >= 0x060000
+    return QOpenGLWidget::height();
+#else
     return carto::GLWidget::height();
+#endif
   }
   
 signals:
@@ -77,9 +100,9 @@ protected:
 #if QT_VERSION >= 0x040600
   virtual bool event( QEvent * );
 #endif
-  virtual void initializeGL();
-  virtual void resizeGL( int w, int h );
-  virtual void paintGL();
+  virtual void initializeGL() Q_DECL_OVERRIDE;
+  virtual void resizeGL( int w, int h ) Q_DECL_OVERRIDE;
+  virtual void paintGL() Q_DECL_OVERRIDE;
   virtual void mousePressEvent( QMouseEvent* me );
   virtual void mouseReleaseEvent( QMouseEvent* me );
   virtual void mouseMoveEvent( QMouseEvent* me );

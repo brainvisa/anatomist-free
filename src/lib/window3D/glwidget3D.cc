@@ -57,7 +57,12 @@ QAGLWidget3D_PrivateData::QAGLWidget3D_PrivateData()
 
 
 QAGLWidget3D::QAGLWidget3D( AWindow* win, QWidget* parent, const char* name, 
-			    const QGLWidget * shareWidget, Qt::WindowFlags f )
+#if QT_VERSION >= 0x060000
+                            const QOpenGLWidget * shareWidget,
+                            Qt::WindowFlags f )
+#else
+                            const QGLWidget * shareWidget, Qt::WindowFlags f )
+#endif
   : QAGLWidget( win, parent, name, shareWidget, f ), 
     d( new QAGLWidget3D_PrivateData )
 {

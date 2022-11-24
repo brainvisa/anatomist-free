@@ -186,6 +186,8 @@ namespace anatomist
     GLComponent();
     virtual ~GLComponent();
 
+    void clearLists();
+
     virtual const GLComponent* glAPI() const { return this; }
     virtual GLComponent* glAPI() { return this; }
     virtual const Sliceable* sliceableAPI() const { return 0; }

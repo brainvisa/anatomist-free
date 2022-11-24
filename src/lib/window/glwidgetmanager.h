@@ -40,7 +40,11 @@
 #include <anatomist/window/viewstate.h>
 
 #include <qglobal.h>
+#if QT_VERSION >= 0x060000
+#include <QOpenGLWidget>
+#else
 #include <QtOpenGL/QGLWidget>
+#endif
 #if QT_VERSION >= 0x040600
 class QGestureEvent;
 #endif
@@ -80,7 +84,6 @@ namespace anatomist
     /// basically calls paintGL()
     virtual void paintScene();
 
-  protected:
     virtual void initializeGL();
     virtual void resizeGL( int w, int h );
     virtual void paintGL();
@@ -102,10 +105,18 @@ namespace anatomist
     struct Private;
     friend class ::GLWidgetManager_Private_QObject;
 
+#if QT_VERSION >= 0x060000
+    GLWidgetManager( anatomist::AWindow* win, QOpenGLWidget* widget );
+#else
     GLWidgetManager( anatomist::AWindow* win, QGLWidget* widget );
+#endif
     virtual ~GLWidgetManager();
 
+#if QT_VERSION >= 0x060000
+    QOpenGLWidget* qglWidget();
+#else
     QGLWidget* qglWidget();
+#endif
     /** this QObject is used for slots: updateZBuffer, saveContents,
     recordStart, recordStop */
     QObject* qobject();
@@ -190,7 +201,11 @@ namespace anatomist
     unsigned numTextureUnits() const;
     bool recording() const;
 
+#if QT_VERSION >= 0x060000
+    static QOpenGLWidget* sharedWidget();
+#else
     static QGLWidget* sharedWidget();
+#endif
     void setBackgroundAlpha( float a );
 
     GLWidgetManager* rightEye();

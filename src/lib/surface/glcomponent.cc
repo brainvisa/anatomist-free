@@ -310,6 +310,17 @@ GLComponent::~GLComponent()
 }
 
 
+void GLComponent::clearLists()
+{
+  if ( d )
+  {
+    d->bodyGLL.clear();
+    d->materialGLL.clear();
+    d->mainGLL.clear();
+  }
+}
+
+
 void GLComponent::glClearHasChangedFlags() const
 {
   unsigned	i, n = glNOPART;

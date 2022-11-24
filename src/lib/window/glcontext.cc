@@ -190,3 +190,5 @@ GLWidget::GLWidget( const QGLFormat& format, QWidget* parent,
 GLWidget::~GLWidget()
 {
 }
+
+#endif

@@ -669,7 +669,7 @@ void
 Control::wheelEvent ( QWheelEvent * event  )
 {
   if( myWheelAction )
-    myWheelAction->execute( event->pixelDelta().y(), event->position().x(),
+    myWheelAction->execute( event->angleDelta().y(), event->position().x(),
                             event->position().y(),
                             event->globalPosition().x(),
                             event->globalPosition().y() );

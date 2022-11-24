@@ -42,11 +42,20 @@ using namespace carto;
 using namespace std;
 
 
+#if QT_VERSION >= 0x060000
+QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
+                        const char* name, const QOpenGLWidget * /*shareWidget*/,
+                        Qt::WindowFlags f )
+  : QOpenGLWidget( parent, f ),
+    GLWidgetManager( win, this ),
+    QOpenGLFunctions()
+#else
 QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
                         const char* name, const QGLWidget * shareWidget,
                         Qt::WindowFlags f )
   : GLWidget( parent, name, shareWidget, f ),
     GLWidgetManager( win, this )
+#endif
 {
 #if QT_VERSION >= 0x040600
   grabGesture( Qt::PinchGesture );
@@ -55,6 +64,7 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
   grabGesture( Qt::TapGesture );
   grabGesture( Qt::TapAndHoldGesture );
 #endif
+  setObjectName( name );
 }
 
 
@@ -81,9 +91,11 @@ void QAGLWidget::updateGL()
   emit viewRendered();
 }
 
-
 void QAGLWidget::initializeGL()
 {
+#if QT_VERSION >= 0x060000
+  initializeOpenGLFunctions();
+#endif
   GLWidgetManager::initializeGL();
 }
 
@@ -99,7 +111,6 @@ void QAGLWidget::paintGL()
   GLWidgetManager::paintGL();
 }
 
-
 #if QT_VERSION >= 0x040600
 bool QAGLWidget::event( QEvent * event )
 {
@@ -110,7 +121,11 @@ bool QAGLWidget::event( QEvent * event )
     gestureEvent( static_cast<QGestureEvent*>( event ) );
     return true;
   }
-  return QWidget::event(event);
+#if QT_VERSION >= 0x060000
+  return QOpenGLWidget::event(event);
+#else
+  return QGLWidget::event(event);
+#endif
 }
 #endif
 
@@ -173,5 +188,4 @@ string QAGLWidget::name() const
 {
   return GLWidgetManager::name();
 }
-
 
