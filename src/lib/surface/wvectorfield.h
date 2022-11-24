@@ -32,8 +32,8 @@
  */
 
 
-#ifndef ANA_COLOR_WRENDERING_H
-#define ANA_COLOR_WRENDERING_H
+#ifndef ANA_SURFACE_WVECTORFIELD_H
+#define ANA_SURFACE_WVECTORFIELD_H
 
 #include <anatomist/observer/Observer.h>
 #include <anatomist/ui/ui_vectorfield.h>
