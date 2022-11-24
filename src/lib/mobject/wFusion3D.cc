@@ -158,7 +158,7 @@ namespace
 void Fusion3DWindow::drawContents()
 {
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 10 );
+  mainlay->setContentsMargins( 10, 10, 10, 10 );
   mainlay->setSpacing( 10 );
 
   set<AObject *>	obj;
@@ -170,13 +170,13 @@ void Fusion3DWindow::drawContents()
   d->main = new QWidget( this );
   QVBoxLayout *vlay = new QVBoxLayout( d->main );
   vlay->setSpacing( 10 );
-  vlay->setMargin( 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   mainlay->addWidget( d->main );
 
   QWidget *hbox = new QWidget( d->main );
   vlay->addWidget( hbox );
   QHBoxLayout *hlay = new QHBoxLayout( hbox );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QPushButton	*applybtn = new QPushButton( tr( "Apply" ), d->main );
   vlay->addWidget( applybtn );
 

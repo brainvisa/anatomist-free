@@ -134,7 +134,7 @@ void AWindowFactory::applyCommonOptions( AWindow* win, Object params )
 AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
 {
   QWidget	*dk = static_cast<QWidget *>( dock );
-  Qt::WindowFlags	f = 0;
+  Qt::WindowFlags	f = Qt::WindowFlags();
   if( dk )
     f |= Qt::Window;
   if( params )
@@ -147,7 +147,7 @@ AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
     }
 
   if( dock )
-    f = 0;
+    f = Qt::WindowFlags();
   QAWindow	*w = new AWindow3D( AWindow3D::Axial, dk, params, f );
   w->setAttribute( Qt::WA_DeleteOnClose );
   return w;
@@ -157,7 +157,7 @@ AWindow* AWindowFactory::createAxial( void *dock, carto::Object params )
 AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
 {
   QWidget       *dk = static_cast<QWidget *>( dock );
-  Qt::WindowFlags    f = 0;
+  Qt::WindowFlags    f = Qt::WindowFlags();
   if( dk )
     f |= Qt::Window;
   if( params )
@@ -170,7 +170,7 @@ AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
     }
 
   if( dock )
-    f = 0;
+    f = Qt::WindowFlags();
   QAWindow	*w = new AWindow3D( AWindow3D::Coronal, dk, params, f );
   w->setAttribute( Qt::WA_DeleteOnClose );
   return w;
@@ -180,7 +180,7 @@ AWindow* AWindowFactory::createCoronal( void *dock, carto::Object params )
 AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
 {
   QWidget       *dk = static_cast<QWidget *>( dock );
-  Qt::WindowFlags    f = 0;
+  Qt::WindowFlags    f = Qt::WindowFlags();
   if( dk )
     f |= Qt::Window;
   if( params )
@@ -193,7 +193,7 @@ AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
     }
 
   if( dock )
-    f = 0;
+    f = Qt::WindowFlags();
   QAWindow	*w = new AWindow3D( AWindow3D::Sagittal, dk, params, f );
   w->setAttribute( Qt::WA_DeleteOnClose );
   return w;
@@ -203,7 +203,7 @@ AWindow* AWindowFactory::createSagittal( void *dock, carto::Object params )
 AWindow* AWindowFactory::create3D( void *dock, carto::Object params )
 {
   QWidget       *dk = static_cast<QWidget *>( dock );
-  Qt::WindowFlags    f = 0;
+  Qt::WindowFlags    f = Qt::WindowFlags();
   if( dk )
     f |= Qt::Window;
   if( params )
@@ -216,7 +216,7 @@ AWindow* AWindowFactory::create3D( void *dock, carto::Object params )
     }
 
   if( dock )
-    f = 0;
+    f = Qt::WindowFlags();
   QAWindow	*w = new AWindow3D( AWindow3D::ThreeD, dk, params, f );
   w->setAttribute( Qt::WA_DeleteOnClose );
 

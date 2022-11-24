@@ -104,7 +104,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
 
   setWindowTitle( tr( "3D settings : " ) + _window->Title().c_str() );
   QVBoxLayout	*mainlay = new QVBoxLayout( this );
-  mainlay->setMargin( 10 );
+  mainlay->setContentsMargins( 10, 10, 10, 10 );
   mainlay->setSpacing( 5 );
 
   QGroupBox	*cubefr = new QGroupBox( tr( "Helper gadgets :" ), this );
@@ -258,7 +258,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   vlay->addWidget( clb );
   QHBoxLayout *hlay = new QHBoxLayout( clb );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   QLabel *l = new QLabel( tr( "Distance to current plane (mm/100) :" ), 
                           clb );
   hlay->addWidget( l );
@@ -288,7 +288,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   vlay->addWidget( dppb );
   hlay = new QHBoxLayout( dppb );
   hlay->setSpacing( 10 );
-  hlay->setMargin( 0 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
   hlay->addWidget( new QLabel( tr( 
     "Number of rendering passes (0=as necessary)" ), dppb ) );
   QSpinBox	*dppass = new QSpinBox( dppb );

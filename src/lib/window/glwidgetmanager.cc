@@ -52,7 +52,6 @@
 #include <iostream>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/viewstate.h>
-#include <qdesktopwidget.h>
 #include <QGraphicsView>
 #include <QSysInfo>
 #include <QLineEdit>
@@ -1373,7 +1372,7 @@ namespace
     rv.setModal( true );
     rv.setWindowTitle( QObject::tr( "Snapshot size", "AWindow3D" ) );
     QVBoxLayout *l = new QVBoxLayout(&rv);
-    l->setMargin( 5 );
+    l->setContentsMargins( 5, 5, 5, 5 );
     l->setSpacing( 5 );
     l->addWidget( new QLabel( QObject::tr( "Snapshot size:", "AWindow3D" ),
                               &rv ) );
@@ -1381,7 +1380,7 @@ namespace
     l->addWidget( hb );
     QHBoxLayout *hlay = new QHBoxLayout( hb );
     hlay->setSpacing( 10 );
-    hlay->setMargin( 0 );
+    hlay->setContentsMargins( 0, 0, 0, 0 );
     QLineEdit *xed = new QLineEdit(QString::number(width), hb);
     xed->setValidator( new QIntValidator );
     hlay->addWidget( xed );
@@ -1393,7 +1392,7 @@ namespace
     l->addWidget( hb2 );
     hlay = new QHBoxLayout( hb2 );
     hlay->setSpacing( 10 );
-    hlay->setMargin( 0 );
+    hlay->setContentsMargins( 0, 0, 0, 0 );
     QPushButton *ok = new QPushButton(QObject::tr( "OK", "AWindow3D" ), hb2 );
     hlay->addWidget( ok );
     QPushButton *cc = new QPushButton(QObject::tr( "Cancel", "AWindow3D" ),

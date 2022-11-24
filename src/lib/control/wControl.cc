@@ -222,7 +222,7 @@ void ControlWindow::drawContents()
   setCentralWidget( main );
   QVBoxLayout *vlay = new QVBoxLayout( main );
   main->setLayout( vlay );
-  vlay->setContenstMargins( 0, 0, 0, 0 );
+  vlay->setContentsMargins( 0, 0, 0, 0 );
   vlay->setSpacing( 5 );
 
   d->logo = new QImageLabel( main );
@@ -1493,7 +1493,7 @@ void ControlWindow::aimsInfo()
   w->setAttribute(Qt::WA_DeleteOnClose);
   QVBoxLayout *layout = new QVBoxLayout;
   w->setLayout(layout);
-  layout->setContenstMargins( 5, 5, 5, 5 );
+  layout->setContentsMargins( 5, 5, 5, 5 );
   QTextEdit     *info = new QTextEdit( w );
   layout->addWidget(info);
   w->setWindowTitle( tr( "Anatomist / AIMS libraries information" ) );
