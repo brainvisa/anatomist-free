@@ -90,7 +90,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       MouseActionLinkOf<SurfpaintToolsAction> (actionPool->action(
           "SurfpaintToolsAction"), &SurfpaintToolsAction::longLeftButtonStop), true);
 
-  mouseLongEventSubscribe(Qt::MidButton, Qt::NoModifier, MouseActionLinkOf<
+  mouseLongEventSubscribe(Qt::MiddleButton, Qt::NoModifier, MouseActionLinkOf<
       Trackball> (actionPool->action("Trackball"), &Trackball::beginTrackball),
       MouseActionLinkOf<Trackball> (actionPool->action("Trackball"),
           &Trackball::moveTrackball), MouseActionLinkOf<Trackball> (
@@ -161,8 +161,8 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
   //
   //  // zoom
   //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ShiftModifier, MouseActionLinkOf<
-      Zoom3DAction> (actionPool->action("Zoom3DAction"),
+  mouseLongEventSubscribe(Qt::MiddleButton, Qt::ShiftModifier,
+      MouseActionLinkOf<Zoom3DAction> (actionPool->action("Zoom3DAction"),
       &Zoom3DAction::beginZoom), MouseActionLinkOf<Zoom3DAction> (
       actionPool->action("Zoom3DAction"), &Zoom3DAction::moveZoom),
       MouseActionLinkOf<Zoom3DAction> (actionPool->action("Zoom3DAction"),
@@ -172,8 +172,9 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
       "Zoom3DAction"), &Zoom3DAction::zoomWheel));
   //  //  translation
   //
-  mouseLongEventSubscribe(Qt::MidButton, Qt::ControlModifier, MouseActionLinkOf<
-      Translate3DAction> (actionPool->action("Translate3DAction"),
+  mouseLongEventSubscribe(Qt::MiddleButton, Qt::ControlModifier,
+      MouseActionLinkOf<Translate3DAction> (
+        actionPool->action("Translate3DAction"),
       &Translate3DAction::beginTranslate),
       MouseActionLinkOf<Translate3DAction> (actionPool->action(
           "Translate3DAction"), &Translate3DAction::moveTranslate),
@@ -194,7 +195,7 @@ void SurfpaintToolsControl::eventAutoSubscription(ActionPool * actionPool)
   // oblique trackball
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier | Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier | Qt::ControlModifier,
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),
                                        &TrackOblique::beginTrackball ),
       MouseActionLinkOf<TrackOblique>( actionPool->action( "TrackOblique" ),

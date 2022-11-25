@@ -124,7 +124,7 @@ GraphLandmarkPicker::GraphLandmarkPicker( AGraph* ag, QWidget* parent,
     setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle( tr( "Landmarks picker on " ) + _graph->name().c_str() );
   QVBoxLayout	*l = new QVBoxLayout( this );
-  l->setMargin( 5 );
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing( 5 );
   QWidget	*ltbox = new QWidget( this );
   QHBoxLayout *ltboxlay = new QHBoxLayout;

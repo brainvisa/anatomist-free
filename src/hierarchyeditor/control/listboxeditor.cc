@@ -74,7 +74,7 @@ listboxeditor::listboxeditor( const string & /*text*/, int x, int y,
   boxchoice->addItem( "parallel" );
 
   QVBoxLayout	*lay = new QVBoxLayout( this );
-  lay->setMargin( 0 );
+  lay->setContentsMargins( 0, 0, 0, 0 );
   lay->setSpacing( 0 );
   _te = new QCancelLineEdit( this, "typeedit" );
   _te->setFrame( false );

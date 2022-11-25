@@ -93,7 +93,7 @@ ErpWraper::ErpWraper( ATexture* obj, const string & dirname, QWidget* parent )
   QVBoxLayout *llay = new QVBoxLayout;
   leftPanel->setLayout( llay );
   llay->setSpacing( 5 );
-  llay->setMargin( 10 );
+  llay->setContentsMargins( 10, 10, 10, 10 );
   mainLay->addWidget( leftPanel );
 
   QWidget	*cellbox = new QWidget( leftPanel );

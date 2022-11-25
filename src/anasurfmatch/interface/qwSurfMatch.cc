@@ -108,7 +108,7 @@ QSurfMatchWin::QSurfMatchWin( QWidget* parent, ASurfMatcher* obj )
   setWindowTitle( str );
 
   QHBoxLayout	*mainLay = new QHBoxLayout( this );
-  mainLay->setMargin( 5 );
+  mainLay->setContentsMargins( 5, 5, 5, 5 );
   QWidget	*leftPanel = new QWidget( this );
   mainLay->addWidget( leftPanel );
   QVBoxLayout *llay = new QVBoxLayout;
@@ -412,7 +412,7 @@ QWidget* QSurfMatchWin::paramWidget( QWidget* parent )
   int                   row = 0;
 
   pw->setLayout( gdlay );
-  gdlay->setMargin( 5 );
+  gdlay->setContentsMargins( 5, 5, 5, 5 );
   gdlay->setSpacing( 5 );
 
   for( is=par.objectIterator(); is->isValid(); is->next(), ++row )

@@ -143,7 +143,7 @@ ALandmarkPicker::ALandmarkPicker( const set<AObject *> & obj )
 
   QHBoxLayout	*mainlay = new QHBoxLayout( this );
   mainlay->setSpacing( 10 );
-  mainlay->setMargin( 5 );
+  mainlay->setContentsMargins( 5, 5, 5, 5 );
 
   QWidget *leftpan = new QWidget( this );
   QWidget *rightpan = new QWidget( this );
@@ -151,11 +151,11 @@ ALandmarkPicker::ALandmarkPicker( const set<AObject *> & obj )
   mainlay->addWidget( rightpan );
   QVBoxLayout *llay = new QVBoxLayout;
   leftpan->setLayout( llay );
-  llay->setMargin( 5 );
+  llay->setContentsMargins( 5, 5, 5, 5 );
   llay->setSpacing( 5 );
   QVBoxLayout *rlay = new QVBoxLayout;
   rightpan->setLayout( rlay );
-  rlay->setMargin( 5 );
+  rlay->setContentsMargins( 5, 5, 5, 5 );
   rlay->setSpacing( 5 );
 
   _privdata->modebox = new QComboBox( leftpan );

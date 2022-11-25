@@ -93,14 +93,14 @@ VolRenderPanel::VolRenderPanel( const std::set<anatomist::AObject *> & obj,
   if ( !name )
     setObjectName( "VolRenderPanel" );
   VolRenderPanelLayout = new QVBoxLayout( this );
-  VolRenderPanelLayout->setMargin( 11 );
+  VolRenderPanelLayout->setContentsMargins( 11, 11, 11, 11 );
   VolRenderPanelLayout->setSpacing( 6 );
 
   groupBox1 = new QGroupBox( this );
   groupBox1->setObjectName( "groupBox1" );
   groupBox1Layout = new QVBoxLayout( groupBox1 );
   groupBox1->layout()->setSpacing( 6 );
-  groupBox1->layout()->setMargin( 11 );
+  groupBox1->layout()->setContentsMargins( 11, 11, 11, 11 );
   groupBox1Layout->setAlignment( Qt::AlignTop );
 
   renderingMode = new QComboBox( groupBox1 );
@@ -108,7 +108,7 @@ VolRenderPanel::VolRenderPanel( const std::set<anatomist::AObject *> & obj,
   groupBox1Layout->addWidget( renderingMode );
 
   layout2 = new QHBoxLayout;
-  layout2->setMargin( 0 );
+  layout2->setContentsMargins( 0, 0, 0, 0 );
   layout2->setSpacing( 6 );
 
   limitSlices = new QCheckBox( groupBox1 );
@@ -127,7 +127,7 @@ VolRenderPanel::VolRenderPanel( const std::set<anatomist::AObject *> & obj,
   groupBox1Layout->addLayout( layout2 );
 
   layout3 = new QHBoxLayout;
-  layout3->setMargin( 0 );
+  layout3->setContentsMargins( 0, 0, 0, 0 );
   layout3->setSpacing( 6 );
 
   slabSize = new QSpinBox( groupBox1 );

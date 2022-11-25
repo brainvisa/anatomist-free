@@ -385,7 +385,7 @@ void SurfpaintTools::save()
   QString capt = tr( "Save Texture" );
 
   QString filename = QFileDialog::getSaveFileName(
-    0, capt, QString(), filt, 0, 0 );
+    0, capt, QString(), filt, 0, QFileDialog::Option() );
 
   if( !filename.isNull() )
   {
