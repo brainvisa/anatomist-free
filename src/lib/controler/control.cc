@@ -669,10 +669,17 @@ void
 Control::wheelEvent ( QWheelEvent * event  )
 {
   if( myWheelAction )
+#if QT_VERSION >= 0x050e00
     myWheelAction->execute( event->angleDelta().y(), event->position().x(),
                             event->position().y(),
                             event->globalPosition().x(),
                             event->globalPosition().y() );
+#else
+    myWheelAction->execute( event->angleDelta().y(), event->position().x(),
+                            event->pos().y(),
+                            event->globalPos().x(),
+                            event->globalPos().y() );
+#endif
 //   else cout << "no wheel action\n";
 }
 
