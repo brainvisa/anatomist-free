@@ -149,7 +149,11 @@ bool QAObjectDrag::canDecodeURI( const QMimeData * md )
   else if( md->hasText() )
   {
     QString txt = md->text();
+#if QT_VERSION >= 0x050e00
     QStringList uris = txt.split( '\n', Qt::SkipEmptyParts );
+#else
+    QStringList uris = txt.split( '\n', QString::SkipEmptyParts );
+#endif
     QList<QString>::iterator iu, eu = uris.end();
     bool ok = false;
     for( iu=uris.begin(); iu!=eu; ++iu )
@@ -192,7 +196,11 @@ bool QAObjectDrag::decodeURI( const QMimeData * md,
   else if( md->hasText() )
   {
     QString txt = md->text();
+#if QT_VERSION >= 0x050e00
     QStringList uris = txt.split( '\n', Qt::SkipEmptyParts );
+#else
+    QStringList uris = txt.split( '\n', QString::SkipEmptyParts );
+#endif
     QList<QString>::iterator iu, eu = uris.end();
     for( iu=uris.begin(); iu!=eu; ++iu )
     {
