@@ -675,7 +675,7 @@ Control::wheelEvent ( QWheelEvent * event  )
                             event->globalPosition().x(),
                             event->globalPosition().y() );
 #else
-    myWheelAction->execute( event->angleDelta().y(), event->position().x(),
+    myWheelAction->execute( event->angleDelta().y(), event->pos().x(),
                             event->pos().y(),
                             event->globalPos().x(),
                             event->globalPos().y() );
