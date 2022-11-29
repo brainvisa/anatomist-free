@@ -768,7 +768,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
       win->addAction( tr( "Open stereoscopic right eye view"), this, 
                       SLOT(openStereoView()) );
     win->addSeparator();
-    win->addAction( tr("Close"), this, SLOT(close()), Qt::CTRL + Qt::Key_W );
+    win->addAction( tr("Close"), this, SLOT(close()), Qt::CTRL | Qt::Key_W );
 
     QMenu *scene = new QMenu( tr("Scene"), this );
     menuBar()->addMenu( scene );
@@ -783,7 +783,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     scene->addAction( tr("Auto-set rotation center in middle of scene"), this,
         SLOT(setAutoRotationCenter()) );
     scene->addAction( tr("Manually specify linked cursor position"), this,
-        SLOT(setLinkedCursorPos()), Qt::CTRL + Qt::Key_P );
+        SLOT(setLinkedCursorPos()), Qt::CTRL | Qt::Key_P );
 
     //	Mutation toolbar
 
@@ -1993,14 +1993,14 @@ void AWindow3D::askZoom()
 
 float AWindow3D::getZoom() const
 {
-	return d->draw->zoom();
+  return d->draw->zoom();
 }
 
 void AWindow3D::resizeEvent( QResizeEvent * event )
 {
-	refreshLightViewNow();
+  refreshLightViewNow();
 
-	ControlledWindow::resizeEvent( event );
+  ControlledWindow::resizeEvent( event );
 }
 
 void AWindow3D::resizeView(int w, int h)
@@ -4471,7 +4471,7 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   if( selectedobject )
     cout << ": " << selectedobject->name();
   cout << endl;
-   */
+  */
 
   d->refreshneeded = Private::FullRefresh;
   d->draw->qglWidget()->makeCurrent();
