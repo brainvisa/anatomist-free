@@ -1070,7 +1070,11 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       cout << "Warning: Framebuffer rendering is not working. "
         << "Using on-screen snapshot.\n";
       // problem with FB: release resources and switch to on-screen mode
-      GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+      GLuint old_fb = 0;
+      if( dynamic_cast<QOpenGLWidget *>( this ) )
+        old_fb = dynamic_cast<QOpenGLWidget *>( this )
+          ->defaultFramebufferObject();
+      GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, old_fb );
       glDeleteTextures( 1, &color_tex );
       GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
       GLCaps::glDeleteFramebuffers( 1, &fb );
@@ -1167,6 +1171,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
         ++buf;
       }
     }
+
     if( alpha && _pd->transparentBackground && bufmode == 4
         && _pd->backgroundAlpha != 255 && depth == 32 )
     {
@@ -1196,8 +1201,13 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
 
   if( use_framebuffer )
   {
-    //Bind 0, which means render to back buffer, as a result, fb is unbound
-    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+    // Bind back the default framebuffer, which means render to back buffer,
+    // as a result, fb is unbound
+    GLuint old_fb = 0;
+    if( dynamic_cast<QOpenGLWidget *>( this ) )
+      old_fb = dynamic_cast<QOpenGLWidget *>( this )
+        ->defaultFramebufferObject();
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, old_fb );
     glDeleteTextures( 1, &color_tex );
     GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
     GLCaps::glDeleteFramebuffers( 1, &fb );
