@@ -62,12 +62,13 @@
 #include <QWindow>
 #endif
 #if QT_VERSION >= 0x060000
+#define ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
 #include <QOpenGLContext>
 #endif
 
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 // Declared in <QtGui/private/qopenglcontext_p.h> which
 // is not part of the API
 extern void qt_gl_set_global_share_context(QOpenGLContext *context);
@@ -87,7 +88,7 @@ using namespace std;
 #define COMPILE_DEPTH_PEELING
 
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 QOpenGLWidget* GLWidgetManager::sharedWidget()
 {
   static QOpenGLWidget *w = 0;
@@ -175,7 +176,7 @@ struct GLWidgetManager::Private
   void setAutoCenter();
   void setWindowExtrema();
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
   QOpenGLWidget         *glwidget;
 #else
   QGLWidget             *glwidget;
@@ -288,7 +289,7 @@ void GLWidgetManager::Private::setWindowExtrema()
 // --------
 
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QOpenGLWidget * glw )
 #else
 GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QGLWidget * glw )
@@ -317,7 +318,7 @@ QObject* GLWidgetManager::qobject()
 }
 
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 QOpenGLWidget* GLWidgetManager::qglWidget()
 #else
 QGLWidget* GLWidgetManager::qglWidget()
@@ -1012,10 +1013,14 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     height /= win->devicePixelRatio();
   }
 #endif
+  GLenum status;
 
   if( use_framebuffer )
   {
     glGenTextures( 1, &color_tex );
+    status = glGetError();
+    if( status != GL_NO_ERROR )
+      cerr << "snap 1 : OpenGL error: " << gluErrorString(status) << endl;
     glBindTexture( GL_TEXTURE_2D, color_tex );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -1027,6 +1032,9 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
 
     GLCaps::glGenFramebuffers( 1, &fb );
     GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, fb );
+    status = glGetError();
+    if( status != GL_NO_ERROR )
+      cerr << "snap 1.1 : OpenGL error: " << gluErrorString(status) << endl;
     GLCaps::glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                     GL_TEXTURE_2D, color_tex, 0 );
     GLCaps::glGenRenderbuffers( 1, &depth_rb );
@@ -1063,6 +1071,9 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     {
       // setupView();
       paintGL( Normal, width, height );
+      status = glGetError();
+      if( status != GL_NO_ERROR )
+        cerr << "snap 2 : OpenGL error: " << gluErrorString(status) << endl;
       _pd->rgbbufready = true;
     }
     else
@@ -1071,9 +1082,11 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
         << "Using on-screen snapshot.\n";
       // problem with FB: release resources and switch to on-screen mode
       GLuint old_fb = 0;
+#ifdef ANA_USE_QOPENGLWIDGET
       if( dynamic_cast<QOpenGLWidget *>( this ) )
         old_fb = dynamic_cast<QOpenGLWidget *>( this )
           ->defaultFramebufferObject();
+#endif
       GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, old_fb );
       glDeleteTextures( 1, &color_tex );
       GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
@@ -1100,12 +1113,20 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   QImage::Format iformat;
   QImage        pix;
 
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, fb );
   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "snap 3 : OpenGL error: " << gluErrorString(status) << endl;
   glReadBuffer( GL_FRONT );
+  // the above always produces an OpenGL error. Never mind. It works without.
+  //   status = glGetError();
+  //   if( status != GL_NO_ERROR )
+  //     cerr << "snap 4 : OpenGL error: " << gluErrorString(status) << endl;
 
   switch( bufmode )
-    {
+  {
     case 2:	// alpha buffer
       depth = 8;
       mode = GL_ALPHA;
@@ -1136,7 +1157,7 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       alpha = false;
       iformat = QImage::Format_RGB32;
       break;
-    }
+  }
 
   if( pix.isNull() )
   {
@@ -1204,9 +1225,11 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     // Bind back the default framebuffer, which means render to back buffer,
     // as a result, fb is unbound
     GLuint old_fb = 0;
+#ifdef ANA_USE_QOPENGLWIDGET
     if( dynamic_cast<QOpenGLWidget *>( this ) )
       old_fb = dynamic_cast<QOpenGLWidget *>( this )
         ->defaultFramebufferObject();
+#endif
     GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, old_fb );
     glDeleteTextures( 1, &color_tex );
     GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
@@ -1236,7 +1259,7 @@ void GLWidgetManager::updateGL()
   }
   else if( _pd->glwidget )
   {
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     if( dynamic_cast<QOpenGLWidget *>( this ) == _pd->glwidget )
       _pd->glwidget->QOpenGLWidget::update();
     else
@@ -1571,8 +1594,12 @@ void GLWidgetManager::project( int width, int height )
     width = _pd->glwidget->width();
   if( height == 0 )
     height = _pd->glwidget->height();
-  // Make our OpenGL context current
-  _pd->glwidget->makeCurrent();
+
+  // Note we don't use makeCurrent() here, because
+  // we area always called from a function where the context has already been
+  // set,
+  // plus OpenGLWidger::makeCurrent() sets back its own framebuffer,
+  // which is not always what we want to do (in snapshotImage() for instance)
 
   // Projection matrix: should be defined only at init time and when resizing
   float	w = width, h = height;
@@ -2282,7 +2309,7 @@ QSize GLWidgetManager::minimumSizeHint() const
 {
   if( _pd->minSizeHint == QSize( 0, 0 ) )
   {
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     if( dynamic_cast<const QOpenGLWidget *>( this ) == _pd->glwidget )
       return _pd->glwidget->QOpenGLWidget::minimumSizeHint();
 #else
