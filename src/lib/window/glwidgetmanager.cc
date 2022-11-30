@@ -61,14 +61,11 @@
 #if QT_VERSION >= 0x050000
 #include <QWindow>
 #endif
-#if QT_VERSION >= 0x060000
-#define ANA_USE_QOPENGLWIDGET
-#include <QOpenGLWidget>
-#include <QOpenGLContext>
-#endif
-
 
 #ifdef ANA_USE_QOPENGLWIDGET
+#include <QOpenGLWidget>
+#include <QOpenGLContext>
+
 // Declared in <QtGui/private/qopenglcontext_p.h> which
 // is not part of the API
 extern void qt_gl_set_global_share_context(QOpenGLContext *context);
@@ -233,6 +230,13 @@ struct GLWidgetManager::Private
   bool cameraChanged;
   int recordWidth;
   int recordHeight;
+
+#ifdef ANA_USE_QOPENGLWIDGET
+  GLuint    z_framebuffer;
+  GLuint    z_renderbuffer;
+  GLuint    select_framebuffer;
+  GLuint    select_renderbuffer;
+#endif
 };
 
 
@@ -256,6 +260,11 @@ GLWidgetManager::Private::Private()
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
     cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 )
+#ifdef ANA_USE_QOPENGLWIDGET
+    ,
+    z_framebuffer( 0 ), z_renderbuffer( 0 ), select_framebuffer( 0 ),
+    select_renderbuffer( 0 )
+#endif
 {
   buildRotationMatrix();
 }
@@ -306,6 +315,24 @@ GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QGLWidget * glw )
 GLWidgetManager::~GLWidgetManager()
 {
   clearLists();
+
+#ifdef ANA_USE_QOPENGLWIDGET
+  if( _pd->z_renderbuffer )
+  {
+    _pd->glwidget->makeCurrent();
+    GLCaps::glDeleteFramebuffers( 1, &_pd->z_framebuffer );
+    GLCaps::glDeleteRenderbuffers( 1, &_pd->z_renderbuffer );
+    _pd->z_framebuffer = 0;
+    _pd->z_renderbuffer = 0;
+  }
+  if( _pd->select_renderbuffer )
+  {
+    _pd->glwidget->makeCurrent();
+    GLCaps::glDeleteRenderbuffers( 1, &_pd->select_renderbuffer );
+    _pd->select_renderbuffer = 0;
+  }
+#endif
+
   delete _pd;
 }
 
@@ -455,9 +482,6 @@ void GLWidgetManager::paintScene()
 
 void GLWidgetManager::paintGL()
 {
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-  glClearColor( 1, 1, 1, 1 );
-
   _pd->zbufready = true;
   if( _pd->zbuftimer )
     _pd->zbuftimer->stop();
@@ -549,6 +573,70 @@ void GLWidgetManager::setRGBBufferUpdated( bool x )
 }
 
 
+void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
+{
+#ifdef ANA_USE_QOPENGLWIDGET
+  // switch to the adequate framebuffer
+  switch( m )
+  {
+    case ZSelect:
+    case ObjectSelect:
+    case ObjectsSelect:
+    case PolygonSelect:
+      if( !_pd->z_framebuffer )
+      {
+        GLCaps::glGenFramebuffers( 1, &_pd->z_framebuffer );
+        GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, _pd->z_framebuffer );
+        GLenum status = glGetError();
+        if( status != GL_NO_ERROR )
+          cerr << "bindOtherFramebuffer 1.0 : OpenGL error: "
+            << gluErrorString(status) << endl;
+        GLCaps::glGenRenderbuffers( 1, &_pd->z_renderbuffer );
+        GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, _pd->z_renderbuffer );
+        GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                                       _pd->glwidget->width(),
+                                       _pd->glwidget->height() );
+        GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                           GL_RENDERBUFFER,
+                                           _pd->z_renderbuffer );
+        if( status != GL_NO_ERROR )
+          cerr << "bindOtherFramebuffer 1.1 : OpenGL error: "
+            << gluErrorString(status) << endl;
+
+        GLCaps::glGenRenderbuffers( 1, &_pd->select_renderbuffer );
+        GLCaps::glBindRenderbuffer( GL_RENDERBUFFER,
+                                    _pd->select_renderbuffer );
+        GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA,
+                                       _pd->glwidget->width(),
+                                       _pd->glwidget->height() );
+        GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER,
+                                           GL_COLOR_ATTACHMENT0,
+                                           GL_RENDERBUFFER,
+                                           _pd->select_renderbuffer );
+        if( status != GL_NO_ERROR )
+          cerr << "bindOtherFramebuffer 2.0 : OpenGL error: "
+            << gluErrorString(status) << endl;
+      }
+      else
+        GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, _pd->z_framebuffer );
+      break;
+
+    default:
+      break;
+  }
+#endif
+}
+
+
+void GLWidgetManager::restoreFramebuffer()
+{
+#ifdef ANA_USE_QOPENGLWIDGET
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER,
+                             _pd->glwidget->defaultFramebufferObject() );
+#endif
+}
+
+
 void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
                                int virtualHeight )
 {
@@ -559,7 +647,9 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
     height = virtualHeight;
 
   _pd->cameraChanged = false;
-  //   _pd->glwidget->makeCurrent();
+
+  bindOtherFramebuffer( m );
+
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
@@ -1756,12 +1846,14 @@ void GLWidgetManager::setupView( int width, int height )
 bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 {
   _pd->glwidget->makeCurrent();
+
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
   updateZBuffer();
+  bindOtherFramebuffer( ZSelect );
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
@@ -1790,6 +1882,7 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
     glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
+    restoreFramebuffer();
     return( false );
   }
   else
@@ -1814,6 +1907,7 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
     glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
+    restoreFramebuffer();
     return( true );
   }
 }
@@ -1901,6 +1995,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
+  bindOtherFramebuffer( ObjectSelect );
   setupView();
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (aWindow());
@@ -2003,6 +2098,7 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
                                       GLubyte & green, GLubyte & blue )
 {
   _pd->glwidget->makeCurrent();
+  bindOtherFramebuffer( ObjectSelect );
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );

@@ -37,6 +37,7 @@
 
 #include <qglobal.h>
 #if QT_VERSION >= 0x060000
+#define ANA_USE_QOPENGLWIDGET 1
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #else
@@ -45,7 +46,7 @@
 #include <anatomist/window/glwidgetmanager.h>
 
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 class QAGLWidget : public QOpenGLWidget, 
                    public anatomist::GLWidgetManager,
                    protected QOpenGLFunctions
@@ -58,7 +59,7 @@ class QAGLWidget : public carto::GLWidget, public anatomist::GLWidgetManager
 public:
   QAGLWidget( anatomist::AWindow* win, QWidget* parent = 0,
               const char* name = 0,
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
               const QOpenGLWidget * shareWidget = 0,
               Qt::WindowFlags f=Qt::WindowFlags() );
 #else
@@ -73,7 +74,7 @@ public:
 
   int width()
   {
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     return QOpenGLWidget::width();
 #else
     return carto::GLWidget::width();
@@ -82,7 +83,7 @@ public:
 
   int height()
   {
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     return QOpenGLWidget::height();
 #else
     return carto::GLWidget::height();
@@ -95,6 +96,7 @@ signals:
 public slots:
   /// to be reimplemented in "public slots"
   virtual void updateGL();
+  void debugPrint();
 
 protected:
 #if QT_VERSION >= 0x040600
@@ -112,6 +114,9 @@ protected:
   virtual void focusInEvent( QFocusEvent * );
   virtual void focusOutEvent( QFocusEvent * );
   virtual void wheelEvent( QWheelEvent * );
+
+private:
+  bool _paintDone;
 };
 
 

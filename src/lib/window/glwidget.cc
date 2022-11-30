@@ -36,25 +36,30 @@
 #if QT_VERSION >= 0x040600
 #include <QGestureEvent>
 #endif
+#include <QApplication>
+#include <QPaintEvent>
+
 
 using namespace anatomist;
 using namespace carto;
 using namespace std;
 
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
                         const char* name, const QOpenGLWidget * /*shareWidget*/,
                         Qt::WindowFlags f )
   : QOpenGLWidget( parent, f ),
     GLWidgetManager( win, this ),
-    QOpenGLFunctions()
+    QOpenGLFunctions(),
+    _paintDone( false )
 #else
 QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
                         const char* name, const QGLWidget * shareWidget,
                         Qt::WindowFlags f )
   : GLWidget( parent, name, shareWidget, f ),
-    GLWidgetManager( win, this )
+    GLWidgetManager( win, this ),
+    _paintDone( false )
 #endif
 {
 #if QT_VERSION >= 0x040600
@@ -65,11 +70,30 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
   grabGesture( Qt::TapAndHoldGesture );
 #endif
   setObjectName( name );
+
+//   cout << "UpdateBehavior: " << updateBehavior() << endl;
+//   setUpdateBehavior( QOpenGLWidget::PartialUpdate );
+//   connect( this, SIGNAL( frameSwapped() ), this, SLOT( debugPrint() ) );
 }
 
 
 QAGLWidget::~QAGLWidget()
 {
+}
+
+void QAGLWidget::debugPrint()
+{
+  cout << "FRAME SWAPPED\n";
+  if( !_paintDone )
+  {
+    makeCurrent();
+    paintGL();
+//     context()->swapBuffers( context()->surface() );
+//     QPaintEvent *pe = new QPaintEvent( QRect( 0, 0, width(), height() ) );
+//     qApp->postEvent( this, pe );
+  }
+  else
+    _paintDone = false;
 }
 
 
@@ -93,7 +117,7 @@ void QAGLWidget::updateGL()
 
 void QAGLWidget::initializeGL()
 {
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
   initializeOpenGLFunctions();
 #endif
   GLWidgetManager::initializeGL();
@@ -109,19 +133,38 @@ void QAGLWidget::resizeGL( int w, int h )
 void QAGLWidget::paintGL()
 {
   GLWidgetManager::paintGL();
+  _paintDone = true;
 }
 
 #if QT_VERSION >= 0x040600
 bool QAGLWidget::event( QEvent * event )
 {
+  /* QOpenGLWidget produces an uncontrolled swapBuffers() on the followning
+     events:
+     - Enter
+     - Leave
+     - WindowActivate
+     - WindowDeactivate
+  */
   // cout << "EVENT: " << event->type() << endl;
+  if( event->type() == QEvent::Enter
+      || event->type() == QEvent::Leave
+      || event->type() == QEvent::WindowActivate
+      || event->type() == QEvent::WindowDeactivate )
+  {
+//     makeCurrent();
+//     paintGL();
+//     event->accept();
+//     return true;
+  }
+
   if( event->type() == QEvent::Gesture )
   {
     // cout << "-- gesture --\n";
     gestureEvent( static_cast<QGestureEvent*>( event ) );
     return true;
   }
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
   return QOpenGLWidget::event(event);
 #else
   return QGLWidget::event(event);

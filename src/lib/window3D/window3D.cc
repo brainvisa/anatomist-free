@@ -4452,6 +4452,7 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
     renderSelectionBuffer( ViewState::glSELECTRENDER_POLYGON, obj );
     // read the color buffer at pos x,y
     d->draw->qglWidget()->makeCurrent();
+    d->draw->bindOtherFramebuffer( GLWidgetManager::PolygonSelect );
     glFlush(); // or glFinish() ?
     d->draw->readBackBuffer( x, d->draw->qglWidget()->height() - y, r, g, b );
   }
@@ -4475,6 +4476,7 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
 
   d->refreshneeded = Private::FullRefresh;
   d->draw->qglWidget()->makeCurrent();
+  d->draw->bindOtherFramebuffer( GLWidgetManager::ObjectSelect );
 
   list<AObject *> renderobj;
   list<AObject *>::iterator transparent = processRenderingOrder(renderobj);

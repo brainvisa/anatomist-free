@@ -42,6 +42,7 @@
 #include <qglobal.h>
 #if QT_VERSION >= 0x060000
 #include <QOpenGLWidget>
+#define ANA_USE_QOPENGLWIDGET 1
 #else
 #include <QtOpenGL/QGLWidget>
 #endif
@@ -75,6 +76,15 @@ namespace anatomist
   class GLWidgetManager : public anatomist::View
   {
   public:
+    enum DrawMode
+    {
+      Normal,
+      ZSelect,
+      ObjectSelect,
+      ObjectsSelect,
+      PolygonSelect
+    };
+
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
@@ -105,14 +115,14 @@ namespace anatomist
     struct Private;
     friend class ::GLWidgetManager_Private_QObject;
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     GLWidgetManager( anatomist::AWindow* win, QOpenGLWidget* widget );
 #else
     GLWidgetManager( anatomist::AWindow* win, QGLWidget* widget );
 #endif
     virtual ~GLWidgetManager();
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     QOpenGLWidget* qglWidget();
 #else
     QGLWidget* qglWidget();
@@ -201,7 +211,7 @@ namespace anatomist
     unsigned numTextureUnits() const;
     bool recording() const;
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     static QOpenGLWidget* sharedWidget();
 #else
     static QGLWidget* sharedWidget();
@@ -227,20 +237,13 @@ namespace anatomist
     virtual void recordStop();
 
     bool hasCameraChanged() const;
+    void bindOtherFramebuffer( DrawMode m );
+    void restoreFramebuffer();
 
     /// QGraphicsView needs to call event methods
     friend class anatomist::internal::AGraphicsView;
 
   protected:
-    enum DrawMode
-    {
-      Normal,
-      ZSelect,
-      ObjectSelect,
-      ObjectsSelect,
-      PolygonSelect
-    };
-
     virtual void project( int virtualWidth=0, int virtualHeight=0 );
     virtual void setupView( int virtualWidth=0, int virtualHeight=0 );
     void drawObjects( DrawMode m = Normal );
