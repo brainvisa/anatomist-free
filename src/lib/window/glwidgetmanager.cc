@@ -2154,7 +2154,7 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   glPopMatrix();
 }
 
-GLubyte* GLWidgetManager::getTextureFromBackBuffer(void)
+GLubyte* GLWidgetManager::getTextureFromBackBuffer()
 {
   return &_pd->backBufferTexture[0];
 }
