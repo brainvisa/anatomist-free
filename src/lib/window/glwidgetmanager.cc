@@ -234,7 +234,6 @@ struct GLWidgetManager::Private
 #ifdef ANA_USE_QOPENGLWIDGET
   GLuint    z_framebuffer;
   GLuint    z_renderbuffer;
-  GLuint    select_framebuffer;
   GLuint    select_renderbuffer;
 #endif
 };
@@ -262,7 +261,7 @@ GLWidgetManager::Private::Private()
     cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 )
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
-    z_framebuffer( 0 ), z_renderbuffer( 0 ), select_framebuffer( 0 ),
+    z_framebuffer( 0 ), z_renderbuffer( 0 ),
     select_renderbuffer( 0 )
 #endif
 {
@@ -420,6 +419,7 @@ void GLWidgetManager::resizeGL( int w, int h )
   }
 #endif
   glViewport( 0, 0, (GLint)w, (GLint)h );
+  resizeOtherFramebuffers( w, h );
   _pd->resized = true;
 }
 
@@ -585,6 +585,14 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
     case PolygonSelect:
       if( !_pd->z_framebuffer )
       {
+        int w = _pd->glwidget->width();
+        int h = _pd->glwidget->height();
+        QWindow *win = qglWidget()->window()->windowHandle();
+        if( win )
+        {
+          w *= win->devicePixelRatio();
+          h *= win->devicePixelRatio();
+        }
         GLCaps::glGenFramebuffers( 1, &_pd->z_framebuffer );
         GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, _pd->z_framebuffer );
         GLenum status = glGetError();
@@ -594,8 +602,7 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
         GLCaps::glGenRenderbuffers( 1, &_pd->z_renderbuffer );
         GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, _pd->z_renderbuffer );
         GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
-                                       _pd->glwidget->width(),
-                                       _pd->glwidget->height() );
+                                       w, h );
         GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                            GL_RENDERBUFFER,
                                            _pd->z_renderbuffer );
@@ -606,9 +613,7 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
         GLCaps::glGenRenderbuffers( 1, &_pd->select_renderbuffer );
         GLCaps::glBindRenderbuffer( GL_RENDERBUFFER,
                                     _pd->select_renderbuffer );
-        GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA,
-                                       _pd->glwidget->width(),
-                                       _pd->glwidget->height() );
+        GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA, w, h );
         GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER,
                                            GL_COLOR_ATTACHMENT0,
                                            GL_RENDERBUFFER,
@@ -623,6 +628,28 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
 
     default:
       break;
+  }
+#endif
+}
+
+
+void GLWidgetManager::resizeOtherFramebuffers( int w, int h )
+{
+#ifdef ANA_USE_QOPENGLWIDGET
+  if( _pd->z_framebuffer )
+  {
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, _pd->z_framebuffer );
+    if( _pd->z_renderbuffer )
+    {
+      GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, _pd->z_renderbuffer );
+      GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                                    w, h );
+    }
+    if( _pd->select_renderbuffer )
+    {
+      GLCaps::glBindRenderbuffer( GL_RENDERBUFFER, _pd->select_renderbuffer );
+      GLCaps::glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA, w, h );
+    }
   }
 #endif
 }

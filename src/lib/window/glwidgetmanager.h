@@ -154,8 +154,7 @@ namespace anatomist
     virtual Point3df objectPositionFromWindow( const Point3df & winpos );
     virtual void readBackBuffer( int x, int y, GLubyte & red, GLubyte & green,
                                  GLubyte & blue );
-    GLubyte* getTextureFromBackBuffer (void);
-    //GLubyte* getTextureFromBackBuffer (void);
+    GLubyte* getTextureFromBackBuffer();
     virtual bool translateCursorPosition( float x, float y,
                                           Point3df & position );
 
@@ -239,6 +238,7 @@ namespace anatomist
     bool hasCameraChanged() const;
     void bindOtherFramebuffer( DrawMode m );
     void restoreFramebuffer();
+    void resizeOtherFramebuffers( int w, int h );
 
     /// QGraphicsView needs to call event methods
     friend class anatomist::internal::AGraphicsView;
