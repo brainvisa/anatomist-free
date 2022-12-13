@@ -89,7 +89,7 @@ namespace anatomist
     std::string palette1DMappingName() const 
     { return (_palette1DMapping == 1 ? "Diagonal" : "FirstLine" ) ; }
     void setMin1( float x )
-    { _min = x; if( isnan( x ) || isinf( x ) ) _min = 0; }}
+    { _min = x; if( isnan( x ) || isinf( x ) ) _min = 0; }
     void setMax1( float x )
     { _max = x; if( isnan( x ) || isinf( x ) ) _max = 0; }
     void setMin2( float x ) { _min2 = x; }
