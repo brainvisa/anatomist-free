@@ -107,6 +107,11 @@ AObjectPalette::AObjectPalette( const AObjectPalette & x )
     _zeroCentered2( x._zeroCentered2 )
 {
   _colors.reset( 0 );
+  if( isnan( _min ) || isinf( _min ) || isnan( _max ) || isinf( _max ) )
+  {
+    _min = 0;
+    _max = 1;
+  }
 }
 
 
@@ -125,6 +130,11 @@ AObjectPalette & AObjectPalette::operator = ( const AObjectPalette & x )
     _colors.reset( 0 );
     _min = x._min;
     _max = x._max;
+    if( isnan( _min ) || isinf( _min ) || isnan( _max ) || isinf( _max ) )
+    {
+      _min = 0;
+      _max = 1;
+    }
     _refPal2 = x._refPal2;
     _min2 = x._min2;
     _max2 = x._max2;
@@ -275,8 +285,13 @@ AimsRGBA AObjectPalette::normColor( const Point2df & pos ) const
 
 AimsRGBA AObjectPalette::normColor( float x, float y ) const
 {
+  if( _colors->getSizeX() == 0 || _colors->getSizeY() == 0 )
+    return AimsRGBA( 0, 0, 0, 1 );
+
   float	xs;
-  if( _min == _max )
+  if( isnan( x ) || isinf( x ) )
+    xs = 0;
+  else if( _min == _max )
     xs = x - _min;
   else
     xs = ( x - _min ) / ( _max - _min );
@@ -493,7 +508,7 @@ bool AObjectPalette::set( const GenericObject & obj )
   {
     o = obj.getProperty( "max" );
     _max = o->getScalar();
-    mod = true;
+//     mod = true;
   }
   catch( ... )
   {
