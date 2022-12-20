@@ -476,16 +476,16 @@ class SplitFoldControl(anatomist.Control):
         self.mousePressButtonEventSubscribe(
             qt.Qt.RightButton, qt.Qt.NoModifier,
           pool.action("MenuAction").execMenu)
-        self.mouseLongEventSubscribe(qt.Qt.MidButton, qt.Qt.NoModifier,
+        self.mouseLongEventSubscribe(qt.Qt.MiddleButton, qt.Qt.NoModifier,
                                      pool.action("Trackball").beginTrackball,
                                      pool.action("Trackball").moveTrackball,
                                      pool.action("Trackball").endTrackball, True)
-        self.mouseLongEventSubscribe(qt.Qt.MidButton, qt.Qt.ShiftModifier,
+        self.mouseLongEventSubscribe(qt.Qt.MiddleButton, qt.Qt.ShiftModifier,
                                      pool.action("Zoom3DAction").beginZoom,
                                      pool.action("Zoom3DAction").moveZoom,
                                      pool.action("Zoom3DAction").endZoom, True)
         self.wheelEventSubscribe(pool.action("Zoom3DAction").zoomWheel)
-        self.mouseLongEventSubscribe(qt.Qt.MidButton, qt.Qt.ControlModifier,
+        self.mouseLongEventSubscribe(qt.Qt.MiddleButton, qt.Qt.ControlModifier,
                                      pool.action(
                                      "Translate3DAction").beginTranslate,
                                      pool.action(

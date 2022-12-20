@@ -70,7 +70,7 @@ class AProfile(ana.cpp.QAWindow):
         (which may be solved).
         '''
         if f is None:
-            f = QtCore.Qt.WindowFlags(QtCore.Qt.Window)
+            f = QtCore.Qt.WindowType(QtCore.Qt.Window)
         ana.cpp.QAWindow.__init__(self, parent, name, options, f)
         self._fig = pyplot.figure()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -128,7 +128,7 @@ class AProfile(ana.cpp.QAWindow):
         rbut.clicked.connect(self.changeReferential)
         # close shortcut
         ac = QtGui.QAction('Close', self)
-        ac.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_W)
+        ac.setShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL | QtCore.Qt.Key_W))
         ac.triggered.connect(self.closeAction)
         self.addAction(ac)
 

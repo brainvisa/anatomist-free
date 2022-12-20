@@ -78,7 +78,7 @@ class AHistogram(ana.cpp.QAWindow):
         (which may be solved).
         '''
         if f is None:
-            f = QtCore.Qt.WindowFlags(QtCore.Qt.Window)
+            f = QtCore.Qt.WindowType(QtCore.Qt.Window)
         ana.cpp.QAWindow.__init__(self, parent, name, options, f)
         self._histo = pyplot.figure()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -115,7 +115,7 @@ class AHistogram(ana.cpp.QAWindow):
         toolbar.addAction(ac)
         # close shortcut
         ac = QtGui.QAction('Close', self)
-        ac.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_W)
+        ac.setShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL | QtCore.Qt.Key_W))
         ac.triggered.connect(self.closeAction)
         self.addAction(ac)
         self._objectschanged = True
@@ -211,7 +211,7 @@ class AHistogram(ana.cpp.QAWindow):
             vol = ana.cpp.AObjectConverter.aims(obj)
             ar = numpy.array(vol, copy=False)
             if not self._histo4d:
-                ar = ar[:, :, :, self.getTime()]
+                ar = ar[:, :, :, int(round(self.getTime()))]
             if self._localHisto:
                 pos = self.getPosition()
                 oref = obj.getReferential()
