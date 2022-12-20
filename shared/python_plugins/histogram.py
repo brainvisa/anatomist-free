@@ -224,8 +224,8 @@ class AHistogram(ana.cpp.QAWindow):
                 ipos = numpy.round(numpy.array(pos) / vs[:3]).astype(int)
                 ipos0 = ipos - self._localSize / numpy.array(vs[:3])
                 ipos1 = ipos + self._localSize / numpy.array(vs[:3])
-                ipos0 = numpy.round(ipos0).astype(int)
-                ipos1 = numpy.round(ipos1).astype(int)
+                ipos0 = numpy.round(ipos0).astype(numpy.int32)
+                ipos1 = numpy.round(ipos1).astype(numpy.int32)
                 ipos0[numpy.where(ipos0 < 0)] = 0
                 if ipos1[0] >= vol.getSizeX():
                     ipos1[0] = vol.getSizeX() - 1
@@ -249,10 +249,11 @@ class AHistogram(ana.cpp.QAWindow):
                             ipos0t = numpy.hstack((ipos0, [0]))
                             ipos1t = numpy.hstack((ipos1, [vol.getSizeT()]))
                         else:
-                            ipos0t = numpy.hstack((ipos0, [self.getTime()]))
+                            ipos0t = numpy.hstack((ipos0,
+                                                   [int(self.getTime())]))
                             ipos1t = numpy.hstack(
-                                (ipos1, [self.getTime() + 1]))
-                        varr = aims.VolumeView(vol, ipos0t, ipos1t - ipos0t)
+                                (ipos1, [int(self.getTime()) + 1]))
+                        varr = aims.VolumeView(vol, list(ipos0t), list(ipos1t - ipos0t))
                     ha.doit(varr)
                     d = ha.data()
                     har = d.np.reshape(d.shape[0])
@@ -333,7 +334,7 @@ class AHistogram(ana.cpp.QAWindow):
         l2.addWidget(cancel)
         ok.pressed.connect(dia.accept)
         cancel.pressed.connect(dia.reject)
-        res = dia.exec_()
+        res = dia.exec()
         if res:
             val = int(le.text())
             self._localSize = val
