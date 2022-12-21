@@ -159,7 +159,7 @@ class BSAWindow(ana.cpp.QAWindow):
         (which may be solved).
         '''
         if f is None:
-            f = Qt.WindowFlags(Qt.Window)
+            f = Qt.WindowType(Qt.Window)
         ana.cpp.QAWindow.__init__(self, parent, name, options, f)
         self.setAttribute(Qt.WA_DeleteOnClose)
         wid = QtGui.QLabel(None)
