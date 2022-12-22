@@ -361,6 +361,8 @@ def runIPConsoleKernel(mode='qtconsole'):
             kernel.gui = 'qt4'
         elif qt_api == 'pyqt5':
             kernel.gui = 'qt5'
+        elif qt_api == 'pyqt6':
+            kernel.gui = 'qt6'
         # kernel.shell.push({'foo': 43, 'print_process_id': print_process_id})
 
         kernel_client = kernel_manager.client()
@@ -478,8 +480,9 @@ def ipythonShell(mode='qtconsole'):
             exe = 'python'
         if ipConsole:
             qt_api = qt_backend.get_qt_backend()
-            qt_apis = {'PyQt4': 'pyqt', 'PyQt5': 'pyqt5', 'PySide': 'pyside'}
-            qt_api_code = qt_apis.get(qt_api, 'pyqt')
+            qt_apis = {'PyQt4': 'pyqt', 'PyQt5': 'pyqt5', 'PySide': 'pyside',
+                       'PyQt6': 'pyqt6'}
+            qt_api_code = qt_apis.get(qt_api, qt_api.lower())
             cmd = [exe, '-c',
                    'import os; os.environ["QT_API"] = "%s"; %s'
                    % (qt_api_code, ipfunc),
