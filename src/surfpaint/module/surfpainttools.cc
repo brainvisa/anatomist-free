@@ -1437,6 +1437,20 @@ void SurfpaintTools::fillHolesOnPath (void)
   d->holeCount.push_back( nholes ); // nholes paths added this step
 }
 
+
+void SurfpaintTools::closeBrushPath()
+{
+  if( listIndexVertexBrushPath.size() < 3 )
+    return;
+  unsigned from = *listIndexVertexBrushPath.rbegin();
+  unsigned to = *listIndexVertexBrushPath.begin();
+  addSimpleShortPath( from, to );
+  listIndexVertexBrushPath.push_back( to );
+  d->holeVertexIndices.push_back( listIndexVertexBrushPath.size() );
+  d->holeCount.push_back( 1 ); // 1 path added this step
+}
+
+
 void SurfpaintTools::addGeodesicPath(int indexNearestVertex,
     Point3df positionNearestVertex)
 {

@@ -73,18 +73,23 @@ SurfpaintToolsAction::~SurfpaintToolsAction()
 
 void SurfpaintToolsAction::pressRightButton(int x, int y, int globalX, int globalY)
 {
-  //cout << "pressRightButton\n" ;
+  // cout << "pressRightButton\n" ;
 
   if( !getTools()->isValid() )
     return;
 
   int activeControl = getTools()->getActiveControl();
-  //cout << "active control = " << activeControl <<endl;
+  // cout << "active control = " << activeControl <<endl;
 
   switch (activeControl)
   {
-  case 3 :
+  case 3:
     shortestpathClose(x,y,globalX,globalY);
+    break;
+  case 6:
+    magicbrushClose( x, y, globalX, globalY );
+    break;
+  default:
     break;
   }
 }
@@ -359,6 +364,14 @@ void SurfpaintToolsAction::magicbrushStop(int /*x*/, int /*y*/,
 
   getTools()->fillHolesOnPath();
 }
+
+
+void SurfpaintToolsAction::magicbrushClose( int /*x*/, int /*y*/,
+                                            int /*globalX*/, int /*globalY*/ )
+{
+  getTools()->closeBrushPath();
+}
+
 
 void SurfpaintToolsAction::magicbrushMove(int x, int y,
                                           int /*globalX*/, int /*globalY*/)

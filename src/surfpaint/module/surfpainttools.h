@@ -100,6 +100,7 @@ namespace anatomist
       }
 
       void fillHolesOnPath();
+      void closeBrushPath();
 
       std::string getPathType() { return shortestPathSelectedType; }
 
