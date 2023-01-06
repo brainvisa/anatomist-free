@@ -1188,9 +1188,11 @@ void SurfpaintTools::updateTexture (vector<float> values)
 float SurfpaintTools::currentTextureValue( unsigned vertexIndex ) const
 {
   GLComponent::TexExtrema & te = at->glTexExtrema(0);
-  float value = at->textureCoords()[ vertexIndex ] + te.minquant[0];
+
+  float value = at->textureCoords()[ vertexIndex ];
   if( te.minquant[0] != te.maxquant[0] )
     value *= te.maxquant[0] - te.minquant[0];
+  value += te.minquant[0];
   return value;
 }
 
