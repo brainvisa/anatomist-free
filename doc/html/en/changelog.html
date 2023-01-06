@@ -77,24 +77,41 @@
 
 
 <!-- -->
-<h4> <a name="version-5.1.0"></a>2022/09/22 - Version 5.1.0</h4>
+<h4> <a name="version-5.1.0"></a>2023/01/06 - Version 5.1.0</h4>
 <h5>Visible changes (users):</h5>
 <ul>
   <li>New Jupyter notebook interface, which embeds interactive Anatomist views (3D or 2D) in notebook outputs.
   </li>
   <li>Info about cursor position (texture values etc) is displayed in 3D windows tooltips.
   </li>
-  <li>When a textured object (texture, volume) contains a "labels" attribute in its header, it is used to translate int labels to strings in info and tooltips.
+  <li>When a textured object (texture, volume) contains a "labels" attribute in its header, it is used to translate int labels to strings in info and tooltips. GIFTI labels maps are also supported.
   </li>
   <li>Transformations graphs files can be read and used in Anatomist: in the referentials window, use "load transformations graph" in the right-click popup menu on the background.
   </li>
   <li>The old perfusion plugin has been removed. It has been obsolete and unmaintained for many years, and nobody is still using it has methods have certainly evolved since then.
   </li>
+  <li>cleanups in app and modules destruction, avoiding crashes at exit</li>
+  <li>Deleting several objects with child/parent relationships is finally handled properly and do not required several user actions to delete all.
+  </li>
+  <li>Support more texture types in IO.</li>
+  <li>Fixes in the SurfPaint module, especially using textures not starting at value 0.
+  </li>
+  <li>SurfPaint: implemented closing curve in "magic brush" mode (was only working in "sulcus" mode).</li>
+  <li>fix in voxel size in volume rendering when downsampling is used.</li>
+  <li>Several other bug fixes...</li>
 </ul>
 
 <h5>Internal changes (programmers):</h5>
 <ul>
   <li>Handle volumes with "strides" even on the 1st axis, allowing to map numpy arrays from external world.
+  </li>
+  <li>Python3 is the only supported version.</li>
+  <li>Signals are emitted to notify slider and orientation changes in 3D views.
+  </li>
+  <li>Added a user modification flag in AObject that can be used to know when data saving is needed. Used in graphs labeling.</li>
+  <li>Fixes in the selection label picker GUI and toolbars.</li>
+  <li>Totally wiped out the use of obsolete structures AimsData</li>
+  <li>Porting to Qt6: Anatomist source code is now compatible with Qt6. A future branch will also allow python bindings (Sip6, PyQt6) but as it is not completely debugged and tested for side effects, this will be merged after release 5.1.0.
   </li>
 </ul>
 
