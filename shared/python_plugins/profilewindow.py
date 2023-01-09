@@ -40,6 +40,7 @@ from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma import aims
 import numpy
+import numpy as np
 import sys
 
 from soma.qt_gui.qt_backend import init_matplotlib_backend
@@ -408,11 +409,16 @@ class AProfile(ana.cpp.QAWindow):
         ax.grid(True)
         ax.xaxis.set_label_text(['X (mm)', 'Y (mm)', 'Z (mm)',
                                  'T (s)'][self._coordindex])
-        if not hasattr(ax, 'get_ylim'):
+        # re-calculate lims, avoid ax.get_ylim() because it's often wrong
+        if len(self._fig.axes[0].lines) == 0:
             self._cursorplot = None
             return
+        lims = [np.min(np.min([l.get_xydata()[:, 1]
+                               for l in self._fig.axes[0].lines])),
+                np.max(np.max([l.get_xydata()[:, 1]
+                               for l in self._fig.axes[0].lines]))]
         self._cursorplot = ax.plot([pos[self._coordindex],
-                                    pos[self._coordindex]], [ax.get_ylim()[0], ax.get_ylim()[1]], 'r')
+                                    pos[self._coordindex]], lims, 'r')
 
     def muteOrientationX(self):
         self._orientation = aims.Quaternion(0, 0, 0, 1)
