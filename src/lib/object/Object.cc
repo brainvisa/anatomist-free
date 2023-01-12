@@ -922,12 +922,15 @@ void AObject::setProperties( Object /*options*/ )
               if( den == 0. )
                 den = 1.;
               opal->setMin1( ( 0. - te.minquant[0] ) / den );
-              opal->setMax1( ( pal->getSizeX() -1 ) / den );
+//               opal->setMax1( ( pal->getSizeX() + 0.99 -1 ) / den );
+              cout << "min: " << te.minquant[0] << ", max: " << te.maxquant[0] << endl;
+              opal->setMax1( ( te.maxquant[0] - te.minquant[0] + 0.99 )
+                             / den );
             }
             else
             {
               opal->setMin1( 0. );
-              opal->setMax1( 1. );
+              opal->setMax1( pal->getSizeX() + 0.99 / pal->getSizeX() );
             }
             opal->setMin2( 0. );
             opal->setMax2( 1. );
