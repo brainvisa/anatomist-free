@@ -38,7 +38,7 @@ cylinder( [ 0, clearing, 0 ], [ 0, size, 0 ], ofile[3] )
 cylinder( [ 0, 0, -size ], [ 0, 0, -clearing ], ofile[4] )
 cylinder( [ 0, 0, clearing ], [ 0, 0, size ], ofile[5] )
 
-cmd = 'AimsZCat -o ' + output + string.join( map( lambda x: ' -i ' + x, ofile ) )
+cmd = 'AimsZCat -o ' + output + ' '.join( map( lambda x: ' -i ' + x, ofile ) )
 os.system( cmd )
 
 for x in ofile:
