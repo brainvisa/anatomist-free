@@ -352,6 +352,7 @@ public slots:
       mode: 0: RGB, 2: alpha, 4: RGBA, 8: depth, 16: luminance
   */
   QImage snapshotImage( int width=0, int height=0, int bufmode=0 );
+  virtual carto::rc_ptr<anatomist::ViewState> viewState();
 
   friend class anatomist::internal::AGraphicsView;
 
