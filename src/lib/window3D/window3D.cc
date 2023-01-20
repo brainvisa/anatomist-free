@@ -4734,3 +4734,23 @@ void AWindow3D::saveSnapshotWithCustomSize()
 }
 
 
+rc_ptr<ViewState> AWindow3D::viewState()
+{
+  rc_ptr<ViewState> vs;
+  if( d->viewtype == ThreeD )
+  {
+    vs.reset( new ViewState( _timepos, this,
+                             ViewState::glSELECTRENDER_NONE ) );
+  }
+  else
+  {
+    vs.reset(
+      new SliceViewState( _timepos, true, _position, &d->slicequat,
+                          getReferential(),
+                          windowGeometry(), &d->draw->quaternion(), this,
+                          ViewState::glSELECTRENDER_NONE ) );
+  }
+  return vs;
+}
+
+
