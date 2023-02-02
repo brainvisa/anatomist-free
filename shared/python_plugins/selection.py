@@ -108,9 +108,10 @@ class SelectionActionView(QtGui.QWidget):
         boxColorMode = findChild(qWidget, 'boxColorMode')
         boxCustomColor = findChild(qWidget, 'boxCustomColor')
         boxColorMode.setCurrentIndex(self._action.boxSelectionColorMode)
-        col = QtGui.QColor(self._action.boxSelectionCustomColor.r * 255.99,
-                           self._action.boxSelectionCustomColor.g * 255.99,
-                           self._action.boxSelectionCustomColor.b * 255.99)
+        col = QtGui.QColor(
+            int(self._action.boxSelectionCustomColor.r * 255.99),
+            int(self._action.boxSelectionCustomColor.g * 255.99),
+            int(self._action.boxSelectionCustomColor.b * 255.99))
         boxCustomColor.setPalette(QtGui.QPalette(col))
 
         findChild(qWidget, 'nodesSlider').valueChanged.connect(
@@ -192,7 +193,8 @@ class SelectionAction(anatomist.cpp.Action):
         if 'boxSelectionHighlight' in gconf:
             self.useBoxHighlight = gconf['boxSelectionHighlight']
         if 'boxSelectionIndividual' in gconf:
-            self.useBoxHighlightIndividual = gconf['boxSelectionIndividual']
+            self.useBoxHighlightIndividual \
+                = bool(int(gconf['boxSelectionIndividual']))
         if 'boxSelectionColorMode' in gconf:
             self.boxSelectionColorMode = self.BoxColor_Modes.index(
                 gconf['boxSelectionColorMode'])
@@ -472,7 +474,7 @@ class SelectionAction(anatomist.cpp.Action):
         self.boxSelection()
 
     def switchBoxHighligtingIndividual(self, value):
-        self.useBoxHighlightIndividual = value
+        self.useBoxHighlightIndividual = bool(value)
         a = anatomist.cpp.Anatomist()
         gconf = a.config()
         if value != 0:
