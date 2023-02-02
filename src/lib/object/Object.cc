@@ -918,14 +918,17 @@ void AObject::setProperties( Object /*options*/ )
             if( glc )
             {
               const GLComponent::TexExtrema & te = glc->glTexExtrema( 0 );
+              float vmin = te.minquant[0], vmax = te.maxquant[0];
+              // ue max dynamics from volume and cmap
+              if( cmap->getSizeX() > vmax - vmin + 1 )
+                vmax = cmap->getSizeX() + vmin - 1;
               float den = te.maxquant[0] - te.minquant[0];
               if( den == 0. )
                 den = 1.;
-              opal->setMin1( ( 0. - te.minquant[0] ) / den );
+              opal->setMin1( - te.minquant[0] / den );
 //               opal->setMax1( ( pal->getSizeX() + 0.99 -1 ) / den );
-              cout << "min: " << te.minquant[0] << ", max: " << te.maxquant[0] << endl;
-              opal->setMax1( ( te.maxquant[0] - te.minquant[0] + 0.99 )
-                             / den );
+              cout << "min: " << vmin << ", max: " << vmax << endl;
+              opal->setMax1( ( vmax - vmin + 0.99 ) / den );
             }
             else
             {
