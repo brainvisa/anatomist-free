@@ -97,6 +97,7 @@ class SplitFoldAction(anatomist.Action):
         if splitline:
             # show split line
             asplit = anatomist.AObjectConverter.anatomist(splitline)
+            asplit.setReferentialInheritance(ag)
             a.unmapObject(asplit)
             a.releaseObject(asplit)
             mat = asplit.GetMaterial()
@@ -426,6 +427,7 @@ class SplitFoldAction(anatomist.Action):
                 return
             graph = data['graph']
             vertex = data['vertex']
+            ag = graph['ana_object']
             points = data['points']
             if len(points) == 0:
                 print(
@@ -437,6 +439,7 @@ class SplitFoldAction(anatomist.Action):
                 data['splitline'] = splitline
                 # show split line
                 asplit = anatomist.AObjectConverter.anatomist(splitline)
+                asplit.setReferentialInheritance(ag)
                 a = anatomist.Anatomist()
                 a.unmapObject(asplit)
                 a.releaseObject(asplit)
