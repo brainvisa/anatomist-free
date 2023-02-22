@@ -59,6 +59,12 @@ class GLTFCreateWindowNotifier(object):
     @staticmethod
     def aobject_to_gltf(obj, win, gltf={}):
         if obj.glAPI() is None:
+            if isinstance(obj.internalRep, ana.cpp.MObject):
+                for i, sobj in enumerate(obj.internalRep):
+                    #if i >= 1: break
+                    if i < 2: continue
+                    GLTFCreateWindowNotifier.aobject_to_gltf(sobj, win,
+                                                             gltf=gltf)
             return gltf
 
         glapi = obj.glAPI()
@@ -83,13 +89,22 @@ class GLTFCreateWindowNotifier(object):
         teximages = []
         if glapi.glNumTextures(vs) != 0:
             ntex = glapi.glNumTextures(vs)
-            teximages = [glapi.glBuildTexImage(vs, tex) for tex in range(ntex)]
-            #cmap = glapi.glPalette().colors()
-            textures = [glapi.glTexCoordArray(vs, tex) for tex in range(ntex)]
+            teximages = [glapi.glBuildTexImage(vs, tex, -1, -1, False)
+                         for tex in range(ntex)]
+            for tex in range(ntex):
+                tcoord = glapi.glTexCoordArray(vs, tex)
+                #te = glapi.glTexExtrema(tex)
+                #if te.scaled:
+                    #tcoord = (tcoord - te.min[0]) / (te.max[0] - te.min[0]) \
+                        #* (te.maxquant[0] - te.minquant[0]) + te.minquant[0]
+                textures.append(tcoord)
 
+        name = obj.name
+        if hasattr(name, '__call__'):
+            name = name()
         gltf_io.add_object_to_gltf_dict(
             vert, norm, poly, material=mat, matrix=matrix, textures=textures,
-            teximages=teximages, name=obj.name, gltf=gltf)
+            teximages=teximages, name=name, gltf=gltf)
 
         return gltf
 
