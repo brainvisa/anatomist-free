@@ -112,7 +112,7 @@ void GLMObject::glSetChanged( GLComponent::glPart part, bool x ) const
 
 bool GLMObject::render( PrimList & prim, const ViewState & vs )
 {
-  bool x = MObject::render( prim, vs );
+  bool x = AObject::render( prim, vs );
   glClearHasChangedFlags();
   return x;
 }
