@@ -95,6 +95,8 @@ namespace anatomist
     virtual const AObjectPalette* palette() const { return 0; }
     virtual AObjectPalette* palette() { return 0; }
 
+    virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const;
+
   protected:
     carto::rc_ptr<carto::GenericObject>	_gobject;
 

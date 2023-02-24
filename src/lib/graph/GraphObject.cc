@@ -334,6 +334,76 @@ void AGraphObject::internalUpdate()
   MObject::internalUpdate();
 }
 
+
+list<AObject *> AGraphObject::renderedSubObjects( const ViewState & vs ) const
+{
+  list<AObject *> children;
+
+  const_iterator i, j = end();
+  bool          done = false, show, shown = false;
+  AObject       *glc, *first = 0;
+  bool          twod = ( vs.sliceVS() != 0 );
+
+  for( i=begin(); !done && i!=j; ++i )
+    if( (*i)->glAPI() )
+  {
+    glc = *i;
+    if( !first )
+      first = glc;
+    show = false;
+    switch( _showType )
+    {
+      case FIRST:
+        if( !twod || (*i)->Is2DObject() )
+        {
+          done = true;
+          show = true;
+        }
+        break;
+      case ALL:
+        if( !twod || (*i)->Is2DObject() )
+          show = true;
+        break;
+      case TRIANG:
+        if( twod )
+        {
+          if( (*i)->Is2DObject() )
+            show = true;
+        }
+        else if( (*i)->Is3DObject() && ! (*i)->Is2DObject() )
+          show = true;
+        break;
+      case BUCKET:
+        if( (*i)->Is2DObject() )
+          show = true;
+        break;
+    }
+
+    if( show )
+    {
+      shown = true;
+      children.push_back( glc );
+    }
+  }
+  // if no corresponding object, show first of all
+  if( !shown )
+  {
+    if( _showType == FIRST && first )
+    {
+      children.push_back( first );
+    }
+    else // show all
+    {
+      for( i=begin(); i!=j; ++i )
+        if( (*i)->glAPI() )
+          children.push_back( *i );
+    }
+  }
+
+  return children;
+}
+
+
 #include <cartobase/object/object_d.h>
 #define _TMP_ std::map<anatomist::AObject *, std::string>
 INSTANTIATE_GENERIC_OBJECT_TYPE( _TMP_ )
