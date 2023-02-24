@@ -124,10 +124,11 @@ namespace anatomist
     virtual const AObjectPalette* palette() const;
 
     // new functions
-    virtual GLComponent* glGeometry();
-    virtual GLComponent* glTexture( unsigned n = 0 );
-    virtual const GLComponent* glGeometry() const;
-    virtual const GLComponent* glTexture( unsigned n = 0 ) const;
+    virtual GLComponent* glGeometry( const ViewState & );
+    virtual GLComponent* glTexture(  const ViewState & , unsigned n = 0 );
+    virtual const GLComponent* glGeometry( const ViewState & ) const;
+    virtual const GLComponent* glTexture(  const ViewState & ,
+                                           unsigned n = 0 ) const;
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
     virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
 

@@ -68,7 +68,7 @@ const Material *GLMObject::glMaterial() const
 
 const Material & GLMObject::material() const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( ViewState() );
   if( g && g != this )
     return *g->glMaterial();
   else
@@ -78,7 +78,7 @@ const Material & GLMObject::material() const
 
 Material & GLMObject::GetMaterial()
 {
-  const GLComponent     *g = glGeometry();
+  const GLComponent     *g = glGeometry( ViewState() );
   if( g && g != this )
     return *const_cast<Material *>( g->glMaterial() );
   else
@@ -88,7 +88,7 @@ Material & GLMObject::GetMaterial()
 
 const AObjectPalette* GLMObject::glPalette( unsigned tex ) const
 {
-  const GLComponent	*c = glTexture();
+  const GLComponent	*c = glTexture( ViewState() );
   if( c )
     return c->glPalette( tex );
   return 0;
@@ -112,7 +112,7 @@ void GLMObject::glSetChanged( GLComponent::glPart part, bool x ) const
 
 bool GLMObject::render( PrimList & prim, const ViewState & vs )
 {
-  bool x = AObject::render( prim, vs );
+  bool x = MObject::render( prim, vs );
   glClearHasChangedFlags();
   return x;
 }
@@ -128,10 +128,10 @@ std::string GLMObject::viewStateID( glPart part,
     case glBODY:
       {
         string	s;
-        const GLComponent	*c = glGeometry();
+        const GLComponent	*c = glGeometry( state );
         if( c && c != this )
           s = c->viewStateID( part, state );
-        c = glTexture();
+        c = glTexture( state );
         if( c && c != this )
           return s + c->viewStateID( part, state );
         return s;
@@ -139,7 +139,7 @@ std::string GLMObject::viewStateID( glPart part,
     case glGEOMETRY:
     case glMATERIAL:
       {
-        const GLComponent	*c = glGeometry();
+        const GLComponent	*c = glGeometry( state );
         if( c && c != this )
           return c->viewStateID( part, state );
         if( part == glMATERIAL )
@@ -171,7 +171,7 @@ std::string GLMObject::viewStateID( glPart part,
     case glTEXIMAGE:
     case glTEXENV:
       {
-        const GLComponent	*c = glTexture();
+        const GLComponent	*c = glTexture( state );
         if( c && c != this )
           return c->viewStateID( part, state );
         return string();
@@ -245,7 +245,7 @@ bool GLMObject::glToRef( const Referential* objref, GLPrimitives & p ) const
 //   const SliceViewState  *svs = state.sliceVS();
 //   if( !svs || !svs->wantslice )
 //   {
-//     const AObject *o = dynamic_cast<const AObject *>( glGeometry() );
+//     const AObject *o = dynamic_cast<const AObject *>( glGeometry( state ) );
 //     d->bodyinotherref = o && glToRef( o->getReferential(), pl );
 //   }
 //   else
@@ -275,7 +275,7 @@ bool GLMObject::glToRef( const Referential* objref, GLPrimitives & p ) const
 
 unsigned GLMObject::glNumVertex( const ViewState & s ) const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( s );
   if( g )
   {
     if( g == this )
@@ -289,7 +289,7 @@ unsigned GLMObject::glNumVertex( const ViewState & s ) const
 
 const GLfloat* GLMObject::glVertexArray( const ViewState & s ) const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( s );
   if( g )
   {
     if( g == this )
@@ -303,7 +303,7 @@ const GLfloat* GLMObject::glVertexArray( const ViewState & s ) const
 
 const GLfloat* GLMObject::glNormalArray( const ViewState & s ) const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( s );
   if( g )
   {
     if( g == this )
@@ -317,7 +317,7 @@ const GLfloat* GLMObject::glNormalArray( const ViewState & s ) const
 
 unsigned GLMObject::glPolygonSize( const ViewState & s ) const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( s );
   if( g )
   {
     if( g == this )
@@ -331,7 +331,7 @@ unsigned GLMObject::glPolygonSize( const ViewState & s ) const
 
 unsigned GLMObject::glNumPolygon( const ViewState & s ) const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( s );
   if( g )
   {
     if( g == this )
@@ -345,7 +345,7 @@ unsigned GLMObject::glNumPolygon( const ViewState & s ) const
 
 const GLuint* GLMObject::glPolygonArray( const ViewState & s ) const
 {
-  const GLComponent	*g = glGeometry();
+  const GLComponent	*g = glGeometry( s );
   if( g )
   {
     if( g == this )
@@ -359,7 +359,7 @@ const GLuint* GLMObject::glPolygonArray( const ViewState & s ) const
 
 unsigned GLMObject::glNumTextures() const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t )
   {
     if( t == this )
@@ -373,7 +373,7 @@ unsigned GLMObject::glNumTextures() const
 
 unsigned GLMObject::glNumTextures( const ViewState & s ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( s );
   if( t )
   {
     if( t == this )
@@ -388,7 +388,7 @@ unsigned GLMObject::glNumTextures( const ViewState & s ) const
 const GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
   const
 {
-  const GLComponent     *t = glTexture();
+  const GLComponent     *t = glTexture( ViewState() );
   if( t && t != this )
     return t->glTexExtrema( tex );
   return GLComponent::glTexExtrema( tex );
@@ -397,7 +397,7 @@ const GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
 
 GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
 {
-  GLComponent     *t = glTexture();
+  GLComponent     *t = glTexture( ViewState() );
   if( t && t != this )
     return t->glTexExtrema( tex );
   return GLComponent::glTexExtrema( tex );
@@ -406,7 +406,7 @@ GLComponent::TexExtrema & GLMObject::glTexExtrema( unsigned tex )
 
 GLComponent::TexInfo & GLMObject::glTexInfo( unsigned tex ) const
 {
-  const GLComponent     *t = glTexture();
+  const GLComponent     *t = glTexture( ViewState() );
   if( t && t != this )
     return t->glTexInfo( tex );
   return GLComponent::glTexInfo( tex );
@@ -415,7 +415,7 @@ GLComponent::TexInfo & GLMObject::glTexInfo( unsigned tex ) const
 
 unsigned GLMObject::glDimTex( const ViewState & s, unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( s );
   if( t )
   {
     if( t == this )
@@ -429,7 +429,7 @@ unsigned GLMObject::glDimTex( const ViewState & s, unsigned tex ) const
 
 unsigned GLMObject::glTexCoordSize( const ViewState & s, unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( s );
   if( t )
   {
     if( t == this )
@@ -444,7 +444,7 @@ unsigned GLMObject::glTexCoordSize( const ViewState & s, unsigned tex ) const
 const GLfloat* GLMObject::glTexCoordArray( const ViewState & s, 
                                            unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( s );
   if( t )
   {
     if( t == this )
@@ -456,7 +456,7 @@ const GLfloat* GLMObject::glTexCoordArray( const ViewState & s,
 }
 
 
-GLComponent* GLMObject::glGeometry()
+GLComponent* GLMObject::glGeometry( const ViewState & vs )
 {
   iterator	i, e = end();
   GLComponent	*c;
@@ -464,14 +464,14 @@ GLComponent* GLMObject::glGeometry()
   for( i=begin(); i!=e; ++i )
     {
       c = (*i)->glAPI();
-      if( c && c->glNumVertex( 0 ) != 0 )
+      if( c && c->glNumVertex( vs ) != 0 )
         return c;
     }
   return 0;
 }
 
 
-const GLComponent* GLMObject::glGeometry() const
+const GLComponent* GLMObject::glGeometry( const ViewState & vs ) const
 {
   const_iterator	i, e = end();
   GLComponent		*c;
@@ -479,14 +479,14 @@ const GLComponent* GLMObject::glGeometry() const
   for( i=begin(); i!=e; ++i )
     {
       c = (*i)->glAPI();
-      if( c && c->glNumVertex( 0 ) != 0 )
+      if( c && c->glNumVertex( vs ) != 0 )
         return c;
     }
   return 0;
 }
 
 
-GLComponent* GLMObject::glTexture( unsigned n )
+GLComponent* GLMObject::glTexture( const ViewState & vs, unsigned n )
 {
   iterator	i, e = end();
   GLComponent	*c, *t = 0;
@@ -495,7 +495,7 @@ GLComponent* GLMObject::glTexture( unsigned n )
   for( i=begin(); i!=e && cnt<=n; ++i )
     {
       c = (*i)->glAPI();
-      if( c && c->glNumTextures() != 0 )
+      if( c && c->glNumTextures( vs ) != 0 )
         {
           ++cnt;
           t = c;
@@ -505,7 +505,7 @@ GLComponent* GLMObject::glTexture( unsigned n )
 }
 
 
-const GLComponent* GLMObject::glTexture( unsigned n ) const
+const GLComponent* GLMObject::glTexture( const ViewState & vs, unsigned n ) const
 {
   const_iterator	i, e = end();
   const GLComponent	*c, *t = 0;
@@ -514,7 +514,7 @@ const GLComponent* GLMObject::glTexture( unsigned n ) const
   for( i=begin(); i!=e && cnt<=n; ++i )
     {
       c = (*i)->glAPI();
-      if( c && c->glNumTextures() != 0 )
+      if( c && c->glNumTextures( vs ) != 0 )
         {
           ++cnt;
           t = c;
@@ -526,7 +526,7 @@ const GLComponent* GLMObject::glTexture( unsigned n ) const
 
 GLComponent::glTextureMode GLMObject::glTexMode( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glTexMode( tex );
   return GLComponent::glTexMode( tex );
@@ -535,7 +535,7 @@ GLComponent::glTextureMode GLMObject::glTexMode( unsigned tex ) const
 
 void GLMObject::glSetTexMode( glTextureMode mode, unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  GLComponent	*t = glTexture( ViewState() );
   if( t )
     {
       t->glSetTexMode( mode, tex );
@@ -546,7 +546,7 @@ void GLMObject::glSetTexMode( glTextureMode mode, unsigned tex )
 
 GLComponent::glAutoTexturingMode GLMObject::glAutoTexMode( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glAutoTexMode( tex );
   return GLComponent::glAutoTexMode( tex );
@@ -555,7 +555,7 @@ GLComponent::glAutoTexturingMode GLMObject::glAutoTexMode( unsigned tex ) const
 
 void GLMObject::glSetAutoTexMode( glAutoTexturingMode mode, unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  GLComponent	*t = glTexture( ViewState() );
   if( t )
     {
       t->glSetAutoTexMode( mode, tex );
@@ -566,7 +566,7 @@ void GLMObject::glSetAutoTexMode( glAutoTexturingMode mode, unsigned tex )
 
 const float * GLMObject::glAutoTexParams( unsigned coord, unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glAutoTexParams( coord, tex );
   return GLComponent::glAutoTexParams( coord, tex );
@@ -576,7 +576,7 @@ const float * GLMObject::glAutoTexParams( unsigned coord, unsigned tex ) const
 void GLMObject::glSetAutoTexParams( const float* params, unsigned coord, 
                                     unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  GLComponent	*t = glTexture( ViewState() );
   if( t )
     {
       t->glSetAutoTexParams( params, coord, tex );
@@ -587,7 +587,7 @@ void GLMObject::glSetAutoTexParams( const float* params, unsigned coord,
 
 float GLMObject::glTexRate( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glTexRate( tex );
   return GLComponent::glTexRate( tex );
@@ -596,7 +596,7 @@ float GLMObject::glTexRate( unsigned tex ) const
 
 void GLMObject::glSetTexRate( float rate, unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  GLComponent	*t = glTexture( ViewState() );
   if( t )
     {
       t->glSetTexRate( rate, tex );
@@ -607,7 +607,7 @@ void GLMObject::glSetTexRate( float rate, unsigned tex )
 
 GLComponent::glTextureFiltering GLMObject::glTexFiltering( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glTexFiltering( tex );
   return GLComponent::glTexFiltering( tex );
@@ -616,7 +616,7 @@ GLComponent::glTextureFiltering GLMObject::glTexFiltering( unsigned tex ) const
 
 void GLMObject::glSetTexFiltering( glTextureFiltering x, unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  GLComponent	*t = glTexture( ViewState() );
   if( t )
     {
       t->glSetTexFiltering( x, tex );
@@ -627,7 +627,7 @@ void GLMObject::glSetTexFiltering( glTextureFiltering x, unsigned tex )
 
 bool GLMObject::glTexRGBInterpolation( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glTexRGBInterpolation( tex );
   return GLComponent::glTexRGBInterpolation( tex );
@@ -636,7 +636,7 @@ bool GLMObject::glTexRGBInterpolation( unsigned tex ) const
 
 void GLMObject::glSetTexRGBInterpolation( bool x, unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  GLComponent	*t = glTexture( ViewState() );
   if( t )
     {
       if( t != this )
@@ -651,7 +651,7 @@ void GLMObject::glSetTexRGBInterpolation( bool x, unsigned tex )
 
 bool GLMObject::glTexImageChanged( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glTexImageChanged( tex );
   return GLComponent::glTexImageChanged( tex );
@@ -671,7 +671,7 @@ void GLMObject::glSetTexImageChanged( bool x, unsigned tex ) const
 
 bool GLMObject::glTexEnvChanged( unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     return t->glTexEnvChanged( tex );
   return GLComponent::glTexEnvChanged( tex );
@@ -690,7 +690,7 @@ void GLMObject::glSetTexEnvChanged( bool x, unsigned tex ) const
 bool GLMObject::glMakeTexImage( const ViewState & state, 
                                 const GLTexture & gltex, unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( state );
   if( t && t != glAPI() )
     {
       bool	r = t->glMakeTexImage( state, gltex, tex );
@@ -704,7 +704,7 @@ bool GLMObject::glMakeTexImage( const ViewState & state,
 bool GLMObject::glMakeTexEnvGLL( const ViewState & state, 
                                  const GLList & gllist, unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( state );
   if( t && t != glAPI() )
     {
       bool	r = t->glMakeTexEnvGLL( state, gllist, tex );
@@ -717,7 +717,8 @@ bool GLMObject::glMakeTexEnvGLL( const ViewState & state,
 
 void GLMObject::glSetMaterialGLL( const std::string & state, RefGLItem x )
 {
-  GLComponent	*g = glGeometry();
+  // WARNING state is not taken into account to find geometry !
+  GLComponent	*g = glGeometry( ViewState() );
   if( g && g != glAPI() )
     g->glSetMaterialGLL( state, x );
   else
@@ -728,7 +729,8 @@ void GLMObject::glSetMaterialGLL( const std::string & state, RefGLItem x )
 void GLMObject::glSetTexNameGLL( const std::string & state, RefGLItem x, 
                                  unsigned tex )
 {
-  GLComponent	*t = glTexture();
+  // WARNING state is not taken into account to find geometry !
+  GLComponent	*t = glTexture( ViewState() );
   if( t && t != glAPI() )
     t->glSetTexNameGLL( state, x, tex );
   else
@@ -738,7 +740,7 @@ void GLMObject::glSetTexNameGLL( const std::string & state, RefGLItem x,
 
 GLPrimitives GLMObject::glMaterialGLL( const ViewState & state ) const
 {
-  const GLComponent	*c = glGeometry();
+  const GLComponent	*c = glGeometry( state );
   if( c && c != glAPI() )
     {
       GLPrimitives	r = c->glMaterialGLL( state );
@@ -754,7 +756,7 @@ GLPrimitives GLMObject::glTexNameGLL( const ViewState & state,
 {
   /* cout << "GLMObject::glTexNameGLL for tex " << tex << "in " 
      << (const GLComponent *) this << endl; */
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( state );
   if( t && t != glAPI() )
     {
       GLPrimitives	r = t->glTexNameGLL( state, tex );
@@ -768,7 +770,7 @@ GLPrimitives GLMObject::glTexNameGLL( const ViewState & state,
 GLPrimitives GLMObject::glTexEnvGLL( const ViewState & state, 
                                      unsigned tex ) const
 {
-  const GLComponent	*t = glTexture();
+  const GLComponent	*t = glTexture( state );
   if( t && t != glAPI() )
     {
       GLPrimitives	r = t->glTexEnvGLL( state, tex );
@@ -783,10 +785,10 @@ void GLMObject::glGarbageCollector( int nkept )
 {
   GLComponent::glGarbageCollector( nkept );
 
-  GLComponent	*c = glGeometry();
+  GLComponent	*c = glGeometry( ViewState() );
   if( c && c != glAPI() )
     c->glGarbageCollector( nkept );
-  c = glTexture();
+  c = glTexture( ViewState() );
   if( c && c != glAPI() )
     c->glGarbageCollector( nkept );
 }
@@ -822,7 +824,7 @@ void GLMObject::update( const Observable* obs, void* arg )
 
 AObjectPalette* GLMObject::palette()
 {
-  GLComponent	*tx = glTexture();
+  GLComponent	*tx = glTexture( ViewState() );
   if( !tx || tx == glAPI() )
     return _palette;
   iterator	i, e = end();

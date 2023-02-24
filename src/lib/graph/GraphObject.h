@@ -75,7 +75,6 @@ namespace anatomist
 
     /**@name	Visualization */
     //@{
-    virtual GLPrimitives glMainGLL( const ViewState & );
     ///	Visu mode (default is TRIANG)
     static ShowType showType() { return( _showType ); }
     ///	Control the visualization mode
@@ -96,6 +95,8 @@ namespace anatomist
     virtual AObjectPalette* palette() { return 0; }
 
     virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const;
+    virtual GLComponent* glGeometry( const ViewState & );
+    virtual const GLComponent* glGeometry( const ViewState & ) const ;
 
   protected:
     carto::rc_ptr<carto::GenericObject>	_gobject;
