@@ -95,8 +95,9 @@ namespace anatomist
     virtual bool CanRemove( AObject* obj );
     virtual void update( const Observable*, void* );
     virtual Tree* optionTree() const;
-    virtual GLComponent* glTexture( unsigned n = 0 );
-    virtual const GLComponent* glTexture( unsigned n = 0 ) const;
+    virtual GLComponent* glTexture( const ViewState & vs, unsigned n = 0 );
+    virtual const GLComponent* glTexture( const ViewState & vs,
+                                          unsigned n = 0 ) const;
     virtual TexInfo & glTexInfo( unsigned tex = 0 ) const;
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
 

@@ -62,10 +62,11 @@ namespace anatomist
 
     virtual bool CanRemove( AObject* ) { return( false ); }
 
-    virtual GLComponent* glGeometry();
-    virtual const GLComponent* glGeometry() const;
-    virtual GLComponent* glTexture();
-    virtual const GLComponent* glTexture() const;
+    virtual GLComponent* glGeometry( const ViewState & vs );
+    virtual const GLComponent* glGeometry( const ViewState & vs ) const;
+    virtual GLComponent* glTexture(const ViewState & vs, unsigned n = 0 );
+    virtual const GLComponent* glTexture( const ViewState & vs,
+                                          unsigned n = 0 ) const;
     virtual GLComponent* orgGeom();
     virtual const GLComponent* orgGeom() const;
     virtual GLComponent* texSurf();

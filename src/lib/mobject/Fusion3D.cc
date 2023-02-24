@@ -1053,14 +1053,14 @@ bool Fusion3D::boundingBox( vector<float> & bmin, vector<float> & bmax ) const
 }
 
 
-const GLComponent* Fusion3D::glTexture( unsigned ) const
+const GLComponent* Fusion3D::glTexture( const ViewState & , unsigned ) const
 {
   //return (*firstVolume())->glAPI();
   return glAPI();
 }
 
 
-GLComponent* Fusion3D::glTexture( unsigned )
+GLComponent* Fusion3D::glTexture( const ViewState & , unsigned )
 {
   //return (*firstVolume())->glAPI();
   return glAPI();

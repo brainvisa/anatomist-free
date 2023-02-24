@@ -183,7 +183,7 @@ AObject* PlanarFusion3D::mesh()
 }
 
 
-GLComponent* PlanarFusion3D::glTexture( unsigned )
+GLComponent* PlanarFusion3D::glTexture( const ViewState & , unsigned )
 {
   return this;
 }
@@ -195,7 +195,8 @@ const AObjectPalette* PlanarFusion3D::glPalette( unsigned ) const
 }
 
 
-const GLComponent* PlanarFusion3D::glTexture( unsigned ) const
+const GLComponent* PlanarFusion3D::glTexture( const ViewState & ,
+                                              unsigned ) const
 {
   return this;
 }
