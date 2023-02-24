@@ -79,77 +79,6 @@ AGraphObject::~AGraphObject()
 }
 
 
-GLPrimitives AGraphObject::glMainGLL( const ViewState & vs )
-{
-  GLPrimitives  glp;
-  const_iterator i, j = end();
-  bool          done = false, show, shown = false;
-  GLComponent   *glc, *first = 0;
-  bool          twod = ( vs.sliceVS() != 0 );
-
-  for( i=begin(); !done && i!=j; ++i )
-    if( ( glc = (*i)->glAPI() ) )
-  {
-    if( !first )
-      first = glc;
-    show = false;
-    switch( _showType )
-    {
-      case FIRST:
-        if( !twod || (*i)->Is2DObject() )
-        {
-          done = true;
-          show = true;
-        }
-        break;
-      case ALL:
-        if( !twod || (*i)->Is2DObject() )
-          show = true;
-        break;
-      case TRIANG:
-        if( twod )
-        {
-          if( (*i)->Is2DObject() )
-            show = true;
-        }
-        else if( (*i)->Is3DObject() && ! (*i)->Is2DObject() )
-          show = true;
-        break;
-      case BUCKET:
-        if( (*i)->Is2DObject() )
-          show = true;
-        break;
-    }
-
-    if( show )
-    {
-      GLPrimitives  p = glc->glMainGLL( vs );
-      glp.insert( glp.end(), p.begin(), p.end() );
-      shown = true;
-    }
-  }
-  // if no corresponding object, show first of all
-  if( !shown )
-  {
-    if( _showType == FIRST && first )
-    {
-      glp = first->glMainGLL( vs );
-    }
-    else // show all
-    {
-      for( i=begin(); i!=j; ++i )
-        if( ( glc = (*i)->glAPI() ) )
-        {
-          GLPrimitives  p = glc->glMainGLL( vs );
-          glp.insert( glp.end(), p.begin(), p.end() );
-        }
-    }
-  }
-
-  return glp;
-}
-
-
 const Material & AGraphObject::material() const
 {
   return AObject::material();
@@ -402,6 +331,39 @@ list<AObject *> AGraphObject::renderedSubObjects( const ViewState & vs ) const
 
   return children;
 }
+
+
+GLComponent* AGraphObject::glGeometry( const ViewState & vs )
+{
+  list<AObject *> rendered = renderedSubObjects( vs );
+  list<AObject *>::iterator	i, e = rendered.end();
+  GLComponent	*c;
+
+  for( i=rendered.begin(); i!=e; ++i )
+    {
+      c = (*i)->glAPI();
+      if( c && c->glNumVertex( 0 ) != 0 )
+        return c;
+    }
+  return 0;
+}
+
+
+const GLComponent* AGraphObject::glGeometry( const ViewState & vs ) const
+{
+  list<AObject *> rendered = renderedSubObjects( vs );
+  list<AObject *>::iterator	i, e = rendered.end();
+  GLComponent	*c;
+
+  for( i=rendered.begin(); i!=e; ++i )
+    {
+      c = (*i)->glAPI();
+      if( c && c->glNumVertex( 0 ) != 0 )
+        return c;
+    }
+  return 0;
+}
+
 
 
 #include <cartobase/object/object_d.h>

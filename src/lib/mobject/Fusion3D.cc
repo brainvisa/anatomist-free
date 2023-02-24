@@ -1096,7 +1096,7 @@ void Fusion3D::glGarbageCollector( int nkept )
 {
   GLComponent::glGarbageCollector( nkept );
 
-  GLComponent	*c = glGeometry();
+  GLComponent	*c = glGeometry( ViewState() );
   if( c )
     c->glGarbageCollector( nkept );
 }
