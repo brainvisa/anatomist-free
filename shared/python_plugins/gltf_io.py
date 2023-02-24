@@ -70,7 +70,7 @@ class GLTFCreateWindowNotifier(object):
                                                              gltf=gltf)
             return gltf
 
-        glapi = obj.glAPI()
+        glapi = cppobj.glAPI()
         vert = glapi.glVertexArray(vs)
         norm = glapi.glNormalArray(vs)
         poly = glapi.glPolygonArray(vs)
