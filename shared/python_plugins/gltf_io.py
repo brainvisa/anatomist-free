@@ -49,6 +49,8 @@ class GLTFCreateWindowNotifier(object):
             win = win.getInternalRep()
         if isinstance(win, ana.cpp.AWindow3D):
             menu = win.menuBar()
+            if not menu.findChildren(Qt.QMenu):
+                return
             scene_menu = menu.addMenu('Export')
             num = len(GLTFCreateWindowNotifier.actions)
             ac = scene_menu.addAction('Export scene as GLTF file...',
@@ -58,17 +60,17 @@ class GLTFCreateWindowNotifier(object):
 
     @staticmethod
     def aobject_to_gltf(obj, win, gltf={}):
+        vs = win.viewState().get()
+
+        cppobj = getattr(obj, 'internalRep', obj)
         if obj.glAPI() is None:
-            if isinstance(obj.internalRep, ana.cpp.MObject):
-                for i, sobj in enumerate(obj.internalRep):
-                    #if i >= 1: break
-                    if i < 2: continue
+            if isinstance(cppobj, ana.cpp.MObject):
+                for i, sobj in enumerate(cppobj.renderedSubObjects(vs)):
                     GLTFCreateWindowNotifier.aobject_to_gltf(sobj, win,
                                                              gltf=gltf)
             return gltf
 
         glapi = obj.glAPI()
-        vs = win.viewState().get()
         vert = glapi.glVertexArray(vs)
         norm = glapi.glNormalArray(vs)
         poly = glapi.glPolygonArray(vs)
@@ -99,7 +101,7 @@ class GLTFCreateWindowNotifier(object):
                         #* (te.maxquant[0] - te.minquant[0]) + te.minquant[0]
                 textures.append(tcoord)
 
-        name = obj.name
+        name = cppobj.name()
         if hasattr(name, '__call__'):
             name = name()
         gltf_io.add_object_to_gltf_dict(
