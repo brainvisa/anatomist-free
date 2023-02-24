@@ -224,8 +224,6 @@ namespace anatomist
 
     virtual bool CanRemove( AObject *obj );
 
-    virtual bool render( PrimList &, const ViewState & );
-
     virtual Tree* optionTree() const;
     static Tree*	_optionTree;
 
