@@ -49,7 +49,7 @@ namespace anatomist
   /**	Anatomist graph object: a list that manages destruction of its
 	sub-elements
   */
-  class AGraphObject : public GLObjectList, public AttributedAObject
+  class AGraphObject : public ObjectList, public AttributedAObject
   {
   public:
     ///	Modes d'affichage des sous-objets

@@ -55,7 +55,7 @@ AGraphObject::ShowType AGraphObject::_showType = AGraphObject::TRIANG;
 
 
 AGraphObject::AGraphObject( GenericObject* go )
-  : GLObjectList(), AttributedAObject(), _gobject( go )
+  : ObjectList(), AttributedAObject(), _gobject( go )
 {
   _type = GRAPHOBJECT;
   _material.SetDiffuse( 0., 0.5, 1., 1. );
@@ -98,7 +98,7 @@ void AGraphObject::SetMaterial( const Material & mat )
        << mat.Diffuse(1) << ", " << mat.Diffuse(2) << ", "
        << mat.Diffuse(3) << endl; */
 
-  glSetChanged( glMATERIAL );
+//   glSetChanged( glMATERIAL );
   ParentList::iterator	ip, fp=_parents.end();
   AGraph		*ag;
 
@@ -116,7 +116,7 @@ void AGraphObject::SetMaterial( const Material & mat )
 	}
     }
   // cout << "hard-coded color\n";
-  GLObjectList::SetMaterial( mat );
+  ObjectList::SetMaterial( mat );
 }
 
 
@@ -132,7 +132,7 @@ void AGraphObject::SetMaterialOrDefault( const AGraph* agr,
 
   if( cols->size() == 0 || !GraphParams::graphParams()->colorsActive )
     {
-      GLObjectList::SetMaterial( mat );
+      ObjectList::SetMaterial( mat );
       return;
     }
   AObject::SetMaterial( mat );
@@ -167,7 +167,7 @@ void AGraphObject::SetMaterialOrDefault( const AGraph* agr,
     }
   if( !code )
     {
-      GLObjectList::SetMaterial( mat );
+      ObjectList::SetMaterial( mat );
       return;
     }
 
