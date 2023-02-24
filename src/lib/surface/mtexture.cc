@@ -406,13 +406,14 @@ void AMTexture::glSetAutoTexParams( const float* params, unsigned coord,
 }
 
 
-GLComponent* AMTexture::glTexture( unsigned /*n*/ )
+GLComponent* AMTexture::glTexture( const ViewState &  , unsigned /*n*/ )
 {
   return this;
 }
 
 
-const GLComponent* AMTexture::glTexture( unsigned /*n*/ ) const
+const GLComponent* AMTexture::glTexture( const ViewState & ,
+                                         unsigned /*n*/ ) const
 {
   return this;
 }

@@ -79,10 +79,11 @@ namespace anatomist
 
     virtual Tree* optionTree() const;
 
-    virtual GLComponent* glGeometry();
-    virtual GLComponent* glTexture( unsigned n = 0 );
-    virtual const GLComponent* glGeometry() const;
-    virtual const GLComponent* glTexture( unsigned n = 0 ) const;
+    virtual GLComponent* glGeometry( const ViewState & vs );
+    virtual GLComponent* glTexture( const ViewState & vs, unsigned n = 0 );
+    virtual const GLComponent* glGeometry( const ViewState & vs ) const;
+    virtual const GLComponent* glTexture( const ViewState & vs,
+                                          unsigned n = 0 ) const;
 
     const AObject* tesselatedMesh() const;
     AObject* tesselatedMesh();

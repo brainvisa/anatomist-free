@@ -122,8 +122,9 @@ namespace anatomist
     virtual const GLfloat* glTexCoordArray( const ViewState &, 
                                             unsigned ) const;
     virtual bool hasTexture() const { return true; }
-    virtual const GLComponent* glTexture( unsigned tex = 0 ) const;
-    virtual GLComponent* glTexture( unsigned tex = 0 );
+    virtual const GLComponent* glTexture( const ViewState & vs,
+                                          unsigned tex = 0 ) const;
+    virtual GLComponent* glTexture( const ViewState & vs, unsigned tex = 0 );
     virtual unsigned glNumTextures() const;
     virtual unsigned glNumTextures( const ViewState & ) const;
     virtual unsigned glDimTex( const ViewState & s, unsigned tex = 0 ) const;

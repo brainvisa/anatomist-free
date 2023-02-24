@@ -96,8 +96,9 @@ namespace anatomist
     const AObject* mesh() const;
     AObject* mesh();
     virtual const AObjectPalette* glPalette( unsigned ) const;
-    virtual const GLComponent* glTexture( unsigned ) const;
-    virtual GLComponent* glTexture( unsigned );
+    virtual const GLComponent* glTexture( const ViewState & vs,
+                                          unsigned ) const;
+    virtual GLComponent* glTexture( const ViewState & vs, unsigned );
 
     virtual carto::VolumeRef<AimsRGBA> glBuildTexImage(
       const ViewState & state, unsigned tex, int dimx = -1,

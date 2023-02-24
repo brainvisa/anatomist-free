@@ -178,14 +178,14 @@ Tree* AInterpoler::optionTree() const
 }
 
 
-GLComponent* AInterpoler::glGeometry()
+GLComponent* AInterpoler::glGeometry( const ViewState & )
 {
   iterator	i = begin();
   return (*i)->glAPI();
 }
 
 
-const GLComponent* AInterpoler::glGeometry() const
+const GLComponent* AInterpoler::glGeometry( const ViewState & vs ) const
 {
   iterator	i = begin();
   return (*i)->glAPI();
@@ -220,13 +220,13 @@ const GLComponent* AInterpoler::orgGeom() const
 }
 
 
-GLComponent* AInterpoler::glTexture()
+GLComponent* AInterpoler::glTexture( const ViewState & , unsigned )
 {
   return glAPI();
 }
 
 
-const GLComponent* AInterpoler::glTexture() const
+const GLComponent* AInterpoler::glTexture( const ViewState & , unsigned ) const
 {
   return glAPI();
 }
@@ -234,7 +234,7 @@ const GLComponent* AInterpoler::glTexture() const
 
 unsigned AInterpoler::glTexCoordSize( const ViewState & s, unsigned ) const
 {
-  return glGeometry()->glNumVertex( s );
+  return glGeometry( s )->glNumVertex( s );
 }
 
 
@@ -281,7 +281,7 @@ void AInterpoler::refreshTexCoordArray( const ViewState & state )
   vector<unsigned>		dim( ntex );
   vector<const GLfloat *>	orgTex( ntex );
   const GLComponent		*so = orgGeom();
-  const GLComponent		*sd = glGeometry();
+  const GLComponent		*sd = glGeometry( const ViewState & vs );
   const Point3df		*po __attribute__((unused)) 
     = (const Point3df *) so->glVertexArray( state );
   unsigned			n = sd->glNumVertex( state );
@@ -325,7 +325,7 @@ void AInterpoler::computeNeighbours( const ViewState & state )
   theAnatomist->setCursor( Anatomist::Working );
 
   const GLComponent		*s1 = orgGeom();
-  const GLComponent		*s2 = glGeometry();
+  const GLComponent		*s2 = glGeometry( state );
   const Point3df		*vert1 
     = (const Point3df *) s1->glVertexArray( state );
   const Point3df		*vert2 

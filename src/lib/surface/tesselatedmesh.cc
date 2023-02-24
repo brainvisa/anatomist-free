@@ -194,25 +194,26 @@ AObject* TesselatedMesh::firstPolygon()
 }
 
 
-GLComponent* TesselatedMesh::glGeometry()
+GLComponent* TesselatedMesh::glGeometry( const ViewState & )
 {
   return glAPI();
 }
 
 
-GLComponent* TesselatedMesh::glTexture( unsigned )
+GLComponent* TesselatedMesh::glTexture( const ViewState & , unsigned )
 {
   return tesselatedMesh()->glAPI();
 }
 
 
-const GLComponent* TesselatedMesh::glGeometry() const
+const GLComponent* TesselatedMesh::glGeometry( const ViewState & ) const
 {
   return glAPI();
 }
 
 
-const GLComponent* TesselatedMesh::glTexture( unsigned ) const
+const GLComponent* TesselatedMesh::glTexture( const ViewState & ,
+                                              unsigned ) const
 {
   return tesselatedMesh()->glAPI();
 }
@@ -274,7 +275,7 @@ Material & TesselatedMesh::GetMaterial()
 
 const Material & TesselatedMesh::material() const
 {
-  const GLComponent     *g = glGeometry();
+  const GLComponent     *g = glGeometry( ViewState() );
   if( g && g != this )
     return *g->glMaterial();
   else
