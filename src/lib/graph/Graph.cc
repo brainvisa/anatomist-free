@@ -1956,6 +1956,12 @@ bool AGraph::shouldRemoveChildrenWithMe() const
 }
 
 
+list<AObject *> AGraph::renderedSubObjects( const ViewState & ) const
+{
+  return list<AObject *>();
+}
+
+
 // compilation of some Volume classes on Aims types
 
 #include <cartodata/volume/volume_d.h>
