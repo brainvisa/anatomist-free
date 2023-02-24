@@ -94,6 +94,7 @@ namespace anatomist
     Graph* graph() const;
     void setGraph( carto::rc_ptr<Graph> );
 
+    virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const;
     virtual bool render( PrimList &, const ViewState & );
 
     virtual void setGeomExtrema();
