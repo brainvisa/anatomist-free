@@ -550,6 +550,8 @@ bool CutMesh::render( PrimList & prim, const ViewState & state )
   if( d->meshchanged )
     updateCut();
 
+  bool res = MObject::render( prim, state );
+/*
   iterator  io = begin(), eo = end();
   int       i = 0;
   if( d->hascutmesh )
@@ -566,10 +568,10 @@ bool CutMesh::render( PrimList & prim, const ViewState & state )
   for( ; i<d->otherplanarfusionindex; ++io, ++i ) {}
   for( ; i<d->otherplanarfusionindex + d->texindex - d->inplanarmeshindex;
        ++io, ++i )
-    (*io)->render( prim, state );
+    (*io)->render( prim, state );*/
 
   clearHasChangedFlags();
-  return true;
+  return res;
 }
 
 
@@ -995,6 +997,31 @@ void CutMesh::setProperties( Object options )
 {
   ObjectVector::setProperties( options );
   setSliceProperties( options );
+}
+
+
+list<AObject *> CutMesh::renderedSubObjects( const ViewState & ) const
+{
+  list<AObject *> children;
+  iterator  io = begin(), eo = end();
+  int       i = 0;
+  if( d->hascutmesh )
+  {
+    for( ; i<d->cutmeshindex; ++io, ++i ) {}
+    for( ; i<d->planarcutindex; ++io, ++i )
+      children.push_back( *io );
+  }
+  if( d->hasplane )
+  {
+    for( ; i<d->planarfusionindex; ++io, ++i ) {}
+    children.push_back( *io );
+  }
+  for( ; i<d->otherplanarfusionindex; ++io, ++i ) {}
+  for( ; i<d->otherplanarfusionindex + d->texindex - d->inplanarmeshindex;
+       ++io, ++i )
+    children.push_back( *io );
+
+  return children;
 }
 
 } // namespace anatomist

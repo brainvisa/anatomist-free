@@ -287,6 +287,8 @@ namespace anatomist
 
     /**@name	Graphics rendering inherited functions */
     //@{
+    /// lis of objects displayed in render() in a default implementation
+    virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const;
     virtual bool render( PrimList &, const ViewState & );
     virtual bool renderingIsObserverDependent() const;
     /// Can be display in 2D windows.

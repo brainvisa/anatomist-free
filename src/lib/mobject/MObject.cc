@@ -181,11 +181,15 @@ bool MObject::render( PrimList & prim, const ViewState & state )
 {
   bool retcode = false;
 
-  const_iterator i, j = end();
-  for( i=begin(); i!=j; ++i )
-    if( (*i)->Is2DObject()
-        && (*i)->render( prim, state ) )
-      retcode = true;
+  list<AObject *> rendered = renderedSubObjects( state );
+  list<AObject *>::const_iterator i, j = rendered.end();
+  for( i=rendered.begin(); i!=j; ++i )
+  {
+//     if( (*i)->Is2DObject()
+//         && (*i)->render( prim, state ) )
+//     retcode = true;
+    retcode |= (*i)->render( prim, state );
+  }
 
   return retcode;
 }
@@ -580,6 +584,16 @@ bool MObject::shouldRemoveChildrenWithMe() const
 
 
 list<AObject *> MObject::generativeChildren() const
+{
+  list<AObject *> children;
+  const_iterator i, e = end();
+  for( i=begin(); i!=e; ++i )
+    children.push_back( *i );
+  return children;
+}
+
+
+list<AObject *> MObject::renderedSubObjects( const ViewState & ) const
 {
   list<AObject *> children;
   const_iterator i, e = end();
