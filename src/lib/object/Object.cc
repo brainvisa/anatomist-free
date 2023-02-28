@@ -969,36 +969,40 @@ void AObject::setProperties( Object /*options*/ )
 
           // if labels are present, set the texture properties to labels mode,
           // using RGB interpolation, or volumeInterpolation to 0
-          if( dynamic_cast<SliceableObject *>( this ) )
+          if( cmap.get() && cmap->getSizeX() > 1 )
           {
-            // for volumes / sliceables, labels interpolation is disabled
-            // in value space
-            pao->attributed()->setProperty( "volumeInterpolation", 0 );
-          }
-          else
-          {
-            // for textures, on the contrary, use RGB interpolation
-            // (instead of colormap space interpolation)
-            try
+            if( dynamic_cast<SliceableObject *>( this ) )
             {
-              Object tprop = Object::value( carto::ObjectVector() );
+              // for volumes / sliceables, labels interpolation is disabled
+              // in value space
+              pao->attributed()->setProperty( "volumeInterpolation", 0 );
+            }
+            else
+            {
+              // for textures, on the contrary, use RGB interpolation
+              // (instead of colormap space interpolation)
               try
               {
-                tprop = pao->attributed()->getProperty( "texture_properties" );
+                Object tprop = Object::value( carto::ObjectVector() );
+                try
+                {
+                  tprop = pao->attributed()->getProperty( "texture_properties" );
+                }
+                catch( ... )
+                {
+                }
+                if( tprop->size() < 1 )
+                  tprop->insertArrayItem( 0, Object::value( Dictionary() ) );
+                Object t0prop = tprop->getArrayItem( 0 );
+                t0prop->setProperty( "interpolation", "rgb" );
+                pao->attributed()->setProperty( "texture_properties", tprop );
               }
               catch( ... )
               {
               }
-              if( tprop->size() < 1 )
-                tprop->insertArrayItem( 0, Object::value( Dictionary() ) );
-              Object t0prop = tprop->getArrayItem( 0 );
-              t0prop->setProperty( "interpolation", "rgb" );
-              pao->attributed()->setProperty( "texture_properties", tprop );
-            }
-            catch( ... )
-            {
             }
           }
+
           // texture properties
           if( g && g->glNumTextures() > 0 )
           {
