@@ -281,7 +281,7 @@ void AInterpoler::refreshTexCoordArray( const ViewState & state )
   vector<unsigned>		dim( ntex );
   vector<const GLfloat *>	orgTex( ntex );
   const GLComponent		*so = orgGeom();
-  const GLComponent		*sd = glGeometry( const ViewState & vs );
+  const GLComponent		*sd = glGeometry( state );
   const Point3df		*po __attribute__((unused)) 
     = (const Point3df *) so->glVertexArray( state );
   unsigned			n = sd->glNumVertex( state );
@@ -356,7 +356,7 @@ void AInterpoler::update( const Observable* observable, void* arg )
   if( ao )
     {
       const GLComponent	*c = ao->glAPI();
-      const GLComponent	*surf = glGeometry();
+      const GLComponent	*surf = glGeometry( ViewState() );
       if( c == surf )
         {
           // cout << "Interpoler geometry modified\n";
