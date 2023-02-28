@@ -37,6 +37,7 @@ from soma.qt_gui.qt_backend import QtCore, Qt
 from functools import partial
 import sip
 import json
+import uuid
 
 
 class GLTFCreateWindowNotifier(object):
@@ -53,6 +54,8 @@ class GLTFCreateWindowNotifier(object):
                 return
             scene_menu = menu.addMenu('Export')
             num = len(GLTFCreateWindowNotifier.actions)
+            ac2 = scene_menu.addAction('Impot GLTF scene...',
+                                       partial(self.import_gltf, num))
             ac = scene_menu.addAction('Export scene as GLTF file...',
                                       partial(self.export_gltf, num))
             GLTFCreateWindowNotifier.actions[num] = sip.unwrapinstance(win)
@@ -157,6 +160,119 @@ class GLTFCreateWindowNotifier(object):
             GLTFCreateWindowNotifier.aobject_to_gltf(obj, win, gltf)
 
         return gltf
+
+    @staticmethod
+    def import_gltf(num):
+        a = ana.Anatomist()
+        w = [w for n, w in GLTFCreateWindowNotifier.actions.items()
+             if n == num]
+        win = None
+        if len(w)!= 0:
+            w = w[0]
+            wins = [win for win in a.getWindows()
+                    if sip.unwrapinstance(win.internalRep) == w]
+            if wins:
+                win = wins[0]
+        if win is None:
+            return
+
+        filename = Qt.QFileDialog.getOpenFileName(
+            None, 'Import GLTF scene', '', '*.gltf')
+        if not filename:
+            return
+        filename = filename[0]
+        if not filename:
+            return
+        try:
+            with open(filename) as f:
+                gltf_d = json.load(f)
+            meshes = gltf_io.gltf_to_meshes(gltf_d,
+                                            object_parser=AnaGLTFParser())
+        except Exception as e:
+            print(e)
+            import traceback
+            traceback.print_exc()
+            raise
+        todo = meshes['objects']
+        objects = []
+        while todo:
+            obj = todo.pop(0)
+            if isinstance(obj, list):
+                todo += obj
+                continue
+            objects.append(obj)
+        win.addObjects(objects)
+
+
+class AnaGLTFParser(gltf_io.AimsGLTFParser):
+
+    def parse_object(self, mesh, name):
+        a = ana.Anatomist()
+        obj = super().parse_object(mesh, name)
+        amesh = a.toAObject(obj['mesh'])
+        anaobj = amesh
+        textures = obj.get('textures')
+        if textures:
+            atex = [a.toAObject(tex) for tex in textures]
+            for tex, a_tex in zip(textures, atex):
+                texinfo = tex.header().get('gltf_texture')
+                if texinfo:
+                    del tex.header()['gltf_texture']
+                    teximage = texinfo.get('teximage')
+                    if teximage is not None:
+                        tname = '%s-%s' % (a_tex.name, str(uuid.uuid4()))
+                        pal = ana.cpp.APalette(tname, teximage.shape[0],
+                                               teximage.shape[1])
+                        pal[:] = teximage.np
+                        a.palettes().push_back(pal)
+                        a_tex.setPalette(pal)
+            if len(atex) > 1:
+                atexture = a.fusionObjects(atex,
+                                          method='FusionMultiTextureMethod')
+            else:
+                atexture = atex[0]
+            anaobj = a.fusionObjects([amesh, atexture],
+                                     method='FusionTexSurfMethod')
+            a.takeObjectRef(anaobj)
+        if name is not None:
+            anaobj.setName(name)
+        return anaobj
+
+    def get_ana_referential(self, aimsref):
+        anaref = ana.cpp.Referential.referentialOfUUID(aimsref)
+        if anaref is None:
+            a = ana.Anatomist()
+            anaref = a.createReferential()
+            anaref.header()['uuid'] = aimsref
+        return anaref
+
+    def set_object_referential(self, obj, ref):
+        aimsref = self.get_aims_referential(ref)
+        anaref = self.get_ana_referential(aimsref)
+        for sobj in obj:
+            if hasattr(sobj, 'surface'):
+                sobj.setReferential(anaref)
+            else:
+                mesh = sobj.begin().next()
+                mesh.setReferential(anaref)
+                sobj.setReferentialInheritance(mesh)
+
+        return obj
+
+    def polish_result(self, mesh_dict):
+        a = ana.Anatomist()
+        mesh_dict = super().polish_result(mesh_dict)
+        trans = mesh_dict.get('transformation_graph', {})
+        refs = {}
+        for sr, tdef in trans.items():
+            s = self.get_ana_referential(sr)
+            for dr, tr in tdef.items():
+                d = self.get_ana_referential(dr)
+                vec = list(tr.affine()[:3, 3].ravel()) \
+                    + list(tr.affine()[:3, :3].ravel())
+                atr = a.createTransformation(vec, s, d)
+
+        return mesh_dict
 
 
 class GLTFIOModule(ana.cpp.Module):
