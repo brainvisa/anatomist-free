@@ -38,6 +38,10 @@ from functools import partial
 import sip
 import json
 import uuid
+try:
+    from pygltflib import GLTF2, BufferFormat, ImageFormat
+except ImportError:
+    GLTF2 = None  # no GLTF/GLB conversion support
 
 
 class GLTFCreateWindowNotifier(object):
@@ -62,15 +66,18 @@ class GLTFCreateWindowNotifier(object):
 
 
     @staticmethod
-    def aobject_to_gltf(obj, win, gltf={}):
+    def aobject_to_gltf(obj, win, gltf={}, tex_format='webp',
+                        images_as_buffers=True, single_buffer=True):
         vs = win.viewState().get()
 
         cppobj = getattr(obj, 'internalRep', obj)
         if obj.glAPI() is None:
             if isinstance(cppobj, ana.cpp.MObject):
                 for i, sobj in enumerate(cppobj.renderedSubObjects(vs)):
-                    GLTFCreateWindowNotifier.aobject_to_gltf(sobj, win,
-                                                             gltf=gltf)
+                    GLTFCreateWindowNotifier.aobject_to_gltf(
+                        sobj, win, gltf=gltfj, tex_format=tex_format,
+                        images_as_buffers=images_as_buffers,
+                        single_buffer=single_buffer)
             return gltf
 
         glapi = cppobj.glAPI()
@@ -109,7 +116,8 @@ class GLTFCreateWindowNotifier(object):
             name = name()
         gltf_io.add_object_to_gltf_dict(
             vert, norm, poly, material=mat, matrix=matrix, textures=textures,
-            teximages=teximages, name=name, gltf=gltf)
+            teximages=teximages, name=name, gltf=gltf, tex_format=tex_format,
+            images_as_buffers=images_as_buffers, single_buffer=single_buffer)
 
         return gltf
 
@@ -129,23 +137,35 @@ class GLTFCreateWindowNotifier(object):
             return
 
         filename = Qt.QFileDialog.getSaveFileName(
-            None, 'Export GLTF scene', '', '*.gltf')
+            None, 'Export GLTF scene', '', '*.gltf *.glb')
         if not filename:
             return
         filename = filename[0]
+        tex_format = 'png'
+        images_as_buffers = True
         if not filename:
             return
         try:
-            gltf_d = GLTFCreateWindowNotifier.win_gltf(win)
+            gltf_d = GLTFCreateWindowNotifier.win_gltf(
+                win, tex_format=tex_format,
+                images_as_buffers=images_as_buffers)
         except Exception as e:
             print(e)
             import traceback
             traceback.print_exc()
             raise
-        with open(filename, 'w') as f:
-            json.dump(gltf_d, f, indent=4)
+        if filename.endswith('.glb') and GLTF2 is not None:
+            gltf2 = GLTF2().from_dict(gltf_d)
+            gltf2.convert_images(ImageFormat.BUFFERVIEW)
+            gltf2.convert_buffers(BufferFormat.BINARYBLOB)
+            # TODO: compress textures using webp and meshes using Draco
+            gltf2.save(filename)
+            # gltf-transform optimize Couloirs.gltf Couloirs.glb --texture-compress webp
+        else:
+            with open(filename, 'w') as f:
+                json.dump(gltf_d, f, indent=4)
 
-    def win_gltf(win):
+    def win_gltf(win, tex_format='webp', images_as_buffers=True):
         matrix = None
         if not win.getReferential().isDirect():
             matrix = [
@@ -157,7 +177,11 @@ class GLTFCreateWindowNotifier(object):
         gltf = gltf_io.default_gltf_scene(matrix)
 
         for obj in win.objects:
-            GLTFCreateWindowNotifier.aobject_to_gltf(obj, win, gltf)
+            GLTFCreateWindowNotifier.aobject_to_gltf(
+                obj, win, gltf, tex_format=tex_format,
+                images_as_buffers=images_as_buffers)
+
+        gltf_io.gltf_encode_buffers(gltf)
 
         return gltf
 
@@ -177,15 +201,24 @@ class GLTFCreateWindowNotifier(object):
             return
 
         filename = Qt.QFileDialog.getOpenFileName(
-            None, 'Import GLTF scene', '', '*.gltf')
+            None, 'Import GLTF scene', '', '*.gltf *.glb')
         if not filename:
             return
         filename = filename[0]
         if not filename:
             return
-        try:
+
+        if GLTF2 is not None:
+            gltf_o = GLTF2().load(filename)
+            # convert buffers from GLB blobs or Draco compressed
+            gltf_o.convert_buffers(BufferFormat.DATAURI)
+            gltf_d = gltf_o.to_dict()
+            del gltf_o
+        else:
             with open(filename) as f:
                 gltf_d = json.load(f)
+
+        try:
             meshes = gltf_io.gltf_to_meshes(gltf_d,
                                             object_parser=AnaGLTFParser())
         except Exception as e:
