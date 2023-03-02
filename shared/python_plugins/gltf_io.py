@@ -66,8 +66,11 @@ class GLTFCreateWindowNotifier(object):
 
 
     @staticmethod
-    def aobject_to_gltf(obj, win, gltf={}, tex_format='webp',
+    def aobject_to_gltf(obj, win, gltf=None, tex_format='webp',
                         images_as_buffers=True, single_buffer=True):
+        if gltf is None:
+            gltf = {}
+
         vs = win.viewState().get()
 
         cppobj = getattr(obj, 'internalRep', obj)
