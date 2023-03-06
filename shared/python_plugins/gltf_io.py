@@ -78,7 +78,7 @@ class GLTFCreateWindowNotifier(object):
             if isinstance(cppobj, ana.cpp.MObject):
                 for i, sobj in enumerate(cppobj.renderedSubObjects(vs)):
                     GLTFCreateWindowNotifier.aobject_to_gltf(
-                        sobj, win, gltf=gltfj, tex_format=tex_format,
+                        sobj, win, gltf=gltf, tex_format=tex_format,
                         images_as_buffers=images_as_buffers,
                         single_buffer=single_buffer)
             return gltf
