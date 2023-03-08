@@ -157,16 +157,8 @@ class GLTFCreateWindowNotifier(object):
             import traceback
             traceback.print_exc()
             raise
-        if filename.endswith('.glb') and GLTF2 is not None:
-            gltf2 = GLTF2().from_dict(gltf_d)
-            gltf2.convert_images(ImageFormat.BUFFERVIEW)
-            gltf2.convert_buffers(BufferFormat.BINARYBLOB)
-            # TODO: compress textures using webp and meshes using Draco
-            gltf2.save(filename)
-            # gltf-transform optimize Couloirs.gltf Couloirs.glb --texture-compress webp
-        else:
-            with open(filename, 'w') as f:
-                json.dump(gltf_d, f, indent=4)
+
+        gltf_io.save_gltf(filename, use_draco=True)
 
     def win_gltf(win, tex_format='webp', images_as_buffers=True):
         matrix = None
