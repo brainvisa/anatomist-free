@@ -38,10 +38,6 @@ from functools import partial
 import sip
 import json
 import uuid
-try:
-    from pygltflib import GLTF2, BufferFormat, ImageFormat
-except ImportError:
-    GLTF2 = None  # no GLTF/GLB conversion support
 
 
 class GLTFCreateWindowNotifier(object):
@@ -203,24 +199,8 @@ class GLTFCreateWindowNotifier(object):
         if not filename:
             return
 
-        if GLTF2 is not None:
-            gltf_o = GLTF2().load(filename)
-            # convert buffers from GLB blobs or Draco compressed
-            gltf_o.convert_buffers(BufferFormat.DATAURI)
-            gltf_d = gltf_o.to_dict()
-            del gltf_o
-        else:
-            with open(filename) as f:
-                gltf_d = json.load(f)
+        meshes = gltf_io.load_gltf(filename, object_parser=AnaGLTFParser())
 
-        try:
-            meshes = gltf_io.gltf_to_meshes(gltf_d,
-                                            object_parser=AnaGLTFParser())
-        except Exception as e:
-            print(e)
-            import traceback
-            traceback.print_exc()
-            raise
         todo = meshes['objects']
         objects = []
         while todo:
