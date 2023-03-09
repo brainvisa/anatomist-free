@@ -154,7 +154,7 @@ class GLTFCreateWindowNotifier(object):
             traceback.print_exc()
             raise
 
-        gltf_io.save_gltf(filename, use_draco=True)
+        gltf_io.save_gltf(gltf_d, filename, use_draco=True)
 
     def win_gltf(win, tex_format='webp', images_as_buffers=True):
         matrix = None
@@ -199,16 +199,9 @@ class GLTFCreateWindowNotifier(object):
         if not filename:
             return
 
-        meshes = gltf_io.load_gltf(filename, object_parser=AnaGLTFParser())
+        reader = AnaGLTFReader()
+        objects = reader.load(filename, True, {})
 
-        todo = meshes['objects']
-        objects = []
-        while todo:
-            obj = todo.pop(0)
-            if isinstance(obj, list):
-                todo += obj
-                continue
-            objects.append(obj)
         win.addObjects(objects)
 
 
@@ -283,6 +276,50 @@ class AnaGLTFParser(gltf_io.AimsGLTFParser):
         return mesh_dict
 
 
+class AnaGLTFReader(ana.cpp.ObjectReader.LoadFunctionClass):
+
+    def load(self, filename, subobjects, options):
+        a = ana.Anatomist()
+        idle = a.theProcessor().execWhileIdle()
+        a.theProcessor().allowExecWhileIdle(True)
+        try:
+            meshes = gltf_io.load_gltf(filename, object_parser=AnaGLTFParser())
+
+            todo = meshes['objects']
+            objects = []
+            to_unreg = []
+            while todo:
+                obj = todo.pop(0)
+                if isinstance(obj, list):
+                    todo += obj
+                    continue
+                objects.append(obj)
+                # remove objects from main control window list
+                a.unregisterObject(obj)
+                obj.takeAppRef()
+                if isinstance(obj.getInternalRep(), ana.cpp.MObject):
+                    it = obj.begin()
+                    en = obj.end()
+                    while it != en:
+                      to_unreg.append(it.next())
+
+            while to_unreg:
+                obj = to_unreg.pop(0)
+                a.unregisterObject(obj)
+                a.takeObjectRef(obj)
+                if isinstance(obj, ana.cpp.MObject):
+                    it = obj.begin()
+                    en = obj.end()
+                    while it != en:
+                      to_unreg.append(it.next())
+
+            gobj = a.groupObjects(objects)
+
+            return [gobj.getInternalRep()]
+        finally:
+            a.theProcessor().allowExecWhileIdle(idle)
+
+
 class GLTFIOModule(ana.cpp.Module):
 
     def name(self):
@@ -294,6 +331,9 @@ class GLTFIOModule(ana.cpp.Module):
     def install_menus(self):
         a = ana.Anatomist()
         a.enableListening('CreateWindow', GLTFCreateWindowNotifier())
+        self.reader = AnaGLTFReader()
+        ana.cpp.ObjectReader.registerLoader('gltf', self.reader)
+        ana.cpp.ObjectReader.registerLoader('glb', self.reader)
 
 
 gltf_mod = GLTFIOModule()
