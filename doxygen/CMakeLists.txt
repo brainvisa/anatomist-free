@@ -3,7 +3,7 @@ IF ( DOXYGEN_FOUND )
 #   SET( DOXYFILE_HTML_HEADER "\"${CMAKE_CURRENT_SOURCE_DIR}/head_${component_name}.html\"" )
   set( _doxygenInput ${HEADERS} )
   set( DOXYFILE_PREDEFINED ${ANATOMIST_DEFINITIONS} ${AIMS-FREE_DEFINITIONS}
-    ${SOMA-IO_DEFINITIONS} CARTO_USE_BLITZ )
+    ${SOMA-IO_DEFINITIONS} )
   set(aims-free_version
     "${aims-free_VERSION_MAJOR}.${aims-free_VERSION_MINOR}")
   set(_somaio_version "${soma-io_VERSION_MAJOR}.${soma-io_VERSION_MINOR}")
