@@ -295,8 +295,8 @@ class AnaGLTFReader(ana.cpp.ObjectReader.LoadFunctionClass):
                     continue
                 objects.append(obj)
                 # remove objects from main control window list
-                a.unregisterObject(obj)
-                obj.takeAppRef()
+                #a.unregisterObject(obj)
+                #obj.takeAppRef()
                 if isinstance(obj.getInternalRep(), ana.cpp.MObject):
                     it = obj.begin()
                     en = obj.end()
@@ -305,8 +305,8 @@ class AnaGLTFReader(ana.cpp.ObjectReader.LoadFunctionClass):
 
             while to_unreg:
                 obj = to_unreg.pop(0)
-                a.unregisterObject(obj)
-                a.takeObjectRef(obj)
+                #a.unregisterObject(obj)
+                #a.takeObjectRef(obj)
                 if isinstance(obj, ana.cpp.MObject):
                     it = obj.begin()
                     en = obj.end()
