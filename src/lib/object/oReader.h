@@ -61,7 +61,7 @@ namespace anatomist
                                       PostRegisterList & subObjectsToRegister,
                                       carto::Object options );
 
-    class LoadFunctionClass
+    class LoadFunctionClass : public carto::RCObject
     {
     public:
       virtual ~LoadFunctionClass();
