@@ -109,6 +109,7 @@ struct PreferencesWindow::Private
 
 namespace
 {
+  using anatomist::Referential;
 
   void setRefColor( Referential* ref, QPushButton* pb )
   {

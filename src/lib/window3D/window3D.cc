@@ -225,6 +225,8 @@ struct AWindow3D::Private
 
 namespace
 {
+  using anatomist::Referential;
+
   Quaternion axialQuaternion(Referential* ref)
   {
     string ax;
@@ -459,6 +461,8 @@ AWindow3D::ObjectModifier::~ObjectModifier()
 
 namespace
 {
+
+  using anatomist::Referential;
 
   void paintRefLabel(QPushButton* reflabel, 
                      QLabel* refdirmark, const Referential* ref)
@@ -977,6 +981,8 @@ const string & AWindow3D::baseTitle() const
 
 namespace
 {
+
+  using anatomist::Referential;
 
   void printPositionAndValue(AObject* obj, const Referential* wref,
       const Point3df & wpos, const vector<float> & tpos, unsigned indent)
@@ -2364,10 +2370,10 @@ void AWindow3D::unregisterObject(AObject* o)
 
   removeFromAutoFusion2D( o );
 
-  Referential *r1 = getReferential();
+  anatomist::Referential *r1 = getReferential();
   if (r1)
   {
-    Referential *r2 = o->getReferential();
+    anatomist::Referential *r2 = o->getReferential();
     if (r2) ATransformSet::instance()->unregisterObserver(r1, r2, this);
   }
 
@@ -2398,10 +2404,10 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
 
   vector<float> bmin, bmax;
 
-  Referential *r1 = getReferential();
+  anatomist::Referential *r1 = getReferential();
   if (r1)
   {
-    Referential *r2 = o->getReferential();
+    anatomist::Referential *r2 = o->getReferential();
     if (r2) ATransformSet::instance()->registerObserver(r1, r2, this);
   }
 
@@ -2820,9 +2826,9 @@ void AWindow3D::updateWindowGeometry()
 Geometry AWindow3D::setupWindowGeometry(
     const list<carto::shared_ptr<AObject> > & objects, const Quaternion & slicequat,
 #if QT_VERSION >= 0x060000
-    const Referential *wref, QOpenGLWidget* glw, bool with3d )
+    const anatomist::Referential *wref, QOpenGLWidget* glw, bool with3d )
 #else
-    const Referential *wref, QGLWidget* glw, bool with3d )
+    const anatomist::Referential *wref, QGLWidget* glw, bool with3d )
 #endif
 {
   // cout << "setupWindowGeometry, objects: " << objects.size() << endl;
@@ -2833,7 +2839,7 @@ Geometry AWindow3D::setupWindowGeometry(
   Point3df p, dmin, dmax;
   vector<float> pmin, pmax, size, s2, vst, tmin, tmax;
   vector<int> dimMin(3, 0), dimMax(3, 1);
-  Referential *oref;
+  anatomist::Referential *oref;
   AObject *o;
   anatomist::Transformation *tr;
   Point3df u, v, w;
@@ -3126,7 +3132,7 @@ namespace
 
 
 void AWindow3D::setPosition( const Point3df& position,
-                             const Referential* orgref )
+                             const anatomist::Referential* orgref )
 {
   vector<float> pos( 3 );
   pos[0] = position[0];
@@ -3137,7 +3143,7 @@ void AWindow3D::setPosition( const Point3df& position,
 
 
 void AWindow3D::setPosition( const vector<float> & position,
-                             const Referential* orgref )
+                             const anatomist::Referential* orgref )
 {
   anatomist::Transformation *tra = 0;
   if( orgref )
@@ -3355,7 +3361,7 @@ void AWindow3D::syncViews(bool keepextrema)
   set<AWindow *>::const_iterator iw, fw = win.end();
   GLWidgetManager *da = d->draw, *da2;
   Point2df tr;
-  Referential *ref = getReferential();
+  anatomist::Referential *ref = getReferential();
 
   for (iw = win.begin(); iw != fw; ++iw)
   {
@@ -3424,7 +3430,7 @@ bool AWindow3D::boundingBox( vector<float> & bmin,
     AObject *obj;
     vector<float> pmin, pmax;
     Point3df ppmino, ppmaxo, ppmin, ppmax;
-    Referential *wref = getReferential(), *oref;
+    anatomist::Referential *wref = getReferential(), *oref;
     anatomist::Transformation *tr;
     unsigned j, n, m = 4;
 
@@ -4001,7 +4007,7 @@ void AWindow3D::update(const Observable* o, void* arg)
       << ") has changed ref in window " << Title() << " ("
       << this << ")\n";
 #endif
-      const Referential *r1 = getReferential(), *r2 = ao->previousReferential();
+      const anatomist::Referential *r1 = getReferential(), *r2 = ao->previousReferential();
       if (r1)
       {
         ATransformSet *ts = ATransformSet::instance();
@@ -4019,8 +4025,8 @@ void AWindow3D::update(const Observable* o, void* arg)
     {
       // try not trigger a full refresh if only local internal (hidden)
       // transformations are involved
-      const set<const Referential *> & refs = to->referentials();
-      set<const Referential *>::const_iterator ir, er = refs.end();
+      const set<const anatomist::Referential *> & refs = to->referentials();
+      set<const anatomist::Referential *>::const_iterator ir, er = refs.end();
       unsigned nothidden = 0;
       bool hidden;
       for (ir = refs.begin(); ir != er; ++ir)
@@ -4039,12 +4045,12 @@ void AWindow3D::update(const Observable* o, void* arg)
     AWindow::update(o, arg);
 }
 
-void AWindow3D::setReferential(Referential* ref)
+void AWindow3D::setReferential( anatomist::Referential* ref )
 {
   using carto::shared_ptr;
 
   ATransformSet *ts = ATransformSet::instance();
-  Referential *old = getReferential(), *r2;
+  anatomist::Referential *old = getReferential(), *r2;
   list<shared_ptr<AObject> >::iterator io, eo = _objects.end();
 
   if (old)

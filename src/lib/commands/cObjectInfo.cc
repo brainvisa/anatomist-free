@@ -102,6 +102,8 @@ bool ObjectInfoCommand::initSyntax()
 namespace
 {
 
+  using anatomist::Referential;
+
   void printObject( AObject* ao, Object ex, map<void *, int> & ptrs, 
                     Unserializer & unser, bool namechild, bool nameref )
   {

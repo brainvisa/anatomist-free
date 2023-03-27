@@ -43,6 +43,8 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
+namespace anatomist
+{
 
 OutputEvent::OutputEvent() : _allocateIDs( true )
 {
@@ -439,4 +441,5 @@ map<string, set<rc_ptr<EventHandler> > > &  EventHandler::_handlers()
   return h;
 }
 
+}
 

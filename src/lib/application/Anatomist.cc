@@ -121,6 +121,8 @@ using namespace std;
 
 Anatomist* theAnatomist = 0;
 
+namespace anatomist
+{
 
 string Anatomist::versionString()
 {
@@ -151,8 +153,6 @@ string Anatomist::libraryVersionString()
 }
 
 
-namespace anatomist
-{
   class StaticInitializers
   {
     public:
@@ -201,6 +201,9 @@ namespace
 
 }
 
+
+namespace anatomist
+{
 
 //	Private data structure
 
@@ -366,8 +369,7 @@ Anatomist::~Anatomist()
   while( !_privData->anaWin.empty() )
     delete _privData->anaWin.begin()->second.get();
 
-
-  anatomist::Cursor::cleanStatic();
+  ::anatomist::Cursor::cleanStatic();
 
   // cout << "deleting objects... " << _privData->anaObj.size() << endl;
   set<AObject *> objs;
@@ -414,6 +416,8 @@ Anatomist::~Anatomist()
   delete _privData;
   _privData = 0;
   theAnatomist = 0;
+}
+
 }
 
 
@@ -475,6 +479,9 @@ namespace
 
 }
 
+
+namespace anatomist
+{
 
 //	Inherited functions
 
@@ -1580,9 +1587,6 @@ bool Anatomist::destroying() const
 }
 
 
-namespace anatomist
-{
-
   namespace internal
   {
 
@@ -1593,8 +1597,6 @@ namespace anatomist
 
   }
 
-}
-
 
 void Anatomist::lockObjects( bool locked )
 {
@@ -1602,5 +1604,7 @@ void Anatomist::lockObjects( bool locked )
     _privData->objectsLock.lock();
   else
     _privData->objectsLock.unlock();
+}
+
 }
 

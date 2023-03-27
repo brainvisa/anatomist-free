@@ -68,6 +68,7 @@ using namespace std;
 namespace
 {
   using anatomist::Transformation;
+  using anatomist::Referential;
 
   inline double frand()
   {
@@ -636,7 +637,7 @@ void ReferentialMenu::referentialMenu( int x, int y, AObject *obj )
   RefMesh *rmesh = dynamic_cast<RefMesh *>( obj );
   if( rmesh )
   {
-    Referential *ref = rmesh->referential;
+    anatomist::Referential *ref = rmesh->referential;
     RefWindow *win = dynamic_cast<RefWindow *>( view()->aWindow() );
     if( win )
     {
@@ -1055,6 +1056,7 @@ void RefTransControl::eventAutoSubscription( ActionPool* pool )
 
 namespace
 {
+  using anatomist::Referential;
 
   vector<Point3df> *get_old_pos(
     const map<Referential *, rc_ptr<AObject> > & refs )
@@ -1091,6 +1093,9 @@ namespace
 }
 
 // ---
+
+namespace anatomist
+{
 
 RefWindow::RefWindow()
   : AWindow3D( AWindow3D::ThreeD, 0, _ref_win_options() ), _view_mode( Flat ),
@@ -1335,6 +1340,7 @@ QGraphicsScene* RefWindow::graphicsScene()
   return 0;
 }
 
+}
 
 namespace
 {
@@ -1352,6 +1358,9 @@ namespace
 
 }
 
+
+namespace anatomist
+{
 
 void RefWindow::selectReferential( AObject* mesh )
 {
@@ -1470,6 +1479,8 @@ void RefWindow::toggleInfo()
     enableToolTips( false );
   else
     enableToolTips( true );
+}
+
 }
 
 

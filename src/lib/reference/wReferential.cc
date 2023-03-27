@@ -81,6 +81,8 @@ using namespace std;
 namespace
 {
 
+  using anatomist::Referential;
+
   class RefToolTip
   {
   public:
@@ -417,14 +419,14 @@ void ReferentialWindow::refreshNow()
       || pdat->view2d->height() == 0 )
     return;
 
-  set<Referential *>	refs = theAnatomist->getReferentials();
+  set<anatomist::Referential *>	refs = theAnatomist->getReferentials();
   set<anatomist::Transformation *>	trans 
     = ATransformSet::instance()->allTransformations();
   unsigned		n = refs.size(), i;
-  set<Referential *>::const_iterator	ir, fr=refs.end(), jr;
+  set<anatomist::Referential *>::const_iterator	ir, fr=refs.end(), jr;
   set<anatomist::Transformation *>::const_iterator	it, ft=trans.end();
   AimsRGB		col;
-  Referential		*ref;
+  anatomist::Referential	*ref;
   anatomist::Transformation	*tr;
   unsigned		x, y, sz = 20;
   int			w = pdat->view2d->width(),
@@ -606,8 +608,8 @@ void ReferentialWindow::mouseReleaseEvent( QMouseEvent* ev )
 }
 
 
-void ReferentialWindow::addTransformationGui( Referential* source,
-                                              Referential* dest,
+void ReferentialWindow::addTransformationGui( anatomist::Referential* source,
+                                              anatomist::Referential* dest,
                                               bool identity, bool merge )
 {
   if( identity )
@@ -633,7 +635,7 @@ void ReferentialWindow::addTransformationGui( Referential* source,
   }
   else if( merge )
   {
-    if( Referential::mergeReferentials( source, dest ) )
+    if( anatomist::Referential::mergeReferentials( source, dest ) )
       refresh();
   }
   else
@@ -663,10 +665,12 @@ void ReferentialWindow::mouseMoveEvent( QMouseEvent* ev )
 }
 
 
-Referential* ReferentialWindow::refAt( const QPoint & pos, QPoint & newpos )
+anatomist::Referential* ReferentialWindow::refAt( const QPoint & pos,
+                                                  QPoint & newpos )
 {
-  map<Referential*, QPoint>::const_iterator	ir, fr = pdat->refpos.end();
-  Referential		*ref;
+  map<anatomist::Referential*, QPoint>::const_iterator
+    ir, fr = pdat->refpos.end();
+  anatomist::Referential	*ref;
   int			sz = 10;
   QPoint		rpos;
   QPoint                refpos = pdat->view2d->mapFromParent( pos );
@@ -762,7 +766,7 @@ vector<anatomist::Transformation*> ReferentialWindow::transformsAt(
 
 
 void ReferentialWindow::popupRefMenu( const QPoint & pos,
-                                      Referential* ref )
+                                      anatomist::Referential* ref )
 {
   pdat->srcref = ref;
   popupRefMenu( pos );
@@ -942,7 +946,7 @@ void ReferentialWindow::deleteTransformation( anatomist::Transformation* trans )
 
 void ReferentialWindow::clearUnusedReferentials()
 {
-  Referential::clearUnusedReferentials();
+  anatomist::Referential::clearUnusedReferentials();
   refresh();
 }
 
@@ -1097,7 +1101,7 @@ void ReferentialWindow::splitReferential()
     = ATransformSet::instance()->transformationsWith( pdat->srcref );
   set<anatomist::Transformation *>::iterator it, et = trs.end();
   anatomist::Transformation *tr;
-  Referential *sr, *dr;
+  anatomist::Referential *sr, *dr;
   set<AObject *>  o;
   set<AWindow *>  w;
   bool first = true;
@@ -1116,7 +1120,7 @@ void ReferentialWindow::splitReferential()
         AssignReferentialCommand      *com
           = new AssignReferentialCommand( 0, o, w, -1 );
         theProcessor->execute( com );
-        Referential *ref = com->ref();
+        anatomist::Referential *ref = com->ref();
         if( tr->source() == pdat->srcref )
         {
           sr = ref;
@@ -1222,7 +1226,7 @@ void ReferentialWindow::view3dDeleted()
 
 
 QString ReferentialWindow::referentialToolTipText(
-  Referential *ref, list<string> & temp_filenames )
+  anatomist::Referential *ref, list<string> & temp_filenames )
 {
   string  name;
   PythonHeader  ph = ref->header();
@@ -1377,14 +1381,14 @@ void ReferentialWindow::mergeReferentials( anatomist::Transformation* tr )
     cout << "transformation is not identity: cannot merge referentials\n";
     return;
   }
-  Referential::mergeReferentials( tr->source(), tr->destination() );
+  anatomist::Referential::mergeReferentials( tr->source(), tr->destination() );
   refresh();
 }
 
 
 void ReferentialWindow::mergeIdenticalReferentials()
 {
-  Referential::mergeIdenticalReferentials();
+  anatomist::Referential::mergeIdenticalReferentials();
 }
 
 

@@ -467,8 +467,8 @@ Point4df VectorField::getPlane( const ViewState & state ) const
   float d = -n.dot( st->position );
 
   // transform coordinates for plane if needed
-  const Referential *wref = st->winref;
-  const Referential *oref = getReferential();
+  const anatomist::Referential *wref = st->winref;
+  const anatomist::Referential *oref = getReferential();
   if( wref && oref )
   {
     const Transformation *tr
@@ -531,7 +531,7 @@ vector<float> VectorField::glMax2D() const
 
 
 //--------------------------------------------------------------
-const Referential * VectorField::getReferential() const
+const anatomist::Referential * VectorField::getReferential() const
 {
   return AObject::getReferential();
 }

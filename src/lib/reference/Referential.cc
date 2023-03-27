@@ -52,8 +52,11 @@ using namespace aims;
 using namespace carto;
 using namespace std;
 
+
 namespace
 {
+
+  using anatomist::Referential;
 
   void genuuid( PythonHeader & ph )
   {
@@ -81,6 +84,8 @@ namespace
 
 }
 
+namespace anatomist
+{
 
 //--- methods -----------------------------------------------------------------
 
@@ -802,10 +807,12 @@ void Referential::mergeIdenticalReferentials()
   }
 }
 
+}
+
 
 #include <cartobase/object/object_d.h>
-INSTANTIATE_GENERIC_OBJECT_TYPE( Referential * )
-INSTANTIATE_GENERIC_OBJECT_TYPE( set<Referential *> )
-INSTANTIATE_GENERIC_OBJECT_TYPE( vector<Referential *> )
-INSTANTIATE_GENERIC_OBJECT_TYPE( list<Referential *> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( anatomist::Referential * )
+INSTANTIATE_GENERIC_OBJECT_TYPE( set<anatomist::Referential *> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( vector<anatomist::Referential *> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( list<anatomist::Referential *> )
 

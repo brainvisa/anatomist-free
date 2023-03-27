@@ -72,6 +72,9 @@ using namespace carto;
 using namespace std;
 
 
+namespace anatomist
+{
+
 struct AObject::Private
 {
   enum TextureMode
@@ -1697,6 +1700,8 @@ AObject::Private::objectMenuRegistrers()
 {
   static MenuRegistrersMap reg;
   return reg;
+}
+
 }
 
 

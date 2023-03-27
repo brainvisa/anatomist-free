@@ -144,8 +144,8 @@ const GLfloat* Sliceable::glVertexArray( const ViewState & state ) const
 
   float			xm, ym;
   const Quaternion	& rot = *st->orientation;
-  const Referential     *ref = getReferential();
-  const Referential     *wref = st->winref;
+  const anatomist::Referential     *ref = getReferential();
+  const anatomist::Referential     *wref = st->winref;
   Transformation        *otrans = 0;
   if( ref && wref )
     otrans = theAnatomist->getTransformation( wref, ref );
@@ -784,11 +784,11 @@ void Sliceable::rgbaVolume( Volume<AimsRGBA> & vol,
       if( it1->isValid() && it2->isValid() )
       {
         AffineTransformation3d tr( it1->currentValue() );
-        Referential *nref = new Referential;
+        anatomist::Referential *nref = new anatomist::Referential;
 /*        nref->header().setProperty( "uuid",
           vol.header().getProperty( "referential" ) );*/
         Transformation *at = new Transformation( nref,
-          const_cast<Referential *>( getReferential() ) );
+          const_cast<anatomist::Referential *>( getReferential() ) );
         at->motion() = tr;
         at->registerTrans();
         svs.winref = nref;
@@ -909,7 +909,7 @@ vector<float> SliceableObject::glMax2D() const
 }
 
 
-const Referential* SliceableObject::getReferential() const
+const anatomist::Referential* SliceableObject::getReferential() const
 {
   return AObject::getReferential();
 }

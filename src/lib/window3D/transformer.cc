@@ -125,7 +125,8 @@ void TransformerActionData::selectTransformations( AWindow * win )
   const set<AObject *>                  & obj = is->second;
   set<AObject *>                        nobj, iobj, cobj;
   set<AObject *>::const_iterator        io, eo = obj.end();
-  Referential   *ref = 0, *cref = theAnatomist->centralReferential();
+  anatomist::Referential
+    *ref = 0, *cref = theAnatomist->centralReferential();
   Transformation                        *t;
 
   _trans.clear();
@@ -249,7 +250,7 @@ bool TransformerActionData::isMainTransDirect() const
 }
 
 
-Referential* TransformerActionData::mainSourceRef() const
+anatomist::Referential* TransformerActionData::mainSourceRef() const
 {
   if( !_maintrans )
     return 0;
@@ -260,7 +261,7 @@ Referential* TransformerActionData::mainSourceRef() const
 }
 
 
-Referential* TransformerActionData::mainDestRef() const
+anatomist::Referential* TransformerActionData::mainDestRef() const
 {
   if( !_maintrans )
     return 0;
@@ -610,10 +611,10 @@ void TransformerActionData::fromRefButtonClicked()
   set<AObject *> obj;
   ChooseReferentialWindow chref( obj, "Source referential" );
   chref.exec();
-  Referential *ref = chref.selectedReferential();
+  anatomist::Referential *ref = chref.selectedReferential();
   if( ref )
   {
-    Referential *dref = theAnatomist->centralReferential();
+    anatomist::Referential *dref = theAnatomist->centralReferential();
     if( _maintrans )
       dref = _maintrans->destination();
     Transformation *tr = theAnatomist->getTransformation( ref, dref );
@@ -631,10 +632,10 @@ void TransformerActionData::toRefButtonClicked()
   set<AObject *> obj;
   ChooseReferentialWindow chref( obj, "Destination referential" );
   chref.exec();
-  Referential *ref = chref.selectedReferential();
+  anatomist::Referential *ref = chref.selectedReferential();
   if( ref )
   {
-    Referential *sref = theAnatomist->centralReferential();
+    anatomist::Referential *sref = theAnatomist->centralReferential();
     if( _maintrans )
       sref = _maintrans->source();
     Transformation *tr = theAnatomist->getTransformation( sref, ref );
@@ -1433,7 +1434,7 @@ void Transformer::beginTrackball( int x, int y, int globalX, int globalY )
 
   Trackball::beginTrackball( x, y, globalX, globalY );
 
-  Referential *ref, *cref;
+  anatomist::Referential *ref, *cref;
   if( isMainTransDirect() )
   {
     ref = _maintrans->source();
@@ -1708,7 +1709,7 @@ void TranslaterAction::begin( int x, int y, int, int )
   if( !_maintrans )
     return;
 
-  Referential *ref, *cref;
+  anatomist::Referential *ref, *cref;
   if( isMainTransDirect() )
   {
     ref = _maintrans->source();

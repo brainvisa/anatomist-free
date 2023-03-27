@@ -56,6 +56,8 @@ using namespace std;
 
 Tree*	Fusion2D::_optionTree = 0;
 
+namespace anatomist
+{
 
 Fusion2D::Fusion2D( const vector<AObject *> & obj, bool dynamic )
   : ObjectVector(), Sliceable(), _dynamic( dynamic )
@@ -1007,5 +1009,7 @@ bool Fusion2D::isTransparent() const
     if( (*i)->palette() && (*i)->palette()->isTransparent() )
       return true;
   return false;
+}
+
 }
 
