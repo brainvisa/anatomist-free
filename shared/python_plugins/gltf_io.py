@@ -313,7 +313,10 @@ class AnaGLTFReader(ana.cpp.ObjectReader.LoadFunctionClass):
                     while it != en:
                       to_unreg.append(it.next())
 
-            gobj = a.groupObjects(objects)
+            if len(objects) > 1:
+                gobj = a.groupObjects(objects)
+            else:
+                gobj = objects[0]
 
             return [gobj.getInternalRep()]
         finally:
