@@ -319,7 +319,7 @@ void QAProfileWindow::initX()
   set< AObject * >::iterator it;
   Point3df      bmin, bmax, bmin2, bmax2;
   vector<float> bbmin, bbmax;
-  Referential *ref = getReferential();
+  anatomist::Referential *ref = getReferential();
 
   if ( !_sobjects.empty() )
   {
@@ -328,7 +328,7 @@ void QAProfileWindow::initX()
       (*it)->boundingBox( bbmin, bbmax );
       bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
       bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
-      Referential *oref = (*it)->getReferential();
+      anatomist::Referential *oref = (*it)->getReferential();
       Transformation *tra = theAnatomist->getTransformation( ref, oref );
       
       if( tra )
@@ -420,7 +420,7 @@ void QAProfileWindow::refreshNow()
   QAWindow::refreshNow();
 
   Point3df thePos;
-  Referential *ref = getReferential();
+  anatomist::Referential *ref = getReferential();
 
   Point4df incw;
   switch( pDir )
@@ -452,7 +452,7 @@ void QAProfileWindow::refreshNow()
 
   for ( it=_sobjects.begin(); it!=_sobjects.end(); ++it )
     {
-      Referential *oref = (*it)->getReferential();
+      anatomist::Referential *oref = (*it)->getReferential();
       Transformation *tra = theAnatomist->getTransformation( ref, oref );
       if( tra )
         thePos = tra->transform( pos0 );
