@@ -1,0 +1,19 @@
+attributes = {
+    'volume_dimension' : [ 255, 1, 1, 1 ],
+    'sizeX' : 255,
+    'sizeY' : 1,
+    'sizeZ' : 1,
+    'sizeT' : 1,
+    'palette_gradients' : '0.0;0.0;0.0;0.0;0.5;1.0;0.5;1.0;1.0;1.0;1.0;1.0#0.0;0.0;0.0;0.0;0.5;1.0;0.5;1.0;1.0;0.0;1.0;0.0#0.0;1.0;0.0;1.0;0.5;1.0;0.5;1.0;1.0;0.0;1.0;0.0#0.5;1',
+    'palette_gradients_mode' : 'RGBA',
+    'display_properties' : {
+        'centered' : 1,
+        'fusion' : 'W'
+      },
+    'voxel_size' : [ 1, 1, 1, 1 ],
+    'byte_swapping' : 0,
+    'ascii' : 0,
+    'format' : 'GIS',
+    'data_type' : 'RGBA',
+    'object_type' : 'Volume'
+  }

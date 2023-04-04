@@ -1,0 +1,17 @@
+attributes = {
+    'volume_dimension' : [ 256, 1, 1, 1 ],
+    'sizeX' : 256,
+    'sizeY' : 1,
+    'sizeZ' : 1,
+    'sizeT' : 1,
+    'display_properties' : {
+        'uniform' : 1,
+        'sequential' : 1
+      },
+    'voxel_size' : [ 1, 1, 1, 1 ],
+    'byte_swapping' : 0,
+    'ascii' : 0,
+    'format' : 'GIS',
+    'data_type' : 'RGBA',
+    'object_type' : 'Volume'
+  }
