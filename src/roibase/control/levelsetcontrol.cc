@@ -88,7 +88,7 @@ RoiLevelSetControl::eventAutoSubscription( ActionPool * actionPool )
   // rotation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::NoModifier,
+    ( Qt::MiddleButton, Qt::NoModifier,
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
                                     &Trackball::beginTrackball ),
       MouseActionLinkOf<Trackball>( actionPool->action( "Trackball" ),
@@ -117,7 +117,7 @@ RoiLevelSetControl::eventAutoSubscription( ActionPool * actionPool )
   // zoom
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ShiftModifier,
+    ( Qt::MiddleButton, Qt::ShiftModifier,
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
                                        &Zoom3DAction::beginZoom ),
       MouseActionLinkOf<Zoom3DAction>( actionPool->action( "Zoom3DAction" ),
@@ -144,7 +144,7 @@ RoiLevelSetControl::eventAutoSubscription( ActionPool * actionPool )
   //        translation
 
   mouseLongEventSubscribe
-    ( Qt::MidButton, Qt::ControlModifier,
+    ( Qt::MiddleButton, Qt::ControlModifier,
       MouseActionLinkOf<Translate3DAction>
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::beginTranslate ),

@@ -387,7 +387,7 @@ void TransformerActionData::resetTransform()
   if( !mainTransformation() )
     return;
 
-  transmitValidatedMotion(mainTransformation()->motion().inverse());
+  transmitValidatedMotion( *mainTransformation()->motion().inverse() );
   Transformation t( 0, 0 );
   setTransformData( t, true );
   Quaternion q( initialQuaternion() );

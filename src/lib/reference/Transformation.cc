@@ -122,7 +122,7 @@ void Transformation::invert()
 {
   bool	reg = ATransformSet::instance()->hasTransformation( this );
 
-  _motion = _motion.inverse();
+  _motion = *_motion.inverse();
 
   if( reg )
     ATransformSet::instance()->updateTransformation( this );
@@ -298,7 +298,7 @@ void Transformation::undo()
           _motionHistory.empty())
     return;
 
-  _motion = _motionHistory[_motionHistoryIndex].inverse() * _motion;
+  _motion = *_motionHistory[_motionHistoryIndex].inverse() * _motion;
   _motionHistoryIndex -= 1;
   notifyChange();
 }

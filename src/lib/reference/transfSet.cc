@@ -663,7 +663,7 @@ void ATransformSet::updateTransformation( Transformation *tr )
   Transformation *inv = transformation( r2, r1 );
   if( !inv )
     inv = new Transformation( r2, r1, true, true );
-  inv->motion() = tr->motion().inverse();
+  inv->motion() = *tr->motion().inverse();
   is = d->trans.find( r2 );
   id = is->second.find( r1 );
   if( id->second.obs.get() )
@@ -731,7 +731,7 @@ void ATransformSet::updateGeneratedConnections( Transformation *tr )
   }
 
   // other direction. need inverse of tr
-  aims::AffineTransformation3d inv = tr->motion().inverse();
+  unique_ptr<aims::AffineTransformation3d> inv = tr->motion().inverse();
 
   for( ir2=s2.begin(); ir2!=er2; ++ir2 )
   {
@@ -749,9 +749,9 @@ void ATransformSet::updateGeneratedConnections( Transformation *tr )
           to_second = transformation( r1, r );
           // combine to_first, tr^-1, and to_second
           if( to_second )
-            t->motion() = to_second->motion() * inv;
+            t->motion() = to_second->motion() * *inv;
           else
-            t->motion() = inv;
+            t->motion() = *inv;
           if( to_first )
             t->motion() *= to_first->motion();
           // notify change

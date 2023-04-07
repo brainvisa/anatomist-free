@@ -203,7 +203,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
       AffineTransformation3d p;
       if( view->invertedZ() )
         p.rotation()( 2, 2 ) = -1.;
-      r = ( p * r ).inverse();
+      r = *( p * r ).inverse();
       Point3df proj = r.transform( pos - offsetfrom );
 
       // align correct corner
@@ -255,7 +255,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     (mut apply the inverse rotation to it) */
     Point3df trans = pos - view->rotationCenter();
     AffineTransformation3d r \
-      = AffineTransformation3d( view->quaternion() ).inverse();
+      = *AffineTransformation3d( view->quaternion() ).inverse();
     AffineTransformation3d p;
     p.matrix()(0, 3) = trans[0];
     p.matrix()(1, 3) = trans[1];

@@ -868,7 +868,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
         try
         {
           Object stom = ps->getProperty( "storage_to_memory" );
-          Motion  m( stom ), mi = m.inverse();
+          Motion  m( stom ), mi = *m.inverse();
           Point3df vs = Point3df( (*io)->voxelSize() );
           Point3df vss
             = mi.transform( vs ) - mi.transform( Point3df( 0, 0, 0 ) );
