@@ -231,8 +231,11 @@ void RenderingWindow::removeObjectsShading()
   for( io=objects().begin(); io!=fo; ++io )
   {
     glc = (*io)->glAPI();
-    (*io)->GetMaterial().setRenderProperty( Material::UseShader, 0 );
-    glc->removeShader();
+    if( glc )
+    {
+      (*io)->GetMaterial().setRenderProperty( Material::UseShader, 0 );
+      glc->removeShader();
+    }
   }
   for( io=objects().begin(); io!=fo; ++io )
   {
@@ -315,36 +318,39 @@ void RenderingWindow::updateInterface()
 
     //shader
     GLComponent *glc = (*_parents.begin())->glAPI();
-    const Shader *shader = glc->getShader();
-    int mstate = _material.renderProperty( Material::UseShader );
-    bool state = ( ( Shader::isUsedByDefault() && mstate != 0 ) || mstate > 0 );
-    enable_shaders_checkBox->setChecked( state );
-    int lighting_model = _material.renderProperty( Material::RenderLighting );
-    if( lighting_model < 0 )
-      lighting_model = Material::BlinnPhongLighting;
-    lighting_model_buttonGroup->button(-lighting_model - 3)->setChecked(true);
-    int interpolation = _material.renderProperty(
-      Material::RenderSmoothShading );
-    if( interpolation < 0 )
-      interpolation = Material::GouraudShading;
-    interpolation_model_buttonGroup->button(
-      -interpolation - 3)->setChecked(true);
-    int coloring_model = _material.renderProperty(
-      Material::ShaderColorNormals );
-    if( coloring_model < 0 )
-      coloring_model = 0;
-    if( _material.renderProperty( Material::NormalIsDirection ) )
-      coloring_model = 2;
-    coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
-    if (shader)
-      _shader = *shader;
-    else
+    if( glc )
     {
-      _shader = Shader();
-      _shader.setModels( (Shader::LightingModel) lighting_model,
-                         (Shader::InterpolationModel) interpolation,
-                         (Shader::ColoringModel) coloring_model,
-                         Shader::DefaultMaterialModel );
+      const Shader *shader = glc->getShader();
+      int mstate = _material.renderProperty( Material::UseShader );
+      bool state = ( ( Shader::isUsedByDefault() && mstate != 0 ) || mstate > 0 );
+      enable_shaders_checkBox->setChecked( state );
+      int lighting_model = _material.renderProperty( Material::RenderLighting );
+      if( lighting_model < 0 )
+        lighting_model = Material::BlinnPhongLighting;
+      lighting_model_buttonGroup->button(-lighting_model - 3)->setChecked(true);
+      int interpolation = _material.renderProperty(
+        Material::RenderSmoothShading );
+      if( interpolation < 0 )
+        interpolation = Material::GouraudShading;
+      interpolation_model_buttonGroup->button(
+        -interpolation - 3)->setChecked(true);
+      int coloring_model = _material.renderProperty(
+        Material::ShaderColorNormals );
+      if( coloring_model < 0 )
+        coloring_model = 0;
+      if( _material.renderProperty( Material::NormalIsDirection ) )
+        coloring_model = 2;
+      coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
+      if (shader)
+        _shader = *shader;
+      else
+      {
+        _shader = Shader();
+        _shader.setModels( (Shader::LightingModel) lighting_model,
+                          (Shader::InterpolationModel) interpolation,
+                          (Shader::ColoringModel) coloring_model,
+                          Shader::DefaultMaterialModel );
+      }
     }
   }
 
