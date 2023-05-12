@@ -181,6 +181,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
   int			gen = -1;
   int			tex = 0;
   int			inter = -1;
+  int			vinter = -1;
   float			rate = -1;
   unsigned		i, n;
   vector<float>		genparam1, genparam2, genparam3;
@@ -225,6 +226,10 @@ Command* TexturingParamsCommand::read( const Tree & com,
   com.getProperty( "generation_params_1", genparam1 );
   com.getProperty( "generation_params_2", genparam2 );
   com.getProperty( "generation_params_3", genparam3 );
+  try
+  {
+    vinter = com.getProperty( "value_interpolation" )->getScalar();
+  } catch( ... ) {}
 
   static map<string, GLComponent::glTextureMode>	modes;
   static map<string, GLComponent::glTextureFiltering>	filters;
@@ -313,7 +318,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
     g3 = &genparam3[0];
 
   return new TexturingParamsCommand( obj, (unsigned) tex, mode, filt, gen, 
-                                     rate, inter, g1, g2, g3 );
+                                     rate, inter, g1, g2, g3, vinter );
 }
 
 
