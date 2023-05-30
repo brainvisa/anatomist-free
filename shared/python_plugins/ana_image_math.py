@@ -26,6 +26,7 @@ def get_resampled_volume(source, target, order, background, new_dim=None):
     resampler = getattr(aims,
                         'ResamplerFactory_%s' % tc)().getResampler(order)
     ref = asource.getReferential()
+    a = ana.Anatomist()
     tr = a.getTransformation(ref, atarget.referential)
     if tr:
         atr = tr.motion()
