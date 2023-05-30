@@ -23,7 +23,7 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
   include_directories( ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}
     ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS} )
   set( QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES}
-    ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES} )
+    ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
 elseif( DESIRED_QT_VERSION EQUAL 6 )
   find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets Network
                 Multimedia )
@@ -34,10 +34,12 @@ elseif( DESIRED_QT_VERSION EQUAL 6 )
                        ${Qt6OpenGL_INCLUDE_DIRS}
                        ${Qt6OpenGLWidgets_INCLUDE_DIRS}
                        ${Qt6Network_INCLUDE_DIRS}
-                       ${Qt6Multimedia_INCLUDE_DIRS} )
+                       ${Qt6Multimedia_INCLUDE_DIRS})
   set( QT_LIBRARIES Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Network
-                    Qt6::Multimedia )
+                    Qt6::Multimedia)
 endif()
+link_directories(${OPENGL_FIX_LIBRARY_DIRECTORIES})
+set(QT_LIBRARIES ${QT_LIBRARIES} ${OPENGL_FIX_LIBRARIES})
 # find_package( QtVersion REQUIRED )
 
 BRAINVISA_DEPENDENCY( RUN DEPENDS aims-free RUN "= ${aims-free_VERSION}" )
@@ -47,6 +49,8 @@ if( NOT APPLE )
   BRAINVISA_DEPENDENCY( RUN RECOMMENDS libglu1 RUN )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS libglu1 DEV )
 endif()
+
+link_directories(${OPENGL_LIBRARY_DIRECTORIES})
 
 if( DESIRED_QT_VERSION EQUAL 4 )
   BRAINVISA_DEPENDENCY( RUN DEPENDS libqtcore4 RUN ">= ${QT_VERSION}" )
