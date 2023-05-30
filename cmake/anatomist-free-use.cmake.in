@@ -31,6 +31,9 @@ elseif( DESIRED_QT_VERSION EQUAL 6 )
                     ${Qt6Network_LIBRARIES} ${Qt6Multimedia_LIBRARIES} )
 endif()
 
+link_directories(${OPENGL_FIX_LIBRARY_DIRECTORIES})
+set(QT_LIBRARIES ${QT_LIBRARIES} ${OPENGL_FIX_LIBRARIES})
+
 if( VTK_FOUND )
   include("${VTK_USE_FILE}")
 endif()
