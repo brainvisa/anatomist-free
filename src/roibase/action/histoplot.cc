@@ -42,7 +42,9 @@
 #include <anatomist/reference/Transformation.h>
 #include <graph/tree/tree.h>
 #include <qwt_plot.h>
+#if QWT_VERSION >= 0x060200
 #include <qwt_spline_curve_fitter.h>
+#endif
 #include <qspinbox.h>
 #include <qstring.h>
 #include <qfiledialog.h>
@@ -353,8 +355,10 @@ RoiHistoPlot::showImageHisto()
 #else
   imageHisto->setStyle( QwtPlotCurve::Spline );
 #endif
-#if QWT_VERSION >= 0x060000
+#if QWT_VERSION >= 0x060200
   imageHisto->setData( new QwtCPointerData<double>( x, y, myNbOfBins ) );
+#elif QWT_VERSION >= 0x060000
+  imageHisto->setData( new QwtCPointerData( x, y, myNbOfBins ) );
 #else
   imageHisto->setData( x, y, myNbOfBins ) ;
 #endif
@@ -473,8 +477,10 @@ RoiHistoPlot::showGraphHisto()
     }
     
     regionHisto->setStyle( QwtPlotCurve::Lines ) ;
-#if QWT_VERSION >= 0x060000
+#if QWT_VERSION >= 0x060200
     regionHisto->setData( new QwtCPointerData<double>( x, y, myNbOfBins ) );
+#elif QWT_VERSION >= 0x060000
+    regionHisto->setData( new QwtCPointerData( x, y, myNbOfBins ) );
 #else
     regionHisto->setData( x, y, myNbOfBins );
 #endif
