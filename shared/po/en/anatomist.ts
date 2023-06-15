@@ -2183,7 +2183,7 @@ In addition:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Radioligical convention (seen from bottom, L/R flipped)</source>
+        <source>Radiological convention (seen from bottom, L/R flipped)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
