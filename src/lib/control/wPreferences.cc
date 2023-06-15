@@ -402,7 +402,7 @@ PreferencesWindow::PreferencesWindow()
   QVBoxLayout *vlay3 = new QVBoxLayout( flipbx );
   QButtonGroup *flipg = new QButtonGroup( flipbx );
   flipg->setExclusive( true );
-  rb = new QRadioButton( tr( "Radioligical convention (seen from bottom, " 
+  rb = new QRadioButton( tr( "Radiological convention (seen from bottom, "
                              "L/R flipped)" ), flipbx );
   vlay3->addWidget( rb );
   flipg->addButton( rb, 0 );
