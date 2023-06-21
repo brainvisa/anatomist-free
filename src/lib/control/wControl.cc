@@ -129,6 +129,9 @@ struct ControlWindow::Private
     : fusionbtn(0), referencebtn(0), displayLogo( true ), winList( 0 ),
       objList( 0 ), defobjref( 0 ), defwinref( 0 ), updatemenutimer( 0 ),
       closeEnabled( true ), addAction( 0 )
+#ifdef ANA_WEBENGINE
+      , helpWebWidget( 0 )
+#endif
       {}
 
   QAction		*fusionbtn;
@@ -143,6 +146,9 @@ struct ControlWindow::Private
   QToolBar		*toolbar;
   bool                  closeEnabled;
   QAction               *addAction;
+#ifdef ANA_WEBENGINE
+  QWebEngineView        *helpWebWidget;
+#endif
 };
 
 
@@ -190,6 +196,11 @@ ControlWindow::~ControlWindow()
   bool quitapp = d->closeEnabled;
   if( _theControlWindow == this )
     _theControlWindow = 0;
+
+#ifdef ANA_WEBENGINE
+  delete d->helpWebWidget;
+  d->helpWebWidget = 0;
+#endif
 
   delete d->objList;
   delete d->winList;
@@ -1257,14 +1268,12 @@ void ControlWindow::help()
   string url = Settings::docPath() + s + "user_doc" + s + "index.html";
 
 #ifdef ANA_WEBENGINE
-  static QWebEngineView *webWidget = 0;
+  if( !d->helpWebWidget )
+    d->helpWebWidget = new QWebEngineView;
 
-  if( !webWidget )
-    webWidget = new QWebEngineView;
+  d->helpWebWidget->setUrl( QUrl( ( string("file://" ) + url ).c_str() ) );
 
-  webWidget->setUrl( QUrl( ( string("file://" ) + url ).c_str() ) );
-
-  webWidget->show();
+  d->helpWebWidget->show();
 #else
 
 #ifdef __APPLE__
