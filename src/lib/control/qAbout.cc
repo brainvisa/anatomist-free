@@ -353,12 +353,18 @@ QAbout::QAbout( QWidget* parent, const char* name )
   d->tempfile = temporaryMusicFileName().toStdString();
   cout << "musicFile:" << d->musicfile << endl;
 
-#if /* defined( linux ) || */ defined( ABOUT_NO_SOUND )
+#if ( defined( linux ) && QT_VERSION < 0x060000 ) || defined( ABOUT_NO_SOUND )
+  // in Qt5 linux, QMediaPlayer fails without setting a state saying it.
+  // We just get a message on stdout or stderr:
+  // "Warning: "Failed to connect: Connection refused"
+  // it possibly needs gstreamer installed, but it's an additional dependency
+  // and it's not documented anywhere.
   bool enableQSound = false;
 #else
   bool enableQSound = true;
 #endif
 
+  cout << "enableQSound: " << enableQSound << endl;
   if( enableQSound )
     {
       d->threadRunning = false;
@@ -376,8 +382,14 @@ QAbout::QAbout( QWidget* parent, const char* name )
       d->qmediaplayer->setMedia( QUrl::fromLocalFile( file.c_str() ) );
 #endif
       d->qmediaplayer->play();
+      if( d->qmediaplayer->error() != QMediaPlayer::NoError )
+      {
+        // never triggered, actually, even when it doesn't work.
+        cerr << "QMediaPlayer does not work.\n";
+        enableQSound = false;
+      }
     }
-  else
+  if( !enableQSound )
     {
 #if defined( ABOUT_NO_SOUND ) || defined( _WIN32 )
       d->threadRunning = false;
