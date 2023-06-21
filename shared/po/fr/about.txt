@@ -9,18 +9,18 @@ L'anatomiste artificiel
 qui permet de se
 balader dans votre cerveau
 
-comme si vous y étiez
+comme si vous y Ã©tiez
 
 
 
-Un chantier lancé en 1997 environ...
+Un chantier lancÃ© en 1997 environ...
 
 
 
 
 
 
-Anatomist a été fait par :
+Anatomist a Ã©tÃ© fait par :
 
 
 
@@ -29,7 +29,7 @@ Anatomist a été fait par :
 /bResponsable (et fautif) :
 
 
-Denis Rivière
+Denis RiviÃ¨re
 
 
 
@@ -38,14 +38,14 @@ Denis Rivière
 /bGrands Superviseurs :
 
 
-Jean-François Mangin
+Jean-FranÃ§ois Mangin
 Vincent Frouin
 
 
 
 
 
-/bGrand Génie (logiciel) et Nettoyeur :
+/bGrand GÃ©nie (logiciel) et Nettoyeur :
 
 
 Dimitri Papadopoulos-Orfanos
@@ -55,23 +55,23 @@ Dimitri Papadopoulos-Orfanos
 
 
 /bGrand Anatomiste
-/bque nous cherchons à répliquer :
+/bque nous cherchons Ã  rÃ©pliquer :
 
 
-Jean Régis
+Jean RÃ©gis
 
 
 
 
 
-/bMain d'oeuvre plus ou moins bon marché :
+/bMain d'oeuvre plus ou moins bon marchÃ© :
 
 
 Yann Cointepas
 Renaud Maroy
 Cyril Poupon
 Fabrice Poupon
-Cédric Clouchoux
+CÃ©dric Clouchoux
 Matthieu Perrot
 Dominique Geffroy
 Pauline Roca
@@ -93,11 +93,11 @@ Isabelle Denghien
 
 
 
-/bAutre testeuse très balèse
+/bAutre testeuse trÃ¨s balÃ¨se
 /bpour mettre le doigt sur nos bugs :
 
 
-Gwénaëlle Douaud
+GwÃ©naÃ«lle Douaud
 
 
 
@@ -106,7 +106,7 @@ Gwénaëlle Douaud
 /bAnciens contributeurs :
 
 
-Bernard Sécher
+Bernard SÃ©cher
 Olivier Pizzato
 
 
@@ -130,7 +130,7 @@ rendez-vous sur notre forum internet :
 
 
 ou au pire (pour les dons...),
-je suis joignable à :
+je suis joignable Ã  :
 
 
 /u/fdenis.riviere@cea.fr
@@ -151,8 +151,8 @@ lisant ce petit message, mais que voulez-vous ?...
 /iHum, la musique est nulle ?
 
 
-Oui c'est normal, je ne suis précisément pas musicien.
-Je suis ouvert à toute proposition pour la remplacer.
+Oui c'est normal, je ne suis prÃ©cisÃ©ment pas musicien.
+Je suis ouvert Ã  toute proposition pour la remplacer.
 
 
 
@@ -167,14 +167,14 @@ Je suis ouvert à toute proposition pour la remplacer.
 
 /iAh j'allais oublier:
 
-Il faut que je mentionne partout où c'est possible
+Il faut que je mentionne partout oÃ¹ c'est possible
 notre belle institution qui nous paie et nous nourrit.
 
-Anatomist a été développé au CEA,
+Anatomist a Ã©tÃ© dÃ©veloppÃ© au CEA,
 
-au Service Hospitalier Frédéric Joliot jusqu'en 2006
+au Service Hospitalier FrÃ©dÃ©ric Joliot jusqu'en 2006
 
-puis à NeuroSpin depuis 2007 où notre labo a déménagé.
+puis Ã  NeuroSpin depuis 2007 oÃ¹ notre labo a dÃ©mÃ©nagÃ©.
 
 
 Donc:
@@ -187,12 +187,12 @@ Anatomist est produit par
 du
 /bC.E.A.
 
-à Saclay (France)
+Ã  Saclay (France)
 
 
 
 /uNeuroSpin, CEA
-hein, c'est noté ?
+hein, c'est notÃ© ?
 
 
 
