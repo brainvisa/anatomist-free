@@ -204,7 +204,8 @@ namespace
       paint.fillRect( x, height()-n, w, n,
                       QBrush( palette().color( QPalette::Window ) ) );
       paint.drawText( x, height()+offset, w, h,
-                      Qt::AlignHCenter | Qt::AlignBottom, line );
+                      Qt::AlignHCenter | Qt::AlignBottom,
+                      QString::fromUtf8( line ) );
       delete[] line;
       paint.end();
 

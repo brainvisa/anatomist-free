@@ -1209,7 +1209,8 @@ void ControlWindow::enableFusionMenu( bool state )
 
 void ControlWindow::about()
 {
-  QAbout abw( theAnatomist->getQWidgetAncestor(), "About Anatomist" );
+  // QAbout abw( theAnatomist->getQWidgetAncestor(), "About Anatomist" );
+  QAbout abw( this, "About Anatomist" );
   abw.exec();
 }
 
