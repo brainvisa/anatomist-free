@@ -509,8 +509,13 @@ void Anatomist::initialize()
     delete QApplication::instance();
   }
   if( !QApplication::instance() )
+  {
+    // needed in WebEngine helps and other extensions in python
+    QCoreApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
+
     new QApplication( _privData->argc,
                       const_cast<char **>( _privData->argv ) );
+  }
   _privData->qWidgetAncestor = new QWidget;
 
   // palettes

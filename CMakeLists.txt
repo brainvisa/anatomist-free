@@ -18,25 +18,37 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
   find_package( Qt5OpenGL REQUIRED )
   find_package( Qt5Network REQUIRED )
   find_package( Qt5Multimedia )
+  find_package( Qt5WebEngineWidgets )
   add_definitions( ${Qt5Widgets_DEFINITIONS} ${Qt5OpenGL_DEFINITIONS}
-    ${Qt5Network_DEFINITIONS} ${Qt5Multimedia_DEFINITIONS} )
+    ${Qt5Network_DEFINITIONS} ${Qt5Multimedia_DEFINITIONS}
+    ${Qt5WebEngineWidgets_DEFINITIONS} )
   include_directories( ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}
-    ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS} )
+    ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS}
+    ${Qt5WebEngineWidgets_INCLUDE_DIRS} )
   set( QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES}
-    ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
+    ${Qt5Network_LIBRARIES} ${Qt5Multimedia_LIBRARIES}
+    ${Qt5WebEngineWidgets_LIBRARIES} )
+  if( Qt5WebEngineWidgets_LIBRARIES )
+    add_definitions( "-DANA_WEBENGINE=1" )
+  endif()
 elseif( DESIRED_QT_VERSION EQUAL 6 )
   find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets Network
-                Multimedia )
+                Multimedia WenbEngineWidgets )
   add_definitions( ${Qt6Core_DEFINITIONS} ${Qt6Widgets_DEFINITIONS}
                    ${Qt6OpenGL_DEFINITIONS} ${Qt6OpenGLWidgets_DEFINITIONS}
-                   ${Qt6Network_DEFINITIONS} ${Qt6Multimedia_DEFINITIONS})
+                   ${Qt6Network_DEFINITIONS} ${Qt6Multimedia_DEFINITIONS}
+                   ${Qt6WebEngineWidgets_DEFINITIONS})
   include_directories( ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS}
                        ${Qt6OpenGL_INCLUDE_DIRS}
                        ${Qt6OpenGLWidgets_INCLUDE_DIRS}
                        ${Qt6Network_INCLUDE_DIRS}
-                       ${Qt6Multimedia_INCLUDE_DIRS})
+                       ${Qt6Multimedia_INCLUDE_DIRS}
+                       ${Qt6WebEngineWidgets_INCLUDE_DIRS})
   set( QT_LIBRARIES Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Network
-                    Qt6::Multimedia)
+                    Qt6::Multimedia Qt6::WenbEngineWidgets)
+  if( Qt6WebEngineWidgets_INCLUDE_DIRS )
+    add_definitions( "-DANA_WEBENGINE=1" )
+  endif()
 endif()
 link_directories(${OPENGL_FIX_LIBRARY_DIRECTORIES})
 set(QT_LIBRARIES ${QT_LIBRARIES} ${OPENGL_FIX_LIBRARIES})

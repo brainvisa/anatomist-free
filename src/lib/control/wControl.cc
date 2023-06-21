@@ -98,6 +98,10 @@
 #include <stdio.h>
 #include <algorithm>
 
+#ifdef ANA_WEBENGINE
+#include <QWebEngineView>
+#endif
+
 #ifndef _WIN32
 #include <sys/types.h>	// for fork()
 #include <unistd.h>	// for fork() and exec()
@@ -1249,6 +1253,20 @@ namespace
 
 void ControlWindow::help()
 {
+  char	s = FileUtil::separator();
+  string url = Settings::docPath() + s + "user_doc" + s + "index.html";
+
+#ifdef ANA_WEBENGINE
+  static QWebEngineView *webWidget = 0;
+
+  if( !webWidget )
+    webWidget = new QWebEngineView;
+
+  webWidget->setUrl( QUrl( ( string("file://" ) + url ).c_str() ) );
+
+  webWidget->show();
+#else
+
 #ifdef __APPLE__
   string cmd = "/Applications/Safari.app/Contents/MacOS/" 
     "Safari %1";
@@ -1262,8 +1280,6 @@ void ControlWindow::help()
 
   theAnatomist->config()->getProperty( "html_browser", cmd );
 
-  char	s = FileUtil::separator();
-  string url = Settings::docPath() + s + "user_doc" + s + "index.html";
   /*
   string	lang;
   theAnatomist->config()->getProperty( "language", lang );
@@ -1368,6 +1384,7 @@ void ControlWindow::help()
          registered once by the parent process) */
       ::_exit( EXIT_FAILURE );
     }
+#endif
 #endif
 }
 
