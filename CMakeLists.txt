@@ -33,7 +33,7 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
   endif()
 elseif( DESIRED_QT_VERSION EQUAL 6 )
   find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets Network
-                Multimedia WenbEngineWidgets )
+                Multimedia WebEngineWidgets )
   add_definitions( ${Qt6Core_DEFINITIONS} ${Qt6Widgets_DEFINITIONS}
                    ${Qt6OpenGL_DEFINITIONS} ${Qt6OpenGLWidgets_DEFINITIONS}
                    ${Qt6Network_DEFINITIONS} ${Qt6Multimedia_DEFINITIONS}
@@ -45,7 +45,7 @@ elseif( DESIRED_QT_VERSION EQUAL 6 )
                        ${Qt6Multimedia_INCLUDE_DIRS}
                        ${Qt6WebEngineWidgets_INCLUDE_DIRS})
   set( QT_LIBRARIES Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Network
-                    Qt6::Multimedia Qt6::WenbEngineWidgets)
+                    Qt6::Multimedia Qt6::WebEngineWidgets)
   if( Qt6WebEngineWidgets_INCLUDE_DIRS )
     add_definitions( "-DANA_WEBENGINE=1" )
   endif()
