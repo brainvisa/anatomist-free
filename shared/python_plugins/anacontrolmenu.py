@@ -669,6 +669,7 @@ def loadpython():
 
 class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
 
+    @staticmethod
     def run(filename, options):
         print('run:', filename, 'with options:', options)
         try:
@@ -685,8 +686,7 @@ class PythonScriptRun(anatomist.ObjectReader.LoadFunctionClass):
             traceback.print_stack()
             sys.stderr.flush()
         a.theProcessor().allowExecWhileIdle(False)
-        return None
-    run = staticmethod(run)
+        return []
 
     def load(self, filename, subobjects, options):
         import threading
