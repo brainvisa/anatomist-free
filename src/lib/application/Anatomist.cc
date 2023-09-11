@@ -527,8 +527,10 @@ void Anatomist::initialize()
   // create the directory there.
   char linkname[1024];
   ssize_t ln = readlink( history_name.c_str(), linkname, 1024 );
-  if( ln > 0 && ln < 1024 )
+  if( ln > 0 && ln < 1024 ) {
+    linkname[ln] = '\0';
     history_name = linkname;
+  }
 
   Directory	dir( history_name );
   bool write_hist = true;
