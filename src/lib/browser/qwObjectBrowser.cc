@@ -2068,7 +2068,6 @@ void QObjectBrowser::setMode( unsigned mode )
 	s.receivingBrowser = 0;
       d->editMode = mode;
       d->modeWid->setText( modeString().c_str() );
-#if QT_VERSION >= 0x040000
       d->modeWid->setBackgroundRole( QPalette::Window );
       QPalette pal = d->modeWid->palette();
       if( d->editMode != 0 )
@@ -2078,19 +2077,13 @@ void QObjectBrowser::setMode( unsigned mode )
           d->statbar->palette().brush( QPalette::Window ) );
       d->modeWid->setPalette( pal );
       d->modeWid->update();
-#else
-      if( d->editMode != 0 )
-	d->modeWid->setBackgroundColor( QColor( 255, 192, 192 ) );
-      else
-	d->modeWid->setBackgroundColor( d->statbar->backgroundColor() );
-#endif
       if( mode & EDIT )
-	s.receivingBrowser = this;
+        s.receivingBrowser = this;
       if( !(mode & EDIT) && d->editor )
-	{
-	  delete d->editor;
-	  d->editor = 0;
-	}
+        {
+          delete d->editor;
+          d->editor = 0;
+        }
     }
 }
 
