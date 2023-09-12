@@ -409,14 +409,30 @@ void AttDescr::describeTree( QObjectBrowserWidget* br, const Tree* tr,
     item->setText( 2, name.c_str() );
   if( tr->getProperty( "label", name ) )
     item->setText( 3, name.c_str() );
-  vector<int> col;
-  if( tr->getProperty( "color", col ) && col.size() >= 3 )
+  Object col;
+  bool has_col = false;
+  try
   {
-    QColor rgb( col[0], col[1], col[2] );
-    QPixmap cpix = rgbPixmap( rgb );
-    item->setIcon( 0, cpix );
+    col = tr->getProperty( "color" );
+    if( col && col->size() >= 3 )
+    {
+      Object cit = col->objectIterator();
+      int r, g, b;
+      r = int( cit->currentValue()->getScalar() );
+      cit->next();
+      g = int( cit->currentValue()->getScalar() );
+      cit->next();
+      b = int( cit->currentValue()->getScalar() );
+      QColor rgb( r, g, b );
+      QPixmap cpix = rgbPixmap( rgb );
+      item->setIcon( 0, cpix );
+      has_col = true;
+    }
   }
-  else if( parent->parent() )
+  catch( ... )
+  {
+  }
+  if( !has_col && parent->parent() )
   {
     // propagate parent pixmap (color) except for the
     // top-level (AObject level) TODO: use a better test than top-level

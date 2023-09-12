@@ -2344,7 +2344,21 @@ bool QObjectBrowser::colorEditor( const set<GenericObject*> & objs,
     return 0;
   vector<int>	attval;
   GenericObject * ao = *objs.begin();
-  ao->getProperty( att, attval );
+  try
+  {
+    Object value;
+    value = ao->getProperty( att );
+    if( value && value->size() >= 3 )
+    {
+      attval.reserve( value->size() );
+      Object vit = value->objectIterator();
+      for( ; vit->isValid(); vit->next() )
+        attval.push_back( int( vit->currentValue()->getScalar() ) );
+    }
+  }
+  catch( ... )
+  {
+  }
   if( attval.size() != 3 )
   {
     if( attval.size() > 4 )
