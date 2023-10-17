@@ -37,13 +37,10 @@
    palettes related to the selected objects in selected windows.
 """
 
-from __future__ import absolute_import
-import sys
 import os
 import weakref
 import anatomist.direct.api as ana
 import anatomist.cpp as anatomist
-from soma import aims
 from six.moves import range
 from six.moves import zip
 
@@ -62,12 +59,9 @@ qt.QPoint = QtCore.QPoint
 qt.QSize = QtCore.QSize
 qt.QObject = QtCore.QObject
 from soma.qt_gui.qt_backend import FigureCanvas
-from matplotlib.figure import Figure
-import six
 
 
 def setObjectId(object):
-    import sip
     context = anatomist.CommandContext().defaultContext()
     context.mutex().lock()
     un = context.unserial.get()
@@ -79,7 +73,6 @@ def setObjectId(object):
 
 
 def getObjectId(object):
-    import sip
     context = anatomist.CommandContext().defaultContext()
     context.mutex().lock()
     un = context.unserial.get()
@@ -151,7 +144,7 @@ class MoveAObjectFromAWindowEventHandler(anatomist.EventHandler):
         # destroyed, thus, one obtains a Null pointer and then None
         # in python.
         qawin = anatomist.QAWindow.fromObject(win)
-        if qawin == None:
+        if qawin is None:
             return
         groupwidget = qawin.parent().children()[1]
         if groupwidget != self._groupwidget:
@@ -258,6 +251,7 @@ class PaletteWidget(MplCanvas):
         self.fig.set_canvas(None)
         return MplCanvas.close(self)
 
+
 cross_img_data = ["8 8 9 1", "# c #000000", "g c #f1f1f1", "f c #f3f3f3",
                   "e c #f4f4f4", "d c #f6f6f6", "c c #f8f8f8", "b c #f9f9f9",
                   "a c #fbfbfb", ". c #fdfdfd", ".#....#.", "###aa###", "b######b",
@@ -287,7 +281,7 @@ class ClosableWidget(qt.QWidget):
         saveButton.setText('Save')
         saveButton.setSizePolicy(qt.QSizePolicy.Fixed,
                                  qt.QSizePolicy.Fixed)
-        closeButton.setText('x')
+        #closeButton.setText('x')
         closeButton.setSizePolicy(qt.QSizePolicy.Fixed,
                                   qt.QSizePolicy.Fixed)
         closeButton.setFixedHeight(12)
@@ -465,7 +459,6 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
     def _togglePalettes(self, window, objects):
         topwidget = self._getOrCreateTopWidget(window)
         groupwidget = topwidget.findChild(qt.QWidget, 'paletteviewer_group')
-        layout = groupwidget.layout()
         for o in objects:
             if not o.palette():
                 continue  # do nothing on objects with no palette
@@ -478,44 +471,21 @@ class ShowHidePaletteCallback(anatomist.ObjectMenuCallback):
 
     @staticmethod
     def _getOrCreateTopWidget(window):
-        parent = window.parent()
-        layout = None
-        lay_pos = None
-        if parent is not None:
-            if parent.objectName() == 'paletteviewer_top':
-                return parent
-            layout = parent.layout()
-            if layout:
-                if isinstance(layout, qt.QGridLayout):
-                    nc = layout.columnCount()
-                    nr = layout.rowCount()
-                    for r in six.moves.xrange(nr):
-                        for c in six.moves.xrange(nc):
-                            if layout.itemAtPosition(r, c).widget() == window:
-                                lay_pos = (r, c)
-                                break
-                        if lay_pos is not None:
-                            break
-                else:  # std layout
-                    nitem = layout.count()
-                    for c in six.moves.xrange(nitem):
-                        if layout.itemAt(c).widget() == window:
-                            lay_pos = (c, )
-                            break
-        topwidget = topWidgetWindow(parent)
+        if not hasattr(window, 'centralWidget'):
+            # not a QMainWindow
+            return None
+
+        central = window.centralWidget()
+        if central is not None and central.objectName() == 'paletteviewer_top':
+            return central
+
+        if central is not None:
+            central.setParent(None)  # remove the widget without destroying it
+        topwidget = topWidgetWindow(None)
         topwidget.setObjectName('paletteviewer_top')
-        # if parent and parent.layout():
-            # parent.layout().removeWidget(window)
-        window.setParent(topwidget)
-        if parent and lay_pos is not None:
-            if len(lay_pos) == 2:
-                layout.addWidget(topwidget, lay_pos[0], lay_pos[1])
-            else:
-                if lay_pos[0] == 0:
-                    layout.addWidget(topwidget)
-                else:
-                    layout.insertWidget(lay_pos[0], topwidget)
-        topwidget.setWindowTitle(window.Title())
+        window.setCentralWidget(topwidget)
+        if central is not None:
+            topwidget.addWidget(central)
         groupwidget = GroupPaletteWidget(topwidget)
         groupwidget.setObjectName('paletteviewer_group')
         return topwidget
