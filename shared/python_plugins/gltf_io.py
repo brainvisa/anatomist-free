@@ -89,7 +89,8 @@ class GLTFCreateWindowNotifier(object):
                                  obj.getReferential())
         matrix = None
         if tr:
-            matrix = list(tr.affine().np.transpose().ravel())
+            matrix = list(tr.motion().affine().np.transpose().ravel().astype(
+                float))
 
         mat = glapi.glMaterial()
         if mat is not None:
@@ -126,7 +127,7 @@ class GLTFCreateWindowNotifier(object):
         w = [w for n, w in GLTFCreateWindowNotifier.actions.items()
              if n == num]
         win = None
-        if len(w)!= 0:
+        if len(w) != 0:
             w = w[0]
             wins = [win for win in a.getWindows()
                     if sip.unwrapinstance(win.internalRep) == w]
@@ -301,7 +302,7 @@ class AnaGLTFReader(ana.cpp.ObjectReader.LoadFunctionClass):
                     it = obj.begin()
                     en = obj.end()
                     while it != en:
-                      to_unreg.append(it.next())
+                        to_unreg.append(it.next())
 
             while to_unreg:
                 obj = to_unreg.pop(0)
@@ -311,7 +312,7 @@ class AnaGLTFReader(ana.cpp.ObjectReader.LoadFunctionClass):
                     it = obj.begin()
                     en = obj.end()
                     while it != en:
-                      to_unreg.append(it.next())
+                        to_unreg.append(it.next())
 
             if len(objects) > 1:
                 gobj = a.groupObjects(objects)
