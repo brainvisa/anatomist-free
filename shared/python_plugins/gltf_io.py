@@ -32,6 +32,7 @@
 # knowledge of the CeCILL-B license and that you accept its terms.
 
 import anatomist.direct.api as ana
+from soma import aims
 from soma.aims import gltf_io
 from soma.qt_gui.qt_backend import QtCore, Qt
 from functools import partial
@@ -67,7 +68,9 @@ class GLTFCreateWindowNotifier(object):
         if gltf is None:
             gltf = {}
 
-        vs = win.viewState().get()
+        is_slice = (obj.Is2DObject()
+                    and (win.viewType() != win.ThreeD or not obj.Is3DObject()))
+        vs = win.viewState(is_slice).get()
 
         cppobj = getattr(obj, 'internalRep', obj)
         if obj.glAPI() is None:
@@ -96,7 +99,6 @@ class GLTFCreateWindowNotifier(object):
         if mat is not None:
             mat = mat.genericDescription()
 
-        cmap = None
         textures = []
         teximages = []
         if glapi.glNumTextures(vs) != 0:
@@ -157,6 +159,7 @@ class GLTFCreateWindowNotifier(object):
 
         gltf_io.save_gltf(gltf_d, filename, use_draco=True)
 
+    @staticmethod
     def win_gltf(win, tex_format='webp', images_as_buffers=True):
         matrix = None
         if not win.getReferential().isDirect():
