@@ -4740,10 +4740,10 @@ void AWindow3D::saveSnapshotWithCustomSize()
 }
 
 
-rc_ptr<ViewState> AWindow3D::viewState()
+rc_ptr<ViewState> AWindow3D::viewState(bool slice)
 {
   rc_ptr<ViewState> vs;
-  if( d->viewtype == ThreeD )
+  if( d->viewtype == ThreeD && !slice )
   {
     vs.reset( new ViewState( _timepos, this,
                              ViewState::glSELECTRENDER_NONE ) );
