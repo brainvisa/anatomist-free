@@ -44,15 +44,6 @@ import soma.qt_gui.qt_backend.QtGui as qtgui
 import six
 from six.moves import range
 
-use_qstring = False
-try:
-    # test SIP and QString API
-    import sip
-    if sip.getapi('QString') < 2:
-        use_qstring = True
-except:
-    pass
-
 
 class GWManager(qt.QObject):
     gradwidgets = set()
@@ -158,7 +149,6 @@ class GradientPaletteWidget(qtgui.QWidget):
         qtgui.QWidget.closeEvent(self, event)
 
     def gradientChanged(self, s):
-        a = anatomist.Anatomist()
         paldim = 512
         pal = anatomist.APalette('CustomGradient', paldim)
         rgbp = self._gradw.fillGradient(paldim, True)
@@ -186,8 +176,6 @@ class GradientPaletteWidget(qtgui.QWidget):
                         aims.AimsRGBA(ord(rgb[i * 4 + 1]), ord(rgb[i * 4 + 2]),
                                       ord(rgb[i * 4 + 3]), ord(rgb[i * 4])), i)
         gradientString = self._gradw.getGradientString()
-        if use_qstring:
-            gradientString = gradientString.toLocal8Bit().data()
         pal.header()["palette_gradients"] = gradientString
         if self._gradw.isHsv():
             pal.header()["palette_gradients_mode"] = 'HSV'
@@ -259,12 +247,14 @@ class GradientPaletteWidget(qtgui.QWidget):
         if len(self._objects) > 0:
             obj = self._objects[0]
             pal = obj.getOrCreatePalette().refPalette()
+            # note: we convert the palette object to a AVolume, just to
+            # use Anatomist saveStatic() methods which presents the
+            # correct files filter in its file browser.
+            # This is a bit overkill.
             apal = anatomist.AObjectConverter.anatomist(pal)
             apal.setName(pal.name())
             a = anatomist.Anatomist()
             hp = a.anatomistHomePath()
-            if use_qstring:
-                hp = hp.toLocal8Bit().data()
             apal.setFileName(os.path.join(hp, 'rgb', pal.name()))
             anatomist.ObjectActions.saveStatic([apal])
             a = anatomist.Anatomist()
@@ -314,8 +304,6 @@ class GradientPaletteWidget(qtgui.QWidget):
         if res:
             pal = anatomist.APalette(pali.get())
             txt = t.text()
-            if use_qstring:
-                txt = txt.toLocal8Bit().data()
             pal.setName(txt)
             pall.push_back(pal)
 
@@ -393,9 +381,6 @@ def init():
     callbacks_list.append(r)
     anatomist.AObject.addObjectMenuRegistration(r)
     apath = anatomist.Anatomist().anatomistSharedPath()
-    import sip
-    if use_qstring:
-        apath = apath.toUtf8().data()
     icon = qtgui.QIcon(os.path.join(
                        apath, 'icons', 'meshPaint', 'palette.png'))
     ac = GradientPaletteExtensionAction(icon, 'gradient', None)
