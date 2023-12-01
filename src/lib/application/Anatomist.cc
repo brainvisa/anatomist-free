@@ -723,7 +723,7 @@ void Anatomist::updateFileDialogObjectsFilter()
   meshtypes.insert( "Segments" );
   _privData->specificFilters
     = string( ControlWindow::tr( "Volumes" ).toStdString() ) + " ("
-    + ObjectReader::supportedFileExtensions( "Volume" ) + ");;"
+    + ObjectReader::supportedFileExtensions( "CartoVolume" ) + ");;"
     + ControlWindow::tr( "DICOM" ).toStdString() + " (*);;"
     + ControlWindow::tr( "Surfacic meshes" ).toStdString() + " ("
     + ObjectReader::supportedFileExtensions( meshtypes ) + ");;"

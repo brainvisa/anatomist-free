@@ -348,7 +348,7 @@ namespace
     VolumeRef<T> vref;
     if( !loadData( vref, fname, f, ap.options ) )
     {
-      return( false );
+      return false;
     }
 //     if( vref->refVolume() && theAnatomist->userLevel() >= 3 )
 //     {
@@ -1572,7 +1572,9 @@ string ObjectReader::allSupportedFileExtensions()
   // anatomist-specific extensions
   set<string> exts = anatomistSupportedFileExtensionsSet();
   // aims extensions
-  set<string> aexts = supportedFileExtensionsSet( "Volume" );
+  set<string> aexts = supportedFileExtensionsSet( "CartoVolume" );
+  exts.insert( aexts.begin(), aexts.end() );
+  aexts = supportedFileExtensionsSet( "Volume" );
   exts.insert( aexts.begin(), aexts.end() );
   aexts = supportedFileExtensionsSet( "Mesh" );
   exts.insert( aexts.begin(), aexts.end() );
@@ -1690,6 +1692,11 @@ set<string> ObjectReader::supportedFileExtensionsSet(
 string ObjectReader::supportedFileExtensions( const string & objtype )
 {
   set<string> exts = supportedFileExtensionsSet( objtype );
+  if( objtype == "CartoVolume" )
+  {
+    set<string> vext = supportedFileExtensionsSet( "Volume" );
+    exts.insert( vext.begin(), vext.end() );
+  }
   string sexts;
   formatsString( exts, sexts );
   return sexts;
