@@ -353,6 +353,7 @@ public slots:
   */
   QImage snapshotImage( int width=0, int height=0, int bufmode=0 );
   virtual carto::rc_ptr<anatomist::ViewState> viewState(bool slice=false);
+  void saveObject();
 
   friend class anatomist::internal::AGraphicsView;
 

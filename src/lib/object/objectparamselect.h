@@ -107,6 +107,8 @@ public:
   const QListWidget* list() const;
   int objectsViewMode() const;
 
+  std::set<anatomist::AObject *> selected() const;
+
 public slots:
   void setObjectsViewMode( int );
 

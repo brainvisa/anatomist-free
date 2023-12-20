@@ -320,14 +320,14 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
     io, eo = d->obj.end(), no = d->sel.end();
   int	i = 0;
   for( io=d->sel.begin(); io!=no; ++io )
-    if( d->psel->filter( *io ) )
+    if( !d->psel || d->psel->filter( *io ) )
       {
         d->list->addItem( (*io)->name().c_str() );
         d->list->item( i )->setSelected( true );
         ++i;
       }
   for( io=d->obj.begin(); io!=eo; ++io )
-    if( d->psel->filter( *io ) && d->sel.find( *io ) == no )
+    if( ( !d->psel || d->psel->filter( *io ) ) && d->sel.find( *io ) == no )
       d->list->addItem( (*io)->name().c_str() );
 
   switch( x )
@@ -339,7 +339,8 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
           no2 = d->sel.end();
 
         for( io=o.begin(); io!=eo; ++io )
-          if( d->psel->filter( *io ) && d->obj.find( *io ) == no 
+          if( ( !d->psel || d->psel->filter( *io ) )
+              && d->obj.find( *io ) == no
               && d->sel.find( *io ) == no2 )
             d->list->addItem( (*io)->name().c_str() );
       }
@@ -351,7 +352,8 @@ void ObjectChooseDialog::setObjectsViewMode( int x )
           no2 = d->sel.end();
 
         for( io=o.begin(); io!=eo; ++io )
-          if( d->psel->filter( *io ) && d->obj.find( *io ) == no 
+          if( ( !d->psel || d->psel->filter( *io ) )
+              && d->obj.find( *io ) == no
               && d->sel.find( *io ) == no2 
               && ( (*io)->Visible() || (*io)->Parents().empty() ) )
             d->list->addItem( (*io)->name().c_str() );
@@ -373,4 +375,66 @@ int ObjectChooseDialog::objectsViewMode() const
 {
   return d->viewmode;
 }
+
+
+set<AObject *> ObjectChooseDialog::selected() const
+{
+  set<AObject *>			obj2;
+  set<AObject *>::const_iterator io, eo = d->sel.end(), eo2 = d->obj.end(),
+    eo3;
+  const QListWidget *lb = d->list;
+  int i, n = lb->count();
+
+  for( io=d->sel.begin(), i=0; i<n && io!=eo; ++io )
+    if( !d->psel || d->psel->filter( *io ) )
+      {
+        if( lb->item( i )->isSelected() )
+          obj2.insert( *io );
+        ++i;
+      }
+  for( io=d->obj.begin(); i<n && io!=eo2; ++io )
+    if( ( !d->psel || d->psel->filter( *io ) ) && d->sel.find( *io ) == eo )
+      {
+        if( lb->item( i )->isSelected() )
+          obj2.insert( *io );
+        ++i;
+      }
+  switch( d->viewmode )
+    {
+    case ObjectParamSelect::All:
+      {
+        set<AObject *>	o = theAnatomist->getObjects();
+        for( io=o.begin(), eo3=o.end(); i<n && io!=eo3; ++io )
+          if( ( !d->psel || d->psel->filter( *io ) )
+              && d->sel.find( *io ) == eo
+              && d->obj.find( *io ) == eo2 )
+            {
+              if( lb->item( i )->isSelected() )
+                obj2.insert( *io );
+              ++i;
+            }
+      }
+      break;
+    case ObjectParamSelect::TopLevel:
+      {
+        set<AObject *>	o = theAnatomist->getObjects();
+        for( io=o.begin(), eo3=o.end(); i<n && io!=eo3; ++io )
+          if( ( !d->psel || d->psel->filter( *io ) )
+              && d->sel.find( *io ) == eo
+              && d->obj.find( *io ) == eo2
+              && ( (*io)->Visible() || (*io)->Parents().empty() ) )
+            {
+              if( lb->item( i )->isSelected() )
+                obj2.insert( *io );
+              ++i;
+            }
+      }
+      break;
+    default:
+      break;
+    }
+
+  return obj2;
+}
+
 

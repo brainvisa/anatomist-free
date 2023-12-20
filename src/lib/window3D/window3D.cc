@@ -82,6 +82,7 @@
 #include <anatomist/mobject/Fusion2D.h>
 #include <anatomist/fusion/defFusionMethods.h>
 #include <aims/mesh/surfaceOperation.h>
+#include <anatomist/object/objectparamselect.h>
 #include <aims/resampling/quaternion.h>
 #include <qslider.h>
 #include <qglobal.h>
@@ -175,11 +176,13 @@ struct AWindow3D::Private
     QAViewToolTip *tooltip;
     AWindow3D::ViewType viewtype;
     QToolBar *mute;
+    QToolBar *save_tb;
     QAction *axialbt;
     QAction *coronalbt;
     QAction *sagittalbt;
     QAction *obliquebt;
     QAction *threedbt;
+    QAction *savebt;
     PrimList primitives;
     bool orientationCube;
     bool boundingFrame;
@@ -386,8 +389,9 @@ namespace
 AWindow3D::Private::Private() :
   draw(0), slidt(0), refbox(0), reflabel(0), refdirmark(0), timelabel(0),
       timepanel(0), slids(0), slicelabel(0), slicepanel(0), tooltip(0),
-      viewtype(AWindow3D::Oblique), mute(0), axialbt(0), coronalbt(0),
-      sagittalbt(0), obliquebt(0), orientationCube(false),
+      viewtype(AWindow3D::Oblique), mute(0), save_tb( 0 ), axialbt(0),
+      coronalbt(0), sagittalbt(0), obliquebt(0), threedbt( 0 ), savebt( 0 ),
+      orientationCube(false),
       boundingFrame(false), renderingMode(AWindow3D::Normal), tools(0),
       poview(0), lightview(0), light(new Light), slicequat(0, 0,
           0, 1), askedsize(0, 0), clipmode(AWindow3D::NoClip), clipdist(1),
@@ -838,6 +842,20 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     else
       d->threedbt = d->mute->addAction( tr("3D"), this, SLOT( mute3D() ) );
     d->threedbt->setToolTip( tr("Mute into 3D view") );
+
+    d->save_tb = insertToolBar( 1, Qt::TopToolBarArea, tr( "save" ),
+                                "save" );
+    d->save_tb->setIconSize( QSize( 20, 20 ) );
+
+    p = icons->getIconInstance("save");
+    if (p)
+      d->savebt = d->save_tb->addAction( *p, tr("Save"),
+        this, SLOT( saveObject() ) );
+    else
+      d->savebt = d->save_tb->addAction( tr("Save"),
+        this, SLOT( saveObject() ) );
+    d->savebt->setToolTip( tr(
+      "Save modified objects, in place (overwrite older files)") );
 
     d->axialbt->setCheckable(true);
     d->coronalbt->setCheckable(true);
@@ -4759,4 +4777,47 @@ rc_ptr<ViewState> AWindow3D::viewState(bool slice)
   return vs;
 }
 
+
+void AWindow3D::saveObject()
+{
+  // cout << "Save object\n";
+
+  list<carto::shared_ptr<AObject> >::iterator io, eo = _objects.end();
+  list<AObject *> tosave, toconfirm;
+
+  for( io=_objects.begin(); io!=eo; ++io )
+    if( (*io)->savable() && (*io)->userModified() )
+    {
+      if( !(*io)->allowsOverwriteOnSave() )
+        toconfirm.push_back( io->get() );
+      else
+        tosave.push_back( io->get() );
+    }
+
+  if( toconfirm.size() != 0 )
+  {
+    set<AObject *> seto( toconfirm.begin(), toconfirm.end() );
+    set<AObject *> sel( tosave.begin(), tosave.end() );
+    seto.insert( sel.begin(), sel.end() );
+    ObjectChooseDialog d( seto, sel, 0, this );
+    d.setObjectsViewMode( ObjectParamSelect::Initial );
+    d.setWindowTitle( d.tr( "Save and overwrite selected objects" ) );
+
+    if( d.exec() == QDialog::Accepted )
+    {
+      set<AObject *> sel = d.selected();
+      tosave.clear();
+      tosave.insert( tosave.end(), sel.begin(), sel.end() );
+    }
+    else
+      return;
+  }
+
+  cout << "saving: " << tosave.size() << endl;
+
+  list<AObject *>::iterator io1, eo1 = tosave.end();
+
+  for( io1=tosave.begin(); io1!=eo1; ++io1 )
+    (*io1)->save( (*io1)->fileName(), true );
+}
 

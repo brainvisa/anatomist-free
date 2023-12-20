@@ -440,5 +440,11 @@ void StdModule::controlsDeclaration()
       "icons/connectivitymatrix_ctrl.png" ).c_str() ) )
       IconDictionary::instance()->addIcon( "ConnectivityMatrixControl", p );
   }
+  {
+    QPixmap       p;
+    if( p.load( Settings::findResourceFile(
+                "icons/save.png" ).c_str() ) )
+      IconDictionary::instance()->addIcon( "save", p );
+  }
 
 }

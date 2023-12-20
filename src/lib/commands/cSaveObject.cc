@@ -98,6 +98,8 @@ SaveObjectCommand::doit()
       {
         obj->setFileName( fname );
         obj->setLoadDate( time( 0 ) );
+        obj->setAllowsOverwriteOnSave( true );
+        obj->setUserModified( false );
         return;
       }
     }

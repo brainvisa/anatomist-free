@@ -110,6 +110,7 @@ struct AObject::Private
   AObject           *inheritref;
   // bool             cycling;
   bool              userModified;
+  bool              allowsOverwriteOnSave;
 };
 
 std::map<std::string, rc_ptr<ObjectMenu> >	AObject::_objectmenu_map;
@@ -127,7 +128,7 @@ void AObject::cleanStatic()
 AObject::Private::Private() 
   : cleanupdone( false ), texturemode( Replace ), texturefilter( F_Nearest ), 
     oldref( 0 ), loaddate( time( 0 ) ), copy( false ), inheritref( 0 ),
-    userModified( false )
+    userModified( false ), allowsOverwriteOnSave( false )
 {
 }
 
@@ -135,7 +136,8 @@ AObject::Private::Private()
 AObject::Private::Private( const Private & x )
   : cleanupdone( false ), texturemode( x.texturemode ),
     texturefilter( x.texturefilter ),
-    oldref( 0 ), loaddate( x.loaddate ), inheritref( x.inheritref ), userModified( x.userModified )
+    oldref( 0 ), loaddate( x.loaddate ), inheritref( x.inheritref ), userModified( x.userModified ),
+    allowsOverwriteOnSave( x.allowsOverwriteOnSave )
     // cycling( x.cycling )
 {
 }
@@ -1683,13 +1685,28 @@ void AObject::setUserModified( bool state )
 }
 
 
+bool AObject::allowsOverwriteOnSave() const
+{
+  return d->allowsOverwriteOnSave;
+}
+
+
+void AObject::setAllowsOverwriteOnSave( bool x )
+{
+  d->allowsOverwriteOnSave = x;
+}
+
+
 bool AObject::save( const std::string & filename, bool onlyIfModified )
 {
   if( onlyIfModified && !userModified() )
     return true;
   bool res = save( filename );
   if( res )
+  {
     setUserModified( false );
+    setAllowsOverwriteOnSave( true );
+  }
   return res;
 }
 

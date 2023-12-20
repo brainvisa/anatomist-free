@@ -370,6 +370,8 @@ namespace anatomist
      */
     virtual std::string objectFullTypeName(void) const
     { return objectTypeName(_type); };
+    bool allowsOverwriteOnSave() const;
+    void setAllowsOverwriteOnSave( bool x );
     /** */
     bool save( const std::string & filename, bool onlyIfModified );
     /** */
