@@ -394,43 +394,29 @@ void SelectFactory::setSelectColor( const HColor & col )
 void SelectFactory::refresh() const
 {
   map<unsigned, set<AObject *> >::iterator	is, fs=_selected().end();
-  //unsigned				group;
   set<AObject *>::iterator		io, fo, io2;
-  bool					reset = false;
   set<AWindow *>::iterator		iw, fw=_winToRefresh().end();
 
   for( is=_selected().begin(); is!=fs; ++is )
-    {
-      //group = (*is).first;
-      set<AObject *> & so = (*is).second;
+  {
+    set<AObject *> & so = (*is).second;
 
-      reset = false;
-      for( io=so.begin(), fo=so.end(); io!=fo; ++io )
-	{
-	  if( reset )
-	    {
-	      io = so.begin();
-	      reset = false;
-	    }
-	  if( !theAnatomist->hasObject( *io ) )
-	    {
-	      // object no longer exists: delete it from list
-	      _highlightColors().erase( *io );
-	      if( io == so.begin() )
-		{
-		  so.erase( io );
-		  io = so.begin();
-		  reset = true;
-		}
-	      else
-		{
-		  io2 = io;
-		  --io;
-		  so.erase( io2 );
-		}
-	    }
-	}
+    reset = false;
+    for( io=so.begin(), fo=so.end(); io!=fo; )
+    {
+      if( !theAnatomist->hasObject( *io ) )
+      {
+        // object no longer exists: delete it from list
+        _highlightColors().erase( *io );
+
+        io2 = io;
+        ++io;
+        so.erase( io2 );
+      }
+      else
+        ++io;
     }
+  }
 
   //	now refresh windows
 
