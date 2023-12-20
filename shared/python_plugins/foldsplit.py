@@ -109,6 +109,7 @@ class SplitFoldAction(anatomist.Action):
                               'graph': g,
                               'vertex': vertex,
                               'tempobjects': [asplit]}
+            w.Refresh()
 
     def subdivize(self, x, y, globx, globy):
         self.cleanup()
@@ -376,6 +377,7 @@ class SplitFoldAction(anatomist.Action):
         spheres = data.get('tempobjects', [])
         spheres.append(asph)
         data['tempobjects'] = spheres
+        w.Refresh()
 
     def doSplit(self):
         if not hasattr(self, 'temporary'):
