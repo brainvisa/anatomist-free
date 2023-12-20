@@ -1894,6 +1894,7 @@ void AGraph::updateAfterAimsChange()
   clearLabelsVolume();
   _contentHasChanged = true;
   setChanged();
+  setUserModified( true );
 }
 
 
