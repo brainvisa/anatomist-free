@@ -401,7 +401,6 @@ void SelectFactory::refresh() const
   {
     set<AObject *> & so = (*is).second;
 
-    reset = false;
     for( io=so.begin(), fo=so.end(); io!=fo; )
     {
       if( !theAnatomist->hasObject( *io ) )
