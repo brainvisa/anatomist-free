@@ -398,6 +398,7 @@ protected:
   /// delete or modify the auto Fusion2D object when removing an object
   void removeFromAutoFusion2D( anatomist::AObject *obj );
   bool inAutoFusion( const anatomist::AObject *obj ) const;
+  void updateSaveButtonStatus();
 
   /// 3D windows static counter
   static std::set<unsigned> _count3d;

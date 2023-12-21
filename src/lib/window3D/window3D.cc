@@ -856,6 +856,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
         this, SLOT( saveObject() ) );
     d->savebt->setToolTip( tr(
       "Save modified objects, in place (overwrite older files)") );
+    d->savebt->setEnabled( false );
 
     d->axialbt->setCheckable(true);
     d->coronalbt->setCheckable(true);
@@ -4008,17 +4009,18 @@ void AWindow3D::unregisterObjectModifier(ObjectModifier *mod)
   if (i != e) d->objmodifiers.erase(i);
 }
 
-void AWindow3D::update(const Observable* o, void* arg)
+void AWindow3D::update( const Observable* o, void* arg )
 {
 #ifdef ANA_DEBUG_UPDATE
   cout << "AWindow3D::update()\n";
 #endif
   const AObject *ao = dynamic_cast<const AObject*> (o);
   bool temp = false;
-  if (ao)
+  if( ao )
   {
-    if (isTemporary(const_cast<AObject *> (ao))) temp = true;
-    if (ao->obsHasChanged(GLComponent::glREFERENTIAL))
+    if( isTemporary(const_cast<AObject *> (ao)) )
+      temp = true;
+    if( ao->obsHasChanged(GLComponent::glREFERENTIAL) )
     {
 #ifdef ANA_DEBUG_UPDATE
       cout << "object " << ao->name() << " (" << o
@@ -4034,6 +4036,7 @@ void AWindow3D::update(const Observable* o, void* arg)
         if (r2) ts->registerObserver(r1, r2, this);
       }
     }
+    updateSaveButtonStatus();
   }
   else
   {
@@ -4775,6 +4778,22 @@ rc_ptr<ViewState> AWindow3D::viewState(bool slice)
                           ViewState::glSELECTRENDER_NONE ) );
   }
   return vs;
+}
+
+
+void AWindow3D::updateSaveButtonStatus()
+{
+  list<carto::shared_ptr<AObject> >::iterator io, eo = _objects.end();
+  list<AObject *> tosave, toconfirm;
+  bool useful = false;
+
+  for( io=_objects.begin(); io!=eo; ++io )
+    if( (*io)->savable() && (*io)->userModified() )
+    {
+      useful = true;
+      break;
+    }
+  d->savebt->setEnabled( useful );
 }
 
 
