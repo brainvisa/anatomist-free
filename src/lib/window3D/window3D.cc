@@ -4808,6 +4808,16 @@ void AWindow3D::saveObject()
       set<AObject *> sel = d.selected();
       tosave.clear();
       tosave.insert( tosave.end(), sel.begin(), sel.end() );
+      if( !tosave.empty() )
+      {
+        if( QMessageBox::warning(
+            this, tr( "Confirm overwtite files" ),
+            tr( "The selected objects will be saved in their current file "
+                "names, overwriting the previous files." ),
+                QMessageBox::Ok | QMessageBox::Cancel )
+            != QMessageBox::Ok )
+          return;
+      }
     }
     else
       return;
