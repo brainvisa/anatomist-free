@@ -241,6 +241,7 @@ struct Anatomist::Anatomist_privateData
   QWidget* qWidgetAncestor;
   int argc;
   const char **argv;
+  bool exitOnQuit;
 };
 
 
@@ -252,7 +253,7 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 4, 0. ),
     lastref( 0 ), destroying( false ), objectsLock( Mutex::Recursive ),
-    qWidgetAncestor( 0 ), argc( 0 ), argv( 0 )
+    qWidgetAncestor( 0 ), argc( 0 ), argv( 0 ), exitOnQuit( false )
 {
 }
 
@@ -1611,6 +1612,18 @@ void Anatomist::lockObjects( bool locked )
     _privData->objectsLock.lock();
   else
     _privData->objectsLock.unlock();
+}
+
+
+bool Anatomist::exitOnQuit() const
+{
+  return _privData->exitOnQuit;
+}
+
+
+void Anatomist::setExitOnQuit( bool x )
+{
+  _privData->exitOnQuit = x;
 }
 
 }

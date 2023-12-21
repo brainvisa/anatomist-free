@@ -210,6 +210,9 @@ namespace anatomist
     void updateFileDialogObjectsFilter();
     /// lock / unlock the objects list mutex, used in threaded load operations
     void lockObjects( bool locked=true );
+    /// if true, closing the control window will abruptly exit the program.
+    bool exitOnQuit() const;
+    void setExitOnQuit( bool x );
 
   private:
     // friend ~ReferentialWindow would be enough but needs to include its .h

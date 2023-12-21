@@ -1413,7 +1413,8 @@ void ControlWindow::quit()
 {   
   cout << "Exiting QApplication"<<endl;
   qApp->quit();
-  //exit( EXIT_SUCCESS );
+//   if( theAnatomist->exitOnQuit() )
+    exit( EXIT_SUCCESS );
 }
 
 void ControlWindow::languageEnglish()
