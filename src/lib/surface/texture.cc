@@ -211,6 +211,14 @@ ObjectMenu* ATexture::optionMenu() const
 template <typename T>
 void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex, bool normalize_data )
 {
+  try
+  {
+    normalize_data = bool( tex->header().getProperty(
+      "allow_normalize_coords" )->getScalar() );
+  }
+  catch( ... )
+  {
+  }
   unsigned dim = texdim<T>();
   TexExtrema    & te = glTexExtrema();
   te.min.clear();

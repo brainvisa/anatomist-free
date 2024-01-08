@@ -1461,6 +1461,9 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
           glTexParameteri( textype, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
           glTexParameteri( textype, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
           glTexParameteri( textype, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE );
+//           glTexParameteri( textype, GL_TEXTURE_WRAP_S, GL_REPEAT );
+//           glTexParameteri( textype, GL_TEXTURE_WRAP_T, GL_REPEAT );
+//           glTexParameteri( textype, GL_TEXTURE_WRAP_R, GL_REPEAT );
           break;
         }
 
